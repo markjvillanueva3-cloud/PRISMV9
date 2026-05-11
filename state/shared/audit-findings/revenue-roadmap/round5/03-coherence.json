@@ -1,0 +1,133 @@
+{
+  "agent": 3,
+  "angle": "gemini-broad-coherence",
+  "round": 5,
+  "spec": "REVENUE-ROADMAP-v7.1.md",
+  "spec_lines": 2020,
+  "generated": "2026-05-10",
+  "verdict": "REVISE",
+  "summary": "v7.1 is internally legible (auto-merged from 10 section drafts) but exhibits systematic cross-milestone contradictions on controller scope, JM fleet realities, CAM tier-1 set, AI hierarchy, and a stale 35-vs-38 stage post pipeline number that build-vision flags as a still-open gap. MS-PILOT cites machines that do NOT exist in the JM Die fleet declared in MS-MASTERPOST, breaking the train/pilot grounding promise.",
+  "findings": [
+    {
+      "id": "R5A3-001",
+      "severity": "high",
+      "category": "cross-milestone-grounding-break",
+      "loc": "MS-PILOT L1903-1949 vs MS-MASTERPOST L1473-1479",
+      "issue": "MS-PILOT phases P2-P5 are scoped on Haas-TM-1P-2008, Mori-Seiki-SL-3-1998, Bridgeport-1985, Haas-VF-2-2015, Mazak-QT-200-2012, Doosan-DNM-4500-2018, Mazak-Integrex. NONE of these (except Haas VF-2) appear in the JM Die 15-machine fleet table in MS-MASTERPOST (which lists Okuma GENOS L300/L200E/LNC8/Crown L1060/L400II/LB 3000EX/Multus B250II, Okuma M460V-5AX, Hurco VM30i, Haas VF-2, Haas OM-2, Roku-Roku HC 658-II, Mitsubishi EA12S/EA12D/FA10S). MS-PILOT is validating on a phantom fleet."
+    },
+    {
+      "id": "R5A3-002",
+      "severity": "high",
+      "category": "train-pilot-divergence",
+      "loc": "MS-TRAIN L1675-1680 vs MS-PILOT L1920 vs MS-MASTERPOST L1489-1493",
+      "issue": "MS-TRAIN trains on 6 controllers (Hurco WinMAX / Okuma OSP family / Mitsubishi W31MV-2 wire EDM / Haas PRE-NGC / Fanuc 31i-B5 / Mitsubishi FP80S+C30EA-2 sinker). MS-PILOT acceptance asserts byte-equivalence on 'Haas NGC, Fanuc 31i, Mazatrol Smooth G, OSP-P300' — Mazatrol is NOT in the MS-TRAIN training set and is explicitly listed P2/Post-MVP in MS-MASTERPOST priority table. PILOT therefore gates on a controller TRAIN never trained."
+    },
+    {
+      "id": "R5A3-003",
+      "severity": "high",
+      "category": "controller-order-vs-archive",
+      "loc": "MS-MASTERPOST L1489-1496 vs build-vision JM-fleet doctrine",
+      "issue": "Controller priority order Hurco→Haas PRE-NGC→Fanuc 31i-B5→Okuma harden→Mitsubishi sinker is plausible against the 21-machine ShopConfig BUT contradicts CLAUDE-BRIEF.md which calls Okuma B250IIW the 'flagship' (4/5 OSP support, 75% OSP-P300SA dialect, missing $1/$2 channels). Roku-Roku HC 658-II uses Fanuc 31i-B5 (per L1477) which is row #3 in priority, yet Roku-Roku is never named anywhere as a beneficiary — orphan machine."
+    },
+    {
+      "id": "R5A3-004",
+      "severity": "high",
+      "category": "build-vision-misalignment",
+      "loc": "MS-MASTERPOST L1455 + build-vision §master_post gaps",
+      "issue": "Build-vision lists 4 open Master Post gaps: lead-in/out stub, build-quality-aware feed ceiling stub, 35-vs-38-stage pipeline number conflict, no E2E test for per-block adaptive S/F. v7.1 MS-MASTERPOST acceptance does NOT require resolving any of these. The 35/38 stage conflict, the per-block adaptive S/F E2E test, and the lead-in/out unit are absent from the 40 MP units. v7.1 ships Master Post 'productization' while leaving its top differentiator (per-block adaptive S/F per build-vision L75) unverified."
+    },
+    {
+      "id": "R5A3-005",
+      "severity": "high",
+      "category": "cam-tier1-scope-drift",
+      "loc": "MS-MASTERPOST L1441,1516-1520 vs build-vision §cam_bridges",
+      "issue": "Build-vision declares SIX tier-1 CAM bridges: Fusion360, hyperMILL, Mastercam, Esprit, Inventor HSM, SolidWorks. v7.1 MS-MASTERPOST parser unit list covers Fusion (P0), Mastercam (P1), hyperMILL (P1), Esprit/SolidCAM (P2 — and SolidCAM is NOT a tier-1 bridge, it is tier-2 per CLAUDE-BRIEF), Inventor HSM (absent from parser list, only mentioned in narrative L1441), SolidWorks (absent). Two of six tier-1 CAMs have NO parser unit. SolidCAM has been silently smuggled into tier-1."
+    },
+    {
+      "id": "R5A3-006",
+      "severity": "medium",
+      "category": "naming-inconsistency",
+      "loc": "L1475 (Multus B250II) vs L614 (B250IIW) vs build-vision L207/216 (B250IIW / next-action #19)",
+      "issue": "MS-MASTERPOST L1475 names the flagship 'Multus B250II' (without W suffix); MS2 U-INV-LATHE-04 L614 uses 'B250IIW'. Build-vision §jm_fleet doctrine explicitly mandates the rename to B250IIW because filesystem header confirms the 'W' (sub-spindle variant). v7.1 has not propagated the rename — re-introduces the legacy name in the launch-beachhead table."
+    },
+    {
+      "id": "R5A3-007",
+      "severity": "medium",
+      "category": "internal-arithmetic-drift",
+      "loc": "MS0 v2 L33 vs L165",
+      "issue": "Header claims '37 customer pages + 9 backend-prereq + 4 stub-remediation + 5 net-new engine + 5 hoist-wiring + 1 billing-concurrency = 61 units total'. Reconciliation line L165 says '6 SFC + 5 mill + 5 lathe + 7 WEDM + 4 quality + 7 ADMIN + 3 learn = 37 customer pages. Plus 18 backend prereq + hoist + remediation units = 61 total'. The header partitions 9+4+5+5+1=24 backend; the recon partitions 18. Both cannot be correct against a single 61 total — 24 backend leaves 37 customer (consistent), 18 backend leaves 43 customer (inconsistent with the same line's own '37'). Off-by-6 in the canonical count."
+    },
+    {
+      "id": "R5A3-008",
+      "severity": "medium",
+      "category": "missing-tier1-cam-build",
+      "loc": "MS-MASTERPOST §5 parser table L1516-1520",
+      "issue": "Inventor HSM has no parser unit despite being tier-1 saleable (build-vision §cam_bridges). The narrative L1441 lists it among supported uploads. Either drop it from supported uploads or add a U-REV-MP-XX Inventor HSM parser unit. Same for SolidWorks CAM."
+    },
+    {
+      "id": "R5A3-009",
+      "severity": "medium",
+      "category": "ms-train-gap-not-funded",
+      "loc": "MS-TRAIN L1678-1680",
+      "issue": "Three controllers marked 'MISSING — build in MS-TRAIN' (Haas PRE-NGC P1, Fanuc 31i-B5 P0-external, Mitsubishi sinker P1) but the MS-MASTERPOST 4-week MVP critical path (L1591) does NOT depend on these engines, and they are not enumerated as U-TRAIN-XX build units in §8 L1803. The 'build in MS-TRAIN' promise has no unit referent."
+    },
+    {
+      "id": "R5A3-010",
+      "severity": "medium",
+      "category": "ai-hierarchy-absent",
+      "loc": "v7.1 spec-wide vs build-vision §ai_hierarchy",
+      "issue": "Build-vision flags a NAMED canonical Tier-2 coordinator gap (4 fragmented candidates: PRISMUnifiedOrchestrator, AISystemRouter, MetaAIOrchestration, AIIntelligenceMaximizer; next-action #9 builds PRISMSystemCoordinatorEngine). v7.1 contains no unit building this canonical coordinator. With 16 of 17 Tier-3 AIs lacking working feedback loops (per brief), shipping subscription tiers (MS1) and live pilot (MS-PILOT) without the Tier-2 supervision contract is a coherence break — system can sell premium 'fit' tiers it cannot calibrate."
+    },
+    {
+      "id": "R5A3-011",
+      "severity": "medium",
+      "category": "lora-vs-disk-reality",
+      "loc": "MS-TRAIN L1661,1688 vs CLAUDE-BRIEF L97",
+      "issue": "MS-TRAIN designs lathe_lora rank-8, okuma_operator_lora rank-4, mitsubishi_sinker_lora rank-4 trained on JM Die archive. CLAUDE-BRIEF observes '0 .safetensors / .pt / .gguf adapters anywhere on disk despite 80 LoRA support engines referencing them'. v7.1 does NOT include a unit to produce the FIRST adapter file on disk before designing the cadence — the cadence layer is grafted onto scaffolding the brief calls textbook-scaffold-without-loop."
+    },
+    {
+      "id": "R5A3-012",
+      "severity": "low",
+      "category": "frontend-merge-doctrine",
+      "loc": "MS0 v2 L55,L85,L86 (cad-viewer / cqask merges)",
+      "issue": "Merges of mcp-cadquery frontend (CadViewer3DPage) and cqask/ui (NL→CadQueryPage) are required for revenue surfaces but no merge plan / port collision strategy / React version alignment is referenced. CLAUDE-BRIEF cites '2 frontend merges pending'. v7.1 builds on top of unresolved merges."
+    },
+    {
+      "id": "R5A3-013",
+      "severity": "low",
+      "category": "anti-regression-burden",
+      "loc": "MS-PILOT L1920 (byte-equivalence acceptance)",
+      "issue": "100% byte-equivalence vs JM Die golden NC is asserted as P-1 acceptance for Master Post. The JM Die archive is explicitly labeled 'noisy training data, NOT gold-standard' (CLAUDE-BRIEF L127, PRISM-BUILD-CONTEXT corpus reality). Byte-equivalence to noisy data is the wrong acceptance criterion — coherence break between corpus policy and pilot gate. Use motion-plan equivalence (which §6 L1568 already names) instead."
+    },
+    {
+      "id": "R5A3-014",
+      "severity": "low",
+      "category": "haas-master-post-gap",
+      "loc": "build-vision §jm_fleet next-action #8 vs v7.1",
+      "issue": "Build-vision flags 'Master post for Haas (master_post_haas_*) is missing despite 2 production Haas mills — next-action #8'. v7.1 MS-MASTERPOST builds Haas PRE-NGC emitter (U-REV-MP-10 P0) — good — but the engine name in MS-TRAIN L1678 is 'MISSING — build in MS-TRAIN' without specifying engine identity, while MS-MASTERPOST treats the emitter as a parser/emitter unit not an engine build. Two paths describe the same gap incompatibly."
+    },
+    {
+      "id": "R5A3-015",
+      "severity": "low",
+      "category": "wedm-controller-set-drift",
+      "loc": "MS0 U-REV-MS0-ACT-WEDM-CTRL-01 L54 vs MS2 L560",
+      "issue": "MS0 lists 5 WEDM dialects: Mitsubishi/Sodick/Makino/AgieCharmilles/Fanuc. MS2 L560 says '5 dialects already wired (Mitsubishi/Sodick/Makino/Agie/Fanuc post engines + DialectRouter)'. Consistent. BUT MS-MASTERPOST controller priority (L1489) names only Mitsubishi sinker (W31MV-2 + FP80S/C30EA-2) and never references Sodick/Makino/AgieCharmilles in the launch path despite MS0 wiring them as P1. Either v7.1 is over-wiring WEDM dialects vs the launch beachhead, or the sales/training plan is silently dropping 3 WEDM controllers."
+    }
+  ],
+  "cross_milestone_dependencies_verified": {
+    "MS0_to_MS1": "OK — MS0 hoists U-SUB-05..08 (billing/seat/subtier) into Phase 0 P0 and MS1 v2 confirms these are now MS0 obligations",
+    "MS0_to_MS_MASTERPOST": "PARTIAL — MS-MASTERPOST U-REV-MP-36 cites MS1 U-SUB-05..08 dependency but MS0 has already absorbed those, so the dep edge is to MS0 not MS1",
+    "MS-TRAIN_to_MS-PILOT": "BROKEN — pilot validates controllers TRAIN does not train (R5A3-002); pilot machines are not in MASTERPOST fleet (R5A3-001)",
+    "MS-MASTERPOST_to_build-vision": "BROKEN — 4 build-vision Master Post gaps unfunded (R5A3-004); CAM tier-1 set drifted (R5A3-005)",
+    "MS2_to_MS0": "OK — MS2 invention units cite MS0 engine surfaces correctly",
+    "MS3_to_MS0": "PARTIAL — MS3 wire-backlog harvest happens after MS0 Pareto hoist, but no explicit edge from MS0 HOIST units to MS3 — risk of double-counting wired engines",
+    "MS4_to_MS-MASTERPOST": "OK — MS4 audit-units (U-REV-AUDIT-MASTERPOST-01, U-REV-AUDIT-CAM-BRIDGE-01) properly cite MASTERPOST + CAM-bridge as the audit targets"
+  },
+  "must_fix_before_round6": [
+    "R5A3-001 — Reconcile MS-PILOT machine list against MS-MASTERPOST JM Die fleet; either drop phantom machines or document them as additional pilot sites",
+    "R5A3-002 — Align MS-TRAIN controller training set with MS-PILOT byte-equivalence gate set (add Mazatrol training or drop Mazatrol from pilot)",
+    "R5A3-004 — Add MP units for: 35-vs-38 stage reconciliation, per-block adaptive S/F E2E test, lead-in/out optimization, build-quality-aware feed ceiling",
+    "R5A3-005 — Decide tier-1 CAM scope: keep 6 (add Inventor HSM + SolidWorks parser units, demote SolidCAM to tier-2) OR formally re-baseline tier-1 to 4 in spec preamble",
+    "R5A3-007 — Fix MS0 v2 unit count arithmetic (24-backend vs 18-backend partition)"
+  ]
+}

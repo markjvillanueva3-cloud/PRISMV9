@@ -1,0 +1,180 @@
+{
+  "round": 3,
+  "agent_n": 9,
+  "scope": "AI tier grounding plan — concrete remediation for T3/T6/T7 + S(x)/Omega gate binding",
+  "agent_role": "code-analyzer-forensic",
+  "round2_referenced": ["agent-9 T3 PARTIAL (0 .safetensors)", "T6 PARTIAL (projection-only, no solver)", "T7 MISSING-CRITICAL (10-row lookup)"],
+  "key_round3_correction": {
+    "finding": "z3-solver ^4.16.0 IS already in mcp-server/package.json line 71. Round-2 evidence string ('No z3-solver ... dependency in mcp-server/package.json') is STALE. T6 is not a missing-dependency problem — it is a missing-wiring problem. No engine currently imports z3-solver, no Z3*.ts file exists, but the runtime is available.",
+    "verified_at": "H:/prism/mcp-server/package.json:71",
+    "impact": "T6 plan downgrades from 'add dependency + wire' to 'wire only' — net new deps for T6 = 0"
+  },
+  "t3_lora_plan": {
+    "current_state": {
+      "engines_present": "~80 LatheLoRA*/WEDMLoRA*/CamLoRA* engines + schemas + actions",
+      "weights_present": "ZERO .safetensors checkpoints under mcp-server/data/models/ — only WEDM_LORA_CHECKPOINT.json metadata stub exists",
+      "models_dir_contents": ["cad_param_predictor.json", "pp-transformer/", "surface-cnn/", "test-model-batch1-*", "tool-life-mlp/"],
+      "verdict": "scaffolding without weights — silently returns base-model output when adapter file absent"
+    },
+    "training_data_sources": {
+      "mill_lora": {
+        "primary": "JM Die archive — H:/PRISM/JM DIE/ 24,545 files, 100+ customers (ITW, Alcoa, Optimas, SFS, Holo-Krome). Filter to .NC/.PRG/.MIN mill programs (~8K est.) with companion sheet metadata. Each program = (material, tool, geometry features) -> (S/F, ap/ae, strategy choice) supervision pair.",
+        "synthetic": "Speed/feed sweep across Kienzle envelope at 1000 (material x tool) combinations using physics oracle as ground truth (generate via SpeedFeedOrchestrator). Use ONLY for data augmentation, not primary.",
+        "public": "MTConnect log dumps from machinetoolprognostics.com + NIST SMS test programs (Apache-2.0 licensed). ~2K supplementary samples.",
+        "label_strategy": "Outcome-bridge from XPROC-NEURAL-CONNECT replay/sampler (already shipped — commit 3b21228f7) generates positive/negative reward signals from production runs."
+      },
+      "lathe_lora": {
+        "primary": "JM Die Mazak/Okuma .MIN files with '$<INTERNAL>%' line-1 header (per reference_jm_die_program_save_practice memory) — these ARE the canonical lathe corpus, ~3-5K estimated. LatheLoRADatasetBuilderEngine already exists for the ingestion path.",
+        "synthetic": "TurningPhysicsOrchestrator parameter sweeps for chip-control regime classification.",
+        "public": "ISO 3685 tool-life tables (already integrated)."
+      },
+      "wedm_lora": {
+        "primary": "26 JM Die WEDM programs indexed + 46 WEDM tribal tips + 14 WEDM formulas with MIT citations (already enumerated in CLAUDE.md WEDM AGI Status).",
+        "synthetic": "Pulse-energy parameter sweeps across 5 controller dialects (Mitsubishi/Sodick/Makino/AgieCharmilles/Fanuc).",
+        "constraint": "Smallest corpus — start with rank-4 adapter only."
+      },
+      "cam_lora": {
+        "primary": "Mastercam(45) + hyperMILL(25) extracted operations (already in extraction-log.json) + post-processor CPS files.",
+        "synthetic": "CAM strategy selection labels from existing CamStrategyEngine recommendations as weak supervision.",
+        "scope": "9 cam_lora_* schemas exist — target operation_classify + strategy_recommend + tool_select adapters first."
+      }
+    },
+    "adapter_rank_choice": {
+      "mill_lora": 16,
+      "mill_rationale": "Largest corpus (~8K samples), most heterogeneous task surface (3-axis + 4-axis + 5-axis subset), needs capacity",
+      "lathe_lora": 8,
+      "lathe_rationale": "Medium corpus (~3-5K), narrower task surface (turning + threading + grooving), rank-8 sufficient per LoRA paper Section 7.2 (8 enough when r >= intrinsic-rank of weight delta)",
+      "wedm_lora": 4,
+      "wedm_rationale": "Small corpus (~26 programs + 46 tips), risk of overfit at higher rank, rank-4 aligns with low-shot LoRA-FA findings",
+      "cam_lora": 8,
+      "cam_rationale": "Per-task adapters (operation/strategy/tool) each rank-8, ensemble at inference",
+      "common": "alpha = 2*rank (standard LoRA convention), dropout 0.1, train on attention layers only (q_proj, v_proj) per QLoRA Section 4"
+    },
+    "inference_path": {
+      "primary": "Ollama 0.6.3 (already a dependency, line 65 package.json) — load base qwen2.5-coder:7b + apply adapter via Modelfile FROM directive. Ollama supports LoRA adapter mounting natively since v0.3.0.",
+      "fallback": "llama.cpp via @xenova/transformers (already installed, line 55) — for environments without Ollama daemon",
+      "remote": "Anthropic SDK (line 50) for base-model bypass when adapter path fails — emit explicit telemetry event",
+      "weights_storage": "mcp-server/data/models/<domain>-lora/<YYYY-MM-DD>/adapter_model.safetensors + adapter_config.json, max 100MB each (rank-16 7B adapter ~80MB)"
+    },
+    "fallback_marker_proposal": {
+      "current_silent_failure": "LatheLoRAPipelineEngine.predict() returns base-model output when adapter weights absent — no telemetry, no warning",
+      "proposed_marker": "Every LoRA inference call must return { prediction, adapter_loaded: boolean, adapter_version: string|null, fallback_reason?: string }. When adapter_loaded=false, telemetry event 'lora.fallback.weights_missing' emitted to AISystemRouterEngine ledger.",
+      "stop_hook": "Add lora-weights-presence-check.mjs hook that fails CI when any LoRA engine is wired to a dispatcher but data/models/<domain>-lora/<latest>/adapter_model.safetensors missing. Block enforcement: warn-first 30 days, hard-block after."
+    },
+    "ship_order": ["wedm_lora rank-4 (smallest corpus, fastest to validate)", "lathe_lora rank-8", "mill_lora rank-16", "cam_lora ensemble"]
+  },
+  "t6_symbolic_plan": {
+    "recommended_package": "z3-solver",
+    "rationale": "ALREADY INSTALLED at ^4.16.0 in mcp-server/package.json line 71 (Round-2 finding stale). z3-solver is the WebAssembly port of Microsoft's Z3 SMT solver (MIT license), supports SAT/SMT/LP/MIP via Optimize API. Native bundle ~12MB but already in node_modules — sunk cost. javascript-lp-solver (~80KB) considered as lightweight alternative but lacks SMT (theory of integers + reals + bitvectors), which Spec rows 11 (Z3 x ToleranceStack), 28 (geometric tolerance allocation) require. glpk.js (~3MB) is LP/MIP only — insufficient for non-linear tolerance Σt_i² constraints.",
+    "license_check": "MIT — compatible with PROPRIETARY license declared in package.json",
+    "net_new_deps": [],
+    "wire_targets": [
+      {
+        "engine_to_create": "Z3ToleranceAllocatorEngine",
+        "path": "mcp-server/src/engines/Z3ToleranceAllocatorEngine.ts",
+        "wires_to": ["prism_calc:tolerance_allocate_z3", "prism_cad:tolerance_stack_solve"],
+        "solves": "Spec row 11 — minimize Σ cost(t_i) subject to Σ t_i² <= T_assembly² (worst-case), or Σ t_i² <= T_assembly²/k (RSS)",
+        "z3_idiom": "Optimize() context with Real('t_i') variables, add_soft for cost objective, add for sum-of-squares constraint"
+      },
+      {
+        "engine_to_create": "MIPSchedulingEngine",
+        "path": "mcp-server/src/engines/MIPSchedulingEngine.ts",
+        "wires_to": ["prism_orchestrate:schedule_mip", "prism_intelligence:capacity_plan_mip"],
+        "solves": "Spec row 12 — argmax Σ(margin_i * accept_i) s.t. Σ(hours_i * accept_i) <= capacity, accept_i in {0,1}",
+        "z3_idiom": "Optimize() with Int('accept_i') variables in [0,1], maximize() on margin sum"
+      },
+      {
+        "engine_to_create": "GeometricToleranceSolverEngine",
+        "path": "mcp-server/src/engines/GeometricToleranceSolverEngine.ts",
+        "wires_to": ["prism_cad:gdnt_solve", "prism_safety:tolerance_feasibility"],
+        "solves": "Spec row 28 — GD&T datum-feature constraint propagation",
+        "z3_idiom": "BitVec for datum frames + Real for tolerance zones"
+      }
+    ],
+    "existing_engine_decision": "Keep CrossProcessSymbolicConstraintEnforcerEngine as the FAST PATH (lexicographic projection, no solver invocation, <1ms). Add SymbolicSolverRouterEngine that routes simple safety-only projections to existing engine, escalates to Z3 only when objective function present (multi-criteria optimization).",
+    "test_strategy": "Vitest with z3-solver async init (z3-solver requires await init()), property-based tests for solution-set membership via fast-check"
+  },
+  "t7_kg_plan": {
+    "current_state_diagnosis": {
+      "file_lines": "PRISMCreativeReasoningEngine.ts header advertises '82 dispatchers, 4296 actions, 1559 engines, 499 formulas, 60 algorithms, 3700 tribal tips' as Knowledge Sources but explore() body at line 185 has switch(domain) at line 665 — confirms Round-1 finding: static dispatch on enum, not graph traversal",
+      "lookup_signatures": "Line 263-265: cutting_parameters: ['Machinery handbook lookup', 'CAM defaults', 'Tool manufacturer recommendations'] — these are STRINGS, not graph edges. The 'knowledge' is 10 hardcoded arrays."
+    },
+    "recommended_approach": "JSON-LD + in-memory graph with @qdrant vector index (Qdrant ALREADY a dependency at @qdrant/js-client-rest ^1.17.0 line 52)",
+    "rationale": "Neo4j-embedded requires JVM (rejected — adds 200MB+ runtime). RDF/SPARQL (rdflib.js, n3) is heavyweight for the analogy use-case. Custom JSON-LD with Qdrant similarity adds ZERO net dependencies, leverages existing wiki/index.md (722 entries) as graph seed, and Qdrant cosine-similarity over engine embeddings gives REAL analogy reasoning (Hofstadter-style retrieval-by-similarity).",
+    "net_new_deps": [],
+    "source_data_pipeline": {
+      "graph_seed": "H:/prism/knowledge/wiki/index.md (722 entries: 575 engines + 90 dispatchers + 57 memories)",
+      "edge_extraction": "Engine cross-refs already encoded in JSDoc @see / import statements + dispatcher wiring",
+      "memory_tags": "MEMORY.md indexed memories carry domain tags — promote to graph nodes",
+      "embedding": "@xenova/transformers (line 55) Xenova/all-MiniLM-L6-v2 384-dim embeddings of node descriptions",
+      "vector_store": "Qdrant collection 'prism_kg_nodes' with cosine distance"
+    },
+    "query_patterns": {
+      "analogy": "Given (source_node, source_solution), find target_node with cos_sim > 0.75 where target shares >=2 edge-type-classes with source — 'as Kienzle is to milling, X is to ___'",
+      "find_similar": "Top-k nearest neighbors in embedding space + edge-overlap re-rank",
+      "transitive_deps": "BFS over import/dispatcher edges, capped at depth 3 (matches Round-1 'engines reach 1559 via 5-hop traversal')",
+      "creative_combination": "Sample 2 unrelated high-centrality nodes, ask Ollama qwen2.5-coder:7b to synthesize hybrid approach (replaces 10-row lookup)"
+    },
+    "engine_decision": {
+      "choice": "RENAME existing PRISMCreativeReasoningEngine to PRISMRuleBasedCombinatorEngine (preserves the 10-row dispatch logic as a fast-path) AND create new PRISMKnowledgeGraphReasoningEngine that does real graph traversal + LLM-backed synthesis",
+      "binding": "prism_intelligence:graph_query/graph_infer/graph_discover/graph_predict/graph_traverse (5 actions already declared at intelligenceDispatcher.ts:549) wire to PRISMKnowledgeGraphReasoningEngine; legacy prism_ai:creative_explore retains the renamed rule-based combinator for backward compatibility",
+      "verdict_resolution": "This satisfies both options from Round-2 recommendation simultaneously (rename + real LLM route)"
+    }
+  },
+  "gate_binding_plan": {
+    "current_state": {
+      "omega_action": "omegaDispatcher.ts:38 exports omegaQuick(R,C,P,S,L) + computeOmega() — function exists",
+      "safety_action": "guardDispatcher.ts:127 validate_physics registered — function exists",
+      "binding_to_unit_acceptance": "ABSENT — no stop hook reads either before allowing unit closure, milestone envelope schema has no omega_floor/safety_floor required fields"
+    },
+    "injection_points_ranked": [
+      {
+        "rank": 1,
+        "where": "Milestone envelope schema (mcp-server/data/milestones/<scope>/<unit>.json) — add required fields omega_score:number, safety_score:number, tier_invocation:string[], computed_at:ISO8601",
+        "rationale": "Schema-level enforcement = automatic CI gating via existing schema-version-check.ts script. Cannot be bypassed without explicit schema bump. Zod validation runs on every envelope write.",
+        "implementation": "Add to roadmapSchema.ts: omega_score: z.number().min(0).max(1), safety_score: z.number().min(0).max(1). emit-roadmap script (atomic-roadmap-emit.mjs) requires these on every emit."
+      },
+      {
+        "rank": 2,
+        "where": "Stop hook stop_on_low_omega.mjs (new) and stop_on_low_safety.mjs (new) — fire on Stop event when current unit has omega_score < 0.70 or safety_score < 0.70",
+        "rationale": "Defense-in-depth — even if envelope written with low score (e.g. test or override), Stop hook prevents session close. Matches existing pattern stop_on_unwired_assets / stop_on_failing_tests already in MINIMAL_ALLOWLIST.",
+        "implementation": "Path: H:/.claude/hooks/stop_on_low_omega.mjs. Add to settings.json hooks.Stop with continueOnError:false. Add to MINIMAL_ALLOWLIST so profile cannot disable."
+      },
+      {
+        "rank": 3,
+        "where": "Pre-commit hook commit-ownership-guard sibling: omega-floor-precommit-check.mjs",
+        "rationale": "Prevents bad envelope-update from being committed in the first place",
+        "implementation": "husky pre-commit runs node .claude/hooks/omega-floor-precommit-check.mjs which scans staged milestone files for omega_score < 0.70"
+      },
+      {
+        "rank": 4,
+        "where": "CI job .github/workflows/ci.yml — gate-omega-floor step",
+        "rationale": "Last line of defense for PRs from forks where local hooks bypassed",
+        "implementation": "New step: node scripts/verify-milestone-omega-floor.mjs --threshold=0.70 --scope=MS2"
+      }
+    ],
+    "threshold_tuning_from_jm_die_history": {
+      "data_source": "JM Die has 24,545 indexed files across 100+ customers — sample 200 historical programs that shipped successfully and 50 that were reworked/scrapped",
+      "method": "Back-compute Omega = ωR*R + ωC*C + ωP*P + ωS*S + ωL*L for each historical job using current omegaDispatcher.computeOmega() weights. Build ROC curve of Omega vs ship/rework outcome.",
+      "expected_threshold": "Empirical floor likely 0.65-0.72 based on JM Die pass-rate (estimated 92-95% ship-first-pass for established customer programs). Set floor = Omega@95th-percentile-of-reworked-jobs (conservative).",
+      "safety_threshold": "S(x) is binary-ish in practice (collision/no-collision) — floor 0.70 reasonable as 'no high-severity violations' but should be replaced with constraint-list check rather than scalar",
+      "iteration": "Start at 0.70 floor as spec says, run for one MS2 milestone, recalibrate from telemetry. Add safety-prior to Bayes prior infrastructure already shipped (guardDispatcher:31)."
+    },
+    "tier_invocation_binding": {
+      "spec_gap": "Round-2 F-r2-a9-10 — tiers_invoked field absent from envelope schema",
+      "fix": "Same schema change as gate binding rank 1 — add tier_invocation: z.array(z.enum(['T1','T2','T3','T4','T5','T6','T7'])).min(1) required field",
+      "validation": "Cross-check tier_invocation against actual dispatcher action calls logged in AISystemRouterEngine telemetry. If unit claims [T6] but no Z3ToleranceAllocator invocation logged, hook flags inconsistency."
+    }
+  },
+  "summary": {
+    "tiers_with_plan": 3,
+    "net_new_deps": [],
+    "key_corrections_from_round2": [
+      "z3-solver IS installed (^4.16.0) — T6 problem is wiring only, not dependency",
+      "@qdrant/js-client-rest IS installed (^1.17.0) + @xenova/transformers IS installed (^2.17.2) — T7 KG plan needs zero new packages",
+      "Ollama IS installed (^0.6.3) — T3 LoRA inference path uses existing runtime"
+    ],
+    "verdict": "ALL THREE PARTIAL/MISSING TIERS HAVE ZERO-NEW-DEPENDENCY GROUNDING PATHS. Remediation is entirely net-new-engine + wiring work, not procurement. Schema-level gate binding is the highest-leverage single change — 4 lines in roadmapSchema.ts enforces Omega/Safety/Tier floors for all future emissions.",
+    "one_line": "Z3 + Qdrant + Ollama all already installed; T3/T6/T7 fixes are wiring and weights, not packages, and 4 lines of Zod schema bind Omega>=0.70 + S(x)>=0.70 + tier_invocation to every MS2 unit acceptance."
+  }
+}

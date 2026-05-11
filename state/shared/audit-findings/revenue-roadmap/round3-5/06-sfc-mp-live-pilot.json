@@ -1,0 +1,203 @@
+{
+  "round": 3.5,
+  "agent_n": 6,
+  "scope": "SFC + Master Post live-pilot phasing on JM Die",
+  "agent_role": "analyst-pilot",
+  "jm_die_machine_tiers": {
+    "lowest_risk_tier_1_oldest_cheapest": [
+      "Bridgeport-Knee-Mill-1985 (manual, $8K replacement, low-volume bracket work)",
+      "Haas-TM-1P-2008 (toolroom mill, $35K, training/oddball jobs)",
+      "Mori-Seiki-SL-3-1998 (legacy lathe, $25K, secondary ops)"
+    ],
+    "mid_tier_high_volume": [
+      "Haas-VF-2-2015 (3-axis VMC, $65K, ~40% utilization)",
+      "Mazak-Quick-Turn-200-2012 (lathe, $85K, bar work)",
+      "Doosan-DNM-4500-2018 (VMC, $95K, production)"
+    ],
+    "flagship_tier_highest_revenue": [
+      "Mazak-Integrex-i200-2021 ($450K mill-turn, ITW/Alcoa critical-path)",
+      "DMG-Mori-NTX-2000-2020 ($550K, Holo-Krome high-tolerance)",
+      "Makino-PS95-2019 (high-speed VMC, $280K, SFS aerospace)"
+    ]
+  },
+  "sfc_pilot_phases": [
+    {
+      "phase": 1,
+      "name": "bench-sim",
+      "duration_weeks": 2,
+      "jm_die_machines": ["none - PRISM emits, Vericut/NCSimul verifies"],
+      "sample_parts": ["JM-DIE bracket-001 (1018 steel, 3-pocket)", "ITW-flange-022 (6061-T6)", "Alcoa-housing-007 (7075-T6)"],
+      "acceptance": "100% of SFC recommendations pass Vericut force-budget (Fc<spindle_torque*0.7) and chip-load envelope (hex<1.2*recommended). >=95% match published catalog speeds within +/-15%.",
+      "failure_modes": ["Kienzle constant wrong for material", "Tool overhang correction missing", "Coolant flag misapplied"],
+      "rollback": "Block SFC ship; route to /forge-perf for kc1.1 recalibration. Add failed material to PENDING_GAP_ENGINES.json.",
+      "instrumentation": ["SFCRecommendationLogger (every emit -> JSONL)", "VericutDiffEngine (PRISM vs sim delta)", "ForceBudgetGate (hard block on >70%)"]
+    },
+    {
+      "phase": 2,
+      "name": "cut-air",
+      "duration_weeks": 1,
+      "jm_die_machines": ["Haas-TM-1P-2008", "Mori-Seiki-SL-3-1998"],
+      "sample_parts": ["air-cut bracket-001 (no stock, Z+2 offset)"],
+      "acceptance": "Motion matches sim within 0.001in. No alarms. Spindle load idle (<5%). Operator confirms feel/sound nominal.",
+      "failure_modes": ["Post-processor injects wrong G-code dialect", "Feedrate override math wrong", "M-code sequencing breaks"],
+      "rollback": "Halt machine. Diff actual NC vs PRISM emit. If post issue -> Master Post bug; if SFC issue -> kinematic correction.",
+      "instrumentation": ["MTConnect spindle-load stream", "G-code line-by-line comparison vs emit", "Operator-feedback button (red/yellow/green)"]
+    },
+    {
+      "phase": 3,
+      "name": "soft-stock",
+      "duration_weeks": 2,
+      "jm_die_machines": ["Haas-TM-1P-2008", "Bridgeport-Knee-Mill-1985"],
+      "sample_parts": ["machinable wax bracket", "Delrin housing mock", "6061 throwaway billet"],
+      "acceptance": "Measured cutting force (spindle-load proxy) within +/-20% of SFC prediction. Surface finish Ra within 1.5x target. Zero tool breakage across 10 parts/material.",
+      "failure_modes": ["Predicted force off by >30% (model error)", "Chip evacuation fails (chip-load too high)", "Tool deflection unmodeled"],
+      "rollback": "Lock material in 'shadow-only' mode. Trigger /lathe-learn or /mill-learn calibration on captured force data. Block phase-4 graduation for that material."
+    },
+    {
+      "phase": 4,
+      "name": "production-shadow",
+      "duration_weeks": 4,
+      "jm_die_machines": ["Haas-VF-2-2015", "Mazak-Quick-Turn-200-2012"],
+      "sample_parts": ["ITW-flange production run (50 pcs)", "Optimas-pin lathe job (200 pcs)"],
+      "acceptance": "PRISM recommendation logged alongside operator choice for >=100 ops. Delta < 25% on RPM, <30% on feed. Operator does NOT use PRISM value (shadow). Captured deltas feed calibration.",
+      "failure_modes": ["Recommendations consistently too aggressive vs shop reality", "Operators reject as 'CAM-textbook'", "Telemetry gaps (no MTConnect on legacy machine)"],
+      "rollback": "Tighten model with shop-floor delta. Engage /shop-knowledge to ingest operator override reasons (tribal tips). No machine impact - shadow is read-only.",
+      "instrumentation": ["DualLogEngine (PRISM-emit + operator-actual)", "DeltaAnalyzer per machine/tool/material", "OperatorOverrideReasoningCapture (free-text + tagged)"]
+    },
+    {
+      "phase": 5,
+      "name": "A-B",
+      "duration_weeks": 6,
+      "jm_die_machines": ["Haas-VF-2-2015", "Doosan-DNM-4500-2018", "Mazak-Quick-Turn-200-2012"],
+      "sample_parts": ["randomized 50/50 split across 4 high-volume ITW/Optimas SKUs"],
+      "acceptance": "PRISM-batch shows: (a) tool life >=95% of status-quo, (b) cycle time <=105% of status-quo (parity OR better), (c) Cpk on critical dim >=status-quo, (d) zero PRISM-induced scrap.",
+      "failure_modes": ["Tool life regression on one tool family (e.g. ceramic inserts)", "Cycle-time loss from over-conservative finish pass", "Cpk drop from chatter at recommended RPM"],
+      "rollback": "Revert that tool/material combo to status-quo. Quarantine recommendation in 'A-B-failed' bucket. Re-train on the regression cohort. No machine harm - operator can override mid-run.",
+      "instrumentation": ["BatchOutcomeTracker", "ToolLifeRegressionDetector", "CycleTimeABDelta", "CpkABStreamer"]
+    },
+    {
+      "phase": 6,
+      "name": "primary",
+      "duration_weeks": 8,
+      "jm_die_machines": ["Mazak-Integrex-i200-2021", "DMG-Mori-NTX-2000-2020", "Makino-PS95-2019"],
+      "sample_parts": ["Holo-Krome high-tolerance series", "SFS aerospace bracket family", "Alcoa precision housing"],
+      "acceptance": "PRISM is default for >=80% of new jobs on flagship machines. Operator override rate <15%. Tool life +>=5% vs phase-5 baseline. Zero spindle/collision events attributable to SFC.",
+      "failure_modes": ["Edge-case material PRISM hasn't seen (e.g. Inconel 718 on Mazak-Integrex)", "Tool-wear feedback loop too slow"],
+      "rollback": "Per-material gate: if novel material encountered, drop to phase-4 shadow for that material until calibrated. Flagship has fallback to operator status-quo via single button."
+    },
+    {
+      "phase": 7,
+      "name": "telemetry-loop",
+      "duration_weeks": 0,
+      "jm_die_machines": ["all 21 JM Die machines"],
+      "sample_parts": ["ongoing production"],
+      "acceptance": "Continuous: MTConnect/Mazatrol feed -> /forge-learn -> kc1.1 + Taylor exponent recalibration weekly. Drift detector flags >10% prediction error. Auto-PR for constants update.",
+      "failure_modes": ["Calibration drift unflagged", "Sensor failure poisons training set", "Catastrophic forgetting on rare material"],
+      "rollback": "Versioned model rollback (model_v_N-1). Manual freeze button. Audit log of every recalibration event.",
+      "instrumentation": ["TelemetryLoopEngine", "DriftDetector", "ModelVersionRollbackEngine", "CalibrationAuditLogger"]
+    }
+  ],
+  "masterpost_pilot_phases": [
+    {
+      "phase": 1,
+      "name": "bench-sim",
+      "duration_weeks": 3,
+      "jm_die_machines": ["none - emit + diff vs known-good post output"],
+      "controllers": ["Haas NGC", "Fanuc 31i", "Mazak Mazatrol Smooth G", "Okuma OSP-P300"],
+      "sample_parts": ["10-program regression suite covering G54-G59, tool-change macros, sub-programs, cycle calls"],
+      "acceptance": "100% byte-for-byte match against archived JM Die golden NC files for the 4 controllers (with documented allowed deltas e.g. comment lines).",
+      "failure_modes": ["Modal-state tracking bug", "Decimal precision wrong for controller", "Macro variable namespace collision"],
+      "rollback": "Per-controller block. Fix in MasterPostEngine + add regression test."
+    },
+    {
+      "phase": 2,
+      "name": "cut-air",
+      "duration_weeks": 1,
+      "jm_die_machines": ["Haas-TM-1P-2008 (Haas NGC)", "Mori-Seiki-SL-3-1998 (Fanuc)"],
+      "controllers": ["Haas NGC", "Fanuc 31i"],
+      "sample_parts": ["air-cut bracket, air-cut OD-turn"],
+      "acceptance": "Controller accepts post output with zero alarms. Modal display matches expected at every line. Tool-change sequence correct.",
+      "failure_modes": ["Controller-specific syntax rejected (e.g. Haas G187 vs Fanuc)", "Probe macro misformatted", "Workshift offsets misaligned"],
+      "rollback": "Halt. Diff against archived JM Die program for same controller. Patch post + re-bench-sim."
+    },
+    {
+      "phase": 3,
+      "name": "soft-stock",
+      "duration_weeks": 2,
+      "jm_die_machines": ["Haas-TM-1P-2008", "Bridgeport-Knee-Mill-1985 (DNC pass-through)"],
+      "controllers": ["Haas NGC", "Anilam (Bridgeport retrofit)"],
+      "sample_parts": ["wax bracket, Delrin part"],
+      "acceptance": "Cut motion identical to operator-written equivalent. No dwells/pauses unexpected. Spindle ramps correctly."
+    },
+    {
+      "phase": 4,
+      "name": "production-shadow",
+      "duration_weeks": 3,
+      "jm_die_machines": ["Haas-VF-2-2015", "Mazak-Quick-Turn-200-2012", "Doosan-DNM-4500-2018"],
+      "controllers": ["Haas NGC", "Mazatrol Smooth G", "Fanuc 31i"],
+      "sample_parts": ["10 production jobs run with operator's hand-written/CAM post; PRISM emits parallel post for diff"],
+      "acceptance": "Diff between PRISM-post and operator-post is semantically equivalent (motion identical, only stylistic differences in comments/blocks).",
+      "failure_modes": ["PRISM produces verbose output (operator dislikes style)", "Subroutine structure differs"],
+      "rollback": "Per-controller style-template adjustment. No machine impact."
+    },
+    {
+      "phase": 5,
+      "name": "A-B",
+      "duration_weeks": 4,
+      "jm_die_machines": ["Haas-VF-2-2015", "Mazak-Quick-Turn-200-2012", "Doosan-DNM-4500-2018"],
+      "controllers": ["Haas NGC", "Mazatrol Smooth G", "Fanuc 31i"],
+      "sample_parts": ["A-B split: 50% of jobs use PRISM-post, 50% use existing CAM post"],
+      "acceptance": "Cycle-time delta < 2%. Zero alarms attributable to PRISM-post. Operator-readability rating >=4/5."
+    },
+    {
+      "phase": 6,
+      "name": "primary",
+      "duration_weeks": 6,
+      "jm_die_machines": ["Mazak-Integrex-i200-2021", "DMG-Mori-NTX-2000-2020"],
+      "controllers": ["Mazatrol Matrix-2", "Siemens 840D sl"],
+      "sample_parts": ["flagship multi-axis mill-turn programs"],
+      "acceptance": "PRISM-post default for new jobs on flagship. Zero collision events. Multi-axis kinematic transforms verified against Mazak SmoothAi simulator."
+    },
+    {
+      "phase": 7,
+      "name": "telemetry-loop",
+      "duration_weeks": 0,
+      "jm_die_machines": ["all 21"],
+      "controllers": ["all 6 dialects in fleet"],
+      "sample_parts": ["ongoing"],
+      "acceptance": "Post-edit telemetry (operator-touched lines per program) trends toward zero. Style template auto-tunes per controller."
+    }
+  ],
+  "weeks_to_telemetry_loop": {
+    "sfc": 23,
+    "masterpost": 19
+  },
+  "operator_training_artifacts": [
+    "JM-Die-SFC-Operator-Runbook.pdf (phase-2 onwards, 1-page laminated)",
+    "PRISM-Override-Reasons-Cheatsheet.md (drop-down codes for shadow-mode capture)",
+    "Phase-3 wax-cut training video (10 min, machine-by-machine)",
+    "Phase-4 dual-log dashboard tutorial (operator-facing UI, /shop-floor-query integration)",
+    "Phase-5 A-B job-card insert (visual: which jobs are PRISM vs status-quo)",
+    "Phase-6 escalation tree (operator -> shop-lead -> programmer -> PRISM-engineer, <5min each tier)",
+    "Master-Post per-controller code-style reference cards (Haas, Fanuc, Mazatrol, Okuma, Siemens, Anilam)",
+    "Red-button single-press fallback to status-quo (physical button on phase-6 flagship machines)"
+  ],
+  "risk_register": [
+    {"risk": "Spindle overload on phase-3 wax cut due to wrong Kienzle for novel alloy", "severity": "high", "mitigation": "ForceBudgetGate hard-blocks >70% spindle torque; phase-1 force-budget gate must pass first"},
+    {"risk": "Collision on flagship Mazak-Integrex phase-6 from multi-axis kinematic miscompile", "severity": "critical", "mitigation": "All flagship programs must pass Mazak SmoothAi simulator pre-cut; collision-check hook mandatory; single-button operator fallback"},
+    {"risk": "Tool life regression discovered only in phase-5 A-B (silent until weeks in)", "severity": "medium", "mitigation": "Per-tool sentinel on tool-life delta; auto-quarantine that tool/material combo within 10 parts"},
+    {"risk": "Operator rejection of PRISM as 'CAM-textbook' kills adoption before A-B", "severity": "high", "mitigation": "Phase-4 shadow MUST capture override reasons (tagged); tribal-tip ingestion before phase-5; operator co-design of phase-5 acceptance criteria"},
+    {"risk": "Legacy Bridgeport/Anilam DNC pass-through breaks long programs (no MTConnect)", "severity": "medium", "mitigation": "Limit legacy machines to phase-2/3 short programs; instrument via DNC log capture + manual operator log"},
+    {"risk": "Wage-of-shop-time burned on phase-2/3 if defects > 1 per phase", "severity": "medium", "mitigation": "Phase-1 bench-sim must hit 100% acceptance before phase-2 starts; cut-air budget capped at 4 hrs/machine; soft-stock budget capped at 16 hrs/material"},
+    {"risk": "Post-processor decimal/modal regression breaks legacy archived programs", "severity": "high", "mitigation": "Master-Post phase-1 requires byte-equivalence against golden file set across all 4 controllers; CI gate"},
+    {"risk": "Holo-Krome high-tolerance jobs in phase-6 fail Cpk", "severity": "high", "mitigation": "Holo-Krome family enters phase-6 only after dedicated phase-5 A-B exclusively on those jobs; Cpk monitored real-time"},
+    {"risk": "Telemetry-loop poisoning by sensor failure / outlier", "severity": "medium", "mitigation": "DriftDetector outlier-rejection + model-version rollback; weekly human-in-loop review of recalibration PRs"},
+    {"risk": "Calendar slip from shop-conservatism extends each phase", "severity": "medium", "mitigation": "Pre-negotiate phase budgets with shop lead; carry 25% schedule buffer; declare 'soft graduation' if acceptance is 90%+ and shop confidence holds"}
+  ],
+  "summary": {
+    "phases": 7,
+    "weeks_total": 23,
+    "verdict": "Feasible with disciplined gating; SFC takes 23 weeks to telemetry-loop, Master Post 19 weeks. SFC is the slower path because force-prediction calibration depends on real cutting data which only arrives in phase-3+. Master Post is faster because byte-equivalence testing in phase-1 covers most of the surface.",
+    "one_line": "SFC=23wks, Master-Post=19wks to phase-7; top risk = flagship multi-axis kinematic miscompile (collision class); start with Haas-TM-1P-2008 for both products."
+  }
+}

@@ -1,0 +1,637 @@
+{
+  "schemaVersion": "1.0.0",
+  "round": 3,
+  "agent_n": 4,
+  "scope": "MS2 dedup decisions — DROP/MERGE/KEEP/RETITLE/BUILD verdict for all 42 invention units",
+  "agent_role": "researcher-forensic",
+  "generatedAt": "2026-05-10",
+  "round2_referenced": [
+    "F-r2-a3-A through F-r2-a3-L (Mill+Lathe physics+engine audit)",
+    "F-r2-a4-1 through F-r2-a4-12 (WEDM+Cross+Shop redundancy audit)",
+    "F-r2-a5-K01 through F-r2-a5-K11 (Knowledge+CAD market+legal audit)"
+  ],
+  "decision_framework": {
+    "DROP": "Backing engines fully wired AND product already monetized/exists OR market-fit wrong for JM-Die-class shop",
+    "MERGE": "Backing engines exist but need integration with another unit; collapse to shared deliverable",
+    "KEEP": "Backing engines real AND unit is unique; verify wiring acceptance criteria",
+    "RETITLE": "Capability valuable but product framing/marketing claim wrong; rename + re-spec",
+    "BUILD": "Genuinely net-new; requires named gap engines + dispatcher actions"
+  },
+  "decisions": [
+    {
+      "unit": "U-INV-MILL-01",
+      "title": "Real-time chip-load advisor as operator types into CAM",
+      "decision": "RETITLE",
+      "reason": "Round-2 F-r2-a3-A: NO SpindleTelemetry/MTConnect/Okuma THINC/Fanuc FOCAS ingestor engine exists. 'Real-time' claim is false. Static Kienzle prediction is shippable on existing engines (MillingForceEngine + MaterialDatabaseBridge E0323 + ToolCatalogAdaptive E0459).",
+      "jm_die_fit": "Y",
+      "narrative": "JM Die's 5 mills (HMC-01..03, VMC-01,02) run Mastercam/hyperMILL → static chip-load preview during CAM authoring saves rework. But the 'live' framing fails the first shop-floor demo (no MTConnect bus wired).",
+      "backing_status": "Partial — Kienzle physics live, telemetry engine missing.",
+      "actions": [
+        "Rename to: 'Predicted chip-load advisor (offline, CAM-time)'",
+        "Wire to prism_calc:chip_load_predict (action exists per millDispatcher)",
+        "Defer 'real-time' variant to MS3 once SpindleTelemetryIngestEngine is built (register in PENDING_GAP_ENGINES.json)"
+      ]
+    },
+    {
+      "unit": "U-INV-MILL-02",
+      "title": "Tool-life co-optimizer with MRR (Taylor + Kienzle)",
+      "decision": "KEEP",
+      "reason": "Backing engines verified present: AdaptiveFeedModulation (E0004), Taylor constants in physics/constants.ts, MaterialDB E0323. Unit is unique application of two well-wired physics laws.",
+      "jm_die_fit": "Y",
+      "narrative": "Holo-Krome, ITW, SFS fastener jobs run high duty cycle on JM-Die's HMC-01..03 — every minute of tool life × 100K parts = real money. Taylor V·T^n optimization vs MRR is the bread-and-butter equation.",
+      "backing_status": "Wired — verify acceptance test asserts V* lies on min-cost vs max-prod tradeoff curve.",
+      "actions": [
+        "Add acceptance test: /tool-life-max returns V* satisfying Boothroyd Eq. 5.30",
+        "Wire UI surface in mcp-server/web/mill-studio"
+      ]
+    },
+    {
+      "unit": "U-INV-MILL-03",
+      "title": "Long-tool deep-pocket stability optimizer (Deflection × Kienzle × AdaptiveFeed)",
+      "decision": "RETITLE",
+      "reason": "Round-2 F-r2-a3-B BLOCKER: closed-loop is not provably convergent without Lyapunov damping; agent-8 F-r2-a8-B caught the static ap-solve under-determination. Engines exist (E0127 DeflectionOverlay, E0004 AdaptiveFeed) but the loop spec is unsafe.",
+      "jm_die_fit": "Y",
+      "narrative": "JM Die runs die cavities and long-reach tools daily — value is real. But shipping an oscillation-prone feed loop on a customer's $300k Mori or Okuma is a recall-grade risk.",
+      "backing_status": "Wired engines, missing control-law spec.",
+      "actions": [
+        "Rename to: 'Long-tool feed advisor with damped closed-loop (offline scheduled, NOT mid-cut servo)'",
+        "Spec damping ζ≥0.7, α≤0.3, dead-band ±5%, anti-windup per F-r2-a3-B fix",
+        "Add 300-sample limit-cycle test (FFT peak <0.05Hz noise floor) as ship gate"
+      ]
+    },
+    {
+      "unit": "U-INV-MILL-04",
+      "title": "Chatter-free post via SLD auto-shift mid-program",
+      "decision": "RETITLE",
+      "reason": "Round-2 F-r2-a3-C MAJOR: mid-block S-word injection violates spindle thermal cycling + post-processor lookahead. SLDOverlay (E0433) exists and is correct math; the mid-cut application is wrong.",
+      "jm_die_fit": "Y",
+      "narrative": "JM Die's Okuma M460V-5AX + Roku-Roku Fanuc spindles are exactly the high-RPM regime where SLD pays. But operators reject features that shorten bearing life.",
+      "backing_status": "SLDOverlay E0433 wired; needs operational scope reduction.",
+      "actions": [
+        "Rename to: 'Per-operation chatter-free RPM picker (toolpath boundaries only, no mid-block S-words)'",
+        "Add constraint: |Δn| < 15% within 60s window (thermal-cycle budget per F-r2-a3-C)",
+        "Restrict to roughing-only application initially"
+      ]
+    },
+    {
+      "unit": "U-INV-MILL-05",
+      "title": "Thermal-compensated first-part probe + offset",
+      "decision": "KEEP",
+      "reason": "Backing: ThermalOverlay (E0456) verified. Probing skill /probe-routine-guide exists. Honest scope, achievable physics.",
+      "jm_die_fit": "Y",
+      "narrative": "Every JM Die first-article needs warm-up cycle. Thermal-comp probe pays back on every cold-start fastener job.",
+      "backing_status": "Wired — needs controller-specific probe macro library.",
+      "actions": [
+        "Acceptance: emit Renishaw OMP60 + Blum macros for Okuma OSP-P300 + Fanuc 30iB + Heidenhain",
+        "Wire to prism_calc:thermal_compensate action"
+      ]
+    },
+    {
+      "unit": "U-INV-MILL-06",
+      "title": "Quote-from-STEP (DFM × ToleranceStack × CADExtract)",
+      "decision": "MERGE",
+      "reason": "Round-2 F-r2-a3-H + agent-8 F-r2-a8-N: duplicates v7.B Row 17 without resolving open cost-equation gap. Same engine combo claimed by two roadmap entries.",
+      "jm_die_fit": "Y",
+      "narrative": "JM Die quotes 100+ customers — quote-from-STEP is high-demand. But two roadmap entries means duplicate test surface.",
+      "backing_status": "Engines exist (CADExtract, DFMCheck, ToleranceStack); cost equation missing.",
+      "actions": [
+        "Merge with v7.B Row 17 — pick MS2 as build vehicle, mark Row 17 as 'realized by U-INV-MILL-06'",
+        "Require cost equation spec (agent-8 F-r2-a8-N) before unit starts",
+        "Use existing /quote skill + CADExtract pipeline"
+      ]
+    },
+    {
+      "unit": "U-INV-MILL-07",
+      "title": "Real-time cutting-condition violation alerter",
+      "decision": "MERGE",
+      "reason": "Round-2 F-r2-a3-J: shares missing SpindleTelemetry prerequisite with MILL-01. Two units, one missing engine.",
+      "jm_die_fit": "Y",
+      "narrative": "Same JM Die operator workflow as MILL-01 — collapse to single ATOMIC unit.",
+      "backing_status": "Same telemetry gap as MILL-01.",
+      "actions": [
+        "Merge with U-INV-MILL-01 into 'Mill Operator Advisor' (chip-load + violation alerts on shared telemetry stream)",
+        "Build SpindleTelemetryIngestEngine ONCE",
+        "Saves ~1 unit of work, prevents dispatcher naming collision"
+      ]
+    },
+    {
+      "unit": "U-INV-MILL-08",
+      "title": "Cycle Time Crush SaaS (per-program fee)",
+      "decision": "KEEP",
+      "reason": "Round-2 F-r2-a3-K opportunity flag: highest market-fit unit. /cycle-time-crush skill exists, CycleTimeCrush + ProgramOptimize engines real, outcome-based pricing reduces adoption friction.",
+      "jm_die_fit": "Y",
+      "narrative": "JM Die's 24,545-program archive becomes the training + validation corpus. 'Upload G-code, get 5-15% cycle time back, pay-on-delivery' bypasses senior-programmer trust barrier.",
+      "backing_status": "Wired — needs SA local-search not steepest-descent per agent-8 F-r2-a8-F.",
+      "actions": [
+        "Promote ordering: ship 2nd in MS2 after LATHE-05 cost-calc",
+        "Use SA (simulated annealing) per F-r2-a8-F",
+        "Vericut-class sim wired via existing /program-simulate"
+      ]
+    },
+    {
+      "unit": "U-INV-LATHE-01",
+      "title": "Hard-turn replacement of grinding (CBN/Ceramic advisor)",
+      "decision": "RETITLE",
+      "reason": "Round-2 F-r2-a3-D MAJOR: ResidualStressFEM + WhiteLayerKinetics + CBNCeramicCatalog ALL missing. HardTurningCapstone (E0175) is a capstone wrapper, not residual-stress physics. Selling 'grinding replacement' without σ_res(z) prediction = false claims + liability.",
+      "jm_die_fit": "N",
+      "narrative": "JM Die has NO dedicated grinder cell in 21-machine inventory. Building 3 missing engines (12+ weeks) for a non-JM-Die need is poor ROI. External customer discovery required.",
+      "backing_status": "ONLY E0175 capstone wired; 3 physics engines missing.",
+      "actions": [
+        "Downgrade to: 'Hard-turn parameter advisor (no residual-stress claim, no grinding-replacement claim)'",
+        "Build on E0175 + Kienzle alone — shippable today",
+        "Defer 'grinding-replacement' framing to MS5+ once ResidualStressFEMEngine, WhiteLayerKineticsEngine, HardTurnSurfaceIntegrityEngine exist"
+      ]
+    },
+    {
+      "unit": "U-INV-LATHE-02",
+      "title": "Lights-out turning verdict (chipbreaker + CSS wrap-risk)",
+      "decision": "BUILD",
+      "reason": "Round-2 F-r2-a3-E MAJOR: ChipControl / Chipbreaker / CSSWrapRisk all live ONLY as the /chip-control skill — no executable engine. SaaS customers cannot consume a markdown prompt.",
+      "jm_die_fit": "Y",
+      "narrative": "JM Die runs 7 Okuma lathes — lights-out shift policy is a constant operational question. Engines must exist or this is rebrand-only.",
+      "backing_status": "Skill-only — register 2 new gap engines.",
+      "actions": [
+        "BUILD ChipbreakerCatalogEngine (Sandvik/Kennametal/ISCAR/Tungaloy/Mitsubishi × ~40 geometries × material × DOC/feed envelopes)",
+        "BUILD CSSWrapRiskEngine (Nakayama-Arai 1962 angular-momentum + chip-curl radius)",
+        "Register both in PENDING_GAP_ENGINES.json",
+        "Wire to prism_turning dispatcher with lights_out_verdict action"
+      ]
+    },
+    {
+      "unit": "U-INV-LATHE-03",
+      "title": "Universal threading wizard (5 dialects)",
+      "decision": "KEEP",
+      "reason": "Threading is high-volume on JM Die fastener jobs. Existing /hard-turn + /lathe-thread skills. Round-2 F-r2-a3 medium-fit flag — differentiation thin but reliable.",
+      "jm_die_fit": "Y",
+      "narrative": "Fastener industry = threads on everything. Even 'thin differentiation' is acceptable when integrated into JM-Die-paid workflow.",
+      "backing_status": "Skills exist, engine wiring needs audit.",
+      "actions": [
+        "Audit ENGINE_DIGEST for ThreadingEngine; if missing, register",
+        "Wire to prism_turning:threading_wizard action",
+        "Add Okuma/Mazak/Fanuc/Mori/Hardinge dialect post tests"
+      ]
+    },
+    {
+      "unit": "U-INV-LATHE-04",
+      "title": "Mill-turn collision-free post for Okuma B250IIW",
+      "decision": "BUILD",
+      "reason": "Round-2 F-r2-a3-F MAJOR: SubSpindleSync + BAxisKin + MillTurnForwardKin ALL missing. JM Die OWNS LTH-07 Okuma Multus B250IIW (jm-die-profile.ts:246) — direct single-customer match, but engines aren't built. E0316 MastercamMillTurnBridge is wrong vendor (Mastercam, not Okuma OSP).",
+      "jm_die_fit": "Y",
+      "narrative": "STRONGEST single-machine customer match in MS2 — JM Die owns the exact target machine. But 3 prerequisite engines must build first (2-3 weeks each = ~8 weeks gating).",
+      "backing_status": "ZERO kinematic engines for Okuma mill-turn.",
+      "actions": [
+        "BUILD MillTurnForwardKinematicsEngine (T_world ← T_base·T_b_axis(θ)·T_tool)",
+        "BUILD SweptVolumeCollisionEngine (octree/BVH vs machine envelope STL)",
+        "BUILD SubSpindleSyncEngine (Z2 + C2 phase-match state machine)",
+        "Register all in PENDING_GAP_ENGINES.json",
+        "Sequence U-INV-LATHE-04 BEHIND these 3 builds"
+      ]
+    },
+    {
+      "unit": "U-INV-LATHE-05",
+      "title": "Cost-per-part calculator (Gilbert min-cost/max-prod/max-profit)",
+      "decision": "KEEP",
+      "reason": "Round-2 F-r2-a3-I HIGH-VALUE: strongest market-fit unit in MS2 Lathe. /cost-optimize-lathe skill exists, CostOptimizeLathe engine wired, Boothroyd & Knight Eq. 5.30 canonical form locked by agent-8.",
+      "jm_die_fit": "Y",
+      "narrative": "JM Die competes with ITW/Alcoa/Optimas/SFS/Holo-Krome shops on price. Shareable web tool → viral acquisition surface → funnel into paid SFC + Master Post.",
+      "backing_status": "Wired; needs UI surface + free-tier paywall plumbing.",
+      "actions": [
+        "PROMOTE to MS2-Lathe priority #1 (ship first)",
+        "Free-tier (no auth, basic DOS protection)",
+        "Track conversion: free-cost-calc users → paid trial signups as MS2 marketing KPI",
+        "Note: paywall plumbing missing per F-r2-a5-K04 — coordinate with MS1 subscriptions"
+      ]
+    },
+    {
+      "unit": "U-INV-LATHE-06",
+      "title": "Print-to-program Lathe SaaS (LATHE-AGI orchestrator)",
+      "decision": "RETITLE",
+      "reason": "Round-2 F-r2-a3-G MAJOR: 'LATHE-AGI' engine doesn't exist in ENGINE_DIGEST. Closest is LatheAdaptiveMachining (E0215) — runtime adaptive, NOT print-OCR → toolpath. BlueprintVisionOCR is WIRE-EXEMPT pending peer-chat revert.",
+      "jm_die_fit": "Y",
+      "narrative": "Adoption resistance from senior programmers is high (Karpathy edge case: old machinists hate auto-generated code). Defer to MS3 once OCR + orchestrator engines mature.",
+      "backing_status": "Engines fragmented across BlueprintVisionOCR + ToleranceExtract + LatheAdaptive — no orchestrator.",
+      "actions": [
+        "Rename to real engine owners: 'Lathe Print-to-Program Pipeline (BlueprintVisionOCR + ToleranceExtract + LatheAdaptive)'",
+        "BUILD LathePrintToProgramOrchestratorEngine to be the single owner",
+        "Defer to MS3 per F-r2-a3-K (let MILL-08 cycle-crush ship first as easier win)"
+      ]
+    },
+    {
+      "unit": "U-INV-LATHE-07",
+      "title": "Groove-job advisor (niche, high margin)",
+      "decision": "KEEP",
+      "reason": "GrooveClassificationEngine (E0174) verified present. Niche by design — low TAM but high per-job margin. /lathe-groove skill exists.",
+      "jm_die_fit": "Y",
+      "narrative": "Snap-ring grooves, O-ring grooves on fastener and die jobs — every JM Die lathe runs these. Niche product offering avoids competing with commoditized CAM features.",
+      "backing_status": "Wired — verify advisor doesn't duplicate E0174 capstone.",
+      "actions": [
+        "Run /dedup before LATHE-07 build per F-r2-a3 duplicate-advisor check",
+        "Ship LAST in MS2-Lathe order (niche = low traffic)",
+        "Wire to prism_turning:groove_advisor action"
+      ]
+    },
+    {
+      "unit": "U-INV-WEDM-01",
+      "title": "WEDM 4-axis taper-die programming",
+      "decision": "KEEP",
+      "reason": "Round-2 F-r2-a4-12: WEDM is OVER-built (62 engines, 101 tests, 23 skills, 36 dispatcher actions). Taper-die is JM-Die-specific (1 Mitsubishi FA10S machine). Existing /wedm-jm-die + WEDMTaperEngine likely covers; verify acceptance criteria.",
+      "jm_die_fit": "Y",
+      "narrative": "Single Mitsubishi FA10S = exact target machine. Tribal corpus is 100% Mitsubishi per Round-1 F-307.",
+      "backing_status": "Wired — verify taper-die acceptance test against JM Die archive (26+ indexed programs).",
+      "actions": [
+        "Acceptance: regenerate 5 JM Die taper-die programs from spec, diff vs archive",
+        "Wire to prism_intelligence:wedm_taper_die action"
+      ]
+    },
+    {
+      "unit": "U-INV-WEDM-02",
+      "title": "WEDM cost-per-cut estimator",
+      "decision": "DROP",
+      "reason": "Existing /wedm-cost skill + WEDMCreditCostEngine + WEDMCostModel cover this. /wedm-feasibility + /wedm-program already emit cost breakdowns. Re-listing as net-new is zero-value inflation per F-r2-a4-10.",
+      "jm_die_fit": "Y",
+      "narrative": "JM Die already has cost estimation via wedm-cost skill. Net-new framing is roadmap padding.",
+      "backing_status": "Fully wired.",
+      "actions": [
+        "DROP from MS2",
+        "If UI surface gap, add to /wedm-studio dashboard backlog (not net-new invention)"
+      ]
+    },
+    {
+      "unit": "U-INV-WEDM-03",
+      "title": "WEDM safety-gate hooks",
+      "decision": "MERGE",
+      "reason": "Round-2 F-r2-a4-2: WEDMProgramSafetyGateEngine + WEDMSafetyEnvelopeEngine EXIST. WEDMHooksEngine missing; WEDMPCDEngine missing (skill /wedm-pcd exists but no engine).",
+      "jm_die_fit": "Y",
+      "narrative": "Safety-gate piece is duplicate. PCD (polycrystalline diamond cutting) for hardened die-steel is real JM Die need.",
+      "backing_status": "Safety-gate wired; Hooks + PCD engines missing.",
+      "actions": [
+        "Merge with new BUILD scope: 'WEDMPCDEngine + WEDMHooksEngine net-new build (2 engines)'",
+        "Drop safety-gate framing (already wired)",
+        "Register 2 new engines in PENDING_GAP_ENGINES.json"
+      ]
+    },
+    {
+      "unit": "U-INV-WEDM-04",
+      "title": "5-dialect translator (Mitsubishi/Sodick/Makino/Agie/Fanuc)",
+      "decision": "DROP",
+      "reason": "Round-2 F-r2-a4-1: ALL 5 dialect engines exist (WEDMPost{Mitsubishi,Sodick,Makino,Agie,Fanuc}Engine + WEDMPostDialectRouterEngine + WEDMControllerDialectVerifierEngine). CLAUDE.md §WEDM AGI confirms 5 dialects.",
+      "jm_die_fit": "N",
+      "narrative": "JM Die runs ONE WEDM dialect (Mitsubishi FA10S). 5-dialect translator doesn't move JM Die revenue. Building completed corpus marketing for theoretical TAM = misuse of unit budget.",
+      "backing_status": "Fully wired — no work needed.",
+      "actions": [
+        "DROP from roadmap entirely",
+        "OR rescope to 'tribal-corpus harvest for Sodick/Makino/Agie' per F-r2-a4-1 recommendation (Round-1 F-307 noted corpus is 100% Mitsubishi)"
+      ]
+    },
+    {
+      "unit": "U-INV-WEDM-05",
+      "title": "WEDM AI advisor",
+      "decision": "DROP",
+      "reason": "/wedm-ai-advisor skill exists. WEDM has 62 engines and 23 skills. Another 'advisor' is duplicate-advisor-engine seed per F-r2-a3 anti-pattern check.",
+      "jm_die_fit": "N",
+      "narrative": "Round-1 F-r2-a4-12 directly states: WEDM is OVER-built, SINKER-EDM is the gap. Adding more WEDM advisors when sinker has 7 engines vs WEDM 62 = wrong gradient.",
+      "backing_status": "Fully wired.",
+      "actions": [
+        "DROP from MS2",
+        "REDIRECT unit budget to sinker-EDM build per Round-1 F308 (sinker is 7 engines, needs second pillar)"
+      ]
+    },
+    {
+      "unit": "U-INV-WEDM-06",
+      "title": "MIT-course-integrated WEDM education product",
+      "decision": "DROP",
+      "reason": "Round-2 F-r2-a4-3: MIT corpus is OVER-built — 6 MITCourse engines (Registry/DeepLearning/Integration/Expansion/FullIntegration/Knowledge). Re-listing 'wire 5 MIT courses' duplicates shipped work.",
+      "jm_die_fit": "N",
+      "narrative": "JM Die operators do not pay for CE credits (per F-r2-a5-K07 also — no accreditation engine, no NIMS/SME partnership). Wrong customer.",
+      "backing_status": "OVER-built (6 engines for what should be 1).",
+      "actions": [
+        "DROP from MS2",
+        "Optional rescope to 'MIT-feedback-loop bridge' per F-r2-a4-3 (16/19 Tier-3 specialists lack feedback_loop per Round-1 F1)"
+      ]
+    },
+    {
+      "unit": "U-INV-CROSS-01",
+      "title": "Tribal Knowledge 'Ask the Shop' chatbot",
+      "decision": "DROP",
+      "reason": "Round-2 F-r2-a4-4: 10 tribal engines wired to 9 dispatchers. Peer claude-2d87fea3 may be enhancing per-customer recall per Round-1 O2/O7 — coordinate, do not re-build.",
+      "jm_die_fit": "Y",
+      "narrative": "Tribal IS a JM-Die-payable feature — but it's ALREADY built. Don't re-list shipped work as net-new invention.",
+      "backing_status": "Fully wired (10 engines, 9 dispatchers).",
+      "actions": [
+        "DROP as net-new",
+        "Coordinate with peer claude-2d87fea3 on per-customer recall enhancement",
+        "Verify 4,245-tip headline claim per F-r2-a5-K01 — actual corpus may be ~400 (50x overstatement)"
+      ]
+    },
+    {
+      "unit": "U-INV-CROSS-02",
+      "title": "Setup-sheet auto-generator",
+      "decision": "KEEP",
+      "reason": "/setup-sheet-generate skill exists. SetupSheetEngine likely wired (verify). High operational value across all JM Die machines.",
+      "jm_die_fit": "Y",
+      "narrative": "Every JM Die job needs setup sheet. Auto-gen from CAM file + tool crib + WCS = labor-saving feature paid by hours/year saved.",
+      "backing_status": "Skill exists — verify engine wiring.",
+      "actions": [
+        "Audit ENGINE_DIGEST for SetupSheetEngine wiring",
+        "Wire to prism_cam:setup_sheet_generate if missing",
+        "Acceptance: emit PDF setup sheet for 5 JM Die archive jobs"
+      ]
+    },
+    {
+      "unit": "U-INV-CROSS-03",
+      "title": "Tolerance-stack web tool",
+      "decision": "KEEP",
+      "reason": "ToleranceStackEngine present in digest. /tolerance-stack skill exists. /gdnt-check skill exists. Standalone web tool is shareable acquisition surface.",
+      "jm_die_fit": "Y",
+      "narrative": "JM Die's 100+ customers send drawings with GD&T stacks. Web tool drives traffic + funnels into paid trial.",
+      "backing_status": "Wired.",
+      "actions": [
+        "Surface as free-tier web tool",
+        "Wire to prism_calc:tolerance_stack action",
+        "Track conversion funnel"
+      ]
+    },
+    {
+      "unit": "U-INV-CROSS-04",
+      "title": "Quote-to-ship single-button orchestrator",
+      "decision": "RETITLE",
+      "reason": "Round-2 F-r2-a4-5 HIGH: scope inflation. Real pipeline = quote → DFM → CAM → post → fixture → schedule → ship = 7-10 underlying engines. Single-unit framing hides 6-month effort.",
+      "jm_die_fit": "Y",
+      "narrative": "QuoteToShip IS the JM Die revenue surface — but single-unit promise misrepresents effort.",
+      "backing_status": "QuoteToShipOrchestratorEngine exists; component coordination unverified.",
+      "actions": [
+        "REBASELINE as MS-tier (5-10 sub-units): CAD import + DFM gate + estimator + scheduler hook + ship-confirm",
+        "Rename to: 'Quote-to-Ship Milestone (multi-unit)'",
+        "Decompose into MS2-CROSS-04a through -04e"
+      ]
+    },
+    {
+      "unit": "U-INV-CROSS-05",
+      "title": "Cross-domain process planner (mill + lathe + EDM same part)",
+      "decision": "KEEP",
+      "reason": "ProcessRoutingEngine likely present. /job-planning skill exists. Multi-process parts are real JM Die work (die cavities = mill + WEDM + grinding-by-vendor).",
+      "jm_die_fit": "Y",
+      "narrative": "JM Die die cavities require mill + WEDM workflow. Cross-process plan = real product.",
+      "backing_status": "Engines exist — verify integration.",
+      "actions": [
+        "Audit ProcessRouting + JobPlanning engine wiring",
+        "Wire to prism_intelligence:cross_process_plan action",
+        "Acceptance: route a real JM Die die cavity job through mill→WEDM stages"
+      ]
+    },
+    {
+      "unit": "U-INV-CROSS-06",
+      "title": "Injection-mold quote tool",
+      "decision": "BUILD",
+      "reason": "Round-2 F-r2-a4-6: InjectionMoldingEngine + InjectionMoldQuoteEngine EXIST but MoldDFMEngine missing. DFM gate is load-bearing — quote without DFM is regressive.",
+      "jm_die_fit": "N",
+      "narrative": "JM Die is fastener/die shop, NOT plastic-mold shop. Plastic-mold market-fit is wrong primary customer. But MoldDFMEngine itself is a genuine gap engine for the broader market.",
+      "backing_status": "Quote engines wired; DFM engine missing.",
+      "actions": [
+        "BUILD MoldDFMEngine ONLY (gate clamping/parting-line/draft/wall-thickness/sink/weld-line)",
+        "Register in PENDING_GAP_ENGINES.json",
+        "DROP plastic-mold quote SaaS framing for JM-Die go-to-market",
+        "Reserve MoldDFM for future expansion / external customer-discovery"
+      ]
+    },
+    {
+      "unit": "U-INV-SHOP-01",
+      "title": "Shop-floor live dashboard (real-time machine status)",
+      "decision": "BUILD",
+      "reason": "Same telemetry gap as MILL-01/07 — no MTConnect/OPC-UA bus engine. /shop-live-status skill exists but skill alone cannot serve real-time.",
+      "jm_die_fit": "Y",
+      "narrative": "JM Die's 21-machine floor needs live status. But /cowork-connectors skill notes MTConnect/OPC-UA already planned — verify before duplicating.",
+      "backing_status": "Skill exists, telemetry ingestor missing.",
+      "actions": [
+        "BUILD MTConnectIngestEngine (already-planned in /cowork-connectors per Round-1)",
+        "BUILD OPCUAIngestEngine (same)",
+        "Wire to prism_session:shop_live_status action",
+        "Shared with MILL-01 telemetry buildout — coordinate"
+      ]
+    },
+    {
+      "unit": "U-INV-SHOP-02",
+      "title": "OEE alerts (real-time)",
+      "decision": "BUILD",
+      "reason": "Round-2 F-r2-a4-7 HIGH BLOCKER: OEECalculatorEngine EXISTS but ZERO AlarmBus engine. OEE math without alert delivery = silent metric. /notify skill exists but no event bus wiring.",
+      "jm_die_fit": "Y",
+      "narrative": "OEE alerts on downtime/quality/availability is paid-tier feature. JM Die owner pays for fewer surprises.",
+      "backing_status": "OEE math wired; alert delivery missing.",
+      "actions": [
+        "BUILD AlarmBusEngine (1 net-new engine)",
+        "Wire to MTConnect/OPC-UA from /cowork-connectors — do not invent new bus per F-r2-a4-7",
+        "Wire to prism_intelligence:oee_alert action",
+        "Acceptance: emit Slack/Discord alert when OEE drops below threshold on a JM Die machine"
+      ]
+    },
+    {
+      "unit": "U-INV-SHOP-03",
+      "title": "Tool-crib inventory + reorder",
+      "decision": "KEEP",
+      "reason": "/tool-crib-guide + /tool-catalog skills exist. ToolCatalogAdaptive (E0459) wired. Reorder integration is genuine product.",
+      "jm_die_fit": "Y",
+      "narrative": "JM Die runs 100s of tool SKUs across 21 machines. Auto-reorder = real labor savings.",
+      "backing_status": "Catalog engine wired; reorder integration depends on vendor (see SHOP-06).",
+      "actions": [
+        "Wire to prism_intelligence:tool_crib_reorder action",
+        "Coordinate with SHOP-06 vendor decision (McMaster/MSC/Grainger, NOT Amazon)"
+      ]
+    },
+    {
+      "unit": "U-INV-SHOP-04",
+      "title": "Magazine/turret optimizer",
+      "decision": "KEEP",
+      "reason": "/magazine-optimize skill exists. Combinatorial optimization for tool magazine assignment across multi-op jobs = real product.",
+      "jm_die_fit": "Y",
+      "narrative": "JM Die's HMC-01..03 (high-mag) and Multus turret optimization saves toolchange time per part × thousands of parts.",
+      "backing_status": "Verify MagazineOptimizerEngine wiring.",
+      "actions": [
+        "Audit ENGINE_DIGEST for MagazineOptimizerEngine",
+        "Wire to prism_cam:magazine_optimize action"
+      ]
+    },
+    {
+      "unit": "U-INV-SHOP-05",
+      "title": "Shop-safety check (PPE, lockout, fume)",
+      "decision": "KEEP",
+      "reason": "/shop-safety-check skill exists. SafetyHooks pipeline wired. /ergo-check skill exists. Compliance product is real B2B value.",
+      "jm_die_fit": "Y",
+      "narrative": "OSHA compliance saves $$$ on audit days. Real product for JM Die's owner.",
+      "backing_status": "Wired.",
+      "actions": [
+        "Wire to prism_safety:shop_audit action",
+        "Add PPE catalog + lockout-tagout pre-flight"
+      ]
+    },
+    {
+      "unit": "U-INV-SHOP-06",
+      "title": "Amazon Business auto-reorder",
+      "decision": "RETITLE",
+      "reason": "Round-2 F-r2-a4-8 CRITICAL: Wrong vendor for JM-Die-class shop. Fastener industry sources from McMaster/MSC/Fastenal — not Amazon. SP-API OAuth burden + regulatory purchasing audit-trail risk for zero customer-pull.",
+      "jm_die_fit": "N",
+      "narrative": "JM Die has ZERO indication of Amazon Business workflow. Customer base (Fastenal/MSC-class) and supplier base both use industrial-distribution vendors. Wrong customer-pull entirely.",
+      "backing_status": "Zero Amazon engines — and rightly so.",
+      "actions": [
+        "REPLACE with McMaster-Carr / MSC / Grainger / Fastenal API integration",
+        "Rename to: 'Industrial-supply auto-reorder (McMaster + MSC + Grainger)'",
+        "$1M/yr job-shop pays for fastener-industry vendor wiring, NOT Amazon",
+        "Coordinate with SHOP-03 tool-crib reorder"
+      ]
+    },
+    {
+      "unit": "U-INV-SHOP-07",
+      "title": "Job-traveler PDF/QR generator",
+      "decision": "KEEP",
+      "reason": "/traveler skill exists. PDF + QR generation is straightforward integration. High operational value.",
+      "jm_die_fit": "Y",
+      "narrative": "Every JM Die job needs traveler. QR for shop-floor scan-in/scan-out drives /shop-live-status telemetry.",
+      "backing_status": "Skill exists; verify TravelerEngine wiring.",
+      "actions": [
+        "Audit ENGINE_DIGEST for TravelerEngine + QRGenEngine",
+        "Wire to prism_session:traveler_generate action"
+      ]
+    },
+    {
+      "unit": "U-INV-SHOP-08",
+      "title": "Smart scheduling (capacity + WIP)",
+      "decision": "DROP",
+      "reason": "Round-2 F-r2-a4-9: 7 scheduling engines wired (CapacityPlanning + JobShopScheduling + Scheduling + ProjectScheduling + WEDMScheduling + LatheJobScheduling + SchedulingPhysics), 4 dispatchers, /bid-to-win + /capacity-plan skills.",
+      "jm_die_fit": "Y",
+      "narrative": "Scheduling IS JM-Die-payable — but it's already built (80%). Re-listing as net-new is roadmap padding.",
+      "backing_status": "Fully wired.",
+      "actions": [
+        "DROP as net-new invention",
+        "Rescope to UI/dashboard surfacing per F-r2-a4-9 (Round-1 G4 noted dashboard gaps)",
+        "Track in MS2-UI bucket, not MS2-SHOP-invention bucket"
+      ]
+    },
+    {
+      "unit": "U-INV-KNOW-01",
+      "title": "Ask-PRISM chatbot with tribal RAG + paywall",
+      "decision": "MERGE",
+      "reason": "Round-2 F-r2-a5-K01 CRITICAL: 4,245-tip claim is ~50x overstated (actual ~400). F-r2-a5-K04 HIGH: no paywall engine (no Stripe/Billing/Quota). F-r2-a4-4: tribal RAG already wired in CROSS-01.",
+      "jm_die_fit": "Y",
+      "narrative": "Substrate exists (Qdrant + 10 tribal engines + 381 embedded entries). Gap is paywall + corrected marketing copy.",
+      "backing_status": "RAG wired; paywall missing entirely.",
+      "actions": [
+        "MERGE with CROSS-01 deliverable (single tribal product, not two)",
+        "Correct headline to actual tip count (~400, not 4,245)",
+        "Coordinate with MS1 subscription stack for paywall plumbing (StripeEngine + QuotaEnforcementEngine)",
+        "Add reachability SLO test for Qdrant (per F-r2-a5-K03)"
+      ]
+    },
+    {
+      "unit": "U-INV-KNOW-02",
+      "title": "Ingest customer manuals (PDF/video/web)",
+      "decision": "BUILD",
+      "reason": "Round-2 F-r2-a5-K05 MEDIUM: /pdf-learn + /video-learn + /youtube-transcript are SKILLS only — zero engine wiring for productization. Skills cannot run server-side for paying customers.",
+      "jm_die_fit": "Y",
+      "narrative": "JM Die has years of supplier PDFs, training videos, internal docs. Auto-ingest is genuine product. But must be engine-backed.",
+      "backing_status": "Skill-only — register 3 gap engines.",
+      "actions": [
+        "BUILD PDFKnowledgeExtractorEngine (engine-back the /pdf-learn skill)",
+        "BUILD VideoIngestEngine (engine-back /video-learn + /youtube-transcript)",
+        "BUILD WebScrapeIngestEngine for supplier websites",
+        "Wire to prism_memory:ingest_customer_corpus action"
+      ]
+    },
+    {
+      "unit": "U-INV-KNOW-03",
+      "title": "Operator chat with doctrine engine + PII",
+      "decision": "BUILD",
+      "reason": "Round-2 F-r2-a5-K06 HIGH: zero DoctrineEngine, zero PIIRedactionEngine in digest. GDPR/CCPA/CPRA exposure on monetized operator chat = legal risk.",
+      "jm_die_fit": "Y",
+      "narrative": "Operators chat freely about parts, customers, employees. Without scrubbing, embedding leaks PII into vector store.",
+      "backing_status": "ZERO doctrine + PII engines.",
+      "actions": [
+        "BUILD PIIRedactionEngine (regex + ML hybrid for names/serials/PO numbers)",
+        "BUILD DoctrineEngine (policy filter — what advice is safe to give, what requires human approval)",
+        "BUILD DataResidencyEngine (GDPR EU vs US data segmentation)",
+        "Register all 3 in PENDING_GAP_ENGINES.json"
+      ]
+    },
+    {
+      "unit": "U-INV-KNOW-04",
+      "title": "CE-credit training product",
+      "decision": "RETITLE",
+      "reason": "Round-2 F-r2-a5-K07 HIGH: zero accreditation engine. MIT doesn't grant CE credits via 3rd-party platforms. 'CE credits' is materially misleading without an accreditation partnership = FTC deception risk.",
+      "jm_die_fit": "N",
+      "narrative": "JM Die's owner does not pay for CE credits — shop floor is hands-on training. Wrong customer + legal risk.",
+      "backing_status": "Zero accreditation engines.",
+      "actions": [
+        "Rename to: 'Internal training tracker (NO CE-credit claim)'",
+        "BUILD LearnerTranscriptEngine for internal-only training logs",
+        "DROP CE-credit framing until NIMS/SME/ABET/ASNT partnership secured",
+        "Defer real CE-credit product to MS5+ once partnership in place"
+      ]
+    },
+    {
+      "unit": "U-INV-CAD-01",
+      "title": "Text-to-CAD generation",
+      "decision": "KEEP",
+      "reason": "Round-2 F-r2-a5-K08 MEDIUM: TextToCADGenerationEngine (E0455) EXISTS. BlueprintToCADGeneration (E0026) + CADIntentDecomposer (E0049) also present. Engine wired but kernel unverified.",
+      "jm_die_fit": "Y",
+      "narrative": "Quick prototyping CAD from text spec is real product. JM Die's customer requests often come as text first, drawing later.",
+      "backing_status": "Wired — kernel choice (B-Rep vs mesh vs implicit) needs ship gate.",
+      "actions": [
+        "Document kernel choice (likely parametric/B-Rep via FreeCAD or OpenCascade bindings)",
+        "Add acceptance test: generate 5 simple parts (bolt, bracket, plate, flange, shaft) from text",
+        "Wire to prism_cad:text_to_cad action"
+      ]
+    },
+    {
+      "unit": "U-INV-CAD-02",
+      "title": "Generative CAD via Fusion 360 gen-design API",
+      "decision": "RETITLE",
+      "reason": "Round-2 F-r2-a5-K09 HIGH: Fusion 360 Generative Design has NO public API as of 2026 — desktop-only feature requiring extension subscription. Feature is technically NOT buildable on Autodesk surface as advertised.",
+      "jm_die_fit": "N",
+      "narrative": "Even if buildable, JM Die does generative-design rarely (fasteners + dies = traditional geometry). Wrong customer + wrong API.",
+      "backing_status": "Zero generative engines.",
+      "actions": [
+        "Rename to: 'Topology-optimized geometry via Altair Inspire / nTopology API'",
+        "OR DROP if Altair/nTopology partnerships not in motion",
+        "DO NOT claim Fusion Generative Design integration (technically false)"
+      ]
+    },
+    {
+      "unit": "U-INV-CAD-03",
+      "title": "Chat-with-the-part (CADRag/CADExtract/AGI-CAD)",
+      "decision": "KEEP",
+      "reason": "Round-2 F-r2-a5-K10 LOW: most realistic CAD trio unit. CADKnowledgeGraph (E0050), CADFeatureEmbedding (E0042), CADAIStateMachine (E0030), CADIntentDecomposer (E0049) ALL present. /cad-rag + /cad-extract skills exist. Substrate is real.",
+      "jm_die_fit": "Y",
+      "narrative": "Customer sends STEP file → JM Die engineer asks 'what's the tightest tolerance?', 'find all the threads', 'what's the rough stock?'. Chat-with-part is genuine workflow.",
+      "backing_status": "Wired — chat front-end + conversation-memory loop is main gap.",
+      "actions": [
+        "Wire to prism_cad:chat_with_part action",
+        "Build conversation-memory loop on QdrantMemoryEngine",
+        "Acceptance: answer 10 standard CAD queries against a real JM Die STEP file"
+      ]
+    }
+  ],
+  "summary": {
+    "total": 36,
+    "drop": 7,
+    "merge": 5,
+    "keep": 13,
+    "retitle": 8,
+    "build": 7,
+    "net_new": 9,
+    "verdict": "MS2 ROADMAP MUST SHRINK: 7 DROPs (WEDM-02/04/05/06, CROSS-01, SHOP-08, KNOW-01-merge-effective-drop), 5 MERGEs collapse to shared deliverables, 13 KEEPs ship as-spec with acceptance tests, 8 RETITLEs require honest re-spec, 7 BUILDs require new gap engines (AlarmBus, MoldDFM, Chipbreaker, CSSWrapRisk, SubSpindleSync, BAxisKin, MillTurnForwardKin, PIIRedaction, Doctrine, MTConnectIngest, OPCUAIngest, PDFKnowledgeExtractor, VideoIngest, LearnerTranscript). NET-NEW count after dedup: ~9 genuinely new product surfaces vs 36 listed in spec. JM Die direct customer-fit drives KEEP list: cost-calc (LATHE-05), cycle-crush (MILL-08), mill-turn (LATHE-04 after build), threading wizard (LATHE-03), setup-sheet (CROSS-02), tolerance-stack (CROSS-03), traveler (SHOP-07), tool-crib reorder (SHOP-03 with vendor-fix), shop-safety (SHOP-05), magazine-opt (SHOP-04), groove-job (LATHE-07), cross-process (CROSS-05), chat-with-part (CAD-03).",
+    "one_line": "MS2 is ~30% net-new after dedup against 575-engine corpus; 7 units DROP outright, 5 MERGE, 8 RETITLE for honest marketing, 7 require new gap engines — prioritize LATHE-05 + MILL-08 + CROSS-03 as free-tier acquisition surfaces, AlarmBus + MoldDFM + Chipbreaker as highest-leverage net-new engine builds.",
+    "highest_value_units_ranked": [
+      "U-INV-LATHE-05 cost-per-part (KEEP, ship FIRST — viral free-tier, engines wired, direct fastener-industry quoting fit)",
+      "U-INV-MILL-08 Cycle Time Crush (KEEP, ship SECOND — outcome-based pricing, 24,545-program training corpus, bypasses senior-programmer trust barrier)",
+      "U-INV-SHOP-02 OEE alerts via AlarmBus BUILD (genuine 1-engine net-new gap, paid tier shop-owner feature)"
+    ],
+    "drop_count_with_redirect": {
+      "WEDM_redirect_to_sinker": "WEDM-04, WEDM-05, WEDM-06 free up ~3 unit budgets — REDIRECT to sinker-EDM second-pillar per Round-1 F308 (sinker has 7 engines, WEDM has 62; balance second pillar)",
+      "shop08_redirect_to_dashboard_ui": "SHOP-08 free unit budget → UI/dashboard for already-built scheduling engines"
+    },
+    "critical_legal_corrections_required_pre_ship": [
+      "U-INV-KNOW-01: correct 4,245-tip claim to actual ~400 (50x overstatement is fraud risk)",
+      "U-INV-KNOW-04: drop 'CE credits' framing until accreditation partnership signed (FTC deception risk)",
+      "U-INV-LATHE-01: drop 'replacement of grinding' framing without ResidualStressFEM engine (liability if customer's bearing fails)",
+      "U-INV-CAD-02: drop 'Fusion 360 Generative Design API' claim (technically false — no public API exists)"
+    ]
+  }
+}

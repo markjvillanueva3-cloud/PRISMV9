@@ -1,0 +1,143 @@
+{
+  "schemaVersion": "1.0.0",
+  "round": 4,
+  "agent_n": 3,
+  "scope": "REVENUE-MS2 v2 — post-dedup roadmap section metadata",
+  "generatedAt": "2026-05-10",
+  "supersedes": "REVENUE-MS2 in state/shared/specs/REVENUE-ROADMAP-2026-05-10.md (42 units)",
+  "ms2_v2_unit_count": 24,
+  "ms2_v1_unit_count": 42,
+  "delta": -18,
+  "breakdown": {
+    "drop": 7,
+    "merge": 5,
+    "keep_or_retitle": 12,
+    "build_net_new": 7
+  },
+  "drops": [
+    {"unit": "U-INV-WEDM-02", "reason": "/wedm-cost already wired (WEDMCreditCostEngine + WEDMCostModel)"},
+    {"unit": "U-INV-WEDM-04", "reason": "5 dialects already wired (Mitsubishi/Sodick/Makino/Agie/Fanuc + DialectRouter)"},
+    {"unit": "U-INV-WEDM-05", "reason": "/wedm-ai-advisor exists; WEDM over-built (62 engines)"},
+    {"unit": "U-INV-WEDM-06", "reason": "6 MITCourse engines wired; CE credits wrong customer"},
+    {"unit": "U-INV-CROSS-01", "reason": "10 tribal engines wired to 9 dispatchers"},
+    {"unit": "U-INV-SHOP-08", "reason": "7 scheduling engines + 4 dispatchers shipped"},
+    {"unit": "U-INV-KNOW-01", "reason": "Merged into CROSS-01 (single tribal product)"}
+  ],
+  "merges": [
+    {"unit": "U-INV-MILL-06", "absorbs": "v7.B Row 17 (quote-from-STEP)", "owner": "MS2"},
+    {"unit": "U-INV-MILL-07", "absorbed_by": "U-INV-MILL-01", "reason": "shared SpindleTelemetry dependency"},
+    {"unit": "U-INV-MILL-01", "retitle": "Mill Operator Advisor (chip-load + violation alerts)"},
+    {"unit": "U-INV-WEDM-03", "scope_reduction": "drop SafetyGate (wired); keep WEDMPCDEngine + WEDMHooksEngine BUILD"},
+    {"unit": "U-INV-KNOW-01", "absorbed_by": "U-INV-CROSS-01"}
+  ],
+  "builds_net_new": [
+    {
+      "unit": "U-INV-LATHE-02",
+      "title": "Lights-out turning verdict (chipbreaker + CSS wrap-risk)",
+      "engines": ["ChipbreakerCatalogEngine", "CSSWrapRiskEngine"],
+      "dispatcher": "prism_turning:lights_out_verdict"
+    },
+    {
+      "unit": "U-INV-LATHE-04",
+      "title": "Mill-turn collision-free post for Okuma B250IIW",
+      "engines": ["MillTurnForwardKinematicsEngine", "SweptVolumeCollisionEngine", "SubSpindleSyncEngine"],
+      "sequencing": "BUILD 3 engines FIRST (~8 wk gating) before unit work begins",
+      "dispatcher": "prism_turning + prism_5axis"
+    },
+    {
+      "unit": "U-INV-CROSS-06",
+      "title": "MoldDFM engine only (drop plastic-mold quote SaaS framing)",
+      "engines": ["MoldDFMEngine"],
+      "dispatcher": "prism_cad:mold_dfm_check"
+    },
+    {
+      "unit": "U-INV-SHOP-01",
+      "title": "Shop-floor live dashboard",
+      "engines": ["MTConnectIngestEngine", "OPCUAIngestEngine"],
+      "shared_with": "U-INV-MILL-01 telemetry",
+      "dispatcher": "prism_session:shop_live_status"
+    },
+    {
+      "unit": "U-INV-SHOP-02",
+      "title": "OEE alerts (real-time) via AlarmBus",
+      "engines": ["AlarmBusEngine"],
+      "depends_on": "U-INV-SHOP-01 MTConnect/OPC-UA ingest",
+      "dispatcher": "prism_intelligence:oee_alert"
+    },
+    {
+      "unit": "U-INV-KNOW-02",
+      "title": "Ingest customer manuals (PDF/video/web)",
+      "engines": ["PDFKnowledgeExtractorEngine", "VideoIngestEngine", "WebScrapeIngestEngine"],
+      "dispatcher": "prism_memory:ingest_customer_corpus"
+    },
+    {
+      "unit": "U-INV-KNOW-03",
+      "title": "Operator chat with conflict resolution + PII",
+      "engines": ["PIIRedactionEngine", "ConflictResolutionEngine", "DataResidencyEngine"],
+      "vapor_replaced": "DoctrineEngine vapor → ConflictResolutionEngine (per round3/08)",
+      "dispatcher": "prism_memory + prism_safety"
+    }
+  ],
+  "ship_first_top3": [
+    {
+      "rank": 1,
+      "unit": "U-INV-LATHE-05",
+      "title": "Cost-per-part calculator (Gilbert min-cost/max-prod/max-profit)",
+      "reason": "engines wired (Boothroyd Eq. 5.30); viral free-tier; fastener-industry quoting fit",
+      "blocker": "MS1 paywall plumbing coordination required"
+    },
+    {
+      "rank": 2,
+      "unit": "U-INV-MILL-08",
+      "title": "Cycle Time Crush SaaS",
+      "reason": "24,545-program JM Die corpus; outcome-based pricing bypasses senior-programmer trust barrier; SA optimizer",
+      "blocker": "switch steepest-descent to simulated-annealing per F-r2-a8-F"
+    },
+    {
+      "rank": 3,
+      "unit": "U-INV-SHOP-02",
+      "title": "OEE alerts via new AlarmBusEngine",
+      "reason": "paid-tier shop-owner feature; OEECalculator math wired",
+      "blocker": "BUILD AlarmBusEngine + wire over SHOP-01 MTConnect/OPC-UA bus"
+    }
+  ],
+  "knowledge_truth_table_corrections": [
+    {"old": "4,245 tribal tips", "new": "243 canonical + 3,629 RAG-indexed (≈80 field-grounded)"},
+    {"old": "Manufacturing CE credits", "new": "Certificate of Completion"},
+    {"old": "Fusion 360 Generative Design API", "new": "TopOpt/ToPy sidecar or nTopology commercial"},
+    {"old": "Hard-turn replacement of grinding", "new": "Hard-turn parameter advisor (no residual-stress claim)"},
+    {"old": "Amazon Business auto-reorder", "new": "McMaster + MSC + Grainger + Fastenal"},
+    {"old": "DoctrineEngine arbitrates knowledge", "new": "ConflictResolutionEngine (reuse KnowledgeUnification pattern)"},
+    {"old": "Qdrant production-tier", "new": "Qdrant dev-grade; SLO/HA/auth/multi-tenant before paid SaaS"},
+    {"old": "Wiki 722 entries", "new": "770 entries (575 engines + 96 dispatchers + 99 memories)"},
+    {"old": "Paywall $49/$199/$999 ready", "new": "BillingEngine+EntitlementsEngine+StripeBridge+RateLimit 8-12wk build OR Lemon Squeezy/Paddle MoR"}
+  ],
+  "redirects": {
+    "WEDM_04_05_06_freed_budgets": "Redirect to sinker-EDM second-pillar (sinker has 7 engines vs WEDM 62; balance pillars per Round-1 F308)",
+    "SHOP_08_freed_budget": "Redirect to UI/dashboard for already-built scheduling engines"
+  },
+  "pending_gap_engines_required": [
+    "ChipbreakerCatalogEngine",
+    "CSSWrapRiskEngine",
+    "MillTurnForwardKinematicsEngine",
+    "SweptVolumeCollisionEngine",
+    "SubSpindleSyncEngine",
+    "MoldDFMEngine",
+    "MTConnectIngestEngine",
+    "OPCUAIngestEngine",
+    "AlarmBusEngine",
+    "PDFKnowledgeExtractorEngine",
+    "VideoIngestEngine",
+    "WebScrapeIngestEngine",
+    "PIIRedactionEngine",
+    "ConflictResolutionEngine",
+    "DataResidencyEngine",
+    "LearnerTranscriptEngine",
+    "LathePrintToProgramOrchestratorEngine"
+  ],
+  "out_of_scope_deferred": {
+    "MS3": ["SpindleTelemetryIngestEngine", "real-time MILL-01/07 variants", "U-INV-LATHE-06 print-to-program orchestrator"],
+    "MS5_plus": ["ResidualStressFEMEngine", "WhiteLayerKineticsEngine", "HardTurnSurfaceIntegrityEngine", "true CE-credit product (post NIMS/SME partnership)"]
+  },
+  "one_line": "MS2 shrinks 42→24 units (7 DROP, 5 MERGE, 12 KEEP/RETITLE, 7 BUILD); ship LATHE-05 + MILL-08 + SHOP-02 first; 17 net-new gap engines registered; 9 marketing/legal headline corrections required pre-ship."
+}

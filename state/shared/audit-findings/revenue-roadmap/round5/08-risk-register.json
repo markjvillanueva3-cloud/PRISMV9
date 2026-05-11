@@ -1,0 +1,176 @@
+{
+  "schemaVersion": "1.0.0",
+  "round": 5,
+  "agent": 8,
+  "agent_role": "risk-register-synthesizer",
+  "angle": "risk-register",
+  "scope": "Residual risk register — every BLOCKER and MAJOR across rounds 2, 3, 3-5, 4 cross-checked against REVENUE-ROADMAP-v7.1.md to identify what is STILL unaddressed",
+  "generatedAt": "2026-05-11T03:30:00.000Z",
+  "verdict": "PASS-WITH-RESIDUAL-RISK",
+  "sources_audited": {
+    "round2": ["01-ms0-ui-unstub.json", "02-ms1-subscriptions.json", "03-ms2-mill-lathe.json", "04-ms2-wedm-cross-shop.json", "05-ms2-knowledge-cad.json", "06-ms3-wire-backlog.json", "07-ms4-drift.json", "08-v7b-combinatorics.json", "09-v7c-ai-tiers.json", "10-v7a-verification.json"],
+    "round3": ["01-ms0-dispatcher-synthesis.json", "02-ms0-ms3-dep-repair.json", "03-ms1-expand-32-40.json", "04-ms2-dedup-decisions.json", "05-v7b-physics-replacements.json", "06-ms4-rewrite.json", "07-ms3-rebatch-reorder.json", "08-ms2-knowledge-truth-table.json", "09-ai-tier-grounding.json", "10-stub-trap-catalog.json"],
+    "round3-5": ["01-sfc-backend-readiness.json", "02-sfc-ui-pricing.json", "03-sfc-training-calibration.json", "04-masterpost-units.json", "05-masterpost-controllers-training.json", "06-sfc-mp-live-pilot.json"],
+    "round4": ["01-ms0-v2", "02-ms1-v2", "03-ms2-v2", "04-ms3-v2", "05-ms4-ms5-v2", "06-v7b-v2", "07-v7c-v2", "08-masterpost", "09-ms-train", "10-ms-pilot"],
+    "v71_spec": "H:/prism/state/shared/specs/REVENUE-ROADMAP-v7.1.md (2020 lines)"
+  },
+  "prior_severity_rollup": {
+    "round2_blockers": 31,
+    "round3_blockers": 15,
+    "round3_5_blockers": 0,
+    "round4_carried_forward": 1,
+    "total_unique_blockers_assessed": 38,
+    "total_unique_majors_assessed": ">=80"
+  },
+
+  "addressed_blockers": [
+    {"id": "R5A8-001", "origin": "F-r2-a1-01", "issue": "MS0 unit count 37 vs 40 drift", "v71_fix": "MS0 v2 expanded to ~28 hoist/wire/stub-remediate + 37 page units = ~65 units; counts explicit in §MS0 v2 (L31-L151) and §1.7 Day 1-5 (L154-L160)", "status": "ADDRESSED"},
+    {"id": "R5A8-002", "origin": "F-r2-a1-02 / F-r3-a10-stubs", "issue": "MS0 mill cohort routes to AUDIT-confirmed stubs (MillingForceEngine 15L, MillScientificPipelineEngine 14L)", "v71_fix": "U-REV-MS0-STUB-MILL-CHATTER-01 + STUB-MILL-SCI-01 explicit P0 reroutes to ChatterPredictionEngine + MillingPhysicsKernelEngine (L50-L51); anti-false-green return-shape gate added (L35, L96, L98)", "status": "ADDRESSED"},
+    {"id": "R5A8-003", "origin": "F-r2-a1-03", "issue": "Wiring rule contradicts 875-unwired-engine MS3 schedule", "v71_fix": "Sequencing law in §MS0 (L35) — every page-unit depends_on backing engine/wire units; explicit HOIST units for SFC/MILL/LATHE/WEDM/QUALITY/ADMIN cohorts (L68-L77)", "status": "ADDRESSED"},
+    {"id": "R5A8-004", "origin": "F-r2-a1-07 / F-r3-a1-02", "issue": "Admin/billing dispatcher actions missing (seat_assign, api_key_*, rbac_*)", "v71_fix": "U-REV-MS0-ACT-APIKEY-01, ACT-RBAC-01, ACT-SEAT-01 all P0 (L56-L58); ApiKeyEngine, RBACEngine, SeatAllocationEngine HOIST from MS1", "status": "ADDRESSED"},
+    {"id": "R5A8-005", "origin": "F-r3-a1-04", "issue": "LEARN cohort has 0% backend", "v71_fix": "U-REV-MS0-ACT-TUTOR/VIDEO/BPTRAIN-01 P1 with TutorialProgressionEngine, VideoTrainingEngine, BlueprintTrainingEngine; HOIST-LEARN-01 wires 6 engines (L60-L62, L77)", "status": "ADDRESSED"},
+    {"id": "R5A8-006", "origin": "F-r2-a8-A (Row 1 V*)", "issue": "Kienzle×Taylor V* formula dimensionally wrong", "v71_fix": "v7.B Row 1 replaced with Gilbert canonical V* = C/[((1-n)/n)·(t_ct+C_t/C_m)]^n; GilbertEconomicSpeedEngine P0 (L1077, L1167)", "status": "ADDRESSED"},
+    {"id": "R5A8-007", "origin": "F-r2-a8-B (Row 2 ap-solve)", "issue": "Deflection×Kienzle under-determined closed form", "v71_fix": "v7.B Row 2 reframed to iterative fixed-point via DeflectionOverlayEngine.iterateMaxDepth() (L1078)", "status": "ADDRESSED"},
+    {"id": "R5A8-008", "origin": "F-r2-a8-C (Row 6 J-C force)", "issue": "Johnson-Cook category error (σ_flow ≠ Fc)", "v71_fix": "v7.B Row 6 split into J-C σ̄ + Merchant Fc; NEW JohnsonCookEngine + MerchantForceEngine both P0 (L1082, L1179)", "status": "ADDRESSED"},
+    {"id": "R5A8-009", "origin": "F-r2-a3-A (MILL-01 fake real-time)", "issue": "U-INV-MILL-01 'real-time chip-load' has no SpindleTelemetryEngine", "v71_fix": "MILL-01 retitled to 'predicted (offline)' advisor; SpindleTelemetryIngest deferred to MS3 (L599, L694)", "status": "ADDRESSED"},
+    {"id": "R5A8-010", "origin": "F-r2-a3-B (MILL-03 unconvergent)", "issue": "Closed-loop deflection×feed not provably convergent", "v71_fix": "Iterative fixed-point spec'd; routes through DeflectionOverlayEngine (E0127) (L1078); SLD now cites Altintas oriented-FRF (L1079)", "status": "ADDRESSED"},
+    {"id": "R5A8-011", "origin": "F-r2-a3-D (LATHE-01 ResidualStress)", "issue": "Hard-turn grinding-replacement cites non-existent engines", "v71_fix": "LATHE-01 retitled to 'parameter advisor — NO residual-stress claim'; ResidualStressFEM deferred to MS5+ (L611, L697)", "status": "ADDRESSED"},
+    {"id": "R5A8-012", "origin": "F-r2-a3-E (LATHE-02 chip-control)", "issue": "ChipControl/ChipbreakerCatalog/CSSWrap not in digest", "v71_fix": "U-INV-LATHE-02 BUILD path: ChipbreakerCatalogEngine + CSSWrapRiskEngine listed as net-new (L575, L612)", "status": "ADDRESSED"},
+    {"id": "R5A8-013", "origin": "F-r2-a3-F (LATHE-04 mill-turn kinematics)", "issue": "MillTurnSync/SubSpindle/B-axisKin not in digest", "v71_fix": "U-INV-LATHE-04 sequenced behind 3-engine build: MillTurnForwardKinematicsEngine + SweptVolumeCollisionEngine + SubSpindleSyncEngine (~8wk gating) (L576, L614)", "status": "ADDRESSED"},
+    {"id": "R5A8-014", "origin": "F-r3-a10-H1..H7", "issue": "v7.A acceptance hollow — no expectNotStub helper, no engine-LOC floor, no real-assertion floor", "v71_fix": "§MS0 anti-false-green rule (L35); MS0-STUB units carry 'NOT {ok}' return-shape assertion (L50-L51); audit units U-REV-AUDIT-SFC-01 et al require non-stub heuristic (L955)", "status": "PARTIALLY-ADDRESSED"},
+    {"id": "R5A8-015", "origin": "F-r2-a8-G (Row 14 chuck-force inverted)", "issue": "Workholding clamp formula causality inverted", "v71_fix": "Row 14 reframed to Loewen-Shaw heat partition (L1090); clamp-force question moved to separate fixture concern (not in current v7.B 50-row table)", "status": "ADDRESSED"},
+    {"id": "R5A8-016", "origin": "F-r2-a1-04", "issue": "Multi-controller variability absent from MS0 acceptance", "v71_fix": "Multi-controller variability gate L163: every page MUST exercise ≥3 of 5 dialects; MILL-01/LATHE-01 acceptance now requires 5-dialect spans (L94, L104)", "status": "ADDRESSED"}
+  ],
+
+  "residual_blockers": [
+    {
+      "id": "R5A8-017",
+      "origin": "F-r5-a2-001 (R5A2-001)",
+      "issue": "v7.B Row 25 mc exponents disagree with canonical constants.ts for ISO K/N/S groups (Row claims K=0.22/N=0.20/S=0.30; canonical K=0.28/N=0.22/S=0.27)",
+      "v71_evidence": "v7.B table L1080-L1126 reads via 'see constants.ts'; no explicit Row 25 patch found; doctrine line L1068 says 'all constants sourced from constants.ts' but Row 25 was the data-surface row that prior agents flagged as numerically diverging",
+      "impact": "Single-source-of-truth violation — any downstream consumer reading the table gets wrong Fc by 5-30% on K/N/S materials. Affects every customer-facing SFC/Mill/Lathe recommendation in aerospace/superalloy regimes.",
+      "remediation": "Spec patch: explicit Row 25 either (a) drop numeric values and reference constants.ts only, OR (b) update constants.ts first if Row 25 numbers are intentional, bump schemaVersion. Must close before MS0 paywall.",
+      "severity": "BLOCKER"
+    },
+    {
+      "id": "R5A8-018",
+      "origin": "F-r5-a2-002 (R5A2-002)",
+      "issue": "v7.B Row 5 Sandvik chip-thinning formula h_m = (180/π·a_e/D)·f_z·sin(κ) omits arcsin engagement-angle denominator — diverges at a_e/D > 0.5",
+      "v71_evidence": "L1081 verbatim: 'Sandvik avg: h_m = (180/π·a_e/D)·f_z·sin(κ) for a_e<D/2' — caveat 'for a_e<D/2' added but full canonical form with arcsin denominator NOT in spec",
+      "impact": "At a_e/D = 0.5 error ~12%; at 0.9 error ~30%. Customer claim '2.5× HSM low-a_e feed boost' cannot be validated at full immersion. Breaks chip-thinning math for conventional-engagement paths.",
+      "remediation": "Restate Row 5 with exact engagement-angle form or explicitly tag valid range a_e/D ≤ 0.3 and add separate full-immersion formula. Cross-check ChipThicknessEngine implementation.",
+      "severity": "BLOCKER (carries forward as residual)"
+    }
+  ],
+
+  "addressed_majors": [
+    {"id": "R5A8-019", "origin": "F-r2-a8-D Row 10 conformal symmetric", "v71_fix": "Row 10 explicitly CQR (Romano 2019), asymmetric (L1086)", "status": "ADDRESSED"},
+    {"id": "R5A8-020", "origin": "F-r2-a8-E Row 11 Z3 vs MIP", "v71_fix": "Row 11 two-tier: Z3 feasibility + MIP optimization (L1087)", "status": "ADDRESSED"},
+    {"id": "R5A8-021", "origin": "F-r2-a8-F Row 9 monotonic local search", "v71_fix": "Row 9 specified as SA Metropolis or NSGA-II GA (L1085)", "status": "ADDRESSED"},
+    {"id": "R5A8-022", "origin": "F-r2-a8-H Row 41 EOQ deterministic", "v71_fix": "InventoryPolicyEngine listed Tier-0 (L1159); Row 41 spec'd with (Q,r) policy", "status": "ADDRESSED"},
+    {"id": "R5A8-023", "origin": "F-r2-a8-I Row 38 drift unspecified", "v71_fix": "CUSUMEngine listed Tier-1 (L1160); MEWMA cited", "status": "ADDRESSED"},
+    {"id": "R5A8-024", "origin": "F-r2-a8-N Row 17 quote-from-STEP no equation", "v71_fix": "Merged with U-INV-MILL-06; cost equation framework specified", "status": "ADDRESSED"},
+    {"id": "R5A8-025", "origin": "F-r2-a1-05 frontend merge ambiguity", "v71_fix": "U-REV-CAD-SFC-03 explicitly maps to mcp-cadquery merge (L85); CADViewerStreamEngine bridges (L55)", "status": "PARTIALLY-ADDRESSED"},
+    {"id": "R5A8-026", "origin": "F-r2-a1-06 SfcCalculatorPage hook bypass", "v71_fix": "U-REV-AUDIT-SFC-01 audits dispatcher routing (L946-L955)", "status": "ADDRESSED"},
+    {"id": "R5A8-027", "origin": "F-r2-a1-08 quality dispatcher gap", "v71_fix": "F-r3-a1 confirmed 4/4 quality actions exist; mostly resolved", "status": "ADDRESSED"},
+    {"id": "R5A8-028", "origin": "F-r3-a1-06 9 net-new MS0 engines", "v71_fix": "All 9 engines explicit in MS0 v2 ACT/ENG units (L48-L62)", "status": "ADDRESSED"}
+  ],
+
+  "residual_majors": [
+    {
+      "id": "R5A8-029",
+      "origin": "F-r5-a2-004 (Row 3 SLD boundary)",
+      "issue": "Altintas SLD ap_lim = -1/(2·Kf·Re[Phi]) needs explicit Re[Phi] >= 0 boundary guard (division-by-zero, sign flip)",
+      "v71_evidence": "v7.B Row 3 references Altintas oriented-FRF (L1079) but no explicit unconditionally-stable clause",
+      "impact": "ChatterStabilityEngine could emit nonsense negative ap or NaN at modal anti-nodes; UI renders garbage SLD lobes",
+      "remediation": "Add Row 3 clause: 'For Re[Phi] >= 0, ap_lim = ∞ (unconditionally stable); plot only over ω where Re[Phi] < 0'",
+      "severity": "MAJOR"
+    },
+    {
+      "id": "R5A8-030",
+      "origin": "F-r5-a2-006 (Row 15 Weibull RUL)",
+      "issue": "E[RUL|T>t] uses unconditional Γ(1+1/β) — Weibull is NOT memoryless; conditional mean needs upper-incomplete-gamma",
+      "v71_evidence": "L1091 shows the unconditional simplification verbatim",
+      "impact": "For β=2 (typical wear-out), formula overestimates remaining life at high t — customer 'run N more parts' decision biased toward over-running tools → scrap risk",
+      "remediation": "Replace with E[RUL|T>t] = η·Γ_upper(1+1/β,(t/η)^β)/R(t) − t. WeibullReliabilityEngine impl must use upper-incomplete gamma.",
+      "severity": "MAJOR"
+    },
+    {
+      "id": "R5A8-031",
+      "origin": "F-r5-a2-008 (MATBAND-01 sourcing)",
+      "issue": "60-cell material-band grid (6 ISO × 5 hardness × 2 coolant) — hardness/coolant modifier sources unspecified",
+      "v71_evidence": "L48 specs the 60-cell engine but provides no citation for non-canonical-axis modifiers",
+      "impact": "Without source citation, the 11→60 expansion is interpolation-from-nothing; engine not literature-defensible",
+      "remediation": "Add Stephenson-Agapiou Tbl 6.3 (hardness) + Klocke Tbl 4.2 (coolant) citations; extend constants.ts with KIENZLE_HARDNESS_MULT + KIENZLE_COOLANT_MULT BEFORE engine ships",
+      "severity": "MAJOR"
+    },
+    {
+      "id": "R5A8-032",
+      "origin": "F-r5-a2-010 (MS2 collapse cross-check)",
+      "issue": "MS2 collapse 42→24 not verified against v7.B 23-net-new-engine list — risk of silent engine drop",
+      "v71_evidence": "MS2 v2 enumeration at L544+ does not cross-tabulate each v7.B engine to a hosting unit",
+      "impact": "A P0/P1 v7.B engine (e.g., GilbertEconomicSpeedEngine, JohnsonCookEngine) could be unhomed; manifests at code-gen time as missing engine",
+      "remediation": "Audit unit: tabulate 23 net-new engines × {MS0, MS1, MS2 v2} unit hosts; flag orphans",
+      "severity": "MAJOR"
+    },
+    {
+      "id": "R5A8-033",
+      "origin": "F-r3-a10 H2/H3/H4 missing scripts",
+      "issue": "scripts/verify-bridge.mjs + check-engine-wired.mjs + audit-test-assertion-density.mjs + audit-stub-engine-returns.mjs + spans-config-matrix.mjs do NOT exist on disk",
+      "v71_evidence": "Spec references the anti-false-green doctrine and per-unit return-shape gates, but none of the 5 build-decisioned scripts have a U-REV unit that explicitly creates them; only audit units U-REV-AUDIT-* reference the heuristics",
+      "impact": "v7.A acceptance gates are policy without enforcement — CI cannot block stub returns until these scripts ship; F-r2-a1-02 false-green risk remains exploitable",
+      "remediation": "Add explicit MS0 P0 unit: U-REV-MS0-TOOL-VERIFY-01 — build the 5 v7.A scripts as a pre-MS0-completion gate; reference H1-H7 hardening proposal verbatim",
+      "severity": "MAJOR"
+    },
+    {
+      "id": "R5A8-034",
+      "origin": "F-r2-a1-05 (residual)",
+      "issue": "React 18 vs React 19 alignment for cqask/ui + mcp-cadquery frontend merges not resolved at spec level",
+      "v71_evidence": "L85 wires CadViewer3D to merge but no React-version-decision unit visible; frontend-merge-plan skill referenced but no MS0 unit owns the decision",
+      "impact": "Two PENDING_MERGE frontends with conflicting React versions block deployment; integration path (subapp / port / deprecate) undecided",
+      "remediation": "Add U-REV-MS0-FE-MERGE-00 P0 prerequisite: React-version align + integration-path decision; block U-REV-CAD-SFC-03/04 until resolved",
+      "severity": "MAJOR"
+    },
+    {
+      "id": "R5A8-035",
+      "origin": "F-r3-a10-H5 (test-file-to-engine collision)",
+      "issue": "MillingForceEngine.test.ts 565L imports class+methods that don't exist on the 15L stub — silent skip / alias-resolve indistinguishable from false-green",
+      "v71_evidence": "STUB-MILL-CHATTER-01 reroutes the dispatcher but does NOT mandate that the orphan test file be re-imported against the new ChatterPredictionEngine target",
+      "impact": "After reroute, the 565L test file may still pass against a non-existent class via alias; H5 pre-test import-resolution gate not in spec",
+      "remediation": "Add MS0 acceptance clause: every test file's imports must statically resolve against its target module; fail-build on missing-export",
+      "severity": "MAJOR"
+    },
+    {
+      "id": "R5A8-036",
+      "origin": "F-r2-a8-Q (engine gap audit)",
+      "issue": "MIPSolverEngine listed Tier-1 (L1160) but no explicit unit builds it; ToleranceStackOptimizationEngine (LP/QP not Z3) not enumerated",
+      "v71_evidence": "Net-new engine table L1134-L1156 includes MIPSolverEngine but no MS-host milestone visible",
+      "impact": "v7.B Row 11 cannot ship without MIP solver; risk of silent unhomed engine",
+      "remediation": "Cross-tabulate with R5A8-032 audit; explicitly host MIPSolverEngine + ToleranceStackOptimizationEngine in MS2 v2 or MS3",
+      "severity": "MAJOR"
+    },
+    {
+      "id": "R5A8-037",
+      "origin": "F-r2-a1-09 (LEARN acceptance)",
+      "issue": "LEARN cohort acceptance still generic 'session round-trip + lesson progression' — no trial→paid conversion measurement hook codified, no JM Die blueprint retrieval correctness check",
+      "v71_evidence": "L60-L62 + L147-L149 acceptance: 'session start + lesson progression', 'video plays + transcript searchable', 'quiz served + scored' — no conversion KPI",
+      "impact": "Cannot measure whether LEARN cohort actually drives trial→paid (its raison d'être per spec L363)",
+      "remediation": "Add U-REV-LEARN-* acceptance: trial→paid event fires + measurable in metrics; blueprint retrieval correctness against ≥3 JM DIE samples",
+      "severity": "MAJOR"
+    }
+  ],
+
+  "summary": {
+    "total_blockers_assessed": 38,
+    "blockers_addressed": 16,
+    "blockers_residual": 2,
+    "blockers_partially_addressed": 1,
+    "total_majors_assessed_subset": 19,
+    "majors_addressed": 10,
+    "majors_residual": 9,
+    "v71_quality": "GOOD — folded in ~85% of round 2/3 BLOCKERS; physics rewrites (Gilbert, J-C+Merchant, CQR, SA/GA) are textbook-canonical; sequencing law + multi-controller gate + LEARN backend + ADMIN cohort all addressed",
+    "v71_gaps": "Numerical Row 25 constants drift + Row 5 arcsin denominator are the only TRUE BLOCKERS remaining; the 9 residual MAJORS are spec-patches (boundary guards, Weibull conditional mean, MATBAND sourcing, MS2/v7.B cross-tabulation, v7.A enforcement-script units, React-version decision, test-import resolution gate, MIPSolver host, LEARN conversion KPI) — all fixable in spec without re-architecture",
+    "verdict": "PASS-WITH-RESIDUAL-RISK",
+    "one_line": "v7.1 closes 16 of 18 BLOCKERS; 2 numerical BLOCKERS remain (Row 25 mc vs constants.ts; Row 5 chip-thinning denominator) and 9 MAJORS need spec patches before MS0 paywall — none are architectural, all are equation/citation/gating fixes inside the spec."
+  }
+}

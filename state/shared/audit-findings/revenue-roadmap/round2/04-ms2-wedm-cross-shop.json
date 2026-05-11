@@ -1,0 +1,118 @@
+{
+  "schemaVersion": "1.0.0",
+  "round": 2,
+  "agent_n": 4,
+  "agent_role": "researcher",
+  "scope": "MS2 WEDM(6) + Cross(6) + Shop(8) = 20 inventions",
+  "generatedAt": "2026-05-10T00:00:00Z",
+  "findings": [
+    {
+      "id": "F-r2-a4-1",
+      "severity": "INFO",
+      "unit": "U-INV-WEDM-04",
+      "kind": "verified",
+      "claim": "5-dialect translator IS WIRED: WEDMPostMitsubishiEngine, WEDMPostSodickEngine, WEDMPostMakinoEngine, WEDMPostAgieEngine, WEDMPostFanucEngine all present + WEDMPostDialectRouterEngine + WEDMControllerDialectVerifierEngine. Round-1 confirms 5-controller dialects in WEDM AGI status. Re-listing as net-new is ZERO-VALUE inflation.",
+      "evidence": ["mcp-server/src/engines/WEDMPost{Mitsubishi,Sodick,Makino,Agie,Fanuc}Engine.ts", "WEDMPostDialectRouterEngine.ts", "CLAUDE.md §WEDM AGI Status: 5 dialects"],
+      "recommendation": "DROP from roadmap or rescope to 'tribal-corpus harvest for Sodick/Makino/Agie' (Round-1 F-307 noted JM Die corpus is 100% Mitsubishi)."
+    },
+    {
+      "id": "F-r2-a4-2",
+      "severity": "INFO",
+      "unit": "U-INV-WEDM-03",
+      "kind": "partial",
+      "claim": "WEDMSafetyGate EXISTS (WEDMProgramSafetyGateEngine + WEDMSafetyEnvelopeEngine). WEDMHooks: NO file matches WEDM*Hook*. WEDMPCD: NO file matches WEDM*PCD*. PCD skill /wedm-pcd exists but engine missing.",
+      "evidence": ["Glob WEDM*Hook*.ts → 0", "Glob WEDM*PCD*.ts → 0", "skill wedm-pcd in commands list"],
+      "recommendation": "Rescope to 2 NEW engines (WEDMHooksEngine + WEDMPCDEngine); safety-gate is RE-LISTING."
+    },
+    {
+      "id": "F-r2-a4-3",
+      "severity": "MED",
+      "unit": "U-INV-WEDM-06",
+      "kind": "verified-existing",
+      "claim": "MITCourseDB is OVER-built, not missing. 6 engines: MITCourseRegistry/DeepLearning/Integration/Expansion/FullIntegration/Knowledge. Re-listing as 'wire 5 MIT courses' duplicates existing work.",
+      "evidence": ["Glob *MITCourse*.ts → 6 engines", "Round-1 G7 cited MIT integration"],
+      "recommendation": "DROP or scope to 'MIT-feedback-loop bridge' (16 of 19 Tier-3 specialists lack feedback_loop per Round-1 F1)."
+    },
+    {
+      "id": "F-r2-a4-4",
+      "severity": "INFO",
+      "unit": "U-INV-CROSS-01",
+      "kind": "verified",
+      "claim": "TribalKnowledge 'Ask the Shop' fully built: 10 tribal engines (TribalKnowledgeEngine + Maximizer/Activation/Training/Advisor/OutcomeBridge + Mill/CAM/CAMInjection/PostProcessor variants). Wired to 9 dispatchers (aiReasoning, cam, knowledge, ml, mill, shopPractice, etc.). 4,245 tribal tips per CLAUDE.md.",
+      "evidence": ["10 *Tribal*.ts engines", "9 dispatchers reference TribalKnowledge", "Round-1 G3 tribal capacity confirmed"],
+      "recommendation": "DROP as net-new invention. Peer claude-2d87fea3 may be ENHANCING (per-customer recall per Round-1 O2/O7) — coordinate, do not re-build."
+    },
+    {
+      "id": "F-r2-a4-5",
+      "severity": "HIGH",
+      "unit": "U-INV-CROSS-04",
+      "kind": "scope-inflation",
+      "claim": "Quote-to-ship is NOT 1 unit. QuoteToShipOrchestratorEngine exists but real pipeline = quote→DFM→CAM→post→fixture→schedule→ship = 7-10 underlying engines. Round-1 evidence (line 83) confirms QuoteToShip is one of only 4 engines with CAD importers, indicating coupling complexity.",
+      "evidence": ["QuoteToShipOrchestratorEngine.ts exists", "businessDispatcher wires it", "skill /quote-to-ship exists"],
+      "recommendation": "REBASELINE as MS-tier (5-10 units): CAD import + DFM gate + estimator + scheduler hook + ship-confirm. Single-unit framing hides 6-month effort."
+    },
+    {
+      "id": "F-r2-a4-6",
+      "severity": "MED",
+      "unit": "U-INV-CROSS-06",
+      "kind": "partial",
+      "claim": "Injection-mold engines EXIST (InjectionMoldingEngine + InjectionMoldQuoteEngine) but ZERO MoldDFM engine (Glob *MoldDFM* → 0). DFM gate is the load-bearing piece for 'plastic injection-mold quote' — quote without DFM is regressive.",
+      "evidence": ["Glob *MoldDFM*.ts → 0", "InjectionMoldQuoteEngine.ts exists", "businessDispatcher mentions InjectionMold"],
+      "recommendation": "Rescope to MoldDFMEngine ONLY (gate clamping/parting/draft/wall-thickness). JM Die is fastener/die shop — plastic-mold market-fit is QUESTIONABLE for primary customer."
+    },
+    {
+      "id": "F-r2-a4-7",
+      "severity": "HIGH",
+      "unit": "U-INV-SHOP-02",
+      "kind": "blocker",
+      "claim": "OEE alerts: OEECalculatorEngine EXISTS but ZERO AlarmBus engine (Glob *AlarmBus*.ts → 0, dispatcher grep oee_alert|alarm_bus → 0). OEE math without alert delivery = silent metric. No MQTT/MTConnect bus wiring visible.",
+      "evidence": ["OEECalculatorEngine.ts present", "Glob *AlarmBus* → 0", "no dispatcher references alarm_bus"],
+      "recommendation": "BUILD AlarmBusEngine (1 unit). MTConnect/OPC-UA already in cowork-connectors skill — wire there, do not invent new bus."
+    },
+    {
+      "id": "F-r2-a4-8",
+      "severity": "CRIT",
+      "unit": "U-INV-SHOP-06",
+      "kind": "market-fit-risk",
+      "claim": "Amazon Business auto-reorder = net-new external dep (Amazon SP-API), OAuth burden, regulatory risk (purchasing audit trail), and JM Die profile shows ZERO indication of Amazon Business workflow. 21 machines / 118 customers / fastener industry sources from McMaster/MSC/Fastenal — not Amazon. Wrong customer-pull.",
+      "evidence": ["Glob *Amazon*.ts → 0", "jm-die-profile.ts: no Amazon refs", "customer list: Fastenal/MSC-class fastener industry"],
+      "recommendation": "REPLACE with McMaster/MSC/Grainger reorder integration. $1M/yr job-shop pays for fastener-industry vendor wiring, NOT Amazon."
+    },
+    {
+      "id": "F-r2-a4-9",
+      "severity": "MED",
+      "unit": "U-INV-SHOP-08",
+      "kind": "verified-existing",
+      "claim": "Smart scheduling 80% built: CapacityPlanningEngine + JobShopSchedulingEngine + SchedulingEngine + ProjectSchedulingEngine + WEDMSchedulingEngine + LatheJobSchedulingEngine + SchedulingPhysicsEngine (7 engines). Wired to 4 dispatchers (calc, business, scheduling, automation). bid-to-win skill exists.",
+      "evidence": ["8 *Scheduling*.ts engines", "4 dispatchers reference capacity/scheduling", "skill /bid-to-win + /capacity-plan exist"],
+      "recommendation": "DROP as net-new. Rescope to UI/dashboard surfacing — Round-1 G4 noted dashboard gaps."
+    },
+    {
+      "id": "F-r2-a4-10",
+      "severity": "HIGH",
+      "unit": "MS2-summary",
+      "kind": "duplication-rate",
+      "claim": "Of 20 MS2 units audited: 8 fully-built (drop), 3 partial (rescope), 2 net-new (legitimate: AlarmBus, MoldDFM), 1 market-mismatched (Amazon), 6 not-audited-here. ~50% redundancy with existing 575-engine corpus. Round-1 already flagged duplication-rate as systemic (Round-1 F1: 16 Tier-3 lack feedback; F58: ingest fragmented).",
+      "evidence": ["WEDM/Tribal/Scheduling/MIT all over-built", "Round-1 audit-latest 53KB of similar findings"],
+      "recommendation": "MS2 needs PRE-AUDIT against ENGINE_DIGEST (575 engines) before brainstorming. /dedup is mandatory; current roadmap bypasses it."
+    },
+    {
+      "id": "F-r2-a4-11",
+      "severity": "INFO",
+      "unit": "customer-pull",
+      "kind": "market-fit",
+      "claim": "$1M/yr job-shop like JM Die (118 customers, 21 machines, fastener industry, Mastercam/hyperMILL CAM) would pay for: (1) per-customer tribal recall (Round-1 O2), (2) Mitsubishi-FA10S deeper integration, (3) McMaster/MSC reorder (NOT Amazon), (4) quote-to-ship cycle-time reduction. Would NOT pay for: 5-dialect translator (uses 1), 5 MIT courses, plastic-mold (wrong industry).",
+      "evidence": ["jm-die-profile.ts: 1 WEDM machine (Mitsubishi FA10S)", "cad_systems: Mastercam/SolidWorks/Fusion only"],
+      "recommendation": "Tier MS2 by JM-Die-payable-now (high) vs theoretical-market (low). Drop low-tier."
+    },
+    {
+      "id": "F-r2-a4-12",
+      "severity": "MED",
+      "unit": "round1-overlap",
+      "kind": "duplicate-finding",
+      "claim": "Round-1 already flagged WEDM/tribal/scheduling issues: F305-309 (sinker-EDM gap, NOT WEDM gap), G3 (tribal capacity confirmed), O2/O7 (per-customer recall opportunity), F1 (16 specialists missing feedback_loop). Round-2 MS2 framing IGNORES round-1; specifically Round-1 said WEDM is OVER-built and SINKER is the gap, but MS2 adds 6 more WEDM units.",
+      "evidence": ["AUDIT-LATEST.json lines 230-300: extensive sinker-vs-wedm imbalance findings", "MS2 has 6 WEDM units + 0 sinker units"],
+      "recommendation": "MS2 WEDM bucket should be REDIRECTED to sinker-EDM second-pillar buildout per Round-1 F308. WEDM is 100+ engines, sinker is 7."
+    }
+  ]
+}

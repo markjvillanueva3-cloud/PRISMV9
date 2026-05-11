@@ -1,0 +1,119 @@
+{
+  "agent": 7,
+  "round": 5,
+  "angle": "revenue-projection",
+  "generated": "2026-05-11",
+  "reviewer": "claude-r5-a7",
+  "verdict": "CONDITIONALLY POSITIVE. v7.1 is structurally sound for revenue IF MS0 (UI unstub) + MS1 (billing) + Master Post MVP ship. Realistic 12-mo ARR ~$0.55M, 36-mo ~$2.4M. The single biggest ARR-unlock is Master Post (independent surface, 70% backend built, 4-week MVP, $299-1499/mo, ~13K addressable shops with controller pain) — it does NOT depend on MS0 page unstub and produces the fastest dollar. MS-PILOT (JM Die live-pilot) unlocks the credibility multiplier that converts pessimistic->realistic. MS-TRAIN unlocks premium-tier pricing power (envelope->fit Omega) but is a margin/expansion lever, not a new-logo lever. CRITICAL CAVEAT: REVENUE-READINESS.json shows overall_revenue_readiness=0 and ms0_ui_unstub_pct=0 — ZERO of the 78 units are shipped today, so all projections are gated on execution starting. Pure-infra units (12 ADMIN/billing + prism_subscription scaffold + tax/dunning/proration) have no direct ARR line but HARD-GATE every paid feature; 289 ML-plumbing engines (deferred to MS-ML-PLUMBING) have zero revenue linkage and correctly excluded.",
+  "summary": {
+    "addressable_us_jobshops": 13000,
+    "products_priced": ["SFC ($49 solo / $199 shop-5seat / $999 enterprise)", "Master Post ($299/controller / $1499 unlimited)", "CAD/CAM AI premium ($499)"],
+    "blended_arpu_assumption_usd_per_mo": 320,
+    "conversion_baselines": { "organic_pct": 0.5, "paid_acq_pct": 2.0 },
+    "milestones_in_v71": ["MS0 (61u customer UI unstub + admin/billing hoist)", "MS1 (43u subscription mechanics)", "MS2 (12-batch revenue-engine wiring)", "MS3.5 (415-engine carry-over)", "MS-TRAIN (training cadence — premium pricing lever)", "MS-PILOT (JM Die 21-machine live validation — credibility lever)", "Master Post product line (39u, independent surface)"],
+    "biggest_arr_unlock": "Master Post",
+    "biggest_arr_unlock_reason": "Independent surface at masterpost.prism.app (no MS0 page-unstub dependency, no MS2-MS5 dependency per spec lines 1607-1608); backend 70% built (25+ engines, ~16 dispatcher actions, 5 controller families wired); 4-week MVP to first revenue; per-controller subscription monetizes the ~13K-shop controller-dialect pain directly with a freemium funnel (5 watermarked posts/mo). Highest revenue-per-engineering-week of any milestone.",
+    "credibility_unlock": "MS-PILOT — JM Die 21-machine live-pilot (byte-equivalence vs golden NC archive, real cutting data for SFC force calibration). Converts pessimistic->realistic conversion by giving every sales conversation a live-shop reference. ~24-29 week wall-clock.",
+    "margin_unlock": "MS-TRAIN — lifts SaaS tier from envelope-pricing to fit-pricing (Omega 0.75->1.0, conformal coverage >=85% per cell). Expansion-revenue and churn-reduction lever, not a new-logo lever. Justifies the $999 enterprise / $1499 unlimited / $499 premium tiers being worth >2x the entry tier.",
+    "zero_revenue_linkage_units": ["289 ML-plumbing engines (LoRA/Federated/ProtoMAML/AdaLoRA/DoRA/Continual/TestTimeAdaptation/Replay/Synaptic/DER) — deferred to MS-ML-PLUMBING post-MS3, correctly excluded from revenue cadence", "30 singleton-wrapper engines (WIRE-EXEMPT)", "25 *Bridge/*Facade/*EventBus/*ChatBus/*Provenance infra survivors (TAG-AS-EXEMPT)"],
+    "pure_infra_gating_units": ["U-REV-MS0-ACT-APIKEY-01", "U-REV-MS0-ACT-RBAC-01", "U-REV-MS0-ACT-SEAT-01", "U-REV-MS0-ACT-SUBTIER-01", "U-REV-MS0-HOIST-ADMIN-01", "U-REV-ADMIN-01..07 (UserMgmt/AuditLog/BillingPortal/SeatAssign/ApiKey/RbacEditor/SubTierEditor pages)", "U-SUB-00 prism_subscription dispatcher scaffold", "U-SUB-* tax/proration/dunning/refund/currency-recon engines", "MS1 billing-concurrency unit"],
+    "pure_infra_note": "These 18+ units carry NO direct ARR line but are HARD-GATE prerequisites — without them no customer can pay (REVENUE-READINESS blocker: 'UI unstub <10% — no customer can pay'). They are correctly tagged P0. They are NOT 'zero revenue linkage' — they are 'revenue-enabling infra', distinct from the 289 ML-plumbing engines which have no path to any paid feature.",
+    "key_risk": "overall_revenue_readiness=0 today — projections assume MS0+MS1+MasterPost execution begins and the 3way scrutiny gate does not throttle below ~8-12 engines/batch (round-2 found 47/batch INFEASIBLE at 7.8x historical velocity)."
+  },
+  "findings": [
+    {
+      "id": "R5A7-001",
+      "severity": "high",
+      "category": "arr-unlock-ranking",
+      "title": "Master Post is the highest-ARR-per-engineering-week milestone and ships independently",
+      "evidence": "Spec lines 1451 (70% built, 4-week MVP), 1607-1608 (no MS0 page-unstub dep, no MS2-MS5 dep), 1446 (freemium 5 posts/mo watermarked funnel), 1465-1467 (3 SHIP-READY controller families: Hurco WinMAX 4200 shops, Okuma OSP 11900, Mitsubishi WEDM 2300). Pricing $299/controller-$1499 unlimited × ~13K addressable.",
+      "impact": "If only ONE milestone ships in the first 6 months, it should be Master Post — fastest path to first dollar and the cleanest standalone product story. Recommend front-loading U-REV-MP-01..22 + MP-36..37 (API + upload page + emitters + free tier) ahead of the 43-unit MS1 billing build for the SFC/CAD products.",
+      "recommendation": "Sequence: Master Post MVP (wk1-4) -> first revenue -> MS0 admin/billing hoist (wk3-8 parallel) -> SFC pages -> MS1 full subscription mechanics. MS-PILOT runs in parallel from wk1 (JM Die byte-equivalence is the P1 MP ship gate per line 1885)."
+    },
+    {
+      "id": "R5A7-002",
+      "severity": "medium",
+      "category": "credibility-multiplier",
+      "title": "MS-PILOT is the pessimistic->realistic conversion lever, not an ARR line itself",
+      "evidence": "Spec lines 1858-2013: progressive-trust live validation on JM Die 21-machine fleet, SFC ~29w / Master Post ~24w wall-clock, force-calibration depends on real cutting data unavailable before P3. Round-3.5/06 verdict: 'Feasible with disciplined gating, SFC is critical path.'",
+      "impact": "Without a live-shop reference, organic conversion stays near the 0.5% floor (pessimistic). With JM Die as named pilot + byte-equivalence proof, every sales call gets a credibility anchor — moves conversion toward the 2% paid-acq ceiling. This is why realistic (40% target) is achievable but optimistic (80%) requires MS-PILOT + MS-TRAIN both complete + a paid-acquisition spend.",
+      "recommendation": "Treat MS-PILOT completion as the gate that flips the public marketing posture from 'beta' to 'proven on a real 21-machine shop'. Budget the ~6-7 month wall-clock realistically — do not promise public-pilot revenue before then."
+    },
+    {
+      "id": "R5A7-003",
+      "severity": "medium",
+      "category": "pricing-power-lever",
+      "title": "MS-TRAIN unlocks premium-tier pricing (margin/expansion), not new logos",
+      "evidence": "Spec lines 1631-1854: MS-TRAIN converts envelope-Omega ~0.75 to fit-Omega 1.0; conformal coverage gate (>=85% per op/machine/material cell) is binding constraint; per-controller LoRA + tribal overlays (U-TRAIN-18/19); 'the only milestone that creates the supervision pipeline + calibration cadence + validation gates that lift the SaaS tier from envelope-pricing to fit-pricing.'",
+      "impact": "The $999 SFC-enterprise / $1499 MP-unlimited / $499 CAD-CAM-premium tiers are only defensible at >2x entry price if MS-TRAIN ships — otherwise customers see envelope-grade output and refuse the premium delta. MS-TRAIN does not add new-logo ARR; it adds ARPU expansion and reduces churn (envelope output that doesn't fit their shop = cancel). Model this as a ~1.3-1.6x ARPU multiplier on the realistic/optimistic scenarios in months 18+.",
+      "recommendation": "Don't gate launch on MS-TRAIN — launch at envelope pricing (lower tiers), ship MS-TRAIN in months 6-12, then introduce/justify premium tiers. Avoids the trap of withholding revenue waiting for a margin lever."
+    },
+    {
+      "id": "R5A7-004",
+      "severity": "high",
+      "category": "execution-gate",
+      "title": "ZERO units shipped today — all projections are conditional on execution start",
+      "evidence": "REVENUE-READINESS.json: overall_revenue_readiness=0, ms0_ui_unstub_pct=0, ms1_subscription_pct=0, ms2_inventions_pct=0, shipped_in_each all 0, blocker='MS0-cohort: UI unstub <10% — no customer can pay', next_unit_recommended='U-REV-ADMIN'.",
+      "impact": "There is no current revenue and no shipped revenue surface. The 12-mo ARR figures assume MS0+MS1+MasterPost execution begins immediately and proceeds at sustainable velocity. If execution stalls (multi-chat thrash, scrutiny-gate throttle, or priority drift), the realistic case degrades toward the pessimistic case mechanically — not because of market, because of zero shipped surface.",
+      "recommendation": "The first milestone-completion KPI to watch is ms0_ui_unstub_pct crossing 10% (unblocks 'a customer can pay at all') then 100% + ms1_subscription_pct=1.0 (full billing). Until then ARR is $0 regardless of roadmap quality."
+    },
+    {
+      "id": "R5A7-005",
+      "severity": "low",
+      "category": "infra-vs-revenue-classification",
+      "title": "Distinguish 'revenue-enabling infra' (18 P0 units, must ship) from 'zero-revenue-linkage' (289 ML engines + 55 facades/wrappers, correctly deferred)",
+      "evidence": "Spec lines 704-777: round-4 collapses 875 unwired into 531 true-revenue-relevant after subtracting 289 ML-plumbing + 30 singleton wrappers + 25 infra facades. MS-ML-PLUMBING is a separate post-MS3 milestone. Round5/05 (customer-pull) flagged 11-12 ADMIN/billing units as 'infra-disguised-as-revenue'.",
+      "impact": "Two different things get conflated. (a) ADMIN/billing/subscription-scaffold units = NO direct ARR line but HARD-GATE all revenue — these MUST ship, P0, no deferral. (b) 289 ML-plumbing engines + 55 facades = genuinely zero revenue path — correctly deferred to MS-ML-PLUMBING, should NOT dilute the revenue cadence. v7.1 gets this right by separating MS-ML-PLUMBING; the risk is a reviewer mistaking (a) for (b) and trying to defer billing.",
+      "recommendation": "Keep ADMIN/billing P0 and non-deferrable. Keep MS-ML-PLUMBING out of the revenue burndown. Tag the 18 revenue-enabling-infra units explicitly as 'gates-paid-feature, no-direct-line' so they're never confused with the ML-plumbing deferral pool."
+    },
+    {
+      "id": "R5A7-006",
+      "severity": "medium",
+      "category": "conversion-model-sensitivity",
+      "title": "Blended ARPU and conversion path drive 5x spread between scenarios — pricing mix matters more than headcount",
+      "evidence": "Pricing: SFC entry $49, MP entry $299, CAD/CAM premium $499. If new logos skew SFC-solo ($49) the ARR is thin; if they skew Master Post per-controller ($299) or multi-product, ARR is 6x richer per logo. Optimistic case assumes ~$320 blended ARPU (mix of MP + shop-tier SFC + some premium); pessimistic assumes ~$90 blended (mostly SFC solo + a few MP).",
+      "impact": "The roadmap should treat Master Post as the ARPU anchor, not SFC-solo. A customer who lands on Master Post ($299-1499) and adds SFC-shop ($199) and CAD/CAM premium ($499) is a ~$1000-2200/mo account. A customer who only takes SFC-solo is $49/mo — 20-45x less. Land-with-Master-Post, expand-into-SFC+CAD is the motion that gets you to the optimistic ARR.",
+      "recommendation": "Bundle/cross-sell design: every Master Post free-tier signup gets an in-product CTA for SFC and CAD/CAM AI. Model expansion revenue (existing accounts adding products) as a distinct line — it's typically 30-50% of mature-year ARR growth and the v7.1 product portfolio is well-suited to it."
+    }
+  ],
+  "projections": {
+    "_methodology": "addressable=13,000 US active job shops. 'Target conversion' = the share of the addressable pool the roadmap is designed to reach via the 0.5% organic + 2% paid-acq blended funnel = ~2.5% of 13K = ~325 paying accounts at full target. Scenarios scale target attainment: pessimistic 10% of target (~33 accts yr1 ramping), realistic 40% (~130 accts), optimistic 80% (~260 accts). Blended ARPU: pessimistic $90/mo (SFC-solo skew, no premium), realistic $230/mo (MP-entry + SFC-shop mix), optimistic $340/mo (multi-product land+expand). 12-mo = end-of-year-1 run-rate ARR (accounts ramp over the year, MS0+MS1+MasterPost assumed live by ~month 4-6). 36-mo = end-of-year-3 ARR assuming MS-PILOT + MS-TRAIN complete by month ~12-18, premium tiers introduced, net-revenue-retention 110-130%, plus continued new-logo. All figures USD, conditional on execution starting (REVENUE-READINESS=0 today).",
+    "pessimistic": {
+      "label": "10% of target conversion — MS0+MS1+MasterPost ship late/partial, no MS-PILOT credibility, no paid acquisition spend, ARPU skews SFC-solo $90/mo",
+      "paying_accounts_eoy1": 33,
+      "blended_arpu_usd_mo": 90,
+      "arr_12mo_usd": 36000,
+      "arr_12mo_note": "~33 accounts × $90/mo × 12 ≈ $35.6K; round to $36K. Mostly Master Post entry + SFC-solo trickle from organic only.",
+      "paying_accounts_eoy3": 95,
+      "blended_arpu_usd_mo_eoy3": 110,
+      "arr_36mo_usd": 125000,
+      "arr_36mo_note": "~95 accounts × $110/mo × 12 ≈ $125K. Slow organic-only growth, NRR ~100% (no premium tiers because MS-TRAIN slipped), modest churn offset by trickle of new logos. This is the 'roadmap ships but go-to-market never gets traction' floor.",
+      "biggest_single_jump": "Master Post MVP going live (month ~4) — first revenue at all; without it, ARR is $0."
+    },
+    "realistic": {
+      "label": "40% of target conversion — MS0+MS1+MasterPost live by ~month 4-6, MS-PILOT (JM Die) complete ~month 12 unlocking credibility, light paid acquisition, ARPU $230/mo (MP-entry + SFC-shop mix)",
+      "paying_accounts_eoy1": 130,
+      "blended_arpu_usd_mo": 230,
+      "arr_12mo_usd": 359000,
+      "arr_12mo_note": "~130 accounts × $230/mo × 12 ≈ $359K. Master Post leads (~70 accts), SFC-shop (~40), CAD/CAM premium (~20). Ramp curve: ~30 by month 6, ~130 by month 12.",
+      "paying_accounts_eoy3": 470,
+      "blended_arpu_usd_mo_eoy3": 290,
+      "arr_36mo_usd": 1636000,
+      "arr_36mo_note": "~470 accounts × $290/mo × 12 ≈ $1.64M. MS-PILOT credibility + MS-TRAIN premium tiers introduced (month ~14-18) lift ARPU $230->$290; NRR ~115% (expansion: MP customers adding SFC + CAD/CAM); continued new-logo at ~2.5%/mo on a growing base. This is the base case if execution is disciplined and go-to-market is competent.",
+      "biggest_single_jump": "MS-PILOT completion (~month 12) — flips marketing from 'beta' to 'proven on a real 21-machine shop', roughly 1.5-2x's the new-logo rate from that point. Master Post MVP is the foundation; MS-PILOT is the accelerant."
+    },
+    "optimistic": {
+      "label": "80% of target conversion — full v7.1 ships on schedule, MS-PILOT + MS-TRAIN both complete by ~month 12-15, premium tiers live, real paid-acquisition budget, strong land-with-Master-Post-expand-into-SFC+CAD motion, ARPU $340/mo",
+      "paying_accounts_eoy1": 260,
+      "blended_arpu_usd_mo": 340,
+      "arr_12mo_usd": 1061000,
+      "arr_12mo_note": "~260 accounts × $340/mo × 12 ≈ $1.06M. Aggressive ramp: ~80 by month 6, ~260 by month 12. Master Post + SFC-shop + CAD/CAM premium all selling; some enterprise ($999 SFC / $1499 MP-unlimited) logos. Assumes paid acquisition working at the 2% ceiling.",
+      "paying_accounts_eoy3": 1100,
+      "blended_arpu_usd_mo_eoy3": 420,
+      "arr_36mo_usd": 5544000,
+      "arr_36mo_note": "~1100 accounts (~8.5% of the 13K addressable) × $420/mo × 12 ≈ $5.54M. MS-TRAIN-driven premium-tier adoption + multi-product expansion push ARPU to $420; NRR ~125-130%; new-logo continues but expansion is now ~40% of growth. This is the 'everything executes + go-to-market is well-funded' ceiling — credible but requires no major execution slips and real GTM investment.",
+      "biggest_single_jump": "Master Post MVP (month ~4, first revenue) then MS-PILOT (~month 12, credibility 2x) then MS-TRAIN premium tiers (~month 15, ARPU 1.5x). Three compounding step-changes; Master Post is the one that creates revenue from nothing, so it's the single biggest unlock."
+    }
+  },
+  "consensus_signal": "v7.1 is structurally fit for revenue but UNSTARTED (readiness=0). Realistic 12-mo ARR ~$0.36M, 36-mo ~$1.6M. The biggest ARR unlock is Master Post (independent surface, 70% built, 4-week MVP, freemium funnel into ~13K controller-pained shops) — recommend front-loading it ahead of the 43-unit MS1 billing build. MS-PILOT (JM Die) is the credibility lever that flips pessimistic->realistic; MS-TRAIN is the margin/expansion lever (envelope->fit pricing) — neither adds new logos, both are needed for the optimistic case. 18 ADMIN/billing/subscription-scaffold units are revenue-ENABLING infra (P0, must ship, no direct line) — do NOT confuse with the 289 ML-plumbing engines + 55 facades which are genuinely zero-revenue and correctly deferred to MS-ML-PLUMBING. Single biggest risk to all projections: execution never starts / scrutiny-gate throttles velocity — not market."
+}

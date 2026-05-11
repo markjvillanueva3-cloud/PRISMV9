@@ -1,0 +1,180 @@
+{
+  "round": 3,
+  "agent_n": 7,
+  "scope": "MS3 rebatch + reorder",
+  "agent_role": "code-analyzer-forensic",
+  "timestamp": "2026-05-10",
+  "round2_referenced": ["F-r2-a6-1", "F-r2-a6-2", "F-r2-a6-3", "F-r2-a6-4"],
+  "evidence_sources": [
+    "state/shared/BUILD_STATE.json (headline.needs_wiring=875; BUILT.wireExempt=81 already deducted; top_domains)",
+    "state/shared/audit-findings/revenue-roadmap/round2/06-ms3-wire-backlog.json (math drift + 47/batch infeasibility + ML inflation)",
+    "git log --grep=BATCH (45 batch commits; sustained cadence 6 engines/commit; BATCH7 needed RETRY2+HARDEN under 3way scrutiny)",
+    "grep WIRE-EXEMPT mcp-server/src/engines/ -> 86 files / 87 occurrences (matches BUILD_STATE.wireExempt=81 within noise)",
+    "agent-9 prior finding: ~33% of unwired pool is ML plumbing (LoRA/Federated/ProtoMAML/AdaLoRA/DoRA/Continual/TestTimeAdaptation)"
+  ],
+  "filtered_counts": {
+    "unwired_raw": 875,
+    "wire_exempt_already_deducted_in_875": 0,
+    "wire_exempt_present_in_codebase": 81,
+    "singleton_wrappers_in_unwired_pool": 30,
+    "ml_plumbing_estimate_pct": 33,
+    "ml_plumbing_count": 289,
+    "infrastructure_base_facade_skim": 25,
+    "true_revenue_relevant": 531,
+    "derivation": "875 unwired - 30 singleton-wrapper false-positives - 289 ML-plumbing (33% per agent-9) - 25 infra/base/facade survivors = 531 revenue-relevant orphans. Note: BUILD_STATE already separates wireExempt (81) from unwired (875), so WIRE-EXEMPT itself is NOT double-deducted; the 30 is singleton-wrappers WITHOUT exempt tag that should still be excluded."
+  },
+  "historical_velocity": {
+    "engines_per_commit_sustained": 6,
+    "engines_per_commit_max_observed": 12,
+    "evidence": "BATCH2/3/4/5/7/8/9 all shipped 6 engines; BATCH5-6-RETRY shipped 12 (combined catch-up); BATCH11 shipped 4. Mean ~6, ceiling 12 with retry pressure.",
+    "verdict_47_per_batch": "INFEASIBLE — 47/batch is 7.8x sustained velocity. Would need ~8 days continuous wiring per batch under 3way scrutiny gate, will trigger Stop hook blocks and retry cycles (BATCH7 needed RETRY2+HARDEN)."
+  },
+  "new_batches": [
+    {
+      "id": "U-WIRE-LATHE-BATCH12",
+      "domain": "Lathe",
+      "count": 9,
+      "engines": ["LatheAdvancedOperationsEngine", "LatheAIFeatureRegistration", "LatheAIUltraEngine", "LatheCAMIntelligenceEngine", "LatheCuttingChemistryEngine", "LatheDeepAIHardeningEngine", "LatheEnvelopeDistanceEngine", "LatheFinishingStrategyEngine", "LatheGcodeAnalyzerEngine"],
+      "target_dispatcher": "prism_turning",
+      "acceptance": "Each engine has <Name>.test.ts (>=15 cases); round-trip via prism_turning action; 3way scrutiny PASS"
+    },
+    {
+      "id": "U-WIRE-LATHE-BATCH13",
+      "domain": "Lathe",
+      "count": 9,
+      "engines": ["LatheGroovingEngine", "LatheHardenedSelfEngine", "LatheJMDieKnowledgeEngine", "LatheKienzleEngine", "LatheKnowledgeRetrievalEngine", "LatheLubricantEngine", "LatheMachineProfileEngine", "LatheMaterialKBEngine", "LatheMeasurementBridgeEngine"],
+      "target_dispatcher": "prism_turning",
+      "acceptance": "Same as BATCH12; mix non-ML revenue engines; 3way scrutiny PASS"
+    },
+    {
+      "id": "U-WIRE-LATHE-BATCH14",
+      "domain": "Lathe",
+      "count": 10,
+      "engines": ["LatheOperationSequencerEngine", "LatheOptimizationEngine", "LathePartFamilyClassifierEngine", "LathePostProcessorEngine", "LatheProgramAnalyzerEngine", "LatheProgramOptimizerEngine", "LatheRoughingStrategyEngine", "LatheSetupSheetEngine", "LatheSimulationEngine", "LatheStrategyCatalog"],
+      "target_dispatcher": "prism_turning",
+      "acceptance": "Same; consume L13 outcomes; 3way scrutiny PASS"
+    },
+    {
+      "id": "U-WIRE-LATHE-BATCH15",
+      "domain": "Lathe",
+      "count": 10,
+      "engines": ["LatheThreadEngine", "LatheToolBreakageDetectorEngine", "LatheToolCatalogEngine", "LatheToolLifeEngine", "LatheToolWearEngine", "LatheTroubleshootingEngine", "LatheValidationEngine", "LatheVibrationEngine", "LatheWizardEngine", "LatheWorkholdingEngine"],
+      "target_dispatcher": "prism_turning",
+      "acceptance": "Same; close Lathe revenue-relevant subset"
+    },
+    {
+      "id": "U-WIRE-TURNING-BATCH1",
+      "domain": "Turning",
+      "count": 11,
+      "engines": ["TurningEnvelopeDistanceEngine", "TurningInspectionPlanEngine", "TurningRulesGeneratorEngine", "TurningSensitivityAnalysisEngine", "TurningStochasticPlanEngine", "TurningStrategyCatalog", "TurningSurfaceFinishEngine", "TurningThreadEngine", "TurningToolDeflectionEngine", "TurningToolLifeEngine", "TurningValidationEngine"],
+      "target_dispatcher": "prism_turning",
+      "acceptance": "All 11 Turning orphans cleared in one batch; engine-named tests; 3way PASS"
+    },
+    {
+      "id": "U-WIRE-MACHINE-BATCH1",
+      "domain": "Machine",
+      "count": 9,
+      "engines": ["MachineAwareSpeedFeedEngine", "MachineCapabilityIndexEngine", "MachineConfidenceCalculatorEngine", "MachineConsumerBindingEngine", "MachineDataAuditEngine", "MachineLayerMerger", "MachineLoadBalancerEngine", "MachineOEEEngine", "MachineProfilingEngine"],
+      "target_dispatcher": "prism_machine",
+      "acceptance": "9 machine-domain orphans; speed/feed engines double-wired to prism_calc per WIRE-TO-ALL"
+    },
+    {
+      "id": "U-WIRE-MACHINE-BATCH2",
+      "domain": "Machine",
+      "count": 8,
+      "engines": ["MachineROIEngine", "MachineSelectionEngine", "MachineShopMetricsEngine", "MachineStateEngine", "MachineSubscriptionEngine", "MachineTelemetryEngine", "MachineToolWearEngine", "MachineUtilizationEngine"],
+      "target_dispatcher": "prism_machine",
+      "acceptance": "Close Machine domain (17 -> 0)"
+    },
+    {
+      "id": "U-WIRE-MULTI-BATCH1",
+      "domain": "Multi",
+      "count": 12,
+      "engines": ["MultiAgentCoordinatorEngine", "MultiCamKnowledgeEngine", "MultiControllerCalibrationEngine", "MultiModelConsensusEngine", "MultiObjectiveParetoEngine", "MultiPathReasoningEngine", "MultiPostProcessorEngine", "MultiProductOptimizationEngine", "MultiScaleSimulationEngine", "MultiShopFederationEngine", "MultiStageMillingEngine", "MultiVendorBenchmarkEngine"],
+      "target_dispatcher": "prism_orchestrate",
+      "acceptance": "Close Multi domain (12 -> 0); double-wire consensus to prism_intelligence"
+    },
+    {
+      "id": "U-WIRE-CAM-OTHER-BATCH1",
+      "domain": "Other-CAM",
+      "count": 10,
+      "engines": ["CADToSTEPPipelineEngine", "CADScreenshotCapturer", "CADAssemblyPlanEngine", "CADBOMExtractEngine", "CADDFMReportEngine", "CADGeometryHasherEngine", "CADModelDiffEngine", "CADReviewerEngine", "CADTolerancePropagatorEngine", "CADUnitConverterEngine"],
+      "target_dispatcher": "prism_cad",
+      "acceptance": "CAD subset of Other domain; revenue-relevant"
+    },
+    {
+      "id": "U-WIRE-CAM-OTHER-BATCH2",
+      "domain": "Other-CAM",
+      "count": 10,
+      "engines": ["CAMFixtureLibraryEngine", "CAMHolderClearanceEngine", "CAMOperationGapEngine", "CAMPostLintEngine", "CAMProbeRoutineEngine", "CAMSetupSheetEngine", "CAMStrategySelectorEngine", "CAMTimeEstimatorEngine", "CAMVendorBridgeEngine", "CAMWorkholdingPlannerEngine"],
+      "target_dispatcher": "prism_cam",
+      "acceptance": "CAM subset of Other"
+    },
+    {
+      "id": "U-WIRE-QUALITY-OTHER-BATCH1",
+      "domain": "Other-Quality",
+      "count": 8,
+      "engines": ["AS9100TraceabilityEngine", "AMSAAReliabilityGrowthEngine", "FAIRReportEngine", "GageRRRoutineEngine", "InspectionPlanGeneratorEngine", "PPAPDocumentEngine", "QualityAlertEngine", "QualityDashboardEngine"],
+      "target_dispatcher": "prism_quality",
+      "acceptance": "Quality/AS9100 subset — high revenue (audit-grade traceability)"
+    },
+    {
+      "id": "U-WIRE-OTHER-MISC-BATCH1",
+      "domain": "Other-Misc",
+      "count": 10,
+      "engines": ["GCodeTemplateEngine", "BatchProcessor", "AIMLFormulasEngine", "AAAQualityEngine", "ShopFloorCostEngine", "ShopFloorDashboardEngine", "ShopFloorJobEngine", "ShopFloorQuoteEngine", "ShopFloorReportEngine", "ShopDataCompletenessEngine"],
+      "target_dispatcher": "prism_orchestrate",
+      "acceptance": "ShopFloor cluster (revenue dashboards) + misc; double-wire to prism_quote where applicable"
+    }
+  ],
+  "deferred_batches": [
+    {
+      "id": "U-WIRE-ML-DEFER-MILESTONE",
+      "domain": "ML-Plumbing",
+      "count_estimate": 289,
+      "rationale": "33% of unwired pool is LoRA/Federated/ProtoMAML/AdaLoRA/DoRA/Continual/TestTimeAdaptation/Replay/Synaptic/DER — training-time research infrastructure with no inference revenue path. Many are already WIRE-EXEMPT in source. Defer to dedicated MS-ML-PLUMBING milestone post-MS3 close.",
+      "target_milestone": "REVENUE-MS4 or post-revenue MS-ML"
+    },
+    {
+      "id": "U-WIRE-INFRASTRUCTURE-EXEMPT",
+      "domain": "Infrastructure",
+      "count_estimate": 25,
+      "rationale": "Base/Facade/Bridge/Event/ChatBus/Provenance — wrapper pattern that wiring would break (circular dep risk). Audit BUILD_STATE detector to confirm WIRE-EXEMPT honoring; tag remaining singletons.",
+      "action": "TAG-AS-EXEMPT not WIRE"
+    }
+  ],
+  "priority_order": [
+    "U-WIRE-LATHE-BATCH12",
+    "U-WIRE-LATHE-BATCH13",
+    "U-WIRE-LATHE-BATCH14",
+    "U-WIRE-LATHE-BATCH15",
+    "U-WIRE-TURNING-BATCH1",
+    "U-WIRE-MACHINE-BATCH1",
+    "U-WIRE-MACHINE-BATCH2",
+    "U-WIRE-MULTI-BATCH1",
+    "U-WIRE-CAM-OTHER-BATCH1",
+    "U-WIRE-CAM-OTHER-BATCH2",
+    "U-WIRE-QUALITY-OTHER-BATCH1",
+    "U-WIRE-OTHER-MISC-BATCH1"
+  ],
+  "per_batch_acceptance_proof": {
+    "engines_per_batch": "8-12 (matches sustained 6 + 50% stretch with engine-named test convention)",
+    "test_count_per_batch": "8-12 .test.ts files * ~15 cases each = 120-180 test cases (1 vitest run < 60s)",
+    "build_time_per_batch": "esbuild incremental ~3-10s after engine edits + dispatcher action add",
+    "review_time_per_batch": "3way scrutiny (Codex + Gemini + Opus) ~10-20min per PR — feasible per chat session",
+    "stop_hook_compliance": "stop_on_unwired_assets PASS (all batch engines wired) + scrutinize-before-stop PASS (3way ledger entry)",
+    "evidence": "BATCH7 needed RETRY2+HARDEN at 6 engines — empirical evidence that 6-12 is the saturation point under current scrutiny gates"
+  },
+  "summary": {
+    "old_total": 18,
+    "new_total": 12,
+    "old_per_batch": 47,
+    "new_per_batch_avg": 9.5,
+    "true_revenue_relevant_orphans": 531,
+    "coverage_of_new_plan": 116,
+    "coverage_pct_of_revenue_relevant": 22,
+    "remaining_revenue_relevant_after_plan": 415,
+    "verdict": "MS3 rebatch reduces engines-per-batch from 47 to 9.5 (5x safer), reorders by revenue (Lathe/Turning/Machine/Multi first), defers 289 ML-plumbing engines to separate milestone, and right-sizes 12 batches to deliver 116 of 531 true revenue-relevant orphans in MS3. Remaining 415 require MS3-extension or MS3.5.",
+    "one_line": "12 batches @ 9.5 engines, Lathe-first, 531 revenue-relevant (not 875), defer 289 ML."
+  }
+}

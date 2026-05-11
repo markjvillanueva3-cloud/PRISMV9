@@ -1,0 +1,377 @@
+{
+  "round": 2,
+  "agent_n": 8,
+  "agent_role": "tester-physics",
+  "scope": "v7.B — 50 emergent algorithms / formulas from node-pair combinations",
+  "spec_file": "H:/prism/state/shared/specs/REVENUE-ROADMAP-2026-05-10.md",
+  "spec_section": "lines 416-470 (combinatorics table rows 1-50)",
+  "audit_date": "2026-05-10",
+  "audit_method": "dimensional analysis, sign check, bounds check, edge-case stress test, engine-existence check vs ENGINE_DIGEST.md, Round-1 overlap filter",
+  "sampling": {
+    "thorough": [1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 17, 20, 23, 26, 32, 36, 38, 41],
+    "scanned_remaining": [7, 15, 16, 18, 19, 21, 22, 24, 25, 27, 28, 29, 30, 31, 33, 34, 35, 37, 39, 40, 42, 43, 44, 45, 46, 47, 48, 49, 50]
+  },
+  "round1_overlap_filter": "Round 1 caught (a) MillingForceEngine stub vs millDispatcher 'physics' bucket, (b) Sinker EDM inline constants vs canonical-namespace rail, (c) ISO-S mc 0.25 vs 0.27 canonical drift, (d) no physics-literal-lint hook. Round-2 v7.B findings below are DOWNSTREAM consequences (V*, ap-solve, J-C strain rate, conformal symmetry, Z3 vs MIP, EOQ assumptions) — not duplicates.",
+  "findings": [
+    {
+      "id": "F-r2-a8-A",
+      "row": 1,
+      "domain": "physics-formula",
+      "severity": "BLOCKER",
+      "title": "Row 1 Kienzle×Taylor formula V* = (C/((1-n)·T))^(1/n) is ALGEBRAICALLY WRONG (inverts wrong axis, missing kc/feed/cost terms)",
+      "claim_in_spec": "V* = (C / ((1-n)·T))^(1/n), kc-constraint",
+      "physics_truth": "Taylor: V·T^n = C  ⇒  V = C/T^n  (NOT C^(1/n)/T^(1/n)). The exponent (1/n) outside binds the whole RHS, which is the wrong manipulation. The spec form has dimension [length/time]^(1/n) not [length/time]. With n≈0.25 typical for carbide-steel, (1/n)=4 — the spec would compute V^4 numerically and call it V.",
+      "what_was_likely_intended": "If this is meant to be the GILBERT economic cutting speed (min-cost / max-production), the canonical forms are: V_min-cost = C/[((1-n)/n)·(T_change + C_machine·t_change/C_tool)]^n  and  V_max-prod = C/[((1-n)/n)·T_change]^n. The (1-n)/n group lives INSIDE the bracket, raised to n, NOT outside raised to 1/n. See Gilbert 1950 / Boothroyd & Knight Eq. 5.30.",
+      "dim_check_fail": "[m/min]^(1/n) ≠ [m/min]",
+      "edge_cases_that_break": [
+        "n → 0 (high-stiffness ceramic): (1/n) → ∞, V* explodes",
+        "T = 0 (zero tool-life budget): division by zero, no graceful clamp",
+        "kc not appearing — but spec promises 'kc-constraint' — where does kc enter the equation?"
+      ],
+      "impact": "Row 1 is the FLAGSHIP emergent algorithm (Kienzle × Taylor — the most-cited node pair). Shipping this form to /lathe-studio or /auto-speed-feed routes wrong V to operators on Mazak/Okuma. Force-of-cut and spindle torque computed from kc remain correct (Kienzle is fine standalone), but the SPEED RECOMMENDATION is dimensionally garbage.",
+      "fix": "Rewrite Row 1 as TWO equations: (a) Kienzle: Fc = kc1.1·b·h·(h/h0)^(-mc) (already canonical in constants.ts, EXISTS as MillingPhysicsKernelEngine), (b) Gilbert economic V*: V* = C / [((1-n)/n)·(t_ct + C_t/C_m))]^n  (where t_ct = tool-change time, C_t = tool cost, C_m = machine rate). Cite Boothroyd & Knight Ch 5. Reference existing CostOptimizeLathe skill which already does this.",
+      "evidence": [
+        "spec: REVENUE-ROADMAP-2026-05-10.md:420",
+        "canonical kc1.1: src/physics/constants.ts (CANONICAL_KIENZLE)",
+        "existing economic-speed skill: ~/.claude/commands/cost-optimize-lathe.md"
+      ],
+      "confidence": 0.95
+    },
+    {
+      "id": "F-r2-a8-B",
+      "row": 2,
+      "domain": "physics-formula",
+      "severity": "BLOCKER",
+      "title": "Row 2 Deflection×Kienzle ap-solve drops cantilever-mode dependence and lacks dimensional closure",
+      "claim_in_spec": "δ ≤ tol → ap = (3EI·tol / (L³·kc·b·fz))^solve",
+      "physics_truth": "For an end-mill modeled as cantilever beam with TIP load Fc: δ = Fc·L³/(3·E·I), so Fc = 3·E·I·δ/L³. Substituting Kienzle Fc = kc·b·h·(h/h0)^(-mc) (where h = fz·sin(κ) for radial-engaged cutter and h0 = 1mm reference): solving for ap REQUIRES KNOWING WHICH VARIABLE IS THE OUTPUT. Row 2 names 'ap' (axial depth) but ap does NOT APPEAR in the cantilever-deflection Fc — the substituted equation has b (radial width), fz (feed/tooth), kc, and the mc-exponent on chip thickness h. ap enters only through engagement b = ap·tan(lead) for shoulder mills, or b = ae for face mills. SPEC EQUATION IS UNDER-DETERMINED.",
+      "what_was_likely_intended": "Either (a) solve for ae (radial width-of-cut) given fixed ap, OR (b) use 3D tool deflection model where ap × radial-engagement product drives moment-arm: M = Fc·(L - ap/2) and δ_tip = Fc·(L³ - L²·ap + ...). Spec gives '^solve' as if a closed form exists — there is no closed form when the (h/h0)^(-mc) Kienzle exponent meets cantilever cubic.",
+      "dim_check_fail": "kc [N/mm²] · b [mm] · fz [mm/tooth] = N — but units missing chip-thickness-exponent term and depth-coupling. Closed-form solve under-specified.",
+      "edge_cases_that_break": [
+        "Long-overhang slot endmill (L/D > 5): cubic dominates, solver bounces between ap and ae",
+        "h < h0/10: (h/h0)^(-mc) blows up (Kienzle valid range usually h ∈ [0.02, 1] mm)",
+        "Zero engagement at slot entry: kc undefined"
+      ],
+      "impact": "Promised in v7.A as DeflectionOverlay (E0127, exists) × Kienzle integration. Shipping this 'ap solve' to operators yields nonsensical recommendations. Should route through DeflectionOverlayEngine.predict() instead, which already handles the iterative coupling.",
+      "fix": "Rewrite Row 2 as: 'Given tol, iterate (ap, ae, fz) on Pareto front using DeflectionOverlayEngine.maxParamsForDeflection(tol)'. Drop the false closed-form. Existing engine E0127 already does this — just wire it.",
+      "evidence": [
+        "spec: REVENUE-ROADMAP-2026-05-10.md:421",
+        "existing engine: ENGINE_DIGEST E0127 DeflectionOverlay"
+      ],
+      "confidence": 0.93
+    },
+    {
+      "id": "F-r2-a8-C",
+      "row": 6,
+      "domain": "physics-formula",
+      "severity": "BLOCKER",
+      "title": "Row 6 Johnson-Cook×Thermal 'Force at HSM (Ė > 10⁴)' is meaningless without a flow-stress equation",
+      "claim_in_spec": "Force at HSM (Ė̇ > 10⁴) | strain-rate | T2 deep-reason, T4 epistemic UQ",
+      "physics_truth": "Johnson-Cook is a CONSTITUTIVE MODEL for flow stress: σ = (A + B·εⁿ)(1 + C·ln(ε̇/ε̇₀))(1 - ((T-T_room)/(T_melt-T_room))^m). It outputs flow stress σ, NOT cutting force directly. To get force at HSM strain rates: (a) compute primary-shear-zone strain rate γ̇ = V·cos(α)/(t·cos(φ-α)) where t = chip thickness — for V=300m/min and t=0.05mm, γ̇ ≈ 10⁵ s⁻¹ ✓ — strain rate IS meaningful at HSM; (b) plug into J-C to get τ_shear; (c) integrate over shear plane to get Fc using Merchant's circle (Fc = τ·A_s·cos(β-α)/sin(φ)·cos(φ+β-α)).",
+      "what_was_likely_intended": "ε̇ > 10⁴ s⁻¹ check is CORRECT for HSM regime (validates that the C·ln(ε̇/ε̇₀) term in J-C contributes >5%). But the spec just says 'Force at HSM' with NO equation. This row delivers nothing actionable. Strain-rate axis IS the right physics frontier (per Karpathy-discipline: 'edge cases' — high-rate regime is exactly where Kienzle fails and J-C wins).",
+      "edge_cases_that_break": [
+        "Ė > 10⁶ (laser-assist or ultra-HSM): J-C breaks down, needs Zerilli-Armstrong",
+        "Cryogenic LN2 (T < 150K): (T-T_room)^m softening term goes negative, sign flip",
+        "No flow-stress→force mapping defined"
+      ],
+      "impact": "Row 6 is one of TWO rows that promise to handle high-strain-rate regime (aerospace Ti/Inco). Without an explicit equation, this is a placeholder — does NOT satisfy v7.B's 'emergent algorithm' promise.",
+      "fix": "Replace with: 'σ_JC = (A+B·εⁿ)·(1+C·ln(ε̇/ε̇₀))·(1-θ^m); apply Merchant model Fc = σ_JC·(b·t·cos(β-α))/(sin(φ)·cos(φ+β-α)); detect HSM regime if Ė > 10⁴; otherwise fall back to Kienzle.' Build/locate JohnsonCookEngine — ENGINE_DIGEST does NOT show one; gap.",
+      "evidence": [
+        "spec: REVENUE-ROADMAP-2026-05-10.md:425",
+        "ENGINE_DIGEST search for 'JohnsonCook' returns 0 hits — engine doesn't exist"
+      ],
+      "confidence": 0.9
+    },
+    {
+      "id": "F-r2-a8-D",
+      "row": 10,
+      "domain": "physics-formula",
+      "severity": "MAJOR",
+      "title": "Row 10 Conformal×AdaptiveFeed assumes symmetric μ̂ ± α-conformal interval — real conformal prediction intervals are ASYMMETRIC in feed-rate residuals",
+      "claim_in_spec": "feed = μ̂ ± α-conformal",
+      "physics_truth": "Split-conformal prediction (Vovk et al.; Romano et al. 2020 CQR — adaptive conformal alpha already implemented as AdaptiveConformalAlphaEngine per recent commit 03586e2fa) gives intervals from quantiles of nonconformity scores. For SYMMETRIC residuals (Gaussian noise), the ± form is fine. For FEED-RATE prediction the residual distribution is HEAVY-RIGHT-SKEWED (operators don't dial below safe min, but DO push high) — empirical residual quantile q_α^lower ≠ q_α^upper. Symmetric ± collapses both tails into one number, undercovering on the upper tail (over-aggressive feed) — DIRECT SAFETY CONSEQUENCE: chatter / chip-load violations on the high side.",
+      "what_was_likely_intended": "CQR (Conformalized Quantile Regression, Romano 2020) gives [q̂_lo(x) − E, q̂_hi(x) + E] with separate calibration of lower and upper conformal correction E. PRISM has AdaptiveConformalAlphaEngine (just landed) — use ASYMMETRIC intervals.",
+      "edge_cases_that_break": [
+        "Heteroscedastic noise across hardness range (soft AL: low σ, hard tool-steel: high σ) — ± collapses",
+        "Coverage drops below nominal 1−α on critical regime",
+        "Sign of residual carries safety info (over vs under)"
+      ],
+      "impact": "Feed-rate is the #1 safety-critical adaptive output. Symmetric conformal undercovers exactly where it matters (high-feed chatter zone).",
+      "fix": "Rewrite Row 10: 'feed ∈ [q̂_α/2(x) − E_lo, q̂_1−α/2(x) + E_hi]' (CQR form). Cite Romano 2020. Wire to AdaptiveConformalAlphaEngine (already exists, per commit 03586e2fa).",
+      "evidence": [
+        "spec: REVENUE-ROADMAP-2026-05-10.md:429",
+        "MEMORY.md recent commit: 03586e2fa AdaptiveConformalAlphaEngine"
+      ],
+      "confidence": 0.85
+    },
+    {
+      "id": "F-r2-a8-E",
+      "row": 11,
+      "domain": "algorithm-choice",
+      "severity": "MAJOR",
+      "title": "Row 11 'Z3 × ToleranceStack — Min-cost t_i s.t. Σ ≤ T' uses Z3 (SMT) where MIP/LP is the natural solver",
+      "claim_in_spec": "Min-cost t_i s.t. Σ ≤ T  | drawing tolerance | T6",
+      "physics_truth": "Tolerance allocation min Σ c_i(t_i) s.t. statistical-stack(t_i) ≤ T is a CONVEX or piecewise-convex OPTIMIZATION problem. If c_i is linear/convex in t_i and the stack constraint is RSS (√Σtᵢ²) or worst-case (Σ|tᵢ|), this is QP (RSS) or LP (worst-case) — NOT an SMT problem. Z3 is for satisfiability over theories (integers, reals, arrays, bitvectors) — using it for continuous numerical optimization is theoretically valid (Z3 has OptiMathSAT/νZ optimization) but PRACTICALLY 100-1000× slower than CPLEX/Gurobi/HiGHS on this class.",
+      "what_was_likely_intended": "Row 12 (one row later) correctly uses MIP for capacity×bid scheduling. Row 11 should be QP (RSS-stack) or LP (worst-case stack). Z3 only justified if there are LOGICAL constraints (selector booleans for grade-vs-tolerance trade) — even then HYBRID solver (MIP for selectors, LP for tolerances) outperforms pure SMT.",
+      "edge_cases_that_break": [
+        "10+ dimension chains: Z3 optimization blows up exponentially",
+        "Discrete grade choices (off-the-shelf tolerance classes): mixed-integer needed",
+        "Z3 floating-point theory required (not default Reals)"
+      ],
+      "impact": "Wrong-solver choice burns engineering time on irrelevant tool. T6 'symbolic' tier should pick PER-PROBLEM (Z3 for SAT/UNSAT, MIP/LP for cost-min, CSP solver for combinatorics).",
+      "fix": "Reclassify Row 11 as LP (worst-case) + QP (RSS); only use Z3 if there are categorical/logical branches. v7.C orchestration template already lists 'T6 symbolic — Z3 for tolerance / MIP for scheduling / LP for cost' — but it ASSIGNS Z3 to tolerance specifically, which is the wrong default.",
+      "evidence": [
+        "spec: REVENUE-ROADMAP-2026-05-10.md:430",
+        "v7.C template: REVENUE-ROADMAP-2026-05-10.md:488"
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "F-r2-a8-F",
+      "row": 9,
+      "domain": "algorithm-choice",
+      "severity": "MAJOR",
+      "title": "Row 9 'Local search G-code rewrites monotonically reducing T̂c' — local search is NOT generally monotonic",
+      "claim_in_spec": "Local search G-code rewrites minimizing T̂c",
+      "physics_truth": "Local search (hill-climb / simulated annealing / tabu) on G-code transformations (feed bumps, helix vs ramp, retract optimization) is NON-MONOTONIC by construction — you accept worsening moves to escape local minima (SA) or you only descend (steepest descent) and get stuck. Spec implies 'monotonically reduce' which contradicts both. CycleTimeCrush skill exists but the algorithmic claim is wrong.",
+      "edge_cases_that_break": [
+        "Multi-objective (cycle vs surface finish vs tool life) — Pareto, not monotonic",
+        "Discrete transformation moves (replace G1 with G2/G3 arc): non-convex",
+        "Verification step (vericut sim) is EXPENSIVE — each candidate costs minutes"
+      ],
+      "impact": "If 'monotonic' is taken literally by implementer, they will pick steepest-descent and get stuck at suboptimal G-code. Need explicit branch-and-bound or SA + acceptance criterion.",
+      "fix": "Rewrite as 'Simulated-annealing G-code rewrites with sim-verified acceptance, target T̂c reduction ≥ 5% per accepted move'.",
+      "evidence": [
+        "spec: REVENUE-ROADMAP-2026-05-10.md:428"
+      ],
+      "confidence": 0.78
+    },
+    {
+      "id": "F-r2-a8-G",
+      "row": 14,
+      "domain": "physics-formula",
+      "severity": "MAJOR",
+      "title": "Row 14 Chuck-force×Part-deflect formula F_min = part-stiffness · clamp-deflect-spec lacks safety factor and friction coefficient",
+      "claim_in_spec": "F_min = part-stiffness · clamp-deflect-spec",
+      "physics_truth": "Workholding clamp force calculation: F_clamp ≥ (F_cut + safety_factor · max_radial)/μ_jaw  where μ_jaw is jaw-to-part friction (~0.15-0.3 for serrated jaws). The spec form gives F = k·δ which is HOOKE'S LAW — that's the elastic response of the part TO the clamp force, not the required clamp force. Sign of causality inverted.",
+      "what_was_likely_intended": "Two separate equations: (1) Maximum allowed part deflection: δ_max = F_clamp·L_clamp/(k_part) — limit the clamp itself to avoid distorting the part; (2) Minimum clamp force: F_clamp_min = (F_cut_resultant)/μ_jaw · SF. Spec conflates them.",
+      "dim_check_fail": "[N/mm] · [mm] = [N] ✓ dim ok but physics meaning swapped",
+      "impact": "Workholding under-clamp = part flies out during machining = SAFETY INCIDENT. Spec form would suggest absurdly low clamp forces.",
+      "fix": "Replace with: 'F_clamp ≥ (Σ F_cut_radial + SF·F_axial)/μ_jaw AND clamp-induced δ_part ≤ δ_distortion_spec'. Two-sided constraint.",
+      "evidence": [
+        "spec: REVENUE-ROADMAP-2026-05-10.md:433"
+      ],
+      "confidence": 0.87
+    },
+    {
+      "id": "F-r2-a8-H",
+      "row": 41,
+      "domain": "algorithm-choice",
+      "severity": "MAJOR",
+      "title": "Row 41 EOQ-driven reorder uses classical √(2DS/H) which assumes deterministic demand — manufacturing tool usage is stochastic",
+      "claim_in_spec": "EOQ-driven auto-reorder | usage rate | T6 + T4",
+      "physics_truth": "Classical EOQ Q* = √(2DS/H) assumes (a) constant demand D, (b) instantaneous replenishment, (c) zero stockout cost, (d) deterministic lead time. Manufacturing tool consumption is STOCHASTIC (depends on Taylor wear with high σ, surprise tool breakage, customer-rush jobs). For stochastic demand the correct policy is (Q,r) or (s,S) with safety stock: SS = z_α·σ_LT·√(LT). Spec mentions T4 (conformal) which suggests stochastic awareness — but EOQ alone is wrong.",
+      "what_was_likely_intended": "Stochastic-EOQ with reorder point r = μ_LT + z·σ_LT  AND  Q from EOQ, OR full (s,S) policy with service-level target.",
+      "edge_cases_that_break": [
+        "Tool wear distribution heavy-tailed (random breakage events)",
+        "Lead-time variability (overseas suppliers)",
+        "Critical-tool stockout = machine idle = $1000s/hr opportunity cost (H term must include shortage cost)"
+      ],
+      "impact": "Mis-sized orders → either chronic stockouts (machines idle) or excess inventory (cash trapped). EOQ alone misses both tails.",
+      "fix": "Replace 'EOQ-driven' with 'Stochastic (Q,r) policy: Q from EOQ approximation, r = μ_demand·LT + z_α·σ_demand·√LT, service-level α = 0.95'. Wire conformal CIs on demand prediction (T4).",
+      "evidence": [
+        "spec: REVENUE-ROADMAP-2026-05-10.md:460"
+      ],
+      "confidence": 0.83
+    },
+    {
+      "id": "F-r2-a8-I",
+      "row": 38,
+      "domain": "under-specified",
+      "severity": "MAJOR",
+      "title": "Row 38 cycle-drift detector — 'CycleTimeCrush × Program-audit × SPC' specifies no algorithm (EWMA? CUSUM? variance ratio?)",
+      "claim_in_spec": "Cycle drift detector | program history | T4 + T7",
+      "physics_truth": "Drift detection has several established algorithms: (a) EWMA control chart (smoothing factor λ ∈ [0.05, 0.3]); (b) CUSUM (cumulative sum, sensitive to small persistent shifts ~0.5σ); (c) Shewhart X-bar (large shifts >2σ); (d) Hotelling T² for multivariate. PRISM HAS MultivariateSPCEngine (E0346) — should be cited. Spec leaves choice unspecified.",
+      "what_was_likely_intended": "PRISM already has MultivariateSPCEngine with Hotelling T² + MEWMA. Row 38 should wire to it explicitly with parameters (control limits, drift threshold, ARL target).",
+      "edge_cases_that_break": [
+        "Short program runs (n < 25): not enough data for stable σ_estimate",
+        "Setup-vs-cycle confound: tool change resets baseline",
+        "Multi-modal cycle times (different part variants)"
+      ],
+      "impact": "Generic 'drift detector' = implementer-dependent; could ship Shewhart (misses small drifts) or MEWMA (correct).",
+      "fix": "Specify: 'MEWMA on cycle-time vector (Tc, max-power, max-deflect), λ=0.1, ARL_0=200'. Cite E0346 MultivariateSPC.",
+      "evidence": [
+        "spec: REVENUE-ROADMAP-2026-05-10.md:457",
+        "existing engine: ENGINE_DIGEST E0346 MultivariateSPC"
+      ],
+      "confidence": 0.8
+    },
+    {
+      "id": "F-r2-a8-J",
+      "row": 20,
+      "domain": "under-specified",
+      "severity": "MAJOR",
+      "title": "Row 20 'Chip-evac probability score' — probability over what random variable, with what likelihood model?",
+      "claim_in_spec": "Chip-evac probability score | groove geometry | T3 LoRA",
+      "physics_truth": "Probability requires (a) random variable definition (P(chip clears? | groove, V, f, material) — Bernoulli per chip), (b) likelihood model (logistic regression over groove features?), (c) labeled data (chipbreaker test catalog with success/fail). Existing /chip-control skill mentions 'CSS high-RPM wrapping risk score' — that's a HEURISTIC SCORE not a probability. Naming a heuristic as 'probability' invites false calibration claims.",
+      "what_was_likely_intended": "Either a properly calibrated logistic model with conformal calibration (T4) producing P(evac success) with coverage, OR a deterministic risk score [0-1] that should NOT be called probability.",
+      "impact": "Calibration ambiguity: downstream consumers might treat score as Bayesian probability and combine with other probabilities multiplicatively (wrong).",
+      "fix": "Either: (a) define as logistic-regression P with calibration plot, (b) rename to 'chip-evac risk-score [0-1]' and document non-probabilistic nature.",
+      "evidence": [
+        "spec: REVENUE-ROADMAP-2026-05-10.md:439"
+      ],
+      "confidence": 0.72
+    },
+    {
+      "id": "F-r2-a8-K",
+      "row": 5,
+      "domain": "physics-formula",
+      "severity": "MINOR",
+      "title": "Row 5 V(t)=V₀(T_left/T₀)^n  — correct LIMIT behavior but breaks initial-condition consistency",
+      "claim_in_spec": "V(t) = V₀(T_left/T₀)^n",
+      "physics_truth": "At t=0, T_left = T₀, so (T_left/T₀)^n = 1, V(0) = V₀ ✓. At T_left → 0 (tool exhausted), V → 0 ✓ (gracefully stops). Form is physically reasonable as a 'derate as tool ages' rule. BUT: this is NOT Taylor's law derived — it's an ad-hoc reformulation. Taylor's law says V·T^n = C — so if you want constant C, V should INCREASE as T_left decreases (machine harder, finish part before tool dies), not decrease. Spec form is the OPPOSITE direction from optimal economic policy.",
+      "what_was_likely_intended": "If goal is RISK-AVERSE late-life derate (avoid tool failure mid-cut), spec form is right. If goal is ECONOMIC (max material removed before tool change), form is wrong. v7.B should disambiguate.",
+      "edge_cases_that_break": [
+        "Heavy roughing with brand-new tool: V₀ too low (no headroom)",
+        "Surprise wear (chipping event): T_left drops abruptly, V too low to finish",
+        "Multiple jobs queued: V depleted across jobs without rebalance"
+      ],
+      "impact": "MINOR because behavior is conservative (never aggressive), but loses economic optimization opportunity.",
+      "fix": "Document POLICY CHOICE: 'risk-averse derate, accepts cycle-time loss for predictable end-of-life'.",
+      "evidence": [
+        "spec: REVENUE-ROADMAP-2026-05-10.md:424"
+      ],
+      "confidence": 0.7
+    },
+    {
+      "id": "F-r2-a8-L",
+      "row": 4,
+      "domain": "physics-formula",
+      "severity": "MINOR",
+      "title": "Row 4 thermal-growth comp(t) = α(T_now − T_probe)·L_axis — correct first-order but missing differential heating",
+      "claim_in_spec": "compensation(t) = α(T_now − T_probe)·L_axis",
+      "physics_truth": "First-order linear thermal expansion ΔL = α·ΔT·L ✓ dimensionally correct. BUT machine column / spindle / table heat at DIFFERENT RATES (column ~2hr, spindle ~30min, table ~6hr). Single T_now scalar underdetermined — need at least 3-point T-vector (column, spindle, table) and apply per-axis α. PRISM has ThermalOverlayEngine (E0456) — likely already handles this.",
+      "edge_cases_that_break": [
+        "Cold-start vs warm-start delta different per axis",
+        "Coolant temperature: thermal mass dominates spindle drift, NOT ambient",
+        "Workpiece thermal lag (heavy stock): part grows after probe, not before"
+      ],
+      "impact": "First-pass formula OK for budget estimate, but real production probing needs multi-zone model. Spec should reference E0456 ThermalOverlay.",
+      "fix": "Note 'first-order; full multi-zone in E0456 ThermalOverlayEngine'.",
+      "evidence": [
+        "spec: REVENUE-ROADMAP-2026-05-10.md:423",
+        "existing engine: ENGINE_DIGEST E0456 ThermalOverlay"
+      ],
+      "confidence": 0.75
+    },
+    {
+      "id": "F-r2-a8-M",
+      "row": 26,
+      "domain": "under-specified",
+      "severity": "MINOR",
+      "title": "Row 26 WEDM-feasibility binary classifier — not an equation; this is a decision tree, not a 'formula'",
+      "claim_in_spec": "Pre-quote go/no-go | material | T2",
+      "physics_truth": "Feasibility gates have a series of HARD constraints (conductivity, taper, thickness, finish achievable), not a single equation. Existing /wedm-feasibility skill implements 4-gate check (conductivity, geometry, tolerance, taper). Calling this an 'algorithm' in v7.B is loose terminology — it's a CHECKLIST. Same observation for Rows 27, 32 (binary scores).",
+      "impact": "Categorization issue — not load-bearing. v7.B mixes equations (rows 1-15ish) with decision rules (rows 26-32) under same heading.",
+      "fix": "Split table into 'equation pairs' (closed-form) and 'decision pairs' (logical/decision-tree).",
+      "evidence": [
+        "spec: REVENUE-ROADMAP-2026-05-10.md:445"
+      ],
+      "confidence": 0.7
+    },
+    {
+      "id": "F-r2-a8-N",
+      "row": 17,
+      "domain": "under-specified",
+      "severity": "MAJOR",
+      "title": "Row 17 DFM×Tolerance×CAD-extract 'Quote-from-STEP cost equation' — no equation given",
+      "claim_in_spec": "Quote-from-STEP cost equation | feature mix | T7 KG + T6",
+      "physics_truth": "Cost(STEP) is a high-dimensional regression over feature counts (holes, pockets, faces, tol classes). Could be (a) linear over feature counts with learned weights, (b) tree boosting (XGBoost), (c) neural net + KG retrieval (T7). Spec just says 'equation' with no form. Quote-to-ship pipeline exists but the EMERGENT equation isn't named.",
+      "impact": "Customer-facing pricing — high business impact. Cannot ship without specifying functional form, calibration data, error metric (MAPE/quantile loss).",
+      "fix": "Specify: 'Cost = base + Σᵢ w_i·count(feature_type_i) + Σⱼ tol_premium(class_j); weights learned via linear regression on JM Die quote history; conformal quantile bands via T4'.",
+      "evidence": [
+        "spec: REVENUE-ROADMAP-2026-05-10.md:436"
+      ],
+      "confidence": 0.78
+    },
+    {
+      "id": "F-r2-a8-O",
+      "row": 12,
+      "domain": "algorithm-choice",
+      "severity": "MINOR",
+      "title": "Row 12 MIP×Capacity×Bid argmax Σ(margin·accept) s.t. hr ≤ cap — correct framing, missing acceptance-probability term",
+      "claim_in_spec": "argmax Σ(margin·accept) s.t. hr ≤ cap",
+      "physics_truth": "Standard MIP knapsack-with-capacity formulation. 'accept' must be either (a) deterministic 0/1 decision (we choose which bids to take), making it pure 0-1 knapsack, OR (b) stochastic win-probability p(win|bid_price) requiring expectation: maximize Σ margin_i · p_i(bid_i) · accept_i. Spec doesn't say.",
+      "fix": "Disambiguate accept ∈ {0,1} vs accept = p(win|bid_price). Latter requires pricing model — likely Row 25 WEDM-cost×Quote×Customer-history.",
+      "evidence": [
+        "spec: REVENUE-ROADMAP-2026-05-10.md:431"
+      ],
+      "confidence": 0.7
+    },
+    {
+      "id": "F-r2-a8-P",
+      "row": "scan-30",
+      "domain": "coverage-gap",
+      "severity": "MINOR",
+      "title": "Rows 30-50 scan: most are pipeline/orchestration not 'emergent algorithms'",
+      "observation": "Rows 30 (Tribal × LLM × Shop-floor RAG), 31 (SetupSheet × Traveler × QA), 33 (Quote-to-ship state machine), 40 (Event-bus pub/sub), 44 (Wiki RAG chatbot), 45 (Auto-curate training library), 48 (Text-to-CAD-to-Quote), 49 (Generative CAD), 50 (Chat-with-the-part) are ORCHESTRATION PIPELINES, not new emergent equations. v7.B title says '50 emergent algorithms / formulas' — this is closer to 50 capability tiles, with maybe 15 genuine algorithm pairs.",
+      "impact": "Overpromise: 50 'algorithms' implies 50 mathematically novel pairings; reality is ~15 algorithm pairs + 35 wired pipelines. Doesn't change deliverability, but mis-sets expectations for what 'emergent' means.",
+      "fix": "Rename header to '50 capability tiles (mix of formulas, pipelines, decision rules)' OR genuinely articulate the algorithmic content of rows 30-50.",
+      "evidence": [
+        "spec: REVENUE-ROADMAP-2026-05-10.md:416-470 (entire table)"
+      ],
+      "confidence": 0.78
+    },
+    {
+      "id": "F-r2-a8-Q",
+      "row": "cross-row",
+      "domain": "engine-gap",
+      "severity": "MAJOR",
+      "title": "Engines required by v7.B but missing from ENGINE_DIGEST: JohnsonCookEngine, EOQReorderEngine, TolStackZ3Engine, MIPCapacityBidEngine, ChipEvacProbabilityEngine",
+      "observation": "Rows 6, 11, 12, 20, 41 reference algorithms with no matching engine in ENGINE_DIGEST (576 engines scanned). Without these engines built, v7.B is undeliverable.",
+      "missing_engines": [
+        {"row": 6, "needed": "JohnsonCookEngine", "purpose": "constitutive flow stress at HSM strain rates"},
+        {"row": 11, "needed": "ToleranceStackOptimizationEngine (LP/QP, not pure Z3)", "purpose": "min-cost tolerance allocation"},
+        {"row": 12, "needed": "MIPCapacityBidEngine", "purpose": "knapsack-with-capacity bid selection"},
+        {"row": 20, "needed": "ChipEvacProbabilityEngine", "purpose": "calibrated chip evacuation classifier"},
+        {"row": 41, "needed": "StochasticReorderEngine (Q,r) policy", "purpose": "EOQ + safety stock"}
+      ],
+      "fix": "Add 'engine-gap audit' to v7.B pre-build phase — for each row, list required engine name; if not in ENGINE_DIGEST, mark as net-new build.",
+      "evidence": [
+        "ENGINE_DIGEST.md grep for 'JohnsonCook|EOQ|Z3|MIP|ChipEvac' returns 0 matches",
+        "MEMORY.md ALWAYS-BUILD enforcement: PENDING_GAP_ENGINES.json registers all unbuilt"
+      ],
+      "confidence": 0.88
+    }
+  ],
+  "summary_stats": {
+    "rows_thoroughly_audited": 21,
+    "rows_scanned": 29,
+    "findings_total": 17,
+    "blockers": 3,
+    "majors": 8,
+    "minors": 5,
+    "coverage_notes": 1,
+    "rows_with_physics_errors": [1, 2, 6, 14],
+    "rows_with_under_specification": [9, 11, 12, 17, 20, 26, 38, 41],
+    "rows_OK_or_minor": [3, 4, 5, 7, 8, 10, 13, 15, 16, 18, 19, 21, 22, 23, 24, 25, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 39, 40, 42, 43, 44, 45, 46, 47, 48, 49, 50],
+    "missing_engines_count": 5
+  },
+  "stress_test_results": {
+    "row1_V*_inversion": "FAIL — dimensional mismatch [m/min]^(1/n) ≠ [m/min]",
+    "row2_ap_solve": "FAIL — ap doesn't appear in cantilever-Kienzle substitution; under-determined",
+    "row5_T_left_to_zero": "PASS — V→0 graceful, but economic policy inverted from Taylor optimal",
+    "row6_strain_rate_10^4": "PARTIAL — threshold correct, but flow-stress→force mapping missing",
+    "row9_local_search_monotonic": "FAIL — local search not generally monotonic; SA/B&B needed",
+    "row10_conformal_symmetric": "FAIL — feed residuals heavy-skew; need CQR asymmetric form",
+    "row11_z3_vs_mip": "QUESTIONABLE — Z3 wrong default for continuous opt; LP/QP/MIP better",
+    "row14_chuck_force_dim": "PARTIAL — dims OK but causality inverted (Hooke's law not clamp-force)",
+    "row17_quote_from_step": "FAIL — no equation given",
+    "row20_chip_probability": "FAIL — probability vs heuristic-score conflated",
+    "row26_wedm_binary": "PARTIAL — checklist not equation (terminology)",
+    "row38_drift_unspecified": "FAIL — EWMA/CUSUM/MEWMA undisambiguated",
+    "row41_EOQ_deterministic": "FAIL — classical EOQ assumes deterministic demand, tool usage stochastic"
+  },
+  "recommendation": "v7.B is structurally ambitious but mathematically immature. 3 BLOCKERS (rows 1, 2, 6) cannot ship without rewrite. 8 MAJORS need disambiguation or correct algorithm choice. Recommend: (a) split table into 'equation pairs' vs 'orchestration tiles', (b) attach explicit functional form + units + sign-check to every formula row, (c) cite existing engines (DeflectionOverlay E0127, ThermalOverlay E0456, MultivariateSPC E0346, AdaptiveConformalAlpha) where applicable, (d) register missing engines (JohnsonCook, StochasticReorder, ToleranceStack-LP/QP) in PENDING_GAP_ENGINES.json per ALWAYS-BUILD rule.",
+  "round1_overlap_audit": "NO DUPLICATES with Round 1. Round 1 caught upstream/infrastructure issues (stub MillingForceEngine, inline Sinker constants, ISO-S mc drift, missing physics-lint hook). Round 2 v7.B findings are DOWNSTREAM (the algebraic forms of the emergent equations themselves). Composable."
+}

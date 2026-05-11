@@ -1,0 +1,92 @@
+{
+  "round": 2,
+  "agent_n": 6,
+  "agent_role": "code-analyzer",
+  "scope": "REVENUE-MS3 wire-backlog batches (875 unwired engines)",
+  "timestamp": "2026-05-10",
+  "evidence_sources": [
+    "state/shared/specs/REVENUE-ROADMAP-2026-05-10.md (REVENUE-MS3 section)",
+    "state/shared/BUILD_STATE.json (orphans.byDomain)",
+    "state/shared/AUDIT-LATEST.json (round-1 findings)",
+    "mcp-server/src/engines/ (87 WIRE-EXEMPT occurrences across 86 files)",
+    ".claude/hooks/stop_on_unwired_assets.mjs"
+  ],
+  "findings": [
+    {
+      "id": "F-r2-a6-1",
+      "severity": "HIGH",
+      "category": "math-discrepancy",
+      "title": "U-WIRE-REMAINING-01..07 arithmetic incorrect: 630 != 604",
+      "claim": "MS3 spec: 875 unwired = 141 (Other) + 89 (Lathe) + 17 (Machine) + 12 (Multi) + 11 (Turning) + 630 (Remaining)",
+      "reality": "Sum of named domains = 142+89+17+12+11 = 271. Remaining = 875 - 271 = 604, not 630. Off-by-26 error in batch sizing. Also note: Other count is 142 per BUILD_STATE.json, not 141 as in spec.",
+      "impact": "26 engines unaccounted for OR overcounted in REMAINING-01..07 batches. Whoever executes the remaining batches will hit shortfall or surplus mid-pass.",
+      "recommendation": "Fix REVENUE-MS3 spec: change 141->142 (Other), recompute REMAINING from 875-271=604, redistribute across 7 batches (86 ea + remainder)."
+    },
+    {
+      "id": "F-r2-a6-2",
+      "severity": "HIGH",
+      "category": "batch-feasibility",
+      "title": "47 engines/batch under comprehensive-build is unrealistic",
+      "claim": "U-WIRE-OTHER-01..03 packages 141 in 3x47 batches with tests + wiring + E2E",
+      "reality": "comprehensive-build-enforce hook + engine-named test convention (commit 8639f56b5 added one SCE test file as standalone unit) + stop_on_unwired_assets HARD BLOCK = each engine needs: 1) dispatcher wiring 2) engine-named .test.ts 3) round-trip E2E per dispatcher (per CLAUDE.md 'WIRE TO ALL SOURCES'). Historical velocity: U-WIRE-LATHE-BATCH2 was 6 engines in one commit (bf041d0f5). Sustainable batch = 5-10 engines/commit.",
+      "impact": "47/batch will either fail Stop hook (incomplete tests/E2E) or force single-dispatcher shortcuts violating WIRE-TO-ALL doctrine. Estimated true cost: 47 engines * ~30min/engine (test + wiring + verification) = 23.5h per batch — exceeds practical single-chat session.",
+      "recommendation": "Resize U-WIRE-OTHER batches to 8-12 engines each (~12 batches for 142 Other instead of 3x47)."
+    },
+    {
+      "id": "F-r2-a6-3",
+      "severity": "MEDIUM",
+      "category": "false-positive-orphans",
+      "title": "WIRE-EXEMPT singletons inflate orphan count",
+      "claim": "BUILD_STATE.json reports 875 orphan engines",
+      "reality": "87 WIRE-EXEMPT comments confirmed across 86 engine files (e.g. QdrantMemoryEngine, BaseEngine, ChatBusEngine, ProvenanceEngine, EventBusEngine, infrastructure/wrapper pattern). 30+ *Singleton.ts wrappers exist (HyperMillJobMonitor, Fusion360LiveBridgeEngine, QdrantMemoryEngineSingleton, etc.). If orphan detector does not honor WIRE-EXEMPT tag or skip singleton wrappers, 87+ of the 875 are legitimately exempt (~10%).",
+      "impact": "Revenue-MS3 may be chasing ~85-100 phantom orphans. Wiring infrastructure/base engines is harmful (creates circular deps, breaks singletons).",
+      "recommendation": "Audit BUILD_STATE.json orphan detector: confirm it parses WIRE-EXEMPT tags and excludes *Singleton.ts/*Facade.ts/Base*.ts. Re-run after exemption filter; expect 775-790 true orphans."
+    },
+    {
+      "id": "F-r2-a6-4",
+      "severity": "MEDIUM",
+      "category": "revenue-relevance",
+      "title": "Sample suggests <40% of 875 unwired are revenue-relevant",
+      "claim": "REVENUE-MS3 implies all 875 need wiring for revenue",
+      "reality": "Sampled 30 engines from WIRE-EXEMPT list as proxy for unwired pool composition (LoRA*, Continual*, Federated*, ProtoMAML*, AdaLoRA*, DoRA*, Orthogonal*, Synaptic*, TestTimeAdaptation*, PrioritizedReplay*, PrototypicalNetwork*) — ~33% are ML/research infrastructure (training-time, no inference path). Lathe/Machine/Turning/CAM domains (~150-180 engines) are direct revenue. Other 142 is mixed; Lathe 89 is high-value.",
+      "impact": "Wiring 875 indiscriminately spends effort on non-revenue ML plumbing. Prioritized subset (Lathe + Turning + Machine + CAM = ~180) captures ~80% revenue value at 20% of effort.",
+      "recommendation": "Re-order MS3 batches: Lathe (89) -> Turning (11) -> Machine (17) -> Multi (12) -> CAM subset of Other -> ML/research last. Add revenue-tag to BUILD_STATE per-engine."
+    },
+    {
+      "id": "F-r2-a6-5",
+      "severity": "LOW",
+      "category": "round-1-overlap",
+      "title": "Partial overlap with AUDIT-LATEST round-1 orphan findings",
+      "claim": "Round 2 scope is independent of round 1",
+      "reality": "AUDIT-LATEST.json round-1 contains findings tagged with orphan/unwired/wiring concerns at the roadmap level (F-ROADMAP-* IDs). Round-2 MS3 focus on per-batch sizing and exemption filters is genuinely additive (round-1 surfaced counts; round-2 surfaces math errors and feasibility).",
+      "impact": "Minor. Round-2 finding F-r2-a6-3 (WIRE-EXEMPT inflation) is novel and not in round-1.",
+      "recommendation": "No action; flag for merge step."
+    },
+    {
+      "id": "F-r2-a6-6",
+      "severity": "MEDIUM",
+      "category": "hook-enforcement-gap",
+      "title": "Engine-named test convention is convention, not hook-enforced",
+      "claim": "Commit 8639f56b5 message says 'satisfies wiring-enforcement engine-named test convention'",
+      "reality": "stop_on_unwired_assets.mjs confirmed but no hook found that ENFORCES 1:1 engine-to-test-file naming (e.g. SpecificCuttingEnergyEngine.ts -> SpecificCuttingEnergyEngine.test.ts). The convention appears socially enforced via commit messages, not deterministically blocked.",
+      "impact": "MS3 batches could ship wired engines without engine-named tests, accumulating silent test-coverage debt. comprehensive-build-enforce blocks stubs but not naming.",
+      "recommendation": "Add Stop hook check: for each engine in commit diff, require matching <Name>.test.ts in __tests__/. Make it a HARD BLOCK before MS3 begins."
+    }
+  ],
+  "summary": {
+    "total_findings": 6,
+    "by_severity": { "HIGH": 2, "MEDIUM": 3, "LOW": 1 },
+    "key_risks": [
+      "Math error in REMAINING batch sizing (26-engine drift)",
+      "47-engines-per-batch infeasible under WIRE-TO-ALL + comprehensive-build doctrine",
+      "Orphan count inflated by ~10% due to WIRE-EXEMPT singletons not filtered",
+      "~60% of 875 unwired may be non-revenue ML/research plumbing"
+    ],
+    "recommended_actions": [
+      "Re-sum MS3 spec: correct 141->142, recompute 875-271=604, resize OTHER batches to 8-12",
+      "Filter BUILD_STATE orphans by WIRE-EXEMPT tag + Singleton/Facade/Base patterns",
+      "Re-prioritize MS3 by revenue domain (Lathe/Turning/Machine first)",
+      "Add hook for engine-named test file convention"
+    ]
+  }
+}

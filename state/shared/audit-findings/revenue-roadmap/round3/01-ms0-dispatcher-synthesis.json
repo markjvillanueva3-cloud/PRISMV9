@@ -1,0 +1,271 @@
+{
+  "round": 3,
+  "agent_n": 1,
+  "scope": "MS0 dispatcher synthesis — 37-unit action inventory",
+  "agent_role": "backend-dev-forensic",
+  "round2_referenced": ["F-r2-a1-02", "F-r2-a1-07", "F-r2-a1-08"],
+  "files_audited": [
+    "state/shared/specs/REVENUE-ROADMAP-2026-05-10.md (already read 4m ago, in-context)",
+    "state/shared/audit-findings/revenue-roadmap/round2/01-ms0-ui-unstub.json",
+    "mcp-server/src/tools/dispatchers/ (97 *.ts files enumerated)",
+    "mcp-server/src/tools/dispatchers/authDispatcher.ts (159L, 7 cases)",
+    "mcp-server/src/tools/dispatchers/securityDispatcher.ts (audit_log_* x11)",
+    "mcp-server/src/tools/dispatchers/tenantDispatcher.ts (create/get/list/suspend/reactivate/delete + slb_stats)",
+    "mcp-server/src/tools/dispatchers/qualityDispatcher.ts (spc_calculate, cmm_plan, fai_run, fai_generate_forms, tolerance_stack, gdt_validate)",
+    "mcp-server/src/tools/dispatchers/businessDispatcher.ts (billing_get_plans, billing_create_portal, billing_handle_webhook, billing_create_checkout — billing transport EXISTS in BUSINESS not auth)",
+    "mcp-server/src/tools/dispatchers/calcDispatcher.ts (turning_force, chatter_*, thread_*, sfc_*, sf_*, drill_*, edm_*, grinding_*)",
+    "mcp-server/src/tools/dispatchers/millDispatcher.ts (mill_chatter_predict, mill_scientific_analyze, mill_strategy_*, mill_toolpath_*, mill_quick_*)",
+    "mcp-server/src/tools/dispatchers/edmDispatcher.ts (wedm_assess_feasibility, wedm_estimate_cost, wedm_plan_passes, wedm_generate_gcode, wedm_full_*)",
+    "mcp-server/src/tools/dispatchers/cadDispatcher.ts (blueprint_to_cadquery_script, cadquery_generate_script, cadquery_execute_script, blueprint_to_all_cads)",
+    "mcp-server/src/tools/dispatchers/cadAutomationDispatcher.ts (step_pipeline_run, cad_graph_build, cad_assembly_*)",
+    "mcp-server/src/tools/dispatchers/turningDispatcher.ts (thread_single_point, thread_turning_calc)",
+    "mcp-server/src/tools/dispatchers/cncOpsDispatcher.ts (lathe_face_calculate, thread_turning_calculate)",
+    "mcp-server/src/tools/dispatchers/cplDispatcher.ts (tolerance_verify, gdt_propagate, turning_profile, hole_reorder)",
+    "mcp-server/src/tools/dispatchers/dataDispatcher.ts (cmm_history_*, cmm_import_*, spc_feedback_evaluate, grinding_lora_*)",
+    "mcp-server/src/tools/dispatchers/processControlDispatcher.ts (spc_ewma, spc_cusum)",
+    "mcp-server/src/tools/dispatchers/inboxDispatcher.ts (inbox_ingest/list/get/match_part)",
+    "mcp-server/src/tools/dispatchers/feasibilityDispatcher.ts (feasibility_init/apply_op/simulate)"
+  ],
+
+  "ms0_cohort_decomposition": {
+    "note": "Spec line 80 claims 40 but per-group sum is 37: MILL=6 LATHE=5 WEDM=7 SFC/CAD=5 QUALITY=4 ADMIN=7 LEARN=3 (per F-r2-a1-01). Unit IDs inferred from group sizes since spec does not enumerate per-unit names — synthesized from naming conventions and group-prose hints.",
+    "MILL": 6,
+    "LATHE": 5,
+    "WEDM": 7,
+    "SFC_CAD": 5,
+    "QUALITY": 4,
+    "ADMIN": 7,
+    "LEARN": 3
+  },
+
+  "action_inventory": [
+    {"unit": "U-REV-MILL-01", "page": "MillStudioPage / SpeedFeedPage (mill mode)", "dispatcher": "prism_mill", "action": "mill_quick_speed_feed", "status": "EXISTS", "proposal": null, "note": "millDispatcher:534 routes to physics — verify NOT stub"},
+    {"unit": "U-REV-MILL-02", "page": "MillStrategyPage / ToolpathSelectorPage", "dispatcher": "prism_mill", "action": "mill_strategy_select", "status": "EXISTS", "proposal": null, "note": "millDispatcher:340"},
+    {"unit": "U-REV-MILL-03", "page": "ChatterPredictionPage / SLDViewerPage", "dispatcher": "prism_mill", "action": "mill_chatter_predict", "status": "STUB", "proposal": null, "note": "AUDIT #448 confirms MillingForceEngine 15L stub. Round2 F-r2-a1-02 — false-green ships unless rerouted to ChatterPredictionEngine"},
+    {"unit": "U-REV-MILL-04", "page": "MillCollisionCheckPage / HolderClearancePage", "dispatcher": "prism_mill", "action": "mill_collision_check", "status": "EXISTS", "proposal": null, "note": "millDispatcher:416"},
+    {"unit": "U-REV-MILL-05", "page": "MillScientificAnalysisPage (uncertainty/optimize)", "dispatcher": "prism_mill", "action": "mill_scientific_analyze", "status": "STUB", "proposal": null, "note": "AUDIT #460 MillScientificPipelineEngine 14L stub"},
+    {"unit": "U-REV-MILL-06", "page": "MillFiveAxisOrchestratePage", "dispatcher": "prism_mill", "action": "mill_5axis_orchestrate", "status": "EXISTS", "proposal": null, "note": "millDispatcher:576"},
+
+    {"unit": "U-REV-LATHE-01", "page": "LatheStudioPage / TurningSpeedFeedPage", "dispatcher": "prism_cam", "action": "lathe_sf_full", "status": "EXISTS", "proposal": null, "note": "camDispatcher:3044"},
+    {"unit": "U-REV-LATHE-02", "page": "LatheThreadingPage", "dispatcher": "prism_calc", "action": "thread_mill_calc OR thread_single_point", "status": "EXISTS", "proposal": null, "note": "calcDispatcher:3920 + turningDispatcher:240"},
+    {"unit": "U-REV-LATHE-03", "page": "LathePostgenPage / MasterPostPage", "dispatcher": "prism_cam", "action": "lathe_masterpost_emit", "status": "EXISTS", "proposal": null, "note": "camDispatcher:3695"},
+    {"unit": "U-REV-LATHE-04", "page": "LatheChipControlPage", "dispatcher": "prism_cam", "action": "lathe_chip_control_validate", "status": "MISSING", "proposal": {"action": "lathe_chip_control_validate", "engine": "ChipControlEngine.validateChipbreaker", "risk": "stub-trap — Round2 F-r2-a1-03 confirms ChipControlEngine is in BUILD_STATE top_unwired Lathe domain"}},
+    {"unit": "U-REV-LATHE-05", "page": "LatheCostOptimizePage (Gilbert/Taylor)", "dispatcher": "prism_calc", "action": "lathe_cost_optimize", "status": "MISSING", "proposal": {"action": "lathe_cost_optimize", "engine": "LatheCostOptimizationEngine (NEW) OR existing cost_estimate in calcDispatcher:2370 if generic", "risk": "wire-conflict — generic cost_estimate may not cover Gilbert/Taylor min-cost/max-prod/max-profit triad"}},
+
+    {"unit": "U-REV-WEDM-01", "page": "WireEdmStudioPage / FeasibilityGate", "dispatcher": "prism_edm", "action": "wedm_assess_feasibility", "status": "EXISTS", "proposal": null, "note": "edmDispatcher:589"},
+    {"unit": "U-REV-WEDM-02", "page": "WireEdmProgramPage / GCodeOutput", "dispatcher": "prism_edm", "action": "wedm_generate_gcode", "status": "EXISTS", "proposal": null, "note": "edmDispatcher:757"},
+    {"unit": "U-REV-WEDM-03", "page": "WireEdmCostPage", "dispatcher": "prism_edm", "action": "wedm_estimate_cost", "status": "EXISTS", "proposal": null, "note": "edmDispatcher:780"},
+    {"unit": "U-REV-WEDM-04", "page": "WireEdmMultipassPage", "dispatcher": "prism_edm", "action": "wedm_full_multipass", "status": "EXISTS", "proposal": null, "note": "edmDispatcher:686"},
+    {"unit": "U-REV-WEDM-05", "page": "WireEdmTroubleshootPage", "dispatcher": "prism_edm", "action": "wedm_troubleshoot", "status": "MISSING", "proposal": {"action": "wedm_troubleshoot", "engine": "WEDMTroubleshootingEngine (62 WEDM engines exist per CLAUDE.md — likely present but not routed)", "risk": "wire-conflict — engine may exist as singleton; verify dispatcher routing before declaring missing"}},
+    {"unit": "U-REV-WEDM-06", "page": "WireEdmControllerSelectPage (5 dialects)", "dispatcher": "prism_edm", "action": "wedm_controller_select", "status": "MISSING", "proposal": {"action": "wedm_controller_select", "engine": "WEDMControllerDialectEngine (Mitsubishi/Sodick/Makino/AgieCharmilles/Fanuc per CLAUDE.md)", "risk": "net-new — controller-dialect selection is implicit in wedm_generate_gcode but not exposed as discrete action; Round2 F-r2-a1-04 mandates explicit 5-dialect coverage"}},
+    {"unit": "U-REV-WEDM-07", "page": "WireEdmReportPage / DocumentationPage", "dispatcher": "prism_edm", "action": "wedm_full_documentation", "status": "EXISTS", "proposal": null, "note": "edmDispatcher:855"},
+
+    {"unit": "U-REV-CAD-SFC-01", "page": "SfcCalculatorPage", "dispatcher": "prism_calc", "action": "sfc_calculate", "status": "EXISTS", "proposal": null, "note": "calcDispatcher:8605 + productDispatcher:113. Round2 F-r2-a1-06: existing page may bypass dispatcher via local hook — verify"},
+    {"unit": "U-REV-CAD-SFC-02", "page": "SfcCompareMaterialsPage", "dispatcher": "prism_calc", "action": "sf_compare", "status": "EXISTS", "proposal": null, "note": "calcDispatcher:6374"},
+    {"unit": "U-REV-CAD-SFC-03", "page": "CadViewer3DPage (Three.js — Vite frontend merge)", "dispatcher": "prism_cad", "action": "cad_viewer_load_stl", "status": "MISSING", "proposal": {"action": "cad_viewer_load_stl", "engine": "CADViewerStreamEngine (NEW) — wraps existing cad_classify_conversion + step_pipeline_run to emit Three.js-ready mesh", "risk": "net-new — mcp-cadquery/frontend merge is PENDING_MERGE per BUILD_STATE; no backend action exposes STL stream for viewer"}},
+    {"unit": "U-REV-CAD-SFC-04", "page": "NL→CadQueryPage (cqask/ui merge)", "dispatcher": "prism_cad", "action": "cadquery_codegen_prompt", "status": "EXISTS", "proposal": null, "note": "cadDispatcher:698 — but cqask/ui frontend merge resolution still PENDING per Round2 F-r2-a1-05"},
+    {"unit": "U-REV-CAD-SFC-05", "page": "BlueprintToCadPage", "dispatcher": "prism_cad", "action": "blueprint_to_all_cads", "status": "EXISTS", "proposal": null, "note": "cadDispatcher:1249"},
+
+    {"unit": "U-REV-QUALITY-01", "page": "SpcChartPage / SPCDashboardPage", "dispatcher": "prism_safety", "action": "spc_calculate", "status": "EXISTS", "proposal": null, "note": "qualityDispatcher:75 — plus spc_cpk, spc_xbar_r_chart, spc_imr_chart in calcDispatcher"},
+    {"unit": "U-REV-QUALITY-02", "page": "FaiEditorPage", "dispatcher": "prism_safety", "action": "fai_run", "status": "EXISTS", "proposal": null, "note": "qualityDispatcher:208"},
+    {"unit": "U-REV-QUALITY-03", "page": "CmmParseViewPage", "dispatcher": "prism_safety", "action": "cmm_plan", "status": "EXISTS", "proposal": null, "note": "qualityDispatcher:101 — plus cmm_history_*, cmm_import_* in dataDispatcher"},
+    {"unit": "U-REV-QUALITY-04", "page": "ToleranceStackVisualizerPage", "dispatcher": "prism_safety", "action": "tolerance_stack", "status": "EXISTS", "proposal": null, "note": "qualityDispatcher:120 + calcDispatcher:2998. Round2 F-r2-a1-08 mostly RESOLVED: 4/4 actions found"},
+
+    {"unit": "U-REV-ADMIN-01", "page": "UserManagementPage / TenantUsersPage", "dispatcher": "prism_tenant", "action": "list", "status": "EXISTS", "proposal": null, "note": "tenantDispatcher:62 — user mgmt at tenant level"},
+    {"unit": "U-REV-ADMIN-02", "page": "AuditLogViewerPage", "dispatcher": "prism_safety", "action": "audit_query_events", "status": "EXISTS", "proposal": null, "note": "securityDispatcher:2047"},
+    {"unit": "U-REV-ADMIN-03", "page": "RoleAssignPage (basic)", "dispatcher": "prism_auth", "action": "role_assign", "status": "EXISTS", "proposal": null, "note": "authDispatcher:101 — basic role assign exists; RBAC editor is richer (see ADMIN-05)"},
+    {"unit": "U-REV-ADMIN-04", "page": "SeatAssignmentPage", "dispatcher": "prism_tenant", "action": "seat_assign", "status": "MISSING", "proposal": {"action": "seat_assign", "engine": "SeatAllocationEngine (per MS1 U-SUB-17 in spec — NOT YET BUILT) OR new SeatAssignmentEngine wrapping TenantEngine.checkLimit", "risk": "stub-trap — Round2 F-r2-a1-07 confirms; spec assumes 'Auth transport built' but no engine backs this action"}},
+    {"unit": "U-REV-ADMIN-05", "page": "ApiKeyManagementPage", "dispatcher": "prism_auth", "action": "api_key_create", "status": "MISSING", "proposal": {"action": "api_key_create + api_key_revoke + api_key_list", "engine": "ApiKeyEngine (NEW) — must integrate with AuthEngine session_manage and emit audit_log_authz events", "risk": "net-new — no API key store anywhere in dispatchers; security-critical"}},
+    {"unit": "U-REV-ADMIN-06", "page": "RbacRoleEditorPage", "dispatcher": "prism_auth", "action": "rbac_role_create / rbac_role_assign / rbac_permission_grant", "status": "MISSING", "proposal": {"action": "rbac_role_create + rbac_role_assign + rbac_permission_grant + rbac_role_list", "engine": "RBACEngine (NEW) — extends existing role_assign (authDispatcher:101) into full role-definition CRUD with permission matrix", "risk": "net-new — current role_assign is a thin pass-through with no role-definition store"}},
+    {"unit": "U-REV-ADMIN-07", "page": "SubscriptionTierEditorPage / BillingPortalPage", "dispatcher": "prism_business", "action": "billing_create_portal", "status": "EXISTS", "proposal": null, "note": "businessDispatcher:3481 — Stripe portal EXISTS in BUSINESS not auth. Round2 F-r2-a1-07 SUPERSEDED for this unit. Subscription tier editing (tier_upgrade/downgrade) likely needs subscription_tier_set action"},
+
+    {"unit": "U-REV-LEARN-01", "page": "TutorPage / OnboardingFlowPage", "dispatcher": "prism_intelligence", "action": "tutor_session_start", "status": "MISSING", "proposal": {"action": "tutor_session_start + tutor_lesson_complete + tutor_progression_get", "engine": "TutorialProgressionEngine (NEW) — required by Round2 F-r2-a1-09 for trial→paid conversion hook", "risk": "net-new — no learn/tutor dispatcher exists; LEARN cohort has zero backend"}},
+    {"unit": "U-REV-LEARN-02", "page": "VideoPlayerPage / VideoTutorialPage", "dispatcher": "prism_intelligence", "action": "video_session_start", "status": "MISSING", "proposal": {"action": "video_session_start + video_segment_complete + video_query_transcript", "engine": "VideoTrainingEngine (NEW) — must integrate with existing video-learn skill output", "risk": "net-new — video-learn skill exists but no dispatcher action surface"}},
+    {"unit": "U-REV-LEARN-03", "page": "BlueprintTrainerPage", "dispatcher": "prism_cad", "action": "blueprint_trainer_quiz", "status": "MISSING", "proposal": {"action": "blueprint_trainer_quiz + blueprint_trainer_score", "engine": "BlueprintTrainingEngine (NEW) — wraps existing blueprint_to_cadquery_script with quiz scoring against JM DIE archive samples (Round2 F-r2-a1-09)", "risk": "net-new — blueprint reading infrastructure exists; trainer surface does not"}}
+  ],
+
+  "missing_actions_specs": [
+    {
+      "action": "lathe_chip_control_validate",
+      "dispatcher": "prism_cam",
+      "schema": {
+        "input": {"material": "string (ISO group P/M/K/N/S/H)", "tool_chipbreaker_code": "string", "css_rpm": "number", "doc_mm": "number", "feed_mm_rev": "number"},
+        "output": {"valid": "boolean", "chip_form": "string (long-string|6-shape|short|powder)", "lights_out_ok": "boolean", "mitigations": "string[]", "evidence_uri": "string"}
+      },
+      "engine": "NEW: ChipControlEngine — validate chipbreaker against Sandvik/Kennametal/ISCAR/Tungaloy/Mitsubishi catalogs; flag high-RPM wrapping risk (already a skill, no engine surface)",
+      "risk": "stub-trap"
+    },
+    {
+      "action": "lathe_cost_optimize",
+      "dispatcher": "prism_calc",
+      "schema": {
+        "input": {"material": "string", "part_qty": "number", "machine_rate_$/hr": "number", "tool_$_per_edge": "number", "objective": "min_cost|max_production|max_profit"},
+        "output": {"v_economic_m_min": "number", "v_max_prod_m_min": "number", "v_max_profit_m_min": "number", "cost_per_part": "number", "buckets": "{material, tool, machine, setup, overhead, scrap, labor}", "benchmark_flag": "boolean"}
+      },
+      "engine": "NEW: LatheCostOptimizationEngine — Gilbert/Taylor triad; generic cost_estimate in calcDispatcher:2370 does NOT cover economic-cutting-speed math",
+      "risk": "wire-conflict"
+    },
+    {
+      "action": "wedm_troubleshoot",
+      "dispatcher": "prism_edm",
+      "schema": {
+        "input": {"symptom": "string (wire_break|poor_finish|taper_error|burn)", "material": "string", "thickness_mm": "number", "current_params": "object"},
+        "output": {"root_causes": "string[]", "remediations": "{action, expected_improvement}[]", "tribal_tips": "string[]"}
+      },
+      "engine": "EXISTS PROBABLY — WEDMTroubleshootingEngine (62 WEDM engines per CLAUDE.md, route missing in edmDispatcher)",
+      "risk": "wire-conflict"
+    },
+    {
+      "action": "wedm_controller_select",
+      "dispatcher": "prism_edm",
+      "schema": {
+        "input": {"controller_family": "Mitsubishi|Sodick|Makino|AgieCharmilles|Fanuc", "machine_model": "string", "preferred_dialect": "string?"},
+        "output": {"dialect_chosen": "string", "gcode_header_template": "string", "footer_template": "string", "param_table_mapping": "object"}
+      },
+      "engine": "NEW: WEDMControllerDialectEngine — exposes the 5 dialects already implemented in wedm_generate_gcode internals as a selectable surface (Round2 F-r2-a1-04 mandate)",
+      "risk": "net-new"
+    },
+    {
+      "action": "cad_viewer_load_stl",
+      "dispatcher": "prism_cad",
+      "schema": {
+        "input": {"part_uri": "string", "format": "STEP|STL|IGES|GLB", "decimation": "number (0..1)?"},
+        "output": {"mesh_uri": "string", "vertex_count": "number", "bbox": "{min, max}", "ready_for_three_js": "boolean"}
+      },
+      "engine": "NEW: CADViewerStreamEngine — wraps step_pipeline_run + cad_sniff_format + decimation; backs mcp-cadquery/frontend merge per Round2 F-r2-a1-05",
+      "risk": "net-new"
+    },
+    {
+      "action": "seat_assign",
+      "dispatcher": "prism_tenant",
+      "schema": {
+        "input": {"tenant_id": "string", "user_id": "string", "seat_type": "viewer|editor|admin", "expires_at": "iso8601?"},
+        "output": {"assigned": "boolean", "seat_remaining": "number", "audit_event_id": "string"}
+      },
+      "engine": "MS1-DEP: SeatAllocationEngine (spec MS1 U-SUB-17) — hoist to MS0 OR depend on MS1 (Round2 F-r2-a1-07 fix-(b))",
+      "risk": "stub-trap"
+    },
+    {
+      "action": "api_key_create",
+      "dispatcher": "prism_auth",
+      "schema": {
+        "input": {"tenant_id": "string", "user_id": "string", "scope": "string[]", "expires_at": "iso8601?"},
+        "output": {"key_id": "string", "key_secret_one_shot": "string (returned ONCE)", "scope": "string[]", "audit_event_id": "string"}
+      },
+      "engine": "NEW: ApiKeyEngine — integrate with AuthEngine.sessionManage + emit audit_log_authz",
+      "risk": "net-new"
+    },
+    {
+      "action": "rbac_role_create",
+      "dispatcher": "prism_auth",
+      "schema": {
+        "input": {"tenant_id": "string", "role_name": "string", "permissions": "string[] (resource:action format)"},
+        "output": {"role_id": "string", "permissions_normalized": "string[]", "audit_event_id": "string"}
+      },
+      "engine": "NEW: RBACEngine — extends authDispatcher role_assign (currently pass-through) into full CRUD with permission matrix",
+      "risk": "net-new"
+    },
+    {
+      "action": "tutor_session_start",
+      "dispatcher": "prism_intelligence",
+      "schema": {
+        "input": {"user_id": "string", "track": "milling|turning|wedm|grinding|cad", "skill_level": "novice|intermediate|advanced"},
+        "output": {"session_id": "string", "lessons": "{id, title, est_min}[]", "first_lesson_uri": "string", "trial_to_paid_hook_armed": "boolean"}
+      },
+      "engine": "NEW: TutorialProgressionEngine — tracks lesson-N completion → fires trial→paid event (Round2 F-r2-a1-09)",
+      "risk": "net-new"
+    },
+    {
+      "action": "video_session_start",
+      "dispatcher": "prism_intelligence",
+      "schema": {
+        "input": {"user_id": "string", "video_id": "string"},
+        "output": {"session_id": "string", "transcript_uri": "string", "segments": "{start_s, end_s, topic}[]"}
+      },
+      "engine": "NEW: VideoTrainingEngine — wraps video-learn skill output as dispatcher action",
+      "risk": "net-new"
+    },
+    {
+      "action": "blueprint_trainer_quiz",
+      "dispatcher": "prism_cad",
+      "schema": {
+        "input": {"user_id": "string", "difficulty": "easy|medium|hard"},
+        "output": {"quiz_id": "string", "blueprint_uri": "string (from JM DIE archive)", "questions": "{id, prompt, expected_feature}[]"}
+      },
+      "engine": "NEW: BlueprintTrainingEngine — wraps blueprint_to_cadquery_script with quiz scoring against JM DIE retrieval correctness check",
+      "risk": "net-new"
+    },
+    {
+      "action": "subscription_tier_set",
+      "dispatcher": "prism_business",
+      "schema": {
+        "input": {"tenant_id": "string", "new_tier": "free|starter|pro|enterprise", "prorate": "boolean"},
+        "output": {"tier_active": "string", "stripe_subscription_id": "string", "next_invoice_at": "iso8601", "audit_event_id": "string"}
+      },
+      "engine": "NEW: SubscriptionTierEngine — extends billing_create_checkout / billing_create_portal with explicit tier-CRUD; MS1 FeatureTierEngine may absorb",
+      "risk": "wire-conflict"
+    }
+  ],
+
+  "key_findings": [
+    {
+      "id": "F-r3-a1-01",
+      "severity": "BLOCKER",
+      "title": "12 dispatcher actions MISSING across 37 MS0 units — 32% coverage gap",
+      "evidence": "Inventory below: 21/37 EXISTS, 4/37 STUB (mill cohort), 12/37 MISSING. Missing breakdown: LATHE(2: chip_control_validate, cost_optimize), WEDM(2: troubleshoot, controller_select), CAD/SFC(1: viewer_load_stl), ADMIN(3: seat_assign, api_key_create, rbac_role_create/assign), LEARN(3: tutor_session_start, video_session_start, blueprint_trainer_quiz), plus subscription_tier_set borderline EXISTS-via-portal.",
+      "blocks_revenue": true
+    },
+    {
+      "id": "F-r3-a1-02",
+      "severity": "BLOCKER",
+      "title": "Round2 F-r2-a1-07 partially RESOLVED: billing_create_portal EXISTS in businessDispatcher (not auth)",
+      "evidence": "businessDispatcher.ts:3481 case 'billing_create_portal' confirmed alongside billing_get_plans/handle_webhook/create_checkout. F-r2-a1-07 underestimated by not searching businessDispatcher. Remaining gap: seat_assign, api_key_create, rbac_role_*, subscription_tier_set still MISSING.",
+      "blocks_revenue": true
+    },
+    {
+      "id": "F-r3-a1-03",
+      "severity": "BLOCKER",
+      "title": "NO new dispatcher needed — all 12 MISSING actions fit existing dispatchers (prism_auth, prism_tenant, prism_cam, prism_calc, prism_edm, prism_cad, prism_intelligence, prism_business)",
+      "evidence": "authDispatcher is 159L and can absorb 2 new actions (api_key_*, rbac_*). tenantDispatcher already hosts seat-adjacent actions. edmDispatcher already has wedm_full_documentation/wedm_get_recommendation — wedm_troubleshoot fits. No need for a netnew dispatcher file.",
+      "blocks_revenue": false
+    },
+    {
+      "id": "F-r3-a1-04",
+      "severity": "MAJOR",
+      "title": "LEARN cohort has 0% backend — 3/3 MISSING actions, no learn/tutor dispatcher exists",
+      "evidence": "Grep against all dispatchers for tutor_/tutorial_/learn_/onboard_/trial_ returns ZERO. LEARN cohort is the most under-built MS0 group; per spec line 363 it 'reduces churn, increases trial→paid' — highest-leverage revenue effect blocked by zero backend.",
+      "blocks_revenue": true
+    },
+    {
+      "id": "F-r3-a1-05",
+      "severity": "MAJOR",
+      "title": "Mill cohort STUB risk re-confirmed — 2/6 routes call known-stub engines",
+      "evidence": "mill_chatter_predict (millDispatcher:400) and mill_scientific_analyze (millDispatcher:518) both route to AUDIT-confirmed stubs (#448 MillingForceEngine 15L, #460 MillScientificPipelineEngine 14L). Round2 F-r2-a1-02 still binding. Fix: reroute to ChatterPredictionEngine + MillingPhysicsKernelEngine BEFORE MS0 mill pages land.",
+      "blocks_revenue": true
+    },
+    {
+      "id": "F-r3-a1-06",
+      "severity": "MAJOR",
+      "title": "Net-new engine count for MS0 = 9 (vs spec assumption of zero net-new in MS0)",
+      "evidence": "MS0 spec frames cohort as 'wire existing engines to UI'. This synthesis identifies 9 NEW engines required (ChipControlEngine surface, LatheCostOptimizationEngine, WEDMControllerDialectEngine, CADViewerStreamEngine, ApiKeyEngine, RBACEngine, TutorialProgressionEngine, VideoTrainingEngine, BlueprintTrainingEngine) plus 1 MS1-dep (SeatAllocationEngine) and 1 wire-conflict (SubscriptionTierEngine). Spec timeline assumes wiring-only effort.",
+      "blocks_revenue": false
+    }
+  ],
+
+  "summary": {
+    "total_units": 37,
+    "exists": 21,
+    "stub": 4,
+    "missing": 12,
+    "new_dispatcher_needed": false,
+    "new_engines_needed": 9,
+    "ms1_dependencies_hoisted_to_ms0": 2,
+    "verdict": "FAIL — MS0 cannot ship as written: 12 actions missing + 4 stub-routed + 9 net-new engines required",
+    "top_3_revenue_blocking": [
+      "U-REV-LEARN-01..03 (trial→paid conversion entirely backendless — 3 missing actions, blocks customer acquisition flywheel)",
+      "U-REV-ADMIN-05/06 (api_key_create + rbac_role_* — blocks enterprise tier monetization, no API access surface)",
+      "U-REV-MILL-03/05 (mill_chatter_predict + mill_scientific_analyze route to stubs — silently false-green CI ships broken mill cohort)"
+    ],
+    "one_line": "37 MS0 units → 21 EXISTS / 4 STUB / 12 MISSING; 9 net-new engines required; LEARN cohort has zero backend (most revenue-blocking); ADMIN cohort 4/7 missing for tier+RBAC+API; no new dispatcher file needed (slots fit existing auth/tenant/cam/calc/edm/cad/intelligence/business)."
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "agent": 1,
+  "angle": "codex-parity-architecture",
+  "verdict": "PASS-WITH-CHANGES",
+  "summary": {
+    "blockers": 0,
+    "majors": 4,
+    "minors": 3,
+    "verdict": "v7.1 architecture is sound — dispatcher routing, lane discipline, and 9-milestone dep-graph are coherent; ship after fixing cross-MS-order edges (MS0 paywall prose-depends on MS1 SUB hoist set without declared depends_on) and normalizing MS2/MS3 narrative deps into the depends_on schema."
+  },
+  "findings": [
+    {
+      "id": "R5A1-001",
+      "severity": "MAJOR",
+      "category": "dep",
+      "title": "MS0 paywall units prose-depend on MS1 SUB hoist set (U-SUB-00/19/22/28) but declare no depends_on against them",
+      "evidence": "v7.1 L198/L259-263 state U-SUB-00/19/22/28 MUST land before MS0 paywall activates; yet U-REV-MS0-ACT-SUBTIER-01, U-REV-ADMIN-03/07 declare depends_on only on intra-MS0 hoist units. Confirmed by round5 agent-4 R5A4-001/R5A4-008. Stop-hook DAG cannot enforce the spec's own sequencing.",
+      "fix": "Add depends_on:['U-SUB-00','U-SUB-22','U-SUB-28'] to U-REV-MS0-ACT-SUBTIER-01 and U-REV-MS0-ACT-APIKEY-01; reframe 'MS0 ships first' — the MS1-P0 hoist set is a hard prereq of MS0 paywall pages, OR explicitly scope MS0 SUBTIER acceptance to US-only invoicing."
+    },
+    {
+      "id": "R5A1-002",
+      "severity": "MAJOR",
+      "category": "dep",
+      "title": "MS2 and MS3 use narrative track/batch dependency tables, not per-unit depends_on fields — not uniformly DAG-checkable",
+      "evidence": "v7.1 MS2 (mill/lathe physics) lists tracks A-E with prose sequencing; MS3 uses batch ordering prose. Per round5 agent-4: 'MS2 uses narrative track tables without per-unit declared depends_on fields … excluded from cycle/orphan detection.' This means ~40% of the roadmap escapes the Stop-hook orphan/cycle gate that protects MS0/MS1/MS4.",
+      "fix": "Add a normalization unit (U-REV-DEPGRAPH-NORMALIZE-01) that lifts MS2/MS3/MS5 track-prose into the same depends_on schema as MS0/MS1/MS4 so build-milestone-progress.mjs and stop_on_unwired_assets see the whole graph."
+    },
+    {
+      "id": "R5A1-003",
+      "severity": "MAJOR",
+      "category": "routing",
+      "title": "MS2 mill physics units risk wiring to the MillingForceEngine stub (millDispatcher 'physics' bucket) instead of MillingPhysicsKernelEngine",
+      "evidence": "AUDIT-LATEST.json mill domain: MillingForceEngine is a 15-line WIRE-EXEMPT stub returning {ok:false,stub:true}, yet millDispatcher routes 'physics'/'scientific' buckets to it (and MillScientificPipelineEngine, also a 14-line stub). ChatterPredictionEngine/ChatterStabilityLobeEngine have real Altintas-Budak SLD but no canonical routing. If MS2 'expand mill physics' units accept against millDispatcher actions without first repointing the buckets, they ship false-green.",
+      "fix": "Sequence an MS2-P0 unit: replace MillingForceEngine + MillScientificPipelineEngine stubs with thin facades over MillingPhysicsKernelEngine (1924L canonical); designate ChatterPredictionEngine as canonical for mill_chatter_predict; add a millDispatcher↔calcDispatcher contract test asserting which engine answers each physics action. Make all downstream MS2 mill units depends_on this."
+    },
+    {
+      "id": "R5A1-004",
+      "severity": "MAJOR",
+      "category": "arch",
+      "title": "Master Post milestone overlaps the documented PostProcessor consolidation opportunity (53 engines → 1 MasterPost + 9 vendor strategies) without a scope-fence vs MS2 lathe-post / hyperMILL-NC dispatchers",
+      "evidence": "AUDIT-LATEST.json cam-bridges: 'PostProcessor consolidation — fold 53 engines into 1 MasterPostProcessor + 9 vendor strategies' (very_high leverage) AND physics-safety gap: 'No PreEmit gate on G-code dispatchers enforcing omega-thresholds.json tier' across postProcessorDispatcher / lathePostGenDispatcher / millMasterPostDispatcher / hyperMILLNCDispatcher. Master Post MS must declare which of those 4 dispatchers it owns vs which MS2 lane retains, or two chats edit the same camDispatcher region (lane-discipline hazard — 17,936-line file).",
+      "fix": "In the Master Post MS preamble, enumerate owned files (the 53 PP engines + the 4 post dispatchers) and add a lane-claim note; co-locate the OmegaGate PreEmit unit here (it's the natural home — every post emit funnels through it); make MS2 lathe-post units depends_on the Master Post strategy-pattern scaffold so they slot into vendor strategies rather than fork new PP engines."
+    },
+    {
+      "id": "R5A1-005",
+      "severity": "MINOR",
+      "category": "dep",
+      "title": "MS1 carries 4 zombie carryover IDs (U-SUB-09/12/13/15 'replaced by …') in the net-43 count — phantom DAG nodes",
+      "evidence": "Per round5 agent-4 R5A4-004: U-SUB-09/12/13/15 tagged replaced but counted in 'Net effective unit count: 43'. No peer unit can depend on them; Stop-hook sees ghost rows.",
+      "fix": "Mark status:deprecated in the envelope schema and exclude from the active count (43→39) and from DAG checks."
+    },
+    {
+      "id": "R5A1-006",
+      "severity": "MINOR",
+      "category": "dep",
+      "title": "11 MS1 SUB units are declared-leaf orphans (out-edges only, zero in-edges, not the MS1-close gate)",
+      "evidence": "round5 agent-4 R5A4-003: U-SUB-21/23/25/26/29/31/34/35/38/41/42/43 have no peer declaring depends_on them; some (U-SUB-42 pairwise, U-SUB-29 retention) are named only in acceptance prose. Same orphan pattern the brief flags for the rest of the roadmap.",
+      "fix": "Add an explicit MS1-close meta-unit with depends_on:[…all active SUB units], OR declare reverse edges from downstream consumers (EU-GTM launch unit depends_on U-SUB-23/24/25; CI matrix unit depends_on U-SUB-42)."
+    },
+    {
+      "id": "R5A1-007",
+      "severity": "MINOR",
+      "category": "arch",
+      "title": "MS-TRAIN (LoRA/training milestone) inherits the AUDIT finding that 80 LatheLoRA* engines have 0 .safetensors weights — needs an explicit 'produce checkpoint or delete scaffold' gate",
+      "evidence": "AUDIT-LATEST.json ai-reasoning: '80 LatheLoRA* engines and 0 .safetensors weights … hides 80 unused engines from /dedup audits.' If MS-TRAIN does not assert checkpoints land under data/models/lathe-lora/<date>/, the milestone closes without verifiable training output (same false-progress class as the mill stubs).",
+      "fix": "Add MS-TRAIN acceptance bullet: LatheLoRACadenceEngine emits a .safetensors checkpoint + a model-card JSON; a Stop-side check fails the milestone if data/models/lathe-lora/ is empty; otherwise the 80 engines get explicitly de-scoped (deleted or WIRE-EXEMPT with rationale)."
+    }
+  ],
+  "consensus_signal": "v7.1 is architecturally PASS-WITH-CHANGES: acyclic, reference-clean, dispatcher topology correct — the load-bearing fix is making the cross-milestone ordering (MS0 paywall ← MS1 SUB hoist; MS2 mill-physics ← stub-replacement; MS2 lathe-post ← Master Post scaffold) explicit in depends_on fields so the Stop-hook DAG enforces the prose the spec already writes."
+}

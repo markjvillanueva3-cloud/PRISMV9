@@ -1,0 +1,168 @@
+{
+  "round": 4,
+  "agent_n": 9,
+  "scope": "REVENUE-MS-TRAIN — training cadence layer (orthogonal to MS0-MS5)",
+  "agent_role": "spec-revision-training",
+  "milestone_id": "REVENUE-MS-TRAIN",
+  "orthogonality": "Touches every revenue product (SFC, Master Post, WEDM, Lathe, Mill, Quote-to-Ship). MS0-MS5 ship envelope-baseline; MS-TRAIN converts envelope to per-customer fit.",
+  "customer_promise": "Day 1 ISO-baseline + envelope margins. Day 30 fitted Kienzle/Taylor/operator-style. Day 90 conformal-validated autonomy.",
+  "depends_on": {
+    "round3_5_agent3": "11 SFC training nodes (Kienzle, Taylor, SLD, thermal, conformal, mill_lora r16, lathe_lora r8, wedm_lora r4, cam_lora ensemble, tribal capture, telemetry fabric)",
+    "round3_5_agent5": "Master Post per-controller training (Hurco/Okuma/Mitsubishi-wire ship-ready; Haas/Fanuc/Mitsubishi-sinker missing; operator-style LoRAs; 3 tribal overlays)",
+    "round3_agent9": "T3 LoRA plan (QLoRA r=16/8/4/8, qwen2.5-coder:7b base, Ollama adapter mounting, .safetensors weights storage, fallback-marker telemetry contract)"
+  },
+  "training_nodes": [
+    { "id": 1, "name": "Kienzle kc11 per-shop per-material", "cadence": "one-shot + on-trigger", "fit_method": "log-log regression + bootstrap CI", "validation_gate": "R^2>0.92, CI half-width <8%, Bayesian deviation penalty >30% from ISO", "fallback": "ISO baseline + 12% conformal margin + telemetry kienzle.fallback.baseline_only" },
+    { "id": 2, "name": "Taylor C/n per-machine per-tool-class", "cadence": "continuous + weekly refit + monthly cross-val", "fit_method": "hierarchical Bayesian log-linear", "validation_gate": "n CI excludes 0 and >0.6, R^2>0.80, 20% holdout", "fallback": "machine-specific -> shop-avg -> ISO baseline tier label" },
+    { "id": 3, "name": "SLD per-machine per-toolholder-stack", "cadence": "one-shot + on-trigger + monthly 3-stack spot", "fit_method": "FRF FFT + rational-fraction-polynomial + Altintas-Budak + RCSA Schmitz Ch.4", "validation_gate": "chatter RPM within +/-8% of 3 cut-test verifications, modes >=3 in 0-4000Hz", "fallback": "MachineToolEnvelopeEngine class-default conservative SLD" },
+    { "id": 4, "name": "Thermal growth per-machine per-axis", "cadence": "one-shot + monthly spot + seasonal full", "fit_method": "1st-order linear OLS alpha/beta", "validation_gate": "RMSE <5um tight-tol or <15um general, alpha plausible 1-3 um/C cast-iron 5-12 spindle", "fallback": "worst-case 25um drift in tolerance stack, block IT5/IT6 parts" },
+    { "id": 5, "name": "Conformal recalibration drift detection", "cadence": "continuous + on-trigger", "fit_method": "Adaptive Conformal Prediction (Romano 2020 APS) + CUSUM drift detector", "validation_gate": "empirical coverage >=90%, Brier <0.15", "fallback": "widen alpha 0.10->0.15, block dispatcher until 20-sample recalibration window completes" },
+    { "id": 6, "name": "mill_lora rank-16", "cadence": "at-onboarding + monthly", "fit_method": "QLoRA r=16 alpha=32 dropout=0.1 q_proj+v_proj, 3 epochs lr=2e-4 cosine, CE+KL", "validation_gate": "S/F token-acc >75% +/-5%, strategy F1>0.82, >8% lift vs no-adapter", "fallback": "lora-weights-presence-check Stop hook blocks dispatcher, base qwen2.5-coder + telemetry lora.fallback.weights_missing" },
+    { "id": 7, "name": "lathe_lora rank-8", "cadence": "at-onboarding + monthly", "fit_method": "QLoRA r=8 alpha=16, JM Die .MIN $<INTERNAL>% corpus", "validation_gate": "chip-control F1>0.85 ISO 3685, S/F acc>75%", "fallback": "base model + telemetry" },
+    { "id": 8, "name": "wedm_lora rank-4", "cadence": "at-onboarding + quarterly once corpus >100", "fit_method": "QLoRA r=4 alpha=8 (low-shot LoRA-FA)", "validation_gate": "cycle-time MAPE<15%, Ra within +/-0.4um", "fallback": "physics-only WEDMOrchestrator + tribal-tip retrieval" },
+    { "id": 9, "name": "cam_lora ensemble rank-8", "cadence": "at-onboarding + quarterly", "fit_method": "per-task adapters (op_classify+strategy+tool), Bayesian model averaging", "validation_gate": "op top-1>0.88, strategy top-3 recall>0.90, tool top-5>0.85", "fallback": "CamStrategyEngine rule-based" },
+    { "id": 10, "name": "Tribal continuous capture", "cadence": "continuous + nightly batch", "fit_method": "embedding-only (Xenova all-MiniLM-L6-v2 384-dim) + Ollama zero-shot tag extraction, promote >=3 citations", "validation_gate": "/wiki-lint, anti-dup cosine>0.85 flag, FP tag-extraction <10% monthly audit", "fallback": "manual text-only operator form" },
+    { "id": 11, "name": "Unified telemetry-ingestion fabric (5-protocol)", "cadence": "continuous", "fit_method": "stream consolidation to Qdrant + DuckDB + Stop-hook triggers", "validation_gate": "<2s e2e latency, zero dropped events 24h", "fallback": "per-protocol degrade with telemetry tier degraded-{protocol}" }
+  ],
+  "master_post_training": {
+    "rule_based_controllers": [
+      { "controller": "Hurco WinMAX v10", "engine": "E0182 HurcoV11MillMasterPostEngine", "status": "SHIP-READY", "method": "rule + prompt overlay", "jm_examples": 4200, "priority": "P0" },
+      { "controller": "Okuma OSP P200/P300/P500/U10", "engine": "E0355 + PPOkumaTurningPostEngine", "status": "SHIP-READY", "method": "rule + LoRA", "jm_examples": 11900, "priority": "P0" },
+      { "controller": "Mitsubishi W31MV-2 wire EDM", "engine": "E0337 + E0529", "status": "SHIP-READY", "method": "rule", "jm_examples": 2300, "priority": "P0" },
+      { "controller": "Haas PRE-NGC", "engine": "MISSING", "status": "build in MS-TRAIN", "method": "rule", "jm_examples": 2500, "priority": "P1" },
+      { "controller": "Fanuc 31i-B5", "engine": "MISSING", "status": "build in MS-TRAIN", "method": "rule", "jm_examples": 400, "priority": "P0-external" },
+      { "controller": "Mitsubishi FP80S/C30EA-2 sinker", "engine": "MISSING", "status": "build in MS-TRAIN", "method": "rule + LoRA", "jm_examples": 3100, "priority": "P1" }
+    ],
+    "operator_style_lora": [
+      { "adapter": "okuma_operator_lora", "rank": 4, "signal": "$<INTERNAL>% header, hand-edit patterns, G10 L2 work-offset placement" },
+      { "adapter": "mitsubishi_sinker_lora", "rank": 4, "signal": "pulse-table preset selection, jump-flush thresholds, electrode-wear compensation cadence" }
+    ],
+    "tribal_overlays": [
+      { "id": "hurco_m30_rapid_home", "rule": "After M30 emit G0 X0 Y0 Z0 (Hurco WinMAX leaves spindle at last position; JM convention)", "test": "roundtrip M30 triggers auto-park insertion" },
+      { "id": "okuma_min_internal_header", "rule": "Line 1 MUST be $<INTERNAL>% (controller refuses load otherwise)", "test": "regex ^\\$<INTERNAL>%$ on every Okuma emit" },
+      { "id": "haas_proven_naming", "rule": "PROVEN PRG/ folder name distinguishes proven vs draft programs in archive ingestion + downstream confidence-tier", "test": "archive ingest tags prg_status: draft|proven by parent folder name" }
+    ]
+  },
+  "onboarding_day": {
+    "total_wall_clock_hours": 10,
+    "pre_flight_required": "MTConnect agents installed week-prior on all 21 machines",
+    "steps": [
+      { "step": 1, "time": "08:00-08:30", "duration_min": 30, "activity": "MTConnect agent verify + spindle-kW channel check", "engines": ["MTConnectRoundTripLatencyBenchEngine", "SpindlePowerSensorIngestEngine"] },
+      { "step": 2, "time": "08:30-11:30", "duration_min": 180, "activity": "FRF sweep 63 measurements (21 machines x 3 toolholder stacks)", "engines": ["FRFMeasurementEngine", "RCSAStabilityPredictorEngine"] },
+      { "step": 3, "time": "11:30-13:00", "duration_min": 90, "activity": "Lunch + thermal warmup probe routines autonomous background", "engines": ["ThermalGrowthCalibrationEngine"] },
+      { "step": 4, "time": "13:00-15:30", "duration_min": 150, "activity": "Kienzle test cuts on 8-10 supplier-material combos", "engines": ["KienzleKc11FitEngine"] },
+      { "step": 5, "time": "15:30-17:00", "duration_min": 90, "activity": "Bulk ingest 24,545 JM archive files, LoRA dataset preparation, queue training jobs", "engines": ["LoRATrainerOrchestratorEngine", "MillLoRADatasetBuilderEngine", "LatheLoRADatasetBuilderEngine"] },
+      { "step": 6, "time": "17:00-18:00", "duration_min": 60, "activity": "Operator onboarding on tribal-capture UI + predicted-vs-actual feedback loop demo + soft-launch expectations", "engines": ["TribalKnowledgeCaptureEngine"] },
+      { "step": 7, "time": "overnight 18:00-08:00", "duration_min": 840, "activity": "LoRA training jobs run (8-12h GPU), conformal baseline established at dawn replay", "engines": ["LoRATrainerOrchestratorEngine", "AdaptiveConformalAlphaEngine"] }
+    ],
+    "deliverable_summary": "21 machines emitting telemetry, 63 SLD maps, 21 thermal curves, 8-10 per-shop kc11 offsets, mill_lora r=16 + lathe_lora r=8 checkpoints, conformal alpha=0.10, operators trained on tribal capture"
+  },
+  "monthly_maintenance": {
+    "operator_overhead_hours": 2,
+    "automated_jobs_count": 6,
+    "tasks": [
+      { "task": "LoRA fine-tune incremental", "cadence": "1st Monday/month", "duration": "1-2h single-GPU", "gate": ">8% lift vs prior month or rollback" },
+      { "task": "Taylor C/n weekly refit", "cadence": "weekly auto when new data points", "duration": "<5 min compute", "gate": "alert on >20% shift (tool brand change or spindle wear)" },
+      { "task": "Kienzle drift check", "cadence": "monthly 3-lot spot", "duration": "30 min cut-test", "gate": ">10% deviation triggers full re-fit" },
+      { "task": "Thermal model spot-verify", "cadence": "monthly single-axis + seasonal full", "duration": "30 min spot, 2h full", "gate": "RMSE >150% baseline triggers full re-cal" },
+      { "task": "SLD 3-stack spot-check", "cadence": "monthly", "duration": "45 min", "gate": ">15% modal drift triggers full re-FRF" },
+      { "task": "Conformal coverage audit", "cadence": "weekly automated", "duration": "automated", "gate": "cells with <85% empirical coverage flagged" },
+      { "task": "Tribal wiki nightly sync", "cadence": "nightly automated", "duration": "Ollama >=70%", "gate": "/wiki-lint quality + anti-dup cosine 0.85" },
+      { "task": "Cross-validation health report", "cadence": "1st of month overnight", "duration": "automated", "gate": "MoM delta + regression alerts dashboard" }
+    ]
+  },
+  "critical_data_gaps": [
+    {
+      "gap": "Spindle-power telemetry availability",
+      "blocker_for": "Node 1 Kienzle fit",
+      "risk": "2-3 older Fanuc machines may need clamp-on CT retrofit (~$400/machine, ~1 day install)",
+      "impact_if_unmitigated": "envelope-only physics with 12% conformal margin, no per-shop fit, no premium-tier justification",
+      "mitigation": "pre-flight week-prior install + budget retrofit for non-MTConnect machines"
+    },
+    {
+      "gap": "Tool-life log cold-start",
+      "blocker_for": "Node 2 Taylor C/n fit",
+      "risk": "no machine currently logs (Vc, T_failure) trials; 630 trials needed for full coverage at JM Die",
+      "impact_if_unmitigated": "Gilbert economic speed (Round-3 agent-5) operates on baseline-only for 6 months, 60-70% premium value-add unrealized until corpus matures",
+      "mitigation": "initial 30-day operator-incentive program to log tool-change reasons + chip-color observations + hierarchical Bayesian posterior shrunk toward ISO baseline in interim"
+    },
+    {
+      "gap": "FRF measurement downtime commitment",
+      "blocker_for": "Node 3 SLD per-machine",
+      "risk": "JM Die may not have shop-floor downtime or skilled technician in-house",
+      "impact_if_unmitigated": "SLD falls back to class-default conservative envelope leaving 20-30% productivity on the table",
+      "mitigation": "PRISM technician on-site (billable onboarding-day premium) OR train one JM machinist on FRF protocol (3-day cert) OR accept class-default SLD and revisit month 3"
+    }
+  ],
+  "telemetry_pipeline": {
+    "sensors": [
+      "Spindle power meter (kW) — native on Mazak Smooth/Okuma OSP/Haas NGC, clamp-on CT retrofit for older Fanuc (~$400)",
+      "Impact hammer PCB 086C03 + tri-axial accelerometer PCB 356A16 (mobile cart, one set per shop)",
+      "Touch probe Renishaw OMP60 — thermal warmup + workpiece alignment",
+      "Spindle temperature thermocouple — internal, expose via FOCAS/THINC parameter",
+      "Ambient temperature DS18B20 1-wire — $5 retrofit per machine column",
+      "Shop-floor UI + microphone for tribal capture (existing web frontend + commodity USB mic)",
+      "Operator tool-life logger (UI-driven, no hardware sensor)"
+    ],
+    "protocols": ["MTConnect", "OPC-UA", "Fanuc-FOCAS", "Okuma-THINC", "Heidenhain DNC"],
+    "ingestion_engine": "TelemetryIngestionOrchestratorEngine — 5-protocol fabric, outputs to Qdrant (vector) + DuckDB (time-series) + Stop-hook calibration triggers, wires to prism_intelligence:telemetry_ingest + prism_session:sensor_status_poll"
+  },
+  "acceptance_gates": {
+    "per_cycle_report_schema": {
+      "cycle_id": "uuid",
+      "node": "kienzle|taylor|sld|thermal|conformal|mill_lora|lathe_lora|wedm_lora|cam_lora|tribal|telemetry",
+      "fitted_at": "iso8601",
+      "sample_count": "int",
+      "metrics": ["r_squared", "rmse", "bootstrap_ci_half_width_pct", "empirical_coverage_pct", "f1_score", "month_over_month_delta_pct"],
+      "validation_gate_passed": "bool",
+      "fallback_engaged": "bool",
+      "confidence_tier": "envelope|shop-avg|machine-specific|conformal-validated",
+      "regression_alert": "bool"
+    },
+    "top_level_gate": "every dispatcher action consuming calibrated value attaches confidence_tier to response; UI displays badge (envelope gray / shop-avg amber / machine-specific green / conformal-validated gold) — primary value-perception driver for premium SaaS upgrade",
+    "conformal_coverage_gate": "each (op, machine, material) cell empirical coverage >=85% over rolling 200-sample window; failing cells auto-flagged for re-fit or downgrade to advisory-only mode"
+  },
+  "units": [
+    { "id": "U-TRAIN-01", "title": "KienzleKc11FitEngine build + wire", "engines": ["KienzleKc11FitEngine"], "dispatchers": ["prism_calc", "prism_intelligence"], "cadence": "one-shot" },
+    { "id": "U-TRAIN-02", "title": "TaylorConstantFitEngine build + wire (hierarchical Bayesian)", "engines": ["TaylorConstantFitEngine"], "dispatchers": ["prism_calc", "prism_intelligence"], "cadence": "continuous" },
+    { "id": "U-TRAIN-03", "title": "FRFMeasurementEngine build (PCB hammer + accelerometer ingestion)", "engines": ["FRFMeasurementEngine"], "dispatchers": ["prism_calc", "prism_safety"], "cadence": "one-shot" },
+    { "id": "U-TRAIN-04", "title": "RCSAStabilityPredictorEngine build (Schmitz RCSA + Altintas-Budak)", "engines": ["RCSAStabilityPredictorEngine"], "dispatchers": ["prism_calc", "prism_safety", "prism_cam"], "cadence": "derived" },
+    { "id": "U-TRAIN-05", "title": "ThermalGrowthCalibrationEngine (alpha/beta OLS + G10 L20 compensation hook)", "engines": ["ThermalGrowthCalibrationEngine"], "dispatchers": ["prism_calc", "prism_safety"], "cadence": "one-shot + monthly" },
+    { "id": "U-TRAIN-06", "title": "ConformalDriftDetectorEngine (CUSUM, integrates with shipped AdaptiveConformalAlphaEngine)", "engines": ["ConformalDriftDetectorEngine"], "dispatchers": ["prism_intelligence", "prism_safety"], "cadence": "continuous" },
+    { "id": "U-TRAIN-07", "title": "SpindlePowerSensorIngestEngine + clamp-on CT retrofit protocol", "engines": ["SpindlePowerSensorIngestEngine"], "dispatchers": ["prism_intelligence", "prism_session"], "cadence": "continuous" },
+    { "id": "U-TRAIN-08", "title": "TelemetryIngestionOrchestratorEngine (5-protocol fabric)", "engines": ["TelemetryIngestionOrchestratorEngine"], "dispatchers": ["prism_intelligence", "prism_session", "prism_memory"], "cadence": "continuous" },
+    { "id": "U-TRAIN-09", "title": "LoRATrainerOrchestratorEngine (QLoRA pipeline + weight versioning)", "engines": ["LoRATrainerOrchestratorEngine"], "dispatchers": ["prism_ai", "prism_dev"], "cadence": "onboarding + monthly" },
+    { "id": "U-TRAIN-10", "title": "MillLoRADatasetBuilderEngine (JM mill .NC/.PRG/.MIN + synthetic + outcome-bridge)", "engines": ["MillLoRADatasetBuilderEngine"], "dispatchers": ["prism_ai"], "cadence": "onboarding" },
+    { "id": "U-TRAIN-11", "title": "mill_lora r=16 first training run + acceptance validation", "engines": ["LoRATrainerOrchestratorEngine"], "dispatchers": ["prism_ai"], "cadence": "one-shot", "gate": ">8% lift vs no-adapter baseline" },
+    { "id": "U-TRAIN-12", "title": "lathe_lora r=8 first training run (.MIN $<INTERNAL>% corpus)", "engines": ["LoRATrainerOrchestratorEngine", "LatheLoRADatasetBuilderEngine"], "dispatchers": ["prism_ai", "prism_turning"], "cadence": "one-shot" },
+    { "id": "U-TRAIN-13", "title": "wedm_lora r=4 first training run", "engines": ["LoRATrainerOrchestratorEngine"], "dispatchers": ["prism_ai"], "cadence": "one-shot" },
+    { "id": "U-TRAIN-14", "title": "cam_lora ensemble r=8 (op_classify + strategy + tool_select)", "engines": ["LoRATrainerOrchestratorEngine"], "dispatchers": ["prism_ai", "prism_cam"], "cadence": "one-shot" },
+    { "id": "U-TRAIN-15", "title": "TribalKnowledgeCaptureEngine (text + Whisper + Qdrant embed + Ollama tag + playbook promotion)", "engines": ["TribalKnowledgeCaptureEngine"], "dispatchers": ["prism_memory", "prism_intelligence"], "cadence": "continuous" },
+    { "id": "U-TRAIN-16", "title": "lora-weights-presence-check.mjs Stop hook", "engines": [], "hooks": ["lora-weights-presence-check.mjs"], "cadence": "continuous", "gate": "block dispatcher + lora.fallback.weights_missing telemetry" },
+    { "id": "U-TRAIN-17", "title": "CalibrationHealthReportEngine (monthly cross-val dashboard, MoM delta, regression alerts)", "engines": ["CalibrationHealthReportEngine"], "dispatchers": ["prism_dev", "prism_session"], "cadence": "monthly" },
+    { "id": "U-TRAIN-18", "title": "Master Post operator-style LoRAs (okuma_operator_lora r=4, mitsubishi_sinker_lora r=4)", "engines": ["LoRATrainerOrchestratorEngine"], "dispatchers": ["prism_ai", "prism_cam"], "cadence": "onboarding + quarterly" },
+    { "id": "U-TRAIN-19", "title": "Master Post tribal overlays (hurco_m30_rapid_home + okuma_min_internal_header + haas_proven_naming rule packs)", "engines": [], "config": ["mcp-server/data/post-overlays/*.json"], "cadence": "one-shot config" },
+    { "id": "U-TRAIN-20", "title": "Confidence-tier UI badges (envelope/shop-avg/machine-specific/conformal-validated) + dispatcher response decoration", "engines": [], "frontend": ["mcp-server/web/components/ConfidenceTierBadge.tsx"], "dispatchers": ["all consumer dispatchers"], "cadence": "one-shot" }
+  ],
+  "summary": {
+    "milestone_id": "REVENUE-MS-TRAIN",
+    "unit_count": 20,
+    "engines_new": 11,
+    "hooks_new": 1,
+    "datasets_new": 2,
+    "config_new": 3,
+    "frontend_new": 1,
+    "onboarding_day_hours": 10,
+    "monthly_operator_overhead_hours": 2,
+    "monthly_automated_jobs": 6,
+    "data_gaps_critical": 3,
+    "data_gap_short": ["spindle-power telemetry", "tool-life log cold-start", "FRF measurement downtime"],
+    "lora_adapters": ["mill_lora r=16", "lathe_lora r=8", "wedm_lora r=4", "cam_lora ensemble r=8", "okuma_operator_lora r=4", "mitsubishi_sinker_lora r=4"],
+    "telemetry_protocols": 5,
+    "calibration_nodes": 11,
+    "confidence_tiers": ["envelope", "shop-avg", "machine-specific", "conformal-validated"],
+    "svi_omega_impact": "MS-TRAIN lifts active milestone bundle from envelope-Omega ~0.75 to fit-Omega target 1.0; conformal coverage >=85% per (op, machine, material) cell is binding constraint",
+    "verdict": "MS-TRAIN is the only milestone that converts envelope-baseline physics into per-customer fit + LoRA adapter weights + tribal continuous capture. Without it, MS0-MS5 ship at envelope-Omega and the premium SaaS tier (which justifies revenue) has no value-perception anchor.",
+    "one_line": "20 units, 11 calibration nodes + 6 LoRA adapters + 3 tribal overlays + 5-protocol telemetry fabric; 10h onboarding + 2h/month operator overhead + 6-8 automated jobs/month; 3 critical gaps (spindle-power telemetry, tool-life log cold-start, FRF measurement downtime) gate the premium-tier value-add."
+  }
+}

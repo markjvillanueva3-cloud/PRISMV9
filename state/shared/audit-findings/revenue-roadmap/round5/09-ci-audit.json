@@ -1,0 +1,84 @@
+{
+  "agent": 9,
+  "angle": "ci-enforceability",
+  "round": 5,
+  "timestamp": "2026-05-11",
+  "verdict": "BLOCKER — v7.1's verification HARD GATE is non-enforceable on current GitHub Actions infra. `verifies_via:` blocks reference 4 scripts that exist nowhere on disk (check-engine-wired.mjs, audit-sfc-cluster.mjs, paddle-fixture-replay.mjs, vies-sandbox-probe.mjs), no `expectNotStub` helper exists, and .github/workflows/ci.yml has ZERO step that invokes any v7.A gate (it runs `npm run build` + `npx vitest run --cache` only — false-green tests pass cleanly). v7.1 also only carries 2 of the 6 stub-trap remediation units (mill_chatter, mill_scientific_analyze); mill_scientific_optimize, mill_uncertainty_quantify, mill_physics_*, blueprint_program_join CAD-path are unaddressed. None of the 16 false-green tests have a remediation unit. The v6/v7.A 'verify-bridge / spans-config-matrix / expectNotStub / audit-test-assertion-density' proposals named in the dispatch brief are NOT present in v7.1 as a structured CI section — they live in the round3/10 hardening proposal (H1-H7) and the earlier 2026-05-10 spec, but v7.1 did not absorb them.",
+  "summary": {
+    "v7a_scripts_referenced": ["scripts/check-engine-wired.mjs", "scripts/audit-sfc-cluster.mjs", "scripts/paddle-fixture-replay.mjs", "scripts/vies-sandbox-probe.mjs"],
+    "v7a_scripts_present_on_disk": 0,
+    "expectNotStub_helper_present": false,
+    "ci_workflow_steps_invoking_v7a_gate": 0,
+    "ci_workflow_files_total": 7,
+    "stub_trap_actions_total": 6,
+    "stub_trap_remediation_units_in_v7.1": 2,
+    "stub_trap_units_ci_gated": 0,
+    "false_green_tests_total": 16,
+    "false_green_remediation_units": 0,
+    "dev_hours_to_make_v7a_ci_enforceable": 38,
+    "verifies_via_blocks_in_v7.1": 34,
+    "verifies_via_blocks_runnable_in_GHA_today": 0
+  },
+  "findings": [
+    {
+      "id": "R5A9-001",
+      "severity": "BLOCKER",
+      "title": "v7.A `verifies_via` references 4 non-existent scripts",
+      "evidence": "v7.1 lines 290, 962 reference `node scripts/check-engine-wired.mjs` and `node scripts/audit-sfc-cluster.mjs`; lines for U-SUB-21/24 reference `paddle-fixture-replay.mjs` / `vies-sandbox-probe.mjs`. `ls scripts/check-engine-wired.mjs scripts/audit-sfc-cluster.mjs scripts/paddle-fixture-replay.mjs scripts/vies-sandbox-probe.mjs` → all 'No such file'. Confirms round3/10 missing_scripts finding still holds in v7.1.",
+      "recommendation": "Add a foundation unit U-REV-CI-00 before MS0: build check-engine-wired.mjs (~6h, traverse dispatcher .ts route tables, import each engine, fail on file <30 LOC or single-return body), audit-test-assertion-density.mjs (~5h), verify-bridge subcommand on system-viz-query.mjs (~8h), expectNotStub.ts helper (~1h). Until these ship, every `verifies_via` block in v7.1 is decorative."
+    },
+    {
+      "id": "R5A9-002",
+      "severity": "BLOCKER",
+      "title": ".github/workflows/ci.yml has no v7.A enforcement step",
+      "evidence": "ci.yml `build-and-test` job = `npm run build` + `npx vitest run --cache`; `test-coverage` job = `npm run test:coverage`. No grep hit for verify-bridge|check-engine-wired|expectNotStub|audit-test-assertion|stub in ci.yml or validate-cam-enrichment.yml. vitest run passes the 16 false-green tests (toBeDefined-only) and MillingForceEngine.test.ts (565L against a 15L stub — silent skip or alias, indistinguishable). CI is green while MS0 dispatcher actions return {ok:false,stub:true}.",
+      "recommendation": "Add `revenue-gates` job to ci.yml (PR + push to main): `node scripts/check-engine-wired.mjs --all`, `node scripts/audit-test-assertion-density.mjs --fail-under 3`, `node scripts/verify-bridge --actions-from PRISM-INVENTORY-LATEST.md`. ~3h to wire the job once the scripts exist. Gate must be `continueOnError: false`."
+    },
+    {
+      "id": "R5A9-003",
+      "severity": "BLOCKER",
+      "title": "4 of 6 stub-trap dispatcher actions have no remediation unit in v7.1",
+      "evidence": "round3/10 catalog: mill_physics_* (MillingForceEngine 15L stub, millDispatcher L66), mill_scientific_analyze, mill_scientific_optimize, mill_uncertainty_quantify (MillScientificPipelineEngine 14L stub, millDispatcher L70), mill_chatter_predict, blueprint_program_join CAD-path. v7.1 lines 50-51 carry U-REV-MS0-STUB-MILL-CHATTER-01 and U-REV-MS0-STUB-MILL-SCI-01 only. mill_scientific_optimize + mill_uncertainty_quantify share the same MillScientificPipelineEngine stub but are not named — STUB-MILL-SCI-01 reroutes only `mill_scientific_analyze` to MillingPhysicsKernelEngine. mill_physics_* and blueprint_program_join CAD-path: no unit at all.",
+      "recommendation": "Either (a) expand U-REV-MS0-STUB-MILL-SCI-01 acceptance to cover all 3 scientific-bucket actions, and add U-REV-MS0-STUB-MILL-PHYS-01 (reroute mill_physics_* off MillingForceEngine) + U-REV-MS0-STUB-CAD-JOIN-01, or (b) explicitly defer mill_physics_*/blueprint_join out of MS0 scope with a documented `WIRE-EXEMPT` rationale. Each new stub unit needs a `verifies_via` running `expectNotStub` on a round-trip dispatcher call."
+    },
+    {
+      "id": "R5A9-004",
+      "severity": "HIGH",
+      "title": "16 false-green tests have zero remediation units and would still pass v7.1 CI",
+      "evidence": "round3/10 false_green_tests: MillingForceEngine.test.ts (565L, imports class absent on stub), AdaptiveToolpathRouterEngine.test.ts (15L 1 it()), + 13 *.test.ts matching `it(...toBeDefined())` single-assertion pattern, + l2-cadcam-engines.test.ts / l2-infrastructure-engines.test.ts batch-sweeps. v7.1 has no unit that rewrites or quarantines these. corpus signal: 26/30 sampled <25L files have only 1-2 toBeDefined() — systemic. H:/.claude/rules/tests.md mandates ≥10 cases; these violate it and CI does not catch it.",
+      "recommendation": "Add U-REV-CI-01 'test-assertion-density sweep + denylist': run audit-test-assertion-density.mjs across mcp-server/src/__tests__/, emit `state/shared/FAKE_TEST_DENYLIST.json`, then a CI step fails if any denylisted file is still below threshold. Backfill the worst 16 with real numeric assertions as part of the unit (~12h). Also add H5-style import-resolution gate so MillingForceEngine.test.ts can't silently skip."
+    },
+    {
+      "id": "R5A9-005",
+      "severity": "HIGH",
+      "title": "Stripe/Paddle/VIES `verifies_via` blocks call external CLIs unavailable in GHA",
+      "evidence": "v7.1 U-SUB-19/20/22/24 verifies_via = `stripe trigger checkout.session.completed`, `stripe trigger customer.subscription.deleted`, `stripe tax_rates list`, `node scripts/vies-sandbox-probe.mjs`. The Stripe CLI is not installed in ubuntu-latest by default, requires `STRIPE_API_KEY` / `STRIPE_WEBHOOK_SECRET` secrets, and VIES SOAP is an external EU government endpoint (rate-limited, intermittently down — the spec itself notes 'VIES downtime falls back'). These cannot run deterministically in a PR gate.",
+      "recommendation": "Split verifies_via into `ci_gate` (runs in GHA: vitest + check-engine-wired + recorded-cassette replay via nock/msw) vs `manual_smoke` (Stripe CLI / VIES probe — run locally pre-merge, recorded in scrutiny ledger, not blocking). Add `secrets: STRIPE_TEST_KEY` to repo settings + a `subscription-integration` job that is `if: github.event_name == 'push'` only (post-merge, non-blocking). ~4h to restructure + document. Use Stripe fixture cassettes for the deterministic arm."
+    },
+    {
+      "id": "R5A9-006",
+      "severity": "MEDIUM",
+      "title": "No `spans-config-matrix` verifier — multi-axis controller fan-out claims uncheckable",
+      "evidence": "Dispatch brief names spans-config-matrix as a v7.A proposal; round3/10 confirms `Glob scripts/spans-*.mjs → 0 files`. v7.1 does not reference it and has no unit to build it. v7.C tiers_invoked and variability_axes_covered declarations (e.g. '5 jurisdictions × (B2C/B2B/exempt) = 15 cases') are self-asserted in the envelope JSON with no script that counts actual test cases against the declared matrix.",
+      "recommendation": "Add U-REV-CI-02 'variability-matrix verifier': parse `variability_axes_covered` from each milestone envelope, count matching it() blocks in the named test file, fail if actual < declared. ~5h. Lower priority than 001-004 — covers self-reporting drift, not the stub leak."
+    },
+    {
+      "id": "R5A9-007",
+      "severity": "LOW",
+      "title": "v7.1 line 35 anti-false-green rule is a doc assertion, not a hook/CI gate",
+      "evidence": "v7.1 line 35: 'every page MUST invoke a dispatcher action that returns non-stub real data verified by an integration test asserting return-shape != {ok: true} placeholder.' This is prose. No enforcement artifact. stop_on_unwired_assets (line 35 also cited) is a Stop hook = local-session-only, not CI; does not run on PRs from forks/agents and checks wiring not return-shape.",
+      "recommendation": "Promote the anti-false-green rule into the `revenue-gates` CI job (R5A9-002) via `verify-bridge --assert-not-stub`. Cheap once verify-bridge exists (~1h to add the flag)."
+    }
+  ],
+  "ci_gaps": [
+    "No revenue-gates job in .github/workflows/ci.yml — needs: check-engine-wired, audit-test-assertion-density, verify-bridge, expectNotStub usage check. Cost: ~3h to wire job + ~20h to build the 4 scripts/helper = ~23h.",
+    "No import-resolution pre-test gate (catches MillingForceEngine.test.ts-vs-stub class mismatch / silent skips). Cost: ~4h.",
+    "No FAKE_TEST_DENYLIST.json artifact + CI step that fails on denylisted files below threshold. Cost: ~3h + ~12h backfill of the 16 known files.",
+    "No Stripe-CLI / VIES external-dep handling in CI — verifies_via blocks for U-SUB-19/20/22/24 unrunnable in GHA. Need cassette-based deterministic arm + post-merge non-blocking job + STRIPE_TEST_KEY secret. Cost: ~4h.",
+    "No spans-config-matrix.mjs / variability-matrix verifier — v7.C declared case counts unchecked. Cost: ~5h.",
+    "vitest in ci.yml runs `--cache` with no `--reporter=junit` or coverage-threshold-fail — coverage job uploads a report but does not FAIL on regression. Add `--coverage.thresholds.lines=...` enforcement. Cost: ~1h.",
+    "ci.yml triggers only on push:[main] / pull_request:[main] — agent worktree branches (work/cam-exhaust-ms0 etc.) get NO CI run until they PR to main; stub leaks survive the whole feature branch. Consider `branches: ['**']` for the revenue-gates job. Cost: ~0.5h.",
+    "Total dev-hours to make v7.A CI-enforceable end-to-end: ~38h (excluding the ~16h to actually fix the 4 unaddressed stub-trap actions, which is engine work not CI work)."
+  ],
+  "consensus_signal": "STRONG-CONCUR with round3/10 (10-stub-trap-catalog) and round2 F-r2-a1-02: v7.1's verification gate is hollow. CONCUR with any round5 agent flagging that v7.1 did not absorb the H1-H7 hardening proposals or the earlier-spec verify-bridge/spans-config-matrix/expectNotStub scripts — they are referenced by name in `verifies_via` lines but the scripts do not exist and CI never calls them. DIVERGE from any agent claiming MS0 is shippable: 6 dispatcher actions return {ok:false,stub:true} behind passing acceptance tests, only 2 have remediation units, and ZERO of those remediations are CI-gated. Recommend a hard prerequisite: U-REV-CI-00 (build the 4 scripts + helper + ci.yml revenue-gates job) MUST merge before any MS0 page-unit is marked complete."
+}

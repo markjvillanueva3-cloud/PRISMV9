@@ -1,0 +1,262 @@
+{
+  "round": 4,
+  "agent_n": 7,
+  "scope": "v7.C v2 — AI tier grounding revision (concrete, verifiable, net-new-deps=0)",
+  "agent_role": "spec-revisor",
+  "supersedes": "v7.C v1 in REVENUE-ROADMAP-2026-05-10.md lines 473-503",
+  "round3_inputs_consumed": [
+    "round3/09-ai-tier-grounding.json (z3-solver correction; T6=wiring-missing; T7=JSON-LD+Qdrant)"
+  ],
+  "net_new_dependencies": [],
+  "key_corrections_from_v7c_v1": {
+    "t6_was_dep_missing_now_wiring_missing": "z3-solver ^4.16.0 IS in mcp-server/package.json line 71",
+    "t7_was_unknown_now_jsonld_qdrant": "Qdrant ^1.17.0 + Xenova ^2.17.2 already installed",
+    "t3_was_aspirational_now_concrete": "training plan with corpora + ranks + fallback marker + Stop-hook"
+  },
+  "tier_grounding": {
+    "T1_claude_orchestrator": {
+      "type": "tautological_real",
+      "implementation": "this chat",
+      "verification": "tiers_invoked array contains 'T1' in every MS2 envelope"
+    },
+    "T2_deep_reason": {
+      "type": "real_wired",
+      "actions": [
+        {"name": "ai_milling_deep_reason", "file": "mcp-server/src/tools/dispatchers/aiReasoningDispatcher.ts", "line": 897},
+        {"name": "ai_wedm_deep_logic", "file": "mcp-server/src/tools/dispatchers/aiReasoningDispatcher.ts", "line": 907},
+        {"name": "cot_reason_tree", "file": "mcp-server/src/tools/dispatchers/aiReasoningDispatcher.ts", "line": 1372}
+      ],
+      "remediation_needed": false
+    },
+    "T3_lora": {
+      "type": "scaffolding_present_weights_missing",
+      "current_state": {
+        "engines_present": "~80 LatheLoRA*/WEDMLoRA*/CamLoRA* engines",
+        "weights_present": "ZERO .safetensors under mcp-server/data/models/",
+        "silent_failure": "LatheLoRAPipelineEngine.predict() returns base-model output when adapter weights absent, no telemetry"
+      },
+      "adapters_to_train": [
+        {
+          "name": "mill_lora",
+          "rank": 16,
+          "alpha": 32,
+          "corpus": "JM Die archive filtered to .NC/.PRG mill programs",
+          "estimated_samples": 8000,
+          "ship_order": 3,
+          "rationale": "Largest corpus, most heterogeneous task surface"
+        },
+        {
+          "name": "lathe_lora",
+          "rank": 8,
+          "alpha": 16,
+          "corpus": "JM Die Mazak/Okuma .MIN files with $<INTERNAL>% line-1 header",
+          "estimated_samples": 4000,
+          "ship_order": 2,
+          "rationale": "Medium corpus, narrower task surface, rank-8 sufficient per LoRA paper Section 7.2"
+        },
+        {
+          "name": "wedm_lora",
+          "rank": 4,
+          "alpha": 8,
+          "corpus": "26 indexed WEDM programs + 46 WEDM tribal tips + 14 formulas",
+          "estimated_samples": 100,
+          "ship_order": 1,
+          "rationale": "Smallest corpus; rank-4 to avoid overfit per LoRA-FA low-shot findings"
+        },
+        {
+          "name": "cam_lora",
+          "rank": 8,
+          "alpha": 16,
+          "corpus": "Mastercam(45) + hyperMILL(25) extracted ops + post-CPS files",
+          "estimated_samples": 450,
+          "ship_order": 4,
+          "rationale": "Per-task ensemble (operation_classify / strategy_recommend / tool_select), each rank-8"
+        }
+      ],
+      "common_hyperparams": {
+        "dropout": 0.1,
+        "target_modules": ["q_proj", "v_proj"],
+        "training_basis": "QLoRA Section 4 attention-only adaptation"
+      },
+      "label_supervision": "XPROC-NEURAL-CONNECT outcome-bridge (commit 3b21228f7) generates positive/negative reward signals from production runs",
+      "inference_path": {
+        "primary": "Ollama 0.6.3 base qwen2.5-coder:7b + LoRA adapter via Modelfile FROM directive",
+        "fallback": "@xenova/transformers llama.cpp path when Ollama daemon unreachable",
+        "remote_fallback": "Anthropic SDK base-model bypass (emits lora.fallback.weights_missing telemetry)"
+      },
+      "weights_storage": "mcp-server/data/models/<domain>-lora/<YYYY-MM-DD>/adapter_model.safetensors + adapter_config.json (cap 100MB; rank-16 7B adapter ~80MB)",
+      "fallback_marker_contract": {
+        "return_shape": "{ prediction, adapter_loaded: boolean, adapter_version: string | null, fallback_reason?: 'weights_missing' | 'daemon_unreachable' | 'rate_limited' | 'rank_mismatch' }",
+        "telemetry_event": "lora.fallback.<reason> to AISystemRouterEngine ledger when adapter_loaded=false"
+      },
+      "stop_hook_enforcement": {
+        "name": "lora-weights-presence-check.mjs",
+        "behavior": "fails CI when LoRA engine wired to dispatcher but data/models/<domain>-lora/<latest>/adapter_model.safetensors missing",
+        "policy": "warn-first 30 days, hard-block after",
+        "minimal_allowlist": true
+      }
+    },
+    "T4_neural_conformal": {
+      "type": "real_wired",
+      "actions_present": ["xproc_conformal_set", "xproc_conformal_APS", "xproc_conformal_RAPS", "xproc_conformal_mondrian", "xproc_neural_train", "xproc_neural_predict"],
+      "action_count": 10,
+      "calibration_source": "XPROC-NEURAL-CONNECT outcome-bridge commit 3b21228f7",
+      "remediation_needed": false
+    },
+    "T5_router": {
+      "type": "real_wired",
+      "engine": "AISystemRouterEngine",
+      "path": "mcp-server/src/engines/AISystemRouterEngine.ts",
+      "consumer_dispatcher_count": 5,
+      "remediation_needed": false
+    },
+    "T6_symbolic": {
+      "type": "wiring_missing_deps_installed",
+      "dep_present": {
+        "package": "z3-solver",
+        "version": "^4.16.0",
+        "path": "mcp-server/package.json:71",
+        "license": "MIT",
+        "compatible_with_proprietary": true
+      },
+      "new_engines_to_create": [
+        {
+          "name": "Z3ToleranceAllocatorEngine",
+          "path": "mcp-server/src/engines/Z3ToleranceAllocatorEngine.ts",
+          "wires_to": ["prism_calc:tolerance_allocate_z3", "prism_cad:tolerance_stack_solve"],
+          "solves": "v7.B row 11 — min Σ cost(t_i) s.t. Σ t_i² ≤ T_assembly² (worst-case) or T_assembly²/k (RSS)",
+          "z3_idiom": "Optimize() with Real('t_i'), add_soft for cost, add for sum-of-squares constraint"
+        },
+        {
+          "name": "MIPSchedulingEngine",
+          "path": "mcp-server/src/engines/MIPSchedulingEngine.ts",
+          "wires_to": ["prism_orchestrate:schedule_mip", "prism_intelligence:capacity_plan_mip"],
+          "solves": "v7.B row 12 — argmax Σ(margin·accept) s.t. Σ(hours·accept) ≤ capacity, accept ∈ {0,1}",
+          "z3_idiom": "Optimize() with Int('accept_i') ∈ [0,1], maximize()"
+        },
+        {
+          "name": "GeometricToleranceSolverEngine",
+          "path": "mcp-server/src/engines/GeometricToleranceSolverEngine.ts",
+          "wires_to": ["prism_cad:gdnt_solve", "prism_safety:tolerance_feasibility"],
+          "solves": "v7.B row 39 — GD&T datum-feature constraint propagation",
+          "z3_idiom": "BitVec for datum frames, Real for tolerance zones"
+        }
+      ],
+      "fast_path_preservation": {
+        "keep": "CrossProcessSymbolicConstraintEnforcerEngine",
+        "rationale": "Lexicographic projection, no solver invocation, <1ms latency contract",
+        "router_engine_new": "SymbolicSolverRouterEngine routes safety-only (no objective) to fast-path, escalates to Z3 when objective present"
+      },
+      "test_strategy": "Vitest with await init() (z3-solver async init required), property-based tests for solution-set membership via fast-check",
+      "net_new_deps": []
+    },
+    "T7_knowledge_graph": {
+      "type": "wiring_missing_deps_installed",
+      "current_diagnosis": {
+        "engine": "PRISMCreativeReasoningEngine.ts",
+        "switch_location": "line 665",
+        "lookup_arrays_location": "line 263-265",
+        "verdict": "Static dispatch on enum, not graph traversal; 'knowledge' is 10 hardcoded string arrays"
+      },
+      "deps_present": [
+        {"package": "@qdrant/js-client-rest", "version": "^1.17.0", "path": "mcp-server/package.json:52"},
+        {"package": "@xenova/transformers", "version": "^2.17.2", "path": "mcp-server/package.json:55"},
+        {"package": "ollama", "version": "^0.6.3", "path": "mcp-server/package.json:65"}
+      ],
+      "approach": "JSON-LD + in-memory graph + Qdrant vector similarity",
+      "rejected_alternatives": [
+        {"option": "Neo4j-embedded", "reason": "requires JVM, +200MB runtime"},
+        {"option": "RDF/SPARQL (rdflib.js, n3)", "reason": "heavyweight for analogy use-case"}
+      ],
+      "source_data_pipeline": {
+        "graph_seed": "H:/prism/knowledge/wiki/index.md (722 entries: 575 engines + 90 dispatchers + 57 memories)",
+        "edge_extraction": "JSDoc @see + import statements + dispatcher wiring",
+        "memory_tags": "MEMORY.md indexed memories promoted to graph nodes",
+        "embedding_model": "Xenova/all-MiniLM-L6-v2 384-dim",
+        "vector_store": "Qdrant collection 'prism_kg_nodes' with cosine distance"
+      },
+      "query_patterns": [
+        {
+          "name": "analogy",
+          "action": "prism_intelligence:graph_infer",
+          "algorithm": "Find target_node with cos_sim > 0.75 AND ≥2 shared edge-type-classes",
+          "example": "'as Kienzle is to milling, X is to ___'"
+        },
+        {
+          "name": "find_similar",
+          "action": "prism_intelligence:graph_query",
+          "algorithm": "Top-k nearest neighbors in embedding space + edge-overlap re-rank"
+        },
+        {
+          "name": "transitive_deps",
+          "action": "prism_intelligence:graph_traverse",
+          "algorithm": "BFS over import/dispatcher edges, capped at depth 3"
+        },
+        {
+          "name": "creative_combination",
+          "action": "prism_intelligence:graph_discover",
+          "algorithm": "Sample 2 unrelated high-centrality nodes, Ollama qwen2.5-coder:7b synthesizes hybrid"
+        },
+        {
+          "name": "predict",
+          "action": "prism_intelligence:graph_predict",
+          "algorithm": "Edge-prediction via embedding-link-prediction (cos_sim × structural-similarity)"
+        }
+      ],
+      "engine_decision": {
+        "rename": {
+          "from": "PRISMCreativeReasoningEngine",
+          "to": "PRISMRuleBasedCombinatorEngine",
+          "preserves": "10-row dispatch as fast-path",
+          "backward_compat_action": "prism_ai:creative_explore"
+        },
+        "create_new": {
+          "name": "PRISMKnowledgeGraphReasoningEngine",
+          "binds_actions_declared_at": "intelligenceDispatcher.ts:549",
+          "action_count": 5,
+          "actions": ["graph_query", "graph_infer", "graph_discover", "graph_predict", "graph_traverse"]
+        }
+      },
+      "net_new_deps": []
+    }
+  },
+  "gate_binding_4_line_zod_patch": {
+    "file": "mcp-server/src/schemas/roadmapSchema.ts",
+    "lines_added": 4,
+    "patch": [
+      "omega_score: z.number().min(0).max(1),",
+      "safety_score: z.number().min(0).max(1),",
+      "tier_invocation: z.array(z.enum(['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'])).min(1),",
+      "computed_at: z.string().datetime(),"
+    ],
+    "why_highest_leverage": [
+      "Schema-level enforcement = automatic CI gating via existing schema-version-check.ts",
+      "Cannot be bypassed without explicit schema bump",
+      "Zod validation runs on every envelope write",
+      "atomic-roadmap-emit.mjs requires these on every emit"
+    ],
+    "defense_in_depth": [
+      {"rank": 1, "where": "Zod schema (patch above)", "mechanism": "Refuses envelope write below floor"},
+      {"rank": 2, "where": "Stop hooks stop_on_low_omega.mjs + stop_on_low_safety.mjs", "mechanism": "Block session close on unit with score < 0.70; in MINIMAL_ALLOWLIST"},
+      {"rank": 3, "where": "Pre-commit hook omega-floor-precommit-check.mjs", "mechanism": "Scans staged milestone files"},
+      {"rank": 4, "where": "CI job gate-omega-floor", "mechanism": "Last line of defense for PRs from forks"}
+    ],
+    "tier_invocation_cross_check": "Hook validates tier_invocation against AISystemRouterEngine telemetry; flags inconsistency if unit claims [T6] but no Z3 invocation logged"
+  },
+  "threshold_tuning": {
+    "method": "Sample 200 successful + 50 reworked JM Die programs; back-compute Omega via omegaDispatcher.computeOmega(R,C,P,S,L); build ROC curve; set floor at Omega@95th-percentile-of-reworked-jobs",
+    "expected_empirical_floor": "0.65–0.72",
+    "rationale": "JM Die's estimated 92–95% ship-first-pass rate for established customer programs",
+    "iteration_plan": "Start at spec's 0.70, run for one MS2 milestone, recalibrate from telemetry",
+    "safety_threshold": "S(x) is binary-ish in practice; 0.70 floor reasonable as 'no high-severity violations' but should progressively shift to constraint-list check rather than scalar; tie into Bayes prior infra at guardDispatcher.ts:31"
+  },
+  "summary": {
+    "tiers_grounded": 7,
+    "tiers_already_real": ["T1", "T2", "T4", "T5"],
+    "tiers_with_new_remediation": ["T3", "T6", "T7"],
+    "net_new_dependencies_total": 0,
+    "remediation_surface": "engine-creation + wiring + weights-training (not procurement)",
+    "highest_leverage_change": "4-line Zod patch to roadmapSchema.ts",
+    "one_line": "v7.C v2: T1/T2/T4/T5 already real; T3 weights+fallback-marker+Stop-hook; T6 wires 3 new engines + router to already-installed z3-solver; T7 renames existing + new KG engine over already-installed Qdrant+Xenova; 4-line Zod patch enforces Omega≥0.70 + S(x)≥0.70 + tier_invocation schema-wide; zero new deps."
+  }
+}

@@ -1,0 +1,131 @@
+{
+  "agent_n": 10,
+  "agent_role": "analyst-verification",
+  "pass": 1,
+  "scope": "v7.A per-unit verification channels — re-runnability, script existence, class coverage, reproducibility, CI integration",
+  "target_spec": "state/shared/specs/REVENUE-ROADMAP-2026-05-10.md",
+  "target_commit": "0a575a23c",
+  "ran_at_iso": "2026-05-11T01:30:00Z",
+  "verdict": "FAIL",
+  "summary": "v7.A verification gate is partially aspirational. 3 of 7 named scripts MISSING from repo. The system-viz-query.mjs `verify-bridge` subcommand DOES NOT EXIST (file has: roadmap-candidates|build-order|blast-radius|dispatcher-summary|coverage-by-domain|find|headline). Stripe CLI not in PATH. Total re-run cost ~62.5min — 12.5x the v7.D `<5min total` claim. No CI workflow runs the v7.A channels. 4 unit classes (hooks/skills/scripts/docs) have NO verification template.",
+  "rerun_cost_computation": {
+    "ms0_frontend_units_x_30s": "40 × 30s = 1200s",
+    "ms1_subscription_units_x_15s": "18 × 15s = 270s",
+    "ms2_invention_units_x_45s": "42 × 45s = 1890s (note: v7.B requires 21 test cases per algorithm per `≥3 spanning configs per axis × 7 axes` — actual cost likely 5-10x this)",
+    "ms3_wiring_units_x_10s": "18 × 10s = 180s",
+    "ms4_drift_units_x_5s": "10 × 5s = 50s",
+    "bridge_units_x_8s": "~5 × 8s = 40s (estimated, count not enumerated in spec)",
+    "e2e_units_x_120s": "1 × 120s = 120s (count unclear)",
+    "total_seconds_lower_bound": 3750,
+    "total_minutes_lower_bound": 62.5,
+    "v7d_claim": "<5min total",
+    "gap_factor": "12.5x over claim (lower bound). If v7.B 21-case matrix per MS2 unit is applied, MS2 alone = 9450s = 158min, total = ~3.5hr",
+    "interpretation_note": "v7.D §5 phrasing is ambiguous — could mean <5min per unit OR <5min for full roadmap pass. If per-unit: PASS for all classes except E2E (2min). If full-pass: massive FAIL (12.5x to 50x over)."
+  },
+  "findings": [
+    {
+      "id": "F-p1-a10-1",
+      "severity": "CRITICAL",
+      "title": "system-viz-query.mjs `verify-bridge` subcommand does not exist",
+      "evidence": "scripts/system-viz-query.mjs line 33 declares subcommands: roadmap-candidates|build-order|blast-radius|dispatcher-summary|coverage-by-domain|find|headline. v7.A Bridge row references `node scripts/system-viz-query.mjs verify-bridge --from <A> --to <B>` — this command will fail with usage error. Bridge coordination units have NO real verification channel.",
+      "impact": "Every Bridge-class unit currently shipped without enforcement; Stop hook scrutiny gate accepts aspirational `verifies_via` strings without execution check.",
+      "fix": "Either (a) implement `verify-bridge` subcommand in system-viz-query.mjs (~20 LOC: load graph, test edge presence, test both endpoints have actions wired), OR (b) rewrite v7.A Bridge row to use existing command (e.g. `node scripts/system-viz-query.mjs find <A> && find <B>`)."
+    },
+    {
+      "id": "F-p1-a10-2",
+      "severity": "CRITICAL",
+      "title": "scripts/spans-config-matrix.mjs and scripts/check-engine-wired.mjs DO NOT EXIST",
+      "evidence": "Glob H:/prism/scripts/spans-config-matrix.mjs → no files. Glob H:/prism/scripts/check-engine-wired.mjs → no files. mcp-server/scripts/ inventory does not contain these. Only build-milestone-progress.mjs, system-viz-query.mjs, and revenue-readiness-score.mjs exist of the 5 named in v7.A.",
+      "impact": "MS2 invention units (~42 units) and MS3 wiring units (~18 units) — 60 of 128 units (~47%) — have no functional verification channel. v7.A is therefore aspirational for ~half the roadmap.",
+      "fix": "Build scripts/spans-config-matrix.mjs (axis-spanning config runner) and scripts/check-engine-wired.mjs (dispatcher-enum + system-viz graph lookup) BEFORE MS0 kickoff. Add to v7.E META artifact build list."
+    },
+    {
+      "id": "F-p1-a10-3",
+      "severity": "HIGH",
+      "title": "Stripe CLI not in PATH — MS1 webhook verification will fail",
+      "evidence": "`where.exe stripe` returns `INFO: Could not find files for the given pattern(s)`. v7.A MS1 row: `rtk vitest run -- <engine>.test.ts && stripe webhook --test <event>`. The `&&` short-circuit means stripe failure blocks the whole channel.",
+      "impact": "All 18 MS1 subscription engine units will have failing verification gates on first run. Stop hook will either block or auto-pass-after-3-attempts (escape hatch erosion).",
+      "fix": "(a) Install Stripe CLI on dev/CI machines, document in setup. (b) OR replace with mock webhook script: `node scripts/stripe-webhook-mock.mjs --event <event>`. (c) Document in v7.A row that Stripe CLI is prerequisite."
+    },
+    {
+      "id": "F-p1-a10-4",
+      "severity": "HIGH",
+      "title": "Re-run cost claim `<5min total` (v7.D §5) is ambiguous and unsupported at full-pass scale",
+      "evidence": "Computed lower bound: 3750s (62.5min). Upper bound with v7.B 21-case matrix per MS2 unit: ~12,000s (200min). Spec text `<5min total` reads as full-roadmap. Even per-unit interpretation puts E2E (120s) at 40% of budget — leaves no margin.",
+      "impact": "Doctrine drift: ops team expects fast feedback loop; reality is multi-hour. Compounding-gains tax (v7.E) cannot rebuild readiness score in claimed time.",
+      "fix": "Either (a) rewrite v7.D §5 to `<5min per unit` with explicit `~60min full roadmap pass`, or (b) implement parallel verification runner (npx vitest --shard + playwright --workers) targeting ≤15min full-pass."
+    },
+    {
+      "id": "F-p1-a10-5",
+      "severity": "HIGH",
+      "title": "Four unit classes have NO verification template in v7.A",
+      "evidence": "v7.A enumerates 7 templates: frontend, subscription, invention, wiring, drift, bridge, E2E. Missing: hooks (PRISM has 112 hook files), skills (~440 skills), scripts (88 scripts in mcp-server/scripts), docs (digests, wiki entries, directives).",
+      "impact": "Units in these classes ship without verification gates. Hook regressions, skill duplication, doc drift escape the v7.A net. Already a known failure mode — see `RESUME_AT_WORK.md` §8 silent-overwrite class.",
+      "fix": "Add 4 templates to v7.A: hook (`node .claude/hooks/<hook>.mjs --self-test`), skill (`node scripts/skill-lint.mjs <skill>`), script (`node <script> --help && shellcheck`), doc (`node scripts/wiki-lint.mjs <path> && node scripts/digest-drift-check.mjs`)."
+    },
+    {
+      "id": "F-p1-a10-6",
+      "severity": "MEDIUM",
+      "title": "Zero CI workflows execute v7.A verification channels",
+      "evidence": ".github/workflows/ has 7 yml files. Only ci.yml + web.yml reference vitest/playwright. None reference spans-config-matrix, check-engine-wired, build-milestone-progress, stripe webhook, or verify-bridge. ci.yml does NOT run playwright (web.yml does, but only for /web).",
+      "impact": "Verification is local-only. Multi-chat PRs can land with broken `verifies_via` declarations because CI doesn't enforce them. v7.A becomes a paper gate.",
+      "fix": "Add .github/workflows/revenue-roadmap-verify.yml: matrix job per unit class, runs the v7.A command, fails PR on red. Hook into existing scrutinize-before-stop ledger via artifact upload."
+    },
+    {
+      "id": "F-p1-a10-7",
+      "severity": "MEDIUM",
+      "title": "Fresh-clone reproducibility gaps — implicit setup not documented",
+      "evidence": "v7.A commands assume: rtk in PATH (installs at C:\\Users\\wompu\\bin per /rtk-setup; NOT in standard repo bootstrap), stripe CLI installed (no setup doc), playwright browsers downloaded (`playwright install` not in any bootstrap script), system-graph.json regenerated (`scripts/generate-system-viz.mjs` must run first or verify-bridge errors at line 41).",
+      "impact": "Fresh dev cannot execute any v7.A channel without 4+ undocumented setup steps. v7.G `/loop` re-audit on new agent worktrees will fail until setup replicated.",
+      "fix": "Ship `scripts/v7a-bootstrap.mjs` that: (1) checks rtk on PATH, (2) checks stripe CLI, (3) runs `playwright install --with-deps`, (4) regenerates system-graph if stale (>24hr), (5) emits PASS/FAIL with explicit remediation."
+    },
+    {
+      "id": "F-p1-a10-8",
+      "severity": "MEDIUM",
+      "title": "v7.A signal definitions are unverifiable strings",
+      "evidence": "`expected_signal` column has prose like `≥3 configs per axis pass; emergent algorithm output stable across configs` (MS2 row) — no machine-readable predicate. Stop hook scrutiny ledger has no way to assert `output stable across configs` programmatically.",
+      "impact": "Verification PASS/FAIL becomes subjective; Claude-99eca613 marking ledger entries cannot be cross-validated by other chats. Erodes 3-of-3 consensus gate.",
+      "fix": "Each unit's `verifies_via` block must declare `expected_signal_predicate: { exit_code: 0, stdout_match: <regex>, artifact_path: <file>, artifact_check: <predicate> }`. Spans-config-matrix.mjs emits stable_hash; v7.A asserts hash equality across config N."
+    }
+  ],
+  "rerun_cost_summary_one_line": "~62.5min full roadmap pass (12.5x over v7.D '<5min' claim, 30x if MS2 21-axis matrix applied); ambiguity in spec phrasing is itself a finding.",
+  "script_existence_audit": {
+    "exists": [
+      "scripts/build-milestone-progress.mjs",
+      "scripts/system-viz-query.mjs (but missing verify-bridge subcommand)",
+      "scripts/revenue-readiness-score.mjs (v7.E META artifact)"
+    ],
+    "missing": [
+      "scripts/spans-config-matrix.mjs (referenced in v7.A MS2 row)",
+      "scripts/check-engine-wired.mjs (referenced in v7.A MS3 row)",
+      "scripts/system-viz-query.mjs verify-bridge subcommand (referenced in v7.A Bridge row)"
+    ],
+    "external_deps_status": {
+      "rtk": "INSTALLED at C:\\Users\\wompu\\bin\\rtk (verified via where.exe)",
+      "playwright": "INSTALLED at mcp-server/web/package.json devDeps (@playwright/test ^1.59.1, test:e2e script wired)",
+      "stripe_cli": "NOT INSTALLED (where.exe returns no result)"
+    }
+  },
+  "unit_class_coverage": {
+    "covered": ["frontend", "subscription", "invention", "wiring", "drift", "bridge", "e2e"],
+    "uncovered": ["hooks", "skills", "scripts", "docs/wiki"],
+    "coverage_pct": "7 of 11 plausible classes = 64%"
+  },
+  "ci_integration_status": {
+    "workflows_present": 7,
+    "workflows_running_vitest": ["ci.yml", "web.yml"],
+    "workflows_running_playwright": ["web.yml only (scoped to mcp-server/web)"],
+    "workflows_running_v7a_channels": "NONE",
+    "verdict": "v7.A is local-only, no CI enforcement"
+  },
+  "relevant_files": [
+    "H:/prism/state/shared/specs/REVENUE-ROADMAP-2026-05-10.md (v7.A lines 386-400, v7.D lines 504-527)",
+    "H:/prism/scripts/system-viz-query.mjs (line 33 — subcommand inventory, NO verify-bridge)",
+    "H:/prism/scripts/build-milestone-progress.mjs (exists, used by MS4 drift channel)",
+    "H:/prism/scripts/revenue-readiness-score.mjs (v7.E META artifact — exists)",
+    "H:/prism/mcp-server/web/package.json (lines 12-15, 78 — playwright wired)",
+    "H:/prism/.github/workflows/ci.yml (no v7.A integration)",
+    "H:/prism/.github/workflows/web.yml (runs playwright, /web scoped only)",
+    "C:/Users/wompu/bin/rtk (RTK binary path)"
+  ]
+}

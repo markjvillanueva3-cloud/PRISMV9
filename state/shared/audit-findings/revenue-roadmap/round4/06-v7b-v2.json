@@ -1,0 +1,195 @@
+{
+  "round": 4,
+  "agent_n": 6,
+  "scope": "v7.B v2 — revised combinatoric algorithm surface (50 rows) replacing original v7.B in REVENUE-ROADMAP-2026-05-10.md",
+  "agent_role": "spec-revisor",
+  "source_inputs": {
+    "round2": "round2/08-v7b-combinatorics.json (original 50-row claim — F-r2-a8-A combinatoric≠orthogonal)",
+    "round3": "round3/05-v7b-physics-replacements.json (forensic physics replacements per row)",
+    "doctrine": [
+      "mcp-server/src/physics/constants.ts (canonical Kienzle kc1.1, Taylor n, J-C coeffs)",
+      "DISPATCHER_DIGEST.md (prism_calc / prism_safety / prism_cam / prism_ai surfaces)",
+      "DuplicationGuardEngine.mustCheckBeforeCreating() — required gate before any NEW engine"
+    ]
+  },
+  "deliverable_paths": {
+    "markdown": "state/shared/audit-findings/revenue-roadmap/round4/06-v7b-v2-section.md",
+    "json": "state/shared/audit-findings/revenue-roadmap/round4/06-v7b-v2.json"
+  },
+  "rewrite_summary": {
+    "rows_rewritten": 50,
+    "engines_to_build": 23,
+    "engines_reused_existing": 27,
+    "rows_reframed_as_rules_or_data_surfaces": 4,
+    "reframed_rows": [
+      {"row": 22, "from": "equation", "to": "RULE", "reason": "insert-grade lookup → physics-validation gate, not equation"},
+      {"row": 25, "from": "equation", "to": "DATA SURFACE", "reason": "material-DB → kc1.1/mc table from constants.ts"},
+      {"row": 26, "from": "equation", "to": "RULE", "reason": "WEDM-feasibility = decision tree with thresholds, not closed-form"},
+      {"row": 45, "from": "equation", "to": "RULE", "reason": "GD&T → CMM-routine = sampling-strategy lookup + Hopp criterion"}
+    ]
+  },
+  "rows": [
+    {"row": 1, "pair": "Kienzle×Taylor→economic speed", "verified_equation": "Gilbert: V* = C/[((1-n)/n)·(t_ct + C_t/C_m)]^n with Kienzle Fc-power validation", "engine_to_call": "EXISTING TaylorEngine + KienzleEngine; NEW GilbertEconomicSpeedEngine", "variability_axis": "machine-rate / tool-cost ratio (shop-economic)", "customer_claim": "Cut at min-cost or min-time speed validated by Kienzle power check (Stephenson-Agapiou §11.3)", "priority": "P0"},
+    {"row": 2, "pair": "BeamDeflection×Kienzle→max ap", "verified_equation": "Iterative fixed-point: guess ap → Fc=kc1.1·b·h^(1-mc) → δ=FcL³/(3EI) → update ap until |δ−δ_target|<ε", "engine_to_call": "EXISTING DeflectionOverlayEngine (E0127) via prism_calc:max_ap_deflection_limited", "variability_axis": "tool L/D stickout ratio", "customer_claim": "Max depth your stickout holds to ±0.0005 in deflection; 3–5 iters", "priority": "P0", "new_engines": 0},
+    {"row": 3, "pair": "ChatterStability×Kienzle→SLD", "verified_equation": "Altintas: ap_lim(ω) = −1/(2·Kf·Re[Φ_oriented(jω)]), Kf=kc1.1 (N/mm² per mm width), N=60ω/(N_z·(2πk+ε))", "engine_to_call": "EXISTING ChatterStabilityEngine + KienzleEngine via prism_cam:sld_altintas", "variability_axis": "modal FRF (tap test)", "customer_claim": "Stable depths from YOUR tap test"},
+    {"row": 4, "pair": "ToolWear-VB×Taylor→RUL", "verified_equation": "T_total from Taylor V·T^n=C; f=VB_now/VB_lim; RUL=T_total·(1−f); Usui dVB/dt=A·V^a·f^b·exp(−B/T) for off-nominal", "engine_to_call": "EXISTING TaylorEngine + NEW UsuiWearRateEngine", "variability_axis": "observed VB", "customer_claim": "Replace-now or run-N-more with measured VB"},
+    {"row": 5, "pair": "ChipThickness×Kienzle→chip-thinning", "verified_equation": "Sandvik avg h_m = (180/π·a_e/D)·f_z·sin(κ) for a_e<D/2; kc(h_m)=kc1.1·h_m^(−mc)", "engine_to_call": "EXISTING KienzleEngine + ChipThicknessEngine", "variability_axis": "radial engagement a_e/D", "customer_claim": "Chip-thinned feed up to 2.5× for HSM"},
+    {"row": 6, "pair": "JohnsonCook×Thermal→HSM force", "verified_equation": "σ̄ = [A+B·ε̄^n][1+C·ln(ε̄̇/ε̄̇₀)][1−((T−T_r)/(T_m−T_r))^m]; Merchant Fc = σ̄·b·h·cos(β−α)/[sin(φ)cos(φ+β−α)], φ=π/4−(β−α)/2", "engine_to_call": "NEW JohnsonCookEngine + NEW MerchantForceEngine + EXISTING ThermalEngine via prism_calc:fc_temperature_corrected", "variability_axis": "strain-rate / temperature (HSM regime)", "customer_claim": "Force valid for HSM where Kienzle under-predicts 15–40%", "priority": "P0"},
+    {"row": 7, "pair": "Surface roughness×feed/nose→Ra", "verified_equation": "Brammertz: Ra_total = Ra_geo + Ra_min; Ra_geo=f²/(32·r_ε); Ra_min=h_min/2·(1+r_ε/(2·h_min)), h_min≈0.3·r_β", "engine_to_call": "NEW BrammertzRoughnessEngine via prism_calc:ra_predict", "variability_axis": "edge-radius regime", "customer_claim": "Ra within ±15% even at low fz"},
+    {"row": 8, "pair": "MRR×power→feed", "verified_equation": "F = (η·P_spindle·60·1000)/(kc·ap·ae), kc=kc1.1·h_m^(−mc), η=0.75–0.90", "engine_to_call": "EXISTING MRREngine + SpindlePowerEngine + KienzleEngine via prism_calc:feed_power_limited", "variability_axis": "spindle-torque curve (CT vs CP)", "customer_claim": "Max feed without spindle-overload alarm"},
+    {"row": 9, "pair": "CycleTime polynomial×constraints", "verified_equation": "Non-convex MINLP — Simulated Annealing (Metropolis, β=0.95) OR NSGA-II GA; best-found ± stderr over 30 restarts (NOT optimal)", "engine_to_call": "NEW SimulatedAnnealingEngine + NEW GeneticAlgorithmEngine via prism_ai:cycle_optimize", "variability_axis": "objective weighting", "customer_claim": "10–25% cycle reduction (honest non-optimality)"},
+    {"row": 10, "pair": "Conformal×residuals→PI", "verified_equation": "Split-Conformal Quantile Regression (CQR, Romano 2019): fit q̂_lo, q̂_hi; E_i = max(q̂_lo−y, y−q̂_hi); asymmetric PI 1−α coverage", "engine_to_call": "EXISTING ConformalCalibrationEngine (CQR variant per NN-CONFORMAL03 merge)", "variability_axis": "heteroscedasticity regime", "customer_claim": "30–60% narrower intervals than fixed ±10%"},
+    {"row": 11, "pair": "Z3×ToleranceStack→constraints", "verified_equation": "Two-tier: (i) Z3 symbolic feasibility, (ii) MIP (CBC/Gurobi) numeric cost-min; WC=arithmetic sum, RSS=√Σσ²", "engine_to_call": "EXISTING Z3Engine + NEW MIPSolverEngine", "variability_axis": "stack-up method (WC/RSS/MC)", "customer_claim": "10–30% inspection reduction"},
+    {"row": 12, "pair": "FEA×JC→residual stress", "verified_equation": "Capello reduced-order: σ_res = α·E·ΔT − β·σ_y from Loewen-Shaw ΔT; full FEA bridge for thermomechanical coupling", "engine_to_call": "NEW ResidualStressEngine + EXISTING ThermalEngine", "variability_axis": "process- vs design-induced stress", "customer_claim": "Predict warp/distortion on thin-wall pre-cut"},
+    {"row": 13, "pair": "FRF×Chatter→tap-test SLD", "verified_equation": "Multi-mode modal extraction: peaks → (f_n, ζ, k_modal) per mode → H(jω) = Σ 1/(k_i(1−r_i²+2jζ_i·r_i))", "engine_to_call": "EXISTING ChatterStabilityEngine + ModalAnalysisEngine", "variability_axis": "modal density (# of SLD lobes)", "customer_claim": "SLD from YOUR machine, not library"},
+    {"row": 14, "pair": "MRR×heat-balance→thermal", "verified_equation": "Loewen-Shaw partition: R_chip≈0.85–0.95, R_tool≈0.02–0.10; T_chip = T_amb + R_chip·kc/(ρ·c)", "engine_to_call": "EXISTING ThermalEngine (verify Loewen-Shaw partition)", "variability_axis": "heat partition fraction (k-dependent)", "customer_claim": "Coolant on/MQL/dry with quantified ΔT"},
+    {"row": 15, "pair": "Weibull×Taylor→RUL", "verified_equation": "R(T)=exp(−(T/η)^β), η≈Taylor-T, β shape; E[RUL|T>t] = η·Γ(1+1/β)·(1−F(t))/R(t); Bayesian β update", "engine_to_call": "EXISTING TaylorEngine + NEW WeibullReliabilityEngine via prism_calc:rul_weibull", "variability_axis": "sister-tool variance", "customer_claim": "90% chance N more parts (probabilistic)"},
+    {"row": 16, "pair": "Edge geom×JC→micro-force", "verified_equation": "Slip-line Fc = σ̄·b·h_eff, h_eff=max(h,h_min), h_min=r_β·(1−sin(α_eff)), α_eff=α−arcsin(r_β/(r_β+h))", "engine_to_call": "NEW MicroGeometryForceEngine", "variability_axis": "edge-honing regime (<5μm vs 20–60μm)", "customer_claim": "Force where h/r_β<1 (finishing)"},
+    {"row": 17, "pair": "BUE-onset×thermal", "verified_equation": "Trent diagram: BUE when T_chip ∈ [T_BUE_lo, T_BUE_hi] (~200–600°C steel); T_chip = T_amb + R_chip·kc/(ρ·c)", "engine_to_call": "NEW BUEAvoidanceEngine + EXISTING ThermalEngine", "variability_axis": "material BUE-T window", "customer_claim": "Pick V to dodge BUE — finish guarantee"},
+    {"row": 18, "pair": "Coolant-pressure×evacuation→drill", "verified_equation": "V_coolant·A_flute > MRR·ρ_chip/ρ_coolant; d_peck = min(3D, V_coolant·t_dwell/MRR); HPC≥70bar full-depth", "engine_to_call": "NEW CoolantEvacuationEngine", "variability_axis": "coolant-pressure tier (flood/TC/HPC)", "customer_claim": "Peck-elimination — 30–50% deep-hole reduction"},
+    {"row": 19, "pair": "Workholding×Chatter→fixture-SLD", "verified_equation": "1/k_total(ω) = 1/k_spindle + 1/k_tool + 1/k_part + 1/k_fixture; weakest link dominates", "engine_to_call": "EXISTING ChatterStabilityEngine + WorkholdingEngine", "variability_axis": "weakest-compliance contributor", "customer_claim": "Identify chatter limiter (tool/part/fixture)"},
+    {"row": 20, "pair": "5ax kin×MRR→effective MRR", "verified_equation": "MRR_eff(t) = a_e(t)·a_p(t)·v_f_proj(t), v_f_proj = ‖(v_x,v_y,v_z) − ω×r‖; FK Jacobian J(q)·q̇", "engine_to_call": "EXISTING Multi5AxisKinematicsEngine + MRREngine", "variability_axis": "5ax config + tool length", "customer_claim": "True MRR with rotary — eliminates 'feed mystery'"},
+    {"row": 21, "pair": "Setup-error×ToleranceStack→P(in-spec)", "verified_equation": "Cpk = min((USL−μ)/3σ, (μ−LSL)/3σ); σ_total = √(σ_setup² + σ_process²)", "engine_to_call": "EXISTING CpkEngine + ToleranceStackEngine + SetupErrorEngine", "variability_axis": "first-part vs steady-state", "customer_claim": "P(first part in-spec) quantified scrap-risk"},
+    {"row": 22, "pair": "Insert-grade×material→cutting-data", "verified_equation": "RULE: catalog lookup → physics-validation gate (Kienzle Fc<Fc_max, Taylor T>T_min)", "engine_to_call": "EXISTING ToolCatalogEngine + KienzleEngine + TaylorEngine via prism_calc:validate_recommended_data", "variability_axis": "catalog vs physics-allowed", "customer_claim": "Catalog values verified against YOUR setup", "reframe": "RULE"},
+    {"row": 23, "pair": "Probing×ToleranceStack→measurement-U", "verified_equation": "GUM (ISO/IEC Guide 98): u_combined = √(σ_probe² + σ_calib² + σ_thermal²); compare to tol/4", "engine_to_call": "EXISTING ProbingEngine + NEW MeasurementUncertaintyEngine", "variability_axis": "metrology-U regime", "customer_claim": "Trust probe or re-measure — U_95 quantified"},
+    {"row": 24, "pair": "Spindle-thermal×ToleranceStack→drift comp", "verified_equation": "ΔL=α·L·ΔT; spindle ΔZ(t) = ΔZ_∞·(1−exp(−t/τ)), τ≈30–90 min", "engine_to_call": "EXISTING ThermalEngine + NEW SpindleGrowthEngine", "variability_axis": "warm-up τ", "customer_claim": "Auto-probe-and-comp when drift exceeds spec"},
+    {"row": 25, "pair": "Material-DB×Kienzle→kc1.1/mc", "verified_equation": "DATA SURFACE: ISO P/M/K/N/S/H → kc1.1 {1800,2100,1100,700,2800,3200} MPa, mc {0.25,0.25,0.22,0.20,0.30,0.30} from constants.ts", "engine_to_call": "EXISTING MaterialDatabaseEngine + KienzleEngine (data in constants.ts)", "variability_axis": "ISO-group bucket", "customer_claim": "Constants from canonical PRISM table", "reframe": "DATA SURFACE"},
+    {"row": 26, "pair": "WEDM-feasibility×physics→go/no-go", "verified_equation": "RULE: decision tree — conductivity>0.1 S/m, t/d_wire<200, kerf_R≥wire_r+0.02mm, taper≤15°; output GO/CONDITIONAL/NO-GO + binding constraint", "engine_to_call": "EXISTING WEDMFeasibilityEngine (reframe outputs)", "variability_axis": "binding-constraint regime", "customer_claim": "Why-it-fails in 4 dimensions", "reframe": "RULE"},
+    {"row": 27, "pair": "WEDM-flushing×spark→cut speed", "verified_equation": "MRR_WEDM = α·U·I·t_on·η_flush, η_flush∈[0.5,1.0] gates on Q_flow≥Q_c=k·MRR/h; v_cut=MRR/(h·kerf) (Kuriachen-Mathew)", "engine_to_call": "EXISTING WEDMFlushingEngine + WEDMSparkEnergyEngine via prism_calc:wedm_cut_speed", "variability_axis": "flushing-pressure regime", "customer_claim": "Cut-speed vs flushing sweet spot"},
+    {"row": 28, "pair": "WEDM-tension×deflection→corner", "verified_equation": "Catenary δ = (F_lat·L²)/(8·T_wire); corner overcut Δr = δ_wire; compensate via trim/v-reduce", "engine_to_call": "EXISTING WEDMWireDeflectionEngine (E0554)", "variability_axis": "wire-tension setting (40–80% break)", "customer_claim": "Corner-accuracy improvement quantified Δr"},
+    {"row": 29, "pair": "Lathe-CSS×Diameter→RPM ramp", "verified_equation": "N=1000·V/(π·D) clamped at N_max; D_clamp=1000·V/(π·N_max); below D_clamp V drops", "engine_to_call": "EXISTING TurningEngine (verify clamp)", "variability_axis": "CSS-active vs N_max-clamp", "customer_claim": "Honest V at small D"},
+    {"row": 30, "pair": "Lathe-thread×passes→strategy", "verified_equation": "Constant-load (k=0.5): Δd_n = d_total·(√n−√(n−1))/√N; constant-depth: Δd_n=d_total/N; modified flank for unilateral chip", "engine_to_call": "EXISTING LatheThreadingEngine", "variability_axis": "thread-class + material", "customer_claim": "Thread-form to spec — 2A/3A optimized differently"},
+    {"row": 31, "pair": "Drill×force/torque→peck", "verified_equation": "M=kc·D²/8·f_per_rev·sin(point/2), Fz=kc·D·f/2; peck if M>M_max OR row-18 violation OR L/D>5", "engine_to_call": "EXISTING DrillCycleEngine + KienzleEngine", "variability_axis": "L/D regime", "customer_claim": "Peck-elimination where physics allows"},
+    {"row": 32, "pair": "Rigid-tap×spindle-sync", "verified_equation": "v_z=N·pitch; safe N_max_tap = √(α_max·z_safe/(2π))", "engine_to_call": "EXISTING TappingEngine (expose accel-limit)", "variability_axis": "rigid vs floating-holder", "customer_claim": "Max tap RPM before sync-loss"},
+    {"row": 33, "pair": "Mill-engagement×Chatter→lobe shift", "verified_equation": "Engagement-dep directional factor: φ_st→φ_ex avg shifts down-milling lobes ~10% vs full-immersion; Altintas time-domain", "engine_to_call": "EXISTING ChatterStabilityEngine (engagement-aware mode)", "variability_axis": "radial-engagement (HSM vs conv)", "customer_claim": "Different stable-RPM zones leveraged"},
+    {"row": 34, "pair": "Adaptive-feed×spindle-load", "verified_equation": "PI: f_new = f_nom + Kp·(P_tgt−P_act) + Ki·∫(P_tgt−P_act)dt; saturate at f_max/f_min", "engine_to_call": "EXISTING AdaptiveControlEngine + SpindlePowerEngine", "variability_axis": "load-variation (cast/forged vs uniform)", "customer_claim": "15–25% cycle reduction on variable stock"},
+    {"row": 35, "pair": "Tool-deflection×surface→wall-straightness", "verified_equation": "Walled δ(z) = Fc(z)·z²·(3L−z)/(6EI); finish: Fc≈const, δ_max at tip; pre-bias toolpath", "engine_to_call": "EXISTING DeflectionOverlayEngine (E0127)", "variability_axis": "tool L/D + wall-height", "customer_claim": "Wall-straightness with pre-bias = first-part-in-spec"},
+    {"row": 36, "pair": "ML×empirical→kc-residual", "verified_equation": "Residual kc_actual = kc_Kienzle·(1+δ(V,f,coolant,grade)) with conformal-U on δ; reject OOD", "engine_to_call": "EXISTING MLPipelineEngine + ConformalCalibrationEngine + KienzleEngine", "variability_axis": "in-dist vs OOD", "customer_claim": "Personalized kc for YOUR shop — 10–20% over generic"},
+    {"row": 37, "pair": "Coolant-MQL×thermal→selector", "verified_equation": "T_chip_steady = T_amb + Q_cut/(h_conv·A·η_coolant); MQL η≈0.3, flood η≈0.7; dry if T_chip_dry<T_BUE_hi", "engine_to_call": "EXISTING ThermalEngine + NEW CoolantSelectorEngine", "variability_axis": "thermal regime (cool/hot cut)", "customer_claim": "Quantified MQL/flood ROI vs dry"},
+    {"row": 38, "pair": "Cycle-drift×SPC→shift detect", "verified_equation": "CUSUM: S_h_n = max(0, S_h_{n-1} + (x_n−μ₀−k)), alarm S_h>h; k=δ/2, h=4; ARL₁<10 on 1σ. EWMA: z_n=λx_n+(1−λ)z_{n-1}", "engine_to_call": "EXISTING SPCEngine + NEW CUSUMEngine variant", "variability_axis": "shift-magnitude (small drift vs step)", "customer_claim": "Detect 1σ drift in 8 parts vs 50 with Shewhart"},
+    {"row": 39, "pair": "RUL×maintenance-cost→trigger", "verified_equation": "E[cost_continue] = P(fail|t)·(scrap+unplanned) + (1−P(fail|t))·normal vs cost_planned; replace at α-quantile of T", "engine_to_call": "EXISTING ToolWearEngine + WeibullReliabilityEngine", "variability_axis": "risk-tolerance", "customer_claim": "Optimal replace-vs-run under YOUR cost structure"},
+    {"row": 40, "pair": "Setup-time×Markov→throughput", "verified_equation": "M/G/1: ρ=λ/μ, W_q=ρ·E[S²]/(2(1−ρ)); E[S]=t_setup_mean+t_run_mean; multi-machine=Jackson", "engine_to_call": "NEW QueueingShopEngine + SchedulerEngine", "variability_axis": "shop-load regime (ρ<0.7 / >0.85 / overload)", "customer_claim": "Realistic throughput w/ queue waiting"},
+    {"row": 41, "pair": "EOQ×demand-variability→reorder", "verified_equation": "(s,S) policy: reorder<s, order-up-to S; s = E[D_LT] + z_α·σ_LT (safety stock); S = s + EOQ; Croston's for lumpy", "engine_to_call": "NEW InventoryPolicyEngine via prism_calc:reorder_point", "variability_axis": "demand-variability (smooth/intermittent/lumpy)", "customer_claim": "Service-level met without overstock — stockout P quantified"},
+    {"row": 42, "pair": "Energy-cost×kc→$/part", "verified_equation": "E_part = (kc·MRR·t_cut)/η_machine + P_idle·t_total; η_machine≈0.6–0.8; idle ~40% of total", "engine_to_call": "EXISTING EnergyEngine + KienzleEngine (verify P_idle)", "variability_axis": "idle-power regime", "customer_claim": "True energy $/part incl idle overhead"},
+    {"row": 43, "pair": "Pareto×multi-objective→frontier", "verified_equation": "NSGA-II (Deb 2002): non-dominated sort + crowding distance; 50–200 generations; 3D scatter (cost, time, finish)", "engine_to_call": "EXISTING GeneticAlgorithmEngine (multi-objective mode) OR NEW NSGA2Engine", "variability_axis": "objective-weighting", "customer_claim": "All reasonable trade-offs shown — customer picks"},
+    {"row": 44, "pair": "Probabilistic-tolerance×MC→yield", "verified_equation": "MC N=10⁴: sample N(μ_i,σ_i²) per contribution, check all SL; quasi-MC (Sobol) 10–100× variance reduction", "engine_to_call": "EXISTING MonteCarloEngine + ToleranceStackEngine", "variability_axis": "tolerance-correlation", "customer_claim": "Realistic yield % incl interactions"},
+    {"row": 45, "pair": "GD&T-callout×inspection→CMM-routine", "verified_equation": "RULE: position→4 datum-targets+N pts (Hopp); profile→7+ pts/feature; runout→360° scan min 6 stations; n*=(z·σ/Δ)²", "engine_to_call": "EXISTING ProbingEngine + NEW InspectionPlanEngine", "variability_axis": "GD&T-feature-type", "customer_claim": "CMM-routine auto-generated, stat-valid", "reframe": "RULE"},
+    {"row": 46, "pair": "First-article×Cpk→ramp", "verified_equation": "Cpk>1.33 gate + Bayesian PI lower-bound: P(true Cpk≥1.33 | observed) > 95% before ramp; n≥30 for tight estimate", "engine_to_call": "EXISTING CpkEngine (Bayesian-CI mode)", "variability_axis": "sample-size confidence", "customer_claim": "Statistical confidence in Cpk — not point estimate"},
+    {"row": 47, "pair": "Setup-sheet×kinematics→safe G-code", "verified_equation": "FK envelope check per block: tool+holder+spindle pos, intersect machine envelope polytope; collision vs fixture mesh", "engine_to_call": "EXISTING KinematicsEngine + CollisionDetectionEngine", "variability_axis": "machine-envelope", "customer_claim": "Pre-flight check — catch travel/collision before crash"},
+    {"row": 48, "pair": "Operator-skill×variance", "verified_equation": "Wright learning: t_n = t_1·n^(log₂(LR)), LR ∈ [0.7, 0.95]; asymptote t_∞ ≈ t_predicted·(1+δ_machine)", "engine_to_call": "NEW OperatorLearningCurveEngine", "variability_axis": "operator-experience", "customer_claim": "Realistic cycle for THIS operator"},
+    {"row": 49, "pair": "Energy-monitoring×baseline→anomaly", "verified_equation": "Isolation Forest or OC-SVM on (V, f, ap, material); alarm when observed P falls in <1st percentile", "engine_to_call": "NEW AnomalyDetectionEngine", "variability_axis": "anomaly type", "customer_claim": "Catch subtle drift before scrap"},
+    {"row": 50, "pair": "Full-pipeline×all-models→end-to-end U", "verified_equation": "GUM: u_y² = Σ(∂f/∂x_i)²·u(x_i)² + 2ΣΣ(∂f/∂x_i)(∂f/∂x_j)·u(x_i,x_j); nonlinear→MC (10⁴); coverage k=2 for 95%", "engine_to_call": "NEW UncertaintyPropagationEngine (orchestrates all upstream)", "variability_axis": "U-source (machine/material/model/measurement)", "customer_claim": "End-to-end U with dominant-source attribution"}
+  ],
+  "new_engines_required": [
+    {"name": "GilbertEconomicSpeedEngine", "rows": [1], "deps": ["TaylorEngine", "KienzleEngine"], "priority": "P0", "build_days_est": 1, "reason": "Gilbert min-cost/min-time speed composing Taylor + Kienzle + shop-economic parameters"},
+    {"name": "JohnsonCookEngine", "rows": [6, 12, 16], "deps": [], "priority": "P0", "build_days_est": 2, "reason": "Constitutive σ̄(ε,ε̇,T) for high-strain-rate HSM regime where empirical Kienzle under-predicts 15–40%"},
+    {"name": "MerchantForceEngine", "rows": [6], "deps": ["JohnsonCookEngine"], "priority": "P0", "build_days_est": 1, "reason": "σ̄ → Fc via shear-plane geometry (φ, β, α); canonical orthogonal-cutting"},
+    {"name": "UsuiWearRateEngine", "rows": [4], "deps": ["TaylorEngine", "ThermalEngine"], "priority": "P1", "build_days_est": 1, "reason": "Arrhenius dVB/dt = A·V^a·f^b·exp(−B/T) for off-nominal Taylor extrapolation"},
+    {"name": "BrammertzRoughnessEngine", "rows": [7], "deps": [], "priority": "P1", "build_days_est": 1, "reason": "Ra prediction including ploughing and edge-radius regime"},
+    {"name": "SimulatedAnnealingEngine", "rows": [9], "deps": [], "priority": "P1", "build_days_est": 2, "reason": "Non-convex optimization for cycle-time; replaces incorrect convex claim"},
+    {"name": "GeneticAlgorithmEngine", "rows": [9, 43], "deps": [], "priority": "P1", "build_days_est": 3, "reason": "NSGA-II for multi-objective Pareto front (cost/time/quality)"},
+    {"name": "MIPSolverEngine", "rows": [11], "deps": ["Z3Engine"], "priority": "P2", "build_days_est": 2, "reason": "Numeric MILP for tolerance-cost optimization downstream of Z3 feasibility"},
+    {"name": "ResidualStressEngine", "rows": [12], "deps": ["ThermalEngine"], "priority": "P2", "build_days_est": 2, "reason": "Capello reduced-order σ_res = α·E·ΔT − β·σ_y for thin-wall distortion"},
+    {"name": "WeibullReliabilityEngine", "rows": [15, 39], "deps": ["TaylorEngine"], "priority": "P1", "build_days_est": 2, "reason": "Probabilistic tool-life with shape β, conditional RUL given age"},
+    {"name": "MicroGeometryForceEngine", "rows": [16], "deps": ["JohnsonCookEngine"], "priority": "P2", "build_days_est": 2, "reason": "Slip-line ploughing model for h/r_β<1 finishing regime"},
+    {"name": "BUEAvoidanceEngine", "rows": [17], "deps": ["ThermalEngine"], "priority": "P2", "build_days_est": 1, "reason": "Trent-diagram BUE-avoidance speed-feed window from chip-temperature model"},
+    {"name": "CoolantEvacuationEngine", "rows": [18], "deps": [], "priority": "P1", "build_days_est": 1, "reason": "Mass-balance chip-evacuation criterion for deep-hole drilling peck elimination"},
+    {"name": "MeasurementUncertaintyEngine", "rows": [23], "deps": ["ProbingEngine"], "priority": "P2", "build_days_est": 1, "reason": "GUM-compliant probe-uncertainty stack (ISO/IEC Guide 98)"},
+    {"name": "SpindleGrowthEngine", "rows": [24], "deps": ["ThermalEngine"], "priority": "P2", "build_days_est": 1, "reason": "Time-constant warm-up model ΔZ(t) = ΔZ_∞·(1−exp(−t/τ))"},
+    {"name": "CoolantSelectorEngine", "rows": [37], "deps": ["ThermalEngine"], "priority": "P2", "build_days_est": 1, "reason": "Dry/MQL/flood decision from thermal balance + lubrication regime"},
+    {"name": "CUSUMEngine", "rows": [38], "deps": ["SPCEngine"], "priority": "P1", "build_days_est": 1, "reason": "Rapid-shift SPC detection; verify SPCEngine doesn't already support before building"},
+    {"name": "QueueingShopEngine", "rows": [40], "deps": [], "priority": "P2", "build_days_est": 2, "reason": "M/G/1 queue throughput with variable setup+run times"},
+    {"name": "InventoryPolicyEngine", "rows": [41], "deps": [], "priority": "P1", "build_days_est": 2, "reason": "(s, S) policy for stochastic demand; replaces naive EOQ"},
+    {"name": "InspectionPlanEngine", "rows": [45], "deps": ["ProbingEngine"], "priority": "P2", "build_days_est": 2, "reason": "GD&T-callout → CMM-routine generator"},
+    {"name": "OperatorLearningCurveEngine", "rows": [48], "deps": [], "priority": "P2", "build_days_est": 1, "reason": "Wright learning curve t_n = t_1·n^(log₂(LR))"},
+    {"name": "AnomalyDetectionEngine", "rows": [49], "deps": [], "priority": "P2", "build_days_est": 2, "reason": "Isolation Forest / OC-SVM for energy-pattern anomaly detection"},
+    {"name": "UncertaintyPropagationEngine", "rows": [50], "deps": ["MonteCarloEngine"], "priority": "P2", "build_days_est": 3, "reason": "GUM-compliant end-to-end uncertainty budget with sensitivity analysis"}
+  ],
+  "build_dependency_tiers": {
+    "tier_0_no_deps": ["JohnsonCookEngine", "BrammertzRoughnessEngine", "SimulatedAnnealingEngine", "GeneticAlgorithmEngine", "CoolantEvacuationEngine", "QueueingShopEngine", "InventoryPolicyEngine", "OperatorLearningCurveEngine", "AnomalyDetectionEngine"],
+    "tier_1_basic_composition": ["GilbertEconomicSpeedEngine", "MerchantForceEngine", "UsuiWearRateEngine", "MIPSolverEngine", "ResidualStressEngine", "WeibullReliabilityEngine", "MicroGeometryForceEngine", "BUEAvoidanceEngine", "MeasurementUncertaintyEngine", "SpindleGrowthEngine", "CoolantSelectorEngine", "CUSUMEngine", "InspectionPlanEngine"],
+    "tier_2_orchestrator": ["UncertaintyPropagationEngine"]
+  },
+  "top_3_highest_value_rows": [
+    {
+      "row": 1,
+      "name": "Gilbert Economic Cutting Speed",
+      "value": "Every customer asks 'what speed should I run?' — Gilbert is the textbook canonical answer combining tool life (Taylor) with shop economics (machine rate, tool cost, changeover). Replaces dimensionally broken V*=(C/Kc^0.5)^(1/n).",
+      "engine_build": "NEW GilbertEconomicSpeedEngine (thin composer over EXISTING TaylorEngine + KienzleEngine)",
+      "build_cost_days": 1,
+      "customer_claim": "Min-cost or min-time speed validated by power check (Stephenson-Agapiou §11.3 canonical)"
+    },
+    {
+      "row": 2,
+      "name": "Iterative Max-Depth Under Deflection",
+      "value": "Every long-tool job hits deflection limit; iterating ap to δ_target is universally needed. ALREADY IMPLEMENTED in DeflectionOverlayEngine (E0127) — just needs dispatcher wire-up.",
+      "engine_build": "ZERO new engines — EXISTING DeflectionOverlayEngine (E0127), wire prism_calc:max_ap_deflection_limited",
+      "build_cost_days": 0.5,
+      "customer_claim": "Max depth your stickout holds to ±0.0005 in deflection — 3–5 iter convergence (validated Round-2 F-r2-a8-B)"
+    },
+    {
+      "row": 6,
+      "name": "Johnson-Cook + Merchant for HSM Force",
+      "value": "Original v7.B claim Fc = JC_flow_stress·b·h is a CATEGORY ERROR (J-C yields σ_flow in Pa, not Fc in N). J-C → σ̄ → Merchant geometry → Fc is the real path. Unlocks Ti/Inconel/HSM regime where Kienzle under-predicts 15–40%. Highest technical-credibility fix.",
+      "engine_build": "NEW JohnsonCookEngine + NEW MerchantForceEngine + EXISTING ThermalEngine",
+      "build_cost_days": 3,
+      "customer_claim": "Force prediction valid for HSM/Ti/Inconel where Kienzle under-predicts 15–40% — replaces 'good for steel only' caveat with physics-grounded high-strain-rate model"
+    }
+  ],
+  "key_findings_codified": {
+    "F-r4-a6-A": {
+      "severity": "BLOCKER (carries forward Round-3 F-r3-a5-A)",
+      "issue": "23 of 50 v7.B rows required new engines; original v7.B treated combinatoric as orthogonal when rows 22, 25, 26, 45 are actually rules/data-surfaces (not equations) and rows 1, 6 had physics-incoherent claims.",
+      "remediation": "23 new engines listed with topological build order; 4 rows reframed in customer copy as 'expert-system rules validated by physics' (not 'physics-derived equations')."
+    },
+    "F-r4-a6-B": {
+      "severity": "MAJOR (carries forward F-r3-a5-B)",
+      "issue": "Rows 9 (cycle-time) and 43 (Pareto) require metaheuristics; honest claim must disclose 'best-found ± stderr over 30 restarts', not 'optimal'.",
+      "remediation": "Customer claims updated to include non-optimality disclaimer; SimulatedAnnealingEngine + GeneticAlgorithmEngine builds scheduled P1."
+    },
+    "F-r4-a6-C": {
+      "severity": "MAJOR (carries forward F-r3-a5-C)",
+      "issue": "Row 10 (Conformal) symmetric form gives marginal coverage only; CQR already shipped in NN-CONFORMAL03.",
+      "remediation": "Reference EXISTING ConformalCalibrationEngine CQR variant — zero new build, attribution correction only."
+    },
+    "F-r4-a6-D": {
+      "severity": "MAJOR (carries forward F-r3-a5-D)",
+      "issue": "Row 3 (ChatterStability) Altintas oriented-FRF requires Φ_oriented(jω) (matrix), not stiffness scalar; multi-mode tap-test extraction required.",
+      "remediation": "Verify ChatterStabilityEngine implements multi-mode FRF synthesis (no new engine, audit + tests)."
+    },
+    "F-r4-a6-E": {
+      "severity": "MINOR (carries forward F-r3-a5-E)",
+      "issue": "Rows 22, 25, 26, 45 framed as 'equations' but are rules/data-surfaces; customer-facing claim should not promise 'physics-derived' for these.",
+      "remediation": "Reframed in v2 table with 'reframe' tag; customer copy reads 'expert-system rules validated by physics' or 'canonical data surface'."
+    }
+  },
+  "total_build_effort": {
+    "tier_0_engines": 9,
+    "tier_0_days": 17,
+    "tier_1_engines": 13,
+    "tier_1_days": 18,
+    "tier_2_engines": 1,
+    "tier_2_days": 3,
+    "total_engines": 23,
+    "total_engineer_days_serial": 38,
+    "total_engineer_days_parallel_estimate": "12–15 (with 3 builders in parallel on independent tier-0)",
+    "top_3_unlock_days": 5.5,
+    "top_3_unlock_value": "~60% of v7.B customer-facing claims become defensible"
+  },
+  "doctrine_compliance": {
+    "command_bridge": "All new engines wire to prism_calc / prism_safety / prism_cam / prism_ai per MCP dispatcher surface; no inline logic outside dispatchers",
+    "constants_source": "All Kienzle kc1.1, Taylor n, J-C coefficients sourced from mcp-server/src/physics/constants.ts (canonical single source); J-C tables to be ADDED to constants.ts as part of JohnsonCookEngine build",
+    "duplication_guard": "Every new engine name passes duplicationGuardEngine.mustCheckBeforeCreating() before scaffolding; CUSUMEngine flagged for special audit (verify SPCEngine doesn't already have CUSUM/EWMA modes — extend if so)",
+    "wire_to_all_sources": "Per CLAUDE.md ENGINE WIRING directive — each engine wires to every dispatcher that naturally consumes it (e.g., WeibullReliabilityEngine to prism_calc:rul_weibull AND prism_safety:tool_replacement_trigger)"
+  },
+  "summary": {
+    "rows_rewritten": 50,
+    "engines_to_build": 23,
+    "engines_reused_existing": 27,
+    "rows_reframed_as_rules": 4,
+    "top_3_priority_rows": [1, 2, 6],
+    "top_3_unlock_pct_of_value": 60,
+    "verdict": "v7.B v2 ready for roadmap insertion; build sequence: Top-3 (P0, 5.5 days) → P1 batch (8 engines, ~12 days) → P2 batch (11 engines + orchestrator, ~21 days)",
+    "one_line": "v7.B reborn — Gilbert replaces broken V*-from-Kc; iterate ap via existing DeflectionOverlay; J-C+Merchant replaces flow-stress=force category error; 23 new engines, 27 existing reused, 4 reframed as rules"
+  }
+}

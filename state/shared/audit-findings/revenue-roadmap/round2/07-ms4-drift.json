@@ -1,0 +1,114 @@
+{
+  "schemaVersion": "1.0.0",
+  "round": 2,
+  "agent_n": 7,
+  "agent_role": "researcher",
+  "scope": "REVENUE-MS4 drift-reconciliation plan",
+  "generatedAt": "2026-05-10T05:00:00.000Z",
+  "sources": [
+    "H:/prism/state/shared/specs/REVENUE-ROADMAP-2026-05-10.md",
+    "H:/prism/state/shared/MILESTONE_PROGRESS.json (generated 2026-05-10T04:19:30.503Z)",
+    "H:/prism/state/shared/MILESTONE_PROGRESS.md",
+    "H:/prism/state/shared/BUILD_STATE.json",
+    "H:/prism/state/shared/AUDIT-LATEST.json",
+    "C:/Users/wompu/.claude/commands/envelope-sync.md",
+    "H:/prism/.claude/commands/envelope-sync.md"
+  ],
+  "findings": [
+    {
+      "id": "F-r2-a7-1",
+      "kind": "factual_error",
+      "severity": "high",
+      "claim_in_spec": "613 milestones claim 'complete' while git shows 'not_started_real'.",
+      "spec_lines": ["L13", "L235"],
+      "evidence": "MILESTONE_PROGRESS.json totals.milestones=613 (count of milestones loaded), totals.drift=2. MILESTONE_PROGRESS.md L24 'Drift cases: 2'. Drift table lists exactly MF-MS1, MF-MS2 with claims_completed_but_units_pending. Counted 'consistent' vs drift markers across full file: only 2 occurrences of claims_completed_but_units_pending; zero claim_not_started_real_shipped.",
+      "impact": "MS4 premise is wrong by ~306x. Spec conflates 'milestones loaded' with 'milestones drifted'. 10-unit reconciliation plan is grossly oversized for a 2-envelope problem.",
+      "recommendation": "Reframe MS4 to 'fix 2 drifted envelopes (MF-MS1, MF-MS2)' OR re-derive drift over a wider scope (e.g. 'shipped=0 AND claimedStatus=complete' instead of strict claim_vs_derived). Re-run scripts/build-milestone-progress.mjs and quote totals.drift, not totals.milestones."
+    },
+    {
+      "id": "F-r2-a7-2",
+      "kind": "factual_error",
+      "severity": "medium",
+      "claim_in_spec": "Auto-flip envelopes where git shows real shipping (false-negative drift) — U-DRIFT-02.",
+      "spec_lines": ["L242"],
+      "evidence": "Zero 'claim_not_started_real_shipped' entries in MILESTONE_PROGRESS.json. Drift schema produces only two drift kinds and only the false-positive flavor exists in current data. Top recently-active (XPROC-NEURAL-OPTIMIZE-MS0) is claimedStatus=in_progress / derivedStatus=in_progress_real → consistent, not drift.",
+      "impact": "U-DRIFT-02 has nothing to operate on. Auto-flip logic would be a no-op today.",
+      "recommendation": "Either delete U-DRIFT-02 or make it generic ('reconcile both drift directions if/when they appear') with a guarded check."
+    },
+    {
+      "id": "F-r2-a7-3",
+      "kind": "factual_error",
+      "severity": "low",
+      "claim_in_spec": "Per-batch reconcile of 7 revenue-relevant milestone clusters: SFC, Master Post, CAM bridges (×6).",
+      "spec_lines": ["L243"],
+      "evidence": "U-DRIFT-03..09 is 7 units (03,04,05,06,07,08,09). Stated content = SFC + Master Post + 6 CAM bridges = 8 logical clusters. 8 clusters / 7 unit slots = off-by-one. Independent: neither MF-MS1 nor MF-MS2 (the only real drift) is revenue-relevant under the filter SFC|MASTER-POST|FUSION|HYPERMILL|MASTERCAM|ESPRIT|INVENTOR|SOLIDWORKS|MILL|LATHE|WEDM|ADMIN|SUB — they are feasibility/sequencing engines.",
+      "impact": "Off-by-one + cluster list doesn't match actual drift data. Revenue-relevant drift count under filter = 0.",
+      "recommendation": "Renumber to U-DRIFT-03..10 if all 8 clusters are intended, or drop one. Better: justify clusters from /forge-audit findings rather than from non-existent envelope drift."
+    },
+    {
+      "id": "F-r2-a7-4",
+      "kind": "cascade_risk",
+      "severity": "medium",
+      "claim_in_spec": "U-DRIFT-02 auto-flips envelope status based on git evidence.",
+      "spec_lines": ["L242"],
+      "evidence": "envelope-sync skill (C:/Users/wompu/.claude/commands/envelope-sync.md L21-29) is dry-run-by-default and gates --apply by user confirmation, designed for advisory not auto. Mass-flipping envelope.status from 'not_started' → 'completed' will break milestone-aware Stop hooks that gate on completion + any roadmap rollup that uses claimedStatus as the planner intent (e.g. PRISM-UNIFIED-ROADMAP). MILESTONE_PROGRESS.md L80 frames drift rows as 'candidates for a status update' not automatic flips.",
+      "impact": "Auto-flip without operator review converts planning intent to git reality, losing 'should ship' vs 'has shipped' distinction. Could mark MS0..MS3 milestones complete prematurely and silently disable downstream wiring/test gates.",
+      "recommendation": "Force U-DRIFT-02 through envelope-sync --dry-run + human approval. Never --apply autonomously."
+    },
+    {
+      "id": "F-r2-a7-5",
+      "kind": "ok",
+      "severity": "none",
+      "claim_in_spec": "envelope-sync skill exists.",
+      "evidence": "C:/Users/wompu/.claude/commands/envelope-sync.md (user-global) + H:/prism/.claude/commands/envelope-sync.md (project) both present, v1.0.0, reads MILESTONE_PROGRESS.json, has --apply/--dry-run, triggers include 'envelope drift', 'drift', 'milestone status'."
+    },
+    {
+      "id": "F-r2-a7-6",
+      "kind": "ok",
+      "severity": "none",
+      "claim_in_spec": "BUILD_STATE.json envelope_drift field referenced by spec",
+      "evidence": "BUILD_STATE.json contains zero matches for 'envelope_drift' — spec implicitly delegates to MILESTONE_PROGRESS.json which is the correct source."
+    },
+    {
+      "id": "F-r2-a7-7",
+      "kind": "round1_overlap",
+      "severity": "low",
+      "evidence": "AUDIT-LATEST.json round-1 has no drift-vs-envelope finding (filter drift|envelope returned only constants-drift, ingest extension-drift, mill-skill-drift, wiki-confidence-drift). MS4 reconciliation work was not surfaced by round 1.",
+      "impact": "Round 2 MS4 audit is the first scrutiny pass on this milestone — no duplicate findings to retract."
+    }
+  ],
+  "drift_breakdown_sample": {
+    "total_milestones_in_progress_json": 613,
+    "actual_drift_count": 2,
+    "drift_entries": [
+      {"id": "MF-MS1", "claimedStatus": "completed", "derivedStatus": "not_started_real", "total": 4, "shipped": 0, "kind": "claims_completed_but_units_pending"},
+      {"id": "MF-MS2", "claimedStatus": "completed", "derivedStatus": "not_started_real", "total": 3, "shipped": 0, "kind": "claims_completed_but_units_pending"}
+    ],
+    "claim_not_started_real_shipped_count": 0,
+    "consistent_count_observed_in_grep_sample": "~450 of first 500 milestone entries",
+    "no_units_count_observed": "drift=n/a entries (envelopes with total=0 — neither shipped nor pending, e.g. CADCAM-DEEPAGI-ML-METHODOLOGY-ANNEX) — most n/a markers are units, not milestones",
+    "revenue_relevant_drift_under_filter": {
+      "filter_regex": "SFC|MASTER-POST|FUSION|HYPERMILL|MASTERCAM|ESPRIT|INVENTOR|SOLIDWORKS|MILL|LATHE|WEDM|ADMIN|SUB",
+      "matches": 0,
+      "rationale": "Neither MF-MS1 nor MF-MS2 matches any token in the filter; both are FeasibilityEngine milestones."
+    }
+  },
+  "verdict": {
+    "ms4_plan_correct": false,
+    "core_issues": [
+      "Headline '613 drifted milestones' is factually 2",
+      "U-DRIFT-02 (false-negative auto-flip) has no current data to operate on",
+      "U-DRIFT-03..09 is 7 slots for a stated 8 clusters (off-by-one)",
+      "Cluster list (SFC + Master Post + 6 CAM bridges) is unrelated to the actual 2 drifted envelopes",
+      "Auto-flip risks cascade through milestone-aware Stop hooks"
+    ],
+    "recommended_action": "Rewrite REVENUE-MS4 as a 2-unit plan: U-DRIFT-01 envelope-sync MF-MS1+MF-MS2 (dry-run review + apply), U-DRIFT-02 schedule cron to monitor for new drift. Move 'revenue-relevant reconciliation' to a different milestone whose premise is /forge-audit gaps, not envelope drift.",
+    "must_fix_before_execution": true
+  },
+  "metrics": {
+    "files_read": 6,
+    "drift_entries_sampled": 20,
+    "tools_used": ["Read", "Grep", "Glob"],
+    "round1_overlap_findings": 0
+  }
+}

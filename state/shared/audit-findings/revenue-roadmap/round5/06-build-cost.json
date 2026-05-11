@@ -1,0 +1,62 @@
+{
+  "agent": 6,
+  "angle": "build-cost-estimator",
+  "verdict": "v7.1's ~215 units are buildable in ~22 dev-weeks of single-lane work, ~10 calendar weeks at the 6-chat concurrency PRISM actually runs. SFC GA is the near-term gate (~3.5 wk single-lane / ~2 calendar wk); Master Post GA lands ~wk 9-10; MS-PILOT phase-7 is per-machine, ~1.5-2 wk each after MS-TRAIN completes. Roadmap is realistic IF P0 stays serialized and the 415-engine MS3.5 wire-backlog is NOT pulled into the GA critical path.",
+  "summary": {
+    "total_units_v7_1": 215,
+    "milestones": 9,
+    "velocity_anchor": {
+      "small_commit_units_per_day": 6,
+      "architectural_units_per_day": "1-3",
+      "wire_batch_units_per_day_under_3way_scrutiny": 9.5,
+      "source": "git log: U-VIZ-* / U-WIRE-* batches run 6-12 units/commit, multi-commit/day; architectural units (SpindleCharacteristicEngine, ToolCatalogEngine, Master-Post skeleton) are 1-3/day each",
+      "effective_blended_units_per_dev_week": 10
+    },
+    "complexity_multipliers": {"P0": 1.5, "P1": 1.0, "P2": 0.7},
+    "concurrency_assumption": "6 chats, but P0 work must serialize (shared dispatcher surface + 3way scrutiny gate) -> realistic parallelism factor ~2.2x not 6x",
+    "single_lane_dev_weeks": 22,
+    "calendar_weeks_at_2_2x": 10
+  },
+  "findings": [
+    {"id": "R5A6-001", "severity": "high", "title": "MS0 (SFC, 61 units) is the long pole and over-weighted with P0 architectural units", "detail": "61 units, ~9 of them net-new engines + dispatcher actions at 1.5x and 1-3/day -> ~3.5 single-lane dev-weeks even though raw count suggests 1 week. Treat the 9 backend-prereq + 5 net-new engine units as a serialized sub-critical-path; the 37 customer pages parallelize cheaply behind them.", "recommendation": "Lock SFC GA date to backend-prereq completion + 1 wk page-wiring, not to total unit count."},
+    {"id": "R5A6-002", "severity": "high", "title": "MS3 wire-backlog must not be on the GA critical path", "detail": "Round-4 finding: 531 true-revenue-relevant orphans, only 116 wired in MS3's 12 batches @ 9.5 avg, 415 deferred to MS3.5, 289 ML-plumbing deferred. At 9.5 units/batch and ~1 batch/day that is ~12 working days for MS3 alone; MS3.5's 415 is ~6-7 dev-weeks. If GA gates on MS3.5 the ship date slips a quarter.", "recommendation": "GA gates on MS3 (116 wired) only. MS3.5 (415) runs post-GA as continuous background lane."},
+    {"id": "R5A6-003", "severity": "med", "title": "Master Post GA depends on MS0 + MS3-Lathe + dialect coverage units, not standalone", "detail": "Post-processor GA needs SpindleCharacteristicEngine (MS0 P0), the Lathe wire batches BATCH12-15 (MS3), and the 5-dialect coverage units. Earliest realistic = after MS0 backend-prereq + Lathe batches land = ~wk 9-10 single-lane / ~wk 6-7 calendar.", "recommendation": "Sequence Master Post GA strictly after MS3 Lathe batches; do not promise it concurrent with SFC GA."},
+    {"id": "R5A6-004", "severity": "med", "title": "MS-PILOT phase-7 is per-machine and must be priced per-unit not as one milestone", "detail": "phase-7 (machine hardening / first-part-right validation) repeats per machine. JM Die has 21 ShopConfig machines; even if pilot scopes to ~5 priority machines that is 5 x ~1.5-2 dev-weeks = 7.5-10 dev-weeks. Cannot land before MS-TRAIN (LoRA/per-machine calibration) completes.", "recommendation": "Roadmap should show MS-PILOT-P7 as N sub-units (one per pilot machine) with explicit MS-TRAIN dependency edge."},
+    {"id": "R5A6-005", "severity": "low", "title": "P2 multiplier (0.7x) is optimistic for viz/wiki-style units", "detail": "Recent U-VIZ-* commits show wiki/crosslink units actually run faster than 0.7x (638 skills + 483 hooks in one commit) — but only because they are batch-generated. Hand-authored P2 units (UI polish, docs) run at ~1.0x. Bimodal: keep 0.7x only for generator-backed units, use 1.0x for hand work.", "recommendation": "Split P2 into P2-gen (0.6x) and P2-hand (1.0x) in the build-cost model."}
+  ],
+  "estimates": {
+    "per_milestone_dev_weeks": {
+      "MS0_SFC": {"units": 61, "weighted_units": 92, "dev_weeks": 3.5, "notes": "9 backend-prereq + 5 net-new engine (P0 1.5x, 1-3/day) dominate; 37 pages parallelize cheap"},
+      "MS1": {"units": 22, "weighted_units": 28, "dev_weeks": 1.5, "notes": "mostly P1 page/integration"},
+      "MS2": {"units": 18, "weighted_units": 21, "dev_weeks": 1.0},
+      "MS3_wire_core": {"units": 12, "weighted_units": 116, "dev_weeks": 2.5, "notes": "12 batches @ 9.5 engines avg; ~1 batch/day under 3way scrutiny"},
+      "MS3_5_wire_backlog": {"units": 415, "weighted_units": 415, "dev_weeks": 6.5, "notes": "POST-GA continuous lane; NOT on critical path"},
+      "MS4_MS5": {"units": 20, "weighted_units": 22, "dev_weeks": 1.5},
+      "MS_MASTERPOST": {"units": 24, "weighted_units": 30, "dev_weeks": 2.0, "notes": "skeleton P0 1.5x + 5-dialect P1 + Lathe-batch dependency"},
+      "MS_TRAIN": {"units": 18, "weighted_units": 24, "dev_weeks": 2.0, "notes": "LoRA/per-machine calibration; gates MS-PILOT-P7"},
+      "MS_PILOT": {"units": "25 (incl. ~5x phase-7 sub-units)", "weighted_units": 32, "dev_weeks": 3.0, "notes": "phase-7 per-machine; depends on MS-TRAIN"}
+    },
+    "ship_dates": {
+      "assumed_start": "2026-05-12",
+      "SFC_GA": {"single_lane": "2026-06-05 (~3.5 dev-wk)", "calendar_2_2x": "2026-05-27 (~2 wk)", "gate": "MS0 backend-prereq + 5 net-new engines + page-wiring; NOT MS3.5"},
+      "Master_Post_GA": {"single_lane": "2026-07-17 (~wk 9-10)", "calendar_2_2x": "2026-06-24 (~wk 6-7)", "gate": "after MS0 + MS3 Lathe BATCH12-15 + 5-dialect coverage"},
+      "MS_PILOT_phase7_per_machine": {"earliest_first_machine": "2026-08-21 single-lane / 2026-07-15 calendar", "per_machine_cadence": "1.5-2 dev-weeks each", "5_pilot_machines_complete": "2026-09-25 single-lane / 2026-08-05 calendar", "hard_dep": "MS-TRAIN complete"},
+      "full_v7_1_GA_critical_path": {"single_lane": "~2026-10-13 (22 dev-wk)", "calendar_2_2x": "~2026-07-21 (10 wk)", "excludes": "MS3.5 415-engine backlog (runs post-GA)"}
+    },
+    "gantt_sequencing_recommendation": [
+      "WK1-4  | MS0 backend-prereq (serial, P0) ────────► then MS0 37 pages (parallel) | START: SpindleCharacteristicEngine, ToolCatalogEngine first",
+      "WK2-4  | MS1 + MS2 (parallel lane, behind MS0 dispatcher actions landing)",
+      "WK4    | ★ SFC GA milestone gate",
+      "WK4-7  | MS3 core: 12 wire batches, Lathe-first (BATCH12,13,TURNING1,14,15 then Machine/Multi/Other) — 1 batch/day under 3way scrutiny",
+      "WK6-8  | MS_MASTERPOST: skeleton (needs MS0 spindle engine) || 5-dialect coverage (needs MS3 Lathe batches) — overlap tail of MS3",
+      "WK7    | ★ MS3 core complete (116 wired)",
+      "WK8-10 | MS_TRAIN: LoRA + per-machine calibration",
+      "WK9-10 | ★ Master Post GA milestone gate",
+      "WK10-13| MS_PILOT: phases 1-6 (1 calendar wk) then phase-7 PER MACHINE x5 (1.5-2 dev-wk each, can 2-up if machines independent)",
+      "WK10+  | MS3.5 (415 engines) + MS-ML-PLUMBING (289) — CONTINUOUS BACKGROUND LANE, never blocks a GA gate",
+      "WK13   | ★ MS-PILOT phase-7 first 5 machines complete → pilot-ready",
+      "RULE   | P0 units NEVER parallelize across chats (shared dispatcher + scrutiny gate). P1/P2 fan out to all 6 chats freely."
+    ]
+  },
+  "consensus_signal": "AGREE-WITH-CAVEAT: v7.1's ~215-unit / 9-milestone structure is shippable in ~10 calendar weeks ONLY if (1) MS3.5's 415-engine wire-backlog is explicitly OFF the GA critical path, (2) MS0 backend-prereq + 5 net-new engines are serialized as a sub-critical-path priced at 1-3 units/day not 6, and (3) MS-PILOT phase-7 is decomposed into per-machine sub-units with a hard MS-TRAIN dependency edge. Without those three corrections the implied dates slip by ~1 quarter. Aligns with round-4 finding that the old 47-engine-per-batch MS3 was 7.8x overloaded — the corrected 9.5/batch cadence is the right anchor."
+}

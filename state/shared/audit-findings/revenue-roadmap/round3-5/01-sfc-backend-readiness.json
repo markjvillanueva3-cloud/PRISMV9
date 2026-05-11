@@ -1,0 +1,110 @@
+{
+  "round": 3.5,
+  "agent_n": 1,
+  "scope": "SFC backend readiness",
+  "agent_role": "code-analyzer-product",
+  "context_basis": [
+    "round3/01-ms0-dispatcher-synthesis.json (37-unit MS0 inventory, SFC=5 units U-REV-CAD-SFC-01..05)",
+    "physics/constants.ts (CANONICAL_KIENZLE×6 ISO groups, CANONICAL_TAYLOR×6, CANONICAL_MATERIAL_DB ~11 named alloys)",
+    "ENGINE_DIGEST.md grep hits: E0093 CAMSpeedFeedBridge, E0127 DeflectionOverlay, E0278/279/280 LatheSpeedFeed (DL/Reasoning/ShopAware), E0323 MaterialDatabaseBridge, E0433 SLDOverlay, E0456 ThermalOverlay, E0115 CoolantStrategyAdapter",
+    "AUDIT-LATEST.json: #448 MillingForceEngine 15L stub, #460 MillScientificPipelineEngine 14L stub, finding 513 thermal under-routing",
+    "CLAUDE.md doctrine: 62 WEDM engines, ShopConfigurationEngine 21 machines, calcDispatcher confirms sfc_calculate (line 8605) + sf_compare (line 6374)"
+  ],
+
+  "engines_inventory": [
+    {"name": "Kienzle / Cutting-Force core", "file": "mcp-server/src/physics/constants.ts (CANONICAL_KIENZLE) consumed by calcDispatcher cutting_force routes", "signature": "Fc = kc1_1 * ap * fz^(1-mc) per ISO group", "status": "SHIP-READY", "fix": "constants canonical; verify discrete action cutting_force_kienzle returns Fc not stub object"},
+    {"name": "Taylor tool-life core", "file": "mcp-server/src/physics/constants.ts (CANONICAL_TAYLOR)", "signature": "T = (C/Vc)^(1/n) per ISO group", "status": "SHIP-READY", "fix": "constants canonical; needs explicit dispatcher action tool_life_taylor surface (currently embedded in sfc_calculate)"},
+    {"name": "SpeedFeedCalcEngine (mill orchestrator)", "file": "implied by calcDispatcher:8605 sfc_calculate + calcDispatcher:6374 sf_compare; no top-level E#### in digest grep", "signature": "calculate({material, tool, op}) → {Vc, n, fz, ap, ae, Q, Pc, Fc, Tc}", "status": "PARTIAL", "fix": "exists as dispatcher action but no orchestrator engine surfaced in ENGINE_DIGEST — extract to SpeedFeedOrchestratorEngine (hyperMILL skill references SpeedFeedOrchestrator suggesting it exists in hypermill bridge)"},
+    {"name": "LatheSpeedFeedDeepLearningAdvisor / ReasoningBridge / ShopAwareTuning (×3)", "file": "src/engines/LatheSpeedFeed{DeepLearningAdvisor,ReasoningBridge,ShopAwareTuning}Engine.ts (E0278/279/280)", "signature": "tuning bridges for turning S/F", "status": "SHIP-READY", "fix": "wire-verify they route through prism_cam:lathe_sf_full (camDispatcher:3044 confirmed EXISTS per round3)"},
+    {"name": "CAMSpeedFeedBridge (per-CAM S/F translation)", "file": "src/engines/CAMSpeedFeedBridgeEngine.ts (E0093)", "signature": "translate PRISM S/F → Fusion/Mastercam/hyperMILL", "status": "SHIP-READY", "fix": "verify 6 tier-1 CAM coverage (round3 confirms Mastercam C-Hook only — no live link)"},
+    {"name": "DeflectionOverlayEngine", "file": "src/engines/DeflectionOverlayEngine.ts (E0127)", "signature": "δ = F·L³/(3EI) overlay", "status": "PARTIAL", "fix": "overlay form factor only — need discrete deflection_calculate dispatcher action returning numeric δ + ap-derate"},
+    {"name": "SLDOverlay (Stability Lobe Diagram)", "file": "src/engines/SLDOverlayEngine.ts (E0433)", "signature": "chatter stability lobe map (Altintas)", "status": "PARTIAL", "fix": "overlay-only; need stability_lobe_pick dispatcher action that returns RPM at peak of nearest stable lobe within spindle range"},
+    {"name": "ThermalOverlayEngine", "file": "src/engines/ThermalOverlayEngine.ts (E0456)", "signature": "real-time cutting-temp overlay", "status": "PARTIAL", "fix": "AUDIT finding 513: action mill_thermal_analyze under-uses calcDispatcher thermal_growth/thermal_deflection/thermal_compensate — bridge-wiring needed"},
+    {"name": "MaterialDatabaseBridge", "file": "src/engines/MaterialDatabaseBridgeEngine.ts (E0323)", "signature": "alloy → ISO group + kc1.1 + n", "status": "PARTIAL", "fix": "CANONICAL_MATERIAL_DB has ~11 named alloys covering 6 ISO groups but NOT 5 hardness bands × 2 coolant regimes (60-cell target = 18% coverage)"},
+    {"name": "ToolCatalogEngine / ToolDatabase", "file": "NO E#### match for 'ToolDatabase' or 'ToolCatalogEngine' in digest grep (skill tool-catalog exists)", "signature": "tool selection + geometry + insert lookup", "status": "MISSING", "fix": "BLOCKS ingestion of 'tool selection' input (SFC requirement #6); without canonical engine surface SFC accepts free-text → false precision"},
+    {"name": "SpindleCharacteristicEngine (kW/kNm/torque curve)", "file": "NO E#### match in digest grep; only spindle-optimize skill", "signature": "spindle envelope + power-limit check", "status": "MISSING", "fix": "Required by SFC for machine-aware power-limit gate; ShopConfigurationEngine has 21 machines but spindle curves not surfaced as engine"},
+    {"name": "CoolantStrategyAdapter / CoolantDB", "file": "src/engines/CoolantStrategyAdapter.ts (E0115)", "signature": "coolant strategy bridge", "status": "PARTIAL", "fix": "adapter present, no CoolantSelectionEngine with cost/life/finish Pareto; coolant regime axis (flood/MQL/dry) not enumerated"},
+    {"name": "GilbertEconomicSpeedEngine (proposed round 3)", "file": "DOES NOT EXIST — Round3 U-REV-LATHE-05 missing_actions_specs entry", "signature": "V*_eco / V*_max_prod / V*_max_profit triad", "status": "MISSING", "fix": "build LatheCostOptimizationEngine; generic cost_estimate (calcDispatcher:2370) does NOT cover Gilbert/Taylor economic-cutting-speed math"},
+    {"name": "AdaptiveFeedEngine (wear-aware V(t))", "file": "NO direct E#### match; pattern only in LatheSpeedFeedShopAwareTuning (E0280)", "signature": "V(t) = V₀(T_left/T₀)^n real-time wear-aware feed", "status": "MISSING", "fix": "v7.B combinatoric #5 + #10 require this; not surfaced as canonical engine"},
+    {"name": "CSSWrap risk surface (lathe high-RPM)", "file": "chip-control skill exists; no engine in digest grep", "signature": "CSS high-RPM chip-wrapping risk score", "status": "PARTIAL", "fix": "skill present but dispatcher action lathe_chip_control_validate MISSING per Round3"},
+    {"name": "SurfaceRoughnessPredictorEngine (Ra)", "file": "NO engine in digest grep; no Brammertz/Whitehouse model surfaced", "signature": "Ra = f²/(32·rε) (Brammertz) with toolwear correction", "status": "MISSING", "fix": "Customer-facing SFC without predicted Ra ships with credibility gap vs Sandvik CoroPlus / FSWizard"}
+  ],
+
+  "dispatcher_actions": [
+    {"action": "prism_calc:sfc_calculate", "status": "EXISTS-PATH-NOT-VERIFIED", "stub_evidence": "calcDispatcher:8605 case present (Round3 U-REV-CAD-SFC-01); Round2 F-r2-a1-06 warned UI may bypass via local hook — return-shape not verified"},
+    {"action": "prism_calc:sf_compare", "status": "EXISTS", "stub_evidence": "calcDispatcher:6374 (Round3 U-REV-CAD-SFC-02)"},
+    {"action": "prism_calc:cutting_force_kienzle", "status": "PRESUMED-EXISTS", "stub_evidence": "calcDispatcher hosts turning_force + cutting_* routes per Round3 dispatcher header; explicit kienzle action not enumerated in Round3 inventory — verify discrete surface"},
+    {"action": "prism_calc:tool_life_taylor", "status": "PARTIAL", "stub_evidence": "CANONICAL_TAYLOR constants exist; no explicit named action surfaced in Round3 listing — currently embedded in sfc_calculate, not exposed for plugin consumers"},
+    {"action": "prism_calc:deflection_calculate", "status": "MISSING-AS-DISCRETE", "stub_evidence": "DeflectionOverlayEngine (E0127) is overlay; thermal_deflection exists per finding 513 but pure mechanical δ + ap-derate action not surfaced"},
+    {"action": "prism_calc:thermal_analyze / thermal_growth / thermal_compensate", "status": "EXISTS-FRAGMENTED", "stub_evidence": "Per AUDIT 513: calcDispatcher hosts thermal_growth + thermal_deflection + thermal_compensate; mill_thermal_analyze under-routes them — stub-risk on aggregator"},
+    {"action": "prism_mill:mill_chatter_predict", "status": "STUB", "stub_evidence": "Round3 F-r3-a1-05 + AUDIT #448: MillingForceEngine 15L stub — false-green ship risk; must reroute to ChatterPredictionEngine"},
+    {"action": "prism_mill:mill_scientific_analyze", "status": "STUB", "stub_evidence": "AUDIT #460 MillScientificPipelineEngine 14L stub (Round3 U-REV-MILL-05)"},
+    {"action": "prism_cam:lathe_sf_full", "status": "EXISTS", "stub_evidence": "camDispatcher:3044 (Round3 U-REV-LATHE-01)"},
+    {"action": "prism_cam:lathe_chip_control_validate", "status": "MISSING", "stub_evidence": "Round3 missing_actions_specs entry (CSSWrap risk surface)"},
+    {"action": "prism_calc:lathe_cost_optimize", "status": "MISSING", "stub_evidence": "Round3 missing — Gilbert/Taylor economic-speed triad not exposed"},
+    {"action": "prism_cad:cad_viewer_load_stl", "status": "MISSING", "stub_evidence": "Round3 U-REV-CAD-SFC-03 — CADViewerStreamEngine NEW required for Three.js mesh stream"}
+  ],
+
+  "output_completeness": {
+    "emit_today": ["Vc (cutting speed)", "n (RPM)", "fz (feed/tooth)", "ap (axial DOC)", "ae (radial WOC)", "Q (MRR derived)", "Fc (Kienzle force)", "Tc (Taylor tool life)"],
+    "missing": ["Pc (spindle power) — needs SpindleCharacteristicEngine power-limit check", "δ (deflection) — DeflectionOverlay exists, no discrete deflection_calculate action returning numeric δ + ap-derate", "Ra (predicted surface roughness) — no engine surfaced in digest grep; Ra prediction model missing", "Risk flags (chatter, deflection-over-tol, power-over-cap, coolant-mismatch) — fragmented across STUB mill_chatter_predict + missing deflection action + missing power gate; need RiskAggregatorEngine"]
+  },
+
+  "variability_coverage": {
+    "materials": 11,
+    "hardness_bands": 1,
+    "coolant": 0,
+    "iso_groups_covered": 6,
+    "target_60_cell_grid": "11/60 ≈ 18% — Round2 F-r2-a1-01 flagged this; 6 ISO groups × 5 hardness × 2 coolant = 60 cells; CANONICAL_MATERIAL_DB carries hardness_HRC field on tool-steel rows only (D2/A2/WC) and zero coolant axis",
+    "gap": "MUST expand CANONICAL_MATERIAL_DB to 60 cells OR build MaterialBandResolverEngine that interpolates kc1.1/n across hardness bands + coolant regime modifiers — current coverage CANNOT honor 'shop tier / production' variability axis claim"
+  },
+
+  "cam_plugin_bridges": [
+    {"cam": "Fusion 360", "status": "live add-in panel (in-host runner per roadmap §Tier-1); CAMSpeedFeedBridge E0093 routes S/F but SFC→Fusion write-back path needs E2E verification"},
+    {"cam": "hyperMILL", "status": "production (63 engines, Project Manager runtime); SpeedFeedOrchestrator referenced by hypermill-speeds-feeds skill — most-complete bridge"},
+    {"cam": "Mastercam", "status": "C-Hook generator only — NO live link per roadmap; SFC results cannot push into active Mastercam session"},
+    {"cam": "Esprit", "status": "bridge exists per roadmap, UI shell pending"},
+    {"cam": "Inventor HSM", "status": "bridge exists per roadmap, UI shell pending"},
+    {"cam": "SolidWorks", "status": "bridge exists per roadmap, UI shell pending"}
+  ],
+
+  "gap_engines_to_build": [
+    {"name": "SpindleCharacteristicEngine", "priority": "P0", "why": "Pc (power) output is mandatory for buy-this-tomorrow SFC; without machine kW/kNm/torque-curve gate, recommendations can over-power any of 21 ShopConfig machines and silently saturate the spindle. Blocks 'machine selection' ingestion (SFC requirement #6) and Pc in output completeness."},
+    {"name": "ToolCatalogEngine (unified Tool DB)", "priority": "P0", "why": "SFC requirement #6 = ingest tool selection; tool-catalog skill exists but no canonical engine backs tool→geometry→insert lookup. Without it SFC accepts free-text tool → physics math on assumed values → false-precision risk."},
+    {"name": "DeflectionCalculateEngine (discrete dispatcher surface)", "priority": "P0", "why": "DeflectionOverlay (E0127) is overlay form factor only. SFC needs prism_calc:deflection_calculate returning numeric δ AND solving ap-derate against tolerance. Currently missing → ships without 'don't bend the tool past spec' guard."},
+    {"name": "StabilityLobePickEngine", "priority": "P1", "why": "SLDOverlay (E0433) renders the lobe map but does not return 'RPM at peak of nearest stable lobe within spindle range'. Mill cohort STUB on mill_chatter_predict (AUDIT #448) means SFC chatter advisory ships broken without this."},
+    {"name": "GilbertEconomicSpeedEngine / LatheCostOptimizationEngine", "priority": "P1", "why": "Round3 MISSING per U-REV-LATHE-05; Gilbert/Taylor V*_eco / V*_max_prod / V*_max_profit triad is the marquee differentiator in viral cost-per-part calculator (U-INV-LATHE-05). Direct revenue lift."},
+    {"name": "MaterialBandResolverEngine (60-cell expansion)", "priority": "P1", "why": "Variability coverage 11/60 = 18%; current MaterialDB cannot honor hardness × coolant axes; interpolator/lookup engine closes 60-cell gap without bloating constants.ts."},
+    {"name": "SurfaceRoughnessPredictorEngine (Ra)", "priority": "P1", "why": "Ra emission gap — Brammertz/Whitehouse models not surfaced. Customer-facing SFC without predicted Ra ships with credibility gap vs Sandvik CoroPlus / FSWizard / G-Wizard."},
+    {"name": "AdaptiveFeedEngine (wear-aware V(t))", "priority": "P2", "why": "v7.B combinatoric #5 + #10 require V(t) = V₀(T_left/T₀)^n; CAM plugin form factor (SFC sends to Fusion/Mastercam) needs feed-modulation API."},
+    {"name": "RiskAggregatorEngine", "priority": "P2", "why": "Risk flags listed as 'missing' in output completeness; aggregator combines chatter+deflection+power+coolant gates into single buy-this-tomorrow verdict."},
+    {"name": "CoolantSelectionEngine (Pareto)", "priority": "P2", "why": "CoolantStrategyAdapter (E0115) exists but no selection logic; coolant regime axis in variability matrix needs explicit Pareto over (cost, life, finish)."}
+  ],
+
+  "summary": {
+    "ship_ready_pct": 35,
+    "ship_ready_breakdown": {
+      "ship_ready_engines": "5/15 ≈ 33% (Kienzle constants, Taylor constants, LatheSpeedFeed×3, CAMSpeedFeedBridge)",
+      "partial_engines": "6/15 ≈ 40% (SpeedFeedOrchestrator, DeflectionOverlay, SLDOverlay, ThermalOverlay, MaterialDB, CoolantAdapter)",
+      "missing_engines": "5/15 ≈ 33% (ToolDB, Spindle, Gilbert, AdaptiveFeed, Ra-predictor)",
+      "dispatcher_actions": "8/12 verified or partial; 4/12 stub-or-missing (mill_chatter_predict STUB, mill_scientific_analyze STUB, deflection_calculate MISSING, viewer_load_stl MISSING, lathe_chip_control_validate MISSING, lathe_cost_optimize MISSING)",
+      "variability_coverage": "18% (11/60 cells)",
+      "weighted_overall": "≈35% (math constants ship-ready, but Pc/δ/Ra emissions + 4 P0/P1 engines + 18% variability block 'buy-this-tomorrow' verdict)"
+    },
+    "days_to_ship": 14,
+    "days_to_ship_breakdown": {
+      "P0_engines_3_at_1_5_days": "3 engines × 1.5 days = 4.5 days (Spindle + ToolDB + Deflection)",
+      "stub_reroutes_mill_chatter_scientific": "1 day",
+      "P1_engines_5_at_1_5_days": "5 engines × 1.5 days = 7.5 days (Gilbert + MaterialBand + Ra + Stability + AdaptiveFeed)",
+      "integration_E2E_test_60cell_variability": "1.5 days",
+      "total": "~14 days for paid-launch readiness; ~7 days if scope cut to mill-only (defer Gilbert/Lathe-cost to MS2 invention layer)"
+    },
+    "verdict": "FAIL-FOR-PAID-LAUNCH (35% ship-ready) — math foundation (Kienzle/Taylor constants) is canonical and ship-ready, but 5 missing engines (Spindle/ToolDB/Deflection-discrete/Gilbert/Ra) + 2 mill STUBs + 18% variability coverage block a credible paid SFC. Spec assumption that MS0 SFC is 'wire existing engines to UI' (Round3 F-r3-a1-06) is FALSE — 5 net-new P0/P1 engines required.",
+    "one_line": "SFC backend 35% ship-ready: Kienzle+Taylor canonical, missing Spindle/ToolDB/Deflection/Gilbert/Ra engines + 4 stub-routed mill actions + 11/60 material-cell coverage block paid launch — 14 days to buy-this-tomorrow.",
+    "top_3_gap_engines_to_build": [
+      "SpindleCharacteristicEngine (P0) — Pc output + machine-aware power-limit; unblocks 21 ShopConfig machines",
+      "ToolCatalogEngine (P0) — unified Tool DB; unblocks 'tool selection' ingestion (SFC requirement #6)",
+      "DeflectionCalculateEngine (P0) — discrete dispatcher action returning δ + ap-derate; converts E0127 overlay into usable calculator output"
+    ]
+  }
+}

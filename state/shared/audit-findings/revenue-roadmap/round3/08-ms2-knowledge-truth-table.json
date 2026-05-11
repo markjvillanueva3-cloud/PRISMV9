@@ -1,0 +1,112 @@
+{
+  "round": 3,
+  "agent_n": 8,
+  "scope": "MS2 knowledge truth-table",
+  "agent_role": "researcher-forensic",
+  "round2_referenced": ["F-K01", "F-K02", "F-K04", "F-K06", "F-K07", "F-K09"],
+  "verification_method": "direct-file-read + node-count + glob-engine-presence",
+  "evidence_snapshot": {
+    "wiki_index_md_entries": 772,
+    "wiki_bootstrap_header_claim": 770,
+    "wiki_spec_claim": 722,
+    "memories_md_files": 84,
+    "tribal_tip_index_tipCount": 243,
+    "tribal_tip_index_domains": 15,
+    "cam_tribal_rag_tips": 3629,
+    "jm_die_post_tribal": 9,
+    "round1_field_grounded_tips_claim": 80,
+    "engines_in_digest_E_rows": 575,
+    "cadquery_kernel_present": true,
+    "qdrant_engines_present": ["QdrantMemoryEngine", "QdrantVectorStoreEngine", "QdrantCapacityPlannerEngine", "QdrantMemoryEngineSingleton"],
+    "qdrant_slo_documented": false,
+    "video_engines_present": ["VideoLearningEngine", "VideoActionExtractorEngine", "VideoELearningAIEngine", "VideoKnowledgeIntegrationEngine", "VideoReplayOrchestratorEngine", "VideoReplayPipelineEngine", "PostProcessorVideoKnowledgeNeuralEngine"],
+    "pdf_engines_present": ["PDFBlueprintDimensionExtractorEngine", "PDFFormulaExtractionEngine", "PDFHandbookBatchProcessorEngine", "PDFMaterialPropertyExtractionEngine", "PDFProcessingPipelineEngine", "PDFSourceRegistryEngine", "PDFTableExtractionEngine"],
+    "youtube_transcript_engine_present": false,
+    "doctrine_engine_present": false,
+    "text_to_cad_engine_present": "TextToCADGenerationEngine (E0455) — generates CadQuery Python, real kernel",
+    "fusion_generative_design_api_public": false,
+    "fusion360_code_generator_engine_present": "Fusion360CodeGeneratorEngine (E0158) — code-gen only, NOT gen-design",
+    "paywall_billing_infra_present": false,
+    "ce_credit_accreditation_partner_signed": false
+  },
+  "claim_audit": [
+    {
+      "unit": "U-INV-KNOW-01",
+      "claim": "4,245 tribal tips available for monetization",
+      "verified": "243 in canonical TRIBAL_TIP_INDEX.json (15 domains); 3,629 in CAM_TRIBAL_RAG_INDEX (machine-derived/embed); 9 in JM_DIE_POST; round-1 field-grounded ≈80",
+      "defensible": "243 canonical tips + 3,629 RAG-indexed entries (mostly mechanical/synthetic). Field-grounded ≈80.",
+      "action": "CORRECT"
+    },
+    {
+      "unit": "U-INV-KNOW-01",
+      "claim": "Wiki has 722 entries",
+      "verified": "772 entries in index.md (770 from latest bootstrap header)",
+      "defensible": "770 entries (575 engines + 96 dispatchers + 99 memories) per 2026-05-08 bootstrap",
+      "action": "CORRECT"
+    },
+    {
+      "unit": "U-INV-KNOW-02",
+      "claim": "Qdrant memory is production-tier for SaaS retrieval",
+      "verified": "4 Qdrant engines exist; ZERO SLO doc, ZERO production-tier promotion, single-node local deploy assumed",
+      "defensible": "Qdrant is dev-grade; needs SLO (p99 < 200ms), backups, HA cluster, auth, multi-tenant isolation before paying customers",
+      "action": "DOWNSCOPE"
+    },
+    {
+      "unit": "U-INV-KNOW-03",
+      "claim": "video-learn ingests YouTube transcripts via youtube-transcript engine",
+      "verified": "video-learn skill exists; 7 Video* engines exist; NO YouTubeTranscriptEngine — skill calls external CLI/API",
+      "defensible": "Video learning skill exists; YouTube transcript fetch is an external CLI shim (youtube-dl/yt-dlp), not a PRISM engine — fragile against ToS/API changes",
+      "action": "CORRECT"
+    },
+    {
+      "unit": "U-INV-KNOW-04",
+      "claim": "DoctrineEngine arbitrates which knowledge wins in conflicts",
+      "verified": "NO DoctrineEngine in src/engines/; vapor in digest",
+      "defensible": "Build conflict-resolution as ConflictResolutionEngine using existing KnowledgeUnification* engines (Lathe-AGI has KnowledgeUnificationEngine pattern). 4–6 wk build.",
+      "action": "DROP"
+    },
+    {
+      "unit": "U-INV-CAD-01",
+      "claim": "CADFromText (E0455) generates production-quality CAD via OpenCascade/JSCAD kernel",
+      "verified": "TextToCADGenerationEngine (E0455) exists; kernel is CadQuery (Python, real OCCT bindings), not OpenCascade-native or JSCAD",
+      "defensible": "TextToCAD outputs CadQuery Python (which wraps OCCT). Validate via Python sidecar — requires Python runtime, not pure-Node. Frame as 'CadQuery-backed' not 'multi-kernel'.",
+      "action": "CORRECT"
+    },
+    {
+      "unit": "U-INV-CAD-02",
+      "claim": "Fusion 360 Generative Design API integration unlocks parametric explore",
+      "verified": "Fusion 360 GenDesign has NO public API (Autodesk private/UI-only); Fusion360CodeGeneratorEngine generates Fusion code (not gen-design)",
+      "defensible": "Replace with topology-optimization sidecar (TopOpt/ToPy/OpenLSTO open-source) OR commercial nTopology API. Drop Fusion-gen-design entirely.",
+      "action": "DROP"
+    },
+    {
+      "unit": "U-INV-CAD-03",
+      "claim": "pdf-learn extracts blueprint dimensions and tolerances at scale",
+      "verified": "pdf-learn skill exists; 7 PDF* engines including PDFBlueprintDimensionExtractor and PDFTableExtraction. Real pipeline.",
+      "defensible": "pdf-learn is genuine — PDFBlueprintDimensionExtractor + PDFTableExtraction + PDFProcessingPipeline are wired and present. Validate accuracy bench before SLA.",
+      "action": "CORRECT"
+    },
+    {
+      "unit": "U-INV-KNOW-05",
+      "claim": "Paywall enables tiered SaaS revenue ($49/$199/$999)",
+      "verified": "ZERO billing infrastructure — no Stripe wire, no entitlements engine, no auth-tier gate, no metering",
+      "defensible": "Build BillingEngine + EntitlementsEngine + StripeBridgeEngine + RateLimitEngine first (8–12 wk). Or use Lemon Squeezy / Paddle MoR to skip tax compliance.",
+      "action": "DOWNSCOPE"
+    },
+    {
+      "unit": "U-INV-KNOW-06",
+      "claim": "CE credits for continuing education monetize training content",
+      "verified": "ZERO accreditation partnership (NIMS, SME, ABET, IACET, AWS); CE credits without accredited issuer = FTC deception risk",
+      "defensible": "Ship 'Certificate of Completion' (legally clear, no accreditor needed). Pursue NIMS/SME co-branding (12–24 mo lead time) for true CE credits in v2.",
+      "action": "DOWNSCOPE"
+    }
+  ],
+  "summary": {
+    "claims_audited": 10,
+    "corrections": 5,
+    "downscopes": 3,
+    "drops": 2,
+    "verdict": "MS2 Knowledge+CAD has 10 overstated/vapor claims across 7 units. 5 need numeric correction (tribal/wiki counts, CadQuery framing); 3 require downscope (Qdrant SLO, paywall infra, CE credits→completion certs); 2 must be dropped (DoctrineEngine vapor, Fusion gen-design has no API). PDF pipeline and TextToCAD kernel are genuine — preserve those.",
+    "one_line": "10 overstated claims; top fixes: tribal 4245→243 canonical+3629 RAG, drop Fusion-GenDesign+DoctrineEngine, CE credits→Certificate-of-Completion."
+  }
+}

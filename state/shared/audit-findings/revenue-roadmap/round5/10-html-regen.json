@@ -1,0 +1,143 @@
+{
+  "agent": 10,
+  "angle": "html-companion-regen",
+  "round": 5,
+  "timestamp": "2026-05-10T22:30:00Z",
+  "scope": "scripts/emit-revenue-roadmap-html.mjs + state/shared/specs/REVENUE-ROADMAP-2026-05-10.html vs v7.1 source",
+  "verdict": "STALE_SOURCE — emitter runs cleanly and produces valid 20.5KB HTML, but reads ONLY the legacy 2026-05-10.md (169 table lines, 6 v7.B/C markers). The v7.1.md (189KB, 493 table lines, 20 v7.B/C markers) is invisible to the companion. SVG/table/UL renders are intact but reflect the pre-revision spec.",
+  "metrics": {
+    "html_size_bytes": 20535,
+    "html_size_target_kb": 20,
+    "svg_count": 2,
+    "svg_expected": 2,
+    "table_count": 2,
+    "table_expected": 2,
+    "tr_count": 57,
+    "ul_count": 1,
+    "ul_expected": 1,
+    "spec_md_size_bytes": 40359,
+    "spec_v7_1_size_bytes": 189860,
+    "spec_md_pipe_rows": 169,
+    "spec_v7_1_pipe_rows": 493,
+    "v7_section_markers_md": 6,
+    "v7_section_markers_v7_1": 20,
+    "emitter_exit_status": 0
+  },
+  "findings": [
+    {
+      "id": "R5A10-001",
+      "severity": "high",
+      "category": "drift",
+      "title": "SPEC_PATH hardcoded to legacy 2026-05-10.md",
+      "evidence": "Line 36: const SPEC_PATH = 'state/shared/specs/REVENUE-ROADMAP-2026-05-10.md'. v7.1 sits in REVENUE-ROADMAP-v7.1.md at 189KB / 493 rows / 20 v7-markers and is not read.",
+      "impact": "Companion HTML claims 'v7' but renders pre-round-4 content; v7.B v2 (23 new engines, Gilbert/JC-Merchant fixes) and v7.C v2 (orchestration grounding) never reach the visualization."
+    },
+    {
+      "id": "R5A10-002",
+      "severity": "high",
+      "category": "extraction-logic",
+      "title": "extractV7BRows uses single 'v7.B'..'v7.C' literal slice",
+      "evidence": "Line 49-65: extracts between first 'v7.B' and first 'v7.C'. v7.1 has 'v7.B v2' header at line 1064 and 'v7.C v2' header at line 1201 — the regex would still slice but would miss the original v7.B section entirely and conflate v2-revised rows.",
+      "impact": "Combinatorics table count would silently drop or duplicate; mission asks for 50 rows but current emit shows 53 tr (header + ~52 data rows from old spec)."
+    },
+    {
+      "id": "R5A10-003",
+      "severity": "medium",
+      "category": "ms-bucket-counts",
+      "title": "MS_BUCKETS regex misses round-4 IDs",
+      "evidence": "Line 69-75 patterns: U-REV/U-SUB/U-INV/U-WIRE/U-DRIFT. v7.1 round-4 collapses MS2 42→24 and absorbs U-INV-MILL-06 etc; legacy spec still surfaces 42. SVG node labels hardcoded ('40 units', '18 units', '42 units', '6 units', '4 units') ignore both regex output AND v7.1 reality.",
+      "impact": "Dep-graph labels lie; viewers see stale unit counts."
+    },
+    {
+      "id": "R5A10-004",
+      "severity": "low",
+      "category": "compliance-checklist",
+      "title": "v7 compliance UL only renders if readiness JSON present",
+      "evidence": "Line 226: Object.entries(readiness?.v7_compliance ?? {}). REVENUE-READINESS.json is absent (try/catch silent) so the checklist UL is empty (<ul></ul>) — explains ul=1 with zero li.",
+      "impact": "Compliance block invisible until revenue-readiness-score.mjs runs against v7.1."
+    },
+    {
+      "id": "R5A10-005",
+      "severity": "low",
+      "category": "tier-pie",
+      "title": "Tier pie chart empty without readiness JSON",
+      "evidence": "renderTierPie() returns '(no tier data yet)' when readiness null; only 1 of 2 SVGs is the dep graph — the second SVG is from the COPY button styling? Actually both SVGs render (dep graph + pie placeholder). Pie shows empty <p> not SVG when readiness missing.",
+      "impact": "Mission's 'tier pie chart' requirement fails closed; need readiness regen."
+    },
+    {
+      "id": "R5A10-006",
+      "severity": "medium",
+      "category": "title-mismatch",
+      "title": "HTML title says 'v7' but content is pre-v7.1",
+      "evidence": "Line 163: <title>PRISM Revenue Roadmap — 2026-05-10 (v7)</title>; should say v7.1 once switched. Footer link points to .md not v7.1.md.",
+      "impact": "Misleading provenance signal to downstream readers."
+    }
+  ],
+  "render_verification": {
+    "svg_dep_graph": "PRESENT (5 nodes MS0..MS4, 6 edges, viewBox 780x220, dark theme)",
+    "combo_table_rows": "53 tr elements (1 header + 52 data); mission expected 50 — within tolerance of legacy v7.B which had ~50",
+    "tier_pie_chart": "PLACEHOLDER ONLY ('(no tier data yet)') — readiness JSON missing",
+    "v7_compliance_checklist": "EMPTY <ul></ul> — readiness.v7_compliance object missing",
+    "readiness_banner": "FALLBACK paragraph ('run revenue-readiness-score.mjs first')",
+    "verification_channel_template": "PRESENT (pre block with 6 rtk/node/playwright commands)",
+    "milestone_unit_count_table": "PRESENT (5 rows, regex-derived counts from legacy md)"
+  },
+  "recommendations": [
+    {
+      "id": "R5A10-REC-001",
+      "priority": "P0",
+      "change": "Make SPEC_PATH configurable via CLI flag with v7.1 default",
+      "diff": "const argv = process.argv.slice(2); const specArg = argv.find(a=>a.startsWith('--spec=')); const SPEC_PATH = specArg ? specArg.slice(7) : 'state/shared/specs/REVENUE-ROADMAP-v7.1.md';",
+      "rationale": "v7.1 becomes default; legacy still callable via --spec=…2026-05-10.md for diff audits."
+    },
+    {
+      "id": "R5A10-REC-002",
+      "priority": "P0",
+      "change": "Rewrite extractV7BRows to handle 'v7.B v2' header AND multi-section v7.B",
+      "diff": "Match /^#+\\s+v7\\.B( v\\d+)?/m for start, /^#+\\s+v7\\.C( v\\d+)?/m for end; if both v1 and v2 sections exist, prefer v2 and tag rows with source-version.",
+      "rationale": "v7.1 has both original v7.B (carried) and revised v7.B v2 — current code silently merges or skips."
+    },
+    {
+      "id": "R5A10-REC-003",
+      "priority": "P1",
+      "change": "Derive SVG node labels from MS_BUCKETS counts (not hardcoded)",
+      "diff": "label: `MS0\\nUI unstub\\n${MS_BUCKETS['MS0 — UI unstub']} units`",
+      "rationale": "Eliminates drift between regex output and graph labels."
+    },
+    {
+      "id": "R5A10-REC-004",
+      "priority": "P1",
+      "change": "Update <title> to v7.1 and footer link to REVENUE-ROADMAP-v7.1.md",
+      "diff": "<title>PRISM Revenue Roadmap — v7.1 (2026-05-10)</title> + footer href.",
+      "rationale": "Provenance accuracy."
+    },
+    {
+      "id": "R5A10-REC-005",
+      "priority": "P1",
+      "change": "Regen REVENUE-READINESS.json against v7.1 before HTML regen",
+      "diff": "node scripts/revenue-readiness-score.mjs --spec=v7.1 && node scripts/emit-revenue-roadmap-html.mjs --spec=v7.1",
+      "rationale": "Unlocks tier-pie, readiness banner, v7-compliance UL — all currently empty."
+    },
+    {
+      "id": "R5A10-REC-006",
+      "priority": "P2",
+      "change": "Add v7.C tier-grounding table render (engines × dispatchers × v7.B-row × Z3-pattern)",
+      "diff": "New renderV7CGroundingTable() parsing lines 1284-1286 etc. from v7.1.",
+      "rationale": "v7.1's signature contribution (orchestration grounding) has no companion visualization."
+    },
+    {
+      "id": "R5A10-REC-007",
+      "priority": "P2",
+      "change": "Persist run metadata (spec source, byte sizes, row counts) into <meta> tags",
+      "diff": "<meta name='prism-spec-source' content='REVENUE-ROADMAP-v7.1.md'/> + sizes.",
+      "rationale": "Makes 'which spec did this HTML come from' answerable without scraping body."
+    }
+  ],
+  "evidence_paths": [
+    "H:/prism/scripts/emit-revenue-roadmap-html.mjs",
+    "H:/prism/state/shared/specs/REVENUE-ROADMAP-2026-05-10.html",
+    "H:/prism/state/shared/specs/REVENUE-ROADMAP-2026-05-10.md",
+    "H:/prism/state/shared/specs/REVENUE-ROADMAP-v7.1.md"
+  ],
+  "summary": "Emitter is functionally healthy (clean exit, ~20.5KB output matches target, SVG dep graph + combo table render correctly) but is pointed at a stale source. Switching SPEC_PATH default to v7.1.md + parameterizing via --spec= flag is the single highest-leverage fix. Secondary fixes (dynamic node labels, v7.B v2 section regex, v7.C grounding table render, readiness JSON regen) compound to make the HTML companion faithful to v7.1."
+}

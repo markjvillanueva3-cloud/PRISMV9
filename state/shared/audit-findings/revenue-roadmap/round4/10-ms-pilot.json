@@ -1,0 +1,156 @@
+{
+  "milestone_id": "REVENUE-MS-PILOT",
+  "milestone_name": "Live-Machine Pilot (SFC + Master Post Parallel Tracks)",
+  "round": 4,
+  "agent_n": 10,
+  "agent_role": "spec-revision-pilot",
+  "source_inputs": {
+    "round3_5_06": "state/shared/audit-findings/revenue-roadmap/round3-5/06-sfc-mp-live-pilot.json",
+    "jm_die_profile": "mcp-server/src/data/jm-die-profile.ts"
+  },
+  "scope": "Progressive-trust live-machine validation of SFC and Master Post on JM Die's 21-machine fleet, sequenced lowest-risk to flagship",
+  "parallel_tracks": ["SFC", "MasterPost"],
+  "phases": 7,
+  "calendar": {
+    "sfc_nominal_weeks": 23,
+    "sfc_realistic_weeks_with_25pct_buffer": 29,
+    "masterpost_nominal_weeks": 19,
+    "masterpost_realistic_weeks_with_25pct_buffer": 24,
+    "critical_path": "SFC",
+    "critical_path_reason": "Force-calibration requires real cutting data not available before P3"
+  },
+  "first_target_machine": {
+    "machine_id": "Haas-TM-1P-2008",
+    "rationale": "Toolroom mill, $35K, low utilization, MTConnect-equipped, oddball-jobs duty cycle, lowest collateral on first-touch defect"
+  },
+  "machine_sequencing": {
+    "P2_P3_lowest_risk": [
+      "Haas-TM-1P-2008 ($35K toolroom, MTConnect)",
+      "Bridgeport-Knee-Mill-1985 ($8K manual, DNC pass-through)",
+      "Mori-Seiki-SL-3-1998 ($25K legacy lathe)"
+    ],
+    "P4_P5_mid_tier_production": [
+      "Haas-VF-2-2015 ($65K 3-axis VMC, ~40% util)",
+      "Mazak-Quick-Turn-200-2012 ($85K bar lathe)",
+      "Doosan-DNM-4500-2018 ($95K VMC)"
+    ],
+    "P6_P7_flagship": [
+      "Mazak-Integrex-i200-2021 ($450K mill-turn, ITW/Alcoa critical-path)",
+      "DMG-Mori-NTX-2000-2020 ($550K, Holo-Krome high-tolerance)",
+      "Makino-PS95-2019 ($280K high-speed VMC, SFS aerospace)"
+    ]
+  },
+  "sfc_phases": [
+    {"phase": 1, "name": "bench-sim", "weeks": 2, "machines": [], "acceptance": "100% ForceBudgetGate (Fc<0.7*spindle_torque) + Vericut diff; >=95% catalog match +/-15%", "failure_rollback": "Block ship; /forge-perf kc1.1 recalibration; add to PENDING_GAP_ENGINES.json"},
+    {"phase": 2, "name": "cut-air", "weeks": 1, "machines": ["Haas-TM-1P-2008", "Mori-Seiki-SL-3-1998"], "acceptance": "Motion within 0.001in; zero alarms; spindle <5%; operator R/Y/G=green", "failure_rollback": "Halt; diff NC; SFC vs MP isolation; per-controller block"},
+    {"phase": 3, "name": "soft-stock", "weeks": 2, "machines": ["Haas-TM-1P-2008", "Bridgeport-1985"], "acceptance": "Force +/-20% prediction; Ra within 1.5x; zero breakage 10 parts/material", "failure_rollback": "Lock material 'shadow-only'; /lathe-learn or /mill-learn calibration; block P4 graduation"},
+    {"phase": 4, "name": "production-shadow", "weeks": 4, "machines": ["Haas-VF-2-2015", "Mazak-QT-200-2012"], "acceptance": ">=100 ops; delta <25% RPM <30% feed; shadow read-only", "failure_rollback": "Tighten model with shop delta; /shop-knowledge ingestion; no machine impact"},
+    {"phase": 5, "name": "A-B", "weeks": 6, "machines": ["Haas-VF-2-2015", "Doosan-DNM-4500-2018", "Mazak-QT-200-2012"], "acceptance": "Tool life >=95% status-quo; cycle <=105%; Cpk >= status-quo; zero PRISM scrap", "failure_rollback": "Revert tool/material; quarantine 'A-B-failed'; re-train cohort"},
+    {"phase": 6, "name": "primary", "weeks": 8, "machines": ["Mazak-Integrex-i200-2021", "DMG-Mori-NTX-2000-2020", "Makino-PS95-2019"], "acceptance": "PRISM default >=80% new jobs; override <15%; tool life +>=5% vs P5; zero collision events", "failure_rollback": "Per-material drop to P4 shadow; red-button single-press fallback"},
+    {"phase": 7, "name": "telemetry-loop", "weeks": 0, "machines": ["all 21"], "acceptance": "MTConnect/Mazatrol -> /forge-learn weekly recalibration; drift detector >10%", "failure_rollback": "Versioned model rollback model_v_N-1; manual freeze; weekly human-in-loop PR review"}
+  ],
+  "masterpost_phases": [
+    {"phase": 1, "name": "bench-sim", "weeks": 3, "controllers": ["Haas NGC", "Fanuc 31i", "Mazatrol Smooth G", "OSP-P300"], "acceptance": "100% byte-equivalence vs JM Die golden NC archive (comments-only delta allowed)", "failure_rollback": "Per-controller block; fix MasterPostEngine + regression test"},
+    {"phase": 2, "name": "cut-air", "weeks": 1, "machines": ["Haas-TM-1P-2008", "Mori-Seiki-SL-3-1998"], "controllers": ["Haas NGC", "Fanuc 31i"], "acceptance": "Zero alarms; modal display matches expected; tool-change correct", "failure_rollback": "Halt; diff vs archived program; patch post + re-bench"},
+    {"phase": 3, "name": "soft-stock", "weeks": 2, "machines": ["Haas-TM-1P-2008", "Bridgeport-1985"], "controllers": ["Haas NGC", "Anilam retrofit"], "acceptance": "Cut motion identical to operator-written; no unexpected dwells; spindle ramps correctly"},
+    {"phase": 4, "name": "production-shadow", "weeks": 3, "machines": ["Haas-VF-2-2015", "Mazak-QT-200-2012", "Doosan-DNM-4500-2018"], "controllers": ["Haas NGC", "Mazatrol Smooth G", "Fanuc 31i"], "acceptance": "PRISM-post vs operator-post semantically equivalent (motion identical, stylistic-only delta)", "failure_rollback": "Per-controller style-template adjustment; no machine impact"},
+    {"phase": 5, "name": "A-B", "weeks": 4, "machines": ["Haas-VF-2-2015", "Mazak-QT-200-2012", "Doosan-DNM-4500-2018"], "acceptance": "Cycle-time delta <2%; zero alarms attributable to PRISM-post; readability >=4/5"},
+    {"phase": 6, "name": "primary", "weeks": 6, "machines": ["Mazak-Integrex-i200-2021", "DMG-Mori-NTX-2000-2020"], "controllers": ["Mazatrol Matrix-2", "Siemens 840D sl"], "acceptance": "PRISM-post default; zero collision events; multi-axis kinematic verified against Mazak SmoothAi simulator pre-cut (every program)"},
+    {"phase": 7, "name": "telemetry-loop", "weeks": 0, "machines": ["all 21"], "acceptance": "Post-edit operator-touched-lines trends to zero; style template auto-tunes per controller"}
+  ],
+  "top_risk": {
+    "id": "RISK-PILOT-01",
+    "description": "Flagship multi-axis kinematic miscompile at P6 on Mazak-Integrex-i200-2021 ($450K)",
+    "severity": "critical",
+    "consequence": "Turret-into-billet collision at rapid; single-event terminates pilot credibility",
+    "mitigations": [
+      "Mandatory Mazak SmoothAi sim pre-cut (every flagship program)",
+      "Operator red-button physical single-press fallback to status-quo post",
+      "Collision-check hook hard-gate via forge-safety chain (zero-exception block)",
+      "Holo-Krome / SFS aerospace families enter P6 only after dedicated P5 A-B on those parts"
+    ]
+  },
+  "critical_instrumentation": [
+    {"component": "SFCRecommendationLogger", "format": "JSONL", "phase_intro": 1, "purpose": "Every SFC emit logged with machine/tool/material/RPM/feed/DOC/predicted-Fc"},
+    {"component": "VericutDiffEngine", "phase_intro": 1, "purpose": "PRISM-emit vs Vericut sim delta (force, motion, cycle)"},
+    {"component": "ForceBudgetGate", "phase_intro": 1, "purpose": "Hard block Fc>0.7*spindle_torque"},
+    {"component": "MasterPostByteEquivalenceCI", "phase_intro": 1, "purpose": "Byte-diff vs JM Die golden NC archive across 6 controllers"},
+    {"component": "MTConnect spindle-load streamer", "phase_intro": 2, "machines": ["all P2+ machines, Haas-TM-1P, Mazak-QT-200, Haas-VF-2, Doosan, Mazak-Integrex"], "purpose": "Real-time spindle + axis load capture"},
+    {"component": "OperatorFeedbackButton (R/Y/G)", "phase_intro": 2, "purpose": "3-state nominal/warn/abort per program"},
+    {"component": "DualLogEngine", "phase_intro": 4, "purpose": "PRISM-emit + operator-actual side-by-side"},
+    {"component": "OperatorOverrideReasoningCapture", "phase_intro": 4, "purpose": "Free-text + tagged-code drop-down for override reasons"},
+    {"component": "BatchOutcomeTracker", "phase_intro": 5, "purpose": "Tool life, cycle time, Cpk per A-B cohort"},
+    {"component": "ToolLifeRegressionDetector", "phase_intro": 5, "purpose": "Auto-quarantine tool/material combo within 10 parts"},
+    {"component": "CycleTimeABDelta", "phase_intro": 5, "purpose": "Cycle-time stream comparison per A-B"},
+    {"component": "CpkABStreamer", "phase_intro": 5, "purpose": "Real-time Cpk monitoring per cohort"},
+    {"component": "DriftDetector", "phase_intro": 7, "purpose": ">10% prediction-error flagging -> versioned rollback"},
+    {"component": "ModelVersionRollbackEngine", "phase_intro": 7, "purpose": "One-button revert to model_v_N-1"},
+    {"component": "CalibrationAuditLogger", "phase_intro": 7, "purpose": "Every recalibration auditable (who/when/what/why)"}
+  ],
+  "operator_artifacts": [
+    "JM-Die-SFC-Operator-Runbook.pdf (P2+, 1-page laminated, per machine)",
+    "PRISM-Override-Reasons-Cheatsheet.md (drop-down codes for P4 shadow-mode capture)",
+    "Phase-3 wax-cut training video (10 min, machine-by-machine)",
+    "Phase-4 dual-log dashboard tutorial (operator-facing UI, /shop-floor-query integration)",
+    "Phase-5 A-B job-card insert (visual: which jobs are PRISM vs status-quo)",
+    "Phase-6 escalation tree (operator -> shop-lead -> programmer -> PRISM-engineer -> red-button, <5min each)",
+    "Master-Post per-controller code-style reference cards (Haas NGC, Fanuc 31i, Mazatrol Smooth G, OSP-P300, Siemens 840D sl, Anilam)",
+    "Red-button physical single-press fallback (installed on P6 flagship machines pre-entry)"
+  ],
+  "units": [
+    {"id": "U-PILOT-01", "title": "SFCRecommendationLogger + VericutDiffEngine + ForceBudgetGate (P1 SFC ship gate)"},
+    {"id": "U-PILOT-02", "title": "MasterPostByteEquivalenceCI + JM Die golden NC archive snapshot across 6 controllers (P1 MP ship gate)"},
+    {"id": "U-PILOT-03", "title": "MTConnect spindle-load streamer + adapter for P2+ machines"},
+    {"id": "U-PILOT-04", "title": "OperatorFeedbackButton (R/Y/G) UI + persistence"},
+    {"id": "U-PILOT-05", "title": "Phase-2 cut-air protocol + acceptance harness on Haas-TM-1P + Mori-SL-3"},
+    {"id": "U-PILOT-06", "title": "Phase-3 soft-stock harness: wax/Delrin/6061 acceptance + force-prediction calibration loop"},
+    {"id": "U-PILOT-07", "title": "DualLogEngine + DeltaAnalyzer + OperatorOverrideReasoningCapture (P4)"},
+    {"id": "U-PILOT-08", "title": "Phase-4 production-shadow rollout on Haas-VF-2 + Mazak-QT-200 + Doosan-DNM-4500"},
+    {"id": "U-PILOT-09", "title": "BatchOutcomeTracker + ToolLifeRegressionDetector + CpkABStreamer + CycleTimeABDelta (P5)"},
+    {"id": "U-PILOT-10", "title": "Phase-5 A-B execution + acceptance scoring"},
+    {"id": "U-PILOT-11", "title": "Flagship pre-flight: Mazak SmoothAi sim gate + cam-toolpath-check hard-block + red-button physical install (P6 entry)"},
+    {"id": "U-PILOT-12", "title": "Phase-6 primary rollout on Mazak-Integrex + DMG-Mori-NTX + Makino-PS95"},
+    {"id": "U-PILOT-13", "title": "DriftDetector + ModelVersionRollbackEngine + CalibrationAuditLogger (P7)"},
+    {"id": "U-PILOT-14", "title": "/forge-learn weekly recalibration cron + auto-PR for kc1.1 / Taylor constants"},
+    {"id": "U-PILOT-15", "title": "Operator training package: 8 artifacts (runbook, cheatsheet, video, tutorial, job-card, escalation tree, controller cards, red-button install guide)"}
+  ],
+  "risk_register": [
+    {"id": "RISK-PILOT-01", "description": "Flagship Mazak-Integrex P6 multi-axis kinematic miscompile -> collision", "severity": "critical", "mitigation": "Mandatory SmoothAi sim pre-cut + red-button + collision-check hook hard-gate + dedicated Holo-Krome/SFS P5 A-B before P6 entry"},
+    {"id": "RISK-PILOT-02", "description": "Spindle overload on P3 wax cut due to wrong Kienzle for novel alloy", "severity": "high", "mitigation": "ForceBudgetGate hard-blocks >70% spindle torque; P1 force-budget gate must pass first"},
+    {"id": "RISK-PILOT-03", "description": "Operator rejection as 'CAM-textbook' kills adoption pre-A-B", "severity": "high", "mitigation": "P4 shadow captures override reasons (tagged); tribal-tip ingestion before P5; operator co-design of P5 acceptance"},
+    {"id": "RISK-PILOT-04", "description": "Tool-life regression silent until weeks into P5", "severity": "medium", "mitigation": "Per-tool sentinel + auto-quarantine within 10 parts"},
+    {"id": "RISK-PILOT-05", "description": "Post-processor regression breaks legacy archived programs", "severity": "high", "mitigation": "P1 byte-equivalence gate on all 6 controllers + CI gate"},
+    {"id": "RISK-PILOT-06", "description": "Legacy Bridgeport/Anilam DNC pass-through breaks long programs (no MTConnect)", "severity": "medium", "mitigation": "Limit legacy to P2/P3 short programs; DNC log capture + manual operator log"},
+    {"id": "RISK-PILOT-07", "description": "Holo-Krome high-tolerance P6 jobs fail Cpk", "severity": "high", "mitigation": "Holo-Krome family enters P6 only after dedicated P5 A-B exclusively on those jobs; Cpk real-time monitored"},
+    {"id": "RISK-PILOT-08", "description": "Telemetry-loop poisoning by sensor failure / outlier", "severity": "medium", "mitigation": "DriftDetector outlier-rejection + model-version rollback; weekly human-in-loop PR review"},
+    {"id": "RISK-PILOT-09", "description": "Wage-of-shop-time burned on P2/P3 if defects > 1 per phase", "severity": "medium", "mitigation": "P1 100% acceptance before P2 starts; cut-air budget 4 hrs/machine; soft-stock budget 16 hrs/material"},
+    {"id": "RISK-PILOT-10", "description": "Calendar slip from shop-conservatism extends each phase", "severity": "medium", "mitigation": "Pre-negotiate phase budgets with shop lead; 25% schedule buffer baked in; 'soft graduation' at 90%+ acceptance with shop confidence hold"}
+  ],
+  "acceptance_gates_summary": {
+    "sfc": {
+      "P1": "ForceBudgetGate Fc<0.7*spindle_torque + Vericut diff + >=95% catalog match +/-15%",
+      "P3": "+/-20% force prediction on instrumented wax cuts",
+      "P5": "Tool life >=95% status-quo + cycle <=105% + Cpk >= status-quo + zero scrap",
+      "P6": "Override rate <15% + PRISM default >=80% new jobs + tool life +>=5% vs P5 + zero collision"
+    },
+    "masterpost": {
+      "P1": "Byte-equivalence vs JM Die golden NC archive (comments-only delta)",
+      "P5": "Cycle-time delta <2% + zero alarms + readability >=4/5",
+      "P6": "Flagship multi-axis verified against Mazak SmoothAi simulator (every program, no exceptions)"
+    }
+  },
+  "deliverable_summary": {
+    "phase_count": 7,
+    "parallel_tracks": 2,
+    "units": 15,
+    "instrumentation_components": 15,
+    "operator_artifacts": 8,
+    "risk_register_entries": 10,
+    "weeks_to_pilot_complete_sfc": 29,
+    "weeks_to_pilot_complete_masterpost": 24,
+    "critical_path": "SFC (29w)",
+    "first_target_machine": "Haas-TM-1P-2008",
+    "top_risk_severity": "critical",
+    "top_risk_class": "flagship multi-axis kinematic miscompile (collision)"
+  }
+}

@@ -1,0 +1,137 @@
+{
+  "round": 2,
+  "agent_n": 1,
+  "scope": "MS0 UI unstub",
+  "agent_role": "reviewer",
+  "files_audited": [
+    "state/shared/specs/REVENUE-ROADMAP-2026-05-10.md",
+    "state/shared/BUILD_STATE.json",
+    "state/shared/AUDIT-LATEST.json (head 80 + grep)",
+    "mcp-server/data/docs/DISPATCHER_DIGEST.md (Glob set)",
+    "mcp-server/src/tools/dispatchers/ (filesystem + grep)",
+    "mcp-server/src/tools/dispatchers/calcDispatcher.ts (8885L, grep)",
+    "mcp-server/src/tools/dispatchers/millDispatcher.ts (900L)",
+    "mcp-server/src/tools/dispatchers/qualityDispatcher.ts (242L)",
+    "mcp-server/src/tools/dispatchers/authDispatcher.ts (159L)",
+    "mcp-server/src/tools/dispatchers/turningDispatcher.ts (grep)",
+    "mcp-server/src/tools/dispatchers/securityDispatcher.ts (grep)",
+    "mcp-server/web/src/pages/ (147 page files enumerated)",
+    "mcp-server/web/src/pages/SfcCalculatorPage.tsx (head 80)",
+    "mcp-server/web/src/pages/CalculatorPage.tsx (head 80)",
+    "mcp-server/web/src/api/ (40+ client files)"
+  ],
+  "round1_overlap": [
+    "AUDIT-LATEST F-mill-stub: MillingForceEngine 15-line stub still wired to millDispatcher physics bucket; chatter actions point to stub while ChatterPredictionEngine/ChatterStabilityLobeEngine/ChatterNeuralClassifierEngine implement real Altintas-Budak SLD. MS0 U-REV-MILL-01..05 acceptance ('renders with live data from at least one dispatcher action') will be trivially satisfied by stub-output and silently ship false-green pages. Round-1 finding directly invalidates MS0 mill cohort acceptance unless stub remediation precedes UI wiring.",
+    "AUDIT-LATEST F-mill-scientific-stub: MillScientificPipelineEngine 14-line stub serves mill_scientific_analyze/optimize/uncertainty_quantify; mill-studio UI cannot deliver scientific mode. Same issue blocks U-REV-MILL-* pages from real-data acceptance.",
+    "AUDIT-LATEST F-mill-test-fake: MillingForceEngine.test.ts (565L) imports class+types that don't exist on stub — false-green CI. Spec's per-unit verifies_via (rtk vitest run -- <page>.test.ts) inherits this false-green pattern unless explicitly hardened."
+  ],
+  "findings": [
+    {
+      "id": "F-r2-a1-01",
+      "severity": "BLOCKER",
+      "category": "missing",
+      "title": "MS0 cohort count is 37 not 40 — three units silently absent from the breakdown",
+      "evidence": "Spec line 80 declares '40 total' but the per-group sum is 6+5+7+5+4+7+3 = 37. No errata, no candidate unit IDs for the missing 3. Day-1..Day-5 kickoff section (lines 360-363) also enumerates 37 units. The 'approx 40' framing in the prose hides a 7.5% scope miss that propagates into v7.E readiness score denominators and v7.H end-state criteria ('~128 total units').",
+      "fix": "Either (a) add 3 explicit unit IDs (candidates: U-REV-SFC-CAM-PLUGIN, U-REV-MASTERPOST-UI, U-REV-CADCAM-AI-ENTRY) to close the gap and update v7.H total, OR (b) replace '~40' with exact 37 everywhere AND lower v7.H total. Currently the readiness denominator is ambiguous.",
+      "rubric_score_1to5": 4
+    },
+    {
+      "id": "F-r2-a1-02",
+      "severity": "BLOCKER",
+      "category": "broken",
+      "title": "U-REV-MILL-* acceptance is structurally false-green — dispatcher routes to known stubs",
+      "evidence": "millDispatcher routes physics+scientific buckets to MillingForceEngine (15L stub) and MillScientificPipelineEngine (14L stub) per AUDIT-LATEST findings #448, #460. MS0 acceptance only requires 'page renders with live data from at least one dispatcher action' — calling mill_chatter_predict or mill_scientific_analyze returns {ok:false,stub:true} which IS 'live data from a dispatcher action'. Five MS0 pages will ship with verified-passing tests over stub backends. v7.A verifies_via uses rtk vitest, which already has 565L of fake-green tests (AUDIT finding #541) — the gate is already broken before MS0 begins.",
+      "fix": "Add hard precondition to U-REV-MILL-01..05: dispatcher action invoked must NOT return {stub:true}. Either (a) sequence U-REV-MILL-* after MillingForceEngine/MillScientificPipelineEngine remediation (AUDIT finding #617 facade-over-MillingPhysicsKernelEngine plan), OR (b) reroute millDispatcher physics+scientific buckets to ChatterPredictionEngine/MillingPhysicsKernelEngine before MS0 mill-page work begins. Add MS0 entry-gate test: assert NO routed action returns stub-shape.",
+      "rubric_score_1to5": 5
+    },
+    {
+      "id": "F-r2-a1-03",
+      "severity": "BLOCKER",
+      "category": "conflict",
+      "title": "Wiring rule contradicts MS3 schedule — pages require dispatcher actions for 875 unwired engines that MS3 only wires AFTER MS0",
+      "evidence": "Spec line 84: 'every page MUST invoke through prism_* dispatcher actions, never directly import engine singletons'. BUILD_STATE.json line 7: '875 engines unwired'. Several MS0 page combos call engines that are explicitly in the unwired-89-lathe / unwired-142-other / unwired-11-turning batches scheduled for MS3 (U-REV-LATHE-04 'chip-control' depends on ChipControlEngine — present in BUILD_STATE.json top_unwired domains 'Lathe'). MS0 cannot ship a dispatcher round-trip for engines that MS3 (which depends on MS0) only wires later. Circular dependency.",
+      "fix": "(a) Inventory all engines required by 37 MS0 pages, (b) cross-reference against BUILD_STATE.NEEDS_WIRING.sample_engines, (c) for any MS0-required-but-MS3-pending engine, hoist its wiring unit into MS0 as a prerequisite sub-unit, (d) document a 'wiring chain' DAG in v7.A. Currently the wiring rule is unenforceable for ~15-25% of MS0 pages.",
+      "rubric_score_1to5": 5
+    },
+    {
+      "id": "F-r2-a1-04",
+      "severity": "MAJOR",
+      "category": "gap",
+      "title": "Multi-controller variability (Fanuc/Siemens/Haas/Mazak/Mitsubishi) absent from MS0 acceptance — comprehensive-build rule violated",
+      "evidence": "Spec section 'Variability axis' lines 297-322 mandates 5 controller dialects + 'test span ≥3 configs per variability axis'. MS0 acceptance (line 82) only requires '≥3 failure modes + ≥2 adversarial inputs' — no controller-dialect requirement. U-REV-MILL-* / U-REV-LATHE-* / U-REV-WEDM-* pages drive controller-emitting backends (post-generate / WEDM-program / hyperMILL post) — but the per-unit acceptance does not require any controller-spanning playwright test. WEDM unit list explicitly cites 5 dialects (line 161) but does not require dialect variability in unit acceptance.",
+      "fix": "Add to v7.A verification template (line 392): 'For pages driving controller-emitting backends, playwright must exercise ≥3 controller dialects (e.g. Fanuc/Siemens/Haas for mill, Mitsubishi/Sodick/Fanuc for WEDM) with assertion on rendered G-code header tokens'. Update v7.H to require dialect coverage ≥3 per applicable page.",
+      "rubric_score_1to5": 4
+    },
+    {
+      "id": "F-r2-a1-05",
+      "severity": "MAJOR",
+      "category": "gap",
+      "title": "Two pending-merge frontends not assigned to specific MS0 units — merge-blocking ambiguity",
+      "evidence": "BUILD_STATE.json lines 9123-9142 declare cqask/ui (Next13+AntD+Tailwind, NL→CadQuery) and mcp-cadquery/frontend (Vite+R19+Three.js, 3D viewer) as PENDING_MERGE. Spec table line 73 says 'mcp-cadquery/frontend (Vite + React 19 + Three.js) merge candidate' for U-REV-CAD-SFC-01..06 but does NOT specify (a) which of 6 SFC units consumes it, (b) which units cqask/ui blocks, (c) the React 18 vs 19 alignment resolution, (d) the integration path (port to App Router vs subapp under /apps/ vs deprecate). v7.E readiness score has no input for frontend-merge progress — invisible blocker.",
+      "fix": "Add explicit table to spec: 'cqask/ui merge → U-REV-CAD-SFC-04 (NL→CadQuery prompt UI); mcp-cadquery/frontend merge → U-REV-CAD-SFC-03 (3D viewer)'. Add a prerequisite unit U-REV-CAD-SFC-00 (React-version align + merge decision) blocking both. Surface merge_status in revenue-readiness-score.mjs output.",
+      "rubric_score_1to5": 4
+    },
+    {
+      "id": "F-r2-a1-06",
+      "severity": "MAJOR",
+      "category": "broken",
+      "title": "Existing SfcCalculatorPage already violates the wiring rule the spec claims to enforce",
+      "evidence": "mcp-server/web/src/pages/SfcCalculatorPage.tsx lines 16, 53 import useSfcCalculate (a local hook, not a typed dispatcher client) and dispatches through it. The spec's wiring rule (line 84) prohibits engine-singleton imports but says nothing about hook/api-client layer hiding direct fetch to engine routes vs dispatcher routes. CalculatorPage.tsx lines 33-43 imports from '../api/speedfeed' (sfQuick/sfOrchestrate) — these may or may not route through prism_calc dispatcher. There is no automated assert that web/src/api/* clients hit dispatcher-action endpoints (action enum + schema) rather than ad-hoc REST handlers.",
+      "fix": "Add MS0 entry-gate script scripts/verify-page-wires-to-dispatcher.mjs that, for each page in MS0 cohort, statically traces imports → api/* → ensures the called URL maps to a registered dispatcher action (cross-check against prism_session:dispatcher_map_compact). Bake into v7.A verifies_via for every frontend unit.",
+      "rubric_score_1to5": 4
+    },
+    {
+      "id": "F-r2-a1-07",
+      "severity": "MAJOR",
+      "category": "missing",
+      "title": "Admin/billing dispatcher actions for U-REV-ADMIN-01..07 unverified — half do not exist by name",
+      "evidence": "U-REV-ADMIN cohort claims 7 pages: User mgmt / seat assignment / billing portal / API key gen / RBAC role editor / audit log / subscription tier editor. Grep against mcp-server/src/tools/dispatchers/ finds: audit_log_* actions in securityDispatcher (7 variants), but ZERO matches for seat_assign, api_key_create, rbac_role_*, billing_portal, subscription_tier. authDispatcher is only 159 lines — too small to host RBAC + seat mgmt + tier editor. MS1 explicitly creates StripeWebhookEngine / FeatureTierEngine / SeatAllocationEngine, but spec says U-REV-ADMIN-* depends on existing 'Auth transport layer built'. The transport may be built; the dispatcher actions are not.",
+      "fix": "Either (a) explicitly hoist 3-4 dispatcher action additions (seat_assign, api_key_create, rbac_role_assign, subscription_tier_edit) into MS0 as prerequisite work, OR (b) move U-REV-ADMIN-04..07 to depend on MS1 U-SUB-03/15/17 (the engines that back them). Cycle as written ships UI pages with no backend route.",
+      "rubric_score_1to5": 5
+    },
+    {
+      "id": "F-r2-a1-08",
+      "severity": "MAJOR",
+      "category": "risk",
+      "title": "QualityDispatcher is 242L total — cannot back 4 quality UI pages with current surface area",
+      "evidence": "U-REV-QUALITY-01..04: SPC chart / FAI editor / CMM-parse view / tolerance-stack visualizer. qualityDispatcher.ts is 242 lines with only tolerance_stack (case at L120) explicitly grep-confirmed. cmm-parse, spc-chart, fai-editor actions not found by grep. Spec asserts 'Backend engines wired' for this group but conflates engine-exists with action-routed-via-dispatcher.",
+      "fix": "Pre-MS0: run prism_session:action_search for each of {spc_chart, spc_compute, fai_form, cmm_parse, gdt_compute}. If <4 of the 4 page-required actions exist, add prerequisite wiring units. Update Day 4 kickoff to acknowledge quality cohort has unverified backend.",
+      "rubric_score_1to5": 4
+    },
+    {
+      "id": "F-r2-a1-09",
+      "severity": "MAJOR",
+      "category": "gap",
+      "title": "Learn cohort (3 units) has no acceptance differentiation — onboarding pages tested as generic frontends",
+      "evidence": "U-REV-LEARN-01..03: tutor / video player / blueprint trainer. These are user-flow / trial-bait products (spec line 363 'reduces churn, increases trial→paid') but inherit the same generic acceptance (renders + 3 failure + 2 adversarial). No requirement for (a) progression tracking, (b) trial→paid conversion measurement hook, (c) tribal-knowledge retrieval correctness check. Customer-flow E2E (v7.A row 'Customer-flow E2E') is listed as ~2m playwright test but no LEARN unit references it.",
+      "fix": "Add LEARN-specific acceptance: (a) tutorial state persistence across session restart, (b) trial→paid hook fires on lesson N completion, (c) blueprint retrieval correctness against ≥3 sample blueprints from JM DIE archive. Reference v7.A 'Customer-flow E2E' as required for at least U-REV-LEARN-01.",
+      "rubric_score_1to5": 3
+    },
+    {
+      "id": "F-r2-a1-10",
+      "severity": "MINOR",
+      "category": "gap",
+      "title": "v7.A verifies_via for frontend pages assumes both vitest and playwright in one rtk chain — non-trivial CI cost not estimated",
+      "evidence": "v7.A line 392: 'rtk vitest run -- <page>.test.ts && playwright test <page>.spec.ts' for every MS0 page (37×). At ~30s claimed re-run cost × 37 = ~18min sequential. Playwright cold-start alone is 15-30s. v7.H end-state criterion requires 'v7.A verification gates re-runnable in <5min total' (v7.D peer-review point 5) — currently this fails by 4×.",
+      "fix": "Either (a) parallelize the playwright runs (--workers=N), (b) batch MS0 vitest to one rtk vitest invocation rather than per-page, (c) lower v7.D threshold to <15min or document the realistic cost. v7.E should expose verification_total_runtime_estimate.",
+      "rubric_score_1to5": 3
+    },
+    {
+      "id": "F-r2-a1-11",
+      "severity": "MINOR",
+      "category": "opportunity",
+      "title": "147 pages already exist; opportunity to skip-stub some U-REV-* units by mapping existing pages",
+      "evidence": "ls of mcp-server/web/src/pages/ shows 147 .tsx files including SfcCalculatorPage, SpeedFeedPage, ThermalPage, ThreadCalcPage, WireEdmStudioPage, WireEdmUploadPage, WireEdmWizardPage, WireEdmResultsPage, SPCDashboardPage, EdmPage, AdminPage, AuditManagerPage. Several MS0 unit descriptions (e.g. 'WEDM feasibility', 'WEDM cost', 'thread wizard') overlap with already-named pages. Spec treats all 37 as net-new wiring.",
+      "fix": "Pre-MS0 pass: cross-reference 37 MS0 unit titles against existing 147 pages; flag any with name-similarity > 0.7. For each match, either retire the MS0 unit or convert it to 'audit + harden + dispatcher-rewire' rather than 'build'. Reduces MS0 effort and aligns with /dedup doctrine.",
+      "rubric_score_1to5": 3
+    }
+  ],
+  "summary": {
+    "blockers": 3,
+    "majors": 6,
+    "minors": 2,
+    "verdict": "FAIL",
+    "rubric_score": 2,
+    "one_line": "MS0 fails: 37≠40 unit-count drift, mill-pages route to known stubs (false-green built-in), and wiring rule conflicts with 875-unwired-engine reality."
+  }
+}

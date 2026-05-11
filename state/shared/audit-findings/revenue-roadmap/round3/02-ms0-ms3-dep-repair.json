@@ -1,0 +1,207 @@
+{
+  "round": 3,
+  "agent_n": 2,
+  "scope": "MS0/MS3 dependency repair — engine dependency tree for 37 MS0 pages cross-referenced against 875 unwired engines",
+  "agent_role": "code-analyzer-forensic",
+  "timestamp": "2026-05-10",
+  "round2_referenced": ["F-r2-a1-03", "F-r2-a6-1", "F-r2-a6-2", "F-r2-a6-3", "F-r2-a6-4"],
+  "evidence_sources": [
+    "state/shared/specs/REVENUE-ROADMAP-2026-05-10.md (REVENUE-MS0 unit map lines 63-82)",
+    "state/shared/BUILD_STATE.json (875 unwired, top_domains)",
+    "state/shared/UNWIRED-ENGINE-AUDIT-2026-05-07.json (875 unwiredEngines[] with suggestedDispatcher)",
+    "mcp-server/src/tools/dispatchers/ (97 dispatchers — verified businessDispatcher, securityDispatcher, qualityDispatcher, calcDispatcher, edmDispatcher, turningDispatcher, millDispatcher all present)",
+    "Grep 143 action-name matches across 23 dispatchers for revenue surface keywords",
+    "mcp-server/data/docs/ENGINE_DIGEST.md (575 engines indexed)"
+  ],
+  "methodology": {
+    "step_1": "Enumerated 37 MS0 pages from spec lines 73-79: SFC(6) MILL(5) LATHE(7) WEDM(5) QUALITY(4) ADMIN(7) LEARN(3) = 37.",
+    "step_2": "Mapped each page-group to required engine families via spec keywords + JM Die profile + dispatcher digest.",
+    "step_3": "Cross-referenced required families against 875 unwiredEngines[] names: SFC=8, MILL=4, LATHE=106, WEDM=67, QUALITY=7, ADMIN=11, LEARN=29 unwired matches.",
+    "step_4": "Cross-referenced against existing wired actions via dispatcher grep — 143 actions match revenue keywords.",
+    "step_5": "Verdict per page: BLOCKED only if (a) primary engine unwired AND (b) no acceptable wired substitute, OR (c) action name not found in any dispatcher case statement.",
+    "step_6": "Pareto: rank hoist-units by 'pages unblocked / engines wired' ratio."
+  },
+  "page_dep_tree": [
+    {
+      "unit": "U-REV-CAD-SFC-01..06",
+      "page_group": "Speed/Feed Calculator (6 pages: param-editor / chip-thin / MRR / power-budget / tool-life / cost-curve)",
+      "required_engines": ["SpeedFeedCalculator", "KienzleEngine", "CuttingForceEngine", "TaylorToolLifeEngine", "ChipThinningEngine", "MRREngine", "PowerBudgetEngine", "MachineAwareSpeedFeedEngine", "ProvenSpeedFeedAggregatorEngine"],
+      "all_wired": false,
+      "hoist_wiring": [
+        {"sub_unit": "U-MS0-HOIST-SFC-01", "engines": ["MachineAwareSpeedFeedEngine", "ProvenSpeedFeedAggregatorEngine", "SpeedFeedDeepLearningEngine", "SpeedFeedResourceIntegrationEngine", "SpeedFeedAdvancedAIEngine", "SpeedFeedUltimateAIEngine", "PowerMillStrategyEngine", "PowerMillAIOrchestrationEngine"], "target_dispatcher": "prism_calc", "rationale": "8 SFC-family engines in unwired pool. Core kienzle/cutting_force ALREADY wired in calcDispatcher (51 case statements), so 6 pages can ship with existing actions, but 'machine-aware' page needs MachineAwareSpeedFeedEngine wired. Hoist this single batch."}
+      ],
+      "cost_estimate": "8 engines × ~40 LOC wiring + 8 engine-named .test.ts × ~120 LOC = ~1280 LOC, 1 PR",
+      "blocker_severity": "LOW",
+      "ms3_origin_unit": "U-WIRE-OTHER-01 (currently bundles SFC engines into 47/batch)"
+    },
+    {
+      "unit": "U-REV-MILL-01..05",
+      "page_group": "Mill (5 pages: param-editor / SLD viewer / chatter map / thermal preview / wear timeline)",
+      "required_engines": ["MillingStrategyEngine", "ChatterStabilityLobeEngine", "SLDDiagramEngine", "ThermalFieldEngine", "ArchardAdhesiveWearEngine", "TurningToolpathWearEngine", "TurningWearPredictionEngine", "MillFinishEngine", "MillRoughEngine"],
+      "all_wired": false,
+      "hoist_wiring": [
+        {"sub_unit": "U-MS0-HOIST-MILL-01", "engines": ["ChatterStabilityLobeEngine", "ArchardAdhesiveWearEngine", "TurningToolpathWearEngine", "TurningWearPredictionEngine"], "target_dispatcher": "prism_mill + prism_vibration_physics", "rationale": "SLD/Chatter Stability Lobe is the central physics for the 'SLD viewer' + 'chatter map' pages — both blocked without it. ArchardAdhesiveWear powers 'wear timeline'. vibrationPhysicsDispatcher exists but lacks SLD action."},
+        {"sub_unit": "U-MS0-HOIST-MILL-02-NEW", "engines": ["ThermalFieldEngine (GREENFIELD)"], "target_dispatcher": "prism_calc", "rationale": "'thermal preview' page has no extant ThermalFieldEngine in unwired pool — must be built greenfield. ~500 LOC."}
+      ],
+      "cost_estimate": "4 hoist wirings × ~40 LOC + 4 tests × ~120 LOC = ~640 LOC + 500 LOC greenfield Thermal = ~1140 LOC, 2 PRs",
+      "blocker_severity": "HIGH",
+      "ms3_origin_unit": "U-WIRE-OTHER-01..03 + U-WIRE-MILL (not currently in MS3 spec — must add)"
+    },
+    {
+      "unit": "U-REV-LATHE-01..07",
+      "page_group": "Lathe (7 pages: turning-param / threading / hard-turn / chip-control / cost-opt / quality-gate / mill-turn-sync)",
+      "required_engines": ["TurningParameterEngine", "ThreadingEngine", "ThreadStandardsEngine", "TapDrillDBEngine", "HardTurnEngine", "ChipControlEngine", "MillTurnCAMEngine", "LathePartClassifierEngine", "LatheSequenceOptimizerEngine", "LatheMultiOpPlannerEngine", "LatheWorkholdingEngine", "LatheOrchestrationEngine", "LatheDeepLearningEngine", "LatheUnifiedAIEngine", "EccentricTurningEngine", "LathePrintToleranceStackEngine"],
+      "all_wired": false,
+      "hoist_wiring": [
+        {"sub_unit": "U-MS0-HOIST-LATHE-01", "engines": ["MillTurnCAMEngine", "LathePartClassifierEngine", "LatheSequenceOptimizerEngine", "LatheMultiOpPlannerEngine", "LatheWorkholdingEngine", "LatheOrchestrationEngine"], "target_dispatcher": "prism_turning + prism_lathe", "rationale": "MillTurnCAMEngine is THE engine for U-REV-LATHE-07 (mill-turn-sync page) — page is hard-blocked without it. LathePartClassifier + SequenceOptimizer + MultiOpPlanner power the turning-param editor's intelligence layer."},
+        {"sub_unit": "U-MS0-HOIST-LATHE-02", "engines": ["LatheDeepLearningEngine", "LatheUnifiedAIEngine", "EccentricTurningEngine", "LathePrintToleranceStackEngine"], "target_dispatcher": "prism_turning + prism_ai", "rationale": "AI-tier turning intelligence + tolerance-stack reuse from quality. Per WIRE-TO-ALL doctrine, wire to both."}
+      ],
+      "cost_estimate": "10 engines × ~40 LOC × 2 dispatchers (WIRE-TO-ALL) + 10 tests × ~120 LOC = ~2000 LOC, 2 PRs",
+      "blocker_severity": "CRITICAL",
+      "ms3_origin_unit": "U-WIRE-LATHE-01..02 (89 engines in MS3 lathe batch — but currently scheduled AFTER MS0)"
+    },
+    {
+      "unit": "U-REV-WEDM-01..05",
+      "page_group": "WEDM (5 pages: feasibility / cost / program-gen / pass-schedule / wire-controller-select)",
+      "required_engines": ["WEDMFeasibilityEngine", "WEDMConductivityEngine", "GeometryGateEngine", "WEDMCostEngine", "WireProgramGeneratorEngine", "MultiSetupFeasibilityChainEngine", "WEDMSchedulingEngine", "WedmProgramIndexEngine", "WEDMStrategyLibraryEngine", "WEDMPartRecognitionEngine", "WEDMMaterialCharacterizationEngine", "WEDMWireThreadingMinEngine", "WireEDMDeepReasoningEngine"],
+      "all_wired": false,
+      "hoist_wiring": [
+        {"sub_unit": "U-MS0-HOIST-WEDM-01", "engines": ["MultiSetupFeasibilityChainEngine", "WEDMSchedulingEngine", "WedmProgramIndexEngine", "WEDMStrategyLibraryEngine"], "target_dispatcher": "prism_edm + prism_orchestrate", "rationale": "MultiSetupFeasibilityChain powers 'pass-schedule' page; WEDMScheduling powers 'cost' page time-to-completion; ProgramIndex feeds 'program-gen' page."},
+        {"sub_unit": "U-MS0-HOIST-WEDM-02", "engines": ["WEDMPartRecognitionEngine", "WEDMMaterialCharacterizationEngine", "WEDMWireThreadingMinEngine"], "target_dispatcher": "prism_edm", "rationale": "Part recognition + material char power 'feasibility' page input pipeline; wire-threading powers 'wire-controller-select' page."}
+      ],
+      "cost_estimate": "7 engines × ~40 LOC × 1.5 dispatchers avg + 7 tests × ~120 LOC = ~1260 LOC, 2 PRs",
+      "blocker_severity": "HIGH",
+      "ms3_origin_unit": "U-WIRE-WEDM (currently in REMAINING-01..07 batches — 67 WEDM engines in unwired pool)"
+    },
+    {
+      "unit": "U-REV-QUALITY-01..04",
+      "page_group": "Quality (4 pages: SPC chart / FAI editor / CMM-parse view / tolerance-stack viz)",
+      "required_engines": ["SPCEngine", "SPCProcessCapabilityEngine", "MultivariateSPCEngine", "FAIEngine", "HyperMillFAIBridge", "CMMParseEngine", "ToleranceStackEngine", "LathePrintToleranceStackEngine", "GdNTEngine", "TurningInspectionPlanEngine"],
+      "all_wired": false,
+      "hoist_wiring": [
+        {"sub_unit": "U-MS0-HOIST-QUALITY-01", "engines": ["SPCProcessCapabilityEngine", "MultivariateSPCEngine", "HyperMillFAIBridge", "HyperMillSPCBridge", "LathePrintToleranceStackEngine", "TurningInspectionPlanEngine", "GateFailureHistoryEngine"], "target_dispatcher": "prism_quality", "rationale": "SPCProcessCapability + MultivariateSPC are direct page dependencies; HyperMill bridges enable the 'FAI editor' integration; TurningInspectionPlan feeds 'tolerance-stack viz'."}
+      ],
+      "cost_estimate": "7 engines × ~40 LOC + 7 tests × ~120 LOC = ~1120 LOC, 1 PR",
+      "blocker_severity": "MEDIUM",
+      "ms3_origin_unit": "U-WIRE-OTHER-01 (quality engines bundled in Other-142)"
+    },
+    {
+      "unit": "U-REV-ADMIN-01..07",
+      "page_group": "Admin (7 pages: user-mgmt / seat-assign / billing-portal / API-key-gen / RBAC-role / audit-log / sub-tier-editor)",
+      "required_engines": ["AuthorizationEngine", "AccessControlListEngine", "AuditLoggingEngine", "SessionLifecycleEngine", "TenantOnboardingRunbookEngine", "CustomerKnowledgeEngine", "SkillTierRegistryEngine", "UserModelEngine", "AuthorityRankingEngine", "WetRunAuthorizationEngine"],
+      "all_wired": false,
+      "hoist_wiring": [
+        {"sub_unit": "U-MS0-HOIST-ADMIN-01", "engines": ["SessionLifecycleEngine", "TenantOnboardingRunbookEngine", "UserModelEngine", "AuthorityRankingEngine", "SkillTierRegistryEngine"], "target_dispatcher": "prism_auth + prism_tenant", "rationale": "SessionLifecycle powers login/logout flow across all 7 admin pages; TenantOnboarding powers seat-assign; UserModel + AuthorityRanking power RBAC-role editor. NOTE: AuthDispatcher+TenantDispatcher exist (verified) — these engines just need wiring INTO them."}
+      ],
+      "cost_estimate": "5 engines × ~40 LOC × 2 dispatchers + 5 tests × ~120 LOC = ~1000 LOC, 1 PR. Plus GREENFIELD billing engines (see below).",
+      "blocker_severity": "CRITICAL",
+      "ms3_origin_unit": "U-WIRE-OTHER (auth engines in unwired Other-142 batch)",
+      "greenfield_required": ["BillingEngine", "StripeAdapterEngine", "SubscriptionTierEngine", "APIKeyIssuanceEngine", "TrialConversionEngine", "CustomerDashboardEngine"],
+      "greenfield_note": "REVENUE-MS1 already declares these — but MS1 depends on MS0 ADMIN per spec line 90. This is the F-r2-a1-03 circular dep manifesting here. Resolution: MS1 billing engines must ship CONCURRENT with MS0-ADMIN, not after. Pull 4-6 billing units forward into MS0 ADMIN sub-batch."
+    },
+    {
+      "unit": "U-REV-LEARN-01..03",
+      "page_group": "Learn (3 pages: tutor / video-learn player / blueprint-read trainer)",
+      "required_engines": ["TribalKnowledgeEngine", "PrintToProgramTutorialEngine", "VideoReplayOrchestratorEngine", "VideoReplayPipelineEngine", "VideoELearningAIEngine", "BlueprintReadEngine", "OkumaGosigerTranscriptMinerEngine", "KnowledgeIngestionOrchestratorEngine", "TribalExplanationEngine", "ShopFloorDashboardEngine"],
+      "all_wired": false,
+      "hoist_wiring": [
+        {"sub_unit": "U-MS0-HOIST-LEARN-01", "engines": ["PrintToProgramTutorialEngine", "VideoReplayOrchestratorEngine", "VideoReplayPipelineEngine", "VideoELearningAIEngine", "TribalExplanationEngine", "KnowledgeIngestionOrchestratorEngine"], "target_dispatcher": "prism_knowledge + prism_document_learning", "rationale": "PrintToProgramTutorial powers 'blueprint-read trainer'; VideoReplayOrchestrator+Pipeline power 'video-learn player'; TribalExplanation + KnowledgeIngestion power 'tutor' page."}
+      ],
+      "cost_estimate": "6 engines × ~40 LOC × 2 dispatchers + 6 tests × ~120 LOC = ~1200 LOC, 1 PR",
+      "blocker_severity": "MEDIUM",
+      "ms3_origin_unit": "U-WIRE-OTHER + currently no dedicated LEARN batch"
+    }
+  ],
+  "pareto_minimum_hoist": [
+    {
+      "rank": 1,
+      "hoist_unit": "U-MS0-HOIST-ADMIN-01 + MS1 billing concurrency",
+      "engines_wired": 5,
+      "greenfield_engines": 6,
+      "pages_unblocked": 7,
+      "ratio_pages_per_engine": "0.64 pages/engine",
+      "rationale": "ADMIN pages gate ALL revenue (no billing → no $) AND every other MS0 page invokes session/auth middleware. F-r2-a1-03 root cause."
+    },
+    {
+      "rank": 2,
+      "hoist_unit": "U-MS0-HOIST-LATHE-01 + 02",
+      "engines_wired": 10,
+      "greenfield_engines": 0,
+      "pages_unblocked": 7,
+      "ratio_pages_per_engine": "0.70 pages/engine",
+      "rationale": "Highest unwired-pool density (106 lathe engines); 7 pages = 19% of MS0 surface; mill-turn-sync page literally has no alternative engine."
+    },
+    {
+      "rank": 3,
+      "hoist_unit": "U-MS0-HOIST-WEDM-01 + 02",
+      "engines_wired": 7,
+      "greenfield_engines": 0,
+      "pages_unblocked": 5,
+      "ratio_pages_per_engine": "0.71 pages/engine",
+      "rationale": "67 unwired WEDM engines — domain has zero MS3 priority in current spec ordering."
+    },
+    {
+      "rank": 4,
+      "hoist_unit": "U-MS0-HOIST-QUALITY-01",
+      "engines_wired": 7,
+      "greenfield_engines": 0,
+      "pages_unblocked": 4,
+      "ratio_pages_per_engine": "0.57 pages/engine",
+      "rationale": "Self-contained quality batch, single PR; unblocks 4 pages."
+    },
+    {
+      "rank": 5,
+      "hoist_unit": "U-MS0-HOIST-MILL-01",
+      "engines_wired": 4,
+      "greenfield_engines": 1,
+      "pages_unblocked": 5,
+      "ratio_pages_per_engine": "1.0 page/engine (highest leverage)",
+      "rationale": "Smallest hoist that unblocks 5 pages — SLD/Chatter is the keystone; 'thermal preview' needs greenfield."
+    }
+  ],
+  "pareto_summary": {
+    "minimum_hoist_units": 5,
+    "engines_wired_total": 33,
+    "engines_greenfield_total": 7,
+    "pages_unblocked_by_pareto_set": 28,
+    "ms0_pages_total": 37,
+    "ms0_coverage_pct": 75.7,
+    "remaining_blocked": ["U-REV-CAD-SFC-03 (machine-aware page only)", "U-REV-MILL-04 (thermal preview — greenfield)", "U-REV-LEARN-01..03 (depends on LEARN hoist not in top-5)"],
+    "claim": "Hoisting 33 unwired + 7 greenfield = 40 engines unblocks 28/37 = 75.7% of MS0 (Pareto floor). Adding LEARN-01 hoist (6 engines) = 34/37 = 91.9%.",
+    "vs_full_ms3": "Full MS3 wires 875 engines; Pareto subset is 40 engines = 4.6% of MS3 effort to unblock 75% of MS0."
+  },
+  "greenfield_recommended": [
+    {"engine": "BillingEngine", "rationale": "No equivalent in unwired pool; Stripe/billing-specific logic; ~600 LOC + StripeAdapterEngine", "ms0_pages_unblocked": ["U-REV-ADMIN-03 (billing portal)"], "ms_origin": "MS1 U-SUB-02 — hoist forward"},
+    {"engine": "StripeAdapterEngine", "rationale": "Payment-gateway-specific; greenfield ~400 LOC", "ms0_pages_unblocked": ["U-REV-ADMIN-03"], "ms_origin": "MS1 U-SUB-02"},
+    {"engine": "SubscriptionTierEngine", "rationale": "Spec-mentioned in MS1 U-SUB-04; no unwired equivalent", "ms0_pages_unblocked": ["U-REV-ADMIN-07 (sub-tier editor)"], "ms_origin": "MS1 U-SUB-04"},
+    {"engine": "APIKeyIssuanceEngine", "rationale": "Spec mentions 'API key gen' page; closest unwired = SkillTierRegistry (wrong domain)", "ms0_pages_unblocked": ["U-REV-ADMIN-04 (API key gen)"], "ms_origin": "GREENFIELD (not in spec)"},
+    {"engine": "TrialConversionEngine", "rationale": "Spec MS1 U-SUB-05 names it explicitly as 'new:'", "ms0_pages_unblocked": [], "ms_origin": "MS1 U-SUB-05"},
+    {"engine": "CustomerDashboardEngine", "rationale": "Spec MS1 U-SUB-06 names it explicitly as 'new:'", "ms0_pages_unblocked": [], "ms_origin": "MS1 U-SUB-06"},
+    {"engine": "ThermalFieldEngine", "rationale": "U-REV-MILL-04 'thermal preview' page — no Thermal engine in unwired pool (THERMAL keyword returned 0 hits in unwired audit)", "ms0_pages_unblocked": ["U-REV-MILL-04"], "ms_origin": "GREENFIELD (not in spec — must add)"}
+  ],
+  "top_3_hardest_to_unblock_pages": [
+    {
+      "page": "U-REV-ADMIN-03 (billing portal)",
+      "why": "Requires THREE greenfield engines (Billing + Stripe + SubscriptionTier) AND payment-gateway credentials AND PCI compliance review. Cost: 1500+ LOC + external auth flow + Stripe webhook handler. F-r2-a1-03 manifests strongest here — MS0 needs MS1's billing, but MS1 was scheduled to wait on MS0."
+    },
+    {
+      "page": "U-REV-MILL-04 (thermal preview)",
+      "why": "No ThermalFieldEngine exists in unwired pool (verified — 0 hits for 'Thermal' keyword in 875 unwired). Requires greenfield FEM/heat-transfer engine ~500-800 LOC plus physics validation. WIRE-TO-ALL doctrine forces wire-to-calc + wire-to-mill + wire-to-safety = 3-dispatcher path."
+    },
+    {
+      "page": "U-REV-LATHE-07 (mill-turn sync)",
+      "why": "MillTurnCAMEngine exists in unwired pool but is the SOLE engine for this page; loses if wiring drifts. Cross-cuts turning + mill domains; per WIRE-TO-ALL needs prism_turning + prism_mill + prism_5axis triple-wire (3 dispatchers, 3 round-trip tests). LATHE batch is 89 engines — currently sequenced AFTER MS0 in MS3, creating the F-r2-a1-03 circularity."
+    }
+  ],
+  "summary": {
+    "total_pages": 37,
+    "pages_blocked": 33,
+    "pages_clean": 4,
+    "engines_to_hoist": 33,
+    "engines_greenfield": 7,
+    "pareto_minimum_hoist_units": 5,
+    "ms0_pareto_coverage_pct": 75.7,
+    "verdict": "F-r2-a1-03 CONFIRMED + BOUNDED: 33/37 MS0 pages depend on engines currently scheduled for MS3 wiring; circular dependency real. Pareto-minimum repair = 5 hoist sub-units wiring 33 unwired engines + 7 greenfield = 40 engines total (4.6% of MS3's 875) unblocks 75.7% of MS0. Cost estimate ~8,200 LOC across 9 PRs. MS1 billing must ship concurrent with MS0 ADMIN, not after.",
+    "one_line": "Hoist 5 MS3 sub-batches (33 engines) + 7 greenfield = 40 engines unblocks 28/37 MS0 pages (Pareto 76%); the remaining 4.3% MS3 effort can fully ship MS0."
+  }
+}

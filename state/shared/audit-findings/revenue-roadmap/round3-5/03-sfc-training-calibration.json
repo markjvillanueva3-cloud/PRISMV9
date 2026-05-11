@@ -1,0 +1,246 @@
+{
+  "round": 3.5,
+  "agent_n": 3,
+  "scope": "SFC training + calibration",
+  "agent_role": "analyst-training",
+  "context": {
+    "sfc_status": "Top-priority revenue product (REVENUE-MS0 + v7.A). Current state: physics envelope from constants.ts (canonical kc1.1 P=1800/M=2100/K=1100/N=700/S=2800/H=3200 + Taylor C/n table) is BASELINE-ONLY — no per-shop, per-machine, or per-tool fit.",
+    "round3_agent5_dependency": "Gilbert economic speed v = (C / ((n/(1-n)) * (t_ch + t_c*K))) ^ (1/n) requires C and n FIT per (material, tool, machine) tuple — currently single C/n per material in constants.ts is shop-AVERAGE not shop-SPECIFIC.",
+    "round3_agent9_dependency": "T3 LoRA plan uses JM Die archive (24,545 files) as primary supervision. mill_lora rank-16 (~8K samples), lathe_lora rank-8 (~3-5K), wedm_lora rank-4 (~26 + tips), cam_lora ensemble rank-8.",
+    "existing_engine_coverage": {
+      "found": ["MultiControllerCalibrationEngine (E0343)", "MTConnectRoundTripLatencyBenchEngine (E0341)", "ToolLifeOverlayEngine (E0461)", "HookTelemetryEngine (E0181)", "OpenTelemetryTracingEngine (E0363)", "CADInstallationProbeEngine (E0048)", "ZeroTrustTelemetryEngine (E0575)"],
+      "missing_critical": ["KienzleKc11FitEngine", "TaylorConstantFitEngine", "FRFMeasurementEngine", "RCSAStabilityPredictorEngine", "ThermalGrowthCalibrationEngine", "SpindlePowerSensorIngestEngine", "ConformalDriftDetectorEngine", "LoRATrainerOrchestratorEngine", "TribalKnowledgeCaptureEngine", "PredictedVsActualDeviationEngine"],
+      "verdict": "10 critical engines absent; existing MultiControllerCalibrationEngine is controller-protocol calibration (encoder counts, axis kinematics) NOT physics-constant fit"
+    }
+  },
+  "training_targets": [
+    {
+      "node": "Kienzle kc1.1 per-shop per-material",
+      "data_source": "Spindle power meter (kW) via MTConnect/FOCAS/THINC during test cuts on stock from each unique supplier-material lot. JM Die: assume 6-12 distinct supplier-material combinations across 21 machines (e.g. 4140 from Supplier-X, 1018 from Supplier-Y, 304SS from Supplier-Z).",
+      "cadence": "one-shot at onboarding + on-trigger when new supplier or new material lot introduced (>5% deviation from baseline triggers re-fit)",
+      "fit_method": "Linear regression in log-log space: ln(Fc) = ln(kc1.1) + (1-mc)*ln(h). Sample 8 test cuts per material at varying chip thickness h ∈ [0.05, 0.4] mm. Solve via least-squares with weighted residuals (1/sigma_F^2). Confidence interval via bootstrap n=500. Per-shop offset = kc_measured / kc_baseline (multiplicative correction).",
+      "validation_gate": "R² > 0.92 on holdout fold + bootstrap CI half-width < 8% of mean kc1.1 + Bayesian prior penalty if measured kc deviates >30% from ISO-group baseline (likely sensor drift)",
+      "fallback": "If <3 valid test cuts: use ISO-group baseline from constants.ts and emit telemetry event 'kienzle.fallback.baseline_only' with confidence_tier='envelope-not-fit'. Stack with Round3 agent5 conformal 12% safety margin."
+    },
+    {
+      "node": "Taylor C, n per-machine per-tool-class",
+      "data_source": "Tool-life log per machine: (cutting speed Vc, time-to-failure T, criterion=Vb=0.3mm or chip-color shift). JM Die: 21 machines × 6 tool-classes (carbide-uncoated, carbide-TiAlN, carbide-AlTiN, ceramic, CBN, HSS) = 126 (machine, tool-class) tuples. Need ≥5 data points per tuple = 630 tool-life trials minimum for full coverage; achievable via 6-month operator-log accumulation.",
+      "cadence": "continuous accumulation; weekly regression refit when ≥1 new data point per (machine, tool-class); monthly cross-validation report",
+      "fit_method": "Log-linear regression: ln(T) = ln(C) - (1/n)*ln(Vc). C and n per (machine, tool-class). Hierarchical Bayesian prior centered on constants.ts canonical values to avoid overfit when corpus thin. Posterior shrinkage toward prior weighted by sample count.",
+      "validation_gate": "Posterior CI on n must exclude n=0 (degenerate) and n>0.6 (unphysical for non-HSS). R² > 0.80 (lower than Kienzle — tool-life is high-variance). Cross-validate against held-out 20% of trials.",
+      "fallback": "Per-machine override absent → use shop-average C/n; shop-average absent → ISO-group baseline from constants.ts. Emit confidence tier 'envelope|shop-avg|machine-specific' in every Gilbert speed call."
+    },
+    {
+      "node": "Stability Lobe Diagram (SLD) per-machine per-toolholder-stack",
+      "data_source": "Hammer-impulse FRF (accelerometer + impact hammer) measured at tool tip with toolholder loaded. JM Die: 21 machines × est. 8 dominant toolholder stacks each = 168 FRF measurements. RCSA (Receptance Coupling Substructure Analysis) predicts FRF for new tool/holder combinations from base machine+holder FRF.",
+      "cadence": "one-shot at shop install (full FRF sweep — 1 measurement day per machine) + on-trigger after major spindle service/bearing replacement + monthly spot-check (3-stack subset, drift < 15% expected modal frequency shift)",
+      "fit_method": "FFT of impact response → FRF magnitude/phase. Modal extraction via rational fraction polynomial. Altintas-Budak stability solver computes Re[Λ(ω)] eigenvalues → lobe boundaries. RCSA per Schmitz Section 4 for tool-stack extrapolation. Output: 2D map (spindle RPM, axial depth ap) with stability_score ∈ [0,1].",
+      "validation_gate": "Predicted chatter onset RPM within ±8% of cut-test verification (3 verification cuts per machine post-FRF). Mode count ≥3 within 0-4000Hz band (else FRF is noise-dominated).",
+      "fallback": "Without FRF: use machine-class default SLD from MachineToolEnvelopeEngine (conservative envelope — chatter-likely-region marked at 70% of free-vibration limits). Telemetry tier 'sld-class-default' (vs 'sld-machine-measured')."
+    },
+    {
+      "node": "Thermal growth coefficients per-machine per-axis",
+      "data_source": "Thermal-warmup probe routine: touch-probe Z-touch at known artifact every 5 min for 2-hour warmup cycle, cold-start to thermal-equilibrium. Record axis position drift vs time + spindle temp + ambient temp. 21 machines × 4-5 axes = ~90 (machine,axis) thermal curves.",
+      "cadence": "one-shot at onboarding (2-hour cycle per machine) + monthly re-verification (single 30-min spot-check) + on-trigger after coolant chiller service or seasonal ambient temp shift (>10°C)",
+      "fit_method": "First-order linear thermal model: Δposition(t,T_spindle) = α_axis * (T_spindle - T_ref) + β_axis * (T_ambient - T_ref_amb). Solve α, β via OLS. Compensate via G10 L20 work-offset update in real-time (TouchPoint-style).",
+      "validation_gate": "RMSE on thermal-cycle residuals < 5μm (tight tolerance shop) or < 15μm (general). α magnitude physically plausible (1-3 μm/°C for cast-iron column, 5-12 μm/°C for spindle).",
+      "fallback": "Without thermal model: assume worst-case 25μm axial drift over 2h warmup, add to tolerance stack budget. Block tight-tol (IT5/IT6) parts until thermal-fit complete."
+    },
+    {
+      "node": "Conformal prediction recalibration (drift detection)",
+      "data_source": "Predicted-vs-actual log per (operation, machine, material, tool). Predicted = SFC physics output; actual = post-op measurement (spindle peak load %, surface finish, dimensional check). Stream via MTConnect part-program completion event.",
+      "cadence": "continuous (every completed op logged) + on-trigger recalibration when rolling-window deviation exceeds threshold",
+      "fit_method": "Adaptive Conformal Prediction (APS / Romano 2020 — already shipped via AdaptiveConformalAlphaEngine commit 03586e2fa). Drift detector: CUSUM on |predicted - actual| / sigma_predicted. Trigger: cumulative deviation > 3σ over 50-sample window OR 5-sample run all >1σ same direction.",
+      "validation_gate": "Empirical coverage ≥ 1-α (target 90% within prediction interval). Brier score < 0.15 for binary outcomes (chatter/no-chatter, broken/intact).",
+      "fallback": "On drift detected: widen conformal interval (alpha 0.10 → 0.15), block dispatcher action until 20-sample post-drift recalibration window completes, emit operator alert."
+    },
+    {
+      "node": "mill_lora adapter (rank-16, qwen2.5-coder:7b base)",
+      "data_source": "JM Die archive .NC/.PRG/.MIN mill programs (~8K filtered) — each program = (material header, tool table, operation block) → (S/F chosen, ap/ae chosen, strategy choice) supervision pair. Augment via SpeedFeedOrchestrator physics-oracle synthetic sweep (1000 material×tool combos). MTConnect public dumps (~2K supplementary). Outcome-bridge reward signal from XPROC-NEURAL-CONNECT replay (commit 3b21228f7).",
+      "cadence": "at-onboarding initial train (8-12 hour single-GPU job on A100 or equivalent) + monthly fine-tune incremental (1-2 hour on accumulated new programs)",
+      "fit_method": "QLoRA r=16, alpha=32, dropout=0.1, attention layers only (q_proj, v_proj). 3 epochs, learning rate 2e-4, cosine schedule. Loss: cross-entropy on token-level S/F/strategy outputs + KL-penalty against base model (prevent catastrophic forgetting).",
+      "validation_gate": "Held-out 10% test set: token-level accuracy on S/F prediction > 75% (within ±5% tolerance band), strategy classification F1 > 0.82. Compare against base-model-no-adapter baseline — adapter must show >8% absolute lift.",
+      "fallback": "lora-weights-presence-check.mjs hook (proposed Round3 agent9) blocks dispatcher action when adapter missing. Inference returns {adapter_loaded: false, fallback_reason}. Routes to base qwen2.5-coder:7b unfine-tuned + telemetry event 'lora.fallback.weights_missing'."
+    },
+    {
+      "node": "lathe_lora adapter (rank-8, qwen2.5-coder:7b base)",
+      "data_source": "JM Die Mazak/Okuma .MIN files with '$<INTERNAL>%' line-1 header (per reference_jm_die_program_save_practice memory — ~3-5K canonical lathe corpus). LatheLoRADatasetBuilderEngine already exists.",
+      "cadence": "at-onboarding + monthly fine-tune",
+      "fit_method": "QLoRA r=8, alpha=16, same schedule as mill_lora. Narrower task surface (turning + threading + grooving + chip-control).",
+      "validation_gate": "Chip-control regime classification F1 > 0.85 (favorable/unfavorable/unacceptable per ISO 3685). S/F prediction accuracy > 75%.",
+      "fallback": "Same as mill_lora — telemetry fallback to base model."
+    },
+    {
+      "node": "wedm_lora adapter (rank-4)",
+      "data_source": "26 JM Die WEDM programs + 46 WEDM tribal tips + 14 WEDM formulas with MIT citations. Synthetic pulse-energy sweeps across 5 controller dialects.",
+      "cadence": "at-onboarding only initially (corpus too thin for monthly refit); quarterly refit once corpus > 100 programs",
+      "fit_method": "QLoRA r=4, alpha=8 (rank-4 minimizes overfit risk on small corpus — aligns with LoRA-FA low-shot findings).",
+      "validation_gate": "Cycle-time prediction MAPE < 15% on held-out 5-program test set. Surface-finish Ra prediction within ±0.4μm.",
+      "fallback": "Defer to physics-only WEDMOrchestrator + tribal-tip retrieval."
+    },
+    {
+      "node": "cam_lora ensemble (operation_classify + strategy_recommend + tool_select, each rank-8)",
+      "data_source": "Mastercam (45 extracted ops) + hyperMILL (25 extracted ops) operations + post-processor CPS files. CamStrategyEngine recommendations as weak supervision.",
+      "cadence": "at-onboarding + quarterly refit",
+      "fit_method": "Per-task adapters, ensemble at inference via Bayesian model averaging weighted by per-task held-out accuracy.",
+      "validation_gate": "Operation classification top-1 accuracy > 0.88; strategy recommendation top-3 recall > 0.90; tool selection within Mastercam tool-library top-5 > 0.85.",
+      "fallback": "CamStrategyEngine rule-based path."
+    },
+    {
+      "node": "Tribal-knowledge continuous capture",
+      "data_source": "Operator notes via shop-floor UI text input + voice-to-text (Whisper local, already capable via @xenova/transformers). Triggered post-op when operator overrode CAM defaults or noted unusual outcome.",
+      "cadence": "continuous; nightly batch ingestion into wiki/code-tribal/ + embedding into Qdrant 'prism_kg_nodes' collection",
+      "fit_method": "No model fit per se — embedding-only. Xenova/all-MiniLM-L6-v2 384-dim embeddings. Tag extraction via Ollama qwen2.5-coder:7b zero-shot (domain/machine/material/tool tags). Promote high-citation tips to playbook rules (≥3 references across operators).",
+      "validation_gate": "Tip quality lint via /wiki-lint (existing skill). Anti-duplicate via embedding cosine similarity > 0.85 → flag for merge. False-positive rate on tag extraction < 10% (sample human-audit monthly).",
+      "fallback": "Manual operator-form fallback (no Whisper) — text-only capture still feeds wiki."
+    }
+  ],
+  "onboarding_day_plan": [
+    {
+      "step": 1,
+      "time": "0800-0830",
+      "activity": "Pre-flight: install MTConnect agent on each of 21 machines (Mazak Smooth has native, Okuma THINC needs adapter, Fanuc 30i via FOCAS-2-MTConnect bridge, Haas NGC native). Verify spindle power telemetry available on each (kW reading).",
+      "engine": "MTConnectRoundTripLatencyBenchEngine + new SpindlePowerSensorIngestEngine",
+      "deliverable": "21 machines all emitting MTConnect SHDR stream at <2s latency"
+    },
+    {
+      "step": 2,
+      "time": "0830-1130",
+      "activity": "FRF measurement sweep: hammer-impulse + accelerometer at tool tip on each machine for 3 representative toolholder stacks (CAT40 ER32 short, CAT40 shrink-fit long, CAT40 facemill). 21 × 3 = 63 measurements × ~8 min each. Two technicians in parallel = 4.5 hour wall-clock.",
+      "engine": "new FRFMeasurementEngine + new RCSAStabilityPredictorEngine",
+      "deliverable": "63 FRF curves stored, 63 SLD maps computed via Altintas-Budak solver, extrapolated to all (machine, toolholder) combos via RCSA"
+    },
+    {
+      "step": 3,
+      "time": "1130-1300",
+      "activity": "Lunch + thermal warmup probe routines started in background (each machine runs warmup G-code calling touch-probe every 5 min, autonomous for 2h)",
+      "engine": "new ThermalGrowthCalibrationEngine",
+      "deliverable": "21 thermal curves α/β coefficients fit per (machine, axis), stored to shop-config"
+    },
+    {
+      "step": 4,
+      "time": "1300-1530",
+      "activity": "Kienzle test cuts on each unique supplier-material combination (JM Die: estimated 8-10 combos). Operator performs 8 cuts per material at varying chip thickness h, spindle-power telemetry auto-captured. Per-shop kc1.1 offset fit.",
+      "engine": "new KienzleKc11FitEngine",
+      "deliverable": "8-10 per-shop kc1.1 values + multiplicative offsets vs ISO-group baseline. Confidence intervals via bootstrap."
+    },
+    {
+      "step": 5,
+      "time": "1530-1700",
+      "activity": "Bulk ingest JM Die archive (24,545 files) for LoRA pre-training. mill_lora + lathe_lora datasets built via existing LatheLoRADatasetBuilderEngine + new MillLoRADatasetBuilderEngine. Synthetic augmentation via SpeedFeedOrchestrator sweep.",
+      "engine": "new LoRATrainerOrchestratorEngine + existing dataset builders",
+      "deliverable": "Datasets prepared, training jobs queued (overnight 8-12h on customer's GPU or PRISM cloud)"
+    },
+    {
+      "step": 6,
+      "time": "1700-1800",
+      "activity": "Operator onboarding: 1-hour training on shop-floor UI for tribal-knowledge capture (text notes + voice). Demo predicted-vs-actual feedback loop. Set first-month soft-launch expectations (advisory mode only, no autonomous parameter override).",
+      "engine": "new TribalKnowledgeCaptureEngine + existing wiki infrastructure",
+      "deliverable": "Operators able to submit tribal tips, voice-to-text working"
+    },
+    {
+      "step": 7,
+      "time": "overnight 1800-0800",
+      "activity": "LoRA training jobs run. Conformal prediction baseline established from first day of production data (replay through trained adapters at dawn).",
+      "engine": "LoRATrainerOrchestratorEngine + AdaptiveConformalAlphaEngine",
+      "deliverable": "mill_lora rank-16, lathe_lora rank-8 adapter checkpoints in mcp-server/data/models/<domain>-lora/<date>/adapter_model.safetensors. Conformal initial alpha set to 0.10 (90% coverage)."
+    }
+  ],
+  "monthly_maintenance": [
+    {
+      "task": "LoRA fine-tune incremental",
+      "cadence": "1st Monday of each month",
+      "duration": "1-2 hours single-GPU",
+      "input": "Previous-month JM Die programs that shipped first-pass + flagged for replay",
+      "output": "New mill_lora + lathe_lora checkpoints; validation gate (>8% lift vs prior month) must pass else rollback",
+      "engine": "LoRATrainerOrchestratorEngine"
+    },
+    {
+      "task": "Taylor C/n refit per (machine, tool-class)",
+      "cadence": "weekly automatic if new tool-life data points available",
+      "duration": "<5 min compute",
+      "input": "Tool-life log accumulated since last refit (criterion: Vb=0.3mm or chip-color shift logged by operator)",
+      "output": "Updated per-machine C/n with hierarchical Bayesian posterior; alert if shift >20% (likely tool brand change or spindle wear)",
+      "engine": "new TaylorConstantFitEngine"
+    },
+    {
+      "task": "Kienzle drift check",
+      "cadence": "monthly spot-check (3 random material lots)",
+      "duration": "30 min cut-test on shop floor",
+      "input": "Power-meter on 3 representative cuts per material lot",
+      "output": "Compare measured Fc vs predicted; if deviation >10% trigger full re-fit",
+      "engine": "KienzleKc11FitEngine + ConformalDriftDetectorEngine"
+    },
+    {
+      "task": "Thermal model spot-verify",
+      "cadence": "monthly single-axis spot-check + seasonal full re-cal (4x/year)",
+      "duration": "30 min spot, 2h full",
+      "input": "Z-axis touch-probe drift over 30-min warmup, ambient + spindle temp log",
+      "output": "RMSE on thermal model; trigger full re-cal if >150% baseline RMSE",
+      "engine": "ThermalGrowthCalibrationEngine"
+    },
+    {
+      "task": "SLD spot-check (3-stack subset)",
+      "cadence": "monthly",
+      "duration": "45 min (3 stacks × 15 min)",
+      "input": "Hammer-impulse on 3 most-used toolholder stacks",
+      "output": "Modal frequency drift; >15% triggers full re-FRF on affected machine",
+      "engine": "FRFMeasurementEngine + RCSAStabilityPredictorEngine"
+    },
+    {
+      "task": "Conformal recalibration audit",
+      "cadence": "weekly automated report",
+      "duration": "automated",
+      "input": "Rolling 200-sample predicted-vs-actual log",
+      "output": "Empirical coverage % per (operation, machine, material) cell; cells with coverage <85% flagged for investigation",
+      "engine": "AdaptiveConformalAlphaEngine + ConformalDriftDetectorEngine"
+    },
+    {
+      "task": "Tribal-knowledge wiki sync + Ollama summarize",
+      "cadence": "nightly",
+      "duration": "automated (Ollama ≥70% per WIKI_SCHEMA.md)",
+      "input": "Operator notes from past 24h",
+      "output": "Wiki entries created/updated, embeddings refreshed in Qdrant, promotion candidates flagged for Claude synthesis",
+      "engine": "TribalKnowledgeCaptureEngine + existing /wiki-ingest /wiki-lint /wiki-morning skills"
+    },
+    {
+      "task": "Cross-validation report",
+      "cadence": "1st of each month",
+      "duration": "automated overnight",
+      "input": "All fitted models (Kienzle, Taylor, SLD, thermal, conformal, LoRA)",
+      "output": "Health dashboard: R² / RMSE / coverage / F1 per node + month-over-month delta + alert on regression",
+      "engine": "new CalibrationHealthReportEngine + existing HookTelemetryEngine"
+    }
+  ],
+  "telemetry_pipeline": {
+    "sensors_needed": [
+      "Spindle power meter (kW) — primary channel for Kienzle fit; native on Mazak Smooth/Okuma OSP/Haas NGC, retrofit clamp-on CT for older Fanuc",
+      "Impact hammer (PCB 086C03 or equivalent) + tri-axial accelerometer (PCB 356A16) — FRF measurement at tool tip",
+      "Touch probe (Renishaw OMP60 or equivalent) — thermal growth probe routine + workpiece alignment",
+      "Spindle temperature thermocouple (most controllers have internal; expose via FOCAS/THINC parameter)",
+      "Ambient temperature sensor (DS18B20 1-wire on machine column — $5 retrofit per machine)",
+      "Operator UI for tribal-knowledge capture (existing web frontend mcp-server/web/) + microphone for Whisper voice-to-text",
+      "Tool-life logger (operator-driven via shop-floor UI when chip-color shift / dimensional drift triggers tool change)"
+    ],
+    "protocols": ["MTConnect (preferred — Mazak Smooth, Haas NGC, modern controllers)", "OPC-UA (Siemens 840D, modern installations)", "Fanuc-FOCAS (legacy Fanuc 0i/16i/18i/21i/30i/31i)", "Okuma-THINC (Okuma OSP P200/P300)", "Heidenhain DNC (Heidenhain TNC 530/640)"],
+    "ingestion_engine": "new TelemetryIngestionOrchestratorEngine — consolidates 5 protocol adapters into unified event stream → Qdrant (vector) + DuckDB (time-series) + Stop-hook calibration triggers. Wire to prism_intelligence:telemetry_ingest + prism_session:sensor_status_poll. Existing MTConnectRoundTripLatencyBenchEngine measures one protocol's RTT; this new engine is the ingestion fabric."
+  },
+  "summary": {
+    "nodes_to_train": 11,
+    "node_breakdown": {
+      "physics_fit": 4,
+      "stability_fit": 1,
+      "drift_detection": 1,
+      "lora_adapters": 4,
+      "tribal_capture": 1
+    },
+    "engines_to_build": 10,
+    "data_gaps": [
+      "JM Die spindle power telemetry not currently logged — first-day onboarding must install MTConnect agents + verify kW channel on all 21 machines BEFORE Kienzle fit can run. Risk: 2-3 machines may be too old for native MTConnect, requiring clamp-on CT retrofit (~$400/machine, ~1 day install).",
+      "Tool-life log nonexistent — currently NO machine logs (Vc, T_failure) trials. Taylor C/n fit requires ≥5 data points per (machine, tool-class) tuple = 630 trials for full coverage at JM Die. Cold-start 6-month accumulation period; in interim rely on ISO baseline + shop-average shrinkage. RISK: Gilbert economic speed formula (Round3 agent5) operates on baseline-only for first 6 months, losing 60-70% of value.",
+      "FRF measurement requires shop floor downtime + skilled technician — JM Die may not have either in-house. Onboarding-day 4.5h sweep is critical-path and customer must commit. Without FRF, SLD falls back to class-default conservative envelope which leaves 20-30% productivity on the table."
+    ],
+    "verdict": "SFC requires 10 new calibration engines + a unified telemetry-ingestion fabric. The onboarding day is feasible in 10 hours if pre-flight (MTConnect agents) is completed week-prior. The monthly maintenance cadence is 4-6 automated tasks/month + 2h operator overhead. Critical-path data gaps: spindle power telemetry availability, tool-life log cold-start, FRF measurement downtime commitment. Without these three, SFC degrades to envelope-only physics with 12% conformal margin — still ships, but the per-shop fit value-add (which justifies the premium SaaS tier) is unrealized.",
+    "one_line": "SFC training = 11 nodes (4 physics-fit + 1 SLD + 1 conformal + 4 LoRA + 1 tribal) + 10 new engines; onboarding-day is a 10-hour shop visit ending with overnight LoRA train; monthly maintenance ~2h operator + 4-6 automated jobs; top data gaps are spindle-power telemetry, tool-life log cold-start, and FRF measurement downtime."
+  }
+}

@@ -1,0 +1,224 @@
+{
+  "agent": 5,
+  "round": 5,
+  "angle": "customer-pull-validation",
+  "generated": "2026-05-10",
+  "reviewer": "claude-r5-a5",
+  "lens": "Would JM Die (21 machines, 118 customers, 24,545 programs, Machesney Park IL) or a typical mid-market job shop (15-40 employees, mill+lathe+EDM) pay for this unit on its own merits?",
+  "scoring": {
+    "PAY": "Customer would write a check for this surface in week 1",
+    "USE_NOT_PAY": "Customer would use it daily but not pay extra (table-stakes)",
+    "INFRA": "Infrastructure-disguised-as-revenue (vendor problem, not shop problem)",
+    "MISS": "High-pull feature ABSENT from v7.1 that the JM Die archive proves exists"
+  },
+  "verdict": "MIXED. v7.1 ships ~37 customer pages but 7/37 are ADMIN/billing (P0 INFRA, not pull). SFC ships well. CAD viewer + blueprint-to-CAD good pull. Mill/Lathe/WEDM studio pages have pull but assume customer cares about controller dialect picker more than 'does my program run tonight'. THREE high-pull surfaces are MISSING and the JM DIE archive directory listing proves they are operational shop concepts: cross-controller G-code rewrite, customer-history reuse, and quote-to-NC pipeline. Recommend hoisting 8 net-new pull units into MS0-extension before MS1 billing-heavy work.",
+  "summary_stats": {
+    "units_reviewed_ms0": 61,
+    "units_reviewed_ms1": 43,
+    "units_flagged_infra_disguised_as_revenue": 11,
+    "high_pull_features_missing": 8,
+    "customer_facing_pages_in_v71": 37,
+    "of_which_admin_billing_gates": 7,
+    "of_which_actual_shop_value_today": 18,
+    "of_which_demo_only": 12
+  },
+  "findings": [
+    {
+      "id": "R5A5-001",
+      "severity": "high",
+      "category": "infra-disguised-as-revenue",
+      "units": ["U-REV-MS0-ACT-APIKEY-01","U-REV-MS0-ACT-RBAC-01","U-REV-MS0-ACT-SEAT-01","U-REV-MS0-ACT-SUBTIER-01","U-REV-MS0-HOIST-ADMIN-01","U-REV-ADMIN-01","U-REV-ADMIN-02","U-REV-ADMIN-03","U-REV-ADMIN-04","U-REV-ADMIN-05","U-REV-ADMIN-06","U-REV-ADMIN-07"],
+      "verdict": "INFRA",
+      "evidence": "JM Die is one shop. 21 machines, single tenant. Mid-market job shops do NOT pay for RBAC matrices, seat assignment UI, audit log streamers, or subscription tier editors. They pay for parts to come out faster. v7.1 has 12 P0 units (Phase 7 + Phase 0 hoists) dedicated to ADMIN plumbing, all labeled P0 'gates revenue'. They gate YOUR billing, not THEIR ROI. A JM Die owner buys this product because it told him his Okuma was 18% under-spindle on 4140 — not because the API key management page has a one-shot secret display.",
+      "recommendation": "Demote U-REV-ADMIN-04..07 to P2. Replace billing-portal-page (U-REV-ADMIN-03) with a single Stripe checkout link in settings. Spend that velocity on shop-pull units listed in R5A5-005..008."
+    },
+    {
+      "id": "R5A5-002",
+      "severity": "high",
+      "category": "infra-disguised-as-revenue",
+      "units_ms1": ["U-SUB-19","U-SUB-20","U-SUB-21","U-SUB-22","U-SUB-23","U-SUB-24","U-SUB-25","U-SUB-26","U-SUB-27","U-SUB-28","U-SUB-29","U-SUB-30","U-SUB-31","U-SUB-32","U-SUB-33","U-SUB-34","U-SUB-35","U-SUB-36","U-SUB-42","U-SUB-43"],
+      "verdict": "INFRA",
+      "evidence": "MS1 expanded from 18 -> 43 units across webhook hardening, Paddle RSA, VAT-ID, exempt invoicing, currency rounding, GDPR Art-17, SOC2 hash-chain, PCI/SOX retention, proration, downgrade, grandfather, refund-math, chargeback, annual-to-monthly credit, dunning FSM, pairwise variability matrix, affiliate clawback. This is a payment-processor product roadmap, not a manufacturing-intelligence product roadmap. No JM Die customer pays for SOC2 hash-chain. They pay for cycle time.",
+      "recommendation": "Outsource 80% of this. Stripe + Paddle handle proration/dunning/VAT/refunds out of the box. Build a 3-unit MS1 stub: (1) Stripe checkout, (2) Stripe webhook (1 endpoint), (3) feature-tier gate. Save the 35 deferred units for after revenue exists. Building enterprise billing plumbing before $1 ARR is the textbook startup death spiral."
+    },
+    {
+      "id": "R5A5-003",
+      "severity": "high",
+      "category": "infra-disguised-as-revenue",
+      "units": ["U-SUB-37","U-SUB-38","U-SUB-39","U-SUB-40","U-SUB-41"],
+      "verdict": "INFRA",
+      "evidence": "Offline JWT, browser->plugin bridge, multi-seat revoke+CRL, transfer, multi-org. JM Die has 14 employees on a single LAN. They don't need CRLs. They need their Mastercam to talk to PRISM.",
+      "recommendation": "Defer all 5 to MS2. Replace with a single 'Mastercam plugin' unit and a single 'Inventor plugin' unit -- the archive proves Inventor+Mastercam are the only CAM systems JM Die touches."
+    },
+    {
+      "id": "R5A5-004",
+      "severity": "medium",
+      "category": "infra-disguised-as-revenue",
+      "units": ["U-REV-MS0-ENG-MATBAND-01","U-REV-MS0-HOIST-MILL-02-NEW"],
+      "verdict": "USE_NOT_PAY",
+      "evidence": "MaterialBandResolverEngine (60-cell grid kc/n interpolation) and greenfield ThermalFieldEngine: physics-correct, technically necessary, but the customer doesn't see them. They are upstream of SFC pages. Fine to ship, just don't mistake them for pull.",
+      "recommendation": "Ship them, but tag them as ENABLING not REVENUE in roadmap dashboards so the team doesn't believe they're done shipping value when these merge."
+    },
+    {
+      "id": "R5A5-005",
+      "severity": "critical",
+      "category": "missing-high-pull",
+      "units_proposed": ["U-REV-MS0-PULL-XPOST-01"],
+      "verdict": "MISS",
+      "evidence": "JM_DIE_CONTROLLER_MAP shows 5 controller dialects on 15 machines: 7x Okuma, 2x Haas, 1x Hurco WinMAX, 1x Roku-Roku Fanuc, 2x Mitsubishi sinker, 1x Mitsubishi wire. Daily reality: a program written for LTH-01 Okuma P300L needs to run on LTH-05 Okuma P300LA when LTH-01 is in PM. Mastercam reposts, but operator-edited macros, M-codes, work-offset conventions all break. v7.1 has NO 'cross-controller G-code rewriter' page. This is the #1 question on Practical Machinist's CNC sub-forum: 'I have Fanuc code, my new machine is Haas, what do I change?' Master Post (U-REV-LATHE-03) emits NEW programs from CAM but does NOT translate existing operator-edited NC. The JM DIE/ archive has 24,545 existing programs that need translation when machines move.",
+      "recommendation": "Add U-REV-MS0-PULL-XPOST-01 (P0): NCTranslatePage / `prism_cam:nc_translate` -- upload Mazak T2.MIN, choose target Haas VF-2, get translated program with diff view. Backs a $99/mo standalone subscription. This is the highest single-unit revenue lever in the entire roadmap."
+    },
+    {
+      "id": "R5A5-006",
+      "severity": "critical",
+      "category": "missing-high-pull",
+      "units_proposed": ["U-REV-MS0-PULL-HISTORY-01"],
+      "verdict": "MISS",
+      "evidence": "JM_DIE_CUSTOMERS = 118 customers. JM_DIE_PROGRAM_COUNT = 24,545. The archive top-level shows ITW, ALCOA, ARCONIC, SFS, HOLO-KROME, SIG SAUER, FASTENAL -- repeat customers with repeat parts. Daily question on the shop floor: 'ITW reordered the 0.250 socket head, what did we run last time?' v7.1 has ZERO customer-history / part-history / reuse-existing-program surface. This is the single most valuable thing in the JM DIE archive and v7.1 ignores it. CAD viewer (U-REV-CAD-SFC-03) renders STL but does not search the archive.",
+      "recommendation": "Add U-REV-MS0-PULL-HISTORY-01 (P0): CustomerProgramHistoryPage / `prism_knowledge:program_archive_search` -- 'show me everything we ran for ITW in the last 3 years' -> grid of programs with last-run-date, machine, cycle-time, scrap rate, notes. Foundational. Without this, PRISM is a calculator. With this, PRISM is the shop's brain."
+    },
+    {
+      "id": "R5A5-007",
+      "severity": "high",
+      "category": "missing-high-pull",
+      "units_proposed": ["U-REV-MS0-PULL-Q2NC-01"],
+      "verdict": "MISS",
+      "evidence": "Marketing axiom for CAM products: 'quote to NC in under an hour'. v7.1 ships BlueprintToCadPage (U-REV-CAD-SFC-05) and Master Post (U-REV-LATHE-03) and CostOptimize (U-REV-LATHE-05) but does NOT wire them into a single quote->NC pipeline page. JM Die quotes daily for ITW/Alcoa/SFS. Today the answer is 'check the archive (manual), price it (Excel), program it (Mastercam), post it (Mastercam), 4 hours'. PRISM ships 4 separate pages that don't talk to each other.",
+      "recommendation": "Add U-REV-MS0-PULL-Q2NC-01 (P1): QuoteToNCPage -- upload blueprint -> auto-extract features -> match archive (R5A5-006) -> propose strategy -> emit setup sheet + NC code + quote PDF. Stitch existing engines. No new physics needed. Headline demo page for marketing."
+    },
+    {
+      "id": "R5A5-008",
+      "severity": "high",
+      "category": "missing-high-pull",
+      "units_proposed": ["U-REV-MS0-PULL-LIGHTS-01"],
+      "verdict": "MISS",
+      "evidence": "Lights-out machining is the holy grail for 15-40 employee shops -- the 2nd shift you don't have to staff. JM Die archive has LATHE/, OKUMA/ programs that ARE running lights-out today (CSS chip-control already implied by ChipControlEngine references). But v7.1 has no 'lights-out readiness verdict' page. Customer wants: 'Can I leave this program running 6pm-6am? Risks?' Chip-control validate (U-REV-LATHE-04) is close but only one of 8 factors (chip evacuation, tool life vs cycle count, coolant volume, alarm response, fire risk, scrap escape, FOD, finish drift).",
+      "recommendation": "Add U-REV-MS0-PULL-LIGHTS-01 (P1): LightsOutReadinessPage / `prism_safety:lights_out_assess` -- aggregate 8 factor checks, GO/CONDITIONAL/NO-GO verdict, mitigations. Reuses existing engines. High emotional pull -- shop owner sleeps better."
+    },
+    {
+      "id": "R5A5-009",
+      "severity": "high",
+      "category": "missing-high-pull",
+      "units_proposed": ["U-REV-MS0-PULL-REVERSE-01"],
+      "verdict": "MISS",
+      "evidence": "JM DIE/REVERSE ENGINEERING/ directory exists and contains .ipt + .stp + .dxf + .jpg per part. Reverse engineering (no-print, scan-or-measure-and-make-CAD) is 30-50% of small job shop work. v7.1 has BlueprintToCAD (with-print) but NO photo-to-CAD or measurement-to-CAD workflow. The archive proves this is a 1st-class JM Die workflow already.",
+      "recommendation": "Add U-REV-MS0-PULL-REVERSE-01 (P2): ReverseEngineerPage / `prism_cad:photo_to_cad` -- photo + caliper measurements -> CAD model. AI vision + parametric solver. Highly differentiated, no major competitor ships this for job shops."
+    },
+    {
+      "id": "R5A5-010",
+      "severity": "medium",
+      "category": "missing-high-pull",
+      "units_proposed": ["U-REV-MS0-PULL-QUEUE-01"],
+      "verdict": "MISS",
+      "evidence": "JM DIE/QUEUE/ directory exists at the top level of the archive. It is a 1st-class JM Die operational concept -- the shop has a queue. v7.1 has no production-queue / job-scheduler / what-runs-next page. Capacity-plan skill exists (/capacity-plan, /shop-schedule) but no customer page in v7.1.",
+      "recommendation": "Add U-REV-MS0-PULL-QUEUE-01 (P2): ProductionQueuePage / `prism_orchestrate:queue_view` -- drag-drop job priorities across 21 machines, show conflicts, propose reschedule. Wraps SchedulerEngine already present."
+    },
+    {
+      "id": "R5A5-011",
+      "severity": "medium",
+      "category": "missing-high-pull",
+      "units_proposed": ["U-REV-MS0-PULL-SETUP-01"],
+      "verdict": "MISS",
+      "evidence": "JM DIE/SETUPS/ directory exists with chuck-jaws, fixtures, machine setup IPTs (e.g., OKUMA LATHE CHUCK.ipt). Operator setup-sheet generation is daily work -- new operator on swing shift needs the same setup the day-shift operator just tore down. v7.1 has no SetupSheetPage. Setup-sheet-generate skill exists but no customer page.",
+      "recommendation": "Add U-REV-MS0-PULL-SETUP-01 (P2): SetupSheetPage / `prism_cam:setup_sheet_emit` -- machine + part + fixture -> printable setup sheet with photos, tool list, work-offset, probe routine, first-article checks."
+    },
+    {
+      "id": "R5A5-012",
+      "severity": "medium",
+      "category": "missing-high-pull",
+      "units_proposed": ["U-REV-MS0-PULL-TRIBAL-01"],
+      "verdict": "MISS",
+      "evidence": "/shop-knowledge skill is described as a critical proactive skill for tribal/shop-floor/operator wisdom. WEDM has 46 tribal tips. Lathe has tribal knowledge. v7.1 surfaces NONE of this as a customer page. The competitive moat for PRISM is 'we ingested 24,545 programs of tribal knowledge' -- but no customer page exposes it.",
+      "recommendation": "Add U-REV-MS0-PULL-TRIBAL-01 (P1): TribalKnowledgePage / `prism_knowledge:tribal_search` -- 'why does my 4140 keep chattering at 0.150 ap with a 0.500 endmill' -> 5 tribal tips with citations. Highly habit-forming surface."
+    },
+    {
+      "id": "R5A5-013",
+      "severity": "low",
+      "category": "ambiguous-pull",
+      "units": ["U-REV-CAD-SFC-04"],
+      "verdict": "USE_NOT_PAY",
+      "evidence": "NL->CadQueryPage (natural language to CadQuery script). Cool demo, but JM Die has Inventor + Solidworks + Fusion on every desk. They don't draft in code. Hobbyists and educators love this. Job shops won't pay for it. Cqask is a researcher tool.",
+      "recommendation": "Keep but demote to P2. Don't market this as a job-shop pull surface."
+    },
+    {
+      "id": "R5A5-014",
+      "severity": "low",
+      "category": "ambiguous-pull",
+      "units": ["U-REV-LEARN-01","U-REV-LEARN-02","U-REV-LEARN-03","U-REV-MS0-HOIST-LEARN-01","U-REV-MS0-ACT-TUTOR-01","U-REV-MS0-ACT-VIDEO-01","U-REV-MS0-ACT-BPTRAIN-01"],
+      "verdict": "USE_NOT_PAY",
+      "evidence": "Tutor, video player, blueprint quiz. These are trial->paid flywheel features. Useful, but mid-market job shops don't pay for training -- they pay for output. Education product is a parallel B2C product, not a B2B revenue line.",
+      "recommendation": "Carve learn-pages into a separate 'PRISM Academy' sub-product on a free tier. Don't gate them behind paid subscription. Demote from MS0 Phase 8 to its own MS-EDU milestone."
+    },
+    {
+      "id": "R5A5-015",
+      "severity": "medium",
+      "category": "controller-dialect-mismatch",
+      "units": ["U-REV-CAD-SFC-03","U-REV-MILL-01","U-REV-LATHE-01"],
+      "verdict": "USE_NOT_PAY",
+      "evidence": "v7.1 multi-controller variability gate requires every page exercise >=3 of 5 dialects (Fanuc/Haas/Mazak/Okuma/Mitsubishi). JM Die has 7 Okuma + 2 Haas + 1 Hurco WinMAX + 1 Roku-Roku Fanuc + 2 Mitsubishi sinker + 1 Mitsubishi wire = 4 of the 5 dialects + Hurco (which v7.1 ignores). Hurco WinMAX v10 is the 5th machine VMC-01 -- v7.1 picked the wrong 5 dialects. Hurco is huge in the US mid-market.",
+      "recommendation": "Add Hurco WinMAX to the canonical dialect list -> 6 dialects. Update U-REV-MILL-01 / U-REV-LATHE-01 acceptance criteria. Also: Mazak is in the list but JM Die has zero Mazak. Practical Machinist shop population is Haas-dominant; Mazak skews to larger shops. Reorder priority: Haas > Fanuc > Okuma > Hurco > Mitsubishi > Mazak."
+    },
+    {
+      "id": "R5A5-016",
+      "severity": "medium",
+      "category": "missing-high-pull",
+      "units_proposed": ["U-REV-MS0-PULL-OVERNIGHT-01"],
+      "verdict": "MISS",
+      "evidence": "Overnight job migration -- 'I left work at 5pm, the LTH-03 is down with a Y-axis fault, can I move tonight's run to LTH-05?' -- requires (a) job knows what machine envelope it needs, (b) target machine has same tooling, (c) post-process to target controller. v7.1 has none of this as a single page. Related to R5A5-005 but more operational. Reactive pull -- when a machine alarms at 2am, someone needs an answer.",
+      "recommendation": "Add U-REV-MS0-PULL-OVERNIGHT-01 (P1): OvernightMigrationPage / `prism_orchestrate:job_migrate` -- pick source machine + destination machine -> compatibility verdict + translated program + tooling diff + setup sheet."
+    },
+    {
+      "id": "R5A5-017",
+      "severity": "low",
+      "category": "validation",
+      "units": ["U-REV-MS0-ENG-SPINDLE-01","U-REV-MS0-ENG-TOOLDB-01","U-REV-MS0-ENG-DEFLECT-01","U-REV-MS0-ENG-GILBERT-01"],
+      "verdict": "PAY",
+      "evidence": "These are honest engine units backing honest customer pages. Spindle power check, tool DB, deflection solver, Gilbert economic speed -- all four directly answer shop-floor questions a JM Die operator would ask. Keep as P0/P1.",
+      "recommendation": "No change. Validated pull."
+    },
+    {
+      "id": "R5A5-018",
+      "severity": "low",
+      "category": "validation",
+      "units": ["U-REV-CAD-SFC-01","U-REV-CAD-SFC-02","U-REV-CAD-SFC-06","U-REV-MILL-03","U-REV-LATHE-04","U-REV-LATHE-05","U-REV-WEDM-01","U-REV-WEDM-02","U-REV-WEDM-05"],
+      "verdict": "PAY",
+      "evidence": "SFC calculator + compare + machine-aware variant, chatter prediction with SLD, lathe chip-control, lathe cost-optimize (Gilbert/Taylor 7-bucket cost model), WEDM feasibility/program/troubleshoot. All directly answer shop questions, all back-checked by physics, all demonstrable to a buyer in <5min. These are the 9 pull units that justify the entire roadmap.",
+      "recommendation": "Promote U-REV-LATHE-05 (Gilbert cost optimize) and U-REV-WEDM-05 (troubleshoot) to P0. These are 'aha moment' pages."
+    },
+    {
+      "id": "R5A5-019",
+      "severity": "medium",
+      "category": "missing-high-pull",
+      "units_proposed": ["U-REV-MS0-PULL-PROBE-01"],
+      "verdict": "MISS",
+      "evidence": "Probing is universal mid-market pain. JM Die has 21 machines, every mill has a Renishaw probe. /probe-routine-guide skill exists. v7.1 has no ProbeRoutineGeneratorPage as a customer surface. CMM parse exists (U-REV-QUALITY-03) but that's post-cut inspection, not in-cycle probing.",
+      "recommendation": "Add U-REV-MS0-PULL-PROBE-01 (P2): ProbeRoutineGeneratorPage -- part + datum scheme -> Renishaw OMP40/OMP60 G-code with safe approach + retry logic. Wraps existing ProbingEngine."
+    },
+    {
+      "id": "R5A5-020",
+      "severity": "high",
+      "category": "ordering-mismatch",
+      "units": ["sequencing-summary-day-1-through-day-8"],
+      "verdict": "INFRA",
+      "evidence": "v7.1 sequencing: 'Day 1: Phase 0 P0 + ApiKey + RBAC + Seat + SubTier. Day 2: Phase 1 P0 hoists incl ADMIN. Day 4: ADMIN customer pages (revenue gate).' Three of the first 4 days are SaaS plumbing. JM Die owner sees ZERO value in days 1-4. The first user-visible win lands day 3 (SFC pages) but the marketing demo doesn't fire until day 4-5. For a deep-thinking founder this means: 4-5 days of internal velocity before any customer feedback signal. Wrong order.",
+      "recommendation": "Re-sequence: Day 1: Spindle + ToolDB + Deflection (engines only). Day 2: SFC pages with stub auth (HTTP basic for now). Day 3: Customer shows SFC to friend at JM Die. Day 4: Feedback. Day 5: Iterate. Days 6-8: Wire billing AFTER demand validated. This is the lean-startup ordering. v7.1 ordering is 'build the whole hotel before checking if anyone wants to stay'."
+    }
+  ],
+  "pull_units_to_add_summary": {
+    "critical_p0": ["U-REV-MS0-PULL-XPOST-01 (cross-controller G-code translator)","U-REV-MS0-PULL-HISTORY-01 (customer/program history search)"],
+    "high_p1": ["U-REV-MS0-PULL-Q2NC-01 (quote to NC pipeline)","U-REV-MS0-PULL-LIGHTS-01 (lights-out readiness)","U-REV-MS0-PULL-OVERNIGHT-01 (overnight job migration)","U-REV-MS0-PULL-TRIBAL-01 (tribal knowledge search)"],
+    "medium_p2": ["U-REV-MS0-PULL-REVERSE-01 (reverse engineering)","U-REV-MS0-PULL-QUEUE-01 (production queue)","U-REV-MS0-PULL-SETUP-01 (setup sheets)","U-REV-MS0-PULL-PROBE-01 (probe routines)"]
+  },
+  "infra_units_to_demote_summary": {
+    "demote_to_p2": ["U-REV-ADMIN-04 (SeatAssignmentPage)","U-REV-ADMIN-05 (ApiKeyMgmt)","U-REV-ADMIN-06 (RbacRoleEditor)","U-REV-ADMIN-07 (SubTierEditor)"],
+    "outsource_to_stripe_paddle": ["U-SUB-19","U-SUB-20","U-SUB-21","U-SUB-22","U-SUB-23","U-SUB-24","U-SUB-25","U-SUB-26","U-SUB-30","U-SUB-31","U-SUB-32","U-SUB-33","U-SUB-34","U-SUB-35","U-SUB-36"],
+    "defer_to_ms2": ["U-SUB-37","U-SUB-38","U-SUB-39","U-SUB-40","U-SUB-41","U-SUB-27","U-SUB-28","U-SUB-29"]
+  },
+  "competitive_context": {
+    "practical_machinist_top_pains_2026": ["Mazak to Haas G-code translation","Lights-out chip control","Probe routine generation","Setup sheet generation for new operator","Customer reorder lookup","Quote turnaround time"],
+    "v71_addresses_directly": ["lights-out chip control (partial via U-REV-LATHE-04)","cost optimize (U-REV-LATHE-05)"],
+    "v71_misses_entirely": ["Mazak to Haas translation","Probe routine gen","Setup sheets","Customer reorder lookup","Quote turnaround"],
+    "competitive_moat": "PRISM has 24,545 indexed programs + tribal knowledge but v7.1 does not expose this as a customer page. This is THE moat -- competitors (Mastercam, Fusion, Esprit) cannot replicate it without 30 years of shop history."
+  },
+  "headline_recommendation": "Hoist 8 net-new pull units into MS0 (replacing 12 ADMIN/billing-plumbing units). Outsource 80% of MS1 to Stripe/Paddle. Pull-units-first ordering will surface real customer feedback by day 3 instead of day 14. The current v7.1 ordering optimizes for the developer's mental model (auth -> seats -> tiers -> billing -> features) instead of the buyer's mental model (does this answer my shop-floor question -> yes -> here's $500/mo)."
+}

@@ -1,0 +1,88 @@
+{
+  "schemaVersion": "1.0.0",
+  "round": 3,
+  "agent_n": 6,
+  "agent_role": "researcher-forensic",
+  "scope": "MS4 rewrite — replace 10-unit drift-cluster plan with envelope-grounded 2-unit MS4 + propose separate revenue-cluster milestone",
+  "generatedAt": "2026-05-10T00:00:00.000Z",
+  "round2_referenced": ["F-r2-a7-1", "F-r2-a7-2", "F-r2-a7-3", "F-r2-a7-4"],
+  "sources": [
+    "H:/prism/state/shared/specs/REVENUE-ROADMAP-2026-05-10.md (L235-L250 MS4 block, L24 SFC framing, L26 CAD/CAM AI, L243 cluster line)",
+    "H:/prism/state/shared/audit-findings/revenue-roadmap/round2/07-ms4-drift.json",
+    "H:/prism/state/shared/MILESTONE_PROGRESS.json (totals.drift=2; only MF-MS1, MF-MS2 are drift; 0 false-negative drift)",
+    "H:/prism/state/shared/BUILD_STATE.json (no envelope_drift block — spec assumption invalid)",
+    "C:/Users/wompu/.claude/commands/envelope-sync.md (dry-run-by-default, --apply gated by user confirmation, never auto)",
+    "H:/prism/mcp-server/data/docs/ENGINE_DIGEST.md (E0265-E0271 Lathe Master Post family, E0321-E0322 MasterPost AGI, E0337 WEDM Master Post, E0355 Okuma B250 Master Post, E0182 Hurco V11 Master Post)"
+  ],
+  "rewrite_premise": {
+    "old_premise": "613 milestones drifted; need 10 units to reconcile (U-DRIFT-01..09 + 1 cron)",
+    "old_premise_status": "FALSE — round 2 F-r2-a7-1 proved totals.drift=2",
+    "new_premise_for_ms4": "Exactly 2 envelope rows drift (MF-MS1, MF-MS2, both FeasibilityEngine, both claim 'completed' but have shipped=0). MS4 is a narrow envelope-hygiene unit, not a roadmap reconciliation epic.",
+    "premise_for_new_milestone": "The 'revenue-relevant cluster' work (SFC, Master Post, 6 CAM bridges) is real revenue scope but is NOT a drift problem — those subsystems already SHIP (engines exist per ENGINE_DIGEST). The real question is 'does each cluster expose its capability through a revenue-grade surface (dispatcher action + frontend wire + billable boundary)?' That is /forge-audit + wiring-audit territory, not envelope-sync territory."
+  },
+  "ms4_v2": [
+    {
+      "id": "U-DRIFT-01",
+      "title": "Reconcile MF-MS1 and MF-MS2 envelopes via /envelope-sync",
+      "spec": "Run /envelope-sync MF-MS1 and /envelope-sync MF-MS2 in dry-run mode. Both envelopes currently claim status='completed' but have shipped=0/4 and 0/3 respectively. Two paths: (a) if FeasibilityEngine work is genuinely abandoned, flip envelope.status → 'not_started' and mark units accordingly; (b) if work is in flight on another branch, flip → 'in_progress' and leave units as 'pending'. Decision belongs to the FeasibilityEngine owner — this unit produces the patch JSON and a human review request, not autonomous --apply. Per envelope-sync.md L80 'Never auto-apply without user --apply flag and visual review.'",
+      "acceptance": "(1) /envelope-sync MF-MS1 --dry-run output written to state/shared/envelope-sync-MF-MS1.patch.json. (2) Same for MF-MS2. (3) PR-style comment in AGENT_CHAT.md tagging the FeasibilityEngine owner with the proposed status flip + decision-request. (4) After human approval, --apply commit lands and re-running scripts/build-milestone-progress.mjs reports totals.drift=0. (5) If owner unreachable for >48h, env tag 'envelope-stale' added to both envelopes and unit closes with status='deferred-to-owner-response' — NEVER autoflip.",
+      "unit_size": "small (≤4h, mostly waiting on owner)",
+      "risk": "low — only 2 envelopes; envelope-sync skill is dry-run by default",
+      "depends_on": [],
+      "blocks_revenue": false
+    },
+    {
+      "id": "U-DRIFT-02",
+      "title": "Schedule drift-watch cron + alert on new drift",
+      "spec": "Register a cron that runs scripts/build-milestone-progress.mjs every 6h and posts an alert to AGENT_CHAT.md if totals.drift > 0 after the run. Today's baseline after U-DRIFT-01 should be 0. Use existing scheduling infrastructure (skills/cron-bootstrap, skills/cron-manage). Output: one-line summary 'drift: N (was 0 at T)'. If drift > 0, alert names the milestone and drift kind. This replaces the original U-DRIFT-02 (auto-flip false-negatives) which round 2 F-r2-a7-2 proved had zero data to operate on. The cron is monitoring, not auto-remediation — per F-r2-a7-4 cascade-risk finding, auto-flips remain manual.",
+      "acceptance": "(1) Cron registered via /cron-bootstrap or equivalent, fires every 6h. (2) MILESTONE_PROGRESS.json regenerated each fire. (3) AGENT_CHAT.md gets a post ONLY when drift > 0 (silent on drift=0 to avoid spam). (4) Cron writes its last-run telemetry to state/shared/drift-watch-cron.json with fields {lastRun, driftCount, milestonesAffected[]}. (5) Manual test: artificially create drift by patching one envelope, confirm cron fires alert within 6h, then revert.",
+      "unit_size": "small (≤4h)",
+      "risk": "low — read-only monitor, no envelope mutation",
+      "depends_on": ["U-DRIFT-01"],
+      "blocks_revenue": false,
+      "optional": true,
+      "optional_rationale": "If MS4 ships within 1 day of U-DRIFT-01 closing and drift is already 0, the cron is nice-to-have but not blocking. Defer to backlog if MS5 (revenue work) has unmet capacity."
+    }
+  ],
+  "new_milestone_proposal": {
+    "id": "REVENUE-SUPPORT-AUDIT-MS5",
+    "title": "Revenue-cluster capability audit — verify SFC, Master Post, and CAM-bridge subsystems are revenue-grade (not just engine-present)",
+    "rationale": "The original MS4 attempted to use envelope drift as a proxy for 'revenue clusters not yet shipped.' Round 2 proved that proxy is invalid (drift=2, neither row matches the SFC/Master-Post/CAM-bridge filter). The actual revenue question — 'do these subsystems expose billable, frontend-wired, dispatcher-reachable capability?' — needs a direct audit, not an envelope-reconciliation epic. ENGINE_DIGEST confirms the engines exist (E0265-E0271 Lathe Master Post family, E0321-E0322 MasterPost AGI, E0337 WEDM Master Post, E0355 Okuma B250, E0182 Hurco V11). Whether each is wired to a dispatcher, exposed via a frontend page, and gated by a billable boundary is the open question. This milestone surfaces those gaps without conflating them with envelope hygiene.",
+    "premise_basis": "Direct evidence from ENGINE_DIGEST + BUILD_STATE.needs_wiring + BUILD_STATE.needs_frontend — NOT envelope drift.",
+    "depends_on": ["REVENUE-MS0 (frontend merge plan)", "U-DRIFT-01 (closes envelope noise so audit results aren't polluted)"],
+    "blocks": ["REVENUE-MS1 billing/tier gating — must know what's revenue-grade before gating it"],
+    "units": [
+      {
+        "id": "U-REV-AUDIT-SFC-01",
+        "title": "Audit SpecificCuttingEnergyEngine + speed/feed engine family for stub returns and dispatcher wiring",
+        "spec": "Enumerate every engine in src/engines/ matching SpecificCuttingEnergy|SpeedFeed|CuttingForce|Kienzle. For each: (a) check it has a non-stub run()/calc() implementation (no 'return 0' or 'TODO' bodies — use the always-build-guard.mjs heuristic), (b) confirm it's wired to prism_calc dispatcher (grep camDispatcher.ts + calcDispatcher.ts), (c) confirm at least one test file asserts a non-trivial numeric result. Report goes to state/shared/audit-findings/revenue-roadmap/round3-audit-sfc.json with one row per engine and a {wired, stubbed, tested} verdict.",
+        "acceptance": "(1) Audit JSON lists every SFC-family engine with verdicts. (2) Every engine has dispatcher_action_count > 0 OR is explicitly tagged WIRE-EXEMPT with a wrapper reference (per CLAUDE.md engine wiring rule). (3) Stubs flagged with severity (high if it's the canonical SFC engine, low if it's a deprecated variant). (4) Output cross-referenced with BUILD_STATE.needs_wiring to confirm no SFC engine is in needs_wiring without an explanation. (5) Recent commit 9386a4e88 [U-WIRE-CALC-SCE] is sanity-checked — that wiring should show up in the audit as a recent fix."
+      },
+      {
+        "id": "U-REV-AUDIT-MASTERPOST-01",
+        "title": "Verify Master Post controller-dialect coverage and dispatcher exposure",
+        "spec": "ENGINE_DIGEST shows ~11 Master Post engines spanning Lathe (E0265-E0271), AGI (E0321-E0322), WEDM (E0337), Okuma (E0355), and Hurco V11 (E0182). For each: (a) identify the target controller dialect, (b) verify a sample post-output file exists in JM DIE/ that the engine handles, (c) confirm at least one dispatcher (prism_cam, camDispatcher) exposes a 'generate post' or equivalent action that routes to this engine. Gap list: dialects with NO engine (e.g. is there a Mazak Smart H4 post for the lathe family?). Output: state/shared/audit-findings/revenue-roadmap/round3-audit-masterpost.json with rows {engine, dialect, sampleProgramTested, dispatcherWired, frontendExposed}.",
+        "acceptance": "(1) Audit JSON enumerates all 11+ Master Post engines with dialect mapping. (2) Each row has a JM DIE/ sample program path proving the engine round-trips real shop data (per JM Die test shop directive in CLAUDE.md). (3) Dialect-gap list explicit — every shop controller in shop-configuration must have an engine OR a justified deferral. (4) For at least one dialect with frontendExposed=false, a wiring task is filed in BUILD_STATE.needs_frontend with priority=revenue."
+      },
+      {
+        "id": "U-REV-AUDIT-CAM-BRIDGE-01",
+        "title": "CAM-bridge inventory — Fusion 360, hyperMILL, Mastercam, ESPRIT, Inventor, SolidWorks",
+        "spec": "Six external CAM systems need bridges per the original MS4 cluster list. For each: (a) does a bridge engine exist (e.g. FusionBridgeEngine, HyperMILLBridgeEngine — confirmed in ENGINE_DIGEST? Round 2 didn't search; this unit does), (b) is it dispatcher-wired (prism_cam vendor action or dedicated dispatcher), (c) does it have a smoke test that exercises a real add-in handshake (HTTP, file-watch, COM, etc.), (d) is the add-in/plugin shipped to a discoverable location (CAM-vendor extension store, mcp-server/web/cam-bridges/, etc.)? Output: state/shared/audit-findings/revenue-roadmap/round3-audit-cam-bridges.json with one row per vendor and a readiness score.",
+        "acceptance": "(1) Six bridge rows present. (2) For each existing bridge, one E2E smoke test path documented and CI-runnable. (3) For each missing bridge, a one-paragraph build plan (engine name, dispatcher action, minimum add-in surface). (4) Cowork-connectors skill cross-referenced — if a bridge is listed there but not in src/engines, that's a documentation drift filed as a finding. (5) Existing Cowork connector list (cowork-connectors skill) used as ground-truth for vendor priority ordering."
+      },
+      {
+        "id": "U-REV-AUDIT-SYNTHESIS-01",
+        "title": "Synthesize the three audits into a single revenue-cluster gap report",
+        "spec": "Combine the three audit JSONs above into state/shared/audit-findings/revenue-roadmap/round3-revenue-cluster-gaps.md. For each cluster (SFC, Master Post, CAM bridges), list: (a) what ships TODAY at revenue grade (dispatcher-wired + frontend-reachable + billable-able), (b) what is engine-only (needs wiring/frontend), (c) what is missing entirely. This report becomes input to REVENUE-MS1 billing/tier gating — you cannot gate what does not exist as a complete surface.",
+        "acceptance": "(1) Single markdown report with 3 cluster sections. (2) Each cluster has a {ships, needs_wiring, missing} tally. (3) Report references BUILD_STATE.json and ENGINE_DIGEST.md by line/row — auditable, no fabricated counts. (4) Filed under round3 audit-findings, available for round-4 cross-validation by another agent."
+      }
+    ]
+  },
+  "summary": {
+    "old_unit_count": 10,
+    "new_ms4_count": 2,
+    "new_milestone_count": 4,
+    "verdict": "MS4 v2 is a 2-unit envelope-hygiene closure (U-DRIFT-01 reconciles MF-MS1/MF-MS2 via dry-run /envelope-sync + human approval, U-DRIFT-02 optional cron monitor). The conflated revenue-cluster work splits cleanly into a separate REVENUE-SUPPORT-AUDIT-MS5 (4 units: SFC audit, Master Post audit, CAM-bridge audit, synthesis). This separates envelope hygiene (small, mechanical, dry-run-gated) from revenue-grade capability audit (engine-by-engine, dispatcher-wired, frontend-reachable). Total 6 units replaces the unjustified 10. No autonomous envelope mutation. Premise of each unit is direct evidence (MILESTONE_PROGRESS.drift, ENGINE_DIGEST entries, BUILD_STATE blocks), not derived from a false drift count.",
+    "one_line": "MS4 v2: 2 units (real drift=2, not 613); REVENUE-SUPPORT-AUDIT-MS5: 4 units (the actual revenue-cluster audit work)."
+  }
+}

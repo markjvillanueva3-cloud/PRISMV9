@@ -1,0 +1,189 @@
+{
+  "schemaVersion": "1.0.0",
+  "round": 2,
+  "agent_n": 5,
+  "agent_role": "analyst",
+  "scope": "MS2 Knowledge (U-INV-KNOW-01..04) + CAD (U-INV-CAD-01..03)",
+  "generatedAt": "2026-05-10T00:00:00Z",
+  "sources_read": [
+    "state/shared/specs/REVENUE-ROADMAP-2026-05-10.md",
+    "state/shared/AUDIT-LATEST.json",
+    "mcp-server/data/docs/ENGINE_DIGEST.md",
+    "knowledge/wiki/index.md",
+    "state/shared/tribal-embed-index.json",
+    "state/tribal_captured_tips.json"
+  ],
+  "findings": [
+    {
+      "id": "F-r2-a5-K01",
+      "kind": "false_count",
+      "severity": "critical",
+      "unit": "U-INV-KNOW-01",
+      "claim": "4,245 tribal tips train the chatbot",
+      "evidence": [
+        "state/tribal_captured_tips.json contains only 23 entries (array length verified via node JSON parse)",
+        "state/shared/tribal-embed-index.json has 381 embedded entries total (model+dim+entries schema)",
+        "Round-1 finding F-WEDM-005 cites only ~80 tribal tips, JM-Die Mitsubishi-only field-grounded",
+        "WEDM_AGI status block in CLAUDE.md self-reports 46 WEDM tips (20 field + 26 MIT-derived)",
+        "No file or aggregate index reaches 4,245 — the number appears fabricated or inherited from a forecast"
+      ],
+      "impact": "Headline marketing claim is ~50x overstated. Pricing 'knowledge-as-product' against 4,245 tips when actual corpus is ~400 makes free-tier value-prop indefensible and exposes legal risk on advertised content."
+    },
+    {
+      "id": "F-r2-a5-K02",
+      "kind": "wiki_count_drift",
+      "severity": "low",
+      "unit": "U-INV-KNOW-01",
+      "claim": "wiki/index.md has 722 entries (per CLAUDE.md)",
+      "evidence": [
+        "Live count: 772 markdown files under knowledge/wiki/ (find ... | wc -l)",
+        "knowledge/wiki/index.md '^- ' lines: 772",
+        "CLAUDE.md global + PRISM both state 722"
+      ],
+      "impact": "Doc drift (+50 entries) is minor but the canonical-counts surface is unreliable for revenue calculations."
+    },
+    {
+      "id": "F-r2-a5-K03",
+      "kind": "rag_substrate_unverified",
+      "severity": "medium",
+      "unit": "U-INV-KNOW-01",
+      "claim": "Qdrant RAG substrate is live and ready for chatbot",
+      "evidence": [
+        "QdrantMemoryEngine, QdrantMemoryEngineSingleton, QdrantVectorStoreEngine, QdrantCapacityPlannerEngine present in src/engines/",
+        "OllamaEmbedderEngine + LocalEmbeddingEngine present (embedding pipeline exists)",
+        "tribal-embed-index.json shows real 381-entry embedding output — pipeline produces vectors",
+        "No reachability check: round-1 F-AI-006 notes ollama-task-offloader 0% effective when Ollama unreachable; same risk applies to Qdrant"
+      ],
+      "impact": "RAG substrate is built but no production-readiness gate (uptime SLO, ingest backfill rate, query latency) is documented. Cannot price 'Ask PRISM' subscription without these."
+    },
+    {
+      "id": "F-r2-a5-K04",
+      "kind": "missing_paywall",
+      "severity": "high",
+      "unit": "U-INV-KNOW-01",
+      "claim": "Free-tier -> paid paywall trigger",
+      "evidence": [
+        "Zero grep hits for Paywall, Subscription, FreeTier, TierGate, RateLimit in ENGINE_DIGEST.md (475+ engines)",
+        "WEDMCreditCostEngine + WEDMOverageApprovalEngine exist but are WEDM-internal autonomy gates, not customer billing",
+        "No StripeEngine, BillingEngine, or QuotaEnforcementEngine found"
+      ],
+      "impact": "Cannot monetize chatbot. Roadmap claims paid tier with zero infrastructure for metering, gating, or charging. Blocks revenue."
+    },
+    {
+      "id": "F-r2-a5-K05",
+      "kind": "skill_not_engine",
+      "severity": "medium",
+      "unit": "U-INV-KNOW-02",
+      "claim": "video-learn + youtube-transcript + pdf-learn wired as engines",
+      "evidence": [
+        "Zero ENGINE_DIGEST.md hits for VideoLearn, PDFLearn, YouTubeTranscript, YoutubeTranscript",
+        "These are skills only (~/.claude/commands/video-learn.md, pdf-learn.md, youtube-transcript.md)",
+        "PDFKnowledgeExtractor / VideoIngest engines NOT visible in digest"
+      ],
+      "impact": "Productizing as 'PRISM ingests your manuals' requires an MCP dispatcher backed by an engine, not a Claude-only skill. Skills cannot run server-side for paying customers."
+    },
+    {
+      "id": "F-r2-a5-K06",
+      "kind": "missing_pii_handling",
+      "severity": "high",
+      "unit": "U-INV-KNOW-03",
+      "claim": "Doctrine engine handles operator chat with PII safety",
+      "evidence": [
+        "ENGINE_DIGEST.md grep for 'Doctrine' returns ZERO matches — no DoctrineEngine, no OperatorChatEngine",
+        "No PIIRedactionEngine, GDPREngine, or DataResidencyEngine in digest",
+        "tribal capture (extraction-to-tribal.mjs hook) records operator wisdom but no scrubbing layer evidenced"
+      ],
+      "impact": "GDPR/CCPA/CPRA exposure if operator chat is monetized. Shop-floor utterances commonly contain employee names, machine serials, customer part numbers — none currently scrubbed before embedding."
+    },
+    {
+      "id": "F-r2-a5-K07",
+      "kind": "no_accreditation",
+      "severity": "high",
+      "unit": "U-INV-KNOW-04",
+      "claim": "CE credits issued for PRISM training",
+      "evidence": [
+        "Zero accreditation-body integration in ENGINE_DIGEST.md (NIMS, SME, ABET, ASNT, etc.)",
+        "mit-courses/ dir under extracted-knowledge/ contains material (2.008, 2.830, etc.) but MIT does not grant CE credits via 3rd-party platforms",
+        "No CertificateIssuanceEngine, AccreditationEngine, or LearnerTranscriptEngine"
+      ],
+      "impact": "'CE credits' is materially misleading without an accreditation partnership. Shops paying for compliance training will reject ungated badges. Legal: FTC deception risk."
+    },
+    {
+      "id": "F-r2-a5-K08",
+      "kind": "partial_implementation",
+      "severity": "medium",
+      "unit": "U-INV-CAD-01",
+      "claim": "Text-to-CAD working",
+      "evidence": [
+        "ENGINE_DIGEST.md E0455: TextToCADGenerationEngine — CADCAM-DAGI-MS0/U-DAGI09 EXISTS",
+        "E0026 BlueprintToCADGeneration, E0049 CADIntentDecomposer also present",
+        "No CSG kernel, NURBS, or OpenCascade integration evidenced in digest one-liners",
+        "Round-1 F-CAD-001 flags fragmented CAD-ingest (5 overlapping engines) — generation pipeline likely shares same fragmentation"
+      ],
+      "impact": "Engine exists but underlying geometry kernel unverified. Likely produces stub/parametric output, not production CAD. Cannot ship as paid feature without an opinion on the kernel (B-Rep vs mesh vs implicit)."
+    },
+    {
+      "id": "F-r2-a5-K09",
+      "kind": "no_fusion_genai_api",
+      "severity": "high",
+      "unit": "U-INV-CAD-02",
+      "claim": "Generative CAD via Fusion 360 gen-design API",
+      "evidence": [
+        "ENGINE_DIGEST.md grep 'Generative' returns ZERO matches",
+        "Fusion 360 Generative Design has NO public API as of 2026 — it is a desktop-only feature requiring Fusion Generative Design Extension subscription",
+        "CADGeometricAugmentation (E0047) and CADPhysicsConsistencyGate (E0053) are ML-side, not topology-optimization"
+      ],
+      "impact": "Feature is technically not buildable on Autodesk's API surface as advertised. Either re-spec on Altair Inspire/nTopology APIs or remove the claim."
+    },
+    {
+      "id": "F-r2-a5-K10",
+      "kind": "chat_with_part_real",
+      "severity": "low",
+      "unit": "U-INV-CAD-03",
+      "claim": "Chat-with-the-part via CADRag/CADExtract/AGI-CAD",
+      "evidence": [
+        "E0050 CADKnowledgeGraph, E0042 CADFeatureEmbedding, E0030 CADAIStateMachine, E0049 CADIntentDecomposer ALL present in digest",
+        "Skill /cad-rag and /cad-extract exist in command list",
+        "Round-1 F-CAD-001 flags ingest fragmentation but does NOT contradict that the engines exist"
+      ],
+      "impact": "This unit has the most realistic backing of the CAD trio. Substrate exists; main gap is the chat front-end and conversation-memory loop. Buildable."
+    },
+    {
+      "id": "F-r2-a5-K11",
+      "kind": "monetization_rationale_missing",
+      "severity": "critical",
+      "unit": "all-MS2",
+      "claim": "Knowledge-as-product pricing rationale",
+      "evidence": [
+        "REVENUE-ROADMAP doc spec mentions monetization but provides no $/seat, $/query, or $/credit floor",
+        "No competitive benchmark vs Pleasanton (Cadent), Practical Machinist Pro, Tooling U-SME",
+        "No cost-of-goods model for Claude API + Qdrant + Ollama compute per chatbot turn"
+      ],
+      "impact": "Cannot determine break-even seat count. Risk of pricing below LLM token cost (unit-economics negative)."
+    }
+  ],
+  "round1_overlap": [
+    {
+      "f_id": "AUDIT-LATEST line 50",
+      "topic": "AISystemRouterEngine telemetry no consumer",
+      "relation": "directly_blocks U-INV-KNOW-01 (chatbot routes via AISystemRouter, telemetry gap means no production observability)"
+    },
+    {
+      "f_id": "AUDIT-LATEST line 58-77",
+      "topic": "CAD-ingest fragmentation (5 overlapping engines)",
+      "relation": "directly_blocks U-INV-CAD-01..03 (text-to-CAD, gen-CAD, chat-with-part all sit on fragmented ingest)"
+    },
+    {
+      "f_id": "F-WEDM-005",
+      "topic": "Only ~80 tribal tips, JM-Die Mitsubishi-only",
+      "relation": "directly_contradicts U-INV-KNOW-01 4,245-tip claim"
+    }
+  ],
+  "summary": {
+    "critical": 2,
+    "high": 4,
+    "medium": 4,
+    "low": 1,
+    "verdict": "MS2 Knowledge+CAD lane is 30% buildable as specified. Core marketing numbers (4,245 tips, CE credits, Fusion gen-design) require correction before sales. CAD substrate (E0050, E0049, E0455) is real; productization gap is paywall + PII + accreditation."
+  }
+}

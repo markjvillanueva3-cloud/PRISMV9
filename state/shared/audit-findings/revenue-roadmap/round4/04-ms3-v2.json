@@ -1,0 +1,98 @@
+{
+  "round": 4,
+  "agent_n": 4,
+  "scope": "REVENUE-MS3 v2 — revised wire-backlog section",
+  "agent_role": "code-quality-analyzer",
+  "timestamp": "2026-05-10",
+  "supersedes": "specs/REVENUE-ROADMAP-2026-05-10.md §REVENUE-MS3 (18-unit × 47-engine-per-batch)",
+  "sources": [
+    "round3/07-ms3-rebatch-reorder.json",
+    "round3/06-ms3-wire-backlog.json (implied via round3/07 lineage)",
+    "specs/REVENUE-ROADMAP-2026-05-10.md (current MS3 prose)",
+    "state/shared/BUILD_STATE.json (needs_wiring=875; wireExempt=81)"
+  ],
+  "math": {
+    "unwired_raw": 875,
+    "subtract_singleton_wrappers": 30,
+    "subtract_ml_plumbing": 289,
+    "subtract_infrastructure_facades": 25,
+    "true_revenue_relevant": 531,
+    "ms3_v2_coverage": 116,
+    "ms3_v2_coverage_pct": 22,
+    "ms3_5_carryover": 415,
+    "ms_ml_plumbing_deferred": 289
+  },
+  "velocity": {
+    "sustained_per_commit": 6,
+    "ceiling_per_commit": 12,
+    "saturation_under_3way_scrutiny": 9.5,
+    "old_per_batch": 47,
+    "old_overload_factor": 7.8,
+    "new_per_batch_avg": 9.67
+  },
+  "batches": [
+    {"rank": 1, "id": "U-WIRE-LATHE-BATCH12", "domain": "Lathe", "count": 9, "target_dispatcher": "prism_turning",
+     "engines": ["LatheAdvancedOperationsEngine","LatheAIFeatureRegistration","LatheAIUltraEngine","LatheCAMIntelligenceEngine","LatheCuttingChemistryEngine","LatheDeepAIHardeningEngine","LatheEnvelopeDistanceEngine","LatheFinishingStrategyEngine","LatheGcodeAnalyzerEngine"],
+     "acceptance": "Each engine has <Name>.test.ts (>=15 cases); round-trip via prism_turning action; 3way scrutiny PASS"},
+    {"rank": 2, "id": "U-WIRE-LATHE-BATCH13", "domain": "Lathe", "count": 9, "target_dispatcher": "prism_turning",
+     "engines": ["LatheGroovingEngine","LatheHardenedSelfEngine","LatheJMDieKnowledgeEngine","LatheKienzleEngine","LatheKnowledgeRetrievalEngine","LatheLubricantEngine","LatheMachineProfileEngine","LatheMaterialKBEngine","LatheMeasurementBridgeEngine"],
+     "acceptance": "Same as BATCH12; non-ML revenue mix; 3way PASS"},
+    {"rank": 3, "id": "U-WIRE-TURNING-BATCH1", "domain": "Turning", "count": 11, "target_dispatcher": "prism_turning",
+     "engines": ["TurningEnvelopeDistanceEngine","TurningInspectionPlanEngine","TurningRulesGeneratorEngine","TurningSensitivityAnalysisEngine","TurningStochasticPlanEngine","TurningStrategyCatalog","TurningSurfaceFinishEngine","TurningThreadEngine","TurningToolDeflectionEngine","TurningToolLifeEngine","TurningValidationEngine"],
+     "acceptance": "Closes Turning domain (11->0) single-shot; engine-named tests; 3way PASS"},
+    {"rank": 4, "id": "U-WIRE-LATHE-BATCH14", "domain": "Lathe", "count": 10, "target_dispatcher": "prism_turning",
+     "engines": ["LatheOperationSequencerEngine","LatheOptimizationEngine","LathePartFamilyClassifierEngine","LathePostProcessorEngine","LatheProgramAnalyzerEngine","LatheProgramOptimizerEngine","LatheRoughingStrategyEngine","LatheSetupSheetEngine","LatheSimulationEngine","LatheStrategyCatalog"],
+     "acceptance": "Consumes BATCH13 outputs; 3way PASS"},
+    {"rank": 5, "id": "U-WIRE-LATHE-BATCH15", "domain": "Lathe", "count": 10, "target_dispatcher": "prism_turning",
+     "engines": ["LatheThreadEngine","LatheToolBreakageDetectorEngine","LatheToolCatalogEngine","LatheToolLifeEngine","LatheToolWearEngine","LatheTroubleshootingEngine","LatheValidationEngine","LatheVibrationEngine","LatheWizardEngine","LatheWorkholdingEngine"],
+     "acceptance": "Closes Lathe revenue-relevant subset"},
+    {"rank": 6, "id": "U-WIRE-MACHINE-BATCH1", "domain": "Machine", "count": 9, "target_dispatcher": "prism_machine",
+     "engines": ["MachineAwareSpeedFeedEngine","MachineCapabilityIndexEngine","MachineConfidenceCalculatorEngine","MachineConsumerBindingEngine","MachineDataAuditEngine","MachineLayerMerger","MachineLoadBalancerEngine","MachineOEEEngine","MachineProfilingEngine"],
+     "acceptance": "Speed/feed engines double-wired to prism_calc per WIRE-TO-ALL"},
+    {"rank": 7, "id": "U-WIRE-MACHINE-BATCH2", "domain": "Machine", "count": 8, "target_dispatcher": "prism_machine",
+     "engines": ["MachineROIEngine","MachineSelectionEngine","MachineShopMetricsEngine","MachineStateEngine","MachineSubscriptionEngine","MachineTelemetryEngine","MachineToolWearEngine","MachineUtilizationEngine"],
+     "acceptance": "Closes Machine domain (17->0)"},
+    {"rank": 8, "id": "U-WIRE-MULTI-BATCH1", "domain": "Multi", "count": 12, "target_dispatcher": "prism_orchestrate",
+     "engines": ["MultiAgentCoordinatorEngine","MultiCamKnowledgeEngine","MultiControllerCalibrationEngine","MultiModelConsensusEngine","MultiObjectiveParetoEngine","MultiPathReasoningEngine","MultiPostProcessorEngine","MultiProductOptimizationEngine","MultiScaleSimulationEngine","MultiShopFederationEngine","MultiStageMillingEngine","MultiVendorBenchmarkEngine"],
+     "acceptance": "Closes Multi (12->0); consensus double-wires to prism_intelligence"},
+    {"rank": 9, "id": "U-WIRE-CAM-OTHER-BATCH1", "domain": "Other-CAD", "count": 10, "target_dispatcher": "prism_cad",
+     "engines": ["CADToSTEPPipelineEngine","CADScreenshotCapturer","CADAssemblyPlanEngine","CADBOMExtractEngine","CADDFMReportEngine","CADGeometryHasherEngine","CADModelDiffEngine","CADReviewerEngine","CADTolerancePropagatorEngine","CADUnitConverterEngine"],
+     "acceptance": "CAD revenue subset of Other"},
+    {"rank": 10, "id": "U-WIRE-CAM-OTHER-BATCH2", "domain": "Other-CAM", "count": 10, "target_dispatcher": "prism_cam",
+     "engines": ["CAMFixtureLibraryEngine","CAMHolderClearanceEngine","CAMOperationGapEngine","CAMPostLintEngine","CAMProbeRoutineEngine","CAMSetupSheetEngine","CAMStrategySelectorEngine","CAMTimeEstimatorEngine","CAMVendorBridgeEngine","CAMWorkholdingPlannerEngine"],
+     "acceptance": "CAM revenue subset of Other"},
+    {"rank": 11, "id": "U-WIRE-QUALITY-OTHER-BATCH1", "domain": "Other-Quality", "count": 8, "target_dispatcher": "prism_quality",
+     "engines": ["AS9100TraceabilityEngine","AMSAAReliabilityGrowthEngine","FAIRReportEngine","GageRRRoutineEngine","InspectionPlanGeneratorEngine","PPAPDocumentEngine","QualityAlertEngine","QualityDashboardEngine"],
+     "acceptance": "Audit-grade traceability — high revenue per seat"},
+    {"rank": 12, "id": "U-WIRE-OTHER-MISC-BATCH1", "domain": "Other-Misc", "count": 10, "target_dispatcher": "prism_orchestrate",
+     "engines": ["GCodeTemplateEngine","BatchProcessor","AIMLFormulasEngine","AAAQualityEngine","ShopFloorCostEngine","ShopFloorDashboardEngine","ShopFloorJobEngine","ShopFloorQuoteEngine","ShopFloorReportEngine","ShopDataCompletenessEngine"],
+     "acceptance": "ShopFloor cluster + misc; double-wire to prism_quote where applicable"}
+  ],
+  "deferred": [
+    {"milestone": "MS-ML-PLUMBING", "count": 289, "rationale": "LoRA/Federated/ProtoMAML/AdaLoRA/DoRA/Continual/TTA/Replay/Synaptic/DER — training-time research infra, no inference revenue path"},
+    {"milestone": "MS3.5", "count": 415, "rationale": "Carry-over revenue-relevant orphans not covered by the 12 MS3 batches; reorder by then-current revenue telemetry"},
+    {"action": "TAG-AS-EXEMPT", "count_singleton_wrappers": 30, "count_infra_facades": 25, "rationale": "Wrapper pattern; wiring would break circular dep guard. Extend stop_on_unwired_assets.mjs detector + WIRE_EXEMPT_REGISTRY.json"}
+  ],
+  "hook_additions": [
+    {"name": "stop_on_unnamed_engine_tests.mjs", "purpose": "BLOCK Stop when batch commit adds engines to dispatcher without matching <EngineName>.test.ts containing >=1 dispatcher-round-trip assertion. Replaces social convention from round3/06 F-r2-a6-6.", "placement": "MINIMAL_ALLOWLIST (cannot be disabled by PRISM_HOOK_PROFILE)"},
+    {"name": "stop_on_unwired_assets.mjs (extend)", "purpose": "Recognize // WIRE-EXEMPT: <reason> tag + singleton naming pattern so the 30+25 are not re-flagged in MS3.5 backlog"}
+  ],
+  "per_batch_acceptance": {
+    "engines_per_batch": "8-12",
+    "test_count_per_batch": "120-180 new it() cases (8-12 files × 15 cases)",
+    "build_time": "esbuild incremental <10s",
+    "vitest_time": "<60s for batch files",
+    "review_time": "3way scrutiny 15-20min per PR",
+    "stop_hooks_required_pass": ["stop_on_unwired_assets", "stop_on_unnamed_engine_tests", "scrutinize-before-stop"]
+  },
+  "summary": {
+    "final_batch_count": 12,
+    "engines_wired_in_ms3": 116,
+    "engines_deferred_to_ms3_5": 415,
+    "engines_deferred_to_ml_plumbing": 289,
+    "true_revenue_relevant_total": 531,
+    "ms3_coverage_pct": 22,
+    "top_3_first_batches": ["U-WIRE-LATHE-BATCH12 (9, prism_turning)", "U-WIRE-LATHE-BATCH13 (9, prism_turning)", "U-WIRE-TURNING-BATCH1 (11, prism_turning)"],
+    "one_line": "12 batches @ 9.67 engines avg, Lathe-first, wires 116 of 531 true-revenue-relevant orphans in MS3; defers 415 to MS3.5 and 289 ML-plumbing to MS-ML-PLUMBING."
+  }
+}

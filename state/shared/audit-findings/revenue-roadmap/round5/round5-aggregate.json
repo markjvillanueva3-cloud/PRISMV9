@@ -1,0 +1,197 @@
+{
+  "schemaVersion": "1.0.0",
+  "scope": "revenue-roadmap",
+  "round": 5,
+  "generated_at": "2026-05-11T12:28:13.907Z",
+  "agents_responded": 10,
+  "agents_missing": [],
+  "total_findings": 84,
+  "severity_rollup": {
+    "blockers": 6,
+    "majors": 50,
+    "minors": 28
+  },
+  "by_category": {
+    "dep": 4,
+    "routing": 1,
+    "arch": 2,
+    "constants-mismatch": 1,
+    "formula-incomplete": 1,
+    "dimensional-clarification": 1,
+    "boundary-condition": 3,
+    "verified-correct": 2,
+    "coverage-claim": 1,
+    "scope-correctness": 1,
+    "cross-milestone-grounding-break": 1,
+    "train-pilot-divergence": 1,
+    "controller-order-vs-archive": 1,
+    "build-vision-misalignment": 1,
+    "cam-tier1-scope-drift": 1,
+    "naming-inconsistency": 1,
+    "internal-arithmetic-drift": 1,
+    "missing-tier1-cam-build": 1,
+    "ms-train-gap-not-funded": 1,
+    "ai-hierarchy-absent": 1,
+    "lora-vs-disk-reality": 1,
+    "frontend-merge-doctrine": 1,
+    "anti-regression-burden": 1,
+    "haas-master-post-gap": 1,
+    "wedm-controller-set-drift": 1,
+    "cross-milestone-order-violation": 1,
+    "unresolved-reference": 1,
+    "orphan-leaf": 1,
+    "ambiguous-status": 1,
+    "transitive-redundancy": 1,
+    "no-cycles-detected": 1,
+    "all-references-resolve": 1,
+    "implicit-cross-milestone-dep": 1,
+    "infra-disguised-as-revenue": 4,
+    "missing-high-pull": 10,
+    "ambiguous-pull": 2,
+    "controller-dialect-mismatch": 1,
+    "validation": 2,
+    "ordering-mismatch": 1,
+    "uncategorized": 12,
+    "arr-unlock-ranking": 1,
+    "credibility-multiplier": 1,
+    "pricing-power-lever": 1,
+    "execution-gate": 1,
+    "infra-vs-revenue-classification": 1,
+    "conversion-model-sensitivity": 1,
+    "drift": 1,
+    "extraction-logic": 1,
+    "ms-bucket-counts": 1,
+    "compliance-checklist": 1,
+    "tier-pie": 1,
+    "title-mismatch": 1
+  },
+  "findings_per_agent": {
+    "1": 7,
+    "2": 10,
+    "3": 15,
+    "4": 8,
+    "5": 20,
+    "6": 5,
+    "7": 6,
+    "8": 0,
+    "9": 7,
+    "10": 6
+  },
+  "verdict_distribution": {
+    "v7.1 architecture is sound — dispatcher routing, lane discipline, and 9-milestone dep-graph are coherent; ship after fixing cross-MS-order edges (MS0 paywall prose-depends on MS1 SUB hoist set without declared depends_on) and normalizing MS2/MS3 narrative deps into the depends_on schema.": 1,
+    "UNKNOWN": 8,
+    "PASS-WITH-RESIDUAL-RISK": 1
+  },
+  "consensus_verdict": "v7.1 architecture is sound — dispatcher routing, lane discipline, and 9-milestone dep-graph are coherent; ship after fixing cross-MS-order edges (MS0 paywall prose-depends on MS1 SUB hoist set without declared depends_on) and normalizing MS2/MS3 narrative deps into the depends_on schema.",
+  "blockers": [
+    {
+      "agent": 2,
+      "id": "R5A2-001",
+      "title": "mc exponents in Row 25 data-surface contradict canonical constants.ts",
+      "evidence": "",
+      "fix": ""
+    },
+    {
+      "agent": 5,
+      "id": "R5A5-005",
+      "evidence": "JM_DIE_CONTROLLER_MAP shows 5 controller dialects on 15 machines: 7x Okuma, 2x Haas, 1x Hurco WinMAX, 1x Roku-Roku Fanuc, 2x Mitsubishi sinker, 1x Mitsubishi wire. Daily reality: a program written for",
+      "fix": ""
+    },
+    {
+      "agent": 5,
+      "id": "R5A5-006",
+      "evidence": "JM_DIE_CUSTOMERS = 118 customers. JM_DIE_PROGRAM_COUNT = 24,545. The archive top-level shows ITW, ALCOA, ARCONIC, SFS, HOLO-KROME, SIG SAUER, FASTENAL -- repeat customers with repeat parts. Daily ques",
+      "fix": ""
+    },
+    {
+      "agent": 9,
+      "id": "R5A9-001",
+      "title": "v7.A `verifies_via` references 4 non-existent scripts",
+      "evidence": "v7.1 lines 290, 962 reference `node scripts/check-engine-wired.mjs` and `node scripts/audit-sfc-cluster.mjs`; lines for U-SUB-21/24 reference `paddle-fixture-replay.mjs` / `vies-sandbox-probe.mjs`. `l",
+      "fix": ""
+    },
+    {
+      "agent": 9,
+      "id": "R5A9-002",
+      "title": ".github/workflows/ci.yml has no v7.A enforcement step",
+      "evidence": "ci.yml `build-and-test` job = `npm run build` + `npx vitest run --cache`; `test-coverage` job = `npm run test:coverage`. No grep hit for verify-bridge|check-engine-wired|expectNotStub|audit-test-asser",
+      "fix": ""
+    },
+    {
+      "agent": 9,
+      "id": "R5A9-003",
+      "title": "4 of 6 stub-trap dispatcher actions have no remediation unit in v7.1",
+      "evidence": "round3/10 catalog: mill_physics_* (MillingForceEngine 15L stub, millDispatcher L66), mill_scientific_analyze, mill_scientific_optimize, mill_uncertainty_quantify (MillScientificPipelineEngine 14L stub",
+      "fix": ""
+    }
+  ],
+  "majors_count": 50,
+  "majors_sample": [
+    {
+      "agent": 1,
+      "id": "R5A1-001",
+      "title": "MS0 paywall units prose-depend on MS1 SUB hoist set (U-SUB-00/19/22/28) but declare no depends_on against them",
+      "evidence": "v7.1 L198/L259-263 state U-SUB-00/19/22/28 MUST land before MS0 paywall activates; yet U-REV-MS0-ACT-SUBTIER-01, U-REV-ADMIN-03/07 declare depends_on only on intra-MS0 hoist units. Confirmed by round5",
+      "fix": "Add depends_on:['U-SUB-00','U-SUB-22','U-SUB-28'] to U-REV-MS0-ACT-SUBTIER-01 and U-REV-MS0-ACT-APIKEY-01; reframe 'MS0 ships first' — the MS1-P0 hoist set is a hard prereq of MS0 paywall pages, OR ex"
+    },
+    {
+      "agent": 1,
+      "id": "R5A1-002",
+      "title": "MS2 and MS3 use narrative track/batch dependency tables, not per-unit depends_on fields — not uniformly DAG-checkable",
+      "evidence": "v7.1 MS2 (mill/lathe physics) lists tracks A-E with prose sequencing; MS3 uses batch ordering prose. Per round5 agent-4: 'MS2 uses narrative track tables without per-unit declared depends_on fields … ",
+      "fix": "Add a normalization unit (U-REV-DEPGRAPH-NORMALIZE-01) that lifts MS2/MS3/MS5 track-prose into the same depends_on schema as MS0/MS1/MS4 so build-milestone-progress.mjs and stop_on_unwired_assets see "
+    },
+    {
+      "agent": 1,
+      "id": "R5A1-003",
+      "title": "MS2 mill physics units risk wiring to the MillingForceEngine stub (millDispatcher 'physics' bucket) instead of MillingPhysicsKernelEngine",
+      "evidence": "AUDIT-LATEST.json mill domain: MillingForceEngine is a 15-line WIRE-EXEMPT stub returning {ok:false,stub:true}, yet millDispatcher routes 'physics'/'scientific' buckets to it (and MillScientificPipeli",
+      "fix": "Sequence an MS2-P0 unit: replace MillingForceEngine + MillScientificPipelineEngine stubs with thin facades over MillingPhysicsKernelEngine (1924L canonical); designate ChatterPredictionEngine as canon"
+    },
+    {
+      "agent": 1,
+      "id": "R5A1-004",
+      "title": "Master Post milestone overlaps the documented PostProcessor consolidation opportunity (53 engines → 1 MasterPost + 9 vendor strategies) without a scope-fence vs MS2 lathe-post / hyperMILL-NC dispatchers",
+      "evidence": "AUDIT-LATEST.json cam-bridges: 'PostProcessor consolidation — fold 53 engines into 1 MasterPostProcessor + 9 vendor strategies' (very_high leverage) AND physics-safety gap: 'No PreEmit gate on G-code ",
+      "fix": "In the Master Post MS preamble, enumerate owned files (the 53 PP engines + the 4 post dispatchers) and add a lane-claim note; co-locate the OmegaGate PreEmit unit here (it's the natural home — every p"
+    },
+    {
+      "agent": 2,
+      "id": "R5A2-002",
+      "title": "Sandvik average chip thickness formula missing arcsin normalization",
+      "evidence": "",
+      "fix": ""
+    },
+    {
+      "agent": 2,
+      "id": "R5A2-004",
+      "title": "SLD formula needs sign-convention guard at Re[Phi] = 0",
+      "evidence": "",
+      "fix": ""
+    },
+    {
+      "agent": 3,
+      "id": "R5A3-001",
+      "evidence": "",
+      "fix": ""
+    },
+    {
+      "agent": 3,
+      "id": "R5A3-002",
+      "evidence": "",
+      "fix": ""
+    },
+    {
+      "agent": 3,
+      "id": "R5A3-003",
+      "evidence": "",
+      "fix": ""
+    },
+    {
+      "agent": 3,
+      "id": "R5A3-004",
+      "evidence": "",
+      "fix": ""
+    }
+  ]
+}

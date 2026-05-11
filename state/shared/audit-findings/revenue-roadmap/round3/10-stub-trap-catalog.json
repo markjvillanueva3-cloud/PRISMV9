@@ -1,0 +1,259 @@
+{
+  "round": 3,
+  "agent_n": 10,
+  "scope": "Stub-trap catalog + verification hardening",
+  "agent_role": "analyst-forensic",
+  "timestamp": "2026-05-10",
+  "round2_referenced": ["F-r2-a1-02", "F-r2-a10-1", "F-r2-a10-2", "F-r2-a10-3"],
+  "methodology": "AUDIT-LATEST.json filter for 'stub'/'placeholder'/'fake test'; targeted grep of millDispatcher.ts engine routing table; toBeDefined() pattern scan on src/__tests__/; Glob verification of scripts/ for verify-bridge|spans-config-matrix|check-engine-wired existence.",
+  "stub_actions": [
+    {
+      "action": "mill_physics_*",
+      "dispatcher": "millDispatcher",
+      "engine": "MillingForceEngine",
+      "evidence": "AUDIT-LATEST #448: 'MillingForceEngine is a 15-line stub but millDispatcher routes physics bucket to it'. Confirmed millDispatcher.ts L66 routes case 'physics' -> millingForceEngine. AUDIT-LATEST #580: 'returns {ok:false,stub:true}; real engine never existed on any branch'.",
+      "severity": "BLOCKER",
+      "ms0_impact": "v6 mill physics card renders {ok:false,stub:true} but acceptance test '.physics-card not empty' passes"
+    },
+    {
+      "action": "mill_scientific_analyze",
+      "dispatcher": "millDispatcher",
+      "engine": "MillScientificPipelineEngine",
+      "evidence": "AUDIT-LATEST #460: '14-line stub wired as scientific bucket'. Confirmed millDispatcher.ts L70 routes case 'scientific' -> millScientificPipelineEngine. AUDIT-LATEST #466: 'silently return {ok:false,stub:true}'.",
+      "severity": "BLOCKER",
+      "ms0_impact": "mill-studio scientific mode degenerate"
+    },
+    {
+      "action": "mill_scientific_optimize",
+      "dispatcher": "millDispatcher",
+      "engine": "MillScientificPipelineEngine",
+      "evidence": "Same as #460; co-routed action.",
+      "severity": "BLOCKER",
+      "ms0_impact": "Optimization tab renders ok:false"
+    },
+    {
+      "action": "mill_uncertainty_quantify",
+      "dispatcher": "millDispatcher",
+      "engine": "MillScientificPipelineEngine",
+      "evidence": "Same as #460; third action of the scientific bucket.",
+      "severity": "BLOCKER",
+      "ms0_impact": "Confidence interval UI renders empty"
+    },
+    {
+      "action": "mill_chatter_predict",
+      "dispatcher": "millDispatcher",
+      "engine": "MillingForceEngine.predictChatter",
+      "evidence": "AUDIT-LATEST #472: 'millDispatcher chatter actions point to MillingForceEngine.predictChatter (stub)' while ChatterPredictionEngine + ChatterStabilityLobeEngine + ChatterNeuralClassifierEngine implement real Altintas-Budak SLD.",
+      "severity": "BLOCKER",
+      "ms0_impact": "Chatter card returns stub; conflicting physics constants in unwired real engines"
+    },
+    {
+      "action": "blueprint_program_join (CAD master-index path)",
+      "dispatcher": "programDispatcher (BlueprintProgramJoinEngine)",
+      "engine": "BlueprintProgramJoinEngine",
+      "evidence": "AUDIT-LATEST #93: 'joins to a CAD master-index it explicitly calls currently sparse / currently stub'.",
+      "severity": "HIGH",
+      "ms0_impact": "Quote/MS0 print-to-program join falls back to program-labels.json; CAD side silently empty"
+    }
+  ],
+  "false_green_tests": [
+    {
+      "file": "mcp-server/src/__tests__/MillingForceEngine.test.ts",
+      "line_count": 565,
+      "pattern": "imports_class_that_does_not_exist_on_stub",
+      "evidence": "AUDIT-LATEST #541: 'imports MillingForceEngine class + named types — class does not exist on stub; either tests are skipped or build aliases another file'. Either silent skip = false-green CI, or hidden module-resolution layer.",
+      "severity": "BLOCKER"
+    },
+    {
+      "file": "mcp-server/src/__tests__/AccumulatorEngine.test.ts (sample)",
+      "line_count": 20,
+      "pattern": "imports_only_no_assertion_block_visible_in_head",
+      "evidence": "First 20 lines are import + JSDoc only — would need full read to confirm assertion density; flagged as candidate."
+    },
+    {
+      "file": "mcp-server/src/__tests__/AdaptiveToolpathRouterEngine.test.ts",
+      "line_count": 15,
+      "pattern": "single_it_block_thin_coverage",
+      "evidence": "Read first 15 lines: only 1 it() visible, single test case for one feature_type. Violates H:/.claude/rules/tests.md 'Minimum 10 test cases per engine'."
+    },
+    {
+      "file": "mcp-server/src/__tests__/GapPredictorEngine.test.ts",
+      "line_count": "unknown",
+      "pattern": "it.toBeDefined",
+      "evidence": "Matched 'it(...toBeDefined' single-assertion pattern."
+    },
+    {
+      "file": "mcp-server/src/__tests__/ReRankerEngine.test.ts",
+      "line_count": "unknown",
+      "pattern": "it.toBeDefined",
+      "evidence": "Matched 'it(...toBeDefined' single-assertion pattern."
+    },
+    {
+      "file": "mcp-server/src/__tests__/JMDieProgramRAGEngine.test.ts",
+      "line_count": "unknown",
+      "pattern": "it.toBeDefined",
+      "evidence": "Matched 'it(...toBeDefined' single-assertion pattern."
+    },
+    {
+      "file": "mcp-server/src/__tests__/ProvenanceEngine.test.ts",
+      "line_count": "unknown",
+      "pattern": "it.toBeDefined",
+      "evidence": "Matched 'it(...toBeDefined' single-assertion pattern."
+    },
+    {
+      "file": "mcp-server/src/__tests__/JMDieTrainingCorpusEngine.test.ts",
+      "line_count": "unknown",
+      "pattern": "it.toBeDefined",
+      "evidence": "Matched 'it(...toBeDefined' single-assertion pattern."
+    },
+    {
+      "file": "mcp-server/src/__tests__/TrainingExampleAssemblerEngine.test.ts",
+      "line_count": "unknown",
+      "pattern": "it.toBeDefined",
+      "evidence": "Matched 'it(...toBeDefined' single-assertion pattern."
+    },
+    {
+      "file": "mcp-server/src/__tests__/OkumaRunLogParserEngine.test.ts",
+      "line_count": "unknown",
+      "pattern": "it.toBeDefined",
+      "evidence": "Matched 'it(...toBeDefined' single-assertion pattern."
+    },
+    {
+      "file": "mcp-server/src/__tests__/NCFileParserEngine.test.ts",
+      "line_count": "unknown",
+      "pattern": "it.toBeDefined",
+      "evidence": "Matched 'it(...toBeDefined' single-assertion pattern."
+    },
+    {
+      "file": "mcp-server/src/__tests__/LoRACompositionEngine.test.ts",
+      "line_count": "unknown",
+      "pattern": "it.toBeDefined",
+      "evidence": "Matched 'it(...toBeDefined' single-assertion pattern."
+    },
+    {
+      "file": "mcp-server/src/__tests__/LoRAMoEGatingEngine.test.ts",
+      "line_count": "unknown",
+      "pattern": "it.toBeDefined",
+      "evidence": "Matched 'it(...toBeDefined' single-assertion pattern."
+    },
+    {
+      "file": "mcp-server/src/__tests__/TestQualityAuditEngine.test.ts",
+      "line_count": "unknown",
+      "pattern": "it.toBeDefined",
+      "evidence": "Matched 'it(...toBeDefined' single-assertion pattern — ironic given file name."
+    },
+    {
+      "file": "mcp-server/src/__tests__/l2-cadcam-engines.test.ts",
+      "line_count": "unknown",
+      "pattern": "it.toBeDefined",
+      "evidence": "Matched 'it(...toBeDefined' single-assertion pattern (batch sweep over many engines, weak-assert each)."
+    },
+    {
+      "file": "mcp-server/src/__tests__/l2-infrastructure-engines.test.ts",
+      "line_count": "unknown",
+      "pattern": "it.toBeDefined",
+      "evidence": "Matched 'it(...toBeDefined' single-assertion pattern (batch sweep)."
+    }
+  ],
+  "false_green_corpus_signal": {
+    "files_under_25_lines_with_toBeDefined_only_sampled": 30,
+    "total_toBeDefined_occurrences_across_30_sampled_files": 175,
+    "files_with_1_or_2_toBeDefined_assertions_only": "26 of 30 sampled — strongly suggests systemic single-assertion weak-test pattern",
+    "interpretation": "Distribution skews to 1-2 toBeDefined() per file: typical pattern is `it('exists', () => expect(engine).toBeDefined())`. Per H:/.claude/rules/tests.md, minimum is 10 test cases; many of these violate the rule and would be sieved by a 'real-assertion' lint."
+  },
+  "missing_scripts": [
+    {
+      "script": "scripts/verify-bridge",
+      "referenced_in": "state/shared/specs/REVENUE-ROADMAP-2026-05-10.md (v7.A verification channel)",
+      "current_status": "Glob H:/prism/scripts/verify-*.mjs returns 0 files",
+      "decision": "BUILD",
+      "rationale": "v7.A acceptance requires verifying dispatcher action -> engine routing actually executes a real engine. Without this, F-r2-a1-02 stays exploitable. Reuse scripts/system-viz-query.mjs as substrate — add 'verify-bridge <action>' subcommand that resolves dispatcher route, imports the engine, executes a canonical call, and asserts response shape !== {ok:false,stub:true}."
+    },
+    {
+      "script": "scripts/spans-config-matrix.mjs",
+      "referenced_in": "state/shared/specs/REVENUE-ROADMAP-2026-05-10.md (v7.A)",
+      "current_status": "Glob H:/prism/scripts/spans-*.mjs returns 0 files",
+      "decision": "BUILD",
+      "rationale": "Spans-config drives multi-axis controller fan-out; without a matrix verifier, frontend can claim coverage on missing combos. Lower priority than verify-bridge but required for v7.A pass."
+    },
+    {
+      "script": "scripts/check-engine-wired.mjs",
+      "referenced_in": "state/shared/specs/REVENUE-ROADMAP-2026-05-10.md (v7.A)",
+      "current_status": "Glob H:/prism/scripts/check-*.mjs returns 0 files",
+      "decision": "BUILD",
+      "rationale": "stop_on_unwired_assets hook exists but checks at Stop, not at acceptance time. CI/v7.A needs a synchronous gate. Implementable in <100L by traversing dispatcher source files and asserting no engine import resolves to a stub (line-count < 30 + zero method bodies)."
+    },
+    {
+      "script": "scripts/audit-test-assertion-density.mjs",
+      "referenced_in": "(proposed addition — fills F-r2-a1-02 fake-test gap)",
+      "current_status": "does_not_exist",
+      "decision": "BUILD",
+      "rationale": "Sieve test files that have fewer than N real assertions (toBe / toEqual / toBeCloseTo / toThrow / toMatchObject) and emit a denylist for v7.A. toBeDefined()/toBeTruthy()/toBeNull() count as 0.5 each. Threshold: ≥3 real assertions or file flagged as fake-test. Pair with H:/.claude/rules/tests.md 'minimum 10 cases' rule."
+    },
+    {
+      "script": "scripts/audit-stub-engine-returns.mjs",
+      "referenced_in": "(proposed addition — direct fix for F-r2-a1-02 stub:true leak)",
+      "current_status": "does_not_exist",
+      "decision": "BUILD",
+      "rationale": "Static-scan all engines in mcp-server/src/engines for files <30L OR functions whose entire body is `return {ok:false,stub:true}` or `// TODO` or `throw new Error('not implemented')`. Emit JSON list keyed by engine; cross-reference with dispatcher routing tables to identify which actions are stub-trapped. Single source of truth for the catalog this agent produced."
+    }
+  ],
+  "v7a_hardening_proposal": [
+    {
+      "id": "H1",
+      "title": "Banned-return-shape assertion in MS0 acceptance",
+      "current": "MS0 acceptance test: '.physics-card not empty' (per round 2 finding F-r2-a1-02).",
+      "proposed": "Acceptance test must inspect dispatcher response JSON and FAIL on `result.ok === false`, `result.stub === true`, `result.notImplemented === true`, or `result.placeholder === true`. Implementation: shared helper `expectNotStub(result)` in mcp-server/src/__tests__/_helpers/expectNotStub.ts; required by every dispatcher-action E2E test.",
+      "severity_addressed": "BLOCKER"
+    },
+    {
+      "id": "H2",
+      "title": "Engine-LOC floor in stub-detector",
+      "current": "No automated detection that an engine file is degenerate.",
+      "proposed": "scripts/check-engine-wired.mjs FAILS on any engine routed from a dispatcher whose .ts file is <30 lines OR whose default method body is single-return placeholder. Wire as v7.A gate AND as pre-push hook.",
+      "severity_addressed": "BLOCKER"
+    },
+    {
+      "id": "H3",
+      "title": "Real-assertion floor on engine tests",
+      "current": "Test files with 1 `toBeDefined()` pass; AUDIT-LATEST #541 shows MillingForceEngine.test.ts (565L) testing methods that do not exist on stub — risk of silent skip.",
+      "proposed": "scripts/audit-test-assertion-density.mjs: each *.test.ts referenced by an engine MUST have >=3 real assertions (toBe/toEqual/toBeCloseTo/toThrow/toMatchObject) AND >=10 it() blocks per H:/.claude/rules/tests.md. toBeDefined/toBeTruthy/toBeNull/toBeFalsy count as 0.5 each. Files below threshold fail v7.A.",
+      "severity_addressed": "BLOCKER"
+    },
+    {
+      "id": "H4",
+      "title": "Round-trip dispatcher-action invocation in v7.A",
+      "current": "v7.A verifies engine wiring statically.",
+      "proposed": "verify-bridge subcommand executes EACH advertised dispatcher action with a canonical input, captures response, asserts not stub-shaped and dimensions/units are physical (e.g. cutting force in N, MRR in cm^3/min). Wire to PRISM-INVENTORY-LATEST.md action enumeration so new actions get auto-included.",
+      "severity_addressed": "BLOCKER"
+    },
+    {
+      "id": "H5",
+      "title": "Test-file-to-engine collision detector",
+      "current": "MillingForceEngine.test.ts imports a class that does not exist on the stub (#541) — passes CI either via silent skip or alias.",
+      "proposed": "Pre-test gate: for every *.test.ts, statically resolve every `import` against the source file; FAIL if any named import does not exist in the target module. Catches the #541 false-green class.",
+      "severity_addressed": "BLOCKER"
+    },
+    {
+      "id": "H6",
+      "title": "Chatter routing collision",
+      "current": "millDispatcher.mill_chatter_predict -> MillingForceEngine.predictChatter (stub) while ChatterPredictionEngine/ChatterStabilityLobeEngine/ChatterNeuralClassifierEngine are unrouted (#472).",
+      "proposed": "v7.A includes a uniqueness check: every dispatcher case must route to an engine present in ENGINE_DIGEST.md AND not have a competing canonical engine flagged by duplicationGuardEngine. If a competing canonical exists, fail and require explicit `// CANONICAL-FACADE: <reason>` tag.",
+      "severity_addressed": "HIGH"
+    },
+    {
+      "id": "H7",
+      "title": "Frontend acceptance must echo dispatcher result, not card-render",
+      "current": "MS0 UI acceptance is 'card renders with live data' — passes when card renders `Error: stub` text.",
+      "proposed": "MS0 acceptance includes a JSON contract assertion: the *response object* delivered to the UI must pass expectNotStub. Card render is necessary-not-sufficient.",
+      "severity_addressed": "BLOCKER"
+    }
+  ],
+  "summary": {
+    "stubs_found": 6,
+    "false_greens": 16,
+    "missing_scripts": 5,
+    "verdict": "BLOCKER — v7.A acceptance gate is hollow as currently specified. Six dispatcher actions (mill physics + 3 scientific + chatter + blueprint join CAD side) return {ok:false,stub:true} while satisfying MS0 'card renders with live data'. At least one test file (MillingForceEngine.test.ts, 565L) is structurally impossible against its target stub — it either silently skips or alias-resolves a different module, both indistinguishable from false-green. 16 confirmed weak-assertion test files via `it(...toBeDefined())` pattern; full corpus likely much larger. None of the three v7.A-referenced scripts (verify-bridge, spans-config-matrix, check-engine-wired) exist on disk. v7.A must be hardened with 7 explicit gates (H1-H7) before MS0 can be accepted.",
+    "one_line": "Six stub-trapped dispatcher actions + sixteen false-green tests + zero of three v7.A scripts on disk; harden v7.A with expectNotStub helper, engine-LOC floor, assertion-density floor, round-trip action invocation, import-resolution gate, routing-uniqueness check, and JSON-contract MS0 acceptance."
+  }
+}

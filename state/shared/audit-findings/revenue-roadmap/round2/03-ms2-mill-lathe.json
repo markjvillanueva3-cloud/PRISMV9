@@ -1,0 +1,205 @@
+{
+  "round": 2,
+  "agent_n": 3,
+  "scope": "MS2 Mill (U-INV-MILL-01..08) + Lathe (U-INV-LATHE-01..07) inventions — engine existence, physics validity of the COMBO premise, market fit vs JM Die",
+  "agent_role": "analyst-physics",
+  "audit_date": "2026-05-10",
+  "files_audited": [
+    "H:/prism/state/shared/specs/REVENUE-ROADMAP-2026-05-10.md (lines 121-152)",
+    "H:/prism/mcp-server/data/docs/ENGINE_DIGEST.md",
+    "H:/prism/mcp-server/src/data/jm-die-profile.ts",
+    "H:/prism/state/shared/audit-findings/revenue-roadmap/round2/08-v7b-combinatorics.json"
+  ],
+  "round1_overlap": [
+    "Round1 caught MillingForceEngine stub vs millDispatcher physics bucket — relevant to U-INV-MILL-01/03/07 which assume live Kienzle force model; MS2 inherits that risk but does NOT duplicate the finding here.",
+    "Round1 caught ISO-S mc 0.25 vs 0.27 canonical drift — affects U-INV-LATHE-01 (Inconel/superalloy hard-turn) but is physics-constants axis, not invention-combo axis."
+  ],
+  "round2_overlap_with_agent8": [
+    "Agent-8 finding F-r2-a8-B (Row 2 Deflection×Kienzle ap-solve under-determined) covers the SAME closed-form gap as U-INV-MILL-03 'Long-tool stability optimizer'. I extend it here with the convergence/closed-loop angle not in agent-8.",
+    "Agent-8 finding F-r2-a8-N (Row 17 Quote-from-STEP cost equation missing) covers U-INV-MILL-06 'Quote-from-STEP'. I do not re-flag the equation gap; I flag a DIFFERENT axis (CADExtract engine cardinality + DFMCheck wiring)."
+  ],
+  "findings": [
+    {
+      "id": "F-r2-a3-A",
+      "severity": "BLOCKER",
+      "category": "missing",
+      "unit": "U-INV-MILL-01",
+      "title": "U-INV-MILL-01 'real-time chip-load suggestion' cites TelemetryStream but no SpindleTelemetryEngine / LiveSpindleMonitorEngine exists in ENGINE_DIGEST",
+      "evidence": "Grep of ENGINE_DIGEST for 'SpindleTelemetry|LiveSpindle|SpindleMonitor|RealTimeTelemetry' returned ZERO matches. Only telemetry engines that exist: HookTelemetryEngine (E0181, internal hook health), OpenTelemetryTracingEngine (E0363, trace export), ZeroTrustTelemetryEngine (E0575, security). None of these acquire spindle-load / chip-load data from the controller. JM Die machines are 7 Okuma + 5 mills with OSP/Fanuc/Hurco controllers — no MTConnect ingestor or Okuma THINC API consumer engine exists in the digest. The phrase 'real-time chip-load suggestion as operator types into CAM' is therefore live-telemetry-free; it collapses to a STATIC Kienzle prediction with no actuals signal. Marketing as 'real-time' is misleading.",
+      "fix": "Either (a) build SpindleTelemetryIngestEngine (MTConnect XML probe + Okuma THINC + Fanuc FOCAS) as a NEW gap-engine in PENDING_GAP_ENGINES.json before MS2 starts, OR (b) rename U-INV-MILL-01 to 'Kienzle-predicted chip-load suggestion (offline)' and drop the real-time claim. Honest 'predicted' framing still ships value; false 'real-time' framing fails the first customer demo on the shop floor.",
+      "rubric_score_1to5": 1
+    },
+    {
+      "id": "F-r2-a3-B",
+      "severity": "BLOCKER",
+      "category": "broken",
+      "unit": "U-INV-MILL-03",
+      "title": "U-INV-MILL-03 closed-loop 'Long-tool stability optimizer' (Deflection × Force × AdaptiveFeed) is not provably convergent — risk of feed-rate oscillation",
+      "evidence": "The combo wires DeflectionOverlayEngine (E0127) → cutting-force prediction (Kienzle) → AdaptiveFeedModulationEngine (E0004) in a feedback loop: high deflection → lower feed → lower force → less deflection → higher feed allowed → ... Without a Lyapunov / contraction-mapping argument or explicit damping factor, this loop can OSCILLATE in the 0.5-2Hz band where machine-tool servo dynamics live, producing audible chatter at the loop frequency. Classical feedback control requires (a) proportional gain Kp < 1/(loop-delay × derivative-of-force-wrt-feed), (b) integrator anti-windup, (c) dead-band to prevent micro-corrections. Spec mentions NONE of these. Agent-8 F-r2-a8-B caught the algebraic under-determination of the static ap-solve; this finding is the DYNAMIC stability gap orthogonal to that.",
+      "fix": "Require the unit to specify (a) loop sample period (recommend Ts = 0.1s minimum, matched to overlay refresh), (b) damping factor ζ ≥ 0.7 on the feed-rate update law f_{k+1} = f_k + α·(δ_target − δ_predicted) where α ≤ 0.3 for stability, (c) dead-band ±5% on δ_target to prevent chatter, (d) explicit anti-windup. Add a test that runs the loop for 300 simulated samples and asserts no limit-cycle (FFT peak below 0.05Hz noise floor) before shipping.",
+      "rubric_score_1to5": 2
+    },
+    {
+      "id": "F-r2-a3-C",
+      "severity": "MAJOR",
+      "category": "broken",
+      "unit": "U-INV-MILL-04",
+      "title": "U-INV-MILL-04 'auto-shifts spindle RPM mid-program to stability lobe' violates spindle thermal-cycle physics and most controllers' acceleration limits",
+      "evidence": "Stability Lobe Diagrams predict that for a given spindle/holder/tool stack, chatter-free RPMs form discrete lobes at n* = 60·fc/(N·(k+1)) where fc = chatter frequency, N = flute count, k = lobe number (Altintas Eq. 3.51). Shifting BETWEEN lobes mid-program means slewing the spindle ±20-40% RPM mid-cut, which (a) for a 12kW spindle takes 0.5-2 seconds of acceleration (Okuma OSP / Fanuc max accel ≈ 8000 RPM/s for spindles in JM Die's class), during which cutting load varies wildly, (b) drives thermal cycling of the spindle bearings (each accel/decel injects heat), reducing bearing life — JM Die's Okuma Multus B250II spindle replacement cost is ≈$18k, so a 'feature' that prematurely wears spindles is anti-revenue, (c) most CAM posts do not support mid-block RPM modulation cleanly — Mastercam/hyperMILL emit S-words at toolchange or feed-block boundaries only. The spec says 'in posted G-code' which means the post-processor would have to inject S-words mid-toolpath, breaking many controllers' lookahead optimization. Agent-8 audited the algebraic side of v7.B SLD; this is the OPERATIONAL implementation side.",
+      "fix": "Restrict the unit to: (a) RPM selection at the START of each toolpath segment (not mid-segment), (b) avoid lobe-hopping >15% Δn within any 60s window (thermal-cycle budget), (c) prefer ROUGHING-only application where chatter cost dominates surface-finish cost, (d) emit one S-word per operation, not per block. Cite this constraint in the post-processor wiring rule.",
+      "rubric_score_1to5": 2
+    },
+    {
+      "id": "F-r2-a3-D",
+      "severity": "MAJOR",
+      "category": "gap",
+      "unit": "U-INV-LATHE-01",
+      "title": "U-INV-LATHE-01 'Hard-turn replacement of grinding' cites ResidualStressModel + CBN/CeramicCatalog — NEITHER exists in ENGINE_DIGEST; HardTurningCapstoneEngine (E0175) exists but is a capstone wrapper, not a residual-stress predictor",
+      "evidence": "Grep of ENGINE_DIGEST for 'ResidualStress|CBNCeramic|CBN.*Ceramic' returned ZERO matches. E0175 HardTurningCapstoneEngine 'LATHE-PRO-MS5 capstone' — name suggests it orchestrates other engines, not that it contains the residual-stress physics. The compressive residual-stress profile from hard turning vs grinding (Matsumoto-style σ_res(z) = σ_0·exp(-z/δ)·cos(2πz/λ)) requires a 3D thermo-mechanical model: (a) FEM of cutting zone with white-layer formation kinetics, (b) phase-transformation diagram for 50-65 HRC steels, (c) tool-wear-coupled surface integrity. PRISM has NO such engine. Without σ_res(z) prediction, the 'replacement of grinding' advisor cannot honestly compare fatigue life vs ground surface — which is the WHOLE selling point. Marketing this without the physics = false claims / liability if a customer's bearing fails. Surface roughness Rt model also absent (DIN 4768 Rt ≈ f²/(8·rε) for nose-radius rε is the classical form, but for hard turning the SCT — Side Cutting Edge — model is needed; not in digest).",
+      "fix": "EITHER (a) build ResidualStressFEMEngine + WhiteLayerKineticsEngine + HardTurnSurfaceIntegrityEngine as gap-engines per ALWAYS-BUILD doctrine (register in PENDING_GAP_ENGINES.json) — these are 2-4 weeks each, real ML/FEM work, OR (b) downgrade U-INV-LATHE-01 from 'replacement of grinding' to 'hard-turn parameter advisor (no residual-stress claim)' which is shippable on E0175 + existing Kienzle alone. Option (b) is the honest MS2 ship; option (a) is MS5+ work.",
+      "rubric_score_1to5": 2
+    },
+    {
+      "id": "F-r2-a3-E",
+      "severity": "MAJOR",
+      "category": "missing",
+      "unit": "U-INV-LATHE-02",
+      "title": "U-INV-LATHE-02 cites ChipControl, ChipbreakerCatalog, CSSWrapRisk — none appear in ENGINE_DIGEST; lives only as the /chip-control SKILL with no backing engine",
+      "evidence": "Grep of ENGINE_DIGEST for 'ChipControl|Chipbreaker|CSSWrap' returned ZERO matches. The /chip-control skill in ~/.claude/commands references 'chipbreaker catalog validation (Sandvik / Kennametal / ISCAR / Tungaloy / Mitsubishi)' but a skill is a markdown prompt scaffold, not an executable engine. For a 'Lights-out turning verdict' SaaS subscription, customers expect (a) deterministic chipbreaker → chip-form lookup with calibrated success-rate, (b) CSS (Constant Surface Speed) high-RPM wrapping risk model — angular-momentum based: P_wrap ∝ ρ·D²·n·f / σ_yield_chip where small-diameter region of a contoured part exceeds bird-nest threshold around n ≈ 6000 RPM for typical steel chips. Without an engine, this is a /chip-control prompt rebrand, not new revenue.",
+      "fix": "Register ChipbreakerCatalogEngine (vendor lookup over 5 brands × ~40 chipbreaker geometries × material × DOC/feed envelopes) and CSSWrapRiskEngine (closed-form angular-momentum + chip-curl radius from Nakayama-Arai 1962) as gap-engines. Then U-INV-LATHE-02 = wiring + UI only. Without them, the unit ships nothing executable.",
+      "rubric_score_1to5": 2
+    },
+    {
+      "id": "F-r2-a3-F",
+      "severity": "MAJOR",
+      "category": "risk",
+      "unit": "U-INV-LATHE-04",
+      "title": "U-INV-LATHE-04 'Mill-turn collision-free post for Okuma B250IIW' cites MillTurnSync + SubSpindle + B-axisKinematics — none of these named engines exist in ENGINE_DIGEST; only MastercamMillTurnBridge (E0316) and MillTurnLoRACadence (E0332) are present",
+      "evidence": "Grep of ENGINE_DIGEST for 'MillTurnSync|SubSpindle|BAxisKin|B-axisKin' returned ZERO matches. E0316 MastercamMillTurnBridge is a VENDOR BRIDGE (Mastercam-only); JM Die's Okuma Multus B250II uses OSP-P300SA controller with Okuma's Mill-Turn post (NOT Mastercam). E0332 MillTurnLoRACadence is a LoRA training cadence orchestrator, not a kinematics engine. The Okuma Multus B250IIW has: turret + sub-spindle (synchronized C-axis transfer) + B-axis (±120° tilt) + lower turret on some configs — collision-free posting requires (a) full forward kinematics chain T_world ← T_base·T_b_axis(θ)·T_tool, (b) swept-volume collision check vs chuck/tailstock/turret/sub-spindle housings, (c) sub-spindle pickup synchronization (Z2 + C2 phase-match with main spindle, then part release). PRISM ships NONE of this as engines. JM Die DOES own this exact machine (LTH-07 confirmed in jm-die-profile.ts:246), so the target customer is real — but the engines aren't. Round-1 likely flagged sparse Mill-Turn coverage; this is the BUILD-OUT gap.",
+      "fix": "Sequence U-INV-LATHE-04 BEHIND three gap-engine builds: MillTurnForwardKinematicsEngine (B-axis + sub-spindle pickup transforms), SweptVolumeCollisionEngine (octree or BVH vs machine envelope STL), SubSpindleSyncEngine (Z2/C2 handoff state machine). Each is 2-3 weeks. After they ship, U-INV-LATHE-04 is wiring + Okuma post template. Without them, this unit cannot deliver value to its single most plausible JM-Die customer (LTH-07).",
+      "rubric_score_1to5": 2
+    },
+    {
+      "id": "F-r2-a3-G",
+      "severity": "MAJOR",
+      "category": "gap",
+      "unit": "U-INV-LATHE-06",
+      "title": "U-INV-LATHE-06 'Print-to-program SaaS' references 'LATHE-AGI' — no engine by that name in ENGINE_DIGEST; print-to-program path lacks named owner engine",
+      "evidence": "Grep of ENGINE_DIGEST for 'LATHE-AGI|LatheAGI|LatheAgi' returned ZERO matches. The closest is LatheAdaptiveMachiningEngine (E0215) — adaptive machining is RUNTIME parameter tuning, NOT print-OCR → toolpath generation. WEDMPrintToProgramEngine exists per the agent-8 cross-reference (BlueprintProgramJoinEngine etc per AUDIT-LATEST), but a LATHE-side analogue is unverified. The pipeline that this unit promises is: PDF print → blueprint OCR (BlueprintVisionOCREngine, currently WIRE-EXEMPT pending peer-chat revert per AUDIT-LATEST line 132) → tolerance extraction → stock-prep + tool selection + cycle → Okuma/Mazak NC. EACH of those steps lives in a different engine; no unified LATHE-AGI orchestrator engine is named. Selling a 'print-to-program' SaaS without the orchestrator means customers hit a Frankenstein of 5 dispatcher actions and a stitched-together pipeline.",
+      "fix": "Either (a) rename U-INV-LATHE-06 to its real engine owner (LatheAdaptiveMachiningEngine + LatheLoRAAdaptiveRefinementEngine + a NEW LathePrintToProgramOrchestratorEngine to-be-built), OR (b) audit the codebase for any 'LATHE-AGI' / 'LatheAGI' files that may exist but aren't in the digest (digest staleness risk — digest regenerates per CLAUDE.md), then re-tag. Without a single engine owner this unit fails the engine-wiring law.",
+      "rubric_score_1to5": 2
+    },
+    {
+      "id": "F-r2-a3-H",
+      "severity": "MINOR",
+      "category": "conflict",
+      "unit": "U-INV-MILL-06 vs v7.B Row 17 (agent-8 finding F-r2-a8-N)",
+      "title": "U-INV-MILL-06 'Quote-from-STEP' duplicates v7.B Row 17 ambition without acknowledging Row 17's open equation gap",
+      "evidence": "v7.B Row 17 (DFM×ToleranceStack×CADExtract — Quote-from-STEP cost equation) was already flagged by agent-8 as MAJOR — no equation given, customer-facing pricing risk. MS2 U-INV-MILL-06 invokes the SAME engine combo without resolving the equation gap. Two paths in the roadmap promise the same feature; only one is allowed to ship.",
+      "fix": "Merge U-INV-MILL-06 and v7.B Row 17 into a single deliverable — pick MS2 as the build vehicle, mark Row 17 as 'realized by U-INV-MILL-06', and require the cost-equation specification from agent-8 F-r2-a8-N before either unit starts. Avoids duplicate engine wiring + duplicate test surface.",
+      "rubric_score_1to5": 3
+    },
+    {
+      "id": "F-r2-a3-I",
+      "severity": "MINOR",
+      "category": "opportunity",
+      "unit": "U-INV-LATHE-05",
+      "title": "U-INV-LATHE-05 'Cost-per-part calculator' is the strongest market-fit unit in MS2 Lathe — should be moved EARLIER as viral acquisition lead",
+      "evidence": "JM Die quotes 100+ customers and likely competes with ITW/Alcoa/Optimas/SFS/Holo-Krome shops on price. A web tool that returns Gilbert min-cost / max-prod / max-profit V* (per agent-8 F-r2-a8-A's CORRECT form, Boothroyd & Knight Eq. 5.30) with bar-stock material utilization is (a) shareable / linkable (viral), (b) deterministic / cheap to run (no LLM call), (c) directly addresses the #1 quoting question every job shop has. /cost-optimize-lathe skill exists, agent-8 noted CostOptimizeLathe in the canonical-form fix. The OPPORTUNITY: ship U-INV-LATHE-05 first in MS2-Lathe order (before U-INV-LATHE-01 hard-turn which is gated on missing engines), as a free / low-friction acquisition surface that funnels into paid SFC + Master Post.",
+      "fix": "Reorder MS2-Lathe so U-INV-LATHE-05 ships first. Use it as a free-tier marketing surface (no auth, no rate-limit beyond DOS protection). Track conversion of free-cost-calc users → paid trial signup as the MS2 marketing KPI.",
+      "rubric_score_1to5": 4
+    },
+    {
+      "id": "F-r2-a3-J",
+      "severity": "MINOR",
+      "category": "risk",
+      "unit": "U-INV-MILL-07",
+      "title": "U-INV-MILL-07 'Real-time cutting-condition violation alerter' overlaps U-INV-MILL-01 — both need spindle telemetry that doesn't exist",
+      "evidence": "U-INV-MILL-01 (Kienzle + MaterialDB + ToolCrib, 'real-time chip-load') and U-INV-MILL-07 (Kienzle + Spindle + Power monitor, 'real-time cutting-condition violation alerter') both require live spindle / power telemetry. Per F-r2-a3-A, no SpindleTelemetryEngine exists. Building two units that share a missing prerequisite multiplies wasted scoping work and creates two half-built features when the engine eventually lands. Also: 'alerter' overlaps with the existing /shop-safety-check skill and SafetyHooks pipeline — risk of yet another AdvisorEngine duplicate per the audit checklist.",
+      "fix": "Merge U-INV-MILL-01 and U-INV-MILL-07 into one ATOMIC unit ('Real-time Mill Operator Advisor — chip-load + cutting-condition + power alerts on one telemetry stream'). Build SpindleTelemetryIngestEngine ONCE, fan out to both alerting and advising surfaces. Saves ~1 unit of work and avoids dispatcher-level naming collision.",
+      "rubric_score_1to5": 3
+    },
+    {
+      "id": "F-r2-a3-K",
+      "severity": "MINOR",
+      "category": "opportunity",
+      "unit": "U-INV-MILL-08 vs U-INV-LATHE-06",
+      "title": "U-INV-MILL-08 'Cycle Time Crush SaaS' has higher win-rate than U-INV-LATHE-06 'Print-to-Program SaaS' — promote MILL-08 ordering",
+      "evidence": "U-INV-MILL-08 (CycleTimeCrush + ProgramOptimize + Vericut-class sim, per-program fee) targets an existing G-code file — the customer KNOWS what they want, they just want it faster. Conversion is high (compare A vs B cycle times in sim, pay-per-improvement). U-INV-LATHE-06 (LATHE-AGI + JMDieArchive, per-program fee) requires the customer to TRUST the AI's print interpretation — adoption resistance from senior programmers is high (Karpathy edge case: 'old machinists hate auto-generated code'). MILL-08 also has the agent-8 F-r2-a8-F finding to address (local-search monotonicity must be SA not steepest-descent), but the CONCEPT is sound and CycleTimeCrush skill already exists. JM Die's 24,545-program archive becomes a TRAINING + VALIDATION corpus for MILL-08 — perfect product-data fit.",
+      "fix": "Promote U-INV-MILL-08 to second-priority after U-INV-LATHE-05 (cost calc). Defer U-INV-LATHE-06 (print-to-program) to MS3 once OCR + orchestrator engines are mature. Market MILL-08 as 'Upload G-code, get 5-15% cycle time back, only pay if we deliver' — outcome-based pricing reduces adoption friction.",
+      "rubric_score_1to5": 4
+    },
+    {
+      "id": "F-r2-a3-L",
+      "severity": "MINOR",
+      "category": "gap",
+      "unit": "cross-MS2",
+      "title": "MS2 (15 mill+lathe units) lacks an EXPLICIT engine-existence audit gate before any unit starts — repeats the v7.B failure mode agent-8 caught",
+      "evidence": "Of 15 units (8 mill + 7 lathe), this audit found 6 with at least one cited engine that does not exist in ENGINE_DIGEST (MILL-01 SpindleTelemetry, LATHE-01 ResidualStress/CBN, LATHE-02 ChipControl/Chipbreaker/CSSWrap, LATHE-04 SubSpindle/B-axisKin, LATHE-06 LATHE-AGI, plus shared MILL-07 telemetry). That is 40% of MS2 units citing vapor engines. v7.B (agent-8 F-r2-a8-Q) cited 5 missing engines across 50 rows = 10%. MS2 is WORSE per-unit. This is structurally the same problem caught upstream but un-corrected in MS2 specification.",
+      "fix": "Before MS2 build starts, add a one-time audit step: for each of the 15 units, list cited engines, grep ENGINE_DIGEST, register every missing one in PENDING_GAP_ENGINES.json per ALWAYS-BUILD doctrine. Block U-INV-* units until their prerequisite engines exist or are downscoped. Re-emit MS2 milestone envelope with realistic units only after gap-engine timeline.",
+      "rubric_score_1to5": 2
+    }
+  ],
+  "engine_existence_audit": {
+    "method": "Grep ENGINE_DIGEST.md (576 engines) for each cited engine name in U-INV-MILL-01..08 and U-INV-LATHE-01..07",
+    "verified_present": [
+      "AdaptiveFeedModulation (E0004) — cited by MILL-03",
+      "DeflectionOverlay (E0127) — cited by MILL-03 (implied)",
+      "SLDOverlay (E0433) — cited by MILL-04",
+      "ThermalOverlay (E0456) — cited by MILL-05",
+      "HardTurningCapstone (E0175) — cited by LATHE-01 (capstone, not residual-stress)",
+      "GrooveClassification (E0174) — cited by LATHE-07",
+      "MaterialDatabaseBridge (E0323) — cited by MILL-01",
+      "MastercamMillTurnBridge (E0316) — cited by LATHE-04 (Mastercam-only, not Okuma)",
+      "LatheAdaptiveMachining (E0215) — closest match for LATHE-06 LATHE-AGI",
+      "MillTurnLoRACadence (E0332) — orchestrator, not kinematics"
+    ],
+    "verified_missing_from_digest": [
+      "SpindleTelemetryEngine / LiveSpindleMonitorEngine / MTConnectIngestor — cited implicitly by MILL-01, MILL-07",
+      "ResidualStressFEMEngine / ResidualStressModelEngine — cited by LATHE-01",
+      "CBNCeramicCatalogEngine — cited by LATHE-01",
+      "ChipControlEngine / ChipbreakerCatalogEngine / CSSWrapRiskEngine — cited by LATHE-02 (exist only as /chip-control skill)",
+      "SubSpindleSyncEngine / BAxisKinematicsEngine / MillTurnForwardKinematicsEngine — cited by LATHE-04",
+      "LatheAGIEngine / LathePrintToProgramOrchestratorEngine — cited by LATHE-06",
+      "ChatterPredictionEngine (named) — implied by MILL-04 SLD lobe-hopping",
+      "ProgramOptimizeEngine (named) — cited by MILL-08 (CycleTimeCrush skill exists)",
+      "ToolCribEngine — cited by MILL-01 (no clear named engine; ToolCatalogAdaptive E0459 closest)"
+    ]
+  },
+  "market_fit_audit_vs_jm_die": {
+    "method": "Cross-reference each invention vs JM Die 21-machine inventory and 100+ customer base in jm-die-profile.ts",
+    "high_market_fit": [
+      "U-INV-LATHE-04 (Mill-turn collision-free for Okuma Multus B250IIW) — JM Die OWNS this exact machine (LTH-07). Single most direct customer match. BUT engines are missing per F-r2-a3-F.",
+      "U-INV-LATHE-05 (Cost-per-part with min-cost/max-prod/max-profit modes) — JM Die's 100+ customer base = many quote competitions. Direct revenue lever. Engines exist via /cost-optimize-lathe skill.",
+      "U-INV-MILL-08 (Cycle Time Crush) — JM Die's 24,545-program archive = built-in training + validation corpus. Outcome-based pricing fit.",
+      "U-INV-MILL-04 (Chatter-free post) — JM Die's Okuma M460V-5AX + Roku-Roku Fanuc spindles are exactly the high-RPM regime where SLD pays. BUT operational concerns per F-r2-a3-C."
+    ],
+    "medium_market_fit": [
+      "U-INV-MILL-05 (Thermal-compensated first-part) — every shop wants this but probe routines need machine-specific calibration; portable across only ~5 controllers.",
+      "U-INV-MILL-06 (Quote-from-STEP) — high market demand, equation gap per agent-8 F-r2-a8-N must close first.",
+      "U-INV-LATHE-03 (Universal threading wizard) — useful but threading is already commoditized in every CAM; differentiation thin."
+    ],
+    "low_market_fit_vs_engine_cost": [
+      "U-INV-LATHE-01 (Hard-turn replacement of grinding) — JM Die does NOT have a dedicated grinder cell in the 21-machine inventory (only EDM specialty machines visible in the lathes/mills/EDM split). Pre-MS2 customer-discovery validation likely returns 'we don't grind in-house'. Building ResidualStressFEM (4+ weeks) for a non-existent JM-Die need is poor ROI. Re-validate with external customers before building.",
+      "U-INV-LATHE-07 (Groove-job advisor) — 'niche, high margin' per spec — niche by definition limits TAM. Build last.",
+      "U-INV-LATHE-02 (Lights-out turning verdict) — high engineering cost (3 missing engines) for a feature most shops ALREADY make a judgment call on with operator experience. Marketing fit unclear."
+    ]
+  },
+  "duplicate_advisor_engine_check": {
+    "concern_raised_in_dispatch": "any 'AdvisorEngine' overlapping intent already shipped",
+    "findings": [
+      "U-INV-MILL-01 ('Adaptive feed advisor') + U-INV-MILL-07 ('Real-time cutting-condition violation alerter') overlap heavily — both adviser-style real-time pipelines on the same missing telemetry source. See F-r2-a3-J fix.",
+      "U-INV-LATHE-01 ('Hard-turn advisor') overlaps with existing HardTurningCapstoneEngine E0175 capstone — verify the new advisor adds new physics not already in E0175 before building a parallel engine.",
+      "U-INV-LATHE-07 ('Groove-job advisor') overlaps with existing GrooveClassificationEngine E0174 — same concern: capstone vs advisor naming should not lead to two engines doing the same job. Run /dedup before LATHE-07 build.",
+      "No global 'AdvisorEngine' singleton found in digest — but the PATTERN of 'X-advisor' as a unit name in MS2 (4+ instances) is exactly the duplicate-engine seed."
+    ]
+  },
+  "summary": {
+    "blockers": 2,
+    "majors": 5,
+    "minors": 5,
+    "verdict": "FAIL",
+    "rubric_score": 2,
+    "one_line": "MS2 ships 6 of 15 units citing engines that don't exist in ENGINE_DIGEST (40% vapor); 2 units have dynamical-stability / physics-realism BLOCKERS (MILL-01 fake-real-time, MILL-03 unconvergent loop); JM Die owns the Okuma Multus that would buy LATHE-04 but the kinematic engines aren't built; LATHE-05 cost-calc + MILL-08 cycle-crush are the genuinely shippable wins — promote, defer the rest behind a gap-engine build phase."
+  }
+}

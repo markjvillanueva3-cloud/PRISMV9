@@ -1,0 +1,134 @@
+{
+  "round": 2,
+  "agent_n": 2,
+  "agent_role": "backend-dev",
+  "scope": "REVENUE-MS1 subscription mechanics (U-SUB-01..18)",
+  "generated_at": "2026-05-10",
+  "round1_overlap": {
+    "filter_terms": ["billing", "subscription", "stripe", "license", "tier", "seat", "refund", "tax", "dunning", "webhook"],
+    "overlap_count": 0,
+    "notes": "Round-1 hits on 'tier' are autonomy/AGI-tier (WEDM, Tier-3 specialists, omega-thresholds) and on 'license' is CADLicenseHealth (autodesk CAD license, not customer billing). No semantic overlap with revenue-MS1 — this scope is virgin audit territory.",
+    "adjacent_engines_found_in_engine_digest": ["E0051 CADLicenseHealth (CAD vendor license, NOT customer entitlement)", "E0496 WEDMCreditCost (per-job credit, NOT per-seat sub)"]
+  },
+  "verdict": "INSUFFICIENT_FOR_GO_LIVE",
+  "verdict_rationale": "18 units name 18 new engines but skip every production-billing failure mode that destroys revenue: webhook security primitives are uncodified, tier-change flow is one line, tax/dunning/seat/refund each compress 3-7 sub-problems into a single unit, no GDPR/SOC2/proration/chargeback/fraud surface anywhere, dispatcher is brand new with zero existing wiring scaffold. Variability matrix is mathematically incomplete (480 combos, 48 sampled = 10% — payment provider × tier × currency at this density will miss real production bugs). Estimate: needs 32-40 units to ship safely, not 18.",
+  "findings": [
+    {
+      "id": "F-r2-a2-1",
+      "severity": "CRITICAL",
+      "category": "webhook-hardening",
+      "title": "U-SUB-01/02 silent on Stripe/Paddle signature verification, idempotency keys, replay protection, clock skew",
+      "evidence": "Lines 94-95: 'Stripe webhook receiver | new: StripeWebhookEngine + prism_subscription dispatcher' and 'Paddle alternative for non-US | new: PaddleWebhookEngine (Stripe-fallback rail)'. No mention of Stripe-Signature HMAC verify, replay-window (Stripe default 5min), idempotency-key dedup on event.id, clock-skew tolerance, raw-body preservation (rawBody for crypto). The Paddle 'fallback rail' phrasing is dangerous — Paddle webhooks use different signing (RSA public-key, not HMAC), different event taxonomy, and cannot be a transparent fallback for Stripe events; treating them as interchangeable will leak entitlement-grant logic across two non-isomorphic state machines.",
+      "impact": "Every webhook-receiver vuln known to the industry: signature bypass = free Pro subs, replayed checkout.session.completed = double-grant entitlements, missing idempotency = double-charge refunds + cascading dunning. This is the #1 SaaS revenue exfiltration vector.",
+      "recommendation": "Split U-SUB-01 into U-SUB-01a (HMAC verify + raw-body middleware + replay window + idempotency-key dedup table) and U-SUB-01b (event-handler dispatch). Same for Paddle. Add acceptance: ≥5 adversarial signed-payload tests (replay, tampered amount, wrong endpoint secret, expired timestamp, missing header)."
+    },
+    {
+      "id": "F-r2-a2-2",
+      "severity": "CRITICAL",
+      "category": "tier-mapping-state-machine",
+      "title": "U-SUB-03 + U-SUB-17 compress plan-change state machine into one engine read",
+      "evidence": "Line 96: 'Tier-feature mapping | new: FeatureTierEngine (reads state/shared/feature-tiers.json)' and line 110: 'Self-service plan upgrade/downgrade | extends FeatureTierEngine + dispatcher action'. No mention of: downgrade-with-overage handling, grandfather grandparent-rule preservation, mid-cycle proration (Stripe Billing prorations API), seat-shuffle on multi-seat downgrade (which seats lose access), entitlement-revoke timing (immediate vs end-of-cycle), retain-grandfather-on-cancel-and-resubscribe window.",
+      "impact": "Plan-change is the second-most-common revenue dispute (after chargebacks). Botched proration = refund storm; botched grandfather = NPS collapse from long-term customers; botched seat-revoke = shop loses access to live-running tools mid-shift = lawsuit surface.",
+      "recommendation": "Split into: U-SUB-17a (proration calc + Stripe prorations integration), U-SUB-17b (downgrade state machine: scheduled vs immediate, with seat-revoke policy), U-SUB-17c (grandfather table + reactivation window logic). Add explicit feature-tiers.json schema versioning with N-1 backward compat (per CLAUDE.md doctrine)."
+    },
+    {
+      "id": "F-r2-a2-3",
+      "severity": "CRITICAL",
+      "category": "scope-collapse",
+      "title": "U-SUB-13 collapses 6-currency × 50-state × 27-EU-VAT × digital-services nexus into one engine",
+      "evidence": "Line 106: 'Tax calc (Stripe Tax or custom) | new: TaxCalcBridgeEngine'. Variability axis at line 117 names 6 currencies (USD/EUR/GBP/CAD/AUD/JPY). US sales tax is 50-state + 13k+ jurisdictions (Wayfair post-2018); EU VAT is 27 member states + reverse-charge B2B + MOSS/OSS thresholds; UK separate post-Brexit; CA GST/HST/PST; AU GST; JP consumption tax. 'Or custom' is a 6-month project disguised as one unit.",
+      "impact": "Wrong tax = state AG enforcement actions (CA/NY/IL aggressive on digital goods), VAT non-compliance = €/$ thousands per quarter penalties, retroactive nexus discovery = back-tax assessments. Cannot ship to EU without correct VAT-MOSS registration.",
+      "recommendation": "Hard-recommend Stripe Tax (SaaS-managed). If 'custom' chosen, this is 1 milestone, not 1 unit. Minimum split: U-SUB-13a (Stripe Tax bridge + nexus matrix config), U-SUB-13b (invoice tax-line rendering), U-SUB-13c (B2B VAT-ID validation + reverse charge), U-SUB-13d (tax-exempt customer flow). Add ≥1 test per jurisdiction class (US-origin, EU-B2C, EU-B2B, UK, non-EU-international)."
+    },
+    {
+      "id": "F-r2-a2-4",
+      "severity": "HIGH",
+      "category": "dunning-state-machine",
+      "title": "U-SUB-09 names 'dunning flow' but no grace-period / hard-cutoff / read-only-degradation state machine",
+      "evidence": "Line 102: 'Failed-payment dunning flow | new: DunningFlowEngine'. Production dunning needs: retry schedule (industry standard: day 1/3/5/7/14 with Stripe Smart Retries), grace-period during which features stay live, soft-degradation (read-only mode for tier, but in-progress jobs allowed to finish), hard-cutoff with data-export window (GDPR Art-20 portability), reactivation-on-payment within X days restores grandfather pricing.",
+      "impact": "Aggressive dunning = customer churn from one stale card; lax dunning = revenue leak. For CAM/manufacturing customers, cutting access mid-shift is reputation-killing — needs read-only-degradation, not hard-flip.",
+      "recommendation": "Make U-SUB-09 explicit state machine: ACTIVE → PAST_DUE → GRACE → READ_ONLY → SUSPENDED → CANCELED, with transitions, durations (configurable per tier), and data-retention policy on terminal state. Add machine-running-job exemption."
+    },
+    {
+      "id": "F-r2-a2-5",
+      "severity": "HIGH",
+      "category": "missing-license-validator-form-factor",
+      "title": "U-SUB-04 LicenseValidator wires to tr.rest/tr.gql but ignores offline CAM-plugin form factor",
+      "evidence": "Line 97: 'Per-seat license validation middleware | new: LicenseValidatorEngine wired into transport tr.rest + tr.gql'. Variability matrix line 115 names form factors: web / CAM plugin / API-only / shop-floor terminal. CAM plugins (Mastercam, hyperMILL, NX add-ins) run on shop-floor PCs that may be air-gapped or intermittently networked. tr.rest/tr.gql only covers web — no signed-token offline-grace-period model.",
+      "impact": "CAM plugin won't work without network = blocks Master Post sales. PRISM's stated form-factor for the highest-margin product line (per-seat per-machine) is unservable by the proposed validator.",
+      "recommendation": "Add U-SUB-04b: offline license token (JWT signed by PRISM, includes seat-id + exp + entitlements + nonce). Plugin caches token, refreshes when online, runs N days offline. Pair with U-SUB-15 seat-revoke via token revocation list (CRL pulled on next connect)."
+    },
+    {
+      "id": "F-r2-a2-6",
+      "severity": "HIGH",
+      "category": "missing-compliance",
+      "title": "Entire MS1 silent on GDPR delete, SOC2 audit-log, plan-change proration, currency rounding, affiliate fraud",
+      "evidence": "Question 8 checklist items: GDPR Art-17 right-to-erasure (must cascade across Stripe customer + PRISM user + license + tribal-tip authorship — non-trivial cascade); SOC2 CC7.2 audit log on every entitlement change (who/when/why/from-tier/to-tier — immutable); affiliate fraud (self-referral, cookie stuffing, refund-after-payout); currency rounding (banker's rounding vs Stripe's policy, multi-currency conversion banding); proration on plan-change as standalone problem. Scan of U-SUB-01..18 finds zero mentions of GDPR, SOC2, audit-log, fraud, rounding, proration.",
+      "impact": "GDPR DPA non-compliance = €20M / 4% revenue fines (real, levied); SOC2 audit fail = enterprise sales blocked (no Fortune-500 will buy without SOC2 Type-II); affiliate fraud common at ~3-8% of payouts unverified; rounding bugs = trust loss + reconciliation hell.",
+      "recommendation": "Add 5 units: U-SUB-19 GDPR delete cascade (customer → Stripe customer.deleted + PRISM user + license + audit-trail of erasure), U-SUB-20 SOC2 audit-log (immutable append-only of all entitlement events to dedicated table with hash chain), U-SUB-21 currency banker's-rounding utility + reconciliation report, U-SUB-22 proration engine (decoupled from FeatureTierEngine, owns the math), U-SUB-23 affiliate fraud heuristics + clawback policy."
+    },
+    {
+      "id": "F-r2-a2-7",
+      "severity": "HIGH",
+      "category": "variability-undersampled",
+      "title": "Variability matrix 5×4×4×6=480, requires ≥48 (10%) tested — insufficient for payment surface",
+      "evidence": "Line 119: 'Total config combinations: 5×4×4×6 = 480 — test plan must span ≥3 per axis, ≥48 tested.' Payment combinatorics are not orthogonal: currency × provider × country has hard-coupled constraints (Paddle limits in some currencies, EU SCA only on EU cards, JP-Stripe requires JP entity). Sampling 10% of orthogonal space leaves >90% of real customer paths untested.",
+      "impact": "First production VAT calculation in a country not in the 48, first SCA challenge on a card pattern not tested, first Paddle event for a currency not exercised — each is a revenue-stopping bug.",
+      "recommendation": "Replace '≥48 tested' with: full pairwise coverage (5×4 + 5×4 + 5×6 + 4×4 + 4×6 + 4×6 = 124 pairs minimum), plus exhaustive coverage of the 12 highest-revenue-probability triplets (e.g. pro+web+Stripe+USD, shop+plugin+Stripe+EUR). Pairwise (combinatorial testing) is the industry-standard reduction for this space."
+    },
+    {
+      "id": "F-r2-a2-8",
+      "severity": "MEDIUM",
+      "category": "dispatcher-greenfield",
+      "title": "prism_subscription dispatcher does not exist — adds new dispatcher creation work to U-SUB-01",
+      "evidence": "Grep against DISPATCHER_DIGEST.md returned no prism_subscription/billing/payment/license/tax. Line 94 says 'new: StripeWebhookEngine + prism_subscription dispatcher' — but creating a dispatcher per CLAUDE.md ENGINE WIRING law is itself non-trivial (schema + action enum + lazy-import + wire-to-all-sources rule means it needs to wire to prism_session, prism_context, prism_dev for auditability too).",
+      "impact": "Unit underestimates work by ~30%. Also no scaffolding from existing dispatchers (no prism_billing precedent) — must invent action taxonomy from scratch.",
+      "recommendation": "Add U-SUB-00 (zero) explicit dispatcher scaffold: prism_subscription with provisional actions (webhook_receive, entitlement_grant, entitlement_revoke, tier_check, seat_allocate, seat_revoke, license_validate, dunning_advance), schema, lazy imports. THIS unit ships before U-SUB-01."
+    },
+    {
+      "id": "F-r2-a2-9",
+      "severity": "MEDIUM",
+      "category": "refund-incomplete",
+      "title": "U-SUB-12 RefundHandlerEngine names refund/dispute but no credit-restore, chargeback flow, partial-refund proration",
+      "evidence": "Line 105: 'Refund/dispute handler | new: RefundHandlerEngine'. Production refund needs: full vs partial refund math (proration on partial period), credit-balance restore for prepaid annual converted to monthly, chargeback evidence-submission flow (Stripe Radar callback under 7 days), refund-revokes-entitlement timing, customer-initiated vs disputed-with-bank distinction.",
+      "impact": "Chargeback win-rate without evidence submission is ~9%; with proper evidence is ~40-60%. The difference is real revenue. Also, refunding without revoking entitlement is direct fraud vector.",
+      "recommendation": "Split into U-SUB-12a (refund math + entitlement revoke), U-SUB-12b (chargeback evidence pipeline + Stripe dispute API), U-SUB-12c (annual-to-monthly credit conversion utility)."
+    },
+    {
+      "id": "F-r2-a2-10",
+      "severity": "MEDIUM",
+      "category": "multi-seat-incomplete",
+      "title": "U-SUB-15 names 'multi-seat + admin invite' but no seat-revoke, seat-recovery, seat-handover-on-employee-departure",
+      "evidence": "Line 108: 'Multi-seat purchase + admin invite | new: SeatAllocationEngine + frontend'. Shop reality: machinists rotate, get fired, retire — admin needs revoke-without-losing-data, seat-handover, audit-trail of who held which seat when (for SOC2 + per-seat-license dispute resolution).",
+      "impact": "Without revoke flow, terminated employees retain access until expiration — security incident + compliance violation. Shop floor turnover is high.",
+      "recommendation": "U-SUB-15 split: -15a allocate + invite + accept flow, -15b revoke + token revocation broadcast + offline-cache invalidation grace, -15c seat-history audit table (SOC2 traceability)."
+    }
+  ],
+  "top_3_summary": [
+    "F-r2-a2-1 CRITICAL: U-SUB-01/02 silent on signature verify + idempotency + replay — #1 SaaS revenue-exfil vector",
+    "F-r2-a2-3 CRITICAL: U-SUB-13 collapses 6-currency × 50-state × 27-EU-VAT into one engine — 6-month problem mislabeled as one unit",
+    "F-r2-a2-6 HIGH: zero coverage of GDPR delete + SOC2 audit-log + proration + currency rounding + affiliate fraud — enterprise sale blockers"
+  ],
+  "missing_units_recommended": [
+    "U-SUB-00 prism_subscription dispatcher scaffold (pre-req)",
+    "U-SUB-01a webhook security primitives (HMAC + replay + idempotency table)",
+    "U-SUB-01b event-handler dispatch",
+    "U-SUB-13a/b/c/d Stripe Tax bridge + invoice rendering + B2B VAT-ID + tax-exempt flow (4 units, not 1)",
+    "U-SUB-17a/b/c proration + downgrade state machine + grandfather table (3 units)",
+    "U-SUB-19 GDPR delete cascade",
+    "U-SUB-20 SOC2 audit-log immutable chain",
+    "U-SUB-21 banker's-rounding + reconciliation utility",
+    "U-SUB-22 proration engine (decoupled)",
+    "U-SUB-23 affiliate fraud heuristics + clawback",
+    "U-SUB-24 offline-license JWT for CAM plugin form factor",
+    "U-SUB-25 dunning state machine ACTIVE→PAST_DUE→GRACE→READ_ONLY→SUSPENDED→CANCELED",
+    "U-SUB-26/27/28 refund split (math+revoke, chargeback evidence, annual-to-monthly credit)",
+    "U-SUB-29/30 seat-revoke + seat-history audit"
+  ],
+  "ms1_unit_count_recommendation": {
+    "current": 18,
+    "recommended_min": 32,
+    "recommended_safe": 40,
+    "rationale": "Production billing is 2-3x more state-machine work than greenfield engines because every failure mode has a regulatory or financial-loss consequence."
+  }
+}

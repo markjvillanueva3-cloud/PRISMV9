@@ -33,9 +33,25 @@ const COLOR_BLOCKED   = "#cf222e";  // red
 const COLOR_BRIDGE    = "#0969da";  // blue
 const COLOR_NEUTRAL   = "#57606a";  // gray
 
-const SPEC_PATH       = "state/shared/specs/REVENUE-ROADMAP-2026-05-10.md";
-const READINESS_PATH  = "state/shared/REVENUE-READINESS.json";
-const OUT_HTML        = "state/shared/specs/REVENUE-ROADMAP-2026-05-10.html";
+// --- CLI flags: --spec=<path> --readiness=<path> --out=<path> (round-5 a10 fix) ---
+function flagVal(name, fallback) {
+  const pre = `--${name}=`;
+  const hit = process.argv.slice(2).find(a => a.startsWith(pre));
+  return hit ? hit.slice(pre.length) : fallback;
+}
+function firstExisting(...rels) {
+  for (const r of rels) { if (fs.existsSync(path.join(ROOT, r))) return r; }
+  return rels[rels.length - 1];
+}
+// Default tracks the live spec: v7.2 → v7.1 → legacy. Overridable via --spec=.
+const SPEC_PATH       = flagVal("spec", firstExisting(
+  "state/shared/specs/REVENUE-ROADMAP-v7.2.md",
+  "state/shared/specs/REVENUE-ROADMAP-v7.1.md",
+  "state/shared/specs/REVENUE-ROADMAP-2026-05-10.md",
+));
+const READINESS_PATH  = flagVal("readiness", "state/shared/REVENUE-READINESS.json");
+const SPEC_STEM       = path.basename(SPEC_PATH).replace(/\.md$/, "");
+const OUT_HTML        = flagVal("out", `state/shared/specs/${SPEC_STEM}.html`);
 
 const spec = fs.readFileSync(path.join(ROOT, SPEC_PATH), "utf8");
 
@@ -45,15 +61,17 @@ try {
 } catch { /* readiness optional */ }
 
 // === Extract combinatorics table rows from v7.B ===
+// Robust to v7.2 layout (v7.B is name-dropped in the §R5 resolution prose before
+// the actual table). Strategy: scan for ALL numbered-5-col table rows, then keep
+// the longest contiguous run that starts at n===1 (the real combinatorics table).
+const COMBO_ROW_RE = /^\|\s*(\d+)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|/gm;
+const MAX_COMBO_ROWS = 200;
 function extractV7BRows() {
-  const idx = spec.indexOf("v7.B");
-  if (idx < 0) return [];
-  const section = spec.slice(idx, spec.indexOf("v7.C", idx));
-  const rows = [];
-  const lineRe = /^\|\s*(\d+)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|/gm;
+  const all = [];
   let m;
-  while ((m = lineRe.exec(section)) !== null) {
-    rows.push({
+  COMBO_ROW_RE.lastIndex = 0;
+  while ((m = COMBO_ROW_RE.exec(spec)) !== null && all.length < MAX_COMBO_ROWS) {
+    all.push({
       n: parseInt(m[1], 10),
       pair: m[2].trim(),
       algorithm: m[3].trim(),
@@ -61,7 +79,15 @@ function extractV7BRows() {
       ai_plan: m[5].trim(),
     });
   }
-  return rows;
+  // longest contiguous ascending run beginning at 1
+  let best = [];
+  for (let i = 0; i < all.length; i++) {
+    if (all[i].n !== 1) continue;
+    const run = [all[i]];
+    for (let j = i + 1; j < all.length && all[j].n === run.length + 1; j++) run.push(all[j]);
+    if (run.length > best.length) best = run;
+  }
+  return best.length ? best : all;
 }
 const combinatorics = extractV7BRows();
 

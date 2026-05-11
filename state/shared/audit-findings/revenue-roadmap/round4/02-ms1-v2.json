@@ -1,0 +1,158 @@
+{
+  "round": 4,
+  "agent_n": 2,
+  "scope": "REVENUE-MS1 v2 — Subscription mechanics + billing + compliance + form-factor",
+  "agent_role": "backend-api-developer",
+  "generated_at": "2026-05-10",
+  "milestone_id": "REVENUE-MS1",
+  "version": "v2",
+  "supersedes": "REVENUE-ROADMAP-2026-05-10.md REVENUE-MS1 (18 units)",
+  "sources_consumed": [
+    "state/shared/specs/REVENUE-ROADMAP-2026-05-10.md (REVENUE-MS1 v1 baseline)",
+    "state/shared/audit-findings/revenue-roadmap/round3/03-ms1-expand-32-40.json (25 new units)",
+    "state/shared/audit-findings/revenue-roadmap/round3-5/02-sfc-ui-pricing.json (pricing tier matrix)"
+  ],
+  "deliverable_md": "state/shared/audit-findings/revenue-roadmap/round4/02-ms1-v2-section.md",
+
+  "totals": {
+    "unit_count": 43,
+    "new_in_v2": 25,
+    "carryover_from_v1": 18,
+    "p0_count": 5,
+    "thin_shim_carryovers": 8,
+    "active_units": 43
+  },
+
+  "p0_hoist_set": [
+    {
+      "id": "U-SUB-00",
+      "title": "prism_subscription dispatcher scaffold",
+      "reason": "Foundation — nothing routes without dispatcher"
+    },
+    {
+      "id": "U-SUB-19",
+      "title": "Stripe webhook security primitives",
+      "reason": "F-r2-a2-1 CRITICAL revenue-exfil prevention"
+    },
+    {
+      "id": "U-SUB-22",
+      "title": "Stripe Tax bridge",
+      "reason": "F-r2-a2-3 CRITICAL tax compliance; unblocks EU/UK/CA/AU"
+    },
+    {
+      "id": "U-SUB-28",
+      "title": "SOC2 audit-log immutable hash-chain",
+      "reason": "F-r2-a2-6 HIGH compliance substrate every other unit emits to"
+    },
+    {
+      "id": "U-SUB-04",
+      "title": "Per-seat license validation middleware",
+      "reason": "Paywall has no teeth without license validator on tr.rest + tr.gql"
+    }
+  ],
+
+  "dependency_chain_summary": "MS0 U-REV-ADMIN-01..07 -> U-SUB-00 (scaffold) -> [U-SUB-19 webhook | U-SUB-22 tax | U-SUB-28 audit-log] in parallel -> downstream branches (events, dispatch, Paddle, VAT, exempt, GDPR, retention, sub-state, dunning, form-factor, multi-seat, pairwise, anti-fraud) -> MS1 close gate -> MS0 paywall units activate + MS2 invention units gate-passable. The 5 P0 units block all MS0 paywall activation. Hoist law (per round3/02): until U-SUB-19 ships disable webhook intake; until U-SUB-22 ships block EU/UK/CA/AU GTM; until U-SUB-28 ships enterprise sales gated.",
+
+  "pricing_tiers": [
+    { "tier": "free", "price_usd_monthly": 0, "daily_calc_quota": 3, "iso_groups": ["P"], "optimize_mode": false, "recipes_saved": 5, "watermark": "PRISM-FREE", "seats": 1, "api_quota": 0, "cam_plugins": [], "sso": null, "target": "Trial / hobbyist demo" },
+    { "tier": "hobbyist", "price_usd_monthly": 9, "daily_calc_quota": "unlimited", "iso_groups": ["P","M","K","N","S","H"], "optimize_mode": true, "recipes_saved": "unlimited", "watermark": null, "seats": 1, "api_quota": 0, "cam_plugins": [], "sso": null, "target": "Garage shops, students, makers" },
+    { "tier": "pro", "price_usd_monthly": 39, "daily_calc_quota": "unlimited", "iso_groups": ["P","M","K","N","S","H"], "optimize_mode": true, "compare_3up": true, "stability_lobes": true, "overhang_slider": true, "recipes_saved": "unlimited + tags + search", "seats": 1, "api_quota": 0, "cam_plugins": [], "sso": null, "target": "Professional machinists / programmers" },
+    { "tier": "shop", "price_usd_monthly": 249, "daily_calc_quota": "unlimited", "iso_groups": ["P","M","K","N","S","H"], "optimize_mode": true, "compare_3up": true, "stability_lobes": true, "overhang_slider": true, "recipes_saved": "team-shared", "seats": 10, "seats_extra_usd": 25, "api_quota_monthly": 10000, "cam_plugins": ["fusion360"], "sso": ["google_workspace"], "target": "5-50 machinist job shops" },
+    { "tier": "enterprise", "price_usd_monthly": 999, "price_note": "floor; annual contract, custom-priced", "daily_calc_quota": "unlimited", "iso_groups": ["P","M","K","N","S","H","custom"], "optimize_mode": true, "compare_3up": true, "stability_lobes": true, "overhang_slider": true, "recipes_saved": "unlimited + custom-ingest", "seats": "unlimited", "api_quota_monthly": "unlimited", "cam_plugins": ["fusion360","mastercam","hypermill"], "sso": ["saml","scim"], "audit_logs": true, "on_prem_option": true, "sla_pct": 99.9, "target": "50+ shops, OEMs, contract manufacturers" }
+  ],
+  "annual_discount_pct": 20,
+  "trial": { "duration_days": 14, "tier_offered": "pro", "credit_card_required": true, "trigger_event": "first_quota_hit", "beta_program": { "duration_days": 60, "tier_offered": "pro", "free": true } },
+  "free_tier_upgrade_triggers": [
+    "4th calc of day",
+    "non-P material selection",
+    "Optimize mode click",
+    "Compare-3up click",
+    "6th save-recipe"
+  ],
+
+  "units": [
+    { "id": "U-SUB-00", "category": "foundation", "title": "prism_subscription dispatcher scaffold", "engine": "(dispatcher)", "depends_on": [], "tiers_invoked": [], "verifies_via": { "tool": "rtk vitest run -- prism_subscription.dispatcher.test.ts && node scripts/check-engine-wired.mjs --dispatcher prism_subscription", "expected_signal": "10 actions stub-routable; cross-dispatcher round-trip succeeds", "re_run_cost_sec": 10 }, "variability_axes_covered": ["10 actions x 4 payload classes = 40 cases"] },
+
+    { "id": "U-SUB-19", "category": "webhook-hardening", "title": "Stripe webhook security primitives", "engine": "StripeSignatureVerifierEngine", "depends_on": ["U-SUB-00"], "tiers_invoked": [], "verifies_via": { "tool": "rtk vitest run -- StripeSignatureVerifierEngine.test.ts && stripe trigger checkout.session.completed --add metadata.test=replay", "expected_signal": "5 adversarial paths rejected; idempotent re-delivery increments dedup counter not entitlement", "re_run_cost_sec": 15 }, "variability_axes_covered": ["5 adversarial x 4 size = 20 cases"], "p0": true },
+    { "id": "U-SUB-20", "category": "webhook-hardening", "title": "Stripe webhook event handler dispatch", "engine": "StripeEventDispatchEngine", "depends_on": ["U-SUB-19"], "tiers_invoked": [], "verifies_via": { "tool": "rtk vitest run -- StripeEventDispatchEngine.test.ts && stripe trigger checkout.session.completed && stripe trigger customer.subscription.deleted", "expected_signal": "Each event type handled; unknown ack 200; handler-throw triggers Stripe retry", "re_run_cost_sec": 20 }, "variability_axes_covered": ["6 event types x 3 paths = 18 cases"] },
+    { "id": "U-SUB-21", "category": "webhook-hardening", "title": "Paddle webhook RSA signature verifier", "engine": "PaddleSignatureVerifierEngine", "depends_on": ["U-SUB-00"], "tiers_invoked": [], "verifies_via": { "tool": "rtk vitest run -- PaddleSignatureVerifierEngine.test.ts && node scripts/paddle-fixture-replay.mjs", "expected_signal": "RSA verify passes valid, rejects tampered; namespace isolation verified", "re_run_cost_sec": 15 }, "variability_axes_covered": ["5 event types x 4 paths = 20 cases"] },
+
+    { "id": "U-SUB-22", "category": "tax", "title": "Stripe Tax bridge", "engine": "TaxCalcBridgeEngine", "depends_on": ["U-SUB-00"], "tiers_invoked": [], "verifies_via": { "tool": "rtk vitest run -- TaxCalcBridgeEngine.test.ts && stripe tax_rates list", "expected_signal": "Sandbox produces correct rate for US-CA, US-DE, UK, EU-DE, AU", "re_run_cost_sec": 25 }, "variability_axes_covered": ["5 jurisdictions x 3 customer types = 15 cases"], "p0": true },
+    { "id": "U-SUB-23", "category": "tax", "title": "Invoice tax-line rendering", "engine": "InvoiceTaxRendererEngine", "depends_on": ["U-SUB-22"], "tiers_invoked": [], "verifies_via": { "tool": "rtk vitest run -- InvoiceTaxRendererEngine.test.ts && playwright test invoice-render.spec.ts", "expected_signal": "Multi-jurisdiction stacking + reverse-charge note + MOSS CSV schema valid", "re_run_cost_sec": 30 }, "variability_axes_covered": ["5 invoice classes"] },
+    { "id": "U-SUB-24", "category": "tax", "title": "B2B VAT-ID validation", "engine": "VatIdValidatorEngine", "depends_on": ["U-SUB-22"], "tiers_invoked": [], "verifies_via": { "tool": "rtk vitest run -- VatIdValidatorEngine.test.ts && node scripts/vies-sandbox-probe.mjs", "expected_signal": "VIES valid accepted, invalid rejected, VIES-down falls back to format regex", "re_run_cost_sec": 20 }, "variability_axes_covered": ["5 paths"] },
+    { "id": "U-SUB-25", "category": "tax", "title": "Tax-exempt customer flow", "engine": "TaxExemptFlowEngine", "depends_on": ["U-SUB-22"], "tiers_invoked": [], "verifies_via": { "tool": "rtk vitest run -- TaxExemptFlowEngine.test.ts && stripe customers update --tax-exempt=exempt", "expected_signal": "Admin approve flips Stripe tax_exempt; expired triggers re-collection; retroactive credit-note", "re_run_cost_sec": 20 }, "variability_axes_covered": ["3 types x 3 states x 2 retro modes = 18"] },
+
+    { "id": "U-SUB-26", "category": "currency", "title": "Currency rounding + reconciliation", "engine": "CurrencyRoundingEngine", "depends_on": ["U-SUB-00"], "tiers_invoked": [], "verifies_via": { "tool": "rtk vitest run -- CurrencyRoundingEngine.test.ts && node scripts/daily-stripe-recon.mjs --dry-run", "expected_signal": "Banker's rounding matches Stripe; JPY zero-decimal enforced; drift > $0.01 alerts", "re_run_cost_sec": 15 }, "variability_axes_covered": ["6 currencies x 5 edges = 30"] },
+
+    { "id": "U-SUB-27", "category": "compliance", "title": "GDPR Art-17 delete cascade", "engine": "GdprDeleteCascadeEngine", "depends_on": ["U-SUB-00"], "tiers_invoked": [], "verifies_via": { "tool": "rtk vitest run -- GdprDeleteCascadeEngine.test.ts && node scripts/dsr-replay.mjs", "expected_signal": "30d window cancellable; cascade verified across 5 surfaces; audit retains hashed evidence sans PII", "re_run_cost_sec": 25 }, "variability_axes_covered": ["2 windows x 5 surfaces x 3 data classes = 30"] },
+    { "id": "U-SUB-28", "category": "compliance", "title": "SOC2 audit-log immutable hash-chain", "engine": "AuditLogEngine", "depends_on": ["U-SUB-00"], "tiers_invoked": [], "verifies_via": { "tool": "rtk vitest run -- AuditLogEngine.test.ts && node scripts/audit-chain-verify.mjs --tamper-test", "expected_signal": "Every entitlement change logged; tamper detected; SOC2 CC7.2 auditor sample-pull produces signed report", "re_run_cost_sec": 20 }, "variability_axes_covered": ["10 actions x 3 paths = 30"], "p0": true },
+    { "id": "U-SUB-29", "category": "compliance", "title": "Audit-log retention + PII minimization (PCI/SOX)", "engine": "AuditRetentionEngine", "depends_on": ["U-SUB-28"], "tiers_invoked": [], "verifies_via": { "tool": "rtk vitest run -- AuditRetentionEngine.test.ts && node scripts/pci-scope-scan.mjs", "expected_signal": "TTL enforced; zero PAN/CVV anywhere; purge re-anchors hash chain", "re_run_cost_sec": 30 }, "variability_axes_covered": ["3 event classes x 3 boundaries = 9"] },
+
+    { "id": "U-SUB-30", "category": "subscription-state", "title": "Proration engine (decoupled)", "engine": "ProrationEngine", "depends_on": ["U-SUB-00"], "tiers_invoked": [], "verifies_via": { "tool": "rtk vitest run -- ProrationEngine.test.ts && stripe invoices upcoming --subscription <id>", "expected_signal": "Upgrade + downgrade math balances; Stripe preview matches local", "re_run_cost_sec": 15 }, "variability_axes_covered": ["2 dirs x 2 timings x 3 days x 5 transitions = 60"] },
+    { "id": "U-SUB-31", "category": "subscription-state", "title": "Plan-change downgrade state machine", "engine": "PlanChangeStateEngine", "depends_on": ["U-SUB-30"], "tiers_invoked": [], "verifies_via": { "tool": "rtk vitest run -- PlanChangeStateEngine.test.ts", "expected_signal": "LIFO seat revoke; admin override accepted; cancellable until 1h before effective", "re_run_cost_sec": 15 }, "variability_axes_covered": ["4 seat counts x 2 policies x 2 timings = 16"] },
+    { "id": "U-SUB-32", "category": "subscription-state", "title": "Grandfather pricing table + reactivation window", "engine": "GrandfatherTableEngine", "depends_on": ["U-SUB-28"], "tiers_invoked": [], "verifies_via": { "tool": "rtk vitest run -- GrandfatherTableEngine.test.ts", "expected_signal": "60d window preserves rate; admin override logged immutably; schema-version migration tested", "re_run_cost_sec": 15 }, "variability_axes_covered": ["3 windows x 2 overrides x 3 snapshots = 18"] },
+    { "id": "U-SUB-33", "category": "subscription-state", "title": "Refund math + entitlement revoke atomicity", "engine": "RefundMathEngine", "depends_on": ["U-SUB-20", "U-SUB-30"], "tiers_invoked": [], "verifies_via": { "tool": "rtk vitest run -- RefundMathEngine.test.ts && stripe refunds create --charge <id> --amount <partial>", "expected_signal": "Atomic refund+revoke; rollback on mid-failure; idempotent on duplicate webhook", "re_run_cost_sec": 20 }, "variability_axes_covered": ["3 amounts x 2 plans x 2 rollback states = 12"] },
+    { "id": "U-SUB-34", "category": "subscription-state", "title": "Chargeback evidence pipeline", "engine": "ChargebackEvidenceEngine", "depends_on": ["U-SUB-20"], "tiers_invoked": [], "verifies_via": { "tool": "rtk vitest run -- ChargebackEvidenceEngine.test.ts && stripe trigger charge.dispute.created", "expected_signal": "Evidence assembled and submitted before 7-day Stripe deadline; win-rate tracked", "re_run_cost_sec": 25 }, "variability_axes_covered": ["3 reasons x 3 deadlines = 9"] },
+    { "id": "U-SUB-35", "category": "subscription-state", "title": "Annual-to-monthly credit conversion", "engine": "CreditConversionEngine", "depends_on": ["U-SUB-33"], "tiers_invoked": [], "verifies_via": { "tool": "rtk vitest run -- CreditConversionEngine.test.ts", "expected_signal": "Unused annual converts to credit_balance; applied first against future monthlies; portal shows accurate remaining", "re_run_cost_sec": 15 }, "variability_axes_covered": ["3 prices x 4 timings = 12"] },
+
+    { "id": "U-SUB-36", "category": "dunning", "title": "Dunning state machine (FSM)", "engine": "DunningStateMachineEngine", "depends_on": ["U-SUB-20"], "tiers_invoked": [], "verifies_via": { "tool": "rtk vitest run -- DunningStateMachineEngine.test.ts && stripe trigger invoice.payment_failed", "expected_signal": "FSM ACTIVE->PAST_DUE->GRACE->READ_ONLY->SUSPENDED->CANCELED; running-job exemption; 30d data-export grace", "re_run_cost_sec": 30 }, "variability_axes_covered": ["6 states x 5 retries x 2 job states = 60"] },
+
+    { "id": "U-SUB-37", "category": "form-factor", "title": "Offline CAM-plugin JWT license", "engine": "OfflineLicenseJwtEngine", "depends_on": ["U-SUB-00"], "tiers_invoked": [], "verifies_via": { "tool": "rtk vitest run -- OfflineLicenseJwtEngine.test.ts && node scripts/airgap-replay.mjs --days 7", "expected_signal": "Plugin validates offline; expired token blocks; CRL on reconnect; 7d air-gap passes", "re_run_cost_sec": 30 }, "variability_axes_covered": ["3 tiers x 3 durations x 3 token states = 27"] },
+    { "id": "U-SUB-38", "category": "form-factor", "title": "Browser-to-plugin token bridge", "engine": "TokenBridgeEngine", "depends_on": ["U-SUB-37"], "tiers_invoked": [], "verifies_via": { "tool": "rtk vitest run -- TokenBridgeEngine.test.ts && playwright test bridge-handshake.spec.ts", "expected_signal": "Plugin receives JWT without prompt; TTL <= 120s; replay rejected", "re_run_cost_sec": 25 }, "variability_axes_covered": ["2 transports x 4 paths = 8"] },
+
+    { "id": "U-SUB-39", "category": "multi-seat", "title": "Seat revoke + token revocation list (CRL)", "engine": "SeatRevokeEngine", "depends_on": ["U-SUB-37", "U-SUB-28"], "tiers_invoked": [], "verifies_via": { "tool": "rtk vitest run -- SeatRevokeEngine.test.ts && node scripts/crl-push-test.mjs", "expected_signal": "Online plugin loses access within 30s push; offline on next reconnect; running job completes read-only", "re_run_cost_sec": 20 }, "variability_axes_covered": ["3 connectivity x 2 CRL freshness = 6"] },
+    { "id": "U-SUB-40", "category": "multi-seat", "title": "Seat transfer + history audit", "engine": "SeatTransferEngine", "depends_on": ["U-SUB-39"], "tiers_invoked": [], "verifies_via": { "tool": "rtk vitest run -- SeatTransferEngine.test.ts", "expected_signal": "seat_id preserved; chronological history; SOC2 evidence pull returns holder by date", "re_run_cost_sec": 10 }, "variability_axes_covered": ["3 transfer chains x 2 org scopes = 6"] },
+    { "id": "U-SUB-41", "category": "multi-seat", "title": "Multi-org membership", "engine": "MultiOrgEngine", "depends_on": ["U-SUB-40"], "tiers_invoked": [], "verifies_via": { "tool": "rtk vitest run -- MultiOrgEngine.test.ts", "expected_signal": "Per-org tier; active-org context; leaving org A retains B+C; billing scoped to org_id", "re_run_cost_sec": 15 }, "variability_axes_covered": ["3 N-org x 2 tier mixes x 3 leave events = 18"] },
+
+    { "id": "U-SUB-42", "category": "variability", "title": "Pairwise test matrix generator (IPOG)", "engine": "PairwiseMatrixEngine", "depends_on": ["U-SUB-00"], "tiers_invoked": [], "verifies_via": { "tool": "rtk vitest run -- PairwiseMatrixEngine.test.ts && node scripts/pairwise-coverage-verify.mjs", "expected_signal": "All 2-way interactions covered (~124 cases); top-12 triplets enumerated; CI consumes CSV", "re_run_cost_sec": 60 }, "variability_axes_covered": ["meta — generates 124 pairwise + 12 triplets over 5x4x4x6 = 480 combo space"] },
+
+    { "id": "U-SUB-43", "category": "anti-fraud", "title": "Affiliate fraud heuristics + clawback", "engine": "AffiliateFraudEngine", "depends_on": ["U-SUB-28"], "tiers_invoked": [], "verifies_via": { "tool": "rtk vitest run -- AffiliateFraudEngine.test.ts", "expected_signal": "Self-referral risk > 0.8; cookie-stuffing detected; clawback creates Stripe credit-note", "re_run_cost_sec": 20 }, "variability_axes_covered": ["3 signatures x 3 confidence x 2 payout states = 18"] },
+
+    { "id": "U-SUB-01", "category": "carryover-thin-shim", "title": "Stripe webhook receiver (thin shim — heavy in U-SUB-19/20)", "engine": "StripeWebhookEngine", "depends_on": ["U-SUB-19", "U-SUB-20"], "tiers_invoked": [], "verifies_via": { "tool": "rtk vitest run -- StripeWebhookEngine.test.ts", "expected_signal": "Receiver delegates to verifier+dispatcher; no business logic in shim", "re_run_cost_sec": 8 }, "variability_axes_covered": ["6 event types x 3 paths = 18"] },
+    { "id": "U-SUB-02", "category": "carryover-thin-shim", "title": "Paddle alternative for non-US (thin shim — heavy in U-SUB-21)", "engine": "PaddleWebhookEngine", "depends_on": ["U-SUB-21"], "tiers_invoked": [], "verifies_via": { "tool": "rtk vitest run -- PaddleWebhookEngine.test.ts", "expected_signal": "Receiver delegates to RSA verifier; mapping table covers 5 event types", "re_run_cost_sec": 8 }, "variability_axes_covered": ["5 event types x 3 paths = 15"] },
+    { "id": "U-SUB-03", "category": "carryover", "title": "Tier-feature mapping (FeatureTierEngine + state/shared/feature-tiers.json)", "engine": "FeatureTierEngine", "depends_on": ["U-SUB-00"], "tiers_invoked": [], "verifies_via": { "tool": "rtk vitest run -- FeatureTierEngine.test.ts && node scripts/feature-tier-coverage.mjs", "expected_signal": "5 tiers map to feature set; JSON loads with schemaVersion N-1 compat", "re_run_cost_sec": 10 }, "variability_axes_covered": ["5 tiers x N features"] },
+    { "id": "U-SUB-04", "category": "carryover", "title": "Per-seat license validation middleware", "engine": "LicenseValidatorEngine", "depends_on": ["U-SUB-03", "U-SUB-37"], "tiers_invoked": [], "verifies_via": { "tool": "rtk vitest run -- LicenseValidatorEngine.test.ts && curl -H 'X-License: ...' /sfc", "expected_signal": "Middleware wired into tr.rest + tr.gql; rejects unsigned/expired/wrong-org", "re_run_cost_sec": 15 }, "variability_axes_covered": ["5 tiers x 3 token states = 15"], "p0": true },
+    { "id": "U-SUB-05", "category": "carryover", "title": "Trial -> paid conversion flow", "engine": "TrialConversionEngine", "depends_on": ["U-SUB-03"], "tiers_invoked": [], "verifies_via": { "tool": "playwright test trial-conversion.spec.ts", "expected_signal": "5 placement triggers fire; CC-required gate enforced; Stripe Checkout 1-click conversion", "re_run_cost_sec": 60 }, "variability_axes_covered": ["5 triggers x 2 CC modes = 10"] },
+    { "id": "U-SUB-06", "category": "carryover", "title": "Customer dashboard backend", "engine": "CustomerDashboardEngine", "depends_on": ["U-SUB-03"], "tiers_invoked": [], "verifies_via": { "tool": "rtk vitest run -- CustomerDashboardEngine.test.ts", "expected_signal": "Usage rollup + billing fetch + seat count return per tier", "re_run_cost_sec": 12 }, "variability_axes_covered": ["5 tiers x 3 views = 15"] },
+    { "id": "U-SUB-07", "category": "carryover", "title": "Customer dashboard frontend", "engine": "(wires existing Dashboards/OEE template)", "depends_on": ["U-SUB-06"], "tiers_invoked": [], "verifies_via": { "tool": "playwright test dashboard.spec.ts", "expected_signal": "Live data renders per tier; 3 responsive breakpoints validated", "re_run_cost_sec": 90 }, "variability_axes_covered": ["5 tiers x 3 breakpoints = 15"] },
+    { "id": "U-SUB-08", "category": "carryover", "title": "Invoice/receipt PDF gen", "engine": "InvoicePdfEngine", "depends_on": ["U-SUB-23"], "tiers_invoked": [], "verifies_via": { "tool": "rtk vitest run -- InvoicePdfEngine.test.ts", "expected_signal": "PDF render valid for B2C + B2B + multi-jurisdiction stack; pdf-skill consumed", "re_run_cost_sec": 20 }, "variability_axes_covered": ["5 invoice classes x 2 customer types = 10"] },
+    { "id": "U-SUB-09", "category": "carryover-thin-shim", "title": "Failed-payment dunning flow (thin shim — heavy in U-SUB-36)", "engine": "DunningFlowEngine", "depends_on": ["U-SUB-36"], "tiers_invoked": [], "verifies_via": { "tool": "rtk vitest run -- DunningFlowEngine.test.ts", "expected_signal": "Delegates to FSM; no business logic in shim", "re_run_cost_sec": 8 }, "variability_axes_covered": ["delegated to U-SUB-36"] },
+    { "id": "U-SUB-10", "category": "carryover", "title": "API rate-limit per-tier middleware", "engine": "RateLimitEngine", "depends_on": ["U-SUB-03"], "tiers_invoked": [], "verifies_via": { "tool": "rtk vitest run -- RateLimitEngine.test.ts && k6 run rate-limit-soak.js", "expected_signal": "Per-tier quotas enforced on tr.rest + tr.gql; over-quota returns 429 with Retry-After", "re_run_cost_sec": 90 }, "variability_axes_covered": ["5 tiers x 3 limit states = 15"] },
+    { "id": "U-SUB-11", "category": "carryover", "title": "Per-tier hook injection (TierGateHookEngine)", "engine": "TierGateHookEngine", "depends_on": ["U-SUB-03"], "tiers_invoked": [], "verifies_via": { "tool": "rtk vitest run -- TierGateHookEngine.test.ts", "expected_signal": "Hooks reject below-tier calls before dispatcher; audit-log entry on rejection", "re_run_cost_sec": 12 }, "variability_axes_covered": ["5 tiers x N dispatcher actions"] },
+    { "id": "U-SUB-12", "category": "carryover-thin-shim", "title": "Refund/dispute handler (thin shim — heavy in U-SUB-33/34)", "engine": "RefundHandlerEngine", "depends_on": ["U-SUB-33", "U-SUB-34"], "tiers_invoked": [], "verifies_via": { "tool": "rtk vitest run -- RefundHandlerEngine.test.ts", "expected_signal": "Delegates to RefundMath + ChargebackEvidence", "re_run_cost_sec": 8 }, "variability_axes_covered": ["delegated"] },
+    { "id": "U-SUB-13", "category": "carryover-thin-shim", "title": "Tax calc (thin shim — heavy in U-SUB-22..25)", "engine": "TaxCalcBridgeEngine", "depends_on": ["U-SUB-22", "U-SUB-23", "U-SUB-24", "U-SUB-25"], "tiers_invoked": [], "verifies_via": { "tool": "rtk vitest run -- TaxCalcBridgeEngine.test.ts", "expected_signal": "Delegates to 4 decomposed engines", "re_run_cost_sec": 8 }, "variability_axes_covered": ["delegated"] },
+    { "id": "U-SUB-14", "category": "carryover", "title": "Annual-vs-monthly discount logic (parameter on FeatureTierEngine)", "engine": "FeatureTierEngine (extended)", "depends_on": ["U-SUB-03"], "tiers_invoked": [], "verifies_via": { "tool": "rtk vitest run -- FeatureTierEngine.test.ts -- annual", "expected_signal": "20% annual discount applied at checkout; mid-cycle switch prorates", "re_run_cost_sec": 10 }, "variability_axes_covered": ["5 tiers x 3 cycles = 15"] },
+    { "id": "U-SUB-15", "category": "carryover-thin-shim", "title": "Multi-seat purchase + admin invite (thin shim — heavy in U-SUB-39/40/41)", "engine": "SeatAllocationEngine", "depends_on": ["U-SUB-39", "U-SUB-40", "U-SUB-41"], "tiers_invoked": [], "verifies_via": { "tool": "playwright test seat-invite.spec.ts", "expected_signal": "Invite flow delegates to revoke/transfer/multi-org", "re_run_cost_sec": 30 }, "variability_axes_covered": ["delegated"] },
+    { "id": "U-SUB-16", "category": "carryover", "title": "Subscription pause / vacation mode", "engine": "SubscriptionStateEngine", "depends_on": ["U-SUB-36"], "tiers_invoked": [], "verifies_via": { "tool": "rtk vitest run -- SubscriptionStateEngine.test.ts", "expected_signal": "Pause halts billing; resume restores entitlement + grandfather; expire forces close", "re_run_cost_sec": 15 }, "variability_axes_covered": ["5 tiers x 3 transitions = 15"] },
+    { "id": "U-SUB-17", "category": "carryover", "title": "Self-service plan upgrade/downgrade (extends FeatureTierEngine)", "engine": "FeatureTierEngine (extended)", "depends_on": ["U-SUB-30", "U-SUB-31"], "tiers_invoked": [], "verifies_via": { "tool": "playwright test upgrade-downgrade.spec.ts", "expected_signal": "20 tier transitions x 2 timings work end-to-end via portal", "re_run_cost_sec": 90 }, "variability_axes_covered": ["20 transitions x 2 timings = 40"] },
+    { "id": "U-SUB-18", "category": "carryover-thin-shim", "title": "Affiliate / referral tracking (thin shim — fraud in U-SUB-43)", "engine": "ReferralEngine", "depends_on": ["U-SUB-43"], "tiers_invoked": [], "verifies_via": { "tool": "rtk vitest run -- ReferralEngine.test.ts", "expected_signal": "Tracking emits referrals; fraud heuristics gate payout", "re_run_cost_sec": 10 }, "variability_axes_covered": ["3 attribution windows x N affiliates"] }
+  ],
+
+  "compliance_surfaces_covered": [
+    "GDPR Art-17 right to erasure (U-SUB-27)",
+    "GDPR Art-20 data export window (U-SUB-36)",
+    "SOC2 CC7.2 audit-log immutability (U-SUB-28)",
+    "SOC2 evidence traceability (U-SUB-40)",
+    "PCI-DSS scope minimization (U-SUB-29)",
+    "EU VAT-MOSS quarterly (U-SUB-22/23/24)",
+    "SOX 7-year retention (U-SUB-29)"
+  ],
+
+  "ms1_close_acceptance_gate": [
+    "All 43 units status=shipped with verifies_via green in SCRUTINY_LEDGER.json",
+    "U-SUB-42 pairwise matrix CI run zero failures across 124+12 cases",
+    "U-SUB-28 audit-chain verify passes on full event history",
+    "U-SUB-29 PCI scope scan returns zero PAN/CVV findings across mcp-server/",
+    "End-to-end Stripe trigger round-trips webhook -> entitlement_grant -> audit_record p95 < 800ms at 50 req/s (k6 load)",
+    "3-of-3 scrutiny consensus PASS (Codex + Gemini + Opus reviewer) on milestone-close PR",
+    "state/shared/REVENUE-READINESS.json ms1_subscription_pct == 1.0"
+  ],
+
+  "summary": {
+    "total_units": 43,
+    "p0_count": 5,
+    "p0_ids": ["U-SUB-00", "U-SUB-19", "U-SUB-22", "U-SUB-28", "U-SUB-04"],
+    "dependency_chain_one_line": "MS0 ADMIN -> U-SUB-00 -> [U-SUB-19 | U-SUB-22 | U-SUB-28] parallel -> downstream (tax/compliance/sub-state/dunning/form-factor/multi-seat) -> U-SUB-42 pairwise gate -> MS1 close -> MS0 paywall activates + MS2 inventions unlock",
+    "verdict": "REVENUE-MS1 v2 ships 43 units across 9 work axes; webhook hardening + tax decomposition + SOC2 audit chain + license validator + dispatcher scaffold are the 5 P0 hoists that block all MS0 paywall activation."
+  }
+}

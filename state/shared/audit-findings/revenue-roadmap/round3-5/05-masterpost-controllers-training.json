@@ -1,0 +1,56 @@
+{
+  "round": 3.5,
+  "agent_n": 5,
+  "scope": "Master Post controllers + training",
+  "agent_role": "researcher-product",
+  "jm_die_fleet": [
+    { "machine": "Okuma GENOS L300-M (LTH-01)",       "controller": "Okuma OSP-P300L-R",     "program_count_in_archive": 2800 },
+    { "machine": "Okuma GENOS L200E-M (LTH-02)",      "controller": "Okuma OSP-P200LA-R",    "program_count_in_archive": 2200 },
+    { "machine": "Okuma LNC8 (LTH-03)",               "controller": "Okuma OSP-U10L",        "program_count_in_archive": 1100 },
+    { "machine": "Okuma Crown L1060 (LTH-04)",        "controller": "Okuma OSP-U10L",        "program_count_in_archive": 900  },
+    { "machine": "Okuma GENOS L400II-E (LTH-05)",     "controller": "Okuma OSP-P300LA-E",    "program_count_in_archive": 1400 },
+    { "machine": "Okuma LB 3000EX Big Bore (LTH-06)", "controller": "Okuma OSP-P500",        "program_count_in_archive": 1700 },
+    { "machine": "Okuma Multus B250II (LTH-07)",      "controller": "Okuma OSP-P300SA",      "program_count_in_archive": 800  },
+    { "machine": "Hurco VM30i (VMC-01)",              "controller": "Hurco WinMAX v10",      "program_count_in_archive": 4200 },
+    { "machine": "Okuma M460V-5AX (VMC-02)",          "controller": "Okuma OSP-P300MA-H",    "program_count_in_archive": 1100 },
+    { "machine": "Haas VF-2 (VMC-03)",                "controller": "Haas PRE-NGC",          "program_count_in_archive": 1800 },
+    { "machine": "Haas OM-2 (VMC-04)",                "controller": "Haas PRE-NGC",          "program_count_in_archive": 700  },
+    { "machine": "Roku-Roku HC 658-II (VMC-05)",      "controller": "Fanuc 31i-B5",          "program_count_in_archive": 400  },
+    { "machine": "Mitsubishi EA12S (EDM-01)",         "controller": "Mitsubishi FP80S",      "program_count_in_archive": 1900 },
+    { "machine": "Mitsubishi EA12D (EDM-02)",         "controller": "Mitsubishi C30EA-2",    "program_count_in_archive": 1200 },
+    { "machine": "Mitsubishi FA10S (WEDM-01)",        "controller": "Mitsubishi W31MV-2",    "program_count_in_archive": 2300 }
+  ],
+  "controller_readiness": [
+    { "controller": "Hurco WinMAX v10",       "prism_engine": "HurcoV11MillMasterPostEngine (E0182)",                "engine_status": "SHIP-READY", "jm_die_examples": 4200, "training_method": "rule+prompt", "priority": "P0", "notes": "Highest archive density (4,200 programs incl. Mastercam .mcx-8 + .NC + .MIN). Confirmed ship-ready per ENGINE_DIGEST. WinMAX dialect fully spec'd; needs JM-specific prompt overlay (M30→rapid X0Y0Z0 quirks)." },
+    { "controller": "Okuma OSP family (P200/P300/P500/U10)", "prism_engine": "OkumaB250LatheMasterPostEngine (E0355) + PPOkumaTurningPostEngine", "engine_status": "SHIP-READY", "jm_die_examples": 11900, "training_method": "rule+lora", "priority": "P0", "notes": "7 lathes share OSP dialect — single engine covers all 7. 11,900 example programs (.MIN with $<INTERNAL>% header per memory). Variant gap: P300SA/MA-H multi-axis untested." },
+    { "controller": "Mitsubishi W31MV-2 (Wire EDM)", "prism_engine": "MitsubishiMV1200RWireEDMMasterPostEngine (E0337) + WEDMPostMitsubishi (E0529)", "engine_status": "SHIP-READY", "jm_die_examples": 2300, "training_method": "rule", "priority": "P0", "notes": "Confirmed in ENGINE_DIGEST as JM Die Wire EDM Master Post Processor. Dialect fully spec'd by Mitsubishi." },
+    { "controller": "Mitsubishi FP80S / C30EA-2 (Sinker EDM)", "prism_engine": "NONE", "engine_status": "MISSING", "jm_die_examples": 3100, "training_method": "rule+lora", "priority": "P1", "notes": "No sinker-EDM master post engine found. 3,100 example programs available. Block to revenue: medium — sinker is shrinking market." },
+    { "controller": "Haas PRE-NGC",           "prism_engine": "NONE (generic PostProcessorEngine only)",             "engine_status": "MISSING", "jm_die_examples": 2500, "training_method": "rule", "priority": "P1", "notes": "Two Haas mills (VF-2, OM-2). PRE-NGC is well-documented dialect, .NC output. Highest market-share opportunity outside JM (~25% US small shops). BUILD NEXT after Hurco." },
+    { "controller": "Fanuc 31i-B5",           "prism_engine": "NONE (WEDMPostFanuc exists for wire only)",            "engine_status": "MISSING", "jm_die_examples": 400, "training_method": "rule",  "priority": "P0-EXTERNAL", "notes": "Only 1 JM machine (Roku-Roku) and 400 examples, BUT Fanuc is 60-70% global market share. External-revenue P0; internal-JM P2. ENGINE_DIGEST shows no FanucMillMasterPostEngine." },
+    { "controller": "Mazatrol Smooth",        "prism_engine": "NONE",                                                "engine_status": "MISSING", "jm_die_examples": 0,    "training_method": "rule+lora", "priority": "P2", "notes": "No Mazak machines in JM fleet. Defer — no internal training data, MS-PILOT phase only." },
+    { "controller": "Heidenhain iTNC/TNC640", "prism_engine": "NONE",                                                "engine_status": "MISSING", "jm_die_examples": 0,    "training_method": "rule",      "priority": "P2", "notes": "European mold/die market. No JM data. Defer." },
+    { "controller": "Siemens 840D",           "prism_engine": "NONE",                                                "engine_status": "MISSING", "jm_die_examples": 0,    "training_method": "rule",      "priority": "P2", "notes": "European auto/aero. No JM data. Defer." }
+  ],
+  "training_pipeline_per_controller": {
+    "rule_based": ["Hurco WinMAX", "Okuma OSP", "Mitsubishi W31MV-2", "Haas PRE-NGC", "Fanuc 31i-B5"],
+    "lora_finetune_required": ["Okuma OSP (operator-edit style)", "Mitsubishi sinker FP80S/C30EA-2"],
+    "tribal_prompt_overlay": ["Hurco (M30→rapid X0Y0Z0)", "Okuma (.MIN $<INTERNAL>% header)", "Haas (proven-program vs draft naming)"],
+    "ground_truth_source": "Operator-edited shipped programs in JM DIE/ archive — *.NC under PROVEN PRG/ subfolders. CAD-only files (.ipt/.iam/.f3d/.SLDPRT/.x_t/.STEP) are program-equivalent (per memory ref: jm_die_program_save_practice).",
+    "validation_method": "Roundtrip generated G-code → controller emulator (Hurco WinMAX sim, Okuma OSP-Lathe sim, Haas IPS sim, Fanuc 31i sim) → motion plan compare vs Mastercam .mcx-8 reference. No public emulator for Mitsubishi sinker — defer to MS-PILOT agent 6 dry-run."
+  },
+  "revenue_priority_order": [
+    "Hurco WinMAX v10 (already SHIP-READY — close JM-internal revenue gap first)",
+    "Haas PRE-NGC mill (NEW BUILD — biggest external TAM among missing engines, US small-shop market)",
+    "Fanuc 31i-B5 mill (NEW BUILD — global market dominance, only 1 JM machine but unlocks 60-70% of external opportunities)",
+    "Okuma OSP harden + multi-axis variant coverage (P300SA/MA-H untested)",
+    "Mitsubishi sinker (P1 — finish JM-internal coverage)",
+    "Mazatrol Smooth / Heidenhain / Siemens (P2 — MS-PILOT phase only)"
+  ],
+  "summary": {
+    "controllers_today": 3,
+    "controllers_needed": 9,
+    "first_revenue_controller": "Hurco WinMAX v10 (already SHIP-READY at JM Die — first revenue is a paid-pilot conversion, not a new build)",
+    "verdict": "3 of 9 controllers ship-ready (Hurco mill, Okuma lathe family, Mitsubishi wire EDM). Build Haas PRE-NGC next for external TAM, then Fanuc 31i for market dominance. 18,400 of 24,545 archive programs (75%) are already covered by ship-ready engines.",
+    "one_line": "Ship-ready: Hurco + Okuma + Mitsubishi-wire (3/9). Attack first: harden Hurco for paid JM pilot, then build Haas PRE-NGC for external revenue."
+  }
+}

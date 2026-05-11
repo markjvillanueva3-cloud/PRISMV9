@@ -60,7 +60,17 @@ function safeReadText(rel) {
 // === Read live state ===
 const buildState = safeReadJson("state/shared/BUILD_STATE.json") || {};
 const audit      = safeReadJson("state/shared/AUDIT-LATEST.json") || {};
-const roadmapMd  = safeReadText("state/shared/specs/REVENUE-ROADMAP-2026-05-10.md");
+// Spec path: --spec=<path> overrides; default tracks live spec v7.2 → v7.1 → legacy.
+function specFlag() {
+  const hit = process.argv.slice(2).find(a => a.startsWith("--spec="));
+  if (hit) return hit.slice("--spec=".length);
+  for (const c of ["state/shared/specs/REVENUE-ROADMAP-v7.2.md", "state/shared/specs/REVENUE-ROADMAP-v7.1.md", "state/shared/specs/REVENUE-ROADMAP-2026-05-10.md"]) {
+    if (fs.existsSync(path.join(ROOT, c))) return c;
+  }
+  return "state/shared/specs/REVENUE-ROADMAP-2026-05-10.md";
+}
+const SPEC_REL   = specFlag();
+const roadmapMd  = safeReadText(SPEC_REL);
 
 // === Enumerate units declared in the roadmap (regex over the spec) ===
 // Matches: U-REV-*, U-SUB-*, U-INV-*-*, U-WIRE-*-*, U-DRIFT-*

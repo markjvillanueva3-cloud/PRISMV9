@@ -1,0 +1,142 @@
+{
+  "round": 2,
+  "agent_n": 9,
+  "agent_role": "code-analyzer",
+  "scope": "v7.C 7-tier AI orchestration — verify each tier's named engines/actions/scripts EXIST",
+  "spec_file": "H:/prism/state/shared/specs/REVENUE-ROADMAP-2026-05-10.md",
+  "spec_section": "v7.C — AI orchestration plan (Claude as Tier-1), lines 473-502",
+  "verdict": "PARTIAL — T1/T2/T4/T5 REAL, T3 PARTIAL (engines exist but zero trained weights), T6 PARTIAL (1 symbolic-projection engine, NO Z3/MIP/LP solver dependency), T7 MISSING-CRITICAL (PRISMCreativeReasoningEngine ships marketing JSDoc over a 10-row lookup table per Round-1 finding). Safety+Omega gates exist as runtime actions but spec's S(x)>=0.70 / Omega>=0.70 floors not bound to MS2 unit acceptance.",
+  "tier_verdicts": {
+    "T1_claude_orchestration": "REAL (tautological — Claude is the runtime)",
+    "T2_deep_reason": "REAL",
+    "T3_lora": "PARTIAL — engines/schemas/actions exist, training infrastructure exists, ZERO .safetensors checkpoints shipped (Round-1 F-r1)",
+    "T4_neural_conformal": "REAL",
+    "T5_ai_router": "REAL (1 engine, weekly digest cron missing per Round-1 F-r1)",
+    "T6_symbolic": "PARTIAL — projection-based symbolic enforcer, NOT a solver. No z3-solver/lp_solve/glpk dependency in package.json. Spec promises Z3+MIP+LP for tolerance allocation + scheduling; only Kienzle/Taylor/RPM/feed lexicographic projection exists.",
+    "T7_kg_creative": "MISSING-CRITICAL — PRISMCreativeReasoningEngine.explore() exists at the path but Round-1 audit confirms it is a static 10-row lookup table with no LLM call, no KG traversal, no analogy reasoning. graph_infer dispatcher action exists in intelligenceDispatcher.ts:549 but its engine binding is unverified."
+  },
+  "findings": [
+    {
+      "id": "F-r2-a9-1",
+      "tier": "T1",
+      "claim": "T1 (Claude orchestration): synthesizes the combo, resolves ambiguity, owns final go/no-go",
+      "status": "REAL",
+      "evidence": "Tautological — Claude is the runtime executing the spec. No code artifact required.",
+      "severity": "info",
+      "confidence": 1.0
+    },
+    {
+      "id": "F-r2-a9-2",
+      "tier": "T2",
+      "claim": "ai_milling_deep_reason, ai_wedm_deep_logic, cot_reason_tree in prism_ai",
+      "status": "REAL",
+      "evidence": "All three cases exist in aiReasoningDispatcher.ts: case 'ai_milling_deep_reason' line 897, case 'ai_wedm_deep_logic' line 907, case 'cot_reason_tree' line 1372. Dispatcher action enum + handlers wired.",
+      "file": "H:/prism/mcp-server/src/tools/dispatchers/aiReasoningDispatcher.ts:897,907,1372",
+      "severity": "info",
+      "confidence": 1.0
+    },
+    {
+      "id": "F-r2-a9-3",
+      "tier": "T3",
+      "claim": "LoRA adapters: mill_lora_predict, lathe_lora_pipeline, wedm_lora_*, cam_lora_* — learned residuals",
+      "status": "PARTIAL",
+      "evidence": "Schemas exist: camLoRAFrameworkActionSchemas.ts (9 cam_lora_* actions), wedmDLCoreSchemas.ts (wedm_lora_create/set_scale/forward), turningActionSchemas.ts (lathe_lora_pipeline_*), mlActionSchemas.ts (continual_lora_train). Engines exist: LatheLoRADatasetBuilderEngine.ts, LatheLoRAPipelineEngine, plus ~80 LatheLoRA* and WEDMLoRAAdapterEngine engines. CRITICAL GAP per Round-1: '80 LatheLoRA* engines and 0 .safetensors weights' — no trained adapter checkpoints under data/models/lathe-lora/<date>/. The 'learned residual' claim is unbacked.",
+      "file": "H:/prism/mcp-server/src/schemas/camLoRAFrameworkActionSchemas.ts, H:/prism/mcp-server/src/engines/LatheLoRADatasetBuilderEngine.ts",
+      "severity": "high",
+      "confidence": 0.95,
+      "round1_overlap": true
+    },
+    {
+      "id": "F-r2-a9-4",
+      "tier": "T4",
+      "claim": "xproc_neural_train/predict, conformal prediction, ensemble fusion — calibrated uncertainty",
+      "status": "REAL",
+      "evidence": "aiReasoningDispatcher.ts wires 10 xproc_conformal_* actions (lines 179-192), xproc_neural_train (342) and xproc_neural_predict (348). Engines exist: CrossProcessNeuralLearningEngine, CrossProcessConformalPredictionEngine, CrossProcessConformalClassificationEngine, CrossProcessAPSClassificationEngine, CrossProcessRAPSClassificationEngine, ConformalCalibrationMonitorEngine, ConformalPredictionLogEngine, CrossProcessMondrianClassificationEngine. APS adaptive prediction sets (Romano et al. 2020) shipped per recent commit 1e81c888d.",
+      "file": "H:/prism/mcp-server/src/tools/dispatchers/aiReasoningDispatcher.ts:179-192, H:/prism/mcp-server/src/engines/CrossProcessConformalPredictionEngine.ts",
+      "severity": "info",
+      "confidence": 1.0
+    },
+    {
+      "id": "F-r2-a9-5",
+      "tier": "T5",
+      "claim": "aiSystemRouterEngine, federated learn, transfer scaling, prototypical regression",
+      "status": "REAL",
+      "evidence": "AISystemRouterEngine.ts exists at mcp-server/src/engines/AISystemRouterEngine.ts. Test file AISystemRouterEngine.test.ts exists. Routed from devDispatcher, camDispatcher, edmDispatcher, intelligenceDispatcher, memoryDispatcher (5 dispatchers). Companion engines: CrossProcessTransferLearningEngine, CrossProcessMAMLLiteEngine, CrossProcessTierRouterEngine. Round-1 caveat: 'telemetry ledger has no consumer — write-only'.",
+      "file": "H:/prism/mcp-server/src/engines/AISystemRouterEngine.ts",
+      "severity": "info",
+      "confidence": 0.9,
+      "round1_overlap": true
+    },
+    {
+      "id": "F-r2-a9-6",
+      "tier": "T6",
+      "claim": "Z3 / constraint solver / MIP — formal allocation (tolerance + scheduling + cost)",
+      "status": "PARTIAL",
+      "evidence": "CrossProcessSymbolicConstraintEnforcerEngine.ts exists, but its header documents it as a PROJECTION engine, not a solver: 'projects an arbitrary cutting-condition prediction onto the feasible region defined by physics-backed envelopes'. Strategy is 'lexicographic, safety-first' reduce-vc/reduce-fz — NOT a SAT/SMT/MIP/LP solver. No z3-solver, lp_solve, glpk, javascript-lp-solver, node-z3, smt, or coin-or dependency in mcp-server/package.json. No Z3*.ts, SMT*.ts, MIP*.ts, Symbolic*.ts files (only CrossProcessSymbolicConstraintEnforcerEngine). Spec's row-11 'Z3 x ToleranceStack: Min-cost t_i s.t. Σ ≤ T' and row-12 'MIP x Capacity x Bid: argmax Σ(margin·accept)' have NO solver to call.",
+      "file": "H:/prism/mcp-server/src/engines/CrossProcessSymbolicConstraintEnforcerEngine.ts, H:/prism/mcp-server/package.json",
+      "severity": "high",
+      "confidence": 0.95
+    },
+    {
+      "id": "F-r2-a9-7",
+      "tier": "T7",
+      "claim": "prism_intelligence:graph_*, prismCreativeReasoningEngine.explore — cross-domain analogy",
+      "status": "MISSING-CRITICAL",
+      "evidence": "intelligenceDispatcher.ts:549 declares graph_query, graph_infer, graph_discover, graph_predict, graph_traverse — action enum exists. PRISMCreativeReasoningEngine.ts file exists at mcp-server/src/engines/PRISMCreativeReasoningEngine.ts. Round-1 finding F-r1 (ai-reasoning domain) verbatim: 'PRISMCreativeReasoningEngine.explore() needs to be either (a) renamed to PRISMRuleBasedCombinatorEngine to match what it actually does, OR (b) routed through aiSystemRouterEngine.route(\"reasoning\") to get a real LLM call. Current state ships a marketing-grade JSDoc over a 10-row lookup table.' Spec's MS2 rows 24/29/47/48/49/50 all invoke T7 KG/creative — they will receive a static lookup, not analogy reasoning.",
+      "file": "H:/prism/mcp-server/src/engines/PRISMCreativeReasoningEngine.ts, H:/prism/mcp-server/src/tools/dispatchers/intelligenceDispatcher.ts:549",
+      "severity": "critical",
+      "confidence": 0.95,
+      "round1_overlap": true
+    },
+    {
+      "id": "F-r2-a9-8",
+      "tier": "orchestration",
+      "claim": "Safety oracle (S(x) >= 0.70) blocks emission if score below floor",
+      "status": "PARTIAL",
+      "evidence": "validate_physics is REGISTERED in guardDispatcher.ts:127 as 'prism:prism_safety action=validate_physics' and bayes_safety_set_prior/get_prior/observe wired (line 31). safetyDispatcher.ts has NO matches for validate_physics/safety_oracle/S(x)/omega_gate (zero direct binding). Action surface exists; the 0.70 floor as a HARD GATE on MS2 unit acceptance is not enforced in any reviewed dispatcher case statement. Bayes-safety priors infrastructure shipped but threshold-binding to revenue-emission path unverified.",
+      "file": "H:/prism/mcp-server/src/tools/dispatchers/guardDispatcher.ts:127, H:/prism/mcp-server/src/tools/dispatchers/safetyDispatcher.ts",
+      "severity": "high",
+      "confidence": 0.85
+    },
+    {
+      "id": "F-r2-a9-9",
+      "tier": "orchestration",
+      "claim": "Omega (Ω >= 0.70) blocks emission if quality below floor (R, C, P, S, L)",
+      "status": "REAL-as-action",
+      "evidence": "omegaDispatcher.ts exports omegaQuick(R,C,P,S,L) at line 38 + computeOmega() at line 45 (5-component score). omegaHistory ledger exists. Engine wires to SP, ATCS, RoadmapExecutor per JSDoc. HOWEVER spec's MS2-emission-gate (Ω>=0.70 as a HARD BLOCK before revenue emission) is not bound to any unit-acceptance hook in spec-referenced units U-INV-MILL-01..08 / U-INV-LATHE-01..07 / U-INV-WEDM-01..06.",
+      "file": "H:/prism/mcp-server/src/tools/dispatchers/omegaDispatcher.ts:30-55",
+      "severity": "medium",
+      "confidence": 0.9
+    },
+    {
+      "id": "F-r2-a9-10",
+      "tier": "cross-cutting",
+      "claim": "Every MS2 unit declares tiers_invoked: [T1..T7]",
+      "status": "MISSING-AT-SPEC-LEVEL",
+      "evidence": "Spec line 502: 'Every MS2 unit declares which tiers it invokes (e.g. tiers_invoked: [T1, T2, T4])'. Reviewed milestone envelope schema at mcp-server/data/milestones/* does not declare a tiers_invoked field. Atomic-roadmap-emit.mjs does not enforce/validate this field. The orchestration tier-balance pie chart on line 566 ('Tier-invocation pie chart for MS2 (T1..T7 distribution)') has no upstream data source.",
+      "severity": "medium",
+      "confidence": 0.85
+    }
+  ],
+  "summary": {
+    "tiers_real": ["T1", "T2", "T4", "T5"],
+    "tiers_partial": ["T3", "T6"],
+    "tiers_missing_critical": ["T7"],
+    "gates_partial": ["S(x)_floor", "Omega_floor"],
+    "spec_self_consistency_gaps": [
+      "tiers_invoked field on MS2 units is not in milestone envelope schema",
+      "Tier-invocation pie chart in dashboard spec has no data source"
+    ],
+    "round1_round2_overlap_confirmed": [
+      "T3 LoRA 0-weights gap (Round-1 ai-reasoning domain)",
+      "T7 PRISMCreativeReasoningEngine = 10-row lookup table (Round-1 ai-reasoning domain)",
+      "T5 router telemetry write-only (Round-1 ai-reasoning domain)"
+    ],
+    "highest_severity_recommendations": [
+      "T7-FIX: Either route prismCreativeReasoningEngine.explore through aiSystemRouterEngine.route('reasoning') to a real LLM, or rename engine and drop T7 from spec's tier list.",
+      "T6-FIX: Add z3-solver or javascript-lp-solver to package.json AND wire to a new Z3ToleranceAllocatorEngine + MIPSchedulingEngine before MS2 rows 11/12/23/41/43 can ship.",
+      "T3-FIX: Ship at least one .safetensors checkpoint under data/models/<domain>-lora/<date>/ with a documented training run, or downgrade T3 spec claim from 'learned residuals' to 'adapter scaffolding'.",
+      "GATE-FIX: Add omega_floor + safety_floor as declared acceptance criteria on every MS2 unit envelope; wire stop-hook to block unit closure when Ω<0.70 or S(x)<0.70."
+    ]
+  }
+}
