@@ -93,9 +93,11 @@ function ensureAiRanks() {
 }
 
 function inferTier(env, unit) {
-  // Tier comes from system-graph if any of unit.files_modified maps to a
-  // node id; else from milestone track convention.
-  // Track conventions:
+  // Explicit tier wins (unit-level, then envelope-level). Additive — no change
+  // for envelopes that don't carry a numeric `tier`.
+  if (typeof unit?.tier === "number") return unit.tier;
+  if (typeof env?.tier === "number") return env.tier;
+  // Else: tier from milestone track convention.
   //   FOUNDATION/INFRA/PHYSICS/CONST → tier 0
   //   ENGINE/CALC/SAFETY → tier 1
   //   DISPATCHER/WIRE → tier 2
@@ -151,7 +153,14 @@ function loadCandidates() {
     if (!env) continue;
     if (env.status === "complete" || env.status === "completed") continue;
 
-    const envUnits = Array.isArray(env.units) ? env.units : [];
+    // Accept BOTH the flat-`units` schema AND the ACP-style `phases[].units`
+    // schema (most envelopes use the latter; without this they collapse to a
+    // single candidate). Additive — no behavior change for flat-`units` envelopes.
+    const envUnits = Array.isArray(env.units)
+      ? env.units
+      : Array.isArray(env.phases)
+        ? env.phases.flatMap((p) => (Array.isArray(p.units) ? p.units : []))
+        : [];
     const units = envUnits.filter((u) =>
       u && u.status !== "complete" && u.status !== "completed",
     );
