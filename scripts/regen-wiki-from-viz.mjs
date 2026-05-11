@@ -36,7 +36,10 @@ const GENERATORS = [
   "generate-layer-wiki.mjs",
   "generate-domain-wiki.mjs",
   "generate-dispatcher-wiki.mjs",
+  "generate-engine-wiki.mjs",
+  "generate-action-wiki.mjs",
   "generate-layer-stack-overview.mjs",
+  "system-viz-obsidian-bridge-v2.mjs",
 ];
 
 function log(line) {

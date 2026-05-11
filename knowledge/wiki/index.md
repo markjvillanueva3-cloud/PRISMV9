@@ -783,7 +783,7 @@ _Auto-managed by `scripts/generate-layer-wiki.mjs` — do not hand-edit between 
 - [[layer-l3]] — L3 — AI Hierarchy (33 nodes, tier 2)
 - [[layer-l4]] — L4 — Dispatchers (97 nodes, tier 2)
 - [[layer-l4a]] — L4a — Dispatcher Actions (9228 nodes, tier 2)
-- [[layer-l5]] — L5 — Engines (3243 nodes, tier 1)
+- [[layer-l5]] — L5 — Engines (3307 nodes, tier 1)
 - [[layer-l6]] — L6 — Core (algorithms, schemas, skills, tests) (6994 nodes, tier 0)
 - [[layer-l7]] — L7 — Registries (27 nodes, tier 0)
 - [[layer-l8]] — L8 — Wiki / Memory / Milestones (869 nodes, tier 0)
@@ -936,6 +936,108 @@ _Auto-managed by `scripts/generate-layer-wiki.mjs` — do not hand-edit between 
 - [[dispatcher-shoppractice]] — `shopPractice` (0 actions, knowledge)
 - [[dispatcher-threadingpipeline]] — `threadingPipeline` (0 actions, manufacturing)
 <!-- ARCH-DISPATCHERS-END -->
+
+### Engines (per-domain counts)
+
+<!-- ARCH-ENGINES-START -->
+- engines under `other`: 348 entries — see `knowledge/wiki/architecture/engines/other/`
+- engines under `calc`: 304 entries — see `knowledge/wiki/architecture/engines/calc/`
+- engines under `lathe`: 111 entries — see `knowledge/wiki/architecture/engines/lathe/`
+- engines under `cam`: 95 entries — see `knowledge/wiki/architecture/engines/cam/`
+- engines under `pp`: 65 entries — see `knowledge/wiki/architecture/engines/pp/`
+- engines under `wedm`: 65 entries — see `knowledge/wiki/architecture/engines/wedm/`
+- engines under `cad`: 52 entries — see `knowledge/wiki/architecture/engines/cad/`
+- engines under `dev`: 48 entries — see `knowledge/wiki/architecture/engines/dev/`
+- engines under `ai`: 44 entries — see `knowledge/wiki/architecture/engines/ai/`
+- engines under `tool`: 39 entries — see `knowledge/wiki/architecture/engines/tool/`
+- engines under `machine`: 37 entries — see `knowledge/wiki/architecture/engines/machine/`
+- engines under `business`: 35 entries — see `knowledge/wiki/architecture/engines/business/`
+- engines under `xproc`: 23 entries — see `knowledge/wiki/architecture/engines/xproc/`
+- engines under `milling`: 22 entries — see `knowledge/wiki/architecture/engines/milling/`
+- engines under `cnc`: 19 entries — see `knowledge/wiki/architecture/engines/cnc/`
+- engines under `session`: 19 entries — see `knowledge/wiki/architecture/engines/session/`
+- engines under `adaptive`: 18 entries — see `knowledge/wiki/architecture/engines/adaptive/`
+- engines under `knowledge`: 18 entries — see `knowledge/wiki/architecture/engines/knowledge/`
+- engines under `fusion`: 17 entries — see `knowledge/wiki/architecture/engines/fusion/`
+- engines under `hyper`: 17 entries — see `knowledge/wiki/architecture/engines/hyper/`
+- engines under `bridge`: 16 entries — see `knowledge/wiki/architecture/engines/bridge/`
+- engines under `multi`: 15 entries — see `knowledge/wiki/architecture/engines/multi/`
+- engines under `sensor`: 14 entries — see `knowledge/wiki/architecture/engines/sensor/`
+- engines under `guard`: 14 entries — see `knowledge/wiki/architecture/engines/guard/`
+- engines under `turning`: 12 entries — see `knowledge/wiki/architecture/engines/turning/`
+- engines under `mill`: 11 entries — see `knowledge/wiki/architecture/engines/mill/`
+- engines under `intelligence`: 11 entries — see `knowledge/wiki/architecture/engines/intelligence/`
+- engines under `ml`: 10 entries — see `knowledge/wiki/architecture/engines/ml/`
+- engines under `material`: 10 entries — see `knowledge/wiki/architecture/engines/material/`
+- engines under `memory`: 10 entries — see `knowledge/wiki/architecture/engines/memory/`
+- engines under `context`: 10 entries — see `knowledge/wiki/architecture/engines/context/`
+- engines under `edm`: 10 entries — see `knowledge/wiki/architecture/engines/edm/`
+- engines under `cpl`: 9 entries — see `knowledge/wiki/architecture/engines/cpl/`
+- engines under `data`: 8 entries — see `knowledge/wiki/architecture/engines/data/`
+- engines under `formingcasting`: 8 entries — see `knowledge/wiki/architecture/engines/formingcasting/`
+- engines under `mastercam`: 8 entries — see `knowledge/wiki/architecture/engines/mastercam/`
+- engines under `registry`: 7 entries — see `knowledge/wiki/architecture/engines/registry/`
+- engines under `local`: 7 entries — see `knowledge/wiki/architecture/engines/local/`
+- engines under `shop`: 7 entries — see `knowledge/wiki/architecture/engines/shop/`
+- engines under `vibrationphysics`: 6 entries — see `knowledge/wiki/architecture/engines/vibrationphysics/`
+- engines under `physics`: 6 entries — see `knowledge/wiki/architecture/engines/physics/`
+- engines under `quality`: 6 entries — see `knowledge/wiki/architecture/engines/quality/`
+- engines under `weldingjoining`: 5 entries — see `knowledge/wiki/architecture/engines/weldingjoining/`
+- engines under `scientificmath`: 5 entries — see `knowledge/wiki/architecture/engines/scientificmath/`
+- engines under `validation`: 4 entries — see `knowledge/wiki/architecture/engines/validation/`
+- engines under `automation`: 4 entries — see `knowledge/wiki/architecture/engines/automation/`
+- engines under `print`: 4 entries — see `knowledge/wiki/architecture/engines/print/`
+- engines under `infra`: 4 entries — see `knowledge/wiki/architecture/engines/infra/`
+- engines under `five`: 4 entries — see `knowledge/wiki/architecture/engines/five/`
+- engines under `erp`: 4 entries — see `knowledge/wiki/architecture/engines/erp/`
+- engines under `toolpath`: 4 entries — see `knowledge/wiki/architecture/engines/toolpath/`
+- engines under `safety`: 3 entries — see `knowledge/wiki/architecture/engines/safety/`
+- engines under `scheduling`: 3 entries — see `knowledge/wiki/architecture/engines/scheduling/`
+- engines under `pdf`: 3 entries — see `knowledge/wiki/architecture/engines/pdf/`
+- engines under `resourceharvester`: 3 entries — see `knowledge/wiki/architecture/engines/resourceharvester/`
+- engines under `orchestration`: 3 entries — see `knowledge/wiki/architecture/engines/orchestration/`
+- engines under `observability`: 3 entries — see `knowledge/wiki/architecture/engines/observability/`
+- engines under `l2engine`: 3 entries — see `knowledge/wiki/architecture/engines/l2engine/`
+- engines under `dedup`: 2 entries — see `knowledge/wiki/architecture/engines/dedup/`
+- engines under `export`: 2 entries — see `knowledge/wiki/architecture/engines/export/`
+- engines under `force`: 2 entries — see `knowledge/wiki/architecture/engines/force/`
+- engines under `inventor`: 2 entries — see `knowledge/wiki/architecture/engines/inventor/`
+- engines under `kinematic`: 2 entries — see `knowledge/wiki/architecture/engines/kinematic/`
+- engines under `multiop`: 2 entries — see `knowledge/wiki/architecture/engines/multiop/`
+- engines under `fixture`: 2 entries — see `knowledge/wiki/architecture/engines/fixture/`
+- engines under `audit`: 1 entries — see `knowledge/wiki/architecture/engines/audit/`
+- engines under `agent`: 1 entries — see `knowledge/wiki/architecture/engines/agent/`
+- engines under `monitoring`: 1 entries — see `knowledge/wiki/architecture/engines/monitoring/`
+- engines under `grinding`: 1 entries — see `knowledge/wiki/architecture/engines/grinding/`
+- engines under `hook`: 1 entries — see `knowledge/wiki/architecture/engines/hook/`
+- engines under `intake`: 1 entries — see `knowledge/wiki/architecture/engines/intake/`
+- engines under `process`: 1 entries — see `knowledge/wiki/architecture/engines/process/`
+- engines under `security`: 1 entries — see `knowledge/wiki/architecture/engines/security/`
+- engines under `diagnosis`: 1 entries — see `knowledge/wiki/architecture/engines/diagnosis/`
+- engines under `auth`: 1 entries — see `knowledge/wiki/architecture/engines/auth/`
+- engines under `chatter`: 1 entries — see `knowledge/wiki/architecture/engines/chatter/`
+- engines under `wet`: 1 entries — see `knowledge/wiki/architecture/engines/wet/`
+<!-- ARCH-ENGINES-END -->
+
+### Actions (per-dispatcher counts)
+
+<!-- ARCH-ACTIONS-START -->
+_Total: 9228 action entries across 88 dispatchers — see `knowledge/wiki/architecture/actions/<dispatcher>/`._
+
+Top dispatchers by action count:
+- `cam`: 2189 actions
+- `calc`: 1304 actions
+- `pp`: 801 actions
+- `business`: 441 actions
+- `cadAutomation`: 367 actions
+- `cad`: 357 actions
+- `aiReasoning`: 330 actions
+- `dev`: 312 actions
+- `edm`: 286 actions
+- `security`: 238 actions
+- `data`: 215 actions
+- `intelligence`: 153 actions
+<!-- ARCH-ACTIONS-END -->
 
 - [[devops_improvements]] — The PRISM MCP Server uses esbuild for fast bundling with TypeScript type checking. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-05-08 | source:knowledge/memories/reference/devops_improvements.md
 - [[distributed_locking]] — **File:** `mcp-server/src/utils/atomicWrite.ts` | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-05-08 | source:knowledge/memories/reference/distributed_locking.md

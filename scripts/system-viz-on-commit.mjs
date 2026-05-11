@@ -111,3 +111,22 @@ if (!ok) {
   process.exit(1);
 }
 console.log("\n✓ system-viz fully refreshed; viewer auto-poll will pick up within 30s");
+
+// U-VIZ-AUTO-REGEN-WIKI: regenerate Obsidian wiki layer/domain/dispatcher entries
+// from the freshly-built graph. Soft-fail: wiki staleness must NOT block the
+// graph refresh chain. Skip if PRISM_SKIP_WIKI_REGEN=1.
+if (process.env.PRISM_SKIP_WIKI_REGEN !== "1") {
+  const wikiStart = Date.now();
+  const r = spawnSync(node, ["scripts/regen-wiki-from-viz.mjs", "--quiet"], {
+    cwd: ROOT,
+    stdio: "pipe",
+    encoding: "utf8",
+  });
+  const wikiMs = Date.now() - wikiStart;
+  if (r.status === 0) {
+    console.log(`✓ wiki regen (${wikiMs}ms) — layer + domain + dispatcher + overview refreshed`);
+  } else {
+    console.error(`✗ wiki regen (${wikiMs}ms) FAILED — exit ${r.status} (graph itself is fresh)`);
+    if (r.stderr) console.error(r.stderr.split("\n").slice(-4).join("\n"));
+  }
+}
