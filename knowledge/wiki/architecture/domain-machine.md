@@ -68,8 +68,9 @@ related:
 
 <!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
 
-## Engines in this domain (37)
+## Engines in this domain + flow diagram (38)
 
+- [[machine-flow]]
 - [[balancingmachineengine]]
 - [[batchcamcontrollerengines]]
 - [[cobotmachiningengine]]

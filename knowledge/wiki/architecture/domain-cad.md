@@ -70,8 +70,9 @@ related:
 
 <!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
 
-## Engines in this domain (52)
+## Engines in this domain + flow diagram (53)
 
+- [[cad-flow]]
 - [[assemblyengine]]
 - [[boilertubeengine]]
 - [[cadaccesscontrolrbacabacengine]]

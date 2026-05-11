@@ -68,7 +68,7 @@ related:
 
 <!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
 
-## Engines in this domain (15)
+## Engines in this domain + flow diagram (15)
 
 - [[multiassetreasoningengine]]
 - [[multiaxiskinematicengine]]

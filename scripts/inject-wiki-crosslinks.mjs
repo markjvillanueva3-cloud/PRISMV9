@@ -75,24 +75,17 @@ function applyToEntry(parentPath, title, links) {
   return { ok: true, changed: true, links: links.length };
 }
 
-function listEngineSlugsForDomain(G, domain) {
-  const out = [];
-  const re = new RegExp(`^eng\\.${domain}\\.`);
-  for (const n of G.nodes) {
-    if (n.layer !== "L5") continue;
-    if ((n.subgroup || n.kind) !== "atomic_engine") continue;
-    if (!re.test(n.id)) continue;
-    out.push(slug(n.label || n.id.split(".").pop()));
-  }
-  return out;
-}
-
 function listActionSlugsForDispatcher(G, dispLabel, dispId, nodeById, outFrom) {
+  // Match generate-action-wiki.mjs file naming: it parses `disp.<d>.action.<name>`
+  // and writes `<slug(name)>.md` where <name> is the ID tail, NOT the label.
   const out = [];
   const edges = outFrom.get(dispId) || [];
   for (const toId of edges) {
     const node = nodeById.get(toId);
-    if (node && node.layer === "L4a") out.push(slug(node.label || node.id.split(".").pop()));
+    if (!node || node.layer !== "L4a") continue;
+    const m = /^disp\.[a-z0-9_]+\.action\.(.+)$/i.exec(node.id);
+    const actionName = m ? m[1] : node.label || node.id.split(".").pop();
+    out.push(slug(actionName));
   }
   return out;
 }
@@ -160,14 +153,7 @@ function main() {
     if (r.ok && r.changed) { entriesTouched++; linksInjected += r.links; }
   }
 
-  // --- layer-stack-overview → all layer entries ---
-  {
-    const links = ["l0", "l1", "l2", "l3", "l4", "l4a", "l5", "l6", "l7", "l8", "l9", "l10", "l11"]
-      .map((l) => `layer-${l}`)
-      .filter((l) => fileExists(join(ARCH_DIR, `${l}.md`)));
-    const r = applyToEntry(join(ARCH_DIR, "layer-stack-overview.md"), "All layers", links);
-    if (r.ok && r.changed) { entriesTouched++; linksInjected += r.links; }
-  }
+  // --- layer-stack-overview links handled below (merged layers + diagrams block) ---
 
   // --- layer-l6 → skills + hooks + algorithms + L6 formulas (the "core" leaf entries) ---
   {
@@ -222,13 +208,59 @@ function main() {
     }
   }
 
-  // --- domain-<d> → engine entries in domain ---
-  for (const d of domains) {
-    const slugs = listEngineSlugsForDomain(G, d).filter((s) => fileExists(join(ARCH_DIR, "engines", d, `${s}.md`)));
-    if (!slugs.length) continue;
-    const links = slugs.map((s) => `${s}`); // engine entries are basename'd by slug
-    const r = applyToEntry(join(ARCH_DIR, `domain-${slug(d)}.md`), "Engines in this domain", links);
+  // --- domain-<d> → engine entries in domain + Mermaid sub-diagram ---
+  // Iterate EVERY domain that has an engines/ subdir, not just graph rollup domains —
+  // generate-engine-wiki.mjs writes engines/<domain>/ for ~77 domains but only ~38
+  // have an eng.<domain> rollup node. Without this, ~40 domains' engines stay orphans.
+  const enginesRoot = join(ARCH_DIR, "engines");
+  const engineDomains = existsSync(enginesRoot)
+    ? readdirSync(enginesRoot, { withFileTypes: true }).filter((e) => e.isDirectory()).map((e) => e.name)
+    : [];
+  for (const d of engineDomains) {
+    const dDir = join(enginesRoot, d);
+    const engSlugs = readdirSync(dDir).filter((f) => f.endsWith(".md")).map((f) => f.replace(/\.md$/, ""));
+    const diagramSlug = `${slug(d)}-flow`;
+    const hasDiagram = fileExists(join(ARCH_DIR, "diagrams", `${diagramSlug}.md`));
+    if (!engSlugs.length && !hasDiagram) continue;
+    const links = [];
+    if (hasDiagram) links.push(diagramSlug);
+    links.push(...engSlugs);
+    // domain-<d> wiki may not exist if the domain has no rollup node — skip silently then
+    const domainEntry = join(ARCH_DIR, `domain-${slug(d)}.md`);
+    if (!fileExists(domainEntry)) continue;
+    const r = applyToEntry(domainEntry, "Engines in this domain + flow diagram", links);
     if (r.ok && r.changed) { entriesTouched++; linksInjected += r.links; }
+  }
+
+  // --- layer-stack-overview also links all Mermaid sub-diagrams + tribal index ---
+  {
+    const diagDir = join(ARCH_DIR, "diagrams");
+    const links = [];
+    if (existsSync(diagDir)) {
+      for (const f of readdirSync(diagDir)) if (f.endsWith(".md")) links.push(f.replace(/\.md$/, ""));
+    }
+    if (fileExists(join(ARCH_DIR, "tribal-knowledge-index.md"))) links.push("tribal-knowledge-index");
+    if (fileExists(join(ARCH_DIR, "system-viz.md"))) links.push("system-viz");
+    if (links.length) {
+      const parentPath = join(ARCH_DIR, "layer-stack-overview.md");
+      const content = readFileSync(parentPath, "utf8");
+      // layer-stack-overview already has an "All layers" XLINK block; merge.
+      const layerLinks = ["l0", "l1", "l2", "l3", "l4", "l4a", "l5", "l6", "l7", "l8", "l9", "l10", "l11"]
+        .map((l) => `layer-${l}`)
+        .filter((l) => fileExists(join(ARCH_DIR, `${l}.md`)));
+      const body = [
+        `## All layers (${layerLinks.length})`, "",
+        ...layerLinks.map((l) => `- [[${l}]]`),
+        "",
+        `## Diagrams & indexes (${links.length})`, "",
+        ...links.map((l) => `- [[${l}]]`),
+      ].join("\n");
+      const next = setXlinkBlock(content, body);
+      if (next !== content) {
+        if (!FLAGS.dryRun) writeFileSync(parentPath, next, "utf8");
+        entriesTouched++; linksInjected += layerLinks.length + links.length;
+      }
+    }
   }
 
   // --- dispatcher-<d> → action entries for dispatcher ---

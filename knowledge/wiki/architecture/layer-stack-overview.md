@@ -140,4 +140,21 @@ Sorted by action count in `knowledge/wiki/index.md` → ### Dispatchers section.
 - [[layer-l10]]
 - [[layer-l11]]
 
+## Diagrams & indexes (14)
+
+- [[ai-flow]]
+- [[business-flow]]
+- [[cad-flow]]
+- [[calc-flow]]
+- [[cam-flow]]
+- [[dev-flow]]
+- [[lathe-flow]]
+- [[machine-flow]]
+- [[other-flow]]
+- [[pp-flow]]
+- [[tool-flow]]
+- [[wedm-flow]]
+- [[tribal-knowledge-index]]
+- [[system-viz]]
+
 <!-- XLINK-END -->

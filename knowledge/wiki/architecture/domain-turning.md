@@ -68,7 +68,7 @@ related:
 
 <!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
 
-## Engines in this domain (12)
+## Engines in this domain + flow diagram (12)
 
 - [[barpullertimingengine]]
 - [[barstockcutplanengine]]

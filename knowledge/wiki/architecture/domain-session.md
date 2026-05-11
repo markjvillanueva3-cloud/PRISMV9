@@ -67,7 +67,7 @@ related:
 
 <!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
 
-## Engines in this domain (19)
+## Engines in this domain + flow diagram (19)
 
 - [[compactformatterengine]]
 - [[compactionstrategyengine]]

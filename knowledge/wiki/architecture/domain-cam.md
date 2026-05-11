@@ -68,8 +68,9 @@ related:
 
 <!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
 
-## Engines in this domain (95)
+## Engines in this domain + flow diagram (96)
 
+- [[cam-flow]]
 - [[advancedpostphysicsengine]]
 - [[anomalydetectionengine]]
 - [[batchcamengine]]

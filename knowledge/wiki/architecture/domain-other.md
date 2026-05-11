@@ -67,8 +67,9 @@ _(no L4 dispatcher match — may need wiring)_
 
 <!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
 
-## Engines in this domain (348)
+## Engines in this domain + flow diagram (349)
 
+- [[other-flow]]
 - [[absorptionchillerengine]]
 - [[abstractionhierarchyengine]]
 - [[accesscontrollistengine]]

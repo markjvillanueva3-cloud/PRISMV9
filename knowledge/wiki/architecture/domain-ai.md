@@ -67,8 +67,9 @@ related:
 
 <!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
 
-## Engines in this domain (44)
+## Engines in this domain + flow diagram (45)
 
+- [[ai-flow]]
 - [[activelearningstrategyengine]]
 - [[aiautoutilizationengine]]
 - [[aicapabilitymaximizerengine]]

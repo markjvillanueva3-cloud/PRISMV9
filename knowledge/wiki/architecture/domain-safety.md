@@ -58,7 +58,7 @@ related:
 
 <!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
 
-## Engines in this domain (3)
+## Engines in this domain + flow diagram (3)
 
 - [[agisafetycontainmentengine]]
 - [[batchcamsafetyengines]]

@@ -66,7 +66,7 @@ related:
 
 <!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
 
-## Engines in this domain (11)
+## Engines in this domain + flow diagram (11)
 
 - [[ballmillengine]]
 - [[counterfactualmillengine]]

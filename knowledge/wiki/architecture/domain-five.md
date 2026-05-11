@@ -59,7 +59,7 @@ related:
 
 <!-- XLINK-START — injected by inject-wiki-crosslinks.mjs -->
 
-## Engines in this domain (4)
+## Engines in this domain + flow diagram (4)
 
 - [[inversekinematicssolverengine]]
 - [[solidcam5axisfunctionindexengine]]
