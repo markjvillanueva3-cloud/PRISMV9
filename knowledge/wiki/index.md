@@ -792,6 +792,49 @@ _Auto-managed by `scripts/generate-layer-wiki.mjs` — do not hand-edit between 
 - [[layer-l11]] — L11 — Deep Filesystem (102666 nodes, tier 0)
 <!-- ARCH-LAYERS-END -->
 
+### Engine domains
+
+<!-- ARCH-DOMAINS-START -->
+- [[domain-other]] — engine domain `other` (785 engines)
+- [[domain-cam]] — engine domain `cam` (290 engines)
+- [[domain-ai]] — engine domain `ai` (280 engines)
+- [[domain-mill]] — engine domain `mill` (240 engines)
+- [[domain-cad]] — engine domain `cad` (200 engines)
+- [[domain-wedm]] — engine domain `wedm` (130 engines)
+- [[domain-toolpath]] — engine domain `toolpath` (130 engines)
+- [[domain-erp]] — engine domain `erp` (110 engines)
+- [[domain-tool]] — engine domain `tool` (105 engines)
+- [[domain-quality]] — engine domain `quality` (90 engines)
+- [[domain-lathe]] — engine domain `lathe` (89 engines)
+- [[domain-safety]] — engine domain `safety` (80 engines)
+- [[domain-material]] — engine domain `material` (80 engines)
+- [[domain-adaptive]] — engine domain `adaptive` (70 engines)
+- [[domain-cost]] — engine domain `cost` (60 engines)
+- [[domain-hook]] — engine domain `hook` (54 engines)
+- [[domain-physics]] — engine domain `physics` (50 engines)
+- [[domain-knowledge]] — engine domain `knowledge` (45 engines)
+- [[domain-memory]] — engine domain `memory` (35 engines)
+- [[domain-session]] — engine domain `session` (31 engines)
+- [[domain-probe]] — engine domain `probe` (28 engines)
+- [[domain-network]] — engine domain `network` (22 engines)
+- [[domain-forge]] — engine domain `forge` (20 engines)
+- [[domain-calibration]] — engine domain `calibration` (20 engines)
+- [[domain-inspect]] — engine domain `inspect` (18 engines)
+- [[domain-machine]] — engine domain `machine` (17 engines)
+- [[domain-twin]] — engine domain `twin` (15 engines)
+- [[domain-multi]] — engine domain `multi` (12 engines)
+- [[domain-turning]] — engine domain `turning` (11 engines)
+- [[domain-five]] — engine domain `five` (9 engines)
+- [[domain-shop]] — engine domain `shop` (9 engines)
+- [[domain-hyper]] — engine domain `hyper` (7 engines)
+- [[domain-milling]] — engine domain `milling` (7 engines)
+- [[domain-fusion]] — engine domain `fusion` (7 engines)
+- [[domain-wet]] — engine domain `wet` (7 engines)
+- [[domain-process]] — engine domain `process` (6 engines)
+- [[domain-print]] — engine domain `print` (6 engines)
+- [[domain-swiss]] — engine domain `swiss` (6 engines)
+<!-- ARCH-DOMAINS-END -->
+
 - [[devops_improvements]] — The PRISM MCP Server uses esbuild for fast bundling with TypeScript type checking. | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-05-08 | source:knowledge/memories/reference/devops_improvements.md
 - [[distributed_locking]] — **File:** `mcp-server/src/utils/atomicWrite.ts` | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-05-08 | source:knowledge/memories/reference/distributed_locking.md
 - [[plugin_architecture]] — **File:** `mcp-server/src/engines/PhysicsPluginRegistry.ts` | category:architecture | sources:1 | confidence:0.85 | last_verified:2026-05-08 | source:knowledge/memories/reference/plugin_architecture.md
