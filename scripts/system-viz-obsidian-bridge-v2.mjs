@@ -32,7 +32,7 @@ const OUT_PATH = path.join(ROOT, "state/shared/system-viz/obsidian-augmentation.
 const WIKI_DIR = path.join(ROOT, "knowledge/wiki");
 const MEM_DIR = path.join(ROOT, "knowledge/memories");
 
-const MAX_MATCHES_PER_NODE = 15;
+const MAX_MATCHES_PER_NODE = 8;   // the brain viewer shows ≤8 wiki / ≤6 mem per node — storing 15 was just bloating obsidian-augmentation.json (128 MB → ~half on the next regen)
 const MIN_KEYWORD_LEN = 4;
 
 const INCLUDE_LAYERS = new Set(["L0", "L1", "L2", "L3", "L4", "L5", "L6", "L7", "L8", "L10"]);

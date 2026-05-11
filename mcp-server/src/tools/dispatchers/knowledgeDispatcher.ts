@@ -357,18 +357,34 @@ export function registerKnowledgeDispatcher(server: any): void {
           }
           // -- OBSIDIAN-VIZ-MS0/U-VIZ-DISPATCHER: live system map ──────
           case "obsidian_viz_regenerate": {
-            // Detached spawn so the dispatcher returns fast; the generator
-            // takes 1–3s and writes state/shared/system-viz/system-graph.json.
+            // Detached spawn so the dispatcher returns fast. Runs the modern
+            // regen-viz pipeline (FAST mode) — it rebuilds all augmentations,
+            // merges, repairs/dedups, and includes generate-git-tree.mjs +
+            // generate-vault-graph.mjs (the graph→Obsidian PRISM-System-Map.canvas
+            // + the wiki-folder hubs) + generate-executive-briefing.mjs +
+            // generate-wiki-debt-worklist.mjs. The --max-old-space-size / --stack-size
+            // flags are required: the merged graph is >90 MB and JSON.stringify on
+            // it blows the default Windows thread stack without them.
             const { spawn } = await import("node:child_process");
-            const child = spawn(process.execPath, ["H:/prism/scripts/generate-system-viz.mjs"], {
-              detached: true, stdio: "ignore", windowsHide: true,
+            const fullRegen = params?.full === true || params?.mode === "full";
+            const args = ["--max-old-space-size=16384", "--stack-size=8192", "H:/prism/scripts/regen-viz.mjs"];
+            if (fullRegen) args.push("--full");
+            const child = spawn(process.execPath, args, {
+              detached: true, stdio: "ignore", windowsHide: true, cwd: "H:/prism",
             });
             child.unref();
             result = {
               spawned: true,
               pid: child.pid ?? null,
-              output_path: "H:/prism/state/shared/system-viz/system-graph.json",
-              note: "Regenerating in background; reload http://127.0.0.1:8765/ in ~3s.",
+              mode: fullRegen ? "full" : "fast",
+              pipeline: "regen-viz.mjs",
+              produces: [
+                "H:/prism/state/shared/system-viz/system-graph.json",
+                "H:/prism/knowledge/PRISM-System-Map.canvas",
+                "H:/prism/state/shared/system-viz/EXECUTIVE-BRIEFING.md",
+                "H:/prism/state/shared/system-viz/WIKI-DEBT-WORKLIST.md",
+              ],
+              note: `Regenerating in background (${fullRegen ? "FULL ~15-20 min" : "FAST ~60s"}); reload http://127.0.0.1:8765/ when done. Pass {full:true} for the heavy fs-deep + L11 + obsidian-bridge pass.`,
             };
             break;
           }
