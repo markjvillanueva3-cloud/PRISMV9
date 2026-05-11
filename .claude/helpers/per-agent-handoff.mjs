@@ -23,6 +23,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
+import { isatty } from "node:tty";
 import { inferAgentIdentity } from "./agent-identity.mjs";
 import { deriveSessionTopic } from "./derive-session-topic.mjs";
 
@@ -666,7 +667,15 @@ const { cmd, args } = parseArgs(process.argv);
 function readStdinSessionId() {
   if (process.env.PRISM_HANDOFF_STDIN_AUTH === "0") return null;
   try {
-    if (process.stdin.isTTY) return null;
+    // isatty(0) — NOT process.stdin.isTTY. Touching the `process.stdin` getter
+    // lazily constructs a Stream over fd 0; when fd 0 is a pipe (a Claude hook
+    // invocation, or the Bash tool) that Stream is a *referenced* net.Socket
+    // that keeps the event loop alive after this helper's work is done — the
+    // process then hangs on "cleanup" with nothing left to do (observed: a
+    // /handoff Bash call hanging >45s, killed manually, handoff already on
+    // disk). isatty(0) answers the same question via uv_guess_handle without
+    // ever creating the Stream.
+    if (isatty(0)) return null;
     const buf = fs.readFileSync(0, "utf-8");
     if (!buf || !buf.trim().startsWith("{")) return null;
     const parsed = JSON.parse(buf);

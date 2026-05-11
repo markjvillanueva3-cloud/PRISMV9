@@ -15,6 +15,8 @@
 //   - Per-hook timeout kills + records "timeout" reason
 
 import { spawn } from "node:child_process";
+import { readFileSync } from "node:fs";
+import { isatty } from "node:tty";
 
 // Use whatever node is currently running. On Windows the portable-node
 // distribution ships as a bash-style entry without .exe suffix, so spawning
@@ -32,53 +34,67 @@ const NODE_BIN = process.execPath;
 export function runHook(hookPath, stdinPayload, timeoutMs = 3000) {
   return new Promise((resolve) => {
     const start = Date.now();
-    const child = spawn(NODE_BIN, [hookPath], {
-      stdio: ["pipe", "pipe", "pipe"],
-      windowsHide: true,
-    });
+    let timer = null;
+    let hardTimer = null;
+    let settled = false;
+    const finish = (r) => {
+      if (settled) return;
+      settled = true;
+      if (timer) clearTimeout(timer);
+      if (hardTimer) clearTimeout(hardTimer);
+      resolve(r);
+    };
+
+    let child;
+    try {
+      child = spawn(NODE_BIN, [hookPath], { stdio: ["pipe", "pipe", "pipe"], windowsHide: true });
+    } catch (err) {
+      // spawn can throw *synchronously* under fork-storm pressure (EAGAIN /
+      // STATUS_DLL_INIT_FAILED 0xC0000142). Don't let that bubble out of the
+      // bundle — degrade to a no-op result like a normal spawn 'error'.
+      return resolve({ hook: hookPath, exitCode: -1, elapsed: Date.now() - start, timedOut: false, parsed: null, stdoutRaw: "", stderr: String(err) });
+    }
 
     let stdout = "";
     let stderr = "";
     let timedOut = false;
 
-    const timer = setTimeout(() => {
+    const buildResult = (code) => {
+      let parsed = null;
+      if (stdout.trim()) { try { parsed = JSON.parse(stdout.trim()); } catch { /* non-json output */ } }
+      return { hook: hookPath, exitCode: code, elapsed: Date.now() - start, timedOut, parsed, stdoutRaw: stdout, stderr };
+    };
+
+    timer = setTimeout(() => {
       timedOut = true;
-      try { child.kill("SIGKILL"); } catch { /* ignore */ }
+      try { child.kill("SIGKILL"); } catch { /* already gone */ }
+      // SIGKILL alone is not enough: `child.on("close")` only fires once the
+      // child's stdout/stderr pipes have *no remaining writers*. If the hook
+      // spawned a grandchild that inherited those pipes (or Windows is slow to
+      // reap the killed child), 'close' may never fire and this Promise pins
+      // forever → the whole bundle hangs → the tool call hangs → the chat
+      // stalls. Detach the parent's read ends and arm a hard fallback resolve.
+      try { child.stdout?.destroy(); } catch { /* */ }
+      try { child.stderr?.destroy(); } catch { /* */ }
+      hardTimer = setTimeout(() => finish(buildResult(null)), 1000);
+      hardTimer.unref?.();
     }, timeoutMs);
+    timer.unref?.();
 
     child.stdout.on("data", (d) => { stdout += d.toString(); });
     child.stderr.on("data", (d) => { stderr += d.toString(); });
 
-    child.on("close", (code) => {
-      clearTimeout(timer);
-      const elapsed = Date.now() - start;
-      let parsed = null;
-      if (stdout.trim()) {
-        try { parsed = JSON.parse(stdout.trim()); } catch { /* non-json output */ }
-      }
-      resolve({
-        hook: hookPath,
-        exitCode: code,
-        elapsed,
-        timedOut,
-        parsed,
-        stdoutRaw: stdout,
-        stderr,
-      });
-    });
+    child.on("close", (code) => finish(buildResult(code)));
 
-    child.on("error", (err) => {
-      clearTimeout(timer);
-      resolve({
-        hook: hookPath,
-        exitCode: -1,
-        elapsed: Date.now() - start,
-        timedOut: false,
-        parsed: null,
-        stdoutRaw: "",
-        stderr: String(err),
-      });
-    });
+    child.on("error", (err) => finish({
+      hook: hookPath,
+      exitCode: -1,
+      elapsed: Date.now() - start,
+      timedOut,
+      parsed: null,
+      stdoutRaw: stdout,
+      stderr: stderr || String(err),
+    }));
 
     try {
       child.stdin.write(stdinPayload);
@@ -215,24 +231,47 @@ export async function runBundle(hookSpecs, stdinPayload) {
 }
 
 /**
- * Read all stdin into a string (for hook entrypoints).
+ * Read the hook payload from stdin (for hook entrypoints).
+ *
+ * Claude Code writes the JSON payload then closes the hook's stdin, so a
+ * synchronous read-to-EOF is reliable and — unlike the old 100ms-race version —
+ * never truncates. The race version returned an empty/partial payload whenever
+ * the parent was slow to write (multi-chat load): the bundle then ran against
+ * `{}` and every safety sub-hook silently no-op'd (file_path/content missing) —
+ * an accidental gate-bypass disguised as "fast". A TTY short-circuit handles
+ * manual `node bundle.mjs` invocation without blocking on operator EOF; using
+ * `isatty(0)` rather than `process.stdin.isTTY` avoids lazily constructing the
+ * stdin Stream (a referenced pipe socket that would keep the event loop alive
+ * after the hook is done — i.e. another stall vector).
  */
 export async function readStdin() {
-  return new Promise((resolve) => {
-    let data = "";
-    process.stdin.on("data", (chunk) => { data += chunk.toString(); });
-    process.stdin.on("end", () => resolve(data));
-    process.stdin.on("error", () => resolve(data));
-    // If no stdin within 100ms (e.g., manual invocation), resolve empty
-    setTimeout(() => resolve(data), 100);
-  });
+  try {
+    if (isatty(0)) return "";
+    return readFileSync(0, "utf-8");
+  } catch {
+    return "";
+  }
 }
 
 /**
  * Emit final response per Claude hook contract.
+ *
+ * On Windows a hook's stdout is a pipe and `process.stdout.write()` is
+ * asynchronous — calling `process.exit()` immediately after can truncate the
+ * JSON before the OS accepts it, so Claude Code sees empty output and treats a
+ * *blocking* bundle as a no-op (gate-bypass). Wait for the write to flush, then
+ * exit; a short unref'd fallback timer covers the case where the callback never
+ * fires (stdout already gone).
  */
 export function emit(response) {
-  process.stdout.write(JSON.stringify(response));
   // Exit 0 unless we're blocking (then exit 2 per Claude contract for tool-use blocks)
-  process.exit(response.continue === false ? 2 : 0);
+  const code = response && response.continue === false ? 2 : 0;
+  let exited = false;
+  const done = () => { if (exited) return; exited = true; process.exit(code); };
+  try {
+    // The write callback fires once the bytes are flushed (whether or not
+    // write() reported backpressure) — exit then so nothing is truncated.
+    process.stdout.write(JSON.stringify(response) + "\n", done);
+  } catch { return done(); }
+  setTimeout(done, 2000).unref?.();
 }
