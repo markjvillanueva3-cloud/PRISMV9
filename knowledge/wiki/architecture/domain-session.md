@@ -54,7 +54,7 @@ related:
 
 ## Rollup labels
 
-- `Session | (25) ◇ 9/12 drilled`
+- `session | (36 engines)`
 
 <!-- AUTO-END -->
 

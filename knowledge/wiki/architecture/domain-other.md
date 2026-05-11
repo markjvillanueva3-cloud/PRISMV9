@@ -54,7 +54,7 @@ _(no L4 dispatcher match — may need wiring)_
 
 ## Rollup labels
 
-- `Other | (142) ◇ 9/2178 drilled`
+- `other | (510 engines)`
 
 <!-- AUTO-END -->
 

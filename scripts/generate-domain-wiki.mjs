@@ -18,7 +18,7 @@
  * Idempotent — AUTO-START/END markers preserve human-added content.
  * Updates wiki/index.md ## architecture subsection in-place (ARCH-DOMAINS markers).
  */
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from "node:fs";
 import { resolve, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -283,8 +283,69 @@ function main() {
     indexEntries.push({ domain: d, totalEngines: info.totalEngines });
   }
 
+  // --- Engine-only domain stubs ---------------------------------------------
+  // generate-engine-wiki.mjs writes engines/<domain>/ for ~77 domains but only
+  // ~38 have an eng.<domain> rollup node here. Emit a minimal stub entry for the
+  // rest so their engine entries have a parent (kills ~600 wiki orphans).
+  const enginesRoot = join(WIKI_ARCH_DIR, "engines");
+  let stubCount = 0;
+  if (existsSync(enginesRoot)) {
+    const rollupSlugs = new Set([...domains.keys()].map((d) => slugify(d)));
+    for (const e of readdirSync(enginesRoot, { withFileTypes: true })) {
+      if (!e.isDirectory()) continue;
+      const domain = e.name;
+      const dSlug = slugify(domain);
+      if (rollupSlugs.has(dSlug)) continue; // already has a full entry
+      const dDir = join(enginesRoot, domain);
+      const engSlugs = readdirSync(dDir).filter((f) => f.endsWith(".md")).map((f) => f.replace(/\.md$/, ""));
+      if (!engSlugs.length) continue;
+      const purpose = DOMAIN_PURPOSE[domain] || `Engine-only domain \`${domain}\` — ${engSlugs.length} atomic engines, no graph rollup node.`;
+      const outPath = join(WIKI_ARCH_DIR, `domain-${dSlug}.md`);
+      const existing = existsSync(outPath) ? readFileSync(outPath, "utf8") : null;
+      const body = [
+        "## Engines in this domain",
+        "",
+        ...engSlugs.map((s) => `- [[${s}]]`),
+      ].join("\n");
+      const stub = `---
+title: Domain — ${domain}
+type: architecture
+domain: ${domain}
+parent_layer: L5
+generated_by: scripts/generate-domain-wiki.mjs (stub)
+last_verified: ${generatedAt}
+tags: [architecture, system-viz, engine-domain, domain-${dSlug}, stub]
+related:
+  - knowledge/wiki/architecture/layer-l5.md
+---
+
+# Engine domain — \`${domain}\`
+
+> ${purpose}
+
+**Atomic engines:** ${engSlugs.length}  ·  **Graph rollup node:** none (engine-only domain)
+
+${AUTO_START}
+
+${body}
+
+${AUTO_END}
+
+## See also
+
+- Parent layer: [[layer-l5]]
+- Engine entries: \`knowledge/wiki/architecture/engines/${domain}/\`
+`;
+      const finalContent = preserveHuman(existing, stub);
+      if (!FLAGS.dryRun) writeFileSync(outPath, finalContent, "utf8");
+      stubCount++;
+      indexEntries.push({ domain, totalEngines: engSlugs.length });
+    }
+  }
+
   const indexUpdated = updateIndex(indexEntries);
   if (indexUpdated && !FLAGS.dryRun) writeFileSync(WIKI_INDEX, indexUpdated, "utf8");
+  if (stubCount) process.stdout.write(`  + ${stubCount} engine-only domain stubs\n`);
 
   process.stdout.write(
     `generated ${indexEntries.length} domain wiki entries · index ${indexUpdated ? "updated" : "skipped"}\n`
