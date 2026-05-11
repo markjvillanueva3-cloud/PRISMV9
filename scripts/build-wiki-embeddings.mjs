@@ -92,7 +92,7 @@ function embedText(r) {
     .filter(Boolean).join(" — ").slice(0, 1200);
 }
 
-async function ollamaEmbed(model, prompt, timeoutMs = 8000) {
+async function ollamaEmbed(model, prompt, timeoutMs = 20000) {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
@@ -157,11 +157,13 @@ async function main() {
     return;
   }
 
-  // Probe Ollama with a 1-token embed before doing thousands of calls.
-  const probe = await ollamaEmbed(FLAGS.model, "probe", 3000);
+  // Probe Ollama with a 1-token embed before doing thousands of calls. Generous
+  // timeout — the first call cold-loads the model into VRAM (can be 15-40s if
+  // another model is resident and has to be swapped out).
+  const probe = await ollamaEmbed(FLAGS.model, "probe", 60000);
   if (!probe) {
     // If we have a usable prior cache, leave it in place; only warn. Else write nothing.
-    process.stderr.write(`[wiki-embed] Ollama unreachable at ${OLLAMA_URL} (model ${FLAGS.model}) — ${prior.byName.size ? `keeping existing ${prior.byName.size}-vector cache` : "writing nothing"}, exit 0. Recall fallback degrades to BM25-only.\n`);
+    process.stderr.write(`[wiki-embed] Ollama unreachable/timed-out at ${OLLAMA_URL} (model ${FLAGS.model}) — ${prior.byName.size ? `keeping existing ${prior.byName.size}-vector cache` : "writing nothing"}, exit 0. Recall fallback degrades to BM25-only.\n`);
     process.exit(0);
   }
   process.stderr.write(`[wiki-embed] Ollama OK · model ${FLAGS.model} · dim ${probe.length} · ${work.length} concept entries · ${prior.byName.size} cached\n`);
@@ -184,6 +186,13 @@ async function main() {
   // header line records model + dim + count so the consumer can sanity-check
   const header = JSON.stringify({ __meta: true, model: FLAGS.model, dim: probe.length, count: ok, generatedAt: new Date().toISOString() });
   const jsonl = [header, ...out].join("\n") + "\n";
+  if (FLAGS.limit) {
+    // --limit is a SMOKE TEST — `out` only holds the first N entries, so writing it
+    // would clobber the full file. Print stats, don't write. (Use --full + no --limit
+    // to actually rebuild; the orchestrator never passes --limit.)
+    process.stdout.write(`[wiki-embed] --limit ${FLAGS.limit}: smoke test only — would write ${ok} vectors; NOT overwriting _embeddings.jsonl (${prior.byName.size} vectors preserved). Run without --limit to rebuild.\n`);
+    return;
+  }
   writeFileSync(OUT_PATH, jsonl, "utf8");
   const mb = (Buffer.byteLength(jsonl) / 1048576).toFixed(2);
   process.stdout.write(`[wiki-embed] ${ok} vectors (${reused} reused, ${ok - reused} fresh, ${fail} failed) -> _embeddings.jsonl (${mb} MB, int8 q, ${probe.length}-d), ${Math.round((Date.now() - t0) / 1000)}s\n`);
