@@ -7,8 +7,17 @@
  * Context builder injects relevant material, machine, and tool data
  * to ground LLM responses in PRISM's knowledge base.
  *
- * Dispatcher: aiDispatcher (ai_query, ai_explain_quote, ai_process_advice,
- *             ai_gcode_explain, ai_context_build)
+ * WIRE-EXEMPT: internal LLM client consumed directly by other engines
+ *   (LocalModelOrchestratorEngine, PRISMIntelligenceLayer, ElectrodeAIReasoningEngine,
+ *   TrilobeElectrodeGeometryEngine, ColdHeadingToolConfiguratorEngine,
+ *   AIExtractionReasonerEngine) and the registerTribalContextProvider boot path.
+ *   The original `aiDispatcher` surface enumerated below was never built; the
+ *   live AI dispatcher (`aiReasoningDispatcher.ts`) currently routes through
+ *   different engines. Wire-through is a future expansion (peer-claimed at
+ *   present), tracked separately from this engine's responsibility.
+ *
+ * Dispatcher (planned, not yet wired): aiDispatcher (ai_query, ai_explain_quote,
+ *   ai_process_advice, ai_gcode_explain, ai_context_build)
  */
 
 // ── Types ──────────────────────────────────────────────────────────
@@ -152,8 +161,10 @@ Reference data from the PRISM knowledge base when available.${contextText}`;
 
     // Call Claude API
     if (!this.config.api_key) {
-      // No API key — return context-only response
-      return {
+      // No API key — return context-only response.
+      // Offline responses are deterministic for a given (prompt, context_types)
+      // pair, so cache them to avoid rebuilding context on repeat queries.
+      const offlineResult: LLMResponse = {
         answer: this._generateOfflineResponse(input.prompt, context),
         context_used: context.map(c => c.title),
         model: "offline",
@@ -161,6 +172,8 @@ Reference data from the PRISM knowledge base when available.${contextText}`;
         duration_ms: Date.now() - start,
         cached: false,
       };
+      this.cache.set(cacheKey, { response: offlineResult, expires: Date.now() + 300_000 });
+      return offlineResult;
     }
 
     try {

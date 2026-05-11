@@ -43,6 +43,13 @@ const KEEP_PATTERNS = [
   /@playwright[\\/]mcp/i,
   /Claude Extensions/i,
   /Adobe/i,
+  // HARNESS-AUDIT/U-TIER3c additions (2026-05-10) — long-lived watchers + LSPs
+  // that were getting age-out killed under low CPU. See scrutiny audit
+  // af11f0fe2e08970bb and reference_load_bearing_scheduled_tasks.md memory.
+  /unified-observability-drain\.mjs/i,
+  /dashboard-serve\.mjs/i,
+  /typescript-language-server/i,
+  /tsserver\.js/i,
 ];
 
 const TRANSIENT_PATTERNS = [
