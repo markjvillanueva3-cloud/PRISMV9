@@ -20,17 +20,49 @@
  *   --quiet     suppress per-step success lines (errors still print)
  */
 import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { existsSync, statSync } from "node:fs";
+import { existsSync, statSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const PRISM_ROOT = resolve(__dirname, "..");
 const GRAPH_PATH = resolve(PRISM_ROOT, "state/shared/system-viz/system-graph.json");
+const FINGERPRINT_PATH = resolve(PRISM_ROOT, "state/shared/system-viz/.wiki-regen-fingerprint");
 
 const args = new Set(process.argv.slice(2));
-const FLAGS = { dryRun: args.has("--dry-run"), quiet: args.has("--quiet") };
+const FLAGS = { dryRun: args.has("--dry-run"), quiet: args.has("--quiet"), force: args.has("--force") };
+
+// Efficiency gate: the orchestrator is ~8min on a 150K-node graph and the
+// post-commit hook fires it on EVERY commit — even commits that don't touch
+// the graph or the filesystem inputs. Fingerprint = graph size+mtime + node/edge
+// count from the JSON header + a hash of the generator script list. If unchanged
+// since the last successful run, skip the whole chain (unless --force).
+function computeFingerprint() {
+  const parts = [];
+  try {
+    const st = statSync(GRAPH_PATH);
+    parts.push(`g:${st.size}:${Math.round(st.mtimeMs)}`);
+    // Cheap content signal: read just the first 4KB which contains the meta header
+    // (generatedAt, headline counts) without parsing the 95MB body.
+    const head = readFileSync(GRAPH_PATH, "utf8").slice(0, 4096);
+    parts.push(`h:${createHash("sha1").update(head).digest("hex").slice(0, 16)}`);
+  } catch { parts.push("g:missing"); }
+  // Generator-list hash so a code change to the orchestrator forces a rebuild.
+  parts.push(`gens:${createHash("sha1").update(GENERATORS.join("|")).digest("hex").slice(0, 8)}`);
+  // Also fold in the mtime of a couple of non-graph inputs so skill/hook/tribal
+  // changes don't get masked.
+  for (const p of [
+    resolve(PRISM_ROOT, ".claude/commands"),
+    resolve(PRISM_ROOT, ".claude/hooks"),
+    resolve(PRISM_ROOT, "knowledge/tribal"),
+    resolve(PRISM_ROOT, "extracted_modules/FINAL_EXTRACTION_SUMMARY.json"),
+  ]) {
+    try { parts.push(`i:${Math.round(statSync(p).mtimeMs)}`); } catch {}
+  }
+  return parts.join(" ");
+}
 
 const GENERATORS = [
   "generate-layer-wiki.mjs",
@@ -41,6 +73,7 @@ const GENERATORS = [
   "generate-registry-wiki.mjs",
   "generate-frontend-wiki.mjs",
   "generate-milestone-wiki.mjs",
+  "generate-misc-l8-wiki.mjs",   // JM-Die customers, combos, design specs, data catalogs, extracts, novel formulas
   "generate-skill-wiki.mjs",
   "generate-hook-wiki.mjs",
   "generate-formula-algo-wiki.mjs",
@@ -53,8 +86,11 @@ const GENERATORS = [
   // crosslink injector runs after all content generators so it sees every leaf entry
   "inject-wiki-crosslinks.mjs",
   // leaf-index built after crosslinks so it captures the latest content;
-  // feeds wiki-precheck-inject.mjs so the ~13.7K leaf entries are recall-searchable
+  // feeds wiki-precheck-inject.mjs so the ~14K leaf entries are recall-searchable
   "build-wiki-leaf-index.mjs",
+  // embeddings built from the fresh leaf-index — int8 vectors for the recall
+  // hook's semantic fallback. No-ops gracefully if Ollama is unreachable.
+  "build-wiki-embeddings.mjs",
   // lint runs LAST so it measures the post-crosslink orphan rate
   "lint-wiki-orphans.mjs",
 ];
@@ -102,6 +138,17 @@ function main() {
   const ageMin = Math.round(ageMs / 60000);
   log(`[regen-wiki] graph age: ${ageMin}min · ${FLAGS.dryRun ? "DRY-RUN" : "writing"}\n`);
 
+  // Skip the ~8min chain if nothing relevant changed since the last run.
+  const fp = computeFingerprint();
+  if (!FLAGS.dryRun && !FLAGS.force) {
+    let prev = "";
+    try { prev = readFileSync(FINGERPRINT_PATH, "utf8").trim(); } catch {}
+    if (prev === fp) {
+      log(`[regen-wiki] up-to-date (fingerprint unchanged) — skipping. Use --force to rebuild anyway.\n`);
+      return;
+    }
+  }
+
   const t0 = Date.now();
   const results = [];
   for (const g of GENERATORS) results.push(runGenerator(g));
@@ -110,6 +157,13 @@ function main() {
   const okCount = results.filter((r) => r.ok).length;
   const failCount = results.length - okCount;
   log(`[regen-wiki] done: ${okCount}/${results.length} OK · ${failCount} fail · total ${total}ms\n`);
+
+  // Persist the fingerprint only on a clean run so a partial-failure rebuild
+  // re-attempts next time. (The gate above reads this; without the write it
+  // would never short-circuit.)
+  if (failCount === 0 && !FLAGS.dryRun) {
+    try { mkdirSync(dirname(FINGERPRINT_PATH), { recursive: true }); writeFileSync(FINGERPRINT_PATH, fp, "utf8"); } catch {}
+  }
 
   if (failCount > 0) process.exit(1);
 }

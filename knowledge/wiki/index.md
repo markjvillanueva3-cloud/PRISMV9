@@ -1241,6 +1241,23 @@ Top scopes by milestone count:
 - `MF`: 6 milestones
 <!-- ARCH-MILESTONES-END -->
 
+### Misc L8 nodes (customers · combos · specs · data catalogs · extracts)
+
+<!-- ARCH-MISC-L8-START -->
+_Total: 266 misc-L8 entries (JM Die customers, combos, design specs, data catalogs, extracts, novel formulas)._
+
+- `datacat_file`: 141 entries
+- `jmdie_customer`: 60 entries
+- `extract_file`: 26 entries
+- `combo`: 22 entries
+- `design-spec`: 10 entries
+- `novel_formula`: 3 entries
+- `boxextract_file`: 3 entries
+- `jmdie_customer_aggregate`: 1 entries
+
+Dirs: `architecture/jmdie/`, `architecture/combos/`, `architecture/specs/`, `architecture/datacat/`, `architecture/extracts/`, `architecture/novel-formulas/`.
+<!-- ARCH-MISC-L8-END -->
+
 ### Skills
 
 <!-- ARCH-SKILLS-START -->
