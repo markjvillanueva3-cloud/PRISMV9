@@ -5,8 +5,8 @@
   "title": "TOOL-INVENTORY-MS0",
   "brief": "Adopt 8 external MCP servers as exposure-surfaces over existing PRISM engines. 8 of 18 surveyed servers overlap with existing PRISM functionality — adopt = wrap our engine as that server's tool, NOT pull in their implementation. Plus 1 registry unit + 1 wiring unit = 10. Lane-F owns this — no critical-path blockers, parallel-safe across all 10 sub-units (one-shot expose-and-test per server).",
   "parent_roadmap": "BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-2026-05-10.md",
-  "created_at": "2026-05-11T18:40:02.013Z",
-  "updated_at": "2026-05-11T18:40:02.013Z",
+  "created_at": "2026-05-11T19:27:19.879Z",
+  "updated_at": "2026-05-11T19:27:19.879Z",
   "created_by": "claude-0f522935 (register-devtools-roadmap-envelopes.mjs — BACKEND-DEVTOOLS-RGS6 combine)",
   "track": "TOOL-INVENTORY",
   "track_name": "BACKEND-DEVTOOLS-RGS6 MEGA-ROADMAP",
@@ -314,9 +314,7 @@
           "depends_on": [
             "U-TOOLINV-01"
           ],
-          "blocks": [
-            "]  # was [U-TOOLINV-09] — removed per audit-v2 tier-floor fix: a T2 unit must not gate a T1 unit. The registry (U-TOOLINV-09) enumerates mcp-server-qdrant as a known-but-not-adopted external from the adopt-log regardless of whether THIS T2 bookkeeping unit has run."
-          ],
+          "blocks": [],
           "parallel_with": [],
           "viz_node_id": "state.adoptlog.qdrantlabsalt",
           "viz_node_status": "needs_creation",
@@ -354,8 +352,7 @@
             "U-TOOLINV-04",
             "U-TOOLINV-05",
             "U-TOOLINV-06",
-            "U-TOOLINV-07]  # was [...U-TOOLINV-08] — dropped per audit-v2: U-TOOLINV-08 is T2 and this unit is T1; T2 must not gate T1. U-TOOLINV-08's adopt-log row is read opportunistically by the registry",
-            "not a hard prereq."
+            "U-TOOLINV-07"
           ],
           "blocks": [
             "U-TOOLINV-10"

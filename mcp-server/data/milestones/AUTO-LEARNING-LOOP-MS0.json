@@ -5,8 +5,8 @@
   "title": "AUTO-LEARNING-LOOP-MS0",
   "brief": "User directive (Phase-6): \"we need an auto feature that monitors reputable sources multiple times a day so our system automatically does deep research and decides if and how we can utilize new features to our system and synergize it automatically and auto add it to the system-viz feature.\"",
   "parent_roadmap": "BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-2026-05-10.md",
-  "created_at": "2026-05-11T18:40:02.013Z",
-  "updated_at": "2026-05-11T18:40:02.013Z",
+  "created_at": "2026-05-11T19:27:19.879Z",
+  "updated_at": "2026-05-11T19:27:19.879Z",
   "created_by": "claude-0f522935 (register-devtools-roadmap-envelopes.mjs — BACKEND-DEVTOOLS-RGS6 combine)",
   "track": "AUTO-LEARNING-LOOP",
   "track_name": "BACKEND-DEVTOOLS-RGS6 MEGA-ROADMAP",
@@ -261,7 +261,7 @@
           "atomized_anchor": "## U-ALL06"
         },
         {
-          "id": "U-ALL07..U-ALL08",
+          "id": "U-ALL07",
           "title": "Wire 6 auto-learning actions",
           "pillar": "auto-learn",
           "tier": 1,
@@ -292,7 +292,43 @@
             "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
           ],
           "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-AUTO-LEARNING-LOOP-MS0-ATOMIZED-2026-05-10.md",
-          "atomized_anchor": "## U-ALL07..U-ALL08"
+          "atomized_anchor": "## U-ALL07..U-ALL08",
+          "from_packed_header": "U-ALL07..U-ALL08"
+        },
+        {
+          "id": "U-ALL08",
+          "title": "Wire 6 auto-learning actions",
+          "pillar": "auto-learn",
+          "tier": 1,
+          "ai_priority_score": 63,
+          "leverage_score": 10,
+          "why": "MCP exposure so chats can manually trigger any phase",
+          "depends_on": [
+            "U-ALL01..U-ALL06"
+          ],
+          "blocks": [],
+          "parallel_with": [],
+          "viz_node_id": "disp.devdispatcher + disp.aireasoningdispatcher",
+          "viz_node_status": "claimed",
+          "loop_schedule": "none",
+          "status": "not_started",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "exit_conditions": [
+            "Implementation complete per the atomized micro_steps",
+            "Tests pass: npx vitest run (real reference values / algebraic invariants — no toBeDefined() stubs)",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified where the unit ships an engine: import + call + action-enum + Zod schema + round-trip E2E (test invokes through the dispatcher, not only the engine singleton)",
+            "verifies_via channel run + exit-signal matches the unit's expected_signal",
+            "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
+          ],
+          "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-AUTO-LEARNING-LOOP-MS0-ATOMIZED-2026-05-10.md",
+          "atomized_anchor": "## U-ALL07..U-ALL08",
+          "from_packed_header": "U-ALL07..U-ALL08"
         },
         {
           "id": "U-ALL09",
@@ -450,7 +486,7 @@
       ]
     }
   ],
-  "total_units": 11,
+  "total_units": 12,
   "declared_total_units": 12,
   "completed_units": 0
 }

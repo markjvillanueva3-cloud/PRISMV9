@@ -5,8 +5,8 @@
   "title": "SKILLS-UTILIZATION-MS0",
   "brief": "The skill-quality-discipline pillar. PRISM has ~247 project skills + ~390 user skills = ~637 total. The question is not quantity (we're 8× past @eng_khairallah1's \"ten skills = workforce\" bar) — it's whether each is **production-grade** by his Three-Question + Three-Scenario standard, or whether half are vague stubs that never auto-fire / fire wrongly / drifted stale. This milestone installs the pre-build gate, the test protocol, the linter, the refinement cadence, the library audit, the registry schema to track all of it, the marketplace scan, and the public-export path. It is a synergy-edge with HOOKS-AUTOMATION-V2 (skills carry scoped hooks), KNOWLEDGE-VAULT (skills cross-trigger wiki entries), and AUTO-LEARNING-LOOP (marketplace scan reuses the source-monitor pattern).  Source doctrine: `state/shared/research/2026-05-10-skills-openclaw.md` §1-4 (anatomy / patterns / discovery / ecosystem) + the @eng_khairallah1 4-phase course (`H:/last.md`). The course's contribution is the **process discipline** the research card lacked: the 3-question pre-build gate, the 3-scenario production-grade bar, the weekly refinement cycle, the \"vague language is banned\" rule, the library-as-workforce framing, and the master-tracking-doc pattern.",
   "parent_roadmap": "BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-2026-05-10.md",
-  "created_at": "2026-05-11T18:40:02.013Z",
-  "updated_at": "2026-05-11T18:40:02.013Z",
+  "created_at": "2026-05-11T19:27:19.879Z",
+  "updated_at": "2026-05-11T19:27:19.879Z",
   "created_by": "claude-0f522935 (register-devtools-roadmap-envelopes.mjs — BACKEND-DEVTOOLS-RGS6 combine)",
   "track": "SKILLS-UTILIZATION",
   "track_name": "BACKEND-DEVTOOLS-RGS6 MEGA-ROADMAP",
@@ -204,7 +204,7 @@
           "leverage_score": 10,
           "why": "@eng_khairallah1 Phase-3 — \"Every time you use a Skill and the output is not quite right, update the SKILL.md immediately. Set a calendar reminder to review and refine your Skill every Friday for the first month.\" Maps to a PRISM cron: weekly, surface (a) skills invoked this week whose output was overridden/corrected (from telemetry), (b) skills not refined in >90d but invoked >10×/month (stale-but-hot), (c) skills the linter flagged. Push a digest to the user + chat bus. This is the \"master document tracking status + last refinement date\" made live.",
           "depends_on": [
-            "U-SKU06]  # + LOOP-MIGRATE-MS0 cron infra (soft)"
+            "U-SKU06"
           ],
           "blocks": [],
           "parallel_with": [
@@ -286,9 +286,7 @@
           "ai_priority_score": 55,
           "leverage_score": 9,
           "why": "@eng_khairallah1 Phase-1 — \"Browse skillsmp.com or github.com/anthropics/skills and find a Skill relevant to your work. There are over 80,000 community Skills... most people have never installed a single one.\" PRISM should periodically scan skillsmp.com + anthropics/skills + the major collections (wshobson/agents, obra/superpowers) for skills relevant to its domains (manufacturing, CAD, CAM, CNC, document processing, code review) and surface install candidates. Reuses the AUTO-LEARNING-LOOP-MS0 ReputableSourceMonitor pattern — this is a specialized source.",
-          "depends_on": [
-            "]  # AUTO-LEARNING-LOOP-MS0 source-monitor pattern (soft reuse)"
-          ],
+          "depends_on": [],
           "blocks": [],
           "parallel_with": [
             "U-SKU01",
