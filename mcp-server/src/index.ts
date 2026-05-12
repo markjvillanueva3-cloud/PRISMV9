@@ -148,6 +148,7 @@ import { registerL2EngineDispatcher } from "./tools/dispatchers/l2EngineDispatch
 
 // L3: New Core Dispatchers — 6 dispatchers, 51 actions (#34-#39)
 import { registerCadDispatcher } from "./tools/dispatchers/cadDispatcher.js";
+import { registerCADRegressionDispatcher } from "./tools/dispatchers/cadRegressionDispatcher.js";
 import { registerCamDispatcher } from "./tools/dispatchers/camDispatcher.js";
 import { registerQualityDispatcher } from "./tools/dispatchers/qualityDispatcher.js";
 import { registerProcessControlDispatcher } from "./tools/dispatchers/processControlDispatcher.js";
@@ -665,6 +666,8 @@ async function registerTools(): Promise<void> {
 
   // L3: New Core Dispatchers — 6 dispatchers, 51 actions
   registerCadDispatcher(server);
+  // CAD-INFRA-MS0 U-CINF12: CAD Regression dispatcher — 25 actions (index, classify, run, checkpoint, triage, artifact, dashboard, analyzer, report)
+  registerCADRegressionDispatcher(server);
   registerCamDispatcher(server);
 
   // PP-DISPATCHER: PostProcessor-specific operations — 50 actions (generate, analyze, optimize, validate, physics, neural, tribal, controller, kinematics)
