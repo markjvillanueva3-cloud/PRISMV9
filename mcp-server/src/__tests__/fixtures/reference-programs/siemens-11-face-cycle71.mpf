@@ -1,0 +1,46 @@
+; =============================================
+; SIEMENS 840D sl — Face Milling with CYCLE71
+; Material: 7075-T6 Aluminum
+; Tool: 50mm face mill, 4 inserts
+; Stock: 120x80mm, 2mm oversize per side
+; =============================================
+
+N10 G54 G90 G17 G64 SOFT       ; Safe start
+N20 T2 D1 M6                   ; 50mm face mill
+N30 S5000 M3                   ; Vc ~785 m/min
+N40 M8                         ; Coolant ON
+N50 G0 Z50                     ; Clearance plane
+
+; CYCLE71 — Face milling cycle
+; CYCLE71(RTP, RFP, SDIS, DP, PA, PO, LENG, WID, STA, MID, MIDA, FFD, FFP1, CDIR, VARI, FAL, FALD, FFP2, SSF)
+;   RTP   = 50      retract plane
+;   RFP   = 0       reference plane
+;   SDIS  = 2       safety distance
+;   DP    = -1.0    face depth (absolute, 1mm total removal)
+;   PA    = -2      start point X (2mm oversize)
+;   PO    = -2      start point Y (2mm oversize)
+;   LENG  = 124     total X length (120 + 2*2 oversize)
+;   WID   = 84      total Y width (80 + 2*2 oversize)
+;   STA   = 0       machining angle (0 = along X)
+;   MID   = 30      stepover (60% of cutter dia)
+;   MIDA  = 1.0     max depth of cut per pass
+;   FFD   = 500     plunge feed
+;   FFP1  = 3000    milling feed (mm/min)
+;   CDIR  = 2       climb milling
+;   VARI  = 1       meander pattern
+;   FAL   = 0       no wall allowance (facing)
+;   FALD  = 0       no floor allowance
+;   FFP2  = 0       not used
+;   SSF   = 0       not used
+
+N60 CYCLE71(50, 0, 2, -1.0, -2, -2, 124, 84, 0, 30, 1.0, 500, 3000, 2, 1, 0, 0, 0, 0)
+
+; Second pass — remove another 1mm if needed
+; N70 CYCLE71(50, 0, 2, -2.0, -2, -2, 124, 84, 0, 30, 1.0, 500, 3000, 2, 1, 0, 0, 0, 0)
+
+; Retract and end
+N80 G0 Z50
+N90 M9
+N100 M5
+N110 G0 X0 Y0 SUPA
+N120 M30
