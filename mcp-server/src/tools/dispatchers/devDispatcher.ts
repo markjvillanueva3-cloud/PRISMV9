@@ -3493,7 +3493,9 @@ export function registerDevDispatcher(server: any): void {
             if (!md && typeof params.path === "string" && params.path) {
               const abs = path.isAbsolute(params.path) ? params.path : path.join(PROJECT_ROOT, params.path);
               const resolved = path.resolve(abs);
-              if (!resolved.startsWith(path.resolve(PROJECT_ROOT))) { result = { ok: false, error: "path escapes PRISM root" }; break; }
+              const projRoot = path.resolve(PROJECT_ROOT);
+              // require a trailing separator so a sibling like H:/prism-cad-complete can't satisfy the prefix check
+              if (resolved !== projRoot && !resolved.startsWith(projRoot + path.sep)) { result = { ok: false, error: "path escapes PRISM root" }; break; }
               if (!fs.existsSync(resolved)) { result = { ok: false, error: `file not found: ${params.path}` }; break; }
               md = fs.readFileSync(resolved, "utf-8");
               srcPath = resolved;

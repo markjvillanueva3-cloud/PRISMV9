@@ -95,6 +95,11 @@ function staleReason(mdPath: string, htmlPath: string, md: string): string {
 
 // ── Lock handling ─────────────────────────────────────────────────────────
 
+// signal-0 existence probe — works on POSIX and Windows (Node maps it to OpenProcess on win32).
+// EPERM = the PID exists but is owned by another user / is a protected process → treat as alive.
+// Caveat: if a crashed run's PID was recycled to an unrelated process this returns true and we'd
+// skip ONE pass — bounded by LOCK_STALE_MS (10 min), after which the lock is taken over regardless;
+// harmless for an hourly cron.
 function isPidAlive(pid: number): boolean {
   try { process.kill(pid, 0); return true; } catch (e) { return (e as NodeJS.ErrnoException).code === "EPERM"; }
 }

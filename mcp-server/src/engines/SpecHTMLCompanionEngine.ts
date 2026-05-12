@@ -735,7 +735,7 @@ export class SpecHTMLCompanionEngine {
     provenance.push("· the Markdown alongside is canonical");
 
     const htmlAttr = theme === "auto" ? "" : ` data-theme="${theme}"`;
-    const sourceLink = opts.sourcePath ? ` <a href="${escapeHtml(escapeHtml(opts.sourcePath))}">${escapeHtml(opts.sourcePath)}</a>` : "";
+    const sourceLink = opts.sourcePath ? ` <a href="${escapeHtml(opts.sourcePath)}">${escapeHtml(opts.sourcePath)}</a>` : "";
     const scripts = [
       `<script>${themeToggleScript()}</script>`,
       tocHtml ? `<script>${navScript()}</script>` : "",

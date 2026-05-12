@@ -156,7 +156,12 @@ export function runCli(argv) {
 // Run the CLI only when this file is the process entry point — never on `import` (so a hook or a
 // test can pull in checkA11y / runCli without the module's top level reading process.argv & exiting).
 const invokedDirectly = (() => {
-  try { return !!process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url); }
-  catch { return false; }
+  try {
+    if (!process.argv[1]) return false;
+    let a = path.resolve(process.argv[1]);
+    let b = fileURLToPath(import.meta.url);
+    if (process.platform === "win32") { a = a.toLowerCase(); b = b.toLowerCase(); } // NTFS is case-insensitive
+    return a === b;
+  } catch { return false; }
 })();
 if (invokedDirectly) process.exit(runCli(process.argv.slice(2)));
