@@ -11,6 +11,14 @@
 
 import { z } from "zod";
 import type { ActionSchemaMap } from "./actionSchemaTypes.js";
+// MACRO-DOMAIN-MS0/U-MACRO-LIB: re-use the 4 macro_* schemas owned by cadActionSchemas (same engine, same params).
+// Keeps validation rules identical across prism_cad and prism_turning — no behavioural drift between dispatchers.
+import {
+  macroLibraryListSchema,
+  macroMatchFamilySchema,
+  macroPlaceTemplateSchema,
+  macroFanoutDryRunSchema,
+} from "./cadActionSchemas.js";
 
 // ============================================================================
 // REUSABLE FIELD SCHEMAS
@@ -597,4 +605,10 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   lathe_aux_axis_timing_stats,
   lathe_datum_reference_frame_assign,
   lathe_datum_reference_frame_stats,
+
+  // MACRO-DOMAIN-MS0/U-MACRO-LIB: macro library cross-wire (same engine + schemas as prism_cad)
+  macro_library_list: macroLibraryListSchema,
+  macro_match_family: macroMatchFamilySchema,
+  macro_place_template: macroPlaceTemplateSchema,
+  macro_fanout_dry_run: macroFanoutDryRunSchema,
 };

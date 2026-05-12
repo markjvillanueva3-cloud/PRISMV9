@@ -26,7 +26,9 @@ const ACTIONS = [
   // HOOK-MANIFEST-DAG-MS26/P0-U01: static hook manifest (catalog + DAG-validator input)
   "manifest",
   // HOOK-MANIFEST-DAG-MS26/P0-U02: cycle detection + deterministic order over the manifest
-  "dag_validate"
+  "dag_validate",
+  // HOOK-SYNERGY-MS0/U-HOOK-CREATION-GATE: pre-create dedup check (H5)
+  "creation_check"
 ] as const;
 
 function ok(data: any) {
@@ -300,6 +302,42 @@ export function registerHookDispatcher(server: any): void {
                 hasOrder: e.order !== null,
               })),
               hint: "params: full=true (every event's nodes+edges+order+cycles) · event=<name> (one event's full DAG) · write=true ((re)write hook-dag-validation.json) · manifestPath=<path>",
+            });
+          }
+          // HOOK-SYNERGY-MS0/U-HOOK-CREATION-GATE — pre-create dedup check (H5)
+          case "creation_check": {
+            const { hookCreationGuardEngine } = await import("../../engines/HookCreationGuardEngine.js");
+            const { hookManifestEngine } = await import("../../engines/HookManifestEngine.js");
+            const proposedName = String(params.proposedName ?? "");
+            if (!proposedName) {
+              return ok({ error: "creation_check requires `proposedName` (string)", actions: ACTIONS });
+            }
+            // Prefer a pre-built manifest path; otherwise snapshot a fresh manifest from disk.
+            const manifestPath = typeof params.manifestPath === "string" ? params.manifestPath : undefined;
+            const manifest = manifestPath ? undefined : hookManifestEngine.generate();
+            const result = hookCreationGuardEngine.checkBeforeCreating(
+              {
+                proposedName,
+                description: typeof params.description === "string" ? params.description : "",
+                event: typeof params.event === "string" ? params.event : undefined,
+                matcher: typeof params.matcher === "string" ? params.matcher : undefined,
+                proposedPath: typeof params.proposedPath === "string" ? params.proposedPath : undefined,
+              },
+              manifest ? { manifest } : { registryPath: manifestPath },
+            );
+            // Bypass slimResponse so empty arrays (matches:[] on a clean check) survive across the wire.
+            const respond = (data: unknown): { content: Array<{ type: "text"; text: string }> } => ({
+              content: [{ type: "text" as const, text: JSON.stringify(data) }],
+            });
+            if (params.full === true) return respond(result);
+            return respond({
+              schemaVersion: result.schemaVersion,
+              shouldProceed: result.shouldProceed,
+              recommendation: result.recommendation,
+              reason: result.reason,
+              matchCount: result.matches.length,
+              topMatch: result.topMatch ?? null,
+              hint: "params: full=true (full match array) · event+matcher (enables signature-collision check) · description (enables token-overlap dimension)",
             });
           }
           default: return ok({ error: `Unknown action: ${action}`, available: ACTIONS });

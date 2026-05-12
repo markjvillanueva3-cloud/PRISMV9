@@ -8,6 +8,9 @@
 // concatenate additionalContext. Fail-safe: emit {continue:true} on any error.
 import { runHook, readStdin, emit } from "./lib/hook-runner.mjs";
 const SUB_HOOKS = [
+  // HS-12 (2026-05-12): tool-call runtime log; cheap (~2-5ms).
+  // Fires on PostToolUse, appends to state/shared/.tool-runtimes.jsonl.
+  { "path": "H:/prism/.claude/hooks/tool-watchdog.mjs", "timeout": 1000 },
   {
     "path": "H:/prism/.claude/helpers/posttooluse-compressor.mjs",
     "timeout": 2000

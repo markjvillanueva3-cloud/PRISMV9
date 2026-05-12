@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 4,
+  "id": "MACRO-PROGRAM-PIPELINE-MS0",
+  "title": "Macro-program pipeline — catalog + safety-gated fill + per-machine emit + bulk fan-out",
+  "track": "MACRO-PROGRAM-PIPELINE",
+  "priority": "P0",
+  "owner": "claude-a7ea87ab",
+  "created_at": "2026-05-12T18:55:00.000Z",
+  "updated_at": "2026-05-12T18:55:00.000Z",
+  "status": "in_progress",
+  "total_units": 7,
+  "completed_units": 1,
+  "dependencies": [],
+  "rationale": "User 2026-05-12: 'add the corresponding macro program to each file system that has a part that could use one of the programs; check existing programs for each part then make a version of each program utilizing one of the macro programs; make a program for each lathe machine and label it for each machine; coding must match controller and machine capabilities'. Spec was scoped by claude-8f2683e8 (slot charlie) per the forge methodology with the live system-viz graph as dependency oracle. Key finding: ~80% of this pipeline already exists (OkumaParametricProgramEngine, MacroProgramIntelligenceEngine, OkumaMacroHeaderGeneratorEngine, LatheProofCarryingEmitEngine, LathePrintProgramEmitterEngine, ShopConfigurationEngine, LathePartClassifierEngine, PartFolderOrganizerEngine, etc). Milestone is mostly WIRING + a thin orchestrator + the 2 missing macro families + the bulk fan-out — NOT a from-scratch build. U2-U6 are SAFETY-CRITICAL (auto-emitting G-code from print dims) and gated by S(x) >= 0.70 + envelope check + sim + operator sign-off. NEVER bulk-auto-emit G-code. U1 is non-safety-critical (file copying + part classification) and ships first.",
+  "knowledge_sources": {
+    "engines": [
+      "MacroLibraryEngine (new in U1 — catalog the 4 OSP macros, family match, template placement)",
+      "MacroProgramIntelligenceEngine (parse → AST, validate, expand)",
+      "OkumaParametricProgramEngine (extend in U3 with generateWaferInsert + generateTopHatCasing)",
+      "OkumaMacroHeaderGeneratorEngine (VC100=... header block)",
+      "LatheProofCarryingEmitEngine (S(x) >= 0.70 gate)",
+      "LathePrintProgramEmitterEngine (envelope-aware emit)",
+      "LathePrintProgramSignoffEngine / LatheFirstPieceApprovalEngine / LatheProgramSignoffDossierEngine (operator-in-the-loop)",
+      "LathePartClassifierEngine + LathePartFamilyPlanningEngine (part → family)",
+      "PartFolderOrganizerEngine (_PART LIBRARY/ + part.json)",
+      "ShopConfigurationEngine (21 JM machines)",
+      "PostProcessorPipelineEngine + LathePostProcessorEngine + LathePostProcessorDialectValidatorEngine",
+      "PPMacroFlowValidatorEngine + PPMacroVariableValidatorEngine",
+      "LatheReplayFrameCompilerEngine + LatheEnvelopeBreachReplayEngine"
+    ],
+    "tribal_knowledge": "JM Die Macro programs/ (4 Okuma OSP macros: BASE WAFER INSERT MACRO, BASIC-CASING, BASIC CASING WITH SINGLE COUNTERBORE, BASIC TOP HAT CASING WITH SINGLE COUNTERBORE); project_okuma_controller_limits (P300L/P300LA program-memory + char-count ceilings on large parametric programs)",
+    "formulas": [
+      "VC130 = (VC111 * 3.82) / VC110 (Okuma RPM from SFM and dia — must remain expression, never pre-computed)",
+      "Okuma ID-taper angle in 250-270 band (270 = 0 deg convention)",
+      "S(x) >= 0.70 HARD BLOCK (LatheProofCarryingEmitEngine + prism_safety:validate_physics)"
+    ],
+    "reference": [
+      "state/shared/specs/MACRO-PROGRAM-PIPELINE-MS0-2026-05-12.md (full spec, 31 KB, 7 units)",
+      "H:/PRISM/JM DIE/Macro programs/ (the 4 OSP macros)",
+      "H:/PRISM/JM DIE/_PART LIBRARY/ (25,028 part folders, 483 customer folders — built via phase18 + phase19)",
+      "src/data/jm-die-profile.ts (21 lathe-capable machines)"
+    ]
+  },
+  "units": [
+    {
+      "id": "MS0-U1",
+      "title": "MacroLibraryEngine + dual-wiring to prism_cad + prism_turning + part-folder template placement (NON-safety-critical)",
+      "status": "completed",
+      "shipped": [
+        "MacroLibraryEngine (catalog, matchFamily, placeMacroTemplate, fanoutDryRun)",
+        "MacroLibraryEngine.test.ts (36 tests passing — 4 round-trip cases through prism_cad + 4 through prism_turning)",
+        "prism_cad dispatcher: 4 macro_* action cases (already in HEAD)",
+        "prism_turning dispatcher: 4 macro_* action cases (this pickup) + ACTIONS enum",
+        "cadActionSchemas: macroLibraryListSchema + macroMatchFamilySchema + macroPlaceTemplateSchema + macroFanoutDryRunSchema",
+        "turningActionSchemas: re-export of the 4 schemas from cadActionSchemas (same engine, identical validation)"
+      ],
+      "completed_at": "2026-05-12T18:55:00.000Z",
+      "completed_by": "claude-a7ea87ab (picked up fork commit 0e2457a80 from claude-8f2683e8)"
+    },
+    {
+      "id": "MS0-U2",
+      "title": "MacroFillOrchestratorEngine — fill VC vars from print dims (SAFETY-CRITICAL)",
+      "status": "not_started"
+    },
+    {
+      "id": "MS0-U3",
+      "title": "OkumaParametricProgramEngine: + generateWaferInsert + generateTopHatCasing",
+      "status": "not_started"
+    },
+    {
+      "id": "MS0-U4",
+      "title": "Safety gate around the candidate — S(x) >= 0.70 + envelope + sim + operator (SAFETY-CRITICAL load-bearing)",
+      "status": "not_started"
+    },
+    {
+      "id": "MS0-U5",
+      "title": "Per-machine post-resolution + labelled .MIN emit (parametric or expanded by controller memory)",
+      "status": "not_started"
+    },
+    {
+      "id": "MS0-U6",
+      "title": "Bulk fan-out into _PART LIBRARY/ (gated, operator-confirmed, NEVER auto) + macro-bulk-emit-guard Stop hook",
+      "status": "not_started"
+    },
+    {
+      "id": "MS0-U7",
+      "title": "/macro-program skill + close-out (digest regen + envelope close + 3-way scrutiny)",
+      "status": "not_started"
+    }
+  ],
+  "exit_gate": "All 7 units shipped; macro_* actions wired to prism_turning + prism_cad (+ prism_safety for the gate, prism_dev for the post) and round-tripped in tests; macro-bulk-emit-guard Stop hook in MINIMAL_ALLOWLIST and test passes; OkumaParametricProgramEngine has generateWaferInsert + generateTopHatCasing (4 families generatable); NO code path emits a final program file at S(x) < 0.70 or without an operator-review flag (asserted in U2/U4/U5/U6 tests); ENGINE_DIGEST/DISPATCHER_DIGEST regenerated; DOMAIN-STUDIO-NODE-MAP.md updated; milestone close-out written; 3-way scrutiny PASS; omega_floor 1.0 met.",
+  "omega_floor": 1.0,
+  "resources_utilized": [
+    "OkumaParametricProgramEngine",
+    "MacroProgramIntelligenceEngine",
+    "OkumaMacroHeaderGeneratorEngine",
+    "LatheProofCarryingEmitEngine",
+    "LathePrintProgramEmitterEngine",
+    "LathePrintProgramSignoffEngine",
+    "LatheFirstPieceApprovalEngine",
+    "LatheProgramSignoffDossierEngine",
+    "ShopConfigurationEngine",
+    "LathePartClassifierEngine",
+    "LathePartFamilyPlanningEngine",
+    "PartFolderOrganizerEngine",
+    "PostProcessorPipelineEngine",
+    "LathePostProcessorEngine",
+    "PPOkumaTurningPostEngine",
+    "OkumaB250LatheMasterPostEngine",
+    "LathePostProcessorDialectValidatorEngine",
+    "LatheReplayFrameCompilerEngine",
+    "LatheEnvelopeBreachReplayEngine",
+    "PPMacroFlowValidatorEngine",
+    "PPMacroVariableValidatorEngine",
+    "prism_safety:validate_physics",
+    "CollisionPreventionEngine",
+    "machineLimitGuard"
+  ]
+}

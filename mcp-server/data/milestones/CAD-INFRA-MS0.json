@@ -1,0 +1,201 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "CAD-INFRA-MS0",
+  "title": "CAD Regression Test Infrastructure — Index, Orchestrator, Dashboard, Triage",
+  "track": "CAD-INFRA",
+  "status": "wired_partial",
+  "status_history": [
+    {"at": "2026-05-12T17:55:00Z", "from": "ready", "to": "wired_partial", "by": "claude-5fd23c5f", "note": "14/15 units shipped (engines + schemas + dispatcher + safety hooks + tests + UI). U-CINF15 runbook delivered. Remaining: WorkerThreadRunner (separate unit U-CINF04.x — orchestrator currently requires injected runner). Wiring gap closed: dispatcher registered in src/index.ts, CAD_REGRESSION_SAFETY_HOOKS spread into allHooks + hooksByCategory."}
+  ],
+  "priority": "CRITICAL",
+  "total_units": 15,
+  "completed_units": 14,
+  "deferred_units": ["U-CINF04.x-WORKER-THREAD-RUNNER"],
+  "sessions_p50": 5,
+  "sessions_p90": 7,
+  "dependencies": [],
+  "blocks": ["CAD-DRAW-EVERY-MS0"],
+  "goal": "Build the infrastructure required to orchestrate the 20,006-file regression test: master CAD file index, per-file atomic state tracking, parallel worker orchestration, resumable checkpointing, real-time dashboard, and failure triage.",
+  "ultimate_test_contribution": "Without this milestone, the 'draw every CAD file' test CANNOT run. This provides the test harness, state persistence, and visibility layer.",
+  "exit_criteria": {
+    "file_index_complete": "All 20,006 files cataloged with metadata (format, size, customer, machine_category, complexity)",
+    "orchestrator_benchmarked": "Demonstrates 100-file batch in <2min with worker pool",
+    "resumable_verified": "Killing orchestrator mid-run and restarting resumes within 1 file of stop point",
+    "dashboard_live": "Real-time progress view shows pass/fail/error/pct-complete for 20K files",
+    "failure_triage_taxonomized": "Every failure classified into: format_error | parse_error | generation_error | comparison_error | timeout | crash"
+  },
+  "units": [
+    {
+      "id": "U-CINF01",
+      "title": "CADFileIndexerEngine — master 20,006-file catalog",
+      "estimated_duration_min": 45,
+      "deliverables": [
+        "src/engines/CADFileIndexerEngine.ts",
+        "data/state/cad-file-index/master-index.json (schemaVersion 1)",
+        "Per-file metadata: {fileId (hash), absolutePath, format, sizeBytes, customer, machineCategory, complexityHint, lastModified}"
+      ],
+      "exit": "Indexer discovers all 20,006 files; idempotent re-run detects additions/deletions"
+    },
+    {
+      "id": "U-CINF02",
+      "title": "CADFileClassifierEngine — part/assembly/drawing/CAM classification",
+      "estimated_duration_min": 30,
+      "deliverables": [
+        "src/engines/CADFileClassifierEngine.ts",
+        "Classifies .sldprt/.ipt=part, .sldasm/.iam=assembly, .slddrw/.idw=drawing, .mcx*=CAM",
+        "Feeds downstream per-type test strategies"
+      ],
+      "exit": "Every indexed file has classification tag"
+    },
+    {
+      "id": "U-CINF03",
+      "title": "CADTestStateSchema — per-file atomic state",
+      "estimated_duration_min": 30,
+      "deliverables": [
+        "src/schemas/cadRegressionTestSchema.ts (Zod)",
+        "TestFileEntrySchema: {fileId, status, errorType, durationMs, retries, artifacts, startedAt, completedAt}",
+        "TestBatchSchema: {batchId, stats, lastCheckpoint, schemaVersion}",
+        "Status enum: pending|running|pass|fail|skip|error",
+        "ErrorType enum: format|parse|generation|comparison|timeout|crash"
+      ],
+      "exit": "Zod schemas compile; sample state JSON validates"
+    },
+    {
+      "id": "U-CINF04",
+      "title": "CADRegressionTestOrchestratorEngine — parallel worker pool",
+      "estimated_duration_min": 60,
+      "deliverables": [
+        "src/engines/CADRegressionTestOrchestratorEngine.ts",
+        "Uses Node worker_threads (8 workers default, configurable)",
+        "Distributes 20K files across workers with load balancing",
+        "Per-worker timeout: 30s default per file",
+        "Atomic state updates via atomicWrite.ts"
+      ],
+      "exit": "100-file smoke batch completes in <2min; state persists across restarts"
+    },
+    {
+      "id": "U-CINF05",
+      "title": "CADTestCheckpointEngine — resumable state every 100 files",
+      "estimated_duration_min": 30,
+      "deliverables": [
+        "Checkpoint save cadence: every 100 completed files OR every 60s",
+        "Resume finds last checkpoint + replays only unfinished files",
+        "Persist to data/state/cad-regression-tests/{batchId}.json"
+      ],
+      "exit": "Kill -9 mid-run; restart resumes within 1 file of last checkpoint"
+    },
+    {
+      "id": "U-CINF06",
+      "title": "CADFailureTriageEngine — classify every failure",
+      "estimated_duration_min": 45,
+      "deliverables": [
+        "src/engines/CADFailureTriageEngine.ts",
+        "Classifies failures into 6 categories (format/parse/generation/comparison/timeout/crash)",
+        "Captures stack traces and input file context",
+        "Groups similar failures by root cause pattern"
+      ],
+      "exit": "Seeded failure corpus classified with >95% accuracy"
+    },
+    {
+      "id": "U-CINF07",
+      "title": "CADArtifactStorageEngine — diff/image/log capture",
+      "estimated_duration_min": 30,
+      "deliverables": [
+        "Persist per-file artifacts: expected_step, actual_step, diff_png, error_log",
+        "Path layout: data/cad-test-artifacts/{batchId}/{fileId}/",
+        "Retention policy: keep latest 5 runs"
+      ],
+      "exit": "Failed test produces inspectable artifact bundle"
+    },
+    {
+      "id": "U-CINF08",
+      "title": "CADRegressionDashboardEngine — real-time progress API",
+      "estimated_duration_min": 45,
+      "deliverables": [
+        "src/routes/cadRegression.ts (Express API)",
+        "GET /api/cad-regression/progress?batchId=...",
+        "SSE endpoint /api/cad-regression/stream for live updates",
+        "Stats: total/completed/passed/failed/pct, errorBreakdown, ETA"
+      ],
+      "exit": "Web dashboard shows live progress during test run"
+    },
+    {
+      "id": "U-CINF09",
+      "title": "CADRegressionDashboardUI — web visualization",
+      "estimated_duration_min": 60,
+      "deliverables": [
+        "web/src/pages/CADRegression.tsx",
+        "Progress bar, error-type pie chart, recent failures table",
+        "Per-file drill-down view with artifact viewer"
+      ],
+      "exit": "Operator can watch 20K test run in browser"
+    },
+    {
+      "id": "U-CINF10",
+      "title": "CADRegressionResultsAnalyzerEngine — aggregate metrics",
+      "estimated_duration_min": 45,
+      "deliverables": [
+        "Pass-rate by customer (ALCOA, ITW, Holo-Krome, SFS, …)",
+        "Pass-rate by format (.sldprt vs .ipt vs .mcx-8)",
+        "Pass-rate by machine category (lathe vs mill vs EDM)",
+        "Pass-rate by complexity tier"
+      ],
+      "exit": "Produces roll-up report: 'Lathe parts: 94.2% pass, Wire EDM: 87.1%, ...'"
+    },
+    {
+      "id": "U-CINF11",
+      "title": "CADRegressionReportGeneratorEngine — PDF/HTML reports",
+      "estimated_duration_min": 30,
+      "deliverables": [
+        "HTML report with embedded diff images",
+        "Executive summary, pass/fail breakdown, top 100 failures",
+        "Exportable PDF for stakeholder review"
+      ],
+      "exit": "Report generated from any batchId"
+    },
+    {
+      "id": "U-CINF12",
+      "title": "CADRegressionDispatcher — MCP action routing",
+      "estimated_duration_min": 30,
+      "deliverables": [
+        "src/tools/dispatchers/CADRegressionDispatcher.ts",
+        "Actions: start_batch, get_progress, get_results, triage, report",
+        "z.enum wiring, schema validation"
+      ],
+      "exit": "MCP client can invoke cad_regression.start_batch({corpus:'all'})"
+    },
+    {
+      "id": "U-CINF13",
+      "title": "CADRegressionSafetyHooks — abort on cascading failure",
+      "estimated_duration_min": 30,
+      "deliverables": [
+        "Abort batch if >50% crash rate in first 500 files",
+        "Auto-pause on disk-full / memory-pressure",
+        "Alert hook to notify operator on extended runs"
+      ],
+      "exit": "Seeded 'broken generator' aborts batch before burning 20K runs"
+    },
+    {
+      "id": "U-CINF14",
+      "title": "Regression test: 100-file smoke corpus validation",
+      "estimated_duration_min": 45,
+      "deliverables": [
+        "src/__tests__/cadRegressionOrchestrator.test.ts",
+        "Run 100-file subset end-to-end",
+        "Assert: state persists, workers parallel, dashboard updates, artifacts captured"
+      ],
+      "exit": "Full-pipeline test green"
+    },
+    {
+      "id": "U-CINF15",
+      "title": "Documentation + runbook",
+      "estimated_duration_min": 30,
+      "deliverables": [
+        "data/docs/CAD_REGRESSION_RUNBOOK.md",
+        "How to kick off 20K run, monitor, abort, interpret results",
+        "Troubleshooting: stuck files, memory pressure, disk full"
+      ],
+      "exit": "Runbook reviewed and published"
+    }
+  ]
+}

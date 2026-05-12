@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-12T13:57:25.426Z",
+  "generatedAt": "2026-05-12T19:05:14.642Z",
   "generatedBy": "scripts/build-hook-registry.mjs",
   "repoRoot": "H:/prism",
   "hooksDir": ".claude/hooks",
@@ -22,27 +22,27 @@
     }
   ],
   "counts": {
-    "hookFiles": 449,
-    "wired": 167,
-    "orphaned": 282,
+    "hookFiles": 455,
+    "wired": 171,
+    "orphaned": 284,
     "disabled": 0,
     "skipped": 0,
     "byEvent": {
-      "PreToolUse": 104,
-      "PostToolUse": 75,
+      "PreToolUse": 106,
+      "PostToolUse": 77,
       "SessionStart": 65,
-      "Stop": 62,
+      "Stop": 63,
       "UserPromptSubmit": 22,
       "PreCompact": 12,
       "SubagentStart": 2,
       "SubagentStop": 1
     },
     "byType": {
-      "command": 343
+      "command": 348
     },
     "byLayer": {
-      "user": 170,
-      "project": 173
+      "user": 173,
+      "project": 175
     }
   },
   "hooks": [
@@ -679,8 +679,8 @@
       "description": "UserPromptSubmit hook.",
       "descriptionInferred": false,
       "tier": null,
-      "sizeBytes": 7642,
-      "lines": 233
+      "sizeBytes": 7831,
+      "lines": 235
     },
     {
       "id": "auto-fork-executor",
@@ -913,8 +913,8 @@
       "description": "PreToolUse Bash",
       "descriptionInferred": false,
       "tier": null,
-      "sizeBytes": 10662,
-      "lines": 266
+      "sizeBytes": 12620,
+      "lines": 317
     },
     {
       "id": "bash-orphan-cleaner",
@@ -1321,8 +1321,8 @@
       "description": "SessionStart hook",
       "descriptionInferred": false,
       "tier": null,
-      "sizeBytes": 2407,
-      "lines": 72
+      "sizeBytes": 2825,
+      "lines": 77
     },
     {
       "id": "claude-brief-precompact",
@@ -1579,8 +1579,8 @@
       "description": "Proactive memory-pressure gate with self-heal",
       "descriptionInferred": false,
       "tier": null,
-      "sizeBytes": 3183,
-      "lines": 99
+      "sizeBytes": 5181,
+      "lines": 144
     },
     {
       "id": "compact-interval-warning",
@@ -2831,6 +2831,28 @@
       "lines": 215
     },
     {
+      "id": "git-lock-sweeper",
+      "file": ".claude/hooks/git-lock-sweeper.mjs",
+      "wired": true,
+      "disabled": false,
+      "events": [
+        {
+          "event": "Stop",
+          "matcher": "",
+          "timeout": null,
+          "type": "command",
+          "layer": "user",
+          "disabled": false,
+          "viaBundle": "stop-bundle"
+        }
+      ],
+      "description": "HS-02 mid-session stale-lock cleanup.",
+      "descriptionInferred": false,
+      "tier": null,
+      "sizeBytes": 3028,
+      "lines": 98
+    },
+    {
       "id": "git-output-condenser",
       "file": ".claude/hooks/git-output-condenser.mjs",
       "wired": true,
@@ -3154,6 +3176,48 @@
       "tier": null,
       "sizeBytes": 2767,
       "lines": 101
+    },
+    {
+      "id": "hook-creation-gate",
+      "file": ".claude/hooks/hook-creation-gate.mjs",
+      "wired": true,
+      "disabled": false,
+      "events": [
+        {
+          "event": "PreToolUse",
+          "matcher": "^Write$",
+          "timeout": 3000,
+          "type": "command",
+          "layer": "project",
+          "disabled": false
+        }
+      ],
+      "description": "PreToolUse(Write) advisory dedup gate",
+      "descriptionInferred": false,
+      "tier": null,
+      "sizeBytes": 12126,
+      "lines": 309
+    },
+    {
+      "id": "hook-cross-worktree-block",
+      "file": ".claude/hooks/hook-cross-worktree-block.mjs",
+      "wired": true,
+      "disabled": false,
+      "events": [
+        {
+          "event": "PreToolUse",
+          "matcher": "^(Edit|Write|MultiEdit|NotebookEdit)$",
+          "timeout": 3000,
+          "type": "command",
+          "layer": "project",
+          "disabled": false
+        }
+      ],
+      "description": "Tier-0 PreToolUse firewall",
+      "descriptionInferred": false,
+      "tier": null,
+      "sizeBytes": 13311,
+      "lines": 275
     },
     {
       "id": "hook-modification-justification",
@@ -4956,8 +5020,8 @@
       "description": "single PostToolUse hook (matcher: Bash|Read).",
       "descriptionInferred": false,
       "tier": null,
-      "sizeBytes": 4027,
-      "lines": 92
+      "sizeBytes": 4239,
+      "lines": 95
     },
     {
       "id": "posttool-bayesian-update",
@@ -5001,8 +5065,8 @@
       "description": "single PostToolUse hook (matcher: Edit|Write|MultiEdit).",
       "descriptionInferred": false,
       "tier": null,
-      "sizeBytes": 5822,
-      "lines": 110
+      "sizeBytes": 6043,
+      "lines": 113
     },
     {
       "id": "posttool-emergence-scan",
@@ -5200,8 +5264,8 @@
       "description": "Enforce /precompact at 160K tokens.",
       "descriptionInferred": false,
       "tier": null,
-      "sizeBytes": 12016,
-      "lines": 279
+      "sizeBytes": 13156,
+      "lines": 300
     },
     {
       "id": "precompact-dossier",
@@ -5942,8 +6006,8 @@
       "description": "Stop hook (UNIVERSAL ENFORCEMENT).",
       "descriptionInferred": false,
       "tier": null,
-      "sizeBytes": 11219,
-      "lines": 275
+      "sizeBytes": 13205,
+      "lines": 297
     },
     {
       "id": "self-awareness-enforce",
@@ -6518,6 +6582,18 @@
       "lines": 122
     },
     {
+      "id": "skill-3q-gate",
+      "file": ".claude/hooks/skill-3q-gate.mjs",
+      "wired": false,
+      "disabled": false,
+      "events": [],
+      "description": "U-SKU01 (SKILLS-UTILIZATION-MS0) PreToolUse gate.",
+      "descriptionInferred": false,
+      "tier": null,
+      "sizeBytes": 9128,
+      "lines": 164
+    },
+    {
       "id": "skill-chain-suggest",
       "file": ".claude/hooks/skill-chain-suggest.mjs",
       "wired": false,
@@ -6528,6 +6604,18 @@
       "tier": null,
       "sizeBytes": 4257,
       "lines": 144
+    },
+    {
+      "id": "skill-lint-stop",
+      "file": ".claude/hooks/skill-lint-stop.mjs",
+      "wired": false,
+      "disabled": false,
+      "events": [],
+      "description": "U-SKU03 (SKILLS-UTILIZATION-MS0) Stop hook.",
+      "descriptionInferred": false,
+      "tier": null,
+      "sizeBytes": 4933,
+      "lines": 98
     },
     {
       "id": "skill-usage-tracker",
@@ -7440,8 +7528,8 @@
       "description": "single Stop hook that runs the NON-BLOCKING Stop trackers.",
       "descriptionInferred": false,
       "tier": null,
-      "sizeBytes": 4854,
-      "lines": 104
+      "sizeBytes": 5070,
+      "lines": 107
     },
     {
       "id": "stop-consensus-drain",
@@ -7998,6 +8086,37 @@
       "lines": 129
     },
     {
+      "id": "tool-watchdog",
+      "file": ".claude/hooks/tool-watchdog.mjs",
+      "wired": true,
+      "disabled": false,
+      "events": [
+        {
+          "event": "PostToolUse",
+          "matcher": "Bash|Read",
+          "timeout": null,
+          "type": "command",
+          "layer": "user",
+          "disabled": false,
+          "viaBundle": "posttool-bash-read-bundle"
+        },
+        {
+          "event": "PostToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "user",
+          "disabled": false,
+          "viaBundle": "posttool-edit-bundle"
+        }
+      ],
+      "description": "HS-12 tool-call runtime monitor.",
+      "descriptionInferred": false,
+      "tier": null,
+      "sizeBytes": 3901,
+      "lines": 112
+    },
+    {
       "id": "training-convergence-guard",
       "file": ".claude/hooks/training-convergence-guard.mjs",
       "wired": false,
@@ -8380,8 +8499,8 @@
       "description": "Claim Work Before Starting",
       "descriptionInferred": false,
       "tier": null,
-      "sizeBytes": 6530,
-      "lines": 228
+      "sizeBytes": 7612,
+      "lines": 249
     },
     {
       "id": "working-set-awareness",

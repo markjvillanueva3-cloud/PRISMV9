@@ -162,6 +162,14 @@ const ACTIONS = [
   "lathe_aux_axis_timing_stats",            // LatheAuxAxisTimingEngine.getStats
   "lathe_datum_reference_frame_assign",     // LatheDatumReferenceFrameEngine.assign
   "lathe_datum_reference_frame_stats",      // LatheDatumReferenceFrameEngine.getStats
+
+  // MACRO-DOMAIN-MS0/U-MACRO-LIB: macro library cross-wire (NON-safety-critical lookup + template placement)
+  // Mirrors prism_cad — the engine lives in CAD because part-folder layout is CAD-owned, but lathe macros
+  // are turning-domain so this dispatcher must surface them too. Same engine, same schemas, same params.
+  "macro_library_list",                     // MacroLibraryEngine.listMacros — the 4 OSP lathe macros + parsed VC variable maps
+  "macro_match_family",                     // MacroLibraryEngine.matchFamily — match part → wafer-insert / casing / casing-counterbore / top-hat-casing
+  "macro_place_template",                   // MacroLibraryEngine.placeMacroTemplate — copy macro as _MACRO-TEMPLATE_*.min into <part>/CNC PROGRAM/ (DO-NOT-RUN-AS-IS header)
+  "macro_fanout_dry_run",                   // MacroLibraryEngine.fanoutDryRun — scan _PART LIBRARY/, report matchable parts per macro family
 ] as const;
 
 /** Registers turning dispatcher.
@@ -948,6 +956,56 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "lathe_datum_reference_frame_stats": {
             const engine = await getEngine("drf");
             result = engine.getStats();
+            break;
+          }
+
+          // ── Macro library (NON-safety-critical lookup + template placement; SAME engine + schemas as prism_cad) ──
+          case "macro_library_list": {
+            const { macroLibraryEngine } = await import("../../engines/MacroLibraryEngine.js");
+            const data = macroLibraryEngine.listMacros({ dir: params.dir ?? params.macroSourceDir ?? params.macro_source_dir });
+            result = { success: true, data };
+            break;
+          }
+          case "macro_match_family": {
+            const { macroLibraryEngine } = await import("../../engines/MacroLibraryEngine.js");
+            const data = macroLibraryEngine.matchFamily({
+              geometry: params.geometry,
+              features: params.features,
+              nameText: params.nameText ?? params.name_text,
+              counterborePresent: params.counterborePresent ?? params.counterbore_present,
+              flangeStepPresent: params.flangeStepPresent ?? params.flange_step_present,
+              odTaperPresent: params.odTaperPresent ?? params.od_taper_present,
+              idTaperPresent: params.idTaperPresent ?? params.id_taper_present,
+            });
+            result = { success: true, data };
+            break;
+          }
+          case "macro_place_template": {
+            const pn = params.partNumber ?? params.part_number;
+            if (pn == null || String(pn).trim() === "") {
+              return dispatcherError(new Error("macro_place_template requires part_number"), action, "prism_turning");
+            }
+            const { macroLibraryEngine } = await import("../../engines/MacroLibraryEngine.js");
+            const data = macroLibraryEngine.placeMacroTemplate({
+              partNumber: pn,
+              customer: params.customer,
+              family: params.family,
+              match: params.match,
+              libraryRoot: params.libraryRoot ?? params.library_root,
+              macroSourceDir: params.macroSourceDir ?? params.macro_source_dir,
+              dryRun: (params.dryRun ?? params.dry_run) === true,
+            });
+            result = { success: data.placed || data.dryRun === true, data };
+            break;
+          }
+          case "macro_fanout_dry_run": {
+            const { macroLibraryEngine } = await import("../../engines/MacroLibraryEngine.js");
+            const data = macroLibraryEngine.fanoutDryRun({
+              libraryRoot: params.libraryRoot ?? params.library_root,
+              limit: typeof params.limit === "number" ? params.limit : undefined,
+              sampleSize: typeof (params.sampleSize ?? params.sample_size) === "number" ? (params.sampleSize ?? params.sample_size) : undefined,
+            });
+            result = { success: true, data };
             break;
           }
 

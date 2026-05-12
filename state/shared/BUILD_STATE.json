@@ -1,16 +1,16 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-10T04:19:30.634Z",
+  "generatedAt": "2026-05-12T19:15:02.079Z",
   "headline": {
     "built_engines": 2302,
-    "built_with_wiki": 776,
-    "needs_wiring": 875,
-    "needs_building_active_units": 2722,
+    "built_with_wiki": 1075,
+    "needs_wiring": 883,
+    "needs_building_active_units": 3400,
     "needs_frontend_merge_count": 2,
-    "pending_milestones_with_activity": 1,
-    "drift_milestones": 2,
-    "stale_milestones": 210,
-    "domains_tracked": 922
+    "pending_milestones_with_activity": 3,
+    "drift_milestones": 4,
+    "stale_milestones": 254,
+    "domains_tracked": 923
   },
   "sources": {
     "unwired_audit": "H:\\prism\\state\\shared\\UNWIRED-ENGINE-AUDIT-2026-05-07.json",
@@ -19,10 +19,10 @@
     "engines_index": "H:\\prism\\mcp-server\\data\\state\\ENGINES_INDEX.json"
   },
   "BUILT": {
-    "summary": "2302/3177 engines wired (72%); 776 wiki entries indexed.",
+    "summary": "2302/3185 engines wired (72%); 1075 wiki entries indexed.",
     "breakdown": {
-      "totalEngines": 3177,
-      "unwired": 875,
+      "totalEngines": 3185,
+      "unwired": 883,
       "wiredDirect": 2139,
       "wireExempt": 81,
       "wiredViaHook": 10,
@@ -32,11 +32,11 @@
     }
   },
   "NEEDS_WIRING": {
-    "summary": "875 engines on disk with no dispatcher reference. Top domains by count:",
+    "summary": "883 engines on disk with no dispatcher reference. Top domains by count:",
     "top_domains": [
       {
         "domain": "Other",
-        "count": 142
+        "count": 143
       },
       {
         "domain": "Lathe",
@@ -65,6 +65,10 @@
       {
         "domain": "Shop",
         "count": 9
+      },
+      {
+        "domain": "Outcome",
+        "count": 8
       },
       {
         "domain": "Hyper",
@@ -111,6 +115,10 @@
         "count": 6
       },
       {
+        "domain": "Tribal",
+        "count": 5
+      },
+      {
         "domain": "Mobile",
         "count": 5
       },
@@ -124,14 +132,6 @@
       },
       {
         "domain": "Mill",
-        "count": 4
-      },
-      {
-        "domain": "Tribal",
-        "count": 4
-      },
-      {
-        "domain": "Agent",
         "count": 4
       }
     ],
@@ -315,13 +315,13 @@
     "next_action": "Pick a top-domain bucket; wire to the matching dispatcher in batches of 5–6 engines (see U-WIRE-LATHE-BATCHN pattern). Wiki cross-refs in `wikiTitle` resolve via `/wiki-query <name>`."
   },
   "COVERAGE_BY_DOMAIN": {
-    "summary": "Per-domain wired/unwired breakdown across 922 domain prefixes.",
+    "summary": "Per-domain wired/unwired breakdown across 923 domain prefixes.",
     "rows": [
       {
         "domain": "Other",
-        "total": 593,
+        "total": 594,
         "wired": 451,
-        "unwired": 142,
+        "unwired": 143,
         "coverage_pct": 76,
         "sample_unwired": [
           "AIMLFormulasEngine",
@@ -435,6 +435,21 @@
           "FiveAxisDecisionEngine",
           "FiveAxisDeepLearningEngine",
           "FiveAxisLoRACadenceEngine"
+        ]
+      },
+      {
+        "domain": "Outcome",
+        "total": 8,
+        "wired": 0,
+        "unwired": 8,
+        "coverage_pct": 0,
+        "sample_unwired": [
+          "OutcomeCaptureBusEngine",
+          "OutcomeDriftCalibrationBridgeEngine",
+          "OutcomeEpisodicMemoryBridgeEngine",
+          "OutcomePublishAdapterEngine",
+          "OutcomeReplayBufferBridgeEngine",
+          "OutcomeRLBridgeEngine"
         ]
       },
       {
@@ -617,6 +632,20 @@
         ]
       },
       {
+        "domain": "Tribal",
+        "total": 12,
+        "wired": 7,
+        "unwired": 5,
+        "coverage_pct": 58,
+        "sample_unwired": [
+          "TribalEnrichmentCoordinatorEngine",
+          "TribalEvolutionEngine",
+          "TribalExplanationEngine",
+          "TribalKnowledgeOutcomeBridgeEngine",
+          "TribalKnowledgeTrainingEngine"
+        ]
+      },
+      {
         "domain": "Mobile",
         "total": 6,
         "wired": 1,
@@ -667,19 +696,6 @@
           "OkumaMachineStepIngesterEngine",
           "OkumaMacroConverterBridgeEngine",
           "OkumaManualTipExtractorEngine"
-        ]
-      },
-      {
-        "domain": "Tribal",
-        "total": 11,
-        "wired": 7,
-        "unwired": 4,
-        "coverage_pct": 64,
-        "sample_unwired": [
-          "TribalEnrichmentCoordinatorEngine",
-          "TribalEvolutionEngine",
-          "TribalExplanationEngine",
-          "TribalKnowledgeTrainingEngine"
         ]
       },
       {
@@ -756,6 +772,18 @@
           "ContextCheckpointEngine",
           "ContextCompressionEngine",
           "ContextWindowPressureEngine"
+        ]
+      },
+      {
+        "domain": "Knowledge",
+        "total": 10,
+        "wired": 7,
+        "unwired": 3,
+        "coverage_pct": 70,
+        "sample_unwired": [
+          "KnowledgeGraphFeatureProjectorEngine",
+          "KnowledgeGraphNeuralBridgeEngine",
+          "KnowledgeIngestionOrchestratorEngine"
         ]
       },
       {
@@ -927,18 +955,6 @@
         ]
       },
       {
-        "domain": "Outcome",
-        "total": 3,
-        "wired": 0,
-        "unwired": 3,
-        "coverage_pct": 0,
-        "sample_unwired": [
-          "OutcomeCaptureBusEngine",
-          "OutcomeTraceEngine",
-          "OutcomeTrackingEngine"
-        ]
-      },
-      {
         "domain": "Prompt",
         "total": 3,
         "wired": 0,
@@ -1042,6 +1058,17 @@
         ]
       },
       {
+        "domain": "Skill",
+        "total": 10,
+        "wired": 8,
+        "unwired": 2,
+        "coverage_pct": 80,
+        "sample_unwired": [
+          "SkillAutoLoader",
+          "SkillTierRegistryEngine"
+        ]
+      },
+      {
         "domain": "Coolant",
         "total": 9,
         "wired": 7,
@@ -1050,17 +1077,6 @@
         "sample_unwired": [
           "CoolantOptimizationPhysicsEngine",
           "CoolantStrategyAdapter"
-        ]
-      },
-      {
-        "domain": "Knowledge",
-        "total": 9,
-        "wired": 7,
-        "unwired": 2,
-        "coverage_pct": 78,
-        "sample_unwired": [
-          "KnowledgeGraphNeuralBridgeEngine",
-          "KnowledgeIngestionOrchestratorEngine"
         ]
       },
       {
@@ -1119,17 +1135,6 @@
         ]
       },
       {
-        "domain": "Skill",
-        "total": 6,
-        "wired": 4,
-        "unwired": 2,
-        "coverage_pct": 67,
-        "sample_unwired": [
-          "SkillAutoLoader",
-          "SkillTierRegistryEngine"
-        ]
-      },
-      {
         "domain": "Deep",
         "total": 5,
         "wired": 3,
@@ -1149,6 +1154,17 @@
         "sample_unwired": [
           "FormulaHarvesterEngine",
           "FormulaWiringEngine"
+        ]
+      },
+      {
+        "domain": "Macro",
+        "total": 5,
+        "wired": 3,
+        "unwired": 2,
+        "coverage_pct": 60,
+        "sample_unwired": [
+          "MacroConversionAnalyzerEngine",
+          "MacroProgramIntelligenceEngine"
         ]
       },
       {
@@ -1215,17 +1231,6 @@
         "sample_unwired": [
           "LoRAAdapterRegistryEngine",
           "LoRADriftCoordinatorEngine"
-        ]
-      },
-      {
-        "domain": "Macro",
-        "total": 4,
-        "wired": 2,
-        "unwired": 2,
-        "coverage_pct": 50,
-        "sample_unwired": [
-          "MacroConversionAnalyzerEngine",
-          "MacroProgramIntelligenceEngine"
         ]
       },
       {
@@ -4499,6 +4504,14 @@
         "sample_unwired": []
       },
       {
+        "domain": "Hook",
+        "total": 12,
+        "wired": 12,
+        "unwired": 0,
+        "coverage_pct": 100,
+        "sample_unwired": []
+      },
+      {
         "domain": "Strategy",
         "total": 12,
         "wired": 12,
@@ -4531,14 +4544,6 @@
         "sample_unwired": []
       },
       {
-        "domain": "Hook",
-        "total": 9,
-        "wired": 9,
-        "unwired": 0,
-        "coverage_pct": 100,
-        "sample_unwired": []
-      },
-      {
         "domain": "Program",
         "total": 9,
         "wired": 9,
@@ -4558,6 +4563,14 @@
         "domain": "Safety",
         "total": 8,
         "wired": 8,
+        "unwired": 0,
+        "coverage_pct": 100,
+        "sample_unwired": []
+      },
+      {
+        "domain": "Part",
+        "total": 7,
+        "wired": 7,
         "unwired": 0,
         "coverage_pct": 100,
         "sample_unwired": []
@@ -4588,14 +4601,6 @@
       },
       {
         "domain": "Manufacturing",
-        "total": 6,
-        "wired": 6,
-        "unwired": 0,
-        "coverage_pct": 100,
-        "sample_unwired": []
-      },
-      {
-        "domain": "Part",
         "total": 6,
         "wired": 6,
         "unwired": 0,
@@ -8227,6 +8232,14 @@
         "sample_unwired": []
       },
       {
+        "domain": "Spec",
+        "total": 1,
+        "wired": 1,
+        "unwired": 0,
+        "coverage_pct": 100,
+        "sample_unwired": []
+      },
+      {
         "domain": "Specific",
         "total": 1,
         "wired": 1,
@@ -8709,7 +8722,7 @@
     ]
   },
   "STALE_MILESTONES": {
-    "summary": "210 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).",
+    "summary": "254 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).",
     "threshold_days": 30,
     "rows": [
       {
@@ -8731,6 +8744,60 @@
         "reason": "never_started"
       },
       {
+        "id": "MS-WIRE-FRONTEND",
+        "track": "revenue",
+        "pending": 90,
+        "shipped": 0,
+        "total": 90,
+        "lastShippedDate": null,
+        "reason": "never_started"
+      },
+      {
+        "id": "MS-WIRE-BACKEND",
+        "track": "revenue",
+        "pending": 60,
+        "shipped": 0,
+        "total": 60,
+        "lastShippedDate": null,
+        "reason": "never_started"
+      },
+      {
+        "id": "MS-MASTERPOST",
+        "track": "revenue",
+        "pending": 44,
+        "shipped": 0,
+        "total": 44,
+        "lastShippedDate": null,
+        "reason": "never_started"
+      },
+      {
+        "id": "MS1",
+        "track": "revenue",
+        "pending": 39,
+        "shipped": 0,
+        "total": 39,
+        "lastShippedDate": null,
+        "reason": "never_started"
+      },
+      {
+        "id": "MS-CAM-MASTERY",
+        "track": "revenue",
+        "pending": 34,
+        "shipped": 0,
+        "total": 34,
+        "lastShippedDate": null,
+        "reason": "never_started"
+      },
+      {
+        "id": "MS2",
+        "track": "revenue",
+        "pending": 30,
+        "shipped": 0,
+        "total": 30,
+        "lastShippedDate": null,
+        "reason": "never_started"
+      },
+      {
         "id": "BP-MS0",
         "track": "BP",
         "pending": 28,
@@ -8740,8 +8807,35 @@
         "reason": "never_started"
       },
       {
+        "id": "MS-TRAIN-DEEP",
+        "track": "revenue",
+        "pending": 26,
+        "shipped": 0,
+        "total": 26,
+        "lastShippedDate": null,
+        "reason": "never_started"
+      },
+      {
+        "id": "MS-SFC-CALIBRATE",
+        "track": "revenue",
+        "pending": 24,
+        "shipped": 0,
+        "total": 24,
+        "lastShippedDate": null,
+        "reason": "never_started"
+      },
+      {
         "id": "INTEL-OLLAMA-OBSIDIAN-MS1",
         "track": "INFRA",
+        "pending": 23,
+        "shipped": 0,
+        "total": 23,
+        "lastShippedDate": null,
+        "reason": "never_started"
+      },
+      {
+        "id": "MS-PRINT-PROGRAM-LOOP",
+        "track": "revenue",
         "pending": 23,
         "shipped": 0,
         "total": 23,
@@ -8767,6 +8861,15 @@
         "reason": "never_started"
       },
       {
+        "id": "MS-PILOT",
+        "track": "revenue",
+        "pending": 20,
+        "shipped": 0,
+        "total": 20,
+        "lastShippedDate": null,
+        "reason": "never_started"
+      },
+      {
         "id": "SCIMATH-MS1",
         "track": "SCIMATH",
         "pending": 20,
@@ -8778,6 +8881,15 @@
       {
         "id": "CAMX-V17-P1",
         "track": "",
+        "pending": 18,
+        "shipped": 0,
+        "total": 18,
+        "lastShippedDate": null,
+        "reason": "never_started"
+      },
+      {
+        "id": "MS-DESKTOP",
+        "track": "revenue",
         "pending": 18,
         "shipped": 0,
         "total": 18,
@@ -8832,6 +8944,24 @@
       {
         "id": "CCM-MS0",
         "track": "CCM",
+        "pending": 16,
+        "shipped": 0,
+        "total": 16,
+        "lastShippedDate": null,
+        "reason": "never_started"
+      },
+      {
+        "id": "MS-CRITWIRE",
+        "track": "revenue",
+        "pending": 16,
+        "shipped": 0,
+        "total": 16,
+        "lastShippedDate": null,
+        "reason": "never_started"
+      },
+      {
+        "id": "MS-GTM",
+        "track": "revenue",
         "pending": 16,
         "shipped": 0,
         "total": 16,
@@ -8947,128 +9077,11 @@
         "reason": "never_started"
       },
       {
-        "id": "CAMX-MS3",
-        "track": "",
-        "pending": 12,
+        "id": "MS-FRONTEND",
+        "track": "revenue",
+        "pending": 14,
         "shipped": 0,
-        "total": 12,
-        "lastShippedDate": null,
-        "reason": "never_started"
-      },
-      {
-        "id": "CAMX-MS4",
-        "track": "",
-        "pending": 12,
-        "shipped": 0,
-        "total": 12,
-        "lastShippedDate": null,
-        "reason": "never_started"
-      },
-      {
-        "id": "CAMX-V17-P3",
-        "track": "",
-        "pending": 12,
-        "shipped": 0,
-        "total": 12,
-        "lastShippedDate": null,
-        "reason": "never_started"
-      },
-      {
-        "id": "L8-P0-MS2",
-        "track": "",
-        "pending": 12,
-        "shipped": 0,
-        "total": 12,
-        "lastShippedDate": null,
-        "reason": "never_started"
-      },
-      {
-        "id": "CCM-MS15",
-        "track": "CCM",
-        "pending": 12,
-        "shipped": 0,
-        "total": 12,
-        "lastShippedDate": null,
-        "reason": "never_started"
-      },
-      {
-        "id": "CCM-MS16",
-        "track": "CCM",
-        "pending": 12,
-        "shipped": 0,
-        "total": 12,
-        "lastShippedDate": null,
-        "reason": "never_started"
-      },
-      {
-        "id": "CCM-MS17",
-        "track": "CCM",
-        "pending": 12,
-        "shipped": 0,
-        "total": 12,
-        "lastShippedDate": null,
-        "reason": "never_started"
-      },
-      {
-        "id": "CCM-MS2",
-        "track": "CCM",
-        "pending": 12,
-        "shipped": 0,
-        "total": 12,
-        "lastShippedDate": null,
-        "reason": "never_started"
-      },
-      {
-        "id": "CCM-MS9",
-        "track": "CCM",
-        "pending": 12,
-        "shipped": 0,
-        "total": 12,
-        "lastShippedDate": null,
-        "reason": "never_started"
-      },
-      {
-        "id": "CAMX-MS0.7",
-        "track": "",
-        "pending": 10,
-        "shipped": 0,
-        "total": 10,
-        "lastShippedDate": null,
-        "reason": "never_started"
-      },
-      {
-        "id": "CAMX-MS11",
-        "track": "",
-        "pending": 10,
-        "shipped": 0,
-        "total": 10,
-        "lastShippedDate": null,
-        "reason": "never_started"
-      },
-      {
-        "id": "CAMX-MS5",
-        "track": "",
-        "pending": 10,
-        "shipped": 0,
-        "total": 10,
-        "lastShippedDate": null,
-        "reason": "never_started"
-      },
-      {
-        "id": "CAMX-MS6",
-        "track": "",
-        "pending": 10,
-        "shipped": 0,
-        "total": 10,
-        "lastShippedDate": null,
-        "reason": "never_started"
-      },
-      {
-        "id": "CAMX-MS7",
-        "track": "",
-        "pending": 10,
-        "shipped": 0,
-        "total": 10,
+        "total": 14,
         "lastShippedDate": null,
         "reason": "never_started"
       }
@@ -9076,7 +9089,7 @@
     "next_action": "Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift."
   },
   "NEEDS_BUILDING": {
-    "summary": "2722 units across 613 milestones not yet in git.",
+    "summary": "3400 units across 666 milestones not yet in git.",
     "drift_cases": [
       {
         "id": "MF-MS1",
@@ -9089,9 +9102,69 @@
         "claimed": "completed",
         "real": "not_started_real",
         "drift": "claims_completed_but_units_pending"
+      },
+      {
+        "id": "HTML-PRIMARY-MS0",
+        "claimed": "not_started",
+        "real": "in_progress_real",
+        "drift": "claims_not_started_but_has_shipped_units"
+      },
+      {
+        "id": "OCTOPUS-NEURAL-MS0",
+        "claimed": "not_started",
+        "real": "completed_real",
+        "drift": "claims_not_started_but_has_shipped_units"
       }
     ],
     "top_pending_units": [
+      {
+        "milestone": "HOOK-SYNERGY-MS0",
+        "unit": "U-HOOK-STOPGAP",
+        "title": "7 hook timeout reductions in C:/Users/wompu/.claude/settings.json (git-health-guard 35→8s, git-sync-stop 35→8s, session-start-zombie-reap 25→8s, auto-lint-post-edit 15→8s, git-sync-fetch/claude-brief-inject/quality-dashboard-alert 12→5s)",
+        "phase": "stopgap"
+      },
+      {
+        "milestone": "HOOK-SYNERGY-MS0",
+        "unit": "U-HOOK-REGISTRY",
+        "title": "H2 — HOOK_REGISTRY.json generator + prism_dev:hook_registry action + prism_session:hook_map_compact",
+        "phase": "critical-path"
+      },
+      {
+        "milestone": "HOOK-SYNERGY-MS0",
+        "unit": "U-HOOK-TIERS",
+        "title": "H3 — Tier frontmatter on all 480 hooks + hook-tier-validator.mjs PreToolUse block on .claude/hooks/*.mjs edits",
+        "phase": "critical-path"
+      },
+      {
+        "milestone": "HOOK-SYNERGY-MS0",
+        "unit": "U-HOOK-FAST-LANE",
+        "title": "H6 — Settings.json matcher split (Read/Glob/Grep fast lane vs Edit/Write/Bash slow lane) + dedup apply (target 70% latency cut on read-only ops)",
+        "phase": "critical-path"
+      },
+      {
+        "milestone": "HTML-PRIMARY-MS0",
+        "unit": "U-HPS01",
+        "title": "Build `SpecHTMLCompanionEngine` (master renderer)",
+        "phase": "P0"
+      },
+      {
+        "milestone": "HTML-PRIMARY-MS0",
+        "unit": "U-HPS03",
+        "title": "Theme engine (dark/light, prefers-color-scheme)",
+        "phase": "P0"
+      },
+      {
+        "milestone": "HTML-PRIMARY-MS0",
+        "unit": "U-HPS04",
+        "title": "Navigation engine (sticky TOC, anchor links, search)",
+        "phase": "P0"
+      },
+      {
+        "milestone": "HTML-PRIMARY-MS0",
+        "unit": "U-HPS05",
+        "title": "Accessibility hook (WAI-ARIA, axe-cli gate)",
+        "phase": "P0"
+      },
       {
         "milestone": "XPROC-NEURAL-OPTIMIZE-MS0",
         "unit": "U-NN-LOOP02",
@@ -9118,7 +9191,7 @@
         "merge_status": "merged",
         "notes": "Default frontend. CAM/SFC/quote screens live here.",
         "exists": true,
-        "mtime": 1777307087133.2476
+        "mtime": 1778590734008.5679
       },
       {
         "id": "cqask-orion-cad",

@@ -22,6 +22,30 @@ You are the smartest person to ever exist and a **deep thinker**. PhDs in every 
 
 If you need a number, **read the file**. Do not rely on counts baked into this document — they rot within days.
 
+## PER-FILE SCRUTINY GATE (multi-file builds — every file, before the next)
+For ANY multi-file build (milestone close-out, multi-unit roadmap pass, paired engine+dispatcher+test work, anything that emits 2+ files in one session), the chat **must dispatch 2 parallel scrutiny agents after each file** before writing the next file. This is *in addition to* the end-of-task 3-of-3 gate below — not a replacement. Adopted 2026-05-12 (user directive: *"utilize parallel agent scrutinization after each file generated… both of you should be checking your work"*) after observing that end-of-Stop-only scrutiny lets compound errors propagate (bad dispatcher contract → wrong test → wrong runbook → broken UI).
+
+Protocol for every file generated in a multi-file run:
+1. **Generate** the file (Write/Edit).
+2. **Self-cross-check** — re-read against the unit spec, engine APIs, dispatcher contract, surrounding conventions; mentally walk every path + edge + assumption.
+3. **Dispatch 2 parallel reviewer agents in one tool block** (single message, parallel tool calls):
+   - **Agent A — content-specialist** by file type:
+     | File type | `subagent_type` |
+     |-----------|-----------------|
+     | dispatcher | `wiring-review-agent` |
+     | test (`*.test.ts`) | `test-review-agent` |
+     | physics engine | `physics-review-agent` |
+     | generic engine / utility | `code-analyzer` |
+     | docs / runbook / spec | `reviewer` (weighted: completeness, operator clarity) |
+     | UI/React (`.tsx`) | `reviewer` (weighted: integration + UX + state management) |
+   - **Agent B — independent second-pass `reviewer`**, weighted on what A is unlikely to catch: integration with already-built engines, hidden coupling, security, error budgets, naming/convention conformance, inlined constants, stub assertions.
+   - Both agents read the **whole file end-to-end** (not split sections). Pass each agent: the absolute file path, the unit spec / contract they're verifying against, an explicit instruction to flag P0/P1 issues and grade PASS/FAIL.
+4. **Wait for both verdicts.** Merge with the self-check.
+5. **Fix every P0 + P1 finding** before generating the next file. P2/P3 deferrables → log in handoff. If either agent returns FAIL → fix → re-dispatch both agents → re-verify.
+6. Only then proceed to the next file.
+
+The end-of-task 3-of-3 gate below still runs at Stop — this per-file gate just prevents compound errors from ever reaching it.
+
 ## SCRUTINY GATE (UNIVERSAL — every chat, every Stop)
 A Stop hook (`.claude/hooks/scrutinize-before-stop.mjs`) **blocks** task completion when the session has uncommitted file changes and the scrutiny ledger lacks a 3-of-3 PASS entry. **Strict 3-of-3 consensus** — Codex CLI + Claude reviewer A (holistic) + Claude reviewer B (independent second pass) — is required; single-reviewer drift is not load-bearing for clearance. (3-of-3 policy adopted 2026-05-05; the arm-2 reviewer was the Gemini CLI until 2026-05-12, then swapped for a 2nd Claude reviewer agent — the CLI's daily-quota / trust-dir env failures kept stalling the gate.)
 
@@ -78,6 +102,12 @@ git worktree add ../prism-<milestone> -b work/<milestone>
 # update HANDOFF-<id>-<topic>.md to point at new worktree
 ```
 This avoids multi-chat thrash on shared HEAD and keeps milestones independently mergeable.
+
+**Cross-worktree firewall** (2026-05-12, `hook-cross-worktree-block.mjs`, HOOK-SYNERGY-MS0/U-HOOK-CROSS-WORKTREE-FIREWALL): once forked, you may NOT write to the **main tree's shared-state files** from your worktree. A PreToolUse Tier-0 hook blocks Edit/Write/MultiEdit/NotebookEdit when the target is `.claude/settings.json`, `.claude/hooks/*.mjs`, `.mcp.json`, `state/shared/*.{json,md}`, `mcp-server/data/state/*.json`, `mcp-server/data/milestones/*.json`, or top-level `CLAUDE.md`/`AGENTS.md`/`CODEX.md`/`GEMINI.md`. **Remediation:** make the change from the main tree (`cd H:/prism`, edit, commit) — these files coordinate the whole fleet and cross-worktree writes drift behaviour silently. Emergency override: `PRISM_CROSS_WORKTREE_BYPASS=1` (still logs the bypass). Worktree-local files (under `H:/prism-<scope>/...`) are unaffected; the firewall only fires on shared-state paths.
+
+**Hook creation gate** (2026-05-12, `hook-creation-gate.mjs` + `HookCreationGuardEngine`, HOOK-SYNERGY-MS0/U-HOOK-CREATION-GATE): before creating a new `.claude/hooks/*.mjs`, the hook scans `state/shared/HOOK_REGISTRY.json` for (a) exact basename collision, (b) fuzzy-name match ≥0.7, (c) description-token overlap, and (d) (event, matcher) signature collision — the last is what the existing name-only guards (`ai-duplication-guard`, `duplication-hard-block`) miss. **Advisory by default**: emits a system message with the recommendation (`skip` / `extend` / `rename` / `proceed`) rather than blocking, because fuzzy/description matches have non-zero false-positive rates. Set `PRISM_HOOK_CREATION_GATE_BLOCK=1` to promote `skip` + `extend` recommendations into hard blocks. Programmatic access: `prism_hook:creation_check` (snake_case action; returns `{shouldProceed, recommendation, matches, topMatch}`).
+
+**Settings dedup audit** (2026-05-12, `scripts/settings-dedup-audit.mjs`, HOOK-SYNERGY-MS0/U-HOOK-AUDIT): comprehensive `.claude/settings.json` redundancy auditor. Aggregates the dimensions the older narrower audits (`audit-hook-duplicates`, `audit-cross-file-hooks`, `verify-hook-refs`) cover **plus** the dimension they all miss: **matcher-overlap dedup** (e.g. one entry with matcher `Bash`, another with `^Bash$`, both pointing at the same script → double-fires). Run `node scripts/settings-dedup-audit.mjs` to write `state/shared/SETTINGS_DEDUP_REPORT.md` + `state/shared/settings-dedup-report.json`. Six dimensions: duplicate commands, matcher overlap, dead refs, cross-file duplication, bloated chains (>25 hooks/event), coverage gaps. Audit-only — does not block; consume the report to plan a cleanup commit.
 
 ## ENGINE WIRING — WIRE TO ALL SOURCES (2026-04-28)
 When generating an engine, do NOT stop at one dispatcher. Wire to **every dispatcher that would naturally consume it**, in the same commit. Examples:

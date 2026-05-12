@@ -23,8 +23,9 @@
  * - SpecialtyManufacturingHooks: 20 hooks (turning, 5-axis, EDM, grinding)
  * - SpecialtyCadences: 6 hooks (M97-M102 automation cadences)
  *
- * TOTAL: 220 hooks (179 domain across 17 categories + 41 Phase 0 infrastructure)
- * 
+ * TOTAL: see `hookCounts.total` (computed at module init from spread arrays — never hardcoded).
+ * Past snapshot for context only: 220 hooks across 17 categories at v3.0.0 (2026-02).
+ *
  * @version 3.0.0
  * @author PRISM Development Team
  */
@@ -66,6 +67,7 @@ import { wedmPerceptionHooks } from "./WEDMPerceptionHooks.js";
 import { wedmLearningHooks } from "./WEDMLearningHooks.js";
 import { wedmCoordinationHooks } from "./WEDMCoordinationHooks.js";
 import { machineValidationHooks } from "./MachineValidationHooks.js";
+import { CAD_REGRESSION_SAFETY_HOOKS } from "./CADRegressionSafetyHooks.js";
 
 // ============================================================================
 // RE-EXPORT INDIVIDUAL HOOKS
@@ -134,6 +136,7 @@ export const allHooks = [
   ...wedmLearningHooks,             // WEDM-AGI P3-MS1: learning trigger + drift alert
   ...wedmCoordinationHooks,         // MS-P0.5-COORD U-01: awareness coverage gate
   ...machineValidationHooks,        // MCAT-MS0/U-MCAT08: 5 machine safety hooks
+  ...CAD_REGRESSION_SAFETY_HOOKS,   // CAD-INFRA-MS0/U-CINF13: 7 CAD regression safety hooks (3 blocking + 2 warning + 2 logging)
 ];
 
 /**
@@ -166,6 +169,7 @@ export const hookCounts = {
   wedmPerception: wedmPerceptionHooks.length,                // WEDM-AGI P1-MS1
   wedmLearning: wedmLearningHooks.length,                    // WEDM-AGI P3-MS1
   machineValidation: machineValidationHooks.length,          // MCAT-MS0/U-MCAT08
+  cadRegressionSafety: CAD_REGRESSION_SAFETY_HOOKS.length,   // CAD-INFRA-MS0/U-CINF13
   total: 0 // Computed below
 };
 
@@ -194,6 +198,7 @@ export const hooksByCategory = {
   specialtyCadence: specialtyCadences,
   forgeTriple: forgeTripleHooks,
   machineValidation: machineValidationHooks,
+  cadRegressionSafety: CAD_REGRESSION_SAFETY_HOOKS,   // CAD-INFRA-MS0/U-CINF13
 };
 
 // ============================================================================
@@ -229,6 +234,9 @@ export function getHooksByCategory(category: string): HookDefinition[] {
     "specialty-manufacturing": specialtyManufacturingHooks,
     specialtyCadence: specialtyCadences,
     "specialty-cadence": specialtyCadences,
+    cadRegressionSafety: CAD_REGRESSION_SAFETY_HOOKS,
+    "cad-regression-safety": CAD_REGRESSION_SAFETY_HOOKS,
+    "cadregression-safety": CAD_REGRESSION_SAFETY_HOOKS,
     validation: [...enforcementHooks, ...schemaHooks].filter(h => h.category === "validation" || h.tags?.includes("validation"))
   };
   

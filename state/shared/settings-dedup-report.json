@@ -1,0 +1,685 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-05-12T19:11:46.579Z",
+  "settingsFiles": [
+    "H:/.claude/settings.json",
+    "H:/.claude/settings.local.json",
+    "H:/prism/.claude/settings.json",
+    "H:/prism/.claude/settings.local.json"
+  ],
+  "perFile": [
+    {
+      "file": "H:/.claude/settings.json",
+      "totalEntries": 74,
+      "duplicates": [],
+      "matcherOverlap": [],
+      "deadRefs": [],
+      "bloatedChains": [],
+      "eventCounts": {
+        "PostToolUse": 8,
+        "PreCompact": 7,
+        "PreToolUse": 16,
+        "SessionStart": 14,
+        "Stop": 17,
+        "SubagentStart": 1,
+        "UserPromptSubmit": 11
+      }
+    },
+    {
+      "file": "H:/.claude/settings.local.json",
+      "totalEntries": 0,
+      "duplicates": [],
+      "matcherOverlap": [],
+      "deadRefs": [],
+      "bloatedChains": [],
+      "eventCounts": {}
+    },
+    {
+      "file": "H:/prism/.claude/settings.json",
+      "totalEntries": 152,
+      "duplicates": [],
+      "matcherOverlap": [
+        {
+          "event": "PostToolUse",
+          "script": "H:/prism/.claude/helpers/mcp-posttool-tracker.mjs",
+          "matchers": [
+            "",
+            "mcp__prism__prism_.*"
+          ],
+          "overlapPairs": [
+            {
+              "a": "",
+              "b": "mcp__prism__prism_.*",
+              "on": "*"
+            }
+          ]
+        },
+        {
+          "event": "PreToolUse",
+          "script": "H:/prism/.claude/helpers/mcp-action-router.mjs",
+          "matchers": [
+            "^mcp__prism.*",
+            "^mcp__prism",
+            "^Bash$"
+          ],
+          "overlapPairs": [
+            {
+              "a": "^mcp__prism.*",
+              "b": "^mcp__prism",
+              "on": "mcp__prism"
+            }
+          ]
+        }
+      ],
+      "deadRefs": [],
+      "bloatedChains": [
+        {
+          "event": "PostToolUse",
+          "entryCount": 49,
+          "threshold": 25
+        },
+        {
+          "event": "SessionStart",
+          "entryCount": 33,
+          "threshold": 25
+        },
+        {
+          "event": "Stop",
+          "entryCount": 30,
+          "threshold": 25
+        }
+      ],
+      "eventCounts": {
+        "PostToolUse": 49,
+        "PreCompact": 7,
+        "PreToolUse": 20,
+        "SessionStart": 33,
+        "Stop": 30,
+        "SubagentStart": 1,
+        "SubagentStop": 1,
+        "UserPromptSubmit": 11
+      }
+    },
+    {
+      "file": "H:/prism/.claude/settings.local.json",
+      "totalEntries": 0,
+      "duplicates": [],
+      "matcherOverlap": [],
+      "deadRefs": [],
+      "bloatedChains": [],
+      "eventCounts": {}
+    }
+  ],
+  "crossFileDup": [
+    {
+      "event": "PostToolUse",
+      "script": "H:/prism/.claude/helpers/mcp-posttool-tracker.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "PostToolUse",
+      "script": "H:/prism/.claude/helpers/read-once-cache.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "PostToolUse",
+      "script": "H:/prism/.claude/hooks/agent-pid-tracker.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "PostToolUse",
+      "script": "H:/prism/.claude/hooks/grep-result-cache.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "PostToolUse",
+      "script": "H:/prism/.claude/hooks/post-recommendation-capture.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "PostToolUse",
+      "script": "H:/prism/.claude/hooks/recall-counter-track.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "PreCompact",
+      "script": "H:/prism/.claude/helpers/precompact-handoff.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "PreCompact",
+      "script": "H:/prism/.claude/hooks/claude-brief-precompact.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "PreCompact",
+      "script": "H:/prism/.claude/hooks/compression-precompact.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "PreCompact",
+      "script": "H:/prism/.claude/hooks/file-read-cache.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "PreCompact",
+      "script": "H:/prism/.claude/hooks/octopus-provider-probe.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "PreCompact",
+      "script": "H:/prism/.claude/hooks/precompact-pending-guard.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "PreCompact",
+      "script": "H:/prism/.claude/hooks/quality-dashboard-alert.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "PreToolUse",
+      "script": "H:/prism/.claude/helpers/mcp-action-router.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "PreToolUse",
+      "script": "H:/prism/.claude/helpers/mcp-pretool-injector.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "PreToolUse",
+      "script": "H:/prism/.claude/helpers/search-optimizer.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "PreToolUse",
+      "script": "H:/prism/.claude/hooks/agent-rules-inject.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "PreToolUse",
+      "script": "H:/prism/.claude/hooks/agent-vs-direct.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "PreToolUse",
+      "script": "H:/prism/.claude/hooks/ai-system-router-inject.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "PreToolUse",
+      "script": "H:/prism/.claude/hooks/autonomous-loop-defer.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "PreToolUse",
+      "script": "H:/prism/.claude/hooks/bundles/bash-bundle.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "PreToolUse",
+      "script": "H:/prism/.claude/hooks/bundles/edit-bundle.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "PreToolUse",
+      "script": "H:/prism/.claude/hooks/bundles/read-bundle.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "PreToolUse",
+      "script": "H:/prism/.claude/hooks/glob-narrow-path.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "PreToolUse",
+      "script": "H:/prism/.claude/hooks/grep-index-first.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "PreToolUse",
+      "script": "H:/prism/.claude/hooks/mcp-connection-coordinator.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "PreToolUse",
+      "script": "H:/prism/.claude/hooks/precompact-auto-trigger.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "PreToolUse",
+      "script": "H:/prism/.claude/hooks/tribal-spike.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "SessionStart",
+      "script": "H:/prism/.claude/hooks/chat-state-isolator.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "SessionStart",
+      "script": "H:/prism/.claude/hooks/dotclaude-junctions-guard.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "SessionStart",
+      "script": "H:/prism/.claude/hooks/git-health-guard.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "SessionStart",
+      "script": "H:/prism/.claude/hooks/git-sync-fetch.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "SessionStart",
+      "script": "H:/prism/.claude/hooks/portable-node-guard.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "SessionStart",
+      "script": "H:/prism/.claude/hooks/portable-python-guard.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "SessionStart",
+      "script": "H:/prism/.claude/hooks/roadmap-resume.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "SessionStart",
+      "script": "H:/prism/.claude/hooks/session-handoff-load.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "SessionStart",
+      "script": "H:/prism/.claude/hooks/session-id-pin.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "SessionStart",
+      "script": "H:/prism/.claude/hooks/session-start-zombie-reap.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "SessionStart",
+      "script": "H:/prism/.claude/hooks/settings-baseline-snapshot.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "SessionStart",
+      "script": "H:/prism/.claude/hooks/settings-mirror-guard.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "SessionStart",
+      "script": "H:/prism/.claude/scripts/verify-hook-refs.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "Stop",
+      "script": "H:/prism/.claude/hooks/always-build-guard.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "Stop",
+      "script": "H:/prism/.claude/hooks/commit-pressure-stop-gate.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "Stop",
+      "script": "H:/prism/.claude/hooks/git-sync-stop.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "Stop",
+      "script": "H:/prism/.claude/hooks/quality-dashboard-alert.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "Stop",
+      "script": "H:/prism/.claude/hooks/stop_on_broken_imports.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "Stop",
+      "script": "H:/prism/.claude/hooks/stop_on_build_error.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "Stop",
+      "script": "H:/prism/.claude/hooks/stop_on_c_drive_write.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "Stop",
+      "script": "H:/prism/.claude/hooks/stop_on_cutting_calculation_protocol.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "Stop",
+      "script": "H:/prism/.claude/hooks/stop_on_duplicate_created.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "Stop",
+      "script": "H:/prism/.claude/hooks/stop_on_failing_tests.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "Stop",
+      "script": "H:/prism/.claude/hooks/stop_on_hook_unregistration.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "Stop",
+      "script": "H:/prism/.claude/hooks/stop_on_orphan_children.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "Stop",
+      "script": "H:/prism/.claude/hooks/stop_on_skill_unwired.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "Stop",
+      "script": "H:/prism/.claude/hooks/stop_on_svi_regression.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "Stop",
+      "script": "H:/prism/.claude/hooks/stop_on_unsafe_gcode.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "Stop",
+      "script": "H:/prism/.claude/hooks/stop_on_unwired_assets.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "SubagentStart",
+      "script": "H:/prism/.claude/hooks/subagent-start-context.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "UserPromptSubmit",
+      "script": "H:/prism/.claude/hooks/auto-consensus-userprompt.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "UserPromptSubmit",
+      "script": "H:/prism/.claude/hooks/comprehensive-build-enforce.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "UserPromptSubmit",
+      "script": "H:/prism/.claude/hooks/local-compute-intent.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "UserPromptSubmit",
+      "script": "H:/prism/.claude/hooks/ollama-auto-router.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "UserPromptSubmit",
+      "script": "H:/prism/.claude/hooks/ollama-task-offloader.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "UserPromptSubmit",
+      "script": "H:/prism/.claude/hooks/prompt-context-inject.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "UserPromptSubmit",
+      "script": "H:/prism/.claude/hooks/prompt-rewriter-ollama.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "UserPromptSubmit",
+      "script": "H:/prism/.claude/hooks/session-id-pin.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "UserPromptSubmit",
+      "script": "H:/prism/.claude/hooks/session-reorient-inject.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "UserPromptSubmit",
+      "script": "H:/prism/.claude/hooks/stale-state-warn.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    },
+    {
+      "event": "UserPromptSubmit",
+      "script": "H:/prism/.claude/hooks/token-budget-gate.mjs",
+      "files": [
+        "H:/.claude/settings.json",
+        "H:/prism/.claude/settings.json"
+      ]
+    }
+  ],
+  "coverageGaps": [
+    {
+      "event": "SessionEnd"
+    },
+    {
+      "event": "Notification"
+    }
+  ],
+  "totals": {
+    "filesScanned": 4,
+    "totalEntries": 226,
+    "duplicateCount": 0,
+    "matcherOverlapCount": 2,
+    "deadRefCount": 0,
+    "bloatedChainCount": 3,
+    "crossFileDupCount": 69,
+    "coverageGapCount": 2
+  }
+}

@@ -1,6 +1,6 @@
 # MILESTONE_PROGRESS — what's actually shipped vs claimed
 
-> Generated: 2026-05-10T04:19:30.531Z
+> Generated: 2026-05-12T19:15:01.731Z
 > Window: last 60.days of git log across all branches
 > Source: `scripts/build-milestone-progress.mjs`
 
@@ -17,16 +17,21 @@ flagging a unit as missing.
 
 ## Headline numbers
 
-- Milestones loaded:        **613**
-- Units across all MS:      **2751**
-- Units shipped (in git):   **29**
-- Units pending:            **2722**
-- Drift cases:              **2** (envelope status disagrees with git reality)
+- Milestones loaded:        **666**
+- Units across all MS:      **3456**
+- Units shipped (in git):   **56**
+- Units pending:            **3400**
+- Drift cases:              **4** (envelope status disagrees with git reality)
 
 ## Top recently-active milestones (last shipped → first)
 
 | Milestone | Track | Status (claimed) | Status (real) | Shipped/Total | Last commit |
 |-----------|-------|------------------|---------------|---------------|-------------|
+| OCTOPUS-NEURAL-MS0 | OCTOPUS-NEURAL | not_started | completed_real | 5/5 (100%) | 2026-05-12 |
+| HOOK-SYNERGY-MS0 | HOOK-SYNERGY | in_progress | in_progress_real | 3/11 (27%) | 2026-05-12 |
+| SKILLS-UTILIZATION-MS0 | SKILLS-UTILIZATION | completed | completed_real | 8/8 (100%) | 2026-05-12 |
+| HTML-PRIMARY-MS0 | HTML-PRIMARY | not_started | in_progress_real | 1/7 (14%) | 2026-05-12 |
+| HOOKS-AUTOMATION-V2-MS0 | HOOKS-AUTOMATION-V2 | completed | completed_real | 10/10 (100%) | 2026-05-11 |
 | XPROC-NEURAL-OPTIMIZE-MS0 | INFRA | in_progress | in_progress_real | 29/31 (94%) | 2026-05-09 |
 
 ## Drift cases (claim vs git disagrees)
@@ -35,6 +40,8 @@ flagging a unit as missing.
 |-----------|---------|------|-------|
 | MF-MS1 | completed | not_started_real | claims_completed_but_units_pending |
 | MF-MS2 | completed | not_started_real | claims_completed_but_units_pending |
+| HTML-PRIMARY-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| OCTOPUS-NEURAL-MS0 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 
 ## Top milestones with most pending units
 
@@ -44,32 +51,32 @@ flagging a unit as missing.
 | LATHE-MASTER | 136 | 136 | 0/136 |
 | LATHE-PROD-READY-MS0 | 135 | 135 | 0/135 |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | 92 | 92 | 0/92 |
+| MS-WIRE-FRONTEND | 90 | 90 | 0/90 |
+| MS-WIRE-BACKEND | 60 | 60 | 0/60 |
 | LATHE-LORA-MS0 | 50 | 50 | 0/50 |
+| MS-MASTERPOST | 44 | 44 | 0/44 |
+| MS1 | 39 | 39 | 0/39 |
+| MS-CAM-MASTERY | 34 | 34 | 0/34 |
+| MS2 | 30 | 30 | 0/30 |
 | BP-MS0 | 28 | 28 | 0/28 |
 | EMP-MS0 | 28 | 28 | 0/28 |
+| MS-TRAIN-DEEP | 26 | 26 | 0/26 |
 | CAMX-MS0.3 | 24 | 24 | 0/24 |
+| MS-SFC-CALIBRATE | 24 | 24 | 0/24 |
 | INTEL-OLLAMA-OBSIDIAN-MS1 | 23 | 23 | 0/23 |
+| MS-PRINT-PROGRAM-LOOP | 23 | 23 | 0/23 |
 | SCIMATH-MS5 | 23 | 23 | 0/23 |
 | CLI-MS0 | 22 | 22 | 0/22 |
 | MCAT-MS0 | 21 | 21 | 0/21 |
 | SCIMATH-WIRE-MS0 | 21 | 21 | 0/21 |
 | CAMX-MS22 | 20 | 20 | 0/20 |
+| MS-PILOT | 20 | 20 | 0/20 |
 | SCIMATH-MS1 | 20 | 20 | 0/20 |
 | CAMX-V17-P1 | 18 | 18 | 0/18 |
 | CALC-HARDEN-MS0 | 18 | 18 | 0/18 |
+| MS-DESKTOP | 18 | 18 | 0/18 |
 | USSH-OPUS47-BOLSTER | 18 | 18 | 0/18 |
 | SCIMATH-MS0 | 17 | 17 | 0/17 |
-| SCIMATH-MS6 | 17 | 17 | 0/17 |
-| CAMX-MS0.5 | 16 | 16 | 0/16 |
-| CAMX-MS1 | 16 | 16 | 0/16 |
-| CAMX-MS8 | 16 | 16 | 0/16 |
-| CCM-MS0 | 16 | 16 | 0/16 |
-| SCIMATH-MS3 | 16 | 16 | 0/16 |
-| CAMX-MS19 | 15 | 15 | 0/15 |
-| CAMX-V17-P11 | 15 | 15 | 0/15 |
-| L8-P1-MS2 | 15 | 15 | 0/15 |
-| L8-P2-MS2 | 15 | 15 | 0/15 |
-| CAM-ML-CLOSEDLOOP-MS0 | 15 | 15 | 0/15 |
 
 ## How to use
 
