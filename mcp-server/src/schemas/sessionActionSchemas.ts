@@ -322,6 +322,11 @@ const dispatcher_map_compact = z.object({
   max_per_dispatcher: z.union([z.string(), z.number()]).optional(),
 }).passthrough();
 
+/** hook_map_compact — HOOK-SYNERGY-MS0/U-HOOK-REGISTRY (H2): event → top-N hook ids. */
+const hook_map_compact = z.object({
+  max_per_event: z.union([z.string(), z.number()]).optional(),
+}).passthrough();
+
 /** action_search — Search across all dispatcher actions */
 const action_search = z.object({
   query: optStr,
@@ -463,6 +468,7 @@ export const ACTION_SESSION_SCHEMAS: ActionSchemaMap = {
   // Dispatcher map & routing
   dispatcher_map,
   dispatcher_map_compact,
+  hook_map_compact,
   action_search,
   action_find,
   tool_route,

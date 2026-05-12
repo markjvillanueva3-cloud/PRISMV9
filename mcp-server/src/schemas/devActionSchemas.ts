@@ -383,4 +383,16 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     milestones: z.array(_riMilestone).min(1).describe("All milestones in the roadmap"),
     historical_data: z.array(_riLearningRecord).optional().describe("Past records used to compute estimation accuracy + velocity trend"),
   }).passthrough(),
+
+  // HOOK-SYNERGY-MS0/U-HOOK-REGISTRY (H2): HOOK_REGISTRY.json reader actions.
+  hook_registry: z.object({
+    mode: z.enum([
+      "counts", "meta", "compact", "find", "search",
+      "by_event", "by_tier", "wired", "orphaned", "stale",
+    ]).default("counts").describe("Which projection to return; defaults to counts (smallest)."),
+    query: z.string().max(200).optional().describe("Used by find/search; capped at 200 chars."),
+    event: z.string().optional().describe("Event name for mode=by_event (e.g. PreToolUse)."),
+    tier: z.string().optional().describe("Tier label for mode=by_tier (e.g. T0)."),
+    max: z.union([z.string(), z.number()]).optional().describe("Cap on results (search/compact). Default 25 search / 5 compact."),
+  }).passthrough(),
 };
