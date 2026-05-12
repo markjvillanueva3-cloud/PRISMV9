@@ -61,6 +61,16 @@
       "description": "Archive (cp + unlink) inbox/*.md files older than 48h to knowledge/memories/inbox/archived-stale/. Honors cyrilXBT 'inbox is for triage not storage' rule but softer than delete. Idempotent (already-archived files are skipped). Brief/perf-report files exempt.",
       "enabled": true,
       "added": "2026-05-08"
+    },
+    {
+      "id": "skill-library-audit-monthly",
+      "milestone": "SKILLS-UTILIZATION-MS0/U-SKU05",
+      "command": "node H:/prism/scripts/skill-library-audit.mjs",
+      "cron": "0 8 1 * *",
+      "timezone": "local",
+      "description": "Monthly skill-library quality audit (@eng_khairallah1 Phase-4 'how many of the ~500 skills are actually production-grade?'). Grades every skill in SKILL_QUALITY_REGISTRY.json against linter-clean + 3-Question-satisfied + all-three-scenario-tests-pass into production_grade / needs_refinement / stub_or_orphan; writes state/shared/SKILL-LIBRARY-AUDIT-YYYY-MM-DD.{md,json} with the per-domain breakdown, the prioritized gap list, top-N by invocation, and the ROI estimate. Idempotent on the date (re-run same-day overwrites). Engine: SkillLibraryAuditEngine; dispatcher: prism_dev:skill_audit. 1st-of-month 08:00 local.",
+      "enabled": true,
+      "added": "2026-05-12"
     }
   ]
 }
