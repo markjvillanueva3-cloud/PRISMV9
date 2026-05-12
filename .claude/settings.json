@@ -431,6 +431,16 @@
         "hooks": []
       },
       {
+        "matcher": "^(Edit|Write|MultiEdit|NotebookEdit)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/hook-cross-worktree-block.mjs",
+            "timeout": 3000
+          }
+        ]
+      },
+      {
         "matcher": "^mcp__prism.*",
         "hooks": [
           {

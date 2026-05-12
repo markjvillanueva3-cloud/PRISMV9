@@ -103,6 +103,8 @@ git worktree add ../prism-<milestone> -b work/<milestone>
 ```
 This avoids multi-chat thrash on shared HEAD and keeps milestones independently mergeable.
 
+**Cross-worktree firewall** (2026-05-12, `hook-cross-worktree-block.mjs`, HOOK-SYNERGY-MS0/U-HOOK-CROSS-WORKTREE-FIREWALL): once forked, you may NOT write to the **main tree's shared-state files** from your worktree. A PreToolUse Tier-0 hook blocks Edit/Write/MultiEdit/NotebookEdit when the target is `.claude/settings.json`, `.claude/hooks/*.mjs`, `.mcp.json`, `state/shared/*.{json,md}`, `mcp-server/data/state/*.json`, `mcp-server/data/milestones/*.json`, or top-level `CLAUDE.md`/`AGENTS.md`/`CODEX.md`/`GEMINI.md`. **Remediation:** make the change from the main tree (`cd H:/prism`, edit, commit) — these files coordinate the whole fleet and cross-worktree writes drift behaviour silently. Emergency override: `PRISM_CROSS_WORKTREE_BYPASS=1` (still logs the bypass). Worktree-local files (under `H:/prism-<scope>/...`) are unaffected; the firewall only fires on shared-state paths.
+
 ## ENGINE WIRING — WIRE TO ALL SOURCES (2026-04-28)
 When generating an engine, do NOT stop at one dispatcher. Wire to **every dispatcher that would naturally consume it**, in the same commit. Examples:
 - New memory engine → `prism_memory` AND specialized consumer (e.g. `prism_guard:error_ledger_*`)
