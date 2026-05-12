@@ -6,7 +6,7 @@
   "brief": "Multi-LLM coordination synthesis: MoA (Wang 2406.04692) + Reflexion (Shinn 2303.11366) + FrugalGPT (Chen 2305.05176) + Self-MoA (2502.00674) + RMoA (2505.24442) + Puppeteer (2505.19591) + GraphRouter (2410.03834) + GATEKEEPER (2502.19335) \u00e2\u20ac\u201d plus Kimi K2.6 (Apr 2026) as native mid-tier swarm host.",
   "parent_roadmap": "BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-2026-05-10.md",
   "created_at": "2026-05-11T19:27:19.879Z",
-  "updated_at": "2026-05-12T18:35:40.967696+00:00",
+  "updated_at": "2026-05-12T18:43:28.559353+00:00",
   "created_by": "claude-0f522935 (register-devtools-roadmap-envelopes.mjs \u00e2\u20ac\u201d BACKEND-DEVTOOLS-RGS6 combine)",
   "track": "OCTOPUS-NEURAL",
   "track_name": "BACKEND-DEVTOOLS-RGS6 MEGA-ROADMAP",
@@ -134,9 +134,9 @@
             "U-OCN05"
           ],
           "viz_node_id": "eng.ai.neuralroutingengine",
-          "viz_node_status": "needs_creation",
+          "viz_node_status": "ready",
           "loop_schedule": "24h (retrain on new ledger entries)",
-          "status": "not_started",
+          "status": "completed",
           "four_loop": [
             "BUILD",
             "SCRUTINIZE",
@@ -152,7 +152,9 @@
             "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
           ],
           "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-OCTOPUS-NEURAL-MS0-ATOMIZED-2026-05-10.md",
-          "atomized_anchor": "## U-OCN03"
+          "atomized_anchor": "## U-OCN03",
+          "completed_at": "2026-05-12T18:43:28.559353+00:00",
+          "completion_note": "NeuralRoutingEngine: k-NN over scrutiny ledger (not full GNN \u2014 pragmatic for N<10K regime); cold-start hardcoded rules; poisoning defense via pass-rate+support floors; 15 vitest cases pass; neural_route_decision wired in prism_ai."
         },
         {
           "id": "U-OCN04",
@@ -235,5 +237,5 @@
   ],
   "total_units": 5,
   "declared_total_units": 5,
-  "completed_units": 2
+  "completed_units": 3
 }

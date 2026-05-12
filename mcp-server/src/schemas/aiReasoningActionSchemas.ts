@@ -447,6 +447,8 @@ export const AI_REASONING_ACTIONS = [
   "moonshot_invoke",                // MoonshotClientEngine.exec
   // OCTOPUS-NEURAL-MS0/U-OCN02: MoA-Layer-2 aggregator over N proposer outputs
   "moa_aggregate",                  // MoaLayer2Engine.aggregate
+  // OCTOPUS-NEURAL-MS0/U-OCN03: GraphRouter on scrutiny ledger — learned quorum routing
+  "neural_route_decision",          // NeuralRoutingEngine.route
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -2043,6 +2045,14 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
     nowIso: z.string().optional().describe("Optional ISO timestamp; defaults to now"),
   }).passthrough(),
   memory_pressure_trend: z.object({}).passthrough().describe("No params; returns recent pressure trend"),
+  // OCTOPUS-NEURAL-MS0/U-OCN03: GraphRouter on scrutiny ledger — learned quorum routing
+  neural_route_decision: z.object({
+    change_class: z.string().min(1).describe("Coarse change class (e.g. 'engine-edit', 'safety-critical', 'test-only')"),
+    file_types: z.array(z.string()).default([]).describe("File-extension or domain tags touched"),
+    peer_count: z.number().int().min(0).describe("Active peer chats / agents at decision time"),
+    files_count: z.number().int().min(0).optional().describe("Number of files touched (blast-radius proxy)"),
+    fingerprint: z.string().optional().describe("Optional task fingerprint for cross-run NN matching"),
+  }).passthrough().describe("Recommend a quorum + tentacle set for a scrutiny decision based on the ledger's learned topology (cold-start: hardcoded rules when ledger < 50 entries)"),
   // OCTOPUS-NEURAL-MS0/U-OCN02: MoA-Layer-2 aggregator over N proposer outputs
   moa_aggregate: z.object({
     proposers: z.array(z.object({

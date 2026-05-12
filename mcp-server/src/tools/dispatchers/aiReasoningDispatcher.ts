@@ -2153,6 +2153,23 @@ export async function executeAIReasoningAction(
       }
 
       // ─────────────────────────────────────────────────────────────────────
+      // OCTOPUS-NEURAL-MS0/U-OCN03: neural_route_decision — learned routing
+      // k-NN over the scrutiny ledger; cold-start fires hardcoded rules when
+      // the ledger has < 50 entries.
+      // ─────────────────────────────────────────────────────────────────────
+      case "neural_route_decision": {
+        const { neuralRoutingEngine } = await import("../../engines/NeuralRoutingEngine.js");
+        result = neuralRoutingEngine.route({
+          changeClass: params.change_class as string,
+          fileTypes: (params.file_types as string[] | undefined) ?? [],
+          peerCount: params.peer_count as number,
+          filesCount: params.files_count as number | undefined,
+          fingerprint: params.fingerprint as string | undefined,
+        });
+        break;
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
       // OCTOPUS-NEURAL-MS0/U-OCN02: moa_aggregate — MoA Layer-2 aggregator
       // Distills N proposer outputs (typically 3-of-3 scrutiny verdicts) into a
       // single calibrated verdict + rationale + dissent + entropy.
