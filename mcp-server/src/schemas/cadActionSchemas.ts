@@ -510,6 +510,53 @@ const partLibraryPopulateSchema = z.object({
   dry_run: z.boolean().optional().describe("Don't create anything — just report what would be created."),
 });
 
+// ── Macro library (catalog the JM Okuma-OSP lathe macros + match parts to families + place a labelled TEMPLATE; the gated fill/emit pipeline is MACRO-PROGRAM-PIPELINE-MS0) ──
+const _macroGeometrySchema = z.object({
+  length_mm: z.number().optional().describe("Overall length, mm."),
+  max_od_mm: z.number().optional().describe("Maximum OD, mm."),
+  min_od_mm: z.number().optional().describe("Minimum OD, mm (0 if no step-down)."),
+  bore_id_mm: z.number().optional().describe("Through-bore diameter, mm (0/undefined if solid)."),
+  wall_thickness_mm: z.number().optional().describe("Minimum wall thickness, mm."),
+  stock_form: z.enum(["bar", "forging", "casting", "hex_bar", "tube", "pre_machined"]).optional().describe("Stock form."),
+  features: z.array(z.string()).optional().describe("Feature-signature keywords."),
+  tightest_tolerance_mm: z.number().optional().describe("Tightest tolerance, mm."),
+  has_bolt_circle: z.boolean().optional().describe("Has a bolt circle / mounting holes."),
+  has_keyway: z.boolean().optional().describe("Has a keyway."),
+  has_threads: z.boolean().optional().describe("Has threads."),
+  has_grooves: z.boolean().optional().describe("Has groove(s)."),
+  od_step_count: z.number().int().optional().describe("Number of OD step diameters."),
+  blind_bore: z.boolean().optional().describe("Bore is blind (not through)."),
+  threaded_both_ends: z.boolean().optional().describe("Both ends threaded."),
+  iso_group: z.string().optional().describe("Material ISO group."),
+}).describe("Lathe part geometry (the LathePartClassifierEngine input).");
+export const macroLibraryListSchema = z.object({
+  dir: z.string().optional().describe("Override the macro source directory (default: JM DIE/Macro programs/)."),
+  macro_source_dir: z.string().optional().describe("Alias for `dir`."),
+});
+export const macroMatchFamilySchema = z.object({
+  geometry: _macroGeometrySchema.optional().describe("Lathe geometry — preferred; classified via LathePartClassifierEngine."),
+  features: z.array(z.string()).optional().describe("Free-form feature keywords (also taken from geometry.features)."),
+  name_text: z.string().optional().describe("Any text associated with the part (PN, description, drawing title) — die-detail names often encode the family."),
+  counterbore_present: z.boolean().optional().describe("Explicit: a counterbore is present (overrides inference)."),
+  flange_step_present: z.boolean().optional().describe("Explicit: a flange/brim step is present (overrides inference)."),
+  od_taper_present: z.boolean().optional().describe("Explicit: an OD taper is present."),
+  id_taper_present: z.boolean().optional().describe("Explicit: an ID taper is present."),
+});
+export const macroPlaceTemplateSchema = z.object({
+  part_number: z.union([z.string(), z.number()]).describe("The part number (required)."),
+  customer: z.string().optional().describe("Customer folder name. If omitted, falls back to _UNASSIGNED for the path."),
+  family: z.enum(["wafer-insert", "casing", "casing-counterbore", "top-hat-casing"]).optional().describe("The macro family. If omitted, supply `match` so a family can be resolved."),
+  match: macroMatchFamilySchema.optional().describe("Match input (geometry/features/name) — used to resolve a family when `family` is omitted."),
+  library_root: z.string().optional().describe("Override the part-library root (tests use a temp dir)."),
+  macro_source_dir: z.string().optional().describe("Override the macro source directory."),
+  dry_run: z.boolean().optional().describe("Do everything except write."),
+});
+export const macroFanoutDryRunSchema = z.object({
+  library_root: z.string().optional().describe("Override the part-library root."),
+  limit: z.number().int().min(1).max(1_000_000).optional().describe("Max part folders to scan."),
+  sample_size: z.number().int().min(0).max(1000).optional().describe("How many matched parts to include in the returned sample (default 25)."),
+});
+
 /**
  * Action schemas for prism_cad dispatcher.
  * Maps action name to Zod schema for validation.
@@ -614,4 +661,9 @@ export const ACTION_CAD_SCHEMAS: Record<string, z.ZodType<any>> = {
   get_part_folder: getPartFolderSchema,
   part_library_stats: partLibraryStatsSchema,
   part_library_populate: partLibraryPopulateSchema,
+  // Macro library — catalog the JM Okuma-OSP lathe macros + match parts to families + place a labelled TEMPLATE
+  macro_library_list: macroLibraryListSchema,
+  macro_match_family: macroMatchFamilySchema,
+  macro_place_template: macroPlaceTemplateSchema,
+  macro_fanout_dry_run: macroFanoutDryRunSchema,
 };
