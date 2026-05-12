@@ -52,6 +52,14 @@ describe("extractFileClaims — confident past-tense creation claims only", () =
     expect(extractFileClaims(undefined)).toEqual([]);
     expect(extractFileClaims(42)).toEqual([]);
   });
+  it("a BARE basename next to a creation verb is NOT a claim — only paths with a separator count (false-positive guard)", () => {
+    // The exact shape that false-flagged a reviewer subagent: it *cited* a file by basename.
+    expect(extractFileClaims("U-HKA02 created the hook `autonomous-loop-defer.mjs` (great!)")).toEqual([]);
+    expect(extractFileClaims("created `FooEngine.ts` and wrote `Bar.test.ts`")).toEqual([]);
+    // ...the same line with the real PATH still IS a claim:
+    expect(extractFileClaims("U-HKA02 created `.claude/hooks/autonomous-loop-defer.mjs`")).toEqual([".claude/hooks/autonomous-loop-defer.mjs"]);
+    expect(extractFileClaims("created `src/engines/FooEngine.ts`")).toEqual(["src/engines/FooEngine.ts"]);
+  });
 });
 
 describe("verifyClaims — existence check (existsFn injected)", () => {

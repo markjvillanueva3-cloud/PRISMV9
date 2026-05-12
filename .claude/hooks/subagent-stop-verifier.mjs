@@ -71,7 +71,12 @@ function cleanCandidate(raw) {
   if (/\s/.test(c)) return null;
   if (STOPWORDS.has(c.toLowerCase())) return null;
   if (!/\.[A-Za-z0-9]{1,6}$/.test(c)) return null;          // must end in an extension
-  if (!/[\\/]/.test(c) && !CODE_EXT_RX.test(c)) return null; // bare filename only if a known code/data ext
+  if (!CODE_EXT_RX.test(c)) return null;                    // ...and a recognised code/data extension
+  // A claim must include a path separator. A bare basename ("Foo.ts") is too ambiguous to verify —
+  // it could live anywhere — so flagging it "missing at the repo root" produces false positives
+  // (e.g. a reviewer subagent that *cites* a file by basename in its prose). Real deliverable
+  // claims give a real path ("created mcp-server/src/engines/Foo.ts").
+  if (!/[\\/]/.test(c)) return null;
   if (/^https?:/i.test(c) || /[*?]|\$\{/.test(c)) return null; // not a URL / glob / template
   return c.replace(/\\/g, "/");
 }
