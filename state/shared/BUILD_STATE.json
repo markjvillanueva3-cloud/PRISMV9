@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-12T18:21:17.881Z",
+  "generatedAt": "2026-05-12T18:43:11.335Z",
   "headline": {
     "built_engines": 2302,
     "built_with_wiki": 1075,
     "needs_wiring": 883,
-    "needs_building_active_units": 3408,
+    "needs_building_active_units": 3405,
     "needs_frontend_merge_count": 2,
-    "pending_milestones_with_activity": 2,
-    "drift_milestones": 3,
-    "stale_milestones": 255,
+    "pending_milestones_with_activity": 4,
+    "drift_milestones": 4,
+    "stale_milestones": 254,
     "domains_tracked": 923
   },
   "sources": {
@@ -8722,7 +8722,7 @@
     ]
   },
   "STALE_MILESTONES": {
-    "summary": "255 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).",
+    "summary": "254 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).",
     "threshold_days": 30,
     "rows": [
       {
@@ -9089,7 +9089,7 @@
     "next_action": "Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift."
   },
   "NEEDS_BUILDING": {
-    "summary": "3408 units across 665 milestones not yet in git.",
+    "summary": "3405 units across 665 milestones not yet in git.",
     "drift_cases": [
       {
         "id": "MF-MS1",
@@ -9108,9 +9108,57 @@
         "claimed": "not_started",
         "real": "in_progress_real",
         "drift": "claims_not_started_but_has_shipped_units"
+      },
+      {
+        "id": "OCTOPUS-NEURAL-MS0",
+        "claimed": "not_started",
+        "real": "in_progress_real",
+        "drift": "claims_not_started_but_has_shipped_units"
       }
     ],
     "top_pending_units": [
+      {
+        "milestone": "HOOK-SYNERGY-MS0",
+        "unit": "U-HOOK-STOPGAP",
+        "title": "7 hook timeout reductions in C:/Users/wompu/.claude/settings.json (git-health-guard 35→8s, git-sync-stop 35→8s, session-start-zombie-reap 25→8s, auto-lint-post-edit 15→8s, git-sync-fetch/claude-brief-inject/quality-dashboard-alert 12→5s)",
+        "phase": "stopgap"
+      },
+      {
+        "milestone": "HOOK-SYNERGY-MS0",
+        "unit": "U-HOOK-AUDIT",
+        "title": "H1 — scripts/settings-dedup-audit.mjs + state/shared/SETTINGS_DEDUP_REPORT.md (cross-layer dedup, fan-out per tool)",
+        "phase": "critical-path"
+      },
+      {
+        "milestone": "HOOK-SYNERGY-MS0",
+        "unit": "U-HOOK-REGISTRY",
+        "title": "H2 — HOOK_REGISTRY.json generator + prism_dev:hook_registry action + prism_session:hook_map_compact",
+        "phase": "critical-path"
+      },
+      {
+        "milestone": "HOOK-SYNERGY-MS0",
+        "unit": "U-HOOK-TIERS",
+        "title": "H3 — Tier frontmatter on all 480 hooks + hook-tier-validator.mjs PreToolUse block on .claude/hooks/*.mjs edits",
+        "phase": "critical-path"
+      },
+      {
+        "milestone": "OCTOPUS-NEURAL-MS0",
+        "unit": "U-OCN03",
+        "title": "Build `NeuralRoutingEngine` (GraphRouter on scrutiny ledger)",
+        "phase": "P0"
+      },
+      {
+        "milestone": "OCTOPUS-NEURAL-MS0",
+        "unit": "U-OCN04",
+        "title": "Build `CascadeCalibrationEngine` (probe-based offload)",
+        "phase": "P0"
+      },
+      {
+        "milestone": "OCTOPUS-NEURAL-MS0",
+        "unit": "U-OCN05",
+        "title": "Build `ConsensusQuorumEngine` (dynamic N-of-M from change class)",
+        "phase": "P0"
+      },
       {
         "milestone": "HTML-PRIMARY-MS0",
         "unit": "U-HPS01",
