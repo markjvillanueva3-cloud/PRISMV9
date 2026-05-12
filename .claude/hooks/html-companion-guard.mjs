@@ -12,25 +12,28 @@
  *      sha256(<stem>.md), the .html is stale relative to its Markdown source.
  *      Also flags a staged .md whose .html twin is missing entirely, or a .html
  *      with no source-hash meta.
- *   2. A11Y (HTML-PRIMARY-MS0 U-HPS05): a fast WAI-ARIA subset — `<html lang>`,
- *      a non-empty `<title>`, a skip-link or `<main>` landmark, every `<img>`
- *      has an `alt` attribute, every heading carries an `id`. (The exhaustive
- *      check is `scripts/check-spec-html-a11y.mjs`; this is the cheap gate.)
+ *   2. A11Y (HTML-PRIMARY-MS0 U-HPS05): runs the canonical static WAI-ARIA
+ *      checker — `checkA11y` from `scripts/check-spec-html-a11y.mjs` (the HTML
+ *      lane committed that module with a run-as-main guard specifically so this
+ *      hook could `import` it; one source of a11y truth, no parallel checker).
  *
  * Default behaviour is WARN-ONLY (non-blocking) — it surfaces a directive with
  * the fix command and lets the commit through. Opt in to a HARD BLOCK with
  * PRISM_HTML_GUARD_BLOCK=1. Disable the guard entirely with PRISM_HTML_GUARD=0.
  *
  * Fails OPEN on any error, on a non-commit command, or when disabled. Import-safe
- * (only runs when invoked directly; exports its pure helpers for unit tests).
+ * (only runs when invoked directly; re-exports its helpers for unit tests).
  *
  * Hook trigger: PreToolUse:Bash — registered in bundles/bash-bundle.mjs BASH_HOOKS.
+ * Wires: HTML-PRIMARY-MS0 U-HPS05 (a11y guard) + U-HPS06 / HC-5 (MD↔HTML drift guard),
+ * coordinated with the HTML lane (claude-bd3291fd) which delivered the a11y check logic.
  */
 
 import { execFileSync } from "node:child_process";
 import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { createHash } from "node:crypto";
+import { checkA11y } from "../../scripts/check-spec-html-a11y.mjs";
 
 // repo-relative paths look like  state/shared/specs/foo.html  or  state\shared\research\bar.md
 const SPEC_FILE_RE = /(?:^|[\\/])state[\\/]shared[\\/](?:specs|research)[\\/].*\.(?:md|html)$/i;
@@ -51,28 +54,11 @@ function extractSourceHash(html) {
   return c ? c[1].toLowerCase() : null;
 }
 
-/** Fast WAI-ARIA subset. Returns an array of human-readable violation strings (empty = clean). */
-function a11yViolations(html) {
-  const v = [];
-  if (!/<html\b[^>]*\blang\s*=\s*["'][^"']+["']/i.test(html)) v.push("missing <html lang>");
-  const t = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
-  if (!t || !t[1].trim()) v.push("empty/missing <title>");
-  const hasSkip = /href\s*=\s*["']#(?:content|main|top)["']/i.test(html);
-  const hasMain = /<main\b/i.test(html) || /\brole\s*=\s*["']main["']/i.test(html);
-  if (!hasSkip && !hasMain) v.push("no skip-link and no <main> landmark");
-  let imgNoAlt = 0;
-  for (const tag of html.match(/<img\b[^>]*>/gi) || []) if (!/\balt\s*=/i.test(tag)) imgNoAlt++;
-  if (imgNoAlt) v.push(`${imgNoAlt} <img> without alt`);
-  let hNoId = 0;
-  for (const tag of html.match(/<h[1-6]\b[^>]*>/gi) || []) if (!/\bid\s*=\s*["'][^"']+["']/i.test(tag)) hNoId++;
-  if (hNoId) v.push(`${hNoId} heading(s) without id`);
-  return v;
-}
-
 /**
  * Check one stem (path without extension), resolved against repo top.
  * Returns { drift: string|null, a11y: string[] }. A stem with no `.md` source
- * is ignored (could be a hand-authored standalone .html).
+ * is ignored (could be a hand-authored standalone .html). The a11y list comes
+ * straight from the canonical `checkA11y` (scripts/check-spec-html-a11y.mjs).
  */
 function checkTwin(top, stem) {
   const out = { drift: null, a11y: [] };
@@ -85,7 +71,7 @@ function checkTwin(top, stem) {
   const embedded = extractSourceHash(html);
   if (!embedded) out.drift = "no <meta prism-source-hash> in the HTML";
   else if (embedded !== mdHash) out.drift = `stale — embedded ${embedded.slice(0, 12)}… ≠ source ${mdHash.slice(0, 12)}…`;
-  out.a11y = a11yViolations(html);
+  try { out.a11y = checkA11y(html) || []; } catch { out.a11y = []; } // a11y is best-effort; drift still reported
   return out;
 }
 
@@ -130,10 +116,10 @@ function main() {
     lines.push("  fix: node --import tsx H:/prism/scripts/emit-all-spec-html.ts --force   (then re-stage the .html)");
   }
   if (a11yBad.length) {
-    lines.push("", "A11Y (WAI-ARIA subset):");
+    lines.push("", "A11Y (WAI-ARIA — scripts/check-spec-html-a11y.mjs):");
     for (const a of a11yBad.slice(0, 10)) lines.push(`  • ${a}`);
     if (a11yBad.length > 10) lines.push(`  … and ${a11yBad.length - 10} more`);
-    lines.push("  full check: node H:/prism/scripts/check-spec-html-a11y.mjs <html…>");
+    lines.push("  re-check: node H:/prism/scripts/check-spec-html-a11y.mjs <html…>");
   }
 
   if (process.env.PRISM_HTML_GUARD_BLOCK === "1") {
@@ -155,4 +141,4 @@ if (invokedDirectly) {
   try { main(); } catch { try { process.stdout.write(JSON.stringify({ continue: true })); } catch { /* nothing more we can do */ } }
 }
 
-export { a11yViolations, extractSourceHash, checkTwin };
+export { extractSourceHash, checkTwin, checkA11y };

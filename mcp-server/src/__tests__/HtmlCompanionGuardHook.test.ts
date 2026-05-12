@@ -5,13 +5,16 @@
  *   - clean twin staged             → no advisory ({continue:true} only)
  *   - drifted twin (hash mismatch)  → warn advisory naming the file + "DRIFT"/"stale"
  *   - .md staged, .html twin missing → warn advisory + "MISSING"
- *   - a11y violation (<img> no alt)  → warn advisory + "A11Y"
+ *   - a11y violation (<img> no alt)  → warn advisory + the canonical checkA11y message
  *   - non-git command               → no-op
  *   - no spec/research files staged  → no-op
  *   - PRISM_HTML_GUARD=0            → no-op even with a drifted twin
  *   - PRISM_HTML_GUARD_BLOCK=1      → decision:block on drift
  *   - empty / malformed stdin       → exit 0 silent
- *   + unit tests on the exported pure helpers (a11yViolations / extractSourceHash)
+ *   + extractSourceHash (the hook's own drift helper) + checkA11y wiring (re-exported from
+ *     scripts/check-spec-html-a11y.mjs — the canonical checker the HTML lane committed; its
+ *     exhaustive cases live in that module's own suite, here we just confirm the wiring +
+ *     that this file's "clean" fixture stays clean under it).
  *
  * Spawns the hook as a child process against throwaway git repos (no live deps,
  * no mocks). Mirrors the pattern in CommitDraftSuggestHook.test.ts.
@@ -26,7 +29,7 @@ import { createHash } from "node:crypto";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore — plain ESM hook module, no type declarations
-import { a11yViolations, extractSourceHash } from "../../../.claude/hooks/html-companion-guard.mjs";
+import { checkA11y, extractSourceHash } from "../../../.claude/hooks/html-companion-guard.mjs";
 
 const HOOK = "H:/prism/.claude/hooks/html-companion-guard.mjs";
 const ZERO_HASH = "0".repeat(64);
@@ -35,7 +38,7 @@ function sha256(s: string): string {
   return createHash("sha256").update(s, "utf8").digest("hex");
 }
 
-/** Build a minimal-but-a11y-clean HTML twin embedding `srcHash`. */
+/** Build a minimal HTML twin embedding `srcHash` that passes the canonical checkA11y. */
 function cleanHtml(srcHash: string, title = "Demo Spec"): string {
   return [
     `<!DOCTYPE html>`,
@@ -137,7 +140,7 @@ describe("html-companion-guard hook — HTML-PRIMARY-MS0 U-HPS05/U-HPS06", () =>
     expect(r.advisory).toContain("state/shared/specs/orphan-md.html");
   });
 
-  it("a11y violation (<img> without alt) → warn advisory + A11Y, still proceeds", () => {
+  it("a11y violation (<img> without alt) → warn advisory with the canonical checkA11y message, still proceeds", () => {
     const md = "# Demo\n\n![](x.png)\n";
     const html = cleanHtml(sha256(md)).replace('<img src="diagram.png" alt="A diagram">', '<img src="x.png">');
     stageSpec("bad-a11y", md, html);
@@ -145,7 +148,7 @@ describe("html-companion-guard hook — HTML-PRIMARY-MS0 U-HPS05/U-HPS06", () =>
     expect(r.status).toBe(0);
     expect(r.parsed.continue).toBe(true);
     expect(r.advisory).toContain("A11Y");
-    expect(r.advisory).toContain("1 <img> without alt");
+    expect(r.advisory).toContain("1 <img> element(s) without a non-empty alt attribute");
     expect(r.advisory).toContain("state/shared/specs/bad-a11y.html");
     expect(r.advisory).toContain("check-spec-html-a11y.mjs");
   });
@@ -220,34 +223,7 @@ describe("html-companion-guard hook — HTML-PRIMARY-MS0 U-HPS05/U-HPS06", () =>
   });
 });
 
-describe("html-companion-guard — pure helpers", () => {
-  it("a11yViolations: a fully-formed twin is clean (no violations)", () => {
-    expect(a11yViolations(cleanHtml("f".repeat(64)))).toEqual([]);
-  });
-
-  it("a11yViolations: flags lang, title, landmark, img-alt, heading-id", () => {
-    const bad = "<html><head><title>  </title></head><body><h1>H</h1><p><img src='x.png'></p></body></html>";
-    const v: string[] = a11yViolations(bad);
-    expect(v).toContain("missing <html lang>");
-    expect(v).toContain("empty/missing <title>");
-    expect(v).toContain("no skip-link and no <main> landmark");
-    expect(v).toContain("1 <img> without alt");
-    expect(v).toContain("1 heading(s) without id");
-    expect(v).toHaveLength(5);
-  });
-
-  it("a11yViolations: <main> landmark alone satisfies the landmark check; alt='' counts as present", () => {
-    const ok = `<html lang="en"><head><title>T</title></head><body><main><h1 id="a">H</h1><img src="x" alt=""></main></body></html>`;
-    expect(a11yViolations(ok)).toEqual([]);
-  });
-
-  it("a11yViolations: counts multiple offending elements", () => {
-    const bad = `<html lang="en"><head><title>T</title></head><body><main><h1>A</h1><h2>B</h2><img src=1><img src=2 alt=ok><img src=3></main></body></html>`;
-    const v: string[] = a11yViolations(bad);
-    expect(v).toContain("2 <img> without alt");
-    expect(v).toContain("2 heading(s) without id");
-  });
-
+describe("html-companion-guard — helpers", () => {
   it("extractSourceHash: reads content from name=prism-source-hash, any attr order, lowercased", () => {
     const h = "A1B2".repeat(16); // 64 hex chars, mixed case
     expect(extractSourceHash(`<meta name="prism-source-hash" content="${h}">`)).toBe(h.toLowerCase());
@@ -258,5 +234,20 @@ describe("html-companion-guard — pure helpers", () => {
     expect(extractSourceHash("<html>no meta here</html>")).toBeNull();
     expect(extractSourceHash(`<meta name="prism-source-hash" content="not-a-hash">`)).toBeNull();
     expect(extractSourceHash(`<meta name="other" content="${"a".repeat(64)}">`)).toBeNull();
+  });
+
+  it("checkA11y wiring: the hook re-exports the canonical checker, and this file's clean fixture passes it", () => {
+    expect(typeof checkA11y).toBe("function");
+    expect(checkA11y(cleanHtml("f".repeat(64)))).toEqual([]);
+  });
+
+  it("checkA11y wiring: a structurally-broken page yields the expected canonical violations", () => {
+    const bad = "<html><head><title>  </title></head><body><h1>H</h1><p><img src='x.png'></p></body></html>";
+    const v: string[] = checkA11y(bad);
+    expect(v).toContain("<html> is missing a non-empty lang attribute");
+    expect(v).toContain("<title> is missing or empty");
+    expect(v).toContain("1 <img> element(s) without a non-empty alt attribute");
+    expect(v).toContain("1 heading(s) without an id");
+    expect(v.length).toBeGreaterThanOrEqual(4);
   });
 });
