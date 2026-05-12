@@ -466,6 +466,16 @@
         ]
       },
       {
+        "matcher": "^TaskCreate$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/task-created-claim-guard.mjs",
+            "timeout": 2000
+          }
+        ]
+      },
+      {
         "matcher": "^(Write|Edit)$",
         "hooks": []
       },
