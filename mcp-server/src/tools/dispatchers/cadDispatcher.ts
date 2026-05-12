@@ -317,6 +317,11 @@ const ACTIONS = [
   "get_part_folder",                   // PartFolderOrganizerEngine.getPartFolder — look one up
   "part_library_stats",                // PartFolderOrganizerEngine.partLibraryStats — counts / coverage / disk
   "part_library_populate",             // PartFolderOrganizerEngine.populateFromJoinTable — drain N rows of the print→program join table
+  // Macro library — catalog the JM Okuma-OSP lathe macros + match parts to families + place a labelled TEMPLATE (NON-safety-critical: VCxxx NOT filled, not runnable; the gated fill/emit pipeline is MACRO-PROGRAM-PIPELINE-MS0)
+  "macro_library_list",                // MacroLibraryEngine.listMacros — the 4 OSP lathe macros + their parsed VCxxx variable maps
+  "macro_match_family",                // MacroLibraryEngine.matchFamily — match a part (geometry/features/name) → wafer-insert / casing / casing-counterbore / top-hat-casing
+  "macro_place_template",              // MacroLibraryEngine.placeMacroTemplate — copy the matching macro as _MACRO-TEMPLATE_*.min into <part>/CNC PROGRAM/ with a DO-NOT-RUN-AS-IS header
+  "macro_fanout_dry_run",              // MacroLibraryEngine.fanoutDryRun — scan _PART LIBRARY/, report matchable parts per macro family
 ] as const;
 
 /** Registers cad dispatcher.
@@ -3119,6 +3124,55 @@ Params vary by action — pass relevant fields in params object.`,
               dryRun: (params.dryRun ?? params.dry_run) === true,
             });
             result = { success: data.ok, data };
+            break;
+          }
+          // ── Macro library (catalog the JM Okuma-OSP lathe macros + match parts to families + place a labelled TEMPLATE — NON-safety-critical) ──
+          case "macro_library_list": {
+            const { macroLibraryEngine } = await import("../../engines/MacroLibraryEngine.js");
+            const data = macroLibraryEngine.listMacros({ dir: params.dir ?? params.macroSourceDir ?? params.macro_source_dir });
+            result = { success: true, data };
+            break;
+          }
+          case "macro_match_family": {
+            const { macroLibraryEngine } = await import("../../engines/MacroLibraryEngine.js");
+            const data = macroLibraryEngine.matchFamily({
+              geometry: params.geometry,
+              features: params.features,
+              nameText: params.nameText ?? params.name_text,
+              counterborePresent: params.counterborePresent ?? params.counterbore_present,
+              flangeStepPresent: params.flangeStepPresent ?? params.flange_step_present,
+              odTaperPresent: params.odTaperPresent ?? params.od_taper_present,
+              idTaperPresent: params.idTaperPresent ?? params.id_taper_present,
+            });
+            result = { success: true, data };
+            break;
+          }
+          case "macro_place_template": {
+            const pn = params.partNumber ?? params.part_number;
+            if (pn == null || String(pn).trim() === "") {
+              return dispatcherError(new Error("macro_place_template requires part_number"), action, "prism_cad");
+            }
+            const { macroLibraryEngine } = await import("../../engines/MacroLibraryEngine.js");
+            const data = macroLibraryEngine.placeMacroTemplate({
+              partNumber: pn,
+              customer: params.customer,
+              family: params.family,
+              match: params.match,
+              libraryRoot: params.libraryRoot ?? params.library_root,
+              macroSourceDir: params.macroSourceDir ?? params.macro_source_dir,
+              dryRun: (params.dryRun ?? params.dry_run) === true,
+            });
+            result = { success: data.placed || data.dryRun === true, data };
+            break;
+          }
+          case "macro_fanout_dry_run": {
+            const { macroLibraryEngine } = await import("../../engines/MacroLibraryEngine.js");
+            const data = macroLibraryEngine.fanoutDryRun({
+              libraryRoot: params.libraryRoot ?? params.library_root,
+              limit: typeof params.limit === "number" ? params.limit : undefined,
+              sampleSize: typeof (params.sampleSize ?? params.sample_size) === "number" ? (params.sampleSize ?? params.sample_size) : undefined,
+            });
+            result = { success: true, data };
             break;
           }
           default:
