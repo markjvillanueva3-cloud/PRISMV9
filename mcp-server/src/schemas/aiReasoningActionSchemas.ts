@@ -449,6 +449,8 @@ export const AI_REASONING_ACTIONS = [
   "moa_aggregate",                  // MoaLayer2Engine.aggregate
   // OCTOPUS-NEURAL-MS0/U-OCN03: GraphRouter on scrutiny ledger — learned quorum routing
   "neural_route_decision",          // NeuralRoutingEngine.route
+  // OCTOPUS-NEURAL-MS0/U-OCN04: probe-based cost-quality calibration
+  "cascade_calibrate",              // CascadeCalibrationEngine.calibrate
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -2045,6 +2047,15 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
     nowIso: z.string().optional().describe("Optional ISO timestamp; defaults to now"),
   }).passthrough(),
   memory_pressure_trend: z.object({}).passthrough().describe("No params; returns recent pressure trend"),
+  // OCTOPUS-NEURAL-MS0/U-OCN04: probe-based cost-quality calibration
+  // NOTE: This action's true input shape has function-typed fields (tier.invoke,
+  // probe.score) which can't cross the MCP/JSON boundary. The dispatcher path
+  // is reserved for in-process callers (CLI scripts that already hold the
+  // engine singleton); over MCP, the schema accepts a pre-calibrated summary
+  // payload for inspection-only use.
+  cascade_calibrate: z.object({
+    summary: z.string().optional().describe("Pre-calibrated summary payload (read-only over MCP)"),
+  }).passthrough().describe("Probe-based cost-quality frontier calibration (engine API only over JSON; live invocation must come from an in-process caller with the engine singleton in scope)"),
   // OCTOPUS-NEURAL-MS0/U-OCN03: GraphRouter on scrutiny ledger — learned quorum routing
   neural_route_decision: z.object({
     change_class: z.string().min(1).describe("Coarse change class (e.g. 'engine-edit', 'safety-critical', 'test-only')"),

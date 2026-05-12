@@ -2153,6 +2153,22 @@ export async function executeAIReasoningAction(
       }
 
       // ─────────────────────────────────────────────────────────────────────
+      // OCTOPUS-NEURAL-MS0/U-OCN04: cascade_calibrate — read-only over MCP
+      // The live invocation path requires function-typed inputs (tier.invoke,
+      // probe.score) which can't cross JSON; over MCP this action returns a
+      // diagnostic payload pointing to the in-process CLI. In-process callers
+      // (scripts, other engines) import cascadeCalibrationEngine directly.
+      // ─────────────────────────────────────────────────────────────────────
+      case "cascade_calibrate": {
+        result = {
+          ok: true,
+          message: "cascade_calibrate is engine-only over MCP — invoke via cascadeCalibrationEngine.calibrate() in-process. CLI: scripts/cascade-calibrate.mjs (writes state/shared/cascade-thresholds.json).",
+          summary: params.summary ?? null,
+        };
+        break;
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
       // OCTOPUS-NEURAL-MS0/U-OCN03: neural_route_decision — learned routing
       // k-NN over the scrutiny ledger; cold-start fires hardcoded rules when
       // the ledger has < 50 entries.
