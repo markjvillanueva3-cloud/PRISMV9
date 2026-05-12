@@ -12,26 +12,34 @@
  * through silently. Never again.
  *
  * BLOCK conditions (in order checked):
- *   1. Test report file missing
- *   2. Test report parse error
- *   3. Test report older than MAX_AGE_MS (default 30 minutes)
- *   4. report.failing > 0  OR  report.failed > 0
- *   5. report.passing < report.total  (catches inverted accounting)
- *   6. report.passRate < 1.0 if present
+ *   1. Test report file missing                       → block: "run vitest, retry"
+ *   2. Test report parse error                        → block
+ *   3. report.failing > 0 / success === false         → block: "fix failures, re-run, retry"
+ *   4. report.passing < report.total (inverted acct)  → block
  *
- * PASS condition (only one):
- *   - Report exists, parses, is fresh, AND failing=0 AND passes==total
+ * PASS condition:
+ *   - Report exists, parses, AND failing=0 AND passes==total. A *stale* green
+ *     report passes with an advisory — adding green tests in a sibling worktree
+ *     cannot turn previously-green tests red (multi-worktree dev reality).
  *
- * To unblock: run `npx vitest run` from mcp-server/, then retry Stop.
+ * NOTE (2026-05-12, U-CLI-PERF): this hook no longer runs vitest itself. A Stop
+ * hook must not run a multi-minute test suite synchronously — the old behavior
+ * had a 5-min internal budget under a 10-s harness timeout, so a missing/red
+ * report meant the hook got SIGKILLed mid-run (test gate effectively skipped).
+ * Now: missing/red report → block immediately with the exact command to run.
+ * CI / a manual `npx vitest run --reporter=json --outputFile=…` writes the report.
+ *
+ * To unblock: run
+ *   cd mcp-server && npx vitest run --reporter=json --outputFile=data/state/VITEST_REPORT.json
+ * then retry Stop.
  *
  * Configurable via env:
- *   STOP_ON_FAILING_TESTS_MAX_AGE_MS   default 1800000 (30 min)
+ *   STOP_ON_FAILING_TESTS_MAX_AGE_MS   default 1800000 (30 min) — advisory only now
  *   STOP_ON_FAILING_TESTS_OVERRIDE=1   single-Stop bypass (logs to ledger)
  */
 
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { execSync } from "node:child_process";
 
 // Canonical test-pass report path. Vitest writes JSON here via the
 // `--reporter=json --outputFile=…` flags when this hook runs vitest itself
@@ -41,18 +49,8 @@ import { execSync } from "node:child_process";
 const TEST_REPORT = path.resolve("H:/prism/mcp-server/data/state/VITEST_REPORT.json");
 const OVERRIDE_LEDGER = path.resolve("H:/prism/state/shared/TEST_GATE_OVERRIDES.jsonl");
 const MAX_AGE_MS = Number(process.env.STOP_ON_FAILING_TESTS_MAX_AGE_MS || 30 * 60 * 1000);
-// When no fresh report exists, run vitest ourselves with this budget. 5min
-// is generous for the U-WIRE test slice (each unit's tests run in <1s);
-// a full suite runs longer but those should be done at commit/CI time.
-const VITEST_BUDGET_MS = Number(process.env.STOP_ON_FAILING_TESTS_VITEST_BUDGET_MS || 5 * 60 * 1000);
-// MCP-server cwd that owns the package.json + vitest config.
-const VITEST_CWD = path.resolve("H:/prism/mcp-server");
-// Minimum total tests in the report to trust it as a full-suite run.
-// Project has ~2838 test files / ~3065 `it(` blocks. A 33-test report
-// (single U-WIRE file) MUST NOT satisfy the gate. 1000 is conservative —
-// large enough to refuse a single suite, small enough to allow a focused
-// re-run after a CI partial-rerun. Override via env if narrowing on purpose.
-const MIN_SUITE_SIZE = Number(process.env.STOP_ON_FAILING_TESTS_MIN_SUITE || 1000);
+// The exact command that (re)writes the report — surfaced in every block message.
+const RERUN_CMD = "cd mcp-server && npx vitest run --reporter=json --outputFile=data/state/VITEST_REPORT.json";
 
 function readStdinSafe() {
   try {
@@ -86,45 +84,6 @@ function logOverride(stdin, reason) {
       reason,
     }) + "\n");
   } catch { /* ignore — override is best-effort logging */ }
-}
-
-/**
- * Run vitest synchronously with JSON reporter targeting TEST_REPORT.
- * Returns true if the report was successfully written, false otherwise.
- * NEVER throws — failures are logged to the report file and surfaced via
- * the regular gate-block path so the user sees a real error.
- */
-function runVitestAndWriteReport() {
-  try {
-    fs.mkdirSync(path.dirname(TEST_REPORT), { recursive: true });
-    // Use vitest's JSON reporter. --run forces single-pass (no watch).
-    // 2>&1 captures stderr too in case vitest dies.
-    const cmd = `npx --no-install vitest run --reporter=json --outputFile="${TEST_REPORT}"`;
-    execSync(cmd, {
-      cwd: VITEST_CWD,
-      timeout: VITEST_BUDGET_MS,
-      stdio: ["ignore", "pipe", "pipe"],
-      maxBuffer: 64 * 1024 * 1024,
-    });
-    return fs.existsSync(TEST_REPORT);
-  } catch (e) {
-    // Vitest exits non-zero when tests fail — but it STILL writes the
-    // report file. So a non-zero exit is fine as long as the report exists.
-    if (fs.existsSync(TEST_REPORT)) return true;
-    // Could not write the report at all (vitest crashed, npx missing, etc).
-    // Synthesize a stub report that BLOCKs the gate with a useful reason.
-    try {
-      fs.writeFileSync(TEST_REPORT, JSON.stringify({
-        timestamp: Date.now(),
-        success: false,
-        numTotalTests: 0,
-        numPassedTests: 0,
-        numFailedTests: 0,
-        _hookError: e instanceof Error ? e.message : String(e),
-      }, null, 2));
-    } catch { /* ignore */ }
-    return false;
-  }
 }
 
 /**
@@ -202,74 +161,40 @@ function main() {
     return;
   }
 
-  // First read attempt — may auto-run vitest below if report is missing or red.
-  // Stale-but-green is acceptable in multi-worktree dev: existing green tests
-  // do not become red by adding new green tests in a sibling worktree. We only
-  // auto-run vitest when the report is missing OR previously red, since those
-  // are the cases where staleness could mask a real regression.
-  let parsed = readAndNormalize();
-  const reportPresent = parsed.ok;
-  const reportGreen = reportPresent
-    && Number.isFinite(parsed.report.failing)
-    && parsed.report.failing === 0
-    && parsed.report.success !== false;
-  const needsRun = !reportPresent || !reportGreen;
+  const parsed = readAndNormalize();
 
-  if (needsRun) {
-    // Run vitest synchronously to generate a fresh report. Budget = 5 min default.
-    const wrote = runVitestAndWriteReport();
-    if (!wrote) {
-      block(
-        `TEST GATE — vitest invocation failed and no fallback report exists. ` +
-        `Try \`cd mcp-server && npx vitest run --reporter=json --outputFile=data/state/VITEST_REPORT.json\` manually. ` +
-        `Cannot ship without a verifiable green run.`,
-      );
-      return;
-    }
-    parsed = readAndNormalize();
-    if (!parsed.ok) {
-      block(
-        `TEST GATE — vitest ran but the report is unreadable: ${parsed.reason}. ` +
-        `Inspect ${TEST_REPORT} manually.`,
-      );
-      return;
-    }
-  }
-
-  const report = parsed.report;
-
-  // Hook-error sentinel — set by runVitestAndWriteReport on crash
-  if (report.hookError) {
+  // Missing or unparseable report → block immediately. (This hook no longer
+  // runs vitest itself — a multi-minute suite must not run synchronously inside
+  // a Stop hook.) The block message carries the exact command to run.
+  if (!parsed.ok) {
     block(
-      `TEST GATE — vitest crashed: ${report.hookError}. ` +
-      `Cannot verify test status. Fix the crash before shipping.`,
+      `TEST GATE — ${parsed.reason}. Cannot ship CNC code without a verifiable green test run.\n` +
+      `Run:  ${RERUN_CMD}\nthen retry Stop. (CI also writes this report.)`,
     );
     return;
   }
 
-  // Freshness + suite-size are only enforced when we just ran vitest (needsRun
-  // path) — i.e. the report was missing or red. For stale-but-green reports we
-  // pass with an advisory, since adding tests in a sibling worktree cannot
-  // turn previously-green tests red.
-  if (needsRun) {
-    if (!isFresh(report)) {
-      const ageMin = report.ts_ms ? Math.floor((Date.now() - report.ts_ms) / 60000) : "unknown";
-      block(
-        `TEST GATE — report still stale after refresh attempt (age ${ageMin}min). ` +
-        `Inspect ${TEST_REPORT}.`,
-      );
-      return;
-    }
+  const report = parsed.report;
 
-    if (Number.isFinite(report.total) && report.total < MIN_SUITE_SIZE) {
-      block(
-        `TEST GATE — report covers only ${report.total} tests (minimum ${MIN_SUITE_SIZE}). ` +
-        `Single-file or partial-suite reports are not sufficient for safety-critical ship. ` +
-        `Run \`cd mcp-server && npx vitest run --reporter=json --outputFile=data/state/VITEST_REPORT.json\` ` +
-        `for a full-suite report, OR set STOP_ON_FAILING_TESTS_MIN_SUITE=<n> if intentionally narrowing.`,
-      );
-      return;
-    }
+  // Hook-error sentinel — legacy stub reports may carry this.
+  if (report.hookError) {
+    block(
+      `TEST GATE — last report was a vitest-error stub: ${report.hookError}. ` +
+      `Re-run a clean suite:  ${RERUN_CMD}\nthen retry Stop.`,
+    );
+    return;
+  }
+
+  // Stale-but-green is acceptable in multi-worktree dev (adding green tests in a
+  // sibling worktree cannot turn previously-green tests red) — but a *red* report
+  // blocks regardless of age: re-run to prove it's gone green.
+  const ageMin = report.ts_ms ? Math.floor((Date.now() - report.ts_ms) / 60000) : "unknown";
+  if (!isFresh(report) && (report.failing > 0 || report.success === false)) {
+    block(
+      `TEST GATE — last report (age ${ageMin}min) shows failures (failing=${report.failing}, success=${report.success}). ` +
+      `Fix them, then re-run:  ${RERUN_CMD}\nand retry Stop.`,
+    );
+    return;
   }
 
   // Failing count
