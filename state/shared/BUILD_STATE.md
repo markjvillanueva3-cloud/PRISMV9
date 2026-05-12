@@ -1,6 +1,6 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-12T21:24:33.721Z
+> Generated: 2026-05-12T21:31:48.854Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
@@ -8,7 +8,7 @@
 - **2302** engines built and wired (of 3185)
 - **1075** wiki entries indexed
 - **883** engines awaiting dispatcher wiring
-- **3399** units pending across 3 active milestones
+- **3398** units pending across 3 active milestones
 - **2** codex frontend builds awaiting merge
 - **3** milestones with envelope-status drift
 
@@ -65,7 +65,7 @@
 
 ## NEEDS_BUILDING
 
-3399 units across 667 milestones not yet in git.
+3398 units across 667 milestones not yet in git.
 
 ### Envelope-status drift
 
@@ -82,7 +82,7 @@
 | HOOK-SYNERGY-MS0 | stopgap | U-HOOK-STOPGAP | 7 hook timeout reductions in C:/Users/wompu/.claude/settings.json (git-health-guard 35→8s, git-sync-stop 35→8s, session-start-zombie-reap 25→8s, auto-lint-post-edit 15→8s, git-sync-fetch/claude-brief-inject/quality-dashboard-alert 12→5s) |
 | HOOK-SYNERGY-MS0 | critical-path | U-HOOK-TIERS | H3 — Tier frontmatter on all 480 hooks + hook-tier-validator.mjs PreToolUse block on .claude/hooks/*.mjs edits |
 | HOOK-SYNERGY-MS0 | critical-path | U-HOOK-FAST-LANE | H6 — Settings.json matcher split (Read/Glob/Grep fast lane vs Edit/Write/Bash slow lane) + dedup apply (target 70% latency cut on read-only ops) |
-| HOOK-SYNERGY-MS0 | wave-2 | U-HOOK-ENVELOPE | H4 — _envelope.mjs profiling shim + hook-latency.jsonl + nightly digest (P50/P95/P99 per hook) |
+| HOOK-SYNERGY-MS0 | wave-2 | U-HOOK-ASYNC-DISPATCH | H7 — AsyncHookDispatcherEngine.ts + Tier-4 routing for test-100-percent-gate (Stop never waits >30s) |
 | HTML-PRIMARY-MS0 | P0 | U-HPS01 | Build `SpecHTMLCompanionEngine` (master renderer) |
 | HTML-PRIMARY-MS0 | P0 | U-HPS03 | Theme engine (dark/light, prefers-color-scheme) |
 | HTML-PRIMARY-MS0 | P0 | U-HPS04 | Navigation engine (sticky TOC, anchor links, search) |
