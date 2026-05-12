@@ -24,7 +24,21 @@ function readStdinSafe() {
 
 const AGENT_CHAT = process.env.PRISM_AGENT_CHAT || "H:/prism/state/shared/AGENT_CHAT.md";
 const CLAIMS_FILE = process.env.PRISM_WORK_CLAIMS_FILE || "H:/prism/state/shared/WORK_CLAIMS.json";
-const CLAIM_EXPIRY_MS = Number(process.env.PRISM_WORK_CLAIM_TTL_MS || 2 * 60 * 60 * 1000);
+const CLAIM_EXPIRY_MS = Number(process.env.PRISM_WORK_CLAIM_TTL_MS || 30 * 60 * 1000);
+// HS-04: PIDs from dead local processes count as expired regardless of age.
+// Avoids the "WorkClaim WARNING by self-yet-different-PID" alarm-fatigue case
+// where a prior session crashed without releasing its claim.
+function isClaimPidAlive(claim) {
+  try {
+    if (!claim || typeof claim.pid !== "number" || claim.pid <= 0) return true;
+    const claimHost = String(claim.hostname || "").slice(0, 8);
+    if (claimHost && claimHost !== os.hostname().slice(0, 8)) return true; // different machine — assume alive
+    process.kill(claim.pid, 0); // throws ESRCH if dead
+    return true;
+  } catch (e) {
+    return e?.code === "EPERM"; // EPERM = alive but not ours; ESRCH/other = dead
+  }
+}
 const MAX_CHAT_LINES = 100;
 const SIGNIFICANT_EXTENSIONS = new Set([
   ".cjs",
@@ -153,10 +167,10 @@ function checkAndClaim(resource) {
   const normalizedResource = normalizeResource(resource);
   const legacyResource = basenameOfResource(normalizedResource);
 
-  // Clean expired claims
+  // Clean expired claims (age OR dead-PID-on-same-host — HS-04).
   for (const [res, claim] of Object.entries(claims.claims)) {
     const at = claimTime(claim);
-    if (!at || now - at > CLAIM_EXPIRY_MS) {
+    if (!at || now - at > CLAIM_EXPIRY_MS || !isClaimPidAlive(claim)) {
       delete claims.claims[res];
     }
   }
@@ -165,8 +179,15 @@ function checkAndClaim(resource) {
   // sessions still get collision protection while the registry migrates.
   const existing = claims.claims[normalizedResource] || claims.claims[legacyResource];
   if (existing && existing.by !== myId) {
-    const age = Math.round((now - claimTime(existing)) / 60000);
-    return { conflict: true, holder: existing.by, minutesAgo: age };
+    // HS-04: if the conflicting claim's PID is dead on this machine, it's
+    // not a real peer — drop it silently and take the claim ourselves.
+    if (!isClaimPidAlive(existing)) {
+      delete claims.claims[normalizedResource];
+      delete claims.claims[legacyResource];
+    } else {
+      const age = Math.round((now - claimTime(existing)) / 60000);
+      return { conflict: true, holder: existing.by, minutesAgo: age };
+    }
   }
 
   // Claim by normalized path to avoid basename collisions across subsystems.

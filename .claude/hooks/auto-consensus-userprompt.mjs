@@ -42,7 +42,9 @@ const MAX_INJECT_BYTES = 2400;
 // is built into mcp-server/dist (currently only in the iooms0 worktree), so on
 // most checkouts the queue is append-only and grows unbounded — it hit 620
 // entries over 6 days. Cap it: keep only the most-recent MAX_QUEUE entries.
-const MAX_QUEUE = 200;
+// HS-08: lowered from 200 → 50 (drainer rarely catches up if no chat
+// hits Stop, and the useful retroactive-consensus window is small).
+const MAX_QUEUE = Number(process.env.PRISM_CONSENSUS_QUEUE_MAX || 50);
 
 const DEV_INTENT_PATTERNS = [
   /\b(build|implement|create|add|wire|generate|refactor)\b/i,
