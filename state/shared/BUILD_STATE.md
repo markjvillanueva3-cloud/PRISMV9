@@ -1,6 +1,6 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-12T19:15:02.079Z
+> Generated: 2026-05-12T21:41:00.004Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
@@ -8,9 +8,9 @@
 - **2302** engines built and wired (of 3185)
 - **1075** wiki entries indexed
 - **883** engines awaiting dispatcher wiring
-- **3400** units pending across 3 active milestones
+- **3398** units pending across 3 active milestones
 - **2** codex frontend builds awaiting merge
-- **4** milestones with envelope-status drift
+- **3** milestones with envelope-status drift
 
 ## BUILT
 
@@ -65,7 +65,7 @@
 
 ## NEEDS_BUILDING
 
-3400 units across 666 milestones not yet in git.
+3398 units across 667 milestones not yet in git.
 
 ### Envelope-status drift
 
@@ -74,16 +74,15 @@
 | MF-MS1 | completed | not_started_real | claims_completed_but_units_pending |
 | MF-MS2 | completed | not_started_real | claims_completed_but_units_pending |
 | HTML-PRIMARY-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
-| OCTOPUS-NEURAL-MS0 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 
 ### Top pending units (most-recently-active milestones first)
 
 | Milestone | Phase | Unit | Title |
 |-----------|-------|------|-------|
 | HOOK-SYNERGY-MS0 | stopgap | U-HOOK-STOPGAP | 7 hook timeout reductions in C:/Users/wompu/.claude/settings.json (git-health-guard 35→8s, git-sync-stop 35→8s, session-start-zombie-reap 25→8s, auto-lint-post-edit 15→8s, git-sync-fetch/claude-brief-inject/quality-dashboard-alert 12→5s) |
-| HOOK-SYNERGY-MS0 | critical-path | U-HOOK-REGISTRY | H2 — HOOK_REGISTRY.json generator + prism_dev:hook_registry action + prism_session:hook_map_compact |
 | HOOK-SYNERGY-MS0 | critical-path | U-HOOK-TIERS | H3 — Tier frontmatter on all 480 hooks + hook-tier-validator.mjs PreToolUse block on .claude/hooks/*.mjs edits |
 | HOOK-SYNERGY-MS0 | critical-path | U-HOOK-FAST-LANE | H6 — Settings.json matcher split (Read/Glob/Grep fast lane vs Edit/Write/Bash slow lane) + dedup apply (target 70% latency cut on read-only ops) |
+| HOOK-SYNERGY-MS0 | wave-2 | U-HOOK-ASYNC-DISPATCH | H7 — AsyncHookDispatcherEngine.ts + Tier-4 routing for test-100-percent-gate (Stop never waits >30s) |
 | HTML-PRIMARY-MS0 | P0 | U-HPS01 | Build `SpecHTMLCompanionEngine` (master renderer) |
 | HTML-PRIMARY-MS0 | P0 | U-HPS03 | Theme engine (dark/light, prefers-color-scheme) |
 | HTML-PRIMARY-MS0 | P0 | U-HPS04 | Navigation engine (sticky TOC, anchor links, search) |
@@ -107,7 +106,7 @@
 
 ## COVERAGE_BY_DOMAIN
 
-Per-domain wired/unwired breakdown across 923 domain prefixes.
+Per-domain wired/unwired breakdown across 925 domain prefixes.
 
 | Domain | Total | Wired | Unwired | Coverage % |
 |--------|-------|-------|---------|-----------|
@@ -129,7 +128,7 @@ Per-domain wired/unwired breakdown across 923 domain prefixes.
 | Wire | 20 | 14 | 6 | 70% |
 | Session | 12 | 6 | 6 | 50% |
 | Process | 9 | 3 | 6 | 33% |
-| Consensus | 6 | 0 | 6 | 0% |
+| Consensus | 7 | 1 | 6 | 14% |
 | Swiss | 6 | 0 | 6 | 0% |
 | Mastercam | 28 | 23 | 5 | 82% |
 | Tribal | 12 | 7 | 5 | 58% |
@@ -144,7 +143,7 @@ Per-domain wired/unwired breakdown across 923 domain prefixes.
 
 ## STALE_MILESTONES
 
-254 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).
+253 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).
 
 | Milestone | Track | Reason | Pending | Shipped/Total | Last shipped |
 |-----------|-------|--------|---------|---------------|--------------|

@@ -148,7 +148,9 @@ const ACTIONS = [
   // OBSIDIAN-AUTOMATE-MS3/U-OLLAMA-HEALTH-EXPOSE: surface OllamaIntegrationEngine
   "ollama_health",
   // HTML-PRIMARY-MS0/U-HPS07: render any Markdown doc/spec → HTML via SpecHTMLCompanionEngine
-  "doc_render"
+  "doc_render",
+  // HOOK-SYNERGY-MS0/U-HOOK-REGISTRY (H2): compact event → top-N hook ids map (mirrors dispatcher_map_compact for hooks)
+  "hook_map_compact"
 ] as const;
 
 function ok(data: any) {
@@ -1262,6 +1264,13 @@ export function registerSessionDispatcher(server: any): void {
             const { dispatcherMapEngine: dme } = await import("../../engines/DispatcherMapEngine.js");
             const max = params.max_per_dispatcher ? Number(params.max_per_dispatcher) : 5;
             return ok({ map: dme.getCompactMap(max) });
+          }
+
+          // HOOK-SYNERGY-MS0/U-HOOK-REGISTRY (H2) — event → top-N hook ids (parallel of dispatcher_map_compact for hooks)
+          case "hook_map_compact": {
+            const { hookRegistryReaderEngine } = await import("../../engines/HookRegistryReaderEngine.js");
+            const max = params.max_per_event != null ? Number(params.max_per_event) : 5;
+            return ok({ map: hookRegistryReaderEngine.getCompactMap(max) });
           }
 
           case "action_search": {

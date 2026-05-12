@@ -3,7 +3,7 @@ title: Wiki Stats — architecture tree
 type: architecture
 generated_by: scripts/build-wiki-leaf-index.mjs
 last_verified: 2026-05-11
-total_entries: 20147
+total_entries: 23585
 tags: [architecture, wiki, stats, self-awareness]
 ---
 
@@ -14,19 +14,19 @@ tags: [architecture, wiki, stats, self-awareness]
 > `index.md` lines — it does **not** see this tree. This file is the real
 > number. (If you maintain `generate-system-viz.mjs`, count `architecture/**/*.md`.)
 
-**Total recall-index entries:** 20147  (`architecture/` tree: 15721 · tribal tips: 4245 · code-tribal: 181)
-**Leaf index:** `_leaf-index.jsonl` (5.40 MB) — consumed by `wiki-precheck-inject.mjs` (BM25 + cosine) and `wiki-recall-on-read.mjs` for keyword/path recall
+**Total recall-index entries:** 23585  (`architecture/` tree: 19159 · tribal tips: 4245 · code-tribal: 181)
+**Leaf index:** `_leaf-index.jsonl` (6.51 MB) — consumed by `wiki-precheck-inject.mjs` (BM25 + cosine) and `wiki-recall-on-read.mjs` for keyword/path recall
 **Semantic index:** `_embeddings.jsonl` (int8 nomic-embed-text vectors over concept entries; built by `build-wiki-embeddings.mjs` — present iff Ollama was reachable at last regen)
 **Orphan rate:** 179 orphans / 15912 files (1.1%)  (rescue hub: `_orphans-rescue.md` — every orphan gets an inbound link there, so effective orphan rate ≈ 0)
-**Last regen:** 2026-05-11T17:12:58.544Z
+**Last regen:** 2026-05-11T18:34:00.984Z
 
 ## Breakdown by entry type
 
 | Type | Count |
 |------|-------|
 | action | 9242 |
+| architecture | 6961 |
 | tribal-tip | 4245 |
-| architecture | 3523 |
 | engine | 1701 |
 | skill | 639 |
 | hook | 483 |

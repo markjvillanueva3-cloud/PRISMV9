@@ -6,7 +6,7 @@ confidence: 80
 category: "cam_strategy"
 tags: ["auto-ingested"]
 _source: "auto-ingested-tips.ts"
-indexed_at: 2026-04-28T01:00:33.490Z
+indexed_at: 2026-05-12T16:16:39.401Z
 ---
 
 # hyperMILL Horizontal

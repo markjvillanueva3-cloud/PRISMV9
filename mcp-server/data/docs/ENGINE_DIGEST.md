@@ -1,582 +1,3217 @@
-# PRISM Engine Digest
+# ENGINE DIGEST
+## 3213 engines indexed
+## Auto-generated: 2026-05-12
 
-Generated: 2026-04-22T19:26:58.398Z
-Engines: 575
-
-| Code | Engine | Path | Description |
-|---|---|---|---|
-| E0001 | AccessControlList | src/engines/AccessControlListEngine.ts | AccessControlListEngine — U-LPR-SEC03 |
-| E0002 | ActualVsPredictedCollector | src/engines/ActualVsPredictedCollectorEngine.ts | ActualVsPredictedCollectorEngine — Neural Training Feedback Collector (U-MIO31A) |
-| E0003 | AdaLoRARankAllocator | src/engines/AdaLoRARankAllocatorEngine.ts | AdaLoRA Rank Allocator Engine — U-LEARN-05 |
-| E0004 | AdaptiveFeedModulation | src/engines/AdaptiveFeedModulationEngine.ts | AdaptiveFeedModulationEngine — PRISM Forces Dynamic Feed Control |
-| E0005 | AdaptiveMachiningIntegration | src/engines/AdaptiveMachiningIntegrationEngine.ts | AdaptiveMachiningIntegrationEngine — Unified Integration Layer |
-| E0006 | AdaptiveParameterSpace | src/engines/AdaptiveParameterSpaceEngine.ts | AdaptiveParameterSpaceEngine — Expand Parameter Space from Evidence |
-| E0007 | AdaptivePhysicsBridge | src/engines/AdaptivePhysicsBridgeEngine.ts | AdaptivePhysicsBridgeEngine — Bridges Existing Physics to Phase 0.26 Adaptive System |
-| E0008 | AdaptiveSystemIntegration | src/engines/AdaptiveSystemIntegrationEngine.ts | AdaptiveSystemIntegrationEngine — Phase 0.26 System-Wide Integration |
-| E0009 | AdaptiveThreshold | src/engines/AdaptiveThresholdEngine.ts | AdaptiveThresholdEngine — USSH Phase 0.25 / U-SCI06 |
-| E0010 | AISystemRouter | src/engines/AISystemRouterEngine.ts | AISystemRouterEngine |
-| E0011 | AlgorithmOrchestrator | src/engines/AlgorithmOrchestratorEngine.ts | AlgorithmOrchestratorEngine — Phase 0.23 U-UTL3 |
-| E0012 | ArcFitting | src/engines/ArcFittingEngine.ts | ArcFittingEngine — MIO-MS0/U-MIO20 |
-| E0013 | ArchiveCrawler | src/engines/ArchiveCrawlerEngine.ts | ArchiveCrawlerEngine — Recursive Archive Unpacking for Resource Extraction |
-| E0014 | AssemblyPlanner | src/engines/AssemblyPlannerEngine.ts | AssemblyPlannerEngine — U-CUIX-P0-22 / CAD-UIX-MS0 |
-| E0015 | AssetDependencyGraph | src/engines/AssetDependencyGraphEngine.ts | AssetDependencyGraphEngine — Phase 0.24 U-INT2 |
-| E0016 | AttractorDetection | src/engines/AttractorDetectionEngine.ts | AttractorDetectionEngine — Dynamical Systems Stability Analysis |
-| E0017 | AuditLogging | src/engines/AuditLoggingEngine.ts | AuditLoggingEngine — U-LPR-SEC04 |
-| E0018 | Authorization | src/engines/AuthorizationEngine.ts | AuthorizationEngine (U-LPR-SEC05 — plan-spec version) |
-| E0019 | AutoCADAddinPlugin | src/engines/AutoCADAddinPluginEngine.ts | AutoCADAddinPluginEngine — U-CAD-APP-12 (PHASE-48) |
-| E0020 | AutoCADDotNetBridge | src/engines/AutoCADDotNetBridgeEngine.ts | AutoCADDotNetBridgeEngine — U-CAD-APP-11 (PHASE-48) |
-| E0021 | AutomaticPipelineComposer | src/engines/AutomaticPipelineComposerEngine.ts | AutomaticPipelineComposerEngine — Phase 0.24 U-INT3 |
-| E0022 | BackupRestoreDrill | src/engines/BackupRestoreDrillEngine.ts | BackupRestoreDrillEngine — U-LPR-OPS-BACKUP |
-| E0023 | BladeProfileLibrary | src/engines/BladeProfileLibraryEngine.ts | BladeProfileLibraryEngine — U-CADC13 / CAD-COMPLETE-MS0 |
-| E0024 | BlamelessPostMortem | src/engines/BlamelessPostMortemEngine.ts | BlamelessPostMortemEngine (U-LPR-INCIDENT-PMORT, Delivery B6) |
-| E0025 | BliskCAD | src/engines/BliskCADEngine.ts | BliskCADEngine — U-CADC16 / CAD-COMPLETE-MS0 (PHASE-4) |
-| E0026 | BlueprintToCADGeneration | src/engines/BlueprintToCADGenerationEngine.ts | BlueprintToCADGenerationEngine — CADCAM-DAGI-MS0/U-DAGI08 |
-| E0027 | CADAccessControlRBACABAC | src/engines/CADAccessControlRBACABACEngine.ts | CADAccessControlRBACABACEngine — U-FS-12 (PHASE-47) |
-| E0028 | CADAccuracyValidator | src/engines/CADAccuracyValidatorEngine.ts | CADAccuracyValidatorEngine — 100% Accuracy Gate |
-| E0029 | CADAdapterRegistry | src/engines/CADAdapterRegistry.ts | CADAdapterRegistry — U-CUIX-P0-19 / CAD-UIX-MS0 |
-| E0030 | CADAIStateMachine | src/engines/CADAIStateMachineEngine.ts | CADAIStateMachineEngine — U-CADC-AI04 / CAD-COMPLETE-MS0 PHASE-30 |
-| E0031 | CADArtifactStorage | src/engines/CADArtifactStorageEngine.ts | CADArtifactStorageEngine — U-CINF07 (CAD-INFRA-MS0) |
-| E0032 | CADAssemblyGraph | src/engines/CADAssemblyGraphEngine.ts | CADAssemblyGraphEngine — U-FS-02 (CAD-COMPLETE-MS0 / PHASE-47) |
-| E0033 | CADAutomationMockLayer | src/engines/CADAutomationMockLayer.ts | CADAutomationMockLayer — extension-indexed fixture bank for CAD bridges. |
-| E0034 | CADAutomationRouter | src/engines/CADAutomationRouter.ts | CADAutomationRouter — unified format→bridge selector for CAD automation. |
-| E0035 | CADBundleReplayCompare | src/engines/CADBundleReplayCompareEngine.ts | CADBundleReplayCompareEngine — U-FS-15 (PHASE-47) |
-| E0036 | CADBundleSigningVersioning | src/engines/CADBundleSigningVersioningEngine.ts | CADBundleSigningVersioningEngine — U-FS-14 (PHASE-47) |
-| E0037 | CADContentAddressableStore | src/engines/CADContentAddressableStoreEngine.ts | CADContentAddressableStoreEngine — U-FS-01 (CAD-COMPLETE-MS0 / PHASE-47) |
-| E0038 | CADCorpusIngester | src/engines/CADCorpusIngesterEngine.ts | CADCorpusIngesterEngine — CADCAM-DAGI-MS0/U-DAGI03 |
-| E0039 | CADCrashRecovery | src/engines/CADCrashRecoveryEngine.ts | CADCrashRecoveryEngine — U-CAD-APP-13 (PHASE-48) |
-| E0040 | CADDrawingNumberNormalizer | src/engines/CADDrawingNumberNormalizerEngine.ts | CADDrawingNumberNormalizerEngine — U-FS-06 (PHASE-47) |
-| E0041 | CADFailureTriage | src/engines/CADFailureTriageEngine.ts | CADFailureTriageEngine — U-CINF06 (CAD-INFRA-MS0) |
-| E0042 | CADFeatureEmbedding | src/engines/CADFeatureEmbeddingEngine.ts | CADFeatureEmbeddingEngine — CADCAM-DAGI-MS0/U-DAGI05 |
-| E0043 | CADFileClassifier | src/engines/CADFileClassifierEngine.ts | CADFileClassifierEngine — U-CINF02 (CAD-INFRA-MS0) |
-| E0044 | CADFileIndexer | src/engines/CADFileIndexerEngine.ts | CADFileIndexerEngine — U-CINF01 (CAD-INFRA-MS0) |
-| E0045 | CADFilesystemReconciliation | src/engines/CADFilesystemReconciliationEngine.ts | CADFilesystemReconciliationEngine — U-FS-13 (PHASE-47) |
-| E0046 | CADFormatConversionMatrix | src/engines/CADFormatConversionMatrixEngine.ts | CADFormatConversionMatrixEngine — U-FS-09 (PHASE-47) |
-| E0047 | CADGeometricAugmentation | src/engines/CADGeometricAugmentationEngine.ts | CADGeometricAugmentationEngine — U-ML-02 |
-| E0048 | CADInstallationProbe | src/engines/CADInstallationProbeEngine.ts | CADInstallationProbeEngine (U-CAUT01) |
-| E0049 | CADIntentDecomposer | src/engines/CADIntentDecomposerEngine.ts | CADIntentDecomposerEngine — U-CADC-AI02 / CAD-COMPLETE-MS0 PHASE-30 |
-| E0050 | CADKnowledgeGraph | src/engines/CADKnowledgeGraphEngine.ts | CADKnowledgeGraphEngine — CADCAM-DAGI-MS0/U-DAGI02 |
-| E0051 | CADLicenseHealth | src/engines/CADLicenseHealthEngine.ts | CADLicenseHealthEngine — U-CAD-APP-14 (PHASE-48) |
-| E0052 | CADOperationPlanner | src/engines/CADOperationPlannerEngine.ts | CADOperationPlannerEngine — U-CUIX-P0-20 / CAD-UIX-MS0 |
-| E0053 | CADPhysicsConsistencyGate | src/engines/CADPhysicsConsistencyGateEngine.ts | CADPhysicsConsistencyGateEngine — U-ML-01 |
-| E0054 | CADPluginMTLSSecurity | src/engines/CADPluginMTLSSecurityEngine.ts | CADPluginMTLSSecurityEngine — U-CAD-APP-15 (PHASE-48) |
-| E0055 | CADPluginTamperAuditLog | src/engines/CADPluginTamperAuditLogEngine.ts | CADPluginTamperAuditLogEngine — U-CAD-APP-16 (PHASE-48) |
-| E0056 | CADPreviewThumbnailCache | src/engines/CADPreviewThumbnailCacheEngine.ts | CADPreviewThumbnailCacheEngine — U-FS-10 (PHASE-47) |
-| E0057 | CADReasoningChain | src/engines/CADReasoningChainEngine.ts | CADReasoningChainEngine — Chain-of-Thought for CAD Design Decisions |
-| E0058 | CADRegressionDashboard | src/engines/CADRegressionDashboardEngine.ts | CADRegressionDashboardEngine — U-CINF08 (CAD-INFRA-MS0) |
-| E0059 | CADRegressionReportGenerator | src/engines/CADRegressionReportGeneratorEngine.ts | CADRegressionReportGeneratorEngine — U-CINF11 (CAD-INFRA-MS0) |
-| E0060 | CADRegressionResultsAnalyzer | src/engines/CADRegressionResultsAnalyzerEngine.ts | CADRegressionResultsAnalyzerEngine — U-CINF10 (CAD-INFRA-MS0) |
-| E0061 | CADRegressionTestOrchestrator | src/engines/CADRegressionTestOrchestratorEngine.ts | CADRegressionTestOrchestratorEngine — U-CINF04 (CAD-INFRA-MS0) |
-| E0062 | CADReplicationDurability | src/engines/CADReplicationDurabilityEngine.ts | CADReplicationDurabilityEngine — U-FS-11 (PHASE-47) |
-| E0063 | CADRetrievalAugmentation | src/engines/CADRetrievalAugmentationEngine.ts | CADRetrievalAugmentationEngine — CADCAM-DAGI-MS0/U-DAGI06 |
-| E0064 | CADRevisionDetector | src/engines/CADRevisionDetectorEngine.ts | CADRevisionDetectorEngine — U-FS-03 (PHASE-47) |
-| E0065 | CADRevisionPromotionWorkflow | src/engines/CADRevisionPromotionWorkflowEngine.ts | CADRevisionPromotionWorkflowEngine — U-FS-04 (PHASE-47) |
-| E0066 | CADSearchUniversal | src/engines/CADSearchUniversalEngine.ts | CADSearchUniversalEngine — U-FS-08 (PHASE-47) |
-| E0067 | CADSequenceTrainer | src/engines/CADSequenceTrainerEngine.ts | CADSequenceTrainerEngine — CADCAM-DAGI-MS0/U-DAGI04 |
-| E0068 | CADTenantNamespace | src/engines/CADTenantNamespaceEngine.ts | CADTenantNamespaceEngine — U-FS-07 (PHASE-47) |
-| E0069 | CADTestCheckpoint | src/engines/CADTestCheckpointEngine.ts | CADTestCheckpointEngine — U-CINF05 (CAD-INFRA-MS0) |
-| E0070 | CADTokenRepresentation | src/engines/CADTokenRepresentationEngine.ts | CADTokenRepresentationEngine — CAD as Learnable Language |
-| E0071 | CADVisualDiff | src/engines/CADVisualDiffEngine.ts | CADVisualDiffEngine — U-FS-05 (PHASE-47) |
-| E0072 | CAMAGIMasterOrchestrator | src/engines/CAMAGIMasterOrchestratorEngine.ts | CAMAGIMasterOrchestratorEngine — Unified CAM AGI Master Orchestrator [WIRED: prism_cam, prism_mill] |
-| E0073 | CAMAIActionLinker | src/engines/CAMAIActionLinkerEngine.ts | CAMAIActionLinkerEngine — U-CAM-ENRICH-03 |
-| E0074 | CAMBaselineRegressor | src/engines/CAMBaselineRegressorEngine.ts | CAMBaselineRegressorEngine — U-CAM-ML-04 |
-| E0075 | CAMCatalogEnrichmentValidator | src/engines/CAMCatalogEnrichmentValidator.ts | CAMCatalogEnrichmentValidator — U-CAM-ENRICH-04 |
-| E0076 | CAMCatalogLoader | src/engines/CAMCatalogLoaderEngine.ts | CAMCatalogLoaderEngine — binds captured CAM catalog JSONs to canonical schemas |
-| E0077 | CAMCatalogPhysicsLinker | src/engines/CAMCatalogPhysicsLinkerEngine.ts | CAMCatalogPhysicsLinkerEngine — U-CAM-ENRICH-01 |
-| E0078 | CAMCatalogSplitter | src/engines/CAMCatalogSplitterEngine.ts | CAMCatalogSplitterEngine — PHASE-1 catalog fan-out |
-| E0079 | CAMFeatureExtractor | src/engines/CAMFeatureExtractorEngine.ts | CAMFeatureExtractorEngine — U-CAM-ML-02 |
-| E0080 | CAMFunctionRouter | src/engines/CAMFunctionRouterEngine.ts | CAMFunctionRouterEngine (stub) — routes an intent to a CAM-specific function |
-| E0081 | CAMGeometryExchange | src/engines/CAMGeometryExchangeEngine.ts | CAMGeometryExchangeEngine — Geometry Transfer Protocol (U-CAM97) |
-| E0082 | CAMInputExhaustionPlanner | src/engines/CAMInputExhaustionPlannerEngine.ts | CAMInputExhaustionPlannerEngine — U-LP01 (CAM-UIX-INFRA-01) |
-| E0083 | CAMLoRAAdapterTrainer | src/engines/CAMLoRAAdapterTrainerEngine.ts | CAMLoRAAdapterTrainerEngine — U-CAM-ML-05 |
-| E0084 | CAMMachiningErrorPrediction | src/engines/CAMMachiningErrorPredictionEngine.ts | CAMMachiningErrorPredictionEngine — Predictive Alerts (U-CAM102) |
-| E0085 | CAMMLDriftMonitor | src/engines/CAMMLDriftMonitorEngine.ts | CAMMLDriftMonitorEngine — U-CAM-ML-07 |
-| E0086 | CAMMLSplit | src/engines/CAMMLSplitEngine.ts | CAMMLSplitEngine — U-CAM-ML-03 |
-| E0087 | CAMOptimizationSuggestion | src/engines/CAMOptimizationSuggestionEngine.ts | CAMOptimizationSuggestionEngine — AI Recommendations (U-CAM103) |
-| E0088 | CAMPhase5Stubs | src/engines/CAMPhase5Stubs.ts | CAM Phase-5 Stub Engines — F5 fix for CAM-EXHAUST-MS0 scrutiny |
-| E0089 | CAMPluginCommunicationHub | src/engines/CAMPluginCommunicationHubEngine.ts | CAMPluginCommunicationHubEngine — Bidirectional Plugin Transport Hub (U-CAM96) |
-| E0090 | CAMPluginRegistry | src/engines/CAMPluginRegistryEngine.ts | CAMPluginRegistryEngine — Plugin Discovery, Health, Compatibility (U-CAM98) |
-| E0091 | CAMPostInvokeOrchestrator | src/engines/CAMPostInvokeOrchestratorEngine.ts | CAMPostInvokeOrchestratorEngine — U-CAM-R3-10 |
-| E0092 | CAMPostSelectorUI | src/engines/CAMPostSelectorUIEngine.ts | CAMPostSelectorUIEngine — Post-Processor Selector UI Feed (U-CAM100) |
-| E0093 | CAMSpeedFeedBridge | src/engines/CAMSpeedFeedBridgeEngine.ts | CAMSpeedFeedBridgeEngine — Per-CAM Speed/Feed Translation (U-CAM99) |
-| E0094 | CAMTribalKnowledgeInjection | src/engines/CAMTribalKnowledgeInjectionEngine.ts | CAMTribalKnowledgeInjectionEngine — Context Tooltips for CAM UI (U-CAM101) |
-| E0095 | CAMTribalRAG | src/engines/CAMTribalRAGEngine.ts | CAMTribalRAGEngine — U-CAM-ML-06 |
-| E0096 | CAMTribalTipLinker | src/engines/CAMTribalTipLinkerEngine.ts | CAMTribalTipLinkerEngine — U-CAM-ENRICH-02 |
-| E0097 | CatalogRegistryBridge | src/engines/CatalogRegistryBridgeEngine.ts | CatalogRegistryBridgeEngine — Bridge extracted catalog data into PRISM registries |
-| E0098 | CATIAAddinPlugin | src/engines/CATIAAddinPluginEngine.ts | CATIAAddinPluginEngine — U-CAD-APP-05 (PHASE-48) |
-| E0099 | CATIACAAV5Bridge | src/engines/CATIACAAV5BridgeEngine.ts | CATIACAAV5BridgeEngine — U-CAD-APP-04 (PHASE-48) |
-| E0100 | CATIAIntegrationTestSuite | src/engines/CATIAIntegrationTestSuiteEngine.ts | CATIAIntegrationTestSuiteEngine — U-CAD-APP-06 (PHASE-48) |
-| E0101 | CATIAMachiningAIOrchestration | src/engines/CATIAMachiningAIOrchestrationEngine.ts | CATIAMachiningAIOrchestrationEngine — AI Orchestration for Dassault CATIA Machining |
-| E0102 | ChaosDrillScheduler | src/engines/ChaosDrillSchedulerEngine.ts | ChaosDrillSchedulerEngine — U-LPR-OPS-CHAOS |
-| E0103 | ChipThinningCompensation | src/engines/ChipThinningCompensationEngine.ts | ChipThinningCompensationEngine — MIO-MS0/U-MIO09 |
-| E0104 | CircularDependency | src/engines/CircularDependencyEngine.ts | CircularDependencyEngine — Tarjan's SCC for Deadlock Prevention |
-| E0105 | ClampingForce | src/engines/ClampingForceEngine.ts | ClampingForceEngine — MIO-MS0/U-MIO13 |
-| E0106 | CoatingSelectionAdapter | src/engines/CoatingSelectionAdapter.ts | CoatingSelectionAdapter — CAMX-MS0.3 / U-CAMX04 |
-| E0107 | CompactionSurvival | src/engines/CompactionSurvivalEngine.ts | CompactionSurvivalEngine |
-| E0108 | ComplexPartPlanner | src/engines/ComplexPartPlannerEngine.ts | ComplexPartPlannerEngine — U-CUIX-P0-21 / CAD-UIX-MS0 |
-| E0109 | ConfidenceCommitEventBus | src/engines/ConfidenceCommitEventBusEngine.ts | ConfidenceCommitEventBusEngine — CAM-ML-CLOSEDLOOP-MS0 U-CMCCL12 |
-| E0110 | ContextCheckpoint | src/engines/ContextCheckpointEngine.ts | ContextCheckpointEngine — AI-MAX-ROADMAP U-AIMAX08 |
-| E0111 | ContextCompression | src/engines/ContextCompressionEngine.ts | ContextCompressionEngine — AI-MAX-ROADMAP U-AIMAX07 |
-| E0112 | ContextualBoundary | src/engines/ContextualBoundaryEngine.ts | ContextualBoundaryEngine — Context-Dependent Limits |
-| E0113 | ContinualLoRA | src/engines/ContinualLoRAEngine.ts | Continual LoRA Engine — U-LEARN-10 |
-| E0114 | ControlPlanGenerator | src/engines/ControlPlanGeneratorEngine.ts | ControlPlanGeneratorEngine — Quality Control Plan Generator (U-MIO34) |
-| E0115 | CoolantStrategyAdapter | src/engines/CoolantStrategyAdapter.ts | CoolantStrategyAdapter — CAMX-MS0.3 / U-CAMX06 |
-| E0116 | CreoAddinRibbon | src/engines/CreoAddinRibbonEngine.ts | CreoAddinRibbonEngine — U-CAD-APP-02 (PHASE-48) |
-| E0117 | CreoIntegrationTestSuite | src/engines/CreoIntegrationTestSuiteEngine.ts | CreoIntegrationTestSuiteEngine — U-CAD-APP-03 (PHASE-48) |
-| E0118 | CreoToolkitBridge | src/engines/CreoToolkitBridgeEngine.ts | CreoToolkitBridgeEngine — U-CAD-APP-01 (PHASE-48) |
-| E0119 | CrossCAMComparisonLedger | src/engines/CrossCAMComparisonLedgerEngine.ts | CrossCAMComparisonLedgerEngine — CAM-ML-CLOSEDLOOP-MS0 U-CMCCL14 |
-| E0120 | CrossCustomerPolicyTransfer | src/engines/CrossCustomerPolicyTransferEngine.ts | Cross-Customer Policy Transfer Engine — U-LEARN-10 |
-| E0121 | CrossRegistryJoin | src/engines/CrossRegistryJoinEngine.ts | CrossRegistryJoinEngine — Phase 0.24 U-INT4 |
-| E0122 | CrossSessionOrchestrator | src/engines/CrossSessionOrchestratorEngine.ts | CrossSessionOrchestratorEngine (U-COORD04) |
-| E0123 | CrossTerminalCoordination | src/engines/CrossTerminalCoordinationEngine.ts | CrossTerminalCoordinationEngine — Multi-Terminal Work Distribution |
-| E0124 | CSRFProtection | src/engines/CSRFProtectionEngine.ts | CSRFProtectionEngine — U-LPR-SEC08 |
-| E0125 | CSSChipLoadInvariantCoordinator | src/engines/CSSChipLoadInvariantCoordinatorEngine.ts | CSSChipLoadInvariantCoordinatorEngine — LATHE-PROD-READY-MS0 U-LPR05 |
-| E0126 | DarkContentClassifier | src/engines/DarkContentClassifierEngine.ts | DarkContentClassifierEngine — Classifies Hard-to-Extract Content |
-| E0127 | DeflectionOverlay | src/engines/DeflectionOverlayEngine.ts | DeflectionOverlayEngine — Real-time Tool/Part Deflection Overlay (U-CAM92) |
-| E0128 | DERPlusPlus | src/engines/DERPlusPlusEngine.ts | DER++ Engine — U-LEARN-10 |
-| E0129 | DetachedLoRARunner | src/engines/DetachedLoRARunnerEngine.ts | DetachedLoRARunnerEngine (U-LPR-GPU-ASYNC) |
-| E0130 | DFMAwareGeneration | src/engines/DFMAwareGenerationEngine.ts | DFMAwareGenerationEngine — Manufacturability-Aware CAD Generation |
-| E0131 | DisasterRecovery | src/engines/DisasterRecoveryEngine.ts | DisasterRecoveryEngine — U-LPR-OPS-DR |
-| E0132 | DoRAAdapter | src/engines/DoRAAdapterEngine.ts | DoRA Adapter Engine — U-LEARN-05 |
-| E0133 | DxfWriter | src/engines/DxfWriterEngine.ts | DxfWriterEngine — CAD-INPUT-MS0 / write-side closure for .dxf. |
-| E0134 | EdgeCaseCapture | src/engines/EdgeCaseCaptureEngine.ts | EdgeCaseCaptureEngine — Learn from Boundary Operations |
-| E0135 | EditImpactPredictor | src/engines/EditImpactPredictorEngine.ts | EditImpactPredictorEngine |
-| E0136 | EDMMultiPassStrategy | src/engines/EDMMultiPassStrategyEngine.ts | EDMMultiPassStrategyEngine — Multi-Pass (Skim Cut) Strategy Planning |
-| E0137 | EDMProgramAssembler | src/engines/EDMProgramAssemblerEngine.ts | EDMProgramAssemblerEngine — WEDM Program Structure Assembly |
-| E0138 | EDMWireSlugCornerTaper | src/engines/EDMWireSlugCornerTaperEngine.ts | EDMWireSlugCornerTaperEngine — Corner Classification & Slug Drop Prediction |
-| E0139 | EncryptionAtRest | src/engines/EncryptionAtRestEngine.ts | EncryptionAtRestEngine — U-LPR-SEC02 |
-| E0140 | EngagementDynamics | src/engines/EngagementDynamicsEngine.ts | EngagementDynamicsEngine — Real-Time Engagement Calculation |
-| E0141 | EngagementOptimizerAdapter | src/engines/EngagementOptimizerAdapter.ts | EngagementOptimizerAdapter — CAMX-MS0.3 / U-CAMX05 |
-| E0142 | EngineUtilizationAuditor | src/engines/EngineUtilizationAuditorEngine.ts | EngineUtilizationAuditorEngine — Phase 0.23 U-UTL1 |
-| E0143 | EntropyTracker | src/engines/EntropyTrackerEngine.ts | EntropyTrackerEngine — USSH Phase 0.25 / U-SCI07 |
-| E0144 | EntryExitStrategyAdapter | src/engines/EntryExitStrategyAdapter.ts | EntryExitStrategyAdapter — CAMX-MS0.3 / U-CAMX07 |
-| E0145 | ExceptionLearning | src/engines/ExceptionLearningEngine.ts | ExceptionLearningEngine — Turn Exceptions into Knowledge |
-| E0146 | F3DSQLiteParser | src/engines/F3DSQLiteParserEngine.ts | F3DSQLiteParserEngine — U-CGT02 |
-| E0147 | FailureModeAnticipation | src/engines/FailureModeAnticipationEngine.ts | FailureModeAnticipationEngine — Predictive Failure Analysis |
-| E0148 | FCStdNativeParser | src/engines/FCStdNativeParserEngine.ts | FCStdNativeParserEngine — Direct ZIP+XML .FCStd Parser (no FreeCAD launch required) |
-| E0149 | FeatureStore | src/engines/FeatureStoreEngine.ts | FeatureStoreEngine — U-LEARN-02 |
-| E0150 | FederatedLoRA | src/engines/FederatedLoRAEngine.ts | Federated LoRA Engine — U-LEARN-10 |
-| E0151 | FiveAxisLoRACadence | src/engines/FiveAxisLoRACadenceEngine.ts | FiveAxisLoRACadenceEngine — CAM-ML-CLOSEDLOOP-MS0 U-CMCCL02 |
-| E0152 | FiveAxisLoRADatasetBuilder | src/engines/FiveAxisLoRADatasetBuilderEngine.ts | FiveAxisLoRADatasetBuilderEngine — CAM-ML-CLOSEDLOOP-MS0 U-CMCCL02 |
-| E0153 | ForceOverlayVisualization | src/engines/ForceOverlayVisualizationEngine.ts | ForceOverlayVisualizationEngine — Real-time Force Prediction Overlay (U-CAM90) |
-| E0154 | FormulaIntegration | src/engines/FormulaIntegrationEngine.ts | FormulaIntegrationEngine — Phase 0.23 U-UTL2 |
-| E0155 | FreeCADAutomationBridge | src/engines/FreeCADAutomationBridge.ts | FreeCADAutomationBridge — Python-subprocess bridge for FreeCAD (.FCStd). |
-| E0156 | FreeCADCodeGenerator | src/engines/FreeCADCodeGeneratorEngine.ts | FreeCADCodeGeneratorEngine — U-CADC05 (PHASE-1) |
-| E0157 | Fusion360AutomationBridge | src/engines/Fusion360AutomationBridge.ts | Fusion360AutomationBridge — HTTP bridge for Autodesk Fusion 360 (.f3d/.f3z). |
-| E0158 | Fusion360CodeGenerator | src/engines/Fusion360CodeGeneratorEngine.ts | Fusion360CodeGeneratorEngine — U-CADC13 (CAD-COMPLETE-MS0) |
-| E0159 | Fusion360FunctionIndex | src/engines/Fusion360FunctionIndexEngine.ts | Fusion360FunctionIndexEngine - Unified query surface over all extracted |
-| E0160 | Fusion360InHostRunner | src/engines/Fusion360InHostRunnerEngine.ts | Fusion360InHostRunnerEngine — U-CAMTEST02 |
-| E0161 | Fusion360PluginAdapter | src/engines/Fusion360PluginAdapterEngine.ts | Fusion360PluginAdapterEngine — Fusion 360 CAM Python Add-in Bridge (U-CAM87) |
-| E0162 | Fusion5Axis | src/engines/Fusion5AxisEngine.ts | Fusion5AxisEngine — CAM-PARITY-AGI-MS0/U-CAMP07 |
-| E0163 | FusionAIOrchestration | src/engines/FusionAIOrchestrationEngine.ts | FusionAIOrchestrationEngine — AI Orchestration for Fusion 360 / HSMWorks |
-| E0164 | FusionDeepLearning | src/engines/FusionDeepLearningEngine.ts | FusionDeepLearningEngine — Comprehensive Fusion 360 CAM / HSMWorks Knowledge Extraction |
-| E0165 | FusionLathePostDeltaRegistry | src/engines/FusionLathePostDeltaRegistryEngine.ts | FusionLathePostDeltaRegistryEngine (E104) |
-| E0166 | FusionMaterialBridge | src/engines/FusionMaterialBridgeEngine.ts | FusionMaterialBridgeEngine — Bridge Fusion 360 material database to ISO groups |
-| E0167 | FusionMaterialPhysicsBridge | src/engines/FusionMaterialPhysicsBridge.ts | FusionMaterialPhysicsBridge — Connect Fusion 360 materials to PRISM physics |
-| E0168 | FusionMultiAxis | src/engines/FusionMultiAxisEngine.ts | FusionMultiAxisEngine — CAM-PARITY-AGI-MS0/U-CAMP07 |
-| E0169 | FusionStrategyKnowledge | src/engines/FusionStrategyKnowledgeEngine.ts | FusionStrategyKnowledgeEngine — CAM-PARITY-AGI-MS0/U-CAMP07 |
-| E0170 | GapEscalationController | src/engines/GapEscalationControllerEngine.ts | GapEscalationControllerEngine — MIO-MS0/U-MIO44 |
-| E0171 | GeometryHashGrouping | src/engines/GeometryHashGroupingEngine.ts | GeometryHashGroupingEngine (U-LPR-SPLIT, ML B1 + B2) |
-| E0172 | GrindingLoRACadence | src/engines/GrindingLoRACadenceEngine.ts | GrindingLoRACadenceEngine — CAM-ML-CLOSEDLOOP-MS0 U-CMCCL08 |
-| E0173 | GrindingLoRADatasetBuilder | src/engines/GrindingLoRADatasetBuilderEngine.ts | GrindingLoRADatasetBuilderEngine — CAM-ML-CLOSEDLOOP-MS0 U-CMCCL08 |
-| E0174 | GrooveClassification | src/engines/GrooveClassificationEngine.ts | GrooveClassificationEngine — LATHE-PRO-MS4b Grooving & Parting Deep Intelligence. |
-| E0175 | HardTurningCapstone | src/engines/HardTurningCapstoneEngine.ts | HardTurningCapstoneEngine — LATHE-PRO-MS5 capstone. |
-| E0176 | HolderOperationMatch | src/engines/HolderOperationMatchEngine.ts | HolderOperationMatchEngine — MIO-MS0/U-MIO12 |
-| E0177 | HolisticMachiningIntelligence | src/engines/HolisticMachiningIntelligenceEngine.ts | HolisticMachiningIntelligenceEngine — Total Process Intelligence |
-| E0178 | HookBandit | src/engines/HookBanditEngine.ts | HookBanditEngine — USSH Phase 0.25 / U-SCI08 |
-| E0179 | HookCoverageMaximizer | src/engines/HookCoverageMaximizerEngine.ts | HookCoverageMaximizerEngine — Phase 0.23 U-UTL15 |
-| E0180 | HookExecutor | src/engines/HookExecutor.ts | HookExecutor — Central hook execution engine |
-| E0181 | HookTelemetry | src/engines/HookTelemetryEngine.ts | HookTelemetryEngine — Queueing Theory Metrics for Hook Health |
-| E0182 | HurcoV11MillMasterPost | src/engines/HurcoV11MillMasterPostEngine.ts | HurcoV11MillMasterPostEngine — JM Die Mill Master Post Processor |
-| E0183 | HybridProgramComposer | src/engines/HybridProgramComposerEngine.ts | HybridProgramComposerEngine.ts |
-| E0184 | HyperCADSCodeGenerator | src/engines/HyperCADSCodeGeneratorEngine.ts | HyperCADSCodeGeneratorEngine — U-CADC12 (CAD-COMPLETE-MS0) |
-| E0185 | HyperMillAIOrchestration | src/engines/HyperMillAIOrchestrationEngine.ts | HyperMillAIOrchestrationEngine — AI Orchestration for Open Mind hyperMILL |
-| E0186 | HyperMILLAutomationBridge | src/engines/HyperMILLAutomationBridge.ts | HyperMILLAutomationBridge — OPEN MIND AutomationCenter (AC) bridge for .hmc |
-| E0187 | HyperMillFunctionIndex | src/engines/HyperMillFunctionIndexEngine.ts | HyperMillFunctionIndexEngine — Unified query surface over all extracted |
-| E0188 | HyperMillInHostRunner | src/engines/HyperMillInHostRunnerEngine.ts | HyperMillInHostRunnerEngine — U-CAMTEST01 |
-| E0189 | HyperMillPluginAdapter | src/engines/HyperMillPluginAdapterEngine.ts | HyperMillPluginAdapterEngine — hyperMILL COM/.NET Plugin Bridge (U-CAM86) |
-| E0190 | IdentityModel | src/engines/IdentityModelEngine.ts | IdentityModelEngine — U-SAV2-01 |
-| E0191 | ImpellerCAD | src/engines/ImpellerCADEngine.ts | ImpellerCADEngine — U-CADC15 / CAD-COMPLETE-MS0 (PHASE-4) |
-| E0192 | IncidentResponse | src/engines/IncidentResponseEngine.ts | IncidentResponseEngine — U-LPR-SEC-IR |
-| E0193 | InferenceLoRAGate | src/engines/InferenceLoRAGateEngine.ts | InferenceLoRAGateEngine — U-LEARN-07 |
-| E0194 | InfiniteConditionCombinator | src/engines/InfiniteConditionCombinatorEngine.ts | InfiniteConditionCombinatorEngine — Handle Combinatorial Explosion |
-| E0195 | InProcessStockModel | src/engines/InProcessStockModelEngine.ts | InProcessStockModelEngine — MIO-MS0/U-MIO18 |
-| E0196 | InputSanitization | src/engines/InputSanitizationEngine.ts | InputSanitizationEngine — U-LPR-SEC07 |
-| E0197 | IntelligenceAmplification | src/engines/IntelligenceAmplificationEngine.ts | IntelligenceAmplificationEngine — Phase 0.24 U-INT5 |
-| E0198 | IntelligentSequencingAdapter | src/engines/IntelligentSequencingAdapter.ts | IntelligentSequencingAdapter — CAMX-MS0.3 / U-CAMX08 |
-| E0199 | InterOperationState | src/engines/InterOperationStateEngine.ts | InterOperationStateEngine — State Handoff Between Operations |
-| E0200 | InventorAutomationBridge | src/engines/InventorAutomationBridge.ts | InventorAutomationBridge — COM-based Autodesk Inventor geometry/tree bridge (E2480) |
-| E0201 | InventorCAMAIOrchestration | src/engines/InventorCAMAIOrchestrationEngine.ts | InventorCAMAIOrchestrationEngine — AI Orchestration for Inventor HSM / InventorCAM |
-| E0202 | InventorCAMCodeGenerator | src/engines/InventorCAMCodeGeneratorEngine.ts | InventorCAMCodeGeneratorEngine - Generate G-code from InventorCAM/HSMWorks (E2401) |
-| E0203 | InventorCAMStrategy | src/engines/InventorCAMStrategyEngine.ts | InventorCAMStrategyEngine - Strategy Selection for InventorCAM/HSMWorks (E2402) |
-| E0204 | InventorCAMToolExport | src/engines/InventorCAMToolExportEngine.ts | InventorCAMToolExportEngine - Export Tool Libraries for InventorCAM/HSMWorks (E2403) |
-| E0205 | InventorHSMFunctionIndex | src/engines/InventorHSMFunctionIndexEngine.ts | InventorHSMFunctionIndexEngine — CAM-EXHAUST-MS0/U-CAM26 |
-| E0206 | InventorHSMPluginAdapter | src/engines/InventorHSMPluginAdapterEngine.ts | InventorHSMPluginAdapterEngine — Autodesk Inventor HSM COM Add-in Bridge (U-CAM88) |
-| E0207 | IQL | src/engines/IQLEngine.ts | Implicit Q-Learning (IQL) Engine — U-LEARN-08 |
-| E0208 | JMDieProgramLearning | src/engines/JMDieProgramLearningEngine.ts | JMDieProgramLearningEngine — Phase 0.23 U-UTL10 |
-| E0209 | JMDieProgramRAG | src/engines/JMDieProgramRAGEngine.ts | JMDieProgramRAGEngine — U-LEARN-04 |
-| E0210 | JMDieRecipeRetriever | src/engines/JMDieRecipeRetrieverEngine.ts | JMDieRecipeRetrieverEngine — Proven Recipe Retrieval (U-MIO42) |
-| E0211 | JMDieTrainingCorpus | src/engines/JMDieTrainingCorpusEngine.ts | JMDieTrainingCorpusEngine — U-LEARN-03 |
-| E0212 | LaserLoRACadence | src/engines/LaserLoRACadenceEngine.ts | LaserLoRACadenceEngine — CAM-ML-CLOSEDLOOP-MS0 U-CMCCL06 |
-| E0213 | LaserLoRADatasetBuilder | src/engines/LaserLoRADatasetBuilderEngine.ts | LaserLoRADatasetBuilderEngine — CAM-ML-CLOSEDLOOP-MS0 U-CMCCL06 |
-| E0214 | LatencyBudgetDecomposition | src/engines/LatencyBudgetDecompositionEngine.ts | LatencyBudgetDecompositionEngine — U-LPR-PERF-SLO |
-| E0215 | LatheAdaptiveMachining | src/engines/LatheAdaptiveMachiningEngine.ts | LatheAdaptiveMachiningEngine — Turning-Specific Adaptive Intelligence |
-| E0216 | LatheLoRAAdaptiveRefinement | src/engines/LatheLoRAAdaptiveRefinementEngine.ts | LatheLoRAAdaptiveRefinementEngine — LATHE-LORA-MS0 U-LLR27 |
-| E0217 | LatheLoRAAttentionAnalyzer | src/engines/LatheLoRAAttentionAnalyzerEngine.ts | LatheLoRAAttentionAnalyzerEngine — LATHE-LORA-MS0 U-LLR34 |
-| E0218 | LatheLoRABenchmarkSuite | src/engines/LatheLoRABenchmarkSuiteEngine.ts | LatheLoRABenchmarkSuiteEngine — LATHE-LORA-MS0 U-LLR16 |
-| E0219 | LatheLoRACadence | src/engines/LatheLoRACadenceEngine.ts | LatheLoRACadenceEngine — Training Cadence Scheduler |
-| E0220 | LatheLoRACadenceOrchestrator | src/engines/LatheLoRACadenceOrchestratorEngine.ts | LatheLoRACadenceOrchestratorEngine — LATHE-LORA-MS0 U-LLR31 |
-| E0221 | LatheLoRAContinualLearning | src/engines/LatheLoRAContinualLearningEngine.ts | LatheLoRAContinualLearningEngine — LATHE-LORA-MS0 U-LLR30 |
-| E0222 | LatheLoRACronJob | src/engines/LatheLoRACronJobEngine.ts | LatheLoRACronJobEngine — LATHE-LORA-MS0 U-LLR32 |
-| E0223 | LatheLoRADatasetBuilder | src/engines/LatheLoRADatasetBuilderEngine.ts | LatheLoRADatasetBuilderEngine — LATHE-LORA-MS0 U-LLR05 |
-| E0224 | LatheLoRADatasetValidator | src/engines/LatheLoRADatasetValidatorEngine.ts | LatheLoRADatasetValidatorEngine — LATHE-LORA-MS0 U-LLR08 |
-| E0225 | LatheLoRADeployment | src/engines/LatheLoRADeploymentEngine.ts | LatheLoRADeploymentEngine — LATHE-LORA-MS0 U-LLR48 |
-| E0226 | LatheLoRADriftDetector | src/engines/LatheLoRADriftDetectorEngine.ts | LatheLoRADriftDetectorEngine — LATHE-LORA-MS0 U-LLR29 |
-| E0227 | LatheLoRAEmbeddingCache | src/engines/LatheLoRAEmbeddingCacheEngine.ts | LatheLoRAEmbeddingCacheEngine — LATHE-LORA-MS0 U-LLR35 |
-| E0228 | LatheLoRAEnsembleCombiner | src/engines/LatheLoRAEnsembleCombinerEngine.ts | LatheLoRAEnsembleCombinerEngine — LATHE-LORA-MS0 U-LLR42 |
-| E0229 | LatheLoRAEnsembleOrchestrator | src/engines/LatheLoRAEnsembleOrchestratorEngine.ts | LatheLoRAEnsembleOrchestratorEngine — LATHE-LORA-MS0 U-LLR44 |
-| E0230 | LatheLoRAEnsembleVoter | src/engines/LatheLoRAEnsembleVoterEngine.ts | LatheLoRAEnsembleVoterEngine — LATHE-LORA-MS0 U-LLR41 |
-| E0231 | LatheLoRAExampleGenerator | src/engines/LatheLoRAExampleGeneratorEngine.ts | LatheLoRAExampleGeneratorEngine — LATHE-LORA-MS0 U-LLR07 |
-| E0232 | LatheLoRAExperimentTracker | src/engines/LatheLoRAExperimentTrackerEngine.ts | LatheLoRAExperimentTrackerEngine — LATHE-LORA-MS0 U-LLR47 |
-| E0233 | LatheLoRAHealthMonitor | src/engines/LatheLoRAHealthMonitorEngine.ts | LatheLoRAHealthMonitorEngine — LATHE-LORA-MS0 U-LLR23 |
-| E0234 | LatheLoRAHyperparameterOptimizer | src/engines/LatheLoRAHyperparameterOptimizerEngine.ts | LatheLoRAHyperparameterOptimizerEngine — LATHE-LORA-MS0 U-LLR09 |
-| E0235 | LatheLoRAInferenceGateway | src/engines/LatheLoRAInferenceGatewayEngine.ts | LatheLoRAInferenceGatewayEngine — LATHE-LORA-MS0 U-LLR22 |
-| E0236 | LatheLoRAKnowledgeCurator | src/engines/LatheLoRAKnowledgeCuratorEngine.ts | LatheLoRAKnowledgeCuratorEngine — LATHE-LORA-MS0 U-LLR40 |
-| E0237 | LatheLoRAKnowledgeGraph | src/engines/LatheLoRAKnowledgeGraphEngine.ts | LatheLoRAKnowledgeGraphEngine — LATHE-LORA-MS0 U-LLR39 |
-| E0238 | LatheLoRAMasterOrchestrator | src/engines/LatheLoRAMasterOrchestratorEngine.ts | LatheLoRAMasterOrchestratorEngine — LATHE-LORA-MS0 U-LLR50 |
-| E0239 | LatheLoRAMergeStrategy | src/engines/LatheLoRAMergeStrategyEngine.ts | LatheLoRAMergeStrategyEngine — LATHE-LORA-MS0 U-LLR17 |
-| E0240 | LatheLoRAModelOptimizer | src/engines/LatheLoRAModelOptimizerEngine.ts | LatheLoRAModelOptimizerEngine — LATHE-LORA-MS0 U-LLR20 |
-| E0241 | LatheLoRAModelRegistry | src/engines/LatheLoRAModelRegistryEngine.ts | LatheLoRAModelRegistryEngine — LATHE-LORA-MS0 U-LLR19 |
-| E0242 | LatheLoRAModelSelector | src/engines/LatheLoRAModelSelectorEngine.ts | LatheLoRAModelSelectorEngine — LATHE-LORA-MS0 U-LLR43 |
-| E0243 | LatheLoRAMonitoring | src/engines/LatheLoRAMonitoringEngine.ts | LatheLoRAMonitoringEngine — LATHE-LORA-MS0 U-LLR49 |
-| E0244 | LatheLoRANeuralBridge | src/engines/LatheLoRANeuralBridgeEngine.ts | LatheLoRANeuralBridgeEngine — LATHE-LORA-MS0 U-LLR33 |
-| E0245 | LatheLoRANeuralOrchestrator | src/engines/LatheLoRANeuralOrchestratorEngine.ts | LatheLoRANeuralOrchestratorEngine — LATHE-LORA-MS0 U-LLR36 |
-| E0246 | LatheLoRAOllamaDeployer | src/engines/LatheLoRAOllamaDeployerEngine.ts | LatheLoRAOllamaDeployerEngine — LATHE-LORA-MS0 U-LLR21 |
-| E0247 | LatheLoRAPhysicsAugmentedInference | src/engines/LatheLoRAPhysicsAugmentedInferenceEngine.ts | LatheLoRAPhysicsAugmentedInferenceEngine — LATHE-LORA-MS0 U-LLR25 |
-| E0248 | LatheLoRAPhysicsEvaluator | src/engines/LatheLoRAPhysicsEvaluatorEngine.ts | LatheLoRAPhysicsEvaluatorEngine — LATHE-LORA-MS0 U-LLR13 |
-| E0249 | LatheLoRAPipelineCoordinator | src/engines/LatheLoRAPipelineCoordinatorEngine.ts | LatheLoRAPipelineCoordinatorEngine — LATHE-LORA-MS0 U-LLR45 |
-| E0250 | LatheLoRAPipeline | src/engines/LatheLoRAPipelineEngine.ts | LatheLoRAPipelineEngine — End-to-End Pipeline Orchestrator |
-| E0251 | LatheLoRAProgramMiner | src/engines/LatheLoRAProgramMinerEngine.ts | LatheLoRAProgramMinerEngine — LATHE-LORA-MS0 U-LLR37 |
-| E0252 | LatheLoRAProgramParser | src/engines/LatheLoRAProgramParserEngine.ts | LatheLoRAProgramParserEngine — LATHE-LORA-MS0 U-LLR06 |
-| E0253 | LatheLoRAQuantizationOptimizer | src/engines/LatheLoRAQuantizationOptimizerEngine.ts | LatheLoRAQuantizationOptimizerEngine — LATHE-LORA-MS0 U-LLR18 |
-| E0254 | LatheLoRAReasoningChainInference | src/engines/LatheLoRAReasoningChainInferenceEngine.ts | LatheLoRAReasoningChainInferenceEngine — LATHE-LORA-MS0 U-LLR26 |
-| E0255 | LatheLoRAReasoningEvaluator | src/engines/LatheLoRAReasoningEvaluatorEngine.ts | LatheLoRAReasoningEvaluatorEngine — LATHE-LORA-MS0 U-LLR15 |
-| E0256 | LatheLoRAResourceManager | src/engines/LatheLoRAResourceManagerEngine.ts | LatheLoRAResourceManagerEngine — LATHE-LORA-MS0 U-LLR46 |
-| E0257 | LatheLoRARewardShaping | src/engines/LatheLoRARewardShapingEngine.ts | LatheLoRARewardShapingEngine — LATHE-LORA-MS0 U-LLR11 |
-| E0258 | LatheLoRASafetyEvaluator | src/engines/LatheLoRASafetyEvaluatorEngine.ts | LatheLoRASafetyEvaluatorEngine — LATHE-LORA-MS0 U-LLR14 |
-| E0259 | LatheLoRATrainingMonitor | src/engines/LatheLoRATrainingMonitorEngine.ts | LatheLoRATrainingMonitorEngine — LATHE-LORA-MS0 U-LLR12 |
-| E0260 | LatheLoRATrainingScript | src/engines/LatheLoRATrainingScriptEngine.ts | LatheLoRATrainingScriptEngine — Training Script Generator |
-| E0261 | LatheLoRATransferStrategy | src/engines/LatheLoRATransferStrategyEngine.ts | LatheLoRATransferStrategyEngine — LATHE-LORA-MS0 U-LLR10 |
-| E0262 | LatheLoRATribalAugmentation | src/engines/LatheLoRATribalAugmentationEngine.ts | LatheLoRATribalAugmentationEngine — LATHE-LORA-MS0 U-LLR28 |
-| E0263 | LatheLoRATribalExtractor | src/engines/LatheLoRATribalExtractorEngine.ts | LatheLoRATribalExtractorEngine — LATHE-LORA-MS0 U-LLR38 |
-| E0264 | LatheLoRAVerification | src/engines/LatheLoRAVerificationEngine.ts | LatheLoRAVerificationEngine — LATHE-LORA-MS0 U-LLR24 |
-| E0265 | LatheMasterPostAPI | src/engines/LatheMasterPostAPIEngine.ts | LatheMasterPostAPIEngine — LATHE-MASTER U-LTH30 |
-| E0266 | LatheMasterPostDeepReasoning | src/engines/LatheMasterPostDeepReasoningEngine.ts | LatheMasterPostDeepReasoningEngine — LATHE-MASTER U-LTH28 |
-| E0267 | LatheMasterPostEnsembleCrossCheck | src/engines/LatheMasterPostEnsembleCrossCheckEngine.ts | LatheMasterPostEnsembleCrossCheckEngine — LATHE-MASTER U-LTH29 |
-| E0268 | LatheMasterPostRegressionMatrix | src/engines/LatheMasterPostRegressionMatrixEngine.ts | LatheMasterPostRegressionMatrixEngine — LATHE-MASTER U-LTH31 |
-| E0269 | LatheMasterPostRouter | src/engines/LatheMasterPostRouterEngine.ts | LatheMasterPostRouterEngine — LATHE-MASTER U-LTH25 |
-| E0270 | LatheMasterPostSelfAwareness | src/engines/LatheMasterPostSelfAwarenessEngine.ts | LatheMasterPostSelfAwarenessEngine — LATHE-MASTER U-LTH27 |
-| E0271 | LatheMasterPostUnifiedOutput | src/engines/LatheMasterPostUnifiedOutputEngine.ts | LatheMasterPostUnifiedOutputEngine — LATHE-MASTER U-LTH26 |
-| E0272 | LathePartoffSafetyRail | src/engines/LathePartoffSafetyRailEngine.ts | LathePartoffSafetyRailEngine — LATHE-PROD-READY-MS0/U-LPR-PARTOFF-RAIL |
-| E0273 | LathePerformanceSLORegistry | src/engines/LathePerformanceSLORegistryEngine.ts | LathePerformanceSLORegistryEngine — LATHE-PROD-READY-MS0/U-LPR-PERF-SLO |
-| E0274 | LathePostGeneratorDialect | src/engines/LathePostGeneratorDialectEngine.ts | LathePostGeneratorDialectEngine — LATHE-MASTER U-LTH16 |
-| E0275 | LathePostGeneratorSpecIngest | src/engines/LathePostGeneratorSpecIngestEngine.ts | LathePostGeneratorSpecIngestEngine — LATHE-MASTER U-LTH15 |
-| E0276 | LathePostProcessorDialectValidator | src/engines/LathePostProcessorDialectValidatorEngine.ts | LathePostProcessorDialectValidatorEngine — LATHE-PROD-READY-MS0 U-LPR03 |
-| E0277 | LathePrintIngestPipeline | src/engines/LathePrintIngestPipelineEngine.ts | LathePrintIngestPipelineEngine — U-LTH33 (LATHE-MASTER P4) |
-| E0278 | LatheSpeedFeedDeepLearningAdvisor | src/engines/LatheSpeedFeedDeepLearningAdvisorEngine.ts | LatheSpeedFeedDeepLearningAdvisorEngine |
-| E0279 | LatheSpeedFeedReasoningBridge | src/engines/LatheSpeedFeedReasoningBridgeEngine.ts | LatheSpeedFeedReasoningBridgeEngine |
-| E0280 | LatheSpeedFeedShopAwareTuning | src/engines/LatheSpeedFeedShopAwareTuningEngine.ts | LatheSpeedFeedShopAwareTuningEngine |
-| E0281 | LatheSwissPostGenerator | src/engines/LatheSwissPostGeneratorEngine.ts | LatheSwissPostGeneratorEngine — LATHE-MASTER U-LTH17 |
-| E0282 | LearningCascade | src/engines/LearningCascadeEngine.ts | Learning Cascade Engine — U-LEARN-10 |
-| E0283 | LegalGate | src/engines/LegalGateEngine.ts | LegalGateEngine.ts — CAM-UIX-INFRA-00/U-LEGAL-GATES01 |
-| E0284 | LiveToolingSyntax | src/engines/LiveToolingSyntaxEngine.ts | LiveToolingSyntaxEngine — MIO-MS0/U-MIO21 |
-| E0285 | LiveTurretCAxis | src/engines/LiveTurretCAxisEngine.ts | LiveTurretCAxisEngine — C-Axis and Live Tooling Intelligence |
-| E0286 | LokiLogSink | src/engines/LokiLogSinkEngine.ts | LokiLogSinkEngine — U-LPR-OBS4 |
-| E0287 | LoRAAdapterRegistry | src/engines/LoRAAdapterRegistryEngine.ts | LoRAAdapterRegistryEngine — U-LEARN-07 |
-| E0288 | LoRAComposition | src/engines/LoRACompositionEngine.ts | LoRA Composition Engine — U-LEARN-05 |
-| E0289 | LoRADriftCoordinator | src/engines/LoRADriftCoordinatorEngine.ts | LoRADriftCoordinatorEngine — CAM-ML-CLOSEDLOOP-MS0 U-CMCCL10 |
-| E0290 | LoRAMoEGating | src/engines/LoRAMoEGatingEngine.ts | LoRA MoE Gating Engine — U-LEARN-05 |
-| E0291 | LSHDedup | src/engines/LSHDedupEngine.ts | LSHDedupEngine — Locality-Sensitive Hashing for O(1) Semantic Dedup |
-| E0292 | MachineCapabilityIndex | src/engines/MachineCapabilityIndexEngine.ts | MachineCapabilityIndexEngine — Phase 0.23 U-UTL7 |
-| E0293 | MachineConfidenceCalculator | src/engines/MachineConfidenceCalculatorEngine.ts | MCAT-MS0 P1-U04: Machine Confidence Calculator Engine |
-| E0294 | MachineForceLimitValidation | src/engines/MachineForceLimitValidationEngine.ts | MachineForceLimitValidationEngine — MIO-MS0/U-MIO15 |
-| E0295 | MachineKinematicState | src/engines/MachineKinematicStateEngine.ts | MachineKinematicStateEngine — Dynamic Machine State Tracker (U-MIO39) |
-| E0296 | MachineLayerMerger | src/engines/MachineLayerMerger.ts | MCAT-MS0 P1-U01: Machine Layer Merger |
-| E0297 | MachineLoRABase | src/engines/MachineLoRABaseEngine.ts | MachineLoRABaseEngine — shared foundation for per-machine LoRA pipelines |
-| E0298 | MachineOptionMatrix | src/engines/MachineOptionMatrixEngine.ts | MCAT-MS0 P1-U03: Machine Option Matrix Engine |
-| E0299 | MachinePackageSelection | src/engines/MachinePackageSelectionEngine.ts | MCAT-MS0 P2-U01: Machine Package Selection Engine |
-| E0300 | MachineTypeClassifier | src/engines/MachineTypeClassifierEngine.ts | MachineTypeClassifierEngine — Print/CAD to Machine Type Inference |
-| E0301 | MachiningIntelligenceOrchestrator | src/engines/MachiningIntelligenceOrchestratorEngine.ts | MachiningIntelligenceOrchestratorEngine.ts |
-| E0302 | MasterAITrainingLedger | src/engines/MasterAITrainingLedgerEngine.ts | MasterAITrainingLedgerEngine — CAM-ML-CLOSEDLOOP-MS0 U-CMCCL09 |
-| E0303 | MasterCADControlBrain | src/engines/MasterCADControlBrainEngine.ts | MasterCADControlBrainEngine — U-CADC-AI01 / CAD-COMPLETE-MS0 PHASE-30 |
-| E0304 | Mastercam5Axis | src/engines/Mastercam5AxisEngine.ts | Mastercam5AxisEngine - 5-Axis Simultaneous Milling Strategies for Mastercam |
-| E0305 | MastercamAIOrchestration | src/engines/MastercamAIOrchestrationEngine.ts | MastercamAIOrchestrationEngine — AI Orchestration for Mastercam |
-| E0306 | MastercamAutomationBridge | src/engines/MastercamAutomationBridge.ts | MastercamAutomationBridge — Process-level spawn + named-pipe IPC bridge for Mastercam. |
-| E0307 | MastercamCodeGenerator | src/engines/MastercamCodeGeneratorEngine.ts | MastercamCodeGeneratorEngine — U-CADC11 (PHASE-3) |
-| E0308 | MastercamControllerCatalog | src/engines/MastercamControllerCatalogEngine.ts | MastercamControllerCatalogEngine - CNC Controller Family Reference for Mastercam |
-| E0309 | MastercamCycleCatalog | src/engines/MastercamCycleCatalogEngine.ts | MastercamCycleCatalogEngine - Complete Mastercam Cycle Type Reference |
-| E0310 | MastercamDeepLearning | src/engines/MastercamDeepLearningEngine.ts | MastercamDeepLearningEngine — Comprehensive Mastercam Knowledge Extraction |
-| E0311 | MastercamFAIBridge | src/engines/MastercamFAIBridge.ts | MastercamFAIBridge — First Article Inspection Integration for Mastercam |
-| E0312 | MastercamFunctionIndex | src/engines/MastercamFunctionIndexEngine.ts | MastercamFunctionIndexEngine - Unified query surface over all extracted |
-| E0313 | MastercamHeadlessIntegrationTest | src/engines/MastercamHeadlessIntegrationTestEngine.ts | MastercamHeadlessIntegrationTestEngine — U-CAD-APP-19 (PHASE-48) |
-| E0314 | MastercamMaterialBridge | src/engines/MastercamMaterialBridgeEngine.ts | MastercamMaterialBridgeEngine — Bridge Mastercam material database to PRISM physics |
-| E0315 | MastercamMaterialPhysicsBridge | src/engines/MastercamMaterialPhysicsBridge.ts | MastercamMaterialPhysicsBridge — Connect Mastercam materials to PRISM physics engines |
-| E0316 | MastercamMillTurnBridge | src/engines/MastercamMillTurnBridge.ts | MastercamMillTurnBridge - Mill-Turn Combined Operations Bridge for Mastercam |
-| E0317 | MastercamMultiAxis | src/engines/MastercamMultiAxisEngine.ts | MastercamMultiAxisEngine - Multi-Axis Toolpath Generation for Mastercam |
-| E0318 | MastercamPluginAdapter | src/engines/MastercamPluginAdapterEngine.ts | MastercamPluginAdapterEngine — Mastercam NET-Hook SDK Bridge (U-CAM89) |
-| E0319 | MastercamProbingBridge | src/engines/MastercamProbingBridge.ts | MastercamProbingBridge — In-Process Probing Integration for Mastercam |
-| E0320 | MastercamSPCBridge | src/engines/MastercamSPCBridge.ts | MastercamSPCBridge — Statistical Process Control Integration for Mastercam |
-| E0321 | MasterPostFineTuning | src/engines/MasterPostFineTuningEngine.ts | MasterPostFineTuningEngine — CAM-PARITY-AGI-MS0/U-CAMP15 |
-| E0322 | MasterPostProcessorUnifiedAGI | src/engines/MasterPostProcessorUnifiedAGIEngine.ts | MasterPostProcessorUnifiedAGIEngine — PP-UNIFIED-AGI |
-| E0323 | MaterialDatabaseBridge | src/engines/MaterialDatabaseBridgeEngine.ts | MaterialDatabaseBridgeEngine — Phase 0.23 U-UTL5 |
-| E0324 | MaterialHardnessStateClassifier | src/engines/MaterialHardnessStateClassifierEngine.ts | MaterialHardnessStateClassifierEngine — LATHE-PROD-READY-MS0 U-LPR-HARDNESS |
-| E0325 | MaxEntIRL | src/engines/MaxEntIRLEngine.ts | Maximum Entropy Inverse RL Engine — U-LEARN-08 |
-| E0326 | MeasurementSystemAnalysis | src/engines/MeasurementSystemAnalysisEngine.ts | MeasurementSystemAnalysisEngine — Gage R&R via ANOVA (crossed design) |
-| E0327 | MillAISelfAwarenessIntegration | src/engines/MillAISelfAwarenessIntegrationEngine.ts | MillAISelfAwarenessIntegrationEngine — Milling Capability Registry |
-| E0328 | MillingAGIMaster | src/engines/MillingAGIMasterEngine.ts | MillingAGIMasterEngine — Milling-Specific AGI Reasoning [WIRED: prism_mill] |
-| E0329 | MillingLoRACadence | src/engines/MillingLoRACadenceEngine.ts | MillingLoRACadenceEngine — CAM-ML-CLOSEDLOOP-MS0 U-CMCCL01 |
-| E0330 | MillingLoRADatasetBuilder | src/engines/MillingLoRADatasetBuilderEngine.ts | MillingLoRADatasetBuilderEngine — CAM-ML-CLOSEDLOOP-MS0 U-CMCCL01 |
-| E0331 | MillMasterOrchestratorFacade | src/engines/MillMasterOrchestratorFacadeEngine.ts | MillMasterOrchestratorFacadeEngine — Unified Mill Operations Orchestrator [WIRED: prism_mill] |
-| E0332 | MillTurnLoRACadence | src/engines/MillTurnLoRACadenceEngine.ts | MillTurnLoRACadenceEngine — CAM-ML-CLOSEDLOOP-MS0 U-CMCCL03 |
-| E0333 | MillTurnLoRADatasetBuilder | src/engines/MillTurnLoRADatasetBuilderEngine.ts | MillTurnLoRADatasetBuilderEngine — CAM-ML-CLOSEDLOOP-MS0 U-CMCCL03 |
-| E0334 | MINFileParser | src/engines/MINFileParserEngine.ts | MINFileParserEngine — U-LEARN-03 |
-| E0335 | MITCourseExpansion | src/engines/MITCourseExpansionEngine.ts | MITCourseExpansionEngine — Additional MIT Courses for U-AWR33 |
-| E0336 | MITCourseFullIntegration | src/engines/MITCourseFullIntegrationEngine.ts | MITCourseFullIntegrationEngine — Phase 0.23 U-UTL9 |
-| E0337 | MitsubishiMV1200RWireEDMMasterPost | src/engines/MitsubishiMV1200RWireEDMMasterPostEngine.ts | MitsubishiMV1200RWireEDMMasterPostEngine — JM Die Wire EDM Master Post Processor |
-| E0338 | MLLineage | src/engines/MLLineageEngine.ts | MLLineageEngine — U-LEARN-02 (companion to FeatureStore) |
-| E0339 | ModelConfidentiality | src/engines/ModelConfidentialityEngine.ts | ModelConfidentialityEngine (U-LPR-SEC10) |
-| E0340 | MOUStallGate | src/engines/MOUStallGateEngine.ts | MOUStallGateEngine (U-LPR-STALL-MOU, Delivery B2) |
-| E0341 | MTConnectRoundTripLatencyBench | src/engines/MTConnectRoundTripLatencyBenchEngine.ts | MTConnectRoundTripLatencyBenchEngine — LATHE-PROD-READY-MS0 U-LPR04 |
-| E0342 | MultiAssetReasoning | src/engines/MultiAssetReasoningEngine.ts | MultiAssetReasoningEngine — Phase 0.24 U-INT1 |
-| E0343 | MultiControllerCalibration | src/engines/MultiControllerCalibrationEngine.ts | MultiControllerCalibrationEngine — P2P-FULLSTACK-MS0/U-P2PFS60 |
-| E0344 | MultiSessionHandoffCoordinator | src/engines/MultiSessionHandoffCoordinatorEngine.ts | MultiSessionHandoffCoordinatorEngine — U-CTX05 Multi-Session Handoff |
-| E0345 | MultiSignalAutoRollback | src/engines/MultiSignalAutoRollbackEngine.ts | MultiSignalAutoRollbackEngine (U-LPR-AUTOROLLBACK) |
-| E0346 | MultivariateSPC | src/engines/MultivariateSPCEngine.ts | MultivariateSPCEngine — Hotelling T² and MEWMA multivariate control charts |
-| E0347 | NCFileParser | src/engines/NCFileParserEngine.ts | NCFileParserEngine — U-LEARN-03 |
-| E0348 | NeuralCADGeneration | src/engines/NeuralCADGenerationEngine.ts | NeuralCADGenerationEngine — CADCAM-DAGI-MS0/U-DAGI07 |
-| E0349 | NISTAIRMFCompliance | src/engines/NISTAIRMFComplianceEngine.ts | NISTAIRMFComplianceEngine — U-LPR-OPS-NIST |
-| E0350 | NXCAMAIOrchestration | src/engines/NXCAMAIOrchestrationEngine.ts | NXCAMAIOrchestrationEngine — AI Orchestration for Siemens NX CAM |
-| E0351 | NXCodeGenerator | src/engines/NXCodeGeneratorEngine.ts | NXCodeGeneratorEngine — U-CADC14 (PHASE-4) |
-| E0352 | NXOpenAssemblyDrawing | src/engines/NXOpenAssemblyDrawingEngine.ts | NXOpenAssemblyDrawingEngine — U-CAD-APP-18 (PHASE-48) |
-| E0353 | NXOpenSketchEntity | src/engines/NXOpenSketchEntityEngine.ts | NXOpenSketchEntityEngine — U-CAD-APP-17 (PHASE-48) |
-| E0354 | OfflineRLOrchestrator | src/engines/OfflineRLOrchestratorEngine.ts | Offline RL Orchestrator Engine — U-LEARN-08 |
-| E0355 | OkumaB250LatheMasterPost | src/engines/OkumaB250LatheMasterPostEngine.ts | OkumaB250LatheMasterPostEngine — JM Die Lathe Master Post Processor |
-| E0356 | OkumaGosigerTranscriptMiner | src/engines/OkumaGosigerTranscriptMinerEngine.ts | OkumaGosigerTranscriptMinerEngine (E103) |
-| E0357 | OkumaRunLogParser | src/engines/OkumaRunLogParserEngine.ts | OkumaRunLogParserEngine — U-LEARN-03 |
-| E0358 | OllamaTaskOffloader | src/engines/OllamaTaskOffloaderEngine.ts | OllamaTaskOffloaderEngine |
-| E0359 | OneClickWEDMGenerator | src/engines/OneClickWEDMGeneratorEngine.ts | OneClickWEDMGeneratorEngine — Single Entry Point DXF to G-code |
-| E0360 | OnshapeAPIBridge | src/engines/OnshapeAPIBridgeEngine.ts | OnshapeAPIBridgeEngine — U-CAD-APP-09 (PHASE-48) |
-| E0361 | OnshapeLiveCollabAdapter | src/engines/OnshapeLiveCollabAdapter.ts | OnshapeLiveCollabAdapter — U-CAD-APP-10 (PHASE-48) |
-| E0362 | OntologyGrowthRegistry | src/engines/OntologyGrowthRegistryEngine.ts | OntologyGrowthRegistryEngine.ts |
-| E0363 | OpenTelemetryTracing | src/engines/OpenTelemetryTracingEngine.ts | OpenTelemetryTracingEngine — U-LPR-OBS1 |
-| E0364 | OperatorApprovalGate | src/engines/OperatorApprovalGateEngine.ts | OperatorApprovalGateEngine — Mandatory Human-in-the-Loop Gate (U-MIO37) |
-| E0365 | OperatorPreferences | src/engines/OperatorPreferencesEngine.ts | OperatorPreferencesEngine — Per-operator preferences with tenant scoping |
-| E0366 | OrchestratorConfidenceFeedback | src/engines/OrchestratorConfidenceFeedbackEngine.ts | OrchestratorConfidenceFeedbackEngine — CAM-ML-CLOSEDLOOP-MS0 U-CMCCL13 |
-| E0367 | OrthogonalLoRA | src/engines/OrthogonalLoRAEngine.ts | Orthogonal LoRA Engine — U-LEARN-05 |
-| E0368 | OutcomeCaptureBus | src/engines/OutcomeCaptureBusEngine.ts | OutcomeCaptureBusEngine — U-LEARN-01 |
-| E0369 | OutcomeTrace | src/engines/OutcomeTraceEngine.ts | OutcomeTraceEngine — U-LEARN-09 |
-| E0370 | OutputCache | src/engines/OutputCacheEngine.ts | OutputCacheEngine |
-| E0371 | PactContractTest | src/engines/PactContractTestEngine.ts | PactContractTestEngine — U-LPR-CONTRACT |
-| E0372 | PagerDutyAlerts | src/engines/PagerDutyAlertsEngine.ts | PagerDutyAlertsEngine — U-LPR-OBS3 |
-| E0373 | PairedPrintProgramBundle | src/engines/PairedPrintProgramBundleEngine.ts | PairedPrintProgramBundleEngine — P2P-FULLSTACK-MS0/U-P2PFS61 |
-| E0374 | PalletPoolOptimizer | src/engines/PalletPoolOptimizerEngine.ts | PalletPoolOptimizerEngine — MILL-MASTER P38-U02-PALLET-OPT |
-| E0375 | ParserFuzzHarness | src/engines/ParserFuzzHarnessEngine.ts | ParserFuzzHarnessEngine (U-LPR-PARSER-FUZZ) |
-| E0376 | ParserGoldenHarness | src/engines/ParserGoldenHarnessEngine.ts | ParserGoldenHarnessEngine (U-LPR-PARSER-TESTS) |
-| E0377 | PerAppInCADInferenceAdapter | src/engines/PerAppInCADInferenceAdapter.ts | PerAppInCADInferenceAdapter — U-CAD-APP-20 (PHASE-48) |
-| E0378 | PhysicsAwareDataAugmentation | src/engines/PhysicsAwareDataAugmentationEngine.ts | PhysicsAwareDataAugmentationEngine (U-LPR-DATA-AUG, ML B4) |
-| E0379 | PIICompliance | src/engines/PIIComplianceEngine.ts | PIIComplianceEngine — U-LPR-SEC11 |
-| E0380 | PilotPhaseExitGate | src/engines/PilotPhaseExitGateEngine.ts | PilotPhaseExitGateEngine (U-LPR-PILOT-EXITGATE, Delivery B5) |
-| E0381 | PolicyExperienceLedger | src/engines/PolicyExperienceLedgerEngine.ts | PolicyExperienceLedgerEngine — U-LEARN-09 |
-| E0382 | PostCompactRestoration | src/engines/PostCompactRestorationEngine.ts | PostCompactRestorationEngine — U-CTX04 PostCompact Restoration Cascade |
-| E0383 | PostProcessorUnification | src/engines/PostProcessorUnificationEngine.ts | PostProcessorUnificationEngine — Phase 0.23 U-UTL12 |
-| E0384 | PowerMillAIOrchestration | src/engines/PowerMillAIOrchestrationEngine.ts | PowerMillAIOrchestrationEngine — AI Orchestration for Autodesk PowerMill |
-| E0385 | PPValidatorAGIWiring | src/engines/PPValidatorAGIWiringEngine.ts | PPValidatorAGIWiringEngine — AGI Orchestration for 50+ PP Validators |
-| E0386 | PreMOUKickoffChecklist | src/engines/PreMOUKickoffChecklistEngine.ts | PreMOUKickoffChecklistEngine (U-LPR-PRE-MOU, Delivery B1) |
-| E0387 | PreWetRunChaosGate | src/engines/PreWetRunChaosGateEngine.ts | PreWetRunChaosGateEngine (U-LPR-CHAOS-DRILL) |
-| E0388 | PrintMatchStallDetector | src/engines/PrintMatchStallDetectorEngine.ts | PrintMatchStallDetectorEngine — LATHE-PROD-READY-MS0/U-LPR-STALL-PRINTS |
-| E0389 | PrintToAIBridge | src/engines/PrintToAIBridgeEngine.ts | PrintToAIBridgeEngine.ts |
-| E0390 | PrintToProgramCoverageAnalyzer | src/engines/PrintToProgramCoverageAnalyzerEngine.ts | PrintToProgramCoverageAnalyzerEngine — P2P-FULLSTACK-MS0/U-P2PFS63 |
-| E0391 | PrintToProgramRegressionHarness | src/engines/PrintToProgramRegressionHarnessEngine.ts | PrintToProgramRegressionHarnessEngine — P2P-FULLSTACK-MS0/U-P2PFS59 |
-| E0392 | PrintToProgramTutorial | src/engines/PrintToProgramTutorialEngine.ts | PrintToProgramTutorialEngine — P2P-FULLSTACK-MS0/U-P2PFS62 |
-| E0393 | PrioritizedReplayBuffer | src/engines/PrioritizedReplayBufferEngine.ts | Prioritized Replay Buffer Engine — U-LEARN-10 |
-| E0394 | PRISMSelfAwareness | src/engines/PRISMSelfAwarenessEngine.ts | PRISMSelfAwarenessEngine — Core Infrastructure |
-| E0395 | PRISMVerificationPlugin | src/engines/PRISMVerificationPluginEngine.ts | PRISMVerificationPluginEngine — Intelligent Vericut Integration Layer (U-CAM85) |
-| E0396 | ProbingIntegration | src/engines/ProbingIntegrationEngine.ts | ProbingIntegrationEngine — End-to-End Probing Integration (U-MIO36) |
-| E0397 | ProcessEnvironmentSensitivity | src/engines/ProcessEnvironmentSensitivityEngine.ts | ProcessEnvironmentSensitivityEngine — Environmental Factor Analysis |
-| E0398 | PrometheusMetrics | src/engines/PrometheusMetricsEngine.ts | PrometheusMetricsEngine — U-LPR-OBS2 |
-| E0399 | PromotionGate | src/engines/PromotionGateEngine.ts | PromotionGateEngine — U-LEARN-06 |
-| E0400 | ProtoMAMLFewShot | src/engines/ProtoMAMLFewShotEngine.ts | ProtoMAML Few-Shot Engine — U-LEARN-11 |
-| E0401 | PrototypicalNetwork | src/engines/PrototypicalNetworkEngine.ts | Prototypical Network Engine — U-LEARN-11 |
-| E0402 | Provenance | src/engines/ProvenanceEngine.ts | ProvenanceEngine — U-LEARN-04 |
-| E0403 | RadialEngagementController | src/engines/RadialEngagementControllerEngine.ts | RadialEngagementControllerEngine — MIO-MS0/U-MIO17 |
-| E0404 | RateLimiting | src/engines/RateLimitingEngine.ts | RateLimitingEngine — U-LPR-SEC05 |
-| E0405 | RealTimeAdaptiveController | src/engines/RealTimeAdaptiveControllerEngine.ts | RealTimeAdaptiveControllerEngine — Central Adaptive Control Orchestrator |
-| E0406 | RegistryFederation | src/engines/RegistryFederationEngine.ts | RegistryFederationEngine — Phase 0.23 U-UTL13 |
-| E0407 | RegressionBaseline | src/engines/RegressionBaselineEngine.ts | RegressionBaselineEngine (U-LPR-REGRESSION-BASELINE, QA B2) |
-| E0408 | ReRanker | src/engines/ReRankerEngine.ts | ReRankerEngine — U-LEARN-04 |
-| E0409 | RhinoCommonBridge | src/engines/RhinoCommonBridgeEngine.ts | RhinoCommonBridgeEngine — U-CAD-APP-07 (PHASE-48) |
-| E0410 | RhinoGrasshopperPRISMComponents | src/engines/RhinoGrasshopperPRISMComponentsEngine.ts | RhinoGrasshopperPRISMComponentsEngine — U-CAD-APP-08 (PHASE-48) |
-| E0411 | RoutingSheetGenerator | src/engines/RoutingSheetGeneratorEngine.ts | RoutingSheetGeneratorEngine — Job Routing Documentation (U-MIO33) |
-| E0412 | Runbook | src/engines/RunbookEngine.ts | RunbookEngine — U-LPR-OBS6 |
-| E0413 | SafetyExplanation | src/engines/SafetyExplanationEngine.ts | SafetyExplanationEngine — XAI for Safety Decisions (U-MIO40A) |
-| E0414 | SafetyScoreOverlay | src/engines/SafetyScoreOverlayEngine.ts | SafetyScoreOverlayEngine — Real-time S(x) Composite Safety Index Overlay (U-CAM95) |
-| E0415 | SafetyShield | src/engines/SafetyShieldEngine.ts | Safety Shield Engine — U-LEARN-08 |
-| E0416 | SafetyVetoSimulationGate | src/engines/SafetyVetoSimulationGateEngine.ts | SafetyVetoSimulationGateEngine — Production Release Safety Gate (U-MIO38) |
-| E0417 | SamplingPlan | src/engines/SamplingPlanEngine.ts | SamplingPlanEngine — MIL-STD-1916 and AOQL acceptance sampling plans |
-| E0418 | SBOMReview | src/engines/SBOMReviewEngine.ts | SBOMReviewEngine — U-LPR-OPS-SBOM-REVIEW |
-| E0419 | SecretManagement | src/engines/SecretManagementEngine.ts | SecretManagementEngine — U-LPR-SEC10 |
-| E0420 | SecurityHeaders | src/engines/SecurityHeadersEngine.ts | SecurityHeadersEngine — U-LPR-SEC09 |
-| E0421 | SessionManagement | src/engines/SessionManagementEngine.ts | SessionManagementEngine — U-LPR-SEC06 |
-| E0422 | SessionStability | src/engines/SessionStabilityEngine.ts | SessionStabilityEngine — USSH Phase 0.25 / U-SCI05 |
-| E0423 | SetupSheetPipeline | src/engines/SetupSheetPipelineEngine.ts | SetupSheetPipelineEngine — Operator Setup Sheet Pipeline (U-MIO35) |
-| E0424 | SimulationStallDetector | src/engines/SimulationStallDetectorEngine.ts | SimulationStallDetectorEngine — LATHE-PROD-READY-MS0/U-LPR-STALL-SIM |
-| E0425 | SinkerEDMElectrodeGeometry | src/engines/SinkerEDMElectrodeGeometryEngine.ts | SinkerEDMElectrodeGeometryEngine — P2P-FULLSTACK-MS0/U-P2PFS54 |
-| E0426 | SinkerEDMFlushingAdvisor | src/engines/SinkerEDMFlushingAdvisorEngine.ts | SinkerEDMFlushingAdvisorEngine — P2P-FULLSTACK-MS0/U-P2PFS55 |
-| E0427 | SinkerEDMLoRACadence | src/engines/SinkerEDMLoRACadenceEngine.ts | SinkerEDMLoRACadenceEngine — CAM-ML-CLOSEDLOOP-MS0 U-CMCCL05 |
-| E0428 | SinkerEDMLoRADatasetBuilder | src/engines/SinkerEDMLoRADatasetBuilderEngine.ts | SinkerEDMLoRADatasetBuilderEngine — CAM-ML-CLOSEDLOOP-MS0 U-CMCCL05 |
-| E0429 | SinkerEDMPrintToProgram | src/engines/SinkerEDMPrintToProgramEngine.ts | SinkerEDMPrintToProgramEngine — P2P-FULLSTACK-MS0/U-P2PFS53 |
-| E0430 | SinkerEDMWearCompensation | src/engines/SinkerEDMWearCompensationEngine.ts | SinkerEDMWearCompensationEngine — P2P-FULLSTACK-MS0/U-P2PFS56 |
-| E0431 | SkillGapAnalyzer | src/engines/SkillGapAnalyzerEngine.ts | SkillGapAnalyzerEngine — Phase 0.23 U-UTL14 |
-| E0432 | SkillInliningOptimizer | src/engines/SkillInliningOptimizerEngine.ts | SkillInliningOptimizerEngine — U-CTX06 Skill Inlining Optimizer |
-| E0433 | SLDOverlay | src/engines/SLDOverlayEngine.ts | SLDOverlayEngine — Real-time Chatter Stability Lobe Overlay (U-CAM91) |
-| E0434 | SLO | src/engines/SLOEngine.ts | SLOEngine — U-LPR-OBS5 |
-| E0435 | SmartToolSelectorOrchestratorAdapter | src/engines/SmartToolSelectorOrchestratorAdapter.ts | SmartToolSelectorOrchestratorAdapter — CAMX-MS0.3 / U-CAMX03 |
-| E0436 | SolidCAMAIOrchestration | src/engines/SolidCAMAIOrchestrationEngine.ts | SolidCAMAIOrchestrationEngine — AI Orchestration for SolidCAM |
-| E0437 | SolidWorksAutomationBridge | src/engines/SolidWorksAutomationBridge.ts | SolidWorksAutomationBridge — PRISM-side TypeScript host for SolidWorks COM automation. |
-| E0438 | SolidWorksCodeGenerator | src/engines/SolidWorksCodeGeneratorEngine.ts | SolidWorksCodeGeneratorEngine — U-CADC10 (PHASE-3) |
-| E0439 | SPCFeedbackLoop | src/engines/SPCFeedbackLoopEngine.ts | SPCFeedbackLoopEngine — Closed-Loop SPC → Parameter Adjustment (U-MIO31) |
-| E0440 | SubprogramExtraction | src/engines/SubprogramExtractionEngine.ts | SubprogramExtractionEngine — MIO-MS0/U-MIO20 |
-| E0441 | SupplyChainIntegrity | src/engines/SupplyChainIntegrityEngine.ts | SupplyChainIntegrityEngine (U-LPR-SEC09) |
-| E0442 | SwissChannelFileEmitter | src/engines/SwissChannelFileEmitterEngine.ts | SwissChannelFileEmitterEngine |
-| E0443 | SwissGuideBushingPhysics | src/engines/SwissGuideBushingPhysicsEngine.ts | SwissGuideBushingPhysicsEngine (U-LPR-SWISS, Lathe B4) |
-| E0444 | SwissPartTransferSequence | src/engines/SwissPartTransferSequenceEngine.ts | SwissPartTransferSequenceEngine |
-| E0445 | SwissTypeDecision | src/engines/SwissTypeDecisionEngine.ts | SwissTypeDecisionEngine — LATHE-PROD-READY-MS0/U-LPR-SWISS |
-| E0446 | SynapticIntelligence | src/engines/SynapticIntelligenceEngine.ts | Synaptic Intelligence Engine — U-LEARN-10 |
-| E0447 | SystemUtilizationAudit | src/engines/SystemUtilizationAuditEngine.ts | SystemUtilizationAuditEngine — SYS-UTIL-AUDIT-MS0 |
-| E0448 | TenantIsolation | src/engines/TenantIsolationEngine.ts | TenantIsolationEngine — U-LPR-SEC01 |
-| E0449 | TenantOnboardingRunbook | src/engines/TenantOnboardingRunbookEngine.ts | TenantOnboardingRunbookEngine — U-LPR-OPS-ONBOARD |
-| E0450 | TestASTAnalyzer | src/engines/TestASTAnalyzerEngine.ts | TestASTAnalyzerEngine — TypeScript AST analyzer for engine source files. |
-| E0451 | TestQualityAudit | src/engines/TestQualityAuditEngine.ts | TestQualityAuditEngine — Classifies every .test.ts file as REAL / SHALLOW / SYNTHETIC |
-| E0452 | TestRegistryAdapter | src/engines/TestRegistryAdapterEngine.ts | TestRegistryAdapterEngine — Curated bank of realistic test inputs. |
-| E0453 | TestResourceRegistry | src/engines/TestResourceRegistryEngine.ts | TestResourceRegistryEngine — P2P-FULLSTACK-MS0/U-P2PFS58 |
-| E0454 | TestTimeAdaptation | src/engines/TestTimeAdaptationEngine.ts | Test-Time Adaptation Engine — U-LEARN-10 |
-| E0455 | TextToCADGeneration | src/engines/TextToCADGenerationEngine.ts | TextToCADGenerationEngine — CADCAM-DAGI-MS0/U-DAGI09 |
-| E0456 | ThermalOverlay | src/engines/ThermalOverlayEngine.ts | ThermalOverlayEngine — Real-time Cutting Temperature Overlay (U-CAM93) |
-| E0457 | TokenEconomyTracker | src/engines/TokenEconomyTrackerEngine.ts | TokenEconomyTrackerEngine |
-| E0458 | ToleranceAwareGeneration | src/engines/ToleranceAwareGenerationEngine.ts | ToleranceAwareGenerationEngine — GD&T-Aware CAD Generation |
-| E0459 | ToolCatalogAdaptive | src/engines/ToolCatalogAdaptiveEngine.ts | ToolCatalogAdaptiveEngine — Connects Tool Catalog to Phase 0.26 Adaptive System |
-| E0460 | ToolDatabaseBridge | src/engines/ToolDatabaseBridgeEngine.ts | ToolDatabaseBridgeEngine — Phase 0.23 U-UTL6 |
-| E0461 | ToolLifeOverlay | src/engines/ToolLifeOverlayEngine.ts | ToolLifeOverlayEngine — Real-time Tool Life Countdown Overlay (U-CAM94) |
-| E0462 | ToolpathForceProfile | src/engines/ToolpathForceProfileEngine.ts | ToolpathForceProfileEngine.ts |
-| E0463 | ToolpathStrategyRouter | src/engines/ToolpathStrategyRouterEngine.ts | ToolpathStrategyRouterEngine — Phase 0.23 U-UTL4 |
-| E0464 | TPEHyperparameterSearch | src/engines/TPEHyperparameterSearchEngine.ts | TPEHyperparameterSearchEngine (U-LPR-HPSEARCH, ML B5) |
-| E0465 | TrainingExampleAssembler | src/engines/TrainingExampleAssemblerEngine.ts | TrainingExampleAssemblerEngine — U-LEARN-03 |
-| E0466 | TrainingLedger | src/engines/TrainingLedgerEngine.ts | TrainingLedgerEngine (U-LPR-TRAINING-LEDGER, ML R1) |
-| E0467 | TransferLearningBridge | src/engines/TransferLearningBridgeEngine.ts | TransferLearningBridgeEngine — Cross-domain analogy finder |
-| E0468 | TribalEnrichmentCoordinator | src/engines/TribalEnrichmentCoordinatorEngine.ts | TribalEnrichmentCoordinatorEngine — U-P2PFS10 |
-| E0469 | TribalKnowledgeMaximizer | src/engines/TribalKnowledgeMaximizerEngine.ts | TribalKnowledgeMaximizerEngine — Phase 0.23 U-UTL8 |
-| E0470 | TribalPlaybookEnforcement | src/engines/TribalPlaybookEnforcementEngine.ts | TribalPlaybookEnforcementEngine — MIO-MS0/U-MIO43 |
-| E0471 | TribalRAG | src/engines/TribalRAGEngine.ts | TribalRAGEngine — U-LEARN-04 |
-| E0472 | TriLevelKillSwitch | src/engines/TriLevelKillSwitchEngine.ts | TriLevelKillSwitchEngine (U-LPR-KILL-SWITCH) |
-| E0473 | TurningCpkSurrogate | src/engines/TurningCpkSurrogateEngine.ts | TurningCpkSurrogateEngine — LATHE-PRO-MS5.4 ML surrogate. |
-| E0474 | TurningEnvelopeDistance | src/engines/TurningEnvelopeDistanceEngine.ts | TurningEnvelopeDistanceEngine — LATHE-PRO-MS5.3. |
-| E0475 | TurningRobustOptimizer | src/engines/TurningRobustOptimizerEngine.ts | TurningRobustOptimizerEngine — LATHE-PRO-MS5.2 capstone. |
-| E0476 | TurningSensitivityAnalysis | src/engines/TurningSensitivityAnalysisEngine.ts | TurningSensitivityAnalysisEngine — LATHE-PRO-MS5.1 variability apportionment. |
-| E0477 | TurningStochasticPlan | src/engines/TurningStochasticPlanEngine.ts | TurningStochasticPlanEngine — LATHE-PRO-MS5 stochastic wrapper. |
-| E0478 | TurningStrategyCatalog | src/engines/TurningStrategyCatalog.ts | CAMX-MS19/U13 — Turning Strategy Catalog |
-| E0479 | TurningThreadOptimizer | src/engines/TurningThreadOptimizerEngine.ts | TurningThreadOptimizerEngine — LATHE-PRO-MS4a capstone. |
-| E0480 | TurningThreadRobustOptimizer | src/engines/TurningThreadRobustOptimizerEngine.ts | TurningThreadRobustOptimizerEngine — LATHE-PRO-MS4a. |
-| E0481 | TurningThreadSensitivity | src/engines/TurningThreadSensitivityEngine.ts | TurningThreadSensitivityEngine — LATHE-PRO-MS4a. |
-| E0482 | TurningThreadStochasticPlan | src/engines/TurningThreadStochasticPlanEngine.ts | TurningThreadStochasticPlanEngine — LATHE-PRO-MS4a. |
-| E0483 | UnifiedCADCodeGeneratorBase | src/engines/UnifiedCADCodeGeneratorBase.ts | UnifiedCADCodeGeneratorBase — U-CADC00 (PHASE-0B) |
-| E0484 | UniversalCADIndex | src/engines/UniversalCADIndexEngine.ts | UniversalCADIndexEngine — U-CADC01 (CAD-COMPLETE-MS0) |
-| E0485 | VariabilityEnvelope | src/engines/VariabilityEnvelopeEngine.ts | VariabilityEnvelopeEngine — Probabilistic Parameter Boundaries |
-| E0486 | VariabilitySourceTracker | src/engines/VariabilitySourceTrackerEngine.ts | VariabilitySourceTrackerEngine — Track Where Variability Comes From |
-| E0487 | VideoKnowledgeIntegration | src/engines/VideoKnowledgeIntegrationEngine.ts | VideoKnowledgeIntegrationEngine — Phase 0.23 U-UTL11 |
-| E0488 | WaterjetLoRACadence | src/engines/WaterjetLoRACadenceEngine.ts | WaterjetLoRACadenceEngine — CAM-ML-CLOSEDLOOP-MS0 U-CMCCL07 |
-| E0489 | WaterjetLoRADatasetBuilder | src/engines/WaterjetLoRADatasetBuilderEngine.ts | WaterjetLoRADatasetBuilderEngine — CAM-ML-CLOSEDLOOP-MS0 U-CMCCL07 |
-| E0490 | WEDMAdaptivePass | src/engines/WEDMAdaptivePassEngine.ts | WEDMAdaptivePassEngine |
-| E0491 | WEDMAutonomyAudit | src/engines/WEDMAutonomyAuditEngine.ts | WEDMAutonomyAuditEngine — Audit trail for WEDM autonomy level changes |
-| E0492 | WEDMAutonomySubstrateGate | src/engines/WEDMAutonomySubstrateGateEngine.ts | WEDMAutonomySubstrateGateEngine.ts — MS-P1-AUTONOMY U-P1-AUT-01 |
-| E0493 | WEDMBenchmarkTolerance | src/engines/WEDMBenchmarkToleranceEngine.ts | WEDMBenchmarkToleranceEngine — WEDM-CAL-MS4 / U-CAL20 |
-| E0494 | WEDMControllerDialectVerifier | src/engines/WEDMControllerDialectVerifierEngine.ts | WEDMControllerDialectVerifierEngine — Controller-Dialect Mismatch Detector |
-| E0495 | WEDMCornerPhysics | src/engines/WEDMCornerPhysicsEngine.ts | WEDMCornerPhysicsEngine |
-| E0496 | WEDMCreditCost | src/engines/WEDMCreditCostEngine.ts | WEDMCreditCostEngine — Credit-based billing quantization for WEDM jobs |
-| E0497 | WEDMCurrentDensityGuard | src/engines/WEDMCurrentDensityGuardEngine.ts | WEDMCurrentDensityGuardEngine — Wire Break Prevention via Current Density Validation |
-| E0498 | WEDMDeviationToTip | src/engines/WEDMDeviationToTipEngine.ts | WEDMDeviationToTipEngine — Convert Prediction Deviations to Tribal Tips |
-| E0499 | WEDMDielectricCorrection | src/engines/WEDMDielectricCorrectionEngine.ts | WEDMDielectricCorrectionEngine — Dielectric-Specific Spark Gap Correction |
-| E0500 | WEDMDielectricFlushAdjust | src/engines/WEDMDielectricFlushAdjustEngine.ts | WEDMDielectricFlushAdjustEngine — Dielectric Conductivity → Flush Pressure |
-| E0501 | WEDMDXFClosureValidator | src/engines/WEDMDXFClosureValidatorEngine.ts | WEDMDXFClosureValidatorEngine — DXF Contour Closure Validation |
-| E0502 | WEDMEWCMemory | src/engines/WEDMEWCMemoryEngine.ts | WEDMEWCMemoryEngine — Elastic Weight Consolidation (EWC++) for WEDM LoRA adapters. |
-| E0503 | WEDMFeatureImportance | src/engines/WEDMFeatureImportanceEngine.ts | WEDMFeatureImportanceEngine — SHAP-inspired feature importance for WEDM parameters |
-| E0504 | WEDMFeedbackIngestion | src/engines/WEDMFeedbackIngestionEngine.ts | WEDMFeedbackIngestionEngine.ts — MS-P1-LEARN-LOOP U-P1-LL-02 |
-| E0505 | WEDMFewShotMaterial | src/engines/WEDMFewShotMaterialEngine.ts | WEDMFewShotMaterialEngine — Few-shot LoRA bootstrap for new WEDM materials. |
-| E0506 | WEDMFlushAdequacyGate | src/engines/WEDMFlushAdequacyGateEngine.ts | WEDMFlushAdequacyGateEngine — Wire EDM Flushing Adequacy Gate |
-| E0507 | WEDMGraphAttention | src/engines/WEDMGraphAttentionEngine.ts | WEDMGraphAttentionEngine — h=4 multi-head Graph Attention layer. |
-| E0508 | WEDMHeadClearance | src/engines/WEDMHeadClearanceEngine.ts | WEDMHeadClearanceEngine — Upper/Lower Head Clearance Safety Gate |
-| E0509 | WEDMInvoiceLine | src/engines/WEDMInvoiceLineEngine.ts | WEDMInvoiceLineEngine — Completed Job → Invoice Draft |
-| E0510 | WEDMJobCost | src/engines/WEDMJobCostEngine.ts | WEDMJobCostEngine |
-| E0511 | WEDMJobCreator | src/engines/WEDMJobCreatorEngine.ts | WEDMJobCreatorEngine — Program → Job Packet bridge |
-| E0512 | WEDMJobOutcome | src/engines/WEDMJobOutcomeEngine.ts | WEDMJobOutcomeEngine — Capture finished-job telemetry for the learning loop. |
-| E0513 | WEDMJobPatternLearner | src/engines/WEDMJobPatternLearnerEngine.ts | WEDMJobPatternLearnerEngine — Customer/Material Pattern Mining |
-| E0514 | WEDMKerfWidth | src/engines/WEDMKerfWidthEngine.ts | WEDMKerfWidthEngine — Kerf Width Prediction and Validation |
-| E0515 | WEDMLatticeGraph | src/engines/WEDMLatticeGraphEngine.ts | WEDMLatticeGraphEngine — Embedding lattice over the WEDM parameter space. |
-| E0516 | WEDMLearningLoop | src/engines/WEDMLearningLoopEngine.ts | WEDMLearningLoopEngine |
-| E0517 | WEDMLoRAAdapter | src/engines/WEDMLoRAAdapterEngine.ts | WEDMLoRAAdapterEngine — Rank-r Low-Rank Adaptation for WEDM physics models. |
-| E0518 | WEDMLoRACadence | src/engines/WEDMLoRACadenceEngine.ts | WEDMLoRACadenceEngine — CAM-ML-CLOSEDLOOP-MS0 U-CMCCL04 |
-| E0519 | WEDMLoRADatasetBuilder | src/engines/WEDMLoRADatasetBuilderEngine.ts |  |
-| E0520 | WEDMMLParameterOptimizer | src/engines/WEDMMLParameterOptimizerEngine.ts | WEDMMLParameterOptimizerEngine |
-| E0521 | WEDMMultiProfileBatch | src/engines/WEDMMultiProfileBatchEngine.ts | WEDMMultiProfileBatchEngine |
-| E0522 | WEDMNeighborQuery | src/engines/WEDMNeighborQueryEngine.ts | WEDMNeighborQueryEngine — HNSW-style nearest-neighbor search over the |
-| E0523 | WEDMOnlineLearning | src/engines/WEDMOnlineLearningEngine.ts | WEDMOnlineLearningEngine — Incremental learning from production feedback |
-| E0524 | WEDMOverageApproval | src/engines/WEDMOverageApprovalEngine.ts | WEDMOverageApprovalEngine — Customer approval workflow for cost overages |
-| E0525 | WEDMPostAgie | src/engines/WEDMPostAgieEngine.ts | WEDMPostAgieEngine — Wire-EDM post processor for AgieCharmilles (GF |
-| E0526 | WEDMPostDialectRouter | src/engines/WEDMPostDialectRouterEngine.ts | WEDMPostDialectRouterEngine — thin dispatcher in front of the per-vendor |
-| E0527 | WEDMPostFanuc | src/engines/WEDMPostFanucEngine.ts | WEDMPostFanucEngine — Wire-EDM post processor for Fanuc ROBOCUT |
-| E0528 | WEDMPostMakino | src/engines/WEDMPostMakinoEngine.ts | WEDMPostMakinoEngine — Wire-EDM post processor for Makino's U-series and |
-| E0529 | WEDMPostMitsubishi | src/engines/WEDMPostMitsubishiEngine.ts | WEDMPostMitsubishiEngine — Wire-EDM post processor for Mitsubishi Electric |
-| E0530 | WEDMPostSodick | src/engines/WEDMPostSodickEngine.ts | WEDMPostSodickEngine — Wire-EDM post processor for Sodick wire-cut |
-| E0531 | WEDMPostTypes | src/engines/WEDMPostTypes.ts | WEDMPostTypes — Shared types for the Wire-EDM post-processor family. |
-| E0532 | WEDMPowerDensityGuard | src/engines/WEDMPowerDensityGuardEngine.ts | WEDMPowerDensityGuardEngine — Power Density Safety Validation |
-| E0533 | WEDMProgramComparison | src/engines/WEDMProgramComparisonEngine.ts | WEDMProgramComparisonEngine — WEDM-CAL-MS4 / U-CAL18 |
-| E0534 | WEDMProgramSafetyGate | src/engines/WEDMProgramSafetyGateEngine.ts | WEDMProgramSafetyGateEngine — Composite S(x) Safety Gate |
-| E0535 | WEDMProgramVerification | src/engines/WEDMProgramVerificationEngine.ts | WEDMProgramVerificationEngine — Emitted program structural verification |
-| E0536 | WEDMProgressTracker | src/engines/WEDMProgressTrackerEngine.ts | WEDMProgressTrackerEngine — Real-time Progress and ETA Tracking |
-| E0537 | WEDMPulseLimit | src/engines/WEDMPulseLimitEngine.ts | WEDMPulseLimitEngine — Pulse Parameter Safety Validation |
-| E0538 | WEDMQuoteBridge | src/engines/WEDMQuoteBridgeEngine.ts | WEDMQuoteBridgeEngine — Cost → Quote Line Items bridge |
-| E0539 | WEDMRaPredictor | src/engines/WEDMRaPredictorEngine.ts | WEDMRaPredictorEngine — Klocke base + LoRA correction for surface roughness Ra. |
-| E0540 | WEDMReasoningExplain | src/engines/WEDMReasoningExplainEngine.ts | WEDMReasoningExplainEngine — Natural-language reasoning over the WEDM |
-| E0541 | WEDMRecastDepthPredictor | src/engines/WEDMRecastDepthPredictorEngine.ts | WEDMRecastDepthPredictorEngine — Recast layer depth using Carslaw & Jaeger. |
-| E0542 | WEDMSlugTabRetention | src/engines/WEDMSlugTabRetentionEngine.ts | WEDMSlugTabRetentionEngine — P2P-FULLSTACK-MS0 / U-P2PFS38 |
-| E0543 | WEDMStartPointOptimization | src/engines/WEDMStartPointOptimizationEngine.ts | WEDMStartPointOptimizationEngine |
-| E0544 | WEDMTaperErrorBudget | src/engines/WEDMTaperErrorBudgetEngine.ts | WEDMTaperErrorBudgetEngine — Wire EDM Taper Programming Error Budget |
-| E0545 | WEDMThermalField | src/engines/WEDMThermalFieldEngine.ts | WEDMThermalFieldEngine — FEM-based thermal field prediction during cutting |
-| E0546 | WEDMThermalReleaseGate | src/engines/WEDMThermalReleaseGateEngine.ts | WEDMThermalReleaseGateEngine — Thermal Budget & Recast Safety Gate |
-| E0547 | WEDMThinWireDerate | src/engines/WEDMThinWireDerateEngine.ts | WEDMThinWireDerateEngine — Parameter Derating for Thin Wires |
-| E0548 | WEDMTier6GeomGate | src/engines/WEDMTier6GeomGateEngine.ts | WEDMTier6GeomGateEngine — Tier 6 Progressive Die Geometry Validation |
-| E0549 | WEDMTransferLearning | src/engines/WEDMTransferLearningEngine.ts | WEDMTransferLearningEngine — Cross-material/machine parameter transfer |
-| E0550 | WEDMTribalTipLearner | src/engines/WEDMTribalTipLearnerEngine.ts | WEDMTribalTipLearnerEngine.ts — MS-P1-LEARN-LOOP U-P1-LL-03 |
-| E0551 | WEDMUnitTagGate | src/engines/WEDMUnitTagGateEngine.ts | WEDMUnitTagGateEngine — Unit-Tag & 25.4× Confusion Guard |
-| E0552 | WEDMWireBreakPredictor | src/engines/WEDMWireBreakPredictorEngine.ts | WEDMWireBreakPredictorEngine — Probability of wire break per pulse train. |
-| E0553 | WEDMWireBreakRiskCost | src/engines/WEDMWireBreakRiskCostEngine.ts | WEDMWireBreakRiskCostEngine — Wire Break Risk Cost Modeling |
-| E0554 | WEDMWireDeflection | src/engines/WEDMWireDeflectionEngine.ts | WEDMWireDeflectionEngine — Wire Deflection Prediction and Compensation |
-| E0555 | WEDMWireHeating | src/engines/WEDMWireHeatingEngine.ts | WEDMWireHeatingEngine — Wire Joule Heating Analysis |
-| E0556 | WEDMWirePathCollision | src/engines/WEDMWirePathCollisionEngine.ts | WEDMWirePathCollisionEngine — Wire path swept-volume collision detection |
-| E0557 | WEDMWirePremiumROI | src/engines/WEDMWirePremiumROIEngine.ts | WEDMWirePremiumROIEngine — Premium Wire ROI Calculator |
-| E0558 | WEDMWireSpoolConsumption | src/engines/WEDMWireSpoolConsumptionEngine.ts | WEDMWireSpoolConsumptionEngine — Wire Spool Consumption + Mid-Job Change Flag |
-| E0559 | WEDMWireThreadingMin | src/engines/WEDMWireThreadingMinEngine.ts | WEDMWireThreadingMinEngine |
-| E0560 | WetRunAuthorization | src/engines/WetRunAuthorizationEngine.ts | WetRunAuthorizationEngine (U-LPR-WETRUN-AUTH, Delivery B3) |
-| E0561 | WetRunChangeFreeze | src/engines/WetRunChangeFreezeEngine.ts | WetRunChangeFreezeEngine |
-| E0562 | WetRunCustomerAcceptance | src/engines/WetRunCustomerAcceptanceEngine.ts | WetRunCustomerAcceptanceEngine |
-| E0563 | WetRunCustomerCommunicationLog | src/engines/WetRunCustomerCommunicationLogEngine.ts | WetRunCustomerCommunicationLogEngine |
-| E0564 | WetRunDeviationRegistry | src/engines/WetRunDeviationRegistryEngine.ts | WetRunDeviationRegistryEngine |
-| E0565 | WetRunNonConformance | src/engines/WetRunNonConformanceEngine.ts | WetRunNonConformanceEngine |
-| E0566 | WetRunOnCallRotation | src/engines/WetRunOnCallRotationEngine.ts | WetRunOnCallRotationEngine |
-| E0567 | WetRunProgramVersionLock | src/engines/WetRunProgramVersionLockEngine.ts | WetRunProgramVersionLockEngine |
-| E0568 | WetRunRetentionPolicy | src/engines/WetRunRetentionPolicyEngine.ts | WetRunRetentionPolicyEngine |
-| E0569 | WetRunSampleInspectionPlan | src/engines/WetRunSampleInspectionPlanEngine.ts | WetRunSampleInspectionPlanEngine |
-| E0570 | WetRunScrapLedger | src/engines/WetRunScrapLedgerEngine.ts | WetRunScrapLedgerEngine |
-| E0571 | WetRunSessionLog | src/engines/WetRunSessionLogEngine.ts | WetRunSessionLogEngine (U-LPR-WETRUN-LOG, Delivery B4) |
-| E0572 | WetRunStateMachine | src/engines/WetRunStateMachineEngine.ts | WetRunStateMachineEngine (U-LPR-WETRUN-FSM) |
-| E0573 | WetRunSupplierPassThrough | src/engines/WetRunSupplierPassThroughEngine.ts | WetRunSupplierPassThroughEngine |
-| E0574 | WorkholdingSelection | src/engines/WorkholdingSelectionEngine.ts | WorkholdingSelectionEngine — MIO-MS0/U-MIO14 |
-| E0575 | ZeroTrustTelemetry | src/engines/ZeroTrustTelemetryEngine.ts | ZeroTrustTelemetryEngine — U-LPR-SEC12 |
+- **AbrasiveJetMachiningEngine**: Physics-Based Abrasive Waterjet Prediction
+- **AbsorptionChillerEngine**: Absorption refrigeration cycle analysis
+- **AbstractionHierarchyEngine**: Multi-level tip→principle→law generalization
+- **AccessControlListEngine**: U-LPR-SEC03
+- **AccessibilityAnalysisEngine**: Verify tool+holder can reach every feature.
+- **AccountingHardeningEngine**: SQ4-3-ACCT Finance Hardening
+- **AccumulatorEngine**: Hydraulic accumulator sizing
+- **AcoSequencerEngine**: Ant Colony Optimization for CNC operation/feature sequencing:
+- **AcousticEmissionMonitoringEngine**: AE signal analysis for tool condition monitoring
+- **AcquisitionRecommendationEngine**: Generates ranked budget, standard, and premium acquisition recommendations
+- **ActionableErrorTemplateEngine**: Turn blocking errors into actionable ones
+- **ActionSchemaCacheEngine**: Cached action parameter schemas
+- **ActiveLearningStrategyEngine**: Rank learning targets by expected info gain
+- **ActualCostEngine**: Roll up actual costs (labor + material + tooling + machine + overhead)
+- **ActualVsPredictedCollectorEngine**: Neural Training Feedback Collector (U-MIO31A)
+- **AdaLoRARankAllocatorEngine**: U-LEARN-05
+- **AdaptiveCalibrationEngine**: Adaptive Calibration
+- **AdaptiveChatterEngine**: Real-Time Chatter Detection & Suppression
+- **AdaptiveChiploadEngine**: Real-Time Chipload Control
+- **AdaptiveClearingEngine**: Constant-engagement milling toolpath strategies:
+- **AdaptiveControlEngine**: Real-Time Adaptive Machining (Adaptive Control Engine)
+- **AdaptiveEngagementEngine**: Corner engagement control and feed adaptation.
+- **AdaptiveFeedControlEngine**: Real-time PID-based adaptive feed control for CNC machining.
+- **AdaptiveFeedModulationEngine**: PRISM Forces Dynamic Feed Control
+- **AdaptiveMachiningIntegrationEngine**: Unified Integration Layer
+- **AdaptiveOverrideEngine**: Intelligent Feed/Speed Override Control
+- **AdaptiveParameterSpaceEngine**: Expand Parameter Space from Evidence
+- **AdaptivePhysicsBridgeEngine**: Bridges Existing Physics to Phase 0.26 Adaptive System
+- **AdaptivePipelineGeneratorEngine**: AdaptivePipelineGeneratorEngine
+- **AdaptiveRefinementEngine**: Error-driven toolpath densification.
+- **AdaptiveSpindleControlEngine**: Real-Time Spindle Speed Adaptation
+- **AdaptiveSystemIntegrationEngine**: Phase 0.26 System-Wide Integration
+- **AdaptiveTessellationEngine**: Curvature-adaptive mesh tessellation:
+- **AdaptiveThermalEngine**: Real-Time Thermal Compensation
+- **AdaptiveThresholdEngine**: USSH Phase 0.25 / U-SCI06
+- **AdaptiveToolpathRouterEngine**: Routes each feature/zone to the optimal toolpath algorithm from 30+
+- **AdaptiveWearEngine**: Real-Time Tool Wear Monitoring & Compensation
+- **AdditiveManufacturingPhysicsEngine**: First-principles physics for additive
+- **AdditiveQuoteEngine**: 3D printing / additive manufacturing quoting.
+- **AdhesiveBondEngine**: Adhesive Joint Strength Calculator
+- **AdhesiveBondingEngine**: Adhesive bond joint analysis
+- **AdvancedCalculations**: Stability analysis, thermal modeling, and optimization
+- **AdvancedChipThicknessEngine**: Advanced Chip Thickness Engine
+- **AdvancedCNCConfigEngine**: AdvancedCNCConfigEngine.ts
+- **AdvancedCuttingMathEngine**: Exhaustive Cutting Physics Models
+- **AdvancedCuttingPhenomenaEngine**: Five cutting phenomena models
+- **AdvancedCuttingPhysicsEngine**: Six cutting mechanics models
+- **AdvancedCuttingPhysicsExtEngine**: Four critical missing physics models
+- **AdvancedMathematicalMethodsEngine**: Exhaustive Mathematical/Statistical Gap Fill
+- **AdvancedMillingStrategiesEngine**: 5 missing milling toolpath algorithms that generate real XYZ:
+- **AdvancedMLStatisticsEngine**: 3 critical ML/statistics methods for PRISM
+- **AdvancedPostPhysicsEngine**: PRISM Manufacturing Intelligence - Advanced Post-Physics Engine
+- **AdvancedPostProcessorEngine**: AdvancedPostProcessorEngine
+- **AdvancedRegressionEngine**: Advanced Regression & ML Methods
+- **AdvancedReportRendererEngine**: Manufacturing Intelligence Layer
+- **AdvancedStatisticalLearningEngine**: MCMC, Random Forest, Logistic Regression, Permutation Testing
+- **AdvancedUncertaintyEngine**: Kriging/GP surrogates, Quasi-Monte Carlo, Gaussian Copula
+- **AdvancedUncertaintyMethodsEngine**: Quasi-Monte Carlo, Copula models, and Kriging surrogates
+- **AdvancedWearPhysicsEngine**: 7 wear and degradation physics models with full math:
+- **AgentAutoUpdateEngine**: Automatic Agent Knowledge Updates
+- **AgentExecutor**: Multi-agent orchestration, task queue, and execution coordination
+- **AgenticLoopEngine**: Observe-Think-Act Orchestrator
+- **AgentMemoryFabricEngine**: Cross-Session Memory for PRISM Agent
+- **AgentRegistryEngine**: Inventory of Task-tool agents with trigger keywords
+- **AgentSelfAwarenessEngine**: Unified PRISM Self-Awareness
+- **AgentSpecializationProfileEngine**: AI-INTEG-MS5
+- **AgentWorkflowEngine**: Autonomous Manufacturing Workflow Execution
+- **AGISafetyContainmentEngine**: Validate autonomous goals before execution
+- **AHPEngine**: Analytic Hierarchy Process
+- **AIAutoUtilizationEngine**: Automatic Capability Utilization System
+- **AICapabilityMaximizerEngine**: Ultimate AI System Capability Enhancement
+- **AIDecisionExplanationEngine**: P0-CRITICAL Gap Fix
+- **AIDeepKnowledgeIntegrationEngine**: Full PRISM Knowledge Integration for AI Agents
+- **AIExtractionReasonerEngine**: Claude-Powered Knowledge Routing
+- **AIFeatureAutoRegistryEngine**: Automatic AI Feature Discovery & Registration
+- **AIGeneratedCodeApprovalGateEngine**: P0-CRITICAL Safety Gate
+- **AIIntelligenceMaximizerEngine**: Full PRISM Knowledge Utilization
+- **AIMLEngine**: Manufacturing AI/ML Intelligence
+- **AIMLFormulasEngine**: AI/ML formulas for manufacturing intelligence
+- **AIPhysicsOptimizationEngine**: Comprehensive AI-Driven Physics Optimization
+- **AirCompressorEngine**: Compressed air system sizing
+- **AirCutDetectionEngine**: Detect air-cutting in raw G-code
+- **AirDuctEngine**: HVAC/industrial duct sizing and pressure drop
+- **AIResourceLearningEngine**: Deep Resource Learning for AI Capability Maximization
+- **AISystemRouterEngine**: AISystemRouterEngine
+- **AISystemSynchronizerEngine**: Central AI System Orchestration
+- **AlarmDiagnosticsEngine**: PRISM Manufacturing Intelligence - Alarm Diagnostics Engine
+- **AlarmEscalationEngine**: Alarm escalation pipeline: warn → critical → page
+- **AlarmIntelligenceEngine**: Enhances alarm diagnostics with handbook-sourced alarm codes, severity
+- **AlgorithmEngine**: Unified typed algorithm management
+- **AlgorithmGatewayEngine**: R7-MS4: Algorithm Gateway Engine
+- **AlgorithmOrchestratorEngine**: Phase 0.23 U-UTL3
+- **AlgorithmSelectorEngine**: Auto-select best novel algorithm per zone
+- **AlgorithmWiringEngine**: Algorithm Wiring Engine
+- **AlphacamFunctionIndexEngine**: CAM-EXHAUST-MS0/U-CAM-FIDX-19
+- **AmbiguityResolutionEngine**: Missing Data Detection + Default Application + User Prompting
+- **AMSAAReliabilityGrowthEngine**: AMSAA/Crow Reliability Growth Engine
+- **AnchoredConfidenceEngine**: U-FORE-13 (PSAU-FORESIGHT)
+- **AnodizeAllowanceEngine**: L2-P4-MS1 PASS2 Specialty
+- **AnodizingProcessEngine**: Aluminum anodizing process analysis
+- **AnomalyDetectionEngine**: Anomaly Detection
+- **AntColonyOptimizationEngine**: Ant Colony Optimization (ACO)
+- **ApprenticeEngine**: Transforms PRISM from a parameter calculator into a manufacturing mentor:
+- **ApprovalWorkflowEngine**: Session 6-6 U-APPR1
+- **ArcFittingEngine**: Converts linear point sequences to arc moves for G-code optimization.
+- **ArchardAdhesiveWearEngine**: Archard (1953) Adhesive Wear Law Implementation
+- **ArchiveCrawlerEngine**: Recursive Archive Unpacking for Resource Extraction
+- **AS9100TraceabilityEngine**: Aerospace Traceability Chain (P0-CRITICAL)
+- **AssemblyEngine**: Multi-Body Assembly with Constraints & CadQuery Codegen
+- **AssemblyOptimizationEngine**: Multi-part assembly optimization
+- **AssemblyPlannerEngine**: U-CUIX-P0-22 / CAD-UIX-MS0
+- **AssessmentEngine**: PRISM Academy Quiz & Test System
+- **AssetDependencyGraphEngine**: Phase 0.24 U-INT2
+- **AssetRecommendationEngine**: Rank assets by relevance to a task
+- **AssetSynergyDetectorEngine**: Find asset combinations that work together
+- **AssetWiringSummaryEngine**: Asset Wiring Summary Engine
+- **AssignmentProblemEngine**: Hungarian algorithm for assignment problems
+- **AtomicClaimBrokerEngine**: AtomicClaimBrokerEngine
+- **AtomicMultiFileWriteEngine**: 2-Phase Commit for Multi-File Operations
+- **AtomicStepDecomposerEngine**: U-FORE-02 (PSAU-FORESIGHT)
+- **AtomicWritesEngine**: U-FORE-17 (Reliability Substrate)
+- **AttractorDetectionEngine**: Dynamical Systems Stability Analysis
+- **AuditEngine**: L2-P3-MS1 Infrastructure Layer
+- **AuditLoggingEngine**: U-LPR-SEC04
+- **AuditManagerEngine**: ISO/AS9100 audit scheduling, finding tracking, CAPA creation via QME, management review packages.
+- **AuthEngine**: L2-P3-MS1 Infrastructure Layer
+- **AuthEngineV7**: AuthEngineV7
+- **AuthorityRankingEngine**: Implements authority ranking for PUOA conflict resolution:
+- **AuthorizationEngine**: plan-spec version)
+- **AutoCADAddinPluginEngine**: U-CAD-APP-12 (PHASE-48)
+- **AutoCADDotNetBridgeEngine**: U-CAD-APP-11 (PHASE-48)
+- **AutoclaveProcessEngine**: Composite autoclave curing analysis
+- **AutodeskFusionMCPProxyEngine**: JSON-RPC 2.0 client for Autodesk's official
+- **AutoFixPipelineEngine**: Takes detected improvement patterns from SelfImprovementPatternEngine
+- **AutoForgeEngine**: SQ1-1-TMPL: Template Auto-Generation System
+- **AutomatedResourceHarvestingPipeline**: RESOURCE-HARVEST-MS1: Fully Automated Harvesting
+- **AutomaticPipelineComposerEngine**: Phase 0.24 U-INT3
+- **AutomationChainEngine**: Automation Control Plane: classifies user prompts into task types,
+- **AutonomousAIOrchestrationEngine**: Self-Reliant AI System Orchestration
+- **AutonomousGoalSynthesisEngine**: Generate goals instead of waiting for them
+- **AutonomousSessionIntegrationEngine**: Real Integration Layer for Autonomous AI
+- **AutoPostmortemEngine**: Auto Postmortem
+- **AutoPrintToProgramBridgeEngine**: auto-detect process type and route to the
+- **AutoProgramOrchestratorEngine**: Fusion 360 One-Button CNC Programming
+- **AutoSchemaGeneratorEngine**: NOTE: This is a SOFTWARE DEVELOPMENT automation engine. It does NOT perform
+- **AutoSpeedFeedCalculatorEngine**: Auto-calculate speeds, feeds, and RPM for Okuma macros
+- **AutoSpeedFeedEngine**: Automated Line-by-Line Speed & Feed Optimization
+- **AutoTestGeneratorEngine**: NOTE: This is a SOFTWARE DEVELOPMENT automation engine. It does NOT perform
+- **AutoWiringEngine**: NOTE: This is a SOFTWARE DEVELOPMENT automation engine. It does NOT perform
+- **AwarenessBootstrapEngine**: Session awareness verification at boot
+- **AwarenessQueryEngine**: Fast In-Memory Asset Awareness Cache
+- **AxialPistonPumpEngine**: Axial piston hydraulic pump analysis
+- **AxisCompensationEngine**: Machine Axis Compensation Calculator
+- **BackendRouterEngine**: LOCAL-LLM-MS0 Hybrid Backend
+- **BackplotEngine**: Backplot Engine
+- **BackupRestoreDrillEngine**: U-LPR-OPS-BACKUP
+- **BalancingMachineEngine**: Rotor balancing analysis
+- **BallEndMillEngine**: Ball End Mill 3D Surface Calculations
+- **BallMillEngine**: Ball Mill Sizing & Power Calculator
+- **BallScrewEngine**: Ball screw selection and performance
+- **BallScrewSelectionEngine**: Ball Screw Sizing & Selection Calculator
+- **BanditParameterOptimizerEngine**: Multi-Armed Bandit Parameter Optimization
+- **BarFeederEngine**: Bar Feeder Optimization Calculator
+- **BarFeedPitchOptimizerEngine**: BarFeedPitchOptimizerEngine
+- **BarPullerTimingEngine**: L2-P4-MS1 PASS2 Specialty
+- **BarRemnantManagementEngine**: BarRemnantManagementEngine
+- **BarStockCutPlanEngine**: BarStockCutPlanEngine
+- **BarStockVibrationEngine**: Vibration-Aware Bar Stock Machining
+- **BaseEngine**: Abstract base class for all PRISM engines.
+- **BashCommandClassifierEngine**: Classifies bash commands and suggests token-efficient alternatives
+- **BatchCAMAddInGenerators**: 6 per-CAM add-in generators in one file (E1145)
+- **BatchCAMAPIBridgeEngines**: 4 CAM HTTP API Bridge Engines in One File (E1144)
+- **BatchCAMControllerEngines**: 4 CAM Controller Catalog Engines in One File
+- **BatchCAMEngine**: Generate CNC programs for multiple parts in one call.
+- **BatchCAMMaterialBridgeEngines**: 4 CAM Material Bridge Engines in One File
+- **BatchCAMOperationCatalogEngines**: 4 CAM Operation Catalog Engines in One File
+- **BatchCAMSafetyEngines**: NX CAM, PowerMill, and CATIA Safety Hooks in One File
+- **BatchCAMStrategyEngines**: 6 Lightweight CAM Strategy Engines in One File
+- **BatchCAMStrategyEngines2**: 4 Lightweight CAM Strategy Engines in One File
+- **BatchCAMToolBridgeEngines**: 4 CAM Tool Library Bridge Engines in One File (E1143)
+- **BatchMacroConversionEngine**: Convert multiple programs to parametric macros
+- **BatchOptimizationEngine**: Manufacturing Intelligence Layer
+- **BatchPhysicsOptimizationEngine**: Run physics optimization on batches of programs
+- **BatchProcessor**: Batch Processor
+- **BatchQueryEngine**: Multi-action dispatcher batching
+- **BatchSizeStrategyEngine**: Batch-Size-Aware Machining Strategy Optimizer
+- **BayesianAdaptiveEngine**: Bayesian Adaptive Calibration Engine
+- **BayesianInferenceEngine**: Bayesian statistical inference
+- **BayesianOptimizationEngine**: Gaussian Process surrogate optimization
+- **BayesianSafetyEngine**: Bayesian S(x) with Credible Intervals
+- **BayesianToolLifeEngine**: Probabilistic tool life prediction:
+- **BearingSelectionEngine**: Rolling Element Bearing Selection Calculator
+- **BeliefStateReasoningEngine**: Maintain probability distributions over states
+- **BeltDriveEngine**: V-Belt & Timing Belt Drive Calculator
+- **BenchmarkReportGeneratorEngine**: Synthetic Parts (15 canonical benchmark parts, parametric combos)
+- **BenchmarkSuiteEngine**: Benchmark Suite Engine
+- **BendAllowanceEngine**: L2-P4-MS1 PASS2 Specialty
+- **BevelGearEngine**: Bevel gear set design
+- **BillingEngine**: SaaS billing for PRISM multi-tenant deployment
+- **BladeProfileLibraryEngine**: Blade Profile Library
+- **BlamelessPostMortemEngine**: first filed, author still gathering facts
+- **BlastDampenerEngine**: U-FORE-17 (Reliability Substrate)
+- **BliskCADEngine**: Generates 3D blisk (blade-integrated disk) geometry for turbomachinery.
+- **BloomDedupEngine**: Fast Negative Deduplication Filter
+- **BlowerEngine**: Industrial blower/fan performance analysis
+- **BlowMoldingEngine**: Blow molding process sizing
+- **BlueprintOCREngine**: Engineering Print & Blueprint Reading
+- **BlueprintProgramJoinEngine**: Phase 8 → JM Die program join table
+- **BlueprintToAllCADsOrchestratorEngine**: image-to-6-CAD end-to-end pipeline
+- **BlueprintToCADGenerationEngine**: CADCAM-DAGI-MS0/U-DAGI08
+- **BlueprintToQuoteBridgeEngine**: Connects BlueprintOCR extraction → QuoteEstimator input.
+- **BlueprintVisionOCREngine**: Claude Vision-powered blueprint OCR
+- **BobCADCAMBridgeEngine**: BobCADCAMBridgeEngine - PRISM-side HTTP client for BobCAD-CAM automation.
+- **BobCADCAMFunctionIndexEngine**: CAM-EXHAUST-MS0/U-CAM-FIDX-16
+- **BoilerTubeEngine**: Fire-tube / water-tube boiler tube sizing
+- **BoltedJointEngine**: Bolted joint analysis per VDI 2230
+- **BoltTorqueEngine**: Bolted Joint Torque-Tension Calculator
+- **BooleanKernelEngine**: BooleanKernelEngine
+- **BoreFinishingEngine**: Honing & bore finishing prediction
+- **BoringBarDeflectionEngine**: Boring Bar Deflection & Selection
+- **BoringBarEngine**: Boring Bar Selection & Calculation
+- **BottleneckAnalysisEngine**: Theory of Constraints & DBR Scheduling
+- **BottleneckIdentificationEngine**: L2-P4-MS1 PASS2 Specialty
+- **BoxKnowledgeIntegrationEngine**: Wire mined Box data into PRISM knowledge bases
+- **BoxProgramCensusEngine**: Recursive scan of all Box CNC folders
+- **BrazingProcessEngine**: Brazing process analysis
+- **BrazingSolderingEngine**: Brazing and soldering joint analysis
+- **BroachDesignEngine**: Broaching Process Parameter Calculator
+- **BroachingEngine**: Broaching Process Calculations
+- **BSplineEngine**: B-Spline and NURBS curve/surface evaluation:
+- **BucketElevatorEngine**: Bucket elevator capacity, power, and belt sizing
+- **BUEOnsetThresholdEngine**: LATHE-PROD-READY-MS0/U-LPR-BUE
+- **BuildAdvisorEngine**: U-FORE-04 (PSAU-FORESIGHT)
+- **BuildDebriefEngine**: U-FORE-04 (PSAU-FORESIGHT)
+- **BuildGuardChainEngine**: Orchestrates the Coding & Build Guard Chain:
+- **BuildPlannerEngine**: U-FORE-02 (PSAU-FORESIGHT)
+- **BurdenRateEngine**: Machine burden rate calculations
+- **BurnishingPolishingEngine**: Burnishing, lapping, and polishing prediction
+- **BurrFormationEngine**: Predict exit burr formation in milling/drilling.
+- **BusinessDocumentExtractorEngine**: OCR + extraction for POs, invoices, RFQs
+- **BusinessIntelligenceEngine**: Cost/Benefit Analysis for PRISM
+- **BusinessSyncEngine**: ERP/accounting data synchronization
+- **BVHEngine**: Bounding Volume Hierarchy for spatial queries
+- **CacheEngine**: L2-P3-MS1 Infrastructure Layer
+- **CADAccessControlRBACABACEngine**: U-FS-12 (PHASE-47)
+- **CADAccuracyValidatorEngine**: 100% Accuracy Gate
+- **CADAdapterRegistry**: U-CUIX-P0-19 / CAD-UIX-MS0
+- **CADAIStateMachineEngine**: U-CADC-AI04 / CAD-COMPLETE-MS0 PHASE-30
+- **CADArtifactStorageEngine**: Persists per-file CAD regression-test artifacts to a canonical on-disk
+- **CADAssemblyGraphEngine**: U-FS-02 (CAD-COMPLETE-MS0 / PHASE-47)
+- **CADAutomationMockLayer**: extension-indexed fixture bank for CAD bridges.
+- **CADAutomationRouter**: unified format→bridge selector for CAD automation.
+- **CadBridge**: TypeScript client for the Python CAD engine.
+- **CADBundleReplayCompareEngine**: U-FS-15 (PHASE-47)
+- **CADBundleSigningVersioningEngine**: U-FS-14 (PHASE-47)
+- **CADClassFeatureLibraryEngine**: Class-typical feature taxonomy for the
+- **CADContentAddressableStoreEngine**: U-FS-01 (CAD-COMPLETE-MS0 / PHASE-47)
+- **CADCorpusFeaturePrevalenceLearnerEngine**: Learn class-feature prevalence
+- **CADCorpusIngesterEngine**: CADCAM-DAGI-MS0/U-DAGI03
+- **CADCorpusIngestionEngine**: Local-file CAD corpus learning surface.
+- **CADCorpusPatternEngine**: Mine learning patterns from the local CAD corpus.
+- **CADCrashRecoveryEngine**: U-CAD-APP-13 (PHASE-48)
+- **CADDrawingKnowledgeEngine**: Drawing Procedures, GD&T Rules, Feature Modeling,
+- **CADDrawingNumberNormalizerEngine**: U-FS-06 (PHASE-47)
+- **CADEmbeddingIndexOrchestratorEngine**: CAD-COMPLETE-MS0/U-CADC18
+- **CADFailureTriageEngine**: CAD Failure Triage
+- **CADFeatureClassifierEngine**: Pure-code classifier that maps RecognizedFeature objects (from
+- **CADFeatureEmbeddingEngine**: CADCAM-DAGI-MS0/U-DAGI05
+- **CADFeatureMemoryEngine**: CAD Feature Memory
+- **CADFeatureRecognitionEngine**: stub (U-EFF25).
+- **CADFileClassifierEngine**: Classifies every indexed CAD file by category and test strategy:
+- **CadFileIndexEngine**: Index all CAD files in Box drive
+- **CADFileIndexerEngine**: Discovers and catalogs all 20,006+ CAD files across JM Die's H:/PRISM/JM DIE
+- **CADFilesystemReconciliationEngine**: U-FS-13 (PHASE-47)
+- **CADFormatConversionMatrixEngine**: U-FS-09 (PHASE-47)
+- **CADGeometricAugmentationEngine**: U-ML-02
+- **CADGeometryComparisonEngine**: Format-Agnostic CAD Comparison
+- **CADInstallationProbeEngine**: CADInstallationProbeEngine (U-CAUT01)
+- **CADIntentDecomposerEngine**: U-CADC-AI02 / CAD-COMPLETE-MS0 PHASE-30
+- **CADKernelEngine**: Computational Geometry & B-Rep Kernel
+- **CADKnowledgeGraphEngine**: CADCAM-DAGI-MS0/U-DAGI02
+- **CADLicenseHealthEngine**: U-CAD-APP-14 (PHASE-48)
+- **cadLiveDispatch**: shared HTTP + COM execution helpers for Live CAD bridges
+- **CADOperationPlannerEngine**: U-CUIX-P0-20 / CAD-UIX-MS0
+- **CADOperationTaxonomyEngine**: Comprehensive CAD operation classification
+- **CADParameterPredictorEngine**: Given target geometry (volume, bbox, face/edge counts, optional feature
+- **CadPartLibraryEngine**: Feature-Tagged CAD Part Library Index
+- **CADPhysicsConsistencyGateEngine**: U-ML-01
+- **CADPluginMTLSSecurityEngine**: U-CAD-APP-15 (PHASE-48)
+- **CADPluginTamperAuditLogEngine**: U-CAD-APP-16 (PHASE-48)
+- **CADPreviewThumbnailCacheEngine**: U-FS-10 (PHASE-47)
+- **CadQueryCodeGeneratorEngine**: CadQuery Script Generation + Execution
+- **CADReasoningChainEngine**: Chain-of-Thought for CAD Design Decisions
+- **CADRegenerationTestEngine**: CAD-COMPLETE-MS0/U-CADC21
+- **CADRegressionDashboardEngine**: Read-only aggregation layer over the per-batch TestBatch JSON documents
+- **CADRegressionReportGeneratorEngine**: Pure rendering layer. Takes structured outputs from CINF08 (DashboardSnapshot)
+- **CADRegressionResultsAnalyzerEngine**: Post-batch analysis layer that compares and characterizes CAD regression
+- **CADRegressionTestOrchestratorEngine**: CAD Regression Test Orchestrator
+- **CADReplicationDurabilityEngine**: U-FS-11 (PHASE-47)
+- **CADRetrievalAugmentationEngine**: CADCAM-DAGI-MS0/U-DAGI06
+- **CADRevisionDetectorEngine**: U-FS-03 (PHASE-47)
+- **CADRevisionPromotionWorkflowEngine**: U-FS-04 (PHASE-47)
+- **CADScreenshotCapturer**: 6-canonical-view PNG capturer for the ground-truth
+- **CADSearchUniversalEngine**: U-FS-08 (PHASE-47)
+- **CADSequenceLearningEngine**: HM-KC-MS10-S3/U-HKC55
+- **CADSequenceTrainerEngine**: CADCAM-DAGI-MS0/U-DAGI04
+- **CADSystemRouterEngine**: unified router across all 6 CAD plan↔execution bridges.
+- **CADTenantNamespaceEngine**: U-FS-07 (PHASE-47)
+- **CADTestCheckpointEngine**: CAD Test Checkpoint
+- **CADTokenRepresentationEngine**: CAD as Learnable Language
+- **CADToSTEPPipelineEngine**: end-to-end format-agnostic CAD→STEP pipeline.
+- **CADTrainingCorpusOrchestratorEngine**: CAD-COMPLETE-MS0/U-CADC17
+- **CADTrainingPipelineOrchestratorEngine**: CAD-COMPLETE-MS0/U-CADC19
+- **CADTrialErrorLearningEngine**: Learns from CAD generation regeneration-test failures (output of
+- **CADVisualDiffEngine**: U-FS-05 (PHASE-47)
+- **CalculatorPRISMModeEngine**: Orchestrates calculator PRISM mode that derives best-fit tooling, holder,
+- **CalenderingEngine**: Calendering/rolling of polymer/rubber sheets
+- **CalibratedSimulationEngine**: Closes 3 gaps in the simulation pipeline:
+- **CalibrationEngine**: Calibration Engine
+- **CallChainEngine**: Tool call chain analysis and optimization
+- **CAMAddInFrameworkEngine**: E1125 (CAMX-MS11/U01)
+- **CAMAGIMasterOrchestratorEngine**: Unified CAM AGI Master Orchestrator
+- **CAMAGIReasoningEngine**: production CAM AGI reasoning surface
+- **CAMAIActionLinkerEngine**: U-CAM-ENRICH-03
+- **CAMAIValidationEngine**: CAM-EXHAUST-MS0/U-CAM127
+- **CAMAnalyzeEngine**: CAM Operation Analysis
+- **CAMBaselineRegressorEngine**: U-CAM-ML-04
+- **CAMCatalogEnrichmentValidator**: U-CAM-ENRICH-04
+- **CAMCatalogLoaderEngine**: binds captured CAM catalog JSONs to canonical schemas
+- **CAMCatalogPhysicsLinkerEngine**: U-CAM-ENRICH-01
+- **CAMCatalogSplitterEngine**: Splits consolidated CAM catalog files (captured as single JSONs per CAM
+- **CAMConfidenceCalibrationEngine**: CAM-EXHAUST-MS0/U-CAM119
+- **CAMCrossSystemTranslatorEngine**: production cross-CAM parameter translator
+- **CAMDeepLearningEngine**: MILL-AI-MS3: Deep Learning + Multi-CAM Knowledge Integration
+- **CAMDeepLearningOrchestratorEngine**: CAM-EXHAUST-MS0/U-CAM117
+- **CamDesignEngine**: Cam Profile & Follower Analysis Calculator
+- **CAMExportEngine**: CAM System Export
+- **CAMFeatureExtractorEngine**: U-CAM-ML-02
+- **CAMFeatureLearningEngine**: production CAM feature recognition + op suggest
+- **CAMFeedbackLoopEngine**: CAM-EXHAUST-MS0/U-CAM120
+- **CAMFunctionRouterEngine**: production CAM intent router
+- **CAMGeometryExchangeEngine**: Geometry Transfer Protocol (U-CAM97)
+- **CAMInHostAssertionBundleEngine**: assertion families that every in-host runner must enforce on a
+- **CAMInHostNightlyOrchestratorEngine**: 1. Generate scenarios via CAMScenarioGeneratorEngine
+- **CAMInHostRegressionDetectorEngine**: baseline at `data/state/CAM_INHOST_GOLDEN_BASELINE.json` and surfaces
+- **CAMInHostResultsBridgeEngine**: that arrive over CAMPluginCommunicationHub. Collects per-scenario
+- **CAMInputExhaustionPlannerEngine**: Plans and prioritizes CAM system exhaustion work. Reads coverage baseline,
+- **CAMIntegrationEngine**: R9-MS1 CAM System Integration
+- **CAMKernelDispatcherBridge**: Provides dispatcher-callable actions for all CAM kernel engines.
+- **CAMKernelEngine**: Computer-Aided Manufacturing Kernel
+- **CAMKernelExtensionEngine**: Capabilities:
+- **CAMKernelOrchestratorEngine**: Unified CAM Kernel Pipeline Orchestrator
+- **CAMKernelValidationEngine**: Covers three milestones:
+- **CamKnowledgePortabilityEngine**: Cross-CAM Knowledge Bridge
+- **CAMLoRAAdapterTrainerEngine**: U-CAM-ML-05
+- **CAMLoRAEngine**: Fine-tuning adapter framework for CAM knowledge.
+- **CAMMachiningErrorPredictionEngine**: Predictive Alerts (U-CAM102)
+- **CAMMLDriftMonitorEngine**: U-CAM-ML-07
+- **CAMMLSplitEngine**: U-CAM-ML-03
+- **CAMModelServingEngine**: CAM-EXHAUST-MS0/U-CAM122
+- **CAMOptimizationSuggestionEngine**: AI Recommendations (U-CAM103)
+- **CampaignEngine**: Campaign
+- **CAMParameterOptimizerEngine**: production CAM parameter optimizer
+- **CAMParameterValidatorEngine**: production CAM parameter validator
+- **CAMPhase5Stubs**: F5 fix for CAM-EXHAUST-MS0 scrutiny
+- **CAMPluginCommunicationHubEngine**: Bidirectional Plugin Transport Hub (U-CAM96)
+- **CAMPluginRegistryEngine**: Plugin Discovery, Health, Compatibility (U-CAM98)
+- **CAMPluginSDKEngine**: Lightweight API for CAM vendor integration
+- **CAMPostInvokeOrchestratorEngine**: U-CAM-R3-10
+- **CAMPostSelectorUIEngine**: Post-Processor Selector UI Feed (U-CAM100)
+- **CamProfileEngine**: Cam Mechanism Design Calculator
+- **CAMReasoningChainEngine**: CAM-EXHAUST-MS0/U-CAM118
+- **CAMRecommendEngine**: CAM Strategy Recommendations
+- **CAMResultCacheEngine**: In-memory LRU cache for CAM generation results with TTL support.
+- **CAMScenarioGeneratorEngine**: CAM Scenario Generator
+- **CAMSpeedFeedBridgeEngine**: Per-CAM Speed/Feed Translation (U-CAM99)
+- **CAMStrategyRecommenderEngine**: production CAM strategy recommender
+- **CAMToolGetEngine**: CAM Tool Data Retrieval
+- **CAMToolLibraryEngine**: CAM Tool Library Management
+- **CAMTrainingExtractionAggregatorEngine**: CAM Training Extraction Aggregator
+- **CAMTransferLearningEngine**: CAM-EXHAUST-MS0/U-CAM121
+- **CAMTribalKnowledgeEngine**: production CAM tribal-knowledge surface
+- **CAMTribalKnowledgeInjectionEngine**: Context Tooltips for CAM UI (U-CAM101)
+- **CAMTribalRAGEngine**: U-CAM-ML-06
+- **CAMTribalTipLinkerEngine**: U-CAM-ENRICH-02
+- **CAMUtilityEngines**: Three utility engines for CAM kernel UX:
+- **CAMWorksFunctionIndexEngine**: CAM-EXHAUST-MS0/U-CAM-FIDX-14
+- **CamxEnergyOptimizationEngine**: Camx Energy Optimization
+- **CapabilityCensusEngine**: Live capability census that scans the PRISM file system:
+- **CapabilityEffectivenessEngine**: E2E validation and usage effectiveness tracking:
+- **CapabilityIndexEngine**: Live Dispatcher Introspection
+- **CapabilityPathEngine**: Learning paths that map to PRISM capability unlocks:
+- **CapacitorBankEngine**: Power factor correction capacitor bank sizing
+- **CapacityMonteCarloEngine**: Monte Carlo simulation for capacity planning and inventory service level.
+- **CapacityPlanningEngine**: Machine-level scheduling, load analysis, bottleneck detection.
+- **CAPAWorkflowEngine**: CAPAWorkflowEngine
+- **CaptureSharpenEngine**: sentence length within healthline range
+- **CarburizingEngine**: Gas/vacuum carburizing process analysis
+- **CashFlowProjectionEngine**: Cash flow forecasting
+- **CastingDefectEngine**: Casting Process Defect Prediction
+- **CastingQuoteEngine**: Casting Process Cost Estimator
+- **CatalogExtractionEngine**: CatalogExtractionEngine.ts
+- **CatalogRegistryBridgeEngine**: Bridge extracted catalog data into PRISM registries
+- **CathodicProtectionEngine**: Cathodic protection system design
+- **CATIAAddinPluginEngine**: U-CAD-APP-05 (PHASE-48)
+- **CATIACAAV5BridgeEngine**: U-CAD-APP-04 (PHASE-48)
+- **CATIACodeGeneratorEngine**: CATIA V5 VBA/CATVBA Macro & 3DEXPERIENCE EKL Script Generator (E1122)
+- **CATIAIntegrationTestSuiteEngine**: U-CAD-APP-06 (PHASE-48)
+- **CATIAMachiningAIOrchestrationEngine**: AI Orchestration for Dassault CATIA Machining
+- **CATIAMachiningFunctionIndexEngine**: CAM-EXHAUST-MS0/U-CAM-FIDX-23
+- **CATIAStrategyEngine**: Dassault Systèmes CATIA V5/3DEXPERIENCE CAM Strategy Engine
+- **CausalReasoningEngine**: Intervention-calculus over a PRISM dependency graph
+- **CenterDrillEngine**: Center Drilling & Spot Drilling Calculations
+- **CenterlessGrindingEngine**: Centerless Grinding Calculator
+- **CentrifugalCastingEngine**: Centrifugal (spin) casting process analysis
+- **CentrifugalPumpEngine**: Centrifugal pump selection and performance analysis
+- **CentrifugeEngine**: Industrial centrifuge sizing and separation
+- **CeramicsMachiningEngine**: Advanced Materials Machining
+- **CertificateEngine**: PRISM F4: Formal Verification Certificate Engine
+- **CertificationTrackingEngine**: PRISM: CertificationTrackingEngine
+- **ChainDriveEngine**: Roller Chain Drive Selection Calculator
+- **ChainExecutorEngine**: Extends BuildGuardChainEngine patterns for PUOA multi-step workflow execution.
+- **ChainFailureRecoveryEngine**: Handles chain step failures with structured strategies:
+- **ChainOfThoughtEngine**: Explicit Step-by-Step Reasoning for PRISM
+- **ChamferEngine**: Chamfer Machining Parameter Calculator
+- **ChamferMillingEngine**: Chamfer Milling Calculations
+- **ChanceConstrainedOptimizationEngine**: Chance-Constrained Optimization Engine
+- **ChangeImpactRadiusEngine**: U-FORE-01 (PSAU-FORESIGHT)
+- **ChangePointDetectionEngine**: Detect structural breaks in a time series
+- **ChaosDrillSchedulerEngine**: U-LPR-OPS-CHAOS
+- **ChartDataGeneratorEngine**: Manufacturing Intelligence Layer
+- **ChatBusEngine**: Live instant chat + file-claim registry for concurrent Claude chats.
+- **ChatterNeuralClassifierEngine**: 1D-CNN Neural Classifier for Chatter Stability
+- **ChatterPredictionEngine**: Chatter Prediction Engine
+- **ChatterStabilityLobeEngine**: Regenerative chatter stability analysis.
+- **ChatterStabilityPlugin**: PhysicsPlugin wrapper for ChatterStabilityLobeEngine
+- **ChemicalVaporDepositionEngine**: CVD process analysis
+- **ChipBreakingEngine**: Chip Form Prediction & Chipbreaker Selection
+- **ChipConveyorEngine**: Chip Conveyor Sizing & Throughput Calculator
+- **ChipFormationPredictionEngine**: Chip morphology, shear angle, and chip control
+- **ChipLoadEngine**: Chip Load Optimization Calculator
+- **ChipMorphologyDiagnosticEngine**: Chip Form Classification & Process Health Diagnostics
+- **ChipThinningCompensationEngine**: Automatic feedrate compensation for chip thinning in radial engagement < 50%.
+- **CholeskyEngine**: Cholesky Factorization
+- **ChuckJawForceEngine**: L2-P4-MS1 PASS2 Specialty
+- **CimatronCAMBridgeEngine**: Cimatron CAM System Data Bridge
+- **CimatronFunctionIndexEngine**: CAM-EXHAUST-MS0/U-CAM-FIDX-17
+- **CircularDependencyEngine**: Tarjan's SCC for Deadlock Prevention
+- **CircularInterpolationEngine**: Circular Milling Calculations
+- **CircularPocketEngine**: Circular Pocket Milling Calculator
+- **ClampingForceEngine**: Calculates minimum safe clamping force for workholding based on cutting
+- **ClampingSimEngine**: L2-P2-MS1 CAD/CAM Layer
+- **ClothoidBlendingEngine**: G2-Continuous Euler Spiral Toolpath Transitions
+- **ClusterAnalysisEngine**: K-means clustering analysis
+- **ClusteringEngine**: Unsupervised clustering algorithms:
+- **ClutchBrakeEngine**: Friction Clutch & Brake Sizing Calculator
+- **ClutchDesignEngine**: Friction clutch torque capacity and thermal analysis
+- **CMMHistoryEngine**: CMM Measurement History
+- **CMMImportEngine**: CMM Data Import
+- **CMMPathPlanningEngine**: CMM Path Planning Engine
+- **CNCControllerDeepLearningEngine**: Deep AI Intelligence for CNC Controllers
+- **CNCMaintenanceEngine**: Preventive Maintenance Schedule Calculator
+- **CNCProgramAssemblerEngine**: Complete CNC Program Generation Pipeline
+- **CNCSimulationPipelineEngine**: Unified CNC Simulation Pipeline
+- **CNCToolOffsetPersistenceEngine**: CNC Tool Offset Persistence
+- **CoatingSelectionAdapter**: Replaces HARDCODED `if (material === "steel") coating = "TiAlN"` logic
+- **CoatingSelectionEngine**: ISO-group-based cutting tool coating selection
+- **CoatingThicknessEngine**: Surface coating thickness design
+- **CobotMachiningEngine**: Collaborative Robot Machining Safety & Planning
+- **CodeGenerationIntegrityEngine**: AI Code Generation Quality Assurance
+- **CodeSystemIndexEngine**: CodeSystemIndexEngine -- DSL shortcode to path mapping for token savings
+- **CodexClientEngine**: Subprocess wrapper around the OpenAI `codex` CLI.
+- **CodingCopilotEngine**: Smart coding assistance using PRISM's own engine knowledge:
+- **CoffinMansonFatigueEngine**: Low-Cycle & High-Cycle Fatigue Analysis
+- **CognitiveBudgetAllocatorEngine**: Decide think-hard vs respond-fast per request
+- **ColdHeadingToolConfiguratorEngine**: ELEC-PIPE-MS0
+- **CollisionDetectionEngine**: L2-P2-MS1 CAD/CAM Layer
+- **CollisionEngine**: PRISM Manufacturing Intelligence - Collision Detection Engine
+- **CollisionHazardDetectorEngine**: Pattern-based G-code hazard detection.
+- **CollisionIntegrationEngine**: Full collision detection on novel algorithm output: tool body + holder + spindle
+- **CollisionPreventionEngine**: Collision Prevention
+- **ColumnBucklingEngine**: Euler & Johnson Column Buckling Calculator
+- **CommonlyMissedPatternsRegistry**: U-FORE-03 (PSAU-FORESIGHT)
+- **CompactFormatterEngine**: Token-efficient output formatting
+- **CompactionStrategyEngine**: CompactionStrategyEngine - Intelligent context compaction decisions
+- **CompactionSurvivalEngine**: CompactionSurvivalEngine
+- **CompactPlannerEngine**: Plans optimal content preservation during compaction
+- **CompleteMachiningEngine**: CompleteMachiningEngine.ts
+- **ComplexityAwareRouterEngine**: Classify problems and route to solvers
+- **ComplexPartPlannerEngine**: U-CUIX-P0-21 / CAD-UIX-MS0
+- **ComplianceEngine**: PRISM F8: Compliance-as-Code Engine
+- **CompositeMachiningPhysicsEngine**: Composite material machining physics
+- **CompositesMachiningPhysicsEngine**: Advanced Materials Machining
+- **CompositionalSynthesisEngine**: Enumerate valid combinations of primitives
+- **CompressionMoldingEngine**: Compression molding process analysis
+- **CompressorDesignEngine**: Reciprocating/screw compressor sizing
+- **ComputationCache**: Computation Cache
+- **ConcentrationInequalityEngine**: Tail bounds for bounded/unbounded random variables
+- **CondenserDesignEngine**: Shell-and-tube condenser sizing
+- **ConfidenceCommitEventBusEngine**: CAM-ML-CLOSEDLOOP-MS0 U-CMCCL12
+- **ConfigEngine**: L2-P3-MS1 Infrastructure Layer
+- **ConformalCalibrationMonitorEngine**: XPROC-NEURAL Tier 5 (T5-04b)
+- **ConformalPredictionLogEngine**: XPROC-NEURAL Tier 5 (T5-02e)
+- **ConnectingRodEngine**: Connecting rod stress and buckling analysis
+- **ConnectionMaterializerEngine**: ConnectionMaterializerEngine
+- **ConsensusAIBridgeEngine**: adapter that lets PRISM AI orchestration engines
+- **ConsensusCoordinatorEngine**: concurrency-aware wrapper around MultiModelConsensusEngine.
+- **ConsensusFactCheckerEngine**: auto-validate consensus model answers against
+- **ConsensusNeuralFeedbackEngine**: record every consensus run as a training
+- **ConsensusObsidianPersistenceEngine**: write each ConsensusResult to the
+- **ConsensusRecallCacheEngine**: short-circuit fan-out when an identical prompt
+- **ConstitutiveModelEngine**: 9 material constitutive and failure models
+- **ConstraintSatisfactionEngine**: Multi-objective constraint solver for machining operations.
+- **ConstructionGeometryEngine**: Construction geometry operations (Fusion 360 style):
+- **ContactMechanicsSurfaceEngine**: Hertz Contact + Sub-Surface Integrity Analysis
+- **ContentAutoTaggerEngine**: NLP Entity Extraction for CNC Content
+- **ContentBriefEngine**: most-specific real example/number/result
+- **ContentIngestionPipelineEngine**: Unified Knowledge Ingestion Pipeline
+- **ContentWriterEngine**: that's the role of an LLM round-trip downstream. This engine is
+- **ContextBudgetEngine**: Context Budget Engine
+- **ContextBudgetForecastEngine**: U-FORE-09 (PSAU-FORESIGHT)
+- **ContextChainEngine**: Context management for automation chains:
+- **ContextCheckpointEngine**: AI-MAX-ROADMAP U-AIMAX08
+- **ContextCompactionEngine**: Efficient Context Management
+- **ContextCompressionEngine**: AI-MAX-ROADMAP U-AIMAX07
+- **ContextDigestEngine**: ContextDigestEngine - Ultra-compact file/directory digests
+- **ContextIntegrityEngine**: Guards against quality degradation from token optimization
+- **ContextInventoryEngine**: Inventories what's currently in context
+- **ContextPreloaderEngine**: Token-efficient session bootstrap
+- **ContextRetentionEngine**: Critical Fact Preservation
+- **ContextSnapshotEngine**: Minimal session state snapshots
+- **ContextualBoundaryEngine**: Context-Dependent Limits
+- **ContextualStrategyOverrideEngine**: Contextual Strategy Override
+- **ContextWindowMapEngine**: ContextWindowMapEngine - Maps context window contents
+- **ContextWindowPressureEngine**: Models context window pressure
+- **ContinualLoRAEngine**: U-LEARN-10
+- **ContinuousCollisionDetectionEngine**: SAFETY-CRITICAL
+- **ContinuousImprovementEngine**: Learns from validation results to improve
+- **ContradictionDetectorEngine**: ContradictionDetectorEngine
+- **ControllerDialectEngine**: Deep G-code dialect rules for 15+ controller families
+- **ControllerFeatureMatrixEngine**: Controller Feature Matrix for MS5 U01-U04
+- **ControllerKnowledgeDBEngine**: Comprehensive controller knowledge from mined programs
+- **ControllerKnowledgeEngine**: ControllerKnowledgeEngine.ts
+- **ControllerProgrammingIntelligenceEngine**: Extracts and structures custom G/M codes, macro variable maps, option packages,
+- **ControllerStrategyValidatorEngine**: Pre-validates that a selected toolpath strategy is executable on the target
+- **ControlPlanGeneratorEngine**: Quality Control Plan Generator (U-MIO34)
+- **ConversationalMemoryEngine**: R8-MS5 Conversational Memory & Context
+- **ConversationBudgetEngine**: Conversation-level token budget management
+- **ConversationStaleDetectorEngine**: ConversationStaleDetectorEngine
+- **ConversationTrimmerEngine**: Identifies trimmable conversation segments
+- **ConvexOptimizationEngine**: Quadratic Programming & Convex Optimization
+- **ConveyorBeltEngine**: Belt Conveyor Design Calculator
+- **ConveyorDesignEngine**: Belt Conveyor Sizing Calculator
+- **CoolantControlConfigEngine**: Per-machine coolant M-code & sequencing configuration
+- **CoolantCostOptimizationEngine**: Compare coolant strategies by total lifecycle cost:
+- **CoolantDynamicsEngine**: Fluid mechanics and thermal models for CNC coolant systems
+- **CoolantFlowEngine**: Coolant Delivery & Flow Rate Calculator
+- **CoolantOptimizationPhysicsEngine**: 11 orphaned COOLANT formulas
+- **CoolantPressureEngine**: Through-Tool Coolant Calculations
+- **CoolantStrategyAdapter**: Coolant Strategy Adapter
+- **CoolantStrategyEngine**: Coolant method recommendation
+- **CoolantValidationEngine**: PRISM Manufacturing Intelligence - Coolant Flow Validation Engine
+- **CoolingTowerEngine**: Cooling tower thermal and hydraulic sizing
+- **CoordinationLedgerEngine**: U-FORE-18 (Multi-Agent Coordination Spine)
+- **CopyPasteDetectorEngine**: U-FORE-14 (New-Coder Safety Net)
+- **CoriolisFlowMeterEngine**: Coriolis mass flow meter sizing
+- **CorrigibilityGateEngine**: Keep the system interruptible at all times
+- **CorrosionRateEngine**: Material Corrosion Assessment Calculator
+- **CostAwareRouterEngine**: Routes queries to cheapest satisfying tool
+- **CostEstimationEngine**: Manufacturing Intelligence Layer
+- **CostEstimatorEngine**: Quick manufacturing cost estimation
+- **CostSavingsTrackerEngine**: The #1 sales tool for PRISM: proves ROI by tracking every optimization
+- **CounterboreSinkEngine**: Counterbore & Countersink Calculations
+- **CounterboringEngine**: Counterbore Dimension & Parameter Calculator
+- **CounterfactualBuildSimulatorEngine**: U-FORE-05 (PSAU-FORESIGHT)
+- **CounterfactualMillEngine**: MILL-AGI-P0/U-P0.2
+- **CounterfactualReasoningEngine**: What-If Analysis for Manufacturing Decisions
+- **CounterfeitPartPreventionEngine**: Counterfeit Part Prevention
+- **CountersinkEngine**: Countersink Depth & Parameter Calculator
+- **CouplingEngine**: Shaft coupling selection and sizing
+- **CouplingSelectionEngine**: Shaft Coupling Sizing Calculator
+- **CourseBuilderEngine**: Auto-generate training courses from PRISM knowledge
+- **CpkPredictionGateEngine**: Process-capability (Cpk) gate for strategy selection.  For each candidate
+- **CPMPERTEngine**: U-FORE-15 (Real Planning Algorithms)
+- **CpsDialectMapperEngine**: Map CPS Post Properties to PRISM Dialect Config
+- **CpsParserEngine**: Post processor metadata extractor that parses Fusion 360 / HSMWorks CPS files,
+- **CpsPostParserEngine**: Comprehensive Fusion 360 CPS Post Processor Parser
+- **CraneLoadEngine**: Overhead Crane & Hoist Load Calculator
+- **CrankshaftDesignEngine**: Crankshaft stress, balance, and fatigue
+- **CreepLifeEngine**: High-Temperature Creep Life Assessment
+- **CreoAddinRibbonEngine**: U-CAD-APP-02 (PHASE-48)
+- **CreoFunctionIndexEngine**: CAM-EXHAUST-MS0/U-CAM-FIDX-21
+- **CreoIntegrationTestSuiteEngine**: U-CAD-APP-03 (PHASE-48)
+- **CreoToolkitBridgeEngine**: U-CAD-APP-01 (PHASE-48)
+- **CriticalPathDetectorEngine**: U-FORE-07 (PSAU-FORESIGHT)
+- **CriticalSpeedEngine**: Rotating Shaft Critical Speed Calculator
+- **CrossCAMComparisonLedgerEngine**: CAM-ML-CLOSEDLOOP-MS0 U-CMCCL14
+- **CrossCamNovelAlgorithms**: CrossCamNovelAlgorithms - Novel Toolpaths from Cross-CAM Synergy
+- **CrossCAMPostEngine**: POST-ULT-MS14 Cross-CAM Unification + Multi-Channel
+- **CrossCamRecommenderEngine**: Evaluates and ranks CAM system strategies for a given geometry+material+machine combination.
+- **CrossCatalogValidationEngine**: Cross-Catalog Validation Engine
+- **CrossCustomerPolicyTransferEngine**: U-LEARN-10
+- **CrossDisciplinaryDeepLearningEngine**: Deep Learning from Cross-Domain Knowledge
+- **CrossDisciplinaryFormulaIntegrationEngine**: CrossDisciplinaryFormulaIntegrationEngine
+- **CrossPhysicsCouplingEngine**: Novel cross-domain physics coupling formulas
+- **CrossPipelineWhatIfEngine**: unified what-if analysis across all pipelines.
+- **CrossProcessAGIBridge**: unified decision composer over keyword routing
+- **CrossProcessAIBridge**: unified AI orchestration across mill, lathe, and
+- **CrossProcessAPSClassificationEngine**: XPROC-NEURAL Tier 5 (T5-02c)
+- **CrossProcessAttentionExplainEngine**: interpretability + calibration +
+- **CrossProcessAudioTabularFusionEngine**: XPROC-NEURAL Tier 10 (T10-03)
+- **CrossProcessBayesianDOEPlannerEngine**: XPROC-NEURAL Tier 11 (T11-04)
+- **CrossProcessBayesianMLPEngine**: XPROC-NEURAL Tier 5 (T5-01)
+- **CrossProcessCalibrationAuditorEngine**: XPROC-NEURAL Tier 5 (T5-04)
+- **CrossProcessCausalGraphLearnerEngine**: XPROC-NEURAL Tier 9 (T9-01)
+- **CrossProcessClientSelectionSchedulerEngine**: XPROC-NEURAL Tier 6 (T6-04)
+- **CrossProcessConceptShiftHandlerEngine**: XPROC-NEURAL Tier 3 (T3-03)
+- **CrossProcessConformalClassificationEngine**: XPROC-NEURAL Tier 5 (T5-02b)
+- **CrossProcessConformalPredictionEngine**: XPROC-NEURAL Tier 5 (T5-02)
+- **CrossProcessCounterfactualPredictorEngine**: XPROC-NEURAL Tier 9 (T9-03)
+- **CrossProcessCuriosityDrivenExplorationEngine**: XPROC-NEURAL Tier 11 (T11-03)
+- **CrossProcessDeepEnsembleEngine**: XPROC-NEURAL Tier 5 (T5-03)
+- **CrossProcessDoCalculusEngine**: XPROC-NEURAL Tier 9 (T9-02)
+- **CrossProcessDriftAwareFederationEngine**: XPROC-NEURAL Tier 6 (T6-03)
+- **CrossProcessDriftDetectorEngine**: XPROC-NEURAL Tier 3 (T3-02)
+- **CrossProcessEpisodicMemoryEngine**: XPROC-NEURAL Tier 2 (T2-01)
+- **CrossProcessEpisodicSemanticLinkerEngine**: XPROC-NEURAL Tier 2 (T2-04)
+- **CrossProcessEWCMemoryPreservationEngine**: XPROC-NEURAL Tier 3 (T3-04)
+- **CrossProcessExperienceReplaySamplerEngine**: XPROC-NEURAL Tier 2 (T2-03)
+- **CrossProcessFedAvgAggregatorEngine**: XPROC-NEURAL Tier 6 (T6-01)
+- **CrossProcessFormulaNeuralEnsembleEngine**: XPROC-NEURAL Tier 8 (T8-04)
+- **CrossProcessHierarchicalNeuralOrchestratorEngine**: XPROC-NEURAL Tier 12 (T12-02)
+- **CrossProcessHyperparameterMetaTunerEngine**: XPROC-NEURAL Tier 7 (T7-04)
+- **CrossProcessLearnedLRSchedulerEngine**: XPROC-NEURAL Tier 7 (T7-03)
+- **CrossProcessMAMLLiteEngine**: XPROC-NEURAL Tier 7 (T7-01)
+- **CrossProcessMediationAnalyzerEngine**: XPROC-NEURAL Tier 9 (T9-04)
+- **CrossProcessModalityDropoutRobustifierEngine**: XPROC-NEURAL Tier 10 (T10-04)
+- **CrossProcessMondrianClassificationEngine**: XPROC-NEURAL Tier 5 (T5-02f)
+- **CrossProcessMultiArmedBanditEngine**: XPROC-NEURAL Tier 4 (T4-04)
+- **CrossProcessNeuralLearningEngine**: pure-JS multi-layer perceptron that
+- **CrossProcessNeuroSymbolicSafetyVerifierEngine**: XPROC-NEURAL Tier 8 (T8-03)
+- **CrossProcessNoveltyDetectorEngine**: XPROC-NEURAL Tier 11 (T11-02)
+- **CrossProcessOnlineMLPUpdaterEngine**: XPROC-NEURAL Tier 3 (T3-01)
+- **CrossProcessOutcomeStore**: event-sourced outcome ledger for the 5 XPROC
+- **CrossProcessPolicyGradientEngine**: XPROC-NEURAL Tier 4 (T4-02)
+- **CrossProcessPrioritizedReplayEngine**: XPROC-NEURAL Tier 2 (T2-02)
+- **CrossProcessPrototypicalNetEngine**: XPROC-NEURAL Tier 7 (T7-02)
+- **CrossProcessQLearningTabularEngine**: XPROC-NEURAL Tier 4 (T4-03)
+- **CrossProcessRAPSClassificationEngine**: XPROC-NEURAL Tier 5 (T5-02d)
+- **CrossProcessRewardShaperEngine**: XPROC-NEURAL Tier 4 (T4-01)
+- **CrossProcessRuleExtractedNeuralInferenceEngine**: XPROC-NEURAL Tier 8 (T8-02)
+- **CrossProcessSecureAggregationEngine**: XPROC-NEURAL Tier 6 (T6-02)
+- **CrossProcessSymbolicConstraintEnforcerEngine**: XPROC-NEURAL Tier 8 (T8-01)
+- **CrossProcessTierRouterEngine**: XPROC-NEURAL Tier 12 (T12-01)
+- **CrossProcessTimeSeriesTabularFusionEngine**: XPROC-NEURAL Tier 10 (T10-02)
+- **CrossProcessTransferLearningEngine**: warm-start a target-domain
+- **CrossProcessUncertaintyDrivenSamplerEngine**: XPROC-NEURAL Tier 11 (T11-01)
+- **CrossProcessVisionTabularFusionEngine**: XPROC-NEURAL Tier 10 (T10-01)
+- **CrossRegistryJoinEngine**: Phase 0.24 U-INT4
+- **CrossSessionOrchestratorEngine**: CrossSessionOrchestratorEngine (U-COORD04)
+- **CrossTerminalBroadcastEngine**: Cross-Session Asset Synchronization
+- **CrossTerminalCoordinationEngine**: Multi-Terminal Work Distribution
+- **CrossToolCouplingEngine**: Multi-Tool Dynamic Coupling Analysis
+- **CryogenicCuttingEngine**: First-principles physics for cryogenic machining
+- **CryogenicTreatmentEngine**: L2-P4-MS1 PASS2 Specialty
+- **CrystallizationEngine**: Industrial crystallization process analysis
+- **CSRFProtectionEngine**: U-LPR-SEC08
+- **CSSChipLoadInvariantCoordinatorEngine**: LATHE-PROD-READY-MS0 U-LPR05
+- **CumulativeStockChainEngine**: Tracks in-process workpiece (IPW) between ALL operations so each
+- **CuriosityDrivenExplorerEngine**: Proactively hunt knowledge gaps
+- **CurriculumEngine**: PRISM Academy Course Management
+- **CurvatureAnalysisEngine**: Curvature Analysis Engine
+- **CustomerKnowledgeEngine**: Manages customer-specific knowledge profiles for personalized tribal knowledge.
+- **CustomerManagementEngine**: CRM for job shops. Customer records, credit limits,
+- **CustomerPortalEngine**: Token-Based Customer Portal Access
+- **CustomerPortfolioMinerEngine**: Customer Defaults from JM Die Archive
+- **CUSUMEngine**: Page's cumulative-sum change-detector
+- **CutterContactEngine**: Analytical cutter-contact point computation
+- **CuttingDataExportEngine**: PRISM Physics-Backed Cutting Data Export (E1128)
+- **CuttingDataLookupEngine**: Comprehensive Cutting Parameter Recommendations
+- **CuttingFluidLifecycleEngine**: Coolant Health Monitoring & Replacement Scheduling
+- **CuttingFluidSelectionEngine**: Fluid Type Selection
+- **CuttingForceEngine**: Cutting Force Estimation Calculator
+- **CuttingMechanicsEngine**: Cutting Mechanics Engine
+- **CuttingPowerBudgetEngine**: Machine power/torque budget & inverse solver
+- **CuttingTemperatureEngine**: Tool/Chip Interface Temperature
+- **CuttingTemperaturePlugin**: PhysicsPlugin wrapper for CuttingTemperatureEngine
+- **CuttingThermalEngine**: Cutting zone thermal analysis:
+- **cycleSchedulingBridge**: CycleTime→Scheduling Integration (INTEG-MS3)
+- **CycleTimeAccuracyEngine**: Precise cycle time estimation from novel toolpath segments.
+- **CycleTimeEngine**: Complete Cycle Time Breakdown Calculator
+- **CycleTimeEstimatorEngine**: Physics-Based Cycle Time Estimation
+- **CycleToControlEngine**: Discrete cycle-to-cycle (CtC) feedback control
+- **CycloidDriveEngine**: Cycloidal reducer analysis
+- **CycloneSeparatorEngine**: Cyclone dust collector sizing and efficiency
+- **DailyFlashReportEngine**: Generates end-of-day flash reports aggregating jobs completed,
+- **DailyPersonalBriefEngine**: Daily Personal Brief
+- **DamperDesignEngine**: HVAC damper sizing and pressure drop
+- **DampingOptimizationEngine**: L2-P4-MS1 PASS2 Specialty
+- **DarkContentClassifierEngine**: Classifies Hard-to-Extract Content
+- **DataQualityEngine**: U-LEARN-02
+- **DataValidationEngine**: Validates manufacturing data integrity before it enters engines:
+- **DeadLetterQueueEngine**: PRISM Dead Letter Queue Engine
+- **DeburringEngine**: Deburring Method Selection & Time Estimation
+- **DecisionReasoningEngine**: Multi-Criteria Decision Making for PRISM
+- **DecisionTreeEngine**: PRISM Manufacturing Intelligence - Decision Tree Engine
+- **DeepAIIntelligenceEngine**: Claude Opus-Level Intelligence Layer
+- **DeepHoleDrillingPhysicsEngine**: First-principles physics for deep hole drilling
+- **DeepLogicTraceEngine**: MILL-AGI-P0/U-P0.4
+- **DeepSeekClientEngine**: HTTP client for DeepSeek's hosted API.
+- **DeepSeekInferenceEngine**: LOCAL-LLM-MS0 Hybrid Backend
+- **DeflectionOverlayEngine**: Real-time Tool/Part Deflection Overlay (U-CAM92)
+- **DependencyGraphEngine**: TypeScript Import Dependency Graph
+- **DERPlusPlusEngine**: U-LEARN-10
+- **DesignHistoryFileEngine**: DesignHistoryFileEngine
+- **DesignToFloorPipelineEngine**: DesignToFloorPipelineEngine
+- **DeskPayloadEngine**: Role-Based Desk KPI Payloads + Saved Views
+- **DetachedLoRARunnerEngine**: DetachedLoRARunnerEngine (U-LPR-GPU-ASYNC)
+- **DFMAwareGenerationEngine**: Manufacturability-Aware CAD Generation
+- **DFMFeedbackEngine**: Design for Manufacturability feedback on feature input.
+- **DFMPipelineEngine**: Unified DFM analysis pipeline with GD&T tolerance feasibility
+- **DfMRulesEngine**: Design for Manufacturability Rules Engine
+- **DiagnosticReasoningEngine**: Machine Alarm & Troubleshooting for PRISM
+- **DiamondTurningEngine**: Single-point diamond turning (SPDT) physics
+- **DiaphragmPumpEngine**: Diaphragm pump performance analysis
+- **DiffEngine**: Diff Engine
+- **DifferentialEquationEngine**: ODE/PDE Solvers
+- **DifferentialEvolutionEngine**: Storn & Price (1997) DE optimizer:
+- **DiffMinimizerEngine**: Minimizes edit diffs for token efficiency
+- **DiffTokenEstimatorEngine**: Estimates token cost of code changes
+- **DiffuserEngine**: Subsonic/supersonic diffuser design
+- **DigitalThreadEngine**: L2-P4-MS1 PASS2 Specialty
+- **DigitalTwinEngine**: Manufacturing Intelligence Layer
+- **DigitalTwinFormulasEngine**: 9 DIGITAL_TWIN formulas for state estimation & monitoring
+- **DigitalTwinSyncEngine**: Digital twin state synchronization for CNC machining.
+- **DigitalWorkInstructionEngine**: L2-P4-MS1 PASS2 Specialty
+- **DimensionalAnalysisCrossValidationEngine**: Dimensional Analysis (Buckingham Pi)
+- **DimensionalAnalysisEngine**: L2-P2-MS1 CAD/CAM Layer
+- **DimensionalSignatureEngine**: STEP file → canonical dimensional fingerprint.
+- **DimensionImputationEngine**: Statistical dimension imputation for cutting tools
+- **DimensionlessNumbersEngine**: Novel dimensionless numbers for machining processes
+- **DisasterRecoveryEngine**: U-LPR-OPS-DR
+- **DiscoverabilityEngine**: Users can FIND PRISM capabilities via:
+- **DiskBrakeEngine**: Disc Brake Design Calculator
+- **DispatcherMapEngine**: Complete dispatcher action catalog
+- **DistillationColumnEngine**: Distillation column sizing
+- **DistributedCriticalPathEngine**: U-FORE-18 (Multi-Agent Coordination Spine)
+- **DistributedLockEngine**: Cross-Session File-Based Locking
+- **DistributionNetworkEngine**: Where JM Die buys what from whom
+- **DNCCompareEngine**: DNC Program Comparison
+- **DNCFileTransferEngine**: DNC File Transfer
+- **DNCGenerateEngine**: DNC Program Generation
+- **DNCQREngine**: DNC QR Code Integration
+- **DNCSendEngine**: DNC Program Transfer
+- **DNCTransferEngine**: R9-MS2 DNC / File Transfer Integration
+- **DNCVerifyEngine**: DNC Program Verification
+- **DocPropagationEngine**: Classify writes → affected docs → regen actions
+- **DocumentInboxEngine**: Unified document intake, classification, and part matching
+- **DOEAnalysisEngine**: Design of Experiments for manufacturing processes
+- **DOETaguchEngine**: Statistical Design of Experiments for machining optimization.
+- **DomainOrchestratorPluginRegistry**: DomainOrchestratorPluginRegistry
+- **DoRAAdapterEngine**: U-LEARN-05
+- **Drawing2DExtractionEngine**: DXF/DWG 2D Drawing Parser
+- **DrawingTemplateIndexEngine**: Scans resource directories for drawing/blueprint files (.idw, .dwg, .dxf,
+- **DrillBreakthroughForceEngine**: Drilling thrust force & exit breakthrough prediction
+- **DrillCycleOptimizationEngine**: Drill cycle selection & peck parameter optimization
+- **DrumBrakeEngine**: Drum brake design & thermal analysis
+- **DuplicationGuardEngine**: Prevent Duplicate Builds & Extractions
+- **DurableJobQueueEngine**: Background Job Queue with Redis Persistence
+- **DXFGeometryParserEngine**: Arc-preserving DXF/STEP/IGES parser for Wire EDM pipeline.
+- **DXFParserEngine**: Parses DXF and SVG files into 2D polygon boundaries (Polygon2D).
+- **DxfWriterEngine**: CAD-INPUT-MS0 / write-side closure for .dxf.
+- **DynamicBalanceEngine**: Rotor Balancing Calculator
+- **DynamicProgrammingEngine**: Dynamic Programming Solvers
+- **E2ShopConnectorEngine**: E2 Shop System REST API Connector
+- **EBWeldingEngine**: Electron beam welding process analysis
+- **EccentricTurningEngine**: ELEC-PIPE Session 8
+- **EdgecamFunctionIndexEngine**: CAM-EXHAUST-MS0/U-CAM-FIDX-09
+- **EdgeCaseCaptureEngine**: Learn from Boundary Operations
+- **EditImpactPredictorEngine**: EditImpactPredictorEngine
+- **EditPlannerEngine**: EditPlannerEngine - Minimizes edit context for token savings
+- **EDMBiMaterialCompensationEngine**: Steel + Brazed Carbide Insert Wire EDM
+- **EDMCostDocumentationEngine**: EDMCostDocumentationEngine - WEDM cost estimate compatibility surface.
+- **EDMCuttingParamFlushEngine**: EDM Cutting Parameter & Flushing Strategy Engine
+- **EDMDrawingInterpretationEngine**: Consolidates MS1 U01–U06:
+- **EDMEngine**: Electrical Discharge Machining Calculations
+- **EDMFeasibilityEngine**: PRISM Manufacturing Intelligence - EDM Feasibility & Geometry Assessment Engine
+- **EDMMaterialMachineWireEngine**: Consolidates Material Assessment (MS3 U01-U05) and Machine/Wire Selection
+- **EDMMonitorSurfaceIntegrityEngine**: EDMMonitorSurfaceIntegrityEngine
+- **EDMMultiPassStrategyEngine**: Multi-Pass (Skim Cut) Strategy Planning
+- **EDMParameterEngine**: Electrical Discharge Machining Calculator
+- **EDMPostProcessGCodeEngine**: EDM Post Process G Code
+- **EDMPostProcessorExtension**: Post-Processor for EDM Processes
+- **EDMProgramAssemblerEngine**: WEDM Program Structure Assembly
+- **EDMQualityOrchestratorEngine**: Consolidates Quality Verification (MS19 U01-U05) and Pipeline Orchestrator
+- **EDMStartHoleSetupEngine**: PRISM Manufacturing Intelligence - EDM Start Hole & Setup Engine
+- **EDMSurfaceIntegrityEngine**: L2-P4-MS1 PASS2 Specialty
+- **EDMToolpathStrategyEngine**: PRISM Manufacturing Intelligence - Wire EDM Toolpath Strategy Engine
+- **EDMWireEngine**: Wire EDM process analysis
+- **EDMWireSlugCornerTaperEngine**: Corner Classification & Slug Drop Prediction
+- **EigensolverEngine**: Eigenvalue/Eigenvector Computation
+- **EjectorEngine**: Ejector / jet pump design
+- **ElectricMotorEngine**: Electric Motor Sizing & Selection Calculator
+- **ElectrochemicalEngine**: ECM/ECD Process Calculator
+- **ElectrochemicalMachiningEngine**: Physics-Based ECM Process Prediction
+- **ElectrodeAdvancedAIEngine**: ELEC-PIPE-ULTRA-AI
+- **ElectrodeAIReasoningEngine**: ELEC-PIPE-AI-HARDEN
+- **ElectrodeDeepLearningEngine**: ELEC-PIPE-DEEP-AI
+- **ElectrodeDesignEngine**: L2-P4-MS1 PASS2 Specialty
+- **ElectrodeUltimateAIEngine**: ELEC-PIPE-OMEGA-AI
+- **ElectroPlatingEngine**: ElectroplatingEngine � Electroplating/electrodeposition process analysis
+- **ElectrospinningEngine**: Electrospinning nanofiber production
+- **ElectrostaticPrecipitatorEngine**: ESP particulate collection analysis
+- **EmbeddingFilterEngine**: Embedding-scored companion to SituationalAwarenessFilter
+- **EmbeddingGuardEngine**: Tiered cosine-similarity gate with injectable embedder
+- **EmbeddingPipelineEngine**: Semantic Search Infrastructure
+- **EmergentBehaviorMonitorEngine**: Detect unexpected interactions across PRISM
+- **EmergingThesisEngine**: Emerging Thesis
+- **EmpiricalCorrelationEngine**: established industry correlations
+- **EmployeeEngine**: Employee master data, skills, certifications, labor rates.
+- **EncryptionAtRestEngine**: U-LPR-SEC02
+- **EndToEndPipelineEngine**: Novel-Algorithm-to-G-code Orchestration
+- **EnergyHarvestingEngine**: Energy harvesting from machining processes
+- **EnergyOptimizationEngine**: Manufacturing Intelligence Layer
+- **EnergyOptimizationIntegrationEngine**: Integrator: connects GCodeEnergyOptimizerEngine (E in engines/) to the
+- **EngagementAdaptiveFeedEngine**: Adaptive feed rate control based on tool engagement geometry
+- **EngagementDynamicsEngine**: Real-Time Engagement Calculation
+- **EngagementGeometryEngine**: Engagement Geometry Engine
+- **EngagementOptimizerAdapter**: Replaces HEURISTIC "pick ae = 40% of diameter, ap = 1× diameter" decisions
+- **EngineAccuracyTrackerEngine**: Cross-Engine Prediction Accuracy Monitor
+- **EngineDigestEngine**: Engine Inventory with Semantic Metadata
+- **EngineeringChangeOrderEngine**: Engineering Change Order
+- **EngineRegistryEngine**: Lightweight engine capability registry
+- **EngineUtilizationAuditorEngine**: Phase 0.23 U-UTL1
+- **EnsembleMLEngine**: Ensemble machine learning methods and numerical methods.
+- **EnsembleModelSelectorEngine**: Ensemble Model Selection & Weighting
+- **EntropyTrackerEngine**: USSH Phase 0.25 / U-SCI07
+- **EntryExitStrategyAdapter**: Replaces HARDCODED / HEURISTIC tool entry/exit picks in PrintToProgram,
+- **EntryExitStrategyEngine**: Entry/Exit Strategy Engine
+- **EnvironmentalVariationEngine**: Ambient Condition Effects on Machining
+- **EPackTableImportEngine**: Import Machine Technology Tables (U-W100-12)
+- **EquipmentAssetEngine**: Asset registry with straight-line and MACRS depreciation, calibration due tracking, transfer history.
+- **ErgonomicWorkstationEngine**: CNC workstation ergonomic analysis
+- **ERPCostFeedbackEngine**: Actual Cost Feedback to ERP
+- **ERPImportEngine**: Work Order Import from ERP Systems
+- **ERPIntegrationEngine**: R9-MS4 ERP / MES Integration
+- **ERPQualityEngine**: Quality Data Integration with ERP
+- **ERPToolInventoryEngine**: Tool Inventory Sync with ERP
+- **ERPWorkOrderEngine**: Work Order Status Sync with ERP
+- **ErrorBudgetEngine**: U-FORE-17 (Reliability Substrate)
+- **ErrorContextEngine**: Minimal diagnostic context for errors
+- **ErrorExplainerEngine**: U-FORE-14 (New-Coder Safety Net)
+- **ErrorRemediationEngine**: Learned Failure Pattern → Fix Suggestions
+- **EspritCADExecutionBridge**: planning↔execution bridge for ESPRIT CAM ops.
+- **EspritCAMBridgeEngine**: Bidirectional Bridge to Esprit CAM System
+- **EspritCodeGeneratorEngine**: DP Technology Esprit VB script generator
+- **EspritFunctionIndexEngine**: CAM-EXHAUST-MS0/U-CAM-FIDX-10
+- **EspritLiveBridgeEngine**: Out-of-process executor for Esprit VB scripts
+- **EvaporatorDesignEngine**: Single/multi-effect evaporator sizing
+- **EvaporatorProcessEngine**: Industrial evaporation process analysis
+- **EventBus**: Centralized event-driven communication system
+- **EventBusEngine**: in-memory event bus stub (U-EFF25).
+- **EventEngine**: L2-P3-MS1 Infrastructure Layer
+- **EWMAEngine**: Exponentially Weighted Moving Average control chart
+- **ExceptionLearningEngine**: Turn Exceptions into Knowledge
+- **ExecutionVerificationEngine**: Script Execution & Geometry Verification
+- **ExpandingMandrelEngine**: ExpandingMandrelEngine
+- **ExponentialSmoothingEngine**: Exponential smoothing forecasting
+- **ExportEngine**: L2-P3-MS1 Infrastructure Layer
+- **ExtendedThinkingBridgeEngine**: Opus Extended Thinking Integration
+- **ExtractedKnowledgeWiringEngine**: ExtractedKnowledgeWiringEngine
+- **ExtractionIntelligenceRouter**: Extraction Intelligence Router
+- **ExtractionWiringEngine**: Applies routing decisions to consumer files
+- **ExtrusionForceEngine**: Metal extrusion force, pressure, and power analysis
+- **F3DSQLiteParserEngine**: Parses Fusion 360 .f3d files offline (no Fusion 360 required).
+- **FaceDriverTorqueEngine**: FaceDriverTorqueEngine
+- **FacingEngine**: Face Milling & Lathe Facing Calculations
+- **FailureForensicsEngine**: Physics-based forensic analysis of manufacturing failures:
+- **FailureModeAnticipationEngine**: Predictive Failure Analysis
+- **FanSelectionEngine**: Industrial Fan/Blower Sizing Calculator
+- **FanucLegacyControllerEngine**: FanucLegacyControllerEngine.ts
+- **FatigueLifeEngine**: S-N Fatigue Life Estimator
+- **FCFSyntaxValidatorEngine**: FCFSyntaxValidatorEngine
+- **FCStdNativeParserEngine**: Direct ZIP+XML .FCStd Parser (no FreeCAD launch required)
+- **FDA21CFRPart11Engine**: FDA21CFRPart11Engine - FDA 21 CFR Part 11 Compliance Engine
+- **FeasibilityAnalysisEngine**: Machining Feasibility Intelligence Stack (MF-MS1)
+- **FeasibilityOrchestratorEngine**: Master orchestrator for the Machining
+- **FeatureCAMFunctionIndexEngine**: CAM-EXHAUST-MS0/U-CAM-FIDX-24
+- **FeatureClusteringEngine**: Groups 200+ features into machining campaigns (setups) using
+- **FeatureInteractionEngine**: Manufacturing feature interaction analysis:
+- **FeatureRecognitionEngine**: L2-P2-MS1 CAD/CAM Layer
+- **FeatureRegistryEngine**: U-LEARN-02
+- **FeatureSequenceReplicatorEngine**: HM-KC-MS10-S2/U-HKC54
+- **FeatureStoreEngine**: U-LEARN-02
+- **FeatureStrategyKnowledgeBaseEngine**: Exhaustive rule base: for every {feature_type × material_ISO × machine_axes × operation}
+- **FeatureToStrategyBridgeEngine**: Feature Recognition Results → Strategy Recommendations (E1163)
+- **FeatureToZoneEngine**: Geometric feature → machining zone mapper
+- **FederatedLearningEngine**: Anonymous Learning Network (Federated Learning Engine)
+- **FederatedLoRAEngine**: U-LEARN-10
+- **FeedbackBusEngine**: Feedback Bus
+- **FeedbackCollectorEngine**: Phase 0.19 U-LLM10
+- **FeedbackLoopDoctorEngine**: U-FORE-14 (New-Coder Safety Net)
+- **FeedbackPersistenceEngine**: Feedback Persistence
+- **FeedOptimizationEngine**: Reverse-engineered from PRISM v8.89 monolith
+- **FeedRateOptimizationEngine**: Feed Rate Optimization Engine
+- **FilamentWindingEngine**: Composite filament winding analysis
+- **FileAccessPatternEngine**: Tracks file access patterns
+- **FileIOEngine**: CAD File Import/Export
+- **FileReadDeduplicationEngine**: FileReadDeduplicationEngine
+- **FileStorageEngine**: Blob storage with SHA-256 dedup and versioning
+- **FileSystemNavigatorEngine**: Zero-IO file system navigation for token savings
+- **FilletingEngine**: B-Rep edge modification operations:
+- **FilterPressEngine**: Filter press sizing and cycle time
+- **FinancialAnalysisEngine**: Financial Analysis Engine
+- **FinishingPassOptimizationEngine**: Spring pass & finishing strategy optimization
+- **FinishTargetAdvisorEngine**: Advises on achievable surface finish targets based on operation type,
+- **FiniteElementEngine**: Lightweight 1D/2D FEM Solver
+- **FirmwareFeatureMatrixEngine**: Controller Firmware Version → Feature Availability
+- **FirstArticleInspectionPipelineEngine**: PRISM: FirstArticleInspectionPipelineEngine
+- **FisherInformationEngine**: Information-theoretic quantities for discrete distributions
+- **FitNotationParserEngine**: H7/g6 → Actual Tolerance Bands
+- **FiveAxisAggregatorEngine**: L2 5-Axis Aggregator
+- **FiveAxisAIUltraIntelligenceEngine**: MILL-HARD-MS8
+- **FiveAxisCADTemplateEngine**: MILL-HARD-MS6
+- **FiveAxisCAMIntegrationEngine**: Wires 11 existing 5-axis engines into toolpath generation:
+- **FiveAxisDecisionEngine**: AI-Powered 5-Axis Simultaneous Milling Strategy
+- **FiveAxisDeepLearningEngine**: MILL-HARD-MS5
+- **FiveAxisLoRACadenceEngine**: CAM-ML-CLOSEDLOOP-MS0 U-CMCCL02
+- **FiveAxisLoRADatasetBuilderEngine**: CAM-ML-CLOSEDLOOP-MS0 U-CMCCL02
+- **FiveAxisOrchestrationEngine**: MILL-HARD-MS7
+- **FiveAxisPostEngine**: Complete 5-axis post processing
+- **FiveAxisToolpathIntegrationEngine**: Unified 5-axis toolpath engine integrating:
+- **FiveAxisToolpathSynthesisEngine**: MILL-HARD-MS4
+- **FixtureAwareStrategyEngine**: Fixture Aware Strategy
+- **FixtureCadIngesterEngine**: FixtureCadIngesterEngine (E101)
+- **FixtureClampingEngine**: Fixture clamping force analysis.
+- **FixtureDesignEngine**: Manufacturing Intelligence Layer (SAFETY CRITICAL)
+- **FixtureDynamicsEngine**: 7 FIXTURE formulas for workholding dynamics
+- **FixturePartCatalogEngine**: Fixture Part Catalog
+- **FixturePlateEngine**: Fixture Plate Layout & Clamping Calculator
+- **FlangeBoltEngine**: Flanged joint bolt load and gasket analysis
+- **FlatPatternEngine**: Sheet Metal Flat Pattern Calculator
+- **FleetDeploymentLearningEngine**: PRISM Manufacturing Intelligence - Fleet Deployment & Continuous Learning Engine
+- **FleetLearningStrategyEngine**: Fleet Learning Strategy
+- **FlotationCellEngine**: Froth flotation mineral processing
+- **FluidCouplingEngine**: Fluid Coupling Design Calculator
+- **FluidizedBedEngine**: Fluidized bed reactor/dryer sizing
+- **FlyingShearEngine**: Flying shear/cutoff synchronization and force
+- **FlywheelEnergyEngine**: Rotational Energy Storage Calculator
+- **FlywheelEngine**: Flywheel energy storage and sizing
+- **FolderScannerEngine**: Recursive directory scanner with change detection
+- **ForceCapabilityEngine**: Machine force/power/torque feasibility for operation sequences
+- **ForceNeuralPredictorEngine**: Neural Network for Cutting Force Prediction
+- **ForceOverlayVisualizationEngine**: Real-time Force Prediction Overlay (U-CAM90)
+- **ForesightOrchestratorEngine**: U-FORE-12 (PSAU-FORESIGHT dispatcher)
+- **ForgeQuintEngine**: Atomic 5-Output Asset Creation with Full Wiring
+- **FormalVerificationEngine**: SAT/SMT gate powered by Z3 (WASM build)
+- **FormulaHarvesterEngine**: Parses the 3 JS formula files in resources/MACHINING KNOWLEDGE FORMULAS AND ALGORITHMS/
+- **FormulaIntegrationEngine**: Phase 0.23 U-UTL2
+- **FormulaOrchestrator**: Central Formula Discovery, Validation, and Wiring
+- **FormulaValidationEngine**: NOTE: This is a SOFTWARE DEVELOPMENT validation engine. It validates that
+- **FormulaWiringEngine**: Formula-to-Engine Wiring Infrastructure
+- **FourierAnalysisEngine**: DFT/FFT spectral analysis
+- **FourthAxisDecisionEngine**: AI-Powered 4th Axis Strategy Selection
+- **FourthAxisIndexingEngine**: 4-Axis Milling Strategies for PRISM
+- **FractureToughnessEngine**: Fracture Mechanics Assessment
+- **FreeCADAutomationBridge**: Python-subprocess bridge for FreeCAD (.FCStd).
+- **FreeCADCodeGeneratorEngine**: Free CAD Code Generator
+- **FreezeDryingEngine**: Lyophilization process analysis
+- **FrequentPathEngine**: Access frequency tracking for predictive optimization
+- **FrictionStirWeldingEngine**: Friction stir welding (FSW) process analysis
+- **FundamentalPhysicsCompletionEngine**: Foundational physics models closing last gaps
+- **FurnaceHeatingEngine**: Industrial furnace thermal analysis
+- **Fusion360AIOrchestrationEngine**: AI request routing for Fusion 360 work
+- **Fusion360AutomationBridge**: HTTP bridge for Autodesk Fusion 360 (.f3d/.f3z).
+- **Fusion360CADFunctionIndexEngine**: CAD-side parity to Fusion360FunctionIndexEngine.
+- **Fusion360CADGeneratorAdapter**: Typed-CADOperation adapter for Autodesk Fusion 360. Extends
+- **Fusion360CodeGeneratorEngine**: Fusion 360 Python code generator extending UnifiedCADCodeGeneratorBase.
+- **Fusion360ControllerCatalogEngine**: CNC Controller Family Reference for Fusion 360
+- **Fusion360CycleCatalogEngine**: Complete Fusion 360 Toolpath Cycle Reference
+- **Fusion360FunctionIndexEngine**: Fusion360FunctionIndexEngine - Unified query surface over all extracted
+- **Fusion360InHostRunnerEngine**: Fusion360In Host Runner
+- **Fusion360LiveBridgeEngine**: PRISM-side client for the Fusion 360 API Server Add-In.
+- **Fusion360MaterialBridgeEngine**: Bridge Fusion 360 material library to PRISM physics
+- **Fusion360MillTurnBridgeEngine**: Fusion 360 mill-turn machine + spindle handoff
+- **Fusion360MultiAxisEngine**: Fusion 360 5-axis kinematic + indexing engine
+- **Fusion360PluginAdapterEngine**: Fusion 360 CAM Python Add-in Bridge (U-CAM87)
+- **Fusion360ProbingBridgeEngine**: Fusion 360 probing operation catalog + safety
+- **Fusion360SafetyHooksEngine**: Fusion 360-Specific Safety Validations
+- **Fusion360StrategyEngine**: Real strategy selection for Fusion 360
+- **Fusion360ToolExportEngine**: Fusion 360 tool library import/export
+- **Fusion5AxisEngine**: CAM-PARITY-AGI-MS0/U-CAMP07
+- **FusionAIOrchestrationEngine**: AI Orchestration for Fusion 360 / HSMWorks
+- **FusionCAMExtractorEngine**: For each Fusion 360 design with CAM, extracts detailed setup/operation/tool data.
+- **FusionCloudConnectorEngine**: Connection layer for Fusion 360 data extraction. Two modes:
+- **FusionCPSParserEngine**: Fusion 360 Post Processor File Parser
+- **FusionDeepLearningEngine**: Comprehensive Fusion 360 CAM / HSMWorks Knowledge Extraction
+- **FusionLathePostDeltaRegistryEngine**: FusionLathePostDeltaRegistryEngine (E104)
+- **FusionMaterialBridgeEngine**: Bridge Fusion 360 material database to ISO groups
+- **FusionMaterialPhysicsBridge**: Connect Fusion 360 materials to PRISM physics
+- **FusionMultiAxisEngine**: CAM-PARITY-AGI-MS0/U-CAMP07
+- **FusionPostSyncEngine**: Analyze Fusion 360 .cps post processor files
+- **FusionProjectCrawlerEngine**: Recursively crawls a Fusion 360 cloud project to build a complete
+- **FusionSetupDocumentEngine**: Generates structured setup documentation from Fusion 360 CAM data.
+- **FusionStrategyKnowledgeEngine**: CAM-PARITY-AGI-MS0/U-CAMP07
+- **FusionToolExportEngine**: Export PRISM tools as Fusion 360 tool library
+- **FusionToolLibraryEngine**: Fusion 360 Tool Library CSV Parser
+- **FusionToolLibraryExtractorEngine**: Extracts Fusion 360 tool libraries and maps them to PRISM's
+- **FusionToolSyncEngine**: Smart library partitioning and sync state tracking
+- **FuzzyLogicEngine**: Fuzzy Inference System
+- **FuzzyNeuralHybridEngine**: Neuro-fuzzy parameter optimization for CNC machining
+- **GageRRMSAEngine**: GageRRMSAEngine
+- **GameTheoryEngine**: Strategic Decision Analysis
+- **GapDetectionEngine**: SQ1-0-GAP: Unified Codebase Gap Scanner
+- **GapEscalationControllerEngine**: Detects AI capability gaps and escalates to human operators when AI
+- **GapPredictorEngine**: U-FORE-03 (PSAU-FORESIGHT)
+- **GasketDesignEngine**: Flanged Joint Gasket Sizing Calculator
+- **GateFailureHistoryEngine**: U-FORE-06 (PSAU-FORESIGHT)
+- **GaugingEngine**: In-Process & Post-Process Gauging Calculator
+- **GCodeEnergyOptimizerEngine**: PRISM Manufacturing Intelligence - G-Code Energy Optimizer Engine
+- **GCodeIntelligencePipelineEngine**: Unified Post-Processing Intelligence
+- **GCodeOptimizationEngine**: L2-P2-MS1 CAD/CAM Layer
+- **GCodeSafetyAnalyzerEngine**: GCodeSafetyAnalyzerEngine - Contextual G-code safety analysis engine
+- **GCodeSnippetEngine**: Common G-code snippet library
+- **GCodeTemplateEngine**: Parametric G-code generation for CNC manufacturing.
+- **GCodeTranspilerEngine**: Multi-controller G-code dialect transpiler
+- **GCodeUnderstandingTransformerEngine**: MILL-AGI-P0/U-P0.3
+- **GCodeValidationEngine**: G-Code Validation Engine
+- **GCodeVerificationEngine**: L2-P2 CAD/CAM Layer
+- **GDTCalloutParserEngine**: GDTCalloutParserEngine
+- **GDTStackupEngine**: GD&T tolerance stack-up analysis.
+- **GearHobbingEngine**: L2-P4-MS1 PASS2 Specialty
+- **GearPumpEngine**: External/internal gear pump sizing
+- **GearTrainEngine**: Spur & Helical Gear Pair Calculator
+- **GeminiClientEngine**: HTTP client for Google's Gemini API.
+- **GeneralLedgerEngine**: Double-entry bookkeeping for the PRISM ERP layer
+- **GenerativeProcessEngine**: Generates complete process plans from feature descriptions.
+- **GeneticAlgorithmEngine**: Real-valued genetic algorithm optimizer:
+- **GeometryAlgorithmsEngine**: Geometry Algorithms Engine
+- **GeometryEngine**: L2-P2-MS1 CAD/CAM Layer
+- **GeometryHashGroupingEngine**: Geometry Hash Grouping
+- **GibbsCAMFunctionIndexEngine**: CAM-EXHAUST-MS0/U-CAM-FIDX-11
+- **GilbertEconomicSpeedEngine**: GilbertEconomicSpeedEngine
+- **GitSafetyEngine**: U-FORE-14 (New-Coder Safety Net)
+- **GlobalSearchEngine**: Cross-Entity Fuzzy Search
+- **GoalStabilityVerifierEngine**: Detect goal/value drift over a session
+- **GoalStackEngine**: Hierarchical goal management for session awareness
+- **GoldenBaselineManagerEngine**: Golden Reference Program Management for Neural Testing
+- **GradientOptimizationEngine**: Reverse-engineered from PRISM v8.89 monolith
+- **GrafanaBridgeEngine**: Bidirectional Grafana/Prometheus Integration
+- **GranulationProcessEngine**: Wet/dry granulation process analysis
+- **GraphAlgorithmsEngine**: Graph Algorithms Engine
+- **GraphTheoryEngine**: Graph Theory Engine
+- **GrepOptimizerEngine**: GrepOptimizerEngine - Optimizes Grep tool call parameters
+- **GrindingForceEngine**: Physics-based grinding force, power & thermal analysis
+- **GrindingLoRACadenceEngine**: CAM-ML-CLOSEDLOOP-MS0 U-CMCCL08
+- **GrindingLoRADatasetBuilderEngine**: CAM-ML-CLOSEDLOOP-MS0 U-CMCCL08
+- **GrindingProgramAssemblerEngine**: Complete Grinding Program Generation Pipeline
+- **GrindingReplacementEngine**: GrindingReplacementEngine
+- **GrindingSurfaceFinishEngine**: Surface roughness prediction for grinding operations
+- **GrindingWheelDressingOptimizationEngine**: Wheel life, dressing optimization, tool selection, creep-feed
+- **GrindingWheelEngine**: Grinding Wheel Selection & Parameters
+- **GrokClientEngine**: HTTP client for xAI's Grok API.
+- **GrooveClassificationEngine**: LATHE-PRO-MS4b Grooving & Parting Deep Intelligence.
+- **GroundTruthBatchExtractor**: orchestrates the full 4-stage ground-truth
+- **GroundTruthFeatureTreeExtractor**: canonical JSON feature-tree normalizer.
+- **GroundTruthRegistryEngine**: indexed, queryable corpus over the
+- **GroundTruthValidationEngine**: corpus integrity gate for the ground-truth
+- **GunDrillingEngine**: Deep Hole (Gun) Drilling Calculations
+- **HaasParserEngine**: Parse Haas VF2/VF4/ST series CNC Programs
+- **HandbookAcquisitionPipelineEngine**: Orchestrates bulk handbook ingestion: file intake → extraction dispatch →
+- **HandbookExtractionEngine**: Parses raw handbook content (PDF text, OCR output, structured tables)
+- **HandbookMaintenanceIntelligenceEngine**: Extracts maintenance intelligence from handbook data: PM schedules,
+- **HardenedAgentCapabilitiesEngine**: Bulletproof AI Agent Infrastructure
+- **HardnessConversionEngine**: L2-P4-MS1 PASS2 Specialty
+- **HardTurningCapstoneEngine**: LATHE-PRO-MS5 capstone.
+- **HardTurningDecisionEngine**: HardTurningDecisionEngine
+- **HarmonicAnalysisEngine**: L2-P4-MS1 PASS2 Specialty
+- **HarmonicDriveEngine**: Strain wave gear (harmonic drive) sizing
+- **HarnessSecurityAuditEngine**: scans the Claude Code harness for security misconfigurations.
+- **HarvestPipelineEngine**: Orchestrates per-type harvesting from scanned resources
+- **HealthEngine**: L2-P3-MS1 Infrastructure Layer
+- **HeatExchangerEngine**: Shell & Tube / Plate HX Sizing Calculator
+- **HeatExchangerPlateEngine**: Plate heat exchanger sizing
+- **HeatTransferEngine**: Heat Transfer Engine
+- **HeatTreatmentEngine**: Heat Treatment Process Calculator
+- **HeatTreatmentResponseEngine**: L2-P4-MS1 PASS2 Specialty
+- **HelicalInterpolationEngine**: Helical Milling Calculations
+- **HelicalMillingEngine**: Helical Interpolation Parameter Calculator
+- **HelicalSpringEngine**: Generates helical compression/extension spring geometry with canonical
+- **HertzContactEngine**: Hertzian contact stress analysis
+- **HighFeedMillingEngine**: High Feed Milling (HFM) Calculations
+- **HMCProjectParserEngine**: HM-KC-MS10-S1/U-HKC51
+- **HobbyCNCProfileEngine**: Hobby/Desktop CNC Machine Database
+- **HolderOperationMatchEngine**: Unified holder selection engine that matches toolholder types to operation
+- **HolePatternPipelineEngine**: Hole Pattern Recognition & Optimized Drilling
+- **HolisticMachiningIntelligenceEngine**: Total Process Intelligence
+- **HoningEngine**: Precision Bore Honing Calculations
+- **HoningProcessEngine**: Bore honing process design, stone selection, plateau honing
+- **HookBanditEngine**: USSH Phase 0.25 / U-SCI08
+- **HookControllerEngine**: PID Controller for Hook Aggression
+- **HookCoverageMaximizerEngine**: Phase 0.23 U-UTL15
+- **HookEfficiencyEngine**: Hook token savings tracker
+- **HookEngine**: Event-driven hook system with lifecycle management
+- **HookExecutor**: Central hook execution engine
+- **HookManifestEngine**: HOOK-MANIFEST-DAG-MS26 / P0-U01
+- **HookOrchestratorEngine**: Deterministic hook ordering per tool event
+- **HookRuleMatcherEngine**: Matches tool calls against hookify rules
+- **HookTelemetryEngine**: Queueing Theory Metrics for Hook Health
+- **HRComplianceEngine**: Benefits administration, PTO tracking, training records,
+- **HSMDwellAtCornerEngine**: MILL-AGI-P2/MILL-MS7-04
+- **HTNDecomposerEngine**: U-FORE-15 (Real Planning Algorithms)
+- **HurcoParserEngine**: Parse Hurco VM30i/VMX Programs
+- **HurcoV11MillMasterPostEngine**: JM Die Mill Master Post Processor
+- **HybridLaserMachineEngine**: L2-P4-MS1 PASS2 Specialty
+- **HybridPostMergeEngine**: Merge post-processor features from multiple CAM systems.
+- **HybridProgramComposerEngine**: HybridProgramComposerEngine.ts
+- **HydraulicCylinderEngine**: Linear Hydraulic Actuator Calculator
+- **HydraulicMotorEngine**: Hydraulic motor performance analysis
+- **HydraulicPressEngine**: Hydraulic press force, tonnage, and cycle analysis
+- **HyperCADCADExecutionBridge**: planning↔execution bridge for HyperCAD-S CAD ops.
+- **HyperCADCADFunctionIndexEngine**: CAD-side parity to Fusion360FunctionIndexEngine.
+- **HyperCADSAutomationEngine**: hyperCAD-S CAD API Automation via AC Python Scripts (E1160)
+- **HyperCADSCodeGeneratorEngine**: hyperCAD-S Python code generator extending UnifiedCADCodeGeneratorBase.
+- **HyperCADSMockLayer**: CI Test Fixture for All hyperCAD-S CAD Engines (E1164)
+- **HyperCADSStockModelEngine**: Automated Stock Model Creation via AC Python (E1162)
+- **HyperMill5AxisTiltLimitHook**: Tilt angle safety gate for 5-axis machining
+- **HyperMillACConnectionManager**: Session & health for OPEN MIND AutomationCenter (AC).
+- **HyperMillACScriptExecutor**: Sandboxed Python script execution for
+- **HyperMillACServerConfig**: Automation Center Companion HTTP Server Configuration
+- **HyperMillACStandardToolDBEngine**: AC_Standard_ToolDB extractor
+- **HyperMillAIOrchestrationEngine**: AI Orchestration for Open Mind hyperMILL
+- **HyperMILLAutomationBridge**: OPEN MIND AutomationCenter (AC) bridge for .hmc
+- **HyperMillBladeRoughingEngine**: Blade roughing with open/closed channel classification
+- **HyperMillCADArtifactGeneratorEngine**: CAD Artifact Generator
+- **HyperMillCAMAdvancedArtifactGeneratorEngine**: CAM Advanced Artifact Batch Generator
+- **HyperMillCAMCoreArtifactGeneratorEngine**: CAM Core Artifact Batch Generator
+- **HyperMillCodeGeneratorEngine**: hyperMILL Automation Center Python Script Generator (E1120)
+- **HyperMillControllerCatalogEngine**: CNC Controller Family Reference
+- **HyperMillCycleCatalogEngine**: Complete hyperMILL Cycle Type Reference
+- **HyperMillCycleDefaultsEngine**: Default machining parameters for all hyperMILL cycles
+- **HyperMillCycleDefaultsValidation**: Cycle parameter validation hook
+- **HyperMillCycleParameterPipeline**: Cycle Parameter Recommendation Pipeline
+- **HyperMillDataExtractionOrchestrator**: Runs all 5 extraction pipelines + freshness check
+- **HyperMillDataExtractionPipeline**: Generic SQLite extraction framework + demo.db extractor
+- **HyperMillDeepLearningEngine**: Comprehensive hyperMILL Knowledge Extraction
+- **HyperMillDeflectionThermalMappingEngine**: Deflection + Thermal Parameter Mapping
+- **HyperMillDemoDbExtractor**: Extract tool geometry + cutting tech schemas from demo.db
+- **HyperMillDentalBlankRouter**: Dental Blank Type → hyperMILL Strategy Router
+- **HyperMillEDMBridge**: EDM workflow routing for hyperMILL electrode designs
+- **HyperMillFAIBridge**: Map hyperMILL operations to AS9102 FAI plan
+- **HyperMillFixtureArtifactGeneratorEngine**: Fixture Domain Artifact Batch Generator
+- **HyperMillFunctionIndexEngine**: Unified query surface over all extracted
+- **HyperMillGrindingBridge**: Grinding workflow routing for hyperMILL operations
+- **HyperMillHeatTreatmentRouter**: Heat treatment routing for hyperMILL operations
+- **HyperMillIMDbExtractor**: Extract Intelligent Macro tool + macro database schemas
+- **HyperMillInHostRunnerEngine**: Hyper Mill In Host Runner
+- **HyperMillJobMonitor**: AC + nightSHIFT Batch Job Status Monitor
+- **HyperMillKienzleMappingEngine**: Kienzle Force Mapping Registry
+- **HyperMillLinkingArtifactGeneratorEngine**: Linking Domain Artifact Generator
+- **HyperMillMacroDBEngine**: IM_Macro_DB + IM_Tool_DB extraction
+- **HyperMillMaterialBridgeEngine**: Bridges hyperMILL's 2,544-material database
+- **HyperMillMaterialMapEngine**: hyperMILL Material Taxonomy Mapper
+- **HyperMillMaterialPhysicsBridge**: Resolution chain from hyperMILL material
+- **HyperMillMedicalMaterialProfiles**: CoCr + PEEK + Medical Material Cutting Parameters
+- **HyperMillMetricCfgExtractor**: Parse Metric.cfg files into cycle parameter schemas
+- **HyperMillMetricCfgExtractorEngine**: Full Metric.cfg directory extraction
+- **HyperMillMillTurnBridge**: Multi-channel mill-turn wiring for hyperMILL
+- **HyperMillMillTurnStrategyEngine**: Mill-Turn CSS/TNRC Strategy + C-Axis Sync
+- **HyperMillMoldCycleEngine**: Mold and die machining cycle selection
+- **HyperMillMultiAxisEngine**: 5-Axis and Specialty Cycle Selector for hyperMILL
+- **HyperMillMultiAxisPhysicsPipeline**: Physics-aware impeller/blisk machining pipeline
+- **HyperMillNonCAMMappingEngine**: CAD + Fixture + Linking + Settings Physics Mappings
+- **HyperMillOmCyclesExtractor**: Parse omCycles.txt into a typed cycle catalog
+- **HyperMillPluginAdapterEngine**: hyperMILL COM/.NET Plugin Bridge (U-CAM86)
+- **HyperMillPPPBridgeHooks**: Pre/Post hooks for hyperMILL → PPP integration
+- **HyperMillPPPDefaultConfig**: Post-Process Pipeline Default Configuration
+- **HyperMillPPPFileWriter**: Post-Process Pipeline NC File Writer
+- **HyperMillPPPInputAdapter**: Adapt hyperMILL NC output for PPP Phase 1
+- **HyperMillProbingBridge**: Probe routine wiring for hyperMILL workflows
+- **HyperMillResourceIndexEngine**: hyperMILL 73K File Resource Index
+- **HyperMillSafetyHooks**: CAM Safety Validations from hyperMILL Best Practices
+- **HyperMillSchemaUnifier**: Merge all HM-KC-MS0 extraction outputs into a
+- **HyperMillSecondaryOpsSequencer**: Combined secondary operations sequencer
+- **HyperMillSettingsArtifactGeneratorEngine**: Settings Domain Artifact Batch Generator
+- **HyperMillSetupSheetBridge**: Auto-generate setup sheets from hyperMILL job data
+- **HyperMillSimNCArtifactGeneratorEngine**: Simulation + NC Artifact Batch Generator
+- **HyperMillSkillRegistryMap**: Maps 15 hyperMILL skills to their engine dependencies
+- **HyperMillSkillsBatchEngine**: Manages 45 Phase 2+3 hyperMILL skills
+- **HyperMillSPCBridge**: Generate SPC measurement plan from hyperMILL operations
+- **HyperMillSpeedFeedMappingEngine**: Speed/Feed + SLD Parameter Mapping Registry
+- **HyperMillStrategyEngine**: CAM Strategy Selector for hyperMILL Operations
+- **HyperMillStrategyKnowledgeEngine**: Comprehensive hyperMILL Strategy Knowledge Base
+- **HyperMillStrategyRegistration**: Registers hyperMILL cycle strategies into
+- **HyperMillSurfaceIntegrityBridge**: Surface integrity wiring for hyperMILL finishing
+- **HyperMillSurfaceQualityMappingEngine**: Surface Quality + Safety Mapping Registry
+- **HyperMillThreadStandardEngine**: Thread standard tables from hyperMILL
+- **HyperMillToolExportEngine**: Export PRISM Tool Catalog to hyperMILL Tool Database Format (E1127)
+- **HyperMillTurningConfigIngesterEngine**: HyperMillTurningConfigIngesterEngine (E099)
+- **HyperMillXmlExtractor**: Parse Feature2Job XML catalogs + PostProcessor config
+- **HypoidGearEngine**: Hypoid/bevel gear analysis
+- **HypothesisPrioritizerEngine**: MILL-AGI-P0/U-P0.2
+- **HypothesisRankerEngine**: Multi-Hypothesis Evaluation and Ranking
+- **IdentityModelEngine**: Foundation for cross-agent self-awareness: agent role, family membership,
+- **IEngine**: Type definitions re-exported from BaseEngine for convenience.
+- **IGESImportEngine**: IGES 5.3 File Format Import
+- **ImageOCRPipelineEngine**: OCR Text Extraction from Images
+- **ImpactAnalysisEngine**: Rename/Delete Impact Protocol
+- **ImpellerCADEngine**: Generates 3D impeller geometry for pumps, fans, compressors, and turbines.
+- **ImpellerEngine**: Centrifugal pump/fan impeller design analysis
+- **ImportCostEngine**: Import chain analysis for bundle optimization
+- **IncidentResponseEngine**: U-LPR-SEC-IR
+- **IncrementalLearningEngine**: Phase 0.19 U-LLM6
+- **IncrementalReadEngine**: Tracks file read coverage for incremental reads
+- **InductionHeatingEngine**: Induction heating coil design and power
+- **IndustryStandardsComplianceEngine**: PRISM: IndustryStandardsComplianceEngine
+- **InferenceChainEngine**: Server-side multi-step reasoning engine that reduces client context consumption
+- **InferenceLoRAGateEngine**: U-LEARN-07
+- **InfiniteConditionCombinatorEngine**: Handle Combinatorial Explosion
+- **InformationTheoryEngine**: Entropy-based process monitoring for CNC machining.
+- **IngestionOrchestratorEngine**: Route scanned files to domain-specific engines
+- **InjectionMoldingEngine**: Injection molding process parameters
+- **InjectionMoldQuoteEngine**: Injection Molding Cost Estimator
+- **InMemoryFileOverlayEngine**: U-FORE-05 (PSAU-FORESIGHT)
+- **InProcessStockModelEngine**: Tracks in-process stock geometry for collision avoidance and engagement
+- **InputSanitizationEngine**: U-LPR-SEC07
+- **InsertChangeRecommendationEngine**: Recommends insert changes during production.
+- **InsertGradeSelectionEngine**: ISO turning insert grade selection
+- **InstantaneousEngagementEngine**: InstantaneousEngagementEngine
+- **InstantQuoteEngine**: Xometry-killer instant pricing pipeline
+- **InstructorDashboardEngine**: LMS Features for PRISM Academy
+- **IntakeWebhookEngine**: IntakeWebhookEngine
+- **IntegratedVerificationEngine**: Unified verification: collision + voxel stock + G-code safety +
+- **IntegrationAdapterEngine**: Export adapters for external systems.
+- **IntegrationForesightEngine**: U-FORE-08 (PSAU-FORESIGHT)
+- **IntelligenceAmplificationEngine**: Phase 0.24 U-INT5
+- **IntelligenceEngine**: Intelligence
+- **IntelligentSequencingAdapter**: Intelligent Sequencing Adapter
+- **IntelligentSequencingEngine**: Production-Correct Operation Ordering
+- **IntentClassifierEngine**: Extends TaskAgentClassifier for PUOA tier routing. Classifies natural language
+- **IntentDecompositionEngine**: Intent Decomposition Engine (R8-MS0)
+- **IntentRouterEngine**: Natural Language to Action Routing
+- **InteractiveLearningSessionEngine**: Interactive CAD Video Tutorial Learning
+- **InteriorPointEngine**: Interior point method for constrained optimization
+- **InterOperationStateEngine**: State Handoff Between Operations
+- **InventorAutomationBridge**: COM-based Autodesk Inventor geometry/tree bridge (E2480)
+- **InventorCADCodeGeneratorEngine**: Generates iLogic VB.NET scripts for Autodesk Inventor CAD geometry creation.
+- **InventorCADExecutionBridge**: planning↔execution bridge for Inventor CAD ops.
+- **InventorCADFunctionIndexEngine**: CAD-side parity to HyperCADCADFunctionIndexEngine
+- **InventorCAMAIOrchestrationEngine**: AI Orchestration for Inventor HSM / InventorCAM
+- **InventorCAMCodeGeneratorEngine**: InventorCAMCodeGeneratorEngine - Generate G-code from InventorCAM/HSMWorks (E2401)
+- **InventorCAMFunctionIndexEngine**: CAM-EXHAUST-MS0/U-CAM32
+- **InventorCAMStrategyEngine**: InventorCAMStrategyEngine - Strategy Selection for InventorCAM/HSMWorks (E2402)
+- **InventorCAMToolExportEngine**: InventorCAMToolExportEngine - Export Tool Libraries for InventorCAM/HSMWorks (E2403)
+- **InventorHSMFunctionIndexEngine**: CAM-EXHAUST-MS0/U-CAM26
+- **InventorHSMInHostRunnerEngine**: Inventor HSM In Host Runner
+- **InventorHSMPluginAdapterEngine**: Autodesk Inventor HSM COM Add-in Bridge (U-CAM88)
+- **InventoryAwareToolSelectorEngine**: InventoryAwareToolSelectorEngine
+- **InventoryEOQEngine**: Economic Order Quantity and inventory optimization
+- **InventoryOptimizationEngine**: Inventory Optimization Engine
+- **InverseKinematicsSolverEngine**: L2-P4-MS1 PASS2 Specialty
+- **InverseSolverEngine**: Paradigm shift: Instead of "Given inputs, what parameters?" (forward),
+- **InverseStackupAllocatorEngine**: Inverse Stackup Allocator
+- **InverseThermalCompensationEngine**: Real-Time Machine Thermal Correction
+- **InvoicingEngine**: Job-to-invoice generation, line items, tax,
+- **InvoluteGearEngine**: Generates involute spur-gear tooth profiles and computes canonical gear
+- **IonImplantationEngine**: Ion implantation process analysis
+- **IQLEngine**: U-LEARN-08
+- **ISO13399ToolDataEngine**: Global Tooling Classification) tool data interchange.
+- **ISO13485QMSEngine**: ISO13485QMSEngine
+- **ISO14971RiskManagementEngine**: ISO14971Risk Management
+- **ISO2768ApplicatorEngine**: Apply General Tolerances to Un-toleranced Dimensions
+- **ISO286ExtendedEngine**: Extended ISO 286-1:2010 Limits & Fits Analysis
+- **IsosurfaceEngine**: Isosurface Engine
+- **IterativeRetrievalEngine**: Progressive context refinement for subagent dispatch.
+- **IterativeSolverEngine**: Krylov Subspace Solvers
+- **JmDieMachineConfigEngine**: Detailed Machine Configurations for JM Die Company
+- **JMDieMillProgramHarvestEngine**: JM Die Mill Program Deep Extraction
+- **JMDieMillProgramHarvesterEngine**: Extract Knowledge from 483 Mill Programs
+- **JMDIEPatternAnalyzer**: Pattern-to-Rules Bridge for JM Die Programs
+- **JMDieProgramAnalyzerEngine**: Deep Analysis of JM DIE Production Programs
+- **JMDieProgramInventoryEngine**: Index all JM Die CNC programs with controller/machine classification.
+- **JMDieProgramLearningEngine**: Phase 0.23 U-UTL10
+- **JMDieProgramRAGEngine**: U-LEARN-04
+- **JMDieRecipeRetrieverEngine**: Proven Recipe Retrieval (U-MIO42)
+- **JMDieTrainingCorpusEngine**: U-LEARN-03
+- **JobCostingEngine**: Job Costing Engine
+- **JobDeskAggregatorEngine**: Job Desk Record Builder
+- **JobLearningEngine**: R7-MS3: Job Learning Engine
+- **JobLifecycleEngine**: Job Lifecycle Engine
+- **JobProfitabilityWaterfallEngine**: Job Profitability Waterfall Engine
+- **JobShopSchedulingEngine**: Job Shop Scheduling Engine
+- **JobTravelerEngine**: Session 6-7 U-TRAV1
+- **JohnsonCookEngine**: Johnson-Cook Constitutive Model Engine
+- **JournalBearingEngine**: Plain/journal bearing design
+- **KalmanFilterEngine**: Kalman Filter variants for manufacturing sensor fusion
+- **KDEGradientBoostEngine**: Kernel Density Estimation + Gradient Boosting for PRISM
+- **KeyseatCutterEngine**: Keyseat/Woodruff Key Slot Calculations
+- **KeywayDesignEngine**: Key & Keyway Joint Calculator
+- **KeywayEngine**: Keyway/Keyseat Machining Calculator
+- **KeywayStressEngine**: Keyway & Key Joint Stress Calculator
+- **KienzleForceModelEngine**: Foundational Kienzle specific cutting force model
+- **KienzleForcePlugin**: PhysicsPlugin wrapper for KienzleForceModelEngine
+- **KinematicsEngine**: Advanced Kinematics Engine
+- **KioskModeEngine**: Simplified data provider for shop floor touch interfaces.
+- **KnowledgeCurriculumBridgeEngine**: KnowledgeCurriculumBridgeEngine
+- **KnowledgeDeduplicationEngine**: Cosine Similarity Dedup for Knowledge Tips
+- **KnowledgeGapAwarenessEngine**: U-FORE-11 (PSAU-FORESIGHT)
+- **KnowledgeGraphEngine**: Manufacturing Knowledge Graph connecting materials, tools, machines,
+- **KnowledgeGraphFeatureProjectorEngine**: XPROC-NEURAL-CONNECT-MS0 / U-CN05
+- **KnowledgeGraphNeuralBridgeEngine**: AI-INTEG-MS3
+- **KnowledgeIngestionOrchestratorEngine**: KnowledgeIngestionOrchestratorEngine.ts
+- **KnowledgeLineageEngine**: Tracks knowledge provenance: which source provided which value,
+- **KnowledgePhysicsValidatorEngine**: Physics Validation for Knowledge Tips
+- **KnowledgeQueryEngine**: Session 5.3: Unified Knowledge Access
+- **KnurlingEngine**: Knurling Process Calculations
+- **LAMThermalSofteningEngine**: Laser-Assisted Machining thermal softening physics
+- **LaserAblationPhysicsEngine**: First-principles pulsed laser ablation physics
+- **LaserCutInterfaceEngine**: L2-P4-MS1 PASS2 Specialty
+- **LaserCuttingEngine**: Reverse-engineered from PRISM v8.89 monolith
+- **LaserInterferometerCompensationEngine**: Laser interferometer metrology
+- **LaserLoRACadenceEngine**: CAM-ML-CLOSEDLOOP-MS0 U-CMCCL06
+- **LaserLoRADatasetBuilderEngine**: CAM-ML-CLOSEDLOOP-MS0 U-CMCCL06
+- **LaserMarkingEngine**: L2-P4-MS1 PASS2 Specialty
+- **LaserProgramAssemblerEngine**: Complete Laser Program Generation Pipeline
+- **LaserWaterjetPostExtension**: Post-Processor for Laser & Waterjet Processes
+- **LaserWeldingEngine**: Laser beam welding process analysis
+- **LatencyBudgetDecompositionEngine**: U-LPR-PERF-SLO
+- **LatheActiveLearningEngine**: LATHE-ACTIVE-LEARNING-MS0
+- **LatheActualCostReconciliationEngine**: Lathe Actual Cost Reconciliation
+- **LatheActualFeedbackTuningEngine**: Lathe Actual Feedback Tuning
+- **LatheAdaptiveMachiningEngine**: Turning-Specific Adaptive Intelligence
+- **LatheAdvancedOperationsEngine**: Advanced Lathe Operations Intelligence
+- **LatheAGIContinuousLearningEngine**: Long-running learner: consumes feedback from shop operations and adjusts
+- **LatheAGIFeatureBridgeEngine**: `reason(feature, context)` — 
+- **LatheAGIKnowledgeUnificationEngine**: Unifies three knowledge surfaces into a single query endpoint:
+- **LatheAGISafetyContainmentEngine**: Bounds AGI outputs against physics envelopes, cost margins, and shop
+- **LatheAIFeatureRegistration**: Registers all lathe AI engines with the AI Feature Auto-Registry
+- **LatheAIOrchestrationEngine**: Unified AI Orchestration for ALL Lathe Engines
+- **LatheAIReasoningEngine**: Deep AI Intelligence for Lathe Programming
+- **LatheAITrainingEngine**: LATHE-AI-TRAIN
+- **LatheAIUltraEngine**: Claude Opus-Level Intelligence for All Lathe CNCs
+- **LatheAnomalyDetectionEngine**: LATHE-ANOMALY-MS0
+- **LatheAttentionMechanismEngine**: LATHE-ATTENTION-MS0
+- **LatheAutoQuoteFromPrintEngine**: Bridge from P4 print-to-program pipeline output to a shop-floor-grade
+- **LatheAuxAxisTimingEngine**: Lathe Aux Axis Timing
+- **LatheBayesianOptimizationEngine**: LatheBayesianOptimizationEngine - Bayesian Optimization for Lathe Parameter Search
+- **LatheBirdNestPredictorEngine**: continuous chips are not always bad
+- **LatheBlockEngagementSimulatorEngine**: LatheBlockEngagementSimulatorEngine
+- **LatheBlockTimeProfilerEngine**: LatheBlockTimeProfilerEngine
+- **LatheCAMIntelligenceEngine**: AI-Powered Lathe CAD/CAM Intelligence
+- **LatheCausalInferenceEngine**: Causal Reasoning for Lathe Programming Decisions
+- **LatheChangeoverBriefEngine**: the "what does the
+- **LatheChipMechanicsEngine**: LatheChipMechanicsEngine - Comprehensive Chip Formation Physics for Turning
+- **LatheChuckJawSetupEngine**: Lathe Chuck Jaw Setup
+- **LatheCoaxialityRunoutValidatorEngine**: LatheCoaxialityRunoutValidatorEngine
+- **LatheCollisionZoneEngine**: Lathe-Specific Collision Detection & Safety
+- **LatheCoolantAdvisorEngine**: LatheCoolantAdvisorEngine
+- **LatheCSSOptimizerEngine**: LatheCSSOptimizerEngine
+- **LatheCustomerOrderLifecycleEngine**: State machine for customer order lifecycle:
+- **LatheCuttingChemistryEngine**: Chemical phenomena in lathe cutting operations
+- **LatheDatumReferenceFrameEngine**: LatheDatumReferenceFrameEngine
+- **LatheDeepAIHardeningEngine**: LATHE-HARDEN-MS1
+- **LatheDeepLearningEngine**: Adaptive Learning & Pattern Recognition for Lathe Operations
+- **LatheDeepLearningIntelligenceEngine**: Neural Pattern Recognition & Deep Reasoning
+- **LatheDeepLogicEngine**: Formal Logic & Constraint Satisfaction for Lathe Programming
+- **LatheDeepReasoningEngine**: Multi-Step Deep Reasoning for Lathe Operations
+- **LatheDeviationMapEngine**: LatheDeviationMapEngine
+- **LatheEnsembleLearningEngine**: LATHE-ENSEMBLE-MS0
+- **LatheEnvelopeBreachReplayEngine**: LatheEnvelopeBreachReplayEngine
+- **LatheERPOrchestratorEngine**: One-shot P5 orchestrator: takes a P4 artifact + ShopContext and runs the
+- **LatheExpertAdvisorEngine**: Expert-Level Machinist Guidance
+- **LatheFirstPieceApprovalEngine**: LatheFirstPieceApprovalEngine
+- **LatheFullArchiveTrainingEngine**: Complete JM Die Archive Deep Learning Training
+- **LatheGeneticAlgorithmEngine**: Lathe Genetic Algorithm
+- **LatheIntelligenceEngine**: AI Reasoning for CNC Lathe Operations
+- **LatheInventoryIntelligenceEngine**: Real-time inventory view for lathe ops:
+- **LatheJMDieKnowledgeEngine**: Extract Knowledge from JM Die Program Archive
+- **LatheJobProfitabilityAnalyticsEngine**: Per-job profitability waterfall + customer / part portfolio analysis.
+- **LatheJobSchedulingEngine**: Lathe Job Scheduling
+- **LatheKinematicsDeepLearningEngine**: Maximum AI Potential for Lathe Operations
+- **LatheKnowledgeGraphEngine**: Comprehensive Knowledge Graph for Lathe Programming
+- **LatheKnowledgeHarvesterEngine**: Cross-Source Lathe Knowledge Synthesis
+- **LatheLoRAAdaptiveRefinementEngine**: LATHE-LORA-MS0 U-LLR27
+- **LatheLoRAAttentionAnalyzerEngine**: LATHE-LORA-MS0 U-LLR34
+- **LatheLoRABenchmarkSuiteEngine**: LATHE-LORA-MS0 U-LLR16
+- **LatheLoRACadenceEngine**: Training Cadence Scheduler
+- **LatheLoRACadenceOrchestratorEngine**: LATHE-LORA-MS0 U-LLR31
+- **LatheLoRAContinualLearningEngine**: LATHE-LORA-MS0 U-LLR30
+- **LatheLoRACronJobEngine**: LATHE-LORA-MS0 U-LLR32
+- **LatheLoRADatasetBuilderEngine**: LATHE-LORA-MS0 U-LLR05
+- **LatheLoRADatasetValidatorEngine**: LATHE-LORA-MS0 U-LLR08
+- **LatheLoRADeploymentEngine**: LATHE-LORA-MS0 U-LLR48
+- **LatheLoRADriftDetectorEngine**: LATHE-LORA-MS0 U-LLR29
+- **LatheLoRAEmbeddingCacheEngine**: LATHE-LORA-MS0 U-LLR35
+- **LatheLoRAEnsembleCombinerEngine**: LATHE-LORA-MS0 U-LLR42
+- **LatheLoRAEnsembleOrchestratorEngine**: LATHE-LORA-MS0 U-LLR44
+- **LatheLoRAEnsembleVoterEngine**: LATHE-LORA-MS0 U-LLR41
+- **LatheLoRAExampleGeneratorEngine**: LATHE-LORA-MS0 U-LLR07
+- **LatheLoRAExperimentTrackerEngine**: LATHE-LORA-MS0 U-LLR47
+- **LatheLoRAHealthMonitorEngine**: LATHE-LORA-MS0 U-LLR23
+- **LatheLoRAHyperparameterOptimizerEngine**: LATHE-LORA-MS0 U-LLR09
+- **LatheLoRAInferenceGatewayEngine**: LATHE-LORA-MS0 U-LLR22
+- **LatheLoRAKnowledgeCuratorEngine**: LATHE-LORA-MS0 U-LLR40
+- **LatheLoRAKnowledgeGraphEngine**: LATHE-LORA-MS0 U-LLR39
+- **LatheLoRAMasterOrchestratorEngine**: LATHE-LORA-MS0 U-LLR50
+- **LatheLoRAMergeStrategyEngine**: LATHE-LORA-MS0 U-LLR17
+- **LatheLoRAModelOptimizerEngine**: LATHE-LORA-MS0 U-LLR20
+- **LatheLoRAModelRegistryEngine**: LATHE-LORA-MS0 U-LLR19
+- **LatheLoRAModelSelectorEngine**: LATHE-LORA-MS0 U-LLR43
+- **LatheLoRAMonitoringEngine**: LATHE-LORA-MS0 U-LLR49
+- **LatheLoRANeuralBridgeEngine**: LATHE-LORA-MS0 U-LLR33
+- **LatheLoRANeuralOrchestratorEngine**: LATHE-LORA-MS0 U-LLR36
+- **LatheLoRAOllamaDeployerEngine**: LATHE-LORA-MS0 U-LLR21
+- **LatheLoRAPhysicsAugmentedInferenceEngine**: LATHE-LORA-MS0 U-LLR25
+- **LatheLoRAPhysicsEvaluatorEngine**: LATHE-LORA-MS0 U-LLR13
+- **LatheLoRAPipelineCoordinatorEngine**: LATHE-LORA-MS0 U-LLR45
+- **LatheLoRAPipelineEngine**: End-to-End Pipeline Orchestrator
+- **LatheLoRAProgramMinerEngine**: LATHE-LORA-MS0 U-LLR37
+- **LatheLoRAProgramParserEngine**: LATHE-LORA-MS0 U-LLR06
+- **LatheLoRAQuantizationOptimizerEngine**: LATHE-LORA-MS0 U-LLR18
+- **LatheLoRAReasoningChainInferenceEngine**: LATHE-LORA-MS0 U-LLR26
+- **LatheLoRAReasoningEvaluatorEngine**: LATHE-LORA-MS0 U-LLR15
+- **LatheLoRAResourceManagerEngine**: LATHE-LORA-MS0 U-LLR46
+- **LatheLoRARewardShapingEngine**: LATHE-LORA-MS0 U-LLR11
+- **LatheLoRASafetyEvaluatorEngine**: LATHE-LORA-MS0 U-LLR14
+- **LatheLoRATrainingMonitorEngine**: LATHE-LORA-MS0 U-LLR12
+- **LatheLoRATrainingScriptEngine**: Training Script Generator
+- **LatheLoRATransferStrategyEngine**: LATHE-LORA-MS0 U-LLR10
+- **LatheLoRATribalAugmentationEngine**: LATHE-LORA-MS0 U-LLR28
+- **LatheLoRATribalExtractorEngine**: LATHE-LORA-MS0 U-LLR38
+- **LatheLoRAVerificationEngine**: LATHE-LORA-MS0 U-LLR24
+- **LatheMachineIntelligenceEngine**: Machine-Specific Intelligence for All Lathe Types
+- **LatheMasterOrchestratorFacadeEngine**: LatheMasterOrchestratorFacadeEngine (E106)
+- **LatheMasterPostAPIEngine**: LATHE-MASTER U-LTH30
+- **LatheMasterPostDeepReasoningEngine**: LATHE-MASTER U-LTH28
+- **LatheMasterPostEnsembleCrossCheckEngine**: LATHE-MASTER U-LTH29
+- **LatheMasterPostRegressionMatrixEngine**: LATHE-MASTER U-LTH31
+- **LatheMasterPostRouterEngine**: LATHE-MASTER U-LTH25
+- **LatheMasterPostSelfAwarenessEngine**: LATHE-MASTER U-LTH27
+- **LatheMasterPostUnifiedOutputEngine**: LATHE-MASTER U-LTH26
+- **LatheMetaLearningEngine**: LATHE-META-LEARNING-MS0
+- **LatheMetallurgyEngine**: Comprehensive Metallurgical Phenomena in Lathe Cutting
+- **LatheMultiOpPlannerEngine**: Op1/Op2 Flip Planning
+- **LatheNeuralIntelligenceEngine**: Advanced Neural Networks for Lathe AI
+- **LatheOnMachineProbeCycleEngine**: Lathe On Machine Probe Cycle
+- **LatheOpTimeBreakdownEngine**: LatheOpTimeBreakdownEngine
+- **LatheOpusReasoningEngine**: Claude Opus-Level Intelligence for Lathe Programming
+- **LatheOrchestrationEngine**: 35-Stage CNC Turning Program Generation Pipeline
+- **LathePartClassifierEngine**: 15 Part Family Classifier
+- **LathePartCostModelEngine**: LathePartCostModelEngine
+- **LathePartFamilyPlanningEngine**: LathePartFamilyPlanningEngine (E110)
+- **LathePartingChipClearanceEngine**: LathePartingChipClearanceEngine
+- **LathePartoffSafetyRailEngine**: LATHE-PROD-READY-MS0/U-LPR-PARTOFF-RAIL
+- **LathePerformanceSLORegistryEngine**: LATHE-PROD-READY-MS0/U-LPR-PERF-SLO
+- **LathePostGeneratorActiveLearningEngine**: LATHE-MASTER U-LTH21
+- **LathePostGeneratorDialectEngine**: LATHE-MASTER U-LTH16
+- **LathePostGeneratorSpecIngestEngine**: LATHE-MASTER U-LTH15
+- **LathePostGeneratorUncertaintyEngine**: LATHE-MASTER U-LTH22
+- **LathePostGeneratorValidatorWiringEngine**: LATHE-MASTER U-LTH18
+- **LathePostKnowledgeGraphEngine**: LATHE-MASTER U-LTH20
+- **LathePostProcessorAIEngine**: AI-Powered Lathe Post Processor Intelligence
+- **LathePostProcessorDialectValidatorEngine**: LATHE-PROD-READY-MS0 U-LPR03
+- **LathePostProcessorEngine**: Turning-specific G-code post-processing
+- **LathePostRegressionTestGeneratorEngine**: LATHE-MASTER U-LTH19
+- **LathePredictiveIntelligenceEngine**: Predictive Intelligence for Lathe Operations
+- **LathePrintFeatureStrategySelectorEngine**: Maps turning features → optimal machining strategies with chain-of-thought reasoning.
+- **LathePrintIngestPipelineEngine**: Orchestrates the blueprint-to-structured-data pipeline for lathe prints:
+- **LathePrintProgramEmitterEngine**: Emits controller-specific G-code from the toolpath program and attaches a
+- **LathePrintProgramSignoffEngine**: Produces machinist-grade signoff package that includes:
+- **LathePrintSequencePlannerEngine**: From strategy plan → ordered operation sequence with:
+- **LathePrintSetupSelectionEngine**: Selects chuck jaws, tailstock engagement, steady rest placement based on
+- **LathePrintToleranceStackEngine**: Propagates GD&T through feature→operation chain:
+- **LathePrintToolpathGeneratorEngine**: From sequence plan → per-operation toolpath with G-code and cycle-time prediction.
+- **LathePrintToProgramDLIntelligenceEngine**: Deep-learning-style intelligence layer that reviews the full print-to-program
+- **LathePrintToProgramKnowledgeGraphEngine**: Every print→program emission adds structured nodes/edges to the
+- **LathePrintToProgramReasoningEngine**: Explains the full decision chain from print → program. Produces a structured
+- **LatheProgramBacktraceEngine**: LatheProgramBacktraceEngine
+- **LatheProgramCatalogEngine**: LatheProgramCatalogEngine (E108)
+- **LatheProgramFeatureInferenceEngine**: LATHE-PROD-READY-MS0/U-LPR29
+- **LatheProgrammingCostEngine**: LatheProgrammingCostEngine (E109)
+- **LatheProgrammingStyleSelectorEngine**: LatheProgrammingStyleSelectorEngine (E107)
+- **LatheProgramOptimizerEngine**: Transform Amateur Lathe Programs into Production-Ready Code
+- **LatheProgramSignoffDossierEngine**: LatheProgramSignoffDossierEngine
+- **LatheProofCarryingEmitEngine**: Lathe Proof Carrying Emit
+- **LathePurchaseOrderAutomationEngine**: Generates purchase-order line items from job requirements:
+- **LatheQualityGateEngine**: PhD-Level Quality Validation for Lathe Programs
+- **LatheReinforcementLearningEngine**: LATHE-RL-MS0
+- **LatheReplayFrameCompilerEngine**: LatheReplayFrameCompilerEngine
+- **LatheResourceKnowledgeEngine**: Comprehensive Resource Extraction & Knowledge Synthesis
+- **LatheSafetyPredicateEngine**: Lathe Safety Predicate
+- **LatheSafetySignalEngine**: LATHE-HARDENED-MS0 / U-LSR24
+- **LatheScienceHardeningEngine**: Wraps existing physics engines with turning-specific logic:
+- **LatheSelfAwarenessIntegrationEngine**: Full PRISM Integration for Lathe Operations
+- **LatheSequenceOptimizerEngine**: Multi-Criteria Operation Sequencing
+- **LatheShopAwareOptimizationEngine**: JM Die Shop-Specific Program Optimization
+- **LatheSpeedFeedCalculatorFacadeEngine**: LatheSpeedFeedCalculatorFacadeEngine
+- **LatheSpeedFeedDeepLearningAdvisorEngine**: LatheSpeedFeedDeepLearningAdvisorEngine
+- **LatheSpeedFeedReasoningBridgeEngine**: LatheSpeedFeedReasoningBridgeEngine
+- **LatheSpeedFeedShopAwareTuningEngine**: LatheSpeedFeedShopAwareTuningEngine
+- **LatheStockEvolutionEngine**: LatheStockEvolutionEngine
+- **LatheSubSpindleTransferPurgeEngine**: Lathe Sub Spindle Transfer Purge
+- **LatheSwissPostGeneratorEngine**: LATHE-MASTER U-LTH17
+- **LatheThermodynamicsEngine**: Comprehensive Thermal Phenomena in Lathe Cutting
+- **LatheTransferLearningEngine**: Transfer Learning for Lathe Operations
+- **LatheTransformerEngine**: LATHE-TRANSFORMER-MS0
+- **LatheTribalInjectorEngine**: LatheTribalInjectorEngine (E105)
+- **LatheTroubleshootingIntelligenceEngine**: Practical Problem-Solving for Machinists
+- **LatheTurningFeatureRecognizerEngine**: Takes BlueprintIntake (from U-LTH33) and recognizes turning features:
+- **LatheUnifiedAIEngine**: Master Orchestration for All Lathe Intelligence
+- **LatheUnifiedAIOrchestrator**: Complete AI Orchestration for Lathe Suite
+- **LatheUnifiedPhysicsOrchestrationEngine**: Lathe Unified Physics Orchestration
+- **LatheUnifiedScienceEngine**: Unified Physics/Chemistry/Metallurgy/Thermodynamics
+- **LatheWorkholdingEngine**: Turning-Specific Workholding Intelligence
+- **LayeredAssetCheckEngine**: Composite gate: fuzzy-name + semantic-embedding
+- **LeadScrewEngine**: Lead screw / power screw design
+- **LeafSpringEngine**: Leaf Spring Design Calculator
+- **LeanSixSigmaEngine**: Statistical process control and capability:
+- **LearningAdaptationEngine**: Outcome-Based Learning for PRISM
+- **LearningCascadeEngine**: U-LEARN-10
+- **LearningLoopEngine**: Learning from Corrections
+- **LearningPathEngine**: Manufacturing Intelligence Layer
+- **LearningProgressionEngine**: Course-Based Learning with Gated Checkpoints
+- **LectureNoteExtractionEngine**: LectureNoteExtractionEngine.ts
+- **LedgerRetentionEngine**: Classify ledger entries into hot/warm/cold tiers
+- **LegalComplianceOperatingEngine**: LegalComplianceOperatingEngine
+- **LegalGateEngine**: CAM-UIX-INFRA-00/U-LEGAL-GATES01
+- **LessonRendererEngine**: PRISM Academy Content Renderer
+- **LinearGuideEngine**: Linear Guide Rail Sizing & Life Calculator
+- **LinearMotionEngine**: Linear Guide & Ball Screw Calculator
+- **LinearProgrammingEngine**: Reverse-engineered from PRISM v8.89 monolith
+- **LinearRegressionEngine**: Least squares regression analysis
+- **LineByLineAdaptiveEngine**: POST-ULT-MS9 Pipeline Phase 2
+- **LiveToolingEngine**: L2-P4-MS1 PASS2 Specialty
+- **LiveToolingIntelligenceEngine**: LiveToolingIntelligenceEngine.ts
+- **LiveToolingSyntaxEngine**: Generates G-code syntax for live tooling on mill-turn machines.
+- **LiveTurretCAxisEngine**: C-Axis and Live Tooling Intelligence
+- **LLMEngine**: AI-Powered Manufacturing Intelligence
+- **LocalAwarenessRouterEngine**: LOCAL-LLM-MS0 U-LLM-AWR01
+- **LocalCommitMessageEngine**: LOCAL-LLM-MS0 U-LLM-CMT01
+- **LocalEmbeddingEngine**: In-process embeddings via @xenova/transformers
+- **LocalHookAggregatorEngine**: LOCAL-LLM-MS0 U-LLM-AGG01
+- **LocalLearningEngine**: LOCAL-LLM-MS0 Session 3
+- **LocalModelOrchestratorEngine**: Phase 0.19 U-LLM1
+- **LocalSearchEngine**: Reverse-engineered from PRISM v8.89 monolith
+- **LocalValidationEngine**: LOCAL-LLM-MS0 U-LLMV01
+- **LoewenShawHeatPartitionEngine**: Full Loewen-Shaw (1954) Dynamic Heat Partition Model
+- **LoftedWingEngine**: Lofted Wing
+- **LoggingEngine**: L2-P3-MS1 Infrastructure Layer
+- **LokiLogSinkEngine**: U-LPR-OBS4
+- **LongHorizonPlanningEngine**: LLM-INTEL Extended Reasoning
+- **LoRAAdapterRegistryEngine**: U-LEARN-07
+- **LoRACompositionEngine**: U-LEARN-05
+- **LoRADriftCoordinatorEngine**: CAM-ML-CLOSEDLOOP-MS0 U-CMCCL10
+- **LoRAMoEGatingEngine**: U-LEARN-05
+- **LSHDedupEngine**: Locality-Sensitive Hashing for O(1) Semantic Dedup
+- **MachinabilityRatingEngine**: L2-P2-MS1 CAD/CAM Layer
+- **MachineAuditEngine**: Executes brand audit waves in priority order to validate machine catalog
+- **MachineAwareSpeedFeedEngine**: Wraps speed/feed calculations with real machine constraints from
+- **MachineCapabilityIndexEngine**: Phase 0.23 U-UTL7
+- **MachineCapabilityIntelligenceEngine**: Unifies spindle torque curves, axis acceleration profiles, work envelope
+- **MachineCapabilitySurfaceEngine**: Surfaces controller capabilities, spindle packages, and coolant strategies
+- **MachineConfidenceCalculatorEngine**: Calculates confidence scores for machine packages based on data completeness,
+- **MachineConfigDatabaseEngine**: CNC machine roughing/adaptive/finishing configs
+- **MachineConnectivityEngine**: R9-MS0 MTConnect/OPC-UA Data Ingestion
+- **MachineConsumerBindingEngine**: Binds downstream consumers (Program Release, Print to CNC, quoting, scheduling)
+- **MachineDataAuditEngine**: Machine Catalog Data Audit
+- **MachineDataHardeningEngine**: SQ3-0-MACH
+- **MachineDispatchEngine**: Session 6-7 U-TRAV2
+- **MachineEnvelopeGuardEngine**: Machine limit enforcement middleware
+- **MachineFingerprintEngine**: Machine Make/Model/Year → Post Config Resolution
+- **MachineForceLimitValidationEngine**: Validates that planned cutting operations are within machine capabilities.
+- **MachineGeometricAccuracyEngine**: Five machine geometric accuracy models:
+- **MachineHandbookRegistryEngine**: Structured storage and retrieval of machine handbook data.
+- **MachineKinematicsEngine**: Kinematic Chain & Collision Zone Generator
+- **MachineKinematicStateEngine**: Dynamic Machine State Tracker (U-MIO39)
+- **MachineLayerMerger**: Merges machine data from multiple layers with field-level provenance tracking.
+- **MachineLearningFeedbackEngine**: MachineLearningFeedbackEngine
+- **MachineLearningStrategyRankerEngine**: Machine Learning Strategy Ranker
+- **MachineLevelingEngine**: Machine Tool Leveling & Foundation Calculator
+- **MachineLogHarvesterEngine**: MachineLogHarvesterEngine � Machine Log & Config Parser
+- **MachineLoRABaseEngine**: shared foundation for per-machine LoRA pipelines
+- **MachineMatcherEngine**: G-Code to Machine Recommendation
+- **MachineModelAcquisitionEngine**: Automated CNC Machine STEP File Acquisition
+- **MachineModelDownloaderEngine**: Automated STEP File Fetcher
+- **MachineModelIndexEngine**: Indexes OEM machine model STEP files + generic models
+- **MachineOptionContractEngine**: Validates that only legal machine package options are rendered for downstream
+- **MachineOptionMatrixEngine**: Defines and validates allowed combinations of controller, spindle,
+- **MachineOptionRegistryEngine**: MachineOptionSchema: TypeScript schema for ALL machine purchase options
+- **MachinePackageAPIEngine**: Exposes machine-package read/write APIs and resource surfaces for external
+- **MachinePackageSelectionEngine**: Replaces heuristic-only filtering with package-driven selection using
+- **MachinePostCrossRefEngine**: Machine-to-Post Cross-Reference Engine
+- **MachineProfileEngine**: Shop Machine Specifications Database
+- **MachineProfilePropagationEngine**: Propagates machine-profile reuse into quoting, what-if analysis, scheduling,
+- **MachineRateDatabaseEngine**: TCO-based machine hourly rates.
+- **MachineSelectionEngine**: Manufacturing Intelligence Layer
+- **MachineStrategyConstraintEngine**: Machine Strategy Constraint
+- **MachineToolErrorBudgetEngine**: Geometric Error Budget Allocation & Propagation
+- **MachineTypeClassifierEngine**: Print/CAD to Machine Type Inference
+- **MachineVibrationEngine**: Machine Tool Vibration & Chatter Analysis
+- **MachineVocabularyNormalizerEngine**: Normalizes machine data vocabularies across multiple dimensions:
+- **MachineWarmupEngine**: Machine Tool Warmup Schedule Calculator
+- **MachiningAcousticsEngine**: First-principles audible machining noise prediction
+- **MachiningEnergyModelEngine**: Physics-based energy consumption model per part.
+- **MachiningIntelligenceOrchestratorEngine**: MachiningIntelligenceOrchestratorEngine.ts
+- **MachiningKnowledgeBaseEngine**: Unified Machining Reference
+- **MachiningPlaybookEngine**: Experiential Machining Knowledge System
+- **MacroConversionAnalyzerEngine**: Identifies which .MIN programs in the JM Die CNC LATHE archive can be collapsed
+- **MacroLibraryEngine**: catalog of the JM Die parametric lathe macros + part→family matching
+- **MacroPatternMinerEngine**: Mine macro programming patterns from CNC programs
+- **MacroProgramIntelligenceEngine**: AI Intelligence for Parametric CNC Macro Programs
+- **MacroValidationEngine**: Validate converted parametric macros
+- **MagnesiumMachiningEngine**: Advanced Materials Machining
+- **MagneticBearingEngine**: Active magnetic bearing (AMB) analysis
+- **MagneticChuckEngine**: L2-P4-MS1 PASS2 Specialty
+- **MakeVsBuyDecisionEngine**: Manufacturing Intelligence Layer
+- **ManufacturerCatalogAIEngine**: Deep knowledge extraction from manufacturer catalogs
+- **ManufacturerCatalogIndexEngine**: Indexes all external manufacturer data sources
+- **ManufacturingCalculations**: Core physics-based calculations for CNC machining
+- **ManufacturingGenomeEngine**: Complete, computable model of how any material behaves under cutting:
+- **ManufacturingIntegrationEngine**: Bundles 4 cross-cutting manufacturing pipeline features:
+- **ManufacturingKnowledgeGraphEngine**: ManufacturingKnowledgeGraphEngine.ts
+- **ManufacturingReasoningEngine**: Domain-Grounded Chain-of-Thought
+- **ManufacturingStatisticsEngine**: Complete Statistical Methods for CNC
+- **ManusATCSBridge**: F2.3: Bridges ATCS work units to Manus-style Claude API execution
+- **MarketMaterialPricingEngine**: Commodity-Indexed Material Pricing
+- **MarkovChainEngine**: Markov Chain Modeling & Analysis
+- **MarkovDecisionEngine**: Markov Decision Process solver
+- **MarksMultusPatternMinerEngine**: MarksMultusPatternMinerEngine (E100)
+- **MaskingCalculatorEngine**: L2-P4-MS1 PASS2 Specialty
+- **MasterAITrainingLedgerEngine**: CAM-ML-CLOSEDLOOP-MS0 U-CMCCL09
+- **MasterCADControlBrainEngine**: U-CADC-AI01 / CAD-COMPLETE-MS0 PHASE-30
+- **Mastercam5AxisEngine**: Mastercam5AxisEngine - 5-Axis Simultaneous Milling Strategies for Mastercam
+- **MastercamAIOrchestrationEngine**: AI Orchestration for Mastercam
+- **MastercamAutomationBridge**: Process-level spawn + named-pipe IPC bridge for Mastercam.
+- **MastercamCADExecutionBridge**: planning↔execution bridge for Mastercam CAD ops.
+- **MastercamCADFunctionIndexEngine**: CAD-side parity to Fusion / Inventor / hyperCAD CAD function indexes.
+- **MastercamCodeGeneratorEngine**: Mastercam NET-Hook C# code generator extending UnifiedCADCodeGeneratorBase.
+- **MastercamControllerCatalogEngine**: MastercamControllerCatalogEngine - CNC Controller Family Reference for Mastercam
+- **MastercamCycleCatalogEngine**: MastercamCycleCatalogEngine - Complete Mastercam Cycle Type Reference
+- **MastercamDeepLearningEngine**: Comprehensive Mastercam Knowledge Extraction
+- **MastercamEDMBridge**: Mastercam Wire / Sinker EDM workflow routing
+- **MastercamFAIBridge**: First Article Inspection Integration for Mastercam
+- **MastercamFunctionIndexEngine**: MastercamFunctionIndexEngine - Unified query surface over all extracted
+- **MastercamGrindingBridge**: Mastercam grinding workflow routing
+- **MastercamHeadlessIntegrationTestEngine**: U-CAD-APP-19 (PHASE-48)
+- **MastercamInHostRunnerEngine**: Mastercam In Host Runner
+- **MastercamMaterialBridgeEngine**: Bridge Mastercam material database to PRISM physics
+- **MastercamMaterialPhysicsBridge**: Connect Mastercam materials to PRISM physics engines
+- **MastercamMillTurnBridge**: MastercamMillTurnBridge - Mill-Turn Combined Operations Bridge for Mastercam
+- **MastercamMoldCycleEngine**: Mold cavity / core machining cycle planner
+- **MastercamMultiAxisEngine**: MastercamMultiAxisEngine - Multi-Axis Toolpath Generation for Mastercam
+- **MastercamPluginAdapterEngine**: Mastercam NET-Hook SDK Bridge (U-CAM89)
+- **MastercamProbingBridge**: In-Process Probing Integration for Mastercam
+- **MastercamSafetyHooksEngine**: Mastercam-Specific Safety Validations (E1113)
+- **MastercamSPCBridge**: Statistical Process Control Integration for Mastercam
+- **MastercamStrategyEngine**: Real strategy selection for Mastercam
+- **MastercamSurfaceIntegrityBridge**: surface finish + integrity prediction
+- **MastercamToolExportEngine**: Export PRISM Tool Catalog to Mastercam Format (E1123)
+- **MasterIndexGenerator**: Auto-scans MCP server source to produce MASTER_INDEX.json
+- **MasterPostFineTuningEngine**: CAM-PARITY-AGI-MS0/U-CAMP15
+- **MasterPostGeneratorEngine**: Master Post Generator
+- **MasterPostProcessorAGIOrchestrationEngine**: PP-MASTER-AGI
+- **MasterPostProcessorEngine**: Unified Cross-CAM Post Processing Orchestrator
+- **MasterPostProcessorGeniusEngine**: PP-GENIUS-AGI
+- **MasterPostProcessorUnifiedAGIEngine**: PP-UNIFIED-AGI
+- **MaterialBatchVariabilityEngine**: Upstream Material Property Uncertainty Source
+- **MaterialCalloutParserEngine**: Engineering Drawing Material Callout Parser
+- **MaterialCertTraceabilityEngine**: PRISM: MaterialCertTraceabilityEngine (E1088)
+- **MaterialDatabaseBridgeEngine**: Phase 0.23 U-UTL5
+- **MaterialDatabaseEngine**: Comprehensive Material Properties Database
+- **MaterialEquivalenceEngine**: L2-P4-MS1 PASS2 Specialty
+- **MaterialHardnessStateClassifierEngine**: LATHE-PROD-READY-MS0 U-LPR-HARDNESS
+- **MaterialHarvesterEngine**: Extracts materials from SolidWorks .sldmat files
+- **MaterialInterpolationEngine**: Reverse-engineered from PRISM v8.89 monolith
+- **MaterialResolverForProgramsEngine**: Resolve material from CNC program context
+- **MaterialSelectionEngine**: Manufacturing Intelligence Layer
+- **MaterialStockEngine**: Material inventory tracking for JM Die
+- **MaterialToolMatrixEngine**: scenario generator (U-CAMTEST08..13). The matrix itself is 9 abstract
+- **MathIntegrationPipelineEngine**: Cross-Engine Mathematical Integration Pipelines
+- **MatrixFactorizationEngine**: NMF, Sparse Storage, Matrix Exponential
+- **MatrixNormEngine**: Matrix Norms, Condition Number Estimation, Matrix Functions
+- **MaxEntIRLEngine**: U-LEARN-08
+- **McxBatchExtractorEngine**: LATHE-PROD-READY-MS0/U-LPR28
+- **McxProgramParserEngine**: LATHE-PROD-READY-MS0/U-LPR26
+- **MDOFStabilityEngine**: Multi-Degree-of-Freedom Regenerative Chatter Stability Analysis
+- **MeasurementIntegrationEngine**: R9-MS5 Measurement & Inspection Integration
+- **MeasurementSystemAnalysisEngine**: Gage R&R via ANOVA (crossed design)
+- **MeasureSummaryEngine**: Measurement Summary Reporting
+- **MembraneFiltrationEngine**: Cross-flow membrane separation
+- **MemoryConsolidationEngine**: Background Pattern Distillation
+- **MemoryGraphEngine**: PRISM F2: Cross-Session Memory Graph Engine
+- **MemoryPressureMonitorEngine**: Heap-usage threshold monitor
+- **MemorySyncEngine**: Phase 0.19 U-LLM8 + CPP-MS3-U-CPP22 (CRDT merge)
+- **MeshDecimationEngine**: Quadric Error Metrics (QEM) mesh simplification:
+- **MeshEngine**: L2-P2-MS1 CAD/CAM Layer
+- **MetaAIOrchestrationEngine**: Unified AI Intelligence Orchestration System
+- **MetacognitionBudgetEngine**: Rate-limit metacognition to prevent infinite loops
+- **MetaheuristicOptimizationEngine**: MetaheuristicOptimizationEngine
+- **MetaLearningOptimizerEngine**: Learn to learn faster
+- **MetricsEngine**: L2-P3-MS1 Infrastructure Layer
+- **MetrologyBudgetEngine**: 9 METROLOGY formulas for measurement uncertainty & budgeting
+- **MetrologyUncertaintyEngine**: Metrology Uncertainty Engine
+- **MicroEDMEngine**: L2-P4-MS1 PASS2 Specialty
+- **MicroMachiningEngine**: Micro-Milling & Micro-Drilling Calculations
+- **MicroMillingEngine**: Micro-Milling Physics for Sub-mm Tools
+- **MicroMillingSizeEffectEngine**: MILL-AGI-P2/MILL-MS7-05
+- **MicrostructureEffectEngine**: L2-P4-MS1 PASS2 Specialty
+- **MigrationEngine**: L2-P3-MS1 Infrastructure Layer
+- **MilestoneTrackingEngine**: 14-Stage Order Milestone Tracking
+- **MillAISelfAwarenessIntegrationEngine**: Milling Capability Registry
+- **MillComprehensiveNeuralEngine**: Mathematically Maximized Mill AI
+- **MillDeepLearningEngine**: Deep AI Training on JM Die Milling Programs
+- **MillingAGIMasterEngine**: Milling-Specific AGI Reasoning
+- **MillingAGIOrchestrationEngine**: MillingAGIOrchestrationEngine.ts
+- **MillingAIIntegrationEngine**: MILL-AI-MS2: JM Die Program Archive Integration
+- **MillingAILearningOrchestratorEngine**: L2 AI/ML Aggregator
+- **MillingAIUltraIntelligenceEngine**: MILL-AI-MS1
+- **MillingAIUnificationEngine**: Complete AI System Integration for Milling
+- **MillingCriticalThinkingEngine**: Claude Opus-Level Critical Thinking for Milling
+- **MillingDeepAIHardeningEngine**: MILL-HARDEN-MS1
+- **MillingDeepIntegrationEngine**: Ultimate Milling Knowledge Integration
+- **MillingDeepKnowledgeSynthesisEngine**: Unified Knowledge Intelligence
+- **MillingDeepReasoningEngine**: Opus-Level Milling Intelligence
+- **MillingDigitalTwinEngine**: Integrated Milling Digital Twin
+- **MillingEndToEndOrchestrationEngine**: Complete Workflow Automation
+- **MillingForceEngine**: stub (U-EFF25).
+- **MillingHeadIntelligenceEngine**: MillingHeadIntelligenceEngine.ts
+- **MillingHybridStrategySynthesizer**: Intelligent Strategy Combination
+- **MillingInferenceOrchestratorEngine**: Neural Inference Orchestration
+- **MillingKnowledgeOrchestratorEngine**: Unified Milling AI Orchestration
+- **MillingLoRACadenceEngine**: CAM-ML-CLOSEDLOOP-MS0 U-CMCCL01
+- **MillingLoRADatasetBuilderEngine**: CAM-ML-CLOSEDLOOP-MS0 U-CMCCL01
+- **MillingMachineIntelligenceEngine**: MILL-AI-MS4: Complete Milling Machine Intelligence
+- **MillingMetaLearningEngine**: Self-Improving Milling Intelligence
+- **MillingNeuralCognitiveEngine**: Near-AGI Level Milling Intelligence
+- **MillingOnlineLearningTrackerEngine**: Online Learning Progress Tracker
+- **MillingPhysicsKernelEngine**: MillingPhysicsKernelEngine.ts
+- **MillingPrintToProgramEngine**: Milling Operations Pipeline
+- **MillingProductionKnowledgeHarvesterEngine**: MillingProductionKnowledgeHarvesterEngine.ts
+- **MillingProgramPatternEngine**: MILL-PATTERN-MS0
+- **MillingReasoningDefaultEngine**: MILL-AGI-P0/U-P0.2-01
+- **MillingReasoningTraceLedgerEngine**: MILL-AGI-P0/U-P0.2
+- **MillingReinforcementLearningEngine**: RL for Milling Parameter Optimization
+- **MillingStrategyLibraryEngine**: MILL-AWARE-MS5
+- **MillingUltimateAIEngine**: Maximum Intelligence Milling AI System
+- **MillingUnifiedScienceOrchestrationEngine**: Complete Scientific Integration
+- **MillKinematicsCollisionEngine**: Machine Kinematics & Collision Avoidance
+- **MillMasterOrchestratorFacadeEngine**: Unified Mill Operations Orchestrator
+- **MillNeuralNetworkEngine**: Advanced Neural Network for Milling AI
+- **MillPatternMinerEngine**: Mine Milling Patterns from Parsed Programs
+- **MillPrintToProgramEngine**: stub (U-EFF25).
+- **MillProgramAnalyzerEngine**: stub (U-EFF25).
+- **MillProgramLearningEngine**: MillProgramLearningEngine
+- **MillProgramOptimizerEngine**: Optimize ALL JM Die Mill Programs
+- **MillResourceAwarenessEngine**: MillResourceAwarenessEngine
+- **MillScientificPipelineEngine**: stub (U-EFF25).
+- **MillStrategyNeuralEngine**: MILL-AGI-P0/U-P0.3
+- **MillTribalIntegrationEngine**: Tribal Knowledge + Deep Learning Integration
+- **MillTribalKnowledgeEngine**: MillTribalKnowledgeEngine
+- **MillTurnCAMEngine**: Complete mill-turn and Swiss-type lathe programming:
+- **MillTurnLoRACadenceEngine**: CAM-ML-CLOSEDLOOP-MS0 U-CMCCL03
+- **MillTurnLoRADatasetBuilderEngine**: CAM-ML-CLOSEDLOOP-MS0 U-CMCCL03
+- **MillTurnOrchestrationEngine**: L2 Mill-Turn Aggregator
+- **MillTurnSwissPipelineEngine**: Mill-Turn & Swiss-Type CNC Pipeline
+- **MINBatchExtractorEngine**: LATHE-PROD-READY-MS0/U-LPR27
+- **MinerCumulativeDamageEngine**: Miner's Cumulative Damage Engine
+- **MINFileParserEngine**: U-LEARN-03
+- **MinimumJerkTrajectoryEngine**: PRISM Manufacturing Intelligence - Minimum Jerk Trajectory Engine
+- **MITCourseDeepLearningEngine**: MITCourseDeepLearningEngine.ts
+- **MITCourseExpansionEngine**: Additional MIT Courses for U-AWR33
+- **MITCourseFullIntegrationEngine**: Phase 0.23 U-UTL9
+- **MitCourseIndexEngine**: MitCourseIndexEngine -- Indexes 200+ MIT OpenCourseWare courses from the
+- **MITCourseIntegrationEngine**: PP-AGI Academic Course Integration
+- **MITCourseKnowledgeEngine**: MITCourseKnowledgeEngine
+- **MITCourseRegistryEngine**: MITCourseRegistryEngine.ts
+- **MitsubishiMV1200RWireEDMMasterPostEngine**: JM Die Wire EDM Master Post Processor
+- **MixerAgitatorEngine**: Agitator power, impeller sizing, mixing time
+- **MLLineageEngine**: U-LEARN-02 (companion to FeatureStore)
+- **MobileAlarmEngine**: Machine Alarm Decoding & Management
+- **MobileCacheEngine**: Offline Data Caching for Mobile
+- **MobileInterfaceEngine**: R9-MS3 Mobile / Tablet Interface Data Layer
+- **MobileLookupEngine**: Mobile Reference Data Lookup
+- **MobileTimerEngine**: Operation Timing & Cycle Tracking
+- **MobileVoiceEngine**: Voice Command Processing
+- **ModelAttributionEngine**: Track which model answered each response
+- **ModelAwareSelfAwarenessEngine**: Model Aware Self Awareness
+- **ModelConfidentialityEngine**: Model Confidentiality
+- **ModelRegistryEngine**: ML Model Serving + Feature Store
+- **ModelRoutingEngine**: Phase 0.19 U-LLM7
+- **ModularFixtureLayoutEngine**: L2-P4-MS1 PASS2 Specialty
+- **MonteCarloEngine**: Monte Carlo Simulation Engine
+- **MonteCarloProcessEngine**: Stochastic process variation simulation.
+- **MonteCarloScheduleEngine**: U-FORE-15 (Real Planning Algorithms)
+- **MoonshotClientEngine**: HTTP client for Moonshot AI's Kimi API.
+- **MorrisScreeningEngine**: Morris Elementary Effects for Global Sensitivity Screening
+- **MotionCompensationEngine**: Motion Compensation Engine
+- **MotionControllerInjectionEngine**: POST-ULT-MS10 Pipeline Phase 3
+- **MotionDynamicsProfileEngine**: PRISM Manufacturing Intelligence - Motion Dynamics Profile Engine
+- **MOUStallGateEngine**: registered, waiting on signature before T+deadline.
+- **MqttBridgeEngine**: MqttBridgeEngine
+- **MTConnectAdapterEngine**: MTConnectAdapterEngine
+- **MTConnectLiveStatusEngine**: MTConnectLiveStatusEngine
+- **MTConnectRoundTripLatencyBenchEngine**: LATHE-PROD-READY-MS0 U-LPR04
+- **MultiAgentAIInterfaceEngine**: AI-INTEG-MS0
+- **MultiAgentCoordinatorEngine**: Multi-Agent Orchestration for PRISM
+- **MultiAssetReasoningEngine**: Phase 0.24 U-INT1
+- **MultiAxisAggregatorEngine**: L2 Multi-Axis Aggregator
+- **MultiAxisKinematicEngine**: PRISM Manufacturing Intelligence - Multi-Axis Kinematic Engine
+- **MultiAxisPrintToProgramEngine**: 3+2 and 5-Axis Feature Pipeline
+- **MultiaxisToolpathEngine**: 5-axis toolpath tool axis control:
+- **MultiBodyVibrationEngine**: Coupled Tool-Holder-Workpiece Dynamics
+- **MultiCamKnowledgeEngine**: MultiCamKnowledgeEngine
+- **MultiCAMPostEngine**: Post processor templates for 10+ CAM systems
+- **MultiCamStrategyEngine**: Strategy Databases for 6 CAM Systems
+- **MultiCamStrategyEngineExt**: Extended CAM System Strategies
+- **MultiControllerCalibrationEngine**: P2P-FULLSTACK-MS0/U-P2PFS60
+- **MultiERPConnectorEngine**: SQ4-0-ERP Unified Multi-ERP Connector Framework
+- **MultiModelConsensusEngine**: fan a prompt out to Claude + Codex + Ollama-deepseek-r1
+- **MultiObjectiveEngine**: Multi-Objective Optimization Engine
+- **MultiObjectiveParetoEngine**: Pareto-optimal multi-objective machining optimizer.
+- **MultiPathReasoningEngine**: Tree-of-Thought Reasoning
+- **MultipleRegressionEngine**: Multiple/Multivariate Linear Regression with Full Diagnostics
+- **MultiProcessCAMBridgeEngine**: Bridges turning, EDM, grinding, laser, and waterjet engines into
+- **MultiProcessCAMRouterEngine**: Unified Multi-Process CAM Router (CK-MS3)
+- **MultiProcessQuoteEngine**: Unified Multi-Process Quote Combiner
+- **MultiSessionHandoffCoordinatorEngine**: Coordinates handoffs between multiple concurrent sessions:
+- **MultiSetupFeasibilityChainEngine**: MultiSetupFeasibilityChainEngine
+- **MultiSetupPlannerEngine**: Multi-Setup Part Orientation & Fixturing Optimization
+- **MultiSignalAutoRollbackEngine**: MultiSignalAutoRollbackEngine (U-LPR-AUTOROLLBACK)
+- **MultiSpindleAutomaticEngine**: MultiSpindleAutomaticEngine.ts
+- **MultiTenantEngine**: PRISM F5: Multi-Tenant Isolation Engine
+- **MultiToolOrchestratorEngine**: Parallel Tool Execution
+- **MultiTurretSyncEngine**: MultiTurretSyncEngine.ts
+- **MultivariateSPCEngine**: Hotelling T² and MEWMA multivariate control charts
+- **NACAAirfoilEngine**: NACA Airfoil
+- **NadcapProcessQualificationEngine**: Nadcap Process Qualification
+- **NCFileParserEngine**: U-LEARN-03
+- **NCPatternMinerEngine**: NC Pattern Mining for JM Die .MIN Lathe Programs
+- **NCSIMULBridgeEngine**: PRISM Bridge to Hexagon NCSIMUL (E1132)
+- **NelsonSPCRulesEngine**: Western Electric / Nelson Rules for SPC Pattern Detection
+- **NestingEngine**: Manufacturing Intelligence Layer
+- **NetworkFlowEngine**: Network flow optimization (max-flow / min-cost)
+- **NeuralCADGenerationEngine**: CADCAM-DAGI-MS0/U-DAGI07
+- **NeuralDeterminismTestingEngine**: Neural Output Determinism & Reproducibility Framework
+- **NeuralIntegrationEngine**: Deep Neural Integration Across PRISM
+- **NeuralModelRegistryEngine**: Model Versioning & Weight Persistence
+- **NeuralWeightPersistenceEngine**: Binary Weight File Persistence System
+- **NewCoderModeEngine**: U-FORE-04 (PSAU-FORESIGHT)
+- **NISTAIRMFComplianceEngine**: U-LPR-OPS-NIST
+- **NitridingProcessEngine**: Nitriding/nitrocarburizing process analysis
+- **NLHookEngine**: PRISM F6: Natural Language Hook Engine
+- **NLPCAMParserEngine**: Parses natural language manufacturing descriptions into structured
+- **NoInlinePhysicsConstantsEngine**: MS0/U-PPGM04.
+- **NoiseLevelEngine**: Industrial Noise Assessment Calculator
+- **NotificationEngine**: L2-P3-MS1 Infrastructure Layer
+- **NovelPostProcessorBridgeEngine**: Novel Toolpath to Controller G-code Bridge
+- **NovelToolpathAlgorithmsExt**: NovelToolpathAlgorithmsExt - Extended Novel Toolpath Algorithms
+- **NovelToolpathEngine**: NovelToolpathEngine - 6 Physics-Backed Novel Toolpath Algorithms
+- **NovelToolpathSimulatorEngine**: Computes physics profiles along novel algorithm toolpath segments:
+- **NozzleEngine**: Compressible flow nozzle design
+- **NumericalIntegrationEngine**: Quadrature Methods
+- **NumericalMethodsEngine**: Reverse-engineered from PRISM v8.89 monolith
+- **NURBSEngine**: NURBS Engine
+- **NVIDIALLMCAMEngine**: CAM-EXHAUST-MS0/U-CAM113
+- **NXCAMAIOrchestrationEngine**: AI Orchestration for Siemens NX CAM
+- **NXCAMCodeGeneratorEngine**: Siemens NX CAM Automation Script Generator (E1119)
+- **NXCAMFBMFunctionIndexEngine**: CAM-EXHAUST-MS0/U-CAM41
+- **NXCAMFunctionIndexEngine**: CAM-EXHAUST-MS0/U-CAM42
+- **NXCAMMillingFunctionIndexEngine**: CAM-EXHAUST-MS0/U-CAM39
+- **NXCAMStrategyEngine**: Siemens NX CAM Strategy Recommendation Engine
+- **NXCAMTurningFunctionIndexEngine**: CAM-EXHAUST-MS0/U-CAM40
+- **NXCodeGeneratorEngine**: Python code generator for Siemens NX using NXOpen API.
+- **NXOpenAssemblyDrawingEngine**: U-CAD-APP-18 (PHASE-48)
+- **NXOpenSketchEntityEngine**: U-CAD-APP-17 (PHASE-48)
+- **ObsidianPluginBridgeEngine**: U-OBS-BRIDGE02
+- **ObsidianVaultSyncEngine**: Bidirectional Knowledge Sync
+- **OEECalculatorEngine**: L2-P4-MS1 PASS2 Specialty
+- **OfficeDocumentPipelineEngine**: Office Document Parser
+- **OfflineRLOrchestratorEngine**: U-LEARN-08
+- **OffsetSurfaceEngine**: Offset Surface Engine
+- **OkumaB250LatheMasterPostEngine**: JM Die Lathe Master Post Processor
+- **OkumaDialectKnowledgeEngine**: Comprehensive Okuma OSP dialect knowledge base
+- **OkumaGosigerTranscriptMinerEngine**: OkumaGosigerTranscriptMinerEngine (E103)
+- **OkumaLegacyControllerEngine**: Provides comprehensive support for Okuma OSP-P100 controllers, which differ
+- **OkumaMachineStepIngesterEngine**: OkumaMachineStepIngesterEngine (E097)
+- **OkumaMacroConverterBridgeEngine**: OkumaMacroConverterBridgeEngine (E102)
+- **OkumaMacroHeaderGeneratorEngine**: Generate parametric macro headers for Okuma programs
+- **OkumaManualTipExtractorEngine**: OkumaManualTipExtractorEngine (E098)
+- **OkumaOSPMillMasterPostEngine**: Okuma OSP-P300M / OSP-P500M Mill Master Post
+- **OkumaOSPParserEngine**: Parse Real Okuma OSP-P300L/P300LA Programs
+- **OkumaParametricProgramEngine**: Okuma OSP Parametric Macro Program Generator
+- **OkumaRunLogParserEngine**: U-LEARN-03
+- **OllamaCAMIntegrationEngine**: CAM-EXHAUST-MS0/U-CAM112
+- **OllamaClientEngine**: Thin client around the `ollama` npm package
+- **OllamaContextFloorEngine**: canonical PRISM brief on every local-LLM call.
+- **OllamaEmbedderEngine**: OllamaEmbedderEngine
+- **OllamaHookBridgeEngine**: OllamaHookBridgeEngine
+- **OllamaIntegrationEngine**: Phase 0.19 U-LLM2
+- **OllamaTaskOffloaderEngine**: OllamaTaskOffloaderEngine
+- **OmegaSafetyScoreEngine**: Scalar safety gate for G-code output
+- **OnboardingEngine**: R8-MS3 Onboarding & First 5 Minutes
+- **OneClickWEDMGeneratorEngine**: Single Entry Point DXF to G-code
+- **OnlinePrintHarvestEngine**: Public-domain blueprint + CAD harvest catalog.
+- **OnshapeAPIBridgeEngine**: U-CAD-APP-09 (PHASE-48)
+- **OnshapeLiveCollabAdapter**: U-CAD-APP-10 (PHASE-48)
+- **OntologyGrowthRegistryEngine**: OntologyGrowthRegistryEngine.ts
+- **OpcUaConnectorEngine**: Live CNC Machine Connectivity via OPC-UA
+- **OpenTelemetryTracingEngine**: U-LPR-OBS1
+- **OperatingSystemCoordinationEngine**: OperatingSystemCoordinationEngine
+- **OperatingSystemHotJobsEngine**: Operating System Hot Jobs
+- **OperatingSystemJobPacketEngine**: Operating System Job Packet
+- **OperatingSystemMessagesEngine**: Operating System Messages
+- **OperationSequenceMinerEngine**: Mine operation ordering patterns from CNC programs
+- **OperationSequencerEngine**: Optimal Operation Ordering for Multi-Op CNC Programs
+- **OperatorActionAuditTrailEngine**: Operator Action Audit Trail
+- **OperatorApprovalGateEngine**: Mandatory Human-in-the-Loop Gate (U-MIO37)
+- **OperatorDashboardOrchestratorEngine**: OperatorDashboardOrchestratorEngine
+- **OperatorPreferencesEngine**: Per-operator preferences with tenant scoping
+- **OptimalControlEngine**: Optimal Control Engine
+- **OptimalStrategySelectionEngine**: THE unified strategy selector called at every strategy decision point in all
+- **OptimizationEngine**: R7-MS1: Constrained Optimization Engine
+- **OptimizationFormulasEngine**: Mathematical optimization formulas
+- **OptimizationReportEngine**: PP-REV-MS0 U-REV01/U-REV02
+- **OptimizationReportGeneratorEngine**: Before/after comparison report
+- **OptimizationSimplexEngine**: Linear programming via Simplex method
+- **OptimizationTierEngine**: they reflect real-world constraints (fixturing, access, thermal
+- **OpusCapabilityEngine**: AI-INTEG-MS2
+- **OrchestratorConfidenceFeedbackEngine**: CAM-ML-CLOSEDLOOP-MS0 U-CMCCL13
+- **OrderManagerEngine**: Order Manager Engine
+- **OrificeFlowMeterEngine**: Orifice plate flow measurement
+- **OrthogonalLoRAEngine**: U-LEARN-05
+- **OSHAComplianceEngine**: OSHA incident recording, 300/300A log generation, PPE assignment tracking.
+- **OutcomeCaptureBusEngine**: U-LEARN-01
+- **OutcomeDriftCalibrationBridgeEngine**: XPROC-NEURAL-CONNECT-MS0 / U-CN06
+- **OutcomeEpisodicMemoryBridgeEngine**: XPROC-NEURAL-CONNECT-MS0 / U-CN08
+- **OutcomePublishAdapterEngine**: XPROC-NEURAL-CONNECT-MS0 / U-CN01
+- **OutcomeReplayBufferBridgeEngine**: XPROC-NEURAL-CONNECT-MS0 / U-CN07
+- **OutcomeRLBridgeEngine**: XPROC-NEURAL-CONNECT-MS0 / U-CN12
+- **OutcomeTraceEngine**: U-LEARN-09
+- **OutcomeTrackingEngine**: Phase 0.19 U-LLM5
+- **OutputBudgetEnforcerEngine**: OutputBudgetEnforcerEngine - Enforces per-tool output token budgets
+- **OutputBudgetEngine**: Token budget enforcement for tool outputs
+- **OutputCacheEngine**: OutputCacheEngine
+- **OutputTruncatorEngine**: Smart output truncation
+- **PackingSlipEngine**: Generates professional packing slips for shipping manufactured parts.
+- **PactContractTestEngine**: U-LPR-CONTRACT
+- **PageRankEngine**: Graph-Based Engine Importance Scoring
+- **PagerDutyAlertsEngine**: U-LPR-OBS3
+- **PairedPrintProgramBundleEngine**: P2P-FULLSTACK-MS0/U-P2PFS61
+- **PalletPoolOptimizerEngine**: MILL-MASTER P38-U02-PALLET-OPT
+- **ParallelCallPlannerEngine**: Plans parallel tool call batches
+- **ParallelismEngine**: Parallelism/Flatness Tolerance Calculator
+- **ParametricPartLibraryEngine**: Common Mechanical Parts with CadQuery Codegen
+- **ParametricSurfaceEngine**: Parametric surface generation and analysis
+- **ParserFuzzHarnessEngine**: that is logged as a soft divergence.
+- **ParserGoldenHarnessEngine**: Parser Golden Harness
+- **PartDeflectionEngine**: Thin Wall & Part Deflection Calculator
+- **PartFamilyEconomicsEngine**: PartFamilyEconomicsEngine
+- **PartFolderOrganizerEngine**: JM Die per-customer / per-part-number folder library
+- **PartGeometryPipelineEngine**: Part-geometry-driven machining pipeline.
+- **ParticleSwarmOptimizationEngine**: Particle Swarm Optimization (PSO)
+- **PartingGroovingEngine**: Parting & Grooving Calculations
+- **PartMakerFunctionIndexEngine**: CAM-EXHAUST-MS0/U-CAM-FIDX-22
+- **PartOffForceEngine**: Parting/Cutoff Force Calculator
+- **PartSimilarityEngine**: PartSimilarityEngine
+- **PartSimilaritySearchEngine**: HM-KC-MS10-S2/U-HKC53
+- **PartsLibraryEngine**: Revision-controlled parts catalog with similarity search
+- **PassivationEngine**: L2-P4-MS1 PASS2 Specialty
+- **PatternDatabaseEngine**: Unified Pattern Search for AI Learning
+- **PayrollEngine**: Payroll calculation from TimeClockEngine data.
+- **PDFBlueprintDimensionExtractorEngine**: Blueprint Dimension Extraction
+- **PDFFormulaExtractionEngine**: PDFFormulaExtractionEngine.ts
+- **PDFHandbookBatchProcessorEngine**: PDFHandbookBatchProcessorEngine.ts
+- **PDFMaterialPropertyExtractionEngine**: PDFMaterialPropertyExtractionEngine.ts
+- **PDFProcessingPipelineEngine**: SQ2-1-PDF: PDF Processing Pipeline
+- **PDFSourceRegistryEngine**: PDFSourceRegistryEngine.ts
+- **PDFTableExtractionEngine**: PDFTableExtractionEngine.ts
+- **PeckDrillingEngine**: Deep Hole Peck Drilling Calculator
+- **PeckDrillingOptimizationEngine**: Deep Hole Drilling Optimizer
+- **PeerLearningCoordinatorEngine**: Cross-session insight sharing
+- **PerAppInCADInferenceAdapter**: U-CAD-APP-20 (PHASE-48)
+- **PerformanceBudgetEngine**: PerformanceBudgetEngine - Enforces latency SLAs, memory limits, and offline inference support
+- **PerformanceLoopEngine**: PerformanceLoopEngine
+- **PeristalticPumpEngine**: Peristaltic (hose/tube) pump analysis
+- **PermutationTestEngine**: Distribution-Free Hypothesis Testing via Resampling
+- **PersistentMemoryEngine**: Cross-session learning fabric:
+- **PFPEngine**: PRISM F1: Predictive Failure Prevention Engine
+- **PHCurveToolpathEngine**: Pythagorean-Hodograph Exact Arc-Length Toolpaths
+- **PhotochemicalEtchingEngine**: PhotochemicalEtchingEngine � Photochemical machining (PCM) process analysis
+- **PhysicsAutoCalibrationEngine**: Physics Auto-Calibration Engine
+- **PhysicsAwareDataAugmentationEngine**: Physics Aware Data Augmentation
+- **PhysicsAwareSimulationEngine**: Real-time force/thermal/deflection during simulation
+- **PhysicsFeatureExtractorEngine**: ignoring 80+ canonical physics models that already know what
+- **PhysicsFusionConvergenceEngine**: Nested FTW/FES/FDT Convergence Loops
+- **PhysicsFusionOrchestrator.types**: Type Definitions
+- **PhysicsFusionOrchestratorEngine**: Tier-Routed Multi-Model Physics Fusion
+- **PhysicsMLHybridEngine**: Implements the 20 HYBRID category formulas from FormulaRegistry
+- **PhysicsNeuralBridgeEngine**: MILL-AGI-P0/U-P0.3
+- **PhysicsPluginRegistry**: Plugin registration, topological sort, tier filtering
+- **PhysicsPredictionEngine**: PRISM Manufacturing Intelligence - Physics Prediction Engine
+- **PhysicsSidecarBuilderEngine**: MS0/U-PPGM02.
+- **PIDControllerEngine**: PID controller tuning and analysis
+- **PIIComplianceEngine**: U-LPR-SEC11
+- **PilotPhaseExitGateEngine**: Pilot Phase Exit Gate
+- **PipelineArchitectureEngine**: Six capability groups bundled into one engine:
+- **PipelineConsistencyHookEngine**: post-pipeline consistency verification.
+- **PipelineCostModelEngine**: Total Cost Model at Every Pipeline Stage
+- **PipelineDecisionOrchestratorEngine**: Universal decision wrapper called at EVERY decision point in all 7 production
+- **PipelineMetricsEngine**: PipelineMetricsEngine - Per-session context-pipeline metrics (CPP-MS5-U-CPP37)
+- **PipelineOptimizationEngine**: Centralized Pipeline Infrastructure
+- **PipelineRegistryBridge**: Shared utility for all 9 pipeline engines to resolve materials, tools, and
+- **PipelineSafetyOrchestratorEngine**: Aggregates ALL safety risk at every pipeline decision point.
+- **PipeSizingEngine**: Pipe diameter, velocity, and pressure drop sizing
+- **PipeStressEngine**: Piping Stress Analysis Calculator
+- **PipingPressureEngine**: Pipe Flow & Pressure Drop Calculator
+- **PistonDesignEngine**: IC engine piston stress, thermal, and mass analysis
+- **PlanetaryGearEngine**: Epicyclic gear train analysis
+- **PlasmaArcEngine**: Plasma Arc Cutting Parameter Calculator
+- **PlasmaCuttingEngine**: Thermal plasma cutting process analysis
+- **PlatingAllowanceEngine**: L2-P4-MS1 PASS2 Specialty
+- **PlaybookRulesEngine**: Domain-Tagged Machining Rules System
+- **PlaywrightAutomationEngine**: GUI Automation Script Generation for Web-Based CAD
+- **PluginEngine**: L2-P3-MS1 Infrastructure Layer
+- **PluginInventoryEngine**: Single-pane visibility for plugins, MCPs, extensions
+- **PluginManifestEngine**: Plugin Manifest Format + Lifecycle Management
+- **PlungeMillingEngine**: Plunge (Z-axis) Milling Calculations
+- **PneumaticConveyingEngine**: Pneumatic conveying system analysis
+- **PneumaticCylinderEngine**: Pneumatic Actuator Sizing Calculator
+- **PolicyExperienceLedgerEngine**: U-LEARN-09
+- **PostAMFinishingPlanEngine**: Bridge additive manufacturing to conventional finishing
+- **PostCompactRestorationEngine**: Restores session context after compaction by reading the precompact dossier
+- **PostDownloadEngine**: Post Download Engine (PP-MS4 U-PP21)
+- **PostLibraryCatalogEngine**: Searchable post processor catalog
+- **PostLibraryConfiguratorEngine**: PostLibraryBrowser   : Browse/filter the post catalog
+- **PostOutputGenerationEngine**: POST-ULT-MS12 Pipeline Phase 6
+- **PostPhysicsFoundationEngine**: Pipeline Phase 0-1 Integration
+- **PostProcessorAGIContinuousLearningEngine**: PP-AGI-LEARN
+- **PostProcessorAGIMasterRegistryEngine**: PP-MASTER-REGISTRY
+- **PostProcessorAGIWiringIntegrationEngine**: PP-AGI-WIRING
+- **PostProcessorAICoordinationBridge**: PP-AI-BRIDGE
+- **PostProcessorAISelfAwarenessIntegrationEngine**: PP-SELF-AWARE-MS1
+- **PostProcessorAnalysisEngine**: PostProcessorAnalysisEngine.ts
+- **PostProcessorAnalyzerEngine**: Analyze Fusion 360 Post Processor .cps Files
+- **PostProcessorAPIEngine**: HTTP API for Post Processor Pipeline
+- **PostProcessorAutopilotEngine**: Two product autopilot chains:
+- **PostProcessorCapabilityMatrixEngine**: Controller Capability Matrix
+- **PostProcessorCognitiveEngine**: PP-COGNITIVE-AGI
+- **PostProcessorComprehensiveKnowledgeEngine**: PP-COMPREHENSIVE-KB
+- **PostProcessorCPSImplementationEngine**: PP-CPS-IMPL
+- **PostProcessorDeepAIHardeningEngine**: PP-HARDEN-MS1
+- **PostProcessorDeepCognitionEngine**: PP-DEEP-COGNITION
+- **PostProcessorDeepIntelligenceEngine**: PP-HARDEN-MS4
+- **PostProcessorDeepLearningEngine**: PP-AI-L1
+- **PostProcessorDeepReasoningEngine**: PP-AI-L2
+- **PostProcessorEngine**: L2-P2-MS1 CAD/CAM Layer
+- **PostProcessorFeedOptimizerEngine**: Physics-backed feed rate optimization
+- **PostProcessorGeneratorEngine**: Ultimate Post Processor Configuration Generator
+- **PostProcessorHyperMillKnowledgeEngine**: PP-HYPERMILL-KB
+- **PostProcessorIntelligenceOrchestratorEngine**: PP-AI-ORCH
+- **PostProcessorKnowledgeEngine**: PostProcessorKnowledgeEngine.ts
+- **PostProcessorKnowledgeGraphEngine**: PP-KNOWLEDGE-GRAPH-AGI
+- **PostProcessorMachineKinematicsEngine**: PP-KINEMATICS
+- **PostProcessorMasterPostArchitectureEngine**: PP-MASTER-POST-ARCH
+- **PostProcessorMetaLearningEngine**: PP-META-AGI
+- **PostProcessorNeuralNetworkEngine**: PP-HARDEN-MS3
+- **PostProcessorPhysicsAwareGeneratorEngine**: PP-PHYSICS-GEN-AGI
+- **PostProcessorPipelineEngine**: Universal Post Processor Pipeline Orchestrator
+- **PostProcessorProductionPatternEngine**: PP-PROD-PATTERNS
+- **PostProcessorTelemetryEngine**: Tracks the PPG conversion funnel:
+- **PostProcessorTrainerEngine**: Calibrate PRISM post processor output from mined programs
+- **PostProcessorTransformerEngine**: PP-TRANSFORMER-AGI
+- **PostProcessorTribalKnowledgeIntegrationEngine**: PP-TRIBAL-INT
+- **PostProcessorUltimateAIEngine**: PP-AI-L3
+- **PostProcessorUnificationEngine**: Phase 0.23 U-UTL12
+- **PostProcessorUnifiedDeepReasoningEngine**: PP-UNIFIED-AI
+- **PostProcessorUnifiedPhysicsOrchestrationEngine**: PP-PHYSICS-UNIFIED-AGI
+- **PostProcessorVerificationEngine**: Output G-code validation
+- **PostProcessorVideoKnowledgeNeuralEngine**: PP-VIDEO-AGI
+- **PostPropertyTaxonomyEngine**: POST-ULT-MS2 Universal Property Taxonomy
+- **PostSelectionEngine**: Intelligent post-processor feature selection.
+- **PostValidationHardeningEngine**: Machine-limit validation for generated G-code
+- **PostValidationReportEngine**: Structured validation report generation
+- **PostValidationSuiteEngine**: PRISM Manufacturing Intelligence - Post Validation Suite Engine
+- **PostVerificationSafetyEngine**: PRISM Manufacturing Intelligence - Post-Verification Safety Engine
+- **PostVersioningEngine**: Post processor revision tracking and diff
+- **PowderCompactionEngine**: Powder metallurgy compaction analysis
+- **PowerMill5AxisFunctionIndexEngine**: CAM-EXHAUST-MS0/U-CAM45
+- **PowerMillAIOrchestrationEngine**: AI Orchestration for Autodesk PowerMill
+- **PowerMillCodeGeneratorEngine**: Autodesk PowerMill PMILL Macro Script Generator (E1121)
+- **PowerMillFinishingFunctionIndexEngine**: CAM-EXHAUST-MS0/U-CAM44
+- **PowerMillRoughingFunctionIndexEngine**: CAM-EXHAUST-MS0/U-CAM43
+- **PowerMillStrategyEngine**: Autodesk PowerMill Strategy Recommendation Engine
+- **PowerMillUnifiedFunctionIndexEngine**: CAM-EXHAUST-MS0/U-CAM46
+- **PowerSkivingEngine**: Gear & Spline Power Skiving
+- **PPAbsIncValidatorEngine**: Validate absolute/incremental mode (G90/G91)
+- **PPActiveLearningQueueEngine**: PP-DL-MS6
+- **PPAGIBenchmarkEngine**: PP-AGI quality benchmarks
+- **PPAGICapabilityMatrixEngine**: PP-AGI per-machine capability map
+- **PPAGIProgramLibraryAuditorEngine**: Aggregate analysis of G-code program libraries
+- **PPAGIReasoningWorkflowEngine**: Multi-step reasoning orchestration
+- **PPAGIReportGeneratorEngine**: Human-readable markdown reports
+- **PPAGISystemDashboardEngine**: Unified PP-AGI observability
+- **PPArcValidatorEngine**: Validate G2/G3 arc commands for geometric sanity
+- **PPAxisLetterValidatorEngine**: Validate G-code word letters
+- **PPAxisTravelValidatorEngine**: Validate motion against machine envelope
+- **PPBlockCompositionValidatorEngine**: Validate per-block layout rules
+- **PPBlockSkipValidatorEngine**: Validate block-skip and program-stop syntax
+- **PPCallGraphValidatorEngine**: Validate M98/M99/O-number call graph
+- **PPCannedCycleValidatorEngine**: Validate G81-G89 canned cycles
+- **PPCharacterValidatorEngine**: Byte-level G-code hygiene
+- **PPCommentedCodeValidatorEngine**: Detect G-code hidden in comments
+- **PPControllerAdaptationEngine**: PP-DL-MS1
+- **PPControllerCompatibilityEngine**: Validate G-code against target controller capabilities
+- **PPControllerEmbeddingEngine**: PP-AGI-MS0
+- **PPCoolantSequenceValidatorEngine**: Validate coolant (M7/M8/M9) sequencing
+- **PPCoordinateRangeValidatorEngine**: Validate coordinate-value reasonableness
+- **PPCoordSystemTransformValidatorEngine**: Validate coordinate transforms
+- **PPCutterCompValidatorEngine**: Validate G40/G41/G42 cutter compensation
+- **PPCuttingToolEncoderEngine**: PP-AGI-MS2
+- **PPDecimalPointValidatorEngine**: Validate decimal points on dimension words
+- **PPDecisionExplainerEngine**: PP-DL-MS9
+- **PPDialectTransferEngine**: PP-AGI-MS0
+- **PPDuplicateWordValidatorEngine**: Flag duplicate words in the same block
+- **PPDwellValidatorEngine**: Validate G4 dwell commands
+- **PPEndToEndPostGeneratorEngine**: PP-AGI Crown Jewel
+- **PPEnsembleUncertaintyEngine**: PP-DL-MS8
+- **PPExpressionSyntaxValidatorEngine**: Validate Fanuc Custom Macro B
+- **PPFeedModeValidatorEngine**: Validate feed-rate mode (G93/G94/G95)
+- **PPFeedOverrideValidatorEngine**: Validate F-word sequencing and modal feed
+- **PPFeedRateReasonabilityValidatorEngine**: Validate F-word value sanity
+- **PPFeedSpeedScalerEngine**: Apply uniform or ranged F / S scaling to G-code
+- **PPG10DataSetValidatorEngine**: Validate G10 programmable data-set blocks
+- **PPGCodeLintEngine**: Syntactic & modal sanity checker for G-code programs
+- **PPGCodeMinimizerEngine**: Strip redundant tokens from G-code
+- **PPGCodeProgramAnalyzerEngine**: Full PP-AGI analysis of any G-code program
+- **PPGCodeStatisticsEngine**: Descriptive statistics for G-code programs
+- **PPGDialectRankerEngine**: U-PPG-SFC-10
+- **PPGDriftCanaryEngine**: U-PPG-SFC-12
+- **PPGInferenceGateWireEngine**: U-PPG-SFC-06
+- **PPGOutcomeCaptureWireEngine**: U-PPG-SFC-02
+- **PPGProvenanceWireEngine**: U-PPG-SFC-04
+- **PPGRAGDialectMatchEngine**: U-PPG-SFC-08
+- **PPGreedyToolpathOptimizerEngine**: PP-DL-MS5
+- **PPGSFCClosedLoopOrchestratorEngine**: U-PPG-SFC-14
+- **PPHighSpeedMachiningValidatorEngine**: Validate HSM lookahead mode
+- **PPInlineCornerBreakValidatorEngine**: Validate Fanuc inline ,C / ,R syntax
+- **PPJobScenarioAdvisorEngine**: Unified PP-AGI Advisor
+- **PPKnowledgeIndexEngine**: Unified PP-AGI knowledge search
+- **PPLineNumberSanityEngine**: Validate N-word numbering and program framing
+- **PPMacroFlowValidatorEngine**: Validate Fanuc macro flow control
+- **PPMacroVariableValidatorEngine**: Validate Fanuc macro variables
+- **PPMaterialPropertyVectorEngine**: PP-AGI-MS3
+- **PPModalGroupConflictValidatorEngine**: Detect G/M code modal-group
+- **PPModalStateTrackerEngine**: Track G-code modal state through a program
+- **PPMultiModalFusionEngine**: PP-AGI-MS7
+- **PPOkumaSubSpindleSyncEngine**: Okuma LU3000 / LT-series twin-spindle post
+- **PPOkumaTurningPostEngine**: Okuma OSP-P300L turning post processing
+- **PPOnlineLearningTrackerEngine**: PP-DL-MS7
+- **PPONumberRangeValidatorEngine**: Validate O-number ranges and format
+- **PPOperatorStopValidatorEngine**: Validate M0/M1 operator stops
+- **PPPhysicsConditionEncoderEngine**: PP-AGI-MS4
+- **PPPhysicsConstraintValidatorEngine**: PP-DL-MS3
+- **PPPlaneSelectValidatorEngine**: Validate G17/G18/G19 plane selection
+- **PPPolarCoordinateValidatorEngine**: Validate polar coordinate mode (G15/G16)
+- **PPProbeCycleValidatorEngine**: Validate on-machine probing cycles
+- **PPProgramChunkerEngine**: G-code program chunker for DNC drip-feed
+- **PPProgramEndValidatorEngine**: Validate program termination (M30/M2/M99)
+- **PPProgramHeaderValidatorEngine**: Validate program header/metadata comments
+- **PPProgramMergerEngine**: Reassembles chunked G-code back into a single program
+- **PPProgramSizeValidatorEngine**: Validate program size and complexity
+- **PPRapidMoveValidatorEngine**: Validate G0 rapid traverse moves
+- **PPRedundantModalValidatorEngine**: Detect redundant modal re-issuance
+- **PPReferenceReturnValidatorEngine**: Validate G28/G30/G53 reference moves
+- **PPSafeStartBlockValidatorEngine**: Validate program-start modal reset
+- **PPSafetyEnvelopeVectorEngine**: PP-AGI-MS5
+- **PPSafetyRuleValidatorEngine**: PP-DL-MS4
+- **PPScenarioTemplateLibraryEngine**: PP-AGI Proven Templates
+- **PPSinkerEDMPostEngine**: Mitsubishi Sinker (Die-Sinking) EDM post processing
+- **PPSpeedModeValidatorEngine**: Validate spindle speed mode (G96/G97)
+- **PPSpindleSpeedSafetyEngine**: Validate spindle speed safety in G-code
+- **PPSpindleStateValidatorEngine**: Validate spindle state vs cutting motion
+- **PPThreadCycleValidatorEngine**: Validate lathe threading cycles
+- **PPToolChangeValidatorEngine**: Validate mill tool-change sequences
+- **PPToolLengthCompValidatorEngine**: Validate G43/G44/G49 tool length compensation
+- **PPToolNumberRangeValidatorEngine**: Validate T-word numbering
+- **PPToolpathStrategyEncoderEngine**: PP-AGI-MS6
+- **PPTrainingDataPipelineEngine**: PP-DL-MS0
+- **PPUnitsModeValidatorEngine**: Validate G20/G21 units mode
+- **PPValidatorAGIWiringEngine**: AGI Orchestration for 50+ PP Validators
+- **PPWireEDMPostEngine**: Mitsubishi Wire EDM post processing
+- **PPWorkOffsetValidatorEngine**: Validate work offset usage in G-code
+- **PPZeroMotionValidatorEngine**: Detect no-op / zero-length motion blocks
+- **PredictionCalibrationEngine**: Continuously calibrate Kienzle kc1.1 and Taylor C/n constants from
+- **PredictionFeedbackOrchestratorEngine**: PredictionFeedbackOrchestratorEngine
+- **PredictionValidationEngine**: Statistical Comparison of Predicted vs Measured Values
+- **PredictiveFailureEngine**: PRISM F1: Predictive Failure Prevention Engine
+- **PredictiveMaintenanceEngine**: Predicts machine maintenance needs from cutting data patterns.
+- **PredictiveMaintenanceOrchestratorEngine**: Multi-Signal Machine Health & Maintenance Planning
+- **PredictiveSimulationEngine**: Tool life & cost prediction during simulation
+- **PredictiveWorldSimulatorEngine**: Pre-play outcomes before acting
+- **PreMOUKickoffChecklistEngine**: mutual NDA signed by both orgs.
+- **PresetLibraryEngine**: Operator Preset Library
+- **PressBrakeEngine**: Press Brake Bending Calculator
+- **PressFitEngine**: Interference Fit Calculator
+- **PreventiveMaintenanceEngine**: PM schedule management (calendar + hours-based triggers), work order generation,
+- **PreWetRunChaosGateEngine**: Pre Wet Run Chaos Gate
+- **PrincipalComponentEngine**: Principal Component Analysis
+- **PrintLibraryEngine**: Indexed engineering drawing catalog with OCR extraction
+- **PrintMatchStallDetectorEngine**: LATHE-PROD-READY-MS0/U-LPR-STALL-PRINTS
+- **PrintReadingEngine**: Engineering Print Intelligence Pipeline
+- **PrintToAIBridgeEngine**: PrintToAIBridgeEngine.ts
+- **PrintToAllCADsOrchestrator**: Blueprint OCR → Scripts for all 5 priority CADs
+- **PrintToCADOrchestratorEngine**: print → CAD draw pipeline composer (PHASE20).
+- **PrintToCADTranslator**: Shared blueprint-OCR → CADOperation translator.
+- **PrintToEspritBridge**: Blueprint OCR → DP Technology Esprit VB script
+- **PrintToFusion360Bridge**: Blueprint OCR → Fusion 360 Python script
+- **PrintToGeometryEngine**: 2D Blueprint → 3D CadQuery Model Generator
+- **PrintToHyperCADSAnalysisBridge**: Blueprint OCR → hyperCAD-S Python script
+- **PrintToHyperCADSBridge**: STEP File to AC Python Import+Heal+Workpiece Pipeline (E1161)
+- **PrintToHyperMillBridge**: Blueprint OCR → hyperMILL Automation Center Python script
+- **PrintToInventorBridge**: Blueprint OCR → Autodesk Inventor iLogic VB.NET script
+- **PrintToInventorHSMBridge**: Blueprint OCR → Inventor HSM iLogic VB.NET script
+- **PrintToMastercamBridge**: Blueprint OCR → Mastercam C# .NET-Hook script
+- **PrintToProgramCoverageAnalyzerEngine**: P2P-FULLSTACK-MS0/U-P2PFS63
+- **PrintToProgramPipelineEngine**: Upload Print → Get CNC Program
+- **PrintToProgramRegressionHarnessEngine**: P2P-FULLSTACK-MS0/U-P2PFS59
+- **PrintToProgramTutorialEngine**: P2P-FULLSTACK-MS0/U-P2PFS62
+- **PrintToSolidWorksBridge**: Blueprint OCR → SolidWorks VBA macro
+- **PrioritizedReplayBufferEngine**: U-LEARN-10
+- **PrismAddinArchitectureEngine**: Defines the PRISM Add-in ↔ CPS post processor
+- **PRISMCreativeReasoningEngine**: Creative Problem Solving & Novel Approach Discovery
+- **PRISMIntelligenceLayer**: Claude-Powered AI Throughout the System
+- **PRISMLoRAAdapterEngine**: Phase 0.19 U-LLM3
+- **PRISMNeuralKnowledgeSynthesisEngine**: AI Self-Improvement Neural Network
+- **PrismPathConstantEngagementEngine**: Definitive Constant-Engagement Consolidation
+- **PRISMSelfAwarenessEngine**: Core Infrastructure
+- **PRISMUnifiedOrchestratorEngine**: central entry point for all
+- **PRISMVerificationPluginEngine**: Intelligent Vericut Integration Layer (U-CAM85)
+- **ProactiveAIIntelligenceEngine**: Proactive Manufacturing Intelligence
+- **ProactiveIntelligenceEngine**: LLM-INTEL Proactive Assistant
+- **ProactiveLearningEngine**: AI-INTEG-MS4
+- **ProbeDriftEngine**: Probe Drift Monitoring
+- **ProbeRecordEngine**: Probe Measurement Records
+- **ProbeRoutineEngine**: G65 P98xx (Fanuc-compatible), DPRNT output
+- **ProbeRoutineGeneratorEngine**: Controller-Specific Probe Macro Generation
+- **ProbingCycleEngine**: Touch probe G-code generation for CNC machines
+- **ProbingIntegrationEngine**: End-to-End Probing Integration (U-MIO36)
+- **ProbingProgramEngine**: Generates probing cycle G-code for in-process verification.
+- **ProcessCapabilityPredictionEngine**: Pre-Production Cp/Cpk Prediction
+- **ProcessDigitalTwinEngine**: Unified multi-physics machining simulation.
+- **ProcessEnvironmentSensitivityEngine**: Environmental Factor Analysis
+- **ProcessFingerprintEngine**: Statistical Process Fingerprinting
+- **ProcessPlanEngine**: Manufacturing Intelligence Layer
+- **ProcessRobustnessEngine**: Multi-criteria process robustness assessment.
+- **ProcessSynthesisEngine**: Cross-Domain Synthesis Algorithms
+- **ProcessValidationIQOQPQEngine**: Process Validation IQOQPQ
+- **ProcessVariabilityIntegrationEngine**: Unified Multi-Physics Uncertainty Pipeline
+- **ProductEngine**: R11 Product Packaging
+- **ProductionBatchOptimizationEngine**: Optimizes batch production runs across N parts:
+- **ProductionPackageEngine**: Assembles complete production package: G-code + setup sheet + tool list +
+- **ProductionToolpathEngine**: Upgrades raw toolpath segments to production-grade G-code by wiring
+- **ProductPillarEngine**: Bundle engines into product pillars for user-facing capability packages:
+- **ProfileDeviationAnalyzerEngine**: ProfileDeviationAnalyzerEngine
+- **ProfilingEngine**: 2D/3D Profile Milling Calculator
+- **ProgramCompareEngine**: Diff two G-code programs with physics overlay.
+- **ProgramDatabaseEngine**: In-memory program database for parsed CNC programs
+- **ProgramLabelingPipelineEngine**: PP-DATA-MS0 Data Labeling Pipeline
+- **ProgramMacroConverterEngine**: Convert hardcoded Okuma programs to parametric macros
+- **ProgramMemoryEngine**: Remembers tool selections per customer/part number. Auto-populates
+- **ProgrammerProductivityEngine**: Log a productivity event
+- **ProgramPhysicsOptimizerEngine**: Per-block physics optimization of CNC programs
+- **ProgramReleaseCatalogEngine**: Program Release Catalog & Workspace Builder
+- **ProgramStructureEngine**: Assembles complete NC programs from novel algorithm results (TGAR, HRAF,
+- **ProgramUploadAnalyzerEngine**: Accepts any CNC program (.MIN/.nc/.tap/.hnc) and routes to the
+- **ProgressiveCavityPumpEngine**: Progressing cavity (Moineau) pump analysis
+- **ProgressiveDisclosureEngine**: U-FORE-13 (PSAU-FORESIGHT)
+- **ProjectSchedulingEngine**: CPM/PERT project scheduling
+- **PrometheusMetricsEngine**: U-LPR-OBS2
+- **PromotionGateEngine**: U-LEARN-06
+- **PromptCachingEngine**: PromptCachingEngine
+- **PromptCompressionEngine**: Compresses prompts for sub-agents
+- **PromptTemplateEngine**: Pre-built prompt templates for common tasks
+- **PropellerEngine**: Propeller performance analysis
+- **ProtocolBridgeEngine**: PRISM F7: Protocol Bridge Engine
+- **ProtoMAMLFewShotEngine**: U-LEARN-11
+- **PrototypicalNetworkEngine**: U-LEARN-11
+- **ProvenanceEngine**: U-LEARN-04
+- **ProvenPartRecipeEngine**: ProvenPartRecipeEngine
+- **ProvenPipelineOrchestratorEngine**: ProvenPipelineOrchestratorEngine
+- **ProvenSpeedFeedAggregatorEngine**: Aggregate extracted S/F data by material/operation/tool with statistical analysis.
+- **ProveOutModeEngine**: Conservative first-article CNC program modification
+- **ProveOutPromotionEngine**: Promote prove-out programs to production
+- **PultrusionProcessEngine**: Continuous composite pultrusion analysis
+- **PumpSelectionEngine**: Centrifugal & Positive Displacement Pump Sizing
+- **PurchaseOrderEngine**: Purchase order lifecycle, receiving, 3-way match, AP tracking.
+- **PurchasingDirectoryEngine**: Purchasing Directory Engine
+- **QdrantCapacityPlannerEngine**: Pre-flight disk/RAM estimator for ingestions
+- **QdrantMemoryEngine**: Phase 0.19 U-LLM4
+- **QdrantMemoryEngineSingleton**: Singleton accessor + default Ollama embedder
+- **QdrantVectorStoreEngine**: Thin client around @qdrant/js-client-rest
+- **QIFIntegrationEngine**: QIF Integration
+- **QLearningEngine**: Tabular reinforcement learning:
+- **QRDecompositionEngine**: QR Factorization
+- **QTValidationSuiteEngine**: Golden-Standard Pipeline Validation from QT3-QT12
+- **QualityDashboardEngine**: NOTE: This is a SOFTWARE META-ENGINEERING engine for development quality
+- **QualityFormulasEngine**: Quality engineering formulas
+- **QualityManagementEngine**: SPC charting, calibration tracking, material cert traceability,
+- **QualityPredictionEngine**: Manufacturing Intelligence Layer
+- **QualityScoreEngine**: NOTE: This is a SOFTWARE DEVELOPMENT quality scorer for codebase health.
+- **QuenchingProcessEngine**: Heat treatment quenching analysis
+- **QueueEngine**: L2-P3-MS1 Infrastructure Layer
+- **QueueingTheoryEngine**: Manufacturing Queue Analysis
+- **QuickCalcEngine**: Instant manufacturing calculations
+- **QuoteAnalyticsEngine**: Quote accuracy tracking, win/loss analytics,
+- **QuoteAutopilotEngine**: ERP/Quote product autopilot chain:
+- **QuoteEngine**: Manufacturing Intelligence Layer
+- **QuoteEstimatorEngine**: Unified physics-backed manufacturing quote estimation.
+- **QuoteRevisionEngine**: Quote revision tracking, status lifecycle, and share tokens
+- **QuoteToShipOrchestratorEngine**: Quote To Ship Orchestrator
+- **QuotingEngine**: Quoting Engine
+- **QuotingFormulaEngine**: SQ4-1-QUOTE: Quoting + cost engine hardening
+- **RackPinionEngine**: Rack and pinion linear drive design
+- **RadialEngagementControllerEngine**: Controls radial engagement to maintain constant chip load through variable
+- **RampingEngine**: Ramp Entry Strategy Calculations
+- **RandomMatrixEngine**: Random Matrix Theory for Signal/Noise Separation
+- **RapidRepositionOptEngine**: Rapid Repositioning & Non-Cutting Time Optimization
+- **RateLimitEngine**: L2-P3-MS1 Infrastructure Layer
+- **RateLimitingEngine**: U-LPR-SEC05
+- **RawToolingNormalizerEngine**: Normalizes raw PDF-extracted tooling tables
+- **RCSAEngine**: Receptance Coupling Substructure Analysis
+- **reactiveChainBootstrap**: reactiveChainBootstrap.ts - Register reactive chains at module load time
+- **ReadOptimizerEngine**: Optimal file reading strategy advisor
+- **RealTimeAdaptiveControllerEngine**: Central Adaptive Control Orchestrator
+- **RealTimeAnomalyDetectionEngine**: Real-time cutting anomaly detection
+- **RealtimeEventBridge**: Connects EventBus to WebSocket channels
+- **RealTimeMachineIntelligenceEngine**: Unified real-time machine intelligence combining live sensor data
+- **RealTimeOptimizationEngine**: Real-Time Parameter Optimization
+- **ReamingEngine**: Precision Bore Finishing Calculations
+- **ReasoningChainSharingEngine**: AI-INTEG-MS1
+- **ReasoningExplainerEngine**: Transparent AI
+- **ReasoningWiringEngine**: Reasoning Wiring Engine
+- **RecastLayerEngine**: L2-P4-MS1 PASS2 Specialty
+- **ReceptanceCouplingEngine**: ReceptanceCouplingEngine
+- **ReciprocatingCompressorEngine**: Reciprocating (piston) compressor analysis
+- **RecordTimelineEngine**: Session 6-6 U-APPR2
+- **RegenerativeChatterPredictor**: L2-P4-MS1 PASS2 Specialty
+- **RegistryFederationEngine**: Phase 0.23 U-UTL13
+- **RegressionBaselineEngine**: expected hash mismatch (pass / fail semantics changed)
+- **RegretMinimizationEngine**: Multi-armed bandit with UCB and Thompson sampling
+- **ReliabilityBlockDiagramEngine**: Reliability Block Diagram Engine
+- **ReliabilityEngineeringEngine**: Reliability Engineering Engine
+- **ReliabilityOptimizationEngine**: Reliability-Based Design Optimization
+- **ReliabilityWeibullEngine**: Weibull reliability analysis
+- **RepetitionDetectorEngine**: Detects repeated content in tool outputs
+- **ReplanTriggerEngine**: U-FORE-18 (Multi-Agent Coordination Spine)
+- **ReportEngine**: Manufacturing Report Generation
+- **ReportingEngine**: Reporting Engine
+- **ReportRenderer**: Pure Template Rendering Engine for Manufacturing Reports
+- **ReRankerEngine**: U-LEARN-04
+- **ResidualStressPredictionEngine**: Machining-induced residual stress prediction
+- **ResinTransferEngine**: Resin Transfer Molding (RTM) process analysis
+- **ResistanceWeldingEngine**: Resistance spot/seam/projection welding analysis
+- **ResourceCensusEngine**: SQ2-0-CENSUS: Resource Census Across PRISM + Archive + Box
+- **ResourceExtractionStateEngine**: ResourceExtractionStateEngine.ts
+- **ResourceHarvestingIntelligenceEngine**: RESOURCE-HARVEST-MS0: Exhaustive Resource Intelligence
+- **ResourceIndexEngine**: H: Drive Resource Mapping & Discovery
+- **ResponseCacheEngine**: ResponseCacheEngine � Caches recent tool responses for deduplication
+- **ResponseFormatterEngine**: R8-MS1 Persona-Adaptive Response Formatting
+- **ResponseTemplateEngine**: P3B Response Template Hooks
+- **RestMachiningEngine**: IPW-aware rest machining zone detection and strategy selection.
+- **ReverseIndexEngine**: Bidirectional Asset Lookup Indexes
+- **RhinoCommonBridgeEngine**: U-CAD-APP-07 (PHASE-48)
+- **RhinoGrasshopperPRISMComponentsEngine**: U-CAD-APP-08 (PHASE-48)
+- **RigidBodyDynamicsEngine**: Rigid body dynamics for machine simulation
+- **RigidityDegradationEngine**: Predict workpiece stiffness at every stage.
+- **RiskForecastEngine**: U-FORE-06 (PSAU-FORESIGHT)
+- **RivetedJointEngine**: Riveted joint analysis
+- **RivetJointEngine**: Riveted Joint Strength Calculator
+- **RLPostProcessorEngine**: RL Post Processor Engine
+- **RoadmapDAGEngine**: U-FORE-07 (PSAU-FORESIGHT)
+- **RoadmapExecutor**: Parallel Execution Protocol Engine
+- **RoadmapIntelligenceEngine**: AI-Powered Roadmap Execution for PRISM
+- **RobustRegressionEngine**: Regularized & Robust Regression Methods
+- **RobustStatisticsEngine**: Robust & Non-Parametric Statistics
+- **RocketNozzleEngine**: Converging-diverging nozzle (de Laval) analysis
+- **ROIAdvisorEngine**: Upgrade Suggestions with Payback Analysis
+- **RokuRokuParserEngine**: Parse Roku-Roku Micro-Milling Programs
+- **RollbackPlannerEngine**: U-FORE-10 (PSAU-FORESIGHT)
+- **RollingBearingEngine**: Rolling element bearing analysis
+- **RollingContactEngine**: Hertzian Contact Stress Calculator
+- **RollingMillEngine**: Flat rolling force, torque, and power analysis
+- **RotaryKilnEngine**: Rotary kiln sizing and heat transfer
+- **RotationalMoldingEngine**: Rotational molding (rotomolding) process analysis
+- **RoughnessConversionEngine**: Surface Finish Scale Converter
+- **RoundnessCylindricitySamplingEngine**: RoundnessCylindricitySamplingEngine
+- **RouteSyncValidatorEngine**: NOTE: This is a SOFTWARE DEVELOPMENT automation engine. It does NOT perform
+- **RoutingSheetGeneratorEngine**: Job Routing Documentation (U-MIO33)
+- **RTCP_CompensationEngine**: L2-P4-MS1 PASS2 Specialty
+- **RTDEngine**: Resistance Temperature Detector analysis
+- **RunbookEngine**: U-LPR-OBS6
+- **RunoutCompensationEngine**: TIR Measurement & Compensation
+- **RunoutEffectEngine**: TIR (Total Indicator Runout) impact on tool life & surface finish.
+- **SaaSAPIEngine**: Express REST API Layer for SaaS Access
+- **SafetyEscalationEngine**: Safety Escalation
+- **SafetyExplanationEngine**: XAI for Safety Decisions (U-MIO40A)
+- **SafetyGateForOptimizationEngine**: NEVER optimize away safety
+- **SafetyPatternMinerEngine**: Mine safety patterns from production CNC programs
+- **SafetyScoreOverlayEngine**: Real-time S(x) Composite Safety Index Overlay (U-CAM95)
+- **SafetyShieldEngine**: U-LEARN-08
+- **SafetyVetoEngine**: Safety Veto
+- **SafetyVetoSimulationGateEngine**: Production Release Safety Gate (U-MIO38)
+- **SamplingPlanEngine**: MIL-STD-1916 and AOQL acceptance sampling plans
+- **SamplingWorkflowEngine**: MCP Sampling Workflow Generator
+- **SBOMReviewEngine**: U-LPR-OPS-SBOM-REVIEW
+- **ScalableCAMOrchestratorEngine**: Full pipeline for complex parts with 200+ features.
+- **SchedulingEngine**: Manufacturing Intelligence Layer
+- **SchedulingPhysicsEngine**: Scheduling, queuing theory, and batch economics
+- **SchedulingStudyAggregatorEngine**: Multi-Algorithm Scheduling Aggregator
+- **SchemaCompactEngine**: Compacts JSON schemas for token efficiency
+- **SchemaMigrationRollbackEngine**: U-FORE-17 (Reliability Substrate)
+- **ScientificReasoningEngine**: Physics/Math/Science Reasoning for PRISM
+- **ScrapRootCauseEngine**: Scrap Root Cause Engine
+- **ScrewCompressorEngine**: Rotary screw compressor analysis
+- **ScrewConveyorEngine**: Screw conveyor capacity, torque, and power
+- **ScrewExtrusionEngine**: Polymer screw extrusion process analysis
+- **ScrewJackEngine**: Power Screw / Screw Jack Calculator
+- **ScriptExecutor**: Session 5.2: Script Execution Engine
+- **ScrollCompressorEngine**: Scroll compressor design & performance
+- **SealSelectionEngine**: Shaft & Static Seal Sizing Calculator
+- **SecondaryOpsEngine**: Comprehensive secondary/outside processing operations catalog.
+- **SecondaryOpsPipelineEngine**: Deburring, Probing, Marking, Washing
+- **SecretManagementEngine**: U-LPR-SEC10
+- **SecurityHeadersEngine**: U-LPR-SEC09
+- **SegmentInterpolatorEngine**: Converts novel toolpath algorithm segment arrays (from NovelToolpathEngine,
+- **SelfImprovementPatternEngine**: Self Improvement Pattern
+- **SelfLearningCAMEngine**: Closed-loop learning system for CAM
+- **SelfModelEngine**: "Who I am" slice of the triple-model decomposition
+- **SelfModificationApprovalEngine**: Require human approval for arch changes
+- **SelfModificationProposalEngine**: Generate architecture evolution proposals
+- **SemanticAssetIndexEngine**: Qdrant-backed semantic index for PRISM assets
+- **SemanticSimilarityGuardEngine**: Semantic Duplicate Detection
+- **SensorDataSchemaEngine**: Unified Sensor Data Model
+- **SensorFusionEngine**: Multi-sensor data fusion using Extended Kalman Filter
+- **SensorSimulatorEngine**: Synthetic sensor data from physics models
+- **SequenceFeasibilityEngine**: Forward-simulates operation sequences checking
+- **SessionAwarenessLifecycleEngine**: 8-phase awareness loop orchestrator
+- **SessionBudgetAdvisorEngine**: Unified session budget advisor
+- **SessionDeltaEngine**: Platform-Level Session Diff Tracker
+- **SessionEventLogEngine**: Tracks session events for compact replay
+- **SessionHandoffV2Engine**: Structured inter-session handoff
+- **SessionInsightsLedgerEngine**: Append-only reflection ledger
+- **SessionLifecycleEngine**: SessionLifecycleEngine.ts
+- **SessionManagementEngine**: U-LPR-SEC06
+- **SessionReorientationEngine**: SessionReorientationEngine
+- **SessionReplayEngine**: Context reconstruction from git history
+- **SessionStabilityEngine**: USSH Phase 0.25 / U-SCI05
+- **SessionTokenLedgerEngine**: SessionTokenLedgerEngine - Real-time token accounting ledger
+- **SettingsEngine**: User/System Configuration Management
+- **SetupCostOptimizationEngine**: Minimize total setup cost across multi-setup parts.
+- **SetupReductionEngine**: Setup Time Analysis & SMED Calculator
+- **SetupSheetEngine**: R8-MS4 Professional Setup Sheet Generation
+- **SetupSheetFromGCodeEngine**: PRISM Manufacturing Intelligence - Setup Sheet From G-Code Engine
+- **SetupSheetLibraryEngine**: Setup Sheet Library Engine
+- **SetupSheetPipelineEngine**: Operator Setup Sheet Pipeline (U-MIO35)
+- **SetupTransitionEngine**: Three sub-engines in a single file:
+- **SFCCalculateEngine**: Surface Finish Calculation
+- **SFCCompareEngine**: Surface Finish Comparison
+- **SFCDriftCanaryEngine**: U-PPG-SFC-11
+- **SFCFewShotNewMaterialEngine**: U-PPG-SFC-13
+- **SFCInferenceGateWireEngine**: U-PPG-SFC-05
+- **SFCMultiHypothesisRankerEngine**: SFCMultiHypothesisRankerEngine â€” U-PPG-SFC-09
+- **SFCOptimizeEngine**: Surface Finish Optimization
+- **SFCOutcomeCaptureWireEngine**: U-PPG-SFC-01
+- **SFCProvenanceWireEngine**: U-PPG-SFC-03
+- **SFCRAGWarmStartEngine**: U-PPG-SFC-07
+- **ShaftAlignmentEngine**: Rotating Machinery Shaft Alignment Calculator
+- **SheetMetalNestingEngine**: Rectangular part nesting on sheet stock
+- **SheetMetalQuoteEngine**: Full sheet metal fabrication quoting.
+- **SheetNestingEngine**: 2D part nesting on sheet stock for laser/waterjet.
+- **ShellBootstrapEngine**: Operating-System Shell Backend
+- **ShiftHandoffEngine**: L2-P4-MS1 PASS2 Specialty
+- **ShiftScheduleOptimizerEngine**: Production Shift & Job Schedule Optimization
+- **ShockAbsorberEngine**: Hydraulic shock absorber design
+- **ShopConfigurationEngine**: Centralized Shop Rate & Machine Configuration
+- **ShopDataCompletenessEngine**: Data population scoring for My Shop
+- **ShopFloorCheckInEngine**: Department Check-In & Task Tracking
+- **ShopFloorCostEngine**: Real-time Job Costing & Labor Tracking
+- **ShopFloorDashboardEngine**: Real-time Shop Floor Status Dashboard
+- **ShopFloorJobEngine**: Job Tracking & Work Order Management
+- **ShopFloorNoteIngestionEngine**: Obsidian Notes to PRISM Knowledge
+- **ShopFloorQuoteEngine**: Quick Quoting from Shop Floor
+- **ShopFloorReportEngine**: Production Reports & Analytics
+- **ShopFloorScheduleEngine**: Production Scheduling & Capacity
+- **ShopMachineOverlayEngine**: Persists user-owned shop machine profiles and calculator machine presets
+- **ShopNetworkEngine**: register or update a shop profile
+- **ShopRepositoryPort**: Persistence port for canonical shop-domain entities.
+- **ShopSchedulerEngine**: Shop Scheduler Engine (R7-MS5)
+- **ShopStateEngine**: Central state owner for shop-floor entities. All job lifecycle,
+- **ShopToolLibraryEngine**: Production Tool Library Access
+- **ShotPeeningEngine**: L2-P4-MS1 PASS2 Specialty
+- **ShrinkFitEngine**: Interference Fit Assembly Calculator
+- **SiemensLegacyControllerEngine**: SiemensLegacyControllerEngine.ts
+- **SignalProcessingEngine**: Reverse-engineered from PRISM v8.89 monolith
+- **SignalProcessingToolkitEngine**: Comprehensive Signal Processing for Manufacturing Sensor Data
+- **SilhouetteEngine**: Silhouette Engine
+- **SimulatedAnnealingEngine**: Simulated annealing optimizer:
+- **SimulationEngine**: CNC Machining Simulation
+- **SimulationReportEngine**: Vericut AUTO-DIFF style simulation reports
+- **SimulationStallDetectorEngine**: LATHE-PROD-READY-MS0/U-LPR-STALL-SIM
+- **SimulationVisualizationBridgeEngine**: Connects CNC simulation to 3D viewer
+- **SinglePointThreadEngine**: L2-P4-MS1 PASS2 Specialty
+- **SingularityAvoidanceEngine**: L2-P4-MS1 PASS2 Specialty
+- **SinkerEDMCalculatorEngine**: Reverse-engineered from PRISM v8.89 monolith
+- **SinkerEDMElectrodeGeometryEngine**: P2P-FULLSTACK-MS0/U-P2PFS54
+- **SinkerEDMFlushingAdvisorEngine**: P2P-FULLSTACK-MS0/U-P2PFS55
+- **SinkerEDMLoRACadenceEngine**: CAM-ML-CLOSEDLOOP-MS0 U-CMCCL05
+- **SinkerEDMLoRADatasetBuilderEngine**: CAM-ML-CLOSEDLOOP-MS0 U-CMCCL05
+- **SinkerEDMPrintToProgramEngine**: P2P-FULLSTACK-MS0/U-P2PFS53
+- **SinkerEDMWearCompensationEngine**: P2P-FULLSTACK-MS0/U-P2PFS56
+- **SinteringProcessEngine**: Powder metallurgy sintering analysis
+- **SituationalAwarenessFilterEngine**: Compresses a long directive to a tight slice
+- **SketchConstraintEngine**: Fusion 360-style parametric sketch constraint solver:
+- **SketchEngine**: 2D Sketch Creation and Constraint Solving
+- **SkillAutoLoader**: PRISM Skill Auto-Loader Engine
+- **SkillBundleEngine**: D1.4 Auto-Loading Enhancement
+- **SkillExecutor**: Session 5.1: Skill Integration Engine
+- **SkillGapAnalyzerEngine**: Phase 0.23 U-UTL14
+- **SkillInliningOptimizerEngine**: Tracks skill usage patterns and determines which skills should be
+- **SkillLibraryAuditEngine**: Skill Library Audit
+- **SkillMarketplaceScannerEngine**: Skill Marketplace Scanner
+- **SkillRefinementDigestEngine**: Skill Refinement Digest
+- **SkillScenarioTestEngine**: Skill Scenario Test
+- **SkillTierRegistryEngine**: Classify skills into discoverability tiers
+- **SlashCommandRecommenderEngine**: Suggest slash commands on UserPromptSubmit
+- **SLDOverlayEngine**: Real-time Chatter Stability Lobe Overlay (U-CAM91)
+- **SLOEngine**: U-LPR-OBS5
+- **SlottingEngine**: Slot Milling Parameter Calculator
+- **SmartDefaultsEngine**: Context-aware default parameter selection
+- **SmartPrefetchEngine**: SmartPrefetchEngine - Predicts needed files from context
+- **SmartToolSelectorEngine**: Physics-scored tool selection from 46,590-tool catalog.
+- **SmartToolSelectorOrchestratorAdapter**: Smart Tool Selector Orchestrator Adapter
+- **SO3KinematicsEncoderEngine**: SO(3) Rotation Group Kinematics Encoder
+- **SocialMediaParserEngine**: CNC Social Media Post Parsing
+- **SoftJawBoringGCodeEngine**: G71/G70 Bore Cycle Generator for Soft Jaws
+- **SoftJawProfileEngine**: L2-P4-MS1 PASS2 Specialty
+- **SolderingProcessEngine**: Soldering process analysis
+- **SolidCAM25DFunctionIndexEngine**: CAM-EXHAUST-MS0/U-CAM33
+- **SolidCAM3DHSSHSRFunctionIndexEngine**: CAM-EXHAUST-MS0/U-CAM35
+- **SolidCAM5AxisFunctionIndexEngine**: CAM-EXHAUST-MS0/U-CAM36
+- **SolidCAMAIOrchestrationEngine**: AI Orchestration for SolidCAM
+- **SolidCamAlgorithmsEngine**: SolidCamAlgorithmsEngine -- Chip Thickness & Engagement Geometry
+- **SolidCAMCodeGeneratorEngine**: SolidCAM VBA/VSTA Automation Script Generator (E1118)
+- **SolidCAMFunctionIndexEngine**: CAM-EXHAUST-MS0/U-CAM38
+- **SolidCAMIMachiningFunctionIndexEngine**: CAM-EXHAUST-MS0/U-CAM34
+- **SolidCAMMillTurnFunctionIndexEngine**: CAM-EXHAUST-MS0/U-CAM37 (mill-turn)
+- **SolidCAMSafetyHooksEngine**: SolidCAM-Specific Safety Validations (E1114)
+- **SolidCAMStrategyEngine**: Dedicated SolidCAM Strategy Recommendation Engine
+- **SolidCAMTurningFunctionIndexEngine**: CAM-EXHAUST-MS0/U-CAM37 (turning)
+- **SolidEditingEngine**: Direct modeling operations (Fusion 360-style):
+- **SolidWorksAutomationBridge**: PRISM-side TypeScript host for SolidWorks COM automation.
+- **SolidWorksCADExecutionBridge**: planning↔execution bridge for SolidWorks CAD ops.
+- **SolidWorksCADFunctionIndexEngine**: CAD-side parity to Fusion / Inventor / Mastercam / hyperCAD CAD function indexes.
+- **SolidWorksCodeGeneratorEngine**: SolidWorks VBA macro code generator extending UnifiedCADCodeGeneratorBase.
+- **SolidWorksLiveBridgeEngine**: Out-of-process executor for SolidWorks VBA scripts
+- **SourceCatalogAggregator**: Unified query interface for all 28 engine SOURCE_FILE_CATALOG exports.
+- **SparseMatrixEngine**: Advanced Sparse Matrix Operations
+- **SpatialIndexEngine**: Reverse-engineered from PRISM v8.89 monolith
+- **SPCChartingEngine**: Advanced SPC charting methods for manufacturing
+- **SPCFeedbackLoopEngine**: Closed-Loop SPC → Parameter Adjustment (U-MIO31)
+- **SPCProcessCapabilityEngine**: Statistical Process Control for machining.
+- **SpecHTMLCompanionEngine**: master Markdown → HTML renderer for PRISM strategic specs.
+- **SpecificCuttingEnergyEngine**: Energy per volume removed & energy efficiency
+- **SpectralGraphEngine**: Reverse-engineered from PRISM v8.89 monolith
+- **SpeedFeedAdvancedAIEngine**: SF-AI-L2
+- **SpeedFeedAutopilotEngine**: End-to-end product autopilot for speed/feed calculations:
+- **SpeedFeedDeepLearningEngine**: SF-AI-L1
+- **SpeedFeedMinerEngine**: Mine speed/feed data from parsed CNC programs
+- **SpeedFeedOrchestratorEngine**: the hub wiring 67 integration points into
+- **SpeedFeedResourceIntegrationEngine**: PDF Resource Knowledge Integration
+- **SpeedFeedUltimateAIEngine**: SF-AI-L3
+- **SpindleBearingLoadEngine**: Spindle Bearing Life & Load Calculator
+- **SpindleHarmonicsQualityEngine**: Spindle Speed → Harmonic → Cut Quality
+- **SpindleLoadMonitorEngine**: Spindle Load Analysis & Alarm Calculator
+- **SpindlePowerCheckEngine**: Spindle Power & Torque Validation
+- **SpindleProtectionEngine**: PRISM Manufacturing Intelligence - Spindle Load Protection Engine
+- **SpindleRunoutEngine**: Spindle Runout Analysis & Impact Calculator
+- **SpindleSpeedVariationEngine**: SSV for Chatter Suppression
+- **SpindleTorqueCurveEngine**: SpindleTorqueCurveEngine
+- **SpindleTorqueGateEngine**: Spindle Torque Gate
+- **SplineJointEngine**: Spline Connection Design Calculator
+- **SplineMillingEngine**: L2-P4-MS1 PASS2 Specialty
+- **SplineStressEngine**: Involute Spline Stress Calculator
+- **SpotDrillingEngine**: Spot Drill / Center Drill Calculator
+- **SprayDryerEngine**: Spray drying process analysis
+- **SprayDryingEngine**: Spray drying process analysis
+- **SpreadsheetIngestionEngine**: Parse .xlsx/.csv data for bulk import
+- **SpringbackPredictionEngine**: Elastic recovery after machining thin walls/floors.
+- **SpringCalcEngine**: Helical Compression Spring Calculator
+- **SpringDesignEngine**: Helical compression/extension spring design
+- **SpringPassEngine**: Finishing Spring Pass Optimization
+- **SprutCAMBridgeEngine**: PRISM-side HTTP client for SprutCAM/SprutCAM X automation.
+- **SprutCAMFunctionIndexEngine**: CAM-EXHAUST-MS0/U-CAM-FIDX-18
+- **SputteringProcessEngine**: Physical vapor deposition by sputtering
+- **SQPEngine**: Sequential Quadratic Programming
+- **StabilityRPMRewriterEngine**: SLD-aware spindle speed optimizer for G-code
+- **StampingDieEngine**: Sheet metal stamping force and die design
+- **StandardDimensionLookupEngine**: Derives exact tool dimensions from ISO/DIN designations
+- **StatisticalLearningBoundsEngine**: PAC / VC / Rademacher generalization bounds
+- **StatisticalMLEngine**: 7 statistical/ML methods for PRISM
+- **StatisticalProcessEngine**: SPC control chart analysis
+- **StatisticalProcessMonitoringEngine**: 9 advanced statistical/quality models
+- **SteadyRestPlacementEngine**: L2-P4-MS1 PASS2 Specialty
+- **SteamTurbineEngine**: Steam turbine stage efficiency and power output
+- **STEPAP242PMIExtractorEngine**: Product Manufacturing Information extraction from STEP AP242
+- **STEPFeatureExtractorEngine**: HM-KC-MS10-S1/U-HKC52
+- **STEPGeometryParserEngine**: Parse ISO 10303-21 STEP files for feature evidence.
+- **StepImportEngine**: STEP/AP203/AP214 File Import via OpenCascade (occt-import-js)
+- **STEPNCEngines**: STEP-NC (ISO 14649 / AP238) Parser + Generator
+- **StepoverOptimizationEngine**: Curvature-adaptive stepover computation
+- **STLToVoxelGridEngine**: STL Parsing and Voxelization
+- **StlWriterEngine**: CAD-UNIVERSAL-CONTROL-MS0 / U-CUC11
+- **StochasticChatterEngine**: Probabilistic stability lobe prediction
+- **StochasticCompositesEngine**: Monte Carlo Delamination & Sensitivity Analysis
+- **StochasticCuttingForceEngine**: Monte Carlo uncertainty propagation for cutting forces
+- **StochasticDeflectionEngine**: Uncertainty-Aware Tool Deflection Prediction
+- **StochasticDimensionalEngine**: Multi-Source Dimensional Uncertainty Propagation
+- **StochasticEDMEngine**: Uncertainty-Aware EDM Process Prediction
+- **StochasticGrindingDressingEngine**: Wheel Life & Dressing Optimization Under Uncertainty
+- **StochasticGrindingEngine**: Uncertainty-Aware Grinding Process Prediction
+- **StochasticProcessEngine**: Stochastic process models for machining tool life
+- **StochasticRoutingEngine**: Uncertainty-aware toolpath algorithm selection
+- **StochasticSurfaceFinishEngine**: StochasticSurfaceFinishEngine
+- **StochasticThermalEngine**: Stochastic thermal prediction with convection
+- **StochasticToolLifeEngine**: Stochastic Tool Life Engine
+- **StochasticToolpathRoutingEngine**: Monte Carlo Strategy Optimization
+- **StochasticToolWearEngine**: Uncertainty-Aware Tool Wear Prediction
+- **StochasticWrapperEngine**: Unified uncertainty quantification wrapper
+- **StockAllowanceEngine**: Machining Allowance Calculator
+- **StockBoundaryGateEngine**: Stock Boundary Gate
+- **StockFeedCycleEngine**: StockFeedCycleEngine
+- **StockModelEngine**: L2-P2-MS1 CAD/CAM Layer
+- **StockSelectionEngine**: Automatic Bar Stock Selection from Part Geometry
+- **StockSizeOptimizerEngine**: Optimal Raw Material Stock Selection
+- **StockWorkholdingCatalogEngine**: the 20 fixture parts (U-CAMTEST05) × 5 material/form templates. Each
+- **StopConditionEngine**: Tool call stop/skip decision engine
+- **StrategyBenchmarkEngine**: Physics + Monte Carlo Strategy Benchmarking
+- **StrategyComparisonEngine**: Side-by-Side N-Strategy Comparison with Radar Chart
+- **StrategyCostOptimalEngine**: Cost-optimal decision engine for CAM strategy selection.
+- **StrategyEvolutionEngine**: Strategy Evolution
+- **StrategyFallbackChainEngine**: Automatic strategy fallback when the preferred toolpath is incompatible
+- **StrategyPerformanceTrackerEngine**: Actual vs. Predicted Performance Tracker
+- **StrategyRankingUpdateEngine**: Bayesian updating of strategy rankings from actual machining results.
+- **StrategySafetyDecisionEngine**: Safety decision engine for CAM strategy selection.
+- **StrategySequencingEngine**: Optimizes the SEQUENCE of machining strategies for multi-operation features
+- **StrategyStochasticRiskEngine**: Monte-Carlo stochastic risk assessment for strategy candidates under
+- **StrategyTaxonomyEngine**: Canonical Strategy Taxonomy
+- **StrategyWorstCaseSelectorEngine**: Robust min-max (Wald) strategy selection under bounded parameter uncertainty.
+- **StratifiedCalibrationEngine**: Stratified Calibration Engine
+- **StreamVsBatchReconciliationEngine**: U-LEARN-02
+- **StripeBillingEngine**: StripeBillingEngine
+- **STRIPSPlannerEngine**: U-FORE-15 (Real Planning Algorithms)
+- **SubprogramEngine**: G-code subprogram & macro generation
+- **SubprogramExtractionEngine**: Detects repeated patterns in G-code and extracts them into subprograms.
+- **SubprogramStructureEngine**: Auto-detect repeating G-code patterns and extract to subprograms
+- **SuccessPatternBankEngine**: AI Augmentation Learning Loop
+- **SuperalloyMachiningEngine**: Advanced Materials Machining
+- **SupplyChainIntegrityEngine**: Supply Chain Integrity
+- **SurfaceFinishCnnEngine**: Convolutional Neural Network for Surface Finish Prediction
+- **SurfaceFinishDatabaseEngine**: ISO 1302 N-grade surface finish reference
+- **SurfaceFinishEngine**: L2-P2-MS1 CAD/CAM Layer
+- **SurfaceFinishPlugin**: PhysicsPlugin wrapper for SurfaceFinishPredictorEngine
+- **SurfaceFinishPredictorEngine**: Predicts surface finish quality along novel toolpath segments.
+- **SurfaceGrindingEngine**: Surface Grinding Calculations
+- **SurfaceIntegrityEngine**: Machined Surface Quality Assessment
+- **SurfaceIntegrityPredictorEngine**: Predict surface integrity from cutting parameters.
+- **SurfaceIntersectionEngine**: Surface Intersection Engine
+- **SurfaceLocationErrorEngine**: SLE occurs in stable cutting but still degrades surface quality.
+- **SurfaceMeasureEngine**: Surface Measurement Data
+- **SurfaceReconstructionEngine**: Point cloud to mesh reconstruction:
+- **SurfaceRoughnessEngine**: Surface Finish Prediction Calculator
+- **SurfaceTreatmentEngine**: Surface Finishing & Coating Calculator
+- **SURFCAMFunctionIndexEngine**: CAM-EXHAUST-MS0/U-CAM51
+- **SurvivalAnalysisEngine**: Reliability & Time-to-Event Analysis
+- **SustainabilityEngine**: Adds sustainability as a first-class optimization objective.
+- **SustainabilityFormulasEngine**: 7 SUSTAINABILITY formulas for environmental & efficiency analysis
+- **SustainabilityLCAEngine**: ISO 14040/14044 multi-category LCA
+- **SustainCarbonEngine**: Carbon Footprint Tracking
+- **SustainEnergyEngine**: Energy Consumption Tracking
+- **SustainOptimizeEngine**: Sustainability Optimization
+- **SVDEngine**: Singular Value Decomposition
+- **SVIImpactProjectorEngine**: Project Ψ delta for a proposed creation
+- **SVIRankedBacklogEngine**: Rank backlog units by Ψ-delta per hour
+- **SwarmAlgorithmsEngine**: Swarm intelligence optimizers:
+- **SwarmExecutor**: Advanced multi-agent coordination patterns
+- **SwarmGroupExecutor**: Multi-group swarm orchestration engine
+- **SwarmNeuralHybridEngine**: Neural network-guided Particle Swarm Optimization:
+- **SweptVolumeEngine**: Continuous path collision interpolation
+- **SwissChannelFileEmitterEngine**: Swiss Channel File Emitter
+- **SwissGuideBushingPhysicsEngine**: SwissGuideBushingPhysicsEngine (U-LPR-SWISS, Lathe B4)
+- **SwissPartTransferSequenceEngine**: Swiss Part Transfer Sequence
+- **SwissTypeCollisionEngine**: Swiss-Type Lathe Collision Detection & Safety
+- **SwissTypeDecisionEngine**: LATHE-PROD-READY-MS0/U-LPR-SWISS
+- **SwissTypeIntelligenceEngine**: SwissTypeIntelligenceEngine.ts
+- **SymbolImpactEngine**: U-FORE-16 (Type-Aware Static Analysis)
+- **SynapticIntelligenceEngine**: U-LEARN-10
+- **SyncCodeVerificationEngine**: SyncCodeVerificationEngine
+- **SystemIdentificationEngine**: System ID from Sensor Data
+- **SystemSnapshotEngine**: Ultra-Compact System Snapshots
+- **SystemUtilizationAuditEngine**: SYS-UTIL-AUDIT-MS0
+- **SystemVariabilityIndexEngine**: Computes the PRISM System Variability Index (SVI)
+- **TailstockForceEngine**: L2-P4-MS1 PASS2 Specialty
+- **TankDesignEngine**: Pressure vessel / storage tank wall thickness
+- **TapDrillEngine**: Tap Drill Size & Tapping Calculations
+- **TaperTurningEngine**: Taper Turning Parameter Calculator
+- **TappingTorqueEngine**: Tapping torque, axial force & breakage risk prediction
+- **TaskAgentClassifier**: D1.3: Automatic agent and swarm pattern recommendation based on task characteristics
+- **TCODashboardEngine**: Total Cost of Ownership Dashboard
+- **TeachingNoGoEngine**: U-FORE-13 (PSAU-FORESIGHT)
+- **TebisCAMBridgeEngine**: Tebis CAM System Data Extraction and Integration Bridge (E1202)
+- **TebisFunctionIndexEngine**: CAM-EXHAUST-MS0/U-CAM-FIDX-15
+- **TelemetryEngine**: PRISM F3: Dispatcher Telemetry & Self-Optimization Engine
+- **TemporalReasoningEngine**: Past/present/future state projection over a timeline
+- **TenantEngine**: L2-P3-MS1 Infrastructure Layer
+- **TenantIsolationEngine**: U-LPR-SEC01
+- **TenantOnboardingRunbookEngine**: U-LPR-OPS-ONBOARD
+- **TensileToMachinabilityEngine**: L2-P4-MS1 PASS2 Specialty
+- **TensorAlgebraEngine**: Stress/Strain Tensors for Solid Mechanics
+- **TestASTAnalyzerEngine**: TypeScript AST analyzer for engine source files.
+- **TestCoverageIndexEngine**: Test Coverage Mapping & Analysis
+- **TestingProtocolEngine**: PRISM: TestingProtocolEngine
+- **TestQualityAuditEngine**: Classifies every .test.ts file as REAL / SHALLOW / SYNTHETIC
+- **TestRegistryAdapterEngine**: Curated bank of realistic test inputs.
+- **TestResourceRegistryEngine**: P2P-FULLSTACK-MS0/U-P2PFS58
+- **TestTimeAdaptationEngine**: U-LEARN-10
+- **TextToCADGenerationEngine**: CADCAM-DAGI-MS0/U-DAGI09
+- **ThermalCompensationModelEngine**: Thermal drift prediction and compensation.
+- **ThermalExpansionEngine**: Thermal dimensional accuracy analysis:
+- **ThermalExpansionJointEngine**: Pipe/structural expansion joint sizing
+- **ThermalFatigueEngine**: Thermal Cycling Fatigue Life Calculator
+- **ThermalFieldToolpathEngine**: 2D Transient Thermal Field Routing
+- **ThermalGrowthCompensationEngine**: Spindle/tool/workpiece thermal expansion prediction
+- **ThermalModelingEngine**: Thermal Modeling Engine
+- **ThermalNeuralPredictorEngine**: Neural Network for Cutting Temperature Prediction
+- **ThermalOverlayEngine**: Real-time Cutting Temperature Overlay (U-CAM93)
+- **ThermalSimEngine**: L2-P2-MS1 CAD/CAM Layer
+- **ThermalSprayEngine**: ThermalSprayEngine � Thermal spray coating process analysis
+- **ThermalWearCouplingEngine**: Coupled Thermal-Wear-Deflection ODE System
+- **ThermocoupleEngine**: Thermocouple selection & signal analysis
+- **ThermoelectricEngine**: Thermoelectric generator/cooler analysis
+- **ThermoformingEngine**: Thermoforming process parameters
+- **ThickenerEngine**: Gravity thickener/clarifier design
+- **ThinFilmDepositionEngine**: PVD/CVD/ALD thin film process analysis
+- **ThinFloorVibrationEngine**: L2-P4-MS1 PASS2 Specialty
+- **ThinWallMachiningEngine**: ThinWallMachiningEngine
+- **ThreadCalculationEngine**: Session 7.1: Complete Thread Calculations
+- **ThreadGageEngine**: Thread Gage Sizing & Tolerance Calculator
+- **ThreadingPipelineEngine**: Comprehensive Threading Operations
+- **ThreadMethodSelectorEngine**: Selects the optimal threading method based on thread form, material,
+- **ThreadMillingEngine**: L2-P4-MS1 PASS2 Specialty
+- **ThreadMillingPhysicsEngine**: First-principles thread milling physics
+- **ThreadStrengthFatigueEngine**: Thread structural integrity physics
+- **ThreadTurningEngine**: Single-Point Thread Turning Calculations
+- **ThreeDPrintedFixtureEngine**: L2-P4-MS1 PASS2 Specialty
+- **TiltAngleOptimizationEngine**: L2-P4-MS1 PASS2 Specialty
+- **TimeClockEngine**: Employee shift clock in/out, job clock in/out,
+- **TimeSeriesARIMAEngine**: ARIMA time series modeling
+- **TimeSeriesCompletionEngine**: Advanced Time Series Methods
+- **TimeSeriesEngine**: Exponential smoothing family + seasonality analysis:
+- **TimeSeriesForecastEngine**: Time series forecasting and survival/nonparametric analysis
+- **TimoshenkoDeflectionEngine**: Timoshenko Beam Theory for Tool/Boring Bar Deflection
+- **TokenAccountingEngine**: Centralized token cost accounting
+- **TokenBudgetAllocatorEngine**: Allocates token budget across task phases
+- **TokenEconomyEngine**: Optimal token allocation and context management:
+- **TokenEconomyTrackerEngine**: TokenEconomyTrackerEngine
+- **ToleranceAwareGenerationEngine**: GD&T-Aware CAD Generation
+- **ToleranceEngine**: ISO 286-1:2010 tolerance analysis:
+- **ToleranceExtractionEngine**: Tolerance & GD&T Parsing for Turning
+- **ToleranceStackEngine**: L2-P2-MS1 CAD/CAM Layer
+- **ToleranceStackUpEngine**: Tolerance Stack-Up Analysis Calculator
+- **TombstoneLayoutEngine**: L2-P4-MS1 PASS2 Specialty
+- **ToolAssemblyDeflectionEngine**: Combined tool assembly deflection analysis.
+- **ToolAssemblyEngine**: L2-P2-MS1 CAD/CAM Layer
+- **ToolAssemblyModelEngine**: Compound tool+holder+spindle collision shape
+- **ToolAxisOptimizationEngine**: 5-axis tool orientation optimization
+- **ToolBalancingEngine**: Tool Assembly Balancing Calculations
+- **ToolBreakageEngine**: PRISM Manufacturing Intelligence - Tool Breakage Prediction Engine
+- **ToolBreakagePredictionEngine**: Tool Breakage Prediction
+- **ToolCallBatchEngine**: Tool call batching advisor
+- **ToolCallBatchOptimizerEngine**: ToolCallBatchOptimizerEngine - Optimizes tool call sequences
+- **ToolCallDeduplicatorEngine**: Deduplicates redundant tool calls
+- **ToolCallHistogramEngine**: Visualizes tool usage distribution
+- **ToolCalloutCardEngine**: For each tool in a parsed program, generates an interactive card with:
+- **ToolCallParallelizationEngine**: ToolCallParallelizationEngine
+- **ToolCallPipelineEngine**: ToolCallPipelineEngine - Declarative tool call pipelines
+- **ToolCallThrottleEngine**: ToolCallThrottleEngine - Rate-limits tool calls
+- **ToolCatalogAdaptiveEngine**: Connects Tool Catalog to Phase 0.26 Adaptive System
+- **ToolCatalogEngine**: Unified Cutting Tool Catalog with Physical Dimensions
+- **ToolChangeOptimizationEngine**: Minimizes tool changes across multi-operation CNC jobs by:
+- **ToolCoatingSelectionEngine**: Optimal cutting tool coating selection
+- **ToolCostPerPartEngine**: Tool Cost Per Part Calculator
+- **ToolCostPredictorEngine**: Pre-execution token cost prediction
+- **ToolCribEngine**: Manufacturing Intelligence Layer
+- **ToolDatabaseBridgeEngine**: Phase 0.23 U-UTL6
+- **ToolDatabaseDeepLearningEngine**: Comprehensive Tool/Holder Intelligence
+- **ToolDeflectionPlugin**: PhysicsPlugin wrapper for ToolDeflectionPredictionEngine
+- **ToolDeflectionPredictionEngine**: Euler-Bernoulli cantilever beam deflection
+- **ToolEnrichmentEngine**: SQ3-1-TOOL: Tool database enrichment
+- **ToolExecutionEngine**: MCP Tool Invocation
+- **ToolGeometrySelectionEngine**: End mill geometry recommendation
+- **ToolHolderCatalogEngine**: Tool holder inventory with machine compatibility
+- **ToolHolderDatabaseEngine**: Complete tool holder interface database
+- **ToolholderDynamicsEngine**: L2-P4-MS1 PASS2 Specialty
+- **ToolHolderRegistryEngine**: ToolHolderRegistryEngine
+- **ToolInventoryOrchestratorEngine**: ToolInventoryOrchestratorEngine
+- **ToolLifeAdaptiveEngine**: Real-time tool life prediction and replacement optimization using
+- **ToolLifeGnnEngine**: Graph Neural Network for Tool Life Prediction
+- **ToolLifeOverlayEngine**: Real-time Tool Life Countdown Overlay (U-CAM94)
+- **ToolMagazineOptimizationEngine**: CNC tool magazine layout & change optimization
+- **ToolOutputFingerprinterEngine**: ToolOutputFingerprinterEngine - Detects recurring output patterns
+- **ToolOutputSummarizerEngine**: Summarizes verbose tool outputs
+- **ToolOverhangEngine**: Tool Stickout Optimization Calculator
+- **ToolpathCalculations**: Toolpath strategy calculations for CNC machining
+- **ToolpathForceProfileEngine**: ToolpathForceProfileEngine.ts
+- **ToolpathGenerationEngine**: L2-P2-MS1 CAD/CAM Layer
+- **ToolpathIntegrationEngine**: Toolpath Integration
+- **ToolpathLinkingEngine**: Toolpath Linking Engine
+- **ToolpathSegmentOptimizerEngine**: Segment-level feed/speed optimization.
+- **ToolpathSimulationEngine**: Toolpath Motion Simulation
+- **ToolpathSmoothingEngine**: B-spline/NURBS Smoothing of Discrete Toolpath Points
+- **ToolPathStepoverEngine**: Optimal Step-Over by Strategy
+- **ToolpathStrategyEngine**: stub (U-EFF25).
+- **ToolpathStrategyRouterEngine**: Phase 0.23 U-UTL4
+- **ToolpathThermalEngine**: Workpiece Heat Accumulation & Thermal Distortion Prediction
+- **ToolPatternMinerEngine**: Mine tool usage patterns from CNC programs
+- **ToolPresettingEngine**: Tool Presetting & Offset Calculator
+- **ToolRedirectEngine**: Suggests more efficient tool alternatives
+- **ToolResolverForProgramsEngine**: Resolve tool geometry from CNC program context
+- **ToolROIEngine**: Tool Return-on-Investment Analyzer (E1081)
+- **ToolRouterEngine**: Intent-based tool routing for token efficiency
+- **ToolRunoutEngine**: TIR Measurement & Impact Analysis
+- **ToolSelectionAdvisorEngine**: ToolSelectionAdvisorEngine - Recommends cheapest tool for intent
+- **ToolSelectionEngine**: Manufacturing Intelligence Layer
+- **ToolSelectionRecommenderEngine**: stub (U-EFF25).
+- **ToolSubstitutionEngine**: Auto-adjust cutting parameters when tools change
+- **ToolSubstitutionRiskEngine**: Tool Substitution Risk Engine
+- **ToolSyncOrchestratorEngine**: Orchestrate tool library synchronization across multiple CAM systems
+- **ToolUsageEngine**: Track tool usage per job/operation, link wear to inventory,
+- **ToolWearCompensationEngine**: Progressive Speed/Feed Wear Compensation
+- **ToolWearProgressionEngine**: Step-by-step flank wear (VB) simulation
+- **ToolWearRateEngine**: Tool Wear & Life Prediction
+- **TopologyEngine**: Computational topology for mesh analysis:
+- **TOPSISEngine**: Technique for Order of Preference by Similarity to Ideal Solution
+- **TopSolidCAMFunctionIndexEngine**: CAM-EXHAUST-MS0/U-CAM-FIDX-13
+- **TorsionBarEngine**: Torsion Member Stress & Deflection Calculator
+- **TPEHyperparameterSearchEngine**: TPE Hyperparameter Search
+- **TrainingContentIndexEngine**: Indexes and classifies 3,000+ training/resource files
+- **TrainingDatasetSnapshotEngine**: U-LEARN-02
+- **TrainingExampleAssemblerEngine**: U-LEARN-03
+- **TrainingLedgerEngine**: Training Ledger
+- **TransactionLogEngine**: Atomic Transaction Journaling for Forge Operations
+- **TransferLearningAdapterEngine**: Domain Adaptation for Milling Transfer
+- **TransferLearningBridgeEngine**: Cross-domain analogy finder
+- **TransferLearningEngine**: Cross-machine model transfer for cutting parameters
+- **TransformerEngine**: Power transformer sizing and losses
+- **TransitionPathEngine**: Optimized linking moves between cut segments and between operations.
+- **TransportationProblemEngine**: Transportation problem solver
+- **TreeOfThoughtEngine**: Multi-Path Reasoning for Complex Problem Solving
+- **TribalEnrichmentCoordinatorEngine**: Single unified engine for all P2P pipelines to fetch tribal knowledge,
+- **TribalEvolutionEngine**: Enables tribal knowledge to evolve over time through AI-driven learning.
+- **TribalExplanationEngine**: AI-driven explanation and prediction for tribal knowledge.
+- **TribalKnowledgeActivationEngine**: Dormant Tip Activation System
+- **TribalKnowledgeAdvisorEngine**: Manufacturing Parameter Advisor
+- **TribalKnowledgeEngine**: Manufacturing Intelligence Layer
+- **TribalKnowledgeMaximizerEngine**: Phase 0.23 U-UTL8
+- **TribalKnowledgeOutcomeBridgeEngine**: XPROC-NEURAL-CONNECT-MS0 / U-CN04
+- **TribalKnowledgeTrainingEngine**: Deep Tribal Wisdom Integration for AI Training
+- **TribalPlaybookEnforcementEngine**: Validates machining parameters against:
+- **TribalRAGEngine**: U-LEARN-04
+- **TribalTipExportEngine**: U-OBS-TRIBAL03
+- **TribologyEngine**: Tribological analysis of sliding contacts
+- **TriLevelKillSwitchEngine**: Tri Level Kill Switch
+- **TrilobeDeformationEngine**: TrilobeDeformationEngine
+- **TrilobeElectrodeGeometryEngine**: ELEC-PIPE-MS0
+- **TrochoidalMillingEngine**: Trochoidal (Dynamic) Milling Calculations
+- **TroubleshootingAssistantEngine**: TroubleshootingAssistantEngine
+- **TroubleshootingDecisionTreeEngine**: Guided CNC Troubleshooting via Decision Trees
+- **TroubleshootingEngine**: Manufacturing Intelligence Layer
+- **TrustRegionEngine**: Trust Region optimization method
+- **TubeFormingEngine**: Tube bending force, springback, and wall thinning
+- **TurbineBladeEngine**: Gas/steam turbine blade stress and cooling analysis
+- **TurningCADImportEngine**: STEP/IGES 3D → Axisymmetric Turning Profile Extraction
+- **TurningCpkSurrogateEngine**: LATHE-PRO-MS5.4 ML surrogate.
+- **TurningEnvelopeDistanceEngine**: LATHE-PRO-MS5.3.
+- **TurningFeatureTaxonomyEngine**: Profile Segment → Classified TurningFeature
+- **TurningForceEngine**: Single-point turning force, power & torque prediction
+- **TurningInsertLifeEngine**: Material-specific insert life prediction for lathe operations.
+- **TurningInspectionPlanEngine**: TurningInspectionPlanEngine
+- **TurningOffsetCompensationEngine**: Wear-to-offset mapping, probing, auto-offset, accuracy prediction.
+- **TurningPrintIntakeEngine**: Blueprint OCR to TurningFeature Converter
+- **TurningPrintToProgramEngine**: Lathe Operations Pipeline
+- **TurningProfileEngine**: Generates G70/G71 turning contour profiles from feature descriptions.
+- **TurningProgramAssemblerEngine**: Complete Turning/Lathe Program Generation Pipeline
+- **TurningRevProfileEngine**: 3D STEP → 2D XZ Revolution Silhouette
+- **TurningRobustOptimizerEngine**: LATHE-PRO-MS5.2 capstone.
+- **TurningRulesGeneratorEngine**: TurningRulesGeneratorEngine
+- **TurningSensitivityAnalysisEngine**: LATHE-PRO-MS5.1 variability apportionment.
+- **TurningStochasticPlanEngine**: LATHE-PRO-MS5 stochastic wrapper.
+- **TurningStrategyCatalog**: bulk material removal
+- **TurningThreadOptimizerEngine**: LATHE-PRO-MS4a capstone.
+- **TurningThreadRobustOptimizerEngine**: LATHE-PRO-MS4a.
+- **TurningThreadSensitivityEngine**: LATHE-PRO-MS4a.
+- **TurningThreadStochasticPlanEngine**: LATHE-PRO-MS4a.
+- **TurningToolpathWearEngine**: Toolpath-aware wear accumulation for turning.
+- **TurningWearPredictionEngine**: Per-operation Usui wear, chip form prediction, batch life.
+- **TurretLayoutEngine**: TurretLayoutEngine.ts
+- **TypeAwareReferenceEngine**: U-FORE-16 (Type-Aware Static Analysis)
+- **TypeFlowTracerEngine**: U-FORE-16 (Type-Aware Static Analysis)
+- **UltimateSpeedFeedEngine**: AI-Powered Unified Speed & Feed Optimization
+- **UltrasonicFlowMeterEngine**: Transit-time & Doppler ultrasonic flow measurement
+- **UltrasonicMachiningPhysicsEngine**: Physics-Based USM Process Prediction
+- **UltrasonicWeldingEngine**: Ultrasonic welding/bonding analysis
+- **UncertaintyPropagationEngine**: Rigorous Uncertainty Analysis for PRISM
+- **UncertaintyPropagationPipelineEngine**: Cross-engine uncertainty chaining
+- **UncertaintyQuantificationEngine**: UncertaintyQuantificationEngine
+- **UnifiedAwarenessOrchestrator**: Central PRISM AI Awareness System
+- **UnifiedCADCodeGeneratorBase**: Abstract base implementing the common scaffolding every ICADCodeGenerator
+- **UnifiedCAMPipelineEngine**: Master orchestrator: single entry point for feature-to-G-code.
+- **UnifiedCommandAwarenessEngine**: Near-AGI Command Detection & Suggestion
+- **UnifiedErrorLedgerEngine**: centralized write+embed for error ledger
+- **UnifiedPhysicsVerifierEngine**: Cross-pipeline consistency checker. Runs the SAME cutting scenario through
+- **UnifiedPPAGIOrchestrationEngine**: PP-AGI-UNIFIED
+- **UnifiedProbingDialectEngine**: Cross-controller probe routine dialect adapter
+- **UnifiedProgramParserEngine**: Foundation Parser for ALL CNC Program Formats
+- **UnitConversionEngine**: Metric ↔ Imperial Machining Unit Conversion
+- **UniversalCADIndexEngine**: Universal CAD file indexer covering every format present across H:/prism.
+- **UniversalFeedbackCommandEngine**: U-LEARN-01
+- **UniversalToolExportEngine**: Export PRISM tools in 4 universal interchange formats:
+- **UnusedAssetSurfacerEngine**: Proactively flag underutilized assets
+- **UpstreamValidationHandshakeEngine**: MILL-AGI-P1/U-P1.3-01
+- **URLContentExtractorEngine**: URL Content Type Detection & Extraction
+- **UserAssistanceSkillsEngine**: R8-MS7 User Assistance Skills
+- **UserModelEngine**: U-FORE-04 (PSAU-FORESIGHT)
+- **UserToolLibraryEngine**: Personal Tool Library Management
+- **UserToolLibraryPersistence**: File-based persistence for user tool libraries
+- **UserWorkflowSkillsEngine**: R8-MS6 User Workflow Skills
+- **UtilizationContractEngine**: Maps every PRISM capability through its full discovery chain:
+- **VacuumCastingEngine**: Vacuum investment/gravity casting process analysis
+- **VacuumPumpEngine**: Vacuum pump selection and performance
+- **ValveDesignEngine**: Industrial valve sizing and selection
+- **ValveSizingEngine**: Control Valve Cv/Kv Sizing Calculator
+- **VanePumpEngine**: Rotary vane pump performance analysis
+- **VariabilityEnvelopeEngine**: Probabilistic Parameter Boundaries
+- **VariabilitySourceTrackerEngine**: Track Where Variability Comes From
+- **VarianceReductionEngine**: Variance reduction techniques for Monte Carlo simulation
+- **VendorCatalogManifestEngine**: Catalog extraction inventory & manifest
+- **VendorEngine**: Supplier master data, scorecards, and spend analysis
+- **VendorTurningCatalogExtractorEngine**: L2-P1-MS2 Unified Vendor Turning Tool Extraction
+- **VenturiEngine**: Venturi meter flow measurement
+- **VericutBridgeEngine**: PRISM Bridge to CGTech VERICUT (E1130)
+- **VericutFunctionIndexEngine**: CAM-EXHAUST-MS0/U-CAM-FIDX-25
+- **VibrationAnalysisEngine**: Vibration Analysis Engine
+- **VibrationAssistedMachiningEngine**: Vibration-assisted machining process analysis
+- **VibrationDampeningEngine**: Vibration Dampening Strategy Calculator
+- **VibrationIsolationEngine**: Vibration Isolator Design Calculator
+- **VibrationIsolatorEngine**: Vibration isolation mount design
+- **VibratoryFeederEngine**: Vibratory bowl/linear feeder process analysis
+- **VideoActionExtractorEngine**: Structured Action Sequence Extraction from CAD/CAM Videos
+- **VideoELearningAIEngine**: AI-Powered E-Learning Knowledge Extraction
+- **VideoKnowledgeIntegrationEngine**: Phase 0.23 U-UTL11
+- **VideoLearningEngine**: Direct Video Learning Pipeline
+- **VideoReplayOrchestratorEngine**: Master Pipeline Orchestrator
+- **VideoReplayPipelineEngine**: Real End-to-End Video-to-CAD Pipeline
+- **VirtualMachiningDeepLearningEngine**: Simulation & Verification Intelligence
+- **VISIFunctionIndexEngine**: CAM-EXHAUST-MS0/U-CAM-FIDX-20
+- **VisionActionAnalyzerEngine**: Real Claude Vision API Integration
+- **VisualizationEngine**: 3D Visualization Data Pipeline
+- **VisualLabEngine**: 3D Scene Description Generator for PRISM Academy
+- **VoronoiEngine**: Voronoi diagram and Delaunay triangulation utilities
+- **VoronoiMedialAxisPocketEngine**: Mathematically Optimal Constant-Engagement Pocketing
+- **VoxelStockEngine**: Voxel-based stock material simulation:
+- **VoxelStockIntegrationEngine**: Connects novel algorithm segments to VoxelStockEngine for volumetric
+- **WasteDetectorEngine**: Detects token waste patterns in real-time
+- **WaterHammerEngine**: Water hammer / pressure surge analysis
+- **WaterjetCuttingEngine**: Reverse-engineered from PRISM v8.89 monolith
+- **WaterjetEngine**: Abrasive Waterjet Cutting Calculations
+- **WaterjetLoRACadenceEngine**: CAM-ML-CLOSEDLOOP-MS0 U-CMCCL07
+- **WaterjetLoRADatasetBuilderEngine**: CAM-ML-CLOSEDLOOP-MS0 U-CMCCL07
+- **WaterjetProgramAssemblerEngine**: Complete Waterjet Cutting Program Generation Pipeline
+- **WaterjetTaperEngine**: L2-P4-MS1 PASS2 Specialty
+- **WaveletAnalysisEngine**: Discrete wavelet transform analysis
+- **WaveletEngine**: Wavelet Transform & Analysis
+- **WearForceCompensationEngine**: Advanced Compensation Models
+- **WearPatternRefinishEngine**: Spatial wear compensation for extended tool life.
+- **WebhookEngine**: L2-P3-MS1 Infrastructure Layer
+- **WebSocketEngine**: Real-Time Communication Infrastructure
+- **WEDMAccessibilityEngine**: WEDM AGI Phase 1 / U-P1-08
+- **WEDMActiveQueryEngine**: Information-gain test-cut selection
+- **WEDMAdaptivePassEngine**: WEDMAdaptivePassEngine
+- **WEDMAnalogicalReasoningEngine**: WEDM AGI Phase 2 / U-P2-12
+- **WEDMArchiveBackfillEngine**: Cold-boots the coordination substrate by translating the historical WEDM
+- **WEDMAutonomyAuditEngine**: Audit trail for WEDM autonomy level changes
+- **WEDMAutonomyEngine**: SAE J3016-adapted autonomy level management for WEDM.
+- **WEDMAutonomySubstrateGateEngine**: Gates autonomy level transitions based on coordination substrate health:
+- **WEDMAwarenessAdoptionEngine**: Coordinates the adoption of consultAwareness() across WEDM dispatchers.
+- **WEDMBatchProgramAnalyzerEngine**: WEDMBatchProgramAnalyzerEngine - Comprehensive Wire EDM Program Batch Analysis
+- **WEDMBenchmarkToleranceEngine**: WEDM-CAL-MS4 / U-CAL20
+- **WEDMBlackboardEngine**: Shared-state blackboard for WEDM coordination. Engines, dispatchers, and
+- **WEDMCalculatorAIEngine**: AI-Powered Wire EDM Calculator for PRISM App
+- **WEDMCalibrationReportEngine**: Compares shop program parameters to published benchmarks.
+- **WEDMCitationCheckEngine**: Validates that all WEDM engine outputs trace to published citations.
+- **WEDMCompleteOrchestrationEngine**: 30-Stage Wire EDM Program Generation Pipeline
+- **WEDMContinuousLearningEngine**: Online learning orchestrator for WEDM AGI.
+- **WEDMControllerDialectVerifierEngine**: Controller-Dialect Mismatch Detector
+- **WEDMCornerPhysicsEngine**: WEDMCornerPhysicsEngine
+- **WEDMCreditCostEngine**: Credit-based billing quantization for WEDM jobs
+- **WEDMCurrentDensityGuardEngine**: Wire Break Prevention via Current Density Validation
+- **WEDMDegradationModelEngine**: WEDM AGI Phase 4 / P4-MS3 / U-P4-08.
+- **WEDMDeviationToTipEngine**: Convert Prediction Deviations to Tribal Tips
+- **WEDMDielectricCorrectionEngine**: Dielectric-Specific Spark Gap Correction
+- **WEDMDielectricFlushAdjustEngine**: Dielectric Conductivity → Flush Pressure
+- **WEDMDriftDetectionEngine**: Concept/data drift detection for WEDM models.
+- **WEDMDwgImportEngine**: DWG file import for Wire EDM pipeline with LibreDWG bridge and ODA fallback.
+- **WEDMDXFClosureValidatorEngine**: DXF Contour Closure Validation
+- **WEDMEWCMemoryEngine**: Elastic Weight Consolidation (EWC++) for WEDM LoRA adapters.
+- **WEDMExceptionHandlerEngine**: Automatic recovery from WEDM runtime faults.
+- **WEDMFailsafeEngine**: WEDM AGI Phase 4 / P4-MS2 / U-P4-06.
+- **WEDMFaultDiagnosisEngine**: WEDM AGI Phase 2 / U-P2-03
+- **WEDMFeatureImportanceEngine**: SHAP-inspired feature importance for WEDM parameters
+- **WEDMFeedbackCalibrationEngine**: Self-improving feedback loop for WEDM programs.
+- **WEDMFeedbackIngestionEngine**: Processes operator feedback from completed jobs:
+- **WEDMFewShotEngine**: Few-shot material adaptation for WEDM.
+- **WEDMFewShotMaterialEngine**: Few-shot LoRA bootstrap for new WEDM materials.
+- **WEDMFixtureInterferenceEngine**: WEDM AGI Phase 1 / U-P1-07
+- **WEDMFlushAdequacyGateEngine**: Wire EDM Flushing Adequacy Gate
+- **WEDMGapVoltageControlEngine**: Real-time gap voltage dynamics
+- **WEDMGovernanceStore**: load/save helper for WEDM_AUTONOMY_STATE.json.
+- **WEDMGraphAttentionEngine**: h=4 multi-head Graph Attention layer.
+- **WEDMHeadClearanceEngine**: Upper/Lower Head Clearance Safety Gate
+- **WEDMHeatAffectedZoneEngine**: Heat Affected Zone depth and microstructure prediction
+- **WEDMHierarchicalPlannerEngine**: WEDM AGI Phase 2 / U-P2-08
+- **WEDMHumanHandoffEngine**: Structured escalation from AI to operator.
+- **WEDMInvoiceLineEngine**: Completed Job → Invoice Draft
+- **WEDMJobCostEngine**: WEDMJobCostEngine
+- **WEDMJobCreatorEngine**: Program → Job Packet bridge
+- **WEDMJobOutcomeEngine**: Capture finished-job telemetry for the learning loop.
+- **WEDMJobPatternLearnerEngine**: Customer/Material Pattern Mining
+- **WEDMKalmanFusionEngine**: WEDM AGI Phase 1 / U-P1-02
+- **WEDMKerfWidthEngine**: Kerf Width Prediction and Validation
+- **WEDMKnowledgeDistillationEngine**: WEDM AGI Phase 2 / U-P2-13
+- **WEDMLatticeGraphEngine**: Embedding lattice over the WEDM parameter space.
+- **WEDMLearningLoopEngine**: WEDMLearningLoopEngine
+- **WEDMLoRAAdapterEngine**: Rank-r Low-Rank Adaptation for WEDM physics models.
+- **WEDMLoRACadenceEngine**: CAM-ML-CLOSEDLOOP-MS0 U-CMCCL04
+- **WEDMLoRADatasetBuilderEngine**: WEDM Lo RA Dataset Builder
+- **WEDMMachineStateEngine**: WEDM AGI Phase 1 / U-P1-01
+- **WEDMMaintenanceSchedulerEngine**: WEDM AGI Phase 4 / P4-MS3 / U-P4-09.
+- **WEDMMaterialCharacterizationEngine**: WEDM AGI Phase 1 / U-P1-09
+- **WEDMMaterialSparkDatabaseEngine**: WEDM AGI Phase 1 / U-P1-10
+- **WEDMMLParameterOptimizerEngine**: WEDMMLParameterOptimizerEngine
+- **WEDMModelUpdateEngine**: Safe model update / rollback manager.
+- **WEDMMRRPhysicsEngine**: Material Removal Rate first-principles model
+- **WEDMMultiAgentDispatchEngine**: Capstone engine for the Round 4 coordination substrate. Presents a single
+- **WEDMMultiProfileBatchEngine**: WEDMMultiProfileBatchEngine
+- **WEDMNeighborQueryEngine**: HNSW-style nearest-neighbor search over the
+- **WEDMNeuralFormulaFusionEngine**: Fuses multiple formula-based WEDM predictions (MRR, Ra, wire-bend,
+- **WEDMNeuralTrainingEngine**: Maximum Mathematical AI for Wire EDM
+- **WEDMOnlineLearningEngine**: Incremental learning from production feedback
+- **WEDMOverageApprovalEngine**: Customer approval workflow for cost overages
+- **WEDMParetoCacheEngine**: WEDM AGI Phase 2 / U-P2-06
+- **WEDMParetoFrontierSearchEngine**: WEDM AGI Phase 2 / U-P2-05
+- **WEDMPartRecognitionEngine**: WEDM AGI Phase 1 / U-P1-06 (part recognition)
+- **WEDMPostAgieEngine**: Wire-EDM post processor for AgieCharmilles (GF
+- **WEDMPostDialectRouterEngine**: thin dispatcher in front of the per-vendor
+- **WEDMPostFanucEngine**: Wire-EDM post processor for Fanuc ROBOCUT
+- **WEDMPostMakinoEngine**: Wire-EDM post processor for Makino's U-series and
+- **WEDMPostMitsubishiEngine**: Wire-EDM post processor for Mitsubishi Electric
+- **WEDMPostSodickEngine**: Wire-EDM post processor for Sodick wire-cut
+- **WEDMPostTypes**: Shared types for the Wire-EDM post-processor family.
+- **WEDMPowerDensityGuardEngine**: Power Density Safety Validation
+- **WEDMPreFlightCheckEngine**: WEDM Pre-Flight Safety Checklist Engine
+- **WEDMPrintToProgramEngine**: DXF / contour → complete WEDM program pipeline
+- **WEDMProcessCausalityEngine**: WEDM AGI Phase 2 / U-P2-01
+- **WEDMProductionReadinessEngine**: Final production readiness scoring for WEDM subsystem.
+- **WEDMProgramComparisonEngine**: WEDM-CAL-MS4 / U-CAL18
+- **WedmProgramIndexEngine**: Indexes Wire EDM and Electrode milling programs
+- **WEDMProgramNeuralAnalysisEngine**: Deep Reasoning for Wire EDM Program Analysis
+- **WEDMProgramOptimizerEngine**: Wire EDM Program Optimizer for JM Die
+- **WEDMProgramSafetyGateEngine**: Composite S(x) Safety Gate
+- **WEDMProgramVerificationEngine**: Emitted program structural verification
+- **WEDMProgressTrackerEngine**: Real-time Progress and ETA Tracking
+- **WEDMPrototypicalNetworkEngine**: Prototypical-Network material classifier
+- **WEDMPulseLimitEngine**: Pulse Parameter Safety Validation
+- **WEDMQuoteBridgeEngine**: Cost → Quote Line Items bridge
+- **WEDMRaPredictorEngine**: Klocke base + LoRA correction for surface roughness Ra.
+- **WEDMReasoningBridgeEngine**: The bridge that stitches the coordination substrate together:
+- **WEDMReasoningExplainEngine**: Natural-language reasoning over the WEDM
+- **WEDMReasoningTraceLedgerEngine**: Append-only JSONL ledger of WEDM dispatcher reasoning traces. Each entry
+- **WEDMRecastDepthPredictorEngine**: Recast layer depth using Carslaw & Jaeger.
+- **WEDMRecastLayerMLEngine**: ML-based recast layer thickness prediction
+- **WEDMRecipeAdaptationEngine**: WEDM AGI Phase 2 / U-P2-11
+- **WEDMRewardShapingEngine**: Shaped-reward signal for WEDM RL controller.
+- **WEDMRLControllerEngine**: Reinforcement learning for WEDM parameter control
+- **WEDMRLPolicyPersistence**: load / save helper for WEDM_RL_POLICY.json.
+- **WEDMRolloutSimulatorEngine**: Physics-based rollout simulator for WEDM RL training.
+- **WEDMRULEngine**: WEDM AGI Phase 4 / P4-MS3 / U-P4-07.
+- **WEDMSafetyEnvelopeEngine**: WEDMSafetyEnvelopeEngine - operating envelope checks for WEDM routes.
+- **WEDMSchedulingEngine**: WEDM Machine Reservation (Book-Ahead)
+- **WEDMSelfAwarenessEngine**: Provides the AI with comprehensive awareness of the WEDM subsystem:
+- **WEDMSequencingEngine**: WEDM AGI Phase 2 / U-P2-09
+- **WEDMSetupSheetEngine**: Printable Setup Sheet for Wire EDM Jobs
+- **WEDMSlugTabRetentionEngine**: P2P-FULLSTACK-MS0 / U-P2PFS38
+- **WEDMSparkErosionModelEngine**: WEDMSparkErosionModelEngine
+- **WEDMStartPointOptimizationEngine**: WEDMStartPointOptimizationEngine
+- **WEDMStrategyLibraryEngine**: Wire EDM Cutting Strategy Library
+- **WEDMTabStrategyEngine**: WEDM AGI Phase 2 / U-P2-10
+- **WEDMTaperErrorBudgetEngine**: Wire EDM Taper Programming Error Budget
+- **WEDMThermalFieldEngine**: FEM-based thermal field prediction during cutting
+- **WEDMThermalReleaseGateEngine**: Thermal Budget & Recast Safety Gate
+- **WEDMThinWireDerateEngine**: Parameter Derating for Thin Wires
+- **WEDMTier6GeomGateEngine**: Tier 6 Progressive Die Geometry Validation
+- **WEDMTradeoffElicitationEngine**: WEDM AGI Phase 2 / U-P2-07
+- **WEDMTransferLearningEngine**: Cross-material/machine parameter transfer
+- **WEDMTribalRuntimeEngine**: Runtime tribal-knowledge selection for WEDM dispatch. Loads curated tips
+- **WEDMTribalTipLearnerEngine**: Generates new tribal tips from confirmed patterns:
+- **WEDMUnitTagGateEngine**: Unit-Tag & 25.4× Confusion Guard
+- **WEDMVirtualMachineEngine**: WEDM AGI Phase 1 / U-P1-03 (digital twin)
+- **WEDMWeibullWireLifeEngine**: Weibull failure-time distribution for EDM wire
+- **WEDMWhatIfSimulatorEngine**: WEDM AGI Phase 2 / U-P2-02
+- **WEDMWireBreakPredictorEngine**: Probability of wire break per pulse train.
+- **WEDMWireBreakRiskCostEngine**: Wire Break Risk Cost Modeling
+- **WEDMWireDeflectionEngine**: Wire Deflection Prediction and Compensation
+- **WEDMWireHeatingEngine**: Wire Joule Heating Analysis
+- **WEDMWirePathCollisionEngine**: Wire path swept-volume collision detection
+- **WEDMWirePremiumROIEngine**: Premium Wire ROI Calculator
+- **WEDMWireSpoolConsumptionEngine**: Wire Spool Consumption + Mid-Job Change Flag
+- **WEDMWireStressAnalysisEngine**: Combined mechanical fatigue + thermal stress
+- **WEDMWireTensionOptimizerEngine**: Optimal wire tension for geometry + material
+- **WEDMWireThreadingMinEngine**: WEDMWireThreadingMinEngine
+- **WeldDistortionEngine**: Welding Distortion Prediction & Mitigation
+- **WeldFabricationQuoteEngine**: Welding & Fabrication Cost Estimator
+- **WeldingEngine**: Welding process parameter calculation
+- **WeldPrepEngine**: L2-P4-MS1 PASS2 Specialty
+- **WeldStrengthEngine**: Fillet & Butt Weld Stress Calculator
+- **WesternElectricRulesEngine**: 8 classic control-chart rules
+- **WetRunAuthorizationEngine**: Wet Run Authorization
+- **WetRunChangeFreezeEngine**: WetRunChangeFreezeEngine
+- **WetRunCustomerAcceptanceEngine**: PRISM submitted, waiting on customer
+- **WetRunCustomerCommunicationLogEngine**: WetRunCustomerCommunicationLogEngine
+- **WetRunDeviationRegistryEngine**: WetRunDeviationRegistryEngine
+- **WetRunNonConformanceEngine**: WetRunNonConformanceEngine
+- **WetRunOnCallRotationEngine**: WetRunOnCallRotationEngine
+- **WetRunPilotOrchestratorEngine**: customer sign-off
+- **WetRunProgramVersionLockEngine**: WetRunProgramVersionLockEngine
+- **WetRunRetentionPolicyEngine**: WetRunRetentionPolicyEngine
+- **WetRunSampleInspectionPlanEngine**: WetRunSampleInspectionPlanEngine
+- **WetRunScrapLedgerEngine**: sum of all entries
+- **WetRunSessionLogEngine**: run starts (references auth decision)
+- **WetRunStateMachineEngine**: 0 scrapped parts, 0 safety events. Session ready.
+- **WetRunSupplierPassThroughEngine**: shipped from PRISM, awaiting supplier dock-in
+- **WhiteLabelConfigEngine**: Dealer/OEM Branding & Fleet Configuration
+- **WhiteLayerDetectionEngine**: L2-P4-MS1 PASS2 Specialty
+- **WikiIndexMaintainerEngine**: KNOWLEDGE-WIKI-MS0 / U-WIKI02
+- **WikiIngestRouterEngine**: KNOWLEDGE-WIKI-MS0 / U-WIKI04
+- **WikiLintEngine**: KNOWLEDGE-WIKI-MS0 / U-WIKI03
+- **WikiLogAppenderEngine**: KNOWLEDGE-WIKI-MS0 / U-WIKI02
+- **WikiRAGFeatureEngine**: Wiki RAG Feature
+- **WikiRecallCounterEngine**: U-RECALL-COUNTER (OBSIDIAN-VIZ-MS0)
+- **WireDrawingEngine**: Wire drawing force, die design, and pass schedule
+- **WireEDMAdvancedNeuralEngine**: WireEDMAdvancedNeuralEngine
+- **WireEDMAGIOrchestrator**: WireEDMAGIOrchestrator
+- **WireEDMAIPrintToProgramEngine**: PhD-Level AI Print-to-Wire-EDM Pipeline
+- **WireEDMCAMKnowledgeEngine**: WireEDMCAMKnowledgeEngine
+- **WireEDMDeepAIHardeningEngine**: WEDM-HARDEN-MS1
+- **WireEDMDeepLogicEngine**: WireEDMDeepLogicEngine
+- **WireEDMDeepNeuralReasoningEngine**: Claude Opus-Level Neural Reasoning
+- **WireEDMDeepReasoningEngine**: Claude Opus-Level Deep Reasoning for Wire EDM
+- **WireEDMKnowledgeSynthesisEngine**: Unified Knowledge Fusion for Wire EDM
+- **WireEDMMachineTechDataEngine**: WireEDMMachineTechDataEngine
+- **WireEDMMasterAIEngine**: Full AI Orchestration for Wire EDM System
+- **WireEDMNeuralOrchestrationEngine**: WireEDMNeuralOrchestrationEngine
+- **WireEDMPredictiveIntelligenceEngine**: Real-Time Predictive AI for Wire EDM
+- **WireEDMProgramParserEngine**: Parse Wire EDM G-code Programs
+- **WireEDMResearchAIEngine**: WireEDMResearchAIEngine
+- **WireEDMSelfAwarenessIntegrationEngine**: WireEDMSelfAwarenessIntegrationEngine
+- **WireEDMSettingsEngine**: Wire EDM Cutting Parameters
+- **WireEDMUnifiedScienceEngine**: PhD-Level Multi-Disciplinary Wire EDM Science
+- **WireRopeEngine**: Wire Rope Selection & Analysis Calculator
+- **WorkCoordinateEngine**: L2-P2-MS1 CAD/CAM Layer
+- **WorkEnvelopeEngine**: Machine Work Envelope & Travel Verification
+- **WorkEnvelopeValidatorEngine**: L2-P4-MS1 PASS2 Specialty
+- **WorkflowChainsEngine**: R8-MS2 Pre-Built Workflow Chains
+- **WorkflowIntegrationHelper**: Unified workflow template integration for all pipelines
+- **WorkflowOrchestrationEngine**: Multi-agent/hook/script coordination for complex manufacturing workflows:
+- **WorkflowTemplateEngine**: Canonical CAD/CAM Workflow Sequences
+- **WorkholdingEngine**: PRISM Manufacturing Intelligence - Workholding Validation Engine
+- **WorkholdingForceEngine**: Workholding Clamping Force Calculations
+- **WorkholdingIntelligenceEngine**: R7-MS2: Workholding Intelligence Engine
+- **WorkholdingRetrofitAdvisorEngine**: WorkholdingRetrofitAdvisorEngine
+- **WorkholdingSelectionEngine**: AI-driven workholding selection engine that recommends fixture type
+- **WorkholdingSurfaceInferenceEngine**: Automatically identifies workholding-suitable surfaces from part geometry,
+- **WorkholdingVerificationEngine**: Verify workholding adequacy for every operation. Checks cutting force
+- **WorkholdingViabilityEngine**: Track clamping viability as material is removed.
+- **WorkNCCAMBridgeEngine**: Work NCCAM Bridge
+- **WorkNCFunctionIndexEngine**: CAM-EXHAUST-MS0/U-CAM-FIDX-12
+- **WorkpieceDeflectionCompensationEngine**: Cantilevered Bar Deflection & Auto-Compensation
+- **WorkpieceStateEngine**: In-Process Workpiece (IPW) State Tracker
+- **WorldModelEngine**: "What exists in PRISM" slice of the triple model
+- **WormGearEngine**: Worm Gear Drive Design Calculator
+- **XAIEngine**: Model-agnostic explanation methods:
+- **XProcNeuralAutoFireEngine**: XPROC-NEURAL-CONNECT-MS0 / U-CN09
+- **ZeroTrustTelemetryEngine**: U-LPR-SEC12
+- **ZLevelOptimizationEngine**: Z-Level Optimization Engine

@@ -383,4 +383,27 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     milestones: z.array(_riMilestone).min(1).describe("All milestones in the roadmap"),
     historical_data: z.array(_riLearningRecord).optional().describe("Past records used to compute estimation accuracy + velocity trend"),
   }).passthrough(),
+
+  // HOOK-SYNERGY-MS0/U-HOOK-REGISTRY (H2): HOOK_REGISTRY.json reader actions.
+  hook_registry: z.object({
+    mode: z.enum([
+      "counts", "meta", "compact", "find", "search",
+      "by_event", "by_tier", "wired", "orphaned", "stale",
+    ]).default("counts").describe("Which projection to return; defaults to counts (smallest)."),
+    query: z.string().max(200).optional().describe("Used by find/search; capped at 200 chars."),
+    event: z.string().optional().describe("Event name for mode=by_event (e.g. PreToolUse)."),
+    tier: z.string().optional().describe("Tier label for mode=by_tier (e.g. T0)."),
+    max: z.union([z.string(), z.number()]).optional().describe("Cap on results (search/compact). Default 25 search / 5 compact."),
+  }).passthrough(),
+
+  // HOOK-SYNERGY-MS0/U-HOOK-ENVELOPE (H4): hook-latency.jsonl reader actions.
+  hook_latency: z.object({
+    mode: z.enum([
+      "summary", "per_hook", "top_p95", "recent_slow", "recent_failures", "total_fires", "available",
+    ]).default("summary").describe("Which projection: summary | per_hook | top_p95 | recent_slow | recent_failures | total_fires | available."),
+    hook: z.string().optional().describe("Hook basename for mode=per_hook."),
+    window_ms: z.union([z.string(), z.number()]).optional().describe("Window for stats (default 7 days, max 90 days)."),
+    threshold_ms: z.union([z.string(), z.number()]).optional().describe("Latency floor for mode=recent_slow."),
+    n: z.union([z.string(), z.number()]).optional().describe("Result cap; defaults vary by mode."),
+  }).passthrough(),
 };

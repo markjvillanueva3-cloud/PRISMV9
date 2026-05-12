@@ -1,0 +1,44 @@
+; =============================================
+; SIEMENS 840D sl — Fine Boring with CYCLE85
+; Material: 4140 Steel (pre-hardened 28 HRC)
+; Tool: 25mm single-point boring bar
+; Pre-bored to 24.7mm, finish to 25H7
+; =============================================
+
+N10 G54 G90 G17 G64 SOFT       ; Safe start
+N20 T11 D1 M6                  ; 25mm boring bar
+N30 S1500 M3                   ; Vc ~118 m/min
+N40 M8                         ; Coolant ON
+N50 G0 Z50                     ; Clearance plane
+
+; CYCLE85 — Fine boring (bore in, feed out)
+; CYCLE85(RTP, RFP, SDIS, DP, DPR, DTB, FFR, RFF)
+;   RTP  = 50       retract plane
+;   RFP  = 0        reference plane
+;   SDIS = 2        safety distance
+;   DP   = -30      bore depth (absolute)
+;   DPR  = 0        (absolute mode)
+;   DTB  = 0.5      dwell at bottom (seconds, for finish)
+;   FFR  = 100      feed rate boring (mm/min)
+;   RFF  = 200      feed rate retract (mm/min)
+
+N60 CYCLE85(50, 0, 2, -30, 0, 0.5, 100, 200)
+
+; Bore position 1
+N70 G0 X40 Y40
+N80 CYCLE85(50, 0, 2, -30, 0, 0.5, 100, 200)
+
+; Bore position 2
+N90 G0 X100 Y40
+N100 CYCLE85(50, 0, 2, -30, 0, 0.5, 100, 200)
+
+; Bore position 3
+N110 G0 X70 Y80
+N120 CYCLE85(50, 0, 2, -30, 0, 0.5, 100, 200)
+
+; Retract and end
+N130 G0 Z50
+N140 M9
+N150 M5
+N160 G0 X0 Y0 SUPA
+N170 M30

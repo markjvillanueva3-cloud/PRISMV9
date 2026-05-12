@@ -56,6 +56,11 @@ const HEAVY_HOOKS = [
 const SHARED_HOOKS = [
   { path: `${HOOK_BASE}/memory-relevance-inject.mjs`,        timeout: 3000 },
   { path: `${HOOK_BASE}/mcp-route-suggest.mjs`,              timeout: 1500 },
+  // HS-15 (2026-05-12): PreToolUse stash for duration-derivation. Placed in
+  // SHARED so it runs as part of alwaysHooks (not advisory) — a SAFETY deny
+  // earlier in runBundle short-circuits before this fires, so denied tool
+  // calls don't leak stash entries into the pending-cache.
+  { path: `${HOOK_BASE}/tool-watchdog.mjs`,                  timeout: 1000 },
 ];
 
 const EDIT_ONLY_HOOKS = [

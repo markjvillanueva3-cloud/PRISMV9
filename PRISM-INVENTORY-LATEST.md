@@ -1,7 +1,7 @@
 # PRISM Complete Asset Inventory
-**Generated:** 2026-05-07
-**Updated:** 2026-05-07T01:03:56.264Z
-**Source:** live scan (45ms) — via scripts/update-prism-inventory.mjs
+**Generated:** 2026-05-12
+**Updated:** 2026-05-12T21:15:32.564Z
+**Source:** live scan (72ms) — via scripts/update-prism-inventory.mjs
 
 > This file is auto-generated. Edit `scripts/update-prism-inventory.mjs` to
 > change counts or categories. Values labeled **(baseline)** come from
@@ -11,17 +11,17 @@
 
 | Category | Count | Source |
 |----------|-------|--------|
-| **Engines** | 3146 | live: `src/engines/*.ts` |
-| **Dispatchers** | 96 | live: `src/tools/dispatchers/*.ts` |
-| **Actions** | 7042 | live: `z.enum` count across dispatchers |
+| **Engines** | 3199 | live: `src/engines/*.ts` |
+| **Dispatchers** | 97 | live: `src/tools/dispatchers/*.ts` |
+| **Actions** | 7372 | live: `z.enum` count across dispatchers |
 | **Algorithms** | 53 | live: `src/algorithms/*.ts` |
-| **Registries** | 26 | live: `src/registries/*.ts` |
-| **Tests** | 3303 | live: `src/__tests__/**/*.test.ts` |
+| **Registries** | 27 | live: `src/registries/*.ts` |
+| **Tests** | 3470 | live: `src/__tests__/**/*.test.ts` |
 | **Source Hooks** | 54 | live: `src/hooks/**/*.ts` |
-| **Claude Hooks** | 428 | live: `.claude/hooks/**/*.mjs` |
-| **Scripts** | 453 | live: `scripts/` + `mcp-server/scripts/` |
-| **Slash Commands (local)** | 236 | live: `.claude/commands/` |
-| **Slash Commands (user)** | 361 | live: `~/.claude/commands/` |
+| **Claude Hooks** | 505 | live: `.claude/hooks/**/*.mjs` |
+| **Scripts** | 611 | live: `scripts/` + `mcp-server/scripts/` |
+| **Slash Commands (local)** | 254 | live: `.claude/commands/` |
+| **Slash Commands (user)** | 391 | live: `~/.claude/commands/` |
 | **Migrations** | 1 | live: `src/migrations/*.ts` |
 | **Formulas** | 499 | (baseline) |
 | **Registry Entries** | n/a | (baseline) |
@@ -37,18 +37,18 @@
 ## Live Scan Detail
 
 ```
-scan duration: 45ms
-engines:              3146
-dispatchers:            96
-actions (z.enum):     7042
+scan duration: 72ms
+engines:              3199
+dispatchers:            97
+actions (z.enum):     7372
 algorithms:             53
-registries:             26
-tests:                3303
+registries:             27
+tests:                3470
 source hooks:           54
-claude hooks:          428
-scripts:               453
-slash cmds (local):    236
-slash cmds (user):     361
+claude hooks:          505
+scripts:               611
+slash cmds (local):    254
+slash cmds (user):     391
 migrations:              1
 ```
 

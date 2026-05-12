@@ -1,13 +1,13 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-12T19:15:01.621Z",
+  "generatedAt": "2026-05-12T21:40:59.856Z",
   "window": "60.days",
   "totals": {
-    "milestones": 666,
+    "milestones": 667,
     "units": 3456,
-    "shipped": 56,
-    "pending": 3400,
-    "drift": 4
+    "shipped": 58,
+    "pending": 3398,
+    "drift": 3
   },
   "milestones": [
     {
@@ -22472,10 +22472,10 @@
       "track": "HOOK-SYNERGY",
       "claimedStatus": "in_progress",
       "total": 11,
-      "shipped": 3,
-      "pending": 8,
-      "ratio": 0.2727272727272727,
-      "lastShippedDate": "2026-05-12T14:14:44-05:00",
+      "shipped": 5,
+      "pending": 6,
+      "ratio": 0.45454545454545453,
+      "lastShippedDate": "2026-05-12T16:31:20-05:00",
       "derivedStatus": "in_progress_real",
       "drift": "consistent",
       "units": [
@@ -22501,10 +22501,10 @@
           "id": "U-HOOK-REGISTRY",
           "title": "H2 — HOOK_REGISTRY.json generator + prism_dev:hook_registry action + prism_session:hook_map_compact",
           "phase": "critical-path",
-          "shipped": false,
-          "sha": null,
-          "date": null,
-          "commitMilestoneTag": null
+          "shipped": true,
+          "sha": "76eef5f9597bedab4715e92fce3bc3a277be1a8f",
+          "date": "2026-05-12T16:19:34-05:00",
+          "commitMilestoneTag": "HOOK-SYNERGY-MS0"
         },
         {
           "id": "U-HOOK-TIERS",
@@ -22528,10 +22528,10 @@
           "id": "U-HOOK-ENVELOPE",
           "title": "H4 — _envelope.mjs profiling shim + hook-latency.jsonl + nightly digest (P50/P95/P99 per hook)",
           "phase": "wave-2",
-          "shipped": false,
-          "sha": null,
-          "date": null,
-          "commitMilestoneTag": null
+          "shipped": true,
+          "sha": "d2c9aa95a1aa58ad34ce5bad3e538a8d41e834de",
+          "date": "2026-05-12T16:31:20-05:00",
+          "commitMilestoneTag": "HOOK-SYNERGY-MS0"
         },
         {
           "id": "U-HOOK-CREATION-GATE",
@@ -22892,7 +22892,7 @@
       "id": "INFRA-CONSENSUS-WIRE-MS0",
       "title": "Wire 4-Way Consensus Into Dispatcher Decision Points",
       "track": "INFRA",
-      "claimedStatus": "not_started",
+      "claimedStatus": "in_progress",
       "total": 5,
       "shipped": 0,
       "pending": 5,
@@ -28985,14 +28985,14 @@
       "id": "OCTOPUS-NEURAL-MS0",
       "title": "OCTOPUS-NEURAL-MS0",
       "track": "OCTOPUS-NEURAL",
-      "claimedStatus": "not_started",
+      "claimedStatus": "completed",
       "total": 5,
       "shipped": 5,
       "pending": 0,
       "ratio": 1,
       "lastShippedDate": "2026-05-12T14:14:53-05:00",
       "derivedStatus": "completed_real",
-      "drift": "claims_not_started_but_has_shipped_units",
+      "drift": "consistent",
       "units": [
         {
           "id": "U-OCN01",
@@ -39440,6 +39440,20 @@
           "commitMilestoneTag": null
         }
       ]
+    },
+    {
+      "id": "BLUEPRINT-OCR-TRAINING-MS1",
+      "title": "RAG-augmented blueprint OCR + LoRA training + closed-loop continual learning + monolith-fork rescue",
+      "track": "TRAINING-LEARNING",
+      "claimedStatus": "scoped",
+      "total": 0,
+      "shipped": 0,
+      "pending": 0,
+      "ratio": 0,
+      "lastShippedDate": "",
+      "derivedStatus": "no_units",
+      "drift": "n/a",
+      "units": []
     },
     {
       "id": "ULT-MS0",
