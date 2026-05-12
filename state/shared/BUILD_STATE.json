@@ -1,16 +1,16 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-12T19:15:02.079Z",
+  "generatedAt": "2026-05-12T21:19:58.644Z",
   "headline": {
     "built_engines": 2302,
     "built_with_wiki": 1075,
     "needs_wiring": 883,
-    "needs_building_active_units": 3400,
+    "needs_building_active_units": 3399,
     "needs_frontend_merge_count": 2,
     "pending_milestones_with_activity": 3,
-    "drift_milestones": 4,
+    "drift_milestones": 3,
     "stale_milestones": 254,
-    "domains_tracked": 923
+    "domains_tracked": 925
   },
   "sources": {
     "unwired_audit": "H:\\prism\\state\\shared\\UNWIRED-ENGINE-AUDIT-2026-05-07.json",
@@ -315,7 +315,7 @@
     "next_action": "Pick a top-domain bucket; wire to the matching dispatcher in batches of 5–6 engines (see U-WIRE-LATHE-BATCHN pattern). Wiki cross-refs in `wikiTitle` resolve via `/wiki-query <name>`."
   },
   "COVERAGE_BY_DOMAIN": {
-    "summary": "Per-domain wired/unwired breakdown across 923 domain prefixes.",
+    "summary": "Per-domain wired/unwired breakdown across 925 domain prefixes.",
     "rows": [
       {
         "domain": "Other",
@@ -589,10 +589,10 @@
       },
       {
         "domain": "Consensus",
-        "total": 6,
-        "wired": 0,
+        "total": 7,
+        "wired": 1,
         "unwired": 6,
-        "coverage_pct": 0,
+        "coverage_pct": 14,
         "sample_unwired": [
           "ConsensusAIBridgeEngine",
           "ConsensusCoordinatorEngine",
@@ -1710,6 +1710,16 @@
         ]
       },
       {
+        "domain": "Neural",
+        "total": 6,
+        "wired": 5,
+        "unwired": 1,
+        "coverage_pct": 83,
+        "sample_unwired": [
+          "NeuralDeterminismTestingEngine"
+        ]
+      },
+      {
         "domain": "Optimization",
         "total": 6,
         "wired": 5,
@@ -1767,16 +1777,6 @@
         "coverage_pct": 80,
         "sample_unwired": [
           "ModelAttributionEngine"
-        ]
-      },
-      {
-        "domain": "Neural",
-        "total": 5,
-        "wired": 4,
-        "unwired": 1,
-        "coverage_pct": 80,
-        "sample_unwired": [
-          "NeuralDeterminismTestingEngine"
         ]
       },
       {
@@ -4505,8 +4505,8 @@
       },
       {
         "domain": "Hook",
-        "total": 12,
-        "wired": 12,
+        "total": 13,
+        "wired": 13,
         "unwired": 0,
         "coverage_pct": 100,
         "sample_unwired": []
@@ -5897,6 +5897,14 @@
       },
       {
         "domain": "Carburizing",
+        "total": 1,
+        "wired": 1,
+        "unwired": 0,
+        "coverage_pct": 100,
+        "sample_unwired": []
+      },
+      {
+        "domain": "Cascade",
         "total": 1,
         "wired": 1,
         "unwired": 0,
@@ -7361,6 +7369,14 @@
       },
       {
         "domain": "Mitsubishi",
+        "total": 1,
+        "wired": 1,
+        "unwired": 0,
+        "coverage_pct": 100,
+        "sample_unwired": []
+      },
+      {
+        "domain": "Moa",
         "total": 1,
         "wired": 1,
         "unwired": 0,
@@ -9089,7 +9105,7 @@
     "next_action": "Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift."
   },
   "NEEDS_BUILDING": {
-    "summary": "3400 units across 666 milestones not yet in git.",
+    "summary": "3399 units across 667 milestones not yet in git.",
     "drift_cases": [
       {
         "id": "MF-MS1",
@@ -9108,12 +9124,6 @@
         "claimed": "not_started",
         "real": "in_progress_real",
         "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "OCTOPUS-NEURAL-MS0",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
       }
     ],
     "top_pending_units": [
@@ -9122,12 +9132,6 @@
         "unit": "U-HOOK-STOPGAP",
         "title": "7 hook timeout reductions in C:/Users/wompu/.claude/settings.json (git-health-guard 35→8s, git-sync-stop 35→8s, session-start-zombie-reap 25→8s, auto-lint-post-edit 15→8s, git-sync-fetch/claude-brief-inject/quality-dashboard-alert 12→5s)",
         "phase": "stopgap"
-      },
-      {
-        "milestone": "HOOK-SYNERGY-MS0",
-        "unit": "U-HOOK-REGISTRY",
-        "title": "H2 — HOOK_REGISTRY.json generator + prism_dev:hook_registry action + prism_session:hook_map_compact",
-        "phase": "critical-path"
       },
       {
         "milestone": "HOOK-SYNERGY-MS0",
@@ -9140,6 +9144,12 @@
         "unit": "U-HOOK-FAST-LANE",
         "title": "H6 — Settings.json matcher split (Read/Glob/Grep fast lane vs Edit/Write/Bash slow lane) + dedup apply (target 70% latency cut on read-only ops)",
         "phase": "critical-path"
+      },
+      {
+        "milestone": "HOOK-SYNERGY-MS0",
+        "unit": "U-HOOK-ENVELOPE",
+        "title": "H4 — _envelope.mjs profiling shim + hook-latency.jsonl + nightly digest (P50/P95/P99 per hook)",
+        "phase": "wave-2"
       },
       {
         "milestone": "HTML-PRIMARY-MS0",
