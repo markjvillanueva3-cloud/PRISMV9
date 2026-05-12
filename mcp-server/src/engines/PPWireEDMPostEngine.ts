@@ -1,0 +1,306 @@
+/**
+ * PPWireEDMPostEngine — Mitsubishi Wire EDM post processing
+ *
+ * Generates wire EDM programs for JM Die's Mitsubishi MV1200R.
+ * Wire EDM uses a different paradigm than milling/turning:
+ *   - No spindle, no traditional feeds
+ *   - Electrical discharge parameters (power, on-time, off-time)
+ *   - Wire tension, flushing pressure
+ *   - Multi-pass skim cutting strategy
+ *   - UV taper axes for angled cuts
+ *   - Wire threading/rethreading
+ *
+ * Covers:
+ *   - 2-axis profile cutting (straight through)
+ *   - 4-axis taper cutting (UV independent)
+ *   - Multi-pass skim strategy (rough + 1-3 skim passes)
+ *   - No-core (slug-free) cutting
+ *   - Start hole positioning
+ *   - Wire thread/cut sequences
+ *
+ * @module PPWireEDMPostEngine
+ */
+
+// ── Types ─────────────────────────────────────────────────────────────
+
+export interface WireEDMOperation {
+  type: "profile" | "taper" | "no_core" | "open_path";
+  pass: "rough" | "skim1" | "skim2" | "skim3";
+
+  // Geometry
+  start_x?: number;
+  start_y?: number;
+  profile_points?: Array<{ x: number; y: number; u?: number; v?: number }>;
+
+  // EDM parameters
+  power_setting?: number;      // 1-20 (machine-specific)
+  on_time_us?: number;         // pulse on-time microseconds
+  off_time_us?: number;        // pulse off-time microseconds
+  wire_speed_m_min?: number;   // wire feed speed
+  wire_tension_g?: number;     // wire tension in grams
+  servo_voltage_v?: number;    // gap voltage
+  flushing_pressure?: number;  // 0-15 (machine scale)
+
+  // Taper
+  taper_angle_deg?: number;
+  taper_height_mm?: number;
+
+  // Wire offset
+  offset_mm?: number;          // wire offset for pass
+  offset_direction?: "left" | "right";
+
+  // Options
+  submerged?: boolean;
+  auto_thread?: boolean;
+}
+
+export interface WireEDMProgramInput {
+  program_number?: string;
+  part_description?: string;
+  material?: string;
+  thickness_mm: number;
+  wire_diameter_mm?: number;   // 0.10, 0.20, 0.25, 0.30
+  operations: WireEDMOperation[];
+  /** Output units: "metric" (G21, mm) or "imperial" (G20, inches). Defaults to metric. */
+  units?: "metric" | "imperial";
+}
+
+export interface WireEDMProgram {
+  gcode_lines: string[];
+  gcode_text: string;
+  line_count: number;
+  operation_count: number;
+  total_passes: number;
+  estimated_rough_time_min?: number;
+  warnings: string[];
+}
+
+// ── Wire offset tables (Mitsubishi) ───────────────────────────────────
+
+const WIRE_OFFSETS: Record<string, Record<string, number>> = {
+  "0.25": { rough: 0.160, skim1: 0.135, skim2: 0.128, skim3: 0.126 },
+  "0.20": { rough: 0.130, skim1: 0.110, skim2: 0.103, skim3: 0.101 },
+  "0.10": { rough: 0.075, skim1: 0.060, skim2: 0.053, skim3: 0.051 },
+};
+
+// ── Default EDM parameters by pass ───────────────────────────────────
+
+interface PassDefaults {
+  power: number;
+  on_us: number;
+  off_us: number;
+  wire_speed: number;
+  wire_tension: number;
+  servo_v: number;
+  flushing: number;
+}
+
+const PASS_DEFAULTS: Record<string, PassDefaults> = {
+  rough:  { power: 12, on_us: 8, off_us: 20, wire_speed: 12, wire_tension: 1200, servo_v: 50, flushing: 10 },
+  skim1:  { power: 6,  on_us: 4, off_us: 12, wire_speed: 8,  wire_tension: 800,  servo_v: 40, flushing: 5 },
+  skim2:  { power: 3,  on_us: 2, off_us: 8,  wire_speed: 6,  wire_tension: 600,  servo_v: 35, flushing: 3 },
+  skim3:  { power: 1,  on_us: 1, off_us: 6,  wire_speed: 4,  wire_tension: 500,  servo_v: 30, flushing: 2 },
+};
+
+// ── Unit conversion helpers (U-WGAP01: Imperial support) ─────────────────
+
+/** Scale factor for coordinates: 1.0 for metric (mm), 1/25.4 for imperial (inches) */
+function coordScale(units?: "metric" | "imperial"): number {
+  return units === "imperial" ? 1.0 / 25.4 : 1.0;
+}
+
+/** G-code for units: G20 for imperial, G21 for metric */
+function unitCode(units?: "metric" | "imperial"): string {
+  return units === "imperial" ? "G20" : "G21";
+}
+
+/** Label for units: "INCH" or "METRIC" */
+function unitLabel(units?: "metric" | "imperial"): string {
+  return units === "imperial" ? "INCH" : "METRIC";
+}
+
+/** Format coordinate with scale */
+function formatCoord(value: number, decimals: number, scale: number): string {
+  return (value * scale).toFixed(decimals);
+}
+
+// ── Engine ─────────────────────────────────────────────────────────────
+
+export class PPWireEDMPostEngine {
+  /**
+   * Generate a complete wire EDM program.
+   */
+  generate(input: WireEDMProgramInput): WireEDMProgram {
+    const lines: string[] = [];
+    const warnings: string[] = [];
+    const progNum = input.program_number ?? "0001";
+    const wireDia = String(input.wire_diameter_mm ?? 0.25);
+
+    // Header
+    lines.push(`%`);
+    lines.push(`O${progNum}`);
+    lines.push(`(${input.part_description ?? "WIRE EDM PROGRAM"})`);
+    lines.push(`(MACHINE: MITSUBISHI MV1200R)`);
+    lines.push(`(MATERIAL: ${input.material ?? "TOOL STEEL"} | THICKNESS: ${input.thickness_mm}mm)`);
+    lines.push(`(WIRE: ${wireDia}mm | GENERATED BY PP-AGI)`);
+    lines.push(``);
+
+    // Machine setup — U-WGAP01: support imperial (G20) or metric (G21)
+    const cs = coordScale(input.units);
+    const dp = input.units === "imperial" ? 5 : 3; // decimal places: 5 for inch, 3 for mm
+    lines.push(`G90 ${unitCode(input.units)} (ABSOLUTE, ${unitLabel(input.units)})`);
+    lines.push(`G92 X0 Y0 (SET WORK COORDS)`);
+
+    if (input.thickness_mm > 100) {
+      warnings.push(`Thickness ${input.thickness_mm}mm — verify flushing adequacy and wire tension`);
+    }
+
+    // Generate operations
+    let totalPasses = 0;
+    for (let i = 0; i < input.operations.length; i++) {
+      const op = input.operations[i];
+      totalPasses++;
+
+      lines.push(``);
+      lines.push(`(--- PASS ${totalPasses}: ${op.pass.toUpperCase()} ${op.type.toUpperCase()} ---)`);
+
+      // Get defaults for this pass type
+      const defaults = PASS_DEFAULTS[op.pass] ?? PASS_DEFAULTS.rough;
+      const power = op.power_setting ?? defaults.power;
+      const onTime = op.on_time_us ?? defaults.on_us;
+      const offTime = op.off_time_us ?? defaults.off_us;
+      const wireSpeed = op.wire_speed_m_min ?? defaults.wire_speed;
+      const wireTension = op.wire_tension_g ?? defaults.wire_tension;
+      const servoV = op.servo_voltage_v ?? defaults.servo_v;
+      const flushing = op.flushing_pressure ?? defaults.flushing;
+
+      // Wire offset
+      const offsets = WIRE_OFFSETS[wireDia] ?? WIRE_OFFSETS["0.25"];
+      const offset = op.offset_mm ?? offsets[op.pass] ?? 0.160;
+      const offsetDir = op.offset_direction === "right" ? "G42" : "G41";
+
+      // EDM condition codes (Mitsubishi format)
+      lines.push(`(POWER=${power} ON=${onTime}us OFF=${offTime}us SERVO=${servoV}V)`);
+      lines.push(`(WIRE: ${wireSpeed}m/min TENSION=${wireTension}g FLUSH=${flushing})`);
+
+      // Wire thread
+      if (op.auto_thread !== false) {
+        lines.push(`M6 (AUTO WIRE THREAD)`);
+      }
+
+      // Submerged mode
+      if (op.submerged !== false) {
+        lines.push(`M28 (DIELECTRIC FILL — SUBMERGED CUT)`);
+      }
+
+      // Wire offset compensation
+      lines.push(`${offsetDir} D${(offset * 1000).toFixed(0)} (WIRE OFFSET ${offset.toFixed(3)}mm ${op.offset_direction ?? "left"})`);
+
+      // Move to start — U-WGAP01: imperial coordinate conversion
+      if (op.start_x !== undefined && op.start_y !== undefined) {
+        lines.push(`G0 X${formatCoord(op.start_x, dp, cs)} Y${formatCoord(op.start_y, dp, cs)} (START POSITION)`);
+      }
+
+      // Taper setup
+      if (op.type === "taper" && op.taper_angle_deg) {
+        lines.push(`G51 (TAPER ON — ${op.taper_angle_deg}°)`);
+        if (op.taper_height_mm) {
+          lines.push(`(TAPER HEIGHT: ${op.taper_height_mm}mm)`);
+        }
+      }
+
+      // Profile points — U-WGAP01: imperial coordinate conversion
+      if (op.profile_points && op.profile_points.length > 0) {
+        for (const pt of op.profile_points) {
+          let line = `G1 X${formatCoord(pt.x, dp, cs)} Y${formatCoord(pt.y, dp, cs)}`;
+          if (pt.u !== undefined && pt.v !== undefined) {
+            line += ` U${formatCoord(pt.u, dp, cs)} V${formatCoord(pt.v, dp, cs)}`;
+          }
+          lines.push(line);
+        }
+      } else {
+        lines.push(`(... profile geometry here ...)`);
+      }
+
+      // Cancel taper
+      if (op.type === "taper") {
+        lines.push(`G50 (TAPER OFF)`);
+      }
+
+      // Cancel offset
+      lines.push(`G40 (CANCEL WIRE OFFSET)`);
+
+      // Wire cut
+      lines.push(`M7 (WIRE CUT — DISCONNECT)`);
+
+      // Drain if submerged
+      if (op.submerged !== false) {
+        lines.push(`M29 (DIELECTRIC DRAIN)`);
+      }
+    }
+
+    // Program end
+    lines.push(``);
+    lines.push(`G92 X0 Y0 (RETURN TO HOME)`);
+    lines.push(`M2`);
+    lines.push(`%`);
+
+    // Rough time estimate (very approximate: 5mm²/min for steel)
+    const roughOps = input.operations.filter(o => o.pass === "rough");
+    let estimatedTime: number | undefined;
+    if (roughOps.length > 0 && input.thickness_mm > 0) {
+      // Very rough: assume 100mm perimeter, 5mm²/min cutting rate
+      estimatedTime = Math.round((100 * input.thickness_mm) / 5);
+    }
+
+    return {
+      gcode_lines: lines,
+      gcode_text: lines.join("\n"),
+      line_count: lines.length,
+      operation_count: input.operations.length,
+      total_passes: totalPasses,
+      estimated_rough_time_min: estimatedTime,
+      warnings,
+    };
+  }
+
+  /**
+   * Generate a standard 4-pass strategy (rough + 3 skims).
+   */
+  generateStandard4Pass(
+    thickness: number,
+    material = "D2",
+    wireDia = 0.25,
+  ): WireEDMProgram {
+    return this.generate({
+      thickness_mm: thickness,
+      material,
+      wire_diameter_mm: wireDia,
+      part_description: `${material} STANDARD 4-PASS`,
+      operations: [
+        { type: "profile", pass: "rough", submerged: true },
+        { type: "profile", pass: "skim1", submerged: true },
+        { type: "profile", pass: "skim2", submerged: true },
+        { type: "profile", pass: "skim3", submerged: true },
+      ],
+    });
+  }
+
+  /** Get wire offset for a specific wire diameter and pass. */
+  getWireOffset(wireDiaMm: number, pass: string): number {
+    const key = wireDiaMm.toFixed(2);
+    return WIRE_OFFSETS[key]?.[pass] ?? 0.160;
+  }
+
+  /** Get default EDM parameters for a pass type. */
+  getPassDefaults(pass: string): PassDefaults {
+    return PASS_DEFAULTS[pass] ?? PASS_DEFAULTS.rough;
+  }
+
+  /** List available wire diameters. */
+  listWireDiameters(): number[] {
+    return [0.10, 0.20, 0.25, 0.30];
+  }
+}
+
+export const ppWireEDMPostEngine = new PPWireEDMPostEngine();
