@@ -262,6 +262,17 @@ const manifest = z.object({
   event: z.string().optional().describe("List the hooks wired to a single event (e.g. PreToolUse)"),
 }).passthrough();
 
+// ── HOOK-SYNERGY-MS0/U-HOOK-CREATION-GATE: pre-create dedup check (H5) ──
+const creation_check = z.object({
+  proposedName: z.string().min(1).describe("Filename, basename, or full path of the hook being proposed"),
+  description: z.string().optional().describe("First JSDoc line / free-form description (boosts dedup score on token overlap)"),
+  event: z.string().optional().describe("Claude Code hook event (PreToolUse / Stop / SessionStart / …) — enables signature-collision check"),
+  matcher: z.string().optional().describe("Tool-name matcher pattern (e.g. ^Bash$); paired with `event` for signature match"),
+  proposedPath: z.string().optional().describe("Repo-relative target path; used for exact-path collision detection"),
+  manifestPath: z.string().optional().describe("Path to a pre-generated HookManifest JSON (default: live HOOK_REGISTRY.json + on-disk scan)"),
+  full: z.boolean().optional().describe("Return the full match array; default returns top match + summary"),
+}).passthrough();
+
 // ── HOOK-MANIFEST-DAG-MS26/P0-U02: DAG validation (cycle + deterministic order) ─
 const dag_validate = z.object({
   full: z.boolean().optional().describe("Return the entire per-event DAG (nodes + edges + order + cycles + conflicts), not the summary"),
@@ -328,4 +339,6 @@ export const HOOK_ACTION_SCHEMAS: ActionSchemaMap = {
   manifest,
   // HOOK-MANIFEST-DAG-MS26/P0-U02: DAG cycle detection + deterministic order over the manifest
   dag_validate,
+  // HOOK-SYNERGY-MS0/U-HOOK-CREATION-GATE: pre-create dedup gate (H5)
+  creation_check,
 };

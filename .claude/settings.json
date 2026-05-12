@@ -431,6 +431,16 @@
         "hooks": []
       },
       {
+        "matcher": "^Write$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/hook-creation-gate.mjs",
+            "timeout": 3000
+          }
+        ]
+      },
+      {
         "matcher": "^(Edit|Write|MultiEdit|NotebookEdit)$",
         "hooks": [
           {
