@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="5a1f45f211280a6a437e82ea09114c72e8d0f0578231c856d675c902778ee0c2">
+<title>U-FORGE-AUDIT-OMNISCIENT</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">U-FORGE-AUDIT-OMNISCIENT</h1>
+<p class="provenance">Generated 2026-05-12T12:43:26.596Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#u-forge-audit-omniscient">U-FORGE-AUDIT-OMNISCIENT</a></li>
+<li class="toc-l2"><a href="#problem">Problem</a></li>
+<li class="toc-l2"><a href="#goal">Goal</a></li>
+<li class="toc-l2"><a href="#scope-tier-1-only-zero-new-infrastructure">Scope (Tier 1 only — zero new infrastructure)</a></li>
+<li class="toc-l3"><a href="#assets-the-upgraded-forge-audit-must-consume">Assets the upgraded forge-audit MUST consume</a></li>
+<li class="toc-l3"><a href="#subagents-to-dispatch-parallel-where-possible">Subagents to dispatch (parallel where possible)</a></li>
+<li class="toc-l3"><a href="#native-claude-tools">Native Claude tools</a></li>
+<li class="toc-l2"><a href="#phase-plan">Phase plan</a></li>
+<li class="toc-l2"><a href="#files-to-create">Files to create</a></li>
+<li class="toc-l2"><a href="#files-to-update">Files to update</a></li>
+<li class="toc-l2"><a href="#lines-of-code-budget">Lines-of-code budget</a></li>
+<li class="toc-l2"><a href="#acceptance-criteria">Acceptance criteria</a></li>
+<li class="toc-l2"><a href="#out-of-scope-for-this-unit">Out of scope for this unit</a></li>
+<li class="toc-l2"><a href="#origin-context-for-whoever-runs-this-cold">Origin context for whoever runs this cold</a></li>
+<li class="toc-l2"><a href="#worktree">Worktree</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="u-forge-audit-omniscient"><a class="anchor" href="#u-forge-audit-omniscient" aria-label="Permalink to U-FORGE-AUDIT-OMNISCIENT">#</a>U-FORGE-AUDIT-OMNISCIENT</h1>
+<p><strong>Owner:</strong> claude-99eca613 (forge-rgs-pipeline-r lane) <strong>Date filed:</strong> 2026-05-09 <strong>Origin:</strong> /forge6 hook-optimization investigation + 2nd-audit retrospective <strong>Build target:</strong> post-/compact session (fresh budget required) <strong>Constraint:</strong> Tier 1 only on first ship — orchestrate existing assets, no new infrastructure</p>
+<h2 id="problem"><a class="anchor" href="#problem" aria-label="Permalink to Problem">#</a>Problem</h2>
+<p><code>/forge-audit</code> runs blind on a richly-stocked codebase. Round 2 (10 capability-domain scrutiny agents) confirmed the audit surface produces low-precision findings because it doesn&#39;t consume the 5 awareness layers PRISM already maintains:</p>
+<ol>
+<li><code>state/shared/system-viz/system-graph.json</code> (10-layer, 627-edge live map)</li>
+<li><code>mcp-server/data/docs/CODE_SYSTEM_INDEX.json</code> (DSL shortcodes E####/D##/A##/T####)</li>
+<li><code>knowledge/wiki/index.md</code> (722 entries) + <code>knowledge/memories/</code> (84 subdirs)</li>
+<li><code>CLAUDE.md</code> (project + global doctrine)</li>
+<li><code>PRISM-INVENTORY-LATEST.md</code> + <code>BUILD_STATE.json</code> + <code>MILESTONE_PROGRESS.json</code></li>
+</ol>
+<p>Half the gaps the v3 agents surfaced are already documented as intentional in <code>wiki/decisions/</code> or <code>memories/feedback/</code>. The audit re-derives instead of consulting.</p>
+<h2 id="goal"><a class="anchor" href="#goal" aria-label="Permalink to Goal">#</a>Goal</h2>
+<p>Upgrade <code>/forge-audit</code> to a conductor of existing assets that emits one <strong>load-bearing artifact</strong>:</p>
+<blockquote>
+<p><code>state/shared/system-viz/audit-overlay.json</code> — per-node <code>{color, reason, shortcode, suggested_unit}</code> map, consumed by <code>system-viz.html</code> to tint the 3D graph green/yellow/red/blue.</p>
+</blockquote>
+<p>This closes the loop the user has been asking for: visually see what&#39;s wired, what&#39;s orphan, where the bridges are missing, where each domain stands.</p>
+<h2 id="scope-tier-1-only-zero-new-infrastructure"><a class="anchor" href="#scope-tier-1-only-zero-new-infrastructure" aria-label="Permalink to Scope (Tier 1 only — zero new infrastructure)">#</a>Scope (Tier 1 only — zero new infrastructure)</h2>
+<p>Use only resources that already exist on disk or are available as native Claude Code subagents/MCP tools. No npm installs, no new engines, no new schema migrations.</p>
+<h3 id="assets-the-upgraded-forge-audit-must-consume"><a class="anchor" href="#assets-the-upgraded-forge-audit-must-consume" aria-label="Permalink to Assets the upgraded forge-audit MUST consume">#</a>Assets the upgraded forge-audit MUST consume</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Asset</th><th>Use</th></tr></thead>
+<tbody>
+<tr><td><code>system-graph.json</code></td><td>Orphans (zero inbound edges), bridges (1-hop pairs in same domain), coverage-by-domain</td></tr>
+<tr><td><code>CODE_SYSTEM_INDEX.json</code> + <code>codeSystemIndexEngine.resolve()</code></td><td>Resolve every finding to a shortcode</td></tr>
+<tr><td><code>wiki/index.md</code> + <code>ObsidianMemoryRagEngine</code></td><td>Prior-art dedup per finding</td></tr>
+<tr><td><code>CLAUDE.md</code> (both)</td><td>Doctrine grading (no inline Kienzle, /dedup tag, etc.)</td></tr>
+<tr><td><code>BUILD_STATE.json</code></td><td>Built / unwired / pending / frontend-merge state</td></tr>
+<tr><td><code>MILESTONE_PROGRESS.json</code></td><td>Envelope claim vs git delta</td></tr>
+<tr><td><code>BASELINE_INVENTORY.json</code></td><td>Anti-regression baseline</td></tr>
+<tr><td><code>tribal-utilization-report.json</code></td><td>Per-domain tribal density</td></tr>
+</tbody>
+</table></div>
+<h3 id="subagents-to-dispatch-parallel-where-possible"><a class="anchor" href="#subagents-to-dispatch-parallel-where-possible" aria-label="Permalink to Subagents to dispatch (parallel where possible)">#</a>Subagents to dispatch (parallel where possible)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Subagent</th><th>Phase</th><th>Role</th></tr></thead>
+<tbody>
+<tr><td><code>pagerank-analyzer</code></td><td>Phase 0</td><td>Importance scoring on <code>system-graph.json</code> — weights priority of orphans</td></tr>
+<tr><td><code>code-archaeologist</code></td><td>Phase 1 (×N domains)</td><td>Read-only deep architectural exploration per domain</td></tr>
+<tr><td><code>code-analyzer</code></td><td>Phase 1 (×N domains)</td><td>Quality + test grading per domain</td></tr>
+<tr><td><code>physics-reviewer</code></td><td>Phase 1 (where physics-relevant)</td><td>Doctrine compliance (Kienzle / Taylor / safety tier)</td></tr>
+<tr><td><code>byzantine-coordinator</code></td><td>Phase 3</td><td>Consensus on must-delete decisions</td></tr>
+</tbody>
+</table></div>
+<h3 id="native-claude-tools"><a class="anchor" href="#native-claude-tools" aria-label="Permalink to Native Claude tools">#</a>Native Claude tools</h3>
+<ul>
+<li><code>LSP.findReferences</code> / <code>incomingCalls</code> / <code>documentSymbol</code> for true import-graph orphan check (more accurate than text-derived)</li>
+<li><code>codebase-memory-mcp</code> <code>search_graph</code> / <code>trace_call_path</code> / <code>get_architecture</code> — already loaded</li>
+<li><code>Monitor</code> for long-audit progress on a per-event basis</li>
+</ul>
+<h2 id="phase-plan"><a class="anchor" href="#phase-plan" aria-label="Permalink to Phase plan">#</a>Phase plan</h2>
+<pre><code>Phase 0  AWARENESS LOAD  (sequential, one shot)
+  - load all 5 awareness layers above into memory once
+  - dispatch pagerank-analyzer subagent → node importance scores
+  - emit phase0_awareness.json (cached for downstream)
+
+Phase 1  PARALLEL DOMAIN SCRUTINY  (mesh topology)
+  domains := coverage-by-domain.json keys
+  for each domain in parallel:
+    spawn code-archaeologist (read-only)
+    spawn code-analyzer
+    if domain in {mill,lathe,edm,physics-safety}: spawn physics-reviewer
+    each agent reads phase0_awareness.json (don&#39;t re-derive)
+    each writes findings to state/shared/system-viz/agent-findings-v4/&lt;domain&gt;/&lt;role&gt;.json
+    HARD time-box per agent: 6 min
+
+Phase 2  CROSS-DOMAIN  (sequential)
+  - bridge detection: graph algo over system-graph.json (betweenness centrality on intra-domain edges)
+  - cycle detection: jq-based traversal on system-graph.json (no madge — Tier 1)
+  - doctrine violations: regex sweep guided by CLAUDE.md rules + memory/feedback rules
+  - dead-code: orphans where importance &lt; threshold and inboundEdges == 0
+  - emit phase2_crossdomain.json
+
+Phase 3  VERIFICATION  (CoVe — Chain-of-Verification)
+  for each finding from Phase 1+2:
+    spawn 1-shot verifier (general-purpose subagent)
+    verifier confirms or refutes with evidence (file:line)
+    only verified findings (≥0.7 confidence) advance
+  for dead_code candidates flagged for delete:
+    byzantine-coordinator subagent → 3-of-3 consensus required
+
+Phase 4  SYNTHESIS  (one shot, deterministic)
+  emit:
+    - state/shared/AUDIT-LATEST.json   (machine — rgs6 ingests this in Phase 0)
+    - state/shared/AUDIT-LATEST.md     (human review)
+    - state/shared/system-viz/audit-overlay.json   ★ THE LOAD-BEARING ARTIFACT
+        per-node {nodeId, color: &quot;green|yellow|red|blue&quot;, reason, shortcode, suggested_unit}
+        green  = wired + tested + documented
+        yellow = wired but missing tests OR docs
+        red    = orphan (zero inbound edges, importance &gt; 0)
+        blue   = bridge-missing (1-hop pair in same domain, should be 0-hop)
+    - state/shared/AUDIT-DELTA.md      (vs previous run baseline)
+
+Phase 5  COMPOUND
+  - append knowledge/wiki/log.md with run summary + delta
+  - write knowledge/memories/project/forge_audit_&lt;ISO-timestamp&gt;.md
+  - update state/shared/audit-baseline.json (delta computation source for next run)
+  - regenerate system-viz with overlay applied (calls existing /system-viz skill regenerator)
+</code></pre>
+<h2 id="files-to-create"><a class="anchor" href="#files-to-create" aria-label="Permalink to Files to create">#</a>Files to create</h2>
+<pre><code>H:/prism/.claude/scripts/forge-audit-omniscient.mjs        (top-level orchestrator)
+H:/prism/.claude/scripts/audit-phase0-awareness.mjs        (loads 5 awareness layers)
+H:/prism/.claude/scripts/audit-phase2-crossdomain.mjs      (bridge/cycle/doctrine sweep)
+H:/prism/.claude/scripts/audit-phase4-synthesize.mjs       (emits 3 artifacts)
+H:/prism/.claude/scripts/audit-phase5-compound.mjs         (wiki/memory/baseline writes)
+H:/prism/.claude/scripts/_audit-overlay-schema.json        (audit-overlay.json schema)
+H:/prism/.claude/commands/forge-audit.md                   (UPDATE — wire to omniscient orchestrator)
+</code></pre>
+<h2 id="files-to-update"><a class="anchor" href="#files-to-update" aria-label="Permalink to Files to update">#</a>Files to update</h2>
+<pre><code>H:/prism/scripts/generate-system-viz.mjs    (claude-0413eca6 owns; coordinate via chat bus)
+                                            (must read audit-overlay.json and apply colors)
+H:/prism/state/shared/system-viz/system-viz.html  (claude-0413eca6 owns)
+                                                  (overlay color application)
+</code></pre>
+<blockquote>
+<p><strong>Coordination required:</strong> the visualization-side wiring is in claude-0413eca6&#39;s lane. This unit&#39;s responsibility is producing <code>audit-overlay.json</code> correctly; consumption-side hookup is a follow-up coordination unit (U-VIZ-OVERLAY-RENDER).</p>
+</blockquote>
+<h2 id="lines-of-code-budget"><a class="anchor" href="#lines-of-code-budget" aria-label="Permalink to Lines-of-code budget">#</a>Lines-of-code budget</h2>
+<ul>
+<li>Top orchestrator: ~150L</li>
+<li>Phase 0 awareness loader: ~120L (mostly file reads + pagerank dispatch)</li>
+<li>Phase 2 cross-domain: ~250L (graph algo + doctrine rule loader)</li>
+<li>Phase 4 synthesize: ~150L</li>
+<li>Phase 5 compound: ~80L</li>
+<li>Skill update: ~50L (forge-audit.md replacement)</li>
+<li>Tests: ~200L</li>
+</ul>
+<p><strong>Total: ~1000 lines.</strong> Achievable in a single fresh session.</p>
+<h2 id="acceptance-criteria"><a class="anchor" href="#acceptance-criteria" aria-label="Permalink to Acceptance criteria">#</a>Acceptance criteria</h2>
+<ul>
+<li>[ ] <code>/forge-audit</code> end-to-end produces <code>AUDIT-LATEST.{json,md}</code> + <code>audit-overlay.json</code> + <code>AUDIT-DELTA.md</code></li>
+<li>[ ] <code>audit-overlay.json</code> validates against <code>_audit-overlay-schema.json</code></li>
+<li>[ ] At least 80% of v3 round-2 findings are reproduced (sanity check vs <code>_AGGREGATE.json</code>)</li>
+<li>[ ] Wiki precheck suppresses ≥30% of findings that match prior-art (proves dedup works)</li>
+<li>[ ] Phase 5 writes a wiki log entry + memory entry</li>
+<li>[ ] Tests cover: happy path, empty awareness layers, malformed system-graph, orphan with importance=0 (suppressed), bridge between same-engine sister files (suppressed)</li>
+<li>[ ] Round-trip: feed AUDIT-LATEST.json into mock <code>/rgs6 generate --with-subagent-scrutiny</code> — Phase 0 ingests cleanly</li>
+</ul>
+<h2 id="out-of-scope-for-this-unit"><a class="anchor" href="#out-of-scope-for-this-unit" aria-label="Permalink to Out of scope for this unit">#</a>Out of scope for this unit</h2>
+<ul>
+<li>ts-morph / madge / knip / semgrep integration → U-FORGE-AUDIT-RIGOR (Tier 2 follow-up)</li>
+<li>Visualization-side overlay rendering → U-VIZ-OVERLAY-RENDER (claude-0413eca6 lane)</li>
+<li>DSPy / Tree-of-Thought / Reflexion patterns → Tier 3, only after telemetry justifies</li>
+<li>The /forge upgrade (analogous omniscient version of /forge) → U-FORGE-OMNISCIENT, separate unit after this one ships</li>
+</ul>
+<h2 id="origin-context-for-whoever-runs-this-cold"><a class="anchor" href="#origin-context-for-whoever-runs-this-cold" aria-label="Permalink to Origin context for whoever runs this cold">#</a>Origin context for whoever runs this cold</h2>
+<ul>
+<li>5 RGS-pipeline commits already shipped (Tracks A+D + Track C Reflexion + Track B subagent fan-out + apply-update-points + future-ideas backlog).</li>
+<li>Round 2 v3 (1-per-domain × 10 domains) complete: <code>state/shared/system-viz/agent-findings-v3/_AGGREGATE.{md,json}</code> with 50 gaps / 8 conflicts / 42 opps / 14 high-leverage / 7 dead / 9 memory proposals, avg confidence 0.821.</li>
+<li>v3 fold into v2 envelope is owed but <strong>lower priority than this unit</strong> — this unit&#39;s audit-overlay.json is what makes <code>/rgs6 generate --with-subagent-scrutiny</code> actually consume the round-2 work meaningfully.</li>
+<li>Round 2 PROPER (10 agents PER DOMAIN = 100 agents) is task #75, deferred — should be redirected to read AUDIT-LATEST.json once this ships, not run blind again.</li>
+<li>Aggregator script at <code>H:/prism/.claude/scripts/aggregate-agent-findings.mjs</code> is uncommitted; commit it as a precursor unit if not already.</li>
+</ul>
+<h2 id="worktree"><a class="anchor" href="#worktree" aria-label="Permalink to Worktree">#</a>Worktree</h2>
+<p>Build in main <code>H:/prism</code> on branch <code>cad-fusion-live-ms0</code> (current). The orchestrator + scripts don&#39;t conflict with peer chats; only the skill markdown update touches <code>.claude/commands/forge-audit.md</code> which has been quiet on the chat bus.</p>
+<p>Commit format: <code>[CAD-FUSION-LIVE-MS0]/U-FORGE-AUDIT-OMNISCIENT: &lt;short title&gt;</code></p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="2026-05-09-U-FORGE-AUDIT-OMNISCIENT.md">2026-05-09-U-FORGE-AUDIT-OMNISCIENT.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

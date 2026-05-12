@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="9487c47ed2223e05b1b6701f04e802073358964af203c28ee95b4c0f570525cb">
+<title>Claude Code Skills System + Open-Source Claude Tooling Ecosystem</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">Claude Code Skills System + Open-Source Claude Tooling Ecosystem</h1>
+<p class="provenance">Generated 2026-05-12T12:43:26.568Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#skills-openclaw-research-card">Skills + OpenClaw Research Card</a></li>
+<li class="toc-l2"><a href="#1-skill-anatomy">§1 Skill Anatomy</a></li>
+<li class="toc-l3"><a href="#required-recommended-fields">Required + Recommended fields</a></li>
+<li class="toc-l3"><a href="#behavior-fields-the-load-bearing-ones">Behavior fields (the load-bearing ones)</a></li>
+<li class="toc-l3"><a href="#string-substitutions-inside-the-body">String substitutions inside the body</a></li>
+<li class="toc-l3"><a href="#companion-files">Companion files</a></li>
+<li class="toc-l3"><a href="#composability-skills-calling-skills">Composability — skills calling skills</a></li>
+<li class="toc-l3"><a href="#dynamic-context-injection">Dynamic context injection</a></li>
+<li class="toc-l3"><a href="#lifecycle">Lifecycle</a></li>
+<li class="toc-l2"><a href="#2-skill-design-patterns">§2 Skill Design Patterns</a></li>
+<li class="toc-l3"><a href="#skill-vs-mcp-action-vs-bash-script-decision-matrix">Skill vs MCP action vs bash script — decision matrix</a></li>
+<li class="toc-l3"><a href="#rigid-vs-flexible-skills">Rigid vs flexible skills</a></li>
+<li class="toc-l3"><a href="#what-goes-in-a-skill-body-anthropic-guidance-observed-practice">What goes in a skill body (Anthropic guidance + observed practice)</a></li>
+<li class="toc-l2"><a href="#3-skill-discovery">§3 Skill Discovery</a></li>
+<li class="toc-l3"><a href="#how-claude-finds-them">How Claude finds them</a></li>
+<li class="toc-l3"><a href="#when-skills-auto-fire-vs-require-user-trigger">When skills auto-fire vs require user trigger</a></li>
+<li class="toc-l3"><a href="#live-change-watch">Live-change watch</a></li>
+<li class="toc-l3"><a href="#visibility-overrides">Visibility overrides</a></li>
+<li class="toc-l2"><a href="#4-skill-ecosystem-wild">§4 Skill Ecosystem (Wild)</a></li>
+<li class="toc-l3"><a href="#patterns-that-emerge-across-the-ecosystem">Patterns that emerge across the ecosystem</a></li>
+<li class="toc-l2"><a href="#5-open-source-claude-tooling-landscape">§5 Open-Source Claude Tooling Landscape</a></li>
+<li class="toc-l3"><a href="#cross-cutting-observations">Cross-cutting observations</a></li>
+<li class="toc-l2"><a href="#6-mcp-server-ecosystem">§6 MCP Server Ecosystem</a></li>
+<li class="toc-l3"><a href="#mcp-server-design-best-practices-from-anthropic-docs-cookbook">MCP server design best practices (from Anthropic docs + cookbook)</a></li>
+<li class="toc-l3"><a href="#community-mcp-server-patterns">Community MCP server patterns</a></li>
+<li class="toc-l2"><a href="#7-claude-agent-sdk-python-typescript">§7 Claude Agent SDK (Python + TypeScript)</a></li>
+<li class="toc-l3"><a href="#in-process-mcp-servers-the-headline-feature">In-process MCP servers (the headline feature)</a></li>
+<li class="toc-l3"><a href="#hooks-in-python">Hooks in Python</a></li>
+<li class="toc-l3"><a href="#when-to-use-sdk-vs-cli-vs-mcp">When to use SDK vs CLI vs MCP</a></li>
+<li class="toc-l2"><a href="#8-plugins">§8 Plugins</a></li>
+<li class="toc-l3"><a href="#plugin-layout-everything-is-at-the-plugin-root-not-inside-claude-plugin">Plugin layout (everything is at the plugin root, NOT inside .claude-plugin/)</a></li>
+<li class="toc-l3"><a href="#plugin-extension-surface">Plugin extension surface</a></li>
+<li class="toc-l3"><a href="#distribution">Distribution</a></li>
+<li class="toc-l3"><a href="#reload-during-development">Reload during development</a></li>
+<li class="toc-l3"><a href="#installed-prism-plugins-current-session">Installed PRISM plugins (current session)</a></li>
+<li class="toc-l2"><a href="#9-composing-skills-hooks-mcp-agents-best-practice">§9 Composing Skills + Hooks + MCP + Agents (Best Practice)</a></li>
+<li class="toc-l3"><a href="#the-compounding-pattern-prism-aligned">The compounding pattern (PRISM-aligned)</a></li>
+<li class="toc-l3"><a href="#anti-patterns-observed">Anti-patterns observed</a></li>
+<li class="toc-l3"><a href="#anthropics-building-effective-agents-core-principles-mapped-to-claude-code">Anthropic&#39;s &quot;Building Effective Agents&quot; core principles (mapped to Claude Code)</a></li>
+<li class="toc-l2"><a href="#10-prism-cross-reference">§10 PRISM Cross-Reference</a></li>
+<li class="toc-l3"><a href="#high-leverage-migrations-prism-should-consider">High-leverage migrations PRISM should consider</a></li>
+<li class="toc-l2"><a href="#sources">Sources</a></li>
+<li class="toc-l2"><a href="#11-external-validation-eng_khairallah1-how-to-use-claude-skills-to-automate-any-workflow-full-course-added-2026-05-11">§11 External validation — @eng_khairallah1 &quot;How to Use Claude Skills to Automate Any Workflow (Full Course)&quot; (added 2026-05-11)</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<details class="frontmatter" open><summary>Document metadata</summary><div class="table-wrap"><table>
+<tbody>
+<tr><th scope="row">title</th><td>Claude Code Skills System + Open-Source Claude Tooling Ecosystem</td></tr>
+<tr><th scope="row">date</th><td>2026-05-10</td></tr>
+<tr><th scope="row">author</th><td>claude-85cedf09 (researcher agent)</td></tr>
+<tr><th scope="row">topic</th><td>skills-openclaw</td></tr>
+<tr><th scope="row">sources</th><td>- https: //code.claude.com/docs/en/skills; - https: //code.claude.com/docs/en/slash-commands; - https: //code.claude.com/docs/en/sub-agents; - https: //code.claude.com/docs/en/plugins; - https: //github.com/anthropics/skills; - https: //github.com/anthropics/claude-code; - https: //github.com/anthropics/anthropic-cookbook; - https: //github.com/anthropics/claude-agent-sdk-python; - https: //github.com/modelcontextprotocol/servers; - https: //github.com/ruvnet/claude-flow; - https: //github.com/wshobson/agents; - https: //github.com/obra/superpowers; - https: //www.anthropic.com/engineering/building-effective-agents; - https: //blog.buildbetter.ai/best-open-source-skills-for-claude-code-in-2026-complete-guide/</td></tr>
+<tr><th scope="row">status</th><td>complete</td></tr>
+</tbody>
+</table></div></details>
+<h1 id="skills-openclaw-research-card"><a class="anchor" href="#skills-openclaw-research-card" aria-label="Permalink to Skills + OpenClaw Research Card">#</a>Skills + OpenClaw Research Card</h1>
+<p>PRISM cross-ref baseline (live counts, 2026-05-10): 3180 engines, 97 dispatchers, 7341 actions, 247 project skills, 390 user skills, 457 Claude hooks, 54 source hooks, 26 registries, 53 algorithms.</p>
+<hr>
+<h2 id="1-skill-anatomy"><a class="anchor" href="#1-skill-anatomy" aria-label="Permalink to §1 Skill Anatomy">#</a>§1 Skill Anatomy</h2>
+<p>A skill is a <strong>directory</strong> with a required <code>SKILL.md</code> entrypoint. The directory name becomes the slash-command (<code>mkdir summarize-changes</code> → <code>/summarize-changes</code>). Custom commands have been merged into skills as of late-2025 — <code>.claude/commands/foo.md</code> (flat) and <code>.claude/skills/foo/SKILL.md</code> (directory) both produce <code>/foo</code> and parse identical frontmatter; skill takes precedence on collision.</p>
+<h3 id="required-recommended-fields"><a class="anchor" href="#required-recommended-fields" aria-label="Permalink to Required + Recommended fields">#</a>Required + Recommended fields</h3>
+<ul>
+<li><strong><code>name</code></strong> (optional, defaults to dir name) — lowercase + hyphens, max 64 chars.</li>
+<li><strong><code>description</code></strong> (recommended) — what the skill does AND when to use it; written third-person; max 1024 chars (combined <code>description</code> + <code>when_to_use</code> truncated at 1536 chars in the listing). This is the discovery key — Claude reads only descriptions to decide whether to load the body.</li>
+</ul>
+<h3 id="behavior-fields-the-load-bearing-ones"><a class="anchor" href="#behavior-fields-the-load-bearing-ones" aria-label="Permalink to Behavior fields (the load-bearing ones)">#</a>Behavior fields (the load-bearing ones)</h3>
+<ul>
+<li><strong><code>disable-model-invocation: true</code></strong> — only the user can invoke; description is NOT loaded into context (token saver). Use for side-effect actions (<code>/deploy</code>, <code>/commit</code>).</li>
+<li><strong><code>user-invocable: false</code></strong> — only Claude can invoke; hidden from <code>/</code> menu. Use for background reference like <code>legacy-system-context</code>.</li>
+<li><strong><code>allowed-tools</code></strong> — space-separated or YAML list; pre-approves listed tools while skill is active (e.g. <code>Bash(git add *) Bash(git commit *)</code>). Does NOT restrict — every tool stays callable, this just skips the prompt.</li>
+<li><strong><code>model</code></strong> — <code>sonnet | opus | haiku | inherit | &lt;full-id&gt;</code>; override applies for the rest of the turn only, then session model resumes.</li>
+<li><strong><code>effort</code></strong> — <code>low | medium | high | xhigh | max</code>; overrides session effort while skill is active.</li>
+<li><strong><code>context: fork</code></strong> — runs the skill as a forked subagent; SKILL.md becomes the prompt, no conversation history.</li>
+<li><strong><code>agent</code></strong> — when <code>context: fork</code>, picks subagent type (<code>Explore</code>, <code>Plan</code>, <code>general-purpose</code>, or any <code>.claude/agents/&lt;name&gt;.md</code>).</li>
+<li><strong><code>hooks</code></strong> — lifecycle hooks scoped to this skill only (PreToolUse / PostToolUse / Stop).</li>
+<li><strong><code>paths</code></strong> — glob patterns; auto-load only when active file matches (e.g. <code>paths: &quot;src/**/*.tsx&quot;</code>).</li>
+<li><strong><code>shell</code></strong> — <code>bash | powershell</code> for <code>!`cmd`</code> injection.</li>
+<li><strong><code>argument-hint</code> / <code>arguments</code></strong> — autocomplete hints + named positional args for <code>$name</code> substitution.</li>
+</ul>
+<h3 id="string-substitutions-inside-the-body"><a class="anchor" href="#string-substitutions-inside-the-body" aria-label="Permalink to String substitutions inside the body">#</a>String substitutions inside the body</h3>
+<p><code>$ARGUMENTS</code>, <code>$ARGUMENTS[N]</code>, <code>$N</code>, <code>$&lt;named&gt;</code>, <code>${CLAUDE_SESSION_ID}</code>, <code>${CLAUDE_EFFORT}</code>, <code>${CLAUDE_SKILL_DIR}</code> (resolves whether installed at user/project/plugin level).</p>
+<h3 id="companion-files"><a class="anchor" href="#companion-files" aria-label="Permalink to Companion files">#</a>Companion files</h3>
+<p><code>SKILL.md</code> is the only required file. Sibling files load on-demand:</p>
+<pre><code>my-skill/
+├── SKILL.md           (required, entry)
+├── reference.md       (loaded when SKILL.md says &quot;see reference.md&quot;)
+├── examples.md        (loaded on demand)
+├── template.md
+└── scripts/
+    └── helper.py      (executed via Bash, never loaded into context)
+</code></pre>
+<p><strong>Discipline</strong>: keep <code>SKILL.md</code> under 500 lines. Move detail into siblings and link from SKILL.md.</p>
+<h3 id="composability-skills-calling-skills"><a class="anchor" href="#composability-skills-calling-skills" aria-label="Permalink to Composability — skills calling skills">#</a>Composability — skills calling skills</h3>
+<p>The Skill tool lets a skill body call another skill: <code>Skill({ skill: &quot;dedup&quot;, args: &quot;engine MyEngine&quot; })</code>. Plugin skills require namespace (<code>Skill({ skill: &quot;linear:create-issue&quot; })</code>). Skills called via Skill tool execute in the <strong>same</strong> context (not a fork unless target skill has <code>context: fork</code>).</p>
+<h3 id="dynamic-context-injection"><a class="anchor" href="#dynamic-context-injection" aria-label="Permalink to Dynamic context injection">#</a>Dynamic context injection</h3>
+<p>Inline: <code>!`git diff HEAD`</code> — runs on the host before Claude sees content; output replaces the placeholder. Multi-line: a fenced <code>``</code>! <code>block. This is preprocessing, not a Claude tool call. Disabled per-policy via</code>&quot;disableSkillShellExecution&quot;: true`.</p>
+<h3 id="lifecycle"><a class="anchor" href="#lifecycle" aria-label="Permalink to Lifecycle">#</a>Lifecycle</h3>
+<p>When invoked, <code>SKILL.md</code> enters the conversation as a single message and <strong>stays for the rest of the session</strong>. Auto-compaction re-attaches the most recent invocation of each skill (first 5,000 tokens each, 25,000 total budget). If a skill stops influencing behavior, the content is usually still there — re-invoke to push it to top of recency stack.</p>
+<hr>
+<h2 id="2-skill-design-patterns"><a class="anchor" href="#2-skill-design-patterns" aria-label="Permalink to §2 Skill Design Patterns">#</a>§2 Skill Design Patterns</h2>
+<h3 id="skill-vs-mcp-action-vs-bash-script-decision-matrix"><a class="anchor" href="#skill-vs-mcp-action-vs-bash-script-decision-matrix" aria-label="Permalink to Skill vs MCP action vs bash script — decision matrix">#</a>Skill vs MCP action vs bash script — decision matrix</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Form</th><th>Use when</th><th>Cost</th><th>Discovery</th></tr></thead>
+<tbody>
+<tr><td><strong>Skill</strong> (<code>SKILL.md</code>)</td><td>Repeating a multi-step procedure that needs the model to reason between steps; checklist; standing instructions per file-pattern</td><td>~description tokens always-on; body loads on invoke</td><td><code>description</code> keyword match OR explicit <code>/name</code></td></tr>
+<tr><td><strong>MCP action</strong> (dispatcher)</td><td>Deterministic compute, lookup, or remote call where the model just needs the answer; cross-session/cross-agent consistency</td><td>Tool-schema bytes always-on per server; runs in dedicated process</td><td>Listed in tool descriptions</td></tr>
+<tr><td><strong>Plain bash script</strong></td><td>Single-shot, deterministic, no model judgement needed; can be wrapped in a 1-line skill if discoverability matters</td><td>Zero context cost until invoked via Bash</td><td>Only if user remembers the path</td></tr>
+<tr><td><strong>Hook</strong> (PreToolUse / PostToolUse / Stop)</td><td>Enforce policy deterministically — block, audit, inject context — without model in the loop</td><td>Settings overhead + per-fire latency</td><td>Auto-fires on event</td></tr>
+</tbody>
+</table></div>
+<h3 id="rigid-vs-flexible-skills"><a class="anchor" href="#rigid-vs-flexible-skills" aria-label="Permalink to Rigid vs flexible skills">#</a>Rigid vs flexible skills</h3>
+<ul>
+<li><strong>Rigid</strong> (<code>/deploy</code>, <code>/commit</code>) — numbered steps, exact commands, <code>disable-model-invocation: true</code> so the model can&#39;t trigger it on a hunch. Body reads like a runbook.</li>
+<li><strong>Flexible</strong> (<code>/code-review</code>, <code>/api-conventions</code>) — principles, examples, escape hatches. The model adapts to the situation. Often paired with <code>context: fork</code> + an <code>Explore</code> agent so the body becomes a prompt.</li>
+</ul>
+<h3 id="what-goes-in-a-skill-body-anthropic-guidance-observed-practice"><a class="anchor" href="#what-goes-in-a-skill-body-anthropic-guidance-observed-practice" aria-label="Permalink to What goes in a skill body (Anthropic guidance + observed practice)">#</a>What goes in a skill body (Anthropic guidance + observed practice)</h3>
+<ol>
+<li><strong>Imperative, terse, third-person</strong> — &quot;Summarize the diff. List risks.&quot; not &quot;I will help you summarize...&quot;</li>
+<li><strong>Standing instructions, not one-time steps</strong> — content stays in context; treat it like a system-prompt fragment.</li>
+<li><strong>Reference siblings, don&#39;t inline</strong> — link <code>reference.md</code> instead of dumping API docs. Progressive disclosure cuts context cost ~60-80% per buildbetter analysis.</li>
+<li><strong>Embed <code>ultrathink</code> keyword</strong> when deep reasoning matters — triggers extended thinking.</li>
+<li><strong>Pre-load context with <code>!`cmd`</code></strong> instead of asking Claude to gather it — the diff/PR/branch lands in the prompt, fewer turns.</li>
+</ol>
+<hr>
+<h2 id="3-skill-discovery"><a class="anchor" href="#3-skill-discovery" aria-label="Permalink to §3 Skill Discovery">#</a>§3 Skill Discovery</h2>
+<p>Skills are discovered by location, in priority order:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Tier</th><th>Path</th><th>Scope</th></tr></thead>
+<tbody>
+<tr><td>1 (highest)</td><td>Enterprise managed settings</td><td>Org-wide</td></tr>
+<tr><td>2</td><td><code>~/.claude/skills/&lt;name&gt;/SKILL.md</code></td><td>All your projects</td></tr>
+<tr><td>3</td><td><code>.claude/skills/&lt;name&gt;/SKILL.md</code></td><td>This project</td></tr>
+<tr><td>4 (lowest)</td><td><code>&lt;plugin&gt;/skills/&lt;name&gt;/SKILL.md</code></td><td>Where plugin is enabled — namespaced <code>plugin:skill</code></td></tr>
+</tbody>
+</table></div>
+<p>Higher tiers override same-name lower tiers; plugins cannot collide because of the namespace prefix. <code>.claude/commands/foo.md</code> (legacy flat) still works but loses to <code>.claude/skills/foo/SKILL.md</code> if both exist.</p>
+<h3 id="how-claude-finds-them"><a class="anchor" href="#how-claude-finds-them" aria-label="Permalink to How Claude finds them">#</a>How Claude finds them</h3>
+<p>At session start, Claude Code reads every <code>SKILL.md</code> and loads only <code>name</code> + <code>description</code> + <code>when_to_use</code> into the system prompt as a registry (~100 tokens per skill). Body loads only when invoked. The character budget for descriptions scales at 1% of context window with 8000-char fallback; tunable via <code>SLASH_COMMAND_TOOL_CHAR_BUDGET</code>. When over budget, all names stay but descriptions are truncated.</p>
+<h3 id="when-skills-auto-fire-vs-require-user-trigger"><a class="anchor" href="#when-skills-auto-fire-vs-require-user-trigger" aria-label="Permalink to When skills auto-fire vs require user trigger">#</a>When skills auto-fire vs require user trigger</h3>
+<ul>
+<li><strong>Auto-fire</strong> (model invocation): Claude matches the user&#39;s prompt against descriptions and decides whether to call the Skill tool. Default behavior unless <code>disable-model-invocation: true</code>.</li>
+<li><strong>Path-gated auto-fire</strong>: <code>paths: &quot;src/**/*.test.ts&quot;</code> restricts auto-load to matching files.</li>
+<li><strong>User-only</strong>: <code>disable-model-invocation: true</code> removes from Claude&#39;s listing entirely.</li>
+<li><strong>Always</strong>: invoke via <code>/skill-name [args]</code>.</li>
+</ul>
+<h3 id="live-change-watch"><a class="anchor" href="#live-change-watch" aria-label="Permalink to Live-change watch">#</a>Live-change watch</h3>
+<p><code>~/.claude/skills/</code>, project <code>.claude/skills/</code>, and <code>--add-dir</code> <code>.claude/skills/</code> are watched. Edit-and-save takes effect mid-session. Creating the <strong>top-level</strong> skills directory mid-session requires a restart.</p>
+<h3 id="visibility-overrides"><a class="anchor" href="#visibility-overrides" aria-label="Permalink to Visibility overrides">#</a>Visibility overrides</h3>
+<p><code>skillOverrides</code> in <code>settings.local.json</code> lets you collapse a skill to <code>name-only</code>, <code>user-invocable-only</code>, or <code>off</code> without editing its <code>SKILL.md</code>. Cycle states with Space in the <code>/skills</code> menu.</p>
+<hr>
+<h2 id="4-skill-ecosystem-wild"><a class="anchor" href="#4-skill-ecosystem-wild" aria-label="Permalink to §4 Skill Ecosystem (Wild)">#</a>§4 Skill Ecosystem (Wild)</h2>
+<p>Most-cited / highest-leverage skill collections in 2026:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Repo</th><th>Focus</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td><strong>anthropics/skills</strong> (~132k stars)</td><td>Reference, education</td><td>Includes the docx/pdf/pptx/xlsx skills that power Claude.ai&#39;s document creation in production. Source-available, not OSS.</td></tr>
+<tr><td><strong>wshobson/agents</strong> (~18k stars)</td><td>Engineering plugins</td><td>185 agents across 80 plugins, 153 skills. Plugin-first, marketplace-distributed (<code>/plugin marketplace add wshobson/agents</code>). Tiered model strategy (Opus for crit-arch, Haiku for ops).</td></tr>
+<tr><td><strong>obra/superpowers</strong></td><td>Methodology</td><td>TDD, systematic-debugging, verification-before-completion, brainstorming, writing-plans, executing-plans, subagent-driven-dev. Cross-platform (Claude Code, Codex, Gemini, Cursor, OpenCode).</td></tr>
+<tr><td><strong>agent-skills</strong> (~35k)</td><td>Production engineering skills</td><td>Agent-CLI agnostic.</td></tr>
+<tr><td><strong>abubakarsiddik31/claude-skills-collection</strong></td><td>Curated mix of official + community</td><td></td></tr>
+<tr><td><strong>mukul975/Anthropic-Cybersecurity-Skills</strong></td><td>754 cybersec skills mapped to MITRE ATT&amp;CK, NIST CSF 2.0, ATLAS, D3FEND, NIST AI RMF</td><td>Cross-CLI portable (Claude Code, Copilot, Codex, Cursor, Gemini). Apache 2.0.</td></tr>
+<tr><td><strong>travisvn/awesome-claude-skills</strong></td><td>Curated link-list</td><td></td></tr>
+</tbody>
+</table></div>
+<h3 id="patterns-that-emerge-across-the-ecosystem"><a class="anchor" href="#patterns-that-emerge-across-the-ecosystem" aria-label="Permalink to Patterns that emerge across the ecosystem">#</a>Patterns that emerge across the ecosystem</h3>
+<ol>
+<li><strong>Plugin-first distribution</strong>: individual skills are giving way to plugin bundles with manifest + marketplace install. Atomic units control token cost.</li>
+<li><strong>Cross-CLI portability</strong>: skills target the <a href="https://agentskills.io" rel="noopener noreferrer">agentskills.io</a> open standard so they run in Claude Code, Cursor, Codex, Aider, Cline, Continue, Roo. Lock-in is dead.</li>
+<li><strong>Tiered model assignment</strong> baked into frontmatter: critical work → Opus, exploration → Haiku.</li>
+<li><strong>Methodology skills</strong> (TDD, debugging, brainstorming) outperform task skills in compounding leverage — they shape every subsequent task.</li>
+<li><strong>Memory-enabled subagents</strong> (<code>memory: project | user | local</code> on a subagent) are eating &quot;build a custom RAG over the project&quot; — the agent curates its own <code>MEMORY.md</code> over sessions.</li>
+<li><strong>Trigger phrases in <code>description</code></strong>: best skills front-load 3-5 verbatim phrases the user would say (<code>&quot;Use when the user asks what changed, wants a commit message, or asks to review their diff&quot;</code>).</li>
+</ol>
+<hr>
+<h2 id="5-open-source-claude-tooling-landscape"><a class="anchor" href="#5-open-source-claude-tooling-landscape" aria-label="Permalink to §5 Open-Source Claude Tooling Landscape">#</a>§5 Open-Source Claude Tooling Landscape</h2>
+<p>Comparison of the major OSS Claude-Code-class CLIs / agents:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Tool</th><th>Stars</th><th>Orchestration</th><th>Agent spawn</th><th>Memory</th><th>LLM support</th><th>Sweet spot</th></tr></thead>
+<tbody>
+<tr><td><strong>Claude Code</strong></td><td>122k</td><td>CLI + plugin + MCP</td><td>Subagents (Explore/Plan/general/custom) + agent teams</td><td>CLAUDE.md, agent-memory dirs, persistent skill context</td><td>Anthropic only</td><td>First-party, deepest hook + skill + plugin integration</td></tr>
+<tr><td><strong>Cline</strong></td><td>61k</td><td>VS Code extension</td><td>Single-loop with approval gates</td><td>VSC workspace</td><td>BYOK any provider</td><td>IDE-native diff/approve workflow</td></tr>
+<tr><td><strong>Aider</strong></td><td>44k</td><td>Terminal + git as state</td><td>Pair-programming model, no subagents</td><td>Git history is the memory</td><td>BYOK any</td><td>Git-as-control-plane, every change is a commit</td></tr>
+<tr><td><strong>Continue.dev</strong></td><td>(Apache-2.0)</td><td>VS Code + JetBrains</td><td>Mostly autocomplete + chat, less autonomous</td><td>Context provider plugins</td><td>BYOK + local (Ollama, LM Studio)</td><td>Offline-first, fully customizable context</td></tr>
+<tr><td><strong>OpenCode (sst)</strong></td><td>151k</td><td>Multi-platform CLI</td><td>Multi-agent</td><td>Project + session</td><td>Multi-LLM</td><td>Largest mindshare in 2026</td></tr>
+<tr><td><strong>Crush (charmbracelet)</strong></td><td>(Go)</td><td>Terminal TUI</td><td>Single agent, fast</td><td>In-memory</td><td>Multi</td><td>Fast TUI, May 2025 launch</td></tr>
+<tr><td><strong>claude-engineer (Doriandarko)</strong></td><td>(Python)</td><td>CLI agent loop</td><td>Tool-use loop, no formal subagents</td><td>File-based</td><td>Anthropic</td><td>Earlier-gen agent loop, simpler model</td></tr>
+<tr><td><strong>claude-flow / ruvnet</strong></td><td>(alpha)</td><td>Hierarchical swarm (queen-led) + 100+ specialised agents</td><td>swarm_init → agent_spawn with role; consensus via Raft/Byzantine/gossip</td><td>AgentDB w/ HNSW vector indexing, sub-ms semantic search, ReasoningBank</td><td>Multi via ruvLLM</td><td>Massive multi-agent + neural-pattern training (SONA) — 27 hooks, ~210 MCP tools across 5 server groups</td></tr>
+<tr><td><strong>AutoGen (Microsoft)</strong></td><td>(Python)</td><td>Conversation-driven multi-agent</td><td>GroupChat with manager</td><td>Conversation history</td><td>Multi</td><td>Research-style multi-agent dialogues</td></tr>
+<tr><td><strong>pydantic-ai</strong></td><td>(Python)</td><td>Typed agents w/ Pydantic</td><td>Agent-as-tool, structured outputs</td><td>App-defined</td><td>Multi</td><td>Type safety + structured outputs</td></tr>
+</tbody>
+</table></div>
+<h3 id="cross-cutting-observations"><a class="anchor" href="#cross-cutting-observations" aria-label="Permalink to Cross-cutting observations">#</a>Cross-cutting observations</h3>
+<ul>
+<li><strong>Claude Code&#39;s moat is the integration depth</strong> (skills + hooks + plugins + MCP + agent-teams + memory + LSP + monitors all first-class), not the agent loop quality.</li>
+<li><strong>Cline and Aider</strong> are the credible OSS alternatives for IDE and terminal respectively; both BYOK make them attractive for teams locked into other models.</li>
+<li><strong>claude-flow</strong> is the closest analog to PRISM&#39;s architecture: hooks + dispatchers + memory + multi-agent + neural patterns. Worth studying for the queen-led consensus model and HNSW memory backend.</li>
+<li><strong>OpenCode by sst</strong> has eclipsed most alternatives by star count in 2026.</li>
+</ul>
+<hr>
+<h2 id="6-mcp-server-ecosystem"><a class="anchor" href="#6-mcp-server-ecosystem" aria-label="Permalink to §6 MCP Server Ecosystem">#</a>§6 MCP Server Ecosystem</h2>
+<p>Official Anthropic / MCP steering-group servers (<code>modelcontextprotocol/servers</code>):</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Server</th><th>Purpose</th><th>Lang</th><th>Transport</th></tr></thead>
+<tbody>
+<tr><td><strong>everything</strong></td><td>Reference / test server (prompts + resources + tools)</td><td>TS</td><td>stdio/http/sse</td></tr>
+<tr><td><strong>fetch</strong></td><td>Web content fetch + LLM-friendly conversion</td><td>TS</td><td>stdio</td></tr>
+<tr><td><strong>filesystem</strong></td><td>File ops with configurable access controls</td><td>TS</td><td>stdio</td></tr>
+<tr><td><strong>git</strong></td><td>Repo read/search/manipulate</td><td>Python</td><td>stdio</td></tr>
+<tr><td><strong>memory</strong></td><td>Knowledge-graph persistent memory</td><td>TS</td><td>stdio</td></tr>
+<tr><td><strong>sequential-thinking</strong></td><td>Structured reasoning chains</td><td>TS</td><td>stdio</td></tr>
+<tr><td><strong>time</strong></td><td>Timezone conversions</td><td>TS</td><td>stdio</td></tr>
+</tbody>
+</table></div>
+<p>Archived (moved to <code>servers-archived</code>): GitHub, GitLab, PostgreSQL, SQLite, Redis. Replaced by community / vendor-maintained variants.</p>
+<h3 id="mcp-server-design-best-practices-from-anthropic-docs-cookbook"><a class="anchor" href="#mcp-server-design-best-practices-from-anthropic-docs-cookbook" aria-label="Permalink to MCP server design best practices (from Anthropic docs + cookbook)">#</a>MCP server design best practices (from Anthropic docs + cookbook)</h3>
+<ol>
+<li><strong>Tool descriptions are prompts</strong> — invest the same care as in system prompts. Include examples and edge cases.</li>
+<li><strong>Natural-format schemas</strong> — match training data conventions (avoid baroque XML for things that read better as JSON).</li>
+<li><strong>Reasoning headroom</strong> — leave token room for the model to think; don&#39;t over-cram.</li>
+<li><strong>Few, well-named tools</strong> beat many micro-tools. Each tool&#39;s schema is always-on context.</li>
+<li><strong>Stdio default</strong> — http/sse only when remote.</li>
+<li><strong>Resources for read-only browsing</strong> (URI-based listing), tools for actions.</li>
+<li><strong>Prompts for multi-step playbooks</strong> the user invokes by name.</li>
+</ol>
+<h3 id="community-mcp-server-patterns"><a class="anchor" href="#community-mcp-server-patterns" aria-label="Permalink to Community MCP server patterns">#</a>Community MCP server patterns</h3>
+<ul>
+<li>Domain-specific (Linear, GitHub, Stripe, Slack, Notion, Postgres, Redis...)</li>
+<li>Vector / RAG (Pinecone, Qdrant, Chroma, Weaviate)</li>
+<li>Browser automation (Playwright, Puppeteer)</li>
+<li>Cloud (AWS, GCP, Azure)</li>
+<li>IDE/editor (VSCode, Neovim, JetBrains)</li>
+<li>Specialty (HuggingFace models, blender, figma, canva — see PRISM&#39;s installed plugins: claude-flow, context7, linear, playwright, canva, autodesk)</li>
+</ul>
+<hr>
+<h2 id="7-claude-agent-sdk-python-typescript"><a class="anchor" href="#7-claude-agent-sdk-python-typescript" aria-label="Permalink to §7 Claude Agent SDK (Python + TypeScript)">#</a>§7 Claude Agent SDK (Python + TypeScript)</h2>
+<p>Two interaction modes:</p>
+<pre><code class="language-python"># 1. One-shot stateless
+async for msg in query(prompt=&quot;What is 2+2?&quot;):
+    print(msg)
+
+# 2. Stateful interactive
+async with ClaudeSDKClient(options=ClaudeAgentOptions(...)) as client:
+    await client.query(&quot;First&quot;)
+    async for m in client.receive_response(): ...
+    await client.query(&quot;Follow-up&quot;)  # maintains history
+</code></pre>
+<p><code>ClaudeAgentOptions</code> knobs: <code>system_prompt</code>, <code>max_turns</code>, <code>cwd</code>, <code>allowed_tools</code>, <code>disallowed_tools</code>, <code>permission_mode</code> (<code>acceptEdits</code>/<code>auto</code>/<code>dontAsk</code>/<code>bypassPermissions</code>/<code>plan</code>/<code>default</code>), <code>mcp_servers</code>, <code>hooks</code>, <code>cli_path</code>.</p>
+<h3 id="in-process-mcp-servers-the-headline-feature"><a class="anchor" href="#in-process-mcp-servers-the-headline-feature" aria-label="Permalink to In-process MCP servers (the headline feature)">#</a>In-process MCP servers (the headline feature)</h3>
+<pre><code class="language-python">@tool(&quot;greet&quot;, &quot;Greet a user&quot;, {&quot;name&quot;: str})
+async def greet_user(args):
+    return {&quot;content&quot;: [{&quot;type&quot;: &quot;text&quot;, &quot;text&quot;: f&quot;Hello, {args[&#39;name&#39;]}&quot;}]}
+
+server = create_sdk_mcp_server(name=&quot;my-tools&quot;, version=&quot;1.0.0&quot;, tools=[greet_user])
+options = ClaudeAgentOptions(
+    mcp_servers={&quot;tools&quot;: server},
+    allowed_tools=[&quot;mcp__tools__greet&quot;]
+)
+</code></pre>
+<p>No subprocess, no IPC overhead, type-safe. Mix in-process and external (<code>{&quot;internal&quot;: sdk_server, &quot;external&quot;: {&quot;type&quot;:&quot;stdio&quot;, &quot;command&quot;:&quot;...&quot;}}</code>).</p>
+<h3 id="hooks-in-python"><a class="anchor" href="#hooks-in-python" aria-label="Permalink to Hooks in Python">#</a>Hooks in Python</h3>
+<p><code>HookMatcher(matcher=&quot;Bash&quot;, hooks=[check_bash_command])</code> returning <code>{&quot;hookSpecificOutput&quot;: {&quot;hookEventName&quot;:&quot;PreToolUse&quot;, &quot;permissionDecision&quot;:&quot;deny&quot;, &quot;permissionDecisionReason&quot;:&quot;...&quot;}}</code>.</p>
+<h3 id="when-to-use-sdk-vs-cli-vs-mcp"><a class="anchor" href="#when-to-use-sdk-vs-cli-vs-mcp" aria-label="Permalink to When to use SDK vs CLI vs MCP">#</a>When to use SDK vs CLI vs MCP</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Need</th><th>Use</th></tr></thead>
+<tbody>
+<tr><td>One-off query in a script</td><td><code>query()</code></td></tr>
+<tr><td>Multi-turn interactive</td><td><code>ClaudeSDKClient</code></td></tr>
+<tr><td>Custom business-logic tools embedded in your app</td><td>In-process SDK MCP server</td></tr>
+<tr><td>External services / shareable across teams</td><td>External MCP server (stdio)</td></tr>
+<tr><td>Manual ad-hoc work</td><td>Claude Code CLI</td></tr>
+<tr><td>Deterministic gates around an agent</td><td>SDK + hooks</td></tr>
+<tr><td>Production agent product</td><td>SDK + tools + hooks</td></tr>
+</tbody>
+</table></div>
+<p>Errors: <code>ClaudeSDKError</code>, <code>CLINotFoundError</code>, <code>CLIConnectionError</code>, <code>ProcessError</code>, <code>CLIJSONDecodeError</code>.</p>
+<hr>
+<h2 id="8-plugins"><a class="anchor" href="#8-plugins" aria-label="Permalink to §8 Plugins">#</a>§8 Plugins</h2>
+<p>A plugin is a directory with <code>.claude-plugin/plugin.json</code>:</p>
+<pre><code class="language-json">{ &quot;name&quot;: &quot;my-plugin&quot;, &quot;description&quot;: &quot;...&quot;, &quot;version&quot;: &quot;1.0.0&quot;, &quot;author&quot;: {&quot;name&quot;:&quot;...&quot;} }
+</code></pre>
+<p>Skills become <code>/my-plugin:skill-name</code> (always namespaced — collision-free). Without <code>version</code>, the git SHA is used and every commit counts as new version.</p>
+<h3 id="plugin-layout-everything-is-at-the-plugin-root-not-inside-claude-plugin"><a class="anchor" href="#plugin-layout-everything-is-at-the-plugin-root-not-inside-claude-plugin" aria-label="Permalink to Plugin layout (everything is at the plugin root, NOT inside .claude-plugin/)">#</a>Plugin layout (everything is at the plugin root, NOT inside <code>.claude-plugin/</code>)</h3>
+<pre><code>my-plugin/
+├── .claude-plugin/
+│   └── plugin.json            (manifest only)
+├── skills/&lt;name&gt;/SKILL.md     (skills as directories)
+├── commands/&lt;name&gt;.md         (legacy flat skills — use skills/ for new)
+├── agents/&lt;name&gt;.md           (custom subagents)
+├── hooks/hooks.json           (event handlers — same schema as settings.json hooks)
+├── .mcp.json                  (MCP servers shipped with the plugin)
+├── .lsp.json                  (LSP servers — language intelligence)
+├── monitors/monitors.json     (background watchers — tail logs, files, status)
+├── bin/                       (executables added to Bash PATH while plugin enabled)
+└── settings.json              (plugin defaults — only `agent` + `subagentStatusLine` keys)
+</code></pre>
+<h3 id="plugin-extension-surface"><a class="anchor" href="#plugin-extension-surface" aria-label="Permalink to Plugin extension surface">#</a>Plugin extension surface</h3>
+<ul>
+<li><strong>Skills</strong> — <code>skills/&lt;name&gt;/SKILL.md</code></li>
+<li><strong>Subagents</strong> — <code>agents/&lt;name&gt;.md</code> (no <code>hooks</code>, <code>mcpServers</code>, <code>permissionMode</code> for security)</li>
+<li><strong>Hooks</strong> — <code>hooks/hooks.json</code> matching settings.json schema; receives JSON on stdin (<code>jq -r &#39;.tool_input.file_path&#39;</code>)</li>
+<li><strong>MCP servers</strong> — <code>.mcp.json</code> with stdio/http/sse entries</li>
+<li><strong>LSP servers</strong> — <code>.lsp.json</code> for language intelligence (Go, Rust, etc.)</li>
+<li><strong>Background monitors</strong> — emit notifications from log tails, file watches, polling</li>
+<li><strong>PATH executables</strong> — <code>bin/</code> adds binaries during enablement</li>
+<li><strong>Default agent</strong> — <code>settings.json</code> <code>&quot;agent&quot;: &quot;security-reviewer&quot;</code> activates a packaged agent as the main thread</li>
+</ul>
+<h3 id="distribution"><a class="anchor" href="#distribution" aria-label="Permalink to Distribution">#</a>Distribution</h3>
+<ul>
+<li><strong>Local dev</strong>: <code>claude --plugin-dir ./my-plugin</code> (multiple <code>--plugin-dir</code> flags load multiple)</li>
+<li><strong>Remote</strong>: <code>--plugin-url https://example.com/my-plugin.zip</code> for CI build artifacts</li>
+<li><strong>Marketplace</strong>: <code>/plugin marketplace add user/repo</code> then <code>/plugin install &lt;name&gt;</code></li>
+<li><strong>Official</strong>: submit at claude.ai/settings/plugins/submit or platform.claude.com/plugins/submit</li>
+<li><strong>Private</strong>: marketplace in a private GitHub repo</li>
+</ul>
+<h3 id="reload-during-development"><a class="anchor" href="#reload-during-development" aria-label="Permalink to Reload during development">#</a>Reload during development</h3>
+<p><code>/reload-plugins</code> picks up edits to skills, agents, hooks, MCP servers, LSP servers without a restart.</p>
+<h3 id="installed-prism-plugins-current-session"><a class="anchor" href="#installed-prism-plugins-current-session" aria-label="Permalink to Installed PRISM plugins (current session)">#</a>Installed PRISM plugins (current session)</h3>
+<ul>
+<li><strong>claude-flow</strong> (ruvnet) — multi-agent swarm</li>
+<li><strong>context7</strong> — live docs lookup</li>
+<li><strong>linear</strong> — Linear issue ops (OAuth-gated)</li>
+<li><strong>playwright</strong> — browser automation</li>
+<li><strong>canva</strong> (claude.ai) — design ops</li>
+<li><strong>autodesk</strong> (claude.ai) — Autodesk product help</li>
+<li><strong>superpowers</strong> — methodology skills (TDD, brainstorming, etc.)</li>
+<li><strong>hookify</strong> — hook authoring helpers</li>
+<li><strong>commit-commands</strong>, <strong>pr-review-toolkit</strong>, <strong>frontend-design</strong>, <strong>skill-creator</strong>, <strong>claude-md-management</strong>, <strong>agent-sdk-dev</strong>, <strong>code-review</strong>, <strong>feature-dev</strong>, <strong>qodo-skills</strong>, <strong>claude-code-setup</strong> — community plugins each adding a focused slash-command set</li>
+</ul>
+<hr>
+<h2 id="9-composing-skills-hooks-mcp-agents-best-practice"><a class="anchor" href="#9-composing-skills-hooks-mcp-agents-best-practice" aria-label="Permalink to §9 Composing Skills + Hooks + MCP + Agents (Best Practice)">#</a>§9 Composing Skills + Hooks + MCP + Agents (Best Practice)</h2>
+<p>How the layers interact in a max-leverage architecture:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Layer</th><th>When it fires</th><th>What it owns</th><th>Cost</th></tr></thead>
+<tbody>
+<tr><td><strong>CLAUDE.md</strong></td><td>Always (session start)</td><td>Standing constitution: role, sources of truth, hard rules</td><td>Always-on tokens</td></tr>
+<tr><td><strong>Hooks</strong> (settings.json)</td><td>Deterministic events (PreToolUse, PostToolUse, UserPromptSubmit, SessionStart, Stop)</td><td>Block / audit / inject context. No model in the loop.</td><td>Per-fire latency only</td></tr>
+<tr><td><strong>Skills (<code>description</code>)</strong></td><td>Always loaded as descriptions; body on invoke</td><td>Procedural knowledge, runbooks, reusable workflows</td><td>~100 tok/skill always; body on demand</td></tr>
+<tr><td><strong>MCP server tools</strong></td><td>Listed in tool descriptions</td><td>Deterministic compute / remote calls / state</td><td>Tool-schema bytes always-on per server</td></tr>
+<tr><td><strong>Subagents</strong> (<code>.claude/agents/</code>)</td><td>Delegated by main thread</td><td>Side-tasks that would flood main context (search, exploration, parallel work)</td><td>Own context window — main only sees summary</td></tr>
+<tr><td><strong>Agent teams</strong></td><td>Cross-session multi-agent runs</td><td>Long-running coordinated work</td><td>Per-agent process</td></tr>
+<tr><td><strong>SDK in-process tools</strong></td><td>Embedded in your application</td><td>App-specific business logic</td><td>Single-process, no IPC</td></tr>
+</tbody>
+</table></div>
+<h3 id="the-compounding-pattern-prism-aligned"><a class="anchor" href="#the-compounding-pattern-prism-aligned" aria-label="Permalink to The compounding pattern (PRISM-aligned)">#</a>The compounding pattern (PRISM-aligned)</h3>
+<ol>
+<li><strong>CLAUDE.md</strong> — constitution, paths, hard rules. ~200 lines max.</li>
+<li><strong>Hooks</strong> — enforce. duplicate-block, build-state-inject, scrutinize-before-stop.</li>
+<li><strong>Skills (descriptions only)</strong> — discoverable surface for procedural knowledge. ~100 token cost per skill always-on.</li>
+<li><strong>Skills (bodies)</strong> — load only when invoked.</li>
+<li><strong>MCP dispatchers</strong> — deterministic compute (physics, calc, registry lookup, memory, safety). Action enums keep tool count low while exposing many capabilities.</li>
+<li><strong>Subagents</strong> — parallel work, isolation, context preservation. Use <code>context: fork</code> skills to push tasks into Explore/Plan agents.</li>
+<li><strong>Plugins</strong> — versioned distribution of all of the above as a unit.</li>
+</ol>
+<h3 id="anti-patterns-observed"><a class="anchor" href="#anti-patterns-observed" aria-label="Permalink to Anti-patterns observed">#</a>Anti-patterns observed</h3>
+<ul>
+<li><strong>Inlining what should be a skill</strong>: pasting the same checklist into chat 3+ times is the signal to extract it.</li>
+<li><strong>Skill body that&#39;s actually reference docs</strong>: move it to <code>reference.md</code>, link from SKILL.md.</li>
+<li><strong>Auto-firing skills with weak descriptions</strong>: Claude triggers them on hunches; tighten the description or add <code>disable-model-invocation: true</code>.</li>
+<li><strong>MCP server with one tool that takes 100 args</strong>: split into action enums (PRISM dispatcher pattern), or split into multiple narrow tools.</li>
+<li><strong>Hook that runs the model</strong>: hooks are for deterministic logic. If you need reasoning, that&#39;s a skill or a subagent.</li>
+<li><strong>Subagent for a 1-shot task</strong>: just inline; subagents pay context-setup cost.</li>
+<li><strong>Skill calling skill calling skill (3+ deep)</strong>: each invocation is permanent context. Flatten.</li>
+<li><strong>Plugin shipping <code>commands/</code> instead of <code>skills/</code></strong>: the flat layout works but loses progressive disclosure.</li>
+</ul>
+<h3 id="anthropics-building-effective-agents-core-principles-mapped-to-claude-code"><a class="anchor" href="#anthropics-building-effective-agents-core-principles-mapped-to-claude-code" aria-label="Permalink to Anthropic&#39;s &quot;Building Effective Agents&quot; core principles (mapped to Claude Code)">#</a>Anthropic&#39;s &quot;Building Effective Agents&quot; core principles (mapped to Claude Code)</h3>
+<ol>
+<li><strong>Maintain simplicity</strong> — start with augmented-LLM (skill + tool + memory), only add complexity when it demonstrably helps.</li>
+<li><strong>Transparency</strong> — show the planning steps; the <code>Plan</code> subagent does this natively.</li>
+<li><strong>Clear agent-computer interfaces</strong> — invest in tool descriptions; this is <code>description</code> + <code>when_to_use</code> for skills, and tool schemas for MCP.</li>
+</ol>
+<p>Workflow patterns (low complexity → high):</p>
+<ul>
+<li><strong>Augmented LLM</strong> (single skill with tools + retrieval) → most cases</li>
+<li><strong>Prompt chaining</strong> → compose skills with Skill tool calls</li>
+<li><strong>Routing</strong> → main thread + <code>disable-model-invocation</code> skills the user picks</li>
+<li><strong>Parallelization</strong> → agent teams or <code>context: fork</code> subagents</li>
+<li><strong>Orchestrator-workers</strong> → main agent dispatches to subagents (Claude Code&#39;s default)</li>
+<li><strong>Evaluator-optimizer</strong> → e.g. <code>prism-review</code> skill spawning physics + wiring + test reviewers</li>
+<li><strong>Autonomous agent</strong> → unbounded loop with environmental feedback; needs guardrails (hooks, max-turns, isolation)</li>
+</ul>
+<hr>
+<h2 id="10-prism-cross-reference"><a class="anchor" href="#10-prism-cross-reference" aria-label="Permalink to §10 PRISM Cross-Reference">#</a>§10 PRISM Cross-Reference</h2>
+<p>How PRISM&#39;s current architecture maps to the spec:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Spec layer</th><th>PRISM equivalent</th><th>Health</th></tr></thead>
+<tbody>
+<tr><td>Skills</td><td>247 project (<code>.claude/commands/</code>) + 390 user (<code>~/.claude/commands/</code>) — flat-file layout</td><td>Should migrate hot ones to <code>skills/&lt;name&gt;/SKILL.md</code> for sibling-file pattern (<code>reference.md</code>, <code>scripts/</code>)</td></tr>
+<tr><td>Hooks</td><td>457 Claude hooks + 54 source hooks across H:/.claude/settings.json + project + local</td><td>Already exceeds typical OSS by ~50x; profile budget critical</td></tr>
+<tr><td>MCP servers</td><td>97 dispatchers, 7341 actions (action-enum pattern)</td><td>This IS the PRISM moat — one server, many actions, cheap discovery</td></tr>
+<tr><td>Subagents</td><td>8 named teams (forge-team, pipeline-team, test-team, code-reviewer, scout-explorer, etc.)</td><td>Underused vs available skill surface — many forge-* skills could <code>context: fork</code> into Explore</td></tr>
+<tr><td>Plugins</td><td>18 installed (claude-flow, context7, linear, playwright, canva, autodesk, superpowers, hookify, commit-commands, pr-review-toolkit, frontend-design, skill-creator, claude-md-management, agent-sdk-dev, code-review, feature-dev, qodo-skills, claude-code-setup)</td><td>Healthy spread; consider packaging PRISM&#39;s skill+hook+dispatcher bundle as a publishable plugin</td></tr>
+</tbody>
+</table></div>
+<h3 id="high-leverage-migrations-prism-should-consider"><a class="anchor" href="#high-leverage-migrations-prism-should-consider" aria-label="Permalink to High-leverage migrations PRISM should consider">#</a>High-leverage migrations PRISM should consider</h3>
+<ol>
+<li><strong>Convert hot <code>.claude/commands/*.md</code> → <code>.claude/skills/*/SKILL.md</code></strong> for: forge-<em>, lathe-</em>, wedm-<em>, hypermill-</em>, mill-*. Lets each carry <code>reference.md</code> + <code>scripts/</code> and use <code>${CLAUDE_SKILL_DIR}</code> for path-resilient invocations.</li>
+<li><strong>Add <code>paths:</code> frontmatter</strong> to domain skills (<code>paths: &quot;JM DIE/**/*.MIN&quot;</code> for lathe; <code>paths: &quot;*.f3d,*.ipt&quot;</code> for CAD) so they auto-load only when relevant — frees description budget.</li>
+<li><strong>Adopt <code>context: fork</code> + <code>agent: Explore</code></strong> for read-heavy skills (audit, dedup, scrutinize) so they don&#39;t pollute main thread.</li>
+<li><strong>Package PRISM as a publishable plugin</strong> with <code>skills/</code>, <code>agents/</code>, <code>hooks/hooks.json</code>, <code>.mcp.json</code> — distributable to the JM Die test shop and beyond. Use <code>version</code> in plugin.json to control update cadence.</li>
+<li><strong>Use <code>memory: project</code></strong> on the prism-review and forge-team subagents so they accumulate codebase patterns across sessions (replaces some of the wiki-recall load).</li>
+<li><strong>Convert long CLAUDE.md sections to <code>user-invocable: false</code> skills</strong> with <code>paths:</code> triggers — keeps reference material out of every-session context but available when relevant. (E.g. WEDM AGI Status block, Ollama Offload Dashboard block.)</li>
+<li><strong>In-process SDK MCP server</strong>: PRISM&#39;s dispatcher action surface could be exposed via <code>claude-agent-sdk-python</code>&#39;s <code>create_sdk_mcp_server</code> for embed-in-app scenarios (Cowork, Discord/Slack bot).</li>
+</ol>
+<hr>
+<h2 id="sources"><a class="anchor" href="#sources" aria-label="Permalink to Sources">#</a>Sources</h2>
+<ul>
+<li><a href="https://code.claude.com/docs/en/skills" rel="noopener noreferrer">Claude Code: skills</a></li>
+<li><a href="https://code.claude.com/docs/en/slash-commands" rel="noopener noreferrer">Claude Code: slash-commands</a></li>
+<li><a href="https://code.claude.com/docs/en/sub-agents" rel="noopener noreferrer">Claude Code: sub-agents</a></li>
+<li><a href="https://code.claude.com/docs/en/plugins" rel="noopener noreferrer">Claude Code: plugins</a></li>
+<li><a href="https://github.com/anthropics/skills" rel="noopener noreferrer">anthropics/skills (GitHub)</a></li>
+<li><a href="https://github.com/anthropics/claude-code" rel="noopener noreferrer">anthropics/claude-code (GitHub)</a></li>
+<li><a href="https://github.com/anthropics/anthropic-cookbook" rel="noopener noreferrer">anthropics/anthropic-cookbook (GitHub)</a></li>
+<li><a href="https://github.com/anthropics/claude-agent-sdk-python" rel="noopener noreferrer">anthropics/claude-agent-sdk-python (GitHub)</a></li>
+<li><a href="https://github.com/modelcontextprotocol/servers" rel="noopener noreferrer">modelcontextprotocol/servers (GitHub)</a></li>
+<li><a href="https://github.com/ruvnet/claude-flow" rel="noopener noreferrer">ruvnet/claude-flow (GitHub)</a></li>
+<li><a href="https://github.com/wshobson/agents" rel="noopener noreferrer">wshobson/agents (GitHub)</a></li>
+<li><a href="https://github.com/obra/superpowers" rel="noopener noreferrer">obra/superpowers (GitHub)</a></li>
+<li><a href="https://www.anthropic.com/engineering/building-effective-agents" rel="noopener noreferrer">Anthropic: Building Effective Agents</a></li>
+<li><a href="https://blog.buildbetter.ai/best-open-source-skills-for-claude-code-in-2026-complete-guide/" rel="noopener noreferrer">BuildBetter: Best OSS Claude Code Skills 2026</a></li>
+<li><a href="https://agentskills.io" rel="noopener noreferrer">Agent Skills open standard</a></li>
+<li>[@eng_khairallah1 — &quot;How to Use Claude Skills to Automate Any Workflow (Full Course)&quot;] — X post; HTTP 402 on direct fetch, body captured out-of-band to <code>H:/last.md</code> 2026-05-11</li>
+</ul>
+<hr>
+<h2 id="11-external-validation-eng_khairallah1-how-to-use-claude-skills-to-automate-any-workflow-full-course-added-2026-05-11"><a class="anchor" href="#11-external-validation-eng_khairallah1-how-to-use-claude-skills-to-automate-any-workflow-full-course-added-2026-05-11" aria-label="Permalink to §11 External validation — @eng_khairallah1 &quot;How to Use Claude Skills to Automate Any Workflow (Full Course)&quot; (added 2026-05-11)">#</a>§11 External validation — @eng_khairallah1 &quot;How to Use Claude Skills to Automate Any Workflow (Full Course)&quot; (added 2026-05-11)</h2>
+<p>A practitioner course on the skill <em>lifecycle</em>. Most of its mechanics (anatomy, frontmatter, discovery, ecosystem, the 500-line cap, &quot;3-5 trigger phrases in the description&quot;) are already in §1-§4 above. What it ADDS — the <strong>process discipline</strong> the rest of this card was silent on — is folded into roadmap milestone <strong>SKILLS-UTILIZATION-MS0</strong> (<code>state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-SKILLS-UTILIZATION-MS0-ATOMIZED-2026-05-10.md</code>):</p>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Course concept</th><th>New vs this card?</th><th>PRISM home</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>&quot;A Skill is a <em>trained employee</em>, not a <em>saved prompt</em>&quot; — standardized vs one-off output quality</td><td>framing only</td><td>doc note (this section)</td></tr>
+<tr><td>2</td><td><strong>Three-Question pre-build Test</strong> — (a) brutally-specific purpose, (b) list ≥5 trigger phrases you&#39;d actually type, (c) show an <em>actual</em> perfect-output example (worth more than 50 lines of instructions)</td><td>YES — not formalized as a gate before</td><td>U-SKU01 (PreToolUse hook on <code>**/SKILL.md</code> creation)</td></tr>
+<tr><td>3</td><td><strong>Three-Scenario Test</strong> — happy path (80% of cases) / edge case (weird/incomplete/conflicting input) / stress test (biggest, messiest version — reveals if it scales) = the production-grade bar</td><td>YES — no skill-testing protocol existed</td><td>U-SKU02 (<code>&lt;skill&gt;/scenarios/{happy,edge,stress}.md</code> + <code>prism_dev:skill_test</code> runner)</td></tr>
+<tr><td>4</td><td>&quot;Vague language is BANNED&quot; — <code>format nicely</code>, <code>handle appropriately</code>; every instruction specific + testable</td><td>partial (&quot;imperative terse&quot; only)</td><td>U-SKU03 (skill linter rule, sibling of <code>/wiki-lint</code>)</td></tr>
+<tr><td>5</td><td>&lt;500-line SKILL.md cap</td><td>YES (§1)</td><td>folded into U-SKU03</td></tr>
+<tr><td>6</td><td><strong>Weekly Refinement Cycle</strong> — update SKILL.md the moment output isn&#39;t right; Friday calendar reminder for the first month → after a month the skill is indistinguishable from a trained human</td><td>YES — no skill-maintenance cadence existed</td><td>U-SKU04 (telemetry-driven nudge + Friday cron)</td></tr>
+<tr><td>7</td><td>&quot;One Skill is a tool. Ten Skills is a workforce.&quot; — build 1 skill/week; within 1 month → 10 production-grade; within 3 months → complete library; maintain a master tracking doc (skill + status + last-refinement-date)</td><td>partial — ecosystem repos listed, methodology not</td><td>U-SKU05 (audit PRISM&#39;s ~637 skills against the bar) + U-SKU06 (registry schema: <code>production_grade</code>, <code>last_refined</code>, <code>scenario_tests</code>, <code>trigger_phrases</code>)</td></tr>
+<tr><td>8</td><td>Browse skillsmp.com / github.com/anthropics/skills (80k+ community skills) and install relevant ones</td><td>partial — agentskills.io mentioned, skillsmp.com not</td><td>U-SKU07 (marketplace scan — a source on the AUTO-LEARNING-LOOP monitor, not a parallel poller)</td></tr>
+<tr><td>9</td><td>&quot;Share your best Skills publicly&quot;</td><td>YES</td><td>U-SKU08 — <strong>rescoped to INTERNAL-only.</strong> Per the hard rule <code>feedback_no_public_h_drive.md</code> (set 2026-05-11): nothing from the H: drive may be shared/published publicly. This <strong>supersedes §10 item 4&#39;s &quot;and beyond&quot;</strong> — public distribution is hard-ruled out until the user clears each artifact explicitly.</td></tr>
+<tr><td>10</td><td>ROI math — 1 skill saving 30 min/wk = 26 h/yr; 10 skills = 260 h/yr = 6.5 work weeks</td><td>YES</td><td>folded into U-SKU05&#39;s audit scorecard (replaces the estimate with the real number)</td></tr>
+</tbody>
+</table></div>
+<p><strong>Net read:</strong> PRISM is 64× past the course&#39;s &quot;ten skills = workforce&quot; headcount bar — but headcount is vanity. SKILLS-UTILIZATION-MS0 is the discipline that converts &quot;we have 637 skills&quot; into &quot;we have N production-grade skills saving M hours/year, here&#39;s the prioritized gap list to grow N.&quot; The course&#39;s value is the <em>gate</em> (3Q), the <em>bar</em> (3-scenario), the <em>cadence</em> (weekly refine), and the <em>linter rule</em> (no vague verbs).</p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="2026-05-10-skills-openclaw.md">2026-05-10-skills-openclaw.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

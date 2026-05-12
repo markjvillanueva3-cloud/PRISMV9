@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="849d22a9c718bade01aadef416aa340d4bb7bd985ca1291a8ed85209318a0e67">
+<title>COST-CASCADE-MS0</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">COST-CASCADE-MS0</h1>
+<p class="provenance">Generated 2026-05-12T12:43:27.291Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#cost-cascade-ms0-atomized-8-units">COST-CASCADE-MS0 — atomized (8 units)</a></li>
+<li class="toc-l2"><a href="#u-cascade-calibrate-build-cascadecalibrationengine-probe-cost-quality-frontier">U-CASCADE-CALIBRATE — Build CascadeCalibrationEngine (probe cost-quality frontier)</a></li>
+<li class="toc-l2"><a href="#u-multi-agent-cost-telemetry-cost-telemetry-per-tentacle-per-task-class">U-MULTI-AGENT-COST-TELEMETRY — Cost telemetry (per-tentacle, per-task-class)</a></li>
+<li class="toc-l2"><a href="#u-build-moa-layer2-build-moalayer2engine-aggregator-across-3-of-3-verdicts">U-BUILD-MOA-LAYER2 — Build MoaLayer2Engine (aggregator across 3-of-3 verdicts)</a></li>
+<li class="toc-l2"><a href="#u-dispatcher-action-two-pass-prismaitwopass-dispatcher-action-cheap-then-strong">U-DISPATCHER-ACTION-TWO-PASS — prismai:twopass dispatcher action (cheap-then-strong)</a></li>
+<li class="toc-l2"><a href="#u-cascade-fallback-chain-fallback-chain-cheap-mid-strong-with-circuit-breaker">U-CASCADE-FALLBACK-CHAIN — Fallback chain (cheap → mid → strong with circuit-breaker)</a></li>
+<li class="toc-l2"><a href="#u-cost-dashboard-cost-dashboard-web-view-of-telemetry">U-COST-DASHBOARD — Cost dashboard (web view of telemetry)</a></li>
+<li class="toc-l2"><a href="#u-cost-alarm-cost-alarm-threshold-based-alert-to-chat">U-COST-ALARM — Cost alarm (threshold-based, alert to chat)</a></li>
+<li class="toc-l2"><a href="#u-token-budget-guard-token-budget-guard-pre-call-gate">U-TOKEN-BUDGET-GUARD — Token budget guard (pre-call gate)</a></li>
+<li class="toc-l2"><a href="#milestone-level-autonomous-execution-hooks-inherited-from-autonomous-execution-protocolmd-7">Milestone-level autonomous-execution hooks (inherited from AUTONOMOUS-EXECUTION-PROTOCOL.md §7)</a></li>
+<li class="toc-l2"><a href="#variability-axis-summary">Variability-axis summary</a></li>
+<li class="toc-l2"><a href="#failure-mode-summary">Failure-mode summary</a></li>
+<li class="toc-l2"><a href="#lane-ownership-commit-format">Lane ownership + commit format</a></li>
+<li class="toc-l2"><a href="#next-milestone-in-lane">Next milestone in lane</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<details class="frontmatter" open><summary>Document metadata</summary><div class="table-wrap"><table>
+<tbody>
+<tr><th scope="row">milestone</th><td>COST-CASCADE-MS0</td></tr>
+<tr><th scope="row">parent_roadmap</th><td>BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-2026-05-10.md</td></tr>
+<tr><th scope="row">inherits_protocol</th><td>BACKEND-DEVTOOLS-RGS6-AUTONOMOUS-EXECUTION-PROTOCOL.md (§7 implicit)</td></tr>
+<tr><th scope="row">assigned_lane</th><td>lane-C-octopus-cost</td></tr>
+<tr><th scope="row">commit_prefix</th><td>[lane-C-octopus-cost][COST-CASCADE-MS0]</td></tr>
+<tr><th scope="row">total_units</th><td>8</td></tr>
+<tr><th scope="row">critical_path_role</th><td>multi-LLM cost discipline — calibrate cascades, register K2 mid-tier, build MoA layer-2, two-pass wrap; depends on K2-CLOUD landing first</td></tr>
+<tr><th scope="row">loop_registrations</th><td>2 (cost-telemetry-emit hourly, cost-alarm-check 15min)</td></tr>
+<tr><th scope="row">date</th><td>2026-05-10</td></tr>
+</tbody>
+</table></div></details>
+<h1 id="cost-cascade-ms0-atomized-8-units"><a class="anchor" href="#cost-cascade-ms0-atomized-8-units" aria-label="Permalink to COST-CASCADE-MS0 — atomized (8 units)">#</a>COST-CASCADE-MS0 — atomized (8 units)</h1>
+<blockquote>
+<p>Multi-LLM cost discipline: probe cascades, register all tentacles in the cost model, build the MoA layer-2 aggregator, wrap dispatcher calls with two-pass logic, fallback chain, dashboard, alarm, token-budget guard. Lane-C owns this — strictly serial with K2-CLOUD-MS0 (K2 must be transport-callable before cascade calibration probes it).</p>
+</blockquote>
+<hr>
+<h2 id="u-cascade-calibrate-build-cascadecalibrationengine-probe-cost-quality-frontier"><a class="anchor" href="#u-cascade-calibrate-build-cascadecalibrationengine-probe-cost-quality-frontier" aria-label="Permalink to U-CASCADE-CALIBRATE — Build CascadeCalibrationEngine (probe cost-quality frontier)">#</a>U-CASCADE-CALIBRATE — Build <code>CascadeCalibrationEngine</code> (probe cost-quality frontier)</h2>
+<ul>
+<li>pillar: cost</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 80</li>
+<li>leverage_score: 12</li>
+<li>why: cost cascade today is hand-tuned per dispatcher; calibration auto-probes 50 representative prompts across 5 tentacles, fits cost-quality frontier, emits updated <code>cost-cascade-config.json</code> per task class</li>
+<li>depends_on: [K2-CLOUD-MS0::K2-K0]</li>
+<li>blocks: [U-CASCADE-FALLBACK-CHAIN]</li>
+<li>parallel_with: [U-MULTI-AGENT-COST-TELEMETRY, U-BUILD-MOA-LAYER2, U-DISPATCHER-ACTION-TWO-PASS]</li>
+<li>viz_node_id: <code>core.engine.cascadecalibrate</code> (TBD-create)</li>
+<li>closes_synergy_edge: octopus × cost-model</li>
+<li>loop_schedule: weekly (cron <code>0 4 * * 2</code>)</li>
+</ul>
+<p>verifies_via:   channel: test   tool: <code>npx vitest run src/__tests__/CascadeCalibrationEngine.test.ts</code>   expected_signal: 5/5 cases pass; probe of 50 prompts emits config with non-empty frontier   re_run_cost: ~5 min real-LLM probe; ~10s with mock LLM in tests   baseline: no probe engine; cascade hand-tuned</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Read path: <code>mcp-server/data/state/cost-cascade-config.json</code> (if exists, else assume empty) action: confirm schema; if missing, define verify: schema confirmed or defined</li>
+<li>step-2: tool: Write path: <code>mcp-server/src/engines/CascadeCalibrationEngine.ts</code> action: implement <code>calibrate({prompts, tentacles, scoreFn})</code> → returns <code>{frontier: [{tentacle, expectedCost, expectedQuality}], recommendation}</code>; persists to <code>cost-cascade-config.json</code> verify: tsc clean</li>
+<li>step-3: tool: Write path: <code>mcp-server/src/__tests__/CascadeCalibrationEngine.test.ts</code> action: 5 cases (happy frontier, one-tentacle-fails, scoreFn-zero, prompt-too-long, frontier-degenerate) verify: 5/5 pass with mock LLM</li>
+<li>step-4: tool: Write path: <code>scripts/calibrate-cascade.mjs</code> action: CLI wrapper; <code>--probe-set &lt;path&gt;</code>, <code>--apply</code>, <code>--dry-run</code> verify: dry-run emits frontier without writing config</li>
+<li>step-5: tool: Bash path: <code>H:/prism/</code> action: cron register weekly verify: registry contains entry</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>tentacle down mid-probe → mark as <code>unavailable</code>, recommend without it</li>
+<li>scoreFn flips signs (cost positive vs negative reward) → schema-validate at construction</li>
+<li>all 50 prompts identical → frontier-degenerate, warn caller</li>
+<li>probe runs &gt; 30min → soft kill, return partial</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>1 / 3 / 5 tentacles available</li>
+<li>5 / 50 / 500 probe prompts</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>probe set missing → exit clean with <code>PROBE_SET_MISSING</code></li>
+<li>config write race → file-claim</li>
+<li>cost API rate-limit → exponential backoff per tentacle</li>
+</ul>
+<hr>
+<h2 id="u-multi-agent-cost-telemetry-cost-telemetry-per-tentacle-per-task-class"><a class="anchor" href="#u-multi-agent-cost-telemetry-cost-telemetry-per-tentacle-per-task-class" aria-label="Permalink to U-MULTI-AGENT-COST-TELEMETRY — Cost telemetry (per-tentacle, per-task-class)">#</a>U-MULTI-AGENT-COST-TELEMETRY — Cost telemetry (per-tentacle, per-task-class)</h2>
+<ul>
+<li>pillar: cost</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 75</li>
+<li>leverage_score: 11</li>
+<li>why: cost discipline requires evidence; we record per-call cost in <code>cost-telemetry.jsonl</code> keyed by tentacle, task-class, prompt-tokens, completion-tokens, latency; without telemetry, calibration is unfounded</li>
+<li>depends_on: []</li>
+<li>blocks: [U-COST-DASHBOARD, U-COST-ALARM]</li>
+<li>parallel_with: [U-CASCADE-CALIBRATE, U-BUILD-MOA-LAYER2, U-DISPATCHER-ACTION-TWO-PASS]</li>
+<li>viz_node_id: <code>core.engine.multiagentcosttelemetry</code> (TBD-create)</li>
+<li>closes_synergy_edge: octopus × telemetry</li>
+<li>loop_schedule: continuous (every call); rotation hourly</li>
+</ul>
+<p>verifies_via:   channel: test   tool: <code>npx vitest run src/__tests__/MultiAgentCostTelemetryEngine.test.ts</code>   expected_signal: 5/5 cases pass; synthetic 100-call burst produces 100 JSONL lines + correct aggregate   re_run_cost: 4s   baseline: cost telemetry is partial in <code>ollama-offload-stats.json</code> only</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Write path: <code>mcp-server/src/engines/MultiAgentCostTelemetryEngine.ts</code> action: implement <code>record({tentacle, taskClass, inputTokens, outputTokens, latencyMs, costUSD})</code> → append to <code>mcp-server/data/state/cost-telemetry.jsonl</code>; <code>aggregate(windowHours)</code> returns per-tentacle and per-task-class sums verify: tsc clean</li>
+<li>step-2: tool: Write path: <code>mcp-server/src/__tests__/MultiAgentCostTelemetryEngine.test.ts</code> action: 5 cases (happy record, missing fields rejected, rotation at 10MB, concurrent writes, aggregate over empty window) verify: 5/5 pass</li>
+<li>step-3: tool: Edit path: <code>mcp-server/src/engines/AISystemRouterEngine.ts</code> action: instrument route-execution to call <code>record(...)</code> post-call verify: smoke route generates a telemetry line</li>
+<li>step-4: tool: Edit path: <code>mcp-server/src/tools/dispatchers/devDispatcher.ts</code> action: register <code>cost_telemetry_aggregate</code> action verify: round-trip MCP returns aggregate</li>
+<li>step-5: tool: Bash path: <code>H:/prism/</code> action: cron register hourly rotation verify: registry contains entry</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>cost field missing for ollama (local, $0) → record <code>costUSD: 0</code> explicitly</li>
+<li>1000 calls/min burst → bounded buffer, flush every 5s</li>
+<li>JSONL corruption (interrupted write) → atomic append, defensive read</li>
+<li>tentacle returns no usage info → record <code>inputTokens: null</code> with warning</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>0 / 100 / 100000 calls per hour</li>
+<li>1 / 3 / 5 tentacles</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>filesystem full → drop record, log <code>TELEMETRY_DROPPED</code></li>
+<li>rotation race → file-claim on rotation</li>
+<li>aggregate over huge file → stream-read</li>
+</ul>
+<hr>
+<h2 id="u-build-moa-layer2-build-moalayer2engine-aggregator-across-3-of-3-verdicts"><a class="anchor" href="#u-build-moa-layer2-build-moalayer2engine-aggregator-across-3-of-3-verdicts" aria-label="Permalink to U-BUILD-MOA-LAYER2 — Build MoaLayer2Engine (aggregator across 3-of-3 verdicts)">#</a>U-BUILD-MOA-LAYER2 — Build <code>MoaLayer2Engine</code> (aggregator across 3-of-3 verdicts)</h2>
+<ul>
+<li>pillar: cost</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 78</li>
+<li>leverage_score: 12</li>
+<li>why: today&#39;s scrutiny-3way returns 3 independent verdicts (Codex + Gemini + Opus); MoA layer-2 (Wang 2406.04692) aggregates them into a single high-confidence verdict, reducing variance + improving signal/noise; foundation for moving from 3-of-3 to 5-of-5</li>
+<li>depends_on: []</li>
+<li>blocks: [U-CASCADE-FALLBACK-CHAIN]</li>
+<li>parallel_with: [U-CASCADE-CALIBRATE, U-MULTI-AGENT-COST-TELEMETRY, U-DISPATCHER-ACTION-TWO-PASS]</li>
+<li>viz_node_id: <code>core.engine.moalayer2</code> (TBD-create)</li>
+<li>closes_synergy_edge: scrutiny × moa</li>
+</ul>
+<p>verifies_via:   channel: test   tool: <code>npx vitest run src/__tests__/MoaLayer2Engine.test.ts</code>   expected_signal: 5/5 cases pass; 3 known verdicts (2 pass / 1 fail) aggregate to PASS with explanation citing dissent   re_run_cost: 6s   baseline: scrutiny-3way emits 3 separate marks; no aggregate engine</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Read path: <code>.claude/scripts/scrutiny-3way.mjs</code> action: confirm output shape (codex/gemini/opus mark fields) verify: shape captured</li>
+<li>step-2: tool: Write path: <code>mcp-server/src/engines/MoaLayer2Engine.ts</code> action: implement <code>aggregate({marks: [{judge, verdict, rationale, confidence}]})</code> → returns <code>{verdict, confidence, dissent_summary}</code>; weighted by judge calibration table verify: tsc clean</li>
+<li>step-3: tool: Write path: <code>mcp-server/src/__tests__/MoaLayer2Engine.test.ts</code> action: 5 cases (3-pass, 2-pass-1-fail, all-fail, judge-missing, malformed-mark) verify: 5/5 pass</li>
+<li>step-4: tool: Edit path: <code>mcp-server/src/tools/dispatchers/aiDispatcher.ts</code> (and/or <code>prism_intelligence</code>) action: register <code>moa_aggregate</code> action verify: round-trip MCP</li>
+<li>step-5: tool: Edit path: <code>.claude/scripts/scrutiny-3way.mjs</code> action: optional flag <code>--aggregate</code> calls into engine to emit single consensus verdict verify: synthetic run emits aggregate</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>judge weights all zero → reject construction</li>
+<li>all judges abstain → return <code>INSUFFICIENT_QUORUM</code></li>
+<li>calibration table stale (&gt;30 days) → warn caller, still aggregate</li>
+<li>mark shapes diverge across judges → schema-coerce + warn</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>2 / 3 / 5 judges</li>
+<li>all-agree / split / all-dissent</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>judge unreachable → exclude with <code>JUDGE_UNAVAILABLE</code> note in dissent_summary</li>
+<li>schema drift → schema-validate per mark</li>
+<li>confidence below threshold → flag for human review</li>
+</ul>
+<hr>
+<h2 id="u-dispatcher-action-two-pass-prismaitwopass-dispatcher-action-cheap-then-strong"><a class="anchor" href="#u-dispatcher-action-two-pass-prismaitwopass-dispatcher-action-cheap-then-strong" aria-label="Permalink to U-DISPATCHER-ACTION-TWO-PASS — prismai:twopass dispatcher action (cheap-then-strong)">#</a>U-DISPATCHER-ACTION-TWO-PASS — <code>prism_ai:two_pass</code> dispatcher action (cheap-then-strong)</h2>
+<ul>
+<li>pillar: cost</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 72</li>
+<li>leverage_score: 11</li>
+<li>why: many tasks can be solved by a cheap tentacle on first pass; only escalate to expensive tentacle if quality gate fails; FrugalGPT (Chen 2305.05176) shows 50-98% cost reduction at constant quality</li>
+<li>depends_on: []</li>
+<li>blocks: [U-CASCADE-FALLBACK-CHAIN]</li>
+<li>parallel_with: [U-CASCADE-CALIBRATE, U-MULTI-AGENT-COST-TELEMETRY, U-BUILD-MOA-LAYER2]</li>
+<li>viz_node_id: <code>core.dispatcher.aitwopass</code> (TBD-create)</li>
+<li>closes_synergy_edge: cascade × cheap-then-strong</li>
+</ul>
+<p>verifies_via:   channel: e2e   tool: <code>mcp-call prism_ai two_pass --prompt &quot;&lt;test&gt;&quot; --quality-threshold 0.7</code>   expected_signal: returns <code>{ pass: &quot;cheap&quot; | &quot;strong&quot;, result, costUSD, qualityScore }</code> with cheap chosen when score ≥ 0.7   re_run_cost: 3-10s depending on pass   baseline: dispatcher always routes to one tentacle, no escalation</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Read path: <code>mcp-server/src/tools/dispatchers/aiDispatcher.ts</code> action: confirm dispatcher shape verify: shape captured</li>
+<li>step-2: tool: Edit path: <code>mcp-server/src/tools/dispatchers/aiDispatcher.ts</code> action: register <code>two_pass</code> action — first calls cheap tentacle, scores via quality function (LLM-as-judge or rule-based), escalates if below threshold verify: dispatcher tsc clean</li>
+<li>step-3: tool: Write path: <code>mcp-server/src/__tests__/aiDispatcher.two_pass.test.ts</code> action: 5 cases (cheap-pass, cheap-fail-strong-pass, both-fail, threshold-edge, missing-quality-fn) verify: 5/5 pass</li>
+<li>step-4: tool: Bash path: <code>H:/prism/</code> action: round-trip MCP verify: response includes both <code>pass</code> and <code>costUSD</code></li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>cheap tentacle returns gibberish → escalate</li>
+<li>judge function unreachable → conservatively escalate (treat as fail)</li>
+<li>prompt requires reasoning depth → caller can force-strong</li>
+<li>cost telemetry not registered → still works; record only when available</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>quality threshold 0.3 / 0.7 / 0.95</li>
+<li>prompts: simple lookup / mid reasoning / complex</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>both passes throw → return error envelope with both failure surfaces</li>
+<li>dispatcher cycle → lazy import handles</li>
+<li>judge LLM-as-judge cost explodes → use rule-based judge for trivial classes</li>
+</ul>
+<hr>
+<h2 id="u-cascade-fallback-chain-fallback-chain-cheap-mid-strong-with-circuit-breaker"><a class="anchor" href="#u-cascade-fallback-chain-fallback-chain-cheap-mid-strong-with-circuit-breaker" aria-label="Permalink to U-CASCADE-FALLBACK-CHAIN — Fallback chain (cheap → mid → strong with circuit-breaker)">#</a>U-CASCADE-FALLBACK-CHAIN — Fallback chain (cheap → mid → strong with circuit-breaker)</h2>
+<ul>
+<li>pillar: cost</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 65</li>
+<li>leverage_score: 10</li>
+<li>why: two-pass is binary; real cascades need 3+ levels with circuit-breaker (skip dead tentacles, expire breaker windows); without it, partial outages cause repeated retry-loops</li>
+<li>depends_on: [U-DISPATCHER-ACTION-TWO-PASS, U-BUILD-MOA-LAYER2, U-CASCADE-CALIBRATE]</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-COST-DASHBOARD, U-COST-ALARM, U-TOKEN-BUDGET-GUARD]</li>
+<li>viz_node_id: <code>core.engine.cascadefallback</code> (TBD-create)</li>
+<li>closes_synergy_edge: cascade × resilience</li>
+</ul>
+<p>verifies_via:   channel: test   tool: <code>npx vitest run src/__tests__/CascadeFallbackChainEngine.test.ts</code>   expected_signal: 5/5 cases pass; chain with synthetic-down mid tier still resolves via strong   re_run_cost: 8s   baseline: no chain; ad-hoc retry in callers</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Write path: <code>mcp-server/src/engines/CascadeFallbackChainEngine.ts</code> action: implement <code>execute({taskClass, prompt})</code> walking calibrated cascade with circuit-breaker per tentacle (open after N fails, half-open after T minutes); records to cost telemetry verify: tsc clean</li>
+<li>step-2: tool: Write path: <code>mcp-server/src/__tests__/CascadeFallbackChainEngine.test.ts</code> action: 5 cases (happy-cheap, mid-down-strong-up, all-down, breaker-open-half-open, calibration-stale) verify: 5/5 pass</li>
+<li>step-3: tool: Edit path: <code>mcp-server/src/engines/AISystemRouterEngine.ts</code> action: route invokes chain for task classes flagged <code>cascadable: true</code> verify: smoke route + telemetry shows cascade transitions</li>
+<li>step-4: tool: Edit path: <code>mcp-server/src/tools/dispatchers/aiDispatcher.ts</code> action: register <code>cascade_status</code> action returning breaker state verify: round-trip MCP</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>all breakers open → return <code>ALL_BREAKERS_OPEN</code> + last failure reason</li>
+<li>breaker flip-flap (1ms close-open) → debounce window</li>
+<li>cascade contains tentacle not registered → skip + log</li>
+<li>calibration disagrees with breaker reality → trust breaker</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>0 / 1 / N breakers open</li>
+<li>2 / 3 / 5 cascade levels</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>chain throws → telemetry-record + return clean error envelope</li>
+<li>breaker state corrupted → reset all, log <code>BREAKER_STATE_RESET</code></li>
+<li>cascade config missing → exit <code>CALIBRATION_MISSING</code></li>
+</ul>
+<hr>
+<h2 id="u-cost-dashboard-cost-dashboard-web-view-of-telemetry"><a class="anchor" href="#u-cost-dashboard-cost-dashboard-web-view-of-telemetry" aria-label="Permalink to U-COST-DASHBOARD — Cost dashboard (web view of telemetry)">#</a>U-COST-DASHBOARD — Cost dashboard (web view of telemetry)</h2>
+<ul>
+<li>pillar: cost</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 55</li>
+<li>leverage_score: 9</li>
+<li>why: numbers in JSONL are inert; a 1-page dashboard with charts (per-tentacle USD, per-task-class breakdown, hourly heatmap) makes cost visible enough to manage</li>
+<li>depends_on: [U-MULTI-AGENT-COST-TELEMETRY]</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-CASCADE-FALLBACK-CHAIN, U-COST-ALARM, U-TOKEN-BUDGET-GUARD]</li>
+<li>viz_node_id: <code>core.web.costdashboard</code> (TBD-create)</li>
+<li>closes_synergy_edge: cost × visualization</li>
+</ul>
+<p>verifies_via:   channel: e2e   tool: <code>curl http://localhost:3100/cost-dashboard</code> (after server up)   expected_signal: returns HTML page with non-empty data   re_run_cost: 1s render   baseline: no dashboard; aggregate available only via dispatcher</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Write path: <code>mcp-server/web/cost-dashboard.html</code> action: minimal single-page (chart.js or vanilla SVG) — pulls from <code>/api/cost-aggregate</code> endpoint verify: opens in browser</li>
+<li>step-2: tool: Edit path: <code>mcp-server/src/web/server.ts</code> (or equivalent web handler) action: register <code>/cost-dashboard</code> route + <code>/api/cost-aggregate</code> JSON endpoint verify: server tsc clean; routes respond</li>
+<li>step-3: tool: Write path: <code>mcp-server/src/__tests__/cost-dashboard.test.ts</code> action: 3 cases (empty telemetry, full window, partial tentacle outage) verify: 3/3 pass</li>
+<li>step-4: tool: Bash path: <code>H:/prism/</code> action: smoke open dashboard verify: charts render</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>1M JSONL entries → aggregate stream + cache 5-min window</li>
+<li>chart library CDN down → bundle locally</li>
+<li>cross-origin call from claude-code IDE → same-origin only, no CORS hole</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>empty / mid / heavy telemetry</li>
+<li>1 / 5 / 50 task classes</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>aggregator throws → render error banner, dashboard still loads</li>
+<li>file unreadable → 503 + reason</li>
+<li>rendering JS errors → server-side fallback HTML with raw counts</li>
+</ul>
+<hr>
+<h2 id="u-cost-alarm-cost-alarm-threshold-based-alert-to-chat"><a class="anchor" href="#u-cost-alarm-cost-alarm-threshold-based-alert-to-chat" aria-label="Permalink to U-COST-ALARM — Cost alarm (threshold-based, alert to chat)">#</a>U-COST-ALARM — Cost alarm (threshold-based, alert to chat)</h2>
+<ul>
+<li>pillar: cost</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 60</li>
+<li>leverage_score: 10</li>
+<li>why: dashboards require eyes-on; alarms fire automatically when daily/weekly USD or token budgets exceed configured thresholds — operator notified before bill arrives</li>
+<li>depends_on: [U-MULTI-AGENT-COST-TELEMETRY]</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-CASCADE-FALLBACK-CHAIN, U-COST-DASHBOARD, U-TOKEN-BUDGET-GUARD]</li>
+<li>viz_node_id: <code>core.engine.costalarm</code> (TBD-create)</li>
+<li>closes_synergy_edge: cost × alerting</li>
+<li>loop_schedule: 15min (cron <code>*/15 * * * *</code>)</li>
+</ul>
+<p>verifies_via:   channel: e2e   tool: synthetic telemetry triggering threshold → alarm posts to <code>state/shared/AGENT_CHAT.md</code> (or configured channel)   expected_signal: alarm message appears with exceeded amount + suggested action   re_run_cost: 2s   baseline: no alarms; budget excursions discovered post-hoc</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Write path: <code>mcp-server/data/state/cost-alarm-config.json</code> action: define thresholds per task class + daily/weekly window + cool-down period verify: valid JSON, default thresholds set</li>
+<li>step-2: tool: Write path: <code>mcp-server/src/engines/CostAlarmEngine.ts</code> action: implement <code>check()</code> — aggregates last 24h / 7d, compares vs config, emits alarms to <code>state/shared/cost-alarm-log.jsonl</code> + <code>AGENT_CHAT.md</code> if cool-down elapsed verify: tsc clean</li>
+<li>step-3: tool: Write path: <code>mcp-server/src/__tests__/CostAlarmEngine.test.ts</code> action: 5 cases (below-threshold-no-alarm, above-daily, above-weekly-not-daily, cool-down-suppresses, config-missing) verify: 5/5 pass</li>
+<li>step-4: tool: Bash path: <code>H:/prism/</code> action: cron register <code>*/15 * * * *</code> verify: registry contains entry</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>config thresholds set to 0 → alarm fires every 15min (cool-down still gates)</li>
+<li>clock skew → use telemetry timestamps not wall-clock</li>
+<li>alarm channel down → log to JSONL only, retry next tick</li>
+<li>1000 alarms in 1h → bound alarm-log size with rotation</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>$0 / $10 / $1000 daily spend</li>
+<li>sparse / dense telemetry</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>aggregator throws → log + skip tick</li>
+<li>config malformed → use safe defaults + warn</li>
+<li>file race → file-claim on alarm log</li>
+</ul>
+<hr>
+<h2 id="u-token-budget-guard-token-budget-guard-pre-call-gate"><a class="anchor" href="#u-token-budget-guard-token-budget-guard-pre-call-gate" aria-label="Permalink to U-TOKEN-BUDGET-GUARD — Token budget guard (pre-call gate)">#</a>U-TOKEN-BUDGET-GUARD — Token budget guard (pre-call gate)</h2>
+<ul>
+<li>pillar: cost</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 60</li>
+<li>leverage_score: 10</li>
+<li>why: alarms detect spend after the fact; a guard hook refuses a call if it would push daily token budget over (configurable per session/task-class). Hard-cap on runaway loops</li>
+<li>depends_on: [U-MULTI-AGENT-COST-TELEMETRY]</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-CASCADE-FALLBACK-CHAIN, U-COST-DASHBOARD, U-COST-ALARM]</li>
+<li>viz_node_id: <code>core.hook.tokenbudgetguard</code> (TBD-create)</li>
+<li>closes_synergy_edge: cost × pre-call enforcement</li>
+</ul>
+<p>verifies_via:   channel: e2e   tool: synthetic session at 95% of daily budget → next large call gets BLOCKED by hook with clear remediation   expected_signal: PreToolUse hook returns <code>block</code> + message naming current/cap   re_run_cost: 1s per call (cache 30s)   baseline: no pre-call cap; runaway loops can burn unbounded</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Write path: <code>mcp-server/data/state/token-budget-config.json</code> action: define daily token cap per session + overage policy verify: valid JSON</li>
+<li>step-2: tool: Write path: <code>.claude/hooks/token-budget-guard.mjs</code> action: PreToolUse hook for LLM-call tools (Task, mcp<strong>claude-flow</strong>*) — aggregates today&#39;s tokens, refuses if next-call estimate exceeds cap (or warns if within 10%) verify: hook self-test passes</li>
+<li>step-3: tool: Edit path: <code>.claude/settings.json</code> action: register hook on PreToolUse with appropriate tool matchers verify: <code>verify-hook-refs --self-test</code> passes</li>
+<li>step-4: tool: Bash path: <code>H:/prism/</code> action: synthetic over-cap test verify: hook returns block envelope</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>hook itself slow → cache aggregate for 30s</li>
+<li>cap set to 0 → no calls allowed (refuse with clear remediation)</li>
+<li>estimate diverges from actual → use 90th-percentile of last-100 actuals</li>
+<li>bypass attempt (PRISM_HOOK_PROFILE=off) → guard added to MINIMAL_ALLOWLIST</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>0 / 100k / 10M tokens used today</li>
+<li>cap 50k / 1M / 100M</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>telemetry unreadable → fail-OPEN (allow call) with <code>BUDGET_TELEMETRY_UNAVAILABLE</code> warning (better than blocking work on infra glitch)</li>
+<li>hook throws → fail-OPEN with warning (above)</li>
+<li>estimate engine unreachable → fall back to fixed estimate per tool type</li>
+</ul>
+<hr>
+<h2 id="milestone-level-autonomous-execution-hooks-inherited-from-autonomous-execution-protocolmd-7"><a class="anchor" href="#milestone-level-autonomous-execution-hooks-inherited-from-autonomous-execution-protocolmd-7" aria-label="Permalink to Milestone-level autonomous-execution hooks (inherited from AUTONOMOUS-EXECUTION-PROTOCOL.md §7)">#</a>Milestone-level autonomous-execution hooks (inherited from AUTONOMOUS-EXECUTION-PROTOCOL.md §7)</h2>
+<ul>
+<li>pre-unit: <code>prism_session:claim_milestone COST-CASCADE-MS0</code></li>
+<li>per-unit-pre: <code>file-claim-guard</code> + <code>duplication-hard-block</code> (especially U-BUILD-MOA-LAYER2 since multiple aggregator candidates exist)</li>
+<li>per-unit-post: <code>comprehensive-build-enforce</code></li>
+<li>per-3-units: auto-compact threshold check</li>
+<li>per-milestone-end: <code>/handoff</code> writes <code>HANDOFF-&lt;id&gt;-COST-CASCADE-MS0.md</code></li>
+</ul>
+<h2 id="variability-axis-summary"><a class="anchor" href="#variability-axis-summary" aria-label="Permalink to Variability-axis summary">#</a>Variability-axis summary</h2>
+<p>Each unit covers zero-state, mid-traffic, saturated/spike. Failure-mode addresses unreachable infrastructure, schema drift, concurrent writes. Token-budget guard explicitly fail-OPEN (favoring availability over false-positive blocks) — opposite stance to scrutiny gate (which fails closed).</p>
+<h2 id="failure-mode-summary"><a class="anchor" href="#failure-mode-summary" aria-label="Permalink to Failure-mode summary">#</a>Failure-mode summary</h2>
+<p>Three classes shared across the 8 units:</p>
+<ol>
+<li>Telemetry unavailable → fail-open with warning (do not block work)</li>
+<li>Schema drift between LLM providers → adapter at edges</li>
+<li>Concurrent writes (telemetry, alarm-log, config) → file-claim + atomic-append</li>
+</ol>
+<h2 id="lane-ownership-commit-format"><a class="anchor" href="#lane-ownership-commit-format" aria-label="Permalink to Lane ownership + commit format">#</a>Lane ownership + commit format</h2>
+<ul>
+<li>Lane: lane-C-octopus-cost</li>
+<li>Commit format: <code>[lane-C-octopus-cost][COST-CASCADE-MS0]/&lt;U-id&gt;: &lt;title&gt;</code></li>
+<li>Worktree (if forked): <code>H:/prism-cost-cascade/</code> (branch <code>work/cost-cascade-ms0</code>)</li>
+</ul>
+<h2 id="next-milestone-in-lane"><a class="anchor" href="#next-milestone-in-lane" aria-label="Permalink to Next milestone in lane">#</a>Next milestone in lane</h2>
+<p>OCTOPUS-NEURAL-MS0 (already atomized in Round-1; lane-C continues there).</p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="BACKEND-DEVTOOLS-RGS6-COST-CASCADE-MS0-ATOMIZED-2026-05-10.md">BACKEND-DEVTOOLS-RGS6-COST-CASCADE-MS0-ATOMIZED-2026-05-10.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

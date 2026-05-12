@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="4c4c477551b67c9e88833e5efca71522cc6fcff28322021b8b81952261ef053d">
+<title>HTML-PRIMARY-MS0</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">HTML-PRIMARY-MS0</h1>
+<p class="provenance">Generated 2026-05-12T12:43:27.380Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#html-primary-ms0-atomized">HTML-PRIMARY-MS0 — atomized</a></li>
+<li class="toc-l2"><a href="#u-hps01-build-spechtmlcompanionengine-master-renderer">U-HPS01 — Build SpecHTMLCompanionEngine (master renderer)</a></li>
+<li class="toc-l2"><a href="#u-hps02-generation-pipeline-cron-registration">U-HPS02 — Generation pipeline + cron registration</a></li>
+<li class="toc-l2"><a href="#u-hps03-theme-engine-darklight-prefers-color-scheme">U-HPS03 — Theme engine (dark/light, prefers-color-scheme)</a></li>
+<li class="toc-l2"><a href="#u-hps04-navigation-engine-sticky-toc-anchor-links-search">U-HPS04 — Navigation engine (sticky TOC, anchor links, search)</a></li>
+<li class="toc-l2"><a href="#u-hps05-accessibility-hook-wai-aria-axe-cli-gate">U-HPS05 — Accessibility hook (WAI-ARIA, axe-cli gate)</a></li>
+<li class="toc-l2"><a href="#u-hps06-drift-guard-mdhtml-hash-on-regen">U-HPS06 — Drift guard (MD↔HTML hash on regen)</a></li>
+<li class="toc-l2"><a href="#u-hps07-dispatcher-actions-prismdevemitspechtml-prismsessiondoc_render">U-HPS07 — Dispatcher actions: prismdev:emitspechtml + prismsession:doc_render</a></li>
+<li class="toc-l2"><a href="#x-closing-notes">§X — Closing notes</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<details class="frontmatter" open><summary>Document metadata</summary><div class="table-wrap"><table>
+<tbody>
+<tr><th scope="row">milestone</th><td>HTML-PRIMARY-MS0</td></tr>
+<tr><th scope="row">parent_roadmap</th><td>BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-2026-05-10.md</td></tr>
+<tr><th scope="row">research_source</th><td>state/shared/research/2026-05-10-pass2-html-as-spec.md</td></tr>
+<tr><th scope="row">total_units</th><td>7</td></tr>
+<tr><th scope="row">critical_path_role</th><td>extends HTML-COMPANION-MS0 to make HTML the primary surface for strategic specs</td></tr>
+<tr><th scope="row">loop_registrations</th><td>2 (regen cron 1h, drift guard per-commit)</td></tr>
+<tr><th scope="row">date</th><td>2026-05-10</td></tr>
+</tbody>
+</table></div></details>
+<h1 id="html-primary-ms0-atomized"><a class="anchor" href="#html-primary-ms0-atomized" aria-label="Permalink to HTML-PRIMARY-MS0 — atomized">#</a>HTML-PRIMARY-MS0 — atomized</h1>
+<blockquote>
+<p>Reconcile Thariq&#39;s &quot;HTML is the new markdown&quot; (2026-05-08, ~5M views) with Karpathy&#39;s &quot;docs should be one text file&quot; — <strong>MD = report, HTML = interface</strong>. Surfaces driven by human interaction go HTML-primary; LLM-consumed surfaces (CLAUDE.md, skills, hooks, digests, handoffs) stay MD-only.</p>
+</blockquote>
+<hr>
+<h2 id="u-hps01-build-spechtmlcompanionengine-master-renderer"><a class="anchor" href="#u-hps01-build-spechtmlcompanionengine-master-renderer" aria-label="Permalink to U-HPS01 — Build SpecHTMLCompanionEngine (master renderer)">#</a>U-HPS01 — Build <code>SpecHTMLCompanionEngine</code> (master renderer)</h2>
+<ul>
+<li>pillar: html-primary</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 75</li>
+<li>leverage_score: 13</li>
+<li>why: every strategic spec needs a render path; one engine, many spec types</li>
+<li>depends_on: [HTML-COMPANION-MS0 HC-0]</li>
+<li>blocks: [U-HPS02, U-HPS03, U-HPS04, U-HPS05, U-HPS06, U-HPS07]</li>
+<li>parallel_with: [U-VAULT01, U-OCN01]</li>
+<li>viz_node_id: <code>eng.system.spechtmlcompanionengine</code> (TBD-create)</li>
+<li>closes_synergy_edge: docs × system (currently manual)</li>
+<li>loop_schedule: none</li>
+</ul>
+<p>verifies_via:   channel: render   tool: <code>node scripts/emit-spec-html.mjs state/shared/specs/BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-2026-05-10.md</code>   expected_signal: HTML file produced, validates W3C   re_run_cost: 3s   baseline: only revenue roadmap has HTML</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Read path: <code>scripts/emit-revenue-roadmap-html.mjs</code> action: pattern reference (peer chat shipped this earlier) verify: file readable, exports HTML emit function</li>
+<li>step-2: tool: Write path: <code>mcp-server/src/engines/SpecHTMLCompanionEngine.ts</code> action: generalize — MD parse (marked.js) + frontmatter + Mermaid + SVG + Octicons embed + theme; pure function <code>render(md, opts) → html</code> verify: file exists, exports singleton</li>
+<li>step-3: tool: Write path: <code>scripts/emit-spec-html.mjs</code> action: CLI wrapper — <code>&lt;md-path&gt;</code> → write <code>&lt;md-path&gt;.html</code> (same dir) verify: script runs on test MD</li>
+<li>step-4: tool: Write path: <code>mcp-server/src/__tests__/SpecHTMLCompanionEngine.test.ts</code> action: 7 tests — happy (research card), happy (roadmap), happy (audit), oversized (1MB MD), XSS in MD, malformed frontmatter, broken anchor verify: 7 passed</li>
+<li>step-5: tool: Bash path: <code>H:/prism/</code> action: render this very milestone file as smoke test verify: <code>node scripts/emit-spec-html.mjs state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-HTML-PRIMARY-MS0-ATOMIZED-2026-05-10.md</code> produces <code>.html</code></li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li><code>&lt;script&gt;</code> injection in MD code-fence</li>
+<li>100MB MD input (memory)</li>
+<li>circular anchor reference</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>research card / roadmap / audit / dossier (4 spec types)</li>
+<li>dark / light theme</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>marked.js parse error → emit error.html with diff</li>
+<li>oversized → stream + paginate</li>
+<li>theme assets missing → bundle CSS inline</li>
+</ul>
+<hr>
+<h2 id="u-hps02-generation-pipeline-cron-registration"><a class="anchor" href="#u-hps02-generation-pipeline-cron-registration" aria-label="Permalink to U-HPS02 — Generation pipeline + cron registration">#</a>U-HPS02 — Generation pipeline + cron registration</h2>
+<ul>
+<li>pillar: html-primary</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 70</li>
+<li>leverage_score: 12</li>
+<li>why: manual <code>emit-spec-html.mjs</code> per file doesn&#39;t scale to 16+ specs; cron auto-twins all MDs</li>
+<li>depends_on: [U-HPS01]</li>
+<li>blocks: [U-HPS06]</li>
+<li>parallel_with: [U-HPS03, U-HPS04, U-HPS05, U-HPS07]</li>
+<li>viz_node_id: <code>core.script.emitallspechtml</code> (TBD-create)</li>
+<li>closes_synergy_edge: docs × cron (currently none)</li>
+<li>loop_schedule: 1h</li>
+</ul>
+<p>verifies_via:   channel: metric   tool: count <code>state/shared/specs/*.html</code> vs <code>state/shared/specs/*.md</code>   expected_signal: ratio ≥ 0.95 (every recent MD has HTML twin)   re_run_cost: 1s   baseline: &lt;0.1 ratio</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Write path: <code>scripts/emit-all-spec-html.mjs</code> action: walk <code>state/shared/specs/**/*.md</code> + <code>state/shared/research/**/*.md</code>, regen if HTML stale (mtime check) verify: script runs, processes ≥10 files</li>
+<li>step-2: tool: Bash path: <code>H:/prism/</code> action: register cron — <code>CronCreate &quot;17 * * * *&quot;</code> (off-minute) verify: cron entry persists</li>
+<li>step-3: tool: Bash path: <code>H:/prism/</code> action: run pipeline once → confirm 16 HTML files emitted verify: <code>ls state/shared/specs/*.html state/shared/research/*.html | wc -l</code> ≥ 15</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>1000 MDs to process (cost)</li>
+<li>one file corrupts mid-batch (does the rest continue?)</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>1 / 10 / 100 MDs to regen</li>
+<li>stale-only / force-all modes</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>one file fails → log + continue with rest (no batch fail)</li>
+<li>cron oversubscribe (next fires before prev done) → lock file</li>
+<li>mtime equal but content drifted → hash check secondary</li>
+</ul>
+<hr>
+<h2 id="u-hps03-theme-engine-darklight-prefers-color-scheme"><a class="anchor" href="#u-hps03-theme-engine-darklight-prefers-color-scheme" aria-label="Permalink to U-HPS03 — Theme engine (dark/light, prefers-color-scheme)">#</a>U-HPS03 — Theme engine (dark/light, prefers-color-scheme)</h2>
+<ul>
+<li>pillar: html-primary</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 65</li>
+<li>leverage_score: 11</li>
+<li>why: HTML for humans needs reader-respect; accessibility lift</li>
+<li>depends_on: [U-HPS01]</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-HPS02, U-HPS04, U-HPS05]</li>
+<li>viz_node_id: <code>core.css.thememodule</code> (TBD-create)</li>
+<li>closes_synergy_edge: html × accessibility (currently none)</li>
+<li>loop_schedule: none</li>
+</ul>
+<p>verifies_via:   channel: render   tool: render with <code>--theme=dark</code> then <code>--theme=light</code>   expected_signal: both pass axe-cli with 0 contrast errors   re_run_cost: 5s   baseline: no theme support</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Write path: <code>mcp-server/web/assets/spec-theme.css</code> action: CSS vars + <code>@media (prefers-color-scheme: dark)</code> block verify: file exists</li>
+<li>step-2: tool: Edit path: <code>mcp-server/src/engines/SpecHTMLCompanionEngine.ts</code> action: inject <code>&lt;link&gt;</code> to theme.css + <code>data-theme</code> attribute verify: rendered HTML includes theme link</li>
+<li>step-3: tool: Bash path: <code>H:/prism/</code> action: axe-cli check verify: <code>npx @axe-core/cli state/shared/specs/*.html 2&gt;&amp;1 | tail -3</code> → 0 violations</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>user OS theme switches mid-session</li>
+<li>custom CSS in MD code-block overrides theme</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>dark / light / system / forced (4 modes)</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>CSS load fail → inline fallback styles</li>
+<li>browser doesn&#39;t support color-scheme → light default</li>
+<li>high-contrast OS mode → respect OS</li>
+</ul>
+<hr>
+<h2 id="u-hps04-navigation-engine-sticky-toc-anchor-links-search"><a class="anchor" href="#u-hps04-navigation-engine-sticky-toc-anchor-links-search" aria-label="Permalink to U-HPS04 — Navigation engine (sticky TOC, anchor links, search)">#</a>U-HPS04 — Navigation engine (sticky TOC, anchor links, search)</h2>
+<ul>
+<li>pillar: html-primary</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 62</li>
+<li>leverage_score: 11</li>
+<li>why: 600-line specs need navigation; HTML&#39;s structural advantage over MD</li>
+<li>depends_on: [U-HPS01]</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-HPS02, U-HPS03, U-HPS05, U-HPS07]</li>
+<li>viz_node_id: <code>core.js.navmodule</code> (TBD-create)</li>
+<li>closes_synergy_edge: html × navigation (currently none)</li>
+<li>loop_schedule: none</li>
+</ul>
+<p>verifies_via:   channel: render   tool: manual smoke — click sticky TOC entry, search &quot;U-HPS01&quot;   expected_signal: anchor jumps, search highlights match   re_run_cost: 30s   baseline: no navigation</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Write path: <code>mcp-server/web/assets/spec-nav.js</code> action: vanilla JS — IntersectionObserver for TOC highlight + <code>mark.js</code> for search verify: file exists, &lt; 5KB</li>
+<li>step-2: tool: Edit path: <code>mcp-server/src/engines/SpecHTMLCompanionEngine.ts</code> action: emit TOC from H2/H3 + include nav.js verify: rendered HTML has sticky <code>&lt;nav&gt;</code></li>
+<li>step-3: tool: Write path: <code>mcp-server/src/__tests__/spec-html-nav.test.ts</code> action: parse rendered HTML, assert TOC structure verify: passes</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>1000 H2 entries (TOC overflow)</li>
+<li>duplicate header text (anchor collision)</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>5 / 50 / 500 sections in TOC</li>
+<li>happy / collision / nested</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>duplicate anchors → suffix with index</li>
+<li>search query empty → reset highlights</li>
+<li>JS disabled → graceful TOC without smooth-scroll</li>
+</ul>
+<hr>
+<h2 id="u-hps05-accessibility-hook-wai-aria-axe-cli-gate"><a class="anchor" href="#u-hps05-accessibility-hook-wai-aria-axe-cli-gate" aria-label="Permalink to U-HPS05 — Accessibility hook (WAI-ARIA, axe-cli gate)">#</a>U-HPS05 — Accessibility hook (WAI-ARIA, axe-cli gate)</h2>
+<ul>
+<li>pillar: html-primary</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 60</li>
+<li>leverage_score: 10</li>
+<li>why: WebAim reports 41% of HTML rendering tools regress accessibility; pre-commit hook prevents</li>
+<li>depends_on: [U-HPS01]</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-HPS02, U-HPS03, U-HPS04]</li>
+<li>viz_node_id: <code>core.hooks.htmla11yguard</code> (TBD-create)</li>
+<li>closes_synergy_edge: html × hooks (currently none)</li>
+<li>loop_schedule: none</li>
+</ul>
+<p>verifies_via:   channel: test   tool: <code>node .claude/hooks/html-a11y-guard.mjs &lt;&lt;&lt; &#39;{&quot;files&quot;:[&quot;state/shared/specs/foo.html&quot;]}&#39;</code>   expected_signal: exit 0 if axe-cli passes, else exit 2 with violations listed   re_run_cost: 10s per HTML   baseline: no guard</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Write path: <code>.claude/hooks/html-a11y-guard.mjs</code> action: pre-commit hook — run <code>npx @axe-core/cli</code> on changed HTML files; block if ≥1 contrast / aria-label violation verify: hook runs</li>
+<li>step-2: tool: Edit path: <code>.claude/settings.json</code> action: register hook on <code>git-commit-prepare</code> matcher verify: parse clean</li>
+<li>step-3: tool: Bash path: <code>H:/prism/</code> action: smoke test on existing HTML verify: <code>node .claude/hooks/html-a11y-guard.mjs &lt;&lt;&lt; &#39;{&quot;files&quot;:[&quot;state/shared/specs/REVENUE-ROADMAP-2026-05-10.html&quot;]}&#39;</code> produces clean or actionable output</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>HTML with embedded SVG that has nested ARIA violations</li>
+<li>oversized HTML (10MB+)</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>0 / 5 / 50 violations per file</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>axe-cli unavailable → skip with warning (don&#39;t hard-fail dev loop)</li>
+<li>false positives → maintainer override list</li>
+<li>hook timeout → split per-file</li>
+</ul>
+<hr>
+<h2 id="u-hps06-drift-guard-mdhtml-hash-on-regen"><a class="anchor" href="#u-hps06-drift-guard-mdhtml-hash-on-regen" aria-label="Permalink to U-HPS06 — Drift guard (MD↔HTML hash on regen)">#</a>U-HPS06 — Drift guard (MD↔HTML hash on regen)</h2>
+<ul>
+<li>pillar: html-primary</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 55</li>
+<li>leverage_score: 9</li>
+<li>why: if someone hand-edits HTML, subsequent MD regen silently loses changes; hash detects</li>
+<li>depends_on: [U-HPS02]</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-HPS07]</li>
+<li>viz_node_id: <code>core.hooks.htmldriftguard</code> (TBD-create)</li>
+<li>closes_synergy_edge: html × drift (currently none)</li>
+<li>loop_schedule: per-commit</li>
+</ul>
+<p>verifies_via:   channel: test   tool: hand-edit HTML → attempt commit   expected_signal: hook blocks, asks to reconcile MD   re_run_cost: 1s   baseline: silent loss</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Write path: <code>.claude/hooks/html-drift-guard.mjs</code> action: pre-commit — compute hash from MD render, compare to <code>&lt;filename&gt;.html.hash</code>; if mismatch and HTML newer → block verify: hook runs</li>
+<li>step-2: tool: Edit path: <code>scripts/emit-all-spec-html.mjs</code> action: on regen, write hash sidecar verify: <code>.html.hash</code> file produced</li>
+<li>step-3: tool: Edit path: <code>.claude/settings.json</code> action: register hook verify: parse clean</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>hash file corrupt</li>
+<li>both MD and HTML edited in same commit (race)</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>0 / 1 / 10 drifted files</li>
+<li>HTML-edit-only / MD-edit-only / both-edit</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>hash missing → assume first run, write hash + warn</li>
+<li>both edited → require explicit <code>--accept-md-wins</code> flag</li>
+<li>hash collision (impossible) → manual reconcile mode</li>
+</ul>
+<hr>
+<h2 id="u-hps07-dispatcher-actions-prismdevemitspechtml-prismsessiondoc_render"><a class="anchor" href="#u-hps07-dispatcher-actions-prismdevemitspechtml-prismsessiondoc_render" aria-label="Permalink to U-HPS07 — Dispatcher actions: prismdev:emitspechtml + prismsession:doc_render">#</a>U-HPS07 — Dispatcher actions: <code>prism_dev:emit_spec_html</code> + <code>prism_session:doc_render</code></h2>
+<ul>
+<li>pillar: html-primary</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 50</li>
+<li>leverage_score: 9</li>
+<li>why: MCP-callable rendering enables on-demand companion generation from any chat</li>
+<li>depends_on: [U-HPS01]</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-HPS04, U-HPS06]</li>
+<li>viz_node_id: <code>disp.devdispatcher</code> + <code>disp.sessiondispatcher</code> (already exist, extend)</li>
+<li>closes_synergy_edge: dispatchers × docs</li>
+<li>loop_schedule: none</li>
+</ul>
+<p>verifies_via:   channel: integration   tool: round-trip MCP <code>prism_dev:emit_spec_html {path:&quot;...&quot;}</code>   expected_signal: 200 OK + path to generated HTML   re_run_cost: 5s   baseline: nonexistent</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Edit path: <code>mcp-server/src/schemas/devActionSchemas.ts</code> action: add <code>emit_spec_html</code> schema verify: TS compiles</li>
+<li>step-2: tool: Edit path: <code>mcp-server/src/tools/dispatchers/devDispatcher.ts</code> action: wire action with lazy SpecHTMLCompanionEngine import verify: round-trip MCP</li>
+<li>step-3: tool: Edit path: <code>mcp-server/src/schemas/sessionActionSchemas.ts</code> action: add <code>doc_render</code> schema (general rendering pipeline) verify: TS compiles</li>
+<li>step-4: tool: Edit path: <code>mcp-server/src/tools/dispatchers/sessionDispatcher.ts</code> action: wire <code>doc_render</code> verify: round-trip MCP</li>
+<li>step-5: tool: Write path: <code>mcp-server/src/__tests__/devDispatcher.html.test.ts</code> action: 4 tests — happy, missing path, oversized MD, render error verify: 4 passed</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>path traversal <code>../etc/passwd</code></li>
+<li>render of LLM-injected content</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>dev / session dispatchers</li>
+<li>markdown / dossier / roadmap inputs</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>file not found → 404 with helpful message</li>
+<li>render fail → emit error.html + return path</li>
+<li>rate limit → defer with retry-after</li>
+</ul>
+<hr>
+<h2 id="x-closing-notes"><a class="anchor" href="#x-closing-notes" aria-label="Permalink to §X — Closing notes">#</a>§X — Closing notes</h2>
+<p><strong>Critical-path:</strong> U-HPS01 unblocks everything. Build first.</p>
+<p><strong>Cron:</strong> <code>17 * * * *</code> (off-minute) for U-HPS02 auto-twin regen.</p>
+<p><strong>Synergy edges closed:</strong> 6 (docs × system, docs × cron, html × accessibility, html × navigation, html × hooks, dispatchers × docs).</p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="BACKEND-DEVTOOLS-RGS6-HTML-PRIMARY-MS0-ATOMIZED-2026-05-10.md">BACKEND-DEVTOOLS-RGS6-HTML-PRIMARY-MS0-ATOMIZED-2026-05-10.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

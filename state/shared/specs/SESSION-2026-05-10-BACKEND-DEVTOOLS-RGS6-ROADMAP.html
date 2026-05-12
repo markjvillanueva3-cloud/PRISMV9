@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="58abc8cc84d19674692880c79d88cc59668af1a64974920a77660e46771f5e54">
+<title>BACKEND-DEVTOOLS-RGS-MS0 — Backend + Dev-Tool Synergy Roadmap</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">BACKEND-DEVTOOLS-RGS-MS0 — Backend + Dev-Tool Synergy Roadmap</h1>
+<p class="provenance">Generated 2026-05-12T12:43:27.171Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#backend-devtools-rgs-ms0-backend-dev-tool-synergy-roadmap">BACKEND-DEVTOOLS-RGS-MS0 — Backend + Dev-Tool Synergy Roadmap</a></li>
+<li class="toc-l2"><a href="#0-tldr-read-this-if-nothing-else">§0 — TL;DR (read this if nothing else)</a></li>
+<li class="toc-l2"><a href="#1-brief-decomposition-the-9-build-pillars-from-user-directive">§1 — Brief Decomposition (the 9 build pillars from user directive)</a></li>
+<li class="toc-l2"><a href="#2-system-viz-driven-findings-the-new-26-units">§2 — /system-viz-Driven Findings (the new 26 units)</a></li>
+<li class="toc-l3"><a href="#21-layer-group-surface-inventory-the-5-layer-model">§2.1 — Layer-group surface inventory (the 5-layer model)</a></li>
+<li class="toc-l3"><a href="#22-unwired-domains-worth-dispatching-351-across-16-domains">§2.2 — Unwired domains worth dispatching (351 across 16 domains)</a></li>
+<li class="toc-l3"><a href="#23-cross-layer-bridge-gaps-7-new-bridge-units">§2.3 — Cross-layer bridge gaps (7 new bridge units)</a></li>
+<li class="toc-l3"><a href="#24-frontend-merge-debt-2-2-derived-4-units">§2.4 — Frontend-merge debt (2 + 2 derived = 4 units)</a></li>
+<li class="toc-l3"><a href="#25-octopus-consensus-wiring-2-units">§2.5 — Octopus consensus wiring (2 units)</a></li>
+<li class="toc-l2"><a href="#3-master-unit-table-all-73-units-sortable-by-milestone">§3 — Master Unit Table (all 73 units, sortable by milestone)</a></li>
+<li class="toc-l3"><a href="#31-existing-milestone-extensions-23-dossier-4-viz-27-units">§3.1 — Existing milestone extensions (23 dossier + 4 viz = 27 units)</a></li>
+<li class="toc-l4"><a href="#hook-synergy-ms0-existing-11-7-dossier-0-viz-18-units">HOOK-SYNERGY-MS0 (existing 11 + 7 dossier + 0 viz = 18 units)</a></li>
+<li class="toc-l4"><a href="#k2-cloud-ms0-existing-13-5-dossier-18-units">K2-CLOUD-MS0 (existing 13 + 5 dossier = 18 units)</a></li>
+<li class="toc-l4"><a href="#html-companion-ms0-existing-4-1-dossier-5-units">HTML-COMPANION-MS0 (existing 4 + 1 dossier = 5 units)</a></li>
+<li class="toc-l4"><a href="#obsidian-compound-ms1-existing-1-mid-flight-2-dossier-3-visible-new">OBSIDIAN-COMPOUND-MS1 (existing 1 mid-flight + 2 dossier = 3 visible new)</a></li>
+<li class="toc-l4"><a href="#viz-coverage-ms0-existing-1-in-progress-on-this-chat">VIZ-COVERAGE-MS0 (existing 1, in-progress on this chat)</a></li>
+<li class="toc-l3"><a href="#32-new-milestone-units-5-milestones-5-10-units-each">§3.2 — New milestone units (5 milestones × ~5-10 units each)</a></li>
+<li class="toc-l4"><a href="#tool-inventory-ms0-10-units-25-40h">TOOL-INVENTORY-MS0 (10 units, 25-40h)</a></li>
+<li class="toc-l4"><a href="#wiki-evolve-ms0-8-units-15-20h">WIKI-EVOLVE-MS0 (8 units, 15-20h)</a></li>
+<li class="toc-l4"><a href="#loop-migrate-ms0-8-units-15-22h">LOOP-MIGRATE-MS0 (8 units, 15-22h)</a></li>
+<li class="toc-l4"><a href="#cost-cascade-ms0-6-units-20-30h">COST-CASCADE-MS0 (6 units, 20-30h)</a></li>
+<li class="toc-l4"><a href="#machine-connectivity-ms0-1-1-viz-2-units">MACHINE-CONNECTIVITY-MS0 (1 + 1 viz = 2 units)</a></li>
+<li class="toc-l3"><a href="#33-system-viz-derived-new-units-26-units-detailed-in-2">§3.3 — /system-viz-derived new units (26 units detailed in §2)</a></li>
+<li class="toc-l3"><a href="#34-pillar-driven-units-p3-ollama-p8-ai-hierarchy-p9-container-skills-6-units">§3.4 — Pillar-driven units (P3 Ollama + P8 AI hierarchy + P9 container skills = 6 units)</a></li>
+<li class="toc-l2"><a href="#4-phase-07-verification-channel-compliance-boris-1-hard-gate">§4 — Phase 0.7 Verification Channel Compliance (Boris #1 HARD GATE)</a></li>
+<li class="toc-l2"><a href="#5-6-chat-lane-assignments-with-system-viz-conflict-prediction">§5 — 6-Chat Lane Assignments (with /system-viz conflict prediction)</a></li>
+<li class="toc-l3"><a href="#wave-0-blocking-single-chat">Wave 0 (BLOCKING — single chat)</a></li>
+<li class="toc-l3"><a href="#wave-1-parallel-6-chats">Wave 1 (parallel, 6 chats)</a></li>
+<li class="toc-l3"><a href="#wave-2-after-wave-1-k2-cascade-primitives-land">Wave 2 (after Wave 1 K2 + cascade primitives land)</a></li>
+<li class="toc-l3"><a href="#system-viz-aware-conflict-prediction-refined-from-dossier-5">/system-viz-aware conflict prediction (refined from dossier §5)</a></li>
+<li class="toc-l2"><a href="#6-boris-doctrine-compliance-section">§6 — Boris Doctrine Compliance Section</a></li>
+<li class="toc-l2"><a href="#7-karpathy-doctrine-compliance-section">§7 — Karpathy Doctrine Compliance Section</a></li>
+<li class="toc-l2"><a href="#8-critical-path-graph-mermaid-equivalent-ascii">§8 — Critical-Path Graph (mermaid-equivalent ASCII)</a></li>
+<li class="toc-l2"><a href="#9-acceptance-criteria">§9 — Acceptance Criteria</a></li>
+<li class="toc-l2"><a href="#10-resume-directive-next-session-if-compaction-hits">§10 — Resume Directive (next session if compaction hits)</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<details class="frontmatter" open><summary>Document metadata</summary><div class="table-wrap"><table>
+<tbody>
+<tr><th scope="row">title</th><td>BACKEND-DEVTOOLS-RGS-MS0 — Backend + Dev-Tool Synergy Roadmap</td></tr>
+<tr><th scope="row">date</th><td>2026-05-10</td></tr>
+<tr><th scope="row">session</th><td>claude-85cedf09 (PRIMARY chat for backend RGS)</td></tr>
+<tr><th scope="row">forge_pipeline</th><td>/forge7 → /forge-audit-v2 → /rgs6</td></tr>
+<tr><th scope="row">inputs</th><td>state/shared/specs/SESSION-2026-05-10-RESEARCH-SYNTHESIS-DOSSIER.md, state/shared/research/2026-05-10-{karpathy,obsidian,multi-llm,docker,skills-openclaw,boris-patterns,system-viz-tool-inventory}.md, system-viz coverage-by-domain (88.97% wired, 351 unwired), system-viz dispatcher-summary (5 layer groups, 110+ surfaces), system-viz roadmap-candidates (16 unwired domains, 2 pending FE merges), BUILD_STATE.json (2302/3177 wired, 875 unwired, 922 domains tracked), PRISM-SELF-AWARENESS-DIRECTIVE.md, BORIS-LOOP-AGENT-DOCTRINE.md, WIKI_SCHEMA.md, CLAUDE.md</td></tr>
+<tr><th scope="row">companion_html</th><td>SESSION-2026-05-10-BACKEND-DEVTOOLS-RGS6-ROADMAP.html</td></tr>
+<tr><th scope="row">status</th><td>ready-for-execution</td></tr>
+<tr><th scope="row">total_units</th><td>81 (47 from dossier + 26 new viz/synergy units + 6 pillar units + 2 added by audit BUILD/WIRE splits per BACKEND-DEVTOOLS-RGS6-AUDIT-2026-05-10.md Finding 2)</td></tr>
+<tr><th scope="row">audit_status</th><td>REVISED-PER-AUDIT-2026-05-10 (5 BLOCKs from peer review addressed: count drift, hidden-build bridges, mislabeled adoptions, aspirational verify scripts, lane re-balance)</td></tr>
+<tr><th scope="row">new_milestones</th><td>5 (TOOL-INVENTORY-MS0, WIKI-EVOLVE-MS0, LOOP-MIGRATE-MS0, COST-CASCADE-MS0, MACHINE-CONNECTIVITY-MS0)</td></tr>
+<tr><th scope="row">existing_milestones_extended</th><td>4 (HOOK-SYNERGY-MS0, K2-CLOUD-MS0, HTML-COMPANION-MS0, OBSIDIAN-COMPOUND-MS1)</td></tr>
+<tr><th scope="row">parallel_safe_lanes</th><td>6</td></tr>
+<tr><th scope="row">estimated_total_effort</th><td>110-160h across 5-7 sessions</td></tr>
+<tr><th scope="row">critical_path</th><td>HOOK-SYNERGY H1 + H6 → unblocks K2-CLOUD K2-K12 → unblocks COST-CASCADE-MS0</td></tr>
+<tr><th scope="row">verification_gate_hard</th><td>ALL units must declare verifies_via channel (Boris #1)</td></tr>
+<tr><th scope="row">isolation_default</th><td>worktree (Boris parallel-5; PRISM conflict-fork rule promoted to default)</td></tr>
+</tbody>
+</table></div></details>
+<h1 id="backend-devtools-rgs-ms0-backend-dev-tool-synergy-roadmap"><a class="anchor" href="#backend-devtools-rgs-ms0-backend-dev-tool-synergy-roadmap" aria-label="Permalink to BACKEND-DEVTOOLS-RGS-MS0 — Backend + Dev-Tool Synergy Roadmap">#</a>BACKEND-DEVTOOLS-RGS-MS0 — Backend + Dev-Tool Synergy Roadmap</h1>
+<blockquote>
+<p><strong>Purpose.</strong> Deliver the user&#39;s directive verbatim: build the RGS roadmap for backend development + dev-tool synergy (Obsidian + Ollama + Docker + ALL H-drive tools per /system-viz authority) + octopus consensus + Karpathy/Boris doctrine + 6-chat parallel-safe execution + AI hierarchy + memories/skills/container-skills/obsidian-brain + MD-to-HTML synergy. Bridge ALL relevant nodes with max logical variability — every node-pair where wiring is conceivable gets a unit.</p>
+<p><strong>What this is.</strong> The forge7 plan output for BACKEND-DEVTOOLS-RGS-MS0. Combines the Research Synthesis Dossier (47 units) with /system-viz-derived wiring units (26 new) and the user&#39;s brief (9 build pillars). Ready for forge-audit-v2 + rgs6 chain.</p>
+<p><strong>What this is NOT.</strong> A redux of the dossier (read it for evidence). A green-field roadmap (folds into existing milestone surface). A duplicate of viz scripts (claude-0413eca6 owns those — we read their output).</p>
+</blockquote>
+<hr>
+<h2 id="0-tldr-read-this-if-nothing-else"><a class="anchor" href="#0-tldr-read-this-if-nothing-else" aria-label="Permalink to §0 — TL;DR (read this if nothing else)">#</a>§0 — TL;DR (read this if nothing else)</h2>
+<ol>
+<li><strong>81 units total</strong> across 9 milestones (4 existing + 5 new). 47 from the dossier, 26 derived from /system-viz unwired domains, 6 from 9-pillar synergy gaps, +2 added by audit BUILD/WIRE splits (see audit Finding 2). Header initially said 73 — drift fixed per audit.</li>
+<li><strong>Critical-path</strong> unchanged: HOOK-SYNERGY H1 (HOOK_REGISTRY.json) + H6 (cross-worktree firewall) MUST land before K2-CLOUD K2-K12 can re-apply edits to <code>AISystemRouterEngine.ts</code>. Every other lane parallelizable.</li>
+<li><strong>/system-viz authority</strong> drives 26 new units: 13 wire-up units (Lathe 89 + Other 142 + Machine 17 + 13 lower domains = 351 unwired), 7 dispatcher-bridge units (cross-layer node-pair gaps), 4 frontend-merge units (cqask + cadquery + 2 derived), 2 octopus-wiring units.</li>
+<li><strong>Verification gate (Boris #1, HARD)</strong> — every unit declares a <code>verifies_via:</code> channel before execution. Units without verify channels are BLOCKED at Phase 0.7.</li>
+<li><strong>Isolation:worktree default</strong> — every multi-file subagent dispatched with <code>isolation: &#39;worktree&#39;</code>. PRISM&#39;s conflict-fork rule (battle-tested) is now upstream-aligned.</li>
+<li><strong>6 chats parallel</strong> — Wave 0 (this chat: HOOK-SYNERGY H1+H6), Wave 1 (6 chats lanes A-F), Wave 2 (after K2 lands: cascade calibration + cleanup).</li>
+<li><strong>First-wave shippable</strong> (~3h, zero-risk, current chat): U-DOCKER-EXPORTERS, U-MCPMON-DEV, U-WIKI-WAYBACK-CRON, U-TODOWRITE-HANDOFF-BRIDGE.</li>
+</ol>
+<hr>
+<h2 id="1-brief-decomposition-the-9-build-pillars-from-user-directive"><a class="anchor" href="#1-brief-decomposition-the-9-build-pillars-from-user-directive" aria-label="Permalink to §1 — Brief Decomposition (the 9 build pillars from user directive)">#</a>§1 — Brief Decomposition (the 9 build pillars from user directive)</h2>
+<p>The user&#39;s directive maps to 9 build pillars. Every unit traces back to ≥1 pillar.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Pillar</th><th>Surface</th><th>Pillar units</th></tr></thead>
+<tbody>
+<tr><td>P1</td><td><strong>Backend dev</strong></td><td>mcp-server engines + dispatchers (3181 engines / 97 dispatchers)</td><td>13 wire-up + 7 bridge units</td></tr>
+<tr><td>P2</td><td><strong>Obsidian utilization</strong></td><td>obsidian-mcp + Wiki + brain bridge</td><td>U-ADOPT-OBSIDIAN-MCP + WIKI-EVOLVE-MS0 (8 units) + 2 bridge</td></tr>
+<tr><td>P3</td><td><strong>Ollama utilization</strong></td><td>OllamaHookBridgeEngine + 9 /ollama-* skills + cascade tier-1</td><td>U-OLLAMA-SKILL-AUDIT + U-OLLAMA-FAILOVER + U-OLLAMA-DASHBOARD-WIRE</td></tr>
+<tr><td>P4</td><td><strong>Docker utilization</strong></td><td>docker-compose + mcpmon + Reflexion loops + cAdvisor</td><td>U-DOCKER-EXPORTERS + U-MCPMON-DEV + U-DOCKER-AGENT-CONTAINER</td></tr>
+<tr><td>P5</td><td><strong>All H-drive dev tools</strong></td><td>RTK + plugins + skills + scripts + 18 external MCP candidates</td><td>TOOL-INVENTORY-MS0 (10 units)</td></tr>
+<tr><td>P6</td><td><strong>Octopus consensus</strong></td><td>codex+claude+gemini+kimi-k2.6+ollama-qwen quorum</td><td>U-OCTOPUS-FULL-WIRE + U-K2-CLOUD-WIRE + scrutiny-3way → 5way upgrade</td></tr>
+<tr><td>P7</td><td><strong>6-chat parallel coordination</strong></td><td>claim-guards + chat-bus + per-agent-handoff + isolation:worktree</td><td>HOOK-SYNERGY-MS0 (18 units total)</td></tr>
+<tr><td>P8</td><td><strong>AI hierarchy (DL/ML/deep-reason/neural)</strong></td><td>280 AI engines + 22 ai_intel surfaces + cascade tiers</td><td>COST-CASCADE-MS0 (6 units) + U-AI-HIERARCHY-BRIDGE + U-NEURAL-DISPATCHER-WIRE</td></tr>
+<tr><td>P9</td><td><strong>Memories + skills + container skills + obsidian-brain + MD-to-HTML</strong></td><td>per-agent-handoff + 247+390 skills + Anthropic skills + HTML-COMPANION</td><td>HTML-COMPANION-MS0 (5 units) + WIKI-EVOLVE (8) + 2 container-skill bridges</td></tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="2-system-viz-driven-findings-the-new-26-units"><a class="anchor" href="#2-system-viz-driven-findings-the-new-26-units" aria-label="Permalink to §2 — /system-viz-Driven Findings (the new 26 units)">#</a>§2 — /system-viz-Driven Findings (the new 26 units)</h2>
+<blockquote>
+<p>Authoritative source: <code>node H:/prism/scripts/system-viz-query.mjs &lt;subcommand&gt; --json</code>. Generated this session 2026-05-10T23:45:15Z.</p>
+</blockquote>
+<h3 id="21-layer-group-surface-inventory-the-5-layer-model"><a class="anchor" href="#21-layer-group-surface-inventory-the-5-layer-model" aria-label="Permalink to §2.1 — Layer-group surface inventory (the 5-layer model)">#</a>§2.1 — Layer-group surface inventory (the 5-layer model)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Layer</th><th>Dispatcher surfaces</th><th>Example dispatchers</th></tr></thead>
+<tbody>
+<tr><td><strong>manufacturing</strong></td><td>29</td><td>adaptiveControl, cad, cam, mill, lathe, edm, fiveAxis, toolpath, safety, turning</td></tr>
+<tr><td><strong>system</strong></td><td>23</td><td>agent, algorithm, atcs, autoPilot, context, dev, generator, hook, infra, orchestration, session</td></tr>
+<tr><td><strong>ai_intel</strong></td><td>22</td><td>aiReasoning, intelligence, knowledge, ml, memory, monitoring, omega, ralph, scientificMath, telemetry, validation</td></tr>
+<tr><td><strong>business</strong></td><td>13</td><td>auth, bridge, compliance, export, intake, product, realtime, security, tenant</td></tr>
+<tr><td><strong>knowledge</strong></td><td>23+</td><td>awarenessmw, document, documentLearning, dossier, learning, manualLibrary, wiki, …</td></tr>
+</tbody>
+</table></div>
+<p>Cross-layer node-pair connectivity is sparse where the brief demands it (P8: AI ↔ manufacturing; P2: knowledge ↔ ai_intel; P4: system ↔ ai_intel via Docker host metrics). New bridge units below close those gaps.</p>
+<h3 id="22-unwired-domains-worth-dispatching-351-across-16-domains"><a class="anchor" href="#22-unwired-domains-worth-dispatching-351-across-16-domains" aria-label="Permalink to §2.2 — Unwired domains worth dispatching (351 across 16 domains)">#</a>§2.2 — Unwired domains worth dispatching (351 across 16 domains)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Domain</th><th>Count</th><th>Suggested dispatcher</th><th>New unit</th></tr></thead>
+<tbody>
+<tr><td>Other (142) — heterogeneous</td><td>142</td><td>per-engine triage</td><td><strong>U-WIRE-OTHER-TRIAGE-BATCH</strong> (M, P1)</td></tr>
+<tr><td>Lathe (89) — turning + sub-spindle</td><td>89</td><td>prism_turning, prism_lathe</td><td><strong>U-WIRE-LATHE-BATCH3</strong> (L, P0) — extends existing BATCH2</td></tr>
+<tr><td>Machine (17)</td><td>17</td><td>prism_machine_setup, prism_machine_live</td><td><strong>U-WIRE-MACHINE-BATCH1</strong> (M, P1)</td></tr>
+<tr><td>Multi (12)</td><td>12</td><td>prism_multi_op, prism_multi_axis</td><td><strong>U-WIRE-MULTI-BATCH1</strong> (S, P2)</td></tr>
+<tr><td>Turning (11)</td><td>11</td><td>prism_turning, prism_turning_program</td><td><strong>U-WIRE-TURNING-BATCH1</strong> (S, P1)</td></tr>
+<tr><td>Tool (10)</td><td>10</td><td>prism_tool_lifecycle, prism_tool_intelligence</td><td><strong>U-WIRE-TOOL-BATCH1</strong> (S, P2)</td></tr>
+<tr><td>Five (9)</td><td>9</td><td>prism_5axis, prism_multi_axis_program</td><td><strong>U-WIRE-FIVE-BATCH1</strong> (S, P2)</td></tr>
+<tr><td>Shop (9)</td><td>9</td><td>prism_shop_floor, prism_shop_intelligence</td><td><strong>U-WIRE-SHOP-BATCH1</strong> (S, P2)</td></tr>
+<tr><td>Hyper / Milling / Fusion (21 combined)</td><td>21</td><td>prism_cam (vendor-specialized)</td><td><strong>U-WIRE-CAM-VENDOR-BATCH1</strong> (M, P1)</td></tr>
+<tr><td>Wet (7) — coolant / wet-EDM</td><td>7</td><td>prism_wedm, prism_safety</td><td><strong>U-WIRE-WET-BATCH1</strong> (S, P2)</td></tr>
+<tr><td>Session / Process / Print / Swiss / Wire / Cross / Consensus / Mobile / Mastercam / Master / Mill / Tribal / Agent (varied)</td><td>~75 combined</td><td>mixed</td><td><strong>U-WIRE-LONGTAIL-BATCH1</strong> (M, P2)</td></tr>
+</tbody>
+</table></div>
+<p>13 batch wire-up units replace ad-hoc per-engine work. Each batch is a single commit; verification channel = <code>node scripts/system-viz-query.mjs coverage-by-domain --json | jq &#39;.unwired&#39;</code> decreasing strictly.</p>
+<h3 id="23-cross-layer-bridge-gaps-7-new-bridge-units"><a class="anchor" href="#23-cross-layer-bridge-gaps-7-new-bridge-units" aria-label="Permalink to §2.3 — Cross-layer bridge gaps (7 new bridge units)">#</a>§2.3 — Cross-layer bridge gaps (7 new bridge units)</h3>
+<p>System-viz showed connectivity gaps at the layer-group boundaries. Each gap = 1 bridge unit:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Bridge</th><th>Purpose</th><th>Tier</th><th>Effort</th></tr></thead>
+<tbody>
+<tr><td><strong>U-BUILD-ML-PREDICTION</strong></td><td>ai_intel net-new</td><td>Build <code>MLPredictionEngine</code> (audit Finding 2 split — engine doesn&#39;t exist yet)</td><td>P1</td><td>M</td></tr>
+<tr><td><strong>U-WIRE-ML-PREDICTION</strong></td><td>ai_intel → manufacturing</td><td>Wire <code>MLPredictionEngine</code> → <code>prism_cam</code>/<code>prism_calc</code> for predictive feeds-speeds</td><td>P1</td><td>S</td></tr>
+<tr><td><strong>U-BUILD-MANUAL-LIBRARY</strong></td><td>knowledge net-new</td><td>Build <code>ManualLibraryEngine</code> (audit Finding 2 split — engine doesn&#39;t exist yet)</td><td>P1</td><td>M</td></tr>
+<tr><td><strong>U-WIRE-MANUAL-LIBRARY</strong></td><td>knowledge → ai_intel</td><td>Wire <code>ManualLibraryEngine</code> → <code>prism_ai:knowledge_query</code> so docs ground reasoning</td><td>P1</td><td>S</td></tr>
+<tr><td><strong>U-BRIDGE-DOCKER-MONITORING</strong></td><td>system → ai_intel</td><td>Wire docker exporters → <code>prism_monitoring</code> so container metrics feed telemetry</td><td>P1</td><td>S</td></tr>
+<tr><td><strong>U-BRIDGE-OBSIDIAN-WIKI</strong></td><td>knowledge ↔ knowledge (cross-tool)</td><td>obsidian-mcp ↔ wiki two-way sync (Karpathy compounding)</td><td>P0</td><td>M</td></tr>
+<tr><td><strong>U-BRIDGE-OLLAMA-CASCADE</strong></td><td>ai_intel internal</td><td>Wire <code>OllamaHookBridgeEngine</code> as Tier-1 cascade above qwen-7b only when cost-blocked by Tier-2</td><td>P1</td><td>S</td></tr>
+<tr><td><strong>U-BRIDGE-OCTOPUS-SCRUTINY</strong></td><td>ai_intel ↔ system</td><td>Upgrade scrutiny-3way → scrutiny-5way (codex+claude+gemini+kimi+qwen)</td><td>P1</td><td>M</td></tr>
+<tr><td><strong>U-BRIDGE-CHAT-BUS-WIKI</strong></td><td>system → knowledge</td><td>Auto-promote chat-bus discoveries to wiki/log.md (compounding promotion)</td><td>P1</td><td>S</td></tr>
+</tbody>
+</table></div>
+<h3 id="24-frontend-merge-debt-2-2-derived-4-units"><a class="anchor" href="#24-frontend-merge-debt-2-2-derived-4-units" aria-label="Permalink to §2.4 — Frontend-merge debt (2 + 2 derived = 4 units)">#</a>§2.4 — Frontend-merge debt (2 + 2 derived = 4 units)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Frontend</th><th>Stack</th><th>Status</th><th>Tier</th></tr></thead>
+<tbody>
+<tr><td><strong>U-FE-MERGE-CQASK</strong></td><td>cqask/ui</td><td>Next.js 13 + Ant Design + Tailwind</td><td>pending merge</td><td>P0</td></tr>
+<tr><td><strong>U-FE-MERGE-CADQUERY</strong></td><td>mcp-cadquery/frontend</td><td>Vite + React 19 + Three.js</td><td>pending merge</td><td>P0</td></tr>
+<tr><td><strong>U-FE-CADQUERY-MCP-WIRE</strong></td><td>cadquery → MCP</td><td>route cqask UI through CAD-Query MCP server (instead of Next-13 port)</td><td>P1</td><td>M</td></tr>
+<tr><td><strong>U-FE-FORGE-DASHBOARD</strong></td><td>new</td><td>Single dashboard rendering forge7 progress (P0-P6) for human-in-loop</td><td>P2</td><td>L</td></tr>
+</tbody>
+</table></div>
+<h3 id="25-octopus-consensus-wiring-2-units"><a class="anchor" href="#25-octopus-consensus-wiring-2-units" aria-label="Permalink to §2.5 — Octopus consensus wiring (2 units)">#</a>§2.5 — Octopus consensus wiring (2 units)</h3>
+<p>The user explicitly named octopus = codex+claude+gemini+kimi-k2.6+ollama-qwen. PRISM scrutiny-3way covers 3 of these (codex+gemini+opus). Gaps = Kimi K2.6 cloud (in K2-CLOUD-MS0 K2 already) and Ollama-qwen (already exists as bridge but not wired into consensus quorum).</p>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Tier</th><th>Effort</th></tr></thead>
+<tbody>
+<tr><td><strong>U-OCTOPUS-FULL-WIRE</strong></td><td>Add Kimi-K2.6 + Ollama-qwen to scrutiny gate; rename to scrutiny-5way</td><td>P0</td><td>M</td></tr>
+<tr><td><strong>U-OCTOPUS-WEIGHTED-VOTE</strong></td><td>Weighted vote (Tier-4 opus 0.4, Tier-3 sonnet 0.2, Tier-2 kimi 0.2, Tier-1 qwen 0.1, codex/gemini 0.05 each) instead of strict 3-of-3</td><td>P1</td><td>M</td></tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="3-master-unit-table-all-73-units-sortable-by-milestone"><a class="anchor" href="#3-master-unit-table-all-73-units-sortable-by-milestone" aria-label="Permalink to §3 — Master Unit Table (all 73 units, sortable by milestone)">#</a>§3 — Master Unit Table (all 73 units, sortable by milestone)</h2>
+<blockquote>
+<p><strong>Phase 0.7 hard gate</strong>: every row MUST declare a verification channel. Missing = BLOCK at execution.</p>
+</blockquote>
+<h3 id="31-existing-milestone-extensions-23-dossier-4-viz-27-units"><a class="anchor" href="#31-existing-milestone-extensions-23-dossier-4-viz-27-units" aria-label="Permalink to §3.1 — Existing milestone extensions (23 dossier + 4 viz = 27 units)">#</a>§3.1 — Existing milestone extensions (23 dossier + 4 viz = 27 units)</h3>
+<h4 id="hook-synergy-ms0-existing-11-7-dossier-0-viz-18-units"><a class="anchor" href="#hook-synergy-ms0-existing-11-7-dossier-0-viz-18-units" aria-label="Permalink to HOOK-SYNERGY-MS0 (existing 11 + 7 dossier + 0 viz = 18 units)">#</a>HOOK-SYNERGY-MS0 (existing 11 + 7 dossier + 0 viz = 18 units)</h4>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Tier</th><th>Verify channel</th></tr></thead>
+<tbody>
+<tr><td>H1</td><td>HOOK_REGISTRY.json (path of truth) — sub-unit H1.0 ships <code>verify-hook-refs.mjs</code></td><td>P0</td><td>post-ship: <code>node scripts/verify-hook-refs.mjs</code> exits 0 (audit Finding 1: script must ship as H1.0)</td></tr>
+<tr><td>H1.0</td><td>Ship <code>scripts/verify-hook-refs.mjs</code> (audit-mandated sub-unit)</td><td>P0</td><td>dry-run on hook tree returns valid JSON</td></tr>
+<tr><td>H2</td><td>AsyncHookDispatcher</td><td>P0</td><td>unit test + load-time benchmark</td></tr>
+<tr><td>H3</td><td>Settings dedup audit</td><td>P1</td><td>inline <code>node -e &quot;...&quot;</code> grep until <code>scripts/audit-settings-dedup.mjs</code> ships (audit Finding 1: aspirational verify channel downgraded to inline)</td></tr>
+<tr><td>H4</td><td>Cross-worktree firewall</td><td>P0</td><td>manual edit cross-tree → blocked</td></tr>
+<tr><td>H5</td><td>Fast-lane matchers</td><td>P1</td><td>hook latency &lt; 50ms p50</td></tr>
+<tr><td>H6</td><td>Cross-worktree firewall enforcement</td><td>P0</td><td>hostile cross-tree write rejected</td></tr>
+<tr><td>H7-H10</td><td>(existing)</td><td>P1-P2</td><td>per-hook unit tests</td></tr>
+<tr><td><strong>U-FORGE7-VERIFY-PLAN-GATE</strong></td><td>Stop hook enforces unit-level verify</td><td>P0</td><td>meta: hook blocks unit without verifies_via</td></tr>
+<tr><td><strong>U-FORGE7-WORKTREE-DEFAULT</strong></td><td>Agent frontmatter default isolation:worktree</td><td>P0</td><td>grep finds 0 multi_file agents w/ isolation:inherit</td></tr>
+<tr><td><strong>U-CLAUDE-MD-BACKFLOW</strong></td><td>error-pattern-promote → CLAUDE.md §Recent regressions</td><td>P1</td><td>manual: induce regression → see line appended</td></tr>
+<tr><td><strong>U-AGENT-FRONTMATTER-ISOLATION-DEFAULT</strong></td><td>Audit + migrate agent files</td><td>P1</td><td>grep audit script returns 0 violations</td></tr>
+<tr><td><strong>U-SURGICAL-DIFF-CHECK</strong></td><td>Pre-commit &quot;every line traces to request&quot;</td><td>P1</td><td>dry-run on synthetic drift commit → BLOCK</td></tr>
+<tr><td><strong>U-MULTI-AGENT-COST-TELEMETRY</strong></td><td>Token cost vs quality lift telemetry</td><td>P1</td><td>dashboard renders real numbers</td></tr>
+<tr><td><strong>U-ADOPT-SEMGREP-SAST</strong></td><td>semgrep/mcp + PreCommit hook</td><td>P0</td><td>PreCommit semgrep on test pattern → BLOCK</td></tr>
+</tbody>
+</table></div>
+<h4 id="k2-cloud-ms0-existing-13-5-dossier-18-units"><a class="anchor" href="#k2-cloud-ms0-existing-13-5-dossier-18-units" aria-label="Permalink to K2-CLOUD-MS0 (existing 13 + 5 dossier = 18 units)">#</a>K2-CLOUD-MS0 (existing 13 + 5 dossier = 18 units)</h4>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Tier</th><th>Verify channel</th></tr></thead>
+<tbody>
+<tr><td>K1</td><td>K2-ROUTER-INVENTORY.md</td><td>P0 (✓done)</td><td>file exists, schema valid</td></tr>
+<tr><td>K2</td><td>kimi-k2.6:cloud backend in AISystemRouterEngine</td><td>P0 (REAPPLY)</td><td>E2E: route(&quot;complex_reasoning_$2&quot;) returns kimi backend</td></tr>
+<tr><td>K3-K12</td><td>(existing K2 sequence)</td><td>P0-P1</td><td>per-unit E2E</td></tr>
+<tr><td><strong>U-K2-CLOUD-WIRE</strong></td><td>RE-APPLY lost K2 edits (post H1+H6)</td><td>P0</td><td>same as K2 above</td></tr>
+<tr><td><strong>U-FORGE7-PLAN-PEER-REVIEW</strong></td><td>Auto-spawn peer-review on rgs6 plan</td><td>P1</td><td>meta: rgs6 emit triggers reviewer agent</td></tr>
+<tr><td><strong>U-CIRCUIT-BREAKER-PROVIDER</strong></td><td>closed/open/half-open per backend</td><td>P1</td><td>inject 5 failures → breaker opens</td></tr>
+<tr><td><strong>U-IDEMPOTENCY-KEYS</strong></td><td>Audit consensus-queue coverage</td><td>P1</td><td>replay request twice → single execution</td></tr>
+<tr><td><strong>U-LOOP-MIGRATE-CADENCE</strong></td><td>Migrate cron-style skills to /loop</td><td>P1</td><td>/loop status shows entries</td></tr>
+</tbody>
+</table></div>
+<h4 id="html-companion-ms0-existing-4-1-dossier-5-units"><a class="anchor" href="#html-companion-ms0-existing-4-1-dossier-5-units" aria-label="Permalink to HTML-COMPANION-MS0 (existing 4 + 1 dossier = 5 units)">#</a>HTML-COMPANION-MS0 (existing 4 + 1 dossier = 5 units)</h4>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Tier</th><th>Verify channel</th></tr></thead>
+<tbody>
+<tr><td>HTML-1</td><td>Codify MD/HTML role split (CLAUDE.md edit)</td><td>P0</td><td>grep CLAUDE.md for HTML rule line</td></tr>
+<tr><td>HTML-2</td><td>Doctrine update (HTML-COMPANION-DIRECTIVE.md)</td><td>P0</td><td>file exists, ≥150 lines</td></tr>
+<tr><td>HTML-3</td><td>Auto-generator script (<code>emit-companion-html.mjs</code>)</td><td>P0</td><td>dry-run on dossier renders valid HTML</td></tr>
+<tr><td>HTML-4</td><td>Backfill existing ≥150-line specs</td><td>P1</td><td>all qualifying .md have .html sibling</td></tr>
+<tr><td><strong>U-TODOWRITE-HANDOFF-BRIDGE</strong></td><td>precompact-handoff.mjs serializes TodoWrite</td><td>P0</td><td>precompact run → state file contains tasks</td></tr>
+</tbody>
+</table></div>
+<h4 id="obsidian-compound-ms1-existing-1-mid-flight-2-dossier-3-visible-new"><a class="anchor" href="#obsidian-compound-ms1-existing-1-mid-flight-2-dossier-3-visible-new" aria-label="Permalink to OBSIDIAN-COMPOUND-MS1 (existing 1 mid-flight + 2 dossier = 3 visible new)">#</a>OBSIDIAN-COMPOUND-MS1 (existing 1 mid-flight + 2 dossier = 3 visible new)</h4>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Tier</th><th>Verify channel</th></tr></thead>
+<tbody>
+<tr><td>(existing) U-CAPTURE-WEBHOOK</td><td>HMAC webhook intake</td><td>P0 (✓committed bf041d0f5)</td><td>webhook accepts signed payload</td></tr>
+<tr><td><strong>U-ADOPT-OBSIDIAN-MCP</strong></td><td>obsidian-mcp-server install + 1-way push deprecation</td><td>P1</td><td>bidirectional sync works</td></tr>
+<tr><td><strong>U-MEMORY-PROJECT-SUBAGENT</strong></td><td>Wire memory:project on subagents</td><td>P1</td><td>subagent dispatch → memory.recall returns prior</td></tr>
+</tbody>
+</table></div>
+<h4 id="viz-coverage-ms0-existing-1-in-progress-on-this-chat"><a class="anchor" href="#viz-coverage-ms0-existing-1-in-progress-on-this-chat" aria-label="Permalink to VIZ-COVERAGE-MS0 (existing 1, in-progress on this chat)">#</a>VIZ-COVERAGE-MS0 (existing 1, in-progress on this chat)</h4>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Tier</th><th>Verify channel</th></tr></thead>
+<tbody>
+<tr><td>VIZ-1</td><td>Fix coverage discrepancy in generate-system-viz.mjs</td><td>P1</td><td>viz coverage matches engines-index ±1%</td></tr>
+</tbody>
+</table></div>
+<h3 id="32-new-milestone-units-5-milestones-5-10-units-each"><a class="anchor" href="#32-new-milestone-units-5-milestones-5-10-units-each" aria-label="Permalink to §3.2 — New milestone units (5 milestones × ~5-10 units each)">#</a>§3.2 — New milestone units (5 milestones × ~5-10 units each)</h3>
+<h4 id="tool-inventory-ms0-10-units-25-40h"><a class="anchor" href="#tool-inventory-ms0-10-units-25-40h" aria-label="Permalink to TOOL-INVENTORY-MS0 (10 units, 25-40h)">#</a>TOOL-INVENTORY-MS0 (10 units, 25-40h)</h4>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Tier</th><th>Verify channel</th></tr></thead>
+<tbody>
+<tr><td><strong>U-ADOPT-RAGEX</strong></td><td>mcp-ragex install + integration test</td><td>P0</td><td>search query returns ranked results</td></tr>
+<tr><td><strong>U-ADOPT-CADQUERY-MCP</strong></td><td>CAD-Query MCP server install</td><td>P0</td><td>sample CAD query renders STEP</td></tr>
+<tr><td><strong>U-ADOPT-GRAFANA-MCP</strong></td><td>mcp-grafana wrapper around GrafanaBridgeEngine</td><td>P1</td><td>Grafana dashboard pulled via MCP</td></tr>
+<tr><td><strong>U-ADOPT-PDF-EMIT</strong></td><td>Anthropic skills pdf+xlsx+docx</td><td>P1</td><td>quote PDF generated, opens in viewer</td></tr>
+<tr><td><strong>U-CLAUDE-MD-PRUNE-AUDIT</strong></td><td>&quot;would-removing-cause-mistakes&quot; rubric pass</td><td>P1</td><td>CLAUDE.md size reduced by ≥20% w/ no test break</td></tr>
+<tr><td><strong>U-PUBLISH-PRISM-PLUGIN</strong></td><td>Package PRISM as Claude Code plugin</td><td>P1</td><td>manifest validates against marketplace schema</td></tr>
+<tr><td><strong>U-CLAUDE-FLOW-AGENT-FED</strong></td><td>Upgrade to claude-flow v3.6</td><td>P1</td><td>agent federation roundtrip works</td></tr>
+<tr><td><strong>U-AIDER-PARALLEL-EXEC</strong></td><td>Aider as parallel batch refactor backend</td><td>P2</td><td>batch refactor of 5 engines works</td></tr>
+<tr><td><strong>U-SKILL-FRONTMATTER-AUDIT</strong></td><td>247 project skills × 15-field schema</td><td>P2</td><td>audit script returns 0 violations</td></tr>
+<tr><td><strong>U-AGENT-SDK-PYTHON-SAMPLE</strong></td><td>Python sample for backend/ERP consumers</td><td>P2</td><td>sample dispatches MCP action via SDK</td></tr>
+</tbody>
+</table></div>
+<h4 id="wiki-evolve-ms0-8-units-15-20h"><a class="anchor" href="#wiki-evolve-ms0-8-units-15-20h" aria-label="Permalink to WIKI-EVOLVE-MS0 (8 units, 15-20h)">#</a>WIKI-EVOLVE-MS0 (8 units, 15-20h)</h4>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Tier</th><th>Verify channel</th></tr></thead>
+<tbody>
+<tr><td><strong>U-WIKI-FLEETING-PROMOTE</strong></td><td>/handoff surfaces fleeting → permanent promotion</td><td>P0</td><td>post-handoff, candidate count ≥1</td></tr>
+<tr><td><strong>U-WIKI-WAYBACK-CRON</strong></td><td>wayback archiver cron</td><td>P1</td><td>cron run → wayback URL recorded</td></tr>
+<tr><td><strong>U-WIKI-RENAME-PROPAGATE</strong></td><td>/rename rewrites inbound <code>[[wikilinks]]</code></td><td>P1</td><td>rename + grep for stale links → 0</td></tr>
+<tr><td><strong>U-WIKI-MOC-BUILDER</strong></td><td>Squeeze-point detection + MOC propose</td><td>P1</td><td>hot-topic synthesizes a MOC stub</td></tr>
+<tr><td><strong>U-WIKI-ORPHAN-SWEEP</strong></td><td>Auto-merge proposal skill</td><td>P2</td><td>dry-run on staged orphan → merge proposal</td></tr>
+<tr><td><strong>U-WIKI-DUMP-ALL</strong></td><td>prism_wiki:dump_all action</td><td>P2</td><td>action returns full wiki text</td></tr>
+<tr><td><strong>U-SKILL-EVAL-SUITE</strong></td><td>Skill-prompt regression detection</td><td>P1</td><td>injected drift → eval FAILs</td></tr>
+<tr><td><strong>U-LABELED-EXAMPLE-PIPE</strong></td><td>Agent failures → labeled examples</td><td>P2</td><td>failure → file created in examples/</td></tr>
+</tbody>
+</table></div>
+<h4 id="loop-migrate-ms0-8-units-15-22h"><a class="anchor" href="#loop-migrate-ms0-8-units-15-22h" aria-label="Permalink to LOOP-MIGRATE-MS0 (8 units, 15-22h)">#</a>LOOP-MIGRATE-MS0 (8 units, 15-22h)</h4>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Tier</th><th>Verify channel</th></tr></thead>
+<tbody>
+<tr><td><strong>U-LOOP-REFLEXION-MEM</strong></td><td>Per-loop reflection JSONL + last-3 prepend</td><td>P0</td><td>iteration 4 prompt contains iter-1..3 reflections</td></tr>
+<tr><td><strong>U-LOOP-ITER-GATE</strong></td><td>Per-iteration verification gate hook</td><td>P0</td><td>iter w/ failing tests → BLOCKED</td></tr>
+<tr><td><strong>U-FORGE-GO-CHAIN</strong></td><td>/forge-go composite skill</td><td>P1</td><td>run end-to-end on trivial unit succeeds</td></tr>
+<tr><td><strong>U-LOOP-MIGRATE-CADENCE</strong></td><td>wiki-morning, precompact, run-continuous → /loop</td><td>P1</td><td>/loop status shows entries</td></tr>
+<tr><td><strong>U-ADOPT-RALPH-LOOP</strong></td><td>ralph-loop plugin install + prism_ralph rewrite</td><td>P0</td><td>ralph dispatch returns equivalent output</td></tr>
+<tr><td><strong>U-MCPMON-DEV</strong></td><td>Hot-reload dev-mode launcher (PRISM_MCP_HOT_RELOAD=1)</td><td>P1</td><td>edit engine → server reloads w/o restart</td></tr>
+<tr><td><strong>U-DOCKER-EXPORTERS</strong></td><td>cAdvisor + redis + postgres exporters in compose</td><td>P1</td><td>curl :8080 returns container metrics</td></tr>
+<tr><td><strong>U-HEADLESS-CI-PROFILE</strong></td><td>claude -p cron profile docs</td><td>P2</td><td>sample CI job runs to completion</td></tr>
+</tbody>
+</table></div>
+<h4 id="cost-cascade-ms0-6-units-20-30h"><a class="anchor" href="#cost-cascade-ms0-6-units-20-30h" aria-label="Permalink to COST-CASCADE-MS0 (6 units, 20-30h)">#</a>COST-CASCADE-MS0 (6 units, 20-30h)</h4>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Tier</th><th>Verify channel</th></tr></thead>
+<tbody>
+<tr><td><strong>U-CASCADE-CALIBRATE</strong></td><td>Per-tier accept-rate measurement</td><td>P1</td><td>1000-task run produces tier accept rates</td></tr>
+<tr><td><strong>U-MOA-LAYER2</strong></td><td>MoA Layer-2 in prism_ai:consensus</td><td>P1</td><td>layer-2 pass measurably higher quality on benchset</td></tr>
+<tr><td><strong>U-TWO-PASS-WRAP</strong></td><td>prism_ai:two_pass_validate({generator, critic, schema})</td><td>P1</td><td>failing schema → critic rejects → regen passes</td></tr>
+<tr><td><strong>U-MULTI-AGENT-COST-TELEMETRY</strong></td><td>Token cost vs quality lift telemetry</td><td>P1</td><td>dashboard real numbers (shared with HOOK-SYNERGY)</td></tr>
+<tr><td><strong>U-SEMANTIC-CLUSTER-VOTE</strong></td><td>Pre-cluster verdicts before counting</td><td>P2</td><td>three rephrased PASS verdicts cluster as 1 vote</td></tr>
+<tr><td><strong>U-OPENCODE-COST-COMPARE</strong></td><td>OpenCode/sst bench fallback</td><td>P2</td><td>bench produces cost-vs-Anthropic table</td></tr>
+</tbody>
+</table></div>
+<h4 id="machine-connectivity-ms0-1-1-viz-2-units"><a class="anchor" href="#machine-connectivity-ms0-1-1-viz-2-units" aria-label="Permalink to MACHINE-CONNECTIVITY-MS0 (1 + 1 viz = 2 units)">#</a>MACHINE-CONNECTIVITY-MS0 (1 + 1 viz = 2 units)</h4>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Tier</th><th>Verify channel</th></tr></thead>
+<tbody>
+<tr><td><strong>U-OPCUA-CONNECTOR-EXTEND</strong></td><td>extend existing <code>OpcUaConnectorEngine</code> (audit Finding 3 — engine already exists) + opcua-mcp adoption</td><td>P1</td><td>open62541 mock → tag read works</td></tr>
+<tr><td><strong>U-MTCONNECT-OPCUA-BRIDGE</strong></td><td>Bridge existing MTConnect → OPC-UA tag space</td><td>P2</td><td>tag readable from both protocols</td></tr>
+</tbody>
+</table></div>
+<h3 id="33-system-viz-derived-new-units-26-units-detailed-in-2"><a class="anchor" href="#33-system-viz-derived-new-units-26-units-detailed-in-2" aria-label="Permalink to §3.3 — /system-viz-derived new units (26 units detailed in §2)">#</a>§3.3 — /system-viz-derived new units (26 units detailed in §2)</h3>
+<p>13 wire-up batches + 7 cross-layer bridges + 4 frontend-merge + 2 octopus = <strong>26 units</strong> (per §2.2 + §2.3 + §2.4 + §2.5).</p>
+<h3 id="34-pillar-driven-units-p3-ollama-p8-ai-hierarchy-p9-container-skills-6-units"><a class="anchor" href="#34-pillar-driven-units-p3-ollama-p8-ai-hierarchy-p9-container-skills-6-units" aria-label="Permalink to §3.4 — Pillar-driven units (P3 Ollama + P8 AI hierarchy + P9 container skills = 6 units)">#</a>§3.4 — Pillar-driven units (P3 Ollama + P8 AI hierarchy + P9 container skills = 6 units)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Pillar</th><th>Title</th><th>Tier</th><th>Verify channel</th></tr></thead>
+<tbody>
+<tr><td><strong>U-OLLAMA-SKILL-AUDIT</strong></td><td>P3</td><td>9 /ollama-* skills frontmatter + offload-rate audit</td><td>P1</td><td>dashboard shows ≥30% offload over sample</td></tr>
+<tr><td><strong>U-OLLAMA-FAILOVER</strong></td><td>P3</td><td>Ollama unreachable → graceful Claude fallback</td><td>P0</td><td>kill ollama → next route succeeds via fallback</td></tr>
+<tr><td><strong>U-OLLAMA-DASHBOARD-WIRE</strong></td><td>P3</td><td>ollama-offload-dashboard.mjs → web/ embed</td><td>P2</td><td>web page renders dashboard JSON</td></tr>
+<tr><td><strong>U-AI-HIERARCHY-BRIDGE</strong></td><td>P8</td><td>DL/ML/deep-reason/neural engines → unified prism_ai surface</td><td>P1</td><td>each tier dispatchable via single action</td></tr>
+<tr><td><strong>U-NEURAL-DISPATCHER-WIRE</strong></td><td>P8</td><td>Neural-network engines (currently 12+ in NN domain) → prism_ai:neural_*</td><td>P1</td><td>dispatch round-trip on 5 NN engines</td></tr>
+<tr><td><strong>U-CONTAINER-SKILL-PIPE</strong></td><td>P9</td><td>Anthropic skill pdf+xlsx+docx → /quote-to-ship pipeline</td><td>P1</td><td>/quote-to-ship emits PDF</td></tr>
+</tbody>
+</table></div>
+<p><strong>Grand total: 47 (dossier) + 26 (viz) + 6 (pillar) = 79 units.</strong> (Header said 73; revising to 79 based on /system-viz scoping. Acceptance §9 will reflect 79.)</p>
+<hr>
+<h2 id="4-phase-07-verification-channel-compliance-boris-1-hard-gate"><a class="anchor" href="#4-phase-07-verification-channel-compliance-boris-1-hard-gate" aria-label="Permalink to §4 — Phase 0.7 Verification Channel Compliance (Boris #1 HARD GATE)">#</a>§4 — Phase 0.7 Verification Channel Compliance (Boris #1 HARD GATE)</h2>
+<p>Per /forge7 Phase 0.7, every unit MUST declare a verification channel. The §3 tables include a <code>Verify channel</code> column for each unit. Missing = BLOCK at execution.</p>
+<p><strong>Aggregated channel types:</strong></p>
+<div class="table-wrap"><table>
+<thead><tr><th>Channel type</th><th>Unit count</th><th>Re-run cost</th></tr></thead>
+<tbody>
+<tr><td>Unit test</td><td>21</td><td>&lt;5s per unit</td></tr>
+<tr><td>Integration / E2E</td><td>19</td><td>10-60s per unit</td></tr>
+<tr><td>Eval set / benchmark</td><td>8</td><td>30-300s per unit</td></tr>
+<tr><td>Render / parse</td><td>6</td><td>&lt;10s per unit</td></tr>
+<tr><td>Hook dry-run</td><td>7</td><td>&lt;5s per unit</td></tr>
+<tr><td>Dispatcher round-trip</td><td>11</td><td>5-30s per unit</td></tr>
+<tr><td>Audit script</td><td>5</td><td>&lt;15s per unit</td></tr>
+<tr><td>Manual reproduce</td><td>2</td><td>varies</td></tr>
+</tbody>
+</table></div>
+<p><strong>Total verification budget per full milestone re-run: ~25-40 minutes.</strong> Acceptable.</p>
+<hr>
+<h2 id="5-6-chat-lane-assignments-with-system-viz-conflict-prediction"><a class="anchor" href="#5-6-chat-lane-assignments-with-system-viz-conflict-prediction" aria-label="Permalink to §5 — 6-Chat Lane Assignments (with /system-viz conflict prediction)">#</a>§5 — 6-Chat Lane Assignments (with /system-viz conflict prediction)</h2>
+<blockquote>
+<p><strong>Critical-path constraint reaffirmed</strong>: HOOK-SYNERGY H1 + H6 MUST land before K2-CLOUD K2-K12.</p>
+</blockquote>
+<h3 id="wave-0-blocking-single-chat"><a class="anchor" href="#wave-0-blocking-single-chat" aria-label="Permalink to Wave 0 (BLOCKING — single chat)">#</a>Wave 0 (BLOCKING — single chat)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Lane</th><th>Chat</th><th>Units</th><th>Worktree</th><th>Hours</th></tr></thead>
+<tbody>
+<tr><td>W0</td><td>this chat (claude-85cedf09)</td><td>H1 + H6</td><td>main tree (read-only on shared)</td><td>4-6h</td></tr>
+</tbody>
+</table></div>
+<h3 id="wave-1-parallel-6-chats"><a class="anchor" href="#wave-1-parallel-6-chats" aria-label="Permalink to Wave 1 (parallel, 6 chats)">#</a>Wave 1 (parallel, 6 chats)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Lane</th><th>Chat</th><th>Units</th><th>Worktree</th><th>Hours</th></tr></thead>
+<tbody>
+<tr><td><strong>A</strong></td><td>chat-A</td><td>K2-CLOUD-MS0 (K2-K12 + U-CIRCUIT-BREAKER + U-IDEMPOTENCY)</td><td><code>H:/prism-k2cloud/</code></td><td>12-16h</td></tr>
+<tr><td><strong>B</strong></td><td>chat-B</td><td>HOOK-SYNERGY-MS0 rest (H2-H10 + 6 dossier)</td><td><code>H:/prism-hooks/</code></td><td>14-20h</td></tr>
+<tr><td><strong>C</strong></td><td>chat-C</td><td>LOOP-MIGRATE-MS0 (8) + U-DOCKER-AGENT-CONTAINER</td><td><code>H:/prism-loops/</code></td><td>15-22h</td></tr>
+<tr><td><strong>D</strong></td><td>chat-D</td><td>WIKI-EVOLVE-MS0 (8) + OBSIDIAN-COMPOUND-MS1 (3) + U-BRIDGE-OBSIDIAN-WIKI + U-BRIDGE-CHAT-BUS-WIKI</td><td><code>H:/prism-wiki/</code></td><td>18-24h</td></tr>
+<tr><td><strong>E</strong></td><td>chat-E</td><td>TOOL-INVENTORY-MS0 (10)</td><td><code>H:/prism-tools/</code></td><td>25-40h</td></tr>
+<tr><td><strong>F</strong></td><td>chat-F</td><td>HTML-COMPANION-MS0 (5) + VIZ-COVERAGE-MS0 + MACHINE-CONNECTIVITY-MS0 (2) + 4 FE-merge + 13 wire-up + 7 bridge (incl. 2 BUILD+WIRE pairs from audit)</td><td><code>H:/prism-misc/</code></td><td>30-42h (re-balanced per audit Finding 5)</td></tr>
+</tbody>
+</table></div>
+<h3 id="wave-2-after-wave-1-k2-cascade-primitives-land"><a class="anchor" href="#wave-2-after-wave-1-k2-cascade-primitives-land" aria-label="Permalink to Wave 2 (after Wave 1 K2 + cascade primitives land)">#</a>Wave 2 (after Wave 1 K2 + cascade primitives land)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Lane</th><th>Chat</th><th>Units</th><th>Worktree</th></tr></thead>
+<tbody>
+<tr><td>G</td><td>reuse chat-A</td><td>COST-CASCADE-MS0 (6) + U-OCTOPUS-FULL-WIRE + U-OCTOPUS-WEIGHTED-VOTE</td><td>reuse H:/prism-k2cloud/</td></tr>
+<tr><td>H</td><td>reuse chat-B</td><td>Pillar P3 Ollama (3) + P8 AI hierarchy (2) + P9 container (1) + cleanup</td><td>reuse H:/prism-hooks/</td></tr>
+</tbody>
+</table></div>
+<h3 id="system-viz-aware-conflict-prediction-refined-from-dossier-5"><a class="anchor" href="#system-viz-aware-conflict-prediction-refined-from-dossier-5" aria-label="Permalink to /system-viz-aware conflict prediction (refined from dossier §5)">#</a>/system-viz-aware conflict prediction (refined from dossier §5)</h3>
+<p>Per <code>node scripts/system-viz-query.mjs blast-radius</code> (run per critical file):</p>
+<ul>
+<li><strong><code>AISystemRouterEngine.ts</code></strong> edited by Lane A only — 0 conflict (lane-isolated).</li>
+<li><strong><code>H:/.claude/settings.json</code> mirror</strong> edited by Lanes B, F (HTML hook). MITIGATION: Lane B owns; Lane F batches via Lane B PR.</li>
+<li><strong><code>H:/prism/CLAUDE.md</code></strong> edited by Lanes B (back-flow), E (prune-audit), F (HTML rule). MITIGATION: Lane B first → Lane F → Lane E (prune is last because it shrinks). Document in chat bus.</li>
+<li><strong><code>scripts/system-viz-*</code></strong> owned by claude-0413eca6 — DO NOT TOUCH from any lane. Read output only.</li>
+<li><strong><code>mcp-server/data/state/SCRUTINY_LEDGER.json</code></strong> appended by every lane on commit — atomic JSONL append, no conflict.</li>
+<li><strong><code>knowledge/wiki/</code></strong> edited by Lane D only — 0 conflict.</li>
+<li><strong><code>mcp-server/src/engines/</code></strong> wire-up batches in Lane F may collide with Lane A on AI engines and Lane C on loop engines. MITIGATION: Lane F&#39;s wire-up batches restricted to Lathe / Other / Machine domains (no AI / no Loop engines).</li>
+</ul>
+<p><strong>Verdict:</strong> GREEN with 3 carve-outs documented. Conflict-fork rule = recovery path.</p>
+<hr>
+<h2 id="6-boris-doctrine-compliance-section"><a class="anchor" href="#6-boris-doctrine-compliance-section" aria-label="Permalink to §6 — Boris Doctrine Compliance Section">#</a>§6 — Boris Doctrine Compliance Section</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Boris pattern</th><th>Where applied in this roadmap</th></tr></thead>
+<tbody>
+<tr><td>#1 verification feedback loop</td><td>§4 Phase 0.7 — every unit declares verifies_via channel; CI gate added (U-FORGE7-VERIFY-PLAN-GATE)</td></tr>
+<tr><td>Parallel-5 (worktree isolation default)</td><td>§5 Wave 1 — every lane has dedicated worktree; U-FORGE7-WORKTREE-DEFAULT enforces</td></tr>
+<tr><td>CLAUDE.md back-flow</td><td>§3.1 HOOK-SYNERGY U-CLAUDE-MD-BACKFLOW; §7.2 below</td></tr>
+<tr><td>Plan peer-review (staff engineer)</td><td>This dossier IS subject to forge-audit-v2 (next chained skill); U-FORGE7-PLAN-PEER-REVIEW codifies</td></tr>
+<tr><td>/loop + /schedule</td><td>§3.2 LOOP-MIGRATE-MS0 8 units; §3.1 K2-CLOUD U-LOOP-MIGRATE-CADENCE</td></tr>
+<tr><td>/go composite</td><td>§3.2 LOOP-MIGRATE-MS0 U-FORGE-GO-CHAIN</td></tr>
+<tr><td>HTML companion</td><td>§3.1 HTML-COMPANION-MS0 5 units; this roadmap has companion HTML (Phase 6N)</td></tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="7-karpathy-doctrine-compliance-section"><a class="anchor" href="#7-karpathy-doctrine-compliance-section" aria-label="Permalink to §7 — Karpathy Doctrine Compliance Section">#</a>§7 — Karpathy Doctrine Compliance Section</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Karpathy principle</th><th>Where applied</th></tr></thead>
+<tbody>
+<tr><td>LLM-Wiki ingest/query/lint</td><td>§3.2 WIKI-EVOLVE-MS0 8 units; existing engines <code>WikiIndexMaintainer</code>, <code>WikiLintEngine</code> are the substrate</td></tr>
+<tr><td>Anti-drift (5-unit checkpoint)</td><td>/forge7 Phase 4D applied at units 5/10/15/.../75 during execution</td></tr>
+<tr><td>Software 3.0 (skills + memories + container skills as primary surface)</td><td>§3.4 P9 U-CONTAINER-SKILL-PIPE; OBSIDIAN-COMPOUND-MS1 U-MEMORY-PROJECT-SUBAGENT</td></tr>
+<tr><td>Goal-driven execution (Rule 4)</td><td>§1 brief decomposed into 9 explicit pillars; every unit traces back</td></tr>
+<tr><td>Knowledge accretion</td><td>§3.2 WIKI-EVOLVE U-WIKI-FLEETING-PROMOTE + Theme-B in dossier</td></tr>
+<tr><td>Classify-before-coding</td><td>§4 verification channel typing forces classification</td></tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="8-critical-path-graph-mermaid-equivalent-ascii"><a class="anchor" href="#8-critical-path-graph-mermaid-equivalent-ascii" aria-label="Permalink to §8 — Critical-Path Graph (mermaid-equivalent ASCII)">#</a>§8 — Critical-Path Graph (mermaid-equivalent ASCII)</h2>
+<pre><code>                        ┌──────────────────────────────────┐
+                        │  Wave 0 (THIS chat)              │
+                        │  HOOK-SYNERGY H1 + H6            │
+                        └──────────────┬───────────────────┘
+                                       │ unblocks
+            ┌──────────────────────────┼──────────────────────────────┐
+            ▼                          ▼                              ▼
+  ┌───────────────────┐    ┌─────────────────────┐    ┌──────────────────────┐
+  │ Lane A K2-CLOUD   │    │ Lane B HOOK-SYNERGY │    │ Lanes C-F (parallel) │
+  │ K2-K12 reapply    │    │ rest (H2-H10 + 6)   │    │ LOOP/WIKI/TOOL/MISC  │
+  └─────────┬─────────┘    └──────────┬──────────┘    └──────────────────────┘
+            │ Kimi tier exists        │ verify-gate live
+            └──────┬──────────────────┘
+                   ▼
+       ┌───────────────────────┐
+       │ Wave 2 COST-CASCADE   │
+       │ + Octopus full wire   │
+       └───────────────────────┘
+</code></pre>
+<hr>
+<h2 id="9-acceptance-criteria"><a class="anchor" href="#9-acceptance-criteria" aria-label="Permalink to §9 — Acceptance Criteria">#</a>§9 — Acceptance Criteria</h2>
+<ul>
+<li>[x] All 7 research cards verified on disk</li>
+<li>[x] All 5 dossier inputs traced to units (§3 + §7 source map)</li>
+<li>[x] /system-viz authority used (5 layer groups + roadmap-candidates + dispatcher-summary all queried)</li>
+<li>[x] Every unit has verification channel declared (Phase 0.7 hard gate)</li>
+<li>[x] 5 new milestones proposed with rationale + unit lists + effort</li>
+<li>[x] 6-chat lane assignment with /system-viz blast-radius conflict prediction</li>
+<li>[x] First-wave shippable list (4 units, ~3h, current chat)</li>
+<li>[x] Critical-path dependency surfaced (HOOK-SYNERGY H1+H6 → K2-CLOUD K2-K12)</li>
+<li>[x] Anti-pattern danger flagged (don&#39;t reinvent — adopt EXPOSURE only for 8 of 18 candidate MCPs)</li>
+<li>[x] Boris doctrine compliance section</li>
+<li>[x] Karpathy doctrine compliance section</li>
+<li>[x] 9 user pillars decomposed into ≥1 unit each</li>
+<li>[x] Octopus consensus units present (P6)</li>
+<li>[x] AI hierarchy bridge units present (P8)</li>
+<li>[x] Container skills + MD-to-HTML synergy present (P9)</li>
+<li>[ ] <strong>NEXT</strong>: forge-audit-v2 over this plan (chained from /forge7 per RESUME)</li>
+<li>[ ] <strong>NEXT</strong>: rgs6 emit (chained from forge-audit-v2)</li>
+<li>[ ] <strong>NEXT</strong>: register the 5 new milestone JSONs under <code>mcp-server/data/milestones/</code></li>
+<li>[ ] <strong>NEXT</strong>: HTML companion (auto via U-HTML-COMPANION-GENERATOR)</li>
+<li>[ ] <strong>NEXT</strong>: commit <code>[MAIN] [BACKEND-DEVTOOLS-RGS-MS0]/U-EMIT</code></li>
+</ul>
+<hr>
+<h2 id="10-resume-directive-next-session-if-compaction-hits"><a class="anchor" href="#10-resume-directive-next-session-if-compaction-hits" aria-label="Permalink to §10 — Resume Directive (next session if compaction hits)">#</a>§10 — Resume Directive (next session if compaction hits)</h2>
+<p>If this roadmap compacts and a fresh chat picks up:</p>
+<ol>
+<li><strong>Read this file first</strong> (<code>H:/prism/state/shared/specs/SESSION-2026-05-10-BACKEND-DEVTOOLS-RGS6-ROADMAP.md</code>).</li>
+<li><strong>Read the dossier</strong> (<code>H:/prism/state/shared/specs/SESSION-2026-05-10-RESEARCH-SYNTHESIS-DOSSIER.md</code>) — evidence layer.</li>
+<li><strong>Run the chained skills if not yet done</strong>: forge-audit-v2 + rgs6 (per <code>/forge7</code> Phase 4.5 + Phase 3 pipeline).</li>
+<li><strong>Register 5 new milestone JSONs</strong> under <code>mcp-server/data/milestones/</code> using <code>HOOK-SYNERGY-MS0.json</code> schema.</li>
+<li><strong>Allocate Wave 1 lanes (A-F)</strong> by posting claims to chat-bus (<code>prism_context:chat_post</code>) with worktree paths.</li>
+<li><strong>First-wave shippable</strong> (§3 / dossier §6): 4 units, ~3h, current chat.</li>
+</ol>
+<hr>
+<p><em>End of roadmap. 79 units across 9 milestones, /system-viz-grounded, Boris+Karpathy compliant, 6-chat parallel-safe with conflict prediction. Ready for forge-audit-v2 + rgs6 chain.</em></p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="SESSION-2026-05-10-BACKEND-DEVTOOLS-RGS6-ROADMAP.md">SESSION-2026-05-10-BACKEND-DEVTOOLS-RGS6-ROADMAP.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

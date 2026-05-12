@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="5d64f36ae319d2cf4631e6dfddfe80f0af5b9c059917b834c6ea69800951ac93">
+<title>SESSION-2026-05-10 Research Synthesis Dossier</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">SESSION-2026-05-10 Research Synthesis Dossier</h1>
+<p class="provenance">Generated 2026-05-12T12:43:27.193Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#session-2026-05-10-research-synthesis-dossier">SESSION 2026-05-10 — Research Synthesis Dossier</a></li>
+<li class="toc-l2"><a href="#0-tldr-read-this-if-nothing-else">§0 — TL;DR (read this if nothing else)</a></li>
+<li class="toc-l2"><a href="#1-cross-cutting-themes-the-synthesis-layer">§1 — Cross-Cutting Themes (the synthesis layer)</a></li>
+<li class="toc-l3"><a href="#theme-a-verification-as-hard-gate-is-the-1-lever-5-cards-converge">Theme A — Verification-as-hard-gate is the #1 lever (5 cards converge)</a></li>
+<li class="toc-l3"><a href="#theme-b-knowledge-must-compound-not-accumulate-3-cards-converge">Theme B — Knowledge must compound, not accumulate (3 cards converge)</a></li>
+<li class="toc-l3"><a href="#theme-c-multi-llm-cost-discipline-2-cards-converge-plus-existing-k2-cloud">Theme C — Multi-LLM cost discipline (2 cards converge, plus existing K2-CLOUD)</a></li>
+<li class="toc-l3"><a href="#theme-d-autonomous-loop-primitives-have-converged-on-an-industry-pattern-2-cards-converge">Theme D — Autonomous-loop primitives have converged on an industry pattern (2 cards converge)</a></li>
+<li class="toc-l3"><a href="#theme-e-external-tool-adoption-1-card-primary-all-others-touch">Theme E — External-tool adoption (1 card primary, all others touch)</a></li>
+<li class="toc-l3"><a href="#theme-f-worktree-isolation-is-now-the-default-for-parallel-work-2-cards-converge">Theme F — Worktree isolation is now the default for parallel work (2 cards converge)</a></li>
+<li class="toc-l3"><a href="#theme-g-prism-is-structurally-ahead-in-4-areas-preserve-the-lead">Theme G — PRISM is structurally ahead in 4 areas — preserve the lead</a></li>
+<li class="toc-l2"><a href="#2-master-gap-unit-table-47-units-sortable">§2 — Master Gap-Unit Table (47 units, sortable)</a></li>
+<li class="toc-l3"><a href="#from-karpathy-methodologymd-5-units">From karpathy-methodology.md (5 units)</a></li>
+<li class="toc-l3"><a href="#from-obsidian-2nd-brainmd-5-units">From obsidian-2nd-brain.md (5 units)</a></li>
+<li class="toc-l3"><a href="#from-multi-llm-coordinationmd-7-units">From multi-llm-coordination.md (7 units)</a></li>
+<li class="toc-l3"><a href="#from-docker-autonomous-loopsmd-4-units">From docker-autonomous-loops.md (4 units)</a></li>
+<li class="toc-l3"><a href="#from-skills-openclawmd-7-units">From skills-openclaw.md (7 units)</a></li>
+<li class="toc-l3"><a href="#from-boris-patternsmd-11-units">From boris-patterns.md (11 units)</a></li>
+<li class="toc-l3"><a href="#from-system-viz-tool-inventorymd-8-units-top-adoption-units">From system-viz-tool-inventory.md (8 units — top adoption units)</a></li>
+<li class="toc-l2"><a href="#3-mapping-to-existing-milestones">§3 — Mapping to Existing Milestones</a></li>
+<li class="toc-l3"><a href="#hook-synergy-ms0-existing-11-units-7-new-18-total">HOOK-SYNERGY-MS0 (existing 11 units → +7 new = 18 total)</a></li>
+<li class="toc-l3"><a href="#k2-cloud-ms0-existing-13-units-5-new-18-total">K2-CLOUD-MS0 (existing 13 units → +5 new = 18 total)</a></li>
+<li class="toc-l3"><a href="#html-companion-ms0-existing-4-units-1-new-5-total">HTML-COMPANION-MS0 (existing 4 units → +1 new = 5 total)</a></li>
+<li class="toc-l3"><a href="#obsidian-compound-ms1-existing-scope-webhook-capture-for-personal-knowledge-sources">OBSIDIAN-COMPOUND-MS1 (existing scope — webhook capture for personal-knowledge sources)</a></li>
+<li class="toc-l3"><a href="#viz-coverage-ms0-existing-1-unit-in-progress-in-current-chat">VIZ-COVERAGE-MS0 (existing 1 unit, in-progress in current chat)</a></li>
+<li class="toc-l2"><a href="#4-proposed-new-milestones-5">§4 — Proposed New Milestones (5)</a></li>
+<li class="toc-l3"><a href="#tool-inventory-ms0-external-tool-adoption-plugin-publish-path">TOOL-INVENTORY-MS0 — External tool adoption + plugin-publish path</a></li>
+<li class="toc-l3"><a href="#wiki-evolve-ms0-wiki-compounding-evolution">WIKI-EVOLVE-MS0 — Wiki compounding evolution</a></li>
+<li class="toc-l3"><a href="#loop-migrate-ms0-autonomous-loop-primitive-consolidation">LOOP-MIGRATE-MS0 — Autonomous-loop primitive consolidation</a></li>
+<li class="toc-l3"><a href="#cost-cascade-ms0-multi-llm-cost-discipline-telemetry">COST-CASCADE-MS0 — Multi-LLM cost discipline + telemetry</a></li>
+<li class="toc-l3"><a href="#machine-connectivity-ms0-opc-ua-telemetry-expansion">MACHINE-CONNECTIVITY-MS0 — OPC-UA + telemetry expansion</a></li>
+<li class="toc-l2"><a href="#5-6-chat-lane-assignments-parallel-safe">§5 — 6-Chat Lane Assignments (parallel-safe)</a></li>
+<li class="toc-l3"><a href="#wave-0-blocking-must-land-first-single-chat">Wave 0 (BLOCKING — must land first, single chat)</a></li>
+<li class="toc-l3"><a href="#wave-1-parallel-6-chats">Wave 1 (parallel, 6 chats)</a></li>
+<li class="toc-l3"><a href="#wave-2-after-wave-1-lands-k2-cascade-primitives">Wave 2 (after Wave 1 lands K2 + cascade primitives)</a></li>
+<li class="toc-l3"><a href="#conflict-prediction-analysis">Conflict-prediction analysis</a></li>
+<li class="toc-l2"><a href="#6-first-wave-shippable-in-this-session-4-units-zero-risk">§6 — First-Wave Shippable in This Session (4 units, zero-risk)</a></li>
+<li class="toc-l2"><a href="#7-source-map-every-unit-originating-research-card">§7 — Source Map (every unit ↔ originating research card)</a></li>
+<li class="toc-l2"><a href="#8-what-was-deferred-out-of-scope">§8 — What Was Deferred / Out-of-Scope</a></li>
+<li class="toc-l2"><a href="#9-acceptance-criteria-for-synthesis-complete">§9 — Acceptance Criteria for &quot;Synthesis Complete&quot;</a></li>
+<li class="toc-l2"><a href="#10-resume-directive-next-session">§10 — Resume Directive (next session)</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<details class="frontmatter" open><summary>Document metadata</summary><div class="table-wrap"><table>
+<tbody>
+<tr><th scope="row">title</th><td>SESSION-2026-05-10 Research Synthesis Dossier</td></tr>
+<tr><th scope="row">date</th><td>2026-05-10</td></tr>
+<tr><th scope="row">author</th><td>claude-85cedf09 (research orchestrator)</td></tr>
+<tr><th scope="row">session</th><td>research-synthesis-final</td></tr>
+<tr><th scope="row">inputs</th><td>state/shared/research/2026-05-10-karpathy-methodology.md, state/shared/research/2026-05-10-obsidian-2nd-brain.md, state/shared/research/2026-05-10-multi-llm-coordination.md, state/shared/research/2026-05-10-docker-autonomous-loops.md, state/shared/research/2026-05-10-skills-openclaw.md, state/shared/research/2026-05-10-boris-patterns.md, state/shared/research/2026-05-10-system-viz-tool-inventory.md</td></tr>
+<tr><th scope="row">companion_html</th><td>SESSION-2026-05-10-RESEARCH-SYNTHESIS-DOSSIER.html  # auto-generated, see HTML-COMPANION-MS0</td></tr>
+<tr><th scope="row">status</th><td>ready-for-execution</td></tr>
+<tr><th scope="row">total_units_proposed</th><td>47</td></tr>
+<tr><th scope="row">units_mapping_to_existing_milestones</th><td>23</td></tr>
+<tr><th scope="row">units_requiring_new_milestones</th><td>24</td></tr>
+<tr><th scope="row">new_milestones_proposed</th><td>5</td></tr>
+<tr><th scope="row">estimated_effort_total</th><td>95-130h across 5-6 sessions</td></tr>
+<tr><th scope="row">parallel_safe_lanes</th><td>6</td></tr>
+</tbody>
+</table></div></details>
+<h1 id="session-2026-05-10-research-synthesis-dossier"><a class="anchor" href="#session-2026-05-10-research-synthesis-dossier" aria-label="Permalink to SESSION 2026-05-10 — Research Synthesis Dossier">#</a>SESSION 2026-05-10 — Research Synthesis Dossier</h1>
+<blockquote>
+<p><strong>Purpose.</strong> Consolidate seven parallel research cards (karpathy, obsidian, multi-llm, docker, skills-openclaw, boris-patterns, system-viz-tool-inventory) into a single execution plan. Map every actionable finding back to an existing PRISM milestone OR a newly-proposed milestone. Provide 6-chat lane assignments so we can land the entire synthesis in parallel without git-conflict thrash.</p>
+<p><strong>What this is NOT.</strong> A redux of the cards (read those for evidence + citations). A new doctrine document (existing doctrine in <code>BORIS-LOOP-AGENT-DOCTRINE.md</code>, <code>WIKI_SCHEMA.md</code>, <code>H:/prism/CLAUDE.md</code> already covers the principles). A green-field roadmap (we&#39;re folding into the existing milestone surface, not replacing it).</p>
+</blockquote>
+<hr>
+<h2 id="0-tldr-read-this-if-nothing-else"><a class="anchor" href="#0-tldr-read-this-if-nothing-else" aria-label="Permalink to §0 — TL;DR (read this if nothing else)">#</a>§0 — TL;DR (read this if nothing else)</h2>
+<ol>
+<li><strong>Aggregate gap = 47 units across 5 themes</strong> — verification-as-hard-gate, knowledge-compounding, multi-LLM cost discipline, autonomous-loop primitives, external-tool adoption.</li>
+<li><strong>23 of 47 fold into existing milestones</strong> (HOOK-SYNERGY-MS0, K2-CLOUD-MS0, HTML-COMPANION-MS0, OBSIDIAN-COMPOUND-MS1) — these unblock immediately.</li>
+<li><strong>24 of 47 need new milestones</strong> — proposed: <code>TOOL-INVENTORY-MS0</code>, <code>WIKI-EVOLVE-MS0</code>, <code>LOOP-MIGRATE-MS0</code>, <code>COST-CASCADE-MS0</code>, <code>MACHINE-CONNECTIVITY-MS0</code>.</li>
+<li><strong>One critical-path discovery</strong>: HOOK-SYNERGY H1+H6 unblocks K2-CLOUD K2-K12 (every Edit on <code>AISystemRouterEngine.ts</code> currently waits for full PreToolUse hook stack — that&#39;s why this session&#39;s K2 edits got reverted before commit).</li>
+<li><strong>First-wave shippable in this session</strong> — 4 zero-risk units from the &quot;do now&quot; set across docker-autonomous-loops + boris + obsidian (cAdvisor in compose / mcpmon dev launcher / wayback-archiver cron / handoff fleeting-promote prompt).</li>
+<li><strong>Karpathy alignment is HIGHEST</strong> — PRISM is the most complete operational implementation of LLM-Wiki + anti-drift + Software 3.0 in the public corpus. Don&#39;t dilute it; compound it.</li>
+<li><strong>Anti-pattern danger</strong>: don&#39;t reinvent. Several research findings (<code>memory</code> MCP, <code>sequential-thinking</code> MCP, <code>Anthropic engineering</code> plugin K1) overlap with PRISM internals — adopt the EXTERNAL surface to expose existing engines, do NOT build a parallel implementation.</li>
+</ol>
+<hr>
+<h2 id="1-cross-cutting-themes-the-synthesis-layer"><a class="anchor" href="#1-cross-cutting-themes-the-synthesis-layer" aria-label="Permalink to §1 — Cross-Cutting Themes (the synthesis layer)">#</a>§1 — Cross-Cutting Themes (the synthesis layer)</h2>
+<h3 id="theme-a-verification-as-hard-gate-is-the-1-lever-5-cards-converge"><a class="anchor" href="#theme-a-verification-as-hard-gate-is-the-1-lever-5-cards-converge" aria-label="Permalink to Theme A — Verification-as-hard-gate is the #1 lever (5 cards converge)">#</a>Theme A — Verification-as-hard-gate is the #1 lever (5 cards converge)</h3>
+<p>Karpathy (§3 Rule 4 &quot;Goal-Driven Execution&quot;), Boris (§1 &quot;verification 2-3x quality&quot;), multi-llm (§4 two-pass safety pattern, §3 critique-revise), docker (§7 verification gates per iteration), system-viz-tool-inventory (§2.16 semgrep MCP) all converge on the same insight: <strong>the highest-leverage thing you can do is give the agent a way to verify its own output before claiming completion</strong>.</p>
+<p>PRISM today: per-engine + per-commit verification (test gates, scrutiny-3way, physics-verify). Per-iteration and per-plan verification are gaps.</p>
+<p>→ Proposed units: <strong>U-FORGE7-VERIFY-PLAN-GATE</strong> (Boris §14), <strong>U-LOOP-ITER-GATE</strong> (Docker §7), <strong>U-TWO-PASS-WRAP</strong> (Multi-LLM §4), <strong>U-ADOPT-SEMGREP-SAST</strong> (System-viz §2.16). All 4 fold into HOOK-SYNERGY-MS0 or new COST-CASCADE-MS0.</p>
+<h3 id="theme-b-knowledge-must-compound-not-accumulate-3-cards-converge"><a class="anchor" href="#theme-b-knowledge-must-compound-not-accumulate-3-cards-converge" aria-label="Permalink to Theme B — Knowledge must compound, not accumulate (3 cards converge)">#</a>Theme B — Knowledge must compound, not accumulate (3 cards converge)</h3>
+<p>Karpathy (§1 LLM-Wiki, §4 Software 2.0/3.0), Obsidian (§2 Matuschak evergreen, §6.2 fleeting → permanent promotion), Boris (§4 CLAUDE.md back-flow). PRISM&#39;s wiki layer is structurally aligned but missing the <em>promotion ritual</em>: fleeting observations → permanent wiki entries → CLAUDE.md back-flow → next-session inheritance.</p>
+<p>Karpathy&#39;s framing: &quot;Knowledge work should accrete.&quot; PRISM accumulates in handoffs/chat-bus/AGENT_CHAT.md but doesn&#39;t promote — yesterday&#39;s discovery doesn&#39;t inform today&#39;s decision unless the next chat happens to read the right HANDOFF.</p>
+<p>→ Proposed units: <strong>U-WIKI-FLEETING-PROMOTE</strong> (Obsidian §10.5), <strong>U-WIKI-WAYBACK-CRON</strong> (Obsidian §10.1), <strong>U-WIKI-RENAME-PROPAGATE</strong> (Obsidian §10.2), <strong>U-WIKI-MOC-BUILDER</strong> (Obsidian §10.4), <strong>U-CLAUDE-MD-BACKFLOW</strong> (Boris §14, Karpathy §2), <strong>U-TODOWRITE-HANDOFF-BRIDGE</strong> (Boris §14). New milestone: WIKI-EVOLVE-MS0.</p>
+<h3 id="theme-c-multi-llm-cost-discipline-2-cards-converge-plus-existing-k2-cloud"><a class="anchor" href="#theme-c-multi-llm-cost-discipline-2-cards-converge-plus-existing-k2-cloud" aria-label="Permalink to Theme C — Multi-LLM cost discipline (2 cards converge, plus existing K2-CLOUD)">#</a>Theme C — Multi-LLM cost discipline (2 cards converge, plus existing K2-CLOUD)</h3>
+<p>Multi-LLM (§5 cascade calibration, §6 strength map) + System-viz (§2 MCP servers exposing existing engines). Insight: <strong>the cost ladder matters more than the model choice</strong>. PRISM has 3 of 5 cascade tiers (Tier 0 deterministic, Tier 1 qwen, Tier 4 opus) but is missing Tier 2 (Kimi K2.6) and Tier 3 (Sonnet routing). Cascade calibration loop never built.</p>
+<p>→ Existing milestone: K2-CLOUD-MS0 (13 units, already scoped). Proposed additional units: <strong>U-CASCADE-CALIBRATE</strong> (Multi-LLM §5), <strong>U-MULTI-AGENT-COST-TELEMETRY</strong> (Boris §14), <strong>U-MOA-LAYER2</strong> (Multi-LLM §7). New milestone: COST-CASCADE-MS0 (folds K2-CLOUD-MS0 forward into the calibration layer).</p>
+<h3 id="theme-d-autonomous-loop-primitives-have-converged-on-an-industry-pattern-2-cards-converge"><a class="anchor" href="#theme-d-autonomous-loop-primitives-have-converged-on-an-industry-pattern-2-cards-converge" aria-label="Permalink to Theme D — Autonomous-loop primitives have converged on an industry pattern (2 cards converge)">#</a>Theme D — Autonomous-loop primitives have converged on an industry pattern (2 cards converge)</h3>
+<p>Boris (§5 <code>/loop</code>+<code>/schedule</code>, §6 <code>/go</code>), Docker (§4 Reflexion architecture, §5 Boris&#39;s <code>/loop</code> separation, §7 verification gates per iteration). The 2026 canonical pattern: <strong>iteration toward completion</strong> (Reflexion-style) and <strong>recurring execution</strong> (cron-style) are SEPARATE concerns. PRISM has both as slash commands but neither is wired with proper Reflexion-style episodic-memory between iterations or per-iteration verification.</p>
+<p>→ Proposed units: <strong>U-LOOP-MIGRATE-CADENCE</strong> (Boris §14), <strong>U-LOOP-REFLEXION-MEM</strong> (Docker), <strong>U-LOOP-ITER-GATE</strong> (Docker §7), <strong>U-MCPMON-DEV</strong> (Docker §3), <strong>U-FORGE-GO-CHAIN</strong> (Boris §14). New milestone: LOOP-MIGRATE-MS0.</p>
+<h3 id="theme-e-external-tool-adoption-1-card-primary-all-others-touch"><a class="anchor" href="#theme-e-external-tool-adoption-1-card-primary-all-others-touch" aria-label="Permalink to Theme E — External-tool adoption (1 card primary, all others touch)">#</a>Theme E — External-tool adoption (1 card primary, all others touch)</h3>
+<p>System-viz-tool-inventory (§2 MCP servers, §3 plugins) is the master inventory. Anti-pattern danger: 8 of 18 candidate MCP servers OVERLAP with existing PRISM engines (qdrant/memory/sequential-thinking/grafana/obsidian) — adopt the external SURFACE to expose existing capability cross-CLI; do NOT duplicate logic.</p>
+<p>→ Existing milestone partial (HOOK-SYNERGY for hooks). New milestone: TOOL-INVENTORY-MS0 (10 adoption units from system-viz §6). Plus MACHINE-CONNECTIVITY-MS0 for the OPC-UA adoption (genuinely new capability).</p>
+<h3 id="theme-f-worktree-isolation-is-now-the-default-for-parallel-work-2-cards-converge"><a class="anchor" href="#theme-f-worktree-isolation-is-now-the-default-for-parallel-work-2-cards-converge" aria-label="Permalink to Theme F — Worktree isolation is now the default for parallel work (2 cards converge)">#</a>Theme F — Worktree isolation is now the default for parallel work (2 cards converge)</h3>
+<p>Boris (§2 native <code>claude --worktree</code>, <code>isolation: worktree</code> in agent frontmatter), Docker (§9 conflict-fork rule). PRISM independently invented the conflict-fork rule; native Claude Code worktree support means we should <strong>make <code>isolation: worktree</code> the default in agent frontmatter</strong> for any subagent that touches &gt;2 files, not just react after <code>commit-ownership-guard</code> blocks.</p>
+<p>→ Proposed units: <strong>U-AGENT-FRONTMATTER-ISOLATION-DEFAULT</strong> (Boris §14), <strong>U-FORGE7-WORKTREE-DEFAULT</strong> (Boris §14). Both fold into HOOK-SYNERGY-MS0.</p>
+<h3 id="theme-g-prism-is-structurally-ahead-in-4-areas-preserve-the-lead"><a class="anchor" href="#theme-g-prism-is-structurally-ahead-in-4-areas-preserve-the-lead" aria-label="Permalink to Theme G — PRISM is structurally ahead in 4 areas — preserve the lead">#</a>Theme G — PRISM is structurally ahead in 4 areas — preserve the lead</h3>
+<p>Synthesis-only finding: in 4 dimensions PRISM has built ahead of the public state of the art:</p>
+<ul>
+<li><strong>Multi-chat coordination</strong> (file-claim + chat-bus + conflict-fork rule). External equivalent: not yet published.</li>
+<li><strong>3-of-3 multi-CLI scrutiny gate</strong> (Codex + Gemini + Opus quorum). External equivalent: Cloudflare&#39;s voting pattern, but no public 3-CLI implementation.</li>
+<li><strong>Octopus consensus</strong> (<code>prism_ai:consensus</code> over qwen+codex+gemini+opus). Maps to MoA but with cross-vendor diversity.</li>
+<li><strong>Wiki-as-engine</strong> (<code>WikiIndexMaintainerEngine</code>, <code>WikiLintEngine</code> enforcing schema). Obsidian users do this manually; PRISM has it codified.</li>
+</ul>
+<p><strong>Implication</strong>: don&#39;t dilute these surfaces by adopting external tools that overlap. Adopt only EXPOSURE surfaces (MCP wrappers around our own engines), not duplicate engines.</p>
+<hr>
+<h2 id="2-master-gap-unit-table-47-units-sortable"><a class="anchor" href="#2-master-gap-unit-table-47-units-sortable" aria-label="Permalink to §2 — Master Gap-Unit Table (47 units, sortable)">#</a>§2 — Master Gap-Unit Table (47 units, sortable)</h2>
+<p>Tier: <strong>P0</strong> (blocker / unlocks downstream), <strong>P1</strong> (high-leverage), <strong>P2</strong> (nice-to-have). Effort: <strong>S</strong> ≤1h, <strong>M</strong> 1-4h, <strong>L</strong> 4-12h, <strong>XL</strong> 12+h.</p>
+<h3 id="from-karpathy-methodologymd-5-units"><a class="anchor" href="#from-karpathy-methodologymd-5-units" aria-label="Permalink to From karpathy-methodology.md (5 units)">#</a>From karpathy-methodology.md (5 units)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Tier</th><th>Effort</th><th>Maps to milestone</th></tr></thead>
+<tbody>
+<tr><td>U-WIKI-DUMP-ALL</td><td><code>prism_wiki:dump_all</code> for full-context loading when budget allows</td><td>P2</td><td>S</td><td>WIKI-EVOLVE-MS0</td></tr>
+<tr><td>U-SKILL-EVAL-SUITE</td><td>Skill-prompt regression eval suite (skills can drift silently)</td><td>P1</td><td>L</td><td>WIKI-EVOLVE-MS0</td></tr>
+<tr><td>U-LABELED-EXAMPLE-PIPE</td><td>Agent failures auto-file as labeled examples for next-iteration improvement</td><td>P2</td><td>M</td><td>WIKI-EVOLVE-MS0</td></tr>
+<tr><td>U-DRIFT-SCORE</td><td>Symmetric difference (commit-touched-files ⊖ first-prompt-keywords) drift metric</td><td>P2</td><td>M</td><td>new milestone (HOOK-SYNERGY adjacent)</td></tr>
+<tr><td>U-SURGICAL-DIFF-CHECK</td><td>Automated &quot;every line traces to request&quot; checker on commit</td><td>P1</td><td>M</td><td>HOOK-SYNERGY-MS0</td></tr>
+</tbody>
+</table></div>
+<h3 id="from-obsidian-2nd-brainmd-5-units"><a class="anchor" href="#from-obsidian-2nd-brainmd-5-units" aria-label="Permalink to From obsidian-2nd-brain.md (5 units)">#</a>From obsidian-2nd-brain.md (5 units)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Tier</th><th>Effort</th><th>Maps to milestone</th></tr></thead>
+<tbody>
+<tr><td>U-WIKI-WAYBACK-CRON</td><td>Cron archives external URLs in wiki to Wayback Machine</td><td>P1</td><td>S</td><td>WIKI-EVOLVE-MS0</td></tr>
+<tr><td>U-WIKI-RENAME-PROPAGATE</td><td>Extend <code>/rename</code> to update wiki page filename + rewrite inbound <code>[[wikilinks]]</code></td><td>P1</td><td>M</td><td>WIKI-EVOLVE-MS0</td></tr>
+<tr><td>U-WIKI-ORPHAN-SWEEP</td><td>Skill that proposes merges for orphan notes 30+ days old</td><td>P2</td><td>M</td><td>WIKI-EVOLVE-MS0</td></tr>
+<tr><td>U-WIKI-MOC-BUILDER</td><td>Detect squeeze-points (&gt;10 query results, &gt;3 reads) and propose per-domain MOC</td><td>P1</td><td>M</td><td>WIKI-EVOLVE-MS0</td></tr>
+<tr><td>U-WIKI-FLEETING-PROMOTE</td><td>Extend <code>/handoff</code> to surface fleeting → permanent promotion candidates</td><td>P0</td><td>M</td><td>WIKI-EVOLVE-MS0</td></tr>
+</tbody>
+</table></div>
+<h3 id="from-multi-llm-coordinationmd-7-units"><a class="anchor" href="#from-multi-llm-coordinationmd-7-units" aria-label="Permalink to From multi-llm-coordination.md (7 units)">#</a>From multi-llm-coordination.md (7 units)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Tier</th><th>Effort</th><th>Maps to milestone</th></tr></thead>
+<tbody>
+<tr><td>U-K2-CLOUD-WIRE</td><td>Add <code>kimi-k2.6-cloud</code> backend in <code>AISystemRouterEngine</code> (re-apply lost K2 edits)</td><td>P0</td><td>M</td><td>K2-CLOUD-MS0 (existing K2-K3)</td></tr>
+<tr><td>U-CASCADE-CALIBRATE</td><td>Per-tier accept-rate measurement, auto-tune confidence thresholds</td><td>P1</td><td>L</td><td>COST-CASCADE-MS0</td></tr>
+<tr><td>U-MOA-LAYER2</td><td>Add Layer-2 refinement pass to <code>prism_ai:consensus</code> (MoA layer2)</td><td>P1</td><td>L</td><td>COST-CASCADE-MS0</td></tr>
+<tr><td>U-TWO-PASS-WRAP</td><td><code>prism_ai:two_pass_validate({generator, critic, schema})</code> action</td><td>P1</td><td>M</td><td>COST-CASCADE-MS0</td></tr>
+<tr><td>U-CIRCUIT-BREAKER-PROVIDER</td><td>Wrap each backend with closed/open/half-open circuit breaker</td><td>P1</td><td>M</td><td>K2-CLOUD-MS0</td></tr>
+<tr><td>U-IDEMPOTENCY-KEYS</td><td>Audit consensus-queue for idempotency-key coverage</td><td>P1</td><td>S</td><td>K2-CLOUD-MS0</td></tr>
+<tr><td>U-SEMANTIC-CLUSTER-VOTE</td><td>Pre-cluster verdicts by reasoning before counting (avoid surface-form blindness)</td><td>P2</td><td>M</td><td>COST-CASCADE-MS0</td></tr>
+</tbody>
+</table></div>
+<h3 id="from-docker-autonomous-loopsmd-4-units"><a class="anchor" href="#from-docker-autonomous-loopsmd-4-units" aria-label="Permalink to From docker-autonomous-loops.md (4 units)">#</a>From docker-autonomous-loops.md (4 units)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Tier</th><th>Effort</th><th>Maps to milestone</th></tr></thead>
+<tbody>
+<tr><td>U-DOCKER-EXPORTERS</td><td>Add cAdvisor + redis-exporter + postgres-exporter to compose for container metrics</td><td>P1</td><td>S</td><td>LOOP-MIGRATE-MS0</td></tr>
+<tr><td>U-MCPMON-DEV</td><td>Wire mcpmon as opt-in dev-mode MCP launcher (gated <code>PRISM_MCP_HOT_RELOAD=1</code>)</td><td>P1</td><td>S</td><td>LOOP-MIGRATE-MS0</td></tr>
+<tr><td>U-LOOP-REFLEXION-MEM</td><td><code>loop-reflexion-memory.mjs</code> writes per-loop reflection JSONL, prepends last-3 to next iter</td><td>P0</td><td>M</td><td>LOOP-MIGRATE-MS0</td></tr>
+<tr><td>U-LOOP-ITER-GATE</td><td>Per-iteration verification gate hook (tsc + vitest --changed + stop_on_unwired_assets)</td><td>P0</td><td>M</td><td>LOOP-MIGRATE-MS0</td></tr>
+</tbody>
+</table></div>
+<h3 id="from-skills-openclawmd-7-units"><a class="anchor" href="#from-skills-openclawmd-7-units" aria-label="Permalink to From skills-openclaw.md (7 units)">#</a>From skills-openclaw.md (7 units)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Tier</th><th>Effort</th><th>Maps to milestone</th></tr></thead>
+<tbody>
+<tr><td>U-PUBLISH-PRISM-PLUGIN</td><td>Package PRISM as Claude Code plugin (manifest + skills + hooks + MCP entry)</td><td>P1</td><td>XL</td><td>TOOL-INVENTORY-MS0</td></tr>
+<tr><td>U-AIDER-PARALLEL-EXEC</td><td>Wire Aider as parallel-execution backend for engine-batch refactors</td><td>P2</td><td>M</td><td>TOOL-INVENTORY-MS0</td></tr>
+<tr><td>U-CLAUDE-FLOW-AGENT-FED</td><td>Upgrade claude-flow to v3.6 for agent federation + AgentDB</td><td>P1</td><td>M</td><td>TOOL-INVENTORY-MS0</td></tr>
+<tr><td>U-OPENCODE-COST-COMPARE</td><td>Bench OpenCode/sst as fallback CLI for off-Anthropic cost comparison</td><td>P2</td><td>M</td><td>COST-CASCADE-MS0</td></tr>
+<tr><td>U-MEMORY-PROJECT-SUBAGENT</td><td>Wire <code>memory: project</code> on subagents (replaces some wiki-recall load)</td><td>P1</td><td>S</td><td>OBSIDIAN-COMPOUND-MS1</td></tr>
+<tr><td>U-SKILL-FRONTMATTER-AUDIT</td><td>Audit all 247 project skills for full 15-field frontmatter compliance</td><td>P2</td><td>M</td><td>TOOL-INVENTORY-MS0</td></tr>
+<tr><td>U-AGENT-SDK-PYTHON-SAMPLE</td><td>Sample Python Agent SDK app for non-CLI consumers (backend devs, ERP)</td><td>P2</td><td>L</td><td>TOOL-INVENTORY-MS0</td></tr>
+</tbody>
+</table></div>
+<h3 id="from-boris-patternsmd-11-units"><a class="anchor" href="#from-boris-patternsmd-11-units" aria-label="Permalink to From boris-patterns.md (11 units)">#</a>From boris-patterns.md (11 units)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Tier</th><th>Effort</th><th>Maps to milestone</th></tr></thead>
+<tbody>
+<tr><td>U-FORGE7-VERIFY-PLAN-GATE</td><td>Stop hook enforces &quot;every unit in milestone plan has green verification&quot;</td><td>P0</td><td>M</td><td>HOOK-SYNERGY-MS0</td></tr>
+<tr><td>U-FORGE7-WORKTREE-DEFAULT</td><td>Default <code>isolation: worktree</code> for any subagent with <code>multi_file: true</code></td><td>P0</td><td>M</td><td>HOOK-SYNERGY-MS0</td></tr>
+<tr><td>U-FORGE7-PLAN-PEER-REVIEW</td><td>Auto-spawn <code>/peer-review</code> against <code>/rgs6 generate</code> plan BEFORE Phase 4</td><td>P1</td><td>M</td><td>K2-CLOUD-MS0</td></tr>
+<tr><td>U-CLAUDE-MD-BACKFLOW</td><td>Stop hook appends regression patterns to CLAUDE.md <code>## Recent regressions</code></td><td>P1</td><td>S</td><td>HOOK-SYNERGY-MS0</td></tr>
+<tr><td>U-FORGE-GO-CHAIN</td><td>New composite skill: <code>/test affected → /simplify → /scrutinize → commit → /handoff → /loop</code></td><td>P1</td><td>M</td><td>LOOP-MIGRATE-MS0</td></tr>
+<tr><td>U-LOOP-MIGRATE-CADENCE</td><td>Migrate <code>/wiki-morning</code>, <code>/precompact</code>, <code>/run-continuous</code> to <code>/loop</code> semantics</td><td>P1</td><td>M</td><td>LOOP-MIGRATE-MS0</td></tr>
+<tr><td>U-AGENT-FRONTMATTER-ISOLATION-DEFAULT</td><td>Audit agent frontmatter; default <code>isolation: worktree</code> for multi-file agents</td><td>P1</td><td>S</td><td>HOOK-SYNERGY-MS0</td></tr>
+<tr><td>U-CLAUDE-MD-PRUNE-AUDIT</td><td>Apply Anthropic&#39;s &quot;would-removing-cause-mistakes&quot; rubric to <code>H:/prism/CLAUDE.md</code></td><td>P1</td><td>L</td><td>TOOL-INVENTORY-MS0</td></tr>
+<tr><td>U-MULTI-AGENT-COST-TELEMETRY</td><td>Track token cost vs quality lift for parallel subagent dispatches</td><td>P1</td><td>L</td><td>COST-CASCADE-MS0</td></tr>
+<tr><td>U-TODOWRITE-HANDOFF-BRIDGE</td><td>Compaction hook serializes TodoWrite into per-agent handoff</td><td>P1</td><td>S</td><td>HTML-COMPANION-MS0</td></tr>
+<tr><td>U-HEADLESS-CI-PROFILE</td><td>Document/enable PRISM headless mode for <code>claude -p</code> cron-driven jobs</td><td>P2</td><td>M</td><td>LOOP-MIGRATE-MS0</td></tr>
+</tbody>
+</table></div>
+<h3 id="from-system-viz-tool-inventorymd-8-units-top-adoption-units"><a class="anchor" href="#from-system-viz-tool-inventorymd-8-units-top-adoption-units" aria-label="Permalink to From system-viz-tool-inventory.md (8 units — top adoption units)">#</a>From system-viz-tool-inventory.md (8 units — top adoption units)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Tier</th><th>Effort</th><th>Maps to milestone</th></tr></thead>
+<tbody>
+<tr><td>U-ADOPT-RAGEX</td><td>Install mcp-ragex (semantic + symbolic + regex code search)</td><td>P0</td><td>M</td><td>TOOL-INVENTORY-MS0</td></tr>
+<tr><td>U-ADOPT-RALPH-LOOP</td><td>Install ralph-loop plugin; rewrite <code>prism_ralph</code> to delegate</td><td>P0</td><td>M</td><td>LOOP-MIGRATE-MS0</td></tr>
+<tr><td>U-ADOPT-SEMGREP-SAST</td><td>Install semgrep/mcp; add PreCommit <code>semgrep-block-criticals</code> hook</td><td>P0</td><td>M</td><td>HOOK-SYNERGY-MS0</td></tr>
+<tr><td>U-ADOPT-CADQUERY-MCP</td><td>Install CAD-Query MCP server; route cqask UI via MCP not Next-13 port</td><td>P0</td><td>L</td><td>TOOL-INVENTORY-MS0</td></tr>
+<tr><td>U-ADOPT-OPCUA-MCP</td><td>Install opcua-mcp; build OPCUABridgeEngine for Mitsubishi/Okuma OPC-UA</td><td>P1</td><td>L</td><td>MACHINE-CONNECTIVITY-MS0</td></tr>
+<tr><td>U-ADOPT-GRAFANA-MCP</td><td>Install mcp-grafana wrapper around existing GrafanaBridgeEngine</td><td>P1</td><td>S</td><td>TOOL-INVENTORY-MS0</td></tr>
+<tr><td>U-ADOPT-OBSIDIAN-MCP</td><td>Install obsidian-mcp-server; deprecate one-way push paths in 3 internal engines</td><td>P1</td><td>M</td><td>OBSIDIAN-COMPOUND-MS1</td></tr>
+<tr><td>U-ADOPT-PDF-EMIT</td><td>Install Anthropic skills pdf+xlsx+docx; wire to <code>/quote-to-ship</code> and <code>/setup-sheet-generate</code></td><td>P1</td><td>M</td><td>TOOL-INVENTORY-MS0</td></tr>
+</tbody>
+</table></div>
+<p><strong>Total: 47 units</strong> (5 + 5 + 7 + 4 + 7 + 11 + 8).</p>
+<hr>
+<h2 id="3-mapping-to-existing-milestones"><a class="anchor" href="#3-mapping-to-existing-milestones" aria-label="Permalink to §3 — Mapping to Existing Milestones">#</a>§3 — Mapping to Existing Milestones</h2>
+<h3 id="hook-synergy-ms0-existing-11-units-7-new-18-total"><a class="anchor" href="#hook-synergy-ms0-existing-11-units-7-new-18-total" aria-label="Permalink to HOOK-SYNERGY-MS0 (existing 11 units → +7 new = 18 total)">#</a>HOOK-SYNERGY-MS0 (existing 11 units → +7 new = 18 total)</h3>
+<p>Existing scope: 5-tier hook classification, AsyncHookDispatcher, settings-dedup-audit, fast-lane matchers (H1-H10).</p>
+<p>New units to fold in:</p>
+<ul>
+<li><strong>U-FORGE7-VERIFY-PLAN-GATE</strong> (Boris) — Stop hook extension; aligns with H6 (cross-worktree firewall) timing</li>
+<li><strong>U-FORGE7-WORKTREE-DEFAULT</strong> (Boris) — agent frontmatter migration; aligns with H4 (settings-dedup-audit)</li>
+<li><strong>U-CLAUDE-MD-BACKFLOW</strong> (Boris) — error-pattern-promote extension; one-line addition</li>
+<li><strong>U-AGENT-FRONTMATTER-ISOLATION-DEFAULT</strong> (Boris) — sibling of WORKTREE-DEFAULT</li>
+<li><strong>U-SURGICAL-DIFF-CHECK</strong> (Karpathy) — new pre-commit hook in the hook stack</li>
+<li><strong>U-MULTI-AGENT-COST-TELEMETRY</strong> (Boris) — new engine wired through hook layer</li>
+<li><strong>U-ADOPT-SEMGREP-SAST</strong> (System-viz) — new PreCommit hook</li>
+</ul>
+<p>Critical-path: H1 (HOOK_REGISTRY.json) + H6 (cross-worktree firewall) UNBLOCK K2-CLOUD K2-K12. Without H1+H6, every Edit on <code>AISystemRouterEngine.ts</code> waits for full PreToolUse hook stack (~52s worst-case post-stopgap; ~158s pre-stopgap) which is why this session&#39;s K2 edits got reverted before commit.</p>
+<h3 id="k2-cloud-ms0-existing-13-units-5-new-18-total"><a class="anchor" href="#k2-cloud-ms0-existing-13-units-5-new-18-total" aria-label="Permalink to K2-CLOUD-MS0 (existing 13 units → +5 new = 18 total)">#</a>K2-CLOUD-MS0 (existing 13 units → +5 new = 18 total)</h3>
+<p>Existing scope: K1 inventory done; K2 (kimi-k2.6:cloud backend) edits REVERTED this session, must re-apply after HOOK-SYNERGY H1+H6.</p>
+<p>New units to fold in:</p>
+<ul>
+<li><strong>U-K2-CLOUD-WIRE</strong> (Multi-LLM) — RE-APPLY the lost K2 edits to <code>AISystemRouterEngine.ts</code>. Same as existing K2 unit; just re-confirm scope post-revert.</li>
+<li><strong>U-FORGE7-PLAN-PEER-REVIEW</strong> (Boris) — auto-spawn <code>/peer-review</code> against rgs6-emitted plan</li>
+<li><strong>U-CIRCUIT-BREAKER-PROVIDER</strong> (Multi-LLM) — wrap each backend with breaker state</li>
+<li><strong>U-IDEMPOTENCY-KEYS</strong> (Multi-LLM) — audit existing consensus-queue for coverage</li>
+<li><strong>U-LOOP-MIGRATE-CADENCE</strong> (Boris) — migrate cron-style skills to <code>/loop</code> 7-day semantics</li>
+</ul>
+<h3 id="html-companion-ms0-existing-4-units-1-new-5-total"><a class="anchor" href="#html-companion-ms0-existing-4-units-1-new-5-total" aria-label="Permalink to HTML-COMPANION-MS0 (existing 4 units → +1 new = 5 total)">#</a>HTML-COMPANION-MS0 (existing 4 units → +1 new = 5 total)</h3>
+<p>Existing scope: codify MD/HTML role split, build auto-generator + backfill.</p>
+<p>New units to fold in:</p>
+<ul>
+<li><strong>U-TODOWRITE-HANDOFF-BRIDGE</strong> (Boris) — extend <code>precompact-handoff.mjs</code> to serialize TodoWrite into handoff. Sibling of U-HTML-COMPANION-GENERATOR (both extend the existing handoff helper layer).</li>
+</ul>
+<h3 id="obsidian-compound-ms1-existing-scope-webhook-capture-for-personal-knowledge-sources"><a class="anchor" href="#obsidian-compound-ms1-existing-scope-webhook-capture-for-personal-knowledge-sources" aria-label="Permalink to OBSIDIAN-COMPOUND-MS1 (existing scope — webhook capture for personal-knowledge sources)">#</a>OBSIDIAN-COMPOUND-MS1 (existing scope — webhook capture for personal-knowledge sources)</h3>
+<p>Already mid-flight (commit <code>3612a7a81</code> added HMAC webhook intake). New units:</p>
+<ul>
+<li><strong>U-ADOPT-OBSIDIAN-MCP</strong> (System-viz) — installs obsidian-mcp-server; surgical-edit replaces our one-way push paths.</li>
+<li><strong>U-MEMORY-PROJECT-SUBAGENT</strong> (Skills-openclaw) — wire <code>memory: project</code> on subagents.</li>
+</ul>
+<h3 id="viz-coverage-ms0-existing-1-unit-in-progress-in-current-chat"><a class="anchor" href="#viz-coverage-ms0-existing-1-unit-in-progress-in-current-chat" aria-label="Permalink to VIZ-COVERAGE-MS0 (existing 1 unit, in-progress in current chat)">#</a>VIZ-COVERAGE-MS0 (existing 1 unit, in-progress in current chat)</h3>
+<p>No additions. Single-source-replacement fix; already scoped. Coordinate with claude-0413eca6 per active task list.</p>
+<hr>
+<h2 id="4-proposed-new-milestones-5"><a class="anchor" href="#4-proposed-new-milestones-5" aria-label="Permalink to §4 — Proposed New Milestones (5)">#</a>§4 — Proposed New Milestones (5)</h2>
+<h3 id="tool-inventory-ms0-external-tool-adoption-plugin-publish-path"><a class="anchor" href="#tool-inventory-ms0-external-tool-adoption-plugin-publish-path" aria-label="Permalink to TOOL-INVENTORY-MS0 — External tool adoption + plugin-publish path">#</a>TOOL-INVENTORY-MS0 — External tool adoption + plugin-publish path</h3>
+<p><strong>Rationale.</strong> System-viz-tool-inventory card surfaced 18 MCP servers + 35 plugins worth evaluating. ~10 net-new adoptions (the rest overlap with PRISM internals — adopt EXPOSURE surface only).</p>
+<p><strong>Units (10):</strong></p>
+<ul>
+<li>U-ADOPT-RAGEX (P0, M) — semantic+symbolic code search</li>
+<li>U-ADOPT-CADQUERY-MCP (P0, L) — closes cqask pending-merge debt</li>
+<li>U-ADOPT-GRAFANA-MCP (P1, S) — exposes existing engines to other CLIs</li>
+<li>U-ADOPT-PDF-EMIT (P1, M) — fills quote/setup-sheet emit gap</li>
+<li>U-CLAUDE-MD-PRUNE-AUDIT (P1, L) — Anthropic-rubric prune of bloated CLAUDE.md</li>
+<li>U-PUBLISH-PRISM-PLUGIN (P1, XL) — package PRISM for marketplace consumption</li>
+<li>U-CLAUDE-FLOW-AGENT-FED (P1, M) — upgrade to v3.6 for agent federation</li>
+<li>U-AIDER-PARALLEL-EXEC (P2, M) — Aider as parallel batch refactor backend</li>
+<li>U-SKILL-FRONTMATTER-AUDIT (P2, M) — 247 skills × 15-field schema compliance</li>
+<li>U-AGENT-SDK-PYTHON-SAMPLE (P2, L) — Python sample for backend/ERP consumers</li>
+</ul>
+<p><strong>Estimated effort:</strong> 25-40h. Safe to parallelize across 2 chats (foundation set vs publish path).</p>
+<h3 id="wiki-evolve-ms0-wiki-compounding-evolution"><a class="anchor" href="#wiki-evolve-ms0-wiki-compounding-evolution" aria-label="Permalink to WIKI-EVOLVE-MS0 — Wiki compounding evolution">#</a>WIKI-EVOLVE-MS0 — Wiki compounding evolution</h3>
+<p><strong>Rationale.</strong> Karpathy + Obsidian cards converge on the wiki being PRISM&#39;s most-mature compounding artifact, with 5 specific gaps: external-link archival, rename propagation, orphan sweep, MOC-builder at squeeze-points, fleeting → permanent promotion. Plus 3 Karpathy-specific units (skill regression eval, labeled-example pipe, dump-all).</p>
+<p><strong>Units (8):</strong></p>
+<ul>
+<li>U-WIKI-FLEETING-PROMOTE (P0, M) — handoff extension; mechanically promotes lessons</li>
+<li>U-WIKI-WAYBACK-CRON (P1, S) — cron archival</li>
+<li>U-WIKI-RENAME-PROPAGATE (P1, M) — <code>/rename</code> extension</li>
+<li>U-WIKI-MOC-BUILDER (P1, M) — squeeze-point detection + MOC proposal</li>
+<li>U-WIKI-ORPHAN-SWEEP (P2, M) — auto-merge proposal skill</li>
+<li>U-WIKI-DUMP-ALL (P2, S) — <code>prism_wiki:dump_all</code></li>
+<li>U-SKILL-EVAL-SUITE (P1, L) — skill-prompt regression detection</li>
+<li>U-LABELED-EXAMPLE-PIPE (P2, M) — agent failures → labeled examples</li>
+</ul>
+<p><strong>Estimated effort:</strong> 15-20h. Strictly additive; no schema breaks.</p>
+<h3 id="loop-migrate-ms0-autonomous-loop-primitive-consolidation"><a class="anchor" href="#loop-migrate-ms0-autonomous-loop-primitive-consolidation" aria-label="Permalink to LOOP-MIGRATE-MS0 — Autonomous-loop primitive consolidation">#</a>LOOP-MIGRATE-MS0 — Autonomous-loop primitive consolidation</h3>
+<p><strong>Rationale.</strong> Boris + Docker cards converge on <code>/loop</code> (iteration) and <code>/schedule</code> (cron) being the canonical 2026 primitives. PRISM has both but isn&#39;t using them; ad-hoc cron and per-session ralph-style loops are the current state. Plus per-iteration verification gates and Reflexion-style episodic memory.</p>
+<p><strong>Units (8):</strong></p>
+<ul>
+<li>U-LOOP-REFLEXION-MEM (P0, M) — per-loop reflection JSONL + last-3 prepend</li>
+<li>U-LOOP-ITER-GATE (P0, M) — per-iteration verification gate hook</li>
+<li>U-FORGE-GO-CHAIN (P1, M) — <code>/forge-go</code> composite skill</li>
+<li>U-LOOP-MIGRATE-CADENCE (P1, M) — migrate cron-style skills to <code>/loop</code></li>
+<li>U-ADOPT-RALPH-LOOP (P0, M) — install ralph-loop plugin; rewrite <code>prism_ralph</code></li>
+<li>U-MCPMON-DEV (P1, S) — opt-in MCP hot-reload dev launcher</li>
+<li>U-DOCKER-EXPORTERS (P1, S) — cAdvisor + exporters in compose</li>
+<li>U-HEADLESS-CI-PROFILE (P2, M) — <code>claude -p</code> cron-driven jobs profile</li>
+</ul>
+<p><strong>Estimated effort:</strong> 15-22h. Safe to parallelize: Reflexion-mem + iter-gate together; ralph-loop adoption separate; docker-exporters trivially parallel.</p>
+<h3 id="cost-cascade-ms0-multi-llm-cost-discipline-telemetry"><a class="anchor" href="#cost-cascade-ms0-multi-llm-cost-discipline-telemetry" aria-label="Permalink to COST-CASCADE-MS0 — Multi-LLM cost discipline + telemetry">#</a>COST-CASCADE-MS0 — Multi-LLM cost discipline + telemetry</h3>
+<p><strong>Rationale.</strong> Multi-LLM card identifies cascade calibration as the highest-leverage single change (FrugalGPT 98% cost reduction at GPT-4 parity). PRISM has Tier 0/1/4; needs Tier 2 (Kimi) Tier 3 (Sonnet) plus calibration loop, two-pass wrapper, MoA layer-2.</p>
+<p><strong>Units (6):</strong></p>
+<ul>
+<li>U-CASCADE-CALIBRATE (P1, L) — per-tier accept-rate measurement</li>
+<li>U-MOA-LAYER2 (P1, L) — Layer-2 refinement in <code>prism_ai:consensus</code></li>
+<li>U-TWO-PASS-WRAP (P1, M) — <code>prism_ai:two_pass_validate</code></li>
+<li>U-MULTI-AGENT-COST-TELEMETRY (P1, L) — token-cost vs quality-lift telemetry</li>
+<li>U-SEMANTIC-CLUSTER-VOTE (P2, M) — pre-cluster verdicts before counting</li>
+<li>U-OPENCODE-COST-COMPARE (P2, M) — bench OpenCode/sst for fallback comparison</li>
+</ul>
+<p><strong>Estimated effort:</strong> 20-30h. Critical-path AFTER K2-CLOUD-MS0 (Kimi tier must exist before calibration can measure it).</p>
+<h3 id="machine-connectivity-ms0-opc-ua-telemetry-expansion"><a class="anchor" href="#machine-connectivity-ms0-opc-ua-telemetry-expansion" aria-label="Permalink to MACHINE-CONNECTIVITY-MS0 — OPC-UA + telemetry expansion">#</a>MACHINE-CONNECTIVITY-MS0 — OPC-UA + telemetry expansion</h3>
+<p><strong>Rationale.</strong> System-viz card surfaced opcua-mcp as a NEW capability gap (no <code>OpcUa</code> engines in inventory; only MTConnect). JM Die fleet has Mitsubishi WEDM + Okuma lathes that expose OPC-UA endpoints.</p>
+<p><strong>Units (1, but high-leverage):</strong></p>
+<ul>
+<li>U-ADOPT-OPCUA-MCP (P1, L) — install opcua-mcp + new OPCUABridgeEngine</li>
+</ul>
+<p><strong>Estimated effort:</strong> 4-12h. Defer until shop-network access available; can mock with open62541 test server.</p>
+<hr>
+<h2 id="5-6-chat-lane-assignments-parallel-safe"><a class="anchor" href="#5-6-chat-lane-assignments-parallel-safe" aria-label="Permalink to §5 — 6-Chat Lane Assignments (parallel-safe)">#</a>§5 — 6-Chat Lane Assignments (parallel-safe)</h2>
+<blockquote>
+<p><strong>Critical-path constraint</strong>: HOOK-SYNERGY H1 (HOOK_REGISTRY.json) and H6 (cross-worktree firewall) MUST land before K2-CLOUD K2-K12 can safely re-apply edits to <code>AISystemRouterEngine.ts</code>. Treat these as Wave 0 unblockers.</p>
+</blockquote>
+<h3 id="wave-0-blocking-must-land-first-single-chat"><a class="anchor" href="#wave-0-blocking-must-land-first-single-chat" aria-label="Permalink to Wave 0 (BLOCKING — must land first, single chat)">#</a>Wave 0 (BLOCKING — must land first, single chat)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Lane</th><th>Chat</th><th>Milestone</th><th>Units</th><th>Worktree</th></tr></thead>
+<tbody>
+<tr><td>W0</td><td>this chat (claude-85cedf09)</td><td>HOOK-SYNERGY-MS0</td><td>H1 (HOOK_REGISTRY) + H6 (cross-worktree firewall)</td><td>main tree (read-only on shared files)</td></tr>
+</tbody>
+</table></div>
+<p><strong>Estimated:</strong> 4-6h. Unblocks Wave 1 lanes A and B.</p>
+<h3 id="wave-1-parallel-6-chats"><a class="anchor" href="#wave-1-parallel-6-chats" aria-label="Permalink to Wave 1 (parallel, 6 chats)">#</a>Wave 1 (parallel, 6 chats)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Lane</th><th>Chat</th><th>Milestone</th><th>Units (priority order)</th><th>Worktree</th></tr></thead>
+<tbody>
+<tr><td>A</td><td>chat-A</td><td>K2-CLOUD-MS0</td><td>U-K2-CLOUD-WIRE (re-apply), K2-K12 sequence + U-CIRCUIT-BREAKER-PROVIDER + U-IDEMPOTENCY-KEYS</td><td><code>H:/prism-k2cloud/</code></td></tr>
+<tr><td>B</td><td>chat-B</td><td>HOOK-SYNERGY-MS0 (rest)</td><td>H2-H10 + U-FORGE7-VERIFY-PLAN-GATE + U-WORKTREE-DEFAULT + U-CLAUDE-MD-BACKFLOW + U-AGENT-FRONTMATTER-ISOLATION-DEFAULT + U-SURGICAL-DIFF-CHECK + U-ADOPT-SEMGREP-SAST + U-MULTI-AGENT-COST-TELEMETRY</td><td><code>H:/prism-hooks/</code></td></tr>
+<tr><td>C</td><td>chat-C</td><td>LOOP-MIGRATE-MS0 + ralph + docker</td><td>U-LOOP-REFLEXION-MEM, U-LOOP-ITER-GATE, U-FORGE-GO-CHAIN, U-LOOP-MIGRATE-CADENCE, U-ADOPT-RALPH-LOOP, U-MCPMON-DEV, U-DOCKER-EXPORTERS, U-HEADLESS-CI-PROFILE</td><td><code>H:/prism-loops/</code></td></tr>
+<tr><td>D</td><td>chat-D</td><td>WIKI-EVOLVE-MS0 + obsidian</td><td>U-WIKI-FLEETING-PROMOTE, U-WIKI-WAYBACK-CRON, U-WIKI-RENAME-PROPAGATE, U-WIKI-MOC-BUILDER, U-WIKI-ORPHAN-SWEEP, U-WIKI-DUMP-ALL, U-SKILL-EVAL-SUITE, U-LABELED-EXAMPLE-PIPE, U-ADOPT-OBSIDIAN-MCP, U-MEMORY-PROJECT-SUBAGENT</td><td><code>H:/prism-wiki/</code></td></tr>
+<tr><td>E</td><td>chat-E</td><td>TOOL-INVENTORY-MS0</td><td>U-ADOPT-RAGEX, U-ADOPT-CADQUERY-MCP, U-ADOPT-GRAFANA-MCP, U-ADOPT-PDF-EMIT, U-CLAUDE-MD-PRUNE-AUDIT, U-CLAUDE-FLOW-AGENT-FED, U-AIDER-PARALLEL-EXEC, U-SKILL-FRONTMATTER-AUDIT, U-AGENT-SDK-PYTHON-SAMPLE, U-PUBLISH-PRISM-PLUGIN</td><td><code>H:/prism-tools/</code></td></tr>
+<tr><td>F</td><td>chat-F</td><td>HTML-COMPANION-MS0 + VIZ-COVERAGE + MACHINE-CONNECTIVITY</td><td>U-HTML-CLAUDE-MD-EDIT, U-HTML-DOCTRINE-UPDATE, U-HTML-COMPANION-GENERATOR, U-HTML-BACKFILL, U-TODOWRITE-HANDOFF-BRIDGE, U-VIZ-COVERAGE-FIX (existing, in-progress), U-ADOPT-OPCUA-MCP</td><td><code>H:/prism-misc/</code></td></tr>
+</tbody>
+</table></div>
+<h3 id="wave-2-after-wave-1-lands-k2-cascade-primitives"><a class="anchor" href="#wave-2-after-wave-1-lands-k2-cascade-primitives" aria-label="Permalink to Wave 2 (after Wave 1 lands K2 + cascade primitives)">#</a>Wave 2 (after Wave 1 lands K2 + cascade primitives)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Lane</th><th>Chat</th><th>Milestone</th><th>Units</th></tr></thead>
+<tbody>
+<tr><td>G</td><td>reuse chat-A</td><td>COST-CASCADE-MS0</td><td>U-CASCADE-CALIBRATE, U-MOA-LAYER2, U-TWO-PASS-WRAP, U-SEMANTIC-CLUSTER-VOTE, U-OPENCODE-COST-COMPARE</td></tr>
+<tr><td>H</td><td>reuse chat-B</td><td>follow-on cleanup</td><td>U-DRIFT-SCORE + any deferred or surfaced gaps</td></tr>
+</tbody>
+</table></div>
+<h3 id="conflict-prediction-analysis"><a class="anchor" href="#conflict-prediction-analysis" aria-label="Permalink to Conflict-prediction analysis">#</a>Conflict-prediction analysis</h3>
+<p>Per system-viz coverage queries (this session: 2795 wired / 351 unwired across 3146 nodes; 88.96% coverage), the 6-chat lane assignment touches:</p>
+<ul>
+<li><strong>Lane A</strong> edits <code>mcp-server/src/engines/AISystemRouterEngine.ts</code>, <code>mcp-server/src/tools/dispatchers/aiDispatcher.ts</code> — 0 collision with other lanes</li>
+<li><strong>Lane B</strong> edits <code>.claude/hooks/*.mjs</code>, <code>H:/.claude/settings.json</code> mirror — RISK: settings.json mirror is also touched by Lane F (HTML companion hook). Mitigation: Lane B owns settings.json edits; Lane F batches and merges via Lane B</li>
+<li><strong>Lane C</strong> edits <code>.claude/commands/{loop,schedule,forge-go}.md</code>, <code>mcp-server/data/state/loop-reflection-*.jsonl</code> — 0 collision</li>
+<li><strong>Lane D</strong> edits <code>knowledge/wiki/</code>, <code>state/shared/handoffs/</code>, scripts under <code>scripts/wiki-*.mjs</code> — 0 collision</li>
+<li><strong>Lane E</strong> edits external integrations + <code>H:/prism/CLAUDE.md</code> (prune-audit) — RISK: CLAUDE.md is high-contention. Mitigation: schedule prune-audit AFTER all other CLAUDE.md edits in Wave 1 land; Lane E owns the edit window</li>
+<li><strong>Lane F</strong> edits scripts + spec docs — 0 collision once settings.json carve-out negotiated with Lane B</li>
+</ul>
+<p><strong>Verdict:</strong> GREEN with two carve-outs documented. Conflict-fork rule (sibling worktree + cherry-pick) is the recovery path if <code>commit-ownership-guard</code> blocks any lane.</p>
+<hr>
+<h2 id="6-first-wave-shippable-in-this-session-4-units-zero-risk"><a class="anchor" href="#6-first-wave-shippable-in-this-session-4-units-zero-risk" aria-label="Permalink to §6 — First-Wave Shippable in This Session (4 units, zero-risk)">#</a>§6 — First-Wave Shippable in This Session (4 units, zero-risk)</h2>
+<p>These can ship NOW from the current chat without touching the critical-path-blocked surface (<code>AISystemRouterEngine.ts</code>):</p>
+<ol>
+<li><strong>U-DOCKER-EXPORTERS</strong> (S, ~30min) — Add cAdvisor + redis-exporter + postgres-exporter to <code>docker-compose.yml</code>. Pure config addition; no engine edits. Validates via <code>docker compose up -d</code> + <code>curl localhost:8080</code>.</li>
+<li><strong>U-MCPMON-DEV</strong> (S, ~30min) — Add a <code>npm run mcp:dev</code> script that wraps the MCP server in <code>mcpmon</code>. Gated behind <code>PRISM_MCP_HOT_RELOAD=1</code> so prod path unchanged.</li>
+<li><strong>U-WIKI-WAYBACK-CRON</strong> (S, ~45min) — <code>scripts/wiki-wayback-archiver.mjs</code> + cron registration in <code>.claude/commands/wiki-morning.md</code>. Greps external URLs from <code>knowledge/wiki/</code> and POSTs to <code>https://web.archive.org/save/&lt;url&gt;</code>. No engine touch.</li>
+<li><strong>U-TODOWRITE-HANDOFF-BRIDGE</strong> (S, ~45min) — Extend <code>.claude/helpers/precompact-handoff.mjs</code> to serialize TodoWrite list into the per-agent handoff <code>--state</code> payload. ~30 lines of code.</li>
+</ol>
+<p><strong>Total ~3h.</strong> All four are strictly additive, no shared-file collisions, no critical-path dependencies.</p>
+<p><strong>Defer to other waves:</strong> all other 43 units (waiting for HOOK-SYNERGY H1+H6 to unblock the critical path, or requiring multi-chat lane allocation for safety).</p>
+<hr>
+<h2 id="7-source-map-every-unit-originating-research-card"><a class="anchor" href="#7-source-map-every-unit-originating-research-card" aria-label="Permalink to §7 — Source Map (every unit ↔ originating research card)">#</a>§7 — Source Map (every unit ↔ originating research card)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Card</th><th>Units sourced</th></tr></thead>
+<tbody>
+<tr><td><code>2026-05-10-karpathy-methodology.md</code></td><td>U-WIKI-DUMP-ALL, U-SKILL-EVAL-SUITE, U-LABELED-EXAMPLE-PIPE, U-DRIFT-SCORE, U-SURGICAL-DIFF-CHECK</td></tr>
+<tr><td><code>2026-05-10-obsidian-2nd-brain.md</code></td><td>U-WIKI-WAYBACK-CRON, U-WIKI-RENAME-PROPAGATE, U-WIKI-ORPHAN-SWEEP, U-WIKI-MOC-BUILDER, U-WIKI-FLEETING-PROMOTE</td></tr>
+<tr><td><code>2026-05-10-multi-llm-coordination.md</code></td><td>U-K2-CLOUD-WIRE, U-CASCADE-CALIBRATE, U-MOA-LAYER2, U-TWO-PASS-WRAP, U-CIRCUIT-BREAKER-PROVIDER, U-IDEMPOTENCY-KEYS, U-SEMANTIC-CLUSTER-VOTE</td></tr>
+<tr><td><code>2026-05-10-docker-autonomous-loops.md</code></td><td>U-DOCKER-EXPORTERS, U-MCPMON-DEV, U-LOOP-REFLEXION-MEM, U-LOOP-ITER-GATE</td></tr>
+<tr><td><code>2026-05-10-skills-openclaw.md</code></td><td>U-PUBLISH-PRISM-PLUGIN, U-AIDER-PARALLEL-EXEC, U-CLAUDE-FLOW-AGENT-FED, U-OPENCODE-COST-COMPARE, U-MEMORY-PROJECT-SUBAGENT, U-SKILL-FRONTMATTER-AUDIT, U-AGENT-SDK-PYTHON-SAMPLE</td></tr>
+<tr><td><code>2026-05-10-boris-patterns.md</code></td><td>U-FORGE7-VERIFY-PLAN-GATE, U-FORGE7-WORKTREE-DEFAULT, U-FORGE7-PLAN-PEER-REVIEW, U-CLAUDE-MD-BACKFLOW, U-FORGE-GO-CHAIN, U-LOOP-MIGRATE-CADENCE, U-AGENT-FRONTMATTER-ISOLATION-DEFAULT, U-CLAUDE-MD-PRUNE-AUDIT, U-MULTI-AGENT-COST-TELEMETRY, U-TODOWRITE-HANDOFF-BRIDGE, U-HEADLESS-CI-PROFILE</td></tr>
+<tr><td><code>2026-05-10-system-viz-tool-inventory.md</code></td><td>U-ADOPT-RAGEX, U-ADOPT-RALPH-LOOP, U-ADOPT-SEMGREP-SAST, U-ADOPT-CADQUERY-MCP, U-ADOPT-OPCUA-MCP, U-ADOPT-GRAFANA-MCP, U-ADOPT-OBSIDIAN-MCP, U-ADOPT-PDF-EMIT</td></tr>
+</tbody>
+</table></div>
+<p>For evidence and citations, read the originating card. This dossier is the action layer; the cards are the evidence layer.</p>
+<hr>
+<h2 id="8-what-was-deferred-out-of-scope"><a class="anchor" href="#8-what-was-deferred-out-of-scope" aria-label="Permalink to §8 — What Was Deferred / Out-of-Scope">#</a>§8 — What Was Deferred / Out-of-Scope</h2>
+<ol>
+<li><strong>FORGE7 master roadmap (11 NEW milestone tracks)</strong> proposed earlier this session — REPLACED by this dossier. The 5 new milestones here (TOOL-INVENTORY, WIKI-EVOLVE, LOOP-MIGRATE, COST-CASCADE, MACHINE-CONNECTIVITY) cover the same territory more compactly. No revival needed.</li>
+<li><strong>HTML mass-migration</strong> — REJECTED earlier this session. Confirmed: machine-consumed surfaces (CLAUDE.md, skills, memories, hooks, scripts) MUST stay canonical formats. Only strategic spec docs ≥150 lines get HTML companions. This dossier itself is a candidate for HTML companion (see HTML-COMPANION-MS0 U-HTML-BACKFILL).</li>
+<li><strong>Anthropic ENG plugin K1 wholesale adoption</strong> — DEFERRED to Wave 2. Skills-openclaw §3.1 flags it as high-overlap with our <code>/forge-*</code> skills; need careful demote sequence (rename existing first, then adopt, then deprecate) to avoid breaking active forge runs.</li>
+<li><strong>OpenCode/sst as primary CLI</strong> — out of scope. We&#39;re Anthropic-native. Bench-only via U-OPENCODE-COST-COMPARE.</li>
+<li><strong>K2 release-process units</strong> (CHANGELOG / GitHub Actions / Cowork compatibility) — out of scope; we&#39;re not publishing to the marketplace yet (that&#39;s U-PUBLISH-PRISM-PLUGIN&#39;s prerequisite, not blocker).</li>
+<li><strong>Octopus / scrutiny-3way replacement</strong> — explicitly preserved. Multi-LLM card §3 confirms PRISM&#39;s 3-of-3 strict jury is conservative-correct given the single-reviewer-drift incident on 2026-05-05. No change.</li>
+<li><strong>The 11 FORGE7 tracks proposed earlier</strong> (HTML-VIEWER-SURFACES, OBSIDIAN-WIRE, OLLAMA-ORCHESTRATE, DOCKER-ORCHESTRATE, AI-SYSTEMS-WIRE, NEURAL-INTEGRATE, DEEP-REASONING-WIRE, TRIBAL-UTILIZE, DEV-TOOL-UTILIZE, COMBO-VARIABILITY, AUTO-DEV-FORMULA) — folded into the 5 new milestones above. No standalone tracks.</li>
+</ol>
+<hr>
+<h2 id="9-acceptance-criteria-for-synthesis-complete"><a class="anchor" href="#9-acceptance-criteria-for-synthesis-complete" aria-label="Permalink to §9 — Acceptance Criteria for &quot;Synthesis Complete&quot;">#</a>§9 — Acceptance Criteria for &quot;Synthesis Complete&quot;</h2>
+<ul>
+<li>[x] All 7 research cards verified on disk</li>
+<li>[x] All 7 cards have at least one unit traced into this dossier (see §7 source map)</li>
+<li>[x] Every unit is mapped to either an existing milestone (23 units) or a proposed new milestone (24 units)</li>
+<li>[x] 5 new milestones proposed with rationale + unit lists + effort estimates</li>
+<li>[x] 6-chat lane assignment with conflict-prediction analysis</li>
+<li>[x] First-wave shippable list (4 units, ~3h, zero-risk for current chat)</li>
+<li>[x] Critical-path dependency surfaced (HOOK-SYNERGY H1+H6 → K2-CLOUD K2-K12)</li>
+<li>[x] Anti-pattern danger flagged (don&#39;t reinvent: 8 of 18 MCP candidates overlap with PRISM internals — adopt EXPOSURE surface only)</li>
+<li>[ ] <strong>NEXT</strong>: peer-reviewer agent dispatched against this dossier (Boris doctrine §3 plan peer-review BEFORE execution)</li>
+<li>[ ] <strong>NEXT</strong>: register the 5 new milestone JSONs (<code>TOOL-INVENTORY-MS0.json</code>, <code>WIKI-EVOLVE-MS0.json</code>, <code>LOOP-MIGRATE-MS0.json</code>, <code>COST-CASCADE-MS0.json</code>, <code>MACHINE-CONNECTIVITY-MS0.json</code>) per existing schema convention</li>
+<li>[ ] <strong>NEXT</strong>: HTML companion (U-HTML-BACKFILL will pick this up automatically once the generator ships)</li>
+<li>[ ] <strong>NEXT</strong>: commit dossier with <code>[MAIN] [FORGE7-RESEARCH-MS0]/U-SYNTH</code> scope</li>
+</ul>
+<hr>
+<h2 id="10-resume-directive-next-session"><a class="anchor" href="#10-resume-directive-next-session" aria-label="Permalink to §10 — Resume Directive (next session)">#</a>§10 — Resume Directive (next session)</h2>
+<p>If this dossier compacts and a fresh chat picks up:</p>
+<ol>
+<li><strong>Read this file first</strong> (<code>H:/prism/state/shared/specs/SESSION-2026-05-10-RESEARCH-SYNTHESIS-DOSSIER.md</code>) — full plan + units.</li>
+<li><strong>Read source cards as needed</strong> (<code>state/shared/research/2026-05-10-*.md</code>) — evidence layer.</li>
+<li><strong>Spawn peer-review subagent</strong> (Boris doctrine §3) with the dossier as input. Get PASS|REVISE|FAIL. If REVISE, address before execution.</li>
+<li><strong>Register the 5 new milestone JSONs</strong> under <code>mcp-server/data/milestones/</code> using the existing <code>HOOK-SYNERGY-MS0.json</code> / <code>K2-CLOUD-MS0.json</code> pattern as schema reference.</li>
+<li><strong>Allocate Wave 1 lanes</strong> (A-F) by posting claims to the chat bus (<code>prism_context:chat_post</code>) with worktree paths. Critical: HOOK-SYNERGY H1+H6 from THIS chat must land BEFORE Lane A starts editing <code>AISystemRouterEngine.ts</code>.</li>
+<li><strong>First-wave shippable</strong> (§6): 4 units, ~3h, can ship from main tree without lane allocation.</li>
+</ol>
+<hr>
+<p><em>End of dossier. Total: 47 units across 5 themes, mapped to 4 existing + 5 proposed milestones, with 6-chat parallel-safe execution plan and ~3h zero-risk first wave.</em></p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="SESSION-2026-05-10-RESEARCH-SYNTHESIS-DOSSIER.md">SESSION-2026-05-10-RESEARCH-SYNTHESIS-DOSSIER.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

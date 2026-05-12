@@ -176,38 +176,41 @@ describe("multiple sessions — isolation", () => {
 });
 
 // ════════════════════════════════════════════════════════════════════════
-// U-SCRUTINY-3WAY-03: tests for the 3-way upgrade + Gemini blocker fixes
+// 3-way upgrade + Gemini→2nd-Claude swap (2026-05-12): the three arms are
+// codexReviewed (Codex CLI) + claudeReviewed (2nd Claude reviewer — canonical;
+// the slot the retired Gemini CLI filled, accepts opusBReviewed/geminiReviewed
+// as write-side aliases) + opusReviewed (Opus reviewer agent).
 // ════════════════════════════════════════════════════════════════════════
 
-describe("3-way provider marks — set/revoke", () => {
+describe("3-way arm marks — set/revoke", () => {
   it("records codexReviewed: true and exposes it on the entry", async () => {
     const { recordScrutiny, getEntry } = await loadLedger();
     recordScrutiny("s1", { codexReviewed: true });
     const entry = getEntry("s1");
     expect(entry.codexReviewed).toBe(true);
-    expect(entry.geminiReviewed).toBe(false);
+    expect(entry.claudeReviewed).toBe(false);
     expect(entry.opusReviewed).toBe(false);
   });
 
-  it("records geminiReviewed: true independently from codex/opus", async () => {
+  it("records claudeReviewed: true independently from codex/opus", async () => {
     const { recordScrutiny, getEntry } = await loadLedger();
-    recordScrutiny("s1", { geminiReviewed: true });
+    recordScrutiny("s1", { claudeReviewed: true });
     const entry = getEntry("s1");
     expect(entry.codexReviewed).toBe(false);
-    expect(entry.geminiReviewed).toBe(true);
+    expect(entry.claudeReviewed).toBe(true);
     expect(entry.opusReviewed).toBe(false);
   });
 
-  it("records opusReviewed: true independently from codex/gemini", async () => {
+  it("records opusReviewed: true independently from codex/claude", async () => {
     const { recordScrutiny, getEntry } = await loadLedger();
     recordScrutiny("s1", { opusReviewed: true });
     const entry = getEntry("s1");
     expect(entry.codexReviewed).toBe(false);
-    expect(entry.geminiReviewed).toBe(false);
+    expect(entry.claudeReviewed).toBe(false);
     expect(entry.opusReviewed).toBe(true);
   });
 
-  it("a subsequent FAIL revokes a prior PASS for the same provider (Codex blocker #1)", async () => {
+  it("a subsequent FAIL revokes a prior PASS for the same arm (Codex blocker #1)", async () => {
     const { recordScrutiny, getEntry } = await loadLedger();
     recordScrutiny("s1", { opusReviewed: true });
     expect(getEntry("s1").opusReviewed).toBe(true);
@@ -216,22 +219,22 @@ describe("3-way provider marks — set/revoke", () => {
     expect(getEntry("s1").opusReviewed).toBe(false);
   });
 
-  it("revocation works for all three providers, not just opus", async () => {
+  it("revocation works for all three arms, not just opus", async () => {
     const { recordScrutiny, getEntry } = await loadLedger();
-    recordScrutiny("s1", { codexReviewed: true, geminiReviewed: true, opusReviewed: true });
+    recordScrutiny("s1", { codexReviewed: true, claudeReviewed: true, opusReviewed: true });
     expect(getEntry("s1").codexReviewed).toBe(true);
-    expect(getEntry("s1").geminiReviewed).toBe(true);
+    expect(getEntry("s1").claudeReviewed).toBe(true);
     expect(getEntry("s1").opusReviewed).toBe(true);
     recordScrutiny("s1", { codexReviewed: false });
-    recordScrutiny("s1", { geminiReviewed: false });
+    recordScrutiny("s1", { claudeReviewed: false });
     recordScrutiny("s1", { opusReviewed: false });
     const entry = getEntry("s1");
     expect(entry.codexReviewed).toBe(false);
-    expect(entry.geminiReviewed).toBe(false);
+    expect(entry.claudeReviewed).toBe(false);
     expect(entry.opusReviewed).toBe(false);
   });
 
-  it("undefined provider marks leave the existing value unchanged", async () => {
+  it("undefined arm marks leave the existing value unchanged", async () => {
     const { recordScrutiny, getEntry } = await loadLedger();
     recordScrutiny("s1", { codexReviewed: true });
     // Subsequent call with no codex flag — must not flip codex back to false.
@@ -240,7 +243,7 @@ describe("3-way provider marks — set/revoke", () => {
     expect(getEntry("s1").selfReviewed).toBe(true);
   });
 
-  it("non-boolean provider values are ignored (no coercion)", async () => {
+  it("non-boolean arm values are ignored (no coercion)", async () => {
     const { recordScrutiny, getEntry } = await loadLedger();
     recordScrutiny("s1", { codexReviewed: true });
     // @ts-ignore — deliberately wrong type
@@ -250,6 +253,69 @@ describe("3-way provider marks — set/revoke", () => {
     // @ts-ignore
     recordScrutiny("s1", { codexReviewed: 0 });
     expect(getEntry("s1").codexReviewed).toBe(true);
+  });
+
+  // legacy entry shape never carries the retired flag forward
+  it("does NOT expose geminiReviewed/opusBReviewed on a returned entry", async () => {
+    const { recordScrutiny, getEntry } = await loadLedger();
+    recordScrutiny("s1", { codexReviewed: true });
+    const entry = getEntry("s1");
+    expect("geminiReviewed" in entry).toBe(false);
+    expect("opusBReviewed" in entry).toBe(false);
+    expect(typeof entry.claudeReviewed).toBe("boolean");
+  });
+});
+
+describe("arm-B aliases — claudeReviewed | opusBReviewed | geminiReviewed normalize together", () => {
+  it("a geminiReviewed:true mark (legacy Gemini-CLI name) sets claudeReviewed", async () => {
+    const { recordScrutiny, getEntry } = await loadLedger();
+    recordScrutiny("s1", { geminiReviewed: true });
+    expect(getEntry("s1").claudeReviewed).toBe(true);
+  });
+
+  it("an opusBReviewed:true mark (transitional arm-B name) sets claudeReviewed", async () => {
+    const { recordScrutiny, getEntry } = await loadLedger();
+    recordScrutiny("s1", { opusBReviewed: true });
+    expect(getEntry("s1").claudeReviewed).toBe(true);
+  });
+
+  it("a later opusBReviewed:false revokes a prior claudeReviewed PASS", async () => {
+    const { recordScrutiny, getEntry } = await loadLedger();
+    recordScrutiny("s1", { claudeReviewed: true });
+    expect(getEntry("s1").claudeReviewed).toBe(true);
+    recordScrutiny("s1", { opusBReviewed: false });
+    expect(getEntry("s1").claudeReviewed).toBe(false);
+  });
+
+  it("canonical claudeReviewed wins over a same-call legacy alias", async () => {
+    const { recordScrutiny, getEntry } = await loadLedger();
+    recordScrutiny("s1", { claudeReviewed: true, geminiReviewed: false, opusBReviewed: false });
+    expect(getEntry("s1").claudeReviewed).toBe(true);
+  });
+
+  it("a pre-existing on-disk entry with geminiReviewed:true is migrated to claudeReviewed on read", async () => {
+    const { getEntry, isCleared } = await loadLedger();
+    // hand-write a legacy ledger as the old code would have produced it
+    const ledgerP = path.join(sandboxRoot, "mcp-server", "data", "state", "SCRUTINY_LEDGER.json");
+    fs.mkdirSync(path.dirname(ledgerP), { recursive: true });
+    fs.writeFileSync(ledgerP, JSON.stringify({
+      entries: {
+        legacy3way: {
+          sessionId: "legacy3way", recordedAt: new Date().toISOString(),
+          selfReviewed: false, agentReviewed: true,
+          codexReviewed: true, geminiReviewed: true, opusReviewed: true,
+          reviews: { codex: { verdict: "pass" }, gemini: { verdict: "pass" }, opus: { verdict: "pass" } },
+          blockCount: 0, notes: "",
+        },
+      },
+    }, null, 2));
+    const entry = getEntry("legacy3way");
+    expect(entry.claudeReviewed).toBe(true);
+    expect("geminiReviewed" in entry).toBe(false);
+    expect(entry.reviews.claude).toEqual({ verdict: "pass" });
+    expect("gemini" in entry.reviews).toBe(false);
+    // a fully-marked legacy 3way entry must still count as cleared
+    expect(isCleared("legacy3way")).toBe(true);
   });
 });
 
@@ -358,12 +424,13 @@ describe("recordReviewerDetail — per-provider verdict capture", () => {
     expect(typeof r.recordedAt).toBe("string");
   });
 
-  it("truncates oversized blockers/notes (1000/500 chars)", async () => {
+  it("truncates oversized blockers/notes (1000/500 chars), normalizing the arm-B alias", async () => {
     const { recordScrutiny, getEntry } = await loadLedger();
+    // geminiDetail is a legacy alias for claudeDetail → stored under reviews.claude.
     recordScrutiny("s1", {
       geminiDetail: { verdict: "fail", blockers: "B".repeat(1500), notes: "n".repeat(800) },
     });
-    const r = getEntry("s1").reviews.gemini;
+    const r = getEntry("s1").reviews.claude;
     expect(r.blockers.length).toBe(1000);
     expect(r.notes.length).toBe(500);
   });
@@ -376,10 +443,10 @@ describe("file lock — RMW serialization (Gemini blocker #4)", () => {
     // deadlock and that loadLedger picks up the prior mark.
     const { recordScrutiny, getEntry } = await loadLedger();
     recordScrutiny("s1", { codexReviewed: true });
-    recordScrutiny("s1", { geminiReviewed: true });
+    recordScrutiny("s1", { claudeReviewed: true });
     const entry = getEntry("s1");
     expect(entry.codexReviewed).toBe(true);
-    expect(entry.geminiReviewed).toBe(true);
+    expect(entry.claudeReviewed).toBe(true);
   });
 
   it("leaves no stale lock file after a successful operation", async () => {

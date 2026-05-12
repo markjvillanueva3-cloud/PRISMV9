@@ -26,8 +26,9 @@ const SRC_DIR = path.join(MCP_ROOT, "src");
 const DIST_DIR = path.join(MCP_ROOT, "dist");
 const DOCS_DIR = path.join(MCP_ROOT, "data", "docs");
 const STATE_DIR = PATHS.STATE_DIR;
-const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_read", "file_write", "server_info", "test_smoke", "test_results", "svi_compute", "svi_read", "svi_summary", "erp_persistence_health", "engine_overlap_scan", "quality_score", "quality_score_read", "quality_score_summary", "auto_wiring_analyze", "auto_wiring_scan", "schema_gap_scan", "test_gap_scan", "formula_accuracy", "formula_accuracy_read", "formula_accuracy_summary", "self_improvement_scan", "self_improvement_read", "self_improvement_summary", "auto_fix_generate", "auto_fix_read", "auto_fix_summary", "auto_fix_approve", "auto_fix_promote", "quality_dashboard", "quality_dashboard_read", "quality_dashboard_summary", "output_budget_enforce", "output_budget_stats", "output_budget_set_rule", "context_inventory_add", "context_inventory_query", "context_inventory_summary", "cost_route", "cost_route_infer", "import_cost_analyze", "import_cost_heavy", "import_cost_report", "token_ledger_record", "token_ledger_summary", "token_ledger_project", "token_ledger_reset", "tool_cost_predict", "tool_cost_affordable", "tool_fingerprint_check", "tool_fingerprint_stats", "tool_fingerprint_reset", "schema_generate", "schema_generate_read", "schema_generate_summary", "test_generate", "test_generate_scan", "test_generate_read", "test_generate_summary", "route_sync_scan", "route_sync_read", "route_sync_summary", "gap_scan", "gap_scan_read", "gap_scan_summary", "auto_forge", "auto_forge_summary", "resource_census", "resource_census_read", "resource_census_summary", "pdf_pipeline_classify", "pdf_pipeline_extract", "pdf_pipeline_read", "pdf_pipeline_summary", "blueprint_ingest_phase8", "blueprint_ingest_phase15", "print_program_join", "machine_harden_audit", "machine_harden_enrich", "machine_harden_validate", "machine_harden_read", "machine_harden_summary", "error_remediation", "memory_consolidation", "build_guard_validate", "build_guard_track_edit", "build_guard_typecheck", "build_guard_affected_tests", "build_guard_chain", "build_guard_classify", "chain_recover", "chain_health", "chain_notify", "context_pressure", "context_load_plan", "context_compact_plan", "context_health", "sf_autopilot_run", "sf_autopilot_resolve_material", "sf_autopilot_resolve_tool", "pp_autopilot_run", "pp_autopilot_resolve_dialect", "pp_autopilot_print_to_program", "quote_autopilot_run", "quote_autopilot_calibrate", "quote_autopilot_record_actual", "capability_census", "capability_census_report", "capability_census_save", "copilot_suggest", "copilot_check_duplication", "copilot_template", "token_budget", "token_record_spending", "token_detect_waste", "token_economy_report", "token_economy_stats", "token_economy_session", "token_economy_set_budget", "token_economy_reset", "skill_inline_record", "skill_inline_decision", "skill_inline_plan", "skill_inline_content", "skill_inline_format", "skill_inline_top", "skill_inline_clear", "skill_test", "skill_quality_registry_build", "skill_quality_registry_read", "skill_audit", "skill_refinement_digest", "output_cache_store", "output_cache_get", "output_cache_find", "output_cache_stats", "output_cache_reset", "compaction_survival_record", "compaction_survival_plan", "compaction_survival_handoff", "compaction_survival_stats", "memory_store", "memory_search", "memory_stats", "memory_record_learning", "memory_set_preference", "memory_get_preference", "capability_path_list", "capability_path_progress", "capability_path_suggest", "workflow_list", "workflow_plan", "workflow_create", "pillar_list", "pillar_score", "pillar_summary", "pillar_gate", "discover_search", "discover_browse", "discover_recommend", "discover_what_can_i_do", "effectiveness_report", "effectiveness_score", "effectiveness_record", "effectiveness_validate", "self_awareness_refresh", "self_awareness_manifest", "self_awareness_gaps", "self_awareness_recommend", "self_awareness_find", "edit_impact_build_graph", "edit_impact_predict", "edit_impact_stats", "change_radius_predict", "change_radius_predict_sync", "build_plan", "build_plan_from_unit", "step_decompose", "gap_predict", "gap_scan_file", "gap_scan_batch", "user_model_get", "user_model_set_experience", "user_model_record_edit", "user_model_reset", "coder_mode_current", "coder_mode_set", "coder_mode_should_surface", "build_advise", "build_debrief", "build_debrief_recent", "simulate_build", "overlay_preview", "risk_forecast", "risk_warnings", "risk_record_outcome", "gate_history_record", "gate_history_aggregates", "gate_history_calibration", "gate_history_summary", "critical_path", "critical_path_announce", "critical_units", "roadmap_dag_stats", "roadmap_dag_node", "roadmap_dag_ancestors", "roadmap_dag_descendants", "integration_foresight", "integration_validate", "integration_similar", "context_budget_forecast", "context_should_compact", "rollback_plan", "rollback_verify", "rollback_plan_and_verify", "rollback_render_script", "knowledge_gap_scan", "knowledge_gap_check", "no_go_respond", "disclose_shape", "disclose_raw", "anchor_claim", "anchor_stats", "error_explain", "git_safety_classify", "git_safety_is_destructive", "copy_paste_detect", "feedback_loop_record", "feedback_loop_diagnose", "feedback_loop_reset", "feedback_override", "feedback_measurement", "feedback_scrap", "feedback_recommendation_emitted", "feedback_record", "feedback_query", "feedback_stats", "feature_registry_register", "feature_registry_get", "feature_registry_list", "feature_registry_seal", "feature_registry_stats", "dq_validate_row", "dq_validate_batch", "training_snapshot_create", "training_snapshot_load", "training_snapshot_list", "training_snapshot_stats", "recon_reconcile", "recon_query", "recon_stats", "htn_decompose", "strips_plan", "cpm_pert_analyze", "monte_carlo_schedule", "type_aware_references", "symbol_impact", "type_flow_trace", "tool_call_record", "tool_call_analyze", "tool_call_reset", "file_read_record", "file_read_should_skip", "file_read_report", "stale_segment_record", "stale_segment_prune", "stale_segment_mark", "reorient_record_anchor", "reorient_deactivate_anchor", "reorient_record_prompt", "reorient_record_tool_call", "reorient_generate_brief", "reorient_should_generate", "reorient_stats", "reorient_update_config", "reorient_reset", "model_aware_detect", "model_aware_zone", "model_aware_cadence", "model_aware_current_cadence", "foresight_report", "error_budget_set_target", "error_budget_record", "error_budget_status", "error_budget_list", "distributed_critical_path", "replan_evaluate", "schema_snapshot", "schema_restore_snapshot", "schema_history", "schema_migrations_list", "failure_risk_analyze", "failure_modes_list", "failure_mode_get", "failure_cascade_chain", "ollama_hook_query", "ollama_hook_status", "ollama_hook_config", "audit_harness_security", "dev_awareness_find_similar", "dev_awareness_bootstrap_report", "dev_capability_metrics", "dev_system_recommend_engines", "dev_auto_utilize_analyze", "dev_test_ast_analyze", "dev_test_coverage_uncovered", "dev_test_registry_get_material", "dev_test_resource_filter", "dev_skill_gap_analyze",
-"adaptive_threshold_observe", "adaptive_threshold_get", "adaptive_threshold_get_all", "adaptive_threshold_should_flag", "adaptive_threshold_probability"] as const;
+const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_read", "file_write", "server_info", "test_smoke", "test_results", "svi_compute", "svi_read", "svi_summary", "erp_persistence_health", "engine_overlap_scan", "quality_score", "quality_score_read", "quality_score_summary", "auto_wiring_analyze", "auto_wiring_scan", "schema_gap_scan", "test_gap_scan", "formula_accuracy", "formula_accuracy_read", "formula_accuracy_summary", "self_improvement_scan", "self_improvement_read", "self_improvement_summary", "auto_fix_generate", "auto_fix_read", "auto_fix_summary", "auto_fix_approve", "auto_fix_promote", "quality_dashboard", "quality_dashboard_read", "quality_dashboard_summary", "output_budget_enforce", "output_budget_stats", "output_budget_set_rule", "context_inventory_add", "context_inventory_query", "context_inventory_summary", "cost_route", "cost_route_infer", "import_cost_analyze", "import_cost_heavy", "import_cost_report", "token_ledger_record", "token_ledger_summary", "token_ledger_project", "token_ledger_reset", "tool_cost_predict", "tool_cost_affordable", "tool_fingerprint_check", "tool_fingerprint_stats", "tool_fingerprint_reset", "schema_generate", "schema_generate_read", "schema_generate_summary", "test_generate", "test_generate_scan", "test_generate_read", "test_generate_summary", "route_sync_scan", "route_sync_read", "route_sync_summary", "gap_scan", "gap_scan_read", "gap_scan_summary", "auto_forge", "auto_forge_summary", "resource_census", "resource_census_read", "resource_census_summary", "pdf_pipeline_classify", "pdf_pipeline_extract", "pdf_pipeline_read", "pdf_pipeline_summary", "blueprint_ingest_phase8", "blueprint_ingest_phase15", "print_program_join", "machine_harden_audit", "machine_harden_enrich", "machine_harden_validate", "machine_harden_read", "machine_harden_summary", "error_remediation", "memory_consolidation", "build_guard_validate", "build_guard_track_edit", "build_guard_typecheck", "build_guard_affected_tests", "build_guard_chain", "build_guard_classify", "chain_recover", "chain_health", "chain_notify", "context_pressure", "context_load_plan", "context_compact_plan", "context_health", "sf_autopilot_run", "sf_autopilot_resolve_material", "sf_autopilot_resolve_tool", "pp_autopilot_run", "pp_autopilot_resolve_dialect", "pp_autopilot_print_to_program", "quote_autopilot_run", "quote_autopilot_calibrate", "quote_autopilot_record_actual", "capability_census", "capability_census_report", "capability_census_save", "copilot_suggest", "copilot_check_duplication", "copilot_template", "token_budget", "token_record_spending", "token_detect_waste", "token_economy_report", "token_economy_stats", "token_economy_session", "token_economy_set_budget", "token_economy_reset", "skill_inline_record", "skill_inline_decision", "skill_inline_plan", "skill_inline_content", "skill_inline_format", "skill_inline_top", "skill_inline_clear", "skill_test", "skill_quality_registry_build", "skill_quality_registry_read", "skill_audit", "skill_refinement_digest", "output_cache_store", "output_cache_get", "output_cache_find", "output_cache_stats", "output_cache_reset", "compaction_survival_record", "compaction_survival_plan", "compaction_survival_handoff", "compaction_survival_stats", "memory_store", "memory_search", "memory_stats", "memory_record_learning", "memory_set_preference", "memory_get_preference", "capability_path_list", "capability_path_progress", "capability_path_suggest", "workflow_list", "workflow_plan", "workflow_create", "pillar_list", "pillar_score", "pillar_summary", "pillar_gate", "discover_search", "discover_browse", "discover_recommend", "discover_what_can_i_do", "effectiveness_report", "effectiveness_score", "effectiveness_record", "effectiveness_validate", "self_awareness_refresh", "self_awareness_manifest", "self_awareness_gaps", "self_awareness_recommend", "self_awareness_find", "edit_impact_build_graph", "edit_impact_predict", "edit_impact_stats", "change_radius_predict", "change_radius_predict_sync", "build_plan", "build_plan_from_unit", "step_decompose", "gap_predict", "gap_scan_file", "gap_scan_batch", "user_model_get", "user_model_set_experience", "user_model_record_edit", "user_model_reset", "coder_mode_current", "coder_mode_set", "coder_mode_should_surface", "build_advise", "build_debrief", "build_debrief_recent", "simulate_build", "overlay_preview", "risk_forecast", "risk_warnings", "risk_record_outcome", "gate_history_record", "gate_history_aggregates", "gate_history_calibration", "gate_history_summary", "critical_path", "critical_path_announce", "critical_units", "roadmap_dag_stats", "roadmap_dag_node", "roadmap_dag_ancestors", "roadmap_dag_descendants", "integration_foresight", "integration_validate", "integration_similar", "context_budget_forecast", "context_should_compact", "rollback_plan", "rollback_verify", "rollback_plan_and_verify", "rollback_render_script", "knowledge_gap_scan", "knowledge_gap_check", "no_go_respond", "disclose_shape", "disclose_raw", "anchor_claim", "anchor_stats", "error_explain", "git_safety_classify", "git_safety_is_destructive", "copy_paste_detect", "feedback_loop_record", "feedback_loop_diagnose", "feedback_loop_reset", "feedback_override", "feedback_measurement", "feedback_scrap", "feedback_recommendation_emitted", "feedback_record", "feedback_query", "feedback_stats", "feature_registry_register", "feature_registry_get", "feature_registry_list", "feature_registry_seal", "feature_registry_stats", "dq_validate_row", "dq_validate_batch", "training_snapshot_create", "training_snapshot_load", "training_snapshot_list", "training_snapshot_stats", "recon_reconcile", "recon_query", "recon_stats", "htn_decompose", "strips_plan", "cpm_pert_analyze", "monte_carlo_schedule", "type_aware_references", "symbol_impact", "type_flow_trace", "tool_call_record", "tool_call_analyze", "tool_call_reset", "file_read_record", "file_read_should_skip", "file_read_report", "stale_segment_record", "stale_segment_prune", "stale_segment_mark", "reorient_record_anchor", "reorient_deactivate_anchor", "reorient_record_prompt", "reorient_record_tool_call", "reorient_generate_brief", "reorient_should_generate", "reorient_stats", "reorient_update_config", "reorient_reset", "model_aware_detect", "model_aware_zone", "model_aware_cadence", "model_aware_current_cadence", "foresight_report", "error_budget_set_target", "error_budget_record", "error_budget_status", "error_budget_list", "distributed_critical_path", "replan_evaluate", "schema_snapshot", "schema_restore_snapshot", "schema_history", "schema_migrations_list", "failure_risk_analyze", "failure_modes_list", "failure_mode_get", "failure_cascade_chain", "ollama_hook_query", "ollama_hook_status", "ollama_hook_config", "audit_harness_security", "spec_html_render", "dev_awareness_find_similar", "dev_awareness_bootstrap_report", "dev_capability_metrics", "dev_system_recommend_engines", "dev_auto_utilize_analyze", "dev_test_ast_analyze", "dev_test_coverage_uncovered", "dev_test_registry_get_material", "dev_test_resource_filter", "dev_skill_gap_analyze",
+"adaptive_threshold_observe", "adaptive_threshold_get", "adaptive_threshold_get_all", "adaptive_threshold_should_flag", "adaptive_threshold_probability",
+"roadmap_intel_assess_complexity", "roadmap_intel_optimize", "roadmap_intel_predict_effort", "roadmap_intel_record_outcome", "roadmap_intel_build_vs_integrate", "roadmap_intel_health"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -3602,6 +3603,51 @@ export function registerDevDispatcher(server: any): void {
             break;
           }
 
+          // BACKEND-DEVTOOLS-RGS6 HTML-COMPANION-MS0/HC-0..HC-5 — render any PRISM spec MD → HTML companion
+          case "spec_html_render": {
+            const { specHtmlCompanionEngine } = await import("../../engines/SpecHTMLCompanionEngine.js");
+            let md = typeof params.md === "string" ? params.md : "";
+            let srcPath: string | undefined;
+            if (!md && typeof params.path === "string" && params.path) {
+              const abs = path.isAbsolute(params.path) ? params.path : path.join(PROJECT_ROOT, params.path);
+              const resolved = path.resolve(abs);
+              const projRoot = path.resolve(PROJECT_ROOT);
+              // require a trailing separator so a sibling like H:/prism-cad-complete can't satisfy the prefix check
+              if (resolved !== projRoot && !resolved.startsWith(projRoot + path.sep)) { result = { ok: false, error: "path escapes PRISM root" }; break; }
+              if (!fs.existsSync(resolved)) { result = { ok: false, error: `file not found: ${params.path}` }; break; }
+              md = fs.readFileSync(resolved, "utf-8");
+              srcPath = resolved;
+            }
+            if (!md) { result = { ok: false, error: "provide 'md' (markdown string) or 'path' (.md file path under the PRISM root)" }; break; }
+            const rendered = specHtmlCompanionEngine.render(md, {
+              theme: params.theme === "dark" || params.theme === "light" ? params.theme : "auto",
+              toc: params.toc !== false,
+              title: typeof params.title === "string" ? params.title : undefined,
+              generatedBy: "prism_dev:spec_html_render",
+              sourcePath: srcPath ? path.basename(srcPath) : undefined,
+            });
+            let wrote: string | undefined;
+            if (params.write && srcPath) {
+              const stem = srcPath.replace(/\.(md|markdown)$/i, "");
+              const outPath = stem === srcPath ? srcPath + ".html" : stem + ".html";
+              safeWriteSync(outPath, rendered.html, "utf-8");
+              safeWriteSync(outPath + ".hash", `${rendered.sourceHash}  ${path.basename(srcPath)}\n`, "utf-8");
+              wrote = path.relative(PROJECT_ROOT, outPath);
+            }
+            result = {
+              ok: true,
+              title: rendered.title,
+              headings: rendered.headings,
+              hasMermaid: rendered.hasMermaid,
+              sourceHash: rendered.sourceHash,
+              bytes: rendered.bytes,
+              warnings: rendered.warnings,
+              ...(wrote ? { wrote } : {}),
+              ...(params.include_html ? { html: rendered.html } : {}),
+            };
+            break;
+          }
+
           // ENGINE-WIRE-MS0/U-WIRE15 — 5 self-awareness/AI-meta engines
           case "dev_awareness_find_similar": {
             const { awarenessQueryEngine } = await import("../../engines/AwarenessQueryEngine.js");
@@ -3760,6 +3806,86 @@ export function registerDevDispatcher(server: any): void {
               asset_type: at,
               probability_is_duplicate: ate4.probabilityIsDuplicate(sim, at),
             };
+            break;
+          }
+
+          // ──────────────────────────────────────────────────────────────────────────────
+          // ENGINE-WIRE: RoadmapIntelligenceEngine — AI-powered roadmap execution.
+          // Composes ChainOfThought / UncertaintyPropagation / LearningAdaptation /
+          // DecisionReasoning / BusinessIntelligence engines. 6 actions: complexity assessment,
+          // order optimization, effort prediction, outcome learning, build-vs-integrate, health.
+          // ──────────────────────────────────────────────────────────────────────────────
+          case "roadmap_intel_assess_complexity": {
+            const { RoadmapIntelligenceEngine } = await import("../../engines/RoadmapIntelligenceEngine.js");
+            if (!params.milestone || typeof params.milestone !== "object") { result = { error: "Missing required: milestone (object)" }; break; }
+            result = RoadmapIntelligenceEngine.assessComplexity(params.milestone);
+            break;
+          }
+          case "roadmap_intel_optimize": {
+            const { RoadmapIntelligenceEngine } = await import("../../engines/RoadmapIntelligenceEngine.js");
+            const milestones = Array.isArray(params.milestones) ? params.milestones : undefined;
+            if (!milestones || milestones.length === 0) { result = { error: "Missing required: milestones (non-empty array)" }; break; }
+            result = RoadmapIntelligenceEngine.optimizeRoadmap(milestones);
+            break;
+          }
+          case "roadmap_intel_predict_effort": {
+            const { RoadmapIntelligenceEngine } = await import("../../engines/RoadmapIntelligenceEngine.js");
+            if (!params.milestone || typeof params.milestone !== "object") { result = { error: "Missing required: milestone (object)" }; break; }
+            const hist = Array.isArray(params.historical_data) ? params.historical_data : (Array.isArray(params.historicalData) ? params.historicalData : undefined);
+            result = RoadmapIntelligenceEngine.predictEffort(params.milestone, hist);
+            break;
+          }
+          case "roadmap_intel_record_outcome": {
+            const { RoadmapIntelligenceEngine } = await import("../../engines/RoadmapIntelligenceEngine.js");
+            const mid = params.milestone_id ?? params.milestoneId;
+            const ph = params.predicted_hours ?? params.predictedHours;
+            const ah = params.actual_hours ?? params.actualHours;
+            const pc = params.predicted_complexity ?? params.predictedComplexity;
+            const ac = params.actual_complexity ?? params.actualComplexity;
+            const lessons = params.lessons_learned ?? params.lessonsLearned ?? [];
+            if (typeof mid !== "string" || typeof ph !== "number" || typeof ah !== "number" || typeof pc !== "string" || typeof ac !== "string") {
+              result = { error: "Missing required: milestone_id (string), predicted_hours (number), actual_hours (number), predicted_complexity (string), actual_complexity (string)" }; break;
+            }
+            RoadmapIntelligenceEngine.recordOutcome(mid, ph, ah, pc, ac, Array.isArray(lessons) ? lessons : []);
+            result = { ok: true, recorded: { milestone_id: mid, predicted_hours: ph, actual_hours: ah, predicted_complexity: pc, actual_complexity: ac }, error_pct: ph > 0 ? Math.abs(ah - ph) / ph * 100 : null };
+            break;
+          }
+          case "roadmap_intel_build_vs_integrate": {
+            const { RoadmapIntelligenceEngine } = await import("../../engines/RoadmapIntelligenceEngine.js");
+            const fname = params.feature_name ?? params.featureName;
+            const fdesc = params.feature_description ?? params.featureDescription ?? "";
+            const bhrs = params.build_estimate_hours ?? params.buildEstimateHours;
+            const mhpy = params.maintenance_hours_per_year ?? params.maintenanceHoursPerYear ?? 0;
+            const libsRaw = Array.isArray(params.library_options) ? params.library_options : (Array.isArray(params.libraryOptions) ? params.libraryOptions : []);
+            const libs = libsRaw.map((l: any) => ({
+              name: String(l?.name ?? ""),
+              integrationHours: Number(l?.integration_hours ?? l?.integrationHours ?? 0),
+              annualCost: Number(l?.annual_cost ?? l?.annualCost ?? 0),
+              reliability: Number(l?.reliability ?? 0.8),
+              features: Array.isArray(l?.features) ? l.features : [],
+            }));
+            if (typeof fname !== "string" || !fname || typeof bhrs !== "number" || !(bhrs > 0)) {
+              result = { error: "Missing required: feature_name (non-empty string), build_estimate_hours (positive number)" }; break;
+            }
+            if (libs.length === 0) {
+              // analyzeBuildVsIntegrate's make-vs-buy step requires >=1 option; with no integration option, "build" is the only path.
+              result = {
+                feature: fname, recommendation: "build", confidence: 0.6,
+                build_analysis: { estimated_hours: bhrs, maintenance_hours_per_year: Number(mhpy), risks: ["No external library available — full build + maintenance burden"], pros: ["Full control over implementation"], cons: ["Build time, cost, and ongoing maintenance"] },
+                integrate_analysis: { library_options: [], pros: [], cons: ["No suitable integration option was supplied"] },
+                reasoning: ["No integration option supplied — building in-house is the only path"],
+              };
+              break;
+            }
+            result = RoadmapIntelligenceEngine.analyzeBuildVsIntegrate(fname, String(fdesc), bhrs, Number(mhpy), libs);
+            break;
+          }
+          case "roadmap_intel_health": {
+            const { RoadmapIntelligenceEngine } = await import("../../engines/RoadmapIntelligenceEngine.js");
+            const milestones = Array.isArray(params.milestones) ? params.milestones : undefined;
+            if (!milestones || milestones.length === 0) { result = { error: "Missing required: milestones (non-empty array)" }; break; }
+            const hist = Array.isArray(params.historical_data) ? params.historical_data : (Array.isArray(params.historicalData) ? params.historicalData : undefined);
+            result = RoadmapIntelligenceEngine.assessRoadmapHealth(milestones, hist);
             break;
           }
 

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="d1a90546d3301017a7d444ff2d21da0b63e7ef8a8142e23bde30a8a4e4f90551">
+<title>HTML-COMPANION-MS0 (extended)</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">HTML-COMPANION-MS0 (extended)</h1>
+<p class="provenance">Generated 2026-05-12T12:43:27.365Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#html-companion-ms0-atomized-extended">HTML-COMPANION-MS0 — atomized (extended)</a></li>
+<li class="toc-l2"><a href="#hc-0-build-spechtmlcompanionengine-entry-mirror-of-u-hps01">HC-0 — Build SpecHTMLCompanionEngine (entry, mirror of U-HPS01)</a></li>
+<li class="toc-l2"><a href="#hc-1-generalize-emit-revenue-roadmap-htmlmjs-emit-spec-htmlmjs">HC-1 — Generalize emit-revenue-roadmap-html.mjs → emit-spec-html.mjs</a></li>
+<li class="toc-l2"><a href="#hc-2-theme-support-darklight-prefers-color-scheme-media">HC-2 — Theme support (dark/light, prefers-color-scheme media)</a></li>
+<li class="toc-l2"><a href="#hc-3-anchor-link-navigation-mermaid-embed">HC-3 — Anchor-link navigation + Mermaid embed</a></li>
+<li class="toc-l2"><a href="#hc-4-accessibility-hook-wai-aria">HC-4 — Accessibility hook (WAI-ARIA)</a></li>
+<li class="toc-l2"><a href="#hc-5-mdhtml-drift-guard-hash-on-regen">HC-5 — MD↔HTML drift guard (hash on regen)</a></li>
+<li class="toc-l2"><a href="#x-closing-notes">§X — Closing notes</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<details class="frontmatter" open><summary>Document metadata</summary><div class="table-wrap"><table>
+<tbody>
+<tr><th scope="row">milestone</th><td>HTML-COMPANION-MS0 (extended)</td></tr>
+<tr><th scope="row">parent_roadmap</th><td>BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-2026-05-10.md</td></tr>
+<tr><th scope="row">inherits_protocol</th><td>BACKEND-DEVTOOLS-RGS6-AUTONOMOUS-EXECUTION-PROTOCOL.md (§7 implicit)</td></tr>
+<tr><th scope="row">assigned_lane</th><td>lane-D-html-surfaces</td></tr>
+<tr><th scope="row">commit_prefix</th><td>[lane-D-html-surfaces][HTML-COMPANION-MS0]</td></tr>
+<tr><th scope="row">total_units</th><td>6</td></tr>
+<tr><th scope="row">critical_path_role</th><td>foundation for HTML-PRIMARY-MS0 generalization; consumed by every spec render path</td></tr>
+<tr><th scope="row">loop_registrations</th><td>1 (drift guard per-commit)</td></tr>
+<tr><th scope="row">date</th><td>2026-05-10</td></tr>
+</tbody>
+</table></div></details>
+<h1 id="html-companion-ms0-atomized-extended"><a class="anchor" href="#html-companion-ms0-atomized-extended" aria-label="Permalink to HTML-COMPANION-MS0 — atomized (extended)">#</a>HTML-COMPANION-MS0 — atomized (extended)</h1>
+<blockquote>
+<p>The foundation HTML render layer. HTML-PRIMARY-MS0 generalizes this for all strategic specs.</p>
+</blockquote>
+<hr>
+<h2 id="hc-0-build-spechtmlcompanionengine-entry-mirror-of-u-hps01"><a class="anchor" href="#hc-0-build-spechtmlcompanionengine-entry-mirror-of-u-hps01" aria-label="Permalink to HC-0 — Build SpecHTMLCompanionEngine (entry, mirror of U-HPS01)">#</a>HC-0 — Build <code>SpecHTMLCompanionEngine</code> (entry, mirror of U-HPS01)</h2>
+<p>See <code>HTML-PRIMARY-MS0-ATOMIZED</code> U-HPS01 for full micro_steps. <strong>This milestone OWNS the engine build; HTML-PRIMARY-MS0 consumes it.</strong></p>
+<ul>
+<li>depends_on: []</li>
+<li>blocks: [HC-1..HC-5, U-HPS01..07]</li>
+</ul>
+<hr>
+<h2 id="hc-1-generalize-emit-revenue-roadmap-htmlmjs-emit-spec-htmlmjs"><a class="anchor" href="#hc-1-generalize-emit-revenue-roadmap-htmlmjs-emit-spec-htmlmjs" aria-label="Permalink to HC-1 — Generalize emit-revenue-roadmap-html.mjs → emit-spec-html.mjs">#</a>HC-1 — Generalize <code>emit-revenue-roadmap-html.mjs</code> → <code>emit-spec-html.mjs</code></h2>
+<ul>
+<li>pillar: html</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 65</li>
+<li>leverage_score: 11</li>
+<li>why: peer chat shipped revenue version; generalize for all spec types</li>
+<li>depends_on: [HC-0]</li>
+<li>blocks: [HC-3, HC-4]</li>
+<li>parallel_with: [HC-2]</li>
+<li>viz_node_id: <code>core.script.emitspechtml</code> (TBD-create)</li>
+<li>closes_synergy_edge: docs × pipeline</li>
+<li>loop_schedule: none</li>
+</ul>
+<p>verifies_via:   channel: render   tool: <code>node scripts/emit-spec-html.mjs state/shared/specs/BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-2026-05-10.md</code>   expected_signal: <code>.html</code> produced, validates W3C   re_run_cost: 3s   baseline: revenue-roadmap only</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Read path: <code>scripts/emit-revenue-roadmap-html.mjs</code> action: extract reusable pattern (Marked.js setup, frontmatter parse, output structure) verify: file readable</li>
+<li>step-2: tool: Write path: <code>scripts/emit-spec-html.mjs</code> action: generalize — accept any MD path, dispatch to SpecHTMLCompanionEngine.render() verify: script runs</li>
+<li>step-3: tool: Bash path: <code>H:/prism/</code> action: smoke render on this very file verify: <code>.html</code> twin produced</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>MD with non-UTF8 content</li>
+<li>MD with malicious script tags</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>research-card / roadmap / audit / dossier inputs (4 types)</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>file read fail → exit 1 with path</li>
+<li>render error → emit error.html + log</li>
+</ul>
+<hr>
+<h2 id="hc-2-theme-support-darklight-prefers-color-scheme-media"><a class="anchor" href="#hc-2-theme-support-darklight-prefers-color-scheme-media" aria-label="Permalink to HC-2 — Theme support (dark/light, prefers-color-scheme media)">#</a>HC-2 — Theme support (dark/light, prefers-color-scheme media)</h2>
+<p>Same as U-HPS03 (HTML-PRIMARY-MS0). This is the foundation; HPS03 hardens it.</p>
+<ul>
+<li>depends_on: [HC-0]</li>
+<li>blocks: [U-HPS03]</li>
+<li>viz_node_id: shared with U-HPS03</li>
+</ul>
+<p>(see U-HPS03 micro_steps in HTML-PRIMARY-MS0-ATOMIZED file)</p>
+<hr>
+<h2 id="hc-3-anchor-link-navigation-mermaid-embed"><a class="anchor" href="#hc-3-anchor-link-navigation-mermaid-embed" aria-label="Permalink to HC-3 — Anchor-link navigation + Mermaid embed">#</a>HC-3 — Anchor-link navigation + Mermaid embed</h2>
+<ul>
+<li>pillar: html</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 60</li>
+<li>leverage_score: 10</li>
+<li>why: long roadmaps need anchor navigation; Mermaid diagrams render dependency graphs</li>
+<li>depends_on: [HC-1]</li>
+<li>blocks: [U-HPS04]</li>
+<li>parallel_with: [HC-4]</li>
+<li>viz_node_id: <code>core.js.mermaid_embed_module</code> (TBD-create)</li>
+<li>closes_synergy_edge: html × diagram</li>
+<li>loop_schedule: none</li>
+</ul>
+<p>verifies_via:   channel: render   tool: render <code>BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-2026-05-10.md</code> with mermaid block → check <code>&lt;svg&gt;</code> in output   expected_signal: SVG mermaid rendered correctly   re_run_cost: 2s   baseline: mermaid not embedded</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Edit path: <code>mcp-server/src/engines/SpecHTMLCompanionEngine.ts</code> action: post-process <code>`</code>mermaid blocks → embed mermaid.js CDN + script init verify: TS compiles</li>
+<li>step-2: tool: Bash path: <code>H:/prism/</code> action: render test, grep SVG verify: <code>node scripts/emit-spec-html.mjs &lt;md&gt; &amp;&amp; grep &#39;&lt;svg&#39; &lt;md&gt;.html</code> non-empty</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>mermaid syntax error</li>
+<li>1000-node graph (oversize)</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>flowchart / sequenceDiagram / gantt / classDiagram</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>mermaid parse error → emit error placeholder</li>
+<li>CDN down → bundle local fallback</li>
+<li>oversize → paginate</li>
+</ul>
+<hr>
+<h2 id="hc-4-accessibility-hook-wai-aria"><a class="anchor" href="#hc-4-accessibility-hook-wai-aria" aria-label="Permalink to HC-4 — Accessibility hook (WAI-ARIA)">#</a>HC-4 — Accessibility hook (WAI-ARIA)</h2>
+<p>Mirror of U-HPS05 (HTML-PRIMARY-MS0). HTML-COMPANION owns the BASE check; HTML-PRIMARY adds axe-cli gate.</p>
+<ul>
+<li>depends_on: [HC-1]</li>
+<li>blocks: [U-HPS05]</li>
+<li>viz_node_id: shared with U-HPS05</li>
+</ul>
+<p>(see U-HPS05 micro_steps in HTML-PRIMARY-MS0-ATOMIZED)</p>
+<hr>
+<h2 id="hc-5-mdhtml-drift-guard-hash-on-regen"><a class="anchor" href="#hc-5-mdhtml-drift-guard-hash-on-regen" aria-label="Permalink to HC-5 — MD↔HTML drift guard (hash on regen)">#</a>HC-5 — MD↔HTML drift guard (hash on regen)</h2>
+<p>Mirror of U-HPS06.</p>
+<ul>
+<li>depends_on: [HC-1]</li>
+<li>blocks: [U-HPS06]</li>
+<li>viz_node_id: shared with U-HPS06</li>
+</ul>
+<p>(see U-HPS06 micro_steps)</p>
+<hr>
+<h2 id="x-closing-notes"><a class="anchor" href="#x-closing-notes" aria-label="Permalink to §X — Closing notes">#</a>§X — Closing notes</h2>
+<p><strong>Lane ownership:</strong> lane-D-html-surfaces.</p>
+<p><strong>Critical-path:</strong> HC-0 → HC-1 → fan-out (HC-2..HC-5 parallel). Then HTML-PRIMARY-MS0 generalizes for all spec types.</p>
+<p><strong>Cron:</strong> HC-5 drift guard runs per-commit.</p>
+<p><strong>Synergy closed:</strong> 3 (docs × pipeline, html × diagram, html × accessibility).</p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="BACKEND-DEVTOOLS-RGS6-HTML-COMPANION-MS0-ATOMIZED-2026-05-10.md">BACKEND-DEVTOOLS-RGS6-HTML-COMPANION-MS0-ATOMIZED-2026-05-10.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

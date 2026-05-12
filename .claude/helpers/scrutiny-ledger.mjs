@@ -5,22 +5,29 @@
  * Schema: {
  *   sessionId, recordedAt, blockCount, notes,
  *   selfReviewed,               // existing: human/Claude self-diff review
- *   agentReviewed,              // existing: backward-compat — true if ANY of (codex|gemini|opus) reviewed
- *   codexReviewed,              // NEW: Codex CLI returned PASS
- *   geminiReviewed,             // NEW: Gemini CLI returned PASS
- *   opusReviewed,               // NEW: Claude Opus reviewer agent returned PASS
- *   reviews: {                  // NEW: per-provider verdicts
+ *   agentReviewed,              // existing: backward-compat — true if ANY of (codex|claude|opus) reviewed
+ *   codexReviewed,              // Codex CLI returned PASS
+ *   claudeReviewed,             // 2nd-reviewer Claude agent returned PASS  (was geminiReviewed pre-2026-05-12)
+ *   opusReviewed,               // Claude Opus reviewer agent returned PASS
+ *   reviews: {                  // per-arm verdicts
  *     codex:  { verdict: "pass"|"fail", blockers, notes, recordedAt },
- *     gemini: { ... },
+ *     claude: { ... },
  *     opus:   { ... },
  *   }
  * }
  * Storage: mcp-server/data/state/SCRUTINY_LEDGER.json
  *
- * Multi-CLI consensus: scrutinize-before-stop requires 3-of-3 reviewers (codex
- * AND gemini AND opus) to release the Stop. Strict mode per user election
- * 2026-05-05. Self-review remains orthogonal but is no longer load-bearing
- * for clearance.
+ * Multi-reviewer consensus: scrutinize-before-stop requires 3-of-3 arms (codex
+ * AND claude AND opus) to release the Stop. The Gemini CLI arm was retired
+ * 2026-05-12 and replaced by a second independent Claude reviewer agent — the
+ * CLI was flaky (daily-quota / trust-dir env failures) and a fresh-context
+ * Claude pass triangulates better against the Opus arm than a 2.5-pro pass did.
+ * Strict mode per user election 2026-05-05. Self-review remains orthogonal but
+ * is no longer load-bearing for clearance.
+ *
+ * Backward compat: legacy entries that recorded `geminiReviewed` (and callers
+ * that still pass `geminiReviewed` / `geminiDetail` marks) are accepted — the
+ * value is mirrored onto `claudeReviewed` / `reviews.claude` on read and write.
  */
 
 import * as fs from "node:fs";
@@ -221,12 +228,60 @@ function makeEmptyEntry(sessionId) {
     selfReviewed: false,
     agentReviewed: false,
     codexReviewed: false,
-    geminiReviewed: false,
+    claudeReviewed: false,
     opusReviewed: false,
     reviews: {},
     blockCount: 0,
     notes: "",
   };
+}
+
+// Names that other tooling has used for the "2nd reviewer" arm over time. They
+// all map onto the canonical `claudeReviewed` flag / `reviews.claude` detail:
+//   geminiReviewed — the original Gemini CLI arm (retired 2026-05-12)
+//   opusBReviewed  — a transitional name from scrutiny-3way.mjs's "arm B" rework
+const ARM_B_FLAG_ALIASES = ["claudeReviewed", "opusBReviewed", "geminiReviewed"];
+const ARM_B_REVIEW_ALIASES = ["claude", "opusB", "gemini"];
+
+/**
+ * Bring an entry forward to the current schema:
+ *   - any legacy "arm B" flag (`geminiReviewed`, `opusBReviewed`) → `claudeReviewed`
+ *   - any legacy "arm B" detail (`reviews.gemini`, `reviews.opusB`) → `reviews.claude`
+ * Multiple legacy flags present → OR'd, so a stray `true` is never lost.
+ * Mutates and returns `entry`. Safe to call repeatedly. Always leaves
+ * `codexReviewed` / `claudeReviewed` / `opusReviewed` as booleans and
+ * `reviews` as an object so downstream code never sees `undefined`.
+ */
+function migrateEntry(entry) {
+  if (!entry || typeof entry !== "object") return entry;
+  let armB = entry.claudeReviewed === true;
+  for (const alias of ["opusBReviewed", "geminiReviewed"]) {
+    if (entry[alias] === true) armB = true;
+    delete entry[alias];
+  }
+  entry.claudeReviewed = armB;
+  if (typeof entry.codexReviewed !== "boolean") entry.codexReviewed = false;
+  if (typeof entry.opusReviewed !== "boolean") entry.opusReviewed = false;
+  if (!entry.reviews || typeof entry.reviews !== "object") entry.reviews = {};
+  for (const alias of ["opusB", "gemini"]) {
+    if (entry.reviews[alias] && !entry.reviews.claude) entry.reviews.claude = entry.reviews[alias];
+    delete entry.reviews[alias];
+  }
+  return entry;
+}
+
+/** First `marks[k]` that is a boolean, scanning the alias list in precedence order; else undefined. */
+function pickArmBBool(marks) {
+  for (const k of ARM_B_FLAG_ALIASES) if (typeof marks[k] === "boolean") return marks[k];
+  return undefined;
+}
+/** First `marks[k+"Detail"]` present, scanning the alias list in precedence order; else undefined. */
+function pickArmBDetail(marks) {
+  for (const k of ARM_B_REVIEW_ALIASES) {
+    const d = marks[`${k}Detail`];
+    if (d) return d;
+  }
+  return undefined;
 }
 
 function recordReviewerDetail(entry, provider, detail) {
@@ -247,12 +302,16 @@ function recordReviewerDetail(entry, provider, detail) {
  * @param {string} sessionId
  * @param {{
  *   selfReviewed?: boolean,
- *   agentReviewed?: boolean,    // legacy alias — sets all three flags off if not paired with provider flags
+ *   agentReviewed?: boolean,    // legacy alias — sets all three flags off if not paired with arm flags
  *   codexReviewed?: boolean,
- *   geminiReviewed?: boolean,
+ *   claudeReviewed?: boolean,   // 2nd Claude reviewer arm  (canonical)
+ *   opusBReviewed?: boolean,    // alias for claudeReviewed (scrutiny-3way.mjs "arm B" naming)
+ *   geminiReviewed?: boolean,   // DEPRECATED alias for claudeReviewed (Gemini CLI arm retired 2026-05-12)
  *   opusReviewed?: boolean,
- *   codexDetail?: { verdict?: "pass"|"fail", blockers?: string, notes?: string },
- *   geminiDetail?: { verdict?: "pass"|"fail", blockers?: string, notes?: string },
+ *   codexDetail?:  { verdict?: "pass"|"fail", blockers?: string, notes?: string },
+ *   claudeDetail?: { verdict?: "pass"|"fail", blockers?: string, notes?: string },
+ *   opusBDetail?:  { verdict?: "pass"|"fail", blockers?: string, notes?: string },  // alias for claudeDetail
+ *   geminiDetail?: { verdict?: "pass"|"fail", blockers?: string, notes?: string },  // DEPRECATED alias for claudeDetail
  *   opusDetail?:   { verdict?: "pass"|"fail", blockers?: string, notes?: string },
  *   notes?: string
  * }} marks
@@ -260,35 +319,33 @@ function recordReviewerDetail(entry, provider, detail) {
 export function recordScrutiny(sessionId, marks = {}) {
   return withLedgerLock(() => {
     const data = loadLedger();
-    const entry = data.entries[sessionId] || makeEmptyEntry(sessionId);
-    // Migrate legacy entries that lack the new fields
-    if (typeof entry.codexReviewed !== "boolean") entry.codexReviewed = false;
-    if (typeof entry.geminiReviewed !== "boolean") entry.geminiReviewed = false;
-    if (typeof entry.opusReviewed !== "boolean") entry.opusReviewed = false;
-    if (!entry.reviews || typeof entry.reviews !== "object") entry.reviews = {};
+    const entry = migrateEntry(data.entries[sessionId] || makeEmptyEntry(sessionId));
 
-    // Provider PASS/FAIL marks accept BOTH true and false so a later FAIL
-    // revokes a prior PASS (Codex blocker #1). Without this, calling
-    // `--mark-opus fail` after a prior PASS would leave the boolean true and
-    // isCleared() would still return true — violating "ANY reviewer FAIL keeps blocking".
+    // Arm PASS/FAIL marks accept BOTH true and false so a later FAIL revokes a
+    // prior PASS (Codex blocker #1). Without this, calling `--mark-opus fail`
+    // after a prior PASS would leave the boolean true and isCleared() would
+    // still return true — violating "ANY reviewer FAIL keeps blocking".
     if (marks.selfReviewed === true) entry.selfReviewed = true;
     if (typeof marks.codexReviewed === "boolean") entry.codexReviewed = marks.codexReviewed;
-    if (typeof marks.geminiReviewed === "boolean") entry.geminiReviewed = marks.geminiReviewed;
     if (typeof marks.opusReviewed === "boolean") entry.opusReviewed = marks.opusReviewed;
-    // Legacy agent flag — same boolean type-guard as the providers so a
-    // FAIL mark on the legacy field also revokes a prior PASS (Gemini
-    // blocker #3). Note that lines below derive agentReviewed from the OR
-    // of the providers, so this explicit assignment is the FALSE-revocation
-    // path; OR-derivation reasserts TRUE if any provider is still PASS.
+    // Arm B — accept claudeReviewed | opusBReviewed | geminiReviewed (precedence in that order).
+    const armB = pickArmBBool(marks);
+    if (typeof armB === "boolean") entry.claudeReviewed = armB;
+    // Legacy agent flag — same boolean type-guard as the arms so a FAIL mark on
+    // the legacy field also revokes a prior PASS (Gemini blocker #3). Note that
+    // lines below derive agentReviewed from the OR of the arms, so this explicit
+    // assignment is the FALSE-revocation path; OR-derivation reasserts TRUE if
+    // any arm is still PASS.
     if (typeof marks.agentReviewed === "boolean") entry.agentReviewed = marks.agentReviewed;
 
     if (marks.codexDetail) recordReviewerDetail(entry, "codex", marks.codexDetail);
-    if (marks.geminiDetail) recordReviewerDetail(entry, "gemini", marks.geminiDetail);
     if (marks.opusDetail) recordReviewerDetail(entry, "opus", marks.opusDetail);
+    const armBDetail = pickArmBDetail(marks);
+    if (armBDetail) recordReviewerDetail(entry, "claude", armBDetail);
 
-    // Derived: agentReviewed is the OR of the 3 providers (so legacy callers
-    // that read this field still see "true" once any reviewer signs off).
-    if (entry.codexReviewed || entry.geminiReviewed || entry.opusReviewed) {
+    // Derived: agentReviewed is the OR of the 3 arms (so legacy callers that
+    // read this field still see "true" once any reviewer signs off).
+    if (entry.codexReviewed || entry.claudeReviewed || entry.opusReviewed) {
       entry.agentReviewed = true;
     }
 
@@ -301,29 +358,33 @@ export function recordScrutiny(sessionId, marks = {}) {
 }
 
 /**
- * Returns true when all three CLI reviewers (Codex, Gemini, Opus) have
- * recorded PASS for the session. Self-review is orthogonal and is NOT
- * required for clearance under the multi-CLI 3-of-3 policy.
+ * Returns true when all three review arms (Codex CLI, 2nd Claude reviewer,
+ * Opus reviewer) have recorded PASS for the session. Self-review is orthogonal
+ * and is NOT required for clearance under the strict 3-of-3 policy.
  *
- * Backward compat: if a legacy entry has `agentReviewed: true` but no
- * provider flags (e.g. recorded by an older client of this helper),
- * treat it as cleared so prior sessions don't get retroactively blocked.
+ * Backward compat:
+ *   - a legacy entry that recorded `geminiReviewed: true` (pre-2026-05-12)
+ *     counts as the Claude arm — the Gemini CLI arm it replaced;
+ *   - a pre-3way entry with `agentReviewed: true` and no arm flags counts as
+ *     cleared, so prior sessions don't get retroactively blocked.
  */
 export function isCleared(sessionId) {
   const data = loadLedger();
   const entry = data.entries[sessionId];
   if (!entry) return false;
+  // The Claude (arm-B) leg is satisfied by the canonical flag OR any legacy alias.
+  const claudeArmOk = ARM_B_FLAG_ALIASES.some((k) => entry[k] === true);
   // Strict 3-of-3 policy
-  if (entry.codexReviewed === true && entry.geminiReviewed === true && entry.opusReviewed === true) {
+  if (entry.codexReviewed === true && claudeArmOk && entry.opusReviewed === true) {
     return true;
   }
-  // Legacy fallback: pre-3way entries used selfReviewed && agentReviewed
-  // and had none of codex/gemini/opus flags. Honor those so existing ledger
-  // history doesn't suddenly fail closed.
+  // Legacy fallback: pre-3way entries used selfReviewed && agentReviewed and
+  // had none of the arm flags. Honor those so existing ledger history doesn't
+  // suddenly fail closed.
   const isLegacyEntry =
     entry.codexReviewed !== true &&
-    entry.geminiReviewed !== true &&
-    entry.opusReviewed !== true;
+    entry.opusReviewed !== true &&
+    !ARM_B_FLAG_ALIASES.some((k) => entry[k] === true);
   if (isLegacyEntry && entry.selfReviewed === true && entry.agentReviewed === true) {
     return true;
   }
@@ -352,7 +413,11 @@ export function getEntry(sessionId) {
   // tmp+rename. Worst case is reading a slightly-stale snapshot, which
   // is acceptable for getEntry's use cases (display + hook decisions).
   const data = loadLedger();
-  return data.entries[sessionId] || null;
+  const entry = data.entries[sessionId];
+  if (!entry) return null;
+  // Return a migrated *copy* so callers see `claudeReviewed` even for legacy
+  // entries — without mutating the on-disk ledger (this is the no-lock path).
+  return migrateEntry({ ...entry, reviews: { ...(entry.reviews || {}) } });
 }
 
 export function clearSession(sessionId) {

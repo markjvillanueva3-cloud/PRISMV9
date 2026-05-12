@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="de7f93f30b61848bc1669a3cc2ddd58d32ecd9a284efe02b32ecbc1887dc8726">
+<title>PRISM Stabilization — Hooks, Git, Handoff, Injection Architecture</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">PRISM Stabilization — Hooks, Git, Handoff, Injection Architecture</h1>
+<p class="provenance">Generated 2026-05-12T12:43:26.607Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#prism-stabilization-spec">PRISM Stabilization Spec</a></li>
+<li class="toc-l2"><a href="#1-problem-statement">1. Problem statement</a></li>
+<li class="toc-l3"><a href="#11-memory-pressure-orphan-gitexe-processes">1.1 Memory pressure &amp; orphan git.exe processes</a></li>
+<li class="toc-l3"><a href="#12-multi-chat-handoff-race">1.2 Multi-chat handoff race</a></li>
+<li class="toc-l3"><a href="#13-per-prompt-injection-fork-storm">1.3 Per-prompt injection fork storm</a></li>
+<li class="toc-l2"><a href="#2-goals">2. Goals</a></li>
+<li class="toc-l2"><a href="#3-non-goals">3. Non-goals</a></li>
+<li class="toc-l2"><a href="#4-constraints">4. Constraints</a></li>
+<li class="toc-l2"><a href="#5-architecture-overview">5. Architecture overview</a></li>
+<li class="toc-l2"><a href="#6-phase-a-stop-the-bleeding">6. Phase A — Stop the bleeding</a></li>
+<li class="toc-l3"><a href="#a1-bound-supervise-git-sync-stopmjs-push-p0">A1. Bound + supervise git-sync-stop.mjs push (P0)</a></li>
+<li class="toc-l3"><a href="#a2-gitignore-hygiene-p0">A2. .gitignore hygiene (P0)</a></li>
+<li class="toc-l3"><a href="#a3-orphan-reaper-stop-hook">A3. Orphan reaper Stop hook</a></li>
+<li class="toc-l3"><a href="#a4-archive-23-already-disabled-hooks">A4. Archive 23 already-disabled hooks</a></li>
+<li class="toc-l3"><a href="#a5-cross-cutting-mirror-direction-enforcement">A5 (cross-cutting) — Mirror direction enforcement</a></li>
+<li class="toc-l2"><a href="#7-phase-b-multi-chat-handoff-race-fix">7. Phase B — Multi-chat handoff race fix</a></li>
+<li class="toc-l3"><a href="#b1-hybrid-handoff-store">B1. Hybrid handoff store</a></li>
+<li class="toc-l3"><a href="#b2-id-resolution-hardening-build-on-todays-gap-fixes">B2. ID resolution hardening (build on today&#39;s GAP fixes)</a></li>
+<li class="toc-l3"><a href="#b3-precompact-pipeline-consolidation">B3. PreCompact pipeline consolidation</a></li>
+<li class="toc-l3"><a href="#b4-startup-pipeline-read-path">B4. Startup pipeline read path</a></li>
+<li class="toc-l3"><a href="#b5-obsidian-vault-integration">B5. Obsidian vault integration</a></li>
+<li class="toc-l3"><a href="#b6-quartz-html-build-port-8766">B6. Quartz HTML build (port :8766)</a></li>
+<li class="toc-l2"><a href="#8-phase-c-injection-re-architecture">8. Phase C — Injection re-architecture</a></li>
+<li class="toc-l3"><a href="#c1-context-bundle-daemon">C1. Context-bundle daemon</a></li>
+<li class="toc-l3"><a href="#c2-one-prompt-context-inject-hook">C2. ONE prompt-context-inject hook</a></li>
+<li class="toc-l3"><a href="#c3-browseable-context-dashboard">C3. Browseable context dashboard</a></li>
+<li class="toc-l3"><a href="#c4-retire-30-redundant-hooks">C4. Retire 30+ redundant hooks</a></li>
+<li class="toc-l2"><a href="#9-decisions-resolved-open-questions">9. Decisions (resolved open questions)</a></li>
+<li class="toc-l3"><a href="#d1-quartz-port-8766-separate-from-system-viz-on-8765">D1. Quartz port = 8766 (separate from system-viz on 8765)</a></li>
+<li class="toc-l3"><a href="#d2-handoffs-in-obsidian-vault-as-junction">D2. Handoffs in Obsidian vault as junction</a></li>
+<li class="toc-l3"><a href="#d3-compatibility-shim-for-per-agent-handoffmjs-api">D3. Compatibility shim for per-agent-handoff.mjs API</a></li>
+<li class="toc-l2"><a href="#10-cross-cutting-concerns">10. Cross-cutting concerns</a></li>
+<li class="toc-l3"><a href="#101-telemetry">10.1 Telemetry</a></li>
+<li class="toc-l3"><a href="#102-tests">10.2 Tests</a></li>
+<li class="toc-l3"><a href="#103-rollback">10.3 Rollback</a></li>
+<li class="toc-l3"><a href="#104-migration">10.4 Migration</a></li>
+<li class="toc-l3"><a href="#105-multi-computer-propagation">10.5 Multi-computer propagation</a></li>
+<li class="toc-l2"><a href="#11-risks">11. Risks</a></li>
+<li class="toc-l2"><a href="#12-dispatcher-integration-map-for-rgs6-tier-gating">12. Dispatcher integration map (for /rgs6 tier-gating)</a></li>
+<li class="toc-l2"><a href="#13-acceptance-criteria-summary">13. Acceptance criteria summary</a></li>
+<li class="toc-l3"><a href="#phase-a-must-hit-all-before-b-starts">Phase A (must hit ALL before B starts)</a></li>
+<li class="toc-l3"><a href="#phase-b-must-hit-all-before-c-starts">Phase B (must hit ALL before C starts)</a></li>
+<li class="toc-l3"><a href="#phase-c-final-acceptance">Phase C (final acceptance)</a></li>
+<li class="toc-l2"><a href="#14-out-of-this-spec">14. Out of this spec</a></li>
+<li class="toc-l2"><a href="#15-phase-ordering-dependency-graph">15. Phase ordering &amp; dependency graph</a></li>
+<li class="toc-l2"><a href="#16-rgs6-brief-usage">16. /rgs6 brief usage</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<details class="frontmatter" open><summary>Document metadata</summary><div class="table-wrap"><table>
+<tbody>
+<tr><th scope="row">title</th><td>PRISM Stabilization — Hooks, Git, Handoff, Injection Architecture</td></tr>
+<tr><th scope="row">date</th><td>2026-05-09</td></tr>
+<tr><th scope="row">author</th><td>Claude (audit + brainstorm collaboration with Mark Villanueva)</td></tr>
+<tr><th scope="row">status</th><td>approved-design</td></tr>
+<tr><th scope="row">scope</th><td>H:/prism (all 8 active chats, both DESKTOP-N7MI1VB and peer machines)</td></tr>
+<tr><th scope="row">phases</th><td>A (urgent, 1-3 days) → B (5-10 days) → C (10-20 days)</td></tr>
+<tr><th scope="row">brief-for</th><td>/rgs6 generate</td></tr>
+</tbody>
+</table></div></details>
+<h1 id="prism-stabilization-spec"><a class="anchor" href="#prism-stabilization-spec" aria-label="Permalink to PRISM Stabilization Spec">#</a>PRISM Stabilization Spec</h1>
+<h2 id="1-problem-statement"><a class="anchor" href="#1-problem-statement" aria-label="Permalink to 1. Problem statement">#</a>1. Problem statement</h2>
+<p>PRISM heavy multi-chat sessions (8+ concurrent Claude Code chats) are degraded by three compounding faults observed live on 2026-05-09:</p>
+<h3 id="11-memory-pressure-orphan-gitexe-processes"><a class="anchor" href="#11-memory-pressure-orphan-gitexe-processes" aria-label="Permalink to 1.1 Memory pressure &amp; orphan git.exe processes">#</a>1.1 Memory pressure &amp; orphan git.exe processes</h3>
+<ul>
+<li><code>git-sync-stop.mjs</code> Stop hook spawns <code>git push</code> as a <em>detached, unref&#39;d</em> child and exits without supervising it. With 8 chats on the same <code>.git</code>, every Stop event can leave a runaway <code>git.exe</code> scanning a 7,142-file working tree until OS pagefile pressure kills the chat.</li>
+<li>319 hook entries registered across <code>C:/Users/wompu/.claude/settings.json</code> (208) + <code>H:/prism/.claude/settings.json</code> (111). Per-prompt fan-out is 35 hooks; per-tool-call fan-out is up to 175 (PreToolUse 98 + PostToolUse 75). Each is a node subprocess fork.</li>
+<li>584 hook script files exist on disk; many duplicate work or are orphaned (registered nowhere).</li>
+<li><code>state/shared/system-viz/</code> contains 334 MB of H-drive scan dumps (<code>h-drive-files.jsonl</code> 187 MB, <code>h-drive-census.json</code> 126 MB) read synchronously by some hooks.</li>
+</ul>
+<h3 id="12-multi-chat-handoff-race"><a class="anchor" href="#12-multi-chat-handoff-race" aria-label="Permalink to 1.2 Multi-chat handoff race">#</a>1.2 Multi-chat handoff race</h3>
+<ul>
+<li>Helper <code>H:/prism/.claude/helpers/stable-session-id.mjs</code> was patched 3 times today (GAP1/GAP2/GAP3) for race conditions. The fixes hardened ID resolution but did not address concurrency below the resolution layer.</li>
+<li>5+ uncommitted experimental files exist for compaction handling: <code>helpers/compaction-survival.mjs</code>, <code>hooks/compaction-survival.mjs</code>, <code>hooks/pre-compact.mjs</code>, <code>hooks/compact-restore.mjs</code>, <code>hooks/post-compact-enhanced.mjs</code>. Fragmented experimentation = unclear which is canonical.</li>
+<li><code>state/shared/handoffs/HANDOFF-&lt;id&gt;-&lt;topic&gt;.md</code> is written without atomic rename, lock file, or any concurrency-control. Two simultaneous compactions can interleave writes; a /startup glob can read the wrong file.</li>
+<li>Topic derivation collides for chats sharing the same git branch (8 chats on <code>cad-fusion-live-ms0</code> all derive topic <code>cad-fusion-live-ms0</code>).</li>
+</ul>
+<h3 id="13-per-prompt-injection-fork-storm"><a class="anchor" href="#13-per-prompt-injection-fork-storm" aria-label="Permalink to 1.3 Per-prompt injection fork storm">#</a>1.3 Per-prompt injection fork storm</h3>
+<ul>
+<li>35 hooks fire on every UserPromptSubmit. Each is a separate node subprocess that reads state, computes context, emits text injection.</li>
+<li>Many compute the same data: <code>build-state-inject</code>, <code>inventory-check-guard</code>, <code>claude-brief-staleness-check</code>, <code>wiki-precheck-inject</code>, <code>chat-bus-inject</code>, <code>comprehensive-build-enforce</code>, <code>discipline-expert-inject</code>, etc.</li>
+<li>User experience: every prompt waits ~1.5–3s on hook fan-out and receives 8–15 separate injection blocks (~3-8 KB each). Net token cost per session is significant, and the UI emits the equivalent of &quot;system noise&quot; between every turn.</li>
+</ul>
+<h2 id="2-goals"><a class="anchor" href="#2-goals" aria-label="Permalink to 2. Goals">#</a>2. Goals</h2>
+<ol>
+<li><strong>G1</strong> — Eliminate orphan <code>git.exe</code> accumulation. 0 orphan git/node processes after Stop.</li>
+<li><strong>G2</strong> — Drop <code>git status</code> walk size from 7,132 untracked to ≤30. <code>git status</code> returns in &lt;500ms.</li>
+<li><strong>G3</strong> — Zero handoff cross-contamination across 6+ concurrent compactions in a stress test.</li>
+<li><strong>G4</strong> — Single canonical PreCompact/PostCompact/Startup pipeline. ≤2 files per phase (writer + reader).</li>
+<li><strong>G5</strong> — UserPromptSubmit median latency &lt;100ms (down from ~1500ms).</li>
+<li><strong>G6</strong> — Fork count per prompt ≤3 (down from ~35).</li>
+<li><strong>G7</strong> — All context Mark relies on (build-state, wiki, chat-bus, etc.) remains accessible — via Obsidian/HTML/system-viz/MCP — without per-prompt text injection.</li>
+<li><strong>G8</strong> — Mirror discipline restored: H:/.claude/settings.json never drifts from C: source.</li>
+</ol>
+<h2 id="3-non-goals"><a class="anchor" href="#3-non-goals" aria-label="Permalink to 3. Non-goals">#</a>3. Non-goals</h2>
+<ul>
+<li>N1. Refactoring the 543-skill catalog. Skills work fine; their auto-injection on SessionStart is a token issue, not a memory issue.</li>
+<li>N2. Migrating Obsidian vault structure. Vault is healthy at 6.9 MB.</li>
+<li>N3. Reducing skill count or merging dispatchers. Out of scope.</li>
+<li>N4. Removing the Codex/Gemini/Opus 3-way scrutiny gate. Stays as-is.</li>
+<li>N5. Adopting a different version control system. Git stays.</li>
+<li>N6. Replacing Claude Code. Hook system is the right primitive; the issue is implementation, not architecture.</li>
+</ul>
+<h2 id="4-constraints"><a class="anchor" href="#4-constraints" aria-label="Permalink to 4. Constraints">#</a>4. Constraints</h2>
+<ul>
+<li><strong>C1 — Deploy-before-heavy-sessions</strong>: Phase A must ship before next multi-chat work session.</li>
+<li><strong>C2 — Multi-chat safety</strong>: every fix must preserve the lane discipline (per-chat handoff, file claims, scope branches).</li>
+<li><strong>C3 — Multi-computer</strong>: changes must propagate via the c-to-h-mirror pattern. Other machine (DESKTOP-N7MI1VB peer) needs the same hook stack on git pull.</li>
+<li><strong>C4 — Keep injection content</strong>: Mark wants the discipline-expert / build-state / wiki-precheck / chat-bus content remain available. Only the <em>delivery mechanism</em> changes.</li>
+<li><strong>C5 — Reversible</strong>: every phase guarded by env flag; rollback in &lt;5 minutes.</li>
+<li><strong>C6 — No silent failure</strong>: any handoff/compact bug must produce a loud error, never a silent wrong-file load.</li>
+<li><strong>C7 — Atomic-first</strong>: per /forge6 + /rgs6 doctrine — atomic foundations before higher tiers. Phase A is foundational; B depends on A; C depends on B.</li>
+</ul>
+<h2 id="5-architecture-overview"><a class="anchor" href="#5-architecture-overview" aria-label="Permalink to 5. Architecture overview">#</a>5. Architecture overview</h2>
+<pre><code>┌──────────────────────────────────────────────────────────────────┐
+│                    PHASE A — Stop the bleeding                    │
+│   A1: bound git-sync-stop  A2: .gitignore  A3: orphan reaper      │
+│   A4: archive disabled hooks                                      │
+│            (1-3 days, &lt;50 LOC net change, 4 commits)              │
+└─────────────────────────┬────────────────────────────────────────┘
+                          │ depends on
+┌─────────────────────────▼────────────────────────────────────────┐
+│             PHASE B — Multi-chat handoff race fix                 │
+│   B1: hybrid handoff store (FS + MCP coord)                       │
+│   B2: ID resolution hardening                                     │
+│   B3: compact pipeline consolidation (5+ files → 2)              │
+│   B4: startup pipeline read path                                  │
+│   B5: Obsidian vault integration (NTFS junction)                  │
+│   B6: Quartz HTML build (port :8766)                              │
+│        (5-10 days, ~600 LOC, 12-18 commits, 2 dispatcher actions) │
+└─────────────────────────┬────────────────────────────────────────┘
+                          │ depends on
+┌─────────────────────────▼────────────────────────────────────────┐
+│       PHASE C — Injection re-architecture (pull, not push)        │
+│   C1: context-bundle daemon (aggregator, 30s tick)                │
+│   C2: ONE prompt-context-inject hook (reads bundle)               │
+│   C3: Browseable context dashboard via Quartz                     │
+│   C4: Retire 30+ redundant hooks → archive                        │
+│        (10-20 days, ~1000 LOC, 30+ commits)                       │
+└──────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h2 id="6-phase-a-stop-the-bleeding"><a class="anchor" href="#6-phase-a-stop-the-bleeding" aria-label="Permalink to 6. Phase A — Stop the bleeding">#</a>6. Phase A — Stop the bleeding</h2>
+<h3 id="a1-bound-supervise-git-sync-stopmjs-push-p0"><a class="anchor" href="#a1-bound-supervise-git-sync-stopmjs-push-p0" aria-label="Permalink to A1. Bound + supervise git-sync-stop.mjs push (P0)">#</a>A1. Bound + supervise <code>git-sync-stop.mjs</code> push (P0)</h3>
+<p><strong>Current bug</strong> (<code>H:/prism/.claude/hooks/git-sync-stop.mjs:156-180</code>):</p>
+<pre><code class="language-js">function detachedPush(args) {
+  const child = spawn(&quot;git&quot;, args, { detached: true, stdio: &quot;ignore&quot;,
+                                      windowsHide: true });
+  child.unref();
+  return { detached: true };
+  // No release: child runs after we exit; the lock TTL covers cleanup.
+}
+</code></pre>
+<p>Comment claim is false: TTL covers the <em>lock file</em>, not the <em>process</em>. On Windows, <code>unref()</code> + parent exit leaves the child as a runaway descendant of the OS init.</p>
+<p><strong>Fix</strong>: replace with a <em>bounded supervised</em> spawn that always reaps:</p>
+<pre><code class="language-js">function supervisedPush(args, timeoutMs = PUSH_TIMEOUT_MS) {
+  const lock = acquireRemoteLock();
+  if (!lock.ok) return { blocked: true, error: lock.message };
+  return new Promise((resolve) =&gt; {
+    const child = spawn(&quot;git&quot;, args, { cwd: REPO, stdio: &quot;ignore&quot;,
+                                        windowsHide: true });
+    let killed = false;
+    const timer = setTimeout(() =&gt; {
+      killed = true;
+      try { child.kill(&quot;SIGKILL&quot;); } catch {}
+    }, timeoutMs);
+    child.on(&quot;exit&quot;, (code, sig) =&gt; {
+      clearTimeout(timer);
+      releaseRemoteLock(lock.holder);
+      logToFile({ event: &quot;push_done&quot;, code, sig, killed,
+                   args, ts: new Date().toISOString() });
+      resolve({ ok: code === 0, killed, code });
+    });
+    child.on(&quot;error&quot;, (e) =&gt; {
+      clearTimeout(timer);
+      releaseRemoteLock(lock.holder);
+      logToFile({ event: &quot;push_error&quot;, error: e.message,
+                   args, ts: new Date().toISOString() });
+      resolve({ ok: false, error: e.message });
+    });
+  });
+}
+</code></pre>
+<p>Stop hook becomes async-aware. Total Stop hook time bounded by <code>timeoutMs</code> (default 30s). Process ALWAYS exits via SIGKILL if push hangs.</p>
+<p><strong>Telemetry</strong>: Append-only log at <code>state/shared/git-sync-stop.log</code> with: ts, branch, ahead, behind, exit_code, killed, duration_ms. Daily-rotated.</p>
+<p><strong>Files touched</strong>: 1 (<code>hooks/git-sync-stop.mjs</code>).</p>
+<h3 id="a2-gitignore-hygiene-p0"><a class="anchor" href="#a2-gitignore-hygiene-p0" aria-label="Permalink to A2. .gitignore hygiene (P0)">#</a>A2. <code>.gitignore</code> hygiene (P0)</h3>
+<p>Add to <code>H:/prism/.gitignore</code>:</p>
+<pre><code># Local ephemeral state added by hooks/helpers
+.claude-octopus/
+.claude-profiles/
+.claude/bin/
+
+# Hookify experimental rule files (local-only)
+.claude/hookify-*.local.md
+.claude/hookify.autofire-*.local.md
+
+# Compaction-related WIP scratch
+.claude/helpers/.compaction-survival.md
+
+# Untracked PRISM master ref (versioned location is mcp-server/data/docs/)
+&quot;# PRISM MASTER REFERENCE v12.ini&quot;
+</code></pre>
+<p>Plus a curated review of the 22 untracked <code>.claude/helpers/*.mjs</code>:</p>
+<ul>
+<li>Promote to git: <code>agent-coordination-daemon</code>, <code>arbitration-log</code>, <code>chat-bus-reap</code>, <code>chat-slots</code>, <code>compact-restore</code>, <code>compaction-survival</code>, <code>conflict-predictor</code>, <code>identity-normalize</code>, <code>phase-claim-manager</code>, <code>position-sync</code>, <code>post-compact-enhanced</code>, <code>pre-compact</code>, <code>prism-awareness-bundle</code>, <code>svi-refresh</code>, <code>sync-cli-context-files</code>, <code>sync-memory</code>, <code>test-quality-gate</code> if they are referenced by any wired hook in settings.json.</li>
+<li>Otherwise gitignore.</li>
+</ul>
+<p>Add per-helper a 10-line audit in <code>state/shared/specs/2026-05-09-helper-audit.md</code> (deliverable in A2) classifying each as keep/promote/archive.</p>
+<p><strong>Verification</strong>: <code>git status --porcelain | wc -l</code> ≤ 50.</p>
+<p><strong>Files touched</strong>: <code>.gitignore</code> + audit doc + <code>git add</code>/<code>git rm</code> of curated helpers.</p>
+<h3 id="a3-orphan-reaper-stop-hook"><a class="anchor" href="#a3-orphan-reaper-stop-hook" aria-label="Permalink to A3. Orphan reaper Stop hook">#</a>A3. Orphan reaper Stop hook</h3>
+<p><strong>Replace</strong> <code>stop_close_prism_nodes.mjs</code> (does not work on Windows for unref&#39;d descendants) with <code>stop_close_prism_nodes_v2.mjs</code>:</p>
+<pre><code class="language-js">// pseudocode
+const ourPid = process.env.CLAUDE_PARENT_PID || ...;
+const ourCwd = process.cwd();
+const candidates = await listProcesses({ name: [&#39;git.exe&#39;,&#39;node.exe&#39;] });
+for (const p of candidates) {
+  if (!isOurDescendant(p, ourPid) &amp;&amp; !cmdLineMatches(p, ourCwd)) continue;
+  if (!parentAlive(p)) {
+    logKill(p);
+    process.kill(p.pid, &#39;SIGKILL&#39;); // Windows tasklist /F
+  }
+}
+</code></pre>
+<p>Conservative: only kills processes whose CommandLine references our hooks/scripts (<code>H:/prism/.claude/hooks/</code>, <code>H:/.claude/</code>, <code>H:/prism/scripts/</code>). Never touches user processes.</p>
+<p><strong>Telemetry</strong>: log every kill to <code>state/shared/orphan-reaper.log</code>.</p>
+<p><strong>Files touched</strong>: 1 new hook script + settings.json registration replacing old.</p>
+<h3 id="a4-archive-23-already-disabled-hooks"><a class="anchor" href="#a4-archive-23-already-disabled-hooks" aria-label="Permalink to A4. Archive 23 already-disabled hooks">#</a>A4. Archive 23 already-disabled hooks</h3>
+<p>Already short-circuited via <code>DISABLED_TOKEN_REDUX_2026_04_23</code> marker but still cost a node subprocess fork. Move them out of settings.json entirely:</p>
+<pre><code class="language-bash"># Pseudocode of the cleanup script
+node H:/prism/scripts/archive-disabled-hooks.mjs --apply
+# Reads marker from each hook&#39;s source, removes its entry from settings.json,
+# moves source file to state/shared/disabled-hooks/&lt;original-path&gt;.disabled.
+# Records action in state/shared/disabled-hooks/manifest.jsonl.
+</code></pre>
+<p><strong>Files touched</strong>: settings.json (both layers), 23 source files moved.</p>
+<p><strong>Verification</strong>: total registered hook count drops by ~23 in user settings; observed UserPromptSubmit fork count drops correspondingly.</p>
+<h3 id="a5-cross-cutting-mirror-direction-enforcement"><a class="anchor" href="#a5-cross-cutting-mirror-direction-enforcement" aria-label="Permalink to A5 (cross-cutting) — Mirror direction enforcement">#</a>A5 (cross-cutting) — Mirror direction enforcement</h3>
+<p>Today: <code>H:/.claude/settings.json</code> was edited 15h <em>after</em> <code>C:/Users/wompu/.claude/settings.json</code> and the c-to-h-mirror hook hasn&#39;t fired since. Drift visible: H: has 33 Stop hooks vs C:&#39;s 32.</p>
+<p><strong>Fix</strong>: existing <code>c-to-h-mirror.mjs</code> (or its replacement) gains a &quot;guard mode&quot; — runs on SessionStart and asserts <code>H: hash == C: hash</code>. If not equal AND C: is older, reject the divergence loudly: print expected vs actual diff, refuse to overwrite either, surface a manual reconciliation prompt.</p>
+<p><strong>Files touched</strong>: 1 hook (c-to-h-mirror).</p>
+<p><strong>Phase A acceptance criteria</strong>:</p>
+<ul>
+<li><code>git status --porcelain | wc -l</code> ≤ 50</li>
+<li>After 30-min idle period following Stop: 0 git.exe processes (verified via <code>Get-Process git</code>)</li>
+<li><code>state/shared/git-sync-stop.log</code> shows <code>killed: false</code> on &gt;95% of pushes (timeout protects but rarely fires)</li>
+<li>Settings.json hash equality C: == H: at every SessionStart</li>
+<li><code>node H:/prism/scripts/hook-fork-bench.mjs</code> (new) measures total node forks per prompt; ≤300 for SessionStart, ≤30 per prompt</li>
+</ul>
+<h2 id="7-phase-b-multi-chat-handoff-race-fix"><a class="anchor" href="#7-phase-b-multi-chat-handoff-race-fix" aria-label="Permalink to 7. Phase B — Multi-chat handoff race fix">#</a>7. Phase B — Multi-chat handoff race fix</h2>
+<h3 id="b1-hybrid-handoff-store"><a class="anchor" href="#b1-hybrid-handoff-store" aria-label="Permalink to B1. Hybrid handoff store">#</a>B1. Hybrid handoff store</h3>
+<p><strong>Architecture</strong>:</p>
+<ul>
+<li><strong>Filesystem of record</strong>: <code>state/shared/handoffs/&lt;session-id&gt;/handoff.md</code> (per-chat folder, no name collision possible).</li>
+<li>Inside each folder: <code>handoff.md</code> (current), <code>handoff.md.lock</code> (write lock with TTL), <code>history/&lt;timestamp&gt;.md</code> (per-write archive, last 14 days).</li>
+<li><strong>MCP coordination layer</strong>: 2 new dispatcher actions in <code>prism_session</code>:
+<ul>
+<li><code>prism_session:handoff_write { session_id, topic, body, parent_session_id? }</code> — server enforces single-writer-per-session by holding an in-memory mutex per session_id; writes via atomic rename to FS; returns confirmed (session_id, write_id).</li>
+<li><code>prism_session:handoff_read { session_id, topic? }</code> — server returns the latest handoff for that exact session_id. NO topic-glob fallback.</li>
+</ul></li>
+</ul>
+<p><strong>Server-side mutex</strong>: implemented in <code>mcp-server/src/engines/HandoffCoordinatorEngine.ts</code> — a Map&lt;session_id, Promise&lt;void&gt;&gt; that serializes writes per-session. Reads are lock-free (read latest history snapshot).</p>
+<p><strong>FS-only fallback</strong>: if MCP server unreachable (port not listening), <code>per-agent-handoff.mjs</code> writes directly using <code>fs.openSync(path, &#39;wx&#39;)</code> (exclusive create) on a <code>.lock</code> file with a TTL embedded; if the lock is fresh (&lt;60s old) and held by another process, abort with an unmistakable error. No silent retry, no glob fallback.</p>
+<h3 id="b2-id-resolution-hardening-build-on-todays-gap-fixes"><a class="anchor" href="#b2-id-resolution-hardening-build-on-todays-gap-fixes" aria-label="Permalink to B2. ID resolution hardening (build on today&#39;s GAP fixes)">#</a>B2. ID resolution hardening (build on today&#39;s GAP fixes)</h3>
+<ul>
+<li><strong>Mandatory</strong> stdin session_id for all <em>write</em> operations. The hook flow guarantees Claude provides it via stdin JSON. If absent (Bash invocation), abort with <code>process.exit(2)</code> and surface the error.</li>
+<li>For <em>read</em> operations on SessionStart: the read helper requires either:
+<ol>
+<li>stdin session_id from the SessionStart hook (Claude provides), OR</li>
+<li>explicit <code>--session-id</code> arg (manual recovery), OR</li>
+<li>explicit <code>--terminal claude-XXXX</code> arg (legacy compat).</li>
+</ol></li>
+<li><strong>Cross-write assertion</strong>: every write asserts the resolved session_id matches the MCP-served pin within 60s. If mismatch → abort write, log to <code>state/shared/handoff-race-incidents.log</code>. This catches edge cases where two chats accidentally share an ID.</li>
+</ul>
+<h3 id="b3-precompact-pipeline-consolidation"><a class="anchor" href="#b3-precompact-pipeline-consolidation" aria-label="Permalink to B3. PreCompact pipeline consolidation">#</a>B3. PreCompact pipeline consolidation</h3>
+<p><strong>Audit</strong> (B3-step-1): catalog the 5+ uncommitted compact files:</p>
+<ul>
+<li><code>H:/prism/.claude/helpers/compaction-survival.mjs</code></li>
+<li><code>H:/prism/.claude/hooks/compaction-survival.mjs</code></li>
+<li><code>H:/prism/.claude/hooks/pre-compact.mjs</code></li>
+<li><code>H:/prism/.claude/hooks/compact-restore.mjs</code></li>
+<li><code>H:/prism/.claude/hooks/post-compact-enhanced.mjs</code></li>
+<li>existing wired: <code>H:/prism/.claude/hooks/claude-brief-precompact.mjs</code>, <code>compression-precompact.mjs</code>, <code>precompact-pending-guard.mjs</code>, <code>precompact-auto-trigger.mjs</code></li>
+</ul>
+<p><strong>Consolidate</strong> to:</p>
+<ul>
+<li><code>helpers/precompact-handoff.mjs</code> — canonical writer (calls <code>prism_session:handoff_write</code>).</li>
+<li><code>hooks/precompact-bundle.mjs</code> — single PreCompact hook that internally:
+<ol>
+<li>invokes the canonical writer</li>
+<li>runs <code>claude-brief-precompact</code> logic</li>
+<li>runs <code>compression-precompact</code> logic</li>
+<li>runs <code>precompact-pending-guard</code> logic</li>
+</ol> Replaces 4 separate hooks with one (still all logic preserved, but one node fork).</li>
+<li><code>hooks/postcompact-restore.mjs</code> — single PostCompact hook (the &quot;session resume&quot; path) that calls <code>prism_session:handoff_read</code> and emits the handoff into the resumed session.</li>
+</ul>
+<p><strong>Move to disabled/</strong>: all 5 uncommitted files plus the 3 retired wired hooks. Manifest in <code>state/shared/disabled-hooks/2026-05-09-compact-consolidation.jsonl</code>.</p>
+<h3 id="b4-startup-pipeline-read-path"><a class="anchor" href="#b4-startup-pipeline-read-path" aria-label="Permalink to B4. Startup pipeline read path">#</a>B4. Startup pipeline read path</h3>
+<p><code>hooks/session-handoff-load.mjs</code> (existing) replaced with a version that:</p>
+<ol>
+<li>reads stdin session_id (mandatory)</li>
+<li>calls <code>prism_session:handoff_read { session_id }</code> </li>
+<li>if found → emits handoff into chat as resume context</li>
+<li>if not found → emits unambiguous diagnostic, NEVER falls back to topic-glob</li>
+</ol>
+<p>The &quot;could not find handoff&quot; path includes the recovery commands the user can run (<code>per-agent-handoff read --session-id ...</code>).</p>
+<h3 id="b5-obsidian-vault-integration"><a class="anchor" href="#b5-obsidian-vault-integration" aria-label="Permalink to B5. Obsidian vault integration">#</a>B5. Obsidian vault integration</h3>
+<p>Create NTFS junction: <code>H:/prism/knowledge/handoffs</code> → <code>H:/prism/state/shared/handoffs/</code>.</p>
+<pre><code class="language-powershell"># One-shot setup
+New-Item -ItemType Junction -Path H:/prism/knowledge/handoffs `
+                              -Target H:/prism/state/shared/handoffs
+</code></pre>
+<p>Each <code>handoff.md</code> gets frontmatter for Obsidian:</p>
+<pre><code class="language-yaml">---
+session: claude-7b9d1810
+topic: cad-fusion-live-ms0
+written_at: 2026-05-09T20:50:00Z
+parent_session: claude-7b9d1810  # for /compact lineage
+machine: DESKTOP-N7MI1VB
+chat_index: 1
+peer_chats:  # snapshot of who else was alive
+  - claude-99eca613
+  - claude-cee63f1f
+status: active  # active | archived | superseded
+---
+</code></pre>
+<p>This gives Obsidian backlinks (resume hints can <code>[[link]]</code> to prior handoffs), search, graph view of compaction lineage, and tag-based querying.</p>
+<h3 id="b6-quartz-html-build-port-8766"><a class="anchor" href="#b6-quartz-html-build-port-8766" aria-label="Permalink to B6. Quartz HTML build (port :8766)">#</a>B6. Quartz HTML build (port :8766)</h3>
+<p><strong>Setup</strong> (B6-step-1): bootstrap Quartz in <code>H:/prism/scripts/quartz/</code> (separate from main <code>H:/prism/</code>):</p>
+<pre><code class="language-bash">cd H:/prism/scripts
+npx quartz create   # or git clone https://github.com/jackyzha0/quartz.git
+cd quartz
+# config: vault path = H:/prism/knowledge/, output = H:/prism/state/shared/quartz-out/
+# port: 8766 (system-viz on 8765)
+</code></pre>
+<p><strong>Sources Quartz indexes</strong>:</p>
+<ul>
+<li><code>H:/prism/knowledge/</code> (existing Obsidian vault)</li>
+<li><code>H:/prism/knowledge/handoffs/</code> (junction to handoffs — see B5)</li>
+</ul>
+<p><strong>Server</strong>: small Express wrapper at <code>H:/prism/scripts/quartz-serve.mjs</code>:</p>
+<ul>
+<li>Mounts quartz-out/ as static</li>
+<li>Endpoint: <code>/handoff/&lt;session-id&gt;</code> → returns the rendered handoff HTML</li>
+<li>Endpoint: <code>/handoff-list</code> → returns JSON of all handoffs (chat ID, topic, written_at)</li>
+<li>Endpoint: <code>/graph</code> → Quartz-generated D3 graph view</li>
+<li>Live reload via filesystem watcher (debounced 5s) — runs <code>npx quartz build</code> and reloads</li>
+</ul>
+<p><strong>Process supervision</strong>: register Quartz as a low-priority background daemon in <code>state/shared/daemons/quartz.json</code>. Auto-start via SessionStart hook; auto-restart on crash. If a generic supervisor doesn&#39;t exist, ship a minimal one (<code>scripts/daemon-supervisor.mjs</code>, ~80 LOC) as part of B6 — it is reused by C1 daemon below.</p>
+<p><strong>Phase B acceptance criteria</strong>:</p>
+<ul>
+<li>6-chat parallel <code>/compact</code> simulation: zero handoff cross-contamination across 100 trial runs.</li>
+<li><code>precompact + compact + postcompact + startup</code> total wall-clock &lt;5s on a typical chat.</li>
+<li>Obsidian opens any handoff with backlinks intact.</li>
+<li>Quartz dashboard at http://localhost:8766/handoffs renders all handoffs with lineage graph.</li>
+<li>Race-incident log empty across 1-week observation window.</li>
+</ul>
+<h2 id="8-phase-c-injection-re-architecture"><a class="anchor" href="#8-phase-c-injection-re-architecture" aria-label="Permalink to 8. Phase C — Injection re-architecture">#</a>8. Phase C — Injection re-architecture</h2>
+<h3 id="c1-context-bundle-daemon"><a class="anchor" href="#c1-context-bundle-daemon" aria-label="Permalink to C1. Context-bundle daemon">#</a>C1. Context-bundle daemon</h3>
+<p>New: <code>H:/prism/scripts/context-bundle-daemon.mjs</code> — long-running, low-priority background process. Tick every 30s:</p>
+<ol>
+<li>Read all source data Mark&#39;s injections currently compute:
+<ul>
+<li><code>BUILD_STATE.md / .json</code></li>
+<li><code>PRISM-INVENTORY-LATEST.md</code></li>
+<li>wiki precheck (top entries by keyword)</li>
+<li>chat-bus state (active claims, unread peer messages)</li>
+<li>settings-baseline diff</li>
+<li>hook telemetry summary</li>
+<li>SVI status, omega thresholds</li>
+<li>JM Die context</li>
+</ul></li>
+<li>Aggregate to <code>state/shared/context-bundle.json</code> (single canonical state — schema versioned).</li>
+<li>Render to <code>state/shared/context-bundle.html</code> (single HTML view).</li>
+<li>Daemon writes both atomically (tmp + rename).</li>
+</ol>
+<p>Daemon supervised by <code>scripts/daemon-supervisor.mjs</code> (shipped as part of B6, reused here).</p>
+<h3 id="c2-one-prompt-context-inject-hook"><a class="anchor" href="#c2-one-prompt-context-inject-hook" aria-label="Permalink to C2. ONE prompt-context-inject hook">#</a>C2. ONE prompt-context-inject hook</h3>
+<p>Replace 24 UserPromptSubmit injectors with a single hook <code>hooks/prompt-context-inject.mjs</code>:</p>
+<ol>
+<li>Read <code>state/shared/context-bundle.json</code> (one fs read, ≤200ms).</li>
+<li>Apply per-prompt relevance filter (one regex pass against prompt text).</li>
+<li>Emit ONE structured injection block (≤500 tokens typical, ≤2000 max): <code>`</code> ## PRISM CONTEXT (auto)
+<ul>
+<li>Build: 3174 engines, 2269 wired, 898 unwired</li>
+<li>Active chats: 8, you are claude-7b9d1810</li>
+<li>Top wiki match: [[reference_obsidian_vault_subdirs]]</li>
+<li>Open work: ...</li>
+<li>Full context: http://localhost:8766/context (open in browser)</li>
+</ul> <code>`</code></li>
+<li>Side-effect injectors that have <em>real work</em> (claim file edits, telemetry capture) become standalone POST-prompt operations queued to a job runner — do not block the user prompt.</li>
+</ol>
+<p>Retained as-is: <code>inventory-check-guard</code> (duplicate prevention is load-bearing — a Skill activation requires it), <code>chat-bus-inject</code> (multi-chat lane safety).</p>
+<p>Retired (moved to disabled/): <code>discipline-expert-inject</code>, <code>prompt-rules-inject</code>, <code>comprehensive-build-enforce</code>, <code>claude-brief-staleness-check</code>, <code>wiki-precheck-inject</code>, <code>gsd-section-retrieve</code>, <code>tribal-inject-on-edit</code>, <code>reference-value-injector</code>, <code>local-compute-intent</code>, <code>ollama-skill-suggester</code>, <code>task-goal-tracker</code>, <code>lathe-master-post-quality-gate</code>, ~12 more (full list in audit deliverable).</p>
+<h3 id="c3-browseable-context-dashboard"><a class="anchor" href="#c3-browseable-context-dashboard" aria-label="Permalink to C3. Browseable context dashboard">#</a>C3. Browseable context dashboard</h3>
+<p>Quartz build (from B6) extended to render:</p>
+<ul>
+<li><code>/context/build-state</code> — current BUILD_STATE.md as HTML</li>
+<li><code>/context/inventory</code> — engine/dispatcher/action counts</li>
+<li><code>/context/wiki/...</code> — full wiki traversal</li>
+<li><code>/context/system-viz</code> — link to existing system-viz on :8765 (do not duplicate; cross-link)</li>
+<li><code>/context/handoffs</code> — all handoffs (from B5/B6)</li>
+<li><code>/context/chats</code> — currently active chats with their claims</li>
+<li><code>/context/discipline</code> — random expert injection content as static page</li>
+</ul>
+<p><strong>Result</strong>: instead of injecting context text on every prompt, Claude (or human) <code>WebFetch</code>es it on demand. Inject <em>pointers</em>, not <em>content</em>. Per-prompt token cost drops 80%.</p>
+<h3 id="c4-retire-30-redundant-hooks"><a class="anchor" href="#c4-retire-30-redundant-hooks" aria-label="Permalink to C4. Retire 30+ redundant hooks">#</a>C4. Retire 30+ redundant hooks</h3>
+<p>After C1-C3 ship and stable:</p>
+<ul>
+<li>All UserPromptSubmit hooks superseded by <code>prompt-context-inject</code> move to <code>state/shared/disabled-hooks/2026-05-XX-injection-rearch.jsonl</code>.</li>
+<li>Half of PreToolUse hooks (the matcher-gated ones doing read-only checks) consolidate into <code>pretool-bundle.mjs</code> — same approach as B3.</li>
+<li>Half of PostToolUse hooks consolidate similarly.</li>
+<li>Final settings.json hook count goal: ≤80 entries (down from 319).</li>
+</ul>
+<p><strong>Phase C acceptance criteria</strong>:</p>
+<ul>
+<li>UserPromptSubmit median latency &lt;100ms (measured via hook telemetry).</li>
+<li>Fork count per prompt ≤3 (typical) — measured via process snapshot at prompt submit + 50ms.</li>
+<li>Context bundle freshness &lt;60s (daemon tick + write).</li>
+<li>Quartz dashboard renders all context categories.</li>
+<li>Mark confirms: &quot;I can find what I need in browser when I want it; prompts feel snappier.&quot;</li>
+</ul>
+<h2 id="9-decisions-resolved-open-questions"><a class="anchor" href="#9-decisions-resolved-open-questions" aria-label="Permalink to 9. Decisions (resolved open questions)">#</a>9. Decisions (resolved open questions)</h2>
+<h3 id="d1-quartz-port-8766-separate-from-system-viz-on-8765"><a class="anchor" href="#d1-quartz-port-8766-separate-from-system-viz-on-8765" aria-label="Permalink to D1. Quartz port = 8766 (separate from system-viz on 8765)">#</a>D1. Quartz port = 8766 (separate from system-viz on 8765)</h3>
+<p>Two reasons:</p>
+<ul>
+<li>Decoupling: Quartz crash should not affect system-viz; system-viz crash should not affect handoff dashboard.</li>
+<li>Different lifecycle: system-viz is rebuilt on-demand by Mark; Quartz is auto-built on filesystem changes.</li>
+</ul>
+<p>Both servers cross-link in their nav so it feels unified.</p>
+<h3 id="d2-handoffs-in-obsidian-vault-as-junction"><a class="anchor" href="#d2-handoffs-in-obsidian-vault-as-junction" aria-label="Permalink to D2. Handoffs in Obsidian vault as junction">#</a>D2. Handoffs in Obsidian vault as junction</h3>
+<p>NTFS junction <code>H:/prism/knowledge/handoffs/</code> → <code>H:/prism/state/shared/handoffs/</code> so:</p>
+<ul>
+<li>Filesystem of record stays at canonical <code>state/shared/handoffs/</code> (per CLAUDE.md convention).</li>
+<li>Obsidian sees them natively at <code>knowledge/handoffs/</code> without copy-sync.</li>
+<li>Quartz indexes the vault and picks them up automatically.</li>
+</ul>
+<h3 id="d3-compatibility-shim-for-per-agent-handoffmjs-api"><a class="anchor" href="#d3-compatibility-shim-for-per-agent-handoffmjs-api" aria-label="Permalink to D3. Compatibility shim for per-agent-handoff.mjs API">#</a>D3. Compatibility shim for <code>per-agent-handoff.mjs</code> API</h3>
+<p>Keep the existing CLI surface during Phase B rollout to avoid breaking in-flight chats. The old API delegates to MCP under the hood:</p>
+<pre><code class="language-bash"># These still work
+node per-agent-handoff.mjs write --terminal claude-XXXX --resume &quot;...&quot; --state &quot;...&quot;
+node per-agent-handoff.mjs read --terminal claude-XXXX
+</code></pre>
+<p>Deprecation warnings emitted starting Phase C launch. Hard cut at end of Phase C.</p>
+<h2 id="10-cross-cutting-concerns"><a class="anchor" href="#10-cross-cutting-concerns" aria-label="Permalink to 10. Cross-cutting concerns">#</a>10. Cross-cutting concerns</h2>
+<h3 id="101-telemetry"><a class="anchor" href="#101-telemetry" aria-label="Permalink to 10.1 Telemetry">#</a>10.1 Telemetry</h3>
+<ul>
+<li>New: <code>state/shared/hook-telemetry.jsonl</code> — every hook fire records <code>{event, hook_name, duration_ms, exit_code, ts}</code>. Daily-rotated. Used to detect regressions and identify next consolidation candidates.</li>
+<li>New: <code>state/shared/handoff-race-incidents.log</code> — any detected race during Phase B operation.</li>
+<li>New: <code>state/shared/git-sync-stop.log</code> — Phase A push outcomes.</li>
+<li>New: <code>state/shared/orphan-reaper.log</code> — Phase A reaper kills.</li>
+</ul>
+<h3 id="102-tests"><a class="anchor" href="#102-tests" aria-label="Permalink to 10.2 Tests">#</a>10.2 Tests</h3>
+<ul>
+<li><code>mcp-server/src/__tests__/multi-chat-handoff.test.ts</code> (new, B-phase) — spawns 4-6 mock chats firing PreCompact simultaneously, asserts no handoff cross-contamination across 100 runs.</li>
+<li><code>mcp-server/src/__tests__/hook-fork-bench.test.ts</code> (new, A-phase) — counts node forks per prompt in a synthetic session; asserts ≤30.</li>
+<li><code>scripts/hook-fork-bench.mjs</code> — benchmark harness.</li>
+<li>Existing test suite must remain green at all phase boundaries.</li>
+</ul>
+<h3 id="103-rollback"><a class="anchor" href="#103-rollback" aria-label="Permalink to 10.3 Rollback">#</a>10.3 Rollback</h3>
+<p>Each phase guarded by env flag in <code>H:/.claude/settings.json</code> env block:</p>
+<ul>
+<li><code>PRISM_GIT_SYNC_BOUNDED=1</code> — Phase A1 (default 1; set 0 to revert to detached push)</li>
+<li><code>PRISM_HANDOFF_HYBRID=1</code> — Phase B1 (default 1; set 0 to revert to legacy filesystem-only)</li>
+<li><code>PRISM_CONTEXT_BUNDLE=1</code> — Phase C1/C2 (default 1; set 0 to revert to per-hook injection)</li>
+</ul>
+<p>Each flag observable in <code>state/shared/feature-flags.json</code> (auto-mirrored from env on SessionStart for visibility).</p>
+<h3 id="104-migration"><a class="anchor" href="#104-migration" aria-label="Permalink to 10.4 Migration">#</a>10.4 Migration</h3>
+<ul>
+<li>Phase A: instant cutover, no migration needed.</li>
+<li>Phase B: dual-read mode for first 2 days — new helpers read from MCP first, fall back to legacy file. After 2 days observe telemetry; if zero MCP misses, deprecate legacy path.</li>
+<li>Phase C: gradual hook retirement over 5 days; one batch per day, telemetry-monitored.</li>
+</ul>
+<h3 id="105-multi-computer-propagation"><a class="anchor" href="#105-multi-computer-propagation" aria-label="Permalink to 10.5 Multi-computer propagation">#</a>10.5 Multi-computer propagation</h3>
+<p>The peer machine (DESKTOP-N7MI1VB sibling) needs the same hook stack. Approach:</p>
+<ul>
+<li>All changes commit to git on <code>cad-fusion-live-ms0</code> worktree.</li>
+<li>Settings.json deltas commit to a versioned file <code>H:/prism/state/shared/settings-template.json</code> and are applied via SessionStart hook on machines that lack them.</li>
+<li>Quartz/daemon scripts version-controlled in <code>H:/prism/scripts/</code>.</li>
+</ul>
+<h2 id="11-risks"><a class="anchor" href="#11-risks" aria-label="Permalink to 11. Risks">#</a>11. Risks</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Risk</th><th>Likelihood</th><th>Impact</th><th>Mitigation</th></tr></thead>
+<tbody>
+<tr><td>R1</td><td>A1 push timeout too aggressive (real slow-push gets killed)</td><td>M</td><td>L</td><td>Telemetry tracks killed=true rate; tune timeoutMs if &gt;5%</td></tr>
+<tr><td>R2</td><td>A2 gitignores something Mark wants tracked</td><td>L</td><td>M</td><td>Audit doc lists every helper with a keep/promote/archive decision before commit</td></tr>
+<tr><td>R3</td><td>B1 MCP server crash during compact = handoff lost</td><td>L</td><td>H</td><td>Filesystem fallback is primary; MCP is performance optimization, not correctness gate</td></tr>
+<tr><td>R4</td><td>B2 mandatory stdin breaks legacy bash invocation</td><td>M</td><td>M</td><td>Compat shim (D3) + deprecation warnings; hard cut only at end of Phase C</td></tr>
+<tr><td>R5</td><td>B5 NTFS junction confuses Obsidian indexer</td><td>L</td><td>L</td><td>Test with Obsidian beforehand; if broken, switch to bind-mount-style symlink</td></tr>
+<tr><td>R6</td><td>B6 Quartz incompatible with vault structure</td><td>M</td><td>L</td><td>Quartz config explicitly maps content; if unfixable, fall back to MkDocs</td></tr>
+<tr><td>R7</td><td>C1 daemon stale data (&gt;60s) causes wrong context</td><td>L</td><td>M</td><td>Bundle JSON includes <code>freshness_ms</code>; injector flags if stale</td></tr>
+<tr><td>R8</td><td>C4 retired hook turns out to be load-bearing</td><td>M</td><td>M</td><td>Disabled/, not deleted/; restore in &lt;30s; telemetry flags missing functionality</td></tr>
+<tr><td>R9</td><td>Mirror drift recurs after A5 fix</td><td>M</td><td>M</td><td>A5 includes hash assertion at every SessionStart; fails loud</td></tr>
+</tbody>
+</table></div>
+<h2 id="12-dispatcher-integration-map-for-rgs6-tier-gating"><a class="anchor" href="#12-dispatcher-integration-map-for-rgs6-tier-gating" aria-label="Permalink to 12. Dispatcher integration map (for /rgs6 tier-gating)">#</a>12. Dispatcher integration map (for /rgs6 tier-gating)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Phase</th><th>New dispatcher actions</th><th>Touched dispatchers</th><th>Tier</th></tr></thead>
+<tbody>
+<tr><td>A</td><td>none</td><td>—</td><td>T0 (foundation)</td></tr>
+<tr><td>B1</td><td><code>prism_session:handoff_write</code>, <code>prism_session:handoff_read</code></td><td><code>prism_session</code></td><td>T1</td></tr>
+<tr><td>B6</td><td><code>prism_context:quartz_status</code>, <code>prism_context:handoff_lookup</code></td><td><code>prism_context</code></td><td>T2</td></tr>
+<tr><td>C1</td><td><code>prism_context:bundle_status</code>, <code>prism_context:bundle_rebuild</code></td><td><code>prism_context</code></td><td>T2</td></tr>
+<tr><td>C2</td><td><code>prism_context:bundle_inject</code> (called BY hook)</td><td><code>prism_context</code></td><td>T2</td></tr>
+</tbody>
+</table></div>
+<p>Both Phase B + C build on <code>prism_session</code> and <code>prism_context</code> dispatchers. Per /rgs6 tier-floor doctrine: T0 (Phase A) must pass before T1 (Phase B); T1 must pass before T2 (Phase C). This matches the proposed phase order.</p>
+<h2 id="13-acceptance-criteria-summary"><a class="anchor" href="#13-acceptance-criteria-summary" aria-label="Permalink to 13. Acceptance criteria summary">#</a>13. Acceptance criteria summary</h2>
+<h3 id="phase-a-must-hit-all-before-b-starts"><a class="anchor" href="#phase-a-must-hit-all-before-b-starts" aria-label="Permalink to Phase A (must hit ALL before B starts)">#</a>Phase A (must hit ALL before B starts)</h3>
+<ul>
+<li>[ ] G1 partial: 0 orphan git.exe after Stop in 30-min idle test (verified by reaper telemetry)</li>
+<li>[ ] G2: <code>git status --porcelain | wc -l</code> ≤ 50</li>
+<li>[ ] G8: settings.json hash equality C: == H: at every SessionStart for 7 days</li>
+<li>[ ] All existing tests still green</li>
+<li>[ ] Hook fork bench shows SessionStart fork count ≤300 (currently ~400+)</li>
+</ul>
+<h3 id="phase-b-must-hit-all-before-c-starts"><a class="anchor" href="#phase-b-must-hit-all-before-c-starts" aria-label="Permalink to Phase B (must hit ALL before C starts)">#</a>Phase B (must hit ALL before C starts)</h3>
+<ul>
+<li>[ ] G3: 6-chat parallel /compact stress test = 0 handoff cross-contamination across 100 runs</li>
+<li>[ ] G4: PreCompact pipeline = 1 hook (down from 4); PostCompact = 1; Startup-handoff-load = 1</li>
+<li>[ ] Quartz dashboard reachable at http://localhost:8766/handoffs</li>
+<li>[ ] Obsidian opens handoffs with backlinks intact</li>
+<li>[ ] Race-incident log empty across 7-day observation</li>
+<li>[ ] All existing tests still green</li>
+</ul>
+<h3 id="phase-c-final-acceptance"><a class="anchor" href="#phase-c-final-acceptance" aria-label="Permalink to Phase C (final acceptance)">#</a>Phase C (final acceptance)</h3>
+<ul>
+<li>[ ] G5: UserPromptSubmit median &lt;100ms</li>
+<li>[ ] G6: Fork count per prompt ≤3</li>
+<li>[ ] G7: All retained injection content findable via Quartz dashboard</li>
+<li>[ ] Settings.json hook entry count ≤80 (down from 319)</li>
+<li>[ ] Mark explicit sign-off: &quot;ready for heavy multi-chat sessions&quot;</li>
+</ul>
+<h2 id="14-out-of-this-spec"><a class="anchor" href="#14-out-of-this-spec" aria-label="Permalink to 14. Out of this spec">#</a>14. Out of this spec</h2>
+<ul>
+<li>Replacing the entire hook system architecture (out of scope; staying with Claude Code&#39;s hooks).</li>
+<li>Multi-platform Obsidian sync (Linux/macOS); current spec is Windows-only.</li>
+<li>Cloud sync of handoffs (still local-disk + git remote).</li>
+<li>Replacing the duplication-guard / safety-physics / scrutiny-3way gates.</li>
+</ul>
+<h2 id="15-phase-ordering-dependency-graph"><a class="anchor" href="#15-phase-ordering-dependency-graph" aria-label="Permalink to 15. Phase ordering &amp; dependency graph">#</a>15. Phase ordering &amp; dependency graph</h2>
+<pre><code>A1 ──┐
+A2 ──┤
+A3 ──┼──→ A-acceptance ──→ B1 ──→ B2 ──┐
+A4 ──┤                            B3 ──┼──→ B-acceptance ──→ C1 ──→ C2 ──→ C3 ──→ C4
+A5 ──┘                            B4 ──┤
+                                  B5 ──┤
+                                  B6 ──┘
+</code></pre>
+<p>A1-A5 can be done in parallel (independent files). B1-B6 mostly parallel except B3 depends on B1. C1-C4 sequential (each builds on the previous).</p>
+<hr>
+<h2 id="16-rgs6-brief-usage"><a class="anchor" href="#16-rgs6-brief-usage" aria-label="Permalink to 16. /rgs6 brief usage">#</a>16. /rgs6 brief usage</h2>
+<p>This spec is structured for ingestion by <code>/rgs6 generate</code>. The pipeline expects:</p>
+<ul>
+<li>Atomic-first ordering (Phase A before B before C) ✓</li>
+<li>Tier targets per phase ✓ (section 12)</li>
+<li>Dispatcher integration map ✓ (section 12)</li>
+<li>Acceptance criteria that are testable ✓ (section 13)</li>
+<li>Risk register with mitigations ✓ (section 11)</li>
+<li>Telemetry plan ✓ (section 10.1)</li>
+<li>Rollback plan ✓ (section 10.3)</li>
+</ul>
+<p>Run with: <code>/rgs6 generate --brief H:/prism/state/shared/specs/2026-05-09-prism-stabilization-design.md</code></p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="2026-05-09-prism-stabilization-design.md">2026-05-09-prism-stabilization-design.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

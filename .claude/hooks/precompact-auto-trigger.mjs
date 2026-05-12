@@ -8,20 +8,24 @@
  *   100K remaining buffer is writing-room for the handoff and for Claude's
  *   subsequent invocation of /compact before hitting the hard cap.
  *
- * Event routing (one binary, two modes):
- *   - PostToolUse → soft: inject `additionalContext` nudging Claude to run
- *                   /precompact. Non-blocking — keeps work flowing while
- *                   warning the model.
- *   - PreToolUse  → hard: BLOCK the next tool call with decision:block
- *                   once the HARD threshold is crossed, unless the
- *                   precompact-pending-guard marker exists (meaning
- *                   /precompact was just fired and /compact is next).
+ * Event routing — canonical entry is **PreToolUse only** (one fire per tool
+ * call). It does both:
+ *   - SOFT (tokens ≥ SOFT): emit `additionalContext` nudging /precompact,
+ *     dedup'd per session so it fires once per crossing. Non-blocking.
+ *   - HARD (tokens ≥ HARD): `decision:block` the tool call, unless the
+ *     precompact-pending marker exists (/precompact already fired).
+ *   The PostToolUse / UserPromptSubmit branches are kept for backward compat
+ *   (so the hook still works if also wired there) but the harness should wire
+ *   this on PreToolUse only — wiring it on both Pre+Post doubled the transcript
+ *   read per tool call for no benefit (the PreToolUse arm already covers SOFT).
  *
  * Token source:
- *   Reads transcript JSONL (`transcript_path` from hook stdin) and sums the
- *   last assistant message's usage.input_tokens + cache_read + cache_creation.
- *   That IS Claude's authoritative measure. Falls back to byte-estimation
- *   (bytes / 3.5) when transcript unavailable.
+ *   Reads only the TAIL of the transcript JSONL (`transcript_path` from hook
+ *   stdin — last ~512 KB) and sums the last assistant message's
+ *   usage.input_tokens + cache_read + cache_creation. That IS Claude's
+ *   authoritative measure. The tail read keeps cost O(1) instead of O(session
+ *   size) — a 900K-token transcript is multi-MB and this hook runs on every
+ *   tool call. Falls back to byte-estimation (size / 3.5) when unavailable.
  *
  * Thresholds (configurable via env):
  *   PRECOMPACT_SOFT_TOKENS  (default 800000) — soft inject
@@ -74,11 +78,30 @@ function readStdinSync() {
   } catch { return null; }
 }
 
+const TRANSCRIPT_TAIL_BYTES = 512 * 1024; // last 512 KB is far more than one assistant turn
+
+/** Read only the tail of a (possibly large) file — O(1) instead of O(size). */
+function readTail(filePath, maxBytes) {
+  const fd = fs.openSync(filePath, "r");
+  try {
+    const { size } = fs.fstatSync(fd);
+    const start = size > maxBytes ? size - maxBytes : 0;
+    const len = size - start;
+    const buf = Buffer.allocUnsafe(len);
+    fs.readSync(fd, buf, 0, len, start);
+    return buf.toString("utf-8");
+  } finally {
+    fs.closeSync(fd);
+  }
+}
+
 function lastAssistantTokens(transcriptPath) {
   if (!transcriptPath) return null;
   try {
-    const raw = fs.readFileSync(transcriptPath, "utf-8");
+    const raw = readTail(transcriptPath, TRANSCRIPT_TAIL_BYTES);
     const lines = raw.split("\n");
+    // If we truncated mid-line at the start, the first element is a partial
+    // JSON line — JSON.parse throws and we skip it, which is correct.
     for (let i = lines.length - 1; i >= 0; i--) {
       const line = lines[i].trim();
       if (!line) continue;
@@ -201,8 +224,10 @@ function main() {
   const event = detectEvent(stdin);
   const precompactAlreadyArmed = precompactMarkerActive(sid);
 
-  // HARD: PreToolUse block at ≥ HARD tokens, unless precompact marker is live
-  if (event === "PreToolUse" && tokens >= HARD && !precompactAlreadyArmed) {
+  // HARD: block the tool call at ≥ HARD tokens, unless precompact marker is
+  // live. PreToolUse is the canonical event (decision:block stops the tool
+  // call); Stop also accepted for safety.
+  if ((event === "PreToolUse" || event === "Stop") && tokens >= HARD && !precompactAlreadyArmed) {
     emit({
       decision: "block",
       reason: [
@@ -222,9 +247,10 @@ function main() {
     return;
   }
 
-  // SOFT: PostToolUse / UserPromptSubmit inject at ≥ SOFT tokens, dedup'd
-  // per-session — each chat must see its own warning when it crosses 800K.
-  if ((event === "PostToolUse" || event === "UserPromptSubmit") &&
+  // SOFT: inject `additionalContext` at ≥ SOFT tokens, dedup'd per session.
+  // Runs on PreToolUse (canonical — one fire per tool call) AND on the legacy
+  // PostToolUse / UserPromptSubmit events if the hook is still wired there.
+  if ((event === "PreToolUse" || event === "PostToolUse" || event === "UserPromptSubmit") &&
       tokens >= SOFT && !precompactAlreadyArmed && !softAlreadyFired(sid, tokens)) {
     markSoftFired(sid, tokens);
     const remaining = Math.max(0, CONTEXT_CAP - tokens);

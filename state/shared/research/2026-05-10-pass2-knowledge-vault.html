@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="2d331181f0d85cd7424dc34651108f775b245d502900490e0675adf29afe7fe1">
+<title>Knowledge Vault Stack (Obsidian + CLAUDE.md + Memories + Skills) — Research Pass 2</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">Knowledge Vault Stack (Obsidian + CLAUDE.md + Memories + Skills) — Research Pass 2</h1>
+<p class="provenance">Generated 2026-05-12T12:43:26.548Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#1-why-this-matters">§1 — Why this matters</a></li>
+<li class="toc-l1"><a href="#2-reputable-sources-urls-verified">§2 — Reputable sources (URLs verified)</a></li>
+<li class="toc-l2"><a href="#21-karpathy-llm-wiki-canon-2026-04">§2.1 Karpathy LLM-Wiki canon (2026-04)</a></li>
+<li class="toc-l2"><a href="#22-andy-matuschak-evergreen-notes-foundation-still-load-bearing">§2.2 Andy Matuschak evergreen notes (foundation, still load-bearing)</a></li>
+<li class="toc-l2"><a href="#23-nick-milo-maps-of-content-moc">§2.3 Nick Milo — Maps of Content (MOC)</a></li>
+<li class="toc-l2"><a href="#24-anthropic-skills">§2.4 Anthropic Skills</a></li>
+<li class="toc-l2"><a href="#25-boris-cherny-claudemd-back-flow-pattern">§2.5 Boris Cherny — CLAUDE.md back-flow pattern</a></li>
+<li class="toc-l2"><a href="#26-smart-connections-chatgpt-md-obsidian-side-llm-plugins">§2.6 Smart Connections &amp; ChatGPT MD (Obsidian-side LLM plugins)</a></li>
+<li class="toc-l2"><a href="#27-practitioner-deep-dives">§2.7 Practitioner deep-dives</a></li>
+<li class="toc-l1"><a href="#3-x-twitter-highlights-quotes-urls">§3 — X / Twitter highlights (quotes + URLs)</a></li>
+<li class="toc-l1"><a href="#4-concrete-prism-unit-proposals">§4 — Concrete PRISM unit proposals</a></li>
+<li class="toc-l2"><a href="#u-vault01-unified-knowledge-vault-schema-doc">U-VAULT01: Unified knowledge-vault schema doc</a></li>
+<li class="toc-l2"><a href="#u-vault02-memory-wiki-promotion-engine">U-VAULT02: Memory → Wiki promotion engine</a></li>
+<li class="toc-l2"><a href="#u-vault03-claudemd-back-flow-agent">U-VAULT03: CLAUDE.md back-flow agent</a></li>
+<li class="toc-l2"><a href="#u-vault04-skill-wiki-cross-trigger-registry">U-VAULT04: Skill ↔ Wiki cross-trigger registry</a></li>
+<li class="toc-l2"><a href="#u-vault05-moc-map-of-content-generator-for-prism-domains">U-VAULT05: MOC (Map of Content) generator for PRISM domains</a></li>
+<li class="toc-l2"><a href="#u-vault06-vault-rot-sentinel">U-VAULT06: Vault-rot sentinel</a></li>
+<li class="toc-l1"><a href="#5-synergy-with-existing-722-wiki-188-memory-440-skill-substrate">§5 — Synergy with existing 722-wiki + 188-memory + 440-skill substrate</a></li>
+<li class="toc-l1"><a href="#6-failure-modes-vault-rot-fleeting-drift-skill-name-collision">§6 — Failure modes (vault rot, fleeting drift, skill name collision)</a></li>
+<li class="toc-l2"><a href="#61-vault-rot">§6.1 Vault rot</a></li>
+<li class="toc-l2"><a href="#62-fleeting-drift-memory-hoarding">§6.2 Fleeting drift (memory hoarding)</a></li>
+<li class="toc-l2"><a href="#63-skill-name-collision">§6.3 Skill name collision</a></li>
+<li class="toc-l2"><a href="#64-claudemd-token-explosion">§6.4 CLAUDE.md token explosion</a></li>
+<li class="toc-l2"><a href="#65-wiki-skill-description-divergence">§6.5 Wiki ↔ Skill description divergence</a></li>
+<li class="toc-l2"><a href="#66-multi-chat-write-contention">§6.6 Multi-chat write contention</a></li>
+<li class="toc-l2"><a href="#67-over-reliance-on-karpathy-pattern">§6.7 Over-reliance on Karpathy pattern</a></li>
+<li class="toc-l1"><a href="#7-recommendations-priority-ordered">§7 — Recommendations (priority-ordered)</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<details class="frontmatter" open><summary>Document metadata</summary><div class="table-wrap"><table>
+<tbody>
+<tr><th scope="row">title</th><td>Knowledge Vault Stack (Obsidian + CLAUDE.md + Memories + Skills) — Research Pass 2</td></tr>
+<tr><th scope="row">date</th><td>2026-05-10</td></tr>
+<tr><th scope="row">session</th><td>claude-2570c8f5</td></tr>
+<tr><th scope="row">sources_count</th><td>24</td></tr>
+<tr><th scope="row">x_posts_count</th><td>14</td></tr>
+</tbody>
+</table></div></details>
+<h1 id="1-why-this-matters"><a class="anchor" href="#1-why-this-matters" aria-label="Permalink to §1 — Why this matters">#</a>§1 — Why this matters</h1>
+<p>PRISM already runs four reinforcing knowledge surfaces, each high-quality in isolation but only loosely coupled:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Surface</th><th>Path</th><th>Volume</th><th>Owner</th></tr></thead>
+<tbody>
+<tr><td>Wiki (Karpathy-style)</td><td><code>H:/prism/knowledge/wiki/</code></td><td>722 entries (engines/dispatchers/memories)</td><td>Ollama 70% maintenance + Claude synthesis</td></tr>
+<tr><td>Memory (per-project)</td><td><code>~/.claude/projects/H--prism/memory/</code></td><td>~188 indexed <code>feedback_*</code> / <code>reference_*</code> notes + MEMORY.md</td><td>Claude (autosync)</td></tr>
+<tr><td>Skills</td><td><code>~/.claude/commands/</code> + <code>.claude/commands/</code></td><td>440+ skills, YAML+MD</td><td>Mixed (forge-skills, manual)</td></tr>
+<tr><td>CLAUDE.md</td><td>user-global + project</td><td>2 files, ~600 lines</td><td>Claude (back-flow from corrections)</td></tr>
+</tbody>
+</table></div>
+<p>Externally, 2025–2026 has converged hard on a single design pattern across cyrilXBT, Greg Isenberg, Boris Cherny, Karpathy, Kepano (Obsidian CEO), Brian Petro (Smart Connections), and Andy Matuschak: <strong>the vault is the agent&#39;s working memory; the agent writes more of the vault than the human does; CLAUDE.md (or equivalent schema doc) is the rulebook that prevents drift; skills are reusable trigger-on-keyword micro-prompts.</strong> PRISM has all four ingredients already — what&#39;s missing is a unified contract for how fleeting captures promote, how skills back-write to memory, how CLAUDE.md absorbs regressions, and how the wiki is the canonical &quot;long-term store&quot; the other three feed.</p>
+<p>This card maps the external evidence for that contract so PRISM can unify rather than re-invent.</p>
+<h1 id="2-reputable-sources-urls-verified"><a class="anchor" href="#2-reputable-sources-urls-verified" aria-label="Permalink to §2 — Reputable sources (URLs verified)">#</a>§2 — Reputable sources (URLs verified)</h1>
+<h2 id="21-karpathy-llm-wiki-canon-2026-04"><a class="anchor" href="#21-karpathy-llm-wiki-canon-2026-04" aria-label="Permalink to §2.1 Karpathy LLM-Wiki canon (2026-04)">#</a>§2.1 Karpathy LLM-Wiki canon (2026-04)</h2>
+<ul>
+<li><a href="https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f" rel="noopener noreferrer">Karpathy&#39;s <code>llm-wiki</code> Gist</a> — the source artifact. Three layers: <strong>Raw Sources</strong> (immutable PDFs/articles), <strong>The Wiki</strong> (LLM-owned markdown), <strong>The Schema</strong> (CLAUDE.md/AGENTS.md). Quote: <em>&quot;The LLM reads the source, discusses key takeaways with you, writes a summary page in the wiki, updates the index, updates relevant entity and concept pages across the wiki, and appends an entry to the log.&quot;</em></li>
+<li><a href="https://venturebeat.com/data/karpathy-shares-llm-knowledge-base-architecture-that-bypasses-rag-with-an" rel="noopener noreferrer">VentureBeat coverage</a> — framing as &quot;an evolving markdown library maintained by AI&quot; that bypasses RAG. (Fetch rate-limited; surfaced via search summary.)</li>
+<li><a href="https://aimaker.substack.com/p/llm-wiki-obsidian-knowledge-base-andrej-karphaty" rel="noopener noreferrer">AImaker — Building an AI Second Brain in Obsidian</a> — concrete Obsidian implementation. Quote Karpathy: <em>&quot;Obsidian is the IDE, the LLM is the programmer, the wiki is the codebase.&quot;</em> Three slash commands: <code>/ingest-url</code>, <code>/process-inbox</code>, <code>/lint-wiki</code>. PRISM has all three equivalents (<code>/wiki-ingest</code>, <code>/wiki-morning</code>, <code>/wiki-lint</code>).</li>
+<li><a href="https://evoailabs.medium.com/why-andrej-karpathys-llm-wiki-is-the-future-of-personal-knowledge-7ac398383772" rel="noopener noreferrer">Medium — Why Karpathy&#39;s LLM Wiki is the Future of Personal Knowledge</a></li>
+<li><a href="https://techstrong.ai/features/karpathys-instructions-for-building-an-ai-driven-second-brain/" rel="noopener noreferrer">Techstrong — Karpathy&#39;s Instructions for Building an AI-Driven Second Brain</a></li>
+<li><a href="https://www.thetoolnerd.com/p/step-by-step-guide-build-your-own-second-brain-obsidian-kaparthy" rel="noopener noreferrer">Step-by-Step Guide — TheToolNerd</a></li>
+<li><a href="https://github.com/NicholasSpisak/second-brain" rel="noopener noreferrer">GitHub: NicholasSpisak/second-brain</a> — reference implementation</li>
+<li><a href="https://github.com/AgriciDaniel/claude-obsidian" rel="noopener noreferrer">GitHub: AgriciDaniel/claude-obsidian</a> — <code>/wiki /save /autoresearch</code> slash commands</li>
+<li><a href="https://github.com/eugeniughelbur/obsidian-second-brain" rel="noopener noreferrer">GitHub: eugeniughelbur/obsidian-second-brain</a> — 31 commands, vault-first research, scheduled agents</li>
+</ul>
+<h2 id="22-andy-matuschak-evergreen-notes-foundation-still-load-bearing"><a class="anchor" href="#22-andy-matuschak-evergreen-notes-foundation-still-load-bearing" aria-label="Permalink to §2.2 Andy Matuschak evergreen notes (foundation, still load-bearing)">#</a>§2.2 Andy Matuschak evergreen notes (foundation, still load-bearing)</h2>
+<ul>
+<li><a href="https://notes.andymatuschak.org/Evergreen_notes" rel="noopener noreferrer">Evergreen notes (root)</a> — <em>&quot;Evergreen notes are written and organized to evolve, contribute, and accumulate over time, across projects.&quot;</em></li>
+<li><a href="https://notes.andymatuschak.org/Evergreen_note-writing_as_fundamental_unit_of_knowledge_work" rel="noopener noreferrer">Evergreen note-writing as fundamental unit of knowledge work</a> — atomic + concept-oriented + densely-linked = the three invariants PRISM wiki frontmatter must enforce.</li>
+<li><a href="https://talahardin.vinceimbat.com/literature/five-years-of-evergreen-notes-matuschak/" rel="noopener noreferrer">Five years of evergreen notes review</a></li>
+<li><a href="https://engineeringideas.substack.com/p/reflection-on-two-years-of-writing" rel="noopener noreferrer">Reflection on two years of writing evergreen notes (cautionary)</a> — notes that pure-evergreen is <em>suboptimal for skill acquisition</em>; PRISM should preserve a fleeting/journal lane alongside.</li>
+</ul>
+<h2 id="23-nick-milo-maps-of-content-moc"><a class="anchor" href="#23-nick-milo-maps-of-content-moc" aria-label="Permalink to §2.3 Nick Milo — Maps of Content (MOC)">#</a>§2.3 Nick Milo — Maps of Content (MOC)</h2>
+<ul>
+<li><a href="https://www.linkingyourthinking.com/" rel="noopener noreferrer">Linking Your Thinking</a> — ARC model: <strong>A</strong>dding · <strong>R</strong>elating · <strong>C</strong>ommunicating. <em>&quot;You write them like you&#39;re going to read them again.&quot;</em></li>
+<li><a href="https://www.dsebastien.net/2022-05-15-maps-of-content/" rel="noopener noreferrer">Maps of Content guide (dsebastien)</a> — <em>&quot;A MoC is a note containing links to other notes. An index of notes on a specific topic, question, perspective, or area of interest.&quot;</em></li>
+<li><a href="https://medium.com/@nickmilo22/in-what-ways-can-we-form-useful-relationships-between-notes-9b9ec46973c6" rel="noopener noreferrer">Nick Milo — In what ways can we form useful relationships between notes?</a></li>
+<li><a href="https://knowledgeaccumulation.substack.com/p/how-to-create-a-map-of-contents-moc" rel="noopener noreferrer">Knowledge Accumulation — How to Create a MOC</a></li>
+</ul>
+<h2 id="24-anthropic-skills"><a class="anchor" href="#24-anthropic-skills" aria-label="Permalink to §2.4 Anthropic Skills">#</a>§2.4 Anthropic Skills</h2>
+<ul>
+<li><a href="https://github.com/anthropics/skills" rel="noopener noreferrer">anthropics/skills GitHub</a> — 132k stars. Required frontmatter: <code>name</code> + <code>description</code>. <em>&quot;The description field in SKILL.md frontmatter is the primary mechanism that determines whether Claude invokes a skill.&quot;</em> Keep SKILL.md under 500 lines; add hierarchy when approaching limit.</li>
+<li><a href="https://github.com/anthropics/skills/blob/main/agent_skills_spec.md" rel="noopener noreferrer">agent_skills_spec.md</a></li>
+<li><a href="https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md" rel="noopener noreferrer">skill-creator SKILL.md</a></li>
+<li><a href="https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf" rel="noopener noreferrer">The Complete Guide to Building Skills for Claude (Anthropic PDF, 33pp)</a></li>
+<li><a href="https://github.com/anthropics/claude-plugins-official" rel="noopener noreferrer">Claude Code Plugins Official directory</a></li>
+<li><a href="https://medium.com/@tort_mario/skills-for-claude-code-the-ultimate-guide-from-an-anthropic-engineer-bcd66faaa2d6" rel="noopener noreferrer">Medium — Skills for Claude Code: The Ultimate Guide from an Anthropic Engineer</a></li>
+</ul>
+<h2 id="25-boris-cherny-claudemd-back-flow-pattern"><a class="anchor" href="#25-boris-cherny-claudemd-back-flow-pattern" aria-label="Permalink to §2.5 Boris Cherny — CLAUDE.md back-flow pattern">#</a>§2.5 Boris Cherny — CLAUDE.md back-flow pattern</h2>
+<ul>
+<li><a href="https://gist.github.com/hqman/e29cb6386c539d795767e8c3fd2c959b" rel="noopener noreferrer">Boris Cherny&#39;s CLAUDE.md (gist)</a> — verbatim: <em>&quot;After ANY correction from the user: update <code>tasks/lessons.md</code> with the pattern. Write rules for yourself that prevent the same mistake. Ruthlessly iterate on these lessons until mistake rate drops.&quot;</em></li>
+<li><a href="https://www.infoq.com/news/2026/01/claude-code-creator-workflow/" rel="noopener noreferrer">InfoQ — Inside the Development Workflow of Claude Code&#39;s Creator</a> — <em>&quot;Each team at Anthropic maintains a CLAUDE.md in git to document mistakes so Claude can improve over time.&quot;</em> Cherny tags <code>@.claude</code> on PRs to preserve learnings.</li>
+<li><a href="https://newsletter.pragmaticengineer.com/p/building-claude-code-with-boris-cherny" rel="noopener noreferrer">Pragmatic Engineer — Building Claude Code with Boris Cherny</a></li>
+<li><a href="https://howborisusesclaudecode.com/" rel="noopener noreferrer">howborisusesclaudecode.com</a></li>
+<li><a href="https://alirezarezvani.medium.com/your-claude-md-is-probably-wrong-7-mistakes-boris-cherny-never-makes-6d3e5e41f4b7" rel="noopener noreferrer">Medium — Your CLAUDE.md Is Probably Wrong: 7 Mistakes Boris Cherny Never Makes</a></li>
+<li><a href="https://gist.github.com/joyrexus/e20ead11b3df4de46ab32b4a7269abe0" rel="noopener noreferrer">boris-team-tips gist</a></li>
+</ul>
+<h2 id="26-smart-connections-chatgpt-md-obsidian-side-llm-plugins"><a class="anchor" href="#26-smart-connections-chatgpt-md-obsidian-side-llm-plugins" aria-label="Permalink to §2.6 Smart Connections &amp; ChatGPT MD (Obsidian-side LLM plugins)">#</a>§2.6 Smart Connections &amp; ChatGPT MD (Obsidian-side LLM plugins)</h2>
+<ul>
+<li><a href="https://github.com/brianpetro/obsidian-smart-connections" rel="noopener noreferrer">GitHub: brianpetro/obsidian-smart-connections</a> — <em>&quot;Smart Connections surfaces related notes while you write, Smart Context turns the right notes into reusable context, and Smart Chat keeps AI work attached to notes.&quot;</em> Zero-config local embeddings, on-device.</li>
+<li><a href="https://github.com/brianpetro/obsidian-smart-connections/discussions/1158" rel="noopener noreferrer">Smart Connections — Monthly Briefing Aug 2025</a> — 2025 focus on Smart Chat UX + Ollama reliability + context selection control.</li>
+<li><a href="https://smartconnections.app/" rel="noopener noreferrer">smartconnections.app</a></li>
+<li><a href="https://github.com/bramses/chatgpt-md" rel="noopener noreferrer">GitHub: bramses/chatgpt-md</a> — <em>&quot;Define agents as Markdown files with frontmatter and a system prompt body, and apply an agent to any note with the Choose Agent command.&quot;</em></li>
+<li><a href="https://github.com/iansinnott/obsidian-claude-code-mcp" rel="noopener noreferrer">iansinnott/obsidian-claude-code-mcp</a> — MCP server inside Obsidian for Claude Code interop</li>
+<li><a href="https://github.com/YishenTu/claudian" rel="noopener noreferrer">YishenTu/claudian</a> — embeds Claude Code/Codex into vault as collaborator</li>
+<li><a href="https://github.com/kepano/obsidian-skills" rel="noopener noreferrer">kepano/obsidian-skills</a> — Obsidian CEO&#39;s official Claude Skills set (Markdown · Bases · Canvas)</li>
+</ul>
+<h2 id="27-practitioner-deep-dives"><a class="anchor" href="#27-practitioner-deep-dives" aria-label="Permalink to §2.7 Practitioner deep-dives">#</a>§2.7 Practitioner deep-dives</h2>
+<ul>
+<li><a href="https://kyleygao.com/blog/2025/using-claude-code-with-obsidian/" rel="noopener noreferrer">Kyle Gao — Using Claude Code with Obsidian (2025)</a></li>
+<li><a href="https://dev.to/mibii/claude-code-obsidian-build-a-second-brain-that-actually-thinks-d61" rel="noopener noreferrer">DEV.to mibii — Build a Second Brain That Actually Thinks</a></li>
+<li><a href="https://www.mindstudio.ai/blog/build-ai-second-brain-claude-code-obsidian" rel="noopener noreferrer">MindStudio — Build an AI Second Brain with Claude Code and Obsidian</a></li>
+<li><a href="https://blog.starmorph.com/blog/obsidian-claude-code-integration-guide" rel="noopener noreferrer">Starmorph — Obsidian + Claude Code Complete Integration Guide</a></li>
+<li><a href="https://medium.com/@roanmonteiro/building-a-complete-personal-harness-llm-wiki-developers-second-brain-in-obsidian-d7b61c7398ff" rel="noopener noreferrer">Roan Brasil Monteiro — Building a Complete Personal Harness: LLM Wiki + Developer&#39;s Second Brain in Obsidian (Medium, May 2026)</a></li>
+<li><a href="https://www.nxcode.io/resources/news/obsidian-ai-second-brain-complete-guide-2026" rel="noopener noreferrer">NxCode — Obsidian AI Second Brain Complete Guide 2026</a></li>
+<li><a href="https://trilogyai.substack.com/p/from-karpathys-second-brain-to-entropy" rel="noopener noreferrer">Trilogy AI — From Karpathy&#39;s Second Brain to Entropy</a></li>
+<li><a href="https://sozai.app/transcript/use-obsidian-claude-code-run-life/" rel="noopener noreferrer">Sozai — How I Use Obsidian + Claude Code to Run My Life (Greg Isenberg transcript)</a> — Custom slash commands <code>/trace /connect /ideas /ghost /drift /challenge</code></li>
+</ul>
+<h1 id="3-x-twitter-highlights-quotes-urls"><a class="anchor" href="#3-x-twitter-highlights-quotes-urls" aria-label="Permalink to §3 — X / Twitter highlights (quotes + URLs)">#</a>§3 — X / Twitter highlights (quotes + URLs)</h1>
+<blockquote>
+<p>Note: x.com individual posts returned HTTP 402 to WebFetch; quotes below are from search snippets which surface the public tweet body.</p>
+</blockquote>
+<p><strong>§3.1 — <a href="https://x.com/cyrilXBT/status/2043519880440283189" rel="noopener noreferrer">CyrilXBT (141K followers) — Daily Obsidian + Claude system</a></strong></p>
+<blockquote>
+<p><em>&quot;I Post Every Day. No Team. No Agency. Just Obsidian + Claude. Here Is the Exact System.&quot;</em> Daily capture with four categories and three tags max per note, graph view on weekly review, Claude used as **&quot;connection finder, brief generator, voice matched writer, and pattern bridge identifier.&quot;*</p>
+</blockquote>
+<p><strong>§3.2 — <a href="https://x.com/cyrilXBT/status/2053095235471761714" rel="noopener noreferrer">CyrilXBT — Obsidian + Claude Code as personal OS</a></strong></p>
+<blockquote>
+<p><em>&quot;Obsidian + Claude Code = 24/7 personal operating system&quot;</em> — frames the combo as JARVIS-equivalent.</p>
+</blockquote>
+<p><strong>§3.3 — <a href="https://x.com/gregisenberg/status/2026036464287412412" rel="noopener noreferrer">Greg Isenberg — How to use obsidian + claude code</a></strong></p>
+<blockquote>
+<p><em>&quot;how to use obsidian + claude code to build a 24/7 personal operating system and build your startup: 1. write everything in markdown (daily notes, projects, beliefs, people, meetings) 2. link your notes together so they mirror how your brain actually thinks. 3. install obsidian&quot;</em></p>
+</blockquote>
+<p><strong>§3.4 — <a href="https://x.com/aakashgupta/status/2026887547813769325" rel="noopener noreferrer">Aakash Gupta — &quot;Obsidian + Claude is the new hot combo&quot;</a></strong></p>
+<blockquote>
+<p><em>&quot;The new hot combo is Obsidian + Claude. Here&#39;s what you need to know:&quot;</em></p>
+</blockquote>
+<p><strong>§3.5 — <a href="https://x.com/kepano/status/2008578873903206895" rel="noopener noreferrer">kepano (Obsidian CEO) — Obsidian Skills release</a></strong></p>
+<blockquote>
+<p><em>&quot;I&#39;m starting a set of Claude Skills for Obsidian... so far they&#39;re centered around helping Claude Code edit .md, .base, and .canvas files.&quot;</em> Three skills: Markdown · Bases · Canvas.</p>
+</blockquote>
+<p><strong>§3.6 — <a href="https://x.com/kepano/status/2021999824472879510" rel="noopener noreferrer">kepano — Obsidian CLI closes the loop</a></strong></p>
+<blockquote>
+<p><em>&quot;Obsidian CLI closes the loop so you can have your agent build you an Obsidian plugin autonomously: Write code · Reload plugin · Check for errors · See the result · Inspect styling · Run arbitrary checks. Claude Code can now easily run 30+ minutes uninterrupted.&quot;</em></p>
+</blockquote>
+<p><strong>§3.7 — <a href="https://x.com/samjulien/status/2007493190463709336" rel="noopener noreferrer">Sam Julien — early PKM investment payoff</a></strong></p>
+<blockquote>
+<p><em>&quot;Obsidian + Claude Code is an absolutely killer combo. For me, big vault re-org, mass metadata editing, personalized skill generation — it&#39;s amazing because an Obsidian vault is like a huge context library. Early PKM investment is paying off in spades now with CC.&quot;</em></p>
+</blockquote>
+<p><strong>§3.8 — <a href="https://x.com/cole_medin/status/2015590510241743038" rel="noopener noreferrer">Cole Medin — 2-month build of skills-based second brain</a></strong></p>
+<blockquote>
+<p><em>&quot;I spent 2 months building a second brain with Claude Code + skills that has nothing to do with coding. Content engine that runs 24/7, PPTX generation, video generation, SOP creation, organizing my Obsidian vault. Coding agents can do anything - they just need the right setup.&quot;</em></p>
+</blockquote>
+<p><strong>§3.9 — <a href="https://x.com/milesdeutscher/status/2041972675418189933" rel="noopener noreferrer">Miles Deutscher — Claude Code + Obsidian = &quot;AI second brain&quot;</a></strong></p>
+<blockquote>
+<p><em>&quot;Claude Code + Obsidian is the most powerful AI combo I&#39;ve ever used. I literally built an AI second brain that runs my entire life. Inspired by Andrej Karpathy&#39;s LLM Knowledge Wiki, this tool has been a complete game-changer.&quot;</em></p>
+</blockquote>
+<p><strong>§3.10 — <a href="https://www.threads.com/@boris_cherny/post/DUMZuyJkpSJ/invest-in-your-claude-md-after-every-correction-end-with-update-your-claude-md" rel="noopener noreferrer">Boris Cherny — Threads post</a></strong> (Threads, not X — but author canonical)</p>
+<blockquote>
+<p><em>&quot;Invest in your CLAUDE.md. After every correction, end with: &#39;update your CLAUDE.md so you don&#39;t make that mistake again.&#39; Claude is eerily good at writing rules for itself.&quot;</em></p>
+</blockquote>
+<p><strong>§3.11 — <a href="https://x.com/claude_code/status/2034335585339375855" rel="noopener noreferrer">Claude Code Community — What are Skills?</a></strong></p>
+<blockquote>
+<p><em>&quot;What are Skills? They&#39;re not just text files. They&#39;re folders that can include scripts, assets, data, etc. A skill is a folder...think of the entire file system as a form of context engineering. The Description Field Is For the Model.&quot;</em></p>
+</blockquote>
+<p><strong>§3.12 — <a href="https://x.com/rileybrown_ai/status/1978871809765445884" rel="noopener noreferrer">Riley Brown — Claude Released SKILLS</a></strong></p>
+<blockquote>
+<p><em>&quot;Claude Just Released SKILLS. You can now create folders called &#39;Skills&#39; and upload them to Claude to give it specialized expertise for specific tasks. Folders containing instructions, scripts, and resources that teach Claude how to do specific things.&quot;</em></p>
+</blockquote>
+<p><strong>§3.13 — <a href="https://x.com/Mnilax/status/2050321700802408552" rel="noopener noreferrer">Mnimiy — Boris on token waste from bloated CLAUDE.md</a></strong></p>
+<blockquote>
+<p><em>&quot;Boris Cherny, the creator of Claude Code at Anthropic, just listed 9 patterns that waste 73% of your tokens... the 14% you lose to CLAUDE.md before typing a word.&quot;</em></p>
+</blockquote>
+<p><strong>§3.14 — <a href="https://x.com/evgeth_/status/2015146066468053341" rel="noopener noreferrer">evgeny 毅夫 — Self-Evolving Second Brain</a></strong></p>
+<blockquote>
+<p><em>&quot;A Self-Evolving Second Brain: Obsidian + Claude Agent SDK + Git.&quot;</em></p>
+</blockquote>
+<h1 id="4-concrete-prism-unit-proposals"><a class="anchor" href="#4-concrete-prism-unit-proposals" aria-label="Permalink to §4 — Concrete PRISM unit proposals">#</a>§4 — Concrete PRISM unit proposals</h1>
+<p>All units below assume current state from MEMORY.md (722 wiki entries, ~188 memory files, 440+ skills, dual CLAUDE.md). Each lists <code>depends_on</code>, <code>blocks</code>, and projected <code>viz_node_id</code> for the live system-viz graph.</p>
+<h2 id="u-vault01-unified-knowledge-vault-schema-doc"><a class="anchor" href="#u-vault01-unified-knowledge-vault-schema-doc" aria-label="Permalink to U-VAULT01: Unified knowledge-vault schema doc">#</a>U-VAULT01: Unified knowledge-vault schema doc</h2>
+<p>Create <code>H:/prism/WIKI_VAULT_SCHEMA.md</code> as the canonical contract between wiki / memory / skills / CLAUDE.md. Lifts Karpathy&#39;s three-layer model + adds PRISM&#39;s fourth (skills as keyword-triggered micro-ingest) + fifth (memory as session-scoped append-only).</p>
+<ul>
+<li><strong>depends_on:</strong> [<code>WIKI_SCHEMA.md</code> (exists), <code>CLAUDE.md</code> (exists, both levels)]</li>
+<li><strong>blocks:</strong> U-VAULT02..06</li>
+<li><strong>viz_node_id:</strong> <code>L0-vault-schema-doc</code></li>
+</ul>
+<h2 id="u-vault02-memory-wiki-promotion-engine"><a class="anchor" href="#u-vault02-memory-wiki-promotion-engine" aria-label="Permalink to U-VAULT02: Memory → Wiki promotion engine">#</a>U-VAULT02: Memory → Wiki promotion engine</h2>
+<p>Build <code>MemoryToWikiPromotionEngine.ts</code> that scans <code>~/.claude/projects/H--prism/memory/feedback_*.md</code> and <code>reference_*.md</code>, scores promotion-worthiness (touched ≥3 sessions OR cited from CLAUDE.md OR cross-referenced from another memory), and promotes to <code>H:/prism/knowledge/wiki/lessons/</code> or <code>H:/prism/knowledge/wiki/patterns/</code>. Adds promoted-from-memory frontmatter pointer.</p>
+<ul>
+<li><strong>depends_on:</strong> [U-VAULT01]</li>
+<li><strong>blocks:</strong> U-VAULT04, U-VAULT05</li>
+<li><strong>viz_node_id:</strong> <code>L2-engine-memory-promote</code></li>
+</ul>
+<h2 id="u-vault03-claudemd-back-flow-agent"><a class="anchor" href="#u-vault03-claudemd-back-flow-agent" aria-label="Permalink to U-VAULT03: CLAUDE.md back-flow agent">#</a>U-VAULT03: CLAUDE.md back-flow agent</h2>
+<p>Build hook <code>claude-md-backflow.mjs</code> (PostToolUse Stop) — on user-correction patterns (e.g., user message contains &quot;update CLAUDE.md&quot; OR &quot;don&#39;t do that again&quot; OR Edit reverts in same session), prompt Claude to append a one-line learning to a section of CLAUDE.md gated by Cherny&#39;s rule: <em>&quot;Ruthlessly iterate on these lessons until mistake rate drops.&quot;</em> Adds rotation: section auto-prunes entries older than 90 days that haven&#39;t been re-cited.</p>
+<ul>
+<li><strong>depends_on:</strong> [U-VAULT01, existing <code>enforce-handoff-topic.mjs</code> (Stop hook pattern)]</li>
+<li><strong>blocks:</strong> U-VAULT06</li>
+<li><strong>viz_node_id:</strong> <code>L3-hook-claude-md-backflow</code></li>
+</ul>
+<h2 id="u-vault04-skill-wiki-cross-trigger-registry"><a class="anchor" href="#u-vault04-skill-wiki-cross-trigger-registry" aria-label="Permalink to U-VAULT04: Skill ↔ Wiki cross-trigger registry">#</a>U-VAULT04: Skill ↔ Wiki cross-trigger registry</h2>
+<p>Extend <code>code-system-index.json</code> to index every skill&#39;s <code>description:</code> frontmatter against the 722-entry wiki. When a skill fires, auto-inject top-3 wiki entries matching the skill&#39;s keyword set. When a wiki entry is read by an agent ≥3 times in a session, suggest skill creation. Mirrors Anthropic&#39;s <em>&quot;description field is the single most important line in your entire Skill&quot;</em> doctrine.</p>
+<ul>
+<li><strong>depends_on:</strong> [U-VAULT01, U-VAULT02, existing <code>wiki-precheck-inject.mjs</code>]</li>
+<li><strong>blocks:</strong> U-VAULT05</li>
+<li><strong>viz_node_id:</strong> <code>L4-registry-skill-wiki-xref</code></li>
+</ul>
+<h2 id="u-vault05-moc-map-of-content-generator-for-prism-domains"><a class="anchor" href="#u-vault05-moc-map-of-content-generator-for-prism-domains" aria-label="Permalink to U-VAULT05: MOC (Map of Content) generator for PRISM domains">#</a>U-VAULT05: MOC (Map of Content) generator for PRISM domains</h2>
+<p>Generate Nick Milo-style MOCs in <code>H:/prism/knowledge/wiki/moc/</code> for each domain (lathe, mill, WEDM, CAM, CAD, AI, hooks, dispatchers) — one MOC per domain that <strong>links</strong> rather than <strong>contains</strong>. MOCs auto-rebuild nightly from wiki-index. PRISM equivalent of <code>index.md</code> already exists but is flat — MOCs add domain-scoped navigation layers.</p>
+<ul>
+<li><strong>depends_on:</strong> [U-VAULT04, existing <code>WikiIndexMaintainerEngine</code>]</li>
+<li><strong>blocks:</strong> U-VAULT06</li>
+<li><strong>viz_node_id:</strong> <code>L3-engine-moc-generator</code></li>
+</ul>
+<h2 id="u-vault06-vault-rot-sentinel"><a class="anchor" href="#u-vault06-vault-rot-sentinel" aria-label="Permalink to U-VAULT06: Vault-rot sentinel">#</a>U-VAULT06: Vault-rot sentinel</h2>
+<p>Daily cron job that scans the four surfaces for rot signals: (a) wiki entries with broken <code>[[wikilink]]</code> targets, (b) memory entries referencing deleted files, (c) skills whose <code>description:</code> matches another skill within Jaccard ≥0.8, (d) CLAUDE.md sections &gt;180 lines or &gt;90 days stale. Emits one-line digest to <code>state/shared/VAULT_HEALTH.md</code>. Matches Karpathy&#39;s <code>/lint-wiki</code> operator + Boris&#39;s pruning discipline.</p>
+<ul>
+<li><strong>depends_on:</strong> [U-VAULT02, U-VAULT03, U-VAULT04, U-VAULT05]</li>
+<li><strong>blocks:</strong> (terminal)</li>
+<li><strong>viz_node_id:</strong> <code>L5-cron-vault-rot-sentinel</code></li>
+</ul>
+<h1 id="5-synergy-with-existing-722-wiki-188-memory-440-skill-substrate"><a class="anchor" href="#5-synergy-with-existing-722-wiki-188-memory-440-skill-substrate" aria-label="Permalink to §5 — Synergy with existing 722-wiki + 188-memory + 440-skill substrate">#</a>§5 — Synergy with existing 722-wiki + 188-memory + 440-skill substrate</h1>
+<p>PRISM already implements ~70% of the canonical pattern; the missing 30% is the <em>contract</em> between surfaces:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Layer</th><th>PRISM has</th><th>External canon</th><th>Gap</th></tr></thead>
+<tbody>
+<tr><td>Raw sources (immutable)</td><td><code>JM DIE/</code> (24,545 files), PDF/video learn pipelines</td><td>Karpathy: PDFs/articles/transcripts</td><td>✅ Strong — better than canon</td></tr>
+<tr><td>Wiki (LLM-owned)</td><td><code>knowledge/wiki/</code> 722 entries, <code>WikiIndexMaintainerEngine</code>, <code>/wiki-ingest</code> / <code>/wiki-query</code> / <code>/wiki-lint</code></td><td>Karpathy: same</td><td>✅ Implements all three operators</td></tr>
+<tr><td>Schema (CLAUDE.md)</td><td>Dual CLAUDE.md (user + project), &gt;600 lines combined</td><td>Cherny: 2.5k tokens, back-flow on correction</td><td>⚠️ Missing automated back-flow; manual today</td></tr>
+<tr><td>Skills (keyword-triggered)</td><td>440+ skills, SKILL.md-equivalent frontmatter, hook auto-injection</td><td>Anthropic: name + description; &lt;500 lines</td><td>✅ Matches spec; lacks wiki-cross-trigger</td></tr>
+<tr><td>Memory (session-scoped)</td><td><code>~/.claude/projects/H--prism/memory/</code> ~188 files</td><td>Most external systems lack this; PRISM-specific advantage</td><td>⚠️ No promotion-to-wiki path</td></tr>
+<tr><td>MOC (navigation overlay)</td><td>Flat <code>wiki/index.md</code> only</td><td>Milo: domain-scoped MOC overlays</td><td>❌ Missing</td></tr>
+<tr><td>Embedding-based connections</td><td>None visible (Smart Connections-equivalent)</td><td>Brian Petro&#39;s plugin: zero-config local embeddings</td><td>⚠️ Could leverage existing Ollama infra</td></tr>
+<tr><td>Cross-surface lint/sentinel</td><td>Wiki-only lint</td><td>Karpathy <code>/lint-wiki</code> + Cherny prune</td><td>⚠️ Doesn&#39;t span four surfaces</td></tr>
+</tbody>
+</table></div>
+<p><strong>Multiplicative effects of unifying:</strong></p>
+<ol>
+<li>Memory → Wiki promotion (U-VAULT02) means observations bias toward eventual permanence, matching Matuschak&#39;s <em>&quot;better thinking&quot;</em> over <em>&quot;better note-taking.&quot;</em></li>
+<li>CLAUDE.md back-flow (U-VAULT03) institutionalises Cherny&#39;s <em>&quot;update CLAUDE.md so you don&#39;t make that mistake again&quot;</em> — currently relies on Claude remembering to do it.</li>
+<li>Skill ↔ Wiki cross-trigger (U-VAULT04) makes wiki entries discoverable at the moment of need, and makes skill descriptions semantically aligned with the 722-entry corpus.</li>
+<li>MOC overlays (U-VAULT05) give domain navigation without forcing destructive folder reorgs (Milo&#39;s <em>&quot;non-restrictive, non-limiting perspectives&quot;</em>).</li>
+<li>Vault-rot sentinel (U-VAULT06) bounds entropy — Karpathy&#39;s pattern only works if maintenance cost stays near zero.</li>
+</ol>
+<h1 id="6-failure-modes-vault-rot-fleeting-drift-skill-name-collision"><a class="anchor" href="#6-failure-modes-vault-rot-fleeting-drift-skill-name-collision" aria-label="Permalink to §6 — Failure modes (vault rot, fleeting drift, skill name collision)">#</a>§6 — Failure modes (vault rot, fleeting drift, skill name collision)</h1>
+<h2 id="61-vault-rot"><a class="anchor" href="#61-vault-rot" aria-label="Permalink to §6.1 Vault rot">#</a>§6.1 Vault rot</h2>
+<p><strong>Mode:</strong> Wiki entries reference deleted/moved files; promoted memories cite stale paths; CLAUDE.md grows past token budget (Mnimiy cites Cherny: <em>&quot;14% you lose to CLAUDE.md before typing a word&quot;</em>); MOCs link to orphaned entries. <strong>Mitigation:</strong> U-VAULT06 cron sentinel. Also: enforce file-path-in-frontmatter validation on every wiki write (already partial via <code>WikiIndexMaintainerEngine</code>). <strong>Indicator:</strong> % broken <code>[[wikilinks]]</code> weekly trend.</p>
+<h2 id="62-fleeting-drift-memory-hoarding"><a class="anchor" href="#62-fleeting-drift-memory-hoarding" aria-label="Permalink to §6.2 Fleeting drift (memory hoarding)">#</a>§6.2 Fleeting drift (memory hoarding)</h2>
+<p><strong>Mode:</strong> Memory directory grows unbounded; &gt;50% of <code>feedback_*.md</code> files never promote and never re-cite (matches <em>Engineering Ideas substack</em> observation that pure-evergreen <em>&quot;is not optimal for skill acquisition&quot;</em>). <strong>Mitigation:</strong> U-VAULT02 promotion-or-prune. Memories untouched for 30 days AND not cited from CLAUDE.md AND not promoted → archived to <code>~/.claude/projects/H--prism/memory/archive/</code>. Hard cap memory dir at 250 active files. <strong>Indicator:</strong> memory-dir cardinality, mean access age.</p>
+<h2 id="63-skill-name-collision"><a class="anchor" href="#63-skill-name-collision" aria-label="Permalink to §6.3 Skill name collision">#</a>§6.3 Skill name collision</h2>
+<p><strong>Mode:</strong> Anthropic doctrine <em>&quot;the description field is the primary mechanism that determines whether Claude invokes a skill&quot;</em> — two skills with overlapping descriptions race; wrong skill fires; rare skill never fires because more-general skill always wins. <strong>Mitigation:</strong> Pre-existing PRISM <code>dedup</code>/<code>/audit-duplicates</code> covers engines/hooks; extend coverage to skills via U-VAULT04 Jaccard ≥0.8 detection. Already 440+ skills — collision risk is non-zero. <strong>Indicator:</strong> skill-invocation logs, &quot;which skill fired when both matched&quot; telemetry.</p>
+<h2 id="64-claudemd-token-explosion"><a class="anchor" href="#64-claudemd-token-explosion" aria-label="Permalink to §6.4 CLAUDE.md token explosion">#</a>§6.4 CLAUDE.md token explosion</h2>
+<p><strong>Mode:</strong> Boris&#39;s <em>&quot;ruthlessly iterate&quot;</em> loop without a <em>&quot;ruthlessly prune&quot;</em> counter-loop. CLAUDE.md grows to 5k+ tokens; pre-injection cost on every session exceeds savings; rule contradictions emerge. <strong>Mitigation:</strong> U-VAULT03 with explicit prune step. 90-day stale-without-recitation auto-archive to wiki under <code>lessons/archive/</code>. Hard budget: keep CLAUDE.md ≤ 2,500 tokens (Cherny&#39;s stated target). <strong>Indicator:</strong> CLAUDE.md token count, % entries cited in last 30 days.</p>
+<h2 id="65-wiki-skill-description-divergence"><a class="anchor" href="#65-wiki-skill-description-divergence" aria-label="Permalink to §6.5 Wiki ↔ Skill description divergence">#</a>§6.5 Wiki ↔ Skill description divergence</h2>
+<p><strong>Mode:</strong> Skill A says &quot;use SpecificCuttingEnergyEngine for SCE work&quot; but wiki entry for SCE moves to <code>EnergyCoefficientEngine</code>. Skill description rots silently. <strong>Mitigation:</strong> U-VAULT04 cross-trigger registry validates skill→engine refs match wiki→engine refs on every regenerate. Lint failure blocks Stop hook. <strong>Indicator:</strong> % skills with valid wiki-entry resolution.</p>
+<h2 id="66-multi-chat-write-contention"><a class="anchor" href="#66-multi-chat-write-contention" aria-label="Permalink to §6.6 Multi-chat write contention">#</a>§6.6 Multi-chat write contention</h2>
+<p><strong>Mode:</strong> 6 concurrent chats all want to back-flow to CLAUDE.md or promote memories simultaneously. Existing <code>commit-ownership-guard</code> covers commits; not all four surfaces. <strong>Mitigation:</strong> Reuse <code>DistributedLockManager.withLock</code> (already present per CLAUDE.md &quot;Coordination&quot; table) wrapping every U-VAULT0[2-6] write operation. Surface-scoped locks: <code>wiki/</code>, <code>memory/</code>, <code>CLAUDE.md</code>, <code>skills/</code>. <strong>Indicator:</strong> Lock contention events; conflicting-write rollback rate.</p>
+<h2 id="67-over-reliance-on-karpathy-pattern"><a class="anchor" href="#67-over-reliance-on-karpathy-pattern" aria-label="Permalink to §6.7 Over-reliance on Karpathy pattern">#</a>§6.7 Over-reliance on Karpathy pattern</h2>
+<p><strong>Mode:</strong> Pure-Karpathy three-layer ignores Matuschak&#39;s caution: evergreen-only systems harm <em>skill acquisition</em>. PRISM is partly a learning system (lathe-learn, mill-learn, wedm-learn skills exist) — over-flattening fleeting notes into wiki may hurt operator-shadow drills. <strong>Mitigation:</strong> Preserve <code>journals/</code> lane in memory for raw learning logs that explicitly <em>do not</em> promote. Tag with frontmatter <code>promotable: false</code>. This is the Matuschak-Karpathy synthesis. <strong>Indicator:</strong> % learning sessions with intact journal trail.</p>
+<h1 id="7-recommendations-priority-ordered"><a class="anchor" href="#7-recommendations-priority-ordered" aria-label="Permalink to §7 — Recommendations (priority-ordered)">#</a>§7 — Recommendations (priority-ordered)</h1>
+<ol>
+<li><strong>Immediate (this week):</strong> Implement U-VAULT01 schema doc. Zero-risk, high-leverage — formalises what&#39;s already implicit.</li>
+<li><strong>Next sprint:</strong> U-VAULT03 CLAUDE.md back-flow hook. Highest ratio of impact to LOC (~150 lines).</li>
+<li><strong>Following sprint:</strong> U-VAULT02 memory→wiki promotion engine. Unlocks U-VAULT04 and U-VAULT06.</li>
+<li><strong>Then:</strong> U-VAULT04 skill ↔ wiki cross-trigger; U-VAULT05 MOCs; U-VAULT06 sentinel cron.</li>
+<li><strong>Optional polish:</strong> Smart Connections-style local embeddings via existing Ollama qwen2.5-coder:7b — replicate Brian Petro&#39;s &quot;zero-config local embeddings&quot; pattern atop existing infra. Already in PRISM&#39;s wheelhouse per <code>OllamaHookBridgeEngine</code>.</li>
+</ol>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="2026-05-10-pass2-knowledge-vault.md">2026-05-10-pass2-knowledge-vault.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

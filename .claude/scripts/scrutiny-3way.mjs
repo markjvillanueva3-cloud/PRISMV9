@@ -1,35 +1,50 @@
 #!/usr/bin/env node
 /**
- * scrutiny-3way — Multi-CLI parallel review orchestrator.
+ * scrutiny-3way — multi-reviewer parallel scrutiny orchestrator.
  *
- * Spawns Codex CLI + Gemini CLI in parallel against the current session diff
- * and returns their verdicts. The Claude Opus reviewer agent is dispatched
- * separately by the chat (via the Agent tool) — this script emits the prompt
- * and awaits the chat's --opus mark via scrutiny-mark.mjs.
+ * Three independent reviewers, all required PASS to release the Stop hook:
+ *   1. Codex CLI                — cross-vendor model (auto-recorded by this script)
+ *   2. Claude reviewer agent A  — holistic strict review (dispatched by the chat)
+ *   3. Claude reviewer agent B  — second independent pass, weighted toward test
+ *                                 integrity / dispatcher wiring / inlined constants
  *
- * Strict 3-of-3 policy: the Stop hook releases ONLY when --codex AND --gemini
- * AND --opus have been marked PASS for the session. This script auto-records
- * --codex and --gemini on completion; the chat must record --opus after the
- * Agent tool review returns.
+ * This script spawns the Codex CLI against the current session diff and
+ * auto-records its --codex mark. It does NOT spawn the Claude reviewers — those
+ * run via the chat's Agent tool. The script emits BOTH reviewer prompts
+ * (`opusReviewerPrompt` = arm A, `opusReviewerPromptB` = arm B) and awaits the
+ * chat's `--mark-opus` (arm A) and `--mark-claude` (arm B) marks.
+ *
+ * Strict 3-of-3 policy: the Stop hook releases ONLY when codex AND arm A (opus)
+ * AND arm B (claude) have all been marked PASS for the session.
+ *
+ * (History: the arm-2 reviewer was the Gemini CLI until 2026-05-12, when it was
+ *  swapped for a second Claude reviewer agent — more reliable than the Gemini
+ *  CLI's quota/trust-dir failure modes, and gives two independent Claude passes
+ *  + one cross-vendor Codex pass. The ledger flags are `opusReviewed` (arm A) and
+ *  `claudeReviewed` (arm B); `opusBReviewed` and `geminiReviewed` are accepted as
+ *  write-side aliases for `claudeReviewed` and migrated to it on read.)
  *
  * Usage:
  *   node .claude/scripts/scrutiny-3way.mjs                        # review uncommitted diff
  *   node .claude/scripts/scrutiny-3way.mjs --target HEAD          # review last commit
  *   node .claude/scripts/scrutiny-3way.mjs --target c6663f95b     # review specific commit
  *   node .claude/scripts/scrutiny-3way.mjs --session-id abc       # explicit session id
- *   node .claude/scripts/scrutiny-3way.mjs --skip codex            # skip one provider
+ *   node .claude/scripts/scrutiny-3way.mjs --skip codex            # skip the Codex arm
+ *   node .claude/scripts/scrutiny-3way.mjs --mark-opus pass --session-id abc      # record arm A
+ *   node .claude/scripts/scrutiny-3way.mjs --mark-claude pass --session-id abc    # record arm B (aliases: --mark-opus-b, --mark-gemini)
  *
- * Output: JSON object with codex/gemini verdicts, prompt for Opus, and a
- * one-line shell command the chat must run after the Agent tool returns.
+ * Output: JSON object with the codex verdict, BOTH Claude-reviewer prompts, and
+ * the one-line shell commands the chat must run after the Agent tool reviews return.
  *
  * Authored: 2026-05-05 (claude-66471c04, CAD-COMPLETE-MS0 wrap-up).
+ * Reworked: 2026-05-12 — Codex git-diff timeout fix + Gemini→Claude-B swap.
  */
 
 import { spawn, execFileSync, execSync } from "node:child_process";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
-import { recordScrutiny, getEntry, parseVerdictLine } from "../helpers/scrutiny-ledger.mjs";
+import { recordScrutiny, getEntry, parseVerdictLine, isCleared } from "../helpers/scrutiny-ledger.mjs";
 
 const STABLE_SESSION_HELPER_TIMEOUT_MS = 2000;
 
@@ -73,31 +88,24 @@ const CODEX_BIN = process.env.CODEX_BIN ?? resolveNpx();
 // Prompt is delivered via stdin, NOT argv. `codex exec` with no positional
 // argument reads from stdin. Keeping args small also avoids the Windows
 // 8191-char cmd-line limit when shell:true wraps .cmd invocations.
-// Reasoning effort overridden to "medium" so a 26 KB diff review finishes in
+// Reasoning effort overridden to "medium" so a ~80 KB diff review finishes in
 // ~3-5 min instead of the 8-12 min default xhigh on gpt-5.5.
 const CODEX_ARGS = process.env.CODEX_ARGS
   ? process.env.CODEX_ARGS.split(" ")
   : ["--no-install", "codex", "exec", "--skip-git-repo-check", "-c", "model_reasoning_effort=\"medium\""];
-const GEMINI_BIN = process.env.GEMINI_BIN ?? resolveNpx();
-// Same stdin convention. `gemini` with no -p / no positional reads stdin.
-// Pin gemini-2.5-pro for its 1M-token context — lets the Gemini arm review
-// large diffs the Codex/Opus arms have to truncate. Override via GEMINI_ARGS
-// or by changing the model flag if a newer pro variant ships.
-const GEMINI_ARGS = process.env.GEMINI_ARGS
-  ? process.env.GEMINI_ARGS.split(" ")
-  : ["--no-install", "gemini", "-m", "gemini-2.5-pro"];
 
 const REVIEW_TIMEOUT_MS = 360_000; // 6 min per provider; covers cold-start + xhigh reasoning on diffs up to 80KB
 
 // OBSIDIAN-AUTOMATE-MS3/U-LOCAL-PREFLIGHT: optional Ollama-driven pre-flight
-// reviewer that runs before (or in parallel with) the cloud trio. Two modes:
-//   PRISM_SCRUTINY_PREFLIGHT=parallel (default) — advisory, runs alongside cloud,
-//                                                  surfaces a 4th verdict in output
+// reviewer that runs before (or in parallel with) the Codex arm. Two modes:
+//   PRISM_SCRUTINY_PREFLIGHT=parallel (default) — advisory, runs alongside Codex,
+//                                                  surfaces an extra verdict in output
 //   PRISM_SCRUTINY_PREFLIGHT=gate     — runs FIRST; local FAIL aborts before
-//                                       cloud is dispatched (saves quota)
+//                                       the Codex arm is dispatched (saves quota)
 //   PRISM_SCRUTINY_PREFLIGHT=0/off    — disabled, original 3-of-3 path
 // The pre-flight is ADVISORY by default and never marks the gate ledger —
-// the strict 3-of-3 contract (Codex+Gemini+Opus PASS) is unchanged.
+// the strict 3-of-3 contract (codex + Claude reviewer A + Claude reviewer B PASS)
+// is unchanged.
 const PREFLIGHT_MODE = (process.env.PRISM_SCRUTINY_PREFLIGHT ?? "parallel").toLowerCase();
 const PREFLIGHT_ENABLED = PREFLIGHT_MODE !== "0" && PREFLIGHT_MODE !== "off" && PREFLIGHT_MODE !== "false";
 const PREFLIGHT_GATE = PREFLIGHT_MODE === "gate";
@@ -113,17 +121,38 @@ const MAX_DIFF_BYTES = (() => {
   const n = Number.parseInt(env, 10);
   return Number.isFinite(n) && n > 0 ? n : DEFAULT_MAX_DIFF_BYTES;
 })();
-// Gemini 2.5 Pro has a 1M-token context window — we can ship 10× the diff to
-// the Gemini arm before truncating, so it can review large refactors that
-// Codex/Opus have to read through a soda straw. Override via env if needed.
-const DEFAULT_GEMINI_MAX_DIFF_BYTES = 800_000;
-const GEMINI_MAX_DIFF_BYTES = (() => {
-  const env = process.env.PRISM_SCRUTINY_GEMINI_MAX_DIFF_BYTES;
-  if (!env) return DEFAULT_GEMINI_MAX_DIFF_BYTES;
-  const n = Number.parseInt(env, 10);
-  return Number.isFinite(n) && n > 0 ? n : DEFAULT_GEMINI_MAX_DIFF_BYTES;
-})();
 const MAX_OUTPUT_PEEK = 8_000;     // stored in ledger notes
+
+// `git diff` timeout. The old value (8 s) was too short on this repo — with
+// 7 000+ uncommitted files in the working tree, `git diff HEAD` routinely
+// took >8 s, returned a "[git diff capture failed: …ETIMEDOUT]" placeholder,
+// and that placeholder got fed to the reviewers as the "diff" — so Codex (and
+// every arm) "reviewed" a one-line error string and returned garbage. Default
+// 120 s; override with PRISM_SCRUTINY_GIT_TIMEOUT_MS for slower hosts.
+const DEFAULT_GIT_DIFF_TIMEOUT_MS = 120_000;
+const GIT_DIFF_TIMEOUT_MS = (() => {
+  const env = process.env.PRISM_SCRUTINY_GIT_TIMEOUT_MS;
+  if (!env) return DEFAULT_GIT_DIFF_TIMEOUT_MS;
+  const n = Number.parseInt(env, 10);
+  return Number.isFinite(n) && n > 0 ? n : DEFAULT_GIT_DIFF_TIMEOUT_MS;
+})();
+
+// Auto-regenerated artifact paths excluded from the reviewable diff. These are
+// counters / snapshots / generated indexes that churn on every SessionStart;
+// including them buries the actual code change under hundreds of KB of noise
+// (and is a big chunk of why `git diff` was slow enough to hit the old 8 s
+// timeout). Mirrors scrutinize-before-stop.mjs:meaningfulChangedFiles(). Set
+// PRISM_SCRUTINY_NO_DIFF_FILTER=1 to review the unfiltered diff.
+const DIFF_FILTER_ENABLED = !["1", "true", "yes"].includes(
+  String(process.env.PRISM_SCRUTINY_NO_DIFF_FILTER || "").toLowerCase(),
+);
+const DIFF_EXCLUDE_PATHSPECS = [
+  ":(exclude)mcp-server/data/state",
+  ":(exclude)PRISM-INVENTORY-LATEST.md",
+  ":(exclude)state/shared/SVI-watch-status.json",
+  ":(exclude)state/shared/SVI-watch-status.md",
+  ":(exclude)state/shared/system-viz",
+];
 
 const REVIEW_SYSTEM = `You are a strict code reviewer for the PRISM manufacturing-intelligence platform. \
 You will be given a unified diff of recent changes and asked for a code review verdict.
@@ -151,7 +180,8 @@ function parseArgs(argv) {
     target: "",
     sessionId: "",
     skip: [],
-    markOpus: "",       // "pass" | "fail" — runs in opus-mark-only mode
+    markOpus: "",       // "pass" | "fail" — Claude reviewer arm A; runs in mark-only mode
+    markOpusB: "",      // "pass" | "fail" — Claude reviewer arm B; runs in mark-only mode
     notes: "",
     blockers: "",
     status: false,
@@ -163,6 +193,14 @@ function parseArgs(argv) {
     else if (a === "--session-id") out.sessionId = argv[++i] || "";
     else if (a.startsWith("--session-id=")) out.sessionId = a.slice("--session-id=".length);
     else if (a === "--skip") out.skip.push((argv[++i] || "").toLowerCase());
+    // Arm B must be matched before the generic --mark-opus check below.
+    else if (a === "--mark-opus-b") out.markOpusB = (argv[++i] || "").toLowerCase();
+    else if (a.startsWith("--mark-opus-b=")) out.markOpusB = a.slice("--mark-opus-b=".length).toLowerCase();
+    else if (a === "--mark-claude" || a === "--mark-gemini") out.markOpusB = (argv[++i] || "").toLowerCase();
+    else if (a.startsWith("--mark-claude=")) out.markOpusB = a.slice("--mark-claude=".length).toLowerCase();
+    else if (a.startsWith("--mark-gemini=")) out.markOpusB = a.slice("--mark-gemini=".length).toLowerCase();
+    else if (a === "--mark-opus-a") out.markOpus = (argv[++i] || "").toLowerCase();          // alias for --mark-opus
+    else if (a.startsWith("--mark-opus-a=")) out.markOpus = a.slice("--mark-opus-a=".length).toLowerCase();
     else if (a === "--mark-opus") out.markOpus = (argv[++i] || "").toLowerCase();
     else if (a.startsWith("--mark-opus=")) out.markOpus = a.slice("--mark-opus=".length).toLowerCase();
     else if (a === "--notes") out.notes = argv[++i] || "";
@@ -187,14 +225,26 @@ function captureDiff(target, maxBytes = MAX_DIFF_BYTES) {
       args = ["show", "HEAD", "--no-color"];
     } else {
       if (!/^[A-Za-z0-9._/-]+$/.test(target)) {
-        return `[scrutiny-3way: target "${String(target)}" rejected — must match /^[A-Za-z0-9._\\/-]+$/]`;
+        return {
+          text: `[scrutiny-3way: target "${String(target)}" rejected — must match /^[A-Za-z0-9._\\/-]+$/]`,
+          truncated: false,
+          totalBytes: 0,
+          error: `target-rejected: ${String(target)}`,
+        };
       }
       args = ["show", target, "--no-color"];
+    }
+    // Drop auto-regenerated noise from the reviewable diff (env-disableable).
+    // Pathspec magic works for both `git diff` and `git show` — the `.`
+    // positive pathspec is needed alongside the `:(exclude)` ones, and cwd is
+    // already the repo root (main() chdir'd before calling us).
+    if (DIFF_FILTER_ENABLED) {
+      args = [...args, "--", ".", ...DIFF_EXCLUDE_PATHSPECS];
     }
     const out = execFileSync("git", args, {
       stdio: ["ignore", "pipe", "ignore"],
       maxBuffer: 16 * 1024 * 1024,
-      timeout: 8000,
+      timeout: GIT_DIFF_TIMEOUT_MS,
     }).toString();
     if (out.length > maxBytes) {
       return {
@@ -282,9 +332,13 @@ function spawnReview(provider, bin, args, stdinPayload) {
       // to wait for env recovery (quota reset, network) or use the 3-block
       // escape hatch rather than chasing phantom blockers.
       const envFailMarker = (() => {
-        if (/TerminalQuotaError|exhausted your daily/i.test(stderr)) return "[ENV_FAIL: gemini-daily-quota — quota resets at UTC midnight]";
-        if (/not running in a trusted directory/i.test(stderr)) return "[ENV_FAIL: gemini-trust-dir — set GEMINI_CLI_TRUST_WORKSPACE=true]";
-        if (/ECONNREFUSED|ENOTFOUND|EAI_AGAIN/i.test(stderr)) return "[ENV_FAIL: network — provider host unreachable]";
+        // Environmental failures (env-broken, NOT code-broken). The verdict is
+        // already FAIL by this point — these markers just tell the operator to
+        // wait for env recovery / use the block-ceiling escape hatch rather
+        // than chase phantom blockers.
+        if (/exhausted your daily|usage limit reached|rate.?limit(ed)?|too many requests|\b429\b|TerminalQuotaError/i.test(stderr))
+          return "[ENV_FAIL: provider-rate-limit/quota — retry later or use the 3-block escape hatch]";
+        if (/ECONNREFUSED|ENOTFOUND|EAI_AGAIN|ETIMEDOUT/i.test(stderr)) return "[ENV_FAIL: network — provider host unreachable]";
         if (!parsedVerdict && code !== 0 && text.length === 0) return "[ENV_FAIL: empty-stdout — provider crashed before any output]";
         return "";
       })();
@@ -422,25 +476,52 @@ function buildPromptForCLI(diffInfo, target) {
   ].join("\n");
 }
 
-function buildOpusReviewerPrompt(diffInfo, target) {
+/**
+ * Build the prompt for a Claude reviewer agent (dispatched by the chat via the
+ * Agent tool). Two arms, both required PASS, deliberately differentiated so the
+ * two passes are complementary rather than redundant:
+ *   arm "A" — holistic strict review (the original Opus-arm prompt)
+ *   arm "B" — independent second pass weighted toward the highest-risk axes:
+ *             test integrity, dispatcher-wiring completeness, inlined constants,
+ *             and scope discipline. Does NOT assume arm A caught everything.
+ * Both emit the same VERDICT: PASS|FAIL contract on the first line.
+ */
+function buildClaudeReviewerPrompt(diffInfo, target, arm = "A") {
   const targetLabel = target ? `commit ${target}` : "uncommitted changes";
   const truncationWarning = diffInfo.truncated
     ? `NOTE: Diff was truncated at ${MAX_DIFF_BYTES} bytes (full size ${diffInfo.totalBytes}). If completeness cannot be assessed from the partial view, return VERDICT: FAIL with BLOCKER: diff-truncated.\n\n`
     : "";
+  const isB = String(arm).toUpperCase() === "B";
+  const role = isB
+    ? "You are reviewer B of two independent Claude reviewers (plus a Codex CLI reviewer) — an INDEPENDENT second pass. Do not assume reviewer A caught everything; review the diff yourself, end to end."
+    : "You are reviewer A of two independent Claude reviewers (plus a Codex CLI reviewer) — a strict, holistic code reviewer for the PRISM manufacturing-intelligence platform.";
+  const criteria = isB
+    ? [
+        "Weight your attention toward these high-risk axes (PRISM CLAUDE.md), but FAIL on any violation you find:",
+        "  1. Test integrity — no assertions weakened or removed vs the prior version; no toBeDefined()/toBeTruthy() blanket stubs; no synthetic threshold/loop tests; tests must fail if the business logic changes",
+        "  2. Dispatcher wiring — every new engine wired (import + call + action enum + Zod schema) to EVERY dispatcher that would naturally consume it (not just one)",
+        "  3. Constants — Kienzle/Taylor/material/physics constants imported from src/physics/constants.ts, never inlined or duplicated in docs",
+        "  4. Scope discipline — no changes beyond what the stated task requires; no stubs, TODOs, placeholder returns, facades, or 'deferred to follow-up'",
+        "  5. Hygiene — no floating promises, no any-spread anti-patterns, no swallowed errors",
+      ]
+    : [
+        "Acceptance criteria:",
+        "  1. No stubs, TODOs, or placeholder returns",
+        "  2. Tests use concrete assertions (no toBeDefined()/toBeTruthy() blanket stubs)",
+        "  3. ≥3 failure modes covered for any new engine",
+        "  4. Physics constants imported from src/physics/constants.ts (never inlined)",
+        "  5. New engines wired to every consuming dispatcher",
+        "  6. No floating promises, no any-spread anti-patterns introduced",
+      ];
   return [
-    truncationWarning + "Review the following diff as a strict code reviewer for the PRISM platform.",
+    truncationWarning + role,
     `Target: ${targetLabel}.`,
     "",
-    "Acceptance criteria:",
-    "  1. No stubs, TODOs, or placeholder returns",
-    "  2. Tests use concrete assertions (no toBeDefined()/toBeTruthy() blanket stubs)",
-    "  3. ≥3 failure modes covered for any new engine",
-    "  4. Physics constants imported from src/physics/constants.ts (never inlined)",
-    "  5. New engines wired to every consuming dispatcher",
-    "  6. No floating promises, no any-spread anti-patterns introduced",
+    ...criteria,
     "",
     "First line of your response MUST be 'VERDICT: PASS' or 'VERDICT: FAIL'.",
     "Then list BLOCKER: lines for any violations, then optional notes (≤5 lines).",
+    "If unsure between PASS and FAIL, choose FAIL.",
     "",
     "--- DIFF ---",
     diffInfo.text,
@@ -470,37 +551,64 @@ async function main() {
     return;
   }
 
-  // Sub-command: --mark-opus pass|fail — used by the chat after the Agent tool
-  // reviewer returns. Records the third leg of the 3-of-3 strict gate.
-  if (args.markOpus) {
-    const normalized = args.markOpus.toLowerCase();
-    if (normalized !== "pass" && normalized !== "fail") {
-      console.log(JSON.stringify({
-        ok: false,
-        error: "invalid-mark-opus",
-        message: `--mark-opus must be 'pass' or 'fail' (case-insensitive); got: ${JSON.stringify(args.markOpus)}`,
-      }, null, 2));
-      process.exit(2);
+  // Sub-command: --mark-opus / --mark-claude pass|fail — used by the chat after
+  // the Agent-tool reviewers return. Records the Claude-reviewer legs (arm A
+  // and/or arm B) of the strict 3-of-3 gate. Either or both may be supplied in
+  // one call. Accepted aliases: --mark-opus-a → arm A; --mark-opus-b / --mark-gemini → arm B.
+  if (args.markOpus || args.markOpusB) {
+    const marks = {};
+    const marked = [];
+    for (const [argVal, flag, detailKey, flagName, armLabel] of [
+      [args.markOpus,  "opusReviewed",   "opusDetail",   "--mark-opus",   "A"],
+      [args.markOpusB, "claudeReviewed", "claudeDetail", "--mark-claude", "B"],
+    ]) {
+      if (!argVal) continue;
+      const verdict = String(argVal).toLowerCase();
+      if (verdict !== "pass" && verdict !== "fail") {
+        console.log(JSON.stringify({
+          ok: false,
+          error: "invalid-mark",
+          message: `${flagName} must be 'pass' or 'fail' (case-insensitive); got: ${JSON.stringify(argVal)}`,
+        }, null, 2));
+        process.exit(2);
+      }
+      marks[flag] = verdict === "pass";
+      marks[detailKey] = { verdict, blockers: args.blockers, notes: args.notes };
+      marked.push({ arm: armLabel, verdict });
     }
     const sid = findStableSessionId(args.sessionId);
-    const verdict = normalized;
-    const entry = recordScrutiny(sid, {
-      opusReviewed: verdict === "pass",
-      opusDetail: { verdict, blockers: args.blockers, notes: args.notes },
-    });
+    const entry = recordScrutiny(sid, marks);
+    // isCleared() is the single source of truth — alias-aware (arm B may be
+    // stored as claudeReviewed | opusBReviewed | geminiReviewed) and it honors
+    // the pre-3way legacy-entry fallback.
     console.log(JSON.stringify({
       ok: true,
-      mode: "mark-opus",
+      mode: "mark-claude-reviewer",
       sessionId: sid,
-      opusVerdict: verdict,
-      cleared: entry.codexReviewed === true && entry.geminiReviewed === true && entry.opusReviewed === true,
+      marked,
+      cleared: isCleared(sid),
       entry,
     }, null, 2));
     return;
   }
 
   const diffInfo = captureDiff(args.target);
-  if (!diffInfo || !diffInfo.text || diffInfo.text.length < 20) {
+  // Genuine capture failure (git timeout, bad ref, git error) — abort cleanly
+  // rather than feeding a "[git diff capture failed: …]" placeholder string to
+  // the reviewers, which is exactly the bug that made Codex look broken.
+  if (!diffInfo || diffInfo.error) {
+    console.log(JSON.stringify({
+      ok: false,
+      error: "diff-capture-failed",
+      message: diffInfo?.error || "captureDiff returned nothing",
+      hint:
+        `git diff/show failed for target=${args.target || "(uncommitted)"}. ` +
+        `If it timed out, raise PRISM_SCRUTINY_GIT_TIMEOUT_MS (currently ${GIT_DIFF_TIMEOUT_MS}ms) ` +
+        `or check repo health (git status, .git/index.lock). Re-run when git is responsive.`,
+    }, null, 2));
+    process.exit(2);
+  }
+  if (!diffInfo.text || diffInfo.text.length < 20) {
     console.log(JSON.stringify({
       ok: false,
       error: "no-diff",
@@ -508,21 +616,13 @@ async function main() {
     }, null, 2));
     process.exit(2);
   }
-  // Gemini 2.5 Pro arm gets a separately captured (larger) diff. Skip the
-  // second git call when no upgrade would happen — keeps the fast path fast.
-  const geminiDiffInfo = GEMINI_MAX_DIFF_BYTES > MAX_DIFF_BYTES
-    ? captureDiff(args.target, GEMINI_MAX_DIFF_BYTES)
-    : diffInfo;
 
   const cliPrompt = buildPromptForCLI(diffInfo, args.target);
-  const geminiPrompt = geminiDiffInfo === diffInfo
-    ? cliPrompt
-    : buildPromptForCLI(geminiDiffInfo, args.target);
-  const opusPrompt = buildOpusReviewerPrompt(diffInfo, args.target);
+  const opusPrompt = buildClaudeReviewerPrompt(diffInfo, args.target, "A");
+  const opusPromptB = buildClaudeReviewerPrompt(diffInfo, args.target, "B");
 
   // Skip-aware parallel dispatch
   const skipCodex = args.skip.includes("codex");
-  const skipGemini = args.skip.includes("gemini");
   const skipPreflight = args.skip.includes("preflight") || !PREFLIGHT_ENABLED;
 
   // OBSIDIAN-AUTOMATE-MS3/U-LOCAL-PREFLIGHT — gate mode: run local first;
@@ -549,10 +649,10 @@ async function main() {
           durationMs: preflightResult.durationMs,
         },
         nextStep:
-          "Local pre-flight reviewer (deepseek-r1:14b) flagged blockers BEFORE cloud dispatch. " +
-          "Review BLOCKER lines, fix, and re-run. To override and force cloud review anyway: " +
+          "Local pre-flight reviewer (deepseek-r1:14b) flagged blockers BEFORE the Codex arm was dispatched. " +
+          "Review BLOCKER lines, fix, and re-run. To override and force the Codex arm anyway: " +
           "--skip preflight, or PRISM_SCRUTINY_PREFLIGHT=parallel for advisory-only mode.",
-        consensus: "preflight-blocked — cloud trio not dispatched (quota saved)",
+        consensus: "preflight-blocked — Codex arm not dispatched (quota saved); Claude-reviewer dispatch also deferred",
       }, null, 2));
       return;
     }
@@ -560,53 +660,47 @@ async function main() {
 
   const tasks = [];
   if (!skipCodex) tasks.push(spawnReview("codex", CODEX_BIN, [...CODEX_ARGS], cliPrompt));
-  if (!skipGemini) tasks.push(spawnReview("gemini", GEMINI_BIN, [...GEMINI_ARGS], geminiPrompt));
-  // Parallel mode: local arm runs alongside cloud, surfaces an advisory verdict.
+  // Parallel mode: local Ollama arm runs alongside Codex, surfaces an advisory verdict.
   if (!PREFLIGHT_GATE && !skipPreflight) tasks.push(runOllamaPreflight(cliPrompt));
 
   const allResults = await Promise.all(tasks);
-  // Separate the advisory pre-flight from the cloud trio so ledger marking
-  // (which runs only over codex/gemini) sees a clean two-element array.
+  // Separate the advisory pre-flight from the recorded arm so ledger marking
+  // (which runs only over codex here — the two Claude arms are recorded by the
+  // chat via --mark-opus / --mark-claude) sees a clean array.
   const results = allResults.filter((r) => r.provider !== "ollama-preflight");
   const parallelPreflight = allResults.find((r) => r.provider === "ollama-preflight") ?? null;
   if (parallelPreflight) preflightResult = parallelPreflight;
 
-  // Auto-record --codex and --gemini marks DIRECTLY via the ledger helper
-  // (no shell to scrutiny-mark.mjs — that file is contested by peer chats).
+  // Auto-record the --codex mark DIRECTLY via the ledger helper (no shell to
+  // scrutiny-mark.mjs — that file is contested by peer chats).
   const sessionId = findStableSessionId(args.sessionId);
   for (const r of results) {
-    if (r.provider !== "codex" && r.provider !== "gemini") continue;
+    if (r.provider !== "codex") continue;
     const detail = {
       verdict: r.verdict,
       blockers: r.blockers || "",
       notes: `[3way ${r.provider} ${r.durationMs}ms] ${r.notes || ""}`.slice(0, 480),
     };
-    const marks = {};
-    if (r.provider === "codex") {
-      marks.codexReviewed = r.verdict === "pass";
-      marks.codexDetail = detail;
-    } else {
-      marks.geminiReviewed = r.verdict === "pass";
-      marks.geminiDetail = detail;
-    }
     try {
-      recordScrutiny(sessionId, marks);
+      recordScrutiny(sessionId, { codexReviewed: r.verdict === "pass", codexDetail: detail });
     } catch (err) {
-      // Gemini blocker #3: previously swallowed silently, hiding disk I/O
-      // / permission errors that left the gate stuck. Surface to stderr so
-      // the chat sees the failure even though stdout still gets the JSON.
+      // Surface to stderr so the chat sees disk-I/O / permission failures that
+      // would otherwise leave the gate stuck (stdout still gets the JSON).
       const msg = err instanceof Error ? err.message : String(err);
       process.stderr.write(
-        `scrutiny-3way: recordScrutiny(session=${sessionId}, ${r.provider}) failed: ${msg}\n`,
+        `scrutiny-3way: recordScrutiny(session=${sessionId}, codex) failed: ${msg}\n`,
       );
     }
   }
 
+  const codexResult = results.find((r) => r.provider === "codex") ?? null;
+  const codexPassed = codexResult ? codexResult.verdict === "pass" : null;
   const out = {
     ok: true,
     target: args.target || "(uncommitted)",
     diffBytes: diffInfo.totalBytes,
     diffTruncated: diffInfo.truncated,
+    diffFilter: DIFF_FILTER_ENABLED ? "noise paths excluded" : "unfiltered (PRISM_SCRUTINY_NO_DIFF_FILTER=1)",
     results: results.map((r) => ({
       provider: r.provider,
       verdict: r.verdict,
@@ -614,10 +708,9 @@ async function main() {
       notes: r.notes,
       durationMs: r.durationMs,
     })),
-    // Local pre-flight verdict surfaced as a 4th, advisory arm. Does NOT
-    // affect the strict 3-of-3 ledger contract — it's signal, not gate.
-    // When the local arm agrees with cloud, that's strong consensus; when
-    // it disagrees, that's a triangulation flag for the operator.
+    // Local pre-flight verdict surfaced as an advisory arm. Does NOT affect the
+    // strict 3-of-3 ledger contract — it's signal, not gate. Agreement with
+    // Codex is strong consensus; disagreement is a triangulation flag.
     preflight: preflightResult ? {
       provider: preflightResult.provider,
       model: PREFLIGHT_MODEL,
@@ -627,16 +720,23 @@ async function main() {
       durationMs: preflightResult.durationMs,
       mode: PREFLIGHT_GATE ? "gate (cloud-saver)" : "parallel (advisory)",
     } : null,
-    opusReviewerPrompt: opusPrompt,
+    opusReviewerPrompt: opusPrompt,    // Claude reviewer arm A (holistic)
+    opusReviewerPromptB: opusPromptB,  // Claude reviewer arm B (test/wiring/constants-weighted, independent)
     nextStep:
-      "Dispatch the Claude Opus reviewer in this chat: Agent({ subagent_type: 'reviewer', " +
-      "description: 'Review session diff (3way Opus arm)', prompt: <opusReviewerPrompt above> }). " +
-      "When the agent returns, run: " +
-      "node .claude/scripts/scrutiny-3way.mjs --mark-opus pass --notes \"<one-line agent summary>\" " +
-      "(replace 'pass' with 'fail' if the agent reported FAIL).",
-    consensus: results.every((r) => r.verdict === "pass")
-      ? "codex+gemini PASS (need Opus mark to release Stop hook — 3-of-3 strict)"
-      : "codex/gemini have FAILED — fix blockers before continuing; Opus dispatch optional",
+      "Dispatch BOTH Claude reviewer agents in this chat, in parallel:\n" +
+      "  Agent({ subagent_type: 'reviewer', description: 'Review session diff (3way reviewer A)', prompt: <opusReviewerPrompt above> })\n" +
+      "  Agent({ subagent_type: 'reviewer', description: 'Review session diff (3way reviewer B — independent)', prompt: <opusReviewerPromptB above> })\n" +
+      "When they return, record both verdicts (use 'fail' instead of 'pass' for any FAIL):\n" +
+      `  node .claude/scripts/scrutiny-3way.mjs --mark-opus   pass --session-id ${sessionId} --notes "<reviewer A summary>"\n` +
+      `  node .claude/scripts/scrutiny-3way.mjs --mark-claude pass --session-id ${sessionId} --notes "<reviewer B summary>"\n` +
+      "  (--mark-claude is the arm-B mark; --mark-opus-b / --mark-gemini are accepted aliases.)\n" +
+      "The Stop hook releases only once codex + arm A + arm B are all PASS (strict 3-of-3).",
+    consensus:
+      codexPassed === null
+        ? "codex arm skipped — still need codex + both Claude-reviewer marks (3-of-3 strict)"
+        : codexPassed
+          ? "codex PASS — still need both Claude-reviewer marks to release the Stop hook (3-of-3 strict)"
+          : "codex FAILED — fix the BLOCKER lines above before continuing (Claude-reviewer dispatch optional until codex is green)",
   };
   console.log(JSON.stringify(out, null, 2));
 }

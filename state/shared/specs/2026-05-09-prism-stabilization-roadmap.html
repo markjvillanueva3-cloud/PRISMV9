@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="55128ca24f92d0062246c76d6819eaaf01c58634e818eaedd996a52b5cdaf438">
+<title>PRISM Stabilization Roadmap (focused, this-work-only)</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">PRISM Stabilization Roadmap (focused, this-work-only)</h1>
+<p class="provenance">Generated 2026-05-12T12:43:26.637Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#prism-stabilization-roadmap">PRISM Stabilization Roadmap</a></li>
+<li class="toc-l2"><a href="#phase-tier-mapping">Phase / tier mapping</a></li>
+<li class="toc-l2"><a href="#unit-ranking-sorted-by-tier-asc-aipriority-desc-leverage-desc">Unit ranking (sorted by tier ASC, aiPriority DESC, leverage DESC)</a></li>
+<li class="toc-l3"><a href="#phase-a-t0-foundation-5-units-3-days">Phase A — T0 foundation (5 units, ~3 days)</a></li>
+<li class="toc-l3"><a href="#phase-b-t1-multi-chat-coordination-6-units-7-days">Phase B — T1 multi-chat coordination (6 units, ~7 days)</a></li>
+<li class="toc-l3"><a href="#phase-c-t2-injection-re-architecture-4-units-14-days">Phase C — T2 injection re-architecture (4 units, ~14 days)</a></li>
+<li class="toc-l2"><a href="#lane-assignment-parallel-within-phase-sequential-across">Lane assignment (parallel within phase, sequential across)</a></li>
+<li class="toc-l2"><a href="#dependency-graph">Dependency graph</a></li>
+<li class="toc-l2"><a href="#atomic-first-invariant-check-per-rgs6-law">Atomic-first invariant check (per /rgs6 law)</a></li>
+<li class="toc-l2"><a href="#per-unit-rollback-flags-env-vars">Per-unit rollback flags (env vars)</a></li>
+<li class="toc-l2"><a href="#telemetry-expectations-per-rgs6-self-optimization-law">Telemetry expectations (per /rgs6 SELF-OPTIMIZATION LAW)</a></li>
+<li class="toc-l2"><a href="#compounding-gains-expected-per-phase">Compounding gains expected per phase</a></li>
+<li class="toc-l2"><a href="#risks-from-spec-11-ranked-by-current-probability">Risks (from spec § 11) ranked by current probability</a></li>
+<li class="toc-l2"><a href="#what-this-roadmap-is-not">What this roadmap is NOT</a></li>
+<li class="toc-l2"><a href="#next-action">Next action</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<details class="frontmatter" open><summary>Document metadata</summary><div class="table-wrap"><table>
+<tbody>
+<tr><th scope="row">title</th><td>PRISM Stabilization Roadmap (focused, this-work-only)</td></tr>
+<tr><th scope="row">date</th><td>2026-05-09</td></tr>
+<tr><th scope="row">milestone-id</th><td>PRISM-STAB-MS0</td></tr>
+<tr><th scope="row">brief</th><td>2026-05-09-prism-stabilization-design.md (commit 4dfa4d212)</td></tr>
+<tr><th scope="row">units</th><td>15 (A1-A5, B1-B6, C1-C4)</td></tr>
+<tr><th scope="row">phases</th><td>3 (A foundation, B coordination, C re-arch)</td></tr>
+<tr><th scope="row">chats</th><td>4 (parallel within phase, sequential across phases)</td></tr>
+<tr><th scope="row">sort-key</th><td>(tier ASC, aiPriorityScore DESC, leverage DESC) per /rgs6 v6.1</td></tr>
+</tbody>
+</table></div></details>
+<h1 id="prism-stabilization-roadmap"><a class="anchor" href="#prism-stabilization-roadmap" aria-label="Permalink to PRISM Stabilization Roadmap">#</a>PRISM Stabilization Roadmap</h1>
+<blockquote>
+<p>Focused roadmap for the stabilization spec only — NOT integrated into the main PRISM atomic-roadmap (1068 units). Ingest later via milestone envelope if desired.</p>
+</blockquote>
+<h2 id="phase-tier-mapping"><a class="anchor" href="#phase-tier-mapping" aria-label="Permalink to Phase / tier mapping">#</a>Phase / tier mapping</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Phase</th><th>Tier</th><th>Why this tier</th><th>Gate</th></tr></thead>
+<tbody>
+<tr><td>A — Stop the bleeding</td><td>T0</td><td>Atomic, depends on nothing else in PRISM</td><td>A-acceptance must pass before B starts</td></tr>
+<tr><td>B — Handoff/compact race fix</td><td>T1</td><td>Builds on A (git tree clean, no orphans) + adds 2 dispatcher actions</td><td>B-acceptance must pass before C starts</td></tr>
+<tr><td>C — Injection re-architecture</td><td>T2</td><td>Builds on B (Quartz infra) + new daemon</td><td>C-acceptance closes the milestone</td></tr>
+</tbody>
+</table></div>
+<h2 id="unit-ranking-sorted-by-tier-asc-aipriority-desc-leverage-desc"><a class="anchor" href="#unit-ranking-sorted-by-tier-asc-aipriority-desc-leverage-desc" aria-label="Permalink to Unit ranking (sorted by tier ASC, aiPriority DESC, leverage DESC)">#</a>Unit ranking (sorted by tier ASC, aiPriority DESC, leverage DESC)</h2>
+<h3 id="phase-a-t0-foundation-5-units-3-days"><a class="anchor" href="#phase-a-t0-foundation-5-units-3-days" aria-label="Permalink to Phase A — T0 foundation (5 units, ~3 days)">#</a>Phase A — T0 foundation (5 units, ~3 days)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Unit</th><th style="text-align:right">AI</th><th style="text-align:right">Lev</th><th>Lane</th><th>Files</th><th style="text-align:right">LOC</th><th style="text-align:right">Hours</th><th>Deps</th></tr></thead>
+<tbody>
+<tr><td><strong>U-A1</strong> git-sync-stop bounded push</td><td style="text-align:right">25</td><td style="text-align:right">18</td><td>1</td><td><code>hooks/git-sync-stop.mjs</code></td><td style="text-align:right">50</td><td style="text-align:right">4</td><td>—</td></tr>
+<tr><td><strong>U-A3</strong> orphan reaper Stop hook</td><td style="text-align:right">25</td><td style="text-align:right">17</td><td>1</td><td><code>hooks/stop_close_prism_nodes_v2.mjs</code> (new) + settings</td><td style="text-align:right">120</td><td style="text-align:right">6</td><td>—</td></tr>
+<tr><td><strong>U-A5</strong> mirror direction enforcement</td><td style="text-align:right">20</td><td style="text-align:right">14</td><td>2</td><td><code>hooks/c-to-h-mirror.mjs</code> (or replacement)</td><td style="text-align:right">40</td><td style="text-align:right">3</td><td>—</td></tr>
+<tr><td><strong>U-A4</strong> archive 23 disabled hooks</td><td style="text-align:right">15</td><td style="text-align:right">16</td><td>3</td><td>settings.json (both layers), 23 source files moved</td><td style="text-align:right">80</td><td style="text-align:right">4</td><td>—</td></tr>
+<tr><td><strong>U-A2</strong> .gitignore hygiene + helper audit</td><td style="text-align:right">10</td><td style="text-align:right">20</td><td>2</td><td><code>.gitignore</code>, <code>state/shared/specs/2026-05-09-helper-audit.md</code>, <code>git add/rm</code></td><td style="text-align:right">30</td><td style="text-align:right">3</td><td>—</td></tr>
+</tbody>
+</table></div>
+<p><strong>Phase A acceptance criteria:</strong></p>
+<ul>
+<li><code>git status --porcelain | wc -l</code> ≤ 50</li>
+<li>0 orphan git.exe after Stop (30-min idle observation)</li>
+<li><code>state/shared/git-sync-stop.log</code> exists, push success rate &gt;95%</li>
+<li>Settings.json hash equality C: == H: at every SessionStart</li>
+<li><code>state/shared/disabled-hooks/manifest.jsonl</code> exists with 23 entries</li>
+</ul>
+<h3 id="phase-b-t1-multi-chat-coordination-6-units-7-days"><a class="anchor" href="#phase-b-t1-multi-chat-coordination-6-units-7-days" aria-label="Permalink to Phase B — T1 multi-chat coordination (6 units, ~7 days)">#</a>Phase B — T1 multi-chat coordination (6 units, ~7 days)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Unit</th><th style="text-align:right">AI</th><th style="text-align:right">Lev</th><th>Lane</th><th>Files</th><th style="text-align:right">LOC</th><th style="text-align:right">Hours</th><th>Deps</th></tr></thead>
+<tbody>
+<tr><td><strong>U-B6</strong> Quartz HTML build (port 8766)</td><td style="text-align:right">80</td><td style="text-align:right">25</td><td>4</td><td><code>scripts/quartz/</code>, <code>scripts/quartz-serve.mjs</code>, <code>scripts/daemon-supervisor.mjs</code> (new)</td><td style="text-align:right">250</td><td style="text-align:right">12</td><td>A complete</td></tr>
+<tr><td><strong>U-B1</strong> hybrid handoff store + 2 dispatcher actions</td><td style="text-align:right">70</td><td style="text-align:right">22</td><td>4</td><td><code>engines/HandoffCoordinatorEngine.ts</code> (new), <code>dispatchers/sessionDispatcher.ts</code></td><td style="text-align:right">220</td><td style="text-align:right">14</td><td>A complete</td></tr>
+<tr><td><strong>U-B5</strong> Obsidian vault integration (NTFS junction)</td><td style="text-align:right">45</td><td style="text-align:right">18</td><td>4</td><td>NTFS junction setup, frontmatter convention</td><td style="text-align:right">60</td><td style="text-align:right">4</td><td>B1</td></tr>
+<tr><td><strong>U-B3</strong> compact pipeline consolidation (5+ files → 2)</td><td style="text-align:right">40</td><td style="text-align:right">20</td><td>4</td><td><code>helpers/precompact-handoff.mjs</code>, <code>hooks/precompact-bundle.mjs</code>, <code>hooks/postcompact-restore.mjs</code>, settings</td><td style="text-align:right">180</td><td style="text-align:right">10</td><td>B1</td></tr>
+<tr><td><strong>U-B2</strong> ID resolution hardening (mandate stdin)</td><td style="text-align:right">35</td><td style="text-align:right">16</td><td>4</td><td><code>helpers/stable-session-id.mjs</code>, <code>helpers/per-agent-handoff.mjs</code></td><td style="text-align:right">80</td><td style="text-align:right">5</td><td>B1</td></tr>
+<tr><td><strong>U-B4</strong> startup pipeline read path</td><td style="text-align:right">30</td><td style="text-align:right">15</td><td>4</td><td><code>hooks/session-handoff-load.mjs</code></td><td style="text-align:right">60</td><td style="text-align:right">4</td><td>B1, B2</td></tr>
+</tbody>
+</table></div>
+<p><strong>Phase B acceptance criteria:</strong></p>
+<ul>
+<li>6-chat parallel <code>/compact</code> simulation: 0 cross-contamination across 100 trial runs</li>
+<li>PreCompact pipeline = 1 hook (down from 4); PostCompact = 1; Startup-handoff-load = 1</li>
+<li>Quartz dashboard reachable at http://localhost:8766/handoffs</li>
+<li>Obsidian opens any handoff with backlinks intact</li>
+<li><code>state/shared/handoff-race-incidents.log</code> empty over 7-day observation</li>
+</ul>
+<h3 id="phase-c-t2-injection-re-architecture-4-units-14-days"><a class="anchor" href="#phase-c-t2-injection-re-architecture-4-units-14-days" aria-label="Permalink to Phase C — T2 injection re-architecture (4 units, ~14 days)">#</a>Phase C — T2 injection re-architecture (4 units, ~14 days)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Unit</th><th style="text-align:right">AI</th><th style="text-align:right">Lev</th><th>Lane</th><th>Files</th><th style="text-align:right">LOC</th><th style="text-align:right">Hours</th><th>Deps</th></tr></thead>
+<tbody>
+<tr><td><strong>U-C1</strong> context-bundle daemon</td><td style="text-align:right">95</td><td style="text-align:right">30</td><td>4</td><td><code>scripts/context-bundle-daemon.mjs</code> (new), reuses daemon-supervisor</td><td style="text-align:right">300</td><td style="text-align:right">18</td><td>B6</td></tr>
+<tr><td><strong>U-C2</strong> ONE prompt-context-inject hook</td><td style="text-align:right">90</td><td style="text-align:right">28</td><td>4</td><td><code>hooks/prompt-context-inject.mjs</code> (new), settings.json edits</td><td style="text-align:right">180</td><td style="text-align:right">10</td><td>C1</td></tr>
+<tr><td><strong>U-C3</strong> browseable context dashboard</td><td style="text-align:right">85</td><td style="text-align:right">22</td><td>4</td><td>Quartz config + content, <code>scripts/context-html-builder.mjs</code></td><td style="text-align:right">200</td><td style="text-align:right">12</td><td>C1, B6</td></tr>
+<tr><td><strong>U-C4</strong> retire 30+ redundant hooks</td><td style="text-align:right">75</td><td style="text-align:right">32</td><td>4</td><td>settings.json (both), <code>state/shared/disabled-hooks/&lt;batch&gt;.jsonl</code></td><td style="text-align:right">100</td><td style="text-align:right">8</td><td>C2, C3</td></tr>
+</tbody>
+</table></div>
+<p><strong>Phase C acceptance criteria:</strong></p>
+<ul>
+<li>UserPromptSubmit median latency &lt;100ms (currently ~1500ms)</li>
+<li>Fork count per prompt ≤3 (currently ~35)</li>
+<li>All retained injection content findable via Quartz dashboard</li>
+<li>Settings.json hook entry count ≤80 (currently 319)</li>
+<li>Mark explicit sign-off</li>
+</ul>
+<h2 id="lane-assignment-parallel-within-phase-sequential-across"><a class="anchor" href="#lane-assignment-parallel-within-phase-sequential-across" aria-label="Permalink to Lane assignment (parallel within phase, sequential across)">#</a>Lane assignment (parallel within phase, sequential across)</h2>
+<pre><code>                  Phase A (3 days)              Phase B (7 days)               Phase C (14 days)
+Chat 1 (Lane 1):  ─[U-A1]─[U-A3]─────────────                                                                ─→ idle
+Chat 2 (Lane 2):  ─[U-A2]─[U-A5]─────────────                                                                ─→ idle
+Chat 3 (Lane 3):  ─[U-A4]──────────────────                                                                  ─→ idle
+Chat 4 (Lane 4):  ────────────────────────────[U-B1]→[U-B2]→[U-B3]→[U-B4]→[U-B5]→[U-B6]─────[U-C1]→[U-C2]→[U-C3]→[U-C4]
+                  └─ A-merge gate ──────────────────┴─ B-merge gate ──────────────────────────┴─ C-merge gate
+</code></pre>
+<p>Lane 4 owns the bulk of B+C because they share infrastructure (HandoffCoordinatorEngine, daemon-supervisor, Quartz). Splitting across chats would create internal coordination overhead worse than the lane has currently.</p>
+<h2 id="dependency-graph"><a class="anchor" href="#dependency-graph" aria-label="Permalink to Dependency graph">#</a>Dependency graph</h2>
+<pre><code>U-A1 ──┐
+U-A3 ──┤
+U-A5 ──┼──→ A-acceptance ──→ U-B1 ──→ U-B2 ──→ U-B3 ──→ U-B4 ──┐
+U-A4 ──┤                       │                                 │
+U-A2 ──┘                       └────→ U-B5 ──┐                   │
+                               └────→ U-B6 ──┴──→ B-acceptance ──┴──→ U-C1 ──→ U-C2 ──┐
+                                                                                       │
+                                                                       U-C3 ←──────────┤
+                                                                                       │
+                                                                       U-C4 ←──────────┘
+</code></pre>
+<h2 id="atomic-first-invariant-check-per-rgs6-law"><a class="anchor" href="#atomic-first-invariant-check-per-rgs6-law" aria-label="Permalink to Atomic-first invariant check (per /rgs6 law)">#</a>Atomic-first invariant check (per /rgs6 law)</h2>
+<p>Each unit confirmed atomic — no T1 unit depends on a future T1 unit; no T2 unit depends on a future T2 unit. Every dependency arrow points to a <em>completed</em> phase or earlier-in-phase unit:</p>
+<ul>
+<li>All Phase A units have empty deps ✓</li>
+<li>B1 depends on A only ✓</li>
+<li>B2-B4 chain on B1 ✓</li>
+<li>B5-B6 fan from B1 ✓</li>
+<li>C1 depends on B6 (Quartz infra) ✓</li>
+<li>C2 depends on C1 ✓</li>
+<li>C3 fans from C1+B6 ✓</li>
+<li>C4 depends on C2+C3 ✓</li>
+</ul>
+<h2 id="per-unit-rollback-flags-env-vars"><a class="anchor" href="#per-unit-rollback-flags-env-vars" aria-label="Permalink to Per-unit rollback flags (env vars)">#</a>Per-unit rollback flags (env vars)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Phase</th><th>Flag</th><th>Default</th><th>Effect when set to 0</th></tr></thead>
+<tbody>
+<tr><td>A1</td><td><code>PRISM_GIT_SYNC_BOUNDED</code></td><td>1</td><td>Reverts to legacy detached unsupervised push</td></tr>
+<tr><td>B1-B4</td><td><code>PRISM_HANDOFF_HYBRID</code></td><td>1</td><td>Reverts to legacy filesystem-only handoff</td></tr>
+<tr><td>C1-C2</td><td><code>PRISM_CONTEXT_BUNDLE</code></td><td>1</td><td>Reverts to per-hook injection</td></tr>
+</tbody>
+</table></div>
+<p>All flags persisted to <code>state/shared/feature-flags.json</code>. Rollback is &lt;5 minutes per phase.</p>
+<h2 id="telemetry-expectations-per-rgs6-self-optimization-law"><a class="anchor" href="#telemetry-expectations-per-rgs6-self-optimization-law" aria-label="Permalink to Telemetry expectations (per /rgs6 SELF-OPTIMIZATION LAW)">#</a>Telemetry expectations (per /rgs6 SELF-OPTIMIZATION LAW)</h2>
+<p>For each unit during execution, telemetry SHOULD record:</p>
+<ul>
+<li><code>S0 stage_entry</code> at unit start</li>
+<li><code>tool_used</code> for each significant Bash/Edit/Write call</li>
+<li><code>decision</code> for any branching choice (e.g. &quot;fork to sibling worktree&quot; / &quot;stay on main&quot;)</li>
+<li><code>outcome</code> at unit completion (pass/fail/partial)</li>
+<li><code>artifact</code> for each new file/dispatcher action created</li>
+<li><code>violation</code> for any rule-break (e.g. orphan git found post-Stop, race incident)</li>
+</ul>
+<p>After phase close: re-run <code>adaptive-thresholds.mjs</code> and <code>compounding-gains-audit.mjs --apply</code>.</p>
+<h2 id="compounding-gains-expected-per-phase"><a class="anchor" href="#compounding-gains-expected-per-phase" aria-label="Permalink to Compounding gains expected per phase">#</a>Compounding gains expected per phase</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Phase</th><th style="text-align:right">Cumulative artifact ledger entries</th><th style="text-align:right">Velocity ratchet</th></tr></thead>
+<tbody>
+<tr><td>A</td><td style="text-align:right">+1 helper-audit doc + 1 reaper hook + 1 mirror guard</td><td style="text-align:right">+5% (smaller <code>git status</code>, no orphan kills)</td></tr>
+<tr><td>B</td><td style="text-align:right">+2 dispatcher actions + 1 dashboard + Obsidian integration</td><td style="text-align:right">+25% (compact survives multi-chat, Quartz HTML accelerates context lookup)</td></tr>
+<tr><td>C</td><td style="text-align:right">+1 context bundle + 30 hook retirements</td><td style="text-align:right">+60% (prompts fast, fork count low)</td></tr>
+</tbody>
+</table></div>
+<h2 id="risks-from-spec-11-ranked-by-current-probability"><a class="anchor" href="#risks-from-spec-11-ranked-by-current-probability" aria-label="Permalink to Risks (from spec § 11) ranked by current probability">#</a>Risks (from spec § 11) ranked by current probability</h2>
+<ol>
+<li><strong>R3 (B1)</strong> MCP server crash during compact = handoff lost — Mitigated: filesystem fallback is primary</li>
+<li><strong>R7 (C1)</strong> Daemon stale data &gt;60s causes wrong context — Mitigated: bundle includes <code>freshness_ms</code>, hook flags</li>
+<li><strong>R8 (C4)</strong> Retired hook turns out to be load-bearing — Mitigated: archive (not delete), telemetry flags</li>
+<li><strong>R1 (A1)</strong> Push timeout too aggressive — Mitigated: telemetry tracks killed=true rate</li>
+<li><strong>R6 (B6)</strong> Quartz incompatible — Mitigated: fall back to MkDocs</li>
+</ol>
+<h2 id="what-this-roadmap-is-not"><a class="anchor" href="#what-this-roadmap-is-not" aria-label="Permalink to What this roadmap is NOT">#</a>What this roadmap is NOT</h2>
+<ul>
+<li>Not the PRISM master roadmap (that&#39;s <code>state/shared/atomic-roadmap.json</code>, 1068 units, not modified by this work)</li>
+<li>Not auto-executed (Mark must trigger A1 explicitly to start)</li>
+<li>Not multi-machine (this single-PC roadmap; the peer machine picks up via git pull after each commit)</li>
+</ul>
+<h2 id="next-action"><a class="anchor" href="#next-action" aria-label="Permalink to Next action">#</a>Next action</h2>
+<p>Once Mark says &quot;start Phase A&quot;:</p>
+<ol>
+<li>Resolve fork-vs-stay-on-main decision (deferred per Mark)</li>
+<li>Open the chosen worktree</li>
+<li>Begin U-A1 (git-sync-stop bounded push) — smallest, highest-confidence change</li>
+</ol>
+<p>Reference docs while executing:</p>
+<ul>
+<li>Spec: <code>state/shared/specs/2026-05-09-prism-stabilization-design.md</code></li>
+<li>This roadmap: <code>state/shared/specs/2026-05-09-prism-stabilization-roadmap.md</code></li>
+<li>Master roadmap (untouched): <code>state/shared/atomic-roadmap.json</code></li>
+<li>Predicted collisions (general repo state, RED): <code>state/shared/predicted-collisions.json</code></li>
+</ul>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="2026-05-09-prism-stabilization-roadmap.md">2026-05-09-prism-stabilization-roadmap.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

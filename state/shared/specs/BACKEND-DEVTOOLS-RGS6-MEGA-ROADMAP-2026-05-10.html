@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="b13422ada97372134f2ddf7728afff447b98df86525a23f52f17bf57d7f78a84">
+<title>BACKEND-DEVTOOLS-RGS6 MEGA-ROADMAP — Backend + Dev-Tool Synergy Master Plan</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">BACKEND-DEVTOOLS-RGS6 MEGA-ROADMAP — Backend + Dev-Tool Synergy Master Plan</h1>
+<p class="provenance">Generated 2026-05-12T12:43:26.692Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#backend-devtools-rgs6-mega-roadmap">BACKEND-DEVTOOLS-RGS6 MEGA-ROADMAP</a></li>
+<li class="toc-l2"><a href="#0-tldr-read-this-if-nothing-else">§0 — TL;DR (read this if nothing else)</a></li>
+<li class="toc-l2"><a href="#1-pipeline-artifacts-what-rgs6-v61-produced">§1 — Pipeline artifacts (what /rgs6 v6.1 produced)</a></li>
+<li class="toc-l2"><a href="#2-unit-catalog-backend-devtools-scope-137-units">§2 — Unit catalog (backend-devtools scope, 137 units)</a></li>
+<li class="toc-l3"><a href="#21-from-base-roadmap-81-units-post-audit-4-patches">§2.1 — From base roadmap (81 units, post-audit §4 patches)</a></li>
+<li class="toc-l4"><a href="#hook-synergy-ms0-extended-8-units">HOOK-SYNERGY-MS0 (extended, 8 units)</a></li>
+<li class="toc-l4"><a href="#k2-cloud-ms0-extended-13-units-k2-k12-1-entry-unit">K2-CLOUD-MS0 (extended, 13 units K2-K12 + 1 entry unit)</a></li>
+<li class="toc-l4"><a href="#html-companion-ms0-extended-6-units">HTML-COMPANION-MS0 (extended, 6 units)</a></li>
+<li class="toc-l4"><a href="#obsidian-compound-ms1-extended-6-units">OBSIDIAN-COMPOUND-MS1 (extended, 6 units)</a></li>
+<li class="toc-l4"><a href="#audit-4-buildwire-splits-4-units">Audit-§4 BUILD/WIRE splits (4 units)</a></li>
+<li class="toc-l4"><a href="#audit-4-reclassifications-4-label-only-changes">Audit-§4 reclassifications (4 label-only changes)</a></li>
+<li class="toc-l4"><a href="#remaining-base-units-35-units-across-5-new-milestones-from-dossier-verbatim-from-base-roadmap-not-re-enumerated-here">Remaining base units (35 units across 5 new milestones from dossier — verbatim from base roadmap, not re-enumerated here):</a></li>
+<li class="toc-l3"><a href="#22-from-pass-2-research-36-new-units-across-5-new-milestones">§2.2 — From pass-2 research (36 new units across 5 new milestones)</a></li>
+<li class="toc-l4"><a href="#graph-as-llm-context-ms0-8-units-from-pass2-graph-as-llm-contextmd">GRAPH-AS-LLM-CONTEXT-MS0 (8 units, from pass2-graph-as-llm-context.md)</a></li>
+<li class="toc-l4"><a href="#knowledge-vault-ms0-6-units-from-pass2-knowledge-vaultmd">KNOWLEDGE-VAULT-MS0 (6 units, from pass2-knowledge-vault.md)</a></li>
+<li class="toc-l4"><a href="#hooks-automation-v2-ms0-10-units-from-pass2-hooks-automationmd">HOOKS-AUTOMATION-V2-MS0 (10 units, from pass2-hooks-automation.md)</a></li>
+<li class="toc-l4"><a href="#octopus-neural-ms0-5-units-from-pass2-octopus-neuralmd">OCTOPUS-NEURAL-MS0 (5 units, from pass2-octopus-neural.md)</a></li>
+<li class="toc-l4"><a href="#html-primary-ms0-7-units-from-pass2-html-as-specmd">HTML-PRIMARY-MS0 (7 units, from pass2-html-as-spec.md)</a></li>
+<li class="toc-l3"><a href="#23-phase-6-auto-learning-loop-12-units-new">§2.3 — Phase-6 auto-learning loop (12 units new)</a></li>
+<li class="toc-l4"><a href="#auto-learning-loop-ms0-6-engines-6-wiring-12-units">AUTO-LEARNING-LOOP-MS0 (6 engines + 6 wiring = 12 units)</a></li>
+<li class="toc-l3"><a href="#24-from-eng_khairallah1-skills-course-8-new-units-added-2026-05-11-skills-utilization-ms0">§2.4 — From @eng_khairallah1 skills course (8 new units, added 2026-05-11) — SKILLS-UTILIZATION-MS0</a></li>
+<li class="toc-l2"><a href="#3-milestone-enumeration-10-milestones">§3 — Milestone enumeration (10 milestones)</a></li>
+<li class="toc-l2"><a href="#4-9-build-pillars-from-users-verbatim-directive">§4 — 9 Build pillars (from user&#39;s verbatim directive)</a></li>
+<li class="toc-l2"><a href="#5-6-chat-lane-allocation">§5 — 6-chat lane allocation</a></li>
+<li class="toc-l2"><a href="#6-critical-path">§6 — Critical path</a></li>
+<li class="toc-l2"><a href="#7-phase-6-auto-learning-loop-the-users-new-pillar-full-spec">§7 — Phase-6 auto-learning loop (the user&#39;s new pillar — full spec)</a></li>
+<li class="toc-l3"><a href="#71-components-6-engines">7.1 Components (6 engines)</a></li>
+<li class="toc-l3"><a href="#72-cadence-6-cron-2-loop-registrations">7.2 Cadence (6 cron + 2 /loop registrations)</a></li>
+<li class="toc-l3"><a href="#73-synergy-classifier-rubric">7.3 Synergy classifier rubric</a></li>
+<li class="toc-l3"><a href="#74-reputable-source-seed-list-10-sources">7.4 Reputable source seed list (10 sources)</a></li>
+<li class="toc-l3"><a href="#75-failure-modes-10-enumerated">7.5 Failure modes (10 enumerated)</a></li>
+<li class="toc-l3"><a href="#76-adversarial-test-cases-per-engine-6-minimum-each">7.6 Adversarial test cases (per engine, 6+ minimum each)</a></li>
+<li class="toc-l2"><a href="#8-verification-channels-boris-1-hard-gate">§8 — Verification channels (Boris #1 HARD GATE)</a></li>
+<li class="toc-l2"><a href="#9-atomization-template-for-the-next-pass-phase-2">§9 — Atomization template (for the next pass — Phase 2)</a></li>
+<li class="toc-l2"><a href="#10-loops-cron-registrations-17-total">§10 — Loops + cron registrations (17 total)</a></li>
+<li class="toc-l3"><a href="#101-at-phase-1-close-research-card-freshness-audit">10.1 At Phase 1 close (research card freshness audit)</a></li>
+<li class="toc-l3"><a href="#102-at-phase-2-close-engine-verification">10.2 At Phase 2 close (engine verification)</a></li>
+<li class="toc-l3"><a href="#103-at-phase-3-close-roadmap-audit">10.3 At Phase 3 close (roadmap audit)</a></li>
+<li class="toc-l3"><a href="#104-at-phase-4-close-viz-overlay">10.4 At Phase 4 close (viz overlay)</a></li>
+<li class="toc-l3"><a href="#105-at-phase-5-close-backend-readiness-scorer">10.5 At Phase 5 close (backend-readiness scorer)</a></li>
+<li class="toc-l3"><a href="#106-at-phase-6-close-auto-learning-loop-8-registrations">10.6 At Phase 6 close (auto-learning loop — 8 registrations)</a></li>
+<li class="toc-l2"><a href="#11-failure-modes-adversarial-cases-build-pipeline-level-10-enumerated">§11 — Failure modes + adversarial cases (build-pipeline level, 10 enumerated)</a></li>
+<li class="toc-l2"><a href="#12-v61-telemetry-stamp">§12 — v6.1 telemetry stamp</a></li>
+<li class="toc-l2"><a href="#13-next-pass-marker-atomization">§13 — Next-pass marker (atomization)</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<details class="frontmatter" open><summary>Document metadata</summary><div class="table-wrap"><table>
+<tbody>
+<tr><th scope="row">title</th><td>BACKEND-DEVTOOLS-RGS6 MEGA-ROADMAP — Backend + Dev-Tool Synergy Master Plan</td></tr>
+<tr><th scope="row">date</th><td>2026-05-10</td></tr>
+<tr><th scope="row">session</th><td>claude-2570c8f5</td></tr>
+<tr><th scope="row">pipeline</th><td>/forge7 (plan) → /forge-audit-v2 (verdict REVISE → 9 patches applied) → /rgs6 v6.1 (this emit)</td></tr>
+<tr><th scope="row">status</th><td>ready-for-atomization-pass</td></tr>
+<tr><th scope="row">companion_html</th><td>BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-2026-05-10.html (pending — emitted in Phase-2 atomization pass)</td></tr>
+<tr><th scope="row">next_pass</th><td>BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-ATOMIZED-2026-05-10.md (every unit decomposed into low-class-LLM micro-steps)</td></tr>
+<tr><th scope="row">inputs_consumed</th><td>research_pass_1, state/shared/research/2026-05-10-karpathy-methodology.md (511 lines), state/shared/research/2026-05-10-obsidian-2nd-brain.md (476 lines), state/shared/research/2026-05-10-docker-autonomous-loops.md (496 lines), state/shared/research/2026-05-10-boris-patterns.md (455 lines), state/shared/research/2026-05-10-skills-openclaw.md (446 lines), state/shared/research/2026-05-10-multi-llm-coordination.md (339 lines), state/shared/research/2026-05-10-system-viz-tool-inventory.md (477 lines); research_pass_2, state/shared/research/2026-05-10-pass2-graph-as-llm-context.md (213 lines, 22 sources, 8 X posts), state/shared/research/2026-05-10-pass2-knowledge-vault.md (243 lines, 24 sources, 14 X posts), state/shared/research/2026-05-10-pass2-hooks-automation.md (313 lines, 22 sources, 18 X posts), state/shared/research/2026-05-10-pass2-octopus-neural.md (259 lines, 28 sources, 12 X posts), state/shared/research/2026-05-10-pass2-html-as-spec.md (261 lines, sources verified); base_roadmap: state/shared/specs/SESSION-2026-05-10-BACKEND-DEVTOOLS-RGS6-ROADMAP.md (81 units); audit: state/shared/specs/BACKEND-DEVTOOLS-RGS6-AUDIT-2026-05-10.md (verdict REVISE, 7 findings); synthesis_dossier: state/shared/specs/SESSION-2026-05-10-RESEARCH-SYNTHESIS-DOSSIER.md</td></tr>
+<tr><th scope="row">pipeline_artifacts</th><td>state/shared/ai-priority-ranks.json (1102 ranked, top tier 0 all CAD-INFRA/COORD), state/shared/atomic-roadmap.json (1102 global units, 6 lanes, sort: tier ASC → AI-priority DESC → leverage DESC), state/shared/atomic-roadmap-chat-1..6.md (per-chat assignment lists), state/shared/predicted-collisions.json (1191 collisions; 6 HIGH all in historical inactive chats, 0 affecting claude-2570c8f5; verdict ack: RED-but-safe-for-this-lane)</td></tr>
+<tr><th scope="row">audit_resolution</th><td>verdict_received: REVISE; blocks_count: 5; missed_finding_count: 1; patches_applied_inline: 9</td></tr>
+<tr><th scope="row">scope_summary</th><td>base_units: 81           # from SESSION-2026-05-10-BACKEND-DEVTOOLS-RGS6-ROADMAP.md; audit_split_adds: 2      # U-BRIDGE-AI-MANUFACTURING + U-BRIDGE-KNOWLEDGE-AI split into BUILD+WIRE; pass2_new_units: 36      # 8 + 6 + 10 + 5 + 7 from the 5 pass-2 cards; phase_6_units: 6         # auto-learning loop engines; phase_6_wiring: 6        # auto-learning loop wiring; total: 137               # 81 + 2 + 36 + 6 + 6 + 6 reclassified; net_new_engines: 9       # KimiTransport, ContainerSkillPipe, SpecHTMLCompanion, MLPrediction, ManualLibrary, MoaLayer2, NeuralRouting, CascadeCalibration, ConsensusQuorum + 6 auto-learning = 15 actually; net_new_scripts: 6       # roadmap-engine-existence-check + verify-hook-refs + audit-settings-dedup + roadmap-viz-overlay + source-monitor + auto-append; cron_loop_registrations: 17</td></tr>
+<tr><th scope="row">milestones_total</th><td>10; existing_extended, HOOK-SYNERGY-MS0, K2-CLOUD-MS0, HTML-COMPANION-MS0, OBSIDIAN-COMPOUND-MS1; new_proposed_in_dossier, TOOL-INVENTORY-MS0, WIKI-EVOLVE-MS0, LOOP-MIGRATE-MS0, COST-CASCADE-MS0, MACHINE-CONNECTIVITY-MS0; new_added_in_pass_2, GRAPH-AS-LLM-CONTEXT-MS0, KNOWLEDGE-VAULT-MS0, HOOKS-AUTOMATION-V2-MS0, OCTOPUS-NEURAL-MS0, HTML-PRIMARY-MS0; new_phase_6, AUTO-LEARNING-LOOP-MS0</td></tr>
+<tr><th scope="row">parallel_safe_lanes</th><td>6</td></tr>
+<tr><th scope="row">isolation_default</th><td>worktree</td></tr>
+<tr><th scope="row">verification_gate_hard</th><td>ALL units must declare verifies_via channel</td></tr>
+<tr><th scope="row">estimated_total_effort</th><td>140-200h (across 5-7 sessions, 6-chat parallel)</td></tr>
+</tbody>
+</table></div></details>
+<h1 id="backend-devtools-rgs6-mega-roadmap"><a class="anchor" href="#backend-devtools-rgs6-mega-roadmap" aria-label="Permalink to BACKEND-DEVTOOLS-RGS6 MEGA-ROADMAP">#</a>BACKEND-DEVTOOLS-RGS6 MEGA-ROADMAP</h1>
+<blockquote>
+<p><strong>Purpose.</strong> Single saved consolidation of every input we have gathered for backend + dev-tool synergy. Combines: the base 81-unit roadmap, the audit verdict REVISE with 5 BLOCKs + 1 missed-finding, the 7 pass-1 research cards (synthesized in the dossier into 47 actionable units), the 5 pass-2 research cards (36 new units), and the Phase-6 auto-learning loop pillar.</p>
+<p><strong>This document IS the v6.1 /rgs6 emit output.</strong> It cites the global atomic-roadmap.json (1102 units, generated by <code>atomic-roadmap-emit.mjs --chats 6</code>) for cross-cutting context, but ENUMERATES the backend-devtools scope explicitly so the atomization pass has a single coherent source.</p>
+<p><strong>What this is NOT.</strong> The atomized step-by-step plan — that is the next pass (Phase-2 of the user&#39;s plan). This is the WHAT; the next file is the HOW.</p>
+<p><strong>What changed vs base roadmap (SESSION-2026-05-10-BACKEND-DEVTOOLS-RGS6-ROADMAP.md):</strong></p>
+<ol>
+<li>9 audit §4 patches applied inline (header drift fixed, BUILD/WIRE splits, OPCUA rename, label reclassifications, lane re-balance, verification-budget recompute)</li>
+<li>36 new units folded in from 5 pass-2 research cards</li>
+<li>Phase-6 auto-learning loop pillar added (6 engines + 6 wiring units = 12 units)</li>
+<li>Verification channels declared per unit (Boris #1 hard gate)</li>
+<li>AI-priority scores attached per unit (v6.1 sort key applied)</li>
+</ol>
+</blockquote>
+<hr>
+<h2 id="0-tldr-read-this-if-nothing-else"><a class="anchor" href="#0-tldr-read-this-if-nothing-else" aria-label="Permalink to §0 — TL;DR (read this if nothing else)">#</a>§0 — TL;DR (read this if nothing else)</h2>
+<ol>
+<li><strong>137 total units</strong> across 10 milestones (4 existing extended + 5 new from dossier + 5 new from pass-2 + 1 new from Phase-6). Sort: tier ASC → AI-priority DESC → leverage DESC.</li>
+<li><strong>Critical path unchanged</strong>: HOOK-SYNERGY H1 (HOOK_REGISTRY.json) + H6 (cross-worktree firewall) MUST land before K2-CLOUD K2-K12 can re-apply edits to <code>AISystemRouterEngine.ts</code>. Every other lane parallelizable.</li>
+<li><strong>Pipeline verdict</strong>: <code>/forge-audit-v2</code> returned REVISE with 5 BLOCKs — all 5 addressed inline (Findings 1-5). Finding 6-7 already PASS.</li>
+<li><strong>v6.1 emit</strong>: <code>ai-priority-ranks.json</code> written (1102 ranks); <code>atomic-roadmap.json</code> written (1102 global units, 6 lanes); <code>predicted-collisions.json</code> RED (6 HIGH all in historical inactive chats — claude-2570c8f5 lane safe).</li>
+<li><strong>Verification gate (Boris #1, HARD)</strong> — every unit declares a <code>verifies_via:</code> channel. Units without verify channels are blocked at Phase 0.7.</li>
+<li><strong>Isolation:worktree default</strong> — every multi-file subagent dispatched with <code>isolation: &#39;worktree&#39;</code>. PRISM&#39;s conflict-fork rule is now upstream-aligned.</li>
+<li><strong>9 new engines + 6 new scripts + 17 cron/loop registrations</strong> at the build floor.</li>
+<li><strong>First-wave shippable in this session</strong> — atomization pass writes the executable micro-step file.</li>
+<li><strong>Phase-6 auto-learning loop</strong> is the user&#39;s new pillar: 6h cycle of monitor sources → detect novelty → research → classify synergy → auto-augment system-viz → auto-append roadmap.</li>
+</ol>
+<hr>
+<h2 id="1-pipeline-artifacts-what-rgs6-v61-produced"><a class="anchor" href="#1-pipeline-artifacts-what-rgs6-v61-produced" aria-label="Permalink to §1 — Pipeline artifacts (what /rgs6 v6.1 produced)">#</a>§1 — Pipeline artifacts (what /rgs6 v6.1 produced)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Artifact</th><th>Path</th><th>Size</th><th>Purpose</th></tr></thead>
+<tbody>
+<tr><td>AI-priority ranks</td><td><code>state/shared/ai-priority-ranks.json</code></td><td>464KB</td><td>1102 units ranked 0-100 on (system-knowledge, dev-tools, deep-reasoning, deep-learning-ML, AI-systems) axes</td></tr>
+<tr><td>Global atomic roadmap</td><td><code>state/shared/atomic-roadmap.json</code></td><td>646KB</td><td>All PRISM units sorted by (tier, AI-priority, leverage); 6-lane split</td></tr>
+<tr><td>Per-chat slices</td><td><code>state/shared/atomic-roadmap-chat-{1..6}.md</code></td><td>182-186 units each</td><td>What each of 6 parallel chats owns</td></tr>
+<tr><td>Atomic summary</td><td><code>state/shared/atomic-roadmap-summary.md</code></td><td>small</td><td>Tier distribution + top-10 readout</td></tr>
+<tr><td>Predicted collisions</td><td><code>state/shared/predicted-collisions.json</code></td><td>363KB</td><td>1191 collisions (6 HIGH / 934 MEDIUM / 251 LOW); verdict RED → 6 HIGH all in historical chats not claude-2570c8f5</td></tr>
+<tr><td>Subagent orders</td><td><code>state/shared/subagent-scrutiny-orders.json</code></td><td>small</td><td>32 subagent prompts for global scrutiny (waived for scoped emit — S2.6 record in telemetry)</td></tr>
+<tr><td>Telemetry ledger</td><td><code>state/shared/pipeline-telemetry.jsonl</code></td><td>append-only</td><td>S0, S2.5, S2.6 entries recorded</td></tr>
+</tbody>
+</table></div>
+<p><strong>Tier readout from atomic-roadmap-summary.md:</strong></p>
+<pre><code>Total candidates: 1102 across 418 milestones, 6 chat lanes
+By tier:
+  Tier 0:    40 units  (foundation — must ship first)
+  Tier 1:  1033 units  (bulk delivery — AI-priority sort applies)
+  Tier 2:    27 units
+  Tier 4:     2 units
+
+AI-priority distribution:
+  0-19 (low):   790
+  20-49 (med):  243
+  50-79 (high):  42
+  80-100 (top): 27
+</code></pre>
+<p><strong>Top-10 globally (Tier 0):</strong> CAD-INFRA-MS0 8/10 (CADFileIndexerEngine, CADRegressionDispatcher, ...); COORD-MS0 2/10. None directly backend-devtools but they are PREREQUISITES.</p>
+<hr>
+<h2 id="2-unit-catalog-backend-devtools-scope-137-units"><a class="anchor" href="#2-unit-catalog-backend-devtools-scope-137-units" aria-label="Permalink to §2 — Unit catalog (backend-devtools scope, 137 units)">#</a>§2 — Unit catalog (backend-devtools scope, 137 units)</h2>
+<p>Format per row: <code>&lt;id&gt; | T&lt;tier&gt; AI=&lt;score&gt; L=&lt;leverage&gt; | &lt;one-line&gt; | verifies_via | depends_on</code></p>
+<p>Notation: <code>T0</code>=foundation, <code>T1</code>=high-value, <code>T2</code>=nice-to-have, <code>T4</code>=stretch. AI-priority computed by ai-priority-rank.mjs.</p>
+<h3 id="21-from-base-roadmap-81-units-post-audit-4-patches"><a class="anchor" href="#21-from-base-roadmap-81-units-post-audit-4-patches" aria-label="Permalink to §2.1 — From base roadmap (81 units, post-audit §4 patches)">#</a>§2.1 — From base roadmap (81 units, post-audit §4 patches)</h3>
+<p>Inherited from <code>SESSION-2026-05-10-BACKEND-DEVTOOLS-RGS6-ROADMAP.md</code> with the 9 §4 patches applied:</p>
+<h4 id="hook-synergy-ms0-extended-8-units"><a class="anchor" href="#hook-synergy-ms0-extended-8-units" aria-label="Permalink to HOOK-SYNERGY-MS0 (extended, 8 units)">#</a>HOOK-SYNERGY-MS0 (extended, 8 units)</h4>
+<div class="table-wrap"><table>
+<thead><tr><th>id</th><th>tier</th><th>AI</th><th>leverage</th><th>one-line</th><th>verifies_via</th></tr></thead>
+<tbody>
+<tr><td>H1.0</td><td>T0</td><td>78</td><td>14</td><td>Build <code>scripts/verify-hook-refs.mjs</code> (new sub-unit per audit Finding 1)</td><td><code>node scripts/verify-hook-refs.mjs --self-test</code> exits 0</td></tr>
+<tr><td>H1</td><td>T0</td><td>75</td><td>13</td><td>Generate <code>HOOK_REGISTRY.json</code> from <code>.claude/hooks/*.mjs</code> source</td><td>post-ship: <code>verify-hook-refs.mjs</code> exits 0</td></tr>
+<tr><td>H2</td><td>T0</td><td>70</td><td>12</td><td>Convert 5 highest-fire warn-style hooks → deterministic autofix</td><td>`tail -1000 telemetry.log</td></tr>
+<tr><td>H3</td><td>T0</td><td>68</td><td>11</td><td>Settings-dedup pass (inline <code>node -e</code> grep until script lands)</td><td>inline <code>node -e &quot;...&quot;</code> returns dup count 0</td></tr>
+<tr><td>H4</td><td>T0</td><td>65</td><td>10</td><td>TaskCreated claim guard (deny duplicate creation)</td><td>E2E claim then retry → blocked</td></tr>
+<tr><td>H5</td><td>T0</td><td>62</td><td>10</td><td>PostToolBatch budget ceiling hook</td><td>mock 1k tools fired → ceiling triggers</td></tr>
+<tr><td>H6</td><td>T0</td><td>80</td><td>15</td><td>Cross-worktree firewall (the K2 unlocker)</td><td>concurrent edit → second worktree blocks</td></tr>
+<tr><td>H7</td><td>T0</td><td>55</td><td>9</td><td>Boris-style <code>defer</code> decision wired into PreToolUse</td><td>autonomous loop test → no $6k incident</td></tr>
+</tbody>
+</table></div>
+<h4 id="k2-cloud-ms0-extended-13-units-k2-k12-1-entry-unit"><a class="anchor" href="#k2-cloud-ms0-extended-13-units-k2-k12-1-entry-unit" aria-label="Permalink to K2-CLOUD-MS0 (extended, 13 units K2-K12 + 1 entry unit)">#</a>K2-CLOUD-MS0 (extended, 13 units K2-K12 + 1 entry unit)</h4>
+<div class="table-wrap"><table>
+<thead><tr><th>id</th><th>tier</th><th>AI</th><th>leverage</th><th>one-line</th><th>verifies_via</th></tr></thead>
+<tbody>
+<tr><td>K2-K0</td><td>T1</td><td>90</td><td>13</td><td>Build <code>KimiTransportEngine</code> (new entry per Audit Finding 2 spirit)</td><td>round-trip MCP <code>prism_ai:kimi_invoke</code> returns 200</td></tr>
+<tr><td>K2-K1</td><td>T1</td><td>85</td><td>12</td><td>Wire K2.6 cloud route in <code>AISystemRouterEngine.route()</code></td><td>route(&quot;low-effort&quot;) → K2.6</td></tr>
+<tr><td>K2-K2</td><td>T1</td><td>82</td><td>12</td><td>Cost-model entry for K2.6 in <code>cost-cascade-config.json</code></td><td>cost-cascade dry-run picks K2 for tier-2 tasks</td></tr>
+<tr><td>K2-K3</td><td>T1</td><td>78</td><td>11</td><td>Scrutiny-3way → scrutiny-5way (add K2 + Qwen arms)</td><td><code>scrutiny-3way.mjs --target HEAD</code> returns 5 marks</td></tr>
+<tr><td>K2-K4..K12</td><td>T1</td><td>60-75</td><td>8-11</td><td>9 cascade/wiring units (calibration probe, fallback, telemetry, dashboard, alarm, schema, error-class, retry, refresh)</td><td>each declared per unit</td></tr>
+</tbody>
+</table></div>
+<h4 id="html-companion-ms0-extended-6-units"><a class="anchor" href="#html-companion-ms0-extended-6-units" aria-label="Permalink to HTML-COMPANION-MS0 (extended, 6 units)">#</a>HTML-COMPANION-MS0 (extended, 6 units)</h4>
+<div class="table-wrap"><table>
+<thead><tr><th>id</th><th>tier</th><th>AI</th><th>leverage</th><th>one-line</th><th>verifies_via</th></tr></thead>
+<tbody>
+<tr><td>HC-0</td><td>T1</td><td>70</td><td>12</td><td>Build <code>SpecHTMLCompanionEngine</code></td><td>round-trip MD→HTML on 3 spec types</td></tr>
+<tr><td>HC-1</td><td>T1</td><td>65</td><td>11</td><td>Generalize <code>emit-revenue-roadmap-html.mjs</code> → <code>emit-spec-html.mjs</code></td><td>runs on this roadmap → HTML output validates</td></tr>
+<tr><td>HC-2</td><td>T1</td><td>60</td><td>10</td><td>Theme support (dark/light, prefers-color-scheme)</td><td>render both → no contrast regression</td></tr>
+<tr><td>HC-3</td><td>T1</td><td>60</td><td>10</td><td>Anchor-link navigation + Mermaid embed</td><td>clicking anchor jumps; mermaid renders</td></tr>
+<tr><td>HC-4</td><td>T1</td><td>55</td><td>10</td><td>Accessibility hook (WAI-ARIA)</td><td>axe-cli on rendered HTML → 0 errors</td></tr>
+<tr><td>HC-5</td><td>T1</td><td>50</td><td>9</td><td>MD↔HTML drift guard (hash on regen)</td><td>hand-edit HTML → drift hook blocks commit</td></tr>
+</tbody>
+</table></div>
+<h4 id="obsidian-compound-ms1-extended-6-units"><a class="anchor" href="#obsidian-compound-ms1-extended-6-units" aria-label="Permalink to OBSIDIAN-COMPOUND-MS1 (extended, 6 units)">#</a>OBSIDIAN-COMPOUND-MS1 (extended, 6 units)</h4>
+<div class="table-wrap"><table>
+<thead><tr><th>id</th><th>tier</th><th>AI</th><th>leverage</th><th>one-line</th><th>verifies_via</th></tr></thead>
+<tbody>
+<tr><td>OB-1</td><td>T1</td><td>75</td><td>12</td><td>Build <code>WikiObsidianBridgeEngine</code> (bidirectional)</td><td>round-trip note: obsidian→wiki→obsidian no data loss</td></tr>
+<tr><td>OB-2</td><td>T1</td><td>70</td><td>11</td><td>Build <code>MemoryObsidianBridgeEngine</code></td><td>memory entry visible in obsidian within 5s</td></tr>
+<tr><td>OB-3</td><td>T1</td><td>65</td><td>10</td><td>Fleeting → permanent promotion ritual</td><td>weekly script fires; 3 fleeting promoted</td></tr>
+<tr><td>OB-4</td><td>T1</td><td>60</td><td>10</td><td>MOC (map of content) auto-generator</td><td>run on <code>Manufacturing</code> → MOC file produced</td></tr>
+<tr><td>OB-5</td><td>T1</td><td>55</td><td>9</td><td>Smart-Connections-equivalent in-PRISM</td><td>embed-search returns top-5</td></tr>
+<tr><td>OB-6</td><td>T1</td><td>50</td><td>9</td><td>Wayback-archive cron for external sources</td><td>random source → archive URL stored</td></tr>
+</tbody>
+</table></div>
+<h4 id="audit-4-buildwire-splits-4-units"><a class="anchor" href="#audit-4-buildwire-splits-4-units" aria-label="Permalink to Audit-§4 BUILD/WIRE splits (4 units)">#</a>Audit-§4 BUILD/WIRE splits (4 units)</h4>
+<div class="table-wrap"><table>
+<thead><tr><th>id</th><th>tier</th><th>AI</th><th>leverage</th><th>one-line</th><th>verifies_via</th></tr></thead>
+<tbody>
+<tr><td>U-BUILD-ML-PREDICTION-ENGINE</td><td>T1</td><td>68</td><td>12</td><td>Build <code>MLPredictionEngine.ts</code></td><td>unit test 5 cases (NaN, Infinity, empty, OOM, happy)</td></tr>
+<tr><td>U-WIRE-ML-PREDICTION</td><td>T1</td><td>60</td><td>10</td><td>Wire to <code>prism_cam</code> + <code>prism_calc</code></td><td>round-trip MCP both dispatchers</td></tr>
+<tr><td>U-BUILD-MANUAL-LIBRARY-ENGINE</td><td>T1</td><td>65</td><td>11</td><td>Build <code>ManualLibraryEngine.ts</code></td><td>unit test 5 cases + knowledge-query round-trip</td></tr>
+<tr><td>U-WIRE-MANUAL-LIBRARY</td><td>T1</td><td>58</td><td>10</td><td>Wire to <code>prism_ai:knowledge_query</code></td><td>round-trip MCP</td></tr>
+</tbody>
+</table></div>
+<h4 id="audit-4-reclassifications-4-label-only-changes"><a class="anchor" href="#audit-4-reclassifications-4-label-only-changes" aria-label="Permalink to Audit-§4 reclassifications (4 label-only changes)">#</a>Audit-§4 reclassifications (4 label-only changes)</h4>
+<div class="table-wrap"><table>
+<thead><tr><th>Was</th><th>Now</th><th>Why</th></tr></thead>
+<tbody>
+<tr><td>U-ADOPT-OPCUA-MCP</td><td><strong>U-OPCUA-CONNECTOR-EXTEND</strong></td><td><code>OpcUaConnectorEngine</code> exists; extend rather than adopt</td></tr>
+<tr><td>U-MOA-LAYER2</td><td><strong>U-BUILD-MOA-LAYER2</strong></td><td>dedup-checked net-new build</td></tr>
+<tr><td>U-CONTAINER-SKILL-PIPE</td><td><strong>U-BUILD-CONTAINER-SKILL-PIPE</strong></td><td>dedup-checked net-new build</td></tr>
+<tr><td>U-OCTOPUS-FULL-WIRE</td><td><strong>U-WIRE-OCTOPUS-CONSENSUS</strong></td><td>hook extension, NOT engine</td></tr>
+<tr><td>U-TWO-PASS-WRAP</td><td><strong>U-DISPATCHER-ACTION-TWO-PASS</strong></td><td>action on <code>prism_ai</code>, NOT engine</td></tr>
+</tbody>
+</table></div>
+<h4 id="remaining-base-units-35-units-across-5-new-milestones-from-dossier-verbatim-from-base-roadmap-not-re-enumerated-here"><a class="anchor" href="#remaining-base-units-35-units-across-5-new-milestones-from-dossier-verbatim-from-base-roadmap-not-re-enumerated-here" aria-label="Permalink to Remaining base units (35 units across 5 new milestones from dossier — verbatim from base roadmap, not re-enumerated here):">#</a>Remaining base units (35 units across 5 new milestones from dossier — verbatim from base roadmap, not re-enumerated here):</h4>
+<ul>
+<li><strong>TOOL-INVENTORY-MS0</strong> (10 units): adopt 8 external MCP servers as exposure-surfaces over existing PRISM engines (qdrant, sequential-thinking, semgrep, grafana, freecad, opcua, ragex, mcp-server-qdrant)</li>
+<li><strong>WIKI-EVOLVE-MS0</strong> (6 units): U-WIKI-FLEETING-PROMOTE, U-WIKI-WAYBACK-CRON, U-WIKI-RENAME-PROPAGATE, U-WIKI-MOC-BUILDER, U-CLAUDE-MD-BACKFLOW, U-TODOWRITE-HANDOFF-BRIDGE</li>
+<li><strong>LOOP-MIGRATE-MS0</strong> (5 units): U-LOOP-MIGRATE-CADENCE, U-LOOP-REFLEXION-MEM, U-LOOP-ITER-GATE, U-MCPMON-DEV, U-FORGE-GO-CHAIN</li>
+<li><strong>COST-CASCADE-MS0</strong> (8 units): U-CASCADE-CALIBRATE, U-MULTI-AGENT-COST-TELEMETRY, U-BUILD-MOA-LAYER2 (renamed), U-DISPATCHER-ACTION-TWO-PASS (renamed), U-CASCADE-FALLBACK-CHAIN, U-COST-DASHBOARD, U-COST-ALARM, U-TOKEN-BUDGET-GUARD</li>
+<li><strong>MACHINE-CONNECTIVITY-MS0</strong> (6 units): U-OPCUA-CONNECTOR-EXTEND (renamed), U-MTCONNECT-ADAPTER, U-MQTT-EVENT-BUS, U-MACHINE-SCHEMA-REGISTRY, U-CONNECTOR-SAFETY-VALIDATOR, U-WIRE-MACHINE-CONNECTIVITY</li>
+</ul>
+<h3 id="22-from-pass-2-research-36-new-units-across-5-new-milestones"><a class="anchor" href="#22-from-pass-2-research-36-new-units-across-5-new-milestones" aria-label="Permalink to §2.2 — From pass-2 research (36 new units across 5 new milestones)">#</a>§2.2 — From pass-2 research (36 new units across 5 new milestones)</h3>
+<h4 id="graph-as-llm-context-ms0-8-units-from-pass2-graph-as-llm-contextmd"><a class="anchor" href="#graph-as-llm-context-ms0-8-units-from-pass2-graph-as-llm-contextmd" aria-label="Permalink to GRAPH-AS-LLM-CONTEXT-MS0 (8 units, from pass2-graph-as-llm-context.md)">#</a>GRAPH-AS-LLM-CONTEXT-MS0 (8 units, from <code>pass2-graph-as-llm-context.md</code>)</h4>
+<div class="table-wrap"><table>
+<thead><tr><th>id</th><th>tier</th><th>AI</th><th>leverage</th><th>one-line</th><th>verifies_via</th></tr></thead>
+<tbody>
+<tr><td>U-GAC01</td><td>T1</td><td>80</td><td>13</td><td>Build <code>GraphContextLensEngine</code> — ego-graph extraction from system-viz</td><td>extract 1-hop around node X → JSON match</td></tr>
+<tr><td>U-GAC02</td><td>T1</td><td>75</td><td>12</td><td>GraphRAG retrieval over PRISM wiki + system-graph</td><td>query &quot;kienzle&quot; → top-3 entities + 1-hop context</td></tr>
+<tr><td>U-GAC03</td><td>T1</td><td>70</td><td>11</td><td>Code-graph projection (CodeQL-style) for our <code>mcp-server/src</code></td><td>run on TestEngine → graph JSON valid</td></tr>
+<tr><td>U-GAC04</td><td>T1</td><td>68</td><td>11</td><td>Dual-channel context (JSON + screenshot of viz) for subagent dispatch</td><td>dispatch with viz screenshot → subagent reads layer</td></tr>
+<tr><td>U-GAC05</td><td>T1</td><td>60</td><td>10</td><td>Spatial-UI agent coord: lock viz coordinates as shared addressing system</td><td>2 agents coordinate via node-id without text overlap</td></tr>
+<tr><td>U-GAC06</td><td>T1</td><td>55</td><td>10</td><td>Community-summary generator over engine clusters</td><td>5 clusters → 5 summaries &lt; 200 tokens each</td></tr>
+<tr><td>U-GAC07</td><td>T1</td><td>50</td><td>9</td><td>Stale-graph detector (mtime + hash) → block use when &gt;6h</td><td>mtime &gt; 6h → tool blocks</td></tr>
+<tr><td>U-GAC08</td><td>T1</td><td>48</td><td>9</td><td>Hallucinated-node-id guard</td><td>agent emits unknown id → hook blocks</td></tr>
+</tbody>
+</table></div>
+<h4 id="knowledge-vault-ms0-6-units-from-pass2-knowledge-vaultmd"><a class="anchor" href="#knowledge-vault-ms0-6-units-from-pass2-knowledge-vaultmd" aria-label="Permalink to KNOWLEDGE-VAULT-MS0 (6 units, from pass2-knowledge-vault.md)">#</a>KNOWLEDGE-VAULT-MS0 (6 units, from <code>pass2-knowledge-vault.md</code>)</h4>
+<div class="table-wrap"><table>
+<thead><tr><th>id</th><th>tier</th><th>AI</th><th>leverage</th><th>one-line</th><th>verifies_via</th></tr></thead>
+<tbody>
+<tr><td>U-VAULT01</td><td>T1</td><td>85</td><td>13</td><td>Vault-schema doc (CLAUDE.md role definition, wiki/memory/skills routing)</td><td>doc lints clean; cross-refs all resolve</td></tr>
+<tr><td>U-VAULT02</td><td>T1</td><td>75</td><td>12</td><td>Memory→wiki promotion engine (Matuschak evergreen)</td><td>memory tagged &quot;permanent&quot; → wiki entry within 5min</td></tr>
+<tr><td>U-VAULT03</td><td>T1</td><td>70</td><td>11</td><td>CLAUDE.md back-flow hook (Boris pattern)</td><td>regression detected → CLAUDE.md §Recent regressions appended</td></tr>
+<tr><td>U-VAULT04</td><td>T1</td><td>65</td><td>11</td><td>Skill ↔ wiki cross-trigger registry</td><td>wiki entry tagged &quot;skill:X&quot; → skill X auto-runs on relevant prompt</td></tr>
+<tr><td>U-VAULT05</td><td>T1</td><td>55</td><td>10</td><td>Domain MOC generator (Nick Milo)</td><td>run on &quot;WEDM&quot; → MOC.md output</td></tr>
+<tr><td>U-VAULT06</td><td>T1</td><td>50</td><td>9</td><td>Vault-rot sentinel (stale-entry detector)</td><td>entries &gt;90d unread → flag</td></tr>
+</tbody>
+</table></div>
+<h4 id="hooks-automation-v2-ms0-10-units-from-pass2-hooks-automationmd"><a class="anchor" href="#hooks-automation-v2-ms0-10-units-from-pass2-hooks-automationmd" aria-label="Permalink to HOOKS-AUTOMATION-V2-MS0 (10 units, from pass2-hooks-automation.md)">#</a>HOOKS-AUTOMATION-V2-MS0 (10 units, from <code>pass2-hooks-automation.md</code>)</h4>
+<div class="table-wrap"><table>
+<thead><tr><th>id</th><th>tier</th><th>AI</th><th>leverage</th><th>one-line</th><th>verifies_via</th></tr></thead>
+<tbody>
+<tr><td>U-HKA01</td><td>T0</td><td>85</td><td>14</td><td>Read-once PreToolUse dedup hook (40% file-read savings)</td><td>sample session: file-read count cuts ≥30%</td></tr>
+<tr><td>U-HKA02</td><td>T0</td><td>80</td><td>13</td><td><code>defer</code> PreToolUse decision for autonomous loops</td><td>mock infinite loop → defer fires</td></tr>
+<tr><td>U-HKA03</td><td>T1</td><td>75</td><td>12</td><td><code>PermissionDenied{retry:true}</code> classifier</td><td>denied tool → retry with adjusted args</td></tr>
+<tr><td>U-HKA04</td><td>T1</td><td>72</td><td>12</td><td>Ollama-route PreToolUse (route trivial reads to local qwen)</td><td>100 small reads → 95 routed to Ollama</td></tr>
+<tr><td>U-HKA05</td><td>T1</td><td>68</td><td>11</td><td>Agent-scoped Stop verifier hook</td><td>subagent stop → verifier hook runs</td></tr>
+<tr><td>U-HKA06</td><td>T1</td><td>65</td><td>11</td><td>Install official <code>hookify</code> plugin alongside local hooks</td><td>hookify install → 25 local rules co-exist</td></tr>
+<tr><td>U-HKA07</td><td>T1</td><td>60</td><td>10</td><td>HTTP-type hook to system-viz live update</td><td>tool fires → viz reloads within 1s</td></tr>
+<tr><td>U-HKA08</td><td>T1</td><td>55</td><td>10</td><td>MCP-tool-type safety bridge</td><td>mcp tool → safety hook validates</td></tr>
+<tr><td>U-HKA09</td><td>T1</td><td>50</td><td>9</td><td>TaskCreated claim guard (deny duplicate)</td><td>duplicate task → blocked</td></tr>
+<tr><td>U-HKA10</td><td>T1</td><td>48</td><td>9</td><td>PostToolBatch budget ceiling</td><td>1k tools/hour → ceiling triggers + alarm</td></tr>
+</tbody>
+</table></div>
+<h4 id="octopus-neural-ms0-5-units-from-pass2-octopus-neuralmd"><a class="anchor" href="#octopus-neural-ms0-5-units-from-pass2-octopus-neuralmd" aria-label="Permalink to OCTOPUS-NEURAL-MS0 (5 units, from pass2-octopus-neural.md)">#</a>OCTOPUS-NEURAL-MS0 (5 units, from <code>pass2-octopus-neural.md</code>)</h4>
+<div class="table-wrap"><table>
+<thead><tr><th>id</th><th>tier</th><th>AI</th><th>leverage</th><th>one-line</th><th>verifies_via</th></tr></thead>
+<tbody>
+<tr><td>U-OCN01</td><td>T1</td><td>90</td><td>14</td><td>Build <code>KimiTransportEngine</code> (mid-tier tentacle, 5/5 octopus)</td><td>round-trip MCP <code>prism_ai:kimi_invoke</code></td></tr>
+<tr><td>U-OCN02</td><td>T1</td><td>80</td><td>13</td><td>Build <code>MoaLayer2Engine</code> (aggregator over current 3-of-3)</td><td>aggregate 3 verdicts → consensus output</td></tr>
+<tr><td>U-OCN03</td><td>T1</td><td>75</td><td>12</td><td>Build <code>NeuralRoutingEngine</code> (GraphRouter on scrutiny-ledger)</td><td>train on 100 cases → routing accuracy &gt;70%</td></tr>
+<tr><td>U-OCN04</td><td>T1</td><td>70</td><td>11</td><td>Build <code>CascadeCalibrationEngine</code> (probe-based offload)</td><td>probe 50 prompts → cost-quality frontier</td></tr>
+<tr><td>U-OCN05</td><td>T1</td><td>65</td><td>11</td><td>Build <code>ConsensusQuorumEngine</code> (dynamic N-of-M from change class)</td><td>minor change → 2-of-5; major → 5-of-5</td></tr>
+</tbody>
+</table></div>
+<h4 id="html-primary-ms0-7-units-from-pass2-html-as-specmd"><a class="anchor" href="#html-primary-ms0-7-units-from-pass2-html-as-specmd" aria-label="Permalink to HTML-PRIMARY-MS0 (7 units, from pass2-html-as-spec.md)">#</a>HTML-PRIMARY-MS0 (7 units, from <code>pass2-html-as-spec.md</code>)</h4>
+<div class="table-wrap"><table>
+<thead><tr><th>id</th><th>tier</th><th>AI</th><th>leverage</th><th>one-line</th><th>verifies_via</th></tr></thead>
+<tbody>
+<tr><td>U-HPS01</td><td>T1</td><td>75</td><td>13</td><td>Build <code>SpecHTMLCompanionEngine</code> (the master renderer)</td><td>MD→HTML on 3 spec types → all validate</td></tr>
+<tr><td>U-HPS02</td><td>T1</td><td>70</td><td>12</td><td>Generation pipeline + cron registration</td><td>cron fires → all <code>state/shared/specs/*.md</code> get .html twins</td></tr>
+<tr><td>U-HPS03</td><td>T1</td><td>65</td><td>11</td><td>Theme engine (dark/light, prefers-color-scheme media)</td><td>render both themes → 0 contrast regressions</td></tr>
+<tr><td>U-HPS04</td><td>T1</td><td>62</td><td>11</td><td>Navigation engine (sticky TOC, anchor links, search)</td><td>TOC + search → manual smoke test</td></tr>
+<tr><td>U-HPS05</td><td>T1</td><td>60</td><td>10</td><td>Accessibility hook (WAI-ARIA, axe-cli gate)</td><td>axe-cli → 0 errors</td></tr>
+<tr><td>U-HPS06</td><td>T1</td><td>55</td><td>9</td><td>Drift guard (MD↔HTML hash on regen)</td><td>hand-edit HTML → hook blocks</td></tr>
+<tr><td>U-HPS07</td><td>T1</td><td>50</td><td>9</td><td>Dispatcher actions: <code>prism_dev:emit_spec_html</code> + <code>prism_session:doc_render</code></td><td>round-trip both</td></tr>
+</tbody>
+</table></div>
+<h3 id="23-phase-6-auto-learning-loop-12-units-new"><a class="anchor" href="#23-phase-6-auto-learning-loop-12-units-new" aria-label="Permalink to §2.3 — Phase-6 auto-learning loop (12 units new)">#</a>§2.3 — Phase-6 auto-learning loop (12 units new)</h3>
+<h4 id="auto-learning-loop-ms0-6-engines-6-wiring-12-units"><a class="anchor" href="#auto-learning-loop-ms0-6-engines-6-wiring-12-units" aria-label="Permalink to AUTO-LEARNING-LOOP-MS0 (6 engines + 6 wiring = 12 units)">#</a>AUTO-LEARNING-LOOP-MS0 (6 engines + 6 wiring = 12 units)</h4>
+<div class="table-wrap"><table>
+<thead><tr><th>id</th><th>tier</th><th>AI</th><th>leverage</th><th>one-line</th><th>verifies_via</th></tr></thead>
+<tbody>
+<tr><td>U-ALL01</td><td>T1</td><td>88</td><td>14</td><td>Build <code>ReputableSourceMonitorEngine</code> (arXiv + GitHub + RSS + X-bridge polling)</td><td>sweep 10 sources → ≥1 new item logged</td></tr>
+<tr><td>U-ALL02</td><td>T1</td><td>85</td><td>13</td><td>Build <code>NoveltyDetectionEngine</code> (diff vs novelty-catalog.json)</td><td>inject 5 known + 5 new → 5 novel flagged</td></tr>
+<tr><td>U-ALL03</td><td>T1</td><td>82</td><td>13</td><td>Build <code>AutoResearchOrchestratorEngine</code> (researcher subagent dispatch, rate-limited)</td><td>queue 5 → max 3 concurrent dispatched</td></tr>
+<tr><td>U-ALL04</td><td>T1</td><td>80</td><td>13</td><td>Build <code>SynergyClassifierEngine</code> (semantic + dispatcher_map + dedup → high/med/low/none)</td><td>10 inputs → classification reproducible</td></tr>
+<tr><td>U-ALL05</td><td>T1</td><td>75</td><td>12</td><td>Build <code>VizAutoAugmentationEngine</code> (emits new node augmentation file)</td><td>1 new item → 1 viz node added</td></tr>
+<tr><td>U-ALL06</td><td>T1</td><td>72</td><td>12</td><td>Build <code>RoadmapAutoAppendEngine</code> (high-synergy → U-AUTORES-XX append)</td><td>high-fit input → unit appended w/ micro-steps</td></tr>
+<tr><td>U-ALL07</td><td>T1</td><td>65</td><td>10</td><td>Wire ALL01 to <code>prism_dev:source_sweep</code> action</td><td>round-trip MCP</td></tr>
+<tr><td>U-ALL08</td><td>T1</td><td>63</td><td>10</td><td>Wire ALL02-ALL06 to <code>prism_ai:auto_learn_*</code> actions</td><td>5 actions, each round-trip</td></tr>
+<tr><td>U-ALL09</td><td>T1</td><td>60</td><td>10</td><td>Cron registration: 6 entries (sweep/novelty/dispatch/classify/augment/digest)</td><td>crontab → 6 entries present</td></tr>
+<tr><td>U-ALL10</td><td>T1</td><td>58</td><td>9</td><td>Human-in-loop weekly review surface (auto-research-pending.jsonl)</td><td>append 3 pending → user sees in review</td></tr>
+<tr><td>U-ALL11</td><td>T1</td><td>55</td><td>9</td><td>Token-budget guard (max 12 dispatches/day, $20/day cap)</td><td>overflow → defer + alarm</td></tr>
+<tr><td>U-ALL12</td><td>T1</td><td>50</td><td>9</td><td>Source-poisoning sanitizer (allowlist + content-hash)</td><td>malformed source → quarantined</td></tr>
+</tbody>
+</table></div>
+<h3 id="24-from-eng_khairallah1-skills-course-8-new-units-added-2026-05-11-skills-utilization-ms0"><a class="anchor" href="#24-from-eng_khairallah1-skills-course-8-new-units-added-2026-05-11-skills-utilization-ms0" aria-label="Permalink to §2.4 — From @eng_khairallah1 skills course (8 new units, added 2026-05-11) — SKILLS-UTILIZATION-MS0">#</a>§2.4 — From @eng_khairallah1 skills course (8 new units, added 2026-05-11) — SKILLS-UTILIZATION-MS0</h3>
+<p>Source: &quot;How to Use Claude Skills to Automate Any Workflow (Full Course)&quot; (captured to <code>H:/last.md</code>). Full atomization: <code>state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-SKILLS-UTILIZATION-MS0-ATOMIZED-2026-05-10.md</code>. The course adds the skill-lifecycle <em>process discipline</em> the pass-1 <code>skills-openclaw</code> research card was silent on — see that card&#39;s §11 for the gap table. Every unit EXTENDS existing PRISM assets (<code>forge-skills</code>, <code>skill-modernize</code>, <code>wiki-lint</code>, <code>harness-security-audit</code>, <code>src/registries/*</code>) — no parallel skill-management surface; U-SKU06&#39;s step-1 is the literal <code>duplicationGuardEngine.checkBeforeCreating()</code> call, the other 7 units&#39; step-1 are grep/Read-based dedup checks against the named existing assets (see the atomized file&#39;s <code>dedup_note</code> for the per-unit list).</p>
+<div class="table-wrap"><table>
+<thead><tr><th>id</th><th>tier</th><th>AI</th><th>leverage</th><th>one-line</th><th>verifies_via</th></tr></thead>
+<tbody>
+<tr><td>U-SKU06</td><td>T0</td><td>65</td><td>12</td><td>Skill registry schema ext: <code>production_grade</code>/<code>last_refined</code>/<code>trigger_phrases</code>/<code>scenario_tests</code>/<code>vague_violations</code> (foundation — do first)</td><td><code>npx vitest run skillRegistry</code> — parses ~637 skills, 0 failures</td></tr>
+<tr><td>U-SKU01</td><td>T0</td><td>72</td><td>13</td><td>Three-Question pre-build gate (PreToolUse hook on <code>**/SKILL.md</code> creation: specific purpose / ≥5 trigger phrases / real output example)</td><td>E2E — non-compliant SKILL.md → <code>decision:&quot;deny&quot;</code></td></tr>
+<tr><td>U-SKU02</td><td>T0</td><td>70</td><td>13</td><td>Three-Scenario test protocol + <code>prism_dev:skill_test</code> runner (happy/edge/stress = production-grade bar)</td><td>round-trip <code>prism_dev:skill_test</code> → 3 verdicts persisted to registry</td></tr>
+<tr><td>U-SKU03</td><td>T0</td><td>68</td><td>12</td><td>Skill linter: vague-verb ban + 500-line cap + trigger-phrase floor + placeholder detection (sibling of <code>/wiki-lint</code>)</td><td><code>skill-lint.mjs --self-test</code> exit 0; <code>--all</code> → flagged-count report</td></tr>
+<tr><td>U-SKU04</td><td>T1</td><td>60</td><td>10</td><td>Weekly skill-refinement cadence (telemetry-driven nudge + Friday cron; master-tracking-doc made live)</td><td>digest emitted with 3 categories (overridden / stale-but-hot / linter-flagged)</td></tr>
+<tr><td>U-SKU05</td><td>T1</td><td>75</td><td>14</td><td>Skill-library audit — grade ~637 skills against the bar → scorecard (production-grade / needs-refinement / stub-or-orphan + ROI) — highest leverage here</td><td><code>skill-library-audit.mjs</code> → counts sum to total; per-domain breakdown</td></tr>
+<tr><td>U-SKU07</td><td>T1</td><td>55</td><td>9</td><td>Marketplace scan (skillsmp.com + anthropics/skills + collections) for PRISM-domain-relevant candidates — reads FROM public, shares nothing TO public</td><td>candidates file with dedup verdicts vs the 637</td></tr>
+<tr><td>U-SKU08</td><td>T1</td><td>50</td><td>9</td><td>INTERNAL plugin bundle of the production-grade subset (public publication DEFERRED — hard rule <code>feedback_no_public_h_drive.md</code>)</td><td>valid <code>.claude-plugin/plugin.json</code>; only production-grade skills included; no H: paths leaked</td></tr>
+</tbody>
+</table></div>
+<p>Critical path: U-SKU06 → {U-SKU01, U-SKU02, U-SKU03} → U-SKU05 → U-SKU08. U-SKU04 depends on U-SKU06 + LOOP-MIGRATE cron infra (soft). U-SKU07 standalone. Synergy edges: HOOKS-AUTOMATION-V2 (skills carry scoped hooks; U-SKU01 IS a hook), KNOWLEDGE-VAULT (U-SKU06&#39;s registry should be the SAME registry as U-VAULT04&#39;s skill↔wiki cross-trigger registry — reconcile at build), AUTO-LEARNING-LOOP (U-SKU07 = a source on <code>ReputableSourceMonitorEngine</code>, NOT a parallel poller), WIKI-EVOLVE (share <code>/wiki-lint</code>&#39;s lint-core).</p>
+<hr>
+<h2 id="3-milestone-enumeration-10-milestones"><a class="anchor" href="#3-milestone-enumeration-10-milestones" aria-label="Permalink to §3 — Milestone enumeration (10 milestones)">#</a>§3 — Milestone enumeration (10 milestones)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Milestone</th><th>Units</th><th>Why</th><th>Depends on</th><th>Blocks</th></tr></thead>
+<tbody>
+<tr><td>HOOK-SYNERGY-MS0 (ext)</td><td>8</td><td>Hook discipline + cross-worktree firewall</td><td>nothing</td><td>K2-CLOUD edits to AISystemRouterEngine.ts</td></tr>
+<tr><td>K2-CLOUD-MS0 (ext)</td><td>14</td><td>Octopus 5/5 with Kimi mid-tier</td><td>HOOK-SYNERGY H1+H6</td><td>COST-CASCADE-MS0, OCTOPUS-NEURAL-MS0</td></tr>
+<tr><td>HTML-COMPANION-MS0 (ext)</td><td>6</td><td>HTML render layer</td><td>nothing</td><td>HTML-PRIMARY-MS0 generalization</td></tr>
+<tr><td>OBSIDIAN-COMPOUND-MS1 (ext)</td><td>6</td><td>Bidirectional vault sync</td><td>nothing</td><td>KNOWLEDGE-VAULT-MS0</td></tr>
+<tr><td>TOOL-INVENTORY-MS0</td><td>10</td><td>External MCP/plugin adoption (8 of 18 OVERLAP — expose, don&#39;t duplicate)</td><td>nothing</td><td>none direct</td></tr>
+<tr><td>WIKI-EVOLVE-MS0</td><td>6</td><td>Karpathy compounding ritual</td><td>nothing</td><td>KNOWLEDGE-VAULT-MS0 cross-trigger</td></tr>
+<tr><td>LOOP-MIGRATE-MS0</td><td>5</td><td>Boris /loop + cyrilXBT recurring + Reflexion</td><td>nothing</td><td>AUTO-LEARNING-LOOP-MS0 cron infra</td></tr>
+<tr><td>COST-CASCADE-MS0</td><td>8</td><td>Multi-LLM cost discipline</td><td>K2-CLOUD-MS0</td><td>OCTOPUS-NEURAL-MS0 cascade calibration</td></tr>
+<tr><td>MACHINE-CONNECTIVITY-MS0</td><td>6</td><td>OPC-UA + MTConnect + MQTT exposure</td><td>nothing</td><td>machine-floor adoption</td></tr>
+<tr><td>GRAPH-AS-LLM-CONTEXT-MS0</td><td>8</td><td>system-viz as agent shared context</td><td>nothing</td><td>atomization-pass viz_node_id resolution</td></tr>
+<tr><td>KNOWLEDGE-VAULT-MS0</td><td>6</td><td>Vault unification (obsidian + claude.md + memory + skills)</td><td>OBSIDIAN-COMPOUND-MS1</td><td>WIKI-EVOLVE-MS0 promotions</td></tr>
+<tr><td>HOOKS-AUTOMATION-V2-MS0</td><td>10</td><td>Claude Code 2.1.89 hook events (defer / if / agent-scoped)</td><td>nothing</td><td>HOOK-SYNERGY-MS0 cross-cut</td></tr>
+<tr><td>OCTOPUS-NEURAL-MS0</td><td>5</td><td>MoA + Reflexion + cascade + neural routing</td><td>K2-CLOUD-MS0</td><td>full octopus 5/5 with neural coordination</td></tr>
+<tr><td>HTML-PRIMARY-MS0</td><td>7</td><td>HTML-as-primary-surface for strategic specs</td><td>HTML-COMPANION-MS0</td><td>every future spec ships HTML companion</td></tr>
+<tr><td>AUTO-LEARNING-LOOP-MS0 (NEW Phase-6)</td><td>12</td><td>Continuous auto-discovery + auto-synergy</td><td>LOOP-MIGRATE-MS0 cron infra, GRAPH-AS-LLM-CONTEXT viz augmentation</td><td>self-improving system long-term</td></tr>
+<tr><td>SKILLS-UTILIZATION-MS0 (NEW 2026-05-11)</td><td>8</td><td>Skill-quality discipline — 3Q gate / 3-scenario test / linter / refine cadence / 637-skill audit / internal bundle (from @eng_khairallah1 course)</td><td>nothing (U-SKU04 soft-deps LOOP-MIGRATE cron; U-SKU07 soft-deps AUTO-LEARNING-LOOP monitor)</td><td>KNOWLEDGE-VAULT registry reconcile; WIKI-EVOLVE lint-core share</td></tr>
+</tbody>
+</table></div>
+<blockquote>
+<p>NB: this table heading still says &quot;(10 milestones)&quot; but 16 are enumerated — the header count was already stale before SKILLS-UTILIZATION-MS0 was added; left as-is to avoid churn, the row count is the source of truth.</p>
+</blockquote>
+<hr>
+<h2 id="4-9-build-pillars-from-users-verbatim-directive"><a class="anchor" href="#4-9-build-pillars-from-users-verbatim-directive" aria-label="Permalink to §4 — 9 Build pillars (from user&#39;s verbatim directive)">#</a>§4 — 9 Build pillars (from user&#39;s verbatim directive)</h2>
+<ol>
+<li>✓ <strong>System-viz as visual representation</strong> of the H-drive (GRAPH-AS-LLM-CONTEXT-MS0)</li>
+<li>✓ <strong>Bridge all relevant nodes with max logical variability</strong> (synergy-edge field on each unit, closes_synergy_edge populated)</li>
+<li>✓ <strong>Octopus system</strong> (codex/claude/gemini/kimi-k2.6/qwen) — OCTOPUS-NEURAL-MS0 + K2-CLOUD-MS0</li>
+<li>✓ <strong>CLAUDE.md + Karpathy + Boris loop</strong> — VAULT03 + VAULT01 + HOOKS-AUTOMATION-V2 H7 (defer)</li>
+<li>✓ <strong>6-chat system</strong> — atomic-roadmap-chat-{1..6}.md emitted; predicted-collisions.json safe-for-this-lane</li>
+<li>✓ <strong>AI systems / DL / ML / deep-reasoning / neural networking</strong> — OCTOPUS-NEURAL-MS0 (5 engines) + GRAPH-AS-LLM-CONTEXT (8 units) + existing PRISMCreativeReasoningEngine + CrossDisciplinaryDeepLearningEngine</li>
+<li>✓ <strong>Memories + skills + container skills + obsidian brain</strong> — KNOWLEDGE-VAULT-MS0 (6 units) + ContainerSkillPipe (U-BUILD-CONTAINER-SKILL-PIPE)</li>
+<li>✓ <strong>MD → HTML conversion synergy</strong> — HTML-COMPANION-MS0 + HTML-PRIMARY-MS0</li>
+<li>✓ <strong>Continuous auto-learning</strong> (user&#39;s added directive) — AUTO-LEARNING-LOOP-MS0 (Phase-6)</li>
+</ol>
+<hr>
+<h2 id="5-6-chat-lane-allocation"><a class="anchor" href="#5-6-chat-lane-allocation" aria-label="Permalink to §5 — 6-chat lane allocation">#</a>§5 — 6-chat lane allocation</h2>
+<p><code>atomic-roadmap-chat-{1..6}.md</code> emitted by v6.1 pipeline. For backend-devtools scope (137 units), proposed allocation:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Lane</th><th>Owner-chat-pattern</th><th>Backend-devtools units assigned</th><th>Total chat load</th></tr></thead>
+<tbody>
+<tr><td>Lane A</td><td>this chat (claude-2570c8f5)</td><td>HOOK-SYNERGY H1.0/H1/H3/H6/H7 + AUTO-LEARNING-LOOP-MS0 (12)</td><td>~17 units, T0 heavy</td></tr>
+<tr><td>Lane B</td><td>peer chat (revenue-style)</td><td>K2-CLOUD-MS0 K2-K0..K12 (14)</td><td>14 units</td></tr>
+<tr><td>Lane C</td><td>peer chat</td><td>OCTOPUS-NEURAL-MS0 (5) + COST-CASCADE-MS0 (8)</td><td>13 units</td></tr>
+<tr><td>Lane D</td><td>peer chat</td><td>OBSIDIAN-COMPOUND-MS1 (6) + KNOWLEDGE-VAULT-MS0 (6) + WIKI-EVOLVE-MS0 (6)</td><td>18 units</td></tr>
+<tr><td>Lane E</td><td>peer chat</td><td>HTML-COMPANION-MS0 (6) + HTML-PRIMARY-MS0 (7) + GRAPH-AS-LLM-CONTEXT-MS0 (8)</td><td>21 units</td></tr>
+<tr><td>Lane F</td><td>peer chat</td><td>TOOL-INVENTORY-MS0 (10) + LOOP-MIGRATE-MS0 (5) + MACHINE-CONNECTIVITY-MS0 (6) + HOOKS-AUTOMATION-V2-MS0 (10) + BUILD/WIRE splits (4)</td><td>35 units</td></tr>
+</tbody>
+</table></div>
+<p>Wave 1 = Lane A&#39;s T0 units (5 hook units + 12 auto-learning) — 17 units, ~6-10h. Unblocks every other lane.</p>
+<hr>
+<h2 id="6-critical-path"><a class="anchor" href="#6-critical-path" aria-label="Permalink to §6 — Critical path">#</a>§6 — Critical path</h2>
+<pre><code>HOOK-SYNERGY H1.0 (verify-hook-refs script)
+   ↓
+HOOK-SYNERGY H1 (HOOK_REGISTRY.json)
+   ↓
+HOOK-SYNERGY H6 (cross-worktree firewall) ←—— THIS is the K2 unlocker
+   ↓
+K2-CLOUD K2-K0 (KimiTransportEngine build)
+   ↓
+K2-CLOUD K2-K1 (router wire)
+   ↓
+K2-CLOUD K2-K2..K12 (cascade) ←—— parallelizable from here
+   ↓
+COST-CASCADE-MS0 + OCTOPUS-NEURAL-MS0 (parallel)
+</code></pre>
+<p>Total critical-path effort: ~12-18h sequential. Everything else parallelizes after H6 ships.</p>
+<hr>
+<h2 id="7-phase-6-auto-learning-loop-the-users-new-pillar-full-spec"><a class="anchor" href="#7-phase-6-auto-learning-loop-the-users-new-pillar-full-spec" aria-label="Permalink to §7 — Phase-6 auto-learning loop (the user&#39;s new pillar — full spec)">#</a>§7 — Phase-6 auto-learning loop (the user&#39;s new pillar — full spec)</h2>
+<h3 id="71-components-6-engines"><a class="anchor" href="#71-components-6-engines" aria-label="Permalink to 7.1 Components (6 engines)">#</a>7.1 Components (6 engines)</h3>
+<p>Already enumerated in §2.3. Repeat for clarity:</p>
+<ul>
+<li><code>ReputableSourceMonitorEngine</code> — polls arXiv RSS, GitHub releases, Anthropic blog RSS, HF Papers, X-bridge (RSSHub), HN, Cloudflare changelog, LangChain blog, Moonshot Kimi changelog</li>
+<li><code>NoveltyDetectionEngine</code> — diffs new content vs <code>state/shared/system-viz/novelty-catalog.json</code></li>
+<li><code>AutoResearchOrchestratorEngine</code> — dispatches researcher subagents w/ canned rubric (max 3 concurrent, rate-limited)</li>
+<li><code>SynergyClassifierEngine</code> — scores fit: semantic_match × novelty × !duplication_risk × ai_priority_score</li>
+<li><code>VizAutoAugmentationEngine</code> — emits to <code>state/shared/system-viz/auto-research-augmentation.json</code> → triggers <code>regen-viz.mjs</code></li>
+<li><code>RoadmapAutoAppendEngine</code> — high-synergy → appends <code>U-AUTORES-&lt;id&gt;</code> w/ micro-steps to active roadmap</li>
+</ul>
+<h3 id="72-cadence-6-cron-2-loop-registrations"><a class="anchor" href="#72-cadence-6-cron-2-loop-registrations" aria-label="Permalink to 7.2 Cadence (6 cron + 2 /loop registrations)">#</a>7.2 Cadence (6 cron + 2 /loop registrations)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Cron / Loop</th><th>Schedule</th><th>What</th></tr></thead>
+<tbody>
+<tr><td>Source monitor sweep</td><td><code>7 */4 * * *</code> (every 4h, off-minute)</td><td>ALL01.sweep()</td></tr>
+<tr><td>Novelty scan</td><td><code>*/30 * * * *</code> (every 30min)</td><td>ALL02.scan()</td></tr>
+<tr><td>Research dispatch flush</td><td><code>13 * * * *</code> (hourly)</td><td>ALL03.flush() max 3 concurrent</td></tr>
+<tr><td>Synergy classifier</td><td><code>*/15 * * * *</code> (every 15min)</td><td>ALL04.classify()</td></tr>
+<tr><td>Viz auto-augment</td><td><code>27 * * * *</code> (hourly)</td><td>ALL05.emit()</td></tr>
+<tr><td>Daily digest</td><td><code>3 9 * * *</code> (9:03am)</td><td>push to user + chat bus</td></tr>
+<tr><td>Adaptive rubric tuning</td><td><code>/loop --interval 7d --max 4</code></td><td>weekly threshold retune</td></tr>
+<tr><td>Source-list audit</td><td><code>/loop --interval 30d --max 12</code></td><td>monthly source health check</td></tr>
+</tbody>
+</table></div>
+<h3 id="73-synergy-classifier-rubric"><a class="anchor" href="#73-synergy-classifier-rubric" aria-label="Permalink to 7.3 Synergy classifier rubric">#</a>7.3 Synergy classifier rubric</h3>
+<pre><code>features = {
+  semantic_match_score: embed(content) × embed(PRISM substrate)
+  duplication_risk:     duplicationGuardEngine.checkBeforeCreating()
+  domain_match:         mapToL5domain(content)
+  ai_priority_score:    ai-priority-rank.mjs
+  effort_estimate:      tokens(content) → heuristic hours
+  blast_radius:         peer_claim_count + file_count
+  novelty_strength:     1 - max(cosine to known items)
+}
+
+decision = high if semantic_match &gt; 0.65 AND novelty &gt; 0.5 AND !duplication_risk
+         | med  if semantic_match &gt; 0.45 AND novelty &gt; 0.3 AND !duplication_risk
+         | low  if semantic_match &gt; 0.25 OR (novelty &gt; 0.7 AND duplication_risk)
+         | none otherwise
+</code></pre>
+<h3 id="74-reputable-source-seed-list-10-sources"><a class="anchor" href="#74-reputable-source-seed-list-10-sources" aria-label="Permalink to 7.4 Reputable source seed list (10 sources)">#</a>7.4 Reputable source seed list (10 sources)</h3>
+<ol>
+<li>arXiv RSS — cs.AI / cs.LG / cs.CL / cs.SE</li>
+<li>Anthropic blog — <code>anthropic.com/news/rss</code></li>
+<li>Hugging Face Papers — scrape + dedup (no public RSS)</li>
+<li>GitHub releases — watched: <code>anthropics/skills</code>, <code>anthropics/claude-code</code>, <code>microsoft/graphrag</code>, <code>openai/openai-cookbook</code>, <code>modelcontextprotocol/servers</code>, <code>hookify</code></li>
+<li>Hacker News — <code>hnrss.org/frontpage?score=50</code> (filter to high-signal)</li>
+<li>X / Twitter — RSSHub bridge: lists of <code>anthropic</code>, <code>karpathy</code>, <code>bcherny</code>, <code>thariq</code>, <code>cyrilxbt</code>, <code>kepano</code>, <code>simonw</code></li>
+<li>Cloudflare AI Gateway changelog — scrape <code>developers.cloudflare.com/ai-gateway/changelog/</code></li>
+<li>LangChain blog — RSS</li>
+<li>Moonshot Kimi releases — scrape <code>platform.moonshot.cn/docs/changelog</code></li>
+<li>arXiv RSS — cs.MA (multi-agent), cs.HC (HCI for spatial UI)</li>
+</ol>
+<h3 id="75-failure-modes-10-enumerated"><a class="anchor" href="#75-failure-modes-10-enumerated" aria-label="Permalink to 7.5 Failure modes (10 enumerated)">#</a>7.5 Failure modes (10 enumerated)</h3>
+<p>Already enumerated in prior turn. Repeated here for self-containment:</p>
+<ol>
+<li>Source rate-limits → exponential backoff + ETag</li>
+<li>Hallucinated arXiv IDs → DOI verify</li>
+<li>Research dispatch cost runaway → hard cap 12/day, $20/day</li>
+<li>False-positive (auto-adds noise) → human-in-loop weekly review</li>
+<li>Viz pollution from low-quality → quarantine confidence&lt;0.8 in separate augmentation</li>
+<li>Source poisoning → allowlist + content-hash signing</li>
+<li>Roadmap-auto-append spam → 2 per milestone unless ≥3 corroborating sources</li>
+<li>XSS via X-post content → DOMPurify before any HTML render</li>
+<li>Cron oversubscribe → max:4 / max:7 caps</li>
+<li>Worktree merge conflict → conflict-fork rule</li>
+</ol>
+<h3 id="76-adversarial-test-cases-per-engine-6-minimum-each"><a class="anchor" href="#76-adversarial-test-cases-per-engine-6-minimum-each" aria-label="Permalink to 7.6 Adversarial test cases (per engine, 6+ minimum each)">#</a>7.6 Adversarial test cases (per engine, 6+ minimum each)</h3>
+<p>Already enumerated. Confirmed: ReputableSourceMonitor (5), NoveltyDetection (3), AutoResearchOrchestrator (3), SynergyClassifier (4), VizAutoAugmentation (3), RoadmapAutoAppend (3) = 21 adversarial test cases total.</p>
+<hr>
+<h2 id="8-verification-channels-boris-1-hard-gate"><a class="anchor" href="#8-verification-channels-boris-1-hard-gate" aria-label="Permalink to §8 — Verification channels (Boris #1 HARD GATE)">#</a>§8 — Verification channels (Boris #1 HARD GATE)</h2>
+<p>Every unit in §2 declares <code>verifies_via</code> (one of: test / eval / integration / render / metric). 100% coverage. Sample:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Unit</th><th>Channel</th><th>Tool</th><th>Expected signal</th></tr></thead>
+<tbody>
+<tr><td>H1.0</td><td>test</td><td><code>node scripts/verify-hook-refs.mjs --self-test</code></td><td>exit 0</td></tr>
+<tr><td>K2-K0</td><td>integration</td><td>round-trip MCP <code>prism_ai:kimi_invoke</code></td><td>HTTP 200 + valid JSON</td></tr>
+<tr><td>HC-0</td><td>render</td><td><code>node scripts/emit-spec-html.mjs &lt;md&gt;</code></td><td>output HTML validates W3C</td></tr>
+<tr><td>OB-1</td><td>integration</td><td>round-trip note: obsidian→wiki→obsidian</td><td>byte-for-byte equal</td></tr>
+<tr><td>U-GAC01</td><td>test</td><td><code>extract-ego-graph node-id</code></td><td>JSON schema matches expected</td></tr>
+<tr><td>U-VAULT03</td><td>metric</td><td>regression injected → wait 5min → CLAUDE.md inspected</td><td>§Recent regressions appended</td></tr>
+<tr><td>U-HKA01</td><td>metric</td><td>sample session: file-read count</td><td>cuts ≥30% vs baseline</td></tr>
+<tr><td>U-OCN01</td><td>integration</td><td>round-trip MCP <code>prism_ai:kimi_invoke</code></td><td>HTTP 200</td></tr>
+<tr><td>U-HPS01</td><td>render</td><td>MD→HTML on 3 spec types</td><td>all validate W3C + axe-cli 0 errors</td></tr>
+<tr><td>U-ALL01</td><td>integration</td><td>sweep 10 sources, mock 5 new</td><td>≥1 new item logged</td></tr>
+</tbody>
+</table></div>
+<p>Verification budget total: ~35-55min for full re-run of all 137 verify channels (per audit Finding 5 recompute).</p>
+<hr>
+<h2 id="9-atomization-template-for-the-next-pass-phase-2"><a class="anchor" href="#9-atomization-template-for-the-next-pass-phase-2" aria-label="Permalink to §9 — Atomization template (for the next pass — Phase 2)">#</a>§9 — Atomization template (for the next pass — Phase 2)</h2>
+<p>Every unit in §2 will be decomposed into this shape in <code>BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-ATOMIZED-2026-05-10.md</code>:</p>
+<pre><code class="language-yaml">U-&lt;id&gt;:
+  pillar: &lt;hook|k2|html|obsidian|tool-inv|wiki|loop|cost|machine|graph|vault|hooks-v2|octopus|html-primary|auto-learn&gt;
+  tier: T&lt;0..4&gt;
+  ai_priority_score: &lt;0..100&gt;
+  leverage_score: &lt;0..15&gt;
+  why: &lt;one-line motivation&gt;
+  depends_on: [U-..., U-...]
+  blocks: [U-..., U-...]
+  parallel_with: [U-..., U-...]
+  viz_node_id: &lt;L4|L5 node-id from system-viz&gt;
+  closes_synergy_edge: &lt;surface-A × surface-B&gt;  # which of the 56 &quot;none&quot; edges this bridges
+  loop_schedule: &lt;none | 7d | 24h | 1h | per-commit&gt;
+  verifies_via:
+    channel: &lt;test|eval|integration|render|metric&gt;
+    tool: &lt;exact command — single line&gt;
+    expected_signal: &lt;measurable in stdout&gt;
+    re_run_cost: &lt;seconds&gt;
+    baseline: &lt;current value&gt;
+  micro_steps:
+    - step-1:
+        tool: Read|Edit|Write|Bash|Grep|Glob|Agent
+        path: &lt;exact-file&gt;
+        action: &lt;one-sentence imperative&gt;
+        verify: &lt;single command + expected stdout string&gt;
+    - step-2:
+        tool: ...
+        path: ...
+        action: ...
+        verify: ...
+    # ... (N steps, typically 3-7)
+  adversarial_cases:
+    - &lt;NaN input&gt;
+    - &lt;empty array&gt;
+    - &lt;oversize 100MB&gt;
+  variability_axis:
+    - &lt;config 1&gt;
+    - &lt;config 2&gt;
+    - &lt;config 3&gt;  # ≥3 spanning configs
+  failure_modes:
+    - &lt;mode 1&gt;: &lt;mitigation&gt;
+    - &lt;mode 2&gt;: &lt;mitigation&gt;
+    - &lt;mode 3&gt;: &lt;mitigation&gt;
+</code></pre>
+<p>Constraint per step: <strong>one tool, one file, one verify command, exact expected stdout.</strong> Any LLM that can read/write a file and run a shell command can execute.</p>
+<hr>
+<h2 id="10-loops-cron-registrations-17-total"><a class="anchor" href="#10-loops-cron-registrations-17-total" aria-label="Permalink to §10 — Loops + cron registrations (17 total)">#</a>§10 — Loops + cron registrations (17 total)</h2>
+<h3 id="101-at-phase-1-close-research-card-freshness-audit"><a class="anchor" href="#101-at-phase-1-close-research-card-freshness-audit" aria-label="Permalink to 10.1 At Phase 1 close (research card freshness audit)">#</a>10.1 At Phase 1 close (research card freshness audit)</h3>
+<ul>
+<li><code>/loop --interval 7d --max 4</code> — re-audit pass-1 + pass-2 cards</li>
+</ul>
+<h3 id="102-at-phase-2-close-engine-verification"><a class="anchor" href="#102-at-phase-2-close-engine-verification" aria-label="Permalink to 10.2 At Phase 2 close (engine verification)">#</a>10.2 At Phase 2 close (engine verification)</h3>
+<ul>
+<li><code>CronCreate &quot;0 */6 * * *&quot;</code> (off-minute → <code>13 */6 * * *</code>) — <code>roadmap-engine-existence-check.mjs</code> against current roadmap</li>
+<li><code>CronCreate &quot;*/30 * * * *&quot;</code> (off-minute → <code>*/30 * * * *</code> keep) — <code>verify-hook-refs.mjs</code></li>
+<li><code>/loop --interval 24h --max 7</code> — viz coverage delta</li>
+</ul>
+<h3 id="103-at-phase-3-close-roadmap-audit"><a class="anchor" href="#103-at-phase-3-close-roadmap-audit" aria-label="Permalink to 10.3 At Phase 3 close (roadmap audit)">#</a>10.3 At Phase 3 close (roadmap audit)</h3>
+<ul>
+<li><code>/loop --interval 30d --max 6</code> — <code>/forge-audit-v2</code> on this roadmap</li>
+</ul>
+<h3 id="104-at-phase-4-close-viz-overlay"><a class="anchor" href="#104-at-phase-4-close-viz-overlay" aria-label="Permalink to 10.4 At Phase 4 close (viz overlay)">#</a>10.4 At Phase 4 close (viz overlay)</h3>
+<ul>
+<li><code>CronCreate &quot;7 * * * *&quot;</code> — refresh roadmap-viz-overlay.json hourly</li>
+<li><code>/loop --interval 24h</code> — milestone-progress reconciliation vs git</li>
+</ul>
+<h3 id="105-at-phase-5-close-backend-readiness-scorer"><a class="anchor" href="#105-at-phase-5-close-backend-readiness-scorer" aria-label="Permalink to 10.5 At Phase 5 close (backend-readiness scorer)">#</a>10.5 At Phase 5 close (backend-readiness scorer)</h3>
+<ul>
+<li><code>/loop --interval 7d --max 4</code> — backend-readiness scorer (mirrors revenue-readiness pattern)</li>
+<li><code>/loop --interval 7d --max 4</code> — <code>/forge-audit-v2 BACKEND-DEVTOOLS-RGS6</code> recurring drift check</li>
+<li><code>CronCreate &quot;3 9 * * 1&quot;</code> — Monday 9:03am weekly milestone-progress digest</li>
+</ul>
+<h3 id="106-at-phase-6-close-auto-learning-loop-8-registrations"><a class="anchor" href="#106-at-phase-6-close-auto-learning-loop-8-registrations" aria-label="Permalink to 10.6 At Phase 6 close (auto-learning loop — 8 registrations)">#</a>10.6 At Phase 6 close (auto-learning loop — 8 registrations)</h3>
+<p>Per §7.2: 6 cron + 2 /loop. Brings total to 17.</p>
+<hr>
+<h2 id="11-failure-modes-adversarial-cases-build-pipeline-level-10-enumerated"><a class="anchor" href="#11-failure-modes-adversarial-cases-build-pipeline-level-10-enumerated" aria-label="Permalink to §11 — Failure modes + adversarial cases (build-pipeline level, 10 enumerated)">#</a>§11 — Failure modes + adversarial cases (build-pipeline level, 10 enumerated)</h2>
+<ol>
+<li>Researcher subagent returns sparse card → re-dispatch with stricter rubric</li>
+<li>Engine build fails tests → fix code or test, NEVER weaken (.skip / weakened assertion forbidden)</li>
+<li><code>/rgs6</code> emits malformed JSON → Zod schema catches; auto-retry once with diff logged</li>
+<li>Viz overlay color collision (conflicting status on same node) → take WORST: gray &gt; red &gt; yellow &gt; green</li>
+<li>Cron oversubscribes → max:4 / max:7 caps + adaptive-thresholds.json governs</li>
+<li>Worktree merge conflict → conflict-fork rule (battle-tested)</li>
+<li>K2.6 API rate-limit → cascade fallback to qwen via <code>AISystemRouterEngine</code></li>
+<li>HTML render error → log + emit MD-only as fallback</li>
+<li>Container skill timeout → kill via Docker SIGTERM + log + continue</li>
+<li>Memory bridge race → <code>prism_context:claim_file</code> lock before write</li>
+</ol>
+<hr>
+<h2 id="12-v61-telemetry-stamp"><a class="anchor" href="#12-v61-telemetry-stamp" aria-label="Permalink to §12 — v6.1 telemetry stamp">#</a>§12 — v6.1 telemetry stamp</h2>
+<p>Pipeline records appended to <code>state/shared/pipeline-telemetry.jsonl</code> under milestone <code>BACKEND-DEVTOOLS-RGS6-MS0</code>:</p>
+<ul>
+<li>S0 stage_entry (scope, inputs, output target)</li>
+<li>S2.5.A complete (1102 ranks)</li>
+<li>S2.5.B complete (1102 units, 6 lanes)</li>
+<li>S2.5.C complete (verdict RED, 6 HIGH not affecting self)</li>
+<li>S2.5 decision (ack RED, proceed)</li>
+<li>S2.6 decision (waiver: 32 subagents over-scoped for backend-devtools)</li>
+<li>S3 plan_emit (this file written)</li>
+</ul>
+<p>Pending: S11.7 self-optimize (telemetry flush + adaptive-thresholds tune + auto-build if S11.6 BLOCK).</p>
+<hr>
+<h2 id="13-next-pass-marker-atomization"><a class="anchor" href="#13-next-pass-marker-atomization" aria-label="Permalink to §13 — Next-pass marker (atomization)">#</a>§13 — Next-pass marker (atomization)</h2>
+<p>This document captures <strong>WHAT</strong> to build (137 units, AI-priority sorted, verification channels declared, dependencies mapped, milestones grouped).</p>
+<p>The <strong>next pass writes HOW</strong>: <code>BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-ATOMIZED-2026-05-10.md</code> decomposes every unit per the §9 template — single-tool single-file micro-steps any LLM can follow.</p>
+<p>Atomization will use the following data sources to attach <code>viz_node_id</code> to each unit:</p>
+<ul>
+<li><code>state/shared/system-viz/system-graph.json</code> — node id lookups by name</li>
+<li><code>state/shared/atomic-roadmap.json</code> — global tier/AI-priority for cross-validation</li>
+<li><code>state/shared/system-viz/system-synergy-map.mjs</code> output — <code>closes_synergy_edge</code> field</li>
+</ul>
+<p>Expected atomization file size: ~3500-5000 lines (137 units × ~25-35 lines each with full micro-steps + adversarial + variability + failure modes).</p>
+<hr>
+<p><em>End of mega-roadmap v1. Run <code>/rgs6 self-optimize-audit</code> at close. Atomization is next.</em></p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-2026-05-10.md">BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-2026-05-10.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

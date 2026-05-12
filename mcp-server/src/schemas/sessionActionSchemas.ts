@@ -500,4 +500,16 @@ export const ACTION_SESSION_SCHEMAS: ActionSchemaMap = {
   awareness_lifecycle_get_history: z.object({
     session_id: z.string().min(1).optional().describe("Session id (defaults to 'dispatcher-default')"),
   }).passthrough(),
+
+  // HTML-PRIMARY-MS0/U-HPS07 — render any Markdown doc/spec → HTML companion (mirrors prism_dev:spec_html_render)
+  doc_render: z.object({
+    md: z.string().optional().describe("Markdown content to render (provide this OR markdown OR path)"),
+    markdown: z.string().optional().describe("Alias for md"),
+    path: z.string().optional().describe("Path to a .md file under the PRISM root to read & render (provide this OR md)"),
+    theme: z.enum(["dark", "light", "auto"]).optional().describe("Color theme; auto (default) follows prefers-color-scheme"),
+    toc: z.boolean().optional().describe("Include the table-of-contents sidebar (default true)"),
+    title: z.string().optional().describe("Override the document <title>"),
+    write: z.boolean().optional().describe("If a path was given, also write <path>.html (and a .hash sidecar) alongside it"),
+    include_html: z.boolean().optional().describe("Return the full rendered HTML inline in the response (default false — only metadata)"),
+  }).passthrough(),
 };

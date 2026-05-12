@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="4b93e29e3f656cf03e3e6d316c0e8683d43d4625b03b3168a0b95cf5ded20dd3">
+<title>K2-ROUTER-INVENTORY — Existing AI Routing Surface</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">K2-ROUTER-INVENTORY — Existing AI Routing Surface</h1>
+<p class="provenance">Generated 2026-05-12T12:43:26.741Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#k2-router-inventory-existing-ai-routing-surface">K2-ROUTER-INVENTORY — Existing AI Routing Surface</a></li>
+<li class="toc-l2"><a href="#1-aisystemrouterengine-mcp-serversrcenginesaisystemrouterenginets-298-lines">§1 — AISystemRouterEngine (mcp-server/src/engines/AISystemRouterEngine.ts, 298 lines)</a></li>
+<li class="toc-l3"><a href="#11-backend-union-aibackend-type">1.1 Backend union (AIBackend type)</a></li>
+<li class="toc-l3"><a href="#12-task-class-union-taskclass-9-entries">1.2 Task class union (TaskClass, 9 entries)</a></li>
+<li class="toc-l3"><a href="#13-dispatcher-surface">1.3 Dispatcher surface</a></li>
+<li class="toc-l3"><a href="#14-telemetry-ledger">1.4 Telemetry / ledger</a></li>
+<li class="toc-l3"><a href="#15-health-probe-behavior">1.5 Health probe behavior</a></li>
+<li class="toc-l2"><a href="#2-ollamahookbridgeengine-mcp-serversrcenginesollamahookbridgeenginets-371-lines">§2 — OllamaHookBridgeEngine (mcp-server/src/engines/OllamaHookBridgeEngine.ts, 371 lines)</a></li>
+<li class="toc-l3"><a href="#21-configuration-shape-ollamahookconfig">2.1 Configuration shape (OllamaHookConfig)</a></li>
+<li class="toc-l3"><a href="#22-hook-types-model-routing-hooktype-7-entries">2.2 Hook types + model routing (HookType, 7 entries)</a></li>
+<li class="toc-l3"><a href="#23-system-prompts-per-hook-type-hooksystemprompts">2.3 System prompts per hook type (HOOKSYSTEMPROMPTS)</a></li>
+<li class="toc-l3"><a href="#24-public-surface">2.4 Public surface</a></li>
+<li class="toc-l3"><a href="#25-dispatcher-wiring-status">2.5 Dispatcher wiring status</a></li>
+<li class="toc-l3"><a href="#26-telemetry-ledger">2.6 Telemetry / ledger</a></li>
+<li class="toc-l2"><a href="#3-insertion-plan-summary-feeds-k2">§3 — Insertion plan summary (feeds K2)</a></li>
+<li class="toc-l3"><a href="#31-new-backend-id-k2-deliverable">3.1 New backend ID (K2 deliverable)</a></li>
+<li class="toc-l3"><a href="#32-new-task-class-routing-rules-k4-deliverable-depends-k2k3">3.2 New task-class routing rules (K4 deliverable, depends K2+K3)</a></li>
+<li class="toc-l3"><a href="#33-new-helper-methods-k2-deliverable-on-engine">3.3 New helper methods (K2 deliverable on engine)</a></li>
+<li class="toc-l3"><a href="#34-files-k2-k12-will-touch-claim-early">3.4 Files K2-K12 will touch (claim early)</a></li>
+<li class="toc-l2"><a href="#4-open-questions-surfaced-during-inventory-must-resolve-before-k3">§4 — Open questions surfaced during inventory (must resolve before K3)</a></li>
+<li class="toc-l2"><a href="#5-boris-loop-verification-gates-for-k1-this-doc">§5 — Boris loop verification gates for K1 (this doc)</a></li>
+<li class="toc-l2"><a href="#6-provenance">§6 — Provenance</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="k2-router-inventory-existing-ai-routing-surface"><a class="anchor" href="#k2-router-inventory-existing-ai-routing-surface" aria-label="Permalink to K2-ROUTER-INVENTORY — Existing AI Routing Surface">#</a>K2-ROUTER-INVENTORY — Existing AI Routing Surface</h1>
+<blockquote>
+<p><strong>Unit:</strong> K1 (U-K2-CONFIG-INVENTORY) of <code>K2-CLOUD-INTEGRATION-PLAN.md</code> <strong>Purpose:</strong> Document the as-built tier table + dispatch surface for <code>AISystemRouterEngine</code> and <code>OllamaHookBridgeEngine</code> so K2-K12 can extend without duplicating. <strong>Author:</strong> claude-85cedf09 · <strong>Date:</strong> 2026-05-10 <strong>Boris loop step:</strong> 1/n (peer reviewer dispatch deferred until K1+K2+K3 all land — verification batch)</p>
+</blockquote>
+<hr>
+<h2 id="1-aisystemrouterengine-mcp-serversrcenginesaisystemrouterenginets-298-lines"><a class="anchor" href="#1-aisystemrouterengine-mcp-serversrcenginesaisystemrouterenginets-298-lines" aria-label="Permalink to §1 — AISystemRouterEngine (mcp-server/src/engines/AISystemRouterEngine.ts, 298 lines)">#</a>§1 — AISystemRouterEngine (<code>mcp-server/src/engines/AISystemRouterEngine.ts</code>, 298 lines)</h2>
+<h3 id="11-backend-union-aibackend-type"><a class="anchor" href="#11-backend-union-aibackend-type" aria-label="Permalink to 1.1 Backend union (AIBackend type)">#</a>1.1 Backend union (<code>AIBackend</code> type)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Backend ID</th><th>Tier</th><th>Cost</th><th>Probe method</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><code>claude-opus</code></td><td>premium</td><td>high</td><td>always reachable (in-process)</td></tr>
+<tr><td>2</td><td><code>claude-sonnet</code></td><td>premium</td><td>medium</td><td>always reachable (in-process)</td></tr>
+<tr><td>3</td><td><code>claude-haiku</code></td><td>premium</td><td>low</td><td>always reachable (in-process)</td></tr>
+<tr><td>4</td><td><code>ollama-codellama</code></td><td>local</td><td>free</td><td><code>curl -s -m 2 http://localhost:11434/api/tags</code></td></tr>
+<tr><td>5</td><td><code>ollama-deepseek</code></td><td>local</td><td>free</td><td>same</td></tr>
+<tr><td>6</td><td><code>docker-physics-agent</code></td><td>docker</td><td>low</td><td><code>docker ps</code> + <code>docker image inspect prism-physics-agent:latest</code></td></tr>
+<tr><td>7</td><td><code>docker-batch-processor</code></td><td>docker</td><td>low</td><td><code>docker ps</code> + <code>docker image inspect prism-batch-processor:latest</code></td></tr>
+<tr><td>8</td><td><code>local-mcp</code></td><td>local</td><td>free</td><td><code>existsSync(&quot;H:/prism/mcp-server/dist/index.js&quot;)</code></td></tr>
+</tbody>
+</table></div>
+<p><strong>Gap:</strong> No mid-tier between <code>ollama-*</code> (free local) and <code>claude-*</code> (paid premium). K2.6:cloud slots in here.</p>
+<h3 id="12-task-class-union-taskclass-9-entries"><a class="anchor" href="#12-task-class-union-taskclass-9-entries" aria-label="Permalink to 1.2 Task class union (TaskClass, 9 entries)">#</a>1.2 Task class union (<code>TaskClass</code>, 9 entries)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Class</th><th>Default primary</th><th>Default fallback</th><th>Cost</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><code>physics_validation</code></td><td><code>docker-physics-agent</code></td><td><code>claude-opus</code>, <code>local-mcp</code></td><td>low</td><td>Regex: `physics</td></tr>
+<tr><td>2</td><td><code>engine_building</code></td><td><code>claude-opus</code></td><td><code>claude-sonnet</code></td><td>high</td><td>Regex: <code>(build|create|new)\b.*\b(engine|dispatcher|hook)</code></td></tr>
+<tr><td>3</td><td><code>ml_inference</code></td><td><code>ollama-codellama</code></td><td><code>ollama-deepseek</code>, <code>claude-haiku</code></td><td>free</td><td>Regex: <code>ml|neural|inference|predict|classif</code></td></tr>
+<tr><td>4</td><td><code>batch_processing</code></td><td><code>docker-batch-processor</code></td><td><code>local-mcp</code></td><td>low</td><td>Regex: <code>batch|&gt;?\s*\d{3,}\s*(files?|programs?|parts?)|bulk</code></td></tr>
+<tr><td>5</td><td><code>reasoning</code></td><td><code>claude-opus</code></td><td><code>claude-sonnet</code></td><td>high</td><td>Regex: <code>reason|think|plan|design|strategy|why</code></td></tr>
+<tr><td>6</td><td><code>code_review</code></td><td><code>claude-sonnet</code></td><td><code>claude-opus</code></td><td>medium</td><td>Regex: <code>review|audit|critique|check</code></td></tr>
+<tr><td>7</td><td><code>search</code></td><td><code>local-mcp</code></td><td><code>claude-haiku</code></td><td>free</td><td>Regex: <code>search|find|lookup|grep|locate</code></td></tr>
+<tr><td>8</td><td><code>calculation</code></td><td><code>local-mcp</code></td><td><code>claude-haiku</code></td><td>free</td><td>Regex: <code>calculate|compute|formula|equation</code></td></tr>
+<tr><td>9</td><td><code>unknown</code></td><td><code>claude-sonnet</code></td><td><code>claude-opus</code></td><td>medium</td><td>Catch-all</td></tr>
+</tbody>
+</table></div>
+<p><strong>Insertion targets for K2.6:cloud (per user-locked AGGRESSIVE posture):</strong></p>
+<ul>
+<li>Task classes 2 (engine_building), 5 (reasoning) currently default to <code>claude-opus</code> — these are the prime escalation candidates when context &gt; 8K AND not safety-critical.</li>
+<li>K4 routing matrix override: <code>contextSize &gt; 8KB ∧ ¬safetyCritical → kimi-k2.6:cloud</code> instead of <code>claude-opus</code> for these classes.</li>
+<li>Safety-critical (class 1 = <code>physics_validation</code>) routes through K4.5 two-pass chain — K2 generates, Claude scrutinizes.</li>
+</ul>
+<h3 id="13-dispatcher-surface"><a class="anchor" href="#13-dispatcher-surface" aria-label="Permalink to 1.3 Dispatcher surface">#</a>1.3 Dispatcher surface</h3>
+<p>Dispatcher: <code>intelligenceDispatcher.ts</code> (presumed — verify with K2) Routing function: <code>aiSystemRouterDispatch(action, params)</code> exported from same file.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Action</th><th>Params</th><th>Returns</th><th>Used by</th></tr></thead>
+<tbody>
+<tr><td><code>ai_route_task</code></td><td><code>{ task: string }</code></td><td><code>RouteDecision</code></td><td>hooks, /smart skill</td></tr>
+<tr><td><code>ai_classify_task</code></td><td><code>{ task: string }</code></td><td><code>TaskClass</code></td><td>classifier-only callers</td></tr>
+<tr><td><code>ai_backend_health</code></td><td>none</td><td><code>BackendHealth[]</code> (all 8 backends probed)</td><td>dashboards, /system-health</td></tr>
+<tr><td><code>ai_backend_probe</code></td><td><code>{ backend: AIBackend }</code></td><td><code>BackendHealth</code></td><td>per-backend check</td></tr>
+<tr><td><code>ai_router_stats</code></td><td>none</td><td><code>{ backends_known: 8, task_classes: 9, ... }</code></td><td>/aware, audits</td></tr>
+</tbody>
+</table></div>
+<h3 id="14-telemetry-ledger"><a class="anchor" href="#14-telemetry-ledger" aria-label="Permalink to 1.4 Telemetry / ledger">#</a>1.4 Telemetry / ledger</h3>
+<ul>
+<li>File: <code>H:/prism/knowledge/summaries/routing-decisions.jsonl</code> (best-effort write, never blocks)</li>
+<li>One line per <code>route()</code> call: <code>{ ts, task, taskClass, primary, fallback, reachable, reason, estimatedCost }</code></li>
+<li><strong>Gap for K8:</strong> No per-model token counts. K8 must extend to <code>{ ..., tier, model_used, prompt_tokens, completion_tokens, cost_estimate }</code>.</li>
+</ul>
+<h3 id="15-health-probe-behavior"><a class="anchor" href="#15-health-probe-behavior" aria-label="Permalink to 1.5 Health probe behavior">#</a>1.5 Health probe behavior</h3>
+<ul>
+<li>60s in-memory cache (<code>cacheTtlMs</code>)</li>
+<li>Two-step Docker probe: <code>docker ps</code> → <code>docker image inspect &lt;imageName&gt;</code> (avoids reporting reachable=true when image was never built — fix made during prior audit; correctness verified)</li>
+<li>Ollama probe ONLY checks <code>/api/tags</code>, doesn&#39;t verify specific model availability — K2 should add per-model probe before claiming <code>kimi-k2.6:cloud</code> reachable.</li>
+</ul>
+<hr>
+<h2 id="2-ollamahookbridgeengine-mcp-serversrcenginesollamahookbridgeenginets-371-lines"><a class="anchor" href="#2-ollamahookbridgeengine-mcp-serversrcenginesollamahookbridgeenginets-371-lines" aria-label="Permalink to §2 — OllamaHookBridgeEngine (mcp-server/src/engines/OllamaHookBridgeEngine.ts, 371 lines)">#</a>§2 — OllamaHookBridgeEngine (<code>mcp-server/src/engines/OllamaHookBridgeEngine.ts</code>, 371 lines)</h2>
+<h3 id="21-configuration-shape-ollamahookconfig"><a class="anchor" href="#21-configuration-shape-ollamahookconfig" aria-label="Permalink to 2.1 Configuration shape (OllamaHookConfig)">#</a>2.1 Configuration shape (<code>OllamaHookConfig</code>)</h3>
+<pre><code class="language-typescript">{
+  baseUrl: &quot;http://localhost:11434&quot;,        // hardcoded local — needs cloud awareness
+  defaultModel: &quot;qwen2.5-coder:14b&quot;,
+  modelOverrides: Partial&lt;Record&lt;HookType, string&gt;&gt;,
+  timeoutMs: 500,                           // hook-friendly tight budget
+  maxTokens: 100,                           // suggestion-sized
+  verbose: false,
+}
+</code></pre>
+<h3 id="22-hook-types-model-routing-hooktype-7-entries"><a class="anchor" href="#22-hook-types-model-routing-hooktype-7-entries" aria-label="Permalink to 2.2 Hook types + model routing (HookType, 7 entries)">#</a>2.2 Hook types + model routing (<code>HookType</code>, 7 entries)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Hook type</th><th>Current model</th><th>Tuning rationale</th></tr></thead>
+<tbody>
+<tr><td><code>grep_index</code></td><td>qwen2.5-coder:7b</td><td>Speed-critical (file routing) — 500ms budget can&#39;t absorb 14b first-token latency</td></tr>
+<tr><td><code>mcp_route</code></td><td>qwen2.5-coder:7b</td><td>Speed-critical (dispatcher routing) — same</td></tr>
+<tr><td><code>ai_feature</code></td><td>qwen2.5-coder:14b</td><td>Quality &gt; speed; latency tolerated</td></tr>
+<tr><td><code>code_explain</code></td><td>qwen2.5-coder:14b</td><td>Quality &gt; speed</td></tr>
+<tr><td><code>pattern_match</code></td><td>qwen2.5-coder:14b</td><td>Better classification &gt; 50ms latency</td></tr>
+<tr><td><code>validation</code></td><td>qwen2.5-coder:14b</td><td>Catching real bugs &gt; speed</td></tr>
+<tr><td><code>general</code></td><td>qwen2.5-coder:7b</td><td>Fast catch-all</td></tr>
+</tbody>
+</table></div>
+<p><strong>Tuning context</strong> (from inline comment): RTX 4080 SUPER (16GB VRAM) — qwen2.5-coder:14b weighs ~9GB and fits entirely on-GPU at ~80 tok/sec.</p>
+<p><strong>Gap for K2.6:cloud:</strong></p>
+<ul>
+<li>Engine has NO concept of cloud-tier Ollama models — <code>baseUrl</code> is hardcoded <code>http://localhost:11434</code>.</li>
+<li>K2/K3 must either (a) introduce a separate <code>K2CloudOllamaEngine</code> with its own baseUrl + auth, OR (b) extend this engine to support tier-tagged baseUrls.</li>
+<li><strong>Recommendation: (a)</strong> — keeps the 500ms hook timeout discipline intact. K2.6:cloud has variable cloud latency (200ms-2s) and shouldn&#39;t co-mingle with the hook latency contract.</li>
+</ul>
+<h3 id="23-system-prompts-per-hook-type-hooksystemprompts"><a class="anchor" href="#23-system-prompts-per-hook-type-hooksystemprompts" aria-label="Permalink to 2.3 System prompts per hook type (HOOKSYSTEMPROMPTS)">#</a>2.3 System prompts per hook type (<code>HOOK_SYSTEM_PROMPTS</code>)</h3>
+<p>7 hardcoded system prompts, one per HookType. All optimized for short responses (1-3 lines). K3 (<code>K2CloudOllamaEngine</code>) won&#39;t reuse these — its system prompts target deeper reasoning tasks.</p>
+<h3 id="24-public-surface"><a class="anchor" href="#24-public-surface" aria-label="Permalink to 2.4 Public surface">#</a>2.4 Public surface</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Method</th><th>Purpose</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td><code>query(prompt, options)</code></td><td>Single-shot generate</td><td>Validates: prompt non-empty, ≤10000 chars; uses AbortController for timeout</td></tr>
+<tr><td><code>status()</code></td><td>Probe <code>/api/tags</code> + cache models</td><td>2s timeout</td></tr>
+<tr><td><code>configure(updates)</code></td><td>Update config with validation</td><td>baseUrl must start with <code>http</code>; timeoutMs ∈ [50, 30000]; maxTokens ∈ [1, 4096]</td></tr>
+<tr><td><code>getConfig()</code></td><td>Read-only copy</td><td></td></tr>
+<tr><td><code>isAvailable()</code></td><td>Cached availability check</td><td>60s TTL</td></tr>
+<tr><td><code>getModelForHook(type)</code></td><td>Resolve model for hook type</td><td></td></tr>
+<tr><td><code>getInstance()</code> (static)</td><td>Singleton accessor</td><td></td></tr>
+<tr><td><code>resetInstance()</code> (static)</td><td>Test seam</td><td></td></tr>
+</tbody>
+</table></div>
+<h3 id="25-dispatcher-wiring-status"><a class="anchor" href="#25-dispatcher-wiring-status" aria-label="Permalink to 2.5 Dispatcher wiring status">#</a>2.5 Dispatcher wiring status</h3>
+<p><strong>UNKNOWN — needs K2 verification.</strong> No dispatcher reference visible in this file. K2 must:</p>
+<ol>
+<li>Grep for <code>OllamaHookBridgeEngine</code> / <code>ollamaHookBridgeEngine</code> / <code>getModelForHook</code> across <code>src/tools/dispatchers/</code></li>
+<li>If wired: confirm action enum</li>
+<li>If NOT wired: this is an existing wiring gap (separate from K2 work) — flag in K2 deliverable</li>
+</ol>
+<h3 id="26-telemetry-ledger"><a class="anchor" href="#26-telemetry-ledger" aria-label="Permalink to 2.6 Telemetry / ledger">#</a>2.6 Telemetry / ledger</h3>
+<ul>
+<li><strong>None present</strong> — every <code>query()</code> returns <code>latencyMs</code> to caller but nothing is persisted.</li>
+<li><code>H:/prism/mcp-server/data/state/ollama-offload-stats.json</code> (schema 2.0.0) is written by <code>OllamaHookBridgeEngine</code> callers (hooks), not by the engine itself.</li>
+<li>K8 schema 3.0.0 must add: <code>model_used</code>, <code>tier</code> (local|cloud), <code>cost_estimate</code>, <code>tokens_in</code>, <code>tokens_out</code> per event.</li>
+</ul>
+<hr>
+<h2 id="3-insertion-plan-summary-feeds-k2"><a class="anchor" href="#3-insertion-plan-summary-feeds-k2" aria-label="Permalink to §3 — Insertion plan summary (feeds K2)">#</a>§3 — Insertion plan summary (feeds K2)</h2>
+<h3 id="31-new-backend-id-k2-deliverable"><a class="anchor" href="#31-new-backend-id-k2-deliverable" aria-label="Permalink to 3.1 New backend ID (K2 deliverable)">#</a>3.1 New backend ID (K2 deliverable)</h3>
+<p>Add to <code>AIBackend</code> union:</p>
+<pre><code class="language-typescript">| &quot;kimi-k2.6:cloud&quot;
+</code></pre>
+<p>Probe method: HEAD <code>https://ollama.com/api/version</code> (or whatever the cloud-tier health endpoint is — K2 needs to confirm via Ollama docs / <code>ollama signin</code> flow).</p>
+<h3 id="32-new-task-class-routing-rules-k4-deliverable-depends-k2k3"><a class="anchor" href="#32-new-task-class-routing-rules-k4-deliverable-depends-k2k3" aria-label="Permalink to 3.2 New task-class routing rules (K4 deliverable, depends K2+K3)">#</a>3.2 New task-class routing rules (K4 deliverable, depends K2+K3)</h3>
+<pre><code class="language-typescript">// Augment switch in route():
+case &quot;engine_building&quot;:
+case &quot;reasoning&quot;:
+  if (this.contextSize(taskDescription) &gt; 8000 &amp;&amp; !this.isSafetyCritical(taskDescription)) {
+    primary = &quot;kimi-k2.6:cloud&quot;;
+    fallback = [&quot;claude-opus&quot;, &quot;claude-sonnet&quot;];
+    reason = &quot;AGGRESSIVE escalation: context &gt;8K, K2.6 mid-tier replaces Opus&quot;;
+    estimatedCost = &quot;low&quot;;        // ~10× cheaper than Opus
+  } else if (this.isSafetyCritical(taskDescription)) {
+    // K4.5 two-pass: K2 generates, Claude scrutinizes
+    primary = &quot;kimi-k2.6:cloud&quot;;
+    fallback = [&quot;claude-opus&quot;];
+    reason = &quot;Safety-critical: K2 generates, K4.5 chain triggers Claude scrutiny&quot;;
+    estimatedCost = &quot;medium&quot;;
+  }
+</code></pre>
+<h3 id="33-new-helper-methods-k2-deliverable-on-engine"><a class="anchor" href="#33-new-helper-methods-k2-deliverable-on-engine" aria-label="Permalink to 3.3 New helper methods (K2 deliverable on engine)">#</a>3.3 New helper methods (K2 deliverable on engine)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Method</th><th>Returns</th><th>Purpose</th></tr></thead>
+<tbody>
+<tr><td><code>contextSize(task: string): number</code></td><td>char count of task</td><td>Trigger for AGGRESSIVE escalation</td></tr>
+<tr><td><code>isSafetyCritical(task: string): boolean</code></td><td>regex match: <code>safety|kienzle|taylor|stress|deflection|collision|chatter|spindle.*load|tool.*break</code></td><td>K4.5 trigger</td></tr>
+<tr><td><code>getCurrentSessionTokens(): number</code></td><td>accumulator from K8 telemetry</td><td>K7 cost guard input</td></tr>
+</tbody>
+</table></div>
+<h3 id="34-files-k2-k12-will-touch-claim-early"><a class="anchor" href="#34-files-k2-k12-will-touch-claim-early" aria-label="Permalink to 3.4 Files K2-K12 will touch (claim early)">#</a>3.4 Files K2-K12 will touch (claim early)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Phase</th><th>File</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td>K2</td><td><code>src/engines/AISystemRouterEngine.ts</code></td><td>Add backend ID + helpers</td></tr>
+<tr><td>K2</td><td><code>src/__tests__/AISystemRouterEngine.test.ts</code></td><td>New tier coverage</td></tr>
+<tr><td>K3</td><td><code>src/engines/K2CloudOllamaEngine.ts</code> (NEW)</td><td>Adapter — auth + fallback to qwen</td></tr>
+<tr><td>K3</td><td><code>src/__tests__/K2CloudOllamaEngine.test.ts</code> (NEW)</td><td>5 failure modes + 2 adversarial</td></tr>
+<tr><td>K4</td><td><code>src/engines/AISystemRouterEngine.ts</code></td><td>Routing matrix update</td></tr>
+<tr><td>K4.5</td><td><code>src/engines/K2ScrutinizeChainEngine.ts</code> (NEW)</td><td>Two-pass orchestrator</td></tr>
+<tr><td>K4.5</td><td><code>src/__tests__/K2ScrutinizeChainEngine.test.ts</code> (NEW)</td><td>PASS/REVISE/FAIL paths</td></tr>
+<tr><td>K5</td><td><code>.claude/hooks/ollama-tier-router.mjs</code> (NEW)</td><td>UserPromptSubmit hook</td></tr>
+<tr><td>K6</td><td><code>.claude/commands/k2-ask.md</code> (NEW)</td><td>Skill</td></tr>
+<tr><td>K7</td><td><code>src/engines/AISystemRouterEngine.ts</code></td><td>Cost guard</td></tr>
+<tr><td>K8</td><td><code>mcp-server/data/state/ollama-offload-stats.json</code></td><td>schema 2.0.0 → 3.0.0 + migration</td></tr>
+<tr><td>K8</td><td><code>src/migrations/ollama-offload-stats-v3.ts</code> (NEW)</td><td>Migration</td></tr>
+<tr><td>K9</td><td><code>scripts/ollama-offload-dashboard.mjs</code></td><td>Extend with cost projection</td></tr>
+<tr><td>K10</td><td>All test files above</td><td>Coverage validation</td></tr>
+<tr><td>K11</td><td><code>scripts/k2-cloud-auth-setup.mjs</code> (NEW)</td><td><code>ollama signin</code> wrapper</td></tr>
+<tr><td>K12</td><td><code>H:/prism/CLAUDE.md</code></td><td>3-tier ladder doc + Boris back-flow note</td></tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="4-open-questions-surfaced-during-inventory-must-resolve-before-k3"><a class="anchor" href="#4-open-questions-surfaced-during-inventory-must-resolve-before-k3" aria-label="Permalink to §4 — Open questions surfaced during inventory (must resolve before K3)">#</a>§4 — Open questions surfaced during inventory (must resolve before K3)</h2>
+<ol>
+<li><strong>Ollama cloud auth shape</strong> — does <code>ollama signin</code> produce a config file, env var, or per-call header? K3 design depends on this. <strong>Resolution path:</strong> K11 inventory (run <code>ollama signin --help</code> + read Ollama docs); defer K3 implementation until K11&#39;s auth shape lands.</li>
+<li><strong>Cost-per-token for <code>kimi-k2.6:cloud</code></strong> — Moonshot pricing not yet captured in PRISM. K7/K8/K9 need this constant. <strong>Resolution path:</strong> K2 deliverable adds <code>KIMI_K2_PRICING</code> constant block (input + output $/1M tokens) sourced from Moonshot API docs at K2 build time.</li>
+<li><strong>OllamaHookBridgeEngine dispatcher wiring</strong> — unclear whether currently wired. <strong>Resolution path:</strong> K2 first action is grep, results gate whether K2 also fixes the wiring gap or leaves it for separate unit.</li>
+<li><strong>Context-size estimation</strong> — <code>task.length</code> is char count, NOT token count. AGGRESSIVE rule uses <code>&gt;8K context</code> — should this be 8K chars or 8K tokens? <strong>Decision (this inventory):</strong> start with 8K <strong>chars</strong> for K4 (cheap to compute, no tokenizer dep); upgrade to 8K <strong>tokens</strong> in K9 if telemetry shows mis-routing.</li>
+<li><strong>K4.5 scrutiny chain return shape</strong> — does K4.5 return <code>{ verdict, response_K2, claude_revisions? }</code> or modify <code>RouteDecision</code>? <strong>Decision (this inventory):</strong> new type <code>ScrutinyDecision { verdict: &#39;PASS&#39;|&#39;REVISE&#39;|&#39;FAIL&#39;, primary_response: string, scrutiny_notes: string, total_cost: number, claude_revisions?: string }</code> — keeps <code>RouteDecision</code> API stable.</li>
+</ol>
+<hr>
+<h2 id="5-boris-loop-verification-gates-for-k1-this-doc"><a class="anchor" href="#5-boris-loop-verification-gates-for-k1-this-doc" aria-label="Permalink to §5 — Boris loop verification gates for K1 (this doc)">#</a>§5 — Boris loop verification gates for K1 (this doc)</h2>
+<ul>
+<li>[ ] <strong>Self-review:</strong> doc enumerates all 8 backends + 9 task classes + 7 hook types + 5 dispatcher actions present in the source. ✅ verified above.</li>
+<li>[ ] <strong>Peer reviewer subagent (deferred to K3 milestone):</strong> spawn <code>Agent({ subagent_type: &#39;reviewer&#39;, isolation: &#39;worktree&#39;, prompt: &lt;review K1+K2+K3 together&gt; })</code> after K3 lands — review batch reduces 3× peer-spawn cost.</li>
+<li>[ ] <strong>Cross-CLI 3-way:</strong> out of scope for inventory doc (no diff to scrutinize). Will apply at K3 + K4.5 milestones.</li>
+<li>[ ] <strong>Regression flow:</strong> any defects discovered → CLAUDE.md <code>## Recent regressions</code> block per Boris doctrine.</li>
+</ul>
+<hr>
+<h2 id="6-provenance"><a class="anchor" href="#6-provenance" aria-label="Permalink to §6 — Provenance">#</a>§6 — Provenance</h2>
+<ul>
+<li>Source files read in full this session: <code>AISystemRouterEngine.ts</code> (298 lines), <code>OllamaHookBridgeEngine.ts</code> (371 lines)</li>
+<li>User-locked decisions: <code>K2-CLOUD-INTEGRATION-PLAN.md</code> §6 (100K/session cap, AGGRESSIVE, two-pass, Wave 5.5)</li>
+<li>Doctrine: <code>BORIS-LOOP-AGENT-DOCTRINE.md</code> (227 lines)</li>
+<li>Inventory date: 2026-05-10 · Inventory chat: claude-85cedf09</li>
+</ul>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="K2-ROUTER-INVENTORY.md">K2-ROUTER-INVENTORY.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

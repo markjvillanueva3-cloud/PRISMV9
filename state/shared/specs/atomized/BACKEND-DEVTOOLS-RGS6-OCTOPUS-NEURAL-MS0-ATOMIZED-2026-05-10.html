@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="3c4269cc94fefe19c52697cb6250c4026783e919232cbe106320064d6efceca6">
+<title>OCTOPUS-NEURAL-MS0</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">OCTOPUS-NEURAL-MS0</h1>
+<p class="provenance">Generated 2026-05-12T12:43:27.522Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#octopus-neural-ms0-atomized">OCTOPUS-NEURAL-MS0 — atomized</a></li>
+<li class="toc-l2"><a href="#u-ocn01-build-kimitransportengine-mid-tier-tentacle">U-OCN01 — Build KimiTransportEngine (mid-tier tentacle)</a></li>
+<li class="toc-l2"><a href="#u-ocn02-build-moalayer2engine-aggregator-over-current-3-of-3">U-OCN02 — Build MoaLayer2Engine (aggregator over current 3-of-3)</a></li>
+<li class="toc-l2"><a href="#u-ocn03-build-neuralroutingengine-graphrouter-on-scrutiny-ledger">U-OCN03 — Build NeuralRoutingEngine (GraphRouter on scrutiny ledger)</a></li>
+<li class="toc-l2"><a href="#u-ocn04-build-cascadecalibrationengine-probe-based-offload">U-OCN04 — Build CascadeCalibrationEngine (probe-based offload)</a></li>
+<li class="toc-l2"><a href="#u-ocn05-build-consensusquorumengine-dynamic-n-of-m-from-change-class">U-OCN05 — Build ConsensusQuorumEngine (dynamic N-of-M from change class)</a></li>
+<li class="toc-l2"><a href="#x-closing-notes">§X — Closing notes</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<details class="frontmatter" open><summary>Document metadata</summary><div class="table-wrap"><table>
+<tbody>
+<tr><th scope="row">milestone</th><td>OCTOPUS-NEURAL-MS0</td></tr>
+<tr><th scope="row">parent_roadmap</th><td>BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-2026-05-10.md</td></tr>
+<tr><th scope="row">research_source</th><td>state/shared/research/2026-05-10-pass2-octopus-neural.md</td></tr>
+<tr><th scope="row">total_units</th><td>5</td></tr>
+<tr><th scope="row">critical_path_role</th><td>octopus 5/5 + neural-coordinated cascade — depends on K2-CLOUD-MS0</td></tr>
+<tr><th scope="row">loop_registrations</th><td>1 (cascade-calibration probe 7d)</td></tr>
+<tr><th scope="row">date</th><td>2026-05-10</td></tr>
+</tbody>
+</table></div></details>
+<h1 id="octopus-neural-ms0-atomized"><a class="anchor" href="#octopus-neural-ms0-atomized" aria-label="Permalink to OCTOPUS-NEURAL-MS0 — atomized">#</a>OCTOPUS-NEURAL-MS0 — atomized</h1>
+<blockquote>
+<p>Multi-LLM coordination synthesis: MoA (Wang 2406.04692) + Reflexion (Shinn 2303.11366) + FrugalGPT (Chen 2305.05176) + Self-MoA (2502.00674) + RMoA (2505.24442) + Puppeteer (2505.19591) + GraphRouter (2410.03834) + GATEKEEPER (2502.19335) — plus Kimi K2.6 (Apr 2026) as native mid-tier swarm host.</p>
+</blockquote>
+<hr>
+<h2 id="u-ocn01-build-kimitransportengine-mid-tier-tentacle"><a class="anchor" href="#u-ocn01-build-kimitransportengine-mid-tier-tentacle" aria-label="Permalink to U-OCN01 — Build KimiTransportEngine (mid-tier tentacle)">#</a>U-OCN01 — Build <code>KimiTransportEngine</code> (mid-tier tentacle)</h2>
+<ul>
+<li>pillar: octopus</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 90</li>
+<li>leverage_score: 14</li>
+<li>why: 5/5 octopus consensus needs all tentacles; Kimi K2.6 is ~10× cheaper than Opus at 256K context with native 300-sub-agent swarms</li>
+<li>depends_on: [K2-CLOUD-MS0 H6 (cross-worktree firewall)]</li>
+<li>blocks: [U-OCN02, U-OCN03, U-OCN04, U-OCN05]</li>
+<li>parallel_with: []</li>
+<li>viz_node_id: <code>eng.ai.kimitransportengine</code> (TBD-create)</li>
+<li>closes_synergy_edge: octopus × octopus (currently 3/5, this makes 4/5)</li>
+<li>loop_schedule: none</li>
+</ul>
+<p>verifies_via:   channel: integration   tool: <code>curl ... | node scripts/kimi-roundtrip-test.mjs</code>   expected_signal: HTTP 200 + valid JSON response within 30s   re_run_cost: 30s   baseline: nonexistent</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Read path: <code>state/shared/research/2026-05-10-pass2-octopus-neural.md</code> action: extract Moonshot OpenAI-compat API spec verify: spec section identified</li>
+<li>step-2: tool: Write path: <code>mcp-server/src/engines/KimiTransportEngine.ts</code> action: HTTP client w/ bearer auth, stream support, retry-with-backoff, timeout 30s verify: file exists, exports singleton</li>
+<li>step-3: tool: Write path: <code>mcp-server/src/__tests__/KimiTransportEngine.test.ts</code> action: 7 tests — happy, 401, 429, timeout, invalid JSON, stream cancel, prompt-injection in response verify: 7 passed (mock fetch)</li>
+<li>step-4: tool: Edit path: <code>mcp-server/src/schemas/aiReasoningActionSchemas.ts</code> action: add <code>kimi_invoke</code> Zod schema (input: prompt, model, max_tokens; output: text, usage) verify: TS compiles</li>
+<li>step-5: tool: Edit path: <code>mcp-server/src/tools/dispatchers/aiReasoningDispatcher.ts</code> action: wire <code>kimi_invoke</code> action with lazy import verify: round-trip MCP returns mock response</li>
+<li>step-6: tool: Bash path: <code>mcp-server/</code> action: build + integration test verify: <code>npm run build:fast &amp;&amp; npx vitest run KimiTransport</code> → all green</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>prompt injection in API response (jailbreak attempt)</li>
+<li>4GB streaming response (memory exhaustion)</li>
+<li>bearer token leaked in error message (security)</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>kimi-k2.6 / kimi-k2.5 / fallback-qwen-cloud (3 model variants)</li>
+<li>1k / 10k / 100k context input sizes</li>
+<li>happy-path / rate-limit / network-partition</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>401 unauthorized → emit alarm + fall back to Claude</li>
+<li>429 rate-limit → exponential backoff (1s/2s/4s/8s, max 4 retries)</li>
+<li>timeout → cascade fallback to Qwen (local) per <code>AISystemRouterEngine</code></li>
+</ul>
+<hr>
+<h2 id="u-ocn02-build-moalayer2engine-aggregator-over-current-3-of-3"><a class="anchor" href="#u-ocn02-build-moalayer2engine-aggregator-over-current-3-of-3" aria-label="Permalink to U-OCN02 — Build MoaLayer2Engine (aggregator over current 3-of-3)">#</a>U-OCN02 — Build <code>MoaLayer2Engine</code> (aggregator over current 3-of-3)</h2>
+<ul>
+<li>pillar: octopus</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 80</li>
+<li>leverage_score: 13</li>
+<li>why: MoA pattern beats single-model by 30%+; aggregator distills proposer outputs into senior-model final pass</li>
+<li>depends_on: [U-OCN01]</li>
+<li>blocks: [U-OCN03, U-OCN05]</li>
+<li>parallel_with: [U-OCN04]</li>
+<li>viz_node_id: <code>eng.ai.moalayer2engine</code> (TBD-create)</li>
+<li>closes_synergy_edge: octopus × dispatchers (currently manual)</li>
+<li>loop_schedule: none</li>
+</ul>
+<p>verifies_via:   channel: eval   tool: <code>node scripts/moa-eval.mjs --queries=10</code>   expected_signal: aggregated quality &gt;= individual-best by ≥10% on rubric   re_run_cost: 60s   baseline: scrutiny-3way returns 3 verdicts, no aggregation layer</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Read path: <code>mcp-server/src/engines/ScrutinyLedgerEngine.ts</code> action: pattern reference for 3-way consensus verify: file readable</li>
+<li>step-2: tool: Write path: <code>mcp-server/src/engines/MoaLayer2Engine.ts</code> action: collect 3-of-3 proposer outputs → senior-model aggregation prompt → return distilled verify: file exists</li>
+<li>step-3: tool: Write path: <code>mcp-server/src/__tests__/MoaLayer2Engine.test.ts</code> action: 6 tests — happy, single proposer (degenerate), disagreement (high entropy), all-fail, senior model offline, oversized aggregation verify: 6 passed</li>
+<li>step-4: tool: Edit path: <code>mcp-server/src/tools/dispatchers/aiReasoningDispatcher.ts</code> action: add <code>moa_aggregate</code> action verify: round-trip MCP</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>2 of 3 proposers return identical (collusion / over-fitting)</li>
+<li>Self-MoA dilution risk: homogeneous responses</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>3 / 5 / 7 proposer pool</li>
+<li>Claude / Sonnet / Kimi senior aggregator</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>senior aggregator down → fall back to majority vote</li>
+<li>dilution (per Self-MoA 2502.00674) → anchor with senior verdict, downweight proposers when entropy low</li>
+<li>aggregation &gt; context limit → truncate per proposer (keep top-N by confidence)</li>
+</ul>
+<hr>
+<h2 id="u-ocn03-build-neuralroutingengine-graphrouter-on-scrutiny-ledger"><a class="anchor" href="#u-ocn03-build-neuralroutingengine-graphrouter-on-scrutiny-ledger" aria-label="Permalink to U-OCN03 — Build NeuralRoutingEngine (GraphRouter on scrutiny ledger)">#</a>U-OCN03 — Build <code>NeuralRoutingEngine</code> (GraphRouter on scrutiny ledger)</h2>
+<ul>
+<li>pillar: octopus</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 75</li>
+<li>leverage_score: 12</li>
+<li>why: GraphRouter (2410.03834) replaces hardcoded routing chains with learned topology; PRISM has scrutiny ledger for training data</li>
+<li>depends_on: [U-OCN02]</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-OCN04, U-OCN05]</li>
+<li>viz_node_id: <code>eng.ai.neuralroutingengine</code> (TBD-create)</li>
+<li>closes_synergy_edge: neural × dispatchers (currently auto, this productizes)</li>
+<li>loop_schedule: 24h (retrain on new ledger entries)</li>
+</ul>
+<p>verifies_via:   channel: eval   tool: <code>node scripts/neural-routing-eval.mjs --holdout=20</code>   expected_signal: routing accuracy &gt; 70%   re_run_cost: 90s   baseline: hardcoded routing accuracy ~50%</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Read path: <code>mcp-server/data/state/SCRUTINY_LEDGER.json</code> action: confirm ledger has ≥50 entries for training verify: <code>jq &#39;.entries|length&#39; SCRUTINY_LEDGER.json</code> ≥ 50</li>
+<li>step-2: tool: Write path: <code>mcp-server/src/engines/NeuralRoutingEngine.ts</code> action: lightweight GNN — embed (change-class, file-types, peer-count) → route decision verify: file exists</li>
+<li>step-3: tool: Write path: <code>scripts/neural-routing-train.mjs</code> action: train script — reads ledger, outputs model weights to <code>state/shared/neural-routing-weights.json</code> verify: weights file produced</li>
+<li>step-4: tool: Write path: <code>scripts/neural-routing-eval.mjs</code> action: 80/20 split eval, reports accuracy verify: script runs, prints metric</li>
+<li>step-5: tool: Edit path: <code>mcp-server/src/tools/dispatchers/aiReasoningDispatcher.ts</code> action: wire <code>neural_route_decision</code> action verify: round-trip MCP</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>ledger poisoned with fake entries</li>
+<li>distribution shift (training data stale)</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>small / medium / large change-class</li>
+<li>50 / 200 / 1000 training entries</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>cold-start (&lt; 50 entries) → fall back to hardcoded rules</li>
+<li>drift → 24h retrain catches; manual reset path</li>
+<li>GNN OOM on large graphs → batch + average</li>
+</ul>
+<hr>
+<h2 id="u-ocn04-build-cascadecalibrationengine-probe-based-offload"><a class="anchor" href="#u-ocn04-build-cascadecalibrationengine-probe-based-offload" aria-label="Permalink to U-OCN04 — Build CascadeCalibrationEngine (probe-based offload)">#</a>U-OCN04 — Build <code>CascadeCalibrationEngine</code> (probe-based offload)</h2>
+<ul>
+<li>pillar: octopus</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 70</li>
+<li>leverage_score: 11</li>
+<li>why: FrugalGPT + GATEKEEPER show probe-based deferral cuts cost 98%; PRISM lacks calibration loop</li>
+<li>depends_on: [U-OCN01]</li>
+<li>blocks: [COST-CASCADE-MS0]</li>
+<li>parallel_with: [U-OCN02, U-OCN03]</li>
+<li>viz_node_id: <code>eng.ai.cascadecalibrationengine</code> (TBD-create)</li>
+<li>closes_synergy_edge: octopus × cost (currently manual)</li>
+<li>loop_schedule: 7d (probe set refresh)</li>
+</ul>
+<p>verifies_via:   channel: metric   tool: <code>node scripts/cascade-calibrate.mjs --probes=50</code>   expected_signal: cost-quality frontier produced, defer threshold computed   re_run_cost: 5min   baseline: hardcoded thresholds</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Write path: <code>mcp-server/src/engines/CascadeCalibrationEngine.ts</code> action: run 50 probe prompts through each tier, compute cost-vs-quality frontier verify: file exists</li>
+<li>step-2: tool: Write path: <code>scripts/cascade-calibrate.mjs</code> action: CLI — writes <code>state/shared/cascade-thresholds.json</code> verify: thresholds file produced</li>
+<li>step-3: tool: Write path: <code>mcp-server/src/__tests__/CascadeCalibrationEngine.test.ts</code> action: 5 tests — happy, all tiers fail probe, oversized probe set, missing baseline, NaN scores verify: 5 passed</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>probe set memorized by model → over-fit thresholds</li>
+<li>probe response truncated mid-stream</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>10 / 50 / 200 probes</li>
+<li>manufacturing / AI / safety domain probes (3 spanning)</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>all probes fail → preserve last-known-good thresholds + alarm</li>
+<li>cost runaway → hard cap on probe budget</li>
+<li>drift → 7d refresh</li>
+</ul>
+<hr>
+<h2 id="u-ocn05-build-consensusquorumengine-dynamic-n-of-m-from-change-class"><a class="anchor" href="#u-ocn05-build-consensusquorumengine-dynamic-n-of-m-from-change-class" aria-label="Permalink to U-OCN05 — Build ConsensusQuorumEngine (dynamic N-of-M from change class)">#</a>U-OCN05 — Build <code>ConsensusQuorumEngine</code> (dynamic N-of-M from change class)</h2>
+<ul>
+<li>pillar: octopus</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 65</li>
+<li>leverage_score: 11</li>
+<li>why: not every change needs 5/5 consensus; minor → 2-of-5 is fine; safety-critical → 5/5 mandatory</li>
+<li>depends_on: [U-OCN02]</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-OCN03, U-OCN04]</li>
+<li>viz_node_id: <code>eng.ai.consensusquorumengine</code> (TBD-create)</li>
+<li>closes_synergy_edge: octopus × safety (currently manual)</li>
+<li>loop_schedule: none</li>
+</ul>
+<p>verifies_via:   channel: integration   tool: classify-then-quorum 10 diffs → assert quorum matches policy   expected_signal: 10/10 correctly assigned (minor→2, major→3, safety→5)   re_run_cost: 60s   baseline: fixed 3-of-3 for everything</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Write path: <code>mcp-server/src/engines/ConsensusQuorumEngine.ts</code> action: classify diff (regex on file paths + content patterns) → return quorum requirement verify: file exists</li>
+<li>step-2: tool: Write path: <code>mcp-server/src/__tests__/ConsensusQuorumEngine.test.ts</code> action: 6 tests — minor diff, major refactor, safety-critical (physics constants), test-only, doc-only, mixed verify: 6 passed</li>
+<li>step-3: tool: Edit path: <code>.claude/scripts/scrutiny-3way.mjs</code> action: query ConsensusQuorumEngine before dispatching; honor returned N verify: scrutiny-Nway now adapts per diff</li>
+<li>step-4: tool: Edit path: <code>mcp-server/src/tools/dispatchers/safetyDispatcher.ts</code> action: add <code>quorum_required</code> action verify: round-trip MCP</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>mislabeled diff (safety-critical disguised as minor)</li>
+<li>1000-file diff (oversized classification)</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>1 / 10 / 100 file diff sizes</li>
+<li>manufacturing / AI / dev-tools / safety domains</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>misclassification → safety-net: when unsure, escalate to higher quorum</li>
+<li>quorum unavailable (some CLIs down) → defer with explicit risk acceptance</li>
+<li>classifier drift → weekly recalibration</li>
+</ul>
+<hr>
+<h2 id="x-closing-notes"><a class="anchor" href="#x-closing-notes" aria-label="Permalink to §X — Closing notes">#</a>§X — Closing notes</h2>
+<p><strong>Critical-path:</strong> U-OCN01 (Kimi transport) is the gate. Once built, U-OCN02..05 fan out in parallel.</p>
+<p><strong>K2-CLOUD-MS0 dependency:</strong> specifically waits on H6 (cross-worktree firewall) to land first.</p>
+<p><strong>Cron registrations:</strong> <code>/loop --interval 7d</code> for U-OCN04 probe refresh; <code>/loop --interval 24h</code> for U-OCN03 GNN retrain.</p>
+<p><strong>Synergy edges closed:</strong> 5 of 56 (octopus × octopus, octopus × dispatchers, neural × dispatchers, octopus × cost, octopus × safety).</p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="BACKEND-DEVTOOLS-RGS6-OCTOPUS-NEURAL-MS0-ATOMIZED-2026-05-10.md">BACKEND-DEVTOOLS-RGS6-OCTOPUS-NEURAL-MS0-ATOMIZED-2026-05-10.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

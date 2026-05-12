@@ -74,9 +74,11 @@ const WORKHOLDING_ACTIONS = new Set([
   "calculate_clamp_force_required", "validate_workholding_setup", "check_pullout_resistance",
   "analyze_liftoff_moment", "calculate_part_deflection", "validate_vacuum_fixture"
 ]);
+// WorkholdingIntelligenceEngine — fixture recommendation + deflection/slip/safety analysis (R7-MS2)
+const WORKHOLDING_INTELLIGENCE_ACTIONS = new Set(["recommend_workholding"]);
 const ALL_ACTIONS = [
   ...COLLISION_ACTIONS, ...COOLANT_ACTIONS, ...SPINDLE_ACTIONS,
-  ...BREAKAGE_ACTIONS, ...WORKHOLDING_ACTIONS
+  ...BREAKAGE_ACTIONS, ...WORKHOLDING_ACTIONS, ...WORKHOLDING_INTELLIGENCE_ACTIONS
 ] as const;
 
 /** Registers safety dispatcher.
@@ -157,6 +159,9 @@ export function registerSafetyDispatcher(server: any): void {
           result = await handleToolBreakageTool(action, params);
         } else if (WORKHOLDING_ACTIONS.has(action)) {
           result = await handleWorkholdingTool(action, params);
+        } else if (WORKHOLDING_INTELLIGENCE_ACTIONS.has(action)) {
+          const { workholdingIntelligence } = await import("../../engines/WorkholdingIntelligenceEngine.js");
+          result = workholdingIntelligence("fixture_recommend", params);
         } else {
           return { content: [{ type: "text" as const, text: JSON.stringify({ error: `Unknown safety action: ${action}` }) }] };
         }

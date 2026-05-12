@@ -251,6 +251,17 @@ const hook_efficiency_roi = z.object({
   session_budget: z.number().positive().optional().describe("Session token budget for ROI calc (default 150000)"),
 }).passthrough();
 
+// ── HOOK-MANIFEST-DAG-MS26/P0-U01: static hook manifest ─────────────
+const manifest = z.object({
+  full: z.boolean().optional().describe("Return the entire hook catalog (every hook + wiring), not the summary"),
+  write: z.boolean().optional().describe("(Re)write mcp-server/data/state/hook-manifest.json"),
+  regenerate: z.boolean().optional().describe("Alias for write"),
+  outPath: z.string().optional().describe("Override the manifest output path (used with write/regenerate)"),
+  repoRoot: z.string().optional().describe("Repo root to anchor the scan (default: auto-detect)"),
+  hook: z.string().optional().describe("Look up one hook by relative file path or basename id"),
+  event: z.string().optional().describe("List the hooks wired to a single event (e.g. PreToolUse)"),
+}).passthrough();
+
 export const HOOK_ACTION_SCHEMAS: ActionSchemaMap = {
   // V2 Hook Tools (5)
   list,
@@ -302,4 +313,6 @@ export const HOOK_ACTION_SCHEMAS: ActionSchemaMap = {
   hook_bandit_select,
   hook_telemetry_metrics,
   hook_efficiency_roi,
+  // HOOK-MANIFEST-DAG-MS26/P0-U01: static hook manifest
+  manifest,
 };

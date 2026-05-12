@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="de72447436cae2b4c65a9f19dd1b8cb4d0c2c7034e74db0a38a18b4c1758bb6b">
+<title>PRISM System-Viz Tool Inventory + External MCP / Plugin Adoption Map</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">PRISM System-Viz Tool Inventory + External MCP / Plugin Adoption Map</h1>
+<p class="provenance">Generated 2026-05-12T12:43:26.582Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#prism-system-viz-tool-inventory-external-adoption-map">PRISM System-Viz Tool Inventory + External Adoption Map</a></li>
+<li class="toc-l2"><a href="#1-prisms-existing-dev-tool-inventory">§1 — PRISM&#39;s Existing Dev-Tool Inventory</a></li>
+<li class="toc-l3"><a href="#11-skills-637-total-247-project-390-user">§1.1 Skills (637 total: 247 project + 390 user)</a></li>
+<li class="toc-l3"><a href="#12-hooks-518-total-464-claude-54-source">§1.2 Hooks (518 total: 464 Claude + 54 source)</a></li>
+<li class="toc-l3"><a href="#13-scripts-526-total">§1.3 Scripts (526 total)</a></li>
+<li class="toc-l3"><a href="#14-dispatchers-97-total-7341-actions">§1.4 Dispatchers (97 total, 7341 actions)</a></li>
+<li class="toc-l3"><a href="#15-agents-150-across-project-user">§1.5 Agents (~150 across project + user)</a></li>
+<li class="toc-l3"><a href="#16-plugins-currently-installed">§1.6 Plugins Currently Installed</a></li>
+<li class="toc-l2"><a href="#2-reputable-external-mcp-servers-worth-installing">§2 — Reputable External MCP Servers Worth Installing</a></li>
+<li class="toc-l3"><a href="#21-foundation-servers-do-consider">§2.1 Foundation servers (DO consider)</a></li>
+<li class="toc-l3"><a href="#22-manufacturing-specific-high-value-domain-match">§2.2 Manufacturing-Specific (HIGH value — domain match)</a></li>
+<li class="toc-l3"><a href="#23-memory-vector-knowledge-consider-for-redundancy">§2.3 Memory / Vector / Knowledge (consider for redundancy)</a></li>
+<li class="toc-l3"><a href="#24-observability-telemetry-prism-mentions-grafana-but-no-mcp-wrap">§2.4 Observability / Telemetry (PRISM mentions Grafana but no MCP wrap)</a></li>
+<li class="toc-l3"><a href="#25-code-quality-security">§2.5 Code-Quality / Security</a></li>
+<li class="toc-l3"><a href="#26-commerce-business-only-if-monetizing">§2.6 Commerce / Business (only if monetizing)</a></li>
+<li class="toc-l3"><a href="#27-skipped-overlap-paid-or-fabricated">§2.7 Skipped (overlap, paid, or fabricated)</a></li>
+<li class="toc-l2"><a href="#3-reputable-claude-code-plugins-worth-installing">§3 — Reputable Claude Code Plugins Worth Installing</a></li>
+<li class="toc-l3"><a href="#31-anthropic-official-catalog-claude-plugins-official">§3.1 Anthropic Official Catalog (claude-plugins-official)</a></li>
+<li class="toc-l3"><a href="#32-anthropic-knowledge-work-plugins-anthropicsknowledge-work-plugins">§3.2 Anthropic Knowledge-Work Plugins (anthropics/knowledge-work-plugins)</a></li>
+<li class="toc-l3"><a href="#33-community-plugin-bundles">§3.3 Community Plugin Bundles</a></li>
+<li class="toc-l2"><a href="#4-wiring-map-files-to-update-for-each-adoption">§4 — Wiring Map: Files to Update for Each Adoption</a></li>
+<li class="toc-l3"><a href="#41-for-each-high-value-mcp-server-2">§4.1 For each high-value MCP server (§2)</a></li>
+<li class="toc-l3"><a href="#42-for-each-anthropic-plugin-31">§4.2 For each Anthropic plugin (§3.1)</a></li>
+<li class="toc-l3"><a href="#43-for-each-knowledge-work-plugin-32">§4.3 For each knowledge-work plugin (§3.2)</a></li>
+<li class="toc-l3"><a href="#44-for-each-community-bundle-33">§4.4 For each community bundle (§3.3)</a></li>
+<li class="toc-l2"><a href="#5-cross-reference-against-prisms-self-awareness-surface">§5 — Cross-Reference Against PRISM&#39;s Self-Awareness Surface</a></li>
+<li class="toc-l2"><a href="#6-prioritized-adoption-units-10-units">§6 — Prioritized Adoption Units (10 units)</a></li>
+<li class="toc-l3"><a href="#u-adopt-ragex-p0-code-search-gap">U-ADOPT-RAGEX (P0 — code-search gap)</a></li>
+<li class="toc-l3"><a href="#u-adopt-ralph-loop-p0-autonomous-loop-primitive">U-ADOPT-RALPH-LOOP (P0 — autonomous-loop primitive)</a></li>
+<li class="toc-l3"><a href="#u-adopt-semgrep-sast-p0-security-gap">U-ADOPT-SEMGREP-SAST (P0 — security gap)</a></li>
+<li class="toc-l3"><a href="#u-adopt-cadquery-mcp-p0-closes-pending-merge-debt">U-ADOPT-CADQUERY-MCP (P0 — closes pending-merge debt)</a></li>
+<li class="toc-l3"><a href="#u-adopt-opcua-mcp-p1-extends-mtconnect-with-plc-coverage">U-ADOPT-OPCUA-MCP (P1 — extends MTConnect with PLC coverage)</a></li>
+<li class="toc-l3"><a href="#u-adopt-grafana-mcp-p1-observability-surface">U-ADOPT-GRAFANA-MCP (P1 — observability surface)</a></li>
+<li class="toc-l3"><a href="#u-adopt-obsidian-mcp-p1-closes-obsidian-write-gap">U-ADOPT-OBSIDIAN-MCP (P1 — closes Obsidian write gap)</a></li>
+<li class="toc-l3"><a href="#u-adopt-k1-engineering-p1-replaces-weak-sparc-and-forge-skills">U-ADOPT-K1-ENGINEERING (P1 — replaces weak /sparc and /forge skills)</a></li>
+<li class="toc-l3"><a href="#u-adopt-pdf-emit-p1-fills-quotesetup-sheet-pdf-gap">U-ADOPT-PDF-EMIT (P1 — fills quote/setup-sheet PDF gap)</a></li>
+<li class="toc-l3"><a href="#u-adopt-mcp-foundation-p2-tier-1-reference-set">U-ADOPT-MCP-FOUNDATION (P2 — tier-1 reference set)</a></li>
+<li class="toc-l2"><a href="#sources">Sources</a></li>
+<li class="toc-l3"><a href="#mcp-servers-registry">MCP servers + registry</a></li>
+<li class="toc-l3"><a href="#anthropic-plugins">Anthropic plugins</a></li>
+<li class="toc-l3"><a href="#specific-mcp-servers-cited">Specific MCP servers cited</a></li>
+<li class="toc-l3"><a href="#community-plugins-agents-skills">Community plugins / agents / skills</a></li>
+<li class="toc-l3"><a href="#methodology-domain-context">Methodology / domain context</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<details class="frontmatter" open><summary>Document metadata</summary><div class="table-wrap"><table>
+<tbody>
+<tr><th scope="row">title</th><td>PRISM System-Viz Tool Inventory + External MCP / Plugin Adoption Map</td></tr>
+<tr><th scope="row">date</th><td>2026-05-10</td></tr>
+<tr><th scope="row">author</th><td>claude-research-agent (system-viz-tool-inventory researcher)</td></tr>
+<tr><th scope="row">topic</th><td>system-viz-tool-inventory</td></tr>
+<tr><th scope="row">companion</th><td>2026-05-10-skills-openclaw.md (do not restate; this card EXTENDS)</td></tr>
+<tr><th scope="row">sources</th><td>- https: //github.com/modelcontextprotocol/servers; - https: //registry.modelcontextprotocol.io/; - https: //github.com/anthropics/claude-plugins-official; - https: //github.com/anthropics/knowledge-work-plugins; - https: //github.com/qdrant/mcp-server-qdrant; - https: //github.com/grafana/mcp-grafana; - https: //github.com/kukapay/opcua-mcp; - https: //github.com/jbenshetler/mcp-ragex; - https: //github.com/probelabs/probe; - https: //github.com/cyanheads/obsidian-mcp-server; - https: //github.com/microsoft/playwright-mcp; - https: //github.com/semgrep/mcp; - https: //github.com/neka-nat/freecad-mcp; - https: //github.com/daobataotie/CAD-MCP; - https: //github.com/wshobson/agents; - https: //github.com/obra/superpowers; - https: //github.com/ruvnet/ruflo; - https: //github.com/anthropics/skills; - https: //docs.stripe.com/mcp; - https: //github.com/awslabs/mcp; - https: //snyk.io/articles/9-mcp-servers-for-computer-aided-drafting-cad-with-ai/; - https: //www.firecrawl.dev/blog/best-claude-code-plugins</td></tr>
+<tr><th scope="row">status</th><td>complete</td></tr>
+</tbody>
+</table></div></details>
+<h1 id="prism-system-viz-tool-inventory-external-adoption-map"><a class="anchor" href="#prism-system-viz-tool-inventory-external-adoption-map" aria-label="Permalink to PRISM System-Viz Tool Inventory + External Adoption Map">#</a>PRISM System-Viz Tool Inventory + External Adoption Map</h1>
+<p><strong>Cross-ref baseline (live, 2026-05-10):</strong> 3180 engines · 97 dispatchers · 7341 actions · 247 project skills · 390 user skills · 464 Claude hooks · 54 source hooks · 526 scripts · 53 algorithms · 26 registries. System-viz: 2829 wired / 351 unwired (88.96% coverage).</p>
+<p><strong>Companion card:</strong> <a href="2026-05-10-skills-openclaw.md"><code>2026-05-10-skills-openclaw.md</code></a> covers skill anatomy, lifecycle, MCP server design principles, plugin schema. Do NOT re-read its content here. THIS card answers &quot;what do we already have&quot; + &quot;what should we adopt next.&quot;</p>
+<hr>
+<h2 id="1-prisms-existing-dev-tool-inventory"><a class="anchor" href="#1-prisms-existing-dev-tool-inventory" aria-label="Permalink to §1 — PRISM&#39;s Existing Dev-Tool Inventory">#</a>§1 — PRISM&#39;s Existing Dev-Tool Inventory</h2>
+<h3 id="11-skills-637-total-247-project-390-user"><a class="anchor" href="#11-skills-637-total-247-project-390-user" aria-label="Permalink to §1.1 Skills (637 total: 247 project + 390 user)">#</a>§1.1 Skills (637 total: 247 project + 390 user)</h3>
+<p><strong>Distribution from system-viz + filesystem scan:</strong></p>
+<div class="table-wrap"><table>
+<thead><tr><th>Bucket</th><th>Count</th><th>Path</th><th>Adoption</th></tr></thead>
+<tbody>
+<tr><td>Project domain skills</td><td>247</td><td><code>H:/prism/.claude/commands/</code></td><td>mixed</td></tr>
+<tr><td>User global skills</td><td>390</td><td><code>C:/Users/wompu/.claude/commands/</code></td><td>mixed</td></tr>
+<tr><td>Plugin-namespaced (claude-flow, superpowers, etc)</td><td>~140</td><td><code>~/.claude/plugins/cache/</code></td><td>well-used</td></tr>
+</tbody>
+</table></div>
+<p><strong>Top-10 by likely adoption (commit-frequency / dispatcher cross-ref / tribal directive mention):</strong></p>
+<ol>
+<li><strong><code>/dedup</code></strong> GREEN — mandatory pre-create gate, hard-blocked by <code>duplication-hard-block.mjs</code></li>
+<li><strong><code>/forge-triple</code></strong> GREEN — engine+skill+hook bundle (most-cited in CLAUDE.md)</li>
+<li><strong><code>/handoff</code></strong> GREEN — per-chat session continuity, enforced by <code>enforce-handoff-topic.mjs</code></li>
+<li><strong><code>/scrutinize</code></strong> GREEN — 3-of-3 multi-CLI gate before Stop</li>
+<li><strong><code>/precompact</code></strong> GREEN — auto-fires on <code>/compact</code></li>
+<li><strong><code>/wedm-studio</code></strong> GREEN — 23 WEDM skills, 62 WEDM engines tied</li>
+<li><strong><code>/lathe-studio</code></strong> GREEN — full lathe pipeline, P2P wired</li>
+<li><strong><code>/system-viz</code></strong> GREEN — 10-layer 3D map, regenerated on commit</li>
+<li><strong><code>/build-state</code></strong> YELLOW — auto-injected but referenced sparingly</li>
+<li><strong><code>/pdf-learn</code></strong> GREEN — primary doc ingest, distinct from <code>/pdf-process</code></li>
+</ol>
+<p><strong>Underused (YELLOW/RED) — high opportunity:</strong></p>
+<ul>
+<li><code>/forge2</code>, <code>/forge3</code>, <code>/forge4</code>, <code>/forge5</code>, <code>/forge6</code>, <code>/forge7</code> — 6 generations of forge methodology, all live, none consistently invoked. Velocity loss from skill-stack churn.</li>
+<li><code>/ralph</code> skills (loop, scrutinize, assess) — 3 skills, mapped to a built-in dispatcher (<code>prism_ralph</code>), but no chat actually fires them outside MS-A4 work.</li>
+<li><code>/sparc:*</code> (29 skills) — entire SPARC methodology (architect/coder/tester/reviewer/etc.) is loaded but never invoked. Token-cost-without-value.</li>
+<li><code>/system:memory-seed</code>, <code>/core:*</code> (5 skills) — bootstrap-style skills loaded on session start; effectiveness untested.</li>
+<li><code>/cnc-simulate</code>, <code>/program-simulate</code> — RED, no Vericut binding actually wired despite skill description claims.</li>
+</ul>
+<h3 id="12-hooks-518-total-464-claude-54-source"><a class="anchor" href="#12-hooks-518-total-464-claude-54-source" aria-label="Permalink to §1.2 Hooks (518 total: 464 Claude + 54 source)">#</a>§1.2 Hooks (518 total: 464 Claude + 54 source)</h3>
+<p>Counted by file: 464 <code>.mjs</code> files in <code>H:/prism/.claude/hooks/</code> plus 54 <code>.ts</code> source-hooks. CLAUDE.md says ~480 wired.</p>
+<p><strong>By event type (sample from filesystem):</strong></p>
+<div class="table-wrap"><table>
+<thead><tr><th>Event</th><th>Count (approx)</th><th>Notable enforcers</th></tr></thead>
+<tbody>
+<tr><td><strong>PreToolUse</strong></td><td>~140</td><td>duplication-hard-block, file-claim-guard, comprehensive-build-enforce, no-re-extract, h-drive-enforcement, claim-required, pre-rename-guard, pre-delete-guard, dep-graph-impact, schema-version-read</td></tr>
+<tr><td><strong>PostToolUse</strong></td><td>~70</td><td>post-extract-sync, action-triple-sync, signature-drift-detector, post-pipeline-integrity-check, posttool-error-explain, dev-outcome-tracker, decision-capture, post-recommendation-capture</td></tr>
+<tr><td><strong>SessionStart</strong></td><td>~80</td><td>inventory-refresh, awareness-bootstrap, build-state-inject, sessionstart-critical-path, session_start_local_compute_warm, session-start-p1, awareness-snapshot, session-id-pin</td></tr>
+<tr><td><strong>UserPromptSubmit</strong></td><td>~70</td><td>wiki-precheck-inject, inventory-check-guard, chat-bus-inject, smart-skill-suggest, capability-reminder, karpathy-discipline-inject, optimal-context-inject, extended-thinking-auto, build-create-detector, ai-feature-recommend</td></tr>
+<tr><td><strong>Stop</strong></td><td>~80</td><td>scrutinize-before-stop, enforce-handoff-topic, error-pattern-promote, leave-a-copy-behind-guard, stop_on_failing_tests, stop_on_unwired_assets, stop_on_uncommitted_critical, stop_on_orphan_engine, stop_on_repeat_error, stop_on_roadmap_drift, stop_on_session_mistake_digest, always-build-guard</td></tr>
+<tr><td><strong>Notification / SubagentStop / PreCompact</strong></td><td>~24</td><td>pre-compact-p1 (writes per-agent handoff), allow-superseding</td></tr>
+</tbody>
+</table></div>
+<p><strong>Source-hook orchestrators (54 .ts files in <code>mcp-server/src/hooks/</code>):</strong> AgentHooks, CognitiveHooks, OrchestrationHooks, ManufacturingHooks, AdvancedManufacturingHooks, SpecialtyManufacturingHooks, SafetyQualityHooks, EnforcementHooks, RecoveryHooks, CrossReferenceHooks, KnowledgeHooks, LifecycleHooks, ObservabilityHooks, SchemaHooks, AutomationHooks, plus 39 domain-specific (HyperMillTurningHooks, LatheLoRAHooks, WEDMSafetyHooks, WEDMGnnHooks, ThreadClassGateHook, GrooveDepthGateHook, SurfaceIntegrityGateHook, etc.)</p>
+<p><strong>Adoption status:</strong> GREEN on enforcement (4 newly-added Stop hooks tested in last 7 days). YELLOW on UserPromptSubmit injection — recent <code>.claude/hookify.*.local.md</code> shows 30+ block-rules added (block-bash-ps-aux, block-bash-sleep, block-grep-entire-codebase, block-toolsearch-redundant, block-websearch-calculable, block-write-build-artifacts, etc.) — these are pattern-based blockers that need follow-through audit.</p>
+<h3 id="13-scripts-526-total"><a class="anchor" href="#13-scripts-526-total" aria-label="Permalink to §1.3 Scripts (526 total)">#</a>§1.3 Scripts (526 total)</h3>
+<p>Top categories from <code>H:/prism/scripts/*.mjs</code>:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Category</th><th>Sample scripts</th><th>Adoption</th></tr></thead>
+<tbody>
+<tr><td><strong>Inventory / state</strong></td><td>update-prism-inventory, build-state-snapshot, build-milestone-progress, build-engine-index, generate-master-index, sync-awareness-counts</td><td>GREEN (auto-fired)</td></tr>
+<tr><td><strong>System-viz</strong></td><td>system-viz-query, system-viz-on-commit, system-viz-obsidian-bridge, augment-graph-with-awareness, augment-molecules, system-viz-write-singlewriter</td><td>GREEN (singlewriter just added)</td></tr>
+<tr><td><strong>Audit / drift</strong></td><td>audit-roadmap-drift, audit-stop-hooks, audit-unwired-engines, refresh-orphan-report, gap-analysis</td><td>GREEN</td></tr>
+<tr><td><strong>Lathe corpus</strong></td><td>build-lathe-engine-registry, build-lathe-wiring-audit, build-lathe-test-gap, build-lathe-physics-inline-scan, build-lathe-knowledge-coverage</td><td>GREEN</td></tr>
+<tr><td><strong>Box (program-archive) data</strong></td><td>extract-box-data, extract-box-programs, scan-local-tooling-databases, extract-machines, extract-core-machines</td><td>YELLOW — partial</td></tr>
+<tr><td><strong>Health / supervisor</strong></td><td>daemon-supervisor, fleet-status, h-drive-census, h-drive-full-index, reap-zombies</td><td>NEW (last 14d)</td></tr>
+<tr><td><strong>Memory / vault</strong></td><td>obsidian-memory-sync, mirror-memories-bootstrap, populate-tribal-vault, chunk-claudemd-vault, embed-all-skills, embed-all-engines, embed-all-actions</td><td>YELLOW</td></tr>
+<tr><td><strong>Ollama</strong></td><td>ollama-offload-dashboard, summarize-all-scripts-via-ollama, summarize-directives-via-ollama</td><td>GREEN (instrumented via offload-stats.json)</td></tr>
+<tr><td><strong>One-off</strong></td><td><code>scripts/one-off/*</code> (5 cad-uix scripts, cadc34-cleanup)</td><td>RED — should be deleted</td></tr>
+<tr><td><strong>Patches</strong></td><td>apply-v3.1-patches, apply-v3.2-patches, apply-v3.3-patches, break-cycle-v3.2</td><td>RED — completed, dead</td></tr>
+</tbody>
+</table></div>
+<h3 id="14-dispatchers-97-total-7341-actions"><a class="anchor" href="#14-dispatchers-97-total-7341-actions" aria-label="Permalink to §1.4 Dispatchers (97 total, 7341 actions)">#</a>§1.4 Dispatchers (97 total, 7341 actions)</h3>
+<p>Sampled categories (alphabetical, all in <code>mcp-server/src/tools/dispatchers/</code>):</p>
+<ul>
+<li><strong>Foundation (always-on):</strong> session, context, dev, memory, calc, infra, knowledge, intelligence, hook, guard, omega</li>
+<li><strong>Manufacturing-domain:</strong> mill, turning, lathe, edm, cad, cam, fiveAxis, threading, holePattern, grinding, machineLive, secondaryOps, productionScheduling, multiAxisProgram, threadingPipeline, weldingJoining, formingCasting, materialProcessing, cncOps, machineSetup, machiningKnowledgeBase</li>
+<li><strong>AI / cognition:</strong> aiReasoning, ai (?), atcs, autonomous, autoPilot, autopilot_d, ml, neural, scientificMath, processControl, cognitive (subset), telemetry</li>
+<li><strong>Workflow / coordination:</strong> orchestrate, manus, ralph, sp, businessLogic</li>
+<li><strong>Specialized I/O:</strong> export, document, integration, monitoring, partsLibrary, generator, tenant, auth, security, bridge, intake, inbox, realtime, parts</li>
+<li><strong>Quality / safety:</strong> safety, quality, validation, compliance, industry, feasibility, diagnosis, processControl</li>
+<li><strong>CAD-specific:</strong> cad, cadAutomation, cadDrawingKnowledge, multiAxisProgram</li>
+</ul>
+<p><strong>Adoption status:</strong> Foundation/manufacturing/AI dispatchers are GREEN (used hourly). <code>nlHook</code>, <code>realtime</code>, <code>intake</code>, <code>tenant</code>, <code>industry</code>, <code>compliance</code> are YELLOW — declared but rarely invoked outside specific milestones.</p>
+<h3 id="15-agents-150-across-project-user"><a class="anchor" href="#15-agents-150-across-project-user" aria-label="Permalink to §1.5 Agents (~150 across project + user)">#</a>§1.5 Agents (~150 across project + user)</h3>
+<p><strong>Project (<code>H:/prism/.claude/agents/</code>):</strong> ~95 agents, mostly inherited from claude-flow plugin (consensus, hive-mind, sublinear, swarm, sparc, github, optimization, flow-nexus, v3, sona) plus PRISM-native (safety-physics, implementer, verifier).</p>
+<p><strong>User (<code>C:/Users/wompu/.claude/agents/</code>):</strong> 16 agents — build-doctor, catalog-enricher, dispatcher-wirer, doc-generator, physics-reviewer, regression-hunter, wiring-review-agent, code-archaeologist, physics-review-agent, test-runner, test-review-agent, plus teams (forge-team, pipeline-team, test-team).</p>
+<p><strong>Adoption status:</strong> PRISM-native agents (build-doctor, dispatcher-wirer, regression-hunter, forge-team, test-team) are GREEN. SPARC + flow-nexus + sublinear suite are RED — never invoked despite ~50 file presence.</p>
+<h3 id="16-plugins-currently-installed"><a class="anchor" href="#16-plugins-currently-installed" aria-label="Permalink to §1.6 Plugins Currently Installed">#</a>§1.6 Plugins Currently Installed</h3>
+<p>Per <a href="2026-05-10-skills-openclaw.md">skills-openclaw §8</a>: 18 installed plugins (claude-flow, context7, linear, playwright, canva, autodesk, superpowers, hookify, commit-commands, pr-review-toolkit, frontend-design, skill-creator, claude-md-management, agent-sdk-dev, code-review, feature-dev, qodo-skills, claude-code-setup).</p>
+<hr>
+<h2 id="2-reputable-external-mcp-servers-worth-installing"><a class="anchor" href="#2-reputable-external-mcp-servers-worth-installing" aria-label="Permalink to §2 — Reputable External MCP Servers Worth Installing">#</a>§2 — Reputable External MCP Servers Worth Installing</h2>
+<p>Curated from awesome-mcp-servers (<a href="https://github.com/wong2/awesome-mcp-servers" rel="noopener noreferrer">wong2</a>, <a href="https://github.com/punkpeye/awesome-mcp-servers" rel="noopener noreferrer">punkpeye/awesome-mcp-servers</a>, <a href="https://github.com/TensorBlock/awesome-mcp-servers" rel="noopener noreferrer">TensorBlock/awesome-mcp-servers</a>), the <a href="https://registry.modelcontextprotocol.io/" rel="noopener noreferrer">Official MCP Registry</a>, <a href="https://mcpservers.org/" rel="noopener noreferrer">mcpservers.org</a>, <a href="https://mcp-awesome.com/" rel="noopener noreferrer">mcp-awesome.com</a> (1200+ servers), and <a href="https://github.com/microsoft/mcp" rel="noopener noreferrer">Microsoft MCP catalog</a>.</p>
+<h3 id="21-foundation-servers-do-consider"><a class="anchor" href="#21-foundation-servers-do-consider" aria-label="Permalink to §2.1 Foundation servers (DO consider)">#</a>§2.1 Foundation servers (DO consider)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Name</th><th>Repo</th><th>What it does</th><th>Why PRISM</th><th>Prereq</th><th>License</th><th>Install</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><strong>filesystem</strong></td><td><a href="https://github.com/modelcontextprotocol/servers" rel="noopener noreferrer"><code>modelcontextprotocol/servers/src/filesystem</code></a></td><td>Sandboxed filesystem ops with configurable access</td><td>We use raw filesystem; sandboxing per-session helps multi-chat safety</td><td>none</td><td>MIT</td><td><code>npx -y @modelcontextprotocol/server-filesystem</code></td></tr>
+<tr><td>2</td><td><strong>memory</strong></td><td><a href="https://github.com/modelcontextprotocol/servers/tree/main/src/memory" rel="noopener noreferrer"><code>modelcontextprotocol/servers/src/memory</code></a></td><td>Knowledge-graph persistent memory (entities/relations/observations)</td><td>We have <code>QdrantMemoryEngine</code> + <code>ObsidianVaultSyncEngine</code>; this offers cross-session graph that doesn&#39;t need Qdrant</td><td>none</td><td>MIT</td><td><code>npx -y @modelcontextprotocol/server-memory</code></td></tr>
+<tr><td>3</td><td><strong>sequential-thinking</strong></td><td><a href="https://github.com/modelcontextprotocol/servers/tree/main/src/sequentialthinking" rel="noopener noreferrer"><code>modelcontextprotocol/servers/src/sequentialthinking</code></a></td><td>Structured reasoning with branching + revision; auditable thought trail</td><td>PRISM has TreeOfThoughtEngine internally — adding the MCP wrapper exposes it as standard tool to other CLIs (Codex, Gemini consensus)</td><td>none</td><td>MIT</td><td><code>npx -y @modelcontextprotocol/server-sequential-thinking</code></td></tr>
+<tr><td>4</td><td><strong>fetch</strong></td><td><a href="https://github.com/modelcontextprotocol/servers" rel="noopener noreferrer"><code>modelcontextprotocol/servers/src/fetch</code></a></td><td>Web fetch + LLM-friendly markdown conversion</td><td>Better than WebFetch for unauthenticated docs; replaces some Context7 calls</td><td>none</td><td>MIT</td><td><code>npx -y @modelcontextprotocol/server-fetch</code></td></tr>
+<tr><td>5</td><td><strong>time</strong></td><td><a href="https://github.com/modelcontextprotocol/servers" rel="noopener noreferrer"><code>modelcontextprotocol/servers/src/time</code></a></td><td>Timezone conversions</td><td>Multi-shift JM Die scheduling needs TZ math; eliminates inline date hacks</td><td>none</td><td>MIT</td><td><code>npx -y @modelcontextprotocol/server-time</code></td></tr>
+</tbody>
+</table></div>
+<h3 id="22-manufacturing-specific-high-value-domain-match"><a class="anchor" href="#22-manufacturing-specific-high-value-domain-match" aria-label="Permalink to §2.2 Manufacturing-Specific (HIGH value — domain match)">#</a>§2.2 Manufacturing-Specific (HIGH value — domain match)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Name</th><th>Repo</th><th>What it does</th><th>Why PRISM</th><th>Prereq</th><th>License</th><th>Install</th></tr></thead>
+<tbody>
+<tr><td>6</td><td><strong>opcua-mcp</strong></td><td><a href="https://github.com/kukapay/opcua-mcp" rel="noopener noreferrer"><code>kukapay/opcua-mcp</code></a></td><td>Read/write/browse OPC-UA nodes on industrial PLCs</td><td>Wires our <code>OPCUAEngine</code> to a standard MCP surface; lets ANY MCP client (not just Claude) talk to JM machine fleet OPC-UA endpoints</td><td>OPC-UA enabled machine</td><td>MIT</td><td><code>git clone + python -m opcua_mcp</code></td></tr>
+<tr><td>7</td><td><strong>freecad-mcp</strong></td><td><a href="https://github.com/neka-nat/freecad-mcp" rel="noopener noreferrer"><code>neka-nat/freecad-mcp</code></a></td><td>RPC into FreeCAD: create docs, insert parts, edit objects, run Python</td><td>We have <code>STEPGeometryParserEngine</code> + <code>Fusion360CADGeneratorAdapter</code>; FreeCAD is open-source alternative for Linux/cloud builds. Closes the &quot;no-license-required CAD&quot; gap</td><td>FreeCAD installed</td><td>MIT</td><td>clone into <code>FreeCAD/Mod/</code></td></tr>
+<tr><td>8</td><td><strong>CAD-MCP</strong></td><td><a href="https://github.com/daobataotie/CAD-MCP" rel="noopener noreferrer"><code>daobataotie/CAD-MCP</code></a></td><td>Natural-language drawing commands to AutoCAD / GstarCAD / ZWCAD</td><td>Complements our Inventor/SolidWorks/Mastercam bridges with AutoCAD coverage (used for fixture sketches / facility layout)</td><td>AutoCAD/GstarCAD installed</td><td>MIT</td><td>clone + Python deps</td></tr>
+<tr><td>9</td><td><strong>CAD-Query MCP</strong></td><td><a href="https://mcpservers.org/servers/rishigundakaram/cadquery-mcp-server" rel="noopener noreferrer"><code>rishigundakaram/cadquery-mcp-server</code></a></td><td>Conversational 3D modeling via CadQuery (parametric Python CAD)</td><td>Direct fit for our pending <code>cqask</code> frontend merge — CadQuery is the same backend; this MCP wrapper exposes it generically</td><td>Python + CadQuery</td><td>MIT</td><td>pip install + register</td></tr>
+</tbody>
+</table></div>
+<h3 id="23-memory-vector-knowledge-consider-for-redundancy"><a class="anchor" href="#23-memory-vector-knowledge-consider-for-redundancy" aria-label="Permalink to §2.3 Memory / Vector / Knowledge (consider for redundancy)">#</a>§2.3 Memory / Vector / Knowledge (consider for redundancy)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Name</th><th>Repo</th><th>What it does</th><th>Why PRISM</th><th>Prereq</th><th>License</th><th>Install</th></tr></thead>
+<tbody>
+<tr><td>10</td><td><strong>mcp-server-qdrant</strong> (official)</td><td><a href="https://github.com/qdrant/mcp-server-qdrant" rel="noopener noreferrer"><code>qdrant/mcp-server-qdrant</code></a></td><td>qdrant-store + qdrant-find tools, FastEmbed model, multi-collection</td><td>We already run Qdrant via <code>QdrantMemoryEngine</code>; the official MCP wrapper exposes our existing collections to OTHER MCP clients (Cursor, Codex) — multi-tool consistency</td><td>Qdrant running (we have it)</td><td>Apache 2.0</td><td><code>uvx mcp-server-qdrant</code></td></tr>
+<tr><td>11</td><td><strong>obsidian-mcp-server</strong></td><td><a href="https://github.com/cyanheads/obsidian-mcp-server" rel="noopener noreferrer"><code>cyanheads/obsidian-mcp-server</code></a></td><td>Read/write/search/edit Obsidian notes + tags + frontmatter via Local REST API plugin</td><td>We have <code>ObsidianVaultSyncEngine</code> but it&#39;s one-way; this server gives Claude direct surgical edit on the vault</td><td>Obsidian + Local REST plugin</td><td>MIT</td><td>npm install + register</td></tr>
+<tr><td>12</td><td><strong>mcp-ragex</strong></td><td><a href="https://github.com/jbenshetler/mcp-ragex" rel="noopener noreferrer"><code>jbenshetler/mcp-ragex</code></a></td><td>Hybrid code search (RAG semantic + tree-sitter symbolic + ripgrep regex), auto-route per query</td><td>We have NO tree-sitter or AST-aware search; this is the canonical &quot;find code by meaning&quot; missing piece. Works locally in Docker</td><td>Docker (3.2 GiB image)</td><td>MIT</td><td>one-line install script</td></tr>
+<tr><td>13</td><td><strong>probe</strong></td><td><a href="https://github.com/probelabs/probe" rel="noopener noreferrer"><code>probelabs/probe</code></a></td><td>AST-aware semantic code search, ripgrep-fast</td><td>Alternative to mcp-ragex; lighter weight, no Docker. Good fallback</td><td>Rust binary</td><td>Apache 2.0</td><td>cargo install</td></tr>
+</tbody>
+</table></div>
+<h3 id="24-observability-telemetry-prism-mentions-grafana-but-no-mcp-wrap"><a class="anchor" href="#24-observability-telemetry-prism-mentions-grafana-but-no-mcp-wrap" aria-label="Permalink to §2.4 Observability / Telemetry (PRISM mentions Grafana but no MCP wrap)">#</a>§2.4 Observability / Telemetry (PRISM mentions Grafana but no MCP wrap)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Name</th><th>Repo</th><th>What it does</th><th>Why PRISM</th><th>Prereq</th><th>License</th><th>Install</th></tr></thead>
+<tbody>
+<tr><td>14</td><td><strong>mcp-grafana</strong> (official)</td><td><a href="https://github.com/grafana/mcp-grafana" rel="noopener noreferrer"><code>grafana/mcp-grafana</code></a></td><td>Search dashboards, query Prometheus/Loki/InfluxDB/CloudWatch, manage alerts/incidents</td><td>We have <code>GrafanaBridgeEngine</code> + <code>PrometheusMetricsEngine</code> (4 engines) — official MCP wrapper exposes them to Claude as conversational dashboard. Manufacturing OEE/utilization charts</td><td>Grafana 9.0+, service-account token</td><td>Apache 2.0</td><td><code>uvx mcp-grafana</code></td></tr>
+<tr><td>15</td><td><strong>InfluxDB MCP</strong></td><td><a href="https://www.influxdata.com/blog/influxdb-mcp-server/" rel="noopener noreferrer"><code>influxdata/influxdb_mcp_server</code></a></td><td>Natural-language time-series queries on InfluxDB 3</td><td>If we add InfluxDB for machine-telemetry storage (currently no time-series store), this is the read interface</td><td>InfluxDB 3</td><td>MIT</td><td>local install</td></tr>
+</tbody>
+</table></div>
+<h3 id="25-code-quality-security"><a class="anchor" href="#25-code-quality-security" aria-label="Permalink to §2.5 Code-Quality / Security">#</a>§2.5 Code-Quality / Security</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Name</th><th>Repo</th><th>What it does</th><th>Why PRISM</th><th>Prereq</th><th>License</th><th>Install</th></tr></thead>
+<tbody>
+<tr><td>16</td><td><strong>semgrep/mcp</strong> (official)</td><td><a href="https://github.com/semgrep/mcp" rel="noopener noreferrer"><code>semgrep/mcp</code></a></td><td>Run Semgrep static analysis for security/quality from Claude</td><td>We have <code>npm audit</code> + custom hooks but NO SAST; Semgrep finds injection/auth bugs across our 3180 engines</td><td>Semgrep CLI</td><td>LGPL</td><td><code>pip install semgrep</code></td></tr>
+<tr><td>17</td><td><strong>microsoft/playwright-mcp</strong></td><td><a href="https://github.com/microsoft/playwright-mcp" rel="noopener noreferrer"><code>microsoft/playwright-mcp</code></a></td><td>Browser automation via accessibility tree (not pixels)</td><td>We already have it as plugin; verify production-ready and shift e2e tests to it</td><td>Playwright</td><td>Apache 2.0</td><td>already installed</td></tr>
+</tbody>
+</table></div>
+<h3 id="26-commerce-business-only-if-monetizing"><a class="anchor" href="#26-commerce-business-only-if-monetizing" aria-label="Permalink to §2.6 Commerce / Business (only if monetizing)">#</a>§2.6 Commerce / Business (only if monetizing)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Name</th><th>Repo</th><th>What it does</th><th>Why PRISM</th><th>Prereq</th><th>License</th><th>Install</th></tr></thead>
+<tbody>
+<tr><td>18</td><td><strong>stripe/mcp</strong> (official)</td><td><a href="https://docs.stripe.com/mcp" rel="noopener noreferrer"><code>stripe/mcp</code> (docs.stripe.com/mcp)</a></td><td>25 tools for customers/products/payments/subscriptions/invoices</td><td>SFC + Master Post are saleable products — Stripe MCP enables conversational subscription management. We have <code>BillingEngine</code> but no Stripe wire. <strong>Cost: $$ for actual API calls</strong></td><td>Stripe API key</td><td>proprietary</td><td>OAuth flow</td></tr>
+</tbody>
+</table></div>
+<h3 id="27-skipped-overlap-paid-or-fabricated"><a class="anchor" href="#27-skipped-overlap-paid-or-fabricated" aria-label="Permalink to §2.7 Skipped (overlap, paid, or fabricated)">#</a>§2.7 Skipped (overlap, paid, or fabricated)</h3>
+<ul>
+<li><strong>Linear MCP</strong> — already installed</li>
+<li><strong>Context7</strong> — already installed</li>
+<li><strong>Canva, Autodesk</strong> — already installed</li>
+<li><strong>GitHub MCP</strong> — heavy overlap with our <code>gh</code> CLI usage and <code>commit-commands</code> plugin</li>
+<li><strong>Notion MCP</strong> — paid + we use Obsidian</li>
+<li><strong>Snowflake / BigQuery MCP</strong> — no current data warehouse</li>
+<li><strong>Endor Labs / Cycode / Aikido</strong> — paid; Semgrep covers the OSS sweet spot</li>
+</ul>
+<hr>
+<h2 id="3-reputable-claude-code-plugins-worth-installing"><a class="anchor" href="#3-reputable-claude-code-plugins-worth-installing" aria-label="Permalink to §3 — Reputable Claude Code Plugins Worth Installing">#</a>§3 — Reputable Claude Code Plugins Worth Installing</h2>
+<h3 id="31-anthropic-official-catalog-claude-plugins-official"><a class="anchor" href="#31-anthropic-official-catalog-claude-plugins-official" aria-label="Permalink to §3.1 Anthropic Official Catalog (claude-plugins-official)">#</a>§3.1 Anthropic Official Catalog (<a href="https://github.com/anthropics/claude-plugins-official" rel="noopener noreferrer">claude-plugins-official</a>)</h3>
+<p>35 plugins inventoried as of 2026-03 (per <code>firecrawl.dev</code> analysis: 33 Anthropic-built + 68 partner = 101 total in marketplace). Plugins NOT yet installed in PRISM that should be:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Plugin</th><th>What it adds</th><th>PRISM overlap</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td>A1</td><td><strong>mcp-server-dev</strong></td><td>Tools to develop/debug MCP servers</td><td>We have 97 dispatchers in our own MCP server; this plugin&#39;s debug tools (dispatcher inspector, schema validator) accelerate iteration</td><td>ADOPT</td></tr>
+<tr><td>A2</td><td><strong>ralph-loop</strong></td><td>Autonomous coding loops with auto-commit per task</td><td>We have <code>prism_ralph</code> dispatcher (loop/scrutinize/assess) but no loop driver. Ralph is the canonical pattern; per <a href="https://www.firecrawl.dev/blog/best-claude-code-plugins" rel="noopener noreferrer">firecrawl 2026 review</a> it&#39;s the #1 plugin of 2026</td><td>ADOPT</td></tr>
+<tr><td>A3</td><td><strong>plugin-dev</strong></td><td>Helpers to create new plugins</td><td>We should publish PRISM as a plugin (per skills-openclaw §10.4); this plugin gives the scaffolding</td><td>ADOPT</td></tr>
+<tr><td>A4</td><td><strong>code-modernization</strong></td><td>Refactor legacy patterns (TS strictness, async, modern syntax)</td><td>875 unwired engines + 89 lathe-domain unwired = legacy modernization candidates; this plugin&#39;s pattern-rewrite tools speed up batch refactor</td><td>ADOPT</td></tr>
+<tr><td>A5</td><td><strong>code-simplifier</strong></td><td>Reduce complexity in functions/classes</td><td>Direct fit for the Karpathy compounding-gains cleanup pass after every milestone</td><td>ADOPT</td></tr>
+<tr><td>A6</td><td><strong>session-report</strong></td><td>Auto-generate session summary docs</td><td>Replaces some <code>/handoff</code> boilerplate; complements not duplicates</td><td>EVAL</td></tr>
+<tr><td>A7</td><td><strong>security-guidance</strong></td><td>Security best-practices skill</td><td>Pairs with §2.16 semgrep MCP for full SAST + guidance</td><td>ADOPT</td></tr>
+<tr><td>A8</td><td><strong>explanatory-output-style</strong> / <strong>learning-output-style</strong></td><td>Output formatting presets</td><td>Not used; safe to skip</td><td>PASS</td></tr>
+<tr><td>A9</td><td><strong>clangd-lsp / pyright-lsp / typescript-lsp / rust-analyzer-lsp</strong></td><td>Per-language LSP servers</td><td>typescript-lsp and pyright-lsp may be useful for the few Python scripts and TS quality. We rely on tsc currently</td><td>EVAL (typescript only)</td></tr>
+<tr><td>A10</td><td><strong>math-olympiad</strong></td><td>Specialty math problem solving</td><td>Manufacturing physics doesn&#39;t fit this; skip</td><td>PASS</td></tr>
+</tbody>
+</table></div>
+<h3 id="32-anthropic-knowledge-work-plugins-anthropicsknowledge-work-plugins"><a class="anchor" href="#32-anthropic-knowledge-work-plugins-anthropicsknowledge-work-plugins" aria-label="Permalink to §3.2 Anthropic Knowledge-Work Plugins (anthropics/knowledge-work-plugins)">#</a>§3.2 Anthropic Knowledge-Work Plugins (<a href="https://github.com/anthropics/knowledge-work-plugins" rel="noopener noreferrer">anthropics/knowledge-work-plugins</a>)</h3>
+<p>11 plugins designed for Cowork (also work in Claude Code). Most relevant to PRISM:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Plugin</th><th>Skills</th><th>Why PRISM</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td>K1</td><td><strong>engineering</strong></td><td>code-review, architecture, debug, deploy-checklist, documentation, incident-response, standup, system-design, tech-debt, testing-strategy</td><td>Most relevant; replaces ~10 of our <code>/forge-*</code> skills with battle-tested versions. Skill bodies are short + composable</td><td>ADOPT</td></tr>
+<tr><td>K2</td><td><strong>product-management</strong></td><td>specs, roadmaps, user research synthesis, competitive landscape</td><td>We have <code>PRISM-UNIFIED-ROADMAP-v2.md</code> workflow; this plugin&#39;s &quot;synthesize user research&quot; maps to JM Die feedback loop</td><td>ADOPT</td></tr>
+<tr><td>K3</td><td><strong>finance</strong></td><td>journal entries, reconciliation, financial statements, variance analysis</td><td>Pairs with <code>BillingEngine</code> + Stripe MCP for full revenue ops if SFC sells subscriptions</td><td>EVAL</td></tr>
+<tr><td>K4</td><td><strong>enterprise-search</strong></td><td>Find anything across email/chat/docs/wikis</td><td>We have <code>prismCreativeReasoningEngine</code> + Wiki + Qdrant; this plugin adds Slack/Gmail connectors. Skip unless Mark wires SMTP</td><td>PASS</td></tr>
+<tr><td>K5</td><td><strong>legal</strong>, <strong>sales</strong>, <strong>marketing</strong>, <strong>customer-support</strong>, <strong>bio-research</strong>, <strong>data</strong>, <strong>cowork-plugin-management</strong></td><td>Domain-specific</td><td>Out of scope</td><td>PASS</td></tr>
+</tbody>
+</table></div>
+<h3 id="33-community-plugin-bundles"><a class="anchor" href="#33-community-plugin-bundles" aria-label="Permalink to §3.3 Community Plugin Bundles">#</a>§3.3 Community Plugin Bundles</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Bundle</th><th>Repo</th><th>Stars</th><th>What it adds</th><th>PRISM overlap</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td>C1</td><td><strong>wshobson/agents</strong></td><td><a href="https://github.com/wshobson/agents" rel="noopener noreferrer"><code>wshobson/agents</code></a></td><td>~33k</td><td>185 specialized agents, 153 skills, 100 commands across 80 plugins; tiered model assignment (Opus/Sonnet/Haiku per task)</td><td>Heavy overlap with our 95 project agents (most claude-flow inherited) — ADOPT only the few we lack: kubernetes, observability, blockchain</td><td>EVAL — install marketplace, adopt 3-5 plugins selectively</td></tr>
+<tr><td>C2</td><td><strong>obra/superpowers</strong></td><td><a href="https://github.com/obra/superpowers" rel="noopener noreferrer"><code>obra/superpowers</code></a></td><td>(already installed)</td><td>Brainstorming, writing-plans, executing-plans, subagent-driven-dev, TDD, systematic-debugging, verification-before-completion</td><td>Already installed but underused. Promote <code>superpowers:brainstorming</code> to default forge brainstorm step</td><td>FOLD-IN: cite from <code>/forge7</code></td></tr>
+<tr><td>C3</td><td><strong>anthropics/skills</strong></td><td><a href="https://github.com/anthropics/skills" rel="noopener noreferrer"><code>anthropics/skills</code></a></td><td>~132k</td><td>docx/pdf/pptx/xlsx skills (Claude.ai&#39;s production document creation)</td><td>We have <code>/pdf-learn</code>; this is the inverse (CREATE pdf/docx). Useful for shop quote PDFs</td><td>ADOPT (selective — pdf, xlsx, docx)</td></tr>
+<tr><td>C4</td><td><strong>ruvnet/ruflo</strong> (formerly claude-flow)</td><td><a href="https://github.com/ruvnet/ruflo" rel="noopener noreferrer"><code>ruvnet/ruflo</code></a></td><td>(already installed as claude-flow)</td><td>v3.6 ships agent federation, 314 MCP tools, 16 agent roles, 19 AgentDB controllers, 21 native plugins, SAFLA neural module</td><td>We have claude-flow; v3.6 features (agent federation, AgentDB) match PRISM&#39;s multi-chat lane discipline. <strong>Consider upgrading + studying SAFLA for our LoRA cadence</strong></td><td>UPGRADE (track the wiki at <code>ruvnet/claude-flow/wiki/Neural-Module</code>)</td></tr>
+<tr><td>C5</td><td><strong>VoltAgent/awesome-agent-skills</strong></td><td><a href="https://github.com/VoltAgent/awesome-agent-skills" rel="noopener noreferrer"><code>VoltAgent/awesome-agent-skills</code></a></td><td>(curated)</td><td>1000+ agent skills compatible with Claude Code, Codex, Gemini, Cursor</td><td>Cross-reference for skill-naming canon; consume don&#39;t install wholesale</td><td>REFERENCE</td></tr>
+<tr><td>C6</td><td><strong>mukul975/Anthropic-Cybersecurity-Skills</strong></td><td>(per skills-openclaw §4)</td><td>(35k)</td><td>754 cybersec skills mapped to MITRE ATT&amp;CK / NIST CSF</td><td>Out of scope for manufacturing; skip</td><td>PASS</td></tr>
+<tr><td>C7</td><td><strong>agent-skills</strong> (ecosystem)</td><td><a href="https://agentskills.io" rel="noopener noreferrer">agentskills.io</a></td><td>—</td><td>Open standard for cross-CLI skill portability</td><td>If we publish PRISM-as-plugin, target this standard</td><td>TARGET</td></tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="4-wiring-map-files-to-update-for-each-adoption"><a class="anchor" href="#4-wiring-map-files-to-update-for-each-adoption" aria-label="Permalink to §4 — Wiring Map: Files to Update for Each Adoption">#</a>§4 — Wiring Map: Files to Update for Each Adoption</h2>
+<h3 id="41-for-each-high-value-mcp-server-2"><a class="anchor" href="#41-for-each-high-value-mcp-server-2" aria-label="Permalink to §4.1 For each high-value MCP server (§2)">#</a>§4.1 For each high-value MCP server (§2)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Adoption</th><th><code>H:/prism/CLAUDE.md</code></th><th><code>C:\Users\wompu\.claude\CLAUDE.md</code></th><th><code>state/shared/PRISM-COMMANDS-MANIFEST.md</code></th><th><code>state/shared/CLAUDE-BRIEF.md</code> (regen via script)</th><th><code>mcp-server/scripts/build-vision-spec.json</code></th><th><code>knowledge/wiki/index.md</code></th><th>Other</th></tr></thead>
+<tbody>
+<tr><td><strong>mcp-server-qdrant</strong> (#10)</td><td>Add to &quot;MCP DISPATCHERS&quot; §; note dual-surface (internal Qdrant + external MCP)</td><td>Add to &quot;AI SYSTEM ROUTING&quot; with note about cross-CLI consistency</td><td>—</td><td>regen will pick up</td><td>—</td><td>New entry: <code>wiki/architecture/qdrant-mcp-bridge.md</code></td><td><code>H:/.claude/settings.json</code> (add MCP server entry)</td></tr>
+<tr><td><strong>mcp-grafana</strong> (#14)</td><td>Add to &quot;OBSERVABILITY&quot; §; reference <code>GrafanaBridgeEngine</code></td><td>—</td><td>New <code>/grafana-query</code> skill</td><td>—</td><td>Add to <code>vision.observability.tools</code></td><td><code>wiki/entities/grafana-mcp.md</code></td><td><code>H:/.claude/settings.json</code></td></tr>
+<tr><td><strong>opcua-mcp</strong> (#6)</td><td>Add to &quot;MACHINE LIVE&quot; § alongside MTConnect</td><td>—</td><td>New <code>/opcua-read</code> skill</td><td>—</td><td><code>vision.machine_connectivity.opcua</code></td><td><code>wiki/entities/opcua-mcp.md</code></td><td><code>H:/.claude/settings.json</code> (per-machine TLS)</td></tr>
+<tr><td><strong>freecad-mcp</strong> (#7)</td><td>Add to &quot;CAD INTEGRATION&quot; alongside Inventor/SolidWorks bridges</td><td>—</td><td>New <code>/freecad-build</code> skill</td><td>—</td><td><code>vision.cad_bridges.freecad</code></td><td><code>wiki/entities/freecad-mcp.md</code>, <code>wiki/decisions/freecad-vs-fusion-2026.md</code></td><td><code>H:/.claude/settings.json</code></td></tr>
+<tr><td><strong>CAD-Query MCP</strong> (#9)</td><td>Replace the &quot;cqask-orion-cad PENDING_MERGE&quot; note in BUILD_STATE §; explain MCP route</td><td>—</td><td>New <code>/cadquery-generate</code> skill</td><td>—</td><td><code>vision.cad_bridges.cadquery</code></td><td><code>wiki/architecture/cqask-mcp-merge.md</code></td><td>Update <code>BUILD_STATE.json</code> to mark cqask as MCP-routed</td></tr>
+<tr><td><strong>mcp-ragex</strong> (#12)</td><td>Add to &quot;TOKEN ECONOMY&quot; — replaces some Grep calls; note 3.2 GiB Docker overhead</td><td>Add to &quot;TOKEN ECONOMY&quot; same</td><td>New <code>/code-search-ai</code> skill</td><td>—</td><td>—</td><td><code>wiki/decisions/ragex-vs-grep-2026.md</code></td><td>None</td></tr>
+<tr><td><strong>obsidian-mcp-server</strong> (#11)</td><td>Reference in &quot;WIKI PROTOCOL&quot; §; surgical edit replaces <code>ObsidianVaultSyncEngine</code>&#39;s one-way push</td><td>—</td><td>New <code>/obsidian-edit</code> skill</td><td>—</td><td><code>vision.knowledge.obsidian.surgical_edit</code></td><td><code>wiki/architecture/obsidian-mcp.md</code>, deprecate <code>ObsidianVaultSyncEngine</code></td><td><code>H:/.claude/settings.json</code> (Local REST plugin token)</td></tr>
+<tr><td><strong>stripe/mcp</strong> (#18)</td><td>Add to &quot;BUSINESS / MONETIZATION&quot; — wire to <code>BillingEngine</code></td><td>—</td><td>New <code>/billing-status</code>, <code>/subscription-list</code> skills</td><td>—</td><td><code>vision.commerce.stripe</code></td><td><code>wiki/architecture/stripe-mcp.md</code></td><td>Stripe API key in env (NOT settings.json)</td></tr>
+<tr><td><strong>semgrep/mcp</strong> (#16)</td><td>Add to &quot;SAFETY RAILS&quot; § as SAST gate</td><td>—</td><td>New <code>/security-scan</code> skill</td><td>—</td><td><code>vision.security.sast</code></td><td><code>wiki/decisions/semgrep-vs-snyk-2026.md</code></td><td>New PreCommit hook <code>semgrep-block-criticals.mjs</code></td></tr>
+<tr><td><strong>filesystem / memory / sequential-thinking / fetch / time</strong> (#1-5)</td><td>Brief note in &quot;MCP SERVERS&quot; listing</td><td>Brief note</td><td>—</td><td>—</td><td><code>vision.mcp.foundation</code></td><td><code>wiki/entities/mcp-foundation.md</code></td><td><code>H:/.claude/settings.json</code></td></tr>
+</tbody>
+</table></div>
+<h3 id="42-for-each-anthropic-plugin-31"><a class="anchor" href="#42-for-each-anthropic-plugin-31" aria-label="Permalink to §4.2 For each Anthropic plugin (§3.1)">#</a>§4.2 For each Anthropic plugin (§3.1)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Adoption</th><th>Files to update</th></tr></thead>
+<tbody>
+<tr><td><strong>mcp-server-dev (A1)</strong></td><td><code>H:/prism/CLAUDE.md</code> &quot;MCP DISPATCHERS&quot; §; mention dispatcher-inspector usage. New <code>/mcp-debug</code> shortcut alias</td></tr>
+<tr><td><strong>ralph-loop (A2)</strong></td><td><code>H:/prism/CLAUDE.md</code> &quot;ENGINE WIRING&quot; + new section &quot;AUTONOMOUS LOOPS&quot;; cross-ref existing <code>prism_ralph</code> dispatcher. <strong>Conflicts: existing <code>/ralph</code> skill body should be REWRITTEN to delegate to plugin</strong></td></tr>
+<tr><td><strong>plugin-dev (A3)</strong></td><td>New roadmap milestone <code>PRISM-PLUGIN-PUBLISH-MS0</code> with units U-PLUG-PACKAGE, U-PLUG-SKILLS, U-PLUG-HOOKS, U-PLUG-MCP, U-PLUG-MARKETPLACE-SUBMIT</td></tr>
+<tr><td><strong>code-modernization (A4)</strong></td><td>Add to &quot;ENGINE WIRING&quot; § as legacy-batch tool; cite alongside <code>dispatcher-wirer</code> agent</td></tr>
+<tr><td><strong>code-simplifier (A5)</strong></td><td>Add as Karpathy compounding-gains tool; cite in <code>forge6/forge7</code> skill bodies</td></tr>
+<tr><td><strong>security-guidance (A7)</strong></td><td>Pair with semgrep MCP in &quot;SAFETY RAILS&quot;</td></tr>
+</tbody>
+</table></div>
+<h3 id="43-for-each-knowledge-work-plugin-32"><a class="anchor" href="#43-for-each-knowledge-work-plugin-32" aria-label="Permalink to §4.3 For each knowledge-work plugin (§3.2)">#</a>§4.3 For each knowledge-work plugin (§3.2)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Adoption</th><th>Files to update</th></tr></thead>
+<tbody>
+<tr><td><strong>engineering (K1)</strong></td><td>New &quot;ENGINEERING METHODOLOGY&quot; § in <code>H:/prism/CLAUDE.md</code>; cross-ref each skill: code-review → use plugin&#39;s; standup → fold into <code>/handoff</code> template; system-design → use plugin&#39;s, drop our weak <code>/sparc:architect</code></td></tr>
+<tr><td><strong>product-management (K2)</strong></td><td>Add to &quot;ROADMAP&quot; § as the synthesizer for JM Die operator feedback</td></tr>
+</tbody>
+</table></div>
+<h3 id="44-for-each-community-bundle-33"><a class="anchor" href="#44-for-each-community-bundle-33" aria-label="Permalink to §4.4 For each community bundle (§3.3)">#</a>§4.4 For each community bundle (§3.3)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Adoption</th><th>Files to update</th></tr></thead>
+<tbody>
+<tr><td><strong>superpowers brainstorming (C2)</strong></td><td>Already a skill; promote it in <code>H:/prism/CLAUDE.md</code> &quot;ONE-GLANCE CHECKLIST&quot; as Step 0 for any new build. Update <code>/forge7</code> to invoke it explicitly</td></tr>
+<tr><td><strong>anthropics/skills (C3) — pdf, xlsx, docx subset</strong></td><td>Wire to <code>/quote-to-ship</code> for emitting PDF quotes; wire to <code>/setup-sheet-generate</code> for PDF setup sheets. New skills: <code>/quote-pdf-emit</code>, <code>/setup-sheet-pdf</code></td></tr>
+<tr><td><strong>ruflo upgrade (C4)</strong></td><td>Track changelog at <code>ruvnet/ruflo/wiki</code>. New <code>wiki/decisions/claude-flow-vs-ruflo-2026.md</code> documenting upgrade path</td></tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="5-cross-reference-against-prisms-self-awareness-surface"><a class="anchor" href="#5-cross-reference-against-prisms-self-awareness-surface" aria-label="Permalink to §5 — Cross-Reference Against PRISM&#39;s Self-Awareness Surface">#</a>§5 — Cross-Reference Against PRISM&#39;s Self-Awareness Surface</h2>
+<p>For each external candidate, check whether PRISM already has an internal equivalent and what to do.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>External candidate</th><th>PRISM equivalent (engine grep)</th><th>Verdict</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td>mcp-server-qdrant</td><td><code>QdrantMemoryEngine</code>, <code>QdrantMemoryEngineSingleton</code>, <code>QdrantVectorStoreEngine</code>, <code>QdrantCapacityPlannerEngine</code>, <code>OllamaEmbedderEngine</code>, <code>LocalEmbeddingEngine</code>, <code>SemanticAssetIndexEngine</code> (7 engines)</td><td>OVERLAPS-WITH-QDRANT-STACK</td><td><strong>DON&#39;T duplicate logic</strong> — install MCP server as a thin EXPORT of our existing collections. Saves zero internal effort, gains cross-CLI consistency</td></tr>
+<tr><td>memory (knowledge-graph)</td><td><code>QdrantMemoryEngine</code> (semantic) + <code>ObsidianVaultSyncEngine</code> (markdown vault) + ~14 other memory engines</td><td>DUPLICATE-OF-OUR-STACK</td><td>SKIP unless we want a tertiary cross-session graph memory; not required</td></tr>
+<tr><td>sequential-thinking</td><td><code>TreeOfThoughtEngine</code>, <code>CounterfactualReasoningEngine</code>, <code>HypothesisRankerEngine</code></td><td>OVERLAPS — semantically the same</td><td>INSTALL anyway: external tool exposes our reasoning to other CLIs (Codex/Gemini in 3-of-3 scrutiny)</td></tr>
+<tr><td>obsidian-mcp-server</td><td><code>ObsidianVaultSyncEngine</code> + <code>ObsidianPluginBridgeEngine</code> + <code>ConsensusObsidianPersistenceEngine</code> (3 engines)</td><td>OVERLAPS — write-only currently</td><td>INSTALL — surgical-edit fills our gap; plan deprecation of write paths in our 3 engines once stable</td></tr>
+<tr><td>mcp-grafana</td><td><code>GrafanaBridgeEngine</code> + <code>PrometheusMetricsEngine</code> + 2 others</td><td>OVERLAPS-WITH-INTERNAL</td><td>INSTALL the official wrapper as the AUTH-ED externalization; keep internal engines as compute backend</td></tr>
+<tr><td>opcua-mcp</td><td>(no <code>OpcUa</code> engines found, only <code>MTConnectLiveStatusEngine</code>, <code>MTConnectRoundTripLatencyBenchEngine</code>)</td><td>NEW — fills OPC-UA gap</td><td>INSTALL; build new <code>OPCUABridgeEngine</code> to consume MCP server output</td></tr>
+<tr><td>freecad-mcp</td><td><code>STEPGeometryParserEngine</code>, <code>Fusion360CodeGeneratorEngine</code>, <code>Fusion360CADGeneratorAdapter</code>, <code>MasterCADControlBrainEngine</code>, <code>SolidWorksCADExecutionBridge</code> (5+ engines)</td><td>NEW — FreeCAD specifically not covered</td><td>INSTALL; new <code>FreeCADBridgeEngine</code></td></tr>
+<tr><td>CAD-MCP (AutoCAD/GstarCAD/ZWCAD)</td><td>None</td><td>NEW</td><td>INSTALL only if shop adopts AutoCAD</td></tr>
+<tr><td>CAD-Query MCP</td><td><code>cqask/ui</code> Next.js frontend (PENDING_MERGE per BUILD_STATE)</td><td>OVERLAPS-WITH-PENDING-MERGE</td><td><strong>MERGE PATH:</strong> install MCP server, route cqask UI to MCP instead of porting Next.js routes. Resolves merge debt + gains MCP cross-CLI</td></tr>
+<tr><td>mcp-ragex</td><td>None — no tree-sitter or AST search engine in 3180</td><td>NEW (high value)</td><td>INSTALL — fills the &quot;find code by meaning&quot; gap</td></tr>
+<tr><td>probe</td><td>Same gap as ragex</td><td>NEW (lighter alternative)</td><td>EVAL after ragex</td></tr>
+<tr><td>stripe/mcp</td><td><code>BillingEngine</code> (stub-level) + <code>WEDMInvoiceLineEngine</code>, <code>WEDMCreditCostEngine</code>, <code>ProductEngine</code></td><td>NEW — no Stripe wire</td><td>INSTALL when Mark monetizes SFC</td></tr>
+<tr><td>semgrep/mcp</td><td>None — no SAST engine despite <code>npm audit</code> and 30+ pattern-block hooks</td><td>NEW (security gap)</td><td>INSTALL — meaningful net-new safety</td></tr>
+<tr><td>ralph-loop plugin</td><td><code>prism_ralph</code> dispatcher (3 actions: loop/scrutinize/assess)</td><td>OVERLAPS — partial implementation</td><td>INSTALL Ralph plugin; <strong>rewrite our <code>prism_ralph</code> to delegate</strong></td></tr>
+<tr><td>Anthropic engineering plugin (K1)</td><td><code>/forge-*</code> skills (10+)</td><td>OVERLAPS</td><td>ADOPT plugin; demote our <code>/sparc:*</code> and weaker <code>/forge-*</code> skills to <code>disable-model-invocation: true</code></td></tr>
+<tr><td>Anthropic skills (pdf/xlsx/docx)</td><td><code>/pdf-learn</code> is PDF READ; we have NO emit tooling</td><td>NEW (emit gap)</td><td>INSTALL pdf, xlsx, docx skills selectively</td></tr>
+<tr><td>superpowers brainstorming</td><td>Skill exists in plugin, not promoted</td><td>EXISTS-BUT-UNDERUSED</td><td>PROMOTE in CLAUDE.md &quot;ONE-GLANCE CHECKLIST&quot;</td></tr>
+<tr><td>ruflo upgrade</td><td><code>claude-flow</code> v? installed</td><td>INSTALLED-PRIOR-VERSION</td><td>UPGRADE to v3.6 for agent federation + AgentDB</td></tr>
+<tr><td>filesystem/memory/sequential-thinking/fetch/time</td><td>Various internal engines</td><td>OVERLAPS</td><td>INSTALL anyway — tier-1 reference servers, marginal cost</td></tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="6-prioritized-adoption-units-10-units"><a class="anchor" href="#6-prioritized-adoption-units-10-units" aria-label="Permalink to §6 — Prioritized Adoption Units (10 units)">#</a>§6 — Prioritized Adoption Units (10 units)</h2>
+<p>Tiered: P0 = ship-blocker for advertised PRISM capability; P1 = high-leverage gap fill; P2 = nice-to-have.</p>
+<h3 id="u-adopt-ragex-p0-code-search-gap"><a class="anchor" href="#u-adopt-ragex-p0-code-search-gap" aria-label="Permalink to U-ADOPT-RAGEX (P0 — code-search gap)">#</a>U-ADOPT-RAGEX (P0 — code-search gap)</h3>
+<ul>
+<li><strong>Title:</strong> Install mcp-ragex; deprecate broad-search Grep patterns</li>
+<li><strong>Rationale:</strong> PRISM&#39;s UserPromptSubmit hook count (~70) includes 5 block-rules against broad Grep (block-grep-entire-codebase, suggest-lsp-over-grep, etc.). The actual fix is a tree-sitter+RAG semantic search MCP. mcp-ragex covers all three modes (RAG/symbolic/regex) in one Docker container.</li>
+<li><strong>Files (§4.1):</strong> <code>H:/prism/CLAUDE.md</code> (TOKEN ECONOMY §), <code>C:\Users\wompu\.claude\CLAUDE.md</code> (TOKEN ECONOMY §), new <code>/code-search-ai</code> skill, new wiki entry, <code>H:/.claude/settings.json</code> (MCP entry)</li>
+<li><strong>Hours:</strong> M (1-4h: install Docker image, register, write skill, validate)</li>
+<li><strong>Tier:</strong> P0</li>
+<li><strong>Tie:</strong> New milestone TOOL-INVENTORY-MS0 / U-ADOPT-RAGEX</li>
+<li><strong>Risk:</strong> 3.2 GiB Docker image; CUDA variant 13.1 GiB. <strong>Cost note:</strong> local CPU mode is free.</li>
+</ul>
+<h3 id="u-adopt-ralph-loop-p0-autonomous-loop-primitive"><a class="anchor" href="#u-adopt-ralph-loop-p0-autonomous-loop-primitive" aria-label="Permalink to U-ADOPT-RALPH-LOOP (P0 — autonomous-loop primitive)">#</a>U-ADOPT-RALPH-LOOP (P0 — autonomous-loop primitive)</h3>
+<ul>
+<li><strong>Title:</strong> Install ralph-loop plugin; rewrite <code>prism_ralph</code> dispatcher to delegate</li>
+<li><strong>Rationale:</strong> <a href="https://www.firecrawl.dev/blog/best-claude-code-plugins" rel="noopener noreferrer">Firecrawl 2026 review</a> ranks Ralph as #1 plugin of 2026. Our <code>prism_ralph</code> dispatcher exists but has no driver loop; rewriting on top of canonical Ralph saves owning the loop semantics.</li>
+<li><strong>Files:</strong> <code>H:/prism/CLAUDE.md</code> (new &quot;AUTONOMOUS LOOPS&quot; §), update <code>prism_ralph</code> dispatcher to delegate, deprecate our <code>/ralph</code> skill body in favor of plugin namespace</li>
+<li><strong>Hours:</strong> M (2-4h)</li>
+<li><strong>Tier:</strong> P0</li>
+<li><strong>Tie:</strong> Existing milestone HOOK-SYNERGY-MS0 (autonomy gates) / U-ADOPT-RALPH-LOOP</li>
+<li><strong>Risk:</strong> Low — plugin is Anthropic-official</li>
+</ul>
+<h3 id="u-adopt-semgrep-sast-p0-security-gap"><a class="anchor" href="#u-adopt-semgrep-sast-p0-security-gap" aria-label="Permalink to U-ADOPT-SEMGREP-SAST (P0 — security gap)">#</a>U-ADOPT-SEMGREP-SAST (P0 — security gap)</h3>
+<ul>
+<li><strong>Title:</strong> Install semgrep/mcp; add PreCommit <code>semgrep-block-criticals</code> hook</li>
+<li><strong>Rationale:</strong> 3180 engines + 7341 actions with NO SAST coverage. We have <code>npm audit</code> (deps) and pattern-blockers (hookify rules) but no semantic-pattern security analysis. Semgrep finds SQL injection, auth bypass, unsafe-eval, prototype pollution.</li>
+<li><strong>Files:</strong> <code>H:/prism/CLAUDE.md</code> (SAFETY RAILS §), new <code>/security-scan</code> skill, new hook <code>.claude/hooks/semgrep-block-criticals.mjs</code>, <code>H:/.claude/settings.json</code> (MCP entry)</li>
+<li><strong>Hours:</strong> M (3h: install, write rules tuned to PRISM&#39;s TS patterns, wire PreCommit hook)</li>
+<li><strong>Tier:</strong> P0</li>
+<li><strong>Tie:</strong> New milestone TOOL-INVENTORY-MS0 / U-ADOPT-SEMGREP-SAST</li>
+<li><strong>Risk:</strong> Initial scan will flag many false positives; need PRISM-tuned ruleset</li>
+</ul>
+<h3 id="u-adopt-cadquery-mcp-p0-closes-pending-merge-debt"><a class="anchor" href="#u-adopt-cadquery-mcp-p0-closes-pending-merge-debt" aria-label="Permalink to U-ADOPT-CADQUERY-MCP (P0 — closes pending-merge debt)">#</a>U-ADOPT-CADQUERY-MCP (P0 — closes pending-merge debt)</h3>
+<ul>
+<li><strong>Title:</strong> Install CAD-Query MCP server; route cqask frontend to it instead of porting Next.js routes</li>
+<li><strong>Rationale:</strong> BUILD_STATE.md shows 2 pending-merge frontends; cqask uses CadQuery backend. Installing the MCP wrapper means cqask UI can stay as standalone subapp speaking MCP, not require Next-13 → React-18 port.</li>
+<li><strong>Files:</strong> Update BUILD_STATE.json (mark cqask as MCP-routed not PENDING_MERGE), <code>H:/prism/CLAUDE.md</code> (CAD bridges §), new wiki entry, decision card</li>
+<li><strong>Hours:</strong> L (4-8h: install MCP, wire UI client, deprecate port plan)</li>
+<li><strong>Tier:</strong> P0</li>
+<li><strong>Tie:</strong> Existing milestone for frontend-merge / U-ADOPT-CADQUERY-MCP</li>
+<li><strong>Risk:</strong> Need to verify cqask UI&#39;s MCP client lib compatibility</li>
+</ul>
+<h3 id="u-adopt-opcua-mcp-p1-extends-mtconnect-with-plc-coverage"><a class="anchor" href="#u-adopt-opcua-mcp-p1-extends-mtconnect-with-plc-coverage" aria-label="Permalink to U-ADOPT-OPCUA-MCP (P1 — extends MTConnect with PLC coverage)">#</a>U-ADOPT-OPCUA-MCP (P1 — extends MTConnect with PLC coverage)</h3>
+<ul>
+<li><strong>Title:</strong> Install opcua-mcp; build OPCUABridgeEngine to consume</li>
+<li><strong>Rationale:</strong> JM fleet has Mitsubishi WEDM and Okuma lathes that expose OPC-UA endpoints. We have <code>MTConnectLiveStatusEngine</code> for CNC-standardized telemetry but no OPC-UA wire. Closes machine-connectivity gap.</li>
+<li><strong>Files:</strong> <code>H:/prism/CLAUDE.md</code> (MACHINE LIVE §), new <code>OPCUABridgeEngine</code>, new <code>/opcua-read</code> skill, new wiki entries (<code>opcua-mcp.md</code>, <code>decision/opcua-vs-mtconnect.md</code>)</li>
+<li><strong>Hours:</strong> L (4-12h: install, write bridge engine, validate against actual machine OPC-UA endpoint)</li>
+<li><strong>Tier:</strong> P1</li>
+<li><strong>Tie:</strong> New milestone MACHINE-CONNECTIVITY-MS0 / U-ADOPT-OPCUA-MCP</li>
+<li><strong>Risk:</strong> Requires shop-network access to test; can mock with <a href="https://www.open62541.org/" rel="noopener noreferrer">open62541</a> test server</li>
+</ul>
+<h3 id="u-adopt-grafana-mcp-p1-observability-surface"><a class="anchor" href="#u-adopt-grafana-mcp-p1-observability-surface" aria-label="Permalink to U-ADOPT-GRAFANA-MCP (P1 — observability surface)">#</a>U-ADOPT-GRAFANA-MCP (P1 — observability surface)</h3>
+<ul>
+<li><strong>Title:</strong> Install mcp-grafana; expose existing GrafanaBridgeEngine through standard MCP</li>
+<li><strong>Rationale:</strong> We have <code>GrafanaBridgeEngine</code> and <code>PrometheusMetricsEngine</code>. Adding the official MCP wrapper exposes them to ANY MCP client (Cursor, Codex, Gemini) for conversational dashboard queries — no extra internal work, just exposes existing capability.</li>
+<li><strong>Files:</strong> <code>H:/prism/CLAUDE.md</code> (OBSERVABILITY §), new <code>/grafana-query</code> skill, <code>H:/.claude/settings.json</code>, wiki entry</li>
+<li><strong>Hours:</strong> S (1h: env-var setup, register MCP, write 1-line skill)</li>
+<li><strong>Tier:</strong> P1</li>
+<li><strong>Tie:</strong> New milestone TOOL-INVENTORY-MS0 / U-ADOPT-GRAFANA-MCP</li>
+<li><strong>Risk:</strong> Requires a running Grafana 9.0+ + service-account token. We have neither in dev env yet — verify before adopting</li>
+</ul>
+<h3 id="u-adopt-obsidian-mcp-p1-closes-obsidian-write-gap"><a class="anchor" href="#u-adopt-obsidian-mcp-p1-closes-obsidian-write-gap" aria-label="Permalink to U-ADOPT-OBSIDIAN-MCP (P1 — closes Obsidian write gap)">#</a>U-ADOPT-OBSIDIAN-MCP (P1 — closes Obsidian write gap)</h3>
+<ul>
+<li><strong>Title:</strong> Install obsidian-mcp-server; deprecate one-way push paths in our 3 Obsidian engines</li>
+<li><strong>Rationale:</strong> Per skills-openclaw §10.5, &quot;Use <code>memory: project</code> on subagents — replaces some wiki-recall load&quot;. Surgical-edit MCP enables that pattern. Our <code>ObsidianVaultSyncEngine</code> is one-way (PRISM → vault); MCP server is bidirectional + can edit specific notes/tags/frontmatter.</li>
+<li><strong>Files:</strong> <code>H:/prism/CLAUDE.md</code> (WIKI PROTOCOL §), new <code>/obsidian-edit</code> skill, deprecate write paths in 3 engines, wiki entry, <code>H:/.claude/settings.json</code> + Obsidian Local REST plugin token</li>
+<li><strong>Hours:</strong> M (3h: install Local REST plugin, register MCP, write skill, plan engine deprecation)</li>
+<li><strong>Tier:</strong> P1</li>
+<li><strong>Tie:</strong> Existing milestone OBSIDIAN-COMPOUND-MS1 (already scoped) / U-ADOPT-OBSIDIAN-MCP</li>
+<li><strong>Risk:</strong> API-token security — must NOT commit token to git; use env var</li>
+</ul>
+<h3 id="u-adopt-k1-engineering-p1-replaces-weak-sparc-and-forge-skills"><a class="anchor" href="#u-adopt-k1-engineering-p1-replaces-weak-sparc-and-forge-skills" aria-label="Permalink to U-ADOPT-K1-ENGINEERING (P1 — replaces weak /sparc and /forge skills)">#</a>U-ADOPT-K1-ENGINEERING (P1 — replaces weak /sparc and /forge skills)</h3>
+<ul>
+<li><strong>Title:</strong> Install Anthropic knowledge-work-plugins/engineering; demote weak internal skills</li>
+<li><strong>Rationale:</strong> Engineering plugin&#39;s code-review, system-design, tech-debt, debug, deploy-checklist skills are battle-tested. Our /sparc:* (29 skills) are loaded but never invoked. Net win: remove ~30 unused descriptions from always-on context budget; gain better tested replacements.</li>
+<li><strong>Files:</strong> <code>H:/prism/CLAUDE.md</code> (new &quot;ENGINEERING METHODOLOGY&quot; §), <code>state/shared/PRISM-COMMANDS-MANIFEST.md</code> update, <code>settings.local.json</code> <code>skillOverrides</code> to set <code>/sparc:*</code> to <code>off</code>, decision wiki entry</li>
+<li><strong>Hours:</strong> M (2h)</li>
+<li><strong>Tier:</strong> P1</li>
+<li><strong>Tie:</strong> New milestone TOOL-INVENTORY-MS0 / U-ADOPT-K1-ENGINEERING</li>
+<li><strong>Risk:</strong> Loss of any /sparc workflow we missed (none found in commit history)</li>
+</ul>
+<h3 id="u-adopt-pdf-emit-p1-fills-quotesetup-sheet-pdf-gap"><a class="anchor" href="#u-adopt-pdf-emit-p1-fills-quotesetup-sheet-pdf-gap" aria-label="Permalink to U-ADOPT-PDF-EMIT (P1 — fills quote/setup-sheet PDF gap)">#</a>U-ADOPT-PDF-EMIT (P1 — fills quote/setup-sheet PDF gap)</h3>
+<ul>
+<li><strong>Title:</strong> Install anthropics/skills pdf + xlsx + docx skills; wire to quote-to-ship and setup-sheet-generate</li>
+<li><strong>Rationale:</strong> We have <code>/pdf-learn</code> (read PDFs into knowledge) but ZERO emit. SFC quotes and setup sheets currently render as markdown only. PDF emit is required for shop-floor distribution and customer-portal quote delivery.</li>
+<li><strong>Files:</strong> Update <code>/quote-to-ship</code> and <code>/setup-sheet-generate</code> to invoke pdf-skill via Skill tool; new <code>/quote-pdf-emit</code> and <code>/setup-sheet-pdf</code> aliases; cite in <code>state/shared/PRISM-COMMANDS-MANIFEST.md</code></li>
+<li><strong>Hours:</strong> M (3h)</li>
+<li><strong>Tier:</strong> P1</li>
+<li><strong>Tie:</strong> Existing customer-portal milestone / U-ADOPT-PDF-EMIT</li>
+<li><strong>Risk:</strong> Anthropic&#39;s skills are source-available, not OSS — verify license compatibility for closed-source customer deliverables</li>
+</ul>
+<h3 id="u-adopt-mcp-foundation-p2-tier-1-reference-set"><a class="anchor" href="#u-adopt-mcp-foundation-p2-tier-1-reference-set" aria-label="Permalink to U-ADOPT-MCP-FOUNDATION (P2 — tier-1 reference set)">#</a>U-ADOPT-MCP-FOUNDATION (P2 — tier-1 reference set)</h3>
+<ul>
+<li><strong>Title:</strong> Install filesystem + memory + sequential-thinking + fetch + time MCP servers</li>
+<li><strong>Rationale:</strong> Marginal cost (4 npx subprocess + 1 Python). Cross-CLI consistency for the 5 most-commonly-needed primitives. Sequential-thinking exposes our internal reasoning to Codex/Gemini in 3-of-3 scrutiny pipeline.</li>
+<li><strong>Files:</strong> <code>H:/prism/CLAUDE.md</code> &quot;MCP DISPATCHERS&quot; listing append, <code>H:/.claude/settings.json</code>, wiki entry <code>mcp-foundation.md</code></li>
+<li><strong>Hours:</strong> S (1h: register 5 entries in settings.json)</li>
+<li><strong>Tier:</strong> P2</li>
+<li><strong>Tie:</strong> New milestone TOOL-INVENTORY-MS0 / U-ADOPT-MCP-FOUNDATION</li>
+<li><strong>Risk:</strong> Each MCP server adds tool-schema bytes to always-on context. Estimate ~2KB total — acceptable</li>
+</ul>
+<hr>
+<h2 id="sources"><a class="anchor" href="#sources" aria-label="Permalink to Sources">#</a>Sources</h2>
+<h3 id="mcp-servers-registry"><a class="anchor" href="#mcp-servers-registry" aria-label="Permalink to MCP servers + registry">#</a>MCP servers + registry</h3>
+<ul>
+<li><a href="https://github.com/modelcontextprotocol/servers" rel="noopener noreferrer">modelcontextprotocol/servers (official, GitHub)</a></li>
+<li><a href="https://registry.modelcontextprotocol.io/" rel="noopener noreferrer">Official MCP Registry</a></li>
+<li><a href="https://mcpservers.org/" rel="noopener noreferrer">Awesome MCP Servers (mcpservers.org)</a></li>
+<li><a href="https://mcp-awesome.com/" rel="noopener noreferrer">Best MCP Server List 2026 (mcp-awesome.com — 1200+ servers)</a></li>
+<li><a href="https://github.com/wong2/awesome-mcp-servers" rel="noopener noreferrer">wong2/awesome-mcp-servers (curated list, GitHub)</a></li>
+<li><a href="https://github.com/punkpeye/awesome-mcp-servers" rel="noopener noreferrer">punkpeye/awesome-mcp-servers (curated list, GitHub)</a></li>
+<li><a href="https://github.com/TensorBlock/awesome-mcp-servers" rel="noopener noreferrer">TensorBlock/awesome-mcp-servers (comprehensive collection, GitHub)</a></li>
+<li><a href="https://github.com/microsoft/mcp" rel="noopener noreferrer">Microsoft MCP catalog (GitHub)</a></li>
+<li><a href="https://github.com/awslabs/mcp" rel="noopener noreferrer">AWS Labs MCP (GitHub)</a></li>
+</ul>
+<h3 id="anthropic-plugins"><a class="anchor" href="#anthropic-plugins" aria-label="Permalink to Anthropic plugins">#</a>Anthropic plugins</h3>
+<ul>
+<li><a href="https://github.com/anthropics/claude-plugins-official" rel="noopener noreferrer">anthropics/claude-plugins-official (GitHub)</a></li>
+<li><a href="https://github.com/anthropics/knowledge-work-plugins" rel="noopener noreferrer">anthropics/knowledge-work-plugins (GitHub)</a></li>
+<li><a href="https://github.com/anthropics/claude-code/tree/main/plugins" rel="noopener noreferrer">anthropics/claude-code (plugins folder, GitHub)</a></li>
+<li><a href="https://claude.com/plugins" rel="noopener noreferrer">Plugins for Claude Code and Cowork (Anthropic)</a></li>
+<li><a href="https://code.claude.com/docs/en/discover-plugins" rel="noopener noreferrer">Discover plugins through marketplaces (Claude Code Docs)</a></li>
+<li><a href="https://claude-world.com/articles/anthropic-knowledge-work-plugins-overview/" rel="noopener noreferrer">ClaudeWorld: Anthropic Knowledge Work Plugins guide</a></li>
+<li><a href="https://www.mager.co/blog/2026-03-27-anthropic-knowledge-work-plugins/" rel="noopener noreferrer">Mager.co: Anthropic Knowledge Work Plugins (10 essential tools)</a></li>
+<li><a href="https://www.firecrawl.dev/blog/best-claude-code-plugins" rel="noopener noreferrer">Firecrawl: Top 10 Claude Code Plugins 2026</a></li>
+<li><a href="https://buildtolaunch.substack.com/p/best-claude-code-plugins-tested-review" rel="noopener noreferrer">BuildToLaunch: Best Claude Code Plugins 2026 review</a></li>
+<li><a href="https://buildwithclaude.com/" rel="noopener noreferrer">Build with Claude — Plugin Marketplace</a></li>
+</ul>
+<h3 id="specific-mcp-servers-cited"><a class="anchor" href="#specific-mcp-servers-cited" aria-label="Permalink to Specific MCP servers cited">#</a>Specific MCP servers cited</h3>
+<ul>
+<li><a href="https://github.com/qdrant/mcp-server-qdrant" rel="noopener noreferrer">mcp-server-qdrant (Qdrant official)</a></li>
+<li><a href="https://github.com/grafana/mcp-grafana" rel="noopener noreferrer">mcp-grafana (Grafana official)</a></li>
+<li><a href="https://github.com/kukapay/opcua-mcp" rel="noopener noreferrer">opcua-mcp (kukapay)</a></li>
+<li><a href="https://github.com/neka-nat/freecad-mcp" rel="noopener noreferrer">freecad-mcp (neka-nat)</a></li>
+<li><a href="https://github.com/daobataotie/CAD-MCP" rel="noopener noreferrer">CAD-MCP (daobataotie, AutoCAD/GstarCAD/ZWCAD)</a></li>
+<li><a href="https://mcpservers.org/servers/rishigundakaram/cadquery-mcp-server" rel="noopener noreferrer">CAD-Query MCP (rishigundakaram)</a></li>
+<li><a href="https://github.com/cyanheads/obsidian-mcp-server" rel="noopener noreferrer">obsidian-mcp-server (cyanheads)</a></li>
+<li><a href="https://github.com/jbenshetler/mcp-ragex" rel="noopener noreferrer">mcp-ragex (jbenshetler)</a></li>
+<li><a href="https://github.com/probelabs/probe" rel="noopener noreferrer">probe (probelabs, semantic code search)</a></li>
+<li><a href="https://codepathfinder.dev/mcp" rel="noopener noreferrer">Code Pathfinder MCP (codepathfinder.dev)</a></li>
+<li><a href="https://github.com/microsoft/playwright-mcp" rel="noopener noreferrer">microsoft/playwright-mcp (browser automation)</a></li>
+<li><a href="https://github.com/semgrep/mcp" rel="noopener noreferrer">semgrep/mcp (Semgrep official SAST)</a></li>
+<li><a href="https://docs.stripe.com/mcp" rel="noopener noreferrer">Stripe MCP docs (Stripe official)</a></li>
+<li><a href="https://www.influxdata.com/blog/influxdb-mcp-server/" rel="noopener noreferrer">InfluxDB 3 MCP Server</a></li>
+<li><a href="https://www.pulsemcp.com/servers/modelcontextprotocol-postgres" rel="noopener noreferrer">PostgreSQL MCP server (Anthropic — DEPRECATED 2025-07-10)</a></li>
+<li><a href="https://securitylabs.datadoghq.com/articles/mcp-vulnerability-case-study-SQL-injection-in-the-postgresql-mcp-server/" rel="noopener noreferrer">PostgreSQL MCP SQL injection vulnerability case study (Datadog Security Labs)</a></li>
+</ul>
+<h3 id="community-plugins-agents-skills"><a class="anchor" href="#community-plugins-agents-skills" aria-label="Permalink to Community plugins / agents / skills">#</a>Community plugins / agents / skills</h3>
+<ul>
+<li><a href="https://github.com/obra/superpowers" rel="noopener noreferrer">obra/superpowers (skills framework)</a></li>
+<li><a href="https://github.com/wshobson/agents" rel="noopener noreferrer">wshobson/agents (33k stars)</a></li>
+<li><a href="https://github.com/anthropics/skills" rel="noopener noreferrer">anthropics/skills (~132k stars)</a></li>
+<li><a href="https://github.com/ruvnet/ruflo" rel="noopener noreferrer">ruvnet/ruflo (formerly claude-flow, v3.6)</a></li>
+<li><a href="https://github.com/ruvnet/SAFLA" rel="noopener noreferrer">ruvnet/SAFLA (Self-Aware Feedback Loop Algorithm)</a></li>
+<li><a href="https://github.com/ruvnet/claude-flow/wiki/Neural-Module" rel="noopener noreferrer">ruvnet/claude-flow Wiki — Neural Module</a></li>
+<li><a href="https://github.com/VoltAgent/awesome-agent-skills" rel="noopener noreferrer">VoltAgent/awesome-agent-skills (1000+ skills)</a></li>
+<li><a href="https://agentskills.io" rel="noopener noreferrer">Agent Skills open standard (agentskills.io)</a></li>
+<li><a href="https://skillsmp.com/" rel="noopener noreferrer">SkillsMP — Agent Skills Marketplace</a></li>
+<li><a href="https://claudemarketplaces.com/" rel="noopener noreferrer">Claude Code Plugins &amp; Marketplaces directory (claudemarketplaces.com)</a></li>
+<li><a href="https://www.aitmpl.com/plugins/" rel="noopener noreferrer">aitmpl.com — Claude Code Plugins &amp; Marketplaces</a></li>
+</ul>
+<h3 id="methodology-domain-context"><a class="anchor" href="#methodology-domain-context" aria-label="Permalink to Methodology / domain context">#</a>Methodology / domain context</h3>
+<ul>
+<li><a href="https://snyk.io/articles/9-mcp-servers-for-computer-aided-drafting-cad-with-ai/" rel="noopener noreferrer">Snyk: 9 MCP Servers for CAD with AI</a></li>
+<li><a href="https://chatforest.com/reviews/code-security-mcp-servers/" rel="noopener noreferrer">Code Security MCP Servers — Snyk, SonarQube, Semgrep, Trivy, CodeQL (ChatForest)</a></li>
+<li><a href="https://checkoutpage.com/blog/best-mcp-servers-for-ecommerce" rel="noopener noreferrer">Best MCP servers for ecommerce 2026 (Checkout Page)</a></li>
+<li><a href="https://www.mtconnect.org/opc-ua-companion-specification" rel="noopener noreferrer">MTConnect OPC UA Companion Specification</a></li>
+<li><a href="https://a2a-mcp.org/blog/andrej-karpathy-llm-knowledge-bases-obsidian-wiki" rel="noopener noreferrer">Andrej Karpathy LLM Knowledge Bases — AI Wikis in Obsidian (a2a-mcp.org)</a></li>
+</ul>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="2026-05-10-system-viz-tool-inventory.md">2026-05-10-system-viz-tool-inventory.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

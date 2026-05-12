@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="d564c4858a3ec3c74ba65c29ea258ac942abc2f42282ea1b617ed27393f795f9">
+<title>Obsidian as a Second Brain for AI-Assisted Development — Research Card</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">Obsidian as a Second Brain for AI-Assisted Development — Research Card</h1>
+<p class="provenance">Generated 2026-05-12T12:43:26.495Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#obsidian-as-a-second-brain-for-ai-assisted-development">Obsidian as a Second Brain for AI-Assisted Development</a></li>
+<li class="toc-l2"><a href="#1-para-vs-zettelkasten-when-to-use-which-and-what-prism-already-does">§1 — PARA vs Zettelkasten: When to Use Which (and What PRISM Already Does)</a></li>
+<li class="toc-l3"><a href="#11-para-tiago-forte-organize-by-actionability">1.1 PARA (Tiago Forte) — organize by actionability</a></li>
+<li class="toc-l3"><a href="#12-zettelkasten-niklas-luhmann-organize-by-atomic-concept-link">1.2 Zettelkasten (Niklas Luhmann) — organize by atomic concept + link</a></li>
+<li class="toc-l3"><a href="#13-what-prism-does-hybrid-leans-zettelkasten">1.3 What PRISM does (hybrid, leans Zettelkasten)</a></li>
+<li class="toc-l2"><a href="#2-atomic-note-principles-quote-the-authors">§2 — Atomic Note Principles (Quote the Authors)</a></li>
+<li class="toc-l3"><a href="#21-andy-matuschak-evergreen-notes-should-be-atomic">2.1 Andy Matuschak — &quot;Evergreen notes should be atomic&quot;</a></li>
+<li class="toc-l3"><a href="#22-concept-oriented-not-source-oriented">2.2 Concept-oriented (not source-oriented)</a></li>
+<li class="toc-l3"><a href="#23-densely-linked">2.3 Densely linked</a></li>
+<li class="toc-l3"><a href="#24-knowledge-work-should-accrete">2.4 Knowledge work should accrete</a></li>
+<li class="toc-l3"><a href="#25-example-atomic-structure-from-prisms-existing-wiki">2.5 Example atomic structure (from PRISM&#39;s existing wiki)</a></li>
+<li class="toc-l2"><a href="#3-wiki-links-tags-dataview-programmatic-vault-queries">§3 — Wiki-Links + Tags + Dataview (Programmatic Vault Queries)</a></li>
+<li class="toc-l3"><a href="#31-three-layers-of-metadata-in-obsidian">3.1 Three layers of metadata in Obsidian</a></li>
+<li class="toc-l3"><a href="#32-dataviewjs-the-queryable-knowledge-graph">3.2 DataviewJS — the queryable knowledge graph</a></li>
+<li class="toc-l3"><a href="#33-applied-to-prisms-wiki-hypothetical-queries">3.3 Applied to PRISM&#39;s wiki (hypothetical queries)</a></li>
+<li class="toc-l2"><a href="#4-maps-of-content-moc-when-to-build-when-to-skip">§4 — Maps of Content (MOC) — When to Build, When to Skip</a></li>
+<li class="toc-l3"><a href="#41-what-an-moc-is-nick-milo-lyt-framework">4.1 What an MOC is (Nick Milo, LYT framework)</a></li>
+<li class="toc-l3"><a href="#42-when-to-make-one-the-mental-squeeze-point">4.2 When to make one — the &quot;mental squeeze point&quot;</a></li>
+<li class="toc-l3"><a href="#43-prisms-moc-story-mostly-missing">4.3 PRISM&#39;s MOC story (mostly missing)</a></li>
+<li class="toc-l3"><a href="#44-anti-pattern-taxonomy-bloat">4.4 Anti-pattern: taxonomy bloat</a></li>
+<li class="toc-l2"><a href="#5-llm-obsidian-integration-patterns-what-works-what-doesnt">§5 — LLM ↔ Obsidian Integration Patterns (What Works, What Doesn&#39;t)</a></li>
+<li class="toc-l3"><a href="#51-the-three-plugin-archetypes">5.1 The three plugin archetypes</a></li>
+<li class="toc-l3"><a href="#52-smart-connections-the-dominant-choice-786k-downloads">5.2 Smart Connections (the dominant choice — 786K downloads)</a></li>
+<li class="toc-l3"><a href="#53-chatgpt-md-markdown-as-conversation">5.3 ChatGPT MD — markdown-as-conversation</a></li>
+<li class="toc-l3"><a href="#54-local-llm-via-ollama-the-recommended-stack">5.4 Local LLM via Ollama — the recommended stack</a></li>
+<li class="toc-l3"><a href="#55-friction-patterns-industry-wide">5.5 Friction patterns (industry-wide)</a></li>
+<li class="toc-l2"><a href="#6-daily-notes-atomic-capture-fleeting-permanent-flow">§6 — Daily Notes + Atomic Capture (Fleeting → Permanent Flow)</a></li>
+<li class="toc-l3"><a href="#61-the-ahrens-workflow-applied-to-a-code-session">6.1 The Ahrens workflow applied to a code session</a></li>
+<li class="toc-l3"><a href="#62-bake-into-prisms-session-handoff-system">6.2 Bake into PRISM&#39;s session handoff system</a></li>
+<li class="toc-l3"><a href="#63-daily-notes-pattern-obsidian-default-prism-analog">6.3 Daily-notes pattern (Obsidian default → PRISM analog)</a></li>
+<li class="toc-l2"><a href="#7-vault-to-code-synergy-keeping-wiki-code-in-sync">§7 — Vault-to-Code Synergy (Keeping Wiki + Code in Sync)</a></li>
+<li class="toc-l3"><a href="#71-the-drift-problem">7.1 The drift problem</a></li>
+<li class="toc-l3"><a href="#72-what-prism-already-does-auto-update-on-git-events">7.2 What PRISM already does (auto-update on git events)</a></li>
+<li class="toc-l3"><a href="#73-whats-missing">7.3 What&#39;s missing</a></li>
+<li class="toc-l3"><a href="#74-the-git-commit-triggers-wiki-update-pattern">7.4 The &quot;git commit triggers wiki update&quot; pattern</a></li>
+<li class="toc-l2"><a href="#8-anti-patterns-and-how-practitioners-avoid-them">§8 — Anti-Patterns (and How Practitioners Avoid Them)</a></li>
+<li class="toc-l3"><a href="#81-taxonomy-graveyards">8.1 Taxonomy graveyards</a></li>
+<li class="toc-l3"><a href="#82-folder-hell">8.2 Folder hell</a></li>
+<li class="toc-l3"><a href="#83-link-rot">8.3 Link rot</a></li>
+<li class="toc-l3"><a href="#84-moc-bloat">8.4 MOC bloat</a></li>
+<li class="toc-l3"><a href="#85-untouched-orphan-notes">8.5 Untouched / orphan notes</a></li>
+<li class="toc-l3"><a href="#86-the-second-brain-becomes-a-museum-failure">8.6 The &quot;second brain becomes a museum&quot; failure</a></li>
+<li class="toc-l2"><a href="#9-cross-reference-prism-vs-obsidian-community-best-practices">§9 — Cross-Reference: PRISM vs Obsidian-Community Best Practices</a></li>
+<li class="toc-l2"><a href="#10-concrete-recommendations-for-prism-5-units-of-work">§10 — Concrete Recommendations for PRISM (5 Units of Work)</a></li>
+<li class="toc-l2"><a href="#11-one-line-summary-for-next-session">§11 — One-Line Summary for Next Session</a></li>
+<li class="toc-l2"><a href="#sources">Sources</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<details class="frontmatter" open><summary>Document metadata</summary><div class="table-wrap"><table>
+<tbody>
+<tr><th scope="row">title</th><td>Obsidian as a Second Brain for AI-Assisted Development — Research Card</td></tr>
+<tr><th scope="row">category</th><td>research</td></tr>
+<tr><th scope="row">date</th><td>2026-05-10</td></tr>
+<tr><th scope="row">author</th><td>claude-research</td></tr>
+<tr><th scope="row">sources</th><td>- https: //fortelabs.com/blog/para/; - https: //notes.andymatuschak.org/Evergreen_notes; - https: //zettelkasten.de/posts/concepts-sohnke-ahrens-explained/; - https: //notes.linkingyourthinking.com/Cards/MOCs+Overview; - https: //obsidian.rocks/maps-of-content-effortless-organization-for-notes/; - https: //stephango.com/vault; - https: //github.com/brianpetro/obsidian-smart-connections; - https: //github.com/bramses/chatgpt-md; - https: //blacksmithgu.github.io/obsidian-dataview/; - https: //localaimaster.com/blog/local-ai-obsidian-integration; - H: /prism/WIKI_SCHEMA.md; - H: /prism/knowledge/wiki/index.md</td></tr>
+<tr><th scope="row">related</th><td>[[WIKI_SCHEMA]], [[reference_milestone_progress_surface]], [[reference_build_state_surface]]</td></tr>
+<tr><th scope="row">tags</th><td>[obsidian, second-brain, knowledge-management, llm-integration, prism-wiki]</td></tr>
+<tr><th scope="row">confidence</th><td>0.85</td></tr>
+</tbody>
+</table></div></details>
+<h1 id="obsidian-as-a-second-brain-for-ai-assisted-development"><a class="anchor" href="#obsidian-as-a-second-brain-for-ai-assisted-development" aria-label="Permalink to Obsidian as a Second Brain for AI-Assisted Development">#</a>Obsidian as a Second Brain for AI-Assisted Development</h1>
+<blockquote>
+<p>Cross-referenced against PRISM&#39;s 770-entry wiki at <code>H:/prism/knowledge/wiki/</code> (575 engines + 96 dispatchers + 99 memories), the Karpathy LLM-Wiki doctrine in <code>WIKI_SCHEMA.md</code>, and the auto-injected memory layer at <code>knowledge/memories/{user,feedback,project,reference}/</code>.</p>
+</blockquote>
+<h2 id="1-para-vs-zettelkasten-when-to-use-which-and-what-prism-already-does"><a class="anchor" href="#1-para-vs-zettelkasten-when-to-use-which-and-what-prism-already-does" aria-label="Permalink to §1 — PARA vs Zettelkasten: When to Use Which (and What PRISM Already Does)">#</a>§1 — PARA vs Zettelkasten: When to Use Which (and What PRISM Already Does)</h2>
+<h3 id="11-para-tiago-forte-organize-by-actionability"><a class="anchor" href="#11-para-tiago-forte-organize-by-actionability" aria-label="Permalink to 1.1 PARA (Tiago Forte) — organize by actionability">#</a>1.1 PARA (Tiago Forte) — organize by actionability</h3>
+<p>PARA buckets ALL information into four categories distinguished by <strong>time-horizon and outcome</strong>:</p>
+<ul>
+<li><strong>Projects</strong> — short-term efforts with a deadline (&quot;complete webpage design&quot;, &quot;buy a new computer&quot;)</li>
+<li><strong>Areas</strong> — ongoing responsibilities with no end date (&quot;finances&quot;, &quot;writing&quot;, &quot;health&quot;)</li>
+<li><strong>Resources</strong> — topics of interest for future use (&quot;graphic design&quot;, &quot;Japanese language&quot;)</li>
+<li><strong>Archives</strong> — inactive items from any of the three other buckets</li>
+</ul>
+<p>Forte&#39;s central principle: organize &quot;according to the projects and goals you are committed to <strong>right now</strong>&quot; — not by broad subject like in school. He explicitly contrasts areas vs projects with the question: <em>&quot;Does &#39;strategic planning&#39; ever end for good?&quot;</em> Areas persist indefinitely; projects close out.</p>
+<p>PARA&#39;s strength is <strong>frictionless capture</strong>. Anything new lands in one of four buckets in &lt;5 seconds. Its weakness for code wikis: it organizes by <em>who-will-act-on-this</em>, not by <em>what-is-this-conceptually</em>. A page describing the Kienzle force model has no &quot;project&quot; or &quot;area&quot; — it&#39;s a durable concept.</p>
+<h3 id="12-zettelkasten-niklas-luhmann-organize-by-atomic-concept-link"><a class="anchor" href="#12-zettelkasten-niklas-luhmann-organize-by-atomic-concept-link" aria-label="Permalink to 1.2 Zettelkasten (Niklas Luhmann) — organize by atomic concept + link">#</a>1.2 Zettelkasten (Niklas Luhmann) — organize by atomic concept + link</h3>
+<p>Luhmann&#39;s slip-box (~90,000 cards, fueled 70 books + 400 articles) had two rules that survive: <strong>atomicity</strong> (one idea per card) and <strong>hyper-textuality</strong> (each card carries a unique ID and links to others). The fleeting → literature → permanent taxonomy is <strong>not Luhmann&#39;s</strong> — it was retro-fitted by Sönke Ahrens in <em>How to Take Smart Notes</em> (2017):</p>
+<ul>
+<li><strong>Fleeting notes</strong> — quick captures while doing something else, discarded within a day or two after reprocessing</li>
+<li><strong>Literature notes</strong> — bibliographic references + key excerpts, stored in a reference manager</li>
+<li><strong>Permanent notes</strong> (&quot;Zettel&quot;) — self-contained, written-as-if-for-print, never discarded, in your own words</li>
+</ul>
+<p>Zettelkasten&#39;s strength for code wikis: every concept becomes a durable, link-rich node that compounds across projects. Its weakness: <strong>no actionability layer</strong>. A pure Zettelkasten doesn&#39;t tell you what to work on next.</p>
+<h3 id="13-what-prism-does-hybrid-leans-zettelkasten"><a class="anchor" href="#13-what-prism-does-hybrid-leans-zettelkasten" aria-label="Permalink to 1.3 What PRISM does (hybrid, leans Zettelkasten)">#</a>1.3 What PRISM does (hybrid, leans Zettelkasten)</h3>
+<p>PRISM&#39;s <code>H:/prism/knowledge/wiki/</code> is a <strong>structural hybrid</strong> that maps cleanly to neither paradigm:</p>
+<ul>
+<li>The 11 subdirectories (<code>concepts/</code>, <code>entities/</code>, <code>decisions/</code>, <code>patterns/</code>, <code>trajectories/</code>, <code>summaries/</code>, <code>code-tribal/</code>, <code>architecture/</code>, <code>software-engineering/</code>, <code>ux-design/</code>, <code>lessons/</code>) are <strong>categories by note-type</strong> — closer to Steph Ango&#39;s &quot;organize by type-of-note, then link&quot; school than to either PARA or Zettel.</li>
+<li>770 entries are predominantly atomic concept-pages (575 engines, one per <code>*Engine.ts</code>) — Zettelkasten-shaped.</li>
+<li>The <code>decisions/</code> and <code>trajectories/</code> directories carry an actionability layer that PARA would call &quot;Projects&quot; — synthesis outputs from Creative Reasoning + AGI runs, dated and time-bounded.</li>
+<li>The auto-injected memory files in <code>knowledge/memories/{user,feedback,project,reference}/</code> are PARA-shaped: <code>project/</code> ≈ Projects, <code>reference/</code> ≈ Resources, <code>user/</code> ≈ Areas (cross-cutting), <code>feedback/</code> ≈ Archives + active learnings.</li>
+</ul>
+<p><strong>Hybrid recommendation for code wikis:</strong></p>
+<ol>
+<li><strong>Atomic concept pages by directory-type</strong> (Zettelkasten core) — every engine, dispatcher, formula, decision is its own page.</li>
+<li><strong>PARA layer on top via frontmatter <code>category:</code> + auto-injected memory split</strong> — Projects (active work), Areas (ongoing concerns like SVI, omega), Resources (durable docs), Archives (deprecated engines).</li>
+<li><strong>MOC layer for navigation</strong> (Nick Milo, see §4) — top-level entry points like <code>wiki/index.md</code> and per-domain hubs.</li>
+</ol>
+<p>PRISM already does (1) and (2); §4 covers what&#39;s missing on (3).</p>
+<hr>
+<h2 id="2-atomic-note-principles-quote-the-authors"><a class="anchor" href="#2-atomic-note-principles-quote-the-authors" aria-label="Permalink to §2 — Atomic Note Principles (Quote the Authors)">#</a>§2 — Atomic Note Principles (Quote the Authors)</h2>
+<h3 id="21-andy-matuschak-evergreen-notes-should-be-atomic"><a class="anchor" href="#21-andy-matuschak-evergreen-notes-should-be-atomic" aria-label="Permalink to 2.1 Andy Matuschak — &quot;Evergreen notes should be atomic&quot;">#</a>2.1 Andy Matuschak — &quot;Evergreen notes should be atomic&quot;</h3>
+<blockquote>
+<p><em>&quot;It&#39;s a heuristic: write notes such that each can be understood — and ideally, used — without referring to many others. This way, it&#39;s easier to form connections across topics and contexts.&quot;</em> — <a href="https://notes.andymatuschak.org/Evergreen_notes_should_be_atomic" rel="noopener noreferrer">Matuschak, Evergreen notes should be atomic</a></p>
+</blockquote>
+<p>Matuschak frames atomicity as a <strong>separation-of-concerns analogue</strong> from software engineering: modules should focus on one thing, so they&#39;re more easily reusable. He acknowledges the tension explicitly:</p>
+<blockquote>
+<p><em>&quot;There&#39;s no clear litmus test or correct answer here — just a bunch of tradeoffs.&quot;</em></p>
+</blockquote>
+<p>The two failure modes:</p>
+<ul>
+<li><strong>Too broad:</strong> &quot;you might not notice when you encounter some new idea about one of the notions contained within, and links to that note will be muddied.&quot;</li>
+<li><strong>Too fragmented:</strong> &quot;you&#39;ll also fragment your link network, which may make it harder to see certain connections.&quot;</li>
+</ul>
+<h3 id="22-concept-oriented-not-source-oriented"><a class="anchor" href="#22-concept-oriented-not-source-oriented" aria-label="Permalink to 2.2 Concept-oriented (not source-oriented)">#</a>2.2 Concept-oriented (not source-oriented)</h3>
+<blockquote>
+<p><em>&quot;It&#39;s not just about accumulation. There&#39;s also no pressure to synthesize your new ideas on the concept with your prior thoughts about it.&quot;</em> — <a href="https://notes.andymatuschak.org/Evergreen_notes_should_be_concept-oriented" rel="noopener noreferrer">Matuschak, Evergreen notes should be concept-oriented</a></p>
+</blockquote>
+<p>Organize by the <strong>underlying concept</strong>, not by the source (book, project, meeting). When the same concept comes up across three books, all three add to the same concept-page — surfacing contradictions and synthesis opportunities at write-time, not query-time.</p>
+<h3 id="23-densely-linked"><a class="anchor" href="#23-densely-linked" aria-label="Permalink to 2.3 Densely linked">#</a>2.3 Densely linked</h3>
+<blockquote>
+<p><em>&quot;Finding the right links requires reading old notes, so it&#39;s also an organic mechanism for intermittently reviewing&quot;</em> — <a href="https://notes.andymatuschak.org/Evergreen_notes_should_be_densely_linked" rel="noopener noreferrer">Matuschak, Evergreen notes should be densely linked</a></p>
+</blockquote>
+<p>Five functions of dense linking per Matuschak:</p>
+<ol>
+<li>Deeper learning (elaborative encoding)</li>
+<li>Organic review of old notes</li>
+<li>Documenting <em>how</em> conclusions were reached</li>
+<li>Many paths to navigate idea-space</li>
+<li>Attention management while drafting</li>
+</ol>
+<h3 id="24-knowledge-work-should-accrete"><a class="anchor" href="#24-knowledge-work-should-accrete" aria-label="Permalink to 2.4 Knowledge work should accrete">#</a>2.4 Knowledge work should accrete</h3>
+<blockquote>
+<p><em>&quot;We should strive to design practices systems which yield compounding returns on our efforts as they accumulate over time. We should do our serious thinking in the form of Evergreen notes so that the thinking accumulates.&quot;</em></p>
+</blockquote>
+<p>This is the <strong>same principle</strong> the Karpathy LLM-Wiki applies (<code>WIKI_SCHEMA.md</code> §1): &quot;knowledge compiles once and stays current. The wiki is a compounding artifact.&quot;</p>
+<h3 id="25-example-atomic-structure-from-prisms-existing-wiki"><a class="anchor" href="#25-example-atomic-structure-from-prisms-existing-wiki" aria-label="Permalink to 2.5 Example atomic structure (from PRISM&#39;s existing wiki)">#</a>2.5 Example atomic structure (from PRISM&#39;s existing wiki)</h3>
+<pre><code class="language-markdown">---
+title: Kienzle Cutting Force Model
+category: concepts
+sources: [src/physics/constants.ts, formula:F-1037, raw/iso-3685.md]
+confidence: 0.92
+last_verified: 2026-05-08
+author: claude
+related: [[chip-thickness-modulation]], [[force-prediction-pipeline]], [[Ti-6Al-4V]]
+tags: [physics, force, cutting]
+---
+
+# Kienzle Cutting Force Model
+
+Specific cutting energy as a function of chip thickness:
+`Fc = b * h * kc1.1 * (h0/h)^mc`
+
+Per ISO 3685 group, kc1.1 anchors at: P=1800, M=2100, K=1100, N=700, S=2800, H=3200.
+
+See [[force-prediction-pipeline]] for how this composes with [[chip-thinning-correction]].
+</code></pre>
+<p><strong>One concept per file. Frontmatter for metadata. <code>[[wiki-links]]</code> for relationships. Source citations for grounding.</strong> This is the atomic-note pattern PRISM already follows.</p>
+<hr>
+<h2 id="3-wiki-links-tags-dataview-programmatic-vault-queries"><a class="anchor" href="#3-wiki-links-tags-dataview-programmatic-vault-queries" aria-label="Permalink to §3 — Wiki-Links + Tags + Dataview (Programmatic Vault Queries)">#</a>§3 — Wiki-Links + Tags + Dataview (Programmatic Vault Queries)</h2>
+<h3 id="31-three-layers-of-metadata-in-obsidian"><a class="anchor" href="#31-three-layers-of-metadata-in-obsidian" aria-label="Permalink to 3.1 Three layers of metadata in Obsidian">#</a>3.1 Three layers of metadata in Obsidian</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Layer</th><th>Syntax</th><th>Use For</th></tr></thead>
+<tbody>
+<tr><td>Frontmatter (YAML)</td><td><code>---\nkey: value\n---</code></td><td>Structured properties — dates, status, confidence, category</td></tr>
+<tr><td>Inline fields (Dataview)</td><td><code>Key:: Value</code> mid-paragraph</td><td>Granular metadata bound to a sentence</td></tr>
+<tr><td>Tags</td><td><code>#tag/subtag</code></td><td>Cross-cutting topical labels (1–3 words)</td></tr>
+<tr><td>Wikilinks</td><td><code>[[Page Name]]</code></td><td>Relationships between notes</td></tr>
+</tbody>
+</table></div>
+<p>Per the <a href="https://forum.obsidian.md/t/an-opinionated-reflection-on-using-folders-links-tags-and-properties/78548" rel="noopener noreferrer">opinionated reflection forum thread</a>: &quot;Use folders for the type of files contained within them. Use links for convenient navigation between files...but not for the hope of magical serendipity. Use tags for topics that are usually 1-3 words. Properties are for minutiae...at a more granular level.&quot;</p>
+<h3 id="32-dataviewjs-the-queryable-knowledge-graph"><a class="anchor" href="#32-dataviewjs-the-queryable-knowledge-graph" aria-label="Permalink to 3.2 DataviewJS — the queryable knowledge graph">#</a>3.2 DataviewJS — the queryable knowledge graph</h3>
+<p>DataviewJS turns the vault into a queryable database. Examples from the <a href="https://blacksmithgu.github.io/obsidian-dataview/queries/dql-js-inline/" rel="noopener noreferrer">official docs</a>:</p>
+<p><strong>DQL — list all notes with a tag, sorted:</strong></p>
+<pre><code class="language-dataview">TABLE rating AS &quot;Rating&quot;, summary AS &quot;Summary&quot;
+FROM #games
+SORT rating DESC
+</code></pre>
+<p><strong>DataviewJS — group by category, filter by metadata:</strong></p>
+<pre><code class="language-javascript">let pages = dv.pages(&quot;#books and -#books/finished&quot;).where(b =&gt; b.rating &gt;= 7);
+for (let group of pages.groupBy(b =&gt; b.genre)) {
+    dv.header(3, group.key);
+    dv.list(group.rows.file.name);
+}
+</code></pre>
+<h3 id="33-applied-to-prisms-wiki-hypothetical-queries"><a class="anchor" href="#33-applied-to-prisms-wiki-hypothetical-queries" aria-label="Permalink to 3.3 Applied to PRISM&#39;s wiki (hypothetical queries)">#</a>3.3 Applied to PRISM&#39;s wiki (hypothetical queries)</h3>
+<pre><code class="language-javascript">// All concept-pages with confidence &lt; 0.7 (need human verification)
+dv.pages(&#39;&quot;knowledge/wiki/concepts&quot;&#39;)
+  .where(p =&gt; p.confidence &lt; 0.7)
+  .sort(p =&gt; p.last_verified)
+  .file.link
+
+// All Ollama-authored pages without verified_by stamp (CRITICAL per WIKI_SCHEMA.md §5)
+dv.pages(&#39;&quot;knowledge/wiki&quot;&#39;)
+  .where(p =&gt; p.author === &#39;ollama&#39; &amp;&amp; p.confidence &gt; 0.6 &amp;&amp; !p.verified_by)
+
+// Engines with zero inbound wikilinks (orphans)
+dv.pages(&#39;&quot;knowledge/wiki/concepts&quot;&#39;)
+  .where(p =&gt; dv.pages().file.outlinks.path.includes(p.file.path) === false)
+</code></pre>
+<p>This is <strong>exactly what <code>WikiLintEngine</code> does today</strong> in PRISM (per <code>WIKI_SCHEMA.md</code> §3.3) — orphan detection, broken-cross-ref detection, stale-claim detection, physics-drift detection. Dataview is the user-facing equivalent of that engine.</p>
+<blockquote>
+<p><strong>2026 caveat:</strong> the <a href="https://stephango.com/vault" rel="noopener noreferrer">Obsidian 2026 vault best-practices summary</a> notes Dataview has been deprecated in favor of &quot;Obsidian Bases&quot; for native structure. Bases use the same frontmatter contract, so PRISM&#39;s frontmatter already future-proofs the lint engine.</p>
+</blockquote>
+<hr>
+<h2 id="4-maps-of-content-moc-when-to-build-when-to-skip"><a class="anchor" href="#4-maps-of-content-moc-when-to-build-when-to-skip" aria-label="Permalink to §4 — Maps of Content (MOC) — When to Build, When to Skip">#</a>§4 — Maps of Content (MOC) — When to Build, When to Skip</h2>
+<h3 id="41-what-an-moc-is-nick-milo-lyt-framework"><a class="anchor" href="#41-what-an-moc-is-nick-milo-lyt-framework" aria-label="Permalink to 4.1 What an MOC is (Nick Milo, LYT framework)">#</a>4.1 What an MOC is (Nick Milo, LYT framework)</h3>
+<p>A Map of Content is a special note that, instead of containing detail itself, <strong>contains wikilinks pointing to other notes on the same topic</strong>. Per <a href="https://obsidian.rocks/maps-of-content-effortless-organization-for-notes/" rel="noopener noreferrer">Obsidian Rocks</a>: MOCs function &quot;as a living table of contents that is continuously updated and always reflects the actual state of your vault.&quot; They are organic, hand-curated, and &quot;infinitely flexible — you can add one note to multiple maps, or to none.&quot;</p>
+<h3 id="42-when-to-make-one-the-mental-squeeze-point"><a class="anchor" href="#42-when-to-make-one-the-mental-squeeze-point" aria-label="Permalink to 4.2 When to make one — the &quot;mental squeeze point&quot;">#</a>4.2 When to make one — the &quot;mental squeeze point&quot;</h3>
+<blockquote>
+<p><em>&quot;Any time you start to feel overwhelmed by how many notes you&#39;re trying to juggle, create a map of content.&quot;</em></p>
+</blockquote>
+<p>Nick Milo&#39;s heuristic: build an MOC at the <strong>mental squeeze point</strong> — when the number of notes on a topic crosses the threshold where you can&#39;t hold them all in your head. Not earlier (premature taxonomy), not later (knowledge becomes unfindable).</p>
+<p>The LYT ARC framework: <strong>Add → Relate → Communicate</strong>. MOCs sit at &quot;Relate&quot; — they&#39;re how you wire atomic notes into navigable hubs.</p>
+<h3 id="43-prisms-moc-story-mostly-missing"><a class="anchor" href="#43-prisms-moc-story-mostly-missing" aria-label="Permalink to 4.3 PRISM&#39;s MOC story (mostly missing)">#</a>4.3 PRISM&#39;s MOC story (mostly missing)</h3>
+<p>PRISM has <strong>one</strong> MOC today: <code>wiki/index.md</code> (770 entries, auto-generated by <code>WikiIndexMaintainerEngine</code>). This is a <em>catalog</em> MOC — flat, comprehensive, but not curated by topic.</p>
+<p>What&#39;s missing — per-domain hubs:</p>
+<ul>
+<li><code>wiki/concepts/_force-physics-moc.md</code> — entry point to all force/torque/specific-energy concept pages</li>
+<li><code>wiki/architecture/_dispatcher-moc.md</code> — map of all 97 dispatchers + their action-counts + cross-refs</li>
+<li><code>wiki/code-tribal/_hypermill-moc.md</code> — entry point to the hyperMILL strategy clusters (face, contour, pencil, equidistant, lace, thread-milling, …)</li>
+<li><code>wiki/lessons/_cad-fusion-live-moc.md</code> — chronological narrative of the milestone&#39;s lesson notes</li>
+</ul>
+<p>These would be Nick Milo MOCs: hand-curated (or LLM-curated and human-reviewed), durable, and grow as concepts accrete.</p>
+<h3 id="44-anti-pattern-taxonomy-bloat"><a class="anchor" href="#44-anti-pattern-taxonomy-bloat" aria-label="Permalink to 4.4 Anti-pattern: taxonomy bloat">#</a>4.4 Anti-pattern: taxonomy bloat</h3>
+<p>The forum threads on MOCs warn explicitly: don&#39;t make an MOC for every directory. The signal that an MOC is needed is <strong>user friction</strong>, not file-count. If a domain has 5 notes and you&#39;re not lost, no MOC. If a domain has 50 notes and you can&#39;t remember where the canonical entry-point is, build one.</p>
+<p>For PRISM: build MOCs only when a <code>/wiki-query</code> pass against a topic returns &gt;10 results AND the chat reads &gt;3 of them to answer. That&#39;s the squeeze point.</p>
+<hr>
+<h2 id="5-llm-obsidian-integration-patterns-what-works-what-doesnt"><a class="anchor" href="#5-llm-obsidian-integration-patterns-what-works-what-doesnt" aria-label="Permalink to §5 — LLM ↔ Obsidian Integration Patterns (What Works, What Doesn&#39;t)">#</a>§5 — LLM ↔ Obsidian Integration Patterns (What Works, What Doesn&#39;t)</h2>
+<h3 id="51-the-three-plugin-archetypes"><a class="anchor" href="#51-the-three-plugin-archetypes" aria-label="Permalink to 5.1 The three plugin archetypes">#</a>5.1 The three plugin archetypes</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Plugin</th><th>What it does</th><th>Token cost</th><th>PRISM analogue</th></tr></thead>
+<tbody>
+<tr><td><strong>Smart Connections</strong></td><td>Local embeddings → semantic search + chat</td><td>Free (local) for embed; paid or local for chat</td><td><code>WikiHNSWIndex</code> + <code>prism_wiki:query</code></td></tr>
+<tr><td><strong>Text Generator</strong></td><td>Inline LLM completions, prompt templates</td><td>Per-call API or local</td><td><code>OllamaHookBridgeEngine</code></td></tr>
+<tr><td><strong>ChatGPT MD</strong></td><td>Markdown-as-conversation, frontmatter-configurable model</td><td>Per-call API or local</td><td><code>prism_ai:reason</code> + chat-bus</td></tr>
+</tbody>
+</table></div>
+<h3 id="52-smart-connections-the-dominant-choice-786k-downloads"><a class="anchor" href="#52-smart-connections-the-dominant-choice-786k-downloads" aria-label="Permalink to 5.2 Smart Connections (the dominant choice — 786K downloads)">#</a>5.2 Smart Connections (the dominant choice — 786K downloads)</h3>
+<p>Per the <a href="https://github.com/brianpetro/obsidian-smart-connections" rel="noopener noreferrer">official repo</a>: Smart Connections runs a local embedding model (default: nomic-embed-text, 768 dim, ~30 MB for 10K notes) and exposes two views:</p>
+<ul>
+<li><strong>Connections View</strong> — opens with a note, shows semantically related notes</li>
+<li><strong>Lookup View</strong> — semantic search over the whole vault</li>
+</ul>
+<p>Acknowledged limitations from the docs:</p>
+<blockquote>
+<p><em>&quot;Semantic queries do not behave like plain text search. A note containing the exact query text might not appear if not semantically similar.&quot;</em></p>
+</blockquote>
+<p>Friction points (from production users):</p>
+<ul>
+<li><strong>Mobile sync requires <code>.smart-env/</code> to be ignored</strong> by third-party sync tools</li>
+<li><strong>Multi-provider routing moved to a separate Smart Chat Pro plugin</strong> — basic plugin is embeddings-only</li>
+<li><strong>Embedding quality depends on note hygiene</strong> — template noise, attachments, low-content stubs all degrade results</li>
+</ul>
+<h3 id="53-chatgpt-md-markdown-as-conversation"><a class="anchor" href="#53-chatgpt-md-markdown-as-conversation" aria-label="Permalink to 5.3 ChatGPT MD — markdown-as-conversation">#</a>5.3 ChatGPT MD — markdown-as-conversation</h3>
+<p><a href="https://github.com/bramses/chatgpt-md" rel="noopener noreferrer">ChatGPT MD</a> treats every conversation as a markdown file with frontmatter:</p>
+<pre><code class="language-yaml">---
+model: gpt-5
+system_commands: [&#39;act as a senior javascript developer&#39;]
+temperature: 0.7
+openaiUrl: https://api.openai.com
+---
+</code></pre>
+<p>The chat is the file body, edits roll forward, and per-note model-switching is a one-line frontmatter change. Recent versions added:</p>
+<ul>
+<li><strong>Agents</strong> (v3.1.0) — reusable AI personas as markdown files with frontmatter + system-prompt body</li>
+<li><strong>Vault tools</strong> (v3.0.0) — vault-search, file-read, web-search via Brave API, all human-in-the-loop</li>
+</ul>
+<p>Ollama integration: <code>ollama pull llama3.2</code> then set the model name. <strong>No API key, no cloud roundtrip, no rate limit.</strong></p>
+<h3 id="54-local-llm-via-ollama-the-recommended-stack"><a class="anchor" href="#54-local-llm-via-ollama-the-recommended-stack" aria-label="Permalink to 5.4 Local LLM via Ollama — the recommended stack">#</a>5.4 Local LLM via Ollama — the <a href="https://localaimaster.com/blog/local-ai-obsidian-integration" rel="noopener noreferrer">recommended stack</a></h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Task</th><th>Model</th><th>Reasoning</th></tr></thead>
+<tbody>
+<tr><td>Embeddings</td><td>nomic-embed-text (768 dim)</td><td>Speed/quality balance, ~2.5min for 10K notes on M2 Pro</td></tr>
+<tr><td>Chat</td><td>llama3.2</td><td>General Q&amp;A</td></tr>
+<tr><td>Fast chat</td><td>phi3:3.8b</td><td>Speed-critical</td></tr>
+<tr><td>Writing</td><td>qwen2.5:7b</td><td>Text generation</td></tr>
+</tbody>
+</table></div>
+<p><strong>This is the same stack PRISM already runs.</strong> <code>OllamaHookBridgeEngine</code> routes summarize/explain/classify to qwen2.5-coder:7b; the wiki schema mandates ≥70% of maintenance tokens go to Ollama.</p>
+<h3 id="55-friction-patterns-industry-wide"><a class="anchor" href="#55-friction-patterns-industry-wide" aria-label="Permalink to 5.5 Friction patterns (industry-wide)">#</a>5.5 Friction patterns (industry-wide)</h3>
+<ol>
+<li><strong>Embedding noise</strong> — slow searches stem from indexing too many low-quality notes. Fix: exclude templates, attachments, daily-notes from index.</li>
+<li><strong>Memory pressure</strong> — Ollama loads/unloads models, so the first query after model-switch is slow. Fix: pin one chat model + one embed model.</li>
+<li><strong>Connection issues</strong> — usually verify Ollama on <code>localhost:11434</code> is reachable.</li>
+<li><strong>Stale embeddings</strong> — re-embed when note content drifts &gt;20% (Smart Connections does this on save automatically).</li>
+</ol>
+<hr>
+<h2 id="6-daily-notes-atomic-capture-fleeting-permanent-flow"><a class="anchor" href="#6-daily-notes-atomic-capture-fleeting-permanent-flow" aria-label="Permalink to §6 — Daily Notes + Atomic Capture (Fleeting → Permanent Flow)">#</a>§6 — Daily Notes + Atomic Capture (Fleeting → Permanent Flow)</h2>
+<h3 id="61-the-ahrens-workflow-applied-to-a-code-session"><a class="anchor" href="#61-the-ahrens-workflow-applied-to-a-code-session" aria-label="Permalink to 6.1 The Ahrens workflow applied to a code session">#</a>6.1 The Ahrens workflow applied to a code session</h3>
+<p>Sönke Ahrens&#39; three-stage flow: <strong>Fleeting → Literature → Permanent</strong>.</p>
+<p>For a PRISM development session this maps to:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Stage</th><th>Source</th><th>PRISM Surface</th><th>Lifetime</th></tr></thead>
+<tbody>
+<tr><td>Fleeting</td><td>mid-task observations, &quot;this is weird&quot; notes</td><td>scratch.md in worktree, AGENT_CHAT entries</td><td>discard within session</td></tr>
+<tr><td>Literature</td><td>engine docstrings, registry rows, formula citations</td><td><code>mcp-server/data/docs/*</code> digests</td><td>persistent, source-of-truth</td></tr>
+<tr><td>Permanent</td><td>distilled lessons, decisions, evergreen concepts</td><td><code>knowledge/wiki/lessons/</code>, <code>decisions/</code>, <code>concepts/</code></td><td>accretes forever</td></tr>
+</tbody>
+</table></div>
+<h3 id="62-bake-into-prisms-session-handoff-system"><a class="anchor" href="#62-bake-into-prisms-session-handoff-system" aria-label="Permalink to 6.2 Bake into PRISM&#39;s session handoff system">#</a>6.2 Bake into PRISM&#39;s session handoff system</h3>
+<p>PRISM already has the lifecycle infrastructure — <code>per-agent-handoff.mjs</code>, <code>precompact-handoff.mjs</code>, the Stop hook — but the fleeting → permanent <strong>promotion step is implicit</strong>, not explicit.</p>
+<p>Recommendation: extend the <code>/handoff</code> skill to:</p>
+<ol>
+<li><strong>Surface fleeting candidates</strong> — diff session against <code>wiki/lessons/</code> and propose promotions for any error→recovery pattern that recurred.</li>
+<li><strong>Auto-cite literature</strong> — every promoted lesson page must cite the engine, dispatcher, or formula it touches (already enforced by <code>WikiLintEngine</code>).</li>
+<li><strong>Schema-promote permanent</strong> — bump <code>confidence</code> and stamp <code>verified_by: claude-{id}</code> when promoting Ollama-drafted notes.</li>
+</ol>
+<p>This makes the &quot;Knowledge work should accrete&quot; principle (Matuschak §2.4) <em>mechanically true</em>: every session&#39;s friction becomes a wiki entry the next session reads.</p>
+<h3 id="63-daily-notes-pattern-obsidian-default-prism-analog"><a class="anchor" href="#63-daily-notes-pattern-obsidian-default-prism-analog" aria-label="Permalink to 6.3 Daily-notes pattern (Obsidian default → PRISM analog)">#</a>6.3 Daily-notes pattern (Obsidian default → PRISM analog)</h3>
+<p>Obsidian&#39;s &quot;Daily Notes&quot; plugin creates one note per day, dated <code>YYYY-MM-DD.md</code>. The wiki&#39;s <code>trajectories/{YYYY-MM-DD}/{taskId}.md</code> already does this — and the WIKI_SCHEMA <code>§5</code> retention policy (&quot;trajectories keeps 30 days at full fidelity, then summarized into a <code>decisions/</code> page&quot;) is a <strong>mechanical fleeting → permanent flow</strong>. This is the same pattern Obsidian users build manually with templates; PRISM has it codified in an engine.</p>
+<hr>
+<h2 id="7-vault-to-code-synergy-keeping-wiki-code-in-sync"><a class="anchor" href="#7-vault-to-code-synergy-keeping-wiki-code-in-sync" aria-label="Permalink to §7 — Vault-to-Code Synergy (Keeping Wiki + Code in Sync)">#</a>§7 — Vault-to-Code Synergy (Keeping Wiki + Code in Sync)</h2>
+<h3 id="71-the-drift-problem"><a class="anchor" href="#71-the-drift-problem" aria-label="Permalink to 7.1 The drift problem">#</a>7.1 The drift problem</h3>
+<p>PRISM&#39;s wiki has 575 engine-entries, one per <code>*Engine.ts</code>. Every time an engine ships, gets renamed, or gets deleted, the wiki entry must update. Without automation, this drifts within weeks.</p>
+<h3 id="72-what-prism-already-does-auto-update-on-git-events"><a class="anchor" href="#72-what-prism-already-does-auto-update-on-git-events" aria-label="Permalink to 7.2 What PRISM already does (auto-update on git events)">#</a>7.2 What PRISM already does (auto-update on git events)</h3>
+<ul>
+<li><strong><code>WikiIndexMaintainerEngine</code></strong> rebuilds <code>index.md</code> from live <code>src/engines/</code> scan on bootstrap (770 entries last bootstrap 2026-05-08).</li>
+<li><strong><code>stop_on_unwired_assets.mjs</code></strong> Stop hook HARD BLOCKS commits where new engines exist without wiki entries.</li>
+<li><strong><code>build-state-snapshot.mjs</code></strong> auto-injects BUILT vs NEEDS_WIRING vs NEEDS_BUILDING vs NEEDS_FRONTEND on SessionStart.</li>
+<li><strong><code>WikiLintEngine</code></strong> detects physics-drift (page asserts a constant disagreeing with <code>src/physics/constants.ts</code> by &gt;2%) and flags CRITICAL.</li>
+</ul>
+<p>This is more aggressive than what Obsidian users do manually — most Obsidian vaults rely on human discipline. PRISM has hooks.</p>
+<h3 id="73-whats-missing"><a class="anchor" href="#73-whats-missing" aria-label="Permalink to 7.3 What&#39;s missing">#</a>7.3 What&#39;s missing</h3>
+<ul>
+<li><strong>Engine-rename propagation</strong> — when <code>EngineX</code> becomes <code>EngineY</code>, the wiki page filename should rename and inbound <code>[[wikilinks]]</code> should rewrite. PRISM has <code>/rename</code> for code but not for wiki sync.</li>
+<li><strong>Deprecation sweep</strong> — when an engine is removed, the wiki page should move to <code>wiki/archive/</code> not just orphan-flag.</li>
+<li><strong>Test-coverage backref</strong> — the wiki page for an engine should auto-show the count of <code>__tests__/X.test.ts</code> files. Currently you have to grep.</li>
+</ul>
+<h3 id="74-the-git-commit-triggers-wiki-update-pattern"><a class="anchor" href="#74-the-git-commit-triggers-wiki-update-pattern" aria-label="Permalink to 7.4 The &quot;git commit triggers wiki update&quot; pattern">#</a>7.4 The &quot;git commit triggers wiki update&quot; pattern</h3>
+<p>A post-commit hook that does:</p>
+<ol>
+<li>Diff <code>src/engines/</code> → enumerate added/renamed/removed engines</li>
+<li>For each addition: ensure <code>wiki/concepts/{Name}.md</code> exists, append to <code>index.md</code>, append <code>log.md</code> entry</li>
+<li>For each rename: rewrite filename + scan <code>[[wikilinks]]</code> across vault for old name</li>
+<li>For each removal: move page to <code>wiki/archive/</code>, append <code>log.md</code> removal entry</li>
+</ol>
+<p>PRISM has the engines (<code>WikiIndexMaintainerEngine</code>, <code>WikiLogAppenderEngine</code>). It&#39;s missing the post-commit wiring. <strong>One unit of work</strong> would close this gap.</p>
+<hr>
+<h2 id="8-anti-patterns-and-how-practitioners-avoid-them"><a class="anchor" href="#8-anti-patterns-and-how-practitioners-avoid-them" aria-label="Permalink to §8 — Anti-Patterns (and How Practitioners Avoid Them)">#</a>§8 — Anti-Patterns (and How Practitioners Avoid Them)</h2>
+<h3 id="81-taxonomy-graveyards"><a class="anchor" href="#81-taxonomy-graveyards" aria-label="Permalink to 8.1 Taxonomy graveyards">#</a>8.1 Taxonomy graveyards</h3>
+<blockquote>
+<p><em>&quot;Tag hygiene catches near-duplicate tags and single-use tags; tags are supposed to be a lightweight taxonomy, but when you have 200 tags with 150 used exactly once, they&#39;re noise.&quot;</em> — common Obsidian forum diagnosis</p>
+</blockquote>
+<p><strong>Avoidance:</strong></p>
+<ul>
+<li><strong>Controlled vocabulary</strong> — maintain a master tag list in an index file. New tags require justification.</li>
+<li><strong>Tag-merge passes</strong> — quarterly, merge near-duplicates (<code>#cad</code>, <code>#cad/</code>, <code>#CAD</code> → <code>#cad</code>).</li>
+<li><strong>Pluralize categories consistently</strong> — Steph Ango&#39;s rule: &quot;Always pluralize categories and tags.&quot;</li>
+</ul>
+<p>PRISM analog: the WIKI_SCHEMA §8 naming conventions enforce kebab-case + categories-must-match-directory-names. The lint engine flags drift.</p>
+<h3 id="82-folder-hell"><a class="anchor" href="#82-folder-hell" aria-label="Permalink to 8.2 Folder hell">#</a>8.2 Folder hell</h3>
+<blockquote>
+<p><em>&quot;Avoid folders for organization, and instead use internal links profusely.&quot;</em> — Steph Ango</p>
+</blockquote>
+<p>The 2026 best-practice consensus has shifted: <strong>folders for note-type, not topic</strong>. Topics belong in tags + links + MOCs.</p>
+<p>PRISM does this — <code>wiki/concepts/</code>, <code>wiki/entities/</code>, <code>wiki/decisions/</code> are types, not topics. ✓</p>
+<h3 id="83-link-rot"><a class="anchor" href="#83-link-rot" aria-label="Permalink to 8.3 Link rot">#</a>8.3 Link rot</h3>
+<p>External links rot — a link to a 2024 blog post is dead by 2026. Per <a href="https://benjamincongdon.me/blog/2021/09/19/Preventing-Link-Rot-in-my-Obsidian-Vault/" rel="noopener noreferrer">Ben Congdon</a>, the practical fix is <strong>archive every external URL to the Wayback Machine</strong> via cron. He built <code>wayback-archiver</code> (Rust CLI):</p>
+<pre><code class="language-bash">find . -name &quot;*.md&quot; -exec grep -Eo &quot;(http|https)://[a-zA-Z0-9./?=_%:-]*&quot; {} + |
+  sort | uniq | wayback-archiver --out archive.json --merge
+</code></pre>
+<p>PRISM analog: none today. The wiki has hundreds of citations to engines/formulas (internal links — survive code changes via WikiLintEngine) but external citations have no archival. <strong>One cron job</strong> would close this.</p>
+<h3 id="84-moc-bloat"><a class="anchor" href="#84-moc-bloat" aria-label="Permalink to 8.4 MOC bloat">#</a>8.4 MOC bloat</h3>
+<p>The MOC anti-pattern is <strong>MOCs for every topic</strong>. The squeeze-point heuristic prevents this: build an MOC only when you can&#39;t navigate without one. Premature MOCs are worse than missing ones — they imply structure that doesn&#39;t yet exist.</p>
+<p>PRISM has the opposite problem: one giant MOC (<code>index.md</code>, 770 entries) and zero per-domain MOCs. Fix per §4.3 — build MOCs only at the squeeze-point.</p>
+<h3 id="85-untouched-orphan-notes"><a class="anchor" href="#85-untouched-orphan-notes" aria-label="Permalink to 8.5 Untouched / orphan notes">#</a>8.5 Untouched / orphan notes</h3>
+<p>Notes that no one ever links to and no one ever re-reads are dead weight. Matuschak&#39;s principle: dense linking is also &quot;an organic mechanism for intermittently reviewing.&quot; If a note has zero inbound links after 30 days, it&#39;s a candidate for either: (a) deletion, (b) merge into a related concept page, (c) promotion to MOC entry-point.</p>
+<p>PRISM analog: WikiLintEngine flags BROKEN-orphan notes. But there&#39;s no auto-merge or auto-archive. A <strong>sweep skill</strong> would close this — <code>/wiki-orphan-sweep</code> proposes merges for the human to approve.</p>
+<h3 id="86-the-second-brain-becomes-a-museum-failure"><a class="anchor" href="#86-the-second-brain-becomes-a-museum-failure" aria-label="Permalink to 8.6 The &quot;second brain becomes a museum&quot; failure">#</a>8.6 The &quot;second brain becomes a museum&quot; failure</h3>
+<p>The biggest meta-anti-pattern across the PKM community: people invest 100 hours building a vault, then never query it. Symptoms:</p>
+<ul>
+<li>Search returns results but the user keeps re-researching online</li>
+<li>The vault is always being &quot;reorganized&quot; and never used</li>
+<li>Every new note feels like overhead</li>
+</ul>
+<p>The fix in 2026 is <strong>make the vault a query-first surface</strong> (Smart Connections, ChatGPT MD, RAG plugins). PRISM is structurally ahead here: the wiki is <strong>already</strong> the query surface (<code>/wiki-query</code>), and the auto-injected memory layer means Claude reads the relevant wiki entries on every keyword match without the user having to ask.</p>
+<hr>
+<h2 id="9-cross-reference-prism-vs-obsidian-community-best-practices"><a class="anchor" href="#9-cross-reference-prism-vs-obsidian-community-best-practices" aria-label="Permalink to §9 — Cross-Reference: PRISM vs Obsidian-Community Best Practices">#</a>§9 — Cross-Reference: PRISM vs Obsidian-Community Best Practices</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Practice</th><th>Obsidian Community</th><th>PRISM Today</th><th>Gap / Action</th></tr></thead>
+<tbody>
+<tr><td>Atomic concept pages</td><td>✓ Matuschak/Ahrens</td><td>✓ 770 entries</td><td>None</td></tr>
+<tr><td>Frontmatter contract</td><td>✓ YAML</td><td>✓ WIKI_SCHEMA §5 enforces</td><td>None</td></tr>
+<tr><td>Wikilinks <code>[[]]</code></td><td>✓ Universal</td><td>✓ <code>related:</code> + body</td><td>None</td></tr>
+<tr><td>Tags</td><td>✓ Topical</td><td>Partial — <code>tags:</code> in frontmatter, not always populated</td><td>Auto-tag via Ollama on ingest</td></tr>
+<tr><td>Dataview / Bases queries</td><td>✓ DataviewJS</td><td>Replaced by <code>WikiLintEngine</code></td><td>None — engine is more rigorous</td></tr>
+<tr><td>MOCs (per-domain hubs)</td><td>✓ Nick Milo</td><td>Only <code>index.md</code> exists</td><td><strong>Build per-domain MOCs at squeeze-point</strong></td></tr>
+<tr><td>Smart Connections (semantic search)</td><td>✓ 786K users</td><td><code>WikiHNSWIndex</code> + <code>/wiki-query</code></td><td>None</td></tr>
+<tr><td>ChatGPT MD (chat in vault)</td><td>✓ Per-note frontmatter</td><td><code>prism_ai:reason</code> + chat-bus</td><td>None — different surface</td></tr>
+<tr><td>Local LLM via Ollama</td><td>✓ Recommended</td><td>✓ <code>OllamaHookBridgeEngine</code>, ≥70% target</td><td>None</td></tr>
+<tr><td>Link rot prevention</td><td>wayback-archiver</td><td>None for external links</td><td><strong>Add Wayback cron</strong></td></tr>
+<tr><td>Engine-rename propagation</td><td>Manual</td><td>Code rename works, wiki rename doesn&#39;t</td><td><strong>Extend <code>/rename</code> to wiki</strong></td></tr>
+<tr><td>Daily notes (fleeting capture)</td><td>Obsidian Daily Notes</td><td><code>trajectories/{date}/{taskId}.md</code></td><td>None — codified</td></tr>
+<tr><td>Fleeting → permanent promotion</td><td>Manual review pass</td><td>Implicit in <code>/handoff</code></td><td><strong>Make explicit promotion step</strong></td></tr>
+<tr><td>Orphan note sweep</td><td>Manual</td><td><code>WikiLintEngine</code> flags</td><td><strong>Add auto-merge proposal skill</strong></td></tr>
+<tr><td>Tag hygiene (master vocab)</td><td>Manual</td><td>Naming conventions in WIKI_SCHEMA §8</td><td>None — already enforced</td></tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="10-concrete-recommendations-for-prism-5-units-of-work"><a class="anchor" href="#10-concrete-recommendations-for-prism-5-units-of-work" aria-label="Permalink to §10 — Concrete Recommendations for PRISM (5 Units of Work)">#</a>§10 — Concrete Recommendations for PRISM (5 Units of Work)</h2>
+<p>In rough impact-order, smallest-first:</p>
+<ol>
+<li><strong>U-WIKI-WAYBACK-CRON</strong> (~1 hr) — register cron that greps external URLs from <code>knowledge/wiki/</code>, archives to Wayback. Closes §8.3.</li>
+<li><strong>U-WIKI-RENAME-PROPAGATE</strong> (~2 hr) — extend <code>/rename</code> skill to update wiki page filename + rewrite inbound <code>[[wikilinks]]</code>. Closes §7.3.</li>
+<li><strong>U-WIKI-ORPHAN-SWEEP</strong> (~3 hr) — new skill <code>/wiki-orphan-sweep</code> that proposes merges for orphan notes 30+ days old. Closes §8.5.</li>
+<li><strong>U-WIKI-MOC-BUILDER</strong> (~4 hr) — new engine that detects squeeze-points (&gt;10 wiki-query results on same topic, chat reads &gt;3) and proposes MOC creation. Closes §4.3.</li>
+<li><strong>U-WIKI-FLEETING-PROMOTE</strong> (~5 hr) — extend <code>/handoff</code> to surface fleeting → permanent promotion candidates per §6.2. Highest leverage — makes &quot;knowledge accretes&quot; mechanically true.</li>
+</ol>
+<p>All five are strictly additive (no schema breaks). All five fit under the existing WIKI_SCHEMA contract. Each one ships with one new test file per the wiring discipline.</p>
+<hr>
+<h2 id="11-one-line-summary-for-next-session"><a class="anchor" href="#11-one-line-summary-for-next-session" aria-label="Permalink to §11 — One-Line Summary for Next Session">#</a>§11 — One-Line Summary for Next Session</h2>
+<p>PRISM&#39;s wiki is a <strong>Karpathy LLM-Wiki + Zettelkasten-shaped + PARA-tagged</strong> hybrid that already nails atomicity (Matuschak), frontmatter contract, lint enforcement, and local-LLM ownership of routine maintenance — but is missing per-domain MOCs (Nick Milo), engine-rename propagation, fleeting → permanent promotion ritual, and external-link archival. Five concrete units close those gaps without breaking the schema.</p>
+<hr>
+<h2 id="sources"><a class="anchor" href="#sources" aria-label="Permalink to Sources">#</a>Sources</h2>
+<ul>
+<li><a href="https://fortelabs.com/blog/para/" rel="noopener noreferrer">The PARA Method — Tiago Forte (Forte Labs)</a></li>
+<li><a href="https://notes.andymatuschak.org/Evergreen_notes" rel="noopener noreferrer">Evergreen notes — Andy Matuschak</a></li>
+<li><a href="https://notes.andymatuschak.org/Evergreen_notes_should_be_atomic" rel="noopener noreferrer">Evergreen notes should be atomic — Matuschak</a></li>
+<li><a href="https://notes.andymatuschak.org/Evergreen_notes_should_be_concept-oriented" rel="noopener noreferrer">Evergreen notes should be concept-oriented — Matuschak</a></li>
+<li><a href="https://notes.andymatuschak.org/Evergreen_notes_should_be_densely_linked" rel="noopener noreferrer">Evergreen notes should be densely linked — Matuschak</a></li>
+<li><a href="https://www.ernestchiang.com/en/posts/2025/niklas-luhmann-original-zettelkasten-method/" rel="noopener noreferrer">Niklas Luhmann&#39;s Original Zettelkasten — Ernest Chiang</a></li>
+<li><a href="https://zettelkasten.de/posts/concepts-sohnke-ahrens-explained/" rel="noopener noreferrer">Ahrens&#39; fleeting/literature/permanent — Zettelkasten.de</a></li>
+<li><a href="https://www.linkingyourthinking.com/" rel="noopener noreferrer">LYT Framework — Nick Milo</a></li>
+<li><a href="https://notes.linkingyourthinking.com/Cards/MOCs+Overview" rel="noopener noreferrer">MOCs Overview — LYT Kit</a></li>
+<li><a href="https://obsidian.rocks/maps-of-content-effortless-organization-for-notes/" rel="noopener noreferrer">Maps of Content — Obsidian Rocks</a></li>
+<li><a href="https://stephango.com/vault" rel="noopener noreferrer">How I use Obsidian — Steph Ango</a></li>
+<li><a href="https://github.com/brianpetro/obsidian-smart-connections" rel="noopener noreferrer">Smart Connections plugin — brianpetro</a></li>
+<li><a href="https://github.com/bramses/chatgpt-md" rel="noopener noreferrer">ChatGPT MD plugin — bramses</a></li>
+<li><a href="https://blacksmithgu.github.io/obsidian-dataview/" rel="noopener noreferrer">Dataview plugin — blacksmithgu</a></li>
+<li><a href="https://blacksmithgu.github.io/obsidian-dataview/queries/dql-js-inline/" rel="noopener noreferrer">DQL, JS and Inlines — Dataview docs</a></li>
+<li><a href="https://localaimaster.com/blog/local-ai-obsidian-integration" rel="noopener noreferrer">Local AI + Obsidian — Local AI Master</a></li>
+<li><a href="https://forum.obsidian.md/t/an-opinionated-reflection-on-using-folders-links-tags-and-properties/78548" rel="noopener noreferrer">Folders, links, tags, properties — Obsidian Forum</a></li>
+<li><a href="https://benjamincongdon.me/blog/2021/09/19/Preventing-Link-Rot-in-my-Obsidian-Vault/" rel="noopener noreferrer">Preventing Link Rot — Ben Congdon</a></li>
+<li><a href="https://forum.obsidian.md/t/a-case-for-mocs/2418" rel="noopener noreferrer">A case for MOCs — Obsidian Forum</a></li>
+<li><code>H:/prism/WIKI_SCHEMA.md</code> (PRISM doctrine)</li>
+<li><code>H:/prism/knowledge/wiki/index.md</code> (770-entry catalog)</li>
+</ul>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="2026-05-10-obsidian-2nd-brain.md">2026-05-10-obsidian-2nd-brain.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

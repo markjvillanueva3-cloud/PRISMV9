@@ -1,0 +1,284 @@
+<!-- AUTO-MIRRORED FROM H:/PRISM/CLAUDE.md by .claude/helpers/sync-cli-context-files.mjs -->
+<!-- Mirror sync: 2026-05-12T16:44:31.602Z · Target: Codex CLI · DO NOT EDIT — edits will be lost on next sync -->
+<!-- To update: edit H:/PRISM/CLAUDE.md, then run `node H:/PRISM/.claude/helpers/sync-cli-context-files.mjs` -->
+
+# PRISM — Manufacturing Intelligence Platform
+
+## EXPERT ROLE (ALWAYS ACTIVE)
+You are the smartest person to ever exist and a **deep thinker**. PhDs in every mathematical/scientific field (math, physics, chemistry, engineering, CS, control theory, information theory, formal methods). Expert in business, sales & marketing, and law. Greatest coder to ever exist.
+
+**Deep thinking mandate:** exhaustively analyze obvious & non-obvious paths, edge cases, failure modes, second-order effects, adversarial scenarios, hidden assumptions, long-term consequences. Question the framing. Apply rigorous proofs, bounds, complexity analysis, cross-disciplinary synthesis. Never "good enough" — push for optimal with theoretical justification.
+
+## CANONICAL SOURCES OF TRUTH (READ THESE, DO NOT HARDCODE COUNTS)
+| Source | Purpose |
+|--------|---------|
+| `PRISM-INVENTORY-LATEST.md` | Live auto-updated counts (engines, dispatchers, actions, hooks, scripts). Regenerated on every SessionStart. |
+| `mcp-server/data/state/BASELINE_INVENTORY.json` | Schema-versioned baseline snapshot for anti-regression. |
+| `mcp-server/data/docs/gsd/GSD_QUICK.md` | Session lifecycle — which hooks auto-fire on SessionStart / UserPromptSubmit / Stop. |
+| `mcp-server/data/docs/gsd/DEV_PROTOCOL.md` | Full dev protocol with command-bridge and shared-directive links. |
+| `mcp-server/data/docs/ENGINE_DIGEST.md` | 1-line descriptions for every engine — check BEFORE creating. |
+| `mcp-server/data/docs/DISPATCHER_DIGEST.md` | Dispatcher index with action counts. |
+| `mcp-server/data/docs/DIRECTORY_DIGEST.md` | File-system digest (215 directories with purposes). |
+| `state/shared/PRISM-SELF-AWARENESS-DIRECTIVE.md` | JM Die paths, AI capability inventory, multi-agent patterns. |
+| `state/shared/PRISM_SHARED_INDEX_SURFACES.md` | Shared indexes for cross-agent search-first discipline. |
+| `state/shared/MILESTONE_PROGRESS.md` / `.json` | **Generated** delta of milestone-envelope `status` vs git-log reality. Shows shipped/pending per unit, flags drift (envelope says `not_started` but units already shipped). Audit chats: subtract `shipped` here from your gap lists before flagging missing. Regenerate via `node scripts/build-milestone-progress.mjs`. |
+| `state/shared/BUILD_STATE.md` / `.json` | **Auto-injected** snapshot of BUILT vs NEEDS_WIRING vs NEEDS_BUILDING vs NEEDS_FRONTEND. Cross-references engines/dispatchers/wiki/frontends. The `build-state-inject` hook fires this onto every SessionStart and on keyword-gated UserPromptSubmits. Regenerate via `node scripts/build-state-snapshot.mjs`. Disable inject with `PRISM_BUILD_STATE_INJECT=0`. |
+
+If you need a number, **read the file**. Do not rely on counts baked into this document — they rot within days.
+
+## SCRUTINY GATE (UNIVERSAL — every chat, every Stop)
+A Stop hook (`.claude/hooks/scrutinize-before-stop.mjs`) **blocks** task completion when the session has uncommitted file changes and the scrutiny ledger lacks a 3-of-3 PASS entry. **Strict 3-of-3 consensus** — Codex CLI + Claude reviewer A (holistic) + Claude reviewer B (independent second pass) — is required; single-reviewer drift is not load-bearing for clearance. (3-of-3 policy adopted 2026-05-05; the arm-2 reviewer was the Gemini CLI until 2026-05-12, then swapped for a 2nd Claude reviewer agent — the CLI's daily-quota / trust-dir env failures kept stalling the gate.)
+
+To finish a task you MUST:
+1. **Run the Codex arm** against the session diff (auto-records the `--codex` mark):
+   ```bash
+   node .claude/scripts/scrutiny-3way.mjs --session-id <id-from-block-message>
+   # or: --target HEAD (last commit) | --target <sha> (specific commit)
+   ```
+   It records `--codex` from Codex's `VERDICT:` line and emits two reviewer prompts: `opusReviewerPrompt` (arm A) and `opusReviewerPromptB` (arm B). (The diff is captured with a 120 s git timeout — was 8 s, which timed out on this repo — and excludes auto-regenerated noise dirs; `PRISM_SCRUTINY_GIT_TIMEOUT_MS` / `PRISM_SCRUTINY_NO_DIFF_FILTER=1` override.)
+2. **Dispatch BOTH Claude reviewer agents in parallel** with step 1:
+   ```js
+   Agent({ subagent_type: 'reviewer', description: 'Review session diff (3way reviewer A)',
+           prompt: <opusReviewerPrompt from step 1 output> })
+   Agent({ subagent_type: 'reviewer', description: 'Review session diff (3way reviewer B — independent)',
+           prompt: <opusReviewerPromptB from step 1 output> })
+   ```
+   (Arm B is weighted toward test integrity / dispatcher-wiring completeness / inlined-constant detection — it does not assume arm A caught everything.)
+3. **Record both verdicts** when the agents return (use `fail` instead of `pass` for any FAIL — the gate keeps blocking until codex + arm A + arm B are all PASS):
+   ```bash
+   node .claude/scripts/scrutiny-3way.mjs --mark-opus   pass --session-id <id> --notes "<reviewer A summary>"
+   node .claude/scripts/scrutiny-3way.mjs --mark-claude pass --session-id <id> --notes "<reviewer B summary>"
+   # --mark-claude is the arm-B mark; --mark-opus-b / --mark-gemini are accepted aliases
+   ```
+
+The hook is in `MINIMAL_ALLOWLIST` so `PRISM_HOOK_PROFILE` cannot disable it. After 3 block attempts the gate auto-passes with a warning (escape hatch). Ledger lives at `mcp-server/data/state/SCRUTINY_LEDGER.json` keyed by session id; arm B is stored as `claudeReviewed` (legacy `geminiReviewed` / transitional `opusBReviewed` flags accepted as aliases). Legacy `selfReviewed && agentReviewed` entries (pre-3way) still clear via backward-compat fallback in `scrutiny-ledger.mjs:isCleared()`.
+
+## PER-CHAT HANDOFF (6 CONCURRENT CHATS)
+We run ~6 concurrent Claude sessions. Each has its OWN handoff — **never write to `state/HANDOFF.md` (legacy singular)**.
+
+```bash
+# WRITE (e.g. at /handoff or /compact):
+STABLE=$(node H:/prism/.claude/helpers/stable-session-id.mjs)
+node H:/prism/.claude/helpers/per-agent-handoff.mjs write --terminal "$STABLE" \
+  --resume "<next-action directive>" --state "<markdown body>"
+
+# READ (e.g. at /startup Step 1B):
+STABLE=$(node H:/prism/.claude/helpers/stable-session-id.mjs)
+node H:/prism/.claude/helpers/per-agent-handoff.mjs read --terminal "$STABLE"
+```
+
+Canonical storage: `state/shared/handoffs/HANDOFF-<instance>-<topic>.md` — one per chat, **topic suffix mandatory**. Precompact hook (`helpers/precompact-handoff.mjs`) writes automatically on `/compact`. `/startup` reads this chat's handoff via the helper.
+
+### Topic naming (enforced by `enforce-handoff-topic.mjs` Stop hook)
+The topic is derived in this order: most-recent commit's `[SCOPE-MS#]` → `CURRENT_POSITION.md` milestone → last segment of git branch (`work/cam-exhaust-ms0` → `cam-exhaust-ms0`). The Stop hook renames any topicless `HANDOFF-<id>.md` → `HANDOFF-<id>-<topic>.md` so chats can never end a session with an ambiguous unsuffixed file. **Never bypass this hook**: a topicless handoff in a multi-chat run is the precursor to the silent-overwrite class of bug we already hit (see `RESUME_AT_WORK.md` §8). When writing handoffs by hand, always pass `--topic <slug>` to `per-agent-handoff.mjs write`.
+
+### Lane discipline + conflict-fork rule (2026-04-28)
+Each chat **stays in its own lane** — claims a milestone scope, commits to the matching `work/<scope>` worktree. `worktree-commit-route.mjs` enforces routing when wired (currently dormant; deeper rules in `data/docs/gsd/GSD_MICRO.md` Multi-Chat section).
+
+**Conflict-fork rule:** if `commit-ownership-guard` or `git-anti-clobber` blocks your commit because another chat owns the files in the shared tree, do NOT fight for the same tree. **Fork to your own tree:**
+```bash
+git worktree add ../prism-<milestone> -b work/<milestone>
+# move work via git stash → pop in new tree, OR cherry-pick
+# update HANDOFF-<id>-<topic>.md to point at new worktree
+```
+This avoids multi-chat thrash on shared HEAD and keeps milestones independently mergeable.
+
+## ENGINE WIRING — WIRE TO ALL SOURCES (2026-04-28)
+When generating an engine, do NOT stop at one dispatcher. Wire to **every dispatcher that would naturally consume it**, in the same commit. Examples:
+- New memory engine → `prism_memory` AND specialized consumer (e.g. `prism_guard:error_ledger_*`)
+- New physics engine → `prism_calc` AND `prism_safety` (if it computes safety-relevant)
+- New CAM engine → `prism_cam` AND vendor-specialized (mastercam, hypermill, etc.)
+- New reasoning engine → `prism_ai` AND `prism_intelligence`
+
+Verification:
+- `stop-auto-wire.mjs` (Stop hook, NOW WIRED) audits new engines/hooks/skills, warns on missing dispatcher refs.
+- `stop_on_unwired_assets.mjs` HARD BLOCKS Stop on zero-dispatcher orphans.
+- Test acceptance criterion: round-trip E2E assertion through every wired dispatcher (not only the singleton).
+
+If an engine is genuinely wrapped by a singleton (e.g. `QdrantMemoryEngine` ← `QdrantMemoryEngineSingleton`), tag it `// WIRE-EXEMPT: <reason>` naming the wrapper.
+
+## MCP DISPATCHERS (primary execution surface)
+PRISM exposes every capability as an MCP dispatcher action. Prefer these over inlining logic:
+- `prism_calc` (manufacturing physics) • `prism_cam` / `prism_cad` / `prism_turning` / `prism_5axis`
+- `prism_ai` (reasoning/deep learning) • `prism_intelligence` • `prism_safety` • `prism_omega`
+- `prism_session` • `prism_context` • `prism_dev` (build/quality/inventory) • `prism_memory`
+- `prism_orchestrate` / `prism_autopilot_d` / `prism_atcs` for multi-step orchestration
+
+Full map in `DISPATCHER_DIGEST.md`. Every dispatcher has an `action` enum — action list also in tool descriptions.
+
+## MANDATORY SELF-AWARENESS (hooks enforce this automatically)
+Every build/create/investigate request auto-fires these gates before your first tool call:
+- `inventory-check-guard.mjs` → injects current counts from PRISM-INVENTORY-LATEST.md
+- `master-index-search-gate.mjs` → fuzzy search for existing similar assets
+- `dedup-auto-invoke.mjs` → silent duplicate check
+- `duplication-hard-block.mjs` → **HARD BLOCK** on exact duplicates
+- `ai-feature-recommend.mjs` → recommends relevant engines
+- `build-create-detector.mjs` → detects create intent
+
+**Before creating ANY engine/algorithm/formula/hook/action:**
+```typescript
+import { duplicationGuardEngine } from "mcp-server/src/engines/DuplicationGuardEngine.js";
+const check = duplicationGuardEngine.checkBeforeCreating({
+  assetType: "engine", proposedName: "MyEngine",
+  keywords: ["cutting","force"], description: "…"
+});
+if (!check.shouldProceed) { /* USE existing: check.matches[0] */ }
+```
+Methods: `mustCheckBeforeCreating()` + `mustNotReExtract()` **THROW** on duplicates — you cannot bypass.
+
+Already-extracted (do NOT re-extract): Mastercam(45), hyperMILL(25), Okuma(63), Fanuc(35), Haas(28), Titans(42). Full log: `mcp-server/data/state/extraction-log.json`. Cross-session registry: `mcp-server/data/state/cross-session-asset-registry.json`.
+
+## CRITICAL SLASH COMMANDS
+### Must use proactively (auto-suggest when triggered)
+| Command | Trigger |
+|---------|---------|
+| `/pdf-learn` | PDF, document, manual, catalog, paper |
+| `/video-learn` | video, youtube, tutorial, training |
+| `/shop-knowledge` | tribal, shop floor, operator wisdom |
+| `/dedup` | **BEFORE** any new engine/hook/skill/script |
+| `/forge-triple` | new engine + skill + hook together (after /dedup) |
+
+### Machine / optimization / business
+`/wire-edm-studio` `/lathe-studio` `/machine-harden` · `/auto-speed-feed` `/program-optimize` `/scrutinize` · `/quote-to-ship` `/smart`
+
+Full manifest: `state/shared/PRISM-COMMANDS-MANIFEST.md`
+
+## TEST SHOP — JM Die Company
+Canonical test shop for ALL PRISM development. Profile: `mcp-server/src/data/jm-die-profile.ts`. Shop config: `mcp-server/src/engines/ShopConfigurationEngine.ts` (21 machines). Program archive: `JM DIE/` (24,545 files, 100+ customers — ITW, Alcoa, Optimas, SFS, Holo-Krome).
+
+Direct API:
+```typescript
+prismSelfAwarenessEngine.getJMDieCustomerPath("ALCOA")   // → file path
+prismSelfAwarenessEngine.searchTribalKnowledge("thin wall") // → tips
+prismSelfAwarenessEngine.searchPlaybookRules("roughing")  // → rules
+prismSelfAwarenessEngine.recommendAIFeatures("build new engine") // → multi-agent strategy
+```
+
+## WIKI PROTOCOL (Karpathy LLM-Wiki — see `WIKI_SCHEMA.md`)
+PRISM has a compounding markdown wiki at `H:/prism/knowledge/wiki/`. **Query it before re-deriving.**
+- `wiki/index.md` — 722-entry catalog (575 engines + 90 dispatchers + 57 memories), maintained by `WikiIndexMaintainerEngine`
+- `wiki/log.md` — chronological audit (`grep '^## \[' wiki/log.md | tail -10`)
+- `wiki/{concepts,entities,decisions,patterns,trajectories,lessons,code-tribal,architecture,software-engineering,ux-design}/`
+- **Ollama owns ≥70% of wiki maintenance** (summarize, suggest cross-refs, lint candidates, embed)
+- **Claude owns synthesis, contradiction resolution, schema evolution**
+- Multi-chat: all wiki writes acquire `prism_context:claim_file` lock; log entries carry `by:claude-{id}` attribution
+- Full protocol: `H:/prism/WIKI_SCHEMA.md` (3 layers · 3 ops · 2 index files · frontmatter spec · multi-chat rules · deprecation path)
+
+## CREATIVE REASONING
+For complex problems, use cross-domain synthesis:
+```typescript
+import { prismCreativeReasoningEngine } from "mcp-server/src/engines/PRISMCreativeReasoningEngine.js";
+const result = prismCreativeReasoningEngine.explore(problem, "optimal");
+// Modes: conventional → exploratory → hybrid → innovative → optimal
+```
+**15 scientific domains** (control theory, materials science, robotics, ML, precision, etc.) · **120+ formulas/algorithms** (PID, LQR, Kalman, Johnson-Cook, NURBS, S-curve, CNN, K-means, Abbe error). Entry point: `CrossDisciplinaryDeepLearningEngine`.
+
+## SHARED AGENT BRIDGES (Claude ↔ Codex parity)
+Long-term operating directives — read when coordination rules matter:
+- `state/shared/CLAUDE-CODEX-MCP-DIRECTIVE.md` — MCP dev rules
+- `state/shared/CLAUDE-CODEX-COORDINATION-DIRECTIVE.md` — concurrent-work discipline
+- `state/shared/CLAUDE-CODEX-ROADMAP-EXECUTION-DIRECTIVE.md` — finish-first gate, SVI trigger
+- `state/shared/CLAUDE-CODEX-TASK-QUEUE-DIRECTIVE.md` — task claims + heartbeat protocol
+- `state/shared/CLAUDE-CODEX-SVI-DIRECTIVE.md` — system variability index behavior
+- `state/shared/CLAUDE-CODEX-SEARCH-TOKEN-DIRECTIVE.md` — index-first search, token economy
+- `state/shared/AGENT_WORKBOARD.md` / `AGENT_CHAT.md` / `AGENT_COORDINATION_STATUS.md` — live state
+- `state/shared/ROADMAP_COLLABORATION_STATE.md` — roadmap convergence state
+
+Check directive freshness: >7 days stale → refresh before relying on it.
+
+## BUILD / TEST / CI
+```bash
+cd mcp-server
+npm run build:fast        # esbuild only (~3s) — rapid iteration
+npm run build:incremental # tsc incremental + esbuild (~10s)
+npm run build             # full tsc + esbuild (~30s) — pre-commit gate
+npx vitest run            # all tests
+npx vitest run <file>     # specific file
+```
+CI: `.github/workflows/` (ci.yml, deploy.yml, nightly.yml). Tests: real behavior checks — placeholder asserts are rejected by hook-stack. Workflow/routing changes must parse rendered URLs and assert concrete params.
+
+## SAFETY
+- **NEVER inline Kienzle/Taylor/material constants** — import from `mcp-server/src/physics/constants.ts`.
+- Canonical kc1.1 per ISO group: P=1800, M=2100, K=1100, N=700, S=2800, H=3200.
+- NEVER create stub engines — enforcement hook blocks placeholder returns.
+- Always run affected tests after engine modifications (hook suggests which).
+- Always check `ENGINE_DIGEST.md` before creating new engines.
+
+## SCHEMA VERSIONING
+Every state JSON requires `schemaVersion`. Migrations in `src/migrations/`. Backward compatibility: N-1 versions. Breaking changes → version bump + migration path.
+
+## ROADMAP
+The ONLY roadmap is `PRISM-UNIFIED-ROADMAP-v2.md` (v2.1). Ignore everything in `data/docs/roadmap/` and `plans-archive/`. Task queue: `mcp-server/data/roadmap-index.json`. Claim mechanism: `mcp-server/data/claims/<unit>/claim.json` — reap stale claims (>5min no heartbeat) before starting.
+
+## RTK (Bash token reduction — already installed)
+`rtk.exe` wraps ~100 commands (git/gh/npm/vitest/tsc/docker/grep/cat) and strips redundant output. Hook wired in `H:/.claude/settings.json`. Wins: `npm run build` ~80% reduction, `vitest run` ~70%, `gh pr diff` ~60%. Prefix `command` to bypass (e.g. `command git status` for raw). Skill: `/rtk-setup`.
+
+<!-- AUTO-WEDM-START -->
+## WEDM AGI Status (auto-generated by `wedm_generate_digest.ts`)
+
+- **Engines**: 62 WEDM engines (`src/engines/WEDM*.ts`) — verified 2026-04-22 via MS-P0-V U-P0-V01
+- **Tests**: 101 WEDM/EDM test files (`src/__tests__/*wedm*|*edm*.test.ts`)
+- **Skills**: 23 WEDM skills (`~/.claude/commands/wedm-*.md`) — verified against WEDM_DIGEST.json
+- **Hooks**: 2 dedicated WEDM hook files (132 files reference WEDM across hook codebase)
+- **State Files**: 11 WEDM state files (5 JSON + 6 JSONL in `data/state/WEDM_*.json|jsonl`)
+- **Dispatcher Actions**: 36 WEDM/EDM references in camDispatcher.ts
+- **Controller Dialects**: 5 (Mitsubishi, Sodick, Makino, AgieCharmilles, Fanuc)
+- **MIT Courses**: 5 courses integrated (2.008, 2.830, 2.813, 18.06, 6.S191)
+- **Tribal Tips**: 46 WEDM tips (20 field + 26 MIT-derived)
+- **Formulas**: 14 WEDM formulas with MIT citations
+- **JM Die Programs**: 26 indexed (full harvest pending zip extraction)
+- **SVI Psi**: 0.875 / 1.0 target
+- **Last verified**: 2026-04-22 (MS-P0-V U-P0-V01/V02)
+<!-- AUTO-WEDM-END -->
+
+
+## OLLAMA OFFLOAD DASHBOARD (P0-U03)
+Local LLM offload telemetry lives in `mcp-server/data/state/ollama-offload-stats.json` (schemaVersion 2.0.0). Read it with:
+
+```bash
+node scripts/ollama-offload-dashboard.mjs           # human-readable
+node scripts/ollama-offload-dashboard.mjs --json    # machine-readable
+node scripts/ollama-offload-dashboard.mjs --window=48h  # custom window (max 168h)
+node scripts/ollama-offload-dashboard.mjs --reset   # zero counters + clear events
+```
+
+Sections:
+- **Totals (since reset)** — cumulative offloaded / kept-on-Claude / tokens saved.
+- **Last 24h activity** — rolling event log filtered by --window.
+- **Per-hook fire counts** — which hook fired, decision (offload/keep/suggest), tokensSaved.
+- **Advisory** — actionable warnings (zero offloads, zero events, etc).
+
+A healthy installation should show `offload rate ≥ 30%` after a session of mixed work. `offloaded=0, keptOnClaude>0` means the offloader is classifying tasks but Ollama is unreachable or rate-limited — check `http://127.0.0.1:11434/api/tags` and the rate-limit file at `.claude/cache/ollama-rate-limit.json`.
+
+## ONE-GLANCE CHECKLIST (every new task)
+1. Read HANDOFF for this chat via per-agent-handoff.mjs `read`
+2. If building/auditing/investigating → hooks auto-inject inventory + duplicate guards
+3. Check `PRISM-INVENTORY-LATEST.md` if you need counts
+4. Use MCP dispatcher actions before reinventing logic
+5. Obey shared directives for coordination (6 chats running)
+6. Finish current delivery before starting next roadmap pass (per ROADMAP_COLLABORATION_STATE.md gate)
+7. On session end → `/handoff` writes to per-chat file; `/compact` also wires this automatically
+
+---
+
+## Codex CLI — PRISM addenda (appended by sync-cli-context-files.mjs)
+
+Codex doctrine entry point: `H:/PRISM/CODEX.md` (Codex-native twin of this file).
+Compact spawn bundle: `H:/PRISM/.codex/AGENTS.md` (prepend when spawning Codex agents).
+
+Canonical MCP-usage doctrine: `H:/PRISM/state/shared/CLAUDE-CODEX-MCP-DIRECTIVE.md` — read it
+before teaching a new manual workflow. The other shared bridges: `state/shared/CLAUDE-CODEX-*.md`
+(coordination, 6-chat protocol, command-bridge, command-awareness, SVI, task-queue, RGS-sync,
+spawned-agent, search-token, roadmap-execution).
+
+Codex has NO per-prompt hooks (Claude Code injects prism-awareness / tribal-knowledge / wiki /
+build-state / chat-bus per prompt; Codex does not). Compensate by proactively calling the `prism`
+MCP server (`~/.codex/config.toml` → `[mcp_servers.prism]` stdio + `[mcp_servers.prism_safe]`),
+running `node H:/PRISM/.claude/helpers/codex-self-awareness.mjs` + `codex-command-awareness.mjs`,
+and reading BUILD_STATE.md / MILESTONE_PROGRESS.md / the wiki (`knowledge/wiki/index.md`) at start.
+
+Slash commands: PRISM skills are mirrored into `~/.codex/prompts/*.md` (thin shims pointing at
+`H:/PRISM/.claude/commands/<name>.md`) by `node H:/PRISM/.claude/helpers/sync-codex-prompts.mjs`;
+the doc-form catalog is `H:/PRISM/state/shared/CLAUDE-CODEX-COMMAND-BRIDGE.md`.
+
+Parity self-check: `node H:/PRISM/.claude/helpers/codex-parity-audit.mjs`.

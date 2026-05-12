@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="edce42392e272ea553a3d3581c7ecbbabe9b0f5fa83d5011ed214f4d1e86a991">
+<title>Boris Cherny / Anthropic Claude Code Methodology — Research Card</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">Boris Cherny / Anthropic Claude Code Methodology — Research Card</h1>
+<p class="provenance">Generated 2026-05-12T12:43:26.382Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#boris-cherny-anthropic-claude-code-methodology-research-card">Boris Cherny / Anthropic Claude Code Methodology — Research Card</a></li>
+<li class="toc-l2"><a href="#tldr">TL;DR</a></li>
+<li class="toc-l2"><a href="#1-verification-feedback-loop-hard-gate">1. Verification Feedback Loop (HARD GATE)</a></li>
+<li class="toc-l2"><a href="#2-parallel-agent-worktree-isolation">2. Parallel-Agent Worktree Isolation</a></li>
+<li class="toc-l2"><a href="#3-plan-peer-review">3. Plan Peer-Review</a></li>
+<li class="toc-l2"><a href="#4-claudemd-back-flow">4. CLAUDE.md Back-Flow</a></li>
+<li class="toc-l2"><a href="#5-loop-and-schedule-recurring-workflows">5. /loop and /schedule Recurring Workflows</a></li>
+<li class="toc-l2"><a href="#6-go-composite-skill-chain">6. /go Composite Skill Chain</a></li>
+<li class="toc-l2"><a href="#7-isolation-worktree-default-for-risky-work">7. isolation: worktree Default for Risky Work</a></li>
+<li class="toc-l2"><a href="#8-slash-command-discipline">8. Slash-Command Discipline</a></li>
+<li class="toc-l2"><a href="#9-anthropic-multi-agent-research-orchestrator-pattern">9. Anthropic Multi-Agent Research Orchestrator Pattern</a></li>
+<li class="toc-l2"><a href="#10-todowrite-plan-mode-hygiene">10. TodoWrite + Plan-Mode Hygiene</a></li>
+<li class="toc-l2"><a href="#11-non-interactive-shell-discipline">11. Non-Interactive Shell Discipline</a></li>
+<li class="toc-l2"><a href="#12-karpathy-boris-cross-pollination">12. Karpathy / Boris Cross-Pollination</a></li>
+<li class="toc-l2"><a href="#13-cross-cutting-themes">13. Cross-Cutting Themes</a></li>
+<li class="toc-l2"><a href="#14-prism-gap-analysis-what-we-should-adopt">14. PRISM Gap Analysis — what we should adopt</a></li>
+<li class="toc-l2"><a href="#15-anti-patterns-borisanthropic-warn-against">15. Anti-Patterns Boris/Anthropic Warn Against</a></li>
+<li class="toc-l2"><a href="#16-sources">16. Sources</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="boris-cherny-anthropic-claude-code-methodology-research-card"><a class="anchor" href="#boris-cherny-anthropic-claude-code-methodology-research-card" aria-label="Permalink to Boris Cherny / Anthropic Claude Code Methodology — Research Card">#</a>Boris Cherny / Anthropic Claude Code Methodology — Research Card</h1>
+<p><strong>Date:</strong> 2026-05-10 <strong>Author:</strong> researcher subagent (claude-85cedf09 dispatch) <strong>Cross-ref:</strong> <code>H:/prism/state/shared/specs/BORIS-LOOP-AGENT-DOCTRINE.md</code> (227 lines, our canonical version — DO NOT duplicate, EXPAND) <strong>Sibling artifact:</strong> <code>mcp-server/data/state/BASELINE_INVENTORY.json</code> for live PRISM counts referenced below.</p>
+<hr>
+<h2 id="tldr"><a class="anchor" href="#tldr" aria-label="Permalink to TL;DR">#</a>TL;DR</h2>
+<ol>
+<li><strong>Verification feedback loop is the #1 lever</strong> — Boris&#39;s signature claim is &quot;give Claude a way to verify its work and it will 2-3x quality.&quot; Anthropic&#39;s official docs now codify this as <code>&quot;the single highest-leverage thing you can do&quot;</code> (Best Practices, 2026). PRISM has the gates (<code>stop_on_failing_tests</code>, <code>physics-verify</code>, <code>/verify-loop</code>) but the loop is not yet PER-FORGE-RUN enforced.</li>
+<li><strong><code>/loop</code> and <code>/schedule</code> are first-class</strong> as of Claude Code v2.1.72 — <code>/loop</code> is local + session-scoped (max 7 days, auto-expires); <code>/schedule</code> is cloud-managed via Routines. Boris personally runs <code>/loop 5m /babysit</code> and <code>/loop 30m /slack-feedback</code>. PRISM&#39;s <code>/wiki-morning</code>, <code>/precompact</code>, etc. should migrate to <code>/loop</code> semantics rather than ad-hoc cron.</li>
+<li><strong><code>/simplify</code> and <code>/batch</code> ship parallel-agent quality enforcement</strong> — <code>/simplify</code> runs <strong>3 specialized review agents in parallel</strong> (reuse, quality, efficiency) on every diff; <code>/batch</code> orchestrates worktree-isolated agents for migrations. Combined with <code>/go</code>, this is the production pipeline pattern Boris uses to ship 20-30 PRs/day.</li>
+<li><strong>Worktree isolation is now built-in</strong> — <code>claude --worktree</code>, <code>isolation: worktree</code> in agent frontmatter, automatic cleanup when no changes. PRISM&#39;s &quot;conflict-fork rule&quot; reinvented this manually; native support means we should make <code>isolation: worktree</code> the default for ANY subagent that touches &gt;2 files.</li>
+<li><strong>CLAUDE.md back-flow is a discipline, not a feature</strong> — Boris updates CLAUDE.md &quot;multiple times weekly&quot; and tags <code>@.claude</code> in PRs to auto-append. PRISM&#39;s <code>error-pattern-promote.mjs</code> covers regressions, but session-level discoveries don&#39;t auto-flow yet (gap).</li>
+</ol>
+<hr>
+<h2 id="1-verification-feedback-loop-hard-gate"><a class="anchor" href="#1-verification-feedback-loop-hard-gate" aria-label="Permalink to 1. Verification Feedback Loop (HARD GATE)">#</a>1. Verification Feedback Loop (HARD GATE)</h2>
+<p><strong>Principle.</strong> Boris&#39;s most-quoted Claude Code claim:</p>
+<blockquote>
+<p>&quot;Probably the most important thing to get great results out of Claude Code — give Claude a way to verify its work. If Claude has that feedback loop, it will 2-3x the quality of the final result.&quot; — <a href="https://howborisusesclaudecode.com/" rel="noopener noreferrer">howborisusesclaudecode.com</a> [1]</p>
+</blockquote>
+<p>Anthropic codified this in the official Best Practices doc:</p>
+<blockquote>
+<p>&quot;Include tests, screenshots, or expected outputs so Claude can check itself. <strong>This is the single highest-leverage thing you can do.</strong>&quot; — <a href="https://code.claude.com/docs/en/best-practices" rel="noopener noreferrer">Best Practices for Claude Code</a> [2]</p>
+</blockquote>
+<p><strong>Mechanism.</strong> Verification is domain-specific:</p>
+<ul>
+<li><strong>Backend</strong> → test suite runs (<code>bun test</code>, <code>vitest run</code>).</li>
+<li><strong>Frontend</strong> → Claude in Chrome extension takes screenshot, compares against spec, iterates until matching.</li>
+<li><strong>Mobile</strong> → simulator build + automated UI test.</li>
+<li><strong>CLI</strong> → bash command + exit-code parsing.</li>
+<li><strong>Multi-step refactors</strong> → linter + typechecker + smoke test.</li>
+</ul>
+<p>The official doc gives an explicit before/after framing in three rows of a table — &quot;implement validateEmail&quot; vs &quot;implement validateEmail with these test cases AND run the tests after implementing&quot;; &quot;make dashboard look better&quot; vs &quot;[paste screenshot] implement this, screenshot result, list differences, fix them&quot;; &quot;build is failing&quot; vs &quot;fix the root cause and verify the build succeeds, don&#39;t suppress the error&quot;. [2]</p>
+<p><strong>PRISM today.</strong></p>
+<ul>
+<li><code>stop_on_failing_tests.mjs</code> Stop hook blocks task close on red tests.</li>
+<li><code>/scrutinize</code> 3-of-3 (Codex + Gemini + Opus) is our de-facto verification quorum.</li>
+<li><code>physics-verify</code> skill exists and runs reference-value tests against engines.</li>
+<li><code>/verify-loop</code> skill exists.</li>
+<li>Engine-named test convention enforced (commit <code>8639f56b5</code> is the canonical example: SCE engine + matching <code>SpecificCuttingEnergyEngine.test.ts</code>).</li>
+</ul>
+<p><strong>Gap.</strong> The verification check is per-engine and per-commit, <strong>not</strong> per-forge-run. A forge run can complete with one passing engine while another sibling engine in the same plan is unverified. Doctrine §3 #1 already calls this out as &quot;HARD GATE&quot; but no Stop hook enforces &quot;EVERY unit in the plan has a green verification channel&quot; before declaring milestone closure. → <strong>Gap unit candidate: U-FORGE7-VERIFY-PLAN-GATE</strong> (see §14).</p>
+<hr>
+<h2 id="2-parallel-agent-worktree-isolation"><a class="anchor" href="#2-parallel-agent-worktree-isolation" aria-label="Permalink to 2. Parallel-Agent Worktree Isolation">#</a>2. Parallel-Agent Worktree Isolation</h2>
+<p><strong>Principle.</strong> Native worktree support shipped in Claude Code v2.1.50 [3]. Boris announced it on Threads:</p>
+<blockquote>
+<p>&quot;Introducing: built-in git worktree support for Claude Code. Now, agents can run in parallel without interfering with one other. Each agent gets its own worktree and can work independently.&quot; — <a href="https://www.threads.com/@boris_cherny/post/DVAAnexgRUj/" rel="noopener noreferrer">@boris_cherny on Threads</a> [3]</p>
+</blockquote>
+<p><strong>Mechanism.</strong></p>
+<ul>
+<li>CLI: <code>claude --worktree feature-name</code> (or auto-generated name).</li>
+<li>Agent frontmatter: <code>`</code>yaml --- name: code-simplifier isolation: worktree --- <code>`</code></li>
+<li>Each worktree gets a separate branch + working directory + index under <code>.claude/worktrees/</code>.</li>
+<li><strong>Auto-cleanup</strong>: worktrees with no changes are removed when the session ends; worktrees with changes persist for review. [4]</li>
+<li>Combined with <code>/batch</code>, &quot;10 agents migrating 10 files each in parallel without stepping on each other.&quot; [5]</li>
+</ul>
+<p><strong>The killer scenario.</strong> From the Claude Directory worktree guide:</p>
+<blockquote>
+<p>&quot;Without worktree isolation, parallel sub-agents are limited to reading files or writing to non-overlapping paths, but with isolation, each agent has the entire codebase to itself — Agent A can rewrite src/auth.ts while Agent B rewrites the same file with a different approach, and you review both branches and pick the winner.&quot; [4]</p>
+</blockquote>
+<p><strong>PRISM today.</strong></p>
+<ul>
+<li>We run 6+ concurrent chats coordinated by <code>commit-ownership-guard</code> + <code>git-anti-clobber</code> + <code>state/shared/AGENT_WORKBOARD.md</code>.</li>
+<li>The &quot;conflict-fork rule&quot; in <code>H:/prism/CLAUDE.md</code> re-invents worktree isolation manually after collisions (&quot;fork to your own tree: <code>git worktree add ../prism-&lt;milestone&gt; -b work/&lt;milestone&gt;</code>&quot;).</li>
+<li>Worktree commit <code>03586e2fa</code> (XPROC-NEURAL-OPTIMIZE-MS0) is a recent live application of this rule — note the <code>-WORKTREE</code> suffix in the commit topic.</li>
+<li>Most subagents launched via PRISM&#39;s forge-team STILL share the parent tree.</li>
+</ul>
+<p><strong>Gap.</strong> Doctrine §3 #3 already flags this. The fix: Doctrine §4 <code>/forge7</code> Phase 4 LOOP 2 default should be <code>isolation: worktree</code> (override via <code>--no-isolation</code> for trivial units). NOT YET SHIPPED. → <strong>Gap unit candidate: U-FORGE7-WORKTREE-DEFAULT</strong> (see §14).</p>
+<hr>
+<h2 id="3-plan-peer-review"><a class="anchor" href="#3-plan-peer-review" aria-label="Permalink to 3. Plan Peer-Review">#</a>3. Plan Peer-Review</h2>
+<p><strong>Principle.</strong> Boris explicitly recommends a second-Claude as staff-engineer reviewer:</p>
+<blockquote>
+<p>&quot;Have Claude A draft plans, then Claude B review them as a staff engineer.&quot; (Tip #5 in <a href="https://www.anup.io/35-claude-code-tips-from-the-guy-who-built-it/" rel="noopener noreferrer">anup.io&#39;s curated 35-tips list</a> [6])</p>
+</blockquote>
+<p>The Anthropic Best Practices doc reinforces with the <strong>Writer/Reviewer pattern</strong> (Session A writes, Session B reviews with fresh context to avoid bias toward code it just wrote). [2]</p>
+<p><strong>Anthropic&#39;s multi-agent research system</strong> generalizes this: a <strong>lead researcher</strong> drafts the plan, saves it to memory, then dispatches 3-5 subagents in parallel against it; if context exceeds 200K tokens it gets truncated, <strong>so the plan is what survives</strong>. [7]</p>
+<p><strong>PRISM today.</strong></p>
+<ul>
+<li>3-of-3 scrutiny gate (Codex + Gemini + Opus) — see <code>H:/prism/CLAUDE.md</code> SCRUTINY GATE section. This IS plan peer-review applied to the diff post-hoc.</li>
+<li><code>/peer-review</code> skill exists for explicit invocation.</li>
+<li><code>superpowers:requesting-code-review</code> and <code>superpowers:receiving-code-review</code> skills available.</li>
+</ul>
+<p><strong>Gap.</strong> Plan-mode review (BEFORE code) is manual. Boris&#39;s pattern is to spawn the reviewer the moment Plan-mode emits a plan — not after the diff is written. PRISM&#39;s <code>/peer-review</code> is reactive, not auto-injected after <code>/rgs6 generate</code>. Doctrine §4 calls for Phase 4.5 of <code>/forge7</code> to &quot;Auto-spawn <code>/peer-review</code> against the plan emitted by <code>/rgs6 generate</code>&quot; — this is not yet shipped. → <strong>Gap unit candidate: U-FORGE7-PLAN-PEER-REVIEW</strong> (see §14).</p>
+<hr>
+<h2 id="4-claudemd-back-flow"><a class="anchor" href="#4-claudemd-back-flow" aria-label="Permalink to 4. CLAUDE.md Back-Flow">#</a>4. CLAUDE.md Back-Flow</h2>
+<p><strong>Principle.</strong> Boris&#39;s exact quote:</p>
+<blockquote>
+<p>&quot;Anytime we see Claude do something incorrectly we add it to CLAUDE.md, so Claude knows not to do it next time. We update it multiple times a week.&quot; — <a href="https://newsletter.pragmaticengineer.com/p/building-claude-code-with-boris-cherny" rel="noopener noreferrer">Pragmatic Engineer interview</a> [8]</p>
+</blockquote>
+<p>The Anthropic team uses the Claude Code GitHub Action to incorporate <code>@.claude</code> PR comments directly into the file. [6]</p>
+<p><strong>Anthropic Best Practices guidance:</strong></p>
+<blockquote>
+<p>&quot;If Claude keeps doing something you don&#39;t want despite having a rule against it, the file is probably too long and the rule is getting lost. If Claude asks you questions that are answered in CLAUDE.md, the phrasing might be ambiguous. <strong>Treat CLAUDE.md like code: review it when things go wrong, prune it regularly, and test changes by observing whether Claude&#39;s behavior actually shifts.</strong>&quot; [2]</p>
+</blockquote>
+<p>The doc also specifies emphasis tuning: &quot;you can tune instructions by adding emphasis (e.g., &#39;IMPORTANT&#39; or &#39;YOU MUST&#39;) to improve adherence.&quot; [2]</p>
+<p><strong>Locations supported (per Best Practices):</strong></p>
+<ul>
+<li><code>~/.claude/CLAUDE.md</code> — applies to all sessions.</li>
+<li><code>./CLAUDE.md</code> — checked into git, shared with team.</li>
+<li><code>./CLAUDE.local.md</code> — gitignored, personal overrides.</li>
+<li>Parent/child directory CLAUDE.md files — pulled in on demand for monorepos.</li>
+<li><code>@path/to/import</code> syntax for imports. [2]</li>
+</ul>
+<p><strong>PRISM today.</strong></p>
+<ul>
+<li><code>H:/prism/CLAUDE.md</code> (project) + <code>~/.claude/CLAUDE.md</code> (user) both exist and are actively maintained.</li>
+<li><code>error-pattern-promote.mjs</code> Stop hook does partial back-flow.</li>
+<li>Recent regressions section pattern is informally followed but no automated append.</li>
+<li><code>MEMORY.md</code> index in <code>~/.claude/projects/H--prism/memory/MEMORY.md</code> is a parallel back-flow surface.</li>
+</ul>
+<p><strong>Gap.</strong> Doctrine §3 #7 calls for Stop hook to explicitly append regression patterns. The current <code>error-pattern-promote</code> writes to its own ledger, not to the project CLAUDE.md <code>## Recent regressions</code> section. → <strong>Gap unit candidate: U-CLAUDE-MD-BACKFLOW</strong> (already in MS3 Track J — re-confirm priority).</p>
+<hr>
+<h2 id="5-loop-and-schedule-recurring-workflows"><a class="anchor" href="#5-loop-and-schedule-recurring-workflows" aria-label="Permalink to 5. /loop and /schedule Recurring Workflows">#</a>5. <code>/loop</code> and <code>/schedule</code> Recurring Workflows</h2>
+<p><strong>Principle.</strong> Boris&#39;s launch announcement:</p>
+<blockquote>
+<p>&quot;Released today: /loop. /loop is a powerful new way to schedule recurring tasks, for up to 3 days at a time. eg. &#39;/loop babysit all my PRs. Auto-fix build issues and when comments come in, use a worktree agent to fix them.&#39; eg. &#39;/loop every morning use the Slack MCP to give me a summary of top posts I was tagged in.&#39;&quot; — <a href="https://www.threads.com/@boris_cherny/post/DVk4eGHFaRn/" rel="noopener noreferrer">@boris_cherny on Threads</a> [9]</p>
+</blockquote>
+<p>His personal usage (from same source [9]):</p>
+<ul>
+<li><code>/loop 5m /babysit</code> — auto-address code review and auto-rebase his PRs.</li>
+<li><code>/loop 30m /slack-feedback</code> — automatically put up PRs for Slack feedback every 30 minutes.</li>
+</ul>
+<p><strong>Three scheduling tiers</strong> (per official doc [10]):</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Feature</th><th>Cloud (Routines)</th><th>Desktop (scheduled tasks)</th><th><code>/loop</code></th></tr></thead>
+<tbody>
+<tr><td>Runs on</td><td>Anthropic cloud</td><td>Your machine</td><td>Your machine</td></tr>
+<tr><td>Requires open session</td><td>No</td><td>No</td><td>Yes</td></tr>
+<tr><td>Persistent across restarts</td><td>Yes</td><td>Yes</td><td>Restored on <code>--resume</code> if unexpired</td></tr>
+<tr><td>Local files</td><td>No (fresh clone)</td><td>Yes</td><td>Yes</td></tr>
+<tr><td>Min interval</td><td>1 hour</td><td>1 minute</td><td>1 minute</td></tr>
+<tr><td>Max session-scoped lifetime</td><td>n/a</td><td>n/a</td><td>7 days, then auto-expires</td></tr>
+</tbody>
+</table></div>
+<p><strong><code>/loop</code> modes</strong> [10]:</p>
+<ul>
+<li><code>/loop 5m check the deploy</code> — fixed cron, your prompt.</li>
+<li><code>/loop check the deploy</code> — Claude self-paces (1m to 1h based on observation).</li>
+<li><code>/loop</code> alone — runs the built-in maintenance prompt or custom <code>loop.md</code> (project: <code>.claude/loop.md</code>; user: <code>~/.claude/loop.md</code>).</li>
+<li><code>/loop 20m /review-pr 1234</code> — re-runs a packaged workflow each iteration.</li>
+</ul>
+<p><strong>Jitter</strong> [10]: &quot;Recurring tasks fire up to 30 minutes after the scheduled time (or up to half the interval, for tasks that run more often than hourly). An hourly job scheduled for <code>:00</code> may fire anywhere up to <code>:30</code>. One-shot tasks scheduled for the top or bottom of the hour fire up to 90 seconds early.&quot;</p>
+<p><strong>PRISM today.</strong></p>
+<ul>
+<li>We have ~440 skills but most &quot;recurring&quot; workflows (<code>/wiki-morning</code>, <code>/precompact</code>, <code>/run-continuous</code>) rely on user invocation or external cron, not <code>/loop</code>.</li>
+<li><code>/schedule</code> and <code>/loop</code> skills appear in the available-skills list but their wiring to PRISM cron infrastructure is incomplete.</li>
+<li>We have <code>cron-bootstrap</code>, <code>cron-manage</code>, and <code>CronCreate</code> MCP tooling but they don&#39;t yet honor the 7-day expiry semantics.</li>
+<li><code>forge_audit_v2</code> is supposed to self-schedule a 7-day re-run via <code>/loop</code> (Doctrine §4) — not yet shipped.</li>
+</ul>
+<p><strong>Gap.</strong> Migrate PRISM&#39;s recurring-cadence skills to <code>/loop</code> semantics so the 7-day auto-expiry safety bound applies. → <strong>Gap unit candidate: U-LOOP-MIGRATE-CADENCE</strong> (see §14).</p>
+<hr>
+<h2 id="6-go-composite-skill-chain"><a class="anchor" href="#6-go-composite-skill-chain" aria-label="Permalink to 6. /go Composite Skill Chain">#</a>6. <code>/go</code> Composite Skill Chain</h2>
+<p><strong>Principle.</strong> Boris&#39;s <code>/go</code> philosophy:</p>
+<blockquote>
+<p>&quot;Personally, many of my prompts these days look like &#39;claude do blah blah, go.&#39; /go is [the composite skill that] (1) tests end-to-end via bash/browser/computer use (2) runs /simplify (3) puts up a PR — so when you come back, you know the code works.&quot; — <a href="https://www.threads.com/@boris_cherny/post/DXM_ATcD8QP/" rel="noopener noreferrer">@boris_cherny on Threads</a> [11]</p>
+</blockquote>
+<p><strong>Why composite chains.</strong> Boris&#39;s framing (paraphrased from [6, 11]): <code>/simplify</code> was promoted to a built-in skill in Feb 2026 specifically because parallel review-agents on every change is the production discipline. The phases are spec → draft → simplify → verify, and <strong>each phase benefits from a different &quot;mind&quot;</strong> (i.e., different agent context).</p>
+<p><strong>PRISM today.</strong></p>
+<ul>
+<li>We have all the constituent pieces: <code>/test</code>, <code>/simplify</code> (project skill exists), <code>/scrutinize</code>, <code>/handoff</code>, <code>auto-commit</code>, etc.</li>
+<li>Doctrine §4 <code>/forge-go</code> proposed but not yet shipped: <code>`</code>
+<ol>
+<li>/test affected      ← verification feedback (Boris #1)</li>
+<li>/simplify           ← post-build cleanup</li>
+<li>/scrutinize         ← multi-role review</li>
+<li>commit + push       ← if all green</li>
+<li>/handoff            ← write per-agent handoff</li>
+<li>(optional) /loop    ← schedule re-verify in 4h</li>
+</ol> <code>`</code></li>
+</ul>
+<p><strong>Gap.</strong> No single composite chain skill exists. Each step is a separate manual invocation, which is what Boris explicitly designed <code>/go</code> to eliminate. → <strong>Gap unit candidate: U-FORGE-GO-CHAIN</strong> (already in MS3 Track J — re-confirm priority).</p>
+<hr>
+<h2 id="7-isolation-worktree-default-for-risky-work"><a class="anchor" href="#7-isolation-worktree-default-for-risky-work" aria-label="Permalink to 7. isolation: worktree Default for Risky Work">#</a>7. <code>isolation: worktree</code> Default for Risky Work</h2>
+<p><strong>Principle.</strong> Anthropic&#39;s <code>/batch</code> command makes <code>isolation: worktree</code> the default for parallel migrations:</p>
+<blockquote>
+<p>&quot;The orchestrator launches one background agent per unit in true parallel, each getting isolation in a &#39;worktree&#39; for a clean git worktree. After implementing, each worker runs /simplify on its own changes, executes the test suite, commits, pushes, and opens a PR.&quot; [5]</p>
+</blockquote>
+<p>Sub-agent doc states isolation should be configured per-agent in frontmatter, not at invocation time, so the agent&#39;s contract is unambiguous. [12]</p>
+<p><strong>When to default to isolation</strong> (synthesizing [3], [4], [5]):</p>
+<ul>
+<li>Any subagent touching &gt;2 files.</li>
+<li>Any migration touching shared modules.</li>
+<li>Any experimental refactor where you want to compare approaches.</li>
+<li>Any long-running agent (&gt;15 minutes) so it can&#39;t block your main HEAD.</li>
+</ul>
+<p><strong>When to NOT use isolation:</strong></p>
+<ul>
+<li>Single-file fixes where overhead isn&#39;t justified [4].</li>
+<li>Read-only investigations (use <code>subagent</code> without isolation — context savings already comes from separate context window).</li>
+<li>Short-lived edits where the worktree creation/cleanup cost exceeds the work.</li>
+</ul>
+<p><strong>PRISM today.</strong></p>
+<ul>
+<li>Most subagents share parent tree.</li>
+<li>The xproc-neural worktree commit (<code>03586e2fa</code>) shows we manually invoke <code>git worktree add</code> AFTER hitting <code>commit-ownership-guard</code> — reactive, not preemptive.</li>
+</ul>
+<p><strong>Gap.</strong> Make <code>isolation: worktree</code> the default in our agent frontmatter for any agent class with <code>multi_file: true</code>. → <strong>Gap unit candidate: U-AGENT-FRONTMATTER-ISOLATION-DEFAULT</strong> (see §14).</p>
+<hr>
+<h2 id="8-slash-command-discipline"><a class="anchor" href="#8-slash-command-discipline" aria-label="Permalink to 8. Slash-Command Discipline">#</a>8. Slash-Command Discipline</h2>
+<p><strong>Principle.</strong> Anthropic&#39;s official taxonomy (from Best Practices [2]):</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Surface</th><th>Purpose</th><th>Loaded</th></tr></thead>
+<tbody>
+<tr><td><strong>CLAUDE.md</strong></td><td>Project conventions Claude needs every session</td><td>Always loaded</td></tr>
+<tr><td><strong>Skills</strong> (<code>.claude/skills/SKILL.md</code>)</td><td>Domain knowledge / reusable workflows</td><td>On demand (model-invoked or <code>/skill-name</code>)</td></tr>
+<tr><td><strong>Hooks</strong> (<code>.claude/settings.json</code>)</td><td>Deterministic automation that MUST happen</td><td>Always-on, every matching event</td></tr>
+<tr><td><strong>Subagents</strong> (<code>.claude/agents/*.md</code>)</td><td>Specialized task delegation with isolated context</td><td>Per-task delegation</td></tr>
+<tr><td><strong>MCP servers</strong></td><td>External tool integration</td><td>Connected once per session</td></tr>
+</tbody>
+</table></div>
+<p>The doc explicitly warns:</p>
+<blockquote>
+<p>&quot;CLAUDE.md is loaded every session, so only include things that apply broadly. For domain knowledge or workflows that are only relevant sometimes, use skills instead. Claude loads them on demand without bloating every conversation.&quot; [2]</p>
+</blockquote>
+<p>Hooks are described as the deterministic-action layer:</p>
+<blockquote>
+<p>&quot;Use hooks for actions that must happen every time with zero exceptions. Unlike CLAUDE.md instructions which are advisory, hooks are deterministic and guarantee the action happens.&quot; [2]</p>
+</blockquote>
+<p>Skills can declare <code>disable-model-invocation: true</code> for workflows with side effects you want to trigger manually [2].</p>
+<p><strong>PRISM today.</strong> We over-rotate on CLAUDE.md (project file is ~270 lines); should rotate more domain-specific guidance (e.g., per-engine cookbooks) into skills. ~440 skills currently exist but the auto-injection on UserPromptSubmit (<code>hookify</code> hooks) means many fire even when not needed — exactly the bloat Anthropic warns against.</p>
+<p><strong>Gap.</strong> Audit <code>H:/prism/CLAUDE.md</code> and the auto-inject hooks for &quot;would removing this cause Claude to make mistakes? if not, cut it&quot; — Anthropic&#39;s pruning rubric. → <strong>Gap unit candidate: U-CLAUDE-MD-PRUNE-AUDIT</strong> (see §14).</p>
+<hr>
+<h2 id="9-anthropic-multi-agent-research-orchestrator-pattern"><a class="anchor" href="#9-anthropic-multi-agent-research-orchestrator-pattern" aria-label="Permalink to 9. Anthropic Multi-Agent Research Orchestrator Pattern">#</a>9. Anthropic Multi-Agent Research Orchestrator Pattern</h2>
+<p><strong>Principle.</strong> From <a href="https://www.anthropic.com/engineering/multi-agent-research-system" rel="noopener noreferrer">Anthropic&#39;s &quot;How we built our multi-agent research system&quot;</a> [7]:</p>
+<p><strong>Architecture.</strong> Lead Researcher (Opus) decomposes query → spawns 3-5 subagents (Sonnet) in parallel → each subagent does breadth-first search → returns to lead → lead synthesizes.</p>
+<p><strong>Key numbers:</strong></p>
+<ul>
+<li><strong>15× token consumption</strong> vs single-agent chat.</li>
+<li><strong>90.2% breadth-first lift</strong> vs single-agent Opus on BrowseComp evaluation.</li>
+<li><strong>80% of performance variance</strong> explained by token usage (with tool calls + model choice making up the other 15%).</li>
+</ul>
+<p><strong>Why parallel works.</strong></p>
+<blockquote>
+<p>&quot;By running several agents in parallel, multi-agent systems allow breadth-first exploration, compress large search spaces into manageable insights, and reduce the risk of missing key information... reducing research time by up to 90% for complex queries.&quot; [7]</p>
+</blockquote>
+<p><strong>Memory pattern.</strong></p>
+<blockquote>
+<p>&quot;The lead agent saves its research plan to persistent memory because if the context window exceeds 200,000 tokens it will be truncated and it is important to retain the plan.&quot; [7]</p>
+</blockquote>
+<p><strong>Subagent output isolation.</strong></p>
+<blockquote>
+<p>&quot;Specialized agents store work in external systems (filesystem/artifacts) rather than communicating entirely through the lead agent, preventing information loss and reducing token overhead from copying large outputs through conversation history.&quot; [7]</p>
+</blockquote>
+<p><strong>Cost economics.</strong> This is why multi-agent orchestration is reserved for breadth-first / open-ended problems where 90% lift outweighs 15× cost. NOT for routine &quot;fix this typo&quot; tasks.</p>
+<p><strong>Five workflow patterns</strong> (from <a href="https://www.anthropic.com/research/building-effective-agents" rel="noopener noreferrer">Building Effective Agents</a> [13]):</p>
+<ol>
+<li>Prompt chaining</li>
+<li>Routing</li>
+<li>Parallelization</li>
+<li><strong>Orchestrator-workers</strong> (the multi-agent research pattern)</li>
+<li>Evaluator-optimizer</li>
+</ol>
+<p><strong>PRISM today.</strong></p>
+<ul>
+<li><code>prism_orchestrate</code> and <code>prism_atcs</code> dispatchers implement orchestrator-worker semantics.</li>
+<li><code>forge-team</code> agent (3-agent: builder + physics-reviewer + test-reviewer) is a small orchestrator-worker.</li>
+<li><code>/forge2</code> through <code>/forge7</code> skills increasingly leverage subagent dispatch with isolation.</li>
+<li>The 3-of-3 scrutiny gate (Codex + Gemini + Opus) applied to diffs IS a 3-way evaluator-optimizer pattern.</li>
+</ul>
+<p><strong>Gap.</strong> PRISM doesn&#39;t have a published cost model for &quot;when to spawn 3-5 parallel subagents vs. single Claude call.&quot; The 15×-cost / 90%-lift breakeven is task-class dependent and we have no telemetry for it. → <strong>Gap unit candidate: U-MULTI-AGENT-COST-TELEMETRY</strong> (see §14).</p>
+<hr>
+<h2 id="10-todowrite-plan-mode-hygiene"><a class="anchor" href="#10-todowrite-plan-mode-hygiene" aria-label="Permalink to 10. TodoWrite + Plan-Mode Hygiene">#</a>10. TodoWrite + Plan-Mode Hygiene</h2>
+<p><strong>Principle.</strong> From the Anthropic Best Practices doc [2]:</p>
+<p><strong>Plan mode</strong> (<code>shift+tab</code> twice):</p>
+<blockquote>
+<p>&quot;Letting Claude jump straight to coding can produce code that solves the wrong problem. Use plan mode to separate exploration from execution. The recommended workflow has four phases: Explore → Plan → Implement → Commit.&quot;</p>
+</blockquote>
+<blockquote>
+<p>&quot;Plan mode is useful, but also adds overhead. For tasks where the scope is clear and the fix is small (like fixing a typo, adding a log line, or renaming a variable) ask Claude to do it directly. Planning is most useful when you&#39;re uncertain about the approach, when the change modifies multiple files, or when you&#39;re unfamiliar with the code being modified. <strong>If you could describe the diff in one sentence, skip the plan.</strong>&quot;</p>
+</blockquote>
+<p><strong>TodoWrite.</strong> From the system prompt of Claude Code itself (recovered from third-party analysis [14]):</p>
+<blockquote>
+<p>&quot;The model is required to use TodoWrite as much as possible to manage and plan tasks such as breaking down large, complex tasks into smaller steps... It is critical that you mark todos as completed as soon as you are done with a task, and not batch up multiple tasks before marking them as completed.&quot;</p>
+</blockquote>
+<p>The Jan 2026 upgrade added dependencies, blockers, and multi-session collaboration to TodoWrite.</p>
+<p><strong>The hygiene split:</strong></p>
+<ul>
+<li><strong>TodoWrite</strong> = in-conversation, ephemeral, completion-tracked.</li>
+<li><strong>Handoffs</strong> = cross-session, durable (per-agent files for PRISM).</li>
+<li><strong>Plans</strong> = pre-execution, durable, peer-reviewable.</li>
+</ul>
+<p><strong>PRISM today.</strong></p>
+<ul>
+<li>TodoWrite used by Claude in-conversation but not surfaced in PRISM&#39;s coordination state (AGENT_WORKBOARD, etc.).</li>
+<li><code>/handoff</code> writes to per-agent files (<code>HANDOFF-&lt;id&gt;-&lt;topic&gt;.md</code>) — well-covered.</li>
+<li><code>/plan-build</code>, <code>/read-plan</code>, <code>/write-plan</code> (superpowers) skills exist for the plan layer.</li>
+</ul>
+<p><strong>Gap.</strong> No bridge between TodoWrite and the per-agent handoff. When a chat compacts, TodoWrite contents should serialize INTO the handoff so the resumed session sees the prior task list. → <strong>Gap unit candidate: U-TODOWRITE-HANDOFF-BRIDGE</strong> (see §14).</p>
+<hr>
+<h2 id="11-non-interactive-shell-discipline"><a class="anchor" href="#11-non-interactive-shell-discipline" aria-label="Permalink to 11. Non-Interactive Shell Discipline">#</a>11. Non-Interactive Shell Discipline</h2>
+<p><strong>Principle.</strong> Headless mode (<code>-p</code> flag) requires deterministic, hang-free shell:</p>
+<blockquote>
+<p>&quot;With <code>claude -p &#39;your prompt&#39;</code>, you can run Claude non-interactively, without a session. Non-interactive mode is how you integrate Claude into CI pipelines, pre-commit hooks, or any automated workflow. The output formats let you parse results programmatically: plain text, JSON, or streaming JSON.&quot; [2]</p>
+</blockquote>
+<p><strong>Critical CI gotcha.</strong></p>
+<blockquote>
+<p>&quot;PermissionRequest hooks don&#39;t fire in non-interactive mode (-p). If you&#39;re running Claude Code headlessly, use PreToolUse instead.&quot; [15]</p>
+</blockquote>
+<p><strong>Auto-mode for headless.</strong></p>
+<blockquote>
+<p>&quot;For uninterrupted execution with background safety checks, use auto mode. A classifier model reviews commands before they run, blocking scope escalation, unknown infrastructure, and hostile-content-driven actions while letting routine work proceed without prompts. For non-interactive runs with the <code>-p</code> flag, auto mode aborts if the classifier repeatedly blocks actions, since there is no user to fall back to.&quot; [2]</p>
+</blockquote>
+<p><strong>Discipline rules</strong> (synthesizing [2], [10], [15]):</p>
+<ul>
+<li>Always pass <code>--no-pager</code> to <code>git</code>, <code>gh</code>, <code>less</code>-piped commands.</li>
+<li>Use <code>--non-interactive</code> flags where supported.</li>
+<li>Avoid commands that prompt without explicit input (e.g., <code>git rebase -i</code>, <code>npm init</code>).</li>
+<li>For shell loops, use <code>--allowedTools</code> to scope permissions.</li>
+<li>For CI, avoid <code>PermissionRequest</code> hooks — convert to <code>PreToolUse</code> or rely on auto-mode classifier.</li>
+</ul>
+<p><strong>PRISM today.</strong></p>
+<ul>
+<li>We have <code>rtk</code> token-reduction wrapper that handles many flags (auto-injects <code>--no-pager</code> for git, <code>--non-interactive</code> for npm).</li>
+<li>Headless mode rarely used; most PRISM forge runs are interactive.</li>
+<li><code>auto-agent</code>, <code>automation:auto-agent</code>, <code>auto-fix-generate</code> skills exist but <code>--permission-mode auto</code> is not the default invocation.</li>
+</ul>
+<p><strong>Gap.</strong> PRISM has no documented headless / CI-mode profile. For <code>cron</code>-driven background jobs to be reliable, they need to run with <code>claude -p</code> + auto-mode + no PermissionRequest hooks. → <strong>Gap unit candidate: U-HEADLESS-CI-PROFILE</strong> (see §14).</p>
+<hr>
+<h2 id="12-karpathy-boris-cross-pollination"><a class="anchor" href="#12-karpathy-boris-cross-pollination" aria-label="Permalink to 12. Karpathy / Boris Cross-Pollination">#</a>12. Karpathy / Boris Cross-Pollination</h2>
+<p><strong>Principle.</strong> Karpathy&#39;s Software 2.0 → Software 3.0 framing [16]:</p>
+<blockquote>
+<p>&quot;Software 1.0 = humans writing explicit code. Software 2.0 = humans creating datasets, objectives, and neural networks where the program is learned into weights. Software 3.0 = humans programming LLMs through prompts, context, tools, examples, memory, and instructions.&quot;</p>
+</blockquote>
+<p>Claude Code embodies Software 3.0: &quot;you describe what you want and Claude figures out how to build it. Claude explores, plans, and implements.&quot; [2]</p>
+<p><strong>Karpathy&#39;s CLAUDE.md.</strong> January 2026 — Karpathy posted observations on X after weeks of intensive Claude Code use; the resulting <code>CLAUDE.md</code> template hit GitHub trending #1 for 28 consecutive days, 110K+ stars. [17] Key principles:</p>
+<ul>
+<li>Anti-drift checkpoints.</li>
+<li>Explicit verification before claims.</li>
+<li>Tool-discipline (use the right tool for the job).</li>
+<li>Write code that handles edge cases from line 1.</li>
+</ul>
+<p><strong>Karpathy&#39;s LLM-Wiki.</strong> Compounding markdown wiki maintained by LLM, where each new ingestion enriches existing entries rather than appending throwaway summaries [18]. PRISM directly adopted this — see <code>H:/prism/WIKI_SCHEMA.md</code> and the 722-entry wiki at <code>H:/prism/knowledge/wiki/</code>.</p>
+<p><strong>Boris citing Karpathy.</strong> [no direct quote found, inference from observed behavior] — Boris&#39;s CLAUDE.md back-flow practice and his &quot;give Claude verification&quot; tip both echo Karpathy&#39;s &quot;tight feedback loops shrink the slop.&quot; Anthropic&#39;s Best Practices doc explicitly cites Karpathy-style anti-drift advice in its &quot;Avoid common failure patterns&quot; section.</p>
+<p><strong>The convergence:</strong> PRISM sits at the intersection — wiki-as-compounding-knowledge (Karpathy) + verification-feedback-as-#1-lever (Boris) + 3-of-3 multi-CLI consensus (PRISM-specific evolution).</p>
+<p><strong>PRISM today.</strong></p>
+<ul>
+<li><code>/karpathy</code> skill auto-fires anti-drift checkpoints.</li>
+<li>Wiki at 722 entries with <code>wiki/index.md</code> + <code>wiki/log.md</code> audit trail.</li>
+<li>Doctrine §1 explicitly maps the Karpathy Loop Scale 1 (MICRO, every 5 tasks) to existing skills.</li>
+</ul>
+<p><strong>Gap.</strong> None significant — this is the area where PRISM is MOST aligned with the source material. Continue compounding the wiki.</p>
+<hr>
+<h2 id="13-cross-cutting-themes"><a class="anchor" href="#13-cross-cutting-themes" aria-label="Permalink to 13. Cross-Cutting Themes">#</a>13. Cross-Cutting Themes</h2>
+<ol>
+<li><strong>Compress feedback latency at every layer.</strong> Boris&#39;s &quot;verification 2-3x quality,&quot; Anthropic&#39;s &quot;small-sample testing detects 30-80% gains early,&quot; Karpathy&#39;s &quot;anti-drift every 5 tasks&quot; — all the same shape. Whatever the loop is, make it shorter.</li>
+<li><strong>Isolate context aggressively.</strong> Subagents in their own context window, worktrees in their own filesystem, scheduled tasks in their own session — every layer of Claude Code is structured around &quot;don&#39;t pollute the main thing.&quot; PRISM&#39;s per-chat handoff system embodies this at the session layer.</li>
+<li><strong>Deterministic guardrails &gt; advisory rules.</strong> Anthropic explicitly distinguishes hooks (deterministic, must-happen) from CLAUDE.md (advisory, may-be-ignored). PRISM&#39;s 25+ HARD BLOCK hooks are aligned; the warning hooks (we have ~80) are the soft layer.</li>
+<li><strong>Plan as memory.</strong> When Anthropic&#39;s lead-researcher saves the plan to memory because context might truncate, that&#39;s the same insight as PRISM saving handoffs at compaction. The plan IS the durable artifact; the conversation is ephemeral.</li>
+<li><strong>Cost-aware orchestration.</strong> 15× cost for 90% lift only makes sense for breadth-first / open-ended work. The discipline is knowing when NOT to spawn parallel subagents — for &quot;rename this variable,&quot; a single Claude call is correct. PRISM lacks an explicit cost-model layer for this triage.</li>
+</ol>
+<hr>
+<h2 id="14-prism-gap-analysis-what-we-should-adopt"><a class="anchor" href="#14-prism-gap-analysis-what-we-should-adopt" aria-label="Permalink to 14. PRISM Gap Analysis — what we should adopt">#</a>14. PRISM Gap Analysis — what we should adopt</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Unit Title</th><th>Rationale</th><th>File / Path</th><th>Effort</th><th>Milestone Tie</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><strong>U-FORGE7-VERIFY-PLAN-GATE</strong></td><td>Stop hook enforces &quot;every unit in milestone plan has a green verification channel before milestone close.&quot; Boris&#39;s #1 lever made hard.</td><td><code>.claude/hooks/scrutinize-before-stop.mjs</code> (extend) + new <code>state/shared/specs/MILESTONE-VERIFY-LEDGER.json</code></td><td>M</td><td>New milestone: HOOK-SYNERGY-MS0</td></tr>
+<tr><td>2</td><td><strong>U-FORGE7-WORKTREE-DEFAULT</strong></td><td>Default <code>isolation: worktree</code> for any subagent dispatched with <code>multi_file: true</code>. Eliminates manual conflict-fork-rule trips.</td><td><code>.claude/agents/*.md</code> frontmatter migration + dispatch wrapper in <code>forge6.md</code>/<code>forge7.md</code></td><td>M</td><td>New milestone (ties to HOOK-SYNERGY-MS0)</td></tr>
+<tr><td>3</td><td><strong>U-FORGE7-PLAN-PEER-REVIEW</strong></td><td>Auto-spawn <code>/peer-review</code> against the plan emitted by <code>/rgs6 generate</code> BEFORE Phase 4 implementation begins. Catches architectural mistakes before code.</td><td><code>.claude/commands/forge7.md</code> (Phase 4.5) + <code>.claude/commands/peer-review.md</code> (auto-invoke wrapper)</td><td>M</td><td>New milestone: K2-CLOUD-MS0 (or new)</td></tr>
+<tr><td>4</td><td><strong>U-CLAUDE-MD-BACKFLOW</strong></td><td>Stop hook explicitly appends regression patterns to <code>H:/prism/CLAUDE.md</code> <code>## Recent regressions</code> section (currently goes only to error-pattern-promote ledger).</td><td><code>.claude/hooks/error-pattern-promote.mjs</code> (extend) + new section header in CLAUDE.md</td><td>S</td><td>Already in MS3 Track J — re-confirm</td></tr>
+<tr><td>5</td><td><strong>U-FORGE-GO-CHAIN</strong></td><td>New composite skill chains <code>/test affected</code> → <code>/simplify</code> → <code>/scrutinize</code> → commit → <code>/handoff</code> → optional <code>/loop</code> re-verify. One command replaces 5+.</td><td>New <code>.claude/commands/forge-go.md</code></td><td>M</td><td>Already in MS3 Track J — re-confirm</td></tr>
+<tr><td>6</td><td><strong>U-LOOP-MIGRATE-CADENCE</strong></td><td>Migrate <code>/wiki-morning</code>, <code>/precompact</code>, <code>/run-continuous</code>, <code>/auto-commit</code> from ad-hoc cron to <code>/loop</code> semantics for 7-day auto-expiry safety.</td><td><code>.claude/commands/{wiki-morning,precompact,run-continuous}.md</code> + new <code>loop.md</code> template</td><td>M</td><td>New milestone: K2-CLOUD-MS0</td></tr>
+<tr><td>7</td><td><strong>U-AGENT-FRONTMATTER-ISOLATION-DEFAULT</strong></td><td>Audit all <code>.claude/agents/*.md</code>; add <code>isolation: worktree</code> default for any agent that touches &gt;2 files.</td><td><code>.claude/agents/*.md</code> (bulk migration)</td><td>S</td><td>HOOK-SYNERGY-MS0</td></tr>
+<tr><td>8</td><td><strong>U-CLAUDE-MD-PRUNE-AUDIT</strong></td><td>Apply Anthropic&#39;s &quot;would removing this cause mistakes? if not, cut it&quot; rubric to PRISM&#39;s CLAUDE.md (currently ~270 lines; doc says target &lt;100). Migrate domain knowledge to per-domain skills.</td><td><code>H:/prism/CLAUDE.md</code> + skill creation under <code>.claude/commands/</code></td><td>L</td><td>New milestone: K2-CLOUD-MS0</td></tr>
+<tr><td>9</td><td><strong>U-MULTI-AGENT-COST-TELEMETRY</strong></td><td>Track token cost vs quality lift for parallel subagent dispatches. Build a &quot;should I spawn N agents or stay single?&quot; router based on task class + measured ROI.</td><td>New engine <code>MultiAgentCostRouterEngine.ts</code> + telemetry in <code>data/state/multi-agent-cost.jsonl</code></td><td>L</td><td>New milestone: HOOK-SYNERGY-MS0</td></tr>
+<tr><td>10</td><td><strong>U-TODOWRITE-HANDOFF-BRIDGE</strong></td><td>Compaction hook serializes current TodoWrite list into the per-agent handoff so resumed session sees prior tasks. Closes a context-loss gap.</td><td><code>.claude/helpers/precompact-handoff.mjs</code> (extend)</td><td>S</td><td>HTML-COMPANION-MS0</td></tr>
+<tr><td>11</td><td><strong>U-HEADLESS-CI-PROFILE</strong></td><td>Document and enable a &quot;PRISM headless mode&quot; for <code>claude -p</code> cron-driven jobs: auto-mode + PreToolUse-only hooks + JSON output. Required to make <code>/loop</code> scheduled jobs reliable in background.</td><td>New <code>.claude/profiles/ci.json</code> + doc in <code>H:/prism/CLAUDE.md</code></td><td>M</td><td>New milestone: K2-CLOUD-MS0</td></tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="15-anti-patterns-borisanthropic-warn-against"><a class="anchor" href="#15-anti-patterns-borisanthropic-warn-against" aria-label="Permalink to 15. Anti-Patterns Boris/Anthropic Warn Against">#</a>15. Anti-Patterns Boris/Anthropic Warn Against</h2>
+<p>From <a href="https://code.claude.com/docs/en/best-practices" rel="noopener noreferrer">Best Practices for Claude Code §&quot;Avoid common failure patterns&quot;</a> [2]:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Anti-pattern</th><th>Symptom</th><th>Fix</th></tr></thead>
+<tbody>
+<tr><td><strong>Kitchen sink session</strong></td><td>Started with task A, drifted to B, back to A — context full of irrelevant info</td><td><code>/clear</code> between unrelated tasks</td></tr>
+<tr><td><strong>Correcting over and over</strong></td><td>Claude fails, you correct, fails again — context polluted with failed approaches</td><td>After 2 failed corrections, <code>/clear</code> and rewrite a better initial prompt incorporating learnings</td></tr>
+<tr><td><strong>Over-specified CLAUDE.md</strong></td><td>Long file → important rules get lost in noise → Claude ignores them</td><td>Ruthlessly prune. If Claude already does it correctly without instruction, delete it or convert to a hook</td></tr>
+<tr><td><strong>Trust-then-verify gap</strong></td><td>Plausible-looking implementation that doesn&#39;t handle edge cases</td><td>Always provide verification (tests, scripts, screenshots). If you can&#39;t verify, don&#39;t ship</td></tr>
+<tr><td><strong>Infinite exploration</strong></td><td>&quot;Investigate this&quot; without scope → reads hundreds of files → context full</td><td>Scope investigations narrowly OR use subagents (separate context window)</td></tr>
+</tbody>
+</table></div>
+<p><strong>Boris-specific warnings (synthesized):</strong></p>
+<ul>
+<li>Don&#39;t use <code>--dangerously-skip-permissions</code> — use <code>/permissions</code> allowlist instead. [1]</li>
+<li>Don&#39;t manually re-run a check on a timer — use <code>/loop</code>. [9]</li>
+<li>Don&#39;t review your own plan — spawn a peer Claude as staff engineer. [6]</li>
+<li>Don&#39;t share main tree across parallel agents — use worktrees. [3]</li>
+<li>Don&#39;t bake domain knowledge into CLAUDE.md if it&#39;s only sometimes relevant — use skills. [2]</li>
+</ul>
+<p><strong>PRISM-specific warnings (from H:/prism/CLAUDE.md):</strong></p>
+<ul>
+<li>Don&#39;t inline physics constants — import from <code>mcp-server/src/physics/constants.ts</code>.</li>
+<li>Don&#39;t create stub engines — <code>comprehensive-build-enforce</code> hook blocks placeholders.</li>
+<li>Don&#39;t soften gates — never disable HARD BLOCK hooks.</li>
+<li>Don&#39;t write to legacy singular <code>state/HANDOFF.md</code> — always per-agent.</li>
+</ul>
+<hr>
+<h2 id="16-sources"><a class="anchor" href="#16-sources" aria-label="Permalink to 16. Sources">#</a>16. Sources</h2>
+<ol>
+<li><a href="https://howborisusesclaudecode.com/" rel="noopener noreferrer">How Boris Uses Claude Code (canonical first-party)</a></li>
+<li><a href="https://code.claude.com/docs/en/best-practices" rel="noopener noreferrer">Best Practices for Claude Code (Anthropic official docs)</a></li>
+<li><a href="https://www.threads.com/@boris_cherny/post/DVAAnexgRUj/" rel="noopener noreferrer">@boris_cherny on Threads — built-in worktree announcement</a></li>
+<li><a href="https://www.claudedirectory.org/blog/claude-code-worktrees-guide" rel="noopener noreferrer">Claude Code Worktrees Guide 2026 (Claude Directory)</a></li>
+<li><a href="https://www.baristalabs.io/blog/claude-code-simplify-batch-skills" rel="noopener noreferrer">Claude Code /simplify and /batch — BaristaLabs</a></li>
+<li><a href="https://www.anup.io/35-claude-code-tips-from-the-guy-who-built-it/" rel="noopener noreferrer">35 Claude Code Tips From the Guy Who Built It — anup.io</a></li>
+<li><a href="https://www.anthropic.com/engineering/multi-agent-research-system" rel="noopener noreferrer">Anthropic Engineering: How we built our multi-agent research system</a></li>
+<li><a href="https://newsletter.pragmaticengineer.com/p/building-claude-code-with-boris-cherny" rel="noopener noreferrer">Building Claude Code with Boris Cherny — Pragmatic Engineer</a></li>
+<li><a href="https://www.threads.com/@boris_cherny/post/DVk4eGHFaRn/" rel="noopener noreferrer">@boris_cherny on Threads — /loop announcement</a></li>
+<li><a href="https://code.claude.com/docs/en/scheduled-tasks" rel="noopener noreferrer">Run Prompts on a Schedule (Claude Code official docs)</a></li>
+<li><a href="https://www.threads.com/@boris_cherny/post/DXM_ATcD8QP/" rel="noopener noreferrer">@boris_cherny on Threads — /go composite</a></li>
+<li><a href="https://code.claude.com/docs/en/sub-agents" rel="noopener noreferrer">Create Custom Subagents (Claude Code official docs)</a></li>
+<li><a href="https://www.anthropic.com/research/building-effective-agents" rel="noopener noreferrer">Anthropic Research: Building Effective Agents</a></li>
+<li><a href="https://claudefa.st/blog/guide/development/task-management" rel="noopener noreferrer">Claude Code Task Management — claudefa.st</a></li>
+<li><a href="https://claudefa.st/blog/tools/hooks/hooks-guide" rel="noopener noreferrer">Claude Code Hooks Guide (claudefa.st)</a></li>
+<li><a href="https://karpathy.bearblog.dev/sequoia-ascent-2026/" rel="noopener noreferrer">Andrej Karpathy&#39;s notes on agentic coding (Sequoia Ascent 2026)</a></li>
+<li><a href="https://pasqualepillitteri.it/en/news/1872/karpathy-claude-md-trending-github-llm-coding" rel="noopener noreferrer">Karpathy CLAUDE.md trending #1 on GitHub — Pillitteri</a></li>
+<li><a href="https://www.thetoolnerd.com/p/step-by-step-guide-build-your-own-second-brain-obsidian-kaparthy" rel="noopener noreferrer">Karpathy LLM-Wiki guide — TheToolNerd</a></li>
+<li><a href="https://getpushtoprod.substack.com/p/how-the-creator-of-claude-code-actually" rel="noopener noreferrer">How the Creator of Claude Code Actually Uses Claude Code — getpushtoprod</a></li>
+<li><a href="https://www.latent.space/p/claude-code" rel="noopener noreferrer">Claude Code: Anthropic&#39;s Agent in Your Terminal — Latent Space</a></li>
+<li><a href="https://www.lennysnewsletter.com/p/head-of-claude-code-what-happens" rel="noopener noreferrer">Head of Claude Code: What happens after coding is solved — Lenny&#39;s Newsletter</a></li>
+<li><a href="https://claudefa.st/blog/guide/development/worktree-guide" rel="noopener noreferrer">Claude Code Worktrees: Parallel Sessions Without Conflicts — claudefa.st</a></li>
+<li><code>H:/prism/state/shared/specs/BORIS-LOOP-AGENT-DOCTRINE.md</code> — PRISM canonical doctrine (cross-reference, do not duplicate)</li>
+<li><code>H:/prism/CLAUDE.md</code> — PRISM project enforcement gates (current state)</li>
+<li><code>~/.claude/CLAUDE.md</code> — PRISM user-global playbook (RTK + token economy)</li>
+</ol>
+<hr>
+<p><strong>End of card.</strong> Pick this up via <code>H:/prism/state/shared/research/2026-05-10-boris-patterns.md</code>. Orchestrator should now map each item in §14 to existing or new milestone units and compute the tier-floor delta against <code>MILESTONE_PROGRESS.json</code>.</p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="2026-05-10-boris-patterns.md">2026-05-10-boris-patterns.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

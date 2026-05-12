@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="9fee90d53f928de5a106f27c7ed745237d64640b03762b589ec72fe497653e32">
+<title>AUTO-LEARNING-LOOP-MS0</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">AUTO-LEARNING-LOOP-MS0</h1>
+<p class="provenance">Generated 2026-05-12T12:43:27.258Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#auto-learning-loop-ms0-atomized">AUTO-LEARNING-LOOP-MS0 — atomized</a></li>
+<li class="toc-l2"><a href="#u-all01-build-reputablesourcemonitorengine-multi-source-poller">U-ALL01 — Build ReputableSourceMonitorEngine (multi-source poller)</a></li>
+<li class="toc-l2"><a href="#u-all02-build-noveltydetectionengine-diff-vs-catalog">U-ALL02 — Build NoveltyDetectionEngine (diff vs catalog)</a></li>
+<li class="toc-l2"><a href="#u-all03-build-autoresearchorchestratorengine-rate-limited-dispatch">U-ALL03 — Build AutoResearchOrchestratorEngine (rate-limited dispatch)</a></li>
+<li class="toc-l2"><a href="#u-all04-build-synergyclassifierengine-highmedlownone-decision">U-ALL04 — Build SynergyClassifierEngine (high/med/low/none decision)</a></li>
+<li class="toc-l2"><a href="#u-all05-build-vizautoaugmentationengine-emit-augmentation-file">U-ALL05 — Build VizAutoAugmentationEngine (emit augmentation file)</a></li>
+<li class="toc-l2"><a href="#u-all06-build-roadmapautoappendengine-high-synergy-u-autores-xx">U-ALL06 — Build RoadmapAutoAppendEngine (high-synergy → U-AUTORES-XX)</a></li>
+<li class="toc-l2"><a href="#u-all07u-all08-wire-6-auto-learning-actions">U-ALL07..U-ALL08 — Wire 6 auto-learning actions</a></li>
+<li class="toc-l2"><a href="#u-all09-cron-registration-6-entries">U-ALL09 — Cron registration: 6 entries</a></li>
+<li class="toc-l2"><a href="#u-all10-human-in-loop-weekly-review-surface">U-ALL10 — Human-in-loop weekly review surface</a></li>
+<li class="toc-l2"><a href="#u-all11-token-budget-guard-12day-20day">U-ALL11 — Token-budget guard (12/day, $20/day)</a></li>
+<li class="toc-l2"><a href="#u-all12-source-poisoning-sanitizer-allowlist-content-hash">U-ALL12 — Source-poisoning sanitizer (allowlist + content-hash)</a></li>
+<li class="toc-l2"><a href="#x-closing-notes">§X — Closing notes</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<details class="frontmatter" open><summary>Document metadata</summary><div class="table-wrap"><table>
+<tbody>
+<tr><th scope="row">milestone</th><td>AUTO-LEARNING-LOOP-MS0</td></tr>
+<tr><th scope="row">parent_roadmap</th><td>BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-2026-05-10.md</td></tr>
+<tr><th scope="row">research_source</th><td>state/shared/research/2026-05-10-pass2-* (synthesized) + user directive</td></tr>
+<tr><th scope="row">total_units</th><td>12</td></tr>
+<tr><th scope="row">critical_path_role</th><td>continuous self-improvement loop — monitor reputable sources, detect novelty, auto-research, classify synergy, auto-augment viz + roadmap</td></tr>
+<tr><th scope="row">loop_registrations</th><td>8 (6 cron + 2 /loop)</td></tr>
+<tr><th scope="row">date</th><td>2026-05-10</td></tr>
+</tbody>
+</table></div></details>
+<h1 id="auto-learning-loop-ms0-atomized"><a class="anchor" href="#auto-learning-loop-ms0-atomized" aria-label="Permalink to AUTO-LEARNING-LOOP-MS0 — atomized">#</a>AUTO-LEARNING-LOOP-MS0 — atomized</h1>
+<blockquote>
+<p>User directive (Phase-6): &quot;we need an auto feature that monitors reputable sources multiple times a day so our system automatically does deep research and decides if and how we can utilize new features to our system and synergize it automatically and auto add it to the system-viz feature.&quot;</p>
+</blockquote>
+<hr>
+<h2 id="u-all01-build-reputablesourcemonitorengine-multi-source-poller"><a class="anchor" href="#u-all01-build-reputablesourcemonitorengine-multi-source-poller" aria-label="Permalink to U-ALL01 — Build ReputableSourceMonitorEngine (multi-source poller)">#</a>U-ALL01 — Build <code>ReputableSourceMonitorEngine</code> (multi-source poller)</h2>
+<ul>
+<li>pillar: auto-learn</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 88</li>
+<li>leverage_score: 14</li>
+<li>why: foundation — without source ingest nothing flows</li>
+<li>depends_on: []</li>
+<li>blocks: [U-ALL02, U-ALL07]</li>
+<li>parallel_with: [U-ALL04 (classifier dev)]</li>
+<li>viz_node_id: <code>eng.knowledge.reputablesourcemonitorengine</code> (TBD-create)</li>
+<li>closes_synergy_edge: external × system (currently none)</li>
+<li>loop_schedule: 4h cron</li>
+</ul>
+<p>verifies_via:   channel: integration   tool: <code>node scripts/source-monitor-sweep.mjs --once</code>   expected_signal: ≥1 new item logged from each of 10 sources   re_run_cost: 2min full sweep   baseline: no external polling</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Write path: <code>mcp-server/src/engines/ReputableSourceMonitorEngine.ts</code> action: 10-source list (arXiv RSS, Anthropic blog RSS, HF Papers, GitHub releases, HN, X via RSSHub, Cloudflare changelog, LangChain blog, Moonshot, arXiv cs.MA); per-source ETag/conditional GET; exponential backoff verify: file exists</li>
+<li>step-2: tool: Write path: <code>mcp-server/src/__tests__/ReputableSourceMonitorEngine.test.ts</code> action: 7 tests — happy (arXiv), 429 backoff, malformed RSS, redirect loop, 50MB payload guard, ETag-honored, source-list config verify: 7 passed</li>
+<li>step-3: tool: Write path: <code>scripts/source-monitor-sweep.mjs</code> action: CLI — calls engine, writes <code>state/shared/source-monitor-log.jsonl</code> verify: script runs</li>
+<li>step-4: tool: Bash path: <code>H:/prism/</code> action: register cron <code>7 */4 * * *</code> (4h, off-minute) verify: cron entry persists</li>
+<li>step-5: tool: Edit path: <code>mcp-server/src/tools/dispatchers/devDispatcher.ts</code> action: wire <code>source_sweep</code> action verify: round-trip MCP</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>source-poisoning: feed serves malicious content</li>
+<li>MITM-replaced response (no TLS pin)</li>
+<li>source returns infinite XML</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>RSS / Atom / JSON API / scrape (4 ingest types)</li>
+<li>1 / 10 / 100 items per source</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>source unreachable → log, retry on next cron, alarm if 3 consecutive fails</li>
+<li>rate-limit → exponential backoff (1m/5m/30m/2h)</li>
+<li>malformed feed → quarantine + log</li>
+</ul>
+<hr>
+<h2 id="u-all02-build-noveltydetectionengine-diff-vs-catalog"><a class="anchor" href="#u-all02-build-noveltydetectionengine-diff-vs-catalog" aria-label="Permalink to U-ALL02 — Build NoveltyDetectionEngine (diff vs catalog)">#</a>U-ALL02 — Build <code>NoveltyDetectionEngine</code> (diff vs catalog)</h2>
+<ul>
+<li>pillar: auto-learn</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 85</li>
+<li>leverage_score: 13</li>
+<li>why: filter known-from-novel so we only research what&#39;s actually new</li>
+<li>depends_on: [U-ALL01]</li>
+<li>blocks: [U-ALL03]</li>
+<li>parallel_with: [U-ALL04]</li>
+<li>viz_node_id: <code>eng.knowledge.noveltydetectionengine</code> (TBD-create)</li>
+<li>closes_synergy_edge: external × dedup</li>
+<li>loop_schedule: 30min cron</li>
+</ul>
+<p>verifies_via:   channel: test   tool: inject 5 known + 5 new → assert 5 flagged novel   expected_signal: precision=1, recall=1 on synthetic test   re_run_cost: 2s   baseline: nonexistent</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Write path: <code>mcp-server/src/engines/NoveltyDetectionEngine.ts</code> action: load <code>state/shared/system-viz/novelty-catalog.json</code> (currently empty); cosine-embed new vs known; threshold = 0.92 → known verify: file exists</li>
+<li>step-2: tool: Write path: <code>mcp-server/src/__tests__/NoveltyDetectionEngine.test.ts</code> action: 5 tests — exact-dup detected, near-dup (1 word diff), truly-novel, empty input, catalog corrupt verify: 5 passed</li>
+<li>step-3: tool: Bash path: <code>H:/prism/</code> action: register cron <code>*/30 * * * *</code> verify: cron entry</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>paraphrased dup (semantic identical, lexical different)</li>
+<li>identical content, different timestamp</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>0% / 50% / 100% novelty in batch</li>
+<li>1 / 100 / 10000 catalog entries</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>embedding service down → fall back to Jaccard token overlap</li>
+<li>catalog corrupt → load <code>.previous.json</code> backup</li>
+<li>threshold drift → 7d adaptive retune</li>
+</ul>
+<hr>
+<h2 id="u-all03-build-autoresearchorchestratorengine-rate-limited-dispatch"><a class="anchor" href="#u-all03-build-autoresearchorchestratorengine-rate-limited-dispatch" aria-label="Permalink to U-ALL03 — Build AutoResearchOrchestratorEngine (rate-limited dispatch)">#</a>U-ALL03 — Build <code>AutoResearchOrchestratorEngine</code> (rate-limited dispatch)</h2>
+<ul>
+<li>pillar: auto-learn</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 82</li>
+<li>leverage_score: 13</li>
+<li>why: dispatching unlimited researcher subagents → token explosion; cap at 3 concurrent / 12 per day</li>
+<li>depends_on: [U-ALL02]</li>
+<li>blocks: [U-ALL04]</li>
+<li>parallel_with: [U-ALL05]</li>
+<li>viz_node_id: <code>eng.ai.autoresearchorchestratorengine</code> (TBD-create)</li>
+<li>closes_synergy_edge: subagents × cron</li>
+<li>loop_schedule: 1h cron</li>
+</ul>
+<p>verifies_via:   channel: integration   tool: queue 5 novel items → assert max 3 concurrent, rest queued   expected_signal: dispatch log shows respected limit   re_run_cost: 3min   baseline: no orchestrator</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Write path: <code>mcp-server/src/engines/AutoResearchOrchestratorEngine.ts</code> action: queue + semaphore (max 3 concurrent), day-budget counter (12), canned rubric for researcher subagent verify: file exists</li>
+<li>step-2: tool: Write path: <code>mcp-server/src/__tests__/AutoResearchOrchestratorEngine.test.ts</code> action: 6 tests — queue 1/3/10, day-budget exhausted, subagent timeout, subagent crash, queue persistence across restart verify: 6 passed</li>
+<li>step-3: tool: Bash path: <code>H:/prism/</code> action: register cron <code>13 * * * *</code> (hourly, off-minute) for flush verify: cron entry</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>subagent prompt-injected by source content</li>
+<li>queue starvation (always full)</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>1 / 3 / 10 concurrent caps</li>
+<li>1 / 12 / 100 daily caps</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>subagent timeout (&gt;15min) → kill + log + retry next cycle</li>
+<li>day-budget hit → defer to tomorrow&#39;s quota</li>
+<li>prompt-injection → sanitize source content before dispatch</li>
+</ul>
+<hr>
+<h2 id="u-all04-build-synergyclassifierengine-highmedlownone-decision"><a class="anchor" href="#u-all04-build-synergyclassifierengine-highmedlownone-decision" aria-label="Permalink to U-ALL04 — Build SynergyClassifierEngine (high/med/low/none decision)">#</a>U-ALL04 — Build <code>SynergyClassifierEngine</code> (high/med/low/none decision)</h2>
+<ul>
+<li>pillar: auto-learn</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 80</li>
+<li>leverage_score: 13</li>
+<li>why: the auto-decide brain — score research output for PRISM fit</li>
+<li>depends_on: [U-ALL03]</li>
+<li>blocks: [U-ALL05, U-ALL06]</li>
+<li>parallel_with: []</li>
+<li>viz_node_id: <code>eng.ai.synergyclassifierengine</code> (TBD-create)</li>
+<li>closes_synergy_edge: ai × dedup</li>
+<li>loop_schedule: 15min cron</li>
+</ul>
+<p>verifies_via:   channel: eval   tool: 20 fixed research-output samples → classify → compare to ground truth   expected_signal: accuracy ≥ 80%   re_run_cost: 30s   baseline: nonexistent</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Write path: <code>mcp-server/src/engines/SynergyClassifierEngine.ts</code> action: compute features (semantic_match, novelty_strength, duplication_risk, ai_priority_score, effort_estimate, blast_radius); decision tree → high/med/low/none verify: file exists</li>
+<li>step-2: tool: Write path: <code>mcp-server/src/__tests__/SynergyClassifierEngine.test.ts</code> action: 7 tests — high fit, med fit, low fit, none, duplicate-risk veto, NaN feature, missing field verify: 7 passed</li>
+<li>step-3: tool: Write path: <code>state/shared/auto-learning/synergy-classifier-rubric.json</code> action: thresholds (0.65 high, 0.45 med, 0.25 low); adaptive-tunable verify: file exists</li>
+<li>step-4: tool: Bash path: <code>H:/prism/</code> action: register cron <code>*/15 * * * *</code> verify: cron entry</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>feature NaN poisons score</li>
+<li>contradictory features (high novelty + high duplication)</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>manufacturing / AI / dev-tools / safety domains</li>
+<li>high / med / low / none decision boundaries</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>feature compute error → conservative: classify &quot;none&quot;</li>
+<li>threshold mistuned → weekly retune</li>
+<li>duplicate-check false-positive → maintainer override</li>
+</ul>
+<hr>
+<h2 id="u-all05-build-vizautoaugmentationengine-emit-augmentation-file"><a class="anchor" href="#u-all05-build-vizautoaugmentationengine-emit-augmentation-file" aria-label="Permalink to U-ALL05 — Build VizAutoAugmentationEngine (emit augmentation file)">#</a>U-ALL05 — Build <code>VizAutoAugmentationEngine</code> (emit augmentation file)</h2>
+<ul>
+<li>pillar: auto-learn</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 75</li>
+<li>leverage_score: 12</li>
+<li>why: high/med synergy → add nodes to system-viz; main graph reads only confidence&gt;0.8</li>
+<li>depends_on: [U-ALL04]</li>
+<li>blocks: [U-ALL07, U-ALL08]</li>
+<li>parallel_with: [U-ALL06]</li>
+<li>viz_node_id: <code>eng.system.vizautoaugmentationengine</code> (TBD-create)</li>
+<li>closes_synergy_edge: system-viz × auto-learn</li>
+<li>loop_schedule: 1h cron</li>
+</ul>
+<p>verifies_via:   channel: integration   tool: trigger 1 high-synergy classification → assert new viz node appears   expected_signal: <code>state/shared/system-viz/auto-research-augmentation.json</code> updated   re_run_cost: 5s   baseline: nonexistent</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Write path: <code>mcp-server/src/engines/VizAutoAugmentationEngine.ts</code> action: for each high/med synergy: emit <code>{nodes:[{id,type,label,confidence}],edges:[{from,to,kind}]}</code> to augmentation file verify: file exists</li>
+<li>step-2: tool: Edit path: <code>scripts/merge-augmentations.mjs</code> action: NOTE — peer-claimed by claude-0413eca6; coordinate before edit. Just register new augmentation input file in their merger verify: defer to chat-bus</li>
+<li>step-3: tool: Write path: <code>mcp-server/src/__tests__/VizAutoAugmentationEngine.test.ts</code> action: 5 tests — emit happy, schema-compat, node-id collision, edge to nonexistent, confidence filter verify: 5 passed</li>
+<li>step-4: tool: Bash path: <code>H:/prism/</code> action: register cron <code>27 * * * *</code> verify: cron entry</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>schema-incompatible augmentation</li>
+<li>10k new nodes (graph explosion)</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>1 / 10 / 100 new nodes per cycle</li>
+<li>confidence 0.5 / 0.8 / 0.95 thresholds</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>merger script edited by peer → coord via chat-bus</li>
+<li>node-id collision → suffix with auto-research-prefix</li>
+<li>graph oversize → main graph reads only confidence&gt;0.8</li>
+</ul>
+<hr>
+<h2 id="u-all06-build-roadmapautoappendengine-high-synergy-u-autores-xx"><a class="anchor" href="#u-all06-build-roadmapautoappendengine-high-synergy-u-autores-xx" aria-label="Permalink to U-ALL06 — Build RoadmapAutoAppendEngine (high-synergy → U-AUTORES-XX)">#</a>U-ALL06 — Build <code>RoadmapAutoAppendEngine</code> (high-synergy → U-AUTORES-XX)</h2>
+<ul>
+<li>pillar: auto-learn</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 72</li>
+<li>leverage_score: 12</li>
+<li>why: high-synergy items should become roadmap units automatically</li>
+<li>depends_on: [U-ALL04]</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-ALL05]</li>
+<li>viz_node_id: <code>eng.knowledge.roadmapautoappendengine</code> (TBD-create)</li>
+<li>closes_synergy_edge: roadmap × auto-learn</li>
+<li>loop_schedule: none (triggered by classifier)</li>
+</ul>
+<p>verifies_via:   channel: integration   tool: trigger 1 high-synergy → assert unit appended to active roadmap   expected_signal: <code>BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-*.md</code> ends with new U-AUTORES-XX unit   re_run_cost: 10s   baseline: nonexistent</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Write path: <code>mcp-server/src/engines/RoadmapAutoAppendEngine.ts</code> action: read high-synergy classification → generate atomization YAML (§9 template) → append to active roadmap verify: file exists</li>
+<li>step-2: tool: Write path: <code>mcp-server/src/__tests__/RoadmapAutoAppendEngine.test.ts</code> action: 5 tests — append happy, malformed roadmap, peer-claim (skip), unit-id collision, oversized roadmap verify: 5 passed</li>
+<li>step-3: tool: Write path: <code>state/shared/auto-learning/append-rate-limit.json</code> action: 2/milestone unless ≥3 corroborating sources verify: file exists</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>100 high-synergy in 1h → spam</li>
+<li>peer-claim race (lockfile pattern)</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>1 / 2 / 5 appends per milestone</li>
+<li>single-source / multi-source corroboration</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>file-claim conflict → use <code>prism_context:claim_file</code> before write</li>
+<li>append rate-limited → queue for next milestone</li>
+<li>malformed unit YAML → reject + log</li>
+</ul>
+<hr>
+<h2 id="u-all07u-all08-wire-6-auto-learning-actions"><a class="anchor" href="#u-all07u-all08-wire-6-auto-learning-actions" aria-label="Permalink to U-ALL07..U-ALL08 — Wire 6 auto-learning actions">#</a>U-ALL07..U-ALL08 — Wire 6 auto-learning actions</h2>
+<ul>
+<li>pillar: auto-learn</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 63</li>
+<li>leverage_score: 10</li>
+<li>why: MCP exposure so chats can manually trigger any phase</li>
+<li>depends_on: [U-ALL01..U-ALL06]</li>
+<li>blocks: []</li>
+<li>parallel_with: []</li>
+<li>viz_node_id: <code>disp.devdispatcher</code> + <code>disp.aireasoningdispatcher</code></li>
+<li>closes_synergy_edge: dispatchers × auto-learn</li>
+<li>loop_schedule: none</li>
+</ul>
+<p>verifies_via:   channel: integration   tool: round-trip 6 MCP actions   expected_signal: all 6 return 200   re_run_cost: 30s   baseline: nonexistent</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Edit path: <code>mcp-server/src/schemas/devActionSchemas.ts</code> action: add <code>source_sweep</code> schema verify: TS compiles</li>
+<li>step-2: tool: Edit path: <code>mcp-server/src/tools/dispatchers/devDispatcher.ts</code> action: wire <code>source_sweep</code> with lazy ReputableSourceMonitorEngine import verify: round-trip</li>
+<li>step-3: tool: Edit path: <code>mcp-server/src/schemas/aiReasoningActionSchemas.ts</code> action: add 5 schemas — <code>novelty_detect</code>, <code>auto_research_dispatch</code>, <code>synergy_classify</code>, <code>viz_augment</code>, <code>roadmap_append</code> verify: TS compiles</li>
+<li>step-4: tool: Edit path: <code>mcp-server/src/tools/dispatchers/aiReasoningDispatcher.ts</code> action: wire 5 actions verify: round-trip MCP each</li>
+</ul>
+<p>adversarial_cases: see per-engine specs</p>
+<p>variability_axis: see per-engine specs</p>
+<p>failure_modes: per-engine + dispatcher-level: bad schema → 400; engine throw → 500 with structured error</p>
+<hr>
+<h2 id="u-all09-cron-registration-6-entries"><a class="anchor" href="#u-all09-cron-registration-6-entries" aria-label="Permalink to U-ALL09 — Cron registration: 6 entries">#</a>U-ALL09 — Cron registration: 6 entries</h2>
+<ul>
+<li>pillar: auto-learn</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 60</li>
+<li>leverage_score: 10</li>
+<li>why: makes the loop run unattended</li>
+<li>depends_on: [U-ALL07, U-ALL08]</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-ALL10, U-ALL11, U-ALL12]</li>
+<li>viz_node_id: <code>core.cron.autolearningfleet</code> (TBD-add)</li>
+<li>closes_synergy_edge: cron × auto-learn</li>
+<li>loop_schedule: see entries</li>
+</ul>
+<p>verifies_via:   channel: test   tool: <code>cat .claude/cron-registry.json</code>   expected_signal: 6 entries with auto-learning prefix   re_run_cost: 1s   baseline: 0 entries</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: register <code>7 */4 * * *</code> source sweep (already in U-ALL01)</li>
+<li>step-2: register <code>*/30 * * * *</code> novelty scan (U-ALL02)</li>
+<li>step-3: register <code>13 * * * *</code> research flush (U-ALL03)</li>
+<li>step-4: register <code>*/15 * * * *</code> synergy classify (U-ALL04)</li>
+<li>step-5: register <code>27 * * * *</code> viz augment (U-ALL05)</li>
+<li>step-6: register <code>3 9 * * *</code> daily digest (push to user + chat-bus) verify: 6 entries with off-minute timings</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>cron overlap (next fires before prev done)</li>
+<li>daylight-savings drift</li>
+</ul>
+<p>variability_axis: cadence × business-hours / always-on</p>
+<p>failure_modes:</p>
+<ul>
+<li>overlap → file-lock on shared state</li>
+<li>DST drift → use UTC internally</li>
+<li>cron service down → systemd watchdog</li>
+</ul>
+<hr>
+<h2 id="u-all10-human-in-loop-weekly-review-surface"><a class="anchor" href="#u-all10-human-in-loop-weekly-review-surface" aria-label="Permalink to U-ALL10 — Human-in-loop weekly review surface">#</a>U-ALL10 — Human-in-loop weekly review surface</h2>
+<ul>
+<li>pillar: auto-learn</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 58</li>
+<li>leverage_score: 9</li>
+<li>why: fully autonomous = drift risk; weekly review catches false positives</li>
+<li>depends_on: [U-ALL06]</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-ALL09, U-ALL11, U-ALL12]</li>
+<li>viz_node_id: <code>fs.deep.state.shared.f.auto-research-pending-jsonl</code> (TBD)</li>
+<li>closes_synergy_edge: human × auto-learn</li>
+<li>loop_schedule: 7d /loop</li>
+</ul>
+<p>verifies_via:   channel: render   tool: open <code>state/shared/auto-learning/AUTO-RESEARCH-WEEKLY-DIGEST.md</code>   expected_signal: list of pending items with approve/reject UI   re_run_cost: 1s   baseline: nonexistent</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Write path: <code>scripts/auto-research-weekly-digest.mjs</code> action: read <code>state/shared/auto-learning/auto-research-pending.jsonl</code> → markdown digest verify: script runs</li>
+<li>step-2: tool: Bash path: <code>H:/prism/</code> action: register <code>/loop --interval 7d --max 12</code> verify: loop entry</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>digest &gt; context limit</li>
+<li>approve/reject UI ambiguous</li>
+</ul>
+<p>variability_axis: 1 / 10 / 100 pending items</p>
+<p>failure_modes:</p>
+<ul>
+<li>digest huge → paginate</li>
+<li>user-input lost → keep until explicit reject</li>
+<li>week-old pending → escalate to alarm</li>
+</ul>
+<hr>
+<h2 id="u-all11-token-budget-guard-12day-20day"><a class="anchor" href="#u-all11-token-budget-guard-12day-20day" aria-label="Permalink to U-ALL11 — Token-budget guard (12/day, $20/day)">#</a>U-ALL11 — Token-budget guard (12/day, $20/day)</h2>
+<ul>
+<li>pillar: auto-learn</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 55</li>
+<li>leverage_score: 9</li>
+<li>why: research dispatches can blow budget; hard cap + defer</li>
+<li>depends_on: [U-ALL03]</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-ALL09, U-ALL10, U-ALL12]</li>
+<li>viz_node_id: <code>core.hooks.autolearnbudgetguard</code> (TBD-create)</li>
+<li>closes_synergy_edge: cost × auto-learn</li>
+<li>loop_schedule: none</li>
+</ul>
+<p>verifies_via:   channel: integration   tool: simulate 13 dispatches → assert 13th deferred   expected_signal: 13th returns &quot;budget exhausted, deferred to tomorrow&quot;   re_run_cost: 5s   baseline: no cap</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Write path: <code>.claude/hooks/auto-learn-budget-guard.mjs</code> action: pre-dispatch hook — read daily counter, deny if ≥12 or cost ≥$20 verify: hook runs</li>
+<li>step-2: tool: Edit path: <code>.claude/settings.json</code> action: register verify: parse clean</li>
+<li>step-3: tool: Write path: <code>.claude/hooks/__tests__/auto-learn-budget-guard.test.mjs</code> action: 5 tests — under-cap, at-cap, over-cap, cost-cap, counter reset at UTC midnight verify: 5 passed</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>counter reset bypass via clock manipulation</li>
+<li>budget exhaustion mid-dispatch</li>
+</ul>
+<p>variability_axis: 1 / 12 / 100 daily caps; $5 / $20 / $50 cost caps</p>
+<p>failure_modes:</p>
+<ul>
+<li>counter corrupt → reset to 0 + warn</li>
+<li>mid-dispatch overflow → finish current, defer next</li>
+<li>false-positive defer → maintainer override</li>
+</ul>
+<hr>
+<h2 id="u-all12-source-poisoning-sanitizer-allowlist-content-hash"><a class="anchor" href="#u-all12-source-poisoning-sanitizer-allowlist-content-hash" aria-label="Permalink to U-ALL12 — Source-poisoning sanitizer (allowlist + content-hash)">#</a>U-ALL12 — Source-poisoning sanitizer (allowlist + content-hash)</h2>
+<ul>
+<li>pillar: auto-learn</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 50</li>
+<li>leverage_score: 9</li>
+<li>why: malicious feed → poisoned research → corrupted roadmap; sanitize early</li>
+<li>depends_on: [U-ALL01]</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-ALL09, U-ALL10, U-ALL11]</li>
+<li>viz_node_id: <code>eng.knowledge.sourcepoisoningsanitizerengine</code> (TBD-create)</li>
+<li>closes_synergy_edge: security × auto-learn</li>
+<li>loop_schedule: none</li>
+</ul>
+<p>verifies_via:   channel: test   tool: feed malformed/malicious content → assert quarantined   expected_signal: item in <code>state/shared/auto-learning/quarantine.jsonl</code>   re_run_cost: 1s   baseline: nonexistent</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Write path: <code>mcp-server/src/engines/SourcePoisoningSanitizerEngine.ts</code> action: per-source allowlist; content-hash signing for trusted; reject malformed XML/HTML verify: file exists</li>
+<li>step-2: tool: Write path: <code>state/shared/auto-learning/source-allowlist.json</code> action: 10 sources with public-key fingerprints verify: file exists</li>
+<li>step-3: tool: Write path: <code>mcp-server/src/__tests__/SourcePoisoningSanitizerEngine.test.ts</code> action: 6 tests — clean source, untrusted source, hash mismatch, malformed XML, prompt-injection in body, oversized verify: 6 passed</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>prompt-injection in feed item body</li>
+<li>bait-and-switch (trusted source serves untrusted content)</li>
+<li>timing attack on cache</li>
+</ul>
+<p>variability_axis: trusted / untrusted / mixed source mix</p>
+<p>failure_modes:</p>
+<ul>
+<li>allowlist stale → flag for review</li>
+<li>hash service down → fall back to schema check</li>
+<li>false positive on edge cases → maintainer escape hatch</li>
+</ul>
+<hr>
+<h2 id="x-closing-notes"><a class="anchor" href="#x-closing-notes" aria-label="Permalink to §X — Closing notes">#</a>§X — Closing notes</h2>
+<p><strong>Critical-path:</strong> U-ALL01 → U-ALL02 → U-ALL03 → U-ALL04 (sequential foundation). U-ALL05/U-ALL06 parallel after U-ALL04. U-ALL07-12 wiring + safety in parallel.</p>
+<p><strong>Cron registrations (6):</strong> all from U-ALL09.</p>
+<p><strong>/loop registrations (2):</strong> U-ALL10 weekly review, source-list audit monthly.</p>
+<p><strong>Synergy edges closed:</strong> 8 (external × system, external × dedup, subagents × cron, ai × dedup, system-viz × auto-learn, roadmap × auto-learn, dispatchers × auto-learn, cron × auto-learn, human × auto-learn, cost × auto-learn, security × auto-learn).</p>
+<p><strong>This pillar IS the system&#39;s self-improvement engine.</strong> Once it&#39;s running, the roadmap grows on its own.</p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="BACKEND-DEVTOOLS-RGS6-AUTO-LEARNING-LOOP-MS0-ATOMIZED-2026-05-10.md">BACKEND-DEVTOOLS-RGS6-AUTO-LEARNING-LOOP-MS0-ATOMIZED-2026-05-10.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

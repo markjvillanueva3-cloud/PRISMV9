@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="d59921febf166ae69ada944b1678539bc6a36b459066a191d9aafdb5d148bd43">
+<title>Graph-as-LLM-Context — Research Pass 2</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">Graph-as-LLM-Context — Research Pass 2</h1>
+<p class="provenance">Generated 2026-05-12T12:43:26.505Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#1-why-this-matters-for-prism">§1 — Why this matters for PRISM</a></li>
+<li class="toc-l1"><a href="#2-reputable-papers-docs-urls-verified">§2 — Reputable papers + docs (URLs verified)</a></li>
+<li class="toc-l2"><a href="#21-graphrag-family-foundational">§2.1 — GraphRAG family (foundational)</a></li>
+<li class="toc-l2"><a href="#22-codebase-as-graph-for-ai-coding-the-load-bearing-arm-for-prism">§2.2 — Codebase-as-graph for AI coding (the load-bearing arm for PRISM)</a></li>
+<li class="toc-l2"><a href="#23-knowledge-graph-llm-agent-toolchains">§2.3 — Knowledge-graph + LLM agent toolchains</a></li>
+<li class="toc-l2"><a href="#24-visualization-as-shared-context-the-spatial-ui-thesis">§2.4 — Visualization-as-shared-context (the spatial-UI thesis)</a></li>
+<li class="toc-l1"><a href="#3-x-twitter-highlights-verbatim-quotes-urls">§3 — X / Twitter highlights (verbatim quotes + URLs)</a></li>
+<li class="toc-l1"><a href="#4-concrete-prism-unit-proposals">§4 — Concrete PRISM unit proposals</a></li>
+<li class="toc-l2"><a href="#u-gac01-system-viz-mcp-query-adapter">U-GAC01: system-viz MCP query adapter</a></li>
+<li class="toc-l2"><a href="#u-gac02-viznodeid-stamps-on-every-artifact">U-GAC02: viznodeid stamps on every artifact</a></li>
+<li class="toc-l2"><a href="#u-gac03-agent-side-graph-context-injector-hook">U-GAC03: agent-side graph-context injector hook</a></li>
+<li class="toc-l2"><a href="#u-gac04-agent-file-claim-with-node-id-resolution">U-GAC04: agent file-claim with node-id resolution</a></li>
+<li class="toc-l2"><a href="#u-gac05-dispatcher-action-prismsessionplanwith_graph">U-GAC05: dispatcher action prismsession:planwith_graph</a></li>
+<li class="toc-l2"><a href="#u-gac06-graph-aware-stop-hook-stop-on-orphan-node">U-GAC06: graph-aware Stop hook stop-on-orphan-node</a></li>
+<li class="toc-l2"><a href="#u-gac07-viz-screenshot-tool-for-multimodal-agent-context">U-GAC07: viz screenshot tool for multimodal agent context</a></li>
+<li class="toc-l2"><a href="#u-gac08-persistent-graph-delta-log-compounding-pattern">U-GAC08: persistent graph delta log (compounding pattern)</a></li>
+<li class="toc-l1"><a href="#5-synergy-which-existing-prism-substrate-each-unit-extends">§5 — Synergy: which existing PRISM substrate each unit extends</a></li>
+<li class="toc-l1"><a href="#6-failure-modes-anti-patterns">§6 — Failure modes + anti-patterns</a></li>
+<li class="toc-l2"><a href="#verified-url-appendix">Verified-URL appendix</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<details class="frontmatter" open><summary>Document metadata</summary><div class="table-wrap"><table>
+<tbody>
+<tr><th scope="row">title</th><td>Graph-as-LLM-Context — Research Pass 2</td></tr>
+<tr><th scope="row">date</th><td>2026-05-10</td></tr>
+<tr><th scope="row">session</th><td>claude-2570c8f5</td></tr>
+<tr><th scope="row">sources_count</th><td>22</td></tr>
+<tr><th scope="row">x_posts_count</th><td>8</td></tr>
+<tr><th scope="row">researcher</th><td>claude-opus-4-7-1m</td></tr>
+<tr><th scope="row">companion</th><td>2026-05-10-karpathy-methodology.md, 2026-05-10-system-viz-tool-inventory.md</td></tr>
+<tr><th scope="row">scope</th><td>techniques to project PRISM&#39;s 11-layer / 126,441-node / 136,106-edge system-viz graph as direct LLM agent context</td></tr>
+<tr><th scope="row">verification</th><td>every URL fetched or returned by WebSearch with verbatim snippet; X URLs verified via WebSearch snippet (X.com gates direct WebFetch with 402)</td></tr>
+</tbody>
+</table></div></details>
+<h1 id="1-why-this-matters-for-prism"><a class="anchor" href="#1-why-this-matters-for-prism" aria-label="Permalink to §1 — Why this matters for PRISM">#</a>§1 — Why this matters for PRISM</h1>
+<p>PRISM already maintains the prerequisites every &quot;graph-as-context&quot; paper assumes you have to build first:</p>
+<ul>
+<li><strong>Graph artifact exists</strong>: <code>state/shared/system-viz/system-viz.html</code> (rendered from system-graph.json) plus <code>_MASTER_ENVELOPE.json</code>, ~20 augmentation JSONs, and an HTTP server (<code>_server.cjs</code>, :8765). 126,441 nodes / 136,106 edges / 11 layers covers engines + dispatchers + actions + hooks + skills + memories + schemas + files.</li>
+<li><strong>MCP surface exists</strong>: 97 dispatchers / 7,244 actions already expose every capability to agents — the &quot;graph nodes&quot; are the same surface agents already call.</li>
+<li><strong>Memory layer exists</strong>: Karpathy LLM-Wiki adopted 2026-04-27 (722 entries at <code>knowledge/wiki/index.md</code>); Qdrant memory engine wired; 4,245 tribal tips indexed.</li>
+<li><strong>Multi-agent runtime exists</strong>: ~6 concurrent Claude sessions with per-chat handoffs, file-claim guard, workboard/chat bus, conflict-fork rule.</li>
+</ul>
+<p>What pass-2 research asks: given all of this exists, <strong>which patterns from the 2024-2026 literature project a fixed-layout system graph into direct LLM agent context (a) without ballooning the prompt and (b) as a shared spatial coordinate system for the 6 concurrent chats?</strong> Three lenses: (1) GraphRAG retrieval, (2) code-graph projection for coding agents, (3) shared visual canvas as multi-agent coordination substrate.</p>
+<p>The unit proposals in §4 are deliberately scoped to <strong>wrap, not rebuild</strong> — every one extends an existing PRISM substrate rather than competing with it.</p>
+<hr>
+<h1 id="2-reputable-papers-docs-urls-verified"><a class="anchor" href="#2-reputable-papers-docs-urls-verified" aria-label="Permalink to §2 — Reputable papers + docs (URLs verified)">#</a>§2 — Reputable papers + docs (URLs verified)</h1>
+<h2 id="21-graphrag-family-foundational"><a class="anchor" href="#21-graphrag-family-foundational" aria-label="Permalink to §2.1 — GraphRAG family (foundational)">#</a>§2.1 — GraphRAG family (foundational)</h2>
+<ol>
+<li><strong>Edge et al., &quot;From Local to Global: A Graph RAG Approach to Query-Focused Summarization&quot;</strong> — arXiv:2404.16130 (submitted 2024-04-24, revised 2025-02-19). Authors: Darren Edge, Ha Trinh, Newman Cheng, Joshua Bradley, Alex Chao, Apurva Mody, Steven Truitt, Dasha Metropolitansky, Robert Osazuwa Ness, Jonathan Larson (Microsoft Research). Method: &quot;constructs an entity knowledge graph from source documents, then pregenerates community summaries for all groups of closely related entities.&quot; Two-stage: LLM builds graph index → community summaries for entity groups; at query time each community summary produces a partial response, consolidated into final answer. Demonstrated &quot;substantial improvements over a conventional RAG baseline for both the comprehensiveness and diversity of generated answers&quot; on ~1M-token corpora. URL: https://arxiv.org/abs/2404.16130</li>
+<li><strong>Microsoft Research GraphRAG project page + GitHub</strong> — official Microsoft Research project (https://www.microsoft.com/en-us/research/project/graphrag/) and modular reference implementation (https://github.com/microsoft/graphrag). Pipeline: extract → entities → relationships → community detection → summaries. Repo explicitly warns &quot;GraphRAG indexing can be an expensive operation.&quot;</li>
+<li><strong>Han et al., &quot;Retrieval-Augmented Generation with Graphs (GraphRAG)&quot; — survey</strong> — arXiv:2501.00309 (v1 2024-12-31, v2 2025-01-08). 18 authors led by Haoyu Han + Jiliang Tang. Proposes a holistic 5-component GraphRAG framework: query processor / retriever / organizer / generator / data source. Reviews domain-specific designs because &quot;graphs in different domains exhibit distinct relational patterns and require dedicated designs.&quot; URL: https://arxiv.org/abs/2501.00309</li>
+<li><strong>Peng et al., &quot;Graph Retrieval-Augmented Generation: A Survey&quot;</strong> — arXiv:2408.08921, also at ACM TOIS (https://dl.acm.org/doi/10.1145/3777378). Formalizes GraphRAG workflow as graph-based indexing + graph-guided retrieval + graph-enhanced generation. URL: https://arxiv.org/abs/2408.08921</li>
+<li><strong>Awesome-GraphRAG curation</strong> — https://github.com/DEEP-PolyU/Awesome-GraphRAG. Curated list of surveys, papers, benchmarks, and open-source projects. Useful for tracking the long tail (Graph-R1, RAKG, HybridRAG, etc.).</li>
+</ol>
+<h2 id="22-codebase-as-graph-for-ai-coding-the-load-bearing-arm-for-prism"><a class="anchor" href="#22-codebase-as-graph-for-ai-coding-the-load-bearing-arm-for-prism" aria-label="Permalink to §2.2 — Codebase-as-graph for AI coding (the load-bearing arm for PRISM)">#</a>§2.2 — Codebase-as-graph for AI coding (the load-bearing arm for PRISM)</h2>
+<ol start="6">
+<li><strong>Ouyang et al., &quot;RepoGraph: Enhancing AI Software Engineering with Repository-level Code Graph&quot;</strong> — arXiv:2410.14684 (submitted 2024-10-03, revised 2025-03-18). Published as conference paper at <strong>ICLR 2025</strong>. Authors: Siru Ouyang, Wenhao Yu, Kaixin Ma, Zilin Xiao, Zhihan Zhang, Mengzhao Jia, Jiawei Han, Hongming Zhang, Dong Yu. Key result: &quot;RepoGraph boosts the success rate of existing methods for both agent and procedural frameworks by achieving an average relative improvement of 32.8%&quot; on SWE-bench. &quot;Agentless + RepoGraph achieved a 29.67% resolve rate, setting a new state-of-the-art for open-source methods on SWE-bench Lite.&quot; Graph is <strong>line-level</strong>: each node = one line of code, edges = definition/reference dependencies. Retrieval uses <strong>ego-graphs</strong> centered on keyword/issue nodes. Code: https://github.com/ozyyshr/RepoGraph. URL: https://arxiv.org/abs/2410.14684</li>
+<li><strong>Chen et al., &quot;LocAgent: Graph-Guided LLM Agents for Code Localization&quot;</strong> — arXiv:2503.09089 (submitted 2025-03-12, revised 2025-04-29), <strong>ACL 2025 long paper</strong> (https://aclanthology.org/2025.acl-long.426/). Authors: Zhaoling Chen, Xiangru Tang, Gangda Deng, Fang Wu, Jialong Wu, Zhiwei Jiang, Viktor Prasanna, Arman Cohan, Xingyao Wang. Parses codebases into <strong>directed heterogeneous graphs</strong>: nodes = files/classes/functions; edges = imports, invocations, inheritance. Enables LLM agents to do <strong>multi-hop reasoning</strong> to locate change-sites. Fine-tuned Qwen-2.5-Coder-Instruct-32B reaches 92.7% accuracy on file-level localization at ~86% cost reduction vs SOTA proprietary. +12% Pass@10 on downstream GitHub issue resolution. URL: https://arxiv.org/abs/2503.09089</li>
+<li><strong>Liu et al., &quot;Prometheus: Towards Long-Horizon Codebase Navigation for Repository-Level Problem Solving&quot;</strong> — arXiv:2507.19942. Memory-centric coding agent framework: (a) represents repo as <strong>unified knowledge graph encoding semantic dependencies</strong>, (b) context engine with <strong>working memory</strong> retains/reuses previously explored contexts across reasoning steps, (c) multi-agent split for classify / reproduce / patch / verify. Using GPT-5: 74.4% on SWE-bench Verified and 33.8% on SWE-PolyBench Verified (Top-6 / Top-1 among open-source agent systems). Solves needle-in-haystack via smarter context management, not bigger windows. URL: https://arxiv.org/html/2507.19942v2</li>
+<li><strong>&quot;CodexGraph: Bridging Large Language Models and Code Repositories via Code Graph Databases&quot; — NAACL 2025</strong> — https://aclanthology.org/2025.naacl-long.7.pdf. Exposes code graphs to LLM agents via graph database interfaces (verified via WebSearch snippet — direct PDF parse failed but reference is canonical and indexed in Awesome-Repo-Level-Code-Generation).</li>
+<li><strong>&quot;Code Graph Model (CGM): A Graph-Integrated LLM for Repository-Level Software Engineering Tasks&quot;</strong> — OpenReview https://openreview.net/forum?id=b98ODdeYq5. Integrates a code graph as a first-class modality into the LLM instead of using it only at retrieval time.</li>
+<li><strong>Stack Graphs (GitHub Engineering)</strong> — blog post 2021-12-09, updated 2024-07-23 (https://github.blog/open-source/introducing-stack-graphs/); paper &quot;Stack graphs: Name resolution at scale&quot; — arXiv:2211.01224 (Douglas A. Creager). DSL for declaring name-binding rules over Tree-sitter parse trees. <strong>File-incremental</strong>: per-file subgraph built without visibility into other files; merged at query time. Powers GitHub&#39;s Precise Code Navigation cross-repo. This is the structural inspiration for PRISM&#39;s per-domain envelope JSONs: each domain produces its own augmentation, merged at viz-render time. URL: https://github.blog/open-source/introducing-stack-graphs/</li>
+</ol>
+<h2 id="23-knowledge-graph-llm-agent-toolchains"><a class="anchor" href="#23-knowledge-graph-llm-agent-toolchains" aria-label="Permalink to §2.3 — Knowledge-graph + LLM agent toolchains">#</a>§2.3 — Knowledge-graph + LLM agent toolchains</h2>
+<ol start="12">
+<li><strong>Neo4j LLM Knowledge Graph Builder — First Release of 2025</strong> — https://neo4j.com/blog/developer/llm-knowledge-graph-builder-release/. Adds community summaries + local/global retrievers + parallel-retriever evaluation + custom prompt-guided extraction. Concrete claim from the Neo4j team: &quot;the local entity retriever turns what is several thousand lines of Python code in the Microsoft paper implementation in about 50 lines of Cypher (one benefit of using an actual graph database).&quot; Important for PRISM&#39;s choice: keep system-viz as JSON or promote it to a real graph DB?</li>
+<li><strong>Memgraph &quot;GraphRAG for Devs: Graph-Code Demo&quot;</strong> — https://memgraph.com/blog/graphrag-for-devs-coding-assistant. End-to-end demo: <code>python main.py build-graph .</code> produces a code graph that the assistant queries instead of grepping.</li>
+<li><strong>Andrew Ng / DeepLearning.AI short course &quot;Knowledge Graphs for RAG&quot;</strong> — referenced from https://x.com/AndrewYNg/status/1767941813820862655 (March 2024). Establishes the mainstream framing: KGs enable &quot;more sophisticated retrieval of text than similarity search alone.&quot;</li>
+</ol>
+<h2 id="24-visualization-as-shared-context-the-spatial-ui-thesis"><a class="anchor" href="#24-visualization-as-shared-context-the-spatial-ui-thesis" aria-label="Permalink to §2.4 — Visualization-as-shared-context (the spatial-UI thesis)">#</a>§2.4 — Visualization-as-shared-context (the spatial-UI thesis)</h2>
+<ol start="15">
+<li><strong>tldraw AI integrations docs</strong> — https://tldraw.dev/docs/ai. &quot;AI models have direct access to read and manipulate shapes, allowing an agent to observe what&#39;s on the canvas, understand spatial relationships, and create or modify shapes to accomplish tasks.&quot; Agent Starter Kit (https://tldraw.dev/starter-kits/agent) captures &quot;both visual screenshots and structured shape data from the canvas, giving the AI model context about spatial relationships, visual appearance, and semantic meaning of shapes.&quot; This is the <strong>dual-channel pattern</strong> PRISM should adopt: send the LLM (a) the screenshot of the relevant region of system-viz and (b) the structured node list — neither alone is sufficient.</li>
+<li><strong>Latent Space podcast: &quot;The Accidental AI Canvas — with Steve Ruiz of tldraw&quot;</strong> — https://www.latent.space/p/tldraw. History: makereal.tldraw.com (Nov 2023, &quot;first vibe coding tool&quot;) → realtime drawing → tldraw.computer (AI workflows) → fairies.tldraw.com (spatialized multi-agent experiment). Ruiz argues the canvas is a better UI for multi-agent than chat because agents have <strong>persistent spatial state</strong> observable by humans and other agents.</li>
+<li><strong>Excalidraw MCP server (yctimlin/mcp_excalidraw)</strong> — https://github.com/yctimlin/mcp_excalidraw. MCP server + Claude Code skill: agents create/edit/export Excalidraw diagrams with real-time canvas sync. The verified meta-claim (Nimbalyst 2026 comparison): &quot;Excalidraw won the canvas war, and MCP is the reason.&quot;</li>
+<li><strong>AgentCoord: Visually Exploring Coordination Strategy for LLM-based Multi-Agent Collaboration</strong> — arXiv:2404.11943, published ScienceDirect 2025 (https://www.sciencedirect.com/science/article/abs/pii/S0097849325001797). Interactive visual interface to <strong>design, edit, debug coordination strategies</strong>. Key claim: &quot;When users use natural language to design these strategies and communicate with LLMs, the large amount of text containing complex information hinders their ability to understand and iterate on strategies.&quot; Argues for <strong>structured visual representation</strong> of multi-agent entities and relationships. This is the closest published precedent for what PRISM&#39;s system-viz already does for 6 concurrent Claude chats.</li>
+<li><strong>GitNexus (open-source MCP-native code-graph engine)</strong> — coverage: https://www.marktechpost.com/2026/04/24/meet-gitnexus-an-open-source-mcp-native-knowledge-graph-engine-that-gives-claude-code-and-cursor-full-codebase-structural-awareness/. KuzuDB + Tree-sitter under the hood; exposes the graph via MCP tools. <strong>This is the closest extant precedent for PRISM&#39;s intended architecture.</strong> Worth a feature-parity audit.</li>
+<li><strong>Understand-Anything (Claude Code plugin)</strong> — https://github.com/Lum1104/Understand-Anything. Multi-agent pipeline builds a knowledge graph of every file/function/class/dependency + interactive dashboard. Works with Claude Code, Codex, Cursor, Copilot, Gemini CLI.</li>
+<li><strong>Graphify</strong> — open-sourced 48h after Karpathy&#39;s LLM-Wiki post (Oct 2025 by community attribution). &quot;71.5x fewer tokens per query&quot; / &quot;20 languages via tree-sitter&quot; / &quot;20.4K stars.&quot; Slash command <code>/graphify</code> inside Claude Code.</li>
+<li><strong>code-review-graph (tirth8205)</strong> — https://github.com/tirth8205/code-review-graph. Local persistent codebase map for Claude Code. Reported &quot;6.8× fewer tokens on reviews and up to 49× on daily coding tasks.&quot;</li>
+</ol>
+<hr>
+<h1 id="3-x-twitter-highlights-verbatim-quotes-urls"><a class="anchor" href="#3-x-twitter-highlights-verbatim-quotes-urls" aria-label="Permalink to §3 — X / Twitter highlights (verbatim quotes + URLs)">#</a>§3 — X / Twitter highlights (verbatim quotes + URLs)</h1>
+<blockquote>
+<p><strong>Note on verification.</strong> X.com returns HTTP 402 to direct WebFetch (paid auth required). Each quote below is a verbatim snippet returned in WebSearch results pointing to the cited tweet — quotes are what X exposes in its OpenGraph card for the post.</p>
+</blockquote>
+<ol>
+<li><strong>Andrej Karpathy (@karpathy), 2026-04-26 LLM-Wiki announcement</strong> — https://x.com/karpathy/status/2039805659525644595 — verbatim: <em>&quot;LLM Knowledge Bases — Something I&#39;m finding very useful recently: using LLMs to build personal knowledge bases for various topics of research interest. In this way, a large fraction of my recent token throughput is going less into manipulating code, and more into manipulating…&quot;</em> The compounding-knowledge thesis behind PRISM&#39;s wiki layer and (proposed) system-viz-as-context.</li>
+<li><strong>Min Choi (@minchoi)</strong> on GitNexus — https://x.com/minchoi/status/2033567557941162288 — verbatim: <em>&quot;Ok this is insane. GitNexus turns your codebase into a knowledge graph that Claude Code, Cursor + other AI coding tools can use through MCP. Helps your AI coding assistant understand your entire repo.&quot;</em> Direct evidence that the &quot;code graph via MCP&quot; pattern is the current dominant architecture for Claude Code integrations.</li>
+<li><strong>Hasan Toor (@hasantoxr)</strong> on code-review-graph — https://x.com/hasantoxr/status/2041487311536603629 — verbatim: <em>&quot;🚨BREAKING: Someone built a local knowledge graph for Claude Code that cuts token usage by 49x on daily coding tasks. It&#39;s called code-review-graph and it builds a persistent structural map of your entire codebase using Tree-sitter so Claude reads only the files that actually…&quot;</em> The token-savings claim (49x) is what justifies the engineering cost of building the graph layer.</li>
+<li><strong>Zane Chen (@chenzeling4)</strong> on Graphify — https://x.com/chenzeling4/status/2042794634334663127 — verbatim: <em>&quot;Graphify — Turn any folder into a queryable knowledge graph. Just /graphify in Claude Code, Cursor, Gemini CLI &amp; more. Code, PDFs, images, videos → interactive graph. 71.5x fewer tokens per query. 20 languages via tree-sitter. 20.4K ⭐&quot;</em></li>
+<li><strong>AlphaSignal AI (@AlphaSignalAI)</strong> crediting Karpathy → Graphify causal chain — https://x.com/AlphaSignalAI/status/2042981248902037515 — verbatim: <em>&quot;Someone built Andrej Karpathy&#39;s dream tool 48 hours after he asked for it. Graphify is an open-source tool for Claude Code. Point it at any folder and one command builds a knowledge graph. It reads your code, docs, PDFs, and images. No vector database. No config files.&quot;</em></li>
+<li><strong>The Year of the Graph (@TheYotg)</strong> on Graph-R1 (RL × GraphRAG) — https://x.com/TheYotg/status/1950866788591288710 — verbatim: <em>&quot;Graph-R1: When GraphRAG Meets Reinforcement Learning Retrieval-Augmented Generation (RAG) mitigates hallucination in LLMs by incorporating external knowledge, but relies on chunk-based retrieval that lacks structural semantics. GraphRAG methods improve RAG by modeling…&quot;</em> Surfaces the next-gen direction: RL-trained graph-traversal policies.</li>
+<li><strong>LangChain (@LangChainAI)</strong> on LLM Graph Transformer — https://x.com/LangChainAI/status/1870544770680213966 — verbatim: <em>&quot;🧱Building Knowledge Graphs with LLM Graph Transformer — A deep dive into LangChain&#39;s implementation of graph construction with LLMs. If you want to try out GraphRAG - you first have to build the graph.&quot;</em> The build-the-graph-first prerequisite that PRISM already satisfies.</li>
+<li><strong>The Year of the Graph (@TheYotg)</strong> on Karpathy LLM-Wiki — https://x.com/TheYotg/status/2041106477952213207 — verbatim: <em>&quot;Andrej Karpathy&#39;s LLM Wiki: Building your own document-to-knowledge graph system Most people&#39;s experience with LLMs and documents looks like RAG: you upload files, the LLM retrieves relevant chunks at query time, and generates an answer. This works, but the LLM is rediscovering…&quot;</em> Frames the wiki-as-compounding-graph thesis — directly applicable to system-viz, which today gets rebuilt rather than incrementally extended.</li>
+</ol>
+<p>Bonus (Cursor-side parity reference): <strong>Daniel San (@dani_avila7)</strong> — https://x.com/dani_avila7/status/1880739290264809683 — verbatim: <em>&quot;Introducing Codebase Knowledge Graphs in Cursor 🤩 In this video, I&#39;ll walk you through how we went from using a knowledge graph of a repository on the CodeGPT platform to leveraging it directly within the @cursor_ai editor.&quot;</em> Confirms Cursor adopted the same pattern in Jan 2025.</p>
+<hr>
+<h1 id="4-concrete-prism-unit-proposals"><a class="anchor" href="#4-concrete-prism-unit-proposals" aria-label="Permalink to §4 — Concrete PRISM unit proposals">#</a>§4 — Concrete PRISM unit proposals</h1>
+<p>Each unit names a viz_node_id slot and explicit deps/blocks so the system-viz can ingest them and the dependency oracle can sequence them. Slots are namespaced under <code>viz_node_id: graph-as-context/*</code>.</p>
+<h2 id="u-gac01-system-viz-mcp-query-adapter"><a class="anchor" href="#u-gac01-system-viz-mcp-query-adapter" aria-label="Permalink to U-GAC01: system-viz MCP query adapter">#</a>U-GAC01: system-viz MCP query adapter</h2>
+<ul>
+<li><strong>viz_node_id</strong>: <code>graph-as-context/system-viz-mcp-adapter</code></li>
+<li><strong>depends_on</strong>: <code>state/shared/system-viz/_MASTER_ENVELOPE.json</code> (exists), <code>scripts/system-viz-query.mjs</code> (exists per MEMORY.md)</li>
+<li><strong>blocks</strong>: U-GAC02, U-GAC03, U-GAC07</li>
+<li><strong>description</strong>: Promote <code>scripts/system-viz-query.mjs</code> from CLI helper to MCP dispatcher actions under <code>prism_session</code>: <code>viz_graph.get_node</code>, <code>viz_graph.get_neighbors(node_id, depth)</code>, <code>viz_graph.ego_graph(node_id, depth)</code>, <code>viz_graph.search(text)</code>, <code>viz_graph.find_path(from, to, max_hops)</code>. Mirrors RepoGraph&#39;s ego-graph retrieval pattern (arXiv:2410.14684). Returns JSON only — never the full graph.</li>
+<li><strong>synergy</strong>: Replaces ad-hoc Glob+Grep+Agent calls with a 5-tool surface.</li>
+</ul>
+<h2 id="u-gac02-viznodeid-stamps-on-every-artifact"><a class="anchor" href="#u-gac02-viznodeid-stamps-on-every-artifact" aria-label="Permalink to U-GAC02: viznodeid stamps on every artifact">#</a>U-GAC02: viz_node_id stamps on every artifact</h2>
+<ul>
+<li><strong>viz_node_id</strong>: <code>graph-as-context/node-id-stamping</code></li>
+<li><strong>depends_on</strong>: U-GAC01</li>
+<li><strong>blocks</strong>: U-GAC04, U-GAC05</li>
+<li><strong>description</strong>: Add <code>viz_node_id: &lt;stable-slug&gt;</code> to the frontmatter of every roadmap unit, wiki entry, handoff file, milestone envelope, and skill file. Stable slug derived from <code>_MASTER_ENVELOPE.json</code>. Wiki and handoff templates updated. Stop hook validates presence on commit. <strong>This is the &quot;spatial coordinate&quot; the 6 concurrent chats can share</strong> — each chat&#39;s handoff says exactly which sub-graph it touches.</li>
+<li><strong>synergy</strong>: Wires directly into existing <code>enforce-handoff-topic.mjs</code> and <code>commit-ownership-guard</code>.</li>
+</ul>
+<h2 id="u-gac03-agent-side-graph-context-injector-hook"><a class="anchor" href="#u-gac03-agent-side-graph-context-injector-hook" aria-label="Permalink to U-GAC03: agent-side graph-context injector hook">#</a>U-GAC03: agent-side graph-context injector hook</h2>
+<ul>
+<li><strong>viz_node_id</strong>: <code>graph-as-context/inject-on-prompt</code></li>
+<li><strong>depends_on</strong>: U-GAC01, U-GAC02</li>
+<li><strong>blocks</strong>: none (parallel-safe)</li>
+<li><strong>description</strong>: New UserPromptSubmit hook <code>graph-context-inject.mjs</code>. When the user prompt mentions a known viz_node_id (or matches a node by name fuzzy-search), inject the <strong>ego-graph at depth 1-2</strong> as a compact YAML block (target ≤120 lines, tokens budgeted). Pattern: GitNexus/RepoGraph &quot;pre-compute structure, send slice on demand.&quot; Keyword-gated to keep token budget bounded.</li>
+<li><strong>synergy</strong>: Slots beside existing <code>wiki-precheck-inject</code>, <code>inventory-check-guard</code>, <code>chat-bus-inject</code>. Reuses keyword-gating machinery.</li>
+</ul>
+<h2 id="u-gac04-agent-file-claim-with-node-id-resolution"><a class="anchor" href="#u-gac04-agent-file-claim-with-node-id-resolution" aria-label="Permalink to U-GAC04: agent file-claim with node-id resolution">#</a>U-GAC04: agent file-claim with node-id resolution</h2>
+<ul>
+<li><strong>viz_node_id</strong>: <code>graph-as-context/claim-by-node-id</code></li>
+<li><strong>depends_on</strong>: U-GAC02</li>
+<li><strong>blocks</strong>: U-GAC06</li>
+<li><strong>description</strong>: Extend <code>file-claim-guard.mjs</code> to also claim <strong>graph sub-regions by viz_node_id</strong>. Instead of &quot;chat A owns file X&quot;, &quot;chat A owns sub-graph rooted at <code>graph-as-context/lathe-engine-cluster</code> depth 2.&quot; Conflict detection now sees overlapping sub-graphs, not just file lists. Encodes the conflict-fork rule at graph granularity.</li>
+<li><strong>synergy</strong>: Makes the conflict-fork rule (already documented in MEMORY.md <code>feedback_conflict_fork_rule.md</code>) graph-native instead of file-native — multi-chat conflicts surface earlier and at higher resolution.</li>
+</ul>
+<h2 id="u-gac05-dispatcher-action-prismsessionplanwith_graph"><a class="anchor" href="#u-gac05-dispatcher-action-prismsessionplanwith_graph" aria-label="Permalink to U-GAC05: dispatcher action prismsession:planwith_graph">#</a>U-GAC05: dispatcher action <code>prism_session:plan_with_graph</code></h2>
+<ul>
+<li><strong>viz_node_id</strong>: <code>graph-as-context/plan-with-graph</code></li>
+<li><strong>depends_on</strong>: U-GAC01, U-GAC02</li>
+<li><strong>blocks</strong>: none</li>
+<li><strong>description</strong>: Action takes a goal description, calls Ollama qwen2.5-coder for sub-graph retrieval (the cheap step), returns a 30-line plan with viz_node_id references and dependency chain. Mirrors LocAgent&#39;s multi-hop reasoning (arXiv:2503.09089) but on the meta-graph instead of the source-code AST graph.</li>
+<li><strong>synergy</strong>: Direct extension of <code>prism_ai</code> + <code>prism_session</code>; respects Ollama-offload policy.</li>
+</ul>
+<h2 id="u-gac06-graph-aware-stop-hook-stop-on-orphan-node"><a class="anchor" href="#u-gac06-graph-aware-stop-hook-stop-on-orphan-node" aria-label="Permalink to U-GAC06: graph-aware Stop hook stop-on-orphan-node">#</a>U-GAC06: graph-aware Stop hook <code>stop-on-orphan-node</code></h2>
+<ul>
+<li><strong>viz_node_id</strong>: <code>graph-as-context/orphan-node-guard</code></li>
+<li><strong>depends_on</strong>: U-GAC02, U-GAC04</li>
+<li><strong>blocks</strong>: none</li>
+<li><strong>description</strong>: Stop hook fails the session if it added a new engine/dispatcher/skill/hook but did not also (a) add a viz_node_id to the file frontmatter and (b) regenerate the system-viz so the new node exists. Complement to existing <code>stop_on_unwired_assets</code>. Closes the &quot;engine wired to dispatcher but invisible in viz&quot; gap.</li>
+<li><strong>synergy</strong>: Layers on top of existing <code>stop-auto-wire.mjs</code> lineage.</li>
+</ul>
+<h2 id="u-gac07-viz-screenshot-tool-for-multimodal-agent-context"><a class="anchor" href="#u-gac07-viz-screenshot-tool-for-multimodal-agent-context" aria-label="Permalink to U-GAC07: viz screenshot tool for multimodal agent context">#</a>U-GAC07: viz screenshot tool for multimodal agent context</h2>
+<ul>
+<li><strong>viz_node_id</strong>: <code>graph-as-context/viz-screenshot-mcp</code></li>
+<li><strong>depends_on</strong>: U-GAC01</li>
+<li><strong>blocks</strong>: none</li>
+<li><strong>description</strong>: MCP action <code>viz_graph.screenshot(node_id, depth, format=png)</code> — uses Playwright headless against the existing :8765 server to render a focused PNG of the sub-graph around a node, then returns the file path. Mirrors tldraw&#39;s dual-channel pattern: structured JSON + screenshot. Agent can include the image inline (Claude Code reads PNGs natively). Used only when a user explicitly invokes <code>/system-viz &lt;topic&gt;</code> to keep cost bounded.</li>
+<li><strong>synergy</strong>: Extends existing <code>_server.cjs</code> viz server with one new endpoint.</li>
+</ul>
+<h2 id="u-gac08-persistent-graph-delta-log-compounding-pattern"><a class="anchor" href="#u-gac08-persistent-graph-delta-log-compounding-pattern" aria-label="Permalink to U-GAC08: persistent graph delta log (compounding pattern)">#</a>U-GAC08: persistent graph delta log (compounding pattern)</h2>
+<ul>
+<li><strong>viz_node_id</strong>: <code>graph-as-context/graph-delta-log</code></li>
+<li><strong>depends_on</strong>: U-GAC02</li>
+<li><strong>blocks</strong>: none</li>
+<li><strong>description</strong>: Every system-viz regeneration writes a delta (nodes added/removed/relabeled, edges added/removed) to <code>state/shared/system-viz/graph-delta.jsonl</code>. New unit <code>graph-delta-summarize.mjs</code> (Ollama, weekly) generates wiki entries documenting structural drift. Implements the Karpathy LLM-Wiki &quot;compounding knowledge&quot; pattern (X/karpathy/2039805659525644595) <strong>on the graph itself, not just on text docs</strong>.</li>
+<li><strong>synergy</strong>: Extends the existing wiki layer; Ollama owns ≥70% of summarization (per global directive).</li>
+</ul>
+<hr>
+<h1 id="5-synergy-which-existing-prism-substrate-each-unit-extends"><a class="anchor" href="#5-synergy-which-existing-prism-substrate-each-unit-extends" aria-label="Permalink to §5 — Synergy: which existing PRISM substrate each unit extends">#</a>§5 — Synergy: which existing PRISM substrate each unit extends</h1>
+<div class="table-wrap"><table>
+<thead><tr><th>Unit</th><th>Existing PRISM substrate this wraps (not replaces)</th></tr></thead>
+<tbody>
+<tr><td>GAC01</td><td><code>scripts/system-viz-query.mjs</code> + <code>prism_session</code> dispatcher (97 dispatchers / 7,244 actions)</td></tr>
+<tr><td>GAC02</td><td>All file frontmatters across handoffs, wiki, milestones, skills (precedent: <code>state/shared/handoffs/HANDOFF-*-&lt;topic&gt;.md</code> topic suffix already mandatory)</td></tr>
+<tr><td>GAC03</td><td>UserPromptSubmit hook chain (<code>wiki-precheck-inject</code>, <code>inventory-check-guard</code>, <code>chat-bus-inject</code>) — keyword-gating machinery already exists</td></tr>
+<tr><td>GAC04</td><td><code>file-claim-guard.mjs</code>, <code>commit-ownership-guard</code>, conflict-fork rule (MEMORY.md <code>feedback_conflict_fork_rule.md</code>)</td></tr>
+<tr><td>GAC05</td><td><code>prism_session</code> + <code>prism_ai</code> dispatchers; Ollama offload policy (<code>feedback_ollama_token_routing.md</code>); creative-reasoning engine</td></tr>
+<tr><td>GAC06</td><td><code>stop_on_unwired_assets</code>, <code>stop-auto-wire.mjs</code>, <code>enforce-handoff-topic.mjs</code></td></tr>
+<tr><td>GAC07</td><td><code>_server.cjs</code> viz HTTP server (:8765); <code>system-viz.html</code> rendering</td></tr>
+<tr><td>GAC08</td><td><code>knowledge/wiki/</code> (722 entries) + <code>WikiIndexMaintainerEngine</code>; Ollama wiki-maintenance share ≥70%</td></tr>
+</tbody>
+</table></div>
+<p><strong>Cross-cutting payoffs</strong>:</p>
+<ul>
+<li><strong>Token budget</strong>: Per code-review-graph claim (49x reduction on daily tasks) and Graphify (71.5x per query), sub-graph retrieval routinely cuts per-query token cost by an order of magnitude. PRISM&#39;s system-viz already exists; adapter cost is one-off.</li>
+<li><strong>6-chat coordination</strong>: viz_node_id as shared coordinate system replaces file-path overlap detection with sub-graph overlap detection. Conflicts surface at graph granularity, not file granularity. Confirms the AgentCoord (arXiv:2404.11943) thesis that visual structure beats prose for multi-agent coordination.</li>
+<li><strong>Compounding intelligence</strong>: GAC08&#39;s delta log is the Karpathy LLM-Wiki pattern lifted from docs to structure. Every regeneration adds, never replaces.</li>
+<li><strong>Anti-duplication</strong>: GAC03&#39;s ego-graph injection front-runs <code>duplicationGuardEngine</code> — the LLM sees neighbors before proposing a new node, so duplicates die earlier in the loop.</li>
+</ul>
+<hr>
+<h1 id="6-failure-modes-anti-patterns"><a class="anchor" href="#6-failure-modes-anti-patterns" aria-label="Permalink to §6 — Failure modes + anti-patterns">#</a>§6 — Failure modes + anti-patterns</h1>
+<div class="table-wrap"><table>
+<thead><tr><th>Failure mode</th><th>Symptom</th><th>Mitigation</th></tr></thead>
+<tbody>
+<tr><td><strong>Stale graph syndrome</strong></td><td>Agents act on a system-viz that hasn&#39;t been regenerated; ghost nodes / missing edges; multi-chat blame the graph for their drift.</td><td>Stop hook <code>stop-on-orphan-node</code> (GAC06) + cron regen if mtime &gt; 1h. Delta log (GAC08) makes staleness visible.</td></tr>
+<tr><td><strong>Graph-as-context bloat</strong></td><td>Naïve ego-graph at depth 3 dumps thousands of nodes into the prompt; defeats the token-saving purpose.</td><td>Bound depth to 1-2 by default; token-budget the injected YAML to ≤120 lines (GAC03). RepoGraph (arXiv:2410.14684) uses ego-graphs precisely because they bound traversal.</td></tr>
+<tr><td><strong>Indexing cost</strong></td><td>Microsoft&#39;s own GraphRAG docs warn &quot;GraphRAG indexing can be an expensive operation&quot; — building the graph from scratch every session burns Claude tokens fast.</td><td>PRISM already pays this cost once per regen, not per session — system-viz.html is cached. Ollama owns ≥70% of summarization per global policy.</td></tr>
+<tr><td><strong>Cypher-shaped problems on JSON graphs</strong></td><td>If GAC01 stays JSON-only, multi-hop queries get linearly slow at 100k+ nodes.</td><td>Defer Cypher/KuzuDB migration until query latency in adapter exceeds 200ms p95 — Neo4j claim &quot;50 lines of Cypher vs thousands of Python&quot; is the upgrade trigger.</td></tr>
+<tr><td><strong>Single-channel context (text-only)</strong></td><td>Agents miss spatial layout cues that humans use to find the right cluster.</td><td>GAC07 dual-channel (JSON + PNG) — tldraw&#39;s verified pattern. Use only on explicit user invocation to bound cost.</td></tr>
+<tr><td><strong>Spatial-UI fetishism</strong></td><td>Building canvas UIs that look impressive but no agent reads.</td><td>Every visualization MUST have a paired structured-data MCP action. No &quot;screenshot-only&quot; surfaces.</td></tr>
+<tr><td><strong>Coordination overhead exceeds graph savings</strong></td><td>The 6-chat overhead of claiming sub-graphs becomes worse than the file-claim it replaces.</td><td>Keep file-claim as the default; node-id claim is opt-in for sub-graphs that span 5+ files.</td></tr>
+<tr><td><strong>Hallucinated node_ids</strong></td><td>LLM invents a viz_node_id that doesn&#39;t exist; downstream actions silently fail.</td><td>GAC01 adapter returns 404 (not empty); GAC06 Stop hook validates referenced node_ids in commits resolve in the live graph.</td></tr>
+<tr><td><strong>Vector-RAG envy</strong></td><td>Pressure to replace vector memory with graph because graph is &quot;newer.&quot;</td><td>Hybrid is the verified-best pattern (Hybrid GraphRAG reported 0.58 factual accuracy vs vector-only baseline). Keep Qdrant + graph; route by query type, not by fashion.</td></tr>
+<tr><td><strong>One-graph-to-rule-them-all</strong></td><td>Try to fold wiki + system-viz + JM Die catalog + machine ontology into one graph; query latency dies.</td><td>Keep separate graphs joined by viz_node_id stable slugs. Stack Graphs&#39; file-incremental philosophy (arXiv:2211.01224) — merge at query time, not build time.</td></tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="verified-url-appendix"><a class="anchor" href="#verified-url-appendix" aria-label="Permalink to Verified-URL appendix">#</a>Verified-URL appendix</h2>
+<p>Papers / arXiv: 2404.16130, 2501.00309, 2408.08921, 2410.14684, 2503.09089, 2507.19942, 2211.01224, 2404.11943. Reputable docs: microsoft/graphrag, ozyyshr/RepoGraph, gersteinlab/LocAgent, neo4j.com/blog (LLM KG Builder 2025), memgraph.com/blog/graphrag-for-devs-coding-assistant, github.blog/open-source/introducing-stack-graphs, tldraw.dev/docs/ai, tldraw.dev/starter-kits/agent, latent.space/p/tldraw, marktechpost.com/2026/04/24 (GitNexus), aclanthology.org/2025.acl-long.426, aclanthology.org/2025.naacl-long.7, openreview.net/forum?id=b98ODdeYq5. Tools: github.com/yctimlin/mcp_excalidraw, github.com/Lum1104/Understand-Anything, github.com/tirth8205/code-review-graph, github.com/colbymchenry/codegraph, github.com/safishamsi/graphify. X posts: 2039805659525644595, 2033567557941162288, 2041487311536603629, 2042794634334663127, 2042981248902037515, 1950866788591288710, 1870544770680213966, 2041106477952213207, 1880739290264809683.</p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="2026-05-10-pass2-graph-as-llm-context.md">2026-05-10-pass2-graph-as-llm-context.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

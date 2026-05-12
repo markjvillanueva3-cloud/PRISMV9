@@ -248,6 +248,11 @@
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/octopus-provider-probe.mjs",
             "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/file-read-cache.mjs",
+            "timeout": 2000
           }
         ]
       }
@@ -461,6 +466,16 @@
         ]
       },
       {
+        "matcher": "^TaskCreate$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/task-created-claim-guard.mjs",
+            "timeout": 2000
+          }
+        ]
+      },
+      {
         "matcher": "^(Write|Edit)$",
         "hooks": []
       },
@@ -560,6 +575,11 @@
             "type": "command",
             "command": "node H:/prism/.claude/hooks/tribal-spike.mjs",
             "timeout": 1000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/autonomous-loop-defer.mjs",
+            "timeout": 2000
           }
         ]
       }
@@ -644,6 +664,21 @@
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/ollama-terminal-watcher.mjs",
             "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/post-tool-batch-budget.mjs",
+            "timeout": 1500
+          }
+        ]
+      },
+      {
+        "matcher": "^(Bash|Read|Edit|Write|MultiEdit)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/permission-denied-retry.mjs",
+            "timeout": 3000
           }
         ]
       },
@@ -739,6 +774,21 @@
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/unified-edit-tap.mjs",
             "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/system-viz-live-bridge.mjs",
+            "timeout": 1000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/mcp-safety-bridge.mjs",
+            "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/hook-registry-regen.mjs",
+            "timeout": 5000
           }
         ]
       },
@@ -895,6 +945,18 @@
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/subagent-start-context.mjs",
             "timeout": 5000
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/subagent-stop-verifier.mjs",
+            "timeout": 6000
           }
         ]
       }

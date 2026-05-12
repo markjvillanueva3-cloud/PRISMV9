@@ -309,6 +309,11 @@ const ACTIONS = [
   "cad_machine_capability_controller", // MachineCapabilitySurfaceEngine.getControllerCapabilities
   "cad_machine_capability_compare",    // MachineCapabilitySurfaceEngine.compareCapabilities
   "cad_machine_capability_find",       // MachineCapabilitySurfaceEngine.findByCapabilities
+  // Part Folder Organizer — JM Die per-customer / per-part-number library (intake template for all incoming orders)
+  "create_part_folder",                // PartFolderOrganizerEngine.createPartFolder — file/refile one part
+  "get_part_folder",                   // PartFolderOrganizerEngine.getPartFolder — look one up
+  "part_library_stats",                // PartFolderOrganizerEngine.partLibraryStats — counts / coverage / disk
+  "part_library_populate",             // PartFolderOrganizerEngine.populateFromJoinTable — drain N rows of the print→program join table
 ] as const;
 
 /** Registers cad dispatcher.
@@ -3011,6 +3016,74 @@ Params vary by action — pass relevant fields in params object.`,
             const { machineCapabilitySurfaceEngine } = await import("../../engines/MachineCapabilitySurfaceEngine.js");
             const data = machineCapabilitySurfaceEngine.findByCapabilities(requirements as Parameters<typeof machineCapabilitySurfaceEngine.findByCapabilities>[0]);
             result = { success: true, data };
+            break;
+          }
+          // ── Part Folder Organizer (JM Die per-customer / per-part-number library) ──
+          case "create_part_folder": {
+            const pn = params.partNumber ?? params.part_number;
+            if (pn == null || String(pn).trim() === "") {
+              return dispatcherError(new Error("create_part_folder requires part_number"), action, "prism_cad");
+            }
+            const { partFolderOrganizerEngine } = await import("../../engines/PartFolderOrganizerEngine.js");
+            const data = partFolderOrganizerEngine.createPartFolder({
+              partNumber: pn,
+              customer: params.customer,
+              partNumberNormalized: params.partNumberNormalized ?? params.part_number_normalized,
+              rawVariants: params.rawVariants ?? params.raw_variants,
+              printCustomers: params.printCustomers ?? params.print_customers,
+              programCustomers: params.programCustomers ?? params.program_customers,
+              matchConfidence: params.matchConfidence ?? params.match_confidence,
+              prints: params.prints,
+              cncPrograms: params.cncPrograms ?? params.cnc_programs,
+              cadCam: params.cadCam ?? params.cad_cam,
+              programs: params.programs,
+              libraryRoot: params.libraryRoot ?? params.library_root,
+              copyMode: params.copyMode ?? params.copy_mode,
+              overwrite: params.overwrite === true,
+              joinTableSource: params.joinTableSource ?? params.join_table_source,
+              notes: params.notes,
+              createdBy: "prism_cad:create_part_folder",
+            });
+            result = { success: data.ok, data };
+            break;
+          }
+          case "get_part_folder": {
+            const pn = params.partNumber ?? params.part_number;
+            if (pn == null || String(pn).trim() === "") {
+              return dispatcherError(new Error("get_part_folder requires part_number"), action, "prism_cad");
+            }
+            const { partFolderOrganizerEngine } = await import("../../engines/PartFolderOrganizerEngine.js");
+            const data = partFolderOrganizerEngine.getPartFolder({
+              customer: String(params.customer ?? ""),
+              partNumber: pn,
+              libraryRoot: params.libraryRoot ?? params.library_root,
+            });
+            result = { success: true, data };
+            break;
+          }
+          case "part_library_stats": {
+            const { partFolderOrganizerEngine } = await import("../../engines/PartFolderOrganizerEngine.js");
+            const data = partFolderOrganizerEngine.partLibraryStats({
+              libraryRoot: params.libraryRoot ?? params.library_root,
+              byCustomer: (params.byCustomer ?? params.by_customer) === true,
+              withDisk: (params.withDisk ?? params.with_disk) === true,
+            });
+            result = { success: true, data };
+            break;
+          }
+          case "part_library_populate": {
+            const { partFolderOrganizerEngine } = await import("../../engines/PartFolderOrganizerEngine.js");
+            const data = partFolderOrganizerEngine.populateFromJoinTable({
+              joinJsonl: params.joinJsonl ?? params.join_jsonl,
+              phase7Jsonl: params.phase7Jsonl ?? params.phase7_jsonl,
+              libraryRoot: params.libraryRoot ?? params.library_root,
+              confidenceFilter: params.confidenceFilter ?? params.confidence_filter,
+              copyMode: params.copyMode ?? params.copy_mode,
+              limit: typeof params.limit === "number" ? params.limit : undefined,
+              offset: typeof params.offset === "number" ? params.offset : undefined,
+              dryRun: (params.dryRun ?? params.dry_run) === true,
+            });
+            result = { success: data.ok, data };
             break;
           }
           default:

@@ -2,8 +2,14 @@
 /**
  * scrutinize-before-stop — Stop hook (UNIVERSAL ENFORCEMENT).
  *
- * Forces both self-review and a parallel reviewer-agent scrutiny before the
- * agent is allowed to finish a task that produced code/file changes.
+ * Forces a strict 3-of-3 multi-reviewer scrutiny before the agent is allowed to
+ * finish a task that produced code/file changes:
+ *   - Codex CLI               (cross-vendor — auto-recorded by scrutiny-3way.mjs)
+ *   - Claude reviewer agent A  (holistic — dispatched by the chat via the Agent tool)
+ *   - Claude reviewer agent B  (independent second pass — dispatched by the chat)
+ * (The arm-2 reviewer was the Gemini CLI until 2026-05-12; it was swapped for a
+ *  second Claude reviewer agent because the CLI's daily-quota / trust-dir env
+ *  failures kept stalling the gate.)
  *
  * FIRES ON: Stop, for EVERY chat working in this repo. Wired in project
  *           settings.json (NOT user/global) with continueOnError:false so a
@@ -15,19 +21,21 @@
  *            Other chats discover the rule via .claude/settings.json on session start.
  *
  * AUTO-CLEANUP: this hook process is one-shot — node exits as soon as it emits
- *               its JSON response. The reviewer-agent dispatched by the calling
- *               chat is also one-shot via Claude Code's Agent tool (each
+ *               its JSON response. The reviewer agents dispatched by the calling
+ *               chat are also one-shot via Claude Code's Agent tool (each
  *               Agent({...}) call spawns, runs, returns final message, then
  *               terminates — no daemon, no persistent process). The mark CLI
- *               (.claude/scripts/scrutiny-mark.mjs) is also one-shot.
+ *               (.claude/scripts/scrutiny-3way.mjs --mark-opus / --mark-opus-b) is
+ *               also one-shot.
  *
  * Block protocol:
  *   1. Detect "did this session produce changes?" via `git status --porcelain`
  *      (any tracked or untracked diff = yes, after filtering known noise files)
  *   2. If yes AND session not cleared in scrutiny ledger AND block count < ceiling:
- *      emit decision:"block" with instructions: dispatch a parallel reviewer
- *      agent (subagent_type=reviewer), do self-review of the diff, then call
- *      .claude/scripts/scrutiny-mark.mjs to record completion before retry.
+ *      emit decision:"block" with instructions — run scrutiny-3way.mjs (Codex arm
+ *      + emits both reviewer prompts), dispatch BOTH Claude reviewer agents
+ *      (subagent_type=reviewer) in parallel, then record their verdicts with
+ *      scrutiny-3way.mjs --mark-opus / --mark-opus-b before retrying.
  *   3. After ceiling reached (3 attempts), allow Stop with a warning so the chat
  *      doesn't infinite-loop on stuck sessions.
  *
@@ -143,31 +151,37 @@ function meaningfulChangedFiles(projectRoot) {
 
 function buildBlockMessage(sessionId, blockCount) {
   return [
-    "🔬 SCRUTINY GATE — 3-of-3 multi-CLI review required (strict policy, 2026-05-05).",
+    "🔬 SCRUTINY GATE — 3-of-3 multi-reviewer review required (strict policy, 2026-05-05).",
     "",
     `Session: ${sessionId}  ·  Attempt ${blockCount}/${MAX_BLOCKS_PER_SESSION}`,
     "",
-    "REQUIRED — all three reviewers must return PASS before Stop releases:",
+    "REQUIRED — all three arms must return PASS before Stop releases:",
+    "  • Codex CLI            (cross-vendor model — auto-recorded by the script)",
+    "  • Claude reviewer A    (holistic strict review — dispatched by you)",
+    "  • Claude reviewer B    (independent 2nd pass, test/wiring/constants-weighted — dispatched by you)",
+    "    [the Gemini CLI arm was retired 2026-05-12 and replaced by Claude reviewer B]",
     "",
-    "  STEP 1 — Run Codex + Gemini in parallel against the session diff:",
+    "  STEP 1 — Run the Codex arm against the session diff:",
     `       node .claude/scripts/scrutiny-3way.mjs --session-id ${sessionId}`,
     "         (or --target HEAD to review the last commit, or --target <sha> for a specific one)",
-    "       The script auto-records --codex and --gemini marks based on each CLI's verdict.",
-    "       It also emits an `opusReviewerPrompt` for STEP 2.",
+    "       It auto-records --codex, and emits `opusReviewerPrompt` (arm A) + `opusReviewerPromptB` (arm B).",
     "",
-    "  STEP 2 — Dispatch the Claude Opus reviewer agent in parallel with STEP 1:",
-    "       Agent({ subagent_type: 'reviewer',",
-    "               description: 'Review session diff (3way Opus arm)',",
+    "  STEP 2 — Dispatch BOTH Claude reviewer agents (in parallel with STEP 1):",
+    "       Agent({ subagent_type: 'reviewer', description: 'Review session diff (3way reviewer A)',",
     "               prompt: <opusReviewerPrompt from STEP 1 output> })",
+    "       Agent({ subagent_type: 'reviewer', description: 'Review session diff (3way reviewer B — independent)',",
+    "               prompt: <opusReviewerPromptB from STEP 1 output> })",
     "",
-    "  STEP 3 — Once the Opus agent returns, record its verdict:",
-    `       node .claude/scripts/scrutiny-3way.mjs --mark-opus pass --session-id ${sessionId} --notes "<one-line summary>"`,
-    "         (use 'fail' instead of 'pass' if the agent reported FAIL — gate will keep blocking)",
+    "  STEP 3 — Once both agents return, record their verdicts:",
+    `       node .claude/scripts/scrutiny-3way.mjs --mark-opus pass    --session-id ${sessionId} --notes "<reviewer A summary>"`,
+    `       node .claude/scripts/scrutiny-3way.mjs --mark-claude pass  --session-id ${sessionId} --notes "<reviewer B summary>"`,
+    "         (--mark-claude is the arm-B mark; --mark-opus-b / --mark-gemini are accepted aliases.",
+    "          use 'fail' instead of 'pass' for any FAIL — the gate keeps blocking until all three are PASS)",
     "",
-    "Strict 3-of-3: ANY reviewer FAIL or absence keeps blocking. Self-review is no longer load-bearing for clearance.",
+    "Strict 3-of-3: ANY arm FAIL or absence keeps blocking. Self-review is no longer load-bearing for clearance.",
     `Escape: after ${MAX_BLOCKS_PER_SESSION} block attempts the gate auto-passes with a warning (do not abuse).`,
     "",
-    "Why 3-of-3: single-reviewer drift, model bias, and stub-tolerance regressions slip into 'shipped' work. Triangulating across Codex + Gemini + Opus gives us cross-vendor consensus before code ships.",
+    "Why 3-of-3: single-reviewer drift, model bias, and stub-tolerance regressions slip into 'shipped' work. Triangulating across one cross-vendor (Codex) + two independent Claude reviewers gives consensus before code ships.",
   ].join("\n");
 }
 

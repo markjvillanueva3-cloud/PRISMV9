@@ -3,6 +3,43 @@
  */
 import { z } from "zod";
 
+// ── RoadmapIntelligenceEngine shared sub-schemas (ENGINE-WIRE: prism_dev roadmap_intel_* actions) ──
+const _riMilestoneUnit = z.object({
+  id: z.string(), name: z.string(), description: z.string(),
+  estimated_hours: z.number().nonnegative().optional(),
+  actual_hours: z.number().nonnegative().optional(),
+  complexity: z.enum(["trivial", "simple", "moderate", "complex", "very_complex"]).optional(),
+  status: z.enum(["pending", "in_progress", "completed"]),
+}).passthrough();
+const _riMilestone = z.object({
+  id: z.string(), name: z.string(), description: z.string(), phase: z.string(),
+  units: z.array(_riMilestoneUnit),
+  dependencies: z.array(z.string()),
+  estimated_effort_hours: z.number().nonnegative().optional(),
+  actual_effort_hours: z.number().nonnegative().optional(),
+  status: z.enum(["pending", "in_progress", "completed", "blocked"]),
+  priority: z.number().optional(),
+  tags: z.array(z.string()).optional(),
+}).passthrough();
+const _riLearningRecord = z.object({
+  milestone_id: z.string(),
+  predicted_hours: z.number().nonnegative(),
+  actual_hours: z.number().nonnegative(),
+  predicted_complexity: z.string(),
+  actual_complexity: z.string(),
+  prediction_date: z.string(),
+  completion_date: z.string(),
+  factors_that_affected_estimate: z.array(z.string()),
+  lessons_learned: z.array(z.string()),
+}).passthrough();
+const _riLibraryOption = z.object({
+  name: z.string().min(1),
+  integration_hours: z.number().nonnegative(),
+  annual_cost: z.number().nonnegative().default(0),
+  reliability: z.number().min(0).max(1),
+  features: z.array(z.string()).default([]),
+}).passthrough();
+
 export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   session_boot: z.object({}).optional(),
   build: z.object({ fast: z.boolean().optional() }).optional(),
@@ -303,5 +340,47 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     domain: z.string().optional().describe("Restrict analysis to a domain"),
     min_usage_threshold: z.number().int().nonnegative().optional().describe("Floor on usage count"),
     max_usage_threshold: z.number().int().positive().optional().describe("Ceiling on usage count"),
+  }).passthrough(),
+
+  // BACKEND-DEVTOOLS-RGS6 HTML-COMPANION-MS0 — render a PRISM Markdown spec to an HTML companion
+  spec_html_render: z.object({
+    md: z.string().optional().describe("Markdown content to render (provide this OR path)"),
+    path: z.string().optional().describe("Path to a .md file under the PRISM root to read & render (provide this OR md)"),
+    theme: z.enum(["dark", "light", "auto"]).optional().describe("Color theme; auto (default) follows prefers-color-scheme"),
+    toc: z.boolean().optional().describe("Include the table-of-contents sidebar (default true)"),
+    title: z.string().optional().describe("Override the document <title>"),
+    write: z.boolean().optional().describe("If a path was given, also write <path>.html (and a .hash sidecar) alongside it"),
+    include_html: z.boolean().optional().describe("Return the full rendered HTML inline in the response (default false — only metadata)"),
+  }).passthrough(),
+
+  // ── RoadmapIntelligenceEngine — AI-powered roadmap execution (ENGINE-WIRE: prism_dev) ──
+  roadmap_intel_assess_complexity: z.object({
+    milestone: _riMilestone.describe("The milestone to assess for implementation complexity"),
+  }).passthrough(),
+  roadmap_intel_optimize: z.object({
+    milestones: z.array(_riMilestone).min(1).describe("Milestones to order/parallelize (>=1)"),
+  }).passthrough(),
+  roadmap_intel_predict_effort: z.object({
+    milestone: _riMilestone.describe("The milestone to estimate effort for"),
+    historical_data: z.array(_riLearningRecord).optional().describe("Past predicted-vs-actual records used to calibrate the estimate"),
+  }).passthrough(),
+  roadmap_intel_record_outcome: z.object({
+    milestone_id: z.string().min(1).describe("Milestone whose actual outcome is being recorded"),
+    predicted_hours: z.number().positive().describe("Hours that were predicted"),
+    actual_hours: z.number().positive().describe("Hours actually taken"),
+    predicted_complexity: z.string().min(1).describe("Complexity level that was predicted"),
+    actual_complexity: z.string().min(1).describe("Complexity level observed"),
+    lessons_learned: z.array(z.string()).default([]).describe("Free-text lessons fed to the learning engine"),
+  }).passthrough(),
+  roadmap_intel_build_vs_integrate: z.object({
+    feature_name: z.string().min(1).describe("Name of the feature under build-vs-integrate decision"),
+    feature_description: z.string().default("").describe("What the feature does"),
+    build_estimate_hours: z.number().positive().describe("Estimated hours to build it in-house"),
+    maintenance_hours_per_year: z.number().nonnegative().default(0).describe("Estimated annual maintenance hours if built in-house"),
+    library_options: z.array(_riLibraryOption).default([]).describe("Candidate libraries/services to integrate instead"),
+  }).passthrough(),
+  roadmap_intel_health: z.object({
+    milestones: z.array(_riMilestone).min(1).describe("All milestones in the roadmap"),
+    historical_data: z.array(_riLearningRecord).optional().describe("Past records used to compute estimation accuracy + velocity trend"),
   }).passthrough(),
 };
