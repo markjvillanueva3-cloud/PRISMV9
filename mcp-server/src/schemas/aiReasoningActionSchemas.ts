@@ -443,6 +443,8 @@ export const AI_REASONING_ACTIONS = [
   "transfer_bridge_find_analogies", // TransferLearningBridgeEngine.findAnalogies
   "memory_pressure_sample",         // MemoryPressureMonitorEngine.sampleNow
   "memory_pressure_trend",          // MemoryPressureMonitorEngine.trend
+  // INFRA-CONSENSUS-WIRE-MS0/P0-U01: 4-way model consensus action surface
+  "consensus_decide",               // MultiModelConsensusEngine.ask (vote or compare)
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -2039,4 +2041,92 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
     nowIso: z.string().optional().describe("Optional ISO timestamp; defaults to now"),
   }).passthrough(),
   memory_pressure_trend: z.object({}).passthrough().describe("No params; returns recent pressure trend"),
+  // ──────────────────────────────────────────────────────────────────────────
+  // INFRA-CONSENSUS-WIRE-MS0/P0-U01 — 4-way model consensus
+  // ──────────────────────────────────────────────────────────────────────────
+  // Surfaces MultiModelConsensusEngine.ask() as an MCP action so any caller
+  // (dispatcher, hook, CLI) can request a vote across Claude + Codex + Ollama
+  // (+ optional Grok, Gemini, dual-Ollama). Caller picks the voice subset,
+  // the mode (vote when options[] is given, otherwise compare), and the
+  // application-level agreement threshold. Engine itself is untouched —
+  // this entry is pure contract + dispatcher wiring.
+  consensus_decide: z.object({
+    question: z.string().min(1).max(50_000).describe(
+      "The question or prompt the model panel should answer (≤50 000 chars; " +
+      "PRISM context is injected separately under its own per-voice budget).",
+    ),
+    options: z.array(z.string().min(1).max(200)).min(2).max(20).optional().describe(
+      "Voting options (≥2, ≤20; each ≤200 chars). When provided → engine " +
+      "runs in vote mode and picks the majority option. When omitted → " +
+      "engine runs in compare mode and free-text answers are scored by " +
+      "Jaccard token overlap.",
+    ),
+    voices: z.array(
+      z.enum(["claude", "codex", "ollama", "grok", "gemini"]),
+    ).min(2).max(5).describe(
+      "Model voices the caller wants to participate (≥2, ≤5). IMPORTANT " +
+      "ENGINE REALITY (MultiModelConsensusEngine.ts): codex AND primary " +
+      "ollama are ALWAYS invoked regardless of this list — they are the " +
+      "always-on baseline pair. Only `claude` / `grok` / `gemini` are " +
+      "actually toggled by inclusion here, and each is additionally gated " +
+      "by its auth (claude CLI present / XAI_API_KEY set / GEMINI_API_KEY " +
+      "or GOOGLE_API_KEY set). Listing `codex` or `ollama` is therefore " +
+      "informational acknowledgement; omitting them does NOT skip them. " +
+      "If you want a 2-voice minimum baseline pass `voices:['codex','ollama']`.",
+    ),
+    agreementThreshold: z.number().finite().min(0).max(1).default(0.70).describe(
+      "Caller's accept threshold in [0,1]. INDEPENDENT from the engine's " +
+      "internal ACCEPT_THRESHOLD (0.70) / REVIEW_THRESHOLD (0.40) — the " +
+      "engine emits its own `recommendation` (accept/review/escalate) " +
+      "regardless of this value. This field exists ONLY so callers can " +
+      "apply application-level gating: the dispatcher echoes back " +
+      "`meetsCallerThreshold = (agreementScore >= agreementThreshold)`. " +
+      "Default 0.70 (matches engine's accept gate by convention, not by " +
+      "import — the two thresholds may legitimately diverge per caller).",
+    ),
+    sandboxBudget: z.number().int().min(1_000).max(600_000).optional().describe(
+      "Optional caller-side wall-time budget in ms (1 s ≤ x ≤ 10 min). " +
+      "Dispatcher maps this to the engine's `timeoutMs` and prefers it " +
+      "over the explicit `timeoutMs` field when BOTH are set. Used by " +
+      "sandboxed callers that must bound a single consensus call.",
+    ),
+    timeoutMs: z.number().int().min(1_000).max(600_000).optional().describe(
+      "Per-model timeout in ms (1 s ≤ x ≤ 10 min; engine default 90 000). " +
+      "Capped at 10 minutes to prevent unbounded fan-out hold. Use " +
+      "`sandboxBudget` instead if you want explicit override semantics.",
+    ),
+    taskType: z.string().min(1).max(64).optional().describe(
+      "Task-type tag forwarded to persistence + performance-weighted vendor " +
+      "selection. Examples: 'plan', 'build', 'review', 'safety_gate'.",
+    ),
+    context: z.string().max(20_000).optional().describe(
+      "Optional caller context appended to the question under a `=== CALLER " +
+      "CONTEXT ===` block before the panel sees it (≤20 000 chars).",
+    ),
+    persist: z.boolean().optional().describe(
+      "Persist the consensus result to the wiki second-brain so future " +
+      "sessions can recall the same prompt's answer without re-paying the " +
+      "4-way fan-out cost. Engine default: true.",
+    ),
+    prismContext: z.boolean().optional().describe(
+      "Auto-inject PRISM context (CLAUDE.md + GSD + master index + " +
+      "top-relevant engines) into each voice's prompt so they reason WITH " +
+      "PRISM knowledge instead of generic. Engine default: true.",
+    ),
+    usePerformanceWeights: z.boolean().optional().describe(
+      "When true (and `taskType` is set), consult ConsensusModelPerformance" +
+      "Engine to skip vendors with low historical reward EMA on this task " +
+      "type while preserving a 2-vendor floor. Engine default: false.",
+    ),
+  }).strict().describe(
+    "4-way model consensus on a question. Always fan-outs to Codex + Ollama " +
+    "(baseline pair), and additionally to a subset of {Claude, Grok, Gemini} " +
+    "per the `voices` list AND per-vendor auth availability. Returns " +
+    "per-voice answers, agreementScore, consensus winner, recommendation " +
+    "(engine's accept/review/escalate verdict — note `recommendation === " +
+    "'escalate'` indicates inadequate consensus even when `success: true` " +
+    "comes back from the dispatcher; callers must inspect recommendation " +
+    "AND successCount, not just dispatcher-level success), totalLatencyMs, " +
+    "and meetsCallerThreshold (agreementScore vs caller's agreementThreshold).",
+  ),
 };

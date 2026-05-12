@@ -2132,6 +2132,69 @@ export async function executeAIReasoningAction(
         break;
       }
 
+      // ─────────────────────────────────────────────────────────────────────
+      // INFRA-CONSENSUS-WIRE-MS0/P0-U01 — consensus_decide
+      // 4-way model consensus via MultiModelConsensusEngine.ask().
+      // Caller-facing schema (question/options/voices/agreementThreshold/
+      // sandboxBudget) translates to engine ConsensusInput shape (prompt/
+      // voteOptions/include{Claude,Grok,Gemini}/timeoutMs). codex+ollama are
+      // always-on per engine contract; voices controls only claude/grok/gemini.
+      // sandboxBudget takes precedence over timeoutMs when both present.
+      // agreementThreshold is the CALLER's gate (independent of engine's
+      // internal ACCEPT_THRESHOLD); echoed back as meetsCallerThreshold.
+      // ─────────────────────────────────────────────────────────────────────
+      case "consensus_decide": {
+        const { multiModelConsensusEngine } = await import("../../engines/MultiModelConsensusEngine.js");
+        // KEEP IN SYNC with the `voices` z.enum literal in aiReasoningActionSchemas.ts
+        // (consensus_decide entry). If new voices are added there, extend this union or
+        // — preferably — replace with a shared `as const` tuple imported from the schema.
+        type Voice = "claude" | "codex" | "ollama" | "grok" | "gemini";
+        const p = params as {
+          question: string;
+          options?: string[];
+          voices: Voice[];
+          agreementThreshold?: number;
+          sandboxBudget?: number;
+          timeoutMs?: number;
+          taskType?: string;
+          context?: string;
+          persist?: boolean;
+          prismContext?: boolean;
+          usePerformanceWeights?: boolean;
+        };
+
+        // sandboxBudget (1s–10min cap) is preferred when set — caller's wall
+        // bound wins over the per-call default. Both already schema-bounded.
+        const effectiveTimeoutMs = p.sandboxBudget ?? p.timeoutMs;
+        const callerThreshold = p.agreementThreshold ?? 0.70;
+        const consensusMode: "vote" | "compare" = (p.options && p.options.length > 0) ? "vote" : "compare";
+
+        const consensusResult = await multiModelConsensusEngine.ask({
+          prompt: p.question,
+          context: p.context,
+          mode: consensusMode,
+          voteOptions: p.options,
+          // Voice toggles — codex + primary ollama are always invoked by the
+          // engine regardless of these flags; including/excluding them in the
+          // voices list is informational acknowledgement.
+          includeClaude: p.voices.includes("claude"),
+          includeGrok: p.voices.includes("grok"),
+          includeGemini: p.voices.includes("gemini"),
+          ...(effectiveTimeoutMs !== undefined ? { timeoutMs: effectiveTimeoutMs } : {}),
+          ...(p.taskType !== undefined ? { taskType: p.taskType } : {}),
+          ...(p.persist !== undefined ? { persist: p.persist } : {}),
+          ...(p.prismContext !== undefined ? { prismContext: p.prismContext } : {}),
+          ...(p.usePerformanceWeights !== undefined ? { usePerformanceWeights: p.usePerformanceWeights } : {}),
+        });
+
+        result = {
+          ...consensusResult,
+          callerAgreementThreshold: callerThreshold,
+          meetsCallerThreshold: consensusResult.agreementScore >= callerThreshold,
+        };
+        break;
+      }
+
       default: {
         const _exhaustive: never = action;
         return dispatcherError(`Unknown action: ${_exhaustive}`, action, "prism_ai");
