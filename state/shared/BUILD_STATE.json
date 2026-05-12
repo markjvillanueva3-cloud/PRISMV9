@@ -1,11 +1,11 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-12T18:43:11.335Z",
+  "generatedAt": "2026-05-12T19:07:12.901Z",
   "headline": {
     "built_engines": 2302,
     "built_with_wiki": 1075,
     "needs_wiring": 883,
-    "needs_building_active_units": 3405,
+    "needs_building_active_units": 3402,
     "needs_frontend_merge_count": 2,
     "pending_milestones_with_activity": 4,
     "drift_milestones": 4,
@@ -4504,6 +4504,14 @@
         "sample_unwired": []
       },
       {
+        "domain": "Hook",
+        "total": 12,
+        "wired": 12,
+        "unwired": 0,
+        "coverage_pct": 100,
+        "sample_unwired": []
+      },
+      {
         "domain": "Strategy",
         "total": 12,
         "wired": 12,
@@ -4515,14 +4523,6 @@
         "domain": "Thermal",
         "total": 12,
         "wired": 12,
-        "unwired": 0,
-        "coverage_pct": 100,
-        "sample_unwired": []
-      },
-      {
-        "domain": "Hook",
-        "total": 11,
-        "wired": 11,
         "unwired": 0,
         "coverage_pct": 100,
         "sample_unwired": []
@@ -9089,7 +9089,7 @@
     "next_action": "Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift."
   },
   "NEEDS_BUILDING": {
-    "summary": "3405 units across 665 milestones not yet in git.",
+    "summary": "3402 units across 665 milestones not yet in git.",
     "drift_cases": [
       {
         "id": "MF-MS1",
@@ -9140,18 +9140,6 @@
         "unit": "U-HOOK-TIERS",
         "title": "H3 — Tier frontmatter on all 480 hooks + hook-tier-validator.mjs PreToolUse block on .claude/hooks/*.mjs edits",
         "phase": "critical-path"
-      },
-      {
-        "milestone": "OCTOPUS-NEURAL-MS0",
-        "unit": "U-OCN03",
-        "title": "Build `NeuralRoutingEngine` (GraphRouter on scrutiny ledger)",
-        "phase": "P0"
-      },
-      {
-        "milestone": "OCTOPUS-NEURAL-MS0",
-        "unit": "U-OCN04",
-        "title": "Build `CascadeCalibrationEngine` (probe-based offload)",
-        "phase": "P0"
       },
       {
         "milestone": "OCTOPUS-NEURAL-MS0",
