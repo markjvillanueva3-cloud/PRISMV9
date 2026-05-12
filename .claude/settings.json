@@ -918,6 +918,18 @@
           }
         ]
       }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/subagent-stop-verifier.mjs",
+            "timeout": 6000
+          }
+        ]
+      }
     ]
   },
   "enabledPlugins": {
