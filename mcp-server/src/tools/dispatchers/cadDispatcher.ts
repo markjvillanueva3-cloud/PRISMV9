@@ -262,6 +262,9 @@ const ACTIONS = [
   "cad_part_geometry_analyze",     // PartGeometryPipelineEngine — feature analysis
   "cad_part_geometry_match_tools", // PartGeometryPipelineEngine — feature → tool match
   "cad_fcf_validate",              // FCFSyntaxValidatorEngine — Feature Control Frame validate
+  // BLUEPRINT-OCR-TRAINING-MS1/U1: 2 GD&T monolith-fork rescues
+  "cad_gdt_parse_enhanced",        // PrismEnhancedGDTEngine — callout → FCF + metadata + CAM recs
+  "cad_gdt_fcf_parse_enhanced",    // PrismGDTFCFParserEngine — composite/multi-tier FCF + serializer
   "cad_tolerance_it_grade",        // ToleranceEngine — ISO 286 IT-grade lookup
   "cad_tolerance_fit_analyze",     // ToleranceEngine — H7/g6-style fit analysis
   "cad_tolerance_stackup",         // ToleranceEngine — RSS/worst-case stackup
@@ -2475,6 +2478,38 @@ Params vary by action — pass relevant fields in params object.`,
           case "cad_fcf_validate": {
             const { fcfSyntaxValidatorEngine } = await import("../../engines/FCFSyntaxValidatorEngine.js");
             const data = fcfSyntaxValidatorEngine.validate(params.input ?? params as Parameters<typeof fcfSyntaxValidatorEngine.validate>[0]);
+            result = { success: true, data };
+            break;
+          }
+          // ── BLUEPRINT-OCR-TRAINING-MS1/U1: 2 GD&T monolith-fork rescues ────────
+          case "cad_gdt_parse_enhanced": {
+            if (!params.callout || typeof params.callout !== "string") {
+              return dispatcherError(
+                new Error("cad_gdt_parse_enhanced requires callout: string"),
+                action, "prism_cad",
+              );
+            }
+            const { prismEnhancedGdtEngine } = await import("../../engines/PrismEnhancedGDTEngine.js");
+            const data = prismEnhancedGdtEngine.parseEnhanced(params.callout);
+            result = { success: true, data };
+            break;
+          }
+          case "cad_gdt_fcf_parse_enhanced": {
+            // Accepts either: { callout: string } for two-line `\n`-delimited input,
+            // or { primary: string, refinement: string } for explicit form.
+            const { prismGdtFcfParserEngine } = await import("../../engines/PrismGDTFCFParserEngine.js");
+            let input: string | { primary: string; refinement: string };
+            if (typeof params.callout === "string") {
+              input = params.callout;
+            } else if (typeof params.primary === "string" && typeof params.refinement === "string") {
+              input = { primary: params.primary, refinement: params.refinement };
+            } else {
+              return dispatcherError(
+                new Error("cad_gdt_fcf_parse_enhanced requires callout: string OR {primary: string, refinement: string}"),
+                action, "prism_cad",
+              );
+            }
+            const data = prismGdtFcfParserEngine.parseComposite(input);
             result = { success: true, data };
             break;
           }
