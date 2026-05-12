@@ -81,6 +81,16 @@
       "description": "Monthly community-skill-marketplace scan (@eng_khairallah1 Phase-1 'there are 80,000+ community Skills... most people have never installed one'). Fetches the major collections (anthropics/skills, wshobson/agents, obra/superpowers GitHub READMEs; skillsmp.com is JS-gated and skipped unless run with the Playwright MCP), scores each listing against PRISM's domain vocabulary, dedup-checks against the existing library, and writes state/shared/skill-marketplace-candidates-YYYY-MM-DD.{md,json} with install/study/already-covered/skip recommendations. RECOMMENDS ONLY — installing a community skill is a human/forge action through /harness-security-audit. Engine: SkillMarketplaceScannerEngine; dispatcher: prism_knowledge:skill_marketplace_scan. 1st-of-month 10:00 local.",
       "enabled": true,
       "added": "2026-05-12"
+    },
+    {
+      "id": "skill-refinement-digest-weekly",
+      "milestone": "SKILLS-UTILIZATION-MS0/U-SKU04",
+      "command": "node H:/prism/scripts/skill-refinement-digest.mjs --push-bus",
+      "cron": "13 9 * * 5",
+      "timezone": "local",
+      "description": "Weekly skill-refinement digest (@eng_khairallah1 Phase-3 'review and refine your Skill every Friday for the first month'). Surfaces skills wanting attention this week in three categories: A output-overridden (telemetry; a hot-but-stale proxy until an override event type exists), B stale (last_refined > 90d; narrows to stale-AND-hot once invocation_count_30d is wired), C linter-flagged (from skill-lint-report.json). Each entry is enriched with the latest SKILL-LIBRARY-AUDIT grade/distance/suggested-fix. Writes state/shared/skill-refinement-digest-YYYY-MM-DD.{md,json} and posts a one-line summary to the agent chat bus. Read-only — refinement is a human/forge action (edit the SKILL.md; last_refined auto-updates from mtime). Engine: SkillRefinementDigestEngine; dispatcher: prism_dev:skill_refinement_digest. Friday 09:13 local (the @eng_khairallah1 'Friday reminder').",
+      "enabled": true,
+      "added": "2026-05-12"
     }
   ]
 }
