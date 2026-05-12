@@ -40,7 +40,7 @@
  * so the linter and the `SKILL_QUALITY_REGISTRY.json` row for a skill never disagree.
  *
  * Modes:
- *   node scripts/skill-lint.mjs                 # full sweep over every skill root → state/shared/skill-lint-report.json; exit = flagged count
+ *   node scripts/skill-lint.mjs [--all]         # full sweep over every skill root → state/shared/skill-lint-report.json; exit = flagged count (--all is the explicit alias for the default)
  *   node scripts/skill-lint.mjs --project-only  # skip ~/.claude user roots — deterministic CI subset
  *   node scripts/skill-lint.mjs --from-registry # don't re-walk; lint the already-written SKILL_QUALITY_REGISTRY.json (faster; warns if stale)
  *   node scripts/skill-lint.mjs --rebuild-registry  # refresh SKILL_QUALITY_REGISTRY.json + sidecar first, then lint the fresh data
@@ -78,6 +78,7 @@ const opt = (name) => {
 };
 const OPTS = {
   help: flag("--help", "-h"),
+  all: flag("--all"),                  // explicit alias for the default full sweep — recognised so it's a no-op, not a "silently ignored unknown flag"
   selfTest: flag("--self-test", "--selftest"),
   projectOnly: flag("--project-only", "--skip-user-roots"),
   fromRegistry: flag("--from-registry"),
@@ -93,7 +94,7 @@ const OPTS = {
 
 const USAGE = `skill-lint.mjs — static skill-quality linter (U-SKU03)
 
-  node scripts/skill-lint.mjs [--project-only|--from-registry|--rebuild-registry|--roots <dir>]
+  node scripts/skill-lint.mjs [--all|--project-only|--from-registry|--rebuild-registry|--roots <dir>]   (--all = the default full sweep)
   node scripts/skill-lint.mjs --self-test
   node scripts/skill-lint.mjs --fix [--apply]
   flags: --json  --quiet  --no-write  --report <path>
