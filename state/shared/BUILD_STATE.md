@@ -1,6 +1,6 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-12T19:07:12.901Z
+> Generated: 2026-05-12T19:15:02.079Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
@@ -8,7 +8,7 @@
 - **2302** engines built and wired (of 3185)
 - **1075** wiki entries indexed
 - **883** engines awaiting dispatcher wiring
-- **3402** units pending across 4 active milestones
+- **3400** units pending across 3 active milestones
 - **2** codex frontend builds awaiting merge
 - **4** milestones with envelope-status drift
 
@@ -65,7 +65,7 @@
 
 ## NEEDS_BUILDING
 
-3402 units across 665 milestones not yet in git.
+3400 units across 666 milestones not yet in git.
 
 ### Envelope-status drift
 
@@ -74,17 +74,16 @@
 | MF-MS1 | completed | not_started_real | claims_completed_but_units_pending |
 | MF-MS2 | completed | not_started_real | claims_completed_but_units_pending |
 | HTML-PRIMARY-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
-| OCTOPUS-NEURAL-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| OCTOPUS-NEURAL-MS0 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 
 ### Top pending units (most-recently-active milestones first)
 
 | Milestone | Phase | Unit | Title |
 |-----------|-------|------|-------|
 | HOOK-SYNERGY-MS0 | stopgap | U-HOOK-STOPGAP | 7 hook timeout reductions in C:/Users/wompu/.claude/settings.json (git-health-guard 35→8s, git-sync-stop 35→8s, session-start-zombie-reap 25→8s, auto-lint-post-edit 15→8s, git-sync-fetch/claude-brief-inject/quality-dashboard-alert 12→5s) |
-| HOOK-SYNERGY-MS0 | critical-path | U-HOOK-AUDIT | H1 — scripts/settings-dedup-audit.mjs + state/shared/SETTINGS_DEDUP_REPORT.md (cross-layer dedup, fan-out per tool) |
 | HOOK-SYNERGY-MS0 | critical-path | U-HOOK-REGISTRY | H2 — HOOK_REGISTRY.json generator + prism_dev:hook_registry action + prism_session:hook_map_compact |
 | HOOK-SYNERGY-MS0 | critical-path | U-HOOK-TIERS | H3 — Tier frontmatter on all 480 hooks + hook-tier-validator.mjs PreToolUse block on .claude/hooks/*.mjs edits |
-| OCTOPUS-NEURAL-MS0 | P0 | U-OCN05 | Build `ConsensusQuorumEngine` (dynamic N-of-M from change class) |
+| HOOK-SYNERGY-MS0 | critical-path | U-HOOK-FAST-LANE | H6 — Settings.json matcher split (Read/Glob/Grep fast lane vs Edit/Write/Bash slow lane) + dedup apply (target 70% latency cut on read-only ops) |
 | HTML-PRIMARY-MS0 | P0 | U-HPS01 | Build `SpecHTMLCompanionEngine` (master renderer) |
 | HTML-PRIMARY-MS0 | P0 | U-HPS03 | Theme engine (dark/light, prefers-color-scheme) |
 | HTML-PRIMARY-MS0 | P0 | U-HPS04 | Navigation engine (sticky TOC, anchor links, search) |
