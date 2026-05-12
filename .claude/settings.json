@@ -658,6 +658,16 @@
         ]
       },
       {
+        "matcher": "^(Bash|Read|Edit|Write|MultiEdit)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/permission-denied-retry.mjs",
+            "timeout": 3000
+          }
+        ]
+      },
+      {
         "matcher": "Edit|Write|MultiEdit",
         "hooks": [
           {
