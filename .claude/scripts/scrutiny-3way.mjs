@@ -12,17 +12,17 @@
  * auto-records its --codex mark. It does NOT spawn the Claude reviewers — those
  * run via the chat's Agent tool. The script emits BOTH reviewer prompts
  * (`opusReviewerPrompt` = arm A, `opusReviewerPromptB` = arm B) and awaits the
- * chat's `--mark-opus` (arm A) and `--mark-opus-b` (arm B) marks.
+ * chat's `--mark-opus` (arm A) and `--mark-claude` (arm B) marks.
  *
- * Strict 3-of-3 policy: the Stop hook releases ONLY when codex AND opus (arm A)
- * AND opusB (arm B) have been marked PASS for the session.
+ * Strict 3-of-3 policy: the Stop hook releases ONLY when codex AND arm A (opus)
+ * AND arm B (claude) have all been marked PASS for the session.
  *
  * (History: the arm-2 reviewer was the Gemini CLI until 2026-05-12, when it was
  *  swapped for a second Claude reviewer agent — more reliable than the Gemini
  *  CLI's quota/trust-dir failure modes, and gives two independent Claude passes
- *  + one cross-vendor Codex pass. The ledger field is still named `opusReviewed`
- *  for arm A and `opusBReviewed` for arm B; `geminiReviewed` is retained for
- *  transition compatibility only.)
+ *  + one cross-vendor Codex pass. The ledger flags are `opusReviewed` (arm A) and
+ *  `claudeReviewed` (arm B); `opusBReviewed` and `geminiReviewed` are accepted as
+ *  write-side aliases for `claudeReviewed` and migrated to it on read.)
  *
  * Usage:
  *   node .claude/scripts/scrutiny-3way.mjs                        # review uncommitted diff
@@ -31,7 +31,7 @@
  *   node .claude/scripts/scrutiny-3way.mjs --session-id abc       # explicit session id
  *   node .claude/scripts/scrutiny-3way.mjs --skip codex            # skip the Codex arm
  *   node .claude/scripts/scrutiny-3way.mjs --mark-opus pass --session-id abc      # record arm A
- *   node .claude/scripts/scrutiny-3way.mjs --mark-opus-b pass --session-id abc    # record arm B
+ *   node .claude/scripts/scrutiny-3way.mjs --mark-claude pass --session-id abc    # record arm B (aliases: --mark-opus-b, --mark-gemini)
  *
  * Output: JSON object with the codex verdict, BOTH Claude-reviewer prompts, and
  * the one-line shell commands the chat must run after the Agent tool reviews return.
@@ -551,16 +551,16 @@ async function main() {
     return;
   }
 
-  // Sub-command: --mark-opus / --mark-opus-b pass|fail — used by the chat after
+  // Sub-command: --mark-opus / --mark-claude pass|fail — used by the chat after
   // the Agent-tool reviewers return. Records the Claude-reviewer legs (arm A
   // and/or arm B) of the strict 3-of-3 gate. Either or both may be supplied in
-  // one call. (--mark-opus-a is an accepted alias for --mark-opus.)
+  // one call. Accepted aliases: --mark-opus-a → arm A; --mark-opus-b / --mark-gemini → arm B.
   if (args.markOpus || args.markOpusB) {
     const marks = {};
     const marked = [];
-    for (const [argVal, flag, detailKey, armSuffix] of [
-      [args.markOpus, "opusReviewed", "opusDetail", ""],
-      [args.markOpusB, "opusBReviewed", "opusBDetail", "-b"],
+    for (const [argVal, flag, detailKey, flagName, armLabel] of [
+      [args.markOpus,  "opusReviewed",   "opusDetail",   "--mark-opus",   "A"],
+      [args.markOpusB, "claudeReviewed", "claudeDetail", "--mark-claude", "B"],
     ]) {
       if (!argVal) continue;
       const verdict = String(argVal).toLowerCase();
@@ -568,13 +568,13 @@ async function main() {
         console.log(JSON.stringify({
           ok: false,
           error: "invalid-mark",
-          message: `--mark-opus${armSuffix} must be 'pass' or 'fail' (case-insensitive); got: ${JSON.stringify(argVal)}`,
+          message: `${flagName} must be 'pass' or 'fail' (case-insensitive); got: ${JSON.stringify(argVal)}`,
         }, null, 2));
         process.exit(2);
       }
       marks[flag] = verdict === "pass";
       marks[detailKey] = { verdict, blockers: args.blockers, notes: args.notes };
-      marked.push({ arm: armSuffix === "-b" ? "B" : "A", verdict });
+      marked.push({ arm: armLabel, verdict });
     }
     const sid = findStableSessionId(args.sessionId);
     const entry = recordScrutiny(sid, marks);
