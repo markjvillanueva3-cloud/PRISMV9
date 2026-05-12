@@ -446,6 +446,16 @@
         ]
       },
       {
+        "matcher": "^mcp__prism",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/helpers/mcp-action-router.mjs",
+            "timeout": 2000
+          }
+        ]
+      },
+      {
         "matcher": "Bash|Read|Edit|Write|MultiEdit",
         "_disabled_by": "U-D3 hook bundling — mcp-route-suggest now runs inside edit-bundle.mjs / bash-bundle.mjs / read-bundle.mjs SHARED_HOOKS",
         "hooks": []
@@ -515,6 +525,16 @@
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/bundles/bash-bundle.mjs",
             "timeout": 8000
+          }
+        ]
+      },
+      {
+        "matcher": "^Bash$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/helpers/mcp-action-router.mjs",
+            "timeout": 2000
           }
         ]
       },
@@ -933,6 +953,16 @@
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/helpers/mcp-posttool-tracker.mjs",
             "timeout": 2000
+          }
+        ]
+      },
+      {
+        "matcher": "^(Edit|Write|MultiEdit)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/helpers/test-quality-gate.mjs",
+            "timeout": 8000
           }
         ]
       }
