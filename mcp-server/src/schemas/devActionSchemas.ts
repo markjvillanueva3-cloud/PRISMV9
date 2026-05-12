@@ -304,4 +304,15 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     min_usage_threshold: z.number().int().nonnegative().optional().describe("Floor on usage count"),
     max_usage_threshold: z.number().int().positive().optional().describe("Ceiling on usage count"),
   }).passthrough(),
+
+  // BACKEND-DEVTOOLS-RGS6 HTML-COMPANION-MS0 — render a PRISM Markdown spec to an HTML companion
+  spec_html_render: z.object({
+    md: z.string().optional().describe("Markdown content to render (provide this OR path)"),
+    path: z.string().optional().describe("Path to a .md file under the PRISM root to read & render (provide this OR md)"),
+    theme: z.enum(["dark", "light", "auto"]).optional().describe("Color theme; auto (default) follows prefers-color-scheme"),
+    toc: z.boolean().optional().describe("Include the table-of-contents sidebar (default true)"),
+    title: z.string().optional().describe("Override the document <title>"),
+    write: z.boolean().optional().describe("If a path was given, also write <path>.html (and a .hash sidecar) alongside it"),
+    include_html: z.boolean().optional().describe("Return the full rendered HTML inline in the response (default false — only metadata)"),
+  }).passthrough(),
 };
