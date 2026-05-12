@@ -13,7 +13,7 @@
   "roadmap_priority": 0,
   "tier": 0,
   "priority": "P0",
-  "status": "in_progress",
+  "status": "completed",
   "assigned_lane": null,
   "commit_prefix": null,
   "critical_path_role": "U-SKU06 (registry schema) → {U-SKU01 3Q-gate, U-SKU02 3-scenario test, U-SKU03 linter} → U-SKU05 (library audit) → U-SKU08 (INTERNAL bundle — public release deferred per hard rule). U-SKU04 (cadence) depends on U-SKU06 + LOOP-MIGRATE cron infra. U-SKU07 (marketplace scan) standalone.",
@@ -227,9 +227,9 @@
             "U-SKU08"
           ],
           "viz_node_id": "core.cron.skill-refinement-digest",
-          "viz_node_status": "needs_creation",
+          "viz_node_status": "wired",
           "loop_schedule": "`/loop --interval 7d --max 4` (weekly digest, 4 weeks then re-evaluate) + cron `13 9 * * 5` (Friday 9:13am — the @eng_khairallah1 \"Friday reminder\")",
-          "status": "not_started",
+          "status": "completed",
           "four_loop": [
             "BUILD",
             "SCRUTINIZE",
@@ -245,7 +245,10 @@
             "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
           ],
           "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-SKILLS-UTILIZATION-MS0-ATOMIZED-2026-05-10.md",
-          "atomized_anchor": "## U-SKU04"
+          "atomized_anchor": "## U-SKU04",
+          "completed_at": "2026-05-12T15:35:00.000Z",
+          "completed_by_sha": "6f7b570a7",
+          "completion_note": "SkillRefinementDigestEngine (digest + renderMarkdown — read-only; 3 categories A output-overridden [telemetry; a hot-but-stale proxy until an override event type exists; empty + advisory when no telemetry], B stale_but_hot [last_refined>90d ∧ inv>10; degrades to 'stale (>90d)' + advisory when no invocation telemetry], C linter-flagged [from skill-lint-report.json; works fully]; each entry enriched with the latest SKILL-LIBRARY-AUDIT grade/distance/reasons → suggestedFix; deduped union + top-3 spotlight A>B>C; capped at 15/category) + prism_dev:skill_refinement_digest action (flat summary by default — the shared responseSlimmer drops empty-array keys, so counts-as-numbers + spotlight survive; full=true → whole digest; markdown=true → rendered report; write=true → writes artifacts) + scripts/skill-refinement-digest.mjs CLI (--json/--no-write/--push-bus/--top-n/--telemetry/--registry/--self-test; picks up git state for the 'uncommitted skill edits' note; posts a one-liner to the chat bus on --push-bus) + skill-refinement-digest-weekly cron (13 9 * * 5 — the Friday reminder, invoked --push-bus) + 22 vitest cases. 245 skill-suite tests pass; tsc clean; build:fast clean. First real run committed: state/shared/skill-refinement-digest-2026-05-12.{md,json} (2026-W20) — 501 skills tracked, 15 actionable (all category C, capped from ~441 lint-flagged; A and B empty: no telemetry events, all last_refined values recent). Honest: with invocation telemetry absent the digest's advisories say exactly what's degraded."
         },
         {
           "id": "U-SKU05",
@@ -352,9 +355,9 @@
             "U-SKU07"
           ],
           "viz_node_id": "core.script.export-prism-skills-plugin",
-          "viz_node_status": "needs_creation",
+          "viz_node_status": "wired",
           "loop_schedule": "none (manual — rebuild on demand after each audit)",
-          "status": "not_started",
+          "status": "completed",
           "four_loop": [
             "BUILD",
             "SCRUTINIZE",
@@ -370,12 +373,15 @@
             "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
           ],
           "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-SKILLS-UTILIZATION-MS0-ATOMIZED-2026-05-10.md",
-          "atomized_anchor": "## U-SKU08"
+          "atomized_anchor": "## U-SKU08",
+          "completed_at": "2026-05-12T15:40:00.000Z",
+          "completed_by_sha": "9f4246b62",
+          "completion_note": "scripts/export-prism-skills-plugin.mjs (reads the newest SKILL-LIBRARY-AUDIT-<date>.json, filters to grade==production_grade [optional --domain manufacturing|cad|cam|dev-tools|all], copies each skill's primary .md → <out>/skills/<name>/SKILL.md and sibling scenarios/ dirs, scans bodies for internal-path leaks [H:/prism, C:\\Users, JM-Die] and scenarios/ for proprietary markers [JM DIE, ALCOA, Holo-Krome, Optimas] and EXCLUDES a skill that can't ship clean, writes .claude-plugin/plugin.json [version pinned to git SHA, skills[] → SKILL.md paths] + README.md [included + excluded-and-why] + LICENSE [INTERNAL USE ONLY — not OSS] + MANIFEST.json [distribution='INTERNAL ONLY — public release deferred']; exports exportPlugin()+validateBundle(); modes default/--out/--domain/--audit/--no-write/--self-test/--help; empty production-grade set → empty-but-structurally-valid plugin + a clear warning, never ships vapor) + 7 vitest cases (spawnSync — the U-SKU03-linter pattern: --help/--self-test, real-audit empty bundle, synthetic-audit included/excluded/leaky/needs/--domain-cad, missing-audit exit 1) + state/shared/PRISM-SKILLS-BUNDLE-CHECKLIST.md (INTERNAL-distribution checklist + a DEFERRED — DO NOT EXECUTE section recording the bar ANY future public release would have to clear: /harness-security-audit hard gate, zero H:/C: paths, zero JM-Die data, a real LICENSE, clean history, explicit per-artifact clearance — per feedback_no_public_h_drive public release is OUT OF SCOPE and must not happen without that clearance) + dist/prism-manufacturing-skills/ (git add -f — the first exported bundle: empty [0 production-grade skills at the 2026-05-12 audit] but structurally valid; populates as the gap list is worked). 245 skill-suite tests pass; tsc clean; build:fast clean. INTERNAL-only — ships a script (no dispatcher action, loop_schedule none — manual rebuild after each audit, version pinned to the git SHA)."
         }
       ]
     }
   ],
   "total_units": 8,
   "declared_total_units": 8,
-  "completed_units": 6
+  "completed_units": 8
 }
