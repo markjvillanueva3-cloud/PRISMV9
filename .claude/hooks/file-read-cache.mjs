@@ -9,7 +9,10 @@
  * token waste. The harness itself warns against verification re-reads — this
  * enforces it with a hard block.
  *
- * Cache key:  sessionId :: absPath :: mtimeMs :: offset :: limit
+ * Cache key:  sessionId :: canonicalPath :: mtimeMs :: offset :: limit
+ *   - canonicalPath = fs.realpath (resolves ../, symlinks/junctions, and the
+ *     real on-disk casing) — so `H:/PRISM/x`, `H:/prism/x`, `H:\prism\x`, and a
+ *     symlinked path to the same file all dedup to ONE key (Codex review fix).
  *   - per-session  → 6 concurrent chats never collide
  *   - mtime in key → any edit / external write auto-invalidates the entry
  *   - offset/limit in key → reading a *different* slice is always allowed;
@@ -91,8 +94,27 @@ export function isExempt(filePath) {
   return EXEMPT_SUFFIXES.some((s) => n.endsWith(s));
 }
 
-export function cacheKey(filePath, mtimeMs, offset, limit, sessionId) {
-  return `${sessionId ?? "_"}::${filePath}::${mtimeMs}::${offset ?? 0}::${limit ?? 0}`;
+export function cacheKey(canonPath, mtimeMs, offset, limit, sessionId) {
+  return `${sessionId ?? "_"}::${canonPath}::${mtimeMs}::${offset ?? 0}::${limit ?? 0}`;
+}
+
+/**
+ * Canonical, comparable form of a path so two reads of the SAME file via
+ * different spellings dedup to one cache key. fs.realpath resolves `..`,
+ * symlinks/junctions, and (on case-insensitive Windows) reports the real
+ * on-disk casing; if it throws (it shouldn't for a file we just stat'd) we
+ * fall back to path.resolve; on Windows we also lowercase as a backstop for
+ * that fallback path. Fail-open: a normalization failure just yields a key
+ * that may miss a dedup — never a wrongful deny.
+ */
+export async function canonicalPath(filePath) {
+  let p;
+  try {
+    p = await fs.realpath(filePath);
+  } catch {
+    p = path.resolve(String(filePath ?? ""));
+  }
+  return process.platform === "win32" ? p.toLowerCase() : p;
 }
 
 /** Drop expired entries, then LRU-evict (oldest `ts` first) down to `max`. */
@@ -165,7 +187,8 @@ export async function decideRead(event, cache, now = Date.now()) {
   if (stat.isDirectory()) return { kind: "skip" }; // dir reads are cheap & not re-read content
 
   const sessionId = event.session_id || event.sessionId || process.env.CLAUDE_SESSION_ID;
-  const key = cacheKey(filePath, stat.mtimeMs, input.offset, input.limit, sessionId);
+  const canonPath = await canonicalPath(filePath);
+  const key = cacheKey(canonPath, stat.mtimeMs, input.offset, input.limit, sessionId);
   const hit = cache && cache[key];
   if (hit && typeof hit.ts === "number") {
     const ageSec = Math.max(0, Math.round((now - hit.ts) / 1000));

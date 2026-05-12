@@ -24,6 +24,7 @@ import * as path from "node:path";
 import {
   isExempt,
   cacheKey,
+  canonicalPath,
   pruneCache,
   decideRead,
   clearSession,
@@ -51,7 +52,7 @@ describe("file-read-cache — decideRead (the PreToolUse:Read decision)", () => 
     const d = await decideRead(readEvent(f), {}, now);
     expect(d.kind).toBe("record");
     expect(d.entry).toEqual({ ts: now, path: f });
-    expect(d.key).toBe(cacheKey(f, fs.statSync(f).mtimeMs, undefined, undefined, "sess-1"));
+    expect(d.key).toBe(cacheKey(await canonicalPath(f), fs.statSync(f).mtimeMs, undefined, undefined, "sess-1"));
   });
 
   it("2. an IDENTICAL re-read of an unchanged file is DENIED, with the path + age in the reason", async () => {
@@ -87,7 +88,25 @@ describe("file-read-cache — decideRead (the PreToolUse:Read decision)", () => 
     const second = await decideRead(readEvent(f), cache, Date.now());
     expect(second.kind).toBe("record"); // new key (different mtime) → not a hit
     expect(second.key).not.toBe(first.key);
-    expect(second.key).toBe(cacheKey(f, fs.statSync(f).mtimeMs, undefined, undefined, "sess-1"));
+    expect(second.key).toBe(cacheKey(await canonicalPath(f), fs.statSync(f).mtimeMs, undefined, undefined, "sess-1"));
+  });
+
+  it("3c. a re-read via a different path SPELLING (./.. segments, casing, separators) of the same file is still DENIED", async () => {
+    const f = path.join(sandbox, "spell.txt");
+    fs.writeFileSync(f, "x");
+    const cache = {};
+    const first = await decideRead(readEvent(f), cache, Date.now());
+    expect(first.kind).toBe("record");
+    cache[first.key] = first.entry;
+
+    // Same file, ugly spelling: go into the dir, back up, back down (lexically equal after resolve;
+    // realpath also resolves casing/symlinks). Must hit the SAME cache key → DENY.
+    const uglyPath = path.join(path.dirname(f), ".", "..", path.basename(path.dirname(f)), "spell.txt");
+    const again = await decideRead(readEvent(uglyPath), cache, Date.now() + 1000);
+    expect(again.kind).toBe("deny");
+    expect(again.key).toBe(first.key);
+    // canonicalPath itself collapses the variant:
+    expect(await canonicalPath(uglyPath)).toBe(await canonicalPath(f));
   });
 
   it("3b. a re-read of a DIFFERENT slice (offset/limit) of the same file is allowed; the SAME slice is denied", async () => {
