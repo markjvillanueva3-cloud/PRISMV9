@@ -666,7 +666,7 @@ async function main() {
   const allResults = await Promise.all(tasks);
   // Separate the advisory pre-flight from the recorded arm so ledger marking
   // (which runs only over codex here — the two Claude arms are recorded by the
-  // chat via --mark-opus / --mark-opus-b) sees a clean array.
+  // chat via --mark-opus / --mark-claude) sees a clean array.
   const results = allResults.filter((r) => r.provider !== "ollama-preflight");
   const parallelPreflight = allResults.find((r) => r.provider === "ollama-preflight") ?? null;
   if (parallelPreflight) preflightResult = parallelPreflight;
@@ -727,8 +727,9 @@ async function main() {
       "  Agent({ subagent_type: 'reviewer', description: 'Review session diff (3way reviewer A)', prompt: <opusReviewerPrompt above> })\n" +
       "  Agent({ subagent_type: 'reviewer', description: 'Review session diff (3way reviewer B — independent)', prompt: <opusReviewerPromptB above> })\n" +
       "When they return, record both verdicts (use 'fail' instead of 'pass' for any FAIL):\n" +
-      `  node .claude/scripts/scrutiny-3way.mjs --mark-opus pass   --session-id ${sessionId} --notes "<reviewer A summary>"\n` +
-      `  node .claude/scripts/scrutiny-3way.mjs --mark-opus-b pass --session-id ${sessionId} --notes "<reviewer B summary>"\n` +
+      `  node .claude/scripts/scrutiny-3way.mjs --mark-opus   pass --session-id ${sessionId} --notes "<reviewer A summary>"\n` +
+      `  node .claude/scripts/scrutiny-3way.mjs --mark-claude pass --session-id ${sessionId} --notes "<reviewer B summary>"\n` +
+      "  (--mark-claude is the arm-B mark; --mark-opus-b / --mark-gemini are accepted aliases.)\n" +
       "The Stop hook releases only once codex + arm A + arm B are all PASS (strict 3-of-3).",
     consensus:
       codexPassed === null
