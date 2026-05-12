@@ -25,7 +25,6 @@ _(no header docblock — read source for behavior)_
 
 ## Events
 
-- `UserPromptSubmit`
 - `PreToolUse`
 - `PostToolUse`
 - `Stop`

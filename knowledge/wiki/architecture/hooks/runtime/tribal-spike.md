@@ -25,7 +25,7 @@ _(no header docblock — read source for behavior)_
 
 ## Events
 
-_(no event signatures found — may be a helper or imported by another hook)_
+- `PreToolUse`
 
 ## Doctrine
 
