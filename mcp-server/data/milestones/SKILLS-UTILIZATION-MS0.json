@@ -269,9 +269,9 @@
             "U-SKU07"
           ],
           "viz_node_id": "core.script.skill-library-audit",
-          "viz_node_status": "needs_creation",
+          "viz_node_status": "wired",
           "loop_schedule": "`0 8 1 * *` (1st of month 8am — monthly re-audit)",
-          "status": "not_started",
+          "status": "completed",
           "four_loop": [
             "BUILD",
             "SCRUTINIZE",
@@ -287,7 +287,10 @@
             "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
           ],
           "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-SKILLS-UTILIZATION-MS0-ATOMIZED-2026-05-10.md",
-          "atomized_anchor": "## U-SKU05"
+          "atomized_anchor": "## U-SKU05",
+          "completed_at": "2026-05-12T14:20:00.000Z",
+          "completed_by_sha": "4b6dc19ed",
+          "completion_note": "SkillLibraryAuditEngine (audit + renderMarkdown — read-only; grades on linter-clean + 3Q + all-3-scenario-tests-pass; emits scorecard / per-domain breakdown / prioritized gap list / top-N-by-invocation / ROI range) + prism_dev:skill_audit action + scripts/skill-library-audit.mjs CLI (--json/--no-write/--rebuild/--from/--lint/--out/--self-test) + skill-library-audit-monthly cron (0 8 1 * *) + 30 vitest cases (hermetic grading + failure modes + adversarial + variability + CLI spawnSync + dispatcher round-trip). 168 skill-suite tests pass; tsc clean; build:fast clean. First real run committed: state/shared/SKILL-LIBRARY-AUDIT-2026-05-12.{md,json} — 501 skills, 0 production_grade / 481 needs_refinement / 20 stub_or_orphan (0 production-grade = expected post-U-SKU02, the protocol just shipped; 20 stubs < 50-threshold and no domain hits 50% stub dominance ⇒ no SKILL-CLEANUP-MS1 / SKILL-GAP-FILL-MS1 follow-up warranted; step-6 = no-op). Known follow-ups (advisories in the report, not this lane): registry should persist skill_type (U-SKU06); top-by-invocation needs U-SKU04's telemetry; the domain-prefix map could be expanded to shrink the 306-skill 'Other' bucket."
         },
         {
           "id": "U-SKU07",
@@ -371,5 +374,5 @@
   ],
   "total_units": 8,
   "declared_total_units": 8,
-  "completed_units": 4
+  "completed_units": 5
 }
