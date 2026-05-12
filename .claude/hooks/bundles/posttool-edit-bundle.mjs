@@ -29,6 +29,9 @@ const HOOK_BASE = "H:/prism/.claude/hooks";
 // PostToolUse entries in settings.json. Order ≈ original settings order.
 // Timeouts mirror the original per-hook settings.json budgets.
 const SUB_HOOKS = [
+  // HS-12 (2026-05-12): tool-call runtime log; same hook as in the
+  // bash/read bundle. Cheap (~2-5ms); appends to .tool-runtimes.jsonl.
+  { path: `${HOOK_BASE}/tool-watchdog.mjs`,                     timeout: 1000 },
   { path: `${HOOK_BASE}/directive-summary-refresh-iooms.mjs`,   timeout: 3000 },
   { path: `${HOOK_BASE}/inventory-on-write.mjs`,                timeout: 2000 },
   { path: `${HOOK_BASE}/c-to-h-mirror.mjs`,                     timeout: 3000 },

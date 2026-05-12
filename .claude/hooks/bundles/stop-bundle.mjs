@@ -43,6 +43,9 @@ const SUB_HOOKS = [
   { path: `${HOOK_BASE}/session-consolidate-graph.mjs`, timeout: 5000 },
   { path: `${HOOK_BASE}/stop_close_prism_nodes.mjs`,    timeout: 1000 },
   { path: `${HOOK_BASE}/stop_close_prism_nodes_v2.mjs`, timeout: 5000 },
+  // HS-02 (2026-05-12): mid-session stale-lock cleanup. git-health-guard
+  // ran this only on SessionStart, so locks accumulated mid-session.
+  { path: `${HOOK_BASE}/git-lock-sweeper.mjs`,          timeout: 800 },
 ];
 
 function getConcurrency() {

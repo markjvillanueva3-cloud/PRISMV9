@@ -228,6 +228,27 @@ function main() {
   // live. PreToolUse is the canonical event (decision:block stops the tool
   // call); Stop also accepted for safety.
   if ((event === "PreToolUse" || event === "Stop") && tokens >= HARD && !precompactAlreadyArmed) {
+    // HS-11 sanity floor (2026-05-12): if the token estimate exceeds the
+    // model's hard cap by >50%, the counter is almost certainly wrong
+    // (typical cause: transcript JSONL bytes ÷ 4 over-counts when persisted-
+    // output files inflate the on-disk size). Log + soft-nudge instead of
+    // hard-blocking. Blocking work over a measurement bug is worse than
+    // letting a slightly-over-budget turn through.
+    if (tokens > CONTEXT_CAP * 1.5) {
+      try {
+        fs.appendFileSync(
+          "H:/prism/state/shared/precompact-trigger.jsonl",
+          JSON.stringify({ t: Date.now(), sid, tokens, hard: HARD, cap: CONTEXT_CAP, verdict: "TOKEN_COUNT_SUSPECT" }) + "\n"
+        );
+      } catch { /* ignore */ }
+      emit({
+        continue: true,
+        hookSpecificOutput: {
+          additionalContext: `[precompact-sanity] token estimate ${tokens.toLocaleString()} > 1.5× cap (${CONTEXT_CAP.toLocaleString()}) — counter likely wrong, soft-nudge instead of hard-block. Run /precompact when convenient. Logged to state/shared/precompact-trigger.jsonl.`,
+        },
+      });
+      return;
+    }
     emit({
       decision: "block",
       reason: [
