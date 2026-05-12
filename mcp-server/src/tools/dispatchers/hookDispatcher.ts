@@ -24,7 +24,9 @@ const ACTIONS = [
   "hook_orch_plan", "hook_coverage_analyze", "hook_bandit_select",
   "hook_telemetry_metrics", "hook_efficiency_roi",
   // HOOK-MANIFEST-DAG-MS26/P0-U01: static hook manifest (catalog + DAG-validator input)
-  "manifest"
+  "manifest",
+  // HOOK-MANIFEST-DAG-MS26/P0-U02: cycle detection + deterministic order over the manifest
+  "dag_validate"
 ] as const;
 
 function ok(data: any) {
@@ -246,6 +248,58 @@ export function registerHookDispatcher(server: any): void {
               stats: manifest.stats,
               danglingRefs: manifest.danglingRefs,
               hint: "params: full=true (entire catalog) · write=true (re)write mcp-server/data/state/hook-manifest.json · event=<name> · hook=<id|path>",
+            });
+          }
+          // HOOK-MANIFEST-DAG-MS26/P0-U02 — cycle detection + deterministic order over the hook DAG
+          case "dag_validate": {
+            const { hookDAGValidatorEngine } = await import("../../engines/HookDAGValidatorEngine.js");
+            const { hookManifestEngine } = await import("../../engines/HookManifestEngine.js");
+            const repoRoot = params.repoRoot as string | undefined;
+            const manifestPath = params.manifestPath as string | undefined;
+            // Snapshot a fresh manifest unless a pre-generated path is given. We keep a
+            // reference to the manifest's full event list so an unknown-event lookup can
+            // surface every available event, even when the filter narrowed validation to zero.
+            const manifest = manifestPath ? undefined : hookManifestEngine.generate({ repoRoot });
+            const allEventNames = manifest ? Object.keys(manifest.events).sort() : null;
+            const restrictEvents = Array.isArray(params.events) ? (params.events as string[]) : undefined;
+            const singleEvent = params.event ? [String(params.event)] : undefined;
+            const eventsArg = singleEvent ?? restrictEvents;
+            if (params.write === true) {
+              const { validation, path } = await hookDAGValidatorEngine.validateAndWrite({
+                manifest, manifestPath, events: eventsArg, outPath: params.outPath as string | undefined,
+              });
+              return ok({ written: true, path, ok: validation.ok, summary: validation.summary });
+            }
+            const validation = hookDAGValidatorEngine.validate({ manifest, manifestPath, events: eventsArg });
+            // slimResponse strips empty arrays, which collapses schema-guaranteed fields
+            // (cycles:[], conflicts:[], available:[]) — bypass it so callers always get the
+            // documented shape regardless of whether the validation found anything.
+            const respond = (data: unknown): { content: Array<{ type: "text"; text: string }> } => ({
+              content: [{ type: "text" as const, text: JSON.stringify(data) }],
+            });
+            if (params.event) {
+              const ev = String(params.event);
+              const hit = validation.events.find((e) => e.event === ev);
+              if (hit) return respond(hit);
+              const available = allEventNames ?? validation.events.map((e) => e.event);
+              return respond({ error: `Event not found in manifest: ${ev}`, available });
+            }
+            if (params.full === true) return respond(validation);
+            return respond({
+              schemaVersion: validation.schemaVersion,
+              generatedAt: validation.generatedAt,
+              manifestGeneratedAt: validation.manifestGeneratedAt,
+              ok: validation.ok,
+              summary: validation.summary,
+              events: validation.events.map((e) => ({
+                event: e.event,
+                nodes: e.nodes.length,
+                edges: e.edges.length,
+                cycles: e.cycles.length,
+                conflicts: e.conflicts.length,
+                hasOrder: e.order !== null,
+              })),
+              hint: "params: full=true (every event's nodes+edges+order+cycles) · event=<name> (one event's full DAG) · write=true ((re)write hook-dag-validation.json) · manifestPath=<path>",
             });
           }
           default: return ok({ error: `Unknown action: ${action}`, available: ACTIONS });

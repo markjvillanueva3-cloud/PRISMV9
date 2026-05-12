@@ -262,6 +262,17 @@ const manifest = z.object({
   event: z.string().optional().describe("List the hooks wired to a single event (e.g. PreToolUse)"),
 }).passthrough();
 
+// ── HOOK-MANIFEST-DAG-MS26/P0-U02: DAG validation (cycle + deterministic order) ─
+const dag_validate = z.object({
+  full: z.boolean().optional().describe("Return the entire per-event DAG (nodes + edges + order + cycles + conflicts), not the summary"),
+  write: z.boolean().optional().describe("Atomically write the result to mcp-server/data/state/hook-dag-validation.json"),
+  outPath: z.string().optional().describe("Override the validation output path (used with write)"),
+  manifestPath: z.string().optional().describe("Path to a pre-generated HookManifest JSON. If omitted, the engine asks HookManifestEngine for a fresh manifest first."),
+  repoRoot: z.string().optional().describe("Repo root passed through to HookManifestEngine when manifestPath is omitted (default: auto-detect)"),
+  event: z.string().optional().describe("Inspect a single event (returns its full DAG record). Combinable with the default summary view."),
+  events: z.array(z.string()).optional().describe("Restrict validation to this subset of events. Default: every event in the manifest."),
+}).passthrough();
+
 export const HOOK_ACTION_SCHEMAS: ActionSchemaMap = {
   // V2 Hook Tools (5)
   list,
@@ -315,4 +326,6 @@ export const HOOK_ACTION_SCHEMAS: ActionSchemaMap = {
   hook_efficiency_roi,
   // HOOK-MANIFEST-DAG-MS26/P0-U01: static hook manifest
   manifest,
+  // HOOK-MANIFEST-DAG-MS26/P0-U02: DAG cycle detection + deterministic order over the manifest
+  dag_validate,
 };
