@@ -76,9 +76,12 @@ const WORKHOLDING_ACTIONS = new Set([
 ]);
 // WorkholdingIntelligenceEngine — fixture recommendation + deflection/slip/safety analysis (R7-MS2)
 const WORKHOLDING_INTELLIGENCE_ACTIONS = new Set(["recommend_workholding"]);
+// OCTOPUS-NEURAL-MS0/U-OCN05: dynamic N-of-M quorum from diff classification
+const QUORUM_ACTIONS = new Set(["quorum_required"]);
 const ALL_ACTIONS = [
   ...COLLISION_ACTIONS, ...COOLANT_ACTIONS, ...SPINDLE_ACTIONS,
-  ...BREAKAGE_ACTIONS, ...WORKHOLDING_ACTIONS, ...WORKHOLDING_INTELLIGENCE_ACTIONS
+  ...BREAKAGE_ACTIONS, ...WORKHOLDING_ACTIONS, ...WORKHOLDING_INTELLIGENCE_ACTIONS,
+  ...QUORUM_ACTIONS,
 ] as const;
 
 /** Registers safety dispatcher.
@@ -162,6 +165,19 @@ export function registerSafetyDispatcher(server: any): void {
         } else if (WORKHOLDING_INTELLIGENCE_ACTIONS.has(action)) {
           const { workholdingIntelligence } = await import("../../engines/WorkholdingIntelligenceEngine.js");
           result = workholdingIntelligence("fixture_recommend", params);
+        } else if (QUORUM_ACTIONS.has(action)) {
+          // OCTOPUS-NEURAL-MS0/U-OCN05: pure-function classification of diff → quorum
+          const { consensusQuorumEngine } = await import("../../engines/ConsensusQuorumEngine.js");
+          const rawFiles = (params.files as Array<Record<string, unknown>> | undefined) ?? [];
+          result = consensusQuorumEngine.classify({
+            files: rawFiles.map((f) => ({
+              path: f.path as string,
+              addedLines: f.added_lines as number | undefined,
+              removedLines: f.removed_lines as number | undefined,
+              patch: f.patch as string | undefined,
+            })),
+            commitSubject: params.commit_subject as string | undefined,
+          });
         } else {
           return { content: [{ type: "text" as const, text: JSON.stringify({ error: `Unknown safety action: ${action}` }) }] };
         }

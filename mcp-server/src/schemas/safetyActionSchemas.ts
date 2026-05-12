@@ -674,4 +674,14 @@ export const ACTION_SAFETY_SCHEMAS: ActionSchemaMap = {
   validate_vacuum_fixture,
   // Workholding Intelligence (1)
   recommend_workholding,
+  // OCTOPUS-NEURAL-MS0/U-OCN05: dynamic N-of-M quorum from diff classification
+  quorum_required: z.object({
+    files: z.array(z.object({
+      path: z.string().min(1),
+      added_lines: z.number().int().min(0).optional(),
+      removed_lines: z.number().int().min(0).optional(),
+      patch: z.string().optional(),
+    })).default([]).describe("Diff files (path + optional size/patch hints)"),
+    commit_subject: z.string().optional().describe("Commit subject — searched for SAFETY/PHYSICS hint signals"),
+  }).passthrough().describe("Classify a diff and return the recommended scrutiny quorum (1-of-1 to 5-of-5) — engine: ConsensusQuorumEngine"),
 };
