@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="a955f97ed073fc85e2f3638a061f21cfca402bf865b66584204c72b904cf052e">
+<title>Tribal Knowledge ↔ System-Viz Auto-Wiring Layer (sub-project C)</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">Tribal Knowledge ↔ System-Viz Auto-Wiring Layer (sub-project C)</h1>
+<p class="provenance">Generated 2026-05-12T12:43:26.649Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#tribal-knowledge-system-viz-auto-wiring-layer">Tribal Knowledge ↔ System-Viz Auto-Wiring Layer</a></li>
+<li class="toc-l2"><a href="#1-problem-statement">1. Problem statement</a></li>
+<li class="toc-l2"><a href="#2-goals">2. Goals</a></li>
+<li class="toc-l2"><a href="#3-non-goals">3. Non-goals</a></li>
+<li class="toc-l2"><a href="#4-constraints">4. Constraints</a></li>
+<li class="toc-l2"><a href="#5-architecture">5. Architecture</a></li>
+<li class="toc-l3"><a href="#51-build-time-pipeline-offline">5.1 Build-time pipeline (offline)</a></li>
+<li class="toc-l3"><a href="#52-runtime-path-pretooluse-hook-100ms">5.2 Runtime path (PreToolUse hook, &lt;100ms)</a></li>
+<li class="toc-l3"><a href="#53-new-components">5.3 New components</a></li>
+<li class="toc-l3"><a href="#54-reused-do-not-rebuild">5.4 Reused (do not rebuild)</a></li>
+<li class="toc-l2"><a href="#6-data-model">6. Data model</a></li>
+<li class="toc-l3"><a href="#61-enrichednodecontext-typescript">6.1 EnrichedNodeContext (TypeScript)</a></li>
+<li class="toc-l3"><a href="#62-sqlite-schema">6.2 SQLite schema</a></li>
+<li class="toc-l3"><a href="#63-embeddings-cache">6.3 Embeddings cache</a></li>
+<li class="toc-l3"><a href="#64-json-mirror">6.4 JSON mirror</a></li>
+<li class="toc-l2"><a href="#7-pipeline-detail">7. Pipeline detail</a></li>
+<li class="toc-l3"><a href="#71-stage-budgets-cold-full-build">7.1 Stage budgets (cold full build)</a></li>
+<li class="toc-l3"><a href="#72-live-fallback-abridged-pipeline-50ms-budget">7.2 Live-fallback abridged pipeline (50ms budget)</a></li>
+<li class="toc-l3"><a href="#73-frontmatter-override-format">7.3 Frontmatter override format</a></li>
+<li class="toc-l2"><a href="#8-hook-contract">8. Hook contract</a></li>
+<li class="toc-l3"><a href="#81-pretooluse-input-from-claude-code-harness">8.1 PreToolUse input (from Claude Code harness)</a></li>
+<li class="toc-l3"><a href="#82-nodeidresolver">8.2 NodeIdResolver</a></li>
+<li class="toc-l3"><a href="#83-output-additionalcontext-to-claude">8.3 Output (additionalContext to Claude)</a></li>
+<li class="toc-l3"><a href="#84-suppression">8.4 Suppression</a></li>
+<li class="toc-l3"><a href="#85-telemetry">8.5 Telemetry</a></li>
+<li class="toc-l2"><a href="#9-agent-parity-phase-0-spike">9. Agent parity (Phase-0 spike)</a></li>
+<li class="toc-l3"><a href="#91-risk">9.1 Risk</a></li>
+<li class="toc-l3"><a href="#92-spike-1-day-before-implementation-phase">9.2 Spike (1 day, before implementation phase)</a></li>
+<li class="toc-l3"><a href="#93-fallback-if-spike-fails">9.3 Fallback if spike fails</a></li>
+<li class="toc-l2"><a href="#10-format-direction-for-follow-on-sub-project-d">10. Format direction (for follow-on sub-project D)</a></li>
+<li class="toc-l2"><a href="#11-error-handling">11. Error handling</a></li>
+<li class="toc-l2"><a href="#12-testing-matrix">12. Testing matrix</a></li>
+<li class="toc-l3"><a href="#121-unit-tests-vitest">12.1 Unit tests (vitest)</a></li>
+<li class="toc-l3"><a href="#122-integration-tests">12.2 Integration tests</a></li>
+<li class="toc-l3"><a href="#123-e2e-tests-round-trip-through-dispatcher">12.3 E2E tests (round-trip through dispatcher)</a></li>
+<li class="toc-l3"><a href="#124-variability-matrix-per-claudemd-comprehensive-build-floor-3-spanning-configs">12.4 Variability matrix (per CLAUDE.md comprehensive-build floor: ≥3 spanning configs)</a></li>
+<li class="toc-l3"><a href="#125-coverage-floor-per-claudemd">12.5 Coverage floor (per CLAUDE.md)</a></li>
+<li class="toc-l2"><a href="#13-rollout-plan">13. Rollout plan</a></li>
+<li class="toc-l3"><a href="#phase-0-spike-1-day">Phase 0 — Spike (1 day)</a></li>
+<li class="toc-l3"><a href="#phase-1-schema-store-2-days">Phase 1 — Schema + Store (2 days)</a></li>
+<li class="toc-l3"><a href="#phase-2-binder-pipeline-3-days">Phase 2 — Binder pipeline (3 days)</a></li>
+<li class="toc-l3"><a href="#phase-3-hook-2-days">Phase 3 — Hook (2 days)</a></li>
+<li class="toc-l3"><a href="#phase-4-validation-1-day">Phase 4 — Validation (1 day)</a></li>
+<li class="toc-l3"><a href="#phase-5-follow-on-enablement">Phase 5 — Follow-on enablement</a></li>
+<li class="toc-l2"><a href="#14-phase-0-spike-result">14. Phase-0 spike result</a></li>
+<li class="toc-l2"><a href="#15-open-questions">15. Open questions</a></li>
+<li class="toc-l2"><a href="#16-references">16. References</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<details class="frontmatter" open><summary>Document metadata</summary><div class="table-wrap"><table>
+<tbody>
+<tr><th scope="row">title</th><td>Tribal Knowledge ↔ System-Viz Auto-Wiring Layer (sub-project C)</td></tr>
+<tr><th scope="row">date</th><td>2026-05-09</td></tr>
+<tr><th scope="row">author</th><td>Claude (claude-671e2b1f, brainstorming with Mark Villanueva)</td></tr>
+<tr><th scope="row">status</th><td>approved-design</td></tr>
+<tr><th scope="row">scope</th><td>H:/prism (single-machine, multi-chat aware)</td></tr>
+<tr><th scope="row">parent-roadmap</th><td>tribal-knowledge-auto-wiring-program (5 sub-projects: A/B/C/D/E)</td></tr>
+<tr><th scope="row">this-spec</th><td>sub-project C — keystone schema + binder + PreToolUse hook</td></tr>
+<tr><th scope="row">follow-on-specs</th><td>A — mine H:/PRISM/extracted/ for new tribal tips, B — ingest *-cam-tips.js backlog (~3,400 tips), D — HTML render layer over markdown wiki, E — neural-network &quot;needed-now&quot; auto-utilization trigger</td></tr>
+<tr><th scope="row">brief-for</th><td>writing-plans</td></tr>
+</tbody>
+</table></div></details>
+<h1 id="tribal-knowledge-system-viz-auto-wiring-layer"><a class="anchor" href="#tribal-knowledge-system-viz-auto-wiring-layer" aria-label="Permalink to Tribal Knowledge ↔ System-Viz Auto-Wiring Layer">#</a>Tribal Knowledge ↔ System-Viz Auto-Wiring Layer</h1>
+<h2 id="1-problem-statement"><a class="anchor" href="#1-problem-statement" aria-label="Permalink to 1. Problem statement">#</a>1. Problem statement</h2>
+<p>PRISM has accumulated 243 indexed tribal tips in <code>TRIBAL_TIP_INDEX.json</code> plus an estimated ~3,400 unindexed tips embedded in 18 per-CAM <code>*-cam-tips.js</code> files (skill descriptions reference &quot;3,700+ tips&quot;). The system-viz graph contains 771 nodes across 10 layers. Today these two assets are completely disconnected:</p>
+<ul>
+<li><strong>No backlinks</strong>: tips have no way to declare which engine/dispatcher/action they apply to.</li>
+<li><strong>Invisible at call time</strong>: when Claude (or a spawned Agent) calls <code>prism_calc:cutting_force_calc</code>, no mechanism surfaces &quot;the 3 tips operators recorded about this calc.&quot;</li>
+<li><strong>Invisible to viz</strong>: clicking an engine node in <code>/system-viz</code> shows no tribal context — the schema lacks <code>tips[]</code> / <code>metadata</code> / <code>tags</code> fields entirely.</li>
+<li><strong>Separate Obsidian pipeline</strong>: <code>tribal_export_*</code> actions and <code>obsidian_sync_*</code> actions exist on the same dispatcher but never converge — wiki pages about engines do not embed tribal tips for those engines.</li>
+<li><strong>No agent parity</strong>: even if Claude main-thread eventually surfaces tips, spawned Agent subagents have no mechanism to consume them, breaking the &quot;agents need to use the entire prism system in the same manner as the regular CLI&quot; requirement.</li>
+</ul>
+<p>The user&#39;s literal ask: <em>&quot;every single tribal knowledge tip is wired to corresponding nodes in system-viz so they get utilized automatically when needed.&quot;</em></p>
+<h2 id="2-goals"><a class="anchor" href="#2-goals" aria-label="Permalink to 2. Goals">#</a>2. Goals</h2>
+<ol>
+<li><strong>G1 — Bind</strong>: every tip in the tribal index has zero or more node bindings (1 tip → many nodes); every node has zero or more bound tips ranked by relevance.</li>
+<li><strong>G2 — Auto-utilize at call time</strong>: when a tool call resolves to a known node, top-K tips for that node inject into Claude&#39;s context as additional context, sub-100ms.</li>
+<li><strong>G3 — Agent parity</strong>: same injection fires on subagent tool calls (verified by Phase-0 spike; fallback path defined if harness blocks it).</li>
+<li><strong>G4 — Full PRISM stack utilization (build-time)</strong>: binder pipeline consumes Ollama embeddings + PRISMCreativeReasoningEngine NN re-rank + system-viz graph neighbors + Obsidian canonical entries + PRISMSelfAwarenessEngine domain classification.</li>
+<li><strong>G5 — Hot path resilience</strong>: hot-path lookup never blocks a tool call; advisory-only by design. Failures emit hint and pass through.</li>
+<li><strong>G6 — Hybrid freshness</strong>: pre-baked cards primary; live-fetch escape when card missing or <code>bakedAt</code> &gt; 24h. Live path budget 50ms.</li>
+<li><strong>G7 — Inspectable and reversible</strong>: cards diffable as JSON; cron rebuild idempotent; env flag <code>PRISM_TRIBAL_INJECT=0</code> disables the hook in &lt;5s.</li>
+<li><strong>G8 — Wired to all sources</strong> (per CLAUDE.md): new engines registered in <code>prism_knowledge</code>, plus <code>prism_memory</code> for context-card retrieval, plus <code>prism_session</code> for nodeId resolution.</li>
+</ol>
+<h2 id="3-non-goals"><a class="anchor" href="#3-non-goals" aria-label="Permalink to 3. Non-goals">#</a>3. Non-goals</h2>
+<ul>
+<li>N1. Mining <code>H:/PRISM/extracted/</code> for new tips. Sub-project A covers it; this spec consumes whatever tips exist at build time.</li>
+<li>N2. Ingesting the <code>*-cam-tips.js</code> backlog. Sub-project B.</li>
+<li>N3. HTML render layer for wiki. Sub-project D. Markdown stays canonical (research basis: see §10).</li>
+<li>N4. Live NN inference at hook time. Sub-project E. NN runs at build time only in this spec.</li>
+<li>N5. Rewriting <code>TRIBAL_TIP_INDEX.json</code> schema. Existing schema is sufficient; bindings live in a sidecar.</li>
+<li>N6. Multi-hop graph traversal. v1 is 1-hop only. v2 may extend.</li>
+<li>N7. Real-time tip authoring. Tips ingest via existing <code>prism_knowledge:tribal_capture</code> action.</li>
+</ul>
+<h2 id="4-constraints"><a class="anchor" href="#4-constraints" aria-label="Permalink to 4. Constraints">#</a>4. Constraints</h2>
+<ul>
+<li><strong>C1 — Sub-100ms hot path</strong>: PreToolUse hook total budget is 100ms. Realistic split: 5ms parse + 5ms sqlite SELECT + 10ms format + 80ms reserve.</li>
+<li><strong>C2 — Sub-80ms cold-path</strong>: live-fallback <code>Promise.race</code> deadline. If live also misses, emit hint, no block.</li>
+<li><strong>C3 — Advisory-only</strong>: hook MUST NEVER block a tool call. Wrap in outer <code>try/catch</code>; uncaught → log + emit <code>[tribal-inject error: &lt;msg&gt;]</code> + return.</li>
+<li><strong>C4 — Wire-to-all-sources</strong> (CLAUDE.md): new engines must be registered in every dispatcher that would naturally consume them (<code>prism_knowledge</code> + <code>prism_memory</code> + <code>prism_session</code>).</li>
+<li><strong>C5 — Multi-chat safety</strong>: card builds use atomic rename for JSON mirror; sqlite UPSERT is single-writer (cron lock file at <code>mcp-server/data/state/.tribal-rebuild.lock</code>); concurrent chats trigger waits, not corruption.</li>
+<li><strong>C6 — Token budget</strong>: injection payload capped at 800 tokens (configurable); re-injection cooldown 5 min per (session, nodeId).</li>
+<li><strong>C7 — Reuse, don&#39;t reinvent</strong>: <code>dont-reinvent</code> skill applies. Reused: <code>TribalKnowledgeEngine</code>, <code>PRISMSelfAwarenessEngine</code>, <code>PRISMCreativeReasoningEngine</code>, <code>OllamaHookBridgeEngine</code>, <code>system-viz-query.mjs</code>, <code>system-viz-obsidian-bridge.mjs</code>, <code>CODE_SYSTEM_INDEX.json</code>. New only: binder engine, store, resolver, hook, rebuild script.</li>
+<li><strong>C8 — Karpathy discipline</strong>: classify (search + index + cache), technique (precomputed inverted index + sqlite for sub-30ms reads + Ollama embeddings for semantic match + NN re-rank for relevance + 1-hop graph join for context), edge cases enumerated in §7, failure modes enumerated in §7.</li>
+<li><strong>C9 — No physics inlining</strong>: spec touches no physics constants. Tips that quote constants (e.g. &quot;Kienzle kc1.1 P-group=1800&quot;) reference <code>src/physics/constants.ts</code> by symbol, never by value.</li>
+</ul>
+<h2 id="5-architecture"><a class="anchor" href="#5-architecture" aria-label="Permalink to 5. Architecture">#</a>5. Architecture</h2>
+<h3 id="51-build-time-pipeline-offline"><a class="anchor" href="#51-build-time-pipeline-offline" aria-label="Permalink to 5.1 Build-time pipeline (offline)">#</a>5.1 Build-time pipeline (offline)</h3>
+<p>Triggers (any one fires a debounced rebuild):</p>
+<ul>
+<li>Cron: daily 03:00 local time (full rebuild, ~5 sec warm)</li>
+<li>Event: <code>prism_knowledge:tribal_capture</code> post-action hook (incremental, ~200ms per tip)</li>
+<li>Event: <code>system-viz-on-commit.mjs</code> post-graph-regen (selective, only nodes whose embedding-input changed)</li>
+<li>Event: wiki write under <code>knowledge/wiki/code-tribal/</code> (debounced 5 min)</li>
+<li>Manual: <code>prism_knowledge:tribal_rebuild_index</code> dispatcher action</li>
+</ul>
+<p>Inputs:</p>
+<ul>
+<li><code>mcp-server/data/state/TRIBAL_TIP_INDEX.json</code> (243+ tips)</li>
+<li><code>state/shared/system-viz/system-graph.json</code> (771 nodes, 901 edges, schema v2.1.0)</li>
+<li><code>knowledge/wiki/</code> (770 .md entries, especially <code>code-tribal/canonical/</code> for explicit overrides)</li>
+<li><code>mcp-server/data/docs/CODE_SYSTEM_INDEX.json</code> (for nodeId resolution)</li>
+</ul>
+<p>Pipeline stages (full table in §6):</p>
+<ol>
+<li>Embed tips and nodes via Ollama <code>nomic-embed-text</code>.</li>
+<li>Cosine match: top-K=5 candidates per node, threshold τ=0.55.</li>
+<li>Frontmatter override: explicit <code>binds_to: [...]</code> / <code>binds_excludes: [...]</code> in tip frontmatter.</li>
+<li>NN re-rank via <code>PRISMCreativeReasoningEngine.rankRelevance()</code>.</li>
+<li>1-hop graph neighbors via <code>system-viz-query.mjs</code>.</li>
+<li>Obsidian canonical resolution via <code>system-viz-obsidian-bridge.mjs</code> (currently unwired — this spec wires it).</li>
+<li>Safety class classification via <code>PRISMSelfAwarenessEngine.classifyDomain()</code>.</li>
+<li>Persist: sqlite UPSERT + JSON mirror (atomic rename).</li>
+</ol>
+<p>Outputs:</p>
+<ul>
+<li><code>mcp-server/data/state/node-context-index.sqlite</code> (primary, ~5–15 MB)</li>
+<li><code>mcp-server/data/state/node-context-index.json</code> (mirror, audit-friendly, ≤5 MB by storing tipId references only)</li>
+<li><code>mcp-server/data/state/embeddings-cache.sqlite</code> (vectors keyed by content hash, persists across runs)</li>
+</ul>
+<h3 id="52-runtime-path-pretooluse-hook-100ms"><a class="anchor" href="#52-runtime-path-pretooluse-hook-100ms" aria-label="Permalink to 5.2 Runtime path (PreToolUse hook, &lt;100ms)">#</a>5.2 Runtime path (PreToolUse hook, &lt;100ms)</h3>
+<pre><code>Claude main-thread tool call ─┐     Agent subagent tool call ─┐
+                              ▼                                ▼
+┌──────────────────────────────────────────────────────────────────┐
+│   .claude/hooks/tribal-context-inject.mjs (NEW PreToolUse hook)  │
+│                                                                  │
+│   1. Parse tool call → resolve nodeId (engine|dispatcher|action) │
+│      via NodeIdResolver (uses CODE_SYSTEM_INDEX.json)            │
+│   2. SELECT card FROM sqlite WHERE node_id = ?         [&lt;30ms]   │
+│   3. If found AND bakedAt ≤ 24h:  ─────────► HOT path: emit      │
+│   4. Else (cold/stale):                                          │
+│      Promise.race([                                              │
+│        liveEnrich(nodeId, timeout=50ms),  // abridged pipeline   │
+│        sleep(80ms).then(() =&gt; null)                              │
+│      ])                                                          │
+│      Write-through cache on success.                             │
+│   5. If still no result: emit &quot;no bindings; /tribal-search hint&quot; │
+│   6. Format injection: structured block with tips + neighbors    │
+│      + canonical wiki link, capped at 800 tokens                 │
+└──────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="53-new-components"><a class="anchor" href="#53-new-components" aria-label="Permalink to 5.3 New components">#</a>5.3 New components</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Component</th><th>Path</th><th>Wires to</th></tr></thead>
+<tbody>
+<tr><td><code>TipNodeBinderEngine.ts</code></td><td><code>mcp-server/src/engines/</code></td><td><code>prism_knowledge</code>: <code>tribal_bind_node</code>, <code>tribal_bindings_for_node</code>, <code>tribal_rebuild_index</code>, <code>tribal_index_stats</code></td></tr>
+<tr><td><code>EnrichedNodeContextStore.ts</code></td><td><code>mcp-server/src/engines/</code></td><td><code>prism_memory</code>: <code>context_card_get</code>, <code>context_card_list</code>, <code>context_card_stats</code></td></tr>
+<tr><td><code>NodeIdResolver.ts</code></td><td><code>mcp-server/src/engines/</code></td><td><code>prism_session</code>: <code>resolve_node_id</code> (single-action wire); reused at runtime by hook (direct import, not via dispatcher — avoids dispatcher overhead in hot path)</td></tr>
+<tr><td><code>tribal-context-inject.mjs</code></td><td><code>.claude/hooks/</code></td><td>PreToolUse in <code>settings.json</code>. Allowlisted (cannot be disabled by <code>PRISM_HOOK_PROFILE</code>). Disable via <code>PRISM_TRIBAL_INJECT=0</code>.</td></tr>
+<tr><td><code>node-context-rebuild.mjs</code></td><td><code>scripts/</code></td><td>Cron-runnable; also fired by <code>system-viz-on-commit.mjs</code> post-graph-regen.</td></tr>
+</tbody>
+</table></div>
+<h3 id="54-reused-do-not-rebuild"><a class="anchor" href="#54-reused-do-not-rebuild" aria-label="Permalink to 5.4 Reused (do not rebuild)">#</a>5.4 Reused (do not rebuild)</h3>
+<ul>
+<li><code>TribalKnowledgeEngine</code> — tip read API</li>
+<li><code>PRISMSelfAwarenessEngine.classifyDomain()</code> — safety class + domain tags</li>
+<li><code>PRISMCreativeReasoningEngine.rankRelevance()</code> — NN re-rank step</li>
+<li><code>OllamaHookBridgeEngine</code> — nomic-embed-text routing (model already deployed locally per <code>feedback_ollama_token_routing.md</code>)</li>
+<li><code>system-viz-query.mjs</code> — 1-hop neighbors</li>
+<li><code>system-viz-obsidian-bridge.mjs</code> — wiki canonical resolution (this spec wires its first consumer)</li>
+<li><code>CODE_SYSTEM_INDEX.json</code> — symbol→path mapping for nodeId resolution</li>
+</ul>
+<h2 id="6-data-model"><a class="anchor" href="#6-data-model" aria-label="Permalink to 6. Data model">#</a>6. Data model</h2>
+<h3 id="61-enrichednodecontext-typescript"><a class="anchor" href="#61-enrichednodecontext-typescript" aria-label="Permalink to 6.1 EnrichedNodeContext (TypeScript)">#</a>6.1 EnrichedNodeContext (TypeScript)</h3>
+<pre><code class="language-typescript">// mcp-server/src/schemas/enrichedNodeContext.ts
+export const SCHEMA_VERSION = &quot;1.0.0&quot;;
+
+export type NodeKind = &quot;engine&quot; | &quot;dispatcher&quot; | &quot;action&quot; | &quot;registry&quot; | &quot;page&quot; | &quot;skill&quot;;
+export type SafetyClass = &quot;shop_floor&quot; | &quot;production&quot; | &quot;proven_out&quot; | &quot;sim&quot;;
+export type BindReason = &quot;embedding&quot; | &quot;frontmatter_override&quot; | &quot;domain_match&quot;;
+export type BakedBy = &quot;cron&quot; | &quot;on_tip_ingest&quot; | &quot;on_graph_regen&quot; | &quot;manual&quot; | &quot;live_fallback&quot;;
+
+export interface TipBinding {
+  tipId: string;          // SHA256 from TRIBAL_TIP_INDEX
+  title: string;
+  excerpt: string;        // first 200 chars of content
+  source: string;
+  confidence: number;     // 0..1, original tip confidence
+  bindScore: number;      // composite cosine + NN-rerank, 0..1
+  bindReason: BindReason;
+}
+
+export interface NeighborRef {
+  nodeId: string;
+  relation: &quot;calls&quot; | &quot;called_by&quot; | &quot;sibling&quot; | &quot;wires_to&quot; | &quot;reads&quot; | &quot;writes&quot;;
+  distance: 1;            // v1 is 1-hop only
+}
+
+export interface EnrichedNodeContext {
+  schemaVersion: typeof SCHEMA_VERSION;
+  nodeId: string;
+  nodeKind: NodeKind;
+  nodeLabel: string;
+  nodeLayer: string;       // L0..L10
+  nodeSubgroup: string;
+  tips: TipBinding[];      // ≤ 5
+  vizNeighbors: NeighborRef[]; // ≤ 8
+  obsidianCanonical: string | null;
+  domainTags: string[];
+  safetyClass: SafetyClass;
+  nnConfidence: number;    // 0..1
+  hadFrontmatterOverride: boolean;
+  bakedAt: string;         // ISO8601
+  bakedBy: BakedBy;
+  ttlHours: 24;
+}
+</code></pre>
+<h3 id="62-sqlite-schema"><a class="anchor" href="#62-sqlite-schema" aria-label="Permalink to 6.2 SQLite schema">#</a>6.2 SQLite schema</h3>
+<pre><code class="language-sql">-- mcp-server/data/state/node-context-index.sqlite
+CREATE TABLE node_context (
+  node_id TEXT PRIMARY KEY,
+  schema_version TEXT NOT NULL,
+  baked_at TEXT NOT NULL,              -- ISO8601
+  payload_json TEXT NOT NULL,          -- full EnrichedNodeContext
+  card_hash TEXT NOT NULL              -- SHA256 of payload, for diff/no-op skip
+);
+CREATE INDEX idx_baked_at ON node_context(baked_at);
+
+CREATE TABLE tip_to_node (             -- inverted: &quot;what nodes cite this tip?&quot;
+  tip_id TEXT NOT NULL,
+  node_id TEXT NOT NULL,
+  bind_score REAL NOT NULL,
+  PRIMARY KEY (tip_id, node_id)
+);
+CREATE INDEX idx_tip ON tip_to_node(tip_id);
+CREATE INDEX idx_node ON tip_to_node(node_id);
+
+CREATE TABLE rebuild_log (
+  rebuild_id TEXT PRIMARY KEY,         -- ISO8601-pid hash
+  started_at TEXT NOT NULL,
+  finished_at TEXT,                    -- null if in flight
+  trigger TEXT NOT NULL,               -- BakedBy enum value
+  tips_processed INTEGER,
+  nodes_processed INTEGER,
+  cards_written INTEGER,               -- distinct from cards_skipped (no-change hash)
+  cards_skipped INTEGER,
+  errors_json TEXT                     -- array of {stage, message, nodeId?}
+);
+</code></pre>
+<h3 id="63-embeddings-cache"><a class="anchor" href="#63-embeddings-cache" aria-label="Permalink to 6.3 Embeddings cache">#</a>6.3 Embeddings cache</h3>
+<pre><code class="language-sql">-- mcp-server/data/state/embeddings-cache.sqlite
+CREATE TABLE embeddings (
+  content_hash TEXT PRIMARY KEY,       -- SHA256 of input string
+  source_kind TEXT NOT NULL,           -- &quot;tip&quot; | &quot;node&quot;
+  source_id TEXT NOT NULL,
+  vector BLOB NOT NULL,                -- Float32Array, 768-dim from nomic-embed-text
+  embedded_at TEXT NOT NULL
+);
+CREATE INDEX idx_source ON embeddings(source_kind, source_id);
+</code></pre>
+<h3 id="64-json-mirror"><a class="anchor" href="#64-json-mirror" aria-label="Permalink to 6.4 JSON mirror">#</a>6.4 JSON mirror</h3>
+<p><code>mcp-server/data/state/node-context-index.json</code> mirrors sqlite for human auditing. Stores tip references only (not full content); resolves to <code>TRIBAL_TIP_INDEX.json</code> on read. Atomic rename on write. Regenerated alongside sqlite. Target size: ≤5 MB for 771 nodes.</p>
+<h2 id="7-pipeline-detail"><a class="anchor" href="#7-pipeline-detail" aria-label="Permalink to 7. Pipeline detail">#</a>7. Pipeline detail</h2>
+<h3 id="71-stage-budgets-cold-full-build"><a class="anchor" href="#71-stage-budgets-cold-full-build" aria-label="Permalink to 7.1 Stage budgets (cold full build)">#</a>7.1 Stage budgets (cold full build)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Stage</th><th>Per-unit</th><th>Total (3,700 tips + 771 nodes)</th></tr></thead>
+<tbody>
+<tr><td>① Embed tips</td><td>~500ms</td><td>~30 min cold; ~5s warm (only changed)</td></tr>
+<tr><td>① Embed nodes</td><td>~250ms</td><td>~3 min cold; ~1s warm</td></tr>
+<tr><td>② Cosine match</td><td>&lt;1ms / pair</td><td>~2s for full corpus</td></tr>
+<tr><td>③ Frontmatter override</td><td>~50ms / overridden tip</td><td>~1s</td></tr>
+<tr><td>④ NN re-rank</td><td>~50ms / node</td><td>~40s</td></tr>
+<tr><td>⑤ Viz neighbors</td><td>~10ms / node</td><td>~8s</td></tr>
+<tr><td>⑥ Obsidian canonical</td><td>~5ms / node</td><td>~4s</td></tr>
+<tr><td>⑦ Safety class</td><td>~5ms / node</td><td>~4s</td></tr>
+<tr><td>⑧ Persist</td><td>~3ms / card</td><td>~2.5s</td></tr>
+<tr><td><strong>Total</strong></td><td>—</td><td><strong>~35 min cold, ~25s warm</strong></td></tr>
+</tbody>
+</table></div>
+<h3 id="72-live-fallback-abridged-pipeline-50ms-budget"><a class="anchor" href="#72-live-fallback-abridged-pipeline-50ms-budget" aria-label="Permalink to 7.2 Live-fallback abridged pipeline (50ms budget)">#</a>7.2 Live-fallback abridged pipeline (50ms budget)</h3>
+<p>When hook hits cold/stale card:</p>
+<ul>
+<li>Skip ①: load embeddings-cache into hook process at startup (~50 MB resident, OK)</li>
+<li>Skip ④: no NN re-rank; cosine ranking only</li>
+<li>Skip ⑥: skip Obsidian canonical (backfilled by next cron pass)</li>
+<li>Run ②③⑤⑦⑧: ~30ms typical, ≤50ms worst</li>
+<li>Card written with <code>bakedBy: &quot;live_fallback&quot;</code> so cron knows to re-elevate it next pass</li>
+</ul>
+<h3 id="73-frontmatter-override-format"><a class="anchor" href="#73-frontmatter-override-format" aria-label="Permalink to 7.3 Frontmatter override format">#</a>7.3 Frontmatter override format</h3>
+<p>Tips authored under <code>knowledge/wiki/code-tribal/</code> may declare bindings explicitly:</p>
+<pre><code class="language-yaml">---
+tipId: &lt;sha256&gt;
+title: Kienzle kc1.1 must come from constants.ts — never inline
+binds_to:
+  - engine:KienzleConstantsEngine
+  - engine:CuttingForceEngine
+  - action:prism_calc:cutting_force_calc
+binds_excludes:
+  - engine:Composite*  # glob allowed
+confidence: 0.95
+source: shop-floor.JM-Die.2025-Q3
+---
+</code></pre>
+<p>Override semantics: <code>binds_to</code> entries replace the cosine-derived top-K (additive, deduped). <code>binds_excludes</code> removes any cosine-derived candidate matching the glob (subtractive). Conflicts: explicit wins.</p>
+<h2 id="8-hook-contract"><a class="anchor" href="#8-hook-contract" aria-label="Permalink to 8. Hook contract">#</a>8. Hook contract</h2>
+<h3 id="81-pretooluse-input-from-claude-code-harness"><a class="anchor" href="#81-pretooluse-input-from-claude-code-harness" aria-label="Permalink to 8.1 PreToolUse input (from Claude Code harness)">#</a>8.1 PreToolUse input (from Claude Code harness)</h3>
+<pre><code class="language-typescript">interface HookInput {
+  hook_event_name: &quot;PreToolUse&quot;;
+  tool_name: string;            // e.g. &quot;mcp__prism__prism_calc&quot;
+  tool_input: Record&lt;string, unknown&gt;;  // e.g. {action: &quot;cutting_force_calc&quot;, params: {...}}
+  session_id: string;           // e.g. &quot;claude-671e2b1f&quot;
+  is_subagent?: boolean;        // KEY for agent parity, may be undefined in older harness
+  cwd: string;
+}
+</code></pre>
+<h3 id="82-nodeidresolver"><a class="anchor" href="#82-nodeidresolver" aria-label="Permalink to 8.2 NodeIdResolver">#</a>8.2 NodeIdResolver</h3>
+<pre><code class="language-typescript">function resolveNodeId(toolName: string, toolInput: Record&lt;string, unknown&gt;): string | null {
+  // MCP dispatcher action: mcp__prism__prism_calc + action=&quot;cutting_force_calc&quot;
+  //   → &quot;action:prism_calc:cutting_force_calc&quot;
+  // Edit/Write/Read with file_path matching src/engines/X.ts
+  //   → &quot;engine:X&quot;
+  // Bash: no resolution; return null
+  // Agent: no resolution; return null (agent&#39;s internal calls are intercepted on their own)
+  // Unknown: null
+}
+</code></pre>
+<h3 id="83-output-additionalcontext-to-claude"><a class="anchor" href="#83-output-additionalcontext-to-claude" aria-label="Permalink to 8.3 Output (additionalContext to Claude)">#</a>8.3 Output (additionalContext to Claude)</h3>
+<p>Plain text, capped at 800 tokens. Format:</p>
+<pre><code>─── Tribal Knowledge for action:prism_calc:cutting_force_calc ───
+★ Top 3 tips (NN-reranked, score):
+  • [0.91] Kienzle kc1.1 must come from constants.ts — never inline
+    (source: shop-floor, JM Die incident 2025-Q3)
+  • [0.84] For aluminum 6061 ramping, halve fz on entry to avoid welding
+    (source: hyperMILL tribal, confidence 0.78)
+  • [0.79] Verify spindle torque headroom before push above 8500 RPM
+    (source: Mark&#39;s playbook rule R-142)
+↻ Related nodes: engine:KienzleConstantsEngine, action:prism_safety:check_spindle_torque
+📖 Wiki: knowledge/wiki/code-tribal/canonical/cutting-force.md
+🛡 Safety class: shop_floor (Ω≥0.95, S(x)≥0.98 required)
+─────────────────────────────────────────────────────────────
+</code></pre>
+<p>Format details:</p>
+<ul>
+<li>Score formatting: 2 decimal places, descending order, max 5 tips emitted</li>
+<li>Excerpt: first 80 chars of tip title (not full content; content lives in wiki link)</li>
+<li>Neighbor list: max 4 entries (most-relevant by edge type weight)</li>
+<li>Safety line: only emitted if <code>safetyClass != &quot;sim&quot;</code> (sim is dev-default, no emit)</li>
+<li>Cooldown: same nodeId fired in same session within 5 min → no-op</li>
+</ul>
+<h3 id="84-suppression"><a class="anchor" href="#84-suppression" aria-label="Permalink to 8.4 Suppression">#</a>8.4 Suppression</h3>
+<ul>
+<li><code>PRISM_TRIBAL_INJECT=0</code> env var → hook is no-op.</li>
+<li>In-memory cooldown <code>Map&lt;session_id, Map&lt;node_id, lastFiredAt&gt;&gt;</code> (per §15 Q3) — process-scope only, not persisted.</li>
+<li><code>MINIMAL_ALLOWLIST</code> registration in <code>settings.json</code> ensures <code>PRISM_HOOK_PROFILE</code> cannot disable the hook (it&#39;s expected to provide value, not just block).</li>
+</ul>
+<h3 id="85-telemetry"><a class="anchor" href="#85-telemetry" aria-label="Permalink to 8.5 Telemetry">#</a>8.5 Telemetry</h3>
+<p>Each fire appends to <code>mcp-server/data/state/tribal-injection-stats.json</code>:</p>
+<pre><code class="language-json">{
+  &quot;schemaVersion&quot;: &quot;1.0.0&quot;,
+  &quot;fires&quot;: [
+    {
+      &quot;ts&quot;: &quot;2026-05-09T20:00:00Z&quot;,
+      &quot;session_id&quot;: &quot;claude-671e2b1f&quot;,
+      &quot;nodeId&quot;: &quot;action:prism_calc:cutting_force_calc&quot;,
+      &quot;is_subagent&quot;: false,
+      &quot;path&quot;: &quot;hot&quot; | &quot;cold_live_success&quot; | &quot;cold_live_timeout&quot; | &quot;miss&quot; | &quot;error&quot;,
+      &quot;elapsed_ms&quot;: 28,
+      &quot;tokens_emitted&quot;: 412
+    }
+  ]
+}
+</code></pre>
+<p>Rolling 7-day window, surfaced via existing <code>prism_dev:token_economy_report</code>.</p>
+<h2 id="9-agent-parity-phase-0-spike"><a class="anchor" href="#9-agent-parity-phase-0-spike" aria-label="Permalink to 9. Agent parity (Phase-0 spike)">#</a>9. Agent parity (Phase-0 spike)</h2>
+<h3 id="91-risk"><a class="anchor" href="#91-risk" aria-label="Permalink to 9.1 Risk">#</a>9.1 Risk</h3>
+<p>Claude Code&#39;s PreToolUse hook firing model on subagent tool calls is harness-version-dependent. If the parent&#39;s hook does not fire on a subagent&#39;s internal <code>mcp__prism__*</code> call, the parity ask is unmet.</p>
+<h3 id="92-spike-1-day-before-implementation-phase"><a class="anchor" href="#92-spike-1-day-before-implementation-phase" aria-label="Permalink to 9.2 Spike (1 day, before implementation phase)">#</a>9.2 Spike (1 day, before implementation phase)</h3>
+<ol>
+<li>Create <code>H:/prism/.claude/hooks/tribal-spike.mjs</code> — minimal logger that appends <code>{ts, tool_name, is_subagent, session_id}</code> to <code>tribal-spike.log</code>.</li>
+<li>Register in PreToolUse.</li>
+<li>Run a session that calls <code>Agent({subagent_type:&quot;Explore&quot;, prompt:&quot;...some prompt that forces internal Grep + Read&quot;})</code>.</li>
+<li>Inspect <code>tribal-spike.log</code>:
+<ul>
+<li><strong>Pass criterion</strong>: subagent&#39;s internal <code>mcp__prism__*</code> calls appear with <code>is_subagent: true</code>.</li>
+<li><strong>Fail</strong>: only the parent&#39;s <code>Agent(...)</code> invocation logged.</li>
+</ul></li>
+</ol>
+<h3 id="93-fallback-if-spike-fails"><a class="anchor" href="#93-fallback-if-spike-fails" aria-label="Permalink to 9.3 Fallback if spike fails">#</a>9.3 Fallback if spike fails</h3>
+<p>Bridge agent wrapper:</p>
+<ul>
+<li>Each agent definition in <code>.claude/agents/</code> gets a wrapper helper.</li>
+<li>At spawn time, the wrapper calls <code>prism_knowledge:tribal_bindings_for_node</code> for each likely node mentioned in the agent&#39;s brief (extracted by keyword scan).</li>
+<li>Wrapper prepends a Tribal Knowledge Pack section to the agent&#39;s prompt before the model sees it.</li>
+<li>Less surgical (one-shot at spawn, no per-call refresh) but covers the parity ask end-to-end.</li>
+</ul>
+<p>The implementation-plan agent uses spike result to choose between the two paths. Spec records both.</p>
+<h2 id="10-format-direction-for-follow-on-sub-project-d"><a class="anchor" href="#10-format-direction-for-follow-on-sub-project-d" aria-label="Permalink to 10. Format direction (for follow-on sub-project D)">#</a>10. Format direction (for follow-on sub-project D)</h2>
+<p>This spec keeps markdown as the canonical wiki format. Research basis (2026-05-09):</p>
+<ul>
+<li>Markdown reduces LLM token cost vs HTML by 20–80% and boosts RAG accuracy ~35% (searchcans.com, mo.agency).</li>
+<li>Karpathy&#39;s LLM-Wiki pattern, which PRISM&#39;s <code>WIKI_SCHEMA.md</code> adopts, is markdown-native (Karpathy gist).</li>
+<li>Obsidian community position: &quot;the only format that actually belongs inside an Obsidian vault is clean markdown&quot; (Obsidian forum, obsidian-html project).</li>
+<li>Industry shift is the <em>opposite</em> direction: HTML sites add <code>.md</code> for AI agents via <code>llms.txt</code> (+1,835% adoption in a year — llmstxt.org).</li>
+</ul>
+<p>Sub-project D will define a build step that <strong>emits <code>.html</code> from <code>.md</code> source</strong> for richer in-browser display (interactive tip cards, embedded system-viz subgraphs). The <code>.md</code> files remain the source of truth, Obsidian sync stays intact, Ollama wiki maintenance still works.</p>
+<h2 id="11-error-handling"><a class="anchor" href="#11-error-handling" aria-label="Permalink to 11. Error handling">#</a>11. Error handling</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Failure</th><th>Detection</th><th>Action</th><th>User Visible?</th></tr></thead>
+<tbody>
+<tr><td>Sqlite missing</td><td><code>cardStore.get</code> throws <code>SQLITE_CANTOPEN</code></td><td>Emit &quot;tribal index not built; run <code>/tribal-rebuild</code>&quot; hint, allow tool call</td><td>yes, once per session</td></tr>
+<tr><td>Card stale (&gt;24h)</td><td><code>bakedAt</code> check</td><td>Live-fallback; if cron last-success &gt;7d, emit warning</td><td>yes, once per session</td></tr>
+<tr><td>Ollama embedding service down</td><td>nomic-embed-text returns 5xx / timeout</td><td>Build pipeline retries 3× exponential backoff; if all fail, write <code>bakedBy: degraded</code> card with cosine-only rank, no NN re-rank</td><td>build-time only</td></tr>
+<tr><td>NN rerank throws</td><td><code>PRISMCreativeReasoningEngine.rankRelevance</code> rejects</td><td>Log warning, fall through to cosine ranking</td><td>build-time only</td></tr>
+<tr><td>nodeId resolves to null</td><td><code>NodeIdResolver.resolve</code> returns null</td><td>Hook is no-op; tool call proceeds normally</td><td>no</td></tr>
+<tr><td>Hook itself throws</td><td>uncaught exception</td><td>Outer try/catch → emit <code>[tribal-inject error: &lt;msg&gt;]</code>, allow tool call. <strong>NEVER block on hook failure</strong></td><td>yes, error visible</td></tr>
+<tr><td>Live-fallback exceeds 80ms</td><td>Promise.race timeout</td><td>Return null, emit hint, allow tool call</td><td>no (silent)</td></tr>
+<tr><td>Card schema version mismatch</td><td><code>payload.schemaVersion !== SCHEMA_VERSION</code></td><td>Treat as cache miss, run live-fallback, log migration needed</td><td>yes, once per session</td></tr>
+<tr><td>Concurrent rebuild</td><td>Two cron triggers race</td><td><code>.tribal-rebuild.lock</code> file; second waits up to 5min, then exits with no-op</td><td>no</td></tr>
+<tr><td>Embeddings cache corrupt</td><td>sqlite_corrupt</td><td>Move to <code>.bak</code>, rebuild from scratch (re-embeds everything)</td><td>yes (cron log)</td></tr>
+</tbody>
+</table></div>
+<p><strong>Critical invariant</strong>: hook is advisory. A failure in this hook MUST NEVER block a tool call. Tested explicitly in §12.</p>
+<h2 id="12-testing-matrix"><a class="anchor" href="#12-testing-matrix" aria-label="Permalink to 12. Testing matrix">#</a>12. Testing matrix</h2>
+<h3 id="121-unit-tests-vitest"><a class="anchor" href="#121-unit-tests-vitest" aria-label="Permalink to 12.1 Unit tests (vitest)">#</a>12.1 Unit tests (vitest)</h3>
+<p><code>TipNodeBinderEngine.test.ts</code>:</p>
+<ul>
+<li>Cosine match returns top-K above τ</li>
+<li>Frontmatter override replaces cosine candidates (additive)</li>
+<li>Frontmatter excludes filter cosine candidates (subtractive)</li>
+<li>NN rerank reorders without dropping tips</li>
+<li>NN failure → cosine ranking preserved (no throw)</li>
+<li>Empty tip set → empty bindings (no throw)</li>
+<li>Duplicate tipId in frontmatter → dedup, log warning</li>
+<li>Adversarial: tip with NaN/Infinity confidence → filtered</li>
+<li>Boundary: K=0 → reject; K&gt;20 → cap at 20</li>
+<li>Boundary: τ=0 → all matches; τ=1 → no matches</li>
+</ul>
+<p><code>NodeIdResolver.test.ts</code>:</p>
+<ul>
+<li>Resolves dispatcher action → <code>action:disp:act</code></li>
+<li>Resolves engine file path → <code>engine:Name</code></li>
+<li>Resolves Agent call → null (no-op)</li>
+<li>Resolves Bash call → null</li>
+<li>Unknown tool name → null</li>
+<li>Malformed action enum → null + log</li>
+</ul>
+<p><code>EnrichedNodeContextStore.test.ts</code>:</p>
+<ul>
+<li>Upsert + read round-trip</li>
+<li>Schema version mismatch → cache miss</li>
+<li>bakedAt staleness check</li>
+<li>Atomic rename on JSON mirror (no torn writes)</li>
+<li>Concurrent write (two builders racing) → last-write-wins, no corruption</li>
+<li>card_hash skip: no-op write when hash unchanged</li>
+</ul>
+<h3 id="122-integration-tests"><a class="anchor" href="#122-integration-tests" aria-label="Permalink to 12.2 Integration tests">#</a>12.2 Integration tests</h3>
+<p><code>tribal-context-inject.integration.test.ts</code>:</p>
+<ul>
+<li>Hot path: pre-baked card → injection in &lt;100ms ✓</li>
+<li>Cold path: missing card → live fallback succeeds &lt;80ms ✓</li>
+<li>Cold path: live fallback also fails → hint emitted, tool call proceeds ✓</li>
+<li>Sqlite file missing entirely → hook emits &quot;tribal index not built&quot; hint once, tool call still proceeds, no throw ✓</li>
+<li>Schema version mismatch on read → treated as miss, live-fallback runs ✓</li>
+<li>Hook throws → caught, tool call still proceeds (assert tool ran) ✓</li>
+<li>Subagent tool call → injection fires (gated by Phase-0 spike outcome)</li>
+<li>Cooldown: same nodeId fired twice in 5min → second is suppressed (in-memory Map per §15 Q3)</li>
+<li>Cooldown reset across hook invocations (different processes) → both fire (verifies in-memory scope)</li>
+<li>Token budget cap: 1,500-token raw payload → trimmed to 800 with &quot;[truncated]&quot; marker</li>
+<li><code>PRISM_TRIBAL_INJECT=0</code> → hook is no-op</li>
+</ul>
+<h3 id="123-e2e-tests-round-trip-through-dispatcher"><a class="anchor" href="#123-e2e-tests-round-trip-through-dispatcher" aria-label="Permalink to 12.3 E2E tests (round-trip through dispatcher)">#</a>12.3 E2E tests (round-trip through dispatcher)</h3>
+<p><code>tribal-bind-rebuild.e2e.test.ts</code>:</p>
+<ul>
+<li>Add new tip via <code>prism_knowledge:tribal_capture</code></li>
+<li>Run <code>prism_knowledge:tribal_rebuild_index</code></li>
+<li>Verify new tip appears in card for matching node (sqlite + JSON mirror)</li>
+<li>Verify dispatcher round-trip: <code>prism_knowledge:tribal_bindings_for_node</code> returns the binding</li>
+<li>Verify <code>prism_memory:context_card_get</code> returns the same card</li>
+<li>Modify tip, rebuild incrementally, verify card_hash changes</li>
+</ul>
+<h3 id="124-variability-matrix-per-claudemd-comprehensive-build-floor-3-spanning-configs"><a class="anchor" href="#124-variability-matrix-per-claudemd-comprehensive-build-floor-3-spanning-configs" aria-label="Permalink to 12.4 Variability matrix (per CLAUDE.md comprehensive-build floor: ≥3 spanning configs)">#</a>12.4 Variability matrix (per CLAUDE.md comprehensive-build floor: ≥3 spanning configs)</h3>
+<ul>
+<li>Domains: Lathe ✓ + Mill ✓ + WEDM ✓</li>
+<li>Node kinds: engine ✓ + dispatcher ✓ + action ✓</li>
+<li>Frontmatter: with <code>binds_to</code> ✓ + without ✓ + with <code>binds_excludes</code> ✓</li>
+<li>Path: cold ✓ + hot ✓ + stale ✓ + miss ✓</li>
+<li>Caller: main thread ✓ + subagent ✓ (gated by spike)</li>
+<li>Total: 3 × 3 = 9 domain × kind combos × 4 paths = 36 spanning scenarios.</li>
+</ul>
+<h3 id="125-coverage-floor-per-claudemd"><a class="anchor" href="#125-coverage-floor-per-claudemd" aria-label="Permalink to 12.5 Coverage floor (per CLAUDE.md)">#</a>12.5 Coverage floor (per CLAUDE.md)</h3>
+<ul>
+<li>Happy path ✓</li>
+<li>≥3 failure modes: bad input ✓, sqlite missing ✓, NN failure ✓, Ollama down ✓ (4)</li>
+<li>≥2 adversarial inputs: NaN/Infinity confidence ✓, duplicate tipId ✓, oversize tip content ✓ (3)</li>
+</ul>
+<h2 id="13-rollout-plan"><a class="anchor" href="#13-rollout-plan" aria-label="Permalink to 13. Rollout plan">#</a>13. Rollout plan</h2>
+<h3 id="phase-0-spike-1-day"><a class="anchor" href="#phase-0-spike-1-day" aria-label="Permalink to Phase 0 — Spike (1 day)">#</a>Phase 0 — Spike (1 day)</h3>
+<ul>
+<li>Deploy <code>tribal-spike.mjs</code> logger, run mixed session, decide agent parity strategy.</li>
+<li>Deliverable: decision memo appended to this spec as §14.</li>
+</ul>
+<h3 id="phase-1-schema-store-2-days"><a class="anchor" href="#phase-1-schema-store-2-days" aria-label="Permalink to Phase 1 — Schema + Store (2 days)">#</a>Phase 1 — Schema + Store (2 days)</h3>
+<ul>
+<li><code>enrichedNodeContext.ts</code> schema + tests.</li>
+<li><code>EnrichedNodeContextStore.ts</code> engine + tests.</li>
+<li>Sqlite migrations + smoke test.</li>
+<li>Wire to <code>prism_memory:context_card_*</code> actions.</li>
+</ul>
+<h3 id="phase-2-binder-pipeline-3-days"><a class="anchor" href="#phase-2-binder-pipeline-3-days" aria-label="Permalink to Phase 2 — Binder pipeline (3 days)">#</a>Phase 2 — Binder pipeline (3 days)</h3>
+<ul>
+<li><code>TipNodeBinderEngine.ts</code> with all 8 stages + tests.</li>
+<li><code>node-context-rebuild.mjs</code> script + cron registration.</li>
+<li><code>embeddings-cache.sqlite</code> warm-up logic.</li>
+<li>First full build of 771 cards.</li>
+<li>Wire to <code>prism_knowledge:tribal_*</code> actions.</li>
+</ul>
+<h3 id="phase-3-hook-2-days"><a class="anchor" href="#phase-3-hook-2-days" aria-label="Permalink to Phase 3 — Hook (2 days)">#</a>Phase 3 — Hook (2 days)</h3>
+<ul>
+<li><code>NodeIdResolver.ts</code> + tests.</li>
+<li><code>tribal-context-inject.mjs</code> hook + integration tests.</li>
+<li>Telemetry to <code>tribal-injection-stats.json</code>.</li>
+<li>Register in <code>settings.json</code> (allowlisted).</li>
+<li>Subagent path chosen per Phase-0 spike outcome.</li>
+</ul>
+<h3 id="phase-4-validation-1-day"><a class="anchor" href="#phase-4-validation-1-day" aria-label="Permalink to Phase 4 — Validation (1 day)">#</a>Phase 4 — Validation (1 day)</h3>
+<ul>
+<li>Run E2E suite.</li>
+<li>24h soak: confirm cron rebuild works, cards stay fresh, no orphan processes.</li>
+<li>Produce a one-shot tribal-injection-stats summary for Mark.</li>
+</ul>
+<h3 id="phase-5-follow-on-enablement"><a class="anchor" href="#phase-5-follow-on-enablement" aria-label="Permalink to Phase 5 — Follow-on enablement">#</a>Phase 5 — Follow-on enablement</h3>
+<ul>
+<li>Sub-project A spec (mine extracted/) — picks up where this leaves off, feeds new tips into the now-live binder.</li>
+<li>Sub-project B spec (cam-tips backlog) — bulk-ingest the 3,400 tips through the same pipeline.</li>
+<li>Sub-project D spec (HTML render layer) — renders enriched cards to HTML wiki views.</li>
+<li>Sub-project E spec (NN auto-utilization trigger) — adds runtime NN re-rank as optional layer.</li>
+</ul>
+<p>Total Phase 0–4: <strong>~9 working days</strong> (1 + 2 + 3 + 2 + 1).</p>
+<h2 id="14-phase-0-spike-result"><a class="anchor" href="#14-phase-0-spike-result" aria-label="Permalink to 14. Phase-0 spike result">#</a>14. Phase-0 spike result</h2>
+<p><em>To be filled in after spike runs. Decision tree:</em></p>
+<ul>
+<li><em>If subagent tool calls fire PreToolUse:</em> implement runtime injection (Phase 3, primary path).</li>
+<li><em>If subagent tool calls do NOT fire PreToolUse:</em> implement bridge agent wrapper (Phase 3, fallback path) AND keep runtime injection for main-thread.</li>
+<li><em>Either way:</em> §8.4 cooldown logic remains identical.</li>
+</ul>
+<h2 id="15-open-questions"><a class="anchor" href="#15-open-questions" aria-label="Permalink to 15. Open questions">#</a>15. Open questions</h2>
+<ul>
+<li><strong>Q1</strong>: Does <code>system-viz-obsidian-bridge.mjs</code> fully resolve every node kind to a wiki path, or does it currently only handle engines? If only engines: extend it in Phase 2 to handle dispatchers + actions. (Spec assumes extension is needed; ~2h work.)</li>
+<li><strong>Q2</strong>: Should the live-fallback path also write to a stub card (with <code>bakedBy: &quot;live_fallback&quot;</code>) so that the next cron sees the access pattern and prioritizes that node? Yes per §5.1; tracked as a Phase 2 task.</li>
+<li><strong>Q3</strong>: Cooldown storage. Decision: in-memory only for Phase 1–4 (single hook-process scope; the file <code>tribal-cooldown.json</code> mentioned in §8.4 is removed from the design — replaced by an in-memory <code>Map&lt;sessionId, Map&lt;nodeId, lastFiredAt&gt;&gt;</code> initialized fresh per hook invocation). Cross-session cooldown is a Phase 5 follow-up if telemetry shows re-firing on the same nodeId across rapid session restarts is wasteful.</li>
+<li><strong>Q4</strong>: Should <code>binds_excludes</code> glob support also accept regex? Default no; YAGNI. Plain glob with <code>*</code> and <code>?</code> only.</li>
+</ul>
+<h2 id="16-references"><a class="anchor" href="#16-references" aria-label="Permalink to 16. References">#</a>16. References</h2>
+<ul>
+<li>CLAUDE.md (project root + global) — wiring discipline, comprehensive-build, no-physics-inlining</li>
+<li>WIKI_SCHEMA.md — Karpathy LLM-Wiki pattern</li>
+<li>state/shared/PRISM-SYSTEM-VIZ-DIRECTIVE.md — viz authority</li>
+<li>state/shared/PRISM-SELF-AWARENESS-DIRECTIVE.md — domain classification</li>
+<li>state/shared/specs/2026-05-09-prism-stabilization-design.md — companion in-flight spec (peer chat claude-7b9d1810)</li>
+<li>mcp-server/data/state/TRIBAL_TIP_INDEX.json — input</li>
+<li>state/shared/system-viz/system-graph.json — input</li>
+<li>mcp-server/src/engines/TribalKnowledgeEngine.ts — reused</li>
+<li>mcp-server/src/engines/PRISMCreativeReasoningEngine.ts — reused (NN re-rank)</li>
+<li>mcp-server/src/engines/PRISMSelfAwarenessEngine.ts — reused (safety class)</li>
+<li>mcp-server/src/engines/OllamaHookBridgeEngine.ts — reused (nomic-embed-text routing)</li>
+<li>scripts/system-viz-query.mjs — reused (1-hop neighbors)</li>
+<li>scripts/system-viz-obsidian-bridge.mjs — reused, first-consumer in this spec</li>
+</ul>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="2026-05-09-tribal-node-binder-design.md">2026-05-09-tribal-node-binder-design.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

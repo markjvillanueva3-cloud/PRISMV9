@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="c3faef7ad5fdbf2b647a5b93e87a6deeb5a8e39badee44b67f87bea18b26386b">
+<title>KNOWLEDGE-VAULT-MS0</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">KNOWLEDGE-VAULT-MS0</h1>
+<p class="provenance">Generated 2026-05-12T12:43:27.430Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#knowledge-vault-ms0-atomized">KNOWLEDGE-VAULT-MS0 — atomized</a></li>
+<li class="toc-l2"><a href="#u-vault01-vault-schema-doc-claudemd-role-definition">U-VAULT01 — Vault-schema doc (CLAUDE.md role definition)</a></li>
+<li class="toc-l2"><a href="#u-vault02-memorywiki-promotion-engine">U-VAULT02 — Memory→wiki promotion engine</a></li>
+<li class="toc-l2"><a href="#u-vault03-claudemd-back-flow-hook-boris-pattern">U-VAULT03 — CLAUDE.md back-flow hook (Boris pattern)</a></li>
+<li class="toc-l2"><a href="#u-vault04-skill-wiki-cross-trigger-registry">U-VAULT04 — Skill ↔ wiki cross-trigger registry</a></li>
+<li class="toc-l2"><a href="#u-vault05-domain-moc-generator-nick-milo-pattern">U-VAULT05 — Domain MOC generator (Nick Milo pattern)</a></li>
+<li class="toc-l2"><a href="#u-vault06-vault-rot-sentinel">U-VAULT06 — Vault-rot sentinel</a></li>
+<li class="toc-l2"><a href="#x-closing-notes">§X — Closing notes</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<details class="frontmatter" open><summary>Document metadata</summary><div class="table-wrap"><table>
+<tbody>
+<tr><th scope="row">milestone</th><td>KNOWLEDGE-VAULT-MS0</td></tr>
+<tr><th scope="row">parent_roadmap</th><td>BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-2026-05-10.md</td></tr>
+<tr><th scope="row">research_source</th><td>state/shared/research/2026-05-10-pass2-knowledge-vault.md</td></tr>
+<tr><th scope="row">total_units</th><td>6</td></tr>
+<tr><th scope="row">critical_path_role</th><td>unifies 722-wiki + 188-memory + 440-skill + CLAUDE.md into one feedback loop</td></tr>
+<tr><th scope="row">loop_registrations</th><td>2 (memory→wiki promotion 7d, vault-rot 30d)</td></tr>
+<tr><th scope="row">date</th><td>2026-05-10</td></tr>
+</tbody>
+</table></div></details>
+<h1 id="knowledge-vault-ms0-atomized"><a class="anchor" href="#knowledge-vault-ms0-atomized" aria-label="Permalink to KNOWLEDGE-VAULT-MS0 — atomized">#</a>KNOWLEDGE-VAULT-MS0 — atomized</h1>
+<blockquote>
+<p>Karpathy 3-layer pattern + Boris back-flow + Matuschak evergreen + Nick Milo MOCs applied to PRISM&#39;s existing substrate. The 30% missing piece is <strong>automated coupling</strong> between wiki / memory / skills / CLAUDE.md.</p>
+</blockquote>
+<hr>
+<h2 id="u-vault01-vault-schema-doc-claudemd-role-definition"><a class="anchor" href="#u-vault01-vault-schema-doc-claudemd-role-definition" aria-label="Permalink to U-VAULT01 — Vault-schema doc (CLAUDE.md role definition)">#</a>U-VAULT01 — Vault-schema doc (CLAUDE.md role definition)</h2>
+<ul>
+<li>pillar: vault</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 85</li>
+<li>leverage_score: 13</li>
+<li>why: without a schema doc, the four surfaces drift apart; this is the gravity center</li>
+<li>depends_on: []</li>
+<li>blocks: [U-VAULT02, U-VAULT03, U-VAULT04, U-VAULT06]</li>
+<li>parallel_with: [U-GAC01, U-HKA01]</li>
+<li>viz_node_id: <code>fs.deep.prism.state.shared.specs.f.vault-schema-doc.md</code></li>
+<li>closes_synergy_edge: claude.md × wiki (currently manual)</li>
+<li>loop_schedule: none</li>
+</ul>
+<p>verifies_via:   channel: render   tool: <code>node scripts/wiki-lint.mjs state/shared/specs/VAULT-SCHEMA.md</code>   expected_signal: <code>lint passed</code>   re_run_cost: 2s   baseline: doc does not exist</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Read path: <code>WIKI_SCHEMA.md</code> action: read existing wiki schema for pattern verify: file readable</li>
+<li>step-2: tool: Write path: <code>state/shared/specs/VAULT-SCHEMA.md</code> action: define routing — CLAUDE.md=schema/rules; wiki=evergreen knowledge; memory=ephemeral session; skills=keyword-triggered prompts; with cross-trigger contract verify: file exists, contains §Routing</li>
+<li>step-3: tool: Bash path: <code>H:/prism/</code> action: lint the new doc verify: <code>node scripts/wiki-lint.mjs state/shared/specs/VAULT-SCHEMA.md</code> → &quot;lint passed&quot;</li>
+<li>step-4: tool: Edit path: <code>H:/prism/CLAUDE.md</code> action: append §VAULT-SCHEMA pointer (1 line) verify: <code>grep VAULT-SCHEMA H:/prism/CLAUDE.md</code> → match</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>cross-trigger circular (skill A → wiki B → skill A)</li>
+<li>schema doc renamed while CLAUDE.md still points at old path</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>manufacturing / dev-tools / AI-systems domain examples</li>
+<li>happy / corner / pathological routing case per domain</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>wiki-lint script absent → fall back to manual review checklist</li>
+<li>CLAUDE.md token bloat → enforce section-budget at lint time</li>
+<li>drift between schema and actual usage → quarterly audit unit</li>
+</ul>
+<hr>
+<h2 id="u-vault02-memorywiki-promotion-engine"><a class="anchor" href="#u-vault02-memorywiki-promotion-engine" aria-label="Permalink to U-VAULT02 — Memory→wiki promotion engine">#</a>U-VAULT02 — Memory→wiki promotion engine</h2>
+<ul>
+<li>pillar: vault</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 75</li>
+<li>leverage_score: 12</li>
+<li>why: fleeting observations rot without promotion ritual; Matuschak&#39;s evergreen-notes pattern</li>
+<li>depends_on: [U-VAULT01]</li>
+<li>blocks: [U-VAULT05]</li>
+<li>parallel_with: [U-VAULT03, U-VAULT04]</li>
+<li>viz_node_id: <code>eng.knowledge.memorywikipromotionengine</code> (TBD-create)</li>
+<li>closes_synergy_edge: memory × wiki (currently manual)</li>
+<li>loop_schedule: 7d (weekly promotion sweep)</li>
+</ul>
+<p>verifies_via:   channel: integration   tool: tag memory entry <code>permanent:true</code> → wait 7d cron or trigger manually → assert wiki entry exists   expected_signal: wiki entry created within 5min of manual trigger   re_run_cost: 5min   baseline: no automatic path</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Write path: <code>mcp-server/src/engines/MemoryWikiPromotionEngine.ts</code> action: scan <code>C:/Users/wompu/.claude/projects/H--prism/memory/</code> for entries with <code>permanent:true</code> or 3+ session-reuse signals verify: file exists</li>
+<li>step-2: tool: Write path: <code>mcp-server/src/__tests__/MemoryWikiPromotionEngine.test.ts</code> action: 5 tests — explicit permanent flag, reuse-count threshold, missing frontmatter, oversized body, duplicate wiki entry verify: 5 passed</li>
+<li>step-3: tool: Write path: <code>scripts/memory-wiki-promote.mjs</code> action: CLI — calls engine + writes promoted entry to <code>knowledge/wiki/&lt;category&gt;/</code> verify: script runs, wiki entry materializes</li>
+<li>step-4: tool: Edit path: <code>mcp-server/src/tools/dispatchers/memoryDispatcher.ts</code> action: wire <code>memory_promote</code> action verify: round-trip MCP</li>
+<li>step-5: tool: Bash path: <code>H:/prism/</code> action: register <code>/loop --interval 7d --max 12 &quot;memory-wiki-promote&quot;</code> (or document for user-side) verify: entry visible in <code>.claude/cron-registry.json</code> or docs</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>memory entry references file that no longer exists</li>
+<li>100 entries all flagged permanent same day</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>feedback / reference / project memory types (3 spanning)</li>
+<li>1 / 10 / 100 entries per sweep</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>wiki entry name collision → suffix with date</li>
+<li>frontmatter missing → infer from content, log warning</li>
+<li>duplicate detection → use content hash before write</li>
+</ul>
+<hr>
+<h2 id="u-vault03-claudemd-back-flow-hook-boris-pattern"><a class="anchor" href="#u-vault03-claudemd-back-flow-hook-boris-pattern" aria-label="Permalink to U-VAULT03 — CLAUDE.md back-flow hook (Boris pattern)">#</a>U-VAULT03 — CLAUDE.md back-flow hook (Boris pattern)</h2>
+<ul>
+<li>pillar: vault</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 70</li>
+<li>leverage_score: 11</li>
+<li>why: Boris #1 doctrine — &quot;After ANY correction from the user: update CLAUDE.md so you don&#39;t make that mistake again&quot;</li>
+<li>depends_on: [U-VAULT01]</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-VAULT02, U-VAULT04]</li>
+<li>viz_node_id: <code>core.hooks.claudemdbackflow</code> (TBD-create)</li>
+<li>closes_synergy_edge: feedback × claude.md (currently none)</li>
+<li>loop_schedule: none</li>
+</ul>
+<p>verifies_via:   channel: metric   tool: inject regression → wait → grep CLAUDE.md   expected_signal: <code>grep -c &quot;$(date +%Y-%m-%d)&quot; H:/prism/CLAUDE.md</code> increments   re_run_cost: 1s   baseline: 0 entries today</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Write path: <code>.claude/hooks/claudemd-backflow.mjs</code> action: PostToolUse hook — when user-message includes correction phrases (&quot;no&quot;, &quot;don&#39;t&quot;, &quot;wrong&quot;), append <code>H:/prism/CLAUDE.md</code> §Recent regressions verify: hook runs on stdin → JSON</li>
+<li>step-2: tool: Edit path: <code>.claude/settings.json</code> action: register on PostToolUse + UserPromptSubmit verify: parse clean</li>
+<li>step-3: tool: Write path: <code>.claude/hooks/__tests__/claudemd-backflow.test.mjs</code> action: 5 tests — correction detected, false positive (positive feedback), oversized message, no CLAUDE.md found, append idempotent verify: 5 passed</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>user types &quot;don&#39;t worry&quot; (false positive)</li>
+<li>100 corrections in same session (CLAUDE.md bloat)</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>direct correction / Socratic correction / silent-rollback</li>
+<li>global CLAUDE.md / project CLAUDE.md / both</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>CLAUDE.md write conflict (peer chat) → use file-claim lock</li>
+<li>regression count &gt; 50 per month → flag for distillation</li>
+<li>false positive escalation → escape hatch via <code>[NOT-REGRESSION]</code> user phrase</li>
+</ul>
+<hr>
+<h2 id="u-vault04-skill-wiki-cross-trigger-registry"><a class="anchor" href="#u-vault04-skill-wiki-cross-trigger-registry" aria-label="Permalink to U-VAULT04 — Skill ↔ wiki cross-trigger registry">#</a>U-VAULT04 — Skill ↔ wiki cross-trigger registry</h2>
+<ul>
+<li>pillar: vault</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 65</li>
+<li>leverage_score: 11</li>
+<li>why: skills currently keyword-trigger; wiki entries should also be able to suggest skills</li>
+<li>depends_on: [U-VAULT01]</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-VAULT02, U-VAULT03]</li>
+<li>viz_node_id: <code>eng.knowledge.skillwikicrosstriggerengine</code> (TBD-create)</li>
+<li>closes_synergy_edge: skills × wiki (currently manual)</li>
+<li>loop_schedule: none</li>
+</ul>
+<p>verifies_via:   channel: integration   tool: wiki entry tagged <code>skill:hypermill-rough</code> → trigger keyword in prompt → assert skill invoked   expected_signal: skill telemetry shows invocation   re_run_cost: 30s   baseline: skills only keyword-triggered</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Write path: <code>mcp-server/src/engines/SkillWikiCrossTriggerEngine.ts</code> action: scan wiki frontmatter for <code>skill:&lt;name&gt;</code> tags, build trigger registry verify: file exists, registry serializable</li>
+<li>step-2: tool: Write path: <code>scripts/skill-wiki-index.mjs</code> action: emit <code>state/shared/skill-wiki-cross-trigger.json</code> verify: script runs, JSON valid</li>
+<li>step-3: tool: Edit path: <code>.claude/hooks/skill-trigger-augment.mjs</code> action: add cross-trigger lookup to existing skill-triggering logic verify: prompt → both keyword and wiki-tag triggers fire</li>
+<li>step-4: tool: Write path: <code>mcp-server/src/__tests__/SkillWikiCrossTriggerEngine.test.ts</code> action: 5 tests — tag→skill, multi-tag, missing skill, tag collision, empty wiki verify: 5 passed</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>wiki tag references nonexistent skill</li>
+<li>tag injection in user content</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>1 / 10 / 50 cross-triggers</li>
+<li>exact-match / fuzzy-match / regex</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>skill name collision → take first registered, log</li>
+<li>registry stale → rebuild on wiki change</li>
+<li>trigger storm → cooldown 60s per skill</li>
+</ul>
+<hr>
+<h2 id="u-vault05-domain-moc-generator-nick-milo-pattern"><a class="anchor" href="#u-vault05-domain-moc-generator-nick-milo-pattern" aria-label="Permalink to U-VAULT05 — Domain MOC generator (Nick Milo pattern)">#</a>U-VAULT05 — Domain MOC generator (Nick Milo pattern)</h2>
+<ul>
+<li>pillar: vault</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 55</li>
+<li>leverage_score: 10</li>
+<li>why: 722 wiki entries are unnavigable without per-domain maps of content</li>
+<li>depends_on: [U-VAULT02]</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-VAULT06]</li>
+<li>viz_node_id: <code>eng.knowledge.mocgeneratorengine</code> (TBD-create)</li>
+<li>closes_synergy_edge: wiki × wiki (currently auto, this hardens)</li>
+<li>loop_schedule: 30d (monthly regen)</li>
+</ul>
+<p>verifies_via:   channel: render   tool: <code>node scripts/moc-generate.mjs --domain=WEDM</code>   expected_signal: <code>knowledge/wiki/_MOCs/WEDM-MOC.md</code> exists, ≥10 entries listed   re_run_cost: 5s   baseline: nonexistent</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Write path: <code>mcp-server/src/engines/MOCGeneratorEngine.ts</code> action: cluster wiki entries by domain tag → emit MOC.md verify: file exists</li>
+<li>step-2: tool: Write path: <code>scripts/moc-generate.mjs</code> action: CLI — <code>--domain &lt;name&gt;</code> writes to <code>knowledge/wiki/_MOCs/</code> verify: script runs</li>
+<li>step-3: tool: Bash path: <code>H:/prism/knowledge/wiki/</code> action: create <code>_MOCs/</code> dir verify: <code>ls knowledge/wiki/_MOCs/</code> exists</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>1000 entries single domain (oversized MOC)</li>
+<li>circular cross-reference</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>Manufacturing / AI / dev-tools / safety / WEDM (5 spanning)</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>dir creation race → idempotent mkdir</li>
+<li>entry without domain tag → bucket as &quot;uncategorized&quot;</li>
+<li>MOC content too long → split into MOC + sub-MOCs</li>
+</ul>
+<hr>
+<h2 id="u-vault06-vault-rot-sentinel"><a class="anchor" href="#u-vault06-vault-rot-sentinel" aria-label="Permalink to U-VAULT06 — Vault-rot sentinel">#</a>U-VAULT06 — Vault-rot sentinel</h2>
+<ul>
+<li>pillar: vault</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 50</li>
+<li>leverage_score: 9</li>
+<li>why: stale wiki entries mislead more than help; quarterly audit catches rot</li>
+<li>depends_on: [U-VAULT01]</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-VAULT05]</li>
+<li>viz_node_id: <code>eng.knowledge.vaultrotsentinelengine</code> (TBD-create)</li>
+<li>closes_synergy_edge: wiki × tribal (currently auto, harden)</li>
+<li>loop_schedule: 30d</li>
+</ul>
+<p>verifies_via:   channel: metric   tool: <code>node scripts/vault-rot-audit.mjs</code>   expected_signal: stale_count, fresh_count, total — reasonable ratio   re_run_cost: 10s   baseline: 0% audited</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Write path: <code>mcp-server/src/engines/VaultRotSentinelEngine.ts</code> action: scan wiki + memory entries → flag mtime &gt; 90d AND access-count &lt; 2 verify: file exists</li>
+<li>step-2: tool: Write path: <code>scripts/vault-rot-audit.mjs</code> action: CLI — emits <code>state/shared/VAULT-ROT-REPORT.md</code> verify: script runs</li>
+<li>step-3: tool: Write path: <code>mcp-server/src/__tests__/VaultRotSentinelEngine.test.ts</code> action: 5 tests — happy, all fresh, all stale, missing mtime, access-count log corrupt verify: 5 passed</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>access log corrupt</li>
+<li>mtime in future</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>30d / 60d / 90d threshold</li>
+<li>hard-flag / soft-warn</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>false-stale (rarely-used but critical) → maintainer override list</li>
+<li>access log gap → conservative: assume fresh</li>
+<li>audit run too aggressive → throttle deletion to manual review</li>
+</ul>
+<hr>
+<h2 id="x-closing-notes"><a class="anchor" href="#x-closing-notes" aria-label="Permalink to §X — Closing notes">#</a>§X — Closing notes</h2>
+<p><strong>Critical-path:</strong> U-VAULT01 unblocks 4 downstream. Build first.</p>
+<p><strong>Cron registrations:</strong> <code>/loop --interval 7d</code> for U-VAULT02 promotion; <code>/loop --interval 30d</code> for U-VAULT05 MOC regen + U-VAULT06 rot audit.</p>
+<p><strong>Synergy closed:</strong> 4 of 56 &quot;none&quot; edges (memory × wiki, feedback × claude.md, skills × wiki, claude.md × wiki).</p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="BACKEND-DEVTOOLS-RGS6-KNOWLEDGE-VAULT-MS0-ATOMIZED-2026-05-10.md">BACKEND-DEVTOOLS-RGS6-KNOWLEDGE-VAULT-MS0-ATOMIZED-2026-05-10.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

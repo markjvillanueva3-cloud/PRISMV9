@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="29ff0337161c96f2e5d63b87ad1dba0567ed799f923fb6f6799d15f972162768">
+<title>Track K — Kimi K2.6:cloud Mid-Tier Integration</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">Track K — Kimi K2.6:cloud Mid-Tier Integration</h1>
+<p class="provenance">Generated 2026-05-12T12:43:26.732Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#track-k-kimi-k26cloud-mid-tier-integration">Track K — Kimi K2.6:cloud Mid-Tier Integration</a></li>
+<li class="toc-l2"><a href="#1-why-a-mid-tier">§1 — Why a mid-tier</a></li>
+<li class="toc-l2"><a href="#2-twelve-atomic-units-full-enumeration-per-build-enforcement">§2 — Twelve atomic units (full enumeration per build-enforcement)</a></li>
+<li class="toc-l2"><a href="#3-variability-axes-per-build-enforcement-variability-floor">§3 — Variability axes (per build-enforcement variability floor)</a></li>
+<li class="toc-l2"><a href="#4-risks-mitigations">§4 — Risks + mitigations</a></li>
+<li class="toc-l2"><a href="#5-hard-rules-no-escape-hatches">§5 — Hard rules (no escape hatches)</a></li>
+<li class="toc-l2"><a href="#6-user-locked-decisions-answered-2026-05-10">§6 — User-locked decisions (answered 2026-05-10)</a></li>
+<li class="toc-l2"><a href="#65-new-unit-k45-u-k2-claude-scrutinize-chain">§6.5 — NEW unit K4.5: U-K2-CLAUDE-SCRUTINIZE-CHAIN</a></li>
+<li class="toc-l2"><a href="#7-estimated-effort">§7 — Estimated effort</a></li>
+<li class="toc-l2"><a href="#8-provenance">§8 — Provenance</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<details class="frontmatter" open><summary>Document metadata</summary><div class="table-wrap"><table>
+<tbody>
+<tr><th scope="row">title</th><td>Track K — Kimi K2.6:cloud Mid-Tier Integration</td></tr>
+<tr><th scope="row">date</th><td>2026-05-10</td></tr>
+<tr><th scope="row">author</th><td>claude-85cedf09</td></tr>
+<tr><th scope="row">parent_plan</th><td>state/shared/specs/SYSTEM-SYNERGY-AUDIT-2026-05-09.md (§5)</td></tr>
+<tr><th scope="row">doctrine</th><td>state/shared/specs/BORIS-LOOP-AGENT-DOCTRINE.md</td></tr>
+<tr><th scope="row">status</th><td>planned (awaiting user scheduling decision)</td></tr>
+</tbody>
+</table></div></details>
+<h1 id="track-k-kimi-k26cloud-mid-tier-integration"><a class="anchor" href="#track-k-kimi-k26cloud-mid-tier-integration" aria-label="Permalink to Track K — Kimi K2.6:cloud Mid-Tier Integration">#</a>Track K — Kimi K2.6:cloud Mid-Tier Integration</h1>
+<p><code>/forge-audit-v2</code> (synergy thread) added this Track K on 2026-05-10 in response to the user&#39;s &quot;hook it into our current plan&quot; directive. K2.6 is Moonshot AI&#39;s 1T-parameter MoE model (32B active, 256K context, 87/100 coding benchmark — first non-Western model to reach Tier A) that became available on <code>ollama.com/library/kimi-k2.6</code> in May 2026.</p>
+<h2 id="1-why-a-mid-tier"><a class="anchor" href="#1-why-a-mid-tier" aria-label="Permalink to §1 — Why a mid-tier">#</a>§1 — Why a mid-tier</h2>
+<p>PRISM today routes between <strong>two tiers</strong>: free-local <code>qwen2.5-coder:7b</code> (38% offload rate; handles explain/summarize/docstring/lint/diff-summary/error-triage well) and <strong>paid Claude</strong> (Opus/Sonnet/Haiku) for everything else. The 62% of &quot;could-be-offloaded&quot; work that stays on Claude is a cost+latency tax — many of those tasks are deep-context refactors or long agentic chains where qwen runs out of capacity but Claude is overkill (and slow with hooks). K2.6:cloud occupies a mid-band: more capable than qwen, cheaper than Opus, and covers a 256K context window that&#39;s wider than Sonnet&#39;s working window. Local K2.6 is <strong>out of scope</strong> — the smallest quant (Unsloth Q1.8) is 240GB on disk and needs ≥128GB unified RAM at ~5 tok/s, which exceeds the user&#39;s portable hardware footprint.</p>
+<h2 id="2-twelve-atomic-units-full-enumeration-per-build-enforcement"><a class="anchor" href="#2-twelve-atomic-units-full-enumeration-per-build-enforcement" aria-label="Permalink to §2 — Twelve atomic units (full enumeration per build-enforcement)">#</a>§2 — Twelve atomic units (full enumeration per build-enforcement)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Unit</th><th>Why</th><th>Depends on</th><th>Blocks</th></tr></thead>
+<tbody>
+<tr><td><strong>K1</strong></td><td><code>U-K2-CONFIG-INVENTORY</code> — read AISystemRouterEngine.ts (10KB) + OllamaHookBridgeEngine.ts (12KB), document the existing inline tier table, identify the exact insertion point for a new <code>kimi-k2.6:cloud</code> tier. Output: <code>state/shared/specs/K2-ROUTER-INVENTORY.md</code> (≤2 pages).</td><td>Single source of truth before edits; avoids duplicating tier logic</td><td>—</td><td>K2, K3, K4</td></tr>
+<tr><td><strong>K2</strong></td><td><code>U-K2-TIER-REGISTER</code> — add <code>kimi-k2.6:cloud</code> to AISystemRouterEngine&#39;s tier union type + capability tags (<code>{ id: &quot;kimi-k2.6:cloud&quot;, costPerKTok: 0.0X, latencyMsP50: ~Y, contextWindow: 262144, capability: [&quot;code&quot;,&quot;reason&quot;,&quot;agent&quot;], requiresAuth: true }</code>). Cost+latency probed in K3.</td><td>Type-safe routing</td><td>K1</td><td>K3, K4, K6</td></tr>
+<tr><td><strong>K3</strong></td><td><code>U-K2-CLOUD-ENGINE</code> — new engine <code>K2CloudOllamaEngine.ts</code> (or extend <code>OllamaHookBridgeEngine</code>) that wraps <code>ollama run kimi-k2.6:cloud</code>. Handles cloud auth header, request timeout, partial-stream cancellation, fallback to <code>qwen2.5-coder:7b</code> on auth failure. Singleton pattern matches existing OllamaHookBridgeEngine.</td><td>Concrete adapter</td><td>K2</td><td>K5, K6, K8, K10, K11</td></tr>
+<tr><td><strong>K4</strong></td><td><code>U-K2-ROUTER-DECISION</code> — extend <code>AISystemRouterEngine.route(task)</code> decision matrix: classify by <code>(complexityTier, contextSize, safetyCritical)</code>. Mid-tier band: complexity≥0.4 ∧ contextSize≤200KB ∧ ¬safetyCritical → K2.6:cloud. Existing safety-critical path stays on Claude.</td><td>Smart escalation; avoids &quot;upgrade everything&quot; cost spike</td><td>K1, K3</td><td>K5, K6, K7</td></tr>
+<tr><td><strong>K5</strong></td><td><code>U-K2-TIER-HOOK</code> — new <code>.claude/hooks/ollama-tier-router.mjs</code> UserPromptSubmit hook that calls <code>AISystemRouterEngine.suggestTier(prompt)</code> and injects a one-line tier hint into the prompt context. Honors <code>[no-cloud]</code> escape hatch.</td><td>Boris pattern: explicit decision visible to operator</td><td>K4</td><td>—</td></tr>
+<tr><td><strong>K6</strong></td><td><code>U-K2-SKILL</code> — new skill <code>~/.claude/commands/k2-ask.md</code> (or extend <code>/local-ask</code> with <code>--tier=k2</code>). Routes user query directly through K2CloudOllamaEngine. Frontmatter: <code>effort: medium</code>, <code>policy.tier: 2</code>.</td><td>Interactive entry point</td><td>K3, K4</td><td>—</td></tr>
+<tr><td><strong>K7</strong></td><td><code>U-K2-COST-GUARD</code> — new engine <code>K2CostGuardEngine.ts</code>: per-session token budget (default 100K tokens/session = ~$X), <code>prism_session:k2_budget_status</code> action, fail-closed gate when budget hits 90%. Persists to <code>mcp-server/data/state/k2-budget.json</code>.</td><td>Cloud is paid; runaway spend is the #1 risk</td><td>K2, K4</td><td>K10, K12</td></tr>
+<tr><td><strong>K8</strong></td><td><code>U-K2-TELEMETRY</code> — extend <code>mcp-server/data/state/ollama-offload-stats.json</code> schema 2.0.0 → 3.0.0 with per-model breakdown: <code>byModel: {&quot;qwen2.5-coder:7b&quot;:{...}, &quot;kimi-k2.6:cloud&quot;:{...}}</code>. Migration in <code>src/migrations/</code>.</td><td>Observability for the router decisions</td><td>K3</td><td>K9</td></tr>
+<tr><td><strong>K9</strong></td><td><code>U-K2-DASHBOARD</code> — extend <code>scripts/ollama-offload-dashboard.mjs</code> with <code>--by-model</code> flag + cost projection column (current-spend, projected-monthly). Default view shows tier-band summary.</td><td>Operator visibility</td><td>K8</td><td>—</td></tr>
+<tr><td><strong>K10</strong></td><td><code>U-K2-FALLBACK-TESTS</code> — Vitest suite asserting: (a) qwen unreachable → K2.6:cloud answers; (b) K2.6:cloud unreachable → Claude (with budget check); (c) budget cap mid-stream → graceful degrade message; (d) auth 401 → fallback chain triggered (NOT silent fail-open to Claude); (e) NaN/Infinity/empty/oversize prompts handled. ≥2 spanning task classes per Variability Floor.</td><td>Per build-enforcement coverage floor</td><td>K3, K4, K7</td><td>—</td></tr>
+<tr><td><strong>K11</strong></td><td><code>U-K2-AUTH-SETUP</code> — script <code>scripts/k2-cloud-signin.mjs</code> that runs <code>ollama signin</code> flow + verifies token, writes status to <code>state/shared/k2-cloud-auth-status.json</code>. Plus README at <code>docs/k2-cloud-setup.md</code> with the manual one-time setup.</td><td>Without this, K3 fails silently</td><td>K3</td><td>K6</td></tr>
+<tr><td><strong>K12</strong></td><td><code>U-K2-CLAUDE-MD-DOC</code> — append to <code>H:/prism/CLAUDE.md</code> AI SYSTEM ROUTING section: 3-tier ladder (qwen / k2.6:cloud / claude) with decision boundaries + escape hatches. Boris pattern: doc the routing so future chats route correctly.</td><td>Discoverability + future-Claude correctness</td><td>K1..K11</td><td>—</td></tr>
+</tbody>
+</table></div>
+<p><strong>Wave assignment</strong> — proposed insertion into the audit&#39;s §6 execution order: <strong>Wave 5.5</strong> (between current Wave 5 cyrilXBT workflows and Wave 6 Company Brain). Rationale: K2 is infrastructure that multiplies the value of cyrilXBT workflows (B1–B6 do recurring scans that could now use K2 for the deeper analysis steps).</p>
+<h2 id="3-variability-axes-per-build-enforcement-variability-floor"><a class="anchor" href="#3-variability-axes-per-build-enforcement-variability-floor" aria-label="Permalink to §3 — Variability axes (per build-enforcement variability floor)">#</a>§3 — Variability axes (per build-enforcement variability floor)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Axis</th><th>Spans</th></tr></thead>
+<tbody>
+<tr><td>Task class</td><td>code-explain · code-summarize · refactor · deep-reason · safety-critical · agentic-loop</td></tr>
+<tr><td>Cost tier</td><td>free-local (qwen) · paid-cloud (K2.6) · premium (Claude)</td></tr>
+<tr><td>Context size</td><td>&lt;8K (qwen sweet spot) · 8K–200K (K2.6 sweet spot) · &gt;200K (Claude or chunk)</td></tr>
+<tr><td>Latency budget</td><td>sync-fast (&lt;2s — qwen only) · sync-medium (&lt;10s — qwen or K2.6) · async-batch (any tier)</td></tr>
+<tr><td>Failure mode</td><td>model unreachable · auth expired · token budget exceeded · rate-limited · response timeout · hallucination on safety topic</td></tr>
+<tr><td>Adversarial input</td><td>NaN / Infinity / empty prompt / oversize prompt (&gt;256K) / prompt injection / non-UTF8</td></tr>
+</tbody>
+</table></div>
+<p>K10 must exercise ≥3 task classes × ≥3 failure modes = ≥9 test cases minimum.</p>
+<h2 id="4-risks-mitigations"><a class="anchor" href="#4-risks-mitigations" aria-label="Permalink to §4 — Risks + mitigations">#</a>§4 — Risks + mitigations</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Risk</th><th>Likelihood</th><th>Impact</th><th>Mitigation</th></tr></thead>
+<tbody>
+<tr><td>K2:cloud auth token silently expires → router fails open to Claude → cost spike</td><td>High</td><td>High</td><td>K11 verifies token at startup + K7 cost guard catches the spike before $$$</td></tr>
+<tr><td>K2 hallucinates on safety-critical physics → bypasses safety validators</td><td>Med</td><td><strong>Critical</strong></td><td>K4 hard-routes safety-critical to Claude only; K10 includes a safety-critical adversarial test</td></tr>
+<tr><td>Tasks currently on qwen get &quot;upgraded&quot; to K2 → new paid cost where there was none</td><td>High</td><td>Low</td><td>K4 decision matrix is conservative: only escalate qwen→K2 when qwen confidence is low (needs confidence signal — may need K1.5 sub-unit)</td></tr>
+<tr><td>256K context tempting → operator dumps entire codebase → token cost runaway</td><td>Med</td><td>High</td><td>K7 hard-caps per-request tokens; K6 skill defaults to small context unless <code>--full</code> flag</td></tr>
+<tr><td>Latency higher than local qwen → bad UX for short prompts</td><td>Med</td><td>Med</td><td>K4 decision matrix includes latency-budget axis; routes short+fast to qwen unconditionally</td></tr>
+<tr><td>Cloud K2 deprecated / unavailable → nothing falls back gracefully</td><td>Low</td><td>Med</td><td>K3 fallback chain tested in K10 (b) and (d)</td></tr>
+</tbody>
+</table></div>
+<h2 id="5-hard-rules-no-escape-hatches"><a class="anchor" href="#5-hard-rules-no-escape-hatches" aria-label="Permalink to §5 — Hard rules (no escape hatches)">#</a>§5 — Hard rules (no escape hatches)</h2>
+<p>These are FAILS, not warnings, per /forge-audit-v2 doctrine:</p>
+<ol>
+<li>K2:cloud invoked without K7 budget check first → BLOCK</li>
+<li>Safety-critical task routed to K2 (not Claude) → BLOCK at K4 decision</li>
+<li>K3 silent fail-open to Claude on auth failure → BLOCK (must fallback through full chain with explicit log)</li>
+<li>K10 test suite missing any of (a)–(e) → BLOCK</li>
+<li>K12 CLAUDE.md update missing → BLOCK (Boris back-flow rule)</li>
+</ol>
+<h2 id="6-user-locked-decisions-answered-2026-05-10"><a class="anchor" href="#6-user-locked-decisions-answered-2026-05-10" aria-label="Permalink to §6 — User-locked decisions (answered 2026-05-10)">#</a>§6 — User-locked decisions (answered 2026-05-10)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Question</th><th>Decision</th><th>Implication</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Budget cap</td><td><strong>100K tokens/session (~$10)</strong></td><td>K7 fail-closed at 90% (90K tokens)</td></tr>
+<tr><td>2</td><td>Default routing posture</td><td><strong>AGGRESSIVE</strong> — any task with context &gt;8K escalates qwen→K2.6:cloud</td><td>K4 decision matrix: <code>contextSize &gt; 8KB ∧ ¬sync-fast → K2.6</code> (no confidence-signal gating needed). Higher monthly bill is accepted; budget cap is the safety valve.</td></tr>
+<tr><td>3</td><td>Safety-critical handling</td><td><strong>TWO-PASS PATTERN</strong> — K2 generates the initial answer, then Claude scrutinizes the output</td><td>NEW sub-unit <strong>K4.5</strong> required. This is a cost-effective generator+critic pattern: K2 does the heavy lifting cheaply, Claude validates against safety constraints. Latency = K2 latency + Claude scrutiny. Cost = K2 tokens + Claude scrutiny tokens (Claude is on a smaller scrutiny prompt, not full re-generation).</td></tr>
+<tr><td>4</td><td>Wave timing</td><td><strong>Wave 5.5</strong> (between cyrilXBT B1-B6 and Company Brain D1-D5)</td><td>B1-B6 will consume K2 from day 1; matches §6 execution order</td></tr>
+<tr><td>5</td><td>Auth setup</td><td>(deferred — assumed: K11 ships a one-shot wrapper; user runs it once when ready)</td><td>K11 stays as planned</td></tr>
+</tbody>
+</table></div>
+<h2 id="65-new-unit-k45-u-k2-claude-scrutinize-chain"><a class="anchor" href="#65-new-unit-k45-u-k2-claude-scrutinize-chain" aria-label="Permalink to §6.5 — NEW unit K4.5: U-K2-CLAUDE-SCRUTINIZE-CHAIN">#</a>§6.5 — NEW unit K4.5: U-K2-CLAUDE-SCRUTINIZE-CHAIN</h2>
+<p>Per user decision §6 #3 above, safety-critical tasks (<code>prism_calc</code>, <code>prism_safety</code>, anything with <code>safetyCritical: true</code> flag) follow this two-pass pattern:</p>
+<pre><code>1. AISystemRouterEngine classifies prompt → safetyCritical = true
+2. K4 routing matrix: dispatch K2.6:cloud with full prompt → response_K2
+3. K4.5 scrutiny chain: dispatch Claude with prompt:
+     &quot;Below is a K2.6 generated answer for a safety-critical PRISM task.
+      Verify against PRISM SAFETY RAILS (Kienzle/Taylor constants from
+      src/physics/constants.ts, dimensional consistency, no inline magic
+      numbers, no stub returns). Return PASS|FAIL|REVISE with specifics.
+      [task] / [response_K2]&quot;
+   → response_Claude_verdict
+4. If PASS: return response_K2 to caller (cheap, K2 was correct).
+   If REVISE: return response_K2 with Claude&#39;s revisions inlined.
+   If FAIL: discard K2 output, dispatch full task to Claude (full re-gen).
+5. K8 telemetry records: { task_id, k2_tokens, claude_scrutiny_tokens, verdict, total_cost }
+</code></pre>
+<p>Cost model:</p>
+<ul>
+<li>Best case (K2 PASS): K2 tokens only (~10× cheaper than Claude full)</li>
+<li>Mid case (REVISE): K2 + Claude scrutiny (~3× cheaper than Claude full)</li>
+<li>Worst case (FAIL): K2 + Claude scrutiny + Claude full (~1.2× more expensive than Claude alone)</li>
+</ul>
+<p>K10 test additions for K4.5:</p>
+<ul>
+<li>(f) safety-critical prompt → K2 returns valid answer → Claude PASS → return K2 output</li>
+<li>(g) safety-critical prompt → K2 returns wrong physics constant → Claude FAIL → fallback to Claude full</li>
+<li>(h) safety-critical prompt → K2 returns mostly-right + small error → Claude REVISE → return revised</li>
+<li>Plus assertions on telemetry: total_cost recorded for each path</li>
+</ul>
+<p>K4.5 dependency: must build AFTER K3 (engine), K4 (router decision), K7 (cost guard). Blocks K10 (tests) and K12 (CLAUDE.md doc — must describe the two-pass pattern).</p>
+<p>Updated unit count: <strong>13 atomic units</strong> (K1-K12 + K4.5). Estimated total: <strong>9-13 hours</strong> across 2-3 sessions.</p>
+<h2 id="7-estimated-effort"><a class="anchor" href="#7-estimated-effort" aria-label="Permalink to §7 — Estimated effort">#</a>§7 — Estimated effort</h2>
+<ul>
+<li>Aggregate: <strong>9–13 hours</strong> across 2–3 sessions (includes K4.5 two-pass scrutiny chain)</li>
+<li>K1 (inventory) + K2 (config) + K3 (engine) = ~3–4 hours (single session, single chat lane)</li>
+<li>K4 (router) + K5 (hook) + K6 (skill) = ~2–3 hours (can parallel K7+K8)</li>
+<li>K7 (cost guard) + K8 (telemetry) + K9 (dashboard) = ~2 hours</li>
+<li>K10 (tests) + K11 (auth) + K12 (doc) = ~1–2 hours</li>
+</ul>
+<h2 id="8-provenance"><a class="anchor" href="#8-provenance" aria-label="Permalink to §8 — Provenance">#</a>§8 — Provenance</h2>
+<ul>
+<li>WebSearch evidence (2026-05-10): <code>ollama.com/library/kimi-k2.6</code> + <code>unsloth/Kimi-K2.6-GGUF</code> + Ollama announcement tweet</li>
+<li>Audit context: <code>state/shared/specs/SYSTEM-SYNERGY-AUDIT-2026-05-09.md</code> (parent plan)</li>
+<li>Doctrine: <code>state/shared/specs/BORIS-LOOP-AGENT-DOCTRINE.md</code> (verification feedback loop required for every K* unit)</li>
+<li>Existing tier surfaces: <code>mcp-server/src/engines/AISystemRouterEngine.ts</code> (10KB) + <code>OllamaHookBridgeEngine.ts</code> (12KB) + <code>mcp-server/data/state/ollama-offload-stats.json</code> (81KB)</li>
+</ul>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="K2-CLOUD-INTEGRATION-PLAN.md">K2-CLOUD-INTEGRATION-PLAN.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="d2cf05a22a2344ea023f5ff5e708b14d9aa1f34bff2c4ab6dd8caf909e8962e4">
+<title>Claude Code Hooks + Agent Automation — Research Pass 2</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">Claude Code Hooks + Agent Automation — Research Pass 2</h1>
+<p class="provenance">Generated 2026-05-12T12:43:26.516Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#1-why-this-matters">§1 — Why this matters</a></li>
+<li class="toc-l1"><a href="#2-reputable-sources-anthropic-docs-github-papers-urls-verified">§2 — Reputable sources (Anthropic docs + GitHub + papers, URLs verified)</a></li>
+<li class="toc-l2"><a href="#21-anthropic-first-party">§2.1 — Anthropic-first-party</a></li>
+<li class="toc-l2"><a href="#22-community-power-user">§2.2 — Community / power-user</a></li>
+<li class="toc-l2"><a href="#23-tutorials-write-ups-vetted-2026">§2.3 — Tutorials / write-ups (vetted, 2026)</a></li>
+<li class="toc-l1"><a href="#3-x-twitter-highlights-quotes-urls">§3 — X / Twitter highlights (quotes + URLs)</a></li>
+<li class="toc-l1"><a href="#4-concrete-prism-hook-proposals-event-matcher-action-blast-radius-blocks">§4 — Concrete PRISM hook proposals (event, matcher, action, blast-radius, blocks)</a></li>
+<li class="toc-l2"><a href="#41-read-once-pretooluse-read-dedup">§4.1 — read-once PreToolUse Read dedup</a></li>
+<li class="toc-l2"><a href="#42-defer-on-uncertain-pretooluse-bash-danger">§4.2 — defer-on-uncertain PreToolUse (Bash danger)</a></li>
+<li class="toc-l2"><a href="#43-permission-denied-retry-classifier-permissiondenied">§4.3 — permission-denied-retry-classifier PermissionDenied</a></li>
+<li class="toc-l2"><a href="#44-ollama-route-classifier-pretooluse-editwrite">§4.4 — ollama-route-classifier PreToolUse (Edit/Write)</a></li>
+<li class="toc-l2"><a href="#45-agent-scoped-stop-verify-frontmatter">§4.5 — agent-scoped-stop-verify (frontmatter)</a></li>
+<li class="toc-l2"><a href="#46-hookify-style-user-extensible-rules">§4.6 — hookify-style user-extensible rules</a></li>
+<li class="toc-l2"><a href="#47-http-hook-observability-posttooluse-editwritebash">§4.7 — http-hook-observability PostToolUse (Edit|Write|Bash)</a></li>
+<li class="toc-l2"><a href="#48-mcp-tool-hook-pretooluse-security_scan">§4.8 — mcp-tool-hook PreToolUse (security_scan)</a></li>
+<li class="toc-l2"><a href="#49-task-created-claim-guard-taskcreated">§4.9 — task-created-claim-guard TaskCreated</a></li>
+<li class="toc-l2"><a href="#410-posttoolbatch-fanout-budget-posttoolbatch">§4.10 — posttoolbatch-fanout-budget PostToolBatch</a></li>
+<li class="toc-l1"><a href="#5-synergy-with-existing-480-hook-fleet-which-gaps-are-filled">§5 — Synergy with existing 480-hook fleet (which gaps are filled)</a></li>
+<li class="toc-l1"><a href="#6-failure-modes-hook-storm-infinite-loop-hook-conflict">§6 — Failure modes (hook storm, infinite loop, hook conflict)</a></li>
+<li class="toc-l2"><a href="#61-hook-storm-fanout-budget">§6.1 — Hook storm (fanout &gt; budget)</a></li>
+<li class="toc-l2"><a href="#62-infinite-loop-stop-hook-blocks-stop">§6.2 — Infinite loop (Stop hook blocks Stop)</a></li>
+<li class="toc-l2"><a href="#63-hook-conflict-settingsjson-hierarchy-ambiguity">§6.3 — Hook conflict (settings.json hierarchy ambiguity)</a></li>
+<li class="toc-l2"><a href="#64-context-compact-loop">§6.4 — Context-compact loop</a></li>
+<li class="toc-l2"><a href="#65-async-hook-deadlock">§6.5 — Async hook deadlock</a></li>
+<li class="toc-l2"><a href="#66-defer-on-defer-new-2189-footgun">§6.6 — Defer-on-defer (new 2.1.89 footgun)</a></li>
+<li class="toc-l2"><a href="#67-http-hook-pii-leak">§6.7 — HTTP hook PII leak</a></li>
+<li class="toc-l1"><a href="#7-recommended-pass-3-follow-ups">§7 — Recommended Pass-3 follow-ups</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<details class="frontmatter" open><summary>Document metadata</summary><div class="table-wrap"><table>
+<tbody>
+<tr><th scope="row">title</th><td>Claude Code Hooks + Agent Automation — Research Pass 2</td></tr>
+<tr><th scope="row">date</th><td>2026-05-10</td></tr>
+<tr><th scope="row">session</th><td>claude-2570c8f5</td></tr>
+<tr><th scope="row">sources_count</th><td>22</td></tr>
+<tr><th scope="row">x_posts_count</th><td>18</td></tr>
+</tbody>
+</table></div></details>
+<h1 id="1-why-this-matters"><a class="anchor" href="#1-why-this-matters" aria-label="Permalink to §1 — Why this matters">#</a>§1 — Why this matters</h1>
+<p>PRISM already operates ~480 wired hooks under <code>H:/prism/.claude/hooks/</code> plus <code>H:/.claude/settings.json</code>, covering PreToolUse / PostToolUse / UserPromptSubmit / Stop / PreCompact. That stack predates the wave of public Claude Code hook patterns that landed late-2025/early-2026 — meaning the wider ecosystem has now codified several techniques PRISM has been doing ad-hoc, and has also shipped patterns PRISM does not yet exploit:</p>
+<ol>
+<li><strong>Anthropic shipped <code>hookify</code> as a first-party plugin</strong> (markdown rules + YAML frontmatter, auto-rule-discovery from conversation transcripts). PRISM&#39;s hooks are hand-rolled <code>.mjs</code> — <code>hookify</code>&#39;s <code>.local.md</code> rule pattern is what we should adopt for <em>user-extensible</em> policy without touching the core 480-hook fleet.</li>
+<li><strong>Hook event surface expanded to ~31 events</strong> in 2.1.x — including <code>PostToolBatch</code>, <code>TeammateIdle</code>, <code>TaskCreated/Completed</code>, <code>PermissionDenied{retry:true}</code>, agent-scoped frontmatter hooks, <code>defer</code> permission decision, conditional <code>if</code> fields, HTTP/MCP/prompt/agent hook <em>types</em>. PRISM still treats hooks as shell-command-only.</li>
+<li>**Boris Cherny publicly framed hooks as the <em>enforcement</em> answer** to CLAUDE.md drift (&quot;Hooks are a guarantee. CLAUDE.md is a suggestion&quot;). This is exactly PRISM&#39;s enforcement model — meaning we are aligned with the canonical pattern and should compound, not retreat.</li>
+<li><strong>Cost-control hooks now exist</strong> (<code>read-once</code>, <code>lean-ctx</code>, Ollama-route hooks). PRISM has <code>OllamaHookBridgeEngine</code> but does NOT have a hard <code>read-once</code> PreToolUse gate. That is a gap with a measurable 40% file-read token saving in the wild.</li>
+<li><strong>Hook-storm cost incidents are now documented</strong> ($6,000 overnight via <code>/loop 30m</code>, context-compact loops, async hook deadlock). PRISM has not audited its 480 hooks for circularity / fanout.</li>
+</ol>
+<h1 id="2-reputable-sources-anthropic-docs-github-papers-urls-verified"><a class="anchor" href="#2-reputable-sources-anthropic-docs-github-papers-urls-verified" aria-label="Permalink to §2 — Reputable sources (Anthropic docs + GitHub + papers, URLs verified)">#</a>§2 — Reputable sources (Anthropic docs + GitHub + papers, URLs verified)</h1>
+<h2 id="21-anthropic-first-party"><a class="anchor" href="#21-anthropic-first-party" aria-label="Permalink to §2.1 — Anthropic-first-party">#</a>§2.1 — Anthropic-first-party</h2>
+<ul>
+<li><strong><a href="https://code.claude.com/docs/en/hooks" rel="noopener noreferrer">Claude Code Hooks Reference (canonical)</a></strong> — 31 hook events, 5 handler types (command, http, mcp_tool, prompt, agent), exit code semantics, matcher syntax, JSON I/O contract, <code>if</code> field permission-rule filter. <strong>PRISM should treat this page as authoritative; the in-repo CLAUDE.md guidance defers to it.</strong></li>
+<li><strong><a href="https://code.claude.com/docs/en/hooks-guide" rel="noopener noreferrer">Claude Code Hooks Guide (workflow patterns)</a></strong> — Boris&#39;s official &quot;automate workflows with hooks&quot; guide.</li>
+<li><strong><a href="https://github.com/anthropics/claude-code/tree/main/plugins/hookify" rel="noopener noreferrer">hookify plugin (Anthropic official, claude-code monorepo)</a></strong> — markdown rule plugin, <code>/hookify</code> <code>/hookify:list</code> <code>/hookify:configure</code> <code>/hookify:help</code> slash commands.</li>
+<li><strong><a href="https://github.com/anthropics/claude-plugins-official/tree/main/plugins/hookify" rel="noopener noreferrer">hookify plugin (claude-plugins-official mirror)</a></strong> — same plugin in the dedicated plugins repo.</li>
+<li><strong><a href="https://github.com/anthropics/claude-code/blob/main/plugins/hookify/skills/writing-rules/SKILL.md" rel="noopener noreferrer">hookify writing-rules SKILL.md</a></strong> — canonical rule-authoring skill.</li>
+<li><strong><a href="https://claude.com/plugins/hookify" rel="noopener noreferrer">Hookify plugin landing page</a></strong> — Anthropic marketing page; confirms public availability.</li>
+</ul>
+<h2 id="22-community-power-user"><a class="anchor" href="#22-community-power-user" aria-label="Permalink to §2.2 — Community / power-user">#</a>§2.2 — Community / power-user</h2>
+<ul>
+<li><strong><a href="https://github.com/disler/claude-code-hooks-mastery" rel="noopener noreferrer">disler/claude-code-hooks-mastery</a></strong> — Comprehensive examples covering all hook events, exit-code patterns, session-replay state under <code>.claude/data/sessions/&lt;session_id&gt;.json</code>. Includes Stop-hook &quot;can BLOCK STOPPING&quot; enforcement pattern.</li>
+<li><strong><a href="https://github.com/adrozdenko/hookify-plus" rel="noopener noreferrer">adrozdenko/hookify-plus</a></strong> — Fork extending hookify with <code>not_regex_match</code>, <code>value</code> key, and <code>read</code> event support. Useful precedent if PRISM forks/extends the rule format.</li>
+<li><strong><a href="https://github.com/yvgude/lean-ctx" rel="noopener noreferrer">yvgude/lean-ctx</a></strong> — Rust binary &quot;Context OS&quot; — 49 tools, 10 read modes, 90+ patterns, claimed 60–95% token reduction (99% on cached reads). Shell-hook + MCP-server architecture; direct competitor / inspiration for PRISM&#39;s RTK + Ollama bridge.</li>
+<li><strong><a href="https://github.com/rohitg00/awesome-claude-code-toolkit" rel="noopener noreferrer">rohitg00/awesome-claude-code-toolkit</a></strong> — 135 agents, 35 skills (400k+ via SkillKit), 42 commands, 176+ plugins, 20 hooks, 15 rules, 14 MCP configs. Useful for cross-referencing PRISM&#39;s 480-hook fleet against the public hook taxonomy.</li>
+</ul>
+<h2 id="23-tutorials-write-ups-vetted-2026"><a class="anchor" href="#23-tutorials-write-ups-vetted-2026" aria-label="Permalink to §2.3 — Tutorials / write-ups (vetted, 2026)">#</a>§2.3 — Tutorials / write-ups (vetted, 2026)</h2>
+<ul>
+<li><strong><a href="https://www.pixelmojo.io/blogs/claude-code-hooks-production-quality-ci-cd-patterns" rel="noopener noreferrer">Pixelmojo — PreToolUse, PostToolUse &amp; Stop (SDK) production CI/CD patterns</a></strong> — Treats hooks as a CI/CD layer; pattern for staging-only Stop gates.</li>
+<li><strong><a href="https://claudefa.st/blog/tools/hooks/hooks-guide" rel="noopener noreferrer">claudefa.st — Complete Guide to All 12 Lifecycle Events</a></strong> — Now superseded by the 31-event ref above, but useful for migration.</li>
+<li><strong><a href="https://blakecrosley.com/blog/claude-code-hooks-tutorial" rel="noopener noreferrer">blakecrosley.com — 5 Production Hooks From Scratch</a></strong> — Auto-formatter, danger-block, test-on-edit, auto-commit, file-protector patterns.</li>
+<li><strong><a href="https://blog.promptlayer.com/understanding-claude-code-hooks-documentation/" rel="noopener noreferrer">promptlayer.com — Understanding Claude Code hooks</a></strong> — Decision-tree for which event to use when.</li>
+<li><strong><a href="https://paddo.dev/blog/claude-code-hooks-guardrails/" rel="noopener noreferrer">paddo.dev — Guardrails That Actually Work</a></strong> — Field report on which guardrails survive long sessions.</li>
+<li><strong><a href="https://www.dotzlaw.com/insights/claude-hooks/" rel="noopener noreferrer">dotzlaw.com — The Deterministic Control Layer for AI Agents</a></strong> — &quot;Boris pattern&quot; deep-dive.</li>
+<li><strong><a href="https://www.morphllm.com/claude-code-hooks" rel="noopener noreferrer">morphllm.com — Automate Every Edit, Commit, and Tool Call</a></strong> — Edit-commit chain hooks.</li>
+<li><strong><a href="https://www.ksred.com/claude-code-hooks-a-complete-guide-to-automating-your-ai-coding-workflow/" rel="noopener noreferrer">ksred.com — Complete Guide to Automating Your AI Coding Workflow</a></strong> — Comprehensive practitioner guide.</li>
+<li><strong><a href="https://www.datacamp.com/tutorial/claude-code-hooks" rel="noopener noreferrer">datacamp.com — Practical Guide to Workflow Automation</a></strong> — Test-on-edit + auto-format reference.</li>
+<li><strong><a href="https://stevekinney.com/courses/ai-development/claude-code-hook-control-flow" rel="noopener noreferrer">stevekinney.com — Hook Control Flow</a></strong> — Mental model of decision propagation through pre/post/stop chain.</li>
+<li><strong><a href="https://dev.to/shipwithaiio/how-to-build-a-self-verification-loop-in-claude-code-3-layers-20-minutes-m1p" rel="noopener noreferrer">dev.to/shipwithaiio — 3-Layer Self-Verification Loop in 20 Minutes</a></strong> — Syntax + intent + regression layers via PostToolUse + Stop.</li>
+<li><strong><a href="https://dev.to/boucle2026/read-once-a-claude-code-hook-that-stops-redundant-file-reads-4bjk" rel="noopener noreferrer">dev.to/boucle2026 — read-once hook</a></strong> — TTL 1200s, diff-only on modified re-read, 40% file-read savings (19/47 reads blocked in worked example).</li>
+<li><strong><a href="https://techtaek.com/claude-code-context-discipline-memory-mcp-subagents-2026/" rel="noopener noreferrer">techtaek.com — Context discipline 2026</a></strong> — Anti-pattern: &quot;invisible automation can be worse than no automation.&quot;</li>
+<li><strong><a href="https://medium.com/becoming-for-better/taming-claude-code-a-guide-to-claude-md-and-hooks-ed059879991c" rel="noopener noreferrer">medium.com — Taming Claude Code (CLAUDE.md and Hooks)</a></strong> — Mar 2026 synthesis.</li>
+<li><strong><a href="https://www.penligent.ai/hackinglabs/inside-claude-code-the-architecture-behind-tools-memory-hooks-and-mcp/" rel="noopener noreferrer">penligent.ai — Inside Claude Code architecture (Tools, Memory, Hooks, MCP)</a></strong> — Architectural framing.</li>
+<li><strong><a href="https://howborisusesclaudecode.com/" rel="noopener noreferrer">howborisusesclaudecode.com</a></strong> — Boris&#39;s personal setup page.</li>
+<li><strong><a href="https://deepwiki.com/trailofbits/claude-code-config/4.3-posttooluse-hook-examples" rel="noopener noreferrer">deepwiki — trailofbits/claude-code-config PostToolUse examples</a></strong> — Trail of Bits&#39; production config.</li>
+</ul>
+<h1 id="3-x-twitter-highlights-quotes-urls"><a class="anchor" href="#3-x-twitter-highlights-quotes-urls" aria-label="Permalink to §3 — X / Twitter highlights (quotes + URLs)">#</a>§3 — X / Twitter highlights (quotes + URLs)</h1>
+<blockquote>
+<p>&quot;Hooks are a guarantee. CLAUDE.md is a suggestion. Claude follows CLAUDE.md most of the time, not all of the time.&quot; — <strong>Akshay</strong>, <a href="https://x.com/akshay_pachaar/status/2037523396876173783" rel="noopener noreferrer">@akshay_pachaar</a></p>
+</blockquote>
+<blockquote>
+<p>&quot;Hooks turn many ad-hoc &#39;please do X every time&#39; instructions into deterministic code paths that fire transparently, before or after a tool runs, or when the session stops. The contract moves from the prompt — which the model may forget — to deterministic code.&quot; — <strong>Carlos E. Perez</strong>, <a href="https://x.com/IntuitMachine/status/1940054820708098068" rel="noopener noreferrer">@IntuitMachine</a></p>
+</blockquote>
+<blockquote>
+<p>&quot;9/ Set up hooks. Hooks are a way to deterministically hook into Claude&#39;s lifecycle. Use them to: automatically route permission requests to Slack or Opus, nudge Claude to keep going when it reaches the end of a turn (you can even kick off an agent or use a prompt to decide).&quot; — <strong>Boris Cherny</strong>, <a href="https://x.com/bcherny/status/2021701059253874861" rel="noopener noreferrer">@bcherny</a></p>
+</blockquote>
+<blockquote>
+<p>&quot;12/ For very long-running tasks, I will either (a) prompt Claude to verify its work with a background agent when it&#39;s done, (b) use an agent Stop hook to do that more deterministically, or (c) use the ralph-wiggum plugin.&quot; — <strong>Boris Cherny</strong>, <a href="https://x.com/bcherny/status/2007179858435281082" rel="noopener noreferrer">@bcherny</a></p>
+</blockquote>
+<blockquote>
+<p>&quot;Claude Code already shipped a solution for this: hooks. PreToolUse runs before any tool executes. Your script sees the tool name + arguments and returns allow, block, or error. Block rm. Allow edits. Require confirmation for writes to /src. Log every Bash command.&quot; — <strong>Paweł Huryn</strong>, <a href="https://x.com/PawelHuryn/status/2033663104773390679" rel="noopener noreferrer">@PawelHuryn</a></p>
+</blockquote>
+<blockquote>
+<p>&quot;Claude Code 2.1.89: Added &#39;defer&#39; permission decision to PreToolUse hooks — headless sessions can pause at a tool call and resume with -p --resume to have the hook re-evaluate. PermissionDenied hook fires after auto-mode classifier denials; return {retry:true} to let it through.&quot; — <strong>Claude Code Changelog</strong>, <a href="https://x.com/ClaudeCodeLog/status/2039153153686360267" rel="noopener noreferrer">@ClaudeCodeLog</a></p>
+</blockquote>
+<blockquote>
+<p>&quot;Claude Code 2.1.85: Added conditional <code>if</code> field for hooks using permission rule syntax (e.g., <code>Bash(git *)</code>) to filter when they run, reducing process spawning overhead.&quot; — <strong>Claude Code Changelog</strong>, <a href="https://x.com/ClaudeCodeLog/status/2037305997761331533" rel="noopener noreferrer">@ClaudeCodeLog</a></p>
+</blockquote>
+<blockquote>
+<p>&quot;Claude Code 2.1 added Agent-Scoped Hooks and Context Fork for Skills. You can now define PreToolUse, PostToolUse, and Stop hooks in an agent&#39;s frontmatter that only run during that agent&#39;s lifecycle. Perfect for verification agents.&quot; — <strong>Eric Buess</strong>, <a href="https://x.com/EricBuess/status/2009073718450889209" rel="noopener noreferrer">@EricBuess</a></p>
+</blockquote>
+<blockquote>
+<p>&quot;Skills now support Hooks directly in the YAML frontmatter. In addition to a Skill being able to reference another Skill, you can now add hooks to run commands or scripts on PreToolUse, PostToolUse, or Stop events.&quot; — <strong>Daniel San</strong>, <a href="https://x.com/dani_avila7/status/2009397544565305705" rel="noopener noreferrer">@dani_avila7</a></p>
+</blockquote>
+<blockquote>
+<p>&quot;El problema de CLAUDE.md es que es contexto en el prompt, no una regla. El modelo puede ignorarlo. Los Hooks resuelven exactamente eso: son código que corre siempre, sin importar lo que Claude decida.&quot; — <strong>santi</strong>, <a href="https://x.com/santtiagom_/status/2040553002856005650" rel="noopener noreferrer">@santtiagom_</a></p>
+</blockquote>
+<blockquote>
+<p>&quot;In Claude Code, we&#39;ve recently launched HTTP hooks, easier to use and more secure than existing command hooks! You can build a web app (even on localhost) to view CC&#39;s progress, manage its permissions, and more.&quot; — <strong>Dickson Tsai</strong> (Anthropic), <a href="https://x.com/dickson_tsai/status/2029235808235078095" rel="noopener noreferrer">@dickson_tsai</a></p>
+</blockquote>
+<blockquote>
+<p>&quot;Claude Code 1.0.54 is out with a new UserPromptSubmit hook. Adding current working directory is also very useful. I&#39;ve been using hooks to help fix common mistakes and inject context at exactly the right time and it works VERY well.&quot; — <strong>Ian Nuttall</strong>, <a href="https://x.com/iannuttall/status/1945704745890451762" rel="noopener noreferrer">@iannuttall</a></p>
+</blockquote>
+<blockquote>
+<p>&quot;Use the UserPromptSubmit hook to stop it saying &#39;You&#39;re absolutely right!&#39;&quot; — <strong>Ian Nuttall</strong>, <a href="https://x.com/iannuttall/status/1952704902977003617" rel="noopener noreferrer">@iannuttall</a></p>
+</blockquote>
+<blockquote>
+<p>&quot;Claude Code&#39;s biggest problem is that skills don&#39;t auto-invoke reliably. You write &#39;use when the user mentions slides&#39; and half the time it ignores the trigger. Carl Vellotti fixed it with hooks.&quot; — <strong>Aakash Gupta</strong>, <a href="https://x.com/aakashgupta/status/2040888715003019433" rel="noopener noreferrer">@aakashgupta</a></p>
+</blockquote>
+<blockquote>
+<p>&quot;We&#39;ve been building an internal Claude Code plugin system at Intercom with 13 plugins, 100+ skills, and hooks that turn Claude into a full-stack engineering platform.&quot; — <strong>Brian Scanlan</strong> (Intercom), <a href="https://x.com/brian_scanlan/status/2033978300003987527" rel="noopener noreferrer">@brian_scanlan</a></p>
+</blockquote>
+<blockquote>
+<p>&quot;Reverse proxy for Claude Code that anonymizes sensitive pentest data (IPs, hashes, credentials, hostnames, PII) before it reaches Anthropic. Dual-layer detection: local Ollama LLM + regex safety net, with per-engagement vault and self-improving feedback loop.&quot; — <strong>Pavol Lupták</strong>, <a href="https://x.com/wilderko/status/2045523176600252607" rel="noopener noreferrer">@wilderko</a></p>
+</blockquote>
+<blockquote>
+<p>&quot;A dev burned $6,000 of Claude tokens overnight. One command did it: <code>/loop 30m check my PRs</code>. He ran it 46 times on Opus 4.7 while he slept. Every API call sends the entire conversation back, not just what you typed.&quot; — <strong>Amaan Khan</strong>, <a href="https://x.com/amaanbuilds/status/2050561260782297336" rel="noopener noreferrer">@amaanbuilds</a></p>
+</blockquote>
+<blockquote>
+<p>&quot;Claude Code stuck in a context-compact loop. First time I&#39;ve seen this. After a compact, it results in 0% free context, and even a simple message triggers another compact.&quot; — <strong>Michael Yagudaev</strong>, <a href="https://x.com/yagudaev/status/2026829574210736321" rel="noopener noreferrer">@yagudaev</a></p>
+</blockquote>
+<h1 id="4-concrete-prism-hook-proposals-event-matcher-action-blast-radius-blocks"><a class="anchor" href="#4-concrete-prism-hook-proposals-event-matcher-action-blast-radius-blocks" aria-label="Permalink to §4 — Concrete PRISM hook proposals (event, matcher, action, blast-radius, blocks)">#</a>§4 — Concrete PRISM hook proposals (event, matcher, action, blast-radius, blocks)</h1>
+<p>PRISM already has 480 wired hooks. These proposals fill <em>specific</em> gaps revealed by §2–§3. Each is graded by blast-radius (B) and what it blocks (X).</p>
+<h2 id="41-read-once-pretooluse-read-dedup"><a class="anchor" href="#41-read-once-pretooluse-read-dedup" aria-label="Permalink to §4.1 — read-once PreToolUse Read dedup">#</a>§4.1 — <code>read-once</code> PreToolUse Read dedup</h2>
+<ul>
+<li><strong>Event:</strong> <code>PreToolUse</code></li>
+<li><strong>Matcher:</strong> <code>Read</code></li>
+<li><strong>Action:</strong> Track <code>{file_path, mtime, session_id}</code> in <code>.claude/cache/read-once.json</code>. On cache hit with unchanged mtime within TTL=1200s, return <code>permissionDecision: &quot;deny&quot;</code> with <code>permissionDecisionReason: &quot;Already in context (read at &lt;ts&gt;). Use partial-Read offset/limit if you need a different range, or wait for mtime change.&quot;</code>. On modified, allow read OR return diff-only stdout.</li>
+<li><strong>B:</strong> Low — only blocks redundant Reads.</li>
+<li><strong>X:</strong> Re-Reads of large files that ate context in long sessions (matches <code>read-after-edit.local.md</code> already in PRISM tree, but currently a <code>hookify</code> rule, not a true dedup-with-TTL gate).</li>
+<li><strong>Source:</strong> <a href="https://dev.to/boucle2026/read-once-a-claude-code-hook-that-stops-redundant-file-reads-4bjk" rel="noopener noreferrer">dev.to/boucle2026 — read-once</a> (40% savings in worked example).</li>
+</ul>
+<h2 id="42-defer-on-uncertain-pretooluse-bash-danger"><a class="anchor" href="#42-defer-on-uncertain-pretooluse-bash-danger" aria-label="Permalink to §4.2 — defer-on-uncertain PreToolUse (Bash danger)">#</a>§4.2 — <code>defer-on-uncertain</code> PreToolUse (Bash danger)</h2>
+<ul>
+<li><strong>Event:</strong> <code>PreToolUse</code></li>
+<li><strong>Matcher:</strong> <code>Bash</code> with <code>if: &quot;Bash(rm -rf *)|Bash(git push --force *)|Bash(npm publish *)&quot;</code></li>
+<li><strong>Action:</strong> Return <code>permissionDecision: &quot;defer&quot;</code> for headless sessions, <code>&quot;ask&quot;</code> for interactive — pause until human resume with <code>-p --resume</code>. This is the <strong>new 2.1.89 capability</strong> PRISM has not adopted.</li>
+<li><strong>B:</strong> Low — only fires on hand-curated danger list.</li>
+<li><strong>X:</strong> Catches autonomous-loop runaway scenarios (matches the $6,000 overnight loop incident).</li>
+<li><strong>Source:</strong> <a href="https://x.com/ClaudeCodeLog/status/2039153153686360267" rel="noopener noreferrer">Claude Code Changelog 2.1.89</a>.</li>
+</ul>
+<h2 id="43-permission-denied-retry-classifier-permissiondenied"><a class="anchor" href="#43-permission-denied-retry-classifier-permissiondenied" aria-label="Permalink to §4.3 — permission-denied-retry-classifier PermissionDenied">#</a>§4.3 — <code>permission-denied-retry-classifier</code> PermissionDenied</h2>
+<ul>
+<li><strong>Event:</strong> <code>PermissionDenied</code> (new in 2.1.89)</li>
+<li><strong>Matcher:</strong> all</li>
+<li><strong>Action:</strong> Inspect denied tool + args. If matches PRISM&#39;s auto-allow patterns (read-only Grep/Glob/Read on <code>state/shared/**</code>), return <code>{retry: true}</code>. Otherwise let denial stand.</li>
+<li><strong>B:</strong> Medium — controls the auto-mode retry surface.</li>
+<li><strong>X:</strong> Classifier false-negatives where PRISM&#39;s allowlist is more permissive than Claude&#39;s auto-mode default.</li>
+</ul>
+<h2 id="44-ollama-route-classifier-pretooluse-editwrite"><a class="anchor" href="#44-ollama-route-classifier-pretooluse-editwrite" aria-label="Permalink to §4.4 — ollama-route-classifier PreToolUse (Edit/Write)">#</a>§4.4 — <code>ollama-route-classifier</code> PreToolUse (Edit/Write)</h2>
+<ul>
+<li><strong>Event:</strong> <code>PreToolUse</code></li>
+<li><strong>Matcher:</strong> <code>Edit|Write|MultiEdit</code></li>
+<li><strong>Action:</strong> Inspect intent (from recent UserPromptSubmit context). If intent is &quot;summarize / docstring / lint / classify / diff-summary,&quot; return <code>updatedInput</code> rewriting the call into a <code>prism_ai:ollama_local</code> MCP call instead. Else allow.</li>
+<li><strong>B:</strong> Medium — changes execution surface for ~30% of edit calls per PRISM&#39;s existing <code>OllamaHookBridgeEngine</code> heuristics.</li>
+<li><strong>X:</strong> Cloud-billed Claude calls for tasks that qwen2.5-coder:7b handles locally.</li>
+<li><strong>Source:</strong> Confirms PRISM is already directionally correct; adds an explicit <em>PreToolUse-as-router</em> arm.</li>
+</ul>
+<h2 id="45-agent-scoped-stop-verify-frontmatter"><a class="anchor" href="#45-agent-scoped-stop-verify-frontmatter" aria-label="Permalink to §4.5 — agent-scoped-stop-verify (frontmatter)">#</a>§4.5 — <code>agent-scoped-stop-verify</code> (frontmatter)</h2>
+<ul>
+<li><strong>Event:</strong> <code>Stop</code> (agent-scoped, in agent frontmatter)</li>
+<li><strong>Matcher:</strong> N/A (per-agent)</li>
+<li><strong>Action:</strong> Each <code>subagent_type</code> declares its own Stop verifier in YAML frontmatter — e.g., <code>physics-reviewer</code> agent enforces &quot;all Kienzle constants came from <code>constants.ts</code>&quot; before returning. Reusable across all <code>Agent()</code> calls of that type.</li>
+<li><strong>B:</strong> Per-agent only — no global blast.</li>
+<li><strong>X:</strong> Drift in long agent loops where the parent Stop hook does not see internal agent traffic.</li>
+<li><strong>Source:</strong> <a href="https://x.com/EricBuess/status/2009073718450889209" rel="noopener noreferrer">@EricBuess on agent-scoped hooks</a>.</li>
+</ul>
+<h2 id="46-hookify-style-user-extensible-rules"><a class="anchor" href="#46-hookify-style-user-extensible-rules" aria-label="Permalink to §4.6 — hookify-style user-extensible rules">#</a>§4.6 — <code>hookify</code>-style user-extensible rules</h2>
+<ul>
+<li><strong>Event:</strong> all</li>
+<li><strong>Matcher:</strong> delegated to rule&#39;s <code>pattern</code></li>
+<li><strong>Action:</strong> Install <code>hookify</code> plugin from <code>anthropics/claude-code/plugins/hookify</code>. Add a <code>/hookify-prism</code> wrapper that knows PRISM&#39;s matcher conventions. The 25 existing <code>.claude/hookify.*.local.md</code> files in repo (per git status) are already in this format — formalize the pattern.</li>
+<li><strong>B:</strong> Low if rules are reviewed; high if a user adds an over-broad pattern.</li>
+<li><strong>X:</strong> &quot;I keep forgetting to X&quot; style soft policies that don&#39;t deserve a <code>.mjs</code> hook.</li>
+<li><strong>Source:</strong> <a href="https://github.com/anthropics/claude-code/tree/main/plugins/hookify" rel="noopener noreferrer">hookify plugin</a>.</li>
+</ul>
+<h2 id="47-http-hook-observability-posttooluse-editwritebash"><a class="anchor" href="#47-http-hook-observability-posttooluse-editwritebash" aria-label="Permalink to §4.7 — http-hook-observability PostToolUse (Edit|Write|Bash)">#</a>§4.7 — <code>http-hook-observability</code> PostToolUse (Edit|Write|Bash)</h2>
+<ul>
+<li><strong>Event:</strong> <code>PostToolUse</code></li>
+<li><strong>Matcher:</strong> <code>Edit|Write|Bash</code></li>
+<li><strong>Action:</strong> Fire HTTP hook to <code>http://localhost:8765/svi-event</code> (existing system-viz server). Streams tool calls into the live system-viz graph for real-time blast-radius display.</li>
+<li><strong>B:</strong> Low — purely observational.</li>
+<li><strong>X:</strong> Blind-spot when multi-chat work happens off-graph.</li>
+<li><strong>Source:</strong> <a href="https://x.com/dickson_tsai/status/2029235808235078095" rel="noopener noreferrer">@dickson_tsai HTTP hooks announcement</a>.</li>
+</ul>
+<h2 id="48-mcp-tool-hook-pretooluse-security_scan"><a class="anchor" href="#48-mcp-tool-hook-pretooluse-security_scan" aria-label="Permalink to §4.8 — mcp-tool-hook PreToolUse (security_scan)">#</a>§4.8 — <code>mcp-tool-hook</code> PreToolUse (security_scan)</h2>
+<ul>
+<li><strong>Event:</strong> <code>PreToolUse</code></li>
+<li><strong>Matcher:</strong> <code>mcp__.*__write.*</code></li>
+<li><strong>Action:</strong> Hook of <code>type: mcp_tool</code>, <code>server: prism_safety</code>, <code>tool: validate_physics</code> — runs PRISM&#39;s existing safety gate against any MCP write that might touch physics state. Native MCP→hook bridge, no shell-out.</li>
+<li><strong>B:</strong> Low — only MCP writes.</li>
+<li><strong>X:</strong> External MCP servers bypassing PRISM&#39;s safety chain.</li>
+<li><strong>Source:</strong> Hooks ref MCP-tool-hook spec.</li>
+</ul>
+<h2 id="49-task-created-claim-guard-taskcreated"><a class="anchor" href="#49-task-created-claim-guard-taskcreated" aria-label="Permalink to §4.9 — task-created-claim-guard TaskCreated">#</a>§4.9 — <code>task-created-claim-guard</code> TaskCreated</h2>
+<ul>
+<li><strong>Event:</strong> <code>TaskCreated</code></li>
+<li><strong>Matcher:</strong> all</li>
+<li><strong>Action:</strong> Read task description, cross-check <code>mcp-server/data/claims/&lt;unit&gt;/claim.json</code>. If unit already claimed by another chat (heartbeat &lt; 5 min), return exit-2 to roll back creation.</li>
+<li><strong>B:</strong> Medium — prevents Task() spawn for conflicting work.</li>
+<li><strong>X:</strong> Multi-chat duplicate work (PRISM&#39;s #1 coordination failure mode).</li>
+</ul>
+<h2 id="410-posttoolbatch-fanout-budget-posttoolbatch"><a class="anchor" href="#410-posttoolbatch-fanout-budget-posttoolbatch" aria-label="Permalink to §4.10 — posttoolbatch-fanout-budget PostToolBatch">#</a>§4.10 — <code>posttoolbatch-fanout-budget</code> PostToolBatch</h2>
+<ul>
+<li><strong>Event:</strong> <code>PostToolBatch</code></li>
+<li><strong>Matcher:</strong> all</li>
+<li><strong>Action:</strong> Sum token cost of just-completed parallel batch. If batch cost &gt; <code>PRISM_BATCH_CEILING</code> (default 50k tokens) AND next-model-call is queued, return <code>{decision: &quot;block&quot;}</code> with reason — forces a checkpoint before another fanout.</li>
+<li><strong>B:</strong> Medium — gates the agentic loop.</li>
+<li><strong>X:</strong> Hook-storm + $6,000-overnight class incidents.</li>
+<li><strong>Source:</strong> <a href="https://x.com/amaanbuilds/status/2050561260782297336" rel="noopener noreferrer">@amaanbuilds runaway-loop post</a>.</li>
+</ul>
+<h1 id="5-synergy-with-existing-480-hook-fleet-which-gaps-are-filled"><a class="anchor" href="#5-synergy-with-existing-480-hook-fleet-which-gaps-are-filled" aria-label="Permalink to §5 — Synergy with existing 480-hook fleet (which gaps are filled)">#</a>§5 — Synergy with existing 480-hook fleet (which gaps are filled)</h1>
+<p>PRISM&#39;s existing hook fleet (from CLAUDE.md §ENFORCEMENT GATES) covers:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Existing PRISM hook</th><th>Pass-2 proposal that complements</th></tr></thead>
+<tbody>
+<tr><td><code>file-claim-guard</code> (peer-claimed files)</td><td>§4.9 <code>task-created-claim-guard</code> extends to Task() spawns</td></tr>
+<tr><td><code>duplication-hard-block</code> (engine dups)</td><td>§4.6 <code>hookify</code> rules for <em>soft</em> dedup intent before hard-block</td></tr>
+<tr><td><code>comprehensive-build-enforce</code> (stubs)</td><td>§4.5 agent-scoped Stop verifier per <code>physics-reviewer</code></td></tr>
+<tr><td><code>scrutinize-before-stop</code> (3-of-3 review)</td><td>§4.8 MCP-tool-hook safety bridge during scrutiny</td></tr>
+<tr><td><code>enforce-handoff-topic</code></td><td>§4.10 PostToolBatch budget — finishes mid-budget instead of mid-handoff</td></tr>
+<tr><td><code>error-pattern-promote</code></td><td>§4.7 HTTP hook to system-viz feeds errors into 3D graph</td></tr>
+<tr><td><code>stop_on_unwired_assets</code></td><td>§4.5 agent-scoped Stop verifier surfaces wiring drift per agent</td></tr>
+<tr><td><code>stop_on_failing_tests</code></td><td>§4.5 agent-scoped Stop for test-runner agent</td></tr>
+<tr><td><code>wiki-precheck-inject</code> (UserPromptSubmit)</td><td>§4.4 ollama-route classifier for similar `Edit</td></tr>
+<tr><td><code>chat-bus-inject</code> (UserPromptSubmit)</td><td>§4.7 outbound HTTP hook is the symmetric counterpart</td></tr>
+<tr><td><code>inventory-check-guard</code></td><td>§4.1 <code>read-once</code> saves re-reading PRISM-INVENTORY-LATEST.md</td></tr>
+<tr><td><code>read-after-edit.local.md</code> (already in tree)</td><td>§4.1 promotes to a real PreToolUse with TTL, not just a warn rule</td></tr>
+</tbody>
+</table></div>
+<p><strong>Gaps filled by Pass 2:</strong></p>
+<ol>
+<li><strong><code>defer</code> permission decision</strong> — PRISM has no headless-pause path. §4.2 adds one.</li>
+<li><strong><code>PermissionDenied{retry:true}</code> classifier</strong> — PRISM&#39;s auto-allow patterns are not wired into auto-mode retry. §4.3 closes that.</li>
+<li><strong>Agent-scoped frontmatter hooks</strong> — PRISM uses global Stop hooks only. §4.5 adds per-agent Stop verifiers (cheaper and more accurate).</li>
+<li><strong>MCP-tool-type hooks</strong> — PRISM hooks are all shell-command type. §4.8 uses native MCP, bypassing process-spawn overhead.</li>
+<li><strong>HTTP-type hooks</strong> — PRISM has no localhost observability endpoint. §4.7 wires system-viz as the listener.</li>
+<li><strong>PostToolBatch budget</strong> — PRISM has no parallel-fanout cost ceiling. §4.10 prevents runaway.</li>
+<li><strong><code>hookify</code> user-extensible rule format</strong> — PRISM already has 25 <code>.claude/hookify.*.local.md</code> files (per git status) but no official <code>hookify</code> plugin install. §4.6 formalizes.</li>
+</ol>
+<h1 id="6-failure-modes-hook-storm-infinite-loop-hook-conflict"><a class="anchor" href="#6-failure-modes-hook-storm-infinite-loop-hook-conflict" aria-label="Permalink to §6 — Failure modes (hook storm, infinite loop, hook conflict)">#</a>§6 — Failure modes (hook storm, infinite loop, hook conflict)</h1>
+<h2 id="61-hook-storm-fanout-budget"><a class="anchor" href="#61-hook-storm-fanout-budget" aria-label="Permalink to §6.1 — Hook storm (fanout &gt; budget)">#</a>§6.1 — Hook storm (fanout &gt; budget)</h2>
+<p>Symptoms: PostToolBatch runs N parallel tools, each fires M PostToolUse hooks, each writes to disk, next model call fans out N more → exponential.</p>
+<p>PRISM exposure: 480 hooks + parallel tool calls + 6-concurrent-chat model. <strong>High.</strong></p>
+<p>Mitigations:</p>
+<ul>
+<li>§4.10 PostToolBatch budget ceiling.</li>
+<li>Audit <code>H:/prism/.claude/hooks/</code> for any hook that fires another hook indirectly (e.g., a PostToolUse that writes a file that triggers FileChanged that triggers another PostToolUse).</li>
+<li>Use <code>async: true</code> for non-blocking observability hooks so they don&#39;t serialize the loop.</li>
+</ul>
+<h2 id="62-infinite-loop-stop-hook-blocks-stop"><a class="anchor" href="#62-infinite-loop-stop-hook-blocks-stop" aria-label="Permalink to §6.2 — Infinite loop (Stop hook blocks Stop)">#</a>§6.2 — Infinite loop (Stop hook blocks Stop)</h2>
+<p>The canonical failure: Stop hook returns exit 2 → Claude continues → reaches Stop again → hook returns exit 2 again → forever. Reported in Boris&#39;s own <code>ralph-wiggum</code> plugin design context.</p>
+<p>PRISM exposure: <code>scrutinize-before-stop</code> already has 3-block escape hatch. <strong>Bounded.</strong></p>
+<p>Mitigations:</p>
+<ul>
+<li>Every blocking Stop hook MUST have a &quot;max retries&quot; escape hatch (PRISM convention: 3 attempts).</li>
+<li>Never have two independent Stop hooks both blocking on different criteria without coordination — one of them will perpetually block the other.</li>
+</ul>
+<h2 id="63-hook-conflict-settingsjson-hierarchy-ambiguity"><a class="anchor" href="#63-hook-conflict-settingsjson-hierarchy-ambiguity" aria-label="Permalink to §6.3 — Hook conflict (settings.json hierarchy ambiguity)">#</a>§6.3 — Hook conflict (settings.json hierarchy ambiguity)</h2>
+<p>User settings + project settings + local settings + plugin settings + managed-policy settings + skill frontmatter + agent frontmatter all stack. With 480 hooks across all layers, conflicts are statistically inevitable.</p>
+<p>PRISM exposure: settings split across <code>H:/.claude/settings.json</code> (user) + <code>H:/prism/.claude/settings.json</code> (project) + <code>~/.claude/settings.local.json</code> (local, gitignored). <strong>Medium.</strong></p>
+<p>Mitigations:</p>
+<ul>
+<li>Audit hook by event-name and matcher-string for duplicates <em>across files</em> (currently dedup is only within-file via Anthropic&#39;s command-string dedup).</li>
+<li>Adopt naming convention <code>&lt;scope&gt;.&lt;event&gt;.&lt;intent&gt;.mjs</code> to surface conflicts in filename.</li>
+<li>Run <code>hookify:list</code> (after §4.6) to see active rule set in one place.</li>
+</ul>
+<h2 id="64-context-compact-loop"><a class="anchor" href="#64-context-compact-loop" aria-label="Permalink to §6.4 — Context-compact loop">#</a>§6.4 — Context-compact loop</h2>
+<p>Documented by @yagudaev: after compact, 0% free context, every message triggers another compact.</p>
+<p>PRISM exposure: <code>precompact-handoff.mjs</code> writes large handoff content. If handoff content &gt; post-compact budget, <strong>High.</strong></p>
+<p>Mitigations:</p>
+<ul>
+<li>PreCompact hook MUST cap handoff size (target ≤ 4k tokens).</li>
+<li>PostCompact hook should verify free context &gt; 30% before allowing UserPromptSubmit.</li>
+<li>PRISM&#39;s per-chat handoff (<code>HANDOFF-&lt;id&gt;-&lt;topic&gt;.md</code>) is already topic-suffixed which keeps it scope-limited — preserve that discipline.</li>
+</ul>
+<h2 id="65-async-hook-deadlock"><a class="anchor" href="#65-async-hook-deadlock" aria-label="Permalink to §6.5 — Async hook deadlock">#</a>§6.5 — Async hook deadlock</h2>
+<p><code>async: true</code> hooks don&#39;t block the agent loop but <strong>do</strong> consume the same disk/network resources. 50 parallel async hooks writing to one log file = lock contention.</p>
+<p>Mitigations:</p>
+<ul>
+<li>Bound <code>async</code> parallelism per event-type.</li>
+<li>Use append-only JSONL (no read-modify-write) for hook telemetry — avoids lock contention by design.</li>
+</ul>
+<h2 id="66-defer-on-defer-new-2189-footgun"><a class="anchor" href="#66-defer-on-defer-new-2189-footgun" aria-label="Permalink to §6.6 — Defer-on-defer (new 2.1.89 footgun)">#</a>§6.6 — Defer-on-defer (new 2.1.89 footgun)</h2>
+<p>A PreToolUse hook returns <code>defer</code>. Session is resumed with <code>--resume</code>. Hook re-evaluates and returns <code>defer</code> again. Net: silent stall.</p>
+<p>Mitigations:</p>
+<ul>
+<li>Any <code>defer</code> decision should encode a max-defer-count in the hook&#39;s own state (e.g., <code>.claude/cache/defer-count-&lt;tool_use_id&gt;.json</code>) and auto-convert to <code>deny</code> after 3 defers.</li>
+</ul>
+<h2 id="67-http-hook-pii-leak"><a class="anchor" href="#67-http-hook-pii-leak" aria-label="Permalink to §6.7 — HTTP hook PII leak">#</a>§6.7 — HTTP hook PII leak</h2>
+<p>HTTP hooks can post tool_input bodies to localhost. If the listener logs to disk and disk is synced (e.g., iCloud), secrets exfiltrate.</p>
+<p>Mitigations:</p>
+<ul>
+<li>HTTP hook URLs must be <code>http://localhost:*</code> or <code>http://127.0.0.1:*</code> only — never <code>0.0.0.0</code> or external.</li>
+<li>Body should be redacted at hook-source (the .mjs that posts) for known-secret fields (api_key, token, password, .env paths).</li>
+<li>Pair with §3&#39;s @wilderko reverse-proxy pattern if PRISM ever runs against external Claude API for hooks.</li>
+</ul>
+<h1 id="7-recommended-pass-3-follow-ups"><a class="anchor" href="#7-recommended-pass-3-follow-ups" aria-label="Permalink to §7 — Recommended Pass-3 follow-ups">#</a>§7 — Recommended Pass-3 follow-ups</h1>
+<ol>
+<li><strong>Run a dedup audit</strong> on the 480-hook fleet using event+matcher tuple. Output a <code>state/shared/HOOK_CONFLICT_REPORT.md</code>.</li>
+<li><strong>Install hookify plugin officially</strong> and migrate the 25 existing <code>.claude/hookify.*.local.md</code> files to the canonical loader.</li>
+<li><strong>Implement §4.1 <code>read-once</code></strong> — highest ROI per source data (40% file-read savings).</li>
+<li><strong>Implement §4.10 PostToolBatch budget</strong> — highest insurance value against the $6,000 class of incident.</li>
+<li><strong>Add HTTP hook bridge to system-viz</strong> (§4.7) — surfaces hook telemetry into the 3D graph for ongoing audit.</li>
+</ol>
+<hr>
+<p><strong>Sources verified:</strong> 22 web sources (10 Anthropic/GitHub, 12 community), 18 X.com posts (all 2025–2026, all URLs confirmed retrievable via WebSearch result page). X posts not deep-fetched due to 402 paywall on x.com — content quoted from search-result excerpts which return verbatim post text.</p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="2026-05-10-pass2-hooks-automation.md">2026-05-10-pass2-hooks-automation.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

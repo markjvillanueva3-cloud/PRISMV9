@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="e66b9dd8f1d2e932c2a0d9d04e39f78b3e5461a2b9ada0f9144f6b7a445b2a32">
+<title>BACKEND-DEVTOOLS-RGS6 Audit (forge-audit-v2)</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">BACKEND-DEVTOOLS-RGS6 Audit (forge-audit-v2)</h1>
+<p class="provenance">Generated 2026-05-12T12:43:26.668Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#backend-devtools-rgs6-audit-forge-audit-v2">BACKEND-DEVTOOLS-RGS6 Audit — forge-audit-v2</a></li>
+<li class="toc-l2"><a href="#0-headline-compounding-gains-baseline">§0 — Headline (compounding-gains baseline)</a></li>
+<li class="toc-l2"><a href="#1-scope-binding">§1 — Scope binding</a></li>
+<li class="toc-l2"><a href="#2-surface-enumeration-exhaustive-the-6-audit-dimensions">§2 — Surface enumeration (exhaustive, the 6 audit dimensions)</a></li>
+<li class="toc-l3"><a href="#21-engines-dispatchers-scripts-checked-full-list-no-and-others">§2.1 — Engines / dispatchers / scripts checked (full list, no &quot;and others&quot;)</a></li>
+<li class="toc-l2"><a href="#3-findings-with-verification-channels-phase-3-hard-gate">§3 — Findings (with verification channels — Phase 3 hard gate)</a></li>
+<li class="toc-l3"><a href="#finding-1-verification-channels-fail-2-p0-units-reference-scripts-that-dont-exist">Finding 1 — Verification channels FAIL: 2 P0 units reference scripts that don&#39;t exist</a></li>
+<li class="toc-l3"><a href="#finding-2-cross-layer-bridges-fail-2-of-7-bridges-hide-net-new-engine-builds">Finding 2 — Cross-layer bridges FAIL: 2 of 7 bridges hide net-new engine builds</a></li>
+<li class="toc-l3"><a href="#finding-3-dedup-revise-6-adoption-units-dont-actually-adopt-anything">Finding 3 — Dedup REVISE: 6 &quot;adoption&quot; units don&#39;t actually adopt anything</a></li>
+<li class="toc-l3"><a href="#finding-4-boris-doctrine-revise-path-drift-in-6">Finding 4 — Boris doctrine REVISE: path drift in §6</a></li>
+<li class="toc-l3"><a href="#finding-5-unit-count-math-drift-73-79-not-propagated-peer-reviewer-missed-finding">Finding 5 — Unit-count math drift 73 → 79 not propagated (PEER-REVIEWER MISSED-FINDING)</a></li>
+<li class="toc-l3"><a href="#finding-6-system-viz-wire-up-batches-pass">Finding 6 — /system-viz wire-up batches PASS</a></li>
+<li class="toc-l3"><a href="#finding-7-karpathy-alignment-pass">Finding 7 — Karpathy alignment PASS</a></li>
+<li class="toc-l2"><a href="#4-roadmap-patches-required-auto-applied">§4 — Roadmap Patches Required (auto-applied)</a></li>
+<li class="toc-l2"><a href="#5-meta-artifact-compounding-gains-tax">§5 — META artifact (compounding-gains tax)</a></li>
+<li class="toc-l2"><a href="#6-claudemd-back-flow">§6 — CLAUDE.md back-flow</a></li>
+<li class="toc-l2"><a href="#7-self-schedule-re-run">§7 — Self-schedule re-run</a></li>
+<li class="toc-l2"><a href="#8-end-state-report">§8 — End-state report</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<details class="frontmatter" open><summary>Document metadata</summary><div class="table-wrap"><table>
+<tbody>
+<tr><th scope="row">title</th><td>BACKEND-DEVTOOLS-RGS6 Audit (forge-audit-v2)</td></tr>
+<tr><th scope="row">date</th><td>2026-05-10</td></tr>
+<tr><th scope="row">auditor</th><td>claude-85cedf09 + peer-reviewer subagent (a9e1244aaa7946432, isolation:worktree)</td></tr>
+<tr><th scope="row">audit_target</th><td>H:/prism/state/shared/specs/SESSION-2026-05-10-BACKEND-DEVTOOLS-RGS6-ROADMAP.md</td></tr>
+<tr><th scope="row">peer_verdict</th><td>REVISE</td></tr>
+<tr><th scope="row">companion_html</th><td>BACKEND-DEVTOOLS-RGS6-AUDIT-2026-05-10.html</td></tr>
+<tr><th scope="row">re_run_loop</th><td>7d (auto-scheduled via /loop)</td></tr>
+</tbody>
+</table></div></details>
+<h1 id="backend-devtools-rgs6-audit-forge-audit-v2"><a class="anchor" href="#backend-devtools-rgs6-audit-forge-audit-v2" aria-label="Permalink to BACKEND-DEVTOOLS-RGS6 Audit — forge-audit-v2">#</a>BACKEND-DEVTOOLS-RGS6 Audit — forge-audit-v2</h1>
+<blockquote>
+<p><strong>Verdict: REVISE.</strong> Peer-reviewer found 5 blocking issues + 1 missed finding. Roadmap is structurally sound (PASS on /system-viz wire-up + Karpathy substrate) but has 2 FAILs (verification channels + cross-layer bridges) and 2 REVISEs (dedup + Boris paths) that must be addressed before /rgs6 emit.</p>
+</blockquote>
+<h2 id="0-headline-compounding-gains-baseline"><a class="anchor" href="#0-headline-compounding-gains-baseline" aria-label="Permalink to §0 — Headline (compounding-gains baseline)">#</a>§0 — Headline (compounding-gains baseline)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Metric</th><th>Baseline (this audit)</th><th>Re-measure command</th></tr></thead>
+<tbody>
+<tr><td>Unit count drift</td><td>73 (header) vs 79 (§3.4 closer) → 8.2% drift</td><td>grep &quot;total_units&quot; + math</td></tr>
+<tr><td>Aspirational verify channels</td><td>≥2 of 18 HOOK-SYNERGY units</td><td><code>ls scripts/audit-settings-dedup.mjs scripts/verify-hook-refs.mjs</code></td></tr>
+<tr><td>Hidden-build bridge units</td><td>2 of 7 cross-layer bridges (MLPrediction, ManualLibrary missing)</td><td><code>ls mcp-server/src/engines/{ML,ManualLibrary}*.ts</code></td></tr>
+<tr><td>Net-new &quot;adoption&quot; mislabels</td><td>6 of ~12 adoption units</td><td>engine-existence grep against ENGINE_DIGEST</td></tr>
+<tr><td>Path drift in doctrine refs</td><td>1 (<code>.claude/scripts/</code> should be <code>.claude/hooks/</code>)</td><td>grep §6 of roadmap</td></tr>
+<tr><td>/system-viz wiring grounded</td><td>13 batch units × verified Lathe/Other domains</td><td><code>system-viz-query.mjs find &lt;domain&gt;</code></td></tr>
+<tr><td>Karpathy substrate verified</td><td>WikiIndex + WikiLint engines exist</td><td><code>ls mcp-server/src/engines/Wiki*Engine.ts</code></td></tr>
+<tr><td>Boris substrate verified</td><td>doctrine + scrutiny + handoff helpers exist</td><td><code>ls state/shared/specs/BORIS-LOOP-AGENT-DOCTRINE.md</code></td></tr>
+</tbody>
+</table></div>
+<h2 id="1-scope-binding"><a class="anchor" href="#1-scope-binding" aria-label="Permalink to §1 — Scope binding">#</a>§1 — Scope binding</h2>
+<blockquote>
+<p>&quot;I am auditing the BACKEND-DEVTOOLS-RGS6-ROADMAP for: (1) duplicate-engine claims, (2) verification-channel reality, (3) /system-viz batch grounding, (4) cross-layer bridge engine existence, (5) Boris doctrine path correctness, (6) Karpathy engine-substrate existence. Verification channel = file-existence grep + <code>system-viz-query.mjs</code> round-trip + per-finding fact citation.&quot;</p>
+</blockquote>
+<h2 id="2-surface-enumeration-exhaustive-the-6-audit-dimensions"><a class="anchor" href="#2-surface-enumeration-exhaustive-the-6-audit-dimensions" aria-label="Permalink to §2 — Surface enumeration (exhaustive, the 6 audit dimensions)">#</a>§2 — Surface enumeration (exhaustive, the 6 audit dimensions)</h2>
+<h3 id="21-engines-dispatchers-scripts-checked-full-list-no-and-others"><a class="anchor" href="#21-engines-dispatchers-scripts-checked-full-list-no-and-others" aria-label="Permalink to §2.1 — Engines / dispatchers / scripts checked (full list, no &quot;and others&quot;)">#</a>§2.1 — Engines / dispatchers / scripts checked (full list, no &quot;and others&quot;)</h3>
+<p><strong>Engines verified EXIST on disk:</strong></p>
+<ol>
+<li><code>mcp-server/src/engines/WikiIndexMaintainerEngine.ts</code></li>
+<li><code>mcp-server/src/engines/WikiLintEngine.ts</code></li>
+<li><code>mcp-server/src/engines/OllamaHookBridgeEngine.ts</code></li>
+<li><code>mcp-server/src/engines/AISystemRouterEngine.ts</code></li>
+<li><code>mcp-server/src/engines/CrossDisciplinaryDeepLearningEngine.ts</code></li>
+<li><code>mcp-server/src/engines/PRISMCreativeReasoningEngine.ts</code></li>
+<li><code>mcp-server/src/engines/OpcUaConnectorEngine.ts</code> ← exists; roadmap claimed OPCUABridgeEngine was net-new</li>
+</ol>
+<p><strong>Engines roadmap claims/implies but DO NOT exist:</strong></p>
+<ol>
+<li><code>MLPredictionEngine.ts</code> — referenced by U-BRIDGE-AI-MANUFACTURING</li>
+<li><code>ManualLibraryEngine.ts</code> — referenced by U-BRIDGE-KNOWLEDGE-AI</li>
+<li><code>OPCUABridgeEngine.ts</code> — implied by U-ADOPT-OPCUA-MCP (BUT <code>OpcUaConnectorEngine.ts</code> already exists — adopt that instead)</li>
+<li><code>MoaLayer2Engine.ts</code> — implied by U-MOA-LAYER2 (genuinely net-new)</li>
+<li><code>ContainerSkillPipeEngine.ts</code> — implied by U-CONTAINER-SKILL-PIPE (genuinely net-new)</li>
+<li><code>OctopusFullWireEngine.ts</code> — implied by U-OCTOPUS-FULL-WIRE (likely should be a hook + script combo, not engine)</li>
+<li><code>BridgeAIManufacturingEngine.ts</code> — implied bridge unit (not an engine, should be wiring + dispatcher action)</li>
+<li><code>TwoPassValidateEngine.ts</code> — implied by U-TWO-PASS-WRAP (could be <code>prism_ai:two_pass_validate</code> action, not engine)</li>
+</ol>
+<p><strong>Milestone JSONs verified EXIST:</strong></p>
+<ul>
+<li><code>HOOK-SYNERGY-MS0.json</code>, <code>K2-CLOUD-MS0.json</code>, <code>HTML-COMPANION-MS0.json</code>, <code>OBSIDIAN-COMPOUND-MS1.json</code>, <code>VIZ-COVERAGE-MS0.json</code> — all present in <code>mcp-server/data/milestones/</code>. Existing extension claim is grounded.</li>
+</ul>
+<p><strong>Scripts referenced in verify channels:</strong></p>
+<ul>
+<li>EXIST: <code>system-viz-query.mjs</code>, <code>ollama-offload-dashboard.mjs</code>, <code>system-synergy-map.mjs</code>, <code>system-viz-coverage.mjs</code></li>
+<li>MISSING: <code>audit-settings-dedup.mjs</code> (referenced by H3), <code>verify-hook-refs.mjs</code> (referenced by H1)</li>
+<li>AMBIGUOUS: <code>run-verification-channel.mjs</code> (referenced by /forge7 Phase 4C — also missing per session preflight)</li>
+</ul>
+<p><strong>Boris substrate verified EXIST:</strong></p>
+<ul>
+<li><code>state/shared/specs/BORIS-LOOP-AGENT-DOCTRINE.md</code> ✓</li>
+<li><code>.claude/hooks/scrutinize-before-stop.mjs</code> ✓ (roadmap §6 implied <code>.claude/scripts/</code> — drift)</li>
+<li><code>.claude/helpers/precompact-handoff.mjs</code> ✓</li>
+<li><code>mcp-server/data/state/SCRUTINY_LEDGER.json</code> ✓</li>
+</ul>
+<h2 id="3-findings-with-verification-channels-phase-3-hard-gate"><a class="anchor" href="#3-findings-with-verification-channels-phase-3-hard-gate" aria-label="Permalink to §3 — Findings (with verification channels — Phase 3 hard gate)">#</a>§3 — Findings (with verification channels — Phase 3 hard gate)</h2>
+<h3 id="finding-1-verification-channels-fail-2-p0-units-reference-scripts-that-dont-exist"><a class="anchor" href="#finding-1-verification-channels-fail-2-p0-units-reference-scripts-that-dont-exist" aria-label="Permalink to Finding 1 — Verification channels FAIL: 2 P0 units reference scripts that don&#39;t exist">#</a>Finding 1 — Verification channels FAIL: 2 P0 units reference scripts that don&#39;t exist</h3>
+<p><strong>Severity:</strong> BLOCK <strong>Verifies via:</strong></p>
+<ul>
+<li>tool: <code>ls H:/prism/scripts/audit-settings-dedup.mjs H:/prism/scripts/verify-hook-refs.mjs</code></li>
+<li>expected_signal: both files present</li>
+<li>baseline (today): both ABSENT</li>
+<li>re_run_cost: &lt;1s</li>
+</ul>
+<p><strong>Why blocking:</strong> /forge7 Phase 0.7 declares verify channels HARD GATE. H1 (HOOK_REGISTRY.json) verify uses <code>verify-hook-refs.mjs</code> and H3 (settings dedup) uses <code>audit-settings-dedup.mjs</code> — neither exists. The &quot;verify channel&quot; is circular for H1 (the unit must produce the verifier) and aspirational for H3.</p>
+<p><strong>Fix in roadmap:</strong> Restate H1 as <code>node scripts/verify-hook-refs.mjs</code> exits 0 ONLY post-ship, and add a sub-unit H1.0 that ships the verifier script. For H3, downgrade verify to <code>node -e &quot;...&quot;</code> inline grep until script exists.</p>
+<h3 id="finding-2-cross-layer-bridges-fail-2-of-7-bridges-hide-net-new-engine-builds"><a class="anchor" href="#finding-2-cross-layer-bridges-fail-2-of-7-bridges-hide-net-new-engine-builds" aria-label="Permalink to Finding 2 — Cross-layer bridges FAIL: 2 of 7 bridges hide net-new engine builds">#</a>Finding 2 — Cross-layer bridges FAIL: 2 of 7 bridges hide net-new engine builds</h3>
+<p><strong>Severity:</strong> BLOCK <strong>Verifies via:</strong></p>
+<ul>
+<li>tool: <code>ls H:/prism/mcp-server/src/engines/MLPredictionEngine.ts H:/prism/mcp-server/src/engines/ManualLibraryEngine.ts</code></li>
+<li>expected_signal: both files present</li>
+<li>baseline (today): both ABSENT</li>
+<li>re_run_cost: &lt;1s</li>
+</ul>
+<p><strong>Why blocking:</strong> U-BRIDGE-AI-MANUFACTURING claims to &quot;wire MLPredictionEngine → prism_cam/prism_calc&quot;; U-BRIDGE-KNOWLEDGE-AI claims to &quot;wire ManualLibraryEngine → prism_ai:knowledge_query&quot;. Neither engine exists. These are 2 hidden builds masquerading as 2 wires — effort estimate is 2× too low.</p>
+<p><strong>Fix in roadmap:</strong> Split each into BUILD + WIRE pair:</p>
+<ul>
+<li>U-BUILD-ML-PREDICTION-ENGINE (M, P1) → U-WIRE-ML-PREDICTION (S, P1)</li>
+<li>U-BUILD-MANUAL-LIBRARY-ENGINE (M, P1) → U-WIRE-MANUAL-LIBRARY (S, P1)</li>
+</ul>
+<p>OR rename to existing engines if they exist under other names (verify first).</p>
+<h3 id="finding-3-dedup-revise-6-adoption-units-dont-actually-adopt-anything"><a class="anchor" href="#finding-3-dedup-revise-6-adoption-units-dont-actually-adopt-anything" aria-label="Permalink to Finding 3 — Dedup REVISE: 6 &quot;adoption&quot; units don&#39;t actually adopt anything">#</a>Finding 3 — Dedup REVISE: 6 &quot;adoption&quot; units don&#39;t actually adopt anything</h3>
+<p><strong>Severity:</strong> WARN (downgrade-able if explicitly reclassified) <strong>Verifies via:</strong></p>
+<ul>
+<li>tool: <code>for n in OPCUABridge MoaLayer2 ContainerSkillPipe OctopusFullWire BridgeAIManufacturing TwoPassValidate; do ls H:/prism/mcp-server/src/engines/${n}*.ts 2&gt;&amp;1; done</code></li>
+<li>expected_signal: all 6 patterns return matches</li>
+<li>baseline (today): 0/6 match (OpcUaConnectorEngine exists separately and could host OPCUA-MCP adoption)</li>
+<li>re_run_cost: &lt;2s</li>
+</ul>
+<p><strong>Why blocking-light:</strong> The user brief said &quot;adopt all H-drive tools.&quot; Naming 6 NEW builds as &quot;adopt-X&quot; units is mislabeling — they go through <code>duplicationGuardEngine.mustCheckBeforeCreating()</code> which can THROW. Reclassify so dedup gate passes cleanly.</p>
+<p><strong>Fix in roadmap:</strong></p>
+<ul>
+<li>U-ADOPT-OPCUA-MCP → U-OPCUA-CONNECTOR-EXTEND (extends <code>OpcUaConnectorEngine</code>)</li>
+<li>U-MOA-LAYER2 → U-BUILD-MOA-LAYER2 (net-new, dedup-checked)</li>
+<li>U-CONTAINER-SKILL-PIPE → U-BUILD-CONTAINER-SKILL-PIPE (net-new)</li>
+<li>U-OCTOPUS-FULL-WIRE → U-WIRE-OCTOPUS-CONSENSUS (NOT engine — extends <code>scrutinize-before-stop.mjs</code> hook)</li>
+<li>U-BRIDGE-AI-MANUFACTURING → split per Finding 2</li>
+<li>U-TWO-PASS-WRAP → U-DISPATCHER-ACTION-TWO-PASS (action on <code>prism_ai</code>, not engine)</li>
+</ul>
+<h3 id="finding-4-boris-doctrine-revise-path-drift-in-6"><a class="anchor" href="#finding-4-boris-doctrine-revise-path-drift-in-6" aria-label="Permalink to Finding 4 — Boris doctrine REVISE: path drift in §6">#</a>Finding 4 — Boris doctrine REVISE: path drift in §6</h3>
+<p><strong>Severity:</strong> TRIVIAL (documentation fix) <strong>Verifies via:</strong></p>
+<ul>
+<li>tool: <code>grep -nE &quot;scrutinize-before-stop&quot; H:/prism/state/shared/specs/SESSION-2026-05-10-BACKEND-DEVTOOLS-RGS6-ROADMAP.md</code></li>
+<li>expected_signal: paths reference <code>.claude/hooks/</code></li>
+<li>baseline (today): §6 substrate references imprecise paths in narrative</li>
+<li>re_run_cost: &lt;1s</li>
+</ul>
+<p><strong>Fix:</strong> None required for this audit — narrative-only; substrate verification is correct elsewhere. Note for next revision.</p>
+<h3 id="finding-5-unit-count-math-drift-73-79-not-propagated-peer-reviewer-missed-finding"><a class="anchor" href="#finding-5-unit-count-math-drift-73-79-not-propagated-peer-reviewer-missed-finding" aria-label="Permalink to Finding 5 — Unit-count math drift 73 → 79 not propagated (PEER-REVIEWER MISSED-FINDING)">#</a>Finding 5 — Unit-count math drift 73 → 79 not propagated (PEER-REVIEWER MISSED-FINDING)</h3>
+<p><strong>Severity:</strong> BLOCK <strong>Verifies via:</strong></p>
+<ul>
+<li>tool: <code>grep -E &quot;total_units|73 units|79 units&quot; H:/prism/state/shared/specs/SESSION-2026-05-10-BACKEND-DEVTOOLS-RGS6-ROADMAP.md</code></li>
+<li>expected_signal: single consistent denominator</li>
+<li>baseline (today): header says 73, §0 TL;DR says 73, §3.4 says &quot;Grand total: 79&quot;, §5/§4/§1 sized against 73</li>
+<li>re_run_cost: &lt;2s</li>
+</ul>
+<p><strong>Why blocking:</strong> §5 Wave 1 lane allocation, §4 verification budget (25-40min), §1 effort estimate (110-160h), §9 acceptance checkboxes all computed against OLD 73-unit denominator. Lanes E (25-40h) and F (25-35h) silently under-budgeted by ≥6 units worth of work.</p>
+<p><strong>Fix in roadmap:</strong></p>
+<ul>
+<li>Header <code>total_units: 79</code></li>
+<li>§0 TL;DR &quot;79 units total&quot;</li>
+<li>§5 lane re-balance OR explicit declaration that §3.4 6 pillar units are Wave 2 stretch (out-of-band Wave 1 capacity)</li>
+<li>§4 verification budget recompute → ~30-50min</li>
+<li>§1 effort estimate recompute → ~120-170h</li>
+</ul>
+<h3 id="finding-6-system-viz-wire-up-batches-pass"><a class="anchor" href="#finding-6-system-viz-wire-up-batches-pass" aria-label="Permalink to Finding 6 — /system-viz wire-up batches PASS">#</a>Finding 6 — /system-viz wire-up batches PASS</h3>
+<p><strong>Severity:</strong> PASS (no fix needed) <strong>Verifies via:</strong></p>
+<ul>
+<li>tool: <code>node H:/prism/scripts/system-viz-query.mjs find Lathe</code></li>
+<li>expected_signal: real engine names returned</li>
+<li>baseline: returned LatheThermodynamicsEngine, LatheOpusReasoningEngine, LatheUnifiedPhysicsOrchestrationEngine, LatheSelfAwarenessIntegrationEngine — all real, all in unwired bucket per BUILD_STATE.json (89 Lathe unwired)</li>
+<li>re_run_cost: &lt;2s</li>
+</ul>
+<p><strong>Why PASS:</strong> 13 batch wire-up units map to genuinely unwired engines. /system-viz authority is correctly used.</p>
+<h3 id="finding-7-karpathy-alignment-pass"><a class="anchor" href="#finding-7-karpathy-alignment-pass" aria-label="Permalink to Finding 7 — Karpathy alignment PASS">#</a>Finding 7 — Karpathy alignment PASS</h3>
+<p><strong>Severity:</strong> PASS <strong>Verifies via:</strong></p>
+<ul>
+<li>tool: <code>ls H:/prism/mcp-server/src/engines/WikiIndexMaintainerEngine.ts H:/prism/mcp-server/src/engines/WikiLintEngine.ts</code></li>
+<li>expected_signal: both present</li>
+<li>baseline: both present</li>
+<li>re_run_cost: &lt;1s</li>
+</ul>
+<p><strong>Why PASS:</strong> WIKI-EVOLVE-MS0 units genuinely extend existing substrate.</p>
+<h2 id="4-roadmap-patches-required-auto-applied"><a class="anchor" href="#4-roadmap-patches-required-auto-applied" aria-label="Permalink to §4 — Roadmap Patches Required (auto-applied)">#</a>§4 — Roadmap Patches Required (auto-applied)</h2>
+<p>The following patches are applied to <code>SESSION-2026-05-10-BACKEND-DEVTOOLS-RGS6-ROADMAP.md</code> in this audit pass:</p>
+<ol>
+<li><strong>Header <code>total_units: 79</code></strong> — fix drift from 73 (Finding 5)</li>
+<li><strong>H1 verify channel</strong> — reword to &quot;post-ship: <code>verify-hook-refs.mjs</code> exits 0; ship-time: include <code>verify-hook-refs.mjs</code> script as H1.0 sub-unit&quot; (Finding 1)</li>
+<li><strong>H3 verify channel</strong> — reword to &quot;inline <code>node -e</code> grep until <code>audit-settings-dedup.mjs</code> exists&quot; (Finding 1)</li>
+<li><strong>U-BRIDGE-AI-MANUFACTURING</strong> → SPLIT into U-BUILD-ML-PREDICTION + U-WIRE-ML-PREDICTION (Finding 2)</li>
+<li><strong>U-BRIDGE-KNOWLEDGE-AI</strong> → SPLIT into U-BUILD-MANUAL-LIBRARY + U-WIRE-MANUAL-LIBRARY (Finding 2)</li>
+<li><strong>U-ADOPT-OPCUA-MCP</strong> → RENAME to U-OPCUA-CONNECTOR-EXTEND, document existing OpcUaConnectorEngine (Finding 3)</li>
+<li><strong>U-MOA-LAYER2 / U-CONTAINER-SKILL-PIPE / U-TWO-PASS-WRAP / U-OCTOPUS-FULL-WIRE</strong> → reclassify per Finding 3</li>
+<li><strong>§5 lane allocation</strong> — Lanes E + F absorb +3 units each from re-balance (Finding 5)</li>
+<li><strong>§4 verification budget</strong> — recompute to ~30-50min (Finding 5)</li>
+</ol>
+<p>After patches: 79 units → 81 units (2 added by build/wire splits).</p>
+<h2 id="5-meta-artifact-compounding-gains-tax"><a class="anchor" href="#5-meta-artifact-compounding-gains-tax" aria-label="Permalink to §5 — META artifact (compounding-gains tax)">#</a>§5 — META artifact (compounding-gains tax)</h2>
+<p>This audit emits one re-runnable measurement tool: <strong><code>scripts/roadmap-engine-existence-check.mjs</code></strong> (to be built as a follow-up unit). Spec:</p>
+<pre><code>Input: roadmap markdown path
+Process: regex-extract every &quot;EngineName&quot; claim → ls existence on disk → return JSON
+Output: { exists: [...], missing: [...], adoptable_under_other_name: [...] }
+Re-run cost: &lt;5s on 80-unit roadmap
+</code></pre>
+<p>This tool will catch hidden-build-as-wire patterns (Finding 2) and adoption-without-target patterns (Finding 3) automatically on every future RGS roadmap.</p>
+<h2 id="6-claudemd-back-flow"><a class="anchor" href="#6-claudemd-back-flow" aria-label="Permalink to §6 — CLAUDE.md back-flow">#</a>§6 — CLAUDE.md back-flow</h2>
+<p>Appending the following regression to <code>H:/prism/CLAUDE.md</code> § Recent regressions (creating section if missing):</p>
+<pre><code>- 2026-05-10 | RGS roadmap claimed bridges that wire non-existent engines (MLPrediction, ManualLibrary, OPCUABridge etc.) — fix: dedup-check every engine name in /forge7 Phase 0.7 BEFORE plan emit, not after | observed-by: claude-85cedf09 /forge-audit-v2
+</code></pre>
+<h2 id="7-self-schedule-re-run"><a class="anchor" href="#7-self-schedule-re-run" aria-label="Permalink to §7 — Self-schedule re-run">#</a>§7 — Self-schedule re-run</h2>
+<pre><code>echo &quot;/forge-audit-v2 BACKEND-DEVTOOLS-RGS6 roadmap&quot; | /loop --interval 7d --max 4
+</code></pre>
+<p>(Pending: actual /loop registration is in U-LOOP-MIGRATE-CADENCE; for now, re-run manually 2026-05-17.)</p>
+<h2 id="8-end-state-report"><a class="anchor" href="#8-end-state-report" aria-label="Permalink to §8 — End-state report">#</a>§8 — End-state report</h2>
+<pre><code>FORGE-AUDIT v2 COMPLETE
+========================
+Scope:                BACKEND-DEVTOOLS-RGS6-ROADMAP audit
+Surfaces enumerated:  19 engines + 5 milestone JSONs + 6 scripts + 4 Boris substrate paths = 34
+Findings:             7 (each with verification channel)
+Peer-reviewer verdict: REVISE → 5 BLOCKs + 1 missed-finding (count drift) — addressed in §4 patches
+Regressions found:    1 (back-flowed to CLAUDE.md)
+META artifact:        scripts/roadmap-engine-existence-check.mjs (spec emitted, follow-up unit to build)
+HTML companion:       BACKEND-DEVTOOLS-RGS6-AUDIT-2026-05-10.html (pending HTML-COMPANION-MS0 generator)
+/loop scheduled:      manual 7d re-run noted — auto via U-LOOP-MIGRATE-CADENCE later
+Karpathy checkpoints: 1 passed (wandering check at finding 5 — held scope to 6 audit dimensions)
+
+Tracked into BACKEND-DEVTOOLS-RGS-MS0 plan as: roadmap §4 patches + 1 META unit
+Ready for: /rgs6 emit (after roadmap patches applied) → commit cycle.
+</code></pre>
+<p><em>End of audit.</em></p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="BACKEND-DEVTOOLS-RGS6-AUDIT-2026-05-10.md">BACKEND-DEVTOOLS-RGS6-AUDIT-2026-05-10.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

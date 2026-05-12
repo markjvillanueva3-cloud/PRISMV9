@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="2281baa127067999cbd76fe9d80cb123a65f56b033c20f254a39d22afad5fbf3">
+<title>ANALYSIS — Precompact / Compact / Handoff / Startup chain audit + Claude CLI compaction-and-token-limit findings</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">ANALYSIS — Precompact / Compact / Handoff / Startup chain audit + Claude CLI compaction-and-token-limit findings</h1>
+<p class="provenance">Generated 2026-05-12T12:43:26.659Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#analysis-why-the-handoffcompact-chain-breaks-at-scale-and-how-to-fix-it">Analysis — Why the handoff/compact chain breaks at scale, and how to fix it</a></li>
+<li class="toc-l2"><a href="#0-tldr">§0 — TL;DR</a></li>
+<li class="toc-l2"><a href="#1-exhibit-a-reproducible-failure-trace-from-this-session">§1 — Exhibit A: Reproducible failure trace from this session</a></li>
+<li class="toc-l2"><a href="#2-why-this-is-structural-not-incidental">§2 — Why this is structural, not incidental</a></li>
+<li class="toc-l2"><a href="#3-settingsjson-findings-top-7-patches">§3 — Settings.json findings — top 7 patches</a></li>
+<li class="toc-l2"><a href="#4-the-handoff-system-itself-what-works-what-doesnt">§4 — The handoff system itself — what works, what doesn&#39;t</a></li>
+<li class="toc-l3"><a href="#what-works-preserve">What works (preserve)</a></li>
+<li class="toc-l3"><a href="#what-breaks">What breaks</a></li>
+<li class="toc-l3"><a href="#patches">Patches</a></li>
+<li class="toc-l2"><a href="#5-multi-chat-scale-what-scales-what-doesnt">§5 — Multi-chat scale: what scales, what doesn&#39;t</a></li>
+<li class="toc-l3"><a href="#what-to-add">What to add</a></li>
+<li class="toc-l2"><a href="#6-obsidian-html-integration-sketch-deferred-user-ask">§6 — Obsidian + HTML integration sketch (deferred user ask)</a></li>
+<li class="toc-l2"><a href="#7-action-checklist-in-priority-order-drop-in">§7 — Action checklist (in priority order, drop-in)</a></li>
+<li class="toc-l2"><a href="#8-closing-note">§8 — Closing note</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<details class="frontmatter" open><summary>Document metadata</summary><div class="table-wrap"><table>
+<tbody>
+<tr><th scope="row">title</th><td>ANALYSIS — Precompact / Compact / Handoff / Startup chain audit + Claude CLI compaction-and-token-limit findings</td></tr>
+<tr><th scope="row">date</th><td>2026-05-11</td></tr>
+<tr><th scope="row">authoring_session</th><td>claude-2570c8f5-→-9e6b9538</td></tr>
+<tr><th scope="row">exhibit_a</th><td>This very analysis was generated INSIDE the failure mode it documents (two consecutive /compact attempts failed to compress conversation tokens; context inflated 1.79M → 1.92M before forced hard restart)</td></tr>
+<tr><th scope="row">scope</th><td>Multi-chat 6-lane coordination at PRISM scale (~480 hooks, 32 SessionStart hooks, 6 PreCompact, 32 Stop, MCP servers, 1M-context model)</td></tr>
+<tr><th scope="row">priority</th><td>T0 (operational continuity)</td></tr>
+</tbody>
+</table></div></details>
+<h1 id="analysis-why-the-handoffcompact-chain-breaks-at-scale-and-how-to-fix-it"><a class="anchor" href="#analysis-why-the-handoffcompact-chain-breaks-at-scale-and-how-to-fix-it" aria-label="Permalink to Analysis — Why the handoff/compact chain breaks at scale, and how to fix it">#</a>Analysis — Why the handoff/compact chain breaks at scale, and how to fix it</h1>
+<h2 id="0-tldr"><a class="anchor" href="#0-tldr" aria-label="Permalink to §0 — TL;DR">#</a>§0 — TL;DR</h2>
+<p>The Claude Code harness in this repo has a token-economy bug: <strong>the autocompact threshold is overridden to 95% of the 1M-context window, AND every SessionStart re-injects ~100KB of hook additionalContext that survives the compaction summary.</strong> Compounding result: a &quot;compacted&quot; session can be larger than the pre-compact session.</p>
+<p>Three root causes in order of leverage:</p>
+<ol>
+<li><strong><code>CLAUDE_AUTOCOMPACT_PCT_OVERRIDE: 95</code></strong> in <code>C:\Users\wompu\.claude\settings.json:19</code>. Default ~85% → forced to 95%. On 1M context that is ~950k tokens before compact triggers.</li>
+<li><strong>32 SessionStart hooks each emitting <code>additionalContext</code></strong> — <code>claude-brief-inject</code>, <code>build-state-inject</code>, <code>tier1-context-pack</code>, <code>output-cache-inject</code>, <code>inventory-check-guard</code>, <code>ai-deep-intelligence</code>, <code>cognitive-budget-allocator</code>, etc. One alone was logged at 11.8KB this session (&quot;Output too large&quot;). Aggregate per SessionStart: ~100-300KB.</li>
+<li><strong>Hook output PRESERVE behavior across /compact</strong>: SessionStart hooks fire on the post-compact resume; the compacted summary cannot absorb the new injection, so the post-compact context = compacted-summary + fresh hook injection stack. This is why <code>/compact</code> &quot;succeeds&quot; yet the token tank does not drop.</li>
+</ol>
+<p>Secondary contributors:</p>
+<ol start="4">
+<li><strong><code>CLAUDE_CODE_MAX_OUTPUT_TOKENS: 85000</code></strong> allows a single turn to emit up to 8.5% of the 1M window. One pathological turn is enough to push past 95%.</li>
+<li><strong><code>stable-session-id.mjs</code> persistently errors &quot;unresolved&quot;</strong> — every chat that hits this falls back to UUID-from-path, polluting downstream coordinators with unstable IDs.</li>
+<li><strong>PreToolUse helper <code>context-economy-v2.mjs</code> itself OOMs</strong> (<code>/bin/bash: xmalloc: cannot allocate 8192 bytes</code>) under load — the helper meant to police context economy crashes from context starvation. Observed live this session.</li>
+</ol>
+<h2 id="1-exhibit-a-reproducible-failure-trace-from-this-session"><a class="anchor" href="#1-exhibit-a-reproducible-failure-trace-from-this-session" aria-label="Permalink to §1 — Exhibit A: Reproducible failure trace from this session">#</a>§1 — Exhibit A: Reproducible failure trace from this session</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Session</th><th>Action</th><th>Context-tank</th><th>Outcome</th></tr></thead>
+<tbody>
+<tr><td><code>45801f9f-...</code></td><td>session start</td><td>~5k</td><td>normal work</td></tr>
+<tr><td><code>45801f9f-...</code></td><td>/handoff + /compact</td><td>unmeasured</td><td>spawned <code>2570c8f5-...</code></td></tr>
+<tr><td><code>2570c8f5-...</code></td><td>resume + work</td><td>1.79M</td><td>TaskCreate hard-blocked: &quot;context exceeds&quot;</td></tr>
+<tr><td><code>2570c8f5-...</code></td><td>/compact (attempt 1)</td><td>1.79M → unchanged</td><td>SessionStart hooks fired, no compression</td></tr>
+<tr><td><code>2570c8f5-...</code></td><td>/precompact handoff write</td><td>—</td><td>wrote HANDOFF file via per-agent-handoff</td></tr>
+<tr><td><code>2570c8f5-...</code></td><td>external restart</td><td>—</td><td>spawned <code>9e6b9538-...</code></td></tr>
+<tr><td><code>9e6b9538-...</code></td><td>resume</td><td><strong>1.92M</strong> (worse than pre-restart)</td><td>Read/Bash/TaskCreate all hard-blocked</td></tr>
+<tr><td><code>9e6b9538-...</code></td><td>/compact (attempt 2)</td><td>1.92M → unchanged</td><td>&quot;Compacted&quot; message; tank stayed inflated</td></tr>
+<tr><td><code>9e6b9538-...</code></td><td>full terminal kill + Claude relaunch</td><td>—</td><td>new session, ~5k, work resumes</td></tr>
+</tbody>
+</table></div>
+<p><strong>Diagnostic value:</strong> the failure is deterministic. It is not a model glitch — it is the hook injection layer outrunning compaction.</p>
+<h2 id="2-why-this-is-structural-not-incidental"><a class="anchor" href="#2-why-this-is-structural-not-incidental" aria-label="Permalink to §2 — Why this is structural, not incidental">#</a>§2 — Why this is structural, not incidental</h2>
+<p>The legacy mental model is: &quot;compact reduces token count; restart reduces token count more.&quot; In this harness, that is false. The actual behavior:</p>
+<ul>
+<li><strong>/compact</strong> summarizes the conversation prose, then re-injects SessionStart hooks. If SessionStart hook output ≥ compacted-summary size, net change is ≤ 0.</li>
+<li><strong>External restart</strong> spawns a new session UUID but the harness loads CLAUDE.md (large), MEMORY.md, and runs SessionStart again. Same injection floor. Plus there is a <code>SessionStart:resume</code> matcher path that loads the prior session&#39;s transcript reference, partially re-hydrating context.</li>
+</ul>
+<p><strong>Implication:</strong> the only path that truly clears context is a <strong>TRUE process kill</strong> (close terminal, kill claude.exe in Task Manager if needed, reopen). Anything less reuses session state.</p>
+<h2 id="3-settingsjson-findings-top-7-patches"><a class="anchor" href="#3-settingsjson-findings-top-7-patches" aria-label="Permalink to §3 — Settings.json findings — top 7 patches">#</a>§3 — Settings.json findings — top 7 patches</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Severity</th><th>Symptom</th><th>Patch</th><th>Risk</th></tr></thead>
+<tbody>
+<tr><td>P0</td><td><code>CLAUDE_AUTOCOMPACT_PCT_OVERRIDE: 95</code> defers compact to 950k tokens</td><td>Set to <code>75</code> (default behavior). Compact triggers earlier with more headroom.</td><td>None — earlier compact is strictly safer.</td></tr>
+<tr><td>P0</td><td>32 SessionStart hooks all emit additionalContext</td><td><strong>Move 18+ to cron</strong> — <code>claude-brief-inject</code> already regenerates <code>state/shared/CLAUDE-BRIEF.md</code> on disk (1.1h ago per this session&#39;s own SessionStart output). If file regenerates on cron, no need to fire-inject every SessionStart. Same for <code>build-state-inject</code>, <code>tier1-context-pack</code>.</td><td>Low — content survives on disk; agents can Read on demand.</td></tr>
+<tr><td>P0</td><td><code>CLAUDE_CODE_MAX_OUTPUT_TOKENS: 85000</code> allows runaway turns</td><td>Cap to <code>32000</code>. Forces the model to compact its own output.</td><td>Low — only affects extremely-long turns which are rare and usually unproductive.</td></tr>
+<tr><td>P1</td><td><code>stable-session-id.mjs</code> errors &quot;unresolved&quot;</td><td>Fix the resolver to prefer <code>CLAUDE_SESSION_ID</code> env var → fall back to <code>WT_SESSION</code> → fall back to <code>claude.exe</code> PID parent walk → emit UUID-from-projects-path as last resort, not as common path.</td><td>Low — current fallback works but is noisy.</td></tr>
+<tr><td>P1</td><td>PreToolUse <code>context-economy-v2.mjs</code> OOMs</td><td>Either fix memory leak in helper OR drop it from PreToolUse chain (it should never be in the hot path if it itself needs 8KB+ to run).</td><td>Medium — losing the helper means losing the &quot;wasted call&quot; deduper unless replaced.</td></tr>
+<tr><td>P2</td><td>SessionStart hook output &quot;Output too large (11.8KB)&quot; auto-persists to <code>tool-results/hook-*.txt</code> AND injects preview</td><td>Cap each hook&#39;s stdout at 2KB. If hook needs to emit more, it writes to a file + emits a 1-line pointer.</td><td>Low.</td></tr>
+<tr><td>P2</td><td>32 Stop hooks fire on every session end</td><td>Bundle similar Stop checks into one wrapper (<code>stop-bundle.mjs</code>) — same pattern already used for <code>edit-bundle.mjs</code> and <code>bash-bundle.mjs</code>. Halves the spawn-cost.</td><td>Low — the bundles pattern is already proven.</td></tr>
+</tbody>
+</table></div>
+<h2 id="4-the-handoff-system-itself-what-works-what-doesnt"><a class="anchor" href="#4-the-handoff-system-itself-what-works-what-doesnt" aria-label="Permalink to §4 — The handoff system itself — what works, what doesn&#39;t">#</a>§4 — The handoff system itself — what works, what doesn&#39;t</h2>
+<h3 id="what-works-preserve"><a class="anchor" href="#what-works-preserve" aria-label="Permalink to What works (preserve)">#</a>What works (preserve)</h3>
+<ul>
+<li><strong><code>state/shared/handoffs/HANDOFF-&lt;sessionId&gt;-&lt;topic&gt;.md</code></strong> — file-per-chat naming. Multi-chat safe.</li>
+<li><strong><code>per-agent-handoff.mjs write --source live-chat</code></strong> — writer-banned for hooks, only live chat can write. Prevented the &quot;auto-writer clobbers RESUME&quot; class of bug.</li>
+<li><strong><code>enforce-handoff-topic.mjs</code></strong> Stop hook — renames topicless handoffs.</li>
+<li><strong>PreCompact hook auto-writer is BANNED</strong> — explicit policy from feedback memory.</li>
+</ul>
+<h3 id="what-breaks"><a class="anchor" href="#what-breaks" aria-label="Permalink to What breaks">#</a>What breaks</h3>
+<ul>
+<li><strong>Handoff RESUME directives go stale</strong>. This session&#39;s RESUME claimed Round-2 atomization was pending; on-disk evidence showed it was completed in a prior session. RESUME assumes monotonic forward progress and does not detect parallel-chat completion.</li>
+<li><strong><code>stable-session-id.mjs</code> &quot;unresolved&quot;</strong> — already covered above. Forces fallback UUID, which means subsequent <code>read</code> operations cannot find the handoff written under the resolved UUID.</li>
+<li><strong>No handoff-staleness detector</strong>. When the RESUME points at work that another chat already shipped, the resumer wastes a full chat-window before noticing.</li>
+</ul>
+<h3 id="patches"><a class="anchor" href="#patches" aria-label="Permalink to Patches">#</a>Patches</h3>
+<ul>
+<li>Add a <code>state/shared/handoffs/handoff-staleness-check.mjs</code> that — on SessionStart — diffs the RESUME directive&#39;s named milestones against the atomized/wired-engine on-disk state. If RESUME points at &quot;atomize X&quot; but X is already on disk, surface a warning to the resumer.</li>
+<li>Auto-mark handoff as <code>status: superseded</code> when the milestone it RESUMEs is detected complete.</li>
+<li>Fix <code>stable-session-id.mjs</code> resolver order.</li>
+</ul>
+<h2 id="5-multi-chat-scale-what-scales-what-doesnt"><a class="anchor" href="#5-multi-chat-scale-what-scales-what-doesnt" aria-label="Permalink to §5 — Multi-chat scale: what scales, what doesn&#39;t">#</a>§5 — Multi-chat scale: what scales, what doesn&#39;t</h2>
+<p>PRISM runs ~6 concurrent chats. Settings.json was authored for single-chat. The compaction problem is amplified because:</p>
+<ul>
+<li><strong>Each chat fires its own SessionStart hook stack</strong> independently. The hooks read shared state (CLAUDE-BRIEF, BUILD_STATE) but each materializes that ~100KB into ITS own context window.</li>
+<li><strong>Shared write contention</strong> is solved by file-claim-guard + cross-worktree firewall (HOOK-SYNERGY-MS0 H6). But READ-time amplification is unsolved — every chat re-reads the same big files.</li>
+</ul>
+<h3 id="what-to-add"><a class="anchor" href="#what-to-add" aria-label="Permalink to What to add">#</a>What to add</h3>
+<ul>
+<li><strong>Per-chat context budget</strong> — <code>cognitive-budget-allocator.mjs</code> already exists but is wired to per-tool-call; it should also be wired to per-SessionStart-injection. Track aggregate injection per chat and emit early-warn at 50% of compact threshold.</li>
+<li><strong>Hook-output sharing</strong> — if 6 chats all need <code>BUILD_STATE.md</code>, the hook could check <code>state/shared/cache/build-state-injected-this-session.&lt;sessionId&gt;.flag</code> and skip re-injection within a session.</li>
+<li><strong>Selective injection by lane</strong> — chat in lane-A-hooks-foundation doesn&#39;t need cad-fusion vision spec injected; conversely the cad-fusion chat doesn&#39;t need backend-devtools roadmap context. Inject based on <code>state/shared/active-claims.jsonl</code> lane field.</li>
+</ul>
+<h2 id="6-obsidian-html-integration-sketch-deferred-user-ask"><a class="anchor" href="#6-obsidian-html-integration-sketch-deferred-user-ask" aria-label="Permalink to §6 — Obsidian + HTML integration sketch (deferred user ask)">#</a>§6 — Obsidian + HTML integration sketch (deferred user ask)</h2>
+<p>User asked to integrate Obsidian + HTML into the multi-chat scaling. Brief sketch (full spec out of scope for this analysis doc):</p>
+<ul>
+<li><strong>Obsidian role</strong>: bidirectional vault for permanent knowledge. Wiki + memory + skills get promoted to obsidian on a daily cadence. Multi-chat conflicts resolve via obsidian&#39;s own conflict-handling (works because edits are append-mostly to markdown files).</li>
+<li><strong>HTML role</strong>: read-only render layer for stakeholder-facing specs. Generated by <code>SpecHTMLCompanionEngine</code> (HTML-PRIMARY-MS0 / HTML-COMPANION-MS0). Helps non-Claude consumers (codex, gemini, kimi, human reviewers) read the same source.</li>
+<li><strong>Integration with handoff</strong>: each per-chat handoff gets an auto-emitted HTML twin at <code>state/shared/handoffs/HANDOFF-&lt;id&gt;-&lt;topic&gt;.html</code>. Operator on a phone can read the HTML without firing up a terminal.</li>
+</ul>
+<h2 id="7-action-checklist-in-priority-order-drop-in"><a class="anchor" href="#7-action-checklist-in-priority-order-drop-in" aria-label="Permalink to §7 — Action checklist (in priority order, drop-in)">#</a>§7 — Action checklist (in priority order, drop-in)</h2>
+<pre><code>[P0] Edit C:\Users\wompu\.claude\settings.json
+     - &quot;CLAUDE_AUTOCOMPACT_PCT_OVERRIDE&quot;: &quot;75&quot;  (was 95)
+     - &quot;CLAUDE_CODE_MAX_OUTPUT_TOKENS&quot;: &quot;32000&quot;  (was 85000)
+     Reason: autocompact-too-late + per-turn-too-large.
+
+[P0] Audit &amp; bundle SessionStart hooks
+     - Identify hooks whose entire job is &quot;read a shared file and inject&quot;
+     - For each, replace SessionStart binding with cron registration that
+       regenerates the source file on disk; agent reads on demand.
+     - Estimated reduction: 32 hooks → 12-14 hooks; injection bloat ~70% down.
+
+[P1] Fix stable-session-id.mjs resolver
+     - Order: CLAUDE_SESSION_ID env &gt; WT_SESSION env &gt; parent-walk &gt; path-derived UUID
+     - Add unit tests for each resolution path
+
+[P1] Fix or drop context-economy-v2.mjs from PreToolUse
+     - If kept, fix the xmalloc OOM (likely an unbounded growing Set)
+     - If dropped, replace its &quot;wasted call&quot; detection with an inline check
+       in each tool wrapper (read/edit/write deduper already exists pattern)
+
+[P2] Add handoff-staleness-check on SessionStart
+     - Diff RESUME-named milestones against on-disk state
+     - Mark superseded handoffs automatically
+
+[P2] Per-lane SessionStart hook gating
+     - Inject only context relevant to current lane (from active-claims.jsonl)
+     - Reduces multi-chat amplification
+
+[P3] HTML twin for each handoff (HC-X integration)
+     - Auto-emit .html alongside .md on every handoff write
+     - Phone-readable spec for stakeholders
+</code></pre>
+<h2 id="8-closing-note"><a class="anchor" href="#8-closing-note" aria-label="Permalink to §8 — Closing note">#</a>§8 — Closing note</h2>
+<p>The bug in §1 (1.79M → 1.92M across compact) is not a model bug. It is an <strong>infrastructure bug in the hook injection layer compounded by an aggressive autocompact threshold override</strong>. The fix is settings-level + hook-architecture-level, NOT model-level. The model cooperated correctly: it deferred, it wrote handoffs, it self-described the failure. The harness around it accumulated injection state faster than compaction could shed it.</p>
+<p>The mitigation is mechanical and ships in one settings.json edit + a hook-bundling pass. Estimated wall-time: 2-4 hours of focused work in a single chat (this one, with a fresh restart, would be sufficient).</p>
+<p>The Round-2 + Round-3 atomization work that this very session was &quot;supposed to be doing&quot; was already complete on disk when the session started — but the handoff RESUME pointed at it as pending, so the session burned its entire context window trying to do already-done work. That is <strong>why §4 patches matter more than they look</strong> — without staleness detection, every restart-cycle pays the cost again.</p>
+<hr>
+<p><strong>Exhibit-B (positive control):</strong> The 15 atomized files already on disk (<code>state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-*-ATOMIZED-2026-05-10.md</code>) demonstrate the system works when the chat-window is not exhausted. The handoff/compact chain breaks specifically at the exhaustion boundary, not the work boundary.</p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="ANALYSIS-HANDOFF-SYSTEM-2026-05-11.md">ANALYSIS-HANDOFF-SYSTEM-2026-05-11.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

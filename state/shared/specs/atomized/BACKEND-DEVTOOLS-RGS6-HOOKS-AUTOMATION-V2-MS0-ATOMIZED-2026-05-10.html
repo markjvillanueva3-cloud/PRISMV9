@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="a1a562c1a1db52d271b2a819ddd9603d364757b421e42d61af5aa4d6a801fb1e">
+<title>HOOKS-AUTOMATION-V2-MS0</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">HOOKS-AUTOMATION-V2-MS0</h1>
+<p class="provenance">Generated 2026-05-12T12:43:27.344Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#hooks-automation-v2-ms0-atomized">HOOKS-AUTOMATION-V2-MS0 — atomized</a></li>
+<li class="toc-l2"><a href="#u-hka01-read-once-pretooluse-dedup-hook">U-HKA01 — Read-once PreToolUse dedup hook</a></li>
+<li class="toc-l2"><a href="#u-hka02-defer-pretooluse-decision-for-autonomous-loops">U-HKA02 — defer PreToolUse decision for autonomous loops</a></li>
+<li class="toc-l2"><a href="#u-hka03-permissiondeniedretrytrue-classifier">U-HKA03 — PermissionDenied{retry:true} classifier</a></li>
+<li class="toc-l2"><a href="#u-hka04-ollama-route-pretooluse-route-trivial-reads-to-qwen">U-HKA04 — Ollama-route PreToolUse (route trivial reads to qwen)</a></li>
+<li class="toc-l2"><a href="#u-hka05-agent-scoped-stop-verifier-hook">U-HKA05 — Agent-scoped Stop verifier hook</a></li>
+<li class="toc-l2"><a href="#u-hka06-install-official-hookify-plugin-alongside-local-hooks">U-HKA06 — Install official hookify plugin alongside local hooks</a></li>
+<li class="toc-l2"><a href="#u-hka07-http-type-hook-to-system-viz-live-update">U-HKA07 — HTTP-type hook to system-viz live update</a></li>
+<li class="toc-l2"><a href="#u-hka08-mcp-tool-type-safety-bridge">U-HKA08 — MCP-tool-type safety bridge</a></li>
+<li class="toc-l2"><a href="#u-hka09-taskcreated-claim-guard-deny-duplicate-creation">U-HKA09 — TaskCreated claim guard (deny duplicate creation)</a></li>
+<li class="toc-l2"><a href="#u-hka10-posttoolbatch-budget-ceiling">U-HKA10 — PostToolBatch budget ceiling</a></li>
+<li class="toc-l2"><a href="#x-closing-notes">§X — Closing notes</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<details class="frontmatter" open><summary>Document metadata</summary><div class="table-wrap"><table>
+<tbody>
+<tr><th scope="row">milestone</th><td>HOOKS-AUTOMATION-V2-MS0</td></tr>
+<tr><th scope="row">parent_roadmap</th><td>BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-2026-05-10.md</td></tr>
+<tr><th scope="row">research_source</th><td>state/shared/research/2026-05-10-pass2-hooks-automation.md</td></tr>
+<tr><th scope="row">total_units</th><td>10</td></tr>
+<tr><th scope="row">critical_path_role</th><td>cross-cut into HOOK-SYNERGY-MS0; Claude Code 2.1.89 ships 31 hook events + <code>defer</code> + <code>if</code> + agent-scoped</td></tr>
+<tr><th scope="row">loop_registrations</th><td>1 (PostToolBatch budget weekly)</td></tr>
+<tr><th scope="row">date</th><td>2026-05-10</td></tr>
+</tbody>
+</table></div></details>
+<h1 id="hooks-automation-v2-ms0-atomized"><a class="anchor" href="#hooks-automation-v2-ms0-atomized" aria-label="Permalink to HOOKS-AUTOMATION-V2-MS0 — atomized">#</a>HOOKS-AUTOMATION-V2-MS0 — atomized</h1>
+<blockquote>
+<p>Claude Code 2.1.89 expanded the hook API from 12 events → 31. PRISM has 480+ hooks but mostly on the old surface. Folding new patterns: <code>defer</code> decision, <code>PermissionDenied{retry:true}</code>, conditional <code>if</code> field, agent-scoped hooks, official hookify plugin loader.</p>
+</blockquote>
+<hr>
+<h2 id="u-hka01-read-once-pretooluse-dedup-hook"><a class="anchor" href="#u-hka01-read-once-pretooluse-dedup-hook" aria-label="Permalink to U-HKA01 — Read-once PreToolUse dedup hook">#</a>U-HKA01 — Read-once PreToolUse dedup hook</h2>
+<ul>
+<li>pillar: hooks-v2</li>
+<li>tier: T0</li>
+<li>ai_priority_score: 85</li>
+<li>leverage_score: 14</li>
+<li>why: ~40% of agent file reads are re-reads of files already in context this session</li>
+<li>depends_on: []</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-HKA02, U-HKA03, U-HKA04]</li>
+<li>viz_node_id: <code>core.hooks.readonceguard</code> (TBD-create)</li>
+<li>closes_synergy_edge: hooks × token-economy</li>
+<li>loop_schedule: none</li>
+</ul>
+<p>verifies_via:   channel: metric   tool: sample 1h session — count Read tool calls before/after   expected_signal: ≥30% reduction in Read calls   re_run_cost: 60min observation   baseline: file-read count from current telemetry</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Write path: <code>.claude/hooks/read-once-guard.mjs</code> action: PreToolUse on Read — maintain in-process Set of (file, mtime); if exists, return <code>{decision:&quot;deny&quot;,message:&quot;Already read 5min ago&quot;}</code> verify: hook runs</li>
+<li>step-2: tool: Edit path: <code>.claude/settings.json</code> action: register hook on PreToolUse with <code>matcher:&quot;Read&quot;</code> verify: parse clean</li>
+<li>step-3: tool: Write path: <code>.claude/hooks/__tests__/read-once-guard.test.mjs</code> action: 5 tests — first read passes, second denied, mtime changed allows, oversized cache eviction, edge: directory read verify: 5 passed</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>file mtime in future (clock skew)</li>
+<li>rapid edit-read cycle (must allow if mtime changed)</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>same-file / same-content-different-path / same-path-different-mtime</li>
+<li>1 / 100 / 10000 reads/hour</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>false positive → escape hatch via <code>Read {force:true}</code> parameter</li>
+<li>cache memory bloat → LRU eviction at 1000 entries</li>
+<li>mtime corrupted → recompute hash secondary</li>
+</ul>
+<hr>
+<h2 id="u-hka02-defer-pretooluse-decision-for-autonomous-loops"><a class="anchor" href="#u-hka02-defer-pretooluse-decision-for-autonomous-loops" aria-label="Permalink to U-HKA02 — defer PreToolUse decision for autonomous loops">#</a>U-HKA02 — <code>defer</code> PreToolUse decision for autonomous loops</h2>
+<ul>
+<li>pillar: hooks-v2</li>
+<li>tier: T0</li>
+<li>ai_priority_score: 80</li>
+<li>leverage_score: 13</li>
+<li>why: Boris doctrine — autonomous loops without defer become $6k-incidents; defer makes Claude wait for human</li>
+<li>depends_on: []</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-HKA01, U-HKA03]</li>
+<li>viz_node_id: <code>core.hooks.autonomousloopdefer</code> (TBD-create)</li>
+<li>closes_synergy_edge: hooks × safety</li>
+<li>loop_schedule: none</li>
+</ul>
+<p>verifies_via:   channel: integration   tool: mock 1000-iteration loop → assert defer fires at iter 50   expected_signal: tool blocked with <code>decision:&quot;defer&quot;</code> + cooldown   re_run_cost: 2min   baseline: no defer support</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Write path: <code>.claude/hooks/autonomous-loop-defer.mjs</code> action: PreToolUse — track tool-fire-rate per session; if &gt; 50 in 5min, return <code>{decision:&quot;defer&quot;,retry_after:300}</code> verify: hook runs</li>
+<li>step-2: tool: Edit path: <code>.claude/settings.json</code> action: register on PreToolUse, all matchers verify: parse clean</li>
+<li>step-3: tool: Bash path: <code>H:/prism/</code> action: smoke test — burst 60 reads → 51st should defer verify: deferral observed in telemetry</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>benign high-volume work (CI sweep)</li>
+<li>adversarial: agent learns to space out calls to evade</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>10 / 50 / 200 calls/min thresholds</li>
+<li>per-tool / per-agent / global scope</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>false-defer on legitimate batch → maintainer escape hatch</li>
+<li>rate-window overflow → reset on session boundary</li>
+<li>defer ignored by client → escalate to Stop</li>
+</ul>
+<hr>
+<h2 id="u-hka03-permissiondeniedretrytrue-classifier"><a class="anchor" href="#u-hka03-permissiondeniedretrytrue-classifier" aria-label="Permalink to U-HKA03 — PermissionDenied{retry:true} classifier">#</a>U-HKA03 — <code>PermissionDenied{retry:true}</code> classifier</h2>
+<ul>
+<li>pillar: hooks-v2</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 75</li>
+<li>leverage_score: 12</li>
+<li>why: Claude Code 2.1.89 returns structured PermissionDenied; classifier auto-adjusts args and retries cheaply</li>
+<li>depends_on: []</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-HKA01, U-HKA02, U-HKA04]</li>
+<li>viz_node_id: <code>core.hooks.permissiondeniedretry</code> (TBD-create)</li>
+<li>closes_synergy_edge: hooks × dispatchers</li>
+<li>loop_schedule: none</li>
+</ul>
+<p>verifies_via:   channel: integration   tool: deny tool call → assert retry with adjusted args succeeds   expected_signal: 2nd-attempt success rate ≥ 60%   re_run_cost: 5min   baseline: 0% (no retry)</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Write path: <code>.claude/hooks/permission-denied-retry.mjs</code> action: PostToolUse on denied → classify reason → adjust args → emit retry hint verify: hook runs</li>
+<li>step-2: tool: Edit path: <code>.claude/settings.json</code> action: register on PermissionDenied event verify: parse clean</li>
+<li>step-3: tool: Write path: <code>.claude/hooks/__tests__/permission-denied-retry.test.mjs</code> action: 5 tests — path-escape denied (adjust path), shell-special-char (escape), oversized (split), unknown (no retry), already-retried (no double) verify: 5 passed</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>infinite retry loop (must cap)</li>
+<li>retry succeeds with unintended escalation</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>Bash / Edit / Write / Read denials</li>
+<li>first / second / third retry</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>retry cap at 2 → escalate to user</li>
+<li>classify-fail → don&#39;t retry (safe default)</li>
+<li>retry-storm → defer</li>
+</ul>
+<hr>
+<h2 id="u-hka04-ollama-route-pretooluse-route-trivial-reads-to-qwen"><a class="anchor" href="#u-hka04-ollama-route-pretooluse-route-trivial-reads-to-qwen" aria-label="Permalink to U-HKA04 — Ollama-route PreToolUse (route trivial reads to qwen)">#</a>U-HKA04 — Ollama-route PreToolUse (route trivial reads to qwen)</h2>
+<ul>
+<li>pillar: hooks-v2</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 72</li>
+<li>leverage_score: 12</li>
+<li>why: 100 trivial Read calls don&#39;t need Claude; route to local qwen2.5-coder for token savings</li>
+<li>depends_on: []</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-HKA01, U-HKA02, U-HKA03]</li>
+<li>viz_node_id: <code>core.hooks.ollamaroute</code> (already exists per memory, harden)</li>
+<li>closes_synergy_edge: hooks × ollama</li>
+<li>loop_schedule: none</li>
+</ul>
+<p>verifies_via:   channel: metric   tool: 100-read sample → count Ollama vs Claude routing   expected_signal: ≥80% routed to Ollama for &quot;summarize&quot; / &quot;classify&quot; tasks   re_run_cost: 5min   baseline: per existing offload-stats.json</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Read path: <code>mcp-server/src/engines/OllamaHookBridgeEngine.ts</code> action: pattern reference (already exists) verify: file readable</li>
+<li>step-2: tool: Edit path: <code>.claude/hooks/ollama-route-pretooluse.mjs</code> action: classify tool intent (read+summarize / read+classify → Ollama); fall back to Claude on Ollama fail verify: hook runs</li>
+<li>step-3: tool: Edit path: <code>.claude/settings.json</code> action: register hook verify: parse clean</li>
+<li>step-4: tool: Write path: <code>.claude/hooks/__tests__/ollama-route-pretooluse.test.mjs</code> action: 5 tests — summarize routed, classify routed, complex-reasoning kept, ollama-down fallback, timeout fallback verify: 5 passed</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>prompt-injection causes Ollama to escalate to Claude</li>
+<li>Ollama OOM mid-stream</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>qwen2.5-coder / llama3.2 / embeddings models</li>
+<li>1 / 100 / 10000 calls/hour</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>Ollama unreachable → log + fallback to Claude</li>
+<li>response quality degrades → opt-out per task</li>
+<li>rate-limit → cascade to next-cheapest</li>
+</ul>
+<hr>
+<h2 id="u-hka05-agent-scoped-stop-verifier-hook"><a class="anchor" href="#u-hka05-agent-scoped-stop-verifier-hook" aria-label="Permalink to U-HKA05 — Agent-scoped Stop verifier hook">#</a>U-HKA05 — Agent-scoped Stop verifier hook</h2>
+<ul>
+<li>pillar: hooks-v2</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 68</li>
+<li>leverage_score: 11</li>
+<li>why: 2.1.89 supports per-agent hooks; subagent stop should verify its claimed deliverables</li>
+<li>depends_on: []</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-HKA06, U-HKA07]</li>
+<li>viz_node_id: <code>core.hooks.subagentstopverifier</code> (TBD-create)</li>
+<li>closes_synergy_edge: hooks × subagents</li>
+<li>loop_schedule: none</li>
+</ul>
+<p>verifies_via:   channel: integration   tool: subagent claims &quot;wrote X&quot; → verifier hook checks file exists   expected_signal: false-claim flagged + parent chat alerted   re_run_cost: 5s per subagent stop   baseline: no verification</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Write path: <code>.claude/hooks/subagent-stop-verifier.mjs</code> action: parse subagent summary, extract file claims, ls each, alarm on missing verify: hook runs</li>
+<li>step-2: tool: Edit path: <code>.claude/settings.json</code> action: register on SubagentStop (2.1.89 event) verify: parse clean</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>subagent claim in non-standard format</li>
+<li>file written then immediately deleted</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>1 / 5 / 20 claimed files per subagent</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>claim-parse fail → pass-through (don&#39;t false-flag)</li>
+<li>subagent stops mid-write → grace period 30s</li>
+<li>parent chat unavailable → log to telemetry</li>
+</ul>
+<hr>
+<h2 id="u-hka06-install-official-hookify-plugin-alongside-local-hooks"><a class="anchor" href="#u-hka06-install-official-hookify-plugin-alongside-local-hooks" aria-label="Permalink to U-HKA06 — Install official hookify plugin alongside local hooks">#</a>U-HKA06 — Install official <code>hookify</code> plugin alongside local hooks</h2>
+<ul>
+<li>pillar: hooks-v2</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 65</li>
+<li>leverage_score: 11</li>
+<li>why: 25 local <code>.claude/hookify.*.local.md</code> exist but no official loader; hookify standardizes the markdown-rule pattern</li>
+<li>depends_on: []</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-HKA05, U-HKA07]</li>
+<li>viz_node_id: <code>core.plugin.hookify</code> (TBD-add to viz)</li>
+<li>closes_synergy_edge: hooks × external-tooling</li>
+<li>loop_schedule: none</li>
+</ul>
+<p>verifies_via:   channel: integration   tool: invoke a hookify rule → assert loader picks it up   expected_signal: rule fires   re_run_cost: 30s   baseline: rules exist but unloaded</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Bash path: <code>H:/.claude/plugins/</code> action: confirm not installed verify: <code>ls H:/.claude/plugins/hookify 2&gt;&amp;1</code> → &quot;No such file&quot;</li>
+<li>step-2: tool: Bash path: <code>H:/.claude/plugins/</code> action: install hookify per anthropic docs (clone or marketplace install) verify: <code>ls H:/.claude/plugins/hookify</code> exists</li>
+<li>step-3: tool: Edit path: <code>.claude/settings.json</code> action: register hookify in <code>plugins</code> block verify: parse clean</li>
+<li>step-4: tool: Bash path: <code>H:/prism/</code> action: smoke test — modify one <code>.claude/hookify.block-*.local.md</code> → verify enforcement verify: rule fires on matching action</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>hookify version conflict with existing hooks</li>
+<li>hookify download interrupted</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>block / warn / suggest hookify rule types</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>install fail → manual local fallback</li>
+<li>rule-conflict → priority order documented</li>
+<li>hookify update breaks → pin version</li>
+</ul>
+<hr>
+<h2 id="u-hka07-http-type-hook-to-system-viz-live-update"><a class="anchor" href="#u-hka07-http-type-hook-to-system-viz-live-update" aria-label="Permalink to U-HKA07 — HTTP-type hook to system-viz live update">#</a>U-HKA07 — HTTP-type hook to system-viz live update</h2>
+<ul>
+<li>pillar: hooks-v2</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 60</li>
+<li>leverage_score: 10</li>
+<li>why: 2.1.89 supports <code>type:&quot;http&quot;</code> hooks; tool fire → system-viz reloads in &lt;1s</li>
+<li>depends_on: [U-GAC01 from GRAPH-AS-LLM-CONTEXT-MS0]</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-HKA05, U-HKA06, U-HKA08]</li>
+<li>viz_node_id: <code>core.hooks.systemvizlivebridge</code> (TBD-create)</li>
+<li>closes_synergy_edge: hooks × system-viz</li>
+<li>loop_schedule: none</li>
+</ul>
+<p>verifies_via:   channel: integration   tool: trigger Edit → measure system-viz refresh time   expected_signal: viz updates within 1s   re_run_cost: 5s   baseline: viz refresh requires manual regen</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Write path: <code>.claude/hooks/system-viz-live-bridge.json</code> action: HTTP hook config — POST to <code>http://localhost:8765/api/refresh</code> on Edit/Write verify: file exists, valid JSON</li>
+<li>step-2: tool: Edit path: <code>state/shared/system-viz/_server.cjs</code> action: add <code>/api/refresh</code> endpoint (peer-claimed; coordinate first) verify: NOTE — peer chat owns this file; defer to chat-bus coordination</li>
+<li>step-3: tool: Edit path: <code>.claude/settings.json</code> action: register hook verify: parse clean</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>viz server down → 200ms timeout</li>
+<li>1000 edits/sec → debounce</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>Edit / Write / MultiEdit triggers</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>viz server unreachable → log + continue (don&#39;t block)</li>
+<li>refresh-storm → debounce 500ms</li>
+<li>port conflict → fallback port</li>
+</ul>
+<hr>
+<h2 id="u-hka08-mcp-tool-type-safety-bridge"><a class="anchor" href="#u-hka08-mcp-tool-type-safety-bridge" aria-label="Permalink to U-HKA08 — MCP-tool-type safety bridge">#</a>U-HKA08 — MCP-tool-type safety bridge</h2>
+<ul>
+<li>pillar: hooks-v2</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 55</li>
+<li>leverage_score: 10</li>
+<li>why: 2.1.89 <code>type:&quot;mcp_tool&quot;</code> hooks let safety validators run as MCP actions</li>
+<li>depends_on: []</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-HKA07, U-HKA09]</li>
+<li>viz_node_id: <code>core.hooks.mcpsafetybridge</code> (TBD-create)</li>
+<li>closes_synergy_edge: hooks × safety</li>
+<li>loop_schedule: none</li>
+</ul>
+<p>verifies_via:   channel: integration   tool: physics-constants edit → MCP safety action runs   expected_signal: <code>prism_safety:validate_physics</code> invoked, result respected   re_run_cost: 5s   baseline: safety checked separately</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Write path: <code>.claude/hooks/mcp-safety-bridge.json</code> action: MCP hook config — on Edit of <code>physics/constants.ts</code>, call <code>prism_safety:validate_physics</code> verify: file exists</li>
+<li>step-2: tool: Edit path: <code>.claude/settings.json</code> action: register hook verify: parse clean</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>safety endpoint slow → 5s timeout</li>
+<li>bypass via Write (non-Edit) → catch with Write matcher too</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>physics / Kienzle / Taylor / canonical-constants targets</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>safety endpoint down → soft-warn (don&#39;t hard-block; user choice)</li>
+<li>mcp tool error → log + fallthrough</li>
+<li>false-positive on test files → maintainer override</li>
+</ul>
+<hr>
+<h2 id="u-hka09-taskcreated-claim-guard-deny-duplicate-creation"><a class="anchor" href="#u-hka09-taskcreated-claim-guard-deny-duplicate-creation" aria-label="Permalink to U-HKA09 — TaskCreated claim guard (deny duplicate creation)">#</a>U-HKA09 — TaskCreated claim guard (deny duplicate creation)</h2>
+<ul>
+<li>pillar: hooks-v2</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 50</li>
+<li>leverage_score: 9</li>
+<li>why: 2.1.89 <code>TaskCreated</code> hook can prevent duplicate work across chats</li>
+<li>depends_on: []</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-HKA08, U-HKA10]</li>
+<li>viz_node_id: <code>core.hooks.taskcreatedclaim</code> (TBD-create)</li>
+<li>closes_synergy_edge: hooks × multi-chat</li>
+<li>loop_schedule: none</li>
+</ul>
+<p>verifies_via:   channel: test   tool: 2 chats both TaskCreate same subject → second blocked   expected_signal: 2nd attempt returns &quot;duplicate&quot;   re_run_cost: 30s   baseline: no claim guard</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Write path: <code>.claude/hooks/task-created-claim-guard.mjs</code> action: TaskCreated hook — fuzzy-match subject against shared task-claims.jsonl; deny if match verify: hook runs</li>
+<li>step-2: tool: Edit path: <code>.claude/settings.json</code> action: register hook verify: parse clean</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>subject paraphrase evades fuzzy match</li>
+<li>claim file stale (chat died without releasing)</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>exact / fuzzy / semantic match</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>false positive → maintainer escape hatch with <code>--force</code></li>
+<li>claim stale → expire after 30min</li>
+<li>claim file write-conflict → retry with backoff</li>
+</ul>
+<hr>
+<h2 id="u-hka10-posttoolbatch-budget-ceiling"><a class="anchor" href="#u-hka10-posttoolbatch-budget-ceiling" aria-label="Permalink to U-HKA10 — PostToolBatch budget ceiling">#</a>U-HKA10 — PostToolBatch budget ceiling</h2>
+<ul>
+<li>pillar: hooks-v2</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 48</li>
+<li>leverage_score: 9</li>
+<li>why: 1000-tool batches can blow token budget; ceiling + alarm</li>
+<li>depends_on: []</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-HKA09]</li>
+<li>viz_node_id: <code>core.hooks.posttoolbatchbudget</code> (TBD-create)</li>
+<li>closes_synergy_edge: hooks × cost</li>
+<li>loop_schedule: 7d (recompute ceiling)</li>
+</ul>
+<p>verifies_via:   channel: metric   tool: simulate 1000 tools/hour → assert alarm fires   expected_signal: alarm emitted at threshold   re_run_cost: 60min   baseline: no ceiling</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Write path: <code>.claude/hooks/post-tool-batch-budget.mjs</code> action: PostToolUse — running counter; at threshold emit alarm + slow-mode verify: hook runs</li>
+<li>step-2: tool: Edit path: <code>.claude/settings.json</code> action: register hook verify: parse clean</li>
+<li>step-3: tool: Bash path: <code>H:/prism/</code> action: <code>/loop --interval 7d</code> to retune ceiling verify: cron registration confirmed</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>legitimate big sweep (e.g. doc regen) trips ceiling</li>
+<li>counter overflow / reset race</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>100 / 1000 / 10000 tools/hour thresholds</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>counter inaccurate → fall back to time-window count</li>
+<li>alarm not delivered → log + escalate</li>
+<li>sleep-mode evaded by client → harden via Stop hook</li>
+</ul>
+<hr>
+<h2 id="x-closing-notes"><a class="anchor" href="#x-closing-notes" aria-label="Permalink to §X — Closing notes">#</a>§X — Closing notes</h2>
+<p><strong>Critical-path:</strong> U-HKA01 (read-once) ships fastest, biggest single token win. Build first.</p>
+<p><strong>Cross-cuts HOOK-SYNERGY-MS0:</strong> these are hook-V2 patterns on top of the V1 fleet; coordinate sequencing.</p>
+<p><strong>Cron:</strong> <code>/loop --interval 7d</code> for U-HKA10 budget retune.</p>
+<p><strong>Synergy edges closed:</strong> 8 (hooks × token-economy, hooks × safety [twice], hooks × dispatchers, hooks × ollama, hooks × subagents, hooks × external-tooling, hooks × system-viz, hooks × multi-chat, hooks × cost).</p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="BACKEND-DEVTOOLS-RGS6-HOOKS-AUTOMATION-V2-MS0-ATOMIZED-2026-05-10.md">BACKEND-DEVTOOLS-RGS6-HOOKS-AUTOMATION-V2-MS0-ATOMIZED-2026-05-10.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

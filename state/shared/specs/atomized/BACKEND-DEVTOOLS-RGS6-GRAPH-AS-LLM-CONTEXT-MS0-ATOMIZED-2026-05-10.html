@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="eb8cf77a4c0046c34a8cf9e812cc288fe696f3017bad48b3dfb3751662908b55">
+<title>GRAPH-AS-LLM-CONTEXT-MS0</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">GRAPH-AS-LLM-CONTEXT-MS0</h1>
+<p class="provenance">Generated 2026-05-12T12:43:27.307Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#graph-as-llm-context-ms0-atomized">GRAPH-AS-LLM-CONTEXT-MS0 — atomized</a></li>
+<li class="toc-l2"><a href="#u-gac01-build-graphcontextlensengine-ego-graph-extraction">U-GAC01 — Build GraphContextLensEngine (ego-graph extraction)</a></li>
+<li class="toc-l2"><a href="#u-gac02-graphrag-retrieval-over-wiki-system-graph">U-GAC02 — GraphRAG retrieval over wiki + system-graph</a></li>
+<li class="toc-l2"><a href="#u-gac03-code-graph-projection-for-mcp-serversrc">U-GAC03 — Code-graph projection for mcp-server/src</a></li>
+<li class="toc-l2"><a href="#u-gac04-dual-channel-context-json-viz-screenshot-for-subagent-dispatch">U-GAC04 — Dual-channel context (JSON + viz screenshot) for subagent dispatch</a></li>
+<li class="toc-l2"><a href="#u-gac05-spatial-ui-agent-coordination-locked-viz-coordinates-as-shared-address-space">U-GAC05 — Spatial-UI agent coordination (locked viz coordinates as shared address space)</a></li>
+<li class="toc-l2"><a href="#u-gac06-community-summary-generator-over-engine-clusters">U-GAC06 — Community-summary generator over engine clusters</a></li>
+<li class="toc-l2"><a href="#u-gac07-stale-graph-detector-mtime-hash-blocker">U-GAC07 — Stale-graph detector (mtime + hash blocker)</a></li>
+<li class="toc-l2"><a href="#u-gac08-hallucinated-node-id-guard">U-GAC08 — Hallucinated-node-id guard</a></li>
+<li class="toc-l2"><a href="#x-closing-notes">§X — Closing notes</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<details class="frontmatter" open><summary>Document metadata</summary><div class="table-wrap"><table>
+<tbody>
+<tr><th scope="row">milestone</th><td>GRAPH-AS-LLM-CONTEXT-MS0</td></tr>
+<tr><th scope="row">parent_roadmap</th><td>BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-2026-05-10.md</td></tr>
+<tr><th scope="row">research_source</th><td>state/shared/research/2026-05-10-pass2-graph-as-llm-context.md</td></tr>
+<tr><th scope="row">total_units</th><td>8</td></tr>
+<tr><th scope="row">critical_path_role</th><td>unblocks atomization viz_node_id resolution for every other milestone</td></tr>
+<tr><th scope="row">loop_registrations</th><td>1 (stale-graph cron)</td></tr>
+<tr><th scope="row">date</th><td>2026-05-10</td></tr>
+</tbody>
+</table></div></details>
+<h1 id="graph-as-llm-context-ms0-atomized"><a class="anchor" href="#graph-as-llm-context-ms0-atomized" aria-label="Permalink to GRAPH-AS-LLM-CONTEXT-MS0 — atomized">#</a>GRAPH-AS-LLM-CONTEXT-MS0 — atomized</h1>
+<blockquote>
+<p>Make the live PRISM /system-viz (126,441 nodes / 11 layers) directly addressable as LLM context. Foundation for spatial-UI agent coordination + GraphRAG retrieval over PRISM substrate.</p>
+</blockquote>
+<hr>
+<h2 id="u-gac01-build-graphcontextlensengine-ego-graph-extraction"><a class="anchor" href="#u-gac01-build-graphcontextlensengine-ego-graph-extraction" aria-label="Permalink to U-GAC01 — Build GraphContextLensEngine (ego-graph extraction)">#</a>U-GAC01 — Build <code>GraphContextLensEngine</code> (ego-graph extraction)</h2>
+<ul>
+<li>pillar: graph</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 80</li>
+<li>leverage_score: 13</li>
+<li>why: agents need scoped slices of the 126k-node graph (not the whole thing) — ego-graph around a target node is the canonical unit</li>
+<li>depends_on: []</li>
+<li>blocks: [U-GAC02, U-GAC04, U-GAC05]</li>
+<li>parallel_with: [U-VAULT01, U-HKA01]</li>
+<li>viz_node_id: <code>eng.knowledge.graphcontextlensengine</code> (TBD-create)</li>
+<li>closes_synergy_edge: system-viz × handoffs (currently &quot;none&quot; in synergy matrix)</li>
+<li>loop_schedule: none</li>
+</ul>
+<p>verifies_via:   channel: test   tool: <code>npx vitest run mcp-server/src/__tests__/GraphContextLensEngine.test.ts</code>   expected_signal: <code>7 passed</code>   re_run_cost: 4s   baseline: file does not exist yet</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Bash path: <code>mcp-server/src/engines/</code> action: confirm engine doesn&#39;t already exist (duplication guard) verify: <code>ls mcp-server/src/engines/GraphContextLensEngine.ts 2&gt;&amp;1</code> → &quot;No such file&quot;</li>
+<li>step-2: tool: Read path: <code>mcp-server/src/engines/KnowledgeGraphEngine.ts</code> action: read pattern reference (1-50 lines for class skeleton) verify: file readable, includes singleton export</li>
+<li>step-3: tool: Write path: <code>mcp-server/src/engines/GraphContextLensEngine.ts</code> action: create engine — methods <code>extractEgoGraph(nodeId, hops)</code>, <code>extractByDomain(domain)</code>, <code>summarizeCommunity(nodes)</code>; reads <code>state/shared/system-viz/system-graph.json</code> verify: <code>ls mcp-server/src/engines/GraphContextLensEngine.ts</code> → exists</li>
+<li>step-4: tool: Write path: <code>mcp-server/src/__tests__/GraphContextLensEngine.test.ts</code> action: 7 test cases — happy (1-hop on known node), 2-hop, 3-hop, unknown node, empty graph (mock), oversized (1000+ hops), malformed system-graph.json verify: <code>npx vitest run GraphContextLensEngine</code> → 7 passed</li>
+<li>step-5: tool: Edit path: <code>mcp-server/src/tools/dispatchers/aiReasoningDispatcher.ts</code> action: add action <code>graph_context_lens_extract</code> with Zod schema + lazy import + call site verify: round-trip MCP <code>prism_ai:graph_context_lens_extract</code> returns 200</li>
+<li>step-6: tool: Bash path: <code>mcp-server/</code> action: build verification verify: <code>npm run build:fast 2&gt;&amp;1 | tail -3</code> shows no TS errors</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>circular reference in graph (cycle detection)</li>
+<li>node_id with shell-special chars (<code>;</code>, <code>|</code>, <code>..</code>)</li>
+<li>100MB system-graph.json (memory exhaustion)</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>1-hop / 3-hop / 7-hop ego-graphs</li>
+<li>L4 dispatcher / L5 engine / L11 file targets</li>
+<li>JSON / Markdown / Mermaid output formats</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>graph corrupted at read time → fall back to last-known-good cache at <code>state/shared/system-viz/system-graph.previous.json</code></li>
+<li>hop count &gt; graph diameter → return reachable subset + warning</li>
+<li>dispatcher schema mismatch → reject with 400 before engine call</li>
+</ul>
+<hr>
+<h2 id="u-gac02-graphrag-retrieval-over-wiki-system-graph"><a class="anchor" href="#u-gac02-graphrag-retrieval-over-wiki-system-graph" aria-label="Permalink to U-GAC02 — GraphRAG retrieval over wiki + system-graph">#</a>U-GAC02 — GraphRAG retrieval over wiki + system-graph</h2>
+<ul>
+<li>pillar: graph</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 75</li>
+<li>leverage_score: 12</li>
+<li>why: classic vector RAG fails on multi-hop manufacturing queries; GraphRAG (Edge et al. arXiv:2404.16130) outperforms by 30-50%</li>
+<li>depends_on: [U-GAC01]</li>
+<li>blocks: [U-GAC06]</li>
+<li>parallel_with: [U-GAC03, U-GAC04]</li>
+<li>viz_node_id: <code>eng.knowledge.graphragretrievalengine</code> (TBD-create)</li>
+<li>closes_synergy_edge: wiki × neural (currently &quot;none&quot;)</li>
+<li>loop_schedule: none</li>
+</ul>
+<p>verifies_via:   channel: eval   tool: <code>node scripts/graphrag-eval.mjs --queries=10</code>   expected_signal: <code>recall@3 &gt;= 0.7</code>   re_run_cost: 30s   baseline: vector-only RAG recall@3 ~ 0.5</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Read path: <code>state/shared/research/2026-05-10-pass2-graph-as-llm-context.md</code> action: extract GraphRAG section (look for &quot;Edge et al&quot; reference) verify: section found, methodology clear</li>
+<li>step-2: tool: Write path: <code>mcp-server/src/engines/GraphRAGRetrievalEngine.ts</code> action: implement entity extraction + community detection + 1-hop expansion + LLM summarization verify: file exists, exports <code>graphRAGRetrievalEngine</code> singleton</li>
+<li>step-3: tool: Write path: <code>mcp-server/src/__tests__/GraphRAGRetrievalEngine.test.ts</code> action: 6 cases — happy (known entity), unknown entity, ambiguous (multiple matches), no neighbors, oversized result set, malformed wiki entry verify: 6 passed</li>
+<li>step-4: tool: Write path: <code>scripts/graphrag-eval.mjs</code> action: 10 fixed eval queries with ground-truth top-3 answers verify: script runs; outputs recall@3 metric</li>
+<li>step-5: tool: Edit path: <code>mcp-server/src/tools/dispatchers/aiReasoningDispatcher.ts</code> action: wire <code>graphrag_retrieve</code> action verify: round-trip MCP returns top-3 entities</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>prompt injection in retrieved entity body</li>
+<li>empty wiki (cold-start)</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>manufacturing / AI-systems / dev-tools domains</li>
+<li>3 / 10 / 50 entity retrieval</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>LLM summarization OOM → truncate + retry</li>
+<li>entity ambiguity → return top-N with disambiguation prompt</li>
+<li>wiki entry stale → flag freshness in result</li>
+</ul>
+<hr>
+<h2 id="u-gac03-code-graph-projection-for-mcp-serversrc"><a class="anchor" href="#u-gac03-code-graph-projection-for-mcp-serversrc" aria-label="Permalink to U-GAC03 — Code-graph projection for mcp-server/src">#</a>U-GAC03 — Code-graph projection for <code>mcp-server/src</code></h2>
+<ul>
+<li>pillar: graph</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 70</li>
+<li>leverage_score: 11</li>
+<li>why: SWE-bench-style code agents perform better with ego-graph retrieval (RepoGraph ICLR 2025 +32.8%)</li>
+<li>depends_on: [U-GAC01]</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-GAC02, U-GAC04]</li>
+<li>viz_node_id: <code>eng.system.codegraphprojectionengine</code> (TBD-create)</li>
+<li>closes_synergy_edge: engines × tribal (currently &quot;none&quot;)</li>
+<li>loop_schedule: 24h (rebuild on source-tree change)</li>
+</ul>
+<p>verifies_via:   channel: integration   tool: <code>node scripts/code-graph-projection.mjs --target=mcp-server/src/__tests__/SpecificCuttingEnergyEngine.test.ts</code>   expected_signal: <code>nodes&gt;=5,edges&gt;=3,deps_resolved=true</code>   re_run_cost: 8s   baseline: nonexistent</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Bash path: <code>mcp-server/</code> action: enumerate existing TypeScript ASTs already cached verify: <code>ls mcp-server/data/state/*ast*.json 2&gt;&amp;1 | wc -l</code> (informational)</li>
+<li>step-2: tool: Write path: <code>mcp-server/src/engines/CodeGraphProjectionEngine.ts</code> action: parse <code>src/**/*.ts</code> via ts-morph, emit <code>{nodes:[{file,kind,symbol}],edges:[{from,to,kind}]}</code> JSON verify: engine exports singleton</li>
+<li>step-3: tool: Write path: <code>mcp-server/src/__tests__/CodeGraphProjectionEngine.test.ts</code> action: 5 tests — single file, multi-file deps, cyclic import, unparseable file, large file (&gt;10k LOC) verify: 5 passed</li>
+<li>step-4: tool: Write path: <code>scripts/code-graph-projection.mjs</code> action: CLI wrapper — <code>--target &lt;path&gt;</code> → JSON to stdout verify: script runs, outputs JSON</li>
+<li>step-5: tool: Edit path: <code>mcp-server/src/tools/dispatchers/devDispatcher.ts</code> action: wire <code>code_graph_project</code> action verify: round-trip MCP returns valid graph</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>syntactically invalid TS file</li>
+<li>50MB single source file</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>single-file / package-level / project-level scope</li>
+<li>top-level function / class / interface symbols</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>ts-morph OOM on large project → fall back to per-file walk</li>
+<li>dep cycle → record + continue, do not throw</li>
+<li>missing file → warn + skip</li>
+</ul>
+<hr>
+<h2 id="u-gac04-dual-channel-context-json-viz-screenshot-for-subagent-dispatch"><a class="anchor" href="#u-gac04-dual-channel-context-json-viz-screenshot-for-subagent-dispatch" aria-label="Permalink to U-GAC04 — Dual-channel context (JSON + viz screenshot) for subagent dispatch">#</a>U-GAC04 — Dual-channel context (JSON + viz screenshot) for subagent dispatch</h2>
+<ul>
+<li>pillar: graph</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 68</li>
+<li>leverage_score: 11</li>
+<li>why: tldraw-style dual-channel pattern beats prose-only context for multi-agent coordination (per 2025 X-post evidence)</li>
+<li>depends_on: [U-GAC01]</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-GAC02, U-GAC03]</li>
+<li>viz_node_id: <code>eng.system.dualchannelcontextengine</code> (TBD-create)</li>
+<li>closes_synergy_edge: system-viz × subagents (currently &quot;none&quot;)</li>
+<li>loop_schedule: none</li>
+</ul>
+<p>verifies_via:   channel: integration   tool: spawn subagent with JSON + PNG attached → check it references both   expected_signal: subagent output mentions both <code>node-id:</code> and visual layer   re_run_cost: 60s   baseline: nonexistent</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Bash path: <code>state/shared/system-viz/</code> action: check if headless screenshot tool available (puppeteer / chromium) verify: <code>which chromium 2&gt;&amp;1 || npx puppeteer --version 2&gt;&amp;1</code> returns version</li>
+<li>step-2: tool: Write path: <code>mcp-server/src/engines/DualChannelContextEngine.ts</code> action: methods <code>attachJsonContext(subagentPrompt, nodeId)</code>, <code>attachVizScreenshot(subagentPrompt, layerFilter)</code> verify: file exists</li>
+<li>step-3: tool: Write path: <code>scripts/render-viz-screenshot.mjs</code> action: headless chromium → PNG of viz with layer filter applied verify: PNG file produced, &gt; 5KB</li>
+<li>step-4: tool: Write path: <code>mcp-server/src/__tests__/DualChannelContextEngine.test.ts</code> action: 5 tests — happy, missing screenshot tool, oversized PNG, malformed nodeId, layer filter with no matches verify: 5 passed</li>
+<li>step-5: tool: Edit path: <code>mcp-server/src/tools/dispatchers/sessionDispatcher.ts</code> action: add <code>dual_channel_dispatch</code> action verify: round-trip MCP</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>subagent prompt contains screenshot-of-screenshot recursion</li>
+<li>PNG with embedded malicious payload</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>JSON-only / PNG-only / both (3 modes)</li>
+<li>layer-filter: L0 / L4 / L11</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>chromium unavailable → MD-text fallback</li>
+<li>PNG &gt; 10MB → downscale + warn</li>
+<li>subagent rejects binary → flatten to base64 data URI</li>
+</ul>
+<hr>
+<h2 id="u-gac05-spatial-ui-agent-coordination-locked-viz-coordinates-as-shared-address-space"><a class="anchor" href="#u-gac05-spatial-ui-agent-coordination-locked-viz-coordinates-as-shared-address-space" aria-label="Permalink to U-GAC05 — Spatial-UI agent coordination (locked viz coordinates as shared address space)">#</a>U-GAC05 — Spatial-UI agent coordination (locked viz coordinates as shared address space)</h2>
+<ul>
+<li>pillar: graph</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 60</li>
+<li>leverage_score: 10</li>
+<li>why: when N agents share a fixed spatial layout, coordination collapses from O(N²) text exchange to O(1) node-id mention</li>
+<li>depends_on: [U-GAC01, U-GAC04]</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-GAC06]</li>
+<li>viz_node_id: <code>eng.coordination.spatialaddressbookengine</code> (TBD-create)</li>
+<li>closes_synergy_edge: handoffs × system-viz (currently &quot;none&quot;)</li>
+<li>loop_schedule: none</li>
+</ul>
+<p>verifies_via:   channel: integration   tool: 2 agents dispatched with same viz, coordinate via node-id → check no text-overlap   expected_signal: both agents reference same <code>node-id</code> without paraphrase drift   re_run_cost: 90s   baseline: text-only coordination has ~30% paraphrase drift</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Write path: <code>mcp-server/src/engines/SpatialAddressBookEngine.ts</code> action: lock-list of canonical node-ids; method <code>resolveAlias(text) → node-id</code> verify: file exists</li>
+<li>step-2: tool: Write path: <code>mcp-server/src/__tests__/SpatialAddressBookEngine.test.ts</code> action: 5 tests — exact match, fuzzy match, ambiguous, unknown, malformed verify: 5 passed</li>
+<li>step-3: tool: Edit path: <code>.claude/hooks/agent-handoff-canonicalize.mjs</code> action: NEW hook — rewrite handoff text to use canonical node-ids verify: hook tested via stdin → JSON</li>
+<li>step-4: tool: Edit path: <code>.claude/settings.json</code> action: wire new hook on UserPromptSubmit verify: <code>node H:/prism/.claude/hooks/agent-handoff-canonicalize.mjs &lt;&lt;&lt; &#39;{}&#39;</code> returns valid JSON</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>2 chats canonicalize same alias to different IDs (race)</li>
+<li>node deleted while alias still cached</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>2 / 6 / 12 concurrent agents</li>
+<li>L4 / L5 / L8 target layer</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>alias ambiguous → return all candidates + ask user</li>
+<li>cache stale → trigger graph re-read</li>
+<li>node renamed → fall back to fuzzy match</li>
+</ul>
+<hr>
+<h2 id="u-gac06-community-summary-generator-over-engine-clusters"><a class="anchor" href="#u-gac06-community-summary-generator-over-engine-clusters" aria-label="Permalink to U-GAC06 — Community-summary generator over engine clusters">#</a>U-GAC06 — Community-summary generator over engine clusters</h2>
+<ul>
+<li>pillar: graph</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 55</li>
+<li>leverage_score: 10</li>
+<li>why: 3,181 engines is too many to enumerate; community summaries collapse clusters to &lt;200 tokens each</li>
+<li>depends_on: [U-GAC02]</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-GAC05, U-GAC07, U-GAC08]</li>
+<li>viz_node_id: <code>eng.knowledge.communitysummaryengine</code> (TBD-create)</li>
+<li>closes_synergy_edge: engines × wiki (already auto, this reinforces)</li>
+<li>loop_schedule: 7d (regenerate weekly)</li>
+</ul>
+<p>verifies_via:   channel: metric   tool: <code>node scripts/community-summary-gen.mjs --domain=Lathe</code>   expected_signal: output token count ∈ [100, 300]   re_run_cost: 15s   baseline: full engine list = ~8000 tokens</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Bash path: <code>mcp-server/data/docs/</code> action: confirm ENGINE_DIGEST.md exists with domain groupings verify: <code>grep -c &#39;^## &#39; mcp-server/data/docs/ENGINE_DIGEST.md</code> &gt; 10</li>
+<li>step-2: tool: Write path: <code>mcp-server/src/engines/CommunitySummaryEngine.ts</code> action: cluster engines by domain → call Ollama qwen for ≤200-token summary per cluster verify: file exists</li>
+<li>step-3: tool: Write path: <code>scripts/community-summary-gen.mjs</code> action: CLI wrapper writing to <code>state/shared/community-summaries.json</code> verify: script runs, JSON valid</li>
+<li>step-4: tool: Write path: <code>mcp-server/src/__tests__/CommunitySummaryEngine.test.ts</code> action: 5 tests — happy, empty cluster, Ollama unreachable, oversized cluster, token-cap exceeded verify: 5 passed</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>Ollama returns empty string</li>
+<li>1000-engine single cluster</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>Lathe / Mill / WEDM / AI / Other (5 domains)</li>
+<li>5 / 20 / 100 engines per cluster</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>Ollama offline → fall back to Claude (cost-aware, max 5 invocations)</li>
+<li>summary &gt;300 tokens → truncate + warn</li>
+<li>cluster name collision → suffix with index</li>
+</ul>
+<hr>
+<h2 id="u-gac07-stale-graph-detector-mtime-hash-blocker"><a class="anchor" href="#u-gac07-stale-graph-detector-mtime-hash-blocker" aria-label="Permalink to U-GAC07 — Stale-graph detector (mtime + hash blocker)">#</a>U-GAC07 — Stale-graph detector (mtime + hash blocker)</h2>
+<ul>
+<li>pillar: graph</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 50</li>
+<li>leverage_score: 9</li>
+<li>why: agents using stale viz make wrong decisions; &gt;6h staleness blocks</li>
+<li>depends_on: [U-GAC01]</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-GAC06, U-GAC08]</li>
+<li>viz_node_id: <code>core.hooks.stalegraphguard</code> (TBD-create hook)</li>
+<li>closes_synergy_edge: hooks × system-viz (currently manual)</li>
+<li>loop_schedule: 1h (cron check)</li>
+</ul>
+<p>verifies_via:   channel: integration   tool: <code>touch -t 202001010000 state/shared/system-viz/system-graph.json &amp;&amp; node .claude/hooks/stale-graph-guard.mjs &lt;&lt;&lt; &#39;{&quot;tool_name&quot;:&quot;system_viz_query&quot;}&#39;</code>   expected_signal: stdout includes <code>&quot;decision&quot;:&quot;deny&quot;</code>   re_run_cost: 1s   baseline: no guard exists</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Write path: <code>.claude/hooks/stale-graph-guard.mjs</code> action: PreToolUse hook — if <code>system-graph.json</code> mtime &gt; 6h, return <code>{decision:&quot;deny&quot;,reason:&quot;stale graph&quot;}</code> verify: hook fires correctly with mocked old mtime</li>
+<li>step-2: tool: Edit path: <code>.claude/settings.json</code> action: register hook for system-viz-query matcher verify: <code>cat .claude/settings.json | jq &#39;.hooks.PreToolUse[]|select(.matcher|contains(&quot;system_viz&quot;))&#39;</code> non-empty</li>
+<li>step-3: tool: Bash path: <code>state/shared/system-viz/</code> action: install cron — every 1h check + auto-regen if stale verify: cron entry persists in <code>.claude/cron-registry.json</code></li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>mtime in the future</li>
+<li>file deleted entirely</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>1h / 6h / 24h threshold</li>
+<li>graceful-degrade / hard-block modes</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>clock skew → use file hash as secondary signal</li>
+<li>regen mid-query → retry once after regen completes</li>
+</ul>
+<hr>
+<h2 id="u-gac08-hallucinated-node-id-guard"><a class="anchor" href="#u-gac08-hallucinated-node-id-guard" aria-label="Permalink to U-GAC08 — Hallucinated-node-id guard">#</a>U-GAC08 — Hallucinated-node-id guard</h2>
+<ul>
+<li>pillar: graph</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 48</li>
+<li>leverage_score: 9</li>
+<li>why: agents emit fictional node-ids when context is incomplete; guard catches before action</li>
+<li>depends_on: [U-GAC01]</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-GAC06, U-GAC07]</li>
+<li>viz_node_id: <code>core.hooks.hallucinatednodeidguard</code> (TBD-create hook)</li>
+<li>closes_synergy_edge: hooks × system-viz</li>
+<li>loop_schedule: none</li>
+</ul>
+<p>verifies_via:   channel: test   tool: <code>node .claude/hooks/hallucinated-node-id-guard.mjs &lt;&lt;&lt; &#39;{&quot;tool_name&quot;:&quot;Bash&quot;,&quot;tool_input&quot;:{&quot;command&quot;:&quot;echo fake.node.id&quot;}}&#39;</code>   expected_signal: exit code 2 + stderr <code>unknown node-id</code>   re_run_cost: 0.5s   baseline: no guard</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Write path: <code>.claude/hooks/hallucinated-node-id-guard.mjs</code> action: load <code>system-graph.json</code> node-id set on startup, scan tool input for <code>eng.*</code>, <code>disp.*</code>, <code>core.*</code> patterns, deny if any not in set verify: hook runs with fake id → exit 2</li>
+<li>step-2: tool: Edit path: <code>.claude/settings.json</code> action: register on PreToolUse for all Bash/Edit/Write events verify: settings parse clean</li>
+<li>step-3: tool: Write path: <code>.claude/hooks/__tests__/hallucinated-node-id-guard.test.mjs</code> action: 5 tests — known id passes, unknown fails, no ids in input passes, malformed pattern handled, oversized input verify: 5 passed</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>node-id with regex-special chars</li>
+<li>1000 node-ids in single tool call</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>L4 / L5 / L8 / L11 layer patterns</li>
+<li>happy / unknown / mixed inputs</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>id-set load slow → cache for 5min</li>
+<li>false-positive on legitimate new node → soft-warn mode</li>
+<li>graph regen mid-check → reload + retry</li>
+</ul>
+<hr>
+<h2 id="x-closing-notes"><a class="anchor" href="#x-closing-notes" aria-label="Permalink to §X — Closing notes">#</a>§X — Closing notes</h2>
+<p><strong>Critical-path observation:</strong> U-GAC01 is the entry. Everything else fans out. Build U-GAC01 first, then U-GAC02/U-GAC03/U-GAC04 in parallel.</p>
+<p><strong>Cron registration to add at milestone close:</strong> <code>CronCreate &quot;7 * * * *&quot;</code> for U-GAC07 stale-graph check (off-minute).</p>
+<p><strong>Synergy edges closed by this milestone:</strong> 6 of the 56 &quot;none&quot; edges in <code>system-synergy-map.mjs</code> output (system-viz × handoffs, wiki × neural, engines × tribal, system-viz × subagents, handoffs × system-viz, hooks × system-viz).</p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="BACKEND-DEVTOOLS-RGS6-GRAPH-AS-LLM-CONTEXT-MS0-ATOMIZED-2026-05-10.md">BACKEND-DEVTOOLS-RGS6-GRAPH-AS-LLM-CONTEXT-MS0-ATOMIZED-2026-05-10.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

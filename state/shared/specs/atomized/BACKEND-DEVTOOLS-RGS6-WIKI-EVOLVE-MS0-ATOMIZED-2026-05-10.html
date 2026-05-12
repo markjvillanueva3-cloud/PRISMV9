@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="65f7cfac1bcb4f2b49ee33a7a082bca06cc4d0feecd60178037f2714697ceea1">
+<title>WIKI-EVOLVE-MS0</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">WIKI-EVOLVE-MS0</h1>
+<p class="provenance">Generated 2026-05-12T12:43:27.616Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#wiki-evolve-ms0-atomized-6-units">WIKI-EVOLVE-MS0 — atomized (6 units)</a></li>
+<li class="toc-l2"><a href="#u-wiki-fleeting-promote-memorywiki-promotion-engine-matuschak-evergreen-pattern">U-WIKI-FLEETING-PROMOTE — Memory→wiki promotion engine (Matuschak evergreen pattern)</a></li>
+<li class="toc-l2"><a href="#u-wiki-wayback-cron-archiveorg-snapshot-of-wiki-external-citations">U-WIKI-WAYBACK-CRON — Archive.org snapshot of wiki external citations</a></li>
+<li class="toc-l2"><a href="#u-wiki-rename-propagate-wiki-rename-propagation-engine">U-WIKI-RENAME-PROPAGATE — Wiki rename propagation engine</a></li>
+<li class="toc-l2"><a href="#u-wiki-moc-builder-moc-auto-builder-for-wiki-areas-nick-milo-pattern">U-WIKI-MOC-BUILDER — MOC auto-builder for wiki areas (Nick Milo pattern)</a></li>
+<li class="toc-l2"><a href="#u-claude-md-backflow-boris-back-flow-hook-regression-claudemd-recent-regressions">U-CLAUDE-MD-BACKFLOW — Boris back-flow hook (regression → CLAUDE.md §Recent regressions)</a></li>
+<li class="toc-l2"><a href="#u-todowrite-handoff-bridge-todowrite-handoff-state-bridge">U-TODOWRITE-HANDOFF-BRIDGE — TodoWrite ↔ handoff state bridge</a></li>
+<li class="toc-l2"><a href="#milestone-level-autonomous-execution-hooks-inherited-from-autonomous-execution-protocolmd-7">Milestone-level autonomous-execution hooks (inherited from AUTONOMOUS-EXECUTION-PROTOCOL.md §7)</a></li>
+<li class="toc-l2"><a href="#variability-axis-summary">Variability-axis summary</a></li>
+<li class="toc-l2"><a href="#failure-mode-summary">Failure-mode summary</a></li>
+<li class="toc-l2"><a href="#lane-ownership-commit-format">Lane ownership + commit format</a></li>
+<li class="toc-l2"><a href="#next-milestone-in-lane">Next milestone in lane</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<details class="frontmatter" open><summary>Document metadata</summary><div class="table-wrap"><table>
+<tbody>
+<tr><th scope="row">milestone</th><td>WIKI-EVOLVE-MS0</td></tr>
+<tr><th scope="row">parent_roadmap</th><td>BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-2026-05-10.md</td></tr>
+<tr><th scope="row">inherits_protocol</th><td>BACKEND-DEVTOOLS-RGS6-AUTONOMOUS-EXECUTION-PROTOCOL.md (§7 implicit)</td></tr>
+<tr><th scope="row">assigned_lane</th><td>lane-D-knowledge-vault</td></tr>
+<tr><th scope="row">commit_prefix</th><td>[lane-D-knowledge-vault][WIKI-EVOLVE-MS0]</td></tr>
+<tr><th scope="row">total_units</th><td>6</td></tr>
+<tr><th scope="row">critical_path_role</th><td>Karpathy compounding-wiki ritual — promotes fleeting/memory to wiki; Boris back-flow keeps CLAUDE.md current; TodoWrite ↔ handoff bridge keeps task surfaces unified</td></tr>
+<tr><th scope="row">loop_registrations</th><td>3 (fleeting-promote weekly, claude-md-backflow daily, wiki-rename-propagate on-event)</td></tr>
+<tr><th scope="row">date</th><td>2026-05-10</td></tr>
+</tbody>
+</table></div></details>
+<h1 id="wiki-evolve-ms0-atomized-6-units"><a class="anchor" href="#wiki-evolve-ms0-atomized-6-units" aria-label="Permalink to WIKI-EVOLVE-MS0 — atomized (6 units)">#</a>WIKI-EVOLVE-MS0 — atomized (6 units)</h1>
+<blockquote>
+<p>Compounding wiki ritual. The wiki should grow more useful every week, not rot. Promotion rituals (memory → wiki), back-flow rituals (regression → CLAUDE.md), rename-propagation, MOC discoverability, and TodoWrite↔handoff bridging are the maintenance backbone. Lane-D continues here after OBSIDIAN-COMPOUND-MS1.</p>
+</blockquote>
+<hr>
+<h2 id="u-wiki-fleeting-promote-memorywiki-promotion-engine-matuschak-evergreen-pattern"><a class="anchor" href="#u-wiki-fleeting-promote-memorywiki-promotion-engine-matuschak-evergreen-pattern" aria-label="Permalink to U-WIKI-FLEETING-PROMOTE — Memory→wiki promotion engine (Matuschak evergreen pattern)">#</a>U-WIKI-FLEETING-PROMOTE — Memory→wiki promotion engine (Matuschak evergreen pattern)</h2>
+<ul>
+<li>pillar: knowledge</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 78</li>
+<li>leverage_score: 12</li>
+<li>why: PRISM memories tagged &quot;permanent&quot; should compound into the wiki as evergreen entries; otherwise insights stay siloed per-chat; this is the same idea as U-VAULT02 but operates on <code>memory/</code> not the obsidian vault</li>
+<li>depends_on: []</li>
+<li>blocks: [U-WIKI-MOC-BUILDER (for newly-promoted entries)]</li>
+<li>parallel_with: [U-WIKI-WAYBACK-CRON, U-WIKI-RENAME-PROPAGATE, U-CLAUDE-MD-BACKFLOW, U-TODOWRITE-HANDOFF-BRIDGE]</li>
+<li>viz_node_id: <code>core.engine.memorywikipromotion</code> (TBD-create)</li>
+<li>closes_synergy_edge: memory × wiki</li>
+<li>loop_schedule: weekly (cron <code>0 8 * * 1</code>)</li>
+</ul>
+<p>verifies_via:   channel: e2e   tool: <code>node scripts/memory-promote.mjs --dry-run</code>   expected_signal: lists ≥1 promotion candidate; on real run, wiki entry materialized at expected path   re_run_cost: 5s   baseline: zero automated promotions today</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Read path: <code>C:/Users/wompu/.claude/projects/H--prism/memory/MEMORY.md</code> action: confirm pointer-style index format verify: ≥3 entries in pointer style</li>
+<li>step-2: tool: Write path: <code>mcp-server/src/engines/MemoryWikiPromotionEngine.ts</code> action: implement <code>findCandidates()</code> (memories tagged <code>promote:wiki</code> or <code>type: reference</code> with <code>permanent:true</code>), <code>promote(candidate)</code> (materialize <code>knowledge/wiki/&lt;area&gt;/&lt;slug&gt;.md</code> with frontmatter, append to wiki index) verify: tsc clean</li>
+<li>step-3: tool: Write path: <code>mcp-server/src/__tests__/MemoryWikiPromotionEngine.test.ts</code> action: 5 cases (happy, already-promoted, slug collision, malformed frontmatter, ambiguous area) verify: 5/5 pass</li>
+<li>step-4: tool: Write path: <code>scripts/memory-promote.mjs</code> action: CLI wrapper with <code>--dry-run</code>, <code>--limit N</code> verify: dry-run lists ≥1 candidate</li>
+<li>step-5: tool: Bash path: <code>H:/prism/</code> action: register cron weekly verify: registry contains entry</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>candidate slug collides with existing wiki entry → require user merge, log conflict</li>
+<li>memory file references another not-yet-promoted memory → defer to next pass</li>
+<li>100 candidates in one run → cap at 10 promotions per run</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>0 / 5 / 100 candidates per pass</li>
+<li>first-time vs recurring (most candidates already promoted)</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>wiki index file locked by another chat → file-claim-guard handles</li>
+<li>candidate has malformed frontmatter → log + skip + flag for manual review</li>
+<li>cron registry write race → file-claim lock</li>
+</ul>
+<hr>
+<h2 id="u-wiki-wayback-cron-archiveorg-snapshot-of-wiki-external-citations"><a class="anchor" href="#u-wiki-wayback-cron-archiveorg-snapshot-of-wiki-external-citations" aria-label="Permalink to U-WIKI-WAYBACK-CRON — Archive.org snapshot of wiki external citations">#</a>U-WIKI-WAYBACK-CRON — Archive.org snapshot of wiki external citations</h2>
+<ul>
+<li>pillar: knowledge</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 60</li>
+<li>leverage_score: 10</li>
+<li>why: wiki entries cite ~hundreds of external URLs; without archival, link-rot silently degrades provenance. This is the wiki-scoped counterpart to OBSIDIAN-COMPOUND-MS1::U-OB-6 (which archives research cards)</li>
+<li>depends_on: []</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-WIKI-FLEETING-PROMOTE, U-WIKI-RENAME-PROPAGATE, U-WIKI-MOC-BUILDER, U-CLAUDE-MD-BACKFLOW, U-TODOWRITE-HANDOFF-BRIDGE]</li>
+<li>viz_node_id: <code>core.script.wikiwaybackcron</code> (TBD-create)</li>
+<li>closes_synergy_edge: wiki × archival</li>
+<li>loop_schedule: 24h (cron <code>15 2 * * *</code>)</li>
+</ul>
+<p>verifies_via:   channel: e2e   tool: <code>node scripts/wiki-wayback.mjs --source knowledge/wiki/</code>   expected_signal: archives all newly-cited URLs; existing URLs skipped   re_run_cost: 30s per new URL (rate-limited)   baseline: no archival of wiki citations</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Grep path: <code>knowledge/wiki/</code> action: extract all <code>https?://</code> URLs verify: ≥100 URLs (we have 722 wiki entries with regular external refs)</li>
+<li>step-2: tool: Write path: <code>scripts/wiki-wayback.mjs</code> action: reuse U-OB-6&#39;s archive engine if shipped, else port the same logic; write to <code>state/shared/wiki-wayback-index.json</code> verify: dry-run prints plan</li>
+<li>step-3: tool: Write path: <code>state/shared/wiki-wayback-index.json</code> action: initialize schema verify: valid JSON</li>
+<li>step-4: tool: Bash path: <code>H:/prism/</code> action: cron register <code>15 2 * * *</code> (offset 15min from OBSIDIAN-COMPOUND&#39;s wayback to avoid rate-limit collision) verify: registry contains entry</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>wayback 429 → backoff, defer</li>
+<li>URL behind paywall (403) → record <code>unarchivable</code></li>
+<li>rapid wiki growth (1000 new URLs in a week) → batch over multiple nights</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>0 / 100 / 10000 unique URLs</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>wayback unreachable → defer batch to next night</li>
+<li>JSON write race → atomic rename</li>
+<li>duplicate URL → dedup by hash</li>
+</ul>
+<hr>
+<h2 id="u-wiki-rename-propagate-wiki-rename-propagation-engine"><a class="anchor" href="#u-wiki-rename-propagate-wiki-rename-propagation-engine" aria-label="Permalink to U-WIKI-RENAME-PROPAGATE — Wiki rename propagation engine">#</a>U-WIKI-RENAME-PROPAGATE — Wiki rename propagation engine</h2>
+<ul>
+<li>pillar: knowledge</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 65</li>
+<li>leverage_score: 10</li>
+<li>why: when a wiki entry is renamed (e.g. <code>kienzle.md</code> → <code>kienzle-mechanistic-model.md</code>) all references in other wiki entries, CLAUDE.md, code comments, and MOC files must update — manual upkeep fails within 3 renames</li>
+<li>depends_on: []</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-WIKI-FLEETING-PROMOTE, U-WIKI-WAYBACK-CRON, U-WIKI-MOC-BUILDER, U-CLAUDE-MD-BACKFLOW, U-TODOWRITE-HANDOFF-BRIDGE]</li>
+<li>viz_node_id: <code>core.engine.wikirenamepropagate</code> (TBD-create)</li>
+<li>closes_synergy_edge: wiki × cross-ref integrity</li>
+<li>loop_schedule: on-event (git pre-commit hook + manual invocation)</li>
+</ul>
+<p>verifies_via:   channel: e2e   tool: rename a test wiki entry then <code>node scripts/wiki-rename-propagate.mjs --from old --to new --dry-run</code>   expected_signal: lists every file referencing the old name with planned updates   re_run_cost: 8s scan   baseline: renames break refs silently today</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Write path: <code>mcp-server/src/engines/WikiRenamePropagateEngine.ts</code> action: implement <code>findReferences(oldName)</code> (grep over <code>knowledge/wiki/</code>, <code>H:/prism/CLAUDE.md</code>, <code>mcp-server/src/</code>, <code>state/shared/</code>), <code>applyRename(oldName, newName)</code> (perform safe edits respecting markdown link syntax + heading anchors) verify: tsc clean</li>
+<li>step-2: tool: Write path: <code>mcp-server/src/__tests__/WikiRenamePropagateEngine.test.ts</code> action: 5 cases (happy markdown links, code-comment refs, frontmatter cross-refs, no-references-found, ambiguous partial-name match) verify: 5/5 pass</li>
+<li>step-3: tool: Write path: <code>scripts/wiki-rename-propagate.mjs</code> action: CLI <code>--from</code>, <code>--to</code>, <code>--dry-run</code>, <code>--apply</code> verify: dry-run on fixture rename lists changes</li>
+<li>step-4: tool: Write path: <code>.claude/hooks/wiki-rename-pre-commit.mjs</code> action: hook — when commit message includes <code>[WIKI-RENAME]</code>, refuse if propagation log empty (must run script first) verify: hook fires on synthetic commit message</li>
+<li>step-5: tool: Edit path: <code>.claude/settings.json</code> action: register the new hook (PreCommit-equivalent or Stop) verify: <code>verify-hook-refs --self-test</code> passes</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>old name is a common word (e.g. <code>force</code>) → require <code>--exact</code> flag</li>
+<li>rename target collides with existing entry → refuse</li>
+<li>circular rename (A→B, B→A in same run) → process serially, log warning</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>0 / 10 / 1000 references</li>
+<li>ASCII / unicode / regex-special chars in names</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>grep across codebase OOM → cap files-per-grep, stream</li>
+<li>safe-edit fails (file unwritable) → roll back partial edits</li>
+<li>hook bypass attempt → hook is HARD-BLOCK</li>
+</ul>
+<hr>
+<h2 id="u-wiki-moc-builder-moc-auto-builder-for-wiki-areas-nick-milo-pattern"><a class="anchor" href="#u-wiki-moc-builder-moc-auto-builder-for-wiki-areas-nick-milo-pattern" aria-label="Permalink to U-WIKI-MOC-BUILDER — MOC auto-builder for wiki areas (Nick Milo pattern)">#</a>U-WIKI-MOC-BUILDER — MOC auto-builder for wiki areas (Nick Milo pattern)</h2>
+<ul>
+<li>pillar: knowledge</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 60</li>
+<li>leverage_score: 10</li>
+<li>why: 722 wiki entries are unwieldy without area-MOCs; auto-build keeps navigation maintained without manual upkeep. Counterpart to OBSIDIAN-COMPOUND-MS1::U-OB-4 (which targets the obsidian vault); this one operates on <code>knowledge/wiki/</code></li>
+<li>depends_on: [U-WIKI-FLEETING-PROMOTE]</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-WIKI-WAYBACK-CRON, U-WIKI-RENAME-PROPAGATE, U-CLAUDE-MD-BACKFLOW, U-TODOWRITE-HANDOFF-BRIDGE]</li>
+<li>viz_node_id: <code>core.engine.wikimocbuilder</code> (TBD-create)</li>
+<li>closes_synergy_edge: wiki × navigation</li>
+<li>loop_schedule: daily (cron <code>30 5 * * *</code>)</li>
+</ul>
+<p>verifies_via:   channel: e2e   tool: <code>node scripts/wiki-moc-builder.mjs --area Manufacturing</code>   expected_signal: writes <code>knowledge/wiki/_moc/manufacturing.md</code> listing entries grouped by sub-domain   re_run_cost: 6s   baseline: no MOCs in wiki</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Read path: <code>knowledge/wiki/index.md</code> action: confirm entry frontmatter has <code>area:</code> or domain tag verify: ≥5 distinct areas inferred</li>
+<li>step-2: tool: Write path: <code>mcp-server/src/engines/WikiMOCBuilderEngine.ts</code> action: implement <code>buildMOC(area)</code> → <code>knowledge/wiki/_moc/&lt;area&gt;.md</code> with frontmatter <code>type: moc, area: &lt;area&gt;</code> and grouped link list verify: tsc clean</li>
+<li>step-3: tool: Write path: <code>mcp-server/src/__tests__/WikiMOCBuilderEngine.test.ts</code> action: 5 cases (happy area, empty area, area with 500 entries, unicode area name, area with sub-domain hint) verify: 5/5 pass</li>
+<li>step-4: tool: Write path: <code>scripts/wiki-moc-builder.mjs</code> action: CLI wrapper; default iterates all known areas verify: smoke run on <code>Manufacturing</code> produces non-empty MOC</li>
+<li>step-5: tool: Bash path: <code>H:/prism/</code> action: cron register daily verify: registry contains entry</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>500 entries in one area → cap 200 per MOC, link continuation</li>
+<li>unicode area names → safe filename escape</li>
+<li>area-tag missing on entries → infer from path segment</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>0 / 10 / 1000 entries per area</li>
+<li>1 / 10 / 50 distinct areas</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>filesystem write race → file-claim</li>
+<li>OOM on 5000 entries → stream-write</li>
+<li>heuristic mis-grouping → log warning, do not block</li>
+</ul>
+<hr>
+<h2 id="u-claude-md-backflow-boris-back-flow-hook-regression-claudemd-recent-regressions"><a class="anchor" href="#u-claude-md-backflow-boris-back-flow-hook-regression-claudemd-recent-regressions" aria-label="Permalink to U-CLAUDE-MD-BACKFLOW — Boris back-flow hook (regression → CLAUDE.md §Recent regressions)">#</a>U-CLAUDE-MD-BACKFLOW — Boris back-flow hook (regression → CLAUDE.md §Recent regressions)</h2>
+<ul>
+<li>pillar: knowledge</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 75</li>
+<li>leverage_score: 12</li>
+<li>why: Boris Cherny doctrine — when a regression is detected the durable learning belongs in CLAUDE.md so future sessions see it on every load; PRISM has a regression-hunter agent but no auto-append back-flow</li>
+<li>depends_on: []</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-WIKI-FLEETING-PROMOTE, U-WIKI-WAYBACK-CRON, U-WIKI-RENAME-PROPAGATE, U-WIKI-MOC-BUILDER, U-TODOWRITE-HANDOFF-BRIDGE]</li>
+<li>viz_node_id: <code>core.hook.claudemdbackflow</code> (TBD-create)</li>
+<li>closes_synergy_edge: regression-hunter × CLAUDE.md</li>
+<li>loop_schedule: on-event (regression-hunter agent post-run)</li>
+</ul>
+<p>verifies_via:   channel: e2e   tool: synthetic regression-hunter output → <code>node .claude/hooks/claude-md-backflow.mjs --post</code> → verify <code>CLAUDE.md</code> updated   expected_signal: §Recent regressions section gains one entry; commit message of the change cites the source incident   re_run_cost: 1s   baseline: regressions are discussed in chat then forgotten</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Read path: <code>H:/prism/CLAUDE.md</code> action: confirm or add <code>## Recent regressions (auto-managed)</code> section anchor verify: anchor present, cap explicit (e.g. last 10 entries)</li>
+<li>step-2: tool: Write path: <code>.claude/hooks/claude-md-backflow.mjs</code> action: hook that consumes regression-hunter JSON output and appends a 2-line entry under the section (header <code>### YYYY-MM-DD &lt;slug&gt;</code>, body <code>**Cause:** ... **Guard:** ...</code>); evict oldest beyond cap verify: hook self-test passes</li>
+<li>step-3: tool: Edit path: <code>.claude/settings.json</code> action: register the hook on appropriate event (SubagentStop for regression-hunter) verify: <code>verify-hook-refs --self-test</code> passes</li>
+<li>step-4: tool: Bash path: <code>H:/prism/</code> action: synthetic regression-hunter JSON via fixture; hook fires; verify CLAUDE.md change verify: diff shows expected append</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>regression-hunter output malformed → hook validates schema, refuses partial append</li>
+<li>duplicate regression already in CLAUDE.md → dedup by cause-hash</li>
+<li>section grows unbounded → cap at last 10 entries; evict to <code>state/shared/regression-archive.md</code></li>
+<li>CLAUDE.md edited concurrently → file-claim guard handles</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>0 / 5 / 50 regressions per month</li>
+<li>similar / divergent cause patterns</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>hook write race → file-claim</li>
+<li>schema drift in regression-hunter output → schema-validate, fall back to no-op</li>
+<li>cap-eviction archive write fails → log, keep CLAUDE.md untouched (better than corruption)</li>
+</ul>
+<hr>
+<h2 id="u-todowrite-handoff-bridge-todowrite-handoff-state-bridge"><a class="anchor" href="#u-todowrite-handoff-bridge-todowrite-handoff-state-bridge" aria-label="Permalink to U-TODOWRITE-HANDOFF-BRIDGE — TodoWrite ↔ handoff state bridge">#</a>U-TODOWRITE-HANDOFF-BRIDGE — TodoWrite ↔ handoff state bridge</h2>
+<ul>
+<li>pillar: knowledge</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 65</li>
+<li>leverage_score: 11</li>
+<li>why: TodoWrite tasks are session-local; per-agent handoff is cross-session; without a bridge, in-progress tasks at compact time are lost from continuity. This bridge serializes in_progress tasks into handoff <code>--state</code> automatically</li>
+<li>depends_on: []</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-WIKI-FLEETING-PROMOTE, U-WIKI-WAYBACK-CRON, U-WIKI-RENAME-PROPAGATE, U-WIKI-MOC-BUILDER, U-CLAUDE-MD-BACKFLOW]</li>
+<li>viz_node_id: <code>core.helper.todohandoffbridge</code> (TBD-create)</li>
+<li>closes_synergy_edge: TodoWrite × handoff</li>
+</ul>
+<p>verifies_via:   channel: e2e   tool: create 3 todos (1 in_progress, 1 pending, 1 completed) → <code>/precompact</code> → verify resulting <code>HANDOFF-*.md</code> <code>--state</code> body lists in_progress + pending   expected_signal: handoff <code>--state</code> includes the 2 unfinished tasks (in_progress + pending)   re_run_cost: 4s   baseline: handoff <code>--state</code> is written by hand each time; tasks drop silently</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Read path: <code>.claude/helpers/per-agent-handoff.mjs</code> action: confirm <code>write --state &lt;body&gt;</code> accepts arbitrary markdown verify: confirmed</li>
+<li>step-2: tool: Write path: <code>.claude/helpers/todowrite-handoff-bridge.mjs</code> action: helper that reads current session&#39;s TodoList, filters non-completed, formats as markdown bullets, returns string verify: smoke run returns formatted block</li>
+<li>step-3: tool: Edit path: <code>.claude/helpers/precompact-handoff.mjs</code> action: invoke bridge to compose <code>--state</code> body if not provided explicitly verify: synthetic precompact run produces handoff with task block</li>
+<li>step-4: tool: Write path: <code>mcp-server/src/__tests__/todowrite-handoff-bridge.test.ts</code> action: 5 cases (all-pending, all-completed, mixed, empty, unicode subject) verify: 5/5 pass</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>TodoList endpoint unavailable → bridge returns empty block + warning</li>
+<li>500 tasks in list → cap render at 50 with <code>... +N more</code> footer</li>
+<li>in_progress task with stale activeForm → render activeForm raw</li>
+<li>precompact concurrent fires → file-claim on handoff path</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>0 / 10 / 500 tasks</li>
+<li>all-completed vs all-pending</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>TodoList API change → bridge schema-validates, falls back to empty block</li>
+<li>handoff path concurrent write → file-claim</li>
+<li>bridge throws → precompact-handoff catches and continues with manual <code>--state</code> if provided</li>
+</ul>
+<hr>
+<h2 id="milestone-level-autonomous-execution-hooks-inherited-from-autonomous-execution-protocolmd-7"><a class="anchor" href="#milestone-level-autonomous-execution-hooks-inherited-from-autonomous-execution-protocolmd-7" aria-label="Permalink to Milestone-level autonomous-execution hooks (inherited from AUTONOMOUS-EXECUTION-PROTOCOL.md §7)">#</a>Milestone-level autonomous-execution hooks (inherited from AUTONOMOUS-EXECUTION-PROTOCOL.md §7)</h2>
+<ul>
+<li>pre-unit: <code>prism_session:claim_milestone WIKI-EVOLVE-MS0</code></li>
+<li>per-unit-pre: <code>file-claim-guard</code> (wiki index frequent contention) + <code>duplication-hard-block</code></li>
+<li>per-unit-post: <code>comprehensive-build-enforce</code> + <code>stop_on_unwired_assets</code></li>
+<li>per-3-units: auto-compact threshold check</li>
+<li>per-milestone-end: <code>/handoff</code> writes <code>HANDOFF-&lt;id&gt;-WIKI-EVOLVE-MS0.md</code></li>
+</ul>
+<h2 id="variability-axis-summary"><a class="anchor" href="#variability-axis-summary" aria-label="Permalink to Variability-axis summary">#</a>Variability-axis summary</h2>
+<p>zero-state, mid-scale, heavy-volume covered. Failure-mode in each unit specifies graceful degradation (skip/warn/log) rather than crash. Race-on-shared-files (wiki index, CLAUDE.md, handoff state) addressed via file-claim-guard across all six.</p>
+<h2 id="failure-mode-summary"><a class="anchor" href="#failure-mode-summary" aria-label="Permalink to Failure-mode summary">#</a>Failure-mode summary</h2>
+<p>Common patterns across the six units:</p>
+<ul>
+<li>File contention → file-claim-guard</li>
+<li>Schema drift → schema-validate, graceful skip</li>
+<li>Resource limit (OOM, rate-limit) → batch + backoff</li>
+<li>Concurrent fires → file-claim or atomic-rename</li>
+<li>Adversarial input (collision, ambiguous match, malformed) → reject with clear code, log to dedicated channel</li>
+</ul>
+<h2 id="lane-ownership-commit-format"><a class="anchor" href="#lane-ownership-commit-format" aria-label="Permalink to Lane ownership + commit format">#</a>Lane ownership + commit format</h2>
+<ul>
+<li>Lane: lane-D-knowledge-vault</li>
+<li>Commit format: <code>[lane-D-knowledge-vault][WIKI-EVOLVE-MS0]/&lt;U-id&gt;: &lt;title&gt;</code></li>
+<li>Worktree (if forked): <code>H:/prism-wiki-evolve/</code> (branch <code>work/wiki-evolve-ms0</code>)</li>
+</ul>
+<h2 id="next-milestone-in-lane"><a class="anchor" href="#next-milestone-in-lane" aria-label="Permalink to Next milestone in lane">#</a>Next milestone in lane</h2>
+<p>KNOWLEDGE-VAULT-MS0 (lane-D&#39;s terminal milestone).</p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="BACKEND-DEVTOOLS-RGS6-WIKI-EVOLVE-MS0-ATOMIZED-2026-05-10.md">BACKEND-DEVTOOLS-RGS6-WIKI-EVOLVE-MS0-ATOMIZED-2026-05-10.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

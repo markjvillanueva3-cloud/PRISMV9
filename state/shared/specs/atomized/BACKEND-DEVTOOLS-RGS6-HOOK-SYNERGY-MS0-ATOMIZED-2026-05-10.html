@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="a01fe961390e48c74e2fb2568b23c0f2701de1c9e70ecc2cafa69f8f98545d52">
+<title>HOOK-SYNERGY-MS0 (extended)</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">HOOK-SYNERGY-MS0 (extended)</h1>
+<p class="provenance">Generated 2026-05-12T12:43:27.326Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#hook-synergy-ms0-atomized-extended-via-audit-4-patches">HOOK-SYNERGY-MS0 — atomized (extended via audit §4 patches)</a></li>
+<li class="toc-l2"><a href="#u-h10-build-scriptsverify-hook-refsmjs-new-sub-unit-per-audit-finding-1">U-H1.0 — Build scripts/verify-hook-refs.mjs (new sub-unit per audit Finding 1)</a></li>
+<li class="toc-l2"><a href="#u-h1-generate-hook_registryjson-from-claudehooksmjs">U-H1 — Generate HOOK_REGISTRY.json from .claude/hooks/*.mjs</a></li>
+<li class="toc-l2"><a href="#u-h2-convert-5-highest-fire-warn-style-hooks-deterministic-autofix">U-H2 — Convert 5 highest-fire warn-style hooks → deterministic autofix</a></li>
+<li class="toc-l2"><a href="#u-h3-settings-dedup-pass-inline-node-e-grep-until-script-lands">U-H3 — Settings-dedup pass (inline node -e grep until script lands)</a></li>
+<li class="toc-l2"><a href="#u-h4-taskcreated-claim-guard">U-H4 — TaskCreated claim guard</a></li>
+<li class="toc-l2"><a href="#u-h5-posttoolbatch-budget-ceiling-hook">U-H5 — PostToolBatch budget ceiling hook</a></li>
+<li class="toc-l2"><a href="#u-h6-cross-worktree-firewall-the-k2-unlocker">U-H6 — Cross-worktree firewall (THE K2 unlocker)</a></li>
+<li class="toc-l2"><a href="#u-h7-boris-style-defer-decision-wired-into-pretooluse">U-H7 — Boris-style defer decision wired into PreToolUse</a></li>
+<li class="toc-l2"><a href="#x-closing-notes">§X — Closing notes</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<details class="frontmatter" open><summary>Document metadata</summary><div class="table-wrap"><table>
+<tbody>
+<tr><th scope="row">milestone</th><td>HOOK-SYNERGY-MS0 (extended)</td></tr>
+<tr><th scope="row">parent_roadmap</th><td>BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-2026-05-10.md</td></tr>
+<tr><th scope="row">inherits_protocol</th><td>BACKEND-DEVTOOLS-RGS6-AUTONOMOUS-EXECUTION-PROTOCOL.md (§7 implicit)</td></tr>
+<tr><th scope="row">assigned_lane</th><td>lane-A-hooks-foundation</td></tr>
+<tr><th scope="row">commit_prefix</th><td>[lane-A-hooks-foundation][HOOK-SYNERGY-MS0]</td></tr>
+<tr><th scope="row">total_units</th><td>8</td></tr>
+<tr><th scope="row">critical_path_role</th><td>H1 + H6 unblock K2-CLOUD&#39;s edits to AISystemRouterEngine.ts (the K2 unlocker)</td></tr>
+<tr><th scope="row">loop_registrations</th><td>2 (verify-hook-refs 30min, settings-dedup 6h)</td></tr>
+<tr><th scope="row">date</th><td>2026-05-10</td></tr>
+</tbody>
+</table></div></details>
+<h1 id="hook-synergy-ms0-atomized-extended-via-audit-4-patches"><a class="anchor" href="#hook-synergy-ms0-atomized-extended-via-audit-4-patches" aria-label="Permalink to HOOK-SYNERGY-MS0 — atomized (extended via audit §4 patches)">#</a>HOOK-SYNERGY-MS0 — atomized (extended via audit §4 patches)</h1>
+<blockquote>
+<p>Foundation milestone. Without H1+H6, K2-CLOUD&#39;s edits get reverted before commit. Lane-A owns this — first wave shipped before any other milestone starts.</p>
+</blockquote>
+<hr>
+<h2 id="u-h10-build-scriptsverify-hook-refsmjs-new-sub-unit-per-audit-finding-1"><a class="anchor" href="#u-h10-build-scriptsverify-hook-refsmjs-new-sub-unit-per-audit-finding-1" aria-label="Permalink to U-H1.0 — Build scripts/verify-hook-refs.mjs (new sub-unit per audit Finding 1)">#</a>U-H1.0 — Build <code>scripts/verify-hook-refs.mjs</code> (new sub-unit per audit Finding 1)</h2>
+<ul>
+<li>pillar: hook</li>
+<li>tier: T0</li>
+<li>ai_priority_score: 78</li>
+<li>leverage_score: 14</li>
+<li>why: H1 verify channel was aspirational; this script makes it real</li>
+<li>depends_on: []</li>
+<li>blocks: [U-H1]</li>
+<li>parallel_with: [U-H2, U-H3, U-H5, U-H7]</li>
+<li>viz_node_id: <code>core.script.verifyhookrefs</code> (TBD-create)</li>
+<li>closes_synergy_edge: hooks × settings</li>
+<li>loop_schedule: 30min</li>
+</ul>
+<p>verifies_via:   channel: test   tool: <code>node scripts/verify-hook-refs.mjs --self-test</code>   expected_signal: exit 0 (<code>all references resolve, no duplicates</code>)   re_run_cost: 2s   baseline: script does not exist</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Read path: <code>.claude/settings.json</code> action: confirm hooks block structure (PreToolUse / PostToolUse / Stop / UserPromptSubmit / PreCompact arrays) verify: file readable, top-level &quot;hooks&quot; key present</li>
+<li>step-2: tool: Write path: <code>scripts/verify-hook-refs.mjs</code> action: parse settings.json hooks → for each entry&#39;s <code>command</code> field extract referenced script path → ls; emit <code>{resolved:N, missing:[paths], duplicates:[entries]}</code>; exit 0 only if missing=[] and duplicates=[] verify: file exists, runs without error</li>
+<li>step-3: tool: Bash path: <code>H:/prism/</code> action: smoke run + self-test mode verify: <code>node scripts/verify-hook-refs.mjs --self-test 2&gt;&amp;1</code> exits 0</li>
+<li>step-4: tool: Bash path: <code>H:/prism/</code> action: register cron <code>*/30 * * * *</code> verify: <code>cat .claude/cron-registry.json</code> includes entry</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>settings.json malformed (bad JSON)</li>
+<li>referenced script path uses env-var (e.g. <code>$HOME</code>)</li>
+<li>circular hook chain (hook calls another hook)</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>0 / 50 / 500 hooks in settings</li>
+<li>all-resolve / some-missing / all-duplicate</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>settings.json missing → exit 1 with clear message</li>
+<li>script path env-var → expand before ls, fall back to literal</li>
+<li>permission denied on referenced script → flag as warning not error</li>
+</ul>
+<hr>
+<h2 id="u-h1-generate-hook_registryjson-from-claudehooksmjs"><a class="anchor" href="#u-h1-generate-hook_registryjson-from-claudehooksmjs" aria-label="Permalink to U-H1 — Generate HOOK_REGISTRY.json from .claude/hooks/*.mjs">#</a>U-H1 — Generate <code>HOOK_REGISTRY.json</code> from <code>.claude/hooks/*.mjs</code></h2>
+<ul>
+<li>pillar: hook</li>
+<li>tier: T0</li>
+<li>ai_priority_score: 75</li>
+<li>leverage_score: 13</li>
+<li>why: settings.json scatters hook references; single canonical registry simplifies audit</li>
+<li>depends_on: [U-H1.0]</li>
+<li>blocks: [U-H6]</li>
+<li>parallel_with: [U-H2, U-H3]</li>
+<li>viz_node_id: <code>fs.deep.state.shared.f.hook_registry_json</code> (TBD-create)</li>
+<li>closes_synergy_edge: hooks × index</li>
+<li>loop_schedule: per-commit (regen on hook change)</li>
+</ul>
+<p>verifies_via:   channel: test   tool: <code>node scripts/verify-hook-refs.mjs</code> (now that script exists)   expected_signal: exit 0   re_run_cost: 2s   baseline: 0 (no registry)</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Glob pattern: <code>.claude/hooks/*.mjs</code> action: enumerate all hook source files verify: ≥ 50 hooks discovered</li>
+<li>step-2: tool: Write path: <code>scripts/build-hook-registry.mjs</code> action: scan hook files → extract metadata (event, matcher, command, description from header comment) → emit <code>state/shared/HOOK_REGISTRY.json</code> verify: script runs</li>
+<li>step-3: tool: Bash path: <code>H:/prism/</code> action: run registry builder verify: <code>ls state/shared/HOOK_REGISTRY.json</code> exists, JSON parses</li>
+<li>step-4: tool: Edit path: <code>.claude/settings.json</code> action: add post-edit hook on <code>.claude/hooks/*.mjs</code> to auto-regen registry verify: parse clean</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>hook file without metadata header</li>
+<li>1000 hooks (performance)</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>PreToolUse / PostToolUse / Stop / UserPromptSubmit / PreCompact events</li>
+<li>command / http / mcp_tool hook types (2.1.89)</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>missing metadata → infer from filename, flag for review</li>
+<li>file unreadable → skip + log</li>
+<li>registry corrupt → restore from <code>.previous.json</code> backup</li>
+</ul>
+<hr>
+<h2 id="u-h2-convert-5-highest-fire-warn-style-hooks-deterministic-autofix"><a class="anchor" href="#u-h2-convert-5-highest-fire-warn-style-hooks-deterministic-autofix" aria-label="Permalink to U-H2 — Convert 5 highest-fire warn-style hooks → deterministic autofix">#</a>U-H2 — Convert 5 highest-fire warn-style hooks → deterministic autofix</h2>
+<ul>
+<li>pillar: hook</li>
+<li>tier: T0</li>
+<li>ai_priority_score: 70</li>
+<li>leverage_score: 12</li>
+<li>why: warn-style suggestions get ignored; autofix removes the bug class entirely</li>
+<li>depends_on: []</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-H1, U-H3, U-H4]</li>
+<li>viz_node_id: <code>core.hooks.autofix_top5</code> (TBD-create)</li>
+<li>closes_synergy_edge: hooks × fix</li>
+<li>loop_schedule: 7d (recompute top-5 from telemetry)</li>
+</ul>
+<p>verifies_via:   channel: metric   tool: tail telemetry, count autofix vs warn fires   expected_signal: autofix:warn ratio ≥ 5:1 for the 5 converted hooks   re_run_cost: 5min observation   baseline: 0:N (all warn)</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Bash path: <code>H:/prism/</code> action: identify top-5 warn hooks from telemetry verify: <code>node -e &quot;...&quot;</code> queries <code>state/shared/pipeline-telemetry.jsonl</code> (or equivalent)</li>
+<li>step-2: tool: Edit path: <code>.claude/hooks/&lt;top-1&gt;.mjs</code> action: rewrite to perform the fix deterministically (e.g. auto-quote shell args instead of warning) verify: hook runs autonomously</li>
+<li>step-3..7: repeat for top-2..5</li>
+<li>step-8: tool: Write path: <code>.claude/hooks/__tests__/&lt;each&gt;.test.mjs</code> action: 3 tests each — happy fix, edge case, adversarial verify: tests pass</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>autofix changes user intent</li>
+<li>autofix loops infinitely</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>top-5 hooks fire counts (sampled from telemetry)</li>
+<li>per-domain coverage (manufacturing / dev-tools / etc)</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>autofix wrong → escape hatch <code>[NO-AUTOFIX]</code> user phrase</li>
+<li>infinite loop → max-applications counter per session</li>
+<li>destructive fix → require user confirmation for hard cases</li>
+</ul>
+<hr>
+<h2 id="u-h3-settings-dedup-pass-inline-node-e-grep-until-script-lands"><a class="anchor" href="#u-h3-settings-dedup-pass-inline-node-e-grep-until-script-lands" aria-label="Permalink to U-H3 — Settings-dedup pass (inline node -e grep until script lands)">#</a>U-H3 — Settings-dedup pass (inline <code>node -e</code> grep until script lands)</h2>
+<ul>
+<li>pillar: hook</li>
+<li>tier: T0</li>
+<li>ai_priority_score: 68</li>
+<li>leverage_score: 11</li>
+<li>why: duplicate hooks slow startup + cause double-fire bugs</li>
+<li>depends_on: []</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-H1, U-H2, U-H4]</li>
+<li>viz_node_id: <code>core.script.auditsettingsdedup</code> (TBD-create after U-H3.1)</li>
+<li>closes_synergy_edge: settings × dedup</li>
+<li>loop_schedule: 6h</li>
+</ul>
+<p>verifies_via:   channel: test   tool: inline <code>node -e &quot;const j=require(&#39;./.claude/settings.json&#39;);const seen={};let dup=0;for(const ev of Object.keys(j.hooks||{}))for(const h of j.hooks[ev]||[])for(const c of h.hooks||[]){const k=ev+&#39;:&#39;+(c.command||&#39;&#39;);if(seen[k])dup++;seen[k]=1}console.log(&#39;dup&#39;,dup)&quot;</code>   expected_signal: <code>dup 0</code>   re_run_cost: 1s   baseline: unknown (TBD measure)</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Bash path: <code>H:/prism/</code> action: inline dedup measurement verify: count printed</li>
+<li>step-2: tool: Edit path: <code>.claude/settings.json</code> action: deduplicate by (event, matcher, command) triple — keep first verify: re-run inline measurement → dup 0</li>
+<li>step-3: tool: Write path: <code>scripts/audit-settings-dedup.mjs</code> action: promote inline to real script (the H3.1 sub-unit) verify: script runs</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>intentional duplicate (same command, different matcher)</li>
+<li>duplicate but different <code>if</code> conditional</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>0 / 5 / 50 duplicates</li>
+<li>PreToolUse / PostToolUse / Stop scopes</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>false-positive on intentional duplication → manual whitelist</li>
+<li>settings format change (2.1.89+) → schema-version handling</li>
+</ul>
+<hr>
+<h2 id="u-h4-taskcreated-claim-guard"><a class="anchor" href="#u-h4-taskcreated-claim-guard" aria-label="Permalink to U-H4 — TaskCreated claim guard">#</a>U-H4 — TaskCreated claim guard</h2>
+<ul>
+<li>pillar: hook</li>
+<li>tier: T0</li>
+<li>ai_priority_score: 65</li>
+<li>leverage_score: 10</li>
+<li>why: 2 chats both TaskCreate same subject → duplicated work</li>
+<li>depends_on: []</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-H2, U-H3, U-H5]</li>
+<li>viz_node_id: <code>core.hooks.taskclaimguard</code> (TBD-create, overlap with U-HKA09)</li>
+<li>closes_synergy_edge: tasks × multi-chat</li>
+<li>loop_schedule: none</li>
+</ul>
+<p>verifies_via: see U-HKA09 (this is the foundational version; HOOKS-V2 layer adds 2.1.89 features)</p>
+<p>micro_steps: see U-HKA09; this unit is the base hook, U-HKA09 is the 2.1.89-event-aware version</p>
+<p>adversarial_cases: see U-HKA09</p>
+<p>variability_axis: see U-HKA09</p>
+<p>failure_modes: see U-HKA09</p>
+<hr>
+<h2 id="u-h5-posttoolbatch-budget-ceiling-hook"><a class="anchor" href="#u-h5-posttoolbatch-budget-ceiling-hook" aria-label="Permalink to U-H5 — PostToolBatch budget ceiling hook">#</a>U-H5 — PostToolBatch budget ceiling hook</h2>
+<ul>
+<li>pillar: hook</li>
+<li>tier: T0</li>
+<li>ai_priority_score: 62</li>
+<li>leverage_score: 10</li>
+<li>why: foundation version of U-HKA10</li>
+<li>depends_on: []</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-H4, U-H7]</li>
+<li>viz_node_id: <code>core.hooks.posttoolbatchbudget</code> (shared with U-HKA10)</li>
+<li>closes_synergy_edge: hooks × cost</li>
+<li>loop_schedule: 7d</li>
+</ul>
+<p>verifies_via: see U-HKA10</p>
+<p>micro_steps: see U-HKA10</p>
+<p>adversarial_cases: see U-HKA10</p>
+<p>variability_axis: see U-HKA10</p>
+<p>failure_modes: see U-HKA10</p>
+<hr>
+<h2 id="u-h6-cross-worktree-firewall-the-k2-unlocker"><a class="anchor" href="#u-h6-cross-worktree-firewall-the-k2-unlocker" aria-label="Permalink to U-H6 — Cross-worktree firewall (THE K2 unlocker)">#</a>U-H6 — Cross-worktree firewall (THE K2 unlocker)</h2>
+<ul>
+<li>pillar: hook</li>
+<li>tier: T0</li>
+<li>ai_priority_score: 80</li>
+<li>leverage_score: 15</li>
+<li>why: K2-CLOUD&#39;s edits to <code>AISystemRouterEngine.ts</code> get reverted when 2 worktrees fight over the same file; firewall enforces single-writer</li>
+<li>depends_on: [U-H1]</li>
+<li>blocks: [K2-K0, K2-K1, all K2-CLOUD-MS0]</li>
+<li>parallel_with: []</li>
+<li>viz_node_id: <code>core.hooks.crossworktreefirewall</code> (TBD-create)</li>
+<li>closes_synergy_edge: worktrees × file-claims</li>
+<li>loop_schedule: none</li>
+</ul>
+<p>verifies_via:   channel: integration   tool: 2 worktrees attempt concurrent edit to same file → second blocked   expected_signal: 2nd worktree&#39;s edit returns &quot;BLOCKED: file owned by worktree X&quot;   re_run_cost: 30s   baseline: race condition exists today</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Read path: <code>.claude/hooks/file-claim-guard.mjs</code> action: pattern reference (existing claim system) verify: file readable</li>
+<li>step-2: tool: Write path: <code>.claude/hooks/cross-worktree-firewall.mjs</code> action: PreToolUse on Edit/Write — read shared lockfile <code>state/shared/worktree-claims.jsonl</code>; if peer worktree has active claim, deny verify: hook runs</li>
+<li>step-3: tool: Write path: <code>scripts/claim-file.mjs</code> action: helper to acquire/renew/release lockfile claims verify: script runs</li>
+<li>step-4: tool: Edit path: <code>.claude/settings.json</code> action: register hook on all Edit/Write verify: parse clean</li>
+<li>step-5: tool: Write path: <code>.claude/hooks/__tests__/cross-worktree-firewall.test.mjs</code> action: 5 tests — solo edit passes, dual-worktree blocks 2nd, expired claim allows takeover, claim renewal works, malformed claim file verify: 5 passed</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>lockfile corruption mid-write</li>
+<li>100 concurrent worktrees (lock contention)</li>
+<li>clock-skew between worktrees</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>1 / 2 / 6 active worktrees</li>
+<li>same file / sibling files / unrelated files</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>lockfile unreadable → fail-safe deny (better safe than corrupt)</li>
+<li>claim never released (chat died) → TTL 10min auto-release</li>
+<li>false-deny on stale lock → reap-stale-claims cron</li>
+</ul>
+<hr>
+<h2 id="u-h7-boris-style-defer-decision-wired-into-pretooluse"><a class="anchor" href="#u-h7-boris-style-defer-decision-wired-into-pretooluse" aria-label="Permalink to U-H7 — Boris-style defer decision wired into PreToolUse">#</a>U-H7 — Boris-style <code>defer</code> decision wired into PreToolUse</h2>
+<ul>
+<li>pillar: hook</li>
+<li>tier: T0</li>
+<li>ai_priority_score: 55</li>
+<li>leverage_score: 9</li>
+<li>why: autonomous loops without defer become $6k incidents</li>
+<li>depends_on: []</li>
+<li>blocks: []</li>
+<li>parallel_with: [U-H5]</li>
+<li>viz_node_id: same as U-HKA02 (foundation version)</li>
+<li>closes_synergy_edge: hooks × safety</li>
+</ul>
+<p>verifies_via / micro_steps / adversarial / variability / failure: see U-HKA02 in HOOKS-AUTOMATION-V2-MS0 — that&#39;s the 2.1.89-event-aware version; U-H7 is the foundation hook.</p>
+<hr>
+<h2 id="x-closing-notes"><a class="anchor" href="#x-closing-notes" aria-label="Permalink to §X — Closing notes">#</a>§X — Closing notes</h2>
+<p><strong>Critical-path:</strong> U-H1.0 → U-H1 → U-H6. Once H6 ships, K2-CLOUD unblocks.</p>
+<p><strong>Lane ownership:</strong> lane-A-hooks-foundation. ALL 8 units commit with <code>[lane-A-hooks-foundation][HOOK-SYNERGY-MS0]/U-H&lt;id&gt;</code> prefix.</p>
+<p><strong>Cron registrations:</strong> <code>*/30 * * * *</code> for U-H1.0 verify-refs; <code>13 */6 * * *</code> for U-H3 settings-dedup; <code>/loop --interval 7d</code> for U-H2 top-5 retune.</p>
+<p><strong>Synergy edges closed:</strong> 5 (hooks × settings, hooks × index, hooks × fix, settings × dedup, worktrees × file-claims).</p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="BACKEND-DEVTOOLS-RGS6-HOOK-SYNERGY-MS0-ATOMIZED-2026-05-10.md">BACKEND-DEVTOOLS-RGS6-HOOK-SYNERGY-MS0-ATOMIZED-2026-05-10.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="03c0c137c2a4a145913278951f6093c709ad5978e31f5f69e9e86a5f7e6824e2">
+<title>Docker Utilization for AI Dev + Autonomous Looping Development Systems</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">Docker Utilization for AI Dev + Autonomous Looping Development Systems</h1>
+<p class="provenance">Generated 2026-05-12T12:43:26.463Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#docker-utilization-for-ai-dev-autonomous-looping-development-systems">Docker Utilization for AI Dev + Autonomous Looping Development Systems</a></li>
+<li class="toc-l2"><a href="#1-docker-compose-patterns-for-ai-dev">§1. Docker Compose Patterns for AI Dev</a></li>
+<li class="toc-l2"><a href="#2-ollama-in-docker-gpu-passthrough-multi-model-warm-up">§2. Ollama in Docker (GPU Passthrough, Multi-Model, Warm-up)</a></li>
+<li class="toc-l2"><a href="#3-mcp-server-containerization">§3. MCP Server Containerization</a></li>
+<li class="toc-l2"><a href="#4-autonomous-loop-architectures">§4. Autonomous Loop Architectures</a></li>
+<li class="toc-l2"><a href="#5-cron-llm-agents-recurring-workflows">§5. Cron + LLM Agents (Recurring Workflows)</a></li>
+<li class="toc-l2"><a href="#6-multi-agent-autonomous-systems">§6. Multi-Agent Autonomous Systems</a></li>
+<li class="toc-l2"><a href="#7-verification-gates">§7. Verification Gates</a></li>
+<li class="toc-l2"><a href="#8-memory-between-iterations">§8. Memory Between Iterations</a></li>
+<li class="toc-l2"><a href="#9-scaling-1-6-100-chats">§9. Scaling: 1 → 6 → 100 Chats</a></li>
+<li class="toc-l3"><a href="#1-chat-no-coordination-needed">1 Chat — No Coordination Needed</a></li>
+<li class="toc-l3"><a href="#6-chats-prisms-current-scale-shared-state-coordination">6 Chats (PRISM&#39;s current scale) — Shared-State Coordination</a></li>
+<li class="toc-l3"><a href="#20-50-chats-hybrid-file-state-lightweight-broker">20-50 Chats — Hybrid: File-State + Lightweight Broker</a></li>
+<li class="toc-l3"><a href="#100-chats-orchestrator-worker-work-stealing-queue">100+ Chats — Orchestrator-Worker + Work-Stealing Queue</a></li>
+<li class="toc-l2"><a href="#cross-reference-summary-prism-gaps-vs-2026-canonical-patterns">Cross-Reference Summary: PRISM Gaps vs. 2026 Canonical Patterns</a></li>
+<li class="toc-l2"><a href="#sources">Sources</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<details class="frontmatter" open><summary>Document metadata</summary><div class="table-wrap"><table>
+<tbody>
+<tr><th scope="row">title</th><td>Docker Utilization for AI Dev + Autonomous Looping Development Systems</td></tr>
+<tr><th scope="row">date</th><td>2026-05-10</td></tr>
+<tr><th scope="row">author</th><td>claude-research-agent</td></tr>
+<tr><th scope="row">tags</th><td>[docker, autonomous-loops, ollama, mcp, langgraph, reflexion, multi-agent, prism]</td></tr>
+<tr><th scope="row">status</th><td>research-card</td></tr>
+<tr><th scope="row">target_consumers</th><td>[PRISM-architecture, autonomous-loop-builders, multi-chat-coordinators]</td></tr>
+<tr><th scope="row">length_budget</th><td>600 lines</td></tr>
+<tr><th scope="row">prism_cross_refs</th><td>mcp-server/data/state/DOCKER_RUNTIME_STATE.json, scripts/ollama-docker-launcher.mjs, state/shared/AGENT_CHAT.md, state/shared/WORK_CLAIMS.json, state/shared/consensus-queue.jsonl, .claude/skills/loop.md (Boris /loop), .claude/skills/schedule.md (cron-style), mcp-server/data/state/ollama-offload-stats.json</td></tr>
+</tbody>
+</table></div></details>
+<h1 id="docker-utilization-for-ai-dev-autonomous-looping-development-systems"><a class="anchor" href="#docker-utilization-for-ai-dev-autonomous-looping-development-systems" aria-label="Permalink to Docker Utilization for AI Dev + Autonomous Looping Development Systems">#</a>Docker Utilization for AI Dev + Autonomous Looping Development Systems</h1>
+<p>Research card synthesizing 2026 industry patterns for containerized AI development environments and autonomous LLM agent loops, cross-referenced against PRISM&#39;s existing infrastructure (6 concurrent chats, file-claim coordination, Ollama offload, /loop + /schedule slash commands, consensus-queue).</p>
+<p>The headline finding is that PRISM has independently arrived at most of the canonical patterns published in 2026 — Boris&#39;s /loop separation of &quot;iteration&quot; from &quot;schedule,&quot; shared-state file-lock coordination over append-only logs, MCP+Ollama colocation in Docker — but is missing two specific ergonomics that the broader ecosystem has standardized: (1) <code>mcpmon</code>-style hot-reload proxy for MCP iteration without restarting clients, and (2) explicit per-iteration verification gates with budget-cap escalation paths (Reflexion&#39;s Evaluator + Self-Reflection arms wired to a hard termination policy). Both are 1-2 unit additions, not architectural rewrites.</p>
+<hr>
+<h2 id="1-docker-compose-patterns-for-ai-dev"><a class="anchor" href="#1-docker-compose-patterns-for-ai-dev" aria-label="Permalink to §1. Docker Compose Patterns for AI Dev">#</a>§1. Docker Compose Patterns for AI Dev</h2>
+<p><strong>Service topology that has converged across 2026 references:</strong></p>
+<div class="table-wrap"><table>
+<thead><tr><th>Service</th><th>Purpose</th><th>Health Check</th><th>Restart Policy</th></tr></thead>
+<tbody>
+<tr><td><code>postgres</code></td><td>Relational state, agent task queues</td><td><code>pg_isready</code></td><td><code>unless-stopped</code></td></tr>
+<tr><td><code>redis</code></td><td>Hot cache, pub/sub for agent events</td><td><code>redis-cli ping</code></td><td><code>unless-stopped</code></td></tr>
+<tr><td><code>qdrant</code></td><td>Vector store for episodic memory (Reflexion buffer, RAG)</td><td><code>GET /healthz</code> on :6333</td><td><code>unless-stopped</code></td></tr>
+<tr><td><code>ollama</code></td><td>Local LLM serving</td><td><code>GET /api/tags</code> on :11434</td><td><code>unless-stopped</code></td></tr>
+<tr><td><code>prometheus</code></td><td>Metrics scrape</td><td><code>GET /-/healthy</code></td><td><code>unless-stopped</code></td></tr>
+<tr><td><code>grafana</code></td><td>Dashboards</td><td><code>GET /api/health</code></td><td><code>unless-stopped</code></td></tr>
+<tr><td><code>mcp-server</code></td><td>MCP dispatcher surface</td><td><code>GET /health</code> (custom)</td><td><code>unless-stopped</code></td></tr>
+<tr><td><code>redis-exporter</code> :9121</td><td>Cache metrics for Prom</td><td>n/a</td><td><code>unless-stopped</code></td></tr>
+<tr><td><code>postgres-exporter</code> :9187</td><td>DB metrics for Prom</td><td>n/a</td><td><code>unless-stopped</code></td></tr>
+<tr><td><code>cadvisor</code></td><td>Container-level metrics</td><td><code>GET /healthz</code></td><td><code>unless-stopped</code></td></tr>
+</tbody>
+</table></div>
+<p><strong>Key compose primitives (from Last9, freeCodeCamp 2026 guides):</strong></p>
+<ul>
+<li><code>condition: service_healthy</code> on <code>depends_on</code> — eliminates the 30s sleep-and-pray startup race; the API container literally waits until pg_isready returns 0.</li>
+<li><code>restart: unless-stopped</code> is the production default; <code>restart: always</code> fights manual <code>docker stop</code> during debugging.</li>
+<li>Pin image tags (<code>ollama/ollama:0.5.7</code>, never <code>:latest</code>) — silent model-format shifts are the #1 production-break vector cited.</li>
+<li>One named volume per stateful service (<code>pgdata</code>, <code>qdrant-storage</code>, <code>ollama-models</code>); bind mounts only for source-code hot-reload.</li>
+<li>Internal-only network for inter-service traffic, with only the gateway (api, ui) port-published. Ollama on a public port without auth is the most-cited footgun — Ollama has zero built-in auth.</li>
+</ul>
+<p><strong>Volume mounting for shared agent state</strong> (the PRISM use case):</p>
+<pre><code class="language-yaml">volumes:
+  - ./state/shared:/app/state/shared          # agent claims, chat bus
+  - ./mcp-server/data/state:/app/data/state   # registries
+  - ./knowledge/wiki:/app/knowledge/wiki:ro   # wiki is read-mostly
+</code></pre>
+<p>The <code>:ro</code> on read-mostly knowledge bases prevents accidental writes from misbehaving agents from corrupting shared memory.</p>
+<p><strong>PRISM cross-ref:</strong> <code>DOCKER_RUNTIME_STATE.json</code> already enumerates the postgres/prism-server/prometheus/ollama/qdrant set — the gap relative to the canonical 2026 stack is <strong>cAdvisor + redis-exporter + postgres-exporter</strong> for first-class metrics. Without these, Prometheus is scraping mcp-server&#39;s app metrics but not the container-level CPU/RSS/I-O signals needed to catch a runaway agent loop.</p>
+<hr>
+<h2 id="2-ollama-in-docker-gpu-passthrough-multi-model-warm-up"><a class="anchor" href="#2-ollama-in-docker-gpu-passthrough-multi-model-warm-up" aria-label="Permalink to §2. Ollama in Docker (GPU Passthrough, Multi-Model, Warm-up)">#</a>§2. Ollama in Docker (GPU Passthrough, Multi-Model, Warm-up)</h2>
+<p><strong>GPU passthrough (verified 85 tok/sec on Llama 3.2 8B = within 3% of bare-metal):</strong></p>
+<pre><code class="language-yaml">ollama:
+  image: ollama/ollama:0.5.7
+  deploy:
+    resources:
+      reservations:
+        devices:
+          - driver: nvidia
+            count: all
+            capabilities: [gpu]
+  environment:
+    - OLLAMA_HOST=0.0.0.0
+    - OLLAMA_NUM_PARALLEL=4
+    - OLLAMA_MAX_LOADED_MODELS=3
+    - OLLAMA_KEEP_ALIVE=24h
+  volumes:
+    - ollama-models:/root/.ollama
+  ports:
+    - &quot;127.0.0.1:11434:11434&quot;   # bind-loopback only — no auth!
+  healthcheck:
+    test: [&quot;CMD&quot;, &quot;ollama&quot;, &quot;list&quot;]
+    interval: 30s
+    timeout: 10s
+    retries: 3
+</code></pre>
+<p><strong>Memory budget math:</strong> Required RAM ≈ <code>OLLAMA_NUM_PARALLEL × OLLAMA_CONTEXT_LENGTH × model_param_bytes</code>. With qwen2.5-coder:7b at Q4 (~4.5GB) and <code>NUM_PARALLEL=4</code>, expect ~18GB VRAM with 8K context. The PRISM-active model set (qwen2.5-coder:7b + a fallback embed model) fits in 24GB.</p>
+<p><strong>Multi-model serving — warm vs. lazy:</strong></p>
+<ul>
+<li><code>OLLAMA_MAX_LOADED_MODELS=3</code> keeps top-3 in VRAM; rest paged out on first request (~5-15s cold-start penalty).</li>
+<li><code>OLLAMA_KEEP_ALIVE=-1</code> pins a model permanently in RAM (use for the always-hot router model).</li>
+<li><code>OLLAMA_KEEP_ALIVE=24h</code> is a sane default for &quot;warm if used today.&quot;</li>
+<li><strong>Preload trick:</strong> <code>curl localhost:11434/api/generate -d &#39;{&quot;model&quot;:&quot;qwen2.5-coder:7b&quot;,&quot;keep_alive&quot;:-1}&#39;</code> at boot warms the cache before first user request — eliminates the ~3s cold start that shows up as a &quot;first-request feels broken&quot; complaint.</li>
+</ul>
+<p><strong>WSL2 gotcha:</strong> GPU passthrough requires <code>sudo nvidia-ctk runtime configure --runtime=docker &amp;&amp; sudo systemctl restart docker</code> inside the WSL2 distro. Skipping this gives the silent &quot;loaded on CPU only, 8x slower&quot; failure mode.</p>
+<p><strong>Multi-GPU note:</strong> If a single GPU holds the model, single-GPU is more efficient (no cross-GPU tensor traffic). <code>OLLAMA_SCHED_SPREAD</code> is an experimental knob — not a default.</p>
+<p><strong>PRISM cross-ref:</strong> <code>ollama-docker-launcher.mjs</code> is the auto-start orchestrator; the <code>PRISM_LOCAL_COMPUTE_AUTOSTART</code> pattern matches the canonical preload-on-boot approach. The <code>ollama-offload-stats.json</code> (38% offload rate, 104/274 events as of audit 2026-05-09) is the right telemetry shape — this is exactly the metric that 2026 guides recommend tracking. The advisory threshold of 30% is consistent with industry norms.</p>
+<hr>
+<h2 id="3-mcp-server-containerization"><a class="anchor" href="#3-mcp-server-containerization" aria-label="Permalink to §3. MCP Server Containerization">#</a>§3. MCP Server Containerization</h2>
+<p><strong>When to dockerize an MCP server:</strong></p>
+<div class="table-wrap"><table>
+<thead><tr><th>Scenario</th><th>Native</th><th>Docker</th></tr></thead>
+<tbody>
+<tr><td>Single-developer iteration</td><td>Y</td><td>N</td></tr>
+<tr><td>Hot-reload during prompt-tuning</td><td>Y (or <code>mcpmon</code>)</td><td>with volume mount</td></tr>
+<tr><td>Multi-tenant deployment</td><td>N</td><td>Y</td></tr>
+<tr><td>Pinned dependencies / supply-chain trust</td><td>N</td><td>Y</td></tr>
+<tr><td>GPU access from MCP itself</td><td>tricky</td><td>clean</td></tr>
+<tr><td>Filesystem access (PRISM&#39;s <code>H:/prism/...</code> paths)</td><td>trivial</td><td>requires bind mount</td></tr>
+</tbody>
+</table></div>
+<p>PRISM&#39;s MCP server runs native because it needs deep filesystem access to <code>H:/prism/JM DIE/</code>, <code>state/shared/</code>, etc. Dockerizing would require <code>-v H:/prism:/workspace</code> and path remapping, which breaks Windows-native path strings inlined throughout the codebase.</p>
+<p><strong>Hot-reload pattern (from 2026 mcpmon docs):</strong></p>
+<p><code>mcpmon</code> is a transparent stdio proxy between the MCP client and server — when server code changes, it restarts the server while keeping the client connected. This is the missing-link tool for MCP iteration: without it, every code change requires restarting Claude Desktop/Code, which loses conversation state.</p>
+<pre><code class="language-bash"># Replaces direct invocation
+mcpmon node mcp-server/dist/index.js
+</code></pre>
+<p><strong>Production Dockerfile pattern (Docker Hub <code>mcp</code> namespace, 300+ verified servers):</strong></p>
+<ul>
+<li>Multi-stage build: <code>node:20-alpine AS builder</code> → <code>node:20-alpine AS runner</code>.</li>
+<li>Run as non-root (<code>USER node</code>).</li>
+<li>Health check via <code>HEALTHCHECK CMD wget -qO- http://localhost:3000/health || exit 1</code> for HTTP transport.</li>
+<li>Stdio transport requires nothing — Docker just pipes stdin/stdout.</li>
+</ul>
+<p><strong>PRISM cross-ref:</strong> PRISM&#39;s MCP server is native — correct call given the filesystem-coupling. The opportunity is to add <code>mcpmon</code> for the dev loop (the 7-second <code>npm run build:fast</code> rebuild is fast, but the client-restart cycle currently kills the conversation context). Estimate: 1 unit to wire <code>mcpmon</code> as the dev-mode launcher, gated behind <code>PRISM_MCP_HOT_RELOAD=1</code>.</p>
+<hr>
+<h2 id="4-autonomous-loop-architectures"><a class="anchor" href="#4-autonomous-loop-architectures" aria-label="Permalink to §4. Autonomous Loop Architectures">#</a>§4. Autonomous Loop Architectures</h2>
+<p><strong>Minimal loop (Oracle, 2026 canonical):</strong></p>
+<pre><code>goal → plan → execute → reflect → terminate?
+                ↑___________|        |
+                            (loop)   N
+                                     └→ output
+</code></pre>
+<p><strong>Termination conditions (must enumerate ALL — silent loops are the #1 cost overrun):</strong></p>
+<ol>
+<li><strong>Success</strong> — verifier returns PASS.</li>
+<li><strong>Max-iterations</strong> — hard ceiling (Reflexion paper uses 10).</li>
+<li><strong>Budget-exceeded</strong> — token cost cap, wall-clock cap, or external API call cap.</li>
+<li><strong>Low-progress</strong> — if last 3 iterations show &lt;ε improvement on the eval metric, abort.</li>
+<li><strong>Stop-condition signal</strong> — external (user interrupt, kill-switch file).</li>
+<li><strong>Repeated-failure</strong> — same error 3x → escalate to human.</li>
+</ol>
+<p><strong>Reflexion (Shinn et al. 2023 — NeurIPS):</strong></p>
+<p>Three components, each is just a different prompt template against the same LLM:</p>
+<ul>
+<li><strong>Actor</strong> — generates the trajectory (the attempt).</li>
+<li><strong>Evaluator</strong> — scores the trajectory (PASS/FAIL + scalar).</li>
+<li><strong>Self-Reflection</strong> — converts feedback into linguistic memory (&quot;last time I forgot to handle the empty list case&quot;).</li>
+</ul>
+<p>The <strong>episodic memory buffer</strong> is the load-bearing innovation: it persists across iterations and is concatenated into the next Actor prompt. Performance on HumanEval: 91% pass@1 vs. 80% for vanilla GPT-4 — the lift comes entirely from &quot;remember what you got wrong last time.&quot;</p>
+<p><strong>ReAct (Yao et al. 2022) — orthogonal pattern:</strong></p>
+<p>ReAct interleaves Thought → Action → Observation <strong>within</strong> a single trajectory. Reflexion happens <strong>between</strong> trajectories. They compose: ReAct as the Actor, Reflexion as the meta-loop.</p>
+<p><strong>AutoGPT vs BabyAGI:</strong></p>
+<ul>
+<li><strong>AutoGPT</strong> — multi-step goal automation with tools and persistent memory. Production-shaped.</li>
+<li><strong>BabyAGI</strong> — three-prompt minimal loop: execute, create-followup, prioritize. Same LLM behind all three. ~150 lines of Python. Best for understanding the pattern.</li>
+</ul>
+<p><strong>Verification gates per iteration (from agent governance literature):</strong></p>
+<p>Every iteration MUST pass through gates before the next iteration begins:</p>
+<ol>
+<li><strong>Tests</strong> — <code>npm test</code> on touched files (PRISM has <code>stop_on_failing_tests</code> hook — same idea, different layer).</li>
+<li><strong>Lint/build</strong> — <code>tsc --noEmit &amp;&amp; npm run build:fast</code>.</li>
+<li><strong>Safety</strong> — domain-specific (PRISM: physics constants imported, no inline kc1.1, dispatcher wired).</li>
+<li><strong>Cost cap</strong> — accumulated token spend &lt;budget.</li>
+<li><strong>Diff-size guard</strong> — if iteration introduces &gt;N lines without justification, escalate.</li>
+<li><strong>Confidence threshold</strong> — if Evaluator confidence &lt;θ, route to human.</li>
+</ol>
+<p><strong>Failure recovery:</strong></p>
+<div class="table-wrap"><table>
+<thead><tr><th>Failure Type</th><th>Response</th></tr></thead>
+<tbody>
+<tr><td>Test failure</td><td>Append to Reflexion buffer, retry</td></tr>
+<tr><td>Lint failure</td><td>Same — usually self-fixes in next iteration</td></tr>
+<tr><td>Safety violation</td><td>HARD STOP — write incident, escalate to human</td></tr>
+<tr><td>Budget cap</td><td>Soft halt — emit partial output, notify</td></tr>
+<tr><td>Repeated identical error</td><td>Escalate (the loop is stuck)</td></tr>
+<tr><td>Unknown exception</td><td>Rollback the iteration&#39;s writes (transactional)</td></tr>
+</tbody>
+</table></div>
+<p><strong>PRISM cross-ref:</strong> PRISM has the <strong>gates</strong> (25+ HARD BLOCK Stop hooks, <code>scrutinize-before-stop</code>, <code>stop_on_failing_tests</code>, etc.) but they fire at <strong>session boundaries</strong>, not <strong>per-iteration</strong> boundaries inside a /loop run. The 2026 pattern is to fire verification per-iteration so an autonomous loop can self-correct mid-run instead of building 6 broken iterations and failing the Stop gate. Estimate: 1 unit to add <code>loop-iteration-gate.mjs</code> that runs <code>tsc --noEmit + vitest run --changed + stop_on_unwired_assets</code> between each /loop iteration.</p>
+<hr>
+<h2 id="5-cron-llm-agents-recurring-workflows"><a class="anchor" href="#5-cron-llm-agents-recurring-workflows" aria-label="Permalink to §5. Cron + LLM Agents (Recurring Workflows)">#</a>§5. Cron + LLM Agents (Recurring Workflows)</h2>
+<p><strong>Boris&#39;s /loop separation (the canonical 2026 pattern):</strong></p>
+<p>The Ralph Wiggum pattern conflated two concerns. <code>/loop</code> cleanly separates them:</p>
+<ul>
+<li><strong>Iteration toward completion</strong> — many attempts at the same task with backpressure until convergence (Reflexion-style).</li>
+<li><strong>Recurring execution</strong> — fire the same prompt on a cron schedule (cron-style).</li>
+</ul>
+<p>PRISM has both: <code>/loop</code> (Boris) for in-session iteration, <code>/schedule</code> for cron-style. This is the 2026 convergent design.</p>
+<p><strong>OpenClaw cron pattern (most production-shaped public reference):</strong></p>
+<ul>
+<li>Cron expression syntax (<code>0 9 * * 1-5</code> = weekday 9am).</li>
+<li>Per-job session isolation — scheduled runs don&#39;t pollute the main conversation.</li>
+<li>Retry with backoff if the LLM has a bad day.</li>
+<li>Delivery to Slack/Telegram on completion.</li>
+<li>Failure escalation policy — N consecutive failures → page operator.</li>
+</ul>
+<p><strong>Autobot cron pattern (Crystal-based, 2MB binary):</strong></p>
+<p>The cron service injects messages into the same message bus the agent uses for user input. The agent doesn&#39;t know if a request came from cron or from a human — the entire pipeline is reused. This is the right shape: cron is just another input source, not a special code path.</p>
+<p><strong>State that survives between cron runs:</strong></p>
+<div class="table-wrap"><table>
+<thead><tr><th>State</th><th>Where</th><th>Survives Cron Run</th></tr></thead>
+<tbody>
+<tr><td>Conversation transcript</td><td>per-run, ephemeral</td><td>N</td></tr>
+<tr><td>Agent decisions/findings</td><td>shared file (e.g. <code>state/shared/</code>)</td><td>Y</td></tr>
+<tr><td>Episodic memory (Reflexion)</td><td>vector store (qdrant)</td><td>Y</td></tr>
+<tr><td>Lock claims</td><td>file (<code>WORK_CLAIMS.json</code>)</td><td>Y</td></tr>
+<tr><td>Telemetry counters</td><td>append-only JSONL</td><td>Y</td></tr>
+<tr><td>Last-seen-timestamp</td><td>per-job state file</td><td>Y</td></tr>
+</tbody>
+</table></div>
+<p><strong>Three trigger types (the canonical taxonomy):</strong></p>
+<ol>
+<li><strong>Time-based</strong> — cron expression. Use for: daily summaries, weekly synthesis, scheduled audits.</li>
+<li><strong>Event-based</strong> — fires on external signal (webhook, file change, message). Use for: PR opened, alarm raised.</li>
+<li><strong>Condition-based</strong> — polls a condition, fires when threshold crossed. Use for: &quot;if disk &gt;90%, run cleanup.&quot;</li>
+</ol>
+<p><strong>PRISM cross-ref:</strong> PRISM has all three — <code>/schedule</code> (time), webhook intake in obsidian-compound (event), build-state-snapshot watching for git changes (condition-adjacent). The <code>consensus-queue.jsonl</code> is the canonical append-only log that survives runs — exactly the right shape per Autobot&#39;s &quot;treat cron as another input source&quot; principle.</p>
+<hr>
+<h2 id="6-multi-agent-autonomous-systems"><a class="anchor" href="#6-multi-agent-autonomous-systems" aria-label="Permalink to §6. Multi-Agent Autonomous Systems">#</a>§6. Multi-Agent Autonomous Systems</h2>
+<p><strong>Five canonical patterns (Claude blog, 2026):</strong></p>
+<div class="table-wrap"><table>
+<thead><tr><th>Pattern</th><th>Topology</th><th>When to Use</th></tr></thead>
+<tbody>
+<tr><td>Orchestrator-Worker</td><td>One coordinator fans out to specialized workers, aggregates</td><td>Most production AI systems — Claude Code subagents</td></tr>
+<tr><td>Swarm</td><td>Decentralized peers, emergent coordination from local rules</td><td>Embarrassingly parallel exploration</td></tr>
+<tr><td>Mesh</td><td>Direct P2P agent communication via A2A protocol</td><td>Specialized agents that need to negotiate</td></tr>
+<tr><td>Hierarchical</td><td>Tree-structured delegation (manager → leads → workers)</td><td>Large org-style problems</td></tr>
+<tr><td>Pipeline</td><td>Sequential stages, each agent transforms then passes</td><td>Linear data-processing flows</td></tr>
+</tbody>
+</table></div>
+<p><strong>Centralized vs decentralized — when to choose:</strong></p>
+<ul>
+<li><strong>Centralized (orchestrator-worker)</strong> — easier to debug, single point of state, single point of failure. Default choice. Workers don&#39;t talk to each other; coordination flows through orchestrator.</li>
+<li><strong>Decentralized (swarm/mesh)</strong> — scales horizontally, no SPOF, but <strong>coordination becomes the hard problem</strong> (deadlocks, lost updates, emergent loops).</li>
+</ul>
+<p>The 2026 industry verdict: orchestrator-worker is the most-deployed in production. Swarm and mesh exist but are research-shaped or used only for specific embarrassingly-parallel workloads.</p>
+<p><strong>PRISM&#39;s pattern is shared-state coordination</strong> (Claude&#39;s &quot;Pattern 5&quot; in the 5-pattern blog post): 6 chats, no hierarchy, all coordinate through the same files (<code>AGENT_CHAT.md</code>, <code>WORK_CLAIMS.json</code>, <code>consensus-queue.jsonl</code>). This is the <strong>decentralized + shared-state</strong> variant — a hybrid that 2026 guides identify as &quot;the most fragile&quot; but also &quot;the most scalable when done right.&quot;</p>
+<p><strong>The fragility comes from:</strong></p>
+<ul>
+<li>Write conflicts on shared state (PRISM solves with <code>commit-ownership-guard</code> + <code>git-anti-clobber</code> hooks).</li>
+<li>Stale reads (PRISM solves with file-claim heartbeats — claims expire after 5min).</li>
+<li>Lost updates (PRISM solves with append-only logs for chat/claims, never overwrite).</li>
+<li>Deadlocks (no current PRISM mitigation — relies on the 5min claim TTL to break locks).</li>
+</ul>
+<p><strong>PRISM cross-ref:</strong> PRISM is exactly the shared-state pattern. The conflict-fork rule (<code>work/&lt;scope&gt;</code> worktrees with cherry-pick recovery) is PRISM&#39;s specific innovation — it&#39;s not in the public literature but solves the &quot;two chats both want to edit the same file&quot; problem cleanly without distributed locks.</p>
+<hr>
+<h2 id="7-verification-gates"><a class="anchor" href="#7-verification-gates" aria-label="Permalink to §7. Verification Gates">#</a>§7. Verification Gates</h2>
+<p><strong>The minimal gate set (industry consensus 2026):</strong></p>
+<p>Every iteration of an autonomous loop MUST pass:</p>
+<ol>
+<li><strong>Build gate</strong> — code compiles. If not, append error to Reflexion buffer, retry.</li>
+<li><strong>Test gate</strong> — affected tests pass. If not, append failures, retry.</li>
+<li><strong>Lint gate</strong> — style/standards pass. Usually auto-fixable.</li>
+<li><strong>Safety gate</strong> — domain rules pass (PRISM: no inline physics constants, no stub engines, dispatchers wired). HARD STOP if violated.</li>
+<li><strong>Cost gate</strong> — accumulated cost &lt;budget. Soft halt if exceeded.</li>
+<li><strong>Confidence gate</strong> — Evaluator confidence ≥θ. Route to human if low.</li>
+</ol>
+<p><strong>What happens when a gate fails:</strong></p>
+<div class="table-wrap"><table>
+<thead><tr><th>Gate</th><th>Failure Action</th></tr></thead>
+<tbody>
+<tr><td>Build</td><td>Reflexion-loop (auto-retry)</td></tr>
+<tr><td>Test</td><td>Reflexion-loop, max 3x; then escalate</td></tr>
+<tr><td>Lint</td><td>Auto-fix attempt; if no fix, retry</td></tr>
+<tr><td>Safety</td><td>HARD STOP, write incident report, page human</td></tr>
+<tr><td>Cost</td><td>Soft halt, emit partial output</td></tr>
+<tr><td>Confidence</td><td>Pause, queue for human review</td></tr>
+</tbody>
+</table></div>
+<p><strong>Agent Gate pattern (HN 2026):</strong> Every destructive action is vault-backed before execution — i.e., snapshot the file first, then act. If the action fails verification, restore from snapshot. This is <code>git stash</code>/<code>git reflog</code> for non-git files.</p>
+<p><strong>Rollback transactions:</strong></p>
+<p>For agents that mutate non-git state (database writes, API calls), wrap each iteration in a transaction:</p>
+<pre><code>BEGIN
+  iteration N writes
+  run gates
+  if PASS: COMMIT
+  else: ROLLBACK + append to Reflexion buffer
+END
+</code></pre>
+<p><strong>PRISM cross-ref:</strong> PRISM has the gate <strong>stack</strong> (25+ Stop hooks) but they fire at session-end, not per-iteration. The Reflexion-loop pattern needs <strong>per-iteration</strong> gates. Wiring suggestion: a <code>loop-iteration-gate.mjs</code> PreToolUse hook that fires when <code>LOOP_ITERATION_BOUNDARY=1</code> env var is set — runs <code>tsc --noEmit + vitest run --changed + stop_on_unwired_assets</code> and blocks if any fails.</p>
+<hr>
+<h2 id="8-memory-between-iterations"><a class="anchor" href="#8-memory-between-iterations" aria-label="Permalink to §8. Memory Between Iterations">#</a>§8. Memory Between Iterations</h2>
+<p><strong>The taxonomy (Reflexion paper + 2026 consolidation):</strong></p>
+<div class="table-wrap"><table>
+<thead><tr><th>Memory Type</th><th>Where</th><th>Trade-offs</th></tr></thead>
+<tbody>
+<tr><td>Conversation buffer</td><td>LLM context window</td><td>Free, ephemeral, eats tokens</td></tr>
+<tr><td>Episodic (Reflexion)</td><td>Vector store (qdrant, pinecone)</td><td>Persistent, queryable, ~ms latency</td></tr>
+<tr><td>Procedural (skills/tools)</td><td>Code + prompt templates</td><td>Static, deterministic</td></tr>
+<tr><td>Semantic (knowledge)</td><td>Vector store + knowledge graph</td><td>Slow to update, fast to query</td></tr>
+<tr><td>Working state</td><td>File or DB</td><td>Cheap, simple, manual cleanup</td></tr>
+</tbody>
+</table></div>
+<p><strong>File-based vs DB vs vector store — the trade-off matrix:</strong></p>
+<div class="table-wrap"><table>
+<thead><tr><th>Approach</th><th>Read Latency</th><th>Write Latency</th><th>Concurrency</th><th>Best For</th></tr></thead>
+<tbody>
+<tr><td>File (JSON/MD)</td><td>~1ms</td><td>~5ms (with fsync)</td><td>Race-prone</td><td>Single-agent state, append-only logs</td></tr>
+<tr><td>Append-only JSONL</td><td>~1ms scan</td><td>~2ms append</td><td>Lock-free</td><td>Multi-agent event log</td></tr>
+<tr><td>Postgres</td><td>~10ms</td><td>~10ms</td><td>ACID</td><td>Structured task queues, claims</td></tr>
+<tr><td>Redis</td><td>&lt;1ms</td><td>&lt;1ms</td><td>Atomic ops</td><td>Hot cache, pub/sub</td></tr>
+<tr><td>Qdrant (vector)</td><td>~5-50ms</td><td>~10ms</td><td>Document-level</td><td>Semantic memory, RAG</td></tr>
+<tr><td>Knowledge graph</td><td>~10-100ms</td><td>~50ms</td><td>Per-edge</td><td>Relationships between concepts</td></tr>
+</tbody>
+</table></div>
+<p><strong>The 2026 pattern is layered memory:</strong></p>
+<pre><code>Hot:  conversation buffer (in-context)
+Warm: redis cache + recent-events JSONL
+Warm: postgres for task state and claims
+Cold: qdrant for episodic + semantic
+Cold: knowledge graph + wiki for relational
+</code></pre>
+<p><strong>For multi-agent specifically:</strong> append-only files are the canonical solution to &quot;many writers, no coordination needed.&quot; <code>consensus-queue.jsonl</code> is the shape — every writer appends a line with their agent ID and timestamp; readers can scan or tail. No locks needed.</p>
+<p><strong>PRISM cross-ref:</strong> PRISM has all the layers — conversation (per-chat), JSONL (consensus-queue, per-agent-handoff history), MD files (HANDOFF, AGENT_CHAT, MEMORY), JSON (WORK_CLAIMS, BUILD_STATE), wiki (knowledge/wiki/), qdrant (<code>QdrantMemoryEngine</code>). The Reflexion-style episodic-memory-into-next-prompt pattern is the missing link — currently each /loop iteration starts fresh without explicit &quot;what did I learn last iteration?&quot; memory beyond the conversation context. Wiring suggestion: 1 unit to add <code>loop-reflexion-memory.mjs</code> helper that writes a per-loop reflection JSONL and prepends the last 3 entries to each iteration&#39;s prompt.</p>
+<hr>
+<h2 id="9-scaling-1-6-100-chats"><a class="anchor" href="#9-scaling-1-6-100-chats" aria-label="Permalink to §9. Scaling: 1 → 6 → 100 Chats">#</a>§9. Scaling: 1 → 6 → 100 Chats</h2>
+<p><strong>Coordination patterns at each scale (industry consensus + PRISM observation):</strong></p>
+<h3 id="1-chat-no-coordination-needed"><a class="anchor" href="#1-chat-no-coordination-needed" aria-label="Permalink to 1 Chat — No Coordination Needed">#</a>1 Chat — No Coordination Needed</h3>
+<p>Single agent, single conversation, no shared state. The whole question is &quot;did the LLM do what I asked?&quot;</p>
+<h3 id="6-chats-prisms-current-scale-shared-state-coordination"><a class="anchor" href="#6-chats-prisms-current-scale-shared-state-coordination" aria-label="Permalink to 6 Chats (PRISM&#39;s current scale) — Shared-State Coordination">#</a>6 Chats (PRISM&#39;s current scale) — Shared-State Coordination</h3>
+<p>The sweet spot for <strong>file-based shared state</strong>:</p>
+<ul>
+<li>Append-only logs for events (chat bus, consensus queue).</li>
+<li>Claim files with TTL for ownership (<code>WORK_CLAIMS.json</code>, 5min heartbeat).</li>
+<li>Per-chat handoff files with topic suffix (no overwrites).</li>
+<li>Conflict-fork rule: when 2 chats want the same file, fork to a sibling worktree.</li>
+<li>Hard-block hooks at commit time (<code>commit-ownership-guard</code>, <code>git-anti-clobber</code>).</li>
+</ul>
+<p><strong>Why this works at 6:</strong> the contention rate is low enough that file locks rarely fire. With 6 chats and ~3000 engines, P(two chats touch same file in same minute) is small. Append-only logs eliminate write conflicts entirely.</p>
+<h3 id="20-50-chats-hybrid-file-state-lightweight-broker"><a class="anchor" href="#20-50-chats-hybrid-file-state-lightweight-broker" aria-label="Permalink to 20-50 Chats — Hybrid: File-State + Lightweight Broker">#</a>20-50 Chats — Hybrid: File-State + Lightweight Broker</h3>
+<p>Past ~10 chats, file-state coordination starts thrashing on hotspot files (the chat bus, the claims file). The 2026 recommendation:</p>
+<ul>
+<li>Move the chat bus to <strong>Redis pub/sub</strong> or <strong>postgres LISTEN/NOTIFY</strong> — pub/sub eliminates polling.</li>
+<li>Move claims to <strong>Redis with SETNX + TTL</strong> — atomic claim acquisition, automatic expiration.</li>
+<li>Keep handoff files on disk (per-chat, no contention).</li>
+<li>Add an <strong>orchestrator</strong> for high-contention work (e.g., merging to main).</li>
+</ul>
+<h3 id="100-chats-orchestrator-worker-work-stealing-queue"><a class="anchor" href="#100-chats-orchestrator-worker-work-stealing-queue" aria-label="Permalink to 100+ Chats — Orchestrator-Worker + Work-Stealing Queue">#</a>100+ Chats — Orchestrator-Worker + Work-Stealing Queue</h3>
+<p>At this scale, decentralized coordination breaks down:</p>
+<ul>
+<li><strong>Orchestrator</strong> owns the task queue (postgres or kafka).</li>
+<li><strong>Workers</strong> pull tasks via work-stealing — no claim files, the queue itself is the lock.</li>
+<li><strong>Specialized lanes</strong> — workers tagged by capability, orchestrator routes.</li>
+<li><strong>Mesh communication only between specialists</strong> (e.g., physics-reviewer and test-reviewer talking directly via A2A protocol) — never between workers.</li>
+<li><strong>Persistent task state</strong> in postgres with state machine (pending → in-progress → review → done).</li>
+<li><strong>Idempotent operations</strong> — workers must handle &quot;same task assigned twice&quot; gracefully.</li>
+</ul>
+<p><strong>Lock-free state at scale:</strong></p>
+<ul>
+<li>Append-only logs (immutable, scan-friendly).</li>
+<li>CRDTs (commutative writes — agents can write in any order, result converges).</li>
+<li>Optimistic concurrency with version vectors (agent reads version V, writes only if still V).</li>
+<li>Sharded state — partition by key so different agents touch different shards.</li>
+</ul>
+<p><strong>Work-stealing:</strong></p>
+<p>When an idle worker has no task, it steals from the most-loaded worker&#39;s queue. Eliminates the &quot;one worker bottlenecks while others idle&quot; problem. Used in Tokio, Go runtime, .NET TPL.</p>
+<p><strong>Claim-based ownership:</strong></p>
+<p>PRISM&#39;s current model. An agent claims a resource with a TTL; if it doesn&#39;t heartbeat, the claim expires. Works up to ~50 agents; past that, the claim file becomes the bottleneck.</p>
+<p><strong>PRISM cross-ref:</strong> PRISM is solidly in the 6-chat sweet spot. The conflict-fork rule extends this to maybe ~10 chats before file-state thrashing dominates. Past that, the migration path is <strong>chat bus → Redis pub/sub</strong> + <strong>claims → Redis SETNX</strong>. Both are in DOCKER_RUNTIME_STATE already (postgres + redis present in the planned stack), so the infra is ready — what&#39;s missing is the engine layer (<code>AgentChatBusEngine</code>, <code>ClaimManagerEngine</code>) wired to use Redis instead of files when <code>PRISM_SCALE_MODE=hybrid</code> is set.</p>
+<hr>
+<h2 id="cross-reference-summary-prism-gaps-vs-2026-canonical-patterns"><a class="anchor" href="#cross-reference-summary-prism-gaps-vs-2026-canonical-patterns" aria-label="Permalink to Cross-Reference Summary: PRISM Gaps vs. 2026 Canonical Patterns">#</a>Cross-Reference Summary: PRISM Gaps vs. 2026 Canonical Patterns</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>2026 Pattern</th><th>PRISM Status</th><th>Gap</th><th>Estimate</th></tr></thead>
+<tbody>
+<tr><td>Docker compose with health checks + dependency ordering</td><td>Partial</td><td>Missing cAdvisor + per-service exporters</td><td>1 unit</td></tr>
+<tr><td>Ollama warm-preload + KEEP_ALIVE=-1 for hot model</td><td>Y (<code>ollama-docker-launcher.mjs</code>)</td><td>None</td><td>—</td></tr>
+<tr><td>Ollama offload telemetry</td><td>Y (<code>ollama-offload-stats.json</code>)</td><td>Below 30% threshold (currently 38%)</td><td>Monitor</td></tr>
+<tr><td>MCP hot-reload with mcpmon</td><td>N (rebuilds work, but client restart required)</td><td>Add <code>mcpmon</code> dev-mode launcher</td><td>1 unit</td></tr>
+<tr><td>Reflexion episodic memory between iterations</td><td>Partial (qdrant present, not loop-wired)</td><td><code>loop-reflexion-memory.mjs</code> helper</td><td>1 unit</td></tr>
+<tr><td>Per-iteration verification gates</td><td>Stop-only (session-boundary)</td><td>Per-iteration gate hook</td><td>1 unit</td></tr>
+<tr><td>Boris-style /loop (iteration vs cron separation)</td><td>Y (slash commands present)</td><td>None</td><td>—</td></tr>
+<tr><td>Cron-style /schedule</td><td>Y</td><td>None</td><td>—</td></tr>
+<tr><td>Append-only multi-agent log</td><td>Y (consensus-queue.jsonl, AGENT_CHAT.md)</td><td>None</td><td>—</td></tr>
+<tr><td>Claim-based file ownership with TTL</td><td>Y (WORK_CLAIMS.json, 5min)</td><td>None</td><td>—</td></tr>
+<tr><td>Conflict-fork rule (worktree-per-conflict)</td><td>Y (PRISM-specific innovation)</td><td>Document in public-facing format</td><td>0.5 unit</td></tr>
+<tr><td>Orchestrator-worker for &gt;10 chats</td><td>N</td><td><code>OrchestratorEngine</code> + Redis-backed queue</td><td>3 units</td></tr>
+<tr><td>Lock-free chat bus (Redis pub/sub)</td><td>N (file-based)</td><td>Optional — only needed past 10 chats</td><td>Defer</td></tr>
+</tbody>
+</table></div>
+<p><strong>Total work to close all gaps: ~7 units, of which 4 are &quot;do now&quot; and 3 are &quot;defer until scale demands it.&quot;</strong></p>
+<p>The &quot;do now&quot; set:</p>
+<ol>
+<li>Add cAdvisor + redis-exporter + postgres-exporter to docker-compose (1 unit)</li>
+<li>Wire mcpmon as opt-in dev-mode MCP launcher (1 unit)</li>
+<li>Add <code>loop-reflexion-memory.mjs</code> for episodic memory across iterations (1 unit)</li>
+<li>Add per-iteration verification gate hook (1 unit)</li>
+</ol>
+<p>The &quot;defer&quot; set:</p>
+<ul>
+<li>Orchestrator-worker pattern only matters at 10+ chats; PRISM is at 6 with conflict-fork rule handling contention well.</li>
+<li>Redis-backed chat bus only matters when file-state thrashing dominates; not yet observed.</li>
+</ul>
+<hr>
+<h2 id="sources"><a class="anchor" href="#sources" aria-label="Permalink to Sources">#</a>Sources</h2>
+<ul>
+<li><a href="https://markaicode.com/ollama-with-docker/" rel="noopener noreferrer">Ollama Production Inference: Persistent GPU Setup 2026</a></li>
+<li><a href="https://markaicode.com/docker-with-ollama/" rel="noopener noreferrer">Docker with Ollama Production Integration Guide 2026</a></li>
+<li><a href="https://www.knightli.com/en/2026/04/19/ollama-multiple-gpu-notes/" rel="noopener noreferrer">Ollama Multi-GPU Notes: VRAM Pooling</a></li>
+<li><a href="https://dev.to/rosgluk/ollama-in-docker-compose-with-gpu-and-persistent-model-storage-224h" rel="noopener noreferrer">Ollama in Docker Compose with GPU and Persistent Storage</a></li>
+<li><a href="https://www.langchain.com/langgraph" rel="noopener noreferrer">LangGraph: Agent Orchestration Framework</a></li>
+<li><a href="https://eastondev.com/blog/en/posts/ai/20260424-langgraph-agent-architecture/" rel="noopener noreferrer">LangGraph State Management Best Practices 2026</a></li>
+<li><a href="https://arxiv.org/abs/2303.11366" rel="noopener noreferrer">Reflexion: Language Agents with Verbal Reinforcement Learning (Shinn 2023)</a></li>
+<li><a href="https://mainak-saha.medium.com/agentic-ai-patterns-demystifying-react-reflexion-and-auto-gpt-93dcec305611" rel="noopener noreferrer">Agentic AI Patterns: ReAct, Reflexion, AutoGPT</a></li>
+<li><a href="https://howborisusesclaudecode.com/" rel="noopener noreferrer">How Boris Uses Claude Code</a></li>
+<li><a href="https://www.mindstudio.ai/blog/what-is-claude-code-loop-command-recurring-tasks" rel="noopener noreferrer">Claude Code /loop Command Recurring Tasks</a></li>
+<li><a href="https://veelenga.github.io/how-agent-loop-and-cron-work-together-inside-autobot/" rel="noopener noreferrer">How the Agent Loop and Cron Work Together (Autobot)</a></li>
+<li><a href="https://team400.ai/blog/2026-04-openclaw-cron-scheduled-ai-agent-jobs" rel="noopener noreferrer">OpenClaw Cron - Scheduled AI Agent Jobs</a></li>
+<li><a href="https://platform.claude.com/docs/en/agents-and-tools/tool-use/computer-use-tool" rel="noopener noreferrer">Anthropic Computer Use Tool</a></li>
+<li><a href="https://code.claude.com/docs/en/agent-sdk/agent-loop" rel="noopener noreferrer">Claude Code Agent Loop Reference</a></li>
+<li><a href="https://www.docker.com/blog/the-model-context-protocol-simplifying-building-ai-apps-with-anthropic-claude-desktop-and-docker/" rel="noopener noreferrer">The MCP: Simplifying AI Apps with Anthropic and Docker</a></li>
+<li><a href="https://mcpservers.org/servers/neilopet/mcp-server-hmr" rel="noopener noreferrer">MCP Hot-Reload (mcpmon)</a></li>
+<li><a href="https://claude.com/blog/multi-agent-coordination-patterns" rel="noopener noreferrer">Multi-Agent Coordination Patterns (Claude blog)</a></li>
+<li><a href="https://gurusup.com/blog/agent-orchestration-patterns" rel="noopener noreferrer">Agent Orchestration Patterns: Swarm vs Mesh vs Hierarchical</a></li>
+<li><a href="https://last9.io/blog/docker-compose-health-checks/" rel="noopener noreferrer">Docker Compose Health Checks Guide (Last9)</a></li>
+<li><a href="https://www.xugj520.cn/en/archives/docker-compose-multi-container-ai-systems.html" rel="noopener noreferrer">Ultimate Guide: Multi-Container AI Systems with Docker Compose</a></li>
+<li><a href="https://fivenines.io/blog/how-to-build-complete-monitoring-stack-with-docker-comopose/" rel="noopener noreferrer">How to Build Complete Monitoring Stack with Docker Compose</a></li>
+<li><a href="https://docs.ollama.com/faq" rel="noopener noreferrer">Ollama FAQ — Memory &amp; Concurrency Configuration</a></li>
+<li><a href="https://markaicode.com/ollama-keep-alive-memory-management/" rel="noopener noreferrer">Configure Ollama Keep-Alive: Memory Management</a></li>
+<li><a href="https://hub.docker.com/r/qdrant/qdrant" rel="noopener noreferrer">Qdrant Docker Hub</a></li>
+<li><a href="https://blogs.oracle.com/developers/what-is-the-ai-agent-loop-the-core-architecture-behind-autonomous-ai-systems" rel="noopener noreferrer">What Is the AI Agent Loop? (Oracle)</a></li>
+<li><a href="https://blogs.oracle.com/ai-and-datascience/runtime-budget-guardrails-agentic-ai" rel="noopener noreferrer">Runtime Budget Guardrails for Agentic AI (Oracle)</a></li>
+<li><a href="https://news.ycombinator.com/item?id=47047698" rel="noopener noreferrer">Agent Gate (HN) — Vault-Backed Rollback for Agent Actions</a></li>
+<li><a href="https://autogpt.net/babyagi-complete-guide-what-it-is-and-how-does-it-work/" rel="noopener noreferrer">BabyAGI Complete Guide</a></li>
+<li><a href="https://lilianweng.github.io/posts/2023-06-23-agent/" rel="noopener noreferrer">LLM Powered Autonomous Agents (Lilian Weng)</a></li>
+<li><a href="https://www.architecture-weekly.com/p/distributed-locking-a-practical-guide" rel="noopener noreferrer">Distributed Locking: A Practical Guide</a></li>
+<li><a href="https://martin.kleppmann.com/2016/02/08/how-to-do-distributed-locking.html" rel="noopener noreferrer">How to Do Distributed Locking (Kleppmann)</a></li>
+</ul>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="2026-05-10-docker-autonomous-loops.md">2026-05-10-docker-autonomous-loops.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

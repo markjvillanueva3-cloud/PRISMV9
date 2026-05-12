@@ -2,93 +2,767 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>PRISM Revenue Roadmap — 2026-05-10 (v7)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="de201fbc363fe6993769457a328d43a4de1ef1ecbf79ecb7fa5860e2fae50d86">
+<title>PRISM Revenue Roadmap — 2026-05-10</title>
 <style>
-  :root { --bg: #0d1117; --fg: #c9d1d9; --muted: #8b949e; --border: #30363d; --accent: #2f81f7; }
-  * { box-sizing: border-box }
-  body { background: var(--bg); color: var(--fg); font-family: -apple-system, "Segoe UI", sans-serif; max-width: 1100px; margin: 24px auto; padding: 0 16px; line-height: 1.5; }
-  h1, h2, h3 { color: #fff; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
-  h1 { font-size: 1.8rem }
-  h2 { font-size: 1.3rem; margin-top: 2rem }
-  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: 0.85rem }
-  th, td { padding: 6px 10px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top }
-  th { background: #161b22; color: #fff; position: sticky; top: 0 }
-  td code { color: var(--accent); font-size: 0.78rem; word-break: break-word }
-  .banner { display: flex; gap: 24px; padding: 12px 16px; background: #161b22; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 24px; flex-wrap: wrap }
-  .metric { font-size: 0.9rem }
-  .metric .big { color: #2da44e; font-size: 1.4rem; font-weight: bold }
-  .legend { display: flex; gap: 16px; font-size: 0.82rem; color: var(--muted) }
-  .legend span { padding-left: 12px; border-left: 4px solid }
-  .legend .built { border-color: #2da44e }
-  .legend .comboable { border-color: #bf8700 }
-  .legend .blocked { border-color: #cf222e }
-  .legend .bridge { border-color: #0969da }
-  .twocol { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; align-items: start }
-  pre { background: #161b22; padding: 12px; border-radius: 6px; overflow-x: auto }
-  .footer { color: var(--muted); font-size: 0.8rem; margin-top: 48px; border-top: 1px solid var(--border); padding-top: 16px }
-  button.copy { background: var(--accent); color: #fff; border: 0; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.75rem }
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
 </style>
 </head>
 <body>
-
-<h1>PRISM Revenue Roadmap — v7</h1>
-<p><i>Generated 2026-05-11T03:18:33.968Z by <code>scripts/emit-revenue-roadmap-html.mjs</code> · canonical source is the <code>.md</code> alongside.</i></p>
-
-<div class="banner">
-    <div class="metric"><b>Overall readiness:</b> <span class="big">0.0%</span></div>
-    <div class="metric"><b>Next unit:</b> <code>U-REV-ADMIN</code></div>
-    <div class="metric"><b>Audit findings (revenue-relevant):</b> 22 / 122</div>
-    <div class="metric"><b>Verification health:</b> 100%</div>
-  </div>
-
-<h2>Milestone dependency graph</h2>
-<svg viewBox="0 0 780 220" xmlns="http://www.w3.org/2000/svg" style="background:#0d1117;border-radius:8px"><defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#57606a"/></marker></defs><line x1="130" y1="100" x2="230" y2="100" stroke="#57606a" stroke-width="1.5" marker-end="url(#arr)"/><line x1="130" y1="100" x2="430" y2="60" stroke="#57606a" stroke-width="1.5" marker-end="url(#arr)"/><line x1="130" y1="100" x2="430" y2="160" stroke="#57606a" stroke-width="1.5" marker-end="url(#arr)"/><line x1="330" y1="100" x2="430" y2="60" stroke="#57606a" stroke-width="1.5" marker-end="url(#arr)"/><line x1="530" y1="60" x2="630" y2="100" stroke="#57606a" stroke-width="1.5" marker-end="url(#arr)"/><line x1="530" y1="160" x2="630" y2="100" stroke="#57606a" stroke-width="1.5" marker-end="url(#arr)"/><rect x="30" y="75" width="100" height="50" rx="6" fill="#0969da" opacity="0.7" stroke="#0969da"/><text x="80" y="92" text-anchor="middle" font-family="-apple-system,Segoe UI,sans-serif" font-size="11" fill="#fff">MS0</text><text x="80" y="106" text-anchor="middle" font-family="-apple-system,Segoe UI,sans-serif" font-size="11" fill="#fff">UI unstub</text><text x="80" y="120" text-anchor="middle" font-family="-apple-system,Segoe UI,sans-serif" font-size="11" fill="#fff">40 units</text><rect x="230" y="75" width="100" height="50" rx="6" fill="#0969da" opacity="0.7" stroke="#0969da"/><text x="280" y="92" text-anchor="middle" font-family="-apple-system,Segoe UI,sans-serif" font-size="11" fill="#fff">MS1</text><text x="280" y="106" text-anchor="middle" font-family="-apple-system,Segoe UI,sans-serif" font-size="11" fill="#fff">Subscriptions</text><text x="280" y="120" text-anchor="middle" font-family="-apple-system,Segoe UI,sans-serif" font-size="11" fill="#fff">18 units</text><rect x="430" y="35" width="100" height="50" rx="6" fill="#0969da" opacity="0.7" stroke="#0969da"/><text x="480" y="52" text-anchor="middle" font-family="-apple-system,Segoe UI,sans-serif" font-size="11" fill="#fff">MS2</text><text x="480" y="66" text-anchor="middle" font-family="-apple-system,Segoe UI,sans-serif" font-size="11" fill="#fff">Inventions</text><text x="480" y="80" text-anchor="middle" font-family="-apple-system,Segoe UI,sans-serif" font-size="11" fill="#fff">42 units</text><rect x="430" y="135" width="100" height="50" rx="6" fill="#0969da" opacity="0.7" stroke="#0969da"/><text x="480" y="152" text-anchor="middle" font-family="-apple-system,Segoe UI,sans-serif" font-size="11" fill="#fff">MS3</text><text x="480" y="166" text-anchor="middle" font-family="-apple-system,Segoe UI,sans-serif" font-size="11" fill="#fff">Wiring</text><text x="480" y="180" text-anchor="middle" font-family="-apple-system,Segoe UI,sans-serif" font-size="11" fill="#fff">6 units (batched)</text><rect x="630" y="75" width="100" height="50" rx="6" fill="#0969da" opacity="0.7" stroke="#0969da"/><text x="680" y="92" text-anchor="middle" font-family="-apple-system,Segoe UI,sans-serif" font-size="11" fill="#fff">MS4</text><text x="680" y="106" text-anchor="middle" font-family="-apple-system,Segoe UI,sans-serif" font-size="11" fill="#fff">Drift</text><text x="680" y="120" text-anchor="middle" font-family="-apple-system,Segoe UI,sans-serif" font-size="11" fill="#fff">4 units</text></svg>
-
-<h2>Milestone unit counts</h2>
-<table>
-<thead><tr><th>Milestone</th><th>Units declared</th></tr></thead>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">PRISM Revenue Roadmap — 2026-05-10</h1>
+<p class="provenance">Generated 2026-05-12T12:43:26.763Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#prism-revenue-roadmap-2026-05-10">PRISM Revenue Roadmap — 2026-05-10</a></li>
+<li class="toc-l2"><a href="#revenue-product-taxonomy">Revenue product taxonomy</a></li>
+<li class="toc-l2"><a href="#roadmap-structure-4-milestones-120-units">Roadmap structure (4 milestones, ~120 units)</a></li>
+<li class="toc-l3"><a href="#revenue-ms0-customer-facing-ui-unstub-40-units">REVENUE-MS0 — Customer-facing UI unstub (≈40 units)</a></li>
+<li class="toc-l3"><a href="#revenue-ms1-subscription-mechanics-18-units">REVENUE-MS1 — Subscription mechanics (≈18 units)</a></li>
+<li class="toc-l3"><a href="#revenue-ms2-node-combination-invention-new-features-for-revenue-42-units">REVENUE-MS2 — Node-combination invention (NEW features for revenue) (≈42 units)</a></li>
+<li class="toc-l4"><a href="#mill-product-inventions-8-units">Mill product inventions (8 units)</a></li>
+<li class="toc-l4"><a href="#lathe-product-inventions-7-units">Lathe product inventions (7 units)</a></li>
+<li class="toc-l4"><a href="#wire-edm-product-inventions-6-units">Wire EDM product inventions (6 units)</a></li>
+<li class="toc-l4"><a href="#cross-process-inventions-6-units">Cross-process inventions (6 units)</a></li>
+<li class="toc-l4"><a href="#shop-floor-saas-inventions-8-units">Shop-floor SaaS inventions (8 units)</a></li>
+<li class="toc-l4"><a href="#knowledge-as-product-inventions-4-units">Knowledge-as-product inventions (4 units)</a></li>
+<li class="toc-l4"><a href="#cad-side-inventions-3-units">CAD-side inventions (3 units)</a></li>
+<li class="toc-l3"><a href="#revenue-ms3-wire-backlog-harvest-18-units">REVENUE-MS3 — Wire backlog harvest (≈18 units)</a></li>
+<li class="toc-l3"><a href="#revenue-ms4-drift-reconciliation-10-units">REVENUE-MS4 — Drift reconciliation (≈10 units)</a></li>
+<li class="toc-l2"><a href="#algorithm-formula-equation-combinatorics-what-new-math-emerges-from-node-combinations">Algorithm / formula / equation combinatorics (what new math emerges from node combinations)</a></li>
+<li class="toc-l2"><a href="#node-wiring-bridging-plan">Node wiring / bridging plan</a></li>
+<li class="toc-l2"><a href="#variability-axis-problem-solving-inputs-states-failure-modes-adversarial">Variability axis (problem-solving inputs × states × failure modes × adversarial)</a></li>
+<li class="toc-l2"><a href="#what-is-not-in-scope-peer-chat-ownership">What is NOT in scope (peer-chat ownership)</a></li>
+<li class="toc-l2"><a href="#execution-discipline">Execution discipline</a></li>
+<li class="toc-l2"><a href="#first-week-kickoff-priority-order">First-week kickoff (priority order)</a></li>
+<li class="toc-l2"><a href="#how-this-roadmap-regenerates-itself">How this roadmap regenerates itself</a></li>
+<li class="toc-l2"><a href="#v7-upgrade-layer-boris-doctrine-compliance-appended-2026-05-10">v7 UPGRADE LAYER (Boris doctrine compliance — appended 2026-05-10)</a></li>
+<li class="toc-l3"><a href="#v7a-per-unit-verification-channel-declaration-hard-gate">v7.A — Per-unit verification channel declaration (HARD GATE)</a></li>
+<li class="toc-l3"><a href="#v7b-expanded-node-combinatorics-50-emergent-algorithms-formulas">v7.B — Expanded node-combinatorics (50 emergent algorithms / formulas)</a></li>
+<li class="toc-l3"><a href="#v7c-ai-orchestration-plan-claude-as-tier-1">v7.C — AI orchestration plan (Claude as Tier-1)</a></li>
+<li class="toc-l3"><a href="#v7d-plan-peer-review-forge7-hard-gate">v7.D — Plan peer-review (forge7 HARD GATE)</a></li>
+<li class="toc-l3"><a href="#v7e-meta-artifact-compounding-gains-tax">v7.E — META artifact (compounding-gains tax)</a></li>
+<li class="toc-l3"><a href="#v7f-html-companion-thariq-pattern">v7.F — HTML companion (Thariq pattern)</a></li>
+<li class="toc-l3"><a href="#v7g-loop-self-schedule-cyrilxbt-recurring">v7.G — /loop self-schedule (cyrilXBT recurring)</a></li>
+<li class="toc-l3"><a href="#v7h-end-state-criteria-v7-pass">v7.H — End-state criteria (v7 PASS)</a></li>
+<li class="toc-l2"><a href="#how-to-consume-this-v7-layer">How to consume this v7 layer</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="prism-revenue-roadmap-2026-05-10"><a class="anchor" href="#prism-revenue-roadmap-2026-05-10" aria-label="Permalink to PRISM Revenue Roadmap — 2026-05-10">#</a>PRISM Revenue Roadmap — 2026-05-10</h1>
+<p><strong>Owner:</strong> claude-99eca613 (revenue-roadmap lane) <strong>Peer chat owner of dev-tools / infra / AI-systems / neural / system-viz-wiring:</strong> other concurrent chat (per session directive 2026-05-10) <strong>Scope:</strong> PRISM backend + frontend assets that ship to paying customers (Speed/Feed Calculator, Master Post, CAD/CAM AI, the six tier-1 CAM bridges, shop-floor SaaS surfaces, ERP/quoting/scheduling, knowledge-as-subscription). Excludes: hook/dispatcher infra, system-viz internals, neural-net training infra, deep-reasoning engine plumbing (peer chat).</p>
+<p><strong>Source-of-truth artifacts this plan consumes (do not duplicate; re-read on every iteration):</strong></p>
+<ul>
+<li><code>state/shared/system-viz/system-graph.json</code> — live node map, 784 nodes / 916 edges (regenerated by <code>scripts/generate-system-viz.mjs</code>)</li>
+<li><code>state/shared/AUDIT-LATEST.json</code> — 122 findings from <code>forge-audit-omniscient</code> (regenerated by <code>.claude/scripts/forge-audit-omniscient.mjs</code>)</li>
+<li><code>state/shared/system-viz/audit-overlay.json</code> — per-node green/yellow/red/blue coloring (regenerated alongside audit)</li>
+<li><code>state/shared/BUILD_STATE.json</code> — 2302 wired / 875 unwired engines + frontend-pending list (regenerated by <code>scripts/build-state-snapshot.mjs</code>)</li>
+<li><code>state/shared/MILESTONE_PROGRESS.json</code> — 613 drifted milestones (envelope-claim vs git-reality)</li>
+<li><code>state/shared/system-viz/_MASTER_ENVELOPE.json</code> — scrutiny axis registry (v2 filesystem, v3 capability-domain, v5 synthesized-audit)</li>
+<li><code>mcp-server/src/data/jm-die-profile.ts</code> — test-shop reality reference for every customer-facing decision</li>
+<li><code>H:/prism/JM DIE/</code> — 24,545 program archive (the customer behavior these features must serve)</li>
+</ul>
+<hr>
+<h2 id="revenue-product-taxonomy"><a class="anchor" href="#revenue-product-taxonomy" aria-label="Permalink to Revenue product taxonomy">#</a>Revenue product taxonomy</h2>
+<p>PRISM ships revenue in <strong>three product lines</strong> (per CLAUDE-BRIEF doctrine):</p>
+<ol>
+<li><strong>Speed/Feed Calculator (SFC)</strong> — per-seat subscription, web + CAM plugin form factors. Backend: production. Frontend: 6 stub pages.</li>
+<li><strong>Master Post</strong> — per-seat subscription, browser-based G-code generator. Backend: production (cam-post-lint + post-generate + controller dialects). Frontend: 8 CAM/Post/Prove pages (built).</li>
+<li><strong>CAD/CAM AI</strong> — premium tier, consumes SFC + Master Post; drives autonomous CAD + CAM. Backend: 95-98% across mill/lathe/WEDM. Frontend: split across 5 stub page-groups (Mill/Lathe/WEDM/CAD/Quality).</li>
+</ol>
+<p><strong>Tier-1 CAM bridges (each is a sellable integration channel):</strong></p>
+<div class="table-wrap"><table>
+<thead><tr><th>Bridge</th><th>Backend status</th><th>Frontend / integration status</th></tr></thead>
 <tbody>
-<tr><td>MS0 — UI unstub</td><td>15</td></tr><tr><td>MS1 — Subscriptions</td><td>20</td></tr><tr><td>MS2 — Inventions</td><td>42</td></tr><tr><td>MS3 — Wiring</td><td>6</td></tr><tr><td>MS4 — Drift</td><td>4</td></tr>
+<tr><td>Fusion 360</td><td>live add-in panel (in-host runner)</td><td>mcp-cadquery/frontend pending-merge could bootstrap UI</td></tr>
+<tr><td>hyperMILL</td><td>production (best) — 63 engines, full Project Manager runtime</td><td>needs custom UI shell</td></tr>
+<tr><td>Mastercam</td><td>C-Hook generator only — no live link</td><td>needs add-in shell + UI</td></tr>
+<tr><td>Esprit</td><td>bridge exists</td><td>needs UI shell</td></tr>
+<tr><td>Inventor HSM</td><td>bridge exists</td><td>needs UI shell</td></tr>
+<tr><td>SolidWorks</td><td>bridge exists</td><td>needs UI shell</td></tr>
 </tbody>
-</table>
+</table></div>
+<p><strong>Shop-floor / ERP / quoting (PRISM-side SaaS surfaces):</strong></p>
+<ul>
+<li>Quoting Suite (10 pages built)</li>
+<li>ERP Pages (20 built)</li>
+<li>Shop-Floor / Sched (11 built)</li>
+<li>Dashboards / OEE (13 built)</li>
+<li>Specialty Pages (38 built — already revenue-active)</li>
+<li>HR / Safety / OSHA (9 built)</li>
+</ul>
+<p><strong>Stub revenue surfaces (the gap):</strong></p>
+<ul>
+<li>CAD / SFC / Calcs (6) — direct hit on Product #1</li>
+<li>Mill Pages (5) — direct hit on Product #3 backend</li>
+<li>Lathe Pages (7) — direct hit on Product #3 backend</li>
+<li>Wire EDM Pages (5) — direct hit on Product #3 backend</li>
+<li>Quality / SPC / FAI (4) — customer-mandatory for shop adoption</li>
+<li>Admin / Settings (7) — subscription mgmt gate (no money flow without this)</li>
+<li>Knowledge / Learn (3) — onboarding (reduces churn, increases trial→paid)</li>
+</ul>
+<hr>
+<h2 id="roadmap-structure-4-milestones-120-units"><a class="anchor" href="#roadmap-structure-4-milestones-120-units" aria-label="Permalink to Roadmap structure (4 milestones, ~120 units)">#</a>Roadmap structure (4 milestones, ~120 units)</h2>
+<p>Each milestone is a standard PRISM milestone envelope (atomic-roadmap-emit.mjs scans <code>mcp-server/data/milestones/</code>). Each unit follows the standard schema (<code>id</code>, <code>title</code>, <code>status</code>, <code>files_modified</code>, <code>details</code>, <code>acceptance</code>, <code>depends_on</code>). Wiring + tests + dispatcher round-trip per CLAUDE.md comprehensive-build doctrine.</p>
+<h3 id="revenue-ms0-customer-facing-ui-unstub-40-units"><a class="anchor" href="#revenue-ms0-customer-facing-ui-unstub-40-units" aria-label="Permalink to REVENUE-MS0 — Customer-facing UI unstub (≈40 units)">#</a>REVENUE-MS0 — Customer-facing UI unstub (≈40 units)</h3>
+<p><strong>Why:</strong> Backend is 95-100% production for the three revenue products; UI is stub. <strong>No customer can pay for what they can&#39;t see.</strong> This unblocks every other phase.</p>
+<p><strong>Depends on:</strong> nothing. <strong>Blocks:</strong> all subsequent revenue work.</p>
+<p>Units by stub-group (count = pages in group):</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Group</th><th>Units</th><th>Bootstrap source</th></tr></thead>
+<tbody>
+<tr><td><code>U-REV-CAD-SFC-01..06</code></td><td>6 — wire 6 CAD/SFC/Calcs pages to existing <code>prism_calc:cutting_force_kienzle</code> + <code>speed-feed-calc</code> dispatcher action backend</td><td>mcp-cadquery/frontend (Vite + React 19 + Three.js) merge candidate</td></tr>
+<tr><td><code>U-REV-MILL-01..05</code></td><td>5 — Mill pages: parameter editor / SLD viewer / chatter map / thermal preview / wear timeline</td><td>Existing CAM/Post/Prove pages as template</td></tr>
+<tr><td><code>U-REV-LATHE-01..07</code></td><td>7 — Lathe pages: turning param editor / threading wizard / hard-turn advisor / chip-control / cost-optimize / quality-gate / mill-turn sync</td><td>LATHE-AGI backend already wired</td></tr>
+<tr><td><code>U-REV-WEDM-01..05</code></td><td>5 — WEDM pages: feasibility / cost / program-gen / pass-schedule / wire-controller-select</td><td>WEDM backend 95% wired</td></tr>
+<tr><td><code>U-REV-QUALITY-01..04</code></td><td>4 — SPC chart / FAI editor / CMM-parse view / tolerance-stack visualizer</td><td>Backend engines wired</td></tr>
+<tr><td><code>U-REV-ADMIN-01..07</code></td><td>7 — User mgmt / seat assignment / billing portal / API key gen / RBAC role editor / audit log / subscription tier editor</td><td>Auth transport layer built</td></tr>
+<tr><td><code>U-REV-LEARN-01..03</code></td><td>3 — Interactive shop-knowledge tutor / video learn player / blueprint-read trainer</td><td>Knowledge engines wired</td></tr>
+<tr><td><strong>40 total</strong></td><td></td><td></td></tr>
+</tbody>
+</table></div>
+<p><strong>Acceptance per unit:</strong> page renders with live data from at least one dispatcher action, passes Playwright happy-path + ≥3 failure modes (bad input, boundary, resource exhaustion) + ≥2 adversarial inputs (NaN/Infinity/empty/oversize) per comprehensive-build rule, ships with E2E test invoking through the dispatcher (not engine-singleton).</p>
+<p><strong>Wiring rule:</strong> every page MUST invoke through <code>prism_*</code> dispatcher actions, never directly import engine singletons. Tests assert the dispatcher schema + action enum + lazy import all match (per CLAUDE.md ENGINE WIRING law).</p>
+<h3 id="revenue-ms1-subscription-mechanics-18-units"><a class="anchor" href="#revenue-ms1-subscription-mechanics-18-units" aria-label="Permalink to REVENUE-MS1 — Subscription mechanics (≈18 units)">#</a>REVENUE-MS1 — Subscription mechanics (≈18 units)</h3>
+<p><strong>Why:</strong> SFC + Master Post are per-seat subscriptions. Without billing + tier gating, MS0 ships free.</p>
+<p><strong>Depends on:</strong> REVENUE-MS0 U-REV-ADMIN-* . <strong>Blocks:</strong> every dollar of revenue.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Unit</th><th>What</th><th>Engine combo / new</th></tr></thead>
+<tbody>
+<tr><td><code>U-SUB-01</code></td><td>Stripe webhook receiver</td><td>new: <code>StripeWebhookEngine</code> + <code>prism_subscription</code> dispatcher</td></tr>
+<tr><td><code>U-SUB-02</code></td><td>Paddle alternative for non-US</td><td>new: <code>PaddleWebhookEngine</code> (Stripe-fallback rail)</td></tr>
+<tr><td><code>U-SUB-03</code></td><td>Tier-feature mapping</td><td>new: <code>FeatureTierEngine</code> (reads <code>state/shared/feature-tiers.json</code>)</td></tr>
+<tr><td><code>U-SUB-04</code></td><td>Per-seat license validation middleware</td><td>new: <code>LicenseValidatorEngine</code> wired into transport <code>tr.rest</code> + <code>tr.gql</code></td></tr>
+<tr><td><code>U-SUB-05</code></td><td>Trial → paid conversion flow</td><td>new: <code>TrialConversionEngine</code> + 3 trial-gated pages</td></tr>
+<tr><td><code>U-SUB-06</code></td><td>Customer dashboard backend</td><td>new: <code>CustomerDashboardEngine</code> (usage rollup + billing fetch)</td></tr>
+<tr><td><code>U-SUB-07</code></td><td>Customer dashboard frontend</td><td>wire to existing Dashboards/OEE template</td></tr>
+<tr><td><code>U-SUB-08</code></td><td>Invoice/receipt PDF gen</td><td>new: <code>InvoicePdfEngine</code> (consumes pdf-skill)</td></tr>
+<tr><td><code>U-SUB-09</code></td><td>Failed-payment dunning flow</td><td>new: <code>DunningFlowEngine</code></td></tr>
+<tr><td><code>U-SUB-10</code></td><td>API rate-limit per-tier</td><td>new: <code>RateLimitEngine</code> middleware on <code>tr.rest</code> + <code>tr.gql</code></td></tr>
+<tr><td><code>U-SUB-11</code></td><td>Per-tier hook injection</td><td>new: <code>TierGateHookEngine</code> (rejects calls beyond tier)</td></tr>
+<tr><td><code>U-SUB-12</code></td><td>Refund/dispute handler</td><td>new: <code>RefundHandlerEngine</code></td></tr>
+<tr><td><code>U-SUB-13</code></td><td>Tax calc (Stripe Tax or custom)</td><td>new: <code>TaxCalcBridgeEngine</code></td></tr>
+<tr><td><code>U-SUB-14</code></td><td>Annual-vs-monthly discount logic</td><td>parameter on <code>FeatureTierEngine</code></td></tr>
+<tr><td><code>U-SUB-15</code></td><td>Multi-seat purchase + admin invite</td><td>new: <code>SeatAllocationEngine</code> + frontend</td></tr>
+<tr><td><code>U-SUB-16</code></td><td>Subscription-pause / vacation mode</td><td>new: <code>SubscriptionStateEngine</code></td></tr>
+<tr><td><code>U-SUB-17</code></td><td>Self-service plan upgrade/downgrade</td><td>extends <code>FeatureTierEngine</code> + dispatcher action</td></tr>
+<tr><td><code>U-SUB-18</code></td><td>Affiliate / referral tracking</td><td>new: <code>ReferralEngine</code></td></tr>
+</tbody>
+</table></div>
+<p><strong>Variability axis (must exercise ≥3 spanning configs):</strong></p>
+<ul>
+<li>Tier: free / hobbyist / pro / shop / enterprise (5 tiers)</li>
+<li>Form factor: web / CAM plugin / API-only / shop-floor terminal (4)</li>
+<li>Payment provider: Stripe / Paddle / wire-transfer-invoice / PO (4)</li>
+<li>Currency: USD / EUR / GBP / CAD / AUD / JPY (6)</li>
+</ul>
+<p>Total config combinations: 5×4×4×6 = 480 — test plan must span ≥3 per axis, ≥48 tested.</p>
+<h3 id="revenue-ms2-node-combination-invention-new-features-for-revenue-42-units"><a class="anchor" href="#revenue-ms2-node-combination-invention-new-features-for-revenue-42-units" aria-label="Permalink to REVENUE-MS2 — Node-combination invention (NEW features for revenue) (≈42 units)">#</a>REVENUE-MS2 — Node-combination invention (NEW features for revenue) (≈42 units)</h3>
+<p><strong>Why:</strong> The 122 audit findings + 875 unwired engines hide compound features whose pieces already exist. Combining them invents products without writing the math.</p>
+<p><strong>Depends on:</strong> REVENUE-MS0 + MS1. <strong>Blocks:</strong> competitive moat.</p>
+<p>Each unit follows the pattern <code>Engine A + Engine B + Engine C → New Product X</code>. The combinations below are EXHAUSTIVELY enumerated from cross-referencing existing engines against unmet customer needs (from JM Die tribal knowledge + 24,545-program archive).</p>
+<h4 id="mill-product-inventions-8-units"><a class="anchor" href="#mill-product-inventions-8-units" aria-label="Permalink to Mill product inventions (8 units)">#</a>Mill product inventions (8 units)</h4>
+<div class="table-wrap"><table>
+<thead><tr><th>Unit</th><th>Combo</th><th>New product</th></tr></thead>
+<tbody>
+<tr><td><code>U-INV-MILL-01</code></td><td>Kienzle + MaterialDB + ToolCrib live overlay</td><td>&quot;Adaptive feed advisor&quot; — real-time chip-load suggestion as operator types into CAM</td></tr>
+<tr><td><code>U-INV-MILL-02</code></td><td>Taylor + WearAnalysis + TelemetryStream</td><td>&quot;Tool life predictor&quot; — countdown timer on spindle (subscription per machine)</td></tr>
+<tr><td><code>U-INV-MILL-03</code></td><td>Deflection + Force + AdaptiveFeedModulation</td><td>&quot;Long-tool stability optimizer&quot; — auto-derate feed in deep cavities (sells as plugin)</td></tr>
+<tr><td><code>U-INV-MILL-04</code></td><td>SLD + ChatterPrediction + ControllerDialect</td><td>&quot;Chatter-free post&quot; — auto-shifts spindle RPM to stability lobe in posted G-code</td></tr>
+<tr><td><code>U-INV-MILL-05</code></td><td>Thermal + ThermalGrowth + ProbeRoutine</td><td>&quot;Thermal-compensated first-part&quot; — auto-probe + offset compensation</td></tr>
+<tr><td><code>U-INV-MILL-06</code></td><td>DFMCheck + ToleranceStack + CADExtract</td><td>&quot;Quote-from-STEP&quot; — drag-in CAD, get cycle-time + cost in 60s (revenue: per-quote fee)</td></tr>
+<tr><td><code>U-INV-MILL-07</code></td><td>Kienzle + Spindle + Power monitor</td><td>&quot;Real-time cutting-condition violation alerter&quot; (shop-floor SaaS)</td></tr>
+<tr><td><code>U-INV-MILL-08</code></td><td>CycleTimeCrush + ProgramOptimize + Vericut-class sim</td><td>&quot;Cycle Time Crush&quot; SaaS — upload G-code, get optimized G-code (per-program fee)</td></tr>
+</tbody>
+</table></div>
+<h4 id="lathe-product-inventions-7-units"><a class="anchor" href="#lathe-product-inventions-7-units" aria-label="Permalink to Lathe product inventions (7 units)">#</a>Lathe product inventions (7 units)</h4>
+<div class="table-wrap"><table>
+<thead><tr><th>Unit</th><th>Combo</th><th>New product</th></tr></thead>
+<tbody>
+<tr><td><code>U-INV-LATHE-01</code></td><td>HardTurn + CBN/CeramicCatalog + ResidualStressModel</td><td>&quot;Hard-turn replacement-of-grinding&quot; advisor (per-job fee)</td></tr>
+<tr><td><code>U-INV-LATHE-02</code></td><td>ChipControl + ChipbreakerCatalog + CSSWrapRisk</td><td>&quot;Lights-out turning verdict&quot; (subscription)</td></tr>
+<tr><td><code>U-INV-LATHE-03</code></td><td>Threading + ThreadStandards + TapDrillDB</td><td>&quot;Universal threading wizard&quot; — any standard, any controller (plugin upsell)</td></tr>
+<tr><td><code>U-INV-LATHE-04</code></td><td>MillTurnSync + SubSpindle + B-axisKinematics</td><td>&quot;Mill-turn collision-free post&quot; for Okuma B250IIW + similar (premium tier)</td></tr>
+<tr><td><code>U-INV-LATHE-05</code></td><td>CostOptimize + TaylorEcoSpeed + BarStockUtil</td><td>&quot;Cost-per-part calculator&quot; with min-cost / max-prod / max-profit modes (web tool, viral acquisition)</td></tr>
+<tr><td><code>U-INV-LATHE-06</code></td><td>LATHE-AGI + JMDieArchive</td><td>&quot;Print-to-program&quot; SaaS — upload print PDF, get NC (per-program fee)</td></tr>
+<tr><td><code>U-INV-LATHE-07</code></td><td>GrooveOptimize + ChipControl + Chipbreaker</td><td>&quot;Groove-job advisor&quot; (niche, high margin)</td></tr>
+</tbody>
+</table></div>
+<h4 id="wire-edm-product-inventions-6-units"><a class="anchor" href="#wire-edm-product-inventions-6-units" aria-label="Permalink to Wire EDM product inventions (6 units)">#</a>Wire EDM product inventions (6 units)</h4>
+<div class="table-wrap"><table>
+<thead><tr><th>Unit</th><th>Combo</th><th>New product</th></tr></thead>
+<tbody>
+<tr><td><code>U-INV-WEDM-01</code></td><td>WEDMCost + QuoteEngine + CustomerHistory</td><td>&quot;Auto-bid for EDM jobs&quot; — feed CAD + part-count → bid PDF (per-bid fee)</td></tr>
+<tr><td><code>U-INV-WEDM-02</code></td><td>WEDMFeasibility + WEDMConductivity + GeometryGate</td><td>&quot;Go/no-go before quote&quot; — instant cost-avoidance (free→trial→paid)</td></tr>
+<tr><td><code>U-INV-WEDM-03</code></td><td>WEDMSafetyGate + WEDMHooks + WEDMPCD</td><td>&quot;Lights-out WEDM verdict&quot; — overnight unattended run readiness</td></tr>
+<tr><td><code>U-INV-WEDM-04</code></td><td>WEDMProgram + WEDMController + 5 dialects</td><td>&quot;Universal WEDM programmer&quot; — Mitsubishi/Sodick/Makino/AgieCharmilles/Fanuc (plugin)</td></tr>
+<tr><td><code>U-INV-WEDM-05</code></td><td>WEDMCost + WEDMOptimize + 4-corner geometry</td><td>&quot;Best-cost WEDM strategy picker&quot; (per-job)</td></tr>
+<tr><td><code>U-INV-WEDM-06</code></td><td>WEDMTribal + MITCourseDB + JMDieArchive</td><td>&quot;WEDM learn-as-you-program&quot; tutor (training subscription)</td></tr>
+</tbody>
+</table></div>
+<h4 id="cross-process-inventions-6-units"><a class="anchor" href="#cross-process-inventions-6-units" aria-label="Permalink to Cross-process inventions (6 units)">#</a>Cross-process inventions (6 units)</h4>
+<div class="table-wrap"><table>
+<thead><tr><th>Unit</th><th>Combo</th><th>New product</th></tr></thead>
+<tbody>
+<tr><td><code>U-INV-CROSS-01</code></td><td>TribalKnowledge + LLM + ShopFloorQuery</td><td>&quot;Ask the Shop&quot; $/seat — natural-language Q&amp;A over tribal tips + shop-floor data</td></tr>
+<tr><td><code>U-INV-CROSS-02</code></td><td>SetupSheetGen + TravelerEngine + QualityCheck</td><td>&quot;Job traveler auto-gen&quot; — print packet for the operator (per-job)</td></tr>
+<tr><td><code>U-INV-CROSS-03</code></td><td>FirstPartRight + DFMCheck + ToleranceStack</td><td>&quot;First-part-right wizard&quot; — guides shop through proving (per-job, high margin)</td></tr>
+<tr><td><code>U-INV-CROSS-04</code></td><td>QuoteToShip + FirstPartRight + Traveler</td><td>&quot;Quote-to-ship pipeline&quot; SaaS — end-to-end job mgmt for sub-shops (per-shop subscription)</td></tr>
+<tr><td><code>U-INV-CROSS-05</code></td><td>CADExtract + DFMCheck + CostOptimize</td><td>&quot;Drag-CAD-get-quote&quot; widget — embeddable iframe for vendor sites (revenue share)</td></tr>
+<tr><td><code>U-INV-CROSS-06</code></td><td>InjectionMoldQuote + DFM + MaterialDB</td><td>&quot;Plastic-quote&quot; parallel product (separate revenue stream)</td></tr>
+</tbody>
+</table></div>
+<h4 id="shop-floor-saas-inventions-8-units"><a class="anchor" href="#shop-floor-saas-inventions-8-units" aria-label="Permalink to Shop-floor SaaS inventions (8 units)">#</a>Shop-floor SaaS inventions (8 units)</h4>
+<div class="table-wrap"><table>
+<thead><tr><th>Unit</th><th>Combo</th><th>New product</th></tr></thead>
+<tbody>
+<tr><td><code>U-INV-SHOP-01</code></td><td>MachineCheck + MachineEnrich + MachineROI</td><td>&quot;Machine ROI dashboard&quot; — per-machine $/hr (subscription)</td></tr>
+<tr><td><code>U-INV-SHOP-02</code></td><td>OEE-Dashboards + TelemetryStream + AlarmBus</td><td>&quot;Real-time OEE alerts&quot; — text/email when downtime spikes (shop-tier)</td></tr>
+<tr><td><code>U-INV-SHOP-03</code></td><td>CycleTimeCrush + ProgramAudit + SPC</td><td>&quot;Continuous improvement copilot&quot; — flags cycle drift over time</td></tr>
+<tr><td><code>U-INV-SHOP-04</code></td><td>CMMParse + GDNTCheck + ToleranceStack</td><td>&quot;Auto-FAI generator&quot; — drop CMM XML, get FAI form (per-FAI fee)</td></tr>
+<tr><td><code>U-INV-SHOP-05</code></td><td>InfraEvents + InfraJobs + JobsTracker</td><td>&quot;Shop event bus&quot; — operator phone notifications (per-seat)</td></tr>
+<tr><td><code>U-INV-SHOP-06</code></td><td>ResourceCensus + InventoryAgent + ReorderRules</td><td>&quot;Auto-reorder consumables&quot; — Amazon Business integration (rev share)</td></tr>
+<tr><td><code>U-INV-SHOP-07</code></td><td>ShopFloorQuery + TribalDistill + GeneralizeRule</td><td>&quot;Tribal-to-doctrine&quot; — converts operator tips into shop SOPs (premium)</td></tr>
+<tr><td><code>U-INV-SHOP-08</code></td><td>ShopSchedule + CapacityPlan + Bid-to-Win</td><td>&quot;Smart scheduling&quot; — accepts/rejects jobs based on capacity + margin</td></tr>
+</tbody>
+</table></div>
+<h4 id="knowledge-as-product-inventions-4-units"><a class="anchor" href="#knowledge-as-product-inventions-4-units" aria-label="Permalink to Knowledge-as-product inventions (4 units)">#</a>Knowledge-as-product inventions (4 units)</h4>
+<div class="table-wrap"><table>
+<thead><tr><th>Unit</th><th>Combo</th><th>New product</th></tr></thead>
+<tbody>
+<tr><td><code>U-INV-KNOW-01</code></td><td>Wiki + ObsidianMemoryRAG + ai-reason</td><td>&quot;Ask PRISM&quot; — chatbot trained on PRISM wiki + 4,245 tribal tips (free tier → trial bait)</td></tr>
+<tr><td><code>U-INV-KNOW-02</code></td><td>VideoLearn + YouTubeTranscript + PDFLearn</td><td>&quot;Auto-curate manufacturing training library&quot; (training subscription)</td></tr>
+<tr><td><code>U-INV-KNOW-03</code></td><td>TribalDistill + Generalize + WikiSync</td><td>&quot;Doctrine engine&quot; — auto-extracts doctrine from operator chat / shop floor (per-shop)</td></tr>
+<tr><td><code>U-INV-KNOW-04</code></td><td>MITCourseDB + ShopFloorQuery + Ask-Shop</td><td>&quot;Manufacturing CE credits&quot; — pay-for-learning with shop integration</td></tr>
+</tbody>
+</table></div>
+<h4 id="cad-side-inventions-3-units"><a class="anchor" href="#cad-side-inventions-3-units" aria-label="Permalink to CAD-side inventions (3 units)">#</a>CAD-side inventions (3 units)</h4>
+<div class="table-wrap"><table>
+<thead><tr><th>Unit</th><th>Combo</th><th>New product</th></tr></thead>
+<tbody>
+<tr><td><code>U-INV-CAD-01</code></td><td>CADFromText + CADFromBlueprint + DFMCheck</td><td>&quot;Text-to-CAD-to-Quote&quot; — natural language → STEP → cost (revenue: per-design)</td></tr>
+<tr><td><code>U-INV-CAD-02</code></td><td>AGI-CAD-Generate + FusionGenerate</td><td>&quot;Generative CAD-for-CAM&quot; — describe part, get manufacturable STEP (premium)</td></tr>
+<tr><td><code>U-INV-CAD-03</code></td><td>CADRag + CADExtract + AGI-CAD</td><td>&quot;CAD-aware quote refinement&quot; — chat with the part (premium)</td></tr>
+</tbody>
+</table></div>
+<p><strong>Tested combinations span 7 axes</strong> (material × process × machine × controller × volume × tolerance class × shop tier) → ≥3 per axis tested.</p>
+<h3 id="revenue-ms3-wire-backlog-harvest-18-units"><a class="anchor" href="#revenue-ms3-wire-backlog-harvest-18-units" aria-label="Permalink to REVENUE-MS3 — Wire backlog harvest (≈18 units)">#</a>REVENUE-MS3 — Wire backlog harvest (≈18 units)</h3>
+<p><strong>Why:</strong> 875 unwired engines = capabilities customers can&#39;t reach. Most are revenue-relevant.</p>
+<p><strong>Depends on:</strong> MS0/MS1 (UI to put them in). <strong>Blocks:</strong> feature parity with competitor CAM vendors.</p>
+<p>Units batched by domain (top-N per BUILD_STATE.top_unwired_domains):</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Unit</th><th>Batch</th><th>Count</th><th>Target dispatcher</th></tr></thead>
+<tbody>
+<tr><td><code>U-WIRE-OTHER-01..03</code></td><td>3 batches × 47 = 141 of 142 &quot;Other&quot;</td><td>141</td><td>route by inferred domain → existing dispatchers</td></tr>
+<tr><td><code>U-WIRE-LATHE-01..03</code></td><td>3 batches × 30 = 90 of 89</td><td>89</td><td><code>prism_turning</code></td></tr>
+<tr><td><code>U-WIRE-MACHINE-01..02</code></td><td>2 batches × 9 = 18 of 17</td><td>17</td><td><code>prism_machine</code></td></tr>
+<tr><td><code>U-WIRE-MULTI-01</code></td><td>12 of 12</td><td>12</td><td>route by sub-domain</td></tr>
+<tr><td><code>U-WIRE-TURNING-01</code></td><td>11 of 11</td><td>11</td><td><code>prism_turning</code></td></tr>
+<tr><td><code>U-WIRE-REMAINING-01..07</code></td><td>7 batches × 90 = 630 across remaining domains</td><td>605</td><td>route per audit-suggested-dispatcher</td></tr>
+</tbody>
+</table></div>
+<p>Wiring acceptance per unit (CLAUDE.md ENGINE WIRING law):</p>
+<ul>
+<li>Import in dispatcher</li>
+<li>Action-enum entry</li>
+<li>Schema</li>
+<li>Lazy-import resolution</li>
+<li>Engine-named test file with ≥1 round-trip E2E case</li>
+<li>Round-trip assertion through dispatcher, not engine singleton</li>
+</ul>
+<h3 id="revenue-ms4-drift-reconciliation-10-units"><a class="anchor" href="#revenue-ms4-drift-reconciliation-10-units" aria-label="Permalink to REVENUE-MS4 — Drift reconciliation (≈10 units)">#</a>REVENUE-MS4 — Drift reconciliation (≈10 units)</h3>
+<p><strong>Why:</strong> 613 milestones claim &quot;complete&quot; while git shows &quot;not_started_real&quot;. Some are revenue-blocking false-positives.</p>
+<p><strong>Depends on:</strong> MS0/MS1. <strong>Blocks:</strong> trust in own roadmap.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Unit</th><th>What</th></tr></thead>
+<tbody>
+<tr><td><code>U-DRIFT-01</code></td><td>Run <code>envelope-sync</code> skill, group drift by revenue-relevance</td></tr>
+<tr><td><code>U-DRIFT-02</code></td><td>Auto-flip envelopes where git shows real shipping (false-negative drift)</td></tr>
+<tr><td><code>U-DRIFT-03..09</code></td><td>Per-batch reconcile of 7 revenue-relevant milestone clusters: SFC, Master Post, CAM bridges (×6)</td></tr>
+<tr><td><code>U-DRIFT-10</code></td><td>Final audit + <code>state/shared/MILESTONE_PROGRESS.json</code> regen</td></tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="algorithm-formula-equation-combinatorics-what-new-math-emerges-from-node-combinations"><a class="anchor" href="#algorithm-formula-equation-combinatorics-what-new-math-emerges-from-node-combinations" aria-label="Permalink to Algorithm / formula / equation combinatorics (what new math emerges from node combinations)">#</a>Algorithm / formula / equation combinatorics (what new math emerges from node combinations)</h2>
+<p>Per the directive, each combination produces NEW algorithmic behavior. Surfaced here so the algorithm-design phase is auditable:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Combination</th><th>Emergent algorithm / equation</th><th>Customer value</th></tr></thead>
+<tbody>
+<tr><td>Kienzle (Fc = kc · A · (1−m_c) · ...) + Taylor (V · T^n = C)</td><td><strong>Optimal V for tool-life economy</strong> — <code>V* = (C / ((1-n)·T_life))^(1/n)</code> with kc constraint check</td><td>&quot;Set the V that respects both force budget AND tool-life floor&quot;</td></tr>
+<tr><td>Deflection (δ = F·L³/(3EI)) + Kienzle</td><td><strong>Force-aware step-down recommender</strong> — solve δ ≤ tolerance for ap given F = kc·b·ap·fz</td><td>&quot;Don&#39;t take a cut that bends the tool past spec&quot;</td></tr>
+<tr><td>SLD (chatter stability lobe map) + Spindle RPM range</td><td><strong>Lobe-pick algorithm</strong> — choose RPM at peak of nearest stable lobe within spindle range</td><td>&quot;Stable cutting at near-max material removal&quot;</td></tr>
+<tr><td>Thermal growth (linear coef α·ΔT·L) + Probe routine</td><td><strong>Auto-offset equation</strong> — compensation = α · (T_now − T_probe) · L_axis</td><td>&quot;First-piece-after-warmup compensation&quot;</td></tr>
+<tr><td>Taylor + Adaptive Feed</td><td><strong>Real-time V adjuster</strong> — V(t) = V_init · (T_remaining / T_initial)^n</td><td>&quot;Slow down as the tool wears&quot;</td></tr>
+<tr><td>Johnson-Cook constitutive + thermal</td><td><strong>High-speed cutting force prediction</strong> at strain-rate &gt;10^4</td><td>&quot;Hard-turning force at HSM speeds&quot;</td></tr>
+<tr><td>Bayesian wear + telemetry</td><td><strong>Posterior tool-life estimate</strong> — combine prior Taylor with live observed wear</td><td>&quot;Tool-life prediction that learns from your machine&quot;</td></tr>
+<tr><td>Spindle harmonic + chatter</td><td><strong>Resonance-avoidance feed schedule</strong> — auto-shift fz to dodge harmonics</td><td>&quot;No-chatter-in-pocket&quot; auto-feed</td></tr>
+<tr><td>Polynomial cycle-time model + program-optimize</td><td><strong>Cycle-time-bounded G-code search</strong> — search G-code rewrites that monotonically reduce predicted Tc</td><td>&quot;Cycle Time Crush&quot; search loop</td></tr>
+<tr><td>Conformal prediction + adaptive-feed</td><td><strong>Calibrated feed-confidence interval</strong> — feed = mean ± α-conformal</td><td>&quot;Feed with risk band, not point estimate&quot;</td></tr>
+<tr><td>Z3 solver + tolerance stack</td><td><strong>Solvable tolerance allocation</strong> — given assembly Σ ≤ T, find per-feature t_i that maximizes manufacturability</td><td>&quot;Auto-tighten only what matters&quot;</td></tr>
+<tr><td>MIP / LP + capacity-plan + bid-to-win</td><td><strong>Job acceptance optimizer</strong> — accept/reject set maximizes margin under machine-hour constraint</td><td>&quot;Smart shop scheduling&quot;</td></tr>
+<tr><td>Gaussian process + thermal + drift</td><td><strong>Long-horizon thermal drift correction</strong></td><td>&quot;Sub-micron all-day work&quot;</td></tr>
+</tbody>
+</table></div>
+<p>(13 surfaced; more emerge per combination in MS2.)</p>
+<hr>
+<h2 id="node-wiring-bridging-plan"><a class="anchor" href="#node-wiring-bridging-plan" aria-label="Permalink to Node wiring / bridging plan">#</a>Node wiring / bridging plan</h2>
+<p>Per the directive (&quot;all potential node wiring and bridging of nodes&quot;), every UI page in MS0 wires to ≥1 dispatcher action, every dispatcher action wires to ≥1 engine. Bridges (where two engines that should compose but don&#39;t yet) are explicit units in MS3.</p>
+<p><strong>Identified bridges</strong> (from <code>audit-overlay.json</code> blue=19 + audit conflict findings=8):</p>
+<ul>
+<li>19 intra-domain pairs sharing a hub but not directly connected — every one becomes a bridge-build unit in MS3</li>
+<li>8 cross-engine conflicts (same-name / overlapping-intent) — every one becomes a canonicalize-or-rename unit in MS4</li>
+</ul>
+<p><strong>Bridging variability axes:</strong></p>
+<ul>
+<li>Bridge by direct edge (cheapest)</li>
+<li>Bridge by adapter engine (when interfaces differ)</li>
+<li>Bridge by event bus (<code>tr.ws</code> or <code>infra-events</code>) when async</li>
+<li>Bridge by shared cache (when stateful)</li>
+<li>Bridge by hook injection (when cross-cutting concern)</li>
+</ul>
+<p>Each MS3 wiring unit picks one of these 5 strategies based on the inferred coupling.</p>
+<hr>
+<h2 id="variability-axis-problem-solving-inputs-states-failure-modes-adversarial"><a class="anchor" href="#variability-axis-problem-solving-inputs-states-failure-modes-adversarial" aria-label="Permalink to Variability axis (problem-solving inputs × states × failure modes × adversarial)">#</a>Variability axis (problem-solving inputs × states × failure modes × adversarial)</h2>
+<p>Required by comprehensive-build enforcement. The roadmap MUST cover:</p>
+<p><strong>Inputs:</strong></p>
+<ul>
+<li>6 ISO material groups (P, M, K, N, S, H) × 5 hardness bands × 2 coolant regimes = 60 cutting conditions</li>
+<li>5 controller dialects (Fanuc, Siemens, Haas, Mazak, Mitsubishi/Sodick/Makino/AgieCharmilles/Fanuc-WEDM) × per-controller G/M-code variants</li>
+<li>4 spindle taper systems (HSK, BT/CAT, ER, polygon)</li>
+<li>6 CAM systems (the tier-1 list)</li>
+<li>N machine envelopes (encoded in <code>ShopConfigurationEngine</code>&#39;s 21-machine fleet)</li>
+</ul>
+<p><strong>States:</strong></p>
+<ul>
+<li>Cold / warm / hot machine</li>
+<li>New / mid-life / end-of-life tool</li>
+<li>Empty / partial / full work envelope</li>
+<li>Operator: trainee / journeyman / master</li>
+<li>Subscription: trial / paid / lapsed</li>
+<li>Job: first-article / production / lights-out</li>
+</ul>
+<p><strong>Failure modes (must be tested):</strong></p>
+<ul>
+<li>Bad input (wrong units, missing field, malformed file)</li>
+<li>Boundary (zero, NaN, Infinity, oversize, max-int)</li>
+<li>Resource exhaustion (OOM, disk full, network down)</li>
+<li>Permission denied</li>
+<li>Race condition (multi-chat concurrent)</li>
+</ul>
+<p><strong>Adversarial:</strong></p>
+<ul>
+<li>Prompt injection in user-supplied text fields</li>
+<li>File-upload attacks (zip bomb, malicious STEP, exploit PDF)</li>
+<li>Subscription bypass attempts (token forgery, replay)</li>
+<li>Rate-limit evasion</li>
+</ul>
+<p>Every unit ships with tests covering ≥3 of each axis (per CLAUDE.md comprehensive-build rule).</p>
+<hr>
+<h2 id="what-is-not-in-scope-peer-chat-ownership"><a class="anchor" href="#what-is-not-in-scope-peer-chat-ownership" aria-label="Permalink to What is NOT in scope (peer-chat ownership)">#</a>What is NOT in scope (peer-chat ownership)</h2>
+<p>The other concurrent chat owns these — <strong>do not duplicate</strong>:</p>
+<ul>
+<li>Development tools (the <code>forge*</code>, <code>rgs*</code>, <code>audit-*</code> script families themselves — meta-layer)</li>
+<li>Backend systems infra (<code>mcp-server/src/transport</code>, <code>dispatcher</code> plumbing changes)</li>
+<li>AI systems (<code>PRISMSelfAwarenessEngine</code>, <code>AISystemRouter</code>, <code>FullSystemAICoordinator</code> orchestration changes)</li>
+<li>Infrastructure (Docker, Redis, BullMQ, Postgres schemas)</li>
+<li>Neural networking (<code>CrossProcessNeuralLearningEngine</code> family, conformal prediction core)</li>
+<li>Back-end system-viz internals (<code>scripts/generate-system-viz.mjs</code>, <code>scripts/merge-augmentations.mjs</code>, the visualization layer)</li>
+<li>Hook bundle rewrite (<code>.claude/hooks/bundles/</code> — claude-7b9d1810 active)</li>
+<li>Wiki internals (<code>WikiIndexMaintainerEngine</code>, <code>wiki-bootstrap</code>)</li>
+</ul>
+<p>If a unit in this roadmap touches one of these surfaces, it becomes a <strong>bridge coordination</strong> unit — file a request to the peer chat via <code>state/shared/AGENT_CHAT.md</code> and proceed only after the peer ships.</p>
+<hr>
+<h2 id="execution-discipline"><a class="anchor" href="#execution-discipline" aria-label="Permalink to Execution discipline">#</a>Execution discipline</h2>
+<p>Per CLAUDE.md doctrine and previous session&#39;s hard-won lessons (lint-staged cascade, multi-chat index race, peer-claim respect, atomic commit pattern):</p>
+<ol>
+<li><strong>Atomic <code>git add &lt;file&gt; &amp;&amp; git commit -m ...</code> in ONE bash invocation</strong> (multi-chat index poisoning if separated).</li>
+<li><strong>Respect peer claims</strong> — never edit files in <code>state/shared/AGENT_CHAT.md</code> active-claims block.</li>
+<li><strong>Use <code>forge-audit-omniscient</code> before each milestone</strong> to refresh AUDIT-LATEST.json + audit-overlay.json; new findings update the roadmap.</li>
+<li><strong>Use <code>audit-to-units.mjs</code></strong> (already shipped commit <code>87a7c70d5</code>) to convert audit findings into roadmap unit additions.</li>
+<li><strong>Wire every engine via duplicationGuardEngine.mustCheckBeforeCreating</strong> — no new engine if a similar exists (use it, extend it, rename it — don&#39;t duplicate).</li>
+<li><strong>Test span ≥3 configs per variability axis</strong> — never test only the canonical default.</li>
+<li><strong>Every commit format <code>[CAD-FUSION-LIVE-MS0]/U-REV-…: title</code></strong> (matches per-agent handoff topic).</li>
+</ol>
+<hr>
+<h2 id="first-week-kickoff-priority-order"><a class="anchor" href="#first-week-kickoff-priority-order" aria-label="Permalink to First-week kickoff (priority order)">#</a>First-week kickoff (priority order)</h2>
+<p>Day 1: <code>REVENUE-MS0</code> U-REV-CAD-SFC-01..06 (Speed/Feed Calculator UI — biggest single revenue lift) Day 2-3: <code>REVENUE-MS0</code> U-REV-MILL-01..05 + U-REV-LATHE-01..07 Day 4: <code>REVENUE-MS0</code> U-REV-WEDM-01..05 + U-REV-QUALITY-01..04 Day 5: <code>REVENUE-MS0</code> U-REV-ADMIN-01..07 (subscription gate prerequisite) Day 6-7: <code>REVENUE-MS1</code> U-SUB-01..04 (Stripe + license validator + tier middleware) Week 2+: U-SUB-05..18 → MS2 inventions in customer-pull priority order</p>
+<hr>
+<h2 id="how-this-roadmap-regenerates-itself"><a class="anchor" href="#how-this-roadmap-regenerates-itself" aria-label="Permalink to How this roadmap regenerates itself">#</a>How this roadmap regenerates itself</h2>
+<p>Every milestone close runs:</p>
+<ol>
+<li><code>forge-audit-omniscient.mjs</code> → refreshes AUDIT-LATEST.json</li>
+<li><code>audit-to-units.mjs</code> → emits new unit candidates into <code>mcp-server/data/milestones/MS-AUDIT-DERIVED-&lt;date&gt;.json</code></li>
+<li>Operator merges candidate units into this roadmap&#39;s MS where they belong</li>
+<li>Drift check via <code>envelope-sync</code> skill</li>
+<li>System-viz regen via <code>scripts/generate-system-viz.mjs</code> (now ~12s post-round-4 skip)</li>
+</ol>
+<p>This document is THE source of truth for the revenue lane. The peer chat&#39;s roadmap is THE source for the dev-tools/infra lane. Conflicts in shared files resolved by chat-bus post + <code>state/shared/handoffs/</code> per-agent files.</p>
+<hr>
+<h2 id="v7-upgrade-layer-boris-doctrine-compliance-appended-2026-05-10"><a class="anchor" href="#v7-upgrade-layer-boris-doctrine-compliance-appended-2026-05-10" aria-label="Permalink to v7 UPGRADE LAYER (Boris doctrine compliance — appended 2026-05-10)">#</a>v7 UPGRADE LAYER (Boris doctrine compliance — appended 2026-05-10)</h2>
+<p>This section upgrades the roadmap to <code>/forge7</code> + <code>/forge-audit-v2</code> compliance: per-unit verification channel (HARD GATE), expanded node-combinatorics with AI-synergy plan, peer-Claude plan review, META artifact, HTML companion, <code>/loop</code> self-schedule. Existing sections above remain canonical; this layer <strong>adds</strong> required gates.</p>
+<h3 id="v7a-per-unit-verification-channel-declaration-hard-gate"><a class="anchor" href="#v7a-per-unit-verification-channel-declaration-hard-gate" aria-label="Permalink to v7.A — Per-unit verification channel declaration (HARD GATE)">#</a>v7.A — Per-unit verification channel declaration (HARD GATE)</h3>
+<p>Every unit in MS0–MS4 declares a re-runnable verification feedback channel. Templates by unit class:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Unit class</th><th><code>verifies_via.tool</code></th><th><code>expected_signal</code></th><th><code>re_run_cost</code></th></tr></thead>
+<tbody>
+<tr><td>Frontend page (MS0)</td><td><code>rtk vitest run -- &lt;page&gt;.test.ts &amp;&amp; playwright test &lt;page&gt;.spec.ts</code></td><td>All happy + 3 failure-modes + 2 adversarial pass</td><td>~30s</td></tr>
+<tr><td>Subscription engine (MS1)</td><td><code>rtk vitest run -- &lt;engine&gt;.test.ts &amp;&amp; stripe webhook --test &lt;event&gt;</code></td><td>Webhook → dispatcher round-trip green</td><td>~15s</td></tr>
+<tr><td>Combinatoric invention (MS2)</td><td><code>rtk vitest run -- &lt;new-engine&gt;.test.ts &amp;&amp; node scripts/spans-config-matrix.mjs --engine &lt;name&gt; --axes 7</code></td><td>≥3 configs per axis pass; emergent algorithm output stable across configs</td><td>~45s</td></tr>
+<tr><td>Wiring batch (MS3)</td><td><code>rtk vitest run -- &lt;engine&gt;.test.ts &amp;&amp; node scripts/check-engine-wired.mjs --engine &lt;name&gt;</code></td><td>Engine listed by <code>system-viz-query.mjs find</code> AND has dispatcher action enum entry</td><td>~10s</td></tr>
+<tr><td>Drift unit (MS4)</td><td><code>node scripts/build-milestone-progress.mjs &amp;&amp; rtk git log --oneline -- &lt;milestone-path&gt;</code></td><td>Envelope <code>status</code> matches git evidence</td><td>~5s</td></tr>
+<tr><td>Bridge coordination unit</td><td><code>node scripts/system-viz-query.mjs verify-bridge --from &lt;A&gt; --to &lt;B&gt;</code></td><td>Edge exists in graph; both endpoints have action wired</td><td>~8s</td></tr>
+<tr><td>Customer-flow E2E (MS0+MS1)</td><td><code>playwright test --grep &lt;user-story&gt;</code></td><td>Signup → trial → quote → pay → first-output path green</td><td>~2m</td></tr>
+</tbody>
+</table></div>
+<p><strong>No unit may ship without a declared <code>verifies_via</code> block.</strong> Stop hook <code>scrutinize-before-stop</code> is the enforcement surface; consensus 3-of-3 already gates closure.</p>
+<h3 id="v7b-expanded-node-combinatorics-50-emergent-algorithms-formulas"><a class="anchor" href="#v7b-expanded-node-combinatorics-50-emergent-algorithms-formulas" aria-label="Permalink to v7.B — Expanded node-combinatorics (50 emergent algorithms / formulas)">#</a>v7.B — Expanded node-combinatorics (50 emergent algorithms / formulas)</h3>
+<p>Pre-v7, the spec listed 13. v7 enumerates every revenue-scope node-pair where connection produces emergent algorithmic behavior. Format: <code>Pair → Equation/Algorithm → Variability axis covered → AI orchestration plan</code>.</p>
+<p><strong>AI orchestration tiers per combo (per user directive):</strong></p>
+<ul>
+<li><strong>T1 (Claude orchestration):</strong> synthesizes the combo, resolves ambiguity, owns final go/no-go</li>
+<li><strong>T2 (deep reasoning):</strong> <code>prism_ai:ai_milling_deep_reason</code> / <code>ai_wedm_deep_logic</code> / <code>cot_reason_tree</code> — multi-step physical inference</li>
+<li><strong>T3 (deep learning):</strong> LoRA adapters (<code>mill_lora_predict</code>, <code>lathe_lora_pipeline</code>, <code>wedm_lora_*</code>, <code>cam_lora_*</code>) — learned residuals on top of physics</li>
+<li><strong>T4 (neural networks):</strong> <code>xproc_neural_train/predict</code>, conformal prediction, ensemble fusion — calibrated uncertainty</li>
+<li><strong>T5 (AI systems):</strong> routing (<code>aiSystemRouterEngine</code>), federated learn, transfer scaling, prototypical regression</li>
+<li><strong>T6 (symbolic AI):</strong> Z3 / constraint solver / MIP — formal allocation</li>
+<li><strong>T7 (genome / KG):</strong> <code>prism_intelligence:graph_*</code>, <code>prismCreativeReasoningEngine.explore</code> — cross-domain analogy</li>
+</ul>
+<p><strong>Combinatorics table (50 pairs):</strong></p>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Pair</th><th>Equation / Algorithm</th><th>Variability axis covered</th><th>AI synergy plan</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Kienzle × Taylor</td><td><code>V* = (C / ((1-n)·T))^(1/n)</code>, kc-constraint</td><td>material × tool-life</td><td>T1 chooses obj, T2 reasons constraint, T4 conformal V CI</td></tr>
+<tr><td>2</td><td>Deflection × Kienzle</td><td>δ ≤ tol → ap = (3EI·tol / (L³·kc·b·fz))^solve</td><td>tool overhang × stiffness</td><td>T2 inferences, T4 calibration</td></tr>
+<tr><td>3</td><td>SLD × Spindle RPM</td><td>Lobe peak picker on stability map</td><td>spindle range × tool</td><td>T3 LoRA learns chatter offset per machine</td></tr>
+<tr><td>4</td><td>Thermal-growth × Probe</td><td>compensation(t) = α(T_now − T_probe)·L_axis</td><td>warmup state</td><td>T7 GP long-horizon</td></tr>
+<tr><td>5</td><td>Taylor × Adaptive-feed</td><td>V(t) = V₀(T_left/T₀)^n</td><td>tool wear</td><td>T3 wear-rate LoRA</td></tr>
+<tr><td>6</td><td>Johnson-Cook × Thermal</td><td>Force at HSM (Ė̇ &gt; 10⁴)</td><td>strain-rate</td><td>T2 deep-reason, T4 epistemic UQ</td></tr>
+<tr><td>7</td><td>Bayesian-wear × Telemetry</td><td>Posterior MTBF / Weibull update</td><td>machine-specific</td><td>T3 per-machine LoRA + T4 prior</td></tr>
+<tr><td>8</td><td>Spindle-harmonic × Chatter</td><td>fz shift schedule</td><td>RPM band</td><td>T2 + T4 chatter classifier</td></tr>
+<tr><td>9</td><td>CycleTime-poly × ProgramOpt</td><td>Local search G-code rewrites minimizing T̂c</td><td>program shape</td><td>T7 KG of past optimizations</td></tr>
+<tr><td>10</td><td>Conformal × AdaptiveFeed</td><td>feed = μ̂ ± α-conformal</td><td>input variability</td><td>T4 native</td></tr>
+<tr><td>11</td><td>Z3 × ToleranceStack</td><td>Min-cost t_i s.t. Σ ≤ T</td><td>drawing tolerance</td><td>T6</td></tr>
+<tr><td>12</td><td>MIP × Capacity × Bid</td><td>argmax Σ(margin·accept) s.t. hr ≤ cap</td><td>shop load</td><td>T6 + T1 ratify</td></tr>
+<tr><td>13</td><td>GP × Thermal × Drift</td><td>Sub-µ kriging correction</td><td>shift-of-day</td><td>T7 GP</td></tr>
+<tr><td>14</td><td>Chuck-force × Part-deflect</td><td>F_min = part-stiffness · clamp-deflect-spec</td><td>workholding</td><td>T2</td></tr>
+<tr><td>15</td><td>Material-DB × Coolant-DB</td><td>Coolant-fit recommender via Pareto over (cost, life, finish)</td><td>coolant regime</td><td>T5 Pareto</td></tr>
+<tr><td>16</td><td>Tool-Catalog × Toolholder-FRF</td><td>Assembly-FRF predictor</td><td>tool stack</td><td>T3 RCSA LoRA</td></tr>
+<tr><td>17</td><td>DFM × Tolerance × CAD-extract</td><td>Quote-from-STEP cost equation</td><td>feature mix</td><td>T7 KG + T6</td></tr>
+<tr><td>18</td><td>Wear-progression × Energy-eff</td><td>Energy-per-part minimizer</td><td>sustainability</td><td>T4</td></tr>
+<tr><td>19</td><td>Hard-turn × CBN × ResidualStress</td><td>Replace-grinding decision rule</td><td>finish/Rt class</td><td>T2</td></tr>
+<tr><td>20</td><td>Chip-control × Chipbreaker-DB</td><td>Chip-evac probability score</td><td>groove geometry</td><td>T3 LoRA</td></tr>
+<tr><td>21</td><td>Threading-table × Tap-drill × Std-DB</td><td>Universal threading wizard logic</td><td>thread standard</td><td>T6 enum + T2</td></tr>
+<tr><td>22</td><td>Mill-turn sync × B-axis × Sub-spindle</td><td>Collision-free post equation set</td><td>machine kinematics</td><td>T2 + T6</td></tr>
+<tr><td>23</td><td>Taylor-eco × Bar-stock-util</td><td>Cost-per-part 3-mode optimizer (min-c/max-prod/max-profit)</td><td>objective mode</td><td>T6 LP</td></tr>
+<tr><td>24</td><td>LATHE-AGI × JMDie-archive</td><td>Print-to-program neural draft</td><td>print shape</td><td>T3 + T7</td></tr>
+<tr><td>25</td><td>WEDM-cost × Quote × Customer-history</td><td>Auto-bid equation w/ win-rate prior</td><td>customer</td><td>T7 + T4 calibration</td></tr>
+<tr><td>26</td><td>WEDM-feasibility × Conductivity × Geometry</td><td>Pre-quote go/no-go</td><td>material</td><td>T2</td></tr>
+<tr><td>27</td><td>WEDM-safety × WEDM-hooks × WEDM-PCD</td><td>Lights-out readiness score</td><td>risk class</td><td>T2 + T4</td></tr>
+<tr><td>28</td><td>WEDM-program × 5 dialects</td><td>Dialect-translator equation set</td><td>controller</td><td>T6 + T3 dialect-LoRA</td></tr>
+<tr><td>29</td><td>WEDM-tribal × MIT-DB × JM-archive</td><td>Learn-as-program tutor curriculum</td><td>learner level</td><td>T7 KG</td></tr>
+<tr><td>30</td><td>Tribal × LLM × Shop-floor-query</td><td>Ask-the-Shop RAG retrieval</td><td>tribal corpus</td><td>T5 routing + T4 generation</td></tr>
+<tr><td>31</td><td>SetupSheet × Traveler × QA</td><td>Auto-traveler emit pipeline</td><td>job class</td><td>T1 orchestration</td></tr>
+<tr><td>32</td><td>FirstPartRight × DFM × ToleranceStack</td><td>First-part-right scoring fn</td><td>tolerance band</td><td>T6 + T2</td></tr>
+<tr><td>33</td><td>Quote-to-ship × Traveler × FAI</td><td>E2E job-state machine</td><td>job phase</td><td>T1</td></tr>
+<tr><td>34</td><td>CAD-extract × DFM × Cost</td><td>Drag-CAD widget equation</td><td>uploaded part</td><td>T2 + T6</td></tr>
+<tr><td>35</td><td>InjectionMold × DFM × Material</td><td>Plastic-quote equation</td><td>mold geometry</td><td>T2</td></tr>
+<tr><td>36</td><td>Machine-check × ROI × Telemetry</td><td>Per-machine $/hr</td><td>shop config</td><td>T4</td></tr>
+<tr><td>37</td><td>OEE × Telemetry × Alarm-bus</td><td>Real-time OEE alert thresholds</td><td>shift</td><td>T4 anomaly</td></tr>
+<tr><td>38</td><td>CycleTimeCrush × Program-audit × SPC</td><td>Cycle drift detector</td><td>program history</td><td>T4 + T7</td></tr>
+<tr><td>39</td><td>CMM-parse × GDT × Tol-stack</td><td>Auto-FAI form populator</td><td>drawing</td><td>T6 + T2</td></tr>
+<tr><td>40</td><td>Infra-events × Infra-jobs × Tracker</td><td>Event-bus pub/sub for ops</td><td>event volume</td><td>T5</td></tr>
+<tr><td>41</td><td>Resource-census × Inventory × Reorder</td><td>EOQ-driven auto-reorder</td><td>usage rate</td><td>T6 + T4</td></tr>
+<tr><td>42</td><td>Shop-floor-query × Tribal × Generalize</td><td>Tribal-to-doctrine extractor</td><td>conversation</td><td>T2</td></tr>
+<tr><td>43</td><td>Shop-schedule × Capacity × Bid-to-win</td><td>Smart job acceptance</td><td>shop fleet</td><td>T6</td></tr>
+<tr><td>44</td><td>Wiki × Obsidian-RAG × Reason</td><td>Ask-PRISM chatbot pipeline</td><td>query type</td><td>T5 route + T4 gen</td></tr>
+<tr><td>45</td><td>VideoLearn × YT-transcript × PDF-learn</td><td>Auto-curate training library</td><td>content source</td><td>T5</td></tr>
+<tr><td>46</td><td>Tribal-distill × Generalize × Wiki-sync</td><td>Doctrine engine emit</td><td>shop history</td><td>T2 + T7</td></tr>
+<tr><td>47</td><td>MIT-courses × Shop-query × Ask-shop</td><td>CE-credit grade engine</td><td>learning track</td><td>T7</td></tr>
+<tr><td>48</td><td>CAD-text × CAD-blueprint × DFM</td><td>Text-to-CAD-to-Quote pipeline</td><td>NL prompt</td><td>T1 + T7</td></tr>
+<tr><td>49</td><td>AGI-CAD × Fusion-generate</td><td>Generative CAD for CAM pipeline</td><td>part class</td><td>T7</td></tr>
+<tr><td>50</td><td>CAD-RAG × CAD-extract × AGI-CAD</td><td>Chat-with-the-part Q&amp;A</td><td>CAD memory</td><td>T5 + T7</td></tr>
+</tbody>
+</table></div>
+<p><strong>Variability coverage matrix:</strong> every algorithm above must be evaluated across the 7 axes (material × process × machine × controller × volume × tolerance × shop-tier). Default test plan is ≥3 spanning configs per axis per algorithm = ≥21 test cases per emergent algorithm.</p>
+<h3 id="v7c-ai-orchestration-plan-claude-as-tier-1"><a class="anchor" href="#v7c-ai-orchestration-plan-claude-as-tier-1" aria-label="Permalink to v7.C — AI orchestration plan (Claude as Tier-1)">#</a>v7.C — AI orchestration plan (Claude as Tier-1)</h3>
+<p>Each combinatoric algorithm follows this orchestration template:</p>
+<pre><code>Claude (T1) — receive request, parse intent, select algorithm row from combinatorics table
+  ↓ delegates physical inference
+T2 deep-reason — physical/causal step-chain (e.g. ai_milling_deep_reason)
+  ↓ optionally calls
+T3 LoRA — learned residual correction (e.g. mill_lora_predict)
+  ↓ optionally augments
+T4 neural / conformal — calibrated uncertainty interval (xproc_conformal_set)
+  ↓ orthogonally
+T5 AI router — picks the best backend (aiSystemRouterEngine.route)
+  ↓ orthogonally
+T6 symbolic — formal solver (Z3 for tolerance / MIP for scheduling / LP for cost)
+  ↓ orthogonally
+T7 KG / creative — analogy / cross-domain transfer (creative_solve / graph_infer / find_similar)
+  ↓
+Claude (T1) — synthesize, apply safety/omega gate, emit answer + verification channel for re-run
+</code></pre>
+<p>Where a combination touches <strong>shop-floor execution</strong>, append:</p>
+<pre><code>Safety oracle (S(x) ≥ 0.70) blocks emission if score below floor.
+Omega (Ω ≥ 0.70) blocks emission if quality below floor (R, C, P, S, L).
+</code></pre>
+<p>Every MS2 unit declares which tiers it invokes (e.g. <code>tiers_invoked: [T1, T2, T4]</code>).</p>
+<h3 id="v7d-plan-peer-review-forge7-hard-gate"><a class="anchor" href="#v7d-plan-peer-review-forge7-hard-gate" aria-label="Permalink to v7.D — Plan peer-review (forge7 HARD GATE)">#</a>v7.D — Plan peer-review (forge7 HARD GATE)</h3>
+<p>Before MS0 starts, dispatch:</p>
+<pre><code class="language-js">Agent({
+  subagent_type: &#39;reviewer&#39;,
+  description: &#39;Staff-engineer review of REVENUE-ROADMAP-2026-05-10.md&#39;,
+  isolation: &#39;worktree&#39;,
+  prompt: `Read state/shared/specs/REVENUE-ROADMAP-2026-05-10.md.
+           Audit as staff engineer:
+             1. Are unit dependencies correct? (MS1 depends on MS0 ADMIN — verify)
+             2. Are verification channels real (not aspirational)? Spot-check 10.
+             3. Is any unit a duplicate of existing assets? Run /dedup checks.
+             4. Are the 50 combinatorics in v7.B sound? Flag any that violate physics or have no customer pull.
+             5. Are the v7.A verification gates re-runnable in &lt;5min total? Compute.
+             6. Score each milestone 1-5 on (revenue clarity, technical risk, peer-coordination cost).
+             7. Identify ≥1 missing combinatoric the spec didn&#39;t enumerate.
+           Return PASS / FAIL with specific blockers.
+           Reject overstatements.`
+})
+</code></pre>
+<p>Block MS0 kickoff until reviewer PASS.</p>
+<h3 id="v7e-meta-artifact-compounding-gains-tax"><a class="anchor" href="#v7e-meta-artifact-compounding-gains-tax" aria-label="Permalink to v7.E — META artifact (compounding-gains tax)">#</a>v7.E — META artifact (compounding-gains tax)</h3>
+<p>Spec-bound deliverable: ship <code>scripts/revenue-readiness-score.mjs</code> BEFORE MS0 starts. Behavior:</p>
+<pre><code>Inputs read:
+  - state/shared/BUILD_STATE.json
+  - state/shared/AUDIT-LATEST.json
+  - state/shared/system-viz/system-graph.json
+  - mcp-server/data/milestones/MS-REV-*.json
 
-<h2>v7.B Combinatorics (50 emergent algorithms)</h2>
-<div class="legend">
-  <span class="built">T2+T4+T7 (full AI synergy)</span>
-  <span class="comboable">default (combine-now)</span>
-  <span class="bridge">T3 LoRA-residual</span>
-  <span class="blocked">T6 symbolic-only</span>
+Outputs (stdout JSON + state/shared/REVENUE-READINESS.{md,json}):
+  {
+    &quot;scores&quot;: {
+      &quot;ms0_ui_unstub_pct&quot;: &lt;float 0..1&gt;,
+      &quot;ms1_subscription_pct&quot;: &lt;float&gt;,
+      &quot;ms2_inventions_pct&quot;: &lt;float&gt;,
+      &quot;ms3_wiring_pct&quot;: &lt;float&gt;,
+      &quot;ms4_drift_pct&quot;: &lt;float&gt;,
+      &quot;overall_revenue_readiness&quot;: &lt;float&gt;
+    },
+    &quot;blockers&quot;: [&lt;unit-id&gt;: &lt;reason&gt;],
+    &quot;next_unit_recommended&quot;: &lt;unit-id&gt;,
+    &quot;verification_health&quot;: &lt;pct units with passing verifies_via&gt;,
+    &quot;tier_invocation_balance&quot;: { &quot;T1&quot;: &lt;count&gt;, ..., &quot;T7&quot;: &lt;count&gt; }
+  }
+</code></pre>
+<p>This script is re-runnable; future audits compound from it. Without it, this roadmap rots in 30 days.</p>
+<h3 id="v7f-html-companion-thariq-pattern"><a class="anchor" href="#v7f-html-companion-thariq-pattern" aria-label="Permalink to v7.F — HTML companion (Thariq pattern)">#</a>v7.F — HTML companion (Thariq pattern)</h3>
+<p><code>scripts/emit-revenue-roadmap-html.mjs</code> emits <code>state/shared/specs/REVENUE-ROADMAP-2026-05-10.html</code> containing:</p>
+<ul>
+<li>SVG dependency graph (MS0 → MS1 → MS2/MS3 → MS4) with color-coded unit nodes</li>
+<li>Color-coded combinatorics table (green=already-built, yellow=combinable-now, red=blocked, blue=needs-bridge)</li>
+<li>Per-unit verification-channel card with &quot;Run&quot; button (emits the rtk command)</li>
+<li>Tier-invocation pie chart for MS2 (T1..T7 distribution)</li>
+<li>Synergy delta chart (pre-MS0 baseline → projected post-MS0/MS1/MS2)</li>
+<li>Copy-to-prompt buttons for each unit (Thariq interactivity)</li>
+</ul>
+<h3 id="v7g-loop-self-schedule-cyrilxbt-recurring"><a class="anchor" href="#v7g-loop-self-schedule-cyrilxbt-recurring" aria-label="Permalink to v7.G — /loop self-schedule (cyrilXBT recurring)">#</a>v7.G — <code>/loop</code> self-schedule (cyrilXBT recurring)</h3>
+<p>Schedule a re-audit + readiness-score refresh every 7 days for 4 cycles (~28 days), then user re-evaluates the roadmap:</p>
+<pre><code class="language-bash">echo &quot;/forge-audit-v2 revenue-readiness — refresh REVENUE-READINESS.json, regenerate REVENUE-ROADMAP HTML, flag any drift, append to CLAUDE.md §Recent regressions if found&quot; \
+  | /loop --interval 7d --max 4
+</code></pre>
+<p>If a regression is detected during a re-run, the doctrine back-flows to <code>H:/prism/CLAUDE.md</code>:</p>
+<pre><code class="language-markdown">## Recent regressions
+- 2026-05-&lt;X&gt; | &lt;regression-one-liner&gt; | fix: &lt;action&gt; | observed-by: claude-99eca613 /forge-audit-v2 (revenue lane)
+</code></pre>
+<h3 id="v7h-end-state-criteria-v7-pass"><a class="anchor" href="#v7h-end-state-criteria-v7-pass" aria-label="Permalink to v7.H — End-state criteria (v7 PASS)">#</a>v7.H — End-state criteria (v7 PASS)</h3>
+<pre><code>REVENUE ROADMAP v7-COMPLIANT
+=============================
+Milestones:                   5 (MS0..MS4)
+Total units:                  ~128
+v7.A verification channels:   ALL units declare verifies_via
+v7.B combinatorics:           50 (vs pre-v7: 13)
+v7.C AI orchestration:        every MS2 unit declares tiers_invoked
+v7.D peer-review:             [PASS pending dispatch]
+v7.E META artifact:           scripts/revenue-readiness-score.mjs [pending build]
+v7.F HTML companion:          [pending build]
+v7.G /loop schedule:          [pending registration]
+Synergy delta projection:     pre 21.1% → post 33% (+12pp from UI unstub alone)
+Compounding-gains:            re-runnable readiness score + HTML + loop
+
+Next: dispatch v7.D reviewer | build v7.E + v7.F | register v7.G | begin MS0 U-REV-CAD-SFC-01
+</code></pre>
+<hr>
+<h2 id="how-to-consume-this-v7-layer"><a class="anchor" href="#how-to-consume-this-v7-layer" aria-label="Permalink to How to consume this v7 layer">#</a>How to consume this v7 layer</h2>
+<p>If you are a chat picking up this roadmap:</p>
+<ol>
+<li>Read sections 0–11 above (original spec).</li>
+<li>Read v7.A–v7.H.</li>
+<li>Run <code>node scripts/revenue-readiness-score.mjs</code> once v7.E ships (it tells you the next unit).</li>
+<li>Honor v7.A verification gate on every unit you build.</li>
+<li>If you discover a 51st combinatoric, add a row to v7.B and bump the count in v7.H.</li>
+</ol>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="REVENUE-ROADMAP-2026-05-10.md">REVENUE-ROADMAP-2026-05-10.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
 </div>
-<table><thead><tr><th>#</th><th>Pair</th><th>Algorithm</th><th>Variability axis</th><th>AI synergy plan</th></tr></thead><tbody><tr><td>1</td><td style="border-left:4px solid #bf8700;padding-left:8px"><b>Kienzle × Taylor</b></td><td><code>`V* = (C / ((1-n)·T))^(1/n)`, kc-constraint</code></td><td>material × tool-life</td><td>T1 chooses obj, T2 reasons constraint, T4 conformal V CI</td></tr><tr><td>2</td><td style="border-left:4px solid #bf8700;padding-left:8px"><b>Deflection × Kienzle</b></td><td><code>δ ≤ tol → ap = (3EI·tol / (L³·kc·b·fz))^solve</code></td><td>tool overhang × stiffness</td><td>T2 inferences, T4 calibration</td></tr><tr><td>3</td><td style="border-left:4px solid #0969da;padding-left:8px"><b>SLD × Spindle RPM</b></td><td><code>Lobe peak picker on stability map</code></td><td>spindle range × tool</td><td>T3 LoRA learns chatter offset per machine</td></tr><tr><td>4</td><td style="border-left:4px solid #bf8700;padding-left:8px"><b>Thermal-growth × Probe</b></td><td><code>compensation(t) = α(T_now − T_probe)·L_axis</code></td><td>warmup state</td><td>T7 GP long-horizon</td></tr><tr><td>5</td><td style="border-left:4px solid #0969da;padding-left:8px"><b>Taylor × Adaptive-feed</b></td><td><code>V(t) = V₀(T_left/T₀)^n</code></td><td>tool wear</td><td>T3 wear-rate LoRA</td></tr><tr><td>6</td><td style="border-left:4px solid #bf8700;padding-left:8px"><b>Johnson-Cook × Thermal</b></td><td><code>Force at HSM (Ė̇ > 10⁴)</code></td><td>strain-rate</td><td>T2 deep-reason, T4 epistemic UQ</td></tr><tr><td>7</td><td style="border-left:4px solid #0969da;padding-left:8px"><b>Bayesian-wear × Telemetry</b></td><td><code>Posterior MTBF / Weibull update</code></td><td>machine-specific</td><td>T3 per-machine LoRA + T4 prior</td></tr><tr><td>8</td><td style="border-left:4px solid #bf8700;padding-left:8px"><b>Spindle-harmonic × Chatter</b></td><td><code>fz shift schedule</code></td><td>RPM band</td><td>T2 + T4 chatter classifier</td></tr><tr><td>9</td><td style="border-left:4px solid #bf8700;padding-left:8px"><b>CycleTime-poly × ProgramOpt</b></td><td><code>Local search G-code rewrites minimizing T̂c</code></td><td>program shape</td><td>T7 KG of past optimizations</td></tr><tr><td>10</td><td style="border-left:4px solid #bf8700;padding-left:8px"><b>Conformal × AdaptiveFeed</b></td><td><code>feed = μ̂ ± α-conformal</code></td><td>input variability</td><td>T4 native</td></tr><tr><td>11</td><td style="border-left:4px solid #cf222e;padding-left:8px"><b>Z3 × ToleranceStack</b></td><td><code>Min-cost t_i s.t. Σ ≤ T</code></td><td>drawing tolerance</td><td>T6</td></tr><tr><td>12</td><td style="border-left:4px solid #cf222e;padding-left:8px"><b>MIP × Capacity × Bid</b></td><td><code>argmax Σ(margin·accept) s.t. hr ≤ cap</code></td><td>shop load</td><td>T6 + T1 ratify</td></tr><tr><td>13</td><td style="border-left:4px solid #bf8700;padding-left:8px"><b>GP × Thermal × Drift</b></td><td><code>Sub-µ kriging correction</code></td><td>shift-of-day</td><td>T7 GP</td></tr><tr><td>14</td><td style="border-left:4px solid #bf8700;padding-left:8px"><b>Chuck-force × Part-deflect</b></td><td><code>F_min = part-stiffness · clamp-deflect-spec</code></td><td>workholding</td><td>T2</td></tr><tr><td>15</td><td style="border-left:4px solid #bf8700;padding-left:8px"><b>Material-DB × Coolant-DB</b></td><td><code>Coolant-fit recommender via Pareto over (cost, life, finish)</code></td><td>coolant regime</td><td>T5 Pareto</td></tr><tr><td>16</td><td style="border-left:4px solid #0969da;padding-left:8px"><b>Tool-Catalog × Toolholder-FRF</b></td><td><code>Assembly-FRF predictor</code></td><td>tool stack</td><td>T3 RCSA LoRA</td></tr><tr><td>17</td><td style="border-left:4px solid #cf222e;padding-left:8px"><b>DFM × Tolerance × CAD-extract</b></td><td><code>Quote-from-STEP cost equation</code></td><td>feature mix</td><td>T7 KG + T6</td></tr><tr><td>18</td><td style="border-left:4px solid #bf8700;padding-left:8px"><b>Wear-progression × Energy-eff</b></td><td><code>Energy-per-part minimizer</code></td><td>sustainability</td><td>T4</td></tr><tr><td>19</td><td style="border-left:4px solid #bf8700;padding-left:8px"><b>Hard-turn × CBN × ResidualStress</b></td><td><code>Replace-grinding decision rule</code></td><td>finish/Rt class</td><td>T2</td></tr><tr><td>20</td><td style="border-left:4px solid #0969da;padding-left:8px"><b>Chip-control × Chipbreaker-DB</b></td><td><code>Chip-evac probability score</code></td><td>groove geometry</td><td>T3 LoRA</td></tr><tr><td>21</td><td style="border-left:4px solid #cf222e;padding-left:8px"><b>Threading-table × Tap-drill × Std-DB</b></td><td><code>Universal threading wizard logic</code></td><td>thread standard</td><td>T6 enum + T2</td></tr><tr><td>22</td><td style="border-left:4px solid #cf222e;padding-left:8px"><b>Mill-turn sync × B-axis × Sub-spindle</b></td><td><code>Collision-free post equation set</code></td><td>machine kinematics</td><td>T2 + T6</td></tr><tr><td>23</td><td style="border-left:4px solid #cf222e;padding-left:8px"><b>Taylor-eco × Bar-stock-util</b></td><td><code>Cost-per-part 3-mode optimizer (min-c/max-prod/max-profit)</code></td><td>objective mode</td><td>T6 LP</td></tr><tr><td>24</td><td style="border-left:4px solid #0969da;padding-left:8px"><b>LATHE-AGI × JMDie-archive</b></td><td><code>Print-to-program neural draft</code></td><td>print shape</td><td>T3 + T7</td></tr><tr><td>25</td><td style="border-left:4px solid #2da44e;padding-left:8px"><b>WEDM-cost × Quote × Customer-history</b></td><td><code>Auto-bid equation w/ win-rate prior</code></td><td>customer</td><td>T7 + T4 calibration</td></tr><tr><td>26</td><td style="border-left:4px solid #bf8700;padding-left:8px"><b>WEDM-feasibility × Conductivity × Geometry</b></td><td><code>Pre-quote go/no-go</code></td><td>material</td><td>T2</td></tr><tr><td>27</td><td style="border-left:4px solid #bf8700;padding-left:8px"><b>WEDM-safety × WEDM-hooks × WEDM-PCD</b></td><td><code>Lights-out readiness score</code></td><td>risk class</td><td>T2 + T4</td></tr><tr><td>28</td><td style="border-left:4px solid #0969da;padding-left:8px"><b>WEDM-program × 5 dialects</b></td><td><code>Dialect-translator equation set</code></td><td>controller</td><td>T6 + T3 dialect-LoRA</td></tr><tr><td>29</td><td style="border-left:4px solid #bf8700;padding-left:8px"><b>WEDM-tribal × MIT-DB × JM-archive</b></td><td><code>Learn-as-program tutor curriculum</code></td><td>learner level</td><td>T7 KG</td></tr><tr><td>30</td><td style="border-left:4px solid #bf8700;padding-left:8px"><b>Tribal × LLM × Shop-floor-query</b></td><td><code>Ask-the-Shop RAG retrieval</code></td><td>tribal corpus</td><td>T5 routing + T4 generation</td></tr><tr><td>31</td><td style="border-left:4px solid #bf8700;padding-left:8px"><b>SetupSheet × Traveler × QA</b></td><td><code>Auto-traveler emit pipeline</code></td><td>job class</td><td>T1 orchestration</td></tr><tr><td>32</td><td style="border-left:4px solid #cf222e;padding-left:8px"><b>FirstPartRight × DFM × ToleranceStack</b></td><td><code>First-part-right scoring fn</code></td><td>tolerance band</td><td>T6 + T2</td></tr><tr><td>33</td><td style="border-left:4px solid #bf8700;padding-left:8px"><b>Quote-to-ship × Traveler × FAI</b></td><td><code>E2E job-state machine</code></td><td>job phase</td><td>T1</td></tr><tr><td>34</td><td style="border-left:4px solid #cf222e;padding-left:8px"><b>CAD-extract × DFM × Cost</b></td><td><code>Drag-CAD widget equation</code></td><td>uploaded part</td><td>T2 + T6</td></tr><tr><td>35</td><td style="border-left:4px solid #bf8700;padding-left:8px"><b>InjectionMold × DFM × Material</b></td><td><code>Plastic-quote equation</code></td><td>mold geometry</td><td>T2</td></tr><tr><td>36</td><td style="border-left:4px solid #bf8700;padding-left:8px"><b>Machine-check × ROI × Telemetry</b></td><td><code>Per-machine $/hr</code></td><td>shop config</td><td>T4</td></tr><tr><td>37</td><td style="border-left:4px solid #bf8700;padding-left:8px"><b>OEE × Telemetry × Alarm-bus</b></td><td><code>Real-time OEE alert thresholds</code></td><td>shift</td><td>T4 anomaly</td></tr><tr><td>38</td><td style="border-left:4px solid #2da44e;padding-left:8px"><b>CycleTimeCrush × Program-audit × SPC</b></td><td><code>Cycle drift detector</code></td><td>program history</td><td>T4 + T7</td></tr><tr><td>39</td><td style="border-left:4px solid #cf222e;padding-left:8px"><b>CMM-parse × GDT × Tol-stack</b></td><td><code>Auto-FAI form populator</code></td><td>drawing</td><td>T6 + T2</td></tr><tr><td>40</td><td style="border-left:4px solid #bf8700;padding-left:8px"><b>Infra-events × Infra-jobs × Tracker</b></td><td><code>Event-bus pub/sub for ops</code></td><td>event volume</td><td>T5</td></tr><tr><td>41</td><td style="border-left:4px solid #cf222e;padding-left:8px"><b>Resource-census × Inventory × Reorder</b></td><td><code>EOQ-driven auto-reorder</code></td><td>usage rate</td><td>T6 + T4</td></tr><tr><td>42</td><td style="border-left:4px solid #bf8700;padding-left:8px"><b>Shop-floor-query × Tribal × Generalize</b></td><td><code>Tribal-to-doctrine extractor</code></td><td>conversation</td><td>T2</td></tr><tr><td>43</td><td style="border-left:4px solid #cf222e;padding-left:8px"><b>Shop-schedule × Capacity × Bid-to-win</b></td><td><code>Smart job acceptance</code></td><td>shop fleet</td><td>T6</td></tr><tr><td>44</td><td style="border-left:4px solid #bf8700;padding-left:8px"><b>Wiki × Obsidian-RAG × Reason</b></td><td><code>Ask-PRISM chatbot pipeline</code></td><td>query type</td><td>T5 route + T4 gen</td></tr><tr><td>45</td><td style="border-left:4px solid #bf8700;padding-left:8px"><b>VideoLearn × YT-transcript × PDF-learn</b></td><td><code>Auto-curate training library</code></td><td>content source</td><td>T5</td></tr><tr><td>46</td><td style="border-left:4px solid #2da44e;padding-left:8px"><b>Tribal-distill × Generalize × Wiki-sync</b></td><td><code>Doctrine engine emit</code></td><td>shop history</td><td>T2 + T7</td></tr><tr><td>47</td><td style="border-left:4px solid #bf8700;padding-left:8px"><b>MIT-courses × Shop-query × Ask-shop</b></td><td><code>CE-credit grade engine</code></td><td>learning track</td><td>T7</td></tr><tr><td>48</td><td style="border-left:4px solid #bf8700;padding-left:8px"><b>CAD-text × CAD-blueprint × DFM</b></td><td><code>Text-to-CAD-to-Quote pipeline</code></td><td>NL prompt</td><td>T1 + T7</td></tr><tr><td>49</td><td style="border-left:4px solid #bf8700;padding-left:8px"><b>AGI-CAD × Fusion-generate</b></td><td><code>Generative CAD for CAM pipeline</code></td><td>part class</td><td>T7</td></tr><tr><td>50</td><td style="border-left:4px solid #bf8700;padding-left:8px"><b>CAD-RAG × CAD-extract × AGI-CAD</b></td><td><code>Chat-with-the-part Q&A</code></td><td>CAD memory</td><td>T5 + T7</td></tr></tbody></table>
-
-<div class="twocol">
-  <div>
-    <h2>Tier invocation balance</h2>
-    <p style="color:var(--muted);font-size:0.85rem">Distribution of T1..T7 invocations across the v7.B combinatorics. T2/T4/T7 dominance is expected (deep-reason + neural calibration + KG).</p>
-    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><path d="M100,100 L100,20 A80,80 0 0 1 152.74766520800551,39.85281540168181 Z" fill="#cf222e" stroke="#0d1117"/><text x="133.4637545525172" y="11.088936958054063" font-size="10" fill="#fff" text-anchor="middle">T1:11</text><path d="M100,100 L152.74766520800551,39.85281540168181 A80,80 0 0 1 173.91036260090294,130.61467458920717 Z" fill="#bf8700" stroke="#0d1117"/><text x="192.51831303134668" y="78.42775501173455" font-size="10" fill="#fff" text-anchor="middle">T2:19</text><path d="M100,100 L173.91036260090294,130.61467458920717 A80,80 0 0 1 144.4456186415682,166.5175689842036 Z" fill="#1f883d" stroke="#0d1117"/><text x="173.43599306946004" y="160.2673619955463" font-size="10" fill="#fff" text-anchor="middle">T3:9</text><path d="M100,100 L144.4456186415682,166.5175689842036 A80,80 0 0 1 55.55438135843184,166.51756898420362 Z" fill="#0969da" stroke="#0d1117"/><text x="100.00000000000003" y="195" font-size="10" fill="#fff" text-anchor="middle">T4:18</text><path d="M100,100 L55.55438135843184,166.51756898420362 A80,80 0 0 1 28.250180677384947,135.38309521752012 Z" fill="#8250df" stroke="#0d1117"/><text x="28.575218289497187" y="162.63785243450658" font-size="10" fill="#fff" text-anchor="middle">T5:8</text><path d="M100,100 L28.250180677384947,135.38309521752012 A80,80 0 0 1 28.250180677384932,64.6169047824799 Z" fill="#bc4c00" stroke="#0d1117"/><text x="5" y="100.00000000000001" font-size="10" fill="#fff" text-anchor="middle">T6:14</text><path d="M100,100 L28.250180677384932,64.6169047824799 A80,80 0 0 1 99.99999999999999,20 Z" fill="#6e7781" stroke="#0d1117"/><text x="49.83355418821499" y="19.32579275497504" font-size="10" fill="#fff" text-anchor="middle">T7:17</text></svg>
-  </div>
-  <div>
-    <h2>v7 compliance</h2>
-    <ul>
-      <li>A_verification_channel: ✅</li><li>B_combinatorics_table: ✅</li><li>C_ai_orchestration: ✅</li><li>D_peer_review: ✅</li><li>E_meta_artifact: ✅</li><li>F_html_companion: ✅</li><li>G_loop_schedule: ✅</li>
-    </ul>
-  </div>
-</div>
-
-<h2>Verification channel run-template</h2>
-<p>Per <a href="#v7a">v7.A</a>, every unit declares its <code>verifies_via</code> channel. Run any of:</p>
-<pre>rtk vitest run                              # MS0 / MS1 / MS3 engines
-rtk vitest run -- &lt;name&gt;.test.ts            # specific
-playwright test &lt;page&gt;.spec.ts              # MS0 frontend
-node scripts/spans-config-matrix.mjs ...    # MS2 inventions
-node scripts/check-engine-wired.mjs ...     # MS3 wiring
-node scripts/build-milestone-progress.mjs   # MS4 drift</pre>
-
-<div class="footer">
-  <p>Regenerate this HTML: <code>node scripts/emit-revenue-roadmap-html.mjs</code></p>
-  <p>Re-audit schedule: <code>/loop --interval 7d --max 4 — /forge-audit-v2 revenue-readiness</code> (per v7.G)</p>
-  <p>Canonical spec: <a href="REVENUE-ROADMAP-2026-05-10.md">REVENUE-ROADMAP-2026-05-10.md</a></p>
-</div>
-
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
 </body>
 </html>

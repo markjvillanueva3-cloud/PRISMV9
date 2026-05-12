@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="a1400bdbde9f94ae6c4bfad946c73709a937008ffc561bd3bccab3077796672f">
+<title>PRISM System Synergy Audit — 2026-05-09</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">PRISM System Synergy Audit — 2026-05-09</h1>
+<p class="provenance">Generated 2026-05-12T12:43:27.226Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#prism-system-synergy-audit-2026-05-09">PRISM System Synergy Audit — 2026-05-09</a></li>
+<li class="toc-l2"><a href="#1-surface-inventory-live-2026-05-09">§1 — Surface inventory (live, 2026-05-09)</a></li>
+<li class="toc-l2"><a href="#2-synergy-matrix-which-surfaces-talk-to-which">§2 — Synergy matrix (which surfaces talk to which)</a></li>
+<li class="toc-l3"><a href="#counts">Counts</a></li>
+<li class="toc-l2"><a href="#3-top-10-missing-edges-highest-leverage">§3 — Top 10 missing edges (highest leverage)</a></li>
+<li class="toc-l3"><a href="#1-tribal-wiki-auto-promote-validated-tips">1. tribal → wiki (auto-promote validated tips)</a></li>
+<li class="toc-l3"><a href="#2-system-viz-tribal">2. system-viz ⇄ tribal</a></li>
+<li class="toc-l3"><a href="#3-neural-memory-training-set-replay">3. neural → memory (training-set replay)</a></li>
+<li class="toc-l3"><a href="#4-handoff-system-viz-active-work-overlay">4. handoff → system-viz (active-work overlay)</a></li>
+<li class="toc-l3"><a href="#5-chat-bus-presence-system-viz-live-agents">5. chat-bus presence → system-viz (live agents)</a></li>
+<li class="toc-l3"><a href="#6-memories-master-index">6. memories → master index</a></li>
+<li class="toc-l3"><a href="#7-stop-hooks-action-traces">7. stop hooks → action traces</a></li>
+<li class="toc-l3"><a href="#8-handoff-memory-cleanup">8. handoff → memory cleanup</a></li>
+<li class="toc-l3"><a href="#9-docker-planned-hook-broker">9. docker (planned) → hook broker</a></li>
+<li class="toc-l3"><a href="#10-viz-suite-gap-4-missing-scripts">10. viz suite gap (4 missing scripts)</a></li>
+<li class="toc-l2"><a href="#4-unified-automation-architecture">§4 — Unified automation architecture</a></li>
+<li class="toc-l3"><a href="#what-automatic-means-at-each-boundary">What &quot;automatic&quot; means at each boundary</a></li>
+<li class="toc-l2"><a href="#5-the-plan-32-units-across-9-tracks">§5 — The plan: 32 units across 9 tracks</a></li>
+<li class="toc-l3"><a href="#track-a-stabilization-prereq">Track A — Stabilization (PREREQ)</a></li>
+<li class="toc-l3"><a href="#track-b-autonomous-workflows-cyrilxbt">Track B — Autonomous Workflows (cyrilXBT)</a></li>
+<li class="toc-l3"><a href="#track-c-html-outputs-thariq">Track C — HTML Outputs (Thariq)</a></li>
+<li class="toc-l3"><a href="#track-d-company-brain-sentraashwin">Track D — Company Brain (Sentra/Ashwin)</a></li>
+<li class="toc-l3"><a href="#track-e-ideablock-rag-akshay">Track E — IdeaBlock RAG (Akshay)</a></li>
+<li class="toc-l3"><a href="#track-f-capture-surfaces">Track F — Capture surfaces</a></li>
+<li class="toc-l3"><a href="#track-g-agent-observability-darkzodchi">Track G — Agent observability (darkzodchi)</a></li>
+<li class="toc-l3"><a href="#track-h-synergy-edges-new-fills-the-60-cells">Track H — Synergy edges (NEW — fills the 60 ✗ cells)</a></li>
+<li class="toc-l3"><a href="#track-i-forge5-phantom-tool-fix-new-credibility-issue">Track I — Forge5 phantom-tool fix (NEW — credibility issue)</a></li>
+<li class="toc-l3"><a href="#track-k-kimi-k26cloud-mid-tier-new-added-2026-05-10-by-claude-85cedf09">Track K — Kimi K2.6:cloud mid-tier (NEW — added 2026-05-10 by claude-85cedf09)</a></li>
+<li class="toc-l2"><a href="#6-recommended-execution-order">§6 — Recommended execution order</a></li>
+<li class="toc-l2"><a href="#7-compounding-gains-meta-artifact-per-forge5-6l">§7 — Compounding-gains META artifact (per /forge5 §6L)</a></li>
+<li class="toc-l2"><a href="#8-open-questions-for-the-user">§8 — Open questions for the user</a></li>
+<li class="toc-l2"><a href="#9-bottom-line">§9 — Bottom line</a></li>
+<li class="toc-l2"><a href="#10-peer-review-remediation-log-claude-85cedf09-2026-05-10">§10 — Peer-review remediation log (claude-85cedf09 / 2026-05-10)</a></li>
+<li class="toc-l3"><a href="#defect-remediation">Defect → Remediation</a></li>
+<li class="toc-l3"><a href="#reviewer-fails-that-did-not-remediate">Reviewer FAILs that did NOT remediate</a></li>
+<li class="toc-l3"><a href="#stronger-findings-the-reviewer-surfaced">Stronger findings the reviewer surfaced</a></li>
+<li class="toc-l3"><a href="#verdict-status-after-remediation">Verdict status after remediation</a></li>
+<li class="toc-l3"><a href="#provenance">Provenance</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="prism-system-synergy-audit-2026-05-09"><a class="anchor" href="#prism-system-synergy-audit-2026-05-09" aria-label="Permalink to PRISM System Synergy Audit — 2026-05-09">#</a>PRISM System Synergy Audit — 2026-05-09</h1>
+<p><strong>Author:</strong> claude-cee63f1f <strong>Origin:</strong> <code>/forge5</code> — exhaustive surface audit + automated-synergy plan <strong>Scope:</strong> 20 surfaces (every internal system the user named) + cross-cuts</p>
+<p>This audit answers ONE question: <strong>does every PRISM surface know about every other PRISM surface, and is the inter-surface plumbing automatic?</strong></p>
+<p>The TL;DR is: <strong>not yet.</strong> We have world-class point assets, but ~40% of the inter-surface edges are manual or missing. The 5-article research from this session + the existing Karpathy LLM-Wiki + cyrilXBT vault patterns all point to the same fix: <strong>declarative graph + autonomous workflows + every output back-flowing into the graph.</strong></p>
+<hr>
+<h2 id="1-surface-inventory-live-2026-05-09"><a class="anchor" href="#1-surface-inventory-live-2026-05-09" aria-label="Permalink to §1 — Surface inventory (live, 2026-05-09)">#</a>§1 — Surface inventory (live, 2026-05-09)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Surface</th><th>Count</th><th>Source</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>Engines</td><td><strong>3,176</strong></td><td><code>src/engines/*.ts</code></td><td>88% wired (2,802 / 3,176) per viz; 71% per BUILD_STATE — discrepancy worth resolving</td></tr>
+<tr><td>Dispatchers</td><td><strong>97</strong></td><td><code>src/tools/dispatchers/*.ts</code></td><td>All loaded; action enums = 7,341</td></tr>
+<tr><td>Actions</td><td><strong>7,341</strong></td><td><code>z.enum</code> count</td><td>Up from 7,302 last session — net +39</td></tr>
+<tr><td>Algorithms</td><td>53</td><td><code>src/algorithms/</code></td><td></td></tr>
+<tr><td>Registries</td><td>26</td><td><code>src/registries/</code></td><td></td></tr>
+<tr><td>Tests</td><td><strong>3,420</strong></td><td><code>src/__tests__/</code></td><td>22 added this session (WikiRecallCounter)</td></tr>
+<tr><td>Source hooks (TypeScript)</td><td>54</td><td><code>src/hooks/**</code></td><td></td></tr>
+<tr><td>Claude hooks (.mjs)</td><td><strong>423</strong> (live) / 456 (inventory)</td><td><code>.claude/hooks/*.mjs</code></td><td><strong>ROOT CAUSE OF XMALLOC OOMS</strong> — Track A1</td></tr>
+<tr><td>Scripts</td><td>504</td><td><code>scripts/</code> + <code>mcp-server/scripts/</code></td><td></td></tr>
+<tr><td>Slash commands (project)</td><td>247</td><td><code>.claude/commands/</code></td><td></td></tr>
+<tr><td>Slash commands (user)</td><td>388</td><td><code>~/.claude/commands/</code></td><td></td></tr>
+<tr><td>Memories (markdown source)</td><td>~95</td><td><code>C:/Users/wompu/.claude/projects/H--prism/memory/</code></td><td></td></tr>
+<tr><td>Memories (vault)</td><td>192 (via viz)</td><td><code>H:/prism/knowledge/memories/</code></td><td>superset incl. mirrored + consolidated</td></tr>
+<tr><td>Wiki entries</td><td>774 / 190 (viz subset)</td><td><code>H:/prism/knowledge/wiki/</code></td><td>774 = headline; 190 = unique-on-disk</td></tr>
+<tr><td>Per-agent handoffs accumulated</td><td><strong>207</strong></td><td><code>state/shared/handoffs/HANDOFF-claude-*.md</code></td><td>Major drift signal</td></tr>
+<tr><td>Active chat identities (last 200 events)</td><td><strong>14</strong></td><td>extracted from <code>AGENT_CHAT.jsonl</code></td><td>claude-{0413eca6, 04c0e75c, 093e69ac, 6d83f198, 6e2e36f3, 7e84a5be, 845cf238, 84c2d13a, 99eca613, b8d8505e, bf5788e5, cee63f1f, d9860be8, feecc90b}</td></tr>
+<tr><td>Concurrent peer chats this session</td><td>6+</td><td>chat-bus presence</td><td>matches user&#39;s 6-chat design</td></tr>
+<tr><td>MCP servers configured</td><td><strong>2</strong> (prism via http-bridge, claude-flow)</td><td><code>.mcp.json</code></td><td>Authenticated MCPs (Linear, Canva) currently unauthenticated</td></tr>
+<tr><td>Stop hooks registered</td><td>6</td><td>settings.json <code>Stop</code> block</td><td>All present</td></tr>
+<tr><td>Docker presence</td><td><code>docker-compose.yml</code> only — no <code>docker/</code> subdir</td><td>Repo root</td><td><strong>U-DOCKER-HOOK-BROKER not yet built</strong></td></tr>
+<tr><td>Master Index</td><td>Present</td><td><code>mcp-server/data/docs/MASTER_INDEX.md</code> + <code>_COMPACT.md</code> + <code>CODE_SYSTEM_INDEX.json</code></td><td></td></tr>
+<tr><td>GSD protocol docs</td><td>3 + sections subdir</td><td><code>mcp-server/data/docs/gsd/</code></td><td>DEV_PROTOCOL.md, GSD_QUICK.md, GSD_MICRO.md</td></tr>
+<tr><td>Neural-network engines</td><td><strong>20+ visible</strong> (CrossProcess*, *Trainer, *Classifier)</td><td><code>src/engines/</code></td><td>Fragmented across worktrees (xproc-neural-aci is its own)</td></tr>
+<tr><td>Tribal-knowledge engines</td><td><strong>23</strong> (Tribal*)</td><td><code>src/engines/Tribal*.ts</code></td><td>Well-developed but underutilized · count corrected 2026-05-10 by /forge-audit-v2 remediation (was 9+)</td></tr>
+<tr><td>/system-viz suite</td><td><strong>2 of 5 expected scripts present</strong></td><td><code>scripts/</code></td><td><code>generate-system-viz.mjs</code> ✓, <code>system-viz-query.mjs</code> ✓; <strong>MISSING: <code>viz-progress-update.mjs</code>, <code>auto-wire-plan.mjs</code>, <code>system-viz-completeness-check.mjs</code>, <code>compounding-gains-audit.mjs</code></strong> — these are referenced in /forge5 doctrine but <strong>never built</strong></td></tr>
+<tr><td>Chat-identity helpers</td><td>All 3 present</td><td><code>.claude/helpers/{stable-session-id,per-agent-handoff,precompact-handoff}.mjs</code></td><td>Per-agent handoff has the topic-naming convention enforced via Stop hook</td></tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="2-synergy-matrix-which-surfaces-talk-to-which"><a class="anchor" href="#2-synergy-matrix-which-surfaces-talk-to-which" aria-label="Permalink to §2 — Synergy matrix (which surfaces talk to which)">#</a>§2 — Synergy matrix (which surfaces talk to which)</h2>
+<p>A <strong>✓</strong> means automatic (hook/dispatcher/cron). A <strong>△</strong> means manual but possible. A <strong>✗</strong> means no path exists today.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>FROM \ TO</th><th>system-viz</th><th>memories</th><th>wiki</th><th>tribal</th><th>neural</th><th>docker</th><th>hooks</th><th>skills</th><th>dispatchers</th><th>handoffs</th></tr></thead>
+<tbody>
+<tr><td><strong>system-viz</strong></td><td>—</td><td>△ (L10 reads vault)</td><td>△ (L10 reads wiki)</td><td>✗</td><td>✗</td><td>✗</td><td>△ (reads count)</td><td>△ (reads count)</td><td>✓</td><td>✗</td></tr>
+<tr><td><strong>memories</strong></td><td>✓ (L10 nodes + recall)</td><td>—</td><td>✓ (<code>[[wiki-link]]</code> U-WIKILINK-OLLAMA)</td><td>✗</td><td>✗</td><td>✗</td><td>✓ (mirror, recall, link-suggest)</td><td>△ (loaded into prompts)</td><td>✓ (prism_memory)</td><td>△ (HANDOFF text)</td></tr>
+<tr><td><strong>wiki</strong></td><td>✓ (L10)</td><td>✓ (mutual links)</td><td>—</td><td>✗</td><td>✗</td><td>✗</td><td>✓ (precheck-inject)</td><td>△</td><td>✓ (knowledge dispatcher)</td><td>✗</td></tr>
+<tr><td><strong>tribal</strong></td><td>✗</td><td>✗</td><td>△ (manual extract)</td><td>—</td><td>△ (training corpus)</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td></td></tr>
+<tr><td><strong>neural</strong></td><td>✗</td><td>✗</td><td>✗</td><td>✓ (training corpus consumer)</td><td>—</td><td>✗</td><td>✗</td><td>✗</td><td>✓ (aiReasoningDispatcher)</td><td>✗</td></tr>
+<tr><td><strong>docker</strong></td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>—</td><td>(planned: A1)</td><td>✗</td><td>✗</td><td>✗</td></tr>
+<tr><td><strong>hooks</strong></td><td>△ (manual: write a viz hook)</td><td>✓ (mirror, recall)</td><td>✓ (precheck)</td><td>✗</td><td>✗</td><td>(planned: A1)</td><td>—</td><td>✓ (skill-suggester hook)</td><td>✓ (route-first hook)</td><td>✓ (Stop, PreCompact)</td></tr>
+<tr><td><strong>skills</strong></td><td>✗</td><td>△</td><td>△</td><td>✗</td><td>✗</td><td>✗</td><td>△</td><td>—</td><td>△</td><td>△</td></tr>
+<tr><td><strong>dispatchers</strong></td><td>✓ (<code>obsidian_viz_*</code> from this session)</td><td>✓ (<code>prism_memory:*</code>)</td><td>✓ (<code>knowledgeDispatcher.obsidian_*</code>)</td><td>✓ (TribalKnowledgeDispatcher)</td><td>✓ (aiReasoningDispatcher)</td><td>✗</td><td>✗</td><td>△</td><td>—</td><td>✗</td></tr>
+<tr><td><strong>handoffs</strong></td><td>✗</td><td>△ (mentioned in body)</td><td>✗</td><td>✗</td><td>✗</td><td>✗</td><td>✓ (PreCompact, Stop topic-naming)</td><td>✗</td><td>✗</td><td>—</td></tr>
+</tbody>
+</table></div>
+<h3 id="counts"><a class="anchor" href="#counts" aria-label="Permalink to Counts">#</a>Counts</h3>
+<ul>
+<li>✓ (automatic): <strong>23</strong> edges</li>
+<li>△ (manual but possible): <strong>17</strong> edges</li>
+<li>✗ (no path): <strong>60</strong> edges</li>
+</ul>
+<p><strong>Synergy ratio: 23 / 100 = 23%.</strong></p>
+<p>That number is the core finding. The rest of this document proposes how to get it to 80%+.</p>
+<hr>
+<h2 id="3-top-10-missing-edges-highest-leverage"><a class="anchor" href="#3-top-10-missing-edges-highest-leverage" aria-label="Permalink to §3 — Top 10 missing edges (highest leverage)">#</a>§3 — Top 10 missing edges (highest leverage)</h2>
+<p>Ranked by (cost-to-build) ÷ (downstream users unlocked).</p>
+<h3 id="1-tribal-wiki-auto-promote-validated-tips"><a class="anchor" href="#1-tribal-wiki-auto-promote-validated-tips" aria-label="Permalink to 1. tribal → wiki (auto-promote validated tips)">#</a>1. <strong>tribal → wiki (auto-promote validated tips)</strong></h3>
+<p>9 tribal engines exist; none auto-write to <code>knowledge/wiki/code-tribal/</code>. Promotion is manual today. <strong>Fix:</strong> new hook <code>tribal-promote-on-validation.mjs</code> that fires on <code>prism_intelligence:validate_tip</code> success and writes the tip body + frontmatter to wiki/code-tribal/.</p>
+<h3 id="2-system-viz-tribal"><a class="anchor" href="#2-system-viz-tribal" aria-label="Permalink to 2. system-viz ⇄ tribal">#</a>2. <strong>system-viz ⇄ tribal</strong></h3>
+<p>Tribal tip count appears NOWHERE in system-viz. Yet it&#39;s 4,245 tips per CLAUDE-BRIEF — bigger than memories+wiki combined. <strong>Fix:</strong> add L10.5 &quot;tribal tips&quot; subgroup to viz; size by recency.</p>
+<h3 id="3-neural-memory-training-set-replay"><a class="anchor" href="#3-neural-memory-training-set-replay" aria-label="Permalink to 3. neural → memory (training-set replay)">#</a>3. <strong>neural → memory (training-set replay)</strong></h3>
+<p>NN engines consume tribal corpus but DON&#39;T feed back what they learned into memory. Loss of compounding. <strong>Fix:</strong> NN engines emit <code>learnings/training-result-YYYY-MM-DD.md</code> to memories/lessons/ on every training round.</p>
+<h3 id="4-handoff-system-viz-active-work-overlay"><a class="anchor" href="#4-handoff-system-viz-active-work-overlay" aria-label="Permalink to 4. handoff → system-viz (active-work overlay)">#</a>4. <strong>handoff → system-viz (active-work overlay)</strong></h3>
+<p>207 handoff files exist; none surface in viz. The viewer shows engines/wiki/memories but not &quot;who-is-doing-what-right-now.&quot; <strong>Fix:</strong> L11 layer &quot;active handoffs&quot; — node per HANDOFF-claude-{id}-{topic}, edge to claimed files.</p>
+<h3 id="5-chat-bus-presence-system-viz-live-agents"><a class="anchor" href="#5-chat-bus-presence-system-viz-live-agents" aria-label="Permalink to 5. chat-bus presence → system-viz (live agents)">#</a>5. <strong>chat-bus presence → system-viz (live agents)</strong></h3>
+<p>14 chat IDs; viz has no agent overlay. Per darkzodchi&#39;s &quot;Pixel Department&quot; — adding this is a 1-day job and gives instant cross-chat visibility. <strong>Fix:</strong> L12 &quot;agents&quot; layer, fed from <code>state/shared/AGENT_CHAT.jsonl</code> tail.</p>
+<h3 id="6-memories-master-index"><a class="anchor" href="#6-memories-master-index" aria-label="Permalink to 6. memories → master index">#</a>6. <strong>memories → master index</strong></h3>
+<p>MASTER_INDEX.md doesn&#39;t enumerate memories. Master index is for engines/dispatchers. <strong>Fix:</strong> extend <code>update-prism-inventory.mjs</code> to also rebuild MASTER_INDEX with a memories-section.</p>
+<h3 id="7-stop-hooks-action-traces"><a class="anchor" href="#7-stop-hooks-action-traces" aria-label="Permalink to 7. stop hooks → action traces">#</a>7. <strong>stop hooks → action traces</strong></h3>
+<p>6 Stop hooks fire on every session end but their outcomes aren&#39;t aggregated. <strong>Fix:</strong> <code>stop-hook-aggregator.mjs</code> PostStop appends to <code>state/shared/stop-hook-ledger.jsonl</code> with PASS/FAIL per hook.</p>
+<h3 id="8-handoff-memory-cleanup"><a class="anchor" href="#8-handoff-memory-cleanup" aria-label="Permalink to 8. handoff → memory cleanup">#</a>8. <strong>handoff → memory cleanup</strong></h3>
+<p>207 handoff files = no LRU. <strong>Fix:</strong> monthly cron <code>handoff-prune.mjs</code> archives any <code>HANDOFF-*.md</code> whose <code>mtime &gt; 30d AND topic-resolved == true</code>.</p>
+<h3 id="9-docker-planned-hook-broker"><a class="anchor" href="#9-docker-planned-hook-broker" aria-label="Permalink to 9. docker (planned) → hook broker">#</a>9. <strong>docker (planned) → hook broker</strong></h3>
+<p>The U-DOCKER-HOOK-BROKER spec exists but isn&#39;t built. <strong>Fix:</strong> the existing handoff covers this — execute Track A1.</p>
+<h3 id="10-viz-suite-gap-4-missing-scripts"><a class="anchor" href="#10-viz-suite-gap-4-missing-scripts" aria-label="Permalink to 10. viz suite gap (4 missing scripts)">#</a>10. <strong>viz suite gap (4 missing scripts)</strong></h3>
+<p><code>viz-progress-update.mjs</code>, <code>auto-wire-plan.mjs</code>, <code>system-viz-completeness-check.mjs</code>, <code>compounding-gains-audit.mjs</code> are referenced in /forge5 doctrine but <strong>don&#39;t exist</strong>. Phantom-tool risk. <strong>Fix:</strong> either build them OR strip from /forge5 doctrine.</p>
+<hr>
+<h2 id="4-unified-automation-architecture"><a class="anchor" href="#4-unified-automation-architecture" aria-label="Permalink to §4 — Unified automation architecture">#</a>§4 — Unified automation architecture</h2>
+<p>The architecture below collapses all 20 surfaces into 4 tiers. Every cross-tier interaction must be automatic (a hook, a cron, a dispatcher action, or a generator).</p>
+<pre><code>┌────────────────────────────────────────────────────────────────────────┐
+│ TIER 4 — OBSERVATION                                                   │
+│   /system-viz (11 layers) ── consumes → BUILD_STATE, viz-recall,       │
+│   handoff index, agent presence, action traces, tribal stats, NN cards │
+│                                                                        │
+│   Produces: dashboard.html (Thariq HTML output), graph.json, surfaces  │
+└────────────────────────────────────────────────────────────────────────┘
+                                  ▲
+                                  │ (declarative reads only)
+                                  │
+┌────────────────────────────────────────────────────────────────────────┐
+│ TIER 3 — INTELLIGENCE                                                  │
+│   Memories (95 source / 192 vault) — IdeaBlocks (Akshay)               │
+│   Wiki (774 entries) — Karpathy LLM-Wiki                               │
+│   Tribal (4,245 tips) — TribalKnowledge*Engine (9 engines)             │
+│   Neural — CrossProcess* (20+ engines, xproc-neural-aci worktree)      │
+│   AI Hierarchy — Claude→FSAC→7 T3 specialists→Ollama models            │
+│                                                                        │
+│   Workflows (cyrilXBT 6): daily context, queue, weekly synth,          │
+│                           connection finder, project updater,          │
+│                           knowledge distillation                       │
+│                                                                        │
+│   Produces: facts, claims, IdeaBlocks, embeddings, training rounds     │
+└────────────────────────────────────────────────────────────────────────┘
+                                  ▲
+                                  │ (events from tier 2)
+                                  │
+┌────────────────────────────────────────────────────────────────────────┐
+│ TIER 2 — DISPATCH (97 dispatchers, 7,341 actions)                      │
+│   prism_calc · prism_cam · prism_ai · prism_safety · prism_dev ·       │
+│   prism_session · prism_memory · prism_intelligence · prism_pfp · ...  │
+│                                                                        │
+│   Hooks (423 Claude .mjs / 54 source) — fire pre/post tool, on         │
+│   session events, on stop, on prompt-submit                            │
+│                                                                        │
+│   Produces: routed engine calls, audit trails, telemetry               │
+└────────────────────────────────────────────────────────────────────────┘
+                                  ▲
+                                  │ (tool calls)
+                                  │
+┌────────────────────────────────────────────────────────────────────────┐
+│ TIER 1 — RUNTIME                                                       │
+│   Claude Code CLI · 6+ concurrent chats · MCP servers · Docker         │
+│   (planned: prism-hooks broker)                                        │
+│                                                                        │
+│   Chat Identity: stable-session-id.mjs → claude-&lt;8hex&gt;                 │
+│   Per-chat handoff: HANDOFF-&lt;id&gt;-&lt;topic&gt;.md (topic-naming Stop hook)   │
+│   Coordination: AGENT_CHAT.jsonl + AGENT_WORKBOARD.md + claims         │
+│                                                                        │
+│   Produces: tool calls, chat events, handoffs, presence heartbeats     │
+└────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="what-automatic-means-at-each-boundary"><a class="anchor" href="#what-automatic-means-at-each-boundary" aria-label="Permalink to What &quot;automatic&quot; means at each boundary">#</a>What &quot;automatic&quot; means at each boundary</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Boundary</th><th>Trigger</th><th>Mechanism</th></tr></thead>
+<tbody>
+<tr><td>Tier 1 → Tier 2</td><td>Tool call</td><td>Claude Code harness routes via dispatcher</td></tr>
+<tr><td>Tier 2 → Tier 3</td><td>PostToolUse hook</td><td>Mirror writes to memory, recall counter, wiki link suggester (all shipped this session)</td></tr>
+<tr><td>Tier 3 → Tier 3</td><td>Cron / fs-watch</td><td>The 6 cyrilXBT workflows (Track B not yet built)</td></tr>
+<tr><td>Tier 3 → Tier 4</td><td>Generator script</td><td><code>generate-system-viz.mjs</code> reads BUILD_STATE + recall + vault, emits graph.json</td></tr>
+<tr><td>Tier 1 ⇄ Tier 1</td><td>Chat bus</td><td>AGENT_CHAT.jsonl polled at every UserPromptSubmit; presence heartbeats via stable-session-id</td></tr>
+</tbody>
+</table></div>
+<p><strong>Result if all edges are automatic:</strong> the user gives one command in any chat, and the <em>whole system</em> updates: hook fires → mirror updates vault → wiki-link-suggest enriches edges → recall counter increments → next viz regen reflects it → next session-start hook of any peer chat sees the new state.</p>
+<hr>
+<h2 id="5-the-plan-32-units-across-9-tracks"><a class="anchor" href="#5-the-plan-32-units-across-9-tracks" aria-label="Permalink to §5 — The plan: 32 units across 9 tracks">#</a>§5 — The plan: 32 units across 9 tracks</h2>
+<p>This SUPERSEDES <code>OBSIDIAN-INTELLIGENCE-MS3-UNIFIED-PLAN.md</code> (24 units) by adding 8 inter-surface synergy units that the plan-of-plans missed.</p>
+<h3 id="track-a-stabilization-prereq"><a class="anchor" href="#track-a-stabilization-prereq" aria-label="Permalink to Track A — Stabilization (PREREQ)">#</a>Track A — Stabilization (PREREQ)</h3>
+<ul>
+<li>A1. <strong>U-DOCKER-HOOK-BROKER</strong> (handoff from claude-99eca613) — kills xmalloc OOMs</li>
+<li>A2. <strong>U-REREAD-SIGNAL-FINISH</strong> — settings.json matcher add (small, in-flight)</li>
+</ul>
+<h3 id="track-b-autonomous-workflows-cyrilxbt"><a class="anchor" href="#track-b-autonomous-workflows-cyrilxbt" aria-label="Permalink to Track B — Autonomous Workflows (cyrilXBT)">#</a>Track B — Autonomous Workflows (cyrilXBT)</h3>
+<ul>
+<li>B1. U-DAILY-CONTEXT-WORKFLOW</li>
+<li>B2. U-CONNECTION-FINDER</li>
+<li>B3. U-QUEUE-PROCESSOR</li>
+<li>B4. U-WEEKLY-SYNTHESIS</li>
+<li>B5. U-PROJECT-AUTO-UPDATER</li>
+<li>B6. U-KNOWLEDGE-DISTILLATION</li>
+</ul>
+<h3 id="track-c-html-outputs-thariq"><a class="anchor" href="#track-c-html-outputs-thariq" aria-label="Permalink to Track C — HTML Outputs (Thariq)">#</a>Track C — HTML Outputs (Thariq)</h3>
+<ul>
+<li>C1. U-HTML-OUTPUT-MODE</li>
+<li>C2. U-HTML-DASHBOARD</li>
+<li>C3. U-HTML-DESIGN-SYSTEM</li>
+</ul>
+<h3 id="track-d-company-brain-sentraashwin"><a class="anchor" href="#track-d-company-brain-sentraashwin" aria-label="Permalink to Track D — Company Brain (Sentra/Ashwin)">#</a>Track D — Company Brain (Sentra/Ashwin)</h3>
+<ul>
+<li>D1. U-PROVENANCE-LAYER</li>
+<li>D2. U-ONTOLOGY-LAYER</li>
+<li>D3. U-CONFLICT-RESOLUTION</li>
+<li>D4. U-ACTION-TRACES</li>
+<li>D5. U-CONTEXT-EVAL-GATE</li>
+</ul>
+<h3 id="track-e-ideablock-rag-akshay"><a class="anchor" href="#track-e-ideablock-rag-akshay" aria-label="Permalink to Track E — IdeaBlock RAG (Akshay)">#</a>Track E — IdeaBlock RAG (Akshay)</h3>
+<ul>
+<li>E1. U-IDEABLOCK-EXTRACTOR</li>
+<li>E2. U-IDEABLOCK-DEDUP</li>
+<li>E3. U-IDEABLOCK-RAG-ENGINE</li>
+<li>E4. U-IDEABLOCK-GOVERNANCE</li>
+</ul>
+<h3 id="track-f-capture-surfaces"><a class="anchor" href="#track-f-capture-surfaces" aria-label="Permalink to Track F — Capture surfaces">#</a>Track F — Capture surfaces</h3>
+<ul>
+<li>F1. U-VOICE-CAPTURE</li>
+<li>F2. U-HIGHLIGHTS-ONLY</li>
+</ul>
+<h3 id="track-g-agent-observability-darkzodchi"><a class="anchor" href="#track-g-agent-observability-darkzodchi" aria-label="Permalink to Track G — Agent observability (darkzodchi)">#</a>Track G — Agent observability (darkzodchi)</h3>
+<ul>
+<li>G1. U-AGENT-JOB-DESCRIPTIONS</li>
+<li>G2. U-AGENT-PIXEL-DEPT-OVERLAY</li>
+<li>G3. U-AGENT-RUNTIME-ALERTS</li>
+</ul>
+<h3 id="track-h-synergy-edges-new-fills-the-60-cells"><a class="anchor" href="#track-h-synergy-edges-new-fills-the-60-cells" aria-label="Permalink to Track H — Synergy edges (NEW — fills the 60 ✗ cells)">#</a>Track H — Synergy edges (NEW — fills the 60 ✗ cells)</h3>
+<ul>
+<li>H1. <strong>U-TRIBAL-TO-WIKI-PROMOTE</strong> — auto-promote validated tribal tips to wiki/code-tribal/</li>
+<li>H2. <strong>U-VIZ-TRIBAL-LAYER</strong> — add tribal tips as L10.5 in system-viz</li>
+<li>H3. <strong>U-VIZ-AGENT-LAYER</strong> — L12 agents from chat bus (closes &quot;Pixel Department&quot; gap)</li>
+<li>H4. <strong>U-NEURAL-FEEDBACK-LOOP</strong> — NN training rounds emit lessons/ memory entries</li>
+<li>H5. <strong>U-HANDOFF-VIZ-LAYER</strong> — L11 active handoffs</li>
+<li>H6. <strong>U-HANDOFF-PRUNE-CRON</strong> — monthly archive of resolved handoffs (&gt;30d)</li>
+<li>H7. <strong>U-MASTER-INDEX-MEMORIES</strong> — extend MASTER_INDEX.md to enumerate memories</li>
+<li>H8. <strong>U-STOP-HOOK-AGGREGATOR</strong> — append every Stop hook outcome to a session ledger</li>
+</ul>
+<h3 id="track-i-forge5-phantom-tool-fix-new-credibility-issue"><a class="anchor" href="#track-i-forge5-phantom-tool-fix-new-credibility-issue" aria-label="Permalink to Track I — Forge5 phantom-tool fix (NEW — credibility issue)">#</a>Track I — Forge5 phantom-tool fix (NEW — credibility issue)</h3>
+<ul>
+<li>I1. <strong>U-VIZ-COMPLETENESS-CHECK</strong> — build the missing <code>system-viz-completeness-check.mjs</code></li>
+<li>I2. <strong>U-VIZ-PROGRESS-UPDATE</strong> — build the missing <code>viz-progress-update.mjs</code></li>
+<li>I3. <strong>U-AUTO-WIRE-PLAN</strong> — build the missing <code>auto-wire-plan.mjs</code></li>
+<li>I4. <strong>U-COMPOUNDING-GAINS-AUDIT</strong> — build the missing <code>compounding-gains-audit.mjs</code></li>
+</ul>
+<p>(Track I is required if /forge5/forge6 are to be trusted. Currently they reference 4 phantom tools.)</p>
+<h3 id="track-k-kimi-k26cloud-mid-tier-new-added-2026-05-10-by-claude-85cedf09"><a class="anchor" href="#track-k-kimi-k26cloud-mid-tier-new-added-2026-05-10-by-claude-85cedf09" aria-label="Permalink to Track K — Kimi K2.6:cloud mid-tier (NEW — added 2026-05-10 by claude-85cedf09)">#</a>Track K — Kimi K2.6:cloud mid-tier (NEW — added 2026-05-10 by claude-85cedf09)</h3>
+<p>Full plan: <a href="./K2-CLOUD-INTEGRATION-PLAN.md">K2-CLOUD-INTEGRATION-PLAN.md</a>. Adds a paid-cloud Ollama tier between local qwen2.5-coder:7b and Claude Opus to recover the 62% of currently-Claude tasks that don&#39;t actually need Claude depth.</p>
+<ul>
+<li>K1. <strong>U-K2-CONFIG-INVENTORY</strong> — document existing tier table in AISystemRouterEngine</li>
+<li>K2. <strong>U-K2-TIER-REGISTER</strong> — register <code>kimi-k2.6:cloud</code> tier with capability tags</li>
+<li>K3. <strong>U-K2-CLOUD-ENGINE</strong> — <code>K2CloudOllamaEngine</code> adapter (auth + fallback to qwen)</li>
+<li>K4. <strong>U-K2-ROUTER-DECISION</strong> — extend AISystemRouterEngine routing matrix (mid-band)</li>
+<li>K4.5. <strong>U-K2-CLAUDE-SCRUTINIZE-CHAIN</strong> — two-pass safety pattern (K2 generates → Claude scrutinizes against PRISM SAFETY RAILS, returns PASS|REVISE|FAIL). Deps K3+K4+K7; blocks K10+K12. See K2-CLOUD-INTEGRATION-PLAN.md §6.5.</li>
+<li>K5. <strong>U-K2-TIER-HOOK</strong> — <code>ollama-tier-router.mjs</code> UserPromptSubmit hook</li>
+<li>K6. <strong>U-K2-SKILL</strong> — <code>/k2-ask</code> (or extend <code>/local-ask --tier=k2</code>)</li>
+<li>K7. <strong>U-K2-COST-GUARD</strong> — per-session budget cap + fail-closed gate</li>
+<li>K8. <strong>U-K2-TELEMETRY</strong> — schema 3.0.0 with per-model breakdown</li>
+<li>K9. <strong>U-K2-DASHBOARD</strong> — extend ollama-offload-dashboard with cost projection</li>
+<li>K10. <strong>U-K2-FALLBACK-TESTS</strong> — Vitest covering 5 failure modes + ≥2 adversarial</li>
+<li>K11. <strong>U-K2-AUTH-SETUP</strong> — <code>ollama signin</code> wrapper + status doc</li>
+<li>K12. <strong>U-K2-CLAUDE-MD-DOC</strong> — 3-tier ladder documented in CLAUDE.md (Boris back-flow)</li>
+</ul>
+<p>Track K is <strong>infrastructure</strong> — Wave 5.5 proposed (between cyrilXBT workflows and Company Brain), so B1-B6 consume K2 from day 1.</p>
+<p><strong>User decisions locked 2026-05-10:</strong> 100K-token/session budget cap (fail-closed at 90K, ~$10); aggressive escalation (any task with context &gt;8K escalates qwen→K2.6:cloud, no confidence-signal gating, budget cap is the safety valve); two-pass safety pattern (K4.5 — K2 generates → Claude scrutinizes); Wave 5.5 timing confirmed. Total units: <strong>13</strong> (was 12). Estimated effort: <strong>9-13 hours</strong> across 2-3 sessions.</p>
+<hr>
+<h2 id="6-recommended-execution-order"><a class="anchor" href="#6-recommended-execution-order" aria-label="Permalink to §6 — Recommended execution order">#</a>§6 — Recommended execution order</h2>
+<p><strong>Atomic-first</strong> (per /forge5 Tier Floor Gate): Tier 0 (cores) → Tier 1 (engines) → Tier 2 (dispatchers) → Tier 3 (transport) → Tier 4 (frontend).</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Wave</th><th>Units</th><th>Reason</th></tr></thead>
+<tbody>
+<tr><td><strong>Wave 0</strong> (now)</td><td>A1, A2</td><td>Stabilization — kills OOMs</td></tr>
+<tr><td>Wave 1</td><td>I1-I4</td><td>Make /forge5 trustable — these are the meta-tools</td></tr>
+<tr><td>Wave 2</td><td>H1, H2, H3, H4, H5</td><td>Synergy edges — the 23%→60% lift</td></tr>
+<tr><td>Wave 3</td><td>C1, C2, C3</td><td>HTML outputs (Thariq) — independent, fast wins</td></tr>
+<tr><td>Wave 4</td><td>E1-E4</td><td>IdeaBlock RAG — replaces ObsidianMemoryRagEngine</td></tr>
+<tr><td>Wave 5</td><td>B1-B6</td><td>cyrilXBT workflows — depend on E + A</td></tr>
+<tr><td>Wave 6</td><td>D1-D5</td><td>Company Brain — biggest scope</td></tr>
+<tr><td>Wave 7</td><td>F1, F2, G1-G3, H6-H8</td><td>Capture + observability + housekeeping</td></tr>
+</tbody>
+</table></div>
+<p>Total: 7 waves, 32 units, ~3-4 sessions if everything goes clean.</p>
+<hr>
+<h2 id="7-compounding-gains-meta-artifact-per-forge5-6l"><a class="anchor" href="#7-compounding-gains-meta-artifact-per-forge5-6l" aria-label="Permalink to §7 — Compounding-gains META artifact (per /forge5 §6L)">#</a>§7 — Compounding-gains META artifact (per /forge5 §6L)</h2>
+<p>Emitted as the v5 dev-velocity tax for this audit:</p>
+<p><strong><code>H:/prism/scripts/system-synergy-map.mjs</code></strong> (new) — generates the §2 matrix above on demand from live state. Re-runnable; tracks ✓/△/✗ ratio over time. Feeds future audits without manual re-compilation.</p>
+<p>(Implementation file: see this commit. Run with <code>node H:/prism/scripts/system-synergy-map.mjs</code>.)</p>
+<hr>
+<h2 id="8-open-questions-for-the-user"><a class="anchor" href="#8-open-questions-for-the-user" aria-label="Permalink to §8 — Open questions for the user">#</a>§8 — Open questions for the user</h2>
+<ol>
+<li><strong>/forge5 phantom-tools (Track I)</strong>: keep building them, or simplify /forge5 to remove the references? Track I is 4 units of meta-tool work.</li>
+<li><strong>Tribal tip count discrepancy</strong>: CLAUDE-BRIEF says 4,245; viz shows 0 tribal nodes. Confirm 4,245 is the canonical number, then H2 wires them in.</li>
+<li><strong>207 handoff files</strong>: H6 prunes any unresolved &gt;30d. Confirm criteria for &quot;resolved.&quot;</li>
+<li><strong>Coverage discrepancy</strong>: BUILD_STATE says 71% wired (2,269 / 3,176); viz <code>coverage-by-domain</code> says 88% (2,802 / 3,176). One of them is wrong. Worth a small debug unit before any roadmap planning.</li>
+<li><strong>xproc-neural-aci worktree</strong>: 20+ NN engines live there. Should they upstream to main or stay isolated? H4 assumes upstream.</li>
+</ol>
+<hr>
+<h2 id="9-bottom-line"><a class="anchor" href="#9-bottom-line" aria-label="Permalink to §9 — Bottom line">#</a>§9 — Bottom line</h2>
+<p>PRISM has a <strong>world-class point-asset surface</strong> (3,176 engines, 7,341 actions, 774 wiki entries, 6-chat coordination, system-viz with 11 layers). It has a <strong>mediocre inter-surface plumbing</strong> (23% automatic edges).</p>
+<p>Closing the 60 ✗ edges is the highest-leverage work right now — bigger than building any single new engine. It&#39;s also the work that makes /forge5&#39;s &quot;compounding gains&quot; claim real instead of aspirational.</p>
+<p>The 5 articles (cyrilXBT × 2, Thariq, darkzodchi, Ashwin, Akshay) all converge on the same thesis: <strong>a knowledge system that doesn&#39;t write back to itself is a prototype.</strong> PRISM is right at the threshold. This audit and Track H exist to push it across.</p>
+<hr>
+<h2 id="10-peer-review-remediation-log-claude-85cedf09-2026-05-10"><a class="anchor" href="#10-peer-review-remediation-log-claude-85cedf09-2026-05-10" aria-label="Permalink to §10 — Peer-review remediation log (claude-85cedf09 / 2026-05-10)">#</a>§10 — Peer-review remediation log (claude-85cedf09 / 2026-05-10)</h2>
+<p><code>/forge-audit-v2</code> Phase 4B dispatched a worktree-isolated reviewer (agent <code>a6e3fe1862ddfbff5</code>) per Boris pattern. Verdict: <strong>BLOCK</strong> with 3 actionable defects. This section records remediations applied.</p>
+<h3 id="defect-remediation"><a class="anchor" href="#defect-remediation" aria-label="Permalink to Defect → Remediation">#</a>Defect → Remediation</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Defect (reviewer claim)</th><th>Independent verification</th><th>Remediation</th></tr></thead>
+<tbody>
+<tr><td>D1</td><td>§1 undercount: &quot;9 tribal engines&quot;</td><td><code>ls src/engines/*Tribal*.ts | wc -l</code> = <strong>23</strong> (reviewer guessed 19; both wrong but audit was lower)</td><td>§1 row updated above to 23.</td></tr>
+<tr><td>D2</td><td>§5 32-unit plan double-counts shipped work</td><td><code>git log --since=2026-04-15 --grep=TRIBAL|WIKI04|VIZ</code> shows 14 matching commits incl. <code>U-TRIBAL-AI-L1-L6</code>, <code>U-TRIBAL-NODE-BINDER-{PLAN,SPEC}</code>, <code>U-TRIBAL-CONSOLIDATE</code>, <code>OBSIDIAN-VIZ-MS0</code> (6/6), <code>U-WIKI03+04</code>, <code>U-OBS-TRIBAL03</code>. H1/H2/H4 partially shipped; H3/H5 not yet.</td><td>Plan units H1, H2, H4 should be re-scoped from &quot;build&quot; to &quot;verify in-flight units expose measurement channels post-merge&quot;; H3 (chat-bus → viz L12) and H5 (handoff → viz L11) remain unbuilt. Trim ~3 units from Track H.</td></tr>
+<tr><td>D3</td><td>docker→hooks edge probe broken (script reports ✓ but <code>docker/</code> dir missing)</td><td><code>ls H:/prism/docker/</code> returns no such directory</td><td>Flagged in <code>H:/prism/CLAUDE.md</code> <code>## Recent regressions</code>. Synergy script needs <code>existsSync</code> guard before scoring auto. True synergy ratio is below the reported 22.2%.</td></tr>
+</tbody>
+</table></div>
+<h3 id="reviewer-fails-that-did-not-remediate"><a class="anchor" href="#reviewer-fails-that-did-not-remediate" aria-label="Permalink to Reviewer FAILs that did NOT remediate">#</a>Reviewer FAILs that did NOT remediate</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Reviewer claim</th><th>Why not actioned</th></tr></thead>
+<tbody>
+<tr><td>F5</td><td>&quot;Finding #5 mislabeled ✗ vs △&quot;</td><td>Reviewer&#39;s enumeration didn&#39;t match audit §3 ordering — they reviewed <code>skills↔hooks</code> as #5 but the audit&#39;s #5 is <code>chat-bus → system-viz</code>. Real audit #5 has no mislabel.</td></tr>
+<tr><td>F10</td><td>&quot;Finding #10 overcounts missing scripts (5 viz scripts exist)&quot;</td><td>Reviewer confused viz utility scripts (5 exist: <code>generate-system-viz</code>, <code>install-system-viz-git-hook</code>, <code>system-viz-obsidian-bridge</code>, <code>system-viz-on-commit</code>, <code>system-viz-query</code>) with the 4 specific names audit §3-#10 lists (<code>viz-progress-update.mjs</code>, <code>auto-wire-plan.mjs</code>, <code>system-viz-completeness-check.mjs</code>, <code>compounding-gains-audit.mjs</code>). All 4 confirmed missing via <code>ls scripts/ | grep -E ...</code> returning empty. Audit was correct; reviewer overstated FAIL.</td></tr>
+</tbody>
+</table></div>
+<h3 id="stronger-findings-the-reviewer-surfaced"><a class="anchor" href="#stronger-findings-the-reviewer-surfaced" aria-label="Permalink to Stronger findings the reviewer surfaced">#</a>Stronger findings the reviewer surfaced</h3>
+<ul>
+<li><strong>R1 (peer-detected)</strong>: <code>ollama-offload-stats.json</code> shows 38% offload rate (104 offloaded / 274 total events) — borderline against the 30% &quot;healthy&quot; floor. Worth monitoring; if it drops, check <code>http://127.0.0.1:11434/api/tags</code> reachability. (Logged in CLAUDE.md regressions.)</li>
+<li><strong>R2 (peer-detected)</strong>: 38% of recent commits in <code>CAD-FUSION-LIVE-MS0/U-TRIBAL-P*T*</code> chain are explicitly building tribal↔viz↔obsidian — work is in-flight, not absent. Audit framing should be &quot;verify post-merge&quot; not &quot;build from scratch.&quot;</li>
+</ul>
+<h3 id="verdict-status-after-remediation"><a class="anchor" href="#verdict-status-after-remediation" aria-label="Permalink to Verdict status after remediation">#</a>Verdict status after remediation</h3>
+<ul>
+<li>7/10 findings: <strong>PASS</strong> unchanged</li>
+<li>1/10 (D2-related): <strong>DOWNGRADED</strong> to &quot;verify in-flight&quot; (per §10 D2)</li>
+<li>2/10 (F5, F10 reviewer claims): <strong>DEFERRED</strong> — reviewer enumeration mismatch</li>
+<li>Macro ratio (22.2%): <strong>PASS</strong>, but flagged as upper-bound pending docker probe fix</li>
+<li>Plan: <strong>PASS post-trim</strong> (drops H1/H2/H4 to verify-only, keeps 24 net units)</li>
+<li>Tier-stack: <strong>PASS</strong> unchanged</li>
+</ul>
+<p>Net status: audit is <strong>SHIPPABLE</strong> as v1.1 (this remediation). HTML companion at <code>state/shared/specs/SYSTEM-SYNERGY-AUDIT-2026-05-09.html</code> mirrors these numbers.</p>
+<h3 id="provenance"><a class="anchor" href="#provenance" aria-label="Permalink to Provenance">#</a>Provenance</h3>
+<ul>
+<li>Reviewer agent log: <code>C:/Users/wompu/AppData/Local/Temp/claude/H--prism/85cedf09-1e78-4b0c-bb5d-59325739e236/tasks/a6e3fe1862ddfbff5.output</code> (worktree branch <code>worktree-agent-a6e3fe1862ddfbff5</code>)</li>
+<li>Re-run scheduled: CronCreate <code>46e7f9ac</code> fires <code>2026-05-16 09:34 local</code> with <code>/forge-audit-v2 system synergy ratio</code></li>
+<li>META artifact (re-runnable, current): <code>node H:/prism/scripts/system-synergy-map.mjs</code> → 22.2% baseline</li>
+</ul>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="SYSTEM-SYNERGY-AUDIT-2026-05-09.md">SYSTEM-SYNERGY-AUDIT-2026-05-09.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

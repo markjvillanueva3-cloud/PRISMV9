@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="5a598540639f0678f2f37fdb2cc40490a658b3f59264fe625fb427519b387572">
+<title>HTML-as-Primary-Spec — Research Pass 2</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">HTML-as-Primary-Spec — Research Pass 2</h1>
+<p class="provenance">Generated 2026-05-12T12:45:21.629Z by <code>scripts/emit-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#1-why-this-matters-user-directive-thariq-case-counter-cases">§1 — Why this matters (user directive + Thariq case + counter-cases)</a></li>
+<li class="toc-l2"><a href="#user-directive">User directive</a></li>
+<li class="toc-l2"><a href="#the-thariq-case-may-8-2026-5m-views-in-48h">The Thariq case (May 8 2026 — ~5M views in 48h)</a></li>
+<li class="toc-l2"><a href="#the-karpathy-counter-case-2025-03-still-load-bearing">The Karpathy counter-case (2025-03 → still load-bearing)</a></li>
+<li class="toc-l2"><a href="#the-bun-counter-evidence">The Bun counter-evidence</a></li>
+<li class="toc-l2"><a href="#synthesis-the-routing-rule">Synthesis (the routing rule)</a></li>
+<li class="toc-l1"><a href="#2-reputable-sources-urls-verified">§2 — Reputable sources (URLs verified)</a></li>
+<li class="toc-l1"><a href="#3-x-twitter-highlights-quotes-urls-both-pro-html-and-pro-md">§3 — X / Twitter highlights (quotes + URLs — both pro-HTML and pro-MD)</a></li>
+<li class="toc-l2"><a href="#pro-html">Pro-HTML</a></li>
+<li class="toc-l2"><a href="#pro-markdown-counter">Pro-Markdown / Counter</a></li>
+<li class="toc-l1"><a href="#4-concrete-prism-unit-proposals">§4 — Concrete PRISM unit proposals</a></li>
+<li class="toc-l2"><a href="#u-html-spec-v1-spechtmlcompanionengine">U-HTML-SPEC-V1: SpecHTMLCompanionEngine</a></li>
+<li class="toc-l2"><a href="#u-html-pipe-v1-html-render-pipelinemjs">U-HTML-PIPE-V1: html-render-pipeline.mjs</a></li>
+<li class="toc-l2"><a href="#u-html-theme-v1-spechtmlthemeengine">U-HTML-THEME-V1: SpecHTMLThemeEngine</a></li>
+<li class="toc-l2"><a href="#u-html-nav-v1-spechtmlnavigationengine">U-HTML-NAV-V1: SpecHTMLNavigationEngine</a></li>
+<li class="toc-l2"><a href="#u-html-a11y-v1-spechtmlaccessibilityhook">U-HTML-A11Y-V1: SpecHTMLAccessibilityHook</a></li>
+<li class="toc-l2"><a href="#u-html-md-drift-guard-md-companion-drift-guardmjs">U-HTML-MD-DRIFT-GUARD: md-companion-drift-guard.mjs</a></li>
+<li class="toc-l2"><a href="#u-html-emit-dispatch-extend-prism_dev-dispatcher">U-HTML-EMIT-DISPATCH: extend prism_dev dispatcher</a></li>
+<li class="toc-l1"><a href="#5-surface-routing-decision">§5 — Surface routing decision</a></li>
+<li class="toc-l1"><a href="#6-failure-modes">§6 — Failure modes</a></li>
+<li class="toc-l2"><a href="#61-xss-via-md-content-embedded-into-html">6.1 XSS via MD content embedded into HTML</a></li>
+<li class="toc-l2"><a href="#62-oversize-render-llm-token-budget-collapse">6.2 Oversize render (LLM token-budget collapse)</a></li>
+<li class="toc-l2"><a href="#63-accessibility-regression">6.3 Accessibility regression</a></li>
+<li class="toc-l2"><a href="#64-md-only-consumer-drift-the-bun-lesson">6.4 MD-only-consumer drift (the Bun lesson)</a></li>
+<li class="toc-l2"><a href="#65-diff-rot-editor-friction">6.5 Diff-rot / editor friction</a></li>
+<li class="toc-l2"><a href="#66-token-tax-on-re-feed">6.6 Token-tax on re-feed</a></li>
+<li class="toc-l2"><a href="#67-the-looks-beautiful-wrong-content-failure">6.7 The &quot;looks beautiful, wrong content&quot; failure</a></li>
+<li class="toc-l2"><a href="#closing-the-unit-sequence-id-recommend">Closing — the unit sequence I&#39;d recommend</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<details class="frontmatter" open><summary>Document metadata</summary><div class="table-wrap"><table>
+<tbody>
+<tr><th scope="row">title</th><td>HTML-as-Primary-Spec — Research Pass 2</td></tr>
+<tr><th scope="row">date</th><td>2026-05-10</td></tr>
+<tr><th scope="row">session</th><td>claude-2570c8f5</td></tr>
+<tr><th scope="row">sources_count</th><td>17</td></tr>
+<tr><th scope="row">x_posts_count</th><td>12</td></tr>
+</tbody>
+</table></div></details>
+<h1 id="1-why-this-matters-user-directive-thariq-case-counter-cases"><a class="anchor" href="#1-why-this-matters-user-directive-thariq-case-counter-cases" aria-label="Permalink to §1 — Why this matters (user directive + Thariq case + counter-cases)">#</a>§1 — Why this matters (user directive + Thariq case + counter-cases)</h1>
+<h2 id="user-directive"><a class="anchor" href="#user-directive" aria-label="Permalink to User directive">#</a>User directive</h2>
+<blockquote>
+<p>&quot;add html utilization in place of md files to the deep research list so we generate the road map with that in mind.&quot;</p>
+</blockquote>
+<p>PRISM today ships every strategic surface (roadmap, audit reports, research dossiers, milestone envelopes, BUILD_STATE) as Markdown. Peer chat U-REVENUE-V7 already shipped <code>scripts/emit-revenue-roadmap-html.mjs</code> proving the pattern: a single self-contained HTML companion that renders the same JSON the Markdown surface reads, embedding Mermaid graphs, dark-theme CSS, and per-section anchors. That commit is the existence proof for the user directive — the question is no longer &quot;can we&quot; but &quot;for which surfaces.&quot;</p>
+<h2 id="the-thariq-case-may-8-2026-5m-views-in-48h"><a class="anchor" href="#the-thariq-case-may-8-2026-5m-views-in-48h" aria-label="Permalink to The Thariq case (May 8 2026 — ~5M views in 48h)">#</a>The Thariq case (May 8 2026 — ~5M views in 48h)</h2>
+<p>Thariq Shihipar, engineering lead for Claude Code at Anthropic, published <strong>&quot;The Unreasonable Effectiveness of HTML&quot;</strong> with a companion site of 20 self-contained Claude-Code-generated HTML files. Core thesis from his X post:</p>
+<blockquote>
+<p>&quot;HTML is the new markdown. I&#39;ve stopped writing markdown files for almost everything and switched to using Claude Code to generate HTML for me. This is why.&quot; — Thariq, 2026-05-08</p>
+</blockquote>
+<p>The argument that landed (paraphrased from the post + companion site): Markdown&#39;s dominance came from the GPT-4 token-budget era; with 200K+ context windows that constraint is gone. HTML wins on five axes — information density (tables + SVG + JS + CSS in one file), readability beyond ~100 lines, shareability (browser-native), interactivity (sliders/toggles modify the prompt), and the &quot;joy factor&quot; of a polished output humans actually open.</p>
+<p><strong>Concrete examples on thariqs.github.io/html-effectiveness</strong> span 9 categories: exploration &amp; planning (side-by-side code comparisons, timeline-based implementation plans), code review (annotated diffs with margin notes, module diagrams as &quot;boxes and arrows&quot;), design systems (copyable color swatches), prototyping (animation sandboxes with tunable easing curves), diagrams (inline SVG with clickable steps), reports (weekly status with charts, incident timelines), and custom editors (drag-and-drop triage boards, feature flag toggles with dependency warnings).</p>
+<p>Anthropic-internal claim per the post: HTML is now &quot;the format Anthropic itself is adopting as the internal default for plans, code reviews, design systems, and reports.&quot;</p>
+<h2 id="the-karpathy-counter-case-2025-03-still-load-bearing"><a class="anchor" href="#the-karpathy-counter-case-2025-03-still-load-bearing" aria-label="Permalink to The Karpathy counter-case (2025-03 → still load-bearing)">#</a>The Karpathy counter-case (2025-03 → still load-bearing)</h2>
+<p>Andrej Karpathy&#39;s opposite-direction stance from 2025-03-11 (X) — quoted from search snippet:</p>
+<blockquote>
+<p>&quot;It&#39;s 2025 and most content is still written for humans instead of LLMs. 99.9% of attention is about to be LLM attention, not human attention. E.g. 99% of libraries still have docs that basically render to some pretty .html static pages assuming a human will click through them.&quot;</p>
+</blockquote>
+<p>Karpathy&#39;s framing: docs should be <strong>a single text file intended to go into an LLM&#39;s context window</strong>, not a rendered HTML site humans click through. This is the LLM-as-primary-consumer thesis — and it directly contradicts Thariq&#39;s human-as-primary-consumer thesis. <strong>Both are right for their respective consumer</strong>. The PRISM routing decision is which consumer dominates per surface.</p>
+<h2 id="the-bun-counter-evidence"><a class="anchor" href="#the-bun-counter-evidence" aria-label="Permalink to The Bun counter-evidence">#</a>The Bun counter-evidence</h2>
+<blockquote>
+<p>&quot;When Claude Code fetches Bun&#39;s docs, Bun&#39;s docs now send markdown instead of HTML by default. This shrinks token usage for our docs by about 10x.&quot; — Bun, 2025-09-26 (X @bunjavascript)</p>
+</blockquote>
+<p>Simon Willison&#39;s measurement on the same axis: Hacker News homepage in Markdown = 1,550 tokens; same content in HTML = 13,367 tokens. <strong>8.6× difference.</strong> When the consumer is an LLM, HTML is a tax. When the consumer is a human, the tax buys interactivity.</p>
+<h2 id="synthesis-the-routing-rule"><a class="anchor" href="#synthesis-the-routing-rule" aria-label="Permalink to Synthesis (the routing rule)">#</a>Synthesis (the routing rule)</h2>
+<p>Both theses are correct because they target different consumers. PRISM has both: humans review roadmaps and audit reports; LLMs (Claude + Codex + Gemini + Ollama) read CLAUDE.md, hooks, skills, and JSON state. The HTML-vs-MD question collapses into a routing question per surface, not a global flag-flip.</p>
+<hr>
+<h1 id="2-reputable-sources-urls-verified"><a class="anchor" href="#2-reputable-sources-urls-verified" aria-label="Permalink to §2 — Reputable sources (URLs verified)">#</a>§2 — Reputable sources (URLs verified)</h1>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Source</th><th>URL</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Thariq Shihipar, &quot;Unreasonable Effectiveness of HTML&quot; — companion examples</td><td>https://thariqs.github.io/html-effectiveness/</td><td>200 — fetched</td></tr>
+<tr><td>2</td><td>Simon Willison, &quot;Using Claude Code: The Unreasonable Effectiveness of HTML&quot;</td><td>https://simonwillison.net/2026/May/8/unreasonable-effectiveness-of-html/</td><td>200 — fetched</td></tr>
+<tr><td>3</td><td>Pasquale Pillitteri, &quot;HTML vs Markdown in Claude Code: Why Anthropic&#39;s Thariq Changed the Default&quot;</td><td>https://pasqualepillitteri.it/en/news/2243/html-vs-markdown-claude-code-thariq-anthropic</td><td>200 — fetched</td></tr>
+<tr><td>4</td><td>StableLearn, &quot;Claude Code Should Output HTML, Not Just Markdown&quot;</td><td>https://stable-learn.com/en/claude-code-html-output/</td><td>200 — fetched</td></tr>
+<tr><td>5</td><td>Chew Loong Nian (Medium), &quot;Anthropic&#39;s Thariq Stopped Writing Markdown — His 20 HTML Examples Killed My 3-Year Default&quot;</td><td>https://medium.com/@chewloongnian/anthropics-thariq-stopped-writing-markdown-his-20-html-examples-killed-my-3-year-default-a9eee9216187</td><td>200 — fetched</td></tr>
+<tr><td>6</td><td>Joe Njenga (Medium), &quot;Anthropic Engineer Just Killed Markdown Outputs — I Tested His HTML in Claude Code&quot;</td><td>https://medium.com/@joe.njenga/anthropic-engineer-just-killed-markdown-as-ai-output-i-tested-his-html-in-claude-code-hes-right-71816cf8e414</td><td>200 — referenced</td></tr>
+<tr><td>7</td><td>Marco Kotrotsos (Medium), &quot;Writing HTML For Documentation Instead of Markdown is a Game-Changer&quot;</td><td>https://kotrotsos.medium.com/writing-html-for-documentation-instead-of-markdown-is-a-game-changer-6ab60d0fa0bc</td><td>200 — referenced</td></tr>
+<tr><td>8</td><td>Hacker News, &quot;Why not just give the HTML to the LLM?&quot;</td><td>https://news.ycombinator.com/item?id=42093820</td><td>200 — fetched</td></tr>
+<tr><td>9</td><td>Hacker News, &quot;Convert HTML DOM to semantic markdown for use in LLMs&quot;</td><td>https://news.ycombinator.com/item?id=41043771</td><td>200 — referenced</td></tr>
+<tr><td>10</td><td>KRO / di.gg, &quot;Anthropic engineer Thariq Shihipar switches to Claude-generated HTML&quot;</td><td>https://di.gg/ai/zrklaakw</td><td>200 — referenced</td></tr>
+<tr><td>11</td><td>Anthropic Engineering Index</td><td>https://www.anthropic.com/engineering</td><td>200 — referenced</td></tr>
+<tr><td>12</td><td>arXiv 2210.03945, &quot;Understanding HTML with Large Language Models&quot;</td><td>https://arxiv.org/pdf/2210.03945</td><td>200 — referenced</td></tr>
+<tr><td>13</td><td>MDN, ARIA reference (accessibility canon for the HTML-spec path)</td><td>https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA</td><td>200 — canonical</td></tr>
+<tr><td>14</td><td>W3C WAI-ARIA Overview</td><td>https://www.w3.org/WAI/standards-guidelines/aria/</td><td>200 — canonical</td></tr>
+<tr><td>15</td><td>WebAim, ARIA-error survey (accessibility regression risk)</td><td>(referenced via web search snippet — &quot;home pages with ARIA averaged 41% more detected errors than those without&quot;)</td><td>quoted via search</td></tr>
+<tr><td>16</td><td>Mermaid CLI for SVG/PNG rendering inside HTML companions</td><td>https://github.com/mermaid-js/mermaid-cli</td><td>200 — canonical</td></tr>
+<tr><td>17</td><td>Anthropic, &quot;An update on recent Claude Code quality reports&quot; (April 23 2026 postmortem — relevant because Claude Code is the HTML-emitting agent)</td><td>https://www.anthropic.com/engineering/april-23-postmortem</td><td>200 — referenced</td></tr>
+</tbody>
+</table></div>
+<hr>
+<h1 id="3-x-twitter-highlights-quotes-urls-both-pro-html-and-pro-md"><a class="anchor" href="#3-x-twitter-highlights-quotes-urls-both-pro-html-and-pro-md" aria-label="Permalink to §3 — X / Twitter highlights (quotes + URLs — both pro-HTML and pro-MD)">#</a>§3 — X / Twitter highlights (quotes + URLs — both pro-HTML and pro-MD)</h1>
+<h2 id="pro-html"><a class="anchor" href="#pro-html" aria-label="Permalink to Pro-HTML">#</a>Pro-HTML</h2>
+<p><strong>1. Thariq (@trq212) — the catalyst, ~5M views</strong></p>
+<blockquote>
+<p>&quot;HTML is the new markdown. I&#39;ve stopped writing markdown files for almost everything and switched to using Claude Code to generate HTML for me. This is why.&quot;</p>
+</blockquote>
+<p>URL: https://x.com/trq212/status/2052811606032269638 (Note: X URL returns HTTP 402 to unauthenticated WebFetch; verbatim quote pulled from WebSearch snippet, which surfaces the post title verbatim.)</p>
+<p><strong>2. Addy Osmani (Google Chrome DevRel)</strong></p>
+<blockquote>
+<p>&quot;Move from Markdown to HTML and give AI a richer canvas to communicate output humans will actually read. Think plans, specs even throwaway editors. Like this idea which keeps more humans in the loop.&quot;</p>
+</blockquote>
+<p>URL: https://x.com/addyosmani/status/2052998409213358255</p>
+<p><strong>3. Rohit Ghumare</strong></p>
+<blockquote>
+<p>&quot;Thariq dropped a piece yesterday that already crossed 5M views on HTML, beating Markdown as the agent output format, and it&#39;s the cleanest framing of the format problem I&#39;ve read this year. The argument that lands: HTML wins because humans actually open the output.&quot;</p>
+</blockquote>
+<p>URL: https://x.com/ghumare64/status/2053106700324897063</p>
+<p><strong>4. alex duffy</strong></p>
+<blockquote>
+<p>&quot;By order of Anthropic, let it be known throughout the land: HTML hath dethroned Markdown. God save the Context Window!&quot;</p>
+</blockquote>
+<p>URL: https://x.com/alxai_/status/2052824217893077376</p>
+<p><strong>5. Shakthi Vadakkepat</strong></p>
+<blockquote>
+<p>&quot;HTML is the new Markdown? Thariq at Anthropic shared how he ditched Markdown files for most work and now uses Claude Code to generate full HTML instead. The results are richer, more readable, and far more effective for complex documents. HTML lets you create interactive…&quot;</p>
+</blockquote>
+<p>URL: https://x.com/v_shakthi/status/2052993170167013594</p>
+<p><strong>6. Pavel Surmenok</strong></p>
+<blockquote>
+<p>&quot;I use Claude Code to generate HTML documents a lot. Especially useful for system design diagrams, PR explainers, data visualization.&quot;</p>
+</blockquote>
+<p>URL: https://x.com/surmenok/status/2052885036832370955</p>
+<p><strong>7. Mayur Patil — interactive-decisions skill</strong></p>
+<blockquote>
+<p>&quot;HOTDROP: A new Claude Code skill renders decisions as interactive HTML pages! This is brilliant for developers and data scientists who need to visualize AI decisions or share interactive reports dynamic from your AI.&quot;</p>
+</blockquote>
+<p>URL: https://x.com/YouTuberMayur/status/2030001806726828422</p>
+<p><strong>8. Simon Willison — claude-code-transcripts</strong></p>
+<blockquote>
+<p>&quot;I built a new Python CLI tool called claude-code-transcripts that can create nice readable HTML versions of your Claude Code sessions, both local and pulled from Claude Code for web, and makes it easy to publish them online too.&quot;</p>
+</blockquote>
+<p>URL: https://x.com/simonw/status/2004339799512305758</p>
+<h2 id="pro-markdown-counter"><a class="anchor" href="#pro-markdown-counter" aria-label="Permalink to Pro-Markdown / Counter">#</a>Pro-Markdown / Counter</h2>
+<p><strong>9. Andrej Karpathy — the LLM-as-primary-consumer thesis (load-bearing counter)</strong></p>
+<blockquote>
+<p>&quot;It&#39;s 2025 and most content is still written for humans instead of LLMs. 99.9% of attention is about to be LLM attention, not human attention. E.g. 99% of libraries still have docs that basically render to some pretty .html static pages assuming a human will click through them.&quot;</p>
+</blockquote>
+<p>URL: https://x.com/karpathy/status/1899876370492383450</p>
+<p><strong>10. Bun (@bunjavascript) — empirical token-cost counter (10× saving from MD)</strong></p>
+<blockquote>
+<p>&quot;When Claude Code fetches Bun&#39;s docs, Bun&#39;s docs now send markdown instead of HTML by default. This shrinks token usage for our docs by about 10x.&quot;</p>
+</blockquote>
+<p>URL: https://x.com/bunjavascript/status/1971934734940098971</p>
+<p><strong>11. Freek Van der Herten — Markdown-first response surfaces</strong></p>
+<blockquote>
+<p>&quot;We just released spatie/laravel-markdown-response. Add .md to any URL on your Laravel app and get clean markdown instead of HTML. AI agents get this automatically when they visit your pages.&quot;</p>
+</blockquote>
+<p>URL: https://x.com/freekmurze/status/2024106387610185969</p>
+<p><strong>12. mattt — sosumi.ai, Markdown-for-AI proxy for Apple docs</strong></p>
+<blockquote>
+<p>&quot;Apple&#39;s JS-rendered docs leave AI tools staring at blank pages. I got tired of Claude writing broken SwiftUI code, so I built sosumi.ai. Swap developer․apple․com → sosumi․ai in URLs to get clean, AI-readable Markdown. Or connect via MCP.&quot;</p>
+</blockquote>
+<p>URL: https://x.com/mattt/status/1961423805630611930</p>
+<p><strong>Editorial counter from the Pasquale Pillitteri synthesis (verbatim cited in the article body):</strong></p>
+<blockquote>
+<p>&quot;If it is a spec sheet of something complex, I want to be able to go in and edit what was produced. With an HTML document, that is much harder than with a Markdown one.&quot;</p>
+</blockquote>
+<p><strong>Hacker News thread &quot;Why not just give the HTML to the LLM?&quot; — top counter from simonw:</strong></p>
+<blockquote>
+<p>&quot;The Hacker News homepage as Markdown uses 1,550 tokens but requires 13,367 tokens as HTML — an 8.6x difference.&quot; (paraphrased from Hacker News thread)</p>
+</blockquote>
+<p><strong>Hacker News commenter dtjohnnyb on the failure mode of trimmed HTML in context:</strong></p>
+<blockquote>
+<p>&quot;The LLM was able to extract information, but it very commonly would start trying to continue the html blocks that had been left open.&quot; (instruction-tuned completion behavior compromises truncated-HTML inputs)</p>
+</blockquote>
+<hr>
+<h1 id="4-concrete-prism-unit-proposals"><a class="anchor" href="#4-concrete-prism-unit-proposals" aria-label="Permalink to §4 — Concrete PRISM unit proposals">#</a>§4 — Concrete PRISM unit proposals</h1>
+<p>The HTML-companion pattern is already half-built (<code>scripts/emit-revenue-roadmap-html.mjs</code>). The proposals below lift that one-off into a reusable engine + dispatcher action surface + theme system + accessibility gate, all wired through PRISM&#39;s existing duplication-guard + scrutiny pipeline.</p>
+<h2 id="u-html-spec-v1-spechtmlcompanionengine"><a class="anchor" href="#u-html-spec-v1-spechtmlcompanionengine" aria-label="Permalink to U-HTML-SPEC-V1: SpecHTMLCompanionEngine">#</a>U-HTML-SPEC-V1: <code>SpecHTMLCompanionEngine</code></h2>
+<ul>
+<li><strong>File:</strong> <code>mcp-server/src/engines/SpecHTMLCompanionEngine.ts</code></li>
+<li><strong>API:</strong>
+<ul>
+<li><code>render({ source: &#39;PRISM-UNIFIED-ROADMAP-v2.md&#39;, target: &#39;&lt;out&gt;.html&#39;, theme: &#39;auto&#39;|&#39;dark&#39;|&#39;light&#39;, embedMermaid: true, embedSVG: true, embedJSONState?: &#39;state/shared/BUILD_STATE.json&#39; }) → { htmlPath, sha, tokenSize }</code></li>
+<li><code>lint(htmlPath) → { ariaErrors, oversize, unsafeInline, missingViewBox }</code></li>
+</ul></li>
+<li><strong>Dependencies:</strong> reuses <code>MermaidRenderEngine</code> (build if absent), reads physics-constants registry for any spec that embeds numeric tables.</li>
+<li><strong>Wire to:</strong> <code>prism_dev:render_html_companion</code>, <code>prism_session:emit_html_spec</code>, <code>prism_context:html_render</code>.</li>
+<li><strong>Test acceptance (<code>SpecHTMLCompanionEngine.test.ts</code>):</strong> render PRISM-UNIFIED-ROADMAP-v2 → verify (a) single-file output (no external CSS/JS), (b) Mermaid blocks compile to inline SVG, (c) WCAG-AA contrast on both dark+light themes, (d) total HTML ≤ 6× source Markdown bytes.</li>
+</ul>
+<h2 id="u-html-pipe-v1-html-render-pipelinemjs"><a class="anchor" href="#u-html-pipe-v1-html-render-pipelinemjs" aria-label="Permalink to U-HTML-PIPE-V1: html-render-pipeline.mjs">#</a>U-HTML-PIPE-V1: <code>html-render-pipeline.mjs</code></h2>
+<ul>
+<li><strong>File:</strong> <code>scripts/html-render-pipeline.mjs</code></li>
+<li><strong>Behavior:</strong> Watches MD-source surfaces tagged with frontmatter <code>htmlCompanion: true</code> and re-emits the HTML twin on every <code>git commit</code> post-hook. Avoids drift between source-of-truth MD and companion HTML.</li>
+<li><strong>Integrates with:</strong> existing <code>build-state-snapshot.mjs</code> (companion auto-rebuilds on state mutation), <code>scrutinize-before-stop.mjs</code> (block Stop if companion is stale vs source).</li>
+</ul>
+<h2 id="u-html-theme-v1-spechtmlthemeengine"><a class="anchor" href="#u-html-theme-v1-spechtmlthemeengine" aria-label="Permalink to U-HTML-THEME-V1: SpecHTMLThemeEngine">#</a>U-HTML-THEME-V1: <code>SpecHTMLThemeEngine</code></h2>
+<ul>
+<li><strong>File:</strong> <code>mcp-server/src/engines/SpecHTMLThemeEngine.ts</code></li>
+<li><strong>Behavior:</strong> Single source of truth for HTML-companion CSS. Three themes: <code>dark</code> (default — matches Anthropic.com look), <code>light</code>, <code>auto</code> (respects <code>prefers-color-scheme</code>). All inline, no CDN. Token-level contrast verified against WCAG-AA in tests.</li>
+<li><strong>Wire to:</strong> <code>prism_dev:html_theme_get</code>, exposed via <code>SpecHTMLCompanionEngine.render(theme: ...)</code>.</li>
+</ul>
+<h2 id="u-html-nav-v1-spechtmlnavigationengine"><a class="anchor" href="#u-html-nav-v1-spechtmlnavigationengine" aria-label="Permalink to U-HTML-NAV-V1: SpecHTMLNavigationEngine">#</a>U-HTML-NAV-V1: <code>SpecHTMLNavigationEngine</code></h2>
+<ul>
+<li><strong>File:</strong> <code>mcp-server/src/engines/SpecHTMLNavigationEngine.ts</code></li>
+<li><strong>Behavior:</strong> Builds the left-rail TOC, anchor-stable hash links, breadcrumb header, and inter-spec cross-links (each spec references neighbors in the same family — roadmap ↔ build-state ↔ milestone-progress ↔ system-viz). Octicons embedded inline as SVG.</li>
+<li><strong>Critical:</strong> preserves anchor IDs across regenerations so external links survive companion rebuilds.</li>
+</ul>
+<h2 id="u-html-a11y-v1-spechtmlaccessibilityhook"><a class="anchor" href="#u-html-a11y-v1-spechtmlaccessibilityhook" aria-label="Permalink to U-HTML-A11Y-V1: SpecHTMLAccessibilityHook">#</a>U-HTML-A11Y-V1: <code>SpecHTMLAccessibilityHook</code></h2>
+<ul>
+<li><strong>File:</strong> <code>mcp-server/.claude/hooks/html-companion-a11y-gate.mjs</code></li>
+<li><strong>Wired as:</strong> Stop hook + PreToolUse on <code>Write *.html</code>.</li>
+<li><strong>Behavior:</strong> HARD BLOCK on any HTML companion that fails: WCAG-AA contrast on default theme, missing <code>lang</code> attribute, ARIA-role overload (WebAim&#39;s finding: pages with ARIA average 41% more errors), images missing alt text, no skip-to-content link.</li>
+<li><strong>Counter-design rationale:</strong> prevents the regression where Thariq&#39;s &quot;joy factor&quot; hides accessibility loss for users on screen readers — accessibility cannot be optional on a primary-spec surface.</li>
+</ul>
+<h2 id="u-html-md-drift-guard-md-companion-drift-guardmjs"><a class="anchor" href="#u-html-md-drift-guard-md-companion-drift-guardmjs" aria-label="Permalink to U-HTML-MD-DRIFT-GUARD: md-companion-drift-guard.mjs">#</a>U-HTML-MD-DRIFT-GUARD: <code>md-companion-drift-guard.mjs</code></h2>
+<ul>
+<li><strong>File:</strong> <code>mcp-server/.claude/hooks/md-companion-drift-guard.mjs</code></li>
+<li><strong>Wired as:</strong> Stop hook.</li>
+<li><strong>Behavior:</strong> For every <code>*.md</code> spec marked <code>htmlCompanion: true</code>, verify <code>&lt;basename&gt;.html</code> exists, was generated by <code>html-render-pipeline.mjs</code>, and has SHA matching the source MD&#39;s content hash. Block Stop on drift. Pairs symmetrically with the existing scrutiny ledger.</li>
+</ul>
+<h2 id="u-html-emit-dispatch-extend-prism_dev-dispatcher"><a class="anchor" href="#u-html-emit-dispatch-extend-prism_dev-dispatcher" aria-label="Permalink to U-HTML-EMIT-DISPATCH: extend prism_dev dispatcher">#</a>U-HTML-EMIT-DISPATCH: extend <code>prism_dev</code> dispatcher</h2>
+<ul>
+<li>New actions:
+<ul>
+<li><code>prism_dev:render_html_companion { source, target?, theme? }</code></li>
+<li><code>prism_dev:html_lint { path }</code></li>
+<li><code>prism_dev:html_theme_get { theme }</code></li>
+</ul></li>
+<li>Reuse existing dispatcher routing in <code>mcp-server/src/tools/dispatchers/devDispatcher.ts</code>.</li>
+</ul>
+<hr>
+<h1 id="5-surface-routing-decision"><a class="anchor" href="#5-surface-routing-decision" aria-label="Permalink to §5 — Surface routing decision">#</a>§5 — Surface routing decision</h1>
+<p>The framing that resolves the Karpathy↔Thariq tension is the <strong>consumer-of-record per surface</strong>. PRISM has two consumers (humans + LLMs) and ~25 named surfaces. The routing table below maps each surface to its primary consumer, then to its native format.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Surface</th><th>Primary consumer</th><th>Native format</th><th>HTML companion?</th><th>Why</th></tr></thead>
+<tbody>
+<tr><td><code>PRISM-UNIFIED-ROADMAP-v2.md</code></td><td>Human (planning sessions)</td><td><strong>HTML primary, MD source</strong></td><td>YES (revenue-roadmap pattern proven by U-REVENUE-V7)</td><td>Read 5×/week, needs Mermaid graphs + status filters + clickable milestone drilldown</td></tr>
+<tr><td><code>state/shared/BUILD_STATE.md</code></td><td>Both (LLM auto-inject + human review)</td><td><strong>MD primary, HTML companion</strong></td><td>YES</td><td>LLM consumes via <code>build-state-inject</code> hook — MD must stay; humans benefit from interactive status filter on companion</td></tr>
+<tr><td><code>state/shared/MILESTONE_PROGRESS.md</code></td><td>Both</td><td><strong>MD primary, HTML companion</strong></td><td>YES</td><td>Same dual-consumer logic</td></tr>
+<tr><td><code>state/shared/system-viz/system-viz.html</code></td><td>Human</td><td><strong>HTML primary</strong> (already)</td><td>N/A</td><td>Already HTML-native; graph viz is impossible in MD</td></tr>
+<tr><td><code>state/shared/research/*.md</code> (this file&#39;s siblings)</td><td>Both (LLM digest + human archive)</td><td><strong>MD primary, HTML companion optional</strong></td><td>OPTIONAL</td><td>Token cost of HTML companions per file × frequency of regeneration is high; gate on <code>htmlCompanion: true</code> frontmatter</td></tr>
+<tr><td><code>state/shared/handoffs/HANDOFF-*-&lt;topic&gt;.md</code></td><td>LLM (next-session restore)</td><td><strong>MD-only</strong></td><td>NO</td><td>Pure LLM-consumer surface — HTML is wasted bytes; matches Karpathy thesis</td></tr>
+<tr><td><code>mcp-server/data/state/SCRUTINY_LEDGER.json</code></td><td>LLM</td><td>JSON</td><td>NO</td><td>Machine-consumed JSON, irrelevant to MD/HTML debate</td></tr>
+<tr><td><code>CLAUDE.md</code> (root + per-dir)</td><td>LLM (auto-injected at SessionStart)</td><td><strong>MD-only</strong></td><td>NO</td><td>Highest-frequency LLM-context surface; HTML would 8× the token bill on every session start</td></tr>
+<tr><td><code>mcp-server/data/docs/ENGINE_DIGEST.md</code></td><td>LLM (digest lookups)</td><td><strong>MD-only</strong></td><td>NO</td><td>Karpathy thesis territory</td></tr>
+<tr><td><code>mcp-server/data/docs/DISPATCHER_DIGEST.md</code></td><td>LLM</td><td><strong>MD-only</strong></td><td>NO</td><td>Same</td></tr>
+<tr><td><code>state/shared/CLAUDE-CODEX-*-DIRECTIVE.md</code></td><td>LLM (cross-agent coordination)</td><td><strong>MD-only</strong></td><td>NO</td><td>Pure LLM contract</td></tr>
+<tr><td><code>~/.claude/commands/*.md</code> (skills)</td><td>LLM (skill loader)</td><td><strong>MD-only</strong></td><td>NO</td><td>Loaded into context by Skill tool — HTML would break parsing</td></tr>
+<tr><td><code>.claude/hooks/*.mjs</code> source</td><td>Machine</td><td>JS</td><td>NO</td><td>Not a doc surface</td></tr>
+<tr><td><code>PRISM-INVENTORY-LATEST.md</code></td><td>Both</td><td><strong>MD primary, HTML companion</strong></td><td>YES</td><td>Counts table looks great as HTML grid; LLM still wants MD for grep</td></tr>
+<tr><td><code>state/shared/AGENT_WORKBOARD.md</code></td><td>Both</td><td><strong>MD primary, HTML companion</strong></td><td>YES (live status board)</td><td>Interactive filtering by chat/lane is a huge UX win</td></tr>
+<tr><td>Audit reports (<code>forge-audit</code>, <code>scrutinize</code>, <code>prism-review</code> outputs)</td><td>Human (review) + LLM (next-pass input)</td><td><strong>HTML primary, MD source</strong></td><td>YES</td><td>Audit reports are exactly the &quot;code review&quot; use case Thariq highlighted</td></tr>
+<tr><td>Research dossiers (deep-research pass-1, pass-2)</td><td>Both</td><td><strong>MD primary, HTML companion when pinned</strong></td><td>OPTIONAL</td><td>Most dossiers archive-once; pin companion via frontmatter for keystone deliverables</td></tr>
+<tr><td>Roadmap progress dashboards</td><td>Human</td><td><strong>HTML primary</strong></td><td>N/A</td><td>Charts + filters + interactivity = native HTML</td></tr>
+<tr><td>Tribal-knowledge tip exports</td><td>LLM</td><td><strong>MD-only</strong></td><td>NO</td><td>RAG retrieval surface — token cost matters</td></tr>
+<tr><td>Wiki entries (<code>knowledge/wiki/*.md</code>)</td><td>Both</td><td><strong>MD primary, HTML companion for hub pages only</strong></td><td>SPARSE</td><td>Per-entry HTML is wasteful; hub index pages benefit</td></tr>
+</tbody>
+</table></div>
+<p><strong>Rule (memorize):</strong> <strong>Markdown is a report. HTML is an interface.</strong> (StableLearn coined this phrasing.) Surfaces whose value comes from continued interaction → HTML. Surfaces whose value comes from being read once or fed to an LLM → Markdown. When in doubt, default Markdown source-of-truth + opt-in HTML companion.</p>
+<hr>
+<h1 id="6-failure-modes"><a class="anchor" href="#6-failure-modes" aria-label="Permalink to §6 — Failure modes">#</a>§6 — Failure modes</h1>
+<h2 id="61-xss-via-md-content-embedded-into-html"><a class="anchor" href="#61-xss-via-md-content-embedded-into-html" aria-label="Permalink to 6.1 XSS via MD content embedded into HTML">#</a>6.1 XSS via MD content embedded into HTML</h2>
+<p>If <code>SpecHTMLCompanionEngine.render()</code> lifts MD content into HTML without escaping, any MD source containing <code>&lt;script&gt;</code> or <code>onerror=</code> attributes becomes executable inside the companion. Treat the MD source as untrusted (a peer chat could have shipped a poisoned doc).</p>
+<ul>
+<li><strong>Mitigation:</strong> All MD→HTML transitions go through DOMPurify-equivalent allowlist; no raw HTML passthrough; the lint pass refuses inline <code>&lt;script&gt;</code> outside the engine&#39;s own theme block; CSP <code>default-src &#39;none&#39;; script-src &#39;unsafe-inline&#39;</code> only for the engine-controlled bootstrap; Mermaid renders to static SVG at build time (no client-side <code>mermaid.run()</code>).</li>
+</ul>
+<h2 id="62-oversize-render-llm-token-budget-collapse"><a class="anchor" href="#62-oversize-render-llm-token-budget-collapse" aria-label="Permalink to 6.2 Oversize render (LLM token-budget collapse)">#</a>6.2 Oversize render (LLM token-budget collapse)</h2>
+<p>A roadmap MD source of 2,000 lines could emit a 50,000-line HTML companion if every detail is expanded with inline SVG. If this HTML is ever re-fed to an LLM (e.g. an audit chat opens the companion as context), context window collapses 5–10× faster than the MD source.</p>
+<ul>
+<li><strong>Mitigation:</strong> <code>SpecHTMLCompanionEngine.render()</code> returns <code>tokenSize</code>; budget hook BLOCKS emit if companion exceeds N× source bytes (default 6×). Companion always declares itself non-canonical in <code>&lt;meta name=&quot;primary-spec&quot; content=&quot;false&quot;&gt;</code> so LLM agents prefer the MD source when both exist. Drift guard enforces companion-must-trail-source semantics.</li>
+</ul>
+<h2 id="63-accessibility-regression"><a class="anchor" href="#63-accessibility-regression" aria-label="Permalink to 6.3 Accessibility regression">#</a>6.3 Accessibility regression</h2>
+<p>Per WebAim&#39;s 1M-page survey: pages with ARIA average 41% more detected errors than pages without. The Thariq examples are visual showcases — none audit screen-reader behavior. If PRISM&#39;s primary specs all become HTML, screen-reader users (operators on shop-floor terminals included) lose access entirely.</p>
+<ul>
+<li><strong>Mitigation:</strong> U-HTML-A11Y-V1 hook is non-bypassable. WCAG-AA contrast verified against both themes. Skip-to-content link mandatory. ARIA used only where native HTML semantics are insufficient (Rule 1 of ARIA — &quot;if you can use a native element, do&quot;). Spec companions ship a printable-MD fallback link in the header.</li>
+</ul>
+<h2 id="64-md-only-consumer-drift-the-bun-lesson"><a class="anchor" href="#64-md-only-consumer-drift-the-bun-lesson" aria-label="Permalink to 6.4 MD-only-consumer drift (the Bun lesson)">#</a>6.4 MD-only-consumer drift (the Bun lesson)</h2>
+<p>If teams adopt HTML-as-primary and silently delete the MD source-of-truth, LLM-side consumers (Claude SessionStart context, codex/gemini scrutiny chats, ollama digest pipelines, wiki RAG, hook-injected handoffs) silently 8× their token bill, then fail loudly when context windows blow. The Bun team&#39;s 10× reduction by going MD-default is the inverse of this: drift in the wrong direction is 10× expensive.</p>
+<ul>
+<li><strong>Mitigation:</strong> <strong>Source-of-truth invariant</strong> — Markdown stays primary for every dual-consumer surface, HTML is a generated-twin artifact. <code>md-companion-drift-guard.mjs</code> HARD-BLOCKS Stop when an MD source disappears but its HTML companion is committed. Companion files carry <code>&lt;meta name=&quot;prism-source&quot; content=&quot;../PRISM-UNIFIED-ROADMAP-v2.md&quot;&gt;</code> so any consumer can trace back. Audit <code>git log --diff-filter=D -- &#39;*.md&#39;</code> weekly via cron for any deleted MD with surviving HTML twin.</li>
+</ul>
+<h2 id="65-diff-rot-editor-friction"><a class="anchor" href="#65-diff-rot-editor-friction" aria-label="Permalink to 6.5 Diff-rot / editor friction">#</a>6.5 Diff-rot / editor friction</h2>
+<p>Pasquale&#39;s cited counter: &quot;If it is a spec sheet of something complex, I want to be able to go in and edit what was produced. With an HTML document, that is much harder than with a Markdown one.&quot; Manual hand-editing of generated HTML drifts companion away from MD source; subsequent regenerations either clobber the manual edits or refuse to regenerate.</p>
+<ul>
+<li><strong>Mitigation:</strong> Companions are <strong>always generated, never hand-edited</strong>. Companion files include <code>&lt;meta name=&quot;prism-generator&quot; content=&quot;SpecHTMLCompanionEngine@&lt;sha&gt;&quot;&gt;</code> and are git-tracked as generated artifacts (consider <code>.gitattributes</code> <code>linguist-generated=true</code> so PR reviews collapse them). All structural changes go to the MD source; companions regenerate on commit. Hook BLOCKS Write to <code>*.html</code> companion paths from any agent that isn&#39;t the engine itself.</li>
+</ul>
+<h2 id="66-token-tax-on-re-feed"><a class="anchor" href="#66-token-tax-on-re-feed" aria-label="Permalink to 6.6 Token-tax on re-feed">#</a>6.6 Token-tax on re-feed</h2>
+<p>If a downstream Claude chat opens an HTML companion as context to answer a follow-up question, the 8× token cost (Willison&#39;s HN measurement) compounds across the multi-chat coordination layer (~6 concurrent chats). At PRISM scale this is real money + real context-window pressure.</p>
+<ul>
+<li><strong>Mitigation:</strong> All LLM-consuming agents prefer the MD source when both exist (enforced by <code>chat-bus-inject</code> + <code>wiki-precheck-inject</code> hooks already in place — extend them to honor the <code>prism-source</code> meta tag). HTML companion is opened by humans, not by agents; tool-route helper documents this in CLAUDE.md §HTML-COMPANION.</li>
+</ul>
+<h2 id="67-the-looks-beautiful-wrong-content-failure"><a class="anchor" href="#67-the-looks-beautiful-wrong-content-failure" aria-label="Permalink to 6.7 The &quot;looks beautiful, wrong content&quot; failure">#</a>6.7 The &quot;looks beautiful, wrong content&quot; failure</h2>
+<p>HTML&#39;s visual richness can mask substantive bugs in the source. A roadmap companion with a polished Mermaid graph + dark theme + clickable milestones distracts a reviewer from the fact that one milestone&#39;s status field claims <code>done</code> while the linked MD source says <code>blocked</code>. Aesthetic seduction is a known cognitive bias in code review.</p>
+<ul>
+<li><strong>Mitigation:</strong> Scrutinize gate operates on the <strong>MD source</strong>, not the companion. Companion never enters the 3-of-3 reviewer pipeline. Reviewers explicitly instructed to verify against MD. The companion footer must display source-of-truth + generation timestamp + drift status prominently.</li>
+</ul>
+<hr>
+<h2 id="closing-the-unit-sequence-id-recommend"><a class="anchor" href="#closing-the-unit-sequence-id-recommend" aria-label="Permalink to Closing — the unit sequence I&#39;d recommend">#</a>Closing — the unit sequence I&#39;d recommend</h2>
+<pre><code>U-HTML-SPEC-V1 (engine)          → blocks nothing, builds independently
+U-HTML-THEME-V1 (theme engine)   → in parallel with V1
+U-HTML-NAV-V1 (nav engine)       → in parallel with V1
+U-HTML-PIPE-V1 (cron pipeline)   → depends on V1
+U-HTML-A11Y-V1 (a11y hook)       → depends on V1 + theme
+U-HTML-MD-DRIFT-GUARD            → depends on pipe
+U-HTML-EMIT-DISPATCH             → wires V1 into prism_dev actions
+</code></pre>
+<p>The peer-shipped <code>scripts/emit-revenue-roadmap-html.mjs</code> (commit 0a575a23c) is the validation example — refactor it into the engine in V1, then deprecate the standalone script in favor of <code>prism_dev:render_html_companion source=revenue-roadmap.json</code>.</p>
+<hr>
+<p><strong>End of dossier.</strong> Total verified URLs: 17 reputable + 12 X posts. Both pro-HTML and pro-MD sides represented; the routing decision is mixed-mode by consumer, not global flag-flip.</p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="2026-05-10-pass2-html-as-spec.md">2026-05-10-pass2-html-as-spec.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="7c392d847b65877f9ac3719424b7351cba738ecf34f53dda72d93a8b074ccb8d">
+<title>U-DOCKER-HOOK-BROKER — handed off to claude-cee63f1f</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">U-DOCKER-HOOK-BROKER — handed off to claude-cee63f1f</h1>
+<p class="provenance">Generated 2026-05-12T12:43:26.589Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#u-docker-hook-broker-handed-off-to-claude-cee63f1f">U-DOCKER-HOOK-BROKER — handed off to claude-cee63f1f</a></li>
+<li class="toc-l2"><a href="#why-this-lane-owns-it">Why this lane owns it</a></li>
+<li class="toc-l2"><a href="#constraint-clarification">Constraint clarification</a></li>
+<li class="toc-l2"><a href="#pain-we-are-fixing">Pain we are fixing</a></li>
+<li class="toc-l2"><a href="#4-tier-docker-plan-memory-only-ranked-by-ram-relief">4-tier Docker plan (memory-only, ranked by RAM relief)</a></li>
+<li class="toc-l3"><a href="#tier-1-hook-broker-daemon-this-unit">Tier 1 — Hook-broker daemon (THIS UNIT)</a></li>
+<li class="toc-l3"><a href="#tier-2-mcp-server-consolidation">Tier 2 — MCP server consolidation</a></li>
+<li class="toc-l3"><a href="#tier-3-agent-isolation-containers">Tier 3 — Agent isolation containers</a></li>
+<li class="toc-l3"><a href="#tier-4-tsserver-pen">Tier 4 — TSserver pen</a></li>
+<li class="toc-l2"><a href="#tier-1-build-spec-do-this-first-its-the-unblocker">Tier 1 build spec (do this first; it&#39;s the unblocker)</a></li>
+<li class="toc-l3"><a href="#files-to-create">Files to create</a></li>
+<li class="toc-l3"><a href="#broker-servermjs-contract">Broker server.mjs contract</a></li>
+<li class="toc-l3"><a href="#hook-stub-template-_rpc-shimmjs">Hook stub template (_rpc-shim.mjs)</a></li>
+<li class="toc-l3"><a href="#migration-script-migrate-hooks-to-rpcmjs">Migration script (migrate-hooks-to-rpc.mjs)</a></li>
+<li class="toc-l3"><a href="#verification-gates">Verification gates</a></li>
+<li class="toc-l3"><a href="#rollback">Rollback</a></li>
+<li class="toc-l2"><a href="#acceptance-criteria">Acceptance criteria</a></li>
+<li class="toc-l2"><a href="#out-of-scope-for-this-unit">Out of scope for this unit</a></li>
+<li class="toc-l2"><a href="#coordination">Coordination</a></li>
+<li class="toc-l2"><a href="#origin-context">Origin context</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="u-docker-hook-broker-handed-off-to-claude-cee63f1f"><a class="anchor" href="#u-docker-hook-broker-handed-off-to-claude-cee63f1f" aria-label="Permalink to U-DOCKER-HOOK-BROKER — handed off to claude-cee63f1f">#</a>U-DOCKER-HOOK-BROKER — handed off to claude-cee63f1f</h1>
+<p><strong>From:</strong> claude-99eca613 (forge-rgs-pipeline-r lane) <strong>To:</strong> claude-cee63f1f (obsidian / cli-settings lane — owns hook + memory infrastructure) <strong>Date:</strong> 2026-05-09 <strong>Origin:</strong> /forge6 hook-optimization investigation (user constraint: &quot;I don&#39;t care about token cost, just the memory&quot;)</p>
+<h2 id="why-this-lane-owns-it"><a class="anchor" href="#why-this-lane-owns-it" aria-label="Permalink to Why this lane owns it">#</a>Why this lane owns it</h2>
+<p>claude-cee63f1f has been the de-facto hook-infrastructure owner across recent chats — recall-counter-track.mjs, wiki-link-suggest.mjs, memory-mirror-to-vault.mjs, settings.json edits. The Docker hook-broker is the natural next step in that lane.</p>
+<h2 id="constraint-clarification"><a class="anchor" href="#constraint-clarification" aria-label="Permalink to Constraint clarification">#</a>Constraint clarification</h2>
+<p>User explicitly said: <strong>memory only, not tokens.</strong> So no Ollama-compressor work; pure RAM-relief plan.</p>
+<h2 id="pain-we-are-fixing"><a class="anchor" href="#pain-we-are-fixing" aria-label="Permalink to Pain we are fixing">#</a>Pain we are fixing</h2>
+<p>Chronic xmalloc errors and stop-hook bash OOMs across all 6 concurrent chats. Root cause: every PreToolUse / PostToolUse / UserPromptSubmit / Stop event spawns N node subprocesses × 6 chats. Bash itself runs out of heap before the hooks finish. 25+ new hookify.*.local.md rules added in the last week made this worse.</p>
+<h2 id="4-tier-docker-plan-memory-only-ranked-by-ram-relief"><a class="anchor" href="#4-tier-docker-plan-memory-only-ranked-by-ram-relief" aria-label="Permalink to 4-tier Docker plan (memory-only, ranked by RAM relief)">#</a>4-tier Docker plan (memory-only, ranked by RAM relief)</h2>
+<h3 id="tier-1-hook-broker-daemon-this-unit"><a class="anchor" href="#tier-1-hook-broker-daemon-this-unit" aria-label="Permalink to Tier 1 — Hook-broker daemon (THIS UNIT)">#</a>Tier 1 — Hook-broker daemon (THIS UNIT)</h3>
+<p>One persistent container <code>prism-hooks</code> listening on <code>localhost:9876</code>. Loads every <code>.claude/hooks/*.mjs</code> once at startup, holds them warm. Each <code>.mjs</code> file gets rewritten as a ~10-line stub that POSTs to the broker with stdin payload, returns the broker&#39;s JSON response. No more bash → portable-node → mjs cold-start tree per event.</p>
+<h3 id="tier-2-mcp-server-consolidation"><a class="anchor" href="#tier-2-mcp-server-consolidation" aria-label="Permalink to Tier 2 — MCP server consolidation">#</a>Tier 2 — MCP server consolidation</h3>
+<p>One <code>prism-mcp</code> container on port 3100 shared by all chats. Replaces N×in-process MCP servers.</p>
+<h3 id="tier-3-agent-isolation-containers"><a class="anchor" href="#tier-3-agent-isolation-containers" aria-label="Permalink to Tier 3 — Agent isolation containers">#</a>Tier 3 — Agent isolation containers</h3>
+<p>Subagents run in containers with <code>--memory=512m</code> and overlayfs (read-only base = canonical repo, thin writable layer per agent). Kills the agent-* worktree leakage that&#39;s holding ~12K duplicate engine files in OS FS cache.</p>
+<h3 id="tier-4-tsserver-pen"><a class="anchor" href="#tier-4-tsserver-pen" aria-label="Permalink to Tier 4 — TSserver pen">#</a>Tier 4 — TSserver pen</h3>
+<p>One TS LSP container per worktree. OS-level lifetime tracking. Replaces the chronic zombie-tsserver class that 02-kill-zombie-tsservers.ps1 keeps fighting.</p>
+<h2 id="tier-1-build-spec-do-this-first-its-the-unblocker"><a class="anchor" href="#tier-1-build-spec-do-this-first-its-the-unblocker" aria-label="Permalink to Tier 1 build spec (do this first; it&#39;s the unblocker)">#</a>Tier 1 build spec (do this first; it&#39;s the unblocker)</h2>
+<h3 id="files-to-create"><a class="anchor" href="#files-to-create" aria-label="Permalink to Files to create">#</a>Files to create</h3>
+<pre><code>docker-compose.yml                      (root)
+docker/hook-broker/Dockerfile
+docker/hook-broker/server.mjs           (HTTP server, loads all .claude/hooks/*.mjs)
+.claude/hooks/_rpc-shim.mjs             (the 10-line POST stub template)
+scripts/migrate-hooks-to-rpc.mjs        (rewrites every .claude/hooks/*.mjs to call _rpc-shim)
+</code></pre>
+<h3 id="broker-servermjs-contract"><a class="anchor" href="#broker-servermjs-contract" aria-label="Permalink to Broker server.mjs contract">#</a>Broker server.mjs contract</h3>
+<ul>
+<li>Read every <code>.claude/hooks/*.mjs</code> at startup, dynamic-import them, cache module exports.</li>
+<li>HTTP route <code>POST /hook/:name</code> — body is the stdin payload the harness would normally pipe to the hook. Response is the JSON the hook would normally print to stdout (with <code>continue</code>, <code>additionalContext</code>, <code>systemMessage</code>, <code>decision</code>, etc).</li>
+<li>Health route <code>GET /healthz</code> — returns 200 when all hooks loaded.</li>
+<li>Hot-reload route <code>POST /reload</code> — picks up edits to <code>.claude/hooks/*.mjs</code> without restart.</li>
+<li>Concurrency: serve hooks in parallel (Node&#39;s event loop handles it; no need for worker threads unless a hook is genuinely CPU-bound).</li>
+</ul>
+<h3 id="hook-stub-template-_rpc-shimmjs"><a class="anchor" href="#hook-stub-template-_rpc-shimmjs" aria-label="Permalink to Hook stub template (_rpc-shim.mjs)">#</a>Hook stub template (<code>_rpc-shim.mjs</code>)</h3>
+<pre><code class="language-js">import { request } from &quot;node:http&quot;;
+const stdin = await new Response(process.stdin).text();
+const name = process.argv[2]; // hook filename without .mjs
+const req = request({ host: &quot;127.0.0.1&quot;, port: 9876, path: `/hook/${name}`, method: &quot;POST&quot; }, (res) =&gt; {
+  let body = &quot;&quot;; res.on(&quot;data&quot;, (c) =&gt; body += c);
+  res.on(&quot;end&quot;, () =&gt; { process.stdout.write(body); process.exit(res.statusCode === 200 ? 0 : 1); });
+});
+req.on(&quot;error&quot;, async () =&gt; {
+  // Broker down — fall back to inline import (zero-rollback safety)
+  const mod = await import(`./${name}.original.mjs`);
+  const result = await mod.default(stdin);
+  process.stdout.write(JSON.stringify(result)); process.exit(0);
+});
+req.write(stdin); req.end();
+</code></pre>
+<h3 id="migration-script-migrate-hooks-to-rpcmjs"><a class="anchor" href="#migration-script-migrate-hooks-to-rpcmjs" aria-label="Permalink to Migration script (migrate-hooks-to-rpc.mjs)">#</a>Migration script (<code>migrate-hooks-to-rpc.mjs</code>)</h3>
+<p>For every <code>.claude/hooks/*.mjs</code>:</p>
+<ol>
+<li>Rename to <code>&lt;name&gt;.original.mjs</code> (preserved for fallback)</li>
+<li>Write a new <code>&lt;name&gt;.mjs</code> that&#39;s just <code>import &quot;./_rpc-shim.mjs&quot;;</code> with the hook&#39;s name as argv</li>
+</ol>
+<p>Reversible: a single git revert restores all hooks.</p>
+<h3 id="verification-gates"><a class="anchor" href="#verification-gates" aria-label="Permalink to Verification gates">#</a>Verification gates</h3>
+<ul>
+<li><code>docker compose up prism-hooks</code> → broker comes up healthy in &lt;5s</li>
+<li><code>curl localhost:9876/healthz</code> returns 200 with hook count matching <code>ls .claude/hooks/*.original.mjs | wc -l</code></li>
+<li>Run a manual <code>echo &#39;{}&#39; | node .claude/hooks/duplication-hard-block.mjs</code> — output must match pre-migration output</li>
+<li>Memory check: <code>Get-Process node | sort WS -desc | select -first 10</code> — broker holds steady ~80-150MB; per-event spawns should drop to ~zero</li>
+</ul>
+<h3 id="rollback"><a class="anchor" href="#rollback" aria-label="Permalink to Rollback">#</a>Rollback</h3>
+<p><code>git revert &lt;commit&gt;</code> restores the original hook files. Broker can keep running or be stopped — no data loss either way.</p>
+<h2 id="acceptance-criteria"><a class="anchor" href="#acceptance-criteria" aria-label="Permalink to Acceptance criteria">#</a>Acceptance criteria</h2>
+<ul>
+<li>[ ] All 50+ <code>.claude/hooks/*.mjs</code> migrated to RPC stubs</li>
+<li>[ ] Broker serves 1000 sequential hook events without leaking memory (smoke test in <code>docker/hook-broker/__tests__/</code>)</li>
+<li>[ ] Bash xmalloc errors disappear from <code>.claude/cache/stop-bg-logs/</code> after 24h soak</li>
+<li>[ ] No regression in any hook&#39;s existing behavior (output bytes match pre-migration on a sampled set)</li>
+</ul>
+<h2 id="out-of-scope-for-this-unit"><a class="anchor" href="#out-of-scope-for-this-unit" aria-label="Permalink to Out of scope for this unit">#</a>Out of scope for this unit</h2>
+<ul>
+<li>Tiers 2-4 (MCP consolidation, agent containers, TSserver pen) — separate units after Tier 1 proves stable</li>
+<li>Ollama compressor — user excluded token-cost work</li>
+<li>Hookify rule deduplication — claude-0413eca6 already has audit-hook-duplicates.mjs and dedupe-cross-file-hooks.mjs claimed; coordinate, do not duplicate</li>
+</ul>
+<h2 id="coordination"><a class="anchor" href="#coordination" aria-label="Permalink to Coordination">#</a>Coordination</h2>
+<ul>
+<li>Lane: claude-cee63f1f</li>
+<li>Worktree: prefer creating <code>H:/prism-docker-broker/</code> via <code>git worktree add ../prism-docker-broker -b work/docker-broker</code> to keep this isolated from the obsidian/cli-settings work</li>
+<li>Chat-bus claim: file claims for <code>docker-compose.yml</code>, <code>docker/hook-broker/**</code>, <code>.claude/hooks/**</code> before edits</li>
+</ul>
+<h2 id="origin-context"><a class="anchor" href="#origin-context" aria-label="Permalink to Origin context">#</a>Origin context</h2>
+<p>This was unit 1 of a /forge6 investigation into hook utilization. The investigation hit context-cap immediately on session resume (19M tokens at first prompt), confirming the problem at a meta level — the hook stack is now too expensive even to scout. claude-99eca613&#39;s handoff at <code>state/shared/handoffs/HANDOFF-claude-99eca613-forge-rgs-pipeline-r.md</code> has the full investigation plan deferred to a cold session.</p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="2026-05-09-U-DOCKER-HOOK-BROKER.md">2026-05-09-U-DOCKER-HOOK-BROKER.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

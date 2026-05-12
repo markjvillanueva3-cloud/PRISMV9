@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="0a31ee12a548e7b26d56b4ff644455d9baae64fc4ba7d6328a342eb9b96abaed">
+<title>OBSIDIAN-INTELLIGENCE-MS3 — Unified Plan</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">OBSIDIAN-INTELLIGENCE-MS3 — Unified Plan</h1>
+<p class="provenance">Generated 2026-05-12T12:43:26.748Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#obsidian-intelligence-ms3-unified-plan">OBSIDIAN-INTELLIGENCE-MS3 — Unified Plan</a></li>
+<li class="toc-l2"><a href="#what-changed-since-the-last-plan">What changed since the last plan</a></li>
+<li class="toc-l2"><a href="#dependency-graph">Dependency graph</a></li>
+<li class="toc-l2"><a href="#all-24-units-full-enumeration">All 24 units (full enumeration)</a></li>
+<li class="toc-l3"><a href="#track-a-stabilization-prereq-for-everything">Track A — Stabilization (PREREQ for everything)</a></li>
+<li class="toc-l3"><a href="#track-b-autonomous-workflows-cyrilxbt-6-workflow-playbook">Track B — Autonomous Workflows (cyrilXBT 6-workflow playbook)</a></li>
+<li class="toc-l3"><a href="#track-c-html-output-mode-thariq-playbook">Track C — HTML Output Mode (Thariq playbook)</a></li>
+<li class="toc-l3"><a href="#track-d-company-brain-sentraashwin-reframe-biggest">Track D — Company Brain (Sentra/Ashwin reframe — BIGGEST)</a></li>
+<li class="toc-l3"><a href="#track-e-ideablock-rag-akshayblockify-pattern">Track E — IdeaBlock RAG (Akshay/Blockify pattern)</a></li>
+<li class="toc-l3"><a href="#track-f-capture-surfaces-already-queued">Track F — Capture surfaces (already queued)</a></li>
+<li class="toc-l3"><a href="#track-g-agent-observability-darkzodchi-3-rule-playbook">Track G — Agent Observability (darkzodchi 3-rule playbook)</a></li>
+<li class="toc-l2"><a href="#recommended-execution-order">Recommended execution order</a></li>
+<li class="toc-l2"><a href="#risks-open-questions">Risks / open questions</a></li>
+<li class="toc-l2"><a href="#what-i-propose">What I propose</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="obsidian-intelligence-ms3-unified-plan"><a class="anchor" href="#obsidian-intelligence-ms3-unified-plan" aria-label="Permalink to OBSIDIAN-INTELLIGENCE-MS3 — Unified Plan">#</a>OBSIDIAN-INTELLIGENCE-MS3 — Unified Plan</h1>
+<p><strong>Author:</strong> claude-cee63f1f <strong>Date:</strong> 2026-05-09 <strong>Sources synthesized:</strong></p>
+<ul>
+<li>6 shipped units in <code>OBSIDIAN-VIZ-MS0</code> (this session)</li>
+<li>3 in-flight MS2 units (REREAD-SIGNAL, HIGHLIGHTS-ONLY, VOICE-CAPTURE)</li>
+<li>Handoff <code>U-DOCKER-HOOK-BROKER</code> from claude-99eca613</li>
+<li>5 X articles fetched via jina reader (bodies at <code>H:/prism/state/shared/x-fetch/</code>)</li>
+</ul>
+<hr>
+<h2 id="what-changed-since-the-last-plan"><a class="anchor" href="#what-changed-since-the-last-plan" aria-label="Permalink to What changed since the last plan">#</a>What changed since the last plan</h2>
+<p>The 5 articles re-frame our work in 4 distinct ways:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Article</th><th>Author</th><th>Key shift</th></tr></thead>
+<tbody>
+<tr><td>&quot;Vault Writes Back to Itself&quot;</td><td>cyrilXBT</td><td><strong>Validates our 3-layer architecture exactly</strong> (Obsidian + MCP + Claude). Gives us 6 concrete workflows to ship: Daily Context, Connection Finder, Queue Processor, Weekly Synthesis, Project Auto-Updater, Knowledge Distillation. Not theoretical — full Claude prompts included.</td></tr>
+<tr><td>&quot;Unreasonable Effectiveness of HTML&quot;</td><td>Thariq (Anthropic Claude Code team)</td><td><strong>All Claude-generated specs/reports should be HTML, not markdown.</strong> Info density (SVG, tables, scripts), 2-way interaction (sliders/copy-buttons), shareable. Markdown is restrictive once outputs exceed ~100 lines. Direct relevance to CLAUDE-BRIEF, BUILD_STATE, system-viz reports.</td></tr>
+<tr><td>&quot;AI team that doesn&#39;t quit&quot;</td><td>darkzodchi</td><td>3 rules: narrow job description per agent, real-time observability, don&#39;t host on laptop. Pixel-Department visualization concept ≈ our system-viz with agent overlay.</td></tr>
+<tr><td>&quot;Company Brain&quot;</td><td>Ashwin Gopinath (Sentra CEO, ex-MIT)</td><td><strong>Re-frames our memory system as a prototype.</strong> Markdown brains hit a wall at organizational scale: need provenance, ontology, conflict resolution, action traces, evals, permissions. JM Die is multi-user → we&#39;re at that scale.</td></tr>
+<tr><td>&quot;You&#39;re doing RAG wrong&quot;</td><td>Akshay Pachaar</td><td><strong>Chunk is the wrong unit.</strong> Replace with IdeaBlocks (question + validated answer + governance fields). 7-stage pipeline. 40× corpus reduction, 2.3× retrieval relevance, 13.55% accuracy gain. Open-source: Blockify. Direct upgrade path for ObsidianMemoryRagEngine.</td></tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="dependency-graph"><a class="anchor" href="#dependency-graph" aria-label="Permalink to Dependency graph">#</a>Dependency graph</h2>
+<pre><code>A1 DOCKER-BROKER ─┐
+                  │ (unblocks everything — kills xmalloc OOM)
+A2 REREAD-finish ─┘
+                  │
+                  ▼
+              ┌───────────────────────────────────────────┐
+              │                                           │
+              ▼                                           ▼
+   ┌──────────────┐                          ┌──────────────────┐
+   │ Track C HTML │  ─ independent ─        │ Track E IdeaBlocks │ ─ replaces
+   │  Outputs (3) │                          │       (4)         │   chunk RAG
+   └──────────────┘                          └──────────────────┘
+              ▼                                           ▼
+   ┌─────────────────────────────────────────────────────────┐
+   │ Track B Autonomous Workflows (6 from cyrilXBT)          │
+   │ Daily Context → Queue → Weekly Synth → Connection →     │
+   │ Auto-Updater → Distillation                             │
+   └─────────────────────────────────────────────────────────┘
+              ▼
+   ┌─────────────────────────────────────────┐
+   │ Track D Company Brain (5 — biggest)     │
+   │ provenance / ontology / conflicts /     │
+   │ action traces / context evals           │
+   └─────────────────────────────────────────┘
+              ▼
+   ┌──────────────────────────────────────┐
+   │ Track F Capture surfaces (2)         │
+   │ Voice (Whisper) + PDF Highlights     │
+   └──────────────────────────────────────┘
+              ▼
+   ┌─────────────────────────────────────────────┐
+   │ Track G Agent observability (3 from zodchi) │
+   │ Job descriptions / Pixel-dept overlay /     │
+   │ Run-time alerts                             │
+   └─────────────────────────────────────────────┘
+</code></pre>
+<hr>
+<h2 id="all-24-units-full-enumeration"><a class="anchor" href="#all-24-units-full-enumeration" aria-label="Permalink to All 24 units (full enumeration)">#</a>All 24 units (full enumeration)</h2>
+<h3 id="track-a-stabilization-prereq-for-everything"><a class="anchor" href="#track-a-stabilization-prereq-for-everything" aria-label="Permalink to Track A — Stabilization (PREREQ for everything)">#</a>Track A — Stabilization (PREREQ for everything)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Why</th><th>Blocks</th><th>Depends</th></tr></thead>
+<tbody>
+<tr><td>A1</td><td><strong>U-DOCKER-HOOK-BROKER</strong></td><td>Persistent <code>prism-hooks</code> container holds all 50+ hooks warm; eliminates per-event node cold-start that&#39;s causing xmalloc OOMs across 6 chats</td><td>All other tracks</td><td>Nothing</td></tr>
+<tr><td>A2</td><td><strong>U-REREAD-SIGNAL-FINISH</strong></td><td>Wire the <code>Write|Edit|MultiEdit</code> matcher in settings.json so the recall counter sees writes (currently hook only fires on Reads)</td><td>Track B6 (distillation), Track D4 (action traces)</td><td>None — engine + tests already shipped (22/22 pass)</td></tr>
+</tbody>
+</table></div>
+<h3 id="track-b-autonomous-workflows-cyrilxbt-6-workflow-playbook"><a class="anchor" href="#track-b-autonomous-workflows-cyrilxbt-6-workflow-playbook" aria-label="Permalink to Track B — Autonomous Workflows (cyrilXBT 6-workflow playbook)">#</a>Track B — Autonomous Workflows (cyrilXBT 6-workflow playbook)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Why</th><th>Trigger</th><th>Output</th></tr></thead>
+<tbody>
+<tr><td>B1</td><td><strong>U-DAILY-CONTEXT-WORKFLOW</strong></td><td>Synthesizes yesterday&#39;s daily note + active project overviews + inbox/ into a context brief for the day</td><td>6 AM cron</td><td><code>knowledge/memories/generated/DAILY-CONTEXT-YYYY-MM-DD.md</code></td></tr>
+<tr><td>B2</td><td><strong>U-CONNECTION-FINDER</strong></td><td>Reads last 7 days of new memories, finds non-obvious connections to older entries (cross-domain, contradiction, evidence)</td><td>Weekly cron Sun 6 AM</td><td><code>knowledge/memories/generated/CONNECTIONS-YYYY-WW.md</code></td></tr>
+<tr><td>B3</td><td><strong>U-QUEUE-PROCESSOR</strong></td><td>Watch <code>knowledge/memories/queue/</code> for files like <code>RESEARCH-X.md</code>, <code>SYNTHESIZE-X.md</code>, <code>DRAFT-X.md</code>. Process every 2h via Ollama or Claude (size-gated). Output→generated/, archive→archive/</td><td>every 2h cron + fs watcher</td><td><code>knowledge/memories/generated/&lt;TASK&gt;-output.md</code></td></tr>
+<tr><td>B4</td><td><strong>U-WEEKLY-SYNTHESIS</strong></td><td>4-question retro: what moved, what didn&#39;t, emerging patterns, top-3 next-week leverage</td><td>Sunday 8 PM cron</td><td><code>knowledge/memories/generated/WEEKLY-YYYY-WW.md</code></td></tr>
+<tr><td>B5</td><td><strong>U-PROJECT-AUTO-UPDATER</strong></td><td>When a project subfolder file changes, auto-update the project&#39;s <code>overview.md</code> with one-line change summary</td><td>fs.watch</td><td>In-place update to <code>overview.md</code></td></tr>
+<tr><td>B6</td><td><strong>U-KNOWLEDGE-DISTILLATION</strong></td><td>Monthly: distill 30 days of resources/areas notes into a single canonical reference per topic cluster (aligns with Akshay&#39;s IdeaBlock approach — they merge here)</td><td>Monthly cron</td><td><code>knowledge/wiki/distillations/YYYY-MM-&lt;topic&gt;.md</code></td></tr>
+</tbody>
+</table></div>
+<h3 id="track-c-html-output-mode-thariq-playbook"><a class="anchor" href="#track-c-html-output-mode-thariq-playbook" aria-label="Permalink to Track C — HTML Output Mode (Thariq playbook)">#</a>Track C — HTML Output Mode (Thariq playbook)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Why</th><th>Files</th></tr></thead>
+<tbody>
+<tr><td>C1</td><td><strong>U-HTML-OUTPUT-MODE</strong></td><td>Add <code>--html</code> flag to <code>generate-claude-brief.mjs</code>, <code>generate-system-viz.mjs</code>, <code>build-state-snapshot.mjs</code>. Generate alongside markdown. Each gets info-dense layout with SVG, tables, color-coded status</td><td><code>mcp-server/scripts/*.mjs</code></td></tr>
+<tr><td>C2</td><td><strong>U-HTML-DASHBOARD</strong></td><td>One unified HTML dashboard at <code>state/shared/system-viz/dashboard.html</code> aggregating: system-viz embed + CLAUDE-BRIEF + BUILD_STATE + scrutiny ledger + recall top-20 + chat-bus presence + workboard. Auto-regenerate on Stop</td><td><code>state/shared/system-viz/dashboard.html</code></td></tr>
+<tr><td>C3</td><td><strong>U-HTML-DESIGN-SYSTEM</strong></td><td>Extract a PRISM design system HTML reference from <code>mcp-server/web/</code> so subsequent HTML generations match style. Per Thariq: &quot;point Claude at codebase to extract design system&quot;</td><td><code>state/shared/design-system.html</code></td></tr>
+</tbody>
+</table></div>
+<h3 id="track-d-company-brain-sentraashwin-reframe-biggest"><a class="anchor" href="#track-d-company-brain-sentraashwin-reframe-biggest" aria-label="Permalink to Track D — Company Brain (Sentra/Ashwin reframe — BIGGEST)">#</a>Track D — Company Brain (Sentra/Ashwin reframe — BIGGEST)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Why</th><th>Files/Engines</th></tr></thead>
+<tbody>
+<tr><td>D1</td><td><strong>U-PROVENANCE-LAYER</strong></td><td>Every memory/wiki entry gets <code>source: { agent, sessionId, writeEvent, parentMemory? }</code> frontmatter. Memory-mirror enriches on write</td><td><code>memory-mirror-to-vault.mjs</code>, <code>WikiRecallCounterEngine.ts</code></td></tr>
+<tr><td>D2</td><td><strong>U-ONTOLOGY-LAYER</strong></td><td>Explicit type tagging: <code>fact | interpretation</code>, <code>current | deprecated | draft</code>, <code>public | internal | confidential</code>. Frontmatter validates via Zod</td><td>new <code>MemoryOntologyEngine.ts</code></td></tr>
+<tr><td>D3</td><td><strong>U-CONFLICT-RESOLUTION</strong></td><td>When 2 chats edit the same memory key concurrently, capture both versions in <code>conflicts/&lt;key&gt;.diff.md</code>. Resolution policies: last-writer / first-writer / human-arbitrate</td><td>new <code>MemoryConflictResolverEngine.ts</code></td></tr>
+<tr><td>D4</td><td><strong>U-ACTION-TRACES</strong></td><td>Log every agent write as a graph edge: <code>(agent, prompt-hash, tool, target-memory, timestamp)</code>. Stored as JSONL append-only ledger. Queryable from system-viz</td><td>new <code>ActionTraceEngine.ts</code> + <code>state/shared/action-traces.jsonl</code></td></tr>
+<tr><td>D5</td><td><strong>U-CONTEXT-EVAL-GATE</strong></td><td>Before any agent acts on memory: eval whether retrieved context was complete. Compare retrieved-set vs ideal-set (using golden eval set). Block / warn on coverage drop</td><td>new <code>ContextEvalEngine.ts</code></td></tr>
+</tbody>
+</table></div>
+<h3 id="track-e-ideablock-rag-akshayblockify-pattern"><a class="anchor" href="#track-e-ideablock-rag-akshayblockify-pattern" aria-label="Permalink to Track E — IdeaBlock RAG (Akshay/Blockify pattern)">#</a>Track E — IdeaBlock RAG (Akshay/Blockify pattern)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Why</th><th>Files/Engines</th></tr></thead>
+<tbody>
+<tr><td>E1</td><td><strong>U-IDEABLOCK-EXTRACTOR</strong></td><td>Convert memory/wiki .md → IdeaBlocks via Ollama (qwen2.5-coder:7b w/ structured output). One question + 2-3 sentence validated answer per atomic claim</td><td>new <code>IdeaBlockExtractorEngine.ts</code></td></tr>
+<tr><td>E2</td><td><strong>U-IDEABLOCK-DEDUP</strong></td><td>Iterative cosine-similarity dedup at 80-85% threshold, 3-5 rounds. Collapses near-duplicates into canonical blocks</td><td>new <code>IdeaBlockDedupEngine.ts</code></td></tr>
+<tr><td>E3</td><td><strong>U-IDEABLOCK-RAG-ENGINE</strong></td><td>Replace ObsidianMemoryRagEngine&#39;s chunk-window approach with IdeaBlock matching. Expected 2.3× retrieval relevance</td><td>new <code>IdeaBlockRagEngine.ts</code> (lives in main repo, not iooms0)</td></tr>
+<tr><td>E4</td><td><strong>U-IDEABLOCK-GOVERNANCE</strong></td><td>Auto-tag each block with clearance level + version state + product line + export-control flags. Machine-applied, not author-applied</td><td>within <code>IdeaBlockExtractorEngine.ts</code></td></tr>
+</tbody>
+</table></div>
+<h3 id="track-f-capture-surfaces-already-queued"><a class="anchor" href="#track-f-capture-surfaces-already-queued" aria-label="Permalink to Track F — Capture surfaces (already queued)">#</a>Track F — Capture surfaces (already queued)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Why</th><th>Files</th></tr></thead>
+<tbody>
+<tr><td>F1</td><td><strong>U-VOICE-CAPTURE</strong></td><td>Whisper local bridge → operator voice memos → tribal knowledge ingest. Phase 1: watcher script for .wav/.mp3 in capture-dir → transcript .md to inbox/</td><td>new <code>scripts/voice-capture-watcher.mjs</code> + Whisper config</td></tr>
+<tr><td>F2</td><td><strong>U-HIGHLIGHTS-ONLY</strong></td><td><code>--highlights-only</code> flag on <code>/pdf-learn</code>. Extract only PDF highlight annotations (Adobe <code>/Highlight</code> subtype) instead of full body. Cuts ingest noise 90%</td><td><code>PDFKnowledgeIngestEngine.ts</code></td></tr>
+</tbody>
+</table></div>
+<h3 id="track-g-agent-observability-darkzodchi-3-rule-playbook"><a class="anchor" href="#track-g-agent-observability-darkzodchi-3-rule-playbook" aria-label="Permalink to Track G — Agent Observability (darkzodchi 3-rule playbook)">#</a>Track G — Agent Observability (darkzodchi 3-rule playbook)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Title</th><th>Why</th><th>Files</th></tr></thead>
+<tbody>
+<tr><td>G1</td><td><strong>U-AGENT-JOB-DESCRIPTIONS</strong></td><td>Codify narrow job descriptions per subagent type. Replaces &quot;vibe&quot; agents with &quot;Oliver decomposes goals into weekly sprints&quot; specificity</td><td><code>state/shared/AGENT_JOB_DESCRIPTIONS.md</code></td></tr>
+<tr><td>G2</td><td><strong>U-AGENT-PIXEL-DEPT-OVERLAY</strong></td><td>Extend system-viz with an agent-status overlay layer. Each subagent shows: idle / typing (writing) / parsing (reading) / errored. Pulls from chat-bus heartbeats</td><td><code>generate-system-viz.mjs</code> + viewer JS</td></tr>
+<tr><td>G3</td><td><strong>U-AGENT-RUNTIME-ALERTS</strong></td><td>Watchdog: if subagent runs &gt;N min without progress, alert via PushNotification. Build on existing chat bus</td><td>new <code>.claude/hooks/agent-watchdog.mjs</code></td></tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="recommended-execution-order"><a class="anchor" href="#recommended-execution-order" aria-label="Permalink to Recommended execution order">#</a>Recommended execution order</h2>
+<ol>
+<li><strong>Stabilize first</strong>: A1 (DOCKER-BROKER) → A2 (REREAD-SIGNAL-finish). Without A1, every other unit suffers from xmalloc OOMs that are blocking us right now.</li>
+<li><strong>Quick wins in parallel</strong> (touch isolated surfaces): C1 + E1 + F2. HTML output mode dogfoods Thariq immediately; IdeaBlock extractor proves the Akshay pattern; PDF highlights-only is contained.</li>
+<li><strong>Workflows</strong>: B3 (Queue Processor — most flexible, lets us defer-then-run any task) → B1 (Daily Context — daily compounding value) → B4 (Weekly Synthesis) → B2 (Connection Finder) → B5 (Project Auto-Updater) → B6 (Distillation, depends on E2).</li>
+<li><strong>Track D Company Brain</strong>: D1 (provenance — cheapest, foundational) → D4 (action traces) → D2 (ontology) → D3 (conflicts) → D5 (eval gate). This is the BIG architectural shift; allow 2-3 sessions.</li>
+<li><strong>Voice + agent obs</strong>: F1 + G1-G3 in parallel after Track D stabilizes.</li>
+</ol>
+<h2 id="risks-open-questions"><a class="anchor" href="#risks-open-questions" aria-label="Permalink to Risks / open questions">#</a>Risks / open questions</h2>
+<ul>
+<li><strong>Cost projection</strong>: Track D5 (context eval) requires golden eval set. Where does ground-truth come from? Manual seed needed.</li>
+<li><strong>Conflict with D3</strong>: PRISM already has <code>commit-ownership-guard</code> for file-level conflicts. D3 is for semantic memory-key conflicts, different scope — confirm with user before building.</li>
+<li><strong>Track E vs Track B6</strong>: Both touch &quot;distillation&quot;. E is per-claim (IdeaBlock), B6 is per-topic (multi-claim doc). Build E first; B6 becomes &quot;render distillations from IdeaBlocks&quot;.</li>
+<li><strong>Whisper scope (F1)</strong>: User has JM Die operators. A Telegram bot for voice memos = real shop-floor capture surface. But bot deployment + auth + retention policies are real work. Phase F1 as just-the-watcher first.</li>
+</ul>
+<h2 id="what-i-propose"><a class="anchor" href="#what-i-propose" aria-label="Permalink to What I propose">#</a>What I propose</h2>
+<p>Start the next session with <strong>A1 + A2</strong>. Once those land, fan out to <strong>C1 + E1 + F2</strong> in parallel (3 isolated tracks). Defer Track D until A is stable for ≥48 hours.</p>
+<p>If approved, the immediate first step is:</p>
+<pre><code class="language-bash">git worktree add H:/prism-docker-broker -b work/docker-broker
+# (per the U-DOCKER-HOOK-BROKER spec&#39;s coordination section)
+</code></pre>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="OBSIDIAN-INTELLIGENCE-MS3-UNIFIED-PLAN.md">OBSIDIAN-INTELLIGENCE-MS3-UNIFIED-PLAN.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

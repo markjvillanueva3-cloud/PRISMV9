@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="c48462e81f19f2411ae961c8d0527d037ce0bc46cc94732f296efc4cf022e672">
+<title>K2-CLOUD-MS0 (extended)</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">K2-CLOUD-MS0 (extended)</h1>
+<p class="provenance">Generated 2026-05-12T12:43:27.410Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#k2-cloud-ms0-atomized-extended">K2-CLOUD-MS0 — atomized (extended)</a></li>
+<li class="toc-l2"><a href="#k2-k0-build-kimitransportengine-entry-unit-mirror-of-u-ocn01">K2-K0 — Build KimiTransportEngine (entry unit, mirror of U-OCN01)</a></li>
+<li class="toc-l2"><a href="#k2-k1-wire-k26-cloud-route-in-aisystemrouterengineroute">K2-K1 — Wire K2.6 cloud route in AISystemRouterEngine.route()</a></li>
+<li class="toc-l2"><a href="#k2-k2-cost-model-entry-for-k26-in-cost-cascade-configjson">K2-K2 — Cost-model entry for K2.6 in cost-cascade-config.json</a></li>
+<li class="toc-l2"><a href="#k2-k3-scrutiny-3way-scrutiny-5way-add-kimi-qwen-arms">K2-K3 — Scrutiny-3way → scrutiny-5way (add Kimi + Qwen arms)</a></li>
+<li class="toc-l2"><a href="#k2-k4k12-9-cascadewiring-units">K2-K4..K12 — 9 cascade/wiring units</a></li>
+<li class="toc-l3"><a href="#k2-k4-cascadecalibrationengine-integration-consumer-of-u-ocn04">K2-K4 — CascadeCalibrationEngine integration (consumer of U-OCN04)</a></li>
+<li class="toc-l3"><a href="#k2-k5-fallback-chain-k2-qwen-claude-haiku">K2-K5 — Fallback chain (K2 → Qwen → Claude-Haiku)</a></li>
+<li class="toc-l3"><a href="#k2-k6-telemetry-per-provider-which-provider-served-which-request">K2-K6 — Telemetry per-provider (which provider served which request)</a></li>
+<li class="toc-l3"><a href="#k2-k7-cost-dashboard-scriptscost-dashboardmjs">K2-K7 — Cost dashboard scripts/cost-dashboard.mjs</a></li>
+<li class="toc-l3"><a href="#k2-k8-cost-alarm-xday-notify">K2-K8 — Cost alarm (&gt;$X/day → notify)</a></li>
+<li class="toc-l3"><a href="#k2-k9-schema-versioning-for-k2-responses">K2-K9 — Schema versioning for K2 responses</a></li>
+<li class="toc-l3"><a href="#k2-k10-error-class-taxonomy-k2-specific-error-types">K2-K10 — Error class taxonomy (K2-specific error types)</a></li>
+<li class="toc-l3"><a href="#k2-k11-retry-with-backoff-policy">K2-K11 — Retry-with-backoff policy</a></li>
+<li class="toc-l3"><a href="#k2-k12-token-refresh-cron-if-kimi-uses-rotating-tokens">K2-K12 — Token-refresh cron (if Kimi uses rotating tokens)</a></li>
+<li class="toc-l2"><a href="#x-closing-notes">§X — Closing notes</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<details class="frontmatter" open><summary>Document metadata</summary><div class="table-wrap"><table>
+<tbody>
+<tr><th scope="row">milestone</th><td>K2-CLOUD-MS0 (extended)</td></tr>
+<tr><th scope="row">parent_roadmap</th><td>BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-2026-05-10.md</td></tr>
+<tr><th scope="row">inherits_protocol</th><td>BACKEND-DEVTOOLS-RGS6-AUTONOMOUS-EXECUTION-PROTOCOL.md (§7 implicit)</td></tr>
+<tr><th scope="row">assigned_lane</th><td>lane-B-octopus-cost</td></tr>
+<tr><th scope="row">commit_prefix</th><td>[lane-B-octopus-cost][K2-CLOUD-MS0]</td></tr>
+<tr><th scope="row">total_units</th><td>14</td></tr>
+<tr><th scope="row">critical_path_role</th><td>depends on HOOK-SYNERGY H1+H6 (cross-worktree firewall); unblocks COST-CASCADE and OCTOPUS-NEURAL</td></tr>
+<tr><th scope="row">loop_registrations</th><td>1 (cost-quality probe weekly)</td></tr>
+<tr><th scope="row">date</th><td>2026-05-10</td></tr>
+</tbody>
+</table></div></details>
+<h1 id="k2-cloud-ms0-atomized-extended"><a class="anchor" href="#k2-cloud-ms0-atomized-extended" aria-label="Permalink to K2-CLOUD-MS0 — atomized (extended)">#</a>K2-CLOUD-MS0 — atomized (extended)</h1>
+<blockquote>
+<p>Octopus 5th tentacle (Kimi K2.6:cloud) + cost cascade ladder + 5-of-5 scrutiny upgrade. WAITS on lane-A&#39;s H6 firewall before any edit to <code>AISystemRouterEngine.ts</code>.</p>
+</blockquote>
+<hr>
+<h2 id="k2-k0-build-kimitransportengine-entry-unit-mirror-of-u-ocn01"><a class="anchor" href="#k2-k0-build-kimitransportengine-entry-unit-mirror-of-u-ocn01" aria-label="Permalink to K2-K0 — Build KimiTransportEngine (entry unit, mirror of U-OCN01)">#</a>K2-K0 — Build <code>KimiTransportEngine</code> (entry unit, mirror of U-OCN01)</h2>
+<p>See <code>OCTOPUS-NEURAL-MS0-ATOMIZED</code> U-OCN01 for full micro_steps. <strong>This milestone owns the BUILD; OCTOPUS-NEURAL-MS0 owns the consumers.</strong></p>
+<ul>
+<li>depends_on: [HOOK-SYNERGY H1, H6]</li>
+<li>blocks: [K2-K1, U-OCN01]</li>
+</ul>
+<hr>
+<h2 id="k2-k1-wire-k26-cloud-route-in-aisystemrouterengineroute"><a class="anchor" href="#k2-k1-wire-k26-cloud-route-in-aisystemrouterengineroute" aria-label="Permalink to K2-K1 — Wire K2.6 cloud route in AISystemRouterEngine.route()">#</a>K2-K1 — Wire K2.6 cloud route in <code>AISystemRouterEngine.route()</code></h2>
+<ul>
+<li>pillar: octopus</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 85</li>
+<li>leverage_score: 12</li>
+<li>why: router needs to know Kimi exists to route to it</li>
+<li>depends_on: [K2-K0, HOOK-SYNERGY H6]</li>
+<li>blocks: [K2-K2..K12]</li>
+<li>parallel_with: []</li>
+<li>viz_node_id: <code>eng.ai.aisystemrouterengine</code> (existing, extend)</li>
+<li>closes_synergy_edge: router × kimi</li>
+<li>loop_schedule: none</li>
+</ul>
+<p>verifies_via:   channel: integration   tool: <code>node -e &quot;require(&#39;./mcp-server/dist/engines/AISystemRouterEngine.js&#39;).aiSystemRouterEngine.route({effort:&#39;low&#39;})&quot;</code>   expected_signal: returns provider <code>kimi-k2.6</code> for low-effort tier-2 tasks   re_run_cost: 1s   baseline: returns claude-haiku for everything</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Read path: <code>mcp-server/src/engines/AISystemRouterEngine.ts</code> action: identify route() switch + tier decision logic verify: file readable</li>
+<li>step-2: tool: Edit path: <code>mcp-server/src/engines/AISystemRouterEngine.ts</code> action: add tier-2 routing branch → <code>kimi-k2.6</code>; check tier from <code>state/shared/cascade-thresholds.json</code> if exists, fall back to defaults verify: edit applies, TS compiles</li>
+<li>step-3: tool: Edit path: <code>mcp-server/src/__tests__/AISystemRouterEngine.test.ts</code> action: add 3 tests — low-effort routes to Kimi, high-effort routes to Opus, threshold-config respected verify: 3 added tests pass</li>
+<li>step-4: tool: Bash path: <code>mcp-server/</code> action: build verify verify: <code>npm run build:fast 2&gt;&amp;1 | tail -3</code> no errors</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>cascade-thresholds.json corrupt → fall back to defaults</li>
+<li>tier inference ambiguous</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>haiku / sonnet / opus / kimi / qwen (5 providers)</li>
+<li>low / med / high effort tiers</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>Kimi 401/429 → cascade to qwen</li>
+<li>threshold config missing → defaults</li>
+<li>router test regression → block commit via test gate</li>
+</ul>
+<hr>
+<h2 id="k2-k2-cost-model-entry-for-k26-in-cost-cascade-configjson"><a class="anchor" href="#k2-k2-cost-model-entry-for-k26-in-cost-cascade-configjson" aria-label="Permalink to K2-K2 — Cost-model entry for K2.6 in cost-cascade-config.json">#</a>K2-K2 — Cost-model entry for K2.6 in <code>cost-cascade-config.json</code></h2>
+<ul>
+<li>pillar: cost</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 82</li>
+<li>leverage_score: 12</li>
+<li>why: cost-aware routing needs the price-per-token for K2.6</li>
+<li>depends_on: [K2-K1]</li>
+<li>blocks: [K2-K4, COST-CASCADE-MS0]</li>
+<li>parallel_with: [K2-K3]</li>
+<li>viz_node_id: <code>fs.deep.state.shared.f.cost_cascade_config_json</code> (TBD-create)</li>
+<li>closes_synergy_edge: cost × providers</li>
+<li>loop_schedule: 30d (refresh on price changes)</li>
+</ul>
+<p>verifies_via:   channel: test   tool: <code>node -e &quot;const j=require(&#39;./state/shared/cost-cascade-config.json&#39;); console.log(j.providers.kimi_k2_6)&quot;</code>   expected_signal: prints <code>{input_per_1m:..., output_per_1m:..., effective_date:...}</code>   re_run_cost: 0.5s   baseline: file doesn&#39;t exist or missing kimi</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Read path: <code>state/shared/research/2026-05-10-pass2-octopus-neural.md</code> action: confirm Kimi K2.6 pricing data verify: pricing section readable</li>
+<li>step-2: tool: Write path: <code>state/shared/cost-cascade-config.json</code> action: emit per-provider price table (claude-haiku, sonnet, opus; kimi-k2.6; qwen-local=0) verify: file exists, schema-valid</li>
+<li>step-3: tool: Edit path: <code>mcp-server/src/engines/AISystemRouterEngine.ts</code> action: consume cost-cascade-config in route() for cost-aware decisions verify: TS compiles</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>price data stale (provider changed pricing)</li>
+<li>price = 0 (free tier abused)</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>5 providers × {input, output, cached} prices</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>config missing → conservative defaults (assume Claude price)</li>
+<li>price update mid-session → reload on file mtime change</li>
+</ul>
+<hr>
+<h2 id="k2-k3-scrutiny-3way-scrutiny-5way-add-kimi-qwen-arms"><a class="anchor" href="#k2-k3-scrutiny-3way-scrutiny-5way-add-kimi-qwen-arms" aria-label="Permalink to K2-K3 — Scrutiny-3way → scrutiny-5way (add Kimi + Qwen arms)">#</a>K2-K3 — Scrutiny-3way → scrutiny-5way (add Kimi + Qwen arms)</h2>
+<ul>
+<li>pillar: octopus</li>
+<li>tier: T1</li>
+<li>ai_priority_score: 78</li>
+<li>leverage_score: 11</li>
+<li>why: 5-of-5 consensus per user&#39;s &quot;octopus&quot; directive</li>
+<li>depends_on: [K2-K0]</li>
+<li>blocks: [U-OCN02, U-OCN05]</li>
+<li>parallel_with: [K2-K2]</li>
+<li>viz_node_id: <code>core.script.scrutiny5way</code> (TBD-extend existing 3way)</li>
+<li>closes_synergy_edge: scrutiny × octopus</li>
+<li>loop_schedule: none</li>
+</ul>
+<p>verifies_via:   channel: integration   tool: <code>node .claude/scripts/scrutiny-3way.mjs --target HEAD --providers=all</code>   expected_signal: 5 marks recorded (codex, gemini, opus, kimi, qwen)   re_run_cost: 90s   baseline: 3 marks</p>
+<p>micro_steps:</p>
+<ul>
+<li>step-1: tool: Read path: <code>.claude/scripts/scrutiny-3way.mjs</code> action: pattern reference verify: file readable</li>
+<li>step-2: tool: Write path: <code>.claude/scripts/scrutiny-5way.mjs</code> action: copy + extend with Kimi + Qwen invocation arms; support <code>--providers=all|3way|5way</code> verify: file exists</li>
+<li>step-3: tool: Edit path: <code>H:/prism/CLAUDE.md</code> action: update §SCRUTINY GATE pointer to 5way option verify: doc updated</li>
+</ul>
+<p>adversarial_cases:</p>
+<ul>
+<li>5th provider returns contradictory verdict (deadlock)</li>
+<li>quorum unreachable (some CLIs offline)</li>
+</ul>
+<p>variability_axis:</p>
+<ul>
+<li>3-of-5 / 4-of-5 / 5-of-5 quorum</li>
+<li>quick-pass / deep-pass review depth</li>
+</ul>
+<p>failure_modes:</p>
+<ul>
+<li>Kimi or Qwen offline → fall back to 3way + warning</li>
+<li>timeout on slow provider → 60s cap per arm</li>
+<li>deadlock → escalate to maintainer</li>
+</ul>
+<hr>
+<h2 id="k2-k4k12-9-cascadewiring-units"><a class="anchor" href="#k2-k4k12-9-cascadewiring-units" aria-label="Permalink to K2-K4..K12 — 9 cascade/wiring units">#</a>K2-K4..K12 — 9 cascade/wiring units</h2>
+<p>Each unit decomposed below in compact form (same template as K2-K1-K2 above; abbreviated due to similar shape):</p>
+<h3 id="k2-k4-cascadecalibrationengine-integration-consumer-of-u-ocn04"><a class="anchor" href="#k2-k4-cascadecalibrationengine-integration-consumer-of-u-ocn04" aria-label="Permalink to K2-K4 — CascadeCalibrationEngine integration (consumer of U-OCN04)">#</a>K2-K4 — CascadeCalibrationEngine integration (consumer of U-OCN04)</h3>
+<ul>
+<li>depends_on: [K2-K2, U-OCN04]</li>
+<li>verify: <code>node scripts/cascade-calibrate.mjs --probes=50</code> produces threshold delta</li>
+<li>micro_steps: wire CascadeCalibrationEngine to router; consume thresholds; test cascade-down on K2 fail</li>
+</ul>
+<h3 id="k2-k5-fallback-chain-k2-qwen-claude-haiku"><a class="anchor" href="#k2-k5-fallback-chain-k2-qwen-claude-haiku" aria-label="Permalink to K2-K5 — Fallback chain (K2 → Qwen → Claude-Haiku)">#</a>K2-K5 — Fallback chain (K2 → Qwen → Claude-Haiku)</h3>
+<ul>
+<li>depends_on: [K2-K2]</li>
+<li>verify: kill K2 endpoint → next request lands on Qwen → if Qwen down lands on Haiku</li>
+<li>micro_steps: extend AISystemRouterEngine with fallback list; test 3-step degradation</li>
+</ul>
+<h3 id="k2-k6-telemetry-per-provider-which-provider-served-which-request"><a class="anchor" href="#k2-k6-telemetry-per-provider-which-provider-served-which-request" aria-label="Permalink to K2-K6 — Telemetry per-provider (which provider served which request)">#</a>K2-K6 — Telemetry per-provider (which provider served which request)</h3>
+<ul>
+<li>depends_on: [K2-K1]</li>
+<li>verify: telemetry includes <code>provider</code> field; query last-100 shows distribution</li>
+<li>micro_steps: extend pipeline-telemetry to record <code>provider</code>; backfill dashboard</li>
+</ul>
+<h3 id="k2-k7-cost-dashboard-scriptscost-dashboardmjs"><a class="anchor" href="#k2-k7-cost-dashboard-scriptscost-dashboardmjs" aria-label="Permalink to K2-K7 — Cost dashboard scripts/cost-dashboard.mjs">#</a>K2-K7 — Cost dashboard <code>scripts/cost-dashboard.mjs</code></h3>
+<ul>
+<li>depends_on: [K2-K6]</li>
+<li>verify: dashboard prints per-provider cost + token totals for last 24h</li>
+<li>micro_steps: read telemetry, multiply by cost-cascade-config, emit MD report</li>
+</ul>
+<h3 id="k2-k8-cost-alarm-xday-notify"><a class="anchor" href="#k2-k8-cost-alarm-xday-notify" aria-label="Permalink to K2-K8 — Cost alarm (&gt;$X/day → notify)">#</a>K2-K8 — Cost alarm (&gt;$X/day → notify)</h3>
+<ul>
+<li>depends_on: [K2-K7]</li>
+<li>verify: simulate $50 spend → alarm fires</li>
+<li>micro_steps: PostToolUse hook tracks running cost; threshold from adaptive-thresholds.json; alarm via chat-bus</li>
+</ul>
+<h3 id="k2-k9-schema-versioning-for-k2-responses"><a class="anchor" href="#k2-k9-schema-versioning-for-k2-responses" aria-label="Permalink to K2-K9 — Schema versioning for K2 responses">#</a>K2-K9 — Schema versioning for K2 responses</h3>
+<ul>
+<li>depends_on: [K2-K0]</li>
+<li>verify: K2 response wrapped in v1 envelope; v1→v2 migration tested</li>
+<li>micro_steps: Zod schema for K2 response; envelope with <code>schemaVersion</code></li>
+</ul>
+<h3 id="k2-k10-error-class-taxonomy-k2-specific-error-types"><a class="anchor" href="#k2-k10-error-class-taxonomy-k2-specific-error-types" aria-label="Permalink to K2-K10 — Error class taxonomy (K2-specific error types)">#</a>K2-K10 — Error class taxonomy (K2-specific error types)</h3>
+<ul>
+<li>depends_on: [K2-K0]</li>
+<li>verify: 6 error subclasses each round-trip with correct status code</li>
+<li>micro_steps: extend <code>Error</code> with K2RateLimitError, K2AuthError, K2TimeoutError, etc.</li>
+</ul>
+<h3 id="k2-k11-retry-with-backoff-policy"><a class="anchor" href="#k2-k11-retry-with-backoff-policy" aria-label="Permalink to K2-K11 — Retry-with-backoff policy">#</a>K2-K11 — Retry-with-backoff policy</h3>
+<ul>
+<li>depends_on: [K2-K10]</li>
+<li>verify: 429 triggers exponential backoff (1s/2s/4s); 401 doesn&#39;t retry</li>
+<li>micro_steps: per-error-class retry policy in KimiTransport</li>
+</ul>
+<h3 id="k2-k12-token-refresh-cron-if-kimi-uses-rotating-tokens"><a class="anchor" href="#k2-k12-token-refresh-cron-if-kimi-uses-rotating-tokens" aria-label="Permalink to K2-K12 — Token-refresh cron (if Kimi uses rotating tokens)">#</a>K2-K12 — Token-refresh cron (if Kimi uses rotating tokens)</h3>
+<ul>
+<li>depends_on: [K2-K0]</li>
+<li>verify: <code>cat .claude/cron-registry.json</code> includes K2 token-refresh; runs daily</li>
+<li>micro_steps: scripts/kimi-token-refresh.mjs reads vault, rotates, validates</li>
+</ul>
+<hr>
+<h2 id="x-closing-notes"><a class="anchor" href="#x-closing-notes" aria-label="Permalink to §X — Closing notes">#</a>§X — Closing notes</h2>
+<p><strong>Lane ownership:</strong> lane-B-octopus-cost.</p>
+<p><strong>Critical-path:</strong> K2-K0 → K2-K1 (depends on lane-A H6). Then K2-K2..K12 fan out.</p>
+<p><strong>Cross-lane dependency:</strong> WAIT on lane-A H6 before K2-K1. Coordinate via chat-bus.</p>
+<p><strong>Cron:</strong> <code>/loop --interval 7d</code> for K2-K4 probe refresh; K2-K12 token rotation daily.</p>
+<p><strong>Synergy closed:</strong> 7 (router × kimi, cost × providers, scrutiny × octopus, telemetry × providers, dashboards × cost, alarms × cost, retry × policy).</p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="BACKEND-DEVTOOLS-RGS6-K2-CLOUD-MS0-ATOMIZED-2026-05-10.md">BACKEND-DEVTOOLS-RGS6-K2-CLOUD-MS0-ATOMIZED-2026-05-10.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

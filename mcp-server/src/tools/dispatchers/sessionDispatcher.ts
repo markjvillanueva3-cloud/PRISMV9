@@ -146,7 +146,9 @@ const ACTIONS = [
   "awareness_lifecycle_get_current",
   "awareness_lifecycle_get_history",
   // OBSIDIAN-AUTOMATE-MS3/U-OLLAMA-HEALTH-EXPOSE: surface OllamaIntegrationEngine
-  "ollama_health"
+  "ollama_health",
+  // HTML-PRIMARY-MS0/U-HPS07: render any Markdown doc/spec → HTML via SpecHTMLCompanionEngine
+  "doc_render"
 ] as const;
 
 function ok(data: any) {
@@ -1516,6 +1518,49 @@ export function registerSessionDispatcher(server: any): void {
               models,
               defaultModelMap: ollamaIntegrationEngine.listDefaults(),
               status: ollamaIntegrationEngine.status(),
+            });
+          }
+
+          // HTML-PRIMARY-MS0/U-HPS07 — general doc → HTML render (mirrors prism_dev:spec_html_render; wire-to-all-consumers)
+          case "doc_render": {
+            const { specHtmlCompanionEngine } = await import("../../engines/SpecHTMLCompanionEngine.js");
+            const projRoot = path.resolve(PATHS.PRISM_ROOT);
+            let md = typeof params.md === "string" ? params.md : (typeof params.markdown === "string" ? params.markdown : "");
+            let srcPath: string | undefined;
+            if (!md && typeof params.path === "string" && params.path) {
+              const abs = path.isAbsolute(params.path) ? params.path : path.join(projRoot, params.path);
+              const resolved = path.resolve(abs);
+              if (!resolved.startsWith(projRoot)) return ok({ success: false, error: "path escapes PRISM root" });
+              if (!fs.existsSync(resolved)) return ok({ success: false, error: `file not found: ${params.path}` });
+              md = fs.readFileSync(resolved, "utf-8");
+              srcPath = resolved;
+            }
+            if (!md) return ok({ success: false, error: "provide 'md' (markdown string) or 'path' (.md file path under the PRISM root)" });
+            const rendered = specHtmlCompanionEngine.render(md, {
+              theme: params.theme === "dark" || params.theme === "light" ? params.theme : "auto",
+              toc: params.toc !== false,
+              title: typeof params.title === "string" ? params.title : undefined,
+              generatedBy: "prism_session:doc_render",
+              sourcePath: srcPath ? path.basename(srcPath) : undefined,
+            });
+            let wrote: string | undefined;
+            if (params.write && srcPath) {
+              const stem = srcPath.replace(/\.(md|markdown)$/i, "");
+              const outPath = stem === srcPath ? srcPath + ".html" : stem + ".html";
+              safeWriteSync(outPath, rendered.html, "utf-8");
+              safeWriteSync(outPath + ".hash", `${rendered.sourceHash}  ${path.basename(srcPath)}\n`, "utf-8");
+              wrote = path.relative(projRoot, outPath);
+            }
+            return ok({
+              success: true,
+              title: rendered.title,
+              headings: rendered.headings,
+              hasMermaid: rendered.hasMermaid,
+              sourceHash: rendered.sourceHash,
+              bytes: rendered.bytes,
+              warnings: rendered.warnings,
+              ...(wrote ? { wrote } : {}),
+              ...(params.include_html ? { html: rendered.html } : {}),
             });
           }
 

@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="9b7f79b7c0b4f9b2dc6ed76716ec157234028ac5a2b9d8ed123a0b50f6b0b008">
+<title>Karpathy Methodology — Research Card for AI-Assisted Development</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">Karpathy Methodology — Research Card for AI-Assisted Development</h1>
+<p class="provenance">Generated 2026-05-12T12:43:26.474Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#karpathy-methodology-research-card">Karpathy Methodology — Research Card</a></li>
+<li class="toc-l2"><a href="#1-llm-wiki-pattern">§1 — LLM-Wiki Pattern</a></li>
+<li class="toc-l2"><a href="#2-anti-drift-checkpoint">§2 — Anti-Drift Checkpoint</a></li>
+<li class="toc-l2"><a href="#3-micro-loops-classify-before-coding">§3 — Micro-Loops + Classify-Before-Coding</a></li>
+<li class="toc-l2"><a href="#4-software-20-implications">§4 — Software 2.0 Implications</a></li>
+<li class="toc-l2"><a href="#5-recent-posts-last-6-months">§5 — Recent Posts (last ~6 months)</a></li>
+<li class="toc-l2"><a href="#cross-reference-summary-prism-vs-karpathy">Cross-Reference Summary — PRISM vs Karpathy</a></li>
+<li class="toc-l2"><a href="#source-urls-canonical-list">Source URLs (canonical list)</a></li>
+<li class="toc-l2"><a href="#prism-cross-references">PRISM cross-references</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<details class="frontmatter" open><summary>Document metadata</summary><div class="table-wrap"><table>
+<tbody>
+<tr><th scope="row">title</th><td>Karpathy Methodology — Research Card for AI-Assisted Development</td></tr>
+<tr><th scope="row">type</th><td>research</td></tr>
+<tr><th scope="row">date</th><td>2026-05-10</td></tr>
+<tr><th scope="row">researcher</th><td>claude-opus-4-7</td></tr>
+<tr><th scope="row">sources</th><td>- https: //gist.github.com/karpathy/442a6bf555914893e9891c11519de94f; - https: //karpathy.medium.com/software-2-0-a64152b37c35; - https: //github.com/forrestchang/andrej-karpathy-skills/blob/main/skills/karpathy-guidelines/SKILL.md; - https: //lucaberton.com/blog/karpathy-claude-md-llm-coding-principles-2026/; - https: //x.com/karpathy/status/1707437820045062561; - https: //x.com/karpathy/status/1723140519554105733; - https: //x.com/karpathy/status/1937902205765607626; - https: //www.latent.space/p/s3; - https: //www.donnamagi.com/articles/karpathy-yc-talk; - https: //thenewstack.io/vibe-coding-is-passe/; - https: //aiagentssimplified.substack.com/p/from-vibe-coding-to-agentic-engineering; - https: //www.mindstudio.ai/blog/software-3-0-explained-karpathy-context-window-ram-model-weights-cpu; - https: //aintelligencehub.com/articles/karpathy-vibe-coding-to-agent-workflows-may-2026</td></tr>
+<tr><th scope="row">tags</th><td>[karpathy, methodology, llm-wiki, software-2.0, software-3.0, agentic-engineering, anti-drift, context-engineering, prism-alignment]</td></tr>
+<tr><th scope="row">prism_alignment_status</th><td>partial — wiki adopted 2026-04-27 (KNOWLEDGE-WIKI-MS0); §2 anti-drift cadence already in CLAUDE.md; §3 classify-before-coding already in CLAUDE.md; §4-§5 partially adopted</td></tr>
+</tbody>
+</table></div></details>
+<h1 id="karpathy-methodology-research-card"><a class="anchor" href="#karpathy-methodology-research-card" aria-label="Permalink to Karpathy Methodology — Research Card">#</a>Karpathy Methodology — Research Card</h1>
+<p>Compact, source-grounded extract of Andrej Karpathy&#39;s published methodology for AI-assisted development. Each section captures: source, verbatim quote, implementation sketch, anti-pattern, and how PRISM aligns or deviates.</p>
+<blockquote>
+<p><strong>Scope note.</strong> Karpathy publishes in three surfaces: (a) the original &quot;Software 2.0&quot; Medium essay (2017), (b) X/Twitter threads (2023-2026 — LLM-OS, context engineering, vibe coding, LLM-Wiki), (c) talks (Stanford CS25, YC AI Startup School &quot;Software 3.0&quot;, various interviews). The most recent material (Apr-May 2026) is largely the LLM-Wiki gist + agentic-engineering reframe of vibe coding.</p>
+</blockquote>
+<hr>
+<h2 id="1-llm-wiki-pattern"><a class="anchor" href="#1-llm-wiki-pattern" aria-label="Permalink to §1 — LLM-Wiki Pattern">#</a>§1 — LLM-Wiki Pattern</h2>
+<p><strong>Sources:</strong></p>
+<ul>
+<li>Karpathy original gist: https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f</li>
+<li>Defileo&#39;s amplification thread (cited by PRISM <code>WIKI_SCHEMA.md</code> as the canonical pointer)</li>
+<li>MindStudio walkthrough: https://www.mindstudio.ai/blog/karpathy-llm-wiki-knowledge-base-pattern</li>
+<li>Level Up Coding &quot;Beyond RAG&quot; essay (Apr 2026)</li>
+</ul>
+<p><strong>Verbatim quotes (from gist):</strong></p>
+<blockquote>
+<p>&quot;The wiki is a persistent, compounding artifact.&quot; (paraphrase summary of gist&#39;s core thesis — the gist itself avoids slogans)</p>
+<p>&quot;Everything mentioned above is optional and modular — pick what&#39;s useful, ignore what isn&#39;t.&quot;</p>
+<p>&quot;The tedious part of maintaining a knowledge base is not the reading or the thinking — it&#39;s the bookkeeping.&quot;</p>
+<p>&quot;Your wiki might be small enough that the index file is all you need, no search engine required.&quot;</p>
+</blockquote>
+<p><strong>Three-layer architecture (verbatim from gist structure):</strong></p>
+<ol>
+<li><strong>Raw sources</strong> — immutable. The LLM reads but never modifies. Articles, papers, transcripts, PDFs.</li>
+<li><strong>The wiki</strong> — LLM-generated, interlinked markdown. One concept per file. Cross-references via <code>[[wikilinks]]</code>. Provenance/citations on every page.</li>
+<li><strong>The schema</strong> — <code>CLAUDE.md</code> (or <code>AGENTS.md</code> for Codex). The configuration document that makes the LLM &quot;a disciplined wiki maintainer rather than a generic chatbot.&quot;</li>
+</ol>
+<p><strong>Three operations:</strong></p>
+<ul>
+<li><strong>Ingest</strong> — drop a source; LLM reads it, writes a summary page, updates <code>index.md</code>, and touches 10-15 existing pages in one pass to add cross-refs.</li>
+<li><strong>Query</strong> — ask questions against wiki pages (NOT raw sources). Synthesize with citations. <strong>Optionally file the answer back as a new page</strong> — this is the &quot;compounding&quot; step.</li>
+<li><strong>Lint</strong> — periodic health check for contradictions, stale claims, orphan pages, missing cross-refs.</li>
+</ul>
+<p><strong>Two index files (load-bearing convention):</strong></p>
+<ul>
+<li><code>index.md</code> — content-oriented catalog with one-line summaries per page.</li>
+<li><code>log.md</code> — append-only chronological audit trail, grep-friendly prefix.</li>
+</ul>
+<p><strong>File conventions Karpathy actually specifies (sparse on purpose):</strong></p>
+<ul>
+<li>Plain <code>.md</code> files (no DB, no embedding store required at small scale)</li>
+<li>Lowercase, hyphenated filenames</li>
+<li>Maximum one folder level deep at small scale</li>
+<li>Cross-links via <code>[[page-name]]</code> wikilink style</li>
+<li>Every page should be cite-traceable to a raw source</li>
+</ul>
+<p><strong>What he explicitly skips / leaves to the implementer:</strong></p>
+<ul>
+<li>No prescribed page template</li>
+<li>No prescribed directory taxonomy beyond &quot;one concept per file&quot;</li>
+<li>No mandate on wikilinks vs markdown links — pick one and stay consistent</li>
+<li>No prescription of vector search (<code>cat wiki/*.md | llm</code> is the simplest baseline)</li>
+</ul>
+<p><strong>When to query vs write:</strong></p>
+<ul>
+<li><strong>Query</strong> when the question is one-off OR when no synthesis emerged that beat existing pages.</li>
+<li><strong>Write</strong> when (a) the synthesis answers a recurring class of question, (b) it resolves a contradiction, (c) it links 2+ previously-disconnected concepts.</li>
+</ul>
+<p><strong>Anti-patterns (warned against, explicit + implied):</strong></p>
+<ul>
+<li>Re-deriving the same answer N times (RAG-only mode)</li>
+<li>Dumping raw sources into the wiki layer (violates the immutability of layer 1)</li>
+<li>Schema-creep: changing the conventions silently — schema must be edited FIRST, then wiki</li>
+<li>Treating the wiki as ephemeral chat output (it is the durable artifact)</li>
+<li>Embedding-only retrieval without a written schema — produces inconsistent pages</li>
+</ul>
+<p><strong>Implementation sketch (PRISM-equivalent):</strong></p>
+<pre><code># Ingest
+prism_wiki:ingest --source raw/articles/foo.md
+  → Ollama summarize (200-500 words)
+  → Ollama suggest cross-refs against index.md
+  → Claude resolve contradictions / synthesize
+  → WikiIndexMaintainer + WikiLogAppender file the page
+
+# Query
+prism_wiki:query &quot;How does Kienzle constant relate to chip thinning?&quot;
+  → HNSW similarity over wiki/index.md (Ollama embed, free)
+  → Read top 1-3 wiki pages
+  → Claude synthesize with citations
+  → Optional file-back to wiki/decisions/
+
+# Lint
+prism_wiki:lint --severity major
+  → orphan pages, broken cross-refs, stale claims, contradictions
+  → emit lint-reports/YYYY-MM-DD.md
+</code></pre>
+<p><strong>PRISM alignment (HIGH):</strong></p>
+<ul>
+<li><code>H:/prism/knowledge/wiki/</code> exists with all 3 layers (sources/wiki/schema)</li>
+<li><code>WIKI_SCHEMA.md</code> codifies the three operations and 5-stage ingest pipeline (≥70% Ollama by token cost)</li>
+<li><code>index.md</code> (722 entries) + <code>log.md</code> (chronological audit trail) — both in place</li>
+<li>11 subdirectories (concepts, entities, decisions, patterns, trajectories, summaries, code-tribal, architecture, software-engineering, ux-design, lessons) — exceeds Karpathy&#39;s &quot;one folder deep&quot; guidance but stays semantic, not file-system rigid</li>
+<li>Skills <code>/wiki-ingest /wiki-query /wiki-lint /wiki-morning /wiki-bootstrap</code> operationalize the three ops</li>
+<li>Multi-chat coordination via <code>prism_context:claim_file</code> — extension Karpathy&#39;s single-user gist doesn&#39;t address</li>
+</ul>
+<p><strong>PRISM deviations (intentional):</strong></p>
+<ul>
+<li>11 subdirectories vs Karpathy&#39;s &quot;max 1 level deep&quot; — justified by 575+ engines + 90 dispatchers needing semantic separation</li>
+<li>Frontmatter spec (yaml: title, category, sources, confidence, last_verified) — Karpathy leaves this to implementer; PRISM hardened it</li>
+<li>Severity scale (MINOR/MAJOR/CRITICAL/BROKEN) for lint — PRISM-specific, useful for multi-agent triage</li>
+</ul>
+<p><strong>Gap to close:</strong></p>
+<ul>
+<li>Karpathy&#39;s <code>cat wiki/*.md</code> baseline doesn&#39;t exist as a one-shot in PRISM (worth adding <code>prism_wiki:dump_all</code> for when context budget allows)</li>
+</ul>
+<hr>
+<h2 id="2-anti-drift-checkpoint"><a class="anchor" href="#2-anti-drift-checkpoint" aria-label="Permalink to §2 — Anti-Drift Checkpoint">#</a>§2 — Anti-Drift Checkpoint</h2>
+<p><strong>Sources:</strong></p>
+<ul>
+<li>Karpathy YC AI Startup School talk (&quot;Software 3.0&quot;, June 2025): https://www.donnamagi.com/articles/karpathy-yc-talk</li>
+<li>Karpathy CLAUDE.md guidelines repo (Apr 2026): https://github.com/forrestchang/andrej-karpathy-skills</li>
+</ul>
+<p><strong>Verbatim quotes:</strong></p>
+<blockquote>
+<p>&quot;The AI is kept on a leash with respect to a certain syllabus, a certain progression of projects, and so on.&quot;</p>
+<p>&quot;We have to keep the AI in a leash. You have to make sure that this thing is not introducing bugs.&quot;</p>
+<p>&quot;Less Iron Man robots, and more Iron Man suits — building partial autonomy products.&quot;</p>
+</blockquote>
+<p><strong>Cadence — the explicit &quot;every N tasks&quot; check:</strong> Karpathy does NOT publish a hardcoded N. The &quot;every 5 tasks&quot; cadence in PRISM&#39;s CLAUDE.md is a PRISM extension, not a Karpathy verbatim. What he prescribes is a structural mechanism (the &quot;leash&quot;) and a question-set (below) — frequency is left to the operator.</p>
+<p><strong>The reset questions (derived from the four CLAUDE.md rules + leash framing):</strong></p>
+<ol>
+<li>Am I still on the user&#39;s stated goal, or did I wander into adjacent improvements?</li>
+<li>Did I make any silent assumptions that should have been surfaced as questions?</li>
+<li>Is this the simplest solution, or am I building speculative flexibility?</li>
+<li>Did I touch code outside the request&#39;s scope (refactors, formatting, &quot;while I&#39;m in here&quot; cleanup)?</li>
+<li>Have I defined a verifiable success criterion, or am I &quot;looping on vibes&quot;?</li>
+</ol>
+<p><strong>Triggers for a reset (Karpathy&#39;s framing):</strong></p>
+<ul>
+<li>Demo-vs-product gap widens — &quot;Demo is <code>works.any()</code>, product is <code>works.all()</code>.&quot;</li>
+<li>Verification step is being skipped under time pressure.</li>
+<li>Agent is making decisions without surfacing alternatives.</li>
+</ul>
+<p><strong>Implementation sketch:</strong></p>
+<pre><code># Mental checkpoint — every ~5 tool calls or before any commit:
+[ ] On goal? (re-read user&#39;s first prompt)
+[ ] Surfaced assumptions, or silently chose interpretation?
+[ ] Simplest path, or speculative abstractions?
+[ ] In-scope edits only, or &quot;while I&#39;m in here&quot; creep?
+[ ] Success criterion verifiable, or just &quot;looks good&quot;?
+
+# Hook-enforced (PRISM extension):
+- karpathy-checkpoint hook fires on every Stop event
+- Counts tool calls per session; injects checkpoint reminder at multiples of N
+- Cross-references commit footprint against original prompt scope
+</code></pre>
+<p><strong>Anti-pattern (explicit):</strong></p>
+<blockquote>
+<p>&quot;Don&#39;t assume. Don&#39;t hide confusion. Surface tradeoffs.&quot;</p>
+<p>Silent assumptions, picking one interpretation without surfacing alternatives, guessing instead of clarifying — these are the failure modes that compound into drift.</p>
+</blockquote>
+<p><strong>PRISM alignment (HIGH):</strong></p>
+<ul>
+<li>CLAUDE.md global already has &quot;Anti-drift checkpoint (every ~5 tasks)&quot; with the 4-question list</li>
+<li>Stop hook <code>scrutinize-before-stop.mjs</code> enforces a 3-of-3 multi-CLI consensus before allowing task completion (deeper than Karpathy&#39;s manual checkpoint)</li>
+<li>Per-chat handoff discipline (one HANDOFF per chat, topic-suffixed) is a PRISM extension that addresses the &quot;leash&quot; mechanism in a multi-agent setting Karpathy&#39;s gist doesn&#39;t cover</li>
+</ul>
+<p><strong>PRISM deviations (intentional):</strong></p>
+<ul>
+<li>PRISM hardens the cadence to &quot;every ~5 tasks&quot; — Karpathy leaves frequency open</li>
+<li>PRISM adds the 3-of-3 multi-CLI consensus (Codex + Gemini + Opus) for Stop-time verification — Karpathy&#39;s &quot;leash&quot; is conceptual, PRISM&#39;s is a HARD BLOCK</li>
+<li>PRISM extends the checklist to multi-chat coordination (lane discipline, conflict-fork rule)</li>
+</ul>
+<p><strong>Gap to close:</strong></p>
+<ul>
+<li>No automated &quot;drift score&quot; — could be derived from (commit-touched-files ⊖ first-prompt-keywords) symmetric difference</li>
+</ul>
+<hr>
+<h2 id="3-micro-loops-classify-before-coding"><a class="anchor" href="#3-micro-loops-classify-before-coding" aria-label="Permalink to §3 — Micro-Loops + Classify-Before-Coding">#</a>§3 — Micro-Loops + Classify-Before-Coding</h2>
+<p><strong>Sources:</strong></p>
+<ul>
+<li>Karpathy CLAUDE.md guidelines: https://github.com/forrestchang/andrej-karpathy-skills/blob/main/skills/karpathy-guidelines/SKILL.md</li>
+<li>Luca Berton&#39;s Apr 2026 unpacking: https://lucaberton.com/blog/karpathy-claude-md-llm-coding-principles-2026/</li>
+<li>The Menon Lab: https://themenonlab.blog/blog/karpathy-claude-md-four-rules-ai-coding-agents</li>
+</ul>
+<p><strong>Verbatim quotes (the four rules, exact framing):</strong></p>
+<p><strong>Rule 1 — Think Before Coding:</strong></p>
+<blockquote>
+<p>&quot;Don&#39;t assume. Don&#39;t hide confusion. Surface tradeoffs.&quot;</p>
+<p>&quot;If something is ambiguous, ask. Do not pick one interpretation and run.&quot;</p>
+</blockquote>
+<p><strong>Rule 2 — Simplicity First:</strong></p>
+<blockquote>
+<p>&quot;Minimum code that solves the problem. Nothing speculative.&quot;</p>
+</blockquote>
+<p><strong>Rule 3 — Surgical Changes:</strong></p>
+<blockquote>
+<p>&quot;Touch only what you must. Clean up only your own mess.&quot;</p>
+<p>&quot;Every changed line should trace directly to the user&#39;s request.&quot;</p>
+</blockquote>
+<p><strong>Rule 4 — Goal-Driven Execution:</strong></p>
+<blockquote>
+<p>&quot;Define success criteria. Loop until verified.&quot;</p>
+</blockquote>
+<p><strong>The pre-write checklist (synthesis from Rules 1+2):</strong></p>
+<ul>
+<li>State assumptions explicitly; ask if uncertain.</li>
+<li>Present multiple interpretations rather than choosing silently.</li>
+<li>Identify simpler approaches and advocate for them.</li>
+<li>Self-check: &quot;Would a senior engineer call this overcomplicated?&quot;</li>
+<li>Exclude features beyond the request.</li>
+<li>Avoid abstractions for single-use code.</li>
+<li>Skip unrequested &quot;flexibility&quot; or configurability.</li>
+<li>Omit error handling for impossible scenarios.</li>
+</ul>
+<p><strong>The &quot;classify problem type&quot; framing — Karpathy doesn&#39;t use these exact words; PRISM extended:</strong> The PRISM CLAUDE.md &quot;CLASSIFY → TECHNIQUE → EDGE CASES → FAILURE MODES → THEN WRITE&quot; 5-step is a PRISM amplification of Rule 1 (Think Before Coding), inspired by Karpathy&#39;s broader framing in his Stanford CS231n / <code>nn-zero-to-hero</code> material where he repeatedly drills &quot;first identify what kind of problem this is, then pick the technique.&quot;</p>
+<p><strong>Implementation sketch:</strong></p>
+<pre><code># Before any non-trivial code change:
+1. CLASSIFY — search/state/async/parse/cache/validate/transform?
+2. TECHNIQUE — hash vs tree? FSM vs reducer? promise.all vs sequential?
+3. EDGE CASES — empty, null, overflow, concurrent, NaN, unicode, timeout
+4. FAILURE MODES — network, disk, OOM, race condition, invalid state
+5. THEN WRITE — code handles ALL above from line 1
+
+# Surgical-changes test (Rule 3):
+git diff --stat | awk &#39;{ if ($2 &gt; N) flag }&#39;
+# If touched-line count &gt; expected, audit for scope creep.
+
+# Goal-driven success criterion (Rule 4):
+- &quot;Done&quot; must be a verifiable check, not &quot;looks good&quot;
+- Test must exist BEFORE implementation when feasible
+</code></pre>
+<p><strong>Anti-patterns (explicit):</strong></p>
+<ul>
+<li>Silent assumption-picking (violates Rule 1)</li>
+<li>Speculative abstractions (&quot;we might need this later&quot;) (violates Rule 2)</li>
+<li>&quot;While I&#39;m in here&quot; refactors of working code (violates Rule 3)</li>
+<li>Refactoring unbroken code (violates Rule 3)</li>
+<li>Vague task definitions like &quot;make it work&quot; (violates Rule 4)</li>
+<li>Skipping verification steps under time pressure (violates Rule 4)</li>
+</ul>
+<p><strong>Karpathy&#39;s behavioral framing (key insight):</strong></p>
+<blockquote>
+<p>&quot;These aren&#39;t intelligence problems — they&#39;re behavioral defaults that structured instructions override.&quot;</p>
+<p>The four rules work because LLMs default to helpful-overreach (suggest more, refactor more, abstract more). The CLAUDE.md inverts the defaults toward minimum-viable-change.</p>
+</blockquote>
+<p><strong>PRISM alignment (HIGH):</strong></p>
+<ul>
+<li>CLAUDE.md global has the explicit 5-step CLASSIFY→TECHNIQUE→EDGE CASES→FAILURE MODES→THEN WRITE</li>
+<li><code>simplify</code> skill enforces Rule 2 post-hoc on any changed code</li>
+<li><code>superpowers:verification-before-completion</code> skill enforces Rule 4</li>
+<li>Stop hook <code>comprehensive-build-enforce.mjs</code> blocks stub/partial work (extends Rule 4)</li>
+</ul>
+<p><strong>PRISM deviations (intentional):</strong></p>
+<ul>
+<li>PRISM adds the EXHAUSTIVE classify list (search/state/async/parse/cache/validate/transform) — Karpathy stays general</li>
+<li>PRISM adds the EDGE CASES enumeration (empty/null/overflow/concurrent/NaN/unicode/timeout) — Karpathy implies via Rule 1</li>
+<li>PRISM enforces Rule 4 with HARD BLOCKS — Karpathy leaves it to discipline</li>
+</ul>
+<p><strong>Gap to close:</strong></p>
+<ul>
+<li>Could add a <code>karpathy-rule-check</code> slash command that runs all 4 rules against a proposed diff before commit</li>
+<li>Surgical-changes diff-vs-prompt distance metric not currently computed</li>
+</ul>
+<hr>
+<h2 id="4-software-20-implications"><a class="anchor" href="#4-software-20-implications" aria-label="Permalink to §4 — Software 2.0 Implications">#</a>§4 — Software 2.0 Implications</h2>
+<p><strong>Sources:</strong></p>
+<ul>
+<li>Original essay (2017): https://karpathy.medium.com/software-2-0-a64152b37c35</li>
+<li>Software 3.0 reframe (2025-2026): https://www.latent.space/p/s3</li>
+<li>Context window as RAM (2026): https://www.mindstudio.ai/blog/software-3-0-explained-karpathy-context-window-ram-model-weights-cpu</li>
+</ul>
+<p><strong>Verbatim quotes:</strong></p>
+<blockquote>
+<p>&quot;Software 1.0 is the code you write on the computer. Software 2.0 are basically neural networks.&quot;</p>
+<p>&quot;In the 2.0 stack, the programming is done by accumulating, massaging and cleaning datasets.&quot;</p>
+<p>&quot;When the network fails in some hard or rare cases, we do not fix those predictions by writing code, but by including more labeled examples of those cases.&quot;</p>
+<p>&quot;Neural networks became programmable with large libraries. It&#39;s a new kind of computer. Software 3.0.&quot;</p>
+<p>&quot;Your products are now programs that program people all over. Remarkably, these products are written in English.&quot;</p>
+<p>&quot;Modules can meld into an optimal whole. If two Software 2.0 modules that were originally trained separately interact, we can easily backpropagate through the whole.&quot;</p>
+</blockquote>
+<p><strong>Implications for development workflow:</strong></p>
+<div class="table-wrap"><table>
+<thead><tr><th>Surface</th><th>1.0 (code)</th><th>2.0 (data)</th><th>3.0 (English prompts + agents)</th></tr></thead>
+<tbody>
+<tr><td>Programming unit</td><td>function/class</td><td>dataset + architecture</td><td>prompt + tool/skill</td></tr>
+<tr><td>Bug fix</td><td>edit code</td><td>add labeled examples</td><td>edit prompt or add examples</td></tr>
+<tr><td>Code review</td><td>diff review</td><td>dataset diff + curve diff</td><td>prompt diff + eval suite diff</td></tr>
+<tr><td>Testing</td><td>unit/integration</td><td>held-out eval set</td><td>eval-set + verifier loop</td></tr>
+<tr><td>Deployment</td><td>binary/container</td><td>weights + runtime</td><td>prompt + tool registry + memory</td></tr>
+</tbody>
+</table></div>
+<p><strong>Implications for code review:</strong></p>
+<ul>
+<li>1.0: line-by-line readability + correctness review</li>
+<li>2.0: dataset audit (labeling quality, coverage of edge cases, bias)</li>
+<li>3.0: prompt change diff + eval-suite delta + agent trajectory replay</li>
+<li>The reviewer&#39;s job shifts from &quot;does this code do what it says&quot; to &quot;does this dataset/prompt produce the desired distribution of outputs&quot;</li>
+</ul>
+<p><strong>Implications for testing:</strong></p>
+<ul>
+<li>2.0 tests are statistical — accuracy, F1, coverage on a held-out distribution</li>
+<li>3.0 tests are eval-suites — task batteries with verifiable success criteria + agent-trace inspection</li>
+<li>Both replace a portion of unit testing with <strong>distribution testing</strong></li>
+<li>Karpathy&#39;s &quot;verifier loop&quot; is the 3.0 analog of a CI pipeline — agents propose, verifier (often deterministic code OR an LLM judge) accepts/rejects</li>
+</ul>
+<p><strong>The IDE prediction (Karpathy 2017):</strong></p>
+<blockquote>
+<p>&quot;Who is going to develop the first Software 2.0 IDEs, which help with all of the workflows in accumulating, visualizing, cleaning, labeling, and sourcing datasets?&quot;</p>
+<p>&quot;Perhaps the IDE bubbles up images that the network suspects are mislabeled based on the per-example loss, or assists in labeling by seeding labels with predictions, or suggests useful examples to label based on the uncertainty of the network&#39;s predictions.&quot;</p>
+</blockquote>
+<p>(This prediction is now realized as MLOps tooling — Weights &amp; Biases, Snorkel, Encord. The 3.0 analog is in-progress: Claude Code, Cursor, Devin = Software 3.0 IDEs.)</p>
+<p><strong>Implementation sketch (PRISM-equivalent):</strong></p>
+<pre><code># 2.0 surface in PRISM:
+- LoRA training pipeline (mill-lora, lathe-lora)
+- Material database (data pipeline, not code pipeline)
+- CrossDisciplinaryDeepLearningEngine (NN architecture as code)
+
+# 3.0 surface in PRISM:
+- ~440 skills = English-language prompts as &quot;programs&quot;
+- ~60 dispatchers + ~7244 actions = the tool/skill registry
+- Per-chat handoffs + wiki = persistent memory
+- 3-of-3 multi-CLI verifier loop = the verification gate
+</code></pre>
+<p><strong>Anti-pattern (explicit + implied):</strong></p>
+<ul>
+<li>Treating 2.0/3.0 components as &quot;magic&quot; — &quot;The 2.0 stack also has some of its own disadvantages... The networks are large and difficult to interpret.&quot;</li>
+<li>Dumping raw 1.0 code review practices on 3.0 prompt changes — line-diff is insufficient; need eval-suite delta</li>
+<li>Assuming agent autonomy is binary — Karpathy&#39;s &quot;autonomy slider&quot; is the correct framing (see §5)</li>
+</ul>
+<p><strong>PRISM alignment (MEDIUM-HIGH):</strong></p>
+<ul>
+<li>PRISM is fundamentally a 3.0 application (skills + dispatchers + agents + wiki memory)</li>
+<li>2.0 modules (LoRA, embeddings, NN engines) are first-class</li>
+<li>Verifier loop is 3-of-3 multi-CLI consensus</li>
+</ul>
+<p><strong>PRISM gaps:</strong></p>
+<ul>
+<li>No formal eval-suite for skill-prompt regressions (skills can drift silently if their internal phrasing changes)</li>
+<li>No &quot;labeled example&quot; pipeline for skill-output failures (would benefit from feedback loop: agent failures → labeled-example file → next-iteration training data)</li>
+<li>2.0/3.0 boundary is not explicitly modeled in dispatcher metadata</li>
+</ul>
+<hr>
+<h2 id="5-recent-posts-last-6-months"><a class="anchor" href="#5-recent-posts-last-6-months" aria-label="Permalink to §5 — Recent Posts (last ~6 months)">#</a>§5 — Recent Posts (last ~6 months)</h2>
+<p><strong>Time window: Nov 2025 — May 2026.</strong></p>
+<p><strong>Sources:</strong></p>
+<ul>
+<li>Karpathy &quot;context engineering&quot; tweet (Jul 2025, still load-bearing): https://x.com/karpathy/status/1937902205765607626</li>
+<li>Karpathy YC AI Startup School talk (June 2025): https://www.donnamagi.com/articles/karpathy-yc-talk + https://www.latent.space/p/s3</li>
+<li>&quot;Vibe coding is passé&quot; reframe (May 2026): https://thenewstack.io/vibe-coding-is-passe/</li>
+<li>Karpathy &quot;from vibe coding to agentic engineering&quot; coverage (May 2026): https://aiagentssimplified.substack.com/p/from-vibe-coding-to-agentic-engineering</li>
+<li>LLM-Wiki gist (Apr 2026): https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f</li>
+</ul>
+<p><strong>5.1 — Context Engineering (the rename of prompt engineering)</strong></p>
+<p><strong>Verbatim quote:</strong></p>
+<blockquote>
+<p>&quot;+1 for &#39;context engineering&#39; over &#39;prompt engineering&#39;. People associate prompts with short task descriptions you&#39;d give an LLM in your day-to-day use. When in every industrial-strength LLM app, context engineering is the delicate art and science of filling the context window.&quot;</p>
+</blockquote>
+<p><strong>Implementation:</strong></p>
+<ul>
+<li>Context engineering = selecting, compressing, ordering, isolating, formatting what the agent sees at each step</li>
+<li>&quot;Most AI failures are context failures, not model failures&quot;</li>
+<li>The context window is the LLM&#39;s RAM — &quot;dumping your entire hard drive into RAM and expecting the CPU to find one specific byte results in thrashing and context-flooding, not reasoning&quot;</li>
+</ul>
+<p><strong>Anti-pattern:</strong></p>
+<ul>
+<li>Treating prompt engineering as one-line incantations</li>
+<li>Dumping all available context &quot;just in case&quot;</li>
+<li>No isolation between subtasks — context bleed between unrelated work</li>
+</ul>
+<p><strong>PRISM alignment:</strong> HIGH — CLAUDE.md token-economy section + per-chat handoff discipline + load-on-demand skills are direct implementations.</p>
+<p><strong>5.2 — Vibe Coding → Agentic Engineering</strong></p>
+<p><strong>Verbatim quotes:</strong></p>
+<blockquote>
+<p>&quot;There should be an autonomy slider in your product. Make your product sort of more autonomous over time.&quot;</p>
+<p>&quot;It&#39;s both an augmentation, and twin-star mechanic driver. And it&#39;s also an agent.&quot;</p>
+<p>&quot;Less Iron Man robots, and more Iron Man suits — building partial autonomy products.&quot;</p>
+<p>&quot;Demo is works.any(), product is works.all().&quot;</p>
+</blockquote>
+<p><strong>The reframe (May 2026):</strong></p>
+<ul>
+<li>2025 &quot;vibe coding&quot; = describe-and-receive working software</li>
+<li>2026 &quot;agentic engineering&quot; = humans direct, supervise, orchestrate agents instead of writing code</li>
+<li>The shift: developer role → editor / reviewer / system designer</li>
+</ul>
+<p><strong>Verification framing:</strong></p>
+<blockquote>
+<p>&quot;Traditional software automates what can be precisely specified, while language models automate what can be verified.&quot;</p>
+<p>Partial autonomy applications need a GUI that makes verification easier — the gap between demo and production is the verification gap.</p>
+</blockquote>
+<p><strong>Anti-patterns:</strong></p>
+<ul>
+<li>Pure vibe coding past prototype stage — leads to demo-only software</li>
+<li>Maximum-autonomy agents without verification gates</li>
+<li>Skipping the editor/reviewer role — &quot;the developer who does not understand the system&#39;s failure modes cannot specify them, and the agent cannot surface what the developer did not know to require&quot;</li>
+</ul>
+<p><strong>PRISM alignment:</strong> HIGH — PRISM has dispatcher actions + skill manifests + multi-CLI Stop-gate that operationalize the autonomy slider + verifier loop.</p>
+<p><strong>5.3 — Parallel Agent Work</strong></p>
+<p><strong>Sourced quote (paraphrased from coverage; verbatim source not located in time window):</strong></p>
+<blockquote>
+<p>&quot;You&#39;re not running enough agents in parallel. Finishing one agent task and then starting the next means working serially in a parallel world. The operators who win are learning to parallelize their judgment, not just their code.&quot;</p>
+</blockquote>
+<p><strong>Implementation:</strong></p>
+<ul>
+<li>Run multiple agents on independent subtasks in parallel</li>
+<li>Verifier-gated merge — each agent&#39;s output goes through the verification step before integrating</li>
+<li>The bottleneck moves from &quot;writing code&quot; to &quot;judging output quality&quot;</li>
+</ul>
+<p><strong>Anti-patterns:</strong></p>
+<ul>
+<li>Serial agent execution (one task at a time)</li>
+<li>Merging agent output without verification</li>
+<li>Treating agent runs as fire-and-forget</li>
+</ul>
+<p><strong>PRISM alignment:</strong> HIGH — 6 concurrent chats + per-chat handoff + lane discipline + conflict-fork rule + worktree-per-milestone is exactly this pattern.</p>
+<p><strong>5.4 — Context Window as RAM (LLM-OS extension)</strong></p>
+<p><strong>Original LLM-OS quote (Sep 2023):</strong></p>
+<blockquote>
+<p>&quot;LLMs not as a chatbot, but the kernel process of a new Operating System. E.g. today it orchestrates: Input &amp; Output across modalities (text, audio, vision), Code interpreter, ability to write &amp; run programs, browser/internet access, embeddings database for files and internal memory.&quot;</p>
+</blockquote>
+<p><strong>Refined 2026 framing:</strong></p>
+<ul>
+<li>LLM = CPU</li>
+<li>Context window = RAM (small, fast, expensive)</li>
+<li>Wiki / vector store = disk (large, slow, cheap)</li>
+<li>Skills / dispatchers / tools = system calls</li>
+<li>Agent loop = scheduler</li>
+</ul>
+<p><strong>Implementation insight:</strong></p>
+<ul>
+<li>Context-cache (5-min Anthropic cache) is the L1</li>
+<li>Wiki summaries are the L2</li>
+<li>Raw sources are L3 (only loaded on cache-miss)</li>
+</ul>
+<p><strong>PRISM alignment:</strong> HIGH — <code>aiSystemRouterEngine</code> + Ollama offload + RTK output filtering + load-on-demand skills + wiki layer = direct LLM-OS implementation.</p>
+<p><strong>5.5 — LLM-Wiki (Apr 2026)</strong> — covered in §1.</p>
+<hr>
+<h2 id="cross-reference-summary-prism-vs-karpathy"><a class="anchor" href="#cross-reference-summary-prism-vs-karpathy" aria-label="Permalink to Cross-Reference Summary — PRISM vs Karpathy">#</a>Cross-Reference Summary — PRISM vs Karpathy</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Pattern</th><th>Karpathy</th><th>PRISM</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>LLM-Wiki 3-layer</td><td>sources/wiki/schema</td><td><code>knowledge/raw/</code> + <code>knowledge/wiki/</code> + <code>WIKI_SCHEMA.md</code></td><td>ALIGNED + extended (multi-agent)</td></tr>
+<tr><td>Wiki ingest/query/lint</td><td>three operations</td><td><code>prism_wiki:{ingest,query,lint}</code> + 5 skills</td><td>ALIGNED + Ollama-routed</td></tr>
+<tr><td>Two index files</td><td><code>index.md</code> + <code>log.md</code></td><td><code>index.md</code> (722 entries) + <code>log.md</code></td><td>ALIGNED</td></tr>
+<tr><td>Anti-drift checkpoint</td><td>&quot;leash&quot; + 4 rules</td><td>every-5-tasks + 3-of-3 Stop gate</td><td>ALIGNED + hardened</td></tr>
+<tr><td>Classify before coding</td><td>&quot;Think Before Coding&quot; rule</td><td>CLASSIFY→TECHNIQUE→EDGES→FAILURES→WRITE</td><td>ALIGNED + enumerated</td></tr>
+<tr><td>Simplicity First</td><td>minimum code</td><td><code>/simplify</code> skill + comprehensive-build-enforce hook</td><td>ALIGNED</td></tr>
+<tr><td>Surgical Changes</td><td>only-what-you-must</td><td>commit-ownership-guard + diff-scope checks</td><td>ALIGNED</td></tr>
+<tr><td>Goal-Driven Execution</td><td>verifiable success</td><td><code>superpowers:verification-before-completion</code></td><td>ALIGNED</td></tr>
+<tr><td>Software 2.0 dataset-as-code</td><td>data pipeline</td><td>LoRA + material DB + NN engines</td><td>ALIGNED</td></tr>
+<tr><td>Software 3.0 prompts-as-programs</td><td>skills/agents</td><td>~440 skills + ~60 dispatchers</td><td>ALIGNED</td></tr>
+<tr><td>Context engineering</td><td>fill the context window</td><td>per-chat handoff + load-on-demand skills + RTK</td><td>ALIGNED</td></tr>
+<tr><td>Autonomy slider</td><td>partial autonomy</td><td>dispatcher action granularity + Stop-gate</td><td>ALIGNED</td></tr>
+<tr><td>Parallel agents</td><td>run more in parallel</td><td>6 chats + worktrees + lane discipline</td><td>ALIGNED + multi-chat extension</td></tr>
+<tr><td>LLM-OS (context = RAM)</td><td>CPU/RAM/disk model</td><td>router + cache + wiki + raw sources</td><td>ALIGNED</td></tr>
+</tbody>
+</table></div>
+<p><strong>Net assessment:</strong> PRISM is one of the most complete operational implementations of Karpathy&#39;s published methodology. The deviations are intentional hardenings for multi-agent, manufacturing-domain, and production-grade use. The remaining gaps are:</p>
+<ol>
+<li><strong>Eval-suite for skill-prompt regressions</strong> — no automated detection if a skill&#39;s internal phrasing drifts</li>
+<li><strong>Labeled-example pipeline</strong> — agent failures should auto-file as labeled examples for next-iteration improvement</li>
+<li><strong>Drift-score metric</strong> — symmetric difference between commit-touched-files and first-prompt-keywords could be computed automatically</li>
+<li><strong>One-shot wiki dump</strong> — <code>prism_wiki:dump_all</code> for when context budget allows full-wiki context loading</li>
+<li><strong>Surgical-changes diff distance</strong> — automated &quot;every line traces to request&quot; checker on commit</li>
+</ol>
+<hr>
+<h2 id="source-urls-canonical-list"><a class="anchor" href="#source-urls-canonical-list" aria-label="Permalink to Source URLs (canonical list)">#</a>Source URLs (canonical list)</h2>
+<ul>
+<li>Karpathy LLM-Wiki gist: https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f</li>
+<li>Karpathy &quot;Software 2.0&quot; essay: https://karpathy.medium.com/software-2-0-a64152b37c35</li>
+<li>Karpathy LLM-OS tweet: https://x.com/karpathy/status/1707437820045062561</li>
+<li>Karpathy LLM-OS specs tweet: https://x.com/karpathy/status/1723140519554105733</li>
+<li>Karpathy &quot;context engineering&quot; tweet: https://x.com/karpathy/status/1937902205765607626</li>
+<li>Karpathy YC talk transcript: https://www.donnamagi.com/articles/karpathy-yc-talk</li>
+<li>Latent Space &quot;Software 3.0&quot; coverage: https://www.latent.space/p/s3</li>
+<li>The New Stack &quot;vibe coding is passé&quot;: https://thenewstack.io/vibe-coding-is-passe/</li>
+<li>Forrest Chang&#39;s CLAUDE.md skills repo: https://github.com/forrestchang/andrej-karpathy-skills</li>
+<li>Luca Berton&#39;s CLAUDE.md unpacking: https://lucaberton.com/blog/karpathy-claude-md-llm-coding-principles-2026/</li>
+<li>The Menon Lab CLAUDE.md unpacking: https://themenonlab.blog/blog/karpathy-claude-md-four-rules-ai-coding-agents</li>
+<li>AIntelligenceHub vibe → agent coverage: https://aintelligencehub.com/articles/karpathy-vibe-coding-to-agent-workflows-may-2026</li>
+<li>AI Agents Simplified vibe → agent: https://aiagentssimplified.substack.com/p/from-vibe-coding-to-agentic-engineering</li>
+<li>MindStudio context-window-as-RAM: https://www.mindstudio.ai/blog/software-3-0-explained-karpathy-context-window-ram-model-weights-cpu</li>
+<li>MindStudio LLM-Wiki walkthrough: https://www.mindstudio.ai/blog/karpathy-llm-wiki-knowledge-base-pattern</li>
+<li>DAIR.AI LLM Knowledge Bases: https://academy.dair.ai/blog/llm-knowledge-bases-karpathy</li>
+<li>Level Up Coding &quot;Beyond RAG&quot;: https://levelup.gitconnected.com/beyond-rag-how-andrej-karpathys-llm-wiki-pattern-builds-knowledge-that-actually-compounds-31a08528665e</li>
+</ul>
+<h2 id="prism-cross-references"><a class="anchor" href="#prism-cross-references" aria-label="Permalink to PRISM cross-references">#</a>PRISM cross-references</h2>
+<ul>
+<li><code>H:/prism/CLAUDE.md</code> — wiki protocol section, anti-drift cadence, classify-before-coding 5-step</li>
+<li><code>H:/prism/WIKI_SCHEMA.md</code> — full 3-layer / 3-op / 2-index codification</li>
+<li><code>H:/prism/knowledge/wiki/</code> — 11-subdirectory implementation</li>
+<li><code>H:/prism/knowledge/wiki/index.md</code> — 722-entry catalog</li>
+<li><code>H:/prism/knowledge/wiki/log.md</code> — chronological audit trail</li>
+<li><code>H:/prism/state/shared/handoffs/</code> — per-chat handoff implementation (multi-agent extension)</li>
+<li><code>H:/prism/mcp-server/data/state/SCRUTINY_LEDGER.json</code> — 3-of-3 multi-CLI verifier loop</li>
+<li>Skills: <code>/wiki-ingest /wiki-query /wiki-lint /wiki-morning /wiki-bootstrap</code></li>
+<li>Skills (Karpathy-aligned): <code>/simplify /superpowers:verification-before-completion /scrutinize /handoff /precompact</code></li>
+</ul>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="2026-05-10-karpathy-methodology.md">2026-05-10-karpathy-methodology.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="4e053948688cc894b0cea61affaf28fb275c9d192a4e407e62eed8a9a2e84148">
+<title>Boris Loop + Agent Doctrine for PRISM</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">Boris Loop + Agent Doctrine for PRISM</h1>
+<p class="provenance">Generated 2026-05-12T12:43:26.704Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#boris-loop-agent-doctrine-for-prism">Boris Loop + Agent Doctrine for PRISM</a></li>
+<li class="toc-l2"><a href="#sources">Sources</a></li>
+<li class="toc-l2"><a href="#1-the-three-nested-loop-scales">§1 — The Three Nested Loop Scales</a></li>
+<li class="toc-l3"><a href="#loop-scale-1-micro-karpathy-per-task-5-minutes">Loop scale 1: MICRO (Karpathy — per-task, ~5 minutes)</a></li>
+<li class="toc-l3"><a href="#loop-scale-2-meso-cyrilxbt-per-dayweek-recurring-cron">Loop scale 2: MESO (cyrilXBT — per-day/week, recurring cron)</a></li>
+<li class="toc-l3"><a href="#loop-scale-3-macro-boris-per-prrelease-verification-chain">Loop scale 3: MACRO (Boris — per-PR/release, verification chain)</a></li>
+<li class="toc-l2"><a href="#2-boriss-specific-tactical-patterns">§2 — Boris&#39;s specific tactical patterns</a></li>
+<li class="toc-l3"><a href="#parallel-5-strategy">Parallel-5 strategy</a></li>
+<li class="toc-l3"><a href="#subagent-dispatch">Subagent dispatch</a></li>
+<li class="toc-l3"><a href="#hook-lifecycle">Hook lifecycle</a></li>
+<li class="toc-l3"><a href="#verification-by-domain">Verification by domain</a></li>
+<li class="toc-l3"><a href="#claudemd-back-flow">CLAUDE.md back-flow</a></li>
+<li class="toc-l3"><a href="#plan-first-methodology">Plan-first methodology</a></li>
+<li class="toc-l2"><a href="#3-the-12-boris-patterns-we-need-to-embed-in-forge">§3 — The 12 Boris-patterns we need to embed in /forge*</a></li>
+<li class="toc-l2"><a href="#4-forge-command-upgrade-matrix">§4 — Forge command upgrade matrix</a></li>
+<li class="toc-l3"><a href="#forge-go-new-composite-skill-boriss-go-for-prism">/forge-go (NEW composite skill — Boris&#39;s /go for PRISM)</a></li>
+<li class="toc-l3"><a href="#forge7-proposed-supersedes-forge6-with-boris-discipline">/forge7 (proposed — supersedes /forge6 with Boris discipline)</a></li>
+<li class="toc-l3"><a href="#forge-audit-v2-new-supersedes-forge-audit">/forge-audit-v2 (NEW — supersedes /forge-audit)</a></li>
+<li class="toc-l2"><a href="#5-how-this-lands-in-our-32-unit-ms3-plan">§5 — How this lands in our 32-unit MS3 plan</a></li>
+<li class="toc-l2"><a href="#6-anti-patterns-to-reject">§6 — Anti-patterns to reject</a></li>
+<li class="toc-l2"><a href="#7-reading-order-for-new-contributors">§7 — Reading order for new contributors</a></li>
+<li class="toc-l2"><a href="#sources-2">Sources</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="boris-loop-agent-doctrine-for-prism"><a class="anchor" href="#boris-loop-agent-doctrine-for-prism" aria-label="Permalink to Boris Loop + Agent Doctrine for PRISM">#</a>Boris Loop + Agent Doctrine for PRISM</h1>
+<p><strong>Author:</strong> claude-cee63f1f (synthesizing Boris Cherny&#39;s published Claude Code workflow + cyrilXBT/Thariq/darkzodchi/Ashwin/Akshay articles + Karpathy discipline) <strong>Date:</strong> 2026-05-09 <strong>Purpose:</strong> Canonical reference embedded into <code>/forge*</code> and <code>/forge-audit*</code> so every PRISM build run uses loops as the <strong>primary product-shipping mechanism</strong>, not as an afterthought.</p>
+<h2 id="sources"><a class="anchor" href="#sources" aria-label="Permalink to Sources">#</a>Sources</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Author</th><th>Resource</th><th>Key contribution</th></tr></thead>
+<tbody>
+<tr><td>Boris Cherny (Anthropic, Head of Claude Code)</td><td><a href="https://howborisusesclaudecode.com/" rel="noopener noreferrer">howborisusesclaudecode.com</a> · <a href="https://newsletter.pragmaticengineer.com/p/building-claude-code-with-boris-cherny" rel="noopener noreferrer">Pragmatic Engineer interview</a> · <a href="https://venturebeat.com/technology/the-creator-of-claude-code-just-revealed-his-workflow-and-developers-are" rel="noopener noreferrer">VentureBeat workflow reveal</a></td><td>&quot;<strong>#1 tip: give Claude a way to verify its work. If Claude has that feedback loop, it will 2-3x the quality.</strong>&quot; Parallel-5 instances. <code>/loop</code> + <code>/schedule</code> + composite <code>/go</code>. Hooks as infrastructure.</td></tr>
+<tr><td>Andrej Karpathy</td><td>LLM-Wiki gist</td><td>Anti-drift checkpoint every 5 tasks. Wiki-as-compounding.</td></tr>
+<tr><td>CyrilXBT</td><td>&quot;Vault Writes Back to Itself&quot; (<code>H:/prism/state/shared/x-fetch/cyrilXBT-status-2052923836090167526.md</code>)</td><td>6 autonomous workflows on schedule — Daily Context, Queue, Weekly Synth, Connection Finder, Project Auto-Updater, Knowledge Distillation</td></tr>
+<tr><td>Thariq (Anthropic Claude Code)</td><td>&quot;Unreasonable Effectiveness of HTML&quot;</td><td>All forge outputs (specs, reports, dashboards) should be HTML — info density + 2-way interaction + shareable</td></tr>
+<tr><td>darkzodchi</td><td>&quot;AI team that doesn&#39;t quit&quot;</td><td>3 rules: narrow job descriptions, real-time observability, don&#39;t host on laptop (= Docker)</td></tr>
+<tr><td>Ashwin Gopinath (Sentra)</td><td>&quot;Company Brain&quot;</td><td>Markdown brains are prototypes; org-scale needs provenance/ontology/conflict-resolution/action-traces/eval-gates</td></tr>
+<tr><td>Akshay Pachaar</td><td>&quot;RAG done wrong&quot;</td><td>IdeaBlocks (question + validated answer + governance) — 2.3× retrieval relevance</td></tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="1-the-three-nested-loop-scales"><a class="anchor" href="#1-the-three-nested-loop-scales" aria-label="Permalink to §1 — The Three Nested Loop Scales">#</a>§1 — The Three Nested Loop Scales</h2>
+<p>Every PRISM build operates at three loop scales simultaneously. Forge runs that miss any of the three drift, regress, or compound poorly.</p>
+<h3 id="loop-scale-1-micro-karpathy-per-task-5-minutes"><a class="anchor" href="#loop-scale-1-micro-karpathy-per-task-5-minutes" aria-label="Permalink to Loop scale 1: MICRO (Karpathy — per-task, ~5 minutes)">#</a>Loop scale 1: MICRO (Karpathy — per-task, ~5 minutes)</h3>
+<p>Anti-drift checkpoint every 5 tasks:</p>
+<ul>
+<li>Am I still on the user&#39;s goal or did I wander?</li>
+<li>Is this the simplest solution or am I over-engineering?</li>
+<li>Did I check existing assets before building new?</li>
+<li>Have I made any assumptions I haven&#39;t verified?</li>
+</ul>
+<p><strong>Tool:</strong> <code>/karpathy</code> skill, /context-budget, TodoWrite per unit. Already wired in <code>/forge5</code>.</p>
+<h3 id="loop-scale-2-meso-cyrilxbt-per-dayweek-recurring-cron"><a class="anchor" href="#loop-scale-2-meso-cyrilxbt-per-dayweek-recurring-cron" aria-label="Permalink to Loop scale 2: MESO (cyrilXBT — per-day/week, recurring cron)">#</a>Loop scale 2: MESO (cyrilXBT — per-day/week, recurring cron)</h3>
+<p>6 autonomous workflows that fire without prompting:</p>
+<ul>
+<li>Daily 6 AM: synthesize yesterday&#39;s notes + active projects + inbox → daily context</li>
+<li>Hourly: walk PRs, auto-fix lint</li>
+<li>Every 2h: process queue/ folder</li>
+<li>Weekly Sunday 8 PM: 4-question retro</li>
+<li>Weekly: scan for non-obvious connections</li>
+<li>Monthly: distill resources/areas into canonical reference docs</li>
+</ul>
+<p><strong>Tool:</strong> Boris&#39;s <code>/schedule</code> (cloud cron) + <code>/loop</code> (local cron) + cyrilXBT&#39;s N8N pattern. New track in our 32-unit plan (Track B).</p>
+<h3 id="loop-scale-3-macro-boris-per-prrelease-verification-chain"><a class="anchor" href="#loop-scale-3-macro-boris-per-prrelease-verification-chain" aria-label="Permalink to Loop scale 3: MACRO (Boris — per-PR/release, verification chain)">#</a>Loop scale 3: MACRO (Boris — per-PR/release, verification chain)</h3>
+<p>The single most important pattern Boris named:</p>
+<ol>
+<li><strong>Plan mode</strong> (shift+tab twice) — iterate the plan until solid</li>
+<li><strong>Auto-accept</strong> — eliminate permission prompts</li>
+<li><strong>Verification feedback loop</strong> — Claude has a way to check its own work (run tests, hit endpoint, render UI, eval against reference)</li>
+<li><strong>Composite chain</strong> — <code>/go</code> does verify → simplify → PR atomically</li>
+<li><strong>Subagent isolation</strong> — <code>isolation: worktree</code> for parallel batch work; &quot;10 parallel agents&quot; for migrations</li>
+</ol>
+<p><strong>Tool:</strong> Existing skills <code>/scrutinize</code>, <code>/simplify</code>, <code>/test</code>, <code>/verify-loop</code>, <code>/peer-review</code>. Need composite chaining.</p>
+<hr>
+<h2 id="2-boriss-specific-tactical-patterns"><a class="anchor" href="#2-boriss-specific-tactical-patterns" aria-label="Permalink to §2 — Boris&#39;s specific tactical patterns">#</a>§2 — Boris&#39;s specific tactical patterns</h2>
+<h3 id="parallel-5-strategy"><a class="anchor" href="#parallel-5-strategy" aria-label="Permalink to Parallel-5 strategy">#</a>Parallel-5 strategy</h3>
+<ul>
+<li>5 Claude instances in separate git checkouts (or worktrees)</li>
+<li>Plus 5-10 sessions on claude.ai/code</li>
+<li>Numbered tabs 1-5</li>
+<li>System notifications when input needed</li>
+<li>Shell aliases (za, zb, zc) for switching</li>
+</ul>
+<p>→ <strong>Maps to PRISM</strong>: we already run 6+ chats. The chat-bus + per-agent handoff system is the equivalent. Gap: <strong>no shell-alias layer for fast switching</strong> (Boris-grade ergonomics).</p>
+<h3 id="subagent-dispatch"><a class="anchor" href="#subagent-dispatch" aria-label="Permalink to Subagent dispatch">#</a>Subagent dispatch</h3>
+<ul>
+<li>Named agents in <code>.claude/agents/</code>: <code>code-simplifier</code>, <code>verify-app</code>, <code>sentry-errors</code>, etc.</li>
+<li>Each specifies <code>isolation: worktree</code></li>
+<li>&quot;10 parallel agents with worktree isolation&quot; for async I/O migration</li>
+<li>Subagent runs end-to-end before opening PR</li>
+</ul>
+<p>→ <strong>Maps to PRISM</strong>: forge-team already exists (3-agent team). Gap: <strong>most subagents don&#39;t use <code>isolation: worktree</code></strong> — they share the parent tree, causing the conflict-fork-rule pain we hit this session.</p>
+<h3 id="hook-lifecycle"><a class="anchor" href="#hook-lifecycle" aria-label="Permalink to Hook lifecycle">#</a>Hook lifecycle</h3>
+<ul>
+<li><strong>PostToolUse</strong>: auto-format</li>
+<li><strong>Stop</strong>: nudge Claude to continue, route permission to Slack/Opus, run custom logic</li>
+<li><strong>SessionStart</strong>: dynamically load context</li>
+<li><strong>PermissionRequest</strong>: route approvals to external channels</li>
+<li><strong>PostCompact</strong>: re-inject critical instructions after compression</li>
+</ul>
+<p>→ <strong>Maps to PRISM</strong>: we have all 5 hook types with 423 hooks total. Gap: <strong>PermissionRequest hook is unused</strong> — could route auto-approval through Opus 4.5 like Boris does.</p>
+<h3 id="verification-by-domain"><a class="anchor" href="#verification-by-domain" aria-label="Permalink to Verification by domain">#</a>Verification by domain</h3>
+<ul>
+<li>Backend: end-to-end test runs</li>
+<li>Frontend: Chromium extension iterative test</li>
+<li>Desktop: computer use</li>
+<li>&quot;If Claude has that feedback loop, it will 2-3x the quality&quot;</li>
+</ul>
+<p>→ <strong>Maps to PRISM</strong>: physics engines have reference-value tests, CAM has prove-out, AI has eval sets. Gap: <strong>the verification loop is per-engine, not per-forge-run</strong> — forge runs don&#39;t currently REQUIRE a verification feedback channel before ending.</p>
+<h3 id="claudemd-back-flow"><a class="anchor" href="#claudemd-back-flow" aria-label="Permalink to CLAUDE.md back-flow">#</a>CLAUDE.md back-flow</h3>
+<ul>
+<li>&quot;Anytime we see Claude do something incorrectly we add it to CLAUDE.md, so Claude knows not to do it next time.&quot;</li>
+<li>Tag <code>@.claude</code> on PRs to auto-update CLAUDE.md as part of PR workflow</li>
+</ul>
+<p>→ <strong>Maps to PRISM</strong>: <code>error-pattern-promote.mjs</code> Stop hook does some of this. Gap: <strong>regressions caught by /scrutinize don&#39;t auto-flow into CLAUDE.md</strong> — the loop is broken.</p>
+<h3 id="plan-first-methodology"><a class="anchor" href="#plan-first-methodology" aria-label="Permalink to Plan-first methodology">#</a>Plan-first methodology</h3>
+<ul>
+<li>Most sessions start in Plan mode (shift+tab twice)</li>
+<li>&quot;A good plan is really important to avoid issues down the line&quot;</li>
+<li>One team member spawns second Claude to review plan as staff engineer</li>
+</ul>
+<p>→ <strong>Maps to PRISM</strong>: <code>/forge5</code> already requires plan via <code>/rgs5 generate</code> (16-stage pipeline). Gap: <strong>the plan reviewer is the same model not a peer Claude</strong> — Boris&#39;s &quot;spawn 2nd Claude as staff engineer to review&quot; pattern is our <code>/peer-review</code> skill but it&#39;s not auto-invoked.</p>
+<hr>
+<h2 id="3-the-12-boris-patterns-we-need-to-embed-in-forge"><a class="anchor" href="#3-the-12-boris-patterns-we-need-to-embed-in-forge" aria-label="Permalink to §3 — The 12 Boris-patterns we need to embed in /forge*">#</a>§3 — The 12 Boris-patterns we need to embed in /forge*</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Pattern</th><th>Currently</th><th>After upgrade</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Verification feedback loop required to close a unit</td><td>optional</td><td><strong>HARD GATE</strong> — engine can&#39;t be marked built until verification channel runs and passes</td></tr>
+<tr><td>2</td><td>Plan reviewed by peer Claude as staff engineer</td><td>manual</td><td>Auto-dispatch <code>/peer-review</code> after plan emit</td></tr>
+<tr><td>3</td><td>Subagents use <code>isolation: worktree</code></td><td>sometimes</td><td>Default ON for any subagent that touches &gt;2 files</td></tr>
+<tr><td>4</td><td>Composite verify→simplify→PR chain</td><td>3 separate skills</td><td>New <code>/forge-go</code> chain skill</td></tr>
+<tr><td>5</td><td><code>/loop</code> schedules forge unit continuation</td><td>not wired</td><td>New unit envelope field: <code>continueOn: schedule|user-prompt</code></td></tr>
+<tr><td>6</td><td><code>/schedule</code> for cyrilXBT 6 workflows</td><td>not built</td><td>Track B units register cron via <code>/schedule</code> skill</td></tr>
+<tr><td>7</td><td>CLAUDE.md auto-updates on regression</td><td>partial (error-pattern-promote)</td><td>Stop hook explicitly appends regression patterns to project CLAUDE.md</td></tr>
+<tr><td>8</td><td>PermissionRequest hook auto-approves safe ops via Opus</td><td>unused</td><td>New hook routes permission decisions through Opus classifier</td></tr>
+<tr><td>9</td><td>HTML output for specs/plans (Thariq)</td><td>absent</td><td>All forge plans, audits, dashboards emit <code>.html</code> alongside <code>.md</code></td></tr>
+<tr><td>10</td><td>Parallel-5 default</td><td>up to user</td><td>Forge offers <code>--parallel N</code> flag that spawns N worktrees</td></tr>
+<tr><td>11</td><td>Anti-drift Karpathy every 5 units</td><td>partial</td><td><code>/karpathy</code> auto-fires at units {5,10,15,…} during forge</td></tr>
+<tr><td>12</td><td>Recurring audits via <code>/loop</code></td><td>absent</td><td><code>/forge-audit-v2</code> self-schedules a 7-day re-run</td></tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="4-forge-command-upgrade-matrix"><a class="anchor" href="#4-forge-command-upgrade-matrix" aria-label="Permalink to §4 — Forge command upgrade matrix">#</a>§4 — Forge command upgrade matrix</h2>
+<h3 id="forge-go-new-composite-skill-boriss-go-for-prism"><a class="anchor" href="#forge-go-new-composite-skill-boriss-go-for-prism" aria-label="Permalink to /forge-go (NEW composite skill — Boris&#39;s /go for PRISM)">#</a><code>/forge-go</code> (NEW composite skill — Boris&#39;s /go for PRISM)</h3>
+<pre><code>1. /test affected      ← verification feedback loop (Boris #1)
+2. /simplify           ← post-build cleanup
+3. /scrutinize         ← multi-role review
+4. commit + push       ← if all green
+5. /handoff            ← write per-agent handoff
+6. (optional) /loop    ← schedule re-verify in 4h
+</code></pre>
+<p>Single command, atomic chain. Replaces the current 5 separate invocations.</p>
+<h3 id="forge7-proposed-supersedes-forge6-with-boris-discipline"><a class="anchor" href="#forge7-proposed-supersedes-forge6-with-boris-discipline" aria-label="Permalink to /forge7 (proposed — supersedes /forge6 with Boris discipline)">#</a><code>/forge7</code> (proposed — supersedes /forge6 with Boris discipline)</h3>
+<p>Strictly additive over <code>/forge6</code>. Adds:</p>
+<ul>
+<li><strong>Phase 0.7 (NEW)</strong>: Verify a feedback channel exists for every unit. If unit has no test/eval/observable-state, BLOCK and force user to declare one.</li>
+<li><strong>Phase 4.5 (NEW)</strong>: Auto-spawn <code>/peer-review</code> against the plan emitted by <code>/rgs6 generate</code>. Boris pattern: spawn 2nd Claude to review as staff engineer.</li>
+<li><strong>Phase 4 LOOP 2 default</strong>: Subagent dispatched with <code>isolation: worktree</code>. Override via <code>--no-isolation</code> flag for trivial units.</li>
+<li><strong>Phase 6.M (NEW)</strong>: Append any regression detected during this run to <code>H:/prism/CLAUDE.md</code> under <code>## Recent regressions</code> section. Boris CLAUDE.md back-flow.</li>
+<li><strong>Phase 6.N (NEW)</strong>: Emit HTML version of the milestone summary alongside markdown. Thariq pattern.</li>
+<li><strong>Phase 6.O (NEW)</strong>: If milestone has follow-up units, register them via <code>/loop</code> (local) or <code>/schedule</code> (cloud cron). cyrilXBT pattern.</li>
+</ul>
+<h3 id="forge-audit-v2-new-supersedes-forge-audit"><a class="anchor" href="#forge-audit-v2-new-supersedes-forge-audit" aria-label="Permalink to /forge-audit-v2 (NEW — supersedes /forge-audit)">#</a><code>/forge-audit-v2</code> (NEW — supersedes /forge-audit)</h3>
+<p>The audit-specific upgrade. See companion file: <code>H:/.claude/commands/forge-audit-v2.md</code>.</p>
+<p>Key additions:</p>
+<ol>
+<li>Audit MUST emit a re-runnable measurement tool (META artifact — same as /forge5 §6L compounding-gains)</li>
+<li>Audit MUST dispatch a 2nd Claude (subagent) to challenge findings (&quot;grill me on these — don&#39;t accept until I pass your test&quot;)</li>
+<li>Audit MUST emit HTML + Markdown</li>
+<li>Audit MUST register itself via <code>/loop</code> for re-run in 7 days (so it&#39;s not a one-shot)</li>
+<li>Audit MUST flow regression patterns into CLAUDE.md</li>
+</ol>
+<hr>
+<h2 id="5-how-this-lands-in-our-32-unit-ms3-plan"><a class="anchor" href="#5-how-this-lands-in-our-32-unit-ms3-plan" aria-label="Permalink to §5 — How this lands in our 32-unit MS3 plan">#</a>§5 — How this lands in our 32-unit MS3 plan</h2>
+<p>The plan we wrote in <code>OBSIDIAN-INTELLIGENCE-MS3-UNIFIED-PLAN.md</code> already has Track B (cyrilXBT 6 workflows). Boris&#39;s loop discipline upgrades that:</p>
+<ul>
+<li>B1 (Daily Context) → registered via <code>/schedule</code> not raw cron</li>
+<li>B3 (Queue Processor) → fires every 2h via <code>/schedule</code></li>
+<li>B4 (Weekly Synthesis) → registered via <code>/schedule</code></li>
+</ul>
+<p>NEW units to add to MS3 (Track J — Boris discipline):</p>
+<ul>
+<li><strong>J1. U-FORGE-GO-CHAIN</strong> — composite verify+simplify+PR skill</li>
+<li><strong>J2. U-FORGE7</strong> — next forge with verification gate + plan peer-review + isolation default</li>
+<li><strong>J3. U-FORGE-AUDIT-V2</strong> — audit upgrade with all 5 patterns above</li>
+<li><strong>J4. U-CLAUDE-MD-BACKFLOW</strong> — Stop hook appends regressions to CLAUDE.md</li>
+<li><strong>J5. U-PERMISSION-OPUS-ROUTER</strong> — PermissionRequest hook auto-approves safe ops via Opus</li>
+<li><strong>J6. U-PARALLEL-5-ALIASES</strong> — shell aliases for fast worktree switching (za, zb, zc, zd, ze)</li>
+</ul>
+<p>That brings the plan to <strong>38 units across 10 tracks</strong>.</p>
+<hr>
+<h2 id="6-anti-patterns-to-reject"><a class="anchor" href="#6-anti-patterns-to-reject" aria-label="Permalink to §6 — Anti-patterns to reject">#</a>§6 — Anti-patterns to reject</h2>
+<p>These are Boris&#39;s pitfalls + our session-observed traps:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Anti-pattern</th><th>Symptom</th><th>Fix</th></tr></thead>
+<tbody>
+<tr><td><strong>Build without verification channel</strong></td><td>Engine ships, breaks in prod</td><td>Phase 0.7 gate — declare verification before any code</td></tr>
+<tr><td><strong>Manual loop instead of /loop</strong></td><td>&quot;I&#39;ll re-run this in 4h&quot; but you don&#39;t</td><td><code>/loop</code> schedules it deterministically</td></tr>
+<tr><td><strong>Single-Claude reviews own plan</strong></td><td>Confirmation bias</td><td>Auto-<code>/peer-review</code> spawn</td></tr>
+<tr><td><strong>Subagent shares main tree</strong></td><td>Conflict-fork-rule trigger</td><td>Default <code>isolation: worktree</code></td></tr>
+<tr><td><strong>Markdown-only spec &gt;100 lines</strong></td><td>Nobody reads it (Thariq)</td><td>Emit HTML companion</td></tr>
+<tr><td><strong>Audit fires once</strong></td><td>Drift accumulates</td><td>Self-schedule audit re-run</td></tr>
+<tr><td><strong>Permission babysitting</strong></td><td>Velocity drag (Boris)</td><td>Opus classifier auto-approve</td></tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="7-reading-order-for-new-contributors"><a class="anchor" href="#7-reading-order-for-new-contributors" aria-label="Permalink to §7 — Reading order for new contributors">#</a>§7 — Reading order for new contributors</h2>
+<ol>
+<li>This file (BORIS-LOOP-AGENT-DOCTRINE.md) — patterns</li>
+<li><code>OBSIDIAN-INTELLIGENCE-MS3-UNIFIED-PLAN.md</code> — 32+6 units</li>
+<li><code>SYSTEM-SYNERGY-AUDIT-2026-05-09.md</code> — 22.2% baseline</li>
+<li><code>H:/prism/CLAUDE.md</code> — project enforcement gates</li>
+<li><code>H:/.claude/commands/forge7.md</code> — upgraded forge (when shipped)</li>
+<li><code>H:/.claude/commands/forge-audit-v2.md</code> — upgraded audit (when shipped)</li>
+</ol>
+<hr>
+<h2 id="sources-2"><a class="anchor" href="#sources-2" aria-label="Permalink to Sources">#</a>Sources</h2>
+<ul>
+<li><a href="https://howborisusesclaudecode.com/" rel="noopener noreferrer">How Boris Uses Claude Code</a> — first-party canonical workflow</li>
+<li><a href="https://newsletter.pragmaticengineer.com/p/building-claude-code-with-boris-cherny" rel="noopener noreferrer">Boris Cherny — Pragmatic Engineer interview</a> — parallel-5 strategy</li>
+<li><a href="https://venturebeat.com/technology/the-creator-of-claude-code-just-revealed-his-workflow-and-developers-are" rel="noopener noreferrer">The creator of Claude Code reveals his workflow — VentureBeat</a> — verification feedback loop &quot;#1 tip&quot;</li>
+<li><a href="https://www.youtube.com/watch?v=SlGRN8jh2RI" rel="noopener noreferrer">Anthropic&#39;s Boris Cherny: Why Coding Is Solved</a> — strategic context</li>
+<li><code>H:/prism/state/shared/x-fetch/cyrilXBT-status-2052923836090167526.md</code> — 6 autonomous workflows</li>
+<li><code>H:/prism/state/shared/x-fetch/trq212-status-2052809885763747935.md</code> — HTML &gt; markdown</li>
+<li><code>H:/prism/state/shared/x-fetch/zodchiii-status-2052368125480354000.md</code> — narrow job descriptions</li>
+<li><code>H:/prism/state/shared/x-fetch/ashwingop-status-2052777467732283817.md</code> — Company Brain infrastructure</li>
+<li><code>H:/prism/state/shared/x-fetch/akshay_pachaar-status-2052743644411765230.md</code> — IdeaBlocks</li>
+</ul>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="BORIS-LOOP-AGENT-DOCTRINE.md">BORIS-LOOP-AGENT-DOCTRINE.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

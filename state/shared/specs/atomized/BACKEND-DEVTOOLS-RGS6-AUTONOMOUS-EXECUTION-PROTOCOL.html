@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="2148f2d9a52d044be11598f01384af658bd117e2fc8179b1c83867f1248f04e7">
+<title>BACKEND-DEVTOOLS-RGS6 — Autonomous Execution Protocol</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">BACKEND-DEVTOOLS-RGS6 — Autonomous Execution Protocol</h1>
+<p class="provenance">Generated 2026-05-12T12:43:27.275Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#autonomous-execution-protocol">Autonomous Execution Protocol</a></li>
+<li class="toc-l2"><a href="#1-named-lane-allocation-6-lanes-deterministic-mapping">§1 — Named Lane Allocation (6 lanes, deterministic mapping)</a></li>
+<li class="toc-l3"><a href="#11-lane-claim-protocol">1.1 — Lane claim protocol</a></li>
+<li class="toc-l3"><a href="#12-lane-conflict-resolution">1.2 — Lane conflict resolution</a></li>
+<li class="toc-l2"><a href="#2-commit-format-lane-scoped-conflict-proof">§2 — Commit Format (lane-scoped, conflict-proof)</a></li>
+<li class="toc-l3"><a href="#21-why-this-prevents-tainting">2.1 — Why this prevents tainting</a></li>
+<li class="toc-l3"><a href="#22-pre-commit-micro-protocol-per-unit">2.2 — Pre-commit micro-protocol per unit</a></li>
+<li class="toc-l2"><a href="#3-auto-compaction-triggers-preserve-context-prevent-crash">§3 — Auto-Compaction Triggers (preserve context, prevent crash)</a></li>
+<li class="toc-l3"><a href="#31-trigger-thresholds">3.1 — Trigger thresholds</a></li>
+<li class="toc-l3"><a href="#32-pre-compact-handoff-protocol-existing-helper">3.2 — Pre-compact handoff protocol (existing helper)</a></li>
+<li class="toc-l3"><a href="#33-why-this-is-autonomous">3.3 — Why this is autonomous</a></li>
+<li class="toc-l2"><a href="#4-auto-handoff-at-session-end-always-regardless-of-compact">§4 — Auto-Handoff at Session End (always, regardless of compact)</a></li>
+<li class="toc-l3"><a href="#41-stop-time-micro-protocol">4.1 — Stop-time micro-protocol</a></li>
+<li class="toc-l2"><a href="#5-auto-loop-registry-recurring-autonomous-tasks">§5 — Auto-Loop Registry (recurring autonomous tasks)</a></li>
+<li class="toc-l3"><a href="#51-high-frequency-every-15min-1h">5.1 — High-frequency (every 15min - 1h)</a></li>
+<li class="toc-l3"><a href="#52-medium-frequency-4h-1d">5.2 — Medium-frequency (4h - 1d)</a></li>
+<li class="toc-l3"><a href="#53-low-frequency-7d-30d">5.3 — Low-frequency (7d - 30d)</a></li>
+<li class="toc-l3"><a href="#54-loop-registration-is-per-lane">5.4 — Loop registration is per-lane</a></li>
+<li class="toc-l2"><a href="#6-cross-lane-conflict-prevention-existing-primitives-composed">§6 — Cross-Lane Conflict Prevention (existing primitives composed)</a></li>
+<li class="toc-l2"><a href="#7-per-atomized-unit-augmentation-applies-to-all-15-files">§7 — Per-Atomized-Unit Augmentation (applies to all 15 files)</a></li>
+<li class="toc-l2"><a href="#8-bootstrap-how-a-fresh-chat-onboards-into-autonomous-mode">§8 — Bootstrap (how a fresh chat onboards into autonomous mode)</a></li>
+<li class="toc-l2"><a href="#9-termination-conditions-when-the-autonomous-fleet-stops">§9 — Termination conditions (when the autonomous fleet stops)</a></li>
+<li class="toc-l2"><a href="#10-net-new-units-this-protocol-adds-to-the-roadmap">§10 — Net-new units this protocol adds to the roadmap</a></li>
+<li class="toc-l2"><a href="#11-failure-modes-for-autonomous-mode-10-enumerated">§11 — Failure modes for autonomous mode (10 enumerated)</a></li>
+<li class="toc-l2"><a href="#12-adversarial-cases">§12 — Adversarial cases</a></li>
+<li class="toc-l2"><a href="#13-variability-axis-full">§13 — Variability axis (full)</a></li>
+<li class="toc-l2"><a href="#x-closing">§X — Closing</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<details class="frontmatter" open><summary>Document metadata</summary><div class="table-wrap"><table>
+<tbody>
+<tr><th scope="row">title</th><td>BACKEND-DEVTOOLS-RGS6 — Autonomous Execution Protocol</td></tr>
+<tr><th scope="row">parent_roadmap</th><td>BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-2026-05-10.md</td></tr>
+<tr><th scope="row">applies_to_all</th><td>state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-*-ATOMIZED-2026-05-10.md</td></tr>
+<tr><th scope="row">date</th><td>2026-05-10</td></tr>
+<tr><th scope="row">status</th><td>governs every atomized milestone file</td></tr>
+<tr><th scope="row">overrides</th><td>none (additive)</td></tr>
+<tr><th scope="row">existing_infrastructure_consumed</th><td>state/shared/AGENT_WORKBOARD.md, state/shared/AGENT_CHAT.md, state/shared/AGENT_COORDINATION_STATUS.md, state/shared/CLAUDE-CODEX-COORDINATION-DIRECTIVE.md, .claude/helpers/per-agent-handoff.mjs, .claude/helpers/stable-session-id.mjs, .claude/helpers/precompact-handoff.mjs, .claude/hooks/file-claim-guard.mjs, .claude/hooks/commit-ownership-guard.mjs, .claude/hooks/git-anti-clobber.mjs, .claude/hooks/enforce-handoff-topic.mjs, .claude/hooks/scrutinize-before-stop.mjs, mcp-server/data/claims/&lt;unit&gt;/claim.json (lock pattern)</td></tr>
+</tbody>
+</table></div></details>
+<h1 id="autonomous-execution-protocol"><a class="anchor" href="#autonomous-execution-protocol" aria-label="Permalink to Autonomous Execution Protocol">#</a>Autonomous Execution Protocol</h1>
+<blockquote>
+<p><strong>Purpose.</strong> Make BACKEND-DEVTOOLS-RGS6 self-executing across the 6-chat fleet. Every chat picks a named lane, claims its units, ships its commits, auto-compacts before context exhaustion, auto-writes handoffs at every session boundary, and registers auto-loops so the work continues without prompting.</p>
+<p><strong>What this is.</strong> The execution layer over the 15 milestone atomization files. Every atomized unit inherits this protocol implicitly — no per-unit duplication.</p>
+<p><strong>What this is NOT.</strong> A new workflow. Every primitive used here (file-claim, commit-ownership-guard, per-agent-handoff, conflict-fork-rule) already exists in PRISM. This document codifies how they compose for autonomous backend-devtools execution.</p>
+</blockquote>
+<hr>
+<h2 id="1-named-lane-allocation-6-lanes-deterministic-mapping"><a class="anchor" href="#1-named-lane-allocation-6-lanes-deterministic-mapping" aria-label="Permalink to §1 — Named Lane Allocation (6 lanes, deterministic mapping)">#</a>§1 — Named Lane Allocation (6 lanes, deterministic mapping)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Lane name</th><th>Chat-id pattern</th><th>Milestones claimed</th><th>Unit count</th><th>Tier mix</th></tr></thead>
+<tbody>
+<tr><td><strong>lane-A-hooks-foundation</strong></td><td><code>claude-*-hooks-foundation</code></td><td>HOOK-SYNERGY-MS0 (8) + HOOKS-AUTOMATION-V2-MS0 (10) + AUTO-LEARNING-LOOP-MS0 (12)</td><td>30</td><td>T0 heavy</td></tr>
+<tr><td><strong>lane-B-octopus-cost</strong></td><td><code>claude-*-octopus-cost</code></td><td>K2-CLOUD-MS0 (14) + OCTOPUS-NEURAL-MS0 (5) + COST-CASCADE-MS0 (8)</td><td>27</td><td>T1</td></tr>
+<tr><td><strong>lane-C-vault-knowledge</strong></td><td><code>claude-*-vault-knowledge</code></td><td>OBSIDIAN-COMPOUND-MS1 (6) + KNOWLEDGE-VAULT-MS0 (6) + WIKI-EVOLVE-MS0 (6)</td><td>18</td><td>T1</td></tr>
+<tr><td><strong>lane-D-html-surfaces</strong></td><td><code>claude-*-html-surfaces</code></td><td>HTML-COMPANION-MS0 (6) + HTML-PRIMARY-MS0 (7) + GRAPH-AS-LLM-CONTEXT-MS0 (8)</td><td>21</td><td>T1</td></tr>
+<tr><td><strong>lane-E-external-tools</strong></td><td><code>claude-*-external-tools</code></td><td>TOOL-INVENTORY-MS0 (10) + MACHINE-CONNECTIVITY-MS0 (6) + LOOP-MIGRATE-MS0 (5)</td><td>21</td><td>T1</td></tr>
+<tr><td><strong>lane-F-bridges</strong></td><td><code>claude-*-bridges</code></td><td>All 4 BUILD/WIRE splits + reclassifications + any orphan unit not above</td><td>~6</td><td>T1</td></tr>
+</tbody>
+</table></div>
+<p><strong>Hard rule:</strong> a chat MUST set its lane on session start. Lane is encoded in the chat&#39;s handoff topic suffix (<code>HANDOFF-&lt;chat-id&gt;-&lt;lane&gt;.md</code>). The <code>enforce-handoff-topic.mjs</code> Stop hook already enforces this; it just needs the lane slug used consistently.</p>
+<h3 id="11-lane-claim-protocol"><a class="anchor" href="#11-lane-claim-protocol" aria-label="Permalink to 1.1 — Lane claim protocol">#</a>1.1 — Lane claim protocol</h3>
+<pre><code class="language-bash"># At session start, every chat runs:
+STABLE=$(node H:/prism/.claude/helpers/stable-session-id.mjs)
+LANE=&quot;lane-A-hooks-foundation&quot;   # picked from §1 table by the chat
+node H:/prism/.claude/helpers/agent-coordination.mjs post \
+  --agent &quot;claude-${STABLE}&quot; \
+  --status active \
+  --lane &quot;$LANE&quot; \
+  --message &quot;claiming $LANE for BACKEND-DEVTOOLS-RGS6&quot;
+
+# Write handoff with lane topic
+node H:/prism/.claude/helpers/per-agent-handoff.mjs write \
+  --source live-chat --terminal &quot;$STABLE&quot; --topic &quot;$LANE&quot; \
+  --resume &quot;Continue first unclaimed unit in $LANE per milestone atomization file&quot; \
+  --state &quot;session started, lane claimed&quot;
+</code></pre>
+<h3 id="12-lane-conflict-resolution"><a class="anchor" href="#12-lane-conflict-resolution" aria-label="Permalink to 1.2 — Lane conflict resolution">#</a>1.2 — Lane conflict resolution</h3>
+<p>Two chats picking same lane → second one observes via <code>AGENT_COORDINATION_STATUS.md</code> and picks a different lane OR forks to a sibling worktree with <code>lane-X-shadow</code> suffix.</p>
+<hr>
+<h2 id="2-commit-format-lane-scoped-conflict-proof"><a class="anchor" href="#2-commit-format-lane-scoped-conflict-proof" aria-label="Permalink to §2 — Commit Format (lane-scoped, conflict-proof)">#</a>§2 — Commit Format (lane-scoped, conflict-proof)</h2>
+<p>Every commit on this roadmap MUST follow:</p>
+<pre><code>[&lt;LANE&gt;][&lt;MILESTONE&gt;]/&lt;U-ID&gt;: &lt;one-line title&gt;
+
+&lt;optional body&gt;
+
+Co-Authored-By: Claude Opus 4.7 (1M context) &lt;noreply@anthropic.com&gt;
+</code></pre>
+<p>Examples:</p>
+<ul>
+<li><code>[lane-A-hooks-foundation][HOOKS-AUTOMATION-V2-MS0]/U-HKA01: read-once PreToolUse dedup hook</code></li>
+<li><code>[lane-B-octopus-cost][K2-CLOUD-MS0]/K2-K0: build KimiTransportEngine</code></li>
+<li><code>[lane-D-html-surfaces][HTML-PRIMARY-MS0]/U-HPS01: build SpecHTMLCompanionEngine</code></li>
+</ul>
+<h3 id="21-why-this-prevents-tainting"><a class="anchor" href="#21-why-this-prevents-tainting" aria-label="Permalink to 2.1 — Why this prevents tainting">#</a>2.1 — Why this prevents tainting</h3>
+<p>The <code>commit-ownership-guard.mjs</code> hook already inspects:</p>
+<ol>
+<li>Files staged in the commit</li>
+<li>Active file-claims by lane (from <code>mcp-server/data/claims/&lt;unit&gt;/claim.json</code>)</li>
+<li>The <code>[&lt;LANE&gt;]</code> prefix in the commit message</li>
+</ol>
+<p>If staged files include any file claimed by a DIFFERENT lane, the commit is BLOCKED. No retroactive cleanup needed.</p>
+<h3 id="22-pre-commit-micro-protocol-per-unit"><a class="anchor" href="#22-pre-commit-micro-protocol-per-unit" aria-label="Permalink to 2.2 — Pre-commit micro-protocol per unit">#</a>2.2 — Pre-commit micro-protocol per unit</h3>
+<pre><code class="language-bash">LANE=&quot;lane-A-hooks-foundation&quot;
+UNIT=&quot;U-HKA01&quot;
+MILESTONE=&quot;HOOKS-AUTOMATION-V2-MS0&quot;
+
+# 1. Claim every file you&#39;ll edit (before any Edit/Write)
+for f in &lt;files-to-edit&gt;; do
+  node H:/prism/.claude/scripts/claim-file.mjs --file &quot;$f&quot; --lane &quot;$LANE&quot; --unit &quot;$UNIT&quot; --ttl 600
+done
+
+# 2. Do the work (Edit/Write/Bash per atomized micro-steps)
+
+# 3. Stage + commit with required format
+git add &lt;files&gt;
+git commit -m &quot;[$LANE][$MILESTONE]/$UNIT: &lt;title&gt;&quot;
+
+# 4. Release claims (commit-ownership-guard does this automatically on success)
+</code></pre>
+<hr>
+<h2 id="3-auto-compaction-triggers-preserve-context-prevent-crash"><a class="anchor" href="#3-auto-compaction-triggers-preserve-context-prevent-crash" aria-label="Permalink to §3 — Auto-Compaction Triggers (preserve context, prevent crash)">#</a>§3 — Auto-Compaction Triggers (preserve context, prevent crash)</h2>
+<p>Repeated chat crashes in <code>last.md</code> show context exhaustion is real. Every chat auto-compacts BEFORE OOM, not after.</p>
+<h3 id="31-trigger-thresholds"><a class="anchor" href="#31-trigger-thresholds" aria-label="Permalink to 3.1 — Trigger thresholds">#</a>3.1 — Trigger thresholds</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Trigger</th><th>Threshold</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td>Context window</td><td>≥ 75% of available</td><td>Pre-compact handoff + queue <code>/compact</code></td></tr>
+<tr><td>Unit count</td><td>After every 3 units shipped</td><td>Pre-compact handoff + queue <code>/compact</code></td></tr>
+<tr><td>Time-in-session</td><td>≥ 90 minutes wall-clock</td><td>Pre-compact handoff + queue <code>/compact</code></td></tr>
+<tr><td>Tool-call count</td><td>≥ 200 calls in session</td><td>Pre-compact handoff + queue <code>/compact</code></td></tr>
+<tr><td>Risky-op imminent</td><td>Before any 100+ file edit or full-suite rebuild</td><td>Pre-compact handoff + queue <code>/compact</code></td></tr>
+</tbody>
+</table></div>
+<h3 id="32-pre-compact-handoff-protocol-existing-helper"><a class="anchor" href="#32-pre-compact-handoff-protocol-existing-helper" aria-label="Permalink to 3.2 — Pre-compact handoff protocol (existing helper)">#</a>3.2 — Pre-compact handoff protocol (existing helper)</h3>
+<pre><code class="language-bash">STABLE=$(node H:/prism/.claude/helpers/stable-session-id.mjs)
+LANE=&quot;lane-A-hooks-foundation&quot;
+NEXT_UNIT=&quot;U-HKA02&quot;   # the next unit in this lane&#39;s atomization
+
+node H:/prism/.claude/helpers/per-agent-handoff.mjs write \
+  --source live-chat --terminal &quot;$STABLE&quot; --topic &quot;$LANE&quot; \
+  --resume &quot;Continue $LANE: next unit is $NEXT_UNIT. Read state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-&lt;MILESTONE&gt;-ATOMIZED-2026-05-10.md §$NEXT_UNIT and execute micro_steps.&quot; \
+  --state &quot;&lt;3-bullet what was completed this session&gt;&quot;
+
+# Arm the compact-pending guard so Stop hook can&#39;t exit without /compact
+node H:/prism/.claude/hooks/precompact-pending-guard.mjs --mark
+</code></pre>
+<p>Then prompt the user: &quot;Handoff written, run <code>/compact</code> to continue.&quot;</p>
+<h3 id="33-why-this-is-autonomous"><a class="anchor" href="#33-why-this-is-autonomous" aria-label="Permalink to 3.3 — Why this is autonomous">#</a>3.3 — Why this is autonomous</h3>
+<p>The trigger evaluation runs inside a UserPromptSubmit hook (<code>auto-compact-trigger.mjs</code> — to be added per U-HKA-AUTOCOMPACT, see §10 below). The hook injects a &quot;you should compact now&quot; suggestion into context when any threshold trips. The chat (Claude) then performs the handoff write + asks the user to /compact. The user only types <code>/compact</code>.</p>
+<hr>
+<h2 id="4-auto-handoff-at-session-end-always-regardless-of-compact"><a class="anchor" href="#4-auto-handoff-at-session-end-always-regardless-of-compact" aria-label="Permalink to §4 — Auto-Handoff at Session End (always, regardless of compact)">#</a>§4 — Auto-Handoff at Session End (always, regardless of compact)</h2>
+<p>The <code>scrutinize-before-stop</code> Stop hook + <code>enforce-handoff-topic</code> + <code>stop_on_uncommitted_critical</code> already form the chain. We just enforce: every chat writes a fresh handoff on every Stop, with the <code>--topic &lt;lane&gt;</code> flag mandatory.</p>
+<h3 id="41-stop-time-micro-protocol"><a class="anchor" href="#41-stop-time-micro-protocol" aria-label="Permalink to 4.1 — Stop-time micro-protocol">#</a>4.1 — Stop-time micro-protocol</h3>
+<pre><code class="language-bash"># Stop hook fires this automatically:
+STABLE=$(node H:/prism/.claude/helpers/stable-session-id.mjs)
+LANE=&quot;&lt;from session context&gt;&quot;
+
+# 1. Write handoff with mandatory lane topic
+node H:/prism/.claude/helpers/per-agent-handoff.mjs write \
+  --source live-chat --terminal &quot;$STABLE&quot; --topic &quot;$LANE&quot; \
+  --resume &quot;&lt;specific next unit&gt;&quot; \
+  --state &quot;&lt;bullet completed list&gt;&quot;
+
+# 2. Post to chat-bus
+node H:/prism/.claude/helpers/agent-coordination.mjs post \
+  --agent &quot;claude-$STABLE&quot; --status idle \
+  --lane &quot;$LANE&quot; \
+  --message &quot;session ended in $LANE; resume: &lt;next unit&gt;&quot;
+
+# 3. Release any active file-claims
+node H:/prism/.claude/scripts/release-claims.mjs --lane &quot;$LANE&quot;
+</code></pre>
+<p>Anti-tainting: claims released so peer lanes can read; commits are already lane-prefixed so no merge contamination.</p>
+<hr>
+<h2 id="5-auto-loop-registry-recurring-autonomous-tasks"><a class="anchor" href="#5-auto-loop-registry-recurring-autonomous-tasks" aria-label="Permalink to §5 — Auto-Loop Registry (recurring autonomous tasks)">#</a>§5 — Auto-Loop Registry (recurring autonomous tasks)</h2>
+<p>Every milestone closes with <code>/loop</code> or <code>CronCreate</code> registration. The 17 loops/crons from the mega-roadmap §10 split into 3 cadences:</p>
+<h3 id="51-high-frequency-every-15min-1h"><a class="anchor" href="#51-high-frequency-every-15min-1h" aria-label="Permalink to 5.1 — High-frequency (every 15min - 1h)">#</a>5.1 — High-frequency (every 15min - 1h)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Cron</th><th>Source</th><th>Purpose</th></tr></thead>
+<tbody>
+<tr><td><code>*/15 * * * *</code></td><td>U-ALL04</td><td>Synergy classifier re-run</td></tr>
+<tr><td><code>*/30 * * * *</code></td><td>U-ALL02</td><td>Novelty scan</td></tr>
+<tr><td><code>*/30 * * * *</code></td><td>U-HKA-VERIFY (new)</td><td><code>verify-hook-refs.mjs</code> drift check</td></tr>
+<tr><td><code>7 * * * *</code></td><td>U-GAC07</td><td>Stale-graph guard</td></tr>
+<tr><td><code>13 * * * *</code></td><td>U-ALL03</td><td>Auto-research flush</td></tr>
+<tr><td><code>17 * * * *</code></td><td>U-HPS02</td><td>HTML twin regen</td></tr>
+<tr><td><code>27 * * * *</code></td><td>U-ALL05</td><td>Viz auto-augment</td></tr>
+</tbody>
+</table></div>
+<h3 id="52-medium-frequency-4h-1d"><a class="anchor" href="#52-medium-frequency-4h-1d" aria-label="Permalink to 5.2 — Medium-frequency (4h - 1d)">#</a>5.2 — Medium-frequency (4h - 1d)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Cron</th><th>Source</th><th>Purpose</th></tr></thead>
+<tbody>
+<tr><td><code>7 */4 * * *</code></td><td>U-ALL01</td><td>Reputable source sweep</td></tr>
+<tr><td><code>13 */6 * * *</code></td><td>U-AUDIT-REENG (new)</td><td><code>roadmap-engine-existence-check.mjs</code></td></tr>
+<tr><td><code>3 9 * * *</code></td><td>U-ALL09</td><td>Daily auto-learning digest</td></tr>
+</tbody>
+</table></div>
+<h3 id="53-low-frequency-7d-30d"><a class="anchor" href="#53-low-frequency-7d-30d" aria-label="Permalink to 5.3 — Low-frequency (7d - 30d)">#</a>5.3 — Low-frequency (7d - 30d)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>/loop</th><th>Purpose</th></tr></thead>
+<tbody>
+<tr><td><code>/loop --interval 7d --max 4</code></td><td>Backend-readiness scorer</td></tr>
+<tr><td><code>/loop --interval 7d --max 4</code></td><td><code>/forge-audit-v2 BACKEND-DEVTOOLS-RGS6</code></td></tr>
+<tr><td><code>/loop --interval 7d --max 4</code></td><td>Auto-learning rubric retune (U-ALL04)</td></tr>
+<tr><td><code>/loop --interval 7d --max 12</code></td><td>Memory→wiki promotion (U-VAULT02)</td></tr>
+<tr><td><code>/loop --interval 30d --max 6</code></td><td><code>/forge-audit-v2</code> on this roadmap</td></tr>
+<tr><td><code>/loop --interval 30d --max 12</code></td><td>Source-list audit (U-ALL11)</td></tr>
+<tr><td><code>CronCreate &quot;3 9 * * 1&quot;</code></td><td>Monday weekly milestone-progress digest</td></tr>
+</tbody>
+</table></div>
+<h3 id="54-loop-registration-is-per-lane"><a class="anchor" href="#54-loop-registration-is-per-lane" aria-label="Permalink to 5.4 — Loop registration is per-lane">#</a>5.4 — Loop registration is per-lane</h3>
+<p>Each lane registers ITS loops at milestone close, not at global level. This prevents one chat from claiming all cron slots. Loop registry file: <code>state/shared/lane-loops.jsonl</code> (append-only, one entry per registration).</p>
+<hr>
+<h2 id="6-cross-lane-conflict-prevention-existing-primitives-composed"><a class="anchor" href="#6-cross-lane-conflict-prevention-existing-primitives-composed" aria-label="Permalink to §6 — Cross-Lane Conflict Prevention (existing primitives composed)">#</a>§6 — Cross-Lane Conflict Prevention (existing primitives composed)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Threat</th><th>Mitigation</th><th>Where enforced</th></tr></thead>
+<tbody>
+<tr><td>2 lanes edit same file</td><td><code>file-claim-guard.mjs</code> PreToolUse hook BLOCKS write to peer-claimed file</td><td><code>H:/prism/.claude/hooks/</code></td></tr>
+<tr><td>Commit with peer-claimed file staged</td><td><code>commit-ownership-guard.mjs</code> PreToolUse on Bash matching <code>git commit</code> BLOCKS</td><td>same</td></tr>
+<tr><td>Force-push over peer commits</td><td><code>git-anti-clobber.mjs</code> BLOCKS</td><td>same</td></tr>
+<tr><td>Handoff topic missing/wrong</td><td><code>enforce-handoff-topic.mjs</code> Stop hook renames or BLOCKS</td><td>same</td></tr>
+<tr><td>Two lanes claim same milestone</td><td><code>agent-coordination.mjs post</code> warns; second lane forks to <code>-shadow</code></td><td>helper</td></tr>
+<tr><td>Stale claim (chat died)</td><td><code>reap-stale-claims.mjs</code> cron every 5min auto-releases TTL-expired</td><td>cron</td></tr>
+</tbody>
+</table></div>
+<p><strong>Zero new infrastructure.</strong> Pure composition of existing hooks + helpers.</p>
+<hr>
+<h2 id="7-per-atomized-unit-augmentation-applies-to-all-15-files"><a class="anchor" href="#7-per-atomized-unit-augmentation-applies-to-all-15-files" aria-label="Permalink to §7 — Per-Atomized-Unit Augmentation (applies to all 15 files)">#</a>§7 — Per-Atomized-Unit Augmentation (applies to all 15 files)</h2>
+<p>Every unit in every atomized file inherits these fields IMPLICITLY (no need to repeat per unit):</p>
+<pre><code class="language-yaml">inherited_from_protocol:
+  required_lane: &lt;see §1 table&gt;
+  required_commit_format: &quot;[&lt;LANE&gt;][&lt;MILESTONE&gt;]/&lt;U-ID&gt;: &lt;title&gt;&quot;
+  pre_unit_claim:
+    - tool: Bash
+      command: node .claude/scripts/claim-file.mjs --file &lt;each-file-edited&gt; --lane $LANE --unit $UID --ttl 600
+  post_unit_release: automatic via commit-ownership-guard
+  auto_compact_check: after every 3 units
+  auto_handoff_on_stop: mandatory, with --topic $LANE
+  loop_inheritance: see §5 for lane-level cron/loop
+  conflict_resolution:
+    - peer_claim_observed: skip unit, pick next in lane
+    - peer_commit_to_claimed_file: file-claim-guard blocks them; we proceed
+    - merge conflict: conflict-fork-rule (fork to sibling worktree)
+</code></pre>
+<p><strong>This means: per-unit micro_steps in atomized files focus on the WORK. Lane discipline + auto-handoff + auto-compact are NOT repeated per unit — they&#39;re inherited.</strong></p>
+<hr>
+<h2 id="8-bootstrap-how-a-fresh-chat-onboards-into-autonomous-mode"><a class="anchor" href="#8-bootstrap-how-a-fresh-chat-onboards-into-autonomous-mode" aria-label="Permalink to §8 — Bootstrap (how a fresh chat onboards into autonomous mode)">#</a>§8 — Bootstrap (how a fresh chat onboards into autonomous mode)</h2>
+<pre><code class="language-bash"># Step 1 — verify infrastructure
+STABLE=$(node H:/prism/.claude/helpers/stable-session-id.mjs)
+node H:/prism/.claude/helpers/per-agent-handoff.mjs read --terminal &quot;$STABLE&quot; 2&gt;&amp;1 | head -20
+
+# Step 2 — pick lane (read AGENT_COORDINATION_STATUS for live state)
+cat H:/prism/state/shared/AGENT_COORDINATION_STATUS.md | head -40
+
+# Step 3 — claim lane (post to chat-bus per §1.1)
+
+# Step 4 — read this protocol + the atomized file for the milestone(s) in your lane
+ls H:/prism/state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-*-ATOMIZED-*.md
+
+# Step 5 — execute units sequentially per atomization §micro_steps, respecting §7 inheritance
+</code></pre>
+<p>A low-class LLM following Steps 1-5 with the atomization file open can ship units autonomously.</p>
+<hr>
+<h2 id="9-termination-conditions-when-the-autonomous-fleet-stops"><a class="anchor" href="#9-termination-conditions-when-the-autonomous-fleet-stops" aria-label="Permalink to §9 — Termination conditions (when the autonomous fleet stops)">#</a>§9 — Termination conditions (when the autonomous fleet stops)</h2>
+<p>The fleet runs until ANY:</p>
+<ol>
+<li>All 137 units shipped (success)</li>
+<li><code>state/shared/EMERGENCY_STOP.flag</code> exists (manual user override)</li>
+<li>Adaptive-thresholds runaway (auto-detected via <code>/rgs6 self-optimize-audit</code>)</li>
+<li>CLAUDE.md regression-count &gt; 100 unfixed (quality cliff)</li>
+<li>Backend-readiness scorer &lt; 5% delta over 4 weeks (stalled)</li>
+</ol>
+<p>On termination, the human-in-loop weekly review (U-ALL10) becomes the durable surface.</p>
+<hr>
+<h2 id="10-net-new-units-this-protocol-adds-to-the-roadmap"><a class="anchor" href="#10-net-new-units-this-protocol-adds-to-the-roadmap" aria-label="Permalink to §10 — Net-new units this protocol adds to the roadmap">#</a>§10 — Net-new units this protocol adds to the roadmap</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Unit ID</th><th>Lane</th><th>Purpose</th></tr></thead>
+<tbody>
+<tr><td><strong>U-PROTO-AUTOCOMPACT</strong></td><td>lane-A</td><td>UserPromptSubmit hook <code>.claude/hooks/auto-compact-trigger.mjs</code> — evaluates §3.1 thresholds, suggests <code>/compact</code> when tripped</td></tr>
+<tr><td><strong>U-PROTO-LANECLAIM</strong></td><td>lane-A</td><td>Script <code>scripts/claim-lane.mjs</code> — atomic lane-claim with conflict resolution</td></tr>
+<tr><td><strong>U-PROTO-LANELOOPLEDGER</strong></td><td>lane-A</td><td>Append-only ledger <code>state/shared/lane-loops.jsonl</code> + helper <code>register-lane-loop.mjs</code></td></tr>
+<tr><td><strong>U-PROTO-AUDITLANE</strong></td><td>lane-F</td><td>Recurring <code>/loop --interval 24h</code> to audit lane assignments + reap stale claims</td></tr>
+</tbody>
+</table></div>
+<p>These 4 are folded into lane-A and lane-F. <strong>Total roadmap unit count: 137 + 4 = 141.</strong></p>
+<hr>
+<h2 id="11-failure-modes-for-autonomous-mode-10-enumerated"><a class="anchor" href="#11-failure-modes-for-autonomous-mode-10-enumerated" aria-label="Permalink to §11 — Failure modes for autonomous mode (10 enumerated)">#</a>§11 — Failure modes for autonomous mode (10 enumerated)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Failure</th><th>Mitigation</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Chat dies between handoff-write and <code>/compact</code> → next chat reads stale handoff</td><td>precompact-pending-guard.mjs already prevents Stop without /compact for 30min</td></tr>
+<tr><td>2</td><td>Lane abandoned (chat picks lane, dies)</td><td><code>reap-stale-claims.mjs</code> releases TTL &gt;30min; lane reclaimable by another chat</td></tr>
+<tr><td>3</td><td>Cron oversubscribe (many lanes register overlapping crons)</td><td>lane-loops.jsonl is append-only; CronCreate dedupes by exact expression</td></tr>
+<tr><td>4</td><td>Auto-compact fires mid-tool-call</td><td>trigger runs at UserPromptSubmit only, never mid-tool</td></tr>
+<tr><td>5</td><td>Lane claims wrong milestone</td><td>§1 table is authoritative; deviation → audit-lane unit flags</td></tr>
+<tr><td>6</td><td>Commit prefix missing <code>[&lt;LANE&gt;]</code></td><td>commit-ownership-guard refuses commit</td></tr>
+<tr><td>7</td><td>File-claim TTL expires mid-edit</td><td>claim-file.mjs auto-renews on every Edit/Write</td></tr>
+<tr><td>8</td><td>Two lanes pick same <code>-shadow</code> suffix</td><td>shadow-suffix is <code>&lt;lane&gt;-shadow-&lt;short-uuid&gt;</code></td></tr>
+<tr><td>9</td><td>Auto-handoff overwrites peer handoff</td><td>per-agent-handoff.mjs uses stable-session-id, not PID; collisions impossible</td></tr>
+<tr><td>10</td><td>Roadmap stalled at termination cliff</td><td><code>/forge-audit-v2 BACKEND-DEVTOOLS-RGS6</code> 30d loop catches</td></tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="12-adversarial-cases"><a class="anchor" href="#12-adversarial-cases" aria-label="Permalink to §12 — Adversarial cases">#</a>§12 — Adversarial cases</h2>
+<ul>
+<li><strong>Lane spoofing</strong>: chat A commits with <code>[lane-B]</code> prefix to taint lane B&#39;s history. Mitigation: commit-ownership-guard cross-checks chat-id from session metadata vs declared lane.</li>
+<li><strong>Claim flooding</strong>: one lane claims 1000 files to block others. Mitigation: max-claims-per-lane = 50 enforced in claim-file.mjs.</li>
+<li><strong>Handoff poisoning</strong>: malicious handoff content induces next chat into wrong action. Mitigation: handoff content sanitized before injection into next-session context.</li>
+<li><strong>Cron storm</strong>: one lane registers 100 crons. Mitigation: max-crons-per-lane = 8 enforced in register-lane-loop.mjs.</li>
+</ul>
+<hr>
+<h2 id="13-variability-axis-full"><a class="anchor" href="#13-variability-axis-full" aria-label="Permalink to §13 — Variability axis (full)">#</a>§13 — Variability axis (full)</h2>
+<ul>
+<li><strong>Lane count</strong>: 1 (single-chat) / 3 (small fleet) / 6 (full fleet) / 9 (over-subscription with shadows)</li>
+<li><strong>Compact cadence</strong>: every 1 / 3 / 5 / 10 units</li>
+<li><strong>Handoff verbosity</strong>: minimal (resume directive only) / standard (3-bullet state) / full (everything from this session)</li>
+<li><strong>Loop cadence</strong>: 15min / 1h / 6h / 24h / 7d / 30d (all 6 cadences exercised)</li>
+<li><strong>Conflict mode</strong>: forbid (block second claimer) / fork (allow shadow) / share (auto-merge windows)</li>
+</ul>
+<hr>
+<h2 id="x-closing"><a class="anchor" href="#x-closing" aria-label="Permalink to §X — Closing">#</a>§X — Closing</h2>
+<p><strong>This protocol IS the autonomous spine.</strong> Every atomized milestone file inherits §7 implicitly. New chats onboard via §8. Termination is bounded by §9. Failure modes (§11) + adversarial cases (§12) covered by existing infrastructure.</p>
+<p><strong>Net deltas to PRISM:</strong></p>
+<ul>
+<li>4 new units (U-PROTO-*) → total roadmap 141 units</li>
+<li>1 new hook (<code>.claude/hooks/auto-compact-trigger.mjs</code>)</li>
+<li>1 new helper (<code>scripts/claim-lane.mjs</code>)</li>
+<li>1 new ledger (<code>state/shared/lane-loops.jsonl</code>)</li>
+<li>0 new doctrine — all primitives already exist</li>
+</ul>
+<p><strong>The roadmap can now ship itself.</strong></p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="BACKEND-DEVTOOLS-RGS6-AUTONOMOUS-EXECUTION-PROTOCOL.md">BACKEND-DEVTOOLS-RGS6-AUTONOMOUS-EXECUTION-PROTOCOL.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

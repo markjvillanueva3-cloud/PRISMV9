@@ -330,3 +330,57 @@ describe("SpecHTMLCompanionEngine — title precedence & instance", () => {
     expect(fresh.render("# X").html).toContain("<title>X</title>");
   });
 });
+
+describe("SpecHTMLCompanionEngine — U-HPS04 in-page navigation + search", () => {
+  it("the page title carries id=\"top\" so a back-to-top link can target it", () => {
+    const r = specHtmlCompanionEngine.render("# Some Document\n\nbody text here");
+    expect(r.html).toContain('<h1 class="page-title" id="top">Some Document</h1>');
+  });
+
+  it("a doc with a TOC ships the in-page search box, a polite live-status region, and the nav script", () => {
+    const r = specHtmlCompanionEngine.render("# A\n\n## B\n\nlots of text mentioning widget here\n\n## C\n\nmore text about the widget");
+    // the TOC search input + its aria-live status region (both live inside nav.toc)
+    expect(r.html).toContain('<input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off">');
+    expect(r.html).toContain('<div class="toc-search-status" aria-live="polite"></div>');
+    // the inline nav script is wrapped in a <script> tag and is the IntersectionObserver-driven one
+    expect(r.html).toMatch(/<script>\(function\(\)\{[\s\S]*new IntersectionObserver/);
+    expect(r.html).toContain('toc.querySelector("input.toc-search")');
+    // CSS that styles the active TOC link, the search marks, and the filtered-out TOC entries
+    expect(r.html).toContain('nav.toc li a.active');
+    expect(r.html).toContain('mark.search-hit');
+    expect(r.html).toContain('nav.toc li.toc-hidden { display:none; }');
+  });
+
+  it("the in-page search inserts matches as text nodes (textContent / createTextNode), never via innerHTML — page text can't be re-parsed as markup", () => {
+    const r = specHtmlCompanionEngine.render("# A\n\n## B\n\nsome searchable body content\n\n## C\n\nmore content");
+    // these are specific to navScript()'s search routine
+    expect(r.html).toContain("createTreeWalker");                       // walks text nodes only
+    expect(r.html).toContain("document.createTextNode");                // unwrap + non-match runs are text nodes
+    expect(r.html).toMatch(/m\.textContent = text\.slice\(/);          // each <mark> gets its text via textContent
+    // and the rendered page never assigns to innerHTML anywhere
+    expect(r.html).not.toContain("innerHTML");
+  });
+
+  it("the TOC active-section highlight toggles the .active class via classList, never inline styles", () => {
+    const r = specHtmlCompanionEngine.render("# A\n\n## B\n\nx\n\n## C\n\ny");
+    expect(r.html).toContain('classList.add("active")');
+    expect(r.html).toContain('classList.remove("active")');
+    expect(r.html).toContain('li.classList.add("toc-hidden")');         // search filters the TOC by class, not style
+  });
+
+  it("a doc with no TOC (fewer than two headings) ships neither the search box nor the nav script", () => {
+    const r = specHtmlCompanionEngine.render("# Only one heading\n\njust some body, with no second heading at all");
+    expect(r.html).not.toContain('class="toc-search"');
+    expect(r.html).not.toContain('class="toc-search-status"');
+    expect(r.html).not.toContain("new IntersectionObserver");          // navScript() is not emitted
+    // ...but the always-on theme-toggle button + its progressive-enhancement script are still there
+    expect(r.html).toContain('id="themeToggle"');
+  });
+
+  it("toc:false also suppresses the nav script and the search box", () => {
+    const r = specHtmlCompanionEngine.render("# A\n\n## B\n\nx\n\n## C\n\ny", { toc: false });
+    expect(r.html).not.toContain('class="toc"');
+    expect(r.html).not.toContain('class="toc-search"');
+    expect(r.html).not.toContain("new IntersectionObserver");
+  });
+});

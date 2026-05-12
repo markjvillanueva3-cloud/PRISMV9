@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="20dc26ffe11b2523ed654caf90cf5d44012367d4f3842da3fc7e9a7a761986c0">
+<title>SESSION ROADMAP — claude-85cedf09 · 2026-05-10</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">SESSION ROADMAP — claude-85cedf09 · 2026-05-10</h1>
+<p class="provenance">Generated 2026-05-12T12:43:27.210Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#session-roadmap-claude-85cedf09-2026-05-10">SESSION ROADMAP — claude-85cedf09 · 2026-05-10</a></li>
+<li class="toc-l2"><a href="#1-tracks-priority-sorted-ai-priority-axis-applied">§1 — Tracks (priority-sorted, AI-priority axis applied)</a></li>
+<li class="toc-l2"><a href="#2-recommended-execution-order-waves">§2 — Recommended execution order (waves)</a></li>
+<li class="toc-l3"><a href="#wave-0-immediate-restores-tool-stability">Wave 0 (immediate — restores tool stability)</a></li>
+<li class="toc-l3"><a href="#wave-1-after-wave-0-code-is-editable-again">Wave 1 (after Wave 0 — code is editable again)</a></li>
+<li class="toc-l3"><a href="#wave-2-parallel-safe-no-deps">Wave 2 (parallel-safe — no deps)</a></li>
+<li class="toc-l3"><a href="#wave-3-k2-infra-after-engine-cost-guard-ship">Wave 3 (K2 infra after engine + cost guard ship)</a></li>
+<li class="toc-l3"><a href="#wave-4-validation-close">Wave 4 (validation + close)</a></li>
+<li class="toc-l3"><a href="#wave-5-hook-synergy-wave-2-after-wave-0-measurement">Wave 5 (HOOK-SYNERGY wave 2 — after Wave 0 measurement)</a></li>
+<li class="toc-l2"><a href="#3-already-shipped-dont-re-do">§3 — Already shipped (don&#39;t re-do)</a></li>
+<li class="toc-l2"><a href="#4-boris-loopagent-gates-per-unit-verification">§4 — Boris loop+agent gates (per-unit verification)</a></li>
+<li class="toc-l2"><a href="#5-compounding-gains-artifacts-rgs6-tax-compliance">§5 — Compounding-gains artifacts (RGS6 tax compliance)</a></li>
+<li class="toc-l2"><a href="#6-conflict-awareness-5-peer-chats-active">§6 — Conflict awareness (5 peer chats active)</a></li>
+<li class="toc-l2"><a href="#7-acceptance-criteria-roadmap-level-definition-of-done">§7 — Acceptance criteria (roadmap-level, definition of &quot;done&quot;)</a></li>
+<li class="toc-l3"><a href="#hook-synergy-ms0">HOOK-SYNERGY-MS0</a></li>
+<li class="toc-l3"><a href="#k2-cloud-ms0">K2-CLOUD-MS0</a></li>
+<li class="toc-l3"><a href="#html-companion-ms0">HTML-COMPANION-MS0</a></li>
+<li class="toc-l3"><a href="#viz-coverage-ms0">VIZ-COVERAGE-MS0</a></li>
+<li class="toc-l2"><a href="#8-rgs6-pipeline-outputs-this-run">§8 — RGS6 pipeline outputs (this run)</a></li>
+<li class="toc-l2"><a href="#9-spec-doc-index-everything-written-this-session">§9 — Spec doc index (everything written this session)</a></li>
+<li class="toc-l2"><a href="#10-provenance">§10 — Provenance</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="session-roadmap-claude-85cedf09-2026-05-10"><a class="anchor" href="#session-roadmap-claude-85cedf09-2026-05-10" aria-label="Permalink to SESSION ROADMAP — claude-85cedf09 · 2026-05-10">#</a>SESSION ROADMAP — claude-85cedf09 · 2026-05-10</h1>
+<blockquote>
+<p><strong>Pipeline:</strong> RGS v6 (self-optimizing, adaptive-thresholds, AI-priority + conflict-predict gates) <strong>Brief:</strong> Consolidate ALL work enumerated in chat session claude-85cedf09 on 2026-05-10 <strong>Milestone tracks:</strong> 4 (HOOK-SYNERGY-MS0, K2-CLOUD-MS0, HTML-COMPANION-MS0, VIZ-COVERAGE-MS0) <strong>Total atomic units:</strong> 29 · <strong>Already shipped:</strong> 2 · <strong>Remaining:</strong> 27 · <strong>Estimated effort:</strong> ~28-32 hours / 5-6 sessions <strong>Conflict verdict (vs 5 active peer chats):</strong> GREEN — zero predicted collisions on these 4 tracks</p>
+</blockquote>
+<hr>
+<h2 id="1-tracks-priority-sorted-ai-priority-axis-applied"><a class="anchor" href="#1-tracks-priority-sorted-ai-priority-axis-applied" aria-label="Permalink to §1 — Tracks (priority-sorted, AI-priority axis applied)">#</a>§1 — Tracks (priority-sorted, AI-priority axis applied)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Milestone</th><th>Priority</th><th>Units</th><th>Done</th><th>Remaining</th><th>Critical-path hours</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><strong>HOOK-SYNERGY-MS0</strong> — Hook System v2 (480-hook overload remediation)</td><td>P0</td><td>11</td><td>1 (stopgap)</td><td>10</td><td>10h</td><td>in_progress</td></tr>
+<tr><td>2</td><td><strong>K2-CLOUD-MS0</strong> — Kimi K2.6:cloud mid-tier AI integration</td><td>P0</td><td>13</td><td>1 (K1 inventory)</td><td>12</td><td>9-13h</td><td>in_progress (blocked by HOOK-SYNERGY H1+H6)</td></tr>
+<tr><td>3</td><td><strong>HTML-COMPANION-MS0</strong> — HTML companion infrastructure</td><td>P1</td><td>4</td><td>0</td><td>4</td><td>3h</td><td>not_started</td></tr>
+<tr><td>4</td><td><strong>VIZ-COVERAGE-MS0</strong> — System-viz coverage discrepancy fix</td><td>P2</td><td>1</td><td>0</td><td>1</td><td>1h</td><td>not_started</td></tr>
+</tbody>
+</table></div>
+<p><strong>Cross-track dependencies:</strong></p>
+<ul>
+<li>HOOK-SYNERGY H1 (settings-dedup-audit) + H6 (fast-lane matchers) → unblock K2-CLOUD K2-K12 (every Edit on <code>AISystemRouterEngine.ts</code> currently waits for full PreToolUse hook stack — caused the AISystemRouterEngine.ts revert this session)</li>
+<li>HTML-COMPANION generator → unblock all future strategic spec docs from manual HTML hand-write</li>
+<li>VIZ-COVERAGE → independent (no deps, no consumers)</li>
+</ul>
+<hr>
+<h2 id="2-recommended-execution-order-waves"><a class="anchor" href="#2-recommended-execution-order-waves" aria-label="Permalink to §2 — Recommended execution order (waves)">#</a>§2 — Recommended execution order (waves)</h2>
+<h3 id="wave-0-immediate-restores-tool-stability"><a class="anchor" href="#wave-0-immediate-restores-tool-stability" aria-label="Permalink to Wave 0 (immediate — restores tool stability)">#</a>Wave 0 (immediate — restores tool stability)</h3>
+<ul>
+<li><strong>HOOK-SYNERGY U-HOOK-AUDIT</strong> (H1, 2h) — settings-dedup-audit script + report</li>
+<li><strong>HOOK-SYNERGY U-HOOK-REGISTRY</strong> (H2, 3h) — HOOK_REGISTRY.json + dispatcher action</li>
+<li><strong>HOOK-SYNERGY U-HOOK-TIERS</strong> (H3, 3h) — tier frontmatter on 480 hooks + validator</li>
+<li><strong>HOOK-SYNERGY U-HOOK-FAST-LANE</strong> (H6, 2h) — matcher split, target 70% read-latency cut</li>
+</ul>
+<p><strong>Wave 0 outcome:</strong> Tool-call P95 drops; AISystemRouterEngine.ts edits no longer hang; K2-CLOUD work becomes safe.</p>
+<h3 id="wave-1-after-wave-0-code-is-editable-again"><a class="anchor" href="#wave-1-after-wave-0-code-is-editable-again" aria-label="Permalink to Wave 1 (after Wave 0 — code is editable again)">#</a>Wave 1 (after Wave 0 — code is editable again)</h3>
+<ul>
+<li><strong>K2-CLOUD U-K2-TIER-REGISTER</strong> (K2, 1h) — register kimi-k2.6:cloud backend in AISystemRouterEngine</li>
+<li><strong>K2-CLOUD U-K2-CLOUD-ENGINE</strong> (K3, 2h) — K2CloudOllamaEngine.ts adapter</li>
+<li><strong>K2-CLOUD U-K2-ROUTER-DECISION</strong> (K4, 1h) — routing matrix mid-band rules</li>
+<li><strong>K2-CLOUD U-K2-COST-GUARD</strong> (K7, 1h) — 100K budget cap + fail-closed at 90K</li>
+<li><strong>K2-CLOUD U-K2-CLAUDE-SCRUTINIZE-CHAIN</strong> (K4.5, 2h) — two-pass safety pattern</li>
+</ul>
+<h3 id="wave-2-parallel-safe-no-deps"><a class="anchor" href="#wave-2-parallel-safe-no-deps" aria-label="Permalink to Wave 2 (parallel-safe — no deps)">#</a>Wave 2 (parallel-safe — no deps)</h3>
+<ul>
+<li><strong>HTML-COMPANION U-HTML-CLAUDE-MD-EDIT</strong> (0.25h) — role-split rule</li>
+<li><strong>HTML-COMPANION U-HTML-DOCTRINE-UPDATE</strong> (0.25h) — define qualifying artifacts</li>
+<li><strong>HTML-COMPANION U-HTML-COMPANION-GENERATOR</strong> (2h) — <code>scripts/spec-html-companion-generator.mjs</code></li>
+<li><strong>HTML-COMPANION U-HTML-BACKFILL</strong> (0.5h) — generate HTMLs for 3 existing strategic specs</li>
+<li><strong>VIZ-COVERAGE U-VIZ-COVERAGE-FIX</strong> (1h) — single-source-replacement in generate-system-viz.mjs</li>
+</ul>
+<h3 id="wave-3-k2-infra-after-engine-cost-guard-ship"><a class="anchor" href="#wave-3-k2-infra-after-engine-cost-guard-ship" aria-label="Permalink to Wave 3 (K2 infra after engine + cost guard ship)">#</a>Wave 3 (K2 infra after engine + cost guard ship)</h3>
+<ul>
+<li><strong>K2-CLOUD U-K2-TIER-HOOK</strong> (K5, 1h) — UserPromptSubmit ollama-tier-router hook</li>
+<li><strong>K2-CLOUD U-K2-SKILL</strong> (K6, 1h) — <code>/k2-ask</code> skill</li>
+<li><strong>K2-CLOUD U-K2-TELEMETRY</strong> (K8, 2h) — schema 2.0.0 → 3.0.0 with per-model breakdown</li>
+<li><strong>K2-CLOUD U-K2-DASHBOARD</strong> (K9, 1h) — extend offload dashboard with cost projection</li>
+</ul>
+<h3 id="wave-4-validation-close"><a class="anchor" href="#wave-4-validation-close" aria-label="Permalink to Wave 4 (validation + close)">#</a>Wave 4 (validation + close)</h3>
+<ul>
+<li><strong>K2-CLOUD U-K2-FALLBACK-TESTS</strong> (K10, 2h) — 5 failure modes + 2 adversarial + 3 scrutiny paths</li>
+<li><strong>K2-CLOUD U-K2-AUTH-SETUP</strong> (K11, 1h) — <code>ollama signin</code> wrapper</li>
+<li><strong>K2-CLOUD U-K2-CLAUDE-MD-DOC</strong> (K12, 1h) — 3-tier ladder doc</li>
+</ul>
+<h3 id="wave-5-hook-synergy-wave-2-after-wave-0-measurement"><a class="anchor" href="#wave-5-hook-synergy-wave-2-after-wave-0-measurement" aria-label="Permalink to Wave 5 (HOOK-SYNERGY wave 2 — after Wave 0 measurement)">#</a>Wave 5 (HOOK-SYNERGY wave 2 — after Wave 0 measurement)</h3>
+<ul>
+<li><strong>HOOK-SYNERGY U-HOOK-ENVELOPE</strong> (H4, 3h) — _envelope.mjs profiling shim</li>
+<li><strong>HOOK-SYNERGY U-HOOK-CREATION-GATE</strong> (H5, 2h) — HookCreationGuardEngine</li>
+<li><strong>HOOK-SYNERGY U-HOOK-ASYNC-DISPATCH</strong> (H7, 4h) — Tier-4 deferral</li>
+<li><strong>HOOK-SYNERGY U-HOOK-COORD-SQLITE</strong> (H8, 3h) — SQLite WAL claim store</li>
+<li><strong>HOOK-SYNERGY U-HOOK-COMPRESS</strong> (H9, 4h) — refactor 6 hooks into engine-shim form</li>
+<li><strong>HOOK-SYNERGY U-HOOK-CROSS-WORKTREE-FIREWALL</strong> (H10, 1h) — Tier 0 firewall</li>
+</ul>
+<hr>
+<h2 id="3-already-shipped-dont-re-do"><a class="anchor" href="#3-already-shipped-dont-re-do" aria-label="Permalink to §3 — Already shipped (don&#39;t re-do)">#</a>§3 — Already shipped (don&#39;t re-do)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Unit</th><th>Milestone</th><th>Commit</th><th>Date</th></tr></thead>
+<tbody>
+<tr><td>U-HOOK-STOPGAP</td><td>HOOK-SYNERGY-MS0</td><td>settings.json edits (mirrored, NOT in git)</td><td>2026-05-10</td></tr>
+<tr><td>U-K2-CONFIG-INVENTORY (K1)</td><td>K2-CLOUD-MS0</td><td>29d0d18ec</td><td>2026-05-10</td></tr>
+<tr><td>U-PLAN (HOOK-SYNERGY-V2-PLAN.md + .html)</td><td>(stopgap support)</td><td>4230efe17</td><td>2026-05-10</td></tr>
+</tbody>
+</table></div>
+<p><strong>Note:</strong> AISystemRouterEngine.ts had K2 edits applied this session (kimi-k2.6:cloud backend, KIMI_K2_PRICING constants, contextSize/isSafetyCritical/getCurrentSessionTokens helpers, probe handler) but they were REVERTED by a session crash before commit. K2 must be re-applied after Wave 0 stabilizes the hook system.</p>
+<hr>
+<h2 id="4-boris-loopagent-gates-per-unit-verification"><a class="anchor" href="#4-boris-loopagent-gates-per-unit-verification" aria-label="Permalink to §4 — Boris loop+agent gates (per-unit verification)">#</a>§4 — Boris loop+agent gates (per-unit verification)</h2>
+<p>Every U-* unit ships:</p>
+<ol>
+<li><strong>Self-review</strong> — diff against acceptance_criteria in milestone envelope</li>
+<li><strong>Peer reviewer subagent</strong> (<code>Agent({ subagent_type: &#39;reviewer&#39;, isolation: &#39;worktree&#39;, ... })</code>) — independent verification on isolated worktree</li>
+<li><strong>Cross-CLI 3-way</strong> (Codex + Gemini + Opus) — only at milestone close, not per unit</li>
+<li><strong>Regression flow</strong> — any defects → CLAUDE.md <code>## Recent regressions</code> block</li>
+</ol>
+<p>Verification batches (reduce subagent spawn cost):</p>
+<ul>
+<li>HOOK-SYNERGY: H1 standalone; H2+H3 batch; H4+H5 batch; H6 standalone (critical); H7-H10 batch</li>
+<li>K2-CLOUD: K1+K2+K3 batch (engine surface); K4+K4.5+K7 batch (routing+safety+cost); K8+K9+K10 batch (infra+tests); K11+K12 batch (auth+doc)</li>
+<li>HTML-COMPANION: doctrine pair batch; generator+backfill batch</li>
+<li>VIZ-COVERAGE: single unit, single review</li>
+</ul>
+<hr>
+<h2 id="5-compounding-gains-artifacts-rgs6-tax-compliance"><a class="anchor" href="#5-compounding-gains-artifacts-rgs6-tax-compliance" aria-label="Permalink to §5 — Compounding-gains artifacts (RGS6 tax compliance)">#</a>§5 — Compounding-gains artifacts (RGS6 tax compliance)</h2>
+<p>Every milestone in this roadmap MUST emit at least one reusable dev-velocity artifact:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Milestone</th><th>Compounding artifact</th><th>Compounds over</th></tr></thead>
+<tbody>
+<tr><td>HOOK-SYNERGY-MS0</td><td>HOOK_REGISTRY.json (H2) + _envelope.mjs (H4) + HookCreationGuardEngine (H5)</td><td>All future hook work + audits + duplicate prevention</td></tr>
+<tr><td>K2-CLOUD-MS0</td><td>K2ScrutinizeChainEngine (K4.5) — generic two-pass generator+critic</td><td>All future safety-critical AI workloads (not just K2.6)</td></tr>
+<tr><td>HTML-COMPANION-MS0</td><td>scripts/spec-html-companion-generator.mjs</td><td>All future strategic spec docs (saves 400+ HTML lines per spec)</td></tr>
+<tr><td>VIZ-COVERAGE-MS0</td><td>Integration test enforcing single-source-of-truth between build-state-snapshot and generate-system-viz</td><td>All future viz/build-state divergence prevention</td></tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="6-conflict-awareness-5-peer-chats-active"><a class="anchor" href="#6-conflict-awareness-5-peer-chats-active" aria-label="Permalink to §6 — Conflict awareness (5 peer chats active)">#</a>§6 — Conflict awareness (5 peer chats active)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Peer chat</th><th>Owns</th><th>My exposure</th></tr></thead>
+<tbody>
+<tr><td>claude-99eca613</td><td>mcp-server/package.json, system-viz envelope</td><td>NONE (my K2 work doesn&#39;t touch package.json; my viz fix is in scripts/, not envelope)</td></tr>
+<tr><td>claude-7b9d1810</td><td>LatheThermodynamicsEngine, ScientificReasoningEngine, AwarenessQueryEngine, PipelineConsistencyHookEngine</td><td>NONE (different domain)</td></tr>
+<tr><td>claude-0413eca6</td><td>combo-survey scripts, system-viz.html, scripts/regen-viz.mjs, generate-layer-bridges.mjs</td><td>LOW — VIZ-COVERAGE-MS0 touches scripts/generate-system-viz.mjs which is adjacent to peer&#39;s regen-viz/system-viz.html (coordinate before merge)</td></tr>
+<tr><td>claude-845cf238</td><td>OutcomeDriftCalibrationBridgeEngine</td><td>NONE</td></tr>
+<tr><td>claude-d9860be8</td><td>docker/ocr-tools/, Docustrata/.index/</td><td>NONE</td></tr>
+</tbody>
+</table></div>
+<p><strong>Conflict-predict verdict on these 4 tracks:</strong> GREEN (0 of 1187 collisions touch our scope).</p>
+<hr>
+<h2 id="7-acceptance-criteria-roadmap-level-definition-of-done"><a class="anchor" href="#7-acceptance-criteria-roadmap-level-definition-of-done" aria-label="Permalink to §7 — Acceptance criteria (roadmap-level, definition of &quot;done&quot;)">#</a>§7 — Acceptance criteria (roadmap-level, definition of &quot;done&quot;)</h2>
+<h3 id="hook-synergy-ms0"><a class="anchor" href="#hook-synergy-ms0" aria-label="Permalink to HOOK-SYNERGY-MS0">#</a>HOOK-SYNERGY-MS0</h3>
+<ul>
+<li>[ ] Total wired hook count ≤200 (currently 480)</li>
+<li>[ ] Every hook has tier frontmatter (audit returns 0 violations)</li>
+<li>[ ] P95 read-tool latency ≤5s; write-tool ≤15s</li>
+<li>[ ] Stop never waits &gt;30s</li>
+<li>[ ] Zero cross-worktree hook references</li>
+<li>[ ] HOOK_REGISTRY.json regenerates on settings.json change</li>
+</ul>
+<h3 id="k2-cloud-ms0"><a class="anchor" href="#k2-cloud-ms0" aria-label="Permalink to K2-CLOUD-MS0">#</a>K2-CLOUD-MS0</h3>
+<ul>
+<li>[ ] AISystemRouterEngine.AIBackend includes <code>kimi-k2.6:cloud</code></li>
+<li>[ ] Routing: context&gt;8K AND not safety-critical → K2.6 (verified by tests)</li>
+<li>[ ] Safety-critical → K4.5 two-pass chain (PASS|REVISE|FAIL paths tested)</li>
+<li>[ ] Per-session budget cap 100K enforced fail-closed at 90K</li>
+<li>[ ] schema 3.0.0 with per-model breakdown</li>
+<li>[ ] CLAUDE.md documents 3-tier ladder + two-pass pattern</li>
+</ul>
+<h3 id="html-companion-ms0"><a class="anchor" href="#html-companion-ms0" aria-label="Permalink to HTML-COMPANION-MS0">#</a>HTML-COMPANION-MS0</h3>
+<ul>
+<li>[ ] CLAUDE.md role-split section</li>
+<li>[ ] BORIS-LOOP-AGENT-DOCTRINE.md defines qualifying artifacts</li>
+<li>[ ] Generator renders any qualifying MD into HTML matching reference pattern</li>
+<li>[ ] PostToolUse hook fires generator within 5s</li>
+<li>[ ] Every existing spec ≥150 lines has sibling .html</li>
+</ul>
+<h3 id="viz-coverage-ms0"><a class="anchor" href="#viz-coverage-ms0" aria-label="Permalink to VIZ-COVERAGE-MS0">#</a>VIZ-COVERAGE-MS0</h3>
+<ul>
+<li>[ ] generate-system-viz.mjs reads from BUILD_STATE.COVERAGE_BY_DOMAIN.rows</li>
+<li>[ ] Regenerated viz reports same wired/total/% as BUILD_STATE.json</li>
+<li>[ ] CLAUDE.md regression entry updated to RESOLVED</li>
+<li>[ ] Integration test asserts COVERAGE_BY_DOMAIN values match buildState</li>
+</ul>
+<hr>
+<h2 id="8-rgs6-pipeline-outputs-this-run"><a class="anchor" href="#8-rgs6-pipeline-outputs-this-run" aria-label="Permalink to §8 — RGS6 pipeline outputs (this run)">#</a>§8 — RGS6 pipeline outputs (this run)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Stage</th><th>Tool</th><th>Output</th></tr></thead>
+<tbody>
+<tr><td>S0</td><td>pipeline-telemetry.mjs record</td><td><code>pipeline-telemetry.jsonl</code> (S0 stage_entry recorded)</td></tr>
+<tr><td>S2.5.A</td><td>ai-priority-rank.mjs</td><td><code>state/shared/ai-priority-ranks.json</code> (1102 ranks)</td></tr>
+<tr><td>S2.5.B</td><td>atomic-roadmap-emit.mjs</td><td><code>state/shared/atomic-roadmap.json</code> (1102 units across 6 lanes) + <code>atomic-roadmap-chat-1..6.md</code> + <code>atomic-roadmap-summary.md</code></td></tr>
+<tr><td>S2.5.C</td><td>conflict-predict.mjs</td><td><code>state/shared/predicted-collisions.json</code> (1187 total — 0 affecting our 4 tracks)</td></tr>
+<tr><td>S2.5</td><td>pipeline-telemetry.mjs record</td><td>outcome=pass, milestones_registered=4</td></tr>
+<tr><td>S11.7.B</td><td>adaptive-thresholds.mjs</td><td><code>state/shared/adaptive-thresholds.json</code> (6 params tuned from 3-milestone sample)</td></tr>
+<tr><td>S11.7.A</td><td>pipeline-telemetry.mjs record</td><td>S11.7 stage_entry</td></tr>
+</tbody>
+</table></div>
+<p><strong>Adaptive thresholds (current):</strong></p>
+<ul>
+<li>tier_floor_pct = 90</li>
+<li>context_nudge_pct = 60</li>
+<li>context_urgent_pct = 80</li>
+<li>leverage_min = 14</li>
+<li>dispatcher_capacity_ceiling = 200</li>
+<li>expected_wired_delta_tolerance = 0.2</li>
+</ul>
+<hr>
+<h2 id="9-spec-doc-index-everything-written-this-session"><a class="anchor" href="#9-spec-doc-index-everything-written-this-session" aria-label="Permalink to §9 — Spec doc index (everything written this session)">#</a>§9 — Spec doc index (everything written this session)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Path</th><th>Type</th><th>Lines</th><th>HTML companion</th></tr></thead>
+<tbody>
+<tr><td>state/shared/specs/HOOK-SYNERGY-V2-PLAN.md</td><td>Strategic plan</td><td>430</td><td>✓ HOOK-SYNERGY-V2-PLAN.html (300+ lines)</td></tr>
+<tr><td>state/shared/specs/K2-CLOUD-INTEGRATION-PLAN.md</td><td>Strategic plan</td><td>~250</td><td>✗ pending HTML-COMPANION U-HTML-BACKFILL</td></tr>
+<tr><td>state/shared/specs/K2-ROUTER-INVENTORY.md</td><td>Inventory</td><td>~300</td><td>✗ pending HTML-COMPANION U-HTML-BACKFILL</td></tr>
+<tr><td>state/shared/specs/SESSION-2026-05-10-ROADMAP.md</td><td>This roadmap</td><td>~200</td><td>✗ generate after HTML-COMPANION U-HTML-COMPANION-GENERATOR ships</td></tr>
+<tr><td>state/shared/specs/SYSTEM-SYNERGY-AUDIT-2026-05-09.md</td><td>Prior session audit</td><td>290+</td><td>✓ SYSTEM-SYNERGY-AUDIT-2026-05-09.html</td></tr>
+<tr><td>mcp-server/data/milestones/HOOK-SYNERGY-MS0.json</td><td>Milestone envelope</td><td>—</td><td>n/a</td></tr>
+<tr><td>mcp-server/data/milestones/K2-CLOUD-MS0.json</td><td>Milestone envelope</td><td>—</td><td>n/a</td></tr>
+<tr><td>mcp-server/data/milestones/HTML-COMPANION-MS0.json</td><td>Milestone envelope</td><td>—</td><td>n/a</td></tr>
+<tr><td>mcp-server/data/milestones/VIZ-COVERAGE-MS0.json</td><td>Milestone envelope</td><td>—</td><td>n/a</td></tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="10-provenance"><a class="anchor" href="#10-provenance" aria-label="Permalink to §10 — Provenance">#</a>§10 — Provenance</h2>
+<ul>
+<li>Pipeline run: RGS v6 invoked from chat claude-85cedf09 at 2026-05-10T17:52Z</li>
+<li>Pipeline ID: <code>RGS6-CONSOLIDATE-2026-05-10</code></li>
+<li>Telemetry ledger: <code>state/shared/pipeline-telemetry.jsonl</code></li>
+<li>Doctrine: <code>state/shared/specs/BORIS-LOOP-AGENT-DOCTRINE.md</code> + RGS6 self-optimization law</li>
+<li>Stopgaps shipped pre-pipeline: 7 hook timeout reductions in <code>C:/Users/wompu/.claude/settings.json</code> (158s → 52s worst-case wait)</li>
+<li>Active peer chats during run: claude-0413eca6, claude-7b9d1810, claude-845cf238, claude-99eca613, claude-d9860be8</li>
+<li>Conflict-predict verdict: RED globally (1187 collisions across full 1102-unit backlog) but GREEN for our 4-track scope (0 collisions)</li>
+</ul>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="SESSION-2026-05-10-ROADMAP.md">SESSION-2026-05-10-ROADMAP.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

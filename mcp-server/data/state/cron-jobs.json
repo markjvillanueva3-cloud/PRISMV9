@@ -61,6 +61,26 @@
       "description": "Archive (cp + unlink) inbox/*.md files older than 48h to knowledge/memories/inbox/archived-stale/. Honors cyrilXBT 'inbox is for triage not storage' rule but softer than delete. Idempotent (already-archived files are skipped). Brief/perf-report files exempt.",
       "enabled": true,
       "added": "2026-05-08"
+    },
+    {
+      "id": "verify-hook-refs-30min",
+      "milestone": "HOOK-SYNERGY-MS0/U-H1.0",
+      "command": "node H:/prism/.claude/scripts/verify-hook-refs.mjs",
+      "cron": "*/30 * * * *",
+      "timezone": "local",
+      "description": "Re-audit all Claude Code settings layers (H:/.claude + H:/PRISM/.claude + .local.json) for broken hook script references, env-var/relative paths, and duplicate (event,matcher,command) triples / duplicate (event,matcher) blocks. Catches a mid-session settings.json edit (by a peer chat) that breaks a hook ref before the next SessionStart would. Exit 0 clean / 1 broken-or-invalid-JSON / 2 duplicate. Self-test channel: `node .claude/scripts/verify-hook-refs.mjs --self-test` (9 cases, no real-file IO). HOOK-SYNERGY-MS0 U-H1.0 verifies_via channel.",
+      "enabled": true,
+      "added": "2026-05-11"
+    },
+    {
+      "id": "spec-html-twin-regen",
+      "milestone": "HTML-PRIMARY-MS0/U-HPS02",
+      "command": "node H:/prism/node_modules/tsx/dist/cli.mjs H:/prism/scripts/emit-all-spec-html.ts --quiet",
+      "cron": "17 * * * *",
+      "timezone": "local",
+      "description": "Auto-regenerate stale HTML companions for state/shared/specs + state/shared/research Markdown twins (mtime + <meta prism-source-hash> sha256 check, per-file error isolation so one bad file logs+continues, lock-guarded at state/shared/.emit-all-spec-html.lock). Idempotent — only re-renders <stem>.html + <stem>.html.hash when missing/stale. HTML-PRIMARY-MS0/U-HPS02.",
+      "enabled": true,
+      "added": "2026-05-12"
     }
   ]
 }

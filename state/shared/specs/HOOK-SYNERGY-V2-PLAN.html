@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="b89977e31899e1604fde0bda1c7a7cf0c783303d695001497f07f704f1fac907">
+<title>HOOK-SYNERGY-V2 — Hook System Architecture Plan</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">HOOK-SYNERGY-V2 — Hook System Architecture Plan</h1>
+<p class="provenance">Generated 2026-05-12T12:43:26.713Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#hook-synergy-v2-hook-system-architecture-plan">HOOK-SYNERGY-V2 — Hook System Architecture Plan</a></li>
+<li class="toc-l2"><a href="#1-why-hooks-fail-today-root-cause-synthesis">§1 — Why hooks fail today (root-cause synthesis)</a></li>
+<li class="toc-l2"><a href="#2-synergy-principles-mirror-prisms-existing-architecture">§2 — Synergy principles (mirror PRISM&#39;s existing architecture)</a></li>
+<li class="toc-l2"><a href="#3-hook-system-v2-architecture-10-elements">§3 — Hook System v2 Architecture (10 elements)</a></li>
+<li class="toc-l3"><a href="#31-hook-classification-system-5-tiers">3.1 Hook Classification System (5 tiers)</a></li>
+<li class="toc-l3"><a href="#32-hook-registry-mirror-dispatcher-registry">3.2 Hook Registry (mirror dispatcher registry)</a></li>
+<li class="toc-l3"><a href="#33-async-hook-dispatcher-tier-4">3.3 Async hook dispatcher (Tier 4)</a></li>
+<li class="toc-l3"><a href="#34-settings-layer-dedup-tool">3.4 Settings layer dedup tool</a></li>
+<li class="toc-l3"><a href="#35-cross-worktree-hook-firewall">3.5 Cross-worktree hook firewall</a></li>
+<li class="toc-l3"><a href="#36-chat-bus-latency-budget-sqlite-wal">3.6 Chat-bus latency budget (SQLite WAL)</a></li>
+<li class="toc-l3"><a href="#37-hook-creation-gate-mirror-duplicationguardengine">3.7 Hook creation gate (mirror duplicationGuardEngine)</a></li>
+<li class="toc-l3"><a href="#38-hook-profiling-telemetry">3.8 Hook profiling telemetry</a></li>
+<li class="toc-l3"><a href="#39-hookengine-compression">3.9 Hook→Engine compression</a></li>
+<li class="toc-l3"><a href="#310-the-hook-fast-lane">3.10 The &quot;Hook Fast Lane&quot;</a></li>
+<li class="toc-l2"><a href="#4-migration-phases-h1h6">§4 — Migration phases (H1–H6)</a></li>
+<li class="toc-l2"><a href="#5-hard-rules-no-escape-hatches">§5 — Hard rules (no escape hatches)</a></li>
+<li class="toc-l2"><a href="#6-tie-ins-with-current-prism-systems">§6 — Tie-ins with current PRISM systems</a></li>
+<li class="toc-l3"><a href="#61-k2-cloud-ms0-alignment">6.1 K2-CLOUD-MS0 alignment</a></li>
+<li class="toc-l3"><a href="#62-system-synergy-audit-2026-05-09-alignment">6.2 SYSTEM-SYNERGY-AUDIT-2026-05-09 alignment</a></li>
+<li class="toc-l3"><a href="#63-build_state-auto-injection-alignment">6.3 BUILD_STATE auto-injection alignment</a></li>
+<li class="toc-l3"><a href="#64-wiki-tribal-knowledge-alignment">6.4 Wiki + tribal knowledge alignment</a></li>
+<li class="toc-l3"><a href="#65-multi-chat-coordination-alignment">6.5 Multi-chat coordination alignment</a></li>
+<li class="toc-l3"><a href="#66-boris-loopagent-doctrine-alignment">6.6 Boris loop+agent doctrine alignment</a></li>
+<li class="toc-l3"><a href="#67-adaptive-thresholds-engine-alignment">6.7 Adaptive-thresholds engine alignment</a></li>
+<li class="toc-l2"><a href="#7-acceptance-criteria-definition-of-done">§7 — Acceptance criteria (definition of done)</a></li>
+<li class="toc-l2"><a href="#8-open-questions-resolve-before-h1">§8 — Open questions (resolve before H1)</a></li>
+<li class="toc-l2"><a href="#9-provenance">§9 — Provenance</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="hook-synergy-v2-hook-system-architecture-plan"><a class="anchor" href="#hook-synergy-v2-hook-system-architecture-plan" aria-label="Permalink to HOOK-SYNERGY-V2 — Hook System Architecture Plan">#</a>HOOK-SYNERGY-V2 — Hook System Architecture Plan</h1>
+<blockquote>
+<p><strong>Author:</strong> claude-85cedf09 · <strong>Date:</strong> 2026-05-10 · <strong>Doctrine:</strong> Boris loop+agent + comprehensive-build <strong>Trigger:</strong> 480-hook overload diagnosed; 50+ minute tool hangs traced to stacked timeouts; user request &quot;plan how to update hooks system to synergize with the overall system better so we stop having conflicts and issues and tool hangs&quot; <strong>Stopgaps already shipped:</strong> 8 timeout reductions (158s → 52s worst-case). This plan replaces stopgaps with structural fix.</p>
+</blockquote>
+<hr>
+<h2 id="1-why-hooks-fail-today-root-cause-synthesis"><a class="anchor" href="#1-why-hooks-fail-today-root-cause-synthesis" aria-label="Permalink to §1 — Why hooks fail today (root-cause synthesis)">#</a>§1 — Why hooks fail today (root-cause synthesis)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Failure mode</th><th>Evidence</th><th>Cost</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><strong>Total hook count uncontrolled</strong> — 480 wired commands across 3 settings layers (342 global + 138 project) with NO creation gate</td><td><code>grep -c &#39;&quot;command&quot;&#39; C:/Users/wompu/.claude/settings.json</code> = 342; <code>H:/prism/.claude/settings.json</code> = 138</td><td>Every tool call fans out to dozens of hooks</td></tr>
+<tr><td>2</td><td><strong>Empty/wildcard matchers</strong> fire on every tool — <code>&quot;&quot;</code> and <code>.*</code> matchers don&#39;t filter</td><td>17 matcher groups in PreToolUse; 2 are wildcards</td><td>A simple <code>Read</code> triggers 30+ hooks instead of 3</td></tr>
+<tr><td>3</td><td><strong>Synchronous critical-path on Stop</strong> — heavy work (vitest, git ops, lint) blocks turn end</td><td><code>test-100-percent-gate.mjs @ 120s</code>, <code>git-sync-stop.mjs @ 35s</code></td><td>One stuck hook holds the entire session</td></tr>
+<tr><td>4</td><td><strong>Cross-worktree references</strong> — main settings reference sibling worktree paths</td><td><code>H:/prism-iooms0/.claude/hooks/quality-dashboard-alert.mjs</code> wired in main</td><td>If sibling locked/corrupt, main hangs</td></tr>
+<tr><td>5</td><td><strong>Settings layer additivity</strong> — three layers ADD, not OVERRIDE</td><td><code>C:/Users/wompu/.claude/</code>, <code>H:/.claude/</code>, <code>H:/prism/.claude/</code> all stack</td><td>Same hook can be wired multiple times silently</td></tr>
+<tr><td>6</td><td><strong>Multi-chat lock contention</strong> — every Edit fires file-claim-guard → JSON read+write on shared state</td><td>6 concurrent chats × <code>state/shared/*.json</code> writes</td><td>Each chat blocks waiting for others&#39; fsyncs</td></tr>
+<tr><td>7</td><td><strong>No per-hook telemetry</strong> — can&#39;t see which hook is slow until you grep settings</td><td>No <code>hook-latency.jsonl</code> ledger</td><td>Hangs are diagnosed manually each time</td></tr>
+<tr><td>8</td><td><strong>Hook ≠ Engine separation broken</strong> — hooks contain real business logic that should be engines</td><td><code>ai-feature-recommend.mjs</code> (hook) duplicates <code>prismSelfAwarenessEngine.recommendAIFeatures()</code> (engine)</td><td>Hooks become parallel dispatcher universe — debugging happens in hooks land instead of engines land</td></tr>
+<tr><td>9</td><td><strong>No back-pressure</strong> — failing hooks keep firing</td><td><code>continueOnError: false</code> for 25+ HARD BLOCK hooks means one hang = total block</td><td>No circuit breaker / rate limit</td></tr>
+<tr><td>10</td><td><strong>Asset-creation drift</strong> — every &quot;I&#39;ll just add a hook&quot; instinct compounds</td><td>480 hooks vs intended ~50</td><td>The same anti-pattern that produced 3163 engines is now in hooks</td></tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="2-synergy-principles-mirror-prisms-existing-architecture"><a class="anchor" href="#2-synergy-principles-mirror-prisms-existing-architecture" aria-label="Permalink to §2 — Synergy principles (mirror PRISM&#39;s existing architecture)">#</a>§2 — Synergy principles (mirror PRISM&#39;s existing architecture)</h2>
+<p>PRISM already has solved THIS class of problem for engines + dispatchers. Apply the SAME patterns to hooks:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>PRISM solved-pattern</th><th>Hook system parallel</th></tr></thead>
+<tbody>
+<tr><td><code>duplicationGuardEngine.checkBeforeCreating()</code></td><td><code>hookCreationGuard.checkBeforeWiring()</code></td></tr>
+<tr><td><code>prism_session:dispatcher_map_compact</code></td><td><code>prism_session:hook_map_compact</code></td></tr>
+<tr><td>Engines tier 0-4 (cores → frontend)</td><td>Hooks tier 0-4 (safety → async)</td></tr>
+<tr><td><code>AISystemRouterEngine</code> (8 backends, 9 task classes)</td><td><code>HookRouterEngine</code> (5 tiers, N hook types)</td></tr>
+<tr><td><code>BUILD_STATE.json</code> auto-injected</td><td><code>HOOK_STATE.json</code> auto-injected</td></tr>
+<tr><td>Boris doctrine: HARD GATE on verification feedback loop</td><td>Hook test harness: every new hook ships with a fire-test</td></tr>
+<tr><td><code>wire-edm-studio</code> 3-tier AI hierarchy</td><td><code>hook-router</code> 3-tier latency hierarchy</td></tr>
+<tr><td><code>prism_calc:cutting_force_*</code> action enum + Zod schema</td><td><code>hook-router:fire(&lt;event&gt;, &lt;tier&gt;)</code> action enum</td></tr>
+</tbody>
+</table></div>
+<p><strong>Core insight:</strong> hooks are functionally microservices that intercept tool calls. Treat them as a tier in the same architecture — not as a separate parallel system.</p>
+<hr>
+<h2 id="3-hook-system-v2-architecture-10-elements"><a class="anchor" href="#3-hook-system-v2-architecture-10-elements" aria-label="Permalink to §3 — Hook System v2 Architecture (10 elements)">#</a>§3 — Hook System v2 Architecture (10 elements)</h2>
+<h3 id="31-hook-classification-system-5-tiers"><a class="anchor" href="#31-hook-classification-system-5-tiers" aria-label="Permalink to 3.1 Hook Classification System (5 tiers)">#</a>3.1 Hook Classification System (5 tiers)</h3>
+<pre><code>Tier 0: Critical Safety       — HARD BLOCK violations          — must complete &lt;2s
+        (duplication-hard-block, file-claim-guard, asset-deletion-block, settings-json-addonly-guard)
+Tier 1: Active Enforcement    — Block on bad pattern           — &lt;5s
+        (ban-facade-patterns, code-completeness-gate, test-legitimacy, anti-pattern-detector)
+Tier 2: Awareness Injection   — Inject context, never block    — &lt;3s
+        (claude-brief-inject, chat-bus-inject, wiki-precheck-inject, build-state-inject)
+Tier 3: Telemetry/Logging     — Fire-and-forget                — &lt;1s
+        (hook-stats, ollama-offload-tracker, prism-awareness-cache)
+Tier 4: Async/Background      — Defer with promise queue       — unbounded
+        (test-100-percent-gate, git-sync-fetch, deep-test-sweep)
+</code></pre>
+<p>Every wired hook MUST declare its tier in a frontmatter block at top of file:</p>
+<pre><code class="language-js">/**
+ * tier: 1
+ * matcher: ^(Edit|Write)$
+ * blastRadius: ~50 hooks fan-out per fire
+ * avgLatencyMs: 350
+ */
+</code></pre>
+<p>A new hook <code>hook-tier-validator.mjs</code> (PreToolUse on Edit of <code>.claude/hooks/*.mjs</code>) HARD BLOCKS commits of hooks missing tier frontmatter.</p>
+<h3 id="32-hook-registry-mirror-dispatcher-registry"><a class="anchor" href="#32-hook-registry-mirror-dispatcher-registry" aria-label="Permalink to 3.2 Hook Registry (mirror dispatcher registry)">#</a>3.2 Hook Registry (mirror dispatcher registry)</h3>
+<p>New artifacts:</p>
+<ul>
+<li><code>mcp-server/data/state/HOOK_REGISTRY.json</code> — auto-generated from settings.json + hook frontmatter
+<ul>
+<li>Per hook: <code>{ name, tier, matchers[], events[], avgLatencyMs, p95LatencyMs, fireCount, lastFired, failMode, blastRadius }</code></li>
+</ul></li>
+<li><code>mcp-server/data/docs/HOOK_DIGEST.md</code> — 1-line summary per hook (sortable by tier/latency/fan-out)</li>
+<li><code>prism_dev:hook_registry</code> action — query/filter/aggregate</li>
+<li><code>prism_dev:hook_map_compact</code> action — token-cheap (mirror of <code>dispatcher_map_compact</code>)</li>
+</ul>
+<p>Skill <code>/hook-browse</code> already exists — extend it to read from the new registry.</p>
+<h3 id="33-async-hook-dispatcher-tier-4"><a class="anchor" href="#33-async-hook-dispatcher-tier-4" aria-label="Permalink to 3.3 Async hook dispatcher (Tier 4)">#</a>3.3 Async hook dispatcher (Tier 4)</h3>
+<p>The 120s test-100-percent-gate shouldn&#39;t BLOCK Stop. New flow:</p>
+<pre><code>Stop event fires
+  → tier-0/1/2/3 hooks run synchronously (budget: 30s total)
+  → tier-4 hooks queue to AsyncHookDispatcher
+  → AsyncHookDispatcher runs them in background process pool
+  → Results land in state/shared/async-hook-results.jsonl
+  → Next SessionStart hook reads jsonl, surfaces failed/stale results as warnings
+  → Stop NEVER waits more than 30s for hooks
+</code></pre>
+<p>New engines:</p>
+<ul>
+<li><code>AsyncHookDispatcherEngine.ts</code> — process pool, JSONL result writer, retry policy</li>
+<li><code>AsyncHookResultReaderEngine.ts</code> — SessionStart consumer</li>
+</ul>
+<h3 id="34-settings-layer-dedup-tool"><a class="anchor" href="#34-settings-layer-dedup-tool" aria-label="Permalink to 3.4 Settings layer dedup tool">#</a>3.4 Settings layer dedup tool</h3>
+<p>New script <code>scripts/settings-dedup-audit.mjs</code>:</p>
+<ul>
+<li>Parses all 3 settings.json layers (C:/global, H:/global, H:/prism/project, plus *.local.json)</li>
+<li>Builds <code>(hookCommand, event, matcher)</code> tuples</li>
+<li>Reports duplicates with location pointers</li>
+<li>Outputs <code>state/shared/SETTINGS_DEDUP_REPORT.md</code> with proposed prunings</li>
+<li>Optional <code>--apply</code> flag (gated by user confirmation) executes the prunings</li>
+</ul>
+<p>Goal metric: target ≤200 wired hooks (down from 480) by removing exact duplicates and consolidating tier-1/2 hooks into single multi-purpose hooks.</p>
+<h3 id="35-cross-worktree-hook-firewall"><a class="anchor" href="#35-cross-worktree-hook-firewall" aria-label="Permalink to 3.5 Cross-worktree hook firewall">#</a>3.5 Cross-worktree hook firewall</h3>
+<p>New PreToolUse hook <code>hook-cross-worktree-block.mjs</code> (Tier 0):</p>
+<ul>
+<li>Scans settings.json for <code>H:/prism-*</code> patterns NOT matching <code>process.cwd()</code></li>
+<li>HARD BLOCKS SessionStart if found</li>
+<li>Auto-fixes in <code>--fix</code> mode by rewriting paths to current tree&#39;s <code>.claude/hooks/</code></li>
+</ul>
+<p>This eliminates the failure mode where main tree depends on sibling worktree health.</p>
+<h3 id="36-chat-bus-latency-budget-sqlite-wal"><a class="anchor" href="#36-chat-bus-latency-budget-sqlite-wal" aria-label="Permalink to 3.6 Chat-bus latency budget (SQLite WAL)">#</a>3.6 Chat-bus latency budget (SQLite WAL)</h3>
+<p>Replace JSON-on-disk file claims with SQLite WAL-mode:</p>
+<ul>
+<li><code>state/shared/coordination.db</code> — WAL journal, concurrent reads, serialized writes</li>
+<li>Write latency: ~50ms (vs current ~500ms+ on contended JSON)</li>
+<li>Migration: <code>scripts/migrate-claims-to-sqlite.mjs</code> reads <code>WORK_CLAIMS.json</code> + <code>AGENT_CHAT.md</code> → seeds DB</li>
+<li>Backward-compat: <code>prism_context:claim_file</code> action body unchanged; only storage swap</li>
+</ul>
+<p>Engine wrapper: <code>CoordinationStoreEngine.ts</code> (SQLite reader/writer with prepared statements).</p>
+<h3 id="37-hook-creation-gate-mirror-duplicationguardengine"><a class="anchor" href="#37-hook-creation-gate-mirror-duplicationguardengine" aria-label="Permalink to 3.7 Hook creation gate (mirror duplicationGuardEngine)">#</a>3.7 Hook creation gate (mirror duplicationGuardEngine)</h3>
+<p>New PreToolUse hook <code>hook-creation-gate.mjs</code> fires on Edit/Write to <code>.claude/hooks/*.mjs</code>:</p>
+<pre><code class="language-js">import { hookCreationGuardEngine } from &quot;...&quot;;
+
+const check = hookCreationGuardEngine.checkBeforeWiring({
+  proposedName: &quot;my-new-hook.mjs&quot;,
+  matcher: &quot;^Edit$&quot;,
+  event: &quot;PreToolUse&quot;,
+  tier: 2,
+  behaviorSignature: &lt;hash of regex patterns + dispatched MCP actions&gt;,
+});
+
+if (!check.shouldProceed) {
+  // BLOCK — overlap with existing hook(s): check.overlaps[]
+  // Builder must extend existing hook OR write justification.md
+}
+</code></pre>
+<p>New engine: <code>HookCreationGuardEngine.ts</code> (mirrors <code>DuplicationGuardEngine</code>).</p>
+<h3 id="38-hook-profiling-telemetry"><a class="anchor" href="#38-hook-profiling-telemetry" aria-label="Permalink to 3.8 Hook profiling telemetry">#</a>3.8 Hook profiling telemetry</h3>
+<p>Wire <code>hookCallEnvelope.mjs</code> (a thin shim around <code>node</code> that all hook invocations route through):</p>
+<pre><code class="language-js">// Every settings.json hook command becomes:
+&quot;\&quot;H:/.claude/bin/portable-node\&quot; H:/prism/.claude/hooks/_envelope.mjs &lt;real-hook&gt;&quot;
+
+// _envelope.mjs:
+//   1. records start ts
+//   2. spawns real hook, captures stdout/stderr/exit
+//   3. appends { ts, hook, event, matcher, tool, latencyMs, exitCode } to hook-latency.jsonl
+//   4. proxies result to caller
+</code></pre>
+<p>Daily digest at <code>state/shared/HOOK-PERFORMANCE.md</code> shows P50/P95/P99 per hook.</p>
+<p>Auto-flag any hook with P95 &gt; timeout × 0.8 — that hook is about to time out regularly. Ledger triggers a tier-promotion or timeout-bump proposal.</p>
+<p>Self-tuning: each hook can read its own <code>getHookHistoricalP99()</code> and adjust internal logic (e.g. skip work when prior runs were slow).</p>
+<h3 id="39-hookengine-compression"><a class="anchor" href="#39-hookengine-compression" aria-label="Permalink to 3.9 Hook→Engine compression">#</a>3.9 Hook→Engine compression</h3>
+<p>Audit pass: identify hooks containing real business logic. For each, refactor to thin shim that calls existing engine.</p>
+<p>Target candidates (initial pass):</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Hook</th><th>Compress to engine</th></tr></thead>
+<tbody>
+<tr><td><code>ai-feature-recommend.mjs</code></td><td><code>prismSelfAwarenessEngine.recommendAIFeatures()</code></td></tr>
+<tr><td><code>dedup-auto-invoke.mjs</code></td><td><code>duplicationGuardEngine.checkBeforeCreating()</code></td></tr>
+<tr><td><code>inventory-check-guard.mjs</code></td><td><code>prismSelfAwarenessEngine.getManifest()</code></td></tr>
+<tr><td><code>mcp-route-suggest.mjs</code></td><td><code>aiSystemRouterEngine.classify()</code> + <code>route()</code></td></tr>
+<tr><td><code>wiki-precheck-inject.mjs</code></td><td><code>wikiIndexMaintainerEngine.search()</code></td></tr>
+<tr><td><code>chat-bus-inject.mjs</code></td><td><code>coordinationStoreEngine.recentMessages()</code></td></tr>
+</tbody>
+</table></div>
+<p>Result: hooks become routing layer; engines do real work. Tests live with engines (where they belong).</p>
+<h3 id="310-the-hook-fast-lane"><a class="anchor" href="#310-the-hook-fast-lane" aria-label="Permalink to 3.10 The &quot;Hook Fast Lane&quot;">#</a>3.10 The &quot;Hook Fast Lane&quot;</h3>
+<p>New matcher convention: replace <code>&quot;&quot;</code> (empty/all) and <code>.*</code> matchers with explicit tool sets:</p>
+<pre><code class="language-jsonc">// BEFORE (fires on every tool):
+{ &quot;matcher&quot;: &quot;&quot;, &quot;hooks&quot;: [...50 hooks...] }
+
+// AFTER (split by blast radius):
+{ &quot;matcher&quot;: &quot;^(Read|Glob|Grep|LS)$&quot;, &quot;hooks&quot;: [...10 lightweight hooks...] }   // FAST LANE
+{ &quot;matcher&quot;: &quot;^(Edit|Write|MultiEdit|Bash)$&quot;, &quot;hooks&quot;: [...40 enforcement hooks...] }  // SLOW LANE
+</code></pre>
+<p>Read/Glob/Grep tool calls (the most common) skip enforcement hooks they don&#39;t apply to — instant ~70% latency reduction on read-only operations.</p>
+<hr>
+<h2 id="4-migration-phases-h1h6"><a class="anchor" href="#4-migration-phases-h1h6" aria-label="Permalink to §4 — Migration phases (H1–H6)">#</a>§4 — Migration phases (H1–H6)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Phase</th><th>Unit</th><th>Deliverable</th><th>Hours</th><th>Deps</th><th>Outcome</th></tr></thead>
+<tbody>
+<tr><td><strong>H1</strong></td><td>U-HOOK-AUDIT</td><td><code>scripts/settings-dedup-audit.mjs</code> + <code>state/shared/SETTINGS_DEDUP_REPORT.md</code></td><td>2</td><td>none</td><td>Identify 100-200 prune candidates; ground-truth count</td></tr>
+<tr><td><strong>H2</strong></td><td>U-HOOK-REGISTRY</td><td><code>HOOK_REGISTRY.json</code> generator + <code>prism_dev:hook_registry</code> action</td><td>3</td><td>H1</td><td>Single source of truth for all hooks</td></tr>
+<tr><td><strong>H3</strong></td><td>U-HOOK-TIERS</td><td>Tier frontmatter on all 480 hooks (auto-classify by current behavior) + <code>hook-tier-validator.mjs</code> PreToolUse block</td><td>3</td><td>H2</td><td>Every hook has known tier; new hooks must declare</td></tr>
+<tr><td><strong>H4</strong></td><td>U-HOOK-ENVELOPE</td><td><code>_envelope.mjs</code> shim + <code>hook-latency.jsonl</code> + nightly digest</td><td>3</td><td>H2</td><td>Per-hook P50/P95/P99 visibility</td></tr>
+<tr><td><strong>H5</strong></td><td>U-HOOK-CREATION-GATE</td><td><code>HookCreationGuardEngine.ts</code> + <code>hook-creation-gate.mjs</code> PreToolUse</td><td>2</td><td>H2</td><td>No more uncontrolled hook addition</td></tr>
+<tr><td><strong>H6</strong></td><td>U-HOOK-FAST-LANE</td><td>Settings.json matcher split (Read/Glob/Grep vs Edit/Write/Bash) + dedup apply</td><td>2</td><td>H1, H2, H3</td><td>Tool-call latency ↓ 70% on reads</td></tr>
+<tr><td><strong>H7</strong> <em>(stretch)</em></td><td>U-HOOK-ASYNC-DISPATCH</td><td><code>AsyncHookDispatcherEngine.ts</code> + Tier-4 routing for test-100-percent-gate</td><td>4</td><td>H3</td><td>Stop never waits &gt;30s</td></tr>
+<tr><td><strong>H8</strong> <em>(stretch)</em></td><td>U-HOOK-COORD-SQLITE</td><td>SQLite WAL claim store + migration</td><td>3</td><td>none</td><td>Multi-chat coord latency ↓ 90%</td></tr>
+<tr><td><strong>H9</strong> <em>(stretch)</em></td><td>U-HOOK-COMPRESS</td><td>Refactor 6 high-traffic hooks into engine-shim form</td><td>4</td><td>H2</td><td>Hooks become routing layer; engines do real work</td></tr>
+<tr><td><strong>H10</strong> <em>(stretch)</em></td><td>U-HOOK-CROSS-WORKTREE-FIREWALL</td><td><code>hook-cross-worktree-block.mjs</code> Tier 0</td><td>1</td><td>none</td><td>Eliminate sibling-worktree dependency</td></tr>
+</tbody>
+</table></div>
+<p><strong>Critical path: H1 → H2 → H3 → H6</strong> (10 hours, ~2 sessions) <strong>Full plan: H1-H10</strong> (~25 hours, 4-5 sessions)</p>
+<hr>
+<h2 id="5-hard-rules-no-escape-hatches"><a class="anchor" href="#5-hard-rules-no-escape-hatches" aria-label="Permalink to §5 — Hard rules (no escape hatches)">#</a>§5 — Hard rules (no escape hatches)</h2>
+<ol>
+<li><strong>No new hook ships without tier frontmatter</strong> (after H3 lands; enforced by <code>hook-tier-validator.mjs</code>)</li>
+<li><strong>No new hook ships without P95 budget claim</strong> (after H4 lands; envelope flags violators)</li>
+<li><strong>No empty (<code>&quot;&quot;</code>) or wildcard (<code>.*</code>) matchers in PreToolUse</strong> (after H6 lands; explicit tool sets only)</li>
+<li><strong>No cross-worktree hook references</strong> (after H10 lands; firewall blocks)</li>
+<li><strong>No hook duplicates business logic in an engine</strong> (after H9 lands; refactor pass enforces)</li>
+<li><strong>No settings layer is allowed to silently shadow another</strong> (after H1 lands; dedup audit fails CI on duplicates)</li>
+<li><strong>All Tier-4 (async) hooks MUST defer — never block synchronous Stop</strong></li>
+<li><strong>HOOK_REGISTRY.json is single source of truth</strong> — settings.json edits MUST update registry in same commit</li>
+<li>**Boris loop: every H* unit ships with peer reviewer subagent (isolation:worktree)** before merge</li>
+<li><strong>Build EVERY identified hook fix in this plan — no &quot;deferred to follow-up&quot; without user opt-out</strong></li>
+</ol>
+<hr>
+<h2 id="6-tie-ins-with-current-prism-systems"><a class="anchor" href="#6-tie-ins-with-current-prism-systems" aria-label="Permalink to §6 — Tie-ins with current PRISM systems">#</a>§6 — Tie-ins with current PRISM systems</h2>
+<h3 id="61-k2-cloud-ms0-alignment"><a class="anchor" href="#61-k2-cloud-ms0-alignment" aria-label="Permalink to 6.1 K2-CLOUD-MS0 alignment">#</a>6.1 K2-CLOUD-MS0 alignment</h3>
+<p>The 480-hook hang directly blocks K2-K12 build (every Edit on <code>AISystemRouterEngine.ts</code> waits for full PreToolUse stack). H1+H6 unblock K2-K12 by reducing per-Edit hook latency from ~30s to ~5s.</p>
+<h3 id="62-system-synergy-audit-2026-05-09-alignment"><a class="anchor" href="#62-system-synergy-audit-2026-05-09-alignment" aria-label="Permalink to 6.2 SYSTEM-SYNERGY-AUDIT-2026-05-09 alignment">#</a>6.2 SYSTEM-SYNERGY-AUDIT-2026-05-09 alignment</h3>
+<p>Audit&#39;s H3/H4 viz layers depend on a stable hook registry. H2 (HOOK_REGISTRY.json) is the data source for &quot;L11: hook leaves&quot; in the system viz.</p>
+<h3 id="63-build_state-auto-injection-alignment"><a class="anchor" href="#63-build_state-auto-injection-alignment" aria-label="Permalink to 6.3 BUILD_STATE auto-injection alignment">#</a>6.3 BUILD_STATE auto-injection alignment</h3>
+<p><code>build-state-inject</code> hook is currently in the SessionStart fan-out. H6 fast-lane keeps it on SessionStart but moves it OUT of every PreToolUse fan-out (which it shouldn&#39;t be in anyway).</p>
+<h3 id="64-wiki-tribal-knowledge-alignment"><a class="anchor" href="#64-wiki-tribal-knowledge-alignment" aria-label="Permalink to 6.4 Wiki + tribal knowledge alignment">#</a>6.4 Wiki + tribal knowledge alignment</h3>
+<p><code>wiki-precheck-inject</code> fires on every UserPromptSubmit. H9 compresses it to engine call (<code>wikiIndexMaintainerEngine.search()</code>) — same behavior, ~10× faster, testable.</p>
+<h3 id="65-multi-chat-coordination-alignment"><a class="anchor" href="#65-multi-chat-coordination-alignment" aria-label="Permalink to 6.5 Multi-chat coordination alignment">#</a>6.5 Multi-chat coordination alignment</h3>
+<p>6 concurrent chats × 480 hooks = the multiplicative latency problem. H8 (SQLite WAL) addresses the storage layer; H6 fast-lane addresses the fan-out layer. Together: multi-chat tool-call P95 drops from ~30s to ~3s.</p>
+<h3 id="66-boris-loopagent-doctrine-alignment"><a class="anchor" href="#66-boris-loopagent-doctrine-alignment" aria-label="Permalink to 6.6 Boris loop+agent doctrine alignment">#</a>6.6 Boris loop+agent doctrine alignment</h3>
+<p>Every H* unit ships peer-reviewer subagent (isolation:worktree) per doctrine. H4 envelope ledger gives the reviewer hard data to validate against. H5 creation gate prevents the reviewer&#39;s &quot;this hook duplicates X&quot; findings from re-occurring.</p>
+<h3 id="67-adaptive-thresholds-engine-alignment"><a class="anchor" href="#67-adaptive-thresholds-engine-alignment" aria-label="Permalink to 6.7 Adaptive-thresholds engine alignment">#</a>6.7 Adaptive-thresholds engine alignment</h3>
+<p>The existing <code>adaptive-thresholds.json</code> (telemetry-driven thresholds) is the right home for hook-tier P95 budget tuning. H4 envelope ledger feeds it; H3 tier system reads from it.</p>
+<hr>
+<h2 id="7-acceptance-criteria-definition-of-done"><a class="anchor" href="#7-acceptance-criteria-definition-of-done" aria-label="Permalink to §7 — Acceptance criteria (definition of done)">#</a>§7 — Acceptance criteria (definition of done)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Criterion</th><th>Measurement</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Total wired hook count ≤ 200</td><td><code>grep -c &#39;&quot;command&quot;&#39; settings.json</code> across all layers</td></tr>
+<tr><td>2</td><td>Every hook has tier frontmatter</td><td><code>node scripts/audit-hook-frontmatter.mjs</code> returns 0 violations</td></tr>
+<tr><td>3</td><td>P95 tool-call latency ≤ 5s for Read/Glob/Grep</td><td><code>hook-latency.jsonl</code> aggregation</td></tr>
+<tr><td>4</td><td>P95 tool-call latency ≤ 15s for Edit/Write/Bash</td><td>same</td></tr>
+<tr><td>5</td><td>Stop never waits more than 30s</td><td><code>_envelope.mjs</code> ledger shows zero &gt;30s Stop completions over 7 days</td></tr>
+<tr><td>6</td><td>Zero cross-worktree hook references</td><td><code>hook-cross-worktree-block.mjs</code> audit passes</td></tr>
+<tr><td>7</td><td>Zero duplicate (hookCommand, event, matcher) tuples</td><td><code>settings-dedup-audit.mjs</code> passes</td></tr>
+<tr><td>8</td><td>All 6 high-traffic hooks compressed to engine-shim form</td><td>manual code review</td></tr>
+<tr><td>9</td><td>New hook creation requires <code>hookCreationGuardEngine.checkBeforeWiring()</code> PASS</td><td>gate hook in PreToolUse blocks otherwise</td></tr>
+<tr><td>10</td><td>HOOK_REGISTRY.json regenerates on every settings.json change</td><td>git pre-commit hook</td></tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="8-open-questions-resolve-before-h1"><a class="anchor" href="#8-open-questions-resolve-before-h1" aria-label="Permalink to §8 — Open questions (resolve before H1)">#</a>§8 — Open questions (resolve before H1)</h2>
+<ol>
+<li><strong>Tier-4 async dispatcher transport</strong> — process pool (Node <code>worker_threads</code>) vs spawn-and-detach? Process pool is more efficient but adds complexity. <strong>Tentative:</strong> spawn-and-detach for v1, upgrade to pool in H7.5 if telemetry shows overhead.</li>
+<li><strong>SQLite migration risk</strong> — 6 concurrent chats currently relying on JSON files. Migration must be atomic. <strong>Tentative:</strong> dual-write period (write to BOTH JSON and SQLite for 1 week) before flipping reads, then deprecate JSON.</li>
+<li><strong>Backward compat for hooks lacking tier frontmatter</strong> — 480 hooks need backfill. <strong>Tentative:</strong> auto-classify by behavior heuristic (greps for <code>process.exit(2)</code> → Tier 0/1; absence → Tier 2/3) + manual review of edge cases.</li>
+<li><strong>Hook envelope vs direct invocation perf</strong> — adds ~5ms per hook fire. With 50 hooks per tool call = 250ms overhead. Acceptable? <strong>Tentative:</strong> yes for v1; if telemetry shows pain, write envelope in Rust later.</li>
+<li><strong>Should H7 (async dispatch) be in critical path?</strong> — H6 alone gives 70% improvement. H7 adds another 20% but more complex. <strong>Recommendation:</strong> ship H1-H6 as wave 1; H7-H10 as wave 2 after measuring impact.</li>
+</ol>
+<hr>
+<h2 id="9-provenance"><a class="anchor" href="#9-provenance" aria-label="Permalink to §9 — Provenance">#</a>§9 — Provenance</h2>
+<ul>
+<li>Diagnosis session: claude-85cedf09 on 2026-05-10</li>
+<li>Stopgaps applied (commit pending): 7 timeout reductions in <code>C:/Users/wompu/.claude/settings.json</code> (158s → 52s worst-case)</li>
+<li>Source files inspected:
+<ul>
+<li><code>C:/Users/wompu/.claude/settings.json</code> (38KB, 342 wired hook commands)</li>
+<li><code>H:/prism/.claude/settings.json</code> (21KB, 138 wired hook commands)</li>
+<li><code>H:/prism/.claude/hooks/test-100-percent-gate.mjs</code> (confirmed has fast-path skip + env escape hatch)</li>
+</ul></li>
+<li>Active peer chats during diagnosis: 6 chats on DESKTOP-N7MI1VB (claude-0413eca6, 671e2b1f, 7b9d1810, 845cf238, 99eca613, d9860be8)</li>
+<li>Doctrine references: <code>state/shared/specs/BORIS-LOOP-AGENT-DOCTRINE.md</code> (227 lines)</li>
+<li>Related plans: <code>state/shared/specs/K2-CLOUD-INTEGRATION-PLAN.md</code>, <code>state/shared/specs/SYSTEM-SYNERGY-AUDIT-2026-05-09.md</code></li>
+</ul>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="HOOK-SYNERGY-V2-PLAN.md">HOOK-SYNERGY-V2-PLAN.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

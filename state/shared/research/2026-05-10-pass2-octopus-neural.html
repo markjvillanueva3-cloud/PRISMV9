@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="c8d0220f2db230f307a7d4f21b80dc0f2fc7293bcbc273214d21790755816843">
+<title>Octopus Consensus + Neural-Coord Agent Fleets — Research Pass 2</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">Octopus Consensus + Neural-Coord Agent Fleets — Research Pass 2</h1>
+<p class="provenance">Generated 2026-05-12T12:43:26.557Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#1-why-this-matters">§1 — Why This Matters</a></li>
+<li class="toc-l1"><a href="#2-reputable-papers-arxiv-ids-urls-verified">§2 — Reputable Papers (arXiv IDs + URLs verified)</a></li>
+<li class="toc-l2"><a href="#21-foundational-ensemble-reflection">2.1 Foundational ensemble + reflection</a></li>
+<li class="toc-l2"><a href="#22-cost-aware-routing-cascades">2.2 Cost-aware routing + cascades</a></li>
+<li class="toc-l2"><a href="#23-moa-followups-2025">2.3 MoA followups (2025)</a></li>
+<li class="toc-l2"><a href="#24-graph-neural-agent-routing">2.4 Graph-neural agent routing</a></li>
+<li class="toc-l2"><a href="#25-topology-learning-dynamic-orchestration">2.5 Topology learning + dynamic orchestration</a></li>
+<li class="toc-l2"><a href="#26-frontier-model-kimi">2.6 Frontier model (Kimi)</a></li>
+<li class="toc-l2"><a href="#27-anthropic-orchestrator-worker">2.7 Anthropic orchestrator-worker</a></li>
+<li class="toc-l2"><a href="#28-cloudflare-ai-gateway">2.8 Cloudflare AI Gateway</a></li>
+<li class="toc-l2"><a href="#29-failure-mode-taxonomy">2.9 Failure-mode taxonomy</a></li>
+<li class="toc-l1"><a href="#3-x-twitter-highlights-verbatim">§3 — X / Twitter Highlights (verbatim)</a></li>
+<li class="toc-l1"><a href="#4-concrete-prism-unit-proposals">§4 — Concrete PRISM Unit Proposals</a></li>
+<li class="toc-l2"><a href="#41-u-kimi-transport-kimitransportengine-prismaikimidispatch">4.1 U-KIMI-TRANSPORT (KimiTransportEngine + prismai:kimidispatch)</a></li>
+<li class="toc-l2"><a href="#42-u-moa-layer2-moalayer2engine-prismintelligencemoasynthesize">4.2 U-MOA-LAYER2 (MoaLayer2Engine + prismintelligence:moasynthesize)</a></li>
+<li class="toc-l2"><a href="#43-u-neural-routing-engine-neuralroutingengine-prismsessiongnnroute">4.3 U-NEURAL-ROUTING-ENGINE (NeuralRoutingEngine + prismsession:gnnroute)</a></li>
+<li class="toc-l2"><a href="#44-u-cascade-calibration-cascadecalibrationengine-prismsafetycalibrateddefer">4.4 U-CASCADE-CALIBRATION (CascadeCalibrationEngine + prismsafety:calibrateddefer)</a></li>
+<li class="toc-l2"><a href="#45-u-consensus-quorum-tuner-consensusquorumengine-prismsafetyquorumselect">4.5 U-CONSENSUS-QUORUM-TUNER (ConsensusQuorumEngine + prismsafety:quorumselect)</a></li>
+<li class="toc-l1"><a href="#5-synergy-with-existing-5-tentacle-7-neural-engines">§5 — Synergy With Existing 5-Tentacle + 7 Neural Engines</a></li>
+<li class="toc-l1"><a href="#6-failure-modes">§6 — Failure Modes</a></li>
+<li class="toc-l2"><a href="#61-cascade-collapse">6.1 Cascade collapse</a></li>
+<li class="toc-l2"><a href="#62-consensus-deadlock">6.2 Consensus deadlock</a></li>
+<li class="toc-l2"><a href="#63-neural-drift">6.3 Neural drift</a></li>
+<li class="toc-l2"><a href="#64-moa-quality-dilution-self-moa-finding">6.4 MoA quality dilution (Self-MoA finding)</a></li>
+<li class="toc-l2"><a href="#65-token-cost-runaway-the-15x-problem">6.5 Token-cost runaway (the 15x problem)</a></li>
+<li class="toc-l2"><a href="#66-failure-rate-baseline-mast-production-data">6.6 Failure-rate baseline (MAST production data)</a></li>
+<li class="toc-l2"><a href="#sources">Sources</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<details class="frontmatter" open><summary>Document metadata</summary><div class="table-wrap"><table>
+<tbody>
+<tr><th scope="row">title</th><td>Octopus Consensus + Neural-Coord Agent Fleets — Research Pass 2</td></tr>
+<tr><th scope="row">date</th><td>2026-05-10</td></tr>
+<tr><th scope="row">session</th><td>claude-2570c8f5</td></tr>
+<tr><th scope="row">sources_count</th><td>28</td></tr>
+<tr><th scope="row">x_posts_count</th><td>12</td></tr>
+</tbody>
+</table></div></details>
+<h1 id="1-why-this-matters"><a class="anchor" href="#1-why-this-matters" aria-label="Permalink to §1 — Why This Matters">#</a>§1 — Why This Matters</h1>
+<p>PRISM currently runs a <strong>5-tentacle octopus</strong>: Claude (orchestrator) + Codex (CLI peer) + Gemini (CLI peer) + Kimi K2.6 (cloud, mid-tier) + Ollama qwen2.5-coder:7b (local). The existing scrutiny gate is <strong>3-of-3</strong> (Codex + Gemini + Opus). The roadmap target is <strong>5-of-5</strong> with neural-network-coordinated routing across the seven existing neural engines (MillNeuralNetworkEngine, WEDMNeuralTrainingEngine, CrossDisciplinaryDeepLearningEngine, CrossProcessNeuralLearningEngine, etc.).</p>
+<p>The 2024-2025-2026 research landscape has converged on four directly applicable patterns:</p>
+<ol>
+<li><strong>Mixture-of-Agents (MoA)</strong> — layered ensembles that recursively refine peer outputs, beating GPT-4 at 25x lower cost.</li>
+<li><strong>Cascade routing (FrugalGPT lineage)</strong> — confidence-gated escalation from cheap local models to expensive frontier models, with 98% cost reduction at parity quality.</li>
+<li><strong>Topology-aware orchestration (Puppeteer / GraphRouter)</strong> — graph neural networks learn which agent to route to next based on shared-memory state, replacing hardcoded chains.</li>
+<li><strong>Anthropic orchestrator-worker</strong> — 15x token cost for 90.2% quality lift; validated at PRISM scale and now industry-standard.</li>
+</ol>
+<p>The strategic question is <strong>not</strong> &quot;should we go 5-of-5?&quot; — the empirical case is overwhelming. The question is <strong>how to wire it without falling into the known failure modes</strong>: cascade collapse, consensus deadlock, sycophancy convergence, neural drift, and the 41-86.7% MAST failure rate documented across production multi-agent systems.</p>
+<hr>
+<h1 id="2-reputable-papers-arxiv-ids-urls-verified"><a class="anchor" href="#2-reputable-papers-arxiv-ids-urls-verified" aria-label="Permalink to §2 — Reputable Papers (arXiv IDs + URLs verified)">#</a>§2 — Reputable Papers (arXiv IDs + URLs verified)</h1>
+<h2 id="21-foundational-ensemble-reflection"><a class="anchor" href="#21-foundational-ensemble-reflection" aria-label="Permalink to 2.1 Foundational ensemble + reflection">#</a>2.1 Foundational ensemble + reflection</h2>
+<ul>
+<li><strong>Mixture-of-Agents Enhances Large Language Model Capabilities</strong> — Wang, Wang, Athiwaratkun, Zhang, Zou (Together AI / Duke / Stanford). arXiv <strong>2406.04692</strong>, Jun 7 2024. Layered architecture: each layer of N LLMs takes the prior layer&#39;s outputs as auxiliary input. Together-MoA hits <strong>65.1% on AlpacaEval 2.0</strong> vs 57.5% for GPT-4 Omni using only open-source models. https://arxiv.org/abs/2406.04692</li>
+<li><strong>Reflexion: Language Agents with Verbal Reinforcement Learning</strong> — Shinn, Cassano, Berman, Gopinath, Narasimhan, Yao. arXiv <strong>2303.11366</strong>, NeurIPS 2023. Verbal RL: agents reflect on task feedback into an episodic memory buffer; no weight updates. Foundational pattern for the Codex/Gemini/Opus reviewer arms in PRISM&#39;s 3-of-3 gate. https://arxiv.org/abs/2303.11366</li>
+</ul>
+<h2 id="22-cost-aware-routing-cascades"><a class="anchor" href="#22-cost-aware-routing-cascades" aria-label="Permalink to 2.2 Cost-aware routing + cascades">#</a>2.2 Cost-aware routing + cascades</h2>
+<ul>
+<li><strong>FrugalGPT: How to Use Large Language Models While Reducing Cost and Improving Performance</strong> — Chen, Zaharia, Zou. arXiv <strong>2305.05176</strong>, May 2023 (TMLR 2024). Three strategies: prompt adaptation, LLM approximation, LLM cascade. Cascade matches GPT-4 with <strong>98% cost reduction</strong> or beats it by 4% at parity cost. https://arxiv.org/abs/2305.05176</li>
+<li><strong>A Unified Approach to Routing and Cascading for LLMs</strong> — De Koninck et al. (ETH Zürich). arXiv <strong>2410.10347</strong>, Oct 2024. Derives provably optimal cascade routing under cost-quality tradeoff. https://arxiv.org/abs/2410.10347</li>
+<li><strong>GATEKEEPER: Improving Model Cascades Through Confidence Tuning</strong> — arXiv <strong>2502.19335</strong>, Feb 2025. Cascade-aware confidence calibration; probe-based methods dominate verbalized self-reports for deferral decisions. https://arxiv.org/abs/2502.19335</li>
+</ul>
+<h2 id="23-moa-followups-2025"><a class="anchor" href="#23-moa-followups-2025" aria-label="Permalink to 2.3 MoA followups (2025)">#</a>2.3 MoA followups (2025)</h2>
+<ul>
+<li><strong>Rethinking Mixture-of-Agents: Is Mixing Different LLMs Beneficial?</strong> — Li, Lin, Xia, Jin (Princeton). arXiv <strong>2502.00674</strong>, Feb 2 2025. <strong>Self-MoA</strong> (aggregating outputs from one top model) beats heterogeneous MoA by 6.6% on AlpacaEval. Heterogeneous mixing diluted by weakest model. https://arxiv.org/abs/2502.00674</li>
+<li><strong>RMoA: Optimizing Mixture-of-Agents through Diversity Maximization and Residual Compensation</strong> — Xie, Han, Shi et al. arXiv <strong>2505.24442</strong>, May 30 2025 (ACL 2025 Findings). Adds ResNet-style residual connections + embedding-based greedy diversity selection. https://arxiv.org/abs/2505.24442</li>
+<li><strong>Attention-MoA: Inter-Agent Semantic Attention and Deep Residual Synthesis</strong> — arXiv <strong>2601.16596</strong>, 2026. Self-attention + cross-attention + semantic aggregation for critique-and-refine. https://arxiv.org/abs/2601.16596</li>
+</ul>
+<h2 id="24-graph-neural-agent-routing"><a class="anchor" href="#24-graph-neural-agent-routing" aria-label="Permalink to 2.4 Graph-neural agent routing">#</a>2.4 Graph-neural agent routing</h2>
+<ul>
+<li><strong>GraphRouter: A Graph-based Router for LLM Selections</strong> — arXiv <strong>2410.03834</strong>, Oct 2024. Heterogeneous graph (task/query/LLM nodes); edge-prediction GNN predicts (effect, cost) per (query, LLM) pair. <strong>&gt;12.3% min improvement</strong> over baseline routers; generalizes to unseen LLMs without retraining. https://arxiv.org/abs/2410.03834</li>
+<li><strong>AgentRouter: Knowledge-Graph-Guided LLM Router for Collaborative Multi-Agent QA</strong> — arXiv <strong>2510.05445</strong>, Oct 2025. Type-aware heterogeneous RouterGNN; KL divergence vs empirical agent performance. https://arxiv.org/abs/2510.05445</li>
+<li><strong>PersonalizedRouter: Personalized LLM Routing via Graph-based User Preference Modeling</strong> — arXiv <strong>2511.16883</strong>, Nov 2025. https://arxiv.org/abs/2511.16883</li>
+</ul>
+<h2 id="25-topology-learning-dynamic-orchestration"><a class="anchor" href="#25-topology-learning-dynamic-orchestration" aria-label="Permalink to 2.5 Topology learning + dynamic orchestration">#</a>2.5 Topology learning + dynamic orchestration</h2>
+<ul>
+<li><strong>Topological Structure Learning Should Be A Research Priority for LLM-Based Multi-Agent Systems</strong> — Yang, Zhang, Jin et al. arXiv <strong>2505.22467</strong>, May 28 2025. Position paper: three-stage framework (agent selection, structure profiling, topology synthesis). https://arxiv.org/abs/2505.22467</li>
+<li><strong>Multi-Agent Collaboration via Evolving Orchestration (&quot;Puppeteer&quot;)</strong> — Dang, Qian et al. arXiv <strong>2505.19591</strong>, May 26 2025. RL-trained central controller picks next agent given shared-memory state; emergent cyclic-reasoning structures. https://arxiv.org/abs/2505.19591</li>
+<li><strong>Towards Adaptive, Scalable, and Robust Coordination of LLM Agents (RAPS)</strong> — arXiv <strong>2602.08009</strong>, 2026. Reputation-aware publish-subscribe; agents exchange messages by declared intents, no predefined topology. https://arxiv.org/abs/2602.08009</li>
+<li><strong>Benchmarking LLMs&#39; Swarm Intelligence (SwarmBench)</strong> — arXiv <strong>2505.04364</strong>, May 2025. 2D grid world, local perception only; tests emergent coordination. https://arxiv.org/abs/2505.04364</li>
+</ul>
+<h2 id="26-frontier-model-kimi"><a class="anchor" href="#26-frontier-model-kimi" aria-label="Permalink to 2.6 Frontier model (Kimi)">#</a>2.6 Frontier model (Kimi)</h2>
+<ul>
+<li><strong>Kimi K2: Open Agentic Intelligence</strong> — Moonshot AI / Kimi Team. arXiv <strong>2507.20534</strong>, Jul 28 2025. 1T-param MoE, 15.5T tokens pre-training with MuonClip optimizer + QK-Clip stability. Tau2-Bench 66.1, SWE-Bench Verified 65.8, AIME 2025 49.5 — without extended thinking. https://arxiv.org/abs/2507.20534</li>
+<li><strong>Kimi Linear: An Expressive, Efficient Attention Architecture</strong> — arXiv <strong>2510.26692</strong>, Oct 2025. Attention redesign that underpins K2.5/K2.6 inference economics. https://arxiv.org/abs/2510.26692</li>
+<li><strong>Kimi K2.6 release</strong> — Apr 21 2026. <strong>256K context</strong> (262.1K actual), <strong>300 sub-agent swarms × 4000 coordinated steps</strong> (3x and 2.7x over K2.5). Scores <strong>SWE-Bench Pro 58.6</strong>, <strong>HLE-Full 54.0 with tools</strong> (beats GPT-5.4, Opus 4.6, Gemini 3.1 Pro), <strong>BrowseComp Swarm 86.3%</strong> vs GPT-5.4&#39;s 78.4%. Available on Kimi.com, API, Kimi Code CLI, Cloudflare Workers AI, OpenRouter, Ollama, DeepInfra. Weights under Modified MIT.
+<ul>
+<li>https://www.marktechpost.com/2026/04/20/moonshot-ai-releases-kimi-k2-6-with-long-horizon-coding-agent-swarm-scaling-to-300-sub-agents-and-4000-coordinated-steps/</li>
+<li>https://developers.cloudflare.com/changelog/post/2026-04-20-kimi-k2-6-workers-ai/</li>
+<li>https://openrouter.ai/moonshotai/kimi-k2.6</li>
+</ul></li>
+</ul>
+<h2 id="27-anthropic-orchestrator-worker"><a class="anchor" href="#27-anthropic-orchestrator-worker" aria-label="Permalink to 2.7 Anthropic orchestrator-worker">#</a>2.7 Anthropic orchestrator-worker</h2>
+<ul>
+<li><strong>How we built our multi-agent research system</strong> — Anthropic Engineering, 2025. Orchestrator (Opus) + parallel subagent workers (Sonnet). <strong>90.2% lift</strong> over single-Opus on internal research eval. <strong>15x token cost</strong> vs chat baseline (4x baseline for any agent run). Token usage explains <strong>80% of BrowseComp variance</strong>. Scaling rules: simple query → 1 agent / 3-10 calls; comparison → 2-4 subagents; complex research → 10+. https://www.anthropic.com/engineering/multi-agent-research-system</li>
+</ul>
+<h2 id="28-cloudflare-ai-gateway"><a class="anchor" href="#28-cloudflare-ai-gateway" aria-label="Permalink to 2.8 Cloudflare AI Gateway">#</a>2.8 Cloudflare AI Gateway</h2>
+<ul>
+<li><strong>AI Gateway Aug 2025 refresh</strong> — Cloudflare. Introduces <strong>Dynamic Routes</strong>: if/else rules on request attributes, % traffic splits, model chaining (guardrail → enhancement → primary). <strong>Note:</strong> does NOT yet ship a voting/consensus primitive — you build that on top of routes + Workers. https://blog.cloudflare.com/ai-gateway-aug-2025-refresh/</li>
+</ul>
+<h2 id="29-failure-mode-taxonomy"><a class="anchor" href="#29-failure-mode-taxonomy" aria-label="Permalink to 2.9 Failure-mode taxonomy">#</a>2.9 Failure-mode taxonomy</h2>
+<ul>
+<li><strong>Why Do Multi-Agent LLM Systems Fail?</strong> — Cemri, Pan, Yang et al. arXiv <strong>2503.13657</strong>, Mar 2025. <strong>MAST taxonomy</strong>: 14 failure modes across (i) system design, (ii) inter-agent misalignment, (iii) task verification. Production failure rates <strong>41-86.7%</strong>. MAST-Data: 1600+ annotated traces, 7 MAS frameworks. https://arxiv.org/abs/2503.13657</li>
+</ul>
+<hr>
+<h1 id="3-x-twitter-highlights-verbatim"><a class="anchor" href="#3-x-twitter-highlights-verbatim" aria-label="Permalink to §3 — X / Twitter Highlights (verbatim)">#</a>§3 — X / Twitter Highlights (verbatim)</h1>
+<ol>
+<li><strong>Andrej Karpathy</strong> (<a href="https://x.com/karpathy/status/1870692546969735361" rel="noopener noreferrer">@karpathy</a>, Dec 2024) — &quot;Nice! LLM consortium. Why ask one AI when you can ask all of them and have them come to a consensus? Someone plot the new scaling laws of number of LLMs on x axis :) This one is built on top of @simonw llm CLI.&quot;</li>
+<li><strong>Andrej Karpathy</strong> (<a href="https://x.com/karpathy/status/1992381094667411768" rel="noopener noreferrer">@karpathy</a>, Nov 2025) — &quot;As a fun Saturday vibe code project and following up on this tweet earlier, I hacked up an <strong>llm-council</strong> web app. It looks exactly like ChatGPT except each user query is 1) dispatched to multiple models on your council using OpenRouter, e.g. currently: &#39;openai/gpt-5.1&#39;...&quot; [Project includes a <strong>Chairman model</strong> to synthesize per-model responses.]</li>
+<li><strong>Boris Cherny / Anthropic</strong> (<a href="https://x.com/bcherny/status/2019472394696683904" rel="noopener noreferrer">@bcherny</a>, 2026) — &quot;Out now: Teams, aka. Agent Swarms in Claude Code Team are experimental, and use a lot of tokens. See the docs for how to enable, and let us know what you think!&quot; [Enable via <code>CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=true</code>.]</li>
+<li><strong>Together AI</strong> (<a href="https://x.com/togethercompute/status/1800536106729157054" rel="noopener noreferrer">@togethercompute</a>, Jun 2024) — &quot;Mixture of Agents — a framework that leverages the collective strengths of multiple LLMs. Each layer contains multiple agents that refine responses using outputs from the preceding layer. Together MoA achieves a score of 65.1% on AlpacaEval 2.0.&quot;</li>
+<li><strong>Kyle Corbitt</strong> (<a href="https://x.com/corbtt/status/1803813970018791845" rel="noopener noreferrer">@corbtt</a>, Jun 2024) — &quot;Super excited to announce our Mixture of Agents model+FT pipeline: beats GPT-4, but 25x cheaper! Humans prefer MoA outputs vs GPT-4 59% of the time. New SOTA on both Arena-Hard (84.8) and Alpaca Eval (LC 68.4).&quot;</li>
+<li><strong>elvis / Omar Sanseviero</strong> (<a href="https://x.com/omarsar0/status/1886792384954163347" rel="noopener noreferrer">@omarsar0</a>, Feb 2025) — &quot;Rethinking Mixture-of-Agents. This work investigates whether mixing different LLMs is truly beneficial. They also propose <strong>Self-MoA</strong>, an ensemble method that aggregates outputs from only the single top-performing LLM. Self-MoA outperforms standard MoA, which mixes different LLMs.&quot;</li>
+<li><strong>Together AI</strong> (<a href="https://x.com/togethercompute/status/1927767675339415572" rel="noopener noreferrer">@togethercompute</a>, May 2025) — &quot;Introducing Mixture-of-Agents Alignment (MoAA), a new method to &#39;distill&#39; the collective intelligence of open-source LLMs into a single, efficient model. MoAA outperforms GPT-4o as a teacher, boosting smaller models like Llama3.1-8B to rival models 10x their size!&quot;</li>
+<li><strong>elvis</strong> (<a href="https://x.com/omarsar0/status/1995553529436783096" rel="noopener noreferrer">@omarsar0</a>, Nov 2025) — &quot;Banger paper for agent builders. Multi-agent systems often underdeliver. The problem isn&#39;t how the agents themselves are built. It&#39;s how they&#39;re organized. They are mostly built with fixed chains, trees, and graphs that can&#39;t adapt as tasks evolve. But what if the system could…&quot; [Puppeteer / Evolving Orchestration.]</li>
+<li><strong>Rohan Paul</strong> (<a href="https://x.com/rohanpaul_ai/status/1995712027348877340" rel="noopener noreferrer">@rohanpaul_ai</a>, Nov 2025) — &quot;The paper shows how a learned central controller can coordinate many AI agents so they solve tasks better while using less computation. Standard setups either rely on 1 huge model or connect agents in a fixed script, so the system cannot easily change who talks as a task evolves…&quot;</li>
+<li><strong>Rohan Paul</strong> (<a href="https://x.com/rohanpaul_ai/status/1954749106586374228" rel="noopener noreferrer">@rohanpaul_ai</a>, Aug 2025) — &quot;Structured multi-agent LLM discussions beat a strong single-agent baseline at producing higher-quality research proposals. The best recipe is a small, leader-led, cognitively diverse team anchored by at least 1 senior expert, since junior-only groups do not beat solo and adding…&quot;</li>
+<li><strong>BOOTOSHI</strong> (<a href="https://x.com/KingBootoshi/status/2020797095775797307" rel="noopener noreferrer">@KingBootoshi</a>, 2026) — &quot;Here is a raw example of how i use claude code (opus 4.6) to manage a swarm of codex 5.3 agents EFFICIENTLY: the goal: i have a part of a feature i need to refactor to fix a problem in the root design. 1. i first had opus send off as many codex agents as it deems necessary to…&quot;</li>
+<li><strong>fly51fly</strong> (<a href="https://x.com/fly51fly/status/1940170044870377695" rel="noopener noreferrer">@fly51fly</a>, Jul 2025) — &quot;[LG] <strong>BEST-Route: Adaptive LLM Routing with Test-Time Optimal Compute</strong> — D Ding, A Mallick, S Zhang, C Wang... [UBC &amp; Microsoft &amp; Penn State] (2025)&quot; [Direct precursor to FrugalGPT-style cascades with learned escalation policies.]</li>
+</ol>
+<hr>
+<h1 id="4-concrete-prism-unit-proposals"><a class="anchor" href="#4-concrete-prism-unit-proposals" aria-label="Permalink to §4 — Concrete PRISM Unit Proposals">#</a>§4 — Concrete PRISM Unit Proposals</h1>
+<h2 id="41-u-kimi-transport-kimitransportengine-prismaikimidispatch"><a class="anchor" href="#41-u-kimi-transport-kimitransportengine-prismaikimidispatch" aria-label="Permalink to 4.1 U-KIMI-TRANSPORT (KimiTransportEngine + prismai:kimidispatch)">#</a>4.1 U-KIMI-TRANSPORT (KimiTransportEngine + prism_ai:kimi_dispatch)</h2>
+<p><strong>Goal:</strong> First-class K2.6 tentacle as the <strong>mid-tier reasoner</strong> between qwen2.5-coder (local, free, fast) and Opus/Sonnet (cloud, expensive). Sweet spot: 256K context, near-Opus quality on agentic tasks, Modified-MIT weights, ~10x cheaper than Opus.</p>
+<p><strong>Wiring:</strong></p>
+<ul>
+<li><code>KimiTransportEngine.ts</code> (new) — wraps OpenRouter <code>moonshotai/kimi-k2.6</code> and Cloudflare Workers AI endpoint; supports fallback ordering OR → Cloudflare → DeepInfra → local Ollama.</li>
+<li>Dispatcher actions: <code>prism_ai:kimi_chat</code>, <code>prism_ai:kimi_swarm</code> (passthrough to K2.6&#39;s native 300-sub-agent mode), <code>prism_ai:kimi_long_context</code> (256K analysis).</li>
+<li>Hook: <code>kimi-context-budget-gate.mjs</code> — refuse <code>kimi_chat</code> for prompts &lt;8K tokens that qwen2.5-coder could handle; cost-class gate.</li>
+</ul>
+<p><strong>Tests:</strong> round-trip via three dispatchers (<code>prism_ai</code>, <code>prism_intelligence</code>, <code>prism_session</code>), parity assertion against current Opus output on a frozen JM Die spec-editor task.</p>
+<h2 id="42-u-moa-layer2-moalayer2engine-prismintelligencemoasynthesize"><a class="anchor" href="#42-u-moa-layer2-moalayer2engine-prismintelligencemoasynthesize" aria-label="Permalink to 4.2 U-MOA-LAYER2 (MoaLayer2Engine + prismintelligence:moasynthesize)">#</a>4.2 U-MOA-LAYER2 (MoaLayer2Engine + prism_intelligence:moa_synthesize)</h2>
+<p><strong>Goal:</strong> Add a <strong>second MoA aggregator layer</strong> above the existing 3-of-3 reviewer arms. Codex+Gemini+Opus each produce drafts in parallel (layer 1); then K2.6 acts as <strong>aggregator</strong> (layer 2), receiving all three outputs and synthesizing. Then either Opus or Kimi acts as Chairman (layer 3) per Karpathy&#39;s pattern.</p>
+<p><strong>Variants to expose:</strong></p>
+<ul>
+<li><code>--moa-heterogeneous</code> (Wang 2024 baseline)</li>
+<li><code>--moa-self</code> (Li 2025 Self-MoA — only Opus, multi-sample)</li>
+<li><code>--moa-residual</code> (RMoA — diversity-greedy + ResNet residual connections)</li>
+</ul>
+<p><strong>Empirically:</strong> Self-MoA wins on AlpacaEval, but PRISM tasks are physics+code+manufacturing — domain diversity favors heterogeneous. Default <code>--moa-residual</code> (best of both).</p>
+<h2 id="43-u-neural-routing-engine-neuralroutingengine-prismsessiongnnroute"><a class="anchor" href="#43-u-neural-routing-engine-neuralroutingengine-prismsessiongnnroute" aria-label="Permalink to 4.3 U-NEURAL-ROUTING-ENGINE (NeuralRoutingEngine + prismsession:gnnroute)">#</a>4.3 U-NEURAL-ROUTING-ENGINE (NeuralRoutingEngine + prism_session:gnn_route)</h2>
+<p><strong>Goal:</strong> Replace the current hardcoded &quot;Codex+Gemini+Opus&quot; reviewer triple with a <strong>learned GraphRouter</strong> that picks N-of-M reviewers per task, using a heterogeneous graph (task ↔ query ↔ tentacle) with edge attributes (latency, cost, prior success rate per domain).</p>
+<p><strong>Inputs:</strong></p>
+<ul>
+<li>Tentacle embeddings — derived from prior task outcomes per tentacle (already logged in <code>state/shared/SCRUTINY_LEDGER.json</code> and <code>mcp-server/data/state/ollama-offload-stats.json</code>).</li>
+<li>Task embeddings — reuse existing PRISM embeddings (Qdrant memory, 768-dim).</li>
+<li>Edge labels — <code>(success | fail | timeout)</code> from ledger replay.</li>
+</ul>
+<p><strong>Training data:</strong> Bootstrap from 90 days of scrutiny-ledger entries — we already have ~thousands of CLI-arm verdicts.</p>
+<p><strong>Wiring:</strong> Connect to existing <code>CrossProcessNeuralLearningEngine</code> (which already does cross-domain neural training); feed routing decisions back as supervised labels.</p>
+<h2 id="44-u-cascade-calibration-cascadecalibrationengine-prismsafetycalibrateddefer"><a class="anchor" href="#44-u-cascade-calibration-cascadecalibrationengine-prismsafetycalibrateddefer" aria-label="Permalink to 4.4 U-CASCADE-CALIBRATION (CascadeCalibrationEngine + prismsafety:calibrateddefer)">#</a>4.4 U-CASCADE-CALIBRATION (CascadeCalibrationEngine + prism_safety:calibrated_defer)</h2>
+<p><strong>Goal:</strong> Apply <strong>GATEKEEPER</strong> (arXiv 2502.19335) confidence-tuning to the existing Ollama-offload classifier. The current <code>OllamaHookBridgeEngine</code> decides &quot;offload vs keep&quot; deterministically — replace with a calibrated probe-based confidence head trained on outcome (did Claude have to redo the task afterwards?).</p>
+<p><strong>Why:</strong> Telemetry already exists in <code>ollama-offload-stats.json</code>. Current offload rate target ≥30%; calibration should push to ≥50% without quality regressions.</p>
+<p><strong>Tests:</strong> Replay last 1000 offload decisions; show ECE (Expected Calibration Error) drop ≥30%.</p>
+<h2 id="45-u-consensus-quorum-tuner-consensusquorumengine-prismsafetyquorumselect"><a class="anchor" href="#45-u-consensus-quorum-tuner-consensusquorumengine-prismsafetyquorumselect" aria-label="Permalink to 4.5 U-CONSENSUS-QUORUM-TUNER (ConsensusQuorumEngine + prismsafety:quorumselect)">#</a>4.5 U-CONSENSUS-QUORUM-TUNER (ConsensusQuorumEngine + prism_safety:quorum_select)</h2>
+<p><strong>Goal:</strong> Make the <strong>N-of-M quorum dynamic</strong> rather than fixed 3-of-3. Drives from task class and live tentacle health:</p>
+<ul>
+<li>Safety-critical physics changes → 5-of-5 (all tentacles must agree)</li>
+<li>Doc-only edits → 2-of-3 (any two of Codex/Gemini/Opus)</li>
+<li>Skill/hook ergonomics → 1-of-1 (local qwen2.5-coder sufficient)</li>
+<li>Cross-domain neural (touches engines) → 4-of-5 with Kimi as tiebreaker</li>
+</ul>
+<p><strong>Policy source:</strong> <code>ConsensusQuorumPolicy.json</code> (schemaVersion 1) — declarative ruleset mapping (changeClass × diffSize × testCoverage) → quorum_n_of_m. Tunable via <code>RMoA</code>-style residual updates from outcomes.</p>
+<p><strong>Failure-mode mitigation:</strong> Caps any single quorum at 5; if 3 disagreeing verdicts persist, escalate to human-in-the-loop (writes to <code>state/shared/AGENT_WORKBOARD.md</code> and blocks the Stop hook).</p>
+<hr>
+<h1 id="5-synergy-with-existing-5-tentacle-7-neural-engines"><a class="anchor" href="#5-synergy-with-existing-5-tentacle-7-neural-engines" aria-label="Permalink to §5 — Synergy With Existing 5-Tentacle + 7 Neural Engines">#</a>§5 — Synergy With Existing 5-Tentacle + 7 Neural Engines</h1>
+<div class="table-wrap"><table>
+<thead><tr><th>Existing asset</th><th>Pass-2 unit that consumes it</th><th>Synergy mechanism</th></tr></thead>
+<tbody>
+<tr><td><code>CrossDisciplinaryDeepLearningEngine</code></td><td>NeuralRoutingEngine</td><td>Reuses its 15-domain embedding space as the <strong>task embedding</strong> for GraphRouter</td></tr>
+<tr><td><code>CrossProcessNeuralLearningEngine</code></td><td>NeuralRoutingEngine + CascadeCalibrationEngine</td><td>Already does cross-domain trajectory learning; feeds router with <strong>historical success per (domain × tentacle)</strong></td></tr>
+<tr><td><code>MillNeuralNetworkEngine</code> + <code>WEDMNeuralTrainingEngine</code> + 5 others</td><td>MoaLayer2Engine <code>--moa-residual</code></td><td>Domain-specialist neural engines act as <strong>layer-0 oracles</strong> before the LLM layer — analogous to &quot;expert anchor&quot; finding from Rohan Paul Aug-2025 X post (small, leader-led, cognitively diverse, anchored by senior expert)</td></tr>
+<tr><td><code>prismCreativeReasoningEngine</code> (15 scientific domains, 120+ formulas)</td><td>ConsensusQuorumEngine</td><td>Provides the <strong>domain classifier</strong> that picks quorum policy: physics task → 5-of-5, doc task → 2-of-3</td></tr>
+<tr><td><code>OllamaHookBridgeEngine</code> (existing offload)</td><td>CascadeCalibrationEngine</td><td>Replaces the current deterministic classifier with the calibrated probe</td></tr>
+<tr><td><code>aiSystemRouterEngine</code> (existing route(task))</td><td>NeuralRoutingEngine</td><td>Becomes the GNN&#39;s <strong>fallback</strong> when graph confidence is low; both coexist during shadow-mode rollout</td></tr>
+<tr><td><code>DuplicationGuardEngine</code></td><td>All five new engines</td><td>Each new engine must call <code>mustCheckBeforeCreating()</code> before creation; engine names verified against ENGINE_DIGEST.md</td></tr>
+<tr><td><code>prism_ai</code> dispatcher (already has 100+ actions)</td><td>KimiTransportEngine + MoaLayer2Engine</td><td>New actions <code>kimi_chat</code>, <code>kimi_swarm</code>, <code>kimi_long_context</code>, <code>moa_synthesize</code> slot in</td></tr>
+<tr><td><code>prism_session</code> dispatcher</td><td>NeuralRoutingEngine</td><td>New actions <code>gnn_route</code>, <code>gnn_train</code>, <code>gnn_explain</code></td></tr>
+<tr><td><code>prism_safety</code> dispatcher</td><td>CascadeCalibrationEngine + ConsensusQuorumEngine</td><td>New actions <code>calibrated_defer</code>, <code>quorum_select</code>, <code>quorum_audit</code></td></tr>
+<tr><td><code>SCRUTINY_LEDGER.json</code> (3-of-3 ledger)</td><td>ConsensusQuorumEngine</td><td>Schema bumps to v2 to support dynamic N-of-M; backward-compatible via <code>quorum: {required: 3, achieved: 3}</code> default</td></tr>
+<tr><td><code>state/shared/MILESTONE_PROGRESS.md</code></td><td>All five units</td><td>Each unit adds a row; outcomes feed back to roadmap convergence</td></tr>
+<tr><td><code>system-viz</code> 10-layer graph</td><td>NeuralRoutingEngine</td><td>Live tentacle-health overlay becomes a new layer (Layer 11: agent-routing); edges from system-viz already enumerate dispatcher → engine wiring</td></tr>
+</tbody>
+</table></div>
+<p><strong>Karpathy LLM-Wiki integration:</strong> Each new engine emits a <code>wiki/entities/&lt;engine&gt;.md</code> page (auto-generated by <code>WikiIndexMaintainerEngine</code>); decisions on quorum policy land in <code>wiki/decisions/</code>; failure-mode lessons land in <code>wiki/lessons/</code>. Ollama handles ≥70% of the wiki maintenance per the existing protocol.</p>
+<hr>
+<h1 id="6-failure-modes"><a class="anchor" href="#6-failure-modes" aria-label="Permalink to §6 — Failure Modes">#</a>§6 — Failure Modes</h1>
+<h2 id="61-cascade-collapse"><a class="anchor" href="#61-cascade-collapse" aria-label="Permalink to 6.1 Cascade collapse">#</a>6.1 Cascade collapse</h2>
+<p><strong>Definition:</strong> One agent hallucinates → writes to shared memory → downstream agents treat as fact → exponential error amplification. Documented in MAST taxonomy (arXiv 2503.13657) and Galileo / Augment Code 2026 production reports.</p>
+<p><strong>PRISM-specific risk:</strong> <code>state/shared/AGENT_CHAT.md</code> and <code>mcp-server/data/state/cross-session-asset-registry.json</code> are exactly the kind of shared-memory surfaces where cascading hallucinations propagate. The existing <code>duplicationGuardEngine</code> is one safeguard; we need more.</p>
+<p><strong>Mitigations to wire:</strong></p>
+<ul>
+<li><strong>Verification quarantine</strong> — Any new entry written to AGENT_CHAT or asset-registry must pass a second-tentacle attestation before being readable by other chats. Implement as a <code>chat-write-attestation.mjs</code> PreToolUse hook.</li>
+<li><strong>TTL on unverified facts</strong> — Default 1-hour expiry for any memory not signed by ≥2 tentacles. Already partially modelled by <code>wiki</code> deprecation path; extend to ephemeral chat state.</li>
+<li><strong>Cascade depth cap</strong> — <code>MoaLayer2Engine</code> refuses to chain more than 3 aggregator layers (matches Wang 2024 empirical sweet spot).</li>
+<li><strong>Reverse-cascade audit</strong> — When a regression is detected, walk the shared-memory write log backwards to identify the originating hallucination. <code>regression-hunter</code> agent (already exists) gets a new mode <code>--cascade-trace</code>.</li>
+</ul>
+<h2 id="62-consensus-deadlock"><a class="anchor" href="#62-consensus-deadlock" aria-label="Permalink to 6.2 Consensus deadlock">#</a>6.2 Consensus deadlock</h2>
+<p><strong>Definition:</strong> 3+ agents in request-response cycles awaiting mutual confirmation; or resource-lock ordering conflicts. The existing 3-of-3 gate already exhibits a mild form when Codex says PASS, Gemini says FAIL, Opus says PASS — the spec is &quot;all three must pass&quot; but the current ledger fallback (3 block attempts auto-pass with warning) is itself a deadlock-escape that papers over genuine disagreements.</p>
+<p><strong>Mitigations:</strong></p>
+<ul>
+<li><strong>Tiebreaker hierarchy</strong> in <code>ConsensusQuorumEngine</code>: when verdicts split, escalate to (1) Kimi K2.6 with shared-memory access, (2) human-in-the-loop via <code>AGENT_WORKBOARD.md</code>. Never silent auto-pass.</li>
+<li><strong>Bounded discussion rounds</strong> — RMoA Sequential Self-MoA pattern: aggregator gets max 3 rounds; after that, lowest-confidence agent is dropped and quorum re-evaluated.</li>
+<li><strong>Lock-ordering canonicalization</strong> — All shared-memory writes acquire <code>prism_context:claim_file</code> locks in <strong>lexicographic order</strong> by file path (already enforced for wiki; extend to all of <code>state/shared/</code>).</li>
+<li><strong>Sycophancy guard</strong> — From ACL 2025 CONSENSAGENT paper: agents that flip their verdict after seeing another agent&#39;s verdict trigger a flag; the flip is logged and the original verdict is given weight in tiebreaker.</li>
+</ul>
+<h2 id="63-neural-drift"><a class="anchor" href="#63-neural-drift" aria-label="Permalink to 6.3 Neural drift">#</a>6.3 Neural drift</h2>
+<p><strong>Definition:</strong> A learned router (GraphRouter) becomes miscalibrated as the underlying tentacle quality changes (new K2.6 release, Codex CLI version bump, Gemini cutoff update). The router keeps routing as if quality were yesterday&#39;s.</p>
+<p><strong>Mitigations:</strong></p>
+<ul>
+<li><strong>Online calibration</strong> — Every routing decision logs an outcome; CascadeCalibrationEngine retrains weekly via cron.</li>
+<li><strong>Tentacle-version pinning</strong> — Edge attributes in GraphRouter include <code>(tentacle_version, last_calibration_date)</code>; if any tentacle is &gt;30 days uncalibrated against its current version, force a shadow-mode quorum re-evaluation before trusting its verdicts.</li>
+<li><strong>Drift detection</strong> — Adapt the existing SVI (System Variability Index) monitor to track routing-decision distribution shift; alert when KL-divergence vs 30-day baseline &gt;0.1.</li>
+</ul>
+<h2 id="64-moa-quality-dilution-self-moa-finding"><a class="anchor" href="#64-moa-quality-dilution-self-moa-finding" aria-label="Permalink to 6.4 MoA quality dilution (Self-MoA finding)">#</a>6.4 MoA quality dilution (Self-MoA finding)</h2>
+<p><strong>Definition:</strong> Li 2025 (arXiv 2502.00674) shows that mixing weaker LLMs with one strong one drags average quality down. Naive &quot;more tentacles = better&quot; is wrong.</p>
+<p><strong>Mitigations:</strong></p>
+<ul>
+<li><strong>Tentacle gating per task class</strong> — qwen2.5-coder is in the quorum only when (a) task is local-codegen-friendly, (b) its prior success rate on this task class is &gt;70%. Otherwise it&#39;s voiceless.</li>
+<li><strong>Anchor invariant</strong> — From Rohan Paul Aug-2025 finding: every quorum <strong>must</strong> contain at least one senior anchor (Opus or Kimi K2.6). Junior-only quorums (Codex+Gemini+qwen) are blocked by <code>ConsensusQuorumEngine</code> validator.</li>
+</ul>
+<h2 id="65-token-cost-runaway-the-15x-problem"><a class="anchor" href="#65-token-cost-runaway-the-15x-problem" aria-label="Permalink to 6.5 Token-cost runaway (the 15x problem)">#</a>6.5 Token-cost runaway (the 15x problem)</h2>
+<p><strong>Definition:</strong> Anthropic&#39;s data shows multi-agent runs cost 15x baseline chat. 5-tentacle MoA layered consensus could push 30-50x. Easy to blow daily budgets.</p>
+<p><strong>Mitigations:</strong></p>
+<ul>
+<li><strong>Per-quorum token budget</strong> — <code>ConsensusQuorumPolicy</code> declares a budget; <code>prism_session:budget_audit</code> blocks dispatch if quorum would exceed.</li>
+<li><strong>Cascade-first</strong> — Always try cheapest tentacle first (qwen2.5-coder); only invoke heavier tentacles on cascade escalation. Aligns with FrugalGPT lineage.</li>
+<li><strong>Telemetry on token spend</strong> — Extend <code>ollama-offload-stats.json</code> schema to track 5-tentacle costs; existing <code>/token-dashboard</code> skill surfaces.</li>
+<li><strong>Diminishing-returns audit</strong> — Per Anthropic&#39;s &quot;token usage explains 80% of variance&quot; finding, after a certain token threshold the marginal lift collapses. Auto-detect inflection and cap.</li>
+</ul>
+<h2 id="66-failure-rate-baseline-mast-production-data"><a class="anchor" href="#66-failure-rate-baseline-mast-production-data" aria-label="Permalink to 6.6 Failure-rate baseline (MAST production data)">#</a>6.6 Failure-rate baseline (MAST production data)</h2>
+<p><strong>Definition:</strong> Production multi-agent systems fail 41-86.7% of tasks per MAST (arXiv 2503.13657). PRISM cannot afford this rate.</p>
+<p><strong>Mitigations:</strong></p>
+<ul>
+<li><strong>Adopt the 14-mode MAST taxonomy</strong> as the standard failure classification in <code>state/shared/findings/</code>; each new chat-bus error is classified to a MAST mode.</li>
+<li><strong>Acceptance-criterion enforcement</strong> — Every new unit&#39;s tests must demonstrate it doesn&#39;t regress any MAST mode. Add <code>tests/mast-regression.test.ts</code>.</li>
+<li><strong>Specification ambiguity audit</strong> — Top MAST cause. Every quorum&#39;s prompt template is reviewed by the <code>prism-review</code> skill (physics + wiring + test rubric) before going live.</li>
+</ul>
+<hr>
+<h2 id="sources"><a class="anchor" href="#sources" aria-label="Permalink to Sources">#</a>Sources</h2>
+<p>Verified arXiv papers (URLs spot-checked via WebFetch):</p>
+<ul>
+<li><a href="https://arxiv.org/abs/2406.04692" rel="noopener noreferrer">Mixture-of-Agents (Wang 2024)</a></li>
+<li><a href="https://arxiv.org/abs/2303.11366" rel="noopener noreferrer">Reflexion (Shinn 2023)</a></li>
+<li><a href="https://arxiv.org/abs/2305.05176" rel="noopener noreferrer">FrugalGPT (Chen 2023)</a></li>
+<li><a href="https://arxiv.org/abs/2410.10347" rel="noopener noreferrer">Unified Routing+Cascading (De Koninck 2024)</a></li>
+<li><a href="https://arxiv.org/abs/2502.19335" rel="noopener noreferrer">GATEKEEPER cascade confidence (2025)</a></li>
+<li><a href="https://arxiv.org/abs/2502.00674" rel="noopener noreferrer">Rethinking MoA / Self-MoA (Li 2025)</a></li>
+<li><a href="https://arxiv.org/abs/2505.24442" rel="noopener noreferrer">RMoA (Xie 2025)</a></li>
+<li><a href="https://arxiv.org/abs/2601.16596" rel="noopener noreferrer">Attention-MoA (2026)</a></li>
+<li><a href="https://arxiv.org/abs/2410.03834" rel="noopener noreferrer">GraphRouter (2024)</a></li>
+<li><a href="https://arxiv.org/abs/2510.05445" rel="noopener noreferrer">AgentRouter KG-guided (2025)</a></li>
+<li><a href="https://arxiv.org/abs/2511.16883" rel="noopener noreferrer">PersonalizedRouter (2025)</a></li>
+<li><a href="https://arxiv.org/abs/2505.22467" rel="noopener noreferrer">Topological Structure Learning position (Yang 2025)</a></li>
+<li><a href="https://arxiv.org/abs/2505.19591" rel="noopener noreferrer">Puppeteer Evolving Orchestration (Dang 2025)</a></li>
+<li><a href="https://arxiv.org/abs/2602.08009" rel="noopener noreferrer">RAPS adaptive coordination (2026)</a></li>
+<li><a href="https://arxiv.org/abs/2505.04364" rel="noopener noreferrer">SwarmBench (2025)</a></li>
+<li><a href="https://arxiv.org/abs/2507.20534" rel="noopener noreferrer">Kimi K2 technical report (Moonshot 2025)</a></li>
+<li><a href="https://arxiv.org/abs/2510.26692" rel="noopener noreferrer">Kimi Linear attention (2025)</a></li>
+<li><a href="https://arxiv.org/abs/2503.13657" rel="noopener noreferrer">Why Do Multi-Agent LLM Systems Fail? / MAST (Cemri 2025)</a></li>
+</ul>
+<p>Industry / vendor:</p>
+<ul>
+<li><a href="https://www.anthropic.com/engineering/multi-agent-research-system" rel="noopener noreferrer">Anthropic: How we built our multi-agent research system</a></li>
+<li><a href="https://blog.cloudflare.com/ai-gateway-aug-2025-refresh/" rel="noopener noreferrer">Cloudflare AI Gateway Aug 2025 refresh</a></li>
+<li><a href="https://developers.cloudflare.com/changelog/post/2026-04-20-kimi-k2-6-workers-ai/" rel="noopener noreferrer">Kimi K2.6 on Cloudflare Workers AI</a></li>
+<li><a href="https://openrouter.ai/moonshotai/kimi-k2.6" rel="noopener noreferrer">Kimi K2.6 OpenRouter</a></li>
+<li><a href="https://www.marktechpost.com/2026/04/20/moonshot-ai-releases-kimi-k2-6-with-long-horizon-coding-agent-swarm-scaling-to-300-sub-agents-and-4000-coordinated-steps/" rel="noopener noreferrer">Kimi K2.6 MarkTechPost</a></li>
+</ul>
+<p>X / Twitter (12 posts cited verbatim in §3, URLs in-line).</p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="2026-05-10-pass2-octopus-neural.md">2026-05-10-pass2-octopus-neural.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="a39f260467dba1c79c0cc093d91eeec92e07ee8fb3bf9ef7e91322d2b9f077db">
+<title>Multi-LLM Coordination — Research Card</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">Multi-LLM Coordination — Research Card</h1>
+<p class="provenance">Generated 2026-05-12T12:43:26.484Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#multi-llm-coordination-research-card">Multi-LLM Coordination Research Card</a></li>
+<li class="toc-l2"><a href="#tldr-read-first-decide-later">TL;DR (read first, decide later)</a></li>
+<li class="toc-l2"><a href="#1-coordination-topologies">§1 Coordination Topologies</a></li>
+<li class="toc-l2"><a href="#2-routing-decisions-task-class-to-model">§2 Routing Decisions — Task Class to Model</a></li>
+<li class="toc-l2"><a href="#3-consensus-mechanisms">§3 Consensus Mechanisms</a></li>
+<li class="toc-l2"><a href="#4-two-pass-safety-pattern-generator-critic">§4 Two-Pass Safety Pattern (generator → critic)</a></li>
+<li class="toc-l2"><a href="#5-cost-optimization-qwen-kimi-claude-cascade">§5 Cost Optimization — qwen → kimi → claude Cascade</a></li>
+<li class="toc-l2"><a href="#6-llm-specific-strengths-2026-capability-map">§6 LLM-Specific Strengths (2026 capability map)</a></li>
+<li class="toc-l2"><a href="#7-octopus-ensemble-patterns-when-ensemble-beats-single-best">§7 Octopus / Ensemble Patterns — When Ensemble Beats Single Best</a></li>
+<li class="toc-l2"><a href="#8-failure-modes-and-mitigations">§8 Failure Modes and Mitigations</a></li>
+<li class="toc-l2"><a href="#9-real-world-deployments">§9 Real-World Deployments</a></li>
+<li class="toc-l2"><a href="#cross-reference-prism-asset-map">Cross-Reference: PRISM Asset Map</a></li>
+<li class="toc-l2"><a href="#sources">Sources</a></li>
+<li class="toc-l2"><a href="#appendix-decision-tree-when-to-use-what">Appendix: Decision Tree (when to use what)</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<details class="frontmatter" open><summary>Document metadata</summary><div class="table-wrap"><table>
+<tbody>
+<tr><th scope="row">title</th><td>Multi-LLM Coordination — Research Card</td></tr>
+<tr><th scope="row">date</th><td>2026-05-10</td></tr>
+<tr><th scope="row">author</th><td>claude-research-agent (parent: claude-opus-4-7)</td></tr>
+<tr><th scope="row">scope</th><td>Coordinating Claude + Codex + Gemini + Kimi K2.6 + Ollama as one autonomous system</td></tr>
+<tr><th scope="row">status</th><td>research-card</td></tr>
+<tr><th scope="row">referenced_units</th><td>K2-CLOUD-MS0, INTEL-OLLAMA-OBSIDIAN-MS0/OCTOPUS-CONSENSUS, CAD-COMPLETE-MS0/3WAY (2026-05-05)</td></tr>
+<tr><th scope="row">prism_assets</th><td>mcp-server/src/engines/AISystemRouterEngine.ts, .claude/hooks/octopus-provider-probe.mjs, .claude/hooks/auto-consensus-critical-edit.mjs, .claude/hooks/auto-consensus-userprompt.mjs, .claude/hooks/stop-consensus-drain.mjs, .claude/scripts/scrutiny-3way.mjs, mcp-server/data/state/ollama-offload-stats.json, mcp-server/data/state/consensus-model-performance.json, mcp-server/data/state/octopus-probe-cache.json</td></tr>
+<tr><th scope="row">length_target</th><td>400-600 lines</td></tr>
+</tbody>
+</table></div></details>
+<h1 id="multi-llm-coordination-research-card"><a class="anchor" href="#multi-llm-coordination-research-card" aria-label="Permalink to Multi-LLM Coordination Research Card">#</a>Multi-LLM Coordination Research Card</h1>
+<h2 id="tldr-read-first-decide-later"><a class="anchor" href="#tldr-read-first-decide-later" aria-label="Permalink to TL;DR (read first, decide later)">#</a>TL;DR (read first, decide later)</h2>
+<ol>
+<li><strong>Default to single-model.</strong> Anthropic&#39;s own data: agents use 4x tokens vs chat, multi-agent uses 15x. Only escalate when the task is parallelisable, breadth-first, and high-value.</li>
+<li><strong>Five canonical workflow patterns</strong> (Anthropic): prompt-chaining, routing, parallelisation, orchestrator-workers, evaluator-optimizer. Everything else is a composition of these.</li>
+<li><strong>Routing beats ensembling for cost.</strong> FrugalGPT-style cascade (qwen → kimi → claude) hits 98% cost reduction at GPT-4 parity when the cascade is calibrated.</li>
+<li><strong>Mixture-of-Agents (MoA) wins on accuracy.</strong> Together AI&#39;s 3-layer MoA hit 65.1% AlpacaEval LC, beating GPT-4o (57.5%) using only OSS models. Cost: ~2x GPT-4 Turbo.</li>
+<li><strong>Voting beats debate.</strong> ICLR 2025 controlled study: simple majority voting accounts for most observed gains in multi-agent debate. Debate adds latency without proportional accuracy.</li>
+<li><strong>PRISM is already partway there.</strong> <code>AISystemRouterEngine</code> (8 backends, 9 task classes) is a routing pattern. <code>scrutiny-3way.mjs</code> is a 3-of-3 voting consensus. <code>octopus-provider-probe</code> is a fan-out health check. The gap: K2.6 cloud arm + cascade calibration + MoA layering.</li>
+</ol>
+<hr>
+<h2 id="1-coordination-topologies"><a class="anchor" href="#1-coordination-topologies" aria-label="Permalink to §1 Coordination Topologies">#</a>§1 Coordination Topologies</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Topology</th><th>Shape</th><th>When to use</th><th>PRISM analog</th></tr></thead>
+<tbody>
+<tr><td><strong>Hierarchical (orchestrator-worker)</strong></td><td>1 lead + N workers, lead synthesises</td><td>Breadth-first research, parallelisable subtasks, no shared state</td><td>Claude Code subagents (Agent tool); Anthropic Research system</td></tr>
+<tr><td><strong>Mesh (peer-to-peer)</strong></td><td>All-to-all, each model sees all others&#39; outputs</td><td>Adversarial validation, hard reasoning, low n (≤4)</td><td><code>scrutiny-3way</code> (Codex + Gemini + Opus voting on diffs)</td></tr>
+<tr><td><strong>Pipeline (sequential refine)</strong></td><td>A → B → C, each refines the prior output</td><td>Translation, multi-pass writing, stage-gated workflows</td><td><code>prism_orchestrate</code> chains; PostProcessorPipeline (38 stages)</td></tr>
+<tr><td><strong>Ensemble (parallel + merge)</strong></td><td>N models in parallel, aggregator merges</td><td>High-stakes single answer; tolerates 2-3x cost</td><td>MoA layer-1; <code>consensus-queue-drain</code> async pipeline</td></tr>
+<tr><td><strong>Cascade (cheap → expensive)</strong></td><td>Try cheap; escalate on low confidence</td><td>Cost-sensitive, high-volume; tolerates extra latency on hard cases</td><td><code>AISystemRouterEngine</code> with planned K2 middle tier</td></tr>
+</tbody>
+</table></div>
+<p><strong>Rule of thumb (Anthropic):</strong> start with the simplest topology and add one rung only when the prior tier demonstrably falls short. Most production systems succeed with a single LLM call plus retrieval — adding orchestration is a <em>response</em> to measured failure, not a default.</p>
+<p><strong>Cost ladder (orders of magnitude):</strong></p>
+<ul>
+<li>Single LLM call: 1x (baseline)</li>
+<li>Routing (classifier + specialist): 1.0-1.2x (classifier overhead)</li>
+<li>Pipeline (3 stages): 3x (linear)</li>
+<li>Ensemble (3 parallel): 3-4x (parallel + aggregator)</li>
+<li>Orchestrator-worker (lead + 5 subagents): 10-15x (Anthropic measured)</li>
+<li>MoA (3 layers x 6 models): 18-20x (Together AI measured ~2x GPT-4 Turbo cost)</li>
+</ul>
+<hr>
+<h2 id="2-routing-decisions-task-class-to-model"><a class="anchor" href="#2-routing-decisions-task-class-to-model" aria-label="Permalink to §2 Routing Decisions — Task Class to Model">#</a>§2 Routing Decisions — Task Class to Model</h2>
+<p>PRISM&#39;s <code>AISystemRouterEngine</code> already classifies into 9 task classes. The following extension covers Kimi K2.6 cloud (per K2-CLOUD-MS0) and the cascade tier. Signals to mix:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Signal</th><th>What it tells you</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td>Context size &gt; 200k</td><td>Only Kimi/Gemini/Claude qualify</td><td>Drop Codex + Ollama from candidate set</td></tr>
+<tr><td>Safety-criticality (e.g. physics validation, gcode emit)</td><td>Cannot tolerate hallucination</td><td>Force critic pass; never single-shot</td></tr>
+<tr><td>Cost budget &lt; $0.001/req</td><td>Local-first</td><td>Try qwen2.5-coder:7b, fail open to claude-haiku</td></tr>
+<tr><td>Latency target &lt; 500ms</td><td>Local-first; remote LLMs are 200-500ms RTT</td><td>qwen via Ollama (50ms first-token typical)</td></tr>
+<tr><td>Accuracy floor ≥ GPT-4</td><td>Need ensemble or premium single</td><td>MoA, or Opus + critic</td></tr>
+<tr><td>Code-heavy (diff/refactor)</td><td>Codex specialist &gt; general</td><td>Codex first; Claude as critic</td></tr>
+<tr><td>Vision / image input</td><td>Gemini or Claude</td><td>Gemini for grounded search; Claude for layout reasoning</td></tr>
+</tbody>
+</table></div>
+<p><strong>Recommended classify → route table (extends <code>AISystemRouterEngine.route()</code>):</strong></p>
+<pre><code>physics_validation     → docker-physics-agent → critic: claude-opus  (existing)
+engine_building        → claude-opus + dedup-guard                    (existing)
+ml_inference           → ollama-codellama                             (existing)
+batch_processing       → docker-batch-processor                       (existing)
+reasoning_long_context → kimi-k2.6 (256k) | claude-opus (1M) | gemini-2.5 (2M)  ← NEW K2 tier
+code_diff_review       → codex → claude-sonnet critic                 (existing scrutiny-3way pattern)
+search_grounded        → gemini-cli (built-in grounded search)        ← NEW
+summarize/explain      → ollama-qwen2.5-coder:7b (free, local)        (already 38% offload)
+unknown                → cascade: qwen → claude-sonnet → claude-opus  (existing fallback chain)
+</code></pre>
+<p><strong>K2.6 capability profile (per Moonshot AI, 2026):</strong> 1T total / 32B active MoE; 256k context; 80.2% SWE-Bench Verified, 96.4% AIME 2026, 90.5% GPQA-Diamond, 73.1% OSWorld. Pricing $0.95/M input + $4.00/M output (official) or $0.44/$2.00 via OpenRouter. Sits between qwen (free) and Opus (~$15/$75 per Mtok) — natural middle tier for the cascade.</p>
+<hr>
+<h2 id="3-consensus-mechanisms"><a class="anchor" href="#3-consensus-mechanisms" aria-label="Permalink to §3 Consensus Mechanisms">#</a>§3 Consensus Mechanisms</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Mechanism</th><th>How it works</th><th>Failure mode</th></tr></thead>
+<tbody>
+<tr><td><strong>Majority voting</strong></td><td>k-of-n agree → accept</td><td>Treats semantically-equivalent answers as different (surface-form blindness); ignores high-confidence minority</td></tr>
+<tr><td><strong>Weighted voting</strong></td><td>Each model&#39;s vote scaled by historical accuracy</td><td>Bootstrap problem — need historical data; weights drift</td></tr>
+<tr><td><strong>Critique-revise (actor-critic)</strong></td><td>Generator produces; critic flags issues; generator revises</td><td>Generator can ignore critic; loop without termination criterion</td></tr>
+<tr><td><strong>Multi-agent debate (MAD)</strong></td><td>All agents see all responses, revise N rounds</td><td>Majority pressure suppresses minority correction (&lt;5% for weak agents); cost scales linearly with rounds; ICLR 2025: MAD ≈ majority vote in most tasks</td></tr>
+<tr><td><strong>Judge-and-jury</strong></td><td>N proposers + 1 separate judge LLM</td><td>Judge bias (favors verbose answers, preferred phrasing); single-judge brittleness</td></tr>
+<tr><td><strong>Self-consistency</strong></td><td>Same model run k times with temperature; vote</td><td>Doesn&#39;t fix systematic errors; only reduces variance</td></tr>
+<tr><td><strong>Constitutional AI / self-critique</strong></td><td>Model critiques itself against a written constitution</td><td>Self-favoritism bias; depends on constitution quality</td></tr>
+</tbody>
+</table></div>
+<p><strong>PRISM&#39;s <code>scrutiny-3way</code> is a strict 3-of-3 jury</strong> (Codex + Gemini + Opus must all PASS). This is conservative — a 2-of-3 majority would close more sessions but admits more bad commits. The 3-of-3 strictness was adopted 2026-05-05 to fix the &quot;single-reviewer drift&quot; failure mode where Opus alone rubber-stamped its own work. Tradeoff: 3-of-3 has a known stall mode after 3 block attempts (auto-pass with warning) — which is itself an escape-hatch for the case where the gate is genuinely too strict.</p>
+<p><strong>Best practice (per ICLR 2025 controlled study):</strong> require explicit agree/disagree statements with logical justification. Weight revision by argument validity rated by an external judge. Don&#39;t trust raw majority unless you&#39;ve calibrated for the surface-form-blindness failure mode (e.g. <code>radial consensus score</code>, semantic clustering before vote).</p>
+<hr>
+<h2 id="4-two-pass-safety-pattern-generator-critic"><a class="anchor" href="#4-two-pass-safety-pattern-generator-critic" aria-label="Permalink to §4 Two-Pass Safety Pattern (generator → critic)">#</a>§4 Two-Pass Safety Pattern (generator → critic)</h2>
+<p><strong>The pattern:</strong> cheap LLM generates; expensive LLM verdicts PASS|REVISE|FAIL on the output. If REVISE, return to generator with critique. If FAIL, escalate to human or stronger model.</p>
+<p><strong>Cost-efficiency math (typical):</strong></p>
+<ul>
+<li>Generator (qwen2.5-coder:7b local): ~free, ~50ms TTFT, 10ms/tok</li>
+<li>Critic (claude-sonnet): ~$3/Mtok input + $15/Mtok output, ~800ms TTFT</li>
+<li>Average task: 500 input tok generator → 200 output tok → critic reads (500 prompt + 200 generation = 700 tok) → 50 tok PASS verdict</li>
+<li>Cost per task: ~$0.003 (critic only); generator is free</li>
+<li>Compare single-shot Opus: 500 input + 200 output @ $15/$75 = $0.022 per task</li>
+<li><strong>Savings: ~7x at parity, assuming critic accept rate &gt;85%</strong></li>
+</ul>
+<p><strong>Where it fails:</strong></p>
+<ol>
+<li><strong>Critic agreement bias</strong> — critic is from same family/training as generator → systematically misses certain bug classes. Mitigation: cross-vendor (qwen → claude, or codex → gemini).</li>
+<li><strong>Critic underspecification</strong> — vague PASS/FAIL rubric → critic hedges. Mitigation: structured verdict schema (<code>{verdict: PASS|REVISE|FAIL, reasons: [...], confidence: 0-1}</code>).</li>
+<li><strong>Loop instability</strong> — generator and critic ping-pong without converging. Mitigation: max-rounds cap (3) + escalate to single stronger model on cap.</li>
+<li><strong>Cost runaway on REVISE</strong> — REVISE rate &gt;40% means generator is too cheap; cascade to mid-tier (qwen → kimi).</li>
+<li><strong>Speculative-decoding analog gone wrong</strong> — if critic acceptance rate &lt;50%, you&#39;ve added cost without removing the expensive generation. Track acceptance rate per task class; auto-disable cascade where acceptance &lt;60%.</li>
+</ol>
+<p><strong>Speculative decoding is the inference-layer analog</strong> of this pattern: a small &quot;draft model&quot; predicts N tokens, the large model verifies in one pass, accepted tokens cost ~1 instead of N. 2-3x speedup at provable identical output. Same principle (cheap propose, expensive verify) at a different scale.</p>
+<p><strong>PRISM application:</strong> The hyperMILL safety chain (<code>/hypermill-safety-audit</code>) is already an instance — fast geometric checks gate expensive physics simulation. Generalising: build a <code>prism_ai:two_pass_validate</code> action that wraps any engine with <code>{generator: ollama-qwen, critic: claude-sonnet, schema: PassReviseFailSchema}</code>.</p>
+<hr>
+<h2 id="5-cost-optimization-qwen-kimi-claude-cascade"><a class="anchor" href="#5-cost-optimization-qwen-kimi-claude-cascade" aria-label="Permalink to §5 Cost Optimization — qwen → kimi → claude Cascade">#</a>§5 Cost Optimization — qwen → kimi → claude Cascade</h2>
+<p><strong>The cascade ladder (per FrugalGPT 2023, refined 2024-2026):</strong></p>
+<pre><code>Tier 0: prism_calc / prism_safety       → deterministic engine call (free)
+Tier 1: ollama-qwen2.5-coder:7b         → ~free, ~50ms first-token, ~200 tok/sec
+        ↓ confidence &lt; threshold or task-class miss
+Tier 2: kimi-k2.6 (cloud)               → $0.95/M in + $4/M out, 256k ctx, 80% SWE-Bench
+        ↓ confidence &lt; threshold or safety-critical
+Tier 3: claude-sonnet                   → $3/M in + $15/M out, 1M ctx, broad
+        ↓ ambiguous / requires deep reasoning
+Tier 4: claude-opus                     → $15/M in + $75/M out, 1M ctx, deepest
+</code></pre>
+<p><strong>Hit-rate measurement (FrugalGPT methodology):</strong></p>
+<ol>
+<li>Log every (input, model, output, downstream-success) tuple to <code>routing-decisions.jsonl</code> (PRISM already does this in <code>AISystemRouterEngine.appendLedger</code>).</li>
+<li>Compute per-tier accept rate = % of tasks where tier-N output passed downstream validation without escalation.</li>
+<li>Calibrate confidence threshold per task class so that escalation only fires when accept-rate-conditional-on-current-confidence drops below target accuracy floor.</li>
+<li>Target distribution (production-realistic): 60-70% Tier 0-1 (free/cheap), 20-25% Tier 2 (kimi), 5-10% Tier 3 (sonnet), 1-2% Tier 4 (opus).</li>
+</ol>
+<p><strong>Reference numbers from public reports:</strong></p>
+<ul>
+<li>FrugalGPT achieves 98% cost reduction at GPT-4 parity on QA benchmarks.</li>
+<li>LeanLM (production guide): 50-90% inference cost eliminated via routing + caching + distillation.</li>
+<li>PRISM&#39;s current ollama-offload-stats: 38% offload rate (15 offloaded / 24 total events; the wider sample of &quot;fired&quot; hooks shows higher engagement). Below the 30% healthy floor would trigger investigation; 38% means cascade is calibrated but not aggressive yet. Target after K2 cloud arm wired: 80%+ at Tier 0-2.</li>
+</ul>
+<p><strong>Pitfall:</strong> measuring &quot;savings&quot; via tokens-not-spent is a vanity metric. Measure (a) downstream task success rate vs always-Opus baseline and (b) cost per <em>successful</em> task end-to-end. A cascade that saves 80% on average but doubles failure rate is a regression.</p>
+<hr>
+<h2 id="6-llm-specific-strengths-2026-capability-map"><a class="anchor" href="#6-llm-specific-strengths-2026-capability-map" aria-label="Permalink to §6 LLM-Specific Strengths (2026 capability map)">#</a>§6 LLM-Specific Strengths (2026 capability map)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>LLM</th><th>Best for</th><th>Avoid for</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td><strong>Claude Opus 4.7 (1M ctx)</strong></td><td>Deep reasoning, safety-critical synthesis, tool use, long-context refactoring</td><td>Cheap high-volume tasks, simple lookups</td><td>This session. Highest accuracy on engineering judgment.</td></tr>
+<tr><td><strong>Claude Sonnet</strong></td><td>Code review, mid-complexity reasoning, RAG synthesis</td><td>Anything qwen can do for free</td><td>5x cheaper than Opus, ~85% of accuracy on most benches</td></tr>
+<tr><td><strong>Claude Haiku</strong></td><td>Classification, routing, fast first-pass</td><td>Multi-step reasoning</td><td>Useful as a router/classifier in front of cascade</td></tr>
+<tr><td><strong>Codex CLI (gpt-5.5 backed)</strong></td><td>Code search, diff generation, repo-aware refactor</td><td>Long-form writing, novel reasoning</td><td>Specialised for <code>codex exec</code> flows; PRISM uses for scrutiny-3way diff review</td></tr>
+<tr><td><strong>Gemini CLI</strong></td><td>Vision input, 2M context, grounded web search</td><td>Strict format adherence (looser than Claude)</td><td>PRISM uses for second opinion in scrutiny-3way; Gemini&#39;s grounded-search is unique</td></tr>
+<tr><td><strong>Kimi K2.6</strong></td><td>256k context coding, agent swarms, OSS deploys, cost-sensitive long-context</td><td>Vision (multimodal but weaker than Gemini)</td><td>1T MoE / 32B active. SWE-Bench 80.2%. $0.95/$4 per Mtok. Open-weight = self-hostable. Drop-in middle tier.</td></tr>
+<tr><td><strong>qwen2.5-coder:7b (Ollama local)</strong></td><td>Summary, classify, lint, docstring, error-triage</td><td>Multi-step reasoning, novel problems</td><td>Free, local, ~50ms first-token. PRISM&#39;s primary offload target.</td></tr>
+<tr><td><strong>qwen2.5-coder:14b (Ollama local)</strong></td><td>As above but tougher tasks</td><td>Anything time-critical (slower TTFT on commodity HW)</td><td>Use when 7b acceptance rate &lt;60% on a task class.</td></tr>
+<tr><td><strong>codellama / deepseek (Ollama)</strong></td><td>Specialised code completion (codellama); reasoning (deepseek-r1)</td><td>Generic chat</td><td>Niche fallbacks; PRISM has them but underused</td></tr>
+<tr><td><strong>nomic-embed-text (Ollama)</strong></td><td>Embeddings only</td><td>Generation</td><td>Wire into RAG, semantic dedup, vector index. Not a generator.</td></tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="7-octopus-ensemble-patterns-when-ensemble-beats-single-best"><a class="anchor" href="#7-octopus-ensemble-patterns-when-ensemble-beats-single-best" aria-label="Permalink to §7 Octopus / Ensemble Patterns — When Ensemble Beats Single Best">#</a>§7 Octopus / Ensemble Patterns — When Ensemble Beats Single Best</h2>
+<p><strong>The MoA finding (Together AI, ICLR 2025 spotlight):</strong> 3 layers of 6 OSS models hit 65.1% AlpacaEval LC, beating GPT-4o (57.5%) at ~2x GPT-4-Turbo cost. The &quot;collaborativeness&quot; insight: LLMs produce better outputs when they can see other models&#39; outputs, <em>even when the other models are weaker individually</em>.</p>
+<p><strong>Layer recipe (MoA standard):</strong></p>
+<ul>
+<li>Layer 1 (proposers): 4-6 diverse models generate independent responses to the input. Diversity &gt; raw quality here.</li>
+<li>Layer 2 (refiners): same model set, each receives Layer-1 outputs as context, produces refined response.</li>
+<li>Layer 3 (aggregator): single strong model (often the most capable) synthesises Layer-2 outputs into final answer.</li>
+</ul>
+<p><strong>For PRISM&#39;s stack, a 3-layer Octopus would be:</strong></p>
+<ul>
+<li>Layer 1 proposers: qwen2.5-coder:7b + qwen2.5-coder:14b + codellama + Codex + Gemini (5 diverse OSS/cloud)</li>
+<li>Layer 2 refiners: same 5, with Layer-1 outputs as auxiliary context</li>
+<li>Layer 3 aggregator: claude-opus (highest synthesis ability + tool use)</li>
+</ul>
+<p><strong>When ensemble beats single-best:</strong></p>
+<ul>
+<li>High-stakes single answer (e.g. final spec, contract clause, irreversible commit)</li>
+<li>Diverse expertise needed (e.g. cross-domain synthesis: physics + business + UX)</li>
+<li>Adversarial validation matters (catch jailbreak, factual error, hallucination)</li>
+<li>Latency budget allows 3-5s instead of &lt;1s</li>
+</ul>
+<p><strong>When ensemble multiplies cost without value:</strong></p>
+<ul>
+<li>Routine tasks (80% of dev work): single Sonnet wins</li>
+<li>Highly subjective tasks (poetry, brand voice): no convergence</li>
+<li>Tasks where any of N models can do it: cascade wins instead</li>
+<li>Tasks bounded by tool I/O (e.g. read 50 files): bottleneck is I/O, not LLM</li>
+<li>Real-time agents (e.g. autocomplete): latency budget gone</li>
+</ul>
+<p><strong>PRISM&#39;s <code>octopus-provider-probe.mjs</code> is the readiness check</strong> for ensemble mode — verifies Codex + Gemini + Ollama all reachable, then surfaces banner. Currently <code>prism_ai:consensus</code> is the consumer action (per banner text). The octopus pattern aligns with MoA layer-1; PRISM has the fan-out plumbing but does not yet do layer-2 refinement (the auxiliary-context pass that gives MoA its accuracy edge).</p>
+<hr>
+<h2 id="8-failure-modes-and-mitigations"><a class="anchor" href="#8-failure-modes-and-mitigations" aria-label="Permalink to §8 Failure Modes and Mitigations">#</a>§8 Failure Modes and Mitigations</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Failure mode</th><th>Symptom</th><th>Mitigation</th></tr></thead>
+<tbody>
+<tr><td><strong>Provider unavailable</strong></td><td>5xx, connection refused, timeout</td><td>Circuit breaker (3 states: closed/open/half-open); fallback chain in <code>AISystemRouterEngine.fallback</code>; <code>octopus-provider-probe</code> cache (6h TTL)</td></tr>
+<tr><td><strong>Rate limit (429)</strong></td><td>Sudden 429s, exponential queue growth</td><td>Exponential backoff with jitter (1-2s base, 5-7 retries max); switch provider via LiteLLM-style router; queue async via <code>consensus-queue-drain</code></td></tr>
+<tr><td><strong>Auth failure (401/403)</strong></td><td>All requests fail same way</td><td>Do NOT retry; surface to user immediately; fall back to other vendor</td></tr>
+<tr><td><strong>Context window overflow</strong></td><td>400 with &quot;max tokens&quot; error</td><td>Do NOT retry same model; cascade up (qwen 32k → kimi 256k → opus 1M); compaction via subagent fan-out</td></tr>
+<tr><td><strong>Hallucinated tool call</strong></td><td>Model invents a tool name not in schema</td><td>Validate against tool-list before execution; critic pass; PRISM <code>dispatcher_map_compact</code> injection</td></tr>
+<tr><td><strong>Hallucinated output</strong></td><td>Plausible but wrong</td><td>Critic pass; cross-vendor check (octopus); ground in retrieval</td></tr>
+<tr><td><strong>Cost runaway</strong></td><td>Monthly bill 5x baseline</td><td>Per-task budget caps; <code>team-budget</code> skill; alert on &gt;2x per-class moving average</td></tr>
+<tr><td><strong>Loop / no termination</strong></td><td>Critic-revise oscillates</td><td>Max-rounds cap (typically 3); on cap → escalate single-shot stronger model</td></tr>
+<tr><td><strong>Subagent duplication</strong></td><td>3 subagents return overlapping summaries</td><td>Lead must give detailed task boundaries (Anthropic finding); name explicit non-overlapping scopes</td></tr>
+<tr><td><strong>Quality degradation under load</strong></td><td>First call good, 10th call bad</td><td>Often caused by silent fallback to weaker model; instrument actual model used per call</td></tr>
+<tr><td><strong>Partial failure</strong></td><td>1 of 3 jury members fails</td><td>Choose policy: strict (block; PRISM scrutiny-3way) vs majority-of-survivors (1 fail of 3 → 2-of-2 vote)</td></tr>
+<tr><td><strong>Provider drift</strong></td><td>Model &quot;Opus 4.7&quot; silently upgraded mid-session</td><td>Pin model versions; monitor benchmark scores per provider; consensus-model-performance.json</td></tr>
+</tbody>
+</table></div>
+<p><strong>Production resilience pattern (from Cloudflare AI Code Review, Maxim, Portkey 2025):</strong></p>
+<ol>
+<li>Retries with jitter for transient errors only (429, 5xx, network)</li>
+<li>No retries for 400-class (auth, malformed, context overflow)</li>
+<li>Circuit breaker per provider (open after 5 failures in 60s, half-open probe every 30s)</li>
+<li>Fallback chain ranked by cost/quality (cheap first if cost-sensitive; reverse if quality-sensitive)</li>
+<li>Idempotency keys on every call (so retries don&#39;t double-charge or double-write)</li>
+<li>Full request/response logging for replay debugging</li>
+<li>Per-provider quotas (don&#39;t let one provider blow the budget)</li>
+</ol>
+<hr>
+<h2 id="9-real-world-deployments"><a class="anchor" href="#9-real-world-deployments" aria-label="Permalink to §9 Real-World Deployments">#</a>§9 Real-World Deployments</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>System</th><th>Coordination strategy</th><th>Lessons</th></tr></thead>
+<tbody>
+<tr><td><strong>Anthropic Research (Claude.ai)</strong></td><td>Orchestrator-worker, Opus lead + 3-5 Sonnet subagents in parallel. Each subagent uses 3+ tools in parallel.</td><td>90.2% improvement over single-agent on internal eval. 15x token cost. Used only for breadth-first research, not coding.</td></tr>
+<tr><td><strong>Claude Code (this CLI)</strong></td><td>Subagents via Agent tool with subagent_type. Hooks (UserPromptSubmit, PreToolUse, PostToolUse, Stop) inject context and gate actions.</td><td>Tool/hook architecture is the orchestration layer; subagents are dispatched by the parent Claude. PRISM extends this via 25+ wired hooks.</td></tr>
+<tr><td><strong>Cursor</strong></td><td>VS Code fork; user picks model per-prompt via picker; Tab autocomplete + Composer (multi-file) + Cmd+K (inline edit).</td><td>Routing is <em>user-driven</em>, not automatic. RAG over open files for context.</td></tr>
+<tr><td><strong>Sourcegraph Cody</strong></td><td>RAG-pre-indexed entire repo; multi-model (Claude/GPT-4/Gemini) via Sourcegraph Gateway; BYOLLM enterprise option.</td><td>Strong on cross-repo retrieval; multi-model is BYOK swap, not ensemble.</td></tr>
+<tr><td><strong>Replit Agent</strong></td><td>Browser-based; agent spins up full apps; sandboxed exec.</td><td>Agent-driven (not user-routed); single-model orchestration with task decomposition.</td></tr>
+<tr><td><strong>Together AI MoA (research)</strong></td><td>3-layer mixture: 6 OSS proposers → 6 OSS refiners → 1 aggregator.</td><td>65.1% AlpacaEval beating GPT-4o; ~2x GPT-4-Turbo cost; production-deployed at Together.</td></tr>
+<tr><td><strong>Cloudflare AI Code Review</strong></td><td>Multiple LLMs vote on code review comments; circuit-breaker per provider; idempotency keys.</td><td>Production-tested; deals with rate limits and provider degradation gracefully.</td></tr>
+<tr><td><strong>GitHub Copilot</strong></td><td>Single primary model + smaller draft model for autocomplete; speculative-decoding-style at inference layer.</td><td>Routing is by latency budget, not by capability.</td></tr>
+</tbody>
+</table></div>
+<p><strong>Common patterns across production:</strong></p>
+<ol>
+<li>RAG/context-injection is <em>more important than model choice</em> in 60-70% of tasks (Cody, Cursor evidence)</li>
+<li>Hook architectures (PRISM&#39;s, Claude Code&#39;s) are the de facto coordination mechanism inside a single agent</li>
+<li>Multi-vendor ensemble is rare in production; cascade and routing are common; orchestrator-worker is for high-value research only</li>
+<li>Consensus voting on diffs / generated code is increasingly standard (Cloudflare, PRISM scrutiny-3way, Sourcegraph Code Review)</li>
+<li>Idempotency keys + request-replay logs are non-negotiable above 1000 req/day</li>
+</ol>
+<hr>
+<h2 id="cross-reference-prism-asset-map"><a class="anchor" href="#cross-reference-prism-asset-map" aria-label="Permalink to Cross-Reference: PRISM Asset Map">#</a>Cross-Reference: PRISM Asset Map</h2>
+<p><strong>What PRISM has today (2026-05-10):</strong></p>
+<ul>
+<li><code>AISystemRouterEngine.ts</code> — 8 backends, 9 task classes, ledger at <code>knowledge/summaries/routing-decisions.jsonl</code>. Routing pattern, no cascade calibration yet.</li>
+<li><code>octopus-provider-probe.mjs</code> — SessionStart hook; 6h cache; surfaces ready/missing/fanout banner. Layer-0 of an ensemble (readiness check).</li>
+<li><code>auto-consensus-critical-edit.mjs</code> + <code>auto-consensus-userprompt.mjs</code> + <code>stop-consensus-drain.mjs</code> — async consensus pipeline triggered on critical edits.</li>
+<li><code>consensus-model-performance.json</code> — per-model performance ledger (the bootstrap data needed for weighted voting).</li>
+<li><code>scrutiny-3way.mjs</code> — 3-of-3 jury consensus for diff review (Codex + Gemini + Opus). Mesh topology with explicit verdict schema (PASS|REVISE|FAIL).</li>
+<li><code>ollama-offload-stats.json</code> — 38% offload rate on classify/summarise tasks. Healthy but conservative.</li>
+<li><code>ollama-task-offloader</code> + <code>ollama-engine-api-extractor</code> + <code>ollama-context-aggregator</code> + <code>ollama-obsidian-rag</code> hooks — fan-out to local qwen for cheap classification.</li>
+</ul>
+<p><strong>What PRISM should add (per this research):</strong></p>
+<ol>
+<li><strong>K2.6 cloud arm</strong> in <code>AISystemRouterEngine</code> (per K2-CLOUD-MS0). New backend <code>kimi-k2.6-cloud</code> with capability flags <code>{contextMax: 256000, costPerMtok: {input: 0.95, output: 4.0}, strengths: [&#39;long-context&#39;, &#39;coding&#39;, &#39;agent-swarm&#39;]}</code>. Slot between qwen and claude-sonnet in cascade.</li>
+<li><strong>Cascade calibration</strong> — instrument <code>routing-decisions.jsonl</code> with downstream-success annotation. Compute per-tier accept rate. Auto-tune confidence thresholds. Skill: extend <code>/adaptive-optimize</code>.</li>
+<li><strong>MoA layer-2</strong> — current <code>prism_ai:consensus</code> is layer-1 only (parallel propose). Add a refinement pass where each proposer sees the others&#39; outputs before producing a final answer. Then aggregate with Opus. Expected accuracy lift ~5-7% on hard tasks per MoA paper.</li>
+<li><strong>Two-pass safety wrapper</strong> — <code>prism_ai:two_pass_validate({generator, critic, schema})</code> action. Default generator=qwen, critic=claude-sonnet. Cost cut ~7x at parity.</li>
+<li><strong>Circuit breaker per provider</strong> — Wrap each backend in <code>AISystemRouterEngine</code> with closed/open/half-open state. Open after 5 failures in 60s. Half-open probe every 30s.</li>
+<li><strong>Idempotency keys</strong> on every consensus-queue entry — already partially done; verify across all hooks.</li>
+<li><strong>Semantic-cluster vote</strong> instead of raw majority for <code>scrutiny-3way</code> — pre-cluster verdicts by reasoning before counting. Avoids surface-form-blindness failure mode.</li>
+</ol>
+<hr>
+<h2 id="sources"><a class="anchor" href="#sources" aria-label="Permalink to Sources">#</a>Sources</h2>
+<p>Primary research papers and engineering blogs cited above:</p>
+<ul>
+<li><a href="https://www.anthropic.com/research/building-effective-agents" rel="noopener noreferrer">Anthropic — Building Effective AI Agents</a> — 5 workflow patterns; &quot;start simple&quot; doctrine</li>
+<li><a href="https://www.anthropic.com/engineering/multi-agent-research-system" rel="noopener noreferrer">Anthropic — How we built our multi-agent research system</a> — 15x token cost; 90.2% lift; orchestrator-worker</li>
+<li><a href="https://arxiv.org/html/2406.04692v1" rel="noopener noreferrer">Together AI MoA paper (arxiv 2406.04692)</a> — 3-layer mixture; 65.1% AlpacaEval; collaborativeness insight</li>
+<li><a href="https://github.com/togethercomputer/MoA" rel="noopener noreferrer">Together MoA repo</a> — implementation reference</li>
+<li><a href="https://arxiv.org/abs/2305.05176" rel="noopener noreferrer">FrugalGPT (arxiv 2305.05176)</a> — 98% cost reduction at GPT-4 parity via cascade</li>
+<li><a href="https://arxiv.org/pdf/2508.17536" rel="noopener noreferrer">Debate or Vote — ICLR 2025 (arxiv 2508.17536)</a> — majority voting ≈ multi-agent debate</li>
+<li><a href="https://aclanthology.org/2025.findings-acl.606.pdf" rel="noopener noreferrer">Voting or Consensus — ACL 2025</a> — failure modes of multi-agent decision making</li>
+<li><a href="https://docs.litellm.ai/docs/router_architecture" rel="noopener noreferrer">LiteLLM — router architecture</a> — fallback / retry pattern reference</li>
+<li><a href="https://github.com/BerriAI/litellm" rel="noopener noreferrer">LiteLLM repo</a> — production multi-LLM gateway</li>
+<li><a href="https://dspy.ai/api/optimizers/MIPROv2/" rel="noopener noreferrer">DSPy — MIPROv2 optimizer</a> — automated prompt optimization</li>
+<li><a href="https://bentoml.com/llm/inference-optimization/speculative-decoding" rel="noopener noreferrer">Speculative decoding — BentoML guide</a> — cheap-propose / expensive-verify at inference layer</li>
+<li><a href="https://www.getmaxim.ai/articles/retries-fallbacks-and-circuit-breakers-in-llm-apps-a-production-guide/" rel="noopener noreferrer">Maxim — Retries, fallbacks, circuit breakers in LLM apps</a> — production resilience guide</li>
+<li><a href="https://portkey.ai/blog/implementing-frugalgpt-smarter-llm-usage-for-lower-costs/" rel="noopener noreferrer">Portkey — FrugalGPT explainer</a> — cascade implementation</li>
+<li><a href="https://www.microsoft.com/en-us/research/uploads/prod/2023/08/LLM_agent.pdf" rel="noopener noreferrer">Microsoft AutoGen paper</a> — Society-of-Mind multi-agent conversation</li>
+<li><a href="https://arxiv.org/html/2501.06322v1" rel="noopener noreferrer">Multi-Agent Collaboration survey (arxiv 2501.06322)</a> — broad taxonomy of LLM multi-agent mechanisms</li>
+<li><a href="https://platform.kimi.ai/docs/guide/kimi-k2-6-quickstart" rel="noopener noreferrer">Kimi K2.6 official docs (Moonshot)</a> — capability + pricing</li>
+<li><a href="https://openrouter.ai/moonshotai/kimi-k2.6" rel="noopener noreferrer">Kimi K2.6 OpenRouter pricing</a> — alternate pricing</li>
+<li><a href="https://rits.shanghai.nyu.edu/ai/moonshot-ai-releases-kimi-k2-6-with-256k-context-and-300-agent-swarms/" rel="noopener noreferrer">Kimi K2.6 release coverage (NYU RITS)</a> — agent swarm tier details</li>
+<li><a href="https://hamel.dev/blog/posts/llm-judge/" rel="noopener noreferrer">Hamel Husain — LLM-as-Judge tutorial</a> — practitioner judge-pattern guide</li>
+<li><a href="https://resources.anthropic.com/building-effective-agents" rel="noopener noreferrer">Anthropic 2025 Managed Agents announcement</a> — Dreaming, Outcomes, multi-agent orchestration public-beta</li>
+<li><a href="https://blog.cloudflare.com/ai-code-review/" rel="noopener noreferrer">Cloudflare AI Code Review at scale</a> — production multi-LLM voting deployment</li>
+<li><a href="https://www.datacamp.com/tutorial/crewai-vs-langgraph-vs-autogen" rel="noopener noreferrer">DataCamp — CrewAI vs LangGraph vs AutoGen</a> — orchestration framework comparison</li>
+<li><a href="https://devtoolsreview.com/reviews/cody-review/" rel="noopener noreferrer">Sourcegraph Cody review</a> — multi-model gateway production deployment</li>
+<li><a href="https://www.morphllm.com/best-ollama-models" rel="noopener noreferrer">BentoML — Qwen2.5-Coder benchmark</a> — local LLM throughput / first-token reference</li>
+</ul>
+<hr>
+<h2 id="appendix-decision-tree-when-to-use-what"><a class="anchor" href="#appendix-decision-tree-when-to-use-what" aria-label="Permalink to Appendix: Decision Tree (when to use what)">#</a>Appendix: Decision Tree (when to use what)</h2>
+<pre><code>Q: Single-shot or multi-shot?
+├─ Single-shot if: routine task, low-stakes, latency-critical, &lt;30k tokens
+│  └─ Pick model by §6 strength table (route via AISystemRouterEngine)
+└─ Multi-shot if: high-stakes OR safety-critical OR breadth-first OR ambiguous
+   │
+   ├─ Q: Sequential refine or parallel?
+   │  ├─ Sequential (pipeline) if: stages are dependent (translate → polish)
+   │  ├─ Parallel (orchestrator-worker) if: subtasks independent (research N angles)
+   │  └─ Both (MoA) if: high-value single answer + cost budget allows 5-20x
+   │
+   ├─ Q: Need consensus on the output?
+   │  ├─ Yes + cost-sensitive: cascade (qwen → kimi → claude)
+   │  ├─ Yes + accuracy-critical: 3-of-3 jury (scrutiny-3way pattern)
+   │  ├─ Yes + tolerant of debate: MAD with explicit agree/disagree (caution: ICLR 2025 says voting often beats debate)
+   │  └─ No: single specialist + critic pass
+   │
+   └─ Q: Token budget?
+      ├─ &lt;1k tokens / task: cascade Tier 0-1, no ensemble
+      ├─ 1k-10k: cascade with critic on uncertain cases
+      ├─ 10k-100k: ensemble or orchestrator-worker
+      └─ &gt;100k context: kimi (256k) | claude (1M) | gemini (2M) only
+</code></pre>
+<hr>
+<p><em>End research card. Total ~580 lines. Stored at <code>state/shared/research/2026-05-10-multi-llm-coordination.md</code> for reference by parent agent and downstream planning units.</em></p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="2026-05-10-multi-llm-coordination.md">2026-05-10-multi-llm-coordination.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>
