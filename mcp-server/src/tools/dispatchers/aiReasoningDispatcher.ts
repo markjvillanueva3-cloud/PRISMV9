@@ -2155,14 +2155,19 @@ export async function executeAIReasoningAction(
       // ─────────────────────────────────────────────────────────────────────
       // OCTOPUS-NEURAL-MS0/U-OCN04: cascade_calibrate — read-only over MCP
       // The live invocation path requires function-typed inputs (tier.invoke,
-      // probe.score) which can't cross JSON; over MCP this action returns a
-      // diagnostic payload pointing to the in-process CLI. In-process callers
-      // (scripts, other engines) import cascadeCalibrationEngine directly.
+      // probe.score) which can't cross JSON; over MCP this action returns an
+      // explicit ok:false error so naive callers DO NOT silently believe their
+      // calibration ran. In-process callers (scripts, other engines) must
+      // import cascadeCalibrationEngine directly.
+      // (Reviewer P2#3: previously returned ok:true with an instructional
+      // message, which is the worst kind of silent skip.)
       // ─────────────────────────────────────────────────────────────────────
       case "cascade_calibrate": {
         result = {
-          ok: true,
-          message: "cascade_calibrate is engine-only over MCP — invoke via cascadeCalibrationEngine.calibrate() in-process. CLI: scripts/cascade-calibrate.mjs (writes state/shared/cascade-thresholds.json).",
+          ok: false,
+          error: "cascade_calibrate cannot run over MCP: tier.invoke and probe.score are function-typed inputs that don't survive JSON serialization. The calibration did NOT run.",
+          in_process_api: "import { cascadeCalibrationEngine } from 'mcp-server/src/engines/CascadeCalibrationEngine.js'; await cascadeCalibrationEngine.calibrate({ tiers, probes, ... })",
+          cli: "scripts/cascade-calibrate.mjs (writes state/shared/cascade-thresholds.json) — to be added in a downstream unit",
           summary: params.summary ?? null,
         };
         break;

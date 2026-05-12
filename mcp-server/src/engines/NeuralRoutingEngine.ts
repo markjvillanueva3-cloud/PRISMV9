@@ -109,6 +109,30 @@ const DEFAULT_TENTACLES_3_OF_3: Tentacle[] = ["codex", "claude-a", "claude-b"];
 const DEFAULT_TENTACLES_5_OF_5: Tentacle[] = ["codex", "claude-a", "claude-b", "kimi-k2", "gemini"];
 const ALL_QUORUMS: Quorum[] = ["1-of-1", "2-of-3", "3-of-3", "5-of-5"];
 
+/**
+ * U-OCN05 reviewer P2#2: distance-metric weights extracted to a single named
+ * constant so they're discoverable + tunable. NOT physics constants — these are
+ * routing hyperparameters with no canonical-source obligation (the canonical
+ * tuning loop is "replay the scrutiny ledger and minimize misroutes", which
+ * will land as its own unit once the ledger has enough data).
+ */
+const DISTANCE_WEIGHTS = {
+  /** Weight of changeClass exact-mismatch (1.0 if classes differ, else 0). Heaviest signal. */
+  changeClass: 1.0,
+  /** Weight of file-types Jaccard distance (0 if identical sets, 1 if disjoint). */
+  fileTypesJaccard: 0.5,
+  /** Weight of normalized peer-count diff (capped at 1.0 via /6 normalization). */
+  peerCountDiff: 0.3,
+  /** Weight of log-scaled filesCount diff (capped at 1.0 via /3 normalization). */
+  filesCountDiff: 0.2,
+  /** Negative attractor bonus when fingerprints match exactly (clamped at 0 distance). */
+  fingerprintMatchBonus: -0.8,
+} as const;
+/** Normalization divisor for peer-count diff before capping at 1.0. */
+const PEER_COUNT_NORM = 6;
+/** Normalization divisor for log-scaled filesCount diff before capping at 1.0. */
+const FILES_COUNT_NORM = 3;
+
 /** Conservative fallback used by cold-start (default) and the poisoning defense. */
 const CONSERVATIVE_DEFAULT: { quorum: Quorum; tentacles: Tentacle[] } = {
   quorum: "3-of-3",
@@ -287,8 +311,8 @@ export class NeuralRoutingEngine {
 
   private distance(req: RoutingRequest, entry: LedgerEntry): number {
     let d = 0;
-    // Change class — exact match = 0, mismatch = 1 (heavy: this is the primary signal).
-    if ((entry.changeClass ?? "") !== req.changeClass) d += 1.0;
+    // Change class — exact match = 0, mismatch = weight (heavy: this is the primary signal).
+    if ((entry.changeClass ?? "") !== req.changeClass) d += DISTANCE_WEIGHTS.changeClass;
     // File-types Jaccard distance — 0 if identical sets, 1 if disjoint.
     const a = new Set(req.fileTypes);
     const b = new Set(entry.fileTypes ?? []);
@@ -296,18 +320,18 @@ export class NeuralRoutingEngine {
     let inter = 0;
     for (const t of a) if (b.has(t)) inter++;
     const jaccard = union.size === 0 ? 0 : 1 - (inter / union.size);
-    d += 0.5 * jaccard;
-    // Peer-count distance — normalized by max(1, max_observed). Cap at 1.0.
-    const peerDiff = Math.min(1.0, Math.abs((entry.peerCount ?? 0) - req.peerCount) / 6);
-    d += 0.3 * peerDiff;
+    d += DISTANCE_WEIGHTS.fileTypesJaccard * jaccard;
+    // Peer-count distance — normalized + capped at 1.0.
+    const peerDiff = Math.min(1.0, Math.abs((entry.peerCount ?? 0) - req.peerCount) / PEER_COUNT_NORM);
+    d += DISTANCE_WEIGHTS.peerCountDiff * peerDiff;
     // Files-count distance — log-scaled.
     if (req.filesCount !== undefined && entry.filesCount !== undefined) {
       const fDiff = Math.abs(Math.log1p(entry.filesCount) - Math.log1p(req.filesCount));
-      d += 0.2 * Math.min(1.0, fDiff / 3);
+      d += DISTANCE_WEIGHTS.filesCountDiff * Math.min(1.0, fDiff / FILES_COUNT_NORM);
     }
-    // Fingerprint exact match → strong attractor (negative distance bonus, but clamp >= 0).
+    // Fingerprint exact match → strong attractor (negative weight, clamped at 0).
     if (req.fingerprint && entry.fingerprint && req.fingerprint === entry.fingerprint) {
-      d = Math.max(0, d - 0.8);
+      d = Math.max(0, d + DISTANCE_WEIGHTS.fingerprintMatchBonus);
     }
     return d;
   }

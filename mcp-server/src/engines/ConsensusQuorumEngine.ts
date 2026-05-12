@@ -184,29 +184,33 @@ export class ConsensusQuorumEngine {
     // safety markers we missed in the path/content scan.
     let category: DiffCategory = rawCategory;
     let escalated = false;
+    let escalationReason: string | null = null;
     const subjectSafetyHint = (diff.commitSubject ?? "").match(/SAFETY|PHYSICS|KIENZLE|TAYLOR|CONSTANT/i);
     if (subjectSafetyHint && category !== "safety-critical") {
       signals.push(`subject-hint:${subjectSafetyHint[0]}`);
       category = "safety-critical";
       escalated = true;
+      escalationReason = `subject hint '${subjectSafetyHint[0]}'`;
     }
     if (oversized && category !== "safety-critical") {
       if (category === "minor" || category === "test-only" || category === "docs-only") {
         category = "major";
         escalated = true;
+        escalationReason = escalationReason ? `${escalationReason} + oversized (${fileCount} files)` : `oversized (${fileCount} files)`;
       }
     }
-    if (rawCategory === "unknown") {
+    if (rawCategory === "unknown" && category !== "safety-critical") {
       // safety-net: unknown defaults to major (3-of-3) — never trust an unclassified diff.
       category = "major";
       escalated = true;
+      escalationReason = escalationReason ? `${escalationReason} + unknown raw class` : "unknown raw class";
     }
 
     // Stage 6: map category to quorum.
     const quorum = this.quorumFor(category);
 
     // Stage 7: rationale.
-    const rationale = this.renderRationale(category, rawCategory, escalated, signals, fileCount, safetyHits, majorHits.length);
+    const rationale = this.renderRationale(category, rawCategory, escalated, escalationReason, signals, fileCount, safetyHits, majorHits.length);
 
     return {
       category,
@@ -280,13 +284,19 @@ export class ConsensusQuorumEngine {
     category: DiffCategory,
     rawCategory: DiffCategory,
     escalated: boolean,
+    escalationReason: string | null,
     signals: string[],
     fileCount: number,
     safetyHits: string[],
     majorHits: number,
   ): string {
     const parts: string[] = [];
-    parts.push(`Classification: ${category}${escalated ? ` (escalated from ${rawCategory})` : ""}`);
+    // U-OCN05 reviewer P2#1: surface the WHY behind escalation (subject-hint /
+    // oversized / unknown-raw), not just the from→to pair.
+    const escTag = escalated
+      ? ` (escalated from ${rawCategory}${escalationReason ? ` via ${escalationReason}` : ""})`
+      : "";
+    parts.push(`Classification: ${category}${escTag}`);
     parts.push(`Diff: ${fileCount} files`);
     if (safetyHits.length > 0) parts.push(`Safety hits: ${safetyHits.length}`);
     if (majorHits > 0) parts.push(`Major-path hits: ${majorHits}`);

@@ -281,13 +281,26 @@ describe("CascadeCalibrationEngine — U-OCN04 probe-based calibration", () => {
 });
 
 // ─── dispatcher round-trip ─────────────────────────────────────────────────
-describe("prism_ai:cascade_calibrate — dispatcher signature only (U-OCN04 wiring)", () => {
-  it("dispatcher action present: schema accepts the engine's API contract (sanity)", async () => {
-    // The dispatcher action is wired but takes engine-shaped objects with function fields
-    // (invoke, score) which can't cross the MCP boundary as JSON. The dispatcher path is
-    // therefore reserved for callers that already have the engine singleton in-process
-    // (e.g. a CLI). This test confirms the schema exists and accepts a minimal stub.
+describe("prism_ai:cascade_calibrate — dispatcher contract (U-OCN04 wiring + reviewer P2#3)", () => {
+  it("dispatcher action present in AI_REASONING_ACTIONS enum", async () => {
     const { AI_REASONING_ACTIONS } = await import("../schemas/aiReasoningActionSchemas.js");
     expect((AI_REASONING_ACTIONS as readonly string[]).includes("cascade_calibrate")).toBe(true);
+  });
+
+  it("MCP path returns ok:false with explicit error — no silent skip (reviewer P2#3)", async () => {
+    // The engine API requires function-typed inputs (tier.invoke, probe.score)
+    // that don't survive JSON serialization. Per reviewer P2#3, the dispatcher
+    // case must surface this as ok:false / explicit error, NOT ok:true with a
+    // friendly message (which would let naive callers silently believe their
+    // calibration ran). This test pins that behavior.
+    const { executeAIReasoningAction } = await import("../tools/dispatchers/aiReasoningDispatcher.js");
+    const out = await executeAIReasoningAction("cascade_calibrate" as never, { summary: "user-supplied" });
+    expect(out.success).toBe(true); // dispatcher success (action recognized) — but payload below is ok:false
+    const data = out.data as { ok: boolean; error: string; in_process_api: string; cli: string };
+    expect(data.ok).toBe(false);
+    expect(data.error).toMatch(/cannot run over MCP/);
+    expect(data.error).toMatch(/did NOT run/);
+    expect(data.in_process_api).toMatch(/cascadeCalibrationEngine\.calibrate/);
+    expect(data.cli).toMatch(/scripts\/cascade-calibrate\.mjs/);
   });
 });
