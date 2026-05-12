@@ -35,6 +35,26 @@ export interface MoonshotExecOptions {
   system?: string;
   /** Default 60_000ms. Long-context K2 calls can take 90s+. */
   timeoutMs?: number;
+  /**
+   * U-OCN01: SSE streaming. When `true`, the engine sets `stream: true` on the
+   * request body, parses `data: {...}` SSE frames, accumulates `delta.content`
+   * across frames, and returns the assembled final text as `answer` (same shape
+   * as non-streaming). Default: false. If the client aborts mid-stream, the
+   * engine returns `ok: false, error: "stream cancelled"` (or "timeout" if it
+   * was the timeout-driven abort).
+   */
+  stream?: boolean;
+  /**
+   * U-OCN01: Retry budget for transient errors (HTTP 429 / 502 / 503 / 504 and
+   * network-level fetch failures). Auth errors (401/403), invalid-JSON, hard
+   * 4xx (other than 429), and explicit timeout-aborts do NOT retry. Default 2
+   * (so up to 3 total attempts: initial + 2 retries). Set to 0 to disable.
+   * Backoff: 250ms, 750ms, 1500ms (with the optional `retryBaseDelayMs` knob
+   * for tests so they don't spend real seconds sleeping).
+   */
+  retries?: number;
+  /** Test-injection knob: base delay (ms) for backoff. Default 250. */
+  retryBaseDelayMs?: number;
 }
 
 export interface MoonshotResult {
@@ -46,11 +66,19 @@ export interface MoonshotResult {
   model: string;
   latencyMs: number;
   error: string | null;
+  /** U-OCN01: number of times we retried after a transient failure. 0 = no retry needed. */
+  retries: number;
+  /** U-OCN01: true if the answer was assembled from an SSE stream rather than a single JSON body. */
+  streamed: boolean;
 }
 
 const DEFAULT_BASE_URL = process.env.MOONSHOT_BASE_URL ?? "https://api.moonshot.ai/v1";
 const DEFAULT_MODEL = process.env.PRISM_MOONSHOT_MODEL ?? "kimi-k2-0905-preview";
 const DEFAULT_TIMEOUT_MS = Number(process.env.PRISM_MOONSHOT_TIMEOUT_MS ?? 60_000);
+const DEFAULT_RETRIES = 2;
+const DEFAULT_RETRY_BASE_MS = 250;
+/** Transient HTTP statuses that we retry. 429 is rate-limit; 5xx is server-side. */
+const RETRIABLE_STATUSES = new Set([429, 502, 503, 504]);
 
 interface OpenAIChatResponse {
   choices?: Array<{ message?: { content?: string } }>;
@@ -59,78 +87,258 @@ interface OpenAIChatResponse {
   error?: { message?: string; type?: string };
 }
 
+/**
+ * U-OCN01: classifies an attempt outcome. `retryable` means we should sleep
+ * backoff and try again (up to the retry budget). `done` means the attempt
+ * produced a final answer that exec() should return as-is. `fatal` means a
+ * non-retryable error (auth, invalid JSON, explicit timeout): stop and return.
+ */
+type AttemptKind = "done" | "retryable" | "fatal";
+interface AttemptOutcome {
+  kind: AttemptKind;
+  result: MoonshotResult;
+}
+
 export class MoonshotClientEngine {
   async exec(options: MoonshotExecOptions): Promise<MoonshotResult> {
     this.validate(options);
     const start = Date.now();
+    const model = options.model ?? DEFAULT_MODEL;
+    const streamed = options.stream === true;
+
     const apiKey = options.apiKey ?? process.env.MOONSHOT_API_KEY ?? "";
     if (!apiKey) {
-      return this.fail(start, options.model ?? DEFAULT_MODEL,
+      return this.fail(start, model, 0, streamed,
         "missing MOONSHOT_API_KEY env var (get a key at https://platform.moonshot.ai/console/api-keys)");
     }
 
-    const model = options.model ?? DEFAULT_MODEL;
-    const messages: Array<{ role: string; content: string }> = [];
-    if (options.system) messages.push({ role: "system", content: options.system });
-    messages.push({ role: "user", content: options.prompt });
+    const retryBudget = Math.max(0, options.retries ?? DEFAULT_RETRIES);
+    const baseDelay = Math.max(0, options.retryBaseDelayMs ?? DEFAULT_RETRY_BASE_MS);
+    let retries = 0;
+    let lastOutcome: AttemptOutcome | null = null;
 
-    const body: Record<string, unknown> = {
-      model,
-      messages,
-      temperature: options.temperature ?? 0.3,
-      max_tokens: options.maxTokens ?? 1024,
-      stream: false,
-    };
+    // Initial attempt + up to `retryBudget` retries on transient failures.
+    for (let i = 0; i <= retryBudget; i++) {
+      const outcome = streamed
+        ? await this.streamAttempt(options, model, apiKey, start, retries)
+        : await this.unaryAttempt(options, model, apiKey, start, retries);
+      lastOutcome = outcome;
+      if (outcome.kind !== "retryable" || i === retryBudget) return outcome.result;
+      // Exponential backoff: baseDelay × 2^retries → 250, 500, 1000, …
+      // (assuming DEFAULT_RETRY_BASE_MS; tests inject 0 to skip the sleep).
+      await this.sleep(baseDelay * Math.pow(2, retries));
+      retries++;
+    }
+    // Loop guarantees a return; this is just for the type checker.
+    return lastOutcome!.result;
+  }
 
+  // ---- internals ----
+
+  /** Single non-streaming HTTP attempt — returns one AttemptOutcome. */
+  private async unaryAttempt(
+    options: MoonshotExecOptions,
+    model: string,
+    apiKey: string,
+    start: number,
+    retries: number,
+  ): Promise<AttemptOutcome> {
+    const body = this.buildRequestBody(options, model, false);
     const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), options.timeoutMs ?? DEFAULT_TIMEOUT_MS);
+    let aborted = false;
+    const timer = setTimeout(() => { aborted = true; ctrl.abort(); }, options.timeoutMs ?? DEFAULT_TIMEOUT_MS);
     try {
       const r = await fetch(`${DEFAULT_BASE_URL}/chat/completions`, {
         method: "POST",
-        headers: {
-          "content-type": "application/json",
-          "authorization": `Bearer ${apiKey}`,
-        },
+        headers: this.buildHeaders(apiKey),
         body: JSON.stringify(body),
         signal: ctrl.signal,
       });
       const text = await r.text();
       let parsed: OpenAIChatResponse;
       try { parsed = JSON.parse(text); }
-      catch { return this.fail(start, model, `non-JSON response (http ${r.status}): ${text.slice(0, 200)}`); }
+      catch {
+        // Invalid JSON is a server protocol violation — don't retry.
+        return { kind: "fatal", result: this.fail(start, model, retries, false,
+          `non-JSON response (http ${r.status}): ${text.slice(0, 200)}`) };
+      }
 
       if (!r.ok) {
         const msg = parsed.error?.message ?? `http ${r.status}`;
-        return this.fail(start, model, msg);
+        const result = this.fail(start, model, retries, false, msg);
+        if (RETRIABLE_STATUSES.has(r.status)) return { kind: "retryable", result };
+        return { kind: "fatal", result };
       }
 
       const answer = parsed.choices?.[0]?.message?.content ?? "";
       if (answer.length === 0) {
-        return this.fail(start, model, `empty assistant content (raw: ${text.slice(0, 200)})`);
+        return { kind: "fatal", result: this.fail(start, model, retries, false,
+          `empty assistant content (raw: ${text.slice(0, 200)})`) };
       }
 
       return {
-        ok: true,
-        answer,
-        promptTokens: parsed.usage?.prompt_tokens ?? null,
-        completionTokens: parsed.usage?.completion_tokens ?? null,
-        totalTokens: parsed.usage?.total_tokens ?? null,
-        model: parsed.model ?? model,
-        latencyMs: Date.now() - start,
-        error: null,
+        kind: "done",
+        result: {
+          ok: true,
+          answer,
+          promptTokens: parsed.usage?.prompt_tokens ?? null,
+          completionTokens: parsed.usage?.completion_tokens ?? null,
+          totalTokens: parsed.usage?.total_tokens ?? null,
+          model: parsed.model ?? model,
+          latencyMs: Date.now() - start,
+          error: null,
+          retries,
+          streamed: false,
+        },
       };
     } catch (e) {
       const err = e as Error;
-      if (err.name === "AbortError") return this.fail(start, model, "timeout");
-      return this.fail(start, model, `fetch error: ${err.message}`);
+      if (err.name === "AbortError") {
+        // Timeout abort is fatal; explicit caller-cancel also surfaces here but we can't
+        // distinguish, so report "timeout" only when our own timer fired.
+        return { kind: "fatal", result: this.fail(start, model, retries, false, aborted ? "timeout" : "stream cancelled") };
+      }
+      // Network-level error (DNS, connection reset, etc.) — retryable.
+      return { kind: "retryable", result: this.fail(start, model, retries, false, `fetch error: ${err.message}`) };
     } finally {
       clearTimeout(timer);
     }
   }
 
-  // ---- internals ----
+  /**
+   * SSE-streaming attempt. Parses `data: {...}` lines (per OpenAI/Moonshot
+   * streaming spec), accumulates `choices[0].delta.content` into `answer`, and
+   * stops at `data: [DONE]`. Returns the assembled answer in the same shape as
+   * unaryAttempt. Cancel mid-stream → ok:false, error "stream cancelled".
+   */
+  private async streamAttempt(
+    options: MoonshotExecOptions,
+    model: string,
+    apiKey: string,
+    start: number,
+    retries: number,
+  ): Promise<AttemptOutcome> {
+    const body = this.buildRequestBody(options, model, true);
+    const ctrl = new AbortController();
+    let aborted = false;
+    const timer = setTimeout(() => { aborted = true; ctrl.abort(); }, options.timeoutMs ?? DEFAULT_TIMEOUT_MS);
+    try {
+      const r = await fetch(`${DEFAULT_BASE_URL}/chat/completions`, {
+        method: "POST",
+        headers: this.buildHeaders(apiKey),
+        body: JSON.stringify(body),
+        signal: ctrl.signal,
+      });
+      if (!r.ok) {
+        // For streaming errors the body is usually JSON, not SSE.
+        let errMsg = `http ${r.status}`;
+        try {
+          const text = await r.text();
+          const parsed = JSON.parse(text) as OpenAIChatResponse;
+          errMsg = parsed.error?.message ?? errMsg;
+        } catch { /* keep status-only message */ }
+        const result = this.fail(start, model, retries, true, errMsg);
+        if (RETRIABLE_STATUSES.has(r.status)) return { kind: "retryable", result };
+        return { kind: "fatal", result };
+      }
 
-  private fail(start: number, model: string, error: string): MoonshotResult {
+      // Read SSE frames. Node's fetch returns r.body as a ReadableStream<Uint8Array>.
+      if (!r.body) {
+        return { kind: "fatal", result: this.fail(start, model, retries, true, "no response body for stream") };
+      }
+      let answer = "";
+      let usage: OpenAIChatResponse["usage"] | undefined;
+      let modelReported = model;
+      const decoder = new TextDecoder();
+      const reader = (r.body as ReadableStream<Uint8Array>).getReader();
+      let leftover = "";
+      try {
+        for (;;) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          const chunk = decoder.decode(value, { stream: true });
+          // SSE frames are line-delimited; the line `data: ...` carries JSON.
+          const lines = (leftover + chunk).split("\n");
+          leftover = lines.pop() ?? "";
+          for (const lineRaw of lines) {
+            const line = lineRaw.trim();
+            if (line.length === 0 || !line.startsWith("data:")) continue;
+            const payload = line.slice("data:".length).trim();
+            if (payload === "[DONE]") continue;
+            try {
+              const frame = JSON.parse(payload) as {
+                choices?: Array<{ delta?: { content?: string } }>;
+                usage?: OpenAIChatResponse["usage"];
+                model?: string;
+              };
+              const deltaText = frame.choices?.[0]?.delta?.content;
+              if (typeof deltaText === "string") answer += deltaText;
+              if (frame.usage) usage = frame.usage;
+              if (typeof frame.model === "string") modelReported = frame.model;
+            } catch { /* malformed frame — skip, don't tear down the whole stream */ }
+          }
+        }
+      } catch (e) {
+        const err = e as Error;
+        if (err.name === "AbortError") {
+          return { kind: "fatal", result: this.fail(start, model, retries, true, aborted ? "timeout" : "stream cancelled") };
+        }
+        throw e;
+      }
+      if (answer.length === 0) {
+        return { kind: "fatal", result: this.fail(start, model, retries, true, "empty assistant content (stream produced no delta.content frames)") };
+      }
+      return {
+        kind: "done",
+        result: {
+          ok: true,
+          answer,
+          promptTokens: usage?.prompt_tokens ?? null,
+          completionTokens: usage?.completion_tokens ?? null,
+          totalTokens: usage?.total_tokens ?? null,
+          model: modelReported,
+          latencyMs: Date.now() - start,
+          error: null,
+          retries,
+          streamed: true,
+        },
+      };
+    } catch (e) {
+      const err = e as Error;
+      if (err.name === "AbortError") {
+        return { kind: "fatal", result: this.fail(start, model, retries, true, aborted ? "timeout" : "stream cancelled") };
+      }
+      return { kind: "retryable", result: this.fail(start, model, retries, true, `fetch error: ${err.message}`) };
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  private buildRequestBody(options: MoonshotExecOptions, model: string, stream: boolean): Record<string, unknown> {
+    const messages: Array<{ role: string; content: string }> = [];
+    if (options.system) messages.push({ role: "system", content: options.system });
+    messages.push({ role: "user", content: options.prompt });
+    return {
+      model,
+      messages,
+      temperature: options.temperature ?? 0.3,
+      max_tokens: options.maxTokens ?? 1024,
+      stream,
+    };
+  }
+
+  private buildHeaders(apiKey: string): Record<string, string> {
+    return {
+      "content-type": "application/json",
+      "authorization": `Bearer ${apiKey}`,
+    };
+  }
+
+  private sleep(ms: number): Promise<void> {
+    return ms > 0 ? new Promise((resolve) => setTimeout(resolve, ms)) : Promise.resolve();
+  }
+
+  private fail(start: number, model: string, retries: number, streamed: boolean, error: string): MoonshotResult {
     return {
       ok: false,
       answer: "",
@@ -140,6 +348,8 @@ export class MoonshotClientEngine {
       model,
       latencyMs: Date.now() - start,
       error,
+      retries,
+      streamed,
     };
   }
 

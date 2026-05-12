@@ -443,6 +443,8 @@ export const AI_REASONING_ACTIONS = [
   "transfer_bridge_find_analogies", // TransferLearningBridgeEngine.findAnalogies
   "memory_pressure_sample",         // MemoryPressureMonitorEngine.sampleNow
   "memory_pressure_trend",          // MemoryPressureMonitorEngine.trend
+  // OCTOPUS-NEURAL-MS0/U-OCN01: mid-tier tentacle (Moonshot Kimi-K2 hosted API)
+  "moonshot_invoke",                // MoonshotClientEngine.exec
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -2039,4 +2041,17 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
     nowIso: z.string().optional().describe("Optional ISO timestamp; defaults to now"),
   }).passthrough(),
   memory_pressure_trend: z.object({}).passthrough().describe("No params; returns recent pressure trend"),
+  // OCTOPUS-NEURAL-MS0/U-OCN01: mid-tier tentacle — Moonshot Kimi-K2 HTTP transport
+  moonshot_invoke: z.object({
+    prompt: z.string().min(1).describe("User prompt to send to Kimi-K2"),
+    model: z.string().optional().describe("Override model id (default kimi-k2-0905-preview)"),
+    api_key: z.string().optional().describe("Override MOONSHOT_API_KEY env var"),
+    temperature: z.number().min(0).max(2).optional().describe("Sampling temperature in [0,2]; default 0.3"),
+    max_tokens: z.number().int().positive().optional().describe("Max completion tokens; default 1024"),
+    system: z.string().optional().describe("Optional system prompt prepended to the conversation"),
+    timeout_ms: z.number().int().positive().optional().describe("Hard request timeout in ms; default 60000"),
+    stream: z.boolean().optional().describe("Use SSE streaming for incremental token assembly"),
+    retries: z.number().int().min(0).max(5).optional().describe("Retry budget for 429/5xx/network errors; default 2"),
+    retry_base_delay_ms: z.number().int().min(0).optional().describe("Test-injection: base backoff delay (ms); default 250"),
+  }).passthrough().describe("Invoke Moonshot Kimi-K2 via OpenAI-compat HTTP API"),
 };

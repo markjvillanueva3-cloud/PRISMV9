@@ -2132,6 +2132,26 @@ export async function executeAIReasoningAction(
         break;
       }
 
+      // ─────────────────────────────────────────────────────────────────────
+      // OCTOPUS-NEURAL-MS0/U-OCN01: moonshot_invoke — mid-tier Kimi-K2 tentacle
+      // ─────────────────────────────────────────────────────────────────────
+      case "moonshot_invoke": {
+        const { moonshotClientEngine } = await import("../../engines/MoonshotClientEngine.js");
+        result = await moonshotClientEngine.exec({
+          prompt: params.prompt as string,
+          model: params.model as string | undefined,
+          apiKey: params.api_key as string | undefined,
+          temperature: params.temperature as number | undefined,
+          maxTokens: params.max_tokens as number | undefined,
+          system: params.system as string | undefined,
+          timeoutMs: params.timeout_ms as number | undefined,
+          stream: params.stream as boolean | undefined,
+          retries: params.retries as number | undefined,
+          retryBaseDelayMs: params.retry_base_delay_ms as number | undefined,
+        });
+        break;
+      }
+
       default: {
         const _exhaustive: never = action;
         return dispatcherError(`Unknown action: ${_exhaustive}`, action, "prism_ai");
