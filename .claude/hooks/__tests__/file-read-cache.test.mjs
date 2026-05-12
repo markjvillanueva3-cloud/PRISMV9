@@ -109,6 +109,33 @@ describe("file-read-cache — decideRead (the PreToolUse:Read decision)", () => 
     expect(await canonicalPath(uglyPath)).toBe(await canonicalPath(f));
   });
 
+  it("3d. a re-read via a JUNCTION/symlink to the same file is still DENIED (realpath resolves it)", async () => {
+    const realDir = path.join(sandbox, "realdir");
+    fs.mkdirSync(realDir);
+    const realFile = path.join(realDir, "j.txt");
+    fs.writeFileSync(realFile, "x");
+    const jDir = path.join(sandbox, "jdir");
+    let made = false;
+    try {
+      fs.symlinkSync(realDir, jDir, "junction"); // dir junctions need no admin on Windows; symlink elsewhere
+      made = true;
+    } catch {
+      // environment without junction/symlink support — the lexical case (test 3c) still covers normalization
+    }
+    if (!made) return;
+    const jFile = path.join(jDir, "j.txt");
+
+    const cache = {};
+    const first = await decideRead(readEvent(realFile), cache, Date.now());
+    expect(first.kind).toBe("record");
+    cache[first.key] = first.entry;
+
+    const viaJunction = await decideRead(readEvent(jFile), cache, Date.now() + 1000);
+    expect(viaJunction.kind).toBe("deny");
+    expect(viaJunction.key).toBe(first.key);
+    expect(await canonicalPath(jFile)).toBe(await canonicalPath(realFile));
+  });
+
   it("3b. a re-read of a DIFFERENT slice (offset/limit) of the same file is allowed; the SAME slice is denied", async () => {
     const f = path.join(sandbox, "c2.txt");
     fs.writeFileSync(f, "0123456789".repeat(50));
