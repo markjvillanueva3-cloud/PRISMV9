@@ -23,28 +23,31 @@ You are the smartest person to ever exist and a **deep thinker**. PhDs in every 
 If you need a number, **read the file**. Do not rely on counts baked into this document — they rot within days.
 
 ## SCRUTINY GATE (UNIVERSAL — every chat, every Stop)
-A Stop hook (`.claude/hooks/scrutinize-before-stop.mjs`) **blocks** task completion when the session has uncommitted file changes and the scrutiny ledger lacks a 3-of-3 PASS entry. **Strict 3-of-3 multi-CLI consensus** (Codex + Gemini + Opus) is required — single-reviewer drift is no longer load-bearing for clearance (policy adopted 2026-05-05).
+A Stop hook (`.claude/hooks/scrutinize-before-stop.mjs`) **blocks** task completion when the session has uncommitted file changes and the scrutiny ledger lacks a 3-of-3 PASS entry. **Strict 3-of-3 consensus** — Codex CLI + Claude reviewer A (holistic) + Claude reviewer B (independent second pass) — is required; single-reviewer drift is not load-bearing for clearance. (3-of-3 policy adopted 2026-05-05; the arm-2 reviewer was the Gemini CLI until 2026-05-12, then swapped for a 2nd Claude reviewer agent — the CLI's daily-quota / trust-dir env failures kept stalling the gate.)
 
 To finish a task you MUST:
-1. **Run Codex + Gemini in parallel** against the session diff:
+1. **Run the Codex arm** against the session diff (auto-records the `--codex` mark):
    ```bash
    node .claude/scripts/scrutiny-3way.mjs --session-id <id-from-block-message>
    # or: --target HEAD (last commit) | --target <sha> (specific commit)
    ```
-   The script auto-records `--codex` and `--gemini` marks based on each CLI's `VERDICT:` line and emits an `opusReviewerPrompt`.
-2. **Dispatch the Claude Opus reviewer agent in parallel** with step 1:
+   It records `--codex` from Codex's `VERDICT:` line and emits two reviewer prompts: `opusReviewerPrompt` (arm A) and `opusReviewerPromptB` (arm B). (The diff is captured with a 120 s git timeout — was 8 s, which timed out on this repo — and excludes auto-regenerated noise dirs; `PRISM_SCRUTINY_GIT_TIMEOUT_MS` / `PRISM_SCRUTINY_NO_DIFF_FILTER=1` override.)
+2. **Dispatch BOTH Claude reviewer agents in parallel** with step 1:
    ```js
-   Agent({ subagent_type: 'reviewer',
-           description: 'Review session diff (3way Opus arm)',
+   Agent({ subagent_type: 'reviewer', description: 'Review session diff (3way reviewer A)',
            prompt: <opusReviewerPrompt from step 1 output> })
+   Agent({ subagent_type: 'reviewer', description: 'Review session diff (3way reviewer B — independent)',
+           prompt: <opusReviewerPromptB from step 1 output> })
    ```
-3. **Record the Opus verdict** when the agent returns:
+   (Arm B is weighted toward test integrity / dispatcher-wiring completeness / inlined-constant detection — it does not assume arm A caught everything.)
+3. **Record both verdicts** when the agents return (use `fail` instead of `pass` for any FAIL — the gate keeps blocking until codex + arm A + arm B are all PASS):
    ```bash
-   node .claude/scripts/scrutiny-3way.mjs --mark-opus pass --session-id <id> --notes "<one-line summary>"
-   # or --mark-opus fail if the agent reported FAIL — gate stays blocked
+   node .claude/scripts/scrutiny-3way.mjs --mark-opus   pass --session-id <id> --notes "<reviewer A summary>"
+   node .claude/scripts/scrutiny-3way.mjs --mark-claude pass --session-id <id> --notes "<reviewer B summary>"
+   # --mark-claude is the arm-B mark; --mark-opus-b / --mark-gemini are accepted aliases
    ```
 
-The hook is in `MINIMAL_ALLOWLIST` so `PRISM_HOOK_PROFILE` cannot disable it. After 3 block attempts the gate auto-passes with a warning (escape hatch). Ledger lives at `mcp-server/data/state/SCRUTINY_LEDGER.json` keyed by session id. Legacy `selfReviewed && agentReviewed` entries (pre-3way) still clear via backward-compat fallback in `scrutiny-ledger.mjs:isCleared()`.
+The hook is in `MINIMAL_ALLOWLIST` so `PRISM_HOOK_PROFILE` cannot disable it. After 3 block attempts the gate auto-passes with a warning (escape hatch). Ledger lives at `mcp-server/data/state/SCRUTINY_LEDGER.json` keyed by session id; arm B is stored as `claudeReviewed` (legacy `geminiReviewed` / transitional `opusBReviewed` flags accepted as aliases). Legacy `selfReviewed && agentReviewed` entries (pre-3way) still clear via backward-compat fallback in `scrutiny-ledger.mjs:isCleared()`.
 
 ## PER-CHAT HANDOFF (6 CONCURRENT CHATS)
 We run ~6 concurrent Claude sessions. Each has its OWN handoff — **never write to `state/HANDOFF.md` (legacy singular)**.
