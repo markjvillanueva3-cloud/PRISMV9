@@ -1,4 +1,4 @@
-param(
+﻿param(
   [int]$LightThresholdPct = 85,
   [int]$MediumThresholdPct = 92,
   [int]$HeavyThresholdPct = 97,
@@ -17,7 +17,7 @@ param(
 #   < $LightThresholdPct  : noop (log only if -DryRun)
 #   < $MediumThresholdPct : run 02-kill-zombie-tsservers.ps1 (stale MCP +
 #                          tsservers + playwright >60 min). Typical
-#                          reclaim: 0.5–2 GB.
+#                          reclaim: 0.5-2 GB.
 #   < $HeavyThresholdPct  : zombie-tsservers + node-process-janitor --full
 #                          (reaps Git-for-Windows bash.exe wrappers, orphan
 #                          @playwright/mcp / mcp-http-bridge, dead-parent
@@ -122,26 +122,37 @@ function Try-Toast {
   } catch { }
 }
 
-# ─── MAIN ───────────────────────────────────────────────────────────────
+# --- MAIN ---------------------------------------------------------------
+# HS-14 fix (2026-05-12): explicit `exit 0` on every script-level return path.
+# Previously bare `return` preserved $LASTEXITCODE from earlier non-terminating
+# errors swallowed by $ErrorActionPreference='Continue' (e.g. WMI hiccups in
+# Get-CimInstance, Add-Content lock contention). When the Task Scheduler reads
+# the script's exit code on exit, that swallowed non-zero bubbled to 0x1 even
+# though no real failure occurred — the healthy-noop branch ran ~144 times/day
+# but every run was recorded as failed. Symptom: NumberOfMissedRuns=0,
+# LastTaskResult=0x1, log empty (because Append-Log only runs ≥85% pct).
+$global:LASTEXITCODE = 0  # baseline — never propagate inherited non-zero exit
+$Error.Clear()            # clear any pre-existing error records from module load
 $mem = Get-MemoryPct
 $pct = $mem.pct
 
 if ($DryRun) {
   Append-Log @{ pct = $pct; usedGB = $mem.usedGB; totalGB = $mem.totalGB; action = 'dry_run' }
   Write-Host "DRY-RUN: memory $($mem.usedGB)/$($mem.totalGB) GB = $pct% — no action (dryrun)"
-  return
+  exit 0
 }
 
 if ($pct -lt $LightThresholdPct) {
-  # Healthy — no action, no log spam.
-  return
+  # Healthy — no action, no log spam. Explicit exit 0 so the Task Scheduler
+  # doesn't record the swallowed-error exit code from any prior cmdlet.
+  exit 0
 }
 
 if ($pct -lt $MediumThresholdPct) {
   Write-Host "Memory $pct% > light threshold $LightThresholdPct% — running zombie-tsservers."
   $r = Invoke-ZombieTsservers
   Append-Log @{ pct = $pct; usedGB = $mem.usedGB; action = 'light'; reclaimedMB = $r.reclaimedMB; killed = $r.killed }
-  return
+  exit 0
 }
 
 if ($pct -lt $HeavyThresholdPct) {
@@ -149,7 +160,7 @@ if ($pct -lt $HeavyThresholdPct) {
   $r1 = Invoke-ZombieTsservers
   $r2 = Invoke-NodeJanitor
   Append-Log @{ pct = $pct; usedGB = $mem.usedGB; action = 'medium'; reclaimedMB = $r1.reclaimedMB; killed = $r1.killed; janitorRan = $r2.ran }
-  return
+  exit 0
 }
 
 # ≥ heavy
@@ -159,3 +170,4 @@ $r2 = Invoke-NodeJanitor
 $topProcs = Dump-TopProcs
 Try-Toast 'PRISM memory pressure' "$pct% used. Reaper ran. Top procs in log: $LogPath"
 Append-Log @{ pct = $pct; usedGB = $mem.usedGB; action = 'heavy'; reclaimedMB = $r1.reclaimedMB; killed = $r1.killed; janitorRan = $r2.ran; topProcs = $topProcs }
+exit 0

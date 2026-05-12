@@ -15,6 +15,9 @@ const READ_HOOKS = [
   { path: `${HOOK_BASE}/ollama-route-pretooluse.mjs`,        timeout: 2500 }, // nudge bulk-data reads at local qwen (auto-substitute is opt-in) — HOOKS-AUTOMATION-V2 U-HKA04
   { path: `${HOOK_BASE}/read-already-have.mjs`,              timeout: 2000 },
   { path: `${HOOK_BASE}/mcp-route-suggest.mjs`,              timeout: 1500 },
+  // HS-15 (2026-05-12): PreToolUse stash for duration-derivation. Runs LAST so a
+  // prior-hook deny short-circuits before any stash entry leaks into the cache.
+  { path: `${HOOK_BASE}/tool-watchdog.mjs`,                  timeout: 1000 },
 ];
 
 async function main() {

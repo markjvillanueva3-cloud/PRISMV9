@@ -16,6 +16,9 @@ const BASH_HOOKS = [
   { path: `${HOOK_BASE}/rtk-auto-suggest.mjs`,               timeout: 2000 },
   { path: `${HOOK_BASE}/bash-destructive-guard.mjs`,         timeout: 2000 },
   { path: `${HOOK_BASE}/mcp-route-suggest.mjs`,              timeout: 1500 },
+  // HS-15 (2026-05-12): PreToolUse stash for duration-derivation. Runs LAST so a
+  // prior-hook deny short-circuits before any stash entry leaks into the cache.
+  { path: `${HOOK_BASE}/tool-watchdog.mjs`,                  timeout: 1000 },
 ];
 
 async function main() {
