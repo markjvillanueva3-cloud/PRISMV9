@@ -2152,6 +2152,25 @@ export async function executeAIReasoningAction(
         break;
       }
 
+      // ─────────────────────────────────────────────────────────────────────
+      // OCTOPUS-NEURAL-MS0/U-OCN02: moa_aggregate — MoA Layer-2 aggregator
+      // Distills N proposer outputs (typically 3-of-3 scrutiny verdicts) into a
+      // single calibrated verdict + rationale + dissent + entropy.
+      // No live aggregatorCall is wired by default — invocation through the
+      // dispatcher falls back to majority_vote. Programmatic callers can pass
+      // an aggregatorCall via the engine API for senior-model distillation.
+      // ─────────────────────────────────────────────────────────────────────
+      case "moa_aggregate": {
+        const { moaLayer2Engine } = await import("../../engines/MoaLayer2Engine.js");
+        result = await moaLayer2Engine.aggregate({
+          proposers: params.proposers as Parameters<typeof moaLayer2Engine.aggregate>[0]["proposers"],
+          task: params.task as string | undefined,
+          seniorAggregator: params.senior_aggregator as string | undefined,
+          maxProposerChars: params.max_proposer_chars as number | undefined,
+        });
+        break;
+      }
+
       default: {
         const _exhaustive: never = action;
         return dispatcherError(`Unknown action: ${_exhaustive}`, action, "prism_ai");

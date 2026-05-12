@@ -445,6 +445,8 @@ export const AI_REASONING_ACTIONS = [
   "memory_pressure_trend",          // MemoryPressureMonitorEngine.trend
   // OCTOPUS-NEURAL-MS0/U-OCN01: mid-tier tentacle (Moonshot Kimi-K2 hosted API)
   "moonshot_invoke",                // MoonshotClientEngine.exec
+  // OCTOPUS-NEURAL-MS0/U-OCN02: MoA-Layer-2 aggregator over N proposer outputs
+  "moa_aggregate",                  // MoaLayer2Engine.aggregate
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -2041,6 +2043,20 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
     nowIso: z.string().optional().describe("Optional ISO timestamp; defaults to now"),
   }).passthrough(),
   memory_pressure_trend: z.object({}).passthrough().describe("No params; returns recent pressure trend"),
+  // OCTOPUS-NEURAL-MS0/U-OCN02: MoA-Layer-2 aggregator over N proposer outputs
+  moa_aggregate: z.object({
+    proposers: z.array(z.object({
+      proposer: z.string().min(1),
+      ok: z.boolean(),
+      verdict: z.enum(["pass", "conditional", "fail"]),
+      notes: z.string(),
+      confidence: z.number().min(0).max(1).optional(),
+      error: z.string().optional(),
+    })).min(1).describe("Proposer outputs to aggregate (typical: 3-of-3)"),
+    task: z.string().optional().describe("Optional task context fed to senior aggregator"),
+    senior_aggregator: z.string().optional().describe("Senior model id (traceability only — engine doesn't pick the model)"),
+    max_proposer_chars: z.number().int().min(0).optional().describe("Per-proposer rationale truncation budget; default 2000, 0 unlimited"),
+  }).passthrough().describe("MoA Layer-2 aggregation: distill N proposer verdicts into a single calibrated verdict + rationale + dissent + entropy"),
   // OCTOPUS-NEURAL-MS0/U-OCN01: mid-tier tentacle — Moonshot Kimi-K2 HTTP transport
   moonshot_invoke: z.object({
     prompt: z.string().min(1).describe("User prompt to send to Kimi-K2"),
