@@ -358,7 +358,7 @@ Provide specific parameters, alternatives, and safety considerations.`;
     };
   }
 
-  private _generateOfflineResponse(prompt: string, context: ContextChunk[]): string {
+  private _generateOfflineResponse(_prompt: string, context: ContextChunk[]): string {
     if (context.length === 0) {
       return "No ANTHROPIC_API_KEY configured. Set the environment variable to enable AI-powered responses. "
         + "Available context providers can still supply relevant manufacturing data.";
