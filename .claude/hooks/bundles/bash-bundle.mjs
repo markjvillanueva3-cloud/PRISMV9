@@ -12,6 +12,7 @@ const BASH_HOOKS = [
   { path: `${HELPER_BASE}/test-run-gate.mjs`,                timeout: 5000 },
   { path: `${HOOK_BASE}/commit-ownership-guard.mjs`,         timeout: 5000 },
   { path: `${HOOK_BASE}/worktree-commit-route.mjs`,          timeout: 2000 },
+  { path: `${HOOK_BASE}/html-companion-guard.mjs`,           timeout: 3000 },
   { path: `${HOOK_BASE}/rtk-auto-suggest.mjs`,               timeout: 2000 },
   { path: `${HOOK_BASE}/bash-destructive-guard.mjs`,         timeout: 2000 },
   { path: `${HOOK_BASE}/mcp-route-suggest.mjs`,              timeout: 1500 },
