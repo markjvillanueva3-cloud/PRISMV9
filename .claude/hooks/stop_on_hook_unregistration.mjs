@@ -23,6 +23,16 @@ import { exit } from "node:process";
 const SETTINGS_PATH = "H:/.claude/settings.json";
 const BASELINE_DIR = "H:/prism/mcp-server/data/state";
 const BASELINE_PREFIX = "settings-baseline-";
+const BUNDLES_DIR = "H:/prism/.claude/hooks/bundles";
+
+// Hook filenames that have been deliberately retired (their settings.json entry
+// removed on purpose) and are no longer load-bearing. A filename here is treated
+// as "still accounted for" so the baseline diff doesn't block on its removal.
+// Add to this set ONLY when intentionally removing a dead hook entry — and say
+// why in the commit message.
+const INTENTIONALLY_DISABLED = new Set([
+  "ollama-terminal-watcher.mjs", // no-op'd 2026-05-11: ran a synchronous curl on every tool call
+]);
 
 /**
  * Count hooks in a settings object.
@@ -68,6 +78,27 @@ function extractHookCommands(settings) {
     }
   }
   return commands;
+}
+
+/**
+ * Scan the hook-bundle scripts for sub-hook filenames they invoke. A hook that
+ * has been absorbed into a bundle (its standalone settings.json entry removed,
+ * the bundle now runs it) is still "registered" — the bundle is its registration.
+ * Returns a Set of `*.mjs` basenames referenced inside `bundles/*.mjs`.
+ */
+function bundleAbsorbedHookNames() {
+  const names = new Set();
+  let files;
+  try { files = readdirSync(BUNDLES_DIR).filter(f => f.endsWith(".mjs")); }
+  catch { return names; }
+  for (const f of files) {
+    let src;
+    try { src = readFileSync(`${BUNDLES_DIR}/${f}`, "utf-8"); } catch { continue; }
+    for (const m of src.matchAll(/[\\/]([\w.\-]+\.mjs)/g)) {
+      if (m[1] !== f) names.add(m[1]);
+    }
+  }
+  return names;
 }
 
 /**
@@ -128,57 +159,35 @@ function main() {
     exit(0);
   }
 
-  // Compare hook counts
-  const currentCounts = countHooks(currentSettings);
-  const baselineCounts = countHooks(baseline);
+  // A hook is "still registered" if it appears in settings.json, OR has been
+  // absorbed into a bundle script (bundles/*.mjs run it), OR is on the
+  // INTENTIONALLY_DISABLED allowlist. Raw hook *count* is not a reliable signal
+  // (bundling legitimately reduces it) — the filename-set diff is.
+  const baselineCommands = extractHookCommands(baseline);
+  const registeredNow = new Set([
+    ...extractHookCommands(currentSettings),
+    ...bundleAbsorbedHookNames(),
+    ...INTENTIONALLY_DISABLED,
+  ]);
+  const removed = [...baselineCommands].filter(cmd => !registeredNow.has(cmd));
 
-  if (currentCounts.total < baselineCounts.total) {
-    // Hooks were removed!
-    const currentCommands = extractHookCommands(currentSettings);
-    const baselineCommands = extractHookCommands(baseline);
-
-    const removed = [...baselineCommands].filter(cmd => !currentCommands.has(cmd));
-
+  if (removed.length > 0) {
+    const baselineCounts = countHooks(baseline);
+    const currentCounts = countHooks(currentSettings);
     console.error(`\n╔══════════════════════════════════════════════════════════════╗`);
     console.error(`║  STOP BLOCKED: HOOKS WERE UNREGISTERED                       ║`);
     console.error(`╠══════════════════════════════════════════════════════════════╣`);
-    console.error(`║  Baseline: ${baselineCounts.total} hooks`);
-    console.error(`║  Current:  ${currentCounts.total} hooks`);
-    console.error(`║  Removed:  ${baselineCounts.total - currentCounts.total} hooks`);
+    console.error(`║  Baseline: ${baselineCounts.total} hook entries · Current: ${currentCounts.total}`);
+    console.error(`║  ${removed.length} hook script(s) no longer registered (and not bundle-absorbed):`);
+    for (const cmd of removed.slice(0, 12)) console.error(`║    - ${cmd}`);
+    if (removed.length > 12) console.error(`║    ... and ${removed.length - 12} more`);
     console.error(`╠══════════════════════════════════════════════════════════════╣`);
-    console.error(`║  Removed hooks:`);
-    for (const cmd of removed.slice(0, 10)) {
-      console.error(`║    - ${cmd}`);
-    }
-    if (removed.length > 10) {
-      console.error(`║    ... and ${removed.length - 10} more`);
-    }
-    console.error(`╠══════════════════════════════════════════════════════════════╣`);
-    console.error(`║  ACTION REQUIRED:                                            ║`);
-    console.error(`║  1. Restore the removed hooks to settings.json               ║`);
-    console.error(`║  2. Or ask the user explicitly if removal is intentional     ║`);
+    console.error(`║  ACTION:                                                     ║`);
+    console.error(`║  1. Restore them to settings.json, OR add to a bundle's      ║`);
+    console.error(`║     SUB_HOOKS, OR (if intentionally retired) add to          ║`);
+    console.error(`║     INTENTIONALLY_DISABLED in this hook — with a reason.      ║`);
+    console.error(`║  2. Or get explicit user approval for the removal.           ║`);
     console.error(`╚══════════════════════════════════════════════════════════════╝\n`);
-
-    exit(1);
-  }
-
-  // Check for specific hook removals even if total is same (replacement)
-  const currentCommands = extractHookCommands(currentSettings);
-  const baselineCommands = extractHookCommands(baseline);
-  const removed = [...baselineCommands].filter(cmd => !currentCommands.has(cmd));
-
-  if (removed.length > 0) {
-    console.error(`\n╔══════════════════════════════════════════════════════════════╗`);
-    console.error(`║  STOP BLOCKED: SPECIFIC HOOKS WERE UNREGISTERED              ║`);
-    console.error(`╠══════════════════════════════════════════════════════════════╣`);
-    console.error(`║  The following hooks were removed (even though count is same):`);
-    for (const cmd of removed.slice(0, 10)) {
-      console.error(`║    - ${cmd}`);
-    }
-    console.error(`╠══════════════════════════════════════════════════════════════╣`);
-    console.error(`║  ACTION: Restore these hooks or get explicit user approval   ║`);
-    console.error(`╚══════════════════════════════════════════════════════════════╝\n`);
-
     exit(1);
   }
 

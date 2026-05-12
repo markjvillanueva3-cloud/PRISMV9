@@ -68,9 +68,22 @@ export function runHook(hookPath, stdinPayload, timeoutMs = 3000) {
     timer = setTimeout(() => {
       timedOut = true;
       try { child.kill("SIGKILL"); } catch { /* already gone */ }
-      // SIGKILL alone is not enough: `child.on("close")` only fires once the
-      // child's stdout/stderr pipes have *no remaining writers*. If the hook
-      // spawned a grandchild that inherited those pipes (or Windows is slow to
+      // SIGKILL kills the child but not its descendants. A hook that spawned a
+      // grandchild (eslint, git, powershell, …) leaves it orphaned on timeout —
+      // exactly the process leak this subsystem exists to prevent. On Windows,
+      // `taskkill /T` tears down the whole tree. Fire-and-forget; if taskkill
+      // itself can't spawn under extreme fork pressure we've at least killed the
+      // direct child above.
+      if (process.platform === "win32" && child.pid) {
+        try {
+          const tk = spawn("taskkill", ["/T", "/F", "/PID", String(child.pid)], { stdio: "ignore", windowsHide: true });
+          tk.on("error", () => { /* taskkill missing / spawn failed — best-effort */ });
+          tk.unref?.();
+        } catch { /* */ }
+      }
+      // SIGKILL alone is also not enough to settle the promise: `child.on("close")`
+      // only fires once the child's stdout/stderr pipes have *no remaining
+      // writers*. If a grandchild inherited those pipes (or Windows is slow to
       // reap the killed child), 'close' may never fire and this Promise pins
       // forever → the whole bundle hangs → the tool call hangs → the chat
       // stalls. Detach the parent's read ends and arm a hard fallback resolve.
