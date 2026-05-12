@@ -5,7 +5,7 @@ description: a big, messy, mixed-language blob — tests graceful degradation un
 rubric_max_input_chars: 700
 rubric_must_not_contain: ["Traceback", "ReferenceError"]
 rubric_min_sections: 1
-rubric_must_match: ["(truncat|too (large|long|big)|first \\d+ (chars|characters|lines)|portion|prioriti[sz]e|highest-impact|degrade|in batches|the visible (part|portion))"]
+rubric_must_match: ["(truncat|too (large|long|big)|first \d+ (chars|characters|lines)|portion|prioriti[sz]e|highest-impact|degrade|in batches|the visible (part|portion))"]
 ---
 Clean up this entire module — it's a mess. (Note: this fixture deliberately sets a tiny 700-char input cap, so the skill will receive a truncated version with a `[…truncated …]` marker — the test is whether it degrades gracefully and says what it would need rather than pretending it saw the whole thing.)
 

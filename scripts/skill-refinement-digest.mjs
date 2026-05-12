@@ -116,7 +116,7 @@ async function runSelfTest() {
   // telemetry missing → category A empty, B degraded, C works
   const d3 = skillRefinementDigestEngine.digest({ registryObject, lintReportObject, auditObject: { skills: [] }, nowMs: today.getTime() });
   check(d3.categories.output_overridden.length === 0, "no telemetry → output_overridden empty");
-  check(inCat.call(null, "linter_flagged", "linter-bad-skill") || d3.categories.linter_flagged.some((e) => e.name === "linter-bad-skill"), "no telemetry → linter_flagged still works");
+  check(d3.categories.linter_flagged.some((e) => e.name === "linter-bad-skill"), "no telemetry → linter_flagged still works");
   check(typeof skillRefinementDigestEngine.renderMarkdown(d) === "string" && skillRefinementDigestEngine.renderMarkdown(d).includes("# PRISM Weekly Skill-Refinement Digest"), "renderMarkdown produces a digest");
   const ok = fail === 0;
   if (!OPTS.quiet) console.log(`[skill-refinement-digest --self-test] ${pass}/${pass + fail} checks passed`);

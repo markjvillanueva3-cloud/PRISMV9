@@ -439,7 +439,13 @@ export class SkillLibraryAuditEngine {
       const lintEntry = lintByName.get(name);
       const lintSeverity = lintEntry?.severity ?? null;
       const lintRules = lintEntry?.rules ?? [];
-      const parseError = (rec._parse_error === true) || (rec.parse_error === true) || (lintEntry?.parseError === true);
+      // The registry / parseSkillFile store the parse-error as a *reason string* (truthy), not the boolean `true`;
+      // accept both forms, plus the lint report's BROKEN/"parse" signal.
+      const parseError =
+        (lintEntry?.parseError === true) ||
+        rec._parse_error === true || rec.parse_error === true ||
+        (typeof rec._parse_error === "string" && rec._parse_error.trim().length > 0) ||
+        (typeof rec.parse_error === "string" && rec.parse_error.trim().length > 0);
       const lintClean = !lintEntry || !(lintEntry.severity != null && BLOCKING_SEVERITIES.has(lintEntry.severity));
 
       // —— 3Q ——
