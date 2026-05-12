@@ -1,6 +1,6 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-12T21:31:48.854Z
+> Generated: 2026-05-12T21:41:00.004Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
@@ -143,7 +143,7 @@ Per-domain wired/unwired breakdown across 925 domain prefixes.
 
 ## STALE_MILESTONES
 
-254 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).
+253 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).
 
 | Milestone | Track | Reason | Pending | Shipped/Total | Last shipped |
 |-----------|-------|--------|---------|---------------|--------------|
