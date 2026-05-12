@@ -6,7 +6,7 @@
   "brief": "The skill-quality-discipline pillar. PRISM has ~247 project skills + ~390 user skills = ~637 total. The question is not quantity (we're 8× past @eng_khairallah1's \"ten skills = workforce\" bar) — it's whether each is **production-grade** by his Three-Question + Three-Scenario standard, or whether half are vague stubs that never auto-fire / fire wrongly / drifted stale. This milestone installs the pre-build gate, the test protocol, the linter, the refinement cadence, the library audit, the registry schema to track all of it, the marketplace scan, and the public-export path. It is a synergy-edge with HOOKS-AUTOMATION-V2 (skills carry scoped hooks), KNOWLEDGE-VAULT (skills cross-trigger wiki entries), and AUTO-LEARNING-LOOP (marketplace scan reuses the source-monitor pattern).  Source doctrine: `state/shared/research/2026-05-10-skills-openclaw.md` §1-4 (anatomy / patterns / discovery / ecosystem) + the @eng_khairallah1 4-phase course (`H:/last.md`). The course's contribution is the **process discipline** the research card lacked: the 3-question pre-build gate, the 3-scenario production-grade bar, the weekly refinement cycle, the \"vague language is banned\" rule, the library-as-workforce framing, and the master-tracking-doc pattern.",
   "parent_roadmap": "BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-2026-05-10.md",
   "created_at": "2026-05-11T19:27:19.879Z",
-  "updated_at": "2026-05-12T03:22:43.265Z",
+  "updated_at": "2026-05-12T03:33:18.332Z",
   "created_by": "claude-0f522935 (register-devtools-roadmap-envelopes.mjs — BACKEND-DEVTOOLS-RGS6 combine)",
   "track": "SKILLS-UTILIZATION",
   "track_name": "BACKEND-DEVTOOLS-RGS6 MEGA-ROADMAP",
@@ -99,7 +99,7 @@
           "viz_node_id": "core.hooks.skill-3q-gate",
           "viz_node_status": "needs_creation",
           "loop_schedule": "none",
-          "status": "not_started",
+          "status": "completed",
           "four_loop": [
             "BUILD",
             "SCRUTINIZE",
@@ -115,7 +115,10 @@
             "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
           ],
           "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-SKILLS-UTILIZATION-MS0-ATOMIZED-2026-05-10.md",
-          "atomized_anchor": "## U-SKU01"
+          "atomized_anchor": "## U-SKU01",
+          "completed_at": "2026-05-12T03:33:18.332Z",
+          "completed_by_sha": "PENDING(next commit)",
+          "completion_note": "3Q pre-build gate hook (.claude/hooks/skill-3q-gate.mjs) + 14 vitest cases shipped & passing. PENDING-WIRE: step-3 (register the PreToolUse hook in settings.json — machine-level config, deferred) + step-4 (Phase-0 Three-Question section in forge-skills.md — user-level skill, out of worktree lane) + step-6 (live E2E — needs registration). The hook is inert until step-3; see the hook file header for the exact settings.json entry."
         },
         {
           "id": "U-SKU02",
