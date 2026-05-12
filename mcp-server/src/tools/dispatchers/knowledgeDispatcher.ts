@@ -97,6 +97,11 @@ const COG_KNOWLEDGE_ACTIONS = [
   "cognitive_extracted_knowledge_search",
 ] as const;
 
+// U-SKU07 (SKILLS-UTILIZATION-MS0): scan community skill collections for PRISM-domain-relevant skills.
+const SKILL_MARKETPLACE_ACTIONS = [
+  "skill_marketplace_scan",
+] as const;
+
 const ACTIONS = [
   "search", "cross_query", "formula", "relations", "stats",
   "tribal_capture", "tribal_search", "tribal_suggest", "tribal_stats",
@@ -110,6 +115,7 @@ const ACTIONS = [
   ...OBSIDIAN_ACTIONS,
   ...SHOP_NOTE_ACTIONS,
   ...COG_KNOWLEDGE_ACTIONS,
+  ...SKILL_MARKETPLACE_ACTIONS,
 ] as const;
 
 let knowledgeEngine: any = null;
@@ -877,6 +883,48 @@ export function registerKnowledgeDispatcher(server: any): void {
             } else {
               result = urlContentExtractorEngine.extractFromURL(params.url ?? "");
             }
+            break;
+          }
+          // ── Skill-Marketplace Scan (SKILLS-UTILIZATION-MS0 / U-SKU07) ──────
+          case "skill_marketplace_scan": {
+            // Scan community skill collections (anthropics/skills, wshobson/agents, obra/superpowers + skillsmp.com)
+            // for PRISM-domain-relevant skills; score relevance, dedup against the library, RECOMMEND ONLY (never install).
+            // Read-only; the dated state/shared/skill-marketplace-candidates-<date>.{md,json} artifacts are written by
+            // scripts/skill-marketplace-scan.mjs / the monthly cron, not here (unless write=true).
+            const { skillMarketplaceScannerEngine, DEFAULT_MARKETPLACE_SOURCES } = await import("../../engines/SkillMarketplaceScannerEngine.js");
+            const wanted: string[] | null = Array.isArray(params.sources) ? params.sources.map((s: any) => String(s)) : null;
+            const injected: Record<string, string> | null =
+              params.sources_content && typeof params.sources_content === "object" && !Array.isArray(params.sources_content)
+                ? Object.fromEntries(Object.entries(params.sources_content as Record<string, unknown>).map(([k, v]) => [k, String(v ?? "")]))
+                : null;
+            const sources: Array<{ id: string; url: string; content?: string; fetchError?: string }> = [];
+            for (const src of DEFAULT_MARKETPLACE_SOURCES as ReadonlyArray<{ id: string; url: string; jsGated?: boolean }>) {
+              if (wanted && !wanted.includes(src.id)) continue;
+              if (injected && Object.prototype.hasOwnProperty.call(injected, src.id)) { sources.push({ id: src.id, url: src.url, content: injected[src.id] }); continue; }
+              if (src.jsGated) { sources.push({ id: src.id, url: src.url, fetchError: "JS-rendered SPA — a raw fetch returns only the app shell; needs the Playwright MCP. Skipped." }); continue; }
+              try {
+                const res = await fetch(src.url, { signal: AbortSignal.timeout(15_000), headers: { "user-agent": "PRISM-skill-marketplace-scan/1.0 (+internal tooling)" } });
+                if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
+                sources.push({ id: src.id, url: src.url, content: await res.text() });
+              } catch (e: any) { sources.push({ id: src.id, url: src.url, fetchError: String(e?.message ?? e) }); }
+            }
+            if (injected) for (const id of Object.keys(injected)) if (!sources.some((s) => s.id === id)) sources.push({ id, url: `(injected:${id})`, content: injected[id] });
+            const scanResult = skillMarketplaceScannerEngine.scan({
+              sources,
+              ...(typeof params.min_relevance === "number" ? { minRelevance: params.min_relevance } : {}),
+              ...(typeof params.cap === "number" ? { perSourceCap: params.cap } : {}),
+              ...(typeof params.registry_path === "string" ? { registryPath: params.registry_path } : {}),
+            });
+            if (params.write === true) {
+              const fsMod = await import("node:fs"); const pathMod = await import("node:path");
+              const { SKILL_MARKETPLACE_OUTPUT_DIR } = await import("../../engines/SkillMarketplaceScannerEngine.js");
+              const dateLabel = scanResult.generatedAt.slice(0, 10);
+              fsMod.mkdirSync(SKILL_MARKETPLACE_OUTPUT_DIR, { recursive: true });
+              fsMod.writeFileSync(pathMod.join(SKILL_MARKETPLACE_OUTPUT_DIR, `skill-marketplace-candidates-${dateLabel}.json`), JSON.stringify(scanResult, null, 2) + "\n", "utf-8");
+              fsMod.writeFileSync(pathMod.join(SKILL_MARKETPLACE_OUTPUT_DIR, `skill-marketplace-candidates-${dateLabel}.md`), skillMarketplaceScannerEngine.renderMarkdown(scanResult, { dateLabel }), "utf-8");
+            }
+            // default: the full structured result (it's bounded — candidates cap at perSourceCap × #sources); markdown=true adds the rendered report
+            result = params.markdown === true ? { ...scanResult, markdown: skillMarketplaceScannerEngine.renderMarkdown(scanResult) } : scanResult;
             break;
           }
           // ── Social Media Parsing (LEARN-MS1-S2) ──────────────

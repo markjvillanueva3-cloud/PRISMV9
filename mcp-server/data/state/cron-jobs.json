@@ -71,6 +71,16 @@
       "description": "Monthly skill-library quality audit (@eng_khairallah1 Phase-4 'how many of the ~500 skills are actually production-grade?'). Grades every skill in SKILL_QUALITY_REGISTRY.json against linter-clean + 3-Question-satisfied + all-three-scenario-tests-pass into production_grade / needs_refinement / stub_or_orphan; writes state/shared/SKILL-LIBRARY-AUDIT-YYYY-MM-DD.{md,json} with the per-domain breakdown, the prioritized gap list, top-N by invocation, and the ROI estimate. Idempotent on the date (re-run same-day overwrites). Engine: SkillLibraryAuditEngine; dispatcher: prism_dev:skill_audit. 1st-of-month 08:00 local.",
       "enabled": true,
       "added": "2026-05-12"
+    },
+    {
+      "id": "skill-marketplace-scan-monthly",
+      "milestone": "SKILLS-UTILIZATION-MS0/U-SKU07",
+      "command": "node H:/prism/scripts/skill-marketplace-scan.mjs",
+      "cron": "0 10 1 * *",
+      "timezone": "local",
+      "description": "Monthly community-skill-marketplace scan (@eng_khairallah1 Phase-1 'there are 80,000+ community Skills... most people have never installed one'). Fetches the major collections (anthropics/skills, wshobson/agents, obra/superpowers GitHub READMEs; skillsmp.com is JS-gated and skipped unless run with the Playwright MCP), scores each listing against PRISM's domain vocabulary, dedup-checks against the existing library, and writes state/shared/skill-marketplace-candidates-YYYY-MM-DD.{md,json} with install/study/already-covered/skip recommendations. RECOMMENDS ONLY — installing a community skill is a human/forge action through /harness-security-audit. Engine: SkillMarketplaceScannerEngine; dispatcher: prism_knowledge:skill_marketplace_scan. 1st-of-month 10:00 local.",
+      "enabled": true,
+      "added": "2026-05-12"
     }
   ]
 }
