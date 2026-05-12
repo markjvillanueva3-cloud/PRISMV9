@@ -1,11 +1,11 @@
 /**
  * Safety Dispatcher Action Schemas
  * ==================================
- * Per-action Zod schemas for all 29 prism_safety actions.
+ * Per-action Zod schemas for all 30 prism_safety actions.
  * STRICT mode: safety-critical — reject invalid params.
  *
  * Organized by handler: collision (8), coolant (5), spindle (5),
- * breakage (5), workholding (6).
+ * breakage (5), workholding (6), workholding-intelligence (1).
  *
  * @module schemas/safetyActionSchemas
  * @version 1.0.0
@@ -609,6 +609,29 @@ const validate_vacuum_fixture = z.object({
 }).passthrough();
 
 // ============================================================================
+// WORKHOLDING INTELLIGENCE ACTION (1) — WorkholdingIntelligenceEngine.fixtureRecommend
+// ============================================================================
+
+/** recommend_workholding — given part + operation + peak cutting force, return the optimal
+ * fixture (type, clamp positions, clamp force, contact area, setup time, cost) plus a deflection
+ * + slip + safety-factor analysis with actionable flags. Wraps WorkholdingIntelligenceEngine. */
+const recommend_workholding = z.object({
+  part: z.object({
+    material: z.string().min(1).describe("Workpiece material name (e.g. '4140', 'Aluminum 6061', 'Ti-6Al-4V')"),
+    length_mm: posNum.describe("Part overall length, mm"),
+    width_mm: posNum.describe("Part overall width, mm"),
+    height_mm: posNum.describe("Part overall height, mm"),
+    weight_kg: optPosNum.describe("Part weight, kg — estimated from dims + material density if omitted"),
+    shape: z.enum(["prismatic", "round", "plate", "irregular"]).optional().describe("Part shape class"),
+  }).passthrough().describe("Part geometry + material"),
+  operation: z.string().min(1).describe("Machining operation (e.g. 'face milling', 'roughing', 'drilling')"),
+  max_cutting_force_n: posNum.describe("Peak cutting force expected during the operation, N"),
+  tolerance_mm: posNum.describe("Dimensional tolerance the part must hold, mm — drives the deflection check"),
+  machine: optStr.describe("Machine ID/name — constrains the fixture envelope"),
+  batch_size: z.number().int().positive().optional().describe("Batch size — biases ranking toward dedicated fixtures for larger batches"),
+}).passthrough();
+
+// ============================================================================
 // SCHEMA REGISTRY
 // ============================================================================
 
@@ -649,4 +672,6 @@ export const ACTION_SAFETY_SCHEMAS: ActionSchemaMap = {
   analyze_liftoff_moment,
   calculate_part_deflection,
   validate_vacuum_fixture,
+  // Workholding Intelligence (1)
+  recommend_workholding,
 };
