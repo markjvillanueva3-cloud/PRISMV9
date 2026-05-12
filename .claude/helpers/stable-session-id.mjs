@@ -311,6 +311,27 @@ function main() {
   // caller (per-agent-handoff, /precompact, /startup) prompts for explicit
   // --terminal instead of silently picking the wrong chat.
   if (!identifier) {
+    // HS-01 fallback (2026-05-12): all 5 primary anchors failed (typically
+    // after /compact-resume in a Bash-launched chat where the PID pin
+    // hasn't been refreshed yet). Instead of exit-2-ing — which broke the
+    // /precompact handoff write this very session — return the most-
+    // recently-touched cached session_id whose last_seen is within
+    // RECENT_CACHE_MS. Soft-warn on stderr so the caller knows it's a
+    // best-effort answer; the next prompt's SessionStart hook chain will
+    // refresh the real anchors and the cache resyncs automatically.
+    const RECENT_CACHE_MS = 30 * 60 * 1000;
+    const now = Date.now();
+    const recent = Object.values(cache.sessions || {})
+      .filter((s) => s?.session_id && s?.last_seen)
+      .filter((s) => (now - new Date(s.last_seen).getTime()) < RECENT_CACHE_MS)
+      .sort((a, b) => new Date(b.last_seen).getTime() - new Date(a.last_seen).getTime());
+    if (recent.length > 0 && process.env.PRISM_STABLE_ID_HARD_FAIL !== "1") {
+      process.stderr.write(
+        `stable-session-id: anchors unresolved — falling back to most-recently-touched cached session (last_seen ${recent[0].last_seen}). Set PRISM_STABLE_ID_HARD_FAIL=1 to disable.\n`
+      );
+      console.log(recent[0].session_id);
+      return;
+    }
     process.stderr.write(
       "stable-session-id: unresolved — pass session_id via stdin JSON, "
         + "set WT_SESSION, or run from a chat with a fresh PID pin.\n"

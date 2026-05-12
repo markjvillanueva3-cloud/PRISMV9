@@ -165,6 +165,53 @@ const gitRules = [
   },
 ];
 
+// HS-03: strip shell-quoted literals before rule matching, so destructive
+// verbs appearing INSIDE a grep pattern, commit message, or --resume text
+// don't trigger false positives. Single-quoted segments are always stripped
+// (bash treats them as literal). Double-quoted segments are stripped UNLESS
+// the preceding word is a shell-launcher (bash -c / sh -c / eval / cmd /c /
+// powershell -Command) — those still contain real executable code we must scan.
+const SHELL_LAUNCHERS = new Set(['bash', 'sh', 'eval', 'cmd', 'powershell', 'pwsh', 'nu', 'zsh']);
+function stripShellQuoted(cmd) {
+  let out = '';
+  let i = 0;
+  let lastWord = '';
+  while (i < cmd.length) {
+    const ch = cmd[i];
+    if (ch === "'") {
+      // single-quote run: drop verbatim until next single-quote
+      const end = cmd.indexOf("'", i + 1);
+      if (end < 0) break;
+      out += ' '; // placeholder so word-boundaries on each side still parse
+      i = end + 1;
+      continue;
+    }
+    if (ch === '"') {
+      const end = cmd.indexOf('"', i + 1);
+      if (end < 0) break;
+      const inner = cmd.slice(i + 1, end);
+      // Keep contents only if the immediately-preceding word is a shell launcher.
+      // lastWord was tracked across the unquoted stream.
+      if (SHELL_LAUNCHERS.has(lastWord)) {
+        out += ' ' + inner + ' ';
+      } else {
+        out += ' '; // strip
+      }
+      i = end + 1;
+      continue;
+    }
+    out += ch;
+    // track the last whitespace-delimited word in the *unquoted* portion
+    if (/\s/.test(ch)) {
+      lastWord = '';
+    } else {
+      lastWord += ch;
+    }
+    i += 1;
+  }
+  return out;
+}
+
 const PROTECTED_BRANCHES = ['main', 'master', 'release', 'production'];
 
 function detectProtectedBranch(cmd) {
@@ -175,8 +222,12 @@ function detectProtectedBranch(cmd) {
   return null;
 }
 
-// Collect all matching git rules (accumulate for compound commands)
-const matchedGitRules = gitRules.filter((r) => r.pattern.test(command));
+// HS-03: match rules against the quote-stripped command (catches false
+// positives where the destructive verb is inside a grep pattern / commit
+// message / --resume text). Original `command` is still used in the user-
+// facing output line so the operator sees what was actually invoked.
+const matchableCommand = stripShellQuoted(command);
+const matchedGitRules = gitRules.filter((r) => r.pattern.test(matchableCommand));
 if (matchedGitRules.length > 0) {
   const protectedBranch = detectProtectedBranch(command);
   const hasDestructiveFlag = /--force|--hard|clean\s+-f/.test(command);
