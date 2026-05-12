@@ -2116,6 +2116,10 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
     voices: z.array(
       z.enum(["claude", "codex", "ollama", "grok", "gemini"]),
     ).min(2).max(5).describe(
+    ).min(2).max(5).refine(
+      (v) => new Set(v).size === v.length,
+      { message: "voices must be distinct (no duplicate entries)" },
+    ).describe(
       "Model voices the caller wants to participate (≥2, ≤5). IMPORTANT " +
       "ENGINE REALITY (MultiModelConsensusEngine.ts): codex AND primary " +
       "ollama are ALWAYS invoked regardless of this list — they are the " +

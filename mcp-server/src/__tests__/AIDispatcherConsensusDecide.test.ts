@@ -124,6 +124,18 @@ describe("aiReasoningDispatcher — consensus_decide schema (P0-U01)", () => {
   });
 
   // Envelope failure path #4: voices length below minimum
+  it("rejects voices containing duplicate entries (must be distinct)", () => {
+    const result = schema.safeParse({
+      question: "q",
+      voices: ["codex", "codex"], // length 2 but only 1 distinct voice
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const msg = JSON.stringify(result.error.issues);
+      expect(msg).toMatch(/distinct|duplicate|voices/i);
+    }
+  });
+
   it("rejects voices.length < 2", () => {
     const result = schema.safeParse({
       question: "Pick one",
@@ -280,8 +292,9 @@ describe("aiReasoningDispatcher — consensus_decide round-trip (P0-U01)", () =>
     expect(res.success).toBe(true);
     const data = res.data as { meetsCallerThreshold: boolean; recommendation: string };
     expect(data.meetsCallerThreshold).toBe(false);
-    // recommendation still comes from engine (it would return "review" for 0.55 — preserved verbatim)
-    expect(["accept", "review", "escalate"]).toContain(data.recommendation);
+    // recommendation is whatever the engine returns — mkResult defaults to "accept",
+    // which the dispatcher must preserve verbatim regardless of meetsCallerThreshold.
+    expect(data.recommendation).toBe("accept");
   });
 
   it("forwards taskType / persist / prismContext / usePerformanceWeights when provided", async () => {
