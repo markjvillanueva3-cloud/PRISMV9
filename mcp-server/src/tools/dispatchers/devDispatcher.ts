@@ -30,7 +30,9 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "adaptive_threshold_observe", "adaptive_threshold_get", "adaptive_threshold_get_all", "adaptive_threshold_should_flag", "adaptive_threshold_probability",
 "roadmap_intel_assess_complexity", "roadmap_intel_optimize", "roadmap_intel_predict_effort", "roadmap_intel_record_outcome", "roadmap_intel_build_vs_integrate", "roadmap_intel_health",
 // HOOK-SYNERGY-MS0/U-HOOK-REGISTRY (H2): query state/shared/HOOK_REGISTRY.json
-"hook_registry"] as const;
+"hook_registry",
+// HOOK-SYNERGY-MS0/U-HOOK-ENVELOPE (H4): query state/shared/hook-latency.jsonl
+"hook_latency"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -3888,6 +3890,27 @@ export function registerDevDispatcher(server: any): void {
             if (!milestones || milestones.length === 0) { result = { error: "Missing required: milestones (non-empty array)" }; break; }
             const hist = Array.isArray(params.historical_data) ? params.historical_data : (Array.isArray(params.historicalData) ? params.historicalData : undefined);
             result = RoadmapIntelligenceEngine.assessRoadmapHealth(milestones, hist);
+            break;
+          }
+
+          // ── HOOK-SYNERGY-MS0/U-HOOK-ENVELOPE (H4) ──────────────
+          // Query state/shared/hook-latency.jsonl emitted by _envelope.mjs profiling shim.
+          // All modes return small projections — never the full JSONL.
+          case "hook_latency": {
+            const { hookLatencyEngine } = await import("../../engines/HookLatencyEngine.js");
+            const mode = String(params.mode || "summary");
+            const windowMs = params.window_ms != null ? Number(params.window_ms) : undefined;
+            const n = params.n != null ? Number(params.n) : undefined;
+            switch (mode) {
+              case "summary": result = hookLatencyEngine.getSummary(windowMs, n); break;
+              case "per_hook": result = hookLatencyEngine.perHook(String(params.hook || ""), windowMs) ?? { error: "not_found", hook: String(params.hook || "") }; break;
+              case "top_p95": result = { hooks: hookLatencyEngine.topByP95(n, windowMs) }; break;
+              case "recent_slow": result = { threshold_ms: Number(params.threshold_ms ?? 0), hits: hookLatencyEngine.recentSlow(Number(params.threshold_ms ?? 0), n) }; break;
+              case "recent_failures": result = { failures: hookLatencyEngine.recentFailures(n) }; break;
+              case "total_fires": result = { total: hookLatencyEngine.totalFires(windowMs) }; break;
+              case "available": result = { available: hookLatencyEngine.isAvailable() }; break;
+              default: result = { error: "invalid_mode", mode, allowed: ["summary", "per_hook", "top_p95", "recent_slow", "recent_failures", "total_fires", "available"] };
+            }
             break;
           }
 
