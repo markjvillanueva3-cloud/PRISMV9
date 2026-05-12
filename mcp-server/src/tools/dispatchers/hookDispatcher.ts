@@ -2,7 +2,9 @@
  * Hook Dispatcher - Consolidates hookToolsV2 (8) + hookToolsV3 (10) + hookManagementTools (10) = 28 tools → 1
  * Tool: prism_hook
  * Actions: list, get, execute, chain, toggle, emit, event_list, event_history,
- *          fire, chain_v2, status, history, enable, disable, coverage, gaps, performance, failures
+ *          fire, chain_v2, status, history, enable, disable, coverage, gaps, performance, failures,
+ *          subscribe, reactive_chains, hook_orch_plan, hook_coverage_analyze, hook_bandit_select,
+ *          hook_telemetry_metrics, hook_efficiency_roi, manifest
  */
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
@@ -20,7 +22,9 @@ const ACTIONS = [
   "subscribe", "reactive_chains",
   // ENGINE-WIRE-MS0/U-WIRE17: 5 hook orchestration engines
   "hook_orch_plan", "hook_coverage_analyze", "hook_bandit_select",
-  "hook_telemetry_metrics", "hook_efficiency_roi"
+  "hook_telemetry_metrics", "hook_efficiency_roi",
+  // HOOK-MANIFEST-DAG-MS26/P0-U01: static hook manifest (catalog + DAG-validator input)
+  "manifest"
 ] as const;
 
 function ok(data: any) {
@@ -34,7 +38,7 @@ function ok(data: any) {
 export function registerHookDispatcher(server: any): void {
   server.tool(
     "prism_hook",
-    `Hook & event management (20 actions, consolidates 28 tools). Actions: ${ACTIONS.join(", ")}`,
+    `Hook & event management (${ACTIONS.length} actions, consolidates 28 tools). Actions: ${ACTIONS.join(", ")}`,
     { action: z.enum(ACTIONS), params: z.record(z.string(), z.any()).optional() },
     async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params: Record<string, any> }) => {
       log.info(`[prism_hook] ${action}`);
@@ -202,6 +206,47 @@ export function registerHookDispatcher(server: any): void {
             const { hookEfficiencyEngine } = await import("../../engines/HookEfficiencyEngine.js");
             const sessionBudget = (params.sessionBudget ?? params.session_budget) as number | undefined;
             return ok(hookEfficiencyEngine.getROI(sessionBudget ?? 150_000));
+          }
+          // HOOK-MANIFEST-DAG-MS26/P0-U01 — static hook manifest (catalog of .claude/hooks + mcp-server/src/hooks ⋈ settings.json wirings)
+          case "manifest": {
+            const { hookManifestEngine } = await import("../../engines/HookManifestEngine.js");
+            const opts = { repoRoot: params.repoRoot as string | undefined };
+            if (params.write === true || params.regenerate === true) {
+              const { manifest, path } = await hookManifestEngine.generateAndWrite({
+                ...opts,
+                outPath: params.outPath as string | undefined,
+              });
+              return ok({ written: true, path, stats: manifest.stats, danglingRefs: manifest.danglingRefs });
+            }
+            const manifest = hookManifestEngine.generate(opts);
+            if (params.hook) {
+              const key = String(params.hook);
+              const hit = manifest.hooks.find((h) => h.file === key || h.id === key);
+              return ok(hit ?? { error: `Hook not found: ${key}`, hint: "pass the relative file path or basename" });
+            }
+            if (params.event) {
+              const ev = String(params.event);
+              const files = manifest.events[ev] ?? [];
+              return ok({
+                event: ev,
+                count: files.length,
+                hooks: files.map((f) => {
+                  const e = manifest.hooks.find((h) => h.file === f);
+                  return { file: f, id: e?.id, hardBlock: e?.hardBlock ?? false, wirings: (e?.wirings ?? []).filter((w) => w.event === ev) };
+                }),
+              });
+            }
+            if (params.full === true) return ok(manifest);
+            return ok({
+              schemaVersion: manifest.schemaVersion,
+              generatedAt: manifest.generatedAt,
+              repoRoot: manifest.repoRoot,
+              hookDirs: manifest.hookDirs,
+              settingsFiles: manifest.settingsFiles,
+              stats: manifest.stats,
+              danglingRefs: manifest.danglingRefs,
+              hint: "params: full=true (entire catalog) · write=true (re)write mcp-server/data/state/hook-manifest.json · event=<name> · hook=<id|path>",
+            });
           }
           default: return ok({ error: `Unknown action: ${action}`, available: ACTIONS });
         }
