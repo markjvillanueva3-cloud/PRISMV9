@@ -453,6 +453,63 @@ const springGenerateCoilPathSchema = springBaseSchema.extend({
   samplesPerCoil: z.number().optional().describe("Samples per coil. Floor 8. Default 36."),
 });
 
+// ── Part Folder Organizer — JM Die per-customer / per-part-number library ─────
+const _printRefSchema = z.object({
+  source_pdf: z.string().optional().describe("Multi-page source PDF the print page lives in."),
+  file: z.string().optional().describe("Alternatively, a standalone file already on disk to copy in as-is."),
+  page: z.number().int().min(0).max(100_000).optional().describe("0-based page index inside source_pdf."),
+  drawing_score: z.number().optional().describe("Drawing-likelihood score 0..1 from the OCR pass."),
+  doc_id: z.string().optional().describe("Docustrata document id."),
+  label: z.string().optional().describe("Human label, e.g. 'print' / 'PO' / 'router'."),
+});
+const _programRefSchema = z.object({
+  source_path: z.string().describe("Absolute path to the program / CAD file in JM DIE/."),
+  machine_category: z.string().optional().describe("lathe / mill / wire_edm / ..."),
+  kind3: z.string().optional().describe("'nc_program' (→ CNC PROGRAM/) or 'cam_project' (→ CAD-CAM/)."),
+  kind: z.string().optional().describe("'program' or 'cad'."),
+  customer: z.string().optional().describe("Customer the file was filed under (path-derived)."),
+  via: z.string().optional().describe("How it was matched: exact / loose / ..."),
+  customer_match: z.string().optional().describe("Whether the program's path-customer agrees with the print's OCR'd customer."),
+});
+const createPartFolderSchema = z.object({
+  part_number: z.union([z.string(), z.number()]).optional().describe("The part number (required). String or number."),
+  customer: z.string().optional().describe("Customer folder name. If omitted, resolved from program_customers > print_customers > _UNASSIGNED."),
+  part_number_normalized: z.string().optional().describe("Normalized PN (op-prefix/rev stripped)."),
+  raw_variants: z.array(z.string()).optional().describe("Raw OCR variants of the PN."),
+  print_customers: z.array(z.string()).optional().describe("Customer name(s) OCR'd from the print title block."),
+  program_customers: z.array(z.string()).optional().describe("Customer name(s) derived from matched-program folder paths."),
+  match_confidence: z.string().optional().describe("Join-table confidence tier: exact / loose / ambiguous / miss."),
+  prints: z.array(_printRefSchema).optional().describe("Print pages / related documents to place in the folder root."),
+  cnc_programs: z.array(_programRefSchema).optional().describe("Pre-classified NC programs → CNC PROGRAM/."),
+  cad_cam: z.array(_programRefSchema).optional().describe("Pre-classified CAM projects / CAD models → CAD-CAM/."),
+  programs: z.array(_programRefSchema).optional().describe("Un-classified program list — the engine routes each by kind3/extension."),
+  library_root: z.string().optional().describe("Override the library root (default H:/PRISM/JM DIE/_PART LIBRARY)."),
+  copy_mode: z.enum(["copy", "manifest", "hardlink"]).optional().describe("copy = physical copies (default); hardlink = same-volume links; manifest = no copies, paths recorded only."),
+  overwrite: z.boolean().optional().describe("Rebuild an already-complete folder. Default false (idempotent skip)."),
+  join_table_source: z.string().optional().describe("Provenance string recorded in the manifest."),
+  notes: z.array(z.string()).optional().describe("Extra manifest notes."),
+});
+const getPartFolderSchema = z.object({
+  customer: z.string().describe("Customer folder name."),
+  part_number: z.union([z.string(), z.number()]).optional().describe("The part number (required)."),
+  library_root: z.string().optional().describe("Override the library root."),
+});
+const partLibraryStatsSchema = z.object({
+  library_root: z.string().optional().describe("Override the library root."),
+  by_customer: z.boolean().optional().describe("Include a per-customer breakdown."),
+  with_disk: z.boolean().optional().describe("Also walk every part folder for file count + byte size (slower)."),
+});
+const partLibraryPopulateSchema = z.object({
+  join_jsonl: z.string().optional().describe("Path to the print→program join jsonl (default blueprint-program-join-full-v5.jsonl)."),
+  phase7_jsonl: z.string().optional().describe("Path to the doc_id→PDF-path jsonl (default phase7-drawing-candidates.jsonl)."),
+  library_root: z.string().optional().describe("Override the library root."),
+  confidence_filter: z.array(z.string()).optional().describe("Only include these match_confidence tiers. Default: everything except 'garbage'."),
+  copy_mode: z.enum(["copy", "manifest", "hardlink"]).optional().describe("File placement mode. Default copy."),
+  limit: z.number().int().min(1).max(100_000).optional().describe("Max rows to drain this call. Default 25 (the python script is the unbounded bulk path)."),
+  offset: z.number().int().min(0).optional().describe("Skip this many eligible rows before starting (for chunked draining)."),
+  dry_run: z.boolean().optional().describe("Don't create anything — just report what would be created."),
+});
+
 /**
  * Action schemas for prism_cad dispatcher.
  * Maps action name to Zod schema for validation.
@@ -552,4 +609,9 @@ export const ACTION_CAD_SCHEMAS: Record<string, z.ZodType<any>> = {
   spring_compute_mechanics: springComputeMechanicsSchema,
   spring_compute_stress_at_force: springComputeStressAtForceSchema,
   spring_generate_coil_path: springGenerateCoilPathSchema,
+  // Part Folder Organizer — JM Die per-customer / per-part-number library
+  create_part_folder: createPartFolderSchema,
+  get_part_folder: getPartFolderSchema,
+  part_library_stats: partLibraryStatsSchema,
+  part_library_populate: partLibraryPopulateSchema,
 };
