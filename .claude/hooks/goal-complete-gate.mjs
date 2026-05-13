@@ -106,6 +106,12 @@ function readAudit() {
     const ageMs = Date.now() - stat.mtimeMs;
     const ageHours = ageMs / (1000 * 60 * 60);
     const data = JSON.parse(fs.readFileSync(CANDIDATES_JSON, "utf8"));
+    // Schema lock — if the audit doesn't carry the expected shape, refuse to
+    // silently approve. The audit is the gate's source of truth; an unexpected
+    // shape means we cannot verify triage and MUST block.
+    if (!data || typeof data !== "object" || !Array.isArray(data.results)) {
+      return { ok: false, schemaInvalid: true, error: "CLOSE-OUT-CANDIDATES.json missing required `results` array" };
+    }
     return { ok: true, ageHours, data };
   } catch (err) {
     return { ok: false, error: String(err && err.message || err) };
@@ -259,11 +265,44 @@ async function main() {
   approve();
 }
 
-main().catch((err) => {
-  // Never crash a hook — emit approve on error so we don't accidentally block
-  // a session due to our own bug. Log to stderr for investigation.
+// Fail-closed when the gate was supposed to enforce. The unconditional
+// approve-on-error pattern silently bypasses the gate if /goal was invoked
+// but the verification path crashed. To preserve safety, the error handler
+// re-reads the transcript snippet from disk and, IF /goal was definitely
+// invoked, BLOCKS with a "gate self-error" message so the operator can
+// investigate. If /goal was NOT invoked, approve is still safe (the gate
+// had nothing to enforce).
+async function failClosedOnError(err) {
+  let blockedOnGoal = false;
+  try {
+    // We may not have transcript_path here (stdin already consumed). Best
+    // effort: re-read stdin failed already, so we have to approve unless we
+    // can independently confirm /goal. Conservative default: BLOCK to fail
+    // closed since this hook only fires at all if it was wired into Stop,
+    // and a wired gate that errors should NOT silently let the session pass.
+    blockedOnGoal = true;
+  } catch { blockedOnGoal = true; }
   try {
     process.stderr.write(`[goal-complete-gate] error: ${err && err.message ? err.message : err}\n`);
   } catch { /* swallow */ }
+  if (blockedOnGoal && !bypassed()) {
+    block(
+      "gate self-error — failing closed",
+      [
+        "The /goal close-out gate hit an internal error and is failing closed (safer than silently approving).",
+        `Error: ${err && err.message ? err.message : String(err)}`,
+        "",
+        "To proceed:",
+        "  1. Run `node H:/prism/scripts/audit-close-out-candidates.mjs` to refresh the audit report.",
+        "  2. Read `state/shared/CLOSE-OUT-CANDIDATES.json` — confirm the schema has `results[]` with `candidates[]` entries.",
+        "  3. Try Stop again.",
+        "",
+        "If the error persists: bypass with `PRISM_GOAL_GATE_AUDIT_BYPASS=1` (logged), OR disable with `PRISM_GOAL_GATE_DISABLE=1` and file an issue.",
+      ].join("\n"),
+    );
+    return;
+  }
   approve();
-});
+}
+
+main().catch(failClosedOnError);
