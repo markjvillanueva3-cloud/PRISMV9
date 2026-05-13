@@ -27,6 +27,16 @@
  * roadmap U-CAM-FINAL-10).
  *
  * Authored 2026-04-21 — CAM-EXHAUST-MS0 PHASE-ML-TRAIN U-CAM-ML-05.
+ *
+ * 2026-05-13 — INFRA-NEURAL-LEDGER-MS1/P0-U04: wire the trainer into the
+ * neural feedback bus as the third closed-loop subscriber alongside
+ * CrossProcessNeuralLearningEngine (auto-train) and
+ * OutcomeDriftCalibrationBridgeEngine (drift + calibration monitoring).
+ * Adds enableOutcomeObservation() / disableOutcomeObservation() /
+ * isObservingOutcomes() / getObservationStatus() / getObservationBuffer() /
+ * clearObservations() plus a private idempotent bus callback. The bus
+ * side is fire-and-forget: every observed outcome buffers + counts
+ * O(1); full retraining still goes through trainAll() / trainFromFiles().
  */
 
 import * as fs from "node:fs";
@@ -39,6 +49,12 @@ import {
   type BayesianRidgeModel,
   type TargetName,
 } from "./CAMBaselineRegressorEngine.js";
+import {
+  feedbackBusEngine,
+  type FeedbackEvent,
+  type SubscriptionHandle,
+} from "./FeedbackBusEngine.js";
+import type { OutcomeRecord } from "./CrossProcessOutcomeStore.js";
 
 // ─── Types ──────────────────────────────────────────────────────────
 
@@ -96,18 +112,273 @@ export interface TrainAllResult {
   skipped: Array<{ cam: Priority4CAM; target: TargetName; reason: string }>;
 }
 
+// ─── Outcome-bus observation (P0-U04) ──────────────────────────────
+//
+// INFRA-NEURAL-LEDGER-MS1/P0-U04 wires the adapter trainer as a third
+// subscriber on the neural feedback bus alongside CrossProcessNeuralLearningEngine
+// and OutcomeDriftCalibrationBridgeEngine. We do NOT retrain on every
+// `outcome.recorded` event (full batched gradient descent is too expensive
+// for fire-and-forget), but we DO buffer per-CAM observations so a future
+// scheduler can call trainAll() against fresh shop-floor data without a
+// separate harvester pass.
+
+/**
+ * One observation pulled off the bus and stripped to the fields the adapter
+ * trainer cares about. Buffer is bounded — see DEFAULT_OBSERVATION_CAP.
+ */
+export interface ObservedOutcome {
+  /** OutcomeRecord.id (used for dedup). */
+  outcomeId: string;
+  /** Concrete CAM the outcome was attributed to. */
+  cam: Priority4CAM;
+  /** Terminal kind — observations with kind="pending" are NOT buffered. */
+  kind: "success" | "failure" | "operator_override";
+  /** ISO timestamp from the OutcomeRecord (publisher-set). */
+  ts: string;
+  /** Free-form request payload; carried opaquely for the trainer. */
+  request_summary: Record<string, unknown>;
+  /** Free-form response payload; carries actuals when terminal. */
+  response_summary: Record<string, unknown>;
+}
+
+export interface ObservationStatus {
+  /** True if a SubscriptionHandle is currently held on the feedback bus. */
+  active: boolean;
+  /** Sum across all 4 priority CAMs (does NOT count skipped events). */
+  totalObserved: number;
+  /** Events received but skipped — non-CAM process, unknown CAM, dup, or pending. */
+  totalSkipped: number;
+  /** Per-CAM observation counts (additive, never reset by trainAll()). */
+  byCam: Record<Priority4CAM, number>;
+  /** Bus stat at time of read — useful for "did anything fire?" probes. */
+  busDeliveredAtRead: number;
+  /** Configured per-CAM buffer cap (oldest evicted on overflow). */
+  bufferCap: number;
+}
+
+/** Default per-CAM ring-buffer size. ~2 weeks of typical shop-floor flow per CAM. */
+export const DEFAULT_OBSERVATION_CAP = 1000;
+
+/**
+ * Multiplier applied to (4 priority CAMs × bufferCap) to derive the dedup
+ * Set's high-water mark. Once exceeded, the oldest half of the set is
+ * evicted (FIFO via insertion order). At default bufferCap=1000 this
+ * caps the set at 4×1000×10 = 40,000 ids ≈ 1.5 MB of string memory —
+ * about 2 years of typical shop-floor flow. Eviction is a one-line
+ * rebuild from the tail half so the next event refills cheaply.
+ */
+const DEDUP_SET_MAX_MULTIPLIER = 10;
+
 // ─── Engine ─────────────────────────────────────────────────────────
 
 const PRIORITY_4: ReadonlyArray<Priority4CAM> = [
   "mastercam", "hypermill", "fusion360", "inventor-hsm",
 ];
 
+const PRIORITY_4_SET: ReadonlySet<string> = new Set(PRIORITY_4);
+
 export class CAMLoRAAdapterTrainerEngine {
   readonly name = "CAMLoRAAdapterTrainerEngine";
+
+  // P0-U04 outcome-bus observation state. All fields are reset by
+  // clearObservations(). Subscription handle survives clearObservations() —
+  // only disableOutcomeObservation() detaches from the bus.
+  private observationHandle: SubscriptionHandle | null = null;
+  private observationBuffers: Record<Priority4CAM, ObservedOutcome[]> = {
+    mastercam: [], hypermill: [], fusion360: [], "inventor-hsm": [],
+  };
+  private observationCounts: Record<Priority4CAM, number> = {
+    mastercam: 0, hypermill: 0, fusion360: 0, "inventor-hsm": 0,
+  };
+  private observationSeenIds: Set<string> = new Set();
+  private observationSkipped = 0;
+  private observationBufferCap: number = DEFAULT_OBSERVATION_CAP;
 
   constructor(
     private baselineEngine: CAMBaselineRegressorEngine = camBaselineRegressorEngine
   ) {}
+
+  // ─── P0-U04 outcome-bus wiring ────────────────────────────────────
+
+  /**
+   * Subscribe this engine to `outcome.recorded` on FeedbackBusEngine.
+   * Idempotent — calling twice returns the existing handle without
+   * re-subscribing. The `bufferCap` is applied on EVERY call (not just
+   * the first), so an already-subscribed engine can have its cap
+   * retuned without detaching from the bus.
+   *
+   * Per the P0-U04 acceptance criterion ("Subscribers must be idempotent;
+   * bus does not retry"), we keep the bus side-effect-free: the callback
+   * only buffers + counts. Heavy retraining is the caller's responsibility
+   * via trainAll() / trainFromFiles().
+   *
+   * @param opts.bufferCap Optional per-CAM ring-buffer cap. Clamped to
+   *                      [1, 1_000_000]. Default DEFAULT_OBSERVATION_CAP.
+   *                      Applied even on re-subscribe.
+   */
+  enableOutcomeObservation(opts: { bufferCap?: number } = {}): SubscriptionHandle {
+    // Apply bufferCap BEFORE the idempotent early-return so a second
+    // enable() with a new cap actually takes effect on the live subscriber.
+    if (Number.isFinite(opts.bufferCap)) {
+      const raw = opts.bufferCap as number;
+      this.observationBufferCap = Math.max(1, Math.min(1_000_000, Math.floor(raw)));
+    }
+    if (this.observationHandle !== null) {
+      return this.observationHandle;
+    }
+    const handle = feedbackBusEngine.subscribe(
+      "outcome.recorded",
+      (event: FeedbackEvent) => this.observeOutcome(event),
+    );
+    this.observationHandle = handle;
+    return handle;
+  }
+
+  /**
+   * Detach the engine from the feedback bus. Idempotent — calling twice
+   * returns false the second time. Buffers + counters are preserved so a
+   * subsequent enableOutcomeObservation() continues accumulating from
+   * where this one left off; call clearObservations() to wipe state.
+   */
+  disableOutcomeObservation(): boolean {
+    if (this.observationHandle === null) return false;
+    const ok = feedbackBusEngine.unsubscribe(this.observationHandle);
+    this.observationHandle = null;
+    return ok;
+  }
+
+  /** True iff a SubscriptionHandle is currently held on the bus. */
+  isObservingOutcomes(): boolean {
+    return this.observationHandle !== null;
+  }
+
+  /** Snapshot of the per-CAM observation buffer (defensive copy). */
+  getObservationBuffer(cam: Priority4CAM): ObservedOutcome[] {
+    return [...this.observationBuffers[cam]];
+  }
+
+  /** Aggregate observation status, including live bus delivery counter. */
+  getObservationStatus(): ObservationStatus {
+    const totalObserved =
+      this.observationCounts.mastercam +
+      this.observationCounts.hypermill +
+      this.observationCounts.fusion360 +
+      this.observationCounts["inventor-hsm"];
+    return {
+      active: this.observationHandle !== null,
+      totalObserved,
+      totalSkipped: this.observationSkipped,
+      byCam: { ...this.observationCounts },
+      busDeliveredAtRead: feedbackBusEngine.stats().totalDelivered,
+      bufferCap: this.observationBufferCap,
+    };
+  }
+
+  /**
+   * Reset all per-CAM buffers, counters, the dedup set, and the
+   * buffer-cap config back to {@link DEFAULT_OBSERVATION_CAP}. Does NOT
+   * detach from the bus — if subscribed, the engine continues observing
+   * after the wipe.
+   */
+  clearObservations(): void {
+    for (const cam of PRIORITY_4) {
+      this.observationBuffers[cam] = [];
+      this.observationCounts[cam] = 0;
+    }
+    this.observationSeenIds.clear();
+    this.observationSkipped = 0;
+    this.observationBufferCap = DEFAULT_OBSERVATION_CAP;
+  }
+
+  /**
+   * Bus callback. Idempotent (dedup by OutcomeRecord.id), non-throwing
+   * by contract (bus already wraps in try/catch but we still don't want
+   * to inflate totalSubscriberErrors on routine skips).
+   *
+   * Filters that result in a skip (not counted as observed):
+   *   - missing payload / record
+   *   - outcome.kind === "pending" (terminal-only — partial outcomes are noise)
+   *   - process is not one of PRIORITY_4 AND request_summary.cam_system is not PRIORITY_4
+   *   - duplicate outcomeId already seen
+   */
+  private observeOutcome(event: FeedbackEvent): void {
+    const payload = event.payload as
+      | { id?: string; record?: OutcomeRecord; outcomeKind?: string }
+      | undefined;
+    const record = payload?.record;
+    if (!record || typeof record.id !== "string") {
+      this.observationSkipped++;
+      return;
+    }
+
+    // Terminal-only: pending outcomes carry no actual response, so a LoRA
+    // residual = (actual - baseline_pred) cannot be computed yet.
+    const kind = record.outcome?.kind ?? payload?.outcomeKind ?? "pending";
+    if (kind === "pending") {
+      this.observationSkipped++;
+      return;
+    }
+    if (kind !== "success" && kind !== "failure" && kind !== "operator_override") {
+      this.observationSkipped++;
+      return;
+    }
+
+    // Resolve CAM. Two sources, checked in order:
+    //   1. record.process — the high-level pipeline domain (mill/lathe/...).
+    //      Only matches when the process slug is itself a CAM name.
+    //   2. record.request_summary.cam_system — preferred, set by CAM bridges.
+    const fromProcess = PRIORITY_4_SET.has(record.process) ? (record.process as Priority4CAM) : null;
+    const reqCam = record.request_summary?.cam_system;
+    const fromRequest =
+      typeof reqCam === "string" && PRIORITY_4_SET.has(reqCam) ? (reqCam as Priority4CAM) : null;
+    const cam = fromRequest ?? fromProcess;
+    if (!cam) {
+      this.observationSkipped++;
+      return;
+    }
+
+    // Dedup by id — defensive against the bus replaying or a peer engine
+    // re-emitting the same outcome.
+    if (this.observationSeenIds.has(record.id)) {
+      this.observationSkipped++;
+      return;
+    }
+    this.observationSeenIds.add(record.id);
+    // Bound the dedup Set growth so a long-running process doesn't leak
+    // memory. JS Sets preserve insertion order — drop the oldest half
+    // when we exceed (4 CAMs × bufferCap × multiplier). The default cap
+    // (40,000 ids) covers ~2 years of typical shop-floor flow; eviction
+    // only ever runs in pathological replay scenarios.
+    const dedupMax = PRIORITY_4.length * this.observationBufferCap * DEDUP_SET_MAX_MULTIPLIER;
+    if (this.observationSeenIds.size > dedupMax) {
+      const evictCount = Math.floor(this.observationSeenIds.size / 2);
+      const it = this.observationSeenIds.values();
+      for (let i = 0; i < evictCount; i++) {
+        const next = it.next();
+        if (next.done) break;
+        this.observationSeenIds.delete(next.value);
+      }
+    }
+
+    const obs: ObservedOutcome = {
+      outcomeId: record.id,
+      cam,
+      kind,
+      ts: record.ts,
+      request_summary: record.request_summary ?? {},
+      response_summary: record.response_summary ?? {},
+    };
+
+    const buf = this.observationBuffers[cam];
+    buf.push(obs);
+    if (buf.length > this.observationBufferCap) {
+      // FIFO ring: evict the oldest in O(1) (Array.shift is O(n) but the
+      // overflow path is rare and bounded by bufferCap so keeps the code
+      // path simple. Counts stay monotonic — eviction does not decrement).
+      buf.shift();
+    }
+    this.observationCounts[cam] = (this.observationCounts[cam] ?? 0) + 1;
+  }
 
   /** Train per-CAM adapters from in-memory split + baseline models. */
   trainAll(
