@@ -7,10 +7,10 @@
   "priority": "P0",
   "owner": "claude-7f79dd78",
   "created_at": "2026-05-13T18:00:00.000Z",
-  "updated_at": "2026-05-13T19:50:43.482Z",
+  "updated_at": "2026-05-13T19:54:29.618Z",
   "status": "in_progress",
   "total_units": 73,
-  "completed_units": 16,
+  "completed_units": 18,
   "dependencies": [
     "HOOK-SYNERGY-MS0 (H4 envelope, H7 async dispatch, H8 coord_sqlite)",
     "OBSIDIAN-PRISM-OS-MS0 (master-index surface, awareness stack, orphan-inventory)"
@@ -210,12 +210,14 @@
         {
           "id": "U-CLEANUP-B5",
           "title": "B5 — bug_attribution SQLite table writes via B10 (no naked appendFileSync); per-slot rolling 24h scoring with tokensSpent + costUsdEstimate columns; pre-dispatch write of {commitSha, agentType, dispatchPrompt, expectedFiles, originatingTickId} for compaction-survival",
-          "status": "not_started",
+          "status": "complete",
           "estimated_hours": 2,
           "dependencies": [
             "U-CLEANUP-B4",
             "U-CLEANUP-B10"
-          ]
+          ],
+          "completedAt": "2026-05-13T18:55:00.000Z",
+          "completion_notes": "Shipped 2026-05-13 by claude-9e32d6df (slot bravo). golf-ledger-v2.sql + LedgerStoreEngine.ts v2 (bumped LEDGER_SCHEMA_VERSION 1→2, +6 bug_attribution columns: tokens_spent, cost_usd_micros, agent_type, dispatch_prompt, expected_files_json, originating_tick_id; +insertPreDispatchRow + getSlotScore24h/getSlotScoresAll24h public API; +microsToUsd/usdToMicros API helpers; +physicalSchemaVersion; SEVERITY_WEIGHT P0=100/P1=25/P2=5/P3=1; column-existence-gated bootstrap so v2 ALTERs are idempotent; forward-only migrate() never downgrades meta). LedgerStoreEngine.v2.test.ts (34 tests). 71/71 vitest pass (34 v2 + 37 pre-existing B10, no regressions). 2-of-2 per-file scrutiny PASS each on all 3 files (with P1 fixes applied: INSERT_BUG_SQL shared const, honest appliedSqlBytes accounting, physicalSchemaVersion vs schemaVersion contract clarification, sort-order JSDoc, dispatch_prompt non-empty validator decoupled from 16KB cap)."
         },
         {
           "id": "U-CLEANUP-B6",
@@ -345,9 +347,10 @@
         {
           "id": "U-CLEANUP-D4",
           "title": "D4 — extract JM Die profile API (lines ~186-195) to wiki/reference/jm-die-profile.md; CLAUDE.md keeps 2 lines + pointer",
-          "status": "not_started",
+          "status": "complete",
           "estimated_hours": 0.5,
-          "dependencies": []
+          "dependencies": [],
+          "completed_at": "2026-05-13T19:54:29.597Z"
         },
         {
           "id": "U-CLEANUP-D5",

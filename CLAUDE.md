@@ -200,15 +200,7 @@ Already-extracted (do NOT re-extract): Mastercam(45), hyperMILL(25), Okuma(63), 
 Full manifest: `state/shared/PRISM-COMMANDS-MANIFEST.md`
 
 ## TEST SHOP — JM Die Company
-Canonical test shop for ALL PRISM development. Profile: `mcp-server/src/data/jm-die-profile.ts`. Shop config: `mcp-server/src/engines/ShopConfigurationEngine.ts` (21 machines). Program archive: `JM DIE/` (24,545 files, 100+ customers — ITW, Alcoa, Optimas, SFS, Holo-Krome).
-
-Direct API:
-```typescript
-prismSelfAwarenessEngine.getJMDieCustomerPath("ALCOA")   // → file path
-prismSelfAwarenessEngine.searchTribalKnowledge("thin wall") // → tips
-prismSelfAwarenessEngine.searchPlaybookRules("roughing")  // → rules
-prismSelfAwarenessEngine.recommendAIFeatures("build new engine") // → multi-agent strategy
-```
+Canonical test shop for ALL PRISM development. Full profile + API moved to [`knowledge/wiki/reference/jm-die-profile.md`](knowledge/wiki/reference/jm-die-profile.md) (U-CLEANUP-D4). Profile source: `mcp-server/src/data/jm-die-profile.ts`. Shop config: `ShopConfigurationEngine.ts` (21 machines). Archive: `JM DIE/` (24,545 files, 100+ customers — ITW, Alcoa, Optimas, SFS, Holo-Krome). Direct API: `prismSelfAwarenessEngine.{getJMDieCustomerPath,searchTribalKnowledge,searchPlaybookRules,recommendAIFeatures}` — see wiki entry for signatures.
 
 ## WIKI PROTOCOL (Karpathy LLM-Wiki — see `WIKI_SCHEMA.md`)
 PRISM has a compounding markdown wiki at `H:/prism/knowledge/wiki/`. **Query it before re-deriving.**
