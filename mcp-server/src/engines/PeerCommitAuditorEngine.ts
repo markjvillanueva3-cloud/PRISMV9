@@ -34,6 +34,7 @@
 
 import { existsSync, mkdirSync, readFileSync, renameSync, unlinkSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { spawnSync } from "node:child_process";
 import { tail, loadLastPollIso, saveLastPollIso } from "../../../.claude/helpers/git-log-tail.mjs";
 import { LedgerStoreEngine, getLedgerStoreEngine } from "./LedgerStoreEngine.js";
 
@@ -481,10 +482,26 @@ interface CliArgs {
   excludeAuthors: string[];
   dryRun: boolean;
   json: boolean;
+  /** G15: skip the activity gate (force full tick even if fleet is idle). */
+  skipActivityGate: boolean;
+  /** G15: hours-back window for the idle pre-check. Default 48h. */
+  activityWindowHours: number;
 }
 
+/** G15: default activity-gate window — 48h matches the spec ("--since=48h"). */
+export const DEFAULT_ACTIVITY_WINDOW_HOURS = 48;
+/** G15: hard cap to keep `git log` cheap even if a caller passes a huge window. */
+const MAX_ACTIVITY_WINDOW_HOURS = 30 * 24; // 30 days
+/** G15: hard timeout on the activity-gate git invocation. */
+const ACTIVITY_GATE_GIT_TIMEOUT_MS = 8_000;
+
 function parseCliArgs(argv: string[]): CliArgs {
-  const out: CliArgs = { sinceIso: null, repoRoot: null, cachePath: null, excludeAuthors: [], dryRun: false, json: true };
+  const out: CliArgs = {
+    sinceIso: null, repoRoot: null, cachePath: null, excludeAuthors: [],
+    dryRun: false, json: true,
+    skipActivityGate: false,
+    activityWindowHours: DEFAULT_ACTIVITY_WINDOW_HOURS,
+  };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === "--since" && argv[i + 1]) { out.sinceIso = argv[++i]; }
@@ -493,8 +510,135 @@ function parseCliArgs(argv: string[]): CliArgs {
     else if (a === "--exclude-author" && argv[i + 1]) { out.excludeAuthors.push(argv[++i]); }
     else if (a === "--dry-run") { out.dryRun = true; }
     else if (a === "--no-json") { out.json = false; }
+    else if (a === "--no-activity-gate") { out.skipActivityGate = true; }
+    else if (a === "--activity-window-hours" && argv[i + 1]) {
+      const n = parseInt(argv[++i], 10);
+      if (Number.isFinite(n) && n > 0) {
+        out.activityWindowHours = Math.min(n, MAX_ACTIVITY_WINDOW_HOURS);
+      }
+    }
   }
   return out;
+}
+
+// ── G15 activity gate (CLEANUP-MS0 / U-CLEANUP-G15) ───────────────────────────
+
+/**
+ * Result of the pre-tick activity check. `isIdle === true` means there have
+ * been zero peer commits (after author-exclude filtering) in the requested
+ * window, and the caller can safely skip the full audit tick.
+ */
+export interface ActivityCheckResult {
+  isIdle: boolean;
+  windowHours: number;
+  sinceIso: string;
+  nonGolfCommitCount: number;
+  /** Best-effort: empty if the git invocation errored or timed out. */
+  sampleAuthors: string[];
+  /** When true, the gate was abandoned (e.g. git unavailable, lock-related). */
+  inconclusive: boolean;
+  reason?: string;
+}
+
+/** Test seam: callers (CLI / tests) may inject their own git runner. */
+export type ActivityGitRunner = (args: string[], cwd: string) => {
+  status: number | null;
+  stdout: string;
+  stderr: string;
+  timedOut?: boolean;
+};
+
+function defaultActivityGitRunner(args: string[], cwd: string): ReturnType<ActivityGitRunner> {
+  const r = spawnSync("git", args, {
+    cwd, encoding: "utf-8", timeout: ACTIVITY_GATE_GIT_TIMEOUT_MS, windowsHide: true,
+  });
+  return {
+    status: r.status,
+    stdout: r.stdout || "",
+    stderr: r.stderr || "",
+    timedOut: r.signal === "SIGTERM",
+  };
+}
+
+/**
+ * Test the working tree for "no peer activity in the last N hours". Cheap by
+ * design — bounded by `MAX_ACTIVITY_WINDOW_HOURS` + the spawn timeout. Never
+ * throws; on any error returns `inconclusive: true` so the caller falls
+ * through to the full tick (fail-open).
+ *
+ * Author-exclusion filter is JS-side rather than `--author` regex so we get
+ * the same semantics on every git version + remain trivially testable.
+ */
+export function checkFleetIdle(opts: {
+  repoRoot: string;
+  windowHours: number;
+  excludeAuthors: readonly string[];
+}, runGit: ActivityGitRunner = defaultActivityGitRunner): ActivityCheckResult {
+  const windowHours = Math.max(1, Math.min(opts.windowHours, MAX_ACTIVITY_WINDOW_HOURS));
+  const sinceIso = new Date(Date.now() - windowHours * 60 * 60 * 1000).toISOString();
+  const baseRes: ActivityCheckResult = {
+    isIdle: false,
+    windowHours,
+    sinceIso,
+    nonGolfCommitCount: 0,
+    sampleAuthors: [],
+    inconclusive: false,
+  };
+
+  // We only need to know if ≥1 non-golf commit exists. `-n 50` is a generous
+  // cap that's still bounded — picks up enough authors to sanity-log the
+  // sample without paying for a full history walk.
+  const r = runGit(
+    ["log", `--since=${sinceIso}`, "--pretty=%H%x09%an", "-n", "50"],
+    opts.repoRoot,
+  );
+  if (r.timedOut) {
+    return { ...baseRes, inconclusive: true, reason: "git-log-timeout" };
+  }
+  if (r.status !== 0) {
+    return {
+      ...baseRes,
+      inconclusive: true,
+      reason: `git-log-exit-${r.status}: ${(r.stderr || "").trim().slice(0, 160)}`,
+    };
+  }
+
+  const lines = r.stdout.split(/\r?\n/).filter((l) => l.trim().length > 0);
+  const excludeSet = new Set(opts.excludeAuthors.map((a) => a.toLowerCase()));
+  const seenAuthors = new Set<string>();
+  let nonGolf = 0;
+  for (const line of lines) {
+    const tabIdx = line.indexOf("\t");
+    const author = tabIdx === -1 ? line : line.slice(tabIdx + 1);
+    const an = author.trim().toLowerCase();
+    if (excludeSet.has(an)) continue;
+    // Prefix-match the exclude list (e.g. "golf-watchdog-bot" matches "golf-").
+    let excluded = false;
+    for (const pat of excludeSet) {
+      if (an.startsWith(pat)) { excluded = true; break; }
+    }
+    if (excluded) continue;
+    nonGolf++;
+    seenAuthors.add(author.trim());
+  }
+
+  return {
+    ...baseRes,
+    isIdle: nonGolf === 0,
+    nonGolfCommitCount: nonGolf,
+    sampleAuthors: Array.from(seenAuthors).slice(0, 10),
+  };
+}
+
+/** Shape returned by `tickFromCli` when the activity gate short-circuits. */
+export interface IdleSkippedResult {
+  tickId: string;
+  startedAt: number;
+  finishedAt: number;
+  durationMs: number;
+  status: "complete";
+  idleSkipped: true;
+  activityCheck: ActivityCheckResult;
 }
 
 /**
@@ -502,8 +646,95 @@ function parseCliArgs(argv: string[]): CliArgs {
  * `await` it; sync callers should ignore the return value — side effects
  * (stdout JSON + process.exit) are the contract.
  */
-export function tickFromCli(): TickResult {
+export function tickFromCli(): TickResult | IdleSkippedResult {
   const args = parseCliArgs(process.argv.slice(2));
+
+  // G15 activity gate: when the fleet is quiet, skip the full tick entirely.
+  // Cheap pre-check (single bounded `git log`) — saves the ledger insert,
+  // git-log-tail invocation, signal-bus writes, and downstream B4 reviewer
+  // work. Spec target: ~$70/quiet-week of token cost.
+  //
+  // Fail-open: any inconclusive result (git unavailable, lock contention,
+  // timeout) falls through to the full tick path.
+  if (!args.skipActivityGate) {
+    const repoRoot = args.repoRoot ?? DEFAULT_REPO_ROOT;
+    const excludeAuthors = args.excludeAuthors.length > 0
+      ? Array.from(new Set([...DEFAULT_EXCLUDE_AUTHORS, ...args.excludeAuthors]))
+      : Array.from(DEFAULT_EXCLUDE_AUTHORS);
+    let activity: ActivityCheckResult;
+    try {
+      activity = checkFleetIdle({
+        repoRoot,
+        windowHours: args.activityWindowHours,
+        excludeAuthors,
+      });
+    } catch {
+      // Defensive — checkFleetIdle is supposed to be non-throwing, but if a
+      // future change regresses that contract we still fail-open to the tick.
+      activity = {
+        isIdle: false, windowHours: args.activityWindowHours,
+        sinceIso: new Date(Date.now() - args.activityWindowHours * 60 * 60 * 1000).toISOString(),
+        nonGolfCommitCount: 0, sampleAuthors: [], inconclusive: true,
+        reason: "activity-gate-threw",
+      };
+    }
+
+    if (activity.isIdle && !activity.inconclusive) {
+      const startedAt = Date.now();
+      const tickId = `IDLE-FLEET-${startedAt.toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+      // Record the skip in the ledger so F8 / dashboards still see a
+      // heartbeat even on quiet weeks. Use status="complete" to satisfy
+      // LedgerStoreEngine's strict enum; the IDLE-FLEET prefix + meta_json
+      // flag carry the "skipped" signal for downstream consumers.
+      if (!args.dryRun) {
+        try {
+          const ledger = getLedgerStoreEngine();
+          ledger.insert({
+            table: "peer_audit_ticks",
+            row: {
+              tick_id: tickId,
+              started_at: startedAt,
+              commits_seen: 0,
+              findings_count: 0,
+              status: "running",
+              meta_json: JSON.stringify({
+                idleSkipped: true,
+                activityWindowHours: activity.windowHours,
+                sinceIso: activity.sinceIso,
+                nonGolfCommitCount: activity.nonGolfCommitCount,
+                excludeAuthors,
+                repoRoot,
+              }),
+            },
+          });
+          ledger.finishAuditTick({
+            tick_id: tickId, findings_count: 0, status: "complete", error_text: null,
+          });
+        } catch { /* tolerate ledger transient failure */ }
+      }
+      const finishedAt = Date.now();
+      const idleResult: IdleSkippedResult = {
+        tickId,
+        startedAt,
+        finishedAt,
+        durationMs: finishedAt - startedAt,
+        status: "complete",
+        idleSkipped: true,
+        activityCheck: activity,
+      };
+      if (args.json) {
+        process.stdout.write(JSON.stringify(idleResult, null, 2) + "\n");
+      } else {
+        process.stdout.write(
+          `tick ${tickId} IDLE-FLEET window=${activity.windowHours}h ` +
+          `nonGolfCommits=${activity.nonGolfCommitCount} (skipped)\n`
+        );
+      }
+      if (typeof process.exit === "function") process.exit(0);
+      return idleResult;
+    }
+  }
+
   // Instantiate per-call when the caller supplies repoRoot or cachePath so
   // worktree invocations write into their own state file (not main tree).
   // Without overrides we reuse the singleton to keep the DB connection warm.
