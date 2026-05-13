@@ -1,11 +1,11 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-13T02:08:20.634Z",
+  "generatedAt": "2026-05-13T02:17:20.976Z",
   "headline": {
     "built_engines": 2324,
     "built_with_wiki": 1075,
     "needs_wiring": 879,
-    "needs_building_active_units": 3397,
+    "needs_building_active_units": 3396,
     "needs_frontend_merge_count": 2,
     "pending_milestones_with_activity": 3,
     "drift_milestones": 3,
@@ -9101,7 +9101,7 @@
     "next_action": "Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift."
   },
   "NEEDS_BUILDING": {
-    "summary": "3397 units across 667 milestones not yet in git.",
+    "summary": "3396 units across 667 milestones not yet in git.",
     "drift_cases": [
       {
         "id": "MF-MS1",
@@ -9131,12 +9131,6 @@
       },
       {
         "milestone": "HOOK-SYNERGY-MS0",
-        "unit": "U-HOOK-TIERS",
-        "title": "H3 — Tier frontmatter on all 480 hooks + hook-tier-validator.mjs PreToolUse block on .claude/hooks/*.mjs edits",
-        "phase": "critical-path"
-      },
-      {
-        "milestone": "HOOK-SYNERGY-MS0",
         "unit": "U-HOOK-FAST-LANE",
         "title": "H6 — Settings.json matcher split (Read/Glob/Grep fast lane vs Edit/Write/Bash slow lane) + dedup apply (target 70% latency cut on read-only ops)",
         "phase": "critical-path"
@@ -9145,6 +9139,12 @@
         "milestone": "HOOK-SYNERGY-MS0",
         "unit": "U-HOOK-ASYNC-DISPATCH",
         "title": "H7 — AsyncHookDispatcherEngine.ts + Tier-4 routing for test-100-percent-gate (Stop never waits >30s)",
+        "phase": "wave-2"
+      },
+      {
+        "milestone": "HOOK-SYNERGY-MS0",
+        "unit": "U-HOOK-COORD-SQLITE",
+        "title": "H8 — SQLite WAL coordination store + dual-write migration (replaces JSON file-claims, target 90% latency drop on multi-chat coord)",
         "phase": "wave-2"
       },
       {
