@@ -2,42 +2,56 @@
 /**
  * scrutiny-3way — multi-reviewer parallel scrutiny orchestrator.
  *
- * Three independent reviewers, all required PASS to release the Stop hook:
- *   1. Codex CLI                — cross-vendor model (auto-recorded by this script)
- *   2. Claude reviewer agent A  — holistic strict review (dispatched by the chat)
- *   3. Claude reviewer agent B  — second independent pass, weighted toward test
- *                                 integrity / dispatcher wiring / inlined constants
+ * Three independent Claude PRISM agents, all required PASS to release the
+ * Stop hook (NO external CLI dependency — Codex CLI was retired 2026-05-13
+ * after persistent diff-size truncation on PRISM-scale commits exceeded its
+ * 80 KB context budget):
+ *   1. Claude reviewer agent A  — holistic strict review (acceptance criteria)
+ *   2. Claude reviewer agent B  — independent second pass, weighted toward
+ *                                 test integrity / dispatcher wiring / inlined constants
+ *   3. Claude reviewer agent C  — analyst-weighted third pass, focused on hidden
+ *                                 anti-patterns / regression risk / silent breakage,
+ *                                 dispatched as `code-analyzer` subagent_type
  *
- * This script spawns the Codex CLI against the current session diff and
- * auto-records its --codex mark. It does NOT spawn the Claude reviewers — those
- * run via the chat's Agent tool. The script emits BOTH reviewer prompts
- * (`opusReviewerPrompt` = arm A, `opusReviewerPromptB` = arm B) and awaits the
- * chat's `--mark-opus` (arm A) and `--mark-claude` (arm B) marks.
+ * This script does NOT spawn any reviewer — all three run via the chat's Agent
+ * tool. The script emits all three reviewer prompts (`opusReviewerPrompt` = A,
+ * `opusReviewerPromptB` = B, `analystReviewerPrompt` = C) and awaits the chat's
+ * `--mark-opus` (A) / `--mark-claude` (B) / `--mark-analyst` (C) marks.
  *
- * Strict 3-of-3 policy: the Stop hook releases ONLY when codex AND arm A (opus)
- * AND arm B (claude) have all been marked PASS for the session.
+ * Strict 3-of-3 policy: the Stop hook releases ONLY when arm A (opus) AND arm
+ * B (claude) AND arm C (analyst) have all been marked PASS for the session.
  *
- * (History: the arm-2 reviewer was the Gemini CLI until 2026-05-12, when it was
- *  swapped for a second Claude reviewer agent — more reliable than the Gemini
- *  CLI's quota/trust-dir failure modes, and gives two independent Claude passes
- *  + one cross-vendor Codex pass. The ledger flags are `opusReviewed` (arm A) and
- *  `claudeReviewed` (arm B); `opusBReviewed` and `geminiReviewed` are accepted as
- *  write-side aliases for `claudeReviewed` and migrated to it on read.)
+ * Ledger flag mapping (back-compat with the pre-2026-05-13 Codex arm — same
+ * slot, repurposed):
+ *   armA → opusReviewed   (chat sets via --mark-opus / --mark-opus-a)
+ *   armB → claudeReviewed (chat sets via --mark-claude; legacy --mark-opus-b / --mark-gemini)
+ *   armC → codexReviewed  (chat sets via --mark-analyst; legacy --mark-codex)
+ *
+ * (History: arm 1 was the Codex CLI until 2026-05-13 — its 80 KB context limit
+ *  truncated PRISM-scale commits and produced false-FAIL "diff-truncated"
+ *  blockers that could not be resolved without splitting the commit. The arm
+ *  was swapped for a third Claude reviewer agent dispatched via the chat's
+ *  Agent tool, which sees the full diff. arm 2 was the Gemini CLI until
+ *  2026-05-12, also swapped for a Claude reviewer for similar quota/trust-dir
+ *  reasons. End result: three independent Claude passes with distinct
+ *  attention-weighting, no external CLI dependencies.)
  *
  * Usage:
  *   node .claude/scripts/scrutiny-3way.mjs                        # review uncommitted diff
  *   node .claude/scripts/scrutiny-3way.mjs --target HEAD          # review last commit
  *   node .claude/scripts/scrutiny-3way.mjs --target c6663f95b     # review specific commit
  *   node .claude/scripts/scrutiny-3way.mjs --session-id abc       # explicit session id
- *   node .claude/scripts/scrutiny-3way.mjs --skip codex            # skip the Codex arm
- *   node .claude/scripts/scrutiny-3way.mjs --mark-opus pass --session-id abc      # record arm A
- *   node .claude/scripts/scrutiny-3way.mjs --mark-claude pass --session-id abc    # record arm B (aliases: --mark-opus-b, --mark-gemini)
+ *   node .claude/scripts/scrutiny-3way.mjs --mark-opus     pass --session-id abc  # record arm A
+ *   node .claude/scripts/scrutiny-3way.mjs --mark-claude   pass --session-id abc  # record arm B
+ *   node .claude/scripts/scrutiny-3way.mjs --mark-analyst  pass --session-id abc  # record arm C
+ *     (aliases: --mark-opus-b / --mark-gemini → arm B; --mark-codex → arm C)
  *
- * Output: JSON object with the codex verdict, BOTH Claude-reviewer prompts, and
- * the one-line shell commands the chat must run after the Agent tool reviews return.
+ * Output: JSON object with all three Claude-reviewer prompts, and the shell
+ * commands the chat must run after the Agent tool reviews return.
  *
  * Authored: 2026-05-05 (claude-66471c04, CAD-COMPLETE-MS0 wrap-up).
- * Reworked: 2026-05-12 — Codex git-diff timeout fix + Gemini→Claude-B swap.
+ * Reworked: 2026-05-12 — Gemini→Claude-B swap.
+ * Reworked: 2026-05-13 — Codex→Claude-C swap (user directive: "claude prism agents only").
  */
 
 import { spawn, execFileSync, execSync } from "node:child_process";
@@ -182,6 +196,7 @@ function parseArgs(argv) {
     skip: [],
     markOpus: "",       // "pass" | "fail" — Claude reviewer arm A; runs in mark-only mode
     markOpusB: "",      // "pass" | "fail" — Claude reviewer arm B; runs in mark-only mode
+    markAnalyst: "",    // "pass" | "fail" — Claude reviewer arm C (analyst); legacy --mark-codex alias
     notes: "",
     blockers: "",
     status: false,
@@ -203,6 +218,13 @@ function parseArgs(argv) {
     else if (a.startsWith("--mark-opus-a=")) out.markOpus = a.slice("--mark-opus-a=".length).toLowerCase();
     else if (a === "--mark-opus") out.markOpus = (argv[++i] || "").toLowerCase();
     else if (a.startsWith("--mark-opus=")) out.markOpus = a.slice("--mark-opus=".length).toLowerCase();
+    // Arm C (analyst) — chat-settable mark for the third Claude reviewer.
+    // --mark-codex is accepted as a legacy alias (the slot was named after the
+    // retired Codex arm; the ledger field `codexReviewed` is unchanged for
+    // backward compat with pre-2026-05-13 ledger entries).
+    else if (a === "--mark-analyst" || a === "--mark-codex") out.markAnalyst = (argv[++i] || "").toLowerCase();
+    else if (a.startsWith("--mark-analyst=")) out.markAnalyst = a.slice("--mark-analyst=".length).toLowerCase();
+    else if (a.startsWith("--mark-codex=")) out.markAnalyst = a.slice("--mark-codex=".length).toLowerCase();
     else if (a === "--notes") out.notes = argv[++i] || "";
     else if (a.startsWith("--notes=")) out.notes = a.slice("--notes=".length);
     else if (a === "--blockers") out.blockers = argv[++i] || "";
@@ -478,41 +500,64 @@ function buildPromptForCLI(diffInfo, target) {
 
 /**
  * Build the prompt for a Claude reviewer agent (dispatched by the chat via the
- * Agent tool). Two arms, both required PASS, deliberately differentiated so the
- * two passes are complementary rather than redundant:
- *   arm "A" — holistic strict review (the original Opus-arm prompt)
+ * Agent tool). Three arms, all required PASS, deliberately differentiated so the
+ * three passes are complementary rather than redundant:
+ *   arm "A" — holistic strict review (acceptance criteria)
  *   arm "B" — independent second pass weighted toward the highest-risk axes:
  *             test integrity, dispatcher-wiring completeness, inlined constants,
  *             and scope discipline. Does NOT assume arm A caught everything.
- * Both emit the same VERDICT: PASS|FAIL contract on the first line.
+ *   arm "C" — analyst-weighted third pass dispatched as `code-analyzer`,
+ *             focused on hidden anti-patterns, regression risk, silent breakage,
+ *             error budget completeness, and integration coupling.
+ * All emit the same VERDICT: PASS|FAIL contract on the first line.
  */
 function buildClaudeReviewerPrompt(diffInfo, target, arm = "A") {
   const targetLabel = target ? `commit ${target}` : "uncommitted changes";
   const truncationWarning = diffInfo.truncated
     ? `NOTE: Diff was truncated at ${MAX_DIFF_BYTES} bytes (full size ${diffInfo.totalBytes}). If completeness cannot be assessed from the partial view, return VERDICT: FAIL with BLOCKER: diff-truncated.\n\n`
     : "";
-  const isB = String(arm).toUpperCase() === "B";
-  const role = isB
-    ? "You are reviewer B of two independent Claude reviewers (plus a Codex CLI reviewer) — an INDEPENDENT second pass. Do not assume reviewer A caught everything; review the diff yourself, end to end."
-    : "You are reviewer A of two independent Claude reviewers (plus a Codex CLI reviewer) — a strict, holistic code reviewer for the PRISM manufacturing-intelligence platform.";
-  const criteria = isB
-    ? [
-        "Weight your attention toward these high-risk axes (PRISM CLAUDE.md), but FAIL on any violation you find:",
-        "  1. Test integrity — no assertions weakened or removed vs the prior version; no toBeDefined()/toBeTruthy() blanket stubs; no synthetic threshold/loop tests; tests must fail if the business logic changes",
-        "  2. Dispatcher wiring — every new engine wired (import + call + action enum + Zod schema) to EVERY dispatcher that would naturally consume it (not just one)",
-        "  3. Constants — Kienzle/Taylor/material/physics constants imported from src/physics/constants.ts, never inlined or duplicated in docs",
-        "  4. Scope discipline — no changes beyond what the stated task requires; no stubs, TODOs, placeholder returns, facades, or 'deferred to follow-up'",
-        "  5. Hygiene — no floating promises, no any-spread anti-patterns, no swallowed errors",
-      ]
-    : [
-        "Acceptance criteria:",
-        "  1. No stubs, TODOs, or placeholder returns",
-        "  2. Tests use concrete assertions (no toBeDefined()/toBeTruthy() blanket stubs)",
-        "  3. ≥3 failure modes covered for any new engine",
-        "  4. Physics constants imported from src/physics/constants.ts (never inlined)",
-        "  5. New engines wired to every consuming dispatcher",
-        "  6. No floating promises, no any-spread anti-patterns introduced",
-      ];
+  const armUpper = String(arm).toUpperCase();
+  const isB = armUpper === "B";
+  const isC = armUpper === "C";
+  let role;
+  let criteria;
+  if (isC) {
+    role =
+      "You are reviewer C of three independent Claude PRISM agents — an ANALYST-weighted third pass for the PRISM manufacturing-intelligence platform. " +
+      "Reviewers A and B cover holistic acceptance + test/wiring/scope axes; your job is what THEY are likely to under-emphasize. Do not assume they caught everything.";
+    criteria = [
+      "Weight your attention toward analyst axes — hidden anti-patterns, silent regression risk, and integration breakage. FAIL on any violation you find:",
+      "  1. Silent breakage — type drift across module boundaries, peer engines whose contract this diff secretly invalidates, swallowed errors that bury real failures",
+      "  2. Hidden anti-patterns — sync fs in async paths that should yield, race conditions across concurrent chats, fields that look load-bearing but are dead code, dual-source constants that will drift",
+      "  3. Error budget completeness — are ALL error variants reachable? Are ALL fs.write paths defended against EACCES / ENOENT / EEXIST without burying the failure? Does graceful-degrade log enough to debug post-incident?",
+      "  4. Integration coupling — engines wired to EVERY dispatcher that would naturally consume them; type-level coupling between sibling engines surfaces compile-time errors on rename (not silent runtime degradation)",
+      "  5. Security at I/O boundaries — every interpolated string sanitized for the medium it lands in (filenames, comment bodies, shell args, SQL, etc); path-traversal guards re-checked after construction (defense in depth)",
+      "  6. Regression risk for downstream pipelines — does this diff change a type that downstream engines depend on without updating them? Does it change the shape of a dispatcher result without updating slimResponse exclusions?",
+    ];
+  } else if (isB) {
+    role =
+      "You are reviewer B of three independent Claude PRISM agents — an INDEPENDENT second pass. Do not assume reviewer A caught everything; review the diff yourself, end to end.";
+    criteria = [
+      "Weight your attention toward these high-risk axes (PRISM CLAUDE.md), but FAIL on any violation you find:",
+      "  1. Test integrity — no assertions weakened or removed vs the prior version; no toBeDefined()/toBeTruthy() blanket stubs; no synthetic threshold/loop tests; tests must fail if the business logic changes",
+      "  2. Dispatcher wiring — every new engine wired (import + call + action enum + Zod schema) to EVERY dispatcher that would naturally consume it (not just one)",
+      "  3. Constants — Kienzle/Taylor/material/physics constants imported from src/physics/constants.ts, never inlined or duplicated in docs",
+      "  4. Scope discipline — no changes beyond what the stated task requires; no stubs, TODOs, placeholder returns, facades, or 'deferred to follow-up'",
+      "  5. Hygiene — no floating promises, no any-spread anti-patterns, no swallowed errors",
+    ];
+  } else {
+    role =
+      "You are reviewer A of three independent Claude PRISM agents — a strict, holistic code reviewer for the PRISM manufacturing-intelligence platform.";
+    criteria = [
+      "Acceptance criteria:",
+      "  1. No stubs, TODOs, or placeholder returns",
+      "  2. Tests use concrete assertions (no toBeDefined()/toBeTruthy() blanket stubs)",
+      "  3. ≥3 failure modes covered for any new engine",
+      "  4. Physics constants imported from src/physics/constants.ts (never inlined)",
+      "  5. New engines wired to every consuming dispatcher",
+      "  6. No floating promises, no any-spread anti-patterns introduced",
+    ];
+  }
   return [
     truncationWarning + role,
     `Target: ${targetLabel}.`,
@@ -551,16 +596,19 @@ async function main() {
     return;
   }
 
-  // Sub-command: --mark-opus / --mark-claude pass|fail — used by the chat after
-  // the Agent-tool reviewers return. Records the Claude-reviewer legs (arm A
-  // and/or arm B) of the strict 3-of-3 gate. Either or both may be supplied in
-  // one call. Accepted aliases: --mark-opus-a → arm A; --mark-opus-b / --mark-gemini → arm B.
-  if (args.markOpus || args.markOpusB) {
+  // Sub-command: --mark-opus / --mark-claude / --mark-analyst pass|fail — used
+  // by the chat after the Agent-tool reviewers return. Records the three
+  // Claude-reviewer legs (arm A holistic / arm B independent / arm C analyst)
+  // of the strict 3-of-3 gate. Any combination may be supplied in one call.
+  // Accepted aliases: --mark-opus-a → arm A; --mark-opus-b / --mark-gemini → arm B;
+  // --mark-codex → arm C (legacy alias — the slot was named after the retired Codex arm).
+  if (args.markOpus || args.markOpusB || args.markAnalyst) {
     const marks = {};
     const marked = [];
     for (const [argVal, flag, detailKey, flagName, armLabel] of [
-      [args.markOpus,  "opusReviewed",   "opusDetail",   "--mark-opus",   "A"],
-      [args.markOpusB, "claudeReviewed", "claudeDetail", "--mark-claude", "B"],
+      [args.markOpus,    "opusReviewed",   "opusDetail",    "--mark-opus",    "A"],
+      [args.markOpusB,   "claudeReviewed", "claudeDetail",  "--mark-claude",  "B"],
+      [args.markAnalyst, "codexReviewed",  "analystDetail", "--mark-analyst", "C"],
     ]) {
       if (!argVal) continue;
       const verdict = String(argVal).toLowerCase();
@@ -617,21 +665,24 @@ async function main() {
     process.exit(2);
   }
 
+  // 2026-05-13 redesign — three Claude-reviewer prompts, no external CLI arm.
+  // The legacy `cliPrompt` (Codex-formatted) is retained for the optional
+  // Ollama pre-flight reviewer, which is purely advisory.
   const cliPrompt = buildPromptForCLI(diffInfo, args.target);
   const opusPrompt = buildClaudeReviewerPrompt(diffInfo, args.target, "A");
   const opusPromptB = buildClaudeReviewerPrompt(diffInfo, args.target, "B");
+  const analystPrompt = buildClaudeReviewerPrompt(diffInfo, args.target, "C");
 
-  // Skip-aware parallel dispatch
-  const skipCodex = args.skip.includes("codex");
   const skipPreflight = args.skip.includes("preflight") || !PREFLIGHT_ENABLED;
 
-  // OBSIDIAN-AUTOMATE-MS3/U-LOCAL-PREFLIGHT — gate mode: run local first;
-  // a concrete FAIL aborts before paying for the cloud trio.
+  // OBSIDIAN-AUTOMATE-MS3/U-LOCAL-PREFLIGHT — gate mode: run local first; a
+  // concrete FAIL aborts before the chat pays for the three-Claude trio. The
+  // pre-flight stays as a single-shot advisory; the 3-of-3 trio is all Claude.
   let preflightResult = null;
   if (PREFLIGHT_GATE && !skipPreflight) {
     preflightResult = await runOllamaPreflight(cliPrompt);
     // Only short-circuit on a concrete FAIL with at least one BLOCKER —
-    // a transport failure (skipped) must NOT block the cloud arm.
+    // a transport failure (skipped) must NOT block the Claude arms.
     if (preflightResult.verdict === "fail" && preflightResult.blockers && !preflightResult.skipped) {
       console.log(JSON.stringify({
         ok: true,
@@ -649,68 +700,39 @@ async function main() {
           durationMs: preflightResult.durationMs,
         },
         nextStep:
-          "Local pre-flight reviewer (deepseek-r1:14b) flagged blockers BEFORE the Codex arm was dispatched. " +
-          "Review BLOCKER lines, fix, and re-run. To override and force the Codex arm anyway: " +
+          "Local pre-flight reviewer (deepseek-r1:14b) flagged blockers BEFORE the three Claude arms were dispatched. " +
+          "Review BLOCKER lines, fix, and re-run. To override and force the Claude trio anyway: " +
           "--skip preflight, or PRISM_SCRUTINY_PREFLIGHT=parallel for advisory-only mode.",
-        consensus: "preflight-blocked — Codex arm not dispatched (quota saved); Claude-reviewer dispatch also deferred",
+        consensus: "preflight-blocked — Claude-reviewer dispatch deferred (token cost saved)",
       }, null, 2));
       return;
     }
   }
 
+  // Parallel-mode pre-flight (advisory only — does NOT affect the 3-of-3 gate).
   const tasks = [];
-  if (!skipCodex) tasks.push(spawnReview("codex", CODEX_BIN, [...CODEX_ARGS], cliPrompt));
-  // Parallel mode: local Ollama arm runs alongside Codex, surfaces an advisory verdict.
   if (!PREFLIGHT_GATE && !skipPreflight) tasks.push(runOllamaPreflight(cliPrompt));
-
   const allResults = await Promise.all(tasks);
-  // Separate the advisory pre-flight from the recorded arm so ledger marking
-  // (which runs only over codex here — the two Claude arms are recorded by the
-  // chat via --mark-opus / --mark-claude) sees a clean array.
-  const results = allResults.filter((r) => r.provider !== "ollama-preflight");
   const parallelPreflight = allResults.find((r) => r.provider === "ollama-preflight") ?? null;
   if (parallelPreflight) preflightResult = parallelPreflight;
 
-  // Auto-record the --codex mark DIRECTLY via the ledger helper (no shell to
-  // scrutiny-mark.mjs — that file is contested by peer chats).
+  // Three Claude reviewer arms are ALL chat-dispatched + chat-marked. No
+  // ledger auto-record happens here; the chat invokes
+  // --mark-opus / --mark-claude / --mark-analyst after the Agent tool returns.
   const sessionId = findStableSessionId(args.sessionId);
-  for (const r of results) {
-    if (r.provider !== "codex") continue;
-    const detail = {
-      verdict: r.verdict,
-      blockers: r.blockers || "",
-      notes: `[3way ${r.provider} ${r.durationMs}ms] ${r.notes || ""}`.slice(0, 480),
-    };
-    try {
-      recordScrutiny(sessionId, { codexReviewed: r.verdict === "pass", codexDetail: detail });
-    } catch (err) {
-      // Surface to stderr so the chat sees disk-I/O / permission failures that
-      // would otherwise leave the gate stuck (stdout still gets the JSON).
-      const msg = err instanceof Error ? err.message : String(err);
-      process.stderr.write(
-        `scrutiny-3way: recordScrutiny(session=${sessionId}, codex) failed: ${msg}\n`,
-      );
-    }
-  }
 
-  const codexResult = results.find((r) => r.provider === "codex") ?? null;
-  const codexPassed = codexResult ? codexResult.verdict === "pass" : null;
   const out = {
     ok: true,
     target: args.target || "(uncommitted)",
     diffBytes: diffInfo.totalBytes,
     diffTruncated: diffInfo.truncated,
     diffFilter: DIFF_FILTER_ENABLED ? "noise paths excluded" : "unfiltered (PRISM_SCRUTINY_NO_DIFF_FILTER=1)",
-    results: results.map((r) => ({
-      provider: r.provider,
-      verdict: r.verdict,
-      blockers: r.blockers,
-      notes: r.notes,
-      durationMs: r.durationMs,
-    })),
+    sessionId,
+    // No `results` array — all three arms run in the chat via Agent tool.
+    results: [],
     // Local pre-flight verdict surfaced as an advisory arm. Does NOT affect the
-    // strict 3-of-3 ledger contract — it's signal, not gate. Agreement with
-    // Codex is strong consensus; disagreement is a triangulation flag.
+    // strict 3-of-3 ledger contract — it's signal, not gate. Agreement among
+    // all three Claude arms is strong consensus; disagreement is a triangulation flag.
     preflight: preflightResult ? {
       provider: preflightResult.provider,
       model: PREFLIGHT_MODEL,
@@ -718,25 +740,23 @@ async function main() {
       blockers: preflightResult.blockers,
       notes: preflightResult.notes,
       durationMs: preflightResult.durationMs,
-      mode: PREFLIGHT_GATE ? "gate (cloud-saver)" : "parallel (advisory)",
+      mode: PREFLIGHT_GATE ? "gate (token-saver)" : "parallel (advisory)",
     } : null,
-    opusReviewerPrompt: opusPrompt,    // Claude reviewer arm A (holistic)
-    opusReviewerPromptB: opusPromptB,  // Claude reviewer arm B (test/wiring/constants-weighted, independent)
+    opusReviewerPrompt: opusPrompt,        // arm A — holistic acceptance criteria
+    opusReviewerPromptB: opusPromptB,      // arm B — independent (test/wiring/constants/scope)
+    analystReviewerPrompt: analystPrompt,  // arm C — analyst (silent breakage / regression risk / I/O security)
     nextStep:
-      "Dispatch BOTH Claude reviewer agents in this chat, in parallel:\n" +
-      "  Agent({ subagent_type: 'reviewer', description: 'Review session diff (3way reviewer A)', prompt: <opusReviewerPrompt above> })\n" +
-      "  Agent({ subagent_type: 'reviewer', description: 'Review session diff (3way reviewer B — independent)', prompt: <opusReviewerPromptB above> })\n" +
-      "When they return, record both verdicts (use 'fail' instead of 'pass' for any FAIL):\n" +
-      `  node .claude/scripts/scrutiny-3way.mjs --mark-opus   pass --session-id ${sessionId} --notes "<reviewer A summary>"\n` +
-      `  node .claude/scripts/scrutiny-3way.mjs --mark-claude pass --session-id ${sessionId} --notes "<reviewer B summary>"\n` +
-      "  (--mark-claude is the arm-B mark; --mark-opus-b / --mark-gemini are accepted aliases.)\n" +
-      "The Stop hook releases only once codex + arm A + arm B are all PASS (strict 3-of-3).",
-    consensus:
-      codexPassed === null
-        ? "codex arm skipped — still need codex + both Claude-reviewer marks (3-of-3 strict)"
-        : codexPassed
-          ? "codex PASS — still need both Claude-reviewer marks to release the Stop hook (3-of-3 strict)"
-          : "codex FAILED — fix the BLOCKER lines above before continuing (Claude-reviewer dispatch optional until codex is green)",
+      "Dispatch THREE Claude PRISM agents in this chat, in parallel:\n" +
+      "  Agent({ subagent_type: 'reviewer',      description: 'Review session diff (3way reviewer A)',                 prompt: <opusReviewerPrompt above> })\n" +
+      "  Agent({ subagent_type: 'reviewer',      description: 'Review session diff (3way reviewer B — independent)',   prompt: <opusReviewerPromptB above> })\n" +
+      "  Agent({ subagent_type: 'code-analyzer', description: 'Review session diff (3way reviewer C — analyst)',       prompt: <analystReviewerPrompt above> })\n" +
+      "When they return, record all three verdicts (use 'fail' instead of 'pass' for any FAIL):\n" +
+      `  node .claude/scripts/scrutiny-3way.mjs --mark-opus    pass --session-id ${sessionId} --notes "<reviewer A summary>"\n` +
+      `  node .claude/scripts/scrutiny-3way.mjs --mark-claude  pass --session-id ${sessionId} --notes "<reviewer B summary>"\n` +
+      `  node .claude/scripts/scrutiny-3way.mjs --mark-analyst pass --session-id ${sessionId} --notes "<reviewer C summary>"\n` +
+      "  (legacy aliases: --mark-opus-b / --mark-gemini → arm B; --mark-codex → arm C.)\n" +
+      "The Stop hook releases only once arms A + B + C are all PASS (strict 3-of-3, all Claude).",
+    consensus: "three Claude arms pending chat dispatch — no auto-recorded arm in the redesigned 3-of-3 (codex retired 2026-05-13)",
   };
   console.log(JSON.stringify(out, null, 2));
 }

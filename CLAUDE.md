@@ -50,28 +50,29 @@ The end-of-task 3-of-3 gate below still runs at Stop — this per-file gate just
 A Stop hook (`.claude/hooks/scrutinize-before-stop.mjs`) **blocks** task completion when the session has uncommitted file changes and the scrutiny ledger lacks a 3-of-3 PASS entry. **Strict 3-of-3 consensus** — Codex CLI + Claude reviewer A (holistic) + Claude reviewer B (independent second pass) — is required; single-reviewer drift is not load-bearing for clearance. (3-of-3 policy adopted 2026-05-05; the arm-2 reviewer was the Gemini CLI until 2026-05-12, then swapped for a 2nd Claude reviewer agent — the CLI's daily-quota / trust-dir env failures kept stalling the gate.)
 
 To finish a task you MUST:
-1. **Run the Codex arm** against the session diff (auto-records the `--codex` mark):
+1. **Run the script** against the session diff (emits THREE Claude-reviewer prompts; no external CLI is spawned):
    ```bash
    node .claude/scripts/scrutiny-3way.mjs --session-id <id-from-block-message>
    # or: --target HEAD (last commit) | --target <sha> (specific commit)
    ```
-   It records `--codex` from Codex's `VERDICT:` line and emits two reviewer prompts: `opusReviewerPrompt` (arm A) and `opusReviewerPromptB` (arm B). (The diff is captured with a 120 s git timeout — was 8 s, which timed out on this repo — and excludes auto-regenerated noise dirs; `PRISM_SCRUTINY_GIT_TIMEOUT_MS` / `PRISM_SCRUTINY_NO_DIFF_FILTER=1` override.)
-2. **Dispatch BOTH Claude reviewer agents in parallel** with step 1:
+   It emits three reviewer prompts in the JSON output: `opusReviewerPrompt` (arm A), `opusReviewerPromptB` (arm B), `analystReviewerPrompt` (arm C). (The diff is captured with a 120 s git timeout — was 8 s, which timed out on this repo — and excludes auto-regenerated noise dirs; `PRISM_SCRUTINY_GIT_TIMEOUT_MS` / `PRISM_SCRUTINY_NO_DIFF_FILTER=1` override.) An optional Ollama pre-flight (deepseek-r1:14b) runs as an advisory arm only — does NOT block the 3-of-3.
+2. **Dispatch ALL THREE Claude PRISM agents in parallel** in one tool block (single message, three parallel tool calls):
    ```js
-   Agent({ subagent_type: 'reviewer', description: 'Review session diff (3way reviewer A)',
-           prompt: <opusReviewerPrompt from step 1 output> })
-   Agent({ subagent_type: 'reviewer', description: 'Review session diff (3way reviewer B — independent)',
-           prompt: <opusReviewerPromptB from step 1 output> })
+   Agent({ subagent_type: 'reviewer',      description: 'Review session diff (3way reviewer A)',                 prompt: <opusReviewerPrompt> })
+   Agent({ subagent_type: 'reviewer',      description: 'Review session diff (3way reviewer B — independent)',   prompt: <opusReviewerPromptB> })
+   Agent({ subagent_type: 'code-analyzer', description: 'Review session diff (3way reviewer C — analyst)',       prompt: <analystReviewerPrompt> })
    ```
-   (Arm B is weighted toward test integrity / dispatcher-wiring completeness / inlined-constant detection — it does not assume arm A caught everything.)
-3. **Record both verdicts** when the agents return (use `fail` instead of `pass` for any FAIL — the gate keeps blocking until codex + arm A + arm B are all PASS):
+   Arm B is weighted toward test integrity / dispatcher-wiring completeness / inlined-constant detection (does NOT assume arm A caught everything). Arm C is weighted toward silent breakage / regression risk / I/O security / error-budget completeness / integration coupling (does NOT assume A or B caught everything).
+3. **Record all three verdicts** when the agents return (use `fail` instead of `pass` for any FAIL — the gate keeps blocking until arms A + B + C are all PASS):
    ```bash
-   node .claude/scripts/scrutiny-3way.mjs --mark-opus   pass --session-id <id> --notes "<reviewer A summary>"
-   node .claude/scripts/scrutiny-3way.mjs --mark-claude pass --session-id <id> --notes "<reviewer B summary>"
-   # --mark-claude is the arm-B mark; --mark-opus-b / --mark-gemini are accepted aliases
+   node .claude/scripts/scrutiny-3way.mjs --mark-opus    pass --session-id <id> --notes "<reviewer A summary>"
+   node .claude/scripts/scrutiny-3way.mjs --mark-claude  pass --session-id <id> --notes "<reviewer B summary>"
+   node .claude/scripts/scrutiny-3way.mjs --mark-analyst pass --session-id <id> --notes "<reviewer C summary>"
+   # --mark-claude  is the arm-B mark; --mark-opus-b / --mark-gemini are accepted aliases.
+   # --mark-analyst is the arm-C mark; --mark-codex is accepted as a legacy alias.
    ```
 
-The hook is in `MINIMAL_ALLOWLIST` so `PRISM_HOOK_PROFILE` cannot disable it. After 3 block attempts the gate auto-passes with a warning (escape hatch). Ledger lives at `mcp-server/data/state/SCRUTINY_LEDGER.json` keyed by session id; arm B is stored as `claudeReviewed` (legacy `geminiReviewed` / transitional `opusBReviewed` flags accepted as aliases). Legacy `selfReviewed && agentReviewed` entries (pre-3way) still clear via backward-compat fallback in `scrutiny-ledger.mjs:isCleared()`.
+The hook is in `MINIMAL_ALLOWLIST` so `PRISM_HOOK_PROFILE` cannot disable it. After 3 block attempts the gate auto-passes with a warning (escape hatch). Ledger lives at `mcp-server/data/state/SCRUTINY_LEDGER.json` keyed by session id; arm A is stored as `opusReviewed`, arm B as `claudeReviewed` (legacy `geminiReviewed` / transitional `opusBReviewed` flags accepted as aliases), and arm C as `codexReviewed` (the slot keeps its pre-2026-05-13 name for backward compat with existing ledger entries — the *invocation* is now a Claude `code-analyzer` agent, not Codex). Legacy `selfReviewed && agentReviewed` entries (pre-3way) still clear via backward-compat fallback in `scrutiny-ledger.mjs:isCleared()`.
 
 ## PER-CHAT HANDOFF (7 CONCURRENT CHATS — 6 work + 1 hygiene)
 We run up to 7 concurrent Claude sessions: 6 work slots (`alpha..foxtrot`) + 1 hygiene slot (`golf`, see §GOLF SLOT). Each has its OWN handoff — **never write to `state/HANDOFF.md` (legacy singular)**. Golf chats produce slot-keyed filenames (`HANDOFF-golf-<task>.md`) via `--slot golf` per U-CLEANUP-A4; work chats stay instance-keyed.
