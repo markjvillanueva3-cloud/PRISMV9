@@ -3940,6 +3940,79 @@ export function registerDevDispatcher(server: any): void {
             break;
           }
 
+          // ── HOOK-SYNERGY-MS0/U-HOOK-FAST-LANE (H6) ───────────────
+          // Compute the per-event matcher split (Read/Glob/Grep fast lane vs
+          // Edit/Write/Bash slow lane) that the settings.json should adopt.
+          // The engine is pure: it takes a parsed settings shape + a tierLookup
+          // closure and returns a plan + new settings. Disk I/O for the
+          // settings file lives in scripts/apply-hook-fast-lane.mjs (the
+          // dispatcher reads the file but never writes — even `apply_preview`
+          // returns the JSON for review, not a write).
+          case "hook_fast_lane": {
+            const { getHookFastLaneEngine } = await import("../../engines/HookFastLaneEngine.js");
+            const fs = await import("node:fs");
+            const engine = getHookFastLaneEngine();
+            const mode = String(params.mode || "analyze");
+
+            if (mode === "classify_block") {
+              // No file I/O — caller supplies the block. Useful for dry-runs
+              // and unit tests without touching disk.
+              const block = (params.block ?? {}) as { matcher?: string; hooks?: { command: string }[] };
+              const event = "PreToolUse"; // arbitrary; classify_block doesn't care about event semantics
+              const { splits, warnings } = engine.buildPlanForEvent(event, [
+                { matcher: block.matcher, hooks: block.hooks ?? [] },
+              ]);
+              result = { splits, warnings };
+              break;
+            }
+
+            const settingsPath = typeof params.settings_path === "string" && params.settings_path.length > 0
+              ? params.settings_path
+              : "H:/prism/.claude/settings.json";
+
+            let settings: unknown;
+            try {
+              const raw = fs.readFileSync(settingsPath, "utf8");
+              settings = JSON.parse(raw);
+            } catch (e) {
+              result = { error: "settings_read_failed", settings_path: settingsPath, message: String((e as Error)?.message ?? e) };
+              break;
+            }
+
+            const plan = engine.buildPlan(settings as Parameters<typeof engine.buildPlan>[0]);
+            switch (mode) {
+              case "analyze":
+                result = { mode: "analyze", settings_path: settingsPath, plan };
+                break;
+              case "forecast":
+                result = { mode: "forecast", settings_path: settingsPath, forecast: plan.forecast, warnings: plan.warnings };
+                break;
+              case "propose": {
+                const newSettings = engine.applyPlan(settings as Parameters<typeof engine.buildPlan>[0], plan);
+                result = { mode: "propose", settings_path: settingsPath, plan, newSettings };
+                break;
+              }
+              case "apply_preview": {
+                const newSettings = engine.applyPlan(settings as Parameters<typeof engine.buildPlan>[0], plan);
+                // Compact diff summary — block counts before/after per event.
+                const summary: Record<string, { before: number; after: number }> = {};
+                const before = ((settings as { hooks?: Record<string, unknown[]> }).hooks) ?? {};
+                const after = (newSettings as { hooks?: Record<string, unknown[]> }).hooks ?? {};
+                for (const evt of Object.keys(before)) {
+                  summary[evt] = {
+                    before: Array.isArray(before[evt]) ? before[evt].length : 0,
+                    after: Array.isArray(after[evt]) ? after[evt].length : 0,
+                  };
+                }
+                result = { mode: "apply_preview", settings_path: settingsPath, plan, newSettings, summary };
+                break;
+              }
+              default:
+                result = { error: "invalid_mode", mode, allowed: ["analyze", "propose", "apply_preview", "forecast", "classify_block"] };
+            }
+            break;
+          }
+
           default:
             result = { error: "not_implemented", action, message: `Action '${action}' is registered but not yet wired to an engine. See PRISM-UNIFIED-MASTER-ROADMAP.md L1-B6.` };
         }

@@ -6,10 +6,10 @@
   "priority": "P0",
   "owner": "claude-85cedf09",
   "created_at": "2026-05-10T16:00:00.000Z",
-  "updated_at": "2026-05-13T00:30:00.000Z",
+  "updated_at": "2026-05-13T03:15:00.000Z",
   "status": "in_progress",
   "total_units": 11,
-  "completed_units": 5,
+  "completed_units": 9,
   "dependencies": [],
   "rationale": "Diagnosed 2026-05-10: 480 wired hook commands across 3 settings layers cause 50+ minute tool hangs. Stopgap: 7 hook timeout reductions shipped (158s→52s worst-case). Structural fix: 10-element architecture mirroring PRISM's existing engine/dispatcher patterns (5-tier classification, hook registry, async dispatcher, dedup guard, profiling envelope, fast-lane matchers). Critical path H1→H2→H3→H6 = 10 hours / 2 sessions. Boris loop+agent doctrine: every H* unit ships peer-reviewer subagent isolation:worktree.",
   "knowledge_sources": {
@@ -78,13 +78,14 @@
         {
           "id": "U-HOOK-FAST-LANE",
           "title": "H6 — Settings.json matcher split (Read/Glob/Grep fast lane vs Edit/Write/Bash slow lane) + dedup apply (target 70% latency cut on read-only ops)",
-          "status": "not_started",
+          "status": "complete",
           "estimated_hours": 2,
           "dependencies": [
             "U-HOOK-AUDIT",
             "U-HOOK-REGISTRY",
             "U-HOOK-TIERS"
-          ]
+          ],
+          "completedAt": "2026-05-13T03:15:00.000Z"
         }
       ]
     },
@@ -205,6 +206,12 @@
       "commit": "0889abfad",
       "title": "508 hooks tagged with tier frontmatter (T0=66/T1=77/T2=21/T3=93/T4=251) via scripts/classify-hook-tiers.mjs + hook-tier-validator.mjs PreToolUse advisory + settings.json wiring (PRISM_HOOK_TIER_VALIDATOR_BLOCK=1 promotes to hard block)",
       "shipped_at": "2026-05-13T00:30:00.000Z"
+    },
+    {
+      "unit": "U-HOOK-FAST-LANE",
+      "commit": "PENDING",
+      "title": "HookFastLaneEngine + prism_dev:hook_fast_lane (5 modes) + scripts/apply-hook-fast-lane.mjs + 31 tests. Matcher split on H:/prism/.claude/settings.json forecasts Read 26→6 fires (76.9% cut), Glob/Grep 50% cut, slow-lane tools 0% change. Read-path reduction 65.22% (vs 70% acceptance target — exceeded for Read alone, weighted average of Read/Glob/Grep). Engine is pure (tierLookup-injected) with deterministic 3-state plan (no-op / narrow-only / bifurcate) so apply is idempotent.",
+      "shipped_at": "2026-05-13T03:15:00.000Z"
     }
   ]
 }

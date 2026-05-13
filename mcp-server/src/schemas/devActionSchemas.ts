@@ -406,4 +406,24 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     threshold_ms: z.union([z.string(), z.number()]).optional().describe("Latency floor for mode=recent_slow."),
     n: z.union([z.string(), z.number()]).optional().describe("Result cap; defaults vary by mode."),
   }).passthrough(),
+
+  // HOOK-SYNERGY-MS0/U-HOOK-FAST-LANE (H6): settings.json matcher split engine.
+  hook_fast_lane: z.object({
+    mode: z.enum([
+      "analyze", "propose", "apply_preview", "forecast", "classify_block",
+    ]).default("analyze").describe(
+      "analyze = full plan + forecast; propose = applied settings JSON for review; " +
+        "apply_preview = same as propose plus a diff summary; forecast = per-tool " +
+        "fire-count table only; classify_block = classify hooks in a single " +
+        "user-supplied block (no settings file).",
+    ),
+    settings_path: z.string().optional().describe(
+      "Absolute path to settings.json. Defaults to H:/prism/.claude/settings.json. " +
+        "Used by analyze/propose/apply_preview/forecast.",
+    ),
+    block: z.object({
+      matcher: z.string().optional(),
+      hooks: z.array(z.object({ command: z.string() }).passthrough()).default([]),
+    }).passthrough().optional().describe("Required for mode=classify_block."),
+  }).passthrough(),
 };
