@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-13T17:19:49.332Z",
+  "generatedAt": "2026-05-13T17:47:53.644Z",
   "headline": {
     "built_engines": 2324,
     "built_with_wiki": 1073,
     "needs_wiring": 879,
-    "needs_building_active_units": 3715,
+    "needs_building_active_units": 3712,
     "needs_frontend_merge_count": 2,
     "pending_milestones_with_activity": 81,
-    "drift_milestones": 172,
+    "drift_milestones": 171,
     "stale_milestones": 230,
     "domains_tracked": 928
   },
@@ -9125,7 +9125,7 @@
     "next_action": "Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift."
   },
   "NEEDS_BUILDING": {
-    "summary": "3715 units across 670 milestones not yet in git.",
+    "summary": "3712 units across 670 milestones not yet in git.",
     "drift_cases": [
       {
         "id": "CC-EXT-MS0",
@@ -9830,12 +9830,6 @@
         "drift": "claims_not_started_but_has_shipped_units"
       },
       {
-        "id": "CLEANUP-MS0",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
         "id": "CLI-MS0",
         "claimed": "not_started",
         "real": "in_progress_real",
@@ -10162,28 +10156,52 @@
     ],
     "top_pending_units": [
       {
-        "milestone": "TRAINING-LEARNING-MS0",
-        "unit": "U-TL-U1-LATHE-TEMPLATE-EXTRACTOR",
-        "title": "LathePartFamilyTemplateExtractorEngine + corpus scanner",
-        "phase": "lathe"
+        "milestone": "INTEL-OLLAMA-OBSIDIAN-MS0",
+        "unit": "P2-U04",
+        "title": "Refactor error-block-prewarn to query Qdrant vector neighbors",
+        "phase": "P2"
       },
       {
-        "milestone": "TRAINING-LEARNING-MS0",
-        "unit": "U-TL-U4-WEDM-TEMPLATE-EXTRACTOR-AND-BRIDGE",
-        "title": "WEDMPartFamilyTemplateExtractorEngine + TaptiteElectrodeMacroBridgeEngine (parsed-snapshot path)",
-        "phase": "wedm"
+        "milestone": "INTEL-OLLAMA-OBSIDIAN-MS0",
+        "unit": "P5-U05",
+        "title": "Wire prism_intelligence:diagnose_failure → DiagnosticReasoningEngine",
+        "phase": "P5"
       },
       {
-        "milestone": "TRAINING-LEARNING-MS0",
-        "unit": "U-TL-U5-DOMAIN-MATCHERS",
-        "title": "LathePartFamilyMatcherEngine + MillPartFamilyMatcherEngine + WEDMPartFamilyMatcherEngine",
-        "phase": "matchers"
+        "milestone": "INTEL-OLLAMA-OBSIDIAN-MS0",
+        "unit": "P6-U02",
+        "title": "Add 4 hooks for unforced CLAUDE.md rules",
+        "phase": "P6"
       },
       {
-        "milestone": "TRAINING-LEARNING-MS0",
-        "unit": "U-TL-U6-CONTINUOUS-LEARNING",
-        "title": "TrainingTemplateContinuousLearningEngine (ingestLatheOutcome / ingestMillOutcome / ingestWEDMOutcome)",
-        "phase": "closed-loop"
+        "milestone": "INTEL-OLLAMA-OBSIDIAN-MS0",
+        "unit": "P6-U03",
+        "title": "Awareness hook deduplication — pick 3 canonical, deprecate 10",
+        "phase": "P6"
+      },
+      {
+        "milestone": "CAD-INFRA-MS0",
+        "unit": "U-CINF01",
+        "title": "CADFileIndexerEngine — master 20,006-file catalog",
+        "phase": ""
+      },
+      {
+        "milestone": "CAD-INFRA-MS0",
+        "unit": "U-CINF02",
+        "title": "CADFileClassifierEngine — part/assembly/drawing/CAM classification",
+        "phase": ""
+      },
+      {
+        "milestone": "CAD-INFRA-MS0",
+        "unit": "U-CINF03",
+        "title": "CADTestStateSchema — per-file atomic state",
+        "phase": ""
+      },
+      {
+        "milestone": "CAD-INFRA-MS0",
+        "unit": "U-CINF04.x-WORKER-THREAD-RUNNER",
+        "title": "CADRegressionWorkerThreadRunnerEngine — production TestRunner implementation",
+        "phase": ""
       },
       {
         "milestone": "CLEANUP-MS0",
@@ -10208,6 +10226,30 @@
         "unit": "U-CLEANUP-A4",
         "title": "A4 — per-agent-handoff.mjs accepts slot=golf with HANDOFF-golf-<task>.md topic prefix",
         "phase": "bootstrap-tier-0"
+      },
+      {
+        "milestone": "TRAINING-LEARNING-MS0",
+        "unit": "U-TL-U1-LATHE-TEMPLATE-EXTRACTOR",
+        "title": "LathePartFamilyTemplateExtractorEngine + corpus scanner",
+        "phase": "lathe"
+      },
+      {
+        "milestone": "TRAINING-LEARNING-MS0",
+        "unit": "U-TL-U4-WEDM-TEMPLATE-EXTRACTOR-AND-BRIDGE",
+        "title": "WEDMPartFamilyTemplateExtractorEngine + TaptiteElectrodeMacroBridgeEngine (parsed-snapshot path)",
+        "phase": "wedm"
+      },
+      {
+        "milestone": "TRAINING-LEARNING-MS0",
+        "unit": "U-TL-U5-DOMAIN-MATCHERS",
+        "title": "LathePartFamilyMatcherEngine + MillPartFamilyMatcherEngine + WEDMPartFamilyMatcherEngine",
+        "phase": "matchers"
+      },
+      {
+        "milestone": "TRAINING-LEARNING-MS0",
+        "unit": "U-TL-U6-CONTINUOUS-LEARNING",
+        "title": "TrainingTemplateContinuousLearningEngine (ingestLatheOutcome / ingestMillOutcome / ingestWEDMOutcome)",
+        "phase": "closed-loop"
       },
       {
         "milestone": "COORD-MS0",
@@ -10256,54 +10298,6 @@
         "unit": "U-ALL05",
         "title": "Build `VizAutoAugmentationEngine` (emit augmentation file)",
         "phase": "P0"
-      },
-      {
-        "milestone": "AI-MAX-MS0",
-        "unit": "U-AIMAX01",
-        "title": "hyperMILL Python Script Pattern Extractor",
-        "phase": "session-1"
-      },
-      {
-        "milestone": "AI-MAX-MS0",
-        "unit": "U-AIMAX02",
-        "title": "JM DIE Program Pattern Analyzer",
-        "phase": "session-1"
-      },
-      {
-        "milestone": "AI-MAX-MS0",
-        "unit": "U-AIMAX03",
-        "title": "Pattern Database & Search Engine",
-        "phase": "session-1"
-      },
-      {
-        "milestone": "AI-MAX-MS0",
-        "unit": "U-AIMAX04",
-        "title": "Tree-of-Thought Reasoning Engine",
-        "phase": "session-2"
-      },
-      {
-        "milestone": "BP-MS0",
-        "unit": "U-ROUTEFIX1",
-        "title": "Fix speed/feed route split-brain + CAM contract mismatch",
-        "phase": "BP-P1"
-      },
-      {
-        "milestone": "BP-MS0",
-        "unit": "U-ROUTEFIX2",
-        "title": "Fix PPG route/action drift + ERP analytics wiring",
-        "phase": "BP-P1"
-      },
-      {
-        "milestone": "BP-MS0",
-        "unit": "U-ROUTEFIX3",
-        "title": "Context catalog fix + 24 integration tests",
-        "phase": "BP-P1"
-      },
-      {
-        "milestone": "BP-MS0",
-        "unit": "U-BLOB2",
-        "title": "PartsLibraryEngine with revisions + CAD metadata extraction",
-        "phase": "BP-P2"
       }
     ],
     "next_action": "Cross-reference MILESTONE_PROGRESS.json. Avoid units already in `shipped` arrays — those are committed but envelope status is stale."

@@ -1,0 +1,808 @@
+{
+  "schemaVersion": 4,
+  "id": "CLEANUP-MS0",
+  "title": "Cleanup Roadmap — 7th 'golf' chat slot for system hygiene (process reaping, peer-bug detection, system-viz grooming, wiring-potential, CLAUDE.md token slim)",
+  "track": "CLEANUP",
+  "roadmap": "cleanup",
+  "priority": "P0",
+  "owner": "claude-7f79dd78",
+  "created_at": "2026-05-13T18:00:00.000Z",
+  "updated_at": "2026-05-13T17:35:25.832Z",
+  "status": "in_progress",
+  "total_units": 73,
+  "completed_units": 6,
+  "dependencies": [
+    "HOOK-SYNERGY-MS0 (H4 envelope, H7 async dispatch, H8 coord_sqlite)",
+    "OBSIDIAN-PRISM-OS-MS0 (master-index surface, awareness stack, orphan-inventory)"
+  ],
+  "rationale": "User asked for a dedicated 7th 'golf' chat slot to handle the fleet's hygiene gap: orphan node/bash/git processes (~2 GB MCP orphans reaped this session), peer-bug detection (75-80% infra already built but no continuous git-log tailer), system-viz graph grooming (875 unwired engines lack wiring-potential surface), CLAUDE.md token bloat (43 KB injected per prompt × 6 chats), landscape consumer dashboards for telemetry already collected but unread (hook-latency.jsonl, async-hook-results.jsonl, wiki-recall-counts.json). Plan generated under /forge6 brainstorm; spec lives at state/shared/specs/GOLF-WATCHDOG-MS0-2026-05-13.md. Scrutinized through 3 rounds (75+50+27 = 152 gaps surfaced and integrated across iterations 2/3/4). Saturated-if Round 4 finds <3 P0 — deferred to post-build observation per agent recommendation. Worktree: H:/prism-golf-watchdog (created 2026-05-13).",
+  "knowledge_sources": {
+    "engines": [
+      "CoordinationStoreEngine (H8 SQLite WAL — required by B5/B7 ledger writes via new B10/B11 wrappers)",
+      "HookLatencyEngine (H4 — feeds F4 hook-health-digest)",
+      "AsyncHookDispatcherEngine (H7 — Tier-4 routing for non-blocking watchdog work)",
+      "MasterIndexEngine (consumed by C1 wiring-potential candidate scoring)",
+      "ChatBusEngine (F8 unified signal publisher)",
+      "DuplicationGuardEngine (R1 dedup verification ran 3 confirmed collisions)",
+      "PRISMSelfAwarenessEngine (consumed by C1 for dispatcher capacity awareness)",
+      "WikiIndexMaintainerEngine (consumed by F6 wiki-lint cron + D5 wiki-section-inject)"
+    ],
+    "tribal_knowledge": "feedback_conflict_fork_rule.md (worktree fork rationale), feedback_always_close_out.md (per-file + 3-of-3 scrutiny), feedback_roadmap_close_out.md (4-surface close-out), reference_harness_hang_prevention.md (existing reaper stack)",
+    "formulas": [],
+    "reference": [
+      "state/shared/specs/GOLF-WATCHDOG-MS0-2026-05-13.md (full spec — 4 iterations, 152 gaps integrated)",
+      "state/shared/system-viz/system-graph.json (110,375-node landscape; 875 unwired engines, 2 envelope drifts, 2 pending FE merges)",
+      "state/shared/HOOK_REGISTRY.json (455-hook manifest — A5 write-allowlist ordering)",
+      "state/shared/coordination.db (H8 SQLite WAL — see knowledge_sources engines for wrappers)",
+      "scripts/system-viz-query.mjs (adapter consumed by S2.5 AI-priority + C1 dispatcher-capacity)"
+    ]
+  },
+  "verification_floor": {
+    "tests_per_engine": "real reference values; no toBeDefined() stubs",
+    "coverage_floor": "happy path + >=3 failure modes + >=2 adversarial inputs + >=3 spanning variability configs",
+    "round_trip_assertion": "test must invoke through dispatcher action, not only engine singleton",
+    "scrutiny_gate": "3-of-3 at Stop (codex + reviewer A + reviewer B) + per-file 2-parallel-agent gate during multi-file builds"
+  },
+  "phases": [
+    {
+      "id": "bootstrap-tier-0",
+      "title": "Tier-0 — Golf slot foundation + bootstrap (must land main-tree, not worktree)",
+      "units": [
+        {
+          "id": "U-CLEANUP-A1",
+          "title": "A1 — extend SLOT_NAMES in chat-slots.mjs to add 'golf' (NATO phonetic continuity)",
+          "status": "not_started",
+          "estimated_hours": 0.5,
+          "dependencies": []
+        },
+        {
+          "id": "U-CLEANUP-A2",
+          "title": "A2 — fleet-status.mjs renderer + title-comment for 7-slot table",
+          "status": "not_started",
+          "estimated_hours": 0.5,
+          "dependencies": [
+            "U-CLEANUP-A1"
+          ]
+        },
+        {
+          "id": "U-CLEANUP-A3",
+          "title": "A3 — /checkin --golf docs in commands/checkin.md; remove fleet_full 7th-chat fallback wording",
+          "status": "not_started",
+          "estimated_hours": 0.5,
+          "dependencies": [
+            "U-CLEANUP-A1"
+          ]
+        },
+        {
+          "id": "U-CLEANUP-A4",
+          "title": "A4 — per-agent-handoff.mjs accepts slot=golf with HANDOFF-golf-<task>.md topic prefix",
+          "status": "not_started",
+          "estimated_hours": 0.5,
+          "dependencies": [
+            "U-CLEANUP-A1"
+          ]
+        },
+        {
+          "id": "U-CLEANUP-A5",
+          "title": "A5 — golf-slot-write-allowlist.mjs PreToolUse T0 hook (path-resolve hardened against ../; allowlist-regex from golf-owned-paths.json; tier frontmatter; bypass env PRISM_GOLF_WRITE_ALLOWLIST_BYPASS=1)",
+          "status": "not_started",
+          "estimated_hours": 2,
+          "dependencies": [
+            "U-CLEANUP-A1",
+            "U-CLEANUP-G11"
+          ]
+        },
+        {
+          "id": "U-CLEANUP-A6",
+          "title": "A6 — bootstrap-golf.mjs (mkdir .cron-locks, seed golf-owned-paths.json + golf-token-budget.json + golf-cron-registry.json; .gitignore additions for coordination.db* + .cron-locks/*.lock + .watchdog-last-poll.iso + golf-token-budget.json; detect & rebuild 0-byte coordination.db; git rm --cached on first run)",
+          "status": "not_started",
+          "estimated_hours": 1.5,
+          "dependencies": [
+            "U-CLEANUP-A1"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "engines-tier-1",
+      "title": "Tier-1 — Core engines (PeerCommitAuditor, LedgerStore, WiringPotential, GolfHeartbeat) + ledger DDL",
+      "units": [
+        {
+          "id": "U-CLEANUP-B1",
+          "title": "B1 — PeerCommitAuditorEngine.ts (renamed from WatchdogEngine to avoid collision with tool-watchdog.mjs); tickFromCli() entry; recently-analyzed cache persisted to .peer-audit-cache.json with 5min TTL",
+          "status": "complete",
+          "estimated_hours": 4,
+          "dependencies": [
+            "U-CLEANUP-B3",
+            "U-CLEANUP-B10"
+          ],
+          "completedAt": "2026-05-13T17:35:25.832Z"
+        },
+        {
+          "id": "U-CLEANUP-B3",
+          "title": "B3 — helpers/git-log-tail.mjs canonical poll helper (since=ISO, name-only output, debounced via .watchdog-last-poll.iso UTC, 3-retry on git-index-lock)",
+          "status": "complete",
+          "estimated_hours": 1.5,
+          "dependencies": [],
+          "completedAt": "2026-05-13T17:35:25.832Z"
+        },
+        {
+          "id": "U-CLEANUP-B10",
+          "title": "B10 — LedgerStoreEngine.ts (wraps coord_sqlite with insert/query/migrate APIs; tables bug_attribution, peer_audit_ticks, chat_bus_signals, golf_envelope_mutations; migrations in src/migrations/golf-ledger-v1.sql)",
+          "status": "complete",
+          "estimated_hours": 3,
+          "dependencies": [],
+          "completedAt": "2026-05-13T17:35:25.832Z"
+        },
+        {
+          "id": "U-CLEANUP-B11",
+          "title": "B11 — LedgerProjectorEngine.ts (in-process callback on every INSERT emits JSONL projection so legacy chat-bus-inject + MILESTONE_PROGRESS readers untouched; cache invalidation on mtime)",
+          "status": "complete",
+          "estimated_hours": 2,
+          "dependencies": [
+            "U-CLEANUP-B10"
+          ],
+          "completedAt": "2026-05-13T17:35:25.832Z"
+        },
+        {
+          "id": "U-CLEANUP-C1",
+          "title": "C1 — WiringPotentialEngine.ts (analyze + analyzeBatch; R4-P0-1: routes through MasterIndexEngine.search via prism_session:master_index_query for candidate lookup — does NOT reimplement; reads node.knowledge.wikiEntries[] + memoryEntries[] pre-joins from graph; reserved for rationale-synthesis layer; consumes F7 capacity output)",
+          "status": "not_started",
+          "estimated_hours": 3,
+          "dependencies": []
+        },
+        {
+          "id": "U-CLEANUP-B8-CONSOLIDATED",
+          "title": "B8 — golf-liveness via chat-slots.json last-seen (R3-UU2 dropped dedicated heartbeat file; reuses G1 stale-handoff logic to compute staleness)",
+          "status": "not_started",
+          "estimated_hours": 0.5,
+          "dependencies": [
+            "U-CLEANUP-A1"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dispatchers-tier-2",
+      "title": "Tier-2 — Dispatcher wiring (E2E round-trip per comprehensive-build-enforce floor)",
+      "units": [
+        {
+          "id": "U-CLEANUP-B2",
+          "title": "B2 — prism_dev:peer_audit_tick / peer_audit_attribution / peer_audit_dispatch_plan dispatcher actions wired in devDispatcher.ts (action enum + schema + lazy import; E2E test invokes via dispatcher not singleton)",
+          "status": "complete",
+          "estimated_hours": 2,
+          "dependencies": [
+            "U-CLEANUP-B1"
+          ],
+          "completedAt": "2026-05-13T17:35:25.832Z"
+        },
+        {
+          "id": "U-CLEANUP-C2",
+          "title": "C2 — prism_dev:wiring_potential dispatcher action (modes: analyze, batch_unwired, dashboard); E2E round-trip test",
+          "status": "not_started",
+          "estimated_hours": 2,
+          "dependencies": [
+            "U-CLEANUP-C1"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "operator-surfaces-tier-3",
+      "title": "Tier-3 — Operator surfaces (reviewer dispatch + attribution + cron drivers + skills + system-viz integration)",
+      "units": [
+        {
+          "id": "U-CLEANUP-B4",
+          "title": "B4 — commit-reviewer-dispatch.mjs WITH (R4-P0-2) awareness-enrich helper (master_index_query + tribal_search + build_state_inject prepended as 4-KB RELEVANT CONTEXT block) + (R4-P0-3) Ollama-cascade first-pass triage via OllamaHookBridgeEngine (Claude only on P0/low-confidence/>=5-files/security-paths) + self-attribution + ownedPaths deny list + adversarial-input sanitization on message/author/paths/branch/hunks; throttle 1/15min unless affected_files>=5; chunk cap <=3; per-commit cap 50 files; recursion-depth guard; G7 absorbed",
+          "status": "not_started",
+          "estimated_hours": 4,
+          "dependencies": [
+            "U-CLEANUP-B1",
+            "U-CLEANUP-B10"
+          ]
+        },
+        {
+          "id": "U-CLEANUP-B5",
+          "title": "B5 — bug_attribution SQLite table writes via B10 (no naked appendFileSync); per-slot rolling 24h scoring with tokensSpent + costUsdEstimate columns; pre-dispatch write of {commitSha, agentType, dispatchPrompt, expectedFiles, originatingTickId} for compaction-survival",
+          "status": "not_started",
+          "estimated_hours": 2,
+          "dependencies": [
+            "U-CLEANUP-B4",
+            "U-CLEANUP-B10"
+          ]
+        },
+        {
+          "id": "U-CLEANUP-B6",
+          "title": "B6 — 06-peer-audit-tick.ps1 (invokes WatchdogEngine via node -e import; NOT MCP HTTP bridge per R1; sets PRISM_GOLF_TICK=1 env var so Stop gates short-circuit)",
+          "status": "not_started",
+          "estimated_hours": 1,
+          "dependencies": [
+            "U-CLEANUP-B2"
+          ]
+        },
+        {
+          "id": "U-CLEANUP-B7",
+          "title": "B7 — /peer-audit skill (READ-ONLY operator query; never mutates ledger; mutations only via prism_dev dispatcher action with audit trail)",
+          "status": "not_started",
+          "estimated_hours": 1,
+          "dependencies": [
+            "U-CLEANUP-B2",
+            "U-CLEANUP-B5"
+          ]
+        },
+        {
+          "id": "U-CLEANUP-B9",
+          "title": "B9 — model-drift eval suite (10 frozen known-bug commits + expected verdicts in state/shared/golf-reviewer-eval/; weekly cron; agent.model pinned to claude-sonnet-4-6 NOT latest; alerts on slope (-0.20 over 12 weeks) AND absolute floor; R4-P1-8: wraps reviewer-verdict ledger in prism_intelligence:xproc_aps_calibrate + xproc_aps_set for conformal-prediction-set membership check instead of naive slope heuristic; reads prompt-version headers to detect prompt drift)",
+          "status": "not_started",
+          "estimated_hours": 3,
+          "dependencies": [
+            "U-CLEANUP-B4"
+          ]
+        },
+        {
+          "id": "U-CLEANUP-B12",
+          "title": "B12 — LedgerLoRAExporter (R4-P1-9): nightly read-only cron exports bug_attribution rows in cam_lora_* schema format to state/shared/lora-training/peer-audit-<YYYY-MM>.jsonl; training itself out-of-scope; export preserves option-value once dataset >=1000 rows",
+          "status": "not_started",
+          "estimated_hours": 1,
+          "dependencies": [
+            "U-CLEANUP-B5",
+            "U-CLEANUP-B10"
+          ]
+        },
+        {
+          "id": "U-CLEANUP-C3",
+          "title": "C3 — system-viz-add-node.mjs (rate-limited batch-flush every 60s; idempotent; adds dashed tentative edge to top-1 candidate; writes to staging dir under golf write-allowlist)",
+          "status": "not_started",
+          "estimated_hours": 2,
+          "dependencies": [
+            "U-CLEANUP-C2"
+          ]
+        },
+        {
+          "id": "U-CLEANUP-C4",
+          "title": "C4 — /wiring-potential skill (operator query; returns top-5 candidates with rationale + ready-to-paste dispatcher edit)",
+          "status": "not_started",
+          "estimated_hours": 1,
+          "dependencies": [
+            "U-CLEANUP-C2"
+          ]
+        },
+        {
+          "id": "U-CLEANUP-C5",
+          "title": "C5 — Watchdog<->Wiring integration (B1 onNewEngineFile triggers C1.analyze + C3 graph augment + F8 chat-bus post; 5-min recently-analyzed cache prevents recursion)",
+          "status": "not_started",
+          "estimated_hours": 2,
+          "dependencies": [
+            "U-CLEANUP-B1",
+            "U-CLEANUP-C1",
+            "U-CLEANUP-C3"
+          ]
+        },
+        {
+          "id": "U-CLEANUP-F8",
+          "title": "F8 — unified chat-bus signal channel 'golf-signal' (digest format, NOT full findings; cap 5 posts per chat-bus-inject window; routes through ChatBusEngine + B10 ledger insert)",
+          "status": "not_started",
+          "estimated_hours": 1.5,
+          "dependencies": [
+            "U-CLEANUP-B1",
+            "U-CLEANUP-B10"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "watchers-self-protection-tier-3",
+      "title": "Tier-3 — Self-protection + critical-path watchers (must land before B6 cron go-live)",
+      "units": [
+        {
+          "id": "U-CLEANUP-G3",
+          "title": "G3 — jsonl-orphan-scan.mjs (zero-deps; pure grep+fs; flags every state/shared/*.jsonl where lines>0 AND no codebase-grep consumer; surfaces ERROR_LEDGER.jsonl-class drift)",
+          "status": "not_started",
+          "estimated_hours": 1,
+          "dependencies": []
+        },
+        {
+          "id": "U-CLEANUP-G11",
+          "title": "G11 — regen-golf-owned-paths.mjs (derives golf-owned-paths.json from dashboards/ + canonical registry; ALSO emits .golf-allowlist-regex.txt consumed by A5 at hook-load time; invoked by close-out-milestone.mjs)",
+          "status": "not_started",
+          "estimated_hours": 1,
+          "dependencies": []
+        }
+      ]
+    },
+    {
+      "id": "claude-md-slim-tier-4",
+      "title": "Tier-4 — CLAUDE.md token slim (main-tree-only edits per cross-worktree firewall; net target <=25 KB after D1-D7)",
+      "units": [
+        {
+          "id": "U-CLEANUP-D1",
+          "title": "D1 — extract Hook-Synergy 12-KB block (lines ~106-228) to knowledge/wiki/architecture/hook-synergy-overview.md; replace in CLAUDE.md with 4-line summary + /wiki-query pointer",
+          "status": "not_started",
+          "estimated_hours": 1.5,
+          "dependencies": []
+        },
+        {
+          "id": "U-CLEANUP-D2",
+          "title": "D2 — extract Master Index detail (lines ~253-283) to wiki/architecture/master-index-surface.md; CLAUDE.md collapses to 5 lines + /master-index pointer",
+          "status": "not_started",
+          "estimated_hours": 1,
+          "dependencies": []
+        },
+        {
+          "id": "U-CLEANUP-D3",
+          "title": "D3 — extract Shared Agent Bridges list (lines ~216-227) to wiki/coordination/shared-directives-index.md; CLAUDE.md keeps 2 lines + freshness reminder",
+          "status": "not_started",
+          "estimated_hours": 0.5,
+          "dependencies": []
+        },
+        {
+          "id": "U-CLEANUP-D4",
+          "title": "D4 — extract JM Die profile API (lines ~186-195) to wiki/reference/jm-die-profile.md; CLAUDE.md keeps 2 lines + pointer",
+          "status": "not_started",
+          "estimated_hours": 0.5,
+          "dependencies": []
+        },
+        {
+          "id": "U-CLEANUP-D5",
+          "title": "D5 — (R4-P1-4) EXTEND wiki-precheck-inject.mjs to honor boost_keywords frontmatter (not new parallel hook); extracted wiki entries carry boost_keywords: [hook, settings.json, *.mjs] etc; existing BM25 + semantic-fallback infrastructure reused; cap injection at 8 KB; logs misses with hashed-keyword to wiki-inject-misses.jsonl",
+          "status": "not_started",
+          "estimated_hours": 1.5,
+          "dependencies": [
+            "U-CLEANUP-D1",
+            "U-CLEANUP-D2",
+            "U-CLEANUP-D3",
+            "U-CLEANUP-D4"
+          ]
+        },
+        {
+          "id": "U-CLEANUP-D8",
+          "title": "D8 — wiki-entry-writer (R4-P1-6): emit one wiki/architecture/<engine-kebab>.md per new golf engine via WikiIndexMaintainerEngine.recordNew(); engines: peer-commit-auditor / wiring-potential / ledger-store / ledger-projector / golf-heartbeat; blocks E2 close-out per feedback_always_close_out rule",
+          "status": "not_started",
+          "estimated_hours": 1,
+          "dependencies": [
+            "U-CLEANUP-B1",
+            "U-CLEANUP-B10",
+            "U-CLEANUP-B11",
+            "U-CLEANUP-C1"
+          ]
+        },
+        {
+          "id": "U-CLEANUP-D6",
+          "title": "D6 — verify net byte target (D1-D7 cuts >= 14 KB; CLAUDE.md final <=25 KB); sample 10 prompts with PRISM_VERBOSE_INJECT=1; injected payload drop >=30%",
+          "status": "not_started",
+          "estimated_hours": 0.5,
+          "dependencies": [
+            "U-CLEANUP-D5"
+          ]
+        },
+        {
+          "id": "U-CLEANUP-D7",
+          "title": "D7 — add 8-line 'GOLF SLOT (7th hygiene chat)' section to both H:/prism/CLAUDE.md and H:/.claude/CLAUDE.md (A5 write-allowlist scope, B4 self-DOS deny rule, golf-heartbeat via chat-slots, /peer-audit query, PRISM_GOLF_DISABLE=1 kill switch, schema-bump cadence rule, multi-host coexistence rule)",
+          "status": "not_started",
+          "estimated_hours": 0.5,
+          "dependencies": []
+        }
+      ]
+    },
+    {
+      "id": "landscape-consumers-tier-6",
+      "title": "Tier-6 — Landscape consumers (consume data already collected: 875 unwired, 2 envelope drifts, 2 pending FE merges, hook-latency, async-results, wiki-recall)",
+      "units": [
+        {
+          "id": "U-CLEANUP-F1",
+          "title": "F1 — extend scripts/orphan-inventory.mjs (NOT new script per R1) to call WiringPotentialEngine.analyzeBatch over 875 unwired engines; emit ranked-candidate column; cap dashboard at 200 KB + write summary.md",
+          "status": "not_started",
+          "estimated_hours": 2,
+          "dependencies": [
+            "U-CLEANUP-C2"
+          ]
+        },
+        {
+          "id": "U-CLEANUP-F2",
+          "title": "F2 — 08-envelope-drift.ps1 (runs build-milestone-progress.mjs; sha256-canonicalized diff; posts to chat-bus if drift increased; 30-min cadence)",
+          "status": "not_started",
+          "estimated_hours": 1,
+          "dependencies": []
+        },
+        {
+          "id": "U-CLEANUP-F2B",
+          "title": "F2b — auto-close-shipped-envelopes.mjs (WRITES queued mutations to state/shared/golf-envelope-mutations.jsonl; main-tree drainer hook applies them — golf cannot commit shared state per firewall)",
+          "status": "not_started",
+          "estimated_hours": 2,
+          "dependencies": [
+            "U-CLEANUP-F2",
+            "U-CLEANUP-B10"
+          ]
+        },
+        {
+          "id": "U-CLEANUP-F3",
+          "title": "F3 — frontend-merge-nudge.mjs (BUILD_STATE consumer; daily reminder; bundle escalations into 1 PushNotification/day max after 7d pending)",
+          "status": "not_started",
+          "estimated_hours": 1,
+          "dependencies": []
+        },
+        {
+          "id": "U-CLEANUP-F4",
+          "title": "F4 — extends scripts/digest-hook-latency.mjs (NOT new renderer per R1) with H7 async-results merge + 1.5x-prior-P95 alerting + per-(tool,event) stack-time view",
+          "status": "not_started",
+          "estimated_hours": 2,
+          "dependencies": []
+        },
+        {
+          "id": "U-CLEANUP-F5",
+          "title": "F5 — viz-regen-guard.mjs (centralizes regen-wiki-from-viz.mjs calls; hash-gated on manifest-of-deps NOT graph.json itself; refuses if any input >24h older than its regenerator; G6 hard prerequisite)",
+          "status": "not_started",
+          "estimated_hours": 1.5,
+          "dependencies": [
+            "U-CLEANUP-G6"
+          ]
+        },
+        {
+          "id": "U-CLEANUP-F6",
+          "title": "F6 — 09-wiki-lint.ps1 (runs /wiki-lint daily; partial-success behavior on parse errors; writes WIKI_LINT_REPORT.md)",
+          "status": "not_started",
+          "estimated_hours": 1,
+          "dependencies": []
+        },
+        {
+          "id": "U-CLEANUP-F7",
+          "title": "F7 — build-dispatcher-capacity.mjs (97 dispatchers × actions/limit ratio; flags >=80%; feeds C1; daily)",
+          "status": "not_started",
+          "estimated_hours": 1,
+          "dependencies": []
+        }
+      ]
+    },
+    {
+      "id": "watchers-tier-6",
+      "title": "Tier-6 — Staleness watchers + DR + long-tail (3-month-in operational coverage)",
+      "units": [
+        {
+          "id": "U-CLEANUP-G1",
+          "title": "G1 — stale-handoff-sweep.ps1 + helpers/handoff-staleness.mjs (diff chat-slots.json last-seen vs handoff mtime; auto-release claims >4h old; 30min cadence)",
+          "status": "not_started",
+          "estimated_hours": 1.5,
+          "dependencies": [
+            "U-CLEANUP-A1"
+          ]
+        },
+        {
+          "id": "U-CLEANUP-G2",
+          "title": "G2 — coordination-db-health.ps1 + coord-db-sentinel.mjs (PRAGMA integrity_check + row-count parity check vs WORK_CLAIMS.json; alerts >=10% divergence; drives WORK_CLAIMS.json retirement)",
+          "status": "not_started",
+          "estimated_hours": 1,
+          "dependencies": []
+        },
+        {
+          "id": "U-CLEANUP-G4",
+          "title": "G4 — settings-baseline-rotate.mjs (keep last-7-days + monthly digests; archive rest)",
+          "status": "not_started",
+          "estimated_hours": 0.5,
+          "dependencies": []
+        },
+        {
+          "id": "U-CLEANUP-G5",
+          "title": "G5 — build-wiki-recall-digest.mjs (consumes wiki-recall-counts.json; flags recall=0 + age>90d deletion candidates; flags recall>50/wk promotion candidates)",
+          "status": "not_started",
+          "estimated_hours": 1,
+          "dependencies": [
+            "U-CLEANUP-D5"
+          ]
+        },
+        {
+          "id": "U-CLEANUP-G6",
+          "title": "G6 — inventory-freshness.mjs (mtime + diff git log on src/engines/*.ts vs PRISM-INVENTORY-LATEST.md mtime; hourly)",
+          "status": "not_started",
+          "estimated_hours": 0.5,
+          "dependencies": []
+        },
+        {
+          "id": "U-CLEANUP-G8",
+          "title": "G8 — cron-registry-reconcile.mjs (diff CronList vs E2 registry; acquire coord_sqlite claim for full read-delete-recreate cycle; 15min cadence; idempotent restart drops orphaned golf-* jobIds)",
+          "status": "not_started",
+          "estimated_hours": 1,
+          "dependencies": [
+            "U-CLEANUP-A6"
+          ]
+        },
+        {
+          "id": "U-CLEANUP-G9",
+          "title": "G9 — pr-ci-watch.ps1 (DEFERRED — low priority for current direct-to-branch workflow; spec text ready to thaw when release process lands)",
+          "status": "deferred",
+          "estimated_hours": 1,
+          "dependencies": []
+        },
+        {
+          "id": "U-CLEANUP-G10",
+          "title": "G10 — viz-output-size.mjs (track state/shared/system-viz/ total bytes; flag >2 GB; archive non-current snapshots; prevents repeat of 2026-05-12 git-history-strip incident)",
+          "status": "not_started",
+          "estimated_hours": 0.5,
+          "dependencies": [
+            "U-CLEANUP-F5"
+          ]
+        },
+        {
+          "id": "U-CLEANUP-G12",
+          "title": "G12 — golf-state-snapshot.mjs (daily copy of coordination.db + golf-owned-paths + cron-registry + token-budget + bug_attribution SQL-dump to H:/prism-backups/golf-state/<ISO>/; prune >30d)",
+          "status": "not_started",
+          "estimated_hours": 1,
+          "dependencies": [
+            "U-CLEANUP-B10"
+          ]
+        },
+        {
+          "id": "U-CLEANUP-G13",
+          "title": "G13 — dashboard-archive-rotate.mjs (annual gzip-bundle of dashboards/.archive/<YYYY>/ to H:/prism-backups/dashboard-archives/<YYYY>.tar.gz; retain 2 years)",
+          "status": "not_started",
+          "estimated_hours": 0.5,
+          "dependencies": []
+        },
+        {
+          "id": "U-CLEANUP-G14",
+          "title": "G14 — dr-drill.mjs (MONTHLY restore G12 snapshot to H:/prism-dr-test/; run coord_sqlite health + row-count parity; fail-loud to DR_DRILL_LEDGER.jsonl)",
+          "status": "not_started",
+          "estimated_hours": 1.5,
+          "dependencies": [
+            "U-CLEANUP-G12"
+          ]
+        },
+        {
+          "id": "U-CLEANUP-G15",
+          "title": "G15 — activity gate in B1 tickFromCli (skip dispatch when git log --since=48h --not --author=golf returns 0; ledger writes IDLE-FLEET; saves ~$70/quiet-week)",
+          "status": "not_started",
+          "estimated_hours": 0.5,
+          "dependencies": [
+            "U-CLEANUP-B1"
+          ]
+        },
+        {
+          "id": "U-CLEANUP-G16",
+          "title": "G16 — build-wiring-domain-dict.mjs (weekly scan of src/engines/index.ts for top-3 unmatched-engine prefixes; appends to wiring-domain-dict.json as candidate; Mark promotes manually)",
+          "status": "not_started",
+          "estimated_hours": 1,
+          "dependencies": []
+        },
+        {
+          "id": "U-CLEANUP-G17",
+          "title": "G17 — 20-coord-db-vacuum.ps1 (weekly Sunday 02:17 PRAGMA wal_checkpoint(TRUNCATE) + VACUUM; log size delta to coord-db-health.json)",
+          "status": "not_started",
+          "estimated_hours": 0.5,
+          "dependencies": [
+            "U-CLEANUP-G2"
+          ]
+        },
+        {
+          "id": "U-CLEANUP-G18",
+          "title": "G18 — build-headline-history.mjs (R4-P2-12): daily append {ts, built, unwired, wikiEntries, pendingFE, drift} from system-viz-query.mjs headline --json to state/shared/system-viz-headline-history.jsonl; F4-style digest renders 7-day/30-day deltas",
+          "status": "not_started",
+          "estimated_hours": 0.5,
+          "dependencies": []
+        },
+        {
+          "id": "U-CLEANUP-G19",
+          "title": "G19 — build-system-viz-livediff.mjs (R4-P2-13): hourly diff system-graph.json vs system-graph.previous.json (substrate exists); writes state/shared/SYSTEM_VIZ_LIVEDIFF.md per-hour node/edge delta; operator surface",
+          "status": "not_started",
+          "estimated_hours": 1,
+          "dependencies": []
+        }
+      ]
+    },
+    {
+      "id": "cleanup-pipeline-tier-6",
+      "title": "Tier-6 — Cleanup pipeline (extends already-shipped session work)",
+      "units": [
+        {
+          "id": "U-CLEANUP-E1",
+          "title": "E1 — 04-prism-mcp-orphan-monitor.ps1 + CronCreate 3036ea16 (PRISM MCP dist/index.js orphan reaper; git-lock sweeper; 7-min cadence; DONE this session; reclaimed +1.96 GB / 4 orphans + 1 git lock initial pass)",
+          "status": "complete",
+          "completed_date": "2026-05-13",
+          "estimated_hours": 0,
+          "dependencies": [],
+          "completedAt": "2026-05-13T17:30:00.000Z"
+        },
+        {
+          "id": "U-CLEANUP-E2",
+          "title": "E2 — golf-cron-registry.json (schemaVersion 1) + /golf-bootstrap skill that reads registry + calls CronCreate via tool-use; per-cron lockfile with PID+expectedDurationMs; 5 daily slots at 03:17/04:23/05:31/06:43/07:53; UTC discipline",
+          "status": "not_started",
+          "estimated_hours": 1.5,
+          "dependencies": [
+            "U-CLEANUP-A6"
+          ]
+        },
+        {
+          "id": "U-CLEANUP-E3",
+          "title": "E3 — helpers/cleanup-orchestrator.mjs (REWORKED per R1: calls existing bash-orphan-cleaner.mjs + node-orphan-cleaner.mjs + git-lock-sweeper.mjs + chat-bus-reap.mjs + zombie-reaper-daemon.mjs; emits single unified result line; NO new kill logic)",
+          "status": "not_started",
+          "estimated_hours": 1,
+          "dependencies": []
+        }
+      ]
+    },
+    {
+      "id": "awareness-surface-gardening-tier-6",
+      "title": "Tier-6 — Awareness-Surface Gardening (Subsystem H — user directive 2026-05-13: memories, skills, hooks, CLAUDE.md, GSD)",
+      "units": [
+        {
+          "id": "U-CLEANUP-H1",
+          "title": "H1 — memory-garden cron (21-memory-garden.ps1; invokes /memory-prune + scans ~/.claude/projects/H--PRISM/memory/*.md for unreferenced files / dangling MEMORY.md pointers / stale path refs; weekly Mon 04:11; writes MEMORY_GARDEN_REPORT.md; defers prune verdict if no chats active per chat-slots.json)",
+          "status": "not_started",
+          "estimated_hours": 1,
+          "dependencies": []
+        },
+        {
+          "id": "U-CLEANUP-H2",
+          "title": "H2 — skill-utilization audit (22-skill-utilization.ps1; invokes /skill-lint + /skill-test + cross-ref tool-watchdog .tool-runtimes.jsonl; flags 30-day-unused skills as PROPOSED archive candidates — Mark promotes manually NOT auto-mv; addresses HS-06 565-skill token cost; weekly Tue 04:23; writes SKILL_UTILIZATION_REPORT.md)",
+          "status": "not_started",
+          "estimated_hours": 1,
+          "dependencies": []
+        },
+        {
+          "id": "U-CLEANUP-H3",
+          "title": "H3 — hook-orphan + dead-matcher scan (23-hook-orphan-scan.mjs; consumes HOOK_REGISTRY.json + hook-latency.jsonl + async-hook-results.jsonl; flags 30-day-dormant hooks + dead matcher patterns + orphan files + tier-mismatch (T0 claimed but never blocks); daily 05:31; writes HOOK_UTILIZATION_REPORT.md)",
+          "status": "not_started",
+          "estimated_hours": 1,
+          "dependencies": []
+        },
+        {
+          "id": "U-CLEANUP-H4",
+          "title": "H4 — CLAUDE.md doctrine-vs-reality drift detector (24-claude-md-drift.mjs; parses both H:/prism/CLAUDE.md and H:/.claude/CLAUDE.md for VERIFIABLE claims: hook-wired / file-exists / engine-shipped-at-SHA / cron-installed / env-knob-grepable; cross-checks; flags P0/P1/P2 drift; R2-PERF2 surfaced 3 such drifts in single audit; daily 06:43; writes CLAUDE_MD_DRIFT_REPORT.md)",
+          "status": "not_started",
+          "estimated_hours": 2,
+          "dependencies": []
+        },
+        {
+          "id": "U-CLEANUP-H5",
+          "title": "H5 — GSD docs freshness (25-gsd-freshness.mjs; watches mcp-server/data/docs/gsd/*.md; cross-refs hook list vs GSD_QUICK.md SessionStart/UserPromptSubmit/Stop claims; dispatcher count vs DEV_PROTOCOL.md; weekly Wed 07:53; writes GSD_FRESHNESS_REPORT.md)",
+          "status": "not_started",
+          "estimated_hours": 1,
+          "dependencies": []
+        },
+        {
+          "id": "U-CLEANUP-H6",
+          "title": "H6 — awareness health rollup (build-awareness-health.mjs; daily digest combining H1-H5 into AWARENESS_HEALTH_DASHBOARD.md with summary tables + 30-day trends; F8 chat-bus posts daily digest line; F4 cross-refs for unified operator view; daily 08:17)",
+          "status": "not_started",
+          "estimated_hours": 1,
+          "dependencies": [
+            "U-CLEANUP-H1",
+            "U-CLEANUP-H2",
+            "U-CLEANUP-H3",
+            "U-CLEANUP-H4",
+            "U-CLEANUP-H5"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "verification-tier-7",
+      "title": "Tier-7 — Verification, telemetry, scrutiny, close-out",
+      "units": [
+        {
+          "id": "U-CLEANUP-DEFENDER",
+          "title": "00-defender-exclusion-bootstrap.ps1 (Add-MpPreference for state/shared/*.jsonl + *.db* + .cron-locks/*; one-shot first-launch; idempotent)",
+          "status": "not_started",
+          "estimated_hours": 0.5,
+          "dependencies": []
+        },
+        {
+          "id": "U-CLEANUP-TZ-HELPER",
+          "title": "tz-sanity.mjs helper (asserts JSONL writes are UTC-suffixed Z; dashboards add <!-- timeBasis: UTC --> header; F4 displays both UTC + local)",
+          "status": "not_started",
+          "estimated_hours": 0.5,
+          "dependencies": []
+        },
+        {
+          "id": "U-CLEANUP-SCHEMA-READER",
+          "title": "helpers/jsonl-schema-reader.mjs (per-line schemaVersion dispatch; v1 default for missing; additive-only schema bumps for 1 release cycle; track active reader versions in .schema-active-versions.json)",
+          "status": "not_started",
+          "estimated_hours": 1,
+          "dependencies": []
+        },
+        {
+          "id": "U-CLEANUP-ORDERING-TEST",
+          "title": "mcp-server/src/__tests__/golf-hook-ordering.test.ts (snapshot of settings.json PreToolUse array; asserts A5 between file-claim-guard and comprehensive-build-enforce)",
+          "status": "not_started",
+          "estimated_hours": 0.5,
+          "dependencies": [
+            "U-CLEANUP-A5"
+          ]
+        },
+        {
+          "id": "U-CLEANUP-SLOT-TAKEOVER",
+          "title": "golf-slot-takeover.mjs (force-release stale slot claim on golf-spawn if prior PID is dead)",
+          "status": "not_started",
+          "estimated_hours": 0.5,
+          "dependencies": [
+            "U-CLEANUP-A1"
+          ]
+        },
+        {
+          "id": "U-CLEANUP-TELEMETRY-CLOSE",
+          "title": "S11.7 telemetry close-out (pipeline-telemetry.mjs record + adaptive-thresholds.mjs --apply + auto-build-compounding-proposals.mjs if S11.6 BLOCK + verify all 18 stages telemetered)",
+          "status": "not_started",
+          "estimated_hours": 0.5,
+          "dependencies": []
+        }
+      ]
+    }
+  ],
+  "critical_path": [
+    "U-CLEANUP-A1",
+    "U-CLEANUP-A6",
+    "U-CLEANUP-A5",
+    "U-CLEANUP-B3",
+    "U-CLEANUP-B10",
+    "U-CLEANUP-B11",
+    "U-CLEANUP-B1",
+    "U-CLEANUP-B2",
+    "U-CLEANUP-B4",
+    "U-CLEANUP-B5",
+    "U-CLEANUP-G3",
+    "U-CLEANUP-G11",
+    "U-CLEANUP-C1",
+    "U-CLEANUP-C5",
+    "U-CLEANUP-F8",
+    "U-CLEANUP-E2"
+  ],
+  "scrutiny_rounds": [
+    {
+      "round": 1,
+      "lenses": 4,
+      "findings": 75,
+      "agents": [
+        "code-analyzer",
+        "reviewer-holistic",
+        "reviewer-adversarial",
+        "system-architect"
+      ]
+    },
+    {
+      "round": 2,
+      "lenses": 3,
+      "findings": 50,
+      "agents": [
+        "reviewer-remediation-verifier",
+        "reviewer-unknown-unknowns",
+        "reviewer-hook-performance"
+      ]
+    },
+    {
+      "round": 3,
+      "lenses": 2,
+      "findings": 27,
+      "agents": [
+        "reviewer-remediation-verifier",
+        "reviewer-depth-of-time"
+      ]
+    },
+    {
+      "round": 4,
+      "lenses": 2,
+      "findings": 16,
+      "agents": [
+        "reviewer-system-viz-consumption",
+        "reviewer-awareness-obsidian-neural"
+      ],
+      "verdict": "R4-a SATURATED (0 P0 on /system-viz); R4-b PROPOSE (3 P0 = MasterIndex-route + awareness-enrich-helper + Ollama-cascade — all leverage gaps not bugs)",
+      "integrated_via": "Iteration 5 spec section"
+    },
+    {
+      "round": "final",
+      "total_cumulative_findings": 168,
+      "decision": "SATURATED at 61 units after Iteration 5; subsequent rounds deferred to post-build observation; user can re-invoke /loop for more rounds if desired"
+    }
+  ],
+  "ai_priority_score": 92,
+  "ai_priority_breakdown": {
+    "system_knowledge": 95,
+    "dev_tools": 98,
+    "deep_reasoning": 75,
+    "deep_learning": 40,
+    "ai_systems": 85
+  },
+  "estimated_total_hours": 68,
+  "estimated_total_tokens": "1.3-1.7M build + ongoing operation ~$5/day (R4-P0-3 Ollama cascade-route on B4 + Subsystem H is shim-scripts/zero-LLM; Sonnet-pinned during build; Opus only for final 3-of-3 scrutiny gate)",
+  "worktree": "H:/prism-golf-watchdog (branch: work/golf-watchdog-ms0)",
+  "spec_iterations": 4,
+  "operator_directive": "User asked to /loop scrutiny rounds until saturated; 152 cumulative findings across 3 rounds integrated; locked scope at 57 units (1 complete, 56 to build, 1 deferred)",
+  "last_updated": "2026-05-13T17:46:54.230Z"
+}
