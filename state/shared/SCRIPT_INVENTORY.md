@@ -1,18 +1,18 @@
 # PRISM Core Scripts Inventory
 
-Generated: 2026-05-13T13:44:18.948Z
+Generated: 2026-05-13T13:55:06.040Z
 Source: ACP-MS0 / P0-U03 — *Inventory core scripts by purpose*
 Producer: `scripts/inventory-core-scripts.mjs` · re-run any time
 
-Scanned **315** scripts under `scripts/`.
+Scanned **314** scripts under `scripts/`.
 Classification: filename regex + leading-comment keyword match · first-match-wins.
 
 ## Summary
 
 | Class | Count | Section |
 |-------|------:|---------|
-| Build guards | 3 | [#build-guards](#build-guards) |
-| Quality checks & scrutiny | 6 | [#quality-checks](#quality-checks) |
+| Build guards | 1 | [#build-guards](#build-guards) |
+| Quality checks & scrutiny | 7 | [#quality-checks](#quality-checks) |
 | Audit & verification | 54 | [#audit](#audit) |
 | Context & session management | 6 | [#context-management](#context-management) |
 | Telemetry & metrics | 9 | [#telemetry](#telemetry) |
@@ -29,21 +29,20 @@ Classification: filename regex + leading-comment keyword match · first-match-wi
 | Release & deployment | 1 | [#release-deploy](#release-deploy) |
 | Test runners & harnesses | 2 | [#tests](#tests) |
 | Other / uncategorized | 64 | [#other](#other) |
-| **Total** | **315** |  |
+| **Total** | **314** |  |
 
 ## Build guards {#build-guards}
 
-*3 script(s)*
+*1 script(s)*
 
-- `audit-stop-hooks.mjs` — audit-stop-hooks.mjs — Stop Hook Integrity Audit
 - `build-state-snapshot.mjs` — 1. BUILT          — engines on disk that ARE wired and have wiki entries
-- `inventory-core-scripts.mjs` — inventory-core-scripts.mjs — ACP-MS0 / P0-U03
 
 ## Quality checks & scrutiny {#quality-checks}
 
-*6 script(s)*
+*7 script(s)*
 
 - `audit-round-aggregate.mjs` — audit-round-aggregate.mjs — Re-runnable multi-round aggregator.
+- `audit-stop-hooks.mjs` — audit-stop-hooks.mjs — Stop Hook Integrity Audit
 - `dashboard.js` — const fs = require('fs');
 - `extend-intel-envelope-v3.mjs` — extend-intel-envelope-v3.mjs — Close gaps from 3 exhaustive scrutiny agents
 - `generate-ai-tier-expand.mjs` — generate-ai-tier-expand.mjs — saturate the L3 AI-tier layer with the
@@ -116,7 +115,7 @@ Classification: filename regex + leading-comment keyword match · first-match-wi
 - `classify-hook-tiers.mjs` — classify-hook-tiers.mjs — HOOK-SYNERGY-MS0 / U-HOOK-TIERS (H3)
 - `dashboard-serve.mjs` — dashboard-serve.mjs — PRISM-STAB-MS0/U-B6-light + U-C3 (2026-05-09).
 - `emit-all-spec-html.ts` — emit-all-spec-html.ts — batch HTML-companion regenerator for PRISM strategic specs.
-- `fleet-status.mjs` — fleet-status.mjs — visual dashboard for the 6-chat PRISM fleet.
+- `fleet-status.mjs` — fleet-status.mjs — visual dashboard for the 7-chat PRISM fleet (alpha..foxtrot work + golf hygiene per CLEANUP-MS0).
 - `generate-hooks-atomic.mjs` — generate-hooks-atomic.mjs — emit EVERY hook in both hook trees as an
 - `patch-handoff-helpers.mjs` — patch-handoff-helpers.mjs — One-shot patcher for precompact-handoff.mjs
 

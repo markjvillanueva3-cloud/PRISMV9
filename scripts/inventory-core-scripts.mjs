@@ -52,8 +52,13 @@ const RULES = [
   {
     slug: "build-guards",
     label: "Build guards",
-    fileRe: /^(build-guard|comprehensive-build|build-verify|build-state-snapshot|build-doctor|stop-on-uncommitted)/i,
-    contentRe: /build.?guard|comprehensive-build-enforce|build state|stop[- _]on[- _]uncommitted/i,
+    // Strict — must match a known guard-script filename exactly, OR the file must
+    // ENFORCE a build gate (not merely mention "build state" in its header).
+    // Tightened 2026-05-13 after reviewer flagged false positives where audit
+    // scripts and the classifier itself were matching "build state" / "build-guard"
+    // substrings that appeared incidentally in their docstrings.
+    fileRe: /^(build-guard|comprehensive-build-enforce|build-verify|build-state-snapshot|build-doctor|stop[-_]on[-_]uncommitted)\b/i,
+    contentRe: /comprehensive-build-enforce|BUILD_STATE\.json.*generat|enforce.*build.*gate|hard[- ]block.*build/i,
   },
   {
     slug: "quality-checks",
@@ -163,10 +168,17 @@ const OTHER = { slug: "other", label: "Other / uncategorized" };
 
 // ── walk + classify ─────────────────────────────────────────────────────────
 
+// The classifier's own docstring lists every class name as examples, so any
+// permissive contentRe matches the producer itself. Excluding the file from
+// its own report keeps the buckets honest.
+const SELF_BASENAME = "inventory-core-scripts.mjs";
+
 function listScripts(dir) {
   const out = [];
   for (const ent of fs.readdirSync(dir, { withFileTypes: true })) {
-    if (ent.isFile() && /\.(mjs|js|cjs|ts)$/.test(ent.name)) {
+    if (!ent.isFile()) continue;
+    if (ent.name === SELF_BASENAME) continue;
+    if (/\.(mjs|js|cjs|ts)$/.test(ent.name)) {
       out.push(path.join(dir, ent.name));
     }
   }
