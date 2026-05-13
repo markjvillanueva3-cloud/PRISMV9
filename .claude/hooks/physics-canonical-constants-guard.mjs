@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T0
 /**
  * physics-canonical-constants-guard.mjs — CAM-UIX-INFRA-00/U-PHYSCONST01
  *

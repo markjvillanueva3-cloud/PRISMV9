@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * dsl-output-compressor.mjs — PostToolUse hook (any tool).
  *

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * settings-baseline-snapshot.mjs — SessionStart hook
  *

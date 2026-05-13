@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * stop_on_uncommitted_memory.mjs — Tier 6 Stop Hook
  * Warns when memory entries edited but not synced.

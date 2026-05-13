@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 /**
  * agent-vs-direct.mjs - PreToolUse Agent
  * Checks if a direct tool would be faster than spawning an agent.

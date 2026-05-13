@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * stop_on_awareness_degraded.mjs — Tier 6 Stop Hook
  * Warns when awareness score dropped below threshold during session.

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T0
 /**
  * hook-cross-worktree-block.mjs — Tier-0 PreToolUse firewall
  * HOOK-SYNERGY-MS0 / U-HOOK-CROSS-WORKTREE-FIREWALL  (H10)

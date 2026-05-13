@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * auto-lint-post-edit.mjs — PostToolUse hook (Edit|Write|MultiEdit, via posttool-edit-bundle)
  *

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * git-sync-stop.mjs — Stop hook for cross-PC continuity.
  *

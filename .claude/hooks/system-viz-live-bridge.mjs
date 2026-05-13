@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * system-viz-live-bridge.mjs — PostToolUse(Edit|Write|MultiEdit) → ping the live system-viz.
  *

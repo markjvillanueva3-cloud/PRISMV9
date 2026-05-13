@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * stop_on_svi_regression.mjs — Tier 6 Stop Hook
  * Warns when System Variability Index decreased during session.

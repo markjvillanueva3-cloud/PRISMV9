@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T2
 // DISABLED_TOKEN_REDUX_2026_04_23: short-circuited by user-approved token-reduction pass.
 // Remove the next 2 lines to re-enable. See .claude/helpers/apply-hook-fixes.mjs
 process.stdout.write(JSON.stringify({ continue: true })); process.exit(0);

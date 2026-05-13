@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 /**
  * copilot-dedup-hook.mjs — PreToolUse Write (new engine files only)
  * Warns when creating a new engine that overlaps with existing ones.

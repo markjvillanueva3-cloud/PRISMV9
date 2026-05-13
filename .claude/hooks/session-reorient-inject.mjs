@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * session-reorient-inject.mjs — UserPromptSubmit hook
  *

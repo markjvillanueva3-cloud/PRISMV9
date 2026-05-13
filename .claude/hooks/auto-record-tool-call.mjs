@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * auto-record-tool-call.mjs — PostToolUse hook
  *

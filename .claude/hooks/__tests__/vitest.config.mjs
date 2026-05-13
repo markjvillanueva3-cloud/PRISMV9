@@ -1,3 +1,4 @@
+// tier: T0
 import { defineConfig } from "vitest/config";
 import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";

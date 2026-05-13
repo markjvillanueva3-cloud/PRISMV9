@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 // read-bundle.mjs — single PreToolUse hook for Read. Replaces the 4-hook
 // Read matcher in settings.json with one bundled invocation.
 

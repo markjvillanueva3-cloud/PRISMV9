@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T0
 /**
  * hook-creation-gate.mjs — PreToolUse(Write) advisory dedup gate
  * HOOK-SYNERGY-MS0 / U-HOOK-CREATION-GATE  (H5)

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 // bash-bundle.mjs — single PreToolUse hook for Bash. Replaces the 6-hook
 // Bash matcher in settings.json with one bundled invocation.
 

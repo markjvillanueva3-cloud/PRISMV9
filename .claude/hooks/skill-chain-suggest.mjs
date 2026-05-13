@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T2
 /**
  * skill-chain-suggest.mjs — Workflow Skill Chaining
  * ==================================================

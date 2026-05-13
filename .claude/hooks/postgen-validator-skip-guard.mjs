@@ -1,3 +1,4 @@
+// tier: T0
 /**
  * postgen-validator-skip-guard.mjs
  * ================================

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * stop_on_orphan_children.mjs — Tier 6 Stop Hook
  * Prevents exit when background agents are still running.

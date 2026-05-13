@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * SVI Regression Guard Hook (Stop hook)
  *

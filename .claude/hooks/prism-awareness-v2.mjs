@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * prism-awareness-v2.mjs — SessionStart hook
  * ==================================================

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * customer-directory-watcher.mjs — U-CUC05 Stop hook
  *

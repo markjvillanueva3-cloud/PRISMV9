@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * ollama-context-aggregator.mjs — Single UserPromptSubmit injection point
  *

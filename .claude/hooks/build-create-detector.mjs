@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 /**
  * build-create-detector.mjs — PreToolUse hook (U-AWARE01)
  *

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T0
 /**
  * stop_on_failing_tests.mjs — Stop Hook (SAFETY-CRITICAL, FAIL-CLOSED)
  *

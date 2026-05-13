@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * MIO Proactive Intelligence — Auto-Fire Hook
  * ============================================

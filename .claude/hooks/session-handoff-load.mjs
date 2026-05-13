@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * session-handoff-load.mjs — SessionStart hook
  *

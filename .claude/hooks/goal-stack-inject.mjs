@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * goal-stack-inject.mjs — Phase 0.13 Goal Stack Injection Hook
  *

@@ -1,3 +1,4 @@
+// tier: T4
 /**
  * ollama-stats.mjs — shared stats writer for all Ollama-bridge hooks.
  *

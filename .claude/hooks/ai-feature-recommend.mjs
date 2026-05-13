@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * ai-feature-recommend.mjs — UserPromptSubmit hook (U-AWARE06).
  *

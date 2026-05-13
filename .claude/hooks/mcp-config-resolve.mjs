@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * mcp-config-resolve.mjs — Regenerate ~/.claude/.mcp.json with PC-specific node.exe path.
  *

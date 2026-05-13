@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * tier1-data-refresh.mjs — Refresh Tier-1 data sources before session_start_tier1_bolster
  *

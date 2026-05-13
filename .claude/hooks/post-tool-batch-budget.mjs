@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * post-tool-batch-budget.mjs — PostToolUse — alarm when a session is burning through the tool budget.
  *

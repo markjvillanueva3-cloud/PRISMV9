@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T0
 /**
  * stop_on_unwired_assets.mjs — Stop Hook
  * ========================================

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * dotclaude-junctions-guard.mjs — SessionStart verification for ~/.claude subfolder junctions.
  *

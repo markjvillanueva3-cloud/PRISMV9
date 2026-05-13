@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 // sessionstart-bundle.mjs — single SessionStart hook for the context-injector /
 // non-critical SessionStart hooks.
 //

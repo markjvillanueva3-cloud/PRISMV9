@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 /**
  * search-router-hook.mjs — PreToolUse Grep|Glob
  *

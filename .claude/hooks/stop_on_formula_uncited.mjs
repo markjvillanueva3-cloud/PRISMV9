@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * stop_on_formula_uncited.mjs — Tier 6 Stop Hook
  * Warns when formula exists without provenance citation.

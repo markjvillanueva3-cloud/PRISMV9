@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * dead-pixel-guard.mjs (SessionStart advisory hook)
  *

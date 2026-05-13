@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * unknown-cad-extensions-surface.mjs — U-CUC04 SessionStart hook
  *

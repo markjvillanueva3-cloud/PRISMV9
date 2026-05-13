@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * unified-edit-tap.mjs — PRISM-STAB-MS0/U-D2 (2026-05-10).
  *

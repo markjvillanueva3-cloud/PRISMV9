@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 /**
  * autonomous-loop-defer.mjs — PreToolUse rate-limiter ("defer") for runaway loops.
  *

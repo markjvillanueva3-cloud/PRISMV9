@@ -1,3 +1,4 @@
+// tier: T1
 /**
  * wedm-synthetic-block hook
  * Blocks commits that add synthetic_placeholder to WEDM engines

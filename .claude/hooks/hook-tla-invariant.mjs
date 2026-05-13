@@ -1,3 +1,4 @@
+// tier: T4
 /**
  * hook_tla_invariant — USSH Phase 0.25
  * =====================================

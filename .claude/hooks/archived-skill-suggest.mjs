@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T0
 /**
  * archived-skill-suggest.mjs — UserPromptSubmit hook (HS-06 Phase 2 / smart-recall).
  *

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * enforce-handoff-topic.mjs — Stop hook
  *

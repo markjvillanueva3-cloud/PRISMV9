@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * prompt-context-inject.mjs — UserPromptSubmit hook (PRISM-STAB-MS0/U-C2).
  *

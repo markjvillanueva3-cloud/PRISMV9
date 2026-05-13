@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * tool-watchdog.mjs — HS-12 + HS-15 tool-call runtime monitor.
  *

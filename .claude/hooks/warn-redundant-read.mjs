@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 /**
  * warn-redundant-read.mjs — PreToolUse hook (Read only)
  *

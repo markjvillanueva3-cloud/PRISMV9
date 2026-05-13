@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T0
 /**
  * ingestion-cache-root-guard.mjs — CAM-UIX-INFRA-00/U-CACHEROOT01
  *

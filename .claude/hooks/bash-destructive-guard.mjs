@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 /**
  * bash-destructive-guard.mjs - PreToolUse Bash
  * Blocks or warns on destructive shell commands. Prevents accidental data loss.

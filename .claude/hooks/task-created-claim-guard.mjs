@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 /**
  * task-created-claim-guard.mjs — PreToolUse(TaskCreate) → deny duplicate task creation across chats.
  *

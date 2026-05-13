@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * stop_on_stale_handoff.mjs — Tier 6 Stop Hook
  * Warns when handoff file is >24h old.

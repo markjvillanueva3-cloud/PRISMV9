@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * lathe-p2p-suggest.mjs — UserPromptSubmit hook
  *

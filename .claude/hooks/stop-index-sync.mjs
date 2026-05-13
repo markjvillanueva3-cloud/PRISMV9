@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * stop-index-sync.mjs — Stop hook for index synchronization
  *

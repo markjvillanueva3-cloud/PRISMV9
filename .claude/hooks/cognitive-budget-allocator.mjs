@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * cognitive-budget-allocator.mjs — U-AI06 Cognitive Budget Allocator
  *

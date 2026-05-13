@@ -1,3 +1,4 @@
+// tier: T0
 /**
  * Document Preservation Guard — Stop Hook
  * ========================================

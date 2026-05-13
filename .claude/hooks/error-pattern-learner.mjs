@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * error-pattern-learner.mjs — dual-mode hook.
  *

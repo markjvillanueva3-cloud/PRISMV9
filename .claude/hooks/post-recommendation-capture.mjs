@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * post-recommendation-capture.mjs — PostToolUse hook for U-LEARN-01.
  *

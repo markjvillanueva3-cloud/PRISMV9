@@ -1,3 +1,4 @@
+// tier: T4
 /**
  * file-read-cache.test.mjs — behavioural tests for the hard-deny read-dedup hook.
  *   HOOKS-AUTOMATION-V2-MS0 / U-HKA01, step-3 ("5 tests").

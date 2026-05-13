@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 /**
  * asset-deletion-block.mjs — PreToolUse hook
  *

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * stop_on_session_mistake_digest.mjs — Stop hook (non-blocking)
  *

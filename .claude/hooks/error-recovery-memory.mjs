@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * error-recovery-memory.mjs - PostToolUse (all tools)
  * Remembers error→fix pairs across sessions.

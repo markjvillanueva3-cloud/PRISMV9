@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * posttool-curiosity-tick.mjs — hook_idle_curiosity_v2 (PP-0.18 U-AGI5)
  *

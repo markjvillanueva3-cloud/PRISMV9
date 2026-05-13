@@ -1,3 +1,4 @@
+// tier: T1
 /**
  * try-before-asking.mjs — UserPromptSubmit Stop Hook
  *

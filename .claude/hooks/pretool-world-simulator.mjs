@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * pretool-world-simulator.mjs — U-AI01 WorldSimulator PreTool Hook
  * PP-0.18 U-AGI9

@@ -1,3 +1,4 @@
+// tier: T4
 /**
  * training-convergence-guard.mjs — PostToolUse hook
  * CADCAM-DAGI-MS0/U-DAGI04

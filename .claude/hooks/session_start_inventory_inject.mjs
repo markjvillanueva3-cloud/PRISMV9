@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * session_start_inventory_inject.mjs — U-ACT04 Inventory Hydration
  *

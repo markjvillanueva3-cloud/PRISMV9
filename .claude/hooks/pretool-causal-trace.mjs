@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 /**
  * pretool-causal-trace.mjs — hook_pre_tool_causal_trace (PP-0.18 U-AGI2)
  *

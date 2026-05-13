@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * posttool-error-explain.mjs — PostToolUse Bash hook
  *

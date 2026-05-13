@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * grep-result-cache.mjs - PostToolUse Grep
  * Caches grep results to avoid repeated identical searches.

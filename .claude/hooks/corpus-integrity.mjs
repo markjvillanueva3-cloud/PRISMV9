@@ -1,3 +1,4 @@
+// tier: T3
 /**
  * corpus-integrity.mjs — CADCAM-DAGI-MS0/U-DAGI03 guard hook
  *

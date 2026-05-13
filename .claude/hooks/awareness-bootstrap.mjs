@@ -1,3 +1,4 @@
+// tier: T4
 /**
  * awareness-bootstrap.mjs — Phase 0.13 Awareness Bootstrap
  *

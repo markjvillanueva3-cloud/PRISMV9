@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * tier1-context-pack.mjs — U-CTX01 Tier-1 Always-On Context Pack
  *

@@ -1,3 +1,4 @@
+// tier: T4
 /**
  * kienzle-coeff-check.mjs — Phase 1 Tier 5C Physics Hook
  *

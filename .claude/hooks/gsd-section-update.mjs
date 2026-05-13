@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * gsd-section-update.mjs — PostToolUse hook
  *

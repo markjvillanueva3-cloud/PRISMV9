@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T0
 /**
  * precompact-auto-trigger.mjs — Enforce /precompact at 160K tokens.
  *

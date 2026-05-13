@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * stop-consensus-drain.mjs — Stop hook that triggers async consensus queue drain.
  *

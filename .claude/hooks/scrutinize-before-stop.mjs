@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T0
 /**
  * scrutinize-before-stop — Stop hook (UNIVERSAL ENFORCEMENT).
  *
@@ -92,7 +93,15 @@ function hasRecentScrutiny(projectRoot) {
     const cutoff = Date.now() - RECENT_SCRUTINY_WINDOW_MS;
     for (const entry of Object.values(entries)) {
       if (!entry || typeof entry !== "object") continue;
-      if (entry.selfReviewed !== true || entry.agentReviewed !== true) continue;
+      // Cleared either by the strict 3-of-3 (Codex + Claude reviewer A + Claude
+      // reviewer B — arm B may be recorded as claudeReviewed | opusBReviewed |
+      // geminiReviewed) OR by the pre-3way self+agent legacy path. (Pre-2026-05-12
+      // this only checked selfReviewed && agentReviewed, which the new 3-of-3
+      // flow never sets — so the cross-ID fallback was inert.)
+      const armBOk = entry.claudeReviewed === true || entry.opusBReviewed === true || entry.geminiReviewed === true;
+      const strict3of3 = entry.codexReviewed === true && armBOk && entry.opusReviewed === true;
+      const legacyOk = entry.selfReviewed === true && entry.agentReviewed === true;
+      if (!strict3of3 && !legacyOk) continue;
       const recordedMs = Date.parse(entry.recordedAt || "");
       if (Number.isFinite(recordedMs) && recordedMs >= cutoff) return true;
     }

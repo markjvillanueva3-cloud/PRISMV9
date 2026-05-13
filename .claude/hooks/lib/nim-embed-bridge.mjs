@@ -1,3 +1,4 @@
+// tier: T4
 /**
  * nim-embed-bridge.mjs - NeMo Retriever embedding NIM client
  *

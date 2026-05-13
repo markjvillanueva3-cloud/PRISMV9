@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * wiki-recall-on-read.mjs — PostToolUse hook (matcher: Read).
  *

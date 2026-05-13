@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * compression-precompact.mjs — Context Compression Before Compact
  * ================================================================

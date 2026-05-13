@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * stop_on_build_error.mjs — Tier 6 Stop Hook
  * Prevents exit when build has new TS errors from this session.

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * stop_on_duplicate_created.mjs — Tier 6 Stop Hook
  * Warns when duplicate asset bypassed dedup guard.

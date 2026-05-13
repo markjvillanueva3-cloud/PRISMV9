@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 /**
  * engine-digest-hook.mjs — PreToolUse Read
  * When reading an engine file, injects a 1-line summary from ENGINE_DIGEST.md

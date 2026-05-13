@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * stop_on_unregistered_asset.mjs — Tier 6 Stop Hook
  * Warns when new assets created but not registered in cross-session registry.

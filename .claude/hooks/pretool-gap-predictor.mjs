@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * pretool-gap-predictor.mjs — PreToolUse Write|Edit hook
  *

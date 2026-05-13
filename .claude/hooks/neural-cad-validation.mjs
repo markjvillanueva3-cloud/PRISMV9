@@ -1,3 +1,4 @@
+// tier: T3
 /**
  * neural-cad-validation.mjs — PostToolUse hook
  * CADCAM-DAGI-MS0/U-DAGI07

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * prompt-rewriter-ollama.mjs — UserPromptSubmit hook
  * RE-ENABLED: 2026-04-26 (LOCAL-LLM-MS0 U-LLMH03)

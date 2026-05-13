@@ -1,3 +1,4 @@
+// tier: T0
 /**
  * autonomous-foolproof-logic — pure decision functions for U-AF01..04 hooks.
  *

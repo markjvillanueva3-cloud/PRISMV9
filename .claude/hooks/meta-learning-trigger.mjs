@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * Meta-Learning Trigger — PostToolUse Hook
  *

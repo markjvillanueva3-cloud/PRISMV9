@@ -1,3 +1,4 @@
+// tier: T3
 /**
  * dfm-block.mjs — PostToolUse hook
  * CADCAM-DAGI-MS0/U-DAGI11

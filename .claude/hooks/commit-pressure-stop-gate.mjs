@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * commit-pressure-stop-gate.mjs - Proactive memory-pressure gate with self-heal
  * =====================================================================

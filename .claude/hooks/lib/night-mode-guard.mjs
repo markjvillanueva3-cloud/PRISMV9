@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 /**
  * night-mode-guard.mjs — PreToolUse hook for night mode enforcement
  *

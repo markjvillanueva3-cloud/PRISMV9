@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 /**
  * work-claim.mjs — Claim Work Before Starting
  *

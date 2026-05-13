@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * node-orphan-cleaner.mjs - Stop hook closeout orchestrator.
  *

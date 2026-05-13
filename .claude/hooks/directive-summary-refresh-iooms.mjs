@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * directive-summary-refresh.mjs — PostToolUse hook
  * INTEL-OLLAMA-OBSIDIAN-MS0/P4-U02

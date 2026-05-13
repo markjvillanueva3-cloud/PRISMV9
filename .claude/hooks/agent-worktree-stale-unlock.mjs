@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * agent-worktree-stale-unlock.mjs — HARNESS-AUDIT/U-TIER3/#7 (SessionStart)
  *

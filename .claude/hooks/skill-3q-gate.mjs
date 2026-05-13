@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T0
 /**
  * skill-3q-gate.mjs — U-SKU01 (SKILLS-UTILIZATION-MS0) PreToolUse gate.
  *

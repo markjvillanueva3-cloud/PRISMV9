@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T0
 /**
  * Batch fix /dev/stdin pattern in hooks for Windows compatibility.
  * Adds readStdinSafe() helper and replaces fs.promises.readFile('/dev/stdin'...) calls.

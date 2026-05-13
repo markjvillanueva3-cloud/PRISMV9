@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * precompact-dossier.mjs — U-CTX03 Rich PreCompact Dossier
  *

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * Decision Capture — PostToolUse Hook
  *

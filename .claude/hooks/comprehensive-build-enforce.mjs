@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T0
 /**
  * comprehensive-build-enforce.mjs — UserPromptSubmit enforcement hook
  *

@@ -1,3 +1,4 @@
+// tier: T4
 /**
  * local-llm-bridge.mjs - Backend-agnostic local LLM dispatcher
  *

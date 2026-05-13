@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * ollama-unified-semantic-router.mjs — UserPromptSubmit hook
  *

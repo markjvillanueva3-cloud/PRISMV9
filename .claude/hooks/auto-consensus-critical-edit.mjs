@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 /**
  * auto-consensus-critical-edit.mjs — PreToolUse hook for high-stakes file edits.
  *

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 /**
  * master-index-search-gate.mjs — PreToolUse hook (U-AWARE03)
  *

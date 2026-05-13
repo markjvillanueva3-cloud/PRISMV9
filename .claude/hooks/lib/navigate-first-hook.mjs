@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 /**
  * navigate-first-hook.mjs — PreToolUse Glob
  * Detects broad Glob file searches and suggests checking indexed digests first.

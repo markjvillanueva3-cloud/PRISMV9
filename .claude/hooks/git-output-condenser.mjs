@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * git-output-condenser.mjs — PostToolUse Bash hook.
  *

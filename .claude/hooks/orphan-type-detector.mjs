@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * orphan-type-detector.mjs — Phase 0.9 Specific Orphan Type Detection
  *

@@ -1,3 +1,4 @@
+// tier: T4
 /**
  * no-silent-catch.mjs — Phase 1 Tier 5D Workflow Hook
  * Blocks empty catch blocks in engines.

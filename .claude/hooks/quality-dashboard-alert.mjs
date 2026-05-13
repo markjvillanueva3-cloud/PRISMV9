@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T0
 /**
  * quality-dashboard-alert.mjs — Stop + PreCompact hook
  * INTEL-OLLAMA-OBSIDIAN-MS0/P9-U03

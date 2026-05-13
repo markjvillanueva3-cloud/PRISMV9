@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * work-broadcast.mjs — Cross-Session Work Broadcasting
  *

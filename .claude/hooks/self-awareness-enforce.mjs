@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 /**
  * Self-Awareness Enforcement Hook (UserPromptSubmit)
  *

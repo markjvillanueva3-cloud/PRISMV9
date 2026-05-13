@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * stop-bash-orphan-cleaner.mjs — Stop hook
  *

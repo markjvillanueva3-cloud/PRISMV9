@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 /**
  * import-verifier.mjs — PreToolUse hook for Edit/Write/MultiEdit
  *

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * supabase-state-sync.mjs — SessionStart + Stop hooks
  *

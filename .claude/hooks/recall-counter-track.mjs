@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * recall-counter-track.mjs — PostToolUse hook for Read events on vault files
  *

@@ -1,3 +1,4 @@
+// tier: T3
 /**
  * hook_stability_check — USSH Phase 0.25
  * =======================================

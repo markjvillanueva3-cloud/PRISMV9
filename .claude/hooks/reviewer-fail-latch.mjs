@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T0
 /**
  * reviewer-fail-latch — Stop hook.
  *

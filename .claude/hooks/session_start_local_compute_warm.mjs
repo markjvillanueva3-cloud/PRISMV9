@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * session_start_local_compute_warm.mjs — SessionStart hook
  *

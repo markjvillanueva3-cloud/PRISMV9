@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T2
 /**
  * auto-consensus-userprompt.mjs — UserPromptSubmit hook.
  *

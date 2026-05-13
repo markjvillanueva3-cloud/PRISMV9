@@ -1,3 +1,4 @@
+// tier: T1
 /**
  * wedm-program-safety-gate hook
  * Blocks program emit when S(x) < 0.70

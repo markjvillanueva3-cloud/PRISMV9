@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 /**
  * rtk-auto-suggest.mjs - PreToolUse Bash
  * Suggests rtk prefix for commands that benefit from token reduction.

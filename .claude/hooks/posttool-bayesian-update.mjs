@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * posttool-bayesian-update.mjs — U-AI02 Bayesian Posterior Update
  *

@@ -1,3 +1,4 @@
+// tier: T3
 /**
  * cad-token-vocabulary-guard.mjs — CADCAM-DAGI-MS0/U-DAGI01 guard hook
  *

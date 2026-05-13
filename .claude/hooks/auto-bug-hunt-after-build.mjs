@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * auto-bug-hunt-after-build.mjs — PostToolUse:Bash hook.
  *

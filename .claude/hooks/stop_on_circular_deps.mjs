@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * stop_on_circular_deps.mjs — Tier 6 Stop Hook
  * Warns when new circular dependency introduced.

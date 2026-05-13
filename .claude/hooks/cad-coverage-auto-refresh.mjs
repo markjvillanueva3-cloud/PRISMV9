@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * SessionStart hook — CAD_COVERAGE_MATRIX.json staleness-gated refresh.
  *

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T0
 // smoke-test.mjs — standalone test runner for the hook bundle library.
 // Uses node:test (built-in) so it runs without vitest/project config.
 // Invoke directly:  node H:/prism/.claude/hooks/bundles/smoke-test.mjs

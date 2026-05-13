@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * coding-pattern-hint.mjs — Coding Standards Auto-Inject
  * =======================================================

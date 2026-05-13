@@ -1,3 +1,4 @@
+// tier: T3
 /**
  * hook_saturation_alert — USSH Phase 0.25
  * ========================================

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * volume-delta-alert.mjs — U-CUC06 PostToolUse hook
  *

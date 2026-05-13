@@ -1,3 +1,4 @@
+// tier: T4
 /**
  * embedding-cache-guard.mjs — PostToolUse hook
  * CADCAM-DAGI-MS0/U-DAGI05

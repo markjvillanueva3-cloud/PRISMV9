@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * stop_on_hook_unregistered.mjs — Tier 6 Stop Hook
  * Warns when hook file not in registry.

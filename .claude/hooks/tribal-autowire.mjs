@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * tribal-autowire.mjs — L6 of TRIBAL × AI
  *

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T0
 /**
  * error-block-capture — PostToolUse hook.
  *

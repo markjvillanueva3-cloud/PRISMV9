@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * path-frequency-tracker.mjs - PostToolUse Read/Edit/Write
  * Tracks frequently accessed paths for session optimization.

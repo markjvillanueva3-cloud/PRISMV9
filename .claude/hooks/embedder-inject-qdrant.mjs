@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * embedder-inject-qdrant.mjs — SessionStart smoke test for Qdrant embedder
  *

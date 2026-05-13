@@ -1,3 +1,4 @@
+// tier: T4
 /**
  * hook_circular_dep_check — USSH Phase 0.25
  * ==========================================

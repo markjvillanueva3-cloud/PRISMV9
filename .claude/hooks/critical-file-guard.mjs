@@ -1,3 +1,4 @@
+// tier: T0
 /**
  * critical-file-guard.mjs — Phase 0.16 Safety-Critical File Guard
  *

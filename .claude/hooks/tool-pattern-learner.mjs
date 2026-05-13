@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * tool-pattern-learner.mjs - PostToolUse (all tools)
  * Tracks tool sequences and suggests shortcuts for common patterns.

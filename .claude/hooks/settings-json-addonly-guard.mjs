@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T0
 /**
  * settings-json-addonly-guard.mjs — PreToolUse(Edit|Write) guard
  *

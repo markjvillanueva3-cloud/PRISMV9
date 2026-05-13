@@ -1,3 +1,4 @@
+// tier: T1
 /**
  * session-continuity-chain.mjs — U-CTX05 Multi-Session Handoff Chain
  *

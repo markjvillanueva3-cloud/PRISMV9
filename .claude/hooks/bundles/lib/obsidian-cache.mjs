@@ -1,3 +1,4 @@
+// tier: T4
 // obsidian-cache.mjs — content-addressed cache for stable hook results.
 // Hooks like dedup-auto-invoke, error-learn, and master-index-search-gate
 // produce text keyed by (file_path, content_hash) that rarely changes.

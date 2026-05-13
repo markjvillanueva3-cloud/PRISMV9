@@ -1,3 +1,4 @@
+// tier: T4
 /**
  * nim-hook-bridge.mjs — NVIDIA NIM HTTP client
  *

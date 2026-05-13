@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * terminal-title-update.mjs — Auto-update terminal title with current task
  *

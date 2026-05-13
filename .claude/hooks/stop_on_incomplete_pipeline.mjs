@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * stop_on_incomplete_pipeline.mjs — Tier 6 Stop Hook
  * Prevents exit when extraction or forge pipelines are half-finished.

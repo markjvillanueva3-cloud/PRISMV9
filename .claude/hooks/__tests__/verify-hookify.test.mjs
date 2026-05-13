@@ -1,3 +1,4 @@
+// tier: T4
 // Tests for scripts/verify-hookify.mjs (U-HKA06).
 //
 // Run: cd H:/prism && node mcp-server/node_modules/vitest/vitest.mjs run \

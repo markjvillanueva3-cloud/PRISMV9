@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * prompt-classifier-hook.mjs — UserPromptSubmit
  * Classifies user prompt into 9 task classes for optimal context loading.

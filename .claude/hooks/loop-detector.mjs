@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * loop-detector.mjs — PostToolUse hook (any tool).
  *

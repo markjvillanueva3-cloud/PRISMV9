@@ -1,3 +1,4 @@
+// tier: T0
 import fs from "node:fs";
 /**
  * test-legitimacy.mjs — Phase 1 Tier 5D Workflow Hook

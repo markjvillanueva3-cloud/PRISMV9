@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * discipline-expert-inject.mjs — UserPromptSubmit hook
  *

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * session-end-peer-share.mjs — hook_post_session_peer_share (PP-0.18 U-AGI14)
  *

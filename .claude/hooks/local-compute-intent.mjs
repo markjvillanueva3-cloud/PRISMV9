@@ -1,3 +1,4 @@
+// tier: T4
 /**
  * local-compute-intent.mjs — UserPromptSubmit hook
  * RE-ENABLED: 2026-04-26 (LOCAL-LLM-MS0 U-LLMH02)

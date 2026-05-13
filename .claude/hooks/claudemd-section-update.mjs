@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * claudemd-section-update.mjs — PostToolUse hook
  *

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * read-already-have.mjs - PreToolUse Read
  * Warns when trying to re-read a file that was just written or edited.

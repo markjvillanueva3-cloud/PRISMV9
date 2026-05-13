@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * stop_on_open_lock.mjs — Tier 6 Stop Hook
  * Prevents exit when file locks are held by this session.

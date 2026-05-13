@@ -1,3 +1,4 @@
+// tier: T4
 // ollama-fuse.mjs — fuse multiple advisory hook outputs into one local LLM call.
 // When Ollama (qwen2.5-coder:7b) is healthy, sends one batched prompt asking
 // for {antiPatterns, errorLearns, buildChecks} JSON. Falls back to running

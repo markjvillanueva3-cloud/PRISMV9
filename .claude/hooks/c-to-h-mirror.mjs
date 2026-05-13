@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * c-to-h-mirror.mjs — PostToolUse hook
  *

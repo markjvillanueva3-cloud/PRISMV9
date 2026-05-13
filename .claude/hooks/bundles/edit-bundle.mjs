@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T0
 // edit-bundle.mjs — single PreToolUse hook that runs all Edit/Write/MultiEdit
 // hooks in parallel via Promise.all and aggregates results.
 //

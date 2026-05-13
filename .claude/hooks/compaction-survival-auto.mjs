@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * compaction-survival-auto.mjs — PostToolUse hook
  *

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T0
 /**
  * UserPromptSubmit hook — SPARC opt-in gate.
  *

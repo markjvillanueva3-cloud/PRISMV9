@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T0
 /**
  * leave-a-copy-behind-guard.mjs — Stop hook
  *

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * context-chain-hook.mjs — PreCompact
  * Estimates context pressure and recommends critical facts to preserve.

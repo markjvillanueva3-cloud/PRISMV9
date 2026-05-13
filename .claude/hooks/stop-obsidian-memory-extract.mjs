@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * stop-obsidian-memory-extract.mjs — Stop Hook
  * =============================================

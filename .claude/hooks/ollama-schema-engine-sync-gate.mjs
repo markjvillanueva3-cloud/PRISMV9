@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T0
 /**
  * ollama-schema-engine-sync-gate — PreToolUse hook on Edit/Write of schema files.
  *

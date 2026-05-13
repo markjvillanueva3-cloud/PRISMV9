@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T2
 /**
  * build-state-inject.mjs — UserPromptSubmit + SessionStart hook.
  *

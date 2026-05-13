@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * edit-batch-detector.mjs - PostToolUse Edit
  * Detects multiple small edits to same file, suggests batching.

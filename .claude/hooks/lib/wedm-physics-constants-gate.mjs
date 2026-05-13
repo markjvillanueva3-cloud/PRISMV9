@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * wedm-physics-constants-gate — Forge-Triple Protective Hook
  *

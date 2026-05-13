@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * curiosity-explorer.mjs — U-AI05 Curiosity-Driven Explorer
  *

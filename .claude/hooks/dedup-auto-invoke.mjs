@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 /**
  * dedup-auto-invoke.mjs — PreToolUse hook (HOOK-SYNERGY-MS0 / U-HOOK-COMPRESS H9)
  *

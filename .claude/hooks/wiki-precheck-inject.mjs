@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * wiki-precheck-inject.mjs — UserPromptSubmit hook.
  *

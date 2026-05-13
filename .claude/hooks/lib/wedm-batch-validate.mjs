@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T0
 /**
  * wedm-batch-validate.mjs — Batch validation across material × thickness × wire matrix
  *

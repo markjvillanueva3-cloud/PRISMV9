@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * git-health-guard.mjs — SessionStart guard for git repository health.
  *

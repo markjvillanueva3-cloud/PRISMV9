@@ -1,3 +1,4 @@
+// tier: T3
 /**
  * hook_condition_number — USSH Phase 0.25
  * ========================================

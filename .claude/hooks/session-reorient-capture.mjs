@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * session-reorient-capture.mjs — PostToolUse companion to session-reorient-inject.mjs
  *

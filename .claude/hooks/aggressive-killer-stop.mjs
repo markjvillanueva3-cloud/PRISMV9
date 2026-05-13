@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * aggressive-killer-stop.mjs - Stop hook wrapper around 06-aggressive-killer.mjs.
  *

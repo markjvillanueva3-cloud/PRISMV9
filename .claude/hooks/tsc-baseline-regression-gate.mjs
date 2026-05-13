@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T0
 /**
  * tsc-baseline-regression-gate — PreToolUse hook on Bash.
  *

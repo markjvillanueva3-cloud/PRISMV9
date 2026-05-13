@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * session-cleanup.mjs — Stop hook to clean up orphaned MCP processes
  *

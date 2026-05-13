@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T0
 /**
  * file-claim-commit-guard.mjs — PreToolUse Bash hook
  *

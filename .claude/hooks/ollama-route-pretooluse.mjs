@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 /**
  * ollama-route-pretooluse.mjs — PreToolUse:Read — route trivial bulk reads at the local LLM.
  *

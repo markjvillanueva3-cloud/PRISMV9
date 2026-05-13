@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T0
 /**
  * subagent-stop-verifier.mjs — SubagentStop hook: verify a subagent's deliverable claims.
  *

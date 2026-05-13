@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * PreCompact hook — flush this terminal's active claims to status=compacted
  * so concurrent sessions know they're in-flight during compaction, not stale.

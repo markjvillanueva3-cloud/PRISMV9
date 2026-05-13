@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T2
 /**
  * git-lock-sweeper.mjs — HS-02 mid-session stale-lock cleanup.
  *

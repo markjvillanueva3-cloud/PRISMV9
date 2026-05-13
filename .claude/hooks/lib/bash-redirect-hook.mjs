@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 /**
  * bash-redirect-hook.mjs — PreToolUse Bash
  * Detects bash commands that should use dedicated tools instead.

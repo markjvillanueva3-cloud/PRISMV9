@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * permission-denied-retry.mjs — PostToolUse classifier for denied / failed tool calls.
  *

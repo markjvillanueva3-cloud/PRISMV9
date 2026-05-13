@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * SessionStart hook — load SLASH_COMMAND_REGISTRY.json into the AI-routable
  * SlashCommandRecommenderEngine so prism_ai { action: "ai_scr_recommend" }

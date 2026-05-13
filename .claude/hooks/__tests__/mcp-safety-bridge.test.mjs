@@ -1,3 +1,4 @@
+// tier: T4
 // Tests for .claude/hooks/mcp-safety-bridge.mjs (U-HKA08).
 //
 // Run: cd H:/prism && node mcp-server/node_modules/vitest/vitest.mjs run \

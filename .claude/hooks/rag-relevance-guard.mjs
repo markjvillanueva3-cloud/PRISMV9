@@ -1,3 +1,4 @@
+// tier: T3
 /**
  * rag-relevance-guard.mjs — PostToolUse hook
  * CADCAM-DAGI-MS0/U-DAGI06

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * karpathy-discipline-inject.mjs — SessionStart hook
  *

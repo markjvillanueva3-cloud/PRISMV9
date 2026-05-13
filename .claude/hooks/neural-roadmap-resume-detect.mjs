@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * neural-roadmap-resume-detect.mjs
  * UserPromptSubmit hook

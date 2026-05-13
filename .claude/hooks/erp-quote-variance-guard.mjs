@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T0
 /**
  * erp-quote-variance-guard.mjs — PreToolUse hook (U-LTH57 P5)
  *

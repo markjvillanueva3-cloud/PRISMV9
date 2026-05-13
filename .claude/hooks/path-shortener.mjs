@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * path-shortener.mjs — PostToolUse hook (any tool).
  *

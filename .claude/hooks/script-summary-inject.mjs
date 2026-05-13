@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 /**
  * script-summary-inject.mjs — PreToolUse Bash hook
  *

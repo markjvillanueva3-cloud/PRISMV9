@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * coordination-startup-banner.mjs (U-COORD06)
  *

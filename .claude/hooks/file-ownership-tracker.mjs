@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 /**
  * file-ownership-tracker.mjs — Tracks which session is editing which files.
  *

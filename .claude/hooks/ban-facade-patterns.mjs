@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T0
 /**
  * ban-facade-patterns.mjs — PreToolUse enforcement hook
  *

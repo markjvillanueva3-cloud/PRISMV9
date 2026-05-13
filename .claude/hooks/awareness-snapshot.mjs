@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * Awareness Snapshot Hook — AI-AWARE-HARDEN/U-AWR11
  *

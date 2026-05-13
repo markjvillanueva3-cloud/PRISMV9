@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 /**
  * test-coverage-enforcer.mjs — PreToolUse hook for Write (new files)
  *

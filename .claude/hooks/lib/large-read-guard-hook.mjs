@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 /**
  * large-read-guard-hook.mjs — PreToolUse Read
  * Warns when reading a file without offset/limit that is likely large.

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * inbox-capture-sharpen.mjs — PostToolUse hook
  *

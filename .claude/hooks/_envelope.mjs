@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * _envelope.mjs — HOOK-SYNERGY-MS0 / U-HOOK-ENVELOPE (H4)
  *

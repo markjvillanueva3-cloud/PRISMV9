@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * bash-orphan-cleaner.mjs — Stop hook that kills orphaned bash.exe subprocesses
  * spawned by THIS Claude Code session.

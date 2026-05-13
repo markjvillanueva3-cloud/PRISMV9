@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * session-start-causal-trace.mjs — U-AI03 Causal Graph SessionStart Hook
  *

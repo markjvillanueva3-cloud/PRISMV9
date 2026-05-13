@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * session-start-goal-inject.mjs — hook_session_goal_synthesis (PP-0.18 U-AGI1)
  *

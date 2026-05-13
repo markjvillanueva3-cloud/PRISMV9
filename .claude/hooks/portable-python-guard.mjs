@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * portable-python-guard.mjs — SessionStart verification for portable Python on H:.
  *

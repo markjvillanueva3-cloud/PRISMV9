@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * skill-lint-stop.mjs — U-SKU03 (SKILLS-UTILIZATION-MS0) Stop hook.
  *

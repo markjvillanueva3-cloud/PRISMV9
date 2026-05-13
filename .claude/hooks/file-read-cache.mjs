@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * file-read-cache.mjs — PreToolUse:Read hard-dedup hook
  *   HOOKS-AUTOMATION-V2-MS0 / U-HKA01 ("Read-once PreToolUse dedup hook")

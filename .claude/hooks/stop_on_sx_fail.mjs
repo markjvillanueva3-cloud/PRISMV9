@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * stop_on_sx_fail.mjs — Tier 6 Stop Hook
  * Prevents exit when any file touched has S(x) < 0.70.

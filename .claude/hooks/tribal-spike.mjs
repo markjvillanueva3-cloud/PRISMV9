@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 import { appendFileSync, mkdirSync, readFileSync } from "node:fs";
 import { dirname } from "node:path";
 import { isatty } from "node:tty";

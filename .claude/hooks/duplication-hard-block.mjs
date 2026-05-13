@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T0
 /**
  * duplication-hard-block.mjs — PreToolUse hook (U-AWARE07)
  *

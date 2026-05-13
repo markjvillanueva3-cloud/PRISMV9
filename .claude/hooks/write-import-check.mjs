@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * write-import-check.mjs - PostToolUse Write
  * After creating a new file, verifies imports resolve.

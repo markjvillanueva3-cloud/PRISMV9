@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * session-end-goal-synthesis.mjs — U-AI04 Autonomous Goal Synthesis
  *

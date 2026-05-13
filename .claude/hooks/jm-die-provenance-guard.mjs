@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T0
 /**
  * jm-die-provenance-guard.mjs — CAM-UIX-INFRA-00/U-JMDP01 guard hook
  *

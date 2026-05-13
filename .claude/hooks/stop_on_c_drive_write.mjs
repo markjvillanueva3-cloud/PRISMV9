@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T0
 /**
  * stop_on_c_drive_write.mjs — Stop Hook
  *

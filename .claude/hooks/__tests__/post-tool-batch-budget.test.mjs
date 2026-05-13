@@ -1,3 +1,4 @@
+// tier: T4
 // Tests for .claude/hooks/post-tool-batch-budget.mjs + scripts/retune-tool-batch-ceiling.mjs (U-HKA10).
 //
 // Run: cd H:/prism && node mcp-server/node_modules/vitest/vitest.mjs run \

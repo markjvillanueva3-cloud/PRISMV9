@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 /**
  * cross-session-awareness.mjs — Force Cross-Session Visibility
  *

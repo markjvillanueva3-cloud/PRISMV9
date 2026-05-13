@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * rtk-path-ensure.mjs — SessionStart hook
  *

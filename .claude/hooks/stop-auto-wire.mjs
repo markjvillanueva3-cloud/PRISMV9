@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * stop-auto-wire.mjs — Stop hook
  *

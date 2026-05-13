@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T2
 /**
  * hook-registry-regen.mjs — PostToolUse:Edit|Write|MultiEdit (HOOK-SYNERGY-MS0 / U-H1 step-4).
  *

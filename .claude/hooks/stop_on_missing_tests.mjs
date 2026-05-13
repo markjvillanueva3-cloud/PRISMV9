@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * stop_on_missing_tests.mjs — Tier 6 Stop Hook
  * Warns when engine/feature created without test coverage.

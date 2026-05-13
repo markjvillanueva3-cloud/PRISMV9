@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * build-guard-hook.mjs — PostToolUse Write|Edit
  * Calls BuildGuardChainEngine.trackEdit() to track edits and suggest tests.

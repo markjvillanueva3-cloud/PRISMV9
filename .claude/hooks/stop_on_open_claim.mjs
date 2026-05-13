@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * stop_on_open_claim.mjs — Tier 6 Stop Hook
  * Prevents exit when claims are held without completion record.

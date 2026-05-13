@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * pretool-change-radius.mjs — PreToolUse Write|Edit hook
  *

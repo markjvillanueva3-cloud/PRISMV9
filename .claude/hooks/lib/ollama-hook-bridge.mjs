@@ -1,3 +1,4 @@
+// tier: T4
 /**
  * ollama-hook-bridge.mjs
  * Shared helper for hooks to call local Ollama with fast timeout and graceful fallback.

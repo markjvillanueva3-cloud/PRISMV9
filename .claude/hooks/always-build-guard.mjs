@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * always-build-guard.mjs - Stop hook to enforce task completion before session end
  *

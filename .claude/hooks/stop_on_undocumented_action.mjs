@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * stop_on_undocumented_action.mjs — Tier 6 Stop Hook
  * Warns when MCP action exists without schema/documentation.

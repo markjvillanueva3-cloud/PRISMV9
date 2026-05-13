@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 /**
  * tribal-inject-on-edit.mjs — L4 of TRIBAL × AI
  *

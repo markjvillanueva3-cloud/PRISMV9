@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 /**
  * edit-old-string-verify.mjs - PreToolUse Edit
  * Verifies old_string exists in file before attempting edit.

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * SessionStart hook — surfaces PLUGIN_INVENTORY.json (MCP servers +
  * agent plugins + skill packs) freshness in boot context so sessions

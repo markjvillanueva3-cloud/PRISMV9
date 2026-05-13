@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T0
 /**
  * agi-safety-envelope-guard.mjs — PreToolUse hook (U-LTH62)
  *

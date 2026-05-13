@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * session-id-pin.mjs — Pins THIS chat's session_id to every PID in the
  * hook process's ancestry chain, so later Bash-spawned stable-session-id

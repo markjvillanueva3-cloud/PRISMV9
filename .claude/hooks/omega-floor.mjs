@@ -1,3 +1,4 @@
+// tier: T1
 /**
  * omega-floor.mjs — Phase 1 Tier 5D Workflow Hook
  *

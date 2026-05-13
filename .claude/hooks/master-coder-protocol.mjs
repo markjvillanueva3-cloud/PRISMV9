@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * master-coder-protocol.mjs — UserPromptSubmit hook
  *

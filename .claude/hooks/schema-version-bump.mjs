@@ -1,3 +1,4 @@
+// tier: T4
 /**
  * schema-version-bump.mjs — Phase 1 Tier 5D Workflow Hook
  * Requires schemaVersion in state JSON files.

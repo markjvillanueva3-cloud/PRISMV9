@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 /**
  * agent-rules-inject.mjs — PreToolUse hook for the Task tool
  *

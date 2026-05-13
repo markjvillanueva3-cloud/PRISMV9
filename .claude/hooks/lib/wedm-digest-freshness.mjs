@@ -1,3 +1,4 @@
+// tier: T1
 /**
  * wedm-digest-freshness hook
  * Warns if WEDM_DIGEST.json is older than 7 days

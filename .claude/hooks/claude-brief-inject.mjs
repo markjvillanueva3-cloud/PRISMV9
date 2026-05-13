@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T2
 /**
  * claude-brief-inject.mjs — SessionStart hook
  *

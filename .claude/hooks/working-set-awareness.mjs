@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 /**
  * Working Set Awareness — PreToolUse Hook (Write/Edit)
  *

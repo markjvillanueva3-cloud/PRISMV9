@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * duplication-guard-stop.mjs — Stop hook
  *

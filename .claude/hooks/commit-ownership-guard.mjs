@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T0
 /**
  * commit-ownership-guard.mjs — Prevents cross-session commit mixing.
  *

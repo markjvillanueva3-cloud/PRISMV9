@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T2
 /**
  * gsd-section-retrieve.mjs — UserPromptSubmit hook
  *

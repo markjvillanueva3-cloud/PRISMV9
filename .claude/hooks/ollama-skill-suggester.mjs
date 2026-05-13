@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * ollama-skill-suggester.mjs — UserPromptSubmit hook
  *

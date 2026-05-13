@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 /**
  * glob-narrow-path.mjs - PreToolUse Glob
  * Warns on overly broad glob patterns (recursive-star-slash-star)

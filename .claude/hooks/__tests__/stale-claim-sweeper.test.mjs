@@ -1,3 +1,4 @@
+// tier: T4
 /**
  * stale-claim-sweeper — behavioural tests for the new sweep paths.
  *

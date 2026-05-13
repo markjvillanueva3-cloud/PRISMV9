@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 /**
  * AI Reasoning Inject — PreToolUse Hook for Complex Operations
  *

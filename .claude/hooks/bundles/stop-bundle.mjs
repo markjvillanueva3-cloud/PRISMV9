@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 // stop-bundle.mjs — single Stop hook that runs the NON-BLOCKING Stop trackers.
 //
 // Why: the Stop event has ~30 `*`-matched hooks; each fires a fresh node.exe at

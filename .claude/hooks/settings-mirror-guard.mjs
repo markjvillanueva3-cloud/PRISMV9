@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * settings-mirror-guard.mjs — PRISM-STAB-MS0/U-A5 (2026-05-09).
  *

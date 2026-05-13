@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T2
 /**
  * inventory-check-guard.mjs — UserPromptSubmit hook (U-AWARE02, refactored H9).
  *

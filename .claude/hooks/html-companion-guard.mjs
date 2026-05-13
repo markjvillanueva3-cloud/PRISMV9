@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T0
 /**
  * html-companion-guard.mjs — per-commit guard for HTML spec/research companions.
  *

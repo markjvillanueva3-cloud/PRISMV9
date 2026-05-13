@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T0
 /**
  * autonomous-loop-watchdog — Stop hook for autonomous yolo-mode runs.
  *

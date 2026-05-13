@@ -1,3 +1,4 @@
+// tier: T3
 /**
  * tolerance-stack-guard.mjs — PostToolUse hook
  * CADCAM-DAGI-MS0/U-DAGI12

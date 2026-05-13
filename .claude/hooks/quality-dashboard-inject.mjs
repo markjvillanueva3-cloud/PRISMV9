@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T2
 /**
  * Quality Dashboard Inject — UserPromptSubmit Hook
  *

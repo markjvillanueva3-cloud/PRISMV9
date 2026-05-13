@@ -1,3 +1,4 @@
+// tier: T0
 /**
  * hook-cross-worktree-block.test.mjs — tests for the cross-worktree Tier-0 firewall
  * HOOK-SYNERGY-MS0 / U-HOOK-CROSS-WORKTREE-FIREWALL  (H10)

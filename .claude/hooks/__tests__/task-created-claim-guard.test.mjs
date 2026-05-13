@@ -1,3 +1,4 @@
+// tier: T4
 // Tests for .claude/hooks/task-created-claim-guard.mjs (U-HKA09).
 //
 // Run: cd H:/prism && node mcp-server/node_modules/vitest/vitest.mjs run \

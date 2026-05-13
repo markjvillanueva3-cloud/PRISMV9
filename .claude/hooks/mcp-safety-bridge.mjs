@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * mcp-safety-bridge.mjs — PostToolUse(Edit|Write|MultiEdit) → physics edit ⇒ run the safety validator.
  *

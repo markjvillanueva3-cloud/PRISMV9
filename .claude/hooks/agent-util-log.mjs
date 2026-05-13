@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * PostToolUse hook — Task-tool invocation ledger.
  *

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 import fs from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";

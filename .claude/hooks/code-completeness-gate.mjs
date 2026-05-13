@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T0
 /**
  * code-completeness-gate.mjs — PreToolUse hook for Edit/Write
  *

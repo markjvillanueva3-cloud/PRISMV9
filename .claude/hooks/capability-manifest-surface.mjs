@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * SessionStart hook — CAPABILITY_MANIFEST.json freshness + surface.
  *

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 /**
  * read-auto-limit.mjs - PreToolUse Read
  * Auto-suggests limit parameter for large files to save tokens.

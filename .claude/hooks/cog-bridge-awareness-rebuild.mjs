@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * cog-bridge-awareness-rebuild.mjs — COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH10
  * ===========================================================================

@@ -1,3 +1,4 @@
+// tier: T4
 /**
  * vllm-hook-bridge.mjs - vLLM HTTP client (OpenAI-compatible)
  *

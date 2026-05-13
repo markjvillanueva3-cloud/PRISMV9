@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 /**
  * unified-local-validation.mjs — PreToolUse hook for Edit/Write/MultiEdit
  *

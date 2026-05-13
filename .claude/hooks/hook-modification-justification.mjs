@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T0
 /**
  * hook-modification-justification.mjs — PreToolUse:Edit|Write|MultiEdit gate.
  *

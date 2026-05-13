@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T2
 /**
  * harness-audit-staleness — SessionStart hook.
  *

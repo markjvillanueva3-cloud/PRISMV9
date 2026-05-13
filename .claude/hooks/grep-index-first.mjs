@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 /**
  * grep-index-first.mjs - PreToolUse Grep
  * Suggests checking MASTER_INDEX before expensive grep searches.

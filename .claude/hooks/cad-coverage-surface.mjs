@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * SessionStart hook — surfaces CAD_COVERAGE_MATRIX.json so every session
  * knows which CAD file formats can be generated vs. are gaps on H: drive.

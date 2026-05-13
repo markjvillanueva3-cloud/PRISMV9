@@ -6,10 +6,10 @@
   "priority": "P0",
   "owner": "claude-85cedf09",
   "created_at": "2026-05-10T16:00:00.000Z",
-  "updated_at": "2026-05-12T23:55:00.000Z",
+  "updated_at": "2026-05-13T00:30:00.000Z",
   "status": "in_progress",
   "total_units": 11,
-  "completed_units": 4,
+  "completed_units": 5,
   "dependencies": [],
   "rationale": "Diagnosed 2026-05-10: 480 wired hook commands across 3 settings layers cause 50+ minute tool hangs. Stopgap: 7 hook timeout reductions shipped (158s→52s worst-case). Structural fix: 10-element architecture mirroring PRISM's existing engine/dispatcher patterns (5-tier classification, hook registry, async dispatcher, dedup guard, profiling envelope, fast-lane matchers). Critical path H1→H2→H3→H6 = 10 hours / 2 sessions. Boris loop+agent doctrine: every H* unit ships peer-reviewer subagent isolation:worktree.",
   "knowledge_sources": {
@@ -68,11 +68,12 @@
         {
           "id": "U-HOOK-TIERS",
           "title": "H3 — Tier frontmatter on all 480 hooks + hook-tier-validator.mjs PreToolUse block on .claude/hooks/*.mjs edits",
-          "status": "not_started",
+          "status": "complete",
           "estimated_hours": 3,
           "dependencies": [
             "U-HOOK-REGISTRY"
-          ]
+          ],
+          "completedAt": "2026-05-13T00:30:00.000Z"
         },
         {
           "id": "U-HOOK-FAST-LANE",
@@ -198,6 +199,12 @@
       "commit": "71f71cb07",
       "title": "3 hooks refactored to shim+helper (dedup-auto-invoke -39 LOC via shared duplication-guard.mjs; ai-feature-recommend -76 LOC dead code stripped; inventory-check-guard fixed phantom-helper bug); 3 already shim-quality (mcp-route-suggest, wiki-precheck-inject, chat-bus-inject) — audited + documented",
       "shipped_at": "2026-05-12T23:55:00.000Z"
+    },
+    {
+      "unit": "U-HOOK-TIERS",
+      "commit": "PENDING",
+      "title": "508 hooks tagged with tier frontmatter (T0=66/T1=77/T2=21/T3=93/T4=251) via scripts/classify-hook-tiers.mjs + hook-tier-validator.mjs PreToolUse advisory + settings.json wiring (PRISM_HOOK_TIER_VALIDATOR_BLOCK=1 promotes to hard block)",
+      "shipped_at": "2026-05-13T00:30:00.000Z"
     }
   ]
 }

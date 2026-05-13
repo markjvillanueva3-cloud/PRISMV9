@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * inbox-lag-advisory.mjs — Stop hook
  *

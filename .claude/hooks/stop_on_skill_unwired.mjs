@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * stop_on_skill_unwired.mjs — Tier 6 Stop Hook
  * Warns when skill created without hook anchor.

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * stop_on_dirty_registry.mjs — Tier 6 Stop Hook
  * Prevents exit when extraction-log or asset registry has unflushed changes.

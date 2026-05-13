@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 /**
  * Agent Boundary Guard Hook (PreToolUse)
  *

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * checkpoint-auto-trigger.mjs — Context Retention Hook
  * =====================================================

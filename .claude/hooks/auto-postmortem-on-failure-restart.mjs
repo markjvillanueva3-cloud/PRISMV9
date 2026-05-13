@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * auto-postmortem-on-failure-restart.mjs — Stop hook
  *

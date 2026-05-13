@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * Node Process Janitor — PreToolUse `.*` (hot path) + scheduled `--full` (backstop)
  *

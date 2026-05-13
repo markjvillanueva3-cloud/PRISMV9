@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * anti-regression-auto-sweep.mjs — PostToolUse hook
  *

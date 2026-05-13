@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * chain-recovery-hook.mjs — PostToolUseFailure
  * Classifies tool failures and suggests recovery actions.

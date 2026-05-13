@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * precompact-pending-guard.mjs — Warn about pending work before compact
  *

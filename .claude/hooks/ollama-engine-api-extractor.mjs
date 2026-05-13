@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 /**
  * ollama-engine-api-extractor — PreToolUse hook on Read of engine source files.
  *

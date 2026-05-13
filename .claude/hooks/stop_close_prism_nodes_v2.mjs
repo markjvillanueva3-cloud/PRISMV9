@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * stop_close_prism_nodes_v2.mjs — PRISM-STAB-MS0/U-A3 (2026-05-09).
  *

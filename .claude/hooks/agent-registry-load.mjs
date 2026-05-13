@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * SessionStart hook — surfaces Task-tool agent registry (AGENT_REGISTRY.json)
  * freshness in boot context so prism_ai { action: "ai_agr_match" } is

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * stop_on_orphan_engine.mjs — Tier 6 Stop Hook
  * Warns when engine created without dispatcher wiring.

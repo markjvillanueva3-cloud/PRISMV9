@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * Coordination Update Reminder Hook (PostToolUse for Bash git commit)
  *

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * posttool-emergence-scan.mjs — hook_emergence_scan (PP-0.18 U-AGI11)
  *

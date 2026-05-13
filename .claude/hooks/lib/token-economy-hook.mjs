@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * token-economy-hook.mjs — PostToolUse (all tools)
  * Tracks token spending per tool call category via TokenEconomyEngine patterns.

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * linear-roadmap-sync.mjs — SessionStart + Stop hooks
  *

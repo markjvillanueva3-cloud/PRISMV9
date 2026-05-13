@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 /**
  * rtk-prefix-reminder.mjs — PreToolUse:Bash
  *

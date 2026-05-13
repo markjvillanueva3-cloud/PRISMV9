@@ -1,3 +1,4 @@
+// tier: T4
 // Tests for .claude/hooks/subagent-stop-verifier.mjs (U-HKA05).
 //
 // Run: cd H:/prism && node mcp-server/node_modules/vitest/vitest.mjs run \

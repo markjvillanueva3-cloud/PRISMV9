@@ -1,3 +1,4 @@
+// tier: T3
 /**
  * reasoning-completeness.mjs — PostToolUse hook
  * CADCAM-DAGI-MS0/U-DAGI10

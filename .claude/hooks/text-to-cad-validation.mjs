@@ -1,3 +1,4 @@
+// tier: T3
 /**
  * text-to-cad-validation.mjs — PostToolUse hook
  * CADCAM-DAGI-MS0/U-DAGI09

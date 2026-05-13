@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T2
 /**
  * token-budget-gate.mjs — Token Budget Awareness Hook
  * ====================================================

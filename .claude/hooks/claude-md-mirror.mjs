@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * claude-md-mirror.mjs — SessionStart: mirror H:\.claude\CLAUDE.md → ~/.claude/CLAUDE.md.
  *

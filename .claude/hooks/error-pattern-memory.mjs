@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * error-pattern-memory.mjs — PostToolUse Hook (Bash, Edit, Write)
  *

@@ -1,3 +1,4 @@
+// tier: T4
 // hook-runner.mjs — parallel hook execution library for U-D3 bundles.
 // Spawns each hook as a child process, pipes stdin, collects stdout/stderr,
 // enforces per-hook timeout, aggregates results.

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 /**
  * iterate-retrieve-suggest — PreToolUse hook for Agent tool calls.
  *

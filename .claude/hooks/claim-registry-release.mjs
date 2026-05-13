@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * Stop / SessionEnd hook — release this terminal's claims so peers can
  * pick them up without waiting for the staleness TTL.

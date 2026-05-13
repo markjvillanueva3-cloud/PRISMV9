@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T0
 /**
  * ollama-reviewer-second-opinion — PreToolUse hook on Bash for `git commit`.
  *

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * stop_on_extraction_incomplete.mjs — Tier 6 Stop Hook
  * Warns when PDF/video extraction started but not finished.

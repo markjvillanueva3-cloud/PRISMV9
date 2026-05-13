@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * error-block-prewarn — PreToolUse hook.
  *

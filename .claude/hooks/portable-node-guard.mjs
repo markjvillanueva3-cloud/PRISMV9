@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * portable-node-guard.mjs — SessionStart verification for portable Node.js on H:.
  *

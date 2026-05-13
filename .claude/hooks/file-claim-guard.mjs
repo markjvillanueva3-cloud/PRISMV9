@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T0
 /**
  * file-claim-guard.mjs — PreToolUse hook for Edit | Write | MultiEdit
  *

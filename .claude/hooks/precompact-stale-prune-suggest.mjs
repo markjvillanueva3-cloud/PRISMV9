@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * precompact-stale-prune-suggest.mjs — PreCompact hook
  *

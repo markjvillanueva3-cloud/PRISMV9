@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T1
 /**
  * agent-spawn-guard-hook.mjs — PreToolUse Agent
  * Tracks agent spawn frequency. Warns when 3+ agents spawned in quick

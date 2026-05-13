@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * test-100-percent-gate.mjs — Stop Hook
  *

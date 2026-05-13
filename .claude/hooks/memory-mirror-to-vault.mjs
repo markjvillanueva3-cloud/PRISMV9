@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * memory-mirror-to-vault.mjs — PostToolUse hook
  *

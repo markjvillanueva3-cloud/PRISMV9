@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T2
 /**
  * cog-bridge-context-auto-compact.mjs — COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH10
  * =============================================================================

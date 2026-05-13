@@ -1,3 +1,4 @@
+// tier: T0
 /**
  * hook-creation-gate.test.mjs — tests for the .claude/hooks/ creation guard
  * HOOK-SYNERGY-MS0 / U-HOOK-CREATION-GATE  (H5)

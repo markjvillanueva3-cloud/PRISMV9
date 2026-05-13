@@ -1,3 +1,4 @@
+// tier: T3
 /**
  * cad-accuracy-gate.mjs — PostToolUse hook
  * CADCAM-DAGI-MS0/U-DAGI13

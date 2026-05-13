@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 // posttool-edit-bundle.mjs — single PostToolUse hook (matcher: Edit|Write|MultiEdit).
 //
 // Replaces 19 individual PostToolUse entries (the Edit|Write|MultiEdit matcher

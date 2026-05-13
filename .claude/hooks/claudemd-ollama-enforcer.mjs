@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * claudemd-ollama-enforcer.mjs — UserPromptSubmit hook
  *

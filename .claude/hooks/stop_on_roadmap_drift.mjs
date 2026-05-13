@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * stop_on_roadmap_drift.mjs — Tier 6 Stop Hook
  * Warns when work doesn't match claimed roadmap unit.

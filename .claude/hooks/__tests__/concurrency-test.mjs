@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T0
 /**
  * concurrency-test.mjs — CPP-MS1-U-CPP07
  *

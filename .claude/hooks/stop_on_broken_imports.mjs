@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * stop_on_broken_imports.mjs — Tier 6 Stop Hook (IMPROVED)
  *

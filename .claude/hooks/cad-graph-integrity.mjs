@@ -1,3 +1,4 @@
+// tier: T3
 /**
  * cad-graph-integrity.mjs — CADCAM-DAGI-MS0/U-DAGI02 guard hook
  *

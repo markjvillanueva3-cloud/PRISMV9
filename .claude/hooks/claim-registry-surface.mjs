@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T4
 /**
  * SessionStart hook — surfaces other sessions' active roadmap claims in
  * boot context so this session doesn't grab the same milestone.

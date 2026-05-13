@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * Success Pattern Tracker — PostToolUse Hook (Bash)
  *

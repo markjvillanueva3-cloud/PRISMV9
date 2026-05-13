@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T0
 /**
  * worktree-commit-route.mjs — PreToolUse(Bash) worktree-routing enforcement
  *

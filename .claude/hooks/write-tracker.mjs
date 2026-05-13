@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * write-tracker.mjs - PostToolUse Write/Edit
  * Tracks recently written/edited files for read-already-have detection.

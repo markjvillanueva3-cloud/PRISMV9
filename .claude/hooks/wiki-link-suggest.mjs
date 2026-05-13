@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T3
 /**
  * wiki-link-suggest.mjs — PostToolUse hook for memory/wiki writes
  *

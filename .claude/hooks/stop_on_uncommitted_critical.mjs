@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// tier: T0
 /**
  * stop_on_uncommitted_critical.mjs — Tier 6 Stop Hook
  * Prevents exit when CRITICAL-classified files have uncommitted changes.
