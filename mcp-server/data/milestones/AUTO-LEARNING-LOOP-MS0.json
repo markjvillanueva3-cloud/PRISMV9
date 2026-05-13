@@ -6,14 +6,34 @@
   "brief": "User directive (Phase-6): \"we need an auto feature that monitors reputable sources multiple times a day so our system automatically does deep research and decides if and how we can utilize new features to our system and synergize it automatically and auto add it to the system-viz feature.\"",
   "parent_roadmap": "BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-2026-05-10.md",
   "created_at": "2026-05-11T19:27:19.879Z",
-  "updated_at": "2026-05-11T19:27:19.879Z",
+  "updated_at": "2026-05-13T16:29:03.328Z",
   "created_by": "claude-0f522935 (register-devtools-roadmap-envelopes.mjs — BACKEND-DEVTOOLS-RGS6 combine)",
   "track": "AUTO-LEARNING-LOOP",
   "track_name": "BACKEND-DEVTOOLS-RGS6 MEGA-ROADMAP",
   "roadmap_priority": 0,
   "tier": 1,
   "priority": "P1",
-  "status": "not_started",
+  "status": "in_progress",
+  "completed_units": 1,
+  "total_units": 12,
+  "shipped": [
+    {
+      "unit": "U-ALL01",
+      "commit": "8b2df4a62",
+      "title": "ReputableSourceMonitorEngine + CLI + cron + dispatcher (multi-source poller)",
+      "shipped_at": "2026-05-13T16:30:00Z",
+      "shipped_by": "charlie/claude-2e39dd7e",
+      "files_changed": 7,
+      "tests": "22/22 + 12/12 = 34/34 pass; tsc --noEmit exit 0",
+      "scrutiny": "Per-file gate (4 reviewer agents): 2 P0 + 7 P1 + 5 test P1, ALL fixed inline. End-of-task 3-of-3 (session u-all01-1778689134): codex env-failed (provider rate-limit, escape hatch); Reviewer A PASS; Reviewer B PASS (caught CLI buf-out-of-scope ReferenceError, fixed inline).",
+      "design": "Engine state per source: { etag, lastModified, lastSuccess, consecutiveFailures, backoffUntil }. Pure data engine — persistence (JSONL) lives in CLI; long-lived state (ETag/backoff) lives in MCP-server singleton via dispatcher. Sequential pollAll. MITM defense: response.url hostname compared to configured source hostname; mismatch raises alarm at threshold but does NOT advance backoff (avoids locking out legitimate-after-DNS-recovery sources).",
+      "deferred_followups": [
+        "Live integration verification — operator must run `node scripts/source-monitor-sweep.mjs --once` and confirm ≥1 item per source.",
+        "CLI/engine parser drift — add parity test or shared parser module.",
+        "User-Agent string should accept `EngineOpts.userAgent` for downstream operators."
+      ]
+    }
+  ],
   "assigned_lane": null,
   "commit_prefix": null,
   "critical_path_role": "continuous self-improvement loop — monitor reputable sources, detect novelty, auto-research, classify synergy, auto-augment viz + roadmap",
@@ -54,7 +74,7 @@
           "viz_node_id": "eng.knowledge.reputablesourcemonitorengine",
           "viz_node_status": "needs_creation",
           "loop_schedule": "4h cron",
-          "status": "not_started",
+          "status": "complete",
           "four_loop": [
             "BUILD",
             "SCRUTINIZE",
@@ -70,7 +90,10 @@
             "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
           ],
           "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-AUTO-LEARNING-LOOP-MS0-ATOMIZED-2026-05-10.md",
-          "atomized_anchor": "## U-ALL01"
+          "atomized_anchor": "## U-ALL01",
+          "completedAt": "2026-05-13T16:29:03.328Z",
+          "commit": "8b2df4a62",
+          "shipped_by": "charlie/claude-2e39dd7e"
         },
         {
           "id": "U-ALL02",

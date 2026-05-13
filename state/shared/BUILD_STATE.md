@@ -1,6 +1,6 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-13T16:27:50.365Z
+> Generated: 2026-05-13T16:33:27.530Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
@@ -8,7 +8,7 @@
 - **2324** engines built and wired (of 3203)
 - **1073** wiki entries indexed
 - **879** engines awaiting dispatcher wiring
-- **3721** units pending across 80 active milestones
+- **3718** units pending across 81 active milestones
 - **2** codex frontend builds awaiting merge
 - **172** milestones with envelope-status drift
 
@@ -65,7 +65,7 @@
 
 ## NEEDS_BUILDING
 
-3721 units across 670 milestones not yet in git.
+3718 units across 670 milestones not yet in git.
 
 ### Envelope-status drift
 
@@ -248,18 +248,22 @@
 
 | Milestone | Phase | Unit | Title |
 |-----------|-------|------|-------|
-| TRAINING-LEARNING-MS0 | lathe | U-TL-U1-LATHE-TEMPLATE-EXTRACTOR | LathePartFamilyTemplateExtractorEngine + corpus scanner |
-| TRAINING-LEARNING-MS0 | electrode-audit | U-TL-U3-ELECTRODE-COVERAGE-AUDIT | ElectrodeCoverageAuditEngine + phase20-electrode-coverage-audit.py (READ-ONLY against .xlsm) |
-| TRAINING-LEARNING-MS0 | wedm | U-TL-U4-WEDM-TEMPLATE-EXTRACTOR-AND-BRIDGE | WEDMPartFamilyTemplateExtractorEngine + TaptiteElectrodeMacroBridgeEngine (parsed-snapshot path) |
-| TRAINING-LEARNING-MS0 | matchers | U-TL-U5-DOMAIN-MATCHERS | LathePartFamilyMatcherEngine + MillPartFamilyMatcherEngine + WEDMPartFamilyMatcherEngine |
 | CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A1 | A1 — extend SLOT_NAMES in chat-slots.mjs to add 'golf' (NATO phonetic continuity) |
 | CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A2 | A2 — fleet-status.mjs renderer + title-comment for 7-slot table |
 | CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A3 | A3 — /checkin --golf docs in commands/checkin.md; remove fleet_full 7th-chat fallback wording |
 | CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A4 | A4 — per-agent-handoff.mjs accepts slot=golf with HANDOFF-golf-<task>.md topic prefix |
 | COORD-MS0 |  | U-COORD01 | Create AGENT_COORDINATION_SUMMARY.json (<5KB) |
 | COORD-MS0 |  | U-COORD02 | Add Optimistic Locking with Version Field |
-| COORD-MS0 |  | U-COORD03 | PID Liveness Check Before Claim Theft |
 | COORD-MS0 |  | U-COORD04 | CrossSessionOrchestratorEngine — Unified Facade |
+| COORD-MS0 |  | U-COORD05 | Wire Orchestrator to Hook System |
+| AUTO-LEARNING-LOOP-MS0 | P0 | U-ALL02 | Build `NoveltyDetectionEngine` (diff vs catalog) |
+| AUTO-LEARNING-LOOP-MS0 | P0 | U-ALL03 | Build `AutoResearchOrchestratorEngine` (rate-limited dispatch) |
+| AUTO-LEARNING-LOOP-MS0 | P0 | U-ALL04 | Build `SynergyClassifierEngine` (high/med/low/none decision) |
+| AUTO-LEARNING-LOOP-MS0 | P0 | U-ALL05 | Build `VizAutoAugmentationEngine` (emit augmentation file) |
+| TRAINING-LEARNING-MS0 | lathe | U-TL-U1-LATHE-TEMPLATE-EXTRACTOR | LathePartFamilyTemplateExtractorEngine + corpus scanner |
+| TRAINING-LEARNING-MS0 | electrode-audit | U-TL-U3-ELECTRODE-COVERAGE-AUDIT | ElectrodeCoverageAuditEngine + phase20-electrode-coverage-audit.py (READ-ONLY against .xlsm) |
+| TRAINING-LEARNING-MS0 | wedm | U-TL-U4-WEDM-TEMPLATE-EXTRACTOR-AND-BRIDGE | WEDMPartFamilyTemplateExtractorEngine + TaptiteElectrodeMacroBridgeEngine (parsed-snapshot path) |
+| TRAINING-LEARNING-MS0 | matchers | U-TL-U5-DOMAIN-MATCHERS | LathePartFamilyMatcherEngine + MillPartFamilyMatcherEngine + WEDMPartFamilyMatcherEngine |
 | AI-MAX-MS0 | session-1 | U-AIMAX01 | hyperMILL Python Script Pattern Extractor |
 | AI-MAX-MS0 | session-1 | U-AIMAX02 | JM DIE Program Pattern Analyzer |
 | AI-MAX-MS0 | session-1 | U-AIMAX03 | Pattern Database & Search Engine |
@@ -268,10 +272,6 @@
 | BP-MS0 | BP-P1 | U-ROUTEFIX2 | Fix PPG route/action drift + ERP analytics wiring |
 | BP-MS0 | BP-P1 | U-ROUTEFIX3 | Context catalog fix + 24 integration tests |
 | BP-MS0 | BP-P2 | U-BLOB2 | PartsLibraryEngine with revisions + CAD metadata extraction |
-| AWARE-MS0 |  | U-AWARE01 | PreToolUse Hook — Build/Create Detection |
-| AWARE-MS0 |  | U-AWARE03 | Master Index Search Gate Hook |
-| AWARE-MS0 |  | U-AWARE05 | Auto /dedup Invocation |
-| AWARE-MS0 |  | U-AWARE06 | AI Feature Recommendation Injection |
 
 **Next action:** Cross-reference MILESTONE_PROGRESS.json. Avoid units already in `shipped` arrays — those are committed but envelope status is stale.
 
@@ -326,7 +326,7 @@ Per-domain wired/unwired breakdown across 927 domain prefixes.
 
 ## STALE_MILESTONES
 
-231 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).
+230 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).
 
 | Milestone | Track | Reason | Pending | Shipped/Total | Last shipped |
 |-----------|-------|--------|---------|---------------|--------------|

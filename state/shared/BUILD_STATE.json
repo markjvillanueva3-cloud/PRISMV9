@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-13T16:27:50.365Z",
+  "generatedAt": "2026-05-13T16:33:27.530Z",
   "headline": {
     "built_engines": 2324,
     "built_with_wiki": 1073,
     "needs_wiring": 879,
-    "needs_building_active_units": 3721,
+    "needs_building_active_units": 3718,
     "needs_frontend_merge_count": 2,
-    "pending_milestones_with_activity": 80,
+    "pending_milestones_with_activity": 81,
     "drift_milestones": 172,
-    "stale_milestones": 231,
+    "stale_milestones": 230,
     "domains_tracked": 927
   },
   "sources": {
@@ -8750,7 +8750,7 @@
     ]
   },
   "STALE_MILESTONES": {
-    "summary": "231 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).",
+    "summary": "230 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).",
     "threshold_days": 30,
     "rows": [
       {
@@ -9033,15 +9033,6 @@
         "reason": "never_started"
       },
       {
-        "id": "AUTO-LEARNING-LOOP-MS0",
-        "track": "AUTO-LEARNING-LOOP",
-        "pending": 12,
-        "shipped": 0,
-        "total": 12,
-        "lastShippedDate": null,
-        "reason": "never_started"
-      },
-      {
         "id": "MS-INFRA",
         "track": "revenue",
         "pending": 12,
@@ -9112,12 +9103,21 @@
         "total": 10,
         "lastShippedDate": null,
         "reason": "never_started"
+      },
+      {
+        "id": "CPL-MS2",
+        "track": "",
+        "pending": 10,
+        "shipped": 0,
+        "total": 10,
+        "lastShippedDate": null,
+        "reason": "never_started"
       }
     ],
     "next_action": "Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift."
   },
   "NEEDS_BUILDING": {
-    "summary": "3721 units across 670 milestones not yet in git.",
+    "summary": "3718 units across 670 milestones not yet in git.",
     "drift_cases": [
       {
         "id": "CC-EXT-MS0",
@@ -10154,30 +10154,6 @@
     ],
     "top_pending_units": [
       {
-        "milestone": "TRAINING-LEARNING-MS0",
-        "unit": "U-TL-U1-LATHE-TEMPLATE-EXTRACTOR",
-        "title": "LathePartFamilyTemplateExtractorEngine + corpus scanner",
-        "phase": "lathe"
-      },
-      {
-        "milestone": "TRAINING-LEARNING-MS0",
-        "unit": "U-TL-U3-ELECTRODE-COVERAGE-AUDIT",
-        "title": "ElectrodeCoverageAuditEngine + phase20-electrode-coverage-audit.py (READ-ONLY against .xlsm)",
-        "phase": "electrode-audit"
-      },
-      {
-        "milestone": "TRAINING-LEARNING-MS0",
-        "unit": "U-TL-U4-WEDM-TEMPLATE-EXTRACTOR-AND-BRIDGE",
-        "title": "WEDMPartFamilyTemplateExtractorEngine + TaptiteElectrodeMacroBridgeEngine (parsed-snapshot path)",
-        "phase": "wedm"
-      },
-      {
-        "milestone": "TRAINING-LEARNING-MS0",
-        "unit": "U-TL-U5-DOMAIN-MATCHERS",
-        "title": "LathePartFamilyMatcherEngine + MillPartFamilyMatcherEngine + WEDMPartFamilyMatcherEngine",
-        "phase": "matchers"
-      },
-      {
         "milestone": "CLEANUP-MS0",
         "unit": "U-CLEANUP-A1",
         "title": "A1 — extend SLOT_NAMES in chat-slots.mjs to add 'golf' (NATO phonetic continuity)",
@@ -10215,15 +10191,63 @@
       },
       {
         "milestone": "COORD-MS0",
-        "unit": "U-COORD03",
-        "title": "PID Liveness Check Before Claim Theft",
+        "unit": "U-COORD04",
+        "title": "CrossSessionOrchestratorEngine — Unified Facade",
         "phase": ""
       },
       {
         "milestone": "COORD-MS0",
-        "unit": "U-COORD04",
-        "title": "CrossSessionOrchestratorEngine — Unified Facade",
+        "unit": "U-COORD05",
+        "title": "Wire Orchestrator to Hook System",
         "phase": ""
+      },
+      {
+        "milestone": "AUTO-LEARNING-LOOP-MS0",
+        "unit": "U-ALL02",
+        "title": "Build `NoveltyDetectionEngine` (diff vs catalog)",
+        "phase": "P0"
+      },
+      {
+        "milestone": "AUTO-LEARNING-LOOP-MS0",
+        "unit": "U-ALL03",
+        "title": "Build `AutoResearchOrchestratorEngine` (rate-limited dispatch)",
+        "phase": "P0"
+      },
+      {
+        "milestone": "AUTO-LEARNING-LOOP-MS0",
+        "unit": "U-ALL04",
+        "title": "Build `SynergyClassifierEngine` (high/med/low/none decision)",
+        "phase": "P0"
+      },
+      {
+        "milestone": "AUTO-LEARNING-LOOP-MS0",
+        "unit": "U-ALL05",
+        "title": "Build `VizAutoAugmentationEngine` (emit augmentation file)",
+        "phase": "P0"
+      },
+      {
+        "milestone": "TRAINING-LEARNING-MS0",
+        "unit": "U-TL-U1-LATHE-TEMPLATE-EXTRACTOR",
+        "title": "LathePartFamilyTemplateExtractorEngine + corpus scanner",
+        "phase": "lathe"
+      },
+      {
+        "milestone": "TRAINING-LEARNING-MS0",
+        "unit": "U-TL-U3-ELECTRODE-COVERAGE-AUDIT",
+        "title": "ElectrodeCoverageAuditEngine + phase20-electrode-coverage-audit.py (READ-ONLY against .xlsm)",
+        "phase": "electrode-audit"
+      },
+      {
+        "milestone": "TRAINING-LEARNING-MS0",
+        "unit": "U-TL-U4-WEDM-TEMPLATE-EXTRACTOR-AND-BRIDGE",
+        "title": "WEDMPartFamilyTemplateExtractorEngine + TaptiteElectrodeMacroBridgeEngine (parsed-snapshot path)",
+        "phase": "wedm"
+      },
+      {
+        "milestone": "TRAINING-LEARNING-MS0",
+        "unit": "U-TL-U5-DOMAIN-MATCHERS",
+        "title": "LathePartFamilyMatcherEngine + MillPartFamilyMatcherEngine + WEDMPartFamilyMatcherEngine",
+        "phase": "matchers"
       },
       {
         "milestone": "AI-MAX-MS0",
@@ -10272,30 +10296,6 @@
         "unit": "U-BLOB2",
         "title": "PartsLibraryEngine with revisions + CAD metadata extraction",
         "phase": "BP-P2"
-      },
-      {
-        "milestone": "AWARE-MS0",
-        "unit": "U-AWARE01",
-        "title": "PreToolUse Hook — Build/Create Detection",
-        "phase": ""
-      },
-      {
-        "milestone": "AWARE-MS0",
-        "unit": "U-AWARE03",
-        "title": "Master Index Search Gate Hook",
-        "phase": ""
-      },
-      {
-        "milestone": "AWARE-MS0",
-        "unit": "U-AWARE05",
-        "title": "Auto /dedup Invocation",
-        "phase": ""
-      },
-      {
-        "milestone": "AWARE-MS0",
-        "unit": "U-AWARE06",
-        "title": "AI Feature Recommendation Injection",
-        "phase": ""
       }
     ],
     "next_action": "Cross-reference MILESTONE_PROGRESS.json. Avoid units already in `shipped` arrays — those are committed but envelope status is stale."
