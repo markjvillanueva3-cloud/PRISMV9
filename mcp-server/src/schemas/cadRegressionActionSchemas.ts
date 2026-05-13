@@ -168,11 +168,18 @@ const start_batch = z
     options: z
       .object({
         // runner is a live JS object implementing TestRunner.run(task: FileTask): Promise<FileTestResult>.
-        // Functions/method references are NOT JSON-serializable, so z.any() is the only honest
-        // representation here — over-the-wire MCP clients can't supply this until U-CINF04.x
-        // (WorkerThreadRunner) lands a server-side default injector.
+        // Functions are NOT JSON-serializable, so MCP-wire callers can't supply this until
+        // U-CINF04.x (WorkerThreadRunner) ships a server-side default injector. Refined here
+        // to actually require a callable `run` member — z.any() alone would accept `undefined`.
         runner: z
-          .any()
+          .unknown()
+          .refine(
+            (v) =>
+              v !== null &&
+              typeof v === "object" &&
+              typeof (v as { run?: unknown }).run === "function",
+            { message: "runner must be an object with a callable run(task) method (TestRunner contract)" },
+          )
           .describe(
             "TestRunner with run(task) method — live JS object, not JSON-serializable; in-process callers only until U-CINF04.x ships a default injector",
           ),

@@ -27,27 +27,39 @@ type Alias = (typeof ALIASES)[number];
 // ── Engine spies wired via vi.mock — proves call-arg forwarding ─────────────
 // Each spy returns a marker object so we can assert the alias resolved the
 // expected engine without engine side-effects.
+//
+// vi.mock() factories are hoisted ABOVE imports by Vitest. To safely reference
+// spy variables from inside the factories, declare them inside vi.hoisted()
+// (also hoisted, executes before vi.mock factories run).
 
-const orchestratorSpy = vi.fn(async (p: unknown) => ({ called: "orchestrator", payload: p }));
-const dashboardSpy = vi.fn(async (p: unknown) => ({ called: "dashboard", payload: p }));
-const analyzerSpy = vi.fn(async (p: unknown) => ({ called: "analyzer", payload: p }));
-const triageSpy = vi.fn(async (p: unknown) => ({ called: "triage", payload: p }));
-const reportSpy = vi.fn(async (p: unknown) => ({ called: "report", payload: p }));
+const spies = vi.hoisted(() => ({
+  orchestrator: vi.fn(async (p: unknown) => ({ called: "orchestrator", payload: p })),
+  dashboard: vi.fn(async (p: unknown) => ({ called: "dashboard", payload: p })),
+  analyzer: vi.fn(async (p: unknown) => ({ called: "analyzer", payload: p })),
+  triage: vi.fn(async (p: unknown) => ({ called: "triage", payload: p })),
+  report: vi.fn(async (p: unknown) => ({ called: "report", payload: p })),
+}));
+
+const orchestratorSpy = spies.orchestrator;
+const dashboardSpy = spies.dashboard;
+const analyzerSpy = spies.analyzer;
+const triageSpy = spies.triage;
+const reportSpy = spies.report;
 
 vi.mock("../engines/CADRegressionTestOrchestratorEngine.js", () => ({
-  cadRegressionTestOrchestratorEngine: { execute: orchestratorSpy },
+  cadRegressionTestOrchestratorEngine: { execute: spies.orchestrator },
 }));
 vi.mock("../engines/CADRegressionDashboardEngine.js", () => ({
-  cadRegressionDashboardEngine: { execute: dashboardSpy },
+  cadRegressionDashboardEngine: { execute: spies.dashboard },
 }));
 vi.mock("../engines/CADRegressionResultsAnalyzerEngine.js", () => ({
-  cadRegressionResultsAnalyzerEngine: { execute: analyzerSpy },
+  cadRegressionResultsAnalyzerEngine: { execute: spies.analyzer },
 }));
 vi.mock("../engines/CADFailureTriageEngine.js", () => ({
-  cadFailureTriageEngine: { execute: triageSpy },
+  cadFailureTriageEngine: { execute: spies.triage },
 }));
 vi.mock("../engines/CADRegressionReportGeneratorEngine.js", () => ({
-  cadRegressionReportGeneratorEngine: { execute: reportSpy },
+  cadRegressionReportGeneratorEngine: { execute: spies.report },
 }));
 
 // Import AFTER vi.mock so the dispatcher's lazy imports resolve to the spies.
@@ -195,7 +207,24 @@ describe("cadRegressionDispatcher — CINF12 spec aliases (schema map)", () => {
   it("start_batch.parse rejects task missing required fileId", () => {
     const r = ACTION_CAD_REGRESSION_SCHEMAS.start_batch.safeParse({
       tasks: [{ absolutePath: "/tmp/a.step", format: "step" }],
-      options: { runner: {} },
+      options: { runner: { run: () => Promise.resolve({}) } },
+    });
+    expect(r.success).toBe(false);
+  });
+
+  it("start_batch.parse rejects runner without callable run() — refine guard", () => {
+    // z.any() would let runner be undefined or {}; the schema's refine() blocks both.
+    const r = ACTION_CAD_REGRESSION_SCHEMAS.start_batch.safeParse({
+      tasks: [{ fileId: "f", absolutePath: "/p", format: "step" }],
+      options: { runner: {} },  // no .run method
+    });
+    expect(r.success).toBe(false);
+  });
+
+  it("start_batch.parse rejects when options.runner is omitted entirely", () => {
+    const r = ACTION_CAD_REGRESSION_SCHEMAS.start_batch.safeParse({
+      tasks: [{ fileId: "f", absolutePath: "/p", format: "step" }],
+      options: {},
     });
     expect(r.success).toBe(false);
   });
