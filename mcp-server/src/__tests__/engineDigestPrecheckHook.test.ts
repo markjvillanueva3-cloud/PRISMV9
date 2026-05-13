@@ -120,28 +120,43 @@ describe("findSimilarEngines", () => {
     expect(r.length).toBe(0);
   });
 
-  it("finds exact-token match: CuttingForcePrediction → CuttingForceEngine", () => {
+  it("finds exact-token match: CuttingForcePrediction → CuttingForceEngine with similarity 2/3", () => {
+    // Proposed tokens: {cutting, force, prediction} (3)
+    // CuttingForce tokens: {cutting, force} (2)
+    // Intersection: {cutting, force} (2); union: {cutting, force, prediction} (3)
+    // Jaccard = 2/3 ≈ 0.6667
     const r = findSimilarEngines("CuttingForcePredictionEngine", sampleDigest, 0.3, 5);
-    expect(r.length >= 1).toBe(true);
+    expect(r.length).toBe(1);
     expect(r[0].name).toBe("CuttingForceEngine");
-    expect(r[0].similarity >= 0.5).toBe(true);
+    expect(r[0].similarity).toBeCloseTo(2 / 3, 4);
   });
 
-  it("respects threshold — high threshold excludes weak matches", () => {
+  it("respects threshold — 0.9 excludes all sample-digest matches", () => {
     const r = findSimilarEngines("CuttingForceMonteCarloEngine", sampleDigest, 0.9, 5);
-    // 0.9 threshold should exclude partial-overlap matches
     expect(r.length).toBe(0);
   });
 
-  it("respects limit — caps results at limit param", () => {
+  it("respects limit — limit=2 with 0.0 threshold and broad query caps at exactly 2", () => {
+    // ToolForceEngine tokens {tool, force} match many; threshold=0 keeps every
+    // engine with non-zero overlap, so limit caps to 2.
     const r = findSimilarEngines("ToolForceEngine", sampleDigest, 0.0, 2);
-    expect(r.length <= 2).toBe(true);
+    expect(r.length).toBe(2);
   });
 
-  it("results are sorted desc by similarity", () => {
-    const r = findSimilarEngines("ToolEngine", sampleDigest, 0.0, 10);
+  it("results sorted desc — ToolDeflection + ToolLife both score 0.5 for ToolEngine query", () => {
+    // ToolEngine tokens: {tool}. ToolDeflectionEngine: {tool,deflection} — 1/2=0.5.
+    // ToolLifeEngine: {tool,life} — 1/2=0.5. Same Jaccard. Other 3 engines share
+    // 0 tokens with {tool} → Jaccard 0 → excluded by threshold 0.2.
+    const r = findSimilarEngines("ToolEngine", sampleDigest, 0.2, 10);
+    expect(r.length).toBe(2);
+    expect(r[0].similarity).toBeCloseTo(0.5, 4);
+    expect(r[1].similarity).toBeCloseTo(0.5, 4);
+    // Both names start with "Tool"
+    const names = r.map((m) => m.name).sort();
+    expect(names).toEqual(["ToolDeflectionEngine", "ToolLifeEngine"]);
+    // Pairwise desc invariant
     for (let i = 1; i < r.length; i++) {
-      expect(r[i - 1].similarity >= r[i].similarity).toBe(true);
+      expect(r[i - 1].similarity).toBeGreaterThanOrEqual(r[i].similarity);
     }
   });
 

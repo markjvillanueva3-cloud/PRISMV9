@@ -114,7 +114,9 @@ if (process.env.PRISM_ENGINE_DIGEST_PRECHECK_AS_LIB === "1") {
     process.exit(0);
   }
 
-  const filePath = String(input?.tool_input?.file_path || "");
+  // Normalize Windows backslashes so the regex matches both
+  // /h/prism/.../src/engines/X.ts AND H:\prism\...\src\engines\X.ts.
+  const filePath = String(input?.tool_input?.file_path || "").replace(/\\/g, "/");
   // Only fire on engine files
   if (!/\/src\/engines\/[A-Za-z0-9_-]+Engine\.ts$/.test(filePath)) {
     passthrough();
