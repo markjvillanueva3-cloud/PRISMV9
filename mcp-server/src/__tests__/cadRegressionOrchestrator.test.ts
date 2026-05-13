@@ -375,9 +375,12 @@ describe("CADRegressionTestOrchestratorEngine", () => {
   });
 
   it("execute() validates that a runner is supplied", async () => {
-    const result = await engine.execute({ tasks: [], options: {} });
-    expect(result.success).toBe(false);
-    expect(result.error).toMatch(/runner/);
+    // BaseEngine.execute throws on validation failure (matches every other
+    // engine in the codebase). Edge-case data values return structured
+    // errors; invalid input *shape* (missing runner) is a validation throw.
+    await expect(
+      engine.execute({ tasks: [], options: {} }),
+    ).rejects.toThrow(/runner/);
   });
 
   it("loadState returns null for missing state file", async () => {
