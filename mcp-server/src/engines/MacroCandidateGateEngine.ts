@@ -96,8 +96,15 @@ export interface GateResult {
 
 const SX_HARD_BLOCK_THRESHOLD = 0.70;
 
-/** Per-machine limits for the JM Die lathe fleet (subset; expand as needed). */
-const JM_DIE_MACHINE_LIMITS: Record<string, MachineLimits> = {
+/**
+ * Per-machine limits for the JM Die lathe fleet (subset; expand as needed).
+ *
+ * Exported as the SINGLE SOURCE OF TRUTH for machine IDs across the
+ * MACRO-PROGRAM-PIPELINE-MS0 chain — U5's per-machine emitter imports this
+ * exact map's keys to prevent catalog drift between the gate and the emitter
+ * (a drift would silently re-gate a machine against generic-fallback limits).
+ */
+export const JM_DIE_MACHINE_LIMITS: Record<string, MachineLimits> = {
   "OKUMA_LB-3000-EX": {
     id: "OKUMA_LB-3000-EX", maxXTravel_in: 11.42, maxZTravel_in: 17.7,
     maxSwingDia_in: 17.7, maxSpindleRPM: 5000, minSpindleRPM: 50,

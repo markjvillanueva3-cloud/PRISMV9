@@ -171,6 +171,8 @@ const ACTIONS = [
   "macro_place_template",                   // MacroLibraryEngine.placeMacroTemplate — copy macro as _MACRO-TEMPLATE_*.min into <part>/CNC PROGRAM/ (DO-NOT-RUN-AS-IS header)
   "macro_fanout_dry_run",                   // MacroLibraryEngine.fanoutDryRun — scan _PART LIBRARY/, report matchable parts per macro family
   "macro_fill_candidate",                   // MS0-U2: MacroFillOrchestratorEngine.fillCandidate — fill VC vars from print dims + call U3 generator (SAFETY-CRITICAL: returns candidate, NEVER a file)
+  "macro_gate_candidate",                   // MS0-U4: MacroCandidateGateEngine.gateCandidate — S(x) ≥ 0.70 HARD BLOCK + envelope + spindle + material sanity → dossier (LOAD-BEARING SAFETY)
+  "macro_emit_per_machine",                 // MS0-U5: MacroPerMachineEmitterEngine.emitPerMachine — per-machine re-gate + .MIN emit (SAFETY-CRITICAL: file ONLY when that machine's S(x) ≥ 0.70)
 
   // TRAINING-LEARNING-MS0/U1: LathePartFamilyTemplateExtractorEngine surfaces
   "lathe_training_corpus_status",           // catalogCorpus — per-family counts + customers + coverage
@@ -1079,6 +1081,48 @@ Actions: ${ACTIONS.join(", ")}.`,
             }
             const data = macroFillOrchestratorEngine.fillCandidate(features, String(targetMachine));
             result = { success: true, data };
+            break;
+          }
+
+          // MS0-U4 (LOAD-BEARING SAFETY): MacroCandidateGateEngine.
+          // Input: { candidate: MacroFillCandidate } (from U2)
+          // Returns { passed, sxScore, safetyRecord, failingChecks, dossier }.
+          // On FAIL: dossier=null and the result carries NO file/path/gcode-output
+          // property — emit NOTHING is asserted at type level.
+          // S(x) ≥ 0.70 HARD BLOCK — no override in this pipeline.
+          case "macro_gate_candidate": {
+            const { macroCandidateGateEngine } = await import("../../engines/MacroCandidateGateEngine.js");
+            const candidate = params.candidate;
+            if (!candidate) {
+              return dispatcherError(new Error("macro_gate_candidate requires candidate (MacroFillCandidate from macro_fill_candidate)"), action, "prism_turning");
+            }
+            const data = macroCandidateGateEngine.gateCandidate(candidate);
+            result = { success: data.passed, data };
+            break;
+          }
+
+          // MS0-U5 (SAFETY-CRITICAL): MacroPerMachineEmitterEngine.
+          // Input: { dossier: SignoffDossier (passed=true), partRef: {customerName, partNumber, libraryRoot?, ...}, targetMachines?: string[] }
+          // Returns { machines: PerMachineResult[], summary, needsOperatorReview: true, emittedAt }.
+          // HARD RULE: a per-machine result emits a .MIN file ONLY when THAT machine's
+          // gate passed at S(x) ≥ 0.70 AND zero BLOCKED signatures. Non-Okuma controllers
+          // exit with form: "dialect-translation-pending" and file=null.
+          case "macro_emit_per_machine": {
+            const { macroPerMachineEmitterEngine } = await import("../../engines/MacroPerMachineEmitterEngine.js");
+            const dossier = params.dossier;
+            const partRef = params.partRef;
+            if (!dossier) {
+              return dispatcherError(new Error("macro_emit_per_machine requires dossier (SignoffDossier from macro_gate_candidate)"), action, "prism_turning");
+            }
+            if (!partRef) {
+              return dispatcherError(new Error("macro_emit_per_machine requires partRef ({customerName, partNumber, libraryRoot?, ...})"), action, "prism_turning");
+            }
+            const data = macroPerMachineEmitterEngine.emitPerMachine({
+              dossier,
+              partRef,
+              targetMachines: params.targetMachines,
+            });
+            result = { success: data.summary.filesEmitted > 0, data };
             break;
           }
 

@@ -557,6 +557,31 @@ export const macroFanoutDryRunSchema = z.object({
   sample_size: z.number().int().min(0).max(1000).optional().describe("How many matched parts to include in the returned sample (default 25)."),
 });
 
+/**
+ * MS0-U5 — MacroPerMachineEmitterEngine.emitPerMachine
+ *
+ * Inputs at runtime use camelCase (dossier, partRef, targetMachines) because
+ * the engine consumes the GateResult.dossier shape verbatim from U4 (which
+ * also uses camelCase). The dispatcher passes params through unchanged after
+ * shape-level validation — Zod here checks structure, not exact field-name
+ * casing, so the engine's own Zod schema is the authoritative input gate.
+ */
+export const macroEmitPerMachineSchema = z.object({
+  dossier: z.object({
+    candidate: z.unknown().describe("MacroFillCandidate from U2 (carried inside the U4 dossier)."),
+    safetyRecord: z.object({ passed: z.boolean() }).passthrough().describe("U4 SafetyRecord — must have passed=true."),
+    needsOperatorReview: z.literal(true).describe("Always true on a U4-passed dossier."),
+  }).passthrough().describe("The full SignoffDossier from MacroCandidateGateEngine.gateCandidate (passed=true)."),
+  partRef: z.object({
+    customerName: z.string().min(1).describe("Customer folder (single segment)."),
+    partNumber: z.string().min(1).describe("Part number (single segment)."),
+    cncProgramDir: z.string().optional().describe("Override CNC PROGRAM output dir. Must resolve under libraryRoot."),
+    partJsonPath: z.string().optional().describe("Override part.json path. Must resolve under libraryRoot."),
+    libraryRoot: z.string().optional().describe("Library root (defaults to H:/PRISM/JM DIE/_PART LIBRARY)."),
+  }).describe("Part reference — where the .MIN files are written and which part.json is updated."),
+  targetMachines: z.array(z.string()).optional().describe("Optional fleet restriction. undefined = full JM Die lathe fleet. [] = none (NOT a fallback)."),
+});
+
 // TRAINING-LEARNING-MS0/U1: CAD-side bridge for placing a lathe template into a part folder.
 // Family enum is narrowed to the 4 OSP-anchored families — the ONLY families for which a
 // .min macro source file exists in MacroLibraryEngine.CATALOG. Empirically verified

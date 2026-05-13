@@ -1279,7 +1279,7 @@ export const ACTIONS = [
   "strategy_robust_optimize", "strategy_robust_worst_case",
   // BOX Data — FusionCPSParser (5), OkumaParametricProgram (5), PostProcessorCapabilityMatrix (5)
   "cps_parse_file", "cps_parse_directory", "cps_search", "cps_property_catalog", "cps_compare_controllers",
-  "okuma_generate_casing", "okuma_generate_cbore", "okuma_generate_wafer_insert", "okuma_generate_top_hat", "okuma_validate_macro", "okuma_parse_macro", "okuma_defaults", "okuma_convert_to_hardcode", "macro_fill_candidate",
+  "okuma_generate_casing", "okuma_generate_cbore", "okuma_generate_wafer_insert", "okuma_generate_top_hat", "okuma_validate_macro", "okuma_parse_macro", "okuma_defaults", "okuma_convert_to_hardcode", "macro_fill_candidate", "macro_gate_candidate", "macro_emit_per_machine",
   "pp_capability_matrix", "pp_capability_query", "pp_capability_compare", "pp_select_post", "pp_capability_summary",
   // CAMX-MS5 U01 — NXCAMStrategyEngine (E1104)
   "nx_cam_recommend", "nx_cam_parameters", "nx_cam_ipw", "nx_cam_fbm", "nx_cam_list_strategies",
@@ -7586,6 +7586,32 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const target = params.target_machine ?? params.targetMachine;
             if (!target) throw new Error("macro_fill_candidate requires target_machine (e.g. 'OKUMA_LB-3000-EX')");
             result = macroFillOrchestratorEngine.fillCandidate(params.features, String(target));
+            break;
+          }
+
+          // MS0-U4 (LOAD-BEARING SAFETY): MacroCandidateGateEngine — S(x) ≥ 0.70.
+          // Co-located with okuma_generate_* + macro_fill_candidate; gates the
+          // candidate before any .MIN emission.
+          case "macro_gate_candidate": {
+            const { macroCandidateGateEngine } = await import("../../engines/MacroCandidateGateEngine.js");
+            if (!params.candidate) throw new Error("macro_gate_candidate requires candidate (MacroFillCandidate)");
+            result = macroCandidateGateEngine.gateCandidate(params.candidate);
+            break;
+          }
+
+          // MS0-U5 (SAFETY-CRITICAL): MacroPerMachineEmitterEngine — per-machine
+          // re-gate + labelled .MIN emit. HARD RULE: file ONLY when that machine's
+          // S(x) ≥ 0.70. Non-Okuma controllers → form: "dialect-translation-pending",
+          // no file. Co-located with macro_fill_candidate + macro_gate_candidate.
+          case "macro_emit_per_machine": {
+            const { macroPerMachineEmitterEngine } = await import("../../engines/MacroPerMachineEmitterEngine.js");
+            if (!params.dossier) throw new Error("macro_emit_per_machine requires dossier (SignoffDossier from macro_gate_candidate)");
+            if (!params.partRef) throw new Error("macro_emit_per_machine requires partRef ({customerName, partNumber, libraryRoot?, ...})");
+            result = macroPerMachineEmitterEngine.emitPerMachine({
+              dossier: params.dossier,
+              partRef: params.partRef,
+              targetMachines: params.targetMachines,
+            });
             break;
           }
 

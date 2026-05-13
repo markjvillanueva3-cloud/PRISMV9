@@ -9,8 +9,8 @@
   "updated_at": "2026-05-12T18:55:00.000Z",
   "status": "in_progress",
   "total_units": 7,
-  "completed_units": 4,
-  "updated_at": "2026-05-13T18:50:00.000Z",
+  "completed_units": 5,
+  "updated_at": "2026-05-13T22:00:00.000Z",
   "dependencies": [],
   "rationale": "User 2026-05-12: 'add the corresponding macro program to each file system that has a part that could use one of the programs; check existing programs for each part then make a version of each program utilizing one of the macro programs; make a program for each lathe machine and label it for each machine; coding must match controller and machine capabilities'. Spec was scoped by claude-8f2683e8 (slot charlie) per the forge methodology with the live system-viz graph as dependency oracle. Key finding: ~80% of this pipeline already exists (OkumaParametricProgramEngine, MacroProgramIntelligenceEngine, OkumaMacroHeaderGeneratorEngine, LatheProofCarryingEmitEngine, LathePrintProgramEmitterEngine, ShopConfigurationEngine, LathePartClassifierEngine, PartFolderOrganizerEngine, etc). Milestone is mostly WIRING + a thin orchestrator + the 2 missing macro families + the bulk fan-out — NOT a from-scratch build. U2-U6 are SAFETY-CRITICAL (auto-emitting G-code from print dims) and gated by S(x) >= 0.70 + envelope check + sim + operator sign-off. NEVER bulk-auto-emit G-code. U1 is non-safety-critical (file copying + part classification) and ships first.",
   "knowledge_sources": {
@@ -148,7 +148,42 @@
     {
       "id": "MS0-U5",
       "title": "Per-machine post-resolution + labelled .MIN emit (parametric or expanded by controller memory)",
-      "status": "not_started"
+      "status": "completed",
+      "completed_at": "2026-05-13T22:00:00.000Z",
+      "completed_by": "claude-af644f3f (slot bravo)",
+      "shipped": [
+        "MacroPerMachineEmitterEngine.ts (NEW, ~620 LOC) — composes U2 fill + U4 gate + per-machine .MIN emit; module-load drift-guard between U4's JM_DIE_MACHINE_LIMITS and U5's FLEET_METADATA",
+        "FLEET_METADATA: 3 Okuma machines (LB-3000-EX, LB-4000-MY, LU-15) + GENERIC_LATHE fallback; controller routing by dialect (okuma_osp/fanuc/haas/mazak/siemens/mitsubishi/generic) with per-controller memory limits",
+        "MacroCandidateGateEngine.JM_DIE_MACHINE_LIMITS export (single source of truth for machine IDs across U4↔U5)",
+        "Zod input schema (PartRef + dossier + targetMachines) with shape validation + bespoke invariants (passed=true required, needsGate must be true)",
+        "Path-traversal sandbox: customerName/partNumber sanitized; explicit cncProgramDir/partJsonPath asserted under libraryRoot via path.resolve",
+        "Gate-contract assertion (passed=true but dossier=null throws — structural bug never silenced)",
+        "Per-machine independence: one machine's gate throw / disk failure / dialect-pending NEVER aborts the loop — error becomes a typed PerMachineResult entry, loop continues",
+        "structuredClone-based candidate cloning (preserves Date/Map/etc — replaces JSON.parse(JSON.stringify) footgun)",
+        "Defense-in-depth candidate integrity re-check on input (typeof formula === 'string' + reject bare-numeric strings)",
+        "Atomic file writes via safeWriteSync (temp + rename); corrupt part.json preserved as <path>.corrupt-<iso> NOT silently overwritten",
+        "Comment-injection defense: Okuma OSP unmatched-paren risk neutralized by replacing ( and ) with [ and ] in header strings",
+        "prism_turning action: macro_emit_per_machine (ACTIONS enum + case handler + Zod schema)",
+        "prism_cam action: macro_emit_per_machine (co-located with okuma_generate_* + macro_fill_candidate + macro_gate_candidate)",
+        "prism_turning + prism_cam: macro_gate_candidate (U4 dispatcher close-out — previously uncommitted)",
+        "macroEmitPerMachineSchema in cadActionSchemas.ts with .describe() on every field per schemas.md convention",
+        "MacroPerMachineEmitterEngine.test.ts (NEW — 34/34 passing): happy + 4 negatives + 5 adversarial + 6 path-traversal + 5 candidate-integrity + per-machine independence + non-Okuma dialect + comment-injection + corrupt-JSON preservation + structuredClone isolation + catalog parity drift guard + summary counters",
+        "macroEmitPerMachine.dispatcher.test.ts (NEW — 7/7 passing): prism_turning round-trip + prism_cam ACTIONS enum + schema validation + anti-regression count"
+      ],
+      "tests_run": "41/41 passing (34 engine + 7 dispatcher; 67+41 = 108 total green across MS0-U2/U3/U4/U5)",
+      "hard_rules_asserted": [
+        "HARD RULE: no machine ever gets a file unless THAT machine's gate passed at S(x) >= 0.70 AND zero BLOCKED signatures — asserted per-machine in 'every emitted machine's sxScore is >= 0.70' test",
+        "Calculated VC expressions (VC130, VC150) carried through to emitted .MIN file UNCHANGED — asserted by regex match on /VC130\\s*=\\s*\\[VC111\\s*\\*\\s*3\\.82\\]\\s*\\/\\s*VC110/",
+        "Non-Okuma controllers exit with form: 'dialect-translation-pending' and file=null + dialectTranslationPending=true — asserted on GENERIC_LATHE",
+        "targetMachines=[] returns ZERO machines (NOT a fallback to fleet) — asserted directly",
+        "Path traversal via customerName/partNumber ('..', '/', '\\', Windows-reserved) throws — 4 dedicated tests",
+        "Explicit cncProgramDir/partJsonPath outside libraryRoot throws — 2 dedicated tests",
+        "Tainted candidate (pre-computed VC130='993.2' or formula=999 number) rejected at input — 2 dedicated tests",
+        "Corrupt part.json preserved as .corrupt-<iso> rather than overwritten — explicit test verifies backup file exists with original content",
+        "Per-machine independence: dossier built for LB-3000 re-gates each fleet machine independently — every machine's safetyRecord.targetMachine matches the machine being gated",
+        "Catalog parity: module-load drift-guard throws if JM_DIE_MACHINE_LIMITS keys != FLEET_METADATA keys — asserted by successful import (a drift would prevent the test file from loading)",
+        "Operator-review unconditional: needsOperatorReview:true at output level + part.json.lastMacroEmit + part.json.perMachinePrograms[i] + .MIN file header banner"
+      ]
     },
     {
       "id": "MS0-U6",
