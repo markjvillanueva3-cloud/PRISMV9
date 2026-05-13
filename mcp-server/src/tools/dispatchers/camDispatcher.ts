@@ -980,6 +980,12 @@ export const ACTIONS = [
   "mill_training_template_match",
   "mill_training_template_list",
   "mill_training_template_extract_all",
+  // TRAINING-LEARNING-MS0/U3 — Electrode + taptite coverage audit (SAFETY-CRITICAL
+  // READ-ONLY against H:/PRISM/JM DIE/Automated Program_Corrected 5-25.xlsm).
+  // Engine NEVER mutates the .xlsm or any corpus file. Tests assert mtimeMs unchanged.
+  "electrode_corpus_scan",
+  "electrode_xlsm_fingerprint",
+  "electrode_coverage_audit",
   "cam_strategy_recommend", "cam_safety_validate",
   "cam_multiaxis_recommend", "cam_material_map",
   "cam_cycle_catalog",
@@ -2345,6 +2351,55 @@ Params vary by action — pass relevant fields in params object.`,
               snapshotPath: (p.snapshotPath ?? p.snapshot_path) as string,
               outDir: (p.outDir ?? p.out_dir) as string,
               dryRun: (p.dryRun ?? p.dry_run) as boolean,
+            });
+            result = data.ok
+              ? { success: true, data }
+              : { success: false, error: (data as { error?: string }).error, detail: (data as { detail?: string }).detail, data };
+            break;
+          }
+
+          // ── TRAINING-LEARNING-MS0/U3 — ElectrodeCoverageAuditEngine ──
+          // SAFETY-CRITICAL READ-ONLY audit of the JM Die electrode/taptite corpus
+          // against `Automated Program_Corrected 5-25.xlsm`. The engine never
+          // mutates the .xlsm or any corpus file. Engine returns discriminated
+          // `{ok: true|false, error?}` — bridge `data.ok` → dispatcher `success`
+          // so missing-corpus / missing-xlsm / invalid-baseline are NOT reported
+          // as success. Mirrors the U1/U2 sibling case-handler shape.
+          case "electrode_corpus_scan": {
+            const { electrodeCoverageAuditEngine } = await import("../../engines/ElectrodeCoverageAuditEngine.js");
+            const p = params as Record<string, unknown>;
+            const data = electrodeCoverageAuditEngine.scanCorpus({
+              corpusRoot: (p.corpusRoot ?? p.corpus_root) as string | undefined,
+              maxDepth: (p.maxDepth ?? p.max_depth) as number | undefined,
+              presetSnapshot: (p.presetSnapshot ?? p.preset_snapshot) as never,
+            });
+            result = data.ok
+              ? { success: true, data }
+              : { success: false, error: data.error, detail: data.detail, data };
+            break;
+          }
+          case "electrode_xlsm_fingerprint": {
+            const { electrodeCoverageAuditEngine } = await import("../../engines/ElectrodeCoverageAuditEngine.js");
+            const p = params as Record<string, unknown>;
+            const data = electrodeCoverageAuditEngine.xlsmFingerprint({
+              xlsmPath: (p.xlsmPath ?? p.xlsm_path) as string | undefined,
+            });
+            result = data.ok
+              ? { success: true, data }
+              : { success: false, error: data.error, detail: data.detail, data };
+            break;
+          }
+          case "electrode_coverage_audit": {
+            const { electrodeCoverageAuditEngine } = await import("../../engines/ElectrodeCoverageAuditEngine.js");
+            const p = params as Record<string, unknown>;
+            const data = electrodeCoverageAuditEngine.report({
+              corpusRoot: (p.corpusRoot ?? p.corpus_root) as string | undefined,
+              maxDepth: (p.maxDepth ?? p.max_depth) as number | undefined,
+              xlsmPath: (p.xlsmPath ?? p.xlsm_path) as string | undefined,
+              presetSnapshot: (p.presetSnapshot ?? p.preset_snapshot) as never,
+              baselineOverride: (p.baselineOverride ?? p.baseline_override) as
+                | { electrodes: number; taptites: number }
+                | undefined,
             });
             result = data.ok
               ? { success: true, data }
