@@ -155,7 +155,19 @@ const ACTIONS = [
   "master_index_query",
   "master_index_node_status",
   // OBSIDIAN-PRISM-OS-MS0/U-NODE-UTILIZATION: graph-wide utilization classifier (hub/sink/source/orphan/ghost)
-  "master_index_utilization_dashboard"
+  "master_index_utilization_dashboard",
+  // COORD-MS0/U-COORD04: CrossSessionOrchestratorEngine unified facade — claim/broadcast/handoff over the 3 cross-session primitives
+  "cross_session_get_session_id",
+  "cross_session_claim",
+  "cross_session_release",
+  "cross_session_is_file_claimed",
+  "cross_session_broadcast",
+  "cross_session_get_recent_events",
+  "cross_session_force_invalidate_all",
+  "cross_session_create_handoff",
+  "cross_session_get_status",
+  "cross_session_get_other_sessions",
+  "cross_session_get_status_line"
 ] as const;
 
 function ok(data: any) {
@@ -1612,6 +1624,111 @@ export function registerSessionDispatcher(server: any): void {
               ...(wrote ? { wrote } : {}),
               ...(params.include_html ? { html: rendered.html } : {}),
             });
+          }
+
+          // ================================================================
+          // COORD-MS0/U-COORD04: CrossSessionOrchestratorEngine unified facade
+          // Wires AtomicClaimBroker + CrossTerminalBroadcast + SessionHandoffV2
+          // ================================================================
+          case "cross_session_get_session_id": {
+            const { crossSessionOrchestratorEngine: xs } = await import("../../engines/CrossSessionOrchestratorEngine.js");
+            return ok({
+              sessionId: xs.getSessionId(),
+              identity: xs.getIdentity(),
+            });
+          }
+
+          case "cross_session_claim": {
+            const { crossSessionOrchestratorEngine: xs } = await import("../../engines/CrossSessionOrchestratorEngine.js");
+            const resource = String(params.resource ?? "");
+            const ttlMsRaw = params.ttl_ms ?? params.ttlMs;
+            const ttlMs = ttlMsRaw != null ? Number(ttlMsRaw) : undefined;
+            const reason = typeof params.reason === "string" ? params.reason : undefined;
+            return ok(xs.claim({ resource, ttlMs, reason }));
+          }
+
+          case "cross_session_release": {
+            const { crossSessionOrchestratorEngine: xs } = await import("../../engines/CrossSessionOrchestratorEngine.js");
+            const resource = typeof params.resource === "string" ? params.resource : "";
+            const released = resource ? xs.release(resource) : false;
+            return ok({ released, resource });
+          }
+
+          case "cross_session_is_file_claimed": {
+            const { crossSessionOrchestratorEngine: xs } = await import("../../engines/CrossSessionOrchestratorEngine.js");
+            const filePath = String(params.file_path ?? params.filePath ?? "");
+            return ok(xs.isFileClaimedByOther(filePath));
+          }
+
+          case "cross_session_broadcast": {
+            const { crossSessionOrchestratorEngine: xs } = await import("../../engines/CrossSessionOrchestratorEngine.js");
+            const type = (typeof params.type === "string" ? params.type : "info") as
+              "info" | "warning" | "request" | "response" | "registry_change" | "asset_added" | "asset_removed" | "cache_invalidate";
+            const content = typeof params.content === "string" ? params.content : undefined;
+            const payload = (params.payload && typeof params.payload === "object")
+              ? params.payload as Record<string, unknown>
+              : undefined;
+            const ttlMsRaw = params.ttl_ms ?? params.ttlMs;
+            const ttlMs = ttlMsRaw != null && Number.isFinite(Number(ttlMsRaw)) ? Number(ttlMsRaw) : undefined;
+            const msg = await xs.broadcastMessage({ type, content, payload, ttlMs });
+            return ok({ success: true, message: msg });
+          }
+
+          case "cross_session_get_recent_events": {
+            const { crossSessionOrchestratorEngine: xs } = await import("../../engines/CrossSessionOrchestratorEngine.js");
+            const limit = params.limit != null ? Number(params.limit) : 50;
+            const events = await xs.getRecentEvents(limit);
+            return ok({ events, count: events.length });
+          }
+
+          case "cross_session_force_invalidate_all": {
+            const { crossSessionOrchestratorEngine: xs } = await import("../../engines/CrossSessionOrchestratorEngine.js");
+            await xs.forceInvalidateAll();
+            return ok({ success: true });
+          }
+
+          case "cross_session_create_handoff": {
+            const { crossSessionOrchestratorEngine: xs } = await import("../../engines/CrossSessionOrchestratorEngine.js");
+            const outcome = xs.createHandoff({
+              identity: (params.identity && typeof params.identity === "object")
+                ? params.identity as Parameters<typeof xs.createHandoff>[0]["identity"]
+                : undefined,
+              position: (params.position && typeof params.position === "object")
+                ? params.position as Parameters<typeof xs.createHandoff>[0]["position"]
+                : undefined,
+              openGoals: Array.isArray(params.open_goals ?? params.openGoals)
+                ? (params.open_goals ?? params.openGoals) as Parameters<typeof xs.createHandoff>[0]["openGoals"]
+                : undefined,
+              keyInsights: Array.isArray(params.key_insights ?? params.keyInsights)
+                ? (params.key_insights ?? params.keyInsights) as Parameters<typeof xs.createHandoff>[0]["keyInsights"]
+                : undefined,
+              nextActions: Array.isArray(params.next_actions ?? params.nextActions)
+                ? (params.next_actions ?? params.nextActions) as Parameters<typeof xs.createHandoff>[0]["nextActions"]
+                : undefined,
+              writtenAt: typeof (params.written_at ?? params.writtenAt) === "string"
+                ? String(params.written_at ?? params.writtenAt)
+                : undefined,
+              startedAt: typeof (params.started_at ?? params.startedAt) === "string"
+                ? String(params.started_at ?? params.startedAt)
+                : undefined,
+            });
+            return ok(outcome);
+          }
+
+          case "cross_session_get_status": {
+            const { crossSessionOrchestratorEngine: xs } = await import("../../engines/CrossSessionOrchestratorEngine.js");
+            return ok(xs.getStatus());
+          }
+
+          case "cross_session_get_other_sessions": {
+            const { crossSessionOrchestratorEngine: xs } = await import("../../engines/CrossSessionOrchestratorEngine.js");
+            const others = xs.getOtherSessions();
+            return ok({ sessions: others, count: others.length });
+          }
+
+          case "cross_session_get_status_line": {
+            const { crossSessionOrchestratorEngine: xs } = await import("../../engines/CrossSessionOrchestratorEngine.js");
+            return ok({ statusLine: xs.getStatusLine() });
           }
 
           default:

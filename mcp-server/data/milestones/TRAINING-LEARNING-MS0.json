@@ -10,7 +10,7 @@
   "updated_at": "2026-05-13T02:30:00.000Z",
   "status": "in_progress",
   "total_units": 7,
-  "completed_units": 0,
+  "completed_units": 2,
   "dependencies": ["MACRO-PROGRAM-PIPELINE-MS0"],
   "omega_floor": 1.0,
   "rationale": "Every print, program, CAD/CAM file in JM Die's 24,545-file corpus becomes structured training data. Per-domain matcher engines propose 'this new job looks like these 5 we've already shipped — start from that template.' The taptite-electrode Excel macro at 'JM DIE/Automated Program_Corrected 5-25.xlsm' is bridged as a READ-ONLY first-class asset (parsed-snapshot path for MS0; live-Excel COM deferred to v2). Every electrode part is audited for coverage. No auto-emit — templates feed the gated pipeline in MACRO-PROGRAM-PIPELINE-MS0, operator-in-the-loop is unconditional. Historical S/F values treated as DATA not GROUND TRUTH per feedback_box_programs_amateur — physics-derived recommendations win on disagreement.",
@@ -109,11 +109,34 @@
         {
           "id": "U-TL-U2-MILL-TEMPLATE-EXTRACTOR",
           "title": "MillPartFamilyTemplateExtractorEngine + corpus scanner",
-          "status": "not_started",
+          "status": "completed",
+          "completed_at": "2026-05-13T15:35:00Z",
+          "completed_in_commits": [
+            "64039171990161d5f7f23785a357d1f29651390c (pick-unit pipeline inject — added MS0 to atomic-roadmap)",
+            "581519de3 (engine 647 LOC + 29 engine tests + 8 wire tests + camDispatcher 4 actions + phase21 scanner 203 LOC + .gitkeep)"
+          ],
+          "actual_hours": 2,
           "estimated_hours": 3,
+          "owner": "claude-c32663d5 (slot ALPHA)",
+          "branch": "cad-fusion-live-ms0",
+          "worktree": "H:/prism (main tree with [TRAINING-LEARNING-MS0] prefix)",
           "safety_critical": false,
           "dependencies": ["U-TL-U1-LATHE-TEMPLATE-EXTRACTOR"],
-          "families_target": ["taptite-mill", "electrode-mill", "plate", "bracket-housing", "mold-die-insert", "aerospace-bracket", "sheet-metal-fixture"]
+          "families_target": ["taptite-mill", "electrode-mill", "plate", "bracket-housing", "mold-die-insert", "aerospace-bracket", "sheet-metal-fixture"],
+          "deliverables": [
+            "mcp-server/src/engines/MillPartFamilyTemplateExtractorEngine.ts",
+            "mcp-server/src/__tests__/MillPartFamilyTemplateExtractorEngine.test.ts (29 cases)",
+            "mcp-server/src/__tests__/MillPartFamilyTemplateExtractorEngine-wire.test.ts (8 cases)",
+            "mcp-server/src/tools/dispatchers/camDispatcher.ts (4 actions wired)",
+            "Docustrata/.index/phase21-mill-template-corpus-scan.py",
+            "mcp-server/data/training/templates/mill/.gitkeep"
+          ],
+          "wired_actions": [
+            "prism_cam:mill_training_corpus_status",
+            "prism_cam:mill_training_template_match",
+            "prism_cam:mill_training_template_list",
+            "prism_cam:mill_training_template_extract_all"
+          ]
         }
       ]
     },

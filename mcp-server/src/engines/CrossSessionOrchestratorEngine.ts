@@ -1,26 +1,52 @@
 /**
- * CrossSessionOrchestratorEngine (U-COORD04)
+ * CrossSessionOrchestratorEngine — Unified Facade for cross-session coordination
  *
- * Unified facade over cross-session coordination engines:
- * - AtomicClaimBrokerEngine (CAS claiming)
- * - CrossTerminalBroadcastEngine (file watching + EventEmitter)
- * - SessionHandoffV2Engine (structured handoff)
+ * COORD-MS0/U-COORD04: One API surface over the three primitives every PRISM
+ * session needs to coordinate with its peers:
+ *   - AtomicClaimBrokerEngine       — CAS file/resource claims with TTL + zombie reaping
+ *   - CrossTerminalBroadcastEngine  — file-watch + JSONL broadcast channel + subscribers
+ *   - SessionHandoffV2Engine        — schema-validated handoff payload builder
  *
- * Provides single API for all cross-session coordination needs.
+ * The pre-refactor version of this engine only wired AtomicClaimBroker and
+ * duplicated the broadcast/handoff logic with raw `fs.appendFileSync` +
+ * ad-hoc JSON. That made the contract drift across multiple paths
+ * (`state/shared/BROADCAST_CHANNEL.jsonl` vs the canonical
+ * `mcp-server/data/state/BROADCAST_CHANNEL.jsonl`) and bypassed the v2
+ * handoff validator. This rewrite delegates *everything* to the wrapped
+ * engines so there is exactly one path-of-truth per primitive.
  *
+ * Identity policy
+ *   - sessionId is built from PRISM_AGENT_FAMILY|claude + hostname + pid so a
+ *     given chat is addressable consistently across its lifetime.
+ *   - claim/release proxy to AtomicClaimBroker, which uses its own holder-id
+ *     derived from CLAUDE_SESSION_ID + hostname. Both ids are surfaced so
+ *     callers can correlate.
+ *
+ * @module engines/CrossSessionOrchestratorEngine
  * @unit COORD-MS0/U-COORD04
  */
 
-import { atomicClaimBrokerEngine } from "./AtomicClaimBrokerEngine.js";
+import { EventEmitter } from "events";
 import * as fs from "fs";
 import * as os from "os";
-import { EventEmitter } from "events";
+import * as path from "path";
+import { atomicClaimBrokerEngine } from "./AtomicClaimBrokerEngine.js";
+import { CrossTerminalBroadcastEngine } from "./CrossTerminalBroadcastEngine.js";
+import {
+  sessionHandoffV2Engine,
+  type HandoffIdentity,
+  type HandoffPosition,
+  type HandoffOpenGoal,
+  type HandoffInsightSummary,
+  type HandoffNextAction,
+  type SessionHandoffV2,
+} from "./SessionHandoffV2Engine.js";
 
 // ============================================================================
-// Types
+// Types (exported for dispatcher + tests)
 // ============================================================================
 
-interface SessionInfo {
+export interface SessionInfo {
   id: string;
   family: string;
   pid: number;
@@ -30,16 +56,17 @@ interface SessionInfo {
   currentWork?: string;
 }
 
-interface BroadcastMessage {
+export interface BroadcastMessage {
   id: string;
   from: string;
   timestamp: string;
-  type: "info" | "warning" | "request" | "response";
-  content: string;
+  type: "info" | "warning" | "request" | "response" | "registry_change" | "asset_added" | "asset_removed" | "cache_invalidate";
+  content?: string;
+  payload?: Record<string, unknown>;
   ttlMs?: number;
 }
 
-interface CoordinationStatus {
+export interface CoordinationStatus {
   healthy: boolean;
   daemonActive: boolean;
   activeSessions: number;
@@ -52,22 +79,58 @@ interface CoordinationStatus {
   };
 }
 
-interface ClaimRequest {
+export interface ClaimRequest {
   resource: string;
   ttlMs?: number;
   reason?: string;
+}
+
+export interface ClaimResult {
+  success: boolean;
+  resource: string;
+  holder?: string;
+  error?: string;
+  conflictingHolder?: string;
+  suggestedAction?: "wait" | "steal" | "abort";
+}
+
+export interface HandoffOutcome {
+  ok: boolean;
+  filename: string;
+  payload?: SessionHandoffV2;
+  serialized?: string;
+  errors?: string[];
+}
+
+export interface CreateHandoffInput {
+  identity?: Partial<HandoffIdentity>;
+  position?: HandoffPosition;
+  openGoals?: HandoffOpenGoal[];
+  keyInsights?: HandoffInsightSummary[];
+  nextActions?: HandoffNextAction[];
+  /** Optional explicit ISO timestamp (test-friendliness; defaults to now) */
+  writtenAt?: string;
+  /** Optional explicit start time (test-friendliness; defaults to writtenAt) */
+  startedAt?: string;
 }
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-const SUMMARY_PATH = "H:/prism/state/shared/AGENT_COORDINATION_SUMMARY.json";
-const BROADCAST_PATH = "H:/prism/state/shared/BROADCAST_CHANNEL.jsonl";
-const HANDOFF_DIR = "H:/prism/state/shared/handoffs";
+/**
+ * Summary file produced by the agent-coordination daemon. Read-only for the
+ * orchestrator. Path is configurable through the `PRISM_COORD_SUMMARY_PATH`
+ * env var to keep tests hermetic.
+ */
+const DEFAULT_SUMMARY_PATH = "H:/prism/state/shared/AGENT_COORDINATION_SUMMARY.json";
+
+function resolveSummaryPath(): string {
+  return process.env.PRISM_COORD_SUMMARY_PATH || DEFAULT_SUMMARY_PATH;
+}
 
 // ============================================================================
-// Engine Class
+// Engine
 // ============================================================================
 
 class CrossSessionOrchestratorEngine extends EventEmitter {
@@ -75,12 +138,18 @@ class CrossSessionOrchestratorEngine extends EventEmitter {
   private readonly sessionId: string;
   private readonly hostname: string;
   private readonly pid: number;
+  private readonly family: string;
+  private readonly broadcast: CrossTerminalBroadcastEngine;
+  /** Subscriber handles created via this facade — tracked for cleanup. */
+  private readonly subscriptions: Set<{ id: string; unsubscribe: () => void }> = new Set();
 
   private constructor() {
     super();
     this.hostname = os.hostname();
     this.pid = process.pid;
-    this.sessionId = `${process.env.PRISM_AGENT_FAMILY || "Claude"}@${this.hostname}/pid-${this.pid}`;
+    this.family = process.env.PRISM_AGENT_FAMILY || "Claude";
+    this.sessionId = `${this.family}@${this.hostname}/pid-${this.pid}`;
+    this.broadcast = new CrossTerminalBroadcastEngine();
   }
 
   static getInstance(): CrossSessionOrchestratorEngine {
@@ -90,185 +159,367 @@ class CrossSessionOrchestratorEngine extends EventEmitter {
     return CrossSessionOrchestratorEngine.instance;
   }
 
-  /**
-   * Get current coordination status (from summary file)
-   */
-  getStatus(): CoordinationStatus {
-    try {
-      const summary = JSON.parse(fs.readFileSync(SUMMARY_PATH, "utf-8"));
-      return {
-        healthy: summary.health === "healthy",
-        daemonActive: summary.daemon_active || false,
-        activeSessions: summary.active_sessions || 0,
-        sessions: (summary.sessions || []).map((s: { id: string; family: string }) => ({
-          id: s.id,
-          family: s.family,
-          pid: this.extractPid(s.id),
-          hostname: this.extractHostname(s.id),
-          startedAt: "",
-          lastHeartbeat: summary.generated_at,
-        })),
-        pendingClaims: atomicClaimBrokerEngine.getActiveClaims().length,
-        latestActivity: summary.latest_activity,
-      };
-    } catch {
-      return {
-        healthy: false,
-        daemonActive: false,
-        activeSessions: 0,
-        sessions: [],
-        pendingClaims: 0,
-      };
+  /** Reset the singleton for tests. Not for production use. */
+  static __resetForTests(): void {
+    if (CrossSessionOrchestratorEngine.instance) {
+      CrossSessionOrchestratorEngine.instance.disposeSubscriptions();
     }
+    CrossSessionOrchestratorEngine.instance = undefined as unknown as CrossSessionOrchestratorEngine;
   }
 
-  /**
-   * Claim a resource for this session
-   */
-  claim(request: ClaimRequest): { success: boolean; error?: string } {
-    const result = atomicClaimBrokerEngine.acquireClaim(
-      request.resource,
-      request.ttlMs
-    );
+  // --------------------------------------------------------------------------
+  // Identity
+  // --------------------------------------------------------------------------
 
-    if (result.success) {
-      this.emit("claim:acquired", { resource: request.resource, holder: this.sessionId });
-    } else {
-      this.emit("claim:rejected", { resource: request.resource, reason: result.error });
-    }
-
-    return {
-      success: result.success,
-      error: result.error,
-    };
-  }
-
-  /**
-   * Release a claimed resource
-   */
-  release(resource: string): boolean {
-    const released = atomicClaimBrokerEngine.releaseClaim(resource);
-    if (released) {
-      this.emit("claim:released", { resource, holder: this.sessionId });
-    }
-    return released;
-  }
-
-  /**
-   * Broadcast a message to all sessions
-   */
-  broadcast(message: Omit<BroadcastMessage, "id" | "from" | "timestamp">): void {
-    const fullMessage: BroadcastMessage = {
-      id: `msg-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-      from: this.sessionId,
-      timestamp: new Date().toISOString(),
-      ...message,
-    };
-
-    try {
-      fs.appendFileSync(BROADCAST_PATH, JSON.stringify(fullMessage) + "\n");
-      this.emit("broadcast:sent", fullMessage);
-    } catch (err) {
-      this.emit("broadcast:error", { error: (err as Error).message });
-    }
-  }
-
-  /**
-   * Get other active sessions (excluding self)
-   */
-  getOtherSessions(): SessionInfo[] {
-    const status = this.getStatus();
-    return status.sessions.filter(s => !s.id.includes(`pid-${this.pid}`));
-  }
-
-  /**
-   * Check if another session is working on a file
-   */
-  isFileClaimedByOther(filePath: string): { claimed: boolean; holder?: string } {
-    const claims = atomicClaimBrokerEngine.getActiveClaims();
-    const claim = claims.find(c => c.resource === filePath && c.holder !== this.sessionId);
-
-    return {
-      claimed: !!claim,
-      holder: claim?.holder,
-    };
-  }
-
-  /**
-   * Get compact status line for injection
-   */
-  getStatusLine(): string {
-    const status = this.getStatus();
-    if (!status.healthy) return "";
-
-    const otherCount = this.getOtherSessions().length;
-    if (otherCount === 0) return "";
-
-    return `(${otherCount} online)`;
-  }
-
-  /**
-   * Create handoff data for session transfer
-   */
-  createHandoff(data: {
-    nextSession?: string;
-    currentWork: string;
-    context: string;
-    nextSteps: string[];
-  }): string {
-    const handoffId = `handoff-${Date.now()}`;
-    const handoffPath = `${HANDOFF_DIR}/${handoffId}.json`;
-
-    const handoff = {
-      id: handoffId,
-      from: this.sessionId,
-      to: data.nextSession || "any",
-      timestamp: new Date().toISOString(),
-      currentWork: data.currentWork,
-      context: data.context,
-      nextSteps: data.nextSteps,
-    };
-
-    try {
-      fs.mkdirSync(HANDOFF_DIR, { recursive: true });
-      fs.writeFileSync(handoffPath, JSON.stringify(handoff, null, 2));
-      return handoffId;
-    } catch {
-      return "";
-    }
-  }
-
-  /**
-   * Get this session's ID
-   */
   getSessionId(): string {
     return this.sessionId;
   }
 
-  // ============================================================================
-  // Private helpers
-  // ============================================================================
-
-  private extractPid(sessionId: string): number {
-    const match = sessionId.match(/pid-(\d+)/);
-    return match ? parseInt(match[1], 10) : 0;
+  getIdentity(): Pick<HandoffIdentity, "sessionId" | "family" | "machine" | "instance"> {
+    return {
+      sessionId: this.sessionId,
+      family: this.normalizeFamily(this.family),
+      machine: this.hostname,
+      instance: `pid-${this.pid}`,
+    };
   }
 
-  private extractHostname(sessionId: string): string {
-    const match = sessionId.match(/@([^/]+)/);
-    return match ? match[1] : "";
+  // --------------------------------------------------------------------------
+  // Claim broker pass-through
+  // --------------------------------------------------------------------------
+
+  claim(request: ClaimRequest): ClaimResult {
+    const resource = String(request.resource ?? "");
+    if (!resource) {
+      return { success: false, resource, error: "resource must be a non-empty string" };
+    }
+    const ttlMs = this.sanitizeTtl(request.ttlMs);
+    const result = atomicClaimBrokerEngine.acquireClaim(resource, ttlMs);
+    const out: ClaimResult = {
+      success: result.success,
+      resource,
+      holder: result.claim?.holder,
+      error: result.error,
+      conflictingHolder: result.conflictingHolder,
+      suggestedAction: result.suggestedAction,
+    };
+    if (result.success) {
+      this.emit("claim:acquired", { resource, holder: out.holder ?? this.sessionId });
+    } else {
+      this.emit("claim:rejected", { resource, reason: result.error });
+    }
+    return out;
+  }
+
+  release(resource: string): boolean {
+    if (!resource || typeof resource !== "string") return false;
+    const released = atomicClaimBrokerEngine.releaseClaim(resource);
+    if (released) this.emit("claim:released", { resource });
+    return released;
+  }
+
+  isFileClaimedByOther(filePath: string): { claimed: boolean; holder?: string } {
+    if (!filePath || typeof filePath !== "string") return { claimed: false };
+    const claims = atomicClaimBrokerEngine.getActiveClaims();
+    const claim = claims.find(c => c.resource === filePath && !this.isSelf(c.holder));
+    return claim ? { claimed: true, holder: claim.holder } : { claimed: false };
+  }
+
+  getActiveClaims(): ReturnType<typeof atomicClaimBrokerEngine.getActiveClaims> {
+    return atomicClaimBrokerEngine.getActiveClaims();
+  }
+
+  // --------------------------------------------------------------------------
+  // Broadcast pass-through (delegated to CrossTerminalBroadcastEngine)
+  // --------------------------------------------------------------------------
+
+  async broadcastMessage(
+    message: Omit<BroadcastMessage, "id" | "from" | "timestamp"> & { type?: BroadcastMessage["type"] }
+  ): Promise<BroadcastMessage> {
+    const type = (message.type ?? "info") as BroadcastMessage["type"];
+    const payload: Record<string, unknown> = {
+      ...(message.payload ?? {}),
+    };
+    if (message.content) payload.content = message.content;
+    if (typeof message.ttlMs === "number" && Number.isFinite(message.ttlMs)) {
+      payload.ttlMs = message.ttlMs;
+    }
+    // Map "info"/"warning"/"request"/"response" onto the underlying engine's
+    // event-type space. The underlying engine only emits the four canonical
+    // event types; we carry the original type via payload.semantic_type so
+    // subscribers can recover it.
+    const downstreamType = this.mapToBroadcastEventType(type);
+    if (downstreamType !== type) payload.semantic_type = type;
+    await this.broadcast.broadcast({ type: downstreamType, payload });
+    this.emit("broadcast:sent", { type, payload });
+    return {
+      id: `msg-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      from: this.sessionId,
+      timestamp: new Date().toISOString(),
+      type,
+      content: message.content,
+      payload: message.payload,
+      ttlMs: message.ttlMs,
+    };
+  }
+
+  /** Subscribe to broadcast events. Returns an unsubscribe handle. */
+  subscribe(callback: (event: BroadcastMessage) => void): { id: string; unsubscribe: () => void } {
+    const handle = this.broadcast.subscribe(evt => {
+      callback({
+        id: `evt-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        from: evt.sessionId,
+        timestamp: evt.timestamp,
+        type: evt.type as BroadcastMessage["type"],
+        payload: evt.payload,
+      });
+    });
+    this.subscriptions.add(handle);
+    return handle;
+  }
+
+  async getRecentEvents(limit: number = 50): Promise<BroadcastMessage[]> {
+    const safeLimit = this.sanitizeLimit(limit);
+    const events = await this.broadcast.getRecentEvents(safeLimit);
+    return events.map(e => ({
+      id: `evt-${e.timestamp}-${Math.random().toString(36).slice(2, 6)}`,
+      from: e.sessionId,
+      timestamp: e.timestamp,
+      type: e.type as BroadcastMessage["type"],
+      payload: e.payload,
+    }));
+  }
+
+  async forceInvalidateAll(): Promise<void> {
+    await this.broadcast.forceInvalidateAll();
+    this.emit("broadcast:invalidate-all");
+  }
+
+  // --------------------------------------------------------------------------
+  // Handoff (delegated to SessionHandoffV2Engine)
+  // --------------------------------------------------------------------------
+
+  /**
+   * Build a SessionHandoffV2 payload (schema-validated) plus the canonical
+   * `targetPath` filename. The caller is responsible for persistence —
+   * keeping this engine pure lets us reuse it from hooks/CLI/tests.
+   */
+  createHandoff(input: CreateHandoffInput): HandoffOutcome {
+    const identity = this.buildHandoffIdentity(input.identity, input.startedAt, input.writtenAt);
+    // Sanitize writtenAt before delegating to v2 builder — non-ISO strings
+    // would otherwise propagate to the payload and fail validate().
+    const writtenAtIso = (input.writtenAt && /^\d{4}-\d{2}-\d{2}T/.test(input.writtenAt))
+      ? input.writtenAt
+      : identity.endedAt;
+    const payload = sessionHandoffV2Engine.build({
+      identity,
+      position: input.position ?? {},
+      openGoals: input.openGoals ?? [],
+      keyInsights: input.keyInsights ?? [],
+      nextActions: input.nextActions ?? [],
+      writtenAt: writtenAtIso,
+    });
+    const validation = sessionHandoffV2Engine.validate(payload);
+    if (!validation.ok) {
+      return {
+        ok: false,
+        filename: "",
+        errors: validation.errors,
+      };
+    }
+    const filename = sessionHandoffV2Engine.targetPath(identity);
+    const serialized = sessionHandoffV2Engine.serialize(payload);
+    return {
+      ok: true,
+      filename,
+      payload,
+      serialized,
+    };
+  }
+
+  /** Persist a previously-built handoff to disk. Returns the absolute path. */
+  persistHandoff(outcome: HandoffOutcome, dir: string): string {
+    if (!outcome.ok || !outcome.serialized) {
+      throw new Error(`Cannot persist invalid handoff: ${(outcome.errors || []).join(", ") || "unknown error"}`);
+    }
+    fs.mkdirSync(dir, { recursive: true });
+    const abs = path.join(dir, outcome.filename);
+    fs.writeFileSync(abs, outcome.serialized);
+    return abs;
+  }
+
+  // --------------------------------------------------------------------------
+  // Coordination status (reads daemon summary file)
+  // --------------------------------------------------------------------------
+
+  getStatus(): CoordinationStatus {
+    const summaryPath = resolveSummaryPath();
+    try {
+      if (!fs.existsSync(summaryPath)) {
+        return this.emptyStatus();
+      }
+      const summary = JSON.parse(fs.readFileSync(summaryPath, "utf-8"));
+      const sessions: SessionInfo[] = (summary.sessions || []).map((s: { id?: string; family?: string }) => {
+        const id = String(s.id || "");
+        return {
+          id,
+          family: String(s.family || "unknown"),
+          pid: this.extractPid(id),
+          hostname: this.extractHostname(id),
+          startedAt: "",
+          lastHeartbeat: String(summary.generated_at || ""),
+        };
+      });
+      return {
+        healthy: summary.health === "healthy",
+        daemonActive: Boolean(summary.daemon_active),
+        activeSessions: Number(summary.active_sessions) || sessions.length,
+        sessions,
+        pendingClaims: atomicClaimBrokerEngine.getActiveClaims().length,
+        latestActivity: summary.latest_activity,
+      };
+    } catch {
+      return this.emptyStatus();
+    }
+  }
+
+  getOtherSessions(): SessionInfo[] {
+    const status = this.getStatus();
+    return status.sessions.filter(s => !this.isSelf(s.id));
+  }
+
+  getStatusLine(): string {
+    const status = this.getStatus();
+    if (!status.healthy) return "";
+    const others = this.getOtherSessions().length;
+    if (others === 0) return "";
+    return `(${others} online)`;
+  }
+
+  // --------------------------------------------------------------------------
+  // Internals
+  // --------------------------------------------------------------------------
+
+  disposeSubscriptions(): void {
+    for (const sub of this.subscriptions) {
+      try {
+        sub.unsubscribe();
+      } catch { /* swallow */ }
+    }
+    this.subscriptions.clear();
+  }
+
+  private emptyStatus(): CoordinationStatus {
+    return {
+      healthy: false,
+      daemonActive: false,
+      activeSessions: 0,
+      sessions: [],
+      pendingClaims: atomicClaimBrokerEngine.getActiveClaims().length,
+    };
+  }
+
+  /** Map broadcast semantic types to the underlying engine's canonical set. */
+  private mapToBroadcastEventType(
+    t: BroadcastMessage["type"]
+  ): "registry_change" | "asset_added" | "asset_removed" | "cache_invalidate" {
+    switch (t) {
+      case "registry_change":
+      case "asset_added":
+      case "asset_removed":
+      case "cache_invalidate":
+        return t;
+      default:
+        // info/warning/request/response are higher-level messages — they ride
+        // on the cache_invalidate channel so subscribers see them and can
+        // dispatch on payload.semantic_type.
+        return "cache_invalidate";
+    }
+  }
+
+  private buildHandoffIdentity(
+    override: Partial<HandoffIdentity> | undefined,
+    startedAt: string | undefined,
+    writtenAt: string | undefined
+  ): HandoffIdentity {
+    const now = new Date().toISOString();
+    const ended = writtenAt && /^\d{4}-\d{2}-\d{2}T/.test(writtenAt) ? writtenAt : now;
+    const started = startedAt && /^\d{4}-\d{2}-\d{2}T/.test(startedAt) ? startedAt : ended;
+    return {
+      sessionId: override?.sessionId || this.sessionId,
+      family: override?.family ?? this.normalizeFamily(this.family),
+      machine: override?.machine || this.hostname,
+      instance: override?.instance || `pid-${this.pid}`,
+      startedAt: started,
+      endedAt: ended,
+    };
+  }
+
+  private normalizeFamily(raw: string): HandoffIdentity["family"] {
+    const v = String(raw || "").toLowerCase();
+    if (v === "claude") return "claude";
+    if (v === "codex") return "codex";
+    return "other";
+  }
+
+  private sanitizeTtl(ttl: number | undefined): number | undefined {
+    if (ttl === undefined || ttl === null) return undefined;
+    const n = Number(ttl);
+    if (Number.isNaN(n) || n <= 0) return undefined;
+    // Cap at 24h to prevent runaway claims if a caller passes
+    // Number.POSITIVE_INFINITY or Number.MAX_SAFE_INTEGER.
+    const TTL_CAP_MS = 24 * 60 * 60 * 1000;
+    if (!Number.isFinite(n)) return TTL_CAP_MS;
+    return Math.min(n, TTL_CAP_MS);
+  }
+
+  private sanitizeLimit(limit: number): number {
+    const n = Number(limit);
+    if (!Number.isFinite(n) || n <= 0) return 50;
+    return Math.min(Math.floor(n), 10000);
+  }
+
+  private isSelf(holderOrId: string): boolean {
+    if (!holderOrId) return false;
+    if (holderOrId === this.sessionId) return true;
+    // Orchestrator format: "${family}@${hostname}/pid-${pid}" — prefix or pid match
+    if (holderOrId.startsWith(this.sessionId + "-")) return true;
+    if (holderOrId.includes(`pid-${this.pid}`)) return true;
+    // AtomicClaimBroker format: "${CLAUDE_SESSION_ID ?? `session-${pid}`}-${hostname}".
+    // When CLAUDE_SESSION_ID is unset (typical in our process), the broker
+    // holder is `session-${pid}-${hostname}` — recognize that as self.
+    if (holderOrId === `session-${this.pid}-${this.hostname}`) return true;
+    if (holderOrId.startsWith(`session-${this.pid}-`)) return true;
+    // When CLAUDE_SESSION_ID IS set, the holder is `${envSessionId}-${hostname}`
+    // and the env sessionId is unrelated to pid. Compare against the actual
+    // broker holderId via env lookup.
+    const envSession = process.env.CLAUDE_SESSION_ID;
+    if (envSession && holderOrId === `${envSession}-${this.hostname}`) return true;
+    return false;
+  }
+
+  private extractPid(id: string): number {
+    const m = id.match(/pid-(\d+)/);
+    return m ? parseInt(m[1], 10) : 0;
+  }
+
+  private extractHostname(id: string): string {
+    const m = id.match(/@([^/]+)/);
+    return m ? m[1] : "";
   }
 }
 
 // ============================================================================
-// Export singleton
+// Export singleton + class (class exported for tests)
 // ============================================================================
 
 export const crossSessionOrchestratorEngine = CrossSessionOrchestratorEngine.getInstance();
-
+export { CrossSessionOrchestratorEngine };
 export type {
-  SessionInfo,
-  BroadcastMessage,
-  CoordinationStatus,
-  ClaimRequest,
+  HandoffIdentity,
+  HandoffPosition,
+  HandoffOpenGoal,
+  HandoffInsightSummary,
+  HandoffNextAction,
+  SessionHandoffV2,
 };

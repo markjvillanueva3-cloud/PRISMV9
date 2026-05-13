@@ -395,6 +395,83 @@ const coordination_count = z.object({
 }).passthrough();
 
 // ============================================================================
+// COORD-MS0/U-COORD04 — CrossSessionOrchestratorEngine unified facade (11 actions)
+// ============================================================================
+
+const cross_session_get_session_id = z.object({}).passthrough();
+
+const cross_session_claim = z.object({
+  resource: z.string().min(1).describe("Resource path/id to claim (file path, milestone id, etc.)"),
+  ttl_ms: z.union([z.string(), z.number()]).optional().describe("TTL in ms; defaults to 180000 (3 min). Capped at 24h."),
+  reason: optStr.describe("Optional human-readable reason for the claim"),
+}).passthrough();
+
+const cross_session_release = z.object({
+  resource: z.string().min(1).describe("Resource path/id to release"),
+}).passthrough();
+
+const cross_session_is_file_claimed = z.object({
+  file_path: z.string().min(1).describe("File path to check against active claim registry"),
+}).passthrough();
+
+const cross_session_broadcast = z.object({
+  type: z.enum([
+    "info", "warning", "request", "response",
+    "registry_change", "asset_added", "asset_removed", "cache_invalidate",
+  ]).optional().describe("Broadcast type. Default: info (rides on cache_invalidate channel)"),
+  content: optStr.describe("Optional human-readable content"),
+  payload: z.record(z.string(), z.any()).optional().describe("Optional structured payload"),
+  ttl_ms: z.union([z.string(), z.number()]).optional().describe("Optional message TTL in ms"),
+}).passthrough();
+
+const cross_session_get_recent_events = z.object({
+  limit: z.union([z.string(), z.number()]).optional().describe("Max events to return (default 50, max 10000)"),
+}).passthrough();
+
+const cross_session_force_invalidate_all = z.object({}).passthrough();
+
+const cross_session_create_handoff = z.object({
+  identity: z.object({
+    sessionId: optStr,
+    family: z.enum(["claude", "codex", "other"]).optional(),
+    machine: optStr,
+    instance: optStr,
+    startedAt: optStr,
+    endedAt: optStr,
+  }).passthrough().optional().describe("Identity override; defaults to this session"),
+  position: z.object({
+    phase: optStr,
+    milestone: optStr,
+    branch: optStr,
+    lastCommit: optStr,
+    notes: optStr,
+  }).passthrough().optional(),
+  open_goals: z.array(z.object({
+    id: z.string(),
+    text: z.string(),
+    priority: z.number(),
+    depth: z.number(),
+  }).passthrough()).optional(),
+  key_insights: z.array(z.object({
+    id: z.string(),
+    category: z.string(),
+    summary: z.string(),
+    at: z.string(),
+  }).passthrough()).optional(),
+  next_actions: z.array(z.object({
+    action: z.string(),
+    reason: optStr,
+    blocking: z.boolean().optional(),
+  }).passthrough()).optional(),
+  written_at: optStr.describe("Optional ISO timestamp; defaults to now"),
+  started_at: optStr.describe("Optional ISO timestamp for session start; defaults to writtenAt"),
+}).passthrough();
+
+const cross_session_get_status = z.object({}).passthrough();
+const cross_session_get_other_sessions = z.object({}).passthrough();
+const cross_session_get_status_line = z.object({}).passthrough();
+
+// ============================================================================
 // EXPORT MAP
 // ============================================================================
 
@@ -479,6 +556,19 @@ export const ACTION_SESSION_SCHEMAS: ActionSchemaMap = {
   coordination_detect_conflicts,
   coordination_recent,
   coordination_count,
+
+  // COORD-MS0/U-COORD04 — CrossSessionOrchestratorEngine unified facade
+  cross_session_get_session_id,
+  cross_session_claim,
+  cross_session_release,
+  cross_session_is_file_claimed,
+  cross_session_broadcast,
+  cross_session_get_recent_events,
+  cross_session_force_invalidate_all,
+  cross_session_create_handoff,
+  cross_session_get_status,
+  cross_session_get_other_sessions,
+  cross_session_get_status_line,
 
   // COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH4: Awareness
   awareness_unified_query: z.object({
