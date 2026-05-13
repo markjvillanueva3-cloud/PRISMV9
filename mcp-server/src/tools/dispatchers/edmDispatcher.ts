@@ -390,6 +390,9 @@ const ACTIONS = [
   "wedm_training_template_list",           // listTemplates — on-disk template directory listing
   "wedm_training_template_extract_all",    // extractAllTemplates — bulk
 
+  // TRAINING-LEARNING-MS0/U-TL-U5: WEDMPartFamilyMatcherEngine — query-side matcher
+  "wedm_part_family_match",                // matchPartFamily — rank families by signal similarity for a descriptor
+
   // TRAINING-LEARNING-MS0/U-TL-U4: TaptiteElectrodeMacroBridgeEngine (engine 2)
   "wedm_training_taptite_bridge",             // bridge — template → TaptiteElectrodeMacroBridge artifact
   "wedm_training_taptite_variables",          // listRequiredVariables — canonical VC variable schema
@@ -2434,6 +2437,26 @@ Actions: ${ACTIONS.join(", ")}.`,
               outDir: p.outDir,
               dryRun: p.dryRun,
             });
+            break;
+          }
+          case "wedm_part_family_match": {
+            // TRAINING-LEARNING-MS0/U-TL-U5 — WEDMPartFamilyMatcherEngine
+            const { wedmPartFamilyMatcherEngine } = await import(
+              "../../engines/WEDMPartFamilyMatcherEngine.js"
+            );
+            const p = params as Record<string, unknown>;
+            const descriptor = (p.descriptor && typeof p.descriptor === "object" ? p.descriptor : p) as Record<string, unknown>;
+            const opts = (p.opts && typeof p.opts === "object" ? p.opts : {}) as Record<string, unknown>;
+            const data = wedmPartFamilyMatcherEngine.matchPartFamily(descriptor as never, {
+              topK: typeof opts.topK === "number" ? opts.topK : (typeof opts.top_k === "number" ? opts.top_k as number : undefined),
+              minSimilarity: typeof opts.minSimilarity === "number" ? opts.minSimilarity : (typeof opts.min_similarity === "number" ? opts.min_similarity as number : undefined),
+              dir: typeof opts.dir === "string" ? opts.dir as string : undefined,
+              weights: (opts.weights && typeof opts.weights === "object") ? opts.weights as never : undefined,
+              keywordsOnly: typeof opts.keywordsOnly === "boolean" ? opts.keywordsOnly as boolean : (typeof opts.keywords_only === "boolean" ? opts.keywords_only as boolean : undefined),
+            });
+            result = data.ok
+              ? { success: true, data }
+              : { success: false, error: data.error, detail: data.detail, data };
             break;
           }
 

@@ -180,6 +180,9 @@ const ACTIONS = [
   "lathe_training_corpus_status",           // catalogCorpus — per-family counts + customers + coverage
   "lathe_training_template_match",          // extractTemplate — emit TrainingTemplate for one family (optionally writes <family>.json)
   "lathe_training_template_list",           // listTemplates — on-disk template directory listing
+
+  // TRAINING-LEARNING-MS0/U-TL-U5: LathePartFamilyMatcherEngine — query-side matcher
+  "lathe_part_family_match",                // matchPartFamily — rank families by signal similarity for a descriptor
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1011,6 +1014,24 @@ Actions: ${ACTIONS.join(", ")}.`,
             result = data.ok
               ? { success: true, data }
               : { success: false, error: (data as any).error, detail: (data as any).detail, data };
+            break;
+          }
+          case "lathe_part_family_match": {
+            // TRAINING-LEARNING-MS0/U-TL-U5 — LathePartFamilyMatcherEngine
+            const { lathePartFamilyMatcherEngine } = await import("../../engines/LathePartFamilyMatcherEngine.js");
+            const p = params as Record<string, unknown>;
+            const descriptor = (p.descriptor && typeof p.descriptor === "object" ? p.descriptor : p) as Record<string, unknown>;
+            const opts = (p.opts && typeof p.opts === "object" ? p.opts : {}) as Record<string, unknown>;
+            const data = lathePartFamilyMatcherEngine.matchPartFamily(descriptor as any, {
+              topK: typeof opts.topK === "number" ? opts.topK : (typeof opts.top_k === "number" ? opts.top_k as number : undefined),
+              minSimilarity: typeof opts.minSimilarity === "number" ? opts.minSimilarity : (typeof opts.min_similarity === "number" ? opts.min_similarity as number : undefined),
+              dir: typeof opts.dir === "string" ? opts.dir as string : undefined,
+              weights: (opts.weights && typeof opts.weights === "object") ? opts.weights as any : undefined,
+              keywordsOnly: typeof opts.keywordsOnly === "boolean" ? opts.keywordsOnly as boolean : (typeof opts.keywords_only === "boolean" ? opts.keywords_only as boolean : undefined),
+            });
+            result = data.ok
+              ? { success: true, data }
+              : { success: false, error: data.error, detail: data.detail, data };
             break;
           }
 
