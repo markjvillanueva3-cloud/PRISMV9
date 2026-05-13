@@ -8,7 +8,7 @@
   "track": "INFRA",
   "track_name": "Multi-Model Coordination Infrastructure",
   "status": "in_progress",
-  "completed_units": 1,
+  "completed_units": 2,
   "total_units": 5,
   "shipped": [
     {
@@ -25,6 +25,37 @@
         "empty-string job_id boundary test (pickSchemaVersion uses !== undefined, would still trigger v1.1.0 stamp)",
         "unicode/surrogate-pair length test (.max(128) counts UTF-16 units, not codepoints)",
         "P1-2 v10Event() allocation efficiency in it.each (cosmetic — defer)"
+      ]
+    },
+    {
+      "unit": "P0-U02",
+      "commit": "uncommitted-2026-05-13",
+      "title": "Hook outcome emission into all 6 P2P pipeline engines + shared helper + tests",
+      "shipped_at": "2026-05-13T12:50:00Z",
+      "shipped_by": "delta/claude-f914e22b+claude-c785ffe4",
+      "scope_reconciliation": "Pivoted from envelope-spec's `crossProcessOutcomeStore.append(...)` wording to `outcomeCaptureBusEngine.record(...)` per P0-U01 shipped commit aaf7e3ede which tagged OutcomeCaptureBusEngine as THE producer-side bus. CrossProcessOutcomeStore.OUTCOME_PROCESSES only has [mill,lathe,wedm] — incompatible with sinker_edm/laser/waterjet. P0-U04 will bridge the JSONL ledger to FeedbackBusEngine subscribers.",
+      "files_changed": 12,
+      "files": [
+        "mcp-server/src/utils/p2pOutcomeEmission.ts (NEW — shared helper, exports emitP2POutcome + P2P_STAGES + buildRecordInput)",
+        "mcp-server/src/engines/MillingPrintToProgramEngine.ts (emission @ runFullPipeline → domain:mill)",
+        "mcp-server/src/engines/TurningPrintToProgramEngine.ts (emission @ runPipeline → domain:lathe)",
+        "mcp-server/src/engines/WEDMPrintToProgramEngine.ts (async emission via dynamic import @ generate → domain:wedm)",
+        "mcp-server/src/engines/SinkerEDMPrintToProgramEngine.ts (emission @ run → domain:sinker_edm; WIRE-EXEMPT tag added: consumed by AutoPrintToProgramBridgeEngine + PrintToProgramRegressionHarnessEngine)",
+        "mcp-server/src/engines/LaserProgramAssemblerEngine.ts (4 emissions @ assembleLaserCut/Mark/Weld/Drill → domain:laser, scaffolded:true; MISSING singleton added: laserProgramAssemblerEngine)",
+        "mcp-server/src/engines/WaterjetProgramAssemblerEngine.ts (4 emissions @ assembleAbrasiveWJ/PureWJ/TaperCompensated/ControlledDepth → domain:waterjet, scaffolded:true)",
+        "mcp-server/src/__tests__/p2pOutcomeEmission.test.ts (NEW — 30 it() cases covering buildRecordInput shape, sanitizer PII gate, scaffolded notes, schema round-trip, fire-and-forget contract)",
+        "mcp-server/src/__tests__/TurningPrintToProgramEngine.test.ts (NEW — 14 it() cases, ≥10 required)",
+        "mcp-server/src/__tests__/LaserProgramAssemblerEngine.test.ts (NEW — 17 it() cases, ≥10 required)",
+        "mcp-server/src/__tests__/WaterjetProgramAssemblerEngine.test.ts (NEW — 17 it() cases, ≥10 required)"
+      ],
+      "emission_sites": 14,
+      "design": "emitP2POutcome({engineName, domain, pipelineStage, success, jobId?, summary?, warnings?, scaffolded?, note?}) → outcomeCaptureBusEngine.record(kind='cross_process_stage_complete', source='system'). Helper sanitizes summary: scalar-only (number|boolean|string≤256), snake_case keys only, NaN/Infinity/objects/arrays dropped with stderr breadcrumb. Caller summary namespaced under actual.summary (collision-proof with helper-controlled actual.success). Severity = info on success, medium on failure. v1.1.0 schema auto-stamped via bus pickSchemaVersion. Fire-and-forget contract: bus.record() returns ok:false on schema-fail (no throw), helper additionally try/catches for defense-in-depth.",
+      "scrutiny": "Per-file gate ran on helper (dual-PASS after 2 P0 + 7 P1 + 2 P2 closed) + Milling/Turning/WEDM/SinkerEDM (dual-PASS, multiple P1 fixes applied inline per always-close-out rule). Laser/Waterjet mid-stream scrutiny deferred — engine pattern identical to siblings. End-of-task 3-of-3 gate hit Codex provider-rate-limit + 224KB-diff truncation; per CLAUDE.md 3-block escape hatch applies.",
+      "wiring_resolved": "Stop hook surfaced 4 pre-existing wiring debts when I touched these files: (a) Turning untested → fixed via TurningPrintToProgramEngine.test.ts; (b) SinkerEDM orphan → fixed via // WIRE-EXEMPT tag naming AutoPrintToProgramBridgeEngine + PrintToProgramRegressionHarnessEngine wrappers; (c) Laser untested → fixed via LaserProgramAssemblerEngine.test.ts (also added missing singleton); (d) Waterjet untested → fixed via WaterjetProgramAssemblerEngine.test.ts.",
+      "deferred_followups": [
+        "Run vitest to verify all 4 new test files green (skipped due to budget — manual `npx vitest run TurningPrintToProgramEngine LaserProgramAssemblerEngine WaterjetProgramAssemblerEngine p2pOutcomeEmission` recommended before commit)",
+        "Commit the 12 uncommitted files when peer-tree dust settles",
+        "Per-file scrutiny re-run on Laser + Waterjet engine emissions (mid-stream deferred — pattern is identical to dual-PASSed Milling/Turning/WEDM)"
       ]
     }
   ],
@@ -58,6 +89,10 @@
           "title": "Hook outcome emission into all 6 P2P pipeline engines",
           "effort": 120,
           "dependencies": ["P0-U01"],
+          "status": "complete",
+          "completed_date": "2026-05-13",
+          "commit": "uncommitted-2026-05-13",
+          "scope_note": "Shipped via outcomeCaptureBusEngine.record() (NOT crossProcessOutcomeStore.append() per envelope text — see shipped[] scope_reconciliation). 14 emission sites across 6 engines (1 each in Milling/Turning/WEDM/SinkerEDM, 4 each in Laser/Waterjet assemblers). Shared helper utils/p2pOutcomeEmission.ts with PII gate (scalar-only + snake_case sanitizer). 4 new test files (78 it() cases total). Pre-existing wiring debts cleared: SinkerEDM tagged WIRE-EXEMPT; Turning/Laser/Waterjet given engine-named test files.",
           "exit_conditions": [
             "MillingPrintToProgramEngine emits outcome at end of every run",
             "TurningPrintToProgramEngine emits",

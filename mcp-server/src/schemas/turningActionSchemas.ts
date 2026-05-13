@@ -509,6 +509,49 @@ const lathe_omv_probe_generate = z.object({
 
 const lathe_omv_probe_stats = z.object({}).passthrough().describe("List supported OMV probe cycle types + reference (no input).");
 
+// TRAINING-LEARNING-MS0/U1: LathePartFamilyTemplateExtractorEngine wiring.
+// Three actions surface the engine: corpus_status (catalogCorpus), template_match
+// (extractTemplate), template_list (listTemplates). Accepts either an in-memory
+// snapshot OR a snapshotPath for production use; tests use the in-memory variant.
+const lathe_training_corpus_status = z.object({
+  snapshot: z.record(z.string(), z.any()).optional().describe(
+    "Optional in-memory CorpusSnapshot object (skips disk read). For tests + agents that already hold the snapshot."
+  ),
+  snapshotPath: z.string().optional().describe(
+    "Optional filesystem path to a phase20-emitted corpus-scan snapshot JSON. Defaults to mcp-server/data/training/templates/lathe/_corpus-scan.json."
+  ),
+}).describe(
+  "Catalog the JM Die lathe corpus and return per-family counts + top customers + seed-macro anchors. Read-only against the corpus."
+);
+
+const lathe_training_template_match = z.object({
+  family: z.string().describe(
+    "LatheTemplateFamily literal — one of wafer-insert / casing / casing-counterbore / top-hat-casing / shaft / flange / bushing / tube / taptite-blank / nut-blank / electrode-rod-blank / unknown."
+  ),
+  snapshot: z.record(z.string(), z.any()).optional().describe(
+    "Optional in-memory CorpusSnapshot."
+  ),
+  snapshotPath: z.string().optional().describe(
+    "Optional filesystem path to a corpus-scan snapshot JSON."
+  ),
+  outDir: z.string().optional().describe(
+    "Optional output directory for the emitted template JSON (default: mcp-server/data/training/templates/lathe/). Path-traversal-guarded unless PRISM_LATHE_TEMPLATE_OUTDIR_UNCONFINED=1."
+  ),
+  dryRun: z.boolean().optional().describe(
+    "If true, returns the template without writing to disk. Default false."
+  ),
+}).describe(
+  "Extract and (optionally) emit a TrainingTemplate JSON for one family. Wraps PRISMSelfAwarenessEngine tribal-knowledge lookup + MacroLibraryEngine OSP-anchored seeds (wafer-insert / casing / casing-counterbore / top-hat-casing)."
+);
+
+const lathe_training_template_list = z.object({
+  dir: z.string().optional().describe(
+    "Optional directory to list templates from (default: mcp-server/data/training/templates/lathe/). Filters out _-prefixed and .-prefixed entries."
+  ),
+}).describe(
+  "List all on-disk lathe training templates. Returns family name + file path + size + modified-at per entry."
+);
+
 export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   chuck_force,
   tailstock,
@@ -611,4 +654,9 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   macro_match_family: macroMatchFamilySchema,
   macro_place_template: macroPlaceTemplateSchema,
   macro_fanout_dry_run: macroFanoutDryRunSchema,
+
+  // TRAINING-LEARNING-MS0/U1: LathePartFamilyTemplateExtractorEngine surfaces
+  lathe_training_corpus_status,
+  lathe_training_template_match,
+  lathe_training_template_list,
 };

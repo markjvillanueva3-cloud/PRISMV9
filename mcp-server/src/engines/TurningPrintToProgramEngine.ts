@@ -43,6 +43,10 @@ import { machineEnvelopeGuardEngine } from "./MachineEnvelopeGuardEngine.js";
 import { boringBarDeflectionEngine } from "./BoringBarDeflectionEngine.js";
 import { chatterStabilityLobeEngine } from "./ChatterStabilityLobeEngine.js";
 import { latheCollisionZoneEngine } from "./LatheCollisionZoneEngine.js";
+// INFRA-NEURAL-LEDGER-MS1/P0-U02 — emit cross_process_stage_complete event to
+// the OutcomeCaptureBus at the end of every pipeline run. Fire-and-forget;
+// never blocks the producer. See utils/p2pOutcomeEmission.ts for the contract.
+import { emitP2POutcome, P2P_STAGES } from "../utils/p2pOutcomeEmission.js";
 
 // ============================================================================
 // SHARED ENGINE HELPERS (ESM-safe, non-blocking — 0-D-ARCH U-ARCH2)
@@ -1750,7 +1754,7 @@ export class TurningPrintToProgramEngine {
       warnings.push({ stage: "envelope_guard", severity: "warning", message: msg });
     }
 
-    return {
+    const result: TurningProgramResult = {
       success: canEmitProgram,
       part_number: input.part_number || "TURN-001",
       material: input.material.material_name,
@@ -1772,6 +1776,30 @@ export class TurningPrintToProgramEngine {
       safe_retract_z_mm: safeRetractZ,
       g71_type: g71Type,
     };
+
+    // INFRA-NEURAL-LEDGER-MS1/P0-U02 — emit per-pipeline-run outcome event to
+    // the neural-feedback ledger. Fire-and-forget; never blocks or throws.
+    emitP2POutcome({
+      engineName: "TurningPrintToProgramEngine",
+      domain: "lathe",
+      pipelineStage: P2P_STAGES.PRINT_TO_PROGRAM,
+      success: result.success,
+      jobId: result.part_number,
+      summary: {
+        total_operations: result.total_operations,
+        total_tool_changes: result.total_tool_changes,
+        estimated_cycle_time_sec: result.estimated_cycle_time_sec,
+        program_line_count: result.program_line_count,
+        confidence_score: result.confidence_score,
+        bar_stock_od_mm: result.bar_stock_od_mm,
+        part_length_mm: result.part_length_mm,
+        material_name: result.material,
+        g71_type: result.g71_type ?? "none",
+      },
+      warnings: result.warnings.map((w) => `[${w.stage}/${w.severity}] ${w.message}`),
+    });
+
+    return result;
   }
 
   private cannedCycleFor(opType: TurningOpType): string | undefined {

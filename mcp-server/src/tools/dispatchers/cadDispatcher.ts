@@ -322,6 +322,11 @@ const ACTIONS = [
   "macro_match_family",                // MacroLibraryEngine.matchFamily — match a part (geometry/features/name) → wafer-insert / casing / casing-counterbore / top-hat-casing
   "macro_place_template",              // MacroLibraryEngine.placeMacroTemplate — copy the matching macro as _MACRO-TEMPLATE_*.min into <part>/CNC PROGRAM/ with a DO-NOT-RUN-AS-IS header
   "macro_fanout_dry_run",              // MacroLibraryEngine.fanoutDryRun — scan _PART LIBRARY/, report matchable parts per macro family
+  // TRAINING-LEARNING-MS0/U1: CAD-domain alias for macro_place_template, scoped explicitly to lathe families.
+  // Same engine (MacroLibraryEngine.placeMacroTemplate), but the action name surfaces under the prism_cad
+  // dispatcher so CAD/training-pipeline consumers don't have to cross-dispatch into prism_turning to place a
+  // lathe template; family enum is already constrained to the 4 OSP-anchored lathe families by the schema.
+  "cad_lathe_template_place",          // MacroLibraryEngine.placeMacroTemplate — lathe-scoped bridge under prism_cad
 ] as const;
 
 /** Registers cad dispatcher.
@@ -3173,6 +3178,28 @@ Params vary by action — pass relevant fields in params object.`,
               sampleSize: typeof (params.sampleSize ?? params.sample_size) === "number" ? (params.sampleSize ?? params.sample_size) : undefined,
             });
             result = { success: true, data };
+            break;
+          }
+          // TRAINING-LEARNING-MS0/U1: CAD-domain bridge — lathe-scoped semantic alias of macro_place_template.
+          // Identical engine call + result-bridging pattern; only differences are the action name (so it surfaces
+          // under prism_cad) and the error-message prefix (so triage points at the right action). Family enum is
+          // pre-constrained to lathe families by macroPlaceTemplateSchema.
+          case "cad_lathe_template_place": {
+            const pn = params.partNumber ?? params.part_number;
+            if (pn == null || String(pn).trim() === "") {
+              return dispatcherError(new Error("cad_lathe_template_place requires part_number"), action, "prism_cad");
+            }
+            const { macroLibraryEngine } = await import("../../engines/MacroLibraryEngine.js");
+            const data = macroLibraryEngine.placeMacroTemplate({
+              partNumber: pn,
+              customer: params.customer,
+              family: params.family,
+              match: params.match,
+              libraryRoot: params.libraryRoot ?? params.library_root,
+              macroSourceDir: params.macroSourceDir ?? params.macro_source_dir,
+              dryRun: (params.dryRun ?? params.dry_run) === true,
+            });
+            result = { success: data.placed || data.dryRun === true, data };
             break;
           }
           default:

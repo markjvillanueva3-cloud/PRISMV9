@@ -43,6 +43,11 @@ import { log } from "../utils/Logger.js";
 import { PipelineCheckpointManager } from "../utils/pipelineCheckpoint.js";
 import { resolveMaterial, resolveMachine, type ResolvedMaterialContext, type ResolvedMachineContext } from "./PipelineRegistryBridge.js";
 import { machineEnvelopeGuardEngine } from "./MachineEnvelopeGuardEngine.js";
+// INFRA-NEURAL-LEDGER-MS1/P0-U02 — emit cross_process_stage_complete events
+// from each assemble* entry method. Waterjet is scaffolded per envelope spec
+// (not a full P2P pipeline yet) — emissions carry `scaffolded: true` + a
+// "pipeline_skipped" note. Fire-and-forget; never blocks or throws.
+import { emitP2POutcome, P2P_STAGES } from "../utils/p2pOutcomeEmission.js";
 
 // Lazy-loaded nesting engine — avoids circular imports
 let _sheetNestingEngine: import("./SheetNestingEngine.js").SheetNestingEngine | null = null;
@@ -957,6 +962,26 @@ export class WaterjetProgramAssemblerEngine {
       power_kW: physics.pump_hydraulic_kW,
     }));
 
+    // INFRA-NEURAL-LEDGER-MS1/P0-U02 — fire-and-forget emission (scaffolded).
+    emitP2POutcome({
+      engineName: "WaterjetProgramAssemblerEngine",
+      domain: "waterjet",
+      pipelineStage: P2P_STAGES.WATERJET_ABRASIVE,
+      success: warnings.length === 0,
+      jobId: String((input as any).part_name ?? (input as any).part_number ?? "AWJ_PART"),
+      scaffolded: true,
+      summary: {
+        material_name: String(input.material ?? "unknown"),
+        thickness_mm: input.thickness_mm,
+        stack_count: stackCount,
+        controller: String(ctx.controller),
+        gcode_line_count: glines.length,
+        cutting_speed_mmpm: speed,
+        pump_hydraulic_kw: physics.pump_hydraulic_kW,
+      },
+      warnings,
+    });
+
     return {
       header: this._buildHeader(ctx, input),
       operations: [op],
@@ -1087,6 +1112,24 @@ export class WaterjetProgramAssemblerEngine {
       feed_mm_min: speedPWJ,
       power_kW: physics.pump_hydraulic_kW,
     }));
+
+    // INFRA-NEURAL-LEDGER-MS1/P0-U02 — fire-and-forget emission (scaffolded).
+    emitP2POutcome({
+      engineName: "WaterjetProgramAssemblerEngine",
+      domain: "waterjet",
+      pipelineStage: P2P_STAGES.WATERJET_PURE,
+      success: warnings.length === 0,
+      jobId: String(input.part_name ?? input.part_number ?? "PWJ_PART"),
+      scaffolded: true,
+      summary: {
+        material_name: String(input.material ?? "unknown"),
+        thickness_mm: input.thickness_mm,
+        controller: String(ctx.controller),
+        cutting_speed_mmpm: speedPWJ,
+        pump_hydraulic_kw: physics.pump_hydraulic_kW,
+      },
+      warnings,
+    });
 
     return {
       header: this._buildHeader(ctx, input),
@@ -1231,6 +1274,25 @@ export class WaterjetProgramAssemblerEngine {
       feed_mm_min: speed,
       power_kW: physics.pump_hydraulic_kW,
     }));
+
+    // INFRA-NEURAL-LEDGER-MS1/P0-U02 — fire-and-forget emission (scaffolded).
+    emitP2POutcome({
+      engineName: "WaterjetProgramAssemblerEngine",
+      domain: "waterjet",
+      pipelineStage: P2P_STAGES.WATERJET_TAPER,
+      success: warnings.length === 0,
+      jobId: String((input as { part_name?: string; part_number?: string }).part_name ?? (input as { part_name?: string; part_number?: string }).part_number ?? "TAPER_PART"),
+      scaffolded: true,
+      summary: {
+        material_name: String(input.material ?? "unknown"),
+        thickness_mm: input.thickness_mm,
+        controller: String(ctx.controller),
+        gcode_line_count: glines.length,
+        cutting_speed_mmpm: speed,
+        pump_hydraulic_kw: physics.pump_hydraulic_kW,
+      },
+      warnings,
+    });
 
     return {
       header: this._buildHeader(ctx, input),
@@ -1377,6 +1439,24 @@ export class WaterjetProgramAssemblerEngine {
       feed_mm_min: speedPerPass,
       power_kW: physics.pump_hydraulic_kW,
     }));
+
+    // INFRA-NEURAL-LEDGER-MS1/P0-U02 — fire-and-forget emission (scaffolded).
+    emitP2POutcome({
+      engineName: "WaterjetProgramAssemblerEngine",
+      domain: "waterjet",
+      pipelineStage: P2P_STAGES.WATERJET_CONTROLLED_DEPTH,
+      success: warnings.length === 0,
+      jobId: String(input.part_name ?? input.part_number ?? "CD_PART"),
+      scaffolded: true,
+      summary: {
+        material_name: String(input.material ?? "unknown"),
+        thickness_mm: input.thickness_mm,
+        controller: String(ctx.controller),
+        cutting_speed_mmpm: speedPerPass,
+        pump_hydraulic_kw: physics.pump_hydraulic_kW,
+      },
+      warnings,
+    });
 
     return {
       header: this._buildHeader(ctx, input),

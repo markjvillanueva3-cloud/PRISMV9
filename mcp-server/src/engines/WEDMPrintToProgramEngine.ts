@@ -957,7 +957,7 @@ export class WEDMPrintToProgramEngine {
       geometry_confidence: 0.9,
     };
 
-    return {
+    const result: WEDMGenerateResult = {
       success: verifierSuccess,
       pass: verifierSuccess,
       program_text: programText,
@@ -978,6 +978,41 @@ export class WEDMPrintToProgramEngine {
       predicted_ra_um: passes.length > 0 ? passes[passes.length - 1].expected_ra_um : (input.target_ra_um ?? 1.6),
       estimated_time_min: cycleTime.total_time_min,
     };
+
+    // INFRA-NEURAL-LEDGER-MS1/P0-U02 — emit cross_process_stage_complete event
+    // to the OutcomeCaptureBus. Fire-and-forget; never blocks or throws.
+    // Dynamic import to match WEDM's no-static-imports convention; the helper
+    // module is cached after first call so per-run cost is sub-ms.
+    try {
+      const p2pMod = await import("../utils/p2pOutcomeEmission.js");
+      p2pMod.emitP2POutcome({
+        engineName: "WEDMPrintToProgramEngine",
+        domain: "wedm",
+        pipelineStage: p2pMod.P2P_STAGES.PRINT_TO_PROGRAM,
+        success: result.success,
+        jobId: input.part_number ?? input.part_name ?? `wedm-${result.profiles_cut}p`,
+        summary: {
+          profiles_cut: result.profiles_cut,
+          passes_per_profile: result.passes_per_profile,
+          line_count: result.line_count,
+          estimated_time_min: result.estimated_time_min,
+          predicted_ra_um: result.predicted_ra_um,
+          confidence_score: result.confidence_score.overall,
+          stages_completed_count: result.stages_completed.length,
+          controller: result.controller,
+          material_name: input.material,
+          thickness_mm: input.thickness_mm,
+          target_ra_um: input.target_ra_um ?? 1.6,
+        },
+        warnings: result.warnings,
+      });
+    } catch (_err) {
+      // Defense-in-depth: emission MUST NOT break the producer; the helper
+      // already guards, but a dynamic-import failure (unusual ESM edge case)
+      // is swallowed here too.
+    }
+
+    return result;
   }
 }
 

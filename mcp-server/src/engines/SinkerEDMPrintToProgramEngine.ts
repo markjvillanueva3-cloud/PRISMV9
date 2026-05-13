@@ -1,3 +1,8 @@
+// WIRE-EXEMPT: Consumed by AutoPrintToProgramBridgeEngine and
+// PrintToProgramRegressionHarnessEngine as the sinker_edm pipeline
+// implementation; both bridge engines are wired to dispatchers. Direct
+// dispatcher import would create circular pipeline → bridge → pipeline.
+// (Stop-hook wiring-enforcement gate, INFRA-NEURAL-LEDGER-MS1/P0-U02, 2026-05-13.)
 /**
  * SinkerEDMPrintToProgramEngine — P2P-FULLSTACK-MS0/U-P2PFS53
  *
@@ -13,9 +18,11 @@
  * overrides. Outputs: SinkerProgram (G-code) + per-feature reasoning
  * trace + tribal-tip hook slots for downstream enrichment.
  *
- * This engine is pure: no I/O, no persistence, no mutation of its
- * dependencies. All singletons are injected through a constructor for
- * testability.
+ * This engine is pure-calculation EXCEPT for one fire-and-forget
+ * OutcomeCaptureBus emission at the end of run() (INFRA-NEURAL-LEDGER-MS1/
+ * P0-U02, added 2026-05-13). The emission cannot throw or block the producer
+ * (helper guarantees fire-and-forget; bus uses atomic-write + retry queue).
+ * All singletons are injected through a constructor for testability.
  */
 
 import {
@@ -39,6 +46,10 @@ import {
   type SinkerProgramInput,
   type SinkerBurnStage,
 } from "./PPSinkerEDMPostEngine.js";
+// INFRA-NEURAL-LEDGER-MS1/P0-U02 — emit cross_process_stage_complete event to
+// the OutcomeCaptureBus at the end of every pipeline run. Fire-and-forget;
+// never blocks the producer. See utils/p2pOutcomeEmission.ts for the contract.
+import { emitP2POutcome, P2P_STAGES } from "../utils/p2pOutcomeEmission.js";
 
 // ============================================================================
 // TYPES
@@ -326,7 +337,18 @@ export class SinkerEDMPrintToProgramEngine {
         `(${program.electrode_count} electrodes)`,
     });
 
-    return {
+    // SinkerEDM's result has no `.success` field — derive from the single
+    // terminal-state signal that matters: did the post emit program lines?
+    // Advisory warnings (e.g. high-wear pulse regime) + skipped features
+    // (classifier punted to wedm) are NOT failures — they're partial-run
+    // signals that the ledger consumer scores separately from the
+    // `warnings_count` / `skipped_features_count` scalars in `summary`.
+    // (Stricter `warnings.length === 0 && skipped.length === 0` would skew
+    //  the neural-feedback ledger toward false-negative outcomes — partial
+    //  mixed-process pipelines are the dominant real-world case.)
+    const success = program.line_count > 0;
+
+    const result: SinkerP2PResult = {
       drawing,
       feature_plans: featurePlans,
       program,
@@ -335,6 +357,30 @@ export class SinkerEDMPrintToProgramEngine {
       tribal_tip_ids: [],
       skipped_features: skipped,
     };
+
+    // INFRA-NEURAL-LEDGER-MS1/P0-U02 — emit per-pipeline-run outcome event to
+    // the neural-feedback ledger. Fire-and-forget; never blocks or throws.
+    emitP2POutcome({
+      engineName: "SinkerEDMPrintToProgramEngine",
+      domain: "sinker_edm",
+      pipelineStage: P2P_STAGES.PRINT_TO_PROGRAM,
+      success,
+      jobId: input.part_description ?? input.program_number ?? `sinker-${featurePlans.length}f`,
+      summary: {
+        features_planned: featurePlans.length,
+        operations_count: program.operation_count,
+        electrode_count: program.electrode_count,
+        program_line_count: program.line_count,
+        skipped_features_count: skipped.length,
+        reasoning_steps_count: reasoning.length,
+        material_name: input.workpiece_material,
+        machine_model: input.machine_model ?? "default",
+        recommended_process: drawing.recommended_process.primary,
+      },
+      warnings,
+    });
+
+    return result;
   }
 }
 

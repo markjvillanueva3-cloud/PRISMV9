@@ -170,6 +170,11 @@ const ACTIONS = [
   "macro_match_family",                     // MacroLibraryEngine.matchFamily — match part → wafer-insert / casing / casing-counterbore / top-hat-casing
   "macro_place_template",                   // MacroLibraryEngine.placeMacroTemplate — copy macro as _MACRO-TEMPLATE_*.min into <part>/CNC PROGRAM/ (DO-NOT-RUN-AS-IS header)
   "macro_fanout_dry_run",                   // MacroLibraryEngine.fanoutDryRun — scan _PART LIBRARY/, report matchable parts per macro family
+
+  // TRAINING-LEARNING-MS0/U1: LathePartFamilyTemplateExtractorEngine surfaces
+  "lathe_training_corpus_status",           // catalogCorpus — per-family counts + customers + coverage
+  "lathe_training_template_match",          // extractTemplate — emit TrainingTemplate for one family (optionally writes <family>.json)
+  "lathe_training_template_list",           // listTemplates — on-disk template directory listing
 ] as const;
 
 /** Registers turning dispatcher.
@@ -956,6 +961,51 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "lathe_datum_reference_frame_stats": {
             const engine = await getEngine("drf");
             result = engine.getStats();
+            break;
+          }
+
+          // ── TRAINING-LEARNING-MS0/U1: LathePartFamilyTemplateExtractorEngine ──
+          // Engine returns discriminated `{ok: true|false, error?, family?, detail?}` —
+          // bridge `data.ok` → dispatcher `success` so callers that branch on `.success`
+          // don't treat path-traversal-blocked writes / missing-snapshots as success.
+          // Pattern mirrors `macro_place_template` (line ~1036).
+          case "lathe_training_corpus_status": {
+            const { lathePartFamilyTemplateExtractorEngine } = await import("../../engines/LathePartFamilyTemplateExtractorEngine.js");
+            const data = lathePartFamilyTemplateExtractorEngine.catalogCorpus({
+              snapshot: (params as any).snapshot,
+              snapshotPath: (params as any).snapshotPath ?? (params as any).snapshot_path,
+            });
+            result = data.ok
+              ? { success: true, data }
+              : { success: false, error: (data as any).error, detail: (data as any).detail, data };
+            break;
+          }
+          case "lathe_training_template_match": {
+            const { lathePartFamilyTemplateExtractorEngine } = await import("../../engines/LathePartFamilyTemplateExtractorEngine.js");
+            const data = await lathePartFamilyTemplateExtractorEngine.extractTemplate(
+              String((params as any).family),
+              {
+                snapshot: (params as any).snapshot,
+                snapshotPath: (params as any).snapshotPath ?? (params as any).snapshot_path,
+                outDir: (params as any).outDir ?? (params as any).out_dir,
+                dryRun: (params as any).dryRun ?? (params as any).dry_run,
+              },
+            );
+            result = data.ok
+              ? { success: true, data }
+              : { success: false, error: (data as any).error, family: (data as any).family, detail: (data as any).detail, data };
+            break;
+          }
+          case "lathe_training_template_list": {
+            const { lathePartFamilyTemplateExtractorEngine } = await import("../../engines/LathePartFamilyTemplateExtractorEngine.js");
+            const data = lathePartFamilyTemplateExtractorEngine.listTemplates({
+              dir: (params as any).dir,
+            });
+            // listTemplates always returns ok:true today, but keep the same defensive
+            // pattern so a future error-path widening doesn't silently mask failures.
+            result = data.ok
+              ? { success: true, data }
+              : { success: false, error: (data as any).error, detail: (data as any).detail, data };
             break;
           }
 

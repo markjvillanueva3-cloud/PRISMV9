@@ -43,6 +43,11 @@ import { log } from "../utils/Logger.js";
 import { PipelineCheckpointManager } from "../utils/pipelineCheckpoint.js";
 import { resolveMaterial, resolveMachine, type ResolvedMaterialContext, type ResolvedMachineContext } from "./PipelineRegistryBridge.js";
 import { machineEnvelopeGuardEngine } from "./MachineEnvelopeGuardEngine.js";
+// INFRA-NEURAL-LEDGER-MS1/P0-U02 — emit cross_process_stage_complete events
+// from each assemble* entry method. Laser is scaffolded per envelope spec
+// (not a full P2P pipeline yet) — emissions carry `scaffolded: true` + a
+// "pipeline_skipped" note. Fire-and-forget; never blocks or throws.
+import { emitP2POutcome, P2P_STAGES } from "../utils/p2pOutcomeEmission.js";
 
 // Lazy-loaded nesting engine — avoids circular imports
 let _sheetNestingEngine: import("./SheetNestingEngine.js").SheetNestingEngine | null = null;
@@ -1414,6 +1419,30 @@ export class LaserProgramAssemblerEngine {
       power_kW: input.power_w / 1000,
     }));
 
+    // INFRA-NEURAL-LEDGER-MS1/P0-U02 — fire-and-forget emission. Scaffolded
+    // (Laser is not a full P2P pipeline yet — see envelope spec for "even if
+    // scaffolded — emit pipeline_skipped status").
+    emitP2POutcome({
+      engineName: "LaserProgramAssemblerEngine",
+      domain: "laser",
+      pipelineStage: P2P_STAGES.LASER_CUT,
+      success: warnings.length === 0,
+      jobId: part_name,
+      scaffolded: true,
+      summary: {
+        process: String(input.process ?? "unknown"),
+        material_name: String(input.material ?? "unknown"),
+        controller: String(ctrl),
+        gcode_lines: gcode.split("\n").length,
+        cutting_speed_mmpm: phys.V_cut_mmpm,
+        kerf_width_mm: phys.w_kerf_mm,
+        haz_mm: phys.haz_mm,
+        surface_rz_um: phys.Rz_um,
+        power_w: input.power_w,
+      },
+      warnings,
+    });
+
     return {
       process: input.process,
       controller: ctrl,
@@ -1502,6 +1531,25 @@ export class LaserProgramAssemblerEngine {
       feed_mm_min: input.scan_speed_mmps * 60,
       power_kW: avg_power_w / 1000,
     }));
+
+    // INFRA-NEURAL-LEDGER-MS1/P0-U02 — fire-and-forget emission (scaffolded).
+    emitP2POutcome({
+      engineName: "LaserProgramAssemblerEngine",
+      domain: "laser",
+      pipelineStage: P2P_STAGES.LASER_MARK,
+      success: warnings.length === 0,
+      jobId: part_name,
+      scaffolded: true,
+      summary: {
+        process: String(input.process ?? "unknown"),
+        material_name: String(input.material ?? "unknown"),
+        controller: String(ctrl),
+        gcode_lines: gcode.split("\n").length,
+        scan_speed_mmps: input.scan_speed_mmps,
+        avg_power_w: avg_power_w,
+      },
+      warnings,
+    });
 
     return {
       process: input.process,
@@ -1612,6 +1660,28 @@ export class LaserProgramAssemblerEngine {
       power_kW: input.power_w / 1000,
     }));
 
+    // INFRA-NEURAL-LEDGER-MS1/P0-U02 — fire-and-forget emission (scaffolded).
+    // Placed AFTER envelope check so emission.warnings includes envelope
+    // violations (matches the Cut/Mark/Drill emission positioning).
+    emitP2POutcome({
+      engineName: "LaserProgramAssemblerEngine",
+      domain: "laser",
+      pipelineStage: P2P_STAGES.LASER_WELD,
+      success: warnings.length === 0,
+      jobId: part_name,
+      scaffolded: true,
+      summary: {
+        process: String(input.process ?? "unknown"),
+        material_name: String(input.material ?? "unknown"),
+        controller: String(ctrl),
+        gcode_lines: gcode.split("\n").length,
+        weld_speed_mmpm: input.weld_speed_mmpm,
+        weld_penetration_mm: pen_clamped,
+        power_w: input.power_w,
+      },
+      warnings,
+    });
+
     return {
       process: input.process,
       controller: ctrl,
@@ -1697,6 +1767,25 @@ export class LaserProgramAssemblerEngine {
     warnings.push(...this._checkEnvelope({
       power_kW: input.power_w / 1000,
     }));
+
+    // INFRA-NEURAL-LEDGER-MS1/P0-U02 — fire-and-forget emission (scaffolded).
+    emitP2POutcome({
+      engineName: "LaserProgramAssemblerEngine",
+      domain: "laser",
+      pipelineStage: P2P_STAGES.LASER_DRILL,
+      success: warnings.length === 0,
+      jobId: part_name,
+      scaffolded: true,
+      summary: {
+        process: String(input.process ?? "unknown"),
+        material_name: String(input.material ?? "unknown"),
+        controller: String(ctrl),
+        gcode_lines: gcode.split("\n").length,
+        total_drill_time_s: total_drill_time,
+        power_w: input.power_w,
+      },
+      warnings,
+    });
 
     return {
       process: input.process,
@@ -2177,3 +2266,16 @@ export class LaserProgramAssemblerEngine {
     return len;
   }
 }
+
+// ============================================================================
+// SINGLETON EXPORT
+// ----------------------------------------------------------------------------
+// INFRA-NEURAL-LEDGER-MS1/P0-U02 — added a default singleton so the engine
+// matches PRISM's "engines export singletons" convention (engines/CLAUDE.md)
+// and downstream callers can do `import { laserProgramAssemblerEngine }`
+// without instantiating. The 4 entry methods are stateless across calls
+// (instance fields `_resolvedMaterial`/`_resolvedMachine` are caches, not
+// per-run state) so singleton-sharing is safe.
+// ============================================================================
+
+export const laserProgramAssemblerEngine = new LaserProgramAssemblerEngine();

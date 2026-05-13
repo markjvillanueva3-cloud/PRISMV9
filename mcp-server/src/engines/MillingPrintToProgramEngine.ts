@@ -72,6 +72,10 @@ import {
   type ResolvedMaterialContext,
   type ResolvedMachineContext,
 } from "./PipelineRegistryBridge.js";
+// INFRA-NEURAL-LEDGER-MS1/P0-U02 — emit cross_process_stage_complete event to
+// the OutcomeCaptureBus at the end of every full-pipeline run. Fire-and-forget;
+// never blocks the producer. See utils/p2pOutcomeEmission.ts for the contract.
+import { emitP2POutcome, P2P_STAGES } from "../utils/p2pOutcomeEmission.js";
 
 // ============================================================================
 // ESM-SAFE ENGINE HELPERS (non-blocking wrappers — 0-D-ARCH U-ARCH2)
@@ -1989,6 +1993,12 @@ export class MillingPrintToProgramEngine {
 
   /**
    * Run the complete 5-stage milling print-to-program pipeline.
+   *
+   * Side effect (INFRA-NEURAL-LEDGER-MS1/P0-U02): emits a fire-and-forget
+   * `cross_process_stage_complete` event to the OutcomeCaptureBus JSONL
+   * ledger before returning. The emission is non-blocking and never throws;
+   * a ledger failure cannot break the pipeline. See utils/p2pOutcomeEmission.
+   *
    * @param input - Milling blueprint input
    * @returns Full program result with G-code, setup sheet, validation, and confidence
    */
@@ -2092,7 +2102,7 @@ export class MillingPrintToProgramEngine {
 
     log.info(`MillingPrintToProgramEngine: Pipeline complete — ${ops.length} ops, ${programLineCount} lines, confidence=${confidence}, criticalFail=${hasCritical}`);
 
-    return {
+    const result: MillingProgramResult = {
       success: !hasCritical,
       part_number: partNum,
       material: input.material?.material_name ?? "UNKNOWN",
@@ -2117,6 +2127,33 @@ export class MillingPrintToProgramEngine {
       postprocessor_applied: false,
       playbook_rules: playbookRules.length > 0 ? playbookRules : undefined,
     };
+
+    // INFRA-NEURAL-LEDGER-MS1/P0-U02 — emit per-pipeline-run outcome event to
+    // the neural-feedback ledger. Fire-and-forget; never blocks or throws.
+    // Scalar-only summary; full result object stays out of the JSONL (PII gate).
+    emitP2POutcome({
+      engineName: "MillingPrintToProgramEngine",
+      domain: "mill",
+      pipelineStage: P2P_STAGES.PRINT_TO_PROGRAM,
+      success: result.success,
+      jobId: result.part_number,
+      summary: {
+        total_operations: result.total_operations,
+        total_tool_changes: result.total_tool_changes,
+        estimated_cycle_time_sec: result.estimated_cycle_time_sec,
+        program_line_count: result.program_line_count,
+        safety_pass_rate: result.safety_pass_rate,
+        confidence_score: result.confidence_score,
+        feature_count: result.feature_count,
+        iso_group: iso,
+        material_name: input.material?.material_name ?? "UNKNOWN",
+        machine_name: machSpec.name,
+        controller: machSpec.controller,
+      },
+      warnings: result.warnings.map((w) => `[${w.stage}/${w.severity}] ${w.message}`),
+    });
+
+    return result;
   }
 }
 

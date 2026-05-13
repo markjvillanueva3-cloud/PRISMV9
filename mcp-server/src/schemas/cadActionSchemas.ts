@@ -557,6 +557,33 @@ export const macroFanoutDryRunSchema = z.object({
   sample_size: z.number().int().min(0).max(1000).optional().describe("How many matched parts to include in the returned sample (default 25)."),
 });
 
+// TRAINING-LEARNING-MS0/U1: CAD-side bridge for placing a lathe template into a part folder.
+// Family enum is narrowed to the 4 OSP-anchored families — the ONLY families for which a
+// .min macro source file exists in MacroLibraryEngine.CATALOG. Empirically verified
+// 2026-05-13: a wider enum surfaces the engine's non-null-assertion crash at
+// MacroLibraryEngine.ts:409 (`CATALOG.find(...)!` returns undefined for non-OSP families
+// and the following `cat.file` access throws). Reviewer B's "widen the enum" P0 was based
+// on a misreading: lathe_training_template_match (turning dispatcher) is the action that
+// works with all 12 LatheTemplateFamily literals — it emits JSON training templates that
+// have no .min source dependency. cad_lathe_template_place places real .min macro files
+// and so is correctly scoped to the macro-library's actual surface. Dedicated schema (vs
+// reusing macroPlaceTemplateSchema) preserves the option to evolve the two independently
+// when MacroLibraryEngine.CATALOG widens in a future unit.
+export const cadLatheTemplatePlaceSchema = z.object({
+  part_number: z.union([z.string(), z.number()]).describe("The part number (required)."),
+  customer: z.string().optional().describe("Customer folder name. If omitted, falls back to _UNASSIGNED for the path."),
+  family: z.enum([
+    "wafer-insert",
+    "casing",
+    "casing-counterbore",
+    "top-hat-casing",
+  ]).optional().describe("The lathe template family — restricted to the 4 OSP-anchored families that have a .min macro source file in MacroLibraryEngine.CATALOG. For broader 12-family lathe template extraction (JSON output, no .min dependency), use prism_turning:lathe_training_template_match."),
+  match: macroMatchFamilySchema.optional().describe("Match input (geometry/features/name) — used to resolve a family when `family` is omitted."),
+  library_root: z.string().optional().describe("Override the part-library root (tests use a temp dir)."),
+  macro_source_dir: z.string().optional().describe("Override the macro source directory."),
+  dry_run: z.boolean().optional().describe("Do everything except write."),
+});
+
 /**
  * Action schemas for prism_cad dispatcher.
  * Maps action name to Zod schema for validation.
@@ -666,4 +693,11 @@ export const ACTION_CAD_SCHEMAS: Record<string, z.ZodType<any>> = {
   macro_match_family: macroMatchFamilySchema,
   macro_place_template: macroPlaceTemplateSchema,
   macro_fanout_dry_run: macroFanoutDryRunSchema,
+  // TRAINING-LEARNING-MS0/U1: CAD-domain bridge alias for macro_place_template,
+  // scoped to ALL 12 LatheTemplateFamily literals (not just the 4 OSP-anchored).
+  // Reviewer B P0: the envelope's `families_target` at MS0-U1 line 86 explicitly
+  // includes `shaft` and `flange` — they must pass Zod even though the engine has
+  // no OSP-anchored macro file for them (engine returns a structured graceful
+  // failure: `{placed:false, family, reason: "macro source file not found: ..."}`).
+  cad_lathe_template_place: cadLatheTemplatePlaceSchema,
 };
