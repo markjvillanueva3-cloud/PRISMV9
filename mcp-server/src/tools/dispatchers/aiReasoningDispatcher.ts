@@ -2396,6 +2396,31 @@ export async function executeAIReasoningAction(
       }
 
       // ─────────────────────────────────────────────────────────────────────
+      // AUTO-LEARNING-LOOP-MS0/U-ALL04 — SynergyClassifierEngine
+      // ─────────────────────────────────────────────────────────────────────
+      case "synergy_classify": {
+        const { synergyClassifierEngine } = await import("../../engines/SynergyClassifierEngine.js");
+        type Features = {
+          semantic_match: number;
+          novelty_strength: number;
+          ai_priority_score: number;
+          duplication_risk: number;
+          effort_estimate: number;
+          blast_radius: number;
+        };
+        const single = params.features as Features | undefined;
+        const batch = params.batch as Features[] | undefined;
+        const verdict = single ? synergyClassifierEngine.classify(single) : undefined;
+        const batchResult = batch ? synergyClassifierEngine.classifyBatch(batch) : undefined;
+        result = {
+          verdict,
+          batchResult,
+          rubricSchemaVersion: synergyClassifierEngine.getRubric().schemaVersion,
+        };
+        break;
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
       // AUTO-LEARNING-LOOP-MS0/U-ALL03 — AutoResearchOrchestratorEngine
       // ─────────────────────────────────────────────────────────────────────
       case "auto_research_dispatch": {

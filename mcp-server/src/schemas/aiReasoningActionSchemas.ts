@@ -471,6 +471,8 @@ export const AI_REASONING_ACTIONS = [
   "novelty_detect",                 // NoveltyDetectionEngine.detect (+ optional addVerifiedNovel)
   // AUTO-LEARNING-LOOP-MS0/U-ALL03 — AutoResearchOrchestratorEngine
   "auto_research_dispatch",         // AutoResearchOrchestratorEngine.enqueue (+ optional flush)
+  // AUTO-LEARNING-LOOP-MS0/U-ALL04 — SynergyClassifierEngine
+  "synergy_classify",               // SynergyClassifierEngine.classify (single or batch)
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -2273,6 +2275,32 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
     "Classify a batch of source items as novel or known relative to the auto-learn catalog. " +
     "Returns { detect, add?, catalogLoaded }. When commit=true the add field carries " +
     "AddOutcome { added, embeddedFailures, skipped }.",
+  ),
+
+  // AUTO-LEARNING-LOOP-MS0/U-ALL04 — SynergyClassifierEngine
+  synergy_classify: z.object({
+    features: z.object({
+      semantic_match: z.number().describe("Domain-fit score in [0,1]; higher = better PRISM-domain match."),
+      novelty_strength: z.number().describe("Novelty score in [0,1]; output of U-ALL02 NoveltyDetectionEngine."),
+      ai_priority_score: z.number().describe("AI-orchestrator priority signal in [0,1]."),
+      duplication_risk: z.number().describe("Overlap with existing PRISM capabilities in [0,1]."),
+      effort_estimate: z.number().describe("Integration effort in [0,1] (higher = more effort, negative weight)."),
+      blast_radius: z.number().describe("Disruption surface in [0,1] (higher = touches more subsystems)."),
+    }).optional().describe("Single feature vector to classify. Provide this OR `batch`."),
+    batch: z.array(z.object({
+      semantic_match: z.number(),
+      novelty_strength: z.number(),
+      ai_priority_score: z.number(),
+      duplication_risk: z.number(),
+      effort_estimate: z.number(),
+      blast_radius: z.number(),
+    })).optional().describe("Batch of feature vectors. Returns per-band counts pre-computed."),
+  }).strict().describe(
+    "Classify research-output feature vectors into high/med/low/none synergy bands. Decision tree: " +
+    "invalid-feature veto (NaN/Infinity/missing key → none) → duplicate-risk veto (duplication_risk > 0.85 → none) → " +
+    "weighted-sum score (default rubric: weights {match:0.30, novelty:0.25, priority:0.20, " +
+    "duplication:-0.20, effort:-0.10, blast:-0.05}, thresholds {high:0.65, med:0.45, low:0.25}). " +
+    "Provide either `features` (single) or `batch` (array). Returns { verdict?, batchResult? }.",
   ),
 
   // AUTO-LEARNING-LOOP-MS0/U-ALL03 — AutoResearchOrchestratorEngine
