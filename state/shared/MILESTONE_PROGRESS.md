@@ -1,6 +1,6 @@
 # MILESTONE_PROGRESS — what's actually shipped vs claimed
 
-> Generated: 2026-05-13T23:20:34.952Z
+> Generated: 2026-05-13T23:58:18.382Z
 > Window: last 60.days of git log across all branches
 > Source: `scripts/build-milestone-progress.mjs`
 
@@ -19,17 +19,17 @@ flagging a unit as missing.
 
 - Milestones loaded:        **670**
 - Units across all MS:      **4906**
-- Units shipped (in git):   **1233**
-- Units pending:            **3673**
+- Units shipped (in git):   **1238**
+- Units pending:            **3668**
 - Drift cases:              **173** (envelope status disagrees with git reality)
 
 ## Top recently-active milestones (last shipped → first)
 
 | Milestone | Track | Status (claimed) | Status (real) | Shipped/Total | Last commit |
 |-----------|-------|------------------|---------------|---------------|-------------|
-| CLEANUP-MS0 | CLEANUP | in_progress | in_progress_real | 23/73 (32%) | 2026-05-13 |
+| COORD-MS0 | INFRA | unknown | in_progress_real | 6/12 (50%) | 2026-05-13 |
+| CLEANUP-MS0 | CLEANUP | in_progress | in_progress_real | 27/73 (37%) | 2026-05-13 |
 | CAD-INFRA-MS0 | CAD-INFRA | complete | in_progress_real | 4/16 (25%) | 2026-05-13 |
-| COORD-MS0 | INFRA | unknown | in_progress_real | 5/12 (42%) | 2026-05-13 |
 | S1-MS2 | — | not_started | in_progress_real | 9/10 (90%) | 2026-05-13 |
 | TC-MS0 | — | not_started | completed_real | 14/14 (100%) | 2026-05-13 |
 | CCM-MS16 | CCM | not_started | completed_real | 12/12 (100%) | 2026-05-13 |
@@ -135,7 +135,7 @@ flagging a unit as missing.
 | MS-WIRE-BACKEND | 60 | 60 | 0/60 |
 | MIO-MS0 | 57 | 57 | 0/57 |
 | LATHE-LORA-MS0 | 50 | 50 | 0/50 |
-| CLEANUP-MS0 | 50 | 73 | 23/73 |
+| CLEANUP-MS0 | 46 | 73 | 27/73 |
 | MS-MASTERPOST | 44 | 44 | 0/44 |
 | MS1 | 39 | 39 | 0/39 |
 | MS-CAM-MASTERY | 34 | 34 | 0/34 |
