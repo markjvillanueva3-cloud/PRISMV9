@@ -125,6 +125,27 @@ export interface RecordOutcomeResult {
   warning?: string;
 }
 
+// WIRE-EXEMPT: producer-side bus, not a dispatcher action.
+//
+// This engine is a fire-and-forget event emitter — every PRISM engine that
+// observes an outcome (operator override, cycle-time measurement, scrap event,
+// cross-process decision, etc.) calls `outcomeCaptureBusEngine.record(...)`
+// directly via the exported singleton. There is no caller pattern that needs
+// a dispatcher-action surface (callers are themselves engines, not
+// MCP-protocol clients). This matches the pattern used by atomic-write
+// utilities, structured loggers, and other producer-side infrastructure.
+//
+// If a dispatcher action is ever added (e.g. `prism_dev:outcome_record` for
+// agent-side emission), this exemption can be removed and the action wired
+// alongside the existing direct-singleton path.
+//
+// See CLAUDE.md §ENGINE WIRING — WIRE TO ALL SOURCES (the "WIRE-EXEMPT" tag
+// is the documented escape hatch for producer engines wrapped by their own
+// singleton; the bus IS its own singleton via `outcomeCaptureBusEngine`).
+//
+// Tagged 2026-05-13 by bravo/claude-88901d4c during INFRA-NEURAL-LEDGER-MS1/
+// P0-U01 close-out (Stop-hook wiring-enforcement gate).
+
 /**
  * OutcomeCaptureBusEngine — singleton, static API.
  *
