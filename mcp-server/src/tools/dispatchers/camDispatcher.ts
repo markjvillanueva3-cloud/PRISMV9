@@ -973,6 +973,13 @@ export const ACTIONS = [
   "post_process", "collision_check_full", "stock_update",
   "tool_assembly", "fixture_setup", "nesting_optimize",
   "clearance_plane", "sequence_operations", "linking_move",
+  // TRAINING-LEARNING-MS0/U2 — Mill training corpus + per-family templates.
+  // Read-only catalog → template extract → list. Engine NEVER emits G-code.
+  // Mirrors prism_turning:lathe_training_* (U1 sibling).
+  "mill_training_corpus_status",
+  "mill_training_template_match",
+  "mill_training_template_list",
+  "mill_training_template_extract_all",
   "cam_strategy_recommend", "cam_safety_validate",
   "cam_multiaxis_recommend", "cam_material_map",
   "cam_cycle_catalog",
@@ -2281,6 +2288,70 @@ Params vary by action — pass relevant fields in params object.`,
             );
             break;
           }
+
+          // ── TRAINING-LEARNING-MS0/U2 — Mill template extractor ──
+          // Engine returns discriminated `{ok: true|false, error?, family?, detail?}`.
+          // Bridge `data.ok` → dispatcher `success` so callers branching on `.success`
+          // don't treat unknown-family / missing-snapshot as success. Mirrors the lathe
+          // sibling pattern in prism_turning (turningDispatcher.ts ~line 972). NEVER
+          // emits G-code — templates are metadata only; safety-gated emit lives in
+          // MACRO-PROGRAM-PIPELINE-MS0.
+          case "mill_training_corpus_status": {
+            const { millPartFamilyTemplateExtractorEngine } = await import("../../engines/MillPartFamilyTemplateExtractorEngine.js");
+            const data = millPartFamilyTemplateExtractorEngine.catalogCorpus({
+              snapshot: (params as Record<string, unknown>).snapshot as never,
+              snapshotPath:
+                (params as Record<string, unknown>).snapshotPath as string ??
+                (params as Record<string, unknown>).snapshot_path as string,
+            });
+            result = data.ok
+              ? { success: true, data }
+              : { success: false, error: data.error, detail: data.detail, data };
+            break;
+          }
+          case "mill_training_template_match": {
+            const { millPartFamilyTemplateExtractorEngine } = await import("../../engines/MillPartFamilyTemplateExtractorEngine.js");
+            const p = params as Record<string, unknown>;
+            const data = await millPartFamilyTemplateExtractorEngine.extractTemplate(
+              String(p.family),
+              {
+                snapshot: p.snapshot as never,
+                snapshotPath: (p.snapshotPath ?? p.snapshot_path) as string,
+                outDir: (p.outDir ?? p.out_dir) as string,
+                dryRun: (p.dryRun ?? p.dry_run) as boolean,
+              },
+            );
+            result = data.ok
+              ? { success: true, data }
+              : { success: false, error: data.error, family: data.family, detail: data.detail, data };
+            break;
+          }
+          case "mill_training_template_list": {
+            const { millPartFamilyTemplateExtractorEngine } = await import("../../engines/MillPartFamilyTemplateExtractorEngine.js");
+            const data = millPartFamilyTemplateExtractorEngine.listTemplates({
+              outDir: (params as Record<string, unknown>).outDir as string ??
+                (params as Record<string, unknown>).out_dir as string,
+            });
+            result = data.ok
+              ? { success: true, data }
+              : { success: false, error: (data as unknown as { error?: string }).error, data };
+            break;
+          }
+          case "mill_training_template_extract_all": {
+            const { millPartFamilyTemplateExtractorEngine } = await import("../../engines/MillPartFamilyTemplateExtractorEngine.js");
+            const p = params as Record<string, unknown>;
+            const data = await millPartFamilyTemplateExtractorEngine.extractAllTemplates({
+              snapshot: p.snapshot as never,
+              snapshotPath: (p.snapshotPath ?? p.snapshot_path) as string,
+              outDir: (p.outDir ?? p.out_dir) as string,
+              dryRun: (p.dryRun ?? p.dry_run) as boolean,
+            });
+            result = data.ok
+              ? { success: true, data }
+              : { success: false, error: (data as { error?: string }).error, detail: (data as { detail?: string }).detail, data };
+            break;
+          }
+
           case "cam_strategy_recommend": {
             const safetyCheck = await runHyperMillSafetyChecks(params);
             if (!safetyCheck.safe) {
