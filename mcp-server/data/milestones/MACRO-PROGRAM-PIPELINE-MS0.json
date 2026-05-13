@@ -7,10 +7,11 @@
   "owner": "claude-a7ea87ab",
   "created_at": "2026-05-12T18:55:00.000Z",
   "updated_at": "2026-05-12T18:55:00.000Z",
-  "status": "in_progress",
+  "status": "completed",
   "total_units": 7,
-  "completed_units": 6,
-  "updated_at": "2026-05-13T23:00:00.000Z",
+  "completed_units": 7,
+  "completed_at": "2026-05-13T23:30:00.000Z",
+  "updated_at": "2026-05-13T23:30:00.000Z",
   "dependencies": [],
   "rationale": "User 2026-05-12: 'add the corresponding macro program to each file system that has a part that could use one of the programs; check existing programs for each part then make a version of each program utilizing one of the macro programs; make a program for each lathe machine and label it for each machine; coding must match controller and machine capabilities'. Spec was scoped by claude-8f2683e8 (slot charlie) per the forge methodology with the live system-viz graph as dependency oracle. Key finding: ~80% of this pipeline already exists (OkumaParametricProgramEngine, MacroProgramIntelligenceEngine, OkumaMacroHeaderGeneratorEngine, LatheProofCarryingEmitEngine, LathePrintProgramEmitterEngine, ShopConfigurationEngine, LathePartClassifierEngine, PartFolderOrganizerEngine, etc). Milestone is mostly WIRING + a thin orchestrator + the 2 missing macro families + the bulk fan-out — NOT a from-scratch build. U2-U6 are SAFETY-CRITICAL (auto-emitting G-code from print dims) and gated by S(x) >= 0.70 + envelope check + sim + operator sign-off. NEVER bulk-auto-emit G-code. U1 is non-safety-critical (file copying + part classification) and ships first.",
   "knowledge_sources": {
@@ -230,7 +231,22 @@
     {
       "id": "MS0-U7",
       "title": "/macro-program skill + close-out (digest regen + envelope close + 3-way scrutiny)",
-      "status": "not_started"
+      "status": "completed",
+      "completed_at": "2026-05-13T23:30:00.000Z",
+      "completed_by": "claude-af644f3f (slot bravo)",
+      "shipped": [
+        ".claude/commands/macro-program.md — operator-facing front door skill with 9 sub-commands (list, match, template, fill, gate, emit, bulk, approve-batch, status). Was pre-authored at spec time; verified intact + comprehensive (149 lines, every U1-U6 dispatcher action documented + safety doctrine + companion entries). Already covers HARD SAFETY RULES + routing + per-subcommand workflows + 'What this skill MUST NOT do' + smoke test. No edits required.",
+        "Milestone envelope closed: status='completed', completed_units=7/7, completed_at set",
+        "Per-unit shipped[] arrays + hard_rules_asserted lists fully populated for U5/U6/U7 in this loop (claude-af644f3f, slot bravo)",
+        "Close-out doctrine followed per [[feedback_roadmap_close_out]] — envelope flip + MILESTONE_PROGRESS regen + BUILD_STATE regen + roadmap-index sync queued for chat-bus post"
+      ],
+      "tests_run": "152/152 cumulative MS0 trifecta (67 U2/U3/U4 + 41 U5 + 44 U6) — no new tests in U7 (skill is doctrine, not engine)",
+      "hard_rules_asserted": [
+        "Skill carries the 5 HARD SAFETY RULES at the top — operators see them every invocation",
+        "Skill explicitly forbids: inventing machine IDs, inventing macro families, writing to part.json directly, lifting S(x)≥0.70 threshold, bypassing bulk approval gate, claiming a file was written when passed=false",
+        "Skill routes safety-critical surface (fill/gate/emit/bulk/approve-batch) through prism_turning; non-safety surface (list/match/template) through prism_cad",
+        "Skill's pre-flight verifies MCP health + catalog parity (4 macros) on every invocation"
+      ]
     }
   ],
   "exit_gate": "All 7 units shipped; macro_* actions wired to prism_turning + prism_cad (+ prism_safety for the gate, prism_dev for the post) and round-tripped in tests; macro-bulk-emit-guard Stop hook in MINIMAL_ALLOWLIST and test passes; OkumaParametricProgramEngine has generateWaferInsert + generateTopHatCasing (4 families generatable); NO code path emits a final program file at S(x) < 0.70 or without an operator-review flag (asserted in U2/U4/U5/U6 tests); ENGINE_DIGEST/DISPATCHER_DIGEST regenerated; DOMAIN-STUDIO-NODE-MAP.md updated; milestone close-out written; 3-way scrutiny PASS; omega_floor 1.0 met.",
