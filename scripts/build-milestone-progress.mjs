@@ -130,10 +130,12 @@ function loadShippedFromGit() {
     //   3. Combined IDs:    U-AIMAX07+08, U-AIMAX07+08-FIX2 (one commit shipping
     //                       multiple related units — common when pairs are
     //                       co-developed). Expanded by `expandCombinedIds`.
+    //   4. Dotted sub-ids:   U-CINF04.x-WORKER-THREAD-RUNNER (CAD-INFRA uses
+    //                       .x / .y suffixes for incremental sub-units).
     // Key preserves the original unit-id so it matches the envelope's `units[].id`
     // exactly (which stores P0-U05, not U-P0-U05).
-    const mLegacy = subject.match(/\[([^\]]+)\]\/(U-[A-Za-z0-9]+(?:\+[A-Za-z0-9]+)*(?:-[A-Za-z0-9-]+)?)/);
-    const mPhase  = subject.match(/\[([^\]]+)\]\/(P\d+-U\d+(?:\+\d+)*[A-Za-z0-9-]*)/);
+    const mLegacy = subject.match(/\[([^\]]+)\]\/(U-[A-Za-z0-9.]+(?:\+[A-Za-z0-9.]+)*(?:-[A-Za-z0-9-]+)?)/);
+    const mPhase  = subject.match(/\[([^\]]+)\]\/(P\d+-U\d+(?:\+\d+)*[A-Za-z0-9.-]*)/);
     const m = mLegacy || mPhase;
     if (!m) continue;
     const milestoneTag = m[1].toUpperCase();

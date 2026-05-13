@@ -1,6 +1,6 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-13T22:44:05.313Z
+> Generated: 2026-05-13T22:48:17.077Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
@@ -248,6 +248,10 @@
 
 | Milestone | Phase | Unit | Title |
 |-----------|-------|------|-------|
+| CAD-INFRA-MS0 |  | U-CINF01 | CADFileIndexerEngine — master 20,006-file catalog |
+| CAD-INFRA-MS0 |  | U-CINF02 | CADFileClassifierEngine — part/assembly/drawing/CAM classification |
+| CAD-INFRA-MS0 |  | U-CINF03 | CADTestStateSchema — per-file atomic state |
+| CAD-INFRA-MS0 |  | U-CINF04.x-WORKER-THREAD-RUNNER | CADRegressionWorkerThreadRunnerEngine — production TestRunner implementation |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | P5 | P5-U05 | Wire prism_intelligence:diagnose_failure → DiagnosticReasoningEngine |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | P6 | P6-U02 | Add 4 hooks for unforced CLAUDE.md rules |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | P6 | P6-U03 | Awareness hook deduplication — pick 3 canonical, deprecate 10 |
@@ -268,10 +272,6 @@
 | AUTO-LEARNING-LOOP-MS0 | P0 | U-ALL05 | Build `VizAutoAugmentationEngine` (emit augmentation file) |
 | AUTO-LEARNING-LOOP-MS0 | P0 | U-ALL07 | Wire 6 auto-learning actions |
 | AUTO-LEARNING-LOOP-MS0 | P0 | U-ALL08 | Wire 6 auto-learning actions |
-| COORD-MS0 |  | U-COORD02 | Add Optimistic Locking with Version Field |
-| COORD-MS0 |  | U-COORD04 | CrossSessionOrchestratorEngine — Unified Facade |
-| COORD-MS0 |  | U-COORD05 | Wire Orchestrator to Hook System |
-| COORD-MS0 |  | U-COORD06 | Startup Banner — Session Count Display |
 
 **Next action:** Cross-reference MILESTONE_PROGRESS.json. Avoid units already in `shipped` arrays — those are committed but envelope status is stale.
 

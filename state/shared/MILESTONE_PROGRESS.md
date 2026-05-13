@@ -1,6 +1,6 @@
 # MILESTONE_PROGRESS — what's actually shipped vs claimed
 
-> Generated: 2026-05-13T22:44:01.401Z
+> Generated: 2026-05-13T22:49:34.080Z
 > Window: last 60.days of git log across all branches
 > Source: `scripts/build-milestone-progress.mjs`
 
@@ -27,6 +27,7 @@ flagging a unit as missing.
 
 | Milestone | Track | Status (claimed) | Status (real) | Shipped/Total | Last commit |
 |-----------|-------|------------------|---------------|---------------|-------------|
+| CAD-INFRA-MS0 | CAD-INFRA | complete | in_progress_real | 3/16 (19%) | 2026-05-13 |
 | S1-MS2 | — | not_started | in_progress_real | 9/10 (90%) | 2026-05-13 |
 | TC-MS0 | — | not_started | completed_real | 14/14 (100%) | 2026-05-13 |
 | CCM-MS16 | CCM | not_started | completed_real | 12/12 (100%) | 2026-05-13 |
@@ -45,7 +46,6 @@ flagging a unit as missing.
 | TRAINING-LEARNING-MS0 | TRAINING-LEARNING | in_progress | in_progress_real | 3/7 (43%) | 2026-05-13 |
 | AUTO-LEARNING-LOOP-MS0 | AUTO-LEARNING-LOOP | complete | in_progress_real | 4/12 (33%) | 2026-05-13 |
 | COORD-MS0 | INFRA | unknown | in_progress_real | 4/12 (33%) | 2026-05-13 |
-| CAD-INFRA-MS0 | CAD-INFRA | complete | in_progress_real | 3/16 (19%) | 2026-05-13 |
 | AI-MAX-MS0 | AI-MAX | in_progress | in_progress_real | 2/12 (17%) | 2026-05-13 |
 | BP-MS0 | BP | not_started | in_progress_real | 1/28 (4%) | 2026-05-13 |
 | AWARE-MS0 | AI-CORE | unknown | in_progress_real | 2/8 (25%) | 2026-05-13 |
