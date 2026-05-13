@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-12T19:05:14.642Z",
+  "generatedAt": "2026-05-13T12:45:58.207Z",
   "generatedBy": "scripts/build-hook-registry.mjs",
   "repoRoot": "H:/prism",
   "hooksDir": ".claude/hooks",
@@ -22,30 +22,42 @@
     }
   ],
   "counts": {
-    "hookFiles": 455,
-    "wired": 171,
-    "orphaned": 284,
+    "hookFiles": 463,
+    "wired": 174,
+    "orphaned": 289,
     "disabled": 0,
     "skipped": 0,
     "byEvent": {
-      "PreToolUse": 106,
-      "PostToolUse": 77,
-      "SessionStart": 65,
-      "Stop": 63,
-      "UserPromptSubmit": 22,
+      "PreToolUse": 159,
+      "PostToolUse": 81,
+      "SessionStart": 63,
+      "Stop": 61,
+      "UserPromptSubmit": 24,
       "PreCompact": 12,
       "SubagentStart": 2,
       "SubagentStop": 1
     },
     "byType": {
-      "command": 348
+      "command": 403
     },
     "byLayer": {
-      "user": 173,
-      "project": 175
+      "user": 198,
+      "project": 205
     }
   },
   "hooks": [
+    {
+      "id": "_envelope",
+      "file": ".claude/hooks/_envelope.mjs",
+      "wired": false,
+      "disabled": false,
+      "events": [],
+      "description": "HOOK-SYNERGY-MS0 / U-HOOK-ENVELOPE (H4)",
+      "descriptionInferred": false,
+      "tier": "T3",
+      "sizeBytes": 6280,
+      "lines": 154
+    },
     {
       "id": "agent-boundary-guard",
       "file": ".claude/hooks/agent-boundary-guard.mjs",
@@ -73,9 +85,9 @@
       ],
       "description": "Agent Boundary Guard Hook (PreToolUse)",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3570,
-      "lines": 119
+      "tier": "T1",
+      "sizeBytes": 3464,
+      "lines": 120
     },
     {
       "id": "agent-pid-tracker",
@@ -102,9 +114,9 @@
       ],
       "description": "PostToolUse hook for Agent",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4637,
-      "lines": 144
+      "tier": "T4",
+      "sizeBytes": 4506,
+      "lines": 145
     },
     {
       "id": "agent-registry-load",
@@ -114,9 +126,9 @@
       "events": [],
       "description": "SessionStart hook — surfaces Task-tool agent registry (AGENT_REGISTRY.json)",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1553,
-      "lines": 41
+      "tier": "T4",
+      "sizeBytes": 1525,
+      "lines": 42
     },
     {
       "id": "agent-rules-inject",
@@ -143,9 +155,9 @@
       ],
       "description": "PreToolUse hook for the Task tool",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2201,
-      "lines": 66
+      "tier": "T1",
+      "sizeBytes": 2148,
+      "lines": 67
     },
     {
       "id": "agent-util-log",
@@ -155,9 +167,9 @@
       "events": [],
       "description": "PostToolUse hook — Task-tool invocation ledger.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2902,
-      "lines": 83
+      "tier": "T4",
+      "sizeBytes": 2832,
+      "lines": 84
     },
     {
       "id": "agent-vs-direct",
@@ -184,9 +196,9 @@
       ],
       "description": "PreToolUse Agent",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3277,
-      "lines": 99
+      "tier": "T1",
+      "sizeBytes": 3191,
+      "lines": 100
     },
     {
       "id": "agent-worktree-stale-unlock",
@@ -199,24 +211,23 @@
           "matcher": "",
           "timeout": 3000,
           "type": "command",
-          "layer": "project",
+          "layer": "user",
           "disabled": false
         },
         {
           "event": "SessionStart",
           "matcher": "",
-          "timeout": null,
+          "timeout": 3000,
           "type": "command",
-          "layer": "user",
-          "disabled": false,
-          "viaBundle": "sessionstart-bundle"
+          "layer": "project",
+          "disabled": false
         }
       ],
       "description": "HARNESS-AUDIT/U-TIER3/#7 (SessionStart)",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4485,
-      "lines": 141
+      "tier": "T4",
+      "sizeBytes": 4497,
+      "lines": 142
     },
     {
       "id": "aggressive-killer-stop",
@@ -226,9 +237,9 @@
       "events": [],
       "description": "Stop hook wrapper around 06-aggressive-killer.mjs.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2395,
-      "lines": 71
+      "tier": "T4",
+      "sizeBytes": 2337,
+      "lines": 72
     },
     {
       "id": "agi-safety-envelope-guard",
@@ -238,9 +249,9 @@
       "events": [],
       "description": "PreToolUse hook (U-LTH62)",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4044,
-      "lines": 125
+      "tier": "T0",
+      "sizeBytes": 3932,
+      "lines": 126
     },
     {
       "id": "ai-auto-command-router",
@@ -250,9 +261,9 @@
       "events": [],
       "description": "AI Auto-Command Router — UserPromptSubmit Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 5444,
-      "lines": 114
+      "tier": "T4",
+      "sizeBytes": 5343,
+      "lines": 115
     },
     {
       "id": "ai-command-awareness",
@@ -265,24 +276,23 @@
           "matcher": "",
           "timeout": 3000,
           "type": "command",
-          "layer": "project",
+          "layer": "user",
           "disabled": false
         },
         {
           "event": "SessionStart",
           "matcher": "",
-          "timeout": null,
+          "timeout": 3000,
           "type": "command",
-          "layer": "user",
-          "disabled": false,
-          "viaBundle": "sessionstart-bundle"
+          "layer": "project",
+          "disabled": false
         }
       ],
       "description": "AI Command Awareness — SessionStart Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 12593,
-      "lines": 359
+      "tier": "T4",
+      "sizeBytes": 12247,
+      "lines": 360
     },
     {
       "id": "ai-deep-intelligence",
@@ -295,24 +305,23 @@
           "matcher": "",
           "timeout": 3000,
           "type": "command",
-          "layer": "project",
+          "layer": "user",
           "disabled": false
         },
         {
           "event": "SessionStart",
           "matcher": "",
-          "timeout": null,
+          "timeout": 3000,
           "type": "command",
-          "layer": "user",
-          "disabled": false,
-          "viaBundle": "sessionstart-bundle"
+          "layer": "project",
+          "disabled": false
         }
       ],
       "description": "AI Deep Intelligence — Comprehensive SessionStart Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 17291,
-      "lines": 417
+      "tier": "T4",
+      "sizeBytes": 16887,
+      "lines": 418
     },
     {
       "id": "ai-duplication-guard",
@@ -322,9 +331,9 @@
       "events": [],
       "description": "AI Duplication Guard — PreToolUse Hook (Phase 0.1 Fix)",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 14819,
-      "lines": 424
+      "tier": "T0",
+      "sizeBytes": 14831,
+      "lines": 425
     },
     {
       "id": "ai-feature-recommend",
@@ -332,11 +341,11 @@
       "wired": false,
       "disabled": false,
       "events": [],
-      "description": "UserPromptSubmit hook (U-AWARE06)",
+      "description": "UserPromptSubmit hook (U-AWARE06).",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3398,
-      "lines": 91
+      "tier": "T4",
+      "sizeBytes": 869,
+      "lines": 20
     },
     {
       "id": "ai-reasoning-inject",
@@ -365,9 +374,9 @@
       ],
       "description": "AI Reasoning Inject — PreToolUse Hook for Complex Operations",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4828,
-      "lines": 104
+      "tier": "T1",
+      "sizeBytes": 4737,
+      "lines": 105
     },
     {
       "id": "ai-session-sync",
@@ -377,9 +386,9 @@
       "events": [],
       "description": "AI Session Sync — Stop Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2316,
-      "lines": 77
+      "tier": "T4",
+      "sizeBytes": 2252,
+      "lines": 78
     },
     {
       "id": "ai-system-activate",
@@ -389,9 +398,9 @@
       "events": [],
       "description": "AI System Activation — SessionStart Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4947,
-      "lines": 110
+      "tier": "T4",
+      "sizeBytes": 4850,
+      "lines": 111
     },
     {
       "id": "ai-system-router-inject",
@@ -436,9 +445,9 @@
       ],
       "description": "AI System Router Injection Hook (PreToolUse)",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2774,
-      "lines": 73
+      "tier": "T1",
+      "sizeBytes": 2714,
+      "lines": 74
     },
     {
       "id": "allow-superseding",
@@ -448,9 +457,9 @@
       "events": [],
       "description": "Phase 1 Tier 5B",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4585,
-      "lines": 111
+      "tier": "T0",
+      "sizeBytes": 4597,
+      "lines": 112
     },
     {
       "id": "always-build-guard",
@@ -477,9 +486,9 @@
       ],
       "description": "Stop hook to enforce task completion before session end",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 11686,
-      "lines": 314
+      "tier": "T4",
+      "sizeBytes": 11385,
+      "lines": 315
     },
     {
       "id": "anti-pattern-detector",
@@ -508,9 +517,9 @@
       ],
       "description": "PreToolUse hook for Edit/Write/MultiEdit",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 8852,
-      "lines": 261
+      "tier": "T0",
+      "sizeBytes": 8604,
+      "lines": 262
     },
     {
       "id": "anti-regression-auto-sweep",
@@ -520,9 +529,9 @@
       "events": [],
       "description": "PostToolUse hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 7292,
-      "lines": 221
+      "tier": "T3",
+      "sizeBytes": 7304,
+      "lines": 222
     },
     {
       "id": "api-contract-enforcer",
@@ -551,9 +560,9 @@
       ],
       "description": "PreToolUse hook for Edit/Write/MultiEdit",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 6905,
-      "lines": 226
+      "tier": "T1",
+      "sizeBytes": 6692,
+      "lines": 227
     },
     {
       "id": "appdata-junction-guard",
@@ -563,9 +572,30 @@
       "events": [],
       "description": "SessionStart enforcement for the AppData→H: junction.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4508,
-      "lines": 108
+      "tier": "T4",
+      "sizeBytes": 4413,
+      "lines": 109
+    },
+    {
+      "id": "archived-skill-suggest",
+      "file": ".claude/hooks/archived-skill-suggest.mjs",
+      "wired": true,
+      "disabled": false,
+      "events": [
+        {
+          "event": "UserPromptSubmit",
+          "matcher": "",
+          "timeout": 1500,
+          "type": "command",
+          "layer": "project",
+          "disabled": false
+        }
+      ],
+      "description": "UserPromptSubmit hook (HS-06 Phase 2 / smart-recall).",
+      "descriptionInferred": false,
+      "tier": "T0",
+      "sizeBytes": 19490,
+      "lines": 410
     },
     {
       "id": "asset-deletion-block",
@@ -594,9 +624,9 @@
       ],
       "description": "PreToolUse hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 5126,
-      "lines": 149
+      "tier": "T1",
+      "sizeBytes": 4990,
+      "lines": 150
     },
     {
       "id": "async-pattern-checker",
@@ -606,9 +636,9 @@
       "events": [],
       "description": "PreToolUse hook for Edit/Write/MultiEdit",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 6390,
-      "lines": 208
+      "tier": "T1",
+      "sizeBytes": 6195,
+      "lines": 209
     },
     {
       "id": "auto-bug-hunt-after-build",
@@ -618,9 +648,9 @@
       "events": [],
       "description": "PostToolUse:Bash hook.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 7889,
-      "lines": 201
+      "tier": "T3",
+      "sizeBytes": 7901,
+      "lines": 202
     },
     {
       "id": "auto-consensus-critical-edit",
@@ -649,9 +679,9 @@
       ],
       "description": "PreToolUse hook for high-stakes file edits.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 7429,
-      "lines": 208
+      "tier": "T1",
+      "sizeBytes": 7234,
+      "lines": 209
     },
     {
       "id": "auto-consensus-userprompt",
@@ -678,9 +708,9 @@
       ],
       "description": "UserPromptSubmit hook.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 7831,
-      "lines": 235
+      "tier": "T2",
+      "sizeBytes": 7843,
+      "lines": 236
     },
     {
       "id": "auto-fork-executor",
@@ -690,9 +720,9 @@
       "events": [],
       "description": "PreToolUse(Bash for git commit) auto-fork hook.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 13092,
-      "lines": 414
+      "tier": "T0",
+      "sizeBytes": 12691,
+      "lines": 415
     },
     {
       "id": "auto-lint-post-edit",
@@ -716,13 +746,31 @@
           "layer": "user",
           "disabled": false,
           "viaBundle": "posttool-edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "user",
+          "disabled": false,
+          "viaBundle": "posttool-edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "project",
+          "disabled": false,
+          "viaBundle": "posttool-edit-bundle"
         }
       ],
       "description": "PostToolUse hook (Edit|Write|MultiEdit, via posttool-edit-bundle)",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3597,
-      "lines": 87
+      "tier": "T3",
+      "sizeBytes": 3609,
+      "lines": 88
     },
     {
       "id": "auto-postmortem-on-failure-restart",
@@ -732,9 +780,9 @@
       "events": [],
       "description": "Stop hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 6169,
-      "lines": 183
+      "tier": "T4",
+      "sizeBytes": 5999,
+      "lines": 184
     },
     {
       "id": "auto-precompact-watchdog",
@@ -744,9 +792,9 @@
       "events": [],
       "description": "UserPromptSubmit hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 5528,
-      "lines": 175
+      "tier": "T4",
+      "sizeBytes": 5540,
+      "lines": 176
     },
     {
       "id": "auto-record-tool-call",
@@ -756,9 +804,9 @@
       "events": [],
       "description": "PostToolUse hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2859,
-      "lines": 99
+      "tier": "T3",
+      "sizeBytes": 2773,
+      "lines": 100
     },
     {
       "id": "autonomous-loop-defer",
@@ -776,7 +824,7 @@
         },
         {
           "event": "PreToolUse",
-          "matcher": ".*",
+          "matcher": "^(Bash|Edit|Write|MultiEdit|NotebookEdit|Agent|Task|TaskCreate|Skill|mcp__.*)$",
           "timeout": 2000,
           "type": "command",
           "layer": "project",
@@ -785,9 +833,9 @@
       ],
       "description": "PreToolUse rate-limiter (\"defer\") for runaway loops.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 10883,
-      "lines": 291
+      "tier": "T1",
+      "sizeBytes": 10895,
+      "lines": 292
     },
     {
       "id": "autonomous-loop-watchdog",
@@ -797,9 +845,9 @@
       "events": [],
       "description": "Stop hook for autonomous yolo-mode runs.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3066,
-      "lines": 105
+      "tier": "T0",
+      "sizeBytes": 2974,
+      "lines": 106
     },
     {
       "id": "awareness-bootstrap",
@@ -809,9 +857,9 @@
       "events": [],
       "description": "Phase 0.13 Awareness Bootstrap",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2292,
-      "lines": 77
+      "tier": "T4",
+      "sizeBytes": 2228,
+      "lines": 78
     },
     {
       "id": "awareness-snapshot",
@@ -821,9 +869,21 @@
       "events": [],
       "description": "Awareness Snapshot Hook — AI-AWARE-HARDEN/U-AWR11",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 7380,
-      "lines": 184
+      "tier": "T4",
+      "sizeBytes": 7392,
+      "lines": 185
+    },
+    {
+      "id": "awareness-snapshot-inject",
+      "file": ".claude/hooks/awareness-snapshot-inject.mjs",
+      "wired": false,
+      "disabled": false,
+      "events": [],
+      "description": "SessionStart injector",
+      "descriptionInferred": false,
+      "tier": "T2",
+      "sizeBytes": 5125,
+      "lines": 157
     },
     {
       "id": "ban-facade-patterns",
@@ -852,9 +912,9 @@
       ],
       "description": "PreToolUse enforcement hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 6533,
-      "lines": 167
+      "tier": "T0",
+      "sizeBytes": 6379,
+      "lines": 168
     },
     {
       "id": "bash-bundle",
@@ -881,9 +941,9 @@
       ],
       "description": "single PreToolUse hook for Bash. Replaces the 6-hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1295,
-      "lines": 35
+      "tier": "T1",
+      "sizeBytes": 1939,
+      "lines": 44
     },
     {
       "id": "bash-destructive-guard",
@@ -912,9 +972,9 @@
       ],
       "description": "PreToolUse Bash",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 12620,
-      "lines": 317
+      "tier": "T1",
+      "sizeBytes": 12316,
+      "lines": 318
     },
     {
       "id": "bash-orphan-cleaner",
@@ -924,9 +984,9 @@
       "events": [],
       "description": "Stop hook that kills orphaned bash.exe subprocesses",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 7515,
-      "lines": 229
+      "tier": "T4",
+      "sizeBytes": 7527,
+      "lines": 230
     },
     {
       "id": "bash-result-cache",
@@ -936,9 +996,9 @@
       "events": [],
       "description": "Bash Result Cache — PreToolUse Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 6130,
-      "lines": 210
+      "tier": "T1",
+      "sizeBytes": 6142,
+      "lines": 211
     },
     {
       "id": "blueprint-accuracy-guard",
@@ -948,9 +1008,9 @@
       "events": [],
       "description": "PostToolUse hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3591,
-      "lines": 105
+      "tier": "T4",
+      "sizeBytes": 3499,
+      "lines": 106
     },
     {
       "id": "build-create-detector",
@@ -979,9 +1039,9 @@
       ],
       "description": "PreToolUse hook (U-AWARE01)",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3877,
-      "lines": 136
+      "tier": "T1",
+      "sizeBytes": 3754,
+      "lines": 137
     },
     {
       "id": "build-state-inject",
@@ -994,24 +1054,23 @@
           "matcher": "",
           "timeout": 8000,
           "type": "command",
-          "layer": "project",
+          "layer": "user",
           "disabled": false
         },
         {
           "event": "SessionStart",
           "matcher": "",
-          "timeout": null,
+          "timeout": 8000,
           "type": "command",
-          "layer": "user",
-          "disabled": false,
-          "viaBundle": "sessionstart-bundle"
+          "layer": "project",
+          "disabled": false
         }
       ],
       "description": "UserPromptSubmit + SessionStart hook.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 6061,
-      "lines": 187
+      "tier": "T2",
+      "sizeBytes": 6073,
+      "lines": 188
     },
     {
       "id": "c-to-h-mirror",
@@ -1035,13 +1094,31 @@
           "layer": "user",
           "disabled": false,
           "viaBundle": "posttool-edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "user",
+          "disabled": false,
+          "viaBundle": "posttool-edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "project",
+          "disabled": false,
+          "viaBundle": "posttool-edit-bundle"
         }
       ],
       "description": "PostToolUse hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4436,
-      "lines": 138
+      "tier": "T4",
+      "sizeBytes": 4311,
+      "lines": 139
     },
     {
       "id": "cad-accuracy-gate",
@@ -1051,9 +1128,9 @@
       "events": [],
       "description": "PostToolUse hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2892,
-      "lines": 88
+      "tier": "T3",
+      "sizeBytes": 2817,
+      "lines": 89
     },
     {
       "id": "cad-coverage-auto-refresh",
@@ -1063,9 +1140,9 @@
       "events": [],
       "description": "SessionStart hook — CAD_COVERAGE_MATRIX.json staleness-gated refresh.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 5449,
-      "lines": 140
+      "tier": "T4",
+      "sizeBytes": 5322,
+      "lines": 141
     },
     {
       "id": "cad-coverage-surface",
@@ -1075,9 +1152,9 @@
       "events": [],
       "description": "SessionStart hook — surfaces CAD_COVERAGE_MATRIX.json so every session",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1749,
-      "lines": 44
+      "tier": "T4",
+      "sizeBytes": 1718,
+      "lines": 45
     },
     {
       "id": "cad-graph-integrity",
@@ -1087,9 +1164,9 @@
       "events": [],
       "description": "CADCAM-DAGI-MS0/U-DAGI02 guard hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4154,
-      "lines": 114
+      "tier": "T3",
+      "sizeBytes": 4053,
+      "lines": 115
     },
     {
       "id": "cad-token-vocabulary-guard",
@@ -1099,9 +1176,9 @@
       "events": [],
       "description": "CADCAM-DAGI-MS0/U-DAGI01 guard hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4136,
-      "lines": 102
+      "tier": "T3",
+      "sizeBytes": 4047,
+      "lines": 103
     },
     {
       "id": "cad-unknown-ext-surface",
@@ -1111,9 +1188,9 @@
       "events": [],
       "description": "SessionStart hook — UNKNOWN_CAD_EXTENSIONS.jsonl surface.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2075,
-      "lines": 54
+      "tier": "T4",
+      "sizeBytes": 2034,
+      "lines": 55
     },
     {
       "id": "canonical-constants",
@@ -1123,9 +1200,9 @@
       "events": [],
       "description": "Phase 1 Tier 5C Physics Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3517,
-      "lines": 99
+      "tier": "T4",
+      "sizeBytes": 3431,
+      "lines": 100
     },
     {
       "id": "capability-manifest-surface",
@@ -1135,9 +1212,9 @@
       "events": [],
       "description": "SessionStart hook — CAPABILITY_MANIFEST.json freshness + surface.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1582,
-      "lines": 41
+      "tier": "T4",
+      "sizeBytes": 1554,
+      "lines": 42
     },
     {
       "id": "capability-reminder",
@@ -1147,9 +1224,9 @@
       "events": [],
       "description": "Capability Reminder — UserPromptSubmit Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 5280,
-      "lines": 186
+      "tier": "T4",
+      "sizeBytes": 5292,
+      "lines": 187
     },
     {
       "id": "chat-bus-inject",
@@ -1159,9 +1236,9 @@
       "events": [],
       "description": "UserPromptSubmit hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 7400,
-      "lines": 236
+      "tier": "T2",
+      "sizeBytes": 7177,
+      "lines": 237
     },
     {
       "id": "chat-cleanup-on-stop",
@@ -1171,9 +1248,9 @@
       "events": [],
       "description": "Stop hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 5929,
-      "lines": 156
+      "tier": "T4",
+      "sizeBytes": 5941,
+      "lines": 157
     },
     {
       "id": "chat-slot-heartbeat",
@@ -1183,9 +1260,9 @@
       "events": [],
       "description": "PostToolUse hook (all matchers)",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 5281,
-      "lines": 147
+      "tier": "T4",
+      "sizeBytes": 5293,
+      "lines": 148
     },
     {
       "id": "chat-state-isolator",
@@ -1212,9 +1289,9 @@
       ],
       "description": "SessionStart hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4646,
-      "lines": 181
+      "tier": "T4",
+      "sizeBytes": 4658,
+      "lines": 182
     },
     {
       "id": "checkpoint-auto-trigger",
@@ -1224,9 +1301,9 @@
       "events": [],
       "description": "Context Retention Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4280,
-      "lines": 147
+      "tier": "T3",
+      "sizeBytes": 4146,
+      "lines": 148
     },
     {
       "id": "claim-registry-precompact",
@@ -1236,9 +1313,9 @@
       "events": [],
       "description": "PreCompact hook — flush this terminal's active claims to status=compacted",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1210,
-      "lines": 40
+      "tier": "T4",
+      "sizeBytes": 1183,
+      "lines": 41
     },
     {
       "id": "claim-registry-release",
@@ -1251,24 +1328,23 @@
           "matcher": "",
           "timeout": 3000,
           "type": "command",
-          "layer": "project",
+          "layer": "user",
           "disabled": false
         },
         {
           "event": "Stop",
           "matcher": "",
-          "timeout": null,
+          "timeout": 3000,
           "type": "command",
-          "layer": "user",
-          "disabled": false,
-          "viaBundle": "stop-bundle"
+          "layer": "project",
+          "disabled": false
         }
       ],
       "description": "Stop / SessionEnd hook — release this terminal's claims so peers can",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1426,
-      "lines": 44
+      "tier": "T4",
+      "sizeBytes": 1395,
+      "lines": 45
     },
     {
       "id": "claim-registry-surface",
@@ -1278,9 +1354,9 @@
       "events": [],
       "description": "SessionStart hook — surfaces other sessions' active roadmap claims in",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1636,
-      "lines": 53
+      "tier": "T4",
+      "sizeBytes": 1596,
+      "lines": 54
     },
     {
       "id": "claim-required",
@@ -1290,9 +1366,9 @@
       "events": [],
       "description": "Phase 1 Tier 5D",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4036,
-      "lines": 96
+      "tier": "T0",
+      "sizeBytes": 4048,
+      "lines": 97
     },
     {
       "id": "claude-brief-inject",
@@ -1305,24 +1381,23 @@
           "matcher": "",
           "timeout": 5000,
           "type": "command",
-          "layer": "project",
+          "layer": "user",
           "disabled": false
         },
         {
           "event": "SessionStart",
           "matcher": "",
-          "timeout": null,
+          "timeout": 5000,
           "type": "command",
-          "layer": "user",
-          "disabled": false,
-          "viaBundle": "sessionstart-bundle"
+          "layer": "project",
+          "disabled": false
         }
       ],
       "description": "SessionStart hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2825,
-      "lines": 77
+      "tier": "T2",
+      "sizeBytes": 2837,
+      "lines": 78
     },
     {
       "id": "claude-brief-precompact",
@@ -1349,9 +1424,9 @@
       ],
       "description": "PreCompact hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4147,
-      "lines": 86
+      "tier": "T4",
+      "sizeBytes": 4159,
+      "lines": 87
     },
     {
       "id": "claude-brief-staleness-check",
@@ -1361,9 +1436,9 @@
       "events": [],
       "description": "UserPromptSubmit hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4813,
-      "lines": 139
+      "tier": "T2",
+      "sizeBytes": 4825,
+      "lines": 140
     },
     {
       "id": "claude-md-mirror",
@@ -1373,9 +1448,9 @@
       "events": [],
       "description": "SessionStart: mirror H:\\.claude\\CLAUDE.md → ~/.claude/CLAUDE.md.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2074,
-      "lines": 56
+      "tier": "T4",
+      "sizeBytes": 2031,
+      "lines": 57
     },
     {
       "id": "claudemd-ollama-enforcer",
@@ -1385,9 +1460,9 @@
       "events": [],
       "description": "UserPromptSubmit hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 12112,
-      "lines": 350
+      "tier": "T4",
+      "sizeBytes": 11775,
+      "lines": 351
     },
     {
       "id": "claudemd-section-update",
@@ -1397,9 +1472,9 @@
       "events": [],
       "description": "PostToolUse hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3105,
-      "lines": 98
+      "tier": "T3",
+      "sizeBytes": 3117,
+      "lines": 99
     },
     {
       "id": "code-completeness-gate",
@@ -1428,9 +1503,9 @@
       ],
       "description": "PreToolUse hook for Edit/Write",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 7441,
-      "lines": 259
+      "tier": "T0",
+      "sizeBytes": 7195,
+      "lines": 260
     },
     {
       "id": "coding-pattern-hint",
@@ -1440,9 +1515,9 @@
       "events": [],
       "description": "Coding Standards Auto-Inject",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4207,
-      "lines": 119
+      "tier": "T4",
+      "sizeBytes": 4102,
+      "lines": 120
     },
     {
       "id": "cog-bridge-ai-memory-capture",
@@ -1452,9 +1527,9 @@
       "events": [],
       "description": "COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH10",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3745,
-      "lines": 104
+      "tier": "T3",
+      "sizeBytes": 3654,
+      "lines": 105
     },
     {
       "id": "cog-bridge-awareness-rebuild",
@@ -1464,9 +1539,9 @@
       "events": [],
       "description": "COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH10",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3591,
-      "lines": 105
+      "tier": "T3",
+      "sizeBytes": 3499,
+      "lines": 106
     },
     {
       "id": "cog-bridge-context-auto-compact",
@@ -1476,9 +1551,9 @@
       "events": [],
       "description": "COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH10",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3772,
-      "lines": 105
+      "tier": "T2",
+      "sizeBytes": 3680,
+      "lines": 106
     },
     {
       "id": "cognitive-budget-allocator",
@@ -1491,24 +1566,23 @@
           "matcher": "",
           "timeout": 3000,
           "type": "command",
-          "layer": "project",
+          "layer": "user",
           "disabled": false
         },
         {
           "event": "SessionStart",
           "matcher": "",
-          "timeout": null,
+          "timeout": 3000,
           "type": "command",
-          "layer": "user",
-          "disabled": false,
-          "viaBundle": "sessionstart-bundle"
+          "layer": "project",
+          "disabled": false
         }
       ],
       "description": "U-AI06 Cognitive Budget Allocator",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 5855,
-      "lines": 172
+      "tier": "T4",
+      "sizeBytes": 5696,
+      "lines": 173
     },
     {
       "id": "commit-draft-suggest",
@@ -1518,9 +1592,9 @@
       "events": [],
       "description": "OLLAMA-DEV-03",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 7752,
-      "lines": 203
+      "tier": "T1",
+      "sizeBytes": 7764,
+      "lines": 204
     },
     {
       "id": "commit-ownership-guard",
@@ -1549,9 +1623,9 @@
       ],
       "description": "Prevents cross-session commit mixing.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 10117,
-      "lines": 268
+      "tier": "T0",
+      "sizeBytes": 9862,
+      "lines": 269
     },
     {
       "id": "commit-pressure-stop-gate",
@@ -1578,9 +1652,9 @@
       ],
       "description": "Proactive memory-pressure gate with self-heal",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 5181,
-      "lines": 144
+      "tier": "T4",
+      "sizeBytes": 5193,
+      "lines": 145
     },
     {
       "id": "compact-interval-warning",
@@ -1590,9 +1664,9 @@
       "events": [],
       "description": "Stop",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4026,
-      "lines": 118
+      "tier": "T4",
+      "sizeBytes": 4038,
+      "lines": 119
     },
     {
       "id": "compaction-budget-nudge",
@@ -1602,9 +1676,9 @@
       "events": [],
       "description": "PostToolUse hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3954,
-      "lines": 127
+      "tier": "T3",
+      "sizeBytes": 3966,
+      "lines": 128
     },
     {
       "id": "compaction-survival-auto",
@@ -1614,9 +1688,9 @@
       "events": [],
       "description": "PostToolUse hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3448,
-      "lines": 125
+      "tier": "T3",
+      "sizeBytes": 3336,
+      "lines": 126
     },
     {
       "id": "complexity-gate",
@@ -1626,9 +1700,9 @@
       "events": [],
       "description": "PreToolUse hook for Edit/Write/MultiEdit",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 9134,
-      "lines": 320
+      "tier": "T1",
+      "sizeBytes": 8827,
+      "lines": 321
     },
     {
       "id": "comprehensive-build-enforce",
@@ -1655,9 +1729,9 @@
       ],
       "description": "UserPromptSubmit enforcement hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 9475,
-      "lines": 244
+      "tier": "T0",
+      "sizeBytes": 9244,
+      "lines": 245
     },
     {
       "id": "compression-precompact",
@@ -1684,9 +1758,9 @@
       ],
       "description": "Context Compression Before Compact",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4443,
-      "lines": 155
+      "tier": "T4",
+      "sizeBytes": 5599,
+      "lines": 187
     },
     {
       "id": "consistent-return-checker",
@@ -1715,9 +1789,9 @@
       ],
       "description": "PreToolUse hook for Edit/Write/MultiEdit",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 6240,
-      "lines": 208
+      "tier": "T1",
+      "sizeBytes": 6045,
+      "lines": 209
     },
     {
       "id": "context-priority-coordinator",
@@ -1727,9 +1801,9 @@
       "events": [],
       "description": "UserPromptSubmit hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4145,
-      "lines": 112
+      "tier": "T4",
+      "sizeBytes": 4046,
+      "lines": 113
     },
     {
       "id": "coordination-startup-banner",
@@ -1739,9 +1813,9 @@
       "events": [],
       "description": "coordination-startup-banner.mjs (U-COORD06)",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1317,
-      "lines": 53
+      "tier": "T4",
+      "sizeBytes": 1277,
+      "lines": 54
     },
     {
       "id": "coordination-update-reminder",
@@ -1751,9 +1825,9 @@
       "events": [],
       "description": "Coordination Update Reminder Hook (PostToolUse for Bash git commit)",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2546,
-      "lines": 86
+      "tier": "T3",
+      "sizeBytes": 2473,
+      "lines": 87
     },
     {
       "id": "corpus-integrity",
@@ -1763,9 +1837,9 @@
       "events": [],
       "description": "CADCAM-DAGI-MS0/U-DAGI03 guard hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3869,
-      "lines": 111
+      "tier": "T3",
+      "sizeBytes": 3771,
+      "lines": 112
     },
     {
       "id": "cost-ceiling-stop",
@@ -1775,9 +1849,9 @@
       "events": [],
       "description": "Stop hook.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3829,
-      "lines": 129
+      "tier": "T0",
+      "sizeBytes": 3713,
+      "lines": 130
     },
     {
       "id": "critical-file-guard",
@@ -1787,9 +1861,9 @@
       "events": [],
       "description": "Phase 0.16 Safety-Critical File Guard",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 7756,
-      "lines": 222
+      "tier": "T0",
+      "sizeBytes": 7547,
+      "lines": 223
     },
     {
       "id": "cross-chat-directive-detector",
@@ -1799,9 +1873,9 @@
       "events": [],
       "description": "UserPromptSubmit hook.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 8112,
-      "lines": 241
+      "tier": "T2",
+      "sizeBytes": 7884,
+      "lines": 242
     },
     {
       "id": "cross-session-awareness",
@@ -1811,9 +1885,9 @@
       "events": [],
       "description": "Force Cross-Session Visibility",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 6568,
-      "lines": 195
+      "tier": "T1",
+      "sizeBytes": 6386,
+      "lines": 196
     },
     {
       "id": "cross-terminal-conflict",
@@ -1823,9 +1897,9 @@
       "events": [],
       "description": "Phase 1 Tier 5D",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3508,
-      "lines": 99
+      "tier": "T0",
+      "sizeBytes": 3520,
+      "lines": 100
     },
     {
       "id": "curiosity-explorer",
@@ -1838,24 +1912,23 @@
           "matcher": "",
           "timeout": 3000,
           "type": "command",
-          "layer": "project",
+          "layer": "user",
           "disabled": false
         },
         {
           "event": "SessionStart",
           "matcher": "",
-          "timeout": null,
+          "timeout": 3000,
           "type": "command",
-          "layer": "user",
-          "disabled": false,
-          "viaBundle": "sessionstart-bundle"
+          "layer": "project",
+          "disabled": false
         }
       ],
       "description": "U-AI05 Curiosity-Driven Explorer",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 6333,
-      "lines": 218
+      "tier": "T4",
+      "sizeBytes": 6128,
+      "lines": 219
     },
     {
       "id": "customer-directory-watcher",
@@ -1865,9 +1938,9 @@
       "events": [],
       "description": "U-CUC05 Stop hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4757,
-      "lines": 176
+      "tier": "T4",
+      "sizeBytes": 4769,
+      "lines": 177
     },
     {
       "id": "dead-pixel-guard",
@@ -1877,9 +1950,9 @@
       "events": [],
       "description": "dead-pixel-guard.mjs (SessionStart advisory hook)",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2281,
-      "lines": 61
+      "tier": "T4",
+      "sizeBytes": 2293,
+      "lines": 62
     },
     {
       "id": "decision-capture",
@@ -1889,9 +1962,9 @@
       "events": [],
       "description": "Decision Capture — PostToolUse Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2639,
-      "lines": 101
+      "tier": "T3",
+      "sizeBytes": 2651,
+      "lines": 102
     },
     {
       "id": "dedup-auto-invoke",
@@ -1918,11 +1991,11 @@
           "viaBundle": "edit-bundle"
         }
       ],
-      "description": "PreToolUse hook (U-AWARE05)",
+      "description": "PreToolUse hook (HOOK-SYNERGY-MS0 / U-HOOK-COMPRESS H9)",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4174,
-      "lines": 150
+      "tier": "T1",
+      "sizeBytes": 1965,
+      "lines": 53
     },
     {
       "id": "dep-graph-impact",
@@ -1932,9 +2005,9 @@
       "events": [],
       "description": "Phase 1 Tier 5D",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3216,
-      "lines": 81
+      "tier": "T0",
+      "sizeBytes": 3228,
+      "lines": 82
     },
     {
       "id": "dev-outcome-tracker",
@@ -1944,9 +2017,9 @@
       "events": [],
       "description": "Dev Outcome Tracker — PostToolUse Hook (Bash)",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 8793,
-      "lines": 271
+      "tier": "T3",
+      "sizeBytes": 8805,
+      "lines": 272
     },
     {
       "id": "dfm-block",
@@ -1956,9 +2029,9 @@
       "events": [],
       "description": "PostToolUse hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2575,
-      "lines": 83
+      "tier": "T3",
+      "sizeBytes": 2505,
+      "lines": 84
     },
     {
       "id": "directive-summary-refresh",
@@ -1968,9 +2041,9 @@
       "events": [],
       "description": "directive-summary-refresh.mjs",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3882,
-      "lines": 138
+      "tier": "T3",
+      "sizeBytes": 3894,
+      "lines": 139
     },
     {
       "id": "directive-summary-refresh-iooms",
@@ -1994,13 +2067,31 @@
           "layer": "user",
           "disabled": false,
           "viaBundle": "posttool-edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "user",
+          "disabled": false,
+          "viaBundle": "posttool-edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "project",
+          "disabled": false,
+          "viaBundle": "posttool-edit-bundle"
         }
       ],
       "description": "directive-summary-refresh.mjs — PostToolUse hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4318,
-      "lines": 133
+      "tier": "T4",
+      "sizeBytes": 4330,
+      "lines": 134
     },
     {
       "id": "discipline-expert-inject",
@@ -2010,9 +2101,9 @@
       "events": [],
       "description": "UserPromptSubmit hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 41025,
-      "lines": 1033
+      "tier": "T4",
+      "sizeBytes": 40005,
+      "lines": 1034
     },
     {
       "id": "dispatcher-import-validator",
@@ -2036,13 +2127,31 @@
           "layer": "user",
           "disabled": false,
           "viaBundle": "posttool-edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "user",
+          "disabled": false,
+          "viaBundle": "posttool-edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "project",
+          "disabled": false,
+          "viaBundle": "posttool-edit-bundle"
         }
       ],
       "description": "PostToolUse hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3499,
-      "lines": 108
+      "tier": "T3",
+      "sizeBytes": 3404,
+      "lines": 109
     },
     {
       "id": "doc-cascade",
@@ -2052,9 +2161,9 @@
       "events": [],
       "description": "Phase 0.15 Documentation Cascade",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2109,
-      "lines": 79
+      "tier": "T4",
+      "sizeBytes": 2043,
+      "lines": 80
     },
     {
       "id": "doc-freshness-check",
@@ -2064,9 +2173,9 @@
       "events": [],
       "description": "Phase 0.15 Documentation Freshness Check",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2104,
-      "lines": 86
+      "tier": "T4",
+      "sizeBytes": 2031,
+      "lines": 87
     },
     {
       "id": "document-preserve-guard",
@@ -2076,9 +2185,9 @@
       "events": [],
       "description": "Document Preservation Guard — Stop Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4832,
-      "lines": 140
+      "tier": "T0",
+      "sizeBytes": 4705,
+      "lines": 141
     },
     {
       "id": "dotclaude-junctions-guard",
@@ -2105,9 +2214,9 @@
       ],
       "description": "SessionStart verification for ~/.claude subfolder junctions.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2885,
-      "lines": 78
+      "tier": "T4",
+      "sizeBytes": 2820,
+      "lines": 79
     },
     {
       "id": "dsl-output-compressor",
@@ -2117,7 +2226,7 @@
       "events": [
         {
           "event": "PostToolUse",
-          "matcher": "Bash|Read",
+          "matcher": "Bash",
           "timeout": 2000,
           "type": "command",
           "layer": "project",
@@ -2135,9 +2244,9 @@
       ],
       "description": "PostToolUse hook (any tool).",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4124,
-      "lines": 117
+      "tier": "T3",
+      "sizeBytes": 4136,
+      "lines": 118
     },
     {
       "id": "duplication-guard-stop",
@@ -2150,24 +2259,23 @@
           "matcher": "",
           "timeout": 3000,
           "type": "command",
-          "layer": "project",
+          "layer": "user",
           "disabled": false
         },
         {
           "event": "Stop",
           "matcher": "",
-          "timeout": null,
+          "timeout": 3000,
           "type": "command",
-          "layer": "user",
-          "disabled": false,
-          "viaBundle": "stop-bundle"
+          "layer": "project",
+          "disabled": false
         }
       ],
       "description": "Stop hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 5799,
-      "lines": 186
+      "tier": "T4",
+      "sizeBytes": 5626,
+      "lines": 187
     },
     {
       "id": "duplication-hard-block",
@@ -2196,9 +2304,9 @@
       ],
       "description": "PreToolUse hook (U-AWARE07)",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 6760,
-      "lines": 172
+      "tier": "T0",
+      "sizeBytes": 6601,
+      "lines": 173
     },
     {
       "id": "edit-batch-detector",
@@ -2222,13 +2330,31 @@
           "layer": "user",
           "disabled": false,
           "viaBundle": "posttool-edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "user",
+          "disabled": false,
+          "viaBundle": "posttool-edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "project",
+          "disabled": false,
+          "viaBundle": "posttool-edit-bundle"
         }
       ],
       "description": "PostToolUse Edit",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3012,
-      "lines": 109
+      "tier": "T3",
+      "sizeBytes": 2916,
+      "lines": 110
     },
     {
       "id": "edit-bundle",
@@ -2236,6 +2362,15 @@
       "wired": true,
       "disabled": false,
       "events": [
+        {
+          "event": "PostToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "user",
+          "disabled": false,
+          "viaBundle": "posttool-edit-bundle"
+        },
         {
           "event": "PreToolUse",
           "matcher": "Edit|Write|MultiEdit",
@@ -2251,13 +2386,31 @@
           "type": "command",
           "layer": "project",
           "disabled": false
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "user",
+          "disabled": false,
+          "viaBundle": "posttool-edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "project",
+          "disabled": false,
+          "viaBundle": "posttool-edit-bundle"
         }
       ],
       "description": "single PreToolUse hook that runs all Edit/Write/MultiEdit",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 6883,
-      "lines": 169
+      "tier": "T0",
+      "sizeBytes": 8249,
+      "lines": 188
     },
     {
       "id": "edit-multiedit-suggest",
@@ -2281,13 +2434,31 @@
           "layer": "user",
           "disabled": false,
           "viaBundle": "posttool-edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "user",
+          "disabled": false,
+          "viaBundle": "posttool-edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "project",
+          "disabled": false,
+          "viaBundle": "posttool-edit-bundle"
         }
       ],
       "description": "PostToolUse Edit",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3880,
-      "lines": 140
+      "tier": "T3",
+      "sizeBytes": 3753,
+      "lines": 141
     },
     {
       "id": "edit-old-string-verify",
@@ -2316,9 +2487,9 @@
       ],
       "description": "PreToolUse Edit",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3791,
-      "lines": 118
+      "tier": "T1",
+      "sizeBytes": 3803,
+      "lines": 119
     },
     {
       "id": "efficiency-monitor",
@@ -2328,7 +2499,7 @@
       "events": [
         {
           "event": "PostToolUse",
-          "matcher": "Bash|Read",
+          "matcher": "Bash",
           "timeout": 1000,
           "type": "command",
           "layer": "project",
@@ -2346,9 +2517,9 @@
       ],
       "description": "Efficiency Monitor — PostToolUse Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2455,
-      "lines": 95
+      "tier": "T3",
+      "sizeBytes": 2373,
+      "lines": 96
     },
     {
       "id": "embed-vault-on-save",
@@ -2358,9 +2529,9 @@
       "events": [],
       "description": "embed-vault-on-save.mjs",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 9226,
-      "lines": 235
+      "tier": "T3",
+      "sizeBytes": 9004,
+      "lines": 236
     },
     {
       "id": "embedder-inject-qdrant",
@@ -2370,9 +2541,9 @@
       "events": [],
       "description": "SessionStart smoke test for Qdrant embedder",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4917,
-      "lines": 142
+      "tier": "T4",
+      "sizeBytes": 4788,
+      "lines": 143
     },
     {
       "id": "embedding-cache-guard",
@@ -2382,9 +2553,67 @@
       "events": [],
       "description": "PostToolUse hook",
       "descriptionInferred": false,
+      "tier": "T4",
+      "sizeBytes": 2963,
+      "lines": 90
+    },
+    {
+      "id": "encoding-guard",
+      "file": ".claude/hooks/encoding-guard.mjs",
+      "wired": true,
+      "disabled": false,
+      "events": [
+        {
+          "event": "PostToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "user",
+          "disabled": false,
+          "viaBundle": "posttool-edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "user",
+          "disabled": false,
+          "viaBundle": "edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "project",
+          "disabled": false,
+          "viaBundle": "edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "user",
+          "disabled": false,
+          "viaBundle": "posttool-edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "project",
+          "disabled": false,
+          "viaBundle": "posttool-edit-bundle"
+        }
+      ],
+      "description": "PreToolUse hook (Phase A.3 of DEV-VELOCITY-AUTOTRIGGER-MS0).",
+      "descriptionInferred": false,
       "tier": null,
-      "sizeBytes": 3039,
-      "lines": 89
+      "sizeBytes": 18498,
+      "lines": 412
     },
     {
       "id": "enforce-handoff-topic",
@@ -2394,9 +2623,30 @@
       "events": [],
       "description": "Stop hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 6118,
-      "lines": 157
+      "tier": "T4",
+      "sizeBytes": 5974,
+      "lines": 158
+    },
+    {
+      "id": "enforce-roadmap-closeout",
+      "file": ".claude/hooks/enforce-roadmap-closeout.mjs",
+      "wired": true,
+      "disabled": false,
+      "events": [
+        {
+          "event": "Stop",
+          "matcher": "",
+          "timeout": 5000,
+          "type": "command",
+          "layer": "project",
+          "disabled": false
+        }
+      ],
+      "description": "Stop hook",
+      "descriptionInferred": false,
+      "tier": "T0",
+      "sizeBytes": 19939,
+      "lines": 499
     },
     {
       "id": "erp-quote-variance-guard",
@@ -2406,9 +2656,9 @@
       "events": [],
       "description": "PreToolUse hook (U-LTH57 P5)",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3513,
-      "lines": 115
+      "tier": "T0",
+      "sizeBytes": 3411,
+      "lines": 116
     },
     {
       "id": "error-block-capture",
@@ -2418,9 +2668,9 @@
       "events": [],
       "description": "PostToolUse hook.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4285,
-      "lines": 136
+      "tier": "T0",
+      "sizeBytes": 4297,
+      "lines": 137
     },
     {
       "id": "error-block-prewarn",
@@ -2430,9 +2680,9 @@
       "events": [],
       "description": "PreToolUse hook.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 8091,
-      "lines": 231
+      "tier": "T4",
+      "sizeBytes": 7873,
+      "lines": 232
     },
     {
       "id": "error-learner-hook",
@@ -2442,7 +2692,7 @@
       "events": [
         {
           "event": "PostToolUse",
-          "matcher": "Bash|Read",
+          "matcher": "Bash",
           "timeout": 1000,
           "type": "command",
           "layer": "project",
@@ -2460,9 +2710,9 @@
       ],
       "description": "Error Learner Hook — PostToolUse Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3889,
-      "lines": 131
+      "tier": "T3",
+      "sizeBytes": 3771,
+      "lines": 132
     },
     {
       "id": "error-pattern-learner",
@@ -2472,9 +2722,9 @@
       "events": [],
       "description": "dual-mode hook.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 9391,
-      "lines": 259
+      "tier": "T3",
+      "sizeBytes": 9403,
+      "lines": 260
     },
     {
       "id": "error-pattern-memory",
@@ -2484,9 +2734,9 @@
       "events": [],
       "description": "PostToolUse Hook (Bash, Edit, Write)",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 10456,
-      "lines": 356
+      "tier": "T3",
+      "sizeBytes": 10113,
+      "lines": 357
     },
     {
       "id": "error-pattern-promote",
@@ -2496,9 +2746,9 @@
       "events": [],
       "description": "Stop hook.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 5411,
-      "lines": 136
+      "tier": "T4",
+      "sizeBytes": 5423,
+      "lines": 137
     },
     {
       "id": "error-recovery-memory",
@@ -2508,7 +2758,7 @@
       "events": [
         {
           "event": "PostToolUse",
-          "matcher": "Bash|Read",
+          "matcher": "Bash",
           "timeout": 1000,
           "type": "command",
           "layer": "project",
@@ -2526,9 +2776,9 @@
       ],
       "description": "PostToolUse (all tools)",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4662,
-      "lines": 155
+      "tier": "T3",
+      "sizeBytes": 4520,
+      "lines": 156
     },
     {
       "id": "expert-role-inject",
@@ -2541,24 +2791,23 @@
           "matcher": "",
           "timeout": 2000,
           "type": "command",
-          "layer": "project",
+          "layer": "user",
           "disabled": false
         },
         {
           "event": "SessionStart",
           "matcher": "",
-          "timeout": null,
+          "timeout": 2000,
           "type": "command",
-          "layer": "user",
-          "disabled": false,
-          "viaBundle": "sessionstart-bundle"
+          "layer": "project",
+          "disabled": false
         }
       ],
       "description": "SessionStart hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1272,
-      "lines": 52
+      "tier": "T4",
+      "sizeBytes": 1233,
+      "lines": 53
     },
     {
       "id": "extended-thinking-auto",
@@ -2568,9 +2817,9 @@
       "events": [],
       "description": "Extended Thinking Auto-Switch — UserPromptSubmit Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 19239,
-      "lines": 434
+      "tier": "T4",
+      "sizeBytes": 19251,
+      "lines": 435
     },
     {
       "id": "extraction-log-drift",
@@ -2580,9 +2829,9 @@
       "events": [],
       "description": "Phase 1 Tier 5B",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2396,
-      "lines": 95
+      "tier": "T4",
+      "sizeBytes": 2408,
+      "lines": 96
     },
     {
       "id": "extraction-to-tribal",
@@ -2592,9 +2841,9 @@
       "events": [],
       "description": "Extraction to Tribal Knowledge — PostToolUse Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4975,
-      "lines": 148
+      "tier": "T3",
+      "sizeBytes": 4840,
+      "lines": 149
     },
     {
       "id": "figma-ui-consistency",
@@ -2623,9 +2872,9 @@
       ],
       "description": "PreToolUse hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4721,
-      "lines": 156
+      "tier": "T1",
+      "sizeBytes": 4578,
+      "lines": 157
     },
     {
       "id": "file-claim-commit-guard",
@@ -2635,9 +2884,9 @@
       "events": [],
       "description": "PreToolUse Bash hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 9205,
-      "lines": 267
+      "tier": "T0",
+      "sizeBytes": 8951,
+      "lines": 268
     },
     {
       "id": "file-claim-guard",
@@ -2647,9 +2896,9 @@
       "events": [],
       "description": "PreToolUse hook for Edit | Write | MultiEdit",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 8086,
-      "lines": 248
+      "tier": "T0",
+      "sizeBytes": 7851,
+      "lines": 249
     },
     {
       "id": "file-ownership-tracker",
@@ -2678,9 +2927,9 @@
       ],
       "description": "Tracks which session is editing which files.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 5168,
-      "lines": 160
+      "tier": "T1",
+      "sizeBytes": 5021,
+      "lines": 161
     },
     {
       "id": "file-read-cache",
@@ -2725,9 +2974,9 @@
       ],
       "description": "PreToolUse:Read hard-dedup hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 12584,
-      "lines": 319
+      "tier": "T4",
+      "sizeBytes": 12596,
+      "lines": 320
     },
     {
       "id": "fix-stdin-pattern",
@@ -2737,9 +2986,9 @@
       "events": [],
       "description": "Batch fix /dev/stdin pattern in hooks for Windows compatibility.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2504,
-      "lines": 93
+      "tier": "T0",
+      "sizeBytes": 2424,
+      "lines": 94
     },
     {
       "id": "forge-intent-claim",
@@ -2749,9 +2998,9 @@
       "events": [],
       "description": "Phase 1 Tier 5D",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4380,
-      "lines": 105
+      "tier": "T0",
+      "sizeBytes": 4392,
+      "lines": 106
     },
     {
       "id": "formula-algorithm-suggest",
@@ -2761,9 +3010,9 @@
       "events": [],
       "description": "Formula & Algorithm Suggest — UserPromptSubmit Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3989,
-      "lines": 125
+      "tier": "T4",
+      "sizeBytes": 3877,
+      "lines": 126
     },
     {
       "id": "git-anti-clobber",
@@ -2773,9 +3022,9 @@
       "events": [],
       "description": "Git Anti-Clobber Hook — PreToolUse (Worktree-Aware v2)",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 11109,
-      "lines": 307
+      "tier": "T3",
+      "sizeBytes": 10815,
+      "lines": 308
     },
     {
       "id": "git-anti-clobber-release",
@@ -2785,9 +3034,9 @@
       "events": [],
       "description": "Git Anti-Clobber Release — PostToolUse (Worktree-Aware v2)",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4520,
-      "lines": 144
+      "tier": "T3",
+      "sizeBytes": 4532,
+      "lines": 145
     },
     {
       "id": "git-commit-checkin",
@@ -2797,9 +3046,9 @@
       "events": [],
       "description": "PreToolUse check-in on git commit/push",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 6691,
-      "lines": 186
+      "tier": "T1",
+      "sizeBytes": 6703,
+      "lines": 187
     },
     {
       "id": "git-health-guard",
@@ -2826,9 +3075,9 @@
       ],
       "description": "SessionStart guard for git repository health.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 7345,
-      "lines": 215
+      "tier": "T4",
+      "sizeBytes": 7143,
+      "lines": 216
     },
     {
       "id": "git-lock-sweeper",
@@ -2837,20 +3086,47 @@
       "disabled": false,
       "events": [
         {
-          "event": "Stop",
-          "matcher": "",
+          "event": "PreToolUse",
+          "matcher": "Bash",
           "timeout": null,
           "type": "command",
           "layer": "user",
           "disabled": false,
-          "viaBundle": "stop-bundle"
+          "viaBundle": "bash-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Bash",
+          "timeout": null,
+          "type": "command",
+          "layer": "project",
+          "disabled": false,
+          "viaBundle": "bash-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "user",
+          "disabled": false,
+          "viaBundle": "edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "project",
+          "disabled": false,
+          "viaBundle": "edit-bundle"
         }
       ],
       "description": "HS-02 mid-session stale-lock cleanup.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3028,
-      "lines": 98
+      "tier": "T2",
+      "sizeBytes": 6635,
+      "lines": 172
     },
     {
       "id": "git-output-condenser",
@@ -2860,7 +3136,7 @@
       "events": [
         {
           "event": "PostToolUse",
-          "matcher": "Bash|Read",
+          "matcher": "Bash",
           "timeout": 2000,
           "type": "command",
           "layer": "project",
@@ -2878,9 +3154,9 @@
       ],
       "description": "PostToolUse Bash hook.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3686,
-      "lines": 99
+      "tier": "T3",
+      "sizeBytes": 3698,
+      "lines": 100
     },
     {
       "id": "git-sync-fetch",
@@ -2907,9 +3183,9 @@
       ],
       "description": "SessionStart hook for cross-PC continuity.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 6663,
-      "lines": 204
+      "tier": "T4",
+      "sizeBytes": 6472,
+      "lines": 205
     },
     {
       "id": "git-sync-stop",
@@ -2936,9 +3212,9 @@
       ],
       "description": "Stop hook for cross-PC continuity.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 11345,
-      "lines": 328
+      "tier": "T4",
+      "sizeBytes": 11030,
+      "lines": 329
     },
     {
       "id": "glob-narrow-path",
@@ -2965,9 +3241,9 @@
       ],
       "description": "PreToolUse Glob",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3260,
-      "lines": 98
+      "tier": "T1",
+      "sizeBytes": 3175,
+      "lines": 99
     },
     {
       "id": "goal-stack-init",
@@ -2977,9 +3253,9 @@
       "events": [],
       "description": "Phase 0.13 Goal Stack Initialization",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2083,
-      "lines": 73
+      "tier": "T4",
+      "sizeBytes": 2023,
+      "lines": 74
     },
     {
       "id": "goal-stack-inject",
@@ -2989,9 +3265,9 @@
       "events": [],
       "description": "Phase 0.13 Goal Stack Injection Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1705,
-      "lines": 62
+      "tier": "T4",
+      "sizeBytes": 1656,
+      "lines": 63
     },
     {
       "id": "grep-index-first",
@@ -3018,9 +3294,9 @@
       ],
       "description": "PreToolUse Grep",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 5832,
-      "lines": 166
+      "tier": "T1",
+      "sizeBytes": 5679,
+      "lines": 167
     },
     {
       "id": "grep-result-cache",
@@ -3047,9 +3323,9 @@
       ],
       "description": "PostToolUse Grep",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3399,
-      "lines": 109
+      "tier": "T3",
+      "sizeBytes": 3303,
+      "lines": 110
     },
     {
       "id": "gsd-inject",
@@ -3062,24 +3338,23 @@
           "matcher": "",
           "timeout": 2000,
           "type": "command",
-          "layer": "project",
+          "layer": "user",
           "disabled": false
         },
         {
           "event": "SessionStart",
           "matcher": "",
-          "timeout": null,
+          "timeout": 2000,
           "type": "command",
-          "layer": "user",
-          "disabled": false,
-          "viaBundle": "sessionstart-bundle"
+          "layer": "project",
+          "disabled": false
         }
       ],
       "description": "GSD Inject — SessionStart Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4024,
-      "lines": 119
+      "tier": "T4",
+      "sizeBytes": 3918,
+      "lines": 120
     },
     {
       "id": "gsd-section-retrieve",
@@ -3089,9 +3364,9 @@
       "events": [],
       "description": "UserPromptSubmit hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4663,
-      "lines": 121
+      "tier": "T2",
+      "sizeBytes": 4555,
+      "lines": 122
     },
     {
       "id": "gsd-section-update",
@@ -3101,9 +3376,9 @@
       "events": [],
       "description": "PostToolUse hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2903,
-      "lines": 94
+      "tier": "T3",
+      "sizeBytes": 2915,
+      "lines": 95
     },
     {
       "id": "h-drive-audit",
@@ -3113,9 +3388,9 @@
       "events": [],
       "description": "H: Drive Audit Hook — SessionStart",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3438,
-      "lines": 130
+      "tier": "T4",
+      "sizeBytes": 3321,
+      "lines": 131
     },
     {
       "id": "h-drive-enforcement",
@@ -3125,9 +3400,9 @@
       "events": [],
       "description": "H: Drive Enforcement Hook — PreToolUse",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 8164,
-      "lines": 206
+      "tier": "T1",
+      "sizeBytes": 8176,
+      "lines": 207
     },
     {
       "id": "harness-audit-staleness",
@@ -3137,9 +3412,9 @@
       "events": [],
       "description": "SessionStart hook.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2935,
-      "lines": 100
+      "tier": "T2",
+      "sizeBytes": 2947,
+      "lines": 101
     },
     {
       "id": "hook-basin-drift",
@@ -3149,9 +3424,9 @@
       "events": [],
       "description": "hook_basin_drift — USSH Phase 0.25",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4226,
-      "lines": 155
+      "tier": "T3",
+      "sizeBytes": 4084,
+      "lines": 156
     },
     {
       "id": "hook-circular-dep-check",
@@ -3161,9 +3436,9 @@
       "events": [],
       "description": "hook_circular_dep_check — USSH Phase 0.25",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3617,
-      "lines": 146
+      "tier": "T4",
+      "sizeBytes": 3484,
+      "lines": 147
     },
     {
       "id": "hook-condition-number",
@@ -3173,9 +3448,9 @@
       "events": [],
       "description": "hook_condition_number — USSH Phase 0.25",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2767,
-      "lines": 101
+      "tier": "T3",
+      "sizeBytes": 2679,
+      "lines": 102
     },
     {
       "id": "hook-creation-gate",
@@ -3194,9 +3469,9 @@
       ],
       "description": "PreToolUse(Write) advisory dedup gate",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 12126,
-      "lines": 309
+      "tier": "T0",
+      "sizeBytes": 12138,
+      "lines": 310
     },
     {
       "id": "hook-cross-worktree-block",
@@ -3215,9 +3490,9 @@
       ],
       "description": "Tier-0 PreToolUse firewall",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 13311,
-      "lines": 275
+      "tier": "T0",
+      "sizeBytes": 13323,
+      "lines": 276
     },
     {
       "id": "hook-modification-justification",
@@ -3227,9 +3502,9 @@
       "events": [],
       "description": "PreToolUse:Edit|Write|MultiEdit gate.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 8004,
-      "lines": 244
+      "tier": "T0",
+      "sizeBytes": 8016,
+      "lines": 245
     },
     {
       "id": "hook-registry-regen",
@@ -3248,9 +3523,9 @@
       ],
       "description": "PostToolUse:Edit|Write|MultiEdit (HOOK-SYNERGY-MS0 / U-H1 step-4).",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3629,
-      "lines": 67
+      "tier": "T2",
+      "sizeBytes": 3641,
+      "lines": 68
     },
     {
       "id": "hook-saturation-alert",
@@ -3260,9 +3535,9 @@
       "events": [],
       "description": "hook_saturation_alert — USSH Phase 0.25",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3943,
-      "lines": 131
+      "tier": "T3",
+      "sizeBytes": 3825,
+      "lines": 132
     },
     {
       "id": "hook-stability-check",
@@ -3272,9 +3547,30 @@
       "events": [],
       "description": "hook_stability_check — USSH Phase 0.25",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4533,
-      "lines": 162
+      "tier": "T3",
+      "sizeBytes": 4384,
+      "lines": 163
+    },
+    {
+      "id": "hook-tier-validator",
+      "file": ".claude/hooks/hook-tier-validator.mjs",
+      "wired": true,
+      "disabled": false,
+      "events": [
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": 3000,
+          "type": "command",
+          "layer": "project",
+          "disabled": false
+        }
+      ],
+      "description": "HOOK-SYNERGY-MS0 / U-HOOK-TIERS (H3)",
+      "descriptionInferred": false,
+      "tier": "T1",
+      "sizeBytes": 2604,
+      "lines": 73
     },
     {
       "id": "hook-tla-invariant",
@@ -3284,9 +3580,9 @@
       "events": [],
       "description": "hook_tla_invariant — USSH Phase 0.25",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 8217,
-      "lines": 277
+      "tier": "T4",
+      "sizeBytes": 7953,
+      "lines": 278
     },
     {
       "id": "html-companion-guard",
@@ -3315,9 +3611,9 @@
       ],
       "description": "per-commit guard for HTML spec/research companions.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 7745,
-      "lines": 145
+      "tier": "T0",
+      "sizeBytes": 7757,
+      "lines": 146
     },
     {
       "id": "import-verifier",
@@ -3346,9 +3642,9 @@
       ],
       "description": "PreToolUse hook for Edit/Write/MultiEdit",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 8957,
-      "lines": 326
+      "tier": "T1",
+      "sizeBytes": 8644,
+      "lines": 327
     },
     {
       "id": "inbox-capture-sharpen",
@@ -3358,9 +3654,9 @@
       "events": [],
       "description": "PostToolUse hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 7562,
-      "lines": 215
+      "tier": "T3",
+      "sizeBytes": 7360,
+      "lines": 216
     },
     {
       "id": "inbox-lag-advisory",
@@ -3370,9 +3666,9 @@
       "events": [],
       "description": "Stop hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2903,
-      "lines": 81
+      "tier": "T4",
+      "sizeBytes": 2835,
+      "lines": 82
     },
     {
       "id": "ingestion-cache-root-guard",
@@ -3396,13 +3692,31 @@
           "layer": "user",
           "disabled": false,
           "viaBundle": "posttool-edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "user",
+          "disabled": false,
+          "viaBundle": "posttool-edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "project",
+          "disabled": false,
+          "viaBundle": "posttool-edit-bundle"
         }
       ],
       "description": "CAM-UIX-INFRA-00/U-CACHEROOT01",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4769,
-      "lines": 174
+      "tier": "T0",
+      "sizeBytes": 4608,
+      "lines": 175
     },
     {
       "id": "inventory-check-guard",
@@ -3415,24 +3729,23 @@
           "matcher": "",
           "timeout": 5000,
           "type": "command",
-          "layer": "project",
+          "layer": "user",
           "disabled": false
         },
         {
           "event": "SessionStart",
           "matcher": "",
-          "timeout": null,
+          "timeout": 5000,
           "type": "command",
-          "layer": "user",
-          "disabled": false,
-          "viaBundle": "sessionstart-bundle"
+          "layer": "project",
+          "disabled": false
         }
       ],
-      "description": "UserPromptSubmit hook (U-AWARE02)",
+      "description": "UserPromptSubmit hook (U-AWARE02, refactored H9).",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2248,
-      "lines": 73
+      "tier": "T2",
+      "sizeBytes": 2150,
+      "lines": 54
     },
     {
       "id": "inventory-on-write",
@@ -3456,13 +3769,31 @@
           "layer": "user",
           "disabled": false,
           "viaBundle": "posttool-edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "user",
+          "disabled": false,
+          "viaBundle": "posttool-edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "project",
+          "disabled": false,
+          "viaBundle": "posttool-edit-bundle"
         }
       ],
       "description": "Inventory On-Write — PostToolUse hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3780,
-      "lines": 140
+      "tier": "T3",
+      "sizeBytes": 3653,
+      "lines": 141
     },
     {
       "id": "inventory-refresh",
@@ -3472,9 +3803,9 @@
       "events": [],
       "description": "Inventory Refresh — SessionStart hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3823,
-      "lines": 124
+      "tier": "T4",
+      "sizeBytes": 3712,
+      "lines": 125
     },
     {
       "id": "iterate-retrieve-suggest",
@@ -3484,9 +3815,9 @@
       "events": [],
       "description": "PreToolUse hook for Agent tool calls.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3083,
-      "lines": 107
+      "tier": "T1",
+      "sizeBytes": 2989,
+      "lines": 108
     },
     {
       "id": "jm-die-provenance-guard",
@@ -3510,13 +3841,31 @@
           "layer": "user",
           "disabled": false,
           "viaBundle": "posttool-edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "user",
+          "disabled": false,
+          "viaBundle": "posttool-edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "project",
+          "disabled": false,
+          "viaBundle": "posttool-edit-bundle"
         }
       ],
       "description": "CAM-UIX-INFRA-00/U-JMDP01 guard hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 6649,
-      "lines": 214
+      "tier": "T0",
+      "sizeBytes": 6448,
+      "lines": 215
     },
     {
       "id": "json-read-summarizer",
@@ -3526,9 +3875,9 @@
       "events": [],
       "description": "PreToolUse large-JSON preview",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 7608,
-      "lines": 235
+      "tier": "T1",
+      "sizeBytes": 7620,
+      "lines": 236
     },
     {
       "id": "karpathy-discipline-inject",
@@ -3538,9 +3887,9 @@
       "events": [],
       "description": "SessionStart hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3651,
-      "lines": 96
+      "tier": "T4",
+      "sizeBytes": 3663,
+      "lines": 97
     },
     {
       "id": "kienzle-coeff-check",
@@ -3550,9 +3899,9 @@
       "events": [],
       "description": "Phase 1 Tier 5C Physics Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3214,
-      "lines": 93
+      "tier": "T4",
+      "sizeBytes": 3134,
+      "lines": 94
     },
     {
       "id": "lathe-master-post-quality-gate",
@@ -3562,9 +3911,9 @@
       "events": [],
       "description": "UserPromptSubmit hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 9006,
-      "lines": 269
+      "tier": "T4",
+      "sizeBytes": 8750,
+      "lines": 270
     },
     {
       "id": "lathe-p2p-suggest",
@@ -3574,9 +3923,9 @@
       "events": [],
       "description": "UserPromptSubmit hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4332,
-      "lines": 137
+      "tier": "T4",
+      "sizeBytes": 4208,
+      "lines": 138
     },
     {
       "id": "leave-a-copy-behind-guard",
@@ -3586,9 +3935,9 @@
       "events": [],
       "description": "Stop hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 8336,
-      "lines": 243
+      "tier": "T0",
+      "sizeBytes": 8348,
+      "lines": 244
     },
     {
       "id": "linear-roadmap-sync",
@@ -3601,20 +3950,11 @@
           "matcher": "",
           "timeout": 5000,
           "type": "command",
-          "layer": "project",
+          "layer": "user",
           "disabled": false
         },
         {
           "event": "SessionStart",
-          "matcher": "",
-          "timeout": null,
-          "type": "command",
-          "layer": "user",
-          "disabled": false,
-          "viaBundle": "sessionstart-bundle"
-        },
-        {
-          "event": "Stop",
           "matcher": "",
           "timeout": 5000,
           "type": "command",
@@ -3624,18 +3964,25 @@
         {
           "event": "Stop",
           "matcher": "",
-          "timeout": null,
+          "timeout": 5000,
           "type": "command",
           "layer": "user",
-          "disabled": false,
-          "viaBundle": "stop-bundle"
+          "disabled": false
+        },
+        {
+          "event": "Stop",
+          "matcher": "",
+          "timeout": 5000,
+          "type": "command",
+          "layer": "project",
+          "disabled": false
         }
       ],
       "description": "SessionStart + Stop hooks",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4758,
-      "lines": 154
+      "tier": "T4",
+      "sizeBytes": 4617,
+      "lines": 155
     },
     {
       "id": "literature-citation",
@@ -3645,9 +3992,9 @@
       "events": [],
       "description": "Phase 1 Tier 5C Physics Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3456,
-      "lines": 98
+      "tier": "T4",
+      "sizeBytes": 3371,
+      "lines": 99
     },
     {
       "id": "local-compute-intent",
@@ -3674,9 +4021,9 @@
       ],
       "description": "UserPromptSubmit hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 16169,
-      "lines": 465
+      "tier": "T4",
+      "sizeBytes": 15717,
+      "lines": 466
     },
     {
       "id": "loop-detector",
@@ -3686,7 +4033,7 @@
       "events": [
         {
           "event": "PostToolUse",
-          "matcher": "Bash|Read",
+          "matcher": "Bash",
           "timeout": 2000,
           "type": "command",
           "layer": "project",
@@ -3704,9 +4051,9 @@
       ],
       "description": "PostToolUse hook (any tool).",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4197,
-      "lines": 121
+      "tier": "T3",
+      "sizeBytes": 4209,
+      "lines": 122
     },
     {
       "id": "magic-number-detector",
@@ -3735,9 +4082,9 @@
       ],
       "description": "PreToolUse hook for Edit/Write/MultiEdit",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 5197,
-      "lines": 180
+      "tier": "T1",
+      "sizeBytes": 5030,
+      "lines": 181
     },
     {
       "id": "managed-block-guard",
@@ -3747,9 +4094,9 @@
       "events": [],
       "description": "Phase 0.15 Managed Block Guard",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4469,
-      "lines": 136
+      "tier": "T4",
+      "sizeBytes": 4346,
+      "lines": 137
     },
     {
       "id": "master-coder-protocol",
@@ -3759,9 +4106,21 @@
       "events": [],
       "description": "UserPromptSubmit hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 7335,
-      "lines": 228
+      "tier": "T4",
+      "sizeBytes": 7120,
+      "lines": 229
+    },
+    {
+      "id": "master-index-precheck-inject",
+      "file": ".claude/hooks/master-index-precheck-inject.mjs",
+      "wired": false,
+      "disabled": false,
+      "events": [],
+      "description": "UserPromptSubmit injector",
+      "descriptionInferred": false,
+      "tier": "T2",
+      "sizeBytes": 9288,
+      "lines": 260
     },
     {
       "id": "master-index-search-gate",
@@ -3790,9 +4149,9 @@
       ],
       "description": "PreToolUse hook (U-AWARE03)",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3213,
-      "lines": 120
+      "tier": "T1",
+      "sizeBytes": 3106,
+      "lines": 121
     },
     {
       "id": "mcp-config-resolve",
@@ -3802,9 +4161,9 @@
       "events": [],
       "description": "Regenerate ~/.claude/.mcp.json with PC-specific node.exe path.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3921,
-      "lines": 102
+      "tier": "T4",
+      "sizeBytes": 3832,
+      "lines": 103
     },
     {
       "id": "mcp-connection-coordinator",
@@ -3831,9 +4190,9 @@
       ],
       "description": "PreToolUse hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4150,
-      "lines": 164
+      "tier": "T1",
+      "sizeBytes": 4162,
+      "lines": 165
     },
     {
       "id": "mcp-daemon-autostart",
@@ -3852,9 +4211,9 @@
       ],
       "description": "SessionStart Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2711,
-      "lines": 88
+      "tier": "T4",
+      "sizeBytes": 2723,
+      "lines": 89
     },
     {
       "id": "mcp-route-suggest",
@@ -3919,9 +4278,9 @@
       ],
       "description": "mcp-route-suggest.mjs",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 5904,
-      "lines": 192
+      "tier": "T4",
+      "sizeBytes": 8877,
+      "lines": 257
     },
     {
       "id": "mcp-safety-bridge",
@@ -3940,9 +4299,9 @@
       ],
       "description": "PostToolUse(Edit|Write|MultiEdit) → physics edit ⇒ run the safety validator.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 7665,
-      "lines": 145
+      "tier": "T3",
+      "sizeBytes": 7677,
+      "lines": 146
     },
     {
       "id": "memory-mirror-to-vault",
@@ -3966,13 +4325,31 @@
           "layer": "user",
           "disabled": false,
           "viaBundle": "posttool-edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "user",
+          "disabled": false,
+          "viaBundle": "posttool-edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "project",
+          "disabled": false,
+          "viaBundle": "posttool-edit-bundle"
         }
       ],
       "description": "PostToolUse hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 9374,
-      "lines": 236
+      "tier": "T3",
+      "sizeBytes": 9151,
+      "lines": 237
     },
     {
       "id": "memory-rag-inject",
@@ -3982,9 +4359,9 @@
       "events": [],
       "description": "UserPromptSubmit hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 7080,
-      "lines": 200
+      "tier": "T2",
+      "sizeBytes": 7092,
+      "lines": 201
     },
     {
       "id": "memory-relevance-inject",
@@ -4013,9 +4390,9 @@
       ],
       "description": "PreToolUse hook for Edit/Write/MultiEdit.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 5044,
-      "lines": 138
+      "tier": "T1",
+      "sizeBytes": 5056,
+      "lines": 139
     },
     {
       "id": "memory-system-init",
@@ -4025,9 +4402,9 @@
       "events": [],
       "description": "Memory System Init — SessionStart Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4502,
-      "lines": 138
+      "tier": "T4",
+      "sizeBytes": 4514,
+      "lines": 139
     },
     {
       "id": "meta-learning-trigger",
@@ -4037,7 +4414,7 @@
       "events": [
         {
           "event": "PostToolUse",
-          "matcher": "Bash|Read",
+          "matcher": "Bash",
           "timeout": 1000,
           "type": "command",
           "layer": "project",
@@ -4055,9 +4432,9 @@
       ],
       "description": "Meta-Learning Trigger — PostToolUse Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4943,
-      "lines": 153
+      "tier": "T3",
+      "sizeBytes": 4803,
+      "lines": 154
     },
     {
       "id": "metacognition-check",
@@ -4067,9 +4444,9 @@
       "events": [],
       "description": "Phase 0.13 Metacognition Budget Check",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3073,
-      "lines": 87
+      "tier": "T1",
+      "sizeBytes": 2999,
+      "lines": 88
     },
     {
       "id": "mio-proactive-intelligence",
@@ -4079,9 +4456,9 @@
       "events": [],
       "description": "MIO Proactive Intelligence — Auto-Fire Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 5457,
-      "lines": 166
+      "tier": "T3",
+      "sizeBytes": 5304,
+      "lines": 167
     },
     {
       "id": "mirror-c-to-h",
@@ -4091,9 +4468,9 @@
       "events": [],
       "description": "PostToolUse hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 6321,
-      "lines": 180
+      "tier": "T3",
+      "sizeBytes": 6333,
+      "lines": 181
     },
     {
       "id": "multi-computer-awareness",
@@ -4106,24 +4483,23 @@
           "matcher": "",
           "timeout": 3000,
           "type": "command",
-          "layer": "project",
+          "layer": "user",
           "disabled": false
         },
         {
           "event": "SessionStart",
           "matcher": "",
-          "timeout": null,
+          "timeout": 3000,
           "type": "command",
-          "layer": "user",
-          "disabled": false,
-          "viaBundle": "sessionstart-bundle"
+          "layer": "project",
+          "disabled": false
         }
       ],
       "description": "SessionStart hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4012,
-      "lines": 124
+      "tier": "T4",
+      "sizeBytes": 3901,
+      "lines": 125
     },
     {
       "id": "multi-session-awareness",
@@ -4133,9 +4509,9 @@
       "events": [],
       "description": "PreToolUse hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3675,
-      "lines": 113
+      "tier": "T1",
+      "sizeBytes": 3575,
+      "lines": 114
     },
     {
       "id": "naming-convention-enforcer",
@@ -4145,9 +4521,9 @@
       "events": [],
       "description": "PreToolUse hook for Edit/Write/MultiEdit",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 7999,
-      "lines": 238
+      "tier": "T1",
+      "sizeBytes": 7774,
+      "lines": 239
     },
     {
       "id": "neural-ai-optimizer",
@@ -4157,9 +4533,9 @@
       "events": [],
       "description": "Neural AI Optimizer — UserPromptSubmit Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 7110,
-      "lines": 227
+      "tier": "T4",
+      "sizeBytes": 7122,
+      "lines": 228
     },
     {
       "id": "neural-cad-validation",
@@ -4169,9 +4545,9 @@
       "events": [],
       "description": "PostToolUse hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3294,
-      "lines": 98
+      "tier": "T3",
+      "sizeBytes": 3209,
+      "lines": 99
     },
     {
       "id": "neural-roadmap-resume-detect",
@@ -4181,9 +4557,9 @@
       "events": [],
       "description": "neural-roadmap-resume-detect.mjs",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3834,
-      "lines": 115
+      "tier": "T4",
+      "sizeBytes": 3846,
+      "lines": 116
     },
     {
       "id": "nim-autostart",
@@ -4196,24 +4572,23 @@
           "matcher": "",
           "timeout": 5000,
           "type": "command",
-          "layer": "project",
+          "layer": "user",
           "disabled": false
         },
         {
           "event": "SessionStart",
           "matcher": "",
-          "timeout": null,
+          "timeout": 5000,
           "type": "command",
-          "layer": "user",
-          "disabled": false,
-          "viaBundle": "sessionstart-bundle"
+          "layer": "project",
+          "disabled": false
         }
       ],
       "description": "SessionStart hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3542,
-      "lines": 105
+      "tier": "T4",
+      "sizeBytes": 3554,
+      "lines": 106
     },
     {
       "id": "no-re-extract",
@@ -4223,9 +4598,9 @@
       "events": [],
       "description": "Phase 1 Tier 5B",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3249,
-      "lines": 94
+      "tier": "T0",
+      "sizeBytes": 3261,
+      "lines": 95
     },
     {
       "id": "no-silent-catch",
@@ -4235,9 +4610,9 @@
       "events": [],
       "description": "Phase 1 Tier 5D Workflow Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 942,
-      "lines": 27
+      "tier": "T4",
+      "sizeBytes": 928,
+      "lines": 28
     },
     {
       "id": "node-orphan-cleaner",
@@ -4247,9 +4622,9 @@
       "events": [],
       "description": "Stop hook closeout orchestrator.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3720,
-      "lines": 118
+      "tier": "T4",
+      "sizeBytes": 3615,
+      "lines": 119
     },
     {
       "id": "node-process-janitor",
@@ -4268,9 +4643,9 @@
       ],
       "description": "Node Process Janitor — PreToolUse `.*` (hot path) + scheduled `--full` (backstop)",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 7051,
-      "lines": 156
+      "tier": "T3",
+      "sizeBytes": 7063,
+      "lines": 157
     },
     {
       "id": "npm-output-condenser",
@@ -4280,7 +4655,7 @@
       "events": [
         {
           "event": "PostToolUse",
-          "matcher": "Bash|Read",
+          "matcher": "Bash",
           "timeout": 2000,
           "type": "command",
           "layer": "project",
@@ -4298,9 +4673,9 @@
       ],
       "description": "PostToolUse Bash hook.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4053,
-      "lines": 120
+      "tier": "T3",
+      "sizeBytes": 4065,
+      "lines": 121
     },
     {
       "id": "octopus-provider-probe",
@@ -4327,9 +4702,9 @@
       ],
       "description": "SessionStart hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 6676,
-      "lines": 211
+      "tier": "T4",
+      "sizeBytes": 6478,
+      "lines": 212
     },
     {
       "id": "ollama-auto-router",
@@ -4356,9 +4731,9 @@
       ],
       "description": "UserPromptSubmit hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 6212,
-      "lines": 215
+      "tier": "T4",
+      "sizeBytes": 6224,
+      "lines": 216
     },
     {
       "id": "ollama-autostart",
@@ -4371,24 +4746,23 @@
           "matcher": "",
           "timeout": 5000,
           "type": "command",
-          "layer": "project",
+          "layer": "user",
           "disabled": false
         },
         {
           "event": "SessionStart",
           "matcher": "",
-          "timeout": null,
+          "timeout": 5000,
           "type": "command",
-          "layer": "user",
-          "disabled": false,
-          "viaBundle": "sessionstart-bundle"
+          "layer": "project",
+          "disabled": false
         }
       ],
       "description": "SessionStart hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4529,
-      "lines": 146
+      "tier": "T4",
+      "sizeBytes": 4396,
+      "lines": 147
     },
     {
       "id": "ollama-context-aggregator",
@@ -4398,9 +4772,9 @@
       "events": [],
       "description": "Single UserPromptSubmit injection point",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 9274,
-      "lines": 244
+      "tier": "T4",
+      "sizeBytes": 9043,
+      "lines": 245
     },
     {
       "id": "ollama-engine-api-extractor",
@@ -4410,9 +4784,9 @@
       "events": [],
       "description": "PreToolUse hook on Read of engine source files.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 8236,
-      "lines": 249
+      "tier": "T1",
+      "sizeBytes": 8000,
+      "lines": 250
     },
     {
       "id": "ollama-obsidian-rag",
@@ -4422,9 +4796,9 @@
       "events": [],
       "description": "UserPromptSubmit hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 7853,
-      "lines": 269
+      "tier": "T4",
+      "sizeBytes": 7865,
+      "lines": 270
     },
     {
       "id": "ollama-prism-intelligence",
@@ -4434,9 +4808,9 @@
       "events": [],
       "description": "UserPromptSubmit hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 7936,
-      "lines": 284
+      "tier": "T4",
+      "sizeBytes": 7948,
+      "lines": 285
     },
     {
       "id": "ollama-reviewer-second-opinion",
@@ -4446,9 +4820,9 @@
       "events": [],
       "description": "PreToolUse hook on Bash for `git commit`.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 9611,
-      "lines": 295
+      "tier": "T0",
+      "sizeBytes": 9329,
+      "lines": 296
     },
     {
       "id": "ollama-route-pretooluse",
@@ -4477,9 +4851,9 @@
       ],
       "description": "PreToolUse:Read — route trivial bulk reads at the local LLM.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 11522,
-      "lines": 242
+      "tier": "T1",
+      "sizeBytes": 11534,
+      "lines": 243
     },
     {
       "id": "ollama-route-recommender",
@@ -4489,9 +4863,9 @@
       "events": [],
       "description": "UserPromptSubmit hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 8948,
-      "lines": 278
+      "tier": "T4",
+      "sizeBytes": 8683,
+      "lines": 279
     },
     {
       "id": "ollama-schema-engine-sync-gate",
@@ -4501,9 +4875,9 @@
       "events": [],
       "description": "PreToolUse hook on Edit/Write of schema files.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 5714,
-      "lines": 197
+      "tier": "T0",
+      "sizeBytes": 5530,
+      "lines": 198
     },
     {
       "id": "ollama-session-continuity",
@@ -4513,9 +4887,9 @@
       "events": [],
       "description": "PreCompact hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4718,
-      "lines": 161
+      "tier": "T4",
+      "sizeBytes": 4730,
+      "lines": 162
     },
     {
       "id": "ollama-skill-suggester",
@@ -4525,9 +4899,9 @@
       "events": [],
       "description": "UserPromptSubmit hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 9175,
-      "lines": 268
+      "tier": "T4",
+      "sizeBytes": 8920,
+      "lines": 269
     },
     {
       "id": "ollama-task-offloader",
@@ -4554,9 +4928,9 @@
       ],
       "description": "UserPromptSubmit hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 11447,
-      "lines": 289
+      "tier": "T4",
+      "sizeBytes": 11171,
+      "lines": 290
     },
     {
       "id": "ollama-terminal-watcher",
@@ -4566,7 +4940,7 @@
       "events": [
         {
           "event": "PostToolUse",
-          "matcher": "",
+          "matcher": "^(Bash|Edit|Write|MultiEdit|NotebookEdit|Agent|Task|TaskCreate|Skill|mcp__.*)$",
           "timeout": 5000,
           "type": "command",
           "layer": "project",
@@ -4575,9 +4949,9 @@
       ],
       "description": "PostToolUse hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 5930,
-      "lines": 197
+      "tier": "T3",
+      "sizeBytes": 5942,
+      "lines": 198
     },
     {
       "id": "ollama-unified-semantic-router",
@@ -4587,9 +4961,9 @@
       "events": [],
       "description": "UserPromptSubmit hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 11080,
-      "lines": 349
+      "tier": "T4",
+      "sizeBytes": 11092,
+      "lines": 350
     },
     {
       "id": "omega-floor",
@@ -4599,9 +4973,9 @@
       "events": [],
       "description": "Phase 1 Tier 5D Workflow Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1340,
-      "lines": 51
+      "tier": "T1",
+      "sizeBytes": 1302,
+      "lines": 52
     },
     {
       "id": "optimal-context-inject",
@@ -4611,9 +4985,9 @@
       "events": [],
       "description": "Optimal Context Inject — UserPromptSubmit Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 7334,
-      "lines": 252
+      "tier": "T4",
+      "sizeBytes": 7346,
+      "lines": 253
     },
     {
       "id": "orphan-type-detector",
@@ -4623,9 +4997,9 @@
       "events": [],
       "description": "Phase 0.9 Specific Orphan Type Detection",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 6697,
-      "lines": 217
+      "tier": "T3",
+      "sizeBytes": 6493,
+      "lines": 218
     },
     {
       "id": "output-cache-capture",
@@ -4638,24 +5012,23 @@
           "matcher": "",
           "timeout": 3000,
           "type": "command",
-          "layer": "project",
+          "layer": "user",
           "disabled": false
         },
         {
           "event": "Stop",
           "matcher": "",
-          "timeout": null,
+          "timeout": 3000,
           "type": "command",
-          "layer": "user",
-          "disabled": false,
-          "viaBundle": "stop-bundle"
+          "layer": "project",
+          "disabled": false
         }
       ],
       "description": "Stop hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3362,
-      "lines": 116
+      "tier": "T4",
+      "sizeBytes": 3259,
+      "lines": 117
     },
     {
       "id": "output-cache-inject",
@@ -4668,24 +5041,23 @@
           "matcher": "",
           "timeout": 2000,
           "type": "command",
-          "layer": "project",
+          "layer": "user",
           "disabled": false
         },
         {
           "event": "SessionStart",
           "matcher": "",
-          "timeout": null,
+          "timeout": 2000,
           "type": "command",
-          "layer": "user",
-          "disabled": false,
-          "viaBundle": "sessionstart-bundle"
+          "layer": "project",
+          "disabled": false
         }
       ],
       "description": "SessionStart hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1760,
-      "lines": 61
+      "tier": "T4",
+      "sizeBytes": 1712,
+      "lines": 62
     },
     {
       "id": "path-frequency-tracker",
@@ -4695,9 +5067,9 @@
       "events": [],
       "description": "PostToolUse Read/Edit/Write",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3978,
-      "lines": 125
+      "tier": "T3",
+      "sizeBytes": 3866,
+      "lines": 126
     },
     {
       "id": "path-shortener",
@@ -4707,7 +5079,7 @@
       "events": [
         {
           "event": "PostToolUse",
-          "matcher": "Bash|Read",
+          "matcher": "Bash",
           "timeout": 2000,
           "type": "command",
           "layer": "project",
@@ -4725,9 +5097,9 @@
       ],
       "description": "PostToolUse hook (any tool).",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3912,
-      "lines": 117
+      "tier": "T4",
+      "sizeBytes": 3924,
+      "lines": 118
     },
     {
       "id": "performance-pattern-detector",
@@ -4737,9 +5109,9 @@
       "events": [],
       "description": "PreToolUse hook for Edit/Write/MultiEdit",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 8391,
-      "lines": 255
+      "tier": "T1",
+      "sizeBytes": 8149,
+      "lines": 256
     },
     {
       "id": "periodic-checkin",
@@ -4749,9 +5121,9 @@
       "events": [],
       "description": "UserPromptSubmit periodic heartbeat + chat poll",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4777,
-      "lines": 150
+      "tier": "T4",
+      "sizeBytes": 4789,
+      "lines": 151
     },
     {
       "id": "permission-denied-retry",
@@ -4770,9 +5142,9 @@
       ],
       "description": "PostToolUse classifier for denied / failed tool calls.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 18273,
-      "lines": 350
+      "tier": "T3",
+      "sizeBytes": 18285,
+      "lines": 351
     },
     {
       "id": "physics-canonical-constants-guard",
@@ -4796,13 +5168,31 @@
           "layer": "user",
           "disabled": false,
           "viaBundle": "posttool-edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "user",
+          "disabled": false,
+          "viaBundle": "posttool-edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "project",
+          "disabled": false,
+          "viaBundle": "posttool-edit-bundle"
         }
       ],
       "description": "CAM-UIX-INFRA-00/U-PHYSCONST01",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4183,
-      "lines": 144
+      "tier": "T0",
+      "sizeBytes": 4052,
+      "lines": 145
     },
     {
       "id": "plugin-inventory-surface",
@@ -4812,9 +5202,9 @@
       "events": [],
       "description": "SessionStart hook — surfaces PLUGIN_INVENTORY.json (MCP servers +",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1415,
-      "lines": 39
+      "tier": "T4",
+      "sizeBytes": 1389,
+      "lines": 40
     },
     {
       "id": "plugin-path-fixer",
@@ -4827,24 +5217,23 @@
           "matcher": "",
           "timeout": 3000,
           "type": "command",
-          "layer": "project",
+          "layer": "user",
           "disabled": false
         },
         {
           "event": "SessionStart",
           "matcher": "",
-          "timeout": null,
+          "timeout": 3000,
           "type": "command",
-          "layer": "user",
-          "disabled": false,
-          "viaBundle": "sessionstart-bundle"
+          "layer": "project",
+          "disabled": false
         }
       ],
       "description": "SessionStart hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2972,
-      "lines": 94
+      "tier": "T4",
+      "sizeBytes": 2984,
+      "lines": 95
     },
     {
       "id": "portable-node-guard",
@@ -4871,9 +5260,9 @@
       ],
       "description": "SessionStart verification for portable Node.js on H:.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2533,
-      "lines": 76
+      "tier": "T4",
+      "sizeBytes": 2470,
+      "lines": 77
     },
     {
       "id": "portable-python-guard",
@@ -4900,9 +5289,9 @@
       ],
       "description": "SessionStart verification for portable Python on H:.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2707,
-      "lines": 63
+      "tier": "T4",
+      "sizeBytes": 2657,
+      "lines": 64
     },
     {
       "id": "post-extract-sync",
@@ -4912,9 +5301,9 @@
       "events": [],
       "description": "Post-Extract Sync Hook — AI-AWARE-HARDEN/U-AWR24",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2136,
-      "lines": 68
+      "tier": "T3",
+      "sizeBytes": 2148,
+      "lines": 69
     },
     {
       "id": "post-pipeline-integrity-check",
@@ -4924,9 +5313,9 @@
       "events": [],
       "description": "post-pipeline-integrity-check.mjs (CPP-MS5-U-CPP34)",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 6424,
-      "lines": 178
+      "tier": "T4",
+      "sizeBytes": 6259,
+      "lines": 179
     },
     {
       "id": "post-recommendation-capture",
@@ -4953,9 +5342,9 @@
       ],
       "description": "PostToolUse hook for U-LEARN-01.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 11222,
-      "lines": 244
+      "tier": "T3",
+      "sizeBytes": 11234,
+      "lines": 245
     },
     {
       "id": "post-tool-batch-budget",
@@ -4965,7 +5354,7 @@
       "events": [
         {
           "event": "PostToolUse",
-          "matcher": "",
+          "matcher": "^(Bash|Edit|Write|MultiEdit|NotebookEdit|Agent|Task|TaskCreate|Skill|mcp__.*)$",
           "timeout": 1500,
           "type": "command",
           "layer": "project",
@@ -4974,9 +5363,9 @@
       ],
       "description": "PostToolUse — alarm when a session is burning through the tool budget.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 12052,
-      "lines": 239
+      "tier": "T3",
+      "sizeBytes": 12064,
+      "lines": 240
     },
     {
       "id": "post-tool-p1",
@@ -4986,9 +5375,9 @@
       "events": [],
       "description": "Phase 1 Tier 0",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2184,
-      "lines": 78
+      "tier": "T4",
+      "sizeBytes": 2196,
+      "lines": 79
     },
     {
       "id": "postgen-validator-skip-guard",
@@ -4998,9 +5387,9 @@
       "events": [],
       "description": "postgen-validator-skip-guard.mjs",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 5576,
-      "lines": 165
+      "tier": "T0",
+      "sizeBytes": 5424,
+      "lines": 166
     },
     {
       "id": "posttool-bash-read-bundle",
@@ -5019,9 +5408,9 @@
       ],
       "description": "single PostToolUse hook (matcher: Bash|Read).",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4239,
-      "lines": 95
+      "tier": "T3",
+      "sizeBytes": 4251,
+      "lines": 96
     },
     {
       "id": "posttool-bayesian-update",
@@ -5031,9 +5420,9 @@
       "events": [],
       "description": "U-AI02 Bayesian Posterior Update",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 6249,
-      "lines": 218
+      "tier": "T4",
+      "sizeBytes": 6044,
+      "lines": 219
     },
     {
       "id": "posttool-curiosity-tick",
@@ -5043,9 +5432,9 @@
       "events": [],
       "description": "hook_idle_curiosity_v2 (PP-0.18 U-AGI5)",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3793,
-      "lines": 92
+      "tier": "T4",
+      "sizeBytes": 3714,
+      "lines": 93
     },
     {
       "id": "posttool-edit-bundle",
@@ -5060,13 +5449,31 @@
           "type": "command",
           "layer": "user",
           "disabled": false
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "user",
+          "disabled": false,
+          "viaBundle": "edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "project",
+          "disabled": false,
+          "viaBundle": "edit-bundle"
         }
       ],
       "description": "single PostToolUse hook (matcher: Edit|Write|MultiEdit).",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 6043,
-      "lines": 113
+      "tier": "T3",
+      "sizeBytes": 6461,
+      "lines": 119
     },
     {
       "id": "posttool-emergence-scan",
@@ -5076,9 +5483,9 @@
       "events": [],
       "description": "hook_emergence_scan (PP-0.18 U-AGI11)",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 5007,
-      "lines": 115
+      "tier": "T4",
+      "sizeBytes": 4905,
+      "lines": 116
     },
     {
       "id": "posttool-error-explain",
@@ -5088,7 +5495,7 @@
       "events": [
         {
           "event": "PostToolUse",
-          "matcher": "Bash|Read",
+          "matcher": "Bash",
           "timeout": 2000,
           "type": "command",
           "layer": "project",
@@ -5106,9 +5513,9 @@
       ],
       "description": "PostToolUse Bash hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 7338,
-      "lines": 197
+      "tier": "T3",
+      "sizeBytes": 7350,
+      "lines": 198
     },
     {
       "id": "posttool-mcp-backend-audit",
@@ -5118,9 +5525,9 @@
       "events": [],
       "description": "posttool-mcp-backend-audit.mjs",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4944,
-      "lines": 144
+      "tier": "T3",
+      "sizeBytes": 4813,
+      "lines": 145
     },
     {
       "id": "pre-commit-conflict-sim",
@@ -5130,9 +5537,9 @@
       "events": [],
       "description": "hooks/pre-commit-conflict-sim.mjs",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4295,
-      "lines": 127
+      "tier": "T0",
+      "sizeBytes": 4307,
+      "lines": 128
     },
     {
       "id": "pre-compact-p1",
@@ -5142,9 +5549,9 @@
       "events": [],
       "description": "Phase 1 Tier 0",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2793,
-      "lines": 98
+      "tier": "T4",
+      "sizeBytes": 2805,
+      "lines": 99
     },
     {
       "id": "pre-delete-guard",
@@ -5154,9 +5561,9 @@
       "events": [],
       "description": "Phase 0.8 Delete Guard Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2946,
-      "lines": 94
+      "tier": "T0",
+      "sizeBytes": 2958,
+      "lines": 95
     },
     {
       "id": "pre-edit-impact-analyzer",
@@ -5166,9 +5573,9 @@
       "events": [],
       "description": "DISABLED_TOKEN_REDUX_2026_04_23: short-circuited by user-approved token-reduction pass.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 5214,
-      "lines": 165
+      "tier": "T1",
+      "sizeBytes": 5062,
+      "lines": 166
     },
     {
       "id": "pre-edit-lane-guard",
@@ -5178,9 +5585,9 @@
       "events": [],
       "description": "PreToolUse(Edit | Write | MultiEdit) lane gate.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 8859,
-      "lines": 260
+      "tier": "T0",
+      "sizeBytes": 8612,
+      "lines": 261
     },
     {
       "id": "pre-flight-check",
@@ -5190,9 +5597,9 @@
       "events": [],
       "description": "Pre-Flight Check — PreToolUse Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2875,
-      "lines": 91
+      "tier": "T1",
+      "sizeBytes": 2887,
+      "lines": 92
     },
     {
       "id": "pre-rename-guard",
@@ -5202,9 +5609,9 @@
       "events": [],
       "description": "Phase 0.8 Rename Guard Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2762,
-      "lines": 88
+      "tier": "T0",
+      "sizeBytes": 2774,
+      "lines": 89
     },
     {
       "id": "pre-tool-p1",
@@ -5214,9 +5621,9 @@
       "events": [],
       "description": "Phase 1 Tier 0",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2249,
-      "lines": 88
+      "tier": "T0",
+      "sizeBytes": 2261,
+      "lines": 89
     },
     {
       "id": "pre-write-roadmap-home",
@@ -5226,9 +5633,9 @@
       "events": [],
       "description": "DEFERRED IMPLEMENTATION — temporary no-op stub.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 523,
-      "lines": 10
+      "tier": "T4",
+      "sizeBytes": 535,
+      "lines": 11
     },
     {
       "id": "precompact-auto-trigger",
@@ -5239,6 +5646,22 @@
         {
           "event": "PostToolUse",
           "matcher": "",
+          "timeout": 2000,
+          "type": "command",
+          "layer": "user",
+          "disabled": false
+        },
+        {
+          "event": "PostToolUse",
+          "matcher": "^(Bash|Edit|Write|MultiEdit|NotebookEdit|Agent|Task|TaskCreate|Skill|mcp__.*)$",
+          "timeout": 2000,
+          "type": "command",
+          "layer": "project",
+          "disabled": false
+        },
+        {
+          "event": "PostToolUse",
+          "matcher": "^(Read|Glob|Grep)$",
           "timeout": 2000,
           "type": "command",
           "layer": "project",
@@ -5263,9 +5686,9 @@
       ],
       "description": "Enforce /precompact at 160K tokens.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 13156,
-      "lines": 300
+      "tier": "T0",
+      "sizeBytes": 12869,
+      "lines": 301
     },
     {
       "id": "precompact-dossier",
@@ -5275,9 +5698,9 @@
       "events": [],
       "description": "U-CTX03 Rich PreCompact Dossier",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 8684,
-      "lines": 299
+      "tier": "T4",
+      "sizeBytes": 8398,
+      "lines": 300
     },
     {
       "id": "precompact-pending-guard",
@@ -5304,9 +5727,9 @@
       ],
       "description": "Warn about pending work before compact",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1961,
-      "lines": 68
+      "tier": "T4",
+      "sizeBytes": 1906,
+      "lines": 69
     },
     {
       "id": "precompact-stale-prune-suggest",
@@ -5316,9 +5739,9 @@
       "events": [],
       "description": "PreCompact hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2322,
-      "lines": 84
+      "tier": "T4",
+      "sizeBytes": 2251,
+      "lines": 85
     },
     {
       "id": "pretool-causal-trace",
@@ -5328,9 +5751,9 @@
       "events": [],
       "description": "hook_pre_tool_causal_trace (PP-0.18 U-AGI2)",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3499,
-      "lines": 99
+      "tier": "T1",
+      "sizeBytes": 3413,
+      "lines": 100
     },
     {
       "id": "pretool-change-radius",
@@ -5340,9 +5763,9 @@
       "events": [],
       "description": "PreToolUse Write|Edit hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4999,
-      "lines": 168
+      "tier": "T4",
+      "sizeBytes": 4844,
+      "lines": 169
     },
     {
       "id": "pretool-context-forecast",
@@ -5352,9 +5775,9 @@
       "events": [],
       "description": "PreToolUse hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2397,
-      "lines": 74
+      "tier": "T4",
+      "sizeBytes": 2337,
+      "lines": 75
     },
     {
       "id": "pretool-gap-predictor",
@@ -5364,9 +5787,9 @@
       "events": [],
       "description": "PreToolUse Write|Edit hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4775,
-      "lines": 143
+      "tier": "T4",
+      "sizeBytes": 4645,
+      "lines": 144
     },
     {
       "id": "pretool-world-simulator",
@@ -5376,9 +5799,9 @@
       "events": [],
       "description": "U-AI01 WorldSimulator PreTool Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 5278,
-      "lines": 178
+      "tier": "T4",
+      "sizeBytes": 5113,
+      "lines": 179
     },
     {
       "id": "prism-awareness-cache",
@@ -5388,9 +5811,9 @@
       "events": [],
       "description": "SessionStart hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3565,
-      "lines": 122
+      "tier": "T2",
+      "sizeBytes": 3577,
+      "lines": 123
     },
     {
       "id": "prism-awareness-v2",
@@ -5400,9 +5823,9 @@
       "events": [],
       "description": "SessionStart hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 12120,
-      "lines": 313
+      "tier": "T4",
+      "sizeBytes": 11820,
+      "lines": 314
     },
     {
       "id": "prism-http-autostart",
@@ -5412,9 +5835,9 @@
       "events": [],
       "description": "SessionStart hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3406,
-      "lines": 125
+      "tier": "T2",
+      "sizeBytes": 3418,
+      "lines": 126
     },
     {
       "id": "prism-intelligence-briefing",
@@ -5424,9 +5847,9 @@
       "events": [],
       "description": "PRISM Intelligence Briefing — SessionStart Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 5412,
-      "lines": 163
+      "tier": "T4",
+      "sizeBytes": 5262,
+      "lines": 164
     },
     {
       "id": "prompt-context-inject",
@@ -5453,9 +5876,9 @@
       ],
       "description": "UserPromptSubmit hook (PRISM-STAB-MS0/U-C2).",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4672,
-      "lines": 134
+      "tier": "T4",
+      "sizeBytes": 4684,
+      "lines": 135
     },
     {
       "id": "prompt-rewriter-ollama",
@@ -5482,9 +5905,9 @@
       ],
       "description": "UserPromptSubmit hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 12371,
-      "lines": 309
+      "tier": "T4",
+      "sizeBytes": 12075,
+      "lines": 310
     },
     {
       "id": "prompt-rules-inject",
@@ -5494,9 +5917,9 @@
       "events": [],
       "description": "UserPromptSubmit hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 8231,
-      "lines": 183
+      "tier": "T2",
+      "sizeBytes": 8061,
+      "lines": 184
     },
     {
       "id": "protect-document-content",
@@ -5506,9 +5929,9 @@
       "events": [],
       "description": "Protect Document Content",
       "descriptionInferred": true,
-      "tier": null,
-      "sizeBytes": 0,
-      "lines": 1
+      "tier": "T4",
+      "sizeBytes": 12,
+      "lines": 2
     },
     {
       "id": "publish-pipeline-metrics",
@@ -5518,9 +5941,9 @@
       "events": [],
       "description": "publish-pipeline-metrics.mjs (CPP-MS5-U-CPP37)",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4963,
-      "lines": 140
+      "tier": "T4",
+      "sizeBytes": 4836,
+      "lines": 141
     },
     {
       "id": "quality-dashboard-alert",
@@ -5563,9 +5986,9 @@
       ],
       "description": "Stop + PreCompact hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 11137,
-      "lines": 267
+      "tier": "T0",
+      "sizeBytes": 11149,
+      "lines": 268
     },
     {
       "id": "quality-dashboard-inject",
@@ -5575,9 +5998,9 @@
       "events": [],
       "description": "Quality Dashboard Inject — UserPromptSubmit Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2300,
-      "lines": 92
+      "tier": "T2",
+      "sizeBytes": 2312,
+      "lines": 93
     },
     {
       "id": "rag-relevance-guard",
@@ -5587,9 +6010,9 @@
       "events": [],
       "description": "PostToolUse hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3212,
-      "lines": 93
+      "tier": "T3",
+      "sizeBytes": 3132,
+      "lines": 94
     },
     {
       "id": "read-already-have",
@@ -5618,9 +6041,9 @@
       ],
       "description": "PreToolUse Read",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2743,
-      "lines": 83
+      "tier": "T3",
+      "sizeBytes": 2673,
+      "lines": 84
     },
     {
       "id": "read-auto-limit",
@@ -5649,9 +6072,9 @@
       ],
       "description": "PreToolUse Read",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2515,
-      "lines": 80
+      "tier": "T1",
+      "sizeBytes": 2448,
+      "lines": 81
     },
     {
       "id": "read-bundle",
@@ -5678,9 +6101,9 @@
       ],
       "description": "single PreToolUse hook for Read. Replaces the 4-hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1423,
-      "lines": 34
+      "tier": "T1",
+      "sizeBytes": 1676,
+      "lines": 38
     },
     {
       "id": "read-once-cache",
@@ -5725,9 +6148,9 @@
       ],
       "description": "PreToolUse Read hook.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3974,
-      "lines": 112
+      "tier": "T3",
+      "sizeBytes": 3986,
+      "lines": 113
     },
     {
       "id": "reasoning-completeness",
@@ -5737,9 +6160,9 @@
       "events": [],
       "description": "PostToolUse hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2741,
-      "lines": 82
+      "tier": "T3",
+      "sizeBytes": 2672,
+      "lines": 83
     },
     {
       "id": "recall-counter-track",
@@ -5779,13 +6202,31 @@
           "type": "command",
           "layer": "project",
           "disabled": false
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "user",
+          "disabled": false,
+          "viaBundle": "posttool-edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "project",
+          "disabled": false,
+          "viaBundle": "posttool-edit-bundle"
         }
       ],
       "description": "PostToolUse hook for Read events on vault files",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 5424,
-      "lines": 120
+      "tier": "T3",
+      "sizeBytes": 5317,
+      "lines": 121
     },
     {
       "id": "reference-inject",
@@ -5795,9 +6236,9 @@
       "events": [],
       "description": "UserPromptSubmit hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 8825,
-      "lines": 203
+      "tier": "T4",
+      "sizeBytes": 8635,
+      "lines": 204
     },
     {
       "id": "reference-value-injector",
@@ -5807,9 +6248,9 @@
       "events": [],
       "description": "UserPromptSubmit hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 8625,
-      "lines": 314
+      "tier": "T4",
+      "sizeBytes": 8324,
+      "lines": 315
     },
     {
       "id": "reviewer-fail-latch",
@@ -5819,9 +6260,9 @@
       "events": [],
       "description": "Stop hook.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2807,
-      "lines": 98
+      "tier": "T0",
+      "sizeBytes": 2722,
+      "lines": 99
     },
     {
       "id": "roadmap-checkpoint",
@@ -5834,24 +6275,23 @@
           "matcher": "",
           "timeout": 5000,
           "type": "command",
-          "layer": "project",
+          "layer": "user",
           "disabled": false
         },
         {
           "event": "Stop",
           "matcher": "",
-          "timeout": null,
+          "timeout": 5000,
           "type": "command",
-          "layer": "user",
-          "disabled": false,
-          "viaBundle": "stop-bundle"
+          "layer": "project",
+          "disabled": false
         }
       ],
       "description": "Stop hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 7389,
-      "lines": 230
+      "tier": "T4",
+      "sizeBytes": 7172,
+      "lines": 231
     },
     {
       "id": "roadmap-completion-logger",
@@ -5861,9 +6301,9 @@
       "events": [],
       "description": "PostToolUse roadmap unit tracker",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 6882,
-      "lines": 211
+      "tier": "T3",
+      "sizeBytes": 6894,
+      "lines": 212
     },
     {
       "id": "roadmap-reconcile",
@@ -5873,9 +6313,9 @@
       "events": [],
       "description": "One-time reconciliation",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3979,
-      "lines": 121
+      "tier": "T4",
+      "sizeBytes": 3871,
+      "lines": 122
     },
     {
       "id": "roadmap-resume",
@@ -5902,9 +6342,9 @@
       ],
       "description": "SessionStart hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4492,
-      "lines": 134
+      "tier": "T4",
+      "sizeBytes": 4371,
+      "lines": 135
     },
     {
       "id": "rtk-auto-suggest",
@@ -5933,9 +6373,9 @@
       ],
       "description": "PreToolUse Bash",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3727,
-      "lines": 98
+      "tier": "T1",
+      "sizeBytes": 3642,
+      "lines": 99
     },
     {
       "id": "rtk-path-ensure",
@@ -5945,9 +6385,9 @@
       "events": [],
       "description": "SessionStart hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2267,
-      "lines": 82
+      "tier": "T4",
+      "sizeBytes": 2198,
+      "lines": 83
     },
     {
       "id": "rtk-prefix-reminder",
@@ -5957,9 +6397,9 @@
       "events": [],
       "description": "PreToolUse:Bash",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 5956,
-      "lines": 169
+      "tier": "T1",
+      "sizeBytes": 5800,
+      "lines": 170
     },
     {
       "id": "schema-version-bump",
@@ -5969,9 +6409,9 @@
       "events": [],
       "description": "Phase 1 Tier 5D Workflow Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1011,
-      "lines": 29
+      "tier": "T4",
+      "sizeBytes": 995,
+      "lines": 30
     },
     {
       "id": "schema-version-read",
@@ -5981,9 +6421,9 @@
       "events": [],
       "description": "Phase 1 Tier 5D",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2726,
-      "lines": 91
+      "tier": "T4",
+      "sizeBytes": 2738,
+      "lines": 92
     },
     {
       "id": "script-summary-inject",
@@ -5993,9 +6433,9 @@
       "events": [],
       "description": "PreToolUse Bash hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4007,
-      "lines": 122
+      "tier": "T1",
+      "sizeBytes": 4019,
+      "lines": 123
     },
     {
       "id": "scrutinize-before-stop",
@@ -6005,9 +6445,9 @@
       "events": [],
       "description": "Stop hook (UNIVERSAL ENFORCEMENT).",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 13205,
-      "lines": 297
+      "tier": "T0",
+      "sizeBytes": 12921,
+      "lines": 298
     },
     {
       "id": "self-awareness-enforce",
@@ -6017,9 +6457,9 @@
       "events": [],
       "description": "Self-Awareness Enforcement Hook (UserPromptSubmit)",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1960,
-      "lines": 56
+      "tier": "T1",
+      "sizeBytes": 1917,
+      "lines": 57
     },
     {
       "id": "self-improvement-activate",
@@ -6029,9 +6469,9 @@
       "events": [],
       "description": "Self-Improvement Activation — SessionStart Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 7108,
-      "lines": 211
+      "tier": "T4",
+      "sizeBytes": 7120,
+      "lines": 212
     },
     {
       "id": "session_start_inventory_inject",
@@ -6041,9 +6481,9 @@
       "events": [],
       "description": "U-ACT04 Inventory Hydration",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 7267,
-      "lines": 216
+      "tier": "T4",
+      "sizeBytes": 7064,
+      "lines": 217
     },
     {
       "id": "session_start_local_compute_warm",
@@ -6053,9 +6493,9 @@
       "events": [],
       "description": "SessionStart hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3093,
-      "lines": 92
+      "tier": "T4",
+      "sizeBytes": 3105,
+      "lines": 93
     },
     {
       "id": "session-action-memory",
@@ -6065,9 +6505,9 @@
       "events": [],
       "description": "Session Action Memory — PostToolUse Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2599,
-      "lines": 92
+      "tier": "T3",
+      "sizeBytes": 2611,
+      "lines": 93
     },
     {
       "id": "session-cleanup",
@@ -6077,9 +6517,9 @@
       "events": [],
       "description": "Stop hook to clean up orphaned MCP processes",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2153,
-      "lines": 67
+      "tier": "T4",
+      "sizeBytes": 2099,
+      "lines": 68
     },
     {
       "id": "session-consolidate-graph",
@@ -6092,24 +6532,23 @@
           "matcher": "",
           "timeout": 5000,
           "type": "command",
-          "layer": "project",
+          "layer": "user",
           "disabled": false
         },
         {
           "event": "Stop",
           "matcher": "",
-          "timeout": null,
+          "timeout": 5000,
           "type": "command",
-          "layer": "user",
-          "disabled": false,
-          "viaBundle": "stop-bundle"
+          "layer": "project",
+          "disabled": false
         }
       ],
       "description": "SessionEnd / Stop hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 7944,
-      "lines": 230
+      "tier": "T4",
+      "sizeBytes": 7727,
+      "lines": 231
     },
     {
       "id": "session-continuity-chain",
@@ -6119,9 +6558,9 @@
       "events": [],
       "description": "U-CTX05 Multi-Session Handoff Chain",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 5329,
-      "lines": 166
+      "tier": "T1",
+      "sizeBytes": 5176,
+      "lines": 167
     },
     {
       "id": "session-cost-summary",
@@ -6131,9 +6570,9 @@
       "events": [],
       "description": "Session Cost Summary — Stop Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4714,
-      "lines": 164
+      "tier": "T4",
+      "sizeBytes": 4726,
+      "lines": 165
     },
     {
       "id": "session-end-goal-synthesis",
@@ -6143,9 +6582,9 @@
       "events": [],
       "description": "U-AI04 Autonomous Goal Synthesis",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 6129,
-      "lines": 197
+      "tier": "T4",
+      "sizeBytes": 5945,
+      "lines": 198
     },
     {
       "id": "session-end-p1",
@@ -6155,9 +6594,9 @@
       "events": [],
       "description": "Phase 1 Tier 0",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3039,
-      "lines": 106
+      "tier": "T4",
+      "sizeBytes": 3051,
+      "lines": 107
     },
     {
       "id": "session-end-peer-share",
@@ -6170,24 +6609,23 @@
           "matcher": "",
           "timeout": 5000,
           "type": "command",
-          "layer": "project",
+          "layer": "user",
           "disabled": false
         },
         {
           "event": "Stop",
           "matcher": "",
-          "timeout": null,
+          "timeout": 5000,
           "type": "command",
-          "layer": "user",
-          "disabled": false,
-          "viaBundle": "stop-bundle"
+          "layer": "project",
+          "disabled": false
         }
       ],
       "description": "hook_post_session_peer_share (PP-0.18 U-AGI14)",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3946,
-      "lines": 96
+      "tier": "T4",
+      "sizeBytes": 3863,
+      "lines": 97
     },
     {
       "id": "session-handoff-load",
@@ -6214,9 +6652,9 @@
       ],
       "description": "SessionStart hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 6791,
-      "lines": 189
+      "tier": "T4",
+      "sizeBytes": 6803,
+      "lines": 190
     },
     {
       "id": "session-id-pin",
@@ -6259,9 +6697,9 @@
       ],
       "description": "Pins THIS chat's session_id to every PID in the",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 5080,
-      "lines": 164
+      "tier": "T4",
+      "sizeBytes": 5092,
+      "lines": 165
     },
     {
       "id": "session-learning-feedback",
@@ -6271,9 +6709,9 @@
       "events": [],
       "description": "Stop Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 7394,
-      "lines": 243
+      "tier": "T4",
+      "sizeBytes": 7164,
+      "lines": 244
     },
     {
       "id": "session-reorient-capture",
@@ -6283,9 +6721,9 @@
       "events": [],
       "description": "PostToolUse companion to session-reorient-inject.mjs",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 6018,
-      "lines": 191
+      "tier": "T3",
+      "sizeBytes": 5840,
+      "lines": 192
     },
     {
       "id": "session-reorient-inject",
@@ -6312,9 +6750,9 @@
       ],
       "description": "UserPromptSubmit hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 9992,
-      "lines": 264
+      "tier": "T4",
+      "sizeBytes": 9741,
+      "lines": 265
     },
     {
       "id": "session-start-causal-trace",
@@ -6324,9 +6762,9 @@
       "events": [],
       "description": "U-AI03 Causal Graph SessionStart Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 5777,
-      "lines": 194
+      "tier": "T4",
+      "sizeBytes": 5596,
+      "lines": 195
     },
     {
       "id": "session-start-claim-slot",
@@ -6336,9 +6774,9 @@
       "events": [],
       "description": "SessionStart hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4299,
-      "lines": 123
+      "tier": "T4",
+      "sizeBytes": 4311,
+      "lines": 124
     },
     {
       "id": "session-start-compact-p1",
@@ -6348,9 +6786,9 @@
       "events": [],
       "description": "Phase 1 Tier 0",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2846,
-      "lines": 92
+      "tier": "T4",
+      "sizeBytes": 2858,
+      "lines": 93
     },
     {
       "id": "session-start-goal-inject",
@@ -6363,24 +6801,23 @@
           "matcher": "",
           "timeout": 3000,
           "type": "command",
-          "layer": "project",
+          "layer": "user",
           "disabled": false
         },
         {
           "event": "SessionStart",
           "matcher": "",
-          "timeout": null,
+          "timeout": 3000,
           "type": "command",
-          "layer": "user",
-          "disabled": false,
-          "viaBundle": "sessionstart-bundle"
+          "layer": "project",
+          "disabled": false
         }
       ],
       "description": "hook_session_goal_synthesis (PP-0.18 U-AGI1)",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2835,
-      "lines": 77
+      "tier": "T4",
+      "sizeBytes": 2771,
+      "lines": 78
     },
     {
       "id": "session-start-p1",
@@ -6390,9 +6827,9 @@
       "events": [],
       "description": "Phase 1 Tier 0",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2801,
-      "lines": 101
+      "tier": "T4",
+      "sizeBytes": 2813,
+      "lines": 102
     },
     {
       "id": "session-start-zombie-reap",
@@ -6419,9 +6856,9 @@
       ],
       "description": "SessionStart hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 5733,
-      "lines": 165
+      "tier": "T4",
+      "sizeBytes": 5745,
+      "lines": 166
     },
     {
       "id": "session-state-auto",
@@ -6431,9 +6868,9 @@
       "events": [],
       "description": "Session State Auto — PostToolUse Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1920,
-      "lines": 78
+      "tier": "T3",
+      "sizeBytes": 1932,
+      "lines": 79
     },
     {
       "id": "session-write-tracker",
@@ -6443,30 +6880,21 @@
       "events": [],
       "description": "PostToolUse per-session write log",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4015,
-      "lines": 123
+      "tier": "T3",
+      "sizeBytes": 4027,
+      "lines": 124
     },
     {
       "id": "sessionstart-bundle",
       "file": ".claude/hooks/bundles/sessionstart-bundle.mjs",
-      "wired": true,
+      "wired": false,
       "disabled": false,
-      "events": [
-        {
-          "event": "SessionStart",
-          "matcher": "",
-          "timeout": 15000,
-          "type": "command",
-          "layer": "user",
-          "disabled": false
-        }
-      ],
+      "events": [],
       "description": "single SessionStart hook for the context-injector /",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4602,
-      "lines": 96
+      "tier": "T4",
+      "sizeBytes": 4614,
+      "lines": 97
     },
     {
       "id": "sessionstart-critical-path",
@@ -6476,9 +6904,9 @@
       "events": [],
       "description": "SessionStart hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3970,
-      "lines": 149
+      "tier": "T4",
+      "sizeBytes": 3982,
+      "lines": 150
     },
     {
       "id": "settings-baseline-snapshot",
@@ -6505,9 +6933,9 @@
       ],
       "description": "SessionStart hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1355,
-      "lines": 42
+      "tier": "T4",
+      "sizeBytes": 1326,
+      "lines": 43
     },
     {
       "id": "settings-json-addonly-guard",
@@ -6536,9 +6964,9 @@
       ],
       "description": "PreToolUse(Edit|Write) guard",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 7427,
-      "lines": 240
+      "tier": "T0",
+      "sizeBytes": 7200,
+      "lines": 241
     },
     {
       "id": "settings-mirror-guard",
@@ -6565,9 +6993,9 @@
       ],
       "description": "PRISM-STAB-MS0/U-A5 (2026-05-09).",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4237,
-      "lines": 115
+      "tier": "T3",
+      "sizeBytes": 4249,
+      "lines": 116
     },
     {
       "id": "signature-drift-detector",
@@ -6577,9 +7005,9 @@
       "events": [],
       "description": "Phase 0.8 Signature Drift Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3641,
-      "lines": 122
+      "tier": "T3",
+      "sizeBytes": 3653,
+      "lines": 123
     },
     {
       "id": "skill-3q-gate",
@@ -6589,9 +7017,30 @@
       "events": [],
       "description": "U-SKU01 (SKILLS-UTILIZATION-MS0) PreToolUse gate.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 9128,
-      "lines": 164
+      "tier": "T0",
+      "sizeBytes": 8977,
+      "lines": 165
+    },
+    {
+      "id": "skill-auto-trigger",
+      "file": ".claude/hooks/skill-auto-trigger.mjs",
+      "wired": true,
+      "disabled": false,
+      "events": [
+        {
+          "event": "UserPromptSubmit",
+          "matcher": "",
+          "timeout": 1500,
+          "type": "command",
+          "layer": "user",
+          "disabled": false
+        }
+      ],
+      "description": "UserPromptSubmit hook (Phase D.2 of DEV-VELOCITY-AUTOTRIGGER-MS0).",
+      "descriptionInferred": false,
+      "tier": "T2",
+      "sizeBytes": 9484,
+      "lines": 254
     },
     {
       "id": "skill-chain-suggest",
@@ -6601,9 +7050,9 @@
       "events": [],
       "description": "Workflow Skill Chaining",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4257,
-      "lines": 144
+      "tier": "T2",
+      "sizeBytes": 4126,
+      "lines": 145
     },
     {
       "id": "skill-lint-stop",
@@ -6613,9 +7062,9 @@
       "events": [],
       "description": "U-SKU03 (SKILLS-UTILIZATION-MS0) Stop hook.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4933,
-      "lines": 98
+      "tier": "T4",
+      "sizeBytes": 4848,
+      "lines": 99
     },
     {
       "id": "skill-usage-tracker",
@@ -6625,9 +7074,9 @@
       "events": [],
       "description": "Skill Usage Tracker — UserPromptSubmit Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3232,
-      "lines": 121
+      "tier": "T4",
+      "sizeBytes": 3244,
+      "lines": 122
     },
     {
       "id": "skill-utilization-index",
@@ -6637,9 +7086,9 @@
       "events": [],
       "description": "Skill Utilization Index — SessionStart Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 7632,
-      "lines": 214
+      "tier": "T4",
+      "sizeBytes": 7644,
+      "lines": 215
     },
     {
       "id": "slash-command-registry-load",
@@ -6649,9 +7098,9 @@
       "events": [],
       "description": "SessionStart hook — load SLASH_COMMAND_REGISTRY.json into the AI-routable",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1623,
-      "lines": 41
+      "tier": "T4",
+      "sizeBytes": 1595,
+      "lines": 42
     },
     {
       "id": "smart-skill-suggest",
@@ -6661,9 +7110,9 @@
       "events": [],
       "description": "Smart Skill Suggest — UserPromptSubmit Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 5312,
-      "lines": 175
+      "tier": "T4",
+      "sizeBytes": 5324,
+      "lines": 176
     },
     {
       "id": "smoke-test",
@@ -6673,9 +7122,9 @@
       "events": [],
       "description": "standalone test runner for the hook bundle library.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 5657,
-      "lines": 135
+      "tier": "T0",
+      "sizeBytes": 5669,
+      "lines": 136
     },
     {
       "id": "sparc-optin-gate",
@@ -6685,9 +7134,9 @@
       "events": [],
       "description": "UserPromptSubmit hook — SPARC opt-in gate.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3131,
-      "lines": 95
+      "tier": "T0",
+      "sizeBytes": 3049,
+      "lines": 96
     },
     {
       "id": "staged-hygiene-check",
@@ -6697,9 +7146,9 @@
       "events": [],
       "description": "PreToolUse absorption prevention",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 7458,
-      "lines": 224
+      "tier": "T1",
+      "sizeBytes": 7470,
+      "lines": 225
     },
     {
       "id": "stale-claim-sweeper",
@@ -6709,9 +7158,9 @@
       "events": [],
       "description": "SessionStart + Stop hook.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 20318,
-      "lines": 510
+      "tier": "T1",
+      "sizeBytes": 20330,
+      "lines": 511
     },
     {
       "id": "stale-state-warn",
@@ -6738,9 +7187,9 @@
       ],
       "description": "UserPromptSubmit hook (one-line nudge).",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3580,
-      "lines": 119
+      "tier": "T2",
+      "sizeBytes": 3592,
+      "lines": 120
     },
     {
       "id": "state-write-watch",
@@ -6750,9 +7199,9 @@
       "events": [],
       "description": "PreToolUse concurrent-write detector for state JSONs",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 5667,
-      "lines": 176
+      "tier": "T1",
+      "sizeBytes": 5679,
+      "lines": 177
     },
     {
       "id": "stop_close_prism_nodes",
@@ -6765,24 +7214,23 @@
           "matcher": "",
           "timeout": 1000,
           "type": "command",
-          "layer": "project",
+          "layer": "user",
           "disabled": false
         },
         {
           "event": "Stop",
           "matcher": "",
-          "timeout": null,
+          "timeout": 1000,
           "type": "command",
-          "layer": "user",
-          "disabled": false,
-          "viaBundle": "stop-bundle"
+          "layer": "project",
+          "disabled": false
         }
       ],
       "description": "Stop hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 7956,
-      "lines": 234
+      "tier": "T4",
+      "sizeBytes": 7968,
+      "lines": 235
     },
     {
       "id": "stop_close_prism_nodes_v2",
@@ -6795,24 +7243,23 @@
           "matcher": "",
           "timeout": 5000,
           "type": "command",
-          "layer": "project",
+          "layer": "user",
           "disabled": false
         },
         {
           "event": "Stop",
           "matcher": "",
-          "timeout": null,
+          "timeout": 5000,
           "type": "command",
-          "layer": "user",
-          "disabled": false,
-          "viaBundle": "stop-bundle"
+          "layer": "project",
+          "disabled": false
         }
       ],
       "description": "PRISM-STAB-MS0/U-A3 (2026-05-09).",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 6091,
-      "lines": 164
+      "tier": "T4",
+      "sizeBytes": 6103,
+      "lines": 165
     },
     {
       "id": "stop_on_awareness_degraded",
@@ -6822,9 +7269,9 @@
       "events": [],
       "description": "Tier 6 Stop Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1182,
-      "lines": 40
+      "tier": "T4",
+      "sizeBytes": 1194,
+      "lines": 41
     },
     {
       "id": "stop_on_broken_imports",
@@ -6851,9 +7298,9 @@
       ],
       "description": "Tier 6 Stop Hook (IMPROVED)",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3220,
-      "lines": 109
+      "tier": "T4",
+      "sizeBytes": 3232,
+      "lines": 110
     },
     {
       "id": "stop_on_build_error",
@@ -6880,9 +7327,9 @@
       ],
       "description": "Tier 6 Stop Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1375,
-      "lines": 41
+      "tier": "T4",
+      "sizeBytes": 1387,
+      "lines": 42
     },
     {
       "id": "stop_on_c_drive_write",
@@ -6909,9 +7356,9 @@
       ],
       "description": "Stop Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 5102,
-      "lines": 137
+      "tier": "T0",
+      "sizeBytes": 5114,
+      "lines": 138
     },
     {
       "id": "stop_on_circular_deps",
@@ -6921,9 +7368,9 @@
       "events": [],
       "description": "Tier 6 Stop Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1506,
-      "lines": 52
+      "tier": "T4",
+      "sizeBytes": 1518,
+      "lines": 53
     },
     {
       "id": "stop_on_content_deletion",
@@ -6933,9 +7380,9 @@
       "events": [],
       "description": "Stop Hook: Content Deletion Guard",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4917,
-      "lines": 183
+      "tier": "T4",
+      "sizeBytes": 4747,
+      "lines": 184
     },
     {
       "id": "stop_on_cutting_calculation_protocol",
@@ -6962,9 +7409,9 @@
       ],
       "description": "stop_on_cutting_calculation_protocol.mjs",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 6867,
-      "lines": 204
+      "tier": "T4",
+      "sizeBytes": 6879,
+      "lines": 205
     },
     {
       "id": "stop_on_dirty_registry",
@@ -6974,9 +7421,9 @@
       "events": [],
       "description": "Tier 6 Stop Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1647,
-      "lines": 62
+      "tier": "T4",
+      "sizeBytes": 1659,
+      "lines": 63
     },
     {
       "id": "stop_on_duplicate_created",
@@ -7003,9 +7450,9 @@
       ],
       "description": "Tier 6 Stop Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1265,
-      "lines": 38
+      "tier": "T4",
+      "sizeBytes": 1277,
+      "lines": 39
     },
     {
       "id": "stop_on_extraction_incomplete",
@@ -7015,9 +7462,9 @@
       "events": [],
       "description": "Tier 6 Stop Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1265,
-      "lines": 40
+      "tier": "T4",
+      "sizeBytes": 1277,
+      "lines": 41
     },
     {
       "id": "stop_on_failing_tests",
@@ -7028,7 +7475,7 @@
         {
           "event": "Stop",
           "matcher": "",
-          "timeout": 3000,
+          "timeout": 10000,
           "type": "command",
           "layer": "user",
           "disabled": false
@@ -7044,9 +7491,9 @@
       ],
       "description": "Stop Hook (SAFETY-CRITICAL, FAIL-CLOSED)",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 9318,
-      "lines": 241
+      "tier": "T0",
+      "sizeBytes": 9330,
+      "lines": 242
     },
     {
       "id": "stop_on_formula_uncited",
@@ -7056,9 +7503,9 @@
       "events": [],
       "description": "Tier 6 Stop Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1374,
-      "lines": 47
+      "tier": "T4",
+      "sizeBytes": 1386,
+      "lines": 48
     },
     {
       "id": "stop_on_hook_unregistered",
@@ -7068,9 +7515,9 @@
       "events": [],
       "description": "Tier 6 Stop Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1544,
-      "lines": 50
+      "tier": "T4",
+      "sizeBytes": 1556,
+      "lines": 51
     },
     {
       "id": "stop_on_hook_unregistration",
@@ -7078,15 +7525,6 @@
       "wired": true,
       "disabled": false,
       "events": [
-        {
-          "event": "SessionStart",
-          "matcher": "",
-          "timeout": null,
-          "type": "command",
-          "layer": "user",
-          "disabled": false,
-          "viaBundle": "sessionstart-bundle"
-        },
         {
           "event": "Stop",
           "matcher": "",
@@ -7102,22 +7540,13 @@
           "type": "command",
           "layer": "project",
           "disabled": false
-        },
-        {
-          "event": "Stop",
-          "matcher": "",
-          "timeout": null,
-          "type": "command",
-          "layer": "user",
-          "disabled": false,
-          "viaBundle": "stop-bundle"
         }
       ],
       "description": "Stop hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 7864,
-      "lines": 200
+      "tier": "T4",
+      "sizeBytes": 7677,
+      "lines": 201
     },
     {
       "id": "stop_on_incomplete_pipeline",
@@ -7127,9 +7556,9 @@
       "events": [],
       "description": "Tier 6 Stop Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1624,
-      "lines": 56
+      "tier": "T4",
+      "sizeBytes": 1636,
+      "lines": 57
     },
     {
       "id": "stop_on_missing_tests",
@@ -7139,9 +7568,9 @@
       "events": [],
       "description": "Tier 6 Stop Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1421,
-      "lines": 43
+      "tier": "T4",
+      "sizeBytes": 1433,
+      "lines": 44
     },
     {
       "id": "stop_on_non_h_roadmap",
@@ -7151,9 +7580,9 @@
       "events": [],
       "description": "DEFERRED IMPLEMENTATION — temporary no-op stub.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 502,
-      "lines": 10
+      "tier": "T4",
+      "sizeBytes": 514,
+      "lines": 11
     },
     {
       "id": "stop_on_open_claim",
@@ -7163,9 +7592,9 @@
       "events": [],
       "description": "Tier 6 Stop Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 5985,
-      "lines": 190
+      "tier": "T4",
+      "sizeBytes": 5808,
+      "lines": 191
     },
     {
       "id": "stop_on_open_lock",
@@ -7175,9 +7604,9 @@
       "events": [],
       "description": "Tier 6 Stop Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2014,
-      "lines": 70
+      "tier": "T4",
+      "sizeBytes": 1957,
+      "lines": 71
     },
     {
       "id": "stop_on_orphan_children",
@@ -7204,9 +7633,9 @@
       ],
       "description": "Tier 6 Stop Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1506,
-      "lines": 49
+      "tier": "T4",
+      "sizeBytes": 1470,
+      "lines": 50
     },
     {
       "id": "stop_on_orphan_engine",
@@ -7216,9 +7645,9 @@
       "events": [],
       "description": "Tier 6 Stop Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1509,
-      "lines": 47
+      "tier": "T4",
+      "sizeBytes": 1521,
+      "lines": 48
     },
     {
       "id": "stop_on_repeat_error",
@@ -7228,9 +7657,9 @@
       "events": [],
       "description": "Stop hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3099,
-      "lines": 90
+      "tier": "T4",
+      "sizeBytes": 3111,
+      "lines": 91
     },
     {
       "id": "stop_on_roadmap_drift",
@@ -7240,9 +7669,9 @@
       "events": [],
       "description": "Tier 6 Stop Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1659,
-      "lines": 55
+      "tier": "T4",
+      "sizeBytes": 1671,
+      "lines": 56
     },
     {
       "id": "stop_on_session_mistake_digest",
@@ -7252,9 +7681,9 @@
       "events": [],
       "description": "Stop hook (non-blocking)",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3885,
-      "lines": 118
+      "tier": "T4",
+      "sizeBytes": 3897,
+      "lines": 119
     },
     {
       "id": "stop_on_skill_unwired",
@@ -7281,9 +7710,9 @@
       ],
       "description": "Tier 6 Stop Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1524,
-      "lines": 48
+      "tier": "T4",
+      "sizeBytes": 1536,
+      "lines": 49
     },
     {
       "id": "stop_on_stale_handoff",
@@ -7293,9 +7722,9 @@
       "events": [],
       "description": "Tier 6 Stop Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1677,
-      "lines": 60
+      "tier": "T4",
+      "sizeBytes": 1689,
+      "lines": 61
     },
     {
       "id": "stop_on_svi_regression",
@@ -7322,9 +7751,9 @@
       ],
       "description": "Tier 6 Stop Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1206,
-      "lines": 38
+      "tier": "T4",
+      "sizeBytes": 1218,
+      "lines": 39
     },
     {
       "id": "stop_on_sx_fail",
@@ -7334,9 +7763,9 @@
       "events": [],
       "description": "Tier 6 Stop Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1274,
-      "lines": 42
+      "tier": "T4",
+      "sizeBytes": 1286,
+      "lines": 43
     },
     {
       "id": "stop_on_uncommitted_critical",
@@ -7346,9 +7775,9 @@
       "events": [],
       "description": "Tier 6 Stop Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1772,
-      "lines": 64
+      "tier": "T0",
+      "sizeBytes": 1784,
+      "lines": 65
     },
     {
       "id": "stop_on_uncommitted_memory",
@@ -7358,9 +7787,9 @@
       "events": [],
       "description": "Tier 6 Stop Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1671,
-      "lines": 54
+      "tier": "T4",
+      "sizeBytes": 1683,
+      "lines": 55
     },
     {
       "id": "stop_on_undocumented_action",
@@ -7370,9 +7799,9 @@
       "events": [],
       "description": "Tier 6 Stop Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1330,
-      "lines": 46
+      "tier": "T4",
+      "sizeBytes": 1342,
+      "lines": 47
     },
     {
       "id": "stop_on_unregistered_asset",
@@ -7382,9 +7811,9 @@
       "events": [],
       "description": "Tier 6 Stop Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2172,
-      "lines": 72
+      "tier": "T4",
+      "sizeBytes": 2184,
+      "lines": 73
     },
     {
       "id": "stop_on_unsafe_gcode",
@@ -7411,9 +7840,9 @@
       ],
       "description": "Tier 6 Stop Hook (IMPROVED)",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3071,
-      "lines": 86
+      "tier": "T4",
+      "sizeBytes": 3083,
+      "lines": 87
     },
     {
       "id": "stop_on_unwired_assets",
@@ -7440,9 +7869,9 @@
       ],
       "description": "Stop Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 18200,
-      "lines": 467
+      "tier": "T0",
+      "sizeBytes": 17746,
+      "lines": 468
     },
     {
       "id": "stop_on_user_correction",
@@ -7452,9 +7881,9 @@
       "events": [],
       "description": "Stop hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4186,
-      "lines": 127
+      "tier": "T4",
+      "sizeBytes": 4198,
+      "lines": 128
     },
     {
       "id": "stop-auto-wire",
@@ -7467,24 +7896,23 @@
           "matcher": "",
           "timeout": 8000,
           "type": "command",
-          "layer": "project",
+          "layer": "user",
           "disabled": false
         },
         {
           "event": "Stop",
           "matcher": "",
-          "timeout": null,
+          "timeout": 8000,
           "type": "command",
-          "layer": "user",
-          "disabled": false,
-          "viaBundle": "stop-bundle"
+          "layer": "project",
+          "disabled": false
         }
       ],
       "description": "Stop hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 8656,
-      "lines": 277
+      "tier": "T3",
+      "sizeBytes": 8392,
+      "lines": 278
     },
     {
       "id": "stop-bash-orphan-cleaner",
@@ -7494,9 +7922,9 @@
       "events": [],
       "description": "Stop hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 8023,
-      "lines": 214
+      "tier": "T4",
+      "sizeBytes": 7822,
+      "lines": 215
     },
     {
       "id": "stop-bg-runner",
@@ -7506,30 +7934,21 @@
       "events": [],
       "description": "wrapper that runs a target Stop hook in the background.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4025,
-      "lines": 120
+      "tier": "T4",
+      "sizeBytes": 4037,
+      "lines": 121
     },
     {
       "id": "stop-bundle",
       "file": ".claude/hooks/bundles/stop-bundle.mjs",
-      "wired": true,
+      "wired": false,
       "disabled": false,
-      "events": [
-        {
-          "event": "Stop",
-          "matcher": "",
-          "timeout": 15000,
-          "type": "command",
-          "layer": "user",
-          "disabled": false
-        }
-      ],
+      "events": [],
       "description": "single Stop hook that runs the NON-BLOCKING Stop trackers.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 5070,
-      "lines": 107
+      "tier": "T4",
+      "sizeBytes": 5082,
+      "lines": 108
     },
     {
       "id": "stop-consensus-drain",
@@ -7542,24 +7961,23 @@
           "matcher": "",
           "timeout": 3000,
           "type": "command",
-          "layer": "project",
+          "layer": "user",
           "disabled": false
         },
         {
           "event": "Stop",
           "matcher": "",
-          "timeout": null,
+          "timeout": 3000,
           "type": "command",
-          "layer": "user",
-          "disabled": false,
-          "viaBundle": "stop-bundle"
+          "layer": "project",
+          "disabled": false
         }
       ],
       "description": "Stop hook that triggers async consensus queue drain.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2294,
-      "lines": 74
+      "tier": "T4",
+      "sizeBytes": 2233,
+      "lines": 75
     },
     {
       "id": "stop-index-sync",
@@ -7569,9 +7987,9 @@
       "events": [],
       "description": "Stop hook for index synchronization",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3588,
-      "lines": 126
+      "tier": "T4",
+      "sizeBytes": 3475,
+      "lines": 127
     },
     {
       "id": "stop-mark-completed-tasks",
@@ -7584,24 +8002,23 @@
           "matcher": "",
           "timeout": 5000,
           "type": "command",
-          "layer": "project",
+          "layer": "user",
           "disabled": false
         },
         {
           "event": "Stop",
           "matcher": "",
-          "timeout": null,
+          "timeout": 5000,
           "type": "command",
-          "layer": "user",
-          "disabled": false,
-          "viaBundle": "stop-bundle"
+          "layer": "project",
+          "disabled": false
         }
       ],
       "description": "Stop hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4306,
-      "lines": 128
+      "tier": "T4",
+      "sizeBytes": 4191,
+      "lines": 129
     },
     {
       "id": "stop-obsidian-memory-extract",
@@ -7614,24 +8031,23 @@
           "matcher": "",
           "timeout": 5000,
           "type": "command",
-          "layer": "project",
+          "layer": "user",
           "disabled": false
         },
         {
           "event": "Stop",
           "matcher": "",
-          "timeout": null,
+          "timeout": 5000,
           "type": "command",
-          "layer": "user",
-          "disabled": false,
-          "viaBundle": "stop-bundle"
+          "layer": "project",
+          "disabled": false
         }
       ],
       "description": "Stop Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 8969,
-      "lines": 294
+      "tier": "T4",
+      "sizeBytes": 8688,
+      "lines": 295
     },
     {
       "id": "stop-release-slot",
@@ -7641,9 +8057,9 @@
       "events": [],
       "description": "Stop hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2616,
-      "lines": 78
+      "tier": "T4",
+      "sizeBytes": 2628,
+      "lines": 79
     },
     {
       "id": "subagent-start-context",
@@ -7670,9 +8086,9 @@
       ],
       "description": "SubagentStart hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2792,
-      "lines": 61
+      "tier": "T4",
+      "sizeBytes": 2804,
+      "lines": 62
     },
     {
       "id": "subagent-stop-verifier",
@@ -7691,9 +8107,9 @@
       ],
       "description": "SubagentStop hook: verify a subagent's deliverable claims.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 12960,
-      "lines": 247
+      "tier": "T0",
+      "sizeBytes": 12972,
+      "lines": 248
     },
     {
       "id": "success-pattern-tracker",
@@ -7703,9 +8119,9 @@
       "events": [],
       "description": "Success Pattern Tracker — PostToolUse Hook (Bash)",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2589,
-      "lines": 92
+      "tier": "T3",
+      "sizeBytes": 2601,
+      "lines": 93
     },
     {
       "id": "supabase-state-sync",
@@ -7718,20 +8134,11 @@
           "matcher": "",
           "timeout": 5000,
           "type": "command",
-          "layer": "project",
+          "layer": "user",
           "disabled": false
         },
         {
           "event": "SessionStart",
-          "matcher": "",
-          "timeout": null,
-          "type": "command",
-          "layer": "user",
-          "disabled": false,
-          "viaBundle": "sessionstart-bundle"
-        },
-        {
-          "event": "Stop",
           "matcher": "",
           "timeout": 5000,
           "type": "command",
@@ -7741,18 +8148,25 @@
         {
           "event": "Stop",
           "matcher": "",
-          "timeout": null,
+          "timeout": 5000,
           "type": "command",
           "layer": "user",
-          "disabled": false,
-          "viaBundle": "stop-bundle"
+          "disabled": false
+        },
+        {
+          "event": "Stop",
+          "matcher": "",
+          "timeout": 5000,
+          "type": "command",
+          "layer": "project",
+          "disabled": false
         }
       ],
       "description": "SessionStart + Stop hooks",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 5309,
-      "lines": 178
+      "tier": "T4",
+      "sizeBytes": 5144,
+      "lines": 179
     },
     {
       "id": "svi-inject",
@@ -7762,9 +8176,9 @@
       "events": [],
       "description": "Phase 0.14 SVI Session Injection",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1787,
-      "lines": 65
+      "tier": "T4",
+      "sizeBytes": 1735,
+      "lines": 66
     },
     {
       "id": "svi-projection",
@@ -7774,9 +8188,9 @@
       "events": [],
       "description": "Phase 0.14 SVI Impact Projection",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2414,
-      "lines": 87
+      "tier": "T4",
+      "sizeBytes": 2340,
+      "lines": 88
     },
     {
       "id": "svi-regression-guard",
@@ -7786,9 +8200,9 @@
       "events": [],
       "description": "SVI Regression Guard Hook (Stop hook)",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3152,
-      "lines": 102
+      "tier": "T4",
+      "sizeBytes": 3063,
+      "lines": 103
     },
     {
       "id": "svi-watch-refresh",
@@ -7798,9 +8212,9 @@
       "events": [],
       "description": "Phase 0.14 SVI Watch Refresh",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2168,
-      "lines": 82
+      "tier": "T4",
+      "sizeBytes": 2099,
+      "lines": 83
     },
     {
       "id": "sx-gate",
@@ -7810,9 +8224,9 @@
       "events": [],
       "description": "Phase 1 Tier 5C Physics Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3756,
-      "lines": 113
+      "tier": "T4",
+      "sizeBytes": 3656,
+      "lines": 114
     },
     {
       "id": "system-viz-live-bridge",
@@ -7831,9 +8245,9 @@
       ],
       "description": "PostToolUse(Edit|Write|MultiEdit) → ping the live system-viz.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 6780,
-      "lines": 152
+      "tier": "T3",
+      "sizeBytes": 6792,
+      "lines": 153
     },
     {
       "id": "task-created-claim-guard",
@@ -7852,9 +8266,9 @@
       ],
       "description": "PreToolUse(TaskCreate) → deny duplicate task creation across chats.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 10525,
-      "lines": 223
+      "tier": "T1",
+      "sizeBytes": 10537,
+      "lines": 224
     },
     {
       "id": "task-goal-tracker",
@@ -7864,9 +8278,9 @@
       "events": [],
       "description": "DISABLED_TOKEN_REDUX_2026_04_23: short-circuited by user-approved token-reduction pass.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3163,
-      "lines": 106
+      "tier": "T2",
+      "sizeBytes": 3070,
+      "lines": 107
     },
     {
       "id": "taylor-coeff-check",
@@ -7876,9 +8290,9 @@
       "events": [],
       "description": "Phase 1 Tier 5C Physics Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3062,
-      "lines": 90
+      "tier": "T4",
+      "sizeBytes": 2985,
+      "lines": 91
     },
     {
       "id": "telemetry-autofire",
@@ -7888,9 +8302,9 @@
       "events": [],
       "description": "telemetry-autofire.mjs",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3981,
-      "lines": 123
+      "tier": "T3",
+      "sizeBytes": 3993,
+      "lines": 124
     },
     {
       "id": "terminal-title-update",
@@ -7900,9 +8314,9 @@
       "events": [],
       "description": "Auto-update terminal title with current task",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2584,
-      "lines": 94
+      "tier": "T4",
+      "sizeBytes": 2503,
+      "lines": 95
     },
     {
       "id": "test-100-percent-gate",
@@ -7912,9 +8326,9 @@
       "events": [],
       "description": "Stop Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 20320,
-      "lines": 639
+      "tier": "T4",
+      "sizeBytes": 19694,
+      "lines": 640
     },
     {
       "id": "test-coverage-enforcer",
@@ -7943,9 +8357,9 @@
       ],
       "description": "PreToolUse hook for Write (new files)",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4808,
-      "lines": 166
+      "tier": "T1",
+      "sizeBytes": 4655,
+      "lines": 167
     },
     {
       "id": "test-legitimacy",
@@ -7974,9 +8388,9 @@
       ],
       "description": "Phase 1 Tier 5D Workflow Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4779,
-      "lines": 138
+      "tier": "T0",
+      "sizeBytes": 4654,
+      "lines": 139
     },
     {
       "id": "text-to-cad-validation",
@@ -7986,9 +8400,9 @@
       "events": [],
       "description": "PostToolUse hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2452,
-      "lines": 77
+      "tier": "T3",
+      "sizeBytes": 2388,
+      "lines": 78
     },
     {
       "id": "tier1-context-pack",
@@ -8001,24 +8415,23 @@
           "matcher": "",
           "timeout": 3000,
           "type": "command",
-          "layer": "project",
+          "layer": "user",
           "disabled": false
         },
         {
           "event": "SessionStart",
           "matcher": "",
-          "timeout": null,
+          "timeout": 3000,
           "type": "command",
-          "layer": "user",
-          "disabled": false,
-          "viaBundle": "sessionstart-bundle"
+          "layer": "project",
+          "disabled": false
         }
       ],
       "description": "U-CTX01 Tier-1 Always-On Context Pack",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 7552,
-      "lines": 268
+      "tier": "T4",
+      "sizeBytes": 7297,
+      "lines": 269
     },
     {
       "id": "tier1-data-refresh",
@@ -8028,9 +8441,9 @@
       "events": [],
       "description": "Refresh Tier-1 data sources before session_start_tier1_bolster",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3339,
-      "lines": 91
+      "tier": "T4",
+      "sizeBytes": 3261,
+      "lines": 92
     },
     {
       "id": "token-budget-gate",
@@ -8057,9 +8470,9 @@
       ],
       "description": "Token Budget Awareness Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3198,
-      "lines": 95
+      "tier": "T2",
+      "sizeBytes": 3116,
+      "lines": 96
     },
     {
       "id": "tolerance-stack-guard",
@@ -8069,9 +8482,9 @@
       "events": [],
       "description": "PostToolUse hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3149,
-      "lines": 89
+      "tier": "T3",
+      "sizeBytes": 3073,
+      "lines": 90
     },
     {
       "id": "tool-pattern-learner",
@@ -8081,9 +8494,9 @@
       "events": [],
       "description": "PostToolUse (all tools)",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4377,
-      "lines": 129
+      "tier": "T3",
+      "sizeBytes": 4261,
+      "lines": 130
     },
     {
       "id": "tool-watchdog",
@@ -8108,13 +8521,85 @@
           "layer": "user",
           "disabled": false,
           "viaBundle": "posttool-edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Bash",
+          "timeout": null,
+          "type": "command",
+          "layer": "user",
+          "disabled": false,
+          "viaBundle": "bash-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Bash",
+          "timeout": null,
+          "type": "command",
+          "layer": "project",
+          "disabled": false,
+          "viaBundle": "bash-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "user",
+          "disabled": false,
+          "viaBundle": "edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "project",
+          "disabled": false,
+          "viaBundle": "edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "user",
+          "disabled": false,
+          "viaBundle": "posttool-edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "project",
+          "disabled": false,
+          "viaBundle": "posttool-edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Read",
+          "timeout": null,
+          "type": "command",
+          "layer": "user",
+          "disabled": false,
+          "viaBundle": "read-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Read",
+          "timeout": null,
+          "type": "command",
+          "layer": "project",
+          "disabled": false,
+          "viaBundle": "read-bundle"
         }
       ],
-      "description": "HS-12 tool-call runtime monitor.",
+      "description": "HS-12 + HS-15 tool-call runtime monitor.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3901,
-      "lines": 112
+      "tier": "T3",
+      "sizeBytes": 9152,
+      "lines": 220
     },
     {
       "id": "training-convergence-guard",
@@ -8124,9 +8609,9 @@
       "events": [],
       "description": "PostToolUse hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2809,
-      "lines": 74
+      "tier": "T4",
+      "sizeBytes": 2748,
+      "lines": 75
     },
     {
       "id": "tribal-autowire",
@@ -8150,13 +8635,31 @@
           "layer": "user",
           "disabled": false,
           "viaBundle": "posttool-edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "user",
+          "disabled": false,
+          "viaBundle": "posttool-edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "project",
+          "disabled": false,
+          "viaBundle": "posttool-edit-bundle"
         }
       ],
       "description": "L6 of TRIBAL × AI",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1951,
-      "lines": 60
+      "tier": "T4",
+      "sizeBytes": 1963,
+      "lines": 61
     },
     {
       "id": "tribal-inject-on-edit",
@@ -8185,9 +8688,9 @@
       ],
       "description": "L4 of TRIBAL × AI",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4101,
-      "lines": 113
+      "tier": "T1",
+      "sizeBytes": 4113,
+      "lines": 114
     },
     {
       "id": "tribal-spike",
@@ -8205,7 +8708,7 @@
         },
         {
           "event": "PreToolUse",
-          "matcher": ".*",
+          "matcher": "^(Bash|Edit|Write|MultiEdit|NotebookEdit|Agent|Task|TaskCreate|Skill|mcp__.*)$",
           "timeout": 1000,
           "type": "command",
           "layer": "project",
@@ -8214,9 +8717,9 @@
       ],
       "description": "Tribal Spike",
       "descriptionInferred": true,
-      "tier": null,
-      "sizeBytes": 1148,
-      "lines": 30
+      "tier": "T1",
+      "sizeBytes": 1160,
+      "lines": 31
     },
     {
       "id": "try-before-asking",
@@ -8226,9 +8729,9 @@
       "events": [],
       "description": "UserPromptSubmit Stop Hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 1919,
-      "lines": 56
+      "tier": "T1",
+      "sizeBytes": 1876,
+      "lines": 57
     },
     {
       "id": "tsc-baseline-regression-gate",
@@ -8238,9 +8741,9 @@
       "events": [],
       "description": "PreToolUse hook on Bash.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 8300,
-      "lines": 266
+      "tier": "T0",
+      "sizeBytes": 8047,
+      "lines": 267
     },
     {
       "id": "tsc-error-dedup",
@@ -8250,7 +8753,7 @@
       "events": [
         {
           "event": "PostToolUse",
-          "matcher": "Bash|Read",
+          "matcher": "Bash",
           "timeout": 2000,
           "type": "command",
           "layer": "project",
@@ -8268,9 +8771,9 @@
       ],
       "description": "PostToolUse Bash hook.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3837,
-      "lines": 109
+      "tier": "T3",
+      "sizeBytes": 3849,
+      "lines": 110
     },
     {
       "id": "type-safety-checker",
@@ -8299,9 +8802,9 @@
       ],
       "description": "PreToolUse hook for Edit/Write/MultiEdit",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 7110,
-      "lines": 237
+      "tier": "T1",
+      "sizeBytes": 6886,
+      "lines": 238
     },
     {
       "id": "unified-edit-tap",
@@ -8325,13 +8828,31 @@
           "layer": "user",
           "disabled": false,
           "viaBundle": "posttool-edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "user",
+          "disabled": false,
+          "viaBundle": "posttool-edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "project",
+          "disabled": false,
+          "viaBundle": "posttool-edit-bundle"
         }
       ],
       "description": "PRISM-STAB-MS0/U-D2 (2026-05-10).",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2098,
-      "lines": 69
+      "tier": "T3",
+      "sizeBytes": 2110,
+      "lines": 70
     },
     {
       "id": "unified-local-validation",
@@ -8341,9 +8862,9 @@
       "events": [],
       "description": "PreToolUse hook for Edit/Write/MultiEdit",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 5340,
-      "lines": 151
+      "tier": "T1",
+      "sizeBytes": 5202,
+      "lines": 152
     },
     {
       "id": "unknown-cad-extensions-surface",
@@ -8353,9 +8874,9 @@
       "events": [],
       "description": "U-CUC04 SessionStart hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2514,
-      "lines": 80
+      "tier": "T4",
+      "sizeBytes": 2447,
+      "lines": 81
     },
     {
       "id": "user-prompt-submit-p1",
@@ -8365,9 +8886,9 @@
       "events": [],
       "description": "Phase 1 Tier 0",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2135,
-      "lines": 71
+      "tier": "T4",
+      "sizeBytes": 2147,
+      "lines": 72
     },
     {
       "id": "vitest-output-condenser",
@@ -8377,7 +8898,7 @@
       "events": [
         {
           "event": "PostToolUse",
-          "matcher": "Bash|Read",
+          "matcher": "Bash",
           "timeout": 2000,
           "type": "command",
           "layer": "project",
@@ -8395,9 +8916,9 @@
       ],
       "description": "PostToolUse Bash hook.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 3569,
-      "lines": 100
+      "tier": "T3",
+      "sizeBytes": 3581,
+      "lines": 101
     },
     {
       "id": "volume-delta-alert",
@@ -8407,9 +8928,9 @@
       "events": [],
       "description": "U-CUC06 PostToolUse hook",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 5107,
-      "lines": 182
+      "tier": "T3",
+      "sizeBytes": 5119,
+      "lines": 183
     },
     {
       "id": "warn-redundant-read",
@@ -8419,9 +8940,9 @@
       "events": [],
       "description": "PreToolUse hook (Read only)",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2748,
-      "lines": 99
+      "tier": "T1",
+      "sizeBytes": 2662,
+      "lines": 100
     },
     {
       "id": "wiki-link-suggest",
@@ -8431,9 +8952,9 @@
       "events": [],
       "description": "PostToolUse hook for memory/wiki writes",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 11507,
-      "lines": 274
+      "tier": "T3",
+      "sizeBytes": 11246,
+      "lines": 275
     },
     {
       "id": "wiki-precheck-inject",
@@ -8443,9 +8964,9 @@
       "events": [],
       "description": "UserPromptSubmit hook.",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 11901,
-      "lines": 254
+      "tier": "T4",
+      "sizeBytes": 11913,
+      "lines": 255
     },
     {
       "id": "wiki-recall-on-read",
@@ -8455,9 +8976,9 @@
       "events": [],
       "description": "PostToolUse hook (matcher: Read).",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 7580,
-      "lines": 144
+      "tier": "T3",
+      "sizeBytes": 7592,
+      "lines": 145
     },
     {
       "id": "work-broadcast",
@@ -8467,9 +8988,9 @@
       "events": [],
       "description": "Cross-Session Work Broadcasting",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 4674,
-      "lines": 176
+      "tier": "T4",
+      "sizeBytes": 4511,
+      "lines": 177
     },
     {
       "id": "work-claim",
@@ -8498,9 +9019,9 @@
       ],
       "description": "Claim Work Before Starting",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 7612,
-      "lines": 249
+      "tier": "T1",
+      "sizeBytes": 7376,
+      "lines": 250
     },
     {
       "id": "working-set-awareness",
@@ -8510,9 +9031,9 @@
       "events": [],
       "description": "Working Set Awareness — PreToolUse Hook (Write/Edit)",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2580,
-      "lines": 97
+      "tier": "T1",
+      "sizeBytes": 2592,
+      "lines": 98
     },
     {
       "id": "worktree-commit-route",
@@ -8541,9 +9062,9 @@
       ],
       "description": "PreToolUse(Bash) worktree-routing enforcement",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 22455,
-      "lines": 529
+      "tier": "T0",
+      "sizeBytes": 21939,
+      "lines": 530
     },
     {
       "id": "write-import-check",
@@ -8567,13 +9088,31 @@
           "layer": "user",
           "disabled": false,
           "viaBundle": "posttool-edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "user",
+          "disabled": false,
+          "viaBundle": "posttool-edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "project",
+          "disabled": false,
+          "viaBundle": "posttool-edit-bundle"
         }
       ],
       "description": "PostToolUse Write",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2737,
-      "lines": 97
+      "tier": "T3",
+      "sizeBytes": 2653,
+      "lines": 98
     },
     {
       "id": "write-tracker",
@@ -8597,13 +9136,31 @@
           "layer": "user",
           "disabled": false,
           "viaBundle": "posttool-edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "user",
+          "disabled": false,
+          "viaBundle": "posttool-edit-bundle"
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "Edit|Write|MultiEdit",
+          "timeout": null,
+          "type": "command",
+          "layer": "project",
+          "disabled": false,
+          "viaBundle": "posttool-edit-bundle"
         }
       ],
       "description": "PostToolUse Write/Edit",
       "descriptionInferred": false,
-      "tier": null,
-      "sizeBytes": 2010,
-      "lines": 72
+      "tier": "T3",
+      "sizeBytes": 1951,
+      "lines": 73
     }
   ],
   "skipped": []

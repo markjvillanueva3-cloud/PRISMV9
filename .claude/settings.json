@@ -273,8 +273,8 @@
           },
           {
             "type": "command",
-            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/git-sync-stop.mjs",
-            "timeout": 8000
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/helpers/async-hook-enqueue.mjs --hook H:/prism/.claude/hooks/git-sync-stop.mjs --tier T4 --event Stop",
+            "timeout": 2000
           },
           {
             "type": "command",
@@ -619,7 +619,7 @@
         ]
       },
       {
-        "matcher": ".*",
+        "matcher": "^(Bash|Edit|Write|MultiEdit|NotebookEdit|Agent|Task|TaskCreate|Skill|mcp__.*)$",
         "hooks": [
           {
             "type": "command",
@@ -703,7 +703,7 @@
     ],
     "PostToolUse": [
       {
-        "matcher": "",
+        "matcher": "^(Bash|Edit|Write|MultiEdit|NotebookEdit|Agent|Task|TaskCreate|Skill|mcp__.*)$",
         "hooks": [
           {
             "type": "command",
@@ -724,6 +724,16 @@
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/post-tool-batch-budget.mjs",
             "timeout": 1500
+          }
+        ]
+      },
+      {
+        "matcher": "^(Read|Glob|Grep)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/precompact-auto-trigger.mjs --post",
+            "timeout": 2000
           }
         ]
       },
@@ -848,7 +858,7 @@
         ]
       },
       {
-        "matcher": "Bash|Read",
+        "matcher": "Bash",
         "hooks": [
           {
             "type": "command",
