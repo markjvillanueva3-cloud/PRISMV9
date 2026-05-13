@@ -7,10 +7,10 @@
   "priority": "P0",
   "owner": "claude-7f79dd78",
   "created_at": "2026-05-13T18:00:00.000Z",
-  "updated_at": "2026-05-13T22:05:00.000Z",
+  "updated_at": "2026-05-13T23:10:00.000Z",
   "status": "in_progress",
   "total_units": 73,
-  "completed_units": 21,
+  "completed_units": 26,
   "dependencies": [
     "HOOK-SYNERGY-MS0 (H4 envelope, H7 async dispatch, H8 coord_sqlite)",
     "OBSIDIAN-PRISM-OS-MS0 (master-index surface, awareness stack, orphan-inventory)"
@@ -599,9 +599,11 @@
         {
           "id": "U-CLEANUP-G19",
           "title": "G19 — build-system-viz-livediff.mjs (R4-P2-13): hourly diff system-graph.json vs system-graph.previous.json (substrate exists); writes state/shared/SYSTEM_VIZ_LIVEDIFF.md per-hour node/edge delta; operator surface",
-          "status": "not_started",
+          "status": "complete",
           "estimated_hours": 1,
-          "dependencies": []
+          "dependencies": [],
+          "completedAt": "2026-05-13T23:10:00.000Z",
+          "completion_notes": "Shipped scripts/build-system-viz-livediff.mjs (~500 LOC, exports parseArgs/loadGraph/diffNodes/diffEdges/diffHeadline/buildLayerBreakdown/composeDiffReport/buildLiveDiff/renderMarkdown/writeAtomic/runCli) + scripts/__tests__/build-system-viz-livediff.test.mjs (63 tests, all green). Per-file 2-parallel-agent scrutiny ran on both files (code-analyzer + reviewer × 2 rounds). Reviewer-B FAIL cleared after applying TOCTOU retry on previous.json (250ms default, mitigates regen mid-write race), path.isAbsolute() (replaces brittle includes(':') heuristic, supports UNC), undefined-id node-key synthesis (__noid:layer:label), sample-sort stability (composeDiffReport now sorts samples for byte-stable headline-history downstream), PID+ts+random tmp suffix in writeAtomic (concurrent-write safe), and emptyReportShape() spread on ok:false branches (downstream consumer key invariant). Real-data run on 2× 65 MB graphs at --max-old-space-size=2048: nodes Δ=+0/-0/~321, edges Δ=+0/-0 (321 status/tier/businessValue transitions). Linter auto-improved DEFAULT_REPO to derive from script location (works from forked worktrees per conflict-fork rule)."
         }
       ]
     },
@@ -704,9 +706,10 @@
         {
           "id": "U-CLEANUP-TZ-HELPER",
           "title": "tz-sanity.mjs helper (asserts JSONL writes are UTC-suffixed Z; dashboards add <!-- timeBasis: UTC --> header; F4 displays both UTC + local)",
-          "status": "not_started",
+          "status": "complete",
           "estimated_hours": 0.5,
-          "dependencies": []
+          "dependencies": [],
+          "completed_at": "2026-05-13T23:13:06.065Z"
         },
         {
           "id": "U-CLEANUP-SCHEMA-READER",
@@ -822,5 +825,5 @@
   "worktree": "H:/prism-golf-watchdog (branch: work/golf-watchdog-ms0)",
   "spec_iterations": 4,
   "operator_directive": "User asked to /loop scrutiny rounds until saturated; 152 cumulative findings across 3 rounds integrated; locked scope at 57 units (1 complete, 56 to build, 1 deferred)",
-  "last_updated": "2026-05-13T18:32:13.082Z"
+  "last_updated": "2026-05-13T23:13:06.066Z"
 }
