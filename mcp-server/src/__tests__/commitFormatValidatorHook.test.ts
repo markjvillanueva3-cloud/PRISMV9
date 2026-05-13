@@ -76,6 +76,17 @@ describe("isValidSubject — rejects non-canonical forms", () => {
     const longTail = "a".repeat(250);
     expect(isValidSubject(`[CAD-INFRA-MS0]/U-CINF12: ${longTail}`)).toBe(false);
   });
+
+  it("rejects [SCOPE]: title without /U-ID — codex round-2 P0 fix", () => {
+    // Pre-fix: regex made /U-ID optional, accepting [SCOPE]: title.
+    // PRISM convention requires the unit ID — codex flagged the looseness.
+    expect(isValidSubject("[CAD-INFRA-MS0]: missing unit id")).toBe(false);
+    expect(isValidSubject("[MAIN] [BP-MS0]: also missing")).toBe(false);
+  });
+
+  it("accepts [SCOPE]/U-ID: title — the convention", () => {
+    expect(isValidSubject("[CAD-INFRA-MS0]/U-CINF12: with unit id")).toBe(true);
+  });
 });
 
 describe("extractCommitSubject — extracts -m subjects from git commands", () => {
@@ -123,17 +134,18 @@ EOF
 });
 
 describe("integration: extracted subject feeds back into validator", () => {
-  it("canonical commit command produces a valid subject", () => {
+  it("canonical commit command produces the exact subject and validates true", () => {
     const cmd = `git commit -m "[CAD-INFRA-MS0]/U-CINF12: thin facade for spec aliases"`;
     const subject = extractCommitSubject(cmd);
-    expect(subject === null).toBe(false);
-    expect(isValidSubject(subject!)).toBe(true);
+    // Exact-string assertion replaces `=== null).toBe(false)` — codex round-2 fix
+    expect(subject).toBe("[CAD-INFRA-MS0]/U-CINF12: thin facade for spec aliases");
+    expect(isValidSubject(subject as string)).toBe(true);
   });
 
-  it("non-canonical commit command produces an invalid subject", () => {
+  it("non-canonical commit command extracts the exact subject and validates false", () => {
     const cmd = `git commit -m "fix bug in tests"`;
     const subject = extractCommitSubject(cmd);
-    expect(subject === null).toBe(false);
-    expect(isValidSubject(subject!)).toBe(false);
+    expect(subject).toBe("fix bug in tests");
+    expect(isValidSubject(subject as string)).toBe(false);
   });
 });

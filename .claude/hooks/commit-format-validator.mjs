@@ -33,14 +33,15 @@ const ENABLED = process.env.PRISM_COMMIT_FORMAT_VALIDATOR !== "0";
  * Recognized PRISM commit subject:
  *   - Optional [MAIN] or other top-level qualifier in brackets
  *   - Required [SCOPE-MS#] in brackets (SCOPE uppercase + optional -MS#)
- *   - Required /U-ID
+ *   - REQUIRED /U-ID (was optional in v1 — codex 3-of-3 round 2 caught the
+ *     looseness; PRISM convention is "[SCOPE]/U-ID: title", not "[SCOPE]: title")
  *   - Required ": title"
  *   - Subject prefix `Revert "...` is also accepted (revert commits)
  *
  * Captures: { topPrefix?, scope, unitId, title }
  */
 const SUBJECT_RE =
-  /^(\[[A-Z][A-Z0-9_-]*\]\s+)?\[[A-Z][A-Z0-9_-]*\](?:\/[A-Z]+(?:-[A-Z0-9_]+)*)?:\s+\S.+$/;
+  /^(\[[A-Z][A-Z0-9_-]*\]\s+)?\[[A-Z][A-Z0-9_-]*\]\/[A-Z]+(?:-[A-Z0-9_]+)*:\s+\S.+$/;
 
 const REVERT_RE = /^Revert\s+".+"$/;
 
