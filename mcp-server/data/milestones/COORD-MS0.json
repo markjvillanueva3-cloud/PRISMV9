@@ -1,0 +1,122 @@
+{
+  "id": "COORD-MS0",
+  "title": "Cross-Session Coordination Enhancement — 5-Agent Audit Implementation",
+  "track": "INFRA",
+  "version": "1.0.0",
+  "created_at": "2026-04-18",
+  "scrutiny_source": "5-agent audit (Systems Architect, Distributed Systems, DX, Security, Performance)",
+  "description": "Implement comprehensive improvements from 5-agent audit covering architecture, distributed systems, developer experience, security, and performance.",
+  "units": [
+    {
+      "id": "U-COORD01",
+      "title": "Create AGENT_COORDINATION_SUMMARY.json (<5KB)",
+      "phase": "Foundation",
+      "status": "pending",
+      "description": "Create lightweight summary file for fast reads instead of parsing 155KB on every prompt",
+      "deliverables": ["AGENT_COORDINATION_SUMMARY.json schema", "Summary generator in daemon", "Update session-awareness-inject.mjs to read summary"],
+      "audit_source": "Performance Engineer"
+    },
+    {
+      "id": "U-COORD02",
+      "title": "Add Optimistic Locking with Version Field",
+      "phase": "Foundation",
+      "status": "pending",
+      "description": "Add version field to AtomicClaimBrokerEngine, reject writes where version != expected",
+      "deliverables": ["Version field in ClaimRegistry schema", "CAS validation on write", "Tests for concurrent write rejection"],
+      "audit_source": "Distributed Systems Engineer"
+    },
+    {
+      "id": "U-COORD03",
+      "title": "PID Liveness Check Before Claim Theft",
+      "phase": "Foundation",
+      "status": "pending",
+      "description": "Verify process exists via process.kill(pid, 0) before stealing claims",
+      "deliverables": ["isProcessAlive() function", "Integration in acquireClaim()", "Windows compatibility testing"],
+      "audit_source": "Security Analyst"
+    },
+    {
+      "id": "U-COORD04",
+      "title": "CrossSessionOrchestratorEngine — Unified Facade",
+      "phase": "Integration",
+      "status": "pending",
+      "description": "Create unified orchestration facade over AtomicClaimBroker, CrossTerminalBroadcast, SessionHandoffV2",
+      "deliverables": ["CrossSessionOrchestratorEngine.ts", "Unified API", "Wire to existing engines"],
+      "audit_source": "Systems Architect"
+    },
+    {
+      "id": "U-COORD05",
+      "title": "Wire Orchestrator to Hook System",
+      "phase": "Integration",
+      "status": "pending",
+      "description": "Connect orchestrator to PreToolUse/PostToolUse events for cross-session awareness",
+      "deliverables": ["cross-session-orchestrator.mjs hook", "Event emission on claim/release", "Safety check integration"],
+      "audit_source": "Systems Architect"
+    },
+    {
+      "id": "U-COORD06",
+      "title": "Startup Banner — Session Count Display",
+      "phase": "Integration",
+      "status": "pending",
+      "description": "Show 'Connected to coordination daemon (N sessions online)' on SessionStart",
+      "deliverables": ["coordination-status-banner.mjs hook", "Offline detection", "First-run hint for /who"],
+      "audit_source": "Developer Experience"
+    },
+    {
+      "id": "U-COORD07",
+      "title": "Add /sessions Command (Alias for /who)",
+      "phase": "UX",
+      "status": "complete",
+      "completed_at": "2026-05-13T15:45:00Z",
+      "completed_by": "claude-de9949da",
+      "ship_notes": "Deliverable `H:/.claude/commands/sessions.md` already present (frontmatter `name: sessions`, body explicitly tagged `(U-COORD07)` and labelled `Alias for /who`). Verified deliverable list: (1) H:/.claude/commands/sessions.md exists; (2) skill body links to /who via 'Alias for `/who`' line. Skill references AGENT_COORDINATION_SUMMARY.json (the <5KB U-COORD01 surface, verified present at state/shared/AGENT_COORDINATION_SUMMARY.json, 1142 bytes). roadmap-index.json already marks COORD-MS0 status=complete (completed_at=2026-04-18) but envelope drifted with all unit statuses left at pending — this close-out reconciles U-COORD07 only (peer 11 units left for separate close-out per stay-in-lane). Envelope drift retire path: this commit + sibling per-unit close-outs.",
+      "description": "More intuitive naming for session listing",
+      "deliverables": ["H:/.claude/commands/sessions.md", "Link to /who implementation"],
+      "audit_source": "Developer Experience"
+    },
+    {
+      "id": "U-COORD08",
+      "title": "Add /broadcast Command",
+      "phase": "UX",
+      "status": "pending",
+      "description": "Send message to all other active sessions",
+      "deliverables": ["H:/.claude/commands/broadcast.md", "Integration with CrossTerminalBroadcastEngine", "Message delivery confirmation"],
+      "audit_source": "Developer Experience"
+    },
+    {
+      "id": "U-COORD09",
+      "title": "Ambient Awareness Badge",
+      "phase": "UX",
+      "status": "pending",
+      "description": "Show '(N online)' inline instead of multiline injection",
+      "deliverables": ["Update session-awareness-inject.mjs", "Compact format option", "Context token reduction"],
+      "audit_source": "Developer Experience + Performance"
+    },
+    {
+      "id": "U-COORD10",
+      "title": "Active Zombie Reaper Daemon",
+      "phase": "Reliability",
+      "status": "pending",
+      "description": "Periodic cleanup every 60s for orphaned locks and stale claims",
+      "deliverables": ["Reaper interval in agent-coordination-daemon.mjs", "Lock cleanup", "Claim cleanup"],
+      "audit_source": "Security Analyst"
+    },
+    {
+      "id": "U-COORD11",
+      "title": "IPC for Hook Queries",
+      "phase": "Reliability",
+      "status": "pending",
+      "description": "Query daemon via named pipe instead of file I/O for <5ms latency",
+      "deliverables": ["Named pipe server in daemon", "IPC client for hooks", "Fallback to file if pipe unavailable"],
+      "audit_source": "Performance Engineer"
+    },
+    {
+      "id": "U-COORD12",
+      "title": "Checksum Validation on Read",
+      "phase": "Reliability",
+      "status": "pending",
+      "description": "Verify checksums when loading claims, not just generate",
+      "deliverables": ["verifyChecksum() function", "Integration in readRegistry()", "Tampering detection logging"],
+      "audit_source": "Security Analyst"
+    }
+  ]
+}

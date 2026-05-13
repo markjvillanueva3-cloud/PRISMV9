@@ -1,6 +1,6 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-13T15:19:44.880Z
+> Generated: 2026-05-13T15:45:14.476Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
@@ -284,7 +284,7 @@
 
 ## COVERAGE_BY_DOMAIN
 
-Per-domain wired/unwired breakdown across 926 domain prefixes.
+Per-domain wired/unwired breakdown across 927 domain prefixes.
 
 | Domain | Total | Wired | Unwired | Coverage % |
 |--------|-------|-------|---------|-----------|
@@ -311,7 +311,7 @@ Per-domain wired/unwired breakdown across 926 domain prefixes.
 | Mastercam | 28 | 23 | 5 | 82% |
 | Tribal | 12 | 7 | 5 | 58% |
 | Mobile | 6 | 1 | 5 | 17% |
-| Mill | 21 | 17 | 4 | 81% |
+| Mill | 22 | 18 | 4 | 82% |
 | Inventor | 12 | 8 | 4 | 67% |
 | Okuma | 12 | 8 | 4 | 67% |
 | Master | 10 | 6 | 4 | 60% |
