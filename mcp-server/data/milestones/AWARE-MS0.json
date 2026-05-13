@@ -1,0 +1,95 @@
+{
+  "id": "AWARE-MS0",
+  "title": "Mandatory Self-Awareness Enforcement — Auto-Check PRISM Inventory Before All Internal Operations",
+  "track": "AI-CORE",
+  "version": "1.0.0",
+  "created_at": "2026-04-18",
+  "priority": "P0",
+  "description": "Enforce that ALL requests to build, audit, or investigate internally MUST check PRISM inventory, master index, and utilize self-awareness + AI capabilities. No duplicate creation, no reinventing wheels.",
+  "policy": {
+    "triggers": ["build", "create", "audit", "investigate", "analyze", "implement", "add engine", "new feature"],
+    "mandatory_checks": [
+      "BASELINE_INVENTORY.json — current asset counts",
+      "MASTER_INDEX_COMPACT.md — engine/algorithm/formula locations",
+      "PRISMSelfAwarenessEngine — searchAIFeatures(), recommendAIFeatures()",
+      "DuplicationGuardEngine — mustCheckBeforeCreating()",
+      "cross-session-asset-registry.json — what other sessions created"
+    ],
+    "hard_blocks": [
+      "Creating without /dedup check → BLOCKED",
+      "Building engine that exists → BLOCKED",
+      "Ignoring AI feature recommendations → WARNING"
+    ]
+  },
+  "units": [
+    {
+      "id": "U-AWARE01",
+      "title": "PreToolUse Hook — Build/Create Detection",
+      "phase": "Detection",
+      "status": "pending",
+      "description": "Hook that intercepts tool calls related to building/creating and triggers mandatory checks",
+      "deliverables": ["build-create-detector.mjs", "Pattern matching for create/build intents", "Integration with settings.json"],
+      "triggers": ["Write to engines/", "Write to algorithms/", "Write to hooks/"]
+    },
+    {
+      "id": "U-AWARE02",
+      "title": "Inventory Check Guard Hook",
+      "phase": "Enforcement",
+      "status": "complete",
+      "completed_at": "2026-05-13T13:55:00Z",
+      "completed_by": "claude-7f79dd78",
+      "description": "Reads BASELINE_INVENTORY.json and injects current counts before any build operation",
+      "deliverables": ["inventory-check-guard.mjs", "Compact inventory summary injection", "Warning if creating in saturated category"],
+      "ship_notes": "Hook at .claude/hooks/inventory-check-guard.mjs covers all 3 deliverables: reads BASELINE_INVENTORY.json + injects compact 1-line inventory + emits saturation warning when user prompt names a category whose count exceeds SATURATION_THRESHOLDS (engines>3000, dispatchers>100, actions>7500, algorithms>25, hooks>70, skills>500). Saturation detector covered by 17 vitest cases in inventoryCheckGuardSaturation.test.ts (input guards, threshold gating, word-boundary regex, defensive numeric coercion, structural invariants)."
+    },
+    {
+      "id": "U-AWARE03",
+      "title": "Master Index Search Gate Hook",
+      "phase": "Enforcement",
+      "status": "pending",
+      "description": "Auto-searches MASTER_INDEX_COMPACT.md for similar assets before creation",
+      "deliverables": ["master-index-search-gate.mjs", "Fuzzy matching for proposed name", "Similar asset warning injection"]
+    },
+    {
+      "id": "U-AWARE04",
+      "title": "Enhanced Self-Awareness Injection",
+      "phase": "AI Integration",
+      "status": "pending",
+      "description": "Enhance session-awareness to always inject AI feature recommendations for build/audit tasks",
+      "deliverables": ["Update self-awareness-inject hooks", "PRISMSelfAwarenessEngine.recommendAIFeatures() call", "Contextual AI capability hints"]
+    },
+    {
+      "id": "U-AWARE05",
+      "title": "Auto /dedup Invocation",
+      "phase": "Automation",
+      "status": "pending",
+      "description": "Automatically invoke /dedup logic (without requiring user to type command) when build intent detected",
+      "deliverables": ["dedup-auto-invoke.mjs hook", "Silent dedup check", "Block if duplicate found with existing asset path"]
+    },
+    {
+      "id": "U-AWARE06",
+      "title": "AI Feature Recommendation Injection",
+      "phase": "AI Integration",
+      "status": "pending",
+      "description": "Inject recommended AI engines/features based on task context",
+      "deliverables": ["ai-feature-recommend.mjs hook", "Task classification", "Relevant engine suggestions"],
+      "example_output": "For 'optimize cutting params': recommend UltimateSpeedFeedEngine, AutoSpeedFeedEngine, SpeedFeedOrchestratorEngine"
+    },
+    {
+      "id": "U-AWARE07",
+      "title": "Duplication Guard Hard Block",
+      "phase": "Enforcement",
+      "status": "pending",
+      "description": "Hard block (decision: block) if DuplicationGuardEngine.mustCheckBeforeCreating() returns duplicate",
+      "deliverables": ["duplication-hard-block.mjs hook", "Block message with existing asset path", "Severity: CRITICAL"]
+    },
+    {
+      "id": "U-AWARE08",
+      "title": "Test Suite & Documentation",
+      "phase": "Validation",
+      "status": "pending",
+      "description": "Tests for all hooks + update CLAUDE.md with mandatory self-awareness protocol",
+      "deliverables": ["__tests__/self-awareness-enforcement.test.ts", "CLAUDE.md updates", "Hook behavior verification"]
+    }
+  ]
+}
