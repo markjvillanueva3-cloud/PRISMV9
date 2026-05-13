@@ -1,11 +1,11 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-12T21:41:00.004Z",
+  "generatedAt": "2026-05-13T01:57:13.835Z",
   "headline": {
-    "built_engines": 2302,
+    "built_engines": 2324,
     "built_with_wiki": 1075,
-    "needs_wiring": 883,
-    "needs_building_active_units": 3398,
+    "needs_wiring": 879,
+    "needs_building_active_units": 3397,
     "needs_frontend_merge_count": 2,
     "pending_milestones_with_activity": 3,
     "drift_milestones": 3,
@@ -19,11 +19,11 @@
     "engines_index": "H:\\prism\\mcp-server\\data\\state\\ENGINES_INDEX.json"
   },
   "BUILT": {
-    "summary": "2302/3185 engines wired (72%); 1075 wiki entries indexed.",
+    "summary": "2324/3203 engines wired (73%); 1075 wiki entries indexed.",
     "breakdown": {
-      "totalEngines": 3185,
-      "unwired": 883,
-      "wiredDirect": 2139,
+      "totalEngines": 3203,
+      "unwired": 879,
+      "wiredDirect": 2161,
       "wireExempt": 81,
       "wiredViaHook": 10,
       "wiredViaOrch": 56,
@@ -32,7 +32,7 @@
     }
   },
   "NEEDS_WIRING": {
-    "summary": "883 engines on disk with no dispatcher reference. Top domains by count:",
+    "summary": "879 engines on disk with no dispatcher reference. Top domains by count:",
     "top_domains": [
       {
         "domain": "Other",
@@ -48,7 +48,7 @@
       },
       {
         "domain": "Multi",
-        "count": 12
+        "count": 11
       },
       {
         "domain": "Turning",
@@ -155,13 +155,6 @@
         "suggestedDispatcher": "prism_skill_script",
         "mtime": "2026-03-06T13:19:48.000Z",
         "sizeKB": 17,
-        "wikiTitle": null
-      },
-      {
-        "name": "WorkholdingIntelligenceEngine",
-        "suggestedDispatcher": "prism_safety",
-        "mtime": "2026-03-06T13:19:48.000Z",
-        "sizeKB": 22,
         "wikiTitle": null
       },
       {
@@ -310,6 +303,13 @@
         "mtime": "2026-03-07T17:41:30.000Z",
         "sizeKB": 7,
         "wikiTitle": null
+      },
+      {
+        "name": "ReadOptimizerEngine",
+        "suggestedDispatcher": "prism_calc",
+        "mtime": "2026-03-07T17:48:44.000Z",
+        "sizeKB": 5,
+        "wikiTitle": null
       }
     ],
     "next_action": "Pick a top-domain bucket; wire to the matching dispatcher in batches of 5–6 engines (see U-WIRE-LATHE-BATCHN pattern). Wiki cross-refs in `wikiTitle` resolve via `/wiki-query <name>`."
@@ -365,16 +365,16 @@
       {
         "domain": "Multi",
         "total": 28,
-        "wired": 16,
-        "unwired": 12,
-        "coverage_pct": 57,
+        "wired": 17,
+        "unwired": 11,
+        "coverage_pct": 61,
         "sample_unwired": [
           "MultiAgentCoordinatorEngine",
           "MultiCamKnowledgeEngine",
           "MultiControllerCalibrationEngine",
-          "MultiModelConsensusEngine",
           "MultiObjectiveParetoEngine",
-          "MultiPathReasoningEngine"
+          "MultiPathReasoningEngine",
+          "MultiSessionHandoffCoordinatorEngine"
         ]
       },
       {
@@ -811,18 +811,6 @@
         ]
       },
       {
-        "domain": "Workholding",
-        "total": 8,
-        "wired": 5,
-        "unwired": 3,
-        "coverage_pct": 63,
-        "sample_unwired": [
-          "WorkholdingIntelligenceEngine",
-          "WorkholdingRetrofitAdvisorEngine",
-          "WorkholdingSelectionEngine"
-        ]
-      },
-      {
         "domain": "Sinker",
         "total": 7,
         "wired": 4,
@@ -1099,6 +1087,17 @@
         "sample_unwired": [
           "PowerMillAIOrchestrationEngine",
           "PowerMillStrategyEngine"
+        ]
+      },
+      {
+        "domain": "Workholding",
+        "total": 8,
+        "wired": 6,
+        "unwired": 2,
+        "coverage_pct": 75,
+        "sample_unwired": [
+          "WorkholdingRetrofitAdvisorEngine",
+          "WorkholdingSelectionEngine"
         ]
       },
       {
@@ -1407,17 +1406,6 @@
         "sample_unwired": [
           "ResponseCacheEngine",
           "ResponseTemplateEngine"
-        ]
-      },
-      {
-        "domain": "Roadmap",
-        "total": 3,
-        "wired": 1,
-        "unwired": 2,
-        "coverage_pct": 33,
-        "sample_unwired": [
-          "RoadmapDAGEngine",
-          "RoadmapIntelligenceEngine"
         ]
       },
       {
@@ -1910,6 +1898,16 @@
         ]
       },
       {
+        "domain": "Prism",
+        "total": 4,
+        "wired": 3,
+        "unwired": 1,
+        "coverage_pct": 75,
+        "sample_unwired": [
+          "PrismAddinArchitectureEngine"
+        ]
+      },
+      {
         "domain": "Real",
         "total": 4,
         "wired": 3,
@@ -2067,6 +2065,16 @@
         "coverage_pct": 67,
         "sample_unwired": [
           "ProvenSpeedFeedAggregatorEngine"
+        ]
+      },
+      {
+        "domain": "Roadmap",
+        "total": 3,
+        "wired": 2,
+        "unwired": 1,
+        "coverage_pct": 67,
+        "sample_unwired": [
+          "RoadmapDAGEngine"
         ]
       },
       {
@@ -2417,16 +2425,6 @@
         "coverage_pct": 50,
         "sample_unwired": [
           "PerformanceBudgetEngine"
-        ]
-      },
-      {
-        "domain": "Prism",
-        "total": 2,
-        "wired": 1,
-        "unwired": 1,
-        "coverage_pct": 50,
-        "sample_unwired": [
-          "PrismAddinArchitectureEngine"
         ]
       },
       {
@@ -3717,16 +3715,6 @@
         "coverage_pct": 0,
         "sample_unwired": [
           "MixerAgitatorEngine"
-        ]
-      },
-      {
-        "domain": "Moonshot",
-        "total": 1,
-        "wired": 0,
-        "unwired": 1,
-        "coverage_pct": 0,
-        "sample_unwired": [
-          "MoonshotClientEngine"
         ]
       },
       {
@@ -7392,6 +7380,14 @@
         "sample_unwired": []
       },
       {
+        "domain": "Moonshot",
+        "total": 1,
+        "wired": 1,
+        "unwired": 0,
+        "coverage_pct": 100,
+        "sample_unwired": []
+      },
+      {
         "domain": "Morris",
         "total": 1,
         "wired": 1,
@@ -9105,7 +9101,7 @@
     "next_action": "Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift."
   },
   "NEEDS_BUILDING": {
-    "summary": "3398 units across 667 milestones not yet in git.",
+    "summary": "3397 units across 667 milestones not yet in git.",
     "drift_cases": [
       {
         "id": "MF-MS1",

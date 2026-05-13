@@ -1,26 +1,26 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-12T21:41:00.004Z
+> Generated: 2026-05-13T01:57:13.835Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
 
-- **2302** engines built and wired (of 3185)
+- **2324** engines built and wired (of 3203)
 - **1075** wiki entries indexed
-- **883** engines awaiting dispatcher wiring
-- **3398** units pending across 3 active milestones
+- **879** engines awaiting dispatcher wiring
+- **3397** units pending across 3 active milestones
 - **2** codex frontend builds awaiting merge
 - **3** milestones with envelope-status drift
 
 ## BUILT
 
-2302/3185 engines wired (72%); 1075 wiki entries indexed.
+2324/3203 engines wired (73%); 1075 wiki entries indexed.
 
 ```json
 {
-  "totalEngines": 3185,
-  "unwired": 883,
-  "wiredDirect": 2139,
+  "totalEngines": 3203,
+  "unwired": 879,
+  "wiredDirect": 2161,
   "wireExempt": 81,
   "wiredViaHook": 10,
   "wiredViaOrch": 56,
@@ -31,14 +31,14 @@
 
 ## NEEDS_WIRING
 
-883 engines on disk with no dispatcher reference. Top domains by count:
+879 engines on disk with no dispatcher reference. Top domains by count:
 
 | Domain | Unwired count |
 |--------|---------------|
 | Other | 143 |
 | Lathe | 89 |
 | Machine | 17 |
-| Multi | 12 |
+| Multi | 11 |
 | Turning | 11 |
 | Tool | 10 |
 | Five | 9 |
@@ -65,7 +65,7 @@
 
 ## NEEDS_BUILDING
 
-3398 units across 667 milestones not yet in git.
+3397 units across 667 milestones not yet in git.
 
 ### Envelope-status drift
 
@@ -113,7 +113,7 @@ Per-domain wired/unwired breakdown across 925 domain prefixes.
 | Other | 594 | 451 | 143 | 76% |
 | Lathe | 186 | 97 | 89 | 52% |
 | Machine | 45 | 28 | 17 | 62% |
-| Multi | 28 | 16 | 12 | 57% |
+| Multi | 28 | 17 | 11 | 61% |
 | Turning | 24 | 13 | 11 | 54% |
 | Tool | 57 | 47 | 10 | 82% |
 | Shop | 16 | 7 | 9 | 44% |
