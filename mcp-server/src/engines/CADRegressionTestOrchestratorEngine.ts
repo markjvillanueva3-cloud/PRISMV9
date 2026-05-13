@@ -85,7 +85,14 @@ export interface FileTestResult {
  *   - ProcessPoolRunner    — spawns child_process instances (future).
  *
  * Runner must honour the AbortSignal: when signal.aborted becomes true, the
- * runner should stop work promptly and reject with `new Error("timeout")`.
+ * runner should stop work promptly. Two conventions are supported and treated
+ * equivalently by the orchestrator:
+ *   1. Reject with `new Error("timeout")` — orchestrator's try/catch classifies
+ *      the error via `signal.aborted` + /timeout/i regex (see `dispatchOne`).
+ *   2. Resolve with `{ status: "error", errorType: "timeout", ... }` — runner
+ *      has already classified the failure; orchestrator passes the result
+ *      through verbatim. CADRegressionWorkerThreadRunnerEngine takes this path.
+ * Both are valid; runners pick whichever is cleaner for their implementation.
  */
 export interface TestRunner {
   run(task: FileTask, signal: AbortSignal): Promise<FileTestResult>;

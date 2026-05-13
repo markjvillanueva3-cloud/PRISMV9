@@ -41,6 +41,46 @@ const cad_regression_load = z
   .object({ batchId: z.string().min(1), stateDir: z.string().optional() })
   .passthrough();
 
+// ── CINF04.x CADRegressionWorkerThreadRunnerEngine — smoke action ────────────
+// SECURITY: this action does NOT accept a workerScript path from callers.
+// The dispatcher uses a built-in trusted echo-worker (eval source baked into
+// the handler) so MCP clients cannot inject arbitrary worker code. The smoke
+// action exists to verify the worker-thread pool plumbing end-to-end without
+// exposing the production workerScript field over the wire.
+const cad_regression_runner_smoke = z
+  .object({
+    tasks: z
+      .array(
+        z.object({
+          fileId: z.string().min(1).describe("Unique task identifier"),
+          absolutePath: z.string().min(1).describe("File path (passed through to worker)"),
+          format: z.string().min(1).describe("File format tag, e.g. 'sldprt'"),
+          testStrategy: z.string().min(1).describe("Test strategy hint, e.g. 'part-validate'"),
+          handler: z
+            .enum(["pass", "fail", "skip"])
+            .optional()
+            .describe("Echo-worker response: pass|fail|skip (default pass)"),
+        }),
+      )
+      .min(1)
+      .max(100)
+      .describe("Tasks to run through the worker pool (max 100 per smoke call)"),
+    poolSize: z
+      .number()
+      .int()
+      .positive()
+      .max(16)
+      .optional()
+      .describe("Worker pool size for smoke run (default 2, max 16 to bound resource use)"),
+    perTaskTimeoutMs: z
+      .number()
+      .positive()
+      .max(60_000)
+      .optional()
+      .describe("Per-task timeout in ms (default 5000, max 60000)"),
+  })
+  .passthrough();
+
 // ── CINF05 CADTestCheckpointEngine ───────────────────────────────────────────
 const cad_checkpoint_save = z
   .object({ batchId: z.string().min(1), stateDir: z.string().optional() })
@@ -270,6 +310,7 @@ export const ACTION_CAD_REGRESSION_SCHEMAS: ActionSchemaMap = {
   cad_classify_one,
   cad_regression_run,
   cad_regression_load,
+  cad_regression_runner_smoke,
   cad_checkpoint_save,
   cad_checkpoint_load,
   cad_checkpoint_resume_diff,

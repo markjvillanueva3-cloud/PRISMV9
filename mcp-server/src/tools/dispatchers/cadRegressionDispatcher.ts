@@ -48,6 +48,12 @@ async function classifier(): Promise<any> {
 async function orchestrator(): Promise<any> {
   return (_orchestrator ??= (await import("../../engines/CADRegressionTestOrchestratorEngine.js")).cadRegressionTestOrchestratorEngine);
 }
+// CINF04.x lazy factory — the runner engine is NOT a singleton (each smoke
+// call constructs + terminates a fresh pool to bound resource use).
+let _runnerFactory: any;
+async function runnerFactory(): Promise<any> {
+  return (_runnerFactory ??= (await import("../../engines/CADRegressionWorkerThreadRunnerEngine.js")).createCADRegressionWorkerThreadRunner);
+}
 async function checkpoint(): Promise<any> {
   return (_checkpoint ??= (await import("../../engines/CADTestCheckpointEngine.js")).cadTestCheckpointEngine);
 }
@@ -80,6 +86,8 @@ export const ACTIONS = [
   // CINF04
   "cad_regression_run",
   "cad_regression_load",
+  // CINF04.x — WorkerThreadRunner smoke (built-in trusted echo-worker; no workerScript over the wire)
+  "cad_regression_runner_smoke",
   // CINF05
   "cad_checkpoint_save",
   "cad_checkpoint_load",
@@ -137,6 +145,42 @@ export async function routeCADRegression(action: CADRegressionAction, params: an
     case "cad_regression_run":
     case "cad_regression_load":
       return (await orchestrator()).execute(params);
+
+    // CINF04.x WorkerThreadRunner smoke — built-in echo worker (no script over the wire)
+    case "cad_regression_runner_smoke": {
+      const factory = await runnerFactory();
+      // Trusted built-in echo worker — eval source baked into the dispatcher
+      // so MCP callers never get to specify worker source code or a script
+      // path. The worker echoes whatever status the task carries via
+      // `handler` (pass|fail|skip) and respects the runId protocol.
+      const TRUSTED_ECHO_WORKER = [
+        'const { parentPort } = require("worker_threads");',
+        'parentPort.on("message", (msg) => {',
+        '  if (!msg || msg.type !== "run") return;',
+        '  const handler = msg.task && typeof msg.task.handler === "string" ? msg.task.handler : "pass";',
+        '  const errorType = handler === "fail" ? "comparison" : handler === "skip" ? "none" : "none";',
+        '  parentPort.postMessage({',
+        '    type: "result",',
+        '    runId: msg.runId,',
+        '    result: {',
+        '      fileId: msg.task.fileId,',
+        '      status: handler,',
+        '      errorType,',
+        '      durationMs: 1,',
+        '    },',
+        '  });',
+        "});",
+      ].join("\n");
+      const runner = factory({
+        workerScript: TRUSTED_ECHO_WORKER,
+        workerOpts: { eval: true },
+        poolSize: params.poolSize ?? 2,
+        perTaskTimeoutMs: params.perTaskTimeoutMs ?? 5_000,
+      });
+      // execute() runs validate() + executeImpl() which sequences through
+      // run() per-task and terminates the pool by default.
+      return runner.execute({ tasks: params.tasks, terminateAfter: true });
+    }
 
     // CINF05 Checkpoint — op-discriminated (save | load | diff)
     case "cad_checkpoint_save":

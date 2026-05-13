@@ -1,16 +1,16 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-13T16:52:47.648Z",
+  "generatedAt": "2026-05-13T17:19:49.332Z",
   "headline": {
     "built_engines": 2324,
     "built_with_wiki": 1073,
     "needs_wiring": 879,
-    "needs_building_active_units": 3717,
+    "needs_building_active_units": 3715,
     "needs_frontend_merge_count": 2,
     "pending_milestones_with_activity": 81,
     "drift_milestones": 172,
     "stale_milestones": 230,
-    "domains_tracked": 927
+    "domains_tracked": 928
   },
   "sources": {
     "unwired_audit": "H:\\prism\\state\\shared\\UNWIRED-ENGINE-AUDIT-2026-05-07.json",
@@ -315,7 +315,7 @@
     "next_action": "Pick a top-domain bucket; wire to the matching dispatcher in batches of 5–6 engines (see U-WIRE-LATHE-BATCHN pattern). Wiki cross-refs in `wikiTitle` resolve via `/wiki-query <name>`."
   },
   "COVERAGE_BY_DOMAIN": {
-    "summary": "Per-domain wired/unwired breakdown across 927 domain prefixes.",
+    "summary": "Per-domain wired/unwired breakdown across 928 domain prefixes.",
     "rows": [
       {
         "domain": "Other",
@@ -2058,6 +2058,16 @@
         ]
       },
       {
+        "domain": "Ledger",
+        "total": 3,
+        "wired": 2,
+        "unwired": 1,
+        "coverage_pct": 67,
+        "sample_unwired": [
+          "LedgerRetentionEngine"
+        ]
+      },
+      {
         "domain": "Proven",
         "total": 3,
         "wired": 2,
@@ -2385,16 +2395,6 @@
         "coverage_pct": 50,
         "sample_unwired": [
           "IntelligentSequencingAdapter"
-        ]
-      },
-      {
-        "domain": "Ledger",
-        "total": 2,
-        "wired": 1,
-        "unwired": 1,
-        "coverage_pct": 50,
-        "sample_unwired": [
-          "LedgerRetentionEngine"
         ]
       },
       {
@@ -7484,6 +7484,14 @@
         "sample_unwired": []
       },
       {
+        "domain": "Novelty",
+        "total": 1,
+        "wired": 1,
+        "unwired": 0,
+        "coverage_pct": 100,
+        "sample_unwired": []
+      },
+      {
         "domain": "Nozzle",
         "total": 1,
         "wired": 1,
@@ -9117,7 +9125,7 @@
     "next_action": "Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift."
   },
   "NEEDS_BUILDING": {
-    "summary": "3717 units across 670 milestones not yet in git.",
+    "summary": "3715 units across 670 milestones not yet in git.",
     "drift_cases": [
       {
         "id": "CC-EXT-MS0",
@@ -10154,28 +10162,28 @@
     ],
     "top_pending_units": [
       {
-        "milestone": "COORD-MS0",
-        "unit": "U-COORD01",
-        "title": "Create AGENT_COORDINATION_SUMMARY.json (<5KB)",
-        "phase": ""
+        "milestone": "TRAINING-LEARNING-MS0",
+        "unit": "U-TL-U1-LATHE-TEMPLATE-EXTRACTOR",
+        "title": "LathePartFamilyTemplateExtractorEngine + corpus scanner",
+        "phase": "lathe"
       },
       {
-        "milestone": "COORD-MS0",
-        "unit": "U-COORD02",
-        "title": "Add Optimistic Locking with Version Field",
-        "phase": ""
+        "milestone": "TRAINING-LEARNING-MS0",
+        "unit": "U-TL-U4-WEDM-TEMPLATE-EXTRACTOR-AND-BRIDGE",
+        "title": "WEDMPartFamilyTemplateExtractorEngine + TaptiteElectrodeMacroBridgeEngine (parsed-snapshot path)",
+        "phase": "wedm"
       },
       {
-        "milestone": "COORD-MS0",
-        "unit": "U-COORD04",
-        "title": "CrossSessionOrchestratorEngine — Unified Facade",
-        "phase": ""
+        "milestone": "TRAINING-LEARNING-MS0",
+        "unit": "U-TL-U5-DOMAIN-MATCHERS",
+        "title": "LathePartFamilyMatcherEngine + MillPartFamilyMatcherEngine + WEDMPartFamilyMatcherEngine",
+        "phase": "matchers"
       },
       {
-        "milestone": "COORD-MS0",
-        "unit": "U-COORD05",
-        "title": "Wire Orchestrator to Hook System",
-        "phase": ""
+        "milestone": "TRAINING-LEARNING-MS0",
+        "unit": "U-TL-U6-CONTINUOUS-LEARNING",
+        "title": "TrainingTemplateContinuousLearningEngine (ingestLatheOutcome / ingestMillOutcome / ingestWEDMOutcome)",
+        "phase": "closed-loop"
       },
       {
         "milestone": "CLEANUP-MS0",
@@ -10202,6 +10210,30 @@
         "phase": "bootstrap-tier-0"
       },
       {
+        "milestone": "COORD-MS0",
+        "unit": "U-COORD01",
+        "title": "Create AGENT_COORDINATION_SUMMARY.json (<5KB)",
+        "phase": ""
+      },
+      {
+        "milestone": "COORD-MS0",
+        "unit": "U-COORD02",
+        "title": "Add Optimistic Locking with Version Field",
+        "phase": ""
+      },
+      {
+        "milestone": "COORD-MS0",
+        "unit": "U-COORD04",
+        "title": "CrossSessionOrchestratorEngine — Unified Facade",
+        "phase": ""
+      },
+      {
+        "milestone": "COORD-MS0",
+        "unit": "U-COORD05",
+        "title": "Wire Orchestrator to Hook System",
+        "phase": ""
+      },
+      {
         "milestone": "AUTO-LEARNING-LOOP-MS0",
         "unit": "U-ALL02",
         "title": "Build `NoveltyDetectionEngine` (diff vs catalog)",
@@ -10224,30 +10256,6 @@
         "unit": "U-ALL05",
         "title": "Build `VizAutoAugmentationEngine` (emit augmentation file)",
         "phase": "P0"
-      },
-      {
-        "milestone": "TRAINING-LEARNING-MS0",
-        "unit": "U-TL-U1-LATHE-TEMPLATE-EXTRACTOR",
-        "title": "LathePartFamilyTemplateExtractorEngine + corpus scanner",
-        "phase": "lathe"
-      },
-      {
-        "milestone": "TRAINING-LEARNING-MS0",
-        "unit": "U-TL-U3-ELECTRODE-COVERAGE-AUDIT",
-        "title": "ElectrodeCoverageAuditEngine + phase20-electrode-coverage-audit.py (READ-ONLY against .xlsm)",
-        "phase": "electrode-audit"
-      },
-      {
-        "milestone": "TRAINING-LEARNING-MS0",
-        "unit": "U-TL-U4-WEDM-TEMPLATE-EXTRACTOR-AND-BRIDGE",
-        "title": "WEDMPartFamilyTemplateExtractorEngine + TaptiteElectrodeMacroBridgeEngine (parsed-snapshot path)",
-        "phase": "wedm"
-      },
-      {
-        "milestone": "TRAINING-LEARNING-MS0",
-        "unit": "U-TL-U5-DOMAIN-MATCHERS",
-        "title": "LathePartFamilyMatcherEngine + MillPartFamilyMatcherEngine + WEDMPartFamilyMatcherEngine",
-        "phase": "matchers"
       },
       {
         "milestone": "AI-MAX-MS0",
