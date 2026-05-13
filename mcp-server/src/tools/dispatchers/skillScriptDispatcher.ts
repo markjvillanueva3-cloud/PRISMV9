@@ -24,7 +24,8 @@ const ACTIONS = [
   "script_list", "script_get", "script_search", "script_command", "script_execute", "script_stats",
   "skill_load", "skill_recommend", "skill_analyze", "skill_chain", "skill_search_v2", "skill_stats_v2",
   "script_execute_v2", "script_queue", "script_recommend", "script_search_v2", "script_history",
-  "bundle_list", "bundle_get", "bundle_for_action", "bundle_for_domain"
+  "bundle_list", "bundle_get", "bundle_for_action", "bundle_for_domain",
+  "skill_tier_register", "skill_tier_assign", "skill_tier_classify_all", "skill_tier_list", "skill_tier_size"
 ] as const;
 
 function ok(data: any) {
@@ -508,6 +509,44 @@ export function registerSkillScriptDispatcher(server: any): void {
           case "bundle_for_domain": {
             const bundles = getBundlesForDomain(params.domain || "");
             return ok({ domain: params.domain, bundles: bundles.map(b => ({ id: b.id, name: b.name, digest: b.digest })) });
+          }
+
+          case "skill_tier_register": {
+            const { skillTierRegistryEngine } = await import("../../engines/SkillTierRegistryEngine.js");
+            const canon = skillTierRegistryEngine.register({
+              command: String(params.command),
+              description: String(params.description),
+              triggers: Array.isArray(params.triggers) ? params.triggers.map((t: unknown) => String(t)) : [],
+              tags: Array.isArray(params.tags) ? params.tags.map((t: unknown) => String(t)) : undefined,
+              explicitTier: params.explicit_tier || params.explicitTier,
+              invocationCount: typeof params.invocation_count === "number" ? params.invocation_count
+                : typeof params.invocationCount === "number" ? params.invocationCount : undefined,
+            });
+            return ok({ success: true, registered: canon, size: skillTierRegistryEngine.size() });
+          }
+
+          case "skill_tier_assign": {
+            const { skillTierRegistryEngine } = await import("../../engines/SkillTierRegistryEngine.js");
+            const assignment = skillTierRegistryEngine.assign(String(params.command));
+            return ok({ success: true, assignment });
+          }
+
+          case "skill_tier_classify_all": {
+            const { skillTierRegistryEngine } = await import("../../engines/SkillTierRegistryEngine.js");
+            const report = skillTierRegistryEngine.classifyAll();
+            return ok({ success: true, ...report });
+          }
+
+          case "skill_tier_list": {
+            const { skillTierRegistryEngine } = await import("../../engines/SkillTierRegistryEngine.js");
+            const tier = String(params.tier) as "essential" | "intermediate" | "advanced";
+            const list = skillTierRegistryEngine.listByTier(tier);
+            return ok({ success: true, tier, count: list.length, list });
+          }
+
+          case "skill_tier_size": {
+            const { skillTierRegistryEngine } = await import("../../engines/SkillTierRegistryEngine.js");
+            return ok({ success: true, size: skillTierRegistryEngine.size() });
           }
 
           default:

@@ -199,6 +199,39 @@ const bundle_for_domain = z.object({
   domain: z.string(),
 }).passthrough();
 
+// ── skill_tier_register ─────────────────────────────────────────────────────
+// Register a single skill into the SkillTierRegistryEngine for tier classification.
+const skill_tier_register = z.object({
+  command: z.string().describe("Slash command (with or without leading '/')"),
+  description: z.string().describe("Skill description"),
+  triggers: z.array(z.string()).describe("Keywords that trigger this skill"),
+  tags: z.array(z.string()).optional().describe("Optional tags"),
+  explicit_tier: z.enum(["essential", "intermediate", "advanced"]).optional()
+    .describe("Force a tier, bypassing keyword-based classification"),
+  invocation_count: z.number().int().nonnegative().optional()
+    .describe("How many times the skill has been invoked"),
+}).passthrough();
+
+// ── skill_tier_assign ───────────────────────────────────────────────────────
+// Compute tier for one previously-registered skill.
+const skill_tier_assign = z.object({
+  command: z.string().describe("Slash command of a previously-registered skill"),
+}).passthrough();
+
+// ── skill_tier_classify_all ─────────────────────────────────────────────────
+// Classify every registered skill — returns per-tier counts + sorted assignments.
+const skill_tier_classify_all = z.object({}).passthrough();
+
+// ── skill_tier_list ─────────────────────────────────────────────────────────
+// List skills currently assigned to one tier.
+const skill_tier_list = z.object({
+  tier: z.enum(["essential", "intermediate", "advanced"]).describe("Tier to list"),
+}).passthrough();
+
+// ── skill_tier_size ─────────────────────────────────────────────────────────
+// Return total registered-skill count (for monitoring registry growth).
+const skill_tier_size = z.object({}).passthrough();
+
 // ── Export ───────────────────────────────────────────────────────────────────
 export const ACTION_SKILL_SCRIPT_SCHEMAS: ActionSchemaMap = {
   skill_list,
@@ -228,4 +261,9 @@ export const ACTION_SKILL_SCRIPT_SCHEMAS: ActionSchemaMap = {
   bundle_get,
   bundle_for_action,
   bundle_for_domain,
+  skill_tier_register,
+  skill_tier_assign,
+  skill_tier_classify_all,
+  skill_tier_list,
+  skill_tier_size,
 };
