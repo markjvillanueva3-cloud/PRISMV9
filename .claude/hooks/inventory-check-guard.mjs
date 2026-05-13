@@ -34,6 +34,29 @@ const BUILD_PATTERNS = [
   /\/dedup/i,
 ];
 
+// Saturation warning is keyed to CREATE intent specifically (not audit/review/
+// investigate), because the warning text ("consider extending an existing
+// asset before creating") only makes sense for prompts that propose new
+// assets. A reader asking "audit engines" should NOT be steered away from
+// looking at the inventory.
+export const CREATE_PATTERNS = [
+  /\b(build|create|implement|add|write|make|develop|forge)\b.*\b(engine|algorithm|hook|skill|dispatcher|feature|system|action)\b/i,
+  /\bnew\s+(engine|algorithm|hook|skill|dispatcher|feature|action)\b/i,
+  /\/forge/i,
+];
+
+/**
+ * True when the prompt expresses intent to CREATE a new asset (not just
+ * audit/inspect an existing one). The saturation warning only fires when
+ * this is true — see the codex 3-of-3 review of 455d3367b.
+ * @param {string} message normalized user prompt
+ * @returns {boolean}
+ */
+export function hasCreateIntent(message) {
+  if (typeof message !== "string" || message.length === 0) return false;
+  return CREATE_PATTERNS.some((p) => p.test(message));
+}
+
 // Saturation watermarks — categories with counts above these are considered
 // saturated and any "create X" intent receives a hard look-twice warning.
 // Numbers are 10% above the BASELINE_INVENTORY.json values at the time of
@@ -73,7 +96,11 @@ export function detectSaturatedCategories(inv, message) {
   const hits = [];
   for (const { key, re } of CATEGORY_INTENT) {
     if (!re.test(message)) continue;
-    const count = Number(inv[key] ?? 0);
+    // Coerce non-finite/non-numeric inventory values to 0 explicitly. Without
+    // this, `Number("not-a-number")` yields NaN and `NaN > threshold` is
+    // false — same end behavior but the contract should be honest.
+    const raw = Number(inv[key] ?? 0);
+    const count = Number.isFinite(raw) ? raw : 0;
     const threshold = SATURATION_THRESHOLDS[key] ?? Infinity;
     if (count > threshold) hits.push({ key, count, threshold });
   }
@@ -102,7 +129,12 @@ if (process.env.PRISM_INVENTORY_GUARD_AS_LIB === "1") {
     ? `PRISM: ${inv.engines || 0} engines | ${inv.dispatchers || 0} dispatchers | ${inv.actions || 0} actions | ${inv.algorithms || 0} algorithms | ${inv.hooks_registry || 0} hooks | ${inv.skills || 0} skills | ${inv.tests_passing || 0} tests`
     : "Inventory unavailable";
 
-  const saturated = detectSaturatedCategories(inv, message);
+  // Saturation arm only fires when the prompt expresses CREATE intent
+  // (not audit/review/investigate). The warning text presupposes a new
+  // asset is about to be made; firing on `audit engines` would be wrong.
+  const saturated = hasCreateIntent(message)
+    ? detectSaturatedCategories(inv, message)
+    : null;
   const saturationLine = saturated
     ? `\n**[Saturation]** ${saturated
         .map((h) => `${h.key}=${h.count} (>${h.threshold})`)

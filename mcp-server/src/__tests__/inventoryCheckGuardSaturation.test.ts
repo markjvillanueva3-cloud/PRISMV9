@@ -24,10 +24,11 @@ const mod = (await import(/* @vite-ignore */ HOOK_URL)) as {
     inv: Record<string, unknown> | null,
     message: string,
   ) => Array<{ key: string; count: number; threshold: number }> | null;
+  hasCreateIntent: (message: string) => boolean;
   SATURATION_THRESHOLDS: Readonly<Record<string, number>>;
 };
 
-const { detectSaturatedCategories, SATURATION_THRESHOLDS } = mod;
+const { detectSaturatedCategories, hasCreateIntent, SATURATION_THRESHOLDS } = mod;
 
 describe("detectSaturatedCategories — input guards", () => {
   it("returns null when inv is null (inventory missing)", () => {
@@ -145,7 +146,7 @@ describe("detectSaturatedCategories — defensive numeric coercion", () => {
     expect(r).toBe(null);
   });
 
-  it("treats stringified count as a number", () => {
+  it("treats stringified numeric count as a number", () => {
     const r = detectSaturatedCategories(
       { engines: String(SATURATION_THRESHOLDS.engines + 100) },
       "create a new engine",
@@ -154,12 +155,75 @@ describe("detectSaturatedCategories — defensive numeric coercion", () => {
     expect(r![0].count).toBe(SATURATION_THRESHOLDS.engines + 100);
   });
 
-  it("rejects NaN-coerced category count (returns 0, no fire)", () => {
+  it("non-numeric string coerced explicitly to 0 (not NaN) — codex 3-of-3 fix", () => {
+    // After codex review: Number.isFinite() guard ensures NaN → 0 explicitly.
+    // The contract: invalid counts must NOT fire saturation, regardless of
+    // whether NaN comparison happens to evaluate falsy.
     const r = detectSaturatedCategories(
       { engines: "not-a-number" },
       "create a new engine",
     );
     expect(r).toBe(null);
+  });
+
+  it("Infinity in inventory does not crash / does not fire if no real category match", () => {
+    const r = detectSaturatedCategories(
+      { engines: Number.POSITIVE_INFINITY },
+      "discuss philosophy",
+    );
+    expect(r).toBe(null);
+  });
+
+  it("explicit NaN in inventory → 0 coercion suppresses fire", () => {
+    const r = detectSaturatedCategories(
+      { engines: Number.NaN },
+      "create a new engine",
+    );
+    expect(r).toBe(null);
+  });
+});
+
+describe("hasCreateIntent — CREATE vs audit/review separation", () => {
+  it("returns true for 'create a new engine'", () => {
+    expect(hasCreateIntent("create a new engine")).toBe(true);
+  });
+
+  it("returns true for 'build a hook'", () => {
+    expect(hasCreateIntent("build a hook")).toBe(true);
+  });
+
+  it("returns true for '/forge' slash command", () => {
+    expect(hasCreateIntent("/forge-triple skill+engine+hook")).toBe(true);
+  });
+
+  it("returns FALSE for 'audit engines' — codex P0 fix", () => {
+    // Codex 3-of-3 blocker: a prompt saying "audit engines" must NOT trigger
+    // saturation, since the warning text says "before creating."
+    expect(hasCreateIntent("audit engines")).toBe(false);
+  });
+
+  it("returns FALSE for 'review the dispatchers'", () => {
+    expect(hasCreateIntent("review the dispatchers")).toBe(false);
+  });
+
+  it("returns FALSE for 'investigate hook regressions'", () => {
+    expect(hasCreateIntent("investigate hook regressions")).toBe(false);
+  });
+
+  it("returns FALSE for empty / non-string input", () => {
+    expect(hasCreateIntent("")).toBe(false);
+    expect(hasCreateIntent(null as unknown as string)).toBe(false);
+    expect(hasCreateIntent(undefined as unknown as string)).toBe(false);
+  });
+
+  it("returns true for 'add a new action to prism_calc'", () => {
+    expect(hasCreateIntent("add a new action to prism_calc")).toBe(true);
+  });
+
+  it("returns FALSE for 'how do I create a calculator?' — no asset keyword", () => {
+    // Even though "create" is present, no asset keyword (engine/hook/action/etc.)
+    // — the CREATE_PATTERNS require both verbs AND asset-type nouns.
+    expect(hasCreateIntent("how do I create a calculator?")).toBe(false);
   });
 });
 
