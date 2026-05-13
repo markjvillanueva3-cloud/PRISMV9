@@ -32,7 +32,15 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // HOOK-SYNERGY-MS0/U-HOOK-REGISTRY (H2): query state/shared/HOOK_REGISTRY.json
 "hook_registry",
 // HOOK-SYNERGY-MS0/U-HOOK-ENVELOPE (H4): query state/shared/hook-latency.jsonl
-"hook_latency"] as const;
+"hook_latency",
+// HOOK-SYNERGY-MS0/U-HOOK-FAST-LANE (H6): compute settings.json matcher splits
+// (the case handler shipped in H6 but the action enum was not updated then —
+// Zod was rejecting the input before it reached the case; this entry closes
+// the loop so the H6 dispatcher action is actually callable).
+"hook_fast_lane",
+// HOOK-SYNERGY-MS0/U-HOOK-ASYNC-DISPATCH (H7): enqueue + run Tier-4 hooks
+// against the async queue so Stop never waits on slow background work.
+"async_dispatch"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -4009,6 +4017,68 @@ export function registerDevDispatcher(server: any): void {
               }
               default:
                 result = { error: "invalid_mode", mode, allowed: ["analyze", "propose", "apply_preview", "forecast", "classify_block"] };
+            }
+            break;
+          }
+
+          // ── HOOK-SYNERGY-MS0/U-HOOK-ASYNC-DISPATCH (H7) ──────────
+          // AsyncHookDispatcherEngine — enqueue/run/read T4 hook jobs against
+          // the queue + results JSONLs. The engine's enqueue spawns a detached
+          // child (scripts/async-hook-runner.mjs); this case is the read +
+          // control surface for it. The actual runJob path is invoked by the
+          // detached runner, not by the dispatcher.
+          case "async_dispatch": {
+            const { getAsyncHookDispatcherEngine } = await import("../../engines/AsyncHookDispatcherEngine.js");
+            const engine = getAsyncHookDispatcherEngine();
+            const mode = String(params.mode || "pending");
+            const windowMs = params.window_ms != null ? Number(params.window_ms) : undefined;
+            const n = params.n != null ? Number(params.n) : undefined;
+            switch (mode) {
+              case "enqueue": {
+                const job = (params.job ?? {}) as {
+                  hook_path?: string; hookPath?: string; tier?: string; event?: string;
+                  matcher?: string; tool?: string; timeout_ms?: number | string; timeoutMs?: number | string;
+                  ctx?: unknown;
+                };
+                const hookPath = typeof job.hook_path === "string" ? job.hook_path : (typeof job.hookPath === "string" ? job.hookPath : "");
+                if (!hookPath) { result = { error: "missing_required", field: "job.hook_path" }; break; }
+                const timeoutRaw = job.timeout_ms ?? job.timeoutMs;
+                const timeoutMs = timeoutRaw != null ? Number(timeoutRaw) : undefined;
+                result = engine.enqueue({
+                  hookPath,
+                  tier: job.tier,
+                  event: job.event,
+                  matcher: job.matcher,
+                  tool: job.tool,
+                  timeoutMs,
+                  ctx: job.ctx,
+                });
+                break;
+              }
+              case "pending":
+                result = { jobs: engine.getPendingJobs(), count: engine.getPendingJobs().length };
+                break;
+              case "results": {
+                const status = typeof params.status === "string" ? params.status as "any" | "succeeded" | "failed" | "timeout" | "skipped" : undefined;
+                const hook = typeof params.hook === "string" ? params.hook : undefined;
+                const rows = engine.getResults({ status, hook, windowMs, limit: n });
+                result = { results: rows, count: rows.length, windowMs: windowMs };
+                break;
+              }
+              case "stats":
+                result = engine.getStats(windowMs);
+                break;
+              case "available":
+                result = { available: engine.isAvailable() };
+                break;
+              case "purge": {
+                const olderThan = params.older_than_ms != null ? Number(params.older_than_ms) : undefined;
+                if (!Number.isFinite(olderThan) || (olderThan as number) <= 0) { result = { error: "missing_required", field: "older_than_ms (positive number)" }; break; }
+                result = engine.purgeOlderThan(olderThan as number);
+                break;
+              }
+              default:
+                result = { error: "invalid_mode", mode, allowed: ["enqueue", "pending", "results", "stats", "available", "purge"] };
             }
             break;
           }

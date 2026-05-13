@@ -426,4 +426,34 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
       hooks: z.array(z.object({ command: z.string() }).passthrough()).default([]),
     }).passthrough().optional().describe("Required for mode=classify_block."),
   }).passthrough(),
+
+  // HOOK-SYNERGY-MS0/U-HOOK-ASYNC-DISPATCH (H7): AsyncHookDispatcherEngine surfaces.
+  // The engine decouples Tier-4 hooks from the synchronous Stop critical path —
+  // enqueue() returns immediately and spawns a detached runner that writes the
+  // result row asynchronously. Read modes (pending/results/stats/available) are
+  // pure projections over the two JSONLs; write modes (enqueue/purge) mutate.
+  async_dispatch: z.object({
+    mode: z.enum([
+      "enqueue", "pending", "results", "stats", "available", "purge",
+    ]).default("pending").describe(
+      "enqueue = append a job + spawn the detached runner; pending = read the " +
+        "queue; results = filtered past outcomes; stats = per-hook aggregates; " +
+        "available = cheap existence check; purge = drop entries older than " +
+        "older_than_ms (queue + results).",
+    ),
+    job: z.object({
+      hook_path: z.string().describe("Absolute path to the .mjs hook to invoke."),
+      tier: z.string().optional().describe("Hook tier (T0..T4 or untagged); passed through for telemetry."),
+      event: z.string().optional().describe("Triggering Claude Code event (Stop, PostToolUse, …)."),
+      matcher: z.string().optional().describe("Triggering matcher (empty for Stop)."),
+      tool: z.string().optional().describe("Triggering tool name (empty for Stop)."),
+      timeout_ms: z.union([z.string(), z.number()]).optional().describe("Per-job timeout in ms (capped at the engine's absolute ceiling)."),
+      ctx: z.unknown().optional().describe("Arbitrary JSON-safe context forwarded to the wrapped hook as stdin."),
+    }).passthrough().optional().describe("Required for mode=enqueue."),
+    window_ms: z.union([z.string(), z.number()]).optional().describe("Stats/results window in ms; default 24h, max 30d."),
+    status: z.enum(["any", "succeeded", "failed", "timeout", "skipped"]).optional().describe("Filter for mode=results."),
+    hook: z.string().optional().describe("Hook basename filter for mode=results (without .mjs)."),
+    n: z.union([z.string(), z.number()]).optional().describe("Result limit; default 50, max 1000."),
+    older_than_ms: z.union([z.string(), z.number()]).optional().describe("Required for mode=purge."),
+  }).passthrough(),
 };
