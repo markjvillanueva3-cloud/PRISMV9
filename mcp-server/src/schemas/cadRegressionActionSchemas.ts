@@ -1,11 +1,12 @@
 /**
  * CAD Regression Action Schemas — Zod v4
  *
- * Covers 20 actions wired by cadRegressionDispatcher (CINF12) across seven
+ * Covers 30 actions wired by cadRegressionDispatcher (CINF12) across seven
  * CAD-INFRA engines: Indexer (CINF01), Classifier (CINF02), Orchestrator
  * (CINF04), Checkpoint (CINF05), FailureTriage (CINF06), ArtifactStorage
  * (CINF07), Dashboard (CINF08), ResultsAnalyzer (CINF10), ReportGenerator
- * (CINF11).
+ * (CINF11), plus 5 CINF12 spec-named MCP aliases (start_batch, get_progress,
+ * get_results, triage, report) that thin-facade onto the engines above.
  *
  * @module schemas/cadRegressionActionSchemas
  */
@@ -136,6 +137,91 @@ const cad_regression_report_summary = z
   })
   .passthrough();
 
+// ── CINF12 — Spec-named MCP aliases ──────────────────────────────────────────
+// Thin facades over Orchestrator/Dashboard/Analyzer/Triage/Report so external
+// MCP clients can invoke the envelope-documented names. Schemas MIRROR the
+// underlying engine contract — these aliases are pure naming sugar, no
+// translation. (Envelope-spec `start_batch({corpus:'all'})` corpus auto-
+// resolution is intentionally deferred to a follow-on unit.)
+const start_batch = z
+  .object({
+    tasks: z
+      .array(z.any())
+      .min(1)
+      .describe(
+        "Required: array of FileTask {fileId, absolutePath, format, ...}. Get from cad_index_run output.",
+      ),
+    options: z
+      .object({
+        runner: z
+          .any()
+          .describe("TestRunner implementing run(task) — required by orchestrator"),
+        batchId: z.string().min(1).optional().describe("Batch identifier; UUID-generated if omitted"),
+        workers: z.number().int().positive().optional().describe("Worker pool size"),
+        perFileTimeoutMs: z.number().positive().optional().describe("Per-file timeout in ms"),
+        checkpointEvery: z.number().int().positive().optional().describe("Checkpoint every N completions"),
+        checkpointIntervalMs: z.number().int().positive().optional().describe("Min ms between checkpoints"),
+        statePath: z.string().optional().describe("Override TestBatch persistence path"),
+      })
+      .passthrough()
+      .describe("OrchestratorOptions — runner is required"),
+  })
+  .passthrough();
+
+const get_progress = z
+  .object({
+    batchId: z.string().min(1).describe("Batch identifier to fetch progress for"),
+    stateDir: z.string().optional().describe("Override state directory"),
+    windowMinutes: z.number().positive().optional().describe(
+      "Throughput window in minutes (clamped server-side to ≤60)",
+    ),
+    recentLimit: z.number().int().positive().optional().describe(
+      "Max recent failures to return (clamped server-side to ≤100)",
+    ),
+    now: z.string().optional().describe("ISO timestamp override for deterministic tests"),
+  })
+  .passthrough();
+
+const get_results = z
+  .object({
+    batchIds: z.array(z.string().min(1)).min(1).describe(
+      "Batch identifiers to aggregate results across (≥1)",
+    ),
+    stateDir: z.string().optional().describe("Override state directory"),
+  })
+  .passthrough();
+
+// triage accepts either a single failure or an array — mirrors the engine's
+// dual-shape contract (cad_failure_triage_one + cad_failure_triage_group).
+// Refined (not unioned) because z.any() accepts undefined, which would let
+// a discriminated union silently match the wrong branch.
+const triage = z
+  .object({
+    failure: z.any().optional().describe("Single failure payload (FailurePayload shape)"),
+    failures: z
+      .array(z.any())
+      .min(1)
+      .optional()
+      .describe("Array of FailurePayload for batch-triage with grouping"),
+  })
+  .passthrough()
+  .refine(
+    (o) => o.failure !== undefined || (Array.isArray(o.failures) && o.failures.length > 0),
+    { message: "must provide `failure` (single payload) or `failures` (non-empty array)" },
+  );
+
+const report = z
+  .object({
+    snapshot: z.any().optional().describe("Dashboard snapshot payload to embed"),
+    diff: z.any().optional().describe("Regression diff payload to embed"),
+    trend: z.any().optional().describe("Trend payload to embed"),
+    hotspots: z.any().optional().describe("Hotspots payload to embed"),
+    rowLimit: z.number().int().positive().optional().describe(
+      "Maximum rows per section in the rendered report",
+    ),
+  })
+  .passthrough();
+
 export const ACTION_CAD_REGRESSION_SCHEMAS: ActionSchemaMap = {
   cad_index_run,
   cad_index_diff,
@@ -162,4 +248,10 @@ export const ACTION_CAD_REGRESSION_SCHEMAS: ActionSchemaMap = {
   cad_regression_report_trend,
   cad_regression_report_hotspots,
   cad_regression_report_summary,
+  // CINF12 spec aliases
+  start_batch,
+  get_progress,
+  get_results,
+  triage,
+  report,
 };

@@ -5,7 +5,8 @@
   "track": "CAD-INFRA",
   "status": "wired_partial",
   "status_history": [
-    {"at": "2026-05-12T17:55:00Z", "from": "ready", "to": "wired_partial", "by": "claude-5fd23c5f", "note": "14/15 units shipped (engines + schemas + dispatcher + safety hooks + tests + UI). U-CINF15 runbook delivered. Remaining: WorkerThreadRunner (separate unit U-CINF04.x — orchestrator currently requires injected runner). Wiring gap closed: dispatcher registered in src/index.ts, CAD_REGRESSION_SAFETY_HOOKS spread into allHooks + hooksByCategory."}
+    {"at": "2026-05-12T17:55:00Z", "from": "ready", "to": "wired_partial", "by": "claude-5fd23c5f", "note": "14/15 units shipped (engines + schemas + dispatcher + safety hooks + tests + UI). U-CINF15 runbook delivered. Remaining: WorkerThreadRunner (separate unit U-CINF04.x — orchestrator currently requires injected runner). Wiring gap closed: dispatcher registered in src/index.ts, CAD_REGRESSION_SAFETY_HOOKS spread into allHooks + hooksByCategory."},
+    {"at": "2026-05-13T13:14:00Z", "from": "wired_partial", "to": "wired_partial", "by": "claude-7f79dd78", "note": "U-CINF12 envelope-exit completion: cadRegressionDispatcher gained 5 spec-named MCP aliases (start_batch, get_progress, get_results, triage, report — thin facades over 25 existing engine-named actions, 25→30, anti-regression-safe). Schemas mirror engine contracts; start_batch requires {tasks, options}, triage requires {failure} or {failures}. 25 wiring tests green. Envelope exit `start_batch({corpus:'all'})` corpus auto-resolution still aspirational (deferred to follow-on unit). Status stays wired_partial — U-CINF04.x WorkerThreadRunner remains deferred. Commit a9600787e."}
   ],
   "priority": "CRITICAL",
   "total_units": 15,

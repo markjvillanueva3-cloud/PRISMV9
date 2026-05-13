@@ -1,7 +1,8 @@
 /**
  * prism_cad_regression — CAD Regression Dispatcher (CINF12 / CAD-INFRA-MS0)
  *
- * Surfaces 25 actions across seven CAD-INFRA engines:
+ * Surfaces 30 actions across seven CAD-INFRA engines:
+ *   (25 fully-qualified engine-named actions + 5 CINF12 spec aliases)
  *   CINF01  CADFileIndexerEngine           (3 actions — index run/diff/load)
  *   CINF02  CADFileClassifierEngine         (2 — classify run/one)
  *   CINF04  CADRegressionTestOrchestrator   (2 — regression run/load)
@@ -103,6 +104,13 @@ export const ACTIONS = [
   "cad_regression_report_trend",
   "cad_regression_report_hotspots",
   "cad_regression_report_summary",
+  // CINF12 — spec-named MCP aliases (envelope deliverable: cad_regression.start_batch({corpus:'all'}))
+  // Thin facades over existing engines so external MCP clients can use the documented names.
+  "start_batch",
+  "get_progress",
+  "get_results",
+  "triage",
+  "report",
 ] as const;
 
 export type CADRegressionAction = (typeof ACTIONS)[number];
@@ -176,6 +184,23 @@ export async function routeCADRegression(action: CADRegressionAction, params: an
     case "cad_regression_report_hotspots":
       return (await report()).execute({ op: "renderHotspots", ...params });
     case "cad_regression_report_summary":
+      return (await report()).execute({ op: "renderSummary", ...params });
+
+    // CINF12 spec aliases — thin facades for envelope-documented MCP action names.
+    // Schemas mirror the engine contract, so these are pure forwarders. The
+    // envelope's exit example `start_batch({corpus:'all'})` is aspirational:
+    // corpus → FileTask[] auto-resolution belongs to a follow-on unit. MCP
+    // clients must still supply {tasks, options} (orchestrator-native) or
+    // {failure|failures} (triage-native). Naming sugar, not behavioural change.
+    case "start_batch":
+      return (await orchestrator()).execute(params);
+    case "get_progress":
+      return (await dashboard()).execute({ op: "snapshot", ...params });
+    case "get_results":
+      return (await analyzer()).execute({ op: "trend", ...params });
+    case "triage":
+      return (await triage()).execute(params);
+    case "report":
       return (await report()).execute({ op: "renderSummary", ...params });
 
     default: {
