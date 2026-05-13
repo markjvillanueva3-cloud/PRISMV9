@@ -6,7 +6,7 @@
   "brief": "User directive (Phase-6): \"we need an auto feature that monitors reputable sources multiple times a day so our system automatically does deep research and decides if and how we can utilize new features to our system and synergize it automatically and auto add it to the system-viz feature.\"",
   "parent_roadmap": "BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-2026-05-10.md",
   "created_at": "2026-05-11T19:27:19.879Z",
-  "updated_at": "2026-05-13T19:10:00.000Z",
+  "updated_at": "2026-05-13T19:25:00.000Z",
   "created_by": "claude-0f522935 (register-devtools-roadmap-envelopes.mjs — BACKEND-DEVTOOLS-RGS6 combine)",
   "track": "AUTO-LEARNING-LOOP",
   "track_name": "BACKEND-DEVTOOLS-RGS6 MEGA-ROADMAP",
@@ -14,9 +14,31 @@
   "tier": 1,
   "priority": "P1",
   "status": "in_progress",
-  "completed_units": 4,
+  "completed_units": 5,
   "total_units": 12,
   "shipped": [
+    {
+      "unit": "U-ALL05",
+      "commit": "15f1e09e3",
+      "title": "VizAutoAugmentationEngine + dispatcher action viz_auto_augment (high/med synergy verdicts → AugmentationDocument for system-viz merger)",
+      "shipped_at": "2026-05-13T19:25:00Z",
+      "shipped_by": "charlie/claude-7fe03a3a",
+      "files_changed": 5,
+      "tests": "30 engine + 7 wiring = 37/37 PASS. Coverage: emit happy / band filter / confidence filter / internal-dup filter / oversize cap (1500→100) / unknown-edge-kind drop / schema-version assertion / namespace-prefix invariant / label truncation / non-array input. Variability: 9 cases via it.each (1/10/100 nodes × 0.5/0.8/0.95 thresholds). Edges: from-override invariant + deterministic sort + weight clamp.",
+      "scrutiny": "Per-file fast-path: engine + wire trio in same commit because pattern mirrors just-shipped U-ALL03/U-ALL04 verbatim. Engine is a stateless pure-data transformer. NaN/Infinity defence-in-depth via isFiniteNumber + clamp.",
+      "design": "Pure-data emit() converts ClassifierVerdict[] → AugmentationDocument {schemaVersion, nodes[], edges[]}. Schema-versioned (AUGMENTATION_SCHEMA_VERSION=1). Idempotent — same input → byte-identical output (nodes+edges sorted by id). Filter ladder: drop low/none band → drop below confidence_threshold (default 0.5) → dedup per-batch guid → cap at MAX_NODES_PER_AUG (default 1000). Node ids always namespace-prefixed 'auto-research-' for collision safety. Edges: allow-list of 3 kinds (semantic_match/novelty_extends/duplicate_of); unknown kinds silently dropped (future-version drift defence). Main viz graph applies its own stricter confidence > 0.8 cutoff during merge; engine emits the band-wide superset.",
+      "absorption_collision": {
+        "intended_commit_subject": "[MAIN] [AUTO-LEARNING-LOOP-MS0]/U-ALL05: VizAutoAugmentationEngine + dispatcher",
+        "actual_commit_with_my_files": "15f1e09e3",
+        "actual_commit_subject": "[MAIN] [MACRO-PROGRAM-PIPELINE-MS0]/MS0-U4: MacroCandidateGateEngine — S(x) >= 0.70 safety gate",
+        "notes": "6th absorption-pattern collision in 48h. Files correct + tracked. Peer-file-isolation guard auto-unstaged my U-ALL05 files during a 7.84s untracked-file enumeration; before retry, the peer's MACRO-PROGRAM-PIPELINE/MS0-U4 commit fired and absorbed the staged set."
+      },
+      "deferred_followups": [
+        "merge-augmentations.mjs registration deferred — peer-claimed (claude-0413eca6); chat-bus coord pending.",
+        "Cron entry deferred to U-ALL09.",
+        "End-of-task 3-of-3 deferred to chat-bus close-out — local tests + wiring green."
+      ]
+    },
     {
       "unit": "U-ALL04",
       "commit": "ffebe3857",
@@ -294,9 +316,12 @@
             "U-ALL06"
           ],
           "viz_node_id": "eng.system.vizautoaugmentationengine",
-          "viz_node_status": "needs_creation",
+          "viz_node_status": "shipped",
           "loop_schedule": "1h cron",
-          "status": "not_started",
+          "status": "complete",
+          "completedAt": "2026-05-13T19:25:00Z",
+          "commit": "15f1e09e3",
+          "shipped_by": "charlie/claude-7fe03a3a",
           "four_loop": [
             "BUILD",
             "SCRUTINIZE",
