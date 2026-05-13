@@ -29,7 +29,7 @@
     },
     {
       "unit": "P0-U02",
-      "commit": "uncommitted-2026-05-13",
+      "commit": "5ae6f77c7",
       "title": "Hook outcome emission into all 6 P2P pipeline engines + shared helper + tests",
       "shipped_at": "2026-05-13T12:50:00Z",
       "shipped_by": "delta/claude-f914e22b+claude-c785ffe4",
@@ -91,7 +91,7 @@
           "dependencies": ["P0-U01"],
           "status": "complete",
           "completed_date": "2026-05-13",
-          "commit": "uncommitted-2026-05-13",
+          "commit": "5ae6f77c7",
           "scope_note": "Shipped via outcomeCaptureBusEngine.record() (NOT crossProcessOutcomeStore.append() per envelope text — see shipped[] scope_reconciliation). 14 emission sites across 6 engines (1 each in Milling/Turning/WEDM/SinkerEDM, 4 each in Laser/Waterjet assemblers). Shared helper utils/p2pOutcomeEmission.ts with PII gate (scalar-only + snake_case sanitizer). 4 new test files (78 it() cases total). Pre-existing wiring debts cleared: SinkerEDM tagged WIRE-EXEMPT; Turning/Laser/Waterjet given engine-named test files.",
           "exit_conditions": [
             "MillingPrintToProgramEngine emits outcome at end of every run",
