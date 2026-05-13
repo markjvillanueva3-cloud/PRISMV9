@@ -27,6 +27,12 @@ const SAFETY_HOOKS = [
   { path: `${HOOK_BASE}/settings-json-addonly-guard.mjs`,    timeout: 2000 },
   { path: `${HOOK_BASE}/code-completeness-gate.mjs`,         timeout: 2000 },
   { path: `${HOOK_BASE}/test-legitimacy.mjs`,                timeout: 3000 },
+  // DEV-VELOCITY-AUTOTRIGGER-MS0 Phase A.3 (2026-05-12): PreEdit BOM-presence
+  // stash for .ps1/.psm1/.bat/.cmd/.reg files. Advisory by default; flip to
+  // hard-block with PRISM_ENCODING_GUARD_BLOCK=1. Companion PostToolUse arm
+  // lives in posttool-edit-bundle.mjs and auto-restores stripped BOMs.
+  // Prevents HS-14-class regression (em-dash mis-decode in PS5.1).
+  { path: `${HOOK_BASE}/encoding-guard.mjs`,                 timeout: 2000 },
 ];
 
 // Hooks classified as ADVISORY — emit warnings only, never block. Cacheable.

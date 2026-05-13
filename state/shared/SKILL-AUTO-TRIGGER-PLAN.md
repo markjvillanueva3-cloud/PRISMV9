@@ -478,6 +478,36 @@ loop_contract:
 
 ---
 
+---
+
+## P13 — Bucket Pattern Reference Table (for /quick-archive --bucket=<name>)
+
+> Round-2 P0 fix: Reviewer B flagged that `/quick-archive`'s spec referenced "§P2 bucket letters" but §P2 is the architecture-alternatives section, not a bucket-pattern catalog. This §P13 is the canonical table. Bucket letters originate in HS-06-SMART-RECALL-PLAN.md §P2 bucket-categorization narrative; this table makes them programmatically lookup-able.
+
+| Bucket | Category | Pattern (glob, OR'd) | Estimated count | Phase | Already archived in |
+|--------|----------|----------------------|-----------------|-------|---------------------|
+| **A** | Fleet/build/scrutiny core | (KEEP — not archived) | ~28 | (keep) | — |
+| **B** | Domain master entry points | (KEEP — not archived) | ~16 | (keep) | — |
+| **C** | Domain variant studios | `{mill,lathe,grinder,welder,sinker}-{harden,learn,validate,optimize}.md` | ~20 | HS-06 Phase 2 (partial) | commit `e27f4e212` |
+| **D** | WEDM variant suite | `wedm-{harden,learn,validate,optimize,batch,cite,compare,controller,drift,explain,feedback,hook-disable,jm-die,pcd,reason,report,tier6,troubleshoot,ai-advisor}.md` | ~20 | HS-06 Phase 2 (partial) | commit `e27f4e212` |
+| **E** | Claude-flow namespaced | `sparc/*.md`, `github/*.md`, `automation/*.md`, `monitoring/*.md`, `optimization/*.md`, `hooks/*.md`, `analysis/*.md` (entire subdirs) | ~85 | HS-06 Phase 1 | commit `d81fc8009` |
+| **F** | Versioned legacy | `forge[2-6].md`, `rgs[2-5].md`, `autopilot-{full,camk}.md`, `six-chat-{commit-consensus,ready}.md` | ~12 | HS-06 Phase 3 (PENDING) | — |
+| **G** | Per-vendor CAM guides (non-mastercam) | `{nx,powermill,catia,solidcam}-{setup,strategy-guide}.md`, `solidcam-imachining-guide.md` | ~10 | HS-06 Phase 3 (PENDING) | — |
+| **H** | Specialty / one-off / esoteric long-tail | `curiosity-queue.md`, `dispatch-format.md`, `bot-launch.md`, `ergo-check.md`, `extract-dark-content.md`, `learn-everything.md`, `swiss-program.md`, `swiss-production.md`, `mesh-on.md`, `defaults.md`, `delete.md`, `de-sloppify.md`, others matching no daily-workflow keyword | ~40 | HS-06 Phase 3 (PENDING) | — |
+| **I** | Plugin-imported skills | (KEEP — these came in via plugins; the harness manages their lifecycle) | ~25 | (keep) | — |
+
+**Usage with `/quick-archive`:**
+
+```
+/quick-archive --bucket=F                    # archive bucket F (versioned legacy)
+/quick-archive --bucket=G --dry-run          # preview bucket G (per-vendor CAM)
+/quick-archive --bucket=H                    # archive bucket H (esoteric long-tail)
+```
+
+Buckets A, B, I are KEEP-only — `/quick-archive --bucket=A` should refuse with an error explaining these are master/core skills that should not be archived.
+
+---
+
 ## Cross-references
 
 - HS-06 archive system: [[HS-06-SMART-RECALL-PLAN]]

@@ -33,6 +33,11 @@ const SUB_HOOKS = [
   // HS-12 (2026-05-12): tool-call runtime log; same hook as in the
   // bash/read bundle. Cheap (~2-5ms); appends to .tool-runtimes.jsonl.
   { path: `${HOOK_BASE}/tool-watchdog.mjs`,                     timeout: 1000 },
+  // DEV-VELOCITY-AUTOTRIGGER-MS0 Phase A.3 (2026-05-12): PostEdit BOM-restoration
+  // arm. Pairs with the PreEdit stash in edit-bundle.mjs SAFETY_HOOKS. If Edit
+  // stripped a UTF-8 BOM from .ps1/.psm1/.bat/.cmd/.reg, this auto-restores it
+  // via temp+rename. Prevents HS-14-class regression (PS5.1 em-dash mis-decode).
+  { path: `${HOOK_BASE}/encoding-guard.mjs`,                    timeout: 2000 },
   { path: `${HOOK_BASE}/directive-summary-refresh-iooms.mjs`,   timeout: 3000 },
   { path: `${HOOK_BASE}/inventory-on-write.mjs`,                timeout: 2000 },
   { path: `${HOOK_BASE}/c-to-h-mirror.mjs`,                     timeout: 3000 },
