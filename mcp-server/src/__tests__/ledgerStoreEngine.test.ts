@@ -61,12 +61,15 @@ describe("LedgerStoreEngine — schema + migration", () => {
     expect(() => engine.migrate(99)).toThrowError(/only v1/i);
   });
 
-  it("schemaVersion() returns 0 before migrate() and 1 after", () => {
+  it("schemaVersion() returns 0 before migrate() and the requested version after", () => {
     // Bootstrap (triggered by counts()) creates tables but does NOT claim a
-    // version — explicit migrate() is the version-claim API.
+    // version — explicit migrate() is the version-claim API. This contract
+    // held across the v1→v2 bump in U-CLEANUP-B5: migrate(N) seeds meta to
+    // max(recorded, N), so migrate(LEDGER_SCHEMA_VERSION) lands at
+    // LEDGER_SCHEMA_VERSION regardless of what version that is today.
     engine.counts();
     expect(engine.schemaVersion()).toBe(0);
-    engine.migrate(1);
+    engine.migrate(LEDGER_SCHEMA_VERSION);
     expect(engine.schemaVersion()).toBe(LEDGER_SCHEMA_VERSION);
   });
 
