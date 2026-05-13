@@ -374,13 +374,13 @@ export const ACTION_CONTEXT_SCHEMAS: Record<string, z.ZodTypeAny> = {
   }),
   compression_policy: z.object({
     set: z.object({
-      headChars: z.number().optional(),
-      tailChars: z.number().optional(),
-      maxEntities: z.number().optional(),
-      minEntityLen: z.number().optional(),
-      maxEntityLen: z.number().optional(),
-      minRatio: z.number().optional(),
-    }).optional().describe("Optional policy patch — omit to fetch current policy"),
+      headChars: z.number().finite().int().optional(),
+      tailChars: z.number().finite().int().optional(),
+      maxEntities: z.number().finite().optional(),
+      minEntityLen: z.number().finite().int().optional(),
+      maxEntityLen: z.number().finite().int().optional(),
+      minRatio: z.number().finite().optional(),
+    }).optional().describe("Optional policy patch — omit to fetch current policy. Engine enforces non-negative + min-ratio invariants."),
   }).optional(),
   compression_stats: z.object({}).optional(),
 
@@ -418,10 +418,10 @@ export const ACTION_CONTEXT_SCHEMAS: Record<string, z.ZodTypeAny> = {
   }),
   checkpoint_config: z.object({
     set: z.object({
-      thresholds: z.array(z.number()).optional(),
-      maxBytes: z.number().optional(),
-      maxCheckpointsPerSession: z.number().optional(),
-    }).optional().describe("Optional config patch — omit to fetch current config"),
+      thresholds: z.array(z.number().finite().int().positive()).min(1).optional(),
+      maxBytes: z.number().finite().int().min(1024).optional(),
+      maxCheckpointsPerSession: z.number().finite().int().positive().optional(),
+    }).optional().describe("Optional config patch — omit to fetch current config. Engine additionally enforces strict-ascending thresholds."),
   }).optional(),
 };
 

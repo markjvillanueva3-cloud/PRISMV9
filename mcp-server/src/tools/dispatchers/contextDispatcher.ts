@@ -1395,8 +1395,13 @@ ${todoState.blockingIssues.length > 0 ? todoState.blockingIssues.map(i => `- ${i
               const config = params?.set
                 ? contextCheckpointEngine.setConfig(params.set)
                 : contextCheckpointEngine.getConfig();
-              // Drop the clockMs function (non-serializable) for the wire payload
-              const { clockMs: _clockMs, ...wireConfig } = config as any;
+              // Explicit pick — drops the clockMs function (non-serializable) without
+              // resorting to an `as any` cast.
+              const wireConfig = {
+                thresholds: config.thresholds,
+                maxBytes: config.maxBytes,
+                maxCheckpointsPerSession: config.maxCheckpointsPerSession,
+              };
               return ok({ success: true, data: { config: wireConfig } });
             } catch (err) {
               return dispatcherError(err, action, "prism_context");
