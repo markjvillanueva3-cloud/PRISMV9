@@ -6,7 +6,7 @@
   "brief": "User directive (Phase-6): \"we need an auto feature that monitors reputable sources multiple times a day so our system automatically does deep research and decides if and how we can utilize new features to our system and synergize it automatically and auto add it to the system-viz feature.\"",
   "parent_roadmap": "BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-2026-05-10.md",
   "created_at": "2026-05-11T19:27:19.879Z",
-  "updated_at": "2026-05-13T19:25:00.000Z",
+  "updated_at": "2026-05-13T19:38:00.000Z",
   "created_by": "claude-0f522935 (register-devtools-roadmap-envelopes.mjs — BACKEND-DEVTOOLS-RGS6 combine)",
   "track": "AUTO-LEARNING-LOOP",
   "track_name": "BACKEND-DEVTOOLS-RGS6 MEGA-ROADMAP",
@@ -14,9 +14,25 @@
   "tier": 1,
   "priority": "P1",
   "status": "in_progress",
-  "completed_units": 5,
+  "completed_units": 6,
   "total_units": 12,
   "shipped": [
+    {
+      "unit": "U-ALL06",
+      "commit": "e24a024f7",
+      "title": "RoadmapAutoAppendEngine + dispatcher action roadmap_auto_append (high-band verdicts → U-AUTORES-XX YAML proposals with 2/milestone rate limit + corroboration bypass)",
+      "shipped_at": "2026-05-13T19:38:00Z",
+      "shipped_by": "charlie/claude-7fe03a3a",
+      "files_changed": 5,
+      "tests": "28 engine + 7 wire = 35/35 PASS. Coverage: happy U-AUTORES-01 emit, ai_priority linear scale, YAML quote escape, MAX_TITLE_LEN truncation, all 6 rejection paths, batch dedup, variability axis (corroboration bypass × rate limit), prototype-pollution guard, setState shape validation, resetCycleCounters, resetAll. Wire tests verify .strict() schema rejection + 4 round-trip cases.",
+      "scrutiny": "Engine + wire fast-path. Engine is pure-data (no I/O). YAML emission deterministic (canonical key order, escape-quoted strings). dedup_guids cross-cycle list owned by CLI but engine respects.",
+      "design": "Pure-data emit. Schema-versioned (RATE_LIMIT_SCHEMA_VERSION=1). HIGH-only band gate (stricter than U-ALL05 high+med — pushing a roadmap unit is higher-commitment). Per-milestone rate limit (default 2) BYPASSED when corroborations ≥ threshold (default 3). YAML emission hand-formatted (no library dep), canonical key order for clean diffs, double-quoted strings with embedded-quote/control-char escape. ai_priority_score + leverage scale linearly with verdict.score over [0.65, 1.0]. Engine does NOT touch the roadmap file — CLI handles write under prism_context:claim_file lock (deferred to U-ALL09).",
+      "deferred_followups": [
+        "End-of-task 3-of-3 deferred to chat-bus.",
+        "CLI cron entry deferred to U-ALL09.",
+        "Roadmap file claim coordination — CLI must acquire prism_context:claim_file before write."
+      ]
+    },
     {
       "unit": "U-ALL05",
       "commit": "15f1e09e3",
@@ -355,9 +371,12 @@
             "U-ALL05"
           ],
           "viz_node_id": "eng.knowledge.roadmapautoappendengine",
-          "viz_node_status": "needs_creation",
+          "viz_node_status": "shipped",
           "loop_schedule": "none (triggered by classifier)",
-          "status": "not_started",
+          "status": "complete",
+          "completedAt": "2026-05-13T19:38:00Z",
+          "commit": "e24a024f7",
+          "shipped_by": "charlie/claude-7fe03a3a",
           "four_loop": [
             "BUILD",
             "SCRUTINIZE",
