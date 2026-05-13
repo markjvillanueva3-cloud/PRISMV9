@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-13T16:09:18.629Z",
+  "generatedAt": "2026-05-13T16:27:30.304Z",
   "headline": {
     "built_engines": 2324,
     "built_with_wiki": 1073,
     "needs_wiring": 879,
-    "needs_building_active_units": 3723,
+    "needs_building_active_units": 3721,
     "needs_frontend_merge_count": 2,
-    "pending_milestones_with_activity": 78,
-    "drift_milestones": 171,
-    "stale_milestones": 232,
+    "pending_milestones_with_activity": 80,
+    "drift_milestones": 172,
+    "stale_milestones": 231,
     "domains_tracked": 927
   },
   "sources": {
@@ -2388,6 +2388,16 @@
         ]
       },
       {
+        "domain": "Ledger",
+        "total": 2,
+        "wired": 1,
+        "unwired": 1,
+        "coverage_pct": 50,
+        "sample_unwired": [
+          "LedgerRetentionEngine"
+        ]
+      },
+      {
         "domain": "Manufacturer",
         "total": 2,
         "wired": 1,
@@ -3595,16 +3605,6 @@
         "coverage_pct": 0,
         "sample_unwired": [
           "LeadScrewEngine"
-        ]
-      },
-      {
-        "domain": "Ledger",
-        "total": 1,
-        "wired": 0,
-        "unwired": 1,
-        "coverage_pct": 0,
-        "sample_unwired": [
-          "LedgerRetentionEngine"
         ]
       },
       {
@@ -8750,7 +8750,7 @@
     ]
   },
   "STALE_MILESTONES": {
-    "summary": "232 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).",
+    "summary": "231 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).",
     "threshold_days": 30,
     "rows": [
       {
@@ -8768,15 +8768,6 @@
         "pending": 90,
         "shipped": 0,
         "total": 90,
-        "lastShippedDate": null,
-        "reason": "never_started"
-      },
-      {
-        "id": "CLEANUP-MS0",
-        "track": "CLEANUP",
-        "pending": 73,
-        "shipped": 0,
-        "total": 73,
         "lastShippedDate": null,
         "reason": "never_started"
       },
@@ -9112,12 +9103,21 @@
         "total": 10,
         "lastShippedDate": null,
         "reason": "never_started"
+      },
+      {
+        "id": "CAMX-MS9",
+        "track": "",
+        "pending": 10,
+        "shipped": 0,
+        "total": 10,
+        "lastShippedDate": null,
+        "reason": "never_started"
       }
     ],
     "next_action": "Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift."
   },
   "NEEDS_BUILDING": {
-    "summary": "3723 units across 670 milestones not yet in git.",
+    "summary": "3721 units across 670 milestones not yet in git.",
     "drift_cases": [
       {
         "id": "CC-EXT-MS0",
@@ -9822,6 +9822,12 @@
         "drift": "claims_not_started_but_has_shipped_units"
       },
       {
+        "id": "CLEANUP-MS0",
+        "claimed": "not_started",
+        "real": "in_progress_real",
+        "drift": "claims_not_started_but_has_shipped_units"
+      },
+      {
         "id": "CLI-MS0",
         "claimed": "not_started",
         "real": "in_progress_real",
@@ -10148,6 +10154,54 @@
     ],
     "top_pending_units": [
       {
+        "milestone": "TRAINING-LEARNING-MS0",
+        "unit": "U-TL-U1-LATHE-TEMPLATE-EXTRACTOR",
+        "title": "LathePartFamilyTemplateExtractorEngine + corpus scanner",
+        "phase": "lathe"
+      },
+      {
+        "milestone": "TRAINING-LEARNING-MS0",
+        "unit": "U-TL-U3-ELECTRODE-COVERAGE-AUDIT",
+        "title": "ElectrodeCoverageAuditEngine + phase20-electrode-coverage-audit.py (READ-ONLY against .xlsm)",
+        "phase": "electrode-audit"
+      },
+      {
+        "milestone": "TRAINING-LEARNING-MS0",
+        "unit": "U-TL-U4-WEDM-TEMPLATE-EXTRACTOR-AND-BRIDGE",
+        "title": "WEDMPartFamilyTemplateExtractorEngine + TaptiteElectrodeMacroBridgeEngine (parsed-snapshot path)",
+        "phase": "wedm"
+      },
+      {
+        "milestone": "TRAINING-LEARNING-MS0",
+        "unit": "U-TL-U5-DOMAIN-MATCHERS",
+        "title": "LathePartFamilyMatcherEngine + MillPartFamilyMatcherEngine + WEDMPartFamilyMatcherEngine",
+        "phase": "matchers"
+      },
+      {
+        "milestone": "CLEANUP-MS0",
+        "unit": "U-CLEANUP-A1",
+        "title": "A1 — extend SLOT_NAMES in chat-slots.mjs to add 'golf' (NATO phonetic continuity)",
+        "phase": "bootstrap-tier-0"
+      },
+      {
+        "milestone": "CLEANUP-MS0",
+        "unit": "U-CLEANUP-A2",
+        "title": "A2 — fleet-status.mjs renderer + title-comment for 7-slot table",
+        "phase": "bootstrap-tier-0"
+      },
+      {
+        "milestone": "CLEANUP-MS0",
+        "unit": "U-CLEANUP-A3",
+        "title": "A3 — /checkin --golf docs in commands/checkin.md; remove fleet_full 7th-chat fallback wording",
+        "phase": "bootstrap-tier-0"
+      },
+      {
+        "milestone": "CLEANUP-MS0",
+        "unit": "U-CLEANUP-A4",
+        "title": "A4 — per-agent-handoff.mjs accepts slot=golf with HANDOFF-golf-<task>.md topic prefix",
+        "phase": "bootstrap-tier-0"
+      },
+      {
         "milestone": "COORD-MS0",
         "unit": "U-COORD01",
         "title": "Create AGENT_COORDINATION_SUMMARY.json (<5KB)",
@@ -10242,54 +10296,6 @@
         "unit": "U-AWARE06",
         "title": "AI Feature Recommendation Injection",
         "phase": ""
-      },
-      {
-        "milestone": "INTEL-OLLAMA-OBSIDIAN-MS0",
-        "unit": "P2-U04",
-        "title": "Refactor error-block-prewarn to query Qdrant vector neighbors",
-        "phase": "P2"
-      },
-      {
-        "milestone": "INTEL-OLLAMA-OBSIDIAN-MS0",
-        "unit": "P5-U05",
-        "title": "Wire prism_intelligence:diagnose_failure → DiagnosticReasoningEngine",
-        "phase": "P5"
-      },
-      {
-        "milestone": "INTEL-OLLAMA-OBSIDIAN-MS0",
-        "unit": "P6-U02",
-        "title": "Add 4 hooks for unforced CLAUDE.md rules",
-        "phase": "P6"
-      },
-      {
-        "milestone": "INTEL-OLLAMA-OBSIDIAN-MS0",
-        "unit": "P6-U03",
-        "title": "Awareness hook deduplication — pick 3 canonical, deprecate 10",
-        "phase": "P6"
-      },
-      {
-        "milestone": "CCM-MS0",
-        "unit": "P0-U06",
-        "title": "WorktreeCreate hook",
-        "phase": "P0"
-      },
-      {
-        "milestone": "CCM-MS0",
-        "unit": "P0-U07",
-        "title": "WorktreeRemove hook",
-        "phase": "P0"
-      },
-      {
-        "milestone": "CCM-MS0",
-        "unit": "P0-U08",
-        "title": "PostCompact hook",
-        "phase": "P0"
-      },
-      {
-        "milestone": "CCM-MS0",
-        "unit": "P0-U09",
-        "title": "SessionEnd hook",
-        "phase": "P0"
       }
     ],
     "next_action": "Cross-reference MILESTONE_PROGRESS.json. Avoid units already in `shipped` arrays — those are committed but envelope status is stale."

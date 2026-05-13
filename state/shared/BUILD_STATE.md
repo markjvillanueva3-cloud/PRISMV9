@@ -1,6 +1,6 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-13T16:09:18.629Z
+> Generated: 2026-05-13T16:27:30.304Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
@@ -8,9 +8,9 @@
 - **2324** engines built and wired (of 3203)
 - **1073** wiki entries indexed
 - **879** engines awaiting dispatcher wiring
-- **3723** units pending across 78 active milestones
+- **3721** units pending across 80 active milestones
 - **2** codex frontend builds awaiting merge
-- **171** milestones with envelope-status drift
+- **172** milestones with envelope-status drift
 
 ## BUILT
 
@@ -65,7 +65,7 @@
 
 ## NEEDS_BUILDING
 
-3723 units across 670 milestones not yet in git.
+3721 units across 670 milestones not yet in git.
 
 ### Envelope-status drift
 
@@ -188,6 +188,7 @@
 | CCM-MS7 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | CCM-MS8 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | CCM-MS9 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CLEANUP-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | CLI-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | EIGC-MS0 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | EIGC-MS0A | not_started | completed_real | claims_not_started_but_has_shipped_units |
@@ -247,6 +248,14 @@
 
 | Milestone | Phase | Unit | Title |
 |-----------|-------|------|-------|
+| TRAINING-LEARNING-MS0 | lathe | U-TL-U1-LATHE-TEMPLATE-EXTRACTOR | LathePartFamilyTemplateExtractorEngine + corpus scanner |
+| TRAINING-LEARNING-MS0 | electrode-audit | U-TL-U3-ELECTRODE-COVERAGE-AUDIT | ElectrodeCoverageAuditEngine + phase20-electrode-coverage-audit.py (READ-ONLY against .xlsm) |
+| TRAINING-LEARNING-MS0 | wedm | U-TL-U4-WEDM-TEMPLATE-EXTRACTOR-AND-BRIDGE | WEDMPartFamilyTemplateExtractorEngine + TaptiteElectrodeMacroBridgeEngine (parsed-snapshot path) |
+| TRAINING-LEARNING-MS0 | matchers | U-TL-U5-DOMAIN-MATCHERS | LathePartFamilyMatcherEngine + MillPartFamilyMatcherEngine + WEDMPartFamilyMatcherEngine |
+| CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A1 | A1 — extend SLOT_NAMES in chat-slots.mjs to add 'golf' (NATO phonetic continuity) |
+| CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A2 | A2 — fleet-status.mjs renderer + title-comment for 7-slot table |
+| CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A3 | A3 — /checkin --golf docs in commands/checkin.md; remove fleet_full 7th-chat fallback wording |
+| CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A4 | A4 — per-agent-handoff.mjs accepts slot=golf with HANDOFF-golf-<task>.md topic prefix |
 | COORD-MS0 |  | U-COORD01 | Create AGENT_COORDINATION_SUMMARY.json (<5KB) |
 | COORD-MS0 |  | U-COORD02 | Add Optimistic Locking with Version Field |
 | COORD-MS0 |  | U-COORD03 | PID Liveness Check Before Claim Theft |
@@ -263,14 +272,6 @@
 | AWARE-MS0 |  | U-AWARE03 | Master Index Search Gate Hook |
 | AWARE-MS0 |  | U-AWARE05 | Auto /dedup Invocation |
 | AWARE-MS0 |  | U-AWARE06 | AI Feature Recommendation Injection |
-| INTEL-OLLAMA-OBSIDIAN-MS0 | P2 | P2-U04 | Refactor error-block-prewarn to query Qdrant vector neighbors |
-| INTEL-OLLAMA-OBSIDIAN-MS0 | P5 | P5-U05 | Wire prism_intelligence:diagnose_failure → DiagnosticReasoningEngine |
-| INTEL-OLLAMA-OBSIDIAN-MS0 | P6 | P6-U02 | Add 4 hooks for unforced CLAUDE.md rules |
-| INTEL-OLLAMA-OBSIDIAN-MS0 | P6 | P6-U03 | Awareness hook deduplication — pick 3 canonical, deprecate 10 |
-| CCM-MS0 | P0 | P0-U06 | WorktreeCreate hook |
-| CCM-MS0 | P0 | P0-U07 | WorktreeRemove hook |
-| CCM-MS0 | P0 | P0-U08 | PostCompact hook |
-| CCM-MS0 | P0 | P0-U09 | SessionEnd hook |
 
 **Next action:** Cross-reference MILESTONE_PROGRESS.json. Avoid units already in `shipped` arrays — those are committed but envelope status is stale.
 
@@ -325,13 +326,12 @@ Per-domain wired/unwired breakdown across 927 domain prefixes.
 
 ## STALE_MILESTONES
 
-232 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).
+231 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).
 
 | Milestone | Track | Reason | Pending | Shipped/Total | Last shipped |
 |-----------|-------|--------|---------|---------------|--------------|
 | LATHE-MASTER | LATHE | never_started | 136 | 0/136 | never |
 | MS-WIRE-FRONTEND | revenue | never_started | 90 | 0/90 | never |
-| CLEANUP-MS0 | CLEANUP | never_started | 73 | 0/73 | never |
 | MS-WIRE-BACKEND | revenue | never_started | 60 | 0/60 | never |
 | MS-MASTERPOST | revenue | never_started | 44 | 0/44 | never |
 | MS1 | revenue | never_started | 39 | 0/39 | never |
@@ -359,6 +359,7 @@ Per-domain wired/unwired breakdown across 927 domain prefixes.
 | MS-LEGAL | revenue | never_started | 13 | 0/13 | never |
 | CAMX-MS3 | — | never_started | 12 | 0/12 | never |
 | CAMX-MS4 | — | never_started | 12 | 0/12 | never |
+| CAMX-V17-P3 | — | never_started | 12 | 0/12 | never |
 
 **Next action:** Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift.
 

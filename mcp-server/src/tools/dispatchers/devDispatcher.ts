@@ -42,7 +42,15 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "hook_fast_lane",
 // HOOK-SYNERGY-MS0/U-HOOK-ASYNC-DISPATCH (H7): enqueue + run Tier-4 hooks
 // against the async queue so Stop never waits on slow background work.
-"async_dispatch"] as const;
+"async_dispatch",
+// AUTO-LEARNING-LOOP-MS0/U-ALL01: poll 10 reputable AI/ML feeds via
+// ReputableSourceMonitorEngine and return per-source results. The cron
+// entrypoint (`scripts/source-monitor-sweep.mjs`, step-3) is self-contained
+// and stateless; this dispatcher action is the MCP-side entrypoint that
+// preserves engine state (ETag, backoff) across calls in the long-lived
+// MCP server. Modes: poll_all (default), poll_one (slug), get_sources,
+// get_state, reset_all.
+"source_sweep"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -4137,6 +4145,55 @@ export function registerDevDispatcher(server: any): void {
               }
               default:
                 result = { error: "invalid_mode", mode, allowed: ["enqueue", "pending", "results", "stats", "available", "purge"] };
+            }
+            break;
+          }
+
+          // ── AUTO-LEARNING-LOOP-MS0/U-ALL01 step-5 ────────────────────
+          // Poll the reputable-source registry via ReputableSourceMonitorEngine.
+          // Modes:
+          //   poll_all (default) — sequential sweep of all 10 sources, returns aggregate
+          //   poll_one           — single source by slug (params.slug)
+          //   get_sources        — list configured sources (no network)
+          //   get_state          — per-source state snapshot (params.slug, no network)
+          //   reset_all          — clear all per-source state (no network)
+          case "source_sweep": {
+            const { reputableSourceMonitorEngine } =
+              await import("../../engines/ReputableSourceMonitorEngine.js");
+            const mode = String(params.mode || "poll_all");
+            switch (mode) {
+              case "poll_all": {
+                result = await reputableSourceMonitorEngine.pollAll();
+                break;
+              }
+              case "poll_one": {
+                const slug = typeof params.slug === "string" ? params.slug : "";
+                if (!slug) { result = { error: "missing_required", field: "slug" }; break; }
+                try {
+                  result = await reputableSourceMonitorEngine.poll(slug);
+                } catch (err) {
+                  result = { error: "poll_failed", slug, detail: err instanceof Error ? err.message : String(err) };
+                }
+                break;
+              }
+              case "get_sources": {
+                result = { sources: reputableSourceMonitorEngine.getSources() };
+                break;
+              }
+              case "get_state": {
+                const slug = typeof params.slug === "string" ? params.slug : "";
+                if (!slug) { result = { error: "missing_required", field: "slug" }; break; }
+                const state = reputableSourceMonitorEngine.getState(slug);
+                result = state === null ? { error: "unknown_slug", slug } : { slug, state };
+                break;
+              }
+              case "reset_all": {
+                reputableSourceMonitorEngine.resetAll();
+                result = { reset: true, sources: reputableSourceMonitorEngine.getSources().length };
+                break;
+              }
+              default:
+                result = { error: "invalid_mode", mode, allowed: ["poll_all", "poll_one", "get_sources", "get_state", "reset_all"] };
             }
             break;
           }

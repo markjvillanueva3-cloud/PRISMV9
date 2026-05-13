@@ -51,6 +51,16 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   test_smoke: z.object({}).optional(),
   test_results: z.object({}).optional(),
 
+  // AUTO-LEARNING-LOOP-MS0/U-ALL01 step-5 — ReputableSourceMonitorEngine surface.
+  source_sweep: z.object({
+    mode: z.enum(["poll_all", "poll_one", "get_sources", "get_state", "reset_all"])
+      .optional()
+      .describe("Operation mode (defaults to poll_all). poll_all = full sweep; poll_one = one slug; get_sources = list config; get_state = per-source state; reset_all = clear all state."),
+    slug: z.string()
+      .optional()
+      .describe("Source slug — required for poll_one + get_state (e.g. 'arxiv-cs-ai')."),
+  }).optional(),
+
   edit_impact_build_graph: z.object({
     srcRoot: z.string().optional().describe("Source root directory to scan"),
   }).optional(),

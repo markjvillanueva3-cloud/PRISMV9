@@ -1,6 +1,6 @@
 # MILESTONE_PROGRESS — what's actually shipped vs claimed
 
-> Generated: 2026-05-13T16:09:16.763Z
+> Generated: 2026-05-13T16:27:15.863Z
 > Window: last 60.days of git log across all branches
 > Source: `scripts/build-milestone-progress.mjs`
 
@@ -19,14 +19,16 @@ flagging a unit as missing.
 
 - Milestones loaded:        **670**
 - Units across all MS:      **4905**
-- Units shipped (in git):   **1182**
-- Units pending:            **3723**
-- Drift cases:              **171** (envelope status disagrees with git reality)
+- Units shipped (in git):   **1184**
+- Units pending:            **3721**
+- Drift cases:              **172** (envelope status disagrees with git reality)
 
 ## Top recently-active milestones (last shipped → first)
 
 | Milestone | Track | Status (claimed) | Status (real) | Shipped/Total | Last commit |
 |-----------|-------|------------------|---------------|---------------|-------------|
+| TRAINING-LEARNING-MS0 | TRAINING-LEARNING | in_progress | in_progress_real | 1/7 (14%) | 2026-05-13 |
+| CLEANUP-MS0 | CLEANUP | not_started | in_progress_real | 1/73 (1%) | 2026-05-13 |
 | COORD-MS0 | INFRA | unknown | in_progress_real | 1/12 (8%) | 2026-05-13 |
 | AI-MAX-MS0 | AI-MAX | in_progress | in_progress_real | 2/12 (17%) | 2026-05-13 |
 | BP-MS0 | BP | not_started | in_progress_real | 1/28 (4%) | 2026-05-13 |
@@ -55,8 +57,6 @@ flagging a unit as missing.
 | QA-MS2 | — | not_started | in_progress_real | 5/6 (83%) | 2026-05-13 |
 | QA-MS3 | — | not_started | in_progress_real | 5/7 (71%) | 2026-05-13 |
 | QA-MS4 | — | not_started | in_progress_real | 5/6 (83%) | 2026-05-13 |
-| QA-MS5 | — | not_started | in_progress_real | 5/8 (63%) | 2026-05-13 |
-| QA-MS6 | — | not_started | in_progress_real | 5/8 (63%) | 2026-05-13 |
 
 ## Drift cases (claim vs git disagrees)
 
@@ -132,7 +132,7 @@ flagging a unit as missing.
 | LATHE-MASTER | 136 | 136 | 0/136 |
 | LATHE-PROD-READY-MS0 | 135 | 135 | 0/135 |
 | MS-WIRE-FRONTEND | 90 | 90 | 0/90 |
-| CLEANUP-MS0 | 73 | 73 | 0/73 |
+| CLEANUP-MS0 | 72 | 73 | 1/73 |
 | MS-WIRE-BACKEND | 60 | 60 | 0/60 |
 | MIO-MS0 | 57 | 57 | 0/57 |
 | LATHE-LORA-MS0 | 50 | 50 | 0/50 |
