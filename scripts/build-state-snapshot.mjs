@@ -29,7 +29,7 @@
  */
 
 import { readFile, writeFile, readdir, stat } from "node:fs/promises";
-import { existsSync, statSync, readdirSync } from "node:fs";
+import { existsSync, statSync, readdirSync, writeFileSync, renameSync, unlinkSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { join, resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -288,6 +288,19 @@ function attachWikiCrossRefs(samples, wikiTitles) {
   });
 }
 
+// Atomic write — tmp + rename prevents byte-interleaved partial reads when
+// 6 concurrent Claude chats all trigger build-state-inject on SessionStart.
+function atomicWriteFileSync(targetPath, contents) {
+  const tmp = `${targetPath}.tmp-${process.pid}-${Date.now()}`;
+  try {
+    writeFileSync(tmp, contents, "utf8");
+    renameSync(tmp, targetPath);
+  } catch (err) {
+    try { unlinkSync(tmp); } catch { /* tmp may not exist */ }
+    throw err;
+  }
+}
+
 // Chain-regen: if a dependency's output is older than this, fire its
 // generator before reading. Keeps the snapshot honest across SessionStart
 // fires of build-state-inject without needing a separate daily cron.
@@ -456,8 +469,8 @@ async function main() {
     },
   };
 
-  await writeFile(OUT_JSON, JSON.stringify(out, null, 2) + "\n", "utf8");
-  await writeFile(OUT_MD, renderMD(out), "utf8");
+  atomicWriteFileSync(OUT_JSON, JSON.stringify(out, null, 2) + "\n");
+  atomicWriteFileSync(OUT_MD, renderMD(out));
 
   process.stderr.write(
     `[build-state] wrote ${OUT_JSON}\n[build-state] wrote ${OUT_MD}\n`,

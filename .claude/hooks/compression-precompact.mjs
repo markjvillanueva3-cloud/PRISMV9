@@ -20,7 +20,19 @@ import * as fs from "fs";
 import * as path from "path";
 
 const CHECKPOINT_STATE = "H:/prism/mcp-server/data/state/CHECKPOINT_TRACKER.json";
-const COMPRESSION_OUTPUT = "H:/prism/mcp-server/data/state/SESSION_COMPRESSED.json";
+// Per-session output path prevents 6 concurrent chats clobbering one shared file.
+// Session id sourced from stdin JSON (session_id field) or env var, with fallback
+// to the legacy shared path (guarded by atomic tmp+rename).
+const COMPRESSION_STATE_DIR = "H:/prism/mcp-server/data/state";
+
+function getCompressionOutputPath(sessionId) {
+  if (sessionId) {
+    return path.join(COMPRESSION_STATE_DIR, `SESSION_COMPRESSED-${sessionId}.json`);
+  }
+  // Fallback: legacy shared path — callers still get a valid file, but it is
+  // not session-isolated. The atomic write below prevents byte interleaving.
+  return path.join(COMPRESSION_STATE_DIR, "SESSION_COMPRESSED.json");
+}
 const HEAD_CHARS = 200;
 const TAIL_CHARS = 100;
 const MAX_ENTITIES = 20;
@@ -87,9 +99,9 @@ function loadCheckpointState() {
   return { filesEdited: [], editCount: 0 };
 }
 
-function writeCompressedSession(compressed) {
+function writeCompressedSession(compressed, outputPath) {
   try {
-    const dir = path.dirname(COMPRESSION_OUTPUT);
+    const dir = path.dirname(outputPath);
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 
     const output = {
@@ -100,7 +112,16 @@ function writeCompressedSession(compressed) {
       files: compressed,
     };
 
-    fs.writeFileSync(COMPRESSION_OUTPUT, JSON.stringify(output, null, 2));
+    // Atomic tmp+rename — prevents partial-write corruption when concurrent
+    // sessions (or the fallback shared path) are written simultaneously.
+    const tmp = `${outputPath}.tmp-${process.pid}-${Date.now()}`;
+    try {
+      fs.writeFileSync(tmp, JSON.stringify(output, null, 2));
+      fs.renameSync(tmp, outputPath);
+    } catch (err) {
+      try { fs.unlinkSync(tmp); } catch { /* tmp may not exist */ }
+      throw err;
+    }
     return output;
   } catch {
     return null;
@@ -116,6 +137,16 @@ async function main() {
     process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
+
+  // Derive per-session output path from stdin or env.
+  const sessionId = (
+    input.session_id ||
+    input.sessionId ||
+    process.env.CLAUDE_SESSION_ID ||
+    process.env.CLAUDE_CODE_SESSION_ID ||
+    ""
+  ).slice(0, 8).replace(/[^a-zA-Z0-9_-]/g, "") || null;
+  const outputPath = getCompressionOutputPath(sessionId);
 
   const state = loadCheckpointState();
   const files = state.filesEdited || [];
@@ -136,7 +167,7 @@ async function main() {
     return;
   }
 
-  const result = writeCompressedSession(compressed);
+  const result = writeCompressedSession(compressed, outputPath);
 
   if (result) {
     const ctx = `📦 Pre-compression complete: ${result.fileCount} files · avg ratio ${result.avgRatio.toFixed(1)}:1`;

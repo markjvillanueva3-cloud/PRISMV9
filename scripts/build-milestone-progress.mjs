@@ -32,10 +32,24 @@
  * re-run after every commit batch by stop-shipped-units.mjs.
  */
 
-import { readdir, readFile, writeFile } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
+import { writeFileSync, renameSync, unlinkSync } from "node:fs";
 import { join, resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
+
+// Atomic write — tmp + rename prevents byte-interleaved reads when /precompact
+// and /checkin fire this script concurrently across 6 chat sessions.
+function atomicWriteFileSync(targetPath, contents) {
+  const tmp = `${targetPath}.tmp-${process.pid}-${Date.now()}`;
+  try {
+    writeFileSync(tmp, contents, "utf8");
+    renameSync(tmp, targetPath);
+  } catch (err) {
+    try { unlinkSync(tmp); } catch { /* tmp may not exist */ }
+    throw err;
+  }
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const REPO_ROOT = resolve(dirname(__filename), "..");
@@ -309,8 +323,8 @@ async function main() {
     milestones: progress,
   };
 
-  await writeFile(OUT_JSON, JSON.stringify(json, null, 2) + "\n", "utf8");
-  await writeFile(OUT_MD, renderMarkdown(progress), "utf8");
+  atomicWriteFileSync(OUT_JSON, JSON.stringify(json, null, 2) + "\n");
+  atomicWriteFileSync(OUT_MD, renderMarkdown(progress));
 
   process.stderr.write(`[milestone-progress] wrote ${OUT_JSON}\n`);
   process.stderr.write(`[milestone-progress] wrote ${OUT_MD}\n`);

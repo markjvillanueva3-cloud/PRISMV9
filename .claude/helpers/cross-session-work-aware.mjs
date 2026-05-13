@@ -38,9 +38,18 @@ async function ensureDir(path) {
   }
 }
 
-async function writeJSON(path, data) {
-  await ensureDir(path);
-  await fs.writeFile(path, JSON.stringify(data, null, 2));
+async function writeJSON(filePath, data) {
+  await ensureDir(filePath);
+  // Atomic tmp+rename — prevents byte-interleaved reads when all 6 concurrent
+  // chat sessions call registerCurrentWork() on the same registry files.
+  const tmp = `${filePath}.tmp-${process.pid}-${Date.now()}`;
+  try {
+    await fs.writeFile(tmp, JSON.stringify(data, null, 2));
+    await fs.rename(tmp, filePath);
+  } catch (err) {
+    try { await fs.unlink(tmp); } catch { /* tmp may not exist */ }
+    throw err;
+  }
 }
 
 async function getGitRecentWork() {

@@ -11,6 +11,16 @@
 
 import { increment } from "./tool-counter.mjs";
 
+// Per-session counter key — prevents one busy chat from triggering compaction
+// warnings in the other 5 concurrent sessions. Session id sourced from the
+// same env vars used by session-token-state.mjs.
+const _rawSid = (
+  process.env.CLAUDE_SESSION_ID ||
+  process.env.CLAUDE_CODE_SESSION_ID ||
+  ""
+).slice(0, 8).replace(/[^a-zA-Z0-9_-]/g, "");
+const SESSION_COUNTER_KEY = _rawSid ? `tool_calls_session_${_rawSid}` : "tool_calls_session";
+
 const THRESHOLDS = [50, 75, 100];
 // Width of the firing window after each threshold. Fires once for the
 // SAMPLE_RATE calls immediately after crossing, then goes quiet until the
@@ -20,7 +30,7 @@ const SAMPLE_RATE = 10;
 async function main() {
   // Each hook invocation is a separate process — always increment on disk.
   // The hook runs async:true so disk I/O doesn't block the user.
-  const count = await increment("tool_calls_session");
+  const count = await increment(SESSION_COUNTER_KEY);
 
   // Check thresholds
   for (const threshold of THRESHOLDS) {

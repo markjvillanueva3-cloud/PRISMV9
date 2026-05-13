@@ -1,14 +1,28 @@
 import { promises as fs } from "node:fs";
+import fsSync from "node:fs";
 import process from "node:process";
 import { spawnSync } from "node:child_process";
 import { cachePath, countLines } from "./hook-cache.mjs";
+import { getSessionId, getSessionStatePath, ensureSessionDir } from "./session-token-state.mjs";
 
 const PATHS = {
   prismRoot: "H:\\prism",
   statePosition: "H:\\prism\\state\\CURRENT_POSITION.md",
   fallbackPosition: "H:\\prism\\mcp-server\\data\\docs\\roadmap\\CURRENT_POSITION.md",
+  // Legacy shared path — only used when session id cannot be derived.
   summaryFile: "H:\\prism\\.claude\\helpers\\.session-summary.md",
 };
+
+function readStdinSync() {
+  try {
+    if (process.stdin.isTTY) return null;
+    const buf = fsSync.readFileSync(0, "utf-8");
+    if (!buf || !buf.trim().startsWith("{")) return null;
+    return JSON.parse(buf);
+  } catch {
+    return null;
+  }
+}
 
 function runGit(args) {
   const result = spawnSync("git", args, {
@@ -38,6 +52,17 @@ async function readPhase() {
 }
 
 async function main() {
+  // Per-session path keeps each of the 6 concurrent chats' summaries isolated.
+  // Falls back to the legacy shared path if no session id can be derived.
+  const stdin = readStdinSync();
+  const sessionId = getSessionId(stdin);
+  const summaryPath = sessionId && sessionId !== "default"
+    ? (() => {
+        ensureSessionDir(sessionId);
+        return getSessionStatePath(sessionId, "session-summary").replace(/\.json$/, ".md");
+      })()
+    : PATHS.summaryFile;
+
   const timestamp = new Date().toISOString();
   const [phase, filesRead, toolCalls, errorCount, agentCount] = await Promise.all([
     readPhase(),
@@ -75,7 +100,7 @@ async function main() {
     "",
   ].join("\n");
 
-  await fs.writeFile(PATHS.summaryFile, summary, "utf8");
+  await fs.writeFile(summaryPath, summary, "utf8");
   process.stdout.write(JSON.stringify({ continue: true }));
 }
 
