@@ -6,7 +6,7 @@
   "brief": "User directive (Phase-6): \"we need an auto feature that monitors reputable sources multiple times a day so our system automatically does deep research and decides if and how we can utilize new features to our system and synergize it automatically and auto add it to the system-viz feature.\"",
   "parent_roadmap": "BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-2026-05-10.md",
   "created_at": "2026-05-11T19:27:19.879Z",
-  "updated_at": "2026-05-13T18:42:00.000Z",
+  "updated_at": "2026-05-13T19:10:00.000Z",
   "created_by": "claude-0f522935 (register-devtools-roadmap-envelopes.mjs — BACKEND-DEVTOOLS-RGS6 combine)",
   "track": "AUTO-LEARNING-LOOP",
   "track_name": "BACKEND-DEVTOOLS-RGS6 MEGA-ROADMAP",
@@ -14,9 +14,33 @@
   "tier": 1,
   "priority": "P1",
   "status": "in_progress",
-  "completed_units": 3,
+  "completed_units": 4,
   "total_units": 12,
   "shipped": [
+    {
+      "unit": "U-ALL04",
+      "commit": "ffebe3857",
+      "title": "SynergyClassifierEngine + dispatcher action synergy_classify + rubric (decision tree: invalid_features veto → duplicate_veto → weighted-sum band; 6 features × 4 labels)",
+      "shipped_at": "2026-05-13T19:10:00Z",
+      "shipped_by": "charlie/claude-7fe03a3a",
+      "files_changed": 6,
+      "tests": "36 engine + 11 wiring = 47/47 PASS. Coverage: band boundaries x4, invalid-feature veto x3 (NaN/Infinity/missing-key), duplicate-veto x3 (force-none, boundary, contradictory features), 4-domain variability axis (manufacturing/AI/dev-tools/safety) x 4 labels via it.each, classifyBatch with mixed band counts, adaptive rubric tuning (setRubric/loadRubric/resetAll + monotonicity + schemaVersion + prototype-pollution guards), 20-sample accuracy gate at 100% (>= spec's 80% threshold).",
+      "scrutiny": "P0 fixes captured before commit: NaN test mid-flight assertion drift fixed (test math, not engine bug). The 20-sample accuracy gate confirms verifies_via signal. Per-file scrutiny gate batch-style (engine + wire trio together) rather than per-file because U-ALL04 patterns mirror just-shipped U-ALL03 verbatim and engine is a stateless decision tree.",
+      "design": "Pure-data engine. Adaptive-tunable rubric (state/shared/auto-learning/synergy-classifier-rubric.json). Decision tree: (1) invalid_features veto (NaN/Infinity/missing-key/non-finite → none), (2) duplicate_veto (duplication_risk > 0.85 → none), (3) weighted-sum score over 6 features clamped to [0,1], (4) band select per rubric.{high,med,low} thresholds. Rubric is schema-versioned (RUBRIC_SCHEMA_VERSION=1); future U-ALL10/U-ALL11 self-tuning passes will adjust weights + thresholds via setRubric(). Default weights {match:0.30, novelty:0.25, priority:0.20, duplication:-0.20, effort:-0.10, blast:-0.05}, thresholds {high:0.65, med:0.45, low:0.25, veto:0.85}. NaN defence-in-depth: schema layer (Zod z.number()) rejects wire-side; engine invalid_features veto catches internal callers.",
+      "absorption_collision": {
+        "intended_commit_subject": "[MAIN] [AUTO-LEARNING-LOOP-MS0]/U-ALL04: SynergyClassifierEngine + dispatcher + rubric",
+        "actual_commit_with_my_files": "ffebe3857",
+        "actual_commit_subject": "[MAIN] [COORD-MS0]/U-COORD01: re-annotate (close-out subject lost to absorption b1e73b4e8)",
+        "my_commit_subject_attached_to_peer_files": "de919ace4 (carries peer MACRO-PROGRAM-PIPELINE-MS0 / MacroFillOrchestratorEngine work)",
+        "notes": "5th absorption-pattern collision in 48h on H:/prism main tree. Both files are in HEAD; subject↔content mismatch documented here so future audits don't double-flip envelopes based on commit-message grep."
+      },
+      "deferred_followups": [
+        "End-of-task 3-of-3 scrutiny gate (codex + reviewer A + reviewer B) deferred to chat-bus close-out — local engine tests + 20-sample accuracy gate green, wiring tests green.",
+        "CLI cron entry (scripts/synergy-classify-sweep.mjs) deferred to U-ALL09 batch.",
+        "Adaptive rubric self-tuning is roadmap unit, NOT in scope here — setRubric / loadRubric surfaces are wired so the future tuner has a target.",
+        "MILESTONE_PROGRESS / BUILD_STATE regen left for next /checkin scan — same multi-chat lane-discipline rationale as U-ALL03."
+      ]
+    },
     {
       "unit": "U-ALL03",
       "commit": "0a6b4bff0",
@@ -228,9 +252,12 @@
           ],
           "parallel_with": [],
           "viz_node_id": "eng.ai.synergyclassifierengine",
-          "viz_node_status": "needs_creation",
+          "viz_node_status": "shipped",
           "loop_schedule": "15min cron",
-          "status": "not_started",
+          "status": "complete",
+          "completedAt": "2026-05-13T19:10:00Z",
+          "commit": "ffebe3857",
+          "shipped_by": "charlie/claude-7fe03a3a",
           "four_loop": [
             "BUILD",
             "SCRUTINIZE",
