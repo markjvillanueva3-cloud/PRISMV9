@@ -558,6 +558,37 @@ export const macroFanoutDryRunSchema = z.object({
 });
 
 /**
+ * MS0-U6 — MacroBulkEmitOrchestratorEngine.emitBatch (BULK PATH, gated, NEVER auto)
+ *
+ * Companion Stop hook `macro-bulk-emit-guard` blocks Stop if any batch ran
+ * without a corresponding _BATCH_<n>_APPROVED marker. ALL files emitted by
+ * the underlying U5 still carry `needsOperatorReview: true` — first-piece
+ * prove-out is unconditional.
+ */
+export const macroBulkEmitBatchSchema = z.object({
+  batchNumber: z.number().int().min(0).describe("Batch index (>=0). Batch 0 needs no prior approval; n>=1 requires _BATCH_{n-1}_APPROVED."),
+  libraryRoot: z.string().min(1).describe("Library root for _MACRO_BATCH_<n>_REVIEW.md + _MACRO_BULK_LOG.md + _MACRO_NEEDS_HUMAN.md."),
+  batchSize: z.number().int().min(1).max(500).optional().describe("Default 25; caps at 500."),
+  parts: z.array(z.object({
+    customerName: z.string().min(1),
+    partNumber: z.string().min(1),
+    features: z.unknown().optional(),
+    needsHumanReason: z.string().optional(),
+  })).describe("Explicit parts list — production callers feed from PartFolderOrganizerEngine + macroNeedsFill scan."),
+  borderlineThreshold: z.number().min(0.70).max(2.0).optional().describe("Borderline band ceiling (default 0.75; parts with 0.70<=S(x)<this go to needsHuman, NOT emitted)."),
+  fillMachineHint: z.string().optional().describe("Default 'OKUMA_LB-3000-EX'."),
+  approvedEnvVarName: z.string().optional().describe("Default 'MACRO_PROGRAM_PIPELINE_BATCH_APPROVED'."),
+  dryRun: z.boolean().optional().describe("Do everything except writes."),
+});
+
+export const macroApproveBatchSchema = z.object({
+  batchNumber: z.number().int().min(0).describe("Batch index to approve (creates _BATCH_<n>_APPROVED marker)."),
+  libraryRoot: z.string().min(1).describe("Library root (same as the batch's emit)."),
+  approvedBy: z.string().min(1).describe("Operator identity (audit trail)."),
+  approvalNote: z.string().optional().describe("Free-text note (e.g. 'reviewed 25 parts, 3 flagged')."),
+});
+
+/**
  * MS0-U5 — MacroPerMachineEmitterEngine.emitPerMachine
  *
  * Inputs at runtime use camelCase (dossier, partRef, targetMachines) because

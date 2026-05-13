@@ -173,6 +173,8 @@ const ACTIONS = [
   "macro_fill_candidate",                   // MS0-U2: MacroFillOrchestratorEngine.fillCandidate — fill VC vars from print dims + call U3 generator (SAFETY-CRITICAL: returns candidate, NEVER a file)
   "macro_gate_candidate",                   // MS0-U4: MacroCandidateGateEngine.gateCandidate — S(x) ≥ 0.70 HARD BLOCK + envelope + spindle + material sanity → dossier (LOAD-BEARING SAFETY)
   "macro_emit_per_machine",                 // MS0-U5: MacroPerMachineEmitterEngine.emitPerMachine — per-machine re-gate + .MIN emit (SAFETY-CRITICAL: file ONLY when that machine's S(x) ≥ 0.70)
+  "macro_bulk_emit_batch",                  // MS0-U6: MacroBulkEmitOrchestratorEngine.emitBatch — gated bulk path, refuses batch n if n-1 not approved, every emit needsOperatorReview
+  "macro_approve_batch",                    // MS0-U6: MacroBulkEmitOrchestratorEngine.approveBatch — operator approves batch n, creating _BATCH_<n>_APPROVED marker
 
   // TRAINING-LEARNING-MS0/U1: LathePartFamilyTemplateExtractorEngine surfaces
   "lathe_training_corpus_status",           // catalogCorpus — per-family counts + customers + coverage
@@ -1098,6 +1100,59 @@ Actions: ${ACTIONS.join(", ")}.`,
             }
             const data = macroCandidateGateEngine.gateCandidate(candidate);
             result = { success: data.passed, data };
+            break;
+          }
+
+          // MS0-U6 (SAFETY-CRITICAL, BULK PATH): MacroBulkEmitOrchestratorEngine.
+          // emitBatch: refuses if batch n-1 not approved. Each batch produces
+          // _MACRO_BATCH_<n>_REVIEW.md + appends _MACRO_BULK_LOG.md +
+          // _MACRO_NEEDS_HUMAN.md. Companion Stop hook `macro-bulk-emit-guard`
+          // (MINIMAL_ALLOWLIST) blocks Stop until every batch ran in window
+          // has a corresponding _BATCH_<n>_APPROVED marker.
+          case "macro_bulk_emit_batch": {
+            const { macroBulkEmitOrchestratorEngine } = await import("../../engines/MacroBulkEmitOrchestratorEngine.js");
+            if (typeof params.batchNumber !== "number") {
+              return dispatcherError(new Error("macro_bulk_emit_batch requires batchNumber (integer >= 0)"), action, "prism_turning");
+            }
+            if (!params.libraryRoot || typeof params.libraryRoot !== "string") {
+              return dispatcherError(new Error("macro_bulk_emit_batch requires libraryRoot (string)"), action, "prism_turning");
+            }
+            if (!Array.isArray(params.parts)) {
+              return dispatcherError(new Error("macro_bulk_emit_batch requires parts: BulkPartInput[]"), action, "prism_turning");
+            }
+            const data = macroBulkEmitOrchestratorEngine.emitBatch({
+              batchNumber: params.batchNumber,
+              libraryRoot: params.libraryRoot,
+              parts: params.parts,
+              batchSize: params.batchSize,
+              borderlineThreshold: params.borderlineThreshold,
+              fillMachineHint: params.fillMachineHint,
+              approvedEnvVarName: params.approvedEnvVarName,
+              dryRun: params.dryRun,
+            });
+            result = { success: data.emitted.length > 0, data };
+            break;
+          }
+
+          // MS0-U6: approve a completed batch so batch n+1 can proceed.
+          case "macro_approve_batch": {
+            const { macroBulkEmitOrchestratorEngine } = await import("../../engines/MacroBulkEmitOrchestratorEngine.js");
+            if (typeof params.batchNumber !== "number") {
+              return dispatcherError(new Error("macro_approve_batch requires batchNumber (integer >= 0)"), action, "prism_turning");
+            }
+            if (!params.libraryRoot || typeof params.libraryRoot !== "string") {
+              return dispatcherError(new Error("macro_approve_batch requires libraryRoot (string)"), action, "prism_turning");
+            }
+            if (!params.approvedBy || typeof params.approvedBy !== "string") {
+              return dispatcherError(new Error("macro_approve_batch requires approvedBy (operator identity)"), action, "prism_turning");
+            }
+            const data = macroBulkEmitOrchestratorEngine.approveBatch({
+              batchNumber: params.batchNumber,
+              libraryRoot: params.libraryRoot,
+              approvedBy: params.approvedBy,
+              approvalNote: params.approvalNote,
+            });
+            result = { success: data.approved, data };
             break;
           }
 

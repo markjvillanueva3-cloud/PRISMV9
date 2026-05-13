@@ -9,8 +9,8 @@
   "updated_at": "2026-05-12T18:55:00.000Z",
   "status": "in_progress",
   "total_units": 7,
-  "completed_units": 5,
-  "updated_at": "2026-05-13T22:00:00.000Z",
+  "completed_units": 6,
+  "updated_at": "2026-05-13T23:00:00.000Z",
   "dependencies": [],
   "rationale": "User 2026-05-12: 'add the corresponding macro program to each file system that has a part that could use one of the programs; check existing programs for each part then make a version of each program utilizing one of the macro programs; make a program for each lathe machine and label it for each machine; coding must match controller and machine capabilities'. Spec was scoped by claude-8f2683e8 (slot charlie) per the forge methodology with the live system-viz graph as dependency oracle. Key finding: ~80% of this pipeline already exists (OkumaParametricProgramEngine, MacroProgramIntelligenceEngine, OkumaMacroHeaderGeneratorEngine, LatheProofCarryingEmitEngine, LathePrintProgramEmitterEngine, ShopConfigurationEngine, LathePartClassifierEngine, PartFolderOrganizerEngine, etc). Milestone is mostly WIRING + a thin orchestrator + the 2 missing macro families + the bulk fan-out — NOT a from-scratch build. U2-U6 are SAFETY-CRITICAL (auto-emitting G-code from print dims) and gated by S(x) >= 0.70 + envelope check + sim + operator sign-off. NEVER bulk-auto-emit G-code. U1 is non-safety-critical (file copying + part classification) and ships first.",
   "knowledge_sources": {
@@ -188,7 +188,44 @@
     {
       "id": "MS0-U6",
       "title": "Bulk fan-out into _PART LIBRARY/ (gated, operator-confirmed, NEVER auto) + macro-bulk-emit-guard Stop hook",
-      "status": "not_started"
+      "status": "completed",
+      "completed_at": "2026-05-13T23:00:00.000Z",
+      "completed_by": "claude-af644f3f (slot bravo)",
+      "shipped": [
+        "MacroBulkEmitOrchestratorEngine.ts (NEW, ~510 LOC) — composes U2 fill + U4 gate + U5 emit per part; per-part errors NEVER abort the batch; categorizes each part as emitted / needsHuman / errors",
+        "Approval gate: batch N refuses if N-1 has no _BATCH_<N-1>_APPROVED marker AND env MACRO_PROGRAM_PIPELINE_BATCH_APPROVED is not set to N-1; batch 0 needs no prior approval",
+        "Three artifacts per batch: _MACRO_BATCH_<n>_REVIEW.md (per-part table) + _MACRO_BULK_LOG.md (append-only history) + _MACRO_NEEDS_HUMAN.md (append-only queue)",
+        "Borderline routing: S(x) in [0.70, 0.75) goes to needsHuman, NOT emitted (configurable via borderlineThreshold)",
+        "approveBatch + isBatchApproved: operator-friendly methods for marking batches reviewed (carries operator identity + timestamp + note)",
+        "Zod input validation (BulkEmitOptionsSchema) with sane bounds (batchSize 1..500, threshold 0.70..2.0)",
+        "dryRun support: same categorization, zero file writes",
+        ".claude/hooks/macro-bulk-emit-guard.mjs (NEW Stop hook, Tier-0) — reads _MACRO_BULK_LOG.md from configured library roots, blocks Stop if ANY batch in window (default 24h) lacks _BATCH_<n>_APPROVED. Knobs: PRISM_MACRO_BULK_GUARD_DISABLE, PRISM_MACRO_BULK_GUARD_WINDOW_MS, PRISM_MACRO_BULK_LIBRARY_ROOTS, PRISM_MACRO_BULK_GUARD_BYPASS (logged to ledger)",
+        "Stop hook wired in MINIMAL_ALLOWLIST (hook-profile.mjs) — PRISM_HOOK_PROFILE cannot disable",
+        "Stop hook wired in H:/.claude/settings.json Stop chain (after goal-complete-gate, before stop-auto-wire)",
+        "prism_turning action: macro_bulk_emit_batch (ACTIONS enum + case handler + Zod schema)",
+        "prism_turning action: macro_approve_batch (ACTIONS enum + case handler + Zod schema)",
+        "cadActionSchemas: macroBulkEmitBatchSchema + macroApproveBatchSchema with .describe() on every field",
+        "MacroBulkEmitOrchestratorEngine.test.ts (NEW — 26/26 passing): happy + approval gate (5 tests) + per-part categorization + borderline routing + artifacts + dryRun + Zod validation + constants export",
+        "macroBulkEmitGuard.hook.test.ts (NEW — 12/12 passing): parseBulkLog + checkBlocking happy/clear/window/multi-root/missing-log/corrupt-log",
+        "macroBulkEmitBatch.dispatcher.test.ts (NEW — 6/6 passing): round-trip emit + approve + refuse-when-unapproved + ACTIONS enum + schema export + bad-input rejection"
+      ],
+      "tests_run": "44/44 passing (26 engine + 12 hook + 6 dispatcher; total MS0 trifecta 67+41+44 = 152 green)",
+      "hard_rules_asserted": [
+        "Batch N refused if batch N-1 not approved (no marker, no env) — asserted directly + via fallback env var test",
+        "Per-part errors NEVER abort the batch — bad-features part followed by good-features part: errors=1 AND emitted=1, partsConsidered=2",
+        "Borderline band routing: parts with S(x) < borderlineThreshold go to needsHuman with reason='borderline_sx'",
+        "No features → needsHuman with reason='no_features' (NOT emitted, NOT errored)",
+        "approveBatch rejects missing approvedBy (operator identity required for audit trail)",
+        "approveBatch rejects negative batch numbers",
+        "needsHuman queue is APPEND-ONLY across batches (existing entries preserved when a later batch runs)",
+        "bulk log is APPEND-ONLY across batches",
+        "dryRun: zero files written, identical categorization (operator can preview-then-commit)",
+        "Zod gate blocks batchNumber<0, empty libraryRoot, batchSize>500, borderlineThreshold<0.70 or >2.0",
+        "Stop hook BLOCKS when an unapproved batch ran in window; CLEARS when marker exists; ignores entries outside windowMs",
+        "Stop hook handles missing library root (no log file) — does NOT block",
+        "Stop hook scans multiple library roots — block if ANY has an unapproved batch",
+        "PRISM_HOOK_PROFILE cannot disable the Stop hook (in MINIMAL_ALLOWLIST per CLAUDE.md doctrine)"
+      ]
     },
     {
       "id": "MS0-U7",

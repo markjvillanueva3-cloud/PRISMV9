@@ -45,6 +45,9 @@ const MINIMAL_ALLOWLIST = new Set([
   "enforce-handoff-topic",
   // Universal review enforcement — must fire for every chat
   "scrutinize-before-stop",
+  // MS0-U6 macro bulk-emit safety — blocks Stop on unapproved batches.
+  // Operator approval gate is unconditional; profile cannot disable.
+  "macro-bulk-emit-guard",
 ]);
 
 function getProfile() {
