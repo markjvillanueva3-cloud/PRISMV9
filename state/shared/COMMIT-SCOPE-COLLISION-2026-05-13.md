@@ -61,3 +61,17 @@ If you're auditing what shipped under "close-out automation":
 - Wiki: `knowledge/wiki/architecture/close-out-audit.md`
 - Doctrine: `H:/prism/CLAUDE.md` §CLOSE-OUT AUTOMATION
 - Scrutiny ledger: `mcp-server/data/state/SCRUTINY_LEDGER.json` (this session's marks)
+
+---
+
+## Update — second wave (this session, after gate-landing)
+
+The goal-gate hardening commit was swept by another peer chat:
+
+| Commit | Subject claim | Files actually swept (mine) |
+|--------|---------------|------------------------------|
+| `b60dd777b` | `[MAIN] [CLEANUP-MS0]/U-CLEANUP-B2 (fixup): add devActionSchemas.ts peer_audit_* Zod schemas` | `.claude/hooks/goal-complete-gate.mjs` (hardened: schema lock + fail-closed + tier T0) AND `mcp-server/src/__tests__/goalCompleteGate.test.ts` (11 cases) |
+
+The "fixup" subject is misleading — devActionSchemas.ts isn't in the diff stat (only goal-gate files + TRAINING-LEARNING-MS0 envelope). Same root cause: shared-tree commit-message-vs-diff drift under multi-chat load. The hardening passed 3-of-3 PASS scrutiny on b60dd777b despite landing under a peer subject.
+
+**Lesson reinforced**: even retry-with-collision-note can hit anti-clobber. For future close-out work in active multi-chat sessions: fork to a worktree IMMEDIATELY (per `feedback_conflict_fork_rule`).
