@@ -452,6 +452,12 @@
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/hook-cross-worktree-block.mjs",
             "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/golf-slot-write-allowlist.mjs",
+            "timeout": 3000,
+            "_purpose": "CLEANUP-MS0 U-CLEANUP-A5 — Tier-0 PreToolUse blocker. Enforces write-allowlist when golf slot is claimed by this session; silent no-op otherwise. Runs AFTER hook-cross-worktree-block (worktree firewall first) and BEFORE comprehensive-build-enforce (allowlist before stub-detection). Bypass: PRISM_GOLF_WRITE_ALLOWLIST_BYPASS=1."
           }
         ]
       },

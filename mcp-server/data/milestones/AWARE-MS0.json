@@ -54,9 +54,12 @@
       "id": "U-AWARE04",
       "title": "Enhanced Self-Awareness Injection",
       "phase": "AI Integration",
-      "status": "pending",
+      "status": "complete",
+      "completed_at": "2026-05-13T14:30:00Z",
+      "completed_by": "claude-7f79dd78",
       "description": "Enhance session-awareness to always inject AI feature recommendations for build/audit tasks",
-      "deliverables": ["Update self-awareness-inject hooks", "PRISMSelfAwarenessEngine.recommendAIFeatures() call", "Contextual AI capability hints"]
+      "deliverables": ["Update self-awareness-inject hooks", "PRISMSelfAwarenessEngine.recommendAIFeatures() call", "Contextual AI capability hints"],
+      "ship_notes": "Re-enabled `.claude/hooks/ai-feature-recommend.mjs` (was parked as no-op in H9 due to drift between its inlined keyword map and PRISMSelfAwarenessEngine.DOMAIN_KEYWORDS). New body: detects build/create/audit/forge intent via BUILD_PATTERNS, then emits a one-line pointer to the two canonical surfaces — `prism_session:master_index_query` (MasterIndexEngine, ranked unified search) and `prism_intelligence:ai_feature_discover` (the MCP wrapper around PRISMSelfAwarenessEngine.recommendAIFeatures). Heavy lifting stays in the canonical engines (avoiding the drift the original map suffered). 22 vitest cases cover input guards, build/create/audit/forge patterns, slash commands, and word-boundary defenses (engineering/actionable don't trip). The full master-index hit-list is already auto-injected by sibling hook `master-index-precheck-inject.mjs` (T2), so this hook adds the API-name pointer without duplicating data."
     },
     {
       "id": "U-AWARE05",
