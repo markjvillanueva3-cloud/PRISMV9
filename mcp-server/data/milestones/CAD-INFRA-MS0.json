@@ -112,6 +112,11 @@
       "id": "U-CINF08",
       "title": "CADRegressionDashboardEngine — real-time progress API",
       "estimated_duration_min": 45,
+      "status": "complete",
+      "completed_at": "2026-05-13T13:00:00Z",
+      "completed_by": "claude-7f79dd78",
+      "completed_in_commit": "466570326",
+      "ship_notes": "src/routes/cadRegression.ts shipped with /progress (batchId validated against /^[A-Za-z0-9_.-]{1,64}$/), /summary, and /stream (SSE with 2s interval, self-terminates on completed lifecycle, 30-min max). cadRegressionRoute.test.ts covers 18 cases including path-traversal/shell-metacharacter rejection. Wired in src/routes/index.ts at /api/v1/cad-regression.",
       "deliverables": [
         "src/routes/cadRegression.ts (Express API)",
         "GET /api/cad-regression/progress?batchId=...",
@@ -158,6 +163,11 @@
       "id": "U-CINF12",
       "title": "CADRegressionDispatcher — MCP action routing",
       "estimated_duration_min": 30,
+      "status": "complete",
+      "completed_at": "2026-05-13T13:50:00Z",
+      "completed_by": "claude-7f79dd78",
+      "completed_in_commits": ["cca2f92e5", "cd2bc2160"],
+      "ship_notes": "cadRegressionDispatcher.ts shipped 25 engine-named actions + 5 spec aliases (start_batch, get_progress, get_results, triage, report) = 30 total. Thin facades over orchestrator/dashboard/analyzer/triage/report engines. Schemas use concrete FileTask + FailurePayload shapes from engine interfaces. start_batch corpus auto-resolution deferred to follow-on unit (schema rejects bare {corpus} with clear validation error). 31 wiring tests with vi.hoisted() spy pattern proving alias → engine forwarding. 3-of-3 scrutiny PASS.",
       "deliverables": [
         "src/tools/dispatchers/CADRegressionDispatcher.ts",
         "Actions: start_batch, get_progress, get_results, triage, report",

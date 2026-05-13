@@ -7,14 +7,17 @@ allowed-tools: Bash, Read
 
 User standing rule (2026-05-13): *"when I say pick a unit, units are picked from those 2 road maps with development tools taking first priority."*
 
-The two master roadmaps are encoded in `state/shared/atomic-roadmap.json`:
+The pickable roadmaps are encoded in `state/shared/atomic-roadmap.json`:
 
 | Priority | Roadmap | Field | Count (as of 2026-05-13) |
 |----------|---------|-------|---|
 | **0 (first)** | `BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP` | `roadmap_priority === 0` | 3078 units |
+| **0 (first)** | `TRIBAL-PIPELINE` — JM Die / docustra / tribal-knowledge → end-to-end mill/lathe/wire-EDM pipelines + lathe-program conversion to optimized mix of hardcoded / macro / conversational / all-toolpath for all 3 machine types. Composed of `TRAINING-LEARNING-MS0` (template-corpus feeder), `MACRO-PROGRAM-PIPELINE-MS0` (safety-gated emit), `BLUEPRINT-OCR-TRAINING-MS1` (OCR context). Injected 2026-05-13 by `scripts/inject-tribal-pipeline-into-atomic-roadmap.mjs`. | `track === "training-pipeline"` (`roadmap_priority === 0`) | 19 units |
 | **1 (second)** | `REVENUE-ROADMAP-v7.6` | `roadmap_priority === 1` (`track === "revenue"`) | 585 units |
 
-Devtools is ALWAYS picked before revenue. Within each priority, sort by tier asc → milestone asc → unit_id asc. Already-shipped units (from `MILESTONE_PROGRESS.json`) are dropped.
+Devtools + training-pipeline share priority 0 and are picked before revenue. Within each priority, sort by tier asc → milestone asc → unit_id asc. Already-shipped units (from `MILESTONE_PROGRESS.json`) are dropped.
+
+**Inject more milestones** into the pickable pool: `node scripts/inject-tribal-pipeline-into-atomic-roadmap.mjs` — reads named milestone envelopes (default: TRAINING-LEARNING-MS0 + MACRO-PROGRAM-PIPELINE-MS0 + BLUEPRINT-OCR-TRAINING-MS1) and appends pending units to atomic-roadmap.json + assigns to slot alpha. Idempotent. Edit `TRIBAL_PIPELINE_MILESTONES` in the script to add more.
 
 ## Invocation
 

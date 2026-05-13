@@ -8,6 +8,7 @@
  * The two master roadmaps are encoded in state/shared/atomic-roadmap.json via
  *   roadmap_priority === 0  →  BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP   (FIRST)
  *   roadmap_priority === 1  →  REVENUE-ROADMAP-v7.6 (track === "revenue")
+ *   roadmap_priority === 2  →  CLEANUP-MS0 (golf hygiene, alongside the 2 primary)
  *
  * This script:
  *   1. Resolves the caller's chat lane (slot → chat 1..6 mapping).
@@ -36,7 +37,7 @@ const ROADMAP_PATH = path.join(ROOT, "state/shared/atomic-roadmap.json");
 const PROGRESS_PATH = path.join(ROOT, "state/shared/MILESTONE_PROGRESS.json");
 const MILESTONES_DIR = path.join(ROOT, "mcp-server/data/milestones");
 
-const SLOT_TO_CHAT = { alpha: 1, bravo: 2, charlie: 3, delta: 4, echo: 5, foxtrot: 6 };
+const SLOT_TO_CHAT = { alpha: 1, bravo: 2, charlie: 3, delta: 4, echo: 5, foxtrot: 6, golf: 7 };
 
 const args = process.argv.slice(2);
 function argVal(name, fallback) {
@@ -71,6 +72,7 @@ function buildShippedSet(progress) {
 function priorityLabel(p) {
   if (p === 0) return "devtools";
   if (p === 1) return "revenue";
+  if (p === 2) return "cleanup";
   return "other";
 }
 
@@ -96,18 +98,27 @@ for (const u of roadmap.roadmap) {
   byKey.set(key, u);
 }
 
-const lane = (roadmap.laneAssignments ?? []).find((l) => l.chat === chat);
-if (!lane) {
+// Cleanup is fleet-shared (golf-owned), not chat-laned. slot=golf also has
+// no laneAssignment by design. Both cases use the full roadmap pool; the
+// priority filter below scopes to roadmap_priority=2.
+const isCleanupQuery = priorityFilter === "cleanup" || slot === "golf";
+const lane = isCleanupQuery
+  ? null
+  : (roadmap.laneAssignments ?? []).find((l) => l.chat === chat);
+if (!isCleanupQuery && !lane) {
   console.error(`pick-unit: no lane assignment for chat ${chat} (slot ${slot})`);
   process.exit(3);
 }
 
 const shipped = buildShippedSet(progress);
 
-// Resolve lane units → real entries, then filter.
-let pool = (lane.units ?? [])
-  .map((k) => byKey.get(k))
-  .filter(Boolean);
+// Cleanup queries use the full roadmap (no lane scoping); lane queries
+// resolve lane.units keys into entries the normal way.
+let pool = isCleanupQuery
+  ? roadmap.roadmap.slice()
+  : (lane.units ?? [])
+      .map((k) => byKey.get(k))
+      .filter(Boolean);
 
 const beforeShipped = pool.length;
 pool = pool.filter((u) => !shipped.has(`${u.milestone}::${u.unit_id ?? "?"}`));
@@ -115,6 +126,7 @@ const afterShipped = pool.length;
 
 if (priorityFilter === "devtools") pool = pool.filter((u) => u.roadmap_priority === 0);
 else if (priorityFilter === "revenue") pool = pool.filter((u) => u.roadmap_priority === 1);
+else if (priorityFilter === "cleanup") pool = pool.filter((u) => u.roadmap_priority === 2);
 // "any" → keep all
 
 if (tierFilter !== null && Number.isFinite(tierFilter)) {
@@ -122,9 +134,15 @@ if (tierFilter !== null && Number.isFinite(tierFilter)) {
 }
 
 // Sort: priority asc (0 devtools first, 1 revenue), then tier asc, then milestone, then unit.
+// Use ?? semantics for tier so tier=0 isn't treated as missing (the `0 || 99 === 99` trap
+// was demoting tier-0 units to the bottom of the listing).
+const tierKey = (u) => {
+  const n = Number(u?.tier);
+  return Number.isFinite(n) ? n : 99;
+};
 pool.sort((a, b) =>
   (a.roadmap_priority ?? 9) - (b.roadmap_priority ?? 9) ||
-  (Number(a.tier) || 99) - (Number(b.tier) || 99) ||
+  tierKey(a) - tierKey(b) ||
   (a.milestone || "").localeCompare(b.milestone || "") ||
   (a.unit_id || "").localeCompare(b.unit_id || ""));
 
@@ -144,7 +162,7 @@ const picks = pool.slice(0, limit).map((u) => ({
 const summary = {
   slot,
   chat,
-  lane_size: lane.units?.length ?? 0,
+  lane_size: lane?.units?.length ?? (isCleanupQuery ? roadmap.roadmap.length : 0),
   before_shipped_filter: beforeShipped,
   after_shipped_filter: afterShipped,
   filter: { priority: priorityFilter, tier: tierFilter },
@@ -156,7 +174,8 @@ if (wantJson) {
   console.log(JSON.stringify({ summary, picks }, null, 2));
 } else {
   console.log(`# pick-unit — slot=${slot} chat=${chat} priority=${priorityFilter}${tierFilter !== null ? ` tier=${tierFilter}` : ""}`);
-  console.log(`Lane size ${lane.units?.length ?? 0} · after-shipped ${afterShipped} · pool after filter ${pool.length} · showing top ${picks.length}`);
+  const laneSize = lane?.units?.length ?? (isCleanupQuery ? roadmap.roadmap.length : 0);
+  console.log(`Lane size ${laneSize} · after-shipped ${afterShipped} · pool after filter ${pool.length} · showing top ${picks.length}`);
   console.log("");
   if (picks.length === 0) {
     console.log("(no candidates match — relax filters or pick another lane)");
