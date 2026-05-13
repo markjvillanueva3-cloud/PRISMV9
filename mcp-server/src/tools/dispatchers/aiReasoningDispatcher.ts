@@ -2395,6 +2395,31 @@ export async function executeAIReasoningAction(
         break;
       }
 
+      // ─────────────────────────────────────────────────────────────────────
+      // AUTO-LEARNING-LOOP-MS0/U-ALL03 — AutoResearchOrchestratorEngine
+      // ─────────────────────────────────────────────────────────────────────
+      case "auto_research_dispatch": {
+        const { autoResearchOrchestratorEngine } = await import("../../engines/AutoResearchOrchestratorEngine.js");
+        const items = (params.items ?? []) as Array<{
+          source: string;
+          guid: string;
+          title: string;
+          link?: string;
+          published?: string;
+          summary?: string;
+        }>;
+        const enqueueOut = items.length > 0 ? autoResearchOrchestratorEngine.enqueue(items) : undefined;
+        const flushOut = params.flush === true ? await autoResearchOrchestratorEngine.flush() : undefined;
+        result = {
+          enqueue: enqueueOut,
+          flush: flushOut,
+          stats: autoResearchOrchestratorEngine.getStats(),
+          dailyUsage: autoResearchOrchestratorEngine.getDailyUsage(),
+          dispatchConfigured: autoResearchOrchestratorEngine.isDispatchConfigured(),
+        };
+        break;
+      }
+
       default: {
         const _exhaustive: never = action;
         return dispatcherError(`Unknown action: ${_exhaustive}`, action, "prism_ai");

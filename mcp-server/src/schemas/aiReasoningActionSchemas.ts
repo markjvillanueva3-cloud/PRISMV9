@@ -469,6 +469,8 @@ export const AI_REASONING_ACTIONS = [
   "lora_drift_set_config",          // LoRADriftCoordinatorEngine.setConfig
   // AUTO-LEARNING-LOOP-MS0/U-ALL02 — NoveltyDetectionEngine
   "novelty_detect",                 // NoveltyDetectionEngine.detect (+ optional addVerifiedNovel)
+  // AUTO-LEARNING-LOOP-MS0/U-ALL03 — AutoResearchOrchestratorEngine
+  "auto_research_dispatch",         // AutoResearchOrchestratorEngine.enqueue (+ optional flush)
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -2271,5 +2273,29 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
     "Classify a batch of source items as novel or known relative to the auto-learn catalog. " +
     "Returns { detect, add?, catalogLoaded }. When commit=true the add field carries " +
     "AddOutcome { added, embeddedFailures, skipped }.",
+  ),
+
+  // AUTO-LEARNING-LOOP-MS0/U-ALL03 — AutoResearchOrchestratorEngine
+  auto_research_dispatch: z.object({
+    items: z.array(z.object({
+      source: z.string().describe("Source slug from ReputableSourceMonitorEngine."),
+      guid: z.string().describe("Stable identifier for the item."),
+      title: z.string().describe("Item title."),
+      link: z.string().optional().describe("Item URL if available."),
+      published: z.string().optional().describe("ISO-8601 publish timestamp."),
+      summary: z.string().optional().describe("Best-effort item summary."),
+    })).optional().describe(
+      "Batch of NovelSourceItem to enqueue for researcher dispatch. Omit to flush only.",
+    ),
+    flush: z.boolean().optional().describe(
+      "If true, drain pending → dispatch up to (maxConcurrent − inFlight) researcher subagents. " +
+      "Subject to the daily-budget cap. Default false (enqueue only).",
+    ),
+  }).strict().describe(
+    "Rate-limited researcher-subagent dispatcher (cap 3 concurrent / 12 attempts per UTC day, 15-min " +
+    "per-dispatch timeout). When `items` is non-empty they are sanitized + enqueued (dedup against " +
+    "pending/in-flight/completed/dead-letter). When `flush=true` the engine drains pending via the " +
+    "configured DispatchFn (production wires this at boot; an unconfigured engine returns " +
+    "reason:'no_dispatch_configured'). Returns { enqueue?, flush?, stats, dailyUsage, dispatchConfigured }.",
   ),
 };
