@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "notes": "10 reputable sources for the auto-learning loop. Each entry is the allowlist contract the U-ALL12 SourcePoisoningSanitizerEngine consumes. `expected_fingerprint` (when present) is SHA-256 hex of canonical `title|guid|summary` — the source must serve content that hashes to this value, or items are quarantined. Sources without a fingerprint are trusted-by-name (allowlist alone). Adaptive tuners may rotate fingerprints as upstream signing keys rotate. Last reviewed 2026-05-13.",
+  "sources": [
+    {
+      "slug": "arxiv-cs-ai",
+      "name": "arXiv cs.AI",
+      "notes": "Daily new submissions in cs.AI; no signed feed — trusted-by-name."
+    },
+    {
+      "slug": "arxiv-cs-lg",
+      "name": "arXiv cs.LG",
+      "notes": "Machine-learning category."
+    },
+    {
+      "slug": "anthropic-blog",
+      "name": "Anthropic engineering blog",
+      "notes": "Engineering posts from Anthropic; no signed feed."
+    },
+    {
+      "slug": "anthropic-news",
+      "name": "Anthropic news",
+      "notes": "Product + research announcements."
+    },
+    {
+      "slug": "openai-blog",
+      "name": "OpenAI blog",
+      "notes": "Engineering + product posts."
+    },
+    {
+      "slug": "google-research",
+      "name": "Google Research blog",
+      "notes": "Research posts from Google."
+    },
+    {
+      "slug": "ieee-spectrum-mfg",
+      "name": "IEEE Spectrum — manufacturing tag",
+      "notes": "Practitioner manufacturing news."
+    },
+    {
+      "slug": "modern-machine-shop",
+      "name": "Modern Machine Shop",
+      "notes": "CNC + workshop news."
+    },
+    {
+      "slug": "sandvik-coromant-news",
+      "name": "Sandvik Coromant newsroom",
+      "notes": "Manufacturer announcements + cutting-data updates."
+    },
+    {
+      "slug": "karpathy-blog",
+      "name": "Karpathy blog",
+      "notes": "Discipline + LLM systems wisdom (referenced throughout PRISM doctrine)."
+    }
+  ]
+}

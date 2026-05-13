@@ -2396,6 +2396,16 @@ export async function executeAIReasoningAction(
       }
 
       // ─────────────────────────────────────────────────────────────────────
+      // AUTO-LEARNING-LOOP-MS0/U-ALL12 — SourcePoisoningSanitizerEngine
+      // ─────────────────────────────────────────────────────────────────────
+      case "source_poisoning_sanitize": {
+        const { sourcePoisoningSanitizerEngine } = await import("../../engines/SourcePoisoningSanitizerEngine.js");
+        const items = (params.items ?? []) as Array<Parameters<typeof sourcePoisoningSanitizerEngine.sanitize>[0][number]>;
+        result = sourcePoisoningSanitizerEngine.sanitize(items);
+        break;
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
       // AUTO-LEARNING-LOOP-MS0/U-ALL06 — RoadmapAutoAppendEngine
       // ─────────────────────────────────────────────────────────────────────
       case "roadmap_auto_append": {

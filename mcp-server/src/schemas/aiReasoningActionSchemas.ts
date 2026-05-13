@@ -477,6 +477,8 @@ export const AI_REASONING_ACTIONS = [
   "viz_auto_augment",               // VizAutoAugmentationEngine.emit (batch verdicts → augmentation doc)
   // AUTO-LEARNING-LOOP-MS0/U-ALL06 — RoadmapAutoAppendEngine
   "roadmap_auto_append",            // RoadmapAutoAppendEngine.propose / proposeBatch
+  // AUTO-LEARNING-LOOP-MS0/U-ALL12 — SourcePoisoningSanitizerEngine
+  "source_poisoning_sanitize",      // SourcePoisoningSanitizerEngine.sanitize
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -2279,6 +2281,22 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
     "Classify a batch of source items as novel or known relative to the auto-learn catalog. " +
     "Returns { detect, add?, catalogLoaded }. When commit=true the add field carries " +
     "AddOutcome { added, embeddedFailures, skipped }.",
+  ),
+
+  // AUTO-LEARNING-LOOP-MS0/U-ALL12 — SourcePoisoningSanitizerEngine
+  source_poisoning_sanitize: z.object({
+    items: z.array(z.object({
+      source: z.string().describe("Source slug — must appear in the loaded allowlist."),
+      guid: z.string().describe("Stable identifier."),
+      title: z.string().describe("Item title."),
+      summary: z.string().optional(),
+      link: z.string().optional(),
+      isMalformed: z.boolean().optional().describe("Set by upstream when XML/HTML parse failed."),
+    })).describe("Batch of raw source items to sanitize."),
+  }).strict().describe(
+    "Sanitize a batch of feed items against the source-poisoning defence ladder (allowlist, " +
+    "hash-fingerprint, schema sanity, oversize, prompt-injection, malformed). Returns { clean, " +
+    "quarantined, counts, passRate }. Engine never touches disk; CLI handles quarantine.jsonl write.",
   ),
 
   // AUTO-LEARNING-LOOP-MS0/U-ALL06 — RoadmapAutoAppendEngine
