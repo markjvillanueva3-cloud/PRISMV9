@@ -135,6 +135,14 @@ export interface OutcomeRecord {
   ts: string;
   bridge: OutcomeBridge;
   process: OutcomeProcess;
+  /**
+   * Optional shop-floor job identifier — groups every event emitted during a
+   * single pipeline run (print-to-program, multi-op program, fixture cycle).
+   * Used by replayJob() to reconstruct the full event chain for a single job.
+   * Backfilled from `OutcomeCaptureBus` context.job_id when the P0-U04 bridge
+   * lands; older records without a jobId simply never match replayJob().
+   */
+  jobId?: string;
   request_summary: OutcomeRequestSummary;
   response_summary: OutcomeResponseSummary;
   outcome?: {
@@ -150,6 +158,8 @@ export interface OutcomeRecord {
 export interface RecordEventInput {
   bridge: OutcomeBridge;
   process: OutcomeProcess;
+  /** Optional job identifier — events sharing a jobId form a replayable chain. */
+  jobId?: string;
   request_summary?: OutcomeRequestSummary;
   response_summary?: OutcomeResponseSummary;
   outcome?: OutcomeRecord["outcome"];
@@ -230,6 +240,14 @@ export class CrossProcessOutcomeStore {
       validateOutcomeKind(input.outcome.kind);
     }
 
+    if (input.jobId !== undefined) {
+      if (typeof input.jobId !== "string" || input.jobId.length === 0) {
+        throw new Error(
+          "CrossProcessOutcomeStore.record: jobId must be a non-empty string when provided",
+        );
+      }
+    }
+
     const id = `evt-${this.nextId++}`;
     const record: OutcomeRecord = {
       schemaVersion: SCHEMA_VERSION,
@@ -237,6 +255,7 @@ export class CrossProcessOutcomeStore {
       ts: new Date().toISOString(),
       bridge: input.bridge,
       process: input.process,
+      jobId: input.jobId,
       request_summary: input.request_summary ?? {},
       response_summary: input.response_summary ?? {},
       outcome: input.outcome ?? { kind: "pending" },
@@ -412,18 +431,226 @@ export class CrossProcessOutcomeStore {
   }
 
   /**
-   * Stream every event through the handler in chronological order. Useful
-   * for replaying the log into a downstream consumer (neural trainer,
-   * federated aggregator, etc.).
+   * Replay events from the in-memory window in chronological order.
    *
-   * @param handler — invoked once per event in ts-ascending order
+   * INFRA-NEURAL-LEDGER-MS1/P0-U03 overloads:
+   *   replay()         → OutcomeRecord[]    — every retained event, ts-ascending
+   *   replay(limit)    → OutcomeRecord[]    — last `limit` events, ts-ascending
+   *   replay(handler)  → void               — invoke handler per event (legacy)
+   *
+   * Slice semantics: `limit` selects the most-recent N events (newest tail of
+   * the ts-ordered sequence) and returns them in chronological (ts-ascending)
+   * order — so consumers replay them in the same temporal direction they were
+   * recorded. `limit === 0` returns the empty array. `limit > size()` returns
+   * every retained event.
+   *
+   * For ledgers larger than the in-memory capacity, use streamReplayFromDisk()
+   * which reads JSONL line-by-line without materializing the full file.
+   *
+   * Throws on:
+   *   - argument that is neither undefined, a non-negative finite number,
+   *     nor a function (preserves the pre-P0-U03 contract).
+   *   - negative or non-finite numeric limit.
+   *
+   * @param arg — undefined for all events, number for last-N slice, function
+   *              for callback-style replay.
    */
-  replay(handler: (event: OutcomeRecord) => void): void {
-    if (typeof handler !== "function") {
-      throw new Error("CrossProcessOutcomeStore.replay: handler must be a function");
-    }
+  replay(): OutcomeRecord[];
+  replay(limit: number): OutcomeRecord[];
+  replay(handler: (event: OutcomeRecord) => void): void;
+  replay(
+    arg?: number | ((event: OutcomeRecord) => void),
+  ): OutcomeRecord[] | void {
     const sorted = this.events.slice().sort((a, b) => (a.ts < b.ts ? -1 : 1));
-    for (const e of sorted) handler(e);
+
+    // Callback-style — legacy contract preserved
+    if (typeof arg === "function") {
+      for (const e of sorted) arg(e);
+      return;
+    }
+
+    // No-arg — full chronological slice
+    if (arg === undefined) {
+      return sorted;
+    }
+
+    // Numeric limit — most-recent-N slice in chronological order
+    if (typeof arg === "number") {
+      if (!Number.isFinite(arg) || arg < 0) {
+        throw new Error(
+          "CrossProcessOutcomeStore.replay: limit must be a non-negative finite number",
+        );
+      }
+      const cap = Math.floor(arg);
+      if (cap === 0) return [];
+      if (cap >= sorted.length) return sorted;
+      return sorted.slice(sorted.length - cap);
+    }
+
+    // Anything else (string, object, array, null) — preserve original error msg
+    throw new Error("CrossProcessOutcomeStore.replay: handler must be a function");
+  }
+
+  /**
+   * Replay every event recorded under `jobId`, in chronological order.
+   * Returns an empty array for an unknown / never-recorded jobId.
+   *
+   * INFRA-NEURAL-LEDGER-MS1/P0-U03 — reconstructs the full event chain for
+   * a single pipeline run so consumers can trace cause-effect across the
+   * domains and stages that contributed to a job's outcome.
+   *
+   * @param jobId — non-empty string job identifier
+   * @returns matching records, ts-ascending
+   */
+  replayJob(jobId: string): OutcomeRecord[] {
+    if (typeof jobId !== "string" || jobId.length === 0) {
+      throw new Error(
+        "CrossProcessOutcomeStore.replayJob: jobId must be a non-empty string",
+      );
+    }
+    return this.events
+      .filter((e) => e.jobId === jobId)
+      .sort((a, b) => (a.ts < b.ts ? -1 : 1));
+  }
+
+  /**
+   * Replay every event with `ts >= timestamp`, in chronological order. The
+   * comparison is ISO-8601 lexicographic (correct for canonical timestamps
+   * produced by `new Date().toISOString()`).
+   *
+   * INFRA-NEURAL-LEDGER-MS1/P0-U03 — incremental replay window for learning
+   * engines that watermark their last-consumed timestamp.
+   *
+   * @param timestamp — ISO-8601 cutoff (inclusive lower bound)
+   * @returns matching records, ts-ascending
+   */
+  replaySince(timestamp: string): OutcomeRecord[] {
+    if (typeof timestamp !== "string" || timestamp.length === 0) {
+      throw new Error(
+        "CrossProcessOutcomeStore.replaySince: timestamp must be a non-empty ISO-8601 string",
+      );
+    }
+    const parsed = Date.parse(timestamp);
+    if (!Number.isFinite(parsed)) {
+      throw new Error(
+        `CrossProcessOutcomeStore.replaySince: timestamp "${timestamp}" is not a parseable ISO-8601 date`,
+      );
+    }
+    return this.events
+      .filter((e) => e.ts >= timestamp)
+      .sort((a, b) => (a.ts < b.ts ? -1 : 1));
+  }
+
+  /**
+   * JSONL streaming reader — replays events from the on-disk ledger without
+   * loading the full file into memory. Useful when the persisted ledger is
+   * larger than the in-memory capacity (default 10K) — e.g. for audit
+   * dashboards reaching back over weeks of shop-floor activity.
+   *
+   * INFRA-NEURAL-LEDGER-MS1/P0-U03 description: "JSONL streaming reader;
+   * never load full ledger into memory."
+   *
+   * The reader processes the file line-by-line via Node's `readline` over a
+   * `createReadStream`. Each line is JSON.parsed; malformed lines are
+   * skipped (matching the corruption-tolerance of `configureStorePath`).
+   * Records are filtered by the optional `jobId` and `since` predicates;
+   * if `limit` is provided, the reader STOPS after that many matching
+   * events have been visited (and `limit` selects the FIRST `limit`
+   * matches in file order — JSONL is append-only, so file order is
+   * chronological order).
+   *
+   * Throws on:
+   *   - no store path configured (configureStorePath must be called first)
+   *   - opts.limit / opts.since / opts.jobId failing type validation
+   *   - file read errors other than ENOENT (ENOENT yields zero matches)
+   *
+   * @param opts — filter + handler
+   * @returns number of records the handler observed
+   */
+  async streamReplayFromDisk(opts: {
+    handler: (event: OutcomeRecord) => void | Promise<void>;
+    limit?: number;
+    jobId?: string;
+    since?: string;
+  }): Promise<number> {
+    if (!opts || typeof opts !== "object") {
+      throw new Error("CrossProcessOutcomeStore.streamReplayFromDisk: opts object required");
+    }
+    if (typeof opts.handler !== "function") {
+      throw new Error(
+        "CrossProcessOutcomeStore.streamReplayFromDisk: opts.handler must be a function",
+      );
+    }
+    if (!this.storePath) {
+      throw new Error(
+        "CrossProcessOutcomeStore.streamReplayFromDisk: no store path configured — call configureStorePath() first",
+      );
+    }
+    if (opts.limit !== undefined) {
+      if (!Number.isFinite(opts.limit) || opts.limit < 0) {
+        throw new Error(
+          "CrossProcessOutcomeStore.streamReplayFromDisk: limit must be a non-negative finite number",
+        );
+      }
+    }
+    if (opts.jobId !== undefined && (typeof opts.jobId !== "string" || opts.jobId.length === 0)) {
+      throw new Error(
+        "CrossProcessOutcomeStore.streamReplayFromDisk: jobId must be a non-empty string",
+      );
+    }
+    if (opts.since !== undefined) {
+      if (typeof opts.since !== "string" || !Number.isFinite(Date.parse(opts.since))) {
+        throw new Error(
+          "CrossProcessOutcomeStore.streamReplayFromDisk: since must be a parseable ISO-8601 string",
+        );
+      }
+    }
+
+    const cap = opts.limit === undefined ? Number.POSITIVE_INFINITY : Math.floor(opts.limit);
+    if (cap === 0) return 0;
+
+    // Pre-check existence — createReadStream emits ENOENT asynchronously on
+    // the stream (not thrown by the constructor), which would otherwise reject
+    // the `for await` iterator. Stat first so missing-file is a clean zero
+    // rather than an error the caller has to catch.
+    try {
+      await fs.access(this.storePath);
+    } catch (err: unknown) {
+      const code = (err as NodeJS.ErrnoException)?.code;
+      if (code === "ENOENT") return 0;
+      throw err;
+    }
+
+    const { createReadStream } = await import("node:fs");
+    const { createInterface } = await import("node:readline");
+
+    const stream = createReadStream(this.storePath, { encoding: "utf-8" });
+    const rl = createInterface({ input: stream, crlfDelay: Infinity });
+    let observed = 0;
+
+    try {
+      for await (const rawLine of rl) {
+        if (observed >= cap) break;
+        const line = rawLine.trim();
+        if (!line) continue;
+        let parsed: OutcomeRecord;
+        try {
+          parsed = JSON.parse(line) as OutcomeRecord;
+        } catch {
+          // Skip malformed lines — log corruption shouldn't break streaming.
+          continue;
+        }
+        if (parsed.schemaVersion !== SCHEMA_VERSION) continue;
+        if (opts.jobId !== undefined && parsed.jobId !== opts.jobId) continue;
+        if (opts.since !== undefined && !(parsed.ts >= opts.since)) continue;
+        await opts.handler(parsed);
+        observed += 1;
+      }
+    } finally {
+      rl.close();
+      stream.destroy();
+    }
+    return observed;
   }
 
   /**

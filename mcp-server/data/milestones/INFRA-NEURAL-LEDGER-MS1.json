@@ -8,7 +8,7 @@
   "track": "INFRA",
   "track_name": "Multi-Model Coordination Infrastructure",
   "status": "in_progress",
-  "completed_units": 2,
+  "completed_units": 3,
   "total_units": 5,
   "shipped": [
     {
@@ -56,6 +56,39 @@
         "Run vitest to verify all 4 new test files green (skipped due to budget — manual `npx vitest run TurningPrintToProgramEngine LaserProgramAssemblerEngine WaterjetProgramAssemblerEngine p2pOutcomeEmission` recommended before commit)",
         "Commit the 12 uncommitted files when peer-tree dust settles",
         "Per-file scrutiny re-run on Laser + Waterjet engine emissions (mid-stream deferred — pattern is identical to dual-PASSed Milling/Turning/WEDM)"
+      ]
+    },
+    {
+      "unit": "P0-U03",
+      "commit": "c1e8db965+pending-engine",
+      "title": "CrossProcessOutcomeStore replay capability — replay(limit) + replayJob(jobId) + replaySince(timestamp) + JSONL streaming reader",
+      "shipped_at": "2026-05-13T13:55:00Z",
+      "shipped_by": "alpha/claude-f914e22b",
+      "scope_reconciliation": "Implemented per envelope spec on CrossProcessOutcomeStore directly. P0-U02 emits to OutcomeCaptureBusEngine (separate JSONL ledger) — P0-U04 will bridge the two. P0-U03 adds the read-side API on the canonical store as the spec demands. Backward-compat preserved for legacy `replay(handler)` callback contract via TypeScript overloads.",
+      "files_changed": 5,
+      "files": [
+        "mcp-server/src/engines/CrossProcessOutcomeStore.ts (added jobId? field, overloaded replay(): /replay(limit)/replay(handler), new replayJob(jobId), new replaySince(timestamp), new streamReplayFromDisk(opts) JSONL streaming reader with ENOENT-safe pre-check + line-by-line readline + malformed-line tolerance + schemaVersion gate + jobId/since filter + limit early-break)",
+        "mcp-server/src/__tests__/CrossProcessOutcomeStore.test.ts (added SECTION 12 — 30 it() cases across 5 describe blocks: replay() array form (8 cases), replayJob() (6), replaySince() (5), 200-event integration (1 satisfying all 3 exit conditions), streamReplayFromDisk() (10 covering happy path / limit / jobId filter / since filter / ENOENT-safe / malformed-line skip / no-store-path / invalid limit / invalid since))",
+        "mcp-server/src/tools/dispatchers/aiReasoningDispatcher.ts (added 4 handlers to XPROC_TIER1_HANDLERS map + 4 case-statement entries: xproc_outcome_replay / xproc_outcome_replay_job / xproc_outcome_replay_since / xproc_outcome_stream_from_disk)",
+        "mcp-server/src/tools/dispatchers/intelligenceDispatcher.ts (parallel z.enum + parallel inline if-action handlers for the 4 actions)",
+        "mcp-server/src/schemas/aiReasoningActionSchemas.ts (added 4 actions to the AI_REASONING_ACTIONS z.enum)"
+      ],
+      "new_actions": 4,
+      "tests": "97/97 pass on CrossProcessOutcomeStore.test.ts (1.05s); regression check on CrossProcessOutcomeStore.feedbackbus.test.ts + OutcomeCaptureBusEngine.test.ts + intelligenceDispatcher.outcomeStore.test.ts = 42/42 pass; total 139/139 green",
+      "scrutiny": "Per-file scrutiny gate: 2 parallel reviewer agents (code-analyzer + reviewer) — both VERDICT: PASS, 0 P0 + 0 P1 blockers. P2 findings (perf nit on redundant sort, dynamic-import-per-call, dispatcher response-shape inconsistency that matches surrounding pattern, lex-vs-Date.parse consistency) accepted as convention-matching trade-offs. Section-numbering collision (existing section 8 was 'clear()') resolved by renumbering my section to SECTION 12.",
+      "design": "replay() overload preserves legacy `replay(handler)` callback contract via 3 typed signatures: replay() returns full chronological array, replay(limit) returns last-N tail in chronological order, replay(handler) invokes per-event in chronological order returning void. replay(arg) where arg is neither undefined/number/function throws original `/handler must be a function/` message (legacy test at line 531 still green). replayJob filters by jobId equality, sorts ts-asc. replaySince filters by ts >= timestamp (lex compare correct for canonical ISO-8601), sorts ts-asc. streamReplayFromDisk uses fs.access() pre-check (clean ENOENT → 0 return), then createReadStream + readline.createInterface for true line-by-line iteration (never readFile-into-memory); limit causes early break, malformed lines skipped, wrong-schemaVersion records skipped, jobId/since filters applied per record. ENOENT returns 0; missing storePath throws; invalid opts throw with descriptive messages.",
+      "exit_conditions_verified": [
+        "✓ store.replay(limit) returns ordered events — verified in 200-event integration test (line 967): replay(100) returns evt-101..evt-200 in ts-ascending order",
+        "✓ store.replayJob(jobId) returns all events for a single job in order — verified: replayJob('JOB-2') returns evt-51..evt-100 (full 50-event chain) in ts-ascending order",
+        "✓ store.replaySince(timestamp) returns events after a cutoff — verified: replaySince(cutoff-at-evt-150-ts) returns 51 events (evt-150..evt-200)",
+        "✓ Write 200 events; replay last 100 returns correct slice; replayJob returns full chain; replaySince filters correctly — single integration test satisfies all 3 in one it()",
+        "✓ JSONL streaming reader; never loads full ledger into memory — assertion in stream test: reader.size() === 0 both before and after streamReplayFromDisk, proving the in-memory buffer was never populated"
+      ],
+      "wiring": "4 actions wired in BOTH dispatchers (aiReasoningDispatcher + intelligenceDispatcher) + z.enum in BOTH (aiReasoningActionSchemas + intelligenceDispatcher inline enum). Round-trip verified — intelligenceDispatcher.outcomeStore.test.ts (10 cases) continues to pass with the new wiring in place.",
+      "deferred_followups": [
+        "P2: redundant .sort() in replay/replayJob/replaySince — events array is already append-ordered; defer perf opt",
+        "P2: top-of-file static imports for fs/readline in streamReplayFromDisk — currently dynamic per call; cosmetic",
+        "P2: shared helper to eliminate duplication between aiReasoningDispatcher XPROC_TIER1_HANDLERS map and intelligenceDispatcher inline if-handlers — pattern-wide refactor outside P0-U03 scope"
       ]
     }
   ],
@@ -110,6 +143,9 @@
           "title": "CrossProcessOutcomeStore replay capability — reproduce last 100 jobs",
           "effort": 75,
           "dependencies": ["P0-U02"],
+          "status": "complete",
+          "completed_date": "2026-05-13",
+          "commit": "PENDING",
           "exit_conditions": [
             "store.replay(limit) returns ordered events",
             "store.replayJob(jobId) returns all events for a single job in order",
