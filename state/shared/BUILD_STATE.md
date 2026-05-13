@@ -1,6 +1,6 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-13T04:24:52.952Z
+> Generated: 2026-05-13T04:39:02.540Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
@@ -8,7 +8,7 @@
 - **2324** engines built and wired (of 3203)
 - **1073** wiki entries indexed
 - **879** engines awaiting dispatcher wiring
-- **3400** units pending across 3 active milestones
+- **3399** units pending across 2 active milestones
 - **2** codex frontend builds awaiting merge
 - **3** milestones with envelope-status drift
 
@@ -65,7 +65,7 @@
 
 ## NEEDS_BUILDING
 
-3400 units across 668 milestones not yet in git.
+3399 units across 668 milestones not yet in git.
 
 ### Envelope-status drift
 
@@ -79,7 +79,6 @@
 
 | Milestone | Phase | Unit | Title |
 |-----------|-------|------|-------|
-| HOOK-SYNERGY-MS0 | stopgap | U-HOOK-STOPGAP | 7 hook timeout reductions in C:/Users/wompu/.claude/settings.json (git-health-guard 35→8s, git-sync-stop 35→8s, session-start-zombie-reap 25→8s, auto-lint-post-edit 15→8s, git-sync-fetch/claude-brief-inject/quality-dashboard-alert 12→5s) |
 | HTML-PRIMARY-MS0 | P0 | U-HPS01 | Build `SpecHTMLCompanionEngine` (master renderer) |
 | HTML-PRIMARY-MS0 | P0 | U-HPS03 | Theme engine (dark/light, prefers-color-scheme) |
 | HTML-PRIMARY-MS0 | P0 | U-HPS04 | Navigation engine (sticky TOC, anchor links, search) |
