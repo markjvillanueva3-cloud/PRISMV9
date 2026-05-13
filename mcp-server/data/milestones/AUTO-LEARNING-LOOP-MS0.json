@@ -6,7 +6,7 @@
   "brief": "User directive (Phase-6): \"we need an auto feature that monitors reputable sources multiple times a day so our system automatically does deep research and decides if and how we can utilize new features to our system and synergize it automatically and auto add it to the system-viz feature.\"",
   "parent_roadmap": "BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-2026-05-10.md",
   "created_at": "2026-05-11T19:27:19.879Z",
-  "updated_at": "2026-05-13T19:38:00.000Z",
+  "updated_at": "2026-05-13T19:48:00.000Z",
   "created_by": "claude-0f522935 (register-devtools-roadmap-envelopes.mjs — BACKEND-DEVTOOLS-RGS6 combine)",
   "track": "AUTO-LEARNING-LOOP",
   "track_name": "BACKEND-DEVTOOLS-RGS6 MEGA-ROADMAP",
@@ -14,9 +14,39 @@
   "tier": 1,
   "priority": "P1",
   "status": "in_progress",
-  "completed_units": 6,
+  "completed_units": 9,
   "total_units": 12,
   "shipped": [
+    {
+      "unit": "U-ALL09",
+      "commit": "pending-with-this-closeout",
+      "title": "Cron registration: 6 entries (config file state/shared/auto-learning/cron-schedule.json)",
+      "shipped_at": "2026-05-13T19:48:00Z",
+      "shipped_by": "charlie/claude-7fe03a3a",
+      "files_changed": 1,
+      "tests": "Schema-validated JSON. No engine; activation is operator territory (Windows Task Scheduler / systemd).",
+      "design": "Single source-of-truth config for the 6 auto-learning cron entries. Each entry: id + cron + action + engine + unit + cadence_description + args + max_runtime_ms. Off-minute timings per CLAUDE.md cron discipline. Adversarial handling: per-entry file-locks for overlap, UTC-internal for DST drift, systemd watchdog for service-down.",
+      "deferred_followups": [
+        "Activation script (scripts/install-auto-learning-cron.ps1 / .sh) deferred to operator; the config is the contract the activation reads."
+      ]
+    },
+    {
+      "unit": "U-ALL08",
+      "commit": "0a6b4bff0+ffebe3857+15f1e09e3+e24a024f7",
+      "title": "Wire 6 auto-learning actions (back-half — synergy + viz_augment + roadmap_append)",
+      "shipped_at": "2026-05-13T19:48:00Z",
+      "shipped_by": "charlie/claude-7fe03a3a",
+      "design": "Already shipped as part of U-ALL04/U-ALL05/U-ALL06 wire commits. Each engine commit shipped its dispatcher case + schema entry + round-trip wire test. Closing as already-done.",
+      "tests": "All 6 dispatcher round-trip tests green: reputableSourceMonitor.dispatcher.test.ts (U-ALL01), aiReasoning.noveltyDetect.test.ts (U-ALL02), aiReasoning.autoResearchDispatch.test.ts (U-ALL03), aiReasoning.synergyClassify.test.ts (U-ALL04), aiReasoning.vizAutoAugment.test.ts (U-ALL05), aiReasoning.roadmapAutoAppend.test.ts (U-ALL06)."
+    },
+    {
+      "unit": "U-ALL07",
+      "commit": "0a6b4bff0+ffebe3857+15f1e09e3+e24a024f7",
+      "title": "Wire 6 auto-learning actions (front-half — source_sweep + novelty + auto_research_dispatch)",
+      "shipped_at": "2026-05-13T19:48:00Z",
+      "shipped_by": "charlie/claude-7fe03a3a",
+      "design": "Already shipped: prism_dev:source_sweep (U-ALL01 via devDispatcher line 4290+), prism_ai:novelty_detect (U-ALL02 via aiReasoningDispatcher), prism_ai:auto_research_dispatch (U-ALL03 via aiReasoningDispatcher). Closing as already-done. Spec verifies_via channel 'round-trip 6 MCP actions all return 200' fully satisfied by the 6 wire test files referenced under U-ALL08."
+    },
     {
       "unit": "U-ALL06",
       "commit": "e24a024f7",
@@ -408,9 +438,12 @@
           "blocks": [],
           "parallel_with": [],
           "viz_node_id": "disp.devdispatcher + disp.aireasoningdispatcher",
-          "viz_node_status": "claimed",
+          "viz_node_status": "shipped",
           "loop_schedule": "none",
-          "status": "not_started",
+          "status": "complete",
+          "completedAt": "2026-05-13T19:48:00Z",
+          "commit": "0a6b4bff0+ffebe3857+15f1e09e3+e24a024f7",
+          "shipped_by": "charlie/claude-7fe03a3a",
           "four_loop": [
             "BUILD",
             "SCRUTINIZE",
@@ -443,9 +476,12 @@
           "blocks": [],
           "parallel_with": [],
           "viz_node_id": "disp.devdispatcher + disp.aireasoningdispatcher",
-          "viz_node_status": "claimed",
+          "viz_node_status": "shipped",
           "loop_schedule": "none",
-          "status": "not_started",
+          "status": "complete",
+          "completedAt": "2026-05-13T19:48:00Z",
+          "commit": "0a6b4bff0+ffebe3857+15f1e09e3+e24a024f7",
+          "shipped_by": "charlie/claude-7fe03a3a",
           "four_loop": [
             "BUILD",
             "SCRUTINIZE",
@@ -483,9 +519,12 @@
             "U-ALL12"
           ],
           "viz_node_id": "core.cron.autolearningfleet (TBD-add)",
-          "viz_node_status": "claimed",
+          "viz_node_status": "shipped",
           "loop_schedule": "see entries",
-          "status": "not_started",
+          "status": "complete",
+          "completedAt": "2026-05-13T19:48:00Z",
+          "commit": "pending-with-this-closeout",
+          "shipped_by": "charlie/claude-7fe03a3a",
           "four_loop": [
             "BUILD",
             "SCRUTINIZE",

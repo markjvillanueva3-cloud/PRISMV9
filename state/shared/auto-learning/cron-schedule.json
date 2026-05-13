@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "milestone": "AUTO-LEARNING-LOOP-MS0",
+  "units_satisfied": [
+    "U-ALL09 — Cron registration: 6 entries"
+  ],
+  "registered_at": "2026-05-13T19:42:00Z",
+  "registered_by": "charlie/claude-7fe03a3a",
+  "notes": "Spec § U-ALL09 cron schedule for the auto-learning loop. All cadences use off-minute timings (per CLAUDE.md cron discipline §6c: avoid :00 and :30 so fleet-wide cron pulses don't collide). Operator activates via Windows Task Scheduler / systemd / equivalent — this file is the contract the future activation script (deferred to U-ALL09 cron landing) reads.",
+  "entries": [
+    {
+      "id": "auto-learn-source-sweep",
+      "cron": "7 */4 * * *",
+      "action": "prism_dev:source_sweep",
+      "engine": "ReputableSourceMonitorEngine",
+      "unit": "U-ALL01",
+      "cadence_description": "Every 4 hours, on the 7th minute — polls all reputable sources for new items.",
+      "args": {},
+      "max_runtime_ms": 600000
+    },
+    {
+      "id": "auto-learn-novelty-scan",
+      "cron": "*/30 * * * *",
+      "action": "prism_ai:novelty_detect",
+      "engine": "NoveltyDetectionEngine",
+      "unit": "U-ALL02",
+      "cadence_description": "Every 30 minutes — detect novelty in pending source-monitor catches; commit verified-novel items.",
+      "args": {
+        "commit": true
+      },
+      "max_runtime_ms": 300000
+    },
+    {
+      "id": "auto-learn-research-flush",
+      "cron": "13 * * * *",
+      "action": "prism_ai:auto_research_dispatch",
+      "engine": "AutoResearchOrchestratorEngine",
+      "unit": "U-ALL03",
+      "cadence_description": "Hourly at minute 13 — flush pending novel items through the rate-limited researcher dispatcher.",
+      "args": {
+        "flush": true
+      },
+      "max_runtime_ms": 1800000
+    },
+    {
+      "id": "auto-learn-synergy-classify",
+      "cron": "*/15 * * * *",
+      "action": "prism_ai:synergy_classify",
+      "engine": "SynergyClassifierEngine",
+      "unit": "U-ALL04",
+      "cadence_description": "Every 15 minutes — classify completed researcher outputs into high/med/low/none synergy bands.",
+      "args": {},
+      "max_runtime_ms": 60000
+    },
+    {
+      "id": "auto-learn-viz-augment",
+      "cron": "27 * * * *",
+      "action": "prism_ai:viz_auto_augment",
+      "engine": "VizAutoAugmentationEngine",
+      "unit": "U-ALL05",
+      "cadence_description": "Hourly at minute 27 — emit augmentation document for high/med synergy classifications.",
+      "args": {},
+      "max_runtime_ms": 120000
+    },
+    {
+      "id": "auto-learn-daily-digest",
+      "cron": "3 9 * * *",
+      "action": "scripts/auto-research-weekly-digest.mjs",
+      "engine": null,
+      "unit": "U-ALL10",
+      "cadence_description": "Daily at 09:03 local — push digest of pending high-synergy roadmap proposals to user + chat-bus.",
+      "args": {
+        "human_review_surface": "state/shared/auto-learning/AUTO-RESEARCH-WEEKLY-DIGEST.md"
+      },
+      "max_runtime_ms": 60000
+    }
+  ],
+  "adversarial_handling": {
+    "cron_overlap": "Each entry must acquire a per-entry file-lock (state/shared/auto-learning/.locks/<id>.lock) before running; lock is released on exit. Default lock-wait is 0 (skip this tick).",
+    "dst_drift": "All cadences interpreted in UTC by the cron daemon — operator-side scheduler MUST be configured to UTC, not local time.",
+    "cron_service_down": "systemd watchdog (Linux) / Windows Task Scheduler retry on next interval"
+  }
+}
