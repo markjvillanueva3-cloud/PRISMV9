@@ -1,6 +1,6 @@
 # MILESTONE_PROGRESS — what's actually shipped vs claimed
 
-> Generated: 2026-05-13T13:48:49.293Z
+> Generated: 2026-05-13T13:54:10.225Z
 > Window: last 60.days of git log across all branches
 > Source: `scripts/build-milestone-progress.mjs`
 
@@ -34,6 +34,8 @@ flagging a unit as missing.
 | CC-EXT-MS4 | — | not_started | completed_real | 5/5 (100%) | 2026-05-13 |
 | CC-EXT-MS5 | — | not_started | completed_real | 5/5 (100%) | 2026-05-13 |
 | CC-EXT-MS6 | — | not_started | in_progress_real | 5/6 (83%) | 2026-05-13 |
+| CC-MS0 | — | not_started | completed_real | 9/9 (100%) | 2026-05-13 |
+| L0-NEW-MS0 | — | not_started | completed_real | 3/3 (100%) | 2026-05-13 |
 | L2-P4-MS1 | — | not_started | in_progress_real | 5/10 (50%) | 2026-05-13 |
 | L8-P0-MS2 | — | not_started | in_progress_real | 5/12 (42%) | 2026-05-13 |
 | L8-P1-MS2 | — | not_started | in_progress_real | 5/15 (33%) | 2026-05-13 |
@@ -44,19 +46,17 @@ flagging a unit as missing.
 | QA-MS1 | — | not_started | in_progress_real | 5/7 (71%) | 2026-05-13 |
 | QA-MS10 | — | not_started | in_progress_real | 5/6 (83%) | 2026-05-13 |
 | QA-MS11 | — | not_started | in_progress_real | 5/6 (83%) | 2026-05-13 |
+| QA-MS12 | — | not_started | in_progress_real | 4/5 (80%) | 2026-05-13 |
 | QA-MS13 | — | not_started | in_progress_real | 5/6 (83%) | 2026-05-13 |
+| QA-MS14 | — | not_started | in_progress_real | 3/4 (75%) | 2026-05-13 |
 | QA-MS2 | — | not_started | in_progress_real | 5/6 (83%) | 2026-05-13 |
 | QA-MS3 | — | not_started | in_progress_real | 5/7 (71%) | 2026-05-13 |
 | QA-MS4 | — | not_started | in_progress_real | 5/6 (83%) | 2026-05-13 |
 | QA-MS5 | — | not_started | in_progress_real | 5/8 (63%) | 2026-05-13 |
 | QA-MS6 | — | not_started | in_progress_real | 5/8 (63%) | 2026-05-13 |
 | QA-MS7 | — | not_started | in_progress_real | 5/7 (71%) | 2026-05-13 |
+| QA-MS8 | — | complete | in_progress_real | 4/5 (80%) | 2026-05-13 |
 | QA-MS9 | — | not_started | in_progress_real | 5/7 (71%) | 2026-05-13 |
-| S3-MS1 | — | not_started | in_progress_real | 5/8 (63%) | 2026-05-13 |
-| S3-MS2 | — | not_started | in_progress_real | 5/6 (83%) | 2026-05-13 |
-| S3-MS3 | — | not_started | in_progress_real | 5/6 (83%) | 2026-05-13 |
-| S4-MS1 | — | not_started | in_progress_real | 5/8 (63%) | 2026-05-13 |
-| ACP-MS0 | ACP | completed | completed_real | 5/5 (100%) | 2026-05-13 |
 
 ## Drift cases (claim vs git disagrees)
 
