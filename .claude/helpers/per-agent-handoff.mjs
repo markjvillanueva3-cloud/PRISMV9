@@ -119,6 +119,22 @@ function handoffPath(instance, topic = null) {
   return path.join(HANDOFFS_DIR, `HANDOFF-${base}${topicSuffix}.md`);
 }
 
+// U-CLEANUP-A4 (2026-05-13): when the live chat is the hygiene slot (golf),
+// it writes its handoff as HANDOFF-golf-<task>.md rather than the regular
+// HANDOFF-<claude-id>-<topic>.md. Rationale: hygiene work is *slot-keyed*,
+// not instance-keyed — operators looking for "what is the cleanup chat
+// doing right now" want HANDOFF-golf-<task>.md, not a stable-session-id
+// they have to map back to a slot. Only the literal "golf" slot remaps;
+// alpha..foxtrot work slots stay instance-keyed because multiple distinct
+// chat-ids can rotate through a work slot over a multi-day milestone and
+// each handoff is the authoritative continuation for THAT chat-id, not
+// the slot. Returns the canonical filename base to feed into handoffPath().
+function resolveHandoffBase(identity, args) {
+  const slot = (args?.slot || "").toString().trim().toLowerCase();
+  if (slot === "golf") return "golf";
+  return identity.instance;
+}
+
 function now() {
   return new Date().toISOString();
 }
@@ -284,7 +300,8 @@ function cmdWrite(identity, args) {
       if (derived?.topic) effectiveTopic = derived.topic;
     } catch { /* deriveSessionTopic must never throw, but defensive */ }
   }
-  const filePath = handoffPath(identity.instance, effectiveTopic);
+  const handoffBase = resolveHandoffBase(identity, args);
+  const filePath = handoffPath(handoffBase, effectiveTopic);
 
   // Preserve any existing meaningful RESUME if the caller only passed a
   // placeholder (bare --resume flag → true, "unknown", "", etc.).
@@ -308,10 +325,15 @@ function cmdWrite(identity, args) {
   // The knowledge/handoffs/ NTFS junction maps to state/shared/handoffs/, so
   // Obsidian sees these files natively. Frontmatter gives backlinks, search,
   // and graph view by session/topic/status.
+  const slotTag = (args?.slot || "").toString().trim().toLowerCase();
+  const isGolf = slotTag === "golf";
   const frontmatter = [
     "---",
     `session: ${identity.instance}`,
     `topic: ${effectiveTopic || ""}`,
+    // Slot keying: only "golf" remaps the filename base (U-CLEANUP-A4).
+    // alpha..foxtrot work chats stay instance-keyed (slot field empty).
+    `slot: ${isGolf ? "golf" : ""}`,
     `written_at: ${now()}`,
     `machine: ${identity.machine}`,
     `family: ${identity.family}`,
@@ -408,6 +430,39 @@ function cmdRead(identity, args) {
   ensureDirs();
   const targetInstance = args.agent || identity.instance;
   const targetTopic = args.topic || null;
+
+  // U-CLEANUP-A4 (2026-05-13): --slot golf reads from HANDOFF-golf[-<topic>].md
+  // first. If the operator passes --slot golf this is authoritative — we do
+  // NOT fall back to instance-keyed lookups, because a hygiene chat asking
+  // for its own handoff should not pick up a peer work-chat's file by
+  // accident. The other read fallback paths (same-instance-newest, fuzzy,
+  // family-latest, latest) stay disabled in this branch.
+  const slotTag = (args?.slot || "").toString().trim().toLowerCase();
+  if (slotTag === "golf") {
+    if (targetTopic) {
+      const golfTopicedPath = handoffPath("golf", targetTopic);
+      if (fs.existsSync(golfTopicedPath)) {
+        return { ok: true, content: fs.readFileSync(golfTopicedPath, "utf-8"), file: golfTopicedPath, matchedBy: "slot-golf-topic" };
+      }
+    }
+    const golfPath = handoffPath("golf");
+    if (fs.existsSync(golfPath)) {
+      return { ok: true, content: fs.readFileSync(golfPath, "utf-8"), file: golfPath, matchedBy: "slot-golf" };
+    }
+    // Same-base-newest within the golf slot: any HANDOFF-golf-*.md authored
+    // by whichever chat is currently the hygiene slot.
+    const golfBase = `HANDOFF-golf-`;
+    const golfFiles = fs.readdirSync(HANDOFFS_DIR)
+      .filter((f) => f.startsWith(golfBase) && f.endsWith(".md"))
+      .map((f) => { const fp = path.join(HANDOFFS_DIR, f); return { file: f, path: fp, mtime: fs.statSync(fp).mtimeMs }; })
+      .sort((a, b) => b.mtime - a.mtime);
+    if (golfFiles.length > 0) {
+      const pick = golfFiles[0];
+      const ageMin = Math.round((Date.now() - pick.mtime) / 60000);
+      return { ok: true, content: fs.readFileSync(pick.path, "utf-8"), file: pick.file, matchedBy: "slot-golf-newest", age_minutes: ageMin };
+    }
+    return { ok: false, error: "no_golf_handoff", message: "No HANDOFF-golf*.md found. Hygiene slot has not written a handoff yet." };
+  }
 
   // (0) Exact topic match — required for multi-chat partitioning so each chat
   //     reads HANDOFF-<id>-<topic>.md, not the bare HANDOFF-<id>.md from a
