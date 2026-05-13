@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-13T15:45:14.476Z",
+  "generatedAt": "2026-05-13T16:01:50.952Z",
   "headline": {
     "built_engines": 2324,
     "built_with_wiki": 1073,
     "needs_wiring": 879,
-    "needs_building_active_units": 2438,
+    "needs_building_active_units": 3723,
     "needs_frontend_merge_count": 2,
-    "pending_milestones_with_activity": 70,
-    "drift_milestones": 167,
-    "stale_milestones": 87,
+    "pending_milestones_with_activity": 78,
+    "drift_milestones": 171,
+    "stale_milestones": 232,
     "domains_tracked": 927
   },
   "sources": {
@@ -8750,7 +8750,7 @@
     ]
   },
   "STALE_MILESTONES": {
-    "summary": "87 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).",
+    "summary": "232 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).",
     "threshold_days": 30,
     "rows": [
       {
@@ -8817,6 +8817,15 @@
         "reason": "never_started"
       },
       {
+        "id": "MS-AUDIT-DERIVED-2026-05-10",
+        "track": "audit-derived",
+        "pending": 30,
+        "shipped": 0,
+        "total": 30,
+        "lastShippedDate": null,
+        "reason": "never_started"
+      },
+      {
         "id": "MS2",
         "track": "revenue",
         "pending": 30,
@@ -8831,6 +8840,15 @@
         "pending": 26,
         "shipped": 0,
         "total": 26,
+        "lastShippedDate": null,
+        "reason": "never_started"
+      },
+      {
+        "id": "CADCAM-AGI-MS0",
+        "track": "CAD-CAM-AGI",
+        "pending": 24,
+        "shipped": 0,
+        "total": 24,
         "lastShippedDate": null,
         "reason": "never_started"
       },
@@ -8907,6 +8925,24 @@
         "reason": "never_started"
       },
       {
+        "id": "CADCAM-DAGI-MS1",
+        "track": "CAD-CAM-DEEPAGI",
+        "pending": 16,
+        "shipped": 0,
+        "total": 16,
+        "lastShippedDate": null,
+        "reason": "never_started"
+      },
+      {
+        "id": "CADCAM-DAGI-MS4",
+        "track": "CAD-CAM-DEEPAGI",
+        "pending": 16,
+        "shipped": 0,
+        "total": 16,
+        "lastShippedDate": null,
+        "reason": "never_started"
+      },
+      {
         "id": "MS-CRITWIRE",
         "track": "revenue",
         "pending": 16,
@@ -8939,6 +8975,15 @@
         "pending": 15,
         "shipped": 0,
         "total": 15,
+        "lastShippedDate": null,
+        "reason": "never_started"
+      },
+      {
+        "id": "CADCAM-DAGI-MS2",
+        "track": "CAD-CAM-DEEPAGI",
+        "pending": 14,
+        "shipped": 0,
+        "total": 14,
         "lastShippedDate": null,
         "reason": "never_started"
       },
@@ -8981,6 +9026,15 @@
       {
         "id": "CAMX-V17-P3",
         "track": "",
+        "pending": 12,
+        "shipped": 0,
+        "total": 12,
+        "lastShippedDate": null,
+        "reason": "never_started"
+      },
+      {
+        "id": "AI-WIRE-MS0",
+        "track": "AI-WIRE",
         "pending": 12,
         "shipped": 0,
         "total": 12,
@@ -9058,66 +9112,12 @@
         "total": 10,
         "lastShippedDate": null,
         "reason": "never_started"
-      },
-      {
-        "id": "CAMX-MS9",
-        "track": "",
-        "pending": 10,
-        "shipped": 0,
-        "total": 10,
-        "lastShippedDate": null,
-        "reason": "never_started"
-      },
-      {
-        "id": "CPL-MS2",
-        "track": "",
-        "pending": 10,
-        "shipped": 0,
-        "total": 10,
-        "lastShippedDate": null,
-        "reason": "never_started"
-      },
-      {
-        "id": "MS-VIZ-ROADMAP-BIND",
-        "track": "revenue",
-        "pending": 10,
-        "shipped": 0,
-        "total": 10,
-        "lastShippedDate": null,
-        "reason": "never_started"
-      },
-      {
-        "id": "TOOL-INVENTORY-MS0",
-        "track": "TOOL-INVENTORY",
-        "pending": 10,
-        "shipped": 0,
-        "total": 10,
-        "lastShippedDate": null,
-        "reason": "never_started"
-      },
-      {
-        "id": "MS-CI-GATES",
-        "track": "revenue",
-        "pending": 9,
-        "shipped": 0,
-        "total": 9,
-        "lastShippedDate": null,
-        "reason": "never_started"
-      },
-      {
-        "id": "CAMX-MS10",
-        "track": "",
-        "pending": 8,
-        "shipped": 0,
-        "total": 8,
-        "lastShippedDate": null,
-        "reason": "never_started"
       }
     ],
     "next_action": "Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift."
   },
   "NEEDS_BUILDING": {
-    "summary": "2438 units across 670 milestones not yet in git.",
+    "summary": "3723 units across 670 milestones not yet in git.",
     "drift_cases": [
       {
         "id": "CC-EXT-MS0",
@@ -9702,6 +9702,12 @@
         "drift": "claims_not_started_but_has_shipped_units"
       },
       {
+        "id": "APP-MS0",
+        "claimed": "not_started",
+        "real": "completed_real",
+        "drift": "claims_not_started_but_has_shipped_units"
+      },
+      {
         "id": "BP-MS0",
         "claimed": "not_started",
         "real": "in_progress_real",
@@ -10050,6 +10056,18 @@
         "drift": "claims_not_started_but_has_shipped_units"
       },
       {
+        "id": "PIPE-MS0",
+        "claimed": "not_started",
+        "real": "completed_real",
+        "drift": "claims_not_started_but_has_shipped_units"
+      },
+      {
+        "id": "PPG-MS2",
+        "claimed": "not_started",
+        "real": "in_progress_real",
+        "drift": "claims_not_started_but_has_shipped_units"
+      },
+      {
         "id": "PROD-GATE-MS0",
         "claimed": "not_started",
         "real": "in_progress_real",
@@ -10120,9 +10138,63 @@
         "claimed": "not_started",
         "real": "in_progress_real",
         "drift": "claims_not_started_but_has_shipped_units"
+      },
+      {
+        "id": "WEDM-ERP-MS0",
+        "claimed": "completed",
+        "real": "not_started_real",
+        "drift": "claims_completed_but_units_pending"
       }
     ],
     "top_pending_units": [
+      {
+        "milestone": "COORD-MS0",
+        "unit": "U-COORD01",
+        "title": "Create AGENT_COORDINATION_SUMMARY.json (<5KB)",
+        "phase": ""
+      },
+      {
+        "milestone": "COORD-MS0",
+        "unit": "U-COORD02",
+        "title": "Add Optimistic Locking with Version Field",
+        "phase": ""
+      },
+      {
+        "milestone": "COORD-MS0",
+        "unit": "U-COORD03",
+        "title": "PID Liveness Check Before Claim Theft",
+        "phase": ""
+      },
+      {
+        "milestone": "COORD-MS0",
+        "unit": "U-COORD04",
+        "title": "CrossSessionOrchestratorEngine — Unified Facade",
+        "phase": ""
+      },
+      {
+        "milestone": "AI-MAX-MS0",
+        "unit": "U-AIMAX01",
+        "title": "hyperMILL Python Script Pattern Extractor",
+        "phase": "session-1"
+      },
+      {
+        "milestone": "AI-MAX-MS0",
+        "unit": "U-AIMAX02",
+        "title": "JM DIE Program Pattern Analyzer",
+        "phase": "session-1"
+      },
+      {
+        "milestone": "AI-MAX-MS0",
+        "unit": "U-AIMAX03",
+        "title": "Pattern Database & Search Engine",
+        "phase": "session-1"
+      },
+      {
+        "milestone": "AI-MAX-MS0",
+        "unit": "U-AIMAX04",
+        "title": "Tree-of-Thought Reasoning Engine",
+        "phase": "session-2"
+      },
       {
         "milestone": "BP-MS0",
         "unit": "U-ROUTEFIX1",
@@ -10146,6 +10218,30 @@
         "unit": "U-BLOB2",
         "title": "PartsLibraryEngine with revisions + CAD metadata extraction",
         "phase": "BP-P2"
+      },
+      {
+        "milestone": "AWARE-MS0",
+        "unit": "U-AWARE01",
+        "title": "PreToolUse Hook — Build/Create Detection",
+        "phase": ""
+      },
+      {
+        "milestone": "AWARE-MS0",
+        "unit": "U-AWARE03",
+        "title": "Master Index Search Gate Hook",
+        "phase": ""
+      },
+      {
+        "milestone": "AWARE-MS0",
+        "unit": "U-AWARE05",
+        "title": "Auto /dedup Invocation",
+        "phase": ""
+      },
+      {
+        "milestone": "AWARE-MS0",
+        "unit": "U-AWARE06",
+        "title": "AI Feature Recommendation Injection",
+        "phase": ""
       },
       {
         "milestone": "INTEL-OLLAMA-OBSIDIAN-MS0",
@@ -10193,78 +10289,6 @@
         "milestone": "CCM-MS0",
         "unit": "P0-U09",
         "title": "SessionEnd hook",
-        "phase": "P0"
-      },
-      {
-        "milestone": "L8-P1-MS2",
-        "unit": "P0-U06",
-        "title": "Knowledge Search",
-        "phase": "P0"
-      },
-      {
-        "milestone": "L8-P1-MS2",
-        "unit": "P0-U07",
-        "title": "Material Selection Wizard",
-        "phase": "P0"
-      },
-      {
-        "milestone": "L8-P1-MS2",
-        "unit": "P0-U08",
-        "title": "Tool Selection Wizard",
-        "phase": "P0"
-      },
-      {
-        "milestone": "L8-P1-MS2",
-        "unit": "P0-U09",
-        "title": "Machine Selection Wizard",
-        "phase": "P0"
-      },
-      {
-        "milestone": "L8-P2-MS2",
-        "unit": "P0-U06",
-        "title": "Capacity Analytics Dashboard",
-        "phase": "P0"
-      },
-      {
-        "milestone": "L8-P2-MS2",
-        "unit": "P0-U07",
-        "title": "Predictive Maintenance Panel",
-        "phase": "P0"
-      },
-      {
-        "milestone": "L8-P2-MS2",
-        "unit": "P0-U08",
-        "title": "ERP Overview Page",
-        "phase": "P0"
-      },
-      {
-        "milestone": "L8-P2-MS2",
-        "unit": "P0-U09",
-        "title": "ERP Layout & Navigation",
-        "phase": "P0"
-      },
-      {
-        "milestone": "CCM-MS14",
-        "unit": "P0-U06",
-        "title": "Cache hit rate monitor",
-        "phase": "P0"
-      },
-      {
-        "milestone": "CCM-MS14",
-        "unit": "P0-U07",
-        "title": "Cascade failure detector",
-        "phase": "P0"
-      },
-      {
-        "milestone": "CCM-MS14",
-        "unit": "P0-U08",
-        "title": "Monte Carlo convergence monitor",
-        "phase": "P0"
-      },
-      {
-        "milestone": "CCM-MS14",
-        "unit": "P0-U09",
-        "title": "silentCatch fire rate monitor",
         "phase": "P0"
       }
     ],

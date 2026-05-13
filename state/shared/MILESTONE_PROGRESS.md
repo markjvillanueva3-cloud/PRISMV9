@@ -1,6 +1,6 @@
 # MILESTONE_PROGRESS — what's actually shipped vs claimed
 
-> Generated: 2026-05-13T15:45:04.213Z
+> Generated: 2026-05-13T16:01:17.912Z
 > Window: last 60.days of git log across all branches
 > Source: `scripts/build-milestone-progress.mjs`
 
@@ -18,16 +18,19 @@ flagging a unit as missing.
 ## Headline numbers
 
 - Milestones loaded:        **670**
-- Units across all MS:      **3538**
-- Units shipped (in git):   **1100**
-- Units pending:            **2438**
-- Drift cases:              **167** (envelope status disagrees with git reality)
+- Units across all MS:      **4905**
+- Units shipped (in git):   **1182**
+- Units pending:            **3723**
+- Drift cases:              **171** (envelope status disagrees with git reality)
 
 ## Top recently-active milestones (last shipped → first)
 
 | Milestone | Track | Status (claimed) | Status (real) | Shipped/Total | Last commit |
 |-----------|-------|------------------|---------------|---------------|-------------|
+| COORD-MS0 | INFRA | unknown | in_progress_real | 1/12 (8%) | 2026-05-13 |
+| AI-MAX-MS0 | AI-MAX | in_progress | in_progress_real | 2/12 (17%) | 2026-05-13 |
 | BP-MS0 | BP | not_started | in_progress_real | 1/28 (4%) | 2026-05-13 |
+| AWARE-MS0 | AI-CORE | unknown | in_progress_real | 2/8 (25%) | 2026-05-13 |
 | CC-EXT-MS0 | — | not_started | in_progress_real | 5/8 (63%) | 2026-05-13 |
 | CC-EXT-MS1 | — | not_started | in_progress_real | 5/8 (63%) | 2026-05-13 |
 | CC-EXT-MS2 | — | not_started | in_progress_real | 5/8 (63%) | 2026-05-13 |
@@ -54,9 +57,6 @@ flagging a unit as missing.
 | QA-MS4 | — | not_started | in_progress_real | 5/6 (83%) | 2026-05-13 |
 | QA-MS5 | — | not_started | in_progress_real | 5/8 (63%) | 2026-05-13 |
 | QA-MS6 | — | not_started | in_progress_real | 5/8 (63%) | 2026-05-13 |
-| QA-MS7 | — | not_started | in_progress_real | 5/7 (71%) | 2026-05-13 |
-| QA-MS8 | — | complete | in_progress_real | 4/5 (80%) | 2026-05-13 |
-| QA-MS9 | — | not_started | in_progress_real | 5/7 (71%) | 2026-05-13 |
 
 ## Drift cases (claim vs git disagrees)
 
@@ -128,35 +128,35 @@ flagging a unit as missing.
 | Milestone | Pending | Total | Shipped/Total |
 |-----------|---------|-------|---------------|
 | CAD-COMPLETE-MS0 | 335 | 335 | 0/335 |
+| CAM-EXHAUST-MS0 | 166 | 189 | 23/189 |
 | LATHE-MASTER | 136 | 136 | 0/136 |
 | LATHE-PROD-READY-MS0 | 135 | 135 | 0/135 |
 | MS-WIRE-FRONTEND | 90 | 90 | 0/90 |
 | CLEANUP-MS0 | 73 | 73 | 0/73 |
 | MS-WIRE-BACKEND | 60 | 60 | 0/60 |
+| MIO-MS0 | 57 | 57 | 0/57 |
 | LATHE-LORA-MS0 | 50 | 50 | 0/50 |
 | MS-MASTERPOST | 44 | 44 | 0/44 |
 | MS1 | 39 | 39 | 0/39 |
 | MS-CAM-MASTERY | 34 | 34 | 0/34 |
+| MS-AUDIT-DERIVED-2026-05-10 | 30 | 30 | 0/30 |
 | MS2 | 30 | 30 | 0/30 |
 | EMP-MS0 | 28 | 28 | 0/28 |
 | BP-MS0 | 27 | 28 | 1/28 |
 | MS-TRAIN-DEEP | 26 | 26 | 0/26 |
 | CAMX-MS0.3 | 24 | 24 | 0/24 |
+| CADCAM-AGI-MS0 | 24 | 24 | 0/24 |
 | MS-SFC-CALIBRATE | 24 | 24 | 0/24 |
 | MS-PRINT-PROGRAM-LOOP | 23 | 23 | 0/23 |
+| MCAT-MS0 | 22 | 22 | 0/22 |
 | CAMX-MS22 | 20 | 20 | 0/20 |
 | MS-PILOT | 20 | 20 | 0/20 |
 | CAMX-V17-P1 | 18 | 18 | 0/18 |
+| CAD-UNIVERSAL-CONTROL-MS0 | 18 | 18 | 0/18 |
 | CALC-HARDEN-MS0 | 18 | 18 | 0/18 |
 | MS-DESKTOP | 18 | 18 | 0/18 |
 | USSH-OPUS47-BOLSTER | 18 | 18 | 0/18 |
-| CAMX-MS0.5 | 16 | 16 | 0/16 |
-| CAMX-MS1 | 16 | 16 | 0/16 |
-| CAMX-MS8 | 16 | 16 | 0/16 |
-| MS-CRITWIRE | 16 | 16 | 0/16 |
-| MS-GTM | 16 | 16 | 0/16 |
-| CAMX-MS19 | 15 | 15 | 0/15 |
-| CAMX-V17-P11 | 15 | 15 | 0/15 |
+| CAM-PARITY-AGI-MS0 | 16 | 16 | 0/16 |
 
 ## How to use
 

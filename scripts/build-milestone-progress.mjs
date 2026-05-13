@@ -74,6 +74,44 @@ function git(args) {
 }
 
 /**
+ * Expand combined unit-id captures like `U-AIMAX07+08` or `U-AIMAX07+08-FIX2`
+ * into the individual ids `[U-AIMAX07, U-AIMAX08]` (the trailing `-FIX2` is a
+ * commit suffix, not a unit id).
+ *
+ * Rules:
+ *   - Strip any trailing `-<NON-DIGIT-PREFIX>...` suffix that comes after the
+ *     final numeric chunk (e.g. `-FIX`, `-FIX2`, `-CLOSE`).
+ *   - Split on `+` to get parts. The first part is fully qualified
+ *     (`U-AIMAX07`); subsequent parts are just the trailing digits and inherit
+ *     the leading text of part 0 up to its trailing digit run.
+ *   - Inputs that don't contain `+` are returned verbatim (single-element array).
+ *
+ * Examples:
+ *   "U-AIMAX07"           → ["U-AIMAX07"]
+ *   "U-AIMAX07+08"        → ["U-AIMAX07", "U-AIMAX08"]
+ *   "U-AIMAX07+08-FIX2"   → ["U-AIMAX07", "U-AIMAX08"]
+ *   "P0-U02+03"           → ["P0-U02", "P0-U03"]
+ */
+function expandCombinedIds(captured) {
+  if (!captured.includes("+")) return [captured];
+  // Strip trailing -<suffix> if the suffix starts with a non-digit
+  // (so we keep things like "-U02" but drop "-FIX2").
+  const trimmed = captured.replace(/-[A-Z][A-Z0-9]*$/i, "");
+  const parts = trimmed.split("+");
+  const base = parts[0];
+  const trailingDigits = base.match(/(\d+)$/);
+  if (!trailingDigits) return [trimmed];
+  const prefix = base.slice(0, base.length - trailingDigits[1].length);
+  const result = [base];
+  for (let i = 1; i < parts.length; i += 1) {
+    // Each subsequent part is just the trailing digits — reconstruct with the
+    // base's leading prefix.
+    result.push(prefix + parts[i]);
+  }
+  return result;
+}
+
+/**
  * Returns Map<unitId, { sha, date, subject }> for every U-* unit ID
  * we can find in commits across the last SINCE window. Both branches
  * (main + worktrees) are covered by `--all`.
@@ -86,20 +124,26 @@ function loadShippedFromGit() {
     const [sha, date, ...rest] = line.split("\t");
     const subject = rest.join("\t");
     // Match: [SCOPE-MS#]/<unit-id>: title  OR  [MAIN] [SCOPE-MS#]/<unit-id>: title
-    // Two unit-id flavors supported (2026-05-13 fix per AUTOMATION_GAP_MAP BROKEN_CHAINS):
+    // Three unit-id flavors supported:
     //   1. Legacy U-prefix: U-A1-SCRUTINY-BATCH, U-D5-FINAL-WIRING-CLOSEOUT
     //   2. Phase-Unit:      P0-U05, P12-U03 (ACP-MS0+, RGS6+ envelope naming)
+    //   3. Combined IDs:    U-AIMAX07+08, U-AIMAX07+08-FIX2 (one commit shipping
+    //                       multiple related units — common when pairs are
+    //                       co-developed). Expanded by `expandCombinedIds`.
     // Key preserves the original unit-id so it matches the envelope's `units[].id`
     // exactly (which stores P0-U05, not U-P0-U05).
-    const mLegacy = subject.match(/\[([^\]]+)\]\/(U-[A-Za-z0-9-]+)/);
-    const mPhase  = subject.match(/\[([^\]]+)\]\/(P\d+-U\d+[A-Za-z0-9-]*)/);
+    const mLegacy = subject.match(/\[([^\]]+)\]\/(U-[A-Za-z0-9]+(?:\+[A-Za-z0-9]+)*(?:-[A-Za-z0-9-]+)?)/);
+    const mPhase  = subject.match(/\[([^\]]+)\]\/(P\d+-U\d+(?:\+\d+)*[A-Za-z0-9-]*)/);
     const m = mLegacy || mPhase;
     if (!m) continue;
     const milestoneTag = m[1].toUpperCase();
-    const unitId = m[2].toUpperCase();
-    const key = `${milestoneTag}::${unitId}`;
-    if (!shipped.has(key)) {
-      shipped.set(key, { sha, date, subject, milestoneTag, unitId });
+    const captured = m[2].toUpperCase();
+    const unitIds = expandCombinedIds(captured);
+    for (const unitId of unitIds) {
+      const key = `${milestoneTag}::${unitId}`;
+      if (!shipped.has(key)) {
+        shipped.set(key, { sha, date, subject, milestoneTag, unitId });
+      }
     }
   }
   return shipped;
@@ -127,6 +171,19 @@ async function loadMilestones() {
               dependencies: u.dependencies ?? [],
             });
           }
+        }
+      }
+      // Fallback: flat top-level `ms.units[]` (e.g. AI-MAX-ROADMAP.json).
+      // Without this, single-list envelopes show shipped=0/total=0 and their
+      // already-shipped units leak back into /pick-unit candidate pools.
+      if (units.length === 0 && Array.isArray(ms.units)) {
+        for (const u of ms.units) {
+          if (u?.id) units.push({
+            id: u.id,
+            title: u.title ?? "",
+            phase: u.session != null ? `session-${u.session}` : "",
+            dependencies: u.dependencies ?? u.depends_on ?? [],
+          });
         }
       }
       milestones.push({

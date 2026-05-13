@@ -1,6 +1,6 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-13T15:45:14.476Z
+> Generated: 2026-05-13T16:01:50.952Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
@@ -8,9 +8,9 @@
 - **2324** engines built and wired (of 3203)
 - **1073** wiki entries indexed
 - **879** engines awaiting dispatcher wiring
-- **2438** units pending across 70 active milestones
+- **3723** units pending across 78 active milestones
 - **2** codex frontend builds awaiting merge
-- **167** milestones with envelope-status drift
+- **171** milestones with envelope-status drift
 
 ## BUILT
 
@@ -65,7 +65,7 @@
 
 ## NEEDS_BUILDING
 
-2438 units across 670 milestones not yet in git.
+3723 units across 670 milestones not yet in git.
 
 ### Envelope-status drift
 
@@ -168,6 +168,7 @@
 | ACP-MS5 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | ACP-MS6 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | ACP-MS7 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| APP-MS0 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | BP-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | CCM-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | CCM-MS1 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
@@ -226,6 +227,8 @@
 | PCCA-MS0 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | PCCA-MS0A | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | PCCA-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| PIPE-MS0 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| PPG-MS2 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | PROD-GATE-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | TWIN-SIM-GATE-MS23 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | SCIMATH-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
@@ -238,15 +241,28 @@
 | SCIMATH-MS7 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | SIM-MS0 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | TOOLS-AUDIT-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| WEDM-ERP-MS0 | completed | not_started_real | claims_completed_but_units_pending |
 
 ### Top pending units (most-recently-active milestones first)
 
 | Milestone | Phase | Unit | Title |
 |-----------|-------|------|-------|
+| COORD-MS0 |  | U-COORD01 | Create AGENT_COORDINATION_SUMMARY.json (<5KB) |
+| COORD-MS0 |  | U-COORD02 | Add Optimistic Locking with Version Field |
+| COORD-MS0 |  | U-COORD03 | PID Liveness Check Before Claim Theft |
+| COORD-MS0 |  | U-COORD04 | CrossSessionOrchestratorEngine — Unified Facade |
+| AI-MAX-MS0 | session-1 | U-AIMAX01 | hyperMILL Python Script Pattern Extractor |
+| AI-MAX-MS0 | session-1 | U-AIMAX02 | JM DIE Program Pattern Analyzer |
+| AI-MAX-MS0 | session-1 | U-AIMAX03 | Pattern Database & Search Engine |
+| AI-MAX-MS0 | session-2 | U-AIMAX04 | Tree-of-Thought Reasoning Engine |
 | BP-MS0 | BP-P1 | U-ROUTEFIX1 | Fix speed/feed route split-brain + CAM contract mismatch |
 | BP-MS0 | BP-P1 | U-ROUTEFIX2 | Fix PPG route/action drift + ERP analytics wiring |
 | BP-MS0 | BP-P1 | U-ROUTEFIX3 | Context catalog fix + 24 integration tests |
 | BP-MS0 | BP-P2 | U-BLOB2 | PartsLibraryEngine with revisions + CAD metadata extraction |
+| AWARE-MS0 |  | U-AWARE01 | PreToolUse Hook — Build/Create Detection |
+| AWARE-MS0 |  | U-AWARE03 | Master Index Search Gate Hook |
+| AWARE-MS0 |  | U-AWARE05 | Auto /dedup Invocation |
+| AWARE-MS0 |  | U-AWARE06 | AI Feature Recommendation Injection |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | P2 | P2-U04 | Refactor error-block-prewarn to query Qdrant vector neighbors |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | P5 | P5-U05 | Wire prism_intelligence:diagnose_failure → DiagnosticReasoningEngine |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | P6 | P6-U02 | Add 4 hooks for unforced CLAUDE.md rules |
@@ -255,18 +271,6 @@
 | CCM-MS0 | P0 | P0-U07 | WorktreeRemove hook |
 | CCM-MS0 | P0 | P0-U08 | PostCompact hook |
 | CCM-MS0 | P0 | P0-U09 | SessionEnd hook |
-| L8-P1-MS2 | P0 | P0-U06 | Knowledge Search |
-| L8-P1-MS2 | P0 | P0-U07 | Material Selection Wizard |
-| L8-P1-MS2 | P0 | P0-U08 | Tool Selection Wizard |
-| L8-P1-MS2 | P0 | P0-U09 | Machine Selection Wizard |
-| L8-P2-MS2 | P0 | P0-U06 | Capacity Analytics Dashboard |
-| L8-P2-MS2 | P0 | P0-U07 | Predictive Maintenance Panel |
-| L8-P2-MS2 | P0 | P0-U08 | ERP Overview Page |
-| L8-P2-MS2 | P0 | P0-U09 | ERP Layout & Navigation |
-| CCM-MS14 | P0 | P0-U06 | Cache hit rate monitor |
-| CCM-MS14 | P0 | P0-U07 | Cascade failure detector |
-| CCM-MS14 | P0 | P0-U08 | Monte Carlo convergence monitor |
-| CCM-MS14 | P0 | P0-U09 | silentCatch fire rate monitor |
 
 **Next action:** Cross-reference MILESTONE_PROGRESS.json. Avoid units already in `shipped` arrays — those are committed but envelope status is stale.
 
@@ -321,7 +325,7 @@ Per-domain wired/unwired breakdown across 927 domain prefixes.
 
 ## STALE_MILESTONES
 
-87 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).
+232 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).
 
 | Milestone | Track | Reason | Pending | Shipped/Total | Last shipped |
 |-----------|-------|--------|---------|---------------|--------------|
@@ -332,8 +336,10 @@ Per-domain wired/unwired breakdown across 927 domain prefixes.
 | MS-MASTERPOST | revenue | never_started | 44 | 0/44 | never |
 | MS1 | revenue | never_started | 39 | 0/39 | never |
 | MS-CAM-MASTERY | revenue | never_started | 34 | 0/34 | never |
+| MS-AUDIT-DERIVED-2026-05-10 | audit-derived | never_started | 30 | 0/30 | never |
 | MS2 | revenue | never_started | 30 | 0/30 | never |
 | MS-TRAIN-DEEP | revenue | never_started | 26 | 0/26 | never |
+| CADCAM-AGI-MS0 | CAD-CAM-AGI | never_started | 24 | 0/24 | never |
 | MS-SFC-CALIBRATE | revenue | never_started | 24 | 0/24 | never |
 | MS-PRINT-PROGRAM-LOOP | revenue | never_started | 23 | 0/23 | never |
 | MS-PILOT | revenue | never_started | 20 | 0/20 | never |
@@ -342,19 +348,17 @@ Per-domain wired/unwired breakdown across 927 domain prefixes.
 | CAMX-MS0.5 | — | never_started | 16 | 0/16 | never |
 | CAMX-MS1 | — | never_started | 16 | 0/16 | never |
 | CAMX-MS8 | — | never_started | 16 | 0/16 | never |
+| CADCAM-DAGI-MS1 | CAD-CAM-DEEPAGI | never_started | 16 | 0/16 | never |
+| CADCAM-DAGI-MS4 | CAD-CAM-DEEPAGI | never_started | 16 | 0/16 | never |
 | MS-CRITWIRE | revenue | never_started | 16 | 0/16 | never |
 | MS-GTM | revenue | never_started | 16 | 0/16 | never |
 | CAMX-V17-P11 | — | never_started | 15 | 0/15 | never |
 | CAM-ML-CLOSEDLOOP-MS0 | CAM-ML | never_started | 15 | 0/15 | never |
+| CADCAM-DAGI-MS2 | CAD-CAM-DEEPAGI | never_started | 14 | 0/14 | never |
 | MS-FRONTEND | revenue | never_started | 14 | 0/14 | never |
 | MS-LEGAL | revenue | never_started | 13 | 0/13 | never |
 | CAMX-MS3 | — | never_started | 12 | 0/12 | never |
 | CAMX-MS4 | — | never_started | 12 | 0/12 | never |
-| CAMX-V17-P3 | — | never_started | 12 | 0/12 | never |
-| AUTO-LEARNING-LOOP-MS0 | AUTO-LEARNING-LOOP | never_started | 12 | 0/12 | never |
-| MS-INFRA | revenue | never_started | 12 | 0/12 | never |
-| MS-MONOLITH-HARVEST | revenue | never_started | 11 | 0/11 | never |
-| CAMX-MS0.7 | — | never_started | 10 | 0/10 | never |
 
 **Next action:** Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift.
 
