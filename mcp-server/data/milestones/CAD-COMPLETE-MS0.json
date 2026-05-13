@@ -102,7 +102,7 @@
   },
   "total_units": 336,
   "ml_learning_goal": "Draw ANY CAD file from scratch via trial/error learning — remember every successful feature pattern, auto-generate templates for part families, get exponentially faster",
-  "completed_units": 33,
+  "completed_units": 34,
   "sessions_estimate": {
     "p50": 269,
     "p90": 394
@@ -3336,7 +3336,22 @@
           "id": "U-CADC-AI03",
           "title": "CADCapabilityNegotiatorEngine — resolves intent vs adapter capability; falls back or fails-fast per policy",
           "acceptance": "Intent referencing unsupported op either degrades gracefully (configurable) or throws UnsupportedCapabilityError with named op.",
-          "status": "pending",
+          "status": "complete",
+          "completed_date": "2026-05-13",
+          "shipped_by": "alpha/claude-f914e22b",
+          "commit": "c60fff8f6",
+          "shipped_at": "2026-05-13T14:25:00Z",
+          "scope_reconciliation": "Files absorbed into peer commit c60fff8f6 ([BP-MS0]/U-BLOB1 by another chat) due to shared-tree commit-ownership-guard timing — same cross-chat absorption pattern as INFRA-NEURAL-LEDGER-MS1/P0-U02 and P0-U03. Files correct + tracked; peer commit subject is misleading.",
+          "files": [
+            "mcp-server/src/engines/CADCapabilityNegotiatorEngine.ts (NEW — negotiate/negotiateOrThrow/listGaps + UnsupportedCapabilityError + tryGetCapabilities defensive helper for half-shipped registry adapters)",
+            "mcp-server/src/__tests__/CADCapabilityNegotiatorEngine.test.ts (NEW — 28 it() cases across 9 describe blocks)",
+            "mcp-server/src/__tests__/CADCapabilityNegotiator.dispatcher.test.ts (NEW — 8 it() cases via captured-handler round-trip)",
+            "mcp-server/src/tools/dispatchers/cadDispatcher.ts (3 actions added: cad_capability_negotiate / _or_throw / _list_gaps)",
+            "mcp-server/src/schemas/cadActionSchemas.ts (3 Zod schemas with .describe(); .min(1) on negotiate_or_throw ops)"
+          ],
+          "tests": "36/36 pass (28 engine + 8 dispatcher round-trip; vitest 1.91s)",
+          "scrutiny": "Per-file gate ran 2 parallel reviewer agents (code-analyzer + reviewer) — both VERDICT: PASS, 0 P0 + 0 P1. Reviewer A's P1.1 (negotiate_or_throw ops .min(1) — zero-ops + throw is semantically incoherent) addressed inline before commit. Remaining 6 P2 items deferred (perf nits, telemetry polish, cosmetic).",
+          "pre_existing_baseline_note": "CADAdapterRegistry test suite has 6/37 pre-existing failures because the mastercam adapter's export name in MastercamCodeGeneratorEngine.ts does NOT match what CADAdapterRegistry imports (mastercamCADGeneratorAdapter). The negotiator's tryGetCapabilities defensive guard means it correctly handles half-shipped registry adapters. Fixing the underlying mastercam wiring is out of scope for U-CADC-AI03.",
           "renamed_from": "U-CCCO03",
           "renamed_in_round": 3
         },
