@@ -1,6 +1,6 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-13T13:39:53.930Z
+> Generated: 2026-05-13T13:45:43.966Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
@@ -8,9 +8,9 @@
 - **2324** engines built and wired (of 3203)
 - **1073** wiki entries indexed
 - **879** engines awaiting dispatcher wiring
-- **3472** units pending across 2 active milestones
+- **2439** units pending across 69 active milestones
 - **2** codex frontend builds awaiting merge
-- **2** milestones with envelope-status drift
+- **166** milestones with envelope-status drift
 
 ## BUILT
 
@@ -65,25 +65,207 @@
 
 ## NEEDS_BUILDING
 
-3472 units across 670 milestones not yet in git.
+2439 units across 670 milestones not yet in git.
 
 ### Envelope-status drift
 
 | Milestone | Envelope says | Git says | Drift |
 |-----------|---------------|----------|-------|
+| CC-EXT-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CC-EXT-MS1 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CC-EXT-MS2 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CC-EXT-MS3 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CC-EXT-MS4 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| CC-EXT-MS5 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| CC-EXT-MS6 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CC-MS0 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| CC-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| CC-MS10 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| CC-MS11 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| CC-MS2 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| CC-MS3 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| CC-MS4 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| CC-MS5 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| CC-MS6 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| CC-MS7 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| CC-MS8 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| CC-MS9 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L0-NEW-MS0 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L0-P0-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L0-P0-MS2 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L0-P1-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L0-P2-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L1-P0-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L1-P1-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L1-P1-MS2 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L1-P2-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L10-P0-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L10-P1-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L10-P2-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L10-P3-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L2-P0-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L2-P1-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L2-P2-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L2-P3-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L2-P4-MS1 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| L3-P0-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L3-P1-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L4-P0-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L4-P1-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L5-P0-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L5-P0-MS2 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L5-P1-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L6-P0-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L6-P1-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L7-P0-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L8-P0-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L8-P0-MS2 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| L8-P1-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L8-P1-MS2 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| L8-P2-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L8-P2-MS2 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| L8-P3-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L9-P0-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L9-P1-MS1 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| L9-P2-MS1 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | MF-MS1 | completed | not_started_real | claims_completed_but_units_pending |
 | MF-MS2 | completed | not_started_real | claims_completed_but_units_pending |
+| QA-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| QA-MS1 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| QA-MS10 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| QA-MS11 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| QA-MS12 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| QA-MS13 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| QA-MS14 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| QA-MS2 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| QA-MS3 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| QA-MS4 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| QA-MS5 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| QA-MS6 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| QA-MS7 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| QA-MS9 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| S0-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| S1-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| S1-MS2 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| S2-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| S2-MS2 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| S3-MS1 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| S3-MS2 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| S3-MS3 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| S4-MS1 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| TC-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| ULT-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| ULT-MS2 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| ULT-MS3 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| ULT-MS4 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| ULT-MS5 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| ACP-MS0A | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| ACP-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| ACP-MS2 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| ACP-MS2B | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| ACP-MS3 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| ACP-MS4 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| ACP-MS5 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| ACP-MS6 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| ACP-MS7 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| CCM-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CCM-MS1 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CCM-MS10 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CCM-MS11 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CCM-MS12 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CCM-MS13 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| CCM-MS14 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CCM-MS15 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CCM-MS16 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CCM-MS17 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CCM-MS2 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CCM-MS3 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CCM-MS4 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CCM-MS5 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CCM-MS6 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CCM-MS7 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CCM-MS8 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CCM-MS9 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CLI-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| EIGC-MS0 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| EIGC-MS0A | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| EIGC-MS10 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| EIGC-MS2 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| EIGC-MS3 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| EIGC-MS4 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| EIGC-MS5 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| EIGC-MS6 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| EIGC-MS7 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| EIGC-MS8 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| EIGC-MS9 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| INFRA-AGI-ROUTER-MS2 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| INTEL-OLLAMA-OBSIDIAN-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| INTEL-OLLAMA-OBSIDIAN-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L6-BACKPROP-REGISTRY-MS25 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| MULTI-CLI-SYNC-HOOK-MS28 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| SCHEMA-MIGRATION-RUNNER-MS27 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| HITL-OPERATOR-UI-MS24 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| RT-ADAPTIVE-MS22 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| RT-ADAPTIVE-MS22a | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| OT-IT-SECURITY-MS20 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| TENANT-ONBOARD-MS29 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| LATHE-P2P-CONSENSUS-MS4 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| MXU-MS0 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| MXU-MS0A | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| MXU-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| MXU-MS10 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| MXU-MS2 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| MXU-MS3 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| MXU-MS4 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| MXU-MS5 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| MXU-MS6 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| MXU-MS7 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| MXU-MS8 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| MXU-MS9 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| PCCA-MS0 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| PCCA-MS0A | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| PCCA-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| PROD-GATE-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| TWIN-SIM-GATE-MS23 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| SCIMATH-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| SCIMATH-MS1 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| SCIMATH-MS2 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| SCIMATH-MS3 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| SCIMATH-MS4 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| SCIMATH-MS5 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| SCIMATH-MS6 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| SCIMATH-MS7 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| SIM-MS0 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| TOOLS-AUDIT-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 
 ### Top pending units (most-recently-active milestones first)
 
 | Milestone | Phase | Unit | Title |
 |-----------|-------|------|-------|
-| HTML-PRIMARY-MS0 | P0 | U-HPS01 | Build `SpecHTMLCompanionEngine` (master renderer) |
-| HTML-PRIMARY-MS0 | P0 | U-HPS03 | Theme engine (dark/light, prefers-color-scheme) |
-| HTML-PRIMARY-MS0 | P0 | U-HPS04 | Navigation engine (sticky TOC, anchor links, search) |
-| HTML-PRIMARY-MS0 | P0 | U-HPS05 | Accessibility hook (WAI-ARIA, axe-cli gate) |
-| XPROC-NEURAL-OPTIMIZE-MS0 | P3-CLOSED-LOOP | U-NN-LOOP02 | Wire CrossProcessOutcomeStore to publish on FeedbackBus when records arrive |
-| XPROC-NEURAL-OPTIMIZE-MS0 | P6-TIER-COMPOSE | U-NN-TIER05 | T12 HierarchicalNeuralOrchestrator routes queries through tier stack |
+| CCM-MS0 | P0 | P0-U06 | WorktreeCreate hook |
+| CCM-MS0 | P0 | P0-U07 | WorktreeRemove hook |
+| CCM-MS0 | P0 | P0-U08 | PostCompact hook |
+| CCM-MS0 | P0 | P0-U09 | SessionEnd hook |
+| L8-P1-MS2 | P0 | P0-U06 | Knowledge Search |
+| L8-P1-MS2 | P0 | P0-U07 | Material Selection Wizard |
+| L8-P1-MS2 | P0 | P0-U08 | Tool Selection Wizard |
+| L8-P1-MS2 | P0 | P0-U09 | Machine Selection Wizard |
+| L8-P2-MS2 | P0 | P0-U06 | Capacity Analytics Dashboard |
+| L8-P2-MS2 | P0 | P0-U07 | Predictive Maintenance Panel |
+| L8-P2-MS2 | P0 | P0-U08 | ERP Overview Page |
+| L8-P2-MS2 | P0 | P0-U09 | ERP Layout & Navigation |
+| CCM-MS14 | P0 | P0-U06 | Cache hit rate monitor |
+| CCM-MS14 | P0 | P0-U07 | Cascade failure detector |
+| CCM-MS14 | P0 | P0-U08 | Monte Carlo convergence monitor |
+| CCM-MS14 | P0 | P0-U09 | silentCatch fire rate monitor |
+| CCM-MS5 | P0 | P0-U06 | Batch skill updater |
+| CCM-MS5 | P0 | P0-U07 | Batch test runner |
+| CCM-MS5 | P0 | P0-U08 | Cron management skill |
+| CCM-MS5 | P0 | P0-U09 | Schema drift cron |
+| L8-P0-MS2 | P0 | P0-U06 | G-Code Preview Panel |
+| L8-P0-MS2 | P0 | P0-U07 | Diff Comparison View |
+| L8-P0-MS2 | P0 | P0-U08 | Operation Builder |
+| L8-P0-MS2 | P0 | P0-U09 | Validation Panel |
 
 **Next action:** Cross-reference MILESTONE_PROGRESS.json. Avoid units already in `shipped` arrays — those are committed but envelope status is stale.
 
@@ -138,12 +320,11 @@ Per-domain wired/unwired breakdown across 926 domain prefixes.
 
 ## STALE_MILESTONES
 
-253 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).
+88 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).
 
 | Milestone | Track | Reason | Pending | Shipped/Total | Last shipped |
 |-----------|-------|--------|---------|---------------|--------------|
 | LATHE-MASTER | LATHE | never_started | 136 | 0/136 | never |
-| INTEL-OLLAMA-OBSIDIAN-MS0 | INFRA | never_started | 92 | 0/92 | never |
 | MS-WIRE-FRONTEND | revenue | never_started | 90 | 0/90 | never |
 | CLEANUP-MS0 | CLEANUP | never_started | 73 | 0/73 | never |
 | MS-WIRE-BACKEND | revenue | never_started | 60 | 0/60 | never |
@@ -154,24 +335,25 @@ Per-domain wired/unwired breakdown across 926 domain prefixes.
 | BP-MS0 | BP | never_started | 28 | 0/28 | never |
 | MS-TRAIN-DEEP | revenue | never_started | 26 | 0/26 | never |
 | MS-SFC-CALIBRATE | revenue | never_started | 24 | 0/24 | never |
-| INTEL-OLLAMA-OBSIDIAN-MS1 | INFRA | never_started | 23 | 0/23 | never |
 | MS-PRINT-PROGRAM-LOOP | revenue | never_started | 23 | 0/23 | never |
-| SCIMATH-MS5 | SCIMATH | never_started | 23 | 0/23 | never |
-| CLI-MS0 | CLI | never_started | 22 | 0/22 | never |
 | MS-PILOT | revenue | never_started | 20 | 0/20 | never |
-| SCIMATH-MS1 | SCIMATH | never_started | 20 | 0/20 | never |
 | CAMX-V17-P1 | — | never_started | 18 | 0/18 | never |
 | MS-DESKTOP | revenue | never_started | 18 | 0/18 | never |
-| SCIMATH-MS0 | SCIMATH | never_started | 17 | 0/17 | never |
-| SCIMATH-MS6 | SCIMATH | never_started | 17 | 0/17 | never |
 | CAMX-MS0.5 | — | never_started | 16 | 0/16 | never |
 | CAMX-MS1 | — | never_started | 16 | 0/16 | never |
 | CAMX-MS8 | — | never_started | 16 | 0/16 | never |
-| CCM-MS0 | CCM | never_started | 16 | 0/16 | never |
 | MS-CRITWIRE | revenue | never_started | 16 | 0/16 | never |
 | MS-GTM | revenue | never_started | 16 | 0/16 | never |
-| SCIMATH-MS3 | SCIMATH | never_started | 16 | 0/16 | never |
 | CAMX-V17-P11 | — | never_started | 15 | 0/15 | never |
+| CAM-ML-CLOSEDLOOP-MS0 | CAM-ML | never_started | 15 | 0/15 | never |
+| MS-FRONTEND | revenue | never_started | 14 | 0/14 | never |
+| MS-LEGAL | revenue | never_started | 13 | 0/13 | never |
+| CAMX-MS3 | — | never_started | 12 | 0/12 | never |
+| CAMX-MS4 | — | never_started | 12 | 0/12 | never |
+| CAMX-V17-P3 | — | never_started | 12 | 0/12 | never |
+| AUTO-LEARNING-LOOP-MS0 | AUTO-LEARNING-LOOP | never_started | 12 | 0/12 | never |
+| MS-INFRA | revenue | never_started | 12 | 0/12 | never |
+| MS-MONOLITH-HARVEST | revenue | never_started | 11 | 0/11 | never |
 
 **Next action:** Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift.
 

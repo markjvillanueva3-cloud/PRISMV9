@@ -85,12 +85,18 @@ function loadShippedFromGit() {
     if (!line.includes("\t")) continue;
     const [sha, date, ...rest] = line.split("\t");
     const subject = rest.join("\t");
-    // Match: [SCOPE-MS#]/U-<id>: title  OR  [MAIN] [SCOPE-MS#]/U-<id>: title
-    // Capture both the milestone id (or null if not present) and the unit id.
-    const m = subject.match(/\[([^\]]+)\]\/U-([A-Za-z0-9-]+)/);
+    // Match: [SCOPE-MS#]/<unit-id>: title  OR  [MAIN] [SCOPE-MS#]/<unit-id>: title
+    // Two unit-id flavors supported (2026-05-13 fix per AUTOMATION_GAP_MAP BROKEN_CHAINS):
+    //   1. Legacy U-prefix: U-A1-SCRUTINY-BATCH, U-D5-FINAL-WIRING-CLOSEOUT
+    //   2. Phase-Unit:      P0-U05, P12-U03 (ACP-MS0+, RGS6+ envelope naming)
+    // Key preserves the original unit-id so it matches the envelope's `units[].id`
+    // exactly (which stores P0-U05, not U-P0-U05).
+    const mLegacy = subject.match(/\[([^\]]+)\]\/(U-[A-Za-z0-9-]+)/);
+    const mPhase  = subject.match(/\[([^\]]+)\]\/(P\d+-U\d+[A-Za-z0-9-]*)/);
+    const m = mLegacy || mPhase;
     if (!m) continue;
     const milestoneTag = m[1].toUpperCase();
-    const unitId = "U-" + m[2].toUpperCase();
+    const unitId = m[2].toUpperCase();
     const key = `${milestoneTag}::${unitId}`;
     if (!shipped.has(key)) {
       shipped.set(key, { sha, date, subject, milestoneTag, unitId });
