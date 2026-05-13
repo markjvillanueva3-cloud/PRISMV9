@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-13T14:01:48.344Z",
+  "generatedAt": "2026-05-13T15:16:11.222Z",
   "headline": {
     "built_engines": 2324,
     "built_with_wiki": 1073,
     "needs_wiring": 879,
-    "needs_building_active_units": 2439,
+    "needs_building_active_units": 2438,
     "needs_frontend_merge_count": 2,
-    "pending_milestones_with_activity": 69,
-    "drift_milestones": 166,
-    "stale_milestones": 88,
+    "pending_milestones_with_activity": 70,
+    "drift_milestones": 167,
+    "stale_milestones": 87,
     "domains_tracked": 926
   },
   "sources": {
@@ -319,8 +319,8 @@
     "rows": [
       {
         "domain": "Other",
-        "total": 594,
-        "wired": 451,
+        "total": 595,
+        "wired": 452,
         "unwired": 143,
         "coverage_pct": 76,
         "sample_unwired": [
@@ -8742,7 +8742,7 @@
     ]
   },
   "STALE_MILESTONES": {
-    "summary": "88 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).",
+    "summary": "87 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).",
     "threshold_days": 30,
     "rows": [
       {
@@ -8814,15 +8814,6 @@
         "pending": 30,
         "shipped": 0,
         "total": 30,
-        "lastShippedDate": null,
-        "reason": "never_started"
-      },
-      {
-        "id": "BP-MS0",
-        "track": "BP",
-        "pending": 28,
-        "shipped": 0,
-        "total": 28,
         "lastShippedDate": null,
         "reason": "never_started"
       },
@@ -9104,12 +9095,21 @@
         "total": 9,
         "lastShippedDate": null,
         "reason": "never_started"
+      },
+      {
+        "id": "CAMX-MS10",
+        "track": "",
+        "pending": 8,
+        "shipped": 0,
+        "total": 8,
+        "lastShippedDate": null,
+        "reason": "never_started"
       }
     ],
     "next_action": "Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift."
   },
   "NEEDS_BUILDING": {
-    "summary": "2439 units across 670 milestones not yet in git.",
+    "summary": "2438 units across 670 milestones not yet in git.",
     "drift_cases": [
       {
         "id": "CC-EXT-MS0",
@@ -9694,6 +9694,12 @@
         "drift": "claims_not_started_but_has_shipped_units"
       },
       {
+        "id": "BP-MS0",
+        "claimed": "not_started",
+        "real": "in_progress_real",
+        "drift": "claims_not_started_but_has_shipped_units"
+      },
+      {
         "id": "CCM-MS0",
         "claimed": "not_started",
         "real": "in_progress_real",
@@ -10110,6 +10116,30 @@
     ],
     "top_pending_units": [
       {
+        "milestone": "BP-MS0",
+        "unit": "U-ROUTEFIX1",
+        "title": "Fix speed/feed route split-brain + CAM contract mismatch",
+        "phase": "BP-P1"
+      },
+      {
+        "milestone": "BP-MS0",
+        "unit": "U-ROUTEFIX2",
+        "title": "Fix PPG route/action drift + ERP analytics wiring",
+        "phase": "BP-P1"
+      },
+      {
+        "milestone": "BP-MS0",
+        "unit": "U-ROUTEFIX3",
+        "title": "Context catalog fix + 24 integration tests",
+        "phase": "BP-P1"
+      },
+      {
+        "milestone": "BP-MS0",
+        "unit": "U-BLOB2",
+        "title": "PartsLibraryEngine with revisions + CAD metadata extraction",
+        "phase": "BP-P2"
+      },
+      {
         "milestone": "INTEL-OLLAMA-OBSIDIAN-MS0",
         "unit": "P2-U04",
         "title": "Refactor error-block-prewarn to query Qdrant vector neighbors",
@@ -10227,30 +10257,6 @@
         "milestone": "CCM-MS14",
         "unit": "P0-U09",
         "title": "silentCatch fire rate monitor",
-        "phase": "P0"
-      },
-      {
-        "milestone": "CCM-MS5",
-        "unit": "P0-U06",
-        "title": "Batch skill updater",
-        "phase": "P0"
-      },
-      {
-        "milestone": "CCM-MS5",
-        "unit": "P0-U07",
-        "title": "Batch test runner",
-        "phase": "P0"
-      },
-      {
-        "milestone": "CCM-MS5",
-        "unit": "P0-U08",
-        "title": "Cron management skill",
-        "phase": "P0"
-      },
-      {
-        "milestone": "CCM-MS5",
-        "unit": "P0-U09",
-        "title": "Schema drift cron",
         "phase": "P0"
       }
     ],

@@ -1,6 +1,6 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-13T15:10:39.389Z
+> Generated: 2026-05-13T15:16:11.222Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
@@ -8,9 +8,9 @@
 - **2324** engines built and wired (of 3203)
 - **1073** wiki entries indexed
 - **879** engines awaiting dispatcher wiring
-- **2439** units pending across 69 active milestones
+- **2438** units pending across 70 active milestones
 - **2** codex frontend builds awaiting merge
-- **166** milestones with envelope-status drift
+- **167** milestones with envelope-status drift
 
 ## BUILT
 
@@ -65,7 +65,7 @@
 
 ## NEEDS_BUILDING
 
-2439 units across 670 milestones not yet in git.
+2438 units across 670 milestones not yet in git.
 
 ### Envelope-status drift
 
@@ -168,6 +168,7 @@
 | ACP-MS5 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | ACP-MS6 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | ACP-MS7 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| BP-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | CCM-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | CCM-MS1 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | CCM-MS10 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
@@ -242,6 +243,10 @@
 
 | Milestone | Phase | Unit | Title |
 |-----------|-------|------|-------|
+| BP-MS0 | BP-P1 | U-ROUTEFIX1 | Fix speed/feed route split-brain + CAM contract mismatch |
+| BP-MS0 | BP-P1 | U-ROUTEFIX2 | Fix PPG route/action drift + ERP analytics wiring |
+| BP-MS0 | BP-P1 | U-ROUTEFIX3 | Context catalog fix + 24 integration tests |
+| BP-MS0 | BP-P2 | U-BLOB2 | PartsLibraryEngine with revisions + CAD metadata extraction |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | P2 | P2-U04 | Refactor error-block-prewarn to query Qdrant vector neighbors |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | P5 | P5-U05 | Wire prism_intelligence:diagnose_failure → DiagnosticReasoningEngine |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | P6 | P6-U02 | Add 4 hooks for unforced CLAUDE.md rules |
@@ -262,10 +267,6 @@
 | CCM-MS14 | P0 | P0-U07 | Cascade failure detector |
 | CCM-MS14 | P0 | P0-U08 | Monte Carlo convergence monitor |
 | CCM-MS14 | P0 | P0-U09 | silentCatch fire rate monitor |
-| CCM-MS5 | P0 | P0-U06 | Batch skill updater |
-| CCM-MS5 | P0 | P0-U07 | Batch test runner |
-| CCM-MS5 | P0 | P0-U08 | Cron management skill |
-| CCM-MS5 | P0 | P0-U09 | Schema drift cron |
 
 **Next action:** Cross-reference MILESTONE_PROGRESS.json. Avoid units already in `shipped` arrays — those are committed but envelope status is stale.
 
@@ -320,7 +321,7 @@ Per-domain wired/unwired breakdown across 926 domain prefixes.
 
 ## STALE_MILESTONES
 
-88 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).
+87 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).
 
 | Milestone | Track | Reason | Pending | Shipped/Total | Last shipped |
 |-----------|-------|--------|---------|---------------|--------------|
@@ -332,7 +333,6 @@ Per-domain wired/unwired breakdown across 926 domain prefixes.
 | MS1 | revenue | never_started | 39 | 0/39 | never |
 | MS-CAM-MASTERY | revenue | never_started | 34 | 0/34 | never |
 | MS2 | revenue | never_started | 30 | 0/30 | never |
-| BP-MS0 | BP | never_started | 28 | 0/28 | never |
 | MS-TRAIN-DEEP | revenue | never_started | 26 | 0/26 | never |
 | MS-SFC-CALIBRATE | revenue | never_started | 24 | 0/24 | never |
 | MS-PRINT-PROGRAM-LOOP | revenue | never_started | 23 | 0/23 | never |
@@ -354,6 +354,7 @@ Per-domain wired/unwired breakdown across 926 domain prefixes.
 | AUTO-LEARNING-LOOP-MS0 | AUTO-LEARNING-LOOP | never_started | 12 | 0/12 | never |
 | MS-INFRA | revenue | never_started | 12 | 0/12 | never |
 | MS-MONOLITH-HARVEST | revenue | never_started | 11 | 0/11 | never |
+| CAMX-MS0.7 | — | never_started | 10 | 0/10 | never |
 
 **Next action:** Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift.
 

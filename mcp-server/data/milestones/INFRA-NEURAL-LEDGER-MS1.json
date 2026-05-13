@@ -7,9 +7,10 @@
   "created_by": "claude-opus-4-7",
   "track": "INFRA",
   "track_name": "Multi-Model Coordination Infrastructure",
-  "status": "in_progress",
-  "completed_units": 3,
-  "total_units": 5,
+  "status": "complete",
+  "completed_at": "2026-05-13T16:00:00Z",
+  "completed_units": 4,
+  "total_units": 4,
   "shipped": [
     {
       "unit": "P0-U01",
@@ -90,6 +91,39 @@
         "P2: top-of-file static imports for fs/readline in streamReplayFromDisk — currently dynamic per call; cosmetic",
         "P2: shared helper to eliminate duplication between aiReasoningDispatcher XPROC_TIER1_HANDLERS map and intelligenceDispatcher inline if-handlers — pattern-wide refactor outside P0-U03 scope"
       ]
+    },
+    {
+      "unit": "P0-U04",
+      "commit": "5f6cd9af2+66bab00de",
+      "title": "Neural feedback bus — wire CAMLoRAAdapterTrainerEngine as third subscriber + E2E across both bus topics",
+      "shipped_at": "2026-05-13T16:00:00Z",
+      "shipped_by": "alpha/claude-06b8753f",
+      "scope_reconciliation": "Pre-existing: FeedbackBusEngine, CrossProcessNeuralLearningEngine subscribes to outcome.recorded (U-NN-LOOP03), OutcomeDriftCalibrationBridgeEngine subscribes to outcome.completed (U-CN06). The spec's 'BayesianCalibrationEngine' subscriber maps to OutcomeDriftCalibrationBridgeEngine because that bridge wires CrossProcessDriftDetectorEngine + ConformalCalibrationMonitorEngine + CrossProcessConceptShiftHandlerEngine — i.e. it IS the calibration arm. The only remaining spec subscriber unattached to the bus was CAMLoRAAdapterTrainerEngine; this commit wires it.",
+      "files_changed": 3,
+      "files": [
+        "mcp-server/src/engines/CAMLoRAAdapterTrainerEngine.ts (added types ObservedOutcome + ObservationStatus + exported DEFAULT_OBSERVATION_CAP=1000 + private DEDUP_SET_MAX_MULTIPLIER=10 + PRIORITY_4_SET; 6 new private fields for subscription/buffers/counters/seenIds/skipped/bufferCap; 6 new public methods enableOutcomeObservation/disableOutcomeObservation/isObservingOutcomes/getObservationBuffer/getObservationStatus/clearObservations; 1 new private observeOutcome bus callback with terminal-only filter + per-CAM resolution via request_summary.cam_system → OR record.process → defensive null + idempotent dedup-by-id + bounded Set growth + FIFO ring-buffer eviction with monotonic counters)",
+        "mcp-server/src/__tests__/feedbackBus.e2e.test.ts (NEW, 14 it() cases across §1-§10 — exit-condition coverage for round-trip, error isolation, no-op publish, full mill-job lifecycle across both bus topics, per-CAM dispatch, unknown CAM skip, idempotent dedup, drift-bridge topic-filter proof, disable-cycle cleanup, FIFO buffer-cap eviction, idempotent enable, bufferCap re-subscribe application, clearObservations resets cap to default, live bus-stats snapshot)",
+        "mcp-server/data/milestones/INFRA-NEURAL-LEDGER-MS1.json (this envelope — shipped[] entry + phase status complete + completed_units 3→4 + total_units 5→4)"
+      ],
+      "new_methods": 6,
+      "tests": "14/14 pass on feedbackBus.e2e.test.ts; 256/256 pass on the wider regression suite covering FeedbackBusEngine + CAMLoRAAdapterTrainerEngine + CrossProcessOutcomeStore + CrossProcessNeuralLearningEngine + OutcomeDriftCalibrationBridgeEngine + 2 existing feedbackbus integration files; tsc --noEmit exit-code 0",
+      "exit_conditions_verified": [
+        "✓ FeedbackBusEngine.subscribe(domain, callback) registers listeners — FeedbackBusEngine.test.ts (18 pre-existing cases) + e2e §1",
+        "✓ FeedbackBusEngine.publish(event) fires all matching subscribers async — e2e §1 + §4",
+        "✓ Subscribers wired: CrossProcessNeuralLearningEngine + OutcomeDriftCalibrationBridgeEngine (= 'BayesianCalibrationEngine' role) + CAMLoRAAdapterTrainerEngine — e2e §4 asserts subscriberCount('outcome.recorded')===2 + subscriberCount('outcome.completed')===1",
+        "✓ Subscribe + publish round-trip — e2e §1",
+        "✓ Subscriber error does not prevent other subscribers — e2e §2 (3-subscriber fan-out with middle subscriber throw → aHits=1, cHits=1, totalSubscriberErrors=1)",
+        "✓ Publish to non-existent domain is no-op — e2e §3 (totalPublished=1, totalDelivered=0, totalSubscriberErrors=0)",
+        "✓ E2E mill job → ALL 3 subscribers get the event — e2e §4 records a mastercam mill outcome (proves neural buffer + LoRA byCam.mastercam=1) then drives a pending → failure transition on a second job (proves drift bridge total_events_seen=1 only on outcome.completed)"
+      ],
+      "scrutiny": "Per-file gate: 4 parallel reviewer agents dispatched after both files generated (2 per file). Engine reviewers: code-analyzer VERDICT:PASS, reviewer (independent) VERDICT:PASS with 2 P1s. Test reviewers: test-review-agent VERDICT:PASS, reviewer (independent) VERDICT:FAIL with 1 P0. ALL findings fixed in same commit per always-close-out rule: (P0) test §4 phase-2 had a tautological `expect(transitioned).toBe(true)` after recordOutcome on same-kind — reconciled by removing the dead block; the real transition-asserting line is now `recordOutcome(pendingId, {kind:'failure'})` with comment citing CrossProcessOutcomeStore.ts:299; (P1-engine-A) clearObservations() docstring claimed it reset all fields but skipped observationBufferCap — fixed by adding the reset and updating docstring; (P1-engine-B) enableOutcomeObservation() applied bufferCap AFTER idempotent early-return so a re-subscribe with new cap silently dropped — fixed by moving the bufferCap clamp BEFORE the early-return; (P2-engine) unbounded dedup Set growth — bounded at PRIORITY_4 × bufferCap × DEDUP_SET_MAX_MULTIPLIER (40,000 ids ≈ 1.5 MB at defaults; covers ~2 years of typical shop-floor flow); evicts oldest half FIFO via insertion-order iteration when high-water-mark exceeded. Added 3 new regression tests in same commit to prove the fixes: §6b drift-bridge topic-filter, §9b bufferCap re-subscribe takes effect, §9c clearObservations resets bufferCap to default.",
+      "design": "Subscribe pattern follows the existing CrossProcessNeuralLearningEngine.enableAutoTrain()/disableAutoTrain() shape — symmetric enable/disable methods, isObserving* probe, ObservationStatus snapshot, getObservationBuffer per-CAM accessor with defensive copy. Bus callback is fire-and-forget: O(1) amortized per call (push + Set.add + cap-check are constant; bufferCap-overflow shift is O(bufferCap) but bounded). Per-CAM resolution checks request_summary.cam_system first (preferred — set by CAM bridges) then record.process (defensive — currently disjoint from PRIORITY_4 because OUTCOME_PROCESSES=[mill,lathe,wedm], but kept as future-proofing for when CAM-specific process slugs land). Heavy training stays under explicit operator control via the pre-existing trainAll() / trainFromFiles() — bus only observes.",
+      "deferred_followups": [
+        "Re-train cadence: nothing in PRISM currently calls camLoRAAdapterTrainerEngine.trainAll() on a schedule when buffers fill. Future unit could schedule a recurring flush — defer to FEEDBACK-CALIB-MS10",
+        "Update commit ref in this shipped[] entry + the phase-array P0-U04 entry to the actual SHA after the commit lands (this commit's diff includes the envelope, so a follow-up `[CLOSE-STATE-U04]` commit ref-fills both placeholders)",
+        "P2 (engine): 'fromProcess' defensive branch in observeOutcome is currently dead because OUTCOME_PROCESSES=[mill,lathe,wedm] is disjoint from PRIORITY_4_SET — kept as defense-in-depth if OUTCOME_PROCESSES is widened",
+        "P3 (test): test-reviewer-B's P1 nit about flush() depth=2 microtasks being theoretically fragile if a future subscriber adds a 3rd hop — would migrate to vi.waitFor() if any subscriber wraps in setImmediate/setTimeout; currently all subscribers are sync within their callbacks"
+      ]
     }
   ],
   "linked_roadmap": "state/shared/PRISM-COMPREHENSIVE-ROADMAP-2026-05-04.md",
@@ -115,13 +149,20 @@
             "Tests: schema accepts valid event; rejects 5 malformed variants (missing required, wrong type, NaN, Infinity, oversize)"
           ],
           "description": "Reuse the existing NUMERIC_FEATURE_KEYS constant from CrossProcessOutcomeStore. Add jobId for cross-event linkage. consensusAuditId references entries in consensus-decisions.jsonl (ledger written by MS0).",
-          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P0-U02",
           "title": "Hook outcome emission into all 6 P2P pipeline engines",
           "effort": 120,
-          "dependencies": ["P0-U01"],
+          "dependencies": [
+            "P0-U01"
+          ],
           "status": "complete",
           "completed_date": "2026-05-13",
           "commit": "5ae6f77c7",
@@ -136,13 +177,20 @@
             "Tests: each engine emission validated against schema; emission failure logged but does not break pipeline"
           ],
           "description": "Insert a single line at the end of each engine's main run method: `crossProcessOutcomeStore.append(buildOutcome(this, result))`. Build a small helper that derives the event from engine state. No new dependency injection — direct singleton import per existing pattern.",
-          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P0-U03",
           "title": "CrossProcessOutcomeStore replay capability — reproduce last 100 jobs",
           "effort": 75,
-          "dependencies": ["P0-U02"],
+          "dependencies": [
+            "P0-U02"
+          ],
           "status": "complete",
           "completed_date": "2026-05-13",
           "commit": "c1e8db965+76371bd68",
@@ -153,13 +201,24 @@
             "Tests: write 200 events, replay last 100 returns correct slice; replay by jobId returns full chain; replaySince filters correctly"
           ],
           "description": "Read-side API for the ledger. Used by learning engines and audit dashboards. JSONL streaming reader; never load full ledger into memory.",
-          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P0-U04",
           "title": "Neural feedback bus — pub/sub for outcome events",
           "effort": 90,
-          "dependencies": ["P0-U03"],
+          "dependencies": [
+            "P0-U03"
+          ],
+          "status": "complete",
+          "completed_date": "2026-05-13",
+          "commit": "5f6cd9af2+66bab00de",
+          "scope_note": "FeedbackBusEngine + 2-of-3 subscribers (CrossProcessNeuralLearningEngine via U-NN-LOOP03, OutcomeDriftCalibrationBridgeEngine via U-CN06 — fulfills the spec's 'BayesianCalibrationEngine' role since the calibration arm is wired by that bridge) were already shipped on prior commits. THIS unit landed the third subscriber: CAMLoRAAdapterTrainerEngine.enableOutcomeObservation() + per-CAM observation buffer + idempotent dedup + bounded growth. New E2E test file `feedbackBus.e2e.test.ts` (14 it() cases) exercises all 3 subscribers across both bus topics (outcome.recorded + outcome.completed) and proves topic-filter isolation. Per-file scrutiny gate (4 reviewer agents) found 1 P0 (tautological transition assertion) + 2 engine P1s (clearObservations not resetting bufferCap; enableOutcomeObservation swallowing re-subscribe bufferCap) — ALL fixed in this same commit per always-close-out rule.",
           "exit_conditions": [
             "FeedbackBusEngine.subscribe(domain, callback) registers listeners",
             "FeedbackBusEngine.publish(event) fires all matching subscribers async",
@@ -167,18 +226,59 @@
             "Tests: subscribe + publish round-trip; subscriber error does not prevent other subscribers; publish to non-existent domain is no-op",
             "E2E: simulate a mill job, verify ALL 3 subscribers get the event"
           ],
+          "exit_conditions_verified": [
+            "✓ FeedbackBusEngine.subscribe + publish — covered by FeedbackBusEngine.test.ts (18 cases pre-existing) + feedbackBus.e2e.test.ts §1",
+            "✓ Subscriber error does not prevent others — feedbackBus.e2e.test.ts §2 (intentional throw + aHits/cHits = 1 each + totalSubscriberErrors = 1)",
+            "✓ Publish to non-existent domain is no-op — feedbackBus.e2e.test.ts §3 (totalPublished=1, totalDelivered=0)",
+            "✓ 3 subscribers wired — confirmed by §4: feedbackBusEngine.subscriberCount('outcome.recorded') === 2 (neural + LoRA) AND subscriberCount('outcome.completed') === 1 (drift bridge)",
+            "✓ E2E mill job → all 3 see their respective topic — §4 records a mastercam mill outcome (LoRA + neural fire) then drives pending → failure transition (drift bridge fires on outcome.completed). All three counter assertions concrete."
+          ],
+          "files": [
+            "mcp-server/src/engines/CAMLoRAAdapterTrainerEngine.ts (added ObservedOutcome + ObservationStatus types, DEFAULT_OBSERVATION_CAP = 1000, DEDUP_SET_MAX_MULTIPLIER = 10, PRIORITY_4_SET, observationHandle/Buffers/Counts/SeenIds/Skipped/BufferCap private fields, public enableOutcomeObservation/disableOutcomeObservation/isObservingOutcomes/getObservationBuffer/getObservationStatus/clearObservations, private observeOutcome bus callback with idempotent dedup + bounded Set growth + per-CAM filter via record.process OR request_summary.cam_system)",
+            "mcp-server/src/__tests__/feedbackBus.e2e.test.ts (NEW — 14 it() cases: §1 round-trip, §2 error isolation, §3 non-existent domain no-op, §4 full mill job lifecycle across both bus topics, §5 per-CAM dispatch, §5b unknown CAM skip, §6 idempotent dedup, §6b drift-bridge topic-filter proof, §7 disable cycle cleanup, §8 FIFO buffer-cap eviction, §9 idempotent enable, §9b bufferCap re-subscribe applies, §9c clearObservations resets cap, §10 live bus-stats snapshot)"
+          ],
+          "new_methods": 6,
+          "tests": "14/14 pass on feedbackBus.e2e.test.ts; 256/256 pass on the wider regression suite (FeedbackBusEngine + CAMLoRAAdapterTrainerEngine + CrossProcessOutcomeStore + CrossProcessNeuralLearningEngine + OutcomeDriftCalibrationBridgeEngine + the 2 feedbackbus integration files)",
+          "scrutiny": "Per-file gate: 4 parallel reviewer agents (2 per file — code-analyzer + reviewer on engine; test-review-agent + reviewer on E2E). Engine reviewers both VERDICT: PASS. Test reviewer A VERDICT: PASS. Test reviewer B (independent reviewer) VERDICT: FAIL on a P0 (tautological transition assertion at line 211). All findings fixed in same commit per always-close-out: P0 reconciled (recordOutcome returns true on known id, not on transition — comment + code aligned); engine P1s fixed (enableOutcomeObservation applies bufferCap before idempotent early-return; clearObservations resets bufferCap to DEFAULT_OBSERVATION_CAP). Bound dedup-set growth added (P2 from reviewer B). Added §6b/§9b/§9c regression tests on the same commit to prove the fixes.",
+          "design": "FeedbackBusEngine (subscribe/publish/wildcard/error-isolated fan-out) was already built. Three subscribers already coexisted on the bus: CrossProcessNeuralLearningEngine (U-NN-LOOP03, outcome.recorded → auto-train buffer), OutcomeDriftCalibrationBridgeEngine (U-CN06, outcome.completed → drift + calibration + concept-shift), and 4 secondary subscribers (ConformalPredictionLog, TribalKnowledgeOutcomeBridge, OutcomeReplayBufferBridge, OutcomeEpisodicMemoryBridge). What was missing: the THIRD spec-mandated subscriber. CAMLoRAAdapterTrainerEngine now subscribes to outcome.recorded with a lightweight idempotent observer that buffers per-CAM samples for the next batched trainAll() — heavy retraining stays under explicit operator control. Per-CAM bucket resolves via request_summary.cam_system (preferred) OR record.process (defensive). Dedup by record.id covers replay; Set growth bounded at PRIORITY_4 × bufferCap × 10. Per-CAM ring buffer FIFO-evicts on overflow; counters stay monotonic.",
+          "deferred_followups": [
+            "Re-train cadence: nothing in PRISM currently calls camLoRAAdapterTrainerEngine.trainAll() on a schedule when buffers fill. Future unit could schedule a recurring flush — defer to FEEDBACK-CALIB-MS10.",
+            "P2 dim 4 (defensive fromProcess branch in observeOutcome): currently unreachable because OUTCOME_PROCESSES = [mill,lathe,wedm] is disjoint from PRIORITY_4_SET. Kept as defense-in-depth if OUTCOME_PROCESSES is widened later — would block this branch if widening is intentional.",
+            "P3 dim 9 (defensive snake-case key collisions in request_summary): observeOutcome trusts upstream Zod validation in CrossProcessOutcomeStore.record(); no per-event re-validation here. Acceptable boundary."
+          ],
           "description": "In-process event emitter (Node EventEmitter). Lightweight — not a queue. Future MS may add durability. Subscribers must be idempotent; bus does not retry.",
-          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         }
       ]
     }
   ],
   "acceptance": "Every P2P run writes a structured outcome event; replay reproduces last 100 jobs in order; 3 learning engines receive events via feedback bus; schemaVersion gate live.",
   "risks": [
-    {"id": "R1", "description": "Engine emission adds latency; mitigation = fire-and-forget Promise.resolve, never await"},
-    {"id": "R2", "description": "Ledger grows unbounded; mitigation = rotation at 100MB, archived to .gz"},
-    {"id": "R3", "description": "Subscriber crash propagates; mitigation = try/catch around each invocation in publish loop"}
+    {
+      "id": "R1",
+      "description": "Engine emission adds latency; mitigation = fire-and-forget Promise.resolve, never await"
+    },
+    {
+      "id": "R2",
+      "description": "Ledger grows unbounded; mitigation = rotation at 100MB, archived to .gz"
+    },
+    {
+      "id": "R3",
+      "description": "Subscriber crash propagates; mitigation = try/catch around each invocation in publish loop"
+    }
   ],
-  "blocks": ["INFRA-AGI-ROUTER-MS2", "FEEDBACK-CALIB-MS10", "LEARN-XPROC-TRANSFER-MS18"],
-  "blocked_by": ["INFRA-CONSENSUS-WIRE-MS0"]
+  "blocks": [
+    "INFRA-AGI-ROUTER-MS2",
+    "FEEDBACK-CALIB-MS10",
+    "LEARN-XPROC-TRANSFER-MS18"
+  ],
+  "blocked_by": [
+    "INFRA-CONSENSUS-WIRE-MS0"
+  ],
+  "updated_at": "2026-05-13T15:10:04.086Z"
 }

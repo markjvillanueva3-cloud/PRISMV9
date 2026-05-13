@@ -1,6 +1,6 @@
 # MILESTONE_PROGRESS — what's actually shipped vs claimed
 
-> Generated: 2026-05-13T15:10:21.975Z
+> Generated: 2026-05-13T15:16:41.123Z
 > Window: last 60.days of git log across all branches
 > Source: `scripts/build-milestone-progress.mjs`
 
@@ -19,14 +19,15 @@ flagging a unit as missing.
 
 - Milestones loaded:        **670**
 - Units across all MS:      **3538**
-- Units shipped (in git):   **1099**
-- Units pending:            **2439**
-- Drift cases:              **166** (envelope status disagrees with git reality)
+- Units shipped (in git):   **1100**
+- Units pending:            **2438**
+- Drift cases:              **167** (envelope status disagrees with git reality)
 
 ## Top recently-active milestones (last shipped → first)
 
 | Milestone | Track | Status (claimed) | Status (real) | Shipped/Total | Last commit |
 |-----------|-------|------------------|---------------|---------------|-------------|
+| BP-MS0 | BP | not_started | in_progress_real | 1/28 (4%) | 2026-05-13 |
 | CC-EXT-MS0 | — | not_started | in_progress_real | 5/8 (63%) | 2026-05-13 |
 | CC-EXT-MS1 | — | not_started | in_progress_real | 5/8 (63%) | 2026-05-13 |
 | CC-EXT-MS2 | — | not_started | in_progress_real | 5/8 (63%) | 2026-05-13 |
@@ -56,7 +57,6 @@ flagging a unit as missing.
 | QA-MS7 | — | not_started | in_progress_real | 5/7 (71%) | 2026-05-13 |
 | QA-MS8 | — | complete | in_progress_real | 4/5 (80%) | 2026-05-13 |
 | QA-MS9 | — | not_started | in_progress_real | 5/7 (71%) | 2026-05-13 |
-| S3-MS1 | — | not_started | in_progress_real | 5/8 (63%) | 2026-05-13 |
 
 ## Drift cases (claim vs git disagrees)
 
@@ -138,8 +138,8 @@ flagging a unit as missing.
 | MS1 | 39 | 39 | 0/39 |
 | MS-CAM-MASTERY | 34 | 34 | 0/34 |
 | MS2 | 30 | 30 | 0/30 |
-| BP-MS0 | 28 | 28 | 0/28 |
 | EMP-MS0 | 28 | 28 | 0/28 |
+| BP-MS0 | 27 | 28 | 1/28 |
 | MS-TRAIN-DEEP | 26 | 26 | 0/26 |
 | CAMX-MS0.3 | 24 | 24 | 0/24 |
 | MS-SFC-CALIBRATE | 24 | 24 | 0/24 |
