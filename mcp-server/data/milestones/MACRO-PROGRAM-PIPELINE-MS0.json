@@ -9,8 +9,8 @@
   "updated_at": "2026-05-12T18:55:00.000Z",
   "status": "in_progress",
   "total_units": 7,
-  "completed_units": 3,
-  "updated_at": "2026-05-13T18:40:00.000Z",
+  "completed_units": 4,
+  "updated_at": "2026-05-13T18:50:00.000Z",
   "dependencies": [],
   "rationale": "User 2026-05-12: 'add the corresponding macro program to each file system that has a part that could use one of the programs; check existing programs for each part then make a version of each program utilizing one of the macro programs; make a program for each lathe machine and label it for each machine; coding must match controller and machine capabilities'. Spec was scoped by claude-8f2683e8 (slot charlie) per the forge methodology with the live system-viz graph as dependency oracle. Key finding: ~80% of this pipeline already exists (OkumaParametricProgramEngine, MacroProgramIntelligenceEngine, OkumaMacroHeaderGeneratorEngine, LatheProofCarryingEmitEngine, LathePrintProgramEmitterEngine, ShopConfigurationEngine, LathePartClassifierEngine, PartFolderOrganizerEngine, etc). Milestone is mostly WIRING + a thin orchestrator + the 2 missing macro families + the bulk fan-out — NOT a from-scratch build. U2-U6 are SAFETY-CRITICAL (auto-emitting G-code from print dims) and gated by S(x) >= 0.70 + envelope check + sim + operator sign-off. NEVER bulk-auto-emit G-code. U1 is non-safety-critical (file copying + part classification) and ships first.",
   "knowledge_sources": {
@@ -116,7 +116,34 @@
     {
       "id": "MS0-U4",
       "title": "Safety gate around the candidate — S(x) >= 0.70 + envelope + sim + operator (SAFETY-CRITICAL load-bearing)",
-      "status": "not_started"
+      "status": "completed",
+      "completed_at": "2026-05-13T18:50:00.000Z",
+      "completed_by": "claude-48e5d403 (slot alpha)",
+      "shipped": [
+        "MacroCandidateGateEngine.ts (NEW, ~370 LOC) — composes envelope + materialSanity + spindleSpeed + drillRatio + calculatedVcExpression gates",
+        "S(x) ≥ 0.70 HARD BLOCK threshold (constant SX_HARD_BLOCK_THRESHOLD) — no override in this pipeline",
+        "GateSignature schema with weighted contribution to S(x) (sum=1.0): envelope 0.25, materialSanity 0.25, spindleSpeed 0.20, drillRatio 0.15, calculatedVcExpression 0.15",
+        "Machine limits catalog for JM Die fleet (OKUMA_LB-3000-EX / LB-4000-MY / LU-15 + GENERIC_LATHE fallback)",
+        "SafetyRecord (versioned 1.0.0) with signatures + envelope + sanity + spindle results",
+        "SignoffDossier — built ONLY on pass; carries candidate + safetyRecord + needsOperatorReview:true + setupSheetSummary + physicsReport + 7-item firstPieceChecklist",
+        "GateResult type: dossier=null on fail, NO file/path/emitted/outputFile property — emit NOTHING on FAIL asserted at type level",
+        "prism_turning action: macro_gate_candidate (passes/fails the candidate, never emits)",
+        "prism_cam action: macro_gate_candidate (co-located with macro_fill_candidate)",
+        "MacroCandidateGateEngine.test.ts (NEW — 14/14 passing in 345ms): happy + 5 blocker scenarios + S(x) boundary check + weighted-sum math + dispatcher wiring + end-to-end U2→U4 flow"
+      ],
+      "tests_run": "14/14 passing (with full milestone test trifecta: 33 U3 + 20 U2 + 14 U4 = 67 tests all green)",
+      "hard_rules_asserted": [
+        "S(x) ≥ 0.70 HARD BLOCK — passed = sxScore >= 0.70 AND zero BLOCKED signatures",
+        "ANY blocked signature ⇒ passed=false (independent of S(x) score — defense-in-depth)",
+        "passed=false ⇒ dossier=null AND NO file/emit/path properties on the result",
+        "needsOperatorReview:true on EVERY dossier (unconditional operator gate)",
+        "Calculated VC expressions carried through dossier UNCHANGED (gate does NOT resolve them)",
+        "Tainted candidate (pre-computed VC130='993.2' string) ⇒ calculatedVcExpression BLOCK",
+        "Envelope failure (part length > machine Z travel) ⇒ envelope BLOCK + dossier=null",
+        "Negative dim VC ⇒ materialSanity BLOCK (with allowlist for enable flags VC113/116/124/129/134/139/140 and VC142 ID-center default)",
+        "Program max RPM > machine ceiling ⇒ spindleSpeedRange BLOCK",
+        "candidate.needsGate must be true (REJECTS hand-crafted non-U2 candidates)"
+      ]
     },
     {
       "id": "MS0-U5",
