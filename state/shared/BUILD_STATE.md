@@ -1,6 +1,6 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-13T23:05:19.775Z
+> Generated: 2026-05-13T23:17:21.313Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
@@ -8,7 +8,7 @@
 - **2324** engines built and wired (of 3203)
 - **1073** wiki entries indexed
 - **879** engines awaiting dispatcher wiring
-- **3676** units pending across 72 active milestones
+- **3674** units pending across 72 active milestones
 - **2** codex frontend builds awaiting merge
 - **172** milestones with envelope-status drift
 
@@ -65,7 +65,7 @@
 
 ## NEEDS_BUILDING
 
-3676 units across 670 milestones not yet in git.
+3674 units across 670 milestones not yet in git.
 
 ### Envelope-status drift
 
@@ -248,6 +248,10 @@
 
 | Milestone | Phase | Unit | Title |
 |-----------|-------|------|-------|
+| CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A1 | A1 — extend SLOT_NAMES in chat-slots.mjs to add 'golf' (NATO phonetic continuity) |
+| CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A5 | A5 — golf-slot-write-allowlist.mjs PreToolUse T0 hook (path-resolve hardened against ../; allowlist-regex from golf-owned-paths.json; tier frontmatter; bypass env PRISM_GOLF_WRITE_ALLOWLIST_BYPASS=1) |
+| CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A6 | A6 — bootstrap-golf.mjs (mkdir .cron-locks, seed golf-owned-paths.json + golf-token-budget.json + golf-cron-registry.json; .gitignore additions for coordination.db* + .cron-locks/*.lock + .watchdog-last-poll.iso + golf-token-budget.json; detect & rebuild 0-byte coordination.db; git rm --cached on first run) |
+| CLEANUP-MS0 | engines-tier-1 | U-CLEANUP-C1 | C1 — WiringPotentialEngine.ts (analyze + analyzeBatch; R4-P0-1: routes through MasterIndexEngine.search via prism_session:master_index_query for candidate lookup — does NOT reimplement; reads node.knowledge.wikiEntries[] + memoryEntries[] pre-joins from graph; reserved for rationale-synthesis layer; consumes F7 capacity output) |
 | CAD-INFRA-MS0 |  | U-CINF01 | CADFileIndexerEngine — master 20,006-file catalog |
 | CAD-INFRA-MS0 |  | U-CINF02 | CADFileClassifierEngine — part/assembly/drawing/CAM classification |
 | CAD-INFRA-MS0 |  | U-CINF03 | CADTestStateSchema — per-file atomic state |
@@ -264,10 +268,6 @@
 | SCIMATH-MS1 | P2 | P2-U05 | FEMThermalCoupledEngine — sequential/staggered coupling |
 | SCIMATH-MS5 | P2 | P2-U05 | AcceptanceSamplingEngine — configurable AQL + switching rules |
 | WIRE-MS0 |  | P2-U05 | Welding & Joining Page — CREATE NEW |
-| CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A1 | A1 — extend SLOT_NAMES in chat-slots.mjs to add 'golf' (NATO phonetic continuity) |
-| CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A5 | A5 — golf-slot-write-allowlist.mjs PreToolUse T0 hook (path-resolve hardened against ../; allowlist-regex from golf-owned-paths.json; tier frontmatter; bypass env PRISM_GOLF_WRITE_ALLOWLIST_BYPASS=1) |
-| CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A6 | A6 — bootstrap-golf.mjs (mkdir .cron-locks, seed golf-owned-paths.json + golf-token-budget.json + golf-cron-registry.json; .gitignore additions for coordination.db* + .cron-locks/*.lock + .watchdog-last-poll.iso + golf-token-budget.json; detect & rebuild 0-byte coordination.db; git rm --cached on first run) |
-| CLEANUP-MS0 | engines-tier-1 | U-CLEANUP-C1 | C1 — WiringPotentialEngine.ts (analyze + analyzeBatch; R4-P0-1: routes through MasterIndexEngine.search via prism_session:master_index_query for candidate lookup — does NOT reimplement; reads node.knowledge.wikiEntries[] + memoryEntries[] pre-joins from graph; reserved for rationale-synthesis layer; consumes F7 capacity output) |
 | TRAINING-LEARNING-MS0 | lathe | U-TL-U1-LATHE-TEMPLATE-EXTRACTOR | LathePartFamilyTemplateExtractorEngine + corpus scanner |
 | TRAINING-LEARNING-MS0 | matchers | U-TL-U5-DOMAIN-MATCHERS | LathePartFamilyMatcherEngine + MillPartFamilyMatcherEngine + WEDMPartFamilyMatcherEngine |
 | TRAINING-LEARNING-MS0 | closed-loop | U-TL-U6-CONTINUOUS-LEARNING | TrainingTemplateContinuousLearningEngine (ingestLatheOutcome / ingestMillOutcome / ingestWEDMOutcome) |

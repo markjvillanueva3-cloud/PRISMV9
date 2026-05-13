@@ -7,10 +7,10 @@
   "owner": "claude-06b8753f (slot CHARLIE)",
   "scoped_by": "claude-8f2683e8 (slot ALPHA, 2026-05-12)",
   "created_at": "2026-05-12T15:00:00.000Z",
-  "updated_at": "2026-05-13T22:55:00Z",
+  "updated_at": "2026-05-13T23:15:00Z",
   "status": "in_progress",
   "total_units": 7,
-  "completed_units": 5,
+  "completed_units": 6,
   "dependencies": [
     "MACRO-PROGRAM-PIPELINE-MS0"
   ],
@@ -260,11 +260,27 @@
         {
           "id": "U-TL-U6-CONTINUOUS-LEARNING",
           "title": "TrainingTemplateContinuousLearningEngine (ingestLatheOutcome / ingestMillOutcome / ingestWEDMOutcome)",
-          "status": "not_started",
+          "status": "completed",
           "estimated_hours": 3,
           "safety_critical": false,
           "dependencies": [
             "U-TL-U5-DOMAIN-MATCHERS"
+          ],
+          "completed_at": "2026-05-13T23:15:00Z",
+          "completed_in_commits": [
+            "950c46d6c"
+          ],
+          "actual_hours": 1.5,
+          "owner": "claude-0d2e1b74 (slot BRAVO, /loop continuation)",
+          "tests_passed": 40,
+          "scrutiny_per_file": "PASS (arm A + arm B both PASS, 3 deferrable P1)",
+          "deliverables": [
+            "mcp-server/src/engines/TrainingTemplateContinuousLearningEngine.ts (~470 LOC, 6 public methods)",
+            "mcp-server/src/__tests__/TrainingTemplateContinuousLearningEngine.test.ts (31 tests)",
+            "mcp-server/src/__tests__/dispatcher.trainingIngestOutcome.test.ts (9 round-trip tests)",
+            "mcp-server/src/tools/dispatchers/turningDispatcher.ts (+training_ingest_lathe_outcome)",
+            "mcp-server/src/tools/dispatchers/camDispatcher.ts (+training_ingest_mill_outcome)",
+            "mcp-server/src/tools/dispatchers/edmDispatcher.ts (+training_ingest_wedm_outcome)"
           ]
         }
       ]

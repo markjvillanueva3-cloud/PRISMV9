@@ -1,6 +1,6 @@
 # MILESTONE_PROGRESS — what's actually shipped vs claimed
 
-> Generated: 2026-05-13T23:05:19.657Z
+> Generated: 2026-05-13T23:17:21.193Z
 > Window: last 60.days of git log across all branches
 > Source: `scripts/build-milestone-progress.mjs`
 
@@ -19,14 +19,15 @@ flagging a unit as missing.
 
 - Milestones loaded:        **670**
 - Units across all MS:      **4906**
-- Units shipped (in git):   **1230**
-- Units pending:            **3676**
+- Units shipped (in git):   **1232**
+- Units pending:            **3674**
 - Drift cases:              **172** (envelope status disagrees with git reality)
 
 ## Top recently-active milestones (last shipped → first)
 
 | Milestone | Track | Status (claimed) | Status (real) | Shipped/Total | Last commit |
 |-----------|-------|------------------|---------------|---------------|-------------|
+| CLEANUP-MS0 | CLEANUP | in_progress | in_progress_real | 22/73 (30%) | 2026-05-13 |
 | CAD-INFRA-MS0 | CAD-INFRA | complete | in_progress_real | 4/16 (25%) | 2026-05-13 |
 | COORD-MS0 | INFRA | unknown | in_progress_real | 5/12 (42%) | 2026-05-13 |
 | S1-MS2 | — | not_started | in_progress_real | 9/10 (90%) | 2026-05-13 |
@@ -43,7 +44,6 @@ flagging a unit as missing.
 | SCIMATH-MS6 | SCIMATH | not_started | completed_real | 17/17 (100%) | 2026-05-13 |
 | SCIMATH-MS7 | SCIMATH | not_started | completed_real | 15/15 (100%) | 2026-05-13 |
 | WIRE-MS0 | WIRE | in_progress | in_progress_real | 15/16 (94%) | 2026-05-13 |
-| CLEANUP-MS0 | CLEANUP | in_progress | in_progress_real | 20/73 (27%) | 2026-05-13 |
 | TRAINING-LEARNING-MS0 | TRAINING-LEARNING | in_progress | in_progress_real | 3/7 (43%) | 2026-05-13 |
 | AUTO-LEARNING-LOOP-MS0 | AUTO-LEARNING-LOOP | complete | in_progress_real | 4/12 (33%) | 2026-05-13 |
 | AI-MAX-MS0 | AI-MAX | in_progress | in_progress_real | 2/12 (17%) | 2026-05-13 |
@@ -134,7 +134,7 @@ flagging a unit as missing.
 | MS-WIRE-FRONTEND | 90 | 90 | 0/90 |
 | MS-WIRE-BACKEND | 60 | 60 | 0/60 |
 | MIO-MS0 | 57 | 57 | 0/57 |
-| CLEANUP-MS0 | 53 | 73 | 20/73 |
+| CLEANUP-MS0 | 51 | 73 | 22/73 |
 | LATHE-LORA-MS0 | 50 | 50 | 0/50 |
 | MS-MASTERPOST | 44 | 44 | 0/44 |
 | MS1 | 39 | 39 | 0/39 |

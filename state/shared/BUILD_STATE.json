@@ -1,11 +1,11 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-13T23:05:19.775Z",
+  "generatedAt": "2026-05-13T23:17:21.313Z",
   "headline": {
     "built_engines": 2324,
     "built_with_wiki": 1073,
     "needs_wiring": 879,
-    "needs_building_active_units": 3676,
+    "needs_building_active_units": 3674,
     "needs_frontend_merge_count": 2,
     "pending_milestones_with_activity": 72,
     "drift_milestones": 172,
@@ -835,6 +835,18 @@
         ]
       },
       {
+        "domain": "Training",
+        "total": 5,
+        "wired": 2,
+        "unwired": 3,
+        "coverage_pct": 40,
+        "sample_unwired": [
+          "TrainingContentIndexEngine",
+          "TrainingDatasetSnapshotEngine",
+          "TrainingLedgerEngine"
+        ]
+      },
+      {
         "domain": "Asset",
         "total": 4,
         "wired": 1,
@@ -916,18 +928,6 @@
           "SmartDefaultsEngine",
           "SmartPrefetchEngine",
           "SmartToolSelectorOrchestratorAdapter"
-        ]
-      },
-      {
-        "domain": "Training",
-        "total": 4,
-        "wired": 1,
-        "unwired": 3,
-        "coverage_pct": 25,
-        "sample_unwired": [
-          "TrainingContentIndexEngine",
-          "TrainingDatasetSnapshotEngine",
-          "TrainingLedgerEngine"
         ]
       },
       {
@@ -9149,7 +9149,7 @@
     "next_action": "Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift."
   },
   "NEEDS_BUILDING": {
-    "summary": "3676 units across 670 milestones not yet in git.",
+    "summary": "3674 units across 670 milestones not yet in git.",
     "drift_cases": [
       {
         "id": "CC-EXT-MS0",
@@ -10186,6 +10186,30 @@
     ],
     "top_pending_units": [
       {
+        "milestone": "CLEANUP-MS0",
+        "unit": "U-CLEANUP-A1",
+        "title": "A1 — extend SLOT_NAMES in chat-slots.mjs to add 'golf' (NATO phonetic continuity)",
+        "phase": "bootstrap-tier-0"
+      },
+      {
+        "milestone": "CLEANUP-MS0",
+        "unit": "U-CLEANUP-A5",
+        "title": "A5 — golf-slot-write-allowlist.mjs PreToolUse T0 hook (path-resolve hardened against ../; allowlist-regex from golf-owned-paths.json; tier frontmatter; bypass env PRISM_GOLF_WRITE_ALLOWLIST_BYPASS=1)",
+        "phase": "bootstrap-tier-0"
+      },
+      {
+        "milestone": "CLEANUP-MS0",
+        "unit": "U-CLEANUP-A6",
+        "title": "A6 — bootstrap-golf.mjs (mkdir .cron-locks, seed golf-owned-paths.json + golf-token-budget.json + golf-cron-registry.json; .gitignore additions for coordination.db* + .cron-locks/*.lock + .watchdog-last-poll.iso + golf-token-budget.json; detect & rebuild 0-byte coordination.db; git rm --cached on first run)",
+        "phase": "bootstrap-tier-0"
+      },
+      {
+        "milestone": "CLEANUP-MS0",
+        "unit": "U-CLEANUP-C1",
+        "title": "C1 — WiringPotentialEngine.ts (analyze + analyzeBatch; R4-P0-1: routes through MasterIndexEngine.search via prism_session:master_index_query for candidate lookup — does NOT reimplement; reads node.knowledge.wikiEntries[] + memoryEntries[] pre-joins from graph; reserved for rationale-synthesis layer; consumes F7 capacity output)",
+        "phase": "engines-tier-1"
+      },
+      {
         "milestone": "CAD-INFRA-MS0",
         "unit": "U-CINF01",
         "title": "CADFileIndexerEngine — master 20,006-file catalog",
@@ -10280,30 +10304,6 @@
         "unit": "P2-U05",
         "title": "Welding & Joining Page — CREATE NEW",
         "phase": ""
-      },
-      {
-        "milestone": "CLEANUP-MS0",
-        "unit": "U-CLEANUP-A1",
-        "title": "A1 — extend SLOT_NAMES in chat-slots.mjs to add 'golf' (NATO phonetic continuity)",
-        "phase": "bootstrap-tier-0"
-      },
-      {
-        "milestone": "CLEANUP-MS0",
-        "unit": "U-CLEANUP-A5",
-        "title": "A5 — golf-slot-write-allowlist.mjs PreToolUse T0 hook (path-resolve hardened against ../; allowlist-regex from golf-owned-paths.json; tier frontmatter; bypass env PRISM_GOLF_WRITE_ALLOWLIST_BYPASS=1)",
-        "phase": "bootstrap-tier-0"
-      },
-      {
-        "milestone": "CLEANUP-MS0",
-        "unit": "U-CLEANUP-A6",
-        "title": "A6 — bootstrap-golf.mjs (mkdir .cron-locks, seed golf-owned-paths.json + golf-token-budget.json + golf-cron-registry.json; .gitignore additions for coordination.db* + .cron-locks/*.lock + .watchdog-last-poll.iso + golf-token-budget.json; detect & rebuild 0-byte coordination.db; git rm --cached on first run)",
-        "phase": "bootstrap-tier-0"
-      },
-      {
-        "milestone": "CLEANUP-MS0",
-        "unit": "U-CLEANUP-C1",
-        "title": "C1 — WiringPotentialEngine.ts (analyze + analyzeBatch; R4-P0-1: routes through MasterIndexEngine.search via prism_session:master_index_query for candidate lookup — does NOT reimplement; reads node.knowledge.wikiEntries[] + memoryEntries[] pre-joins from graph; reserved for rationale-synthesis layer; consumes F7 capacity output)",
-        "phase": "engines-tier-1"
       },
       {
         "milestone": "TRAINING-LEARNING-MS0",
