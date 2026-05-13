@@ -7,10 +7,10 @@
   "owner": "claude-06b8753f (slot CHARLIE)",
   "scoped_by": "claude-8f2683e8 (slot ALPHA, 2026-05-12)",
   "created_at": "2026-05-12T15:00:00.000Z",
-  "updated_at": "2026-05-13T20:15:00.000Z",
+  "updated_at": "2026-05-13T22:55:00Z",
   "status": "in_progress",
   "total_units": 7,
-  "completed_units": 4,
+  "completed_units": 5,
   "dependencies": [
     "MACRO-PROGRAM-PIPELINE-MS0"
   ],
@@ -219,14 +219,37 @@
         {
           "id": "U-TL-U5-DOMAIN-MATCHERS",
           "title": "LathePartFamilyMatcherEngine + MillPartFamilyMatcherEngine + WEDMPartFamilyMatcherEngine",
-          "status": "not_started",
+          "status": "completed",
           "estimated_hours": 4,
           "safety_critical": false,
           "dependencies": [
             "U-TL-U1-LATHE-TEMPLATE-EXTRACTOR",
             "U-TL-U2-MILL-TEMPLATE-EXTRACTOR",
             "U-TL-U4-WEDM-TEMPLATE-EXTRACTOR-AND-BRIDGE"
-          ]
+          ],
+          "completed_at": "2026-05-13T22:55:00Z",
+          "completed_in_commits": [
+            "3ded2c1a5",
+            "3ffbe0752"
+          ],
+          "actual_hours": 3,
+          "owner": "claude-0d2e1b74 (slot BRAVO, claude-40bfc582 handoff)",
+          "worktree": "H:/prism (main tree with [MAIN] prefix)",
+          "branch": "cad-fusion-live-ms0",
+          "deliverables": [
+            "mcp-server/src/engines/LathePartFamilyMatcherEngine.ts (615 LOC, pre-existing v1.0.0 — first wired + tested)",
+            "mcp-server/src/engines/MillPartFamilyMatcherEngine.ts (~577 LOC, new)",
+            "mcp-server/src/engines/WEDMPartFamilyMatcherEngine.ts (~559 LOC, new)",
+            "mcp-server/src/__tests__/LathePartFamilyMatcherEngine.test.ts (43 tests)",
+            "mcp-server/src/__tests__/MillPartFamilyMatcherEngine.test.ts (50 tests)",
+            "mcp-server/src/__tests__/WEDMPartFamilyMatcherEngine.test.ts (57 tests, incl. graphite split-bias + 3 regex regressions)",
+            "mcp-server/src/__tests__/dispatcher.partFamilyMatch.training.test.ts (13 round-trip)",
+            "mcp-server/src/tools/dispatchers/turningDispatcher.ts (lathe_part_family_match action + case)",
+            "mcp-server/src/tools/dispatchers/camDispatcher.ts (mill_part_family_match action + case)",
+            "mcp-server/src/tools/dispatchers/edmDispatcher.ts (wedm_part_family_match action + case)"
+          ],
+          "tests_passed": 163,
+          "scrutiny_3of3": "PASS (arms A+B+C all PASS, ledger session claude-0d2e1b74)"
         }
       ]
     },
