@@ -559,4 +559,19 @@ export const ACTION_SESSION_SCHEMAS: ActionSchemaMap = {
   master_index_node_status: z.object({
     id: z.string().min(1).describe("Exact graph node id (e.g., 'engine.KienzleForceModel')"),
   }).passthrough(),
+
+  /**
+   * master_index_utilization_dashboard — Graph-wide utilization classifier.
+   *
+   * Buckets every node into hub/sink/source/orphan/ghost/normal based on
+   * in/out edge degree percentiles + has-docs. Use to answer the standing
+   * question "what's actually being used?" — orphans + ghosts are the
+   * audit punch list (built but not wired / dead-code candidates).
+   */
+  master_index_utilization_dashboard: z.object({
+    layers: z.array(z.string()).optional()
+      .describe("Restrict to graph layers (e.g., ['L4','L5'])"),
+    exclude_layers: z.array(z.string()).optional()
+      .describe("Exclude layers (default ['L9','L11'] — fs noise)"),
+  }).passthrough(),
 };

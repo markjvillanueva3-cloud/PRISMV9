@@ -80,6 +80,20 @@ const CAPABILITY_SEARCH_TIMEOUT_MS = 800;
  * graph file. One retry with a short backoff covers that window.
  */
 const GRAPH_READ_RETRY_DELAY_MS = 75;
+
+/**
+ * Utilization-class thresholds. A node is HIGH-degree if its degree count
+ * is >= the documented graph-wide percentile. Computed dynamically per
+ * graph load; constants below are the documented percentile boundaries.
+ *
+ * Defaults chosen so the long tail of a typical PRISM graph (most nodes
+ * have ≤2 in-edges and ≤2 out-edges) sits in 'normal' or 'ghost', while
+ * the visible hubs (dispatchers, registries) get 'hub'/'sink' labels.
+ */
+const HIGH_DEGREE_PCTILE = 0.85;
+const LOW_DEGREE_THRESHOLD = 1;
+/** Cap on rows returned in dashboard top-K lists. */
+const DASHBOARD_TOP_K = 25;
 /** Stopwords stripped from queries (English noise + PRISM-meta noise). */
 const STOPWORDS = new Set([
   "a", "an", "and", "are", "as", "at", "be", "by", "for", "from",
@@ -221,6 +235,56 @@ export interface NodeStatus {
   inDegree?: number;
   outDegree?: number;
   utilization?: number;
+}
+
+/**
+ * Utilization classification per node. Answers the user-stated question:
+ *   "how to determine whether a node is being fully utilized?"
+ *
+ *   - hub:     high in + high out  — central infrastructure
+ *   - sink:    high in + low out   — terminal consumer (well-used utility)
+ *   - source:  low in  + high out  — driver / orchestrator
+ *   - orphan:  low in  + low out  + has docs   — built but unwired
+ *   - ghost:   low in  + low out  + no docs    — dead code candidate
+ *   - normal:  everything else
+ */
+export type UtilizationClass =
+  | "hub"
+  | "sink"
+  | "source"
+  | "orphan"
+  | "ghost"
+  | "normal";
+
+export interface UtilizationDashboard {
+  totals: {
+    nodesScanned: number;
+    hubs: number;
+    sinks: number;
+    sources: number;
+    orphans: number;
+    ghosts: number;
+    normal: number;
+  };
+  byLayer: Record<string, Record<UtilizationClass, number>>;
+  topHubs: Array<NodeUtilizationRow>;       // top by in+out degree sum
+  topOrphans: Array<NodeUtilizationRow>;    // built-but-unwired candidates
+  topGhosts: Array<NodeUtilizationRow>;     // dead-code candidates
+  generatedAt: string;
+  graphMtime: string | null;
+  warnings: string[];
+}
+
+export interface NodeUtilizationRow {
+  id: string;
+  label: string;
+  layer?: string;
+  status?: string;
+  inDegree: number;
+  outDegree: number;
+  utilization: number;
+  class: UtilizationClass;
+  hasDocs: boolean;
 }
 
 // ============================================================================
@@ -769,6 +833,142 @@ class MasterIndexEngine {
           .filter((s) => s.length > 0)
           .slice(0, 6),
       },
+    };
+  }
+
+  /**
+   * Classify every graph node by utilization pattern.
+   *
+   * Buckets:
+   *   - hub:    in & out both ≥ HIGH_DEGREE_PCTILE percentile (e.g. dispatchers)
+   *   - sink:   in ≥ pct, out ≤ LOW_DEGREE_THRESHOLD (consumed-but-doesn't-call)
+   *   - source: out ≥ pct, in ≤ LOW_DEGREE_THRESHOLD (drives others, no callers)
+   *   - orphan: in ≤ LOW + out ≤ LOW + has wiki/memory docs (built but unwired)
+   *   - ghost:  in ≤ LOW + out ≤ LOW + no docs (dead-code candidate)
+   *   - normal: everything else
+   *
+   * Use this to answer the standing question: "what's actually being used?"
+   * Orphans and ghosts are the audit punch list.
+   */
+  public async classifyAllNodes(opts: {
+    layers?: string[];
+    excludeLayers?: string[];
+  } = {}): Promise<UtilizationDashboard> {
+    const generatedAt = new Date().toISOString();
+    const warnings: string[] = [];
+    const graph = await this.getGraph();
+    if (!graph) {
+      return {
+        totals: { nodesScanned: 0, hubs: 0, sinks: 0, sources: 0, orphans: 0, ghosts: 0, normal: 0 },
+        byLayer: {},
+        topHubs: [],
+        topOrphans: [],
+        topGhosts: [],
+        generatedAt,
+        graphMtime: null,
+        warnings: ["system-graph.json unavailable"],
+      };
+    }
+
+    const allowedLayers = opts.layers && opts.layers.length > 0
+      ? new Set<string>(opts.layers)
+      : null;
+    const excludedLayers = opts.excludeLayers && opts.excludeLayers.length > 0
+      ? new Set<string>(opts.excludeLayers)
+      : new Set<string>(["L9", "L11"]); // filesystem leaves are inherently low-degree noise
+
+    // Compute graph-wide degree percentile for HIGH-degree threshold.
+    const inDegrees: number[] = [];
+    const outDegrees: number[] = [];
+    for (const n of graph.nodes) {
+      if (!n || typeof n.id !== "string") continue;
+      if (allowedLayers && (!n.layer || !allowedLayers.has(n.layer))) continue;
+      if (excludedLayers.has(n.layer ?? "")) continue;
+      inDegrees.push(graph.inDegree.get(n.id) ?? 0);
+      outDegrees.push(graph.outDegree.get(n.id) ?? 0);
+    }
+    if (inDegrees.length === 0) {
+      warnings.push("no nodes survived layer filter");
+    }
+    const percentile = (arr: number[], p: number): number => {
+      if (arr.length === 0) return 0;
+      const sorted = [...arr].sort((a, b) => a - b);
+      const idx = Math.floor(sorted.length * p);
+      return sorted[Math.min(idx, sorted.length - 1)];
+    };
+    const inHigh = percentile(inDegrees, HIGH_DEGREE_PCTILE);
+    const outHigh = percentile(outDegrees, HIGH_DEGREE_PCTILE);
+
+    // Classify + collect rows.
+    const totals = { nodesScanned: 0, hubs: 0, sinks: 0, sources: 0, orphans: 0, ghosts: 0, normal: 0 };
+    const byLayer: Record<string, Record<UtilizationClass, number>> = {};
+    const rows: NodeUtilizationRow[] = [];
+
+    for (const n of graph.nodes) {
+      if (!n || typeof n.id !== "string") continue;
+      if (allowedLayers && (!n.layer || !allowedLayers.has(n.layer))) continue;
+      if (excludedLayers.has(n.layer ?? "")) continue;
+
+      const inD = graph.inDegree.get(n.id) ?? 0;
+      const outD = graph.outDegree.get(n.id) ?? 0;
+      const wikiCount = (n.knowledge?.wikiEntries ?? []).filter((e) => entryName(e)).length;
+      const memCount = (n.knowledge?.memoryEntries ?? []).filter((e) => entryName(e)).length;
+      const hasDocs = wikiCount > 0 || memCount > 0;
+
+      let cls: UtilizationClass;
+      const isHighIn = inD >= inHigh && inD > LOW_DEGREE_THRESHOLD;
+      const isHighOut = outD >= outHigh && outD > LOW_DEGREE_THRESHOLD;
+      const isLowIn = inD <= LOW_DEGREE_THRESHOLD;
+      const isLowOut = outD <= LOW_DEGREE_THRESHOLD;
+      if (isHighIn && isHighOut) cls = "hub";
+      else if (isHighIn && isLowOut) cls = "sink";
+      else if (isHighOut && isLowIn) cls = "source";
+      else if (isLowIn && isLowOut && hasDocs) cls = "orphan";
+      else if (isLowIn && isLowOut && !hasDocs) cls = "ghost";
+      else cls = "normal";
+
+      totals.nodesScanned += 1;
+      totals[`${cls}s` as keyof typeof totals] = (totals[`${cls}s` as keyof typeof totals] ?? 0) + 1;
+      const layerKey = n.layer ?? "?";
+      if (!byLayer[layerKey]) {
+        byLayer[layerKey] = { hub: 0, sink: 0, source: 0, orphan: 0, ghost: 0, normal: 0 };
+      }
+      byLayer[layerKey][cls] += 1;
+
+      rows.push({
+        id: n.id,
+        label: (n.label ?? n.id).split("\n")[0].slice(0, 100),
+        layer: n.layer,
+        status: n.status,
+        inDegree: inD,
+        outDegree: outD,
+        utilization: normalizeUtilization(inD, graph.maxInDegree),
+        class: cls,
+        hasDocs,
+      });
+    }
+
+    const topHubs = [...rows]
+      .filter((r) => r.class === "hub")
+      .sort((a, b) => (b.inDegree + b.outDegree) - (a.inDegree + a.outDegree))
+      .slice(0, DASHBOARD_TOP_K);
+    const topOrphans = [...rows]
+      .filter((r) => r.class === "orphan")
+      .sort((a, b) => b.utilization - a.utilization)
+      .slice(0, DASHBOARD_TOP_K);
+    const topGhosts = [...rows]
+      .filter((r) => r.class === "ghost")
+      .slice(0, DASHBOARD_TOP_K);
+
+    return {
+      totals,
+      byLayer,
+      topHubs,
+      topOrphans,
+      topGhosts,
+      generatedAt,
+      graphMtime: new Date(graph.mtimeMs).toISOString(),
+      warnings,
     };
   }
 

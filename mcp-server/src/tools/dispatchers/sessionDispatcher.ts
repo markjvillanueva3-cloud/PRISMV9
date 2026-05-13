@@ -153,7 +153,9 @@ const ACTIONS = [
   "hook_map_compact",
   // OBSIDIAN-PRISM-OS-MS0/U-MASTER-INDEX: unified master search across system-viz + obsidian + capability index + BUILD_STATE
   "master_index_query",
-  "master_index_node_status"
+  "master_index_node_status",
+  // OBSIDIAN-PRISM-OS-MS0/U-NODE-UTILIZATION: graph-wide utilization classifier (hub/sink/source/orphan/ghost)
+  "master_index_utilization_dashboard"
 ] as const;
 
 function ok(data: any) {
@@ -1298,6 +1300,16 @@ export function registerSessionDispatcher(server: any): void {
             const { masterIndexEngine } = await import("../../engines/MasterIndexEngine.js");
             const id = String(params.id ?? "");
             const result = await masterIndexEngine.getNodeStatus(id);
+            return ok(result);
+          }
+
+          // OBSIDIAN-PRISM-OS-MS0/U-NODE-UTILIZATION: graph-wide bucket classifier
+          case "master_index_utilization_dashboard": {
+            const { masterIndexEngine } = await import("../../engines/MasterIndexEngine.js");
+            const opts: Record<string, unknown> = {};
+            if (Array.isArray(params.layers)) opts.layers = params.layers;
+            if (Array.isArray(params.exclude_layers)) opts.excludeLayers = params.exclude_layers;
+            const result = await masterIndexEngine.classifyAllNodes(opts as Parameters<typeof masterIndexEngine.classifyAllNodes>[0]);
             return ok(result);
           }
 
