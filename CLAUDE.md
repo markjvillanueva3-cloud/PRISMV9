@@ -250,7 +250,26 @@ Every state JSON requires `schemaVersion`. Migrations in `src/migrations/`. Back
 ## ROADMAP
 The ONLY roadmap is `PRISM-UNIFIED-ROADMAP-v2.md` (v2.1). Ignore everything in `data/docs/roadmap/` and `plans-archive/`. Task queue: `mcp-server/data/roadmap-index.json`. Claim mechanism: `mcp-server/data/claims/<unit>/claim.json` — reap stale claims (>5min no heartbeat) before starting.
 
-## MASTER INDEX — search-first cuts Grep/Glob/Agent token waste (2026-05-12, OBSIDIAN-PRISM-OS-MS0)
+## MASTER INDEX + AWARENESS STACK — search-first cuts Grep/Glob/Agent token waste (2026-05-12..13, OBSIDIAN-PRISM-OS-MS0, 6 units shipped)
+**Search-first discipline**: before Grep/Glob/Agent, hit the unified index. Auto-injects top-5 hits on every UserPromptSubmit via `master-index-precheck-inject.mjs` (T2); auto-injects 15-line awareness digest on every SessionStart via `awareness-snapshot-inject.mjs` (T2).
+
+| Surface | What | Skill |
+|---------|------|-------|
+| `MasterIndexEngine.ts` | Singleton, mtime-cached, single-flight. Fuses system-graph (110K nodes, pre-joined w/ wiki+memory) + PRISMSelfAwarenessEngine + BUILD_STATE. | — |
+| `prism_session:master_index_query` | Ranked unified search (filter by layer/source/buildClass/min_utilization/min_confidence). | `/master-index` |
+| `prism_session:master_index_node_status` | Single-node degree + utilization lookup. | (`/master-index --node`) |
+| `prism_session:master_index_utilization_dashboard` | Graph-wide hub/sink/source/orphan/ghost classifier. | `/utilization-dashboard` |
+| `scripts/awareness-snapshot.mjs` | 60-line built/utilized/drifted digest → `state/shared/AWARENESS-SNAPSHOT.md`. | `/awareness-snapshot` |
+| `scripts/orphan-inventory.mjs` | Built-but-unwired punch list with heuristic dispatcher hints → `state/shared/ORPHAN-INVENTORY.md`. | `/orphan-inventory` |
+| `master-index-precheck-inject.mjs` | UserPromptSubmit T2 — auto-injects top-5 hits. | (auto) |
+| `awareness-snapshot-inject.mjs` | SessionStart T2 — auto-injects 15-line digest. | (auto) |
+| `/deep-search` | Policy: defines search→reason→neural escalation order. | `/deep-search <query>` |
+
+Hit shape: `source`, `confidence` [0,1], `utilization` [0,1] (log-normalized in-degree), `buildClass` (wired/unwired/pending/frontend/unknown), pre-joined wiki+memory entry names. **Answers "is node X fully utilized?"** — high in + high out = hub; low in + low out + has docs = orphan (punch list); low in + low out + no docs = ghost (dead-code candidate).
+
+**Knobs:** `PRISM_MASTER_INDEX_INJECT=0`, `PRISM_MASTER_INDEX_K=N`, `PRISM_AWARENESS_INJECT=0`, `PRISM_AWARENESS_INJECT_STALE_HOURS=N`. Obsidian vault rooted at `H:/prism/knowledge`. Memory: `reference_master_index_surface.md`. Commits: 3cd27c288, 28fccde44, b13f220cd, 0089b2de7, 79b6366fd, aae8e7b64 (this overnight loop, slot alpha).
+
+## MASTER INDEX (legacy section preamble — superseded by table above) (2026-05-12, OBSIDIAN-PRISM-OS-MS0)
 **Search-first discipline**: before Grep/Glob/Agent, hit the unified index. Auto-injects top-5 hits on every UserPromptSubmit via `master-index-precheck-inject.mjs` (T2 hook); manual entry via `/master-index <query>` skill or `prism_session:master_index_query` action.
 
 | Surface | What |
