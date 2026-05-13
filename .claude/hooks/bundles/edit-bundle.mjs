@@ -68,6 +68,13 @@ const SHARED_HOOKS = [
   // earlier in runBundle short-circuits before this fires, so denied tool
   // calls don't leak stash entries into the pending-cache.
   { path: `${HOOK_BASE}/tool-watchdog.mjs`,                  timeout: 1000 },
+  // DEV-VELOCITY-AUTOTRIGGER-MS0/U-C2 (2026-05-12): PreToolUse arm of the
+  // git-lock-sweeper. Same hook that runs at Stop now ALSO runs before every
+  // Edit/Write/MultiEdit (and inherits Bash-trigger via the separate
+  // .claude/settings.json entry on the Bash matcher). Uses tight 30s top-lock
+  // threshold ONLY when payload.tool_name=Bash and command starts with git/gh;
+  // for Edit-class triggers it falls back to the legacy 5-min threshold.
+  { path: `${HOOK_BASE}/git-lock-sweeper.mjs`,               timeout: 1500 },
 ];
 
 const EDIT_ONLY_HOOKS = [
