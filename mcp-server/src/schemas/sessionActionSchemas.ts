@@ -518,4 +518,45 @@ export const ACTION_SESSION_SCHEMAS: ActionSchemaMap = {
     write: z.boolean().optional().describe("If a path was given, also write <path>.html (and a .hash sidecar) alongside it"),
     include_html: z.boolean().optional().describe("Return the full rendered HTML inline in the response (default false — only metadata)"),
   }).passthrough(),
+
+  // ==========================================================================
+  // MASTER INDEX (2 actions — OBSIDIAN-PRISM-OS-MS0 / U-MASTER-INDEX)
+  // Unified search across system-viz graph + Obsidian vault + capability
+  // index + BUILD_STATE. Goal: ONE call replaces N Grep/Glob/Agent searches.
+  // ==========================================================================
+
+  /**
+   * master_index_query — Unified ranked search across the PRISM brain.
+   * Sources fused: system-graph.json (110K nodes), PRISMSelfAwarenessEngine
+   * fuzzy capability match, pre-joined wiki + memory entries per node,
+   * BUILD_STATE classification. Each hit carries provenance + utilization
+   * (log-normalized in-degree) + buildClass. Use INSTEAD OF Grep/Glob/Agent.
+   */
+  master_index_query: z.object({
+    query: optStr.describe("Natural-language search text (capped at 500 chars)"),
+    q: optStr.describe("Alias for query"),
+    limit: z.union([z.string(), z.number()]).optional()
+      .describe("Cap returned hits (default 20, max 200)"),
+    layers: z.array(z.string()).optional()
+      .describe("Restrict to graph layers (e.g., ['L4','L5'])"),
+    sources: z.array(z.enum([
+      "graph_node", "engine", "action", "hook", "skill", "wiki", "memory",
+    ])).optional().describe("Restrict to specific result sources"),
+    min_utilization: z.union([z.string(), z.number()]).optional()
+      .describe("Drop hits below this utilization (0..1)"),
+    min_confidence: z.union([z.string(), z.number()]).optional()
+      .describe("Drop hits below this confidence (0..1)"),
+    build_classes: z.array(z.enum([
+      "wired", "unwired", "pending", "frontend", "unknown",
+    ])).optional().describe("Filter by BUILD_STATE classification"),
+  }).passthrough(),
+
+  /**
+   * master_index_node_status — Single-node lookup with raw degree counts.
+   * Returns the hit projection plus in-degree / out-degree so callers can
+   * answer "is this node fully utilized?" without a separate trace.
+   */
+  master_index_node_status: z.object({
+    id: z.string().min(1).describe("Exact graph node id (e.g., 'engine.KienzleForceModel')"),
+  }).passthrough(),
 };

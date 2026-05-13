@@ -150,7 +150,10 @@ const ACTIONS = [
   // HTML-PRIMARY-MS0/U-HPS07: render any Markdown doc/spec → HTML via SpecHTMLCompanionEngine
   "doc_render",
   // HOOK-SYNERGY-MS0/U-HOOK-REGISTRY (H2): compact event → top-N hook ids map (mirrors dispatcher_map_compact for hooks)
-  "hook_map_compact"
+  "hook_map_compact",
+  // OBSIDIAN-PRISM-OS-MS0/U-MASTER-INDEX: unified master search across system-viz + obsidian + capability index + BUILD_STATE
+  "master_index_query",
+  "master_index_node_status"
 ] as const;
 
 function ok(data: any) {
@@ -1271,6 +1274,31 @@ export function registerSessionDispatcher(server: any): void {
             const { hookRegistryReaderEngine } = await import("../../engines/HookRegistryReaderEngine.js");
             const max = params.max_per_event != null ? Number(params.max_per_event) : 5;
             return ok({ map: hookRegistryReaderEngine.getCompactMap(max) });
+          }
+
+          // OBSIDIAN-PRISM-OS-MS0/U-MASTER-INDEX (2 actions): unified ranked
+          // search across system-viz graph + Obsidian vault + capability index
+          // + BUILD_STATE. Future hot path under master-index-precheck-inject
+          // hook — replaces N Grep/Glob/Agent calls.
+          case "master_index_query": {
+            const { masterIndexEngine } = await import("../../engines/MasterIndexEngine.js");
+            const query = String(params.query ?? params.q ?? "");
+            const opts: Record<string, unknown> = {};
+            if (params.limit != null) opts.limit = Number(params.limit);
+            if (Array.isArray(params.layers)) opts.layers = params.layers;
+            if (Array.isArray(params.sources)) opts.sources = params.sources;
+            if (params.min_utilization != null) opts.minUtilization = Number(params.min_utilization);
+            if (params.min_confidence != null) opts.minConfidence = Number(params.min_confidence);
+            if (Array.isArray(params.build_classes)) opts.buildClasses = params.build_classes;
+            const result = await masterIndexEngine.query(query, opts as Parameters<typeof masterIndexEngine.query>[1]);
+            return ok(result);
+          }
+
+          case "master_index_node_status": {
+            const { masterIndexEngine } = await import("../../engines/MasterIndexEngine.js");
+            const id = String(params.id ?? "");
+            const result = await masterIndexEngine.getNodeStatus(id);
+            return ok(result);
           }
 
           case "action_search": {

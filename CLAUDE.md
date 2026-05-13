@@ -246,6 +246,19 @@ Every state JSON requires `schemaVersion`. Migrations in `src/migrations/`. Back
 ## ROADMAP
 The ONLY roadmap is `PRISM-UNIFIED-ROADMAP-v2.md` (v2.1). Ignore everything in `data/docs/roadmap/` and `plans-archive/`. Task queue: `mcp-server/data/roadmap-index.json`. Claim mechanism: `mcp-server/data/claims/<unit>/claim.json` — reap stale claims (>5min no heartbeat) before starting.
 
+## MASTER INDEX — search-first cuts Grep/Glob/Agent token waste (2026-05-12, OBSIDIAN-PRISM-OS-MS0)
+**Search-first discipline**: before Grep/Glob/Agent, hit the unified index. Auto-injects top-5 hits on every UserPromptSubmit via `master-index-precheck-inject.mjs` (T2 hook); manual entry via `/master-index <query>` skill or `prism_session:master_index_query` action.
+
+| Surface | What |
+|---------|------|
+| Engine | `mcp-server/src/engines/MasterIndexEngine.ts` — singleton, mtime-cached, single-flight |
+| Actions | `prism_session:master_index_query` (filter by layer/source/buildClass/min_utilization/min_confidence), `prism_session:master_index_node_status` (single-node degree + utilization) |
+| Hook | `.claude/hooks/master-index-precheck-inject.mjs` (UserPromptSubmit, T2) — auto-injects top-5; excludes L9/L11 noise + dedups by label |
+| Skill | `.claude/commands/master-index.md` (/master-index) |
+| Fusion sources | system-graph.json (110K nodes, pre-joined w/ `knowledge.wikiEntries[]` + `knowledge.memoryEntries[]`), PRISMSelfAwarenessEngine.findCapabilities, BUILD_STATE.json |
+
+Each hit carries: `source` (graph_node/engine/action/hook/skill), `confidence` [0,1], `utilization` [0,1] log-normalized in-degree, `buildClass` (wired/unwired/pending/frontend/unknown), pre-joined wiki+memory entry names. **Use this to answer "is node X fully utilized?"** — high in-degree + low out-degree = hub; high out-degree + low in-degree = utility called by few. Knobs: `PRISM_MASTER_INDEX_INJECT=0` disables auto-inject, `PRISM_MASTER_INDEX_K=N` sets top-K (default 5). Obsidian vault rooted at `H:/prism/knowledge` (wiki/ + memories/).
+
 ## RTK (Bash token reduction — already installed)
 `rtk.exe` wraps ~100 commands (git/gh/npm/vitest/tsc/docker/grep/cat) and strips redundant output. Hook wired in `H:/.claude/settings.json`. Wins: `npm run build` ~80% reduction, `vitest run` ~70%, `gh pr diff` ~60%. Prefix `command` to bypass (e.g. `command git status` for raw). Skill: `/rtk-setup`.
 
