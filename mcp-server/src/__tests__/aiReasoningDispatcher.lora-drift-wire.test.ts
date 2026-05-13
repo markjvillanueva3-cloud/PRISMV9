@@ -28,22 +28,45 @@ const NEW_ACTIONS = [
 ] as const;
 
 describe("lora-drift wire — dispatcher source registration", () => {
-  it("each new action appears at least twice in aiReasoningDispatcher.ts (enum import + case)", async () => {
+  it("each new action has exactly one case-label occurrence in aiReasoningDispatcher.ts", async () => {
+    // The dispatcher imports AI_REASONING_ACTIONS as a symbol, not as string
+    // literals — so each action name appears in the dispatcher source EXACTLY
+    // once: as a `case "<name>":` label. Asserting `=== 1` is stricter than
+    // `>= 1` and would fail if either the case label were missing OR the
+    // action name were duplicated in dead code.
     const dispatcherPath = path.resolve(
       __dirname, "..", "tools", "dispatchers", "aiReasoningDispatcher.ts",
     );
     const src = await fsp.readFile(dispatcherPath, "utf8");
     for (const a of NEW_ACTIONS) {
       const occurrences = src.split(`"${a}"`).length - 1;
-      expect(occurrences).toBeGreaterThanOrEqual(1); // at minimum, a case label
+      expect(occurrences).toBe(1);
     }
   });
 
-  it("each new action appears in the AI_REASONING_ACTIONS array in the schema source", async () => {
+  it("dispatcher has a literal `case \"<action>\":` for each new action", async () => {
+    // Direct contract verification — every action must have a switch case.
+    // Required for codex blocker: must prove case wiring exists, not just
+    // string presence.
+    const dispatcherPath = path.resolve(
+      __dirname, "..", "tools", "dispatchers", "aiReasoningDispatcher.ts",
+    );
+    const src = await fsp.readFile(dispatcherPath, "utf8");
+    for (const a of NEW_ACTIONS) {
+      expect(src.includes(`case "${a}":`)).toBe(true);
+    }
+  });
+
+  it("each new action appears in AI_REASONING_ACTIONS array AND ACTION_AI_REASONING_SCHEMAS map", async () => {
     const schemaPath = path.resolve(__dirname, "..", "schemas", "aiReasoningActionSchemas.ts");
     const src = await fsp.readFile(schemaPath, "utf8");
     for (const a of NEW_ACTIONS) {
+      // Enum entry: `"<name>",` inside AI_REASONING_ACTIONS
       expect(src.includes(`"${a}"`)).toBe(true);
+      // Schema map entry: `<name>: z.object(...)` — the key may be quoted or unquoted
+      // depending on whether the name has a hyphen. All 8 lora actions are valid
+      // JS identifiers so they appear unquoted as map keys.
+      expect(src.includes(`\n  ${a}:`)).toBe(true);
     }
   });
 
