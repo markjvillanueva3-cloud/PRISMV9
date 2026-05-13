@@ -10,7 +10,7 @@
   "updated_at": "2026-05-13T23:45:00.000Z",
   "status": "in_progress",
   "total_units": 73,
-  "completed_units": 29,
+  "completed_units": 31,
   "dependencies": [
     "HOOK-SYNERGY-MS0 (H4 envelope, H7 async dispatch, H8 coord_sqlite)",
     "OBSIDIAN-PRISM-OS-MS0 (master-index surface, awareness stack, orphan-inventory)"
@@ -586,11 +586,12 @@
         {
           "id": "U-CLEANUP-G17",
           "title": "G17 — 20-coord-db-vacuum.ps1 (weekly Sunday 02:17 PRAGMA wal_checkpoint(TRUNCATE) + VACUUM; log size delta to coord-db-health.json)",
-          "status": "not_started",
+          "status": "complete",
           "estimated_hours": 0.5,
           "dependencies": [
             "U-CLEANUP-G2"
-          ]
+          ],
+          "completed_at": "2026-05-13T23:55:38.437Z"
         },
         {
           "id": "U-CLEANUP-G18",
@@ -744,9 +745,10 @@
         {
           "id": "U-CLEANUP-TELEMETRY-CLOSE",
           "title": "S11.7 telemetry close-out (pipeline-telemetry.mjs record + adaptive-thresholds.mjs --apply + auto-build-compounding-proposals.mjs if S11.6 BLOCK + verify all 18 stages telemetered)",
-          "status": "not_started",
+          "status": "complete",
           "estimated_hours": 0.5,
-          "dependencies": []
+          "dependencies": [],
+          "completed_at": "2026-05-13T23:51:27.736Z"
         }
       ]
     }
@@ -830,5 +832,5 @@
   "worktree": "H:/prism-golf-watchdog (branch: work/golf-watchdog-ms0)",
   "spec_iterations": 4,
   "operator_directive": "User asked to /loop scrutiny rounds until saturated; 152 cumulative findings across 3 rounds integrated; locked scope at 57 units (1 complete, 56 to build, 1 deferred)",
-  "last_updated": "2026-05-13T23:20:08.861Z"
+  "last_updated": "2026-05-13T23:55:38.437Z"
 }
