@@ -7,10 +7,10 @@
   "owner": "claude-06b8753f (slot CHARLIE)",
   "scoped_by": "claude-8f2683e8 (slot ALPHA, 2026-05-12)",
   "created_at": "2026-05-12T15:00:00.000Z",
-  "updated_at": "2026-05-13T23:15:00Z",
-  "status": "in_progress",
+  "updated_at": "2026-05-13T23:30:00Z",
+  "status": "completed",
   "total_units": 7,
-  "completed_units": 6,
+  "completed_units": 7,
   "dependencies": [
     "MACRO-PROGRAM-PIPELINE-MS0"
   ],
@@ -292,14 +292,26 @@
         {
           "id": "U-TL-U7-SKILL-AND-CLOSEOUT",
           "title": "/learn-corpus skill (args: lathe|mill|wedm|electrode-audit|status|match <part>) + ENGINE_DIGEST regen + 3-way scrutiny",
-          "status": "not_started",
+          "status": "completed",
           "estimated_hours": 2,
           "safety_critical": false,
           "dependencies": [
             "U-TL-U6-CONTINUOUS-LEARNING"
+          ],
+          "completed_at": "2026-05-13T23:30:00Z",
+          "completed_in_commits": [
+            "PENDING-U7-COMMIT"
+          ],
+          "actual_hours": 0.5,
+          "owner": "claude-0d2e1b74 (slot BRAVO, /loop continuation)",
+          "deliverables": [
+            "C:/Users/wompu/.claude/commands/learn-corpus.md (skill — args: lathe|mill|wedm|electrode-audit|status|match <desc>)",
+            "H:/.claude/commands/learn-corpus.md (mirrored)",
+            "mcp-server/data/docs/ENGINE_DIGEST.md (+4 entries for U-TL-U5 matchers + U-TL-U6 ContinuousLearning)"
           ]
         }
       ]
     }
-  ]
+  ],
+  "completed_at": "2026-05-13T23:30:00Z"
 }

@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-13T23:17:21.313Z",
+  "generatedAt": "2026-05-13T23:20:35.072Z",
   "headline": {
     "built_engines": 2324,
     "built_with_wiki": 1073,
     "needs_wiring": 879,
-    "needs_building_active_units": 3674,
+    "needs_building_active_units": 3673,
     "needs_frontend_merge_count": 2,
     "pending_milestones_with_activity": 72,
-    "drift_milestones": 172,
+    "drift_milestones": 173,
     "stale_milestones": 230,
     "domains_tracked": 931
   },
@@ -9149,7 +9149,7 @@
     "next_action": "Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift."
   },
   "NEEDS_BUILDING": {
-    "summary": "3674 units across 670 milestones not yet in git.",
+    "summary": "3673 units across 670 milestones not yet in git.",
     "drift_cases": [
       {
         "id": "CC-EXT-MS0",
@@ -10176,6 +10176,12 @@
         "claimed": "not_started",
         "real": "in_progress_real",
         "drift": "claims_not_started_but_has_shipped_units"
+      },
+      {
+        "id": "TRAINING-LEARNING-MS0",
+        "claimed": "completed",
+        "real": "in_progress_real",
+        "drift": "claims_completed_but_units_pending"
       },
       {
         "id": "WEDM-ERP-MS0",

@@ -1,6 +1,6 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-13T23:17:21.313Z
+> Generated: 2026-05-13T23:20:35.072Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
@@ -8,9 +8,9 @@
 - **2324** engines built and wired (of 3203)
 - **1073** wiki entries indexed
 - **879** engines awaiting dispatcher wiring
-- **3674** units pending across 72 active milestones
+- **3673** units pending across 72 active milestones
 - **2** codex frontend builds awaiting merge
-- **172** milestones with envelope-status drift
+- **173** milestones with envelope-status drift
 
 ## BUILT
 
@@ -65,7 +65,7 @@
 
 ## NEEDS_BUILDING
 
-3674 units across 670 milestones not yet in git.
+3673 units across 670 milestones not yet in git.
 
 ### Envelope-status drift
 
@@ -242,6 +242,7 @@
 | SCIMATH-MS7 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | SIM-MS0 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | TOOLS-AUDIT-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| TRAINING-LEARNING-MS0 | completed | in_progress_real | claims_completed_but_units_pending |
 | WEDM-ERP-MS0 | completed | not_started_real | claims_completed_but_units_pending |
 
 ### Top pending units (most-recently-active milestones first)

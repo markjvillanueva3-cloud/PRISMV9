@@ -1,6 +1,6 @@
 # ENGINE DIGEST
-## 3213 engines indexed
-## Auto-generated: 2026-05-12
+## 3217 engines indexed
+## Auto-generated: 2026-05-12 (manually appended 4 entries for TRAINING-LEARNING-MS0/U-TL-U5..U6)
 
 - **AbrasiveJetMachiningEngine**: Physics-Based Abrasive Waterjet Prediction
 - **AbsorptionChillerEngine**: Absorption refrigeration cycle analysis
@@ -3213,5 +3213,9 @@
 - **WormGearEngine**: Worm Gear Drive Design Calculator
 - **XAIEngine**: Model-agnostic explanation methods:
 - **XProcNeuralAutoFireEngine**: XPROC-NEURAL-CONNECT-MS0 / U-CN09
+- **LathePartFamilyMatcherEngine**: TRAINING-LEARNING-MS0 / U-TL-U5 — ranks Lathe corpus families for a descriptor (12 families, signal-weighted similarity)
+- **MillPartFamilyMatcherEngine**: TRAINING-LEARNING-MS0 / U-TL-U5 — ranks Mill corpus families for a descriptor (8 families)
+- **WEDMPartFamilyMatcherEngine**: TRAINING-LEARNING-MS0 / U-TL-U5 — ranks WEDM corpus families for a descriptor (7 families)
+- **TrainingTemplateContinuousLearningEngine**: TRAINING-LEARNING-MS0 / U-TL-U6 — append-only outcome ledger for Lathe/Mill/WEDM (ingest + listRecent + getFamilyAccuracy + getOutcomeStats)
 - **ZeroTrustTelemetryEngine**: U-LPR-SEC12
 - **ZLevelOptimizationEngine**: Z-Level Optimization Engine
