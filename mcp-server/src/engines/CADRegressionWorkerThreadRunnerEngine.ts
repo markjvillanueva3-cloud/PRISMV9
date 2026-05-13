@@ -516,6 +516,15 @@ export class CADRegressionWorkerThreadRunnerEngine
   // ── Pool management ──────────────────────────────────────────────────────
 
   /**
+   * Return the effective (post-clamp) maximum pool size. Exposed so tests +
+   * operators can verify clamping behaviour for NaN/Infinity/negative inputs
+   * without spawning the full pool. Read-only.
+   */
+  getPoolSize(): number {
+    return this._poolSize;
+  }
+
+  /**
    * Return a snapshot of pool state + lifetime counters. Safe to call from any
    * context (no I/O, no locks).
    */

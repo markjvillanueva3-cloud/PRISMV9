@@ -350,39 +350,70 @@ describe("CADRegressionWorkerThreadRunnerEngine — adversarial inputs", () => {
     if (runner) await runner.terminate();
   });
 
-  it("clamps NaN poolSize to default 8", async () => {
+  it("clamps NaN poolSize to default 8 (verified via getPoolSize + concurrent spawn cap)", async () => {
     runner = new CADRegressionWorkerThreadRunnerEngine({
       workerScript: HAPPY_WORKER,
       workerOpts: { eval: true },
       poolSize: Number.NaN,
     });
-    // Run a task to ensure the runner still operates
+    // Direct clamp assertion
+    expect(runner.getPoolSize()).toBe(8);
+    // Behavioural assertion: spawning 20 concurrent tasks shouldn't exceed 8 workers
     const ac = new AbortController();
-    const r = await runner.run(task("nan-pool"), ac.signal);
-    expect(r.status).toBe("pass");
-    // No public getter for poolSize; the fact that a task ran proves clamping worked
+    const tasks = Array.from({ length: 20 }, (_, i) => task(`nan-${i}`));
+    await Promise.all(tasks.map((t) => runner.run(t, ac.signal)));
+    expect(runner.getStats().totalWorkers).toBeLessThanOrEqual(8);
+    expect(runner.getStats().tasksSucceeded).toBe(20);
   });
 
-  it("clamps Infinity poolSize to ceiling 64", async () => {
+  it("clamps Infinity poolSize to default 8 (non-finite falls back to default, NOT ceiling 64)", async () => {
     runner = new CADRegressionWorkerThreadRunnerEngine({
       workerScript: HAPPY_WORKER,
       workerOpts: { eval: true },
       poolSize: Number.POSITIVE_INFINITY,
     });
+    // Per clampPoolSize: !Number.isFinite returns DEFAULT_POOL_SIZE (8),
+    // NOT POOL_SIZE_MAX (64). Infinity is treated as "invalid input → use
+    // default", same path as NaN. Finite-but-oversize (e.g. 10000) is what
+    // hits the ceiling — see the next test.
+    expect(runner.getPoolSize()).toBe(8);
     const ac = new AbortController();
     const r = await runner.run(task("inf-pool"), ac.signal);
     expect(r.status).toBe("pass");
   });
 
-  it("clamps negative poolSize to minimum 1", async () => {
+  it("clamps negative poolSize to minimum 1 (verified via getPoolSize + serial dispatch)", async () => {
     runner = new CADRegressionWorkerThreadRunnerEngine({
       workerScript: HAPPY_WORKER,
       workerOpts: { eval: true },
       poolSize: -5,
     });
+    // Direct clamp assertion — POOL_SIZE_MIN
+    expect(runner.getPoolSize()).toBe(1);
+    // Behavioural assertion: 5 concurrent tasks should serialise through 1 worker
     const ac = new AbortController();
-    const r = await runner.run(task("neg-pool"), ac.signal);
-    expect(r.status).toBe("pass");
+    const tasks = Array.from({ length: 5 }, (_, i) => task(`neg-${i}`));
+    await Promise.all(tasks.map((t) => runner.run(t, ac.signal)));
+    expect(runner.getStats().totalWorkers).toBe(1);
+    expect(runner.getStats().tasksSucceeded).toBe(5);
+  });
+
+  it("clamps poolSize=0 to minimum 1 (boundary)", () => {
+    runner = new CADRegressionWorkerThreadRunnerEngine({
+      workerScript: HAPPY_WORKER,
+      workerOpts: { eval: true },
+      poolSize: 0,
+    });
+    expect(runner.getPoolSize()).toBe(1);
+  });
+
+  it("clamps poolSize=10000 to ceiling 64 (overflow boundary)", () => {
+    runner = new CADRegressionWorkerThreadRunnerEngine({
+      workerScript: HAPPY_WORKER,
+      workerOpts: { eval: true },
+      poolSize: 10_000,
+    });
+    expect(runner.getPoolSize()).toBe(64);
   });
 
   it("sanitises malformed worker result (missing fields → fallback)", async () => {
@@ -422,19 +453,31 @@ describe("CADRegressionWorkerThreadRunnerEngine — adversarial inputs", () => {
 });
 
 describe("CADRegressionWorkerThreadRunnerEngine — terminate() + queue", () => {
-  it("terminate() drains pending acquires when slots are saturated", async () => {
+  it("terminate() drains pending acquires when slots are saturated — queued task rejected as crash", async () => {
     const runner = makeRunner(SLOW_WORKER, { poolSize: 1 });
     const ac = new AbortController();
     // First task takes 200ms; second queues behind it.
     const p1 = runner.run(task("slow-1", "200"), ac.signal);
     const p2 = runner.run(task("queued-1", "200"), ac.signal);
-    // Terminate while both are in flight (1 dispatched, 1 queued).
+    // Terminate while p1 is in-flight and p2 is queued (15ms < 200ms).
     setTimeout(() => {
       void runner.terminate();
-    }, 30);
+    }, 15);
     const [r1, r2] = await Promise.all([p1, p2]);
-    // Both must settle (no hangs). At least one should be a crash/timeout.
-    expect([r1.status, r2.status].some((s) => s === "error" || s === "pass")).toBe(true);
+    // Both must settle to a defined FileTestResult (no hangs).
+    expect(r1.fileId).toBe("slow-1");
+    expect(r2.fileId).toBe("queued-1");
+    // p2 was QUEUED when terminate fired — it must be rejected with crash
+    // ("runner terminated") because _acquire rejected pending promises.
+    expect(r2.status).toBe("error");
+    expect(r2.errorType).toBe("crash");
+    // p1 was IN-FLIGHT when terminate fired — either it completed before the
+    // worker.terminate() kill arrived (pass) or it was killed mid-run (crash).
+    // Either way it must be a well-formed result with a non-negative duration.
+    expect(["pass", "error"]).toContain(r1.status);
+    expect(r1.durationMs).toBeGreaterThanOrEqual(0);
+    // Runner must have flipped to terminated.
+    expect(runner.getStats().terminated).toBe(true);
   }, 5000);
 
   it("terminate() is idempotent (second call resolves cleanly)", async () => {
