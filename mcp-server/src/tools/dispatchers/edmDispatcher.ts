@@ -35,10 +35,11 @@ import { WEDM_WEIBULL_SCHEMAS } from "../../schemas/wedmWeibullSchemas.js";
 import { WEDM_DL_CORE_SCHEMAS } from "../../schemas/wedmDLCoreSchemas.js";
 import { WEDM_RECAST_ML_SCHEMAS } from "../../schemas/wedmRecastMLSchemas.js";
 import { WEDM_HAZ_SCHEMAS } from "../../schemas/wedmHAZSchemas.js";
+import { WEDM_TRAINING_TEMPLATE_SCHEMAS } from "../../schemas/wedmTrainingTemplateSchemas.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
-// Merge legacy + pipeline + ML optimizer + feature importance + transfer learning + online learning + thermal field + spark erosion schemas
-const ALL_EDM_SCHEMAS = { ...EDM_ACTION_SCHEMAS, ...WEDM_PIPELINE_ACTION_SCHEMAS, ...WEDM_ML_OPTIMIZER_SCHEMAS, ...WEDM_FEATURE_IMPORTANCE_SCHEMAS, ...WEDM_TRANSFER_LEARNING_SCHEMAS, ...WEDM_ONLINE_LEARNING_SCHEMAS, ...WEDM_THERMAL_FIELD_SCHEMAS, ...WEDM_SPARK_EROSION_SCHEMAS, ...WEDM_GAP_VOLTAGE_SCHEMAS, ...WEDM_MRR_SCHEMAS, ...WEDM_WIRE_STRESS_SCHEMAS, ...WEDM_WIRE_TENSION_OPT_SCHEMAS, ...WEDM_WEIBULL_SCHEMAS, ...WEDM_DL_CORE_SCHEMAS, ...WEDM_RECAST_ML_SCHEMAS, ...WEDM_HAZ_SCHEMAS };
+// Merge legacy + pipeline + ML optimizer + feature importance + transfer learning + online learning + thermal field + spark erosion + training-template (U-TL-U4) schemas
+const ALL_EDM_SCHEMAS = { ...EDM_ACTION_SCHEMAS, ...WEDM_PIPELINE_ACTION_SCHEMAS, ...WEDM_ML_OPTIMIZER_SCHEMAS, ...WEDM_FEATURE_IMPORTANCE_SCHEMAS, ...WEDM_TRANSFER_LEARNING_SCHEMAS, ...WEDM_ONLINE_LEARNING_SCHEMAS, ...WEDM_THERMAL_FIELD_SCHEMAS, ...WEDM_SPARK_EROSION_SCHEMAS, ...WEDM_GAP_VOLTAGE_SCHEMAS, ...WEDM_MRR_SCHEMAS, ...WEDM_WIRE_STRESS_SCHEMAS, ...WEDM_WIRE_TENSION_OPT_SCHEMAS, ...WEDM_WEIBULL_SCHEMAS, ...WEDM_DL_CORE_SCHEMAS, ...WEDM_RECAST_ML_SCHEMAS, ...WEDM_HAZ_SCHEMAS, ...WEDM_TRAINING_TEMPLATE_SCHEMAS };
 
 // Legacy engine lazy loaders
 let _electrode: any, _wire: any, _surface: any, _micro: any;
@@ -382,6 +383,17 @@ const ACTIONS = [
   "wedm_feedback_get_calibration",         // WEDMFeedbackCalibrationEngine.get_calibration
   "wedm_feedback_history",                 // WEDMFeedbackCalibrationEngine.get_history
   "wedm_feedback_reset",                   // WEDMFeedbackCalibrationEngine.reset_calibration
+
+  // TRAINING-LEARNING-MS0/U-TL-U4: WEDMPartFamilyTemplateExtractorEngine
+  "wedm_training_corpus_status",           // catalogCorpus — per-family counts + coverage
+  "wedm_training_template_match",          // extractTemplate — emit WEDMTrainingTemplate for one family
+  "wedm_training_template_list",           // listTemplates — on-disk template directory listing
+  "wedm_training_template_extract_all",    // extractAllTemplates — bulk
+
+  // TRAINING-LEARNING-MS0/U-TL-U4: TaptiteElectrodeMacroBridgeEngine (engine 2)
+  "wedm_training_taptite_bridge",             // bridge — template → TaptiteElectrodeMacroBridge artifact
+  "wedm_training_taptite_variables",          // listRequiredVariables — canonical VC variable schema
+  "wedm_training_taptite_place_template",     // placeLabelledTemplate — writes _MACRO-TEMPLATE_<id>.min
 ] as const;
 
 /** Registers edm dispatcher.
@@ -2370,6 +2382,102 @@ Actions: ${ACTIONS.join(", ")}.`,
             break;
           }
 
+          // =================================================================
+          // TRAINING-LEARNING-MS0/U-TL-U4: WEDMPartFamilyTemplateExtractorEngine
+          // SAFETY-CRITICAL READ-ONLY — never emits G-code or controller dialect output.
+          // =================================================================
+          case "wedm_training_corpus_status": {
+            const { wedmPartFamilyTemplateExtractorEngine } = await import(
+              "../../engines/WEDMPartFamilyTemplateExtractorEngine.js"
+            );
+            const p = params as { snapshotPath?: string };
+            result = wedmPartFamilyTemplateExtractorEngine.catalogCorpus({
+              snapshotPath: p.snapshotPath,
+            });
+            break;
+          }
+          case "wedm_training_template_match": {
+            const { wedmPartFamilyTemplateExtractorEngine } = await import(
+              "../../engines/WEDMPartFamilyTemplateExtractorEngine.js"
+            );
+            const p = params as {
+              family?: unknown;
+              snapshotPath?: string;
+              outDir?: string;
+              dryRun?: boolean;
+            };
+            if (typeof p.family !== "string" || p.family.length === 0) {
+              throw new Error("wedm_training_template_match requires 'family' string");
+            }
+            result = await wedmPartFamilyTemplateExtractorEngine.extractTemplate(p.family, {
+              snapshotPath: p.snapshotPath,
+              outDir: p.outDir,
+              dryRun: p.dryRun,
+            });
+            break;
+          }
+          case "wedm_training_template_list": {
+            const { wedmPartFamilyTemplateExtractorEngine } = await import(
+              "../../engines/WEDMPartFamilyTemplateExtractorEngine.js"
+            );
+            const p = params as { outDir?: string };
+            result = wedmPartFamilyTemplateExtractorEngine.listTemplates({ outDir: p.outDir });
+            break;
+          }
+          case "wedm_training_template_extract_all": {
+            const { wedmPartFamilyTemplateExtractorEngine } = await import(
+              "../../engines/WEDMPartFamilyTemplateExtractorEngine.js"
+            );
+            const p = params as { snapshotPath?: string; outDir?: string; dryRun?: boolean };
+            result = await wedmPartFamilyTemplateExtractorEngine.extractAllTemplates({
+              snapshotPath: p.snapshotPath,
+              outDir: p.outDir,
+              dryRun: p.dryRun,
+            });
+            break;
+          }
+
+          // =================================================================
+          // TRAINING-LEARNING-MS0/U-TL-U4 (engine 2): TaptiteElectrodeMacroBridgeEngine
+          // SAFETY-CRITICAL READ-ONLY — only fs.write is to a _MACRO-TEMPLATE_-prefixed
+          // labelled file with DO-NOT-RUN header.
+          // =================================================================
+          case "wedm_training_taptite_bridge": {
+            const { taptiteElectrodeMacroBridgeEngine } = await import(
+              "../../engines/TaptiteElectrodeMacroBridgeEngine.js"
+            );
+            type WEDMTrainingTemplateOpaque =
+              Parameters<typeof taptiteElectrodeMacroBridgeEngine.bridge>[0];
+            const p = params as { template?: WEDMTrainingTemplateOpaque };
+            result = taptiteElectrodeMacroBridgeEngine.bridge(p.template);
+            break;
+          }
+          case "wedm_training_taptite_variables": {
+            const { taptiteElectrodeMacroBridgeEngine } = await import(
+              "../../engines/TaptiteElectrodeMacroBridgeEngine.js"
+            );
+            type WEDMTrainingTemplateOpaque =
+              Parameters<typeof taptiteElectrodeMacroBridgeEngine.listRequiredVariables>[0];
+            const p = params as { template?: WEDMTrainingTemplateOpaque };
+            result = taptiteElectrodeMacroBridgeEngine.listRequiredVariables(p.template);
+            break;
+          }
+          case "wedm_training_taptite_place_template": {
+            const { taptiteElectrodeMacroBridgeEngine } = await import(
+              "../../engines/TaptiteElectrodeMacroBridgeEngine.js"
+            );
+            type PlaceReq =
+              Parameters<typeof taptiteElectrodeMacroBridgeEngine.placeLabelledTemplate>[0];
+            const p = params as Partial<PlaceReq>;
+            if (!p.bridge || typeof p.partFolderPath !== "string") {
+              throw new Error(
+                "wedm_training_taptite_place_template requires 'bridge' and 'partFolderPath'"
+              );
+            }
+            result = taptiteElectrodeMacroBridgeEngine.placeLabelledTemplate(p as PlaceReq);
+            break;
+          }
+
           default:
             result = { error: `Unknown action: ${action}` };
         }
@@ -2392,6 +2500,15 @@ Actions: ${ACTIONS.join(", ")}.`,
         "wedm_predict_break", "wedm_evaluate_break",
         "wedm_predict_recast", "wedm_train_recast_adapter",
         "wedm_gnn_is_stale",
+        // U-TL-U4: written_to:null = "dry-run, not written"; templates:[] = "no
+        // templates on disk yet" — slimResponse would strip those signals.
+        "wedm_training_corpus_status", "wedm_training_template_match",
+        "wedm_training_template_list", "wedm_training_template_extract_all",
+        // U-TL-U4 engine 2: material_class:null = "operator must fill";
+        // notes:[] = "no warnings"; pass_schedule_seed:[] = "no schedule yet";
+        // sx_score:null = "downstream pipeline must compute".
+        "wedm_training_taptite_bridge", "wedm_training_taptite_variables",
+        "wedm_training_taptite_place_template",
       ]);
       const payload = NO_SLIM_ACTIONS.has(action) ? result : slimResponse(result);
       return { content: [{ type: "text" as const, text: JSON.stringify(payload) }] };
