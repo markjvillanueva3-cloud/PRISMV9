@@ -95,3 +95,29 @@ state/shared/.git-freeze-parse-error.log
 state/shared/precompact-trigger.jsonl
 # consensus queue (auto-generated; capped by auto-consensus-userprompt MAX_QUEUE)
 state/shared/consensus-queue.jsonl
+
+# INFRA-CLOSEOUT-MS0/U-HISTORY-STRIP (2026-05-12) — exclusions retroactively
+# applied after the GitHub push-reject on oversized blobs in branch history.
+# These paths were stripped from history via git-filter-repo; the rules below
+# prevent them from being re-introduced.
+#
+# Whisper/ML model weights — never check in, download via Ollama / HF on demand.
+models/
+*.bin
+# Auto-regenerated system-viz outputs (graph snapshots up to 195MB per file).
+# Regenerated on every SessionStart by `scripts/system-viz-build.mjs`.
+state/shared/system-viz/
+# Serena LSP cache — local-only, regenerated on demand.
+mcp-server/.serena/
+# Bizarre filesystem artifacts that should never be tracked.
+mcp-server/dev/null
+mcp-server/tmp/
+c/tmp/
+# Build output dirs.
+_BUILD/
+# Static HTML reports — large, regenerable.
+PRISM_v8_89_002_TRUE_100_PERCENT.html
+PRISMv1.html
+# Legacy registry archive snapshots (kept the live `registries/*`, the
+# `_archive/` snapshots are reproducible).
+registries/_archive/COMPLETE_HIERARCHY_v15.json
