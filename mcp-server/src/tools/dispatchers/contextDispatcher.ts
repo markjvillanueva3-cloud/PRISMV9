@@ -38,6 +38,9 @@ const ACTIONS = [
   "team_broadcast",
   "team_create_task",
   "team_heartbeat",
+  // COORD-MS0/U-COORD08 — Cross-Terminal Broadcast (CrossTerminalBroadcastEngine)
+  "cross_terminal_broadcast",          // broadcastOperatorMessage — send free-text to all sessions
+  "cross_terminal_broadcast_recent",   // getRecentEvents — read recent channel events
   // Budget management via ContextBudgetEngine
   "budget_get",
   "budget_track",
@@ -787,6 +790,45 @@ ${todoState.blockingIssues.length > 0 ? todoState.blockingIssues.map(i => `- ${i
               warning: elapsed > 30 ? "⚠️ Previous gap exceeded 30s threshold" : null,
               recommendation: "Call heartbeat every 20-25 seconds"
             });
+          }
+
+          // ================================================================
+          // COORD-MS0/U-COORD08 — CrossTerminalBroadcastEngine wiring
+          // ================================================================
+
+          case "cross_terminal_broadcast": {
+            const { crossTerminalBroadcastEngine } = await import(
+              "../../engines/CrossTerminalBroadcastEngine.js"
+            );
+            const p = params as Record<string, unknown>;
+            const content = typeof p.content === "string"
+              ? p.content
+              : typeof p.message === "string"
+                ? p.message
+                : "";
+            const msgType = (typeof p.msgType === "string"
+              ? p.msgType
+              : typeof p.msg_type === "string"
+                ? p.msg_type
+                : "info") as "info" | "warning" | "request" | "response";
+            const data = await crossTerminalBroadcastEngine.broadcastOperatorMessage(
+              content,
+              msgType,
+            );
+            if (data.ok) return ok(data);
+            return ok({ ok: false, error: data.error, detail: data.detail });
+          }
+
+          case "cross_terminal_broadcast_recent": {
+            const { crossTerminalBroadcastEngine } = await import(
+              "../../engines/CrossTerminalBroadcastEngine.js"
+            );
+            const p = params as Record<string, unknown>;
+            const limit = typeof p.limit === "number" && p.limit > 0
+              ? Math.floor(p.limit)
+              : 50;
+            const events = await crossTerminalBroadcastEngine.getRecentEvents(limit);
+            return ok({ ok: true, events, count: events.length });
           }
 
           // ================================================================

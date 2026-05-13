@@ -21,11 +21,34 @@ import { EventEmitter } from "events";
 // TYPES
 // ============================================================================
 
+export type BroadcastEventType =
+  | "registry_change"
+  | "asset_added"
+  | "asset_removed"
+  | "cache_invalidate"
+  | "operator_message";
+
+export type OperatorMessageType = "info" | "warning" | "request" | "response";
+
 export interface BroadcastEvent {
-  type: "registry_change" | "asset_added" | "asset_removed" | "cache_invalidate";
+  type: BroadcastEventType;
   timestamp: string;
   sessionId: string;
   payload?: Record<string, unknown>;
+}
+
+export interface OperatorBroadcastResult {
+  ok: true;
+  event: BroadcastEvent;
+  channel: string;
+  /** Approximate number of recent events visible on the channel (last 30s window). */
+  recent_event_count: number;
+}
+
+export interface OperatorBroadcastError {
+  ok: false;
+  error: "empty_message" | "invalid_message_type" | "write_failed";
+  detail?: string;
 }
 
 export interface SubscriptionHandle {
@@ -159,6 +182,95 @@ export class CrossTerminalBroadcastEngine extends EventEmitter {
       type: "cache_invalidate",
       payload: { reason: "manual_invalidate" },
     });
+  }
+
+  /**
+   * Broadcast an operator message to all active sessions (TRAINING-LEARNING-MS0
+   * adjacent / COORD-MS0 U-COORD08).
+   *
+   * Wraps the engine's `broadcast()` with operator-friendly semantics: free-text
+   * content + a `msgType` from {info, warning, request, response}. The event
+   * type is fixed as `"operator_message"` so consumers like
+   * `session-awareness-inject.mjs` can distinguish operator chatter from cache
+   * events.
+   *
+   * Validates inputs and returns a discriminated `{ok}` result rather than
+   * throwing — keeps the dispatcher case-handler simple.
+   *
+   * @param content — free-form text from the operator. Trimmed; empty rejected.
+   * @param msgType — one of info|warning|request|response (default info).
+   * @returns OperatorBroadcastResult on success or OperatorBroadcastError.
+   */
+  async broadcastOperatorMessage(
+    content: string,
+    msgType: OperatorMessageType = "info",
+  ): Promise<OperatorBroadcastResult | OperatorBroadcastError> {
+    if (typeof content !== "string" || content.trim().length === 0) {
+      return { ok: false, error: "empty_message", detail: "content must be a non-empty string" };
+    }
+    const validTypes: ReadonlySet<OperatorMessageType> = new Set([
+      "info",
+      "warning",
+      "request",
+      "response",
+    ]);
+    if (!validTypes.has(msgType)) {
+      return {
+        ok: false,
+        error: "invalid_message_type",
+        detail: `msgType must be one of info|warning|request|response, got ${String(msgType)}`,
+      };
+    }
+
+    const trimmed = content.trim();
+    const event: BroadcastEvent = {
+      type: "operator_message",
+      timestamp: new Date().toISOString(),
+      sessionId: this.sessionId,
+      payload: {
+        msgType,
+        content: trimmed,
+        from: this.sessionId,
+      },
+    };
+
+    try {
+      await this.writeToBroadcastChannel(event);
+    } catch (err) {
+      return { ok: false, error: "write_failed", detail: (err as Error).message };
+    }
+
+    // Best-effort recent-event count for delivery confirmation (last 30s window).
+    let recentCount = 0;
+    try {
+      const recent = await this.getRecentEvents(100);
+      const cutoff = Date.now() - 30000;
+      recentCount = recent.filter((e) => new Date(e.timestamp).getTime() > cutoff).length;
+    } catch {
+      // ignore — count is advisory
+    }
+
+    // Emit locally so subscribed listeners in this process see it too.
+    this.emit("change", event);
+
+    log.info(`[CrossTerminalBroadcast] Operator broadcast (${msgType}): ${trimmed.slice(0, 80)}`);
+
+    return {
+      ok: true,
+      event,
+      channel: this.broadcastPath,
+      recent_event_count: recentCount,
+    };
+  }
+
+  /** Returns the current session id (deterministic since constructor sets it). */
+  getSessionId(): string {
+    return this.sessionId;
+  }
+
+  /** @internal — exposed so tests can override the broadcast channel path. */
+  _setBroadcastPath(p: string): void {
+    this.broadcastPath = p;
   }
 
   /**
