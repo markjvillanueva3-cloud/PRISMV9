@@ -412,6 +412,67 @@ export function getStatus(statePath = DEFAULT_STATE_PATH) {
 }
 
 /**
+ * U-CLEANUP-B8 (2026-05-13): liveness check for the golf hygiene slot.
+ *
+ * R3-UU2 dropped the dedicated golf-heartbeat.json file in favor of reusing
+ * the lastHeartbeat field already maintained in chat-slots.json. This
+ * helper is the canonical "is the golf chat alive?" check — used by golf-
+ * audit cron tasks, the fleet dashboard, and any hook that needs to decide
+ * whether to enqueue hygiene work for the live golf chat vs. self-execute.
+ *
+ * Returns a structured object so consumers don't have to re-implement
+ * staleness math:
+ *   {
+ *     ok:           true,
+ *     slot:         "golf",
+ *     status:       "alive" | "stale" | "crashed" | "idle",
+ *     isAlive:      boolean (status === "alive"),
+ *     isStale:      boolean (status === "stale"),
+ *     isCrashed:    boolean (status === "crashed"),
+ *     isIdle:       boolean (status === "idle"),
+ *     ageMs:        number | null  (null when slot is idle),
+ *     lastHeartbeat: string | null  (ISO timestamp; null when slot is idle),
+ *     chatId:       string | null,
+ *     branch:       string | null,
+ *     topic:        string | null,
+ *     activity:     string | null,
+ *     staleThresholdMs:   STALE_TTL_MS,
+ *     crashedThresholdMs: CRASH_TTL_MS,
+ *   }
+ *
+ * Idle vs. crashed semantics: idle = no chat ever claimed the slot in this
+ * file (state=null), crashed = a chat claimed it but the heartbeat is older
+ * than CRASH_TTL_MS (the chat is dead and the slot is reclaimable).
+ *
+ * Pure read; does not write or sweep. Pass `now` as the second arg for
+ * deterministic test isolation.
+ */
+export function getGolfLiveness(statePath = DEFAULT_STATE_PATH, now = Date.now()) {
+  const file = readSlots(statePath);
+  const state = file.slots["golf"] ?? null;
+  const status = classifySlot(state, now);
+  const lastMs = state?.lastHeartbeat ? Date.parse(state.lastHeartbeat) : null;
+  const ageMs = state && Number.isFinite(lastMs) ? now - lastMs : null;
+  return {
+    ok: true,
+    slot: "golf",
+    status,
+    isAlive: status === "alive",
+    isStale: status === "stale",
+    isCrashed: status === "crashed",
+    isIdle: status === "idle",
+    ageMs,
+    lastHeartbeat: state?.lastHeartbeat ?? null,
+    chatId: state?.chatId ?? null,
+    branch: state?.branch ?? null,
+    topic: state?.topic ?? null,
+    activity: state?.activity ?? null,
+    staleThresholdMs: STALE_TTL_MS,
+    crashedThresholdMs: CRASH_TTL_MS,
+  };
+}
+
+/**
  * Find the slot currently held by chatId (if any). Pure read.
  */
 export function findSlotForChat(chatId, statePath = DEFAULT_STATE_PATH) {
@@ -427,8 +488,14 @@ export function findSlotForChat(chatId, statePath = DEFAULT_STATE_PATH) {
 // Allows hooks to invoke as `node chat-slots.mjs <action> [args]` without
 // importing. Returns JSON to stdout.
 
-if (import.meta.url === `file://${process.argv[1].replace(/\\/g, "/")}` ||
-    import.meta.url.endsWith(`${process.argv[1].replace(/\\/g, "/").split("/").pop()}`)) {
+// Guard against undefined process.argv[1] (e.g. when imported via node -e or
+// dynamically loaded by a test runner) so the CLI block never crashes the
+// import path. When invoked legitimately as the main script argv[1] resolves
+// to this file's absolute path. Use endsWith-only (no file:// URL synthesis)
+// so Vite's static analyzer doesn't try to resolve a template-literal URL.
+const __cliArgv1 = (process.argv[1] || "").replace(/\\/g, "/");
+const __cliArgv1Basename = __cliArgv1.split("/").pop() || "";
+if (__cliArgv1Basename && import.meta.url.endsWith(__cliArgv1Basename)) {
   const [action, ...args] = process.argv.slice(2);
   const flags = {};
   for (let i = 0; i < args.length; i++) {
@@ -474,8 +541,11 @@ if (import.meta.url === `file://${process.argv[1].replace(/\\/g, "/")}` ||
       case "find":
         result = findSlotForChat(flags.chatId);
         break;
+      case "golf-liveness":
+        result = getGolfLiveness();
+        break;
       default:
-        result = { ok: false, error: "unknown_action", message: `unknown action '${action}'; valid: claim, heartbeat, release, reclaim, status, find` };
+        result = { ok: false, error: "unknown_action", message: `unknown action '${action}'; valid: claim, heartbeat, release, reclaim, status, find, golf-liveness` };
     }
   } catch (e) {
     result = { ok: false, error: "exception", message: e.message };
