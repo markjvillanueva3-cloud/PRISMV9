@@ -11,7 +11,10 @@
       "id": "U-COORD01",
       "title": "Create AGENT_COORDINATION_SUMMARY.json (<5KB)",
       "phase": "Foundation",
-      "status": "pending",
+      "status": "complete",
+      "completed_at": "2026-05-13T18:48:14.225Z",
+      "completed_by": "claude-8912d4c2",
+      "ship_notes": "Verified by direct read of three artifacts: (1) state/shared/AGENT_COORDINATION_SUMMARY.json exists with schemaVersion:1 — fresh regen 2026-05-13T18:48:14.225Z is 701 bytes (well under 5KB target), schema includes daemon_active, daemon_pid, active_sessions, sessions[], latest_activity, health, full_status_size_kb. (2) Generator at .claude/helpers/coordination-summary-generator.mjs (110 LOC) reads STATUS_PATH (109KB AGENT_COORDINATION_STATUS.json), shrinks via top-10 session cap + 5-min staleness gate, writes SUMMARY_PATH atomically; exported {generateSummary, writeSummary, readFullStatus}. Daemon at .claude/helpers/agent-coordination-daemon.mjs declares coordSummary in its FILES table (line 16) so the file lives in the canonical surface set the daemon manages. (3) Hot-path hook coordination-startup-banner.mjs (line 12: SUMMARY_PATH = 'H:/prism/state/shared/AGENT_COORDINATION_SUMMARY.json') reads SUMMARY instead of STATUS for every SessionStart banner — matches the unit deliverable 'Update session-awareness-inject.mjs to read summary' (the file in spec was renamed to coordination-startup-banner.mjs during impl; same hot path, same purpose). Other STATUS consumers: reference-inject.mjs disabled by token-redux 2026-04-23 (no longer reads STATUS); coordination-update-reminder.mjs treats STATUS as a static path constant only (no read); ai-session-sync.mjs is a Stop hook (T4, not hot path) writing session-end metadata to STATUS — kept reading STATUS by design. All 3 deliverables satisfied. Discovered via /pick-unit + audit; envelope had silent close-out debt (file shipped weeks ago, status never flipped). Companion to U-COORD11 (IPC server exposes the same summary as RPC method for sub-2ms warm reads).",
       "description": "Create lightweight summary file for fast reads instead of parsing 155KB on every prompt",
       "deliverables": [
         "AGENT_COORDINATION_SUMMARY.json schema",

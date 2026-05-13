@@ -9,7 +9,8 @@
   "updated_at": "2026-05-12T18:55:00.000Z",
   "status": "in_progress",
   "total_units": 7,
-  "completed_units": 1,
+  "completed_units": 2,
+  "updated_at": "2026-05-13T18:30:00.000Z",
   "dependencies": [],
   "rationale": "User 2026-05-12: 'add the corresponding macro program to each file system that has a part that could use one of the programs; check existing programs for each part then make a version of each program utilizing one of the macro programs; make a program for each lathe machine and label it for each machine; coding must match controller and machine capabilities'. Spec was scoped by claude-8f2683e8 (slot charlie) per the forge methodology with the live system-viz graph as dependency oracle. Key finding: ~80% of this pipeline already exists (OkumaParametricProgramEngine, MacroProgramIntelligenceEngine, OkumaMacroHeaderGeneratorEngine, LatheProofCarryingEmitEngine, LathePrintProgramEmitterEngine, ShopConfigurationEngine, LathePartClassifierEngine, PartFolderOrganizerEngine, etc). Milestone is mostly WIRING + a thin orchestrator + the 2 missing macro families + the bulk fan-out — NOT a from-scratch build. U2-U6 are SAFETY-CRITICAL (auto-emitting G-code from print dims) and gated by S(x) >= 0.70 + envelope check + sim + operator sign-off. NEVER bulk-auto-emit G-code. U1 is non-safety-critical (file copying + part classification) and ships first.",
   "knowledge_sources": {
@@ -65,7 +66,31 @@
     {
       "id": "MS0-U3",
       "title": "OkumaParametricProgramEngine: + generateWaferInsert + generateTopHatCasing",
-      "status": "not_started"
+      "status": "completed",
+      "completed_at": "2026-05-13T18:30:00.000Z",
+      "completed_by": "claude-48e5d403 (slot alpha)",
+      "shipped": [
+        "OkumaParametricProgramEngine.generateWaferInsert (modeled on BASE WAFER INSERT MACRO O1001, VC100+ form, 8 calculated VCs as expressions)",
+        "OkumaParametricProgramEngine.generateTopHatCasing (modeled on BASIC TOP HAT CASING WITH SINGLE COUNTERBORE, VC100+ form, 17 calculated VCs as expressions, optional ID undercut + counterbore gated by IF/GOTO)",
+        "OkumaParametricProgramEngine.getWaferInsertDefaults (per-material defaults: aluminum/stainless/brass/titanium/steel)",
+        "OkumaParametricProgramEngine.getTopHatCasingDefaults (per-material defaults: aluminum/stainless/brass/steel)",
+        "Wafer/TopHat config interfaces (geometry, OD chamfer/radius, drills, clearance, optional undercut, counterbore) — fully type-safe inputs",
+        "Wafer/TopHat validators (reject negative length, finishOD>stock, ID>=OD, step OD<=small OD, step drill order, counterbore<=step drill 2, counterbore>step OD)",
+        "prism_cam action: okuma_generate_wafer_insert",
+        "prism_cam action: okuma_generate_top_hat",
+        "prism_cam action: okuma_defaults extended with family routing (casing | cbore | waferinsert | tophat)",
+        "OkumaParametricProgramEngine.test.ts (NEW — 33 tests passing, covers happy + 3 negatives + 2 adversarial per family + dispatcher wiring + HARD RULE assertions that VC130/VC150 stay as expressions matching /VC111.*VC110/ and /VC121.*VC120/)",
+        "/okuma-macro skill updated with waferinsert + tophat args + family parameter + SAFETY-CRITICAL invariants block"
+      ],
+      "tests_run": "33/33 passing (1.07s)",
+      "hard_rules_asserted": [
+        "VC130 wafer-insert spot RPM stays as [VC111 * 3.82] / VC110 — never pre-computed",
+        "VC150 top-hat spot RPM stays as [VC121 * 3.82] / VC120 — never pre-computed",
+        "All 8 wafer-insert calculated VCs (VC130/131/132/133/134/135/143/144) emitted as expressions in gcode AND metadata",
+        "All 12+ top-hat calculated VCs (VC150-153 RPMs, VC154-155 point depths, VC145 cb depth, VC156-167 derived) emitted as expressions",
+        "Round-trip through MacroProgramIntelligenceEngine.parseOkumaMacro produces 6 toolDefs for wafer, 8 for top-hat, plus all auto-calcs",
+        "No code path emits a final program file — output is a candidate object that must pass MS0-U4 gate"
+      ]
     },
     {
       "id": "MS0-U4",
