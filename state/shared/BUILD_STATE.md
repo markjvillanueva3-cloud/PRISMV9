@@ -1,6 +1,6 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-13T03:19:43.996Z
+> Generated: 2026-05-13T04:24:52.952Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
@@ -8,7 +8,7 @@
 - **2324** engines built and wired (of 3203)
 - **1073** wiki entries indexed
 - **879** engines awaiting dispatcher wiring
-- **3402** units pending across 3 active milestones
+- **3400** units pending across 3 active milestones
 - **2** codex frontend builds awaiting merge
 - **3** milestones with envelope-status drift
 
@@ -65,7 +65,7 @@
 
 ## NEEDS_BUILDING
 
-3402 units across 668 milestones not yet in git.
+3400 units across 668 milestones not yet in git.
 
 ### Envelope-status drift
 
@@ -80,8 +80,6 @@
 | Milestone | Phase | Unit | Title |
 |-----------|-------|------|-------|
 | HOOK-SYNERGY-MS0 | stopgap | U-HOOK-STOPGAP | 7 hook timeout reductions in C:/Users/wompu/.claude/settings.json (git-health-guard 35→8s, git-sync-stop 35→8s, session-start-zombie-reap 25→8s, auto-lint-post-edit 15→8s, git-sync-fetch/claude-brief-inject/quality-dashboard-alert 12→5s) |
-| HOOK-SYNERGY-MS0 | wave-2 | U-HOOK-ASYNC-DISPATCH | H7 — AsyncHookDispatcherEngine.ts + Tier-4 routing for test-100-percent-gate (Stop never waits >30s) |
-| HOOK-SYNERGY-MS0 | wave-2 | U-HOOK-COORD-SQLITE | H8 — SQLite WAL coordination store + dual-write migration (replaces JSON file-claims, target 90% latency drop on multi-chat coord) |
 | HTML-PRIMARY-MS0 | P0 | U-HPS01 | Build `SpecHTMLCompanionEngine` (master renderer) |
 | HTML-PRIMARY-MS0 | P0 | U-HPS03 | Theme engine (dark/light, prefers-color-scheme) |
 | HTML-PRIMARY-MS0 | P0 | U-HPS04 | Navigation engine (sticky TOC, anchor links, search) |
@@ -105,7 +103,7 @@
 
 ## COVERAGE_BY_DOMAIN
 
-Per-domain wired/unwired breakdown across 925 domain prefixes.
+Per-domain wired/unwired breakdown across 926 domain prefixes.
 
 | Domain | Total | Wired | Unwired | Coverage % |
 |--------|-------|-------|---------|-----------|
@@ -135,7 +133,7 @@ Per-domain wired/unwired breakdown across 925 domain prefixes.
 | Mill | 21 | 17 | 4 | 81% |
 | Inventor | 12 | 8 | 4 | 67% |
 | Okuma | 12 | 8 | 4 | 67% |
-| Master | 9 | 5 | 4 | 56% |
+| Master | 10 | 6 | 4 | 60% |
 | Agent | 7 | 3 | 4 | 43% |
 | Speed | 7 | 3 | 4 | 43% |
 | Electrode | 5 | 1 | 4 | 20% |

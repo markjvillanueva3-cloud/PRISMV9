@@ -218,7 +218,7 @@
     },
     {
       "unit": "U-HOOK-COORD-SQLITE",
-      "commit": "pending-commit",
+      "commit": "590f96d4c",
       "title": "CoordinationStoreEngine (SQLite WAL backend for work-claims) + prism_context:coord_sqlite (11 modes: claim/release/find/live/all/heartbeat/active_sessions/prune/counts/health/migrate_from_json) + scripts/migrate-claims-to-sqlite.mjs (one-shot seeder from legacy WORK_CLAIMS.json). 41-test suite covers happy/conflict/expired-auto-purge/same-session-refresh/release/heartbeat/prune/migration-with-by-fallback/missing-source-warn/malformed-JSON-warn/3-distinct-resource-shapes/3-distinct-hostnames/60-claim-burst/on-disk-WAL-persistence/dispatcher-contract. WAL config (journal_mode=WAL, synchronous=NORMAL, busy_timeout=5000) gives concurrent readers + serialized writes with no daemon. Prepared statements cached per construct; same-session re-claim refreshes TTL idempotently. Backward-compatible with the legacy WORK_CLAIMS.json schema (session_id | by fallback, ISO timestamps, hostname/pid passthrough).",
       "shipped_at": "2026-05-13T04:00:00.000Z"
     },
