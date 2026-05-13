@@ -484,4 +484,33 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     n: z.union([z.string(), z.number()]).optional().describe("Result limit; default 50, max 1000."),
     older_than_ms: z.union([z.string(), z.number()]).optional().describe("Required for mode=purge."),
   }).passthrough(),
+
+  // CLEANUP-MS0/U-CLEANUP-B2: PeerCommitAuditorEngine (B1) dispatcher surfaces.
+  // Three actions wrap the engine for cron + skill + dashboard access without
+  // letting callers reach the singleton directly. tick() is the workhorse;
+  // attribution + dispatch_plan are read-side projections of the ledger that
+  // B5 / B4 / F8 consume.
+  peer_audit_tick: z.object({
+    since_iso: z.string().optional().describe("ISO 8601 lower bound for git log. Defaults to cache.lastTickIso → state-file → now-1h fallback."),
+    repo_root: z.string().optional().describe("Repo root to poll. Defaults to PEER_AUDIT_LIMITS.DEFAULT_REPO_ROOT (H:/prism)."),
+    cache_path: z.string().optional().describe("Cache file path. Defaults to <repoRoot>/state/shared/.peer-audit-cache.json for worktree isolation."),
+    exclude_authors: z.array(z.string()).optional().describe("Authors to skip in addition to the default golf-watchdog-bot / golf-watchdog."),
+    dry_run: z.boolean().optional().describe("If true, count queue candidates but emit no chat_bus_signals and no cache mutation."),
+    reap_stale: z.boolean().optional().describe("If true, also run reapStaleTicks() to mark 'running' rows older than reap_threshold_ms as 'aborted'."),
+    reap_threshold_ms: z.union([z.string(), z.number()]).optional().describe("Reaper threshold; default 10 min. Only used when reap_stale=true."),
+  }).passthrough(),
+
+  peer_audit_attribution: z.object({
+    mode: z.enum(["list_open", "list_recent_ticks", "list_pending_signals"]).default("list_open")
+      .describe("Which projection to return: list_open = unresolved bug_attribution rows; list_recent_ticks = recent peer_audit_ticks rows (any status); list_pending_signals = chat_bus_signals not yet consumed."),
+    limit: z.union([z.string(), z.number()]).optional().describe("Row cap; default 100, max 10000."),
+    chat: z.string().optional().describe("Required for mode=list_pending_signals — filter to signals targeted at this chat OR broadcast."),
+  }).passthrough(),
+
+  peer_audit_dispatch_plan: z.object({
+    mode: z.enum(["preview", "limits", "cursor_status"]).default("preview")
+      .describe("preview = list pending signals + heuristic dispatch order (B4 consumes); limits = exported PEER_AUDIT_LIMITS constants; cursor_status = current cache.lastTickIso + projector cursors."),
+    chat: z.string().optional().describe("Target chat for mode=preview; defaults to 'golf-watchdog' if omitted."),
+    limit: z.union([z.string(), z.number()]).optional().describe("Preview row cap; default 50."),
+  }).passthrough(),
 };
