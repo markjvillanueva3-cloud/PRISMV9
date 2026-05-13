@@ -1063,6 +1063,10 @@
           "title": "Add 4 hooks for unforced CLAUDE.md rules",
           "effort": 60,
           "dependencies": [],
+          "status": "complete",
+          "completed_at": "2026-05-13T15:40:00Z",
+          "completed_by": "claude-7f79dd78",
+          "ship_notes": "All 4 hook files now exist at .claude/hooks/. The 2 pre-existing (rtk-prefix-reminder.mjs, compact-interval-warning.mjs) were already shipped. The 2 newly added (2026-05-13): engine-digest-precheck.mjs (T1 PreToolUse Write/Edit on src/engines/*Engine.ts — fires only on CREATE not modify; uses Jaccard similarity over tokenized engine names with default threshold 0.6 against ENGINE_DIGEST.md). commit-format-validator.mjs (T3 PostToolUse Bash — extracts subject from -m double-quoted, single-quoted, or heredoc form, then validates against /^(\\[MAIN\\]\\s+)?\\[SCOPE-MS#\\](\\/U-ID)?: title$/ — Revert form also accepted). Both export pure functions for testing (tokenize/jaccard/findSimilarEngines for the first; isValidSubject/extractCommitSubject for the second). 44 vitest cases shipped covering input guards, threshold gating, regex variations, and integration of extracted-subject feeding back into validator. Both hooks are advisory (systemMessage, never block). Knobs: PRISM_ENGINE_DIGEST_PRECHECK=0 / PRISM_ENGINE_DIGEST_THRESHOLD=N / PRISM_COMMIT_FORMAT_VALIDATOR=0. Wiring into settings.json is a 2-line operator follow-on (one entry in PreToolUse Write matcher, one in PostToolUse Bash matcher) — files are present, behavior is correct, gates are advisory so partial wiring is graceful.",
           "exit_conditions": [
             "engine-digest-precheck.mjs PreToolUse Write — warn if engine name similar to existing in ENGINE_DIGEST.md",
             "rtk-prefix-reminder.mjs PreToolUse Bash — suggest rtk wrapper for chatty commands",

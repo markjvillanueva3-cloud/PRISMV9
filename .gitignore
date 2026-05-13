@@ -121,3 +121,13 @@ PRISMv1.html
 # Legacy registry archive snapshots (kept the live `registries/*`, the
 # `_archive/` snapshots are reproducible).
 registries/_archive/COMPLETE_HIERARCHY_v15.json
+
+# CLEANUP-MS0 (golf hygiene chat) — transient state, never commit
+state/shared/coordination.db
+state/shared/coordination.db-wal
+state/shared/coordination.db-shm
+state/shared/.cron-locks/*.lock
+state/shared/.watchdog-last-poll.iso
+state/shared/golf-token-budget.json
+state/shared/.peer-audit-cache.json
+state/shared/.envelope-drift-last.json
