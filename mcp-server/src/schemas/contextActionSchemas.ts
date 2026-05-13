@@ -350,6 +350,79 @@ export const ACTION_CONTEXT_SCHEMAS: Record<string, z.ZodTypeAny> = {
   context_error_from_build: z.object({
     error_text: z.string().min(1).describe("Build error output"),
   }),
+
+  // ── AI-MAX-MS0/U-AIMAX07: ContextCompression ──
+  compression_compress: z.object({
+    id: z.string().min(1).describe("Stable identifier for the compressed item"),
+    content: z.string().describe("Raw content to compress"),
+    priority: z.enum(["critical", "high", "medium", "low", "ephemeral"]).describe("Priority tier — controls compression policy"),
+    kind: z.string().optional().describe("Optional content kind (tool_result|file|assistant|user|other)"),
+  }),
+  compression_batch: z.object({
+    items: z.array(z.object({
+      id: z.string().min(1),
+      content: z.string(),
+      priority: z.enum(["critical", "high", "medium", "low", "ephemeral"]),
+      kind: z.string().optional(),
+    })).min(1).describe("Batch of items to compress in one pass"),
+  }),
+  compression_expand: z.object({
+    handle: z.string().min(1).describe("Opaque handle returned by a prior compress() call"),
+  }),
+  compression_has: z.object({
+    handle: z.string().min(1).describe("Handle to check for expandability"),
+  }),
+  compression_policy: z.object({
+    set: z.object({
+      headChars: z.number().optional(),
+      tailChars: z.number().optional(),
+      maxEntities: z.number().optional(),
+      minEntityLen: z.number().optional(),
+      maxEntityLen: z.number().optional(),
+      minRatio: z.number().optional(),
+    }).optional().describe("Optional policy patch — omit to fetch current policy"),
+  }).optional(),
+  compression_stats: z.object({}).optional(),
+
+  // ── AI-MAX-MS0/U-AIMAX08: ContextCheckpoint ──
+  checkpoint_record_edit: z.object({
+    sessionId: z.string().min(1).describe("Session identifier"),
+  }),
+  checkpoint_should: z.object({
+    sessionId: z.string().min(1).describe("Session identifier"),
+  }),
+  checkpoint_create: z.object({
+    sessionId: z.string().min(1).describe("Session identifier"),
+    summary: z.string().describe("Short text summary of session state"),
+    pendingTasks: z.array(z.string()).optional(),
+    filesInFlight: z.array(z.object({
+      path: z.string(),
+      role: z.enum(["reading", "editing", "created", "deleted"]),
+      status: z.enum(["in_progress", "saved", "abandoned"]),
+    })).optional(),
+    recentDecisions: z.array(z.string()).optional(),
+    memoryAnchors: z.array(z.string()).optional(),
+    handoffDirective: z.string().describe("Next-action one-liner for the resuming chat"),
+  }),
+  checkpoint_latest: z.object({
+    sessionId: z.string().min(1).describe("Session identifier"),
+  }),
+  checkpoint_list: z.object({
+    sessionId: z.string().min(1).describe("Session identifier"),
+  }),
+  checkpoint_recover: z.object({
+    sessionId: z.string().min(1).describe("Session identifier"),
+  }),
+  checkpoint_ingest: z.object({
+    snapshot: z.record(z.string(), z.unknown()).describe("Full CheckpointSnapshot payload (schema-versioned)"),
+  }),
+  checkpoint_config: z.object({
+    set: z.object({
+      thresholds: z.array(z.number()).optional(),
+      maxBytes: z.number().optional(),
+      maxCheckpointsPerSession: z.number().optional(),
+    }).optional().describe("Optional config patch — omit to fetch current config"),
+  }).optional(),
 };
 
 // Context Priority — intelligent injection prioritization (U-CTXPRI01)

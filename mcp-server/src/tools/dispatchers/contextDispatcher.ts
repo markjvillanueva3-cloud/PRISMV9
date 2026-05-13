@@ -99,6 +99,22 @@ const ACTIONS = [
   "context_error_from_build",
   // HOOK-SYNERGY-MS0/U-HOOK-COORD-SQLITE (H8): SQLite WAL backend for work claims
   "coord_sqlite",
+  // AI-MAX-MS0/U-AIMAX07: Hierarchical Context Compression
+  "compression_compress",
+  "compression_batch",
+  "compression_expand",
+  "compression_has",
+  "compression_policy",
+  "compression_stats",
+  // AI-MAX-MS0/U-AIMAX08: Automatic Context Checkpointing
+  "checkpoint_record_edit",
+  "checkpoint_should",
+  "checkpoint_create",
+  "checkpoint_latest",
+  "checkpoint_list",
+  "checkpoint_recover",
+  "checkpoint_ingest",
+  "checkpoint_config",
 ] as const;
 
 const STATE_DIR = PATHS.STATE_DIR;
@@ -1232,6 +1248,159 @@ ${todoState.blockingIssues.length > 0 ? todoState.blockingIssues.map(i => `- ${i
             const { errorContextEngine } = await import("../../engines/ErrorContextEngine.js");
             const contexts = errorContextEngine.fromBuildError(params.error_text);
             return ok({ errors: contexts });
+          }
+
+          // ── AI-MAX-MS0/U-AIMAX07: Hierarchical Context Compression ──
+          case "compression_compress": {
+            const { contextCompressionEngine } = await import("../../engines/ContextCompressionEngine.js");
+            try {
+              const item = contextCompressionEngine.compress({
+                id: String(params.id),
+                content: String(params.content),
+                priority: params.priority,
+                kind: params.kind != null ? String(params.kind) : undefined,
+              });
+              return ok({ success: true, data: item });
+            } catch (err) {
+              return dispatcherError(err, action, "prism_context");
+            }
+          }
+          case "compression_batch": {
+            const { contextCompressionEngine } = await import("../../engines/ContextCompressionEngine.js");
+            try {
+              const out = contextCompressionEngine.batchCompress(params.items);
+              return ok({ success: true, data: out });
+            } catch (err) {
+              return dispatcherError(err, action, "prism_context");
+            }
+          }
+          case "compression_expand": {
+            const { contextCompressionEngine } = await import("../../engines/ContextCompressionEngine.js");
+            try {
+              const content = contextCompressionEngine.expand(String(params.handle));
+              return ok({ success: true, data: { handle: params.handle, content } });
+            } catch (err) {
+              return dispatcherError(err, action, "prism_context");
+            }
+          }
+          case "compression_has": {
+            const { contextCompressionEngine } = await import("../../engines/ContextCompressionEngine.js");
+            const has = contextCompressionEngine.has(String(params.handle));
+            return ok({ success: true, data: { handle: params.handle, has } });
+          }
+          case "compression_policy": {
+            const { contextCompressionEngine } = await import("../../engines/ContextCompressionEngine.js");
+            try {
+              const policy = params?.set
+                ? contextCompressionEngine.setPolicy(params.set)
+                : contextCompressionEngine.getPolicy();
+              return ok({ success: true, data: { policy } });
+            } catch (err) {
+              return dispatcherError(err, action, "prism_context");
+            }
+          }
+          case "compression_stats": {
+            const { contextCompressionEngine } = await import("../../engines/ContextCompressionEngine.js");
+            return ok({
+              success: true,
+              data: {
+                storedHandles: contextCompressionEngine.size(),
+                policy: contextCompressionEngine.getPolicy(),
+              },
+            });
+          }
+
+          // ── AI-MAX-MS0/U-AIMAX08: Automatic Context Checkpointing ──
+          case "checkpoint_record_edit": {
+            const { contextCheckpointEngine } = await import("../../engines/ContextCheckpointEngine.js");
+            try {
+              const state = contextCheckpointEngine.recordEdit(String(params.sessionId));
+              return ok({ success: true, data: state });
+            } catch (err) {
+              return dispatcherError(err, action, "prism_context");
+            }
+          }
+          case "checkpoint_should": {
+            const { contextCheckpointEngine } = await import("../../engines/ContextCheckpointEngine.js");
+            const threshold = contextCheckpointEngine.shouldCheckpoint(String(params.sessionId));
+            // Bypass slimResponse so threshold=null survives the wire (it strips null/undefined).
+            const payload = JSON.stringify({
+              success: true,
+              data: { shouldCheckpoint: threshold !== null, threshold },
+            });
+            return { content: [{ type: "text" as const, text: payload }] };
+          }
+          case "checkpoint_create": {
+            const { contextCheckpointEngine } = await import("../../engines/ContextCheckpointEngine.js");
+            try {
+              const snap = contextCheckpointEngine.createCheckpoint({
+                sessionId: String(params.sessionId),
+                summary: params.summary,
+                pendingTasks: params.pendingTasks,
+                filesInFlight: params.filesInFlight,
+                recentDecisions: params.recentDecisions,
+                memoryAnchors: params.memoryAnchors,
+                handoffDirective: params.handoffDirective,
+              });
+              return ok({ success: true, data: snap });
+            } catch (err) {
+              return dispatcherError(err, action, "prism_context");
+            }
+          }
+          case "checkpoint_latest": {
+            const { contextCheckpointEngine } = await import("../../engines/ContextCheckpointEngine.js");
+            const snap = contextCheckpointEngine.latestCheckpoint(String(params.sessionId));
+            return ok({
+              success: true,
+              data: { found: snap !== null, snapshot: snap },
+            });
+          }
+          case "checkpoint_list": {
+            const { contextCheckpointEngine } = await import("../../engines/ContextCheckpointEngine.js");
+            const list = contextCheckpointEngine.listCheckpoints(String(params.sessionId));
+            return ok({
+              success: true,
+              data: { count: list.length, snapshots: list },
+            });
+          }
+          case "checkpoint_recover": {
+            const { contextCheckpointEngine } = await import("../../engines/ContextCheckpointEngine.js");
+            const recovery = contextCheckpointEngine.recoverState(String(params.sessionId));
+            if (recovery === null) {
+              return ok({ success: true, data: { found: false } });
+            }
+            return ok({
+              success: true,
+              data: {
+                found: true,
+                fidelity: recovery.fidelity,
+                passed: recovery.passed,
+                missingFields: recovery.missingFields,
+                snapshot: recovery.snapshot,
+              },
+            });
+          }
+          case "checkpoint_ingest": {
+            const { contextCheckpointEngine } = await import("../../engines/ContextCheckpointEngine.js");
+            try {
+              const snap = contextCheckpointEngine.ingestExternal(params.snapshot);
+              return ok({ success: true, data: snap });
+            } catch (err) {
+              return dispatcherError(err, action, "prism_context");
+            }
+          }
+          case "checkpoint_config": {
+            const { contextCheckpointEngine } = await import("../../engines/ContextCheckpointEngine.js");
+            try {
+              const config = params?.set
+                ? contextCheckpointEngine.setConfig(params.set)
+                : contextCheckpointEngine.getConfig();
+              // Drop the clockMs function (non-serializable) for the wire payload
+              const { clockMs: _clockMs, ...wireConfig } = config as any;
+              return ok({ success: true, data: { config: wireConfig } });
+            } catch (err) {
+              return dispatcherError(err, action, "prism_context");
+            }
           }
 
           default:
