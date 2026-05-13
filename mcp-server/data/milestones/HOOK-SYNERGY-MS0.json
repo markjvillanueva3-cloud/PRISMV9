@@ -6,10 +6,11 @@
   "priority": "P0",
   "owner": "claude-85cedf09",
   "created_at": "2026-05-10T16:00:00.000Z",
-  "updated_at": "2026-05-13T03:50:00.000Z",
-  "status": "in_progress",
+  "updated_at": "2026-05-13T04:00:00.000Z",
+  "status": "complete",
+  "completedAt": "2026-05-13T04:00:00.000Z",
   "total_units": 11,
-  "completed_units": 10,
+  "completed_units": 11,
   "dependencies": [],
   "rationale": "Diagnosed 2026-05-10: 480 wired hook commands across 3 settings layers cause 50+ minute tool hangs. Stopgap: 7 hook timeout reductions shipped (158s→52s worst-case). Structural fix: 10-element architecture mirroring PRISM's existing engine/dispatcher patterns (5-tier classification, hook registry, async dispatcher, dedup guard, profiling envelope, fast-lane matchers). Critical path H1→H2→H3→H6 = 10 hours / 2 sessions. Boris loop+agent doctrine: every H* unit ships peer-reviewer subagent isolation:worktree.",
   "knowledge_sources": {
@@ -126,9 +127,10 @@
         {
           "id": "U-HOOK-COORD-SQLITE",
           "title": "H8 — SQLite WAL coordination store + dual-write migration (replaces JSON file-claims, target 90% latency drop on multi-chat coord)",
-          "status": "not_started",
+          "status": "complete",
           "estimated_hours": 3,
-          "dependencies": []
+          "dependencies": [],
+          "completedAt": "2026-05-13T04:00:00.000Z"
         },
         {
           "id": "U-HOOK-COMPRESS",
@@ -215,8 +217,14 @@
       "shipped_at": "2026-05-13T03:15:00.000Z"
     },
     {
-      "unit": "U-HOOK-ASYNC-DISPATCH",
+      "unit": "U-HOOK-COORD-SQLITE",
       "commit": "pending-commit",
+      "title": "CoordinationStoreEngine (SQLite WAL backend for work-claims) + prism_context:coord_sqlite (11 modes: claim/release/find/live/all/heartbeat/active_sessions/prune/counts/health/migrate_from_json) + scripts/migrate-claims-to-sqlite.mjs (one-shot seeder from legacy WORK_CLAIMS.json). 41-test suite covers happy/conflict/expired-auto-purge/same-session-refresh/release/heartbeat/prune/migration-with-by-fallback/missing-source-warn/malformed-JSON-warn/3-distinct-resource-shapes/3-distinct-hostnames/60-claim-burst/on-disk-WAL-persistence/dispatcher-contract. WAL config (journal_mode=WAL, synchronous=NORMAL, busy_timeout=5000) gives concurrent readers + serialized writes with no daemon. Prepared statements cached per construct; same-session re-claim refreshes TTL idempotently. Backward-compatible with the legacy WORK_CLAIMS.json schema (session_id | by fallback, ISO timestamps, hostname/pid passthrough).",
+      "shipped_at": "2026-05-13T04:00:00.000Z"
+    },
+    {
+      "unit": "U-HOOK-ASYNC-DISPATCH",
+      "commit": "3c62bd7ae",
       "title": "AsyncHookDispatcherEngine + prism_dev:async_dispatch (6 modes: enqueue/pending/results/stats/available/purge) + scripts/async-hook-runner.mjs detached-child entry point + .claude/helpers/async-hook-enqueue.mjs settings.json wrapper. Decouples Tier-4 hooks from synchronous Stop critical path — parent returns {continue:true} in <50ms while wrapped hook runs detached. Two-surface design (enqueue → JSONL+detached spawn; runJob → wrapped hook with timeout race). 42 tests pass (happy + 5 failure modes + 4 adversarial + 3 spanning T4 basenames + 100-job stress + dispatcher contract). Schema-versioned (schemaVersion:1), JSONL append-only with mtime-keyed cache, auto-rotates at 50 MiB. Sibling fix: pre-existing H6 hook_fast_lane was missing from ACTIONS enum (Zod was rejecting before reaching the case handler) — this commit adds both hook_fast_lane and async_dispatch to the ACTIONS array.",
       "shipped_at": "2026-05-13T03:50:00.000Z"
     }

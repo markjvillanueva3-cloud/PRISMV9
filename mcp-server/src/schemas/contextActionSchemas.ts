@@ -191,6 +191,35 @@ export const ACTION_CONTEXT_SCHEMAS: Record<string, z.ZodTypeAny> = {
     presenceTtlMs: z.number().optional(),
   }).optional(),
 
+  // HOOK-SYNERGY-MS0/U-HOOK-COORD-SQLITE (H8): SQLite WAL backend for work claims.
+  // Parallel surface to the ChatBus claim_file action — same semantics, faster
+  // contention behavior under multi-chat load. Mode-switched so a single Zod
+  // schema covers the full {claim,release,find,live,all,heartbeat,active_sessions,
+  // prune,counts,health,migrate_from_json} action family.
+  coord_sqlite: z.object({
+    mode: z.enum([
+      "claim", "release", "find", "live", "all",
+      "heartbeat", "active_sessions",
+      "prune", "counts", "health",
+      "migrate_from_json",
+    ]).describe(
+      "Which coordination action to invoke: claim/release are write paths; " +
+        "find/live/all/find_presence/active_sessions/counts/health are read paths; " +
+        "prune is the janitor; migrate_from_json one-shot-seeds from " +
+        "state/shared/WORK_CLAIMS.json.",
+    ),
+    resource_path: z.string().optional().describe("Target resource for claim/release/find."),
+    session_id: z.string().optional().describe("Stable session id of the caller."),
+    pc_name: z.string().optional(),
+    hostname: z.string().optional(),
+    pid: z.union([z.number(), z.string()]).optional(),
+    intent: z.string().optional(),
+    ttl_ms: z.union([z.number(), z.string()]).optional(),
+    window_ms: z.union([z.number(), z.string()]).optional().describe("Active-sessions window (default presenceTtlMs)."),
+    meta: z.record(z.string(), z.unknown()).optional().describe("Heartbeat metadata; size-guarded server-side."),
+    source_path: z.string().optional().describe("Override for mode=migrate_from_json (defaults to state/shared/WORK_CLAIMS.json)."),
+  }).passthrough(),
+
   // Context Priority — intelligent injection prioritization (U-CTXPRI01)
   priority_classify_task: z.object({
     prompt: z.string().describe("User prompt to classify"),

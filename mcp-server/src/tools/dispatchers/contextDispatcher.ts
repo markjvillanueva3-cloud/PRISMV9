@@ -97,6 +97,8 @@ const ACTIONS = [
   "context_compaction_create_context",
   "context_retention_extract_facts",
   "context_error_from_build",
+  // HOOK-SYNERGY-MS0/U-HOOK-COORD-SQLITE (H8): SQLite WAL backend for work claims
+  "coord_sqlite",
 ] as const;
 
 const STATE_DIR = PATHS.STATE_DIR;
@@ -1008,6 +1010,76 @@ ${todoState.blockingIssues.length > 0 ? todoState.blockingIssues.map(i => `- ${i
               presenceTtlMs: params.presenceTtlMs,
             });
             return ok({ pruned: true, ...stats });
+          }
+
+          // ── HOOK-SYNERGY-MS0/U-HOOK-COORD-SQLITE (H8) ──────────
+          // SQLite WAL backend for work claims. Parallel surface to claim_file /
+          // release_file — same semantics, lower contention under multi-chat
+          // load. The migrate_from_json mode is a one-shot seeder for the
+          // legacy WORK_CLAIMS.json file; once seeded, callers can switch
+          // their hook surfaces over to this action gradually.
+          case "coord_sqlite": {
+            const { getCoordinationStoreEngine } = await import("../../engines/CoordinationStoreEngine.js");
+            const engine = getCoordinationStoreEngine();
+            const mode = String(params.mode || "");
+            switch (mode) {
+              case "claim": {
+                if (!params.resource_path || !params.session_id) {
+                  return ok({ error: "missing_required", fields: ["resource_path", "session_id"] });
+                }
+                const ttlMs = params.ttl_ms != null ? Number(params.ttl_ms) : undefined;
+                return ok(engine.claim({
+                  resourcePath: String(params.resource_path),
+                  sessionId: String(params.session_id),
+                  pcName: params.pc_name != null ? String(params.pc_name) : undefined,
+                  hostname: params.hostname != null ? String(params.hostname) : undefined,
+                  pid: params.pid != null ? Number(params.pid) : undefined,
+                  intent: params.intent != null ? String(params.intent) : undefined,
+                  ttlMs,
+                }));
+              }
+              case "release": {
+                if (!params.resource_path || !params.session_id) {
+                  return ok({ error: "missing_required", fields: ["resource_path", "session_id"] });
+                }
+                return ok({ released: engine.release({
+                  resourcePath: String(params.resource_path),
+                  sessionId: String(params.session_id),
+                }) });
+              }
+              case "find":
+                return ok({ claim: params.resource_path ? engine.findClaim(String(params.resource_path)) : null });
+              case "live":
+                return ok({ claims: engine.liveClaims(), count: engine.liveClaims().length });
+              case "all":
+                return ok({ claims: engine.allClaims(), count: engine.allClaims().length });
+              case "heartbeat": {
+                if (!params.session_id) {
+                  return ok({ error: "missing_required", fields: ["session_id"] });
+                }
+                return ok({ presence: engine.heartbeat({
+                  sessionId: String(params.session_id),
+                  pcName: params.pc_name != null ? String(params.pc_name) : undefined,
+                  hostname: params.hostname != null ? String(params.hostname) : undefined,
+                  meta: (params.meta ?? undefined) as Record<string, unknown> | undefined,
+                }) });
+              }
+              case "active_sessions": {
+                const w = params.window_ms != null ? Number(params.window_ms) : undefined;
+                const rows = engine.activeSessions(w);
+                return ok({ sessions: rows, count: rows.length });
+              }
+              case "prune":
+                return ok(engine.prune());
+              case "counts":
+                return ok(engine.counts());
+              case "health":
+                return ok(engine.health());
+              case "migrate_from_json":
+                return ok(engine.migrateFromJson(params.source_path ? String(params.source_path) : undefined));
+              default:
+                return ok({ error: "invalid_mode", mode, allowed: ["claim", "release", "find", "live", "all", "heartbeat", "active_sessions", "prune", "counts", "health", "migrate_from_json"] });
+            }
           }
 
           // Context Priority — intelligent injection prioritization (U-CTXPRI01)
