@@ -936,6 +936,12 @@ export function registerIntelligenceDispatcher(server: any): void {
          *   case "xproc_outcome_stats":             handled inline.
          *   case "xproc_outcome_clear":             handled inline.
          *
+         * INFRA-NEURAL-LEDGER-MS1/P0-U03 (CrossProcessOutcomeStore replay):
+         *   case "xproc_outcome_replay":           handled inline.
+         *   case "xproc_outcome_replay_job":       handled inline.
+         *   case "xproc_outcome_replay_since":     handled inline.
+         *   case "xproc_outcome_stream_from_disk": handled inline.
+         *
          * XPROC-NEURAL-T1-02 (CrossProcessNeuralLearningEngine):
          *   case "xproc_neural_train":     handled inline.
          *   case "xproc_neural_predict":   handled inline.
