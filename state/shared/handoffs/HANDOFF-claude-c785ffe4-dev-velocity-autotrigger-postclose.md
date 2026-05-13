@@ -6,7 +6,9 @@
 
 ## RESUME (read this first)
 
-Next `/pick-unit --slot delta` returns **ACP-MS1/P0-U01** — 9-class task classifier (backend/web/CAD-Python/roadmap/audit/speed-feed/post/print-to-program/wedm). Same shipping pattern as ACP-MS0/P0-U05 just landed: producer script + vitest companion + 2 outputs (md + json) + envelope close-out + MILESTONE_PROGRESS regen.
+After the regex-fix commit `a70f1c18f` reclassified 1033 hidden-shipped units, next `/pick-unit --slot delta` returns **AI-MAX-MS0/U-AIMAX11** — AI Reasoning Skill Commands. (Was ACP-MS1/P0-U01 in the original handoff; superseded by the regex fix surfacing more shipped units across the lane.)
+
+Pool state after fix: 356 remaining (was 493). Drift cases now visible: 166 (each an envelope-out-of-date with git, triage via `/envelope-drift-fix` — stale-completed NEVER auto-fixed; shipped-not-flipped is the safe direction).
 
 ## Milestone shipped this session
 
@@ -14,7 +16,16 @@ Next `/pick-unit --slot delta` returns **ACP-MS1/P0-U01** — 9-class task class
 
 ## Total session commits
 
-18 on `cad-fusion-live-ms0`.
+22 on `cad-fusion-live-ms0`.
+
+## Fleet-wide-impact commit this session
+
+`a70f1c18f` — fix build-milestone-progress.mjs regex to also match `[SCOPE]/P0-U05` (phase-unit) form alongside the legacy `[SCOPE]/U-<id>` form. This was the BROKEN_CHAINS class my gap map identified in `92bddb303`. Side-effects:
+- Shipped detected: 66 → **1099** (+1033)
+- pick-unit pool: 493 → 356
+- BUILD_STATE NEEDS_BUILDING: 3472 → 2439
+- Drift cases: 2 → **166** (real backlog now visible; was silently hidden)
+- ACP-MS0 envelope flipped `not_started` → `completed` (5/5)
 
 ## Key deliverables landed
 
