@@ -1,6 +1,6 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-13T04:39:02.540Z
+> Generated: 2026-05-13T12:34:46.765Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
@@ -65,7 +65,7 @@
 
 ## NEEDS_BUILDING
 
-3399 units across 668 milestones not yet in git.
+3399 units across 669 milestones not yet in git.
 
 ### Envelope-status drift
 

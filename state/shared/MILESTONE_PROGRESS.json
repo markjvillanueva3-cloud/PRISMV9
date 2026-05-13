@@ -1,11 +1,11 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-13T04:39:02.393Z",
+  "generatedAt": "2026-05-13T12:34:46.494Z",
   "window": "60.days",
   "totals": {
-    "milestones": 668,
-    "units": 3463,
-    "shipped": 64,
+    "milestones": 669,
+    "units": 3465,
+    "shipped": 66,
     "pending": 3399,
     "drift": 3
   },
@@ -22885,6 +22885,39 @@
           "sha": null,
           "date": null,
           "commitMilestoneTag": null
+        }
+      ]
+    },
+    {
+      "id": "INFRA-CLOSEOUT-MS0",
+      "title": "INFRA-CLOSEOUT-MS0",
+      "track": "INFRA",
+      "claimedStatus": "completed",
+      "total": 2,
+      "shipped": 2,
+      "pending": 0,
+      "ratio": 1,
+      "lastShippedDate": "2026-05-12T22:05:40-05:00",
+      "derivedStatus": "completed_real",
+      "drift": "consistent",
+      "units": [
+        {
+          "id": "U-CLOSEOUT-ENFORCE",
+          "title": "Build close-out orchestrator + Stop-hook gate + vitest + /close-out skill, then run live close-out on 9 drifted milestones",
+          "phase": "P0",
+          "shipped": true,
+          "sha": "aacbe80018ece42a6458980be6634cfaff8bb7dd",
+          "date": "2026-05-12T16:27:52-05:00",
+          "commitMilestoneTag": "INFRA-CLOSEOUT-MS0"
+        },
+        {
+          "id": "U-HISTORY-STRIP",
+          "title": ".gitignore additions + git-filter-repo history rewrite + force-push so origin/cad-fusion-live-ms0 actually accepts the close-out push",
+          "phase": "P0",
+          "shipped": true,
+          "sha": "d8739a8439199fcf00dc8f0f2ca34f1bd38cce68",
+          "date": "2026-05-12T22:05:40-05:00",
+          "commitMilestoneTag": "INFRA-CLOSEOUT-MS0"
         }
       ]
     },
