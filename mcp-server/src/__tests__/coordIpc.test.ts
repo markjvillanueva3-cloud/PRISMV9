@@ -1,29 +1,58 @@
 // COORD-MS0/U-COORD11 — IPC server + client round-trip tests
 //
 // Imports the .mjs helpers via pathToFileURL so the .claude/helpers/ files can
-// stay outside the TS project root and still get exercised by vitest.
+// stay outside the TS project root and still get exercised by vitest. The
+// helper paths are resolved RELATIVE to this test file (NOT hardcoded to
+// "H:/prism") so the suite runs unchanged on any checkout location / OS.
 
 import { describe, it, expect, beforeAll, afterEach } from "vitest";
-import { pathToFileURL } from "node:url";
+import { pathToFileURL, fileURLToPath } from "node:url";
 import { promises as fs } from "node:fs";
 import { connect } from "node:net";
 import os from "node:os";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 
-const SERVER_URL = pathToFileURL("H:/prism/.claude/helpers/coord-ipc-server.mjs").href;
-const CLIENT_URL = pathToFileURL("H:/prism/.claude/helpers/coord-ipc-client.mjs").href;
+// `<repo>/mcp-server/src/__tests__/coordIpc.test.ts` → repo root three levels up.
+const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = path.resolve(TEST_DIR, "..", "..", "..");
+const HELPERS_DIR = path.join(REPO_ROOT, ".claude", "helpers");
+const SERVER_URL = pathToFileURL(path.join(HELPERS_DIR, "coord-ipc-server.mjs")).href;
+const CLIENT_URL = pathToFileURL(path.join(HELPERS_DIR, "coord-ipc-client.mjs")).href;
 
-// `any` so the imported .mjs module's untyped surface can be referenced ergonomically.
-// The runtime contract is asserted by the tests themselves.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let serverMod: any;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let clientMod: any;
+// Narrow interface for the .mjs surface — typed strictly enough for the
+// tests' contract without re-declaring every parameter shape.
+interface CoordIpcServer {
+  IPC_VERSION: string;
+  MAX_REQUEST_BYTES: number;
+  IDLE_TIMEOUT_MS: number;
+  getIpcPath(tag?: string): string;
+  startIpcServer(opts: Record<string, unknown>): Promise<ServerHandle>;
+}
+interface CoordIpcClient {
+  DEFAULT_TIMEOUT_MS: number;
+  queryDaemon(
+    method: string,
+    params?: Record<string, unknown>,
+    opts?: Record<string, unknown>,
+  ): Promise<{
+    ok: boolean;
+    source: "ipc" | "fallback-file" | "fallback-value" | "none";
+    result?: unknown;
+    error?: string;
+    code?: string;
+    latencyMs?: number;
+    fallbackFileError?: string | null;
+  }>;
+  isDaemonAlive(opts?: Record<string, unknown>): Promise<boolean>;
+}
+
+let serverMod: CoordIpcServer;
+let clientMod: CoordIpcClient;
 
 beforeAll(async () => {
-  serverMod = await import(SERVER_URL);
-  clientMod = await import(CLIENT_URL);
+  serverMod = (await import(SERVER_URL)) as CoordIpcServer;
+  clientMod = (await import(CLIENT_URL)) as CoordIpcClient;
 });
 
 // Each test claims its own pipe path so parallel runs / repeats don't collide.
