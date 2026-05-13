@@ -1,0 +1,281 @@
+# Hook Lifecycle Inventory — ACP-MS0/P0-U02
+
+Generated: 2026-05-13T13:51:29.556Z
+Schema: 1
+
+## Summary
+
+- **Total hooks**: 705
+- **CCM-planned (declared by envelope, not on disk)**: 242
+
+## By status
+
+- **wired**: 174
+- **orphan**: 289
+- **disabled**: 0
+- **planned**: 242
+
+## By automation-lifecycle stage
+
+- **authoring**: 10
+- **pre_execution**: 68
+- **post_execution**: 21
+- **turn_end_gate**: 4
+- **context_boundary**: 6
+- **async_background**: 220
+- **unclassified**: 376
+
+## Stage definitions
+
+- `authoring` — UserPromptSubmit / SessionStart context injectors
+- `pre_execution` — PreToolUse safety/dedup/wiring gates
+- `post_execution` — PostToolUse linters + Stop observers (non-T0)
+- `turn_end_gate` — Stop blockers at tier T0 (build/test/scrutiny gates)
+- `context_boundary` — PreCompact handlers
+- `async_background` — T4 detached / fire-and-forget
+- `unclassified` — disabled, orphan, or no recognized events
+
+## CCM-planned hooks (declared, not yet built)
+
+- `acp-ms0-gate` — declared by ACP-MS0
+- `acp-ms1-gate` — declared by ACP-MS1
+- `acp-ms2-gate` — declared by ACP-MS2
+- `acp-ms2b-gate` — declared by ACP-MS2B
+- `acp-ms3-gate` — declared by ACP-MS3
+- `acp-ms4-gate` — declared by ACP-MS4
+- `acp-ms5-gate` — declared by ACP-MS5
+- `acp-ms6-gate` — declared by ACP-MS6
+- `acp-ms7-gate` — declared by ACP-MS7
+- `prism-agent-gate` — declared by PRISM-AGENT
+- `ai-recommendation-validator.mjs — validates AI outputs against physics + tribal knowledge` — declared by AI-MAX-MS0
+- `orphan-engine-detector — warns when new engines are created without dispatcher wiring` — declared by AI-WIRE-MS0
+- `app-ms0-gate` — declared by APP-MS0
+- `bench-ms1-gate` — declared by BENCH-MS1
+- `bench-ms2-gate` — declared by BENCH-MS2
+- `bench-ms3-gate` — declared by BENCH-MS3
+- `bench-ms4-gate` — declared by BENCH-MS4
+- `box-audit-gate` — declared by BOX-AUDIT
+- `bp-ms0-gate` — declared by BP-MS0
+- `cad-cam-master-gate` — declared by CAD-CAM-MASTER
+- `cad-complete-ms0-gate` — declared by CAD-COMPLETE-MS0
+- `cad-ground-truth-ms0-gate` — declared by CAD-GROUND-TRUTH-MS0
+- `cad-training-extract-ms0-gate` — declared by CAD-TRAINING-EXTRACT-MS0
+- `cadcam-agi-ms0-gate` — declared by CADCAM-AGI-MS0
+- `cadcam-dagi-ms0-gate` — declared by CADCAM-DAGI-MS0
+- `cadcam-dagi-ms1-gate` — declared by CADCAM-DAGI-MS1
+- `cadcam-dagi-ms2-gate` — declared by CADCAM-DAGI-MS2
+- `cadcam-dagi-ms3-gate` — declared by CADCAM-DAGI-MS3
+- `cadcam-dagi-ms4-gate` — declared by CADCAM-DAGI-MS4
+- `cadcam-dagi-ms5-gate` — declared by CADCAM-DAGI-MS5
+- `cadcam-dagi-ms6-gate` — declared by CADCAM-DAGI-MS6
+- `cadcam-dagi-ms7-gate` — declared by CADCAM-DAGI-MS7
+- `cadcam-deepagi-master-gate` — declared by CADCAM-DEEPAGI-MASTER
+- `cam-exhaust-ms0-gate` — declared by CAM-EXHAUST-MS0
+- `cam-ml-closedloop-ms0-gate` — declared by CAM-ML-CLOSEDLOOP-MS0
+- `cam-parity-agi-ms0-gate` — declared by CAM-PARITY-AGI-MS0
+- `camx-ms0.3-gate` — declared by CAMX-MS0.3
+- `camx-ms0.5-gate` — declared by CAMX-MS0.5
+- `camx-ms0.7-gate` — declared by CAMX-MS0.7
+- `camx-ms1-gate` — declared by CAMX-MS1
+- `camx-ms10-gate` — declared by CAMX-MS10
+- `camx-ms11-gate` — declared by CAMX-MS11
+- `camx-ms13-gate` — declared by CAMX-MS13
+- `camx-ms14-gate` — declared by CAMX-MS14
+- `camx-ms15-gate` — declared by CAMX-MS15
+- `camx-ms17-gate` — declared by CAMX-MS17
+- `camx-ms3-gate` — declared by CAMX-MS3
+- `camx-ms4-gate` — declared by CAMX-MS4
+- `camx-ms5-gate` — declared by CAMX-MS5
+- `camx-ms6-gate` — declared by CAMX-MS6
+- `camx-ms7-gate` — declared by CAMX-MS7
+- `camx-ms8-gate` — declared by CAMX-MS8
+- `camx-ms9-gate` — declared by CAMX-MS9
+- `camx-v17-p0b-gate` — declared by CAMX-V17-P0B
+- `camx-v17-p0c-gate` — declared by CAMX-V17-P0C
+- `camx-v17-p1-gate` — declared by CAMX-V17-P1
+- `camx-v17-p10-gate` — declared by CAMX-V17-P10
+- `camx-v17-p11-gate` — declared by CAMX-V17-P11
+- `camx-v17-p12-gate` — declared by CAMX-V17-P12
+- `camx-v17-p2-gate` — declared by CAMX-V17-P2
+- `camx-v17-p3-gate` — declared by CAMX-V17-P3
+- `camx-v17-p4-gate` — declared by CAMX-V17-P4
+- `camx-v17-p8-gate` — declared by CAMX-V17-P8
+- `cc-ext-ms0-gate` — declared by CC-EXT-MS0
+- `cc-ext-ms1-gate` — declared by CC-EXT-MS1
+- `cc-ext-ms2-gate` — declared by CC-EXT-MS2
+- `cc-ext-ms3-gate` — declared by CC-EXT-MS3
+- `cc-ext-ms4-gate` — declared by CC-EXT-MS4
+- `cc-ext-ms5-gate` — declared by CC-EXT-MS5
+- `cc-ext-ms6-gate` — declared by CC-EXT-MS6
+- `cc-ms0-gate` — declared by CC-MS0
+- `cc-ms1-gate` — declared by CC-MS1
+- `cc-ms10-gate` — declared by CC-MS10
+- `cc-ms11-gate` — declared by CC-MS11
+- `cc-ms2-gate` — declared by CC-MS2
+- `cc-ms3-gate` — declared by CC-MS3
+- `cc-ms4-gate` — declared by CC-MS4
+- `cc-ms5-gate` — declared by CC-MS5
+- `cc-ms6-gate` — declared by CC-MS6
+- `cc-ms7-gate` — declared by CC-MS7
+- `cc-ms8-gate` — declared by CC-MS8
+- `cc-ms9-gate` — declared by CC-MS9
+- `ccm-ms0-gate` — declared by CCM-MS0
+- `ccm-ms1-gate` — declared by CCM-MS1
+- `ccm-ms10-gate` — declared by CCM-MS10
+- `ccm-ms11-gate` — declared by CCM-MS11
+- `ccm-ms12-gate` — declared by CCM-MS12
+- `ccm-ms13-gate` — declared by CCM-MS13
+- `ccm-ms14-gate` — declared by CCM-MS14
+- `ccm-ms15-gate` — declared by CCM-MS15
+- `ccm-ms16-gate` — declared by CCM-MS16
+- `ccm-ms17-gate` — declared by CCM-MS17
+- `ccm-ms2-gate` — declared by CCM-MS2
+- `ccm-ms3-gate` — declared by CCM-MS3
+- `ccm-ms4-gate` — declared by CCM-MS4
+- `ccm-ms5-gate` — declared by CCM-MS5
+- `ccm-ms6-gate` — declared by CCM-MS6
+- `ccm-ms7-gate` — declared by CCM-MS7
+- `ccm-ms8-gate` — declared by CCM-MS8
+- `ccm-ms9-gate` — declared by CCM-MS9
+- `cli-ms0-gate` — declared by CLI-MS0
+- `cpl-gate` — declared by CPL
+- `db-exp-ms0-gate` — declared by DB-EXP-MS0
+- `db-exp-ms1-gate` — declared by DB-EXP-MS1
+- `db-exp-ms2-gate` — declared by DB-EXP-MS2
+- `db-exp-ms3-gate` — declared by DB-EXP-MS3
+- `db-exp-ms4-gate` — declared by DB-EXP-MS4
+- `eigc-ms0-gate` — declared by EIGC-MS0
+- `eigc-ms0a-gate` — declared by EIGC-MS0A
+- `eigc-ms1-gate` — declared by EIGC-MS1
+- `eigc-ms10-gate` — declared by EIGC-MS10
+- `eigc-ms2-gate` — declared by EIGC-MS2
+- `eigc-ms3-gate` — declared by EIGC-MS3
+- `eigc-ms4-gate` — declared by EIGC-MS4
+- `eigc-ms5-gate` — declared by EIGC-MS5
+- `eigc-ms6-gate` — declared by EIGC-MS6
+- `eigc-ms7-gate` — declared by EIGC-MS7
+- `eigc-ms8-gate` — declared by EIGC-MS8
+- `eigc-ms9-gate` — declared by EIGC-MS9
+- `elec-pipe-ms0-gate` — declared by ELEC-PIPE-MS0
+- `elec-pipe-ms1-gate` — declared by ELEC-PIPE-MS1
+- `elec-pipe-ms2-gate` — declared by ELEC-PIPE-MS2
+- `fusion-cam-write-safety — validate CAM writes against machine envelope before execution` — declared by F360-AP-MS0
+- `f360-ap-ms2-gate` — declared by F360-AP-MS2
+- `f360-ap-ms3-gate` — declared by F360-AP-MS3
+- `f360-ap-ms6-gate` — declared by F360-AP-MS6
+- `f360-ap-ms7-gate` — declared by F360-AP-MS7
+- `f360-ap-ms8-gate` — declared by F360-AP-MS8
+- `f360-full-ms1-gate` — declared by F360-FULL-MS1
+- `f360-full-ms2-gate` — declared by F360-FULL-MS2
+- `f360-full-ms3-gate` — declared by F360-FULL-MS3
+- `f360-full-ms4-gate` — declared by F360-FULL-MS4
+- `f360-full-ms5-gate` — declared by F360-FULL-MS5
+- `f360-full-ms6-gate` — declared by F360-FULL-MS6
+- `f360-full-ms7-gate` — declared by F360-FULL-MS7
+- `f360-full-ms8-gate` — declared by F360-FULL-MS8
+- `f360-ms0-gate` — declared by F360-MS0
+- `f360-ms1-gate` — declared by F360-MS1
+- `f360-ms2-gate` — declared by F360-MS2
+- `f360-ms3-gate` — declared by F360-MS3
+- `f360-ms4-gate` — declared by F360-MS4
+- `f360-ms5-gate` — declared by F360-MS5
+- `f360-rev-ms10-gate` — declared by F360-REV-MS10
+- `f360-rev-ms11-gate` — declared by F360-REV-MS11
+- `f360-rev-ms12-gate` — declared by F360-REV-MS12
+- `f360-rev-ms2-gate` — declared by F360-REV-MS2
+- `f360-rev-ms3-gate` — declared by F360-REV-MS3
+- `f360-rev-ms4-gate` — declared by F360-REV-MS4
+- `f360-rev-ms5-gate` — declared by F360-REV-MS5
+- `f360-rev-ms6-gate` — declared by F360-REV-MS6
+- `f360-rev-ms7-gate` — declared by F360-REV-MS7
+- `f360-rev-ms8-gate` — declared by F360-REV-MS8
+- `f360-rev-ms9-gate` — declared by F360-REV-MS9
+- `fmerge-ms0-gate` — declared by FMERGE-MS0
+- `fmerge-ms1-gate` — declared by FMERGE-MS1
+- `fmerge-ms2-gate` — declared by FMERGE-MS2
+- `integ-ms5-gate` — declared by INTEG-MS5
+- `kar-ms2-gate` — declared by KAR-ROADMAP
+- `* writes without claim_file lock and log.md entry)` — declared by KNOWLEDGE-WIKI-MS0
+- `l8-p0-ms2-gate` — declared by L8-P0-MS2
+- `l8-p1-ms2-gate` — declared by L8-P1-MS2
+- `l8-p2-ms2-gate` — declared by L8-P2-MS2
+- `l9-p2-ms1-gate` — declared by L9-P2-MS1
+- `laser-pipe-ms0-gate` — declared by LASER-PIPE-MS0
+- `laser-pipe-ms1-gate` — declared by LASER-PIPE-MS1
+- `laser-pipe-ms2-gate` — declared by LASER-PIPE-MS2
+- `lathe-lora-ms0-gate` — declared by LATHE-LORA-MS0
+- `lathe-master-gate` — declared by LATHE-MASTER
+- `lathe-ms0.5-gate` — declared by LATHE-MS0.5
+- `lathe-ms0-gate` — declared by LATHE-MS0
+- `lathe-ms1-gate` — declared by LATHE-MS1
+- `lathe-ms2-gate` — declared by LATHE-MS2
+- `lathe-ms3-gate` — declared by LATHE-MS3
+- `lathe-ms4-gate` — declared by LATHE-MS4
+- `lathe-ms5-gate` — declared by LATHE-MS5
+- `lathe-ms6-gate` — declared by LATHE-MS6
+- `lathe-ms7-gate` — declared by LATHE-MS7
+- `lathe-ms8-gate` — declared by LATHE-MS8
+- `lathe-pro-ms-1-gate` — declared by LATHE-PRO-v3
+- `lathe-prod-ready-ms0-gate` — declared by LATHE-PROD-READY-MS0
+- `mf-ms1-gate` — declared by MF-MS1
+- `mf-ms2-gate` — declared by MF-MS2
+- `mf-ms3-gate` — declared by MF-MS3
+- `mf-ms4-gate` — declared by MF-MS4
+- `mf-ms5-gate` — declared by MF-MS5
+- `mxu-ms0-gate` — declared by MXU-MS0
+- `mxu-ms0a-gate` — declared by MXU-MS0A
+- `mxu-ms1-gate` — declared by MXU-MS1
+- `mxu-ms10-gate` — declared by MXU-MS10
+- `mxu-ms2-gate` — declared by MXU-MS2
+- `mxu-ms3-gate` — declared by MXU-MS3
+- `mxu-ms4-gate` — declared by MXU-MS4
+- `mxu-ms5-gate` — declared by MXU-MS5
+- `mxu-ms6-gate` — declared by MXU-MS6
+- `mxu-ms7-gate` — declared by MXU-MS7
+- `mxu-ms8-gate` — declared by MXU-MS8
+- `mxu-ms9-gate` — declared by MXU-MS9
+- `opus47-full-ms0-gate` — declared by OPUS47-FULL-MS0
+- `p2p-fullstack-ms0-gate` — declared by P2P-FULLSTACK-MS0
+- `pcca-ms0-gate` — declared by PCCA-MS0
+- `pcca-ms0a-gate` — declared by PCCA-MS0A
+- `pcca-ms1-gate` — declared by PCCA-MS1
+- `pcca-ms4-gate` — declared by PCCA-MS4
+- `pcca-ms6-gate` — declared by PCCA-MS6
+- `pdf-ext-ms1-gate` — declared by PDF-EXT-MS1
+- `pdf-ext-ms2-gate` — declared by PDF-EXT-MS2
+- `pipe-ms0-gate` — declared by PIPE-MS0
+- `tool defaults instead of registry lookups` — declared by PP-MOAT-MS0
+- `pp-engine-wiring-check — blocks PP edits that duplicate existing engine logic inline instead of calling the engine` — declared by PP-MOAT-MS1
+- `pp-learning-loop-check — blocks PP edits that hardcode values that should come from calibrated constants` — declared by PP-MOAT-MS2
+- `pp-dialect-completeness — warns when a dialect is missing rigid_tap, probing, or threading cycles` — declared by PP-MOAT-MS3
+- `O or clipboard functionality` — declared by PP-MOAT-MS4
+- `pp-rev-ms5-gate` — declared by PP-REV-MS5
+- `pp-rev-ms6-gate` — declared by PP-REV-MS6
+- `pp-rev-ms7-gate` — declared by PP-REV-MS7
+- `prism-max-roadmap-gate` — declared by PRISM-MAX-roadmap
+- `prism-product-roadmap-gate` — declared by PRISM-PRODUCT-roadmap
+- `prod-gate-ms0-gate` — declared by PROD-GATE-MS0
+- `res-roadmap-gate` — declared by RES-ROADMAP
+- `rx-ms0-resource-extraction-gate` — declared by RX-MS0
+- `sim-ms0-gate` — declared by SIM-MS0
+- `sinker-full-ms0-gate` — declared by SINKER-FULL-MS0
+- `sinker-full-ms1-gate` — declared by SINKER-FULL-MS1
+- `tc-ms0-gate` — declared by TC-MS0
+- `compact` — declared by TOKEN-OPT-MS0
+- `ult-ms1-gate` — declared by ULT-MS1
+- `ult-ms2-gate` — declared by ULT-MS2
+- `ult-ms3-gate` — declared by ULT-MS3
+- `ult-ms4-gate` — declared by ULT-MS4
+- `ult-ms5-gate` — declared by ULT-MS5
+- `ussh-opus47-bolster-gate` — declared by USSH-OPUS47-BOLSTER
+- `v6-intelligence-gate` — declared by V6-INTELLIGENCE
+- `v6-roadmap-gate` — declared by V6-ROADMAP
+- `vid-ext-ms0-gate` — declared by VID-EXT-MS0
+- `vid-ext-ms1-gate` — declared by VID-EXT-MS1
+- `vid-ext-ms2-gate` — declared by VID-EXT-MS2
+- `water-pipe-ms0-gate` — declared by WATER-PIPE-MS0
+- `water-pipe-ms1-gate` — declared by WATER-PIPE-MS1
+- `wedm-production-gate — blocks program download if pre-flight checklist not acknowledged` — declared by WEDM-GAPFILL-MS0
+- `wedm-hardening-gate — blocks WEDM engine edits without running affected E2E tests` — declared by WEDM-HARDEN-MS0
+- `compact if any step component has untested API calls or unhandled error states` — declared by WEDM-MS0
+- `wedm-full-capability-gate — blocks release if any CRITICAL capability (taper, recast, fatigue, spec compliance) returns unvalidated results` — declared by WEDM-MS1

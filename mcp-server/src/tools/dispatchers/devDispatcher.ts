@@ -33,6 +33,8 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "hook_registry",
 // HOOK-SYNERGY-MS0/U-HOOK-ENVELOPE (H4): query state/shared/hook-latency.jsonl
 "hook_latency",
+// ACP-MS0/P0-U02: hook lifecycle inventory — map each hook to an automation-lifecycle stage
+"hook_lifecycle_inventory",
 // HOOK-SYNERGY-MS0/U-HOOK-FAST-LANE (H6): compute settings.json matcher splits
 // (the case handler shipped in H6 but the action enum was not updated then —
 // Zod was rejecting the input before it reached the case; this entry closes
@@ -3944,6 +3946,62 @@ export function registerDevDispatcher(server: any): void {
               case "orphaned": result = { count: hookRegistryReaderEngine.orphaned().length, hooks: hookRegistryReaderEngine.orphaned() }; break;
               case "stale": result = { stale: hookRegistryReaderEngine.isStale() }; break;
               default: result = { error: "invalid_mode", mode, allowed: ["counts", "meta", "compact", "find", "search", "by_event", "by_tier", "wired", "orphaned", "stale"] };
+            }
+            break;
+          }
+
+          // ── ACP-MS0/P0-U02 ───────────────────────────────────────
+          // Map every hook in HOOK_REGISTRY.json to an automation-lifecycle stage
+          // (authoring / pre_execution / post_execution / turn_end_gate /
+          // context_boundary / async_background / unclassified) using its
+          // events[] + tier frontmatter, AND surface CCM-planned hooks
+          // declared by milestone forge_triple but not yet on disk. Engine
+          // is read-only; modes: build (full inventory), summary (counts only),
+          // by_stage (filter by stage), by_status, markdown (rendered report),
+          // ccm_planned (just the planned subset).
+          case "hook_lifecycle_inventory": {
+            const { hookLifecycleStageMapperEngine } = await import("../../engines/HookLifecycleStageMapperEngine.js");
+            const mode = String(params.mode || "summary");
+            const registryPath = typeof params.registry_path === "string" ? params.registry_path : undefined;
+            const hooksDir = typeof params.hooks_dir === "string" ? params.hooks_dir : undefined;
+            const milestonesDir = typeof params.milestones_dir === "string" ? params.milestones_dir : undefined;
+            const inv = hookLifecycleStageMapperEngine.buildInventory({ registryPath, hooksDir, milestonesDir });
+            switch (mode) {
+              case "build":
+                result = inv;
+                break;
+              case "summary":
+                result = {
+                  schemaVersion: inv.schemaVersion,
+                  generated_at: inv.generated_at,
+                  total_hooks: inv.total_hooks,
+                  by_stage: inv.by_stage,
+                  by_status: inv.by_status,
+                  ccm_planned_count: inv.ccm_planned_count,
+                };
+                break;
+              case "by_stage": {
+                const stage = String(params.stage || "");
+                const allowed = ["authoring","pre_execution","post_execution","turn_end_gate","context_boundary","async_background","unclassified"];
+                if (!allowed.includes(stage)) { result = { error: "invalid_stage", stage, allowed }; break; }
+                result = { stage, count: hookLifecycleStageMapperEngine.filterByStage(inv, stage as any).length, hooks: hookLifecycleStageMapperEngine.filterByStage(inv, stage as any) };
+                break;
+              }
+              case "by_status": {
+                const status = String(params.status || "");
+                const allowed = ["wired","orphan","disabled","planned"];
+                if (!allowed.includes(status)) { result = { error: "invalid_status", status, allowed }; break; }
+                result = { status, count: hookLifecycleStageMapperEngine.filterByStatus(inv, status as any).length, hooks: hookLifecycleStageMapperEngine.filterByStatus(inv, status as any) };
+                break;
+              }
+              case "markdown":
+                result = { markdown: hookLifecycleStageMapperEngine.renderMarkdown(inv) };
+                break;
+              case "ccm_planned":
+                result = { count: inv.ccm_planned_count, hooks: inv.entries.filter((e) => e.ccmPlanned) };
+                break;
+              default:
+                result = { error: "invalid_mode", mode, allowed: ["build", "summary", "by_stage", "by_status", "markdown", "ccm_planned"] };
             }
             break;
           }

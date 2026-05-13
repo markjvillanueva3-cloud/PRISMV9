@@ -396,6 +396,24 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     max: z.union([z.string(), z.number()]).optional().describe("Cap on results (search/compact). Default 25 search / 5 compact."),
   }).passthrough(),
 
+  // ACP-MS0/P0-U02: hook lifecycle inventory + CCM-planned detection.
+  hook_lifecycle_inventory: z.object({
+    mode: z.enum([
+      "build", "summary", "by_stage", "by_status", "markdown", "ccm_planned",
+    ]).default("summary").describe(
+      "build = full inventory (large); summary = counts only; by_stage = filter " +
+        "to one of (authoring|pre_execution|post_execution|turn_end_gate|" +
+        "context_boundary|async_background|unclassified); by_status = filter to " +
+        "(wired|orphan|disabled|planned); markdown = rendered report; ccm_planned = " +
+        "hooks declared by milestone forge_triple but not yet on disk.",
+    ),
+    stage: z.string().optional().describe("Stage filter for mode=by_stage."),
+    status: z.string().optional().describe("Status filter for mode=by_status."),
+    registry_path: z.string().optional().describe("Override HOOK_REGISTRY.json path (tests use a fixture)."),
+    hooks_dir: z.string().optional().describe("Override .claude/hooks dir (used for ccm-planned existence check)."),
+    milestones_dir: z.string().optional().describe("Override mcp-server/data/milestones dir."),
+  }).passthrough(),
+
   // HOOK-SYNERGY-MS0/U-HOOK-ENVELOPE (H4): hook-latency.jsonl reader actions.
   hook_latency: z.object({
     mode: z.enum([
