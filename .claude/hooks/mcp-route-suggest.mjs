@@ -88,6 +88,66 @@ function isBroadShell(command) {
   ].some((token) => lower.includes(token));
 }
 
+// DEV-VELOCITY-AUTOTRIGGER-MS0/U-C1 (2026-05-12): smarter classifier — suppress
+// route-first nudges where no dispatcher actually fits. Was firing on every
+// git/ls/grep against H:/prism (the false-positive everyone learned to ignore).
+//
+// A command is dispatcher-routable when it's exploring ENGINE / DISPATCHER /
+// ACTION / SCHEMA surfaces — not when it's:
+//   - git/gh metadata (git log, git show, git diff, git status, gh pr/run/issue)
+//   - settings.json / .claude config edits
+//   - hook source navigation (.claude/hooks/*.mjs, .claude/helpers/*.mjs)
+//   - skill/command file navigation (.claude/commands/*.md)
+//   - state/shared JSON read-only inspection (audit + handoff surfaces)
+//   - node/python script invocations (already programmatic, no further route)
+//   - npm/build/test (dev cycle commands — prism_dev exposes them but the nudge
+//     is unhelpful here; the operator just typed it intentionally)
+//   - cd / pushd / popd / pwd (navigation primitives)
+//   - rm / mv / cp / mkdir / touch / chmod (file operations, no route)
+function hasNoDispatcherRoute(command) {
+  if (!command) return true;
+  const lower = command.toLowerCase().trim();
+  // Strip common prefixes (rtk, time, env VAR=val, etc.) before classification
+  const stripped = lower
+    .replace(/^(rtk|time|env\s+\w+=\S+)\s+/i, "")
+    .replace(/^&\s+/, "");
+
+  // git / gh metadata — none of these has a dispatcher route
+  if (/^(git|gh)\b/.test(stripped)) {
+    // exception: `git grep <pattern>` could be replaced by action_search for code patterns
+    if (/^git\s+grep\b/.test(stripped)) return false;
+    return true;
+  }
+
+  // node / python / npx script execution — no further routing
+  if (/^(node|python|python3|npx|tsx|deno|bun)\b/.test(stripped)) return true;
+
+  // npm / pnpm / yarn — dev cycle commands, operator-intentional
+  if (/^(npm|pnpm|yarn)\b/.test(stripped)) return true;
+
+  // File system primitives — no route
+  if (/^(cd|pushd|popd|pwd|rm|mv|cp|mkdir|touch|chmod|ln|stat)\b/.test(stripped)) return true;
+
+  // Pure navigation (ls / dir alone — but only when the path is non-engine)
+  if (/^(ls|dir)\b/.test(stripped)) {
+    // ls under .claude/, state/shared/, mcp-server/data/state/ → no route
+    if (/(\.claude|state\/shared|mcp-server\/data\/state)/.test(stripped)) return true;
+    // ls on engine/dispatcher dirs → route-able (action_search / dispatcher_map_compact)
+    return false;
+  }
+
+  // grep / select-string targeting non-engine surfaces → no route
+  if (/^(grep|select-string|findstr|rg)\b/.test(stripped)) {
+    if (/(\.claude|state\/shared|mcp-server\/data\/state|state\/handoffs)/.test(stripped)) return true;
+    // grep over engines/dispatchers — route-able
+    return false;
+  }
+
+  // Default: assume the command might be route-able (preserve existing behavior
+  // for commands not explicitly classified above)
+  return false;
+}
+
 async function getRegexSuggestions(toolName, filePath, bashCommand) {
   const messages = [];
   const normalizedCommand = normalize(bashCommand);
@@ -97,7 +157,11 @@ async function getRegexSuggestions(toolName, filePath, bashCommand) {
     isBroadShell(bashCommand) &&
     (normalizedCommand.toLowerCase().includes("/prism") ||
       normalizedCommand.toLowerCase().includes("/mcp-server") ||
-      normalizedCommand.toLowerCase().includes("h:/"))
+      normalizedCommand.toLowerCase().includes("h:/")) &&
+    // U-C1 (2026-05-12): suppress when classifier says no dispatcher fits.
+    // Eliminates the false-positive nudge on git/.claude/state-shared/script-runs
+    // that was teaching operators to tune out the hook.
+    !hasNoDispatcherRoute(bashCommand)
   ) {
     messages.push(
       "Route first: prefer prism_session:dispatcher_map_compact, prism_session:action_search, and prism_session:tool_route_best before broad shell exploration.",
