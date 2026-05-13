@@ -1,0 +1,192 @@
+{
+  "schemaVersion": 4,
+  "id": "TRAINING-LEARNING-MS0",
+  "title": "Domain Starting-Template Corpus (Lathe + Mill + WEDM) + Taptite-Electrode Excel-Macro Bridge",
+  "track": "TRAINING-LEARNING",
+  "priority": "P0",
+  "owner": "claude-06b8753f (slot CHARLIE)",
+  "scoped_by": "claude-8f2683e8 (slot ALPHA, 2026-05-12)",
+  "created_at": "2026-05-12T15:00:00.000Z",
+  "updated_at": "2026-05-13T02:30:00.000Z",
+  "status": "in_progress",
+  "total_units": 7,
+  "completed_units": 0,
+  "dependencies": ["MACRO-PROGRAM-PIPELINE-MS0"],
+  "omega_floor": 1.0,
+  "rationale": "Every print, program, CAD/CAM file in JM Die's 24,545-file corpus becomes structured training data. Per-domain matcher engines propose 'this new job looks like these 5 we've already shipped — start from that template.' The taptite-electrode Excel macro at 'JM DIE/Automated Program_Corrected 5-25.xlsm' is bridged as a READ-ONLY first-class asset (parsed-snapshot path for MS0; live-Excel COM deferred to v2). Every electrode part is audited for coverage. No auto-emit — templates feed the gated pipeline in MACRO-PROGRAM-PIPELINE-MS0, operator-in-the-loop is unconditional. Historical S/F values treated as DATA not GROUND TRUTH per feedback_box_programs_amateur — physics-derived recommendations win on disagreement.",
+  "knowledge_sources": {
+    "engines": [
+      "MacroLibraryEngine (Okuma OSP lathe macro catalog — U1 seed, 4 macros: wafer-insert / casing / casing-counterbore / top-hat-casing)",
+      "LathePartClassifierEngine (consumed by U1 matcher)",
+      "LatheJMDieKnowledgeEngine + LatheTribalInjectorEngine (experiential layer for U1)",
+      "MillProgramAnalyzerEngine + MillProgramOptimizerEngine (U2 corpus parser)",
+      "MillingStrategyLibraryEngine (U2 strategy seed)",
+      "WEDMFeasibilityEngine + WEDMMLParameterOptimizerEngine + WireEDMAGIOrchestrator (U4 corpus parser)",
+      "PartFolderOrganizerEngine + BlueprintProgramJoinEngine (parts ↔ folders resolution across U1/U2/U4)",
+      "PRISMSelfAwarenessEngine (searchTribalKnowledge + searchPlaybookRules — experiential layer)"
+    ],
+    "tribal_knowledge": "feedback_box_programs_amateur (historical S/F as data not ground truth); jm-die-customer-paths; reference_jm_die_program_save_practice (Mazak/Okuma .MIN header + Inventor/Fusion .ipt/.f3d as program-equivalent)",
+    "formulas": [],
+    "reference": [
+      "state/shared/specs/TRAINING-LEARNING-MS0-2026-05-12.md (canonical spec — read here, do not re-derive)",
+      "H:/PRISM/JM DIE/ (24,545 production NC files, 100+ customers)",
+      "H:/PRISM/Docustrata/.index/jm-die-index-v2.json (10.3 MB · rebuilt 2026-05-09 — canonical join source for all 3 corpus-scanner units)",
+      "H:/PRISM/JM DIE/_PART LIBRARY/ (25,028 part folders / 42,407 print pages / 10,678 program files)",
+      "H:/PRISM/JM DIE/Automated Program_Corrected 5-25.xlsm (5.6 MB / 2026-04-10 — READ-ONLY taptite-electrode macro; SAFETY-CRITICAL no-write enforced in U3+U4)",
+      "H:/PRISM/JM DIE/Macro programs/ (4 Okuma OSP lathe macros — already cataloged by MacroLibraryEngine)",
+      "state/shared/specs/MACRO-PROGRAM-PIPELINE-MS0-2026-05-12.md (companion / dependency)"
+    ]
+  },
+  "exit_gate": "All 7 units shipped with per-engine: real tests (reference values or algebraic invariants — NO toBeDefined() stubs; happy + ≥3 failure modes + ≥2 adversarial), dispatcher wiring (import + call + action enum + Zod schema), round-trip E2E assertion through every wired dispatcher. ≥3 families per domain (wafer-insert/casing/shaft/flange for lathe; taptite/electrode/plate for mill; taptite-electrode/carbide-die/punch-die for WEDM). Read-only against Automated Program_Corrected 5-25.xlsm — audits MUST NOT write to .xlsm (asserted in U3/U4 tests with explicit fs.statSync(...).mtimeMs equality). Every template-emit path gated by S(x) ≥ 0.70 + sim + operator-in-the-loop (delegated to MACRO-PROGRAM-PIPELINE-MS0 safety gate). /learn-corpus skill registered + scenario-tested. ENGINE_DIGEST + DISPATCHER_DIGEST regenerated. MILESTONE_PROGRESS + BUILD_STATE regenerated. 3-of-3 scrutiny PASS at close-out. omega_floor 1.0 met.",
+  "non_goals": [
+    "Auto-emitting G-code (handled by MACRO-PROGRAM-PIPELINE-MS0 — templates feed it, never bypass it)",
+    "Modifying Automated Program_Corrected 5-25.xlsm (operator-owned, READ-ONLY for this milestone)",
+    "Full RAG/embedding stack from day-one (catalog + cluster + template extract first; embeddings are v2)"
+  ],
+  "delivers": [
+    "LathePartFamilyTemplateExtractorEngine + LathePartFamilyMatcherEngine",
+    "MillPartFamilyTemplateExtractorEngine + MillPartFamilyMatcherEngine",
+    "WEDMPartFamilyTemplateExtractorEngine + WEDMPartFamilyMatcherEngine",
+    "ElectrodeCoverageAuditEngine + phase20-electrode-coverage-audit.py report",
+    "TaptiteElectrodeMacroBridgeEngine (parsed-snapshot path)",
+    "TrainingTemplateContinuousLearningEngine",
+    "/learn-corpus skill"
+  ],
+  "cross_links": {
+    "feeds": [
+      "BLUEPRINT-OCR-TRAINING-MS1 (template families inform OCR retrieval context)",
+      "MACRO-PROGRAM-PIPELINE-MS0 (extracted templates feed the safety-gated emit pipeline)"
+    ]
+  },
+  "phases": [
+    {
+      "id": "lathe",
+      "title": "Lathe domain template extraction (MS0-U1)",
+      "units": [
+        {
+          "id": "U-TL-U1-LATHE-TEMPLATE-EXTRACTOR",
+          "title": "LathePartFamilyTemplateExtractorEngine + corpus scanner",
+          "status": "in_progress",
+          "estimated_hours": 3,
+          "owner": "claude-06b8753f (slot CHARLIE)",
+          "worktree": "H:/prism-training-learning",
+          "branch": "work/training-learning-ms0",
+          "safety_critical": false,
+          "dependencies": [],
+          "deliverables": [
+            "mcp-server/src/engines/LathePartFamilyTemplateExtractorEngine.ts",
+            "mcp-server/src/__tests__/LathePartFamilyTemplateExtractorEngine.test.ts",
+            "mcp-server/src/tools/dispatchers/turningDispatcher.ts (3 actions wired)",
+            "mcp-server/src/tools/dispatchers/cadDispatcher.ts (cad_lathe_template_place bridge)",
+            "Docustrata/.index/phase20-lathe-template-corpus-scan.py",
+            "mcp-server/data/training/templates/lathe/.gitkeep"
+          ],
+          "tests_required": 10,
+          "families_required": 3,
+          "families_target": ["wafer-insert", "casing", "shaft", "flange"],
+          "wired_actions": [
+            "prism_turning:lathe_training_corpus_status",
+            "prism_turning:lathe_training_template_list",
+            "prism_turning:lathe_training_template_match",
+            "prism_cad:cad_lathe_template_place"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mill",
+      "title": "Mill domain template extraction (MS0-U2)",
+      "units": [
+        {
+          "id": "U-TL-U2-MILL-TEMPLATE-EXTRACTOR",
+          "title": "MillPartFamilyTemplateExtractorEngine + corpus scanner",
+          "status": "not_started",
+          "estimated_hours": 3,
+          "safety_critical": false,
+          "dependencies": ["U-TL-U1-LATHE-TEMPLATE-EXTRACTOR"],
+          "families_target": ["taptite-mill", "electrode-mill", "plate", "bracket-housing", "mold-die-insert", "aerospace-bracket", "sheet-metal-fixture"]
+        }
+      ]
+    },
+    {
+      "id": "electrode-audit",
+      "title": "Electrode coverage gap audit — SAFETY-CRITICAL READ-ONLY (MS0-U3)",
+      "units": [
+        {
+          "id": "U-TL-U3-ELECTRODE-COVERAGE-AUDIT",
+          "title": "ElectrodeCoverageAuditEngine + phase20-electrode-coverage-audit.py (READ-ONLY against .xlsm)",
+          "status": "not_started",
+          "estimated_hours": 2,
+          "safety_critical": true,
+          "dependencies": [],
+          "read_only_assets": [
+            "H:/PRISM/JM DIE/Automated Program_Corrected 5-25.xlsm"
+          ],
+          "no_write_assertion": "Test must verify fs.statSync(.xlsm).mtimeMs is unchanged after engine.report() invocation",
+          "inventory_baseline": {
+            "electrode_files": 73,
+            "taptite_files": 22
+          }
+        }
+      ]
+    },
+    {
+      "id": "wedm",
+      "title": "WEDM domain template extraction + taptite-electrode macro bridge (MS0-U4)",
+      "units": [
+        {
+          "id": "U-TL-U4-WEDM-TEMPLATE-EXTRACTOR-AND-BRIDGE",
+          "title": "WEDMPartFamilyTemplateExtractorEngine + TaptiteElectrodeMacroBridgeEngine (parsed-snapshot path)",
+          "status": "not_started",
+          "estimated_hours": 4,
+          "safety_critical": true,
+          "dependencies": ["U-TL-U3-ELECTRODE-COVERAGE-AUDIT"],
+          "implementation_path": "parsed-snapshot (PRIMARY for MS0); live-Excel-COM deferred to v2",
+          "families_target": ["taptite-electrode", "carbide-die-insert", "punch-die", "pcd-tipped-tooling", "aerospace-fir-tree", "mold-insert"]
+        }
+      ]
+    },
+    {
+      "id": "matchers",
+      "title": "Domain matcher engines + dispatcher exposure (MS0-U5)",
+      "units": [
+        {
+          "id": "U-TL-U5-DOMAIN-MATCHERS",
+          "title": "LathePartFamilyMatcherEngine + MillPartFamilyMatcherEngine + WEDMPartFamilyMatcherEngine",
+          "status": "not_started",
+          "estimated_hours": 4,
+          "safety_critical": false,
+          "dependencies": ["U-TL-U1-LATHE-TEMPLATE-EXTRACTOR", "U-TL-U2-MILL-TEMPLATE-EXTRACTOR", "U-TL-U4-WEDM-TEMPLATE-EXTRACTOR-AND-BRIDGE"]
+        }
+      ]
+    },
+    {
+      "id": "closed-loop",
+      "title": "Closed-loop ingest — outcomes → template variability ranges (MS0-U6)",
+      "units": [
+        {
+          "id": "U-TL-U6-CONTINUOUS-LEARNING",
+          "title": "TrainingTemplateContinuousLearningEngine (ingestLatheOutcome / ingestMillOutcome / ingestWEDMOutcome)",
+          "status": "not_started",
+          "estimated_hours": 3,
+          "safety_critical": false,
+          "dependencies": ["U-TL-U5-DOMAIN-MATCHERS"]
+        }
+      ]
+    },
+    {
+      "id": "close-out",
+      "title": "/learn-corpus skill + close-out (MS0-U7)",
+      "units": [
+        {
+          "id": "U-TL-U7-SKILL-AND-CLOSEOUT",
+          "title": "/learn-corpus skill (args: lathe|mill|wedm|electrode-audit|status|match <part>) + ENGINE_DIGEST regen + 3-way scrutiny",
+          "status": "not_started",
+          "estimated_hours": 2,
+          "safety_critical": false,
+          "dependencies": ["U-TL-U6-CONTINUOUS-LEARNING"]
+        }
+      ]
+    }
+  ]
+}
