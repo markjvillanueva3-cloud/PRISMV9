@@ -544,7 +544,12 @@ export const crossProcessOutcomeStore = new CrossProcessOutcomeStore();
 // HELPERS (module-private)
 // ============================================================================
 
-const NUMERIC_FEATURE_KEYS = [
+// Exported (INFRA-NEURAL-LEDGER-MS1/P0-U01, 2026-05-12) so the boundary-layer
+// schema (mcp-server/src/schemas/outcomeEventSchema.ts) can validate identical
+// numeric features without duplicating the canonical list. Single source of
+// truth — adding a key here automatically enforces it in both runtime and
+// parse-time validation.
+export const NUMERIC_FEATURE_KEYS = [
   "tool_diameter_mm",
   "depth_of_cut_mm",
   "workpiece_thickness_mm",
@@ -553,6 +558,7 @@ const NUMERIC_FEATURE_KEYS = [
   "feed_rate_mm_min",
   "cutting_speed_m_min",
 ] as const;
+export type NumericFeatureKey = (typeof NUMERIC_FEATURE_KEYS)[number];
 
 function validateNumericFeatures(features: Record<string, unknown> | undefined): void {
   if (!features) return;

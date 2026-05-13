@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "1.0.0",
+  "milestone": "INFRA-NEURAL-LEDGER-MS1",
+  "chatId": "claude-88901d4c",
+  "slot": "bravo",
+  "host": "DESKTOP-N7MI1VB",
+  "branch": "cad-fusion-live-ms0",
+  "worktree": "H:/prism",
+  "claimedAt": "2026-05-12T21:45:00.000Z",
+  "lastHeartbeat": "2026-05-12T21:45:00.000Z",
+  "units_planned": ["P0-U01"],
+  "units_deferred": {
+    "P0-U02": "Hook outcome emission into 6 P2P pipeline engines — separate unit, depends on P0-U01",
+    "P0-U03+": "Bus subscribers, retention, replay — later units"
+  },
+  "note": "P0-U01 SCOPE RECONCILED: existing outcomeEventSchema.ts (v1.0.0) + CrossProcessOutcomeStore.NUMERIC_FEATURE_KEYS already cover the bulk of the requested CrossProcessOutcomeEvent. Per duplication-guard rule + user direction, EXTENDING existing schema to v1.1.0 (additive: optional context fields job_id/pipeline_stage/consensus_audit_id, new OutcomeKind values cross_process_decision/cross_process_stage_complete) instead of creating a parallel schema. Migration spec inline. Backward-compat via z.union([literal('1.0.0'), literal('1.1.0')])."
+}

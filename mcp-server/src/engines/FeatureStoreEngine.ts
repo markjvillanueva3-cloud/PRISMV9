@@ -243,6 +243,15 @@ export class FeatureStoreEngine {
    * Helper: ingest an OutcomeCaptureBus event into a feature row. Useful when
    * a measurement event (cycle_time_measurement, tool_break, etc.) should
    * become a feature signal. Caller controls feature_group naming.
+   *
+   * NOTE (v1.1.0 — INFRA-NEURAL-LEDGER-MS1/P0-U01): the OutcomeEvent v1.1.0
+   * additions (`numeric_features`, `context.{job_id,pipeline_run_id,pipeline_stage,
+   * consensus_audit_id}`) are NOT automatically forwarded into the feature row.
+   * Only `kind`, `source`, `severity`, `actual`, `recommended`, `delta` propagate.
+   * If you want any v1.1.0 field as a feature, include it explicitly via
+   * `opts.feature_values` (e.g. `{ pipeline_stage: event.context.pipeline_stage }`).
+   * This is intentional — the feature store controls its own controlled vocabulary
+   * rather than passively absorbing whatever shape the bus event carries.
    */
   ingestOutcomeEvent(
     event: OutcomeEvent,

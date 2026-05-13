@@ -56,7 +56,22 @@ import {
 } from "../schemas/outcomeEventSchema.js";
 
 const OUTCOMES_DIR = path.resolve(process.cwd(), "state/outcomes");
-const SCHEMA_VERSION = "1.0.0" as const;
+// schemaVersion is now a per-event computed value (P0 fix from
+// INFRA-NEURAL-LEDGER-MS1/P0-U01 reviewer round): producers MUST stamp 1.1.0
+// when populating any v1.1.0-only field, else schema's superRefine rejects.
+// See pickSchemaVersion() below.
+const SCHEMA_VERSION_V10 = "1.0.0" as const;
+const SCHEMA_VERSION_V11 = "1.1.0" as const;
+const V11_ONLY_KINDS = new Set<OutcomeKindT>([
+  "cross_process_decision",
+  "cross_process_stage_complete",
+]);
+const V11_ONLY_CONTEXT_KEYS = [
+  "job_id",
+  "pipeline_run_id",
+  "pipeline_stage",
+  "consensus_audit_id",
+] as const;
 const MAX_LINE_BYTES = 64 * 1024;          // 64 KB per event line cap
 const RETRY_QUEUE_MAX = 256;                // bounded in-memory fallback
 
@@ -75,6 +90,30 @@ export interface RecordOutcomeInput {
   delta?: unknown;
   confidence?: number;
   note?: string;
+  // v1.1.0 — INFRA-NEURAL-LEDGER-MS1/P0-U01. Optional; supplying any of these
+  // auto-stamps the event at schemaVersion 1.1.0 (see pickSchemaVersion).
+  numeric_features?: Record<string, number>;
+}
+
+/**
+ * Decide which schemaVersion to stamp on an outgoing event. Producers should
+ * never set this manually — auto-detect based on whether the input populates
+ * any v1.1.0-only surface (kind in V11_ONLY_KINDS, any context key in
+ * V11_ONLY_CONTEXT_KEYS, or non-empty numeric_features). Default 1.0.0 keeps
+ * legacy events stamped legacy; new fields auto-bump to 1.1.0.
+ *
+ * The schema's cross-field .superRefine() enforces this same rule at parse
+ * time, so even a producer that ignores this helper cannot bleed versions
+ * (the bus's safeParse() returns ok:false instead of writing).
+ */
+function pickSchemaVersion(input: RecordOutcomeInput): "1.0.0" | "1.1.0" {
+  if (V11_ONLY_KINDS.has(input.kind)) return SCHEMA_VERSION_V11;
+  if (input.numeric_features !== undefined) return SCHEMA_VERSION_V11;
+  const ctx = input.context ?? {};
+  for (const k of V11_ONLY_CONTEXT_KEYS) {
+    if ((ctx as Record<string, unknown>)[k] !== undefined) return SCHEMA_VERSION_V11;
+  }
+  return SCHEMA_VERSION_V10;
 }
 
 export interface RecordOutcomeResult {
@@ -109,7 +148,7 @@ export class OutcomeCaptureBusEngine {
     const lineage_id = input.lineage_id ?? event_id;
 
     const candidate: OutcomeEvent = {
-      schemaVersion: SCHEMA_VERSION,
+      schemaVersion: pickSchemaVersion(input),
       event_id,
       lineage_id,
       domain: input.domain,
@@ -124,6 +163,8 @@ export class OutcomeCaptureBusEngine {
       delta: input.delta,
       confidence: input.confidence,
       note: input.note,
+      // v1.1.0 — INFRA-NEURAL-LEDGER-MS1/P0-U01
+      numeric_features: input.numeric_features,
     };
 
     const parsed = OutcomeEventSchema.safeParse(candidate);
