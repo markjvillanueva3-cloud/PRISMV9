@@ -1,6 +1,6 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-13T13:06:09.523Z
+> Generated: 2026-05-13T13:11:44.937Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
@@ -10,7 +10,7 @@
 - **879** engines awaiting dispatcher wiring
 - **3399** units pending across 2 active milestones
 - **2** codex frontend builds awaiting merge
-- **3** milestones with envelope-status drift
+- **2** milestones with envelope-status drift
 
 ## BUILT
 
@@ -73,7 +73,6 @@
 |-----------|---------------|----------|-------|
 | MF-MS1 | completed | not_started_real | claims_completed_but_units_pending |
 | MF-MS2 | completed | not_started_real | claims_completed_but_units_pending |
-| HTML-PRIMARY-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 
 ### Top pending units (most-recently-active milestones first)
 

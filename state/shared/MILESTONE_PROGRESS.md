@@ -1,6 +1,6 @@
 # MILESTONE_PROGRESS — what's actually shipped vs claimed
 
-> Generated: 2026-05-13T13:06:08.982Z
+> Generated: 2026-05-13T13:11:44.553Z
 > Window: last 60.days of git log across all branches
 > Source: `scripts/build-milestone-progress.mjs`
 
@@ -21,7 +21,7 @@ flagging a unit as missing.
 - Units across all MS:      **3465**
 - Units shipped (in git):   **66**
 - Units pending:            **3399**
-- Drift cases:              **3** (envelope status disagrees with git reality)
+- Drift cases:              **2** (envelope status disagrees with git reality)
 
 ## Top recently-active milestones (last shipped → first)
 
@@ -31,7 +31,7 @@ flagging a unit as missing.
 | INFRA-CLOSEOUT-MS0 | INFRA | completed | completed_real | 2/2 (100%) | 2026-05-12 |
 | OCTOPUS-NEURAL-MS0 | OCTOPUS-NEURAL | completed | completed_real | 5/5 (100%) | 2026-05-12 |
 | SKILLS-UTILIZATION-MS0 | SKILLS-UTILIZATION | completed | completed_real | 8/8 (100%) | 2026-05-12 |
-| HTML-PRIMARY-MS0 | HTML-PRIMARY | not_started | in_progress_real | 1/7 (14%) | 2026-05-12 |
+| HTML-PRIMARY-MS0 | HTML-PRIMARY | in_progress | in_progress_real | 1/7 (14%) | 2026-05-12 |
 | HOOKS-AUTOMATION-V2-MS0 | HOOKS-AUTOMATION-V2 | completed | completed_real | 10/10 (100%) | 2026-05-11 |
 | XPROC-NEURAL-OPTIMIZE-MS0 | INFRA | in_progress | in_progress_real | 29/31 (94%) | 2026-05-09 |
 
@@ -41,7 +41,6 @@ flagging a unit as missing.
 |-----------|---------|------|-------|
 | MF-MS1 | completed | not_started_real | claims_completed_but_units_pending |
 | MF-MS2 | completed | not_started_real | claims_completed_but_units_pending |
-| HTML-PRIMARY-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 
 ## Top milestones with most pending units
 
