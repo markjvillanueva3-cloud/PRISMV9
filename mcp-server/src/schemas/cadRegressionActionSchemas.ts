@@ -143,19 +143,39 @@ const cad_regression_report_summary = z
 // underlying engine contract — these aliases are pure naming sugar, no
 // translation. (Envelope-spec `start_batch({corpus:'all'})` corpus auto-
 // resolution is intentionally deferred to a follow-on unit.)
+
+// FileTask shape from CADRegressionTestOrchestratorEngine.ts line 57.
+const fileTaskSchema = z
+  .object({
+    fileId: z.string().min(1).describe("Stable hash/ID for the CAD file"),
+    absolutePath: z.string().min(1).describe("Full filesystem path"),
+    format: z.string().min(1).describe("File format extension (step, iges, sldprt, ipt, ...)"),
+    testStrategy: z.string().min(1).optional().describe(
+      "Downstream test strategy tag from CADFileClassifierEngine",
+    ),
+    handler: z.string().optional().describe("Optional bridge/parser hint"),
+  })
+  .passthrough();
+
 const start_batch = z
   .object({
     tasks: z
-      .array(z.any())
+      .array(fileTaskSchema)
       .min(1)
       .describe(
-        "Required: array of FileTask {fileId, absolutePath, format, ...}. Get from cad_index_run output.",
+        "Required: array of FileTask {fileId, absolutePath, format, testStrategy?, handler?}. Get from cad_index_run output.",
       ),
     options: z
       .object({
+        // runner is a live JS object implementing TestRunner.run(task: FileTask): Promise<FileTestResult>.
+        // Functions/method references are NOT JSON-serializable, so z.any() is the only honest
+        // representation here — over-the-wire MCP clients can't supply this until U-CINF04.x
+        // (WorkerThreadRunner) lands a server-side default injector.
         runner: z
           .any()
-          .describe("TestRunner implementing run(task) — required by orchestrator"),
+          .describe(
+            "TestRunner with run(task) method — live JS object, not JSON-serializable; in-process callers only until U-CINF04.x ships a default injector",
+          ),
         batchId: z.string().min(1).optional().describe("Batch identifier; UUID-generated if omitted"),
         workers: z.number().int().positive().optional().describe("Worker pool size"),
         perFileTimeoutMs: z.number().positive().optional().describe("Per-file timeout in ms"),
@@ -191,15 +211,28 @@ const get_results = z
   })
   .passthrough();
 
+// FailurePayload shape from CADFailureTriageEngine.ts line 43.
+const failurePayloadSchema = z
+  .object({
+    fileId: z.string().min(1).describe("Stable file identifier"),
+    format: z.string().optional().describe("File extension (e.g. '.sldprt') — hint for format errors"),
+    message: z.string().min(1).optional().describe("Error message from the runner"),
+    stack: z.string().optional().describe("Full stack trace as single string"),
+    timestamp: z.number().nonnegative().optional().describe("Failure timestamp in ms"),
+    fileUnreadable: z.boolean().optional().describe("True if file couldn't be read (ENOENT/size=0/EACCES) — strong format-error signal"),
+    hint: z.string().optional().describe("Pre-classified runner hint"),
+  })
+  .passthrough();
+
 // triage accepts either a single failure or an array — mirrors the engine's
 // dual-shape contract (cad_failure_triage_one + cad_failure_triage_group).
 // Refined (not unioned) because z.any() accepts undefined, which would let
 // a discriminated union silently match the wrong branch.
 const triage = z
   .object({
-    failure: z.any().optional().describe("Single failure payload (FailurePayload shape)"),
+    failure: failurePayloadSchema.optional().describe("Single failure payload"),
     failures: z
-      .array(z.any())
+      .array(failurePayloadSchema)
       .min(1)
       .optional()
       .describe("Array of FailurePayload for batch-triage with grouping"),
