@@ -1,6 +1,6 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-13T22:51:49.210Z
+> Generated: 2026-05-13T22:58:58.915Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
@@ -8,7 +8,7 @@
 - **2324** engines built and wired (of 3203)
 - **1073** wiki entries indexed
 - **879** engines awaiting dispatcher wiring
-- **3677** units pending across 72 active milestones
+- **3676** units pending across 72 active milestones
 - **2** codex frontend builds awaiting merge
 - **172** milestones with envelope-status drift
 
@@ -65,7 +65,7 @@
 
 ## NEEDS_BUILDING
 
-3677 units across 670 milestones not yet in git.
+3676 units across 670 milestones not yet in git.
 
 ### Envelope-status drift
 
@@ -248,14 +248,14 @@
 
 | Milestone | Phase | Unit | Title |
 |-----------|-------|------|-------|
+| CAD-INFRA-MS0 |  | U-CINF01 | CADFileIndexerEngine — master 20,006-file catalog |
+| CAD-INFRA-MS0 |  | U-CINF02 | CADFileClassifierEngine — part/assembly/drawing/CAM classification |
+| CAD-INFRA-MS0 |  | U-CINF03 | CADTestStateSchema — per-file atomic state |
+| CAD-INFRA-MS0 |  | U-CINF05 | CADTestCheckpointEngine — resumable state every 100 files |
 | COORD-MS0 |  | U-COORD02 | Add Optimistic Locking with Version Field |
 | COORD-MS0 |  | U-COORD04 | CrossSessionOrchestratorEngine — Unified Facade |
 | COORD-MS0 |  | U-COORD05 | Wire Orchestrator to Hook System |
 | COORD-MS0 |  | U-COORD06 | Startup Banner — Session Count Display |
-| CAD-INFRA-MS0 |  | U-CINF01 | CADFileIndexerEngine — master 20,006-file catalog |
-| CAD-INFRA-MS0 |  | U-CINF02 | CADFileClassifierEngine — part/assembly/drawing/CAM classification |
-| CAD-INFRA-MS0 |  | U-CINF03 | CADTestStateSchema — per-file atomic state |
-| CAD-INFRA-MS0 |  | U-CINF04 | CADRegressionTestOrchestratorEngine — parallel worker pool |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | P5 | P5-U05 | Wire prism_intelligence:diagnose_failure → DiagnosticReasoningEngine |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | P6 | P6-U02 | Add 4 hooks for unforced CLAUDE.md rules |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | P6 | P6-U03 | Awareness hook deduplication — pick 3 canonical, deprecate 10 |
