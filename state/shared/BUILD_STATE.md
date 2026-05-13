@@ -1,6 +1,6 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-13T17:47:53.644Z
+> Generated: 2026-05-13T18:32:41.348Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
@@ -8,7 +8,7 @@
 - **2324** engines built and wired (of 3203)
 - **1073** wiki entries indexed
 - **879** engines awaiting dispatcher wiring
-- **3712** units pending across 81 active milestones
+- **3711** units pending across 81 active milestones
 - **2** codex frontend builds awaiting merge
 - **171** milestones with envelope-status drift
 
@@ -65,7 +65,7 @@
 
 ## NEEDS_BUILDING
 
-3712 units across 670 milestones not yet in git.
+3711 units across 670 milestones not yet in git.
 
 ### Envelope-status drift
 
@@ -247,18 +247,18 @@
 
 | Milestone | Phase | Unit | Title |
 |-----------|-------|------|-------|
-| INTEL-OLLAMA-OBSIDIAN-MS0 | P2 | P2-U04 | Refactor error-block-prewarn to query Qdrant vector neighbors |
-| INTEL-OLLAMA-OBSIDIAN-MS0 | P5 | P5-U05 | Wire prism_intelligence:diagnose_failure → DiagnosticReasoningEngine |
-| INTEL-OLLAMA-OBSIDIAN-MS0 | P6 | P6-U02 | Add 4 hooks for unforced CLAUDE.md rules |
-| INTEL-OLLAMA-OBSIDIAN-MS0 | P6 | P6-U03 | Awareness hook deduplication — pick 3 canonical, deprecate 10 |
-| CAD-INFRA-MS0 |  | U-CINF01 | CADFileIndexerEngine — master 20,006-file catalog |
-| CAD-INFRA-MS0 |  | U-CINF02 | CADFileClassifierEngine — part/assembly/drawing/CAM classification |
-| CAD-INFRA-MS0 |  | U-CINF03 | CADTestStateSchema — per-file atomic state |
-| CAD-INFRA-MS0 |  | U-CINF04.x-WORKER-THREAD-RUNNER | CADRegressionWorkerThreadRunnerEngine — production TestRunner implementation |
 | CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A1 | A1 — extend SLOT_NAMES in chat-slots.mjs to add 'golf' (NATO phonetic continuity) |
 | CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A2 | A2 — fleet-status.mjs renderer + title-comment for 7-slot table |
 | CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A3 | A3 — /checkin --golf docs in commands/checkin.md; remove fleet_full 7th-chat fallback wording |
 | CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A4 | A4 — per-agent-handoff.mjs accepts slot=golf with HANDOFF-golf-<task>.md topic prefix |
+| CAD-INFRA-MS0 |  | U-CINF01 | CADFileIndexerEngine — master 20,006-file catalog |
+| CAD-INFRA-MS0 |  | U-CINF02 | CADFileClassifierEngine — part/assembly/drawing/CAM classification |
+| CAD-INFRA-MS0 |  | U-CINF03 | CADTestStateSchema — per-file atomic state |
+| CAD-INFRA-MS0 |  | U-CINF04.x-WORKER-THREAD-RUNNER | CADRegressionWorkerThreadRunnerEngine — production TestRunner implementation |
+| INTEL-OLLAMA-OBSIDIAN-MS0 | P2 | P2-U04 | Refactor error-block-prewarn to query Qdrant vector neighbors |
+| INTEL-OLLAMA-OBSIDIAN-MS0 | P5 | P5-U05 | Wire prism_intelligence:diagnose_failure → DiagnosticReasoningEngine |
+| INTEL-OLLAMA-OBSIDIAN-MS0 | P6 | P6-U02 | Add 4 hooks for unforced CLAUDE.md rules |
+| INTEL-OLLAMA-OBSIDIAN-MS0 | P6 | P6-U03 | Awareness hook deduplication — pick 3 canonical, deprecate 10 |
 | TRAINING-LEARNING-MS0 | lathe | U-TL-U1-LATHE-TEMPLATE-EXTRACTOR | LathePartFamilyTemplateExtractorEngine + corpus scanner |
 | TRAINING-LEARNING-MS0 | wedm | U-TL-U4-WEDM-TEMPLATE-EXTRACTOR-AND-BRIDGE | WEDMPartFamilyTemplateExtractorEngine + TaptiteElectrodeMacroBridgeEngine (parsed-snapshot path) |
 | TRAINING-LEARNING-MS0 | matchers | U-TL-U5-DOMAIN-MATCHERS | LathePartFamilyMatcherEngine + MillPartFamilyMatcherEngine + WEDMPartFamilyMatcherEngine |

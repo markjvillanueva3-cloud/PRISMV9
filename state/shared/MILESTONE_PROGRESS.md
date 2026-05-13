@@ -1,6 +1,6 @@
 # MILESTONE_PROGRESS — what's actually shipped vs claimed
 
-> Generated: 2026-05-13T17:47:37.842Z
+> Generated: 2026-05-13T18:32:39.762Z
 > Window: last 60.days of git log across all branches
 > Source: `scripts/build-milestone-progress.mjs`
 
@@ -19,17 +19,17 @@ flagging a unit as missing.
 
 - Milestones loaded:        **670**
 - Units across all MS:      **4906**
-- Units shipped (in git):   **1194**
-- Units pending:            **3712**
+- Units shipped (in git):   **1195**
+- Units pending:            **3711**
 - Drift cases:              **171** (envelope status disagrees with git reality)
 
 ## Top recently-active milestones (last shipped → first)
 
 | Milestone | Track | Status (claimed) | Status (real) | Shipped/Total | Last commit |
 |-----------|-------|------------------|---------------|---------------|-------------|
-| INTEL-OLLAMA-OBSIDIAN-MS0 | INFRA | not_started | in_progress_real | 79/92 (86%) | 2026-05-13 |
+| CLEANUP-MS0 | CLEANUP | in_progress | in_progress_real | 6/73 (8%) | 2026-05-13 |
 | CAD-INFRA-MS0 | CAD-INFRA | complete | in_progress_real | 3/16 (19%) | 2026-05-13 |
-| CLEANUP-MS0 | CLEANUP | in_progress | in_progress_real | 5/73 (7%) | 2026-05-13 |
+| INTEL-OLLAMA-OBSIDIAN-MS0 | INFRA | not_started | in_progress_real | 79/92 (86%) | 2026-05-13 |
 | TRAINING-LEARNING-MS0 | TRAINING-LEARNING | in_progress | in_progress_real | 2/7 (29%) | 2026-05-13 |
 | COORD-MS0 | INFRA | unknown | in_progress_real | 3/12 (25%) | 2026-05-13 |
 | AUTO-LEARNING-LOOP-MS0 | AUTO-LEARNING-LOOP | in_progress | in_progress_real | 1/12 (8%) | 2026-05-13 |
@@ -132,7 +132,7 @@ flagging a unit as missing.
 | LATHE-MASTER | 136 | 136 | 0/136 |
 | LATHE-PROD-READY-MS0 | 135 | 135 | 0/135 |
 | MS-WIRE-FRONTEND | 90 | 90 | 0/90 |
-| CLEANUP-MS0 | 68 | 73 | 5/73 |
+| CLEANUP-MS0 | 67 | 73 | 6/73 |
 | MS-WIRE-BACKEND | 60 | 60 | 0/60 |
 | MIO-MS0 | 57 | 57 | 0/57 |
 | LATHE-LORA-MS0 | 50 | 50 | 0/50 |
