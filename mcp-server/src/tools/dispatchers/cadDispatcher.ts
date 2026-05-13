@@ -20,6 +20,7 @@ import { ACTION_CAD_SCHEMAS } from "../../schemas/cadActionSchemas.js";
 let _cad: any, _geometry: any, _mesh: any, _feature: any, _stock: any, _wcs: any, _dfm: any, _dfmPipeline: any, _sketch: any, _partLib: any, _assembly: any;
 let _cadTaxonomy: any, _cadQueryGen: any, _f360Gen: any, _f360Bridge: any, _swGen: any, _mcGen: any, _hcGen: any, _nxGen: any, _impeller: any, _blisk: any;
 let _cadCorpusOrch: any, _cadEmbedIndex: any, _cadPipeline: any, _cadRegenTest: any, _geoCompare: any, _cadRegistry: any, _inventorGen: any, _naca: any, _loftedWing: any, _gear: any, _spring: any, _cadTrialLearn: any, _printToFusion: any, _printToMastercam: any, _printToInventor: any, _printToSolidWorks: any, _printToEsprit: any, _espritGen: any, _printToAllCads: any, _printToHyperCADSAnalysis: any, _swLive: any, _espritLive: any, _bprintToAllCads: any;
+let _capNegotiator: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "cad": return _cad ??= (await import("../../engines/CADKernelEngine.js")).cadKernelEngine;
@@ -66,6 +67,7 @@ async function getEngine(name: string): Promise<any> {
     case "swLive": return _swLive ??= (await import("../../engines/SolidWorksLiveBridgeEngine.js")).solidWorksLiveBridgeEngine;
     case "espritLive": return _espritLive ??= (await import("../../engines/EspritLiveBridgeEngine.js")).espritLiveBridgeEngine;
     case "bprintToAllCads": return _bprintToAllCads ??= (await import("../../engines/BlueprintToAllCADsOrchestratorEngine.js")).blueprintToAllCADsOrchestratorEngine;
+    case "capNegotiator": return _capNegotiator ??= (await import("../../engines/CADCapabilityNegotiatorEngine.js")).cadCapabilityNegotiatorEngine;
     default: throw new Error(`Unknown CAD engine: ${name}`);
   }
 }
@@ -118,6 +120,8 @@ const ACTIONS = [
   "cad_taxonomy_lookup", "cad_taxonomy_list", "cad_taxonomy_generate",
   "cad_taxonomy_aerospace", "cad_taxonomy_search", "cad_taxonomy_compatibility",
   "cad_taxonomy_validate", "cad_taxonomy_stats", "cad_taxonomy_suggest",
+  // CAD Capability Negotiator — CAD-COMPLETE-MS0/U-CADC-AI03
+  "cad_capability_negotiate", "cad_capability_negotiate_or_throw", "cad_capability_list_gaps",
   // CadQuery Code Generator
   "cadquery_generate_script", "cadquery_step_by_step", "cadquery_validate_syntax",
   "cadquery_execute_script", "cadquery_codegen_prompt",
@@ -687,6 +691,34 @@ Params vary by action — pass relevant fields in params object.`,
           case "cad_taxonomy_suggest": {
             const tx = await getEngine("cadTaxonomy");
             result = tx.suggestForUseCase(params.description ?? "");
+            break;
+          }
+          // ── CAD Capability Negotiator — CAD-COMPLETE-MS0/U-CADC-AI03 ──
+          case "cad_capability_negotiate": {
+            const eng = await getEngine("capNegotiator");
+            result = await eng.negotiate({
+              ops: params.ops ?? [],
+              preferredSystem: params.preferredSystem,
+              policy: params.policy,
+              excludeSystems: params.excludeSystems,
+              excludeSubprocess: params.excludeSubprocess,
+            });
+            break;
+          }
+          case "cad_capability_negotiate_or_throw": {
+            const eng = await getEngine("capNegotiator");
+            result = await eng.negotiateOrThrow({
+              ops: params.ops ?? [],
+              preferredSystem: params.preferredSystem,
+              policy: params.policy,
+              excludeSystems: params.excludeSystems,
+              excludeSubprocess: params.excludeSubprocess,
+            });
+            break;
+          }
+          case "cad_capability_list_gaps": {
+            const eng = await getEngine("capNegotiator");
+            result = await eng.listGaps(params.referenceOps);
             break;
           }
           // ── CadQuery Code Generator ──

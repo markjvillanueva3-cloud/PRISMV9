@@ -1,6 +1,6 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-13T14:01:48.344Z
+> Generated: 2026-05-13T15:10:39.389Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
@@ -287,7 +287,7 @@ Per-domain wired/unwired breakdown across 926 domain prefixes.
 
 | Domain | Total | Wired | Unwired | Coverage % |
 |--------|-------|-------|---------|-----------|
-| Other | 594 | 451 | 143 | 76% |
+| Other | 595 | 452 | 143 | 76% |
 | Lathe | 187 | 98 | 89 | 52% |
 | Machine | 45 | 28 | 17 | 62% |
 | Multi | 28 | 17 | 11 | 61% |

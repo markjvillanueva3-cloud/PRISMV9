@@ -604,6 +604,27 @@ export const ACTION_CAD_SCHEMAS: Record<string, z.ZodType<any>> = {
   stock_model: stockModelSchema,
   wcs_setup: wcsSetupSchema,
   dfm_check: dfmCheckSchema,
+  // CAD Capability Negotiator — CAD-COMPLETE-MS0/U-CADC-AI03
+  cad_capability_negotiate: z.object({
+    ops: z.array(z.string()).describe("Ordered CAD operation kinds the caller wants to emit"),
+    preferredSystem: z.string().optional().describe("Preferred CAD adapter id; picked first when policy allows"),
+    policy: z.enum(["strict", "fallback", "best_fit"]).optional().describe("strict throws on missing op; fallback tries alternatives; best_fit picks highest coverage"),
+    excludeSystems: z.array(z.string()).optional().describe("Adapter ids that may never be considered"),
+    excludeSubprocess: z.boolean().optional().describe("When true, adapters with requiresSubprocess=true are filtered out"),
+  }),
+  cad_capability_negotiate_or_throw: z.object({
+    // .min(1) — "throw on missing" with zero ops is semantically incoherent;
+    // schema-reject at the MCP boundary so callers get a clear error rather
+    // than silent trivial-supported behavior.
+    ops: z.array(z.string()).min(1).describe("Ordered CAD operation kinds the caller wants to emit (at least one required)"),
+    preferredSystem: z.string().optional().describe("Preferred CAD adapter id"),
+    policy: z.enum(["strict", "fallback", "best_fit"]).optional().describe("Negotiation policy"),
+    excludeSystems: z.array(z.string()).optional().describe("Adapter blocklist"),
+    excludeSubprocess: z.boolean().optional().describe("Filter subprocess-required adapters"),
+  }),
+  cad_capability_list_gaps: z.object({
+    referenceOps: z.array(z.string()).optional().describe("Optional op-kind reference list; when omitted returns the full capability snapshot per adapter"),
+  }),
   // CAD Registry (U-CADC03)
   cad_registry_scan: cadRegistryScanSchema,
   cad_registry_search: cadRegistrySearchSchema,
