@@ -1,20 +1,20 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-13T02:17:20.976Z
+> Generated: 2026-05-13T03:19:43.996Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
 
 - **2324** engines built and wired (of 3203)
-- **1075** wiki entries indexed
+- **1073** wiki entries indexed
 - **879** engines awaiting dispatcher wiring
-- **3396** units pending across 3 active milestones
+- **3402** units pending across 3 active milestones
 - **2** codex frontend builds awaiting merge
 - **3** milestones with envelope-status drift
 
 ## BUILT
 
-2324/3203 engines wired (73%); 1075 wiki entries indexed.
+2324/3203 engines wired (73%); 1073 wiki entries indexed.
 
 ```json
 {
@@ -65,7 +65,7 @@
 
 ## NEEDS_BUILDING
 
-3396 units across 667 milestones not yet in git.
+3402 units across 668 milestones not yet in git.
 
 ### Envelope-status drift
 
@@ -80,7 +80,6 @@
 | Milestone | Phase | Unit | Title |
 |-----------|-------|------|-------|
 | HOOK-SYNERGY-MS0 | stopgap | U-HOOK-STOPGAP | 7 hook timeout reductions in C:/Users/wompu/.claude/settings.json (git-health-guard 35→8s, git-sync-stop 35→8s, session-start-zombie-reap 25→8s, auto-lint-post-edit 15→8s, git-sync-fetch/claude-brief-inject/quality-dashboard-alert 12→5s) |
-| HOOK-SYNERGY-MS0 | critical-path | U-HOOK-FAST-LANE | H6 — Settings.json matcher split (Read/Glob/Grep fast lane vs Edit/Write/Bash slow lane) + dedup apply (target 70% latency cut on read-only ops) |
 | HOOK-SYNERGY-MS0 | wave-2 | U-HOOK-ASYNC-DISPATCH | H7 — AsyncHookDispatcherEngine.ts + Tier-4 routing for test-100-percent-gate (Stop never waits >30s) |
 | HOOK-SYNERGY-MS0 | wave-2 | U-HOOK-COORD-SQLITE | H8 — SQLite WAL coordination store + dual-write migration (replaces JSON file-claims, target 90% latency drop on multi-chat coord) |
 | HTML-PRIMARY-MS0 | P0 | U-HPS01 | Build `SpecHTMLCompanionEngine` (master renderer) |
@@ -111,7 +110,7 @@ Per-domain wired/unwired breakdown across 925 domain prefixes.
 | Domain | Total | Wired | Unwired | Coverage % |
 |--------|-------|-------|---------|-----------|
 | Other | 594 | 451 | 143 | 76% |
-| Lathe | 186 | 97 | 89 | 52% |
+| Lathe | 187 | 98 | 89 | 52% |
 | Machine | 45 | 28 | 17 | 62% |
 | Multi | 28 | 17 | 11 | 61% |
 | Turning | 24 | 13 | 11 | 54% |

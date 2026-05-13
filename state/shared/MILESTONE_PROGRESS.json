@@ -1,12 +1,12 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-13T02:17:20.202Z",
+  "generatedAt": "2026-05-13T03:19:43.167Z",
   "window": "60.days",
   "totals": {
-    "milestones": 667,
-    "units": 3456,
-    "shipped": 60,
-    "pending": 3396,
+    "milestones": 668,
+    "units": 3463,
+    "shipped": 61,
+    "pending": 3402,
     "drift": 3
   },
   "milestones": [
@@ -22472,10 +22472,10 @@
       "track": "HOOK-SYNERGY",
       "claimedStatus": "in_progress",
       "total": 11,
-      "shipped": 7,
-      "pending": 4,
-      "ratio": 0.6363636363636364,
-      "lastShippedDate": "2026-05-12T21:16:51-05:00",
+      "shipped": 8,
+      "pending": 3,
+      "ratio": 0.7272727272727273,
+      "lastShippedDate": "2026-05-12T22:19:28-05:00",
       "derivedStatus": "in_progress_real",
       "drift": "consistent",
       "units": [
@@ -22493,7 +22493,7 @@
           "title": "H1 — scripts/settings-dedup-audit.mjs + state/shared/SETTINGS_DEDUP_REPORT.md (cross-layer dedup, fan-out per tool)",
           "phase": "critical-path",
           "shipped": true,
-          "sha": "75365d6592f7af175c76ec0b1c3337fa339b55dc",
+          "sha": "6ce9a536ca7b069a00118a1be38409841bdfec39",
           "date": "2026-05-12T14:14:44-05:00",
           "commitMilestoneTag": "HOOK-SYNERGY-MS0"
         },
@@ -22502,7 +22502,7 @@
           "title": "H2 — HOOK_REGISTRY.json generator + prism_dev:hook_registry action + prism_session:hook_map_compact",
           "phase": "critical-path",
           "shipped": true,
-          "sha": "76eef5f9597bedab4715e92fce3bc3a277be1a8f",
+          "sha": "bc63bd3858432cd080eb09a8e7a049adb862e9e6",
           "date": "2026-05-12T16:19:34-05:00",
           "commitMilestoneTag": "HOOK-SYNERGY-MS0"
         },
@@ -22511,7 +22511,7 @@
           "title": "H3 — Tier frontmatter on all 480 hooks + hook-tier-validator.mjs PreToolUse block on .claude/hooks/*.mjs edits",
           "phase": "critical-path",
           "shipped": true,
-          "sha": "0889abfadc89d708490983cdb1ccfc80d21da4a2",
+          "sha": "b375ffe36098fadb0c6c0d6630897f0b4f32a3ad",
           "date": "2026-05-12T21:16:51-05:00",
           "commitMilestoneTag": "HOOK-SYNERGY-MS0"
         },
@@ -22519,17 +22519,17 @@
           "id": "U-HOOK-FAST-LANE",
           "title": "H6 — Settings.json matcher split (Read/Glob/Grep fast lane vs Edit/Write/Bash slow lane) + dedup apply (target 70% latency cut on read-only ops)",
           "phase": "critical-path",
-          "shipped": false,
-          "sha": null,
-          "date": null,
-          "commitMilestoneTag": null
+          "shipped": true,
+          "sha": "71f45b355af0c93183ac6931d2f28f3dededc7e6",
+          "date": "2026-05-12T22:19:28-05:00",
+          "commitMilestoneTag": "HOOK-SYNERGY-MS0"
         },
         {
           "id": "U-HOOK-ENVELOPE",
           "title": "H4 — _envelope.mjs profiling shim + hook-latency.jsonl + nightly digest (P50/P95/P99 per hook)",
           "phase": "wave-2",
           "shipped": true,
-          "sha": "d2c9aa95a1aa58ad34ce5bad3e538a8d41e834de",
+          "sha": "32ac9cd930468d9f27cc10120c19e2c413266de2",
           "date": "2026-05-12T16:31:20-05:00",
           "commitMilestoneTag": "HOOK-SYNERGY-MS0"
         },
@@ -22538,7 +22538,7 @@
           "title": "H5 — HookCreationGuardEngine.ts (mirror DuplicationGuardEngine) + hook-creation-gate.mjs PreToolUse",
           "phase": "wave-2",
           "shipped": true,
-          "sha": "38ff35108105fd348c9f2292b296009616e8f9bc",
+          "sha": "fcf13500eb03bf63cc4882db5b9cb609d6321fc9",
           "date": "2026-05-12T14:06:24-05:00",
           "commitMilestoneTag": "HOOK-SYNERGY-MS0"
         },
@@ -22565,7 +22565,7 @@
           "title": "H9 — Refactor 6 high-traffic hooks (ai-feature-recommend, dedup-auto-invoke, inventory-check-guard, mcp-route-suggest, wiki-precheck-inject, chat-bus-inject) into engine-shim form",
           "phase": "wave-2",
           "shipped": true,
-          "sha": "71f71cb078567501823feee4787a0a69bbfdd18b",
+          "sha": "8a1c219badd0b894f59f1135a7bf10c66fd87f1c",
           "date": "2026-05-12T20:56:44-05:00",
           "commitMilestoneTag": "HOOK-SYNERGY-MS0"
         },
@@ -22574,7 +22574,7 @@
           "title": "H10 — hook-cross-worktree-block.mjs Tier 0 (blocks settings.json with sibling-worktree paths)",
           "phase": "wave-2",
           "shipped": true,
-          "sha": "27c28a62fdddd2ca56b2e75b9ca3d65eb04843cd",
+          "sha": "30f885adb802d1ff0abd8b85b1a6f0cc8a186a7f",
           "date": "2026-05-12T13:39:26-05:00",
           "commitMilestoneTag": "HOOK-SYNERGY-MS0"
         }
@@ -22598,7 +22598,7 @@
           "title": "Read-once PreToolUse dedup hook",
           "phase": "P0",
           "shipped": true,
-          "sha": "9cdebae7920368c1fd90256409c9e9d6b739ab92",
+          "sha": "bd97490626f90d6d9b8758449462282fd491f7b1",
           "date": "2026-05-11T19:43:30-05:00",
           "commitMilestoneTag": "HOOKS-AUTOMATION-V2-MS0"
         },
@@ -22607,7 +22607,7 @@
           "title": "`defer` PreToolUse decision for autonomous loops",
           "phase": "P0",
           "shipped": true,
-          "sha": "44653dc40ba8211c68b301ddd0af0340129eac8b",
+          "sha": "24c1930707df2d8bc7a6c02a4999a3dc93a3b622",
           "date": "2026-05-11T21:47:22-05:00",
           "commitMilestoneTag": "HOOKS-AUTOMATION-V2-MS0"
         },
@@ -22616,7 +22616,7 @@
           "title": "`PermissionDenied{retry:true}` classifier",
           "phase": "P0",
           "shipped": true,
-          "sha": "22479a10d95af3928add11bb58d629caa8c82089",
+          "sha": "8a0de78c2993bedf754bdce2d96f6a38356a1f8b",
           "date": "2026-05-11T21:57:26-05:00",
           "commitMilestoneTag": "HOOKS-AUTOMATION-V2-MS0"
         },
@@ -22625,7 +22625,7 @@
           "title": "Ollama-route PreToolUse (route trivial reads to qwen)",
           "phase": "P0",
           "shipped": true,
-          "sha": "3793109952c4ee5e1940881dfddd101b59fcc2e8",
+          "sha": "83b74b03fb8851515119ea7621491d26cfaa9307",
           "date": "2026-05-11T22:03:23-05:00",
           "commitMilestoneTag": "HOOKS-AUTOMATION-V2-MS0"
         },
@@ -22634,7 +22634,7 @@
           "title": "Agent-scoped Stop verifier hook",
           "phase": "P0",
           "shipped": true,
-          "sha": "1f09e94fcc797077171e9695cb1f19a3dff93ade",
+          "sha": "52d46fe802f0e45f4fa714df730680ee526bd139",
           "date": "2026-05-11T22:12:55-05:00",
           "commitMilestoneTag": "HOOKS-AUTOMATION-V2-MS0"
         },
@@ -22643,7 +22643,7 @@
           "title": "Install official `hookify` plugin alongside local hooks",
           "phase": "P0",
           "shipped": true,
-          "sha": "1d318b215f5db1baf83a5c243d638ada99136691",
+          "sha": "ba398032a6b5add002bb83b41c39df85ff7a7a8a",
           "date": "2026-05-11T22:16:26-05:00",
           "commitMilestoneTag": "HOOKS-AUTOMATION-V2-MS0"
         },
@@ -22652,7 +22652,7 @@
           "title": "HTTP-type hook to system-viz live update",
           "phase": "P0",
           "shipped": true,
-          "sha": "9afb338a6f66afe47995df394f70c237a120a919",
+          "sha": "6d13506c7a66f894f171dcbab5aaa86fd6734318",
           "date": "2026-05-11T22:23:07-05:00",
           "commitMilestoneTag": "HOOKS-AUTOMATION-V2-MS0"
         },
@@ -22661,7 +22661,7 @@
           "title": "MCP-tool-type safety bridge",
           "phase": "P0",
           "shipped": true,
-          "sha": "ac59e3c9bc97eeb2c1ea19bc3f9642e852f67bda",
+          "sha": "1db47cf85b4ce00addf2d2255d54d79506a3b9f7",
           "date": "2026-05-11T22:27:15-05:00",
           "commitMilestoneTag": "HOOKS-AUTOMATION-V2-MS0"
         },
@@ -22670,7 +22670,7 @@
           "title": "TaskCreated claim guard (deny duplicate creation)",
           "phase": "P0",
           "shipped": true,
-          "sha": "97593fc17365570bdf6bbe4942ac57a79815984a",
+          "sha": "5de51af00bc706d5deecee514eefce49e1fdce11",
           "date": "2026-05-11T22:31:39-05:00",
           "commitMilestoneTag": "HOOKS-AUTOMATION-V2-MS0"
         },
@@ -22679,7 +22679,7 @@
           "title": "PostToolBatch budget ceiling",
           "phase": "P0",
           "shipped": true,
-          "sha": "b18c0af2422ad2896bc82296dd15cb886b5f3588",
+          "sha": "b7339963112eef9e85474a20dcf0036ea176cfbc",
           "date": "2026-05-11T22:40:06-05:00",
           "commitMilestoneTag": "HOOKS-AUTOMATION-V2-MS0"
         }
@@ -22763,7 +22763,7 @@
           "title": "Generation pipeline + cron registration",
           "phase": "P0",
           "shipped": true,
-          "sha": "adcfd01320f40a1960555cfdcb54279decd839db",
+          "sha": "081e946e30ff80c79772b6ff5a8c44f1f4be93f3",
           "date": "2026-05-12T08:04:07-05:00",
           "commitMilestoneTag": "HTML-PRIMARY-MS0"
         },
@@ -24152,7 +24152,7 @@
           "title": "Fix W2 update-order backprop bug — snapshot W2 before in-place update",
           "phase": "P1-CORRECTNESS",
           "shipped": true,
-          "sha": "0156f90c91248b9d45d50968b95cb7fa7410b3dc",
+          "sha": "53694e74bc1e91b2173bc4afa3cf02953bd7e401",
           "date": "2026-05-06T21:33:17-05:00",
           "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         },
@@ -24161,7 +24161,7 @@
           "title": "Remove response_summary.success label leakage at line 314",
           "phase": "P1-CORRECTNESS",
           "shipped": true,
-          "sha": "1e8714274bc263d8a0e7dfb3c858215cc21b7bc3",
+          "sha": "39e43f9f2f4a1cfa15946a7b5ee3ba9473edea1a",
           "date": "2026-05-06T21:34:32-05:00",
           "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         },
@@ -24170,7 +24170,7 @@
           "title": "Honest finalLoss reporting — recompute post-update on full epoch",
           "phase": "P1-CORRECTNESS",
           "shipped": true,
-          "sha": "c4357b426a8f7a6273e64ac7c3dde3c91dd3853a",
+          "sha": "a3694ead2115c29e247c678992b6c878b04b6ec4",
           "date": "2026-05-06T21:35:48-05:00",
           "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         },
@@ -24179,7 +24179,7 @@
           "title": "True minibatch SGD with gradient averaging",
           "phase": "P1-CORRECTNESS",
           "shipped": true,
-          "sha": "0a2ec67d0c57c52643f5a665503f859a5b990535",
+          "sha": "2d83882233a3064fafb252d3260987c2e4f4a431",
           "date": "2026-05-06T21:37:38-05:00",
           "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         },
@@ -24188,7 +24188,7 @@
           "title": "Statistical convergence test — ln(3) baseline + repeated-seed CI",
           "phase": "P1-CORRECTNESS",
           "shipped": true,
-          "sha": "3f2d517f2f31a3ecebea2f443ba41fa6147d5bc9",
+          "sha": "8e28d3941dcc418288ee2802b433ad703f7a314a",
           "date": "2026-05-06T21:42:26-05:00",
           "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         },
@@ -24197,7 +24197,7 @@
           "title": "Widen categorical hash buckets — material 4→64, tool/machine/op 3→16, with collision audit",
           "phase": "P2-FEATURIZE",
           "shipped": true,
-          "sha": "ad3fc910ff16590bdc79422671b88991f512a5d9",
+          "sha": "d8dbb95b80860eacd18b4f989762958f75b0e72b",
           "date": "2026-05-06T21:49:20-05:00",
           "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         },
@@ -24206,7 +24206,7 @@
           "title": "Welford z-score normalization for numeric features",
           "phase": "P2-FEATURIZE",
           "shipped": true,
-          "sha": "ab1e894fff83257e9148ee9b94e9d10d84842c40",
+          "sha": "f959bf554778485eab298dd1ba1bb246b0ee4885",
           "date": "2026-05-06T22:03:06-05:00",
           "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         },
@@ -24215,7 +24215,7 @@
           "title": "Physics-engine features — Kienzle force, Taylor life, chatter stability appended to input",
           "phase": "P2-FEATURIZE",
           "shipped": true,
-          "sha": "8f125466c9a547efe9f83ecc38de715e595b9ba2",
+          "sha": "3cf2e45cef854fb148102a7d2435870d2c3b42ea",
           "date": "2026-05-07T07:38:35-05:00",
           "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         },
@@ -24224,7 +24224,7 @@
           "title": "Wiki tribal-tip RAG features via PRISMSelfAwarenessEngine",
           "phase": "P2-FEATURIZE",
           "shipped": true,
-          "sha": "472c09fc3580cb037f19e96a4d2ba384edfbd52b",
+          "sha": "71f90060b9fbad45c8972679e1e59e485cd88be1",
           "date": "2026-05-07T08:02:46-05:00",
           "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         },
@@ -24233,7 +24233,7 @@
           "title": "Build FeedbackBusEngine — pub/sub event bus for outcome events",
           "phase": "P3-CLOSED-LOOP",
           "shipped": true,
-          "sha": "735c7042fdaac96da801efb627f38d2699764e84",
+          "sha": "67ba5fe780eaadcde287341d94e0bdfd394cdded",
           "date": "2026-05-07T10:30:11-05:00",
           "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         },
@@ -24251,7 +24251,7 @@
           "title": "NeuralLearningEngine subscribes to FeedbackBus for incremental online training",
           "phase": "P3-CLOSED-LOOP",
           "shipped": true,
-          "sha": "c276d3a6237587a749ce15182e20420223410727",
+          "sha": "615d1a76ff10de937ec6bd375742b04e82400585",
           "date": "2026-05-07T11:06:15-05:00",
           "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         },
@@ -24260,7 +24260,7 @@
           "title": "Wire MillPrintToProgramEngine to emit outcome events post-run",
           "phase": "P3-CLOSED-LOOP",
           "shipped": true,
-          "sha": "e4127eb35e56c8a88c022d6c56166f386f838068",
+          "sha": "9b9c8c2053fdb596a577c174e582acbaff41a177",
           "date": "2026-05-08T13:16:46-05:00",
           "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         },
@@ -24269,7 +24269,7 @@
           "title": "Wire WEDMPrintToProgramEngine to emit outcome events (Reviewer 5 Option A)",
           "phase": "P3-CLOSED-LOOP",
           "shipped": true,
-          "sha": "c0278d5e63a30684b039429ab0ad2c6ccfac9320",
+          "sha": "88392f0452c900fb67414b6bb1f318a0cf52072e",
           "date": "2026-05-08T12:34:45-05:00",
           "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         },
@@ -24278,7 +24278,7 @@
           "title": "Memory feedback ingester — feedback_*.md → RewardShaperEngine",
           "phase": "P3-CLOSED-LOOP",
           "shipped": true,
-          "sha": "23056e46a4c1be0f7a09e57d429527be4716e997",
+          "sha": "cd82c54d4107a10954589f80451a44e0bb40f6bc",
           "date": "2026-05-08T09:01:15-05:00",
           "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         },
@@ -24287,7 +24287,7 @@
           "title": "JM Die NC corpus parser — Mastercam-Okuma dialect (lathe priority)",
           "phase": "P4-REAL-DATA",
           "shipped": true,
-          "sha": "a159f82db53c68dbf0b96e72a77b91207064c987",
+          "sha": "f3ba8a31451ae235cca4cc6b2b7f774140e732fb",
           "date": "2026-05-08T13:31:53-05:00",
           "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         },
@@ -24296,7 +24296,7 @@
           "title": "Extend parser — Mastercam-Fanuc + hyperMILL dialects",
           "phase": "P4-REAL-DATA",
           "shipped": true,
-          "sha": "fcce877915a15aab61b230b67ba2212c6834b796",
+          "sha": "34de4394639c53c3788010540e42b4e782c2456a",
           "date": "2026-05-08T14:44:10-05:00",
           "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         },
@@ -24305,7 +24305,7 @@
           "title": "Bulk corpus → outcome events ingester",
           "phase": "P4-REAL-DATA",
           "shipped": true,
-          "sha": "ca34fffb7ce82f26da122b42b028754e44367be6",
+          "sha": "f8cae92dca92eea06fcf73270929da4185fa7bec",
           "date": "2026-05-08T15:12:20-05:00",
           "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         },
@@ -24314,7 +24314,7 @@
           "title": "Adam optimizer with bias correction (replace SGD-momentum)",
           "phase": "P5-ARCH-MODERN",
           "shipped": true,
-          "sha": "0659bafe25b92cd1ef8151a3f0d4ef07333d32ca",
+          "sha": "5f09f623afeb5981d8c336ebcafdac6d9e278eaa",
           "date": "2026-05-08T17:40:01-05:00",
           "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         },
@@ -24323,7 +24323,7 @@
           "title": "L2 weight decay + early stopping + best-checkpoint",
           "phase": "P5-ARCH-MODERN",
           "shipped": true,
-          "sha": "06114e3ed5437b2fb8e424e70c97d87c9795dabb",
+          "sha": "af84577941b74e7b98f149e739c030acf3bc9d6e",
           "date": "2026-05-08T17:57:17-05:00",
           "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         },
@@ -24332,7 +24332,7 @@
           "title": "Class-weighted cross-entropy + label smoothing",
           "phase": "P5-ARCH-MODERN",
           "shipped": true,
-          "sha": "d435a443489dd9ecd9bc6ee194cb696ca9abccbc",
+          "sha": "3a7b252b6ea3fe087bb45df484e08c0654f3d7a7",
           "date": "2026-05-08T18:08:35-05:00",
           "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         },
@@ -24341,7 +24341,7 @@
           "title": "T5 ConformalPredictionEngine wired around T1-02 outputs",
           "phase": "P5-ARCH-MODERN",
           "shipped": true,
-          "sha": "9562eef9d15ac43a66f485a341c4847179e27b16",
+          "sha": "4c53e0cbf0ff6d62ae93d45c192811f505b485bb",
           "date": "2026-05-08T18:15:49-05:00",
           "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         },
@@ -24350,7 +24350,7 @@
           "title": "T2 EpisodicMemory + PrioritizedReplay wired to FeedbackBus",
           "phase": "P6-TIER-COMPOSE",
           "shipped": true,
-          "sha": "22e76f55bee4ca04f53e7f1109cbc257f8c18a78",
+          "sha": "fdd490034824d321a95a555a7ed8c78f9d0d6ebd",
           "date": "2026-05-08T19:56:14-05:00",
           "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         },
@@ -24359,7 +24359,7 @@
           "title": "T3 DriftDetector wired to nightly cron + Stop hook alerting",
           "phase": "P6-TIER-COMPOSE",
           "shipped": true,
-          "sha": "d454eececca446366546888f787c91f174e46d4a",
+          "sha": "7c852605d250e0db01348d3ac603d6c55c4aea16",
           "date": "2026-05-08T20:03:00-05:00",
           "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         },
@@ -24368,7 +24368,7 @@
           "title": "T4 RewardShaper + PolicyGradient wired to outcome events",
           "phase": "P6-TIER-COMPOSE",
           "shipped": true,
-          "sha": "f70f8b496d88e0b261bf6c0686cd03a767d09383",
+          "sha": "8e16ca4623a398b54ccdb8b7cb6e1a76427b017a",
           "date": "2026-05-09T22:32:19-05:00",
           "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         },
@@ -24377,7 +24377,7 @@
           "title": "T8 SymbolicConstraintEnforcer wraps T1-02 outputs (physics envelope hard-gate)",
           "phase": "P6-TIER-COMPOSE",
           "shipped": true,
-          "sha": "e7f1705093e03883a78364467032c6e3e420f73a",
+          "sha": "6bec8ed562a6d6a414877b2186c2fa7105490ebd",
           "date": "2026-05-08T18:47:09-05:00",
           "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         },
@@ -24395,7 +24395,7 @@
           "title": "Temperature scaling calibration (Guo et al. 2017)",
           "phase": "P7-OPT",
           "shipped": true,
-          "sha": "f82776164a09a19fc547511bd1724327f17c81d0",
+          "sha": "2f949d3477d161c178af5d6216e8654c889d7f3d",
           "date": "2026-05-08T23:35:23-05:00",
           "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         },
@@ -24404,7 +24404,7 @@
           "title": "LR warmup + cosine decay schedule (Loshchilov & Hutter 2017)",
           "phase": "P7-OPT",
           "shipped": true,
-          "sha": "6fdb77668952a42a25a1060c89d590678b744c57",
+          "sha": "7afc1f3220976de73f93e915271856e48b622b53",
           "date": "2026-05-09T14:58:12-05:00",
           "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         },
@@ -24413,7 +24413,7 @@
           "title": "Snapshot ensembles via cyclic LR (Huang et al. 2017)",
           "phase": "P7-OPT",
           "shipped": true,
-          "sha": "547af505b0430e06fb2c9c6e63ed27e77064b57f",
+          "sha": "aded88930b6025b18ce7e0055768edd86dae48bf",
           "date": "2026-05-09T20:23:07-05:00",
           "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         },
@@ -24422,7 +24422,7 @@
           "title": "Mixup tabular augmentation (Zhang et al. 2018)",
           "phase": "P7-OPT",
           "shipped": true,
-          "sha": "a5f88f5322f709b3d958a715b335270b330f5d0e",
+          "sha": "a73bd7299bf175f84220f49452ddab14e6389405",
           "date": "2026-05-09T20:50:40-05:00",
           "commitMilestoneTag": "XPROC-NEURAL-OPTIMIZE-MS0"
         }
@@ -28999,7 +28999,7 @@
           "title": "Build `KimiTransportEngine` (mid-tier tentacle)",
           "phase": "P0",
           "shipped": true,
-          "sha": "1471fed315e101987ba3aaf6f7181a057aa8a5e1",
+          "sha": "f98357286a1a682ecf514a39b98efef55d9e8366",
           "date": "2026-05-12T13:27:08-05:00",
           "commitMilestoneTag": "OCTOPUS-NEURAL-MS0"
         },
@@ -29008,7 +29008,7 @@
           "title": "Build `MoaLayer2Engine` (aggregator over current 3-of-3)",
           "phase": "P0",
           "shipped": true,
-          "sha": "23818d22e265569330886449b88138d5ec9c4723",
+          "sha": "5e54d35ca46f9d4dac1ba5b1e4c59c35b7363309",
           "date": "2026-05-12T13:35:42-05:00",
           "commitMilestoneTag": "OCTOPUS-NEURAL-MS0"
         },
@@ -29017,7 +29017,7 @@
           "title": "Build `NeuralRoutingEngine` (GraphRouter on scrutiny ledger)",
           "phase": "P0",
           "shipped": true,
-          "sha": "9f4eba57c92d19e4eba8f528f8c7a1703444922b",
+          "sha": "fbf7d625ea18ed567da6e68f5eb9bca42203cd4f",
           "date": "2026-05-12T13:43:29-05:00",
           "commitMilestoneTag": "OCTOPUS-NEURAL-MS0"
         },
@@ -29026,7 +29026,7 @@
           "title": "Build `CascadeCalibrationEngine` (probe-based offload)",
           "phase": "P0",
           "shipped": true,
-          "sha": "7495e794de78d44fc2fc42bf9eca3d48bba676c7",
+          "sha": "17da77ad57bca6eb5c96ba09ed7ca0260540d37e",
           "date": "2026-05-12T13:54:13-05:00",
           "commitMilestoneTag": "OCTOPUS-NEURAL-MS0"
         },
@@ -29035,7 +29035,7 @@
           "title": "Build `ConsensusQuorumEngine` (dynamic N-of-M from change class)",
           "phase": "P0",
           "shipped": true,
-          "sha": "4d0f6881bf751510b55d43f625fc1e97fb0f9bbd",
+          "sha": "4a309d1f3839b5ef3eef2f98315b9c3726d83e66",
           "date": "2026-05-12T14:14:53-05:00",
           "commitMilestoneTag": "OCTOPUS-NEURAL-MS0"
         }
@@ -38946,7 +38946,7 @@
           "title": "Skill registry schema extension (the foundation — do first)",
           "phase": "P0",
           "shipped": true,
-          "sha": "e0416f068c02e8260cabb039c675be9457641174",
+          "sha": "5bdcdfa272b3f594c8a01fcb3cb34a074f2dbeb6",
           "date": "2026-05-11T21:50:15-05:00",
           "commitMilestoneTag": "SKILLS-UTILIZATION-MS0"
         },
@@ -38955,7 +38955,7 @@
           "title": "Three-Question pre-build gate (PreToolUse hook on skill creation)",
           "phase": "P0",
           "shipped": true,
-          "sha": "76adeb01afea89db5f43c4c8277daf4a71d96dfb",
+          "sha": "be7b2d3d6d9d08ce294557e5029215f9b68c2499",
           "date": "2026-05-11T22:33:36-05:00",
           "commitMilestoneTag": "SKILLS-UTILIZATION-MS0"
         },
@@ -38964,7 +38964,7 @@
           "title": "Three-Scenario skill-test protocol + runner",
           "phase": "P0",
           "shipped": true,
-          "sha": "fdaaf91e7946bb9ff5cca11bfba8f229b33bc3f9",
+          "sha": "3ba00b462ec6446b261b58c1f7328b6ade08c06f",
           "date": "2026-05-12T08:23:16-05:00",
           "commitMilestoneTag": "SKILLS-UTILIZATION-MS0"
         },
@@ -38973,7 +38973,7 @@
           "title": "Skill linter: vague-language ban + 500-line cap + trigger-phrase floor",
           "phase": "P0",
           "shipped": true,
-          "sha": "0ee9311bc5849a841b4983d61233c65969c3fc7a",
+          "sha": "29d50d14e47cbbb19b8cc713eea826d14927ec18",
           "date": "2026-05-11T22:22:53-05:00",
           "commitMilestoneTag": "SKILLS-UTILIZATION-MS0"
         },
@@ -38982,7 +38982,7 @@
           "title": "Weekly skill-refinement cadence (telemetry-driven nudge + master tracking)",
           "phase": "P0",
           "shipped": true,
-          "sha": "6ef530b5b1a3659298aeb131f2d57df36bf4ec7d",
+          "sha": "9774e813d56fde9f096d5be5793022f068f44876",
           "date": "2026-05-12T10:31:59-05:00",
           "commitMilestoneTag": "SKILLS-UTILIZATION-MS0"
         },
@@ -38991,7 +38991,7 @@
           "title": "Skill-library audit: grade PRISM's 637 skills against the production-grade bar",
           "phase": "P0",
           "shipped": true,
-          "sha": "df4cb9ca110471c6742780b2d5479f0da0e842c1",
+          "sha": "9d453098e9832acc396bfcbd41341132b41ffcb3",
           "date": "2026-05-12T09:13:28-05:00",
           "commitMilestoneTag": "SKILLS-UTILIZATION-MS0"
         },
@@ -39000,7 +39000,7 @@
           "title": "Skill-marketplace scan for PRISM-domain-relevant skills",
           "phase": "P0",
           "shipped": true,
-          "sha": "79bfbf315402b63e14e20abcc200a78a74b6c854",
+          "sha": "39451523d73b3a878481a9dabd0702da995b4e43",
           "date": "2026-05-12T09:59:07-05:00",
           "commitMilestoneTag": "SKILLS-UTILIZATION-MS0"
         },
@@ -39009,7 +39009,7 @@
           "title": "Bundle PRISM's production-grade skills as an INTERNAL plugin (public publication DEFERRED — hard rule)",
           "phase": "P0",
           "shipped": true,
-          "sha": "9f4246b6242f0bcdde07c6b21bb05494c3033117",
+          "sha": "bde80615a36111df4dfbef1f6952ec97ccb28645",
           "date": "2026-05-12T10:29:16-05:00",
           "commitMilestoneTag": "SKILLS-UTILIZATION-MS0"
         }
@@ -39454,6 +39454,84 @@
       "derivedStatus": "no_units",
       "drift": "n/a",
       "units": []
+    },
+    {
+      "id": "TRAINING-LEARNING-MS0",
+      "title": "Domain Starting-Template Corpus (Lathe + Mill + WEDM) + Taptite-Electrode Excel-Macro Bridge",
+      "track": "TRAINING-LEARNING",
+      "claimedStatus": "in_progress",
+      "total": 7,
+      "shipped": 0,
+      "pending": 7,
+      "ratio": 0,
+      "lastShippedDate": "",
+      "derivedStatus": "not_started_real",
+      "drift": "consistent",
+      "units": [
+        {
+          "id": "U-TL-U1-LATHE-TEMPLATE-EXTRACTOR",
+          "title": "LathePartFamilyTemplateExtractorEngine + corpus scanner",
+          "phase": "lathe",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-TL-U2-MILL-TEMPLATE-EXTRACTOR",
+          "title": "MillPartFamilyTemplateExtractorEngine + corpus scanner",
+          "phase": "mill",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-TL-U3-ELECTRODE-COVERAGE-AUDIT",
+          "title": "ElectrodeCoverageAuditEngine + phase20-electrode-coverage-audit.py (READ-ONLY against .xlsm)",
+          "phase": "electrode-audit",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-TL-U4-WEDM-TEMPLATE-EXTRACTOR-AND-BRIDGE",
+          "title": "WEDMPartFamilyTemplateExtractorEngine + TaptiteElectrodeMacroBridgeEngine (parsed-snapshot path)",
+          "phase": "wedm",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-TL-U5-DOMAIN-MATCHERS",
+          "title": "LathePartFamilyMatcherEngine + MillPartFamilyMatcherEngine + WEDMPartFamilyMatcherEngine",
+          "phase": "matchers",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-TL-U6-CONTINUOUS-LEARNING",
+          "title": "TrainingTemplateContinuousLearningEngine (ingestLatheOutcome / ingestMillOutcome / ingestWEDMOutcome)",
+          "phase": "closed-loop",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-TL-U7-SKILL-AND-CLOSEOUT",
+          "title": "/learn-corpus skill (args: lathe|mill|wedm|electrode-audit|status|match <part>) + ENGINE_DIGEST regen + 3-way scrutiny",
+          "phase": "close-out",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        }
+      ]
     },
     {
       "id": "ULT-MS0",

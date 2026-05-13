@@ -1,11 +1,11 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-13T02:17:20.976Z",
+  "generatedAt": "2026-05-13T03:19:43.996Z",
   "headline": {
     "built_engines": 2324,
-    "built_with_wiki": 1075,
+    "built_with_wiki": 1073,
     "needs_wiring": 879,
-    "needs_building_active_units": 3396,
+    "needs_building_active_units": 3402,
     "needs_frontend_merge_count": 2,
     "pending_milestones_with_activity": 3,
     "drift_milestones": 3,
@@ -19,7 +19,7 @@
     "engines_index": "H:\\prism\\mcp-server\\data\\state\\ENGINES_INDEX.json"
   },
   "BUILT": {
-    "summary": "2324/3203 engines wired (73%); 1075 wiki entries indexed.",
+    "summary": "2324/3203 engines wired (73%); 1073 wiki entries indexed.",
     "breakdown": {
       "totalEngines": 3203,
       "unwired": 879,
@@ -334,8 +334,8 @@
       },
       {
         "domain": "Lathe",
-        "total": 186,
-        "wired": 97,
+        "total": 187,
+        "wired": 98,
         "unwired": 89,
         "coverage_pct": 52,
         "sample_unwired": [
@@ -4493,8 +4493,8 @@
       },
       {
         "domain": "Hook",
-        "total": 14,
-        "wired": 14,
+        "total": 15,
+        "wired": 15,
         "unwired": 0,
         "coverage_pct": 100,
         "sample_unwired": []
@@ -9101,7 +9101,7 @@
     "next_action": "Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift."
   },
   "NEEDS_BUILDING": {
-    "summary": "3396 units across 667 milestones not yet in git.",
+    "summary": "3402 units across 668 milestones not yet in git.",
     "drift_cases": [
       {
         "id": "MF-MS1",
@@ -9128,12 +9128,6 @@
         "unit": "U-HOOK-STOPGAP",
         "title": "7 hook timeout reductions in C:/Users/wompu/.claude/settings.json (git-health-guard 35→8s, git-sync-stop 35→8s, session-start-zombie-reap 25→8s, auto-lint-post-edit 15→8s, git-sync-fetch/claude-brief-inject/quality-dashboard-alert 12→5s)",
         "phase": "stopgap"
-      },
-      {
-        "milestone": "HOOK-SYNERGY-MS0",
-        "unit": "U-HOOK-FAST-LANE",
-        "title": "H6 — Settings.json matcher split (Read/Glob/Grep fast lane vs Edit/Write/Bash slow lane) + dedup apply (target 70% latency cut on read-only ops)",
-        "phase": "critical-path"
       },
       {
         "milestone": "HOOK-SYNERGY-MS0",
