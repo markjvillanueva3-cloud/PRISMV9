@@ -458,6 +458,15 @@ export const AI_REASONING_ACTIONS = [
   "cascade_calibrate",              // CascadeCalibrationEngine.calibrate
   // INFRA-CONSENSUS-WIRE-MS0/P0-U01: 4-way model consensus action surface
   "consensus_decide",               // MultiModelConsensusEngine.ask (vote or compare)
+  // CAM-FUSION-LIVE-MS0/U-WIRE-LORA-DRIFT: cross-pipeline LoRA drift coordination
+  "lora_drift_record",              // LoRADriftCoordinatorEngine.record
+  "lora_drift_active",              // LoRADriftCoordinatorEngine.activePipelines
+  "lora_drift_should_retrain",      // LoRADriftCoordinatorEngine.shouldTriggerMasterRetrain
+  "lora_drift_check_all_clear",     // LoRADriftCoordinatorEngine.checkAllClear
+  "lora_drift_buffer_size",         // LoRADriftCoordinatorEngine.bufferSize
+  "lora_drift_reset",               // LoRADriftCoordinatorEngine.reset
+  "lora_drift_get_config",          // LoRADriftCoordinatorEngine.getConfig
+  "lora_drift_set_config",          // LoRADriftCoordinatorEngine.setConfig
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -2189,5 +2198,57 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
     "comes back from the dispatcher; callers must inspect recommendation " +
     "AND successCount, not just dispatcher-level success), totalLatencyMs, " +
     "and meetsCallerThreshold (agreementScore vs caller's agreementThreshold).",
+  ),
+
+  // ── LoRADriftCoordinatorEngine (CAM-FUSION-LIVE-MS0/U-WIRE-LORA-DRIFT) ───
+  // Cross-pipeline drift coordination. 8 pipeline types: milling, 5axis,
+  // millturn, wedm, sinker-edm, laser, waterjet, grinding.
+  lora_drift_record: z.object({
+    pipeline_type: z.enum(["milling","5axis","millturn","wedm","sinker-edm","laser","waterjet","grinding"])
+      .describe("Pipeline reporting the drift"),
+    delta: z.number().finite().describe(
+      "Relative eval-score drop (positive=drop). Above driftDeltaFloor (default 0.10) triggers alert.",
+    ),
+    observed_at: z.string().describe("ISO-8601 timestamp of the observation"),
+    baseline_eval_score: z.number().describe("Eval score before drift (baseline)"),
+    current_eval_score: z.number().describe("Eval score at observation time"),
+  }).strict().describe("Record a drift observation; returns the emitted DriftEvent."),
+
+  lora_drift_active: z.object({}).strict().describe(
+    "List pipelines currently drifted within the rolling window.",
+  ),
+
+  lora_drift_should_retrain: z.object({}).strict().describe(
+    "Boolean check: should master retrain trigger fire right now?",
+  ),
+
+  lora_drift_check_all_clear: z.object({}).strict().describe(
+    "Returns an allClear DriftEvent if no drifts remain in window, else null.",
+  ),
+
+  lora_drift_buffer_size: z.object({}).strict().describe(
+    "Current observation buffer size (after pruning expired entries).",
+  ),
+
+  lora_drift_reset: z.object({}).strict().describe(
+    "Clear all observations from the buffer.",
+  ),
+
+  lora_drift_get_config: z.object({}).strict().describe(
+    "Read current coordinator config (windowMs, coordinatedThreshold, driftDeltaFloor).",
+  ),
+
+  lora_drift_set_config: z.object({
+    window_ms: z.number().int().positive().optional().describe(
+      "Rolling correlation window. Default 7,200,000 ms (2h).",
+    ),
+    coordinated_threshold: z.number().int().min(2).optional().describe(
+      "Min distinct pipelines drifted in window to trigger coordinated alert. Default 2.",
+    ),
+    drift_delta_floor: z.number().nonnegative().optional().describe(
+      "Delta magnitude above which an observation counts as 'drifted'. Default 0.10.",
+    ),
+  }).strict().describe(
+    "Patch coordinator config. Validates: windowMs>0, coordinatedThreshold≥2, driftDeltaFloor≥0.",
   ),
 };

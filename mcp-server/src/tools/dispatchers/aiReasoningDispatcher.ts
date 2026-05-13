@@ -2316,6 +2316,59 @@ export async function executeAIReasoningAction(
         break;
       }
 
+      // ── LoRADriftCoordinatorEngine actions (CAM-FUSION-LIVE-MS0/U-WIRE-LORA-DRIFT) ──
+      case "lora_drift_record": {
+        const { loRADriftCoordinatorEngine } = await import("../../engines/LoRADriftCoordinatorEngine.js");
+        result = loRADriftCoordinatorEngine.record({
+          pipelineType: params.pipeline_type as Parameters<typeof loRADriftCoordinatorEngine.record>[0]["pipelineType"],
+          delta: params.delta as number,
+          observedAt: params.observed_at as string,
+          baselineEvalScore: params.baseline_eval_score as number,
+          currentEvalScore: params.current_eval_score as number,
+        });
+        break;
+      }
+      case "lora_drift_active": {
+        const { loRADriftCoordinatorEngine } = await import("../../engines/LoRADriftCoordinatorEngine.js");
+        result = { active: loRADriftCoordinatorEngine.activePipelines() };
+        break;
+      }
+      case "lora_drift_should_retrain": {
+        const { loRADriftCoordinatorEngine } = await import("../../engines/LoRADriftCoordinatorEngine.js");
+        result = { shouldTrigger: loRADriftCoordinatorEngine.shouldTriggerMasterRetrain() };
+        break;
+      }
+      case "lora_drift_check_all_clear": {
+        const { loRADriftCoordinatorEngine } = await import("../../engines/LoRADriftCoordinatorEngine.js");
+        result = { event: loRADriftCoordinatorEngine.checkAllClear() };
+        break;
+      }
+      case "lora_drift_buffer_size": {
+        const { loRADriftCoordinatorEngine } = await import("../../engines/LoRADriftCoordinatorEngine.js");
+        result = { size: loRADriftCoordinatorEngine.bufferSize() };
+        break;
+      }
+      case "lora_drift_reset": {
+        const { loRADriftCoordinatorEngine } = await import("../../engines/LoRADriftCoordinatorEngine.js");
+        loRADriftCoordinatorEngine.reset();
+        result = { reset: true, size: loRADriftCoordinatorEngine.bufferSize() };
+        break;
+      }
+      case "lora_drift_get_config": {
+        const { loRADriftCoordinatorEngine } = await import("../../engines/LoRADriftCoordinatorEngine.js");
+        result = loRADriftCoordinatorEngine.getConfig();
+        break;
+      }
+      case "lora_drift_set_config": {
+        const { loRADriftCoordinatorEngine } = await import("../../engines/LoRADriftCoordinatorEngine.js");
+        const patch: Record<string, number> = {};
+        if (typeof params.window_ms === "number") patch.windowMs = params.window_ms;
+        if (typeof params.coordinated_threshold === "number") patch.coordinatedThreshold = params.coordinated_threshold;
+        if (typeof params.drift_delta_floor === "number") patch.driftDeltaFloor = params.drift_delta_floor;
+        result = loRADriftCoordinatorEngine.setConfig(patch);
+        break;
+      }
+
       default: {
         const _exhaustive: never = action;
         return dispatcherError(`Unknown action: ${_exhaustive}`, action, "prism_ai");
