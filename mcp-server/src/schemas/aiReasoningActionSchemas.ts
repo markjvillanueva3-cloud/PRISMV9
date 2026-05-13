@@ -467,6 +467,8 @@ export const AI_REASONING_ACTIONS = [
   "lora_drift_reset",               // LoRADriftCoordinatorEngine.reset
   "lora_drift_get_config",          // LoRADriftCoordinatorEngine.getConfig
   "lora_drift_set_config",          // LoRADriftCoordinatorEngine.setConfig
+  // AUTO-LEARNING-LOOP-MS0/U-ALL02 — NoveltyDetectionEngine
+  "novelty_detect",                 // NoveltyDetectionEngine.detect (+ optional addVerifiedNovel)
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -2250,5 +2252,24 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
     ),
   }).strict().describe(
     "Patch coordinator config. Validates: windowMs>0, coordinatedThreshold≥2, driftDeltaFloor≥0.",
+  ),
+
+  // AUTO-LEARNING-LOOP-MS0/U-ALL02 — NoveltyDetectionEngine
+  novelty_detect: z.object({
+    items: z.array(z.object({
+      source: z.string().describe("Source slug from ReputableSourceMonitorEngine (e.g. 'arxiv-cs-ai')."),
+      guid: z.string().describe("Stable identifier for the item (guid/id/link)."),
+      title: z.string().describe("Item title."),
+      link: z.string().optional().describe("Item URL if available."),
+      published: z.string().optional().describe("ISO-8601 publish timestamp (best-effort)."),
+      summary: z.string().optional().describe("Best-effort item summary."),
+    })).describe("Batch of SourceItem to classify."),
+    commit: z.boolean().optional().describe(
+      "If true, items flagged isNovel=true are added to the catalog after detect. Default false.",
+    ),
+  }).strict().describe(
+    "Classify a batch of source items as novel or known relative to the auto-learn catalog. " +
+    "Returns { detect, add?, catalogLoaded }. When commit=true the add field carries " +
+    "AddOutcome { added, embeddedFailures, skipped }.",
   ),
 };

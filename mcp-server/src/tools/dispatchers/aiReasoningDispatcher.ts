@@ -2369,6 +2369,32 @@ export async function executeAIReasoningAction(
         break;
       }
 
+      // ─────────────────────────────────────────────────────────────────────
+      // AUTO-LEARNING-LOOP-MS0/U-ALL02 — NoveltyDetectionEngine
+      // ─────────────────────────────────────────────────────────────────────
+      case "novelty_detect": {
+        const { noveltyDetectionEngine } = await import("../../engines/NoveltyDetectionEngine.js");
+        const items = (params.items ?? []) as Array<{
+          source: string;
+          guid: string;
+          title: string;
+          link?: string;
+          published?: string;
+          summary?: string;
+        }>;
+        const detectR = await noveltyDetectionEngine.detect(items);
+        let addR: { added: number; embeddedFailures: string[]; skipped: string[] } | undefined;
+        if (params.commit === true) {
+          addR = await noveltyDetectionEngine.addVerifiedNovel(detectR.results, items);
+        }
+        result = {
+          detect: detectR,
+          add: addR,
+          catalogLoaded: noveltyDetectionEngine.isCatalogLoaded(),
+        };
+        break;
+      }
+
       default: {
         const _exhaustive: never = action;
         return dispatcherError(`Unknown action: ${_exhaustive}`, action, "prism_ai");

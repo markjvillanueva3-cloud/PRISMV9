@@ -7,12 +7,14 @@
   "owner": "claude-06b8753f (slot CHARLIE)",
   "scoped_by": "claude-8f2683e8 (slot ALPHA, 2026-05-12)",
   "created_at": "2026-05-12T15:00:00.000Z",
-  "updated_at": "2026-05-13T02:30:00.000Z",
+  "updated_at": "2026-05-13T16:30:00.000Z",
   "status": "in_progress",
   "total_units": 7,
-  "completed_units": 2,
-  "dependencies": ["MACRO-PROGRAM-PIPELINE-MS0"],
-  "omega_floor": 1.0,
+  "completed_units": 3,
+  "dependencies": [
+    "MACRO-PROGRAM-PIPELINE-MS0"
+  ],
+  "omega_floor": 1,
   "rationale": "Every print, program, CAD/CAM file in JM Die's 24,545-file corpus becomes structured training data. Per-domain matcher engines propose 'this new job looks like these 5 we've already shipped — start from that template.' The taptite-electrode Excel macro at 'JM DIE/Automated Program_Corrected 5-25.xlsm' is bridged as a READ-ONLY first-class asset (parsed-snapshot path for MS0; live-Excel COM deferred to v2). Every electrode part is audited for coverage. No auto-emit — templates feed the gated pipeline in MACRO-PROGRAM-PIPELINE-MS0, operator-in-the-loop is unconditional. Historical S/F values treated as DATA not GROUND TRUTH per feedback_box_programs_amateur — physics-derived recommendations win on disagreement.",
   "knowledge_sources": {
     "engines": [
@@ -92,7 +94,12 @@
           ],
           "tests_required": 10,
           "families_required": 3,
-          "families_target": ["wafer-insert", "casing", "shaft", "flange"],
+          "families_target": [
+            "wafer-insert",
+            "casing",
+            "shaft",
+            "flange"
+          ],
           "wired_actions": [
             "prism_turning:lathe_training_corpus_status",
             "prism_turning:lathe_training_template_list",
@@ -109,7 +116,7 @@
         {
           "id": "U-TL-U2-MILL-TEMPLATE-EXTRACTOR",
           "title": "MillPartFamilyTemplateExtractorEngine + corpus scanner",
-          "status": "completed",
+          "status": "complete",
           "completed_at": "2026-05-13T15:35:00Z",
           "completed_in_commits": [
             "64039171990161d5f7f23785a357d1f29651390c (pick-unit pipeline inject — added MS0 to atomic-roadmap)",
@@ -121,8 +128,18 @@
           "branch": "cad-fusion-live-ms0",
           "worktree": "H:/prism (main tree with [TRAINING-LEARNING-MS0] prefix)",
           "safety_critical": false,
-          "dependencies": ["U-TL-U1-LATHE-TEMPLATE-EXTRACTOR"],
-          "families_target": ["taptite-mill", "electrode-mill", "plate", "bracket-housing", "mold-die-insert", "aerospace-bracket", "sheet-metal-fixture"],
+          "dependencies": [
+            "U-TL-U1-LATHE-TEMPLATE-EXTRACTOR"
+          ],
+          "families_target": [
+            "taptite-mill",
+            "electrode-mill",
+            "plate",
+            "bracket-housing",
+            "mold-die-insert",
+            "aerospace-bracket",
+            "sheet-metal-fixture"
+          ],
           "deliverables": [
             "mcp-server/src/engines/MillPartFamilyTemplateExtractorEngine.ts",
             "mcp-server/src/__tests__/MillPartFamilyTemplateExtractorEngine.test.ts (29 cases)",
@@ -136,7 +153,8 @@
             "prism_cam:mill_training_template_match",
             "prism_cam:mill_training_template_list",
             "prism_cam:mill_training_template_extract_all"
-          ]
+          ],
+          "completedAt": "2026-05-13T16:21:45.062Z"
         }
       ]
     },
@@ -147,7 +165,7 @@
         {
           "id": "U-TL-U3-ELECTRODE-COVERAGE-AUDIT",
           "title": "ElectrodeCoverageAuditEngine + phase20-electrode-coverage-audit.py (READ-ONLY against .xlsm)",
-          "status": "not_started",
+          "status": "completed",
           "estimated_hours": 2,
           "safety_critical": true,
           "dependencies": [],
@@ -158,7 +176,9 @@
           "inventory_baseline": {
             "electrode_files": 73,
             "taptite_files": 22
-          }
+          },
+          "completed_at": "2026-05-13T16:30:00.000Z",
+          "completion_notes": "ElectrodeCoverageAuditEngine + phase20-electrode-coverage-audit.py shipped 2026-05-13 by claude-69525176 (slot CHARLIE), commit f1996657d. 55/55 tests pass (45 engine + 10 wire). 6 explicit safety tests verify fs.statSync(.xlsm).mtimeMs/size/sha256 unchanged after engine.report() — no_write_assertion satisfied. Baseline 73 electrodes / 22 taptites confirmed against real H:/PRISM/JM DIE walk (77552 dirs visited, 174407 ms). Dispatcher: +3 prism_cam actions (electrode_corpus_scan, electrode_xlsm_fingerprint, electrode_coverage_audit)."
         }
       ]
     },
@@ -172,9 +192,18 @@
           "status": "not_started",
           "estimated_hours": 4,
           "safety_critical": true,
-          "dependencies": ["U-TL-U3-ELECTRODE-COVERAGE-AUDIT"],
+          "dependencies": [
+            "U-TL-U3-ELECTRODE-COVERAGE-AUDIT"
+          ],
           "implementation_path": "parsed-snapshot (PRIMARY for MS0); live-Excel-COM deferred to v2",
-          "families_target": ["taptite-electrode", "carbide-die-insert", "punch-die", "pcd-tipped-tooling", "aerospace-fir-tree", "mold-insert"]
+          "families_target": [
+            "taptite-electrode",
+            "carbide-die-insert",
+            "punch-die",
+            "pcd-tipped-tooling",
+            "aerospace-fir-tree",
+            "mold-insert"
+          ]
         }
       ]
     },
@@ -188,7 +217,11 @@
           "status": "not_started",
           "estimated_hours": 4,
           "safety_critical": false,
-          "dependencies": ["U-TL-U1-LATHE-TEMPLATE-EXTRACTOR", "U-TL-U2-MILL-TEMPLATE-EXTRACTOR", "U-TL-U4-WEDM-TEMPLATE-EXTRACTOR-AND-BRIDGE"]
+          "dependencies": [
+            "U-TL-U1-LATHE-TEMPLATE-EXTRACTOR",
+            "U-TL-U2-MILL-TEMPLATE-EXTRACTOR",
+            "U-TL-U4-WEDM-TEMPLATE-EXTRACTOR-AND-BRIDGE"
+          ]
         }
       ]
     },
@@ -202,7 +235,9 @@
           "status": "not_started",
           "estimated_hours": 3,
           "safety_critical": false,
-          "dependencies": ["U-TL-U5-DOMAIN-MATCHERS"]
+          "dependencies": [
+            "U-TL-U5-DOMAIN-MATCHERS"
+          ]
         }
       ]
     },
@@ -216,7 +251,9 @@
           "status": "not_started",
           "estimated_hours": 2,
           "safety_critical": false,
-          "dependencies": ["U-TL-U6-CONTINUOUS-LEARNING"]
+          "dependencies": [
+            "U-TL-U6-CONTINUOUS-LEARNING"
+          ]
         }
       ]
     }
