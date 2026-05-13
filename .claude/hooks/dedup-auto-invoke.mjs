@@ -1,149 +1,51 @@
 #!/usr/bin/env node
 /**
- * dedup-auto-invoke.mjs — PreToolUse hook (U-AWARE05)
+ * dedup-auto-invoke.mjs — PreToolUse hook (HOOK-SYNERGY-MS0 / U-HOOK-COMPRESS H9)
  *
- * Automatically runs duplication check logic when creating new assets.
- * Silent check - injects warning context if duplicates found.
+ * Runs the duplication check before Write creates a new engine/algorithm/hook,
+ * surfaces potential duplicates as additionalContext. Engine-shim form: the
+ * search logic lives in `.claude/helpers/duplication-guard.mjs` (single source
+ * of truth, unit-testable). This hook is the I/O envelope and stays ≤30 lines
+ * of actual logic.
+ *
+ * Compressed from 149 lines (pre-H9). The original inlined registry-JSON parse
+ * + engines/index.ts regex search — now delegated to the helper.
  */
 
-import * as fs from 'fs';
-import * as path from 'path';
+import { readFileSync, existsSync } from "node:fs";
+import { findSimilarAssets, classifyAsset } from "../helpers/duplication-guard.mjs";
 
-const REGISTRY_PATH = 'H:/prism/mcp-server/data/state/cross-session-asset-registry.json';
-const ENGINES_INDEX = 'H:/prism/mcp-server/src/engines/index.ts';
-
-const CREATE_PATHS = ['/engines/', '/algorithms/', '/hooks/'];
-
-function isCreateOperation(tool, input) {
-  if (tool !== 'Write') return false;
-  const filePath = input?.file_path || '';
-  return CREATE_PATHS.some(p => filePath.includes(p));
+function approve() { process.stdout.write(JSON.stringify({ decision: "approve" })); }
+function approveWith(context) {
+  process.stdout.write(JSON.stringify({
+    decision: "approve",
+    hookSpecificOutput: { hookEventName: "PreToolUse", additionalContext: context },
+  }));
 }
 
-function getAssetInfo(filePath) {
-  const basename = path.basename(filePath).replace(/\.(ts|js|mjs)$/, '');
-  let type = 'unknown';
-  if (filePath.includes('/engines/')) type = 'engine';
-  if (filePath.includes('/algorithms/')) type = 'algorithm';
-  if (filePath.includes('/hooks/')) type = 'hook';
-  return { name: basename, type };
-}
+let input;
+try { input = JSON.parse(readFileSync(0, "utf8") || "{}"); }
+catch { approve(); process.exit(0); }
 
-function normalizeForSearch(name) {
-  return name
-    .replace(/Engine$/, '')
-    .replace(/Algorithm$/, '')
-    .replace(/Hook$/, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, '');
-}
+const toolName = input?.tool_name || input?.tool || "";
+if (toolName !== "Write") { approve(); process.exit(0); }
 
-function searchRegistry(assetName) {
-  try {
-    const registry = JSON.parse(fs.readFileSync(REGISTRY_PATH, 'utf8'));
-    const normalized = normalizeForSearch(assetName);
+const filePath = input?.tool_input?.file_path || input?.input?.file_path || "";
+const isNewAsset = /\/(engines|algorithms|hooks)\//.test(filePath.replace(/\\/g, "/"));
+if (!isNewAsset || existsSync(filePath)) { approve(); process.exit(0); }
 
-    const matches = [];
-    for (const asset of (registry.assets || [])) {
-      const assetNorm = normalizeForSearch(asset.name || '');
-      if (assetNorm.includes(normalized) || normalized.includes(assetNorm)) {
-        matches.push(asset.name);
-      }
-    }
-    return matches.slice(0, 3);
-  } catch {
-    return [];
-  }
-}
+const { name, type } = classifyAsset(filePath);
+const matches = findSimilarAssets(name, { max: 5 });
 
-function searchEnginesIndex(assetName) {
-  try {
-    const index = fs.readFileSync(ENGINES_INDEX, 'utf8');
-    const normalized = normalizeForSearch(assetName);
-    const matches = [];
+if (matches.length === 0) { approve(); process.exit(0); }
 
-    const exportMatches = index.match(/export\s*{\s*(\w+)\s*}/g) || [];
-    for (const exp of exportMatches) {
-      const name = exp.match(/export\s*{\s*(\w+)\s*}/)?.[1];
-      if (name && normalizeForSearch(name).includes(normalized)) {
-        matches.push(name);
-      }
-    }
-
-    // Also check direct class exports
-    const classMatches = index.match(/(\w+Engine)/g) || [];
-    for (const cls of classMatches) {
-      if (normalizeForSearch(cls).includes(normalized) && !matches.includes(cls)) {
-        matches.push(cls);
-      }
-    }
-
-    return [...new Set(matches)].slice(0, 5);
-  } catch {
-    return [];
-  }
-}
-
-async function main() {
-  let input;
-  try {
-    const _raw = readStdinSafe();
-    if (!_raw) {
-      console.log(JSON.stringify({ continue: true }));
-      return;
-    }
-    input = JSON.parse(_raw);
-  } catch {
-    console.log(JSON.stringify({ decision: 'approve' }));
-    return;
-  }
-
-  const { tool, input: toolInput } = input;
-
-  if (!isCreateOperation(tool, toolInput)) {
-    console.log(JSON.stringify({ decision: 'approve' }));
-    return;
-  }
-
-  const filePath = toolInput?.file_path || '';
-
-  // Skip if editing existing file
-  if (fs.existsSync(filePath)) {
-    console.log(JSON.stringify({ decision: 'approve' }));
-    return;
-  }
-
-  const { name, type } = getAssetInfo(filePath);
-
-  const registryMatches = searchRegistry(name);
-  const indexMatches = searchEnginesIndex(name);
-  const allMatches = [...new Set([...registryMatches, ...indexMatches])];
-
-  if (allMatches.length === 0) {
-    console.log(JSON.stringify({ decision: 'approve' }));
-    return;
-  }
-
-  const warning = `
-## POTENTIAL DUPLICATES DETECTED (AWARE-MS0 Auto-Dedup)
-
-Creating: **${name}** (${type})
-
-Similar existing assets found:
-${allMatches.map(m => `  - ${m}`).join('\n')}
-
-**STOP:** Verify this is not a duplicate. If >50% overlap, use existing asset.
-`;
-
-  console.log(JSON.stringify({
-    decision: 'approve',
-      hookSpecificOutput: {
-        hookEventName: "PreToolUse",
-        additionalContext: warning,
-      }
-    }));
-}
-
-main().catch(() => {
-  console.log(JSON.stringify({ decision: 'approve' }));
-});
+approveWith([
+  "## POTENTIAL DUPLICATES DETECTED (AWARE-MS0 Auto-Dedup)",
+  "",
+  `Creating: **${name}** (${type})`,
+  "",
+  "Similar existing assets found:",
+  ...matches.map((m) => `  - ${m}`),
+  "",
+  "**STOP:** Verify this is not a duplicate. If >50% overlap, use existing asset.",
+].join("\n"));
