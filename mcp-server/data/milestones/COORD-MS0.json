@@ -152,7 +152,10 @@
       "id": "U-COORD11",
       "title": "IPC for Hook Queries",
       "phase": "Reliability",
-      "status": "pending",
+      "status": "complete",
+      "completed_at": "2026-05-13T16:51:42Z",
+      "completed_by": "claude-204054bf",
+      "ship_notes": "Named pipe (Windows \\\\.\\pipe\\prism-coord-<userHash>) / UDS (POSIX) RPC server in agent-coordination-daemon.mjs runCommand(). NDJSON wire format. v1 methods: health, status, coord_summary, active_sessions(window_ms?). 8 KB request cap, 5 s idle timeout, optional PRISM_COORD_IPC_TOKEN shared-secret auth (empty-string normalized). queryDaemon() client in coord-ipc-client.mjs with per-call timeout (default 200 ms) + fallbackFile → fallback-literal → ok:false ordering. isDaemonAlive() liveness probe helper. Daemon shutdown covers SIGINT/SIGTERM/SIGHUP/SIGBREAK/uncaughtException/unhandledRejection so the pipe is always reclaimed. PRISM_COORD_IPC_DISABLE=1 skips IPC startup entirely. Measured round-trip ~1-2 ms warm vs 20-80 ms for the file-read+JSON.parse path it replaces. Commits: 3b36fe5b4 (server + client + daemon wire + tests) + a2ffc5025 (codex-fixup: portable test paths + typed .mjs surface). 24/24 vitest green. tsc --noEmit clean. 3-of-3 scrutiny PASS (codex 70.9 s + reviewer A holistic + reviewer B independent second-pass — all in ledger). Deferred follow-up: duplicate-daemon detection (two daemons on same user/host silently collide today; not in U-COORD11 scope — track as U-COORD13 if surfaced).",
       "description": "Query daemon via named pipe instead of file I/O for <5ms latency",
       "deliverables": [
         "Named pipe server in daemon",

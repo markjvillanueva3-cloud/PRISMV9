@@ -1,6 +1,6 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-13T16:33:27.530Z
+> Generated: 2026-05-13T16:52:47.648Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
@@ -8,7 +8,7 @@
 - **2324** engines built and wired (of 3203)
 - **1073** wiki entries indexed
 - **879** engines awaiting dispatcher wiring
-- **3718** units pending across 81 active milestones
+- **3717** units pending across 81 active milestones
 - **2** codex frontend builds awaiting merge
 - **172** milestones with envelope-status drift
 
@@ -65,7 +65,7 @@
 
 ## NEEDS_BUILDING
 
-3718 units across 670 milestones not yet in git.
+3717 units across 670 milestones not yet in git.
 
 ### Envelope-status drift
 
@@ -248,14 +248,14 @@
 
 | Milestone | Phase | Unit | Title |
 |-----------|-------|------|-------|
-| CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A1 | A1 — extend SLOT_NAMES in chat-slots.mjs to add 'golf' (NATO phonetic continuity) |
-| CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A2 | A2 — fleet-status.mjs renderer + title-comment for 7-slot table |
-| CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A3 | A3 — /checkin --golf docs in commands/checkin.md; remove fleet_full 7th-chat fallback wording |
-| CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A4 | A4 — per-agent-handoff.mjs accepts slot=golf with HANDOFF-golf-<task>.md topic prefix |
 | COORD-MS0 |  | U-COORD01 | Create AGENT_COORDINATION_SUMMARY.json (<5KB) |
 | COORD-MS0 |  | U-COORD02 | Add Optimistic Locking with Version Field |
 | COORD-MS0 |  | U-COORD04 | CrossSessionOrchestratorEngine — Unified Facade |
 | COORD-MS0 |  | U-COORD05 | Wire Orchestrator to Hook System |
+| CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A1 | A1 — extend SLOT_NAMES in chat-slots.mjs to add 'golf' (NATO phonetic continuity) |
+| CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A2 | A2 — fleet-status.mjs renderer + title-comment for 7-slot table |
+| CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A3 | A3 — /checkin --golf docs in commands/checkin.md; remove fleet_full 7th-chat fallback wording |
+| CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A4 | A4 — per-agent-handoff.mjs accepts slot=golf with HANDOFF-golf-<task>.md topic prefix |
 | AUTO-LEARNING-LOOP-MS0 | P0 | U-ALL02 | Build `NoveltyDetectionEngine` (diff vs catalog) |
 | AUTO-LEARNING-LOOP-MS0 | P0 | U-ALL03 | Build `AutoResearchOrchestratorEngine` (rate-limited dispatch) |
 | AUTO-LEARNING-LOOP-MS0 | P0 | U-ALL04 | Build `SynergyClassifierEngine` (high/med/low/none decision) |
@@ -293,7 +293,7 @@ Per-domain wired/unwired breakdown across 927 domain prefixes.
 
 | Domain | Total | Wired | Unwired | Coverage % |
 |--------|-------|-------|---------|-----------|
-| Other | 595 | 452 | 143 | 76% |
+| Other | 596 | 453 | 143 | 76% |
 | Lathe | 187 | 98 | 89 | 52% |
 | Machine | 45 | 28 | 17 | 62% |
 | Multi | 28 | 17 | 11 | 61% |
@@ -322,7 +322,7 @@ Per-domain wired/unwired breakdown across 927 domain prefixes.
 | Master | 10 | 6 | 4 | 60% |
 | Agent | 7 | 3 | 4 | 43% |
 | Speed | 7 | 3 | 4 | 43% |
-| Electrode | 5 | 1 | 4 | 20% |
+| Electrode | 6 | 2 | 4 | 33% |
 
 ## STALE_MILESTONES
 

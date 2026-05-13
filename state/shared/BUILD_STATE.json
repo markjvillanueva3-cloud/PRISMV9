@@ -1,11 +1,11 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-13T16:33:27.530Z",
+  "generatedAt": "2026-05-13T16:52:47.648Z",
   "headline": {
     "built_engines": 2324,
     "built_with_wiki": 1073,
     "needs_wiring": 879,
-    "needs_building_active_units": 3718,
+    "needs_building_active_units": 3717,
     "needs_frontend_merge_count": 2,
     "pending_milestones_with_activity": 81,
     "drift_milestones": 172,
@@ -319,8 +319,8 @@
     "rows": [
       {
         "domain": "Other",
-        "total": 595,
-        "wired": 452,
+        "total": 596,
+        "wired": 453,
         "unwired": 143,
         "coverage_pct": 76,
         "sample_unwired": [
@@ -739,10 +739,10 @@
       },
       {
         "domain": "Electrode",
-        "total": 5,
-        "wired": 1,
+        "total": 6,
+        "wired": 2,
         "unwired": 4,
-        "coverage_pct": 20,
+        "coverage_pct": 33,
         "sample_unwired": [
           "ElectrodeAdvancedAIEngine",
           "ElectrodeAIReasoningEngine",
@@ -5348,6 +5348,14 @@
         "sample_unwired": []
       },
       {
+        "domain": "Peer",
+        "total": 2,
+        "wired": 2,
+        "unwired": 0,
+        "coverage_pct": 100,
+        "sample_unwired": []
+      },
+      {
         "domain": "Pipe",
         "total": 2,
         "wired": 2,
@@ -7620,14 +7628,6 @@
         "sample_unwired": []
       },
       {
-        "domain": "Peer",
-        "total": 1,
-        "wired": 1,
-        "unwired": 0,
-        "coverage_pct": 100,
-        "sample_unwired": []
-      },
-      {
         "domain": "Permutation",
         "total": 1,
         "wired": 1,
@@ -9117,7 +9117,7 @@
     "next_action": "Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift."
   },
   "NEEDS_BUILDING": {
-    "summary": "3718 units across 670 milestones not yet in git.",
+    "summary": "3717 units across 670 milestones not yet in git.",
     "drift_cases": [
       {
         "id": "CC-EXT-MS0",
@@ -10154,30 +10154,6 @@
     ],
     "top_pending_units": [
       {
-        "milestone": "CLEANUP-MS0",
-        "unit": "U-CLEANUP-A1",
-        "title": "A1 — extend SLOT_NAMES in chat-slots.mjs to add 'golf' (NATO phonetic continuity)",
-        "phase": "bootstrap-tier-0"
-      },
-      {
-        "milestone": "CLEANUP-MS0",
-        "unit": "U-CLEANUP-A2",
-        "title": "A2 — fleet-status.mjs renderer + title-comment for 7-slot table",
-        "phase": "bootstrap-tier-0"
-      },
-      {
-        "milestone": "CLEANUP-MS0",
-        "unit": "U-CLEANUP-A3",
-        "title": "A3 — /checkin --golf docs in commands/checkin.md; remove fleet_full 7th-chat fallback wording",
-        "phase": "bootstrap-tier-0"
-      },
-      {
-        "milestone": "CLEANUP-MS0",
-        "unit": "U-CLEANUP-A4",
-        "title": "A4 — per-agent-handoff.mjs accepts slot=golf with HANDOFF-golf-<task>.md topic prefix",
-        "phase": "bootstrap-tier-0"
-      },
-      {
         "milestone": "COORD-MS0",
         "unit": "U-COORD01",
         "title": "Create AGENT_COORDINATION_SUMMARY.json (<5KB)",
@@ -10200,6 +10176,30 @@
         "unit": "U-COORD05",
         "title": "Wire Orchestrator to Hook System",
         "phase": ""
+      },
+      {
+        "milestone": "CLEANUP-MS0",
+        "unit": "U-CLEANUP-A1",
+        "title": "A1 — extend SLOT_NAMES in chat-slots.mjs to add 'golf' (NATO phonetic continuity)",
+        "phase": "bootstrap-tier-0"
+      },
+      {
+        "milestone": "CLEANUP-MS0",
+        "unit": "U-CLEANUP-A2",
+        "title": "A2 — fleet-status.mjs renderer + title-comment for 7-slot table",
+        "phase": "bootstrap-tier-0"
+      },
+      {
+        "milestone": "CLEANUP-MS0",
+        "unit": "U-CLEANUP-A3",
+        "title": "A3 — /checkin --golf docs in commands/checkin.md; remove fleet_full 7th-chat fallback wording",
+        "phase": "bootstrap-tier-0"
+      },
+      {
+        "milestone": "CLEANUP-MS0",
+        "unit": "U-CLEANUP-A4",
+        "title": "A4 — per-agent-handoff.mjs accepts slot=golf with HANDOFF-golf-<task>.md topic prefix",
+        "phase": "bootstrap-tier-0"
       },
       {
         "milestone": "AUTO-LEARNING-LOOP-MS0",

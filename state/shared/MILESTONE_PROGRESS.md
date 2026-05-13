@@ -1,6 +1,6 @@
 # MILESTONE_PROGRESS — what's actually shipped vs claimed
 
-> Generated: 2026-05-13T16:33:26.701Z
+> Generated: 2026-05-13T16:52:46.371Z
 > Window: last 60.days of git log across all branches
 > Source: `scripts/build-milestone-progress.mjs`
 
@@ -19,16 +19,16 @@ flagging a unit as missing.
 
 - Milestones loaded:        **670**
 - Units across all MS:      **4905**
-- Units shipped (in git):   **1187**
-- Units pending:            **3718**
+- Units shipped (in git):   **1188**
+- Units pending:            **3717**
 - Drift cases:              **172** (envelope status disagrees with git reality)
 
 ## Top recently-active milestones (last shipped → first)
 
 | Milestone | Track | Status (claimed) | Status (real) | Shipped/Total | Last commit |
 |-----------|-------|------------------|---------------|---------------|-------------|
+| COORD-MS0 | INFRA | unknown | in_progress_real | 3/12 (25%) | 2026-05-13 |
 | CLEANUP-MS0 | CLEANUP | not_started | in_progress_real | 2/73 (3%) | 2026-05-13 |
-| COORD-MS0 | INFRA | unknown | in_progress_real | 2/12 (17%) | 2026-05-13 |
 | AUTO-LEARNING-LOOP-MS0 | AUTO-LEARNING-LOOP | in_progress | in_progress_real | 1/12 (8%) | 2026-05-13 |
 | TRAINING-LEARNING-MS0 | TRAINING-LEARNING | in_progress | in_progress_real | 1/7 (14%) | 2026-05-13 |
 | AI-MAX-MS0 | AI-MAX | in_progress | in_progress_real | 2/12 (17%) | 2026-05-13 |
