@@ -479,6 +479,9 @@ export const INTELLIGENCE_CORE_ACTIONS = [
   // XPROC-NEURAL-T1-01: outcome ledger for the 5 XPROC bridges
   "xproc_outcome_record", "xproc_outcome_record_outcome", "xproc_outcome_query",
   "xproc_outcome_retrieve_similar", "xproc_outcome_stats", "xproc_outcome_clear",
+  // INFRA-NEURAL-LEDGER-MS1/P0-U03: replay capability (read-side API)
+  "xproc_outcome_replay", "xproc_outcome_replay_job", "xproc_outcome_replay_since",
+  "xproc_outcome_stream_from_disk",
   // XPROC-NEURAL-T1-02: pure-JS MLP 32→16→3 over CrossProcessOutcomeStore
   "xproc_neural_train", "xproc_neural_predict", "xproc_neural_evaluate",
   "xproc_neural_save", "xproc_neural_load", "xproc_neural_metrics", "xproc_neural_reset",
@@ -1129,6 +1132,52 @@ export function registerIntelligenceDispatcher(server: any): void {
           );
           crossProcessOutcomeStore.clear();
           return { content: [{ type: "text" as const, text: JSON.stringify({ action, success: true }) }] };
+        }
+
+        // === INFRA-NEURAL-LEDGER-MS1/P0-U03: replay capability ===
+        if (action === "xproc_outcome_replay") {
+          const { crossProcessOutcomeStore } = await import(
+            "../../engines/CrossProcessOutcomeStore.js"
+          );
+          const limit = params.limit;
+          const records =
+            limit === undefined
+              ? crossProcessOutcomeStore.replay()
+              : crossProcessOutcomeStore.replay(limit as number);
+          return { content: [{ type: "text" as const, text: JSON.stringify({ action, success: true, count: records.length, records }) }] };
+        }
+        if (action === "xproc_outcome_replay_job") {
+          const { crossProcessOutcomeStore } = await import(
+            "../../engines/CrossProcessOutcomeStore.js"
+          );
+          const jobId = params.jobId as string | undefined;
+          if (!jobId) throw new Error("xproc_outcome_replay_job requires `jobId`");
+          const records = crossProcessOutcomeStore.replayJob(jobId);
+          return { content: [{ type: "text" as const, text: JSON.stringify({ action, success: true, count: records.length, records }) }] };
+        }
+        if (action === "xproc_outcome_replay_since") {
+          const { crossProcessOutcomeStore } = await import(
+            "../../engines/CrossProcessOutcomeStore.js"
+          );
+          const timestamp = params.timestamp as string | undefined;
+          if (!timestamp) throw new Error("xproc_outcome_replay_since requires `timestamp`");
+          const records = crossProcessOutcomeStore.replaySince(timestamp);
+          return { content: [{ type: "text" as const, text: JSON.stringify({ action, success: true, count: records.length, records }) }] };
+        }
+        if (action === "xproc_outcome_stream_from_disk") {
+          const { crossProcessOutcomeStore } = await import(
+            "../../engines/CrossProcessOutcomeStore.js"
+          );
+          const collected: unknown[] = [];
+          const observed = await crossProcessOutcomeStore.streamReplayFromDisk({
+            handler: (e) => {
+              collected.push(e);
+            },
+            limit: params.limit as number | undefined,
+            jobId: params.jobId as string | undefined,
+            since: params.since as string | undefined,
+          });
+          return { content: [{ type: "text" as const, text: JSON.stringify({ action, success: true, count: observed, records: collected }) }] };
         }
 
         // === XPROC-NEURAL-T1-02: MLP classifier over OutcomeStore ===

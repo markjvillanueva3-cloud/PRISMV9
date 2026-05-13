@@ -360,6 +360,46 @@ const XPROC_TIER1_HANDLERS: Record<string, XprocTier1Handler> = {
     crossProcessOutcomeStore.clear();
     return { cleared: true };
   },
+  // INFRA-NEURAL-LEDGER-MS1/P0-U03 — replay capability
+  xproc_outcome_replay: async (params) => {
+    const { crossProcessOutcomeStore } = await import("../../engines/CrossProcessOutcomeStore.js");
+    const limit = params.limit;
+    const records =
+      limit === undefined
+        ? crossProcessOutcomeStore.replay()
+        : crossProcessOutcomeStore.replay(limit as number);
+    return { count: records.length, records };
+  },
+  xproc_outcome_replay_job: async (params) => {
+    const { crossProcessOutcomeStore } = await import("../../engines/CrossProcessOutcomeStore.js");
+    const jobId = params.jobId as string | undefined;
+    if (!jobId) throw new Error("xproc_outcome_replay_job requires `jobId`");
+    const records = crossProcessOutcomeStore.replayJob(jobId);
+    return { count: records.length, records };
+  },
+  xproc_outcome_replay_since: async (params) => {
+    const { crossProcessOutcomeStore } = await import("../../engines/CrossProcessOutcomeStore.js");
+    const timestamp = params.timestamp as string | undefined;
+    if (!timestamp) throw new Error("xproc_outcome_replay_since requires `timestamp`");
+    const records = crossProcessOutcomeStore.replaySince(timestamp);
+    return { count: records.length, records };
+  },
+  xproc_outcome_stream_from_disk: async (params) => {
+    const { crossProcessOutcomeStore } = await import("../../engines/CrossProcessOutcomeStore.js");
+    // Dispatcher collects records into an array (caller wants a JSON
+    // response, not a stream); engine still reads JSONL line-by-line so
+    // memory cost is bounded by `limit`, not by file size.
+    const records: unknown[] = [];
+    const observed = await crossProcessOutcomeStore.streamReplayFromDisk({
+      handler: (e) => {
+        records.push(e);
+      },
+      limit: params.limit as number | undefined,
+      jobId: params.jobId as string | undefined,
+      since: params.since as string | undefined,
+    });
+    return { count: observed, records };
+  },
   // T1-02 NeuralLearning
   xproc_neural_train: async (params) => {
     const { crossProcessNeuralLearningEngine } = await import("../../engines/CrossProcessNeuralLearningEngine.js");
@@ -1972,6 +2012,11 @@ export async function executeAIReasoningAction(
       case "xproc_outcome_retrieve_similar":
       case "xproc_outcome_stats":
       case "xproc_outcome_clear":
+      // INFRA-NEURAL-LEDGER-MS1/P0-U03 — replay capability
+      case "xproc_outcome_replay":
+      case "xproc_outcome_replay_job":
+      case "xproc_outcome_replay_since":
+      case "xproc_outcome_stream_from_disk":
       case "xproc_neural_train":
       case "xproc_neural_predict":
       case "xproc_neural_evaluate":

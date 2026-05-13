@@ -397,6 +397,11 @@ export const AI_REASONING_ACTIONS = [
   "xproc_outcome_retrieve_similar",
   "xproc_outcome_stats",
   "xproc_outcome_clear",
+  // INFRA-NEURAL-LEDGER-MS1/P0-U03 — replay capability (read-side API)
+  "xproc_outcome_replay",
+  "xproc_outcome_replay_job",
+  "xproc_outcome_replay_since",
+  "xproc_outcome_stream_from_disk",
   // T1-02 NeuralLearning (pure-JS MLP 32→16→3)
   "xproc_neural_train",
   "xproc_neural_predict",
