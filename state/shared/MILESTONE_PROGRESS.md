@@ -1,6 +1,6 @@
 # MILESTONE_PROGRESS — what's actually shipped vs claimed
 
-> Generated: 2026-05-13T13:20:31.500Z
+> Generated: 2026-05-13T13:27:06.294Z
 > Window: last 60.days of git log across all branches
 > Source: `scripts/build-milestone-progress.mjs`
 
@@ -17,10 +17,10 @@ flagging a unit as missing.
 
 ## Headline numbers
 
-- Milestones loaded:        **669**
-- Units across all MS:      **3465**
+- Milestones loaded:        **670**
+- Units across all MS:      **3528**
 - Units shipped (in git):   **66**
-- Units pending:            **3399**
+- Units pending:            **3462**
 - Drift cases:              **2** (envelope status disagrees with git reality)
 
 ## Top recently-active milestones (last shipped → first)
@@ -51,6 +51,7 @@ flagging a unit as missing.
 | LATHE-PROD-READY-MS0 | 135 | 135 | 0/135 |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | 92 | 92 | 0/92 |
 | MS-WIRE-FRONTEND | 90 | 90 | 0/90 |
+| CLEANUP-MS0 | 63 | 63 | 0/63 |
 | MS-WIRE-BACKEND | 60 | 60 | 0/60 |
 | LATHE-LORA-MS0 | 50 | 50 | 0/50 |
 | MS-MASTERPOST | 44 | 44 | 0/44 |
@@ -75,7 +76,6 @@ flagging a unit as missing.
 | CALC-HARDEN-MS0 | 18 | 18 | 0/18 |
 | MS-DESKTOP | 18 | 18 | 0/18 |
 | USSH-OPUS47-BOLSTER | 18 | 18 | 0/18 |
-| SCIMATH-MS0 | 17 | 17 | 0/17 |
 
 ## How to use
 

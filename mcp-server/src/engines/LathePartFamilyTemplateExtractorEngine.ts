@@ -579,7 +579,14 @@ export class LathePartFamilyTemplateExtractorEngine {
     if (opts.outDir && !process.env.PRISM_LATHE_TEMPLATE_OUTDIR_UNCONFINED) {
       const resolvedDir = path.resolve(dir);
       const resolvedDefault = path.resolve(defaultTemplateDir());
-      if (!resolvedDir.startsWith(resolvedDefault)) {
+      // 3-of-3 reviewer B P1-1 fix: bare `.startsWith` is vulnerable to the
+      // sibling-prefix bypass — `/foo/templates-evil` defeats prefix
+      // `/foo/templates`. Require either exact match OR prefix followed by the
+      // platform path separator. Defense-in-depth; today's callers are trusted.
+      const isInside =
+        resolvedDir === resolvedDefault ||
+        resolvedDir.startsWith(resolvedDefault + path.sep);
+      if (!isInside) {
         return {
           ok: false,
           error: "outdir_escape",

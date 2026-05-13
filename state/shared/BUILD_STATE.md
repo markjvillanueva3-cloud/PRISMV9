@@ -1,6 +1,6 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-13T13:20:32.615Z
+> Generated: 2026-05-13T13:27:06.524Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
@@ -8,7 +8,7 @@
 - **2324** engines built and wired (of 3203)
 - **1073** wiki entries indexed
 - **879** engines awaiting dispatcher wiring
-- **3399** units pending across 2 active milestones
+- **3462** units pending across 2 active milestones
 - **2** codex frontend builds awaiting merge
 - **2** milestones with envelope-status drift
 
@@ -65,7 +65,7 @@
 
 ## NEEDS_BUILDING
 
-3399 units across 669 milestones not yet in git.
+3462 units across 670 milestones not yet in git.
 
 ### Envelope-status drift
 
@@ -138,13 +138,14 @@ Per-domain wired/unwired breakdown across 926 domain prefixes.
 
 ## STALE_MILESTONES
 
-252 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).
+253 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).
 
 | Milestone | Track | Reason | Pending | Shipped/Total | Last shipped |
 |-----------|-------|--------|---------|---------------|--------------|
 | LATHE-MASTER | LATHE | never_started | 136 | 0/136 | never |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | INFRA | never_started | 92 | 0/92 | never |
 | MS-WIRE-FRONTEND | revenue | never_started | 90 | 0/90 | never |
+| CLEANUP-MS0 | CLEANUP | never_started | 63 | 0/63 | never |
 | MS-WIRE-BACKEND | revenue | never_started | 60 | 0/60 | never |
 | MS-MASTERPOST | revenue | never_started | 44 | 0/44 | never |
 | MS1 | revenue | never_started | 39 | 0/39 | never |
@@ -171,7 +172,6 @@ Per-domain wired/unwired breakdown across 926 domain prefixes.
 | MS-GTM | revenue | never_started | 16 | 0/16 | never |
 | SCIMATH-MS3 | SCIMATH | never_started | 16 | 0/16 | never |
 | CAMX-V17-P11 | — | never_started | 15 | 0/15 | never |
-| L8-P1-MS2 | — | never_started | 15 | 0/15 | never |
 
 **Next action:** Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift.
 

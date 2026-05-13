@@ -1,12 +1,12 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-13T13:20:31.440Z",
+  "generatedAt": "2026-05-13T13:27:06.173Z",
   "window": "60.days",
   "totals": {
-    "milestones": 669,
-    "units": 3465,
+    "milestones": 670,
+    "units": 3528,
     "shipped": 66,
-    "pending": 3399,
+    "pending": 3462,
     "drift": 2
   },
   "milestones": [
@@ -19064,6 +19064,588 @@
       "derivedStatus": "no_units",
       "drift": "n/a",
       "units": []
+    },
+    {
+      "id": "CLEANUP-MS0",
+      "title": "Cleanup Roadmap — 7th 'golf' chat slot for system hygiene (process reaping, peer-bug detection, system-viz grooming, wiring-potential, CLAUDE.md token slim)",
+      "track": "CLEANUP",
+      "claimedStatus": "not_started",
+      "total": 63,
+      "shipped": 0,
+      "pending": 63,
+      "ratio": 0,
+      "lastShippedDate": "",
+      "derivedStatus": "not_started_real",
+      "drift": "consistent",
+      "units": [
+        {
+          "id": "U-CLEANUP-A1",
+          "title": "A1 — extend SLOT_NAMES in chat-slots.mjs to add 'golf' (NATO phonetic continuity)",
+          "phase": "bootstrap-tier-0",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-A2",
+          "title": "A2 — fleet-status.mjs renderer + title-comment for 7-slot table",
+          "phase": "bootstrap-tier-0",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-A3",
+          "title": "A3 — /checkin --golf docs in commands/checkin.md; remove fleet_full 7th-chat fallback wording",
+          "phase": "bootstrap-tier-0",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-A4",
+          "title": "A4 — per-agent-handoff.mjs accepts slot=golf with HANDOFF-golf-<task>.md topic prefix",
+          "phase": "bootstrap-tier-0",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-A5",
+          "title": "A5 — golf-slot-write-allowlist.mjs PreToolUse T0 hook (path-resolve hardened against ../; allowlist-regex from golf-owned-paths.json; tier frontmatter; bypass env PRISM_GOLF_WRITE_ALLOWLIST_BYPASS=1)",
+          "phase": "bootstrap-tier-0",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-A6",
+          "title": "A6 — bootstrap-golf.mjs (mkdir .cron-locks, seed golf-owned-paths.json + golf-token-budget.json + golf-cron-registry.json; .gitignore additions for coordination.db* + .cron-locks/*.lock + .watchdog-last-poll.iso + golf-token-budget.json; detect & rebuild 0-byte coordination.db; git rm --cached on first run)",
+          "phase": "bootstrap-tier-0",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-B1",
+          "title": "B1 — PeerCommitAuditorEngine.ts (renamed from WatchdogEngine to avoid collision with tool-watchdog.mjs); tickFromCli() entry; recently-analyzed cache persisted to .peer-audit-cache.json with 5min TTL",
+          "phase": "engines-tier-1",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-B3",
+          "title": "B3 — helpers/git-log-tail.mjs canonical poll helper (since=ISO, name-only output, debounced via .watchdog-last-poll.iso UTC, 3-retry on git-index-lock)",
+          "phase": "engines-tier-1",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-B10",
+          "title": "B10 — LedgerStoreEngine.ts (wraps coord_sqlite with insert/query/migrate APIs; tables bug_attribution, peer_audit_ticks, chat_bus_signals, golf_envelope_mutations; migrations in src/migrations/golf-ledger-v1.sql)",
+          "phase": "engines-tier-1",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-B11",
+          "title": "B11 — LedgerProjectorEngine.ts (in-process callback on every INSERT emits JSONL projection so legacy chat-bus-inject + MILESTONE_PROGRESS readers untouched; cache invalidation on mtime)",
+          "phase": "engines-tier-1",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-C1",
+          "title": "C1 — WiringPotentialEngine.ts (analyze + analyzeBatch; score = keyword/embedding overlap × domain-tag match × dispatcher-capacity check; rationale string; consumes F7 capacity output)",
+          "phase": "engines-tier-1",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-B8-CONSOLIDATED",
+          "title": "B8 — golf-liveness via chat-slots.json last-seen (R3-UU2 dropped dedicated heartbeat file; reuses G1 stale-handoff logic to compute staleness)",
+          "phase": "engines-tier-1",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-B2",
+          "title": "B2 — prism_dev:peer_audit_tick / peer_audit_attribution / peer_audit_dispatch_plan dispatcher actions wired in devDispatcher.ts (action enum + schema + lazy import; E2E test invokes via dispatcher not singleton)",
+          "phase": "dispatchers-tier-2",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-C2",
+          "title": "C2 — prism_dev:wiring_potential dispatcher action (modes: analyze, batch_unwired, dashboard); E2E round-trip test",
+          "phase": "dispatchers-tier-2",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-B4",
+          "title": "B4 — commit-reviewer-dispatch.mjs WITH self-attribution + ownedPaths deny list + adversarial-input sanitization (fenced + ASCII-strip + 200-char-per-path truncation on ALL untrusted commit-derived strings: message, author, paths, branch, hunks); throttle 1/15min unless affected_files>=5; chunk cap <=3; per-commit cap 50 files; recursion-depth guard (refuse if last 3 ticks all golf-authored); G7 absorbed",
+          "phase": "operator-surfaces-tier-3",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-B5",
+          "title": "B5 — bug_attribution SQLite table writes via B10 (no naked appendFileSync); per-slot rolling 24h scoring with tokensSpent + costUsdEstimate columns; pre-dispatch write of {commitSha, agentType, dispatchPrompt, expectedFiles, originatingTickId} for compaction-survival",
+          "phase": "operator-surfaces-tier-3",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-B6",
+          "title": "B6 — 06-peer-audit-tick.ps1 (invokes WatchdogEngine via node -e import; NOT MCP HTTP bridge per R1; sets PRISM_GOLF_TICK=1 env var so Stop gates short-circuit)",
+          "phase": "operator-surfaces-tier-3",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-B7",
+          "title": "B7 — /peer-audit skill (READ-ONLY operator query; never mutates ledger; mutations only via prism_dev dispatcher action with audit trail)",
+          "phase": "operator-surfaces-tier-3",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-B9",
+          "title": "B9 — model-drift eval suite (10 frozen known-bug commits + expected verdicts in state/shared/golf-reviewer-eval/; weekly cron; agent.model pinned to claude-sonnet-4-6 NOT latest; alerts on slope (-0.20 over 12 weeks) AND absolute floor (<0.70); B9 reads prompt-version headers to detect prompt drift)",
+          "phase": "operator-surfaces-tier-3",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-C3",
+          "title": "C3 — system-viz-add-node.mjs (rate-limited batch-flush every 60s; idempotent; adds dashed tentative edge to top-1 candidate; writes to staging dir under golf write-allowlist)",
+          "phase": "operator-surfaces-tier-3",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-C4",
+          "title": "C4 — /wiring-potential skill (operator query; returns top-5 candidates with rationale + ready-to-paste dispatcher edit)",
+          "phase": "operator-surfaces-tier-3",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-C5",
+          "title": "C5 — Watchdog<->Wiring integration (B1 onNewEngineFile triggers C1.analyze + C3 graph augment + F8 chat-bus post; 5-min recently-analyzed cache prevents recursion)",
+          "phase": "operator-surfaces-tier-3",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-F8",
+          "title": "F8 — unified chat-bus signal channel 'golf-signal' (digest format, NOT full findings; cap 5 posts per chat-bus-inject window; routes through ChatBusEngine + B10 ledger insert)",
+          "phase": "operator-surfaces-tier-3",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-G3",
+          "title": "G3 — jsonl-orphan-scan.mjs (zero-deps; pure grep+fs; flags every state/shared/*.jsonl where lines>0 AND no codebase-grep consumer; surfaces ERROR_LEDGER.jsonl-class drift)",
+          "phase": "watchers-self-protection-tier-3",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-G11",
+          "title": "G11 — regen-golf-owned-paths.mjs (derives golf-owned-paths.json from dashboards/ + canonical registry; ALSO emits .golf-allowlist-regex.txt consumed by A5 at hook-load time; invoked by close-out-milestone.mjs)",
+          "phase": "watchers-self-protection-tier-3",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-D1",
+          "title": "D1 — extract Hook-Synergy 12-KB block (lines ~106-228) to knowledge/wiki/architecture/hook-synergy-overview.md; replace in CLAUDE.md with 4-line summary + /wiki-query pointer",
+          "phase": "claude-md-slim-tier-4",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-D2",
+          "title": "D2 — extract Master Index detail (lines ~253-283) to wiki/architecture/master-index-surface.md; CLAUDE.md collapses to 5 lines + /master-index pointer",
+          "phase": "claude-md-slim-tier-4",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-D3",
+          "title": "D3 — extract Shared Agent Bridges list (lines ~216-227) to wiki/coordination/shared-directives-index.md; CLAUDE.md keeps 2 lines + freshness reminder",
+          "phase": "claude-md-slim-tier-4",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-D4",
+          "title": "D4 — extract JM Die profile API (lines ~186-195) to wiki/reference/jm-die-profile.md; CLAUDE.md keeps 2 lines + pointer",
+          "phase": "claude-md-slim-tier-4",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-D5",
+          "title": "D5 — wiki-section-inject.mjs (UserPromptSubmit T2; keyword-gated rehydration map; reads .summary.md files NOT full dashboards; total injection cap 8 KB; logs misses with hashed-keyword (no raw text) to wiki-inject-misses.jsonl)",
+          "phase": "claude-md-slim-tier-4",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-D6",
+          "title": "D6 — verify net byte target (D1-D7 cuts >= 14 KB; CLAUDE.md final <=25 KB); sample 10 prompts with PRISM_VERBOSE_INJECT=1; injected payload drop >=30%",
+          "phase": "claude-md-slim-tier-4",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-D7",
+          "title": "D7 — add 8-line 'GOLF SLOT (7th hygiene chat)' section to both H:/prism/CLAUDE.md and H:/.claude/CLAUDE.md (A5 write-allowlist scope, B4 self-DOS deny rule, golf-heartbeat via chat-slots, /peer-audit query, PRISM_GOLF_DISABLE=1 kill switch, schema-bump cadence rule, multi-host coexistence rule)",
+          "phase": "claude-md-slim-tier-4",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-F1",
+          "title": "F1 — extend scripts/orphan-inventory.mjs (NOT new script per R1) to call WiringPotentialEngine.analyzeBatch over 875 unwired engines; emit ranked-candidate column; cap dashboard at 200 KB + write summary.md",
+          "phase": "landscape-consumers-tier-6",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-F2",
+          "title": "F2 — 08-envelope-drift.ps1 (runs build-milestone-progress.mjs; sha256-canonicalized diff; posts to chat-bus if drift increased; 30-min cadence)",
+          "phase": "landscape-consumers-tier-6",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-F2B",
+          "title": "F2b — auto-close-shipped-envelopes.mjs (WRITES queued mutations to state/shared/golf-envelope-mutations.jsonl; main-tree drainer hook applies them — golf cannot commit shared state per firewall)",
+          "phase": "landscape-consumers-tier-6",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-F3",
+          "title": "F3 — frontend-merge-nudge.mjs (BUILD_STATE consumer; daily reminder; bundle escalations into 1 PushNotification/day max after 7d pending)",
+          "phase": "landscape-consumers-tier-6",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-F4",
+          "title": "F4 — extends scripts/digest-hook-latency.mjs (NOT new renderer per R1) with H7 async-results merge + 1.5x-prior-P95 alerting + per-(tool,event) stack-time view",
+          "phase": "landscape-consumers-tier-6",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-F5",
+          "title": "F5 — viz-regen-guard.mjs (centralizes regen-wiki-from-viz.mjs calls; hash-gated on manifest-of-deps NOT graph.json itself; refuses if any input >24h older than its regenerator; G6 hard prerequisite)",
+          "phase": "landscape-consumers-tier-6",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-F6",
+          "title": "F6 — 09-wiki-lint.ps1 (runs /wiki-lint daily; partial-success behavior on parse errors; writes WIKI_LINT_REPORT.md)",
+          "phase": "landscape-consumers-tier-6",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-F7",
+          "title": "F7 — build-dispatcher-capacity.mjs (97 dispatchers × actions/limit ratio; flags >=80%; feeds C1; daily)",
+          "phase": "landscape-consumers-tier-6",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-G1",
+          "title": "G1 — stale-handoff-sweep.ps1 + helpers/handoff-staleness.mjs (diff chat-slots.json last-seen vs handoff mtime; auto-release claims >4h old; 30min cadence)",
+          "phase": "watchers-tier-6",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-G2",
+          "title": "G2 — coordination-db-health.ps1 + coord-db-sentinel.mjs (PRAGMA integrity_check + row-count parity check vs WORK_CLAIMS.json; alerts >=10% divergence; drives WORK_CLAIMS.json retirement)",
+          "phase": "watchers-tier-6",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-G4",
+          "title": "G4 — settings-baseline-rotate.mjs (keep last-7-days + monthly digests; archive rest)",
+          "phase": "watchers-tier-6",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-G5",
+          "title": "G5 — build-wiki-recall-digest.mjs (consumes wiki-recall-counts.json; flags recall=0 + age>90d deletion candidates; flags recall>50/wk promotion candidates)",
+          "phase": "watchers-tier-6",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-G6",
+          "title": "G6 — inventory-freshness.mjs (mtime + diff git log on src/engines/*.ts vs PRISM-INVENTORY-LATEST.md mtime; hourly)",
+          "phase": "watchers-tier-6",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-G8",
+          "title": "G8 — cron-registry-reconcile.mjs (diff CronList vs E2 registry; acquire coord_sqlite claim for full read-delete-recreate cycle; 15min cadence; idempotent restart drops orphaned golf-* jobIds)",
+          "phase": "watchers-tier-6",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-G9",
+          "title": "G9 — pr-ci-watch.ps1 (DEFERRED — low priority for current direct-to-branch workflow; spec text ready to thaw when release process lands)",
+          "phase": "watchers-tier-6",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-G10",
+          "title": "G10 — viz-output-size.mjs (track state/shared/system-viz/ total bytes; flag >2 GB; archive non-current snapshots; prevents repeat of 2026-05-12 git-history-strip incident)",
+          "phase": "watchers-tier-6",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-G12",
+          "title": "G12 — golf-state-snapshot.mjs (daily copy of coordination.db + golf-owned-paths + cron-registry + token-budget + bug_attribution SQL-dump to H:/prism-backups/golf-state/<ISO>/; prune >30d)",
+          "phase": "watchers-tier-6",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-G13",
+          "title": "G13 — dashboard-archive-rotate.mjs (annual gzip-bundle of dashboards/.archive/<YYYY>/ to H:/prism-backups/dashboard-archives/<YYYY>.tar.gz; retain 2 years)",
+          "phase": "watchers-tier-6",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-G14",
+          "title": "G14 — dr-drill.mjs (MONTHLY restore G12 snapshot to H:/prism-dr-test/; run coord_sqlite health + row-count parity; fail-loud to DR_DRILL_LEDGER.jsonl)",
+          "phase": "watchers-tier-6",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-G15",
+          "title": "G15 — activity gate in B1 tickFromCli (skip dispatch when git log --since=48h --not --author=golf returns 0; ledger writes IDLE-FLEET; saves ~$70/quiet-week)",
+          "phase": "watchers-tier-6",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-G16",
+          "title": "G16 — build-wiring-domain-dict.mjs (weekly scan of src/engines/index.ts for top-3 unmatched-engine prefixes; appends to wiring-domain-dict.json as candidate; Mark promotes manually)",
+          "phase": "watchers-tier-6",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-G17",
+          "title": "G17 — 20-coord-db-vacuum.ps1 (weekly Sunday 02:17 PRAGMA wal_checkpoint(TRUNCATE) + VACUUM; log size delta to coord-db-health.json)",
+          "phase": "watchers-tier-6",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-E1",
+          "title": "E1 — 04-prism-mcp-orphan-monitor.ps1 + CronCreate 3036ea16 (PRISM MCP dist/index.js orphan reaper; git-lock sweeper; 7-min cadence; DONE this session; reclaimed +1.96 GB / 4 orphans + 1 git lock initial pass)",
+          "phase": "cleanup-pipeline-tier-6",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-E2",
+          "title": "E2 — golf-cron-registry.json (schemaVersion 1) + /golf-bootstrap skill that reads registry + calls CronCreate via tool-use; per-cron lockfile with PID+expectedDurationMs; 5 daily slots at 03:17/04:23/05:31/06:43/07:53; UTC discipline",
+          "phase": "cleanup-pipeline-tier-6",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-E3",
+          "title": "E3 — helpers/cleanup-orchestrator.mjs (REWORKED per R1: calls existing bash-orphan-cleaner.mjs + node-orphan-cleaner.mjs + git-lock-sweeper.mjs + chat-bus-reap.mjs + zombie-reaper-daemon.mjs; emits single unified result line; NO new kill logic)",
+          "phase": "cleanup-pipeline-tier-6",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-DEFENDER",
+          "title": "00-defender-exclusion-bootstrap.ps1 (Add-MpPreference for state/shared/*.jsonl + *.db* + .cron-locks/*; one-shot first-launch; idempotent)",
+          "phase": "verification-tier-7",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-TZ-HELPER",
+          "title": "tz-sanity.mjs helper (asserts JSONL writes are UTC-suffixed Z; dashboards add <!-- timeBasis: UTC --> header; F4 displays both UTC + local)",
+          "phase": "verification-tier-7",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-SCHEMA-READER",
+          "title": "helpers/jsonl-schema-reader.mjs (per-line schemaVersion dispatch; v1 default for missing; additive-only schema bumps for 1 release cycle; track active reader versions in .schema-active-versions.json)",
+          "phase": "verification-tier-7",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-ORDERING-TEST",
+          "title": "mcp-server/src/__tests__/golf-hook-ordering.test.ts (snapshot of settings.json PreToolUse array; asserts A5 between file-claim-guard and comprehensive-build-enforce)",
+          "phase": "verification-tier-7",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-SLOT-TAKEOVER",
+          "title": "golf-slot-takeover.mjs (force-release stale slot claim on golf-spawn if prior PID is dead)",
+          "phase": "verification-tier-7",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-TELEMETRY-CLOSE",
+          "title": "S11.7 telemetry close-out (pipeline-telemetry.mjs record + adaptive-thresholds.mjs --apply + auto-build-compounding-proposals.mjs if S11.6 BLOCK + verify all 18 stages telemetered)",
+          "phase": "verification-tier-7",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        }
+      ]
     },
     {
       "id": "CLI-MS0",

@@ -415,6 +415,39 @@ describe("LathePartFamilyTemplateExtractorEngine — adversarial (≥2)", () => 
     }
   });
 
+  it("sibling-prefix path traversal (templates-evil ⊄ templates) → outdir_escape error", async () => {
+    // 3-of-3 reviewer B P1-1 regression test: bare `.startsWith` was vulnerable
+    // to sibling-prefix bypass — `/foo/templates-evil` defeated the prefix
+    // `/foo/templates` even though it's outside the confine. Engine fix
+    // (line 575-590) requires either exact match OR prefix-followed-by-path.sep.
+    // This test would have PASSED on the broken implementation and FAILS now if
+    // the regression slips back.
+    const snap = makeFixtureSnapshot();
+    const stashedUnconf = process.env.PRISM_LATHE_TEMPLATE_OUTDIR_UNCONFINED;
+    delete process.env.PRISM_LATHE_TEMPLATE_OUTDIR_UNCONFINED;
+    const stashedDir = process.env.PRISM_LATHE_TEMPLATE_DIR;
+    const confinedRoot = fs.mkdtempSync(path.join(os.tmpdir(), "prism-confine-"));
+    process.env.PRISM_LATHE_TEMPLATE_DIR = confinedRoot;
+    // Sibling path: same parent dir, name extends but doesn't add a separator
+    // → exact prefix string match but semantically outside the confine.
+    const siblingEvil = `${confinedRoot}-evil`;
+    try {
+      const r = await lathePartFamilyTemplateExtractorEngine.extractTemplate("wafer-insert", {
+        snapshot: snap,
+        outDir: siblingEvil,
+      });
+      expect(r.ok).toBe(false);
+      if (r.ok) throw new Error("expected error");
+      expect(r.error).toBe("outdir_escape");
+      expect(fs.existsSync(siblingEvil)).toBe(false);
+    } finally {
+      if (stashedDir !== undefined) process.env.PRISM_LATHE_TEMPLATE_DIR = stashedDir;
+      else delete process.env.PRISM_LATHE_TEMPLATE_DIR;
+      if (stashedUnconf !== undefined) process.env.PRISM_LATHE_TEMPLATE_OUTDIR_UNCONFINED = stashedUnconf;
+      try { fs.rmSync(confinedRoot, { recursive: true, force: true }); } catch { /* ignore */ }
+    }
+  });
+
   it("'unknown' family bucket extracts cleanly, empty tribal lookup", async () => {
     const snap = makeFixtureSnapshot();
     const r = await lathePartFamilyTemplateExtractorEngine.extractTemplate("unknown", {

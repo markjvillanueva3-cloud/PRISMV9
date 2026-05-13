@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-13T13:20:32.615Z",
+  "generatedAt": "2026-05-13T13:27:06.524Z",
   "headline": {
     "built_engines": 2324,
     "built_with_wiki": 1073,
     "needs_wiring": 879,
-    "needs_building_active_units": 3399,
+    "needs_building_active_units": 3462,
     "needs_frontend_merge_count": 2,
     "pending_milestones_with_activity": 2,
     "drift_milestones": 2,
-    "stale_milestones": 252,
+    "stale_milestones": 253,
     "domains_tracked": 926
   },
   "sources": {
@@ -8742,7 +8742,7 @@
     ]
   },
   "STALE_MILESTONES": {
-    "summary": "252 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).",
+    "summary": "253 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).",
     "threshold_days": 30,
     "rows": [
       {
@@ -8769,6 +8769,15 @@
         "pending": 90,
         "shipped": 0,
         "total": 90,
+        "lastShippedDate": null,
+        "reason": "never_started"
+      },
+      {
+        "id": "CLEANUP-MS0",
+        "track": "CLEANUP",
+        "pending": 63,
+        "shipped": 0,
+        "total": 63,
         "lastShippedDate": null,
         "reason": "never_started"
       },
@@ -9095,21 +9104,12 @@
         "total": 14,
         "lastShippedDate": null,
         "reason": "never_started"
-      },
-      {
-        "id": "MS-FRONTEND",
-        "track": "revenue",
-        "pending": 14,
-        "shipped": 0,
-        "total": 14,
-        "lastShippedDate": null,
-        "reason": "never_started"
       }
     ],
     "next_action": "Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift."
   },
   "NEEDS_BUILDING": {
-    "summary": "3399 units across 669 milestones not yet in git.",
+    "summary": "3462 units across 670 milestones not yet in git.",
     "drift_cases": [
       {
         "id": "MF-MS1",
