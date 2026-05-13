@@ -18,10 +18,11 @@
  * already covers the happy + error paths. This file locks the wiring
  * surface so a future rename / drop of the actions is caught by CI.
  */
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeAll, afterAll, beforeEach } from "vitest";
 import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
+import * as crypto from "crypto";
 import { ACTIONS, registerCamDispatcher } from "../tools/dispatchers/camDispatcher.js";
 import {
   electrodeCoverageAuditEngine,
@@ -137,6 +138,44 @@ describe("camDispatcher round-trip — electrode_* via registered handler", () =
   let fixtureRoot: string;
   let corpusFixture: string;
   let xlsmFixture: string;
+  let xlsmFixtureMtimeMs: number;
+  let xlsmFixtureSize: number;
+  let xlsmFixtureSha256: string;
+
+  // Per reviewer A — fixtures must be set up in beforeAll + torn down in
+  // afterAll, NOT at describe-body scope (which leaks temp dirs across runs).
+  beforeAll(() => {
+    fixtureRoot = fs.mkdtempSync(path.join(os.tmpdir(), "electrode-wire-rt-"));
+    corpusFixture = path.join(fixtureRoot, "corpus");
+    fs.mkdirSync(corpusFixture);
+    fs.mkdirSync(path.join(corpusFixture, "OKUMA"));
+    fs.writeFileSync(
+      path.join(corpusFixture, "OKUMA", "PART-ELECTRODE.ipt"),
+      "fx",
+    );
+    fs.writeFileSync(
+      path.join(corpusFixture, "OKUMA", "TAPTITE-X.x_t"),
+      "fx",
+    );
+    xlsmFixture = path.join(fixtureRoot, "fake.xlsm");
+    const xlsmContent = Buffer.from("PKfake-xlsm-content");
+    fs.writeFileSync(xlsmFixture, xlsmContent);
+    const stat = fs.statSync(xlsmFixture);
+    xlsmFixtureMtimeMs = stat.mtimeMs;
+    xlsmFixtureSize = stat.size;
+    xlsmFixtureSha256 = crypto
+      .createHash("sha256")
+      .update(xlsmContent)
+      .digest("hex");
+  });
+
+  afterAll(() => {
+    try {
+      fs.rmSync(fixtureRoot, { recursive: true, force: true });
+    } catch {
+      /* best-effort cleanup */
+    }
+  });
 
   beforeEach(() => {
     server = new MockMCPServer();
@@ -145,93 +184,145 @@ describe("camDispatcher round-trip — electrode_* via registered handler", () =
     );
   });
 
-  // One-time temp fixtures for the round-trip suite (separate from the engine-direct tests).
-  fixtureRoot = fs.mkdtempSync(path.join(os.tmpdir(), "electrode-wire-rt-"));
-  corpusFixture = path.join(fixtureRoot, "corpus");
-  fs.mkdirSync(corpusFixture);
-  fs.mkdirSync(path.join(corpusFixture, "OKUMA"));
-  fs.writeFileSync(path.join(corpusFixture, "OKUMA", "PART-ELECTRODE.ipt"), "fx");
-  fs.writeFileSync(path.join(corpusFixture, "OKUMA", "TAPTITE-X.x_t"), "fx");
-  xlsmFixture = path.join(fixtureRoot, "fake.xlsm");
-  fs.writeFileSync(xlsmFixture, Buffer.from("PKfake-xlsm-content"));
+  // Canonical dispatcher bridge: `{success:true, data:<engineResult>}`. Per
+  // reviewer A — pin this shape so future bridging refactors break loudly,
+  // rather than accept both wrapped + unwrapped shapes (which silently masks
+  // contract drift). Helper extracts r.data and asserts the engine `ok:true`
+  // flag is present at depth 1 (which is the precise bridge contract).
+  function pinnedEngineResult(
+    r: { success: boolean; data?: Record<string, unknown> },
+  ): Record<string, unknown> {
+    expect(r.success).toBe(true);
+    const d = r.data as Record<string, unknown>;
+    expect(typeof d).toBe("object");
+    // Engine returns `{ok: true, ...}`; dispatcher bridges to `data: <engineResult>`.
+    // r.data.ok === true is the exact bridge contract.
+    expect(d.ok).toBe(true);
+    return d;
+  }
 
   it("electrode_corpus_scan — handler returns success + electrode/taptite counts", async () => {
     const r = await callCam(server, "electrode_corpus_scan", {
       corpusRoot: corpusFixture,
     });
-    expect(r.success).toBe(true);
-    // The dispatcher bridges engine `{ok:true, ...}` → `{success:true, data:{ok:true,...}}`.
-    // `data` may contain the engine result directly OR be wrapped — accept both.
-    const payload = r.data ?? {};
-    const ec = (payload.electrodeCount ?? (payload.data as Record<string, unknown> | undefined)?.electrodeCount) as number | undefined;
-    const tc = (payload.taptiteCount ?? (payload.data as Record<string, unknown> | undefined)?.taptiteCount) as number | undefined;
-    expect(ec).toBe(1);
-    expect(tc).toBe(1);
+    const data = pinnedEngineResult(r);
+    expect(data.electrodeCount).toBe(1);
+    expect(data.taptiteCount).toBe(1);
+    expect(data.source).toBe("live");
   });
 
   it("electrode_corpus_scan — snake_case `corpus_root` param accepted (normalizer)", async () => {
     const r = await callCam(server, "electrode_corpus_scan", {
       corpus_root: corpusFixture,
     });
-    expect(r.success).toBe(true);
+    const data = pinnedEngineResult(r);
+    expect(data.corpusRoot).toBe(corpusFixture);
   });
 
-  it("electrode_corpus_scan — bad corpusRoot bridges to success:false", async () => {
+  it("electrode_corpus_scan — bad corpusRoot bridges to success:false + canonical error", async () => {
     const r = await callCam(server, "electrode_corpus_scan", {
       corpusRoot: path.join(fixtureRoot, "does-not-exist"),
     });
     expect(r.success).toBe(false);
-    // Engine error code should be surfaced as `error` on the dispatcher response.
-    const err = r.error ?? (r.data?.error as string | undefined);
-    expect(err).toBe("corpus_root_missing");
+    expect(r.error).toBe("corpus_root_missing");
+    expect((r.data as Record<string, unknown> | undefined)?.error).toBe(
+      "corpus_root_missing",
+    );
   });
 
-  it("electrode_xlsm_fingerprint — exists:true returns mtimeMs + sha256", async () => {
+  it("electrode_xlsm_fingerprint — exists:true returns mtimeMs + size + sha256", async () => {
     const r = await callCam(server, "electrode_xlsm_fingerprint", {
       xlsmPath: xlsmFixture,
     });
-    expect(r.success).toBe(true);
-    const payload = r.data ?? {};
-    const exists = payload.exists ?? (payload.data as Record<string, unknown> | undefined)?.exists;
-    const sha = payload.sha256 ?? (payload.data as Record<string, unknown> | undefined)?.sha256;
-    expect(exists).toBe(true);
-    expect(typeof sha).toBe("string");
-    expect(sha).toMatch(/^[0-9a-f]{64}$/);
+    const data = pinnedEngineResult(r);
+    expect(data.exists).toBe(true);
+    expect(data.path).toBe(xlsmFixture);
+    expect(data.mtimeMs).toBe(xlsmFixtureMtimeMs);
+    expect(data.sizeBytes).toBe(xlsmFixtureSize);
+    expect(data.sha256).toBe(xlsmFixtureSha256);
+    expect(data.sha256).toMatch(/^[0-9a-f]{64}$/);
   });
 
   it("electrode_xlsm_fingerprint — missing file returns exists:false (success)", async () => {
     const r = await callCam(server, "electrode_xlsm_fingerprint", {
       xlsmPath: path.join(fixtureRoot, "missing.xlsm"),
     });
-    expect(r.success).toBe(true);
-    const payload = r.data ?? {};
-    const exists = payload.exists ?? (payload.data as Record<string, unknown> | undefined)?.exists;
-    expect(exists).toBe(false);
+    const data = pinnedEngineResult(r);
+    expect(data.exists).toBe(false);
   });
 
-  it("electrode_coverage_audit — combined report w/ baselineOverride matches", async () => {
+  it("electrode_coverage_audit — combined report w/ baselineOverride matches (no drift)", async () => {
     const r = await callCam(server, "electrode_coverage_audit", {
       corpusRoot: corpusFixture,
       xlsmPath: xlsmFixture,
       baselineOverride: { electrodes: 1, taptites: 1 },
     });
-    expect(r.success).toBe(true);
-    const payload = r.data ?? {};
-    const inner = (payload.data as Record<string, unknown> | undefined) ?? payload;
-    const baselineMatch = inner.baselineMatch as { electrodes: boolean; taptites: boolean } | undefined;
-    expect(baselineMatch?.electrodes).toBe(true);
-    expect(baselineMatch?.taptites).toBe(true);
+    const data = pinnedEngineResult(r);
+    const baselineMatch = data.baselineMatch as {
+      electrodes: boolean;
+      taptites: boolean;
+    };
+    expect(baselineMatch.electrodes).toBe(true);
+    expect(baselineMatch.taptites).toBe(true);
+    // `slimResponse` strips empty arrays at MCP transport, so a no-drift
+    // report surfaces `driftWarnings` as `undefined` (NOT `[]`). Pin this
+    // exact bridge behavior — see `mcp-server/src/utils/responseSlimmer.ts`.
+    expect(data.driftWarnings).toBe(undefined);
+    expect(data.schemaVersion).toBe(1);
   });
 
-  it("electrode_coverage_audit — fs.statSync(xlsm).mtimeMs unchanged after round-trip", async () => {
-    const before = fs.statSync(xlsmFixture).mtimeMs;
-    await callCam(server, "electrode_coverage_audit", {
+  it("electrode_coverage_audit — populated driftWarnings survive slimResponse (missing xlsm)", async () => {
+    // When xlsm is absent + baseline matches, the engine emits exactly one
+    // drift warning ("xlsm reference missing at ..."). The non-empty array
+    // MUST survive slimResponse (only empty arrays are stripped). This
+    // proves the bridge preserves real warnings, not just trivially strips
+    // them.
+    const r = await callCam(server, "electrode_coverage_audit", {
       corpusRoot: corpusFixture,
-      xlsmPath: xlsmFixture,
+      xlsmPath: path.join(fixtureRoot, "missing-for-drift.xlsm"),
       baselineOverride: { electrodes: 1, taptites: 1 },
     });
-    const after = fs.statSync(xlsmFixture).mtimeMs;
-    expect(after).toBe(before);
+    const data = pinnedEngineResult(r);
+    const drift = data.driftWarnings as string[] | undefined;
+    expect(Array.isArray(drift)).toBe(true);
+    expect(drift?.length).toBe(1);
+    expect(drift?.[0]).toMatch(/^xlsm reference missing at /);
+  });
+
+  // Per reviewer A — strengthened mtime test:
+  //   (a) loop ≥5 iterations like the engine-direct sibling
+  //   (b) assert success:true BEFORE the mtime check (fails loud on wiring break)
+  //   (c) verify mtime + size + sha256 (not just mtime, which has coarse NTFS
+  //       resolution that could mask sub-millisecond writes)
+  it("electrode_coverage_audit — xlsm mtimeMs + size + sha256 UNCHANGED after 5 round-trip calls", async () => {
+    const beforeMtime = fs.statSync(xlsmFixture).mtimeMs;
+    const beforeSize = fs.statSync(xlsmFixture).size;
+    const beforeSha256 = crypto
+      .createHash("sha256")
+      .update(fs.readFileSync(xlsmFixture))
+      .digest("hex");
+
+    for (let i = 0; i < 5; i++) {
+      const r = await callCam(server, "electrode_coverage_audit", {
+        corpusRoot: corpusFixture,
+        xlsmPath: xlsmFixture,
+        baselineOverride: { electrodes: 1, taptites: 1 },
+      });
+      // Fail loud: if any iteration's dispatcher call fails, the mtime
+      // assertion below would trivially pass (engine never invoked) — assert
+      // success first so a wiring break surfaces, not masked.
+      expect(r.success, `iteration ${i} dispatcher call must succeed`).toBe(
+        true,
+      );
+    }
+
+    expect(fs.statSync(xlsmFixture).mtimeMs).toBe(beforeMtime);
+    expect(fs.statSync(xlsmFixture).size).toBe(beforeSize);
+    const afterSha256 = crypto
+      .createHash("sha256")
+      .update(fs.readFileSync(xlsmFixture))
+      .digest("hex");
+    expect(afterSha256).toBe(beforeSha256);
   });
 });
 
