@@ -2396,6 +2396,16 @@ export async function executeAIReasoningAction(
       }
 
       // ─────────────────────────────────────────────────────────────────────
+      // AUTO-LEARNING-LOOP-MS0/U-ALL06 — RoadmapAutoAppendEngine
+      // ─────────────────────────────────────────────────────────────────────
+      case "roadmap_auto_append": {
+        const { roadmapAutoAppendEngine } = await import("../../engines/RoadmapAutoAppendEngine.js");
+        const inputs = (params.inputs ?? []) as Array<Parameters<typeof roadmapAutoAppendEngine.proposeBatch>[0][number]>;
+        result = roadmapAutoAppendEngine.proposeBatch(inputs);
+        break;
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
       // AUTO-LEARNING-LOOP-MS0/U-ALL05 — VizAutoAugmentationEngine
       // ─────────────────────────────────────────────────────────────────────
       case "viz_auto_augment": {

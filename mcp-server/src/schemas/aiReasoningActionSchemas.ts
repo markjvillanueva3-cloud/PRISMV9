@@ -475,6 +475,8 @@ export const AI_REASONING_ACTIONS = [
   "synergy_classify",               // SynergyClassifierEngine.classify (single or batch)
   // AUTO-LEARNING-LOOP-MS0/U-ALL05 — VizAutoAugmentationEngine
   "viz_auto_augment",               // VizAutoAugmentationEngine.emit (batch verdicts → augmentation doc)
+  // AUTO-LEARNING-LOOP-MS0/U-ALL06 — RoadmapAutoAppendEngine
+  "roadmap_auto_append",            // RoadmapAutoAppendEngine.propose / proposeBatch
 ] as const;
 
 export type AIReasoningAction = (typeof AI_REASONING_ACTIONS)[number];
@@ -2277,6 +2279,38 @@ export const ACTION_AI_REASONING_SCHEMAS: Record<AIReasoningAction, z.ZodTypeAny
     "Classify a batch of source items as novel or known relative to the auto-learn catalog. " +
     "Returns { detect, add?, catalogLoaded }. When commit=true the add field carries " +
     "AddOutcome { added, embeddedFailures, skipped }.",
+  ),
+
+  // AUTO-LEARNING-LOOP-MS0/U-ALL06 — RoadmapAutoAppendEngine
+  roadmap_auto_append: z.object({
+    inputs: z.array(z.object({
+      verdict: z.object({
+        label: z.enum(["high", "med", "low", "none"]),
+        score: z.number(),
+        reason: z.enum(["invalid_features", "duplicate_veto", "score_band"]),
+        contributions: z.object({
+          semantic_match: z.number(),
+          novelty_strength: z.number(),
+          ai_priority_score: z.number(),
+          duplication_risk: z.number(),
+          effort_estimate: z.number(),
+          blast_radius: z.number(),
+        }),
+        rubricSchemaVersion: z.number(),
+        classifiedAt: z.number(),
+      }),
+      guid: z.string(),
+      source: z.string(),
+      title: z.string(),
+      link: z.string().optional(),
+      why: z.string().optional(),
+      corroborations: z.number().int().nonnegative().optional(),
+    })).describe("Batch of (verdict, source-item) inputs. Only high-band verdicts become proposals."),
+  }).strict().describe(
+    "Propose roadmap units (U-AUTORES-XX) for high-synergy research outputs. Per-milestone rate " +
+    "limit (default 2) is bypassed when corroborations ≥ threshold (default 3). Returns " +
+    "{ proposals: AppendProposal[], rejected: AppendRejection[], appendedThisCycle }. The engine " +
+    "does NOT mutate the roadmap file directly — CLI handles the write under prism_context:claim_file.",
   ),
 
   // AUTO-LEARNING-LOOP-MS0/U-ALL05 — VizAutoAugmentationEngine
