@@ -7,10 +7,10 @@
   "owner": "claude-06b8753f (slot CHARLIE)",
   "scoped_by": "claude-8f2683e8 (slot ALPHA, 2026-05-12)",
   "created_at": "2026-05-12T15:00:00.000Z",
-  "updated_at": "2026-05-13T16:30:00.000Z",
+  "updated_at": "2026-05-13T20:15:00.000Z",
   "status": "in_progress",
   "total_units": 7,
-  "completed_units": 3,
+  "completed_units": 4,
   "dependencies": [
     "MACRO-PROGRAM-PIPELINE-MS0"
   ],
@@ -165,7 +165,7 @@
         {
           "id": "U-TL-U3-ELECTRODE-COVERAGE-AUDIT",
           "title": "ElectrodeCoverageAuditEngine + phase20-electrode-coverage-audit.py (READ-ONLY against .xlsm)",
-          "status": "completed",
+          "status": "complete",
           "estimated_hours": 2,
           "safety_critical": true,
           "dependencies": [],
@@ -178,7 +178,8 @@
             "taptite_files": 22
           },
           "completed_at": "2026-05-13T16:30:00.000Z",
-          "completion_notes": "ElectrodeCoverageAuditEngine + phase20-electrode-coverage-audit.py shipped 2026-05-13 by claude-69525176 (slot CHARLIE), commit f1996657d. 55/55 tests pass (45 engine + 10 wire). 6 explicit safety tests verify fs.statSync(.xlsm).mtimeMs/size/sha256 unchanged after engine.report() — no_write_assertion satisfied. Baseline 73 electrodes / 22 taptites confirmed against real H:/PRISM/JM DIE walk (77552 dirs visited, 174407 ms). Dispatcher: +3 prism_cam actions (electrode_corpus_scan, electrode_xlsm_fingerprint, electrode_coverage_audit)."
+          "completion_notes": "ElectrodeCoverageAuditEngine + phase20-electrode-coverage-audit.py shipped 2026-05-13 by claude-69525176 (slot CHARLIE), commit f1996657d. 55/55 tests pass (45 engine + 10 wire). 6 explicit safety tests verify fs.statSync(.xlsm).mtimeMs/size/sha256 unchanged after engine.report() — no_write_assertion satisfied. Baseline 73 electrodes / 22 taptites confirmed against real H:/PRISM/JM DIE walk (77552 dirs visited, 174407 ms). Dispatcher: +3 prism_cam actions (electrode_corpus_scan, electrode_xlsm_fingerprint, electrode_coverage_audit).",
+          "completedAt": "2026-05-13T18:00:08.808Z"
         }
       ]
     },
@@ -189,7 +190,10 @@
         {
           "id": "U-TL-U4-WEDM-TEMPLATE-EXTRACTOR-AND-BRIDGE",
           "title": "WEDMPartFamilyTemplateExtractorEngine + TaptiteElectrodeMacroBridgeEngine (parsed-snapshot path)",
-          "status": "not_started",
+          "status": "complete",
+          "completedAt": "2026-05-13T20:15:00.000Z",
+          "commit": "8c8dd6417",
+          "shipped_by": "alpha/claude-40bfc582",
           "estimated_hours": 4,
           "safety_critical": true,
           "dependencies": [
@@ -203,7 +207,8 @@
             "pcd-tipped-tooling",
             "aerospace-fir-tree",
             "mold-insert"
-          ]
+          ],
+          "completion_notes": "Two safety-critical READ-ONLY engines shipped at commit 8c8dd6417 (this session). WEDMPartFamilyTemplateExtractorEngine extracts 7 families with hydrated WEDMStrategyLibraryEngine pass-schedule seeds + material-class-specific suitability ratings. TaptiteElectrodeMacroBridgeEngine projects taptite-electrode template → 20-VC-variable canonical schema + labelled _MACRO-TEMPLATE_<id>.min placeholder file (DO-NOT-RUN header + sanitized comment-body + sanitized filename — never mistakable for runnable code on any WEDM dialect). 7 new prism_edm actions: wedm_training_corpus_status / template_match / template_list / template_extract_all + wedm_training_taptite_bridge / variables / place_template. 101/101 tests pass (37 + 21 wire for engine 1, 27 + 16 wire for engine 2). Per-file scrutiny 2x parallel agents per engine; engine 2 review caught + drove fixes for 2 P0s (multiline comment-body injection, dual-source variable array drift) + 3 P1s (unreachable filename_unsafe error, M30 column-0 risk, namespace inconsistency wedm_taptite_macro_* → wedm_training_taptite_*). End-of-task 3-of-3 scrutiny PASS (all three Claude PRISM agents — the gate was redesigned mid-session to retire the Codex CLI arm; see commit 27be3ecab). Coverage floor met: happy + ≥3 failure modes + ≥2 adversarial + ≥3 family configs spanning material classes (tool_steel / carbide / inconel / copper)."
         }
       ]
     },
