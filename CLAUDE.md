@@ -287,6 +287,21 @@ Each hit carries: `source` (graph_node/engine/action/hook/skill), `confidence` [
 ## RTK (Bash token reduction — already installed)
 `rtk.exe` wraps ~100 commands (git/gh/npm/vitest/tsc/docker/grep/cat) and strips redundant output. Hook wired in `H:/.claude/settings.json`. Wins: `npm run build` ~80% reduction, `vitest run` ~70%, `gh pr diff` ~60%. Prefix `command` to bypass (e.g. `command git status` for raw). Skill: `/rtk-setup`.
 
+## GOAL-COMPLETE GATE — `/goal` requires fresh close-out audit (2026-05-13)
+User directive: *"add the closeout-audit slash command to the /goal slash command so the task cant be considered /goal complete until the audit is ran"*. `/goal` is Anthropic's built-in slash command — we don't override it, we GATE it.
+
+The Stop hook `.claude/hooks/goal-complete-gate.mjs` (Tier-0, wired first in the Stop chain) fires on every session stop. Logic:
+1. Read the session transcript's last 256 KB — scan for `<command-name>/goal</command-name>` markers.
+2. If `/goal` was NOT invoked this session → approve immediately (fast path; most chats never hit it).
+3. If `/goal` WAS invoked:
+   - `state/shared/CLOSE-OUT-CANDIDATES.json` must exist AND be ≤2h old (mtime). Stale → BLOCK with instruction to run `/close-out-audit`.
+   - Every surfaced candidate `unit_id` must appear in (a) one of the last 30 commit message bodies OR (b) `state/shared/CLOSE-OUT-DEFERRED.md`. Untriaged candidates → BLOCK with a per-unit punch list.
+   - All triaged → approve.
+
+**Knobs:** `PRISM_GOAL_GATE_DISABLE=1` (off entirely), `PRISM_GOAL_GATE_STALE_HRS=N` (default 2), `PRISM_GOAL_GATE_AUDIT_BYPASS=1` (one-shot bypass, logged to `state/shared/goal-gate-bypasses.jsonl`). The bypass is auditable — every override is a data point.
+
+**Why a Stop hook (not a skill):** `/goal` is built-in, so we can't intercept the command itself. The Stop hook is the *only* universal choke point that fires no matter how the session ends. Triage via commit body OR explicit deferral list — never silent skip.
+
 ## CLOSE-OUT AUTOMATION — find silent close-out debt (2026-05-13, demo: COORD-MS0)
 The 2026-05-12 history-strip left 668 milestone envelopes untracked and most unit statuses at `pending` even when the deliverable artifacts (engines, hooks, skills) actually ship in the repo. This produces **silent close-out debt** — work that's done but `MILESTONE_PROGRESS` / `BUILD_STATE` / `roadmap-index` don't know it. The audit detects + surfaces candidates so an operator (or chat) closes them properly. **Advisory only — never auto-flips envelope status.**
 

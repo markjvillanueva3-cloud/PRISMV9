@@ -74,10 +74,16 @@ False close-outs corrupt downstream:
 
 The audit can detect file presence but cannot verify the file **satisfies the spec** — a path that resolves doesn't mean the code does what the deliverable says. Always read the artifact end-to-end before flipping status.
 
+## Gated by Anthropic's built-in `/goal`
+
+When you invoke `/goal` (Anthropic's built-in goal-complete command), the Stop hook `goal-complete-gate.mjs` requires a **fresh** close-out audit (≤2h) plus every surfaced candidate triaged. Untriaged candidates BLOCK the session from stopping. Triage paths: (a) close it via envelope edit + commit, (b) defer in `state/shared/CLOSE-OUT-DEFERRED.md`, or (c) reject as false-positive in the same file. Bypass: `PRISM_GOAL_GATE_AUDIT_BYPASS=1` (logged).
+
 ## See also
 
 - Memory: `feedback_auto_close_out.md` (the standing rule)
 - Wiki: `knowledge/wiki/architecture/close-out-audit.md`
-- Doctrine: `H:/prism/CLAUDE.md` §CLOSE-OUT AUTOMATION
+- Doctrine: `H:/prism/CLAUDE.md` §CLOSE-OUT AUTOMATION + §GOAL-COMPLETE GATE
+- Hook: `.claude/hooks/goal-complete-gate.mjs` (Stop, T0 — gates Anthropic's built-in `/goal`)
+- Hook: `.claude/hooks/close-out-audit-suggest.mjs` (UserPromptSubmit, T2 — advisory inject)
 - Companion: `/close-out` (one-milestone surface refresh after manual close-out)
 - Companion: `/envelope-sync` (proposes status-flip patches for milestones you own)
