@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "timestamp": "2026-05-13T13:10:00Z",
+  "threshold_bytes": 10485760,
+  "scan_tool": "git rev-list --objects --all | git cat-file --batch-check (per /big-blob-hunt skill)",
+  "total_above_threshold": 25,
+  "total_size_bytes": 700344316,
+  "blobs": [
+    { "rank": 1,  "size_bytes": 48618381, "path": "PRISM_v8_89_002_TRUE_100_PERCENT.html",                       "versions": 1, "class": "LEGACY_DUMP",    "recommendation": "filter-repo --invert-paths --path PRISM_v8_89_002_TRUE_100_PERCENT.html" },
+    { "rank": 2,  "size_bytes": 45528515, "path": "mcp-server/.serena/cache/typescript/document_symbols.pkl",   "versions": 3, "class": "AUTO_GEN_STATE", "recommendation": "gitignore + filter-repo (mcp-server/.serena/cache/**)" },
+    { "rank": 3,  "size_bytes": 45067223, "path": "mcp-server/.serena/cache/typescript/document_symbols.pkl",   "versions": 3, "class": "AUTO_GEN_STATE", "recommendation": "gitignore + filter-repo (mcp-server/.serena/cache/**)" },
+    { "rank": 4,  "size_bytes": 41529318, "path": "mcp-server/.serena/cache/typescript/document_symbols.pkl",   "versions": 3, "class": "AUTO_GEN_STATE", "recommendation": "gitignore + filter-repo (mcp-server/.serena/cache/**)" },
+    { "rank": 5,  "size_bytes": 39311026, "path": "state/logs/audit.jsonl",                                     "versions": 9, "class": "AUTO_GEN_STATE", "recommendation": "gitignore + filter-repo (state/logs/audit.jsonl)" },
+    { "rank": 6,  "size_bytes": 39310786, "path": "state/logs/audit.jsonl",                                     "versions": 9, "class": "AUTO_GEN_STATE", "recommendation": "gitignore + filter-repo" },
+    { "rank": 7,  "size_bytes": 39135850, "path": "state/logs/audit.jsonl",                                     "versions": 9, "class": "AUTO_GEN_STATE", "recommendation": "gitignore + filter-repo" },
+    { "rank": 8,  "size_bytes": 38439372, "path": "state/logs/audit.jsonl",                                     "versions": 9, "class": "AUTO_GEN_STATE", "recommendation": "gitignore + filter-repo" },
+    { "rank": 9,  "size_bytes": 37571021, "path": "state/logs/audit.jsonl",                                     "versions": 9, "class": "AUTO_GEN_STATE", "recommendation": "gitignore + filter-repo" },
+    { "rank": 10, "size_bytes": 37038201, "path": "state/logs/audit.jsonl",                                     "versions": 9, "class": "AUTO_GEN_STATE", "recommendation": "gitignore + filter-repo" },
+    { "rank": 11, "size_bytes": 36504698, "path": "state/logs/audit.jsonl",                                     "versions": 9, "class": "AUTO_GEN_STATE", "recommendation": "gitignore + filter-repo" },
+    { "rank": 12, "size_bytes": 33310073, "path": "mcp-server/c/tmp/prism-build-check.js",                      "versions": 1, "class": "AUTO_GEN_STATE", "recommendation": "filter-repo (mcp-server/c/tmp/**)" },
+    { "rank": 13, "size_bytes": 31007763, "path": "state/logs/audit.jsonl",                                     "versions": 9, "class": "AUTO_GEN_STATE", "recommendation": "gitignore + filter-repo" },
+    { "rank": 14, "size_bytes": 31006507, "path": "state/logs/audit.jsonl",                                     "versions": 9, "class": "AUTO_GEN_STATE", "recommendation": "gitignore + filter-repo" },
+    { "rank": 15, "size_bytes": 30645560, "path": "mcp-server/tmp/build-check.js",                              "versions": 1, "class": "AUTO_GEN_STATE", "recommendation": "filter-repo (mcp-server/tmp/**)" },
+    { "rank": 16, "size_bytes": 24234859, "path": "mcp-server/src/data/collision-avoidance-data.json",          "versions": 4, "class": "DATA",           "recommendation": "review — large but possibly load-bearing collision lookup; consider lfs-migrate if confirmed source-of-truth" },
+    { "rank": 17, "size_bytes": 23549021, "path": "registries/_archive/COMPLETE_HIERARCHY_v15.json",            "versions": 1, "class": "LEGACY_DUMP",    "recommendation": "filter-repo --invert-paths (registries/_archive/**)" },
+    { "rank": 18, "size_bytes": 16314363, "path": "mcp-server/data/training/program-labels-full.json",          "versions": 1, "class": "DATA",           "recommendation": "review — training set; lfs-migrate is the right home if it stays" },
+    { "rank": 19, "size_bytes": 16129840, "path": "mcp-server/src/data/collision-avoidance-data.json",          "versions": 4, "class": "DATA",           "recommendation": "review" },
+    { "rank": 20, "size_bytes": 15598555, "path": "mcp-server/src/data/collision-avoidance-data.json",          "versions": 4, "class": "DATA",           "recommendation": "review" },
+    { "rank": 21, "size_bytes": 14397063, "path": "mcp-server/.serena/cache/typescript/raw_document_symbols.pkl","versions": 3, "class": "AUTO_GEN_STATE", "recommendation": "gitignore + filter-repo" },
+    { "rank": 22, "size_bytes": 14250306, "path": "mcp-server/.serena/cache/typescript/raw_document_symbols.pkl","versions": 3, "class": "AUTO_GEN_STATE", "recommendation": "gitignore + filter-repo" },
+    { "rank": 23, "size_bytes": 14151389, "path": "mcp-server/src/data/collision-avoidance-data.json",          "versions": 4, "class": "DATA",           "recommendation": "review" },
+    { "rank": 24, "size_bytes": 14078270, "path": "mcp-server/.serena/cache/typescript/raw_document_symbols.pkl","versions": 3, "class": "AUTO_GEN_STATE", "recommendation": "gitignore + filter-repo" },
+    { "rank": 25, "size_bytes": 12783546, "path": "_BUILD/PRISM_v8_89_002_TRUE_100_PERCENT.zip",                "versions": 1, "class": "LEGACY_DUMP",    "recommendation": "filter-repo --invert-paths (_BUILD/**)" }
+  ],
+  "summary": {
+    "classes": {
+      "AUTO_GEN_STATE": { "blobs": 18, "size_bytes": 535641537, "size_mb": 510, "recommendation_summary": "gitignore the path + filter-repo --invert-paths" },
+      "LEGACY_DUMP":    { "blobs": 3,  "size_bytes": 84950948,  "size_mb": 81,  "recommendation_summary": "filter-repo --invert-paths; these are one-shot artifacts no live code references" },
+      "DATA":           { "blobs": 5,  "size_bytes": 80429010,  "size_mb": 77,  "recommendation_summary": "review case-by-case; lfs-migrate if source-of-truth, filter-repo if duplicate" }
+    },
+    "estimated_disk_reclaim_after_filter_repo": "~535-600 MB conservative (.git/ objects + packfiles)",
+    "auto_safe_to_strip_paths_for_U_GC_02": [
+      "mcp-server/.serena/cache/**",
+      "state/logs/audit.jsonl",
+      "mcp-server/c/tmp/**",
+      "mcp-server/tmp/**",
+      "_BUILD/**",
+      "PRISM_v8_89_002_TRUE_100_PERCENT.html",
+      "registries/_archive/COMPLETE_HIERARCHY_v15.json"
+    ],
+    "manual_review_required_paths": [
+      "mcp-server/src/data/collision-avoidance-data.json (load-bearing? grep usage first)",
+      "mcp-server/data/training/program-labels-full.json (training set; lfs-migrate candidate)"
+    ]
+  },
+  "post_strip_followup": {
+    "gitignore_additions_required": [
+      "mcp-server/.serena/cache/",
+      "state/logs/audit.jsonl",
+      "mcp-server/c/tmp/",
+      "mcp-server/tmp/"
+    ],
+    "next_strip_event_recipe": "Per reference_git_history_strip_recipe (2026-05-12): backup .git/ via robocopy, git-filter-repo from PowerShell (not bash — MinGW OOMs on the 41 GiB tree), commit .gitignore additions BEFORE the strip, then force-with-lease push."
+  }
+}
