@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 /**
- * chat-slots.mjs — 6-slot fleet manager for concurrent PRISM chats.
+ * chat-slots.mjs — 7-slot fleet manager for concurrent PRISM chats.
  *
  * Replaces opaque 8-char hex chat ids in handoff filenames with NATO-phonetic
- * slot names (alpha/bravo/charlie/delta/echo/foxtrot). Each Claude/Codex
+ * slot names (alpha/bravo/charlie/delta/echo/foxtrot/golf). Each Claude/Codex
  * session at SessionStart claims the first free slot; the slot binding lives
  * for the lifetime of the chat (or until the 10-minute heartbeat TTL elapses
  * and the slot is auto-reclaimed for the next session).
  *
  * Why slots exist:
- *   - 6 chats compacting on `main` simultaneously all derive the same topic
+ *   - 7 chats (alpha..foxtrot work + golf hygiene) compacting on `main` simultaneously all derive the same topic
  *     and produce colliding HANDOFF-<id>.md filenames. Slots give each chat
  *     a stable human-readable lane name independent of branch/topic state.
  *   - The chat bus already tracks `claude-<8hex>` ids but operators can't
@@ -36,7 +36,7 @@
  *   4. Chat crashes mid-claim → 10-min TTL reclaims the slot
  *   5. Chat heartbeats forever (zombie) → lastActivity field shows what
  *      it was doing; operator can force-release via `force` flag
- *   6. All slots full when 7th chat tries to claim → returns
+ *   6. All slots full when 8th chat tries to claim → returns
  *      `{ ok: false, error: "fleet_full" }`; chat falls back to legacy
  *      chatId-based handoff naming
  *   7. Concurrent reads during a write window → tmp+rename guarantees
@@ -51,8 +51,19 @@ import { hostname } from "node:os";
 
 // ─── Constants ──────────────────────────────────────────────────────────
 
-/** NATO phonetic alphabet — first 6. Stable order; auto-claim picks first free. */
-export const SLOT_NAMES = ["alpha", "bravo", "charlie", "delta", "echo", "foxtrot"];
+/** NATO phonetic alphabet — first 7. Stable order; auto-claim picks first free.
+ *  Slot 7 ("golf") is the dedicated hygiene/cleanup chat per CLEANUP-MS0:
+ *  - Reaps orphan node/bash/git processes (memory monitor + extended reapers)
+ *  - Watchdog for peer commits (B4 reviewer-dispatch + cascade-route via Ollama)
+ *  - Grooms system-viz graph (C-series wiring-potential + C5 augment-on-new-engine)
+ *  - Gardens awareness surfaces (H-series memories/skills/hooks/CLAUDE.md/GSD drift)
+ *  TODO(U-CLEANUP-A5): Golf will be bound by the write-allowlist hook
+ *  (golf-slot-write-allowlist.mjs, U-CLEANUP-A5) and may NOT commit feature code
+ *  — read-only auditor + state/shared/* writes only.
+ *  SECURITY GAP (until A5 ships): cross-worktree firewall already blocks
+ *  shared-state writes from worktrees; A5 hardens this with explicit slot=golf
+ *  detection + path allowlist. Do NOT claim golf for feature work before A5. */
+export const SLOT_NAMES = ["alpha", "bravo", "charlie", "delta", "echo", "foxtrot", "golf"];
 
 /** Crash TTL — slot is considered crashed/reclaimable after this many ms with
  *  no heartbeat update. 10min matches the existing chat-bus claim TTL. */
@@ -131,7 +142,7 @@ export function readSlots(statePath = DEFAULT_STATE_PATH) {
     return emptyFile();
   }
   if (!parsed || typeof parsed !== "object" || !parsed.slots) return emptyFile();
-  // Ensure all 6 slot keys exist (forward-compat if SLOT_NAMES grows).
+  // Ensure all slot keys exist in state file (forward-compat as SLOT_NAMES grows; currently 7).
   for (const n of SLOT_NAMES) {
     if (!(n in parsed.slots)) parsed.slots[n] = null;
   }

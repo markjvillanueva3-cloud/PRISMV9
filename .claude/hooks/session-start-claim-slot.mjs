@@ -3,10 +3,11 @@
 /**
  * session-start-claim-slot.mjs — SessionStart hook
  *
- * Claims a fleet slot (alpha/bravo/charlie/delta/echo/foxtrot) for this
+ * Claims a fleet slot (alpha/bravo/charlie/delta/echo/foxtrot/golf) for this
  * Claude session at startup. Uses chat-slots.mjs helper. The slot binding
  * persists for the chat lifetime; subsequent UserPromptSubmit hooks heartbeat
- * the slot, and Stop releases it.
+ * the slot, and Stop releases it. Slot 7 (golf) is the dedicated hygiene chat
+ * per CLEANUP-MS0; bound by U-CLEANUP-A5 write-allowlist hook.
  *
  * Output: silent on success (slot claimed). Emits a one-line status message
  * via Claude Code's SessionStart hook protocol so the operator sees which
@@ -103,7 +104,7 @@ async function main() {
 
   if (!result.ok) {
     if (result.error === "fleet_full") {
-      return emitMessage(`⚠ fleet: all 6 slots claimed by alive chats; this session uses legacy chatId-based handoffs. Run /fleet to inspect; force-reclaim crashed slots if needed.`);
+      return emitMessage(`⚠ fleet: all 7 slots claimed by alive chats; this session uses legacy chatId-based handoffs. Run /fleet to inspect; force-reclaim crashed slots if needed.`);
     }
     return emitMessage(`⚠ fleet: claim failed (${result.error}: ${result.message})`);
   }
