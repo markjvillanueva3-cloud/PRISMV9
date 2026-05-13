@@ -43,6 +43,14 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // HOOK-SYNERGY-MS0/U-HOOK-ASYNC-DISPATCH (H7): enqueue + run Tier-4 hooks
 // against the async queue so Stop never waits on slow background work.
 "async_dispatch",
+// CLEANUP-MS0/U-CLEANUP-B2: PeerCommitAuditorEngine (B1) + LedgerStoreEngine (B10)
+// dispatcher surfaces. peer_audit_tick wraps engine.tick() (golf cron entrypoint);
+// peer_audit_attribution returns ledger projections (open bugs, recent ticks,
+// pending signals); peer_audit_dispatch_plan is the B4 reviewer-dispatch
+// pre-flight (preview pending signals + heuristic order + limits/cursors).
+"peer_audit_tick",
+"peer_audit_attribution",
+"peer_audit_dispatch_plan",
 // AUTO-LEARNING-LOOP-MS0/U-ALL01: poll 10 reputable AI/ML feeds via
 // ReputableSourceMonitorEngine and return per-source results. The cron
 // entrypoint (`scripts/source-monitor-sweep.mjs`, step-3) is self-contained
@@ -4145,6 +4153,127 @@ export function registerDevDispatcher(server: any): void {
               }
               default:
                 result = { error: "invalid_mode", mode, allowed: ["enqueue", "pending", "results", "stats", "available", "purge"] };
+            }
+            break;
+          }
+
+          // ── CLEANUP-MS0/U-CLEANUP-B2: peer_audit_tick ─────────────────
+          // PeerCommitAuditorEngine.tick() entrypoint for the golf watchdog
+          // cron. Optionally also reaps stale 'running' tick rows (operational
+          // hardening — protects against ghost rows if a prior tick() crashed
+          // between INSERT and finishAuditTick).
+          case "peer_audit_tick": {
+            const { PeerCommitAuditorEngine, getPeerCommitAuditorEngine } =
+              await import("../../engines/PeerCommitAuditorEngine.js");
+            const repoRoot = typeof params.repo_root === "string" ? params.repo_root : undefined;
+            const cachePath = typeof params.cache_path === "string" ? params.cache_path : undefined;
+            const sinceIso = typeof params.since_iso === "string" ? params.since_iso : undefined;
+            const excludeAuthors = Array.isArray(params.exclude_authors)
+              ? params.exclude_authors.filter((s: unknown): s is string => typeof s === "string")
+              : undefined;
+            const dryRun = params.dry_run === true;
+            const reapStale = params.reap_stale === true;
+            const reapThresholdMs = params.reap_threshold_ms != null
+              ? Number(params.reap_threshold_ms)
+              : undefined;
+            // Singleton when no override; explicit construct when worktree caller
+            // supplies repoRoot/cachePath (mirrors tickFromCli() lifecycle).
+            const engine = (repoRoot || cachePath)
+              ? new PeerCommitAuditorEngine({ repoRoot, cachePath })
+              : getPeerCommitAuditorEngine();
+            const tickResult = engine.tick({ sinceIso, repoRoot, excludeAuthors, dryRun });
+            let reaped = 0;
+            if (reapStale) {
+              reaped = engine.reapStaleTicks(
+                reapThresholdMs != null && Number.isFinite(reapThresholdMs) && reapThresholdMs > 0
+                  ? reapThresholdMs
+                  : undefined,
+              );
+            }
+            result = { ...tickResult, staleTicksReaped: reaped };
+            break;
+          }
+
+          // ── CLEANUP-MS0/U-CLEANUP-B2: peer_audit_attribution ──────────
+          // Read-side ledger projection. B5 (attribution ledger) consumes
+          // list_open + list_recent_ticks; B4 reviewer-dispatch drains
+          // list_pending_signals for a specific chat.
+          case "peer_audit_attribution": {
+            const { getLedgerStoreEngine } = await import("../../engines/LedgerStoreEngine.js");
+            const ledger = getLedgerStoreEngine();
+            const mode = String(params.mode || "list_open");
+            const rawLimit = params.limit != null ? Number(params.limit) : 100;
+            const limit = Number.isFinite(rawLimit) && rawLimit > 0
+              ? Math.min(Math.floor(rawLimit), 10_000)
+              : 100;
+            switch (mode) {
+              case "list_open":
+                result = { bugs: ledger.listOpenBugs(limit), limit };
+                break;
+              case "list_recent_ticks":
+                result = { ticks: ledger.listRecentTicks(limit), limit };
+                break;
+              case "list_pending_signals": {
+                const chat = typeof params.chat === "string" ? params.chat : "";
+                if (!chat) {
+                  result = { error: "missing_required", field: "chat", note: "list_pending_signals requires --chat to target a specific chat (broadcast '*' signals also matched)." };
+                  break;
+                }
+                result = { signals: ledger.drainSignalsFor(chat, limit), chat, limit };
+                break;
+              }
+              default:
+                result = { error: "invalid_mode", mode, allowed: ["list_open", "list_recent_ticks", "list_pending_signals"] };
+            }
+            break;
+          }
+
+          // ── CLEANUP-MS0/U-CLEANUP-B2: peer_audit_dispatch_plan ────────
+          // B4 reviewer-dispatch pre-flight surface. preview returns the
+          // pending signals + a heuristic dispatch order; limits exposes the
+          // engine's exported caps so B4 can self-throttle; cursor_status
+          // reports current cache.lastTickIso + projector cursors so a stale
+          // golf instance can detect drift.
+          case "peer_audit_dispatch_plan": {
+            const mode = String(params.mode || "preview");
+            const rawLimit = params.limit != null ? Number(params.limit) : 50;
+            const limit = Number.isFinite(rawLimit) && rawLimit > 0
+              ? Math.min(Math.floor(rawLimit), 10_000)
+              : 50;
+            switch (mode) {
+              case "preview": {
+                const { getLedgerStoreEngine } = await import("../../engines/LedgerStoreEngine.js");
+                const ledger = getLedgerStoreEngine();
+                const chat = typeof params.chat === "string" && params.chat.length > 0
+                  ? params.chat
+                  : "golf-watchdog";
+                const pending = ledger.drainSignalsFor(chat, limit);
+                // Heuristic dispatch order: P0 bugs first (by emitted_at), then
+                // peer_commit_for_review by ISO date asc (oldest first), then rest.
+                const plan = pending.slice().sort((a, b) => {
+                  // Type-asc: golf_finding > peer_commit_for_review > other
+                  const typeRank = (t: string) => t === "golf_finding" ? 0 : t === "peer_commit_for_review" ? 1 : 2;
+                  const ta = typeRank(a.signal_type);
+                  const tb = typeRank(b.signal_type);
+                  if (ta !== tb) return ta - tb;
+                  return a.emitted_at - b.emitted_at;
+                });
+                result = { chat, plan, pendingCount: pending.length, limit };
+                break;
+              }
+              case "limits": {
+                const { PEER_AUDIT_LIMITS } = await import("../../engines/PeerCommitAuditorEngine.js");
+                result = { limits: PEER_AUDIT_LIMITS };
+                break;
+              }
+              case "cursor_status": {
+                const { getLedgerProjectorEngine } = await import("../../engines/LedgerProjectorEngine.js");
+                const projector = getLedgerProjectorEngine();
+                result = { projectorCursors: projector.getAllCursors() };
+                break;
+              }
+              default:
+                result = { error: "invalid_mode", mode, allowed: ["preview", "limits", "cursor_status"] };
             }
             break;
           }
