@@ -1,6 +1,6 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-13T22:48:17.077Z
+> Generated: 2026-05-13T22:51:49.210Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
@@ -8,7 +8,7 @@
 - **2324** engines built and wired (of 3203)
 - **1073** wiki entries indexed
 - **879** engines awaiting dispatcher wiring
-- **3678** units pending across 72 active milestones
+- **3677** units pending across 72 active milestones
 - **2** codex frontend builds awaiting merge
 - **172** milestones with envelope-status drift
 
@@ -65,7 +65,7 @@
 
 ## NEEDS_BUILDING
 
-3678 units across 670 milestones not yet in git.
+3677 units across 670 milestones not yet in git.
 
 ### Envelope-status drift
 
@@ -248,10 +248,14 @@
 
 | Milestone | Phase | Unit | Title |
 |-----------|-------|------|-------|
+| COORD-MS0 |  | U-COORD02 | Add Optimistic Locking with Version Field |
+| COORD-MS0 |  | U-COORD04 | CrossSessionOrchestratorEngine — Unified Facade |
+| COORD-MS0 |  | U-COORD05 | Wire Orchestrator to Hook System |
+| COORD-MS0 |  | U-COORD06 | Startup Banner — Session Count Display |
 | CAD-INFRA-MS0 |  | U-CINF01 | CADFileIndexerEngine — master 20,006-file catalog |
 | CAD-INFRA-MS0 |  | U-CINF02 | CADFileClassifierEngine — part/assembly/drawing/CAM classification |
 | CAD-INFRA-MS0 |  | U-CINF03 | CADTestStateSchema — per-file atomic state |
-| CAD-INFRA-MS0 |  | U-CINF04.x-WORKER-THREAD-RUNNER | CADRegressionWorkerThreadRunnerEngine — production TestRunner implementation |
+| CAD-INFRA-MS0 |  | U-CINF04 | CADRegressionTestOrchestratorEngine — parallel worker pool |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | P5 | P5-U05 | Wire prism_intelligence:diagnose_failure → DiagnosticReasoningEngine |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | P6 | P6-U02 | Add 4 hooks for unforced CLAUDE.md rules |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | P6 | P6-U03 | Awareness hook deduplication — pick 3 canonical, deprecate 10 |
@@ -268,10 +272,6 @@
 | TRAINING-LEARNING-MS0 | matchers | U-TL-U5-DOMAIN-MATCHERS | LathePartFamilyMatcherEngine + MillPartFamilyMatcherEngine + WEDMPartFamilyMatcherEngine |
 | TRAINING-LEARNING-MS0 | closed-loop | U-TL-U6-CONTINUOUS-LEARNING | TrainingTemplateContinuousLearningEngine (ingestLatheOutcome / ingestMillOutcome / ingestWEDMOutcome) |
 | TRAINING-LEARNING-MS0 | close-out | U-TL-U7-SKILL-AND-CLOSEOUT | /learn-corpus skill (args: lathe|mill|wedm|electrode-audit|status|match <part>) + ENGINE_DIGEST regen + 3-way scrutiny |
-| AUTO-LEARNING-LOOP-MS0 | P0 | U-ALL02 | Build `NoveltyDetectionEngine` (diff vs catalog) |
-| AUTO-LEARNING-LOOP-MS0 | P0 | U-ALL05 | Build `VizAutoAugmentationEngine` (emit augmentation file) |
-| AUTO-LEARNING-LOOP-MS0 | P0 | U-ALL07 | Wire 6 auto-learning actions |
-| AUTO-LEARNING-LOOP-MS0 | P0 | U-ALL08 | Wire 6 auto-learning actions |
 
 **Next action:** Cross-reference MILESTONE_PROGRESS.json. Avoid units already in `shipped` arrays — those are committed but envelope status is stale.
 

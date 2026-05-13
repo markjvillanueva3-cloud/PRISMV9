@@ -1,11 +1,11 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-13T22:48:17.077Z",
+  "generatedAt": "2026-05-13T22:51:49.210Z",
   "headline": {
     "built_engines": 2324,
     "built_with_wiki": 1073,
     "needs_wiring": 879,
-    "needs_building_active_units": 3678,
+    "needs_building_active_units": 3677,
     "needs_frontend_merge_count": 2,
     "pending_milestones_with_activity": 72,
     "drift_milestones": 172,
@@ -9149,7 +9149,7 @@
     "next_action": "Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift."
   },
   "NEEDS_BUILDING": {
-    "summary": "3678 units across 670 milestones not yet in git.",
+    "summary": "3677 units across 670 milestones not yet in git.",
     "drift_cases": [
       {
         "id": "CC-EXT-MS0",
@@ -10186,6 +10186,30 @@
     ],
     "top_pending_units": [
       {
+        "milestone": "COORD-MS0",
+        "unit": "U-COORD02",
+        "title": "Add Optimistic Locking with Version Field",
+        "phase": ""
+      },
+      {
+        "milestone": "COORD-MS0",
+        "unit": "U-COORD04",
+        "title": "CrossSessionOrchestratorEngine — Unified Facade",
+        "phase": ""
+      },
+      {
+        "milestone": "COORD-MS0",
+        "unit": "U-COORD05",
+        "title": "Wire Orchestrator to Hook System",
+        "phase": ""
+      },
+      {
+        "milestone": "COORD-MS0",
+        "unit": "U-COORD06",
+        "title": "Startup Banner — Session Count Display",
+        "phase": ""
+      },
+      {
         "milestone": "CAD-INFRA-MS0",
         "unit": "U-CINF01",
         "title": "CADFileIndexerEngine — master 20,006-file catalog",
@@ -10205,8 +10229,8 @@
       },
       {
         "milestone": "CAD-INFRA-MS0",
-        "unit": "U-CINF04.x-WORKER-THREAD-RUNNER",
-        "title": "CADRegressionWorkerThreadRunnerEngine — production TestRunner implementation",
+        "unit": "U-CINF04",
+        "title": "CADRegressionTestOrchestratorEngine — parallel worker pool",
         "phase": ""
       },
       {
@@ -10304,30 +10328,6 @@
         "unit": "U-TL-U7-SKILL-AND-CLOSEOUT",
         "title": "/learn-corpus skill (args: lathe|mill|wedm|electrode-audit|status|match <part>) + ENGINE_DIGEST regen + 3-way scrutiny",
         "phase": "close-out"
-      },
-      {
-        "milestone": "AUTO-LEARNING-LOOP-MS0",
-        "unit": "U-ALL02",
-        "title": "Build `NoveltyDetectionEngine` (diff vs catalog)",
-        "phase": "P0"
-      },
-      {
-        "milestone": "AUTO-LEARNING-LOOP-MS0",
-        "unit": "U-ALL05",
-        "title": "Build `VizAutoAugmentationEngine` (emit augmentation file)",
-        "phase": "P0"
-      },
-      {
-        "milestone": "AUTO-LEARNING-LOOP-MS0",
-        "unit": "U-ALL07",
-        "title": "Wire 6 auto-learning actions",
-        "phase": "P0"
-      },
-      {
-        "milestone": "AUTO-LEARNING-LOOP-MS0",
-        "unit": "U-ALL08",
-        "title": "Wire 6 auto-learning actions",
-        "phase": "P0"
       }
     ],
     "next_action": "Cross-reference MILESTONE_PROGRESS.json. Avoid units already in `shipped` arrays — those are committed but envelope status is stale."
