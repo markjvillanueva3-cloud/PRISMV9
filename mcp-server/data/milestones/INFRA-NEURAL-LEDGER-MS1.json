@@ -1,0 +1,113 @@
+{
+  "id": "INFRA-NEURAL-LEDGER-MS1",
+  "version": "1.0.0",
+  "title": "Cross-Process Outcome Ledger + Neural Feedback Bus",
+  "brief": "Close architect risk #1 (outcome data starvation). Every print-to-program pipeline run, consensus decision, and machine job must emit a structured CrossProcessOutcomeEvent that lands in CrossProcessOutcomeStore. Add a feedback bus so downstream learning engines (CrossProcessNeuralLearningEngine, BayesianCalibrate, LoRA trainers) subscribe instead of poll.",
+  "created_at": "2026-05-04T20:30:00Z",
+  "created_by": "claude-opus-4-7",
+  "track": "INFRA",
+  "track_name": "Multi-Model Coordination Infrastructure",
+  "status": "in_progress",
+  "completed_units": 1,
+  "total_units": 5,
+  "shipped": [
+    {
+      "unit": "P0-U01",
+      "commit": "c96fe69d2",
+      "title": "extend OutcomeEventSchema to v1.1.0 (additive cross-process pipeline + consensus-audit fields)",
+      "shipped_at": "2026-05-13T03:13:00Z",
+      "shipped_by": "bravo/claude-88901d4c",
+      "scope_reconciliation": "Per duplication-guard + user direction, EXTENDED existing outcomeEventSchema.ts (v1.0.0 → v1.1.0 backward-compat union) instead of creating parallel CrossProcessOutcomeEvent. Reuses NUMERIC_FEATURE_KEYS imported from CrossProcessOutcomeStore (single source of truth).",
+      "files_changed": 6,
+      "tests": "39/39 pass (vitest 637ms)",
+      "scrutiny": "Per-file gate: 4 reviewer agents (2 per file × 2 files). 1 P0 + 4 P1 found, ALL fixed in same commit per always-close-out rule. Pre-existing MultiModelConsensusEngine breakage (alpha noted) not touched — vitest path doesn't import it.",
+      "deferred_followups": [
+        "empty-string job_id boundary test (pickSchemaVersion uses !== undefined, would still trigger v1.1.0 stamp)",
+        "unicode/surrogate-pair length test (.max(128) counts UTF-16 units, not codepoints)",
+        "P1-2 v10Event() allocation efficiency in it.each (cosmetic — defer)"
+      ]
+    }
+  ],
+  "linked_roadmap": "state/shared/PRISM-COMPREHENSIVE-ROADMAP-2026-05-04.md",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Outcome Ledger Schema + Bus",
+      "sessions": "4",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Define CrossProcessOutcomeEvent schema with schemaVersion + Zod validator",
+          "effort": 75,
+          "dependencies": [],
+          "status": "complete",
+          "completed_date": "2026-05-13",
+          "commit": "c96fe69d2",
+          "scope_note": "Delivered as EXTENSION of existing outcomeEventSchema.ts (v1.0.0 → v1.1.0) per duplication-guard. Adds 4 optional context fields, 2 OutcomeKind values, optional numeric_features map, cross-field superRefine, convention-drift superRefine. 39 tests pass. See shipped[] entry for full details.",
+          "exit_conditions": [
+            "Zod schema for {schemaVersion, ts, jobId, domain, pipelineStage, decision, predicted, actual, deltaMetrics, consensusAuditId?}",
+            "Numeric features validated (NUMERIC_FEATURE_KEYS list per existing pattern)",
+            "Migration path: schemaVersion 1.0.0 → 1.1.0 spec written",
+            "Tests: schema accepts valid event; rejects 5 malformed variants (missing required, wrong type, NaN, Infinity, oversize)"
+          ],
+          "description": "Reuse the existing NUMERIC_FEATURE_KEYS constant from CrossProcessOutcomeStore. Add jobId for cross-event linkage. consensusAuditId references entries in consensus-decisions.jsonl (ledger written by MS0).",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Hook outcome emission into all 6 P2P pipeline engines",
+          "effort": 120,
+          "dependencies": ["P0-U01"],
+          "exit_conditions": [
+            "MillingPrintToProgramEngine emits outcome at end of every run",
+            "TurningPrintToProgramEngine emits",
+            "WEDMPrintToProgramEngine emits",
+            "SinkerEDMPrintToProgramEngine emits",
+            "Laser/Waterjet emit (even if scaffolded — emit 'pipeline_skipped' status)",
+            "Emission is fire-and-forget (Promise.resolve, never blocks main path)",
+            "Tests: each engine emission validated against schema; emission failure logged but does not break pipeline"
+          ],
+          "description": "Insert a single line at the end of each engine's main run method: `crossProcessOutcomeStore.append(buildOutcome(this, result))`. Build a small helper that derives the event from engine state. No new dependency injection — direct singleton import per existing pattern.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        },
+        {
+          "id": "P0-U03",
+          "title": "CrossProcessOutcomeStore replay capability — reproduce last 100 jobs",
+          "effort": 75,
+          "dependencies": ["P0-U02"],
+          "exit_conditions": [
+            "store.replay(limit) returns ordered events",
+            "store.replayJob(jobId) returns all events for a single job in order",
+            "store.replaySince(timestamp) returns events after a cutoff",
+            "Tests: write 200 events, replay last 100 returns correct slice; replay by jobId returns full chain; replaySince filters correctly"
+          ],
+          "description": "Read-side API for the ledger. Used by learning engines and audit dashboards. JSONL streaming reader; never load full ledger into memory.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        },
+        {
+          "id": "P0-U04",
+          "title": "Neural feedback bus — pub/sub for outcome events",
+          "effort": 90,
+          "dependencies": ["P0-U03"],
+          "exit_conditions": [
+            "FeedbackBusEngine.subscribe(domain, callback) registers listeners",
+            "FeedbackBusEngine.publish(event) fires all matching subscribers async",
+            "Subscribers: CrossProcessNeuralLearningEngine, BayesianCalibrationEngine, CAMLoRAAdapterTrainerEngine wired",
+            "Tests: subscribe + publish round-trip; subscriber error does not prevent other subscribers; publish to non-existent domain is no-op",
+            "E2E: simulate a mill job, verify ALL 3 subscribers get the event"
+          ],
+          "description": "In-process event emitter (Node EventEmitter). Lightweight — not a queue. Future MS may add durability. Subscribers must be idempotent; bus does not retry.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        }
+      ]
+    }
+  ],
+  "acceptance": "Every P2P run writes a structured outcome event; replay reproduces last 100 jobs in order; 3 learning engines receive events via feedback bus; schemaVersion gate live.",
+  "risks": [
+    {"id": "R1", "description": "Engine emission adds latency; mitigation = fire-and-forget Promise.resolve, never await"},
+    {"id": "R2", "description": "Ledger grows unbounded; mitigation = rotation at 100MB, archived to .gz"},
+    {"id": "R3", "description": "Subscriber crash propagates; mitigation = try/catch around each invocation in publish loop"}
+  ],
+  "blocks": ["INFRA-AGI-ROUTER-MS2", "FEEDBACK-CALIB-MS10", "LEARN-XPROC-TRANSFER-MS18"],
+  "blocked_by": ["INFRA-CONSENSUS-WIRE-MS0"]
+}

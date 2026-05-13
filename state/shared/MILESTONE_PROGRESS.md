@@ -1,6 +1,6 @@
 # MILESTONE_PROGRESS — what's actually shipped vs claimed
 
-> Generated: 2026-05-13T01:57:07.628Z
+> Generated: 2026-05-13T02:08:20.491Z
 > Window: last 60.days of git log across all branches
 > Source: `scripts/build-milestone-progress.mjs`
 
