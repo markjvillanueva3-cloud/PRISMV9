@@ -133,6 +133,264 @@ export interface ValidationResult {
 }
 
 // ============================================================================
+// WAFER INSERT TYPES — modeled on BASE WAFER INSERT MACRO.min (O1001)
+// VC100+ form preserves the canonical JM Die Okuma OSP macro structure.
+// Calculated VCs (VC130..VC135, VC143..VC144) are EMITTED AS EXPRESSIONS —
+// never pre-computed (SAFETY-CRITICAL: the controller must see the formula).
+// ============================================================================
+
+/** OD + ID profile geometry — VC100..VC104, VC140..VC142 */
+export interface WaferInsertGeometry {
+  /** VC100 — stock outer diameter (inches) */
+  stockDiameter: number;
+  /** VC101 — finish OD at face */
+  finishODAtFace: number;
+  /** VC102 — OD taper end diameter (smaller dia at the back of the taper) */
+  odTaperEndDia: number;
+  /** VC103 — OD taper start Z (axial position where taper begins, positive into part) */
+  odTaperStartZ: number;
+  /** VC104 — total part length */
+  partLength: number;
+  /** VC140 — ID major diameter (where ID feature starts) */
+  idMajorDia: number;
+  /** VC141 — ID taper angle in Okuma format (270=0deg, 260=10deg, 250=20deg, range 250..270) */
+  idTaperAngleOkumaDeg: number;
+  /** VC142 — ID finish X dia at center (default 0 = centered/straight ID) */
+  idFinishXDia: number;
+}
+
+/** OD chamfer or radius at the front face — VC105..VC107 */
+export interface WaferInsertODChamfer {
+  /** VC105 — feature size (chamfer Z depth or radius); 0 = no feature */
+  size: number;
+  /** VC106 — feature type: "chamfer"=1 in macro, "radius"=2 */
+  type: "chamfer" | "radius";
+  /** VC107 — chamfer angle in degrees (used only when type="chamfer") */
+  angleDeg: number;
+}
+
+/** Spot drill parameters — VC110..VC113 */
+export interface WaferInsertSpotDrill {
+  /** VC110 — spot drill diameter */
+  diameter: number;
+  /** VC111 — spot drill SFM (surface feet/min) */
+  sfm: number;
+  /** VC112 — spot drill axial depth */
+  depth: number;
+  /** VC113 — peck enable (false=single plunge, true=G74 peck cycle) */
+  usePeck: boolean;
+}
+
+/** Thru drill parameters — VC115..VC120 */
+export interface WaferInsertThruDrill {
+  /** VC115 — thru drill diameter */
+  diameter: number;
+  /** VC116 — thru drill SFM */
+  sfm: number;
+  /** VC117 — feed per revolution (IPR) */
+  feedPerRev: number;
+  /** VC118 — drill point angle in degrees */
+  pointAngleDeg: number;
+  /** VC119 — peck enable */
+  usePeck: boolean;
+  /** VC120 — peck increment depth (used when usePeck=true) */
+  peckDepth: number;
+}
+
+/** Clearance planes — VC125..VC126 */
+export interface WaferInsertClearance {
+  /** VC125 — Z clearance plane (axial retract distance from face) */
+  zClearance: number;
+  /** VC126 — X clearance (diametral, added to stock dia for X retract) */
+  xClearance: number;
+}
+
+export interface WaferInsertConfig {
+  /** Program number — defaults to 1001 to match the canonical macro */
+  programNumber: number;
+  geometry: WaferInsertGeometry;
+  odChamfer: WaferInsertODChamfer;
+  spotDrill: WaferInsertSpotDrill;
+  thruDrill: WaferInsertThruDrill;
+  clearance: WaferInsertClearance;
+  /** G50 max spindle speed clamp; default 2500 RPM (matches the JM Die macro) */
+  maxRoughRPM?: number;
+}
+
+// ============================================================================
+// TOP HAT CASING TYPES — modeled on BASIC TOP HAT CASING WITH SINGLE
+// COUNTERBORE.min. Adds step-OD + ID-undercut + counterbore over the basic
+// casing form. VC100+ form, calculated VCs (VC145, VC150..VC159, VC160..VC167)
+// emitted as expressions.
+// ============================================================================
+
+/** Stock / large+small bore / part length — VC100..VC106 */
+export interface TopHatStockAndBore {
+  /** VC100 — stock outer diameter */
+  stockDiameter: number;
+  /** VC101 — finish OD at small dia (front portion of top hat) */
+  finishOdSmall: number;
+  /** VC102 — smallest drill diameter / start bore dia (= step drill 2 dia) */
+  smallestDrillDia: number;
+  /** VC103 — finish ID at large bore */
+  finishIdLarge: number;
+  /** VC104 — total part length (OD total) */
+  partLength: number;
+  /** VC105 — large bore depth (the counterbore-aligned depth) */
+  largeBoreDepth: number;
+  /** VC106 — small bore depth (thru) */
+  smallBoreDepth: number;
+}
+
+/** Step (top-hat brim) dimensions — VC107..VC109 */
+export interface TopHatStep {
+  /** VC107 — step OD (large dia / "brim") */
+  stepOdLarge: number;
+  /** VC108 — step Z depth (where step transitions to small OD) */
+  stepZDepth: number;
+  /** VC109 — step chamfer size */
+  stepChamferSize: number;
+}
+
+/** OD chamfer/radius at the small-OD face — VC110..VC112 */
+export interface TopHatODFeature {
+  /** VC110 — feature size; 0=none */
+  size: number;
+  /** VC111 — type: "chamfer"=1, "radius"=2 */
+  type: "chamfer" | "radius";
+  /** VC112 — chamfer angle (only if type="chamfer") */
+  angleDeg: number;
+}
+
+/** ID chamfer/radius at the large-bore entrance — VC113..VC115 */
+export interface TopHatIDLargeFeature {
+  /** VC113 — feature size; 0=none */
+  size: number;
+  /** VC114 — type: "chamfer"=1, "radius"=2 */
+  type: "chamfer" | "radius";
+  /** VC115 — chamfer angle (only if type="chamfer") */
+  angleDeg: number;
+}
+
+/** Optional ID undercut at the back of the large bore — VC116..VC119 */
+export interface TopHatIDUndercut {
+  /** VC116 — undercut enable (false=skip, true=run) */
+  enable: boolean;
+  /** VC117 — undercut axial length */
+  length: number;
+  /** VC118 — undercut lead-in angle */
+  leadInAngleDeg: number;
+  /** VC119 — undercut depth beyond finish ID dia (radial, single side) */
+  depthBeyondFinish: number;
+}
+
+/** Spot drill parameters — VC120..VC124 */
+export interface TopHatSpotDrill {
+  diameter: number;        // VC120
+  sfm: number;             // VC121
+  pointAngleDeg: number;   // VC122
+  depth: number;           // VC123
+  usePeck: boolean;        // VC124
+}
+
+/** Step drill 1 (large dia first) — VC125..VC129 */
+export interface TopHatStepDrill1 {
+  diameter: number;        // VC125
+  sfm: number;             // VC126
+  feedPerRev: number;      // VC127
+  pointAngleDeg: number;   // VC128
+  usePeck: boolean;        // VC129
+}
+
+/** Step drill 2 (thru drill) — VC130..VC133, VC139 */
+export interface TopHatStepDrill2 {
+  diameter: number;        // VC130
+  sfm: number;             // VC131
+  feedPerRev: number;      // VC132
+  pointAngleDeg: number;   // VC133
+  usePeck: boolean;        // VC139
+}
+
+/** Counterbore drill — VC134..VC138, VC140 */
+export interface TopHatCounterboreDrill {
+  /** VC134 — enable (false=skip, true=run) */
+  enable: boolean;
+  /** VC135 — counterbore drill diameter */
+  diameter: number;
+  /** VC136 — SFM */
+  sfm: number;
+  /** VC137 — feed per rev */
+  feedPerRev: number;
+  /** VC138 — point angle (180 for flat) */
+  pointAngleDeg: number;
+  /** VC140 — peck enable */
+  usePeck: boolean;
+}
+
+/** Stock allowances — VC170..VC173 */
+export interface TopHatStockAllowances {
+  odRadial: number;        // VC170
+  odAxial: number;         // VC171
+  idRadial: number;        // VC172
+  idAxial: number;         // VC173
+}
+
+/** Roughing params — VC175..VC176 */
+export interface TopHatRoughing {
+  odDepthOfCut: number;    // VC175
+  idDepthOfCut: number;    // VC176
+}
+
+/** Turning SFM — VC180..VC183 */
+export interface TopHatTurningSpeeds {
+  odRoughSFM: number;      // VC180
+  odFinishSFM: number;     // VC181
+  idRoughSFM: number;      // VC182
+  idFinishSFM: number;     // VC183
+}
+
+/** Turning feeds — VC190..VC195 */
+export interface TopHatTurningFeeds {
+  faceRough: number;       // VC190
+  faceFinish: number;      // VC191
+  odRough: number;         // VC192
+  odFinish: number;        // VC193
+  idRough: number;         // VC194
+  idFinish: number;        // VC195
+}
+
+/** Clearance planes — VC200..VC201 */
+export interface TopHatClearance {
+  zClearance: number;      // VC200
+  xClearance: number;      // VC201
+}
+
+export interface TopHatCasingConfig {
+  /** Program number — defaults to 1001 to match the canonical macro */
+  programNumber: number;
+  stockAndBore: TopHatStockAndBore;
+  step: TopHatStep;
+  odFeature: TopHatODFeature;
+  idLargeFeature: TopHatIDLargeFeature;
+  idUndercut: TopHatIDUndercut;
+  spotDrill: TopHatSpotDrill;
+  stepDrill1: TopHatStepDrill1;
+  stepDrill2: TopHatStepDrill2;
+  counterboreDrill: TopHatCounterboreDrill;
+  /** Common peck depth — VC141 */
+  drillPeckDepth: number;
+  stockAllowances: TopHatStockAllowances;
+  roughing: TopHatRoughing;
+  speeds: TopHatTurningSpeeds;
+  feeds: TopHatTurningFeeds;
+  clearance: TopHatClearance;
+  /** G50 max spindle for roughing — VC198 (default 2500) */
+  maxRoughRPM?: number;
+  /** G50 max spindle for finishing — VC199 (default 3500) */
+  maxFinishRPM?: number;
+}
+
+// ============================================================================
 // INTERNAL TYPES
 // ============================================================================
 
@@ -2458,6 +2716,1247 @@ class OkumaParametricProgramEngineImpl {
     }
     if (iter >= maxIter) warnings.push("Maximum iterations reached — possible infinite loop");
     return { gcode: outputLines.join("\n"), variables, errors, warnings };
+  }
+
+  // --------------------------------------------------------------------------
+  // PUBLIC: Generate Okuma wafer-insert turning program (VC100+ form).
+  //
+  // Models BASE WAFER INSERT MACRO.min (O1001 in H:/PRISM/JM DIE/Macro programs/).
+  // Operation sequence: OD face rough → OD profile rough (G85) → OD face finish
+  // → OD profile finish (G72) → spot drill → thru drill → ID profile rough (G85)
+  // → ID profile finish (G72). Tools T010101..T101010.
+  //
+  // SAFETY-CRITICAL invariants (asserted by tests):
+  //   1. Calculated VCs (VC130, VC131, VC132, VC133, VC134, VC135, VC143, VC144)
+  //      are emitted as EXPRESSIONS — never pre-computed. The controller
+  //      evaluates them at runtime so the operator can re-fill VC100..VC126 and
+  //      re-run without regenerating the program.
+  //   2. VC130 (spot drill RPM) MUST contain the substring pattern
+  //      `[VC111 * 3.82] / VC110` literally.
+  //   3. No tool start without a matching M9 / M1 / M5 tool end.
+  //
+  // Formula reference (Okuma OSP-P standard, per the macro header):
+  //   - RPM = [SFM × 3.82] / dia      → VC130, VC131
+  //   - Drill point depth = dia / 2 / TAN[angle / 2]  → VC132
+  //   - ID taper Z = (idMajor - idFinishX) / 2 / TAN[VC144]  where VC144 = 270 - tilt
+  //
+  // @param config Operator-filled VC100..VC126 + VC140..VC142 values
+  // @returns GeneratedProgram with gcode, variables, calculations, warnings
+  // --------------------------------------------------------------------------
+  generateWaferInsert(config: WaferInsertConfig): GeneratedProgram {
+    this._validateWaferInsert(config);
+
+    const warnings: string[] = [];
+    const operations: string[] = [
+      "FACE_ROUGH", "OD_PROFILE_ROUGH",
+      "FACE_FINISH", "OD_PROFILE_FINISH",
+      "SPOT_DRILL", "THRU_DRILL",
+      "ID_PROFILE_ROUGH", "ID_PROFILE_FINISH",
+    ];
+
+    const g = config.geometry;
+    const oc = config.odChamfer;
+    const sd = config.spotDrill;
+    const td = config.thruDrill;
+    const cl = config.clearance;
+    const maxRpm = config.maxRoughRPM ?? 2500;
+
+    // Okuma ID taper angle is in 250..270 range (270 = 0°). Warn if out of band.
+    if (g.idTaperAngleOkumaDeg < 250 || g.idTaperAngleOkumaDeg > 270) {
+      warnings.push(
+        `VC141 idTaperAngleOkumaDeg=${g.idTaperAngleOkumaDeg} outside Okuma 250..270 band (270=0deg, 250=20deg)`
+      );
+    }
+
+    // Build the input variable map (each VC has its filled numeric value).
+    // Calculated VCs are *not* in `variables` — they're in `calculations` and
+    // emitted as expressions in the gcode.
+    const variables: Record<string, { value: number; description: string }> = {
+      VC100: { value: g.stockDiameter,    description: "STOCK DIAMETER" },
+      VC101: { value: g.finishODAtFace,   description: "FINISH OD AT FACE" },
+      VC102: { value: g.odTaperEndDia,    description: "OD TAPER END DIA" },
+      VC103: { value: g.odTaperStartZ,    description: "OD TAPER START Z DEPTH" },
+      VC104: { value: g.partLength,       description: "PART LENGTH" },
+      VC105: { value: oc.size,            description: "OD FEATURE SIZE - 0 FOR NONE" },
+      VC106: { value: oc.type === "chamfer" ? 1 : 2, description: "OD FEATURE TYPE: 1=CHAMFER, 2=RADIUS" },
+      VC107: { value: oc.angleDeg,        description: "OD CHAMFER ANGLE - ONLY IF VC106=1" },
+      VC110: { value: sd.diameter,        description: "SPOT DRILL DIAMETER" },
+      VC111: { value: sd.sfm,             description: "SPOT DRILL SFM" },
+      VC112: { value: sd.depth,           description: "SPOT DRILL DEPTH" },
+      VC113: { value: sd.usePeck ? 1 : 0, description: "SPOT DRILL PECK: 0=NO, 1=YES" },
+      VC115: { value: td.diameter,        description: "DRILL DIAMETER" },
+      VC116: { value: td.sfm,             description: "DRILL SFM" },
+      VC117: { value: td.feedPerRev,      description: "DRILL FEED/REV" },
+      VC118: { value: td.pointAngleDeg,   description: "DRILL POINT ANGLE" },
+      VC119: { value: td.usePeck ? 1 : 0, description: "DRILL PECK: 0=NO, 1=YES" },
+      VC120: { value: td.peckDepth,       description: "PECK DEPTH - WHEN ENABLED" },
+      VC125: { value: cl.zClearance,      description: "Z CLEARANCE" },
+      VC126: { value: cl.xClearance,      description: "X CLEARANCE - DIAMETER" },
+      VC140: { value: g.idMajorDia,       description: "ID MAJOR DIA - WHERE FEATURE STARTS" },
+      VC141: { value: g.idTaperAngleOkumaDeg, description: "ID TAPER ANGLE - OKUMA 270=0DEG" },
+      VC142: { value: g.idFinishXDia,     description: "ID FINISH X DIA" },
+    };
+
+    // Calculated VCs — emitted as formula strings (NOT pre-computed).
+    // These are the load-bearing safety invariants — the controller MUST see
+    // the expression so a re-fill of input VCs flows through correctly.
+    const calculations: Record<string, { formula: string; result: number }> = {
+      VC130: {
+        formula: "[VC111 * 3.82] / VC110",
+        result: (sd.sfm * 3.82) / Math.max(sd.diameter, 1e-9),
+      },
+      VC131: {
+        formula: "[VC116 * 3.82] / VC115",
+        result: (td.sfm * 3.82) / Math.max(td.diameter, 1e-9),
+      },
+      VC132: {
+        formula: "VC115 / 2 / TAN[VC118 / 2]",
+        result: td.diameter / 2 / tanDeg(td.pointAngleDeg / 2),
+      },
+      VC133: {
+        formula: "VC104 + 0.05 + VC132",
+        result: g.partLength + 0.05 + (td.diameter / 2 / tanDeg(td.pointAngleDeg / 2)),
+      },
+      VC134: {
+        formula: "VC101 - [VC105 * 2]",
+        result: g.finishODAtFace - oc.size * 2,
+      },
+      VC135: {
+        formula: "VC100 + VC126",
+        result: g.stockDiameter + cl.xClearance,
+      },
+      VC144: {
+        formula: "270 - VC141",
+        result: 270 - g.idTaperAngleOkumaDeg,
+      },
+      VC143: {
+        formula: "[VC140 - VC142] / 2 / TAN[VC144]",
+        result: (g.idMajorDia - g.idFinishXDia) / 2 / tanDeg(270 - g.idTaperAngleOkumaDeg),
+      },
+    };
+
+    // --- Emit G-code (faithful to BASE WAFER INSERT MACRO.min) -----------
+    const L: string[] = [];
+
+    // Header + tool list
+    L.push(`O${config.programNumber}`);
+    L.push(`G140`);
+    L.push(`(T010101 - OD ROUGH TURNING)`);
+    L.push(`(T020202 - OD FINISH TURNING)`);
+    L.push(`(T030303 - SPOT DRILL)`);
+    L.push(`(T060606 - THRU DRILL)`);
+    L.push(`(T090909 - ID ROUGH BORING)`);
+    L.push(`(T101010 - ID FINISH BORING)`);
+    L.push(``);
+
+    // Macro variable section
+    L.push(`(========== MACRO VARIABLES ==========)`);
+    L.push(`(OD PROFILE)`);
+    L.push(`VC100 = ${fmt(g.stockDiameter)}        (STOCK DIAMETER)`);
+    L.push(`VC101 = ${fmt(g.finishODAtFace)}       (FINISH OD AT FACE)`);
+    L.push(`VC102 = ${fmt(g.odTaperEndDia)}        (OD TAPER END DIA)`);
+    L.push(`VC103 = ${fmt(g.odTaperStartZ)}        (OD TAPER START Z DEPTH)`);
+    L.push(`VC104 = ${fmt(g.partLength)}           (PART LENGTH)`);
+    L.push(``);
+    L.push(`(OD CHAMFER/RADIUS AT FACE)`);
+    L.push(`VC105 = ${fmt(oc.size)}                (OD FEATURE SIZE - 0 FOR NONE)`);
+    L.push(`VC106 = ${oc.type === "chamfer" ? 1 : 2}                    (OD FEATURE TYPE: 1=CHAMFER, 2=RADIUS)`);
+    L.push(`VC107 = ${fmt(oc.angleDeg, 0)}                  (OD CHAMFER ANGLE - ONLY IF VC106=1)`);
+    L.push(``);
+    L.push(`(SPOT DRILL PARAMETERS)`);
+    L.push(`VC110 = ${fmt(sd.diameter)}            (SPOT DRILL DIAMETER)`);
+    L.push(`VC111 = ${fmt(sd.sfm, 0)}              (SPOT DRILL SFM)`);
+    L.push(`VC112 = ${fmt(sd.depth)}               (SPOT DRILL DEPTH)`);
+    L.push(`VC113 = ${sd.usePeck ? 1 : 0}                    (SPOT DRILL PECK: 0=NO, 1=YES)`);
+    L.push(``);
+    L.push(`(THRU DRILL PARAMETERS)`);
+    L.push(`VC115 = ${fmt(td.diameter)}            (DRILL DIAMETER)`);
+    L.push(`VC116 = ${fmt(td.sfm, 0)}              (DRILL SFM)`);
+    L.push(`VC117 = ${fmt(td.feedPerRev)}          (DRILL FEED/REV)`);
+    L.push(`VC118 = ${fmt(td.pointAngleDeg, 0)}    (DRILL POINT ANGLE)`);
+    L.push(`VC119 = ${td.usePeck ? 1 : 0}                    (DRILL PECK: 0=NO, 1=YES)`);
+    L.push(``);
+    L.push(`(DRILL PECK DEPTH)`);
+    L.push(`VC120 = ${fmt(td.peckDepth)}           (PECK DEPTH - WHEN ENABLED)`);
+    L.push(``);
+    L.push(`(CLEARANCE PLANES)`);
+    L.push(`VC125 = ${fmt(cl.zClearance)}          (Z CLEARANCE)`);
+    L.push(`VC126 = ${fmt(cl.xClearance)}          (X CLEARANCE - DIAMETER)`);
+    L.push(``);
+    L.push(`(CALCULATED VALUES)`);
+    L.push(`VC130 = [VC111 * 3.82] / VC110                 (SPOT DRILL RPM)`);
+    L.push(`VC131 = [VC116 * 3.82] / VC115                 (DRILL RPM)`);
+    L.push(`VC132 = VC115 / 2 / TAN[VC118 / 2]             (DRILL POINT DEPTH)`);
+    L.push(`VC133 = VC104 + 0.05 + VC132                   (DRILL TOTAL DEPTH)`);
+    L.push(`VC134 = VC101 - [VC105 * 2]                    (OD FEATURE START DIA)`);
+    L.push(`VC135 = VC100 + VC126                          (OD APPROACH DIA)`);
+    L.push(`(ID PROFILE)`);
+    L.push(`VC140 = ${fmt(g.idMajorDia)}           (ID MAJOR DIA - WHERE FEATURE STARTS)`);
+    L.push(`VC141 = ${fmt(g.idTaperAngleOkumaDeg, 0)}      (ID TAPER ANGLE - OKUMA FORMAT: 270=0DEG, 260=10DEG, 250=20DEG)`);
+    L.push(`VC142 = ${fmt(g.idFinishXDia)}         (ID FINISH X DIA - DEFAULT 0 FOR CENTER)`);
+    L.push(``);
+    L.push(`(CALCULATED ID VALUES)`);
+    L.push(`VC144 = 270 - VC141                            (CONVERTED TAPER ANGLE)`);
+    L.push(`VC143 = [VC140 - VC142] / 2 / TAN[VC144]       (ID TAPER Z DEPTH)`);
+    L.push(`(=====================================)`);
+    L.push(``);
+
+    // Program preamble
+    L.push(`G90 G80`);
+    L.push(`M244`);
+    L.push(`G50 S${fmt(maxRpm, 0)}`);
+    L.push(``);
+
+    // FACE ROUGH (T010101)
+    L.push(`(FACE ROUGH)`);
+    L.push(`G0 X0. Z0.`);
+    L.push(`G270`);
+    L.push(`G95 G18`);
+    L.push(`N1 T010101`);
+    L.push(`M8`);
+    L.push(`G97 S1154 M3`);
+    L.push(`G0 Z[VC125]`);
+    L.push(`X[VC135]`);
+    L.push(`G96 S755 M3`);
+    L.push(`Z0.0716`);
+    L.push(`X[VC100 - 0.1]`);
+    L.push(`G1 X[VC101 + 0.1] F0.008`);
+    L.push(`G41 X[VC101] Z0.015`);
+    L.push(`X-0.15`);
+    L.push(`G40 X-0.04 Z0.0716`);
+    L.push(`G0 X[VC135]`);
+    L.push(`Z[VC125]`);
+    L.push(`G97 S1154 M3`);
+    L.push(``);
+
+    // OD PROFILE ROUGHING (G85/G81)
+    L.push(`N2(PROFILE ROUGHING - OD)`);
+    L.push(`G97 S1373 M3`);
+    L.push(`G0 Z[VC125]`);
+    L.push(`X[VC135]`);
+    L.push(`G96 S755 M3`);
+    L.push(`Z0.01`);
+    L.push(`X[VC100]`);
+    L.push(`G85 NAT1 D0.1 U0.008 W0.004 F0.012`);
+    L.push(`NAT1 G81`);
+    L.push(`G0 X[VC134] Z0.01`);
+    L.push(`G1 Z0.`);
+    L.push(`IF [VC105 EQ 0] GOTO 101`);
+    L.push(`IF [VC106 EQ 2] GOTO 100`);
+    L.push(`(OD CHAMFER)`);
+    L.push(`X[VC101] A[VC107]`);
+    L.push(`GOTO 101`);
+    L.push(`(OD RADIUS)`);
+    L.push(`N100 X[VC101] R[VC105]`);
+    L.push(`N101 Z-[VC103]`);
+    L.push(`X[VC102] Z-[VC104]`);
+    L.push(`X[VC100]`);
+    L.push(`G80`);
+    L.push(`X[VC135] Z0.01 F0.0728`);
+    L.push(`G0 Z[VC125]`);
+    L.push(`G180`);
+    L.push(`G97 S1373 M3`);
+    L.push(`M9`);
+    L.push(`G0 X0.`);
+    L.push(`Z0.`);
+    L.push(`M1`);
+    L.push(``);
+
+    // FACE FINISH (T020202)
+    L.push(`(FACE FINISH)`);
+    L.push(`G0 X0. Z0.`);
+    L.push(`G270`);
+    L.push(`G95 G18`);
+    L.push(`N3 T020202`);
+    L.push(`M8`);
+    L.push(`G97 S1261 M3`);
+    L.push(`G0 Z[VC125]`);
+    L.push(`X[VC135]`);
+    L.push(`G96 S825 M3`);
+    L.push(`Z0.0566`);
+    L.push(`X[VC100 - 0.1]`);
+    L.push(`G1 X[VC101 + 0.1] F0.004`);
+    L.push(`G41 X[VC101] Z0.`);
+    L.push(`X-0.15`);
+    L.push(`G40 X-0.04 Z0.0566`);
+    L.push(`G0 X[VC135]`);
+    L.push(`Z[VC125]`);
+    L.push(`G97 S1261 M3`);
+    L.push(``);
+
+    // OD PROFILE FINISHING (G72 replaying NAT1)
+    L.push(`N4(PROFILE FINISHING - OD)`);
+    L.push(`G97 S1501 M3`);
+    L.push(`G0 Z[VC125]`);
+    L.push(`X[VC135]`);
+    L.push(`G96 S825 M3`);
+    L.push(`G72 NAT1 F0.004`);
+    L.push(`G97 S1501 M3`);
+    L.push(`M9`);
+    L.push(`X0.`);
+    L.push(`Z0.`);
+    L.push(`M1`);
+    L.push(``);
+
+    // SPOT DRILL (T030303)
+    L.push(`(SPOT DRILL)`);
+    L.push(`G0 X0. Z0.`);
+    L.push(`G270`);
+    L.push(`G94 G18`);
+    L.push(`N5 T030303`);
+    L.push(`M8`);
+    L.push(`G97 S[VC130] M3`);
+    L.push(`G0 Z[VC125]`);
+    L.push(`X0.`);
+    L.push(`IF [VC113 EQ 1] GOTO 300`);
+    L.push(`(NO PECK)`);
+    L.push(`G1 Z-[VC112] F[VC130 * 0.002]`);
+    L.push(`G0 Z[VC125]`);
+    L.push(`GOTO 301`);
+    L.push(`(PECK)`);
+    L.push(`N300 G74 X0. Z-[VC112] I[VC120] D0.15 F[VC130 * 0.002]`);
+    L.push(`G180`);
+    L.push(`G0 Z[VC125]`);
+    L.push(`N301 M9`);
+    L.push(`X0.`);
+    L.push(`Z0.`);
+    L.push(`M1`);
+    L.push(``);
+
+    // THRU DRILL (T060606)
+    L.push(`(THRU DRILL)`);
+    L.push(`G0 X0. Z0.`);
+    L.push(`G270`);
+    L.push(`G94 G18`);
+    L.push(`N6 T060606`);
+    L.push(`M8`);
+    L.push(`G97 S[VC131] M3`);
+    L.push(`G0 Z[VC125]`);
+    L.push(`X0.`);
+    L.push(`IF [VC119 EQ 1] GOTO 310`);
+    L.push(`(NO PECK)`);
+    L.push(`G1 Z-[VC133] F[VC131 * VC117]`);
+    L.push(`G0 Z[VC125]`);
+    L.push(`GOTO 311`);
+    L.push(`(PECK)`);
+    L.push(`N310 G74 X0. Z-[VC133] I[VC120] D0.15 L0.15 F[VC131 * VC117]`);
+    L.push(`G180`);
+    L.push(`G0 Z[VC125]`);
+    L.push(`N311 M9`);
+    L.push(`X0.`);
+    L.push(`Z0.`);
+    L.push(`M1`);
+    L.push(``);
+
+    // ID PROFILE ROUGHING (T090909)
+    L.push(`(PROFILE ROUGHING - ID)`);
+    L.push(`G0 X0. Z0.`);
+    L.push(`G270`);
+    L.push(`G95 G18`);
+    L.push(`N7 T090909`);
+    L.push(`M8`);
+    L.push(`G97 S2500 M3`);
+    L.push(`G0 Z[VC125]`);
+    L.push(`X0.`);
+    L.push(`G96 S400 M3`);
+    L.push(`Z0.01`);
+    L.push(`G85 NAT6 D0.03 U0.008 W0.004 F0.004`);
+    L.push(`NAT6 G82`);
+    L.push(`G0 X-0.02 Z-[VC143]`);
+    L.push(`G1 X[VC140]`);
+    L.push(`X[VC142] A[VC144]`);
+    L.push(`G80`);
+    L.push(`X0. Z[VC125] F0.0005`);
+    L.push(`G97 S2500 M3`);
+    L.push(`M9`);
+    L.push(`G0 X0.`);
+    L.push(`Z0.`);
+    L.push(`M1`);
+    L.push(``);
+
+    // ID PROFILE FINISHING (T101010)
+    L.push(`(PROFILE FINISHING - ID)`);
+    L.push(`G0 X0. Z0.`);
+    L.push(`G270`);
+    L.push(`G95 G18`);
+    L.push(`N8 T101010`);
+    L.push(`M8`);
+    L.push(`G97 S2500 M3`);
+    L.push(`G0 Z[VC125]`);
+    L.push(`X0.`);
+    L.push(`G96 S400 M3`);
+    L.push(`G72 NAT6 F0.003`);
+    L.push(`G97 S2500 M3`);
+    L.push(`M5`);
+    L.push(`M9`);
+    L.push(`M243`);
+    L.push(`G0 X0.`);
+    L.push(`Z0.`);
+    L.push(`G270`);
+    L.push(``);
+    L.push(`M30`);
+
+    return {
+      gcode: L.join("\n"),
+      lineCount: L.length,
+      operations,
+      variables,
+      calculations,
+      warnings,
+    };
+  }
+
+  // --------------------------------------------------------------------------
+  // PUBLIC: Generate Okuma top-hat-casing-with-single-counterbore turning
+  // program (VC100+ form).
+  //
+  // Models BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min. Adds, over the
+  // basic casing form: a top-hat step OD (VC107..VC109), an optional ID
+  // undercut (VC116..VC119), and an optional counterbore drill (VC134..VC140).
+  // Operation sequence: face rough → OD profile rough w/ step → spot drill →
+  // step drill 1 (large) → step drill 2 (thru) → counterbore drill (optional)
+  // → face finish → OD profile finish → ID rough → ID finish.
+  // Tools T010101..T090909 (up to 8 distinct stations).
+  //
+  // SAFETY-CRITICAL invariants (asserted by tests):
+  //   1. Calculated VCs (VC145, VC150..VC159, VC160..VC167) emitted as
+  //      EXPRESSIONS — never pre-computed.
+  //   2. VC150 (spot drill RPM) MUST contain the substring `[VC121 * 3.82] / VC120`.
+  //   3. Counterbore drill code emitted only when VC134=1 — the IF/GOTO 500
+  //      structure must wrap the counterbore block.
+  //   4. ID undercut code emitted only when VC116=1 — the IF/GOTO 202 / IF/GOTO 603
+  //      structures gate the undercut moves.
+  //
+  // Formula reference (per the macro header):
+  //   - VC150 = [VC121 * 3.82] / VC120                                (spot drill RPM)
+  //   - VC151 = [VC126 * 3.82] / VC125                                (step drill 1 RPM)
+  //   - VC152 = [VC131 * 3.82] / VC130                                (step drill 2 RPM)
+  //   - VC153 = [VC136 * 3.82] / VC135                                (cbore drill RPM)
+  //   - VC154 = VC125 / 2 / TAN[VC128 / 2]                            (step drill 1 point depth)
+  //   - VC155 = VC130 / 2 / TAN[VC133 / 2]                            (step drill 2 point depth)
+  //   - VC145 = VC135 / 2 / TAN[VC138 / 2]                            (cbore point depth)
+  //   - VC156 = VC105 + [[VC125 - VC130] / 2 / TAN[VC128 / 2]]        (step drill 1 total depth)
+  //   - VC157 = VC106 + 0.1 + VC155                                   (step drill 2 total depth)
+  //
+  // @param config Operator-filled top-hat config
+  // @returns GeneratedProgram with gcode, variables, calculations, warnings
+  // --------------------------------------------------------------------------
+  generateTopHatCasing(config: TopHatCasingConfig): GeneratedProgram {
+    this._validateTopHat(config);
+
+    const warnings: string[] = [];
+    const operations: string[] = [
+      "FACE_ROUGH", "OD_PROFILE_ROUGH",
+      "SPOT_DRILL", "STEP_DRILL_1", "STEP_DRILL_2",
+      ...(config.counterboreDrill.enable ? ["COUNTERBORE_DRILL"] : []),
+      "FACE_FINISH", "OD_PROFILE_FINISH",
+      "ID_LARGE_BORE_ROUGH", "ID_LARGE_BORE_FINISH",
+    ];
+
+    const sab = config.stockAndBore;
+    const st = config.step;
+    const of = config.odFeature;
+    const il = config.idLargeFeature;
+    const uc = config.idUndercut;
+    const sd = config.spotDrill;
+    const d1 = config.stepDrill1;
+    const d2 = config.stepDrill2;
+    const cb = config.counterboreDrill;
+    const sa = config.stockAllowances;
+    const ro = config.roughing;
+    const sp = config.speeds;
+    const fe = config.feeds;
+    const cl = config.clearance;
+    const maxRough = config.maxRoughRPM ?? 2500;
+    const maxFinish = config.maxFinishRPM ?? 3500;
+
+    if (sab.finishOdSmall >= st.stepOdLarge) {
+      warnings.push(
+        `Top-hat geometry inverted: finishOdSmall (VC101=${sab.finishOdSmall}) >= stepOdLarge (VC107=${st.stepOdLarge}); top hat requires step OD > small OD`
+      );
+    }
+    if (sab.smallestDrillDia !== d2.diameter) {
+      warnings.push(
+        `VC102 smallestDrillDia (${sab.smallestDrillDia}) does not match step drill 2 dia (VC130=${d2.diameter}); macro assumes they're equal`
+      );
+    }
+
+    // Filled (input) variables map.
+    const variables: Record<string, { value: number; description: string }> = {
+      VC100: { value: sab.stockDiameter,   description: "STOCK DIAMETER" },
+      VC101: { value: sab.finishOdSmall,   description: "FINISH OD - SMALL DIA" },
+      VC102: { value: sab.smallestDrillDia, description: "SMALLEST DRILL / START BORE DIA" },
+      VC103: { value: sab.finishIdLarge,   description: "FINISH ID - LARGE BORE" },
+      VC104: { value: sab.partLength,      description: "PART LENGTH - OD TOTAL" },
+      VC105: { value: sab.largeBoreDepth,  description: "LARGE BORE DEPTH" },
+      VC106: { value: sab.smallBoreDepth,  description: "SMALL BORE DEPTH - THRU" },
+      VC107: { value: st.stepOdLarge,      description: "STEP OD - LARGE DIA" },
+      VC108: { value: st.stepZDepth,       description: "STEP Z DEPTH" },
+      VC109: { value: st.stepChamferSize,  description: "STEP CHAMFER SIZE" },
+      VC110: { value: of.size,             description: "OD FEATURE SIZE - 0 FOR NONE" },
+      VC111: { value: of.type === "chamfer" ? 1 : 2, description: "OD FEATURE TYPE: 1=CHAMFER, 2=RADIUS" },
+      VC112: { value: of.angleDeg,         description: "OD CHAMFER ANGLE" },
+      VC113: { value: il.size,             description: "ID LARGE FEATURE SIZE - 0 FOR NONE" },
+      VC114: { value: il.type === "chamfer" ? 1 : 2, description: "ID LARGE FEATURE TYPE" },
+      VC115: { value: il.angleDeg,         description: "ID LARGE CHAMFER ANGLE" },
+      VC116: { value: uc.enable ? 1 : 0,   description: "UNDERCUT ENABLE: 0=SKIP, 1=RUN" },
+      VC117: { value: uc.length,           description: "UNDERCUT LENGTH" },
+      VC118: { value: uc.leadInAngleDeg,   description: "UNDERCUT LEAD-IN ANGLE" },
+      VC119: { value: uc.depthBeyondFinish, description: "UNDERCUT DEPTH BEYOND FINISH DIA" },
+      VC120: { value: sd.diameter,         description: "SPOT DRILL DIAMETER" },
+      VC121: { value: sd.sfm,              description: "SPOT DRILL SFM" },
+      VC122: { value: sd.pointAngleDeg,    description: "SPOT DRILL POINT ANGLE" },
+      VC123: { value: sd.depth,            description: "SPOT DRILL DEPTH" },
+      VC124: { value: sd.usePeck ? 1 : 0,  description: "SPOT DRILL PECK" },
+      VC125: { value: d1.diameter,         description: "STEP DRILL 1 DIAMETER" },
+      VC126: { value: d1.sfm,              description: "STEP DRILL 1 SFM" },
+      VC127: { value: d1.feedPerRev,       description: "STEP DRILL 1 FEED/REV" },
+      VC128: { value: d1.pointAngleDeg,    description: "STEP DRILL 1 POINT ANGLE" },
+      VC129: { value: d1.usePeck ? 1 : 0,  description: "STEP DRILL 1 PECK" },
+      VC130: { value: d2.diameter,         description: "STEP DRILL 2 DIAMETER" },
+      VC131: { value: d2.sfm,              description: "STEP DRILL 2 SFM" },
+      VC132: { value: d2.feedPerRev,       description: "STEP DRILL 2 FEED/REV" },
+      VC133: { value: d2.pointAngleDeg,    description: "STEP DRILL 2 POINT ANGLE" },
+      VC134: { value: cb.enable ? 1 : 0,   description: "COUNTERBORE ENABLE: 0=SKIP, 1=RUN" },
+      VC135: { value: cb.diameter,         description: "COUNTERBORE DRILL DIAMETER" },
+      VC136: { value: cb.sfm,              description: "COUNTERBORE DRILL SFM" },
+      VC137: { value: cb.feedPerRev,       description: "COUNTERBORE DRILL FEED/REV" },
+      VC138: { value: cb.pointAngleDeg,    description: "COUNTERBORE POINT ANGLE - 180 FOR FLAT" },
+      VC139: { value: d2.usePeck ? 1 : 0,  description: "STEP DRILL 2 PECK" },
+      VC140: { value: cb.usePeck ? 1 : 0,  description: "COUNTERBORE PECK" },
+      VC141: { value: config.drillPeckDepth, description: "DRILL PECK DEPTH" },
+      VC170: { value: sa.odRadial,         description: "OD FINISH STOCK - RADIAL" },
+      VC171: { value: sa.odAxial,          description: "OD FINISH STOCK - AXIAL" },
+      VC172: { value: sa.idRadial,         description: "ID FINISH STOCK - RADIAL" },
+      VC173: { value: sa.idAxial,          description: "ID FINISH STOCK - AXIAL" },
+      VC175: { value: ro.odDepthOfCut,     description: "OD DEPTH OF CUT" },
+      VC176: { value: ro.idDepthOfCut,     description: "ID DEPTH OF CUT" },
+      VC180: { value: sp.odRoughSFM,       description: "OD ROUGH SFM" },
+      VC181: { value: sp.odFinishSFM,      description: "OD FINISH SFM" },
+      VC182: { value: sp.idRoughSFM,       description: "ID ROUGH SFM" },
+      VC183: { value: sp.idFinishSFM,      description: "ID FINISH SFM" },
+      VC190: { value: fe.faceRough,        description: "FACE ROUGH FEED" },
+      VC191: { value: fe.faceFinish,       description: "FACE FINISH FEED" },
+      VC192: { value: fe.odRough,          description: "OD ROUGH FEED" },
+      VC193: { value: fe.odFinish,         description: "OD FINISH FEED" },
+      VC194: { value: fe.idRough,          description: "ID ROUGH FEED" },
+      VC195: { value: fe.idFinish,         description: "ID FINISH FEED" },
+      VC200: { value: cl.zClearance,       description: "Z CLEARANCE IN FRONT OF STOCK" },
+      VC201: { value: cl.xClearance,       description: "X CLEARANCE ABOVE STOCK - DIAMETER" },
+      VC198: { value: maxRough,            description: "ROUGH MAX RPM" },
+      VC199: { value: maxFinish,           description: "FINISH MAX RPM" },
+    };
+
+    const calculations: Record<string, { formula: string; result: number }> = {
+      VC150: {
+        formula: "[VC121 * 3.82] / VC120",
+        result: (sd.sfm * 3.82) / Math.max(sd.diameter, 1e-9),
+      },
+      VC151: {
+        formula: "[VC126 * 3.82] / VC125",
+        result: (d1.sfm * 3.82) / Math.max(d1.diameter, 1e-9),
+      },
+      VC152: {
+        formula: "[VC131 * 3.82] / VC130",
+        result: (d2.sfm * 3.82) / Math.max(d2.diameter, 1e-9),
+      },
+      VC153: {
+        formula: "[VC136 * 3.82] / VC135",
+        result: (cb.sfm * 3.82) / Math.max(cb.diameter, 1e-9),
+      },
+      VC154: {
+        formula: "VC125 / 2 / TAN[VC128 / 2]",
+        result: d1.diameter / 2 / tanDeg(d1.pointAngleDeg / 2),
+      },
+      VC155: {
+        formula: "VC130 / 2 / TAN[VC133 / 2]",
+        result: d2.diameter / 2 / tanDeg(d2.pointAngleDeg / 2),
+      },
+      VC145: {
+        formula: "VC135 / 2 / TAN[VC138 / 2]",
+        result: cb.diameter / 2 / tanDeg(cb.pointAngleDeg / 2),
+      },
+      VC156: {
+        formula: "VC105 + [[VC125 - VC130] / 2 / TAN[VC128 / 2]]",
+        result: sab.largeBoreDepth + (d1.diameter - d2.diameter) / 2 / tanDeg(d1.pointAngleDeg / 2),
+      },
+      VC157: {
+        formula: "VC106 + 0.1 + VC155",
+        result: sab.smallBoreDepth + 0.1 + d2.diameter / 2 / tanDeg(d2.pointAngleDeg / 2),
+      },
+      VC158: { formula: "VC105", result: sab.largeBoreDepth },
+      VC159: {
+        formula: "VC105 - [[VC125 - VC130] / 2 / TAN[VC128 / 2]] + 0.1",
+        result: sab.largeBoreDepth - (d1.diameter - d2.diameter) / 2 / tanDeg(d1.pointAngleDeg / 2) + 0.1,
+      },
+      VC167: {
+        formula: "VC105 - [[VC125 - VC135] / 2 / TAN[VC128 / 2]] + 0.1",
+        result: sab.largeBoreDepth - (d1.diameter - cb.diameter) / 2 / tanDeg(d1.pointAngleDeg / 2) + 0.1,
+      },
+      VC160: {
+        formula: "VC101 - [VC110 * 2]",
+        result: sab.finishOdSmall - of.size * 2,
+      },
+      VC161: {
+        formula: "VC103 + [VC113 * 2]",
+        result: sab.finishIdLarge + il.size * 2,
+      },
+      VC162: {
+        formula: "VC104 + 0.01",
+        result: sab.partLength + 0.01,
+      },
+      VC163: {
+        formula: "VC100 + VC201",
+        result: sab.stockDiameter + cl.xClearance,
+      },
+      VC164: {
+        formula: "VC102 - VC201",
+        result: sab.smallestDrillDia - cl.xClearance,
+      },
+      VC165: {
+        formula: "VC103 + [VC119 * 2]",
+        result: sab.finishIdLarge + uc.depthBeyondFinish * 2,
+      },
+      VC166: {
+        formula: "VC105 - VC117",
+        result: sab.largeBoreDepth - uc.length,
+      },
+    };
+
+    // --- Emit G-code (faithful to BASIC TOP HAT CASING macro) ----------------
+    const L: string[] = [];
+
+    L.push(`O${config.programNumber}`);
+    L.push(`G140`);
+    L.push(`(T010101 - OD ROUGH TURNING)`);
+    L.push(`(T020202 - OD FINISH TURNING)`);
+    L.push(`(T030303 - SPOT DRILL)`);
+    L.push(`(T050505 - STEP DRILL 1)`);
+    L.push(`(T060606 - STEP DRILL 2)`);
+    L.push(`(T070707 - COUNTERBORE DRILL)`);
+    L.push(`(T080808 - ID ROUGH BORING)`);
+    L.push(`(T090909 - ID FINISH BORING)`);
+    L.push(``);
+
+    L.push(`(========== MACRO VARIABLES ==========)`);
+    L.push(`(STOCK AND MODEL)`);
+    L.push(`VC100 = ${fmt(sab.stockDiameter)}        (STOCK DIAMETER)`);
+    L.push(`VC101 = ${fmt(sab.finishOdSmall)}        (FINISH OD - SMALL DIA)`);
+    L.push(`VC102 = ${fmt(sab.smallestDrillDia)}     (SMALLEST DRILL / START BORE DIA)`);
+    L.push(`VC103 = ${fmt(sab.finishIdLarge)}        (FINISH ID - LARGE BORE)`);
+    L.push(`VC104 = ${fmt(sab.partLength)}           (PART LENGTH - OD TOTAL)`);
+    L.push(`VC105 = ${fmt(sab.largeBoreDepth)}       (LARGE BORE DEPTH)`);
+    L.push(`VC106 = ${fmt(sab.smallBoreDepth)}       (SMALL BORE DEPTH - THRU)`);
+    L.push(``);
+    L.push(`(STEP DIMENSIONS)`);
+    L.push(`VC107 = ${fmt(st.stepOdLarge)}           (STEP OD - LARGE DIA)`);
+    L.push(`VC108 = ${fmt(st.stepZDepth)}            (STEP Z DEPTH)`);
+    L.push(`VC109 = ${fmt(st.stepChamferSize)}       (STEP CHAMFER SIZE)`);
+    L.push(``);
+    L.push(`(OD CHAMFER/RADIUS)`);
+    L.push(`VC110 = ${fmt(of.size)}                  (OD FEATURE SIZE - 0 FOR NONE)`);
+    L.push(`VC111 = ${of.type === "chamfer" ? 1 : 2}                    (OD FEATURE TYPE: 1=CHAMFER, 2=RADIUS)`);
+    L.push(`VC112 = ${fmt(of.angleDeg, 0)}           (OD CHAMFER ANGLE - ONLY USED IF VC111=1)`);
+    L.push(``);
+    L.push(`(ID CHAMFER/RADIUS - LARGE BORE)`);
+    L.push(`VC113 = ${fmt(il.size)}                  (ID LARGE FEATURE SIZE - 0 FOR NONE)`);
+    L.push(`VC114 = ${il.type === "chamfer" ? 1 : 2}                    (ID LARGE FEATURE TYPE: 1=CHAMFER, 2=RADIUS)`);
+    L.push(`VC115 = ${fmt(il.angleDeg, 0)}           (ID LARGE CHAMFER ANGLE - ONLY USED IF VC114=1)`);
+    L.push(``);
+    L.push(`(ID UNDERCUT PARAMETERS)`);
+    L.push(`VC116 = ${uc.enable ? 1 : 0}                    (UNDERCUT ENABLE: 0=SKIP, 1=RUN)`);
+    L.push(`VC117 = ${fmt(uc.length)}                (UNDERCUT LENGTH)`);
+    L.push(`VC118 = ${fmt(uc.leadInAngleDeg, 0)}     (UNDERCUT LEAD-IN ANGLE)`);
+    L.push(`VC119 = ${fmt(uc.depthBeyondFinish)}     (UNDERCUT DEPTH BEYOND FINISH DIA)`);
+    L.push(``);
+    L.push(`(SPOT DRILL PARAMETERS)`);
+    L.push(`VC120 = ${fmt(sd.diameter)}              (SPOT DRILL DIAMETER)`);
+    L.push(`VC121 = ${fmt(sd.sfm, 0)}                (SPOT DRILL SFM)`);
+    L.push(`VC122 = ${fmt(sd.pointAngleDeg, 0)}      (SPOT DRILL POINT ANGLE)`);
+    L.push(`VC123 = ${fmt(sd.depth)}                 (SPOT DRILL DEPTH)`);
+    L.push(`VC124 = ${sd.usePeck ? 1 : 0}                    (SPOT DRILL PECK: 0=NO PECK, 1=PECK)`);
+    L.push(``);
+    L.push(`(STEP DRILL 1 PARAMETERS - LARGE DIA FIRST)`);
+    L.push(`VC125 = ${fmt(d1.diameter)}              (STEP DRILL 1 DIAMETER)`);
+    L.push(`VC126 = ${fmt(d1.sfm, 0)}                (STEP DRILL 1 SFM)`);
+    L.push(`VC127 = ${fmt(d1.feedPerRev)}            (STEP DRILL 1 FEED/REV)`);
+    L.push(`VC128 = ${fmt(d1.pointAngleDeg, 0)}      (STEP DRILL 1 POINT ANGLE)`);
+    L.push(`VC129 = ${d1.usePeck ? 1 : 0}                    (STEP DRILL 1 PECK: 0=NO PECK, 1=PECK)`);
+    L.push(``);
+    L.push(`(STEP DRILL 2 PARAMETERS - THRU DRILL)`);
+    L.push(`VC130 = ${fmt(d2.diameter)}              (STEP DRILL 2 DIAMETER)`);
+    L.push(`VC131 = ${fmt(d2.sfm, 0)}                (STEP DRILL 2 SFM)`);
+    L.push(`VC132 = ${fmt(d2.feedPerRev)}            (STEP DRILL 2 FEED/REV)`);
+    L.push(`VC133 = ${fmt(d2.pointAngleDeg, 0)}      (STEP DRILL 2 POINT ANGLE)`);
+    L.push(`VC139 = ${d2.usePeck ? 1 : 0}                    (STEP DRILL 2 PECK: 0=NO PECK, 1=PECK)`);
+    L.push(``);
+    L.push(`(COUNTERBORE DRILL PARAMETERS)`);
+    L.push(`VC134 = ${cb.enable ? 1 : 0}                    (COUNTERBORE ENABLE: 0=SKIP, 1=RUN)`);
+    L.push(`VC135 = ${fmt(cb.diameter)}              (COUNTERBORE DRILL DIAMETER)`);
+    L.push(`VC136 = ${fmt(cb.sfm, 0)}                (COUNTERBORE DRILL SFM)`);
+    L.push(`VC137 = ${fmt(cb.feedPerRev)}            (COUNTERBORE DRILL FEED/REV)`);
+    L.push(`VC138 = ${fmt(cb.pointAngleDeg, 0)}      (COUNTERBORE POINT ANGLE - 180 FOR FLAT)`);
+    L.push(`VC140 = ${cb.usePeck ? 1 : 0}                    (COUNTERBORE PECK: 0=NO PECK, 1=PECK)`);
+    L.push(``);
+    L.push(`(DRILL PECK DEPTH)`);
+    L.push(`VC141 = ${fmt(config.drillPeckDepth)}    (DRILL PECK DEPTH - USED WHEN PECK ENABLED)`);
+    L.push(``);
+    L.push(`(CALCULATED RPM - RPM = SFM x 3.82 / DIA)`);
+    L.push(`VC150 = [VC121 * 3.82] / VC120    (SPOT DRILL RPM)`);
+    L.push(`VC151 = [VC126 * 3.82] / VC125    (STEP DRILL 1 RPM)`);
+    L.push(`VC152 = [VC131 * 3.82] / VC130    (STEP DRILL 2 RPM)`);
+    L.push(`VC153 = [VC136 * 3.82] / VC135    (COUNTERBORE DRILL RPM)`);
+    L.push(``);
+    L.push(`(DRILL POINT DEPTHS - POINT DEPTH = DIA / 2 / TAN[ANGLE/2])`);
+    L.push(`VC154 = VC125 / 2 / TAN[VC128 / 2]  (STEP DRILL 1 POINT DEPTH)`);
+    L.push(`VC155 = VC130 / 2 / TAN[VC133 / 2]  (STEP DRILL 2 POINT DEPTH)`);
+    L.push(`VC145 = VC135 / 2 / TAN[VC138 / 2]  (COUNTERBORE POINT DEPTH)`);
+    L.push(``);
+    L.push(`(STEP DRILL 1 DEPTH - TO TANGENT OF SMALL HOLE DIA)`);
+    L.push(`VC156 = VC105 + [[VC125 - VC130] / 2 / TAN[VC128 / 2]]  (STEP DRILL 1 TOTAL DEPTH)`);
+    L.push(``);
+    L.push(`(STEP DRILL 2 DEPTH - THRU PART + POINT)`);
+    L.push(`VC157 = VC106 + 0.1 + VC155         (STEP DRILL 2 TOTAL DEPTH)`);
+    L.push(``);
+    L.push(`(COUNTERBORE DEPTH)`);
+    L.push(`VC158 = VC105                       (COUNTERBORE DEPTH)`);
+    L.push(``);
+    L.push(`(RAPID START POSITIONS - WHERE SMALLER DRILL CLEARS LARGER DRILL TAPER)`);
+    L.push(`VC159 = VC105 - [[VC125 - VC130] / 2 / TAN[VC128 / 2]] + 0.1   (STEP DRILL 2 RAPID START)`);
+    L.push(`VC167 = VC105 - [[VC125 - VC135] / 2 / TAN[VC128 / 2]] + 0.1   (COUNTERBORE RAPID START)`);
+    L.push(``);
+    L.push(`(CALCULATED VALUES)`);
+    L.push(`VC160 = VC101 - [VC110 * 2]         (OD FEATURE START DIA)`);
+    L.push(`VC161 = VC103 + [VC113 * 2]         (ID FEATURE START DIA)`);
+    L.push(`VC162 = VC104 + 0.01                (OD ROUGH DEPTH)`);
+    L.push(`VC163 = VC100 + VC201               (OD APPROACH DIA)`);
+    L.push(`VC164 = VC102 - VC201               (ID APPROACH DIA)`);
+    L.push(`VC165 = VC103 + [VC119 * 2]         (UNDERCUT DIA)`);
+    L.push(`VC166 = VC105 - VC117               (UNDERCUT Z START)`);
+    L.push(``);
+    L.push(`(STOCK ALLOWANCES)`);
+    L.push(`VC170 = ${fmt(sa.odRadial)}              (OD FINISH STOCK - RADIAL)`);
+    L.push(`VC171 = ${fmt(sa.odAxial)}               (OD FINISH STOCK - AXIAL)`);
+    L.push(`VC172 = ${fmt(sa.idRadial)}              (ID FINISH STOCK - RADIAL)`);
+    L.push(`VC173 = ${fmt(sa.idAxial)}               (ID FINISH STOCK - AXIAL)`);
+    L.push(``);
+    L.push(`(ROUGHING PARAMETERS)`);
+    L.push(`VC175 = ${fmt(ro.odDepthOfCut)}          (OD DEPTH OF CUT)`);
+    L.push(`VC176 = ${fmt(ro.idDepthOfCut)}          (ID DEPTH OF CUT)`);
+    L.push(``);
+    L.push(`(TURNING SPEEDS - SFM)`);
+    L.push(`VC180 = ${fmt(sp.odRoughSFM, 0)}         (OD ROUGH SFM)`);
+    L.push(`VC181 = ${fmt(sp.odFinishSFM, 0)}        (OD FINISH SFM)`);
+    L.push(`VC182 = ${fmt(sp.idRoughSFM, 0)}         (ID ROUGH SFM)`);
+    L.push(`VC183 = ${fmt(sp.idFinishSFM, 0)}        (ID FINISH SFM)`);
+    L.push(``);
+    L.push(`(TURNING FEEDS)`);
+    L.push(`VC190 = ${fmt(fe.faceRough)}             (FACE ROUGH FEED)`);
+    L.push(`VC191 = ${fmt(fe.faceFinish)}            (FACE FINISH FEED)`);
+    L.push(`VC192 = ${fmt(fe.odRough)}               (OD ROUGH FEED)`);
+    L.push(`VC193 = ${fmt(fe.odFinish)}              (OD FINISH FEED)`);
+    L.push(`VC194 = ${fmt(fe.idRough)}               (ID ROUGH FEED)`);
+    L.push(`VC195 = ${fmt(fe.idFinish)}              (ID FINISH FEED)`);
+    L.push(``);
+    L.push(`(CLEARANCE PLANES)`);
+    L.push(`VC200 = ${fmt(cl.zClearance)}            (Z CLEARANCE IN FRONT OF STOCK)`);
+    L.push(`VC201 = ${fmt(cl.xClearance)}            (X CLEARANCE ABOVE STOCK - DIAMETER)`);
+    L.push(``);
+    L.push(`(MAX SPINDLE SPEEDS)`);
+    L.push(`VC198 = ${fmt(maxRough, 0)}              (ROUGH MAX RPM)`);
+    L.push(`VC199 = ${fmt(maxFinish, 0)}             (FINISH MAX RPM)`);
+    L.push(`(=====================================)`);
+    L.push(``);
+
+    L.push(`G90 G80`);
+    L.push(`M244`);
+    L.push(`G50 S[VC198]`);
+    L.push(``);
+
+    // ---- FACE ROUGH (T010101) ------------------------------------------
+    L.push(`(FACE ROUGH)`);
+    L.push(`G0 X0. Z0.`);
+    L.push(`G270`);
+    L.push(`G95 G18`);
+    L.push(`N1 T010101`);
+    L.push(`M8`);
+    L.push(`G97 S705 M3`);
+    L.push(`G0 Z[VC200]`);
+    L.push(`X[VC163]`);
+    L.push(`G96 S[VC180] M3`);
+    L.push(`Z0.0666`);
+    L.push(`X[VC100 - 0.1]`);
+    L.push(`G1 X[VC107 + 0.1] F[VC190]`);
+    L.push(`X[VC107] Z0.01`);
+    L.push(`X-0.15`);
+    L.push(`X-0.04 Z0.0666`);
+    L.push(`G0 X[VC163]`);
+    L.push(`Z[VC200]`);
+    L.push(`G97 S705 M3`);
+    L.push(``);
+
+    // ---- OD PROFILE ROUGHING -------------------------------------------
+    L.push(`N2(PROFILE ROUGHING - OD)`);
+    L.push(`G97 S782 M3`);
+    L.push(`G0 Z[VC200]`);
+    L.push(`X[VC163]`);
+    L.push(`G96 S[VC180] M3`);
+    L.push(`Z0.03`);
+    L.push(`X[VC100]`);
+    L.push(`G85 NAT1 D[VC175] U[VC170] W[VC171] F[VC192]`);
+    L.push(`NAT1 G81`);
+    L.push(`G0 X[VC160] Z0.03`);
+    L.push(`G1 Z0.`);
+    L.push(`IF [VC110 EQ 0] GOTO 101`);
+    L.push(`IF [VC111 EQ 2] GOTO 100`);
+    L.push(`(OD CHAMFER)`);
+    L.push(`X[VC101] A[VC112]`);
+    L.push(`GOTO 101`);
+    L.push(`(OD RADIUS)`);
+    L.push(`N100 X[VC101] R[VC110]`);
+    L.push(`N101 Z-[VC108]`);
+    L.push(`X[VC107 - [VC109 * 2]]`);
+    L.push(`X[VC107] A[VC112]`);
+    L.push(`Z-[VC162]`);
+    L.push(`X[VC100]`);
+    L.push(`G80`);
+    L.push(`X[VC163] Z0.03 F0.128`);
+    L.push(`G0 Z[VC200]`);
+    L.push(`G180`);
+    L.push(`G97 S782 M3`);
+    L.push(`M9`);
+    L.push(`G0 X0.`);
+    L.push(`Z0.`);
+    L.push(`M1`);
+    L.push(``);
+
+    // ---- SPOT DRILL (T030303) ------------------------------------------
+    L.push(`(SPOT DRILL)`);
+    L.push(`G0 X0. Z0.`);
+    L.push(`G270`);
+    L.push(`G95 G18`);
+    L.push(`N3 T030303`);
+    L.push(`M8`);
+    L.push(`G97 S[VC150] M3`);
+    L.push(`G0 Z[VC200]`);
+    L.push(`X0.`);
+    L.push(`IF [VC124 EQ 1] GOTO 300`);
+    L.push(`(NO PECK)`);
+    L.push(`G1 Z-[VC123] F[VC150 * 0.002]`);
+    L.push(`G0 Z[VC200]`);
+    L.push(`GOTO 301`);
+    L.push(`(PECK)`);
+    L.push(`N300 G74 X0. Z-[VC123] I[VC141] D0.2 F[VC150 * 0.002]`);
+    L.push(`G180`);
+    L.push(`G0 Z[VC200]`);
+    L.push(`N301 M9`);
+    L.push(`X0.`);
+    L.push(`Z0.`);
+    L.push(`M1`);
+    L.push(``);
+
+    // ---- STEP DRILL 1 (T050505) ----------------------------------------
+    L.push(`(STEP DRILL 1 - LARGE DIA)`);
+    L.push(`G0 X0. Z0.`);
+    L.push(`G270`);
+    L.push(`G94 G18`);
+    L.push(`N4 T050505`);
+    L.push(`M8`);
+    L.push(`G97 S[VC151] M3`);
+    L.push(`G0 Z[VC200]`);
+    L.push(`X0.`);
+    L.push(`IF [VC129 EQ 1] GOTO 310`);
+    L.push(`(NO PECK)`);
+    L.push(`G1 Z-[VC156] F[VC151 * VC127]`);
+    L.push(`G0 Z[VC200]`);
+    L.push(`GOTO 311`);
+    L.push(`(PECK)`);
+    L.push(`N310 G74 X0. Z-[VC156] I[VC141] D[VC156 + 0.1] F[VC151 * VC127]`);
+    L.push(`G180`);
+    L.push(`G0 Z[VC200]`);
+    L.push(`N311 M9`);
+    L.push(`X0.`);
+    L.push(`Z0.`);
+    L.push(`M1`);
+    L.push(``);
+
+    // ---- STEP DRILL 2 (T060606) ----------------------------------------
+    L.push(`(STEP DRILL 2 - THRU)`);
+    L.push(`G0 X0. Z0.`);
+    L.push(`G270`);
+    L.push(`G94 G18`);
+    L.push(`N5 T060606`);
+    L.push(`M8`);
+    L.push(`G97 S[VC152] M3`);
+    L.push(`G0 Z[VC200]`);
+    L.push(`X0.`);
+    L.push(`G0 Z-[VC159]`);
+    L.push(`IF [VC139 EQ 1] GOTO 320`);
+    L.push(`(NO PECK)`);
+    L.push(`G1 Z-[VC157] F[VC152 * VC132]`);
+    L.push(`G0 Z[VC200]`);
+    L.push(`GOTO 321`);
+    L.push(`(PECK)`);
+    L.push(`N320 G74 X0. Z-[VC157] I[VC141] D[VC157 - VC159 + 0.1] F[VC152 * VC132]`);
+    L.push(`G180`);
+    L.push(`G0 Z[VC200]`);
+    L.push(`N321 M9`);
+    L.push(`X0.`);
+    L.push(`Z0.`);
+    L.push(`M1`);
+    L.push(``);
+
+    // ---- COUNTERBORE DRILL (T070707, conditional) ----------------------
+    L.push(`(COUNTERBORE DRILL)`);
+    L.push(`IF [VC134 EQ 0] GOTO 500`);
+    L.push(`G0 X0. Z0.`);
+    L.push(`G270`);
+    L.push(`G94 G18`);
+    L.push(`N6 T070707`);
+    L.push(`M8`);
+    L.push(`G97 S[VC153] M3`);
+    L.push(`G0 Z[VC200]`);
+    L.push(`X0.`);
+    L.push(`G0 Z-[VC167]`);
+    L.push(`IF [VC140 EQ 1] GOTO 330`);
+    L.push(`(NO PECK)`);
+    L.push(`G1 Z-[VC158] F[VC153 * VC137]`);
+    L.push(`G0 Z[VC200]`);
+    L.push(`GOTO 331`);
+    L.push(`(PECK)`);
+    L.push(`N330 G74 X0. Z-[VC158] I0.957 D[VC158 - VC167 + 0.1] F[VC153 * VC137]`);
+    L.push(`G180`);
+    L.push(`G0 Z[VC200]`);
+    L.push(`N331 M9`);
+    L.push(`X0.`);
+    L.push(`Z0.`);
+    L.push(`M1`);
+    L.push(`N500`);
+    L.push(``);
+
+    // ---- FACE FINISH (T020202) -----------------------------------------
+    L.push(`(FACE FINISH)`);
+    L.push(`G0 X0. Z0.`);
+    L.push(`G270`);
+    L.push(`G95 G18`);
+    L.push(`N7 T020202`);
+    L.push(`M8`);
+    L.push(`G97 S770 M3`);
+    L.push(`G0 Z[VC200]`);
+    L.push(`X[VC163]`);
+    L.push(`G96 S[VC181] M3`);
+    L.push(`Z0.0566`);
+    L.push(`X[VC100 - 0.1]`);
+    L.push(`G1 X[VC101 + 0.1] F[VC191]`);
+    L.push(`X[VC101] Z0.`);
+    L.push(`X[VC103 - 0.1]`);
+    L.push(`X[VC103] Z0.0566`);
+    L.push(`G0 X[VC163]`);
+    L.push(`Z[VC200]`);
+    L.push(`G97 S770 M3`);
+    L.push(``);
+
+    // ---- OD PROFILE FINISH --------------------------------------------
+    L.push(`N8(PROFILE FINISHING - OD)`);
+    L.push(`G50 S[VC199]`);
+    L.push(`G97 S1020 M3`);
+    L.push(`G0 Z[VC200]`);
+    L.push(`X[VC100 + 0.1]`);
+    L.push(`G96 S[VC181] M3`);
+    L.push(`G72 NAT1 F[VC193]`);
+    L.push(`G97 S1020 M3`);
+    L.push(`M9`);
+    L.push(`X0.`);
+    L.push(`Z0.`);
+    L.push(`M1`);
+    L.push(``);
+
+    // ---- ID ROUGH LARGE BORE (T080808) --------------------------------
+    L.push(`N9(PROFILE ROUGHING - ID LARGE BORE)`);
+    L.push(`IF [VC134 EQ 1] GOTO 600`);
+    L.push(`G0 X0. Z0.`);
+    L.push(`G270`);
+    L.push(`G95 G18`);
+    L.push(`G50 S[VC198]`);
+    L.push(`T080808`);
+    L.push(`M8`);
+    L.push(`G97 S2126 M3`);
+    L.push(`G0 Z[VC200]`);
+    L.push(`X[VC164]`);
+    L.push(`G96 S[VC182] M3`);
+    L.push(`Z0.01`);
+    L.push(`G85 NAT2 D[VC176] U[VC172] W[VC173] F[VC194]`);
+    L.push(`NAT2 G81`);
+    L.push(`G0 X[VC103] Z0.01`);
+    L.push(`G1 Z0.`);
+    L.push(`IF [VC113 EQ 0] GOTO 201`);
+    L.push(`IF [VC114 EQ 2] GOTO 200`);
+    L.push(`(ID CHAMFER)`);
+    L.push(`X[VC161] A-[VC115]`);
+    L.push(`GOTO 201`);
+    L.push(`(ID RADIUS)`);
+    L.push(`N200 X[VC161] R[VC113]`);
+    L.push(`N201 IF [VC116 EQ 0] GOTO 202`);
+    L.push(`(WITH UNDERCUT)`);
+    L.push(`Z-[VC166]`);
+    L.push(`X[VC165] A-[VC118]`);
+    L.push(`Z-[VC105]`);
+    L.push(`GOTO 203`);
+    L.push(`(NO UNDERCUT)`);
+    L.push(`N202 Z-[VC105]`);
+    L.push(`N203 X[VC164]`);
+    L.push(`G80`);
+    L.push(`G0 Z[VC200]`);
+    L.push(`G97 S2126 M3`);
+    L.push(`M9`);
+    L.push(`G0 X0.`);
+    L.push(`Z0.`);
+    L.push(`M1`);
+    L.push(`GOTO 700`);
+    L.push(``);
+    L.push(`(DEFINE PROFILE FOR FINISH WHEN COUNTERBORE USED)`);
+    L.push(`N600`);
+    L.push(`NAT2 G81`);
+    L.push(`G0 X[VC103] Z0.01`);
+    L.push(`G1 Z0.`);
+    L.push(`IF [VC113 EQ 0] GOTO 601`);
+    L.push(`IF [VC114 EQ 2] GOTO 602`);
+    L.push(`(ID CHAMFER)`);
+    L.push(`X[VC161] A-[VC115]`);
+    L.push(`GOTO 601`);
+    L.push(`(ID RADIUS)`);
+    L.push(`N602 X[VC161] R[VC113]`);
+    L.push(`N601 IF [VC116 EQ 0] GOTO 603`);
+    L.push(`(WITH UNDERCUT)`);
+    L.push(`Z-[VC166]`);
+    L.push(`X[VC165] A-[VC118]`);
+    L.push(`Z-[VC105]`);
+    L.push(`GOTO 604`);
+    L.push(`(NO UNDERCUT)`);
+    L.push(`N603 Z-[VC105]`);
+    L.push(`N604 X[VC164]`);
+    L.push(`G80`);
+    L.push(``);
+
+    // ---- ID FINISH LARGE BORE (T090909) -------------------------------
+    L.push(`N700`);
+    L.push(`N10(PROFILE FINISHING - ID LARGE BORE)`);
+    L.push(`G0 X0. Z0.`);
+    L.push(`G270`);
+    L.push(`G95 G18`);
+    L.push(`G50 S1000`);
+    L.push(`T090909`);
+    L.push(`M8`);
+    L.push(`G97 S1000 M3`);
+    L.push(`G0 Z[VC200]`);
+    L.push(`X[VC164]`);
+    L.push(`G96 S[VC183] M3`);
+    L.push(`Z0.01`);
+    L.push(`G72 NAT2 F[VC195]`);
+    L.push(`G97 S1000 M3`);
+    L.push(`M5`);
+    L.push(`M9`);
+    L.push(`M243`);
+    L.push(`G0 X0.`);
+    L.push(`Z0.`);
+    L.push(`G270`);
+    L.push(``);
+    L.push(`M30`);
+
+    return {
+      gcode: L.join("\n"),
+      lineCount: L.length,
+      operations,
+      variables,
+      calculations,
+      warnings,
+    };
+  }
+
+  // --------------------------------------------------------------------------
+  // PUBLIC: Default config for wafer-insert family (per-material defaults).
+  // Returns a partial that an operator/orchestrator can spread into a full
+  // WaferInsertConfig. Sane mid-range values derived from the JM Die canonical
+  // macro (which targets aluminum).
+  // --------------------------------------------------------------------------
+  getWaferInsertDefaults(material?: string): Partial<WaferInsertConfig> {
+    const mat = (material ?? "aluminum").toLowerCase();
+    const base: Partial<WaferInsertConfig> = {
+      programNumber: 1001,
+      odChamfer: { size: 0.005, type: "radius", angleDeg: 45 },
+      clearance:  { zClearance: 0.25, xClearance: 0.1 },
+      maxRoughRPM: 2500,
+    };
+
+    if (mat.includes("alum")) {
+      return {
+        ...base,
+        spotDrill: { diameter: 0.5,   sfm: 130, depth: 0.05,   usePeck: false },
+        thruDrill: { diameter: 0.171, sfm: 50,  feedPerRev: 0.0022, pointAngleDeg: 118, usePeck: true, peckDepth: 0.13 },
+      };
+    }
+    if (mat.includes("stainless") || mat.includes("303") || mat.includes("304") || mat.includes("316")) {
+      return {
+        ...base,
+        spotDrill: { diameter: 0.5,   sfm: 90,  depth: 0.05,   usePeck: false },
+        thruDrill: { diameter: 0.171, sfm: 35,  feedPerRev: 0.0015, pointAngleDeg: 135, usePeck: true, peckDepth: 0.1  },
+        maxRoughRPM: 2000,
+      };
+    }
+    if (mat.includes("brass") || mat.includes("bronze")) {
+      return {
+        ...base,
+        spotDrill: { diameter: 0.5,   sfm: 200, depth: 0.05,   usePeck: false },
+        thruDrill: { diameter: 0.171, sfm: 100, feedPerRev: 0.003,  pointAngleDeg: 118, usePeck: false, peckDepth: 0.13 },
+        maxRoughRPM: 3500,
+      };
+    }
+    if (mat.includes("titanium") || mat.includes("ti-6al") || mat.includes("ti6")) {
+      return {
+        ...base,
+        spotDrill: { diameter: 0.5,   sfm: 60,  depth: 0.05,   usePeck: false },
+        thruDrill: { diameter: 0.171, sfm: 25,  feedPerRev: 0.0012, pointAngleDeg: 140, usePeck: true, peckDepth: 0.08 },
+        maxRoughRPM: 1500,
+      };
+    }
+    // Default = steel
+    return {
+      ...base,
+      spotDrill: { diameter: 0.5,   sfm: 100, depth: 0.05,   usePeck: false },
+      thruDrill: { diameter: 0.171, sfm: 40,  feedPerRev: 0.0018, pointAngleDeg: 135, usePeck: true, peckDepth: 0.13 },
+    };
+  }
+
+  // --------------------------------------------------------------------------
+  // PUBLIC: Default config for top-hat-casing family (per-material defaults).
+  // Mirrors the JM Die BASIC TOP HAT CASING macro defaults (which target steel).
+  // --------------------------------------------------------------------------
+  getTopHatCasingDefaults(material?: string): Partial<TopHatCasingConfig> {
+    const mat = (material ?? "steel").toLowerCase();
+    const base: Partial<TopHatCasingConfig> = {
+      programNumber: 1001,
+      odFeature:      { size: 0.03, type: "chamfer", angleDeg: 45 },
+      idLargeFeature: { size: 0.03, type: "chamfer", angleDeg: 45 },
+      drillPeckDepth: 0.13,
+      stockAllowances: { odRadial: 0.01, odAxial: 0.002, idRadial: 0.006, idAxial: 0.0 },
+      roughing: { odDepthOfCut: 0.2, idDepthOfCut: 0.06 },
+      clearance: { zClearance: 0.25, xClearance: 0.1 },
+      maxRoughRPM: 2500,
+      maxFinishRPM: 3500,
+    };
+
+    if (mat.includes("alum")) {
+      return {
+        ...base,
+        speeds: { odRoughSFM: 1200, odFinishSFM: 1500, idRoughSFM: 800,  idFinishSFM: 1000 },
+        feeds:  { faceRough: 0.01, faceFinish: 0.005, odRough: 0.015, odFinish: 0.006, idRough: 0.008, idFinish: 0.005 },
+        maxRoughRPM: 4000, maxFinishRPM: 5000,
+      };
+    }
+    if (mat.includes("stainless")) {
+      return {
+        ...base,
+        speeds: { odRoughSFM: 400, odFinishSFM: 500, idRoughSFM: 300, idFinishSFM: 350 },
+        feeds:  { faceRough: 0.006, faceFinish: 0.003, odRough: 0.008, odFinish: 0.004, idRough: 0.005, idFinish: 0.003 },
+        maxRoughRPM: 2000, maxFinishRPM: 2500,
+      };
+    }
+    if (mat.includes("brass") || mat.includes("bronze")) {
+      return {
+        ...base,
+        speeds: { odRoughSFM: 800, odFinishSFM: 1000, idRoughSFM: 600, idFinishSFM: 700 },
+        feeds:  { faceRough: 0.01, faceFinish: 0.005, odRough: 0.012, odFinish: 0.005, idRough: 0.008, idFinish: 0.005 },
+        maxRoughRPM: 3500, maxFinishRPM: 4500,
+      };
+    }
+    // Default = steel (matches the macro)
+    return {
+      ...base,
+      speeds: { odRoughSFM: 755, odFinishSFM: 825, idRoughSFM: 400, idFinishSFM: 500 },
+      feeds:  { faceRough: 0.008, faceFinish: 0.003, odRough: 0.008, odFinish: 0.005, idRough: 0.007, idFinish: 0.004 },
+    };
+  }
+
+  // --------------------------------------------------------------------------
+  // PRIVATE: Validate wafer-insert config (throws on physically impossible).
+  // --------------------------------------------------------------------------
+  private _validateWaferInsert(c: WaferInsertConfig): void {
+    const g = c.geometry;
+    if (g.stockDiameter <= 0) throw new Error("VC100 stockDiameter must be > 0");
+    if (g.finishODAtFace <= 0) throw new Error("VC101 finishODAtFace must be > 0");
+    if (g.finishODAtFace > g.stockDiameter) {
+      throw new Error(`VC101 finishODAtFace (${g.finishODAtFace}) > VC100 stockDiameter (${g.stockDiameter}) — finish must be ≤ stock`);
+    }
+    if (g.odTaperEndDia <= 0 || g.odTaperEndDia > g.finishODAtFace) {
+      throw new Error(`VC102 odTaperEndDia (${g.odTaperEndDia}) must be > 0 and ≤ VC101 finishODAtFace (${g.finishODAtFace})`);
+    }
+    if (g.partLength <= 0) throw new Error("VC104 partLength must be > 0");
+    if (g.odTaperStartZ < 0 || g.odTaperStartZ > g.partLength) {
+      throw new Error(`VC103 odTaperStartZ (${g.odTaperStartZ}) must be in [0, VC104 partLength (${g.partLength})]`);
+    }
+    if (g.idMajorDia < 0) throw new Error("VC140 idMajorDia must be ≥ 0");
+    if (g.idMajorDia >= g.finishODAtFace) {
+      throw new Error(`VC140 idMajorDia (${g.idMajorDia}) must be < VC101 finishODAtFace (${g.finishODAtFace}) — ID must be inside OD`);
+    }
+    if (c.spotDrill.diameter <= 0) throw new Error("VC110 spotDrill.diameter must be > 0");
+    if (c.spotDrill.sfm <= 0) throw new Error("VC111 spotDrill.sfm must be > 0");
+    if (c.thruDrill.diameter <= 0) throw new Error("VC115 thruDrill.diameter must be > 0");
+    if (c.thruDrill.sfm <= 0) throw new Error("VC116 thruDrill.sfm must be > 0");
+    if (c.thruDrill.pointAngleDeg <= 0 || c.thruDrill.pointAngleDeg >= 180) {
+      throw new Error(`VC118 thruDrill.pointAngleDeg (${c.thruDrill.pointAngleDeg}) must be in (0, 180)`);
+    }
+  }
+
+  // --------------------------------------------------------------------------
+  // PRIVATE: Validate top-hat config (throws on physically impossible).
+  // --------------------------------------------------------------------------
+  private _validateTopHat(c: TopHatCasingConfig): void {
+    const sab = c.stockAndBore;
+    if (sab.stockDiameter <= 0) throw new Error("VC100 stockDiameter must be > 0");
+    if (sab.finishOdSmall <= 0) throw new Error("VC101 finishOdSmall must be > 0");
+    if (sab.finishOdSmall > sab.stockDiameter) {
+      throw new Error(`VC101 finishOdSmall (${sab.finishOdSmall}) > VC100 stockDiameter (${sab.stockDiameter})`);
+    }
+    if (c.step.stepOdLarge <= sab.finishOdSmall) {
+      throw new Error(`VC107 stepOdLarge (${c.step.stepOdLarge}) must be > VC101 finishOdSmall (${sab.finishOdSmall}) — top hat requires step OD larger than small OD`);
+    }
+    if (c.step.stepOdLarge > sab.stockDiameter) {
+      throw new Error(`VC107 stepOdLarge (${c.step.stepOdLarge}) must be ≤ VC100 stockDiameter (${sab.stockDiameter})`);
+    }
+    if (sab.finishIdLarge <= 0 || sab.finishIdLarge >= sab.finishOdSmall) {
+      throw new Error(`VC103 finishIdLarge (${sab.finishIdLarge}) must be in (0, VC101 finishOdSmall (${sab.finishOdSmall}))`);
+    }
+    if (sab.smallestDrillDia <= 0 || sab.smallestDrillDia >= sab.finishIdLarge) {
+      throw new Error(`VC102 smallestDrillDia (${sab.smallestDrillDia}) must be in (0, VC103 finishIdLarge (${sab.finishIdLarge}))`);
+    }
+    if (sab.partLength <= 0) throw new Error("VC104 partLength must be > 0");
+    if (sab.largeBoreDepth <= 0 || sab.largeBoreDepth >= sab.partLength) {
+      throw new Error(`VC105 largeBoreDepth (${sab.largeBoreDepth}) must be in (0, VC104 partLength (${sab.partLength}))`);
+    }
+    if (sab.smallBoreDepth <= 0 || sab.smallBoreDepth > sab.partLength + 0.5) {
+      throw new Error(`VC106 smallBoreDepth (${sab.smallBoreDepth}) must be > 0 and reasonable vs partLength`);
+    }
+    if (c.step.stepZDepth <= 0 || c.step.stepZDepth >= sab.partLength) {
+      throw new Error(`VC108 stepZDepth (${c.step.stepZDepth}) must be in (0, VC104 partLength (${sab.partLength}))`);
+    }
+    if (c.spotDrill.diameter <= 0) throw new Error("VC120 spotDrill.diameter must be > 0");
+    if (c.stepDrill1.diameter <= 0) throw new Error("VC125 stepDrill1.diameter must be > 0");
+    if (c.stepDrill2.diameter <= 0) throw new Error("VC130 stepDrill2.diameter must be > 0");
+    if (c.stepDrill1.diameter <= c.stepDrill2.diameter) {
+      throw new Error(`Step drill 1 dia (VC125=${c.stepDrill1.diameter}) must be > step drill 2 dia (VC130=${c.stepDrill2.diameter}) — step drill order is large then small`);
+    }
+    if (c.counterboreDrill.enable) {
+      // Counterbore cleans up the conical taper left by step drill 2 (the thru
+      // drill), so it must be larger than step drill 2. In the canonical
+      // BASIC TOP HAT CASING macro, CB=1.2188 is BETWEEN step drill 2 (0.7188)
+      // and step drill 1 (1.22) — that's intentional, not an error.
+      if (c.counterboreDrill.diameter <= c.stepDrill2.diameter) {
+        throw new Error(`When enabled, counterbore drill dia (VC135=${c.counterboreDrill.diameter}) must be > step drill 2 thru dia (VC130=${c.stepDrill2.diameter}) — counterbore exists to clean up the thru hole's drill-point taper`);
+      }
+      if (c.counterboreDrill.diameter > c.step.stepOdLarge) {
+        throw new Error(`Counterbore dia (VC135=${c.counterboreDrill.diameter}) cannot exceed step OD (VC107=${c.step.stepOdLarge})`);
+      }
+    }
   }
 
   // --------------------------------------------------------------------------

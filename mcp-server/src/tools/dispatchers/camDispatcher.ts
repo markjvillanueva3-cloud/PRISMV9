@@ -1279,7 +1279,7 @@ export const ACTIONS = [
   "strategy_robust_optimize", "strategy_robust_worst_case",
   // BOX Data — FusionCPSParser (5), OkumaParametricProgram (5), PostProcessorCapabilityMatrix (5)
   "cps_parse_file", "cps_parse_directory", "cps_search", "cps_property_catalog", "cps_compare_controllers",
-  "okuma_generate_casing", "okuma_generate_cbore", "okuma_validate_macro", "okuma_parse_macro", "okuma_defaults", "okuma_convert_to_hardcode",
+  "okuma_generate_casing", "okuma_generate_cbore", "okuma_generate_wafer_insert", "okuma_generate_top_hat", "okuma_validate_macro", "okuma_parse_macro", "okuma_defaults", "okuma_convert_to_hardcode",
   "pp_capability_matrix", "pp_capability_query", "pp_capability_compare", "pp_select_post", "pp_capability_summary",
   // CAMX-MS5 U01 — NXCAMStrategyEngine (E1104)
   "nx_cam_recommend", "nx_cam_parameters", "nx_cam_ipw", "nx_cam_fbm", "nx_cam_list_strategies",
@@ -7516,6 +7516,21 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             result = eng.generateCounterBoreProgram(params);
             break;
           }
+          case "okuma_generate_wafer_insert": {
+            // MACRO-PROGRAM-PIPELINE-MS0/MS0-U3 — wafer-insert generator
+            // (BASE WAFER INSERT MACRO O1001). Mirrors the okuma_generate_casing
+            // pattern: params IS the WaferInsertConfig.
+            const eng = await getEngine("okumaParam");
+            result = eng.generateWaferInsert(params);
+            break;
+          }
+          case "okuma_generate_top_hat": {
+            // MACRO-PROGRAM-PIPELINE-MS0/MS0-U3 — top-hat-casing-with-single-counterbore
+            // generator (BASIC TOP HAT CASING macro). params IS the TopHatCasingConfig.
+            const eng = await getEngine("okumaParam");
+            result = eng.generateTopHatCasing(params);
+            break;
+          }
           case "okuma_validate_macro": {
             const eng = await getEngine("okumaParam");
             result = eng.validateProgram(params.gcode);
@@ -7527,8 +7542,30 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             break;
           }
           case "okuma_defaults": {
+            // MS0-U3: extended with `family` routing.
+            // family ∈ {"casing","cbore","waferinsert","tophat"} (default = "casing"
+            // for backward compatibility with prior callers).
             const eng = await getEngine("okumaParam");
-            result = eng.getDefaults(params.material);
+            const family = String(params.family ?? "casing").toLowerCase();
+            switch (family) {
+              case "waferinsert":
+              case "wafer_insert":
+              case "wafer-insert":
+                result = eng.getWaferInsertDefaults(params.material);
+                break;
+              case "tophat":
+              case "top_hat":
+              case "top-hat":
+              case "tophatcasing":
+                result = eng.getTopHatCasingDefaults(params.material);
+                break;
+              case "cbore":
+              case "counterbore":
+              case "casing":
+              default:
+                result = eng.getDefaults(params.material);
+                break;
+            }
             break;
           }
 
