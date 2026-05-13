@@ -183,6 +183,9 @@ const ACTIONS = [
 
   // TRAINING-LEARNING-MS0/U-TL-U5: LathePartFamilyMatcherEngine — query-side matcher
   "lathe_part_family_match",                // matchPartFamily — rank families by signal similarity for a descriptor
+
+  // TRAINING-LEARNING-MS0/U-TL-U6: TrainingTemplateContinuousLearningEngine
+  "training_ingest_lathe_outcome",          // ingestLatheOutcome — append shipped-job outcome to lathe ledger
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1028,6 +1031,20 @@ Actions: ${ACTIONS.join(", ")}.`,
               dir: typeof opts.dir === "string" ? opts.dir as string : undefined,
               weights: (opts.weights && typeof opts.weights === "object") ? opts.weights as any : undefined,
               keywordsOnly: typeof opts.keywordsOnly === "boolean" ? opts.keywordsOnly as boolean : (typeof opts.keywords_only === "boolean" ? opts.keywords_only as boolean : undefined),
+            });
+            result = data.ok
+              ? { success: true, data }
+              : { success: false, error: data.error, detail: data.detail, data };
+            break;
+          }
+          case "training_ingest_lathe_outcome": {
+            // TRAINING-LEARNING-MS0/U-TL-U6 — TrainingTemplateContinuousLearningEngine.ingestLatheOutcome
+            const { trainingTemplateContinuousLearningEngine } = await import("../../engines/TrainingTemplateContinuousLearningEngine.js");
+            const p = params as Record<string, unknown>;
+            const outcome = (p.outcome_input && typeof p.outcome_input === "object" ? p.outcome_input : p) as Record<string, unknown>;
+            const opts = (p.opts && typeof p.opts === "object" ? p.opts : {}) as Record<string, unknown>;
+            const data = trainingTemplateContinuousLearningEngine.ingestLatheOutcome(outcome as any, {
+              dir: typeof opts.dir === "string" ? opts.dir as string : undefined,
             });
             result = data.ok
               ? { success: true, data }

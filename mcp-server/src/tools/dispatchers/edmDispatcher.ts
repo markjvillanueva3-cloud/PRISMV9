@@ -393,6 +393,9 @@ const ACTIONS = [
   // TRAINING-LEARNING-MS0/U-TL-U5: WEDMPartFamilyMatcherEngine — query-side matcher
   "wedm_part_family_match",                // matchPartFamily — rank families by signal similarity for a descriptor
 
+  // TRAINING-LEARNING-MS0/U-TL-U6: TrainingTemplateContinuousLearningEngine
+  "training_ingest_wedm_outcome",          // ingestWEDMOutcome — append shipped-job outcome to wedm ledger
+
   // TRAINING-LEARNING-MS0/U-TL-U4: TaptiteElectrodeMacroBridgeEngine (engine 2)
   "wedm_training_taptite_bridge",             // bridge — template → TaptiteElectrodeMacroBridge artifact
   "wedm_training_taptite_variables",          // listRequiredVariables — canonical VC variable schema
@@ -2453,6 +2456,22 @@ Actions: ${ACTIONS.join(", ")}.`,
               dir: typeof opts.dir === "string" ? opts.dir as string : undefined,
               weights: (opts.weights && typeof opts.weights === "object") ? opts.weights as never : undefined,
               keywordsOnly: typeof opts.keywordsOnly === "boolean" ? opts.keywordsOnly as boolean : (typeof opts.keywords_only === "boolean" ? opts.keywords_only as boolean : undefined),
+            });
+            result = data.ok
+              ? { success: true, data }
+              : { success: false, error: data.error, detail: data.detail, data };
+            break;
+          }
+          case "training_ingest_wedm_outcome": {
+            // TRAINING-LEARNING-MS0/U-TL-U6 — TrainingTemplateContinuousLearningEngine.ingestWEDMOutcome
+            const { trainingTemplateContinuousLearningEngine } = await import(
+              "../../engines/TrainingTemplateContinuousLearningEngine.js"
+            );
+            const p = params as Record<string, unknown>;
+            const outcome = (p.outcome_input && typeof p.outcome_input === "object" ? p.outcome_input : p) as Record<string, unknown>;
+            const opts = (p.opts && typeof p.opts === "object" ? p.opts : {}) as Record<string, unknown>;
+            const data = trainingTemplateContinuousLearningEngine.ingestWEDMOutcome(outcome as never, {
+              dir: typeof opts.dir === "string" ? opts.dir as string : undefined,
             });
             result = data.ok
               ? { success: true, data }

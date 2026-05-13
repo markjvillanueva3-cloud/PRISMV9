@@ -982,6 +982,8 @@ export const ACTIONS = [
   "mill_training_template_extract_all",
   // TRAINING-LEARNING-MS0/U-TL-U5: MillPartFamilyMatcherEngine — query-side matcher
   "mill_part_family_match",
+  // TRAINING-LEARNING-MS0/U-TL-U6: TrainingTemplateContinuousLearningEngine
+  "training_ingest_mill_outcome",
   // TRAINING-LEARNING-MS0/U3 — Electrode + taptite coverage audit (SAFETY-CRITICAL
   // READ-ONLY against H:/PRISM/JM DIE/Automated Program_Corrected 5-25.xlsm).
   // Engine NEVER mutates the .xlsm or any corpus file. Tests assert mtimeMs unchanged.
@@ -2371,6 +2373,20 @@ Params vary by action — pass relevant fields in params object.`,
               dir: typeof opts.dir === "string" ? opts.dir as string : undefined,
               weights: (opts.weights && typeof opts.weights === "object") ? opts.weights as never : undefined,
               keywordsOnly: typeof opts.keywordsOnly === "boolean" ? opts.keywordsOnly as boolean : (typeof opts.keywords_only === "boolean" ? opts.keywords_only as boolean : undefined),
+            });
+            result = data.ok
+              ? { success: true, data }
+              : { success: false, error: data.error, detail: data.detail, data };
+            break;
+          }
+          case "training_ingest_mill_outcome": {
+            // TRAINING-LEARNING-MS0/U-TL-U6 — TrainingTemplateContinuousLearningEngine.ingestMillOutcome
+            const { trainingTemplateContinuousLearningEngine } = await import("../../engines/TrainingTemplateContinuousLearningEngine.js");
+            const p = params as Record<string, unknown>;
+            const outcome = (p.outcome_input && typeof p.outcome_input === "object" ? p.outcome_input : p) as Record<string, unknown>;
+            const opts = (p.opts && typeof p.opts === "object" ? p.opts : {}) as Record<string, unknown>;
+            const data = trainingTemplateContinuousLearningEngine.ingestMillOutcome(outcome as never, {
+              dir: typeof opts.dir === "string" ? opts.dir as string : undefined,
             });
             result = data.ok
               ? { success: true, data }
