@@ -1,12 +1,12 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-13T13:32:52.693Z",
+  "generatedAt": "2026-05-13T13:39:53.481Z",
   "window": "60.days",
   "totals": {
     "milestones": 670,
-    "units": 3528,
+    "units": 3538,
     "shipped": 66,
-    "pending": 3462,
+    "pending": 3472,
     "drift": 2
   },
   "milestones": [
@@ -19070,9 +19070,9 @@
       "title": "Cleanup Roadmap — 7th 'golf' chat slot for system hygiene (process reaping, peer-bug detection, system-viz grooming, wiring-potential, CLAUDE.md token slim)",
       "track": "CLEANUP",
       "claimedStatus": "not_started",
-      "total": 63,
+      "total": 73,
       "shipped": 0,
-      "pending": 63,
+      "pending": 73,
       "ratio": 0,
       "lastShippedDate": "",
       "derivedStatus": "not_started_real",
@@ -19170,7 +19170,7 @@
         },
         {
           "id": "U-CLEANUP-C1",
-          "title": "C1 — WiringPotentialEngine.ts (analyze + analyzeBatch; score = keyword/embedding overlap × domain-tag match × dispatcher-capacity check; rationale string; consumes F7 capacity output)",
+          "title": "C1 — WiringPotentialEngine.ts (analyze + analyzeBatch; R4-P0-1: routes through MasterIndexEngine.search via prism_session:master_index_query for candidate lookup — does NOT reimplement; reads node.knowledge.wikiEntries[] + memoryEntries[] pre-joins from graph; reserved for rationale-synthesis layer; consumes F7 capacity output)",
           "phase": "engines-tier-1",
           "shipped": false,
           "sha": null,
@@ -19206,7 +19206,7 @@
         },
         {
           "id": "U-CLEANUP-B4",
-          "title": "B4 — commit-reviewer-dispatch.mjs WITH self-attribution + ownedPaths deny list + adversarial-input sanitization (fenced + ASCII-strip + 200-char-per-path truncation on ALL untrusted commit-derived strings: message, author, paths, branch, hunks); throttle 1/15min unless affected_files>=5; chunk cap <=3; per-commit cap 50 files; recursion-depth guard (refuse if last 3 ticks all golf-authored); G7 absorbed",
+          "title": "B4 — commit-reviewer-dispatch.mjs WITH (R4-P0-2) awareness-enrich helper (master_index_query + tribal_search + build_state_inject prepended as 4-KB RELEVANT CONTEXT block) + (R4-P0-3) Ollama-cascade first-pass triage via OllamaHookBridgeEngine (Claude only on P0/low-confidence/>=5-files/security-paths) + self-attribution + ownedPaths deny list + adversarial-input sanitization on message/author/paths/branch/hunks; throttle 1/15min unless affected_files>=5; chunk cap <=3; per-commit cap 50 files; recursion-depth guard; G7 absorbed",
           "phase": "operator-surfaces-tier-3",
           "shipped": false,
           "sha": null,
@@ -19242,7 +19242,16 @@
         },
         {
           "id": "U-CLEANUP-B9",
-          "title": "B9 — model-drift eval suite (10 frozen known-bug commits + expected verdicts in state/shared/golf-reviewer-eval/; weekly cron; agent.model pinned to claude-sonnet-4-6 NOT latest; alerts on slope (-0.20 over 12 weeks) AND absolute floor (<0.70); B9 reads prompt-version headers to detect prompt drift)",
+          "title": "B9 — model-drift eval suite (10 frozen known-bug commits + expected verdicts in state/shared/golf-reviewer-eval/; weekly cron; agent.model pinned to claude-sonnet-4-6 NOT latest; alerts on slope (-0.20 over 12 weeks) AND absolute floor; R4-P1-8: wraps reviewer-verdict ledger in prism_intelligence:xproc_aps_calibrate + xproc_aps_set for conformal-prediction-set membership check instead of naive slope heuristic; reads prompt-version headers to detect prompt drift)",
+          "phase": "operator-surfaces-tier-3",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-B12",
+          "title": "B12 — LedgerLoRAExporter (R4-P1-9): nightly read-only cron exports bug_attribution rows in cam_lora_* schema format to state/shared/lora-training/peer-audit-<YYYY-MM>.jsonl; training itself out-of-scope; export preserves option-value once dataset >=1000 rows",
           "phase": "operator-surfaces-tier-3",
           "shipped": false,
           "sha": null,
@@ -19341,7 +19350,16 @@
         },
         {
           "id": "U-CLEANUP-D5",
-          "title": "D5 — wiki-section-inject.mjs (UserPromptSubmit T2; keyword-gated rehydration map; reads .summary.md files NOT full dashboards; total injection cap 8 KB; logs misses with hashed-keyword (no raw text) to wiki-inject-misses.jsonl)",
+          "title": "D5 — (R4-P1-4) EXTEND wiki-precheck-inject.mjs to honor boost_keywords frontmatter (not new parallel hook); extracted wiki entries carry boost_keywords: [hook, settings.json, *.mjs] etc; existing BM25 + semantic-fallback infrastructure reused; cap injection at 8 KB; logs misses with hashed-keyword to wiki-inject-misses.jsonl",
+          "phase": "claude-md-slim-tier-4",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-D8",
+          "title": "D8 — wiki-entry-writer (R4-P1-6): emit one wiki/architecture/<engine-kebab>.md per new golf engine via WikiIndexMaintainerEngine.recordNew(); engines: peer-commit-auditor / wiring-potential / ledger-store / ledger-projector / golf-heartbeat; blocks E2 close-out per feedback_always_close_out rule",
           "phase": "claude-md-slim-tier-4",
           "shipped": false,
           "sha": null,
@@ -19565,6 +19583,24 @@
           "commitMilestoneTag": null
         },
         {
+          "id": "U-CLEANUP-G18",
+          "title": "G18 — build-headline-history.mjs (R4-P2-12): daily append {ts, built, unwired, wikiEntries, pendingFE, drift} from system-viz-query.mjs headline --json to state/shared/system-viz-headline-history.jsonl; F4-style digest renders 7-day/30-day deltas",
+          "phase": "watchers-tier-6",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-G19",
+          "title": "G19 — build-system-viz-livediff.mjs (R4-P2-13): hourly diff system-graph.json vs system-graph.previous.json (substrate exists); writes state/shared/SYSTEM_VIZ_LIVEDIFF.md per-hour node/edge delta; operator surface",
+          "phase": "watchers-tier-6",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
           "id": "U-CLEANUP-E1",
           "title": "E1 — 04-prism-mcp-orphan-monitor.ps1 + CronCreate 3036ea16 (PRISM MCP dist/index.js orphan reaper; git-lock sweeper; 7-min cadence; DONE this session; reclaimed +1.96 GB / 4 orphans + 1 git lock initial pass)",
           "phase": "cleanup-pipeline-tier-6",
@@ -19586,6 +19622,60 @@
           "id": "U-CLEANUP-E3",
           "title": "E3 — helpers/cleanup-orchestrator.mjs (REWORKED per R1: calls existing bash-orphan-cleaner.mjs + node-orphan-cleaner.mjs + git-lock-sweeper.mjs + chat-bus-reap.mjs + zombie-reaper-daemon.mjs; emits single unified result line; NO new kill logic)",
           "phase": "cleanup-pipeline-tier-6",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-H1",
+          "title": "H1 — memory-garden cron (21-memory-garden.ps1; invokes /memory-prune + scans ~/.claude/projects/H--PRISM/memory/*.md for unreferenced files / dangling MEMORY.md pointers / stale path refs; weekly Mon 04:11; writes MEMORY_GARDEN_REPORT.md; defers prune verdict if no chats active per chat-slots.json)",
+          "phase": "awareness-surface-gardening-tier-6",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-H2",
+          "title": "H2 — skill-utilization audit (22-skill-utilization.ps1; invokes /skill-lint + /skill-test + cross-ref tool-watchdog .tool-runtimes.jsonl; flags 30-day-unused skills as PROPOSED archive candidates — Mark promotes manually NOT auto-mv; addresses HS-06 565-skill token cost; weekly Tue 04:23; writes SKILL_UTILIZATION_REPORT.md)",
+          "phase": "awareness-surface-gardening-tier-6",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-H3",
+          "title": "H3 — hook-orphan + dead-matcher scan (23-hook-orphan-scan.mjs; consumes HOOK_REGISTRY.json + hook-latency.jsonl + async-hook-results.jsonl; flags 30-day-dormant hooks + dead matcher patterns + orphan files + tier-mismatch (T0 claimed but never blocks); daily 05:31; writes HOOK_UTILIZATION_REPORT.md)",
+          "phase": "awareness-surface-gardening-tier-6",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-H4",
+          "title": "H4 — CLAUDE.md doctrine-vs-reality drift detector (24-claude-md-drift.mjs; parses both H:/prism/CLAUDE.md and H:/.claude/CLAUDE.md for VERIFIABLE claims: hook-wired / file-exists / engine-shipped-at-SHA / cron-installed / env-knob-grepable; cross-checks; flags P0/P1/P2 drift; R2-PERF2 surfaced 3 such drifts in single audit; daily 06:43; writes CLAUDE_MD_DRIFT_REPORT.md)",
+          "phase": "awareness-surface-gardening-tier-6",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-H5",
+          "title": "H5 — GSD docs freshness (25-gsd-freshness.mjs; watches mcp-server/data/docs/gsd/*.md; cross-refs hook list vs GSD_QUICK.md SessionStart/UserPromptSubmit/Stop claims; dispatcher count vs DEV_PROTOCOL.md; weekly Wed 07:53; writes GSD_FRESHNESS_REPORT.md)",
+          "phase": "awareness-surface-gardening-tier-6",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CLEANUP-H6",
+          "title": "H6 — awareness health rollup (build-awareness-health.mjs; daily digest combining H1-H5 into AWARENESS_HEALTH_DASHBOARD.md with summary tables + 30-day trends; F8 chat-bus posts daily digest line; F4 cross-refs for unified operator view; daily 08:17)",
+          "phase": "awareness-surface-gardening-tier-6",
           "shipped": false,
           "sha": null,
           "date": null,

@@ -58,7 +58,49 @@
       "decide: MS29 second-customer pre-MS19 vs post"
     ]
   },
+  "roadmaps": {
+    "cleanup": {
+      "doc": "state/shared/specs/GOLF-WATCHDOG-MS0-2026-05-13.md",
+      "envelope_dir": "milestones/",
+      "purpose": "System hygiene — 7th 'golf' chat slot for process reaping, peer-bug detection, system-viz grooming, wiring-potential surfacing, CLAUDE.md token slim, landscape-consumer dashboards",
+      "owner_chat_slot": "golf",
+      "milestones": [
+        "CLEANUP-MS0"
+      ],
+      "created_at": "2026-05-13T18:00:00.000Z",
+      "spec_iterations": 4,
+      "scrutiny_rounds": 3,
+      "total_findings_integrated": 152
+    }
+  },
   "milestones": [
+    {
+      "id": "CLEANUP-MS0",
+      "title": "Cleanup Roadmap — 7th 'golf' chat slot for system hygiene (process reaping, peer-bug detection, system-viz grooming, wiring-potential, CLAUDE.md token slim)",
+      "track": "CLEANUP",
+      "roadmap": "cleanup",
+      "status": "not_started",
+      "total_units": 57,
+      "completed_units": 1,
+      "priority": "P0",
+      "owner": "claude-7f79dd78",
+      "created_at": "2026-05-13T18:00:00.000Z",
+      "envelope": "milestones/CLEANUP-MS0.json",
+      "spec": "state/shared/specs/GOLF-WATCHDOG-MS0-2026-05-13.md",
+      "worktree": "H:/prism-golf-watchdog",
+      "branch": "work/golf-watchdog-ms0",
+      "dependencies": [
+        "HOOK-SYNERGY-MS0",
+        "OBSIDIAN-PRISM-OS-MS0"
+      ],
+      "ai_priority_score": 92,
+      "estimated_total_hours": 60,
+      "phases_in_envelope": 10,
+      "critical_path_length": 16,
+      "shipped_in_session_2026_05_13": [
+        "U-CLEANUP-E1 (memory monitor + CronCreate 3036ea16, reclaimed +1.96 GB)"
+      ]
+    },
     {
       "id": "WORKTREE-CONSOLIDATE-MS0",
       "title": "H: Drive Worktree Consolidation — Land Stranded Commits + Fix Lint-Staged Root Cause",
@@ -4272,14 +4314,16 @@
       "dependencies": [
         "ACP-MS0A"
       ],
-      "status": "consolidated",
+      "status": "in_progress",
       "total_units": 5,
-      "completed_units": 0,
+      "completed_units": 2,
       "sessions": "1",
       "envelope_path": "milestones/ACP-MS0.json",
       "_legacyStatus": "not_started",
       "consolidated_into": "PSAU-MASTER",
-      "_note": " [consolidated into PSAU-MASTER 2026-04-21]"
+      "_note": " [consolidated into PSAU-MASTER 2026-04-21]",
+      "_lastUpdated": "2026-05-13T13:39:37.561Z",
+      "_lastUpdateBy": "DEV-VELOCITY-AUTOTRIGGER-MS0 session close-out 2026-05-13"
     },
     {
       "id": "ACP-MS1",

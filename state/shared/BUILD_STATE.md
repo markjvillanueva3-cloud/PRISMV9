@@ -1,6 +1,6 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-13T13:27:06.524Z
+> Generated: 2026-05-13T13:39:53.930Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
@@ -8,7 +8,7 @@
 - **2324** engines built and wired (of 3203)
 - **1073** wiki entries indexed
 - **879** engines awaiting dispatcher wiring
-- **3462** units pending across 2 active milestones
+- **3472** units pending across 2 active milestones
 - **2** codex frontend builds awaiting merge
 - **2** milestones with envelope-status drift
 
@@ -65,7 +65,7 @@
 
 ## NEEDS_BUILDING
 
-3462 units across 670 milestones not yet in git.
+3472 units across 670 milestones not yet in git.
 
 ### Envelope-status drift
 
@@ -145,7 +145,7 @@ Per-domain wired/unwired breakdown across 926 domain prefixes.
 | LATHE-MASTER | LATHE | never_started | 136 | 0/136 | never |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | INFRA | never_started | 92 | 0/92 | never |
 | MS-WIRE-FRONTEND | revenue | never_started | 90 | 0/90 | never |
-| CLEANUP-MS0 | CLEANUP | never_started | 63 | 0/63 | never |
+| CLEANUP-MS0 | CLEANUP | never_started | 73 | 0/73 | never |
 | MS-WIRE-BACKEND | revenue | never_started | 60 | 0/60 | never |
 | MS-MASTERPOST | revenue | never_started | 44 | 0/44 | never |
 | MS1 | revenue | never_started | 39 | 0/39 | never |
