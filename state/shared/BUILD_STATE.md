@@ -1,6 +1,6 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-13T13:54:22.014Z
+> Generated: 2026-05-13T14:01:48.344Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
@@ -242,6 +242,10 @@
 
 | Milestone | Phase | Unit | Title |
 |-----------|-------|------|-------|
+| INTEL-OLLAMA-OBSIDIAN-MS0 | P2 | P2-U04 | Refactor error-block-prewarn to query Qdrant vector neighbors |
+| INTEL-OLLAMA-OBSIDIAN-MS0 | P5 | P5-U05 | Wire prism_intelligence:diagnose_failure → DiagnosticReasoningEngine |
+| INTEL-OLLAMA-OBSIDIAN-MS0 | P6 | P6-U02 | Add 4 hooks for unforced CLAUDE.md rules |
+| INTEL-OLLAMA-OBSIDIAN-MS0 | P6 | P6-U03 | Awareness hook deduplication — pick 3 canonical, deprecate 10 |
 | CCM-MS0 | P0 | P0-U06 | WorktreeCreate hook |
 | CCM-MS0 | P0 | P0-U07 | WorktreeRemove hook |
 | CCM-MS0 | P0 | P0-U08 | PostCompact hook |
@@ -262,10 +266,6 @@
 | CCM-MS5 | P0 | P0-U07 | Batch test runner |
 | CCM-MS5 | P0 | P0-U08 | Cron management skill |
 | CCM-MS5 | P0 | P0-U09 | Schema drift cron |
-| L8-P0-MS2 | P0 | P0-U06 | G-Code Preview Panel |
-| L8-P0-MS2 | P0 | P0-U07 | Diff Comparison View |
-| L8-P0-MS2 | P0 | P0-U08 | Operation Builder |
-| L8-P0-MS2 | P0 | P0-U09 | Validation Panel |
 
 **Next action:** Cross-reference MILESTONE_PROGRESS.json. Avoid units already in `shipped` arrays — those are committed but envelope status is stale.
 
