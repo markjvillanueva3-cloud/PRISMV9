@@ -26,6 +26,7 @@ import path from "node:path";
 
 const ROOT = "H:/prism";
 const GRAPH_PATH = path.join(ROOT, "state/shared/system-viz/system-graph.json");
+const BUILD_STATE_PATH = path.join(ROOT, "state/shared/BUILD_STATE.json");
 const OUTPUT_PATH = path.join(ROOT, "state/shared/ORPHAN-INVENTORY.md");
 
 const HIGH_DEGREE_PCTILE = 0.85;
@@ -163,6 +164,48 @@ function buildInventory() {
     byDispatcher[key].push(o);
   }
 
+  // ACTIONABLE LAYER: BUILD_STATE.NEEDS_WIRING.sample_engines — these are
+  // real engine files on disk that no dispatcher imports. Unlike the graph
+  // orphans above (which are mostly L7 registry / L8 state pseudo-nodes),
+  // these are concrete engine classes ready to be wired.
+  const buildState = safeJson(BUILD_STATE_PATH);
+  const buildStateSample = buildState?.NEEDS_WIRING?.sample_engines ?? [];
+  const buildStateTopDomains = buildState?.NEEDS_WIRING?.top_domains ?? [];
+  const buildStateSummary = buildState?.NEEDS_WIRING?.summary ?? null;
+
+  // Normalize each entry to a stable shape + group by suggested dispatcher.
+  const unwiredEngines = buildStateSample
+    .map((e) => {
+      if (typeof e !== "object" || !e) return null;
+      const name = typeof e.name === "string" ? e.name : null;
+      if (!name) return null;
+      // BUILD_STATE pre-computes its own suggestedDispatcher heuristic; if
+      // it returned UNKNOWN, fall through to our own DISPATCHER_HEURISTICS
+      // so a second opinion gets surfaced when the first lacked confidence.
+      const buildStateSuggestion =
+        typeof e.suggestedDispatcher === "string" && !/^unknown/i.test(e.suggestedDispatcher)
+          ? e.suggestedDispatcher
+          : null;
+      const ourHint = !buildStateSuggestion ? suggestDispatcher(name, name) : null;
+      return {
+        name,
+        suggestedDispatcher: buildStateSuggestion ?? ourHint?.dispatcher ?? null,
+        suggestionReason:
+          buildStateSuggestion ? "BUILD_STATE.NEEDS_WIRING heuristic" :
+          ourHint?.reason ?? null,
+        mtime: typeof e.mtime === "string" ? e.mtime : null,
+        path: typeof e.path === "string" ? e.path : null,
+      };
+    })
+    .filter(Boolean);
+
+  const unwiredByDispatcher = {};
+  for (const u of unwiredEngines) {
+    const key = u.suggestedDispatcher ?? "_unsuggested";
+    if (!unwiredByDispatcher[key]) unwiredByDispatcher[key] = [];
+    unwiredByDispatcher[key].push(u);
+  }
+
   return {
     generatedAt: new Date().toISOString(),
     graphMtime: existsSync(GRAPH_PATH) ? new Date(statSync(GRAPH_PATH).mtimeMs).toISOString() : null,
@@ -172,6 +215,16 @@ function buildInventory() {
     byLayer,
     byDispatcher,
     thresholds: { inHigh, outHigh, lowDegree: LOW_DEGREE, highPctile: HIGH_DEGREE_PCTILE },
+    // BUILD_STATE-derived actionable section.
+    buildState: {
+      summary: buildStateSummary,
+      topDomains: buildStateTopDomains,
+      unwiredEngines,
+      byDispatcher: unwiredByDispatcher,
+      mtime: existsSync(BUILD_STATE_PATH)
+        ? new Date(statSync(BUILD_STATE_PATH).mtimeMs).toISOString()
+        : null,
+    },
   };
 }
 
@@ -211,6 +264,36 @@ function renderMarkdown(inv) {
     lines.push(`- ${lk}: ${arr.length} orphan(s)`);
   }
   lines.push("");
+
+  // BUILD_STATE-derived actionable wiring section.
+  const bs = inv.buildState;
+  if (bs && bs.unwiredEngines && bs.unwiredEngines.length > 0) {
+    lines.push("");
+    lines.push(`## 🔌 Actionable unwired engines (from BUILD_STATE.NEEDS_WIRING)`);
+    lines.push("");
+    lines.push(`> ${bs.summary ?? "No summary."} BUILD_STATE mtime: ${bs.mtime ?? "?"}`);
+    lines.push("");
+    lines.push(`Unlike graph orphans above (mostly L7 registry / L8 state pseudo-nodes), these are concrete engine class files on disk with NO dispatcher importing them. Each has a pre-computed dispatcher suggestion — pick one, add action enum + schema + case branch.`);
+    lines.push("");
+    if (Array.isArray(bs.topDomains) && bs.topDomains.length > 0) {
+      lines.push(`**Top unwired domains** (full graph, not just sample): ${bs.topDomains.slice(0, 8).map((d) => `${d.domain} (${d.count})`).join(" · ")}`);
+      lines.push("");
+    }
+    const dispatchers = Object.keys(bs.byDispatcher).sort();
+    for (const disp of dispatchers) {
+      const list = bs.byDispatcher[disp];
+      if (!list.length) continue;
+      const heading = disp === "_unsuggested" ? "(no suggestion — manual review)" : `**${disp}**`;
+      lines.push(`### ${heading} — ${list.length} engine(s)`);
+      for (const u of list) {
+        const reason = u.suggestionReason ? ` _(${u.suggestionReason})_` : "";
+        const mtime = u.mtime ? ` · mtime ${u.mtime.slice(0, 10)}` : "";
+        lines.push(`- **${u.name}**${reason}${mtime}`);
+      }
+      lines.push("");
+    }
+  }
+
   lines.push(`---`);
   lines.push(`_Drill: \`/master-index <orphan-name>\` for full provenance · \`/utilization-dashboard\` for the full classifier output · \`/awareness-snapshot\` for the rolled-up digest._`);
   lines.push(`_Thresholds: high-degree ≥${inv.thresholds.inHigh} (in) / ≥${inv.thresholds.outHigh} (out) at ${Math.round(inv.thresholds.highPctile * 100)}th pct; low ≤${inv.thresholds.lowDegree}._`);

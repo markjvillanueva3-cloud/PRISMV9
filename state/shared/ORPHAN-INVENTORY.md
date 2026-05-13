@@ -1,6 +1,6 @@
 # PRISM Orphan Inventory — built-but-unwired audit punch list
 
-> Generated **2026-05-13T07:15:36.624Z** · graph mtime 2026-05-10T23:30:37.555Z
+> Generated **2026-05-13T12:34:02.501Z** · graph mtime 2026-05-10T23:30:37.555Z
 > Total orphans: **86** · showing top **86**
 > Source: `scripts/orphan-inventory.mjs` · regenerate any time
 
@@ -78,6 +78,58 @@ A node with **low in-degree (≤1)** AND **low out-degree (≤1)** but **has wik
 
 - L7: 12 orphan(s)
 - L8: 74 orphan(s)
+
+
+## 🔌 Actionable unwired engines (from BUILD_STATE.NEEDS_WIRING)
+
+> 879 engines on disk with no dispatcher reference. Top domains by count: BUILD_STATE mtime: 2026-05-13T07:29:52.026Z
+
+Unlike graph orphans above (mostly L7 registry / L8 state pseudo-nodes), these are concrete engine class files on disk with NO dispatcher importing them. Each has a pre-computed dispatcher suggestion — pick one, add action enum + schema + case branch.
+
+**Top unwired domains** (full graph, not just sample): Other (143) · Lathe (89) · Machine (17) · Multi (11) · Turning (11) · Tool (10) · Five (9) · Shop (9)
+
+### (no suggestion — manual review) — 15 engine(s)
+- **BatchProcessor** · mtime 2026-03-06
+- **EventEngine** · mtime 2026-03-06
+- **MigrationEngine** · mtime 2026-03-06
+- **PluginEngine** · mtime 2026-03-06
+- **ResponseTemplateEngine** · mtime 2026-03-06
+- **RoughnessConversionEngine** · mtime 2026-03-06
+- **DataValidationEngine** · mtime 2026-03-07
+- **CompactFormatterEngine** · mtime 2026-03-07
+- **BatchQueryEngine** · mtime 2026-03-07
+- **OutputBudgetEngine** · mtime 2026-03-07
+- **PromptTemplateEngine** · mtime 2026-03-07
+- **SmartDefaultsEngine** · mtime 2026-03-07
+- **ConversationBudgetEngine** · mtime 2026-03-07
+- **ToolCallBatchEngine** · mtime 2026-03-07
+- **StopConditionEngine** · mtime 2026-03-07
+
+### **prism_auth** — 1 engine(s)
+- **SessionLifecycleEngine** _(BUILD_STATE.NEEDS_WIRING heuristic)_ · mtime 2026-03-06
+
+### **prism_cad** — 1 engine(s)
+- **CadBridge** _(BUILD_STATE.NEEDS_WIRING heuristic)_ · mtime 2026-03-06
+
+### **prism_calc** — 2 engine(s)
+- **QuickCalcEngine** _(BUILD_STATE.NEEDS_WIRING heuristic)_ · mtime 2026-03-07
+- **ReadOptimizerEngine** _(BUILD_STATE.NEEDS_WIRING heuristic)_ · mtime 2026-03-07
+
+### **prism_cam** — 2 engine(s)
+- **GCodeTemplateEngine** _(BUILD_STATE.NEEDS_WIRING heuristic)_ · mtime 2026-03-06
+- **CampaignEngine** _(BUILD_STATE.NEEDS_WIRING heuristic)_ · mtime 2026-03-06
+
+### **prism_diagnosis** — 1 engine(s)
+- **AlarmEscalationEngine** _(BUILD_STATE.NEEDS_WIRING heuristic)_ · mtime 2026-03-07
+
+### **prism_monitoring** — 1 engine(s)
+- **MetricsEngine** _(BUILD_STATE.NEEDS_WIRING heuristic)_ · mtime 2026-03-06
+
+### **prism_quality** — 1 engine(s)
+- **SpindleHarmonicsQualityEngine** _(BUILD_STATE.NEEDS_WIRING heuristic)_ · mtime 2026-03-06
+
+### **prism_skill_script** — 1 engine(s)
+- **SkillAutoLoader** _(BUILD_STATE.NEEDS_WIRING heuristic)_ · mtime 2026-03-06
 
 ---
 _Drill: `/master-index <orphan-name>` for full provenance · `/utilization-dashboard` for the full classifier output · `/awareness-snapshot` for the rolled-up digest._
