@@ -9,8 +9,8 @@
   "updated_at": "2026-05-12T18:55:00.000Z",
   "status": "in_progress",
   "total_units": 7,
-  "completed_units": 2,
-  "updated_at": "2026-05-13T18:30:00.000Z",
+  "completed_units": 3,
+  "updated_at": "2026-05-13T18:40:00.000Z",
   "dependencies": [],
   "rationale": "User 2026-05-12: 'add the corresponding macro program to each file system that has a part that could use one of the programs; check existing programs for each part then make a version of each program utilizing one of the macro programs; make a program for each lathe machine and label it for each machine; coding must match controller and machine capabilities'. Spec was scoped by claude-8f2683e8 (slot charlie) per the forge methodology with the live system-viz graph as dependency oracle. Key finding: ~80% of this pipeline already exists (OkumaParametricProgramEngine, MacroProgramIntelligenceEngine, OkumaMacroHeaderGeneratorEngine, LatheProofCarryingEmitEngine, LathePrintProgramEmitterEngine, ShopConfigurationEngine, LathePartClassifierEngine, PartFolderOrganizerEngine, etc). Milestone is mostly WIRING + a thin orchestrator + the 2 missing macro families + the bulk fan-out — NOT a from-scratch build. U2-U6 are SAFETY-CRITICAL (auto-emitting G-code from print dims) and gated by S(x) >= 0.70 + envelope check + sim + operator sign-off. NEVER bulk-auto-emit G-code. U1 is non-safety-critical (file copying + part classification) and ships first.",
   "knowledge_sources": {
@@ -61,7 +61,28 @@
     {
       "id": "MS0-U2",
       "title": "MacroFillOrchestratorEngine — fill VC vars from print dims (SAFETY-CRITICAL)",
-      "status": "not_started"
+      "status": "completed",
+      "completed_at": "2026-05-13T18:40:00.000Z",
+      "completed_by": "claude-48e5d403 (slot alpha)",
+      "shipped": [
+        "MacroFillOrchestratorEngine.ts (NEW, ~420 LOC) — thin orchestrator composing U3 generators",
+        "PartPrintFeatures input shape (decoupled from any specific print intake engine — orchestrator caller builds it from OCR/CAD/operator-fill)",
+        "MacroFillCandidate output shape — carries program, filledVars (with provenance source field), calculatedVars (expressions preserved), validation, needsGate:true, filledAt timestamp",
+        "fillCandidate(features, targetMachine) — REJECTS missing required VCs per family (no guessing), REJECTS family=casing/cbore (handled by V1-V199 path), propagates underlying validator rejections, asserts calculated-VC-preservation invariant defense-in-depth",
+        "prism_turning action: macro_fill_candidate (ACTIONS enum + case handler with explicit features + target_machine validation)",
+        "prism_cam action: macro_fill_candidate (co-located with okuma_generate_* since it COMPOSES them)",
+        "MacroFillOrchestratorEngine.test.ts (NEW — 20/20 passing in 762ms): happy + 3 negatives + 2 adversarial per family + dispatcher wiring + HARD RULE expression preservation assertions"
+      ],
+      "tests_run": "20/20 passing",
+      "hard_rules_asserted": [
+        "candidate.calculatedVars.VC130.formula === '[VC111 * 3.82] / VC110' (wafer-insert)",
+        "candidate.calculatedVars.VC150.formula === '[VC121 * 3.82] / VC120' (top-hat)",
+        "typeof formula === 'string' (never a pre-computed number)",
+        "needsGate: true on every candidate (type-level reminder for U4)",
+        "filledVars carry provenance source string (audit trail)",
+        "Missing required VCs throw — orchestrator does NOT guess defaults",
+        "Output has NO file/path/emitted properties (candidate, not a file)"
+      ]
     },
     {
       "id": "MS0-U3",

@@ -170,6 +170,7 @@ const ACTIONS = [
   "macro_match_family",                     // MacroLibraryEngine.matchFamily — match part → wafer-insert / casing / casing-counterbore / top-hat-casing
   "macro_place_template",                   // MacroLibraryEngine.placeMacroTemplate — copy macro as _MACRO-TEMPLATE_*.min into <part>/CNC PROGRAM/ (DO-NOT-RUN-AS-IS header)
   "macro_fanout_dry_run",                   // MacroLibraryEngine.fanoutDryRun — scan _PART LIBRARY/, report matchable parts per macro family
+  "macro_fill_candidate",                   // MS0-U2: MacroFillOrchestratorEngine.fillCandidate — fill VC vars from print dims + call U3 generator (SAFETY-CRITICAL: returns candidate, NEVER a file)
 
   // TRAINING-LEARNING-MS0/U1: LathePartFamilyTemplateExtractorEngine surfaces
   "lathe_training_corpus_status",           // catalogCorpus — per-family counts + customers + coverage
@@ -1055,6 +1056,28 @@ Actions: ${ACTIONS.join(", ")}.`,
               limit: typeof params.limit === "number" ? params.limit : undefined,
               sampleSize: typeof (params.sampleSize ?? params.sample_size) === "number" ? (params.sampleSize ?? params.sample_size) : undefined,
             });
+            result = { success: true, data };
+            break;
+          }
+
+          // MS0-U2 (SAFETY-CRITICAL): MacroFillOrchestratorEngine.
+          // Input: { features: PartPrintFeatures, target_machine: string }
+          // Returns a *candidate* — NEVER a file. The candidate must pass MS0-U4
+          // before any .MIN emission. The orchestrator REJECTS missing required VCs
+          // (does not guess) and the underlying generator REJECTS physically
+          // impossible configs. Calculated VCs stay as expressions (VC130/VC150
+          // match /VC111.*VC110/ and /VC121.*VC120/ — asserted defense-in-depth).
+          case "macro_fill_candidate": {
+            const { macroFillOrchestratorEngine } = await import("../../engines/MacroFillOrchestratorEngine.js");
+            const features = params.features;
+            const targetMachine = params.target_machine ?? params.targetMachine;
+            if (!features) {
+              return dispatcherError(new Error("macro_fill_candidate requires features (PartPrintFeatures)"), action, "prism_turning");
+            }
+            if (!targetMachine || String(targetMachine).trim() === "") {
+              return dispatcherError(new Error("macro_fill_candidate requires target_machine (e.g. 'OKUMA_LB-3000-EX')"), action, "prism_turning");
+            }
+            const data = macroFillOrchestratorEngine.fillCandidate(features, String(targetMachine));
             result = { success: true, data };
             break;
           }

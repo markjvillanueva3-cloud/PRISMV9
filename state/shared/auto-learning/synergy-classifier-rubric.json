@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "weights": {
+    "semantic_match": 0.3,
+    "novelty_strength": 0.25,
+    "ai_priority_score": 0.2,
+    "duplication_risk": -0.2,
+    "effort_estimate": -0.1,
+    "blast_radius": -0.05
+  },
+  "high": 0.65,
+  "med": 0.45,
+  "low": 0.25,
+  "duplicate_veto_threshold": 0.85,
+  "notes": "Spec § U-ALL04 default rubric, shipped 2026-05-13 by charlie/claude-7fe03a3a. Adaptive tuners (deferred U-ALL10/U-ALL11) will adjust weights + thresholds based on shipped-vs-rejected outcome history. To override at runtime, call synergyClassifierEngine.loadRubric(fs.readFileSync(thisFile)). Weight rationale + band-threshold math documented in SynergyClassifierEngine.ts DEFAULT_RUBRIC JSDoc."
+}

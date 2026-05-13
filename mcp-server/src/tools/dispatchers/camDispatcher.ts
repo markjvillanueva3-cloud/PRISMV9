@@ -1279,7 +1279,7 @@ export const ACTIONS = [
   "strategy_robust_optimize", "strategy_robust_worst_case",
   // BOX Data — FusionCPSParser (5), OkumaParametricProgram (5), PostProcessorCapabilityMatrix (5)
   "cps_parse_file", "cps_parse_directory", "cps_search", "cps_property_catalog", "cps_compare_controllers",
-  "okuma_generate_casing", "okuma_generate_cbore", "okuma_generate_wafer_insert", "okuma_generate_top_hat", "okuma_validate_macro", "okuma_parse_macro", "okuma_defaults", "okuma_convert_to_hardcode",
+  "okuma_generate_casing", "okuma_generate_cbore", "okuma_generate_wafer_insert", "okuma_generate_top_hat", "okuma_validate_macro", "okuma_parse_macro", "okuma_defaults", "okuma_convert_to_hardcode", "macro_fill_candidate",
   "pp_capability_matrix", "pp_capability_query", "pp_capability_compare", "pp_select_post", "pp_capability_summary",
   // CAMX-MS5 U01 — NXCAMStrategyEngine (E1104)
   "nx_cam_recommend", "nx_cam_parameters", "nx_cam_ipw", "nx_cam_fbm", "nx_cam_list_strategies",
@@ -7572,6 +7572,20 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "okuma_convert_to_hardcode": {
             const eng = await getEngine("okumaParam");
             result = eng.convertToHardcode(params.gcode, params.decimal_places);
+            break;
+          }
+
+          // MS0-U2 (SAFETY-CRITICAL): MacroFillOrchestratorEngine — print → candidate.
+          // Co-located with the okuma_generate_* actions because it COMPOSES them.
+          // Returns a candidate program object that MUST pass MS0-U4's safety gate
+          // before any .MIN emission. Calculated VCs stay as expressions
+          // (VC130/VC150 match /VC111.*VC110/ and /VC121.*VC120/).
+          case "macro_fill_candidate": {
+            const { macroFillOrchestratorEngine } = await import("../../engines/MacroFillOrchestratorEngine.js");
+            if (!params.features) throw new Error("macro_fill_candidate requires features (PartPrintFeatures)");
+            const target = params.target_machine ?? params.targetMachine;
+            if (!target) throw new Error("macro_fill_candidate requires target_machine (e.g. 'OKUMA_LB-3000-EX')");
+            result = macroFillOrchestratorEngine.fillCandidate(params.features, String(target));
             break;
           }
 
