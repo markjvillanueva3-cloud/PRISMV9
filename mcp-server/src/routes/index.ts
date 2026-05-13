@@ -25,6 +25,7 @@ import { errorHandler } from "../middleware/errorHandler.js";
 import { createSfcRouter } from "./sfc.js";
 import { createSpeedFeedRouter } from "./speedfeed.js";
 import { createCadRouter } from "./cad.js";
+import { createCadRegressionRouter } from "./cadRegression.js";
 import { createCamRouter } from "./cam.js";
 import { createQualityRouter } from "./quality.js";
 import { createScheduleRouter } from "./schedule.js";
@@ -114,6 +115,8 @@ export function registerRoutes(app: Express, callTool: CallToolFn): void {
   app.use("/api/v1/sfc", createSfcRouter(callTool));
   app.use("/api/v1/speed-feed", createSpeedFeedRouter(callTool));
   app.use("/api/v1/cad", createCadRouter(callTool));
+  // CAD-INFRA-MS0/U-CINF08: CADRegressionDashboard read-only progress API
+  app.use("/api/v1/cad-regression", createCadRegressionRouter(callTool));
   app.use("/api/v1/cam", createCamRouter(callTool));
   app.use("/api/v1/quality", createQualityRouter(callTool));
   app.use("/api/v1/schedule", createScheduleRouter(callTool));
