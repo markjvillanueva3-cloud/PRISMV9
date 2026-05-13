@@ -1,16 +1,16 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-13T18:32:41.348Z",
+  "generatedAt": "2026-05-13T20:25:18.437Z",
   "headline": {
     "built_engines": 2324,
     "built_with_wiki": 1073,
     "needs_wiring": 879,
-    "needs_building_active_units": 3711,
+    "needs_building_active_units": 3697,
     "needs_frontend_merge_count": 2,
     "pending_milestones_with_activity": 81,
     "drift_milestones": 171,
     "stale_milestones": 230,
-    "domains_tracked": 928
+    "domains_tracked": 931
   },
   "sources": {
     "unwired_audit": "H:\\prism\\state\\shared\\UNWIRED-ENGINE-AUDIT-2026-05-07.json",
@@ -315,12 +315,12 @@
     "next_action": "Pick a top-domain bucket; wire to the matching dispatcher in batches of 5–6 engines (see U-WIRE-LATHE-BATCHN pattern). Wiki cross-refs in `wikiTitle` resolve via `/wiki-query <name>`."
   },
   "COVERAGE_BY_DOMAIN": {
-    "summary": "Per-domain wired/unwired breakdown across 928 domain prefixes.",
+    "summary": "Per-domain wired/unwired breakdown across 931 domain prefixes.",
     "rows": [
       {
         "domain": "Other",
-        "total": 596,
-        "wired": 453,
+        "total": 597,
+        "wired": 454,
         "unwired": 143,
         "coverage_pct": 76,
         "sample_unwired": [
@@ -1079,6 +1079,17 @@
         ]
       },
       {
+        "domain": "Macro",
+        "total": 8,
+        "wired": 6,
+        "unwired": 2,
+        "coverage_pct": 75,
+        "sample_unwired": [
+          "MacroConversionAnalyzerEngine",
+          "MacroProgramIntelligenceEngine"
+        ]
+      },
+      {
         "domain": "Power",
         "total": 8,
         "wired": 6,
@@ -1153,17 +1164,6 @@
         "sample_unwired": [
           "FormulaHarvesterEngine",
           "FormulaWiringEngine"
-        ]
-      },
-      {
-        "domain": "Macro",
-        "total": 5,
-        "wired": 3,
-        "unwired": 2,
-        "coverage_pct": 60,
-        "sample_unwired": [
-          "MacroConversionAnalyzerEngine",
-          "MacroProgramIntelligenceEngine"
         ]
       },
       {
@@ -1918,6 +1918,16 @@
         ]
       },
       {
+        "domain": "Roadmap",
+        "total": 4,
+        "wired": 3,
+        "unwired": 1,
+        "coverage_pct": 75,
+        "sample_unwired": [
+          "RoadmapDAGEngine"
+        ]
+      },
+      {
         "domain": "Simulation",
         "total": 4,
         "wired": 3,
@@ -2075,16 +2085,6 @@
         "coverage_pct": 67,
         "sample_unwired": [
           "ProvenSpeedFeedAggregatorEngine"
-        ]
-      },
-      {
-        "domain": "Roadmap",
-        "total": 3,
-        "wired": 2,
-        "unwired": 1,
-        "coverage_pct": 67,
-        "sample_unwired": [
-          "RoadmapDAGEngine"
         ]
       },
       {
@@ -5444,6 +5444,14 @@
         "sample_unwired": []
       },
       {
+        "domain": "Source",
+        "total": 2,
+        "wired": 2,
+        "unwired": 0,
+        "coverage_pct": 100,
+        "sample_unwired": []
+      },
+      {
         "domain": "Sprut",
         "total": 2,
         "wired": 2,
@@ -8244,14 +8252,6 @@
         "sample_unwired": []
       },
       {
-        "domain": "Source",
-        "total": 1,
-        "wired": 1,
-        "unwired": 0,
-        "coverage_pct": 100,
-        "sample_unwired": []
-      },
-      {
         "domain": "Sparse",
         "total": 1,
         "wired": 1,
@@ -8428,6 +8428,14 @@
         "sample_unwired": []
       },
       {
+        "domain": "Synergy",
+        "total": 1,
+        "wired": 1,
+        "unwired": 0,
+        "coverage_pct": 100,
+        "sample_unwired": []
+      },
+      {
         "domain": "Tailstock",
         "total": 1,
         "wired": 1,
@@ -8453,6 +8461,14 @@
       },
       {
         "domain": "Taper",
+        "total": 1,
+        "wired": 1,
+        "unwired": 0,
+        "coverage_pct": 100,
+        "sample_unwired": []
+      },
+      {
+        "domain": "Taptite",
         "total": 1,
         "wired": 1,
         "unwired": 0,
@@ -8709,6 +8725,14 @@
       },
       {
         "domain": "Visualization",
+        "total": 1,
+        "wired": 1,
+        "unwired": 0,
+        "coverage_pct": 100,
+        "sample_unwired": []
+      },
+      {
+        "domain": "Viz",
         "total": 1,
         "wired": 1,
         "unwired": 0,
@@ -9125,7 +9149,7 @@
     "next_action": "Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift."
   },
   "NEEDS_BUILDING": {
-    "summary": "3711 units across 670 milestones not yet in git.",
+    "summary": "3697 units across 670 milestones not yet in git.",
     "drift_cases": [
       {
         "id": "CC-EXT-MS0",
@@ -10163,21 +10187,69 @@
       },
       {
         "milestone": "CLEANUP-MS0",
-        "unit": "U-CLEANUP-A2",
-        "title": "A2 — fleet-status.mjs renderer + title-comment for 7-slot table",
+        "unit": "U-CLEANUP-A5",
+        "title": "A5 — golf-slot-write-allowlist.mjs PreToolUse T0 hook (path-resolve hardened against ../; allowlist-regex from golf-owned-paths.json; tier frontmatter; bypass env PRISM_GOLF_WRITE_ALLOWLIST_BYPASS=1)",
         "phase": "bootstrap-tier-0"
       },
       {
         "milestone": "CLEANUP-MS0",
-        "unit": "U-CLEANUP-A3",
-        "title": "A3 — /checkin --golf docs in commands/checkin.md; remove fleet_full 7th-chat fallback wording",
+        "unit": "U-CLEANUP-A6",
+        "title": "A6 — bootstrap-golf.mjs (mkdir .cron-locks, seed golf-owned-paths.json + golf-token-budget.json + golf-cron-registry.json; .gitignore additions for coordination.db* + .cron-locks/*.lock + .watchdog-last-poll.iso + golf-token-budget.json; detect & rebuild 0-byte coordination.db; git rm --cached on first run)",
         "phase": "bootstrap-tier-0"
       },
       {
         "milestone": "CLEANUP-MS0",
-        "unit": "U-CLEANUP-A4",
-        "title": "A4 — per-agent-handoff.mjs accepts slot=golf with HANDOFF-golf-<task>.md topic prefix",
-        "phase": "bootstrap-tier-0"
+        "unit": "U-CLEANUP-C1",
+        "title": "C1 — WiringPotentialEngine.ts (analyze + analyzeBatch; R4-P0-1: routes through MasterIndexEngine.search via prism_session:master_index_query for candidate lookup — does NOT reimplement; reads node.knowledge.wikiEntries[] + memoryEntries[] pre-joins from graph; reserved for rationale-synthesis layer; consumes F7 capacity output)",
+        "phase": "engines-tier-1"
+      },
+      {
+        "milestone": "AUTO-LEARNING-LOOP-MS0",
+        "unit": "U-ALL02",
+        "title": "Build `NoveltyDetectionEngine` (diff vs catalog)",
+        "phase": "P0"
+      },
+      {
+        "milestone": "AUTO-LEARNING-LOOP-MS0",
+        "unit": "U-ALL05",
+        "title": "Build `VizAutoAugmentationEngine` (emit augmentation file)",
+        "phase": "P0"
+      },
+      {
+        "milestone": "AUTO-LEARNING-LOOP-MS0",
+        "unit": "U-ALL07",
+        "title": "Wire 6 auto-learning actions",
+        "phase": "P0"
+      },
+      {
+        "milestone": "AUTO-LEARNING-LOOP-MS0",
+        "unit": "U-ALL08",
+        "title": "Wire 6 auto-learning actions",
+        "phase": "P0"
+      },
+      {
+        "milestone": "COORD-MS0",
+        "unit": "U-COORD02",
+        "title": "Add Optimistic Locking with Version Field",
+        "phase": ""
+      },
+      {
+        "milestone": "COORD-MS0",
+        "unit": "U-COORD04",
+        "title": "CrossSessionOrchestratorEngine — Unified Facade",
+        "phase": ""
+      },
+      {
+        "milestone": "COORD-MS0",
+        "unit": "U-COORD05",
+        "title": "Wire Orchestrator to Hook System",
+        "phase": ""
+      },
+      {
+        "milestone": "COORD-MS0",
+        "unit": "U-COORD06",
+        "title": "Startup Banner — Session Count Display",
+        "phase": ""
       },
       {
         "milestone": "CAD-INFRA-MS0",
@@ -10250,54 +10322,6 @@
         "unit": "U-TL-U6-CONTINUOUS-LEARNING",
         "title": "TrainingTemplateContinuousLearningEngine (ingestLatheOutcome / ingestMillOutcome / ingestWEDMOutcome)",
         "phase": "closed-loop"
-      },
-      {
-        "milestone": "COORD-MS0",
-        "unit": "U-COORD01",
-        "title": "Create AGENT_COORDINATION_SUMMARY.json (<5KB)",
-        "phase": ""
-      },
-      {
-        "milestone": "COORD-MS0",
-        "unit": "U-COORD02",
-        "title": "Add Optimistic Locking with Version Field",
-        "phase": ""
-      },
-      {
-        "milestone": "COORD-MS0",
-        "unit": "U-COORD04",
-        "title": "CrossSessionOrchestratorEngine — Unified Facade",
-        "phase": ""
-      },
-      {
-        "milestone": "COORD-MS0",
-        "unit": "U-COORD05",
-        "title": "Wire Orchestrator to Hook System",
-        "phase": ""
-      },
-      {
-        "milestone": "AUTO-LEARNING-LOOP-MS0",
-        "unit": "U-ALL02",
-        "title": "Build `NoveltyDetectionEngine` (diff vs catalog)",
-        "phase": "P0"
-      },
-      {
-        "milestone": "AUTO-LEARNING-LOOP-MS0",
-        "unit": "U-ALL03",
-        "title": "Build `AutoResearchOrchestratorEngine` (rate-limited dispatch)",
-        "phase": "P0"
-      },
-      {
-        "milestone": "AUTO-LEARNING-LOOP-MS0",
-        "unit": "U-ALL04",
-        "title": "Build `SynergyClassifierEngine` (high/med/low/none decision)",
-        "phase": "P0"
-      },
-      {
-        "milestone": "AUTO-LEARNING-LOOP-MS0",
-        "unit": "U-ALL05",
-        "title": "Build `VizAutoAugmentationEngine` (emit augmentation file)",
-        "phase": "P0"
       }
     ],
     "next_action": "Cross-reference MILESTONE_PROGRESS.json. Avoid units already in `shipped` arrays — those are committed but envelope status is stale."

@@ -1,6 +1,6 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-13T18:32:41.348Z
+> Generated: 2026-05-13T20:25:18.437Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
@@ -8,7 +8,7 @@
 - **2324** engines built and wired (of 3203)
 - **1073** wiki entries indexed
 - **879** engines awaiting dispatcher wiring
-- **3711** units pending across 81 active milestones
+- **3697** units pending across 81 active milestones
 - **2** codex frontend builds awaiting merge
 - **171** milestones with envelope-status drift
 
@@ -65,7 +65,7 @@
 
 ## NEEDS_BUILDING
 
-3711 units across 670 milestones not yet in git.
+3697 units across 670 milestones not yet in git.
 
 ### Envelope-status drift
 
@@ -248,9 +248,17 @@
 | Milestone | Phase | Unit | Title |
 |-----------|-------|------|-------|
 | CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A1 | A1 — extend SLOT_NAMES in chat-slots.mjs to add 'golf' (NATO phonetic continuity) |
-| CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A2 | A2 — fleet-status.mjs renderer + title-comment for 7-slot table |
-| CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A3 | A3 — /checkin --golf docs in commands/checkin.md; remove fleet_full 7th-chat fallback wording |
-| CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A4 | A4 — per-agent-handoff.mjs accepts slot=golf with HANDOFF-golf-<task>.md topic prefix |
+| CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A5 | A5 — golf-slot-write-allowlist.mjs PreToolUse T0 hook (path-resolve hardened against ../; allowlist-regex from golf-owned-paths.json; tier frontmatter; bypass env PRISM_GOLF_WRITE_ALLOWLIST_BYPASS=1) |
+| CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A6 | A6 — bootstrap-golf.mjs (mkdir .cron-locks, seed golf-owned-paths.json + golf-token-budget.json + golf-cron-registry.json; .gitignore additions for coordination.db* + .cron-locks/*.lock + .watchdog-last-poll.iso + golf-token-budget.json; detect & rebuild 0-byte coordination.db; git rm --cached on first run) |
+| CLEANUP-MS0 | engines-tier-1 | U-CLEANUP-C1 | C1 — WiringPotentialEngine.ts (analyze + analyzeBatch; R4-P0-1: routes through MasterIndexEngine.search via prism_session:master_index_query for candidate lookup — does NOT reimplement; reads node.knowledge.wikiEntries[] + memoryEntries[] pre-joins from graph; reserved for rationale-synthesis layer; consumes F7 capacity output) |
+| AUTO-LEARNING-LOOP-MS0 | P0 | U-ALL02 | Build `NoveltyDetectionEngine` (diff vs catalog) |
+| AUTO-LEARNING-LOOP-MS0 | P0 | U-ALL05 | Build `VizAutoAugmentationEngine` (emit augmentation file) |
+| AUTO-LEARNING-LOOP-MS0 | P0 | U-ALL07 | Wire 6 auto-learning actions |
+| AUTO-LEARNING-LOOP-MS0 | P0 | U-ALL08 | Wire 6 auto-learning actions |
+| COORD-MS0 |  | U-COORD02 | Add Optimistic Locking with Version Field |
+| COORD-MS0 |  | U-COORD04 | CrossSessionOrchestratorEngine — Unified Facade |
+| COORD-MS0 |  | U-COORD05 | Wire Orchestrator to Hook System |
+| COORD-MS0 |  | U-COORD06 | Startup Banner — Session Count Display |
 | CAD-INFRA-MS0 |  | U-CINF01 | CADFileIndexerEngine — master 20,006-file catalog |
 | CAD-INFRA-MS0 |  | U-CINF02 | CADFileClassifierEngine — part/assembly/drawing/CAM classification |
 | CAD-INFRA-MS0 |  | U-CINF03 | CADTestStateSchema — per-file atomic state |
@@ -263,14 +271,6 @@
 | TRAINING-LEARNING-MS0 | wedm | U-TL-U4-WEDM-TEMPLATE-EXTRACTOR-AND-BRIDGE | WEDMPartFamilyTemplateExtractorEngine + TaptiteElectrodeMacroBridgeEngine (parsed-snapshot path) |
 | TRAINING-LEARNING-MS0 | matchers | U-TL-U5-DOMAIN-MATCHERS | LathePartFamilyMatcherEngine + MillPartFamilyMatcherEngine + WEDMPartFamilyMatcherEngine |
 | TRAINING-LEARNING-MS0 | closed-loop | U-TL-U6-CONTINUOUS-LEARNING | TrainingTemplateContinuousLearningEngine (ingestLatheOutcome / ingestMillOutcome / ingestWEDMOutcome) |
-| COORD-MS0 |  | U-COORD01 | Create AGENT_COORDINATION_SUMMARY.json (<5KB) |
-| COORD-MS0 |  | U-COORD02 | Add Optimistic Locking with Version Field |
-| COORD-MS0 |  | U-COORD04 | CrossSessionOrchestratorEngine — Unified Facade |
-| COORD-MS0 |  | U-COORD05 | Wire Orchestrator to Hook System |
-| AUTO-LEARNING-LOOP-MS0 | P0 | U-ALL02 | Build `NoveltyDetectionEngine` (diff vs catalog) |
-| AUTO-LEARNING-LOOP-MS0 | P0 | U-ALL03 | Build `AutoResearchOrchestratorEngine` (rate-limited dispatch) |
-| AUTO-LEARNING-LOOP-MS0 | P0 | U-ALL04 | Build `SynergyClassifierEngine` (high/med/low/none decision) |
-| AUTO-LEARNING-LOOP-MS0 | P0 | U-ALL05 | Build `VizAutoAugmentationEngine` (emit augmentation file) |
 
 **Next action:** Cross-reference MILESTONE_PROGRESS.json. Avoid units already in `shipped` arrays — those are committed but envelope status is stale.
 
@@ -288,11 +288,11 @@
 
 ## COVERAGE_BY_DOMAIN
 
-Per-domain wired/unwired breakdown across 928 domain prefixes.
+Per-domain wired/unwired breakdown across 931 domain prefixes.
 
 | Domain | Total | Wired | Unwired | Coverage % |
 |--------|-------|-------|---------|-----------|
-| Other | 596 | 453 | 143 | 76% |
+| Other | 597 | 454 | 143 | 76% |
 | Lathe | 187 | 98 | 89 | 52% |
 | Machine | 45 | 28 | 17 | 62% |
 | Multi | 28 | 17 | 11 | 61% |
