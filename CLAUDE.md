@@ -73,8 +73,8 @@ To finish a task you MUST:
 
 The hook is in `MINIMAL_ALLOWLIST` so `PRISM_HOOK_PROFILE` cannot disable it. After 3 block attempts the gate auto-passes with a warning (escape hatch). Ledger lives at `mcp-server/data/state/SCRUTINY_LEDGER.json` keyed by session id; arm B is stored as `claudeReviewed` (legacy `geminiReviewed` / transitional `opusBReviewed` flags accepted as aliases). Legacy `selfReviewed && agentReviewed` entries (pre-3way) still clear via backward-compat fallback in `scrutiny-ledger.mjs:isCleared()`.
 
-## PER-CHAT HANDOFF (6 CONCURRENT CHATS)
-We run ~6 concurrent Claude sessions. Each has its OWN handoff — **never write to `state/HANDOFF.md` (legacy singular)**.
+## PER-CHAT HANDOFF (7 CONCURRENT CHATS — 6 work + 1 hygiene)
+We run up to 7 concurrent Claude sessions: 6 work slots (`alpha..foxtrot`) + 1 hygiene slot (`golf`, see §GOLF SLOT). Each has its OWN handoff — **never write to `state/HANDOFF.md` (legacy singular)**. Golf chats produce slot-keyed filenames (`HANDOFF-golf-<task>.md`) via `--slot golf` per U-CLEANUP-A4; work chats stay instance-keyed.
 
 ```bash
 # WRITE (e.g. at /handoff or /compact):
@@ -124,6 +124,20 @@ This avoids multi-chat thrash on shared HEAD and keeps milestones independently 
 **IPC for hook queries** (2026-05-13, `.claude/helpers/coord-ipc-server.mjs` + `coord-ipc-client.mjs` + daemon edit, COORD-MS0/U-COORD11): NDJSON RPC over a named pipe (Windows `\\.\pipe\prism-coord-<userhash>`) / UDS (POSIX) so hooks can query coordination state without re-reading + JSON.parse-ing the 4 shared status files on every UserPromptSubmit. **v1 methods** (extend via `METHODS` table in server): `health` → `{ok, pid, uptime_ms, started_at, version}`; `status` → live AGENT_COORDINATION_STATUS contents (cached in daemon, refreshed each `update()` cycle); `coord_summary` → live AGENT_COORDINATION_SUMMARY contents; `active_sessions({window_ms?})` → `[{chatId, lastSeen, slot, branch, topic, agent}, ...]` with optional last-N-ms filter. **Hook usage**: `await queryDaemon("active_sessions", {window_ms: 600_000}, {timeoutMs: 100, fallbackFile: "<path>", fallback: {agents:[]}})` — never throws, fallback ordering ipc → fallback-file → fallback-literal → `ok:false`. `r.source ∈ {"ipc","fallback-file","fallback-value","none"}`, `r.latencyMs` set on ipc path. **Caps**: 8 KB request (`MAX_REQUEST_BYTES`), 5 s idle (`IDLE_TIMEOUT_MS`), 200 ms default client timeout (`DEFAULT_TIMEOUT_MS`), per-call timeout/path/token overrides. **Performance**: ~1-2 ms warm pipe round-trip in tests vs 20-80 ms for the file-read+JSON.parse path it replaces. **Auth**: shared-secret via `PRISM_COORD_IPC_TOKEN` env (empty-string normalized on both ends to "no auth" — typo must NOT silently disable). **Daemon shutdown** covers SIGINT/SIGTERM/SIGHUP/SIGBREAK/uncaughtException/unhandledRejection so the pipe / UDS is always reclaimed (POSIX stale-socket cleanup is unconditional in `startIpcServer`). **Knob**: `PRISM_COORD_IPC_DISABLE=1` skips IPC startup; hooks fall back to file reads transparently. 24 vitest cases (`mcp-server/src/__tests__/coordIpc.test.ts`) cover round-trip × 4 methods, 50-burst leak check, ERR_AUTH/ERR_METHOD/ERR_OVERSIZE/ERR_PARSE/ERR_TIMEOUT, fallback file vs literal vs none, isDaemonAlive contract. Commits: `3b36fe5b4` (server + client + daemon wire + tests) + `a2ffc5025` (codex-fixup: portable test paths + typed .mjs surface). 3-of-3 PASS in ledger. **Companion** to the H8 SQLite store: SQLite handles *persisted* claim state (writes), IPC handles *ephemeral* hook queries (reads) — orthogonal optimizations. **Deferred follow-up**: duplicate-daemon detection (two daemons on same user/host can silently collide — add a 50 ms `health` probe before `listen()` and refuse to start if a daemon is already alive; track as U-COORD13).
 
 **Hook fast-lane matcher split** (2026-05-13, `HookFastLaneEngine` + `prism_dev:hook_fast_lane` + `scripts/apply-hook-fast-lane.mjs`, HOOK-SYNERGY-MS0/U-HOOK-FAST-LANE): converts broad PreToolUse/PostToolUse matchers (`.*`, `Bash|Read`) into a narrow slow-lane allowlist (`^(Bash|Edit|Write|MultiEdit|NotebookEdit|Agent|Task|TaskCreate|Skill|mcp__.*)$`) **plus** a sibling fast-lane block matched on `^(Read|Glob|Grep)$` only when there are read-relevant hooks worth moving. Classification uses the H3 `// tier: T#` frontmatter **plus** basename heuristics (read-relevant: `grep-*`, `read-*`, `recall-*`, `*-once-cache`, `*-result-cache`, `*-counter-track`; write-only: `edit-*`, `write-*`, `*-lint-*`, `*-build-*`, `*-on-write`, `*-creation-gate`, etc.). Conservative defaults: untagged hooks → slow-lane, T0 → both lanes. Three-state plan per block — **no-op** (already narrow) / **narrow-only** (matcher rewrite, hooks kept verbatim — covers the case where the broad matcher had no read-relevant hooks, e.g. `Bash|Read` with 15 bash-output condensers → narrow to `Bash`) / **bifurcate** (narrow slow-lane + fast-lane sibling). Forecast on the project `H:/prism/.claude/settings.json`: **Read 26→6 fires (76.9% cut), Glob 10→5, Grep 10→5, slow-lane tools 0% change**. Dispatcher action `prism_dev:hook_fast_lane` exposes 5 modes: `analyze` (plan + forecast), `propose` (writes `<settings>.fastlane.json` for review), `apply_preview` (returns JSON + summary), `forecast` (per-tool counts only), `classify_block` (pure-function classification with no file I/O). Apply script: `node scripts/apply-hook-fast-lane.mjs [--analyze|--propose|--apply|--diff] [--settings <path>]` — `--apply` writes `<settings>.bak` first and aborts if backup fails. Engine is pure (tierLookup injected) + idempotent (applying twice = applying once).
+
+## GOLF SLOT (7th hygiene chat — CLEANUP-MS0)
+PRISM's 7th concurrent-chat slot. Reserved for **fleet hygiene** — not feature work. Operators claim it with `/checkin --golf`; it sits alongside the 6 work slots (`alpha..foxtrot`) without competing for them.
+
+1. **Write-allowlist (U-CLEANUP-A5)** — `golf-slot-write-allowlist.mjs` hard-blocks every Edit/Write/MultiEdit from a golf chat outside the exact `FALLBACK_ALLOW` set: `state/shared/dashboards/**`, named ledger JSONLs, named report dashboards, `AGENT_CHAT.jsonl`, `golf-*.json`, `.cron-locks/*.lock`, `state/shared/system-viz/staging/**`, `mcp-server/data/state/**.log`. Feature commits from golf are impossible by design — trust the hook's emitted block message as the canonical allowlist.
+2. **Self-DOS deny (U-CLEANUP-B4)** — a golf chat may NOT disable its own watchdog/audit/cron/allowlist. Kill switch (#5) is operator-only; a golf chat that tries to clear its own gates is blocked at PreToolUse.
+3. **Heartbeat** — no dedicated heartbeat file (R3-UU2). Liveness is the same `chat-slots.json` `lastHeartbeat` as work slots, queried via `node .claude/helpers/chat-slots.mjs golf-liveness` (U-CLEANUP-B8) — returns `{status, isAlive, ageMs, staleThresholdMs, crashedThresholdMs}` already classified.
+4. **Audit query** — `/peer-audit` (planned U-CLEANUP-B4) surfaces what the golf chat has touched recently (chat-slots activity + AGENT_CHAT.jsonl + golf-envelope-mutations.jsonl).
+5. **Kill switch** — *(planned, U-CLEANUP)* `PRISM_GOLF_DISABLE=1` will disable all golf-side cron + flip the allowlist to "deny all writes from a golf chat". For an immediate operator emergency today: `PRISM_GOLF_FAIL_CLOSED=1` (already wired in `golf-slot-write-allowlist.mjs`) hardens the allowlist to deny-all; bypass is `PRISM_GOLF_WRITE_ALLOWLIST_BYPASS=1` (logged).
+6. **Handoff naming (U-CLEANUP-A4)** — golf chats write `HANDOFF-golf-<task>.md` (slot-keyed), not `HANDOFF-<claude-id>-<topic>.md` (instance-keyed). Use `per-agent-handoff.mjs --slot golf` to read/write.
+7. **Schema-bump cadence** — bump `chat-slots.json` `schemaVersion` only when `SLOT_NAMES` changes or `SlotState` fields rename. Rebuild stale slot files on bump; never silently migrate.
+8. **Multi-host coexistence** — golf is a *role*, not a host-pin. One machine may host `alpha..foxtrot + golf` together; different machines may each run their own golf (lock files are per-host, no cross-host contention).
+
+Skills + commands referencing golf: `/checkin --golf` · `node .claude/helpers/chat-slots.mjs golf-liveness` · `per-agent-handoff.mjs --slot golf` · `node scripts/fleet-status.mjs` (renders golf as a separate "hygiene" row).
 
 ## ENGINE WIRING — WIRE TO ALL SOURCES (2026-04-28)
 When generating an engine, do NOT stop at one dispatcher. Wire to **every dispatcher that would naturally consume it**, in the same commit. Examples:
@@ -216,17 +230,9 @@ const result = prismCreativeReasoningEngine.explore(problem, "optimal");
 **15 scientific domains** (control theory, materials science, robotics, ML, precision, etc.) · **120+ formulas/algorithms** (PID, LQR, Kalman, Johnson-Cook, NURBS, S-curve, CNN, K-means, Abbe error). Entry point: `CrossDisciplinaryDeepLearningEngine`.
 
 ## SHARED AGENT BRIDGES (Claude ↔ Codex parity)
-Long-term operating directives — read when coordination rules matter:
-- `state/shared/CLAUDE-CODEX-MCP-DIRECTIVE.md` — MCP dev rules
-- `state/shared/CLAUDE-CODEX-COORDINATION-DIRECTIVE.md` — concurrent-work discipline
-- `state/shared/CLAUDE-CODEX-ROADMAP-EXECUTION-DIRECTIVE.md` — finish-first gate, SVI trigger
-- `state/shared/CLAUDE-CODEX-TASK-QUEUE-DIRECTIVE.md` — task claims + heartbeat protocol
-- `state/shared/CLAUDE-CODEX-SVI-DIRECTIVE.md` — system variability index behavior
-- `state/shared/CLAUDE-CODEX-SEARCH-TOKEN-DIRECTIVE.md` — index-first search, token economy
-- `state/shared/AGENT_WORKBOARD.md` / `AGENT_CHAT.md` / `AGENT_COORDINATION_STATUS.md` — live state
-- `state/shared/ROADMAP_COLLABORATION_STATE.md` — roadmap convergence state
+Full catalog moved to [`knowledge/wiki/coordination/shared-directives-index.md`](knowledge/wiki/coordination/shared-directives-index.md) (U-CLEANUP-D3). Six `CLAUDE-CODEX-*-DIRECTIVE.md` files under `state/shared/` plus 4 live-state files (`AGENT_WORKBOARD.md`, `AGENT_CHAT.md`, `AGENT_COORDINATION_STATUS.md`, `ROADMAP_COLLABORATION_STATE.md`). Read the index when coordination rules matter.
 
-Check directive freshness: >7 days stale → refresh before relying on it.
+**Freshness rule:** any directive >7 days stale must be re-validated against current code before relying on it. Check via the one-liner in the wiki entry's §Freshness rule.
 
 ## BUILD / TEST / CI
 ```bash
