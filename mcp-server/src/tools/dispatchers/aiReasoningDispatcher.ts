@@ -2396,6 +2396,16 @@ export async function executeAIReasoningAction(
       }
 
       // ─────────────────────────────────────────────────────────────────────
+      // AUTO-LEARNING-LOOP-MS0/U-ALL05 — VizAutoAugmentationEngine
+      // ─────────────────────────────────────────────────────────────────────
+      case "viz_auto_augment": {
+        const { vizAutoAugmentationEngine } = await import("../../engines/VizAutoAugmentationEngine.js");
+        const inputs = (params.inputs ?? []) as Array<Parameters<typeof vizAutoAugmentationEngine.emit>[0][number]>;
+        result = vizAutoAugmentationEngine.emit(inputs);
+        break;
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
       // AUTO-LEARNING-LOOP-MS0/U-ALL04 — SynergyClassifierEngine
       // ─────────────────────────────────────────────────────────────────────
       case "synergy_classify": {
