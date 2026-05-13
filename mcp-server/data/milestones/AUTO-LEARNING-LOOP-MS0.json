@@ -14,9 +14,27 @@
   "tier": 1,
   "priority": "P1",
   "status": "in_progress",
-  "completed_units": 1,
+  "completed_units": 2,
   "total_units": 12,
   "shipped": [
+    {
+      "unit": "U-ALL02",
+      "commit": "f2c0ae42a",
+      "title": "NoveltyDetectionEngine + dispatcher action novelty_detect (3-tier dedup: exact-hash / cosine 0.92 / Jaccard 0.50 fallback)",
+      "shipped_at": "2026-05-13T17:25:35Z",
+      "shipped_by": "bravo/claude-68ec3497",
+      "files_changed": 5,
+      "tests": "50/50 engine + 8/8 wiring = 58/58 pass; tsc clean for U-ALL02 files (pre-existing unrelated errors persist in telemetry/tenant/shopPractice dispatchers)",
+      "scrutiny": "Per-file gate (2 parallel reviewers on engine): both PASS. P1 fixes applied inline: bestCosine -Infinity init + Number.isFinite guard, validateCatalog Number.isFinite (rejects ±Infinity), __proto__/constructor/prototype key rejection, addVerifiedNovel returns {added,embeddedFailures,skipped}, _computedEmbedding threaded (no double-embed), isCatalogLoaded flag, deepCloneState explicit-named-construction, normalize entity-strip extended to numeric forms, cosine import COUPLING annotation, WIRE-EXEMPT tag on singleton.",
+      "design": "Three-tier dedup pipeline. Read-isolated via state.entries.slice() at t0. Engine owns in-memory CatalogState; CLI (deferred) owns JSONL persistence + .previous.json backup rotation. Dispatcher action novelty_detect: { items, commit? } → { detect: DetectResult, add?: AddOutcome, catalogLoaded: bool }.",
+      "spec_deviation": "Auto-learn catalog routed to state/shared/auto-learning/source-novelty-catalog.json (the spec-named path state/shared/system-viz/novelty-catalog.json already holds a different v1.0.0 PRISM-internal schema, ~51KB / 207 entries).",
+      "deferred_followups": [
+        "CLI cron entry (scripts/novelty-detect-sweep.mjs) + Windows installer — defer until U-ALL03 lands so the cron has a real consumer.",
+        "End-of-task 3-of-3 — engine/tests/wiring locally green (58/58); formal codex + reviewer-A + reviewer-B gate to be run during chat-bus close-out.",
+        "4th 24h-collision: files absorbed into peer commit f2c0ae42a [TRAINING-LEARNING-MS0]/U-TL-U3-CLOSEOUT-V2 — files correct + tracked; documented in memory reference_auto_learning_loop_ms0_u_all02_collision.md.",
+        "Envelope re-applied 2026-05-13T17:43Z after a peer chat reverted the first envelope flip — locking in via tight isolated commit on AUTO-LEARNING-LOOP-MS0.json only."
+      ]
+    },
     {
       "unit": "U-ALL01",
       "commit": "8b2df4a62",
@@ -115,7 +133,10 @@
           "viz_node_id": "eng.knowledge.noveltydetectionengine",
           "viz_node_status": "needs_creation",
           "loop_schedule": "30min cron",
-          "status": "not_started",
+          "status": "complete",
+          "completedAt": "2026-05-13T17:25:35Z",
+          "commit": "f2c0ae42a",
+          "shipped_by": "bravo/claude-68ec3497",
           "four_loop": [
             "BUILD",
             "SCRUTINIZE",
