@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-13T22:06:35.418Z",
+  "generatedAt": "2026-05-13T22:44:05.313Z",
   "headline": {
     "built_engines": 2324,
     "built_with_wiki": 1073,
     "needs_wiring": 879,
-    "needs_building_active_units": 3694,
+    "needs_building_active_units": 3678,
     "needs_frontend_merge_count": 2,
-    "pending_milestones_with_activity": 81,
-    "drift_milestones": 171,
+    "pending_milestones_with_activity": 72,
+    "drift_milestones": 172,
     "stale_milestones": 230,
     "domains_tracked": 931
   },
@@ -319,8 +319,8 @@
     "rows": [
       {
         "domain": "Other",
-        "total": 597,
-        "wired": 454,
+        "total": 598,
+        "wired": 455,
         "unwired": 143,
         "coverage_pct": 76,
         "sample_unwired": [
@@ -661,10 +661,10 @@
       },
       {
         "domain": "Mill",
-        "total": 22,
-        "wired": 18,
+        "total": 23,
+        "wired": 19,
         "unwired": 4,
-        "coverage_pct": 82,
+        "coverage_pct": 83,
         "sample_unwired": [
           "MillNeuralNetworkEngine",
           "MillTribalIntegrationEngine",
@@ -9149,7 +9149,7 @@
     "next_action": "Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift."
   },
   "NEEDS_BUILDING": {
-    "summary": "3694 units across 670 milestones not yet in git.",
+    "summary": "3678 units across 670 milestones not yet in git.",
     "drift_cases": [
       {
         "id": "CC-EXT-MS0",
@@ -9646,7 +9646,7 @@
       {
         "id": "TC-MS0",
         "claimed": "not_started",
-        "real": "in_progress_real",
+        "real": "completed_real",
         "drift": "claims_not_started_but_has_shipped_units"
       },
       {
@@ -9796,13 +9796,13 @@
       {
         "id": "CCM-MS16",
         "claimed": "not_started",
-        "real": "in_progress_real",
+        "real": "completed_real",
         "drift": "claims_not_started_but_has_shipped_units"
       },
       {
         "id": "CCM-MS17",
         "claimed": "not_started",
-        "real": "in_progress_real",
+        "real": "completed_real",
         "drift": "claims_not_started_but_has_shipped_units"
       },
       {
@@ -9998,6 +9998,12 @@
         "drift": "claims_not_started_but_has_shipped_units"
       },
       {
+        "id": "MACRO-PROGRAM-PIPELINE-MS0",
+        "claimed": "completed",
+        "real": "not_started_real",
+        "drift": "claims_completed_but_units_pending"
+      },
+      {
         "id": "MXU-MS0",
         "claimed": "not_started",
         "real": "completed_real",
@@ -10114,7 +10120,7 @@
       {
         "id": "SCIMATH-MS0",
         "claimed": "not_started",
-        "real": "in_progress_real",
+        "real": "completed_real",
         "drift": "claims_not_started_but_has_shipped_units"
       },
       {
@@ -10126,7 +10132,7 @@
       {
         "id": "SCIMATH-MS2",
         "claimed": "not_started",
-        "real": "in_progress_real",
+        "real": "completed_real",
         "drift": "claims_not_started_but_has_shipped_units"
       },
       {
@@ -10138,7 +10144,7 @@
       {
         "id": "SCIMATH-MS4",
         "claimed": "not_started",
-        "real": "in_progress_real",
+        "real": "completed_real",
         "drift": "claims_not_started_but_has_shipped_units"
       },
       {
@@ -10150,13 +10156,13 @@
       {
         "id": "SCIMATH-MS6",
         "claimed": "not_started",
-        "real": "in_progress_real",
+        "real": "completed_real",
         "drift": "claims_not_started_but_has_shipped_units"
       },
       {
         "id": "SCIMATH-MS7",
         "claimed": "not_started",
-        "real": "in_progress_real",
+        "real": "completed_real",
         "drift": "claims_not_started_but_has_shipped_units"
       },
       {
@@ -10179,6 +10185,54 @@
       }
     ],
     "top_pending_units": [
+      {
+        "milestone": "INTEL-OLLAMA-OBSIDIAN-MS0",
+        "unit": "P5-U05",
+        "title": "Wire prism_intelligence:diagnose_failure → DiagnosticReasoningEngine",
+        "phase": "P5"
+      },
+      {
+        "milestone": "INTEL-OLLAMA-OBSIDIAN-MS0",
+        "unit": "P6-U02",
+        "title": "Add 4 hooks for unforced CLAUDE.md rules",
+        "phase": "P6"
+      },
+      {
+        "milestone": "INTEL-OLLAMA-OBSIDIAN-MS0",
+        "unit": "P6-U03",
+        "title": "Awareness hook deduplication — pick 3 canonical, deprecate 10",
+        "phase": "P6"
+      },
+      {
+        "milestone": "INTEL-OLLAMA-OBSIDIAN-MS0",
+        "unit": "P7-U02",
+        "title": "Cross-PC handoff test — verify H: drive is sufficient",
+        "phase": "P7"
+      },
+      {
+        "milestone": "S1-MS2",
+        "unit": "P2-U05",
+        "title": "Port Thermal Partition + Power/Torque",
+        "phase": "P2"
+      },
+      {
+        "milestone": "SCIMATH-MS1",
+        "unit": "P2-U05",
+        "title": "FEMThermalCoupledEngine — sequential/staggered coupling",
+        "phase": "P2"
+      },
+      {
+        "milestone": "SCIMATH-MS5",
+        "unit": "P2-U05",
+        "title": "AcceptanceSamplingEngine — configurable AQL + switching rules",
+        "phase": "P2"
+      },
+      {
+        "milestone": "WIRE-MS0",
+        "unit": "P2-U05",
+        "title": "Welding & Joining Page — CREATE NEW",
+        "phase": ""
+      },
       {
         "milestone": "CLEANUP-MS0",
         "unit": "U-CLEANUP-A1",
@@ -10274,54 +10328,6 @@
         "unit": "U-COORD06",
         "title": "Startup Banner — Session Count Display",
         "phase": ""
-      },
-      {
-        "milestone": "CAD-INFRA-MS0",
-        "unit": "U-CINF01",
-        "title": "CADFileIndexerEngine — master 20,006-file catalog",
-        "phase": ""
-      },
-      {
-        "milestone": "CAD-INFRA-MS0",
-        "unit": "U-CINF02",
-        "title": "CADFileClassifierEngine — part/assembly/drawing/CAM classification",
-        "phase": ""
-      },
-      {
-        "milestone": "CAD-INFRA-MS0",
-        "unit": "U-CINF03",
-        "title": "CADTestStateSchema — per-file atomic state",
-        "phase": ""
-      },
-      {
-        "milestone": "CAD-INFRA-MS0",
-        "unit": "U-CINF04.x-WORKER-THREAD-RUNNER",
-        "title": "CADRegressionWorkerThreadRunnerEngine — production TestRunner implementation",
-        "phase": ""
-      },
-      {
-        "milestone": "INTEL-OLLAMA-OBSIDIAN-MS0",
-        "unit": "P2-U04",
-        "title": "Refactor error-block-prewarn to query Qdrant vector neighbors",
-        "phase": "P2"
-      },
-      {
-        "milestone": "INTEL-OLLAMA-OBSIDIAN-MS0",
-        "unit": "P5-U05",
-        "title": "Wire prism_intelligence:diagnose_failure → DiagnosticReasoningEngine",
-        "phase": "P5"
-      },
-      {
-        "milestone": "INTEL-OLLAMA-OBSIDIAN-MS0",
-        "unit": "P6-U02",
-        "title": "Add 4 hooks for unforced CLAUDE.md rules",
-        "phase": "P6"
-      },
-      {
-        "milestone": "INTEL-OLLAMA-OBSIDIAN-MS0",
-        "unit": "P6-U03",
-        "title": "Awareness hook deduplication — pick 3 canonical, deprecate 10",
-        "phase": "P6"
       }
     ],
     "next_action": "Cross-reference MILESTONE_PROGRESS.json. Avoid units already in `shipped` arrays — those are committed but envelope status is stale."

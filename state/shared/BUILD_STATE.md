@@ -1,6 +1,6 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-13T22:06:35.418Z
+> Generated: 2026-05-13T22:44:05.313Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
@@ -8,9 +8,9 @@
 - **2324** engines built and wired (of 3203)
 - **1073** wiki entries indexed
 - **879** engines awaiting dispatcher wiring
-- **3694** units pending across 81 active milestones
+- **3678** units pending across 72 active milestones
 - **2** codex frontend builds awaiting merge
-- **171** milestones with envelope-status drift
+- **172** milestones with envelope-status drift
 
 ## BUILT
 
@@ -65,7 +65,7 @@
 
 ## NEEDS_BUILDING
 
-3694 units across 670 milestones not yet in git.
+3678 units across 670 milestones not yet in git.
 
 ### Envelope-status drift
 
@@ -153,7 +153,7 @@
 | S3-MS2 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | S3-MS3 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | S4-MS1 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
-| TC-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| TC-MS0 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | ULT-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | ULT-MS2 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | ULT-MS3 | not_started | completed_real | claims_not_started_but_has_shipped_units |
@@ -178,8 +178,8 @@
 | CCM-MS13 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | CCM-MS14 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | CCM-MS15 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
-| CCM-MS16 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
-| CCM-MS17 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CCM-MS16 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| CCM-MS17 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | CCM-MS2 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | CCM-MS3 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | CCM-MS4 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
@@ -212,6 +212,7 @@
 | OT-IT-SECURITY-MS20 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | TENANT-ONBOARD-MS29 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | LATHE-P2P-CONSENSUS-MS4 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| MACRO-PROGRAM-PIPELINE-MS0 | completed | not_started_real | claims_completed_but_units_pending |
 | MXU-MS0 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | MXU-MS0A | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | MXU-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
@@ -231,14 +232,14 @@
 | PPG-MS2 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | PROD-GATE-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | TWIN-SIM-GATE-MS23 | not_started | completed_real | claims_not_started_but_has_shipped_units |
-| SCIMATH-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| SCIMATH-MS0 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | SCIMATH-MS1 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
-| SCIMATH-MS2 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| SCIMATH-MS2 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | SCIMATH-MS3 | not_started | completed_real | claims_not_started_but_has_shipped_units |
-| SCIMATH-MS4 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| SCIMATH-MS4 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | SCIMATH-MS5 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
-| SCIMATH-MS6 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
-| SCIMATH-MS7 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| SCIMATH-MS6 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| SCIMATH-MS7 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | SIM-MS0 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | TOOLS-AUDIT-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | WEDM-ERP-MS0 | completed | not_started_real | claims_completed_but_units_pending |
@@ -247,6 +248,14 @@
 
 | Milestone | Phase | Unit | Title |
 |-----------|-------|------|-------|
+| INTEL-OLLAMA-OBSIDIAN-MS0 | P5 | P5-U05 | Wire prism_intelligence:diagnose_failure → DiagnosticReasoningEngine |
+| INTEL-OLLAMA-OBSIDIAN-MS0 | P6 | P6-U02 | Add 4 hooks for unforced CLAUDE.md rules |
+| INTEL-OLLAMA-OBSIDIAN-MS0 | P6 | P6-U03 | Awareness hook deduplication — pick 3 canonical, deprecate 10 |
+| INTEL-OLLAMA-OBSIDIAN-MS0 | P7 | P7-U02 | Cross-PC handoff test — verify H: drive is sufficient |
+| S1-MS2 | P2 | P2-U05 | Port Thermal Partition + Power/Torque |
+| SCIMATH-MS1 | P2 | P2-U05 | FEMThermalCoupledEngine — sequential/staggered coupling |
+| SCIMATH-MS5 | P2 | P2-U05 | AcceptanceSamplingEngine — configurable AQL + switching rules |
+| WIRE-MS0 |  | P2-U05 | Welding & Joining Page — CREATE NEW |
 | CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A1 | A1 — extend SLOT_NAMES in chat-slots.mjs to add 'golf' (NATO phonetic continuity) |
 | CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A5 | A5 — golf-slot-write-allowlist.mjs PreToolUse T0 hook (path-resolve hardened against ../; allowlist-regex from golf-owned-paths.json; tier frontmatter; bypass env PRISM_GOLF_WRITE_ALLOWLIST_BYPASS=1) |
 | CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A6 | A6 — bootstrap-golf.mjs (mkdir .cron-locks, seed golf-owned-paths.json + golf-token-budget.json + golf-cron-registry.json; .gitignore additions for coordination.db* + .cron-locks/*.lock + .watchdog-last-poll.iso + golf-token-budget.json; detect & rebuild 0-byte coordination.db; git rm --cached on first run) |
@@ -263,14 +272,6 @@
 | COORD-MS0 |  | U-COORD04 | CrossSessionOrchestratorEngine — Unified Facade |
 | COORD-MS0 |  | U-COORD05 | Wire Orchestrator to Hook System |
 | COORD-MS0 |  | U-COORD06 | Startup Banner — Session Count Display |
-| CAD-INFRA-MS0 |  | U-CINF01 | CADFileIndexerEngine — master 20,006-file catalog |
-| CAD-INFRA-MS0 |  | U-CINF02 | CADFileClassifierEngine — part/assembly/drawing/CAM classification |
-| CAD-INFRA-MS0 |  | U-CINF03 | CADTestStateSchema — per-file atomic state |
-| CAD-INFRA-MS0 |  | U-CINF04.x-WORKER-THREAD-RUNNER | CADRegressionWorkerThreadRunnerEngine — production TestRunner implementation |
-| INTEL-OLLAMA-OBSIDIAN-MS0 | P2 | P2-U04 | Refactor error-block-prewarn to query Qdrant vector neighbors |
-| INTEL-OLLAMA-OBSIDIAN-MS0 | P5 | P5-U05 | Wire prism_intelligence:diagnose_failure → DiagnosticReasoningEngine |
-| INTEL-OLLAMA-OBSIDIAN-MS0 | P6 | P6-U02 | Add 4 hooks for unforced CLAUDE.md rules |
-| INTEL-OLLAMA-OBSIDIAN-MS0 | P6 | P6-U03 | Awareness hook deduplication — pick 3 canonical, deprecate 10 |
 
 **Next action:** Cross-reference MILESTONE_PROGRESS.json. Avoid units already in `shipped` arrays — those are committed but envelope status is stale.
 
@@ -292,7 +293,7 @@ Per-domain wired/unwired breakdown across 931 domain prefixes.
 
 | Domain | Total | Wired | Unwired | Coverage % |
 |--------|-------|-------|---------|-----------|
-| Other | 597 | 454 | 143 | 76% |
+| Other | 598 | 455 | 143 | 76% |
 | Lathe | 188 | 99 | 89 | 53% |
 | Machine | 45 | 28 | 17 | 62% |
 | Multi | 28 | 17 | 11 | 61% |
@@ -315,7 +316,7 @@ Per-domain wired/unwired breakdown across 931 domain prefixes.
 | Mastercam | 28 | 23 | 5 | 82% |
 | Tribal | 12 | 7 | 5 | 58% |
 | Mobile | 6 | 1 | 5 | 17% |
-| Mill | 22 | 18 | 4 | 82% |
+| Mill | 23 | 19 | 4 | 83% |
 | Inventor | 12 | 8 | 4 | 67% |
 | Okuma | 12 | 8 | 4 | 67% |
 | Master | 10 | 6 | 4 | 60% |
