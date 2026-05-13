@@ -12,9 +12,8 @@ shared scan-era prefix. This is intentional per the spec MS0-U3 unit-id
 `U-TL-U3-ELECTRODE-COVERAGE-AUDIT` which names the file literally.
 
 Inputs (all READ-ONLY):
-    --index   Docustrata jm-die-index-v2.json (default: HERE/jm-die-index-v2.json)
     --xlsm    H:/PRISM/JM DIE/Automated Program_Corrected 5-25.xlsm
-    --corpus  H:/PRISM/JM DIE (fallback when --index unusable)
+    --corpus  H:/PRISM/JM DIE (live corpus walk)
 
 Outputs (atomic write via tempfile + rename, never overwrites in-place):
     --out     mcp-server/data/training/audits/electrode-coverage/_audit-snapshot.json
@@ -79,7 +78,6 @@ from typing import Any, Iterator
 HERE = Path(__file__).resolve().parent
 PRISM = HERE.parent.parent  # H:/prism
 
-DEFAULT_INDEX = HERE / "jm-die-index-v2.json"
 DEFAULT_XLSM = Path("H:/PRISM/JM DIE/Automated Program_Corrected 5-25.xlsm")
 DEFAULT_CORPUS = Path("H:/PRISM/JM DIE")
 DEFAULT_OUT = (
@@ -328,7 +326,6 @@ def atomic_write_json(out_path: Path, data: Any) -> None:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--index", type=Path, default=DEFAULT_INDEX)
     ap.add_argument("--xlsm", type=Path, default=DEFAULT_XLSM)
     ap.add_argument("--corpus", type=Path, default=DEFAULT_CORPUS)
     ap.add_argument("--out", type=Path, default=DEFAULT_OUT)

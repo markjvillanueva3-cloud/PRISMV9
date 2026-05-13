@@ -18,14 +18,60 @@
  * already covers the happy + error paths. This file locks the wiring
  * surface so a future rename / drop of the actions is caught by CI.
  */
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import * as fs from "fs";
 import * as path from "path";
-import { ACTIONS } from "../tools/dispatchers/camDispatcher.js";
+import * as os from "os";
+import { ACTIONS, registerCamDispatcher } from "../tools/dispatchers/camDispatcher.js";
 import {
   electrodeCoverageAuditEngine,
   ElectrodeCoverageAuditEngine,
 } from "../engines/ElectrodeCoverageAuditEngine.js";
+
+// ───────────────────────────────────────────────────────────────────────────────
+// Round-trip plumbing — captures the tool() closure registered by
+// registerCamDispatcher(server) and invokes it as the MCP runtime would.
+// Per [reference_skill_tier_wire_pattern], dispatcher behavior must be
+// exercised via the registered handler, not just by source-grep.
+
+interface CapturedTool {
+  name: string;
+  description: string;
+  schema: unknown;
+  handler: (args: { action: string; params?: Record<string, unknown> }) => Promise<unknown>;
+}
+
+class MockMCPServer {
+  tools: CapturedTool[] = [];
+  tool(name: string, description: string, schema: unknown, handler: CapturedTool["handler"]) {
+    this.tools.push({ name, description, schema, handler });
+  }
+}
+
+/** Invoke action through the registered prism_cam handler.
+ *  Returns parsed `{success, data, error?}` matching the dispatcher contract. */
+async function callCam(
+  server: MockMCPServer,
+  action: string,
+  params: Record<string, unknown> = {},
+): Promise<{ success: boolean; data?: Record<string, unknown>; error?: string; rawText: string }> {
+  const tool = server.tools[0];
+  if (!tool) throw new Error("prism_cam tool not registered on mock server");
+  const raw = (await tool.handler({ action, params })) as { content: { type: string; text: string }[] };
+  const text = raw?.content?.[0]?.text ?? "";
+  let parsed: Record<string, unknown>;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    return { success: false, error: "non-json-response", rawText: text };
+  }
+  return {
+    success: parsed.success === true,
+    data: (parsed.data ?? parsed) as Record<string, unknown>,
+    error: parsed.error as string | undefined,
+    rawText: text,
+  };
+}
 
 const CAM_DISPATCHER_SRC = path.resolve(
   __dirname,
@@ -77,6 +123,115 @@ describe("ElectrodeCoverageAuditEngine — singleton + method surface", () => {
     expect(electrodeCoverageAuditEngine).toBeInstanceOf(
       ElectrodeCoverageAuditEngine,
     );
+  });
+});
+
+// ───────────────────────────────────────────────────────────────────────────────
+// Round-trip — exercises the registered tool() closure end-to-end.
+// Per Codex scrutiny feedback (2026-05-13): source-grep alone does not
+// confirm dispatcher behavior. These tests dispatch through the real
+// handler (Zod schema → param normalizer → case-handler → engine → bridge).
+
+describe("camDispatcher round-trip — electrode_* via registered handler", () => {
+  let server: MockMCPServer;
+  let fixtureRoot: string;
+  let corpusFixture: string;
+  let xlsmFixture: string;
+
+  beforeEach(() => {
+    server = new MockMCPServer();
+    registerCamDispatcher(
+      server as unknown as { tool: (...args: unknown[]) => void },
+    );
+  });
+
+  // One-time temp fixtures for the round-trip suite (separate from the engine-direct tests).
+  fixtureRoot = fs.mkdtempSync(path.join(os.tmpdir(), "electrode-wire-rt-"));
+  corpusFixture = path.join(fixtureRoot, "corpus");
+  fs.mkdirSync(corpusFixture);
+  fs.mkdirSync(path.join(corpusFixture, "OKUMA"));
+  fs.writeFileSync(path.join(corpusFixture, "OKUMA", "PART-ELECTRODE.ipt"), "fx");
+  fs.writeFileSync(path.join(corpusFixture, "OKUMA", "TAPTITE-X.x_t"), "fx");
+  xlsmFixture = path.join(fixtureRoot, "fake.xlsm");
+  fs.writeFileSync(xlsmFixture, Buffer.from("PKfake-xlsm-content"));
+
+  it("electrode_corpus_scan — handler returns success + electrode/taptite counts", async () => {
+    const r = await callCam(server, "electrode_corpus_scan", {
+      corpusRoot: corpusFixture,
+    });
+    expect(r.success).toBe(true);
+    // The dispatcher bridges engine `{ok:true, ...}` → `{success:true, data:{ok:true,...}}`.
+    // `data` may contain the engine result directly OR be wrapped — accept both.
+    const payload = r.data ?? {};
+    const ec = (payload.electrodeCount ?? (payload.data as Record<string, unknown> | undefined)?.electrodeCount) as number | undefined;
+    const tc = (payload.taptiteCount ?? (payload.data as Record<string, unknown> | undefined)?.taptiteCount) as number | undefined;
+    expect(ec).toBe(1);
+    expect(tc).toBe(1);
+  });
+
+  it("electrode_corpus_scan — snake_case `corpus_root` param accepted (normalizer)", async () => {
+    const r = await callCam(server, "electrode_corpus_scan", {
+      corpus_root: corpusFixture,
+    });
+    expect(r.success).toBe(true);
+  });
+
+  it("electrode_corpus_scan — bad corpusRoot bridges to success:false", async () => {
+    const r = await callCam(server, "electrode_corpus_scan", {
+      corpusRoot: path.join(fixtureRoot, "does-not-exist"),
+    });
+    expect(r.success).toBe(false);
+    // Engine error code should be surfaced as `error` on the dispatcher response.
+    const err = r.error ?? (r.data?.error as string | undefined);
+    expect(err).toBe("corpus_root_missing");
+  });
+
+  it("electrode_xlsm_fingerprint — exists:true returns mtimeMs + sha256", async () => {
+    const r = await callCam(server, "electrode_xlsm_fingerprint", {
+      xlsmPath: xlsmFixture,
+    });
+    expect(r.success).toBe(true);
+    const payload = r.data ?? {};
+    const exists = payload.exists ?? (payload.data as Record<string, unknown> | undefined)?.exists;
+    const sha = payload.sha256 ?? (payload.data as Record<string, unknown> | undefined)?.sha256;
+    expect(exists).toBe(true);
+    expect(typeof sha).toBe("string");
+    expect(sha).toMatch(/^[0-9a-f]{64}$/);
+  });
+
+  it("electrode_xlsm_fingerprint — missing file returns exists:false (success)", async () => {
+    const r = await callCam(server, "electrode_xlsm_fingerprint", {
+      xlsmPath: path.join(fixtureRoot, "missing.xlsm"),
+    });
+    expect(r.success).toBe(true);
+    const payload = r.data ?? {};
+    const exists = payload.exists ?? (payload.data as Record<string, unknown> | undefined)?.exists;
+    expect(exists).toBe(false);
+  });
+
+  it("electrode_coverage_audit — combined report w/ baselineOverride matches", async () => {
+    const r = await callCam(server, "electrode_coverage_audit", {
+      corpusRoot: corpusFixture,
+      xlsmPath: xlsmFixture,
+      baselineOverride: { electrodes: 1, taptites: 1 },
+    });
+    expect(r.success).toBe(true);
+    const payload = r.data ?? {};
+    const inner = (payload.data as Record<string, unknown> | undefined) ?? payload;
+    const baselineMatch = inner.baselineMatch as { electrodes: boolean; taptites: boolean } | undefined;
+    expect(baselineMatch?.electrodes).toBe(true);
+    expect(baselineMatch?.taptites).toBe(true);
+  });
+
+  it("electrode_coverage_audit — fs.statSync(xlsm).mtimeMs unchanged after round-trip", async () => {
+    const before = fs.statSync(xlsmFixture).mtimeMs;
+    await callCam(server, "electrode_coverage_audit", {
+      corpusRoot: corpusFixture,
+      xlsmPath: xlsmFixture,
+      baselineOverride: { electrodes: 1, taptites: 1 },
+    });
+    const after = fs.statSync(xlsmFixture).mtimeMs;
+    expect(after).toBe(before);
   });
 });
 
