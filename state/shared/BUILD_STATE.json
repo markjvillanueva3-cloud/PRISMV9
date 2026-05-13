@@ -1,11 +1,11 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-13T20:25:18.437Z",
+  "generatedAt": "2026-05-13T22:06:35.418Z",
   "headline": {
     "built_engines": 2324,
     "built_with_wiki": 1073,
     "needs_wiring": 879,
-    "needs_building_active_units": 3697,
+    "needs_building_active_units": 3694,
     "needs_frontend_merge_count": 2,
     "pending_milestones_with_activity": 81,
     "drift_milestones": 171,
@@ -334,10 +334,10 @@
       },
       {
         "domain": "Lathe",
-        "total": 187,
-        "wired": 98,
+        "total": 188,
+        "wired": 99,
         "unwired": 89,
-        "coverage_pct": 52,
+        "coverage_pct": 53,
         "sample_unwired": [
           "LatheAdvancedOperationsEngine",
           "LatheAIFeatureRegistration",
@@ -1068,6 +1068,17 @@
         ]
       },
       {
+        "domain": "Macro",
+        "total": 9,
+        "wired": 7,
+        "unwired": 2,
+        "coverage_pct": 78,
+        "sample_unwired": [
+          "MacroConversionAnalyzerEngine",
+          "MacroProgramIntelligenceEngine"
+        ]
+      },
+      {
         "domain": "Spindle",
         "total": 9,
         "wired": 7,
@@ -1076,17 +1087,6 @@
         "sample_unwired": [
           "SpindleHarmonicsQualityEngine",
           "SpindleTorqueGateEngine"
-        ]
-      },
-      {
-        "domain": "Macro",
-        "total": 8,
-        "wired": 6,
-        "unwired": 2,
-        "coverage_pct": 75,
-        "sample_unwired": [
-          "MacroConversionAnalyzerEngine",
-          "MacroProgramIntelligenceEngine"
         ]
       },
       {
@@ -9149,7 +9149,7 @@
     "next_action": "Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift."
   },
   "NEEDS_BUILDING": {
-    "summary": "3697 units across 670 milestones not yet in git.",
+    "summary": "3694 units across 670 milestones not yet in git.",
     "drift_cases": [
       {
         "id": "CC-EXT-MS0",
@@ -10204,6 +10204,30 @@
         "phase": "engines-tier-1"
       },
       {
+        "milestone": "TRAINING-LEARNING-MS0",
+        "unit": "U-TL-U1-LATHE-TEMPLATE-EXTRACTOR",
+        "title": "LathePartFamilyTemplateExtractorEngine + corpus scanner",
+        "phase": "lathe"
+      },
+      {
+        "milestone": "TRAINING-LEARNING-MS0",
+        "unit": "U-TL-U5-DOMAIN-MATCHERS",
+        "title": "LathePartFamilyMatcherEngine + MillPartFamilyMatcherEngine + WEDMPartFamilyMatcherEngine",
+        "phase": "matchers"
+      },
+      {
+        "milestone": "TRAINING-LEARNING-MS0",
+        "unit": "U-TL-U6-CONTINUOUS-LEARNING",
+        "title": "TrainingTemplateContinuousLearningEngine (ingestLatheOutcome / ingestMillOutcome / ingestWEDMOutcome)",
+        "phase": "closed-loop"
+      },
+      {
+        "milestone": "TRAINING-LEARNING-MS0",
+        "unit": "U-TL-U7-SKILL-AND-CLOSEOUT",
+        "title": "/learn-corpus skill (args: lathe|mill|wedm|electrode-audit|status|match <part>) + ENGINE_DIGEST regen + 3-way scrutiny",
+        "phase": "close-out"
+      },
+      {
         "milestone": "AUTO-LEARNING-LOOP-MS0",
         "unit": "U-ALL02",
         "title": "Build `NoveltyDetectionEngine` (diff vs catalog)",
@@ -10298,30 +10322,6 @@
         "unit": "P6-U03",
         "title": "Awareness hook deduplication — pick 3 canonical, deprecate 10",
         "phase": "P6"
-      },
-      {
-        "milestone": "TRAINING-LEARNING-MS0",
-        "unit": "U-TL-U1-LATHE-TEMPLATE-EXTRACTOR",
-        "title": "LathePartFamilyTemplateExtractorEngine + corpus scanner",
-        "phase": "lathe"
-      },
-      {
-        "milestone": "TRAINING-LEARNING-MS0",
-        "unit": "U-TL-U4-WEDM-TEMPLATE-EXTRACTOR-AND-BRIDGE",
-        "title": "WEDMPartFamilyTemplateExtractorEngine + TaptiteElectrodeMacroBridgeEngine (parsed-snapshot path)",
-        "phase": "wedm"
-      },
-      {
-        "milestone": "TRAINING-LEARNING-MS0",
-        "unit": "U-TL-U5-DOMAIN-MATCHERS",
-        "title": "LathePartFamilyMatcherEngine + MillPartFamilyMatcherEngine + WEDMPartFamilyMatcherEngine",
-        "phase": "matchers"
-      },
-      {
-        "milestone": "TRAINING-LEARNING-MS0",
-        "unit": "U-TL-U6-CONTINUOUS-LEARNING",
-        "title": "TrainingTemplateContinuousLearningEngine (ingestLatheOutcome / ingestMillOutcome / ingestWEDMOutcome)",
-        "phase": "closed-loop"
       }
     ],
     "next_action": "Cross-reference MILESTONE_PROGRESS.json. Avoid units already in `shipped` arrays — those are committed but envelope status is stale."

@@ -7,10 +7,10 @@
   "priority": "P0",
   "owner": "claude-7f79dd78",
   "created_at": "2026-05-13T18:00:00.000Z",
-  "updated_at": "2026-05-13T20:05:49.339Z",
+  "updated_at": "2026-05-13T22:05:00.000Z",
   "status": "in_progress",
   "total_units": 73,
-  "completed_units": 20,
+  "completed_units": 21,
   "dependencies": [
     "HOOK-SYNERGY-MS0 (H4 envelope, H7 async dispatch, H8 coord_sqlite)",
     "OBSIDIAN-PRISM-OS-MS0 (master-index surface, awareness stack, orphan-inventory)"
@@ -305,9 +305,11 @@
         {
           "id": "U-CLEANUP-G3",
           "title": "G3 — jsonl-orphan-scan.mjs (zero-deps; pure grep+fs; flags every state/shared/*.jsonl where lines>0 AND no codebase-grep consumer; surfaces ERROR_LEDGER.jsonl-class drift)",
-          "status": "not_started",
+          "status": "complete",
           "estimated_hours": 1,
-          "dependencies": []
+          "dependencies": [],
+          "completed_at": "2026-05-13T22:05:00.000Z",
+          "completion_notes": "Shipped scripts/jsonl-orphan-scan.mjs (496 LOC, zero deps) + scripts/__tests__/jsonl-orphan-scan.test.mjs (37 tests passing — parseArgs/countLines/findConsumers/scanJsonlOrphans/renderMarkdown/runCli round-trip/writeAtomic). Real-data run surfaced 3 orphan jsonls: fusion-pipeline-runs.jsonl(40), roadmap-pass-history.jsonl(12), adaptive-thresholds-history.jsonl(3). Per-file 2-parallel-agent scrutiny PASS (code-analyzer + reviewer); P1 fixes applied (atomic tmp+rename writeAtomic helper, dot-dir filter inversion clarified, skippedTooLarge/ReadError counters added to stats, mkdir-before-write, test-name strengthened with sample-consumers assertion + .tmp residue assertion). Advisory-only contract preserved (exit-0 always). Matches sibling audit-close-out-candidates.mjs conventions: --json, --frozen-time, --min-lines, schemaVersion:1, PRISM_AUDIT_FROZEN_TIME env fallback."
         },
         {
           "id": "U-CLEANUP-G11",

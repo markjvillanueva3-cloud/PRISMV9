@@ -1,6 +1,6 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-13T20:25:18.437Z
+> Generated: 2026-05-13T22:06:35.418Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
@@ -8,7 +8,7 @@
 - **2324** engines built and wired (of 3203)
 - **1073** wiki entries indexed
 - **879** engines awaiting dispatcher wiring
-- **3697** units pending across 81 active milestones
+- **3694** units pending across 81 active milestones
 - **2** codex frontend builds awaiting merge
 - **171** milestones with envelope-status drift
 
@@ -65,7 +65,7 @@
 
 ## NEEDS_BUILDING
 
-3697 units across 670 milestones not yet in git.
+3694 units across 670 milestones not yet in git.
 
 ### Envelope-status drift
 
@@ -251,6 +251,10 @@
 | CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A5 | A5 — golf-slot-write-allowlist.mjs PreToolUse T0 hook (path-resolve hardened against ../; allowlist-regex from golf-owned-paths.json; tier frontmatter; bypass env PRISM_GOLF_WRITE_ALLOWLIST_BYPASS=1) |
 | CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A6 | A6 — bootstrap-golf.mjs (mkdir .cron-locks, seed golf-owned-paths.json + golf-token-budget.json + golf-cron-registry.json; .gitignore additions for coordination.db* + .cron-locks/*.lock + .watchdog-last-poll.iso + golf-token-budget.json; detect & rebuild 0-byte coordination.db; git rm --cached on first run) |
 | CLEANUP-MS0 | engines-tier-1 | U-CLEANUP-C1 | C1 — WiringPotentialEngine.ts (analyze + analyzeBatch; R4-P0-1: routes through MasterIndexEngine.search via prism_session:master_index_query for candidate lookup — does NOT reimplement; reads node.knowledge.wikiEntries[] + memoryEntries[] pre-joins from graph; reserved for rationale-synthesis layer; consumes F7 capacity output) |
+| TRAINING-LEARNING-MS0 | lathe | U-TL-U1-LATHE-TEMPLATE-EXTRACTOR | LathePartFamilyTemplateExtractorEngine + corpus scanner |
+| TRAINING-LEARNING-MS0 | matchers | U-TL-U5-DOMAIN-MATCHERS | LathePartFamilyMatcherEngine + MillPartFamilyMatcherEngine + WEDMPartFamilyMatcherEngine |
+| TRAINING-LEARNING-MS0 | closed-loop | U-TL-U6-CONTINUOUS-LEARNING | TrainingTemplateContinuousLearningEngine (ingestLatheOutcome / ingestMillOutcome / ingestWEDMOutcome) |
+| TRAINING-LEARNING-MS0 | close-out | U-TL-U7-SKILL-AND-CLOSEOUT | /learn-corpus skill (args: lathe|mill|wedm|electrode-audit|status|match <part>) + ENGINE_DIGEST regen + 3-way scrutiny |
 | AUTO-LEARNING-LOOP-MS0 | P0 | U-ALL02 | Build `NoveltyDetectionEngine` (diff vs catalog) |
 | AUTO-LEARNING-LOOP-MS0 | P0 | U-ALL05 | Build `VizAutoAugmentationEngine` (emit augmentation file) |
 | AUTO-LEARNING-LOOP-MS0 | P0 | U-ALL07 | Wire 6 auto-learning actions |
@@ -267,10 +271,6 @@
 | INTEL-OLLAMA-OBSIDIAN-MS0 | P5 | P5-U05 | Wire prism_intelligence:diagnose_failure → DiagnosticReasoningEngine |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | P6 | P6-U02 | Add 4 hooks for unforced CLAUDE.md rules |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | P6 | P6-U03 | Awareness hook deduplication — pick 3 canonical, deprecate 10 |
-| TRAINING-LEARNING-MS0 | lathe | U-TL-U1-LATHE-TEMPLATE-EXTRACTOR | LathePartFamilyTemplateExtractorEngine + corpus scanner |
-| TRAINING-LEARNING-MS0 | wedm | U-TL-U4-WEDM-TEMPLATE-EXTRACTOR-AND-BRIDGE | WEDMPartFamilyTemplateExtractorEngine + TaptiteElectrodeMacroBridgeEngine (parsed-snapshot path) |
-| TRAINING-LEARNING-MS0 | matchers | U-TL-U5-DOMAIN-MATCHERS | LathePartFamilyMatcherEngine + MillPartFamilyMatcherEngine + WEDMPartFamilyMatcherEngine |
-| TRAINING-LEARNING-MS0 | closed-loop | U-TL-U6-CONTINUOUS-LEARNING | TrainingTemplateContinuousLearningEngine (ingestLatheOutcome / ingestMillOutcome / ingestWEDMOutcome) |
 
 **Next action:** Cross-reference MILESTONE_PROGRESS.json. Avoid units already in `shipped` arrays — those are committed but envelope status is stale.
 
@@ -293,7 +293,7 @@ Per-domain wired/unwired breakdown across 931 domain prefixes.
 | Domain | Total | Wired | Unwired | Coverage % |
 |--------|-------|-------|---------|-----------|
 | Other | 597 | 454 | 143 | 76% |
-| Lathe | 187 | 98 | 89 | 52% |
+| Lathe | 188 | 99 | 89 | 53% |
 | Machine | 45 | 28 | 17 | 62% |
 | Multi | 28 | 17 | 11 | 61% |
 | Turning | 24 | 13 | 11 | 54% |
