@@ -4,6 +4,7 @@ import process from "node:process";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { inferAgentIdentity, sanitizeIdentityKey } from "./agent-identity.mjs";
+import { startIpcServer } from "./coord-ipc-server.mjs";
 
 const FILES = {
   sharedRoot: "H:\\prism\\state\\shared",
@@ -12,6 +13,7 @@ const FILES = {
   statusJson: "H:\\prism\\state\\shared\\AGENT_COORDINATION_STATUS.json",
   statusMarkdown: "H:\\prism\\state\\shared\\AGENT_COORDINATION_STATUS.md",
   daemonState: "H:\\prism\\state\\shared\\AGENT_COORDINATION_DAEMON.json",
+  coordSummary: "H:\\prism\\state\\shared\\AGENT_COORDINATION_SUMMARY.json",
   cursorRoot: "H:\\prism\\state\\shared\\agent-coordination\\cursors",
   heartbeatDir: "H:\\prism\\state\\shared\\agent-coordination\\heartbeats",
   rpsChallenge: "H:\\prism\\state\\shared\\RPS_CHALLENGE.json",
@@ -254,6 +256,9 @@ async function runCommand() {
   const startedAt = new Date().toISOString();
   let debounceTimer = null;
 
+  // U-COORD11: cached snapshots served over IPC. Refreshed every `update()`.
+  let lastStatus = null;
+
   const update = async () => {
     const daemonState = {
       active: true,
@@ -263,7 +268,7 @@ async function runCommand() {
       watching: [FILES.chatJsonl, FILES.workboardJson, FILES.cursorRoot],
     };
     await writeDaemonState(daemonState);
-    await refreshStatus(daemonState);
+    lastStatus = await refreshStatus(daemonState);
   };
 
   const triggerUpdate = () => {
@@ -274,6 +279,34 @@ async function runCommand() {
   };
 
   await update();
+
+  // U-COORD11: start IPC server for hook queries. Skip entirely on env opt-out
+  // so the file-only path stays available without rewriting hooks.
+  let ipc = null;
+  if (process.env.PRISM_COORD_IPC_DISABLE !== "1") {
+    try {
+      ipc = await startIpcServer({
+        getStatus: () => lastStatus ?? readJson(FILES.statusJson, {}),
+        getCoordSummary: () => readJson(FILES.coordSummary, { note: "summary not generated" }),
+        getActiveSessions: () => {
+          const agents = lastStatus?.agents ?? [];
+          return agents.map((a) => ({
+            chatId: a?.session_key ?? a?.agent_instance ?? null,
+            lastSeen: a?.last_seen ?? null,
+            slot: a?.slot ?? null,
+            branch: a?.branch ?? null,
+            topic: a?.topic ?? null,
+            agent: a?.agent_family ?? a?.agent ?? null,
+          }));
+        },
+      });
+    } catch (err) {
+      // Non-fatal: daemon continues without IPC. Hooks fall back to file reads.
+      // eslint-disable-next-line no-console
+      console.error(`[coord-daemon] ipc server failed to start: ${err.message}`);
+    }
+  }
+
   const watcher = watchFs(FILES.sharedRoot, { persistent: true, recursive: true }, (_eventType, filename) => {
     const name = typeof filename === "string" ? filename : "";
     if (!name.startsWith("AGENT_") && !name.startsWith("agent-coordination")) {
@@ -289,6 +322,13 @@ async function runCommand() {
   const shutdown = async () => {
     clearInterval(heartbeat);
     watcher.close();
+    if (ipc) {
+      try {
+        await ipc.stop();
+      } catch {
+        // ignore — server already gone
+      }
+    }
     await writeDaemonState({
       active: false,
       pid: process.pid,
@@ -299,8 +339,26 @@ async function runCommand() {
     process.exit(0);
   };
 
+  // SIGINT/SIGTERM are the canonical exit signals on POSIX; SIGHUP fires when
+  // the parent terminal closes; SIGBREAK is the Windows Ctrl-Break equivalent.
+  // Covering all four means ipc.stop() always runs and the named pipe / UDS
+  // socket is reclaimed cleanly on every exit path that we can intercept.
   process.on("SIGINT", shutdown);
   process.on("SIGTERM", shutdown);
+  process.on("SIGHUP", shutdown);
+  if (process.platform === "win32") {
+    process.on("SIGBREAK", shutdown);
+  }
+  // Last-resort: uncaughtException / unhandledRejection — log + close pipe + exit.
+  // We don't try to recover; corrupt state is worse than a daemon restart.
+  process.on("uncaughtException", (err) => {
+    console.error(`[coord-daemon] uncaughtException: ${err?.stack ?? err}`);
+    shutdown().catch(() => process.exit(1));
+  });
+  process.on("unhandledRejection", (reason) => {
+    console.error(`[coord-daemon] unhandledRejection: ${reason}`);
+    shutdown().catch(() => process.exit(1));
+  });
 }
 
 /**
