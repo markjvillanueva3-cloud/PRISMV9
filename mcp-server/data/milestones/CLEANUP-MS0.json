@@ -275,11 +275,13 @@
         {
           "id": "U-CLEANUP-C4",
           "title": "C4 — /wiring-potential skill (operator query; returns top-5 candidates with rationale + ready-to-paste dispatcher edit)",
-          "status": "not_started",
+          "status": "complete",
           "estimated_hours": 1,
           "dependencies": [
             "U-CLEANUP-C2"
-          ]
+          ],
+          "completed_at": "2026-05-14T12:24:34.135Z",
+          "completed_note": "wiring-potential.md skill verified present (260 LOC, v1.0.1, wraps C1 engine + C2 action) — silent close-out debt"
         },
         {
           "id": "U-CLEANUP-C5",
@@ -465,9 +467,11 @@
         {
           "id": "U-CLEANUP-F6",
           "title": "F6 — 09-wiki-lint.ps1 (runs /wiki-lint daily; partial-success behavior on parse errors; writes WIKI_LINT_REPORT.md)",
-          "status": "not_started",
+          "status": "complete",
           "estimated_hours": 1,
-          "dependencies": []
+          "dependencies": [],
+          "completed_at": "2026-05-14T12:39:46.549Z",
+          "completed_note": "09-wiki-lint.ps1 daily wrapper; renders WIKI_LINT_REPORT.md from lint-wiki-orphans.mjs --write; partial-success on linter failure"
         },
         {
           "id": "U-CLEANUP-F7",
@@ -858,6 +862,6 @@
   "worktree": "H:/prism-golf-watchdog (branch: work/golf-watchdog-ms0)",
   "spec_iterations": 4,
   "operator_directive": "User asked to /loop scrutiny rounds until saturated; 152 cumulative findings across 3 rounds integrated; locked scope at 57 units (1 complete, 56 to build, 1 deferred)",
-  "last_updated": "2026-05-14T03:55:55.499Z",
-  "shipped_count": 47
+  "last_updated": "2026-05-14T12:39:46.564Z",
+  "shipped_count": 49
 }
