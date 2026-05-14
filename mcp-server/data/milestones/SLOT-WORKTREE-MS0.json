@@ -1,0 +1,311 @@
+{
+  "id": "SLOT-WORKTREE-MS0",
+  "title": "Per-Slot Worktree Architecture — Structural Multi-Chat Isolation + Fleet Hygiene",
+  "track": "INFRA-CONSOLIDATE",
+  "status": "in_progress",
+  "version": "1.0.0",
+  "schemaVersion": 2,
+  "created_at": "2026-05-14",
+  "updated_at": "2026-05-14",
+  "priority": "HIGH",
+  "target_omega": 0.92,
+  "description": "PIVOT from WORKTREE-CONSOLIDATE-MS0 (recovery-tool framing) to prevention-by-structure. The shared-tree pain — index.lock races, peer-file auto-staging, 48-worktree drift, 5,481-file dirty noise, leaked stashes, empty commits from a fake lint-staged config — keeps recurring because there is no STRUCTURAL separation between the 7 concurrent chats. Recovery tools cannot fix that; only architecture can. Target end state: 8 work slots (alpha..foxtrot + hotel + india) + golf (hygiene/integrator) = 9 canonical worktrees at H:/prism-slot-<name>, each on its own slot/<name> branch; H:/PRISM (main) becomes integration-only — slot chats READ it, never WRITE to it; only golf (integrator) fast-forwards cad-fusion-live-ms0. 8 chats can git commit concurrently with ZERO serialization because each touches a different .git/worktrees/<wt>/index.lock and a different ref lock.",
+  "context_doc": "state/shared/SLOT-WORKTREE-ARCHITECTURE.md",
+  "audit_doc": "state/shared/WORKTREE-AUDIT-2026-05-14.md",
+  "scrutiny_doc": "state/shared/WORKTREE-AGENT-ORPHAN-AUDIT.md",
+  "goals": [
+    "Eliminate the shared-tree commit-collision class by giving every chat its own worktree + branch",
+    "Reduce active worktree count from ~49 toward ~9 canonical + a bounded set of in-flight feature trees",
+    "Land the migration tooling (audit-worktrees, cherry-pick-consolidator, slot-worktree-bootstrap) so the drain is repeatable",
+    "Fix the root-cause infra bugs surfaced along the way (fake lint-staged config, push_delete guard false-positive)"
+  ],
+  "total_units": 14,
+  "total_units_history": [
+    { "at": "2026-05-14", "total": 14, "note": "envelope created post-hoc; P0 already shipped across 6 units this session, P1-P3 = 8 planned units" }
+  ],
+  "knowledge_sources": [
+    "state/shared/SLOT-WORKTREE-ARCHITECTURE.md",
+    "state/shared/WORKTREE-AUDIT-2026-05-14.json",
+    "state/shared/WORKTREE-AGENT-ORPHAN-AUDIT.md",
+    "knowledge/memories/reference_slot_worktree_ms0_phase0_rescue.md",
+    "knowledge/memories/reference_lintstaged_noop_config_eats_commits.md"
+  ],
+  "phases": [
+    {
+      "id": "P0-FOUNDATION",
+      "title": "Architecture + migration tooling + fleet-hygiene root-cause fixes",
+      "session": 1,
+      "smart_config": {
+        "role": "R3-Systems Architect + R5-Build Doctor",
+        "model": "opus-4.7",
+        "effort": "HIGH",
+        "context_budget": "40%"
+      },
+      "intent": "After this phase: the per-slot architecture is documented; audit-worktrees + cherry-pick-consolidator + slot-worktree-bootstrap exist and are scrutiny-verified; the 15 worktree-agent-* orphan branches are archive-tagged + reaped; the fake lint-staged config that silently ate commits is removed; the push_delete guard false-positive is fixed.",
+      "skills": ["/checkin", "/scrutinize", "/fleet-reaper"],
+      "plugins": ["Vitest MCP", "codebase-memory-mcp"],
+      "mcp_lifecycle": ["context_boot", "memory_recall", "auto_checkpoint", "memory_save"],
+      "exit_gate": {
+        "criteria": [
+          "SLOT-WORKTREE-ARCHITECTURE.md exists and documents the 9-canonical-worktree model",
+          "audit-worktrees.mjs + cherry-pick-consolidator.mjs + slot-worktree-bootstrap.mjs land in cad-fusion-live-ms0 with passing tests",
+          "all 15 worktree-agent-* orphan branches archive-tagged + deleted; tags pushed to origin",
+          "no fake lint-staged config remains (root .lintstagedrc.json absent, mcp-server/package.json lint-staged key removed); husky skips lint-staged via the no-config path",
+          "bash-destructive-guard push_delete rule no longer false-positives on chained commands",
+          "every P0 unit cleared a 3-of-3 scrutiny gate"
+        ],
+        "omega_floor": 0.92
+      },
+      "units": ["U-PHASE0", "U-PHASE0-FIX", "U-AGENT-ORPHAN-AUDIT", "U-AGENT-ORPHAN-REAP", "U-LINTSTAGED-FIX", "U-PUSH-GUARD-FIX"],
+      "compact_after": true
+    },
+    {
+      "id": "P1-ROUTING",
+      "title": "Slot-routing hooks — opt-in, then default-on",
+      "session": 2,
+      "smart_config": {
+        "role": "R3-Systems Architect + R6-Hook Engineer",
+        "model": "opus-4.7",
+        "effort": "HIGH",
+        "context_budget": "35%"
+      },
+      "intent": "After this phase: worktree-commit-route.mjs is activated (was dormant); git-add-lane-guard blocks staging files outside a chat's slot scope; main-tree-write-block prevents slot chats from writing to H:/PRISM directly. All three ship env-opt-in (default OFF) so the fleet can adopt incrementally; flip default-on once every chat is on a slot worktree.",
+      "skills": ["/scrutinize", "/checkin"],
+      "plugins": ["codebase-memory-mcp"],
+      "mcp_lifecycle": ["context_boot", "memory_recall", "memory_save"],
+      "exit_gate": {
+        "criteria": [
+          "worktree-commit-route.mjs activated with a documented whitelist + env knob (default OFF)",
+          "git-add-lane-guard hook shipped + tested (blocks cross-slot staging when armed)",
+          "main-tree-write-block hook shipped + tested (blocks slot-chat writes to H:/PRISM when armed)",
+          "each hook has a kill-switch env var + is wired into settings.json",
+          "3-of-3 scrutiny PASS on each hook"
+        ],
+        "omega_floor": 0.92
+      },
+      "units": ["U-P1-ROUTE-ACTIVATE", "U-P1-ADD-LANE-GUARD", "U-P1-MAINTREE-WRITE-BLOCK"],
+      "compact_after": true
+    },
+    {
+      "id": "P2-DRAIN",
+      "title": "Drain the non-canonical worktrees",
+      "session": 3,
+      "smart_config": {
+        "role": "R5-Build Doctor + R3-Systems Architect",
+        "model": "opus-4.7",
+        "effort": "HIGH",
+        "context_budget": "40%"
+      },
+      "intent": "After this phase: the ~40 non-canonical worktrees are drained — each one is a cherry-pick-consolidator dry-run -> operator review -> --execute -> worktree remove. Stranded commits land in merge-staging; dead trees are archive-tagged then pruned. Operator-gated: every drain needs scoped triage (the audit confirmed zero safe-autonomous landings exist today).",
+      "skills": ["/scrutinize", "/checkin"],
+      "plugins": ["codebase-memory-mcp"],
+      "mcp_lifecycle": ["context_boot", "memory_recall", "auto_checkpoint", "memory_save"],
+      "exit_gate": {
+        "criteria": [
+          "WORKTREE-AUDIT refreshed against current state (was 48-tree baseline 2026-05-14)",
+          "every INVESTIGATE-classified worktree triaged: drained-and-removed, or kept with a documented reason",
+          "stranded commits landed in merge-staging or explicitly abandoned with archive tags",
+          "active worktree count reduced toward ~9 canonical + bounded in-flight set",
+          "no commit lost — every removed worktree's unique commits verified reachable elsewhere first"
+        ],
+        "omega_floor": 0.92
+      },
+      "units": ["U-P2-AUDIT-REFRESH", "U-P2-DRAIN-BATCH-A", "U-P2-DRAIN-BATCH-B"],
+      "compact_after": true
+    },
+    {
+      "id": "P3-CUTOVER",
+      "title": "Bootstrap the canonical slot worktrees + flip routing default-on",
+      "session": 4,
+      "smart_config": {
+        "role": "R3-Systems Architect",
+        "model": "opus-4.7",
+        "effort": "MEDIUM",
+        "context_budget": "30%"
+      },
+      "intent": "After this phase: slot-worktree-bootstrap has created the 9 canonical H:/prism-slot-<name> worktrees with junctioned node_modules; the P1 routing hooks are flipped default-ON; /checkin binds each chat to its slot worktree; H:/PRISM is integration-only.",
+      "skills": ["/checkin", "/scrutinize"],
+      "plugins": ["codebase-memory-mcp"],
+      "mcp_lifecycle": ["context_boot", "memory_recall", "memory_save"],
+      "exit_gate": {
+        "criteria": [
+          "slot-worktree-bootstrap run: 9 canonical worktrees exist with junctioned node_modules",
+          "P1 routing hooks flipped default-ON (env knobs removed or inverted)",
+          "/checkin updated to bind chats to their slot worktree, not the main tree",
+          "a full fleet cycle (7 chats) runs without a shared-tree commit collision",
+          "WORKTREE-CONSOLIDATE-MS0 superseded-marker set (this milestone is its successor)"
+        ],
+        "omega_floor": 0.92
+      },
+      "units": ["U-P3-BOOTSTRAP", "U-P3-DEFAULT-ON"],
+      "compact_after": false
+    }
+  ],
+  "units": {
+    "U-PHASE0": {
+      "phase": "P0-FOUNDATION",
+      "title": "Per-slot worktree architecture + migration tooling",
+      "status": "complete",
+      "commits": ["e460e9326"],
+      "deliverables": [
+        "state/shared/SLOT-WORKTREE-ARCHITECTURE.md",
+        "scripts/audit-worktrees.mjs",
+        "scripts/cherry-pick-consolidator.mjs",
+        "scripts/slot-worktree-bootstrap.mjs",
+        "mcp-server/src/__tests__/cherry-pick-consolidator.test.mjs",
+        "state/shared/WORKTREE-AUDIT-2026-05-14.{md,json}"
+      ],
+      "note": "Orphan-rescue: claude-f4388359 authored it, blocked by index.lock; claude-2081f435 (slot charlie) landed it."
+    },
+    "U-PHASE0-FIX": {
+      "phase": "P0-FOUNDATION",
+      "title": "P0/P1 fixes from 3-of-3 scrutiny",
+      "status": "complete",
+      "commits": ["545c3d1da"],
+      "deliverables": [
+        "CJS require() -> ESM import in slot-worktree-bootstrap.mjs",
+        "makeJunction isDirectory -> lstatSync.isSymbolicLink",
+        "cherry-pick-consolidator git status --untracked-files=no",
+        "recordState catch block fails loud to stderr"
+      ]
+    },
+    "U-AGENT-ORPHAN-AUDIT": {
+      "phase": "P0-FOUNDATION",
+      "title": "Verify 15 worktree-agent-* orphan branches",
+      "status": "complete",
+      "commits": ["2707a9aca"],
+      "empty_precursors": ["979afafc2", "902086553"],
+      "deliverables": ["state/shared/WORKTREE-AGENT-ORPHAN-AUDIT.md"],
+      "note": "Read-only audit: all 15 branches verified zero unique commits vs main + work/merge-staging-ms0 + work/intel-ollama-obsidian-ms0. 2 empty precursor commits caused by the lint-staged bug (see U-LINTSTAGED-FIX)."
+    },
+    "U-AGENT-ORPHAN-REAP": {
+      "phase": "P0-FOUNDATION",
+      "title": "Archive-tag + delete 15 worktree-agent-* branches",
+      "status": "complete",
+      "deliverables": [
+        "15 archive/worktree-agent-<hash>/2026-05-14 tags created + pushed to origin",
+        "15 worktree-agent-* local branches deleted"
+      ],
+      "note": "Reversible: every commit preserved by the archive tags (first-class refs, GC-safe)."
+    },
+    "U-LINTSTAGED-FIX": {
+      "phase": "P0-FOUNDATION",
+      "title": "Remove the fake lint-staged config that silently ate commits",
+      "status": "complete",
+      "commits": ["9b98ae9dc", "5c85b6480", "be1c1b3cc"],
+      "deliverables": [
+        "root .lintstagedrc.json removed (peer cd1a0fc16 + this session's stale-disk-copy rm)",
+        "mcp-server/package.json lint-staged key removed entirely",
+        "_lint-staged_removed_2026-05-14 doc key explaining both failure modes"
+      ],
+      "note": "Both glob forms were buggy: no-match glob DROPS staged files (empty commits); catch-all glob RE-STAGES every modified file (over-stage). No config = husky's no-op skip path = correct."
+    },
+    "U-PUSH-GUARD-FIX": {
+      "phase": "P0-FOUNDATION",
+      "title": "Fix bash-destructive-guard push_delete false-positive",
+      "status": "complete",
+      "commits": ["cee36cf18"],
+      "deliverables": ["bash-destructive-guard.mjs push_delete pattern [^#\\n]* -> [^#\\n&;|]*"],
+      "note": "The greedy span ran across the whole compound command, so any colon in a chained command false-tripped the :refspec branch-delete pattern. 3 false-positives escalated the blast-dampener and hard-blocked all pushes."
+    },
+    "U-P1-ROUTE-ACTIVATE": {
+      "phase": "P1-ROUTING",
+      "title": "Activate dormant worktree-commit-route.mjs hook",
+      "status": "not_started",
+      "deliverables": ["worktree-commit-route.mjs activated, env-opt-in, documented whitelist"]
+    },
+    "U-P1-ADD-LANE-GUARD": {
+      "phase": "P1-ROUTING",
+      "title": "Ship git-add-lane-guard hook",
+      "status": "not_started",
+      "deliverables": ["git-add-lane-guard.mjs — blocks staging files outside the chat's slot scope when armed"]
+    },
+    "U-P1-MAINTREE-WRITE-BLOCK": {
+      "phase": "P1-ROUTING",
+      "title": "Ship main-tree-write-block hook",
+      "status": "not_started",
+      "deliverables": ["main-tree-write-block.mjs — blocks slot-chat writes to H:/PRISM when armed"]
+    },
+    "U-P2-AUDIT-REFRESH": {
+      "phase": "P2-DRAIN",
+      "title": "Refresh the worktree audit against current state",
+      "status": "not_started",
+      "deliverables": ["WORKTREE-AUDIT-<date>.{md,json} regenerated via audit-worktrees.mjs"]
+    },
+    "U-P2-DRAIN-BATCH-A": {
+      "phase": "P2-DRAIN",
+      "title": "Drain INVESTIGATE-classified worktrees (batch A)",
+      "status": "not_started",
+      "deliverables": ["~half the non-canonical worktrees triaged + drained + removed"]
+    },
+    "U-P2-DRAIN-BATCH-B": {
+      "phase": "P2-DRAIN",
+      "title": "Drain INVESTIGATE-classified worktrees (batch B)",
+      "status": "not_started",
+      "deliverables": ["remaining non-canonical worktrees triaged + drained + removed"]
+    },
+    "U-P3-BOOTSTRAP": {
+      "phase": "P3-CUTOVER",
+      "title": "Bootstrap the 9 canonical slot worktrees",
+      "status": "not_started",
+      "deliverables": ["slot-worktree-bootstrap run; 9 H:/prism-slot-<name> worktrees with junctioned node_modules"]
+    },
+    "U-P3-DEFAULT-ON": {
+      "phase": "P3-CUTOVER",
+      "title": "Flip routing hooks default-on + supersede WORKTREE-CONSOLIDATE-MS0",
+      "status": "not_started",
+      "deliverables": [
+        "P1 routing hooks default-ON",
+        "/checkin binds chats to slot worktrees",
+        "WORKTREE-CONSOLIDATE-MS0 marked superseded"
+      ]
+    }
+  },
+  "forge_triple": {
+    "protective_hook": {
+      "name": "worktree-commit-route + git-add-lane-guard + main-tree-write-block",
+      "scope": "PreToolUse:Bash on git commit/add; PreToolUse:Write/Edit on H:/PRISM paths from a slot chat",
+      "ownership": "DECLARED (P1-ROUTING) — worktree-commit-route.mjs exists dormant; the other two are new",
+      "consumed_by": ["U-P3-DEFAULT-ON"]
+    },
+    "mcp_action": {
+      "name": "(none — script-level)",
+      "consumer_intent": "audit-worktrees.mjs + cherry-pick-consolidator.mjs are callable via Bash directly; dispatcher wiring deferred unless usage demands",
+      "ownership": "BUILT (script-level, U-PHASE0)"
+    },
+    "skill_command": {
+      "name": "/checkin (extended) + /fleet-reaper",
+      "trigger": "/checkin binds a chat to its slot; /fleet-reaper keeps slot-attributed process hygiene running",
+      "ownership": "BUILT (/checkin, /fleet-reaper both shipped); P3 extends /checkin to bind slot worktrees"
+    }
+  },
+  "enforcement": {
+    "pre_level": "duplication-guard + inventory-check on any new hook/script",
+    "post_level": "3-of-3 scrutiny gate on every unit; affected-test run after engine/hook edits",
+    "compact_level": "per-chat handoff + memory save after each phase",
+    "post_compact": "/checkin re-run to refresh slot heartbeat"
+  },
+  "cross_track_dependencies": [
+    "WORKTREE-CONSOLIDATE-MS0 — this milestone is its prevention-by-structure successor; P3 marks it superseded",
+    "HOOK-SYNERGY-MS0 — P1 routing hooks layer on the hook-tier + fast-lane infra shipped there"
+  ],
+  "scrutiny_log": [
+    { "session": "phase0-rescue-fixed-1778779710", "unit": "U-PHASE0 + U-PHASE0-FIX", "verdict": "3-of-3 PASS" },
+    { "session": "agent-orphan-audit-land-1778779710", "unit": "U-AGENT-ORPHAN-AUDIT", "verdict": "3-of-3 PASS" }
+  ],
+  "rollback_plan": {
+    "P0": "All P0 commits are additive (new scripts + docs) or reversible (archive tags preserve the reaped branches; lint-staged config removal restores the documented no-op-when-absent husky path). git revert any P0 commit cleanly.",
+    "P1": "Routing hooks ship env-opt-in (default OFF) — rollback is leaving the env var unset, or git revert the hook.",
+    "P2": "Every worktree drain archive-tags before removal; recover via git checkout <archive-tag>.",
+    "P3": "Default-on flip is an env-var inversion — revert by re-setting the opt-in default."
+  },
+  "execution_log": [
+    { "at": "2026-05-14", "by": "claude-2081f435 (slot charlie)", "event": "P0-FOUNDATION complete — 6 units shipped, envelope created post-hoc" }
+  ],
+  "out_of_scope": [
+    "Migrating the JM Die test-shop worktrees (separate concern)",
+    "The generic locks/claims/bash reaper layer (owned by cleanup-orchestrator + /fleet-reaper)",
+    "Restoring real lint-staged tsc checks (tracked in mcp-server/package.json _lint-staged_removed doc key — needs tsc-files)"
+  ],
+  "estimated_effort": "4 sessions (P0 complete; P1-P3 ~1 session each)"
+}
