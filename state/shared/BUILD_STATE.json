@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-14T17:36:09.142Z",
+  "generatedAt": "2026-05-14T18:11:16.100Z",
   "headline": {
     "built_engines": 2365,
     "built_with_wiki": 1005,
     "needs_wiring": 870,
-    "needs_building_active_units": 3663,
+    "needs_building_active_units": 3660,
     "needs_frontend_merge_count": 2,
-    "pending_milestones_with_activity": 72,
-    "drift_milestones": 173,
-    "stale_milestones": 231,
+    "pending_milestones_with_activity": 73,
+    "drift_milestones": 174,
+    "stale_milestones": 230,
     "domains_tracked": 932
   },
   "sources": {
@@ -8779,7 +8779,7 @@
     ]
   },
   "STALE_MILESTONES": {
-    "summary": "231 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).",
+    "summary": "230 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).",
     "threshold_days": 30,
     "rows": [
       {
@@ -8851,15 +8851,6 @@
         "pending": 30,
         "shipped": 0,
         "total": 30,
-        "lastShippedDate": null,
-        "reason": "never_started"
-      },
-      {
-        "id": "COMMAND-KERNEL-MS0",
-        "track": "BACKEND-DEVTOOLS",
-        "pending": 29,
-        "shipped": 0,
-        "total": 29,
         "lastShippedDate": null,
         "reason": "never_started"
       },
@@ -9141,12 +9132,21 @@
         "total": 10,
         "lastShippedDate": null,
         "reason": "never_started"
+      },
+      {
+        "id": "CPL-MS2",
+        "track": "",
+        "pending": 10,
+        "shipped": 0,
+        "total": 10,
+        "lastShippedDate": null,
+        "reason": "never_started"
       }
     ],
     "next_action": "Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift."
   },
   "NEEDS_BUILDING": {
-    "summary": "3663 units across 671 milestones not yet in git.",
+    "summary": "3660 units across 671 milestones not yet in git.",
     "drift_cases": [
       {
         "id": "CC-EXT-MS0",
@@ -9737,6 +9737,12 @@
         "drift": "claims_not_started_but_has_shipped_units"
       },
       {
+        "id": "COMMAND-KERNEL-MS0",
+        "claimed": "not_started",
+        "real": "in_progress_real",
+        "drift": "claims_not_started_but_has_shipped_units"
+      },
+      {
         "id": "BP-MS0",
         "claimed": "not_started",
         "real": "in_progress_real",
@@ -10189,6 +10195,30 @@
     ],
     "top_pending_units": [
       {
+        "milestone": "COMMAND-KERNEL-MS0",
+        "unit": "U-CK02",
+        "title": "psk whoami / position / manifest syscalls",
+        "phase": "P0"
+      },
+      {
+        "milestone": "COMMAND-KERNEL-MS0",
+        "unit": "U-CK03",
+        "title": "psk handoff / checkin / pick syscalls",
+        "phase": "P0"
+      },
+      {
+        "milestone": "COMMAND-KERNEL-MS0",
+        "unit": "U-CK04",
+        "title": "knowledge/wiki/os/ namespace + entity frontmatter schema",
+        "phase": "P0"
+      },
+      {
+        "milestone": "COMMAND-KERNEL-MS0",
+        "unit": "U-CK05",
+        "title": "Generated-mirror generators (JSON registries become mirrors of os/ entities)",
+        "phase": "P0"
+      },
+      {
         "milestone": "CLEANUP-MS0",
         "unit": "U-CLEANUP-A1",
         "title": "A1 — extend SLOT_NAMES in chat-slots.mjs to add 'golf' (NATO phonetic continuity)",
@@ -10208,8 +10238,8 @@
       },
       {
         "milestone": "CLEANUP-MS0",
-        "unit": "U-CLEANUP-B6",
-        "title": "B6 — 06-peer-audit-tick.ps1 (invokes WatchdogEngine via node -e import; NOT MCP HTTP bridge per R1; sets PRISM_GOLF_TICK=1 env var so Stop gates short-circuit)",
+        "unit": "U-CLEANUP-B7",
+        "title": "B7 — /peer-audit skill (READ-ONLY operator query; never mutates ledger; mutations only via prism_dev dispatcher action with audit trail)",
         "phase": "operator-surfaces-tier-3"
       },
       {
@@ -10307,30 +10337,6 @@
         "unit": "P2-U05",
         "title": "Port Thermal Partition + Power/Torque",
         "phase": "P2"
-      },
-      {
-        "milestone": "SCIMATH-MS1",
-        "unit": "P2-U05",
-        "title": "FEMThermalCoupledEngine — sequential/staggered coupling",
-        "phase": "P2"
-      },
-      {
-        "milestone": "SCIMATH-MS5",
-        "unit": "P2-U05",
-        "title": "AcceptanceSamplingEngine — configurable AQL + switching rules",
-        "phase": "P2"
-      },
-      {
-        "milestone": "WIRE-MS0",
-        "unit": "P2-U05",
-        "title": "Welding & Joining Page — CREATE NEW",
-        "phase": ""
-      },
-      {
-        "milestone": "TRAINING-LEARNING-MS0",
-        "unit": "U-TL-U1-LATHE-TEMPLATE-EXTRACTOR",
-        "title": "LathePartFamilyTemplateExtractorEngine + corpus scanner",
-        "phase": "lathe"
       }
     ],
     "next_action": "Cross-reference MILESTONE_PROGRESS.json. Avoid units already in `shipped` arrays — those are committed but envelope status is stale."

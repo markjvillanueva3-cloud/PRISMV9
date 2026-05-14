@@ -1,6 +1,6 @@
 # MILESTONE_PROGRESS — what's actually shipped vs claimed
 
-> Generated: 2026-05-14T17:36:30.281Z
+> Generated: 2026-05-14T18:11:15.811Z
 > Window: last 60.days of git log across all branches
 > Source: `scripts/build-milestone-progress.mjs`
 
@@ -19,15 +19,16 @@ flagging a unit as missing.
 
 - Milestones loaded:        **671**
 - Units across all MS:      **4935**
-- Units shipped (in git):   **1273**
-- Units pending:            **3662**
-- Drift cases:              **173** (envelope status disagrees with git reality)
+- Units shipped (in git):   **1275**
+- Units pending:            **3660**
+- Drift cases:              **174** (envelope status disagrees with git reality)
 
 ## Top recently-active milestones (last shipped → first)
 
 | Milestone | Track | Status (claimed) | Status (real) | Shipped/Total | Last commit |
 |-----------|-------|------------------|---------------|---------------|-------------|
-| CLEANUP-MS0 | CLEANUP | in_progress | in_progress_real | 58/73 (79%) | 2026-05-14 |
+| COMMAND-KERNEL-MS0 | BACKEND-DEVTOOLS | not_started | in_progress_real | 1/29 (3%) | 2026-05-14 |
+| CLEANUP-MS0 | CLEANUP | in_progress | in_progress_real | 59/73 (81%) | 2026-05-14 |
 | COORD-MS0 | INFRA | unknown | in_progress_real | 9/12 (75%) | 2026-05-14 |
 | AI-MAX-MS0 | AI-MAX | in_progress | in_progress_real | 3/12 (25%) | 2026-05-13 |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | INFRA | not_started | in_progress_real | 80/92 (87%) | 2026-05-13 |
@@ -56,7 +57,6 @@ flagging a unit as missing.
 | CC-EXT-MS4 | — | not_started | completed_real | 5/5 (100%) | 2026-05-13 |
 | CC-EXT-MS5 | — | not_started | completed_real | 5/5 (100%) | 2026-05-13 |
 | CC-EXT-MS6 | — | not_started | in_progress_real | 5/6 (83%) | 2026-05-13 |
-| L0-NEW-MS0 | — | not_started | completed_real | 3/3 (100%) | 2026-05-13 |
 
 ## Drift cases (claim vs git disagrees)
 
@@ -140,7 +140,7 @@ flagging a unit as missing.
 | MS-CAM-MASTERY | 34 | 34 | 0/34 |
 | MS-AUDIT-DERIVED-2026-05-10 | 30 | 30 | 0/30 |
 | MS2 | 30 | 30 | 0/30 |
-| COMMAND-KERNEL-MS0 | 29 | 29 | 0/29 |
+| COMMAND-KERNEL-MS0 | 28 | 29 | 1/29 |
 | EMP-MS0 | 28 | 28 | 0/28 |
 | BP-MS0 | 27 | 28 | 1/28 |
 | MS-TRAIN-DEEP | 26 | 26 | 0/26 |

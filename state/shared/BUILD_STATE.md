@@ -1,6 +1,6 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-14T17:36:09.142Z
+> Generated: 2026-05-14T18:11:16.100Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
@@ -8,9 +8,9 @@
 - **2365** engines built and wired (of 3235)
 - **1005** wiki entries indexed
 - **870** engines awaiting dispatcher wiring
-- **3663** units pending across 72 active milestones
+- **3660** units pending across 73 active milestones
 - **2** codex frontend builds awaiting merge
-- **173** milestones with envelope-status drift
+- **174** milestones with envelope-status drift
 
 ## BUILT
 
@@ -65,7 +65,7 @@
 
 ## NEEDS_BUILDING
 
-3663 units across 671 milestones not yet in git.
+3660 units across 671 milestones not yet in git.
 
 ### Envelope-status drift
 
@@ -169,6 +169,7 @@
 | ACP-MS6 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | ACP-MS7 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | APP-MS0 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| COMMAND-KERNEL-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | BP-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | CCM-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | CCM-MS1 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
@@ -249,10 +250,14 @@
 
 | Milestone | Phase | Unit | Title |
 |-----------|-------|------|-------|
+| COMMAND-KERNEL-MS0 | P0 | U-CK02 | psk whoami / position / manifest syscalls |
+| COMMAND-KERNEL-MS0 | P0 | U-CK03 | psk handoff / checkin / pick syscalls |
+| COMMAND-KERNEL-MS0 | P0 | U-CK04 | knowledge/wiki/os/ namespace + entity frontmatter schema |
+| COMMAND-KERNEL-MS0 | P0 | U-CK05 | Generated-mirror generators (JSON registries become mirrors of os/ entities) |
 | CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A1 | A1 — extend SLOT_NAMES in chat-slots.mjs to add 'golf' (NATO phonetic continuity) |
 | CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A5 | A5 — golf-slot-write-allowlist.mjs PreToolUse T0 hook (path-resolve hardened against ../; allowlist-regex from golf-owned-paths.json; tier frontmatter; bypass env PRISM_GOLF_WRITE_ALLOWLIST_BYPASS=1) |
 | CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A6 | A6 — bootstrap-golf.mjs (mkdir .cron-locks, seed golf-owned-paths.json + golf-token-budget.json + golf-cron-registry.json; .gitignore additions for coordination.db* + .cron-locks/*.lock + .watchdog-last-poll.iso + golf-token-budget.json; detect & rebuild 0-byte coordination.db; git rm --cached on first run) |
-| CLEANUP-MS0 | operator-surfaces-tier-3 | U-CLEANUP-B6 | B6 — 06-peer-audit-tick.ps1 (invokes WatchdogEngine via node -e import; NOT MCP HTTP bridge per R1; sets PRISM_GOLF_TICK=1 env var so Stop gates short-circuit) |
+| CLEANUP-MS0 | operator-surfaces-tier-3 | U-CLEANUP-B7 | B7 — /peer-audit skill (READ-ONLY operator query; never mutates ledger; mutations only via prism_dev dispatcher action with audit trail) |
 | COORD-MS0 |  | U-COORD02 | Add Optimistic Locking with Version Field |
 | COORD-MS0 |  | U-COORD09 | Ambient Awareness Badge |
 | COORD-MS0 |  | U-COORD12 | Checksum Validation on Read |
@@ -269,10 +274,6 @@
 | CAD-INFRA-MS0 |  | U-CINF03 | CADTestStateSchema — per-file atomic state |
 | CAD-INFRA-MS0 |  | U-CINF05 | CADTestCheckpointEngine — resumable state every 100 files |
 | S1-MS2 | P2 | P2-U05 | Port Thermal Partition + Power/Torque |
-| SCIMATH-MS1 | P2 | P2-U05 | FEMThermalCoupledEngine — sequential/staggered coupling |
-| SCIMATH-MS5 | P2 | P2-U05 | AcceptanceSamplingEngine — configurable AQL + switching rules |
-| WIRE-MS0 |  | P2-U05 | Welding & Joining Page — CREATE NEW |
-| TRAINING-LEARNING-MS0 | lathe | U-TL-U1-LATHE-TEMPLATE-EXTRACTOR | LathePartFamilyTemplateExtractorEngine + corpus scanner |
 
 **Next action:** Cross-reference MILESTONE_PROGRESS.json. Avoid units already in `shipped` arrays — those are committed but envelope status is stale.
 
@@ -327,7 +328,7 @@ Per-domain wired/unwired breakdown across 932 domain prefixes.
 
 ## STALE_MILESTONES
 
-231 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).
+230 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).
 
 | Milestone | Track | Reason | Pending | Shipped/Total | Last shipped |
 |-----------|-------|--------|---------|---------------|--------------|
@@ -339,7 +340,6 @@ Per-domain wired/unwired breakdown across 932 domain prefixes.
 | MS-CAM-MASTERY | revenue | never_started | 34 | 0/34 | never |
 | MS-AUDIT-DERIVED-2026-05-10 | audit-derived | never_started | 30 | 0/30 | never |
 | MS2 | revenue | never_started | 30 | 0/30 | never |
-| COMMAND-KERNEL-MS0 | BACKEND-DEVTOOLS | never_started | 29 | 0/29 | never |
 | MS-TRAIN-DEEP | revenue | never_started | 26 | 0/26 | never |
 | CADCAM-AGI-MS0 | CAD-CAM-AGI | never_started | 24 | 0/24 | never |
 | MS-SFC-CALIBRATE | revenue | never_started | 24 | 0/24 | never |
@@ -361,6 +361,7 @@ Per-domain wired/unwired breakdown across 932 domain prefixes.
 | MS-LEGAL | revenue | never_started | 13 | 0/13 | never |
 | CAMX-MS3 | — | never_started | 12 | 0/12 | never |
 | CAMX-MS4 | — | never_started | 12 | 0/12 | never |
+| CAMX-V17-P3 | — | never_started | 12 | 0/12 | never |
 
 **Next action:** Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift.
 
