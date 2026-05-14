@@ -304,6 +304,85 @@ const adaptive_wear_analyze = z.object({
 }).passthrough();
 
 // ============================================================================
+// ORPHAN-RESCUE: VariabilityEnvelopeEngine — probabilistic parameter boundaries
+// ============================================================================
+
+// Shared sub-schema for a VariabilityEnvelope (camelCase matches the engine
+// interface; .passthrough() tolerates the engine-managed lastUpdated field).
+// HARDENING: VariabilityEnvelopeEngine is a process-lifetime stateful singleton —
+// set_envelope/import write straight into it, and calculatePercentile divides by
+// (p95-p50), (p99-p95), (p999-p99). Non-finite or non-monotone percentiles would
+// permanently poison every later evaluate() on that parameter (NaN/Infinity, no
+// recovery short of a server restart). So: .finite() on every numeric, .positive()
+// on the percentile boundaries, and a strict-monotonic .refine().
+const _variabilityEnvelopeShape = z.object({
+  parameter: z.string().describe("Parameter name"),
+  nominal: z.number().finite().describe("Nominal/expected value"),
+  unit: z.string().describe("Unit of measure"),
+  distribution: z.enum(["normal", "lognormal", "empirical", "beta"]).describe("Distribution model"),
+  p50: z.number().finite().positive().describe("50th percentile"),
+  p95: z.number().finite().positive().describe("95th percentile"),
+  p99: z.number().finite().positive().describe("99th percentile"),
+  p999: z.number().finite().positive().describe("99.9th percentile"),
+  outlierCapture: z.boolean().describe("Whether outliers above p999 are buffered for expansion"),
+  sampleCount: z.number().finite().nonnegative().describe("Number of samples backing this envelope"),
+  lastUpdated: z.string().optional().describe("ISO timestamp — engine overwrites on set"),
+  context: z.record(z.string(), z.any()).optional().describe("Optional envelope context"),
+}).passthrough().refine(
+  (e) => e.p50 < e.p95 && e.p95 < e.p99 && e.p99 < e.p999,
+  { message: "percentiles must be strictly increasing (p50 < p95 < p99 < p999) — calculatePercentile divides by the gaps" },
+);
+
+// Shared sub-schema for expansion evidence (value + outcome pairs).
+// .finite() on value closes the Infinity-evidence -> Infinity-proposedP999 path.
+const _variabilityEvidence = z.array(z.object({
+  value: z.number().finite().describe("Observed parameter value"),
+  outcome: z.enum(["success", "marginal", "failure"]).describe("Outcome of running at that value"),
+})).describe("Outlier evidence — needs >=3 'success' values above current p999 to yield a proposal");
+
+const variability_evaluate = z.object({
+  parameter: z.string().describe("Parameter name (e.g. spindle_rpm, feed_rate, depth_of_cut)"),
+  value: z.number().describe("Observed value to score against the envelope"),
+  context: z.record(z.string(), z.any()).optional().describe("Optional evaluation context"),
+}).passthrough();
+
+const variability_get_envelope = z.object({
+  parameter: z.string().describe("Parameter name to fetch the envelope for"),
+}).passthrough();
+
+const variability_set_envelope = z.object({
+  parameter: z.string().describe("Parameter name the envelope is keyed under"),
+  envelope: _variabilityEnvelopeShape.describe("Full VariabilityEnvelope to store"),
+}).passthrough();
+
+const variability_expand = z.object({
+  parameter: z.string().describe("Parameter name to propose a p999 expansion for"),
+  evidence: _variabilityEvidence,
+}).passthrough();
+
+const variability_apply_expansion = z.object({
+  proposal: z.object({
+    parameter: z.string().describe("Parameter name"),
+    currentP999: z.number().finite().positive().describe("Current p999 boundary"),
+    proposedP999: z.number().finite().positive().describe("Proposed new p999 boundary"),
+    evidence: _variabilityEvidence,
+    confidenceGain: z.number().finite().describe("Fraction of evidence that was a successful outlier"),
+    riskAssessment: z.enum(["low", "medium", "high"]).describe("Risk of accepting the expansion"),
+  }).passthrough().refine(
+    (p) => p.proposedP999 > p.currentP999,
+    { message: "proposedP999 must exceed currentP999 — expandEnvelope only ever proposes upward, and applyExpansion overwrites p999 in place (must stay > p99)" },
+  ).describe("EnvelopeExpansionProposal produced by variability_expand"),
+}).passthrough();
+
+const variability_export = z.object({}).passthrough();
+
+const variability_import = z.object({
+  data: z.record(z.string(), _variabilityEnvelopeShape).describe("Map of parameter -> VariabilityEnvelope to merge in"),
+}).passthrough();
+
+const variability_outliers = z.object({}).passthrough();
+
+// ============================================================================
 // EXPORT MAP
 // ============================================================================
 
@@ -332,4 +411,13 @@ export const ADAPTIVE_CONTROL_ACTION_SCHEMAS: ActionSchemaMap = {
   adaptive_override_calc,
   adaptive_thermal_analyze,
   adaptive_wear_analyze,
+  // ORPHAN-RESCUE: VariabilityEnvelopeEngine
+  variability_evaluate,
+  variability_get_envelope,
+  variability_set_envelope,
+  variability_expand,
+  variability_apply_expansion,
+  variability_export,
+  variability_import,
+  variability_outliers,
 };

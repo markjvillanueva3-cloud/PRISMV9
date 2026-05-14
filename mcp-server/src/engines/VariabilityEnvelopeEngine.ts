@@ -42,7 +42,7 @@ export interface EnvelopeExpansionProposal {
   riskAssessment: "low" | "medium" | "high";
 }
 
-class VariabilityEnvelopeEngine {
+export class VariabilityEnvelopeEngine {
   private envelopes: Map<string, VariabilityEnvelope> = new Map();
   private outlierBuffer: Map<string, number[]> = new Map();
 

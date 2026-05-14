@@ -24,27 +24,13 @@ related:
 
 ## Sample actions (first 12)
 
-- `afc`
-- `asc`
-- `bay`
-- `tla`
-- `dts`
-- `acal`
-- `adaChat`
-- `adaChip`
-- `adaOver`
-- `adaTherm`
-- `adaWear`
-- `adaptive_feed`
+_(no actions wired)_
 
-_…and 22 more. See full enum in dispatcher source._
+
 
 ## Engine consumers (L5 edges)
 
-- `eng.adaptive` — adaptive (36 engines)
-- `eng.hook` — hook (9 engines)
-- `eng.other` — other (510 engines)
-- `eng.tool` — tool (83 engines)
+- `eng.adaptive` — Adaptive (70)
 
 ## Doctrine
 

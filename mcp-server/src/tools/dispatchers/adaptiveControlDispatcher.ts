@@ -19,6 +19,7 @@ import { hookExecutor } from "../../engines/HookExecutor.js";
 
 let _afc: any, _asc: any, _bay: any, _tla: any, _dts: any, _acal: any;
 let _adaChat: any, _adaChip: any, _adaOver: any, _adaTherm: any, _adaWear: any;
+let _var: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "afc": return _afc ??= (await import("../../engines/AdaptiveFeedControlEngine.js")).adaptiveFeedControlEngine;
@@ -33,6 +34,9 @@ async function getEngine(name: string): Promise<any> {
     case "adaOver": return _adaOver ??= (await import("../../engines/AdaptiveOverrideEngine.js")).AdaptiveOverrideEngine;
     case "adaTherm": return _adaTherm ??= (await import("../../engines/AdaptiveThermalEngine.js")).AdaptiveThermalEngine;
     case "adaWear": return _adaWear ??= (await import("../../engines/AdaptiveWearEngine.js")).AdaptiveWearEngine;
+    // ORPHAN-RESCUE: VariabilityEnvelopeEngine — probabilistic parameter boundaries
+    // (stateful singleton — envelopes + outlier buffer persist across calls)
+    case "var": return _var ??= (await import("../../engines/VariabilityEnvelopeEngine.js")).variabilityEnvelopeEngine;
     default: throw new Error(`Unknown adaptive control engine: ${name}`);
   }
 }
@@ -48,6 +52,10 @@ const ACTIONS = [
   // ENGINE-WIRE-MS0/U-WIRE01: leaf adaptive primitives
   "adaptive_chatter_analyze", "adaptive_chipload_analyze",
   "adaptive_override_calc", "adaptive_thermal_analyze", "adaptive_wear_analyze",
+  // ORPHAN-RESCUE: VariabilityEnvelopeEngine — probabilistic parameter boundaries
+  "variability_evaluate", "variability_get_envelope", "variability_set_envelope",
+  "variability_expand", "variability_apply_expansion",
+  "variability_export", "variability_import", "variability_outliers",
 ] as const;
 
 /** Registers adaptive control dispatcher.
@@ -215,6 +223,83 @@ Params vary by action — pass relevant fields in params object.`,
             result = Eng.analyze(params);
             break;
           }
+          // ── ORPHAN-RESCUE: VariabilityEnvelopeEngine ──────────────────
+          case "variability_evaluate": {
+            const eng = await getEngine("var");
+            // evaluate() has a side effect on an UNKNOWN parameter — it mints +
+            // stores a default envelope. Surface that so a typo'd parameter name
+            // doesn't silently pollute the singleton without the caller knowing.
+            const created = !eng.getEnvelope(params.parameter);
+            result = { ...eng.evaluate(params.parameter, params.value, params.context), created };
+            break;
+          }
+          case "variability_get_envelope": {
+            const eng = await getEngine("var");
+            const envelope = eng.getEnvelope(params.parameter);
+            // slimResponse strips a null envelope — `found` carries the signal regardless.
+            result = { parameter: params.parameter, found: !!envelope, envelope: envelope ?? null };
+            break;
+          }
+          case "variability_set_envelope": {
+            const eng = await getEngine("var");
+            // Force envelope.parameter to match the Map key — otherwise the stored
+            // object can self-identify as a different parameter than its key,
+            // corrupting exportEnvelopes / downstream consumers.
+            eng.setEnvelope(params.parameter, { ...params.envelope, parameter: params.parameter });
+            result = { parameter: params.parameter, stored: true, envelope: eng.getEnvelope(params.parameter) };
+            break;
+          }
+          case "variability_expand": {
+            const eng = await getEngine("var");
+            const proposal = eng.expandEnvelope(params.parameter, params.evidence ?? []);
+            // expandEnvelope returns null when there aren't >=3 successful outliers above p999.
+            result = { parameter: params.parameter, hasProposal: !!proposal, proposal: proposal ?? null };
+            break;
+          }
+          case "variability_apply_expansion": {
+            const eng = await getEngine("var");
+            const proposal = params.proposal;
+            // applyExpansion silently no-ops if the parameter has no envelope —
+            // check first so `applied` is honest (R12: fail loud, don't claim
+            // success on a no-op).
+            const before = eng.getEnvelope(proposal?.parameter);
+            if (!before) {
+              result = { parameter: proposal?.parameter, applied: false, reason: "parameter_not_found" };
+              break;
+            }
+            eng.applyExpansion(proposal);
+            result = {
+              parameter: proposal.parameter,
+              applied: true,
+              envelope: eng.getEnvelope(proposal.parameter) ?? null,
+            };
+            break;
+          }
+          case "variability_export": {
+            const eng = await getEngine("var");
+            const envelopes = eng.exportEnvelopes();
+            result = { envelopes, count: Object.keys(envelopes).length };
+            break;
+          }
+          case "variability_import": {
+            const eng = await getEngine("var");
+            const data: Record<string, any> = params.data ?? {};
+            // Inject the Map key as envelope.parameter so an entry can never
+            // self-identify as a different parameter than its key.
+            const keyed = Object.fromEntries(
+              Object.entries(data).map(([k, v]) => [k, { ...(v as Record<string, unknown>), parameter: k }]),
+            );
+            eng.importEnvelopes(keyed);
+            result = { imported: Object.keys(keyed).length, totalEnvelopes: Object.keys(eng.exportEnvelopes()).length };
+            break;
+          }
+          case "variability_outliers": {
+            const eng = await getEngine("var");
+            // getOutlierBuffer() returns a Map — JSON.stringify would emit {} — so flatten it.
+            const buffer = Object.fromEntries(eng.getOutlierBuffer());
+            result = { outliers: buffer, parameterCount: Object.keys(buffer).length };
+            break;
+          }
           default:
             result = { error: `Unknown action: ${action}` };
         }
@@ -233,5 +318,5 @@ Params vary by action — pass relevant fields in params object.`,
       return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(result)) }] };
     }
   );
-  log.info("Registered: prism_adaptive_control dispatcher (23 actions)");
+  log.info("Registered: prism_adaptive_control dispatcher (31 actions)");
 }
