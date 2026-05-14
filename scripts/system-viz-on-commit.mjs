@@ -112,23 +112,27 @@ if (!ok) {
 }
 console.log("\n✓ system-viz fully refreshed; viewer auto-poll will pick up within 30s");
 
-// U-VIZ-AUTO-REGEN-WIKI: regenerate the Obsidian wiki from the freshly-built graph.
-// DETACHED + async: the 19-stage orchestrator now runs ~8min on the 150K-node graph.
-// Running it synchronously here would hold the post-commit hook (and thus block
-// concurrent `git` operations across the 6-chat fleet) for the whole duration —
-// that caused .git/index.lock contention. Fire-and-forget instead; the next
-// commit's chain (or the hourly cron) catches anything this run missed.
+// U-VIZ-AUTO-REGEN-WIKI / U-CLEANUP-F5: regenerate the Obsidian wiki from the
+// freshly-built graph — routed through viz-regen-guard.mjs, the centralized
+// dependency-aware gate. The guard hash-checks the SOURCE deps (NOT graph.json,
+// which churns on every commit and would otherwise force a regen every time)
+// and refuses if an upstream artifact is stale, then spawns the ~8-min
+// regen-wiki-from-viz.mjs orchestrator itself only when warranted.
+// DETACHED + async: running the orchestrator synchronously here would hold the
+// post-commit hook (blocking concurrent `git` across the fleet) for the whole
+// duration — that caused .git/index.lock contention. Fire-and-forget instead;
+// the next commit's chain (or the hourly cron) catches anything this run skipped.
 // Skip entirely with PRISM_SKIP_WIKI_REGEN=1.
 if (process.env.PRISM_SKIP_WIKI_REGEN !== "1") {
   try {
-    const child = spawn(node, ["scripts/regen-wiki-from-viz.mjs", "--quiet"], {
+    const child = spawn(node, ["scripts/viz-regen-guard.mjs", "--quiet"], {
       cwd: ROOT,
       stdio: "ignore",
       detached: true,
     });
     child.unref();
-    console.log("✓ wiki regen launched in background (detached) — completes in ~8min, does not block git");
+    console.log("✓ wiki regen routed through viz-regen-guard (detached) — guard skips/refuses/runs as warranted, does not block git");
   } catch (e) {
-    console.error(`✗ wiki regen launch failed: ${e.message} (graph itself is fresh)`);
+    console.error(`✗ wiki regen guard launch failed: ${e.message} (graph itself is fresh)`);
   }
 }

@@ -2,29 +2,39 @@
 /**
  * inject-tribal-pipeline-into-atomic-roadmap.mjs
  *
- * Injects the user's generated "tribal-pipeline" roadmap (TRAINING-LEARNING-MS0
- * + MACRO-PROGRAM-PIPELINE-MS0 + BLUEPRINT-OCR-TRAINING-MS1) into the
- * canonical state/shared/atomic-roadmap.json that /pick-unit reads.
+ * Injects priority-0 milestone envelopes into state/shared/atomic-roadmap.json
+ * that /pick-unit + /pick-dev read.
+ *
+ * Originally scoped (2026-05-13) for the 3 tribal-pipeline milestones
+ * (TRAINING-LEARNING-MS0 / MACRO-PROGRAM-PIPELINE-MS0 / BLUEPRINT-OCR-TRAINING-MS1).
+ * Generalized (2026-05-14, COMMAND-KERNEL-MS0 registration) to accept any
+ * envelope that declares `track` + `roadmap_priority` at the top level — these
+ * fields now override the legacy defaults (training-pipeline / 0).
  *
  * Why: the user (2026-05-13) said "add the road map to the /pick-unit pipeline
- * so that road map also populates the selection." These 3 milestone envelopes
- * exist on disk but were never harvested into atomic-roadmap.json, so
- * /pick-unit could not surface their units.
+ * so that road map also populates the selection." The 3 tribal-pipeline
+ * milestones exist on disk but were never harvested into atomic-roadmap.json,
+ * so /pick-unit could not surface their units. COMMAND-KERNEL-MS0 follows the
+ * same gap; it also ships as a priority-0 BACKEND-DEVTOOLS milestone.
  *
- * Tagging: track="training-pipeline", roadmap_priority=0 (devtools-equivalent
- * priority — these milestones build the foundational pipeline that lets PRISM
- * convert tribal knowledge + JM Die programs + docustra into end-to-end
- * mill/lathe/wire-EDM pipelines).
+ * Tagging: each injected unit carries `track` + `roadmap_priority` read from
+ * the envelope. If the envelope omits those fields, falls back to the legacy
+ * defaults (track="training-pipeline", roadmap_priority=0) so the 3
+ * pre-existing tribal-pipeline milestones inject unchanged from before.
  *
- * Lane: all pending units assigned to chat 1 (slot alpha — the chat that owns
- * the tribal-pipeline drive). Operator can re-lane with /pick-unit --slot.
+ * Lane: all pending units assigned to chat 1 (slot alpha). Operator can
+ * re-lane via /pick-unit --slot.
  *
  * Idempotent: re-running detects existing keys via the `milestone::unit_id`
  * compound key and is a no-op for already-injected units.
  *
  * Usage:
- *   node scripts/inject-tribal-pipeline-into-atomic-roadmap.mjs           # apply
+ *   node scripts/inject-tribal-pipeline-into-atomic-roadmap.mjs           # apply all
  *   node scripts/inject-tribal-pipeline-into-atomic-roadmap.mjs --dry-run # preview
+ *
+ * Add a new milestone to the pickable pool by appending its ID to
+ * INJECT_MILESTONES below. The script reads track + roadmap_priority from the
+ * envelope itself, so no per-milestone constants needed.
  */
 
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
@@ -34,15 +44,22 @@ const ROOT = "H:/prism";
 const ROADMAP_PATH = path.join(ROOT, "state/shared/atomic-roadmap.json");
 const MILESTONES_DIR = path.join(ROOT, "mcp-server/data/milestones");
 
-const TRIBAL_PIPELINE_MILESTONES = [
+// Milestone envelopes to inject. Each must exist at
+// mcp-server/data/milestones/<id>.json. Track + roadmap_priority come from the
+// envelope's top-level fields; missing fields fall back to LEGACY_DEFAULT_*.
+const INJECT_MILESTONES = [
   "TRAINING-LEARNING-MS0",
   "MACRO-PROGRAM-PIPELINE-MS0",
   "BLUEPRINT-OCR-TRAINING-MS1",
+  "COMMAND-KERNEL-MS0",
 ];
 
+// Backward-compat alias for any external caller importing this const.
+const TRIBAL_PIPELINE_MILESTONES = INJECT_MILESTONES;
+
 const DEFAULT_LANE_CHAT = 1; // alpha
-const TRACK = "training-pipeline";
-const ROADMAP_PRIORITY = 0; // surfaces alongside devtools (first)
+const LEGACY_DEFAULT_TRACK = "training-pipeline";
+const LEGACY_DEFAULT_ROADMAP_PRIORITY = 0; // surfaces alongside devtools (first)
 const DEFAULT_TIER = 1;     // most units are non-blocking infra; tier-0 reserved for safety-gate units
 
 const DRY = process.argv.includes("--dry-run");
@@ -95,7 +112,30 @@ const existingKeys = new Set(
 const additions = [];
 const skipped = [];
 
-for (const msId of TRIBAL_PIPELINE_MILESTONES) {
+function deriveDomain(msId, envelope) {
+  // Prefer the envelope's own `track` for routing, fall back to the
+  // milestone-id heuristic that the tribal-pipeline milestones relied on.
+  const track = (envelope?.track ?? "").toString().toLowerCase();
+  if (track === "backend-devtools") return "devtools";
+  if (track === "training-pipeline") {
+    if (msId.includes("MACRO")) return "lathe";
+    if (msId.includes("BLUEPRINT")) return "cad";
+    return "training";
+  }
+  if (msId.includes("COMMAND-KERNEL")) return "kernel";
+  if (msId.includes("MACRO")) return "lathe";
+  if (msId.includes("BLUEPRINT")) return "cad";
+  return "training";
+}
+
+function deriveAiCategory(envelope) {
+  const track = (envelope?.track ?? "").toString().toLowerCase();
+  if (track === "backend-devtools") return "backend-devtools";
+  if (track === "training-pipeline") return "tribal-pipeline";
+  return track || "tribal-pipeline";
+}
+
+for (const msId of INJECT_MILESTONES) {
   const envelope = loadEnvelope(msId);
   if (!envelope) {
     console.error(`skip ${msId}: envelope not found at ${MILESTONES_DIR}/${msId}.json`);
@@ -106,6 +146,13 @@ for (const msId of TRIBAL_PIPELINE_MILESTONES) {
     console.error(`skip ${msId}: envelope has 0 units`);
     continue;
   }
+  const envTrack = typeof envelope.track === "string" && envelope.track.length > 0
+    ? envelope.track
+    : LEGACY_DEFAULT_TRACK;
+  const envPriority = Number.isFinite(envelope.roadmap_priority)
+    ? Number(envelope.roadmap_priority)
+    : LEGACY_DEFAULT_ROADMAP_PRIORITY;
+  const aiCategory = deriveAiCategory(envelope);
   for (const unit of units) {
     const unitId = unit?.id ?? unit?.unit_id ?? null;
     if (!unitId) {
@@ -129,12 +176,11 @@ for (const msId of TRIBAL_PIPELINE_MILESTONES) {
       title: unit?.title ?? "(no title)",
       tier: deriveTier(unit, envelope),
       aiPriorityScore: 60, // mid-priority, devtools-equivalent
-      aiCategory: "tribal-pipeline",
+      aiCategory,
       leverage_score: 10,
-      domain: msId.includes("MACRO") ? "lathe" :
-              msId.includes("BLUEPRINT") ? "cad" : "training",
-      track: TRACK,
-      roadmap_priority: ROADMAP_PRIORITY,
+      domain: deriveDomain(msId, envelope),
+      track: envTrack,
+      roadmap_priority: envPriority,
       shippedFraction: 0,
       tribalVerdict: "medium",
       tribalCount: 0,
@@ -142,7 +188,7 @@ for (const msId of TRIBAL_PIPELINE_MILESTONES) {
       blastRadiusBoost: 0,
       evidenceScore: 2,
       driftFlag: false,
-      _injectedFrom: "tribal-pipeline-roadmap",
+      _injectedFrom: aiCategory,
     });
     existingKeys.add(key);
   }
@@ -172,10 +218,10 @@ const summary = {
   totalRoadmapAfter: (roadmap.total ?? roadmap.roadmap.length) + additions.length,
 };
 
-console.log(`\n# inject-tribal-pipeline → atomic-roadmap`);
+console.log(`\n# inject-milestones → atomic-roadmap`);
 console.log(`mode: ${DRY ? "DRY-RUN (no write)" : "APPLY"}`);
-console.log(`milestones: ${TRIBAL_PIPELINE_MILESTONES.join(", ")}`);
-console.log(`track tag: "${TRACK}" · roadmap_priority: ${ROADMAP_PRIORITY} (devtools-equivalent)`);
+console.log(`milestones: ${INJECT_MILESTONES.join(", ")}`);
+console.log(`tagging: track + roadmap_priority read per-envelope (fallback: "${LEGACY_DEFAULT_TRACK}" / ${LEGACY_DEFAULT_ROADMAP_PRIORITY})`);
 console.log(`lane: chat=${DEFAULT_LANE_CHAT} (slot alpha)`);
 console.log(`will add: ${summary.willAdd} units`);
 console.log(`will skip: ${summary.willSkip} units (already present or completed)`);
@@ -212,7 +258,8 @@ roadmap.total = roadmap.roadmap.length;
 roadmap.generatedAt = new Date().toISOString();
 roadmap._lastInject = {
   at: new Date().toISOString(),
-  source: "tribal-pipeline-roadmap",
+  source: "inject-milestones",
+  milestones: INJECT_MILESTONES,
   added: additions.length,
   laneAssignments: newLaneKeys.length,
 };

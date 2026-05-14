@@ -56,7 +56,11 @@
     {
       "session_id": 1,
       "title": "Resource Extraction Pipeline",
-      "units": ["U-AIMAX01", "U-AIMAX02", "U-AIMAX03"],
+      "units": [
+        "U-AIMAX01",
+        "U-AIMAX02",
+        "U-AIMAX03"
+      ],
       "smart_config": {
         "role": "AI Engineer + Manufacturing Knowledge Specialist",
         "model": "opus",
@@ -64,7 +68,11 @@
         "context_budget": "70%"
       },
       "intent": "Complete extraction of patterns from hyperMILL Python scripts, JM DIE programs, and resource folder. Build searchable pattern database.",
-      "skills": ["/pdf-learn", "/forge-engines", "/scrutinize"],
+      "skills": [
+        "/pdf-learn",
+        "/forge-engines",
+        "/scrutinize"
+      ],
       "knowledge_focus": [
         "hyperMILL Python API patterns (om.cad.*, om.cam.*)",
         "Okuma/Fanuc G-code patterns from JM DIE",
@@ -83,7 +91,11 @@
     {
       "session_id": 2,
       "title": "Advanced Reasoning Pattern Implementation",
-      "units": ["U-AIMAX04", "U-AIMAX05", "U-AIMAX06"],
+      "units": [
+        "U-AIMAX04",
+        "U-AIMAX05",
+        "U-AIMAX06"
+      ],
       "smart_config": {
         "role": "AI Researcher + Decision Scientist",
         "model": "opus",
@@ -91,7 +103,11 @@
         "context_budget": "60%"
       },
       "intent": "Implement Tree-of-Thought, counterfactual reasoning, and causal inference engines. Enable multi-hypothesis generation with EV ranking.",
-      "skills": ["/forge-engines", "/physics-verify", "/test"],
+      "skills": [
+        "/forge-engines",
+        "/physics-verify",
+        "/test"
+      ],
       "knowledge_focus": [
         "Decision theory algorithms",
         "Bayesian inference patterns",
@@ -110,7 +126,11 @@
     {
       "session_id": 3,
       "title": "Context Retention & Cross-Session State",
-      "units": ["U-AIMAX07", "U-AIMAX08", "U-AIMAX09"],
+      "units": [
+        "U-AIMAX07",
+        "U-AIMAX08",
+        "U-AIMAX09"
+      ],
       "smart_config": {
         "role": "Systems Architect + State Management Specialist",
         "model": "opus",
@@ -118,7 +138,11 @@
         "context_budget": "50%"
       },
       "intent": "Enhance cross-session state persistence, implement hierarchical context compression, and build automatic context checkpointing.",
-      "skills": ["/forge-engines", "/trace", "/scrutinize"],
+      "skills": [
+        "/forge-engines",
+        "/trace",
+        "/scrutinize"
+      ],
       "knowledge_focus": [
         "Compaction survival mechanisms",
         "Feature Cascade protocol",
@@ -137,7 +161,11 @@
     {
       "session_id": 4,
       "title": "MCP Full Utilization & Integration",
-      "units": ["U-AIMAX10", "U-AIMAX11", "U-AIMAX12"],
+      "units": [
+        "U-AIMAX10",
+        "U-AIMAX11",
+        "U-AIMAX12"
+      ],
       "smart_config": {
         "role": "MCP Integration Architect",
         "model": "opus",
@@ -145,7 +173,11 @@
         "context_budget": "60%"
       },
       "intent": "Maximize MCP dispatcher utilization from 3% to 40%+. Wire all new AI engines to dispatchers. Create AI-specific MCP actions.",
-      "skills": ["/forge-wiring", "/action-search", "/forge-triple"],
+      "skills": [
+        "/forge-wiring",
+        "/action-search",
+        "/forge-triple"
+      ],
       "knowledge_focus": [
         "82 dispatchers, 4,296 actions",
         "Dispatcher wiring patterns",
@@ -157,7 +189,7 @@
           "MCP action coverage > 40%",
           "AI actions callable from PRISM app"
         ],
-        "omega_floor": 0.90,
+        "omega_floor": 0.9,
         "svi_delta": "+5%"
       }
     }
@@ -170,9 +202,17 @@
       "session": 1,
       "depends_on": [],
       "status": "complete",
-      "knowledge_sources": ["AIResourceLearningEngine", "hyperMILL scripts"],
-      "files_created": ["src/engines/HyperMillPatternExtractorEngine.ts"],
-      "files_modified": ["src/engines/AIResourceLearningEngine.ts", "src/engines/index.ts"],
+      "knowledge_sources": [
+        "AIResourceLearningEngine",
+        "hyperMILL scripts"
+      ],
+      "files_created": [
+        "src/engines/HyperMillPatternExtractorEngine.ts"
+      ],
+      "files_modified": [
+        "src/engines/AIResourceLearningEngine.ts",
+        "src/engines/index.ts"
+      ],
       "abort_criteria": [
         "Less than 100 patterns extracted",
         "API patterns not categorized",
@@ -186,11 +226,20 @@
       "title": "JM DIE Program Pattern Analyzer",
       "description": "Analyze 22,721 JM DIE programs to extract material-specific cutting parameters, G-code patterns, and controller idioms",
       "session": 1,
-      "depends_on": ["U-AIMAX01"],
+      "depends_on": [
+        "U-AIMAX01"
+      ],
       "status": "complete",
-      "knowledge_sources": ["JM DIE programs", "TribalKnowledgeEngine"],
-      "files_created": ["src/engines/JMDieProgramAnalyzerEngine.ts"],
-      "files_modified": ["src/engines/AIResourceLearningEngine.ts"],
+      "knowledge_sources": [
+        "JM DIE programs",
+        "TribalKnowledgeEngine"
+      ],
+      "files_created": [
+        "src/engines/JMDieProgramAnalyzerEngine.ts"
+      ],
+      "files_modified": [
+        "src/engines/AIResourceLearningEngine.ts"
+      ],
       "abort_criteria": [
         "Less than 1000 programs analyzed",
         "Material parameters not extracted",
@@ -204,11 +253,21 @@
       "title": "Pattern Database & Search Engine",
       "description": "Build searchable database combining all extracted patterns with fuzzy matching and relevance scoring",
       "session": 1,
-      "depends_on": ["U-AIMAX01", "U-AIMAX02"],
+      "depends_on": [
+        "U-AIMAX01",
+        "U-AIMAX02"
+      ],
       "status": "complete",
-      "knowledge_sources": ["AIResourceLearningEngine", "TribalKnowledgeTrainingEngine"],
-      "files_created": ["src/engines/PatternDatabaseEngine.ts"],
-      "files_modified": ["src/engines/index.ts"],
+      "knowledge_sources": [
+        "AIResourceLearningEngine",
+        "TribalKnowledgeTrainingEngine"
+      ],
+      "files_created": [
+        "src/engines/PatternDatabaseEngine.ts"
+      ],
+      "files_modified": [
+        "src/engines/index.ts"
+      ],
       "abort_criteria": [
         "Search returns no results",
         "Relevance scoring incorrect",
@@ -224,9 +283,16 @@
       "session": 2,
       "depends_on": [],
       "status": "complete",
-      "knowledge_sources": ["AICapabilityMaximizerEngine", "PRISMCreativeReasoningEngine"],
-      "files_created": ["src/engines/TreeOfThoughtEngine.ts"],
-      "files_modified": ["src/engines/AICapabilityMaximizerEngine.ts"],
+      "knowledge_sources": [
+        "AICapabilityMaximizerEngine",
+        "PRISMCreativeReasoningEngine"
+      ],
+      "files_created": [
+        "src/engines/TreeOfThoughtEngine.ts"
+      ],
+      "files_modified": [
+        "src/engines/AICapabilityMaximizerEngine.ts"
+      ],
       "abort_criteria": [
         "Branch exploration incomplete",
         "Pruning too aggressive (misses solutions)",
@@ -240,11 +306,20 @@
       "title": "Counterfactual Reasoning Engine",
       "description": "Add counterfactual reasoning for parameter sensitivity analysis ('what if speed was 10% lower?')",
       "session": 2,
-      "depends_on": ["U-AIMAX04"],
+      "depends_on": [
+        "U-AIMAX04"
+      ],
       "status": "complete",
-      "knowledge_sources": ["AICapabilityMaximizerEngine", "FormulaRegistry"],
-      "files_created": ["src/engines/CounterfactualReasoningEngine.ts"],
-      "files_modified": ["src/engines/AICapabilityMaximizerEngine.ts"],
+      "knowledge_sources": [
+        "AICapabilityMaximizerEngine",
+        "FormulaRegistry"
+      ],
+      "files_created": [
+        "src/engines/CounterfactualReasoningEngine.ts"
+      ],
+      "files_modified": [
+        "src/engines/AICapabilityMaximizerEngine.ts"
+      ],
       "abort_criteria": [
         "Counterfactuals not physically valid",
         "Sensitivity analysis incorrect",
@@ -258,11 +333,21 @@
       "title": "Multi-Hypothesis EV Ranker",
       "description": "Generate 3-5 solution hypotheses and rank by expected value with physics/tribal validation",
       "session": 2,
-      "depends_on": ["U-AIMAX04", "U-AIMAX05"],
+      "depends_on": [
+        "U-AIMAX04",
+        "U-AIMAX05"
+      ],
       "status": "complete",
-      "knowledge_sources": ["AICapabilityMaximizerEngine", "TribalKnowledgeTrainingEngine"],
-      "files_created": ["src/engines/HypothesisRankerEngine.ts"],
-      "files_modified": ["src/engines/AICapabilityMaximizerEngine.ts"],
+      "knowledge_sources": [
+        "AICapabilityMaximizerEngine",
+        "TribalKnowledgeTrainingEngine"
+      ],
+      "files_created": [
+        "src/engines/HypothesisRankerEngine.ts"
+      ],
+      "files_modified": [
+        "src/engines/AICapabilityMaximizerEngine.ts"
+      ],
       "abort_criteria": [
         "EV calculation incorrect",
         "Ranking contradicts physics",
@@ -278,9 +363,18 @@
       "session": 3,
       "depends_on": [],
       "status": "complete",
-      "knowledge_sources": ["AICapabilityMaximizerEngine", "compaction-survival.md"],
-      "files_created": ["src/engines/ContextCompressionEngine.ts"],
-      "files_modified": ["src/engines/index.ts", "src/tools/dispatchers/contextDispatcher.ts", "src/schemas/contextActionSchemas.ts"],
+      "knowledge_sources": [
+        "AICapabilityMaximizerEngine",
+        "compaction-survival.md"
+      ],
+      "files_created": [
+        "src/engines/ContextCompressionEngine.ts"
+      ],
+      "files_modified": [
+        "src/engines/index.ts",
+        "src/tools/dispatchers/contextDispatcher.ts",
+        "src/schemas/contextActionSchemas.ts"
+      ],
       "abort_criteria": [
         "Information loss > 10%",
         "Compression ratio < 3:1",
@@ -295,11 +389,21 @@
       "title": "Automatic Context Checkpointing",
       "description": "Checkpoint state at 15/25/35 edit thresholds with auto-recovery on compaction",
       "session": 3,
-      "depends_on": ["U-AIMAX07"],
+      "depends_on": [
+        "U-AIMAX07"
+      ],
       "status": "complete",
-      "knowledge_sources": ["hooks/auto-compact", "SESSION_ARTIFACTS.json"],
-      "files_created": ["src/engines/ContextCheckpointEngine.ts"],
-      "files_modified": ["src/tools/dispatchers/contextDispatcher.ts", "src/schemas/contextActionSchemas.ts"],
+      "knowledge_sources": [
+        "hooks/auto-compact",
+        "SESSION_ARTIFACTS.json"
+      ],
+      "files_created": [
+        "src/engines/ContextCheckpointEngine.ts"
+      ],
+      "files_modified": [
+        "src/tools/dispatchers/contextDispatcher.ts",
+        "src/schemas/contextActionSchemas.ts"
+      ],
       "abort_criteria": [
         "Checkpoints not triggered",
         "Recovery loses state",
@@ -314,11 +418,19 @@
       "title": "Feature Cascade Enhancement",
       "description": "Enhance Feature Cascade to propagate new engines/hooks/skills across sessions automatically",
       "session": 3,
-      "depends_on": ["U-AIMAX08"],
+      "depends_on": [
+        "U-AIMAX08"
+      ],
       "status": "not_started",
-      "knowledge_sources": ["SESSION_ARTIFACTS.json", "MEMORY.md"],
+      "knowledge_sources": [
+        "SESSION_ARTIFACTS.json",
+        "MEMORY.md"
+      ],
       "files_created": [],
-      "files_modified": ["scripts/hooks/agent-auto-update-hook.mjs", "data/state/SESSION_ARTIFACTS.json"],
+      "files_modified": [
+        "scripts/hooks/agent-auto-update-hook.mjs",
+        "data/state/SESSION_ARTIFACTS.json"
+      ],
       "abort_criteria": [
         "New engines not registered",
         "Hooks not propagated",
@@ -332,27 +444,46 @@
       "title": "AI Dispatcher Actions",
       "description": "Wire all AI engines (capability, resource, training) to MCP dispatchers with full action schemas",
       "session": 4,
-      "depends_on": ["U-AIMAX03", "U-AIMAX06"],
-      "status": "not_started",
-      "knowledge_sources": ["aiDispatcher.ts", "intelligenceDispatcher.ts"],
-      "files_created": ["src/schemas/aiCapabilityActionSchemas.ts"],
-      "files_modified": ["src/tools/dispatchers/aiDispatcher.ts"],
+      "depends_on": [
+        "U-AIMAX03",
+        "U-AIMAX06"
+      ],
+      "status": "complete",
+      "knowledge_sources": [
+        "aiDispatcher.ts",
+        "intelligenceDispatcher.ts"
+      ],
+      "files_created": [
+        "src/schemas/aiCapabilityActionSchemas.ts"
+      ],
+      "files_modified": [
+        "src/tools/dispatchers/aiDispatcher.ts"
+      ],
       "abort_criteria": [
         "Actions not callable",
         "Schema validation fails",
         "Dispatcher wiring incomplete"
       ],
       "rollback": "git checkout -- src/tools/dispatchers/aiDispatcher.ts",
-      "exit_criteria": "All AI engines callable via MCP, 100% action coverage"
+      "exit_criteria": "All AI engines callable via MCP, 100% action coverage",
+      "completed_at": "2026-05-14T01:50:00Z",
+      "completed_by": "claude-c56f23b2-charlie",
+      "commit": "eb0a8ca60",
+      "ship_notes": "Wired 46 AI capability/resource/training actions to prism_ai dispatcher. NEW aiCapabilityActionSchemas.ts (574 LOC, 46 schemas + 9 enum tuples). MODIFIED aiReasoningDispatcher.ts (+341 LOC). NEW uaimax10.test.ts (108 tests green). Per-file scrutiny PASS+PASS. 3-of-3 ledger PASS (session aimax10-1778726384)."
     },
     {
       "id": "U-AIMAX11",
       "title": "AI Reasoning Skill Commands",
       "description": "Create /ai-reason, /ai-analyze, /ai-optimize slash commands for user access",
       "session": 4,
-      "depends_on": ["U-AIMAX10"],
+      "depends_on": [
+        "U-AIMAX10"
+      ],
       "status": "not_started",
-      "knowledge_sources": ["Skills directory", "existing slash commands"],
+      "knowledge_sources": [
+        "Skills directory",
+        "existing slash commands"
+      ],
       "files_created": [
         "~/.claude/commands/ai-reason.md",
         "~/.claude/commands/ai-analyze.md",
@@ -372,11 +503,21 @@
       "title": "AI Capability Protective Hook",
       "description": "Create hook that validates AI recommendations against physics and tribal knowledge before execution",
       "session": 4,
-      "depends_on": ["U-AIMAX10", "U-AIMAX11"],
+      "depends_on": [
+        "U-AIMAX10",
+        "U-AIMAX11"
+      ],
       "status": "not_started",
-      "knowledge_sources": ["HardenedAgentCapabilitiesEngine", "TribalKnowledgeTrainingEngine"],
-      "files_created": ["scripts/hooks/ai-recommendation-validator.mjs"],
-      "files_modified": [".claude/settings.json"],
+      "knowledge_sources": [
+        "HardenedAgentCapabilitiesEngine",
+        "TribalKnowledgeTrainingEngine"
+      ],
+      "files_created": [
+        "scripts/hooks/ai-recommendation-validator.mjs"
+      ],
+      "files_modified": [
+        ".claude/settings.json"
+      ],
       "abort_criteria": [
         "Hook not triggered",
         "False positives > 10%",
@@ -401,10 +542,26 @@
     ]
   },
   "enforcement_hooks": {
-    "pre_level": ["knowledge-consult", "context-retention"],
-    "post_level": ["stub-detector", "test-quality", "constants-checker", "physics-agent", "wiring-agent"],
-    "compact_level": ["review-gate", "wiring-gate", "forge-triple-gate", "session-audit-agent"],
-    "post_compact": ["Feature Cascade writes SESSION_ARTIFACTS.json"]
+    "pre_level": [
+      "knowledge-consult",
+      "context-retention"
+    ],
+    "post_level": [
+      "stub-detector",
+      "test-quality",
+      "constants-checker",
+      "physics-agent",
+      "wiring-agent"
+    ],
+    "compact_level": [
+      "review-gate",
+      "wiring-gate",
+      "forge-triple-gate",
+      "session-audit-agent"
+    ],
+    "post_compact": [
+      "Feature Cascade writes SESSION_ARTIFACTS.json"
+    ]
   },
   "feature_cascade": {
     "new_hooks": {
@@ -422,7 +579,11 @@
       "/ai-analyze": "Full AI analysis stack",
       "/ai-optimize": "Multi-hypothesis optimization"
     },
-    "available_to": ["all downstream sessions", "PRISM web app", "MCP clients"]
+    "available_to": [
+      "all downstream sessions",
+      "PRISM web app",
+      "MCP clients"
+    ]
   },
   "metrics": {
     "current": {

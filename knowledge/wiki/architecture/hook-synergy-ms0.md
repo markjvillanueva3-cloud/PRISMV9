@@ -5,6 +5,7 @@ agent: claude-80d35610
 slot: alpha
 milestone: HOOK-SYNERGY-MS0
 tags: [hooks, coordination, sqlite, ipc, async, infrastructure]
+boost_keywords: [settings.json, hook synergy, async hook dispatcher, coordination store, "*.mjs", hook latency, sqlite wal]
 links:
   - "[[reference_h7_async_hook_dispatcher]]"
   - "[[reference_h8_coordination_store]]"

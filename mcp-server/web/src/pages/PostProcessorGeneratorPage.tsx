@@ -56,6 +56,7 @@ import { PROGRAM_RELEASE_CATALOG } from '../features/operating-system/programRel
 import type { ProgramReleaseCatalog } from '../features/operating-system/contracts';
 import { resolveProgramReleaseMachineRouteSeed } from '../utils/programReleaseRouteMachineResolver';
 import { buildProgramReleaseRouteExtras } from '../utils/programReleaseSelectorExtras';
+import { SurfaceCrossLink } from '../components/SurfaceCrossLink';
 
 type Lane = 'generate' | 'validate' | 'compare' | 'library' | 'machine' | 'programs';
 type PageMode = 'lanes' | 'wizard';
@@ -2488,6 +2489,13 @@ export function PostProcessorGeneratorPage() {
         <Link to="/post-processor" className="hover:text-cyan-400 transition">Post Processor</Link>
         <span aria-hidden="true">/</span>
         <span className="text-slate-200">Generator</span>
+        <span aria-hidden="true" className="mx-2 text-slate-600">|</span>
+        <SurfaceCrossLink
+          to="/ppg-lite"
+          label="Lite editor"
+          note="3-col G-code editor with AI panel + shortcuts"
+          accent="violet"
+        />
       </nav>
       <WorkspaceHero
         eyebrow="Post workflow"

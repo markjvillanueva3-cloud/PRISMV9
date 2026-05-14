@@ -202,6 +202,25 @@ const result = prismCreativeReasoningEngine.explore(problem, "optimal");
 ```
 **15 scientific domains** (control theory, materials science, robotics, ML, precision, etc.) · **120+ formulas/algorithms** (PID, LQR, Kalman, Johnson-Cook, NURBS, S-curve, CNN, K-means, Abbe error). Entry point: `CrossDisciplinaryDeepLearningEngine`.
 
+## Recent regressions
+<!-- Append-only log per Boris CLAUDE.md back-flow pattern. New entries at TOP. -->
+- 2026-05-14 | `system-viz-live-bridge` PostToolUse hook logged 1,347 `ping-failed:TypeError` events (4.3% of telemetry stream) when local viz server was off — every Edit/Write retried ECONNREFUSED forever | fix: classify TypeError as `viz-not-running` (info) + add 5-min session backoff via `VIZ_DOWN_BACKOFF_MS` + `vizDownFile` sidecar | observed-by: claude-48450e3d /forge-audit-v2 | verify: `node scripts/hook-health-check.mjs --window=1h` should show 0 broken hooks
+- 2026-05-14 | `build-tracker.mjs` PostToolUse:Write fires `/bin/bash: xmalloc: cannot allocate 8192 bytes` (fork-storm symptom under Windows hook load) | fix: not a code bug; run `node .claude/helpers/node-process-janitor.mjs --full` to reap orphan bash.exe + MCP procs | observed-by: claude-48450e3d /forge-audit-v2 | verify: subsequent Write hooks emit no xmalloc errors
+
+## DEV PRODUCTIVITY HOOKS (2026-05-14 /forge-audit-v2 addition)
+3 UserPromptSubmit hooks auto-fire on slash-command keywords to inject pre-flight context. **Knobs**: `PRISM_LOOP_INJECT_DISABLE=1`, `PRISM_PICK_PREFRESH_DISABLE=1`, `PRISM_GOAL_PREREQ_DISABLE=1`. Wired in C: and H: `.claude/settings.json` UserPromptSubmit chain (after token-budget-gate, before auto-consensus).
+
+| Hook | Trigger | Surfaces |
+|---|---|---|
+| `loop-iteration-inject.mjs` | `/loop` | this session's loop-state (iter/target/status), other fleet loops, Karpathy R10 reminder |
+| `pick-prefresh-inject.mjs` | `/pick-unit` `/pick-task` `/checkin` `/pick-build-close` | MILESTONE_PROGRESS + BUILD_STATE + CLOSE-OUT-CANDIDATES staleness, active claims, research order |
+| `goal-prereq-inject.mjs` | `/goal` | CLOSE-OUT-CANDIDATES freshness vs Stop-gate threshold, sibling-unit pending status |
+
+Companion artifacts:
+- `.claude/helpers/loop-state.mjs` — start/tick/read/end/list/reap for resumable `/loop` state (`state/shared/loop-state/loop-<sid>.json`)
+- `.claude/commands/pick-build-close.md` — macro skill: pick → research → build → close-out → handoff
+- `scripts/hook-health-check.mjs` — re-runnable telemetry analyzer (META artifact, baselines hook failure rate)
+
 ## SHARED AGENT BRIDGES (Claude ↔ Codex parity)
 Full catalog moved to [`knowledge/wiki/coordination/shared-directives-index.md`](knowledge/wiki/coordination/shared-directives-index.md) (U-CLEANUP-D3). Six `CLAUDE-CODEX-*-DIRECTIVE.md` files under `state/shared/` plus 4 live-state files (`AGENT_WORKBOARD.md`, `AGENT_CHAT.md`, `AGENT_COORDINATION_STATUS.md`, `ROADMAP_COLLABORATION_STATE.md`). Read the index when coordination rules matter.
 
@@ -354,3 +373,25 @@ A healthy installation should show `offload rate ≥ 30%` after a session of mix
 5. Obey shared directives for coordination (6 chats running)
 6. Finish current delivery before starting next roadmap pass (per ROADMAP_COLLABORATION_STATE.md gate)
 7. On session end → `/handoff` writes to per-chat file; `/compact` also wires this automatically
+
+## FLEET-REAPER-MS0 (2026-05-14, 6 files shipped)
+
+Slot-aware orphan-process reaper for the 7-chat fleet. Maps every running node/git/bash PID to its owning chat slot via process ancestry + chat-slots.json, reaps orphans of crashed slots gated by **confirm-after-N-ticks** (`firstSeenAt` timestamp, default `2 × 300s = 10 min` continuous candidacy). Three runners: in-session `Monitor` (`/fleet-reaper`), `PRISM Fleet Reaper` Windows scheduled task (5-min cadence, +210s phase offset so it doesn't pile onto Cleanup Orchestrator + Memory Pressure Relief), Stop hook `fleet-reaper-stop.mjs` (throttled 45s — 7 simultaneous Stops collapse to one sweep). Additive — does NOT replace the generic `node-process-janitor` / `cleanup-orchestrator` / `03-memory-pressure-auto-relief` reapers; they cover age/dead-parent/cmdline heuristics, this covers the slot-attribution layer they lack.
+
+**Safety invariant** (load-bearing): a process is a reap CANDIDATE only when its ancestry provably leads to a GENUINELY DEAD PID (`unowned`) OR to a crashed chat slot whose recorded harness PID IS ITSELF DEAD (`owned-by-crashed`). PID reuse + wedged-harness cases (slot crashed but harness process still alive) both resolve to `indeterminate`, never a candidate.
+
+**Kill switch**: `PRISM_FLEET_REAPER_DISABLE=1` makes every runner refuse to kill anything, fleet-wide. `--uninstall` is only per-chat Monitor + the global task.
+
+**Files**:
+- `scripts/fleet-reaper-sweep.mjs` — the brain (`--once` / `--monitor-loop` / `--status` / `--dry-run` / `--stop-event` / `--detach`)
+- `.claude/helpers/process-slot-map.mjs` — PID→slot classifier (vendors `SLOT_NAMES`/`classifySlot`/`readSlots` module-private — chat-slots.mjs is vitest-unloadable; KEEP-IN-SYNC marker + drift-guard test)
+- `.claude/helpers/fleet-reaper.test.mjs` — 66-case vitest suite (real-value assertions, multi-sweep confirm-window integration, hermetic via injected enumerator/slots/killer/ledger)
+- `.claude/hooks/fleet-reaper-stop.mjs` — Stop hook (bounded async stdin, stamp-file throttle, spawn-detached); wired into Stop chain (timeout 3000ms)
+- `.claude/helpers/install-fleet-reaper-task.ps1` — scheduled-task installer (`-DryRun` burn-in, `-StartOffsetSeconds 210`, elevation probe, `-RunNow` poll, `-Uninstall`)
+- `.claude/commands/fleet-reaper.md` — `/fleet-reaper` skill (immediate sweep + ensure task + launch Monitor + 3-state verdict)
+
+**Knobs (env)**: `PRISM_FLEET_REAPER_DISABLE=1` · `PRISM_FLEET_REAPER_DRY_RUN=1` · `PRISM_FLEET_REAPER_KILL_AFTER=N` (default 2) · `PRISM_FLEET_REAPER_AGE_FLOOR_SEC=N` (default 45) · `PRISM_FLEET_REAPER_INTERVAL_SEC=N` (default 300) · `PRISM_FLEET_REAPER_MEM_PRESSURE_PCT=N` (default 90).
+
+**Run `/fleet-reaper` in ONE chat only** — the scheduled task is global; a second chat's Monitor is redundant load on the host the reaper is protecting.
+
+Wiki: `knowledge/wiki/architecture/fleet-reaper.md` · Memory: [[reference_fleet_reaper]] · Sister to [[feedback_never_delete_only_disable]] (`-Uninstall` / `Disable-ScheduledTask` are the reversal levers).

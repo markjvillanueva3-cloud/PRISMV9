@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-14T02:11:25.821Z",
+  "generatedAt": "2026-05-14T18:11:16.100Z",
   "headline": {
-    "built_engines": 2362,
+    "built_engines": 2365,
     "built_with_wiki": 1005,
-    "needs_wiring": 873,
-    "needs_building_active_units": 3656,
+    "needs_wiring": 870,
+    "needs_building_active_units": 3660,
     "needs_frontend_merge_count": 2,
-    "pending_milestones_with_activity": 72,
-    "drift_milestones": 173,
+    "pending_milestones_with_activity": 73,
+    "drift_milestones": 174,
     "stale_milestones": 230,
     "domains_tracked": 932
   },
@@ -19,11 +19,11 @@
     "engines_index": "H:\\prism\\mcp-server\\data\\state\\ENGINES_INDEX.json"
   },
   "BUILT": {
-    "summary": "2362/3235 engines wired (73%); 1005 wiki entries indexed.",
+    "summary": "2365/3235 engines wired (73%); 1005 wiki entries indexed.",
     "breakdown": {
       "totalEngines": 3235,
-      "unwired": 873,
-      "wiredDirect": 2195,
+      "unwired": 870,
+      "wiredDirect": 2198,
       "wireExempt": 83,
       "wiredViaHook": 10,
       "wiredViaOrch": 58,
@@ -32,7 +32,7 @@
     }
   },
   "NEEDS_WIRING": {
-    "summary": "873 engines on disk with no dispatcher reference. Top domains by count:",
+    "summary": "870 engines on disk with no dispatcher reference. Top domains by count:",
     "top_domains": [
       {
         "domain": "Other",
@@ -123,15 +123,15 @@
         "count": 5
       },
       {
-        "domain": "Master",
-        "count": 4
-      },
-      {
         "domain": "Mill",
         "count": 4
       },
       {
         "domain": "Agent",
+        "count": 4
+      },
+      {
+        "domain": "Electrode",
         "count": 4
       }
     ],
@@ -319,8 +319,8 @@
     "rows": [
       {
         "domain": "Other",
-        "total": 598,
-        "wired": 453,
+        "total": 599,
+        "wired": 454,
         "unwired": 145,
         "coverage_pct": 76,
         "sample_unwired": [
@@ -559,10 +559,10 @@
       },
       {
         "domain": "Consensus",
-        "total": 7,
-        "wired": 1,
+        "total": 8,
+        "wired": 2,
         "unwired": 6,
-        "coverage_pct": 14,
+        "coverage_pct": 25,
         "sample_unwired": [
           "ConsensusAIBridgeEngine",
           "ConsensusCoordinatorEngine",
@@ -696,19 +696,6 @@
         ]
       },
       {
-        "domain": "Master",
-        "total": 10,
-        "wired": 6,
-        "unwired": 4,
-        "coverage_pct": 60,
-        "sample_unwired": [
-          "MasterAITrainingLedgerEngine",
-          "MasterIndexGenerator",
-          "MasterPostFineTuningEngine",
-          "MasterPostProcessorUnifiedAGIEngine"
-        ]
-      },
-      {
         "domain": "Agent",
         "total": 7,
         "wired": 3,
@@ -772,6 +759,18 @@
         ]
       },
       {
+        "domain": "Master",
+        "total": 10,
+        "wired": 7,
+        "unwired": 3,
+        "coverage_pct": 70,
+        "sample_unwired": [
+          "MasterIndexGenerator",
+          "MasterPostFineTuningEngine",
+          "MasterPostProcessorUnifiedAGIEngine"
+        ]
+      },
+      {
         "domain": "Unified",
         "total": 9,
         "wired": 6,
@@ -805,18 +804,6 @@
           "VideoELearningAIEngine",
           "VideoReplayOrchestratorEngine",
           "VideoReplayPipelineEngine"
-        ]
-      },
-      {
-        "domain": "Training",
-        "total": 5,
-        "wired": 2,
-        "unwired": 3,
-        "coverage_pct": 40,
-        "sample_unwired": [
-          "TrainingContentIndexEngine",
-          "TrainingDatasetSnapshotEngine",
-          "TrainingLedgerEngine"
         ]
       },
       {
@@ -1126,6 +1113,17 @@
         "sample_unwired": [
           "FormulaHarvesterEngine",
           "FormulaWiringEngine"
+        ]
+      },
+      {
+        "domain": "Training",
+        "total": 5,
+        "wired": 3,
+        "unwired": 2,
+        "coverage_pct": 60,
+        "sample_unwired": [
+          "TrainingContentIndexEngine",
+          "TrainingDatasetSnapshotEngine"
         ]
       },
       {
@@ -4446,16 +4444,6 @@
         "coverage_pct": 0,
         "sample_unwired": [
           "WesternElectricRulesEngine"
-        ]
-      },
-      {
-        "domain": "Wiring",
-        "total": 1,
-        "wired": 0,
-        "unwired": 1,
-        "coverage_pct": 0,
-        "sample_unwired": [
-          "WiringPotentialEngine"
         ]
       },
       {
@@ -8765,6 +8753,14 @@
         "sample_unwired": []
       },
       {
+        "domain": "Wiring",
+        "total": 1,
+        "wired": 1,
+        "unwired": 0,
+        "coverage_pct": 100,
+        "sample_unwired": []
+      },
+      {
         "domain": "Worm",
         "total": 1,
         "wired": 1,
@@ -9150,7 +9146,7 @@
     "next_action": "Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift."
   },
   "NEEDS_BUILDING": {
-    "summary": "3656 units across 670 milestones not yet in git.",
+    "summary": "3660 units across 671 milestones not yet in git.",
     "drift_cases": [
       {
         "id": "CC-EXT-MS0",
@@ -9741,6 +9737,12 @@
         "drift": "claims_not_started_but_has_shipped_units"
       },
       {
+        "id": "COMMAND-KERNEL-MS0",
+        "claimed": "not_started",
+        "real": "in_progress_real",
+        "drift": "claims_not_started_but_has_shipped_units"
+      },
+      {
         "id": "BP-MS0",
         "claimed": "not_started",
         "real": "in_progress_real",
@@ -10193,6 +10195,30 @@
     ],
     "top_pending_units": [
       {
+        "milestone": "COMMAND-KERNEL-MS0",
+        "unit": "U-CK02",
+        "title": "psk whoami / position / manifest syscalls",
+        "phase": "P0"
+      },
+      {
+        "milestone": "COMMAND-KERNEL-MS0",
+        "unit": "U-CK03",
+        "title": "psk handoff / checkin / pick syscalls",
+        "phase": "P0"
+      },
+      {
+        "milestone": "COMMAND-KERNEL-MS0",
+        "unit": "U-CK04",
+        "title": "knowledge/wiki/os/ namespace + entity frontmatter schema",
+        "phase": "P0"
+      },
+      {
+        "milestone": "COMMAND-KERNEL-MS0",
+        "unit": "U-CK05",
+        "title": "Generated-mirror generators (JSON registries become mirrors of os/ entities)",
+        "phase": "P0"
+      },
+      {
         "milestone": "CLEANUP-MS0",
         "unit": "U-CLEANUP-A1",
         "title": "A1 — extend SLOT_NAMES in chat-slots.mjs to add 'golf' (NATO phonetic continuity)",
@@ -10212,9 +10238,51 @@
       },
       {
         "milestone": "CLEANUP-MS0",
-        "unit": "U-CLEANUP-C2",
-        "title": "C2 — prism_dev:wiring_potential dispatcher action (modes: analyze, batch_unwired, dashboard); E2E round-trip test",
-        "phase": "dispatchers-tier-2"
+        "unit": "U-CLEANUP-B7",
+        "title": "B7 — /peer-audit skill (READ-ONLY operator query; never mutates ledger; mutations only via prism_dev dispatcher action with audit trail)",
+        "phase": "operator-surfaces-tier-3"
+      },
+      {
+        "milestone": "COORD-MS0",
+        "unit": "U-COORD02",
+        "title": "Add Optimistic Locking with Version Field",
+        "phase": ""
+      },
+      {
+        "milestone": "COORD-MS0",
+        "unit": "U-COORD09",
+        "title": "Ambient Awareness Badge",
+        "phase": ""
+      },
+      {
+        "milestone": "COORD-MS0",
+        "unit": "U-COORD12",
+        "title": "Checksum Validation on Read",
+        "phase": ""
+      },
+      {
+        "milestone": "AI-MAX-MS0",
+        "unit": "U-AIMAX01",
+        "title": "hyperMILL Python Script Pattern Extractor",
+        "phase": "session-1"
+      },
+      {
+        "milestone": "AI-MAX-MS0",
+        "unit": "U-AIMAX02",
+        "title": "JM DIE Program Pattern Analyzer",
+        "phase": "session-1"
+      },
+      {
+        "milestone": "AI-MAX-MS0",
+        "unit": "U-AIMAX03",
+        "title": "Pattern Database & Search Engine",
+        "phase": "session-1"
+      },
+      {
+        "milestone": "AI-MAX-MS0",
+        "unit": "U-AIMAX04",
+        "title": "Tree-of-Thought Reasoning Engine",
+        "phase": "session-2"
       },
       {
         "milestone": "INTEL-OLLAMA-OBSIDIAN-MS0",
@@ -10239,30 +10307,6 @@
         "unit": "P7-U02",
         "title": "Cross-PC handoff test — verify H: drive is sufficient",
         "phase": "P7"
-      },
-      {
-        "milestone": "COORD-MS0",
-        "unit": "U-COORD02",
-        "title": "Add Optimistic Locking with Version Field",
-        "phase": ""
-      },
-      {
-        "milestone": "COORD-MS0",
-        "unit": "U-COORD04",
-        "title": "CrossSessionOrchestratorEngine — Unified Facade",
-        "phase": ""
-      },
-      {
-        "milestone": "COORD-MS0",
-        "unit": "U-COORD05",
-        "title": "Wire Orchestrator to Hook System",
-        "phase": ""
-      },
-      {
-        "milestone": "COORD-MS0",
-        "unit": "U-COORD06",
-        "title": "Startup Banner — Session Count Display",
-        "phase": ""
       },
       {
         "milestone": "CAD-INFRA-MS0",
@@ -10293,48 +10337,6 @@
         "unit": "P2-U05",
         "title": "Port Thermal Partition + Power/Torque",
         "phase": "P2"
-      },
-      {
-        "milestone": "SCIMATH-MS1",
-        "unit": "P2-U05",
-        "title": "FEMThermalCoupledEngine — sequential/staggered coupling",
-        "phase": "P2"
-      },
-      {
-        "milestone": "SCIMATH-MS5",
-        "unit": "P2-U05",
-        "title": "AcceptanceSamplingEngine — configurable AQL + switching rules",
-        "phase": "P2"
-      },
-      {
-        "milestone": "WIRE-MS0",
-        "unit": "P2-U05",
-        "title": "Welding & Joining Page — CREATE NEW",
-        "phase": ""
-      },
-      {
-        "milestone": "TRAINING-LEARNING-MS0",
-        "unit": "U-TL-U1-LATHE-TEMPLATE-EXTRACTOR",
-        "title": "LathePartFamilyTemplateExtractorEngine + corpus scanner",
-        "phase": "lathe"
-      },
-      {
-        "milestone": "TRAINING-LEARNING-MS0",
-        "unit": "U-TL-U5-DOMAIN-MATCHERS",
-        "title": "LathePartFamilyMatcherEngine + MillPartFamilyMatcherEngine + WEDMPartFamilyMatcherEngine",
-        "phase": "matchers"
-      },
-      {
-        "milestone": "TRAINING-LEARNING-MS0",
-        "unit": "U-TL-U6-CONTINUOUS-LEARNING",
-        "title": "TrainingTemplateContinuousLearningEngine (ingestLatheOutcome / ingestMillOutcome / ingestWEDMOutcome)",
-        "phase": "closed-loop"
-      },
-      {
-        "milestone": "TRAINING-LEARNING-MS0",
-        "unit": "U-TL-U7-SKILL-AND-CLOSEOUT",
-        "title": "/learn-corpus skill (args: lathe|mill|wedm|electrode-audit|status|match <part>) + ENGINE_DIGEST regen + 3-way scrutiny",
-        "phase": "close-out"
       }
     ],
     "next_action": "Cross-reference MILESTONE_PROGRESS.json. Avoid units already in `shipped` arrays — those are committed but envelope status is stale."

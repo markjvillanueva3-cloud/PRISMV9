@@ -1,5 +1,8 @@
 /**
- * Session Dispatcher — 48 actions for session lifecycle, state management, and context control.
+ * Session Dispatcher — session lifecycle, state management, and context control.
+ * (Action count auto-tracked in PRISM-INVENTORY-LATEST.md; the static "48 actions"
+ * header from the original module has been corrected — refer to ACTIONS.length and
+ * the inventory file for live counts.)
  *
  * Manages cross-session persistence (memory_save/recall), context pressure monitoring,
  * state checkpointing (auto_checkpoint, checkpoint_enhanced), WIP capture/restore,
@@ -167,7 +170,12 @@ const ACTIONS = [
   "cross_session_create_handoff",
   "cross_session_get_status",
   "cross_session_get_other_sessions",
-  "cross_session_get_status_line"
+  "cross_session_get_status_line",
+  // COMMAND-KERNEL-MS0/U-CK01 — PRISM Syscall Kernel (psk) thin dispatch shell.
+  // Composes 10 declared syscalls (whoami / manifest / position / delta /
+  // tools / pick / checkin / handoff / record / recommend) over existing
+  // helpers + engines. U-CK02/CK03 fill the per-syscall semantics.
+  "psk"
 ] as const;
 
 function ok(data: any) {
@@ -1729,6 +1737,59 @@ export function registerSessionDispatcher(server: any): void {
           case "cross_session_get_status_line": {
             const { crossSessionOrchestratorEngine: xs } = await import("../../engines/CrossSessionOrchestratorEngine.js");
             return ok({ statusLine: xs.getStatusLine() });
+          }
+
+          // COMMAND-KERNEL-MS0/U-CK01: prism_session:psk thin MCP wrapper.
+          // The kernel lives at .claude/kernel/psk.mjs (outside mcp-server src
+          // tree) — resolved via PATHS.PRISM_ROOT and imported through a
+          // file:// URL for Windows-safe dynamic ESM. psk's dispatch() is
+          // fail-soft (never throws), but the dynamic import() itself can
+          // throw on missing-file / bad-syntax — those bubble to the outer
+          // try/catch and surface via dispatcherError(). We add an explicit
+          // fs.existsSync gate (Reviewer B P2 fix) so the missing-file case
+          // returns an operator-readable degraded response instead of an
+          // ERR_MODULE_NOT_FOUND stack trace.
+          case "psk": {
+            const { pathToFileURL } = await import("node:url");
+            const pskPath = path.join(PATHS.PRISM_ROOT, ".claude", "kernel", "psk.mjs");
+            if (!fs.existsSync(pskPath)) {
+              return ok({
+                ok: false,
+                syscall: typeof params.syscall === "string" ? params.syscall : null,
+                degraded: true,
+                error: `psk.mjs missing at ${pskPath}`,
+                note: "COMMAND-KERNEL-MS0/U-CK01 kernel file not found — check PRISM_ROOT or worktree .claude/kernel/",
+              });
+            }
+            const pskUrl = pathToFileURL(pskPath).href;
+            const { dispatch: pskDispatch } = await import(pskUrl);
+            const syscall = typeof params.syscall === "string"
+              ? params.syscall
+              : String(params.syscall ?? "");
+            // Reviewer B P1 fix: PRISM dispatchers use normalizeParams to
+            // flatten nested {action,params} envelopes. A caller may pass
+            // syscall-fields at the TOP level (sessionId, subcommand, etc.)
+            // instead of nesting them under params.params. Merge flat fields
+            // into syscallParams so callers using either shape work — nested
+            // wins on collision (explicit user intent).
+            const nested = (params.params && typeof params.params === "object")
+              ? params.params as Record<string, unknown>
+              : {};
+            const FLAT_FORWARD_KEYS = [
+              "sessionId", "subcommand", "terminal", "topic", "resume",
+              "state", "source", "field", "event", "command", "outcome",
+              "tokens", "latency_ms", "extra", "filter", "priority",
+              "slot", "limit", "tier", "chatId", "branch", "activity",
+              "preferSlot", "since", "query", "json",
+            ];
+            const syscallParams: Record<string, unknown> = { ...nested };
+            for (const key of FLAT_FORWARD_KEYS) {
+              if (params[key] !== undefined && syscallParams[key] === undefined) {
+                syscallParams[key] = params[key];
+              }
+            }
+            const result = await pskDispatch(syscall, syscallParams);
+            return ok(result);
           }
 
           default:

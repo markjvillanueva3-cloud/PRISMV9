@@ -1,7 +1,7 @@
 {
   "version": "9.8.0",
   "title": "PRISM Unified Roadmap v2.0 - 11 Lanes, 4 Seats",
-  "updated_at": "2026-05-14T02:14:52.539Z",
+  "updated_at": "2026-05-14T15:50:02.066Z",
   "comprehensive_roadmap_2026_05_04": {
     "doc": "state/shared/PRISM-COMPREHENSIVE-ROADMAP-2026-05-04.md",
     "json": "milestones/comprehensive-roadmap-2026-05-04.json",
@@ -81,7 +81,7 @@
       "roadmap": "cleanup",
       "status": "in_progress",
       "total_units": 73,
-      "completed_units": 44,
+      "completed_units": 56,
       "priority": "P0",
       "owner": "claude-7f79dd78",
       "created_at": "2026-05-13T18:00:00.000Z",
@@ -107,7 +107,7 @@
       ],
       "_legacyStatus": "not_started",
       "completed_at": "2026-05-13T17:35:25.832Z",
-      "last_updated": "2026-05-14T02:15:00Z",
+      "last_updated": "2026-05-14T03:09:09.379Z",
       "last_synced": "2026-05-13T23:15:00.581Z"
     },
     {
@@ -9897,16 +9897,16 @@
       "title": "Cross-Session Coordination Enhancement â€” 5-Agent Audit Implementation",
       "track": "INFRA",
       "dependencies": [],
-      "status": "complete",
+      "status": "in_progress",
       "total_units": 12,
-      "completed_units": 12,
+      "completed_units": 9,
       "sessions": "4",
       "envelope_path": "milestones/COORD-MS0.json",
       "priority": "P1",
       "owner": "Claude-AI",
       "unit_prefix": "U-COORD",
       "description": "Implement findings from 5-agent audit (Systems Architect, Distributed Systems, DX, Security, Performance). Phase 1: Foundation (summary file, optimistic locking, PID liveness). Phase 2: Integration (orchestrator facade, hook wiring, startup banner). Phase 3: UX (/sessions, /broadcast, ambient badge). Phase 4: Reliability (zombie reaper, IPC, checksum validation).",
-      "completed_at": "2026-04-18T18:57:05.699Z"
+      "completed_at": null
     },
     {
       "id": "AWARE-MS0",
@@ -11697,11 +11697,56 @@
       "branch": "cad-fusion-live-ms0",
       "description": "Catalog the 4 JM Okuma-OSP macros; match parts to families; non-safety fan-out of labelled templates; safety-critical fill/gate/per-machine emit; gated operator-confirmed bulk fan-out; /macro-program operator front door.",
       "notes": "Shipped 2026-05-12..13. Skill .claude/commands/macro-program.md authored 2026-05-13 by claude-f98cc9cc with 2 parallel reviewer P0 fixes."
+    },
+    {
+      "id": "COMMAND-KERNEL-MS0",
+      "title": "Command Kernel — psk syscall layer + composition primitive + Obsidian-as-OS + feedback loop",
+      "track": "BACKEND-DEVTOOLS",
+      "roadmap": "devtools",
+      "status": "in_progress",
+      "total_units": 29,
+      "completed_units": 1,
+      "priority": "P0",
+      "roadmap_priority": 0,
+      "owner": "claude-opus-4.7",
+      "created_at": "2026-05-14T10:30:00Z",
+      "envelope": "milestones/COMMAND-KERNEL-MS0.json",
+      "spec": "C:/Users/Mark Villanueva/.claude/plans/mossy-waddling-taco.md",
+      "dependencies": [
+        "HOOK-SYNERGY-MS0",
+        "OBSIDIAN-PRISM-OS-MS0",
+        "DEV-VELOCITY-AUTOTRIGGER-MS0",
+        "ACP-MS0"
+      ],
+      "soft_dependencies": [
+        "SKILLS-UTILIZATION-MS0",
+        "KNOWLEDGE-VAULT-MS0",
+        "OBSIDIAN-COMPOUND-MS1",
+        "GRAPH-AS-LLM-CONTEXT-MS0",
+        "WIKI-EVOLVE-MS0",
+        "AUTO-LEARNING-LOOP-MS0",
+        "HOOKS-AUTOMATION-V2-MS0",
+        "ACP-MS0A"
+      ],
+      "ai_priority_score": 95,
+      "estimated_total_hours": 80,
+      "phases_in_envelope": 5,
+      "total_sessions": "8-10",
+      "outbound_contributions": [
+        {
+          "to_milestone": "ACP-MS1",
+          "unit": "U-CK13",
+          "artifact": ".claude/kernel/pipeline-exec.mjs"
+        }
+      ],
+      "pipeline": "/forge6 (brainstorm) -> /rgs6 generate (this emit)",
+      "compounding_artifact": "/pick-dev (companion skill built this commit)",
+      "description": "Synthesis-layer capstone: psk CLI + thin MCP syscall layer every slash command resolves live state through; formal pipeline-composition primitive that activates the dormant pipeline_integrations frontmatter; the Obsidian wiki promoted to the literal OS state store; closed command-telemetry -> adaptive-thresholds feedback loop; migration of the existing command corpus to standardized de-hardcoded frontmatter; and a set of new composite pipeline commands. Line-successor to OBSIDIAN-PRISM-OS-MS0."
     }
   ],
-  "total_milestones": 745,
+  "total_milestones": 746,
   "completed_milestones": 361,
-  "last_modified": "2026-05-14T02:14:52.538Z",
+  "last_modified": "2026-05-14T14:25:07.776Z",
   "_last_reconcile": {
     "at": "2026-04-25T23:04:44.937Z",
     "changed_count": 77,

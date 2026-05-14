@@ -44,6 +44,10 @@ const ROADMAP_INDEX_PATH = path.join(REPO_ROOT, "mcp-server", "data", "roadmap-i
 const MILESTONES_DIR = path.join(REPO_ROOT, "mcp-server", "data", "milestones");
 const BUILD_MS_PROGRESS_SCRIPT = path.join(REPO_ROOT, "scripts", "build-milestone-progress.mjs");
 const BUILD_STATE_SCRIPT = path.join(REPO_ROOT, "scripts", "build-state-snapshot.mjs");
+// U-CLEANUP-G11: regenerate the golf-slot write allowlist as part of close-out so
+// .golf-allowlist-regex.txt never drifts from the canonical registry. Non-fatal —
+// the A5 hook degrades to its inline FALLBACK_ALLOW if this artifact is stale.
+const REGEN_GOLF_PATHS_SCRIPT = path.join(REPO_ROOT, "scripts", "regen-golf-owned-paths.mjs");
 const CHAT_BUS_HELPER = path.join(REPO_ROOT, ".claude", "helpers", "agent-coordination.mjs");
 // Require `]` to be IMMEDIATELY followed by `/U-…:` so the `[MAIN] [SCOPE]/U-…:`
 // shape (where `[MAIN]` is a separate audit tag) cleanly picks the SCOPE bracket,
@@ -83,7 +87,7 @@ async function main() {
     milestone: milestoneId,
     envelope: { path: "", before: null, after: null },
     roadmapIndex: { path: ROADMAP_INDEX_PATH, before: null, after: null, changed: false },
-    regen: { milestoneProgress: null, buildState: null },
+    regen: { milestoneProgress: null, buildState: null, golfOwnedPaths: null },
     chatBus: { posted: false, error: null },
     noWrite: !!args.noWrite,
     warnings: [],
@@ -176,6 +180,16 @@ async function main() {
       result.error = "sub-script regen failed; see regen.* for stderr";
       emitFinal(result);
       process.exit(2);
+    }
+    // 4b. Regen the golf-slot write allowlist (U-CLEANUP-G11). Non-fatal: the
+    // A5 hook falls back to its inline FALLBACK_ALLOW if .golf-allowlist-regex.txt
+    // is missing or stale, so a failed regen here degrades gracefully — warn,
+    // don't abort the close-out.
+    result.regen.golfOwnedPaths = spawnNodeScript(REGEN_GOLF_PATHS_SCRIPT);
+    if (result.regen.golfOwnedPaths.code !== 0) {
+      result.warnings.push(
+        `regen-golf-owned-paths.mjs exited ${result.regen.golfOwnedPaths.code} (non-fatal; A5 falls back to inline allowlist)`,
+      );
     }
   }
 
@@ -305,6 +319,7 @@ function emitFinal(result) {
   if (idx?.before) process.stdout.write(`  roadmap-index:   ${idx.before.status} → ${idx.after.status}  (changed=${idx.changed})\n`);
   if (result.regen?.milestoneProgress) process.stdout.write(`  MILESTONE_PROGRESS: regen exit=${result.regen.milestoneProgress.code}\n`);
   if (result.regen?.buildState) process.stdout.write(`  BUILD_STATE:        regen exit=${result.regen.buildState.code}\n`);
+  if (result.regen?.golfOwnedPaths) process.stdout.write(`  golf-owned-paths:   regen exit=${result.regen.golfOwnedPaths.code}\n`);
   process.stdout.write(`  chat-bus:        ${result.chatBus?.posted ? "posted" : (args.skipChatBus ? "skipped" : "not posted")}\n`);
   for (const w of result.warnings || []) process.stdout.write(`  ⚠ ${w}\n`);
   if (result.error) process.stdout.write(`  ✗ ${result.error}\n`);

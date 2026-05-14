@@ -1,26 +1,26 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-14T02:11:25.821Z
+> Generated: 2026-05-14T18:11:16.100Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
 
-- **2362** engines built and wired (of 3235)
+- **2365** engines built and wired (of 3235)
 - **1005** wiki entries indexed
-- **873** engines awaiting dispatcher wiring
-- **3656** units pending across 72 active milestones
+- **870** engines awaiting dispatcher wiring
+- **3660** units pending across 73 active milestones
 - **2** codex frontend builds awaiting merge
-- **173** milestones with envelope-status drift
+- **174** milestones with envelope-status drift
 
 ## BUILT
 
-2362/3235 engines wired (73%); 1005 wiki entries indexed.
+2365/3235 engines wired (73%); 1005 wiki entries indexed.
 
 ```json
 {
   "totalEngines": 3235,
-  "unwired": 873,
-  "wiredDirect": 2195,
+  "unwired": 870,
+  "wiredDirect": 2198,
   "wireExempt": 83,
   "wiredViaHook": 10,
   "wiredViaOrch": 58,
@@ -31,7 +31,7 @@
 
 ## NEEDS_WIRING
 
-873 engines on disk with no dispatcher reference. Top domains by count:
+870 engines on disk with no dispatcher reference. Top domains by count:
 
 | Domain | Unwired count |
 |--------|---------------|
@@ -57,15 +57,15 @@
 | Tribal | 5 |
 | Mobile | 5 |
 | Mastercam | 5 |
-| Master | 4 |
 | Mill | 4 |
 | Agent | 4 |
+| Electrode | 4 |
 
 **Next action:** Pick a top-domain bucket; wire to the matching dispatcher in batches of 5–6 engines (see U-WIRE-LATHE-BATCHN pattern). Wiki cross-refs in `wikiTitle` resolve via `/wiki-query <name>`.
 
 ## NEEDS_BUILDING
 
-3656 units across 670 milestones not yet in git.
+3660 units across 671 milestones not yet in git.
 
 ### Envelope-status drift
 
@@ -169,6 +169,7 @@
 | ACP-MS6 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | ACP-MS7 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | APP-MS0 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| COMMAND-KERNEL-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | BP-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | CCM-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | CCM-MS1 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
@@ -249,30 +250,30 @@
 
 | Milestone | Phase | Unit | Title |
 |-----------|-------|------|-------|
+| COMMAND-KERNEL-MS0 | P0 | U-CK02 | psk whoami / position / manifest syscalls |
+| COMMAND-KERNEL-MS0 | P0 | U-CK03 | psk handoff / checkin / pick syscalls |
+| COMMAND-KERNEL-MS0 | P0 | U-CK04 | knowledge/wiki/os/ namespace + entity frontmatter schema |
+| COMMAND-KERNEL-MS0 | P0 | U-CK05 | Generated-mirror generators (JSON registries become mirrors of os/ entities) |
 | CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A1 | A1 — extend SLOT_NAMES in chat-slots.mjs to add 'golf' (NATO phonetic continuity) |
 | CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A5 | A5 — golf-slot-write-allowlist.mjs PreToolUse T0 hook (path-resolve hardened against ../; allowlist-regex from golf-owned-paths.json; tier frontmatter; bypass env PRISM_GOLF_WRITE_ALLOWLIST_BYPASS=1) |
 | CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A6 | A6 — bootstrap-golf.mjs (mkdir .cron-locks, seed golf-owned-paths.json + golf-token-budget.json + golf-cron-registry.json; .gitignore additions for coordination.db* + .cron-locks/*.lock + .watchdog-last-poll.iso + golf-token-budget.json; detect & rebuild 0-byte coordination.db; git rm --cached on first run) |
-| CLEANUP-MS0 | dispatchers-tier-2 | U-CLEANUP-C2 | C2 — prism_dev:wiring_potential dispatcher action (modes: analyze, batch_unwired, dashboard); E2E round-trip test |
+| CLEANUP-MS0 | operator-surfaces-tier-3 | U-CLEANUP-B7 | B7 — /peer-audit skill (READ-ONLY operator query; never mutates ledger; mutations only via prism_dev dispatcher action with audit trail) |
+| COORD-MS0 |  | U-COORD02 | Add Optimistic Locking with Version Field |
+| COORD-MS0 |  | U-COORD09 | Ambient Awareness Badge |
+| COORD-MS0 |  | U-COORD12 | Checksum Validation on Read |
+| AI-MAX-MS0 | session-1 | U-AIMAX01 | hyperMILL Python Script Pattern Extractor |
+| AI-MAX-MS0 | session-1 | U-AIMAX02 | JM DIE Program Pattern Analyzer |
+| AI-MAX-MS0 | session-1 | U-AIMAX03 | Pattern Database & Search Engine |
+| AI-MAX-MS0 | session-2 | U-AIMAX04 | Tree-of-Thought Reasoning Engine |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | P5 | P5-U05 | Wire prism_intelligence:diagnose_failure → DiagnosticReasoningEngine |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | P6 | P6-U02 | Add 4 hooks for unforced CLAUDE.md rules |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | P6 | P6-U03 | Awareness hook deduplication — pick 3 canonical, deprecate 10 |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | P7 | P7-U02 | Cross-PC handoff test — verify H: drive is sufficient |
-| COORD-MS0 |  | U-COORD02 | Add Optimistic Locking with Version Field |
-| COORD-MS0 |  | U-COORD04 | CrossSessionOrchestratorEngine — Unified Facade |
-| COORD-MS0 |  | U-COORD05 | Wire Orchestrator to Hook System |
-| COORD-MS0 |  | U-COORD06 | Startup Banner — Session Count Display |
 | CAD-INFRA-MS0 |  | U-CINF01 | CADFileIndexerEngine — master 20,006-file catalog |
 | CAD-INFRA-MS0 |  | U-CINF02 | CADFileClassifierEngine — part/assembly/drawing/CAM classification |
 | CAD-INFRA-MS0 |  | U-CINF03 | CADTestStateSchema — per-file atomic state |
 | CAD-INFRA-MS0 |  | U-CINF05 | CADTestCheckpointEngine — resumable state every 100 files |
 | S1-MS2 | P2 | P2-U05 | Port Thermal Partition + Power/Torque |
-| SCIMATH-MS1 | P2 | P2-U05 | FEMThermalCoupledEngine — sequential/staggered coupling |
-| SCIMATH-MS5 | P2 | P2-U05 | AcceptanceSamplingEngine — configurable AQL + switching rules |
-| WIRE-MS0 |  | P2-U05 | Welding & Joining Page — CREATE NEW |
-| TRAINING-LEARNING-MS0 | lathe | U-TL-U1-LATHE-TEMPLATE-EXTRACTOR | LathePartFamilyTemplateExtractorEngine + corpus scanner |
-| TRAINING-LEARNING-MS0 | matchers | U-TL-U5-DOMAIN-MATCHERS | LathePartFamilyMatcherEngine + MillPartFamilyMatcherEngine + WEDMPartFamilyMatcherEngine |
-| TRAINING-LEARNING-MS0 | closed-loop | U-TL-U6-CONTINUOUS-LEARNING | TrainingTemplateContinuousLearningEngine (ingestLatheOutcome / ingestMillOutcome / ingestWEDMOutcome) |
-| TRAINING-LEARNING-MS0 | close-out | U-TL-U7-SKILL-AND-CLOSEOUT | /learn-corpus skill (args: lathe|mill|wedm|electrode-audit|status|match <part>) + ENGINE_DIGEST regen + 3-way scrutiny |
 
 **Next action:** Cross-reference MILESTONE_PROGRESS.json. Avoid units already in `shipped` arrays — those are committed but envelope status is stale.
 
@@ -294,7 +295,7 @@ Per-domain wired/unwired breakdown across 932 domain prefixes.
 
 | Domain | Total | Wired | Unwired | Coverage % |
 |--------|-------|-------|---------|-----------|
-| Other | 598 | 453 | 145 | 76% |
+| Other | 599 | 454 | 145 | 76% |
 | Lathe | 188 | 99 | 89 | 53% |
 | Machine | 45 | 28 | 17 | 62% |
 | Multi | 28 | 17 | 11 | 61% |
@@ -310,7 +311,7 @@ Per-domain wired/unwired breakdown across 932 domain prefixes.
 | Print | 21 | 15 | 6 | 71% |
 | Wire | 20 | 14 | 6 | 70% |
 | Process | 9 | 3 | 6 | 33% |
-| Consensus | 7 | 1 | 6 | 14% |
+| Consensus | 8 | 2 | 6 | 25% |
 | Swiss | 6 | 0 | 6 | 0% |
 | Mastercam | 28 | 23 | 5 | 82% |
 | Session | 12 | 7 | 5 | 58% |
@@ -320,10 +321,10 @@ Per-domain wired/unwired breakdown across 932 domain prefixes.
 | Mill | 23 | 19 | 4 | 83% |
 | Inventor | 12 | 8 | 4 | 67% |
 | Okuma | 12 | 8 | 4 | 67% |
-| Master | 10 | 6 | 4 | 60% |
 | Agent | 7 | 3 | 4 | 43% |
 | Speed | 7 | 3 | 4 | 43% |
 | Electrode | 6 | 2 | 4 | 33% |
+| Post | 56 | 53 | 3 | 95% |
 
 ## STALE_MILESTONES
 

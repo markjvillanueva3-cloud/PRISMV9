@@ -42,14 +42,27 @@ const filePath = String(
 if (!HOOK_EDIT_RE.test(filePath)) { passthrough(); process.exit(0); }
 if (SKIP_RE.test(filePath)) { passthrough(); process.exit(0); }
 
-// Read the proposed new content (Write) — for Edit/MultiEdit, fall back to
-// existing on-disk content if the new content isn't directly in stdin.
+// Probe content per tool. The `// tier: T#` line lives on line ~2, so it is
+// almost never inside an Edit/MultiEdit chunk — probing only the chunk
+// false-positives on every mid-file edit of an already-tiered hook. So:
+// Write uses the full new content; Edit/MultiEdit union the on-disk file
+// (pre-edit state) with every new_string (covers "tier already there" AND
+// "tier being added by this edit").
 let probeSrc = "";
 const ti = input?.tool_input || {};
-if (typeof ti.content === "string") probeSrc = ti.content;
-else if (typeof ti.new_string === "string") probeSrc = ti.new_string;
-else {
-  try { probeSrc = readFileSync(filePath, "utf8"); } catch { probeSrc = ""; }
+if (typeof ti.content === "string") {
+  probeSrc = ti.content;
+} else {
+  let onDisk = "";
+  try { onDisk = readFileSync(filePath, "utf8"); } catch { onDisk = ""; }
+  const chunks = [onDisk];
+  if (typeof ti.new_string === "string") chunks.push(ti.new_string);
+  if (Array.isArray(ti.edits)) {
+    for (const e of ti.edits) {
+      if (e && typeof e.new_string === "string") chunks.push(e.new_string);
+    }
+  }
+  probeSrc = chunks.join("\n");
 }
 
 if (TIER_RE.test(probeSrc)) { passthrough(); process.exit(0); }

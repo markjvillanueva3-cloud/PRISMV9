@@ -1,0 +1,2679 @@
+{
+  "id": "COMMAND-KERNEL-MS0",
+  "version": "1.0.0",
+  "title": "Command Kernel — psk syscall layer + composition primitive + Obsidian-as-OS + feedback loop",
+  "brief": "Synthesis-layer capstone on the BACKEND-DEVTOOLS-RGS6 master roadmap. PRISM slash commands hardcode counts/paths/tool-lists, none compose formally, and the awareness layer to fix it is partially built but uncomposed. COMMAND-KERNEL-MS0 builds: (1) a psk CLI + thin MCP syscall layer every command resolves live state through; (2) a formal pipeline-composition primitive that activates the dormant pipeline_integrations: frontmatter; (3) the Obsidian wiki promoted to the literal OS state store at knowledge/wiki/os/; (4) a closed command-telemetry -> adaptive-thresholds feedback loop; plus migration of the existing command corpus to standardized de-hardcoded frontmatter and a set of new composite pipeline commands (count = sum of phases[].units[].creates_command:true; currently 11 across P1+P3). Line-successor to the shipped OBSIDIAN-PRISM-OS-MS0. Reuses/extends pending substrate units across 7 sibling RGS6 milestones rather than rebuilding them. All literal counts in this envelope reference inventory_snapshot (taken at created_at) — runtime consumers MUST refresh via PRISM-INVENTORY-LATEST.md / BUILD_STATE before relying on any number.",
+  "created_at": "2026-05-14T10:30:00Z",
+  "created_by": "claude-opus-4.7",
+  "track": "BACKEND-DEVTOOLS",
+  "roadmap_priority": 0,
+  "status": "not_started",
+  "total_units": 29,
+  "total_sessions": "8-10",
+  "pipeline": "/forge6 (brainstorm) -> /rgs6 generate (this emit)",
+  "inventory_snapshot": {
+    "taken_at": "2026-05-14T10:30:00Z",
+    "taken_via": "PRISM-INVENTORY-LATEST.md + BUILD_STATE.json + grep '.claude/commands/*.md' + grep 'pipeline_integrations' .claude/commands/",
+    "slash_commands_approx": 300,
+    "awareness_engines_approx": 9,
+    "skills_with_pipeline_integrations_approx": 11,
+    "engines_wired": 2362,
+    "engines_unwired": 873,
+    "envelope_drift_count": 173,
+    "doctrine": "These numbers MAY have drifted by the time a unit is executed. Each unit's exit_conditions reference these as approximate; runtime consumers must read PRISM-INVENTORY-LATEST.md for the live count."
+  },
+  "dependency_graph": "depends_on (shipped foundations): HOOK-SYNERGY-MS0, OBSIDIAN-PRISM-OS-MS0, DEV-VELOCITY-AUTOTRIGGER-MS0, ACP-MS0. Soft per-unit substrate deps (pending sibling milestones, NOT hard blockers — each unit's rationale documents the EXTEND-if-shipped / REUSE-if-extant fallback): SKILLS-UTILIZATION-MS0 (U-SKU01/03/04/05/06), KNOWLEDGE-VAULT-MS0 (U-VAULT01/02/03/04), OBSIDIAN-COMPOUND-MS1 (U-OB-1/U-OB-2), GRAPH-AS-LLM-CONTEXT-MS0 (U-GAC01), WIKI-EVOLVE-MS0 (U-WIKI-RENAME-PROPAGATE/U-WIKI-FLEETING-PROMOTE/U-TODOWRITE-HANDOFF-BRIDGE), AUTO-LEARNING-LOOP-MS0 (U-ALL01..06 — U-ALL01 shipped 2026-05-13), HOOKS-AUTOMATION-V2-MS0 (U-HKA05/U-HKA08), ACP-MS0A (automation-chain schema). Phases strictly ordered P0->P1->P2->P3->P4; P4 may overlap P3.",
+  "dependencies": [
+    "HOOK-SYNERGY-MS0",
+    "OBSIDIAN-PRISM-OS-MS0",
+    "DEV-VELOCITY-AUTOTRIGGER-MS0",
+    "ACP-MS0"
+  ],
+  "soft_dependencies": [
+    {
+      "milestone": "_note",
+      "binding": "n/a",
+      "fallback": "Hard dependencies (ACP-MS0, HOOK-SYNERGY-MS0, OBSIDIAN-PRISM-OS-MS0, DEV-VELOCITY-AUTOTRIGGER-MS0 — all shipped) live in top-level `dependencies` array, NOT here. `soft_dependencies` is exclusively for PENDING sibling-milestone substrate that units extend/reuse opportunistically."
+    },
+    {
+      "milestone": "SKILLS-UTILIZATION-MS0",
+      "units": [
+        "U-SKU01",
+        "U-SKU03",
+        "U-SKU04",
+        "U-SKU05",
+        "U-SKU06"
+      ],
+      "binding": "soft",
+      "fallback": "EXTEND if shipped, BUILD-INLINE if pending"
+    },
+    {
+      "milestone": "KNOWLEDGE-VAULT-MS0",
+      "units": [
+        "U-VAULT01",
+        "U-VAULT02",
+        "U-VAULT03",
+        "U-VAULT04"
+      ],
+      "binding": "soft",
+      "fallback": "EXTEND if shipped, BUILD-INLINE if pending"
+    },
+    {
+      "milestone": "OBSIDIAN-COMPOUND-MS1",
+      "units": [
+        "U-OB-1",
+        "U-OB-2"
+      ],
+      "binding": "soft",
+      "fallback": "EXTEND if shipped"
+    },
+    {
+      "milestone": "GRAPH-AS-LLM-CONTEXT-MS0",
+      "units": [
+        "U-GAC01"
+      ],
+      "binding": "soft",
+      "fallback": "EXTEND if shipped, READ-ONLY graph fallback"
+    },
+    {
+      "milestone": "WIKI-EVOLVE-MS0",
+      "units": [
+        "U-WIKI-RENAME-PROPAGATE",
+        "U-WIKI-FLEETING-PROMOTE",
+        "U-TODOWRITE-HANDOFF-BRIDGE"
+      ],
+      "binding": "soft",
+      "fallback": "EXTEND if shipped"
+    },
+    {
+      "milestone": "AUTO-LEARNING-LOOP-MS0",
+      "units": [
+        "U-ALL01",
+        "U-ALL02",
+        "U-ALL03",
+        "U-ALL04",
+        "U-ALL05",
+        "U-ALL06"
+      ],
+      "binding": "soft",
+      "fallback": "EXTEND if shipped (U-ALL01 confirmed shipped 2026-05-13)"
+    },
+    {
+      "milestone": "HOOKS-AUTOMATION-V2-MS0",
+      "units": [
+        "U-HKA05",
+        "U-HKA08",
+        "U-CLAUDE-MD-BACKFLOW"
+      ],
+      "binding": "soft",
+      "fallback": "EXTEND if shipped"
+    },
+    {
+      "milestone": "ACP-MS0A",
+      "units": [
+        "automation-chain-schema"
+      ],
+      "binding": "soft",
+      "fallback": "ADOPT if shipped, CONTRIBUTE-BACK if pending (U-CK12 condition)"
+    }
+  ],
+  "existing_leverage": [
+    {
+      "asset": "Awareness engines composed by psk (sample: UnifiedCommandAwarenessEngine, SlashCommandRecommenderEngine, SkillTierRegistryEngine, SkillAutoLoader, MasterIndexEngine, PRISMSelfAwarenessEngine; live count in inventory_snapshot.awareness_engines_approx)",
+      "type": "engine",
+      "count": 9,
+      "usage": "psk composes these as a thin syscall layer; does NOT rebuild"
+    },
+    {
+      "asset": "Lifecycle helpers (stable-session-id.mjs, chat-slots.mjs, build-state-snapshot.mjs, pick-unit.mjs, per-agent-handoff.mjs)",
+      "type": "script",
+      "count": 5,
+      "usage": "psk syscalls wrap these existing helpers, never reimplement"
+    },
+    {
+      "asset": "ACP-MS0 command inventory + gap map (shipped 5/5)",
+      "type": "registry",
+      "usage": "P1 migration consumes it instead of re-inventorying"
+    },
+    {
+      "asset": "ACP-MS0A automation-chain JSON schema",
+      "type": "schema",
+      "usage": "P2 pipeline registry adopts it as-is (verify shipped at S0.6; if unshipped, U-CK12 contributes the schema back)"
+    },
+    {
+      "asset": "pipeline-telemetry.jsonl + adaptive-thresholds.mjs (built, unwired)",
+      "type": "script",
+      "count": 2,
+      "usage": "P4 wires the existing dormant feedback machinery"
+    },
+    {
+      "asset": "skill-auto-trigger.mjs (DEV-VELOCITY-AUTOTRIGGER-MS0, shipped)",
+      "type": "hook",
+      "count": 1,
+      "usage": "P2 extends it pipeline-aware on PostToolUse/Stop"
+    }
+  ],
+  "atomization_note": "Registered at the WHAT level per rgs6 generate. The HOW-level atomized micro-step spec (state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-COMMAND-KERNEL-MS0-ATOMIZED-*.md) is the documented next pass before units are built. This envelope is for milestone-level rgs6 emit; per-unit atomization happens at unit-claim time.",
+  "scrutiny_config": {
+    "pass_mode": "hybrid",
+    "min_passes": 3,
+    "max_passes": 13,
+    "convergence_rule": "3-of-3 consensus among Claude reviewer A + reviewer B + code-analyzer C; the additional 13-agent hybrid panel (rgs6 doctrine — Claude + Ollama + Agent 11 atomic-first + Agent 12 tool-discipline + Agent 13 self-optimize) is the rgs6 generate-time arm and is logged in the scrutiny ledger but the 3-of-3 is load-bearing for ship.",
+    "omega_floor": 1,
+    "safety_floor": 0.7,
+    "rgs6_hybrid_agents": 13
+  },
+  "roles": [
+    {
+      "code": "R1",
+      "name": "Architect",
+      "responsibilities": "schema design, contract definition, vault-os entity model"
+    },
+    {
+      "code": "R2",
+      "name": "Implementer",
+      "responsibilities": "build psk syscalls, executor, codemod, composite commands"
+    },
+    {
+      "code": "R3",
+      "name": "Reviewer",
+      "responsibilities": "per-category scrutiny, alias deprecation review, scrutiny-gate orchestration"
+    }
+  ],
+  "tool_map": [
+    {
+      "tool": "psk CLI (.claude/kernel/psk.mjs)",
+      "phases": [
+        "P0",
+        "P1",
+        "P3",
+        "P4"
+      ],
+      "purpose": "syscall dispatch shell every command + hook composes"
+    },
+    {
+      "tool": "prism_session:psk MCP action",
+      "phases": [
+        "P0",
+        "P3",
+        "P4"
+      ],
+      "purpose": "thin MCP face for psk syscall layer"
+    },
+    {
+      "tool": ".claude/scripts/command-migrate.mjs",
+      "phases": [
+        "P1",
+        "P2"
+      ],
+      "purpose": "codemod for command-corpus standardization + composition-frontmatter population"
+    },
+    {
+      "tool": ".claude/kernel/pipeline-exec.mjs",
+      "phases": [
+        "P2",
+        "P3"
+      ],
+      "purpose": "pipeline executor (stage graph + gating + rollback + dry-run)"
+    },
+    {
+      "tool": ".claude/kernel/mirror-gen.mjs",
+      "phases": [
+        "P0"
+      ],
+      "purpose": "generated-mirror generator (JSON registries become mirrors of os/ entities)"
+    },
+    {
+      "tool": "knowledge/wiki/os/ entity schema",
+      "phases": [
+        "P0",
+        "P1",
+        "P2",
+        "P3",
+        "P4"
+      ],
+      "purpose": "literal OS state store for commands/pipelines/processes/runqueue/sessions/syscalls"
+    },
+    {
+      "tool": "pipeline-telemetry.jsonl",
+      "phases": [
+        "P4"
+      ],
+      "purpose": "structured command-invocation telemetry sink"
+    },
+    {
+      "tool": "adaptive-thresholds.mjs",
+      "phases": [
+        "P4"
+      ],
+      "purpose": "consumer of telemetry — re-tunes 6 magic numbers from signal"
+    },
+    {
+      "tool": "SkillTierRegistryEngine.classify_all",
+      "phases": [
+        "P4"
+      ],
+      "purpose": "auto skill-tier reclassification from invocation telemetry"
+    },
+    {
+      "tool": "duplicationGuardEngine.mustCheckBeforeCreating",
+      "phases": [
+        "P0",
+        "P1",
+        "P2",
+        "P3",
+        "P4"
+      ],
+      "purpose": "MANDATORY dedup gate before any new asset"
+    }
+  ],
+  "outbound_contributions": [
+    {
+      "to_milestone": "ACP-MS1",
+      "unit": "U-CK13",
+      "artifact": ".claude/kernel/pipeline-exec.mjs",
+      "contribution_kind": "runtime",
+      "note": "ACP-MS0A scoped the chain SCHEMA; the executor RUNTIME built here belongs in the ACP line. After this milestone ships, the file logically migrates to the ACP-MS1 envelope."
+    },
+    {
+      "to_milestone": "CCM-MS0",
+      "unit": "consumed",
+      "artifact": "PostCompact + SessionEnd lifecycle hooks",
+      "contribution_kind": "consumed",
+      "note": "Reuses CCM-MS0 P0-U08/P0-U09 hooks; this milestone does not rebuild them."
+    }
+  ],
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Kernel Foundation",
+      "description": "Build the psk CLI + thin MCP syscall layer (composing the existing awareness engines — see inventory_snapshot.awareness_engines_approx — plus existing helpers), the knowledge/wiki/os/ OS-state-store namespace + entity schema, the generated-mirror generators, and the canonical command frontmatter schema. Nothing else can land without this.",
+      "primary_role": "R2",
+      "primary_model": "opus-4.6",
+      "sessions": "2",
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": [
+        "fail-soft on every syscall",
+        "no duplication of existing awareness engines",
+        "vault-os entity schema completeness"
+      ],
+      "gate": {
+        "omega_floor": 1,
+        "safety_floor": 0.7,
+        "ralph_required": false,
+        "anti_regression": true,
+        "test_required": true,
+        "build_required": true,
+        "checkpoint": true,
+        "learning_save": true
+      },
+      "units": [
+        {
+          "id": "U-CK01",
+          "id_aliases": [
+            "U-CK-P0-01"
+          ],
+          "title": "psk CLI skeleton + thin prism_session MCP action (syscall dispatch shell)",
+          "phase": "P0",
+          "sequence": 0,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "opus-4.6",
+          "effort": 82,
+          "rationale": "NEW — no psk syscall layer exists. Composes the existing awareness engines (count in inventory_snapshot.awareness_engines_approx) + existing helpers; does not duplicate them. CLI + thin MCP action per user decision (locked).",
+          "disposition": {
+            "kind": "N",
+            "extends": [],
+            "reuses": []
+          },
+          "donor_units": [],
+          "dependencies": [],
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "tools": [
+            {
+              "tool": ".claude/kernel/psk.mjs"
+            },
+            {
+              "tool": "prism_session",
+              "action": "psk"
+            },
+            {
+              "tool": "duplicationGuardEngine",
+              "action": "mustCheckBeforeCreating"
+            }
+          ],
+          "scripts": [
+            ".claude/kernel/psk.mjs"
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/kernel/psk.mjs",
+              "type": "script",
+              "description": "psk CLI dispatch shell with all declared syscalls"
+            },
+            {
+              "path": "mcp-server/src/tools/dispatchers/sessionDispatcher.ts",
+              "type": "source",
+              "description": "prism_session:psk MCP action lazy-imports psk.mjs"
+            },
+            {
+              "path": "mcp-server/src/__tests__/psk.test.ts",
+              "type": "test",
+              "description": "round-trip + fail-soft tests, >=8 cases"
+            }
+          ],
+          "exit_conditions": [
+            "node .claude/kernel/psk.mjs --help enumerates every declared syscall (count derived from psk's own syscall table, not a hardcoded literal)",
+            "prism_session:psk MCP action round-trips a syscall via the dispatcher",
+            "npx vitest run psk.test.ts green (>=8 cases incl. fail-soft on every syscall)"
+          ],
+          "rollback": "git checkout -- .claude/kernel/psk.mjs mcp-server/src/tools/dispatchers/sessionDispatcher.ts mcp-server/src/__tests__/psk.test.ts; remove the prism_session:psk z.enum entry; rebuild.",
+          "tests_required": true,
+          "physics_constants_touched": [],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Dedup-check the psk layer before creating to satisfy the duplication-hard-block hook.",
+              "tool_calls": [
+                "duplicationGuardEngine.mustCheckBeforeCreating"
+              ],
+              "validation": "shouldProceed=true OR documented justification for proceeding despite a partial match",
+              "notes": "rgs5: tool=duplicationGuardEngine.mustCheckBeforeCreating | input=assetType:engine,name:psk,keywords:[syscall,kernel,command] | output=shouldProceed verdict | reject_if=shouldProceed=false with >=80% match | gain=every future kernel unit inherits the dedup precedent"
+            },
+            {
+              "number": 2,
+              "instruction": "Build the psk.mjs CLI dispatch shell with the declared syscall table (whoami / manifest / position / delta / tools / pick / checkin / handoff / record / recommend). Each syscall fail-soft.",
+              "tool_calls": [
+                "superpowers:test-driven-development",
+                ".claude/kernel/psk.mjs"
+              ],
+              "validation": "every syscall returns a degraded-but-usable result on failure; no throws",
+              "notes": "rgs5: tool=superpowers:test-driven-development | input=syscall table | output=.claude/kernel/psk.mjs + psk.test.ts | reject_if=any syscall throws instead of returning a degraded-but-usable result | gain=all lifecycle commands + hooks call this single shell"
+            },
+            {
+              "number": 3,
+              "instruction": "Wire psk as a thin prism_session MCP action: add to z.enum, define zod schema, add lazy-import switch case, write round-trip test.",
+              "tool_calls": [
+                "mcp-server/src/tools/dispatchers/sessionDispatcher.ts",
+                "mcp-server/src/schemas/sessionSchemas.ts"
+              ],
+              "validation": "import|enum|schema|round-trip test all present and the test asserts a real psk syscall payload (not a stub)",
+              "notes": "rgs5: tool=/forge-wiring | input=psk.mjs + prism_session z.enum | output=action enum + zod schema + lazy import + round-trip test | reject_if=any of {import,enum,schema,round-trip test} missing | gain=agents + MCP callers reach psk without shelling out"
+            }
+          ],
+          "status": "complete",
+          "completedAt": "2026-05-14T18:08:57.566Z",
+          "completed_at": "2026-05-14T18:11:13.523Z",
+          "completed_by": "claude-2645074c (slot bravo) — commit d1c72f0e8",
+          "completed_artifacts": [
+            ".claude/kernel/psk.mjs",
+            "mcp-server/src/tools/dispatchers/sessionDispatcher.ts (psk action + case)",
+            "mcp-server/src/schemas/sessionActionSchemas.ts (psk schema)",
+            "mcp-server/src/__tests__/psk.test.ts (24 tests passing)"
+          ],
+          "scrutiny_3of3": "ck01-1778781664 PASS (opus + claude + codex/analyst)"
+        },
+        {
+          "id": "U-CK02",
+          "id_aliases": [
+            "U-CK-P0-02"
+          ],
+          "title": "psk whoami / position / manifest syscalls",
+          "phase": "P0",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "opus-4.6",
+          "effort": 70,
+          "rationale": "NEW (composition) — EXTEND U-GAC01 (GraphContextLensEngine as graph backend), REUSE stable-session-id/chat-slots/build-state helpers, REUSE U-SKU06 skill registry as the skill-inventory backend. Replaces hardcoded counts/paths across the command corpus.",
+          "disposition": {
+            "kind": "N",
+            "extends": [
+              "U-GAC01"
+            ],
+            "reuses": [
+              "stable-session-id.mjs",
+              "chat-slots.mjs",
+              "build-state-snapshot.mjs",
+              "U-SKU06"
+            ]
+          },
+          "donor_units": [
+            "U-GAC01",
+            "U-SKU06"
+          ],
+          "dependencies": [
+            "U-CK01"
+          ],
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "tools": [
+            {
+              "tool": ".claude/helpers/stable-session-id.mjs"
+            },
+            {
+              "tool": "H:/prism/scripts/build-state-snapshot.mjs"
+            },
+            {
+              "tool": "H:/prism/scripts/system-viz-query.mjs"
+            }
+          ],
+          "scripts": [
+            ".claude/kernel/psk.mjs"
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/kernel/psk.mjs",
+              "type": "script",
+              "description": "whoami/position/manifest syscall implementations"
+            },
+            {
+              "path": "mcp-server/src/__tests__/psk-whoami.test.ts",
+              "type": "test",
+              "description": "runtime path-detection test asserts no hardcoded user paths"
+            }
+          ],
+          "exit_conditions": [
+            "psk whoami resolves {sessionId, slot, branch, topic, worktree, userClaudeDir, memoryPath} with paths DETECTED at runtime (no hardcoded wompu / Mark Villanueva literals)",
+            "psk manifest returns live engine/dispatcher/hook/skill counts read from PRISM-INVENTORY-LATEST.md (never baked)",
+            "psk position returns build/svi/drift/buildState from existing snapshots without re-deriving"
+          ],
+          "rollback": "git checkout -- .claude/kernel/psk.mjs mcp-server/src/__tests__/psk-whoami.test.ts",
+          "tests_required": true,
+          "physics_constants_touched": [],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Implement whoami with runtime path detection — probe fs.existsSync for both possible user-Claude dirs, never embed a literal username.",
+              "tool_calls": [
+                ".claude/helpers/stable-session-id.mjs",
+                ".claude/helpers/chat-slots.mjs",
+                "node:fs"
+              ],
+              "validation": "grep '.claude/kernel/psk.mjs' for hardcoded usernames returns zero hits",
+              "notes": "rgs5: tool=.claude/kernel/psk.mjs | input=stable-session-id + chat-slots + fs.existsSync probes | output=psk whoami JSON | reject_if=any path is a hardcoded literal | gain=fixes the stale-path bug class across every command"
+            },
+            {
+              "number": 2,
+              "instruction": "Implement manifest + position by composing existing snapshots — never read counts from baked prose.",
+              "tool_calls": [
+                "H:/prism/scripts/build-state-snapshot.mjs",
+                "H:/prism/PRISM-INVENTORY-LATEST.md"
+              ],
+              "validation": "all returned counts trace back to a state file's parsed value",
+              "notes": "rgs5: tool=build-state-snapshot.mjs + PRISM-INVENTORY-LATEST.md | input=live state files | output=psk manifest + psk position JSON | reject_if=any count is read from a hardcoded number in command prose | gain=every command stops baking counts that rot in 48h"
+            }
+          ]
+        },
+        {
+          "id": "U-CK03",
+          "id_aliases": [
+            "U-CK-P0-03"
+          ],
+          "title": "psk handoff / checkin / pick syscalls",
+          "phase": "P0",
+          "sequence": 2,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "sonnet-4.6",
+          "effort": 55,
+          "rationale": "NEW shell — REUSE per-agent-handoff.mjs / chat-slots.mjs / pick-unit.mjs (wrap, do not rebuild); ABSORB U-TODOWRITE-HANDOFF-BRIDGE behavior into psk handoff.",
+          "disposition": {
+            "kind": "N",
+            "extends": [
+              "U-TODOWRITE-HANDOFF-BRIDGE"
+            ],
+            "reuses": [
+              "per-agent-handoff.mjs",
+              "chat-slots.mjs",
+              "pick-unit.mjs"
+            ]
+          },
+          "donor_units": [
+            "U-TODOWRITE-HANDOFF-BRIDGE"
+          ],
+          "dependencies": [
+            "U-CK01"
+          ],
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "tools": [
+            {
+              "tool": ".claude/helpers/per-agent-handoff.mjs"
+            },
+            {
+              "tool": ".claude/helpers/chat-slots.mjs"
+            },
+            {
+              "tool": "H:/prism/scripts/pick-unit.mjs"
+            }
+          ],
+          "scripts": [
+            ".claude/kernel/psk.mjs"
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/kernel/psk.mjs",
+              "type": "script",
+              "description": "handoff/checkin/pick syscall implementations"
+            },
+            {
+              "path": "mcp-server/src/__tests__/psk-syscalls.test.ts",
+              "type": "test",
+              "description": "delegation tests assert no helper reimplementation"
+            }
+          ],
+          "exit_conditions": [
+            "psk handoff read|write delegates to per-agent-handoff.mjs unchanged",
+            "psk checkin runs the chat-slots reclaim+claim+drift+commit-hygiene flow in one call",
+            "psk pick delegates to pick-unit.mjs (passes flags through)"
+          ],
+          "rollback": "git checkout -- .claude/kernel/psk.mjs mcp-server/src/__tests__/psk-syscalls.test.ts",
+          "tests_required": true,
+          "physics_constants_touched": [],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Wrap the 3 existing helpers as psk syscalls. Each syscall passes its argv through to the helper unchanged.",
+              "tool_calls": [
+                ".claude/helpers/per-agent-handoff.mjs",
+                ".claude/helpers/chat-slots.mjs",
+                "H:/prism/scripts/pick-unit.mjs"
+              ],
+              "validation": "diff between helper invocation and psk syscall invocation shows only path-prefix wrapping",
+              "notes": "rgs5: tool=.claude/kernel/psk.mjs | input=per-agent-handoff.mjs + chat-slots.mjs + pick-unit.mjs | output=psk handoff|checkin|pick | reject_if=any syscall reimplements helper logic instead of delegating | gain=one entry point; lifecycle commands shrink to thin clients"
+            }
+          ]
+        },
+        {
+          "id": "U-CK04",
+          "id_aliases": [
+            "U-CK-P0-04"
+          ],
+          "title": "knowledge/wiki/os/ namespace + entity frontmatter schema",
+          "phase": "P0",
+          "sequence": 3,
+          "role": "R1",
+          "role_name": "Architect",
+          "model": "opus-4.6",
+          "effort": 75,
+          "rationale": "NEW — EXTEND U-VAULT01 routing contract to cover the os/ namespace. Encodes the literal vault-as-OS decision: os/commands, os/pipelines, os/processes, os/runqueue, os/sessions, os/syscalls as frontmatter'd entities.",
+          "disposition": {
+            "kind": "N",
+            "extends": [
+              "U-VAULT01"
+            ],
+            "reuses": []
+          },
+          "donor_units": [
+            "U-VAULT01"
+          ],
+          "dependencies": [
+            "U-CK01"
+          ],
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "tools": [
+            {
+              "tool": "H:/prism/WIKI_SCHEMA.md"
+            },
+            {
+              "tool": "wiki-lint",
+              "action": "validate"
+            }
+          ],
+          "scripts": [],
+          "deliverables": [
+            {
+              "path": "knowledge/wiki/os/_schema.md",
+              "type": "doc",
+              "description": "os/ entity frontmatter schema extending U-VAULT01"
+            },
+            {
+              "path": "knowledge/wiki/os/commands/.gitkeep",
+              "type": "data",
+              "description": "commands sub-namespace"
+            },
+            {
+              "path": "knowledge/wiki/os/pipelines/.gitkeep",
+              "type": "data",
+              "description": "pipelines sub-namespace"
+            },
+            {
+              "path": "knowledge/wiki/os/processes/.gitkeep",
+              "type": "data",
+              "description": "processes sub-namespace"
+            },
+            {
+              "path": "knowledge/wiki/os/runqueue/.gitkeep",
+              "type": "data",
+              "description": "runqueue sub-namespace"
+            },
+            {
+              "path": "knowledge/wiki/os/sessions/.gitkeep",
+              "type": "data",
+              "description": "sessions sub-namespace"
+            },
+            {
+              "path": "knowledge/wiki/os/syscalls.md",
+              "type": "doc",
+              "description": "generated from psk's own syscall table"
+            }
+          ],
+          "exit_conditions": [
+            "knowledge/wiki/os/ created with the 6 entity sub-namespaces (commands/pipelines/processes/runqueue/sessions/syscalls) + a schema doc",
+            "entity frontmatter schema validates via wiki-lint",
+            "os/syscalls.md is GENERATED from psk's own syscall table (not hand-written)"
+          ],
+          "rollback": "git checkout -- knowledge/wiki/os/",
+          "tests_required": true,
+          "physics_constants_touched": [],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Define the os/ entity frontmatter schema extending U-VAULT01's vault routing contract.",
+              "tool_calls": [
+                "H:/prism/WIKI_SCHEMA.md"
+              ],
+              "validation": "schema extends, does not parallel — diff vs U-VAULT01 shows only additive fields",
+              "notes": "rgs5: tool=WIKI_SCHEMA.md + U-VAULT01 | input=vault routing contract | output=knowledge/wiki/os/_schema.md | reject_if=schema duplicates U-VAULT01 instead of extending it | gain=the vault becomes the OS state store every later phase reads/writes"
+            },
+            {
+              "number": 2,
+              "instruction": "Create the 6 sub-namespaces with .gitkeep + generate os/syscalls.md from psk's syscall table.",
+              "tool_calls": [
+                ".claude/kernel/psk.mjs"
+              ],
+              "validation": "os/syscalls.md regenerates byte-identically when psk's syscall table is unchanged",
+              "notes": "rgs5: tool=psk.mjs | input=psk syscall table | output=knowledge/wiki/os/syscalls.md + sub-namespaces | reject_if=os/syscalls.md is hand-written | gain=schema-data round-trip with the kernel"
+            }
+          ]
+        },
+        {
+          "id": "U-CK05",
+          "id_aliases": [
+            "U-CK-P0-05"
+          ],
+          "title": "Generated-mirror generators (JSON registries become mirrors of os/ entities)",
+          "phase": "P0",
+          "sequence": 4,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "sonnet-4.6",
+          "effort": 60,
+          "rationale": "NEW — makes the vault the single source of truth; the existing JSON registries (chat-slots.json, atomic-roadmap.json, SLASH_COMMAND_REGISTRY.json) become generated mirrors, not sources.",
+          "disposition": {
+            "kind": "N",
+            "extends": [],
+            "reuses": []
+          },
+          "donor_units": [],
+          "dependencies": [
+            "U-CK04"
+          ],
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "tools": [
+            {
+              "tool": ".claude/kernel/mirror-gen.mjs"
+            }
+          ],
+          "scripts": [
+            ".claude/kernel/mirror-gen.mjs"
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/kernel/mirror-gen.mjs",
+              "type": "script",
+              "description": "regenerates JSON registries from os/ entities"
+            },
+            {
+              "path": "mcp-server/src/__tests__/mirror-gen.test.ts",
+              "type": "test",
+              "description": "round-trip test: os/ entity edit -> regen -> mirror reflects it"
+            }
+          ],
+          "exit_conditions": [
+            "chat-slots.json / atomic-roadmap.json / SLASH_COMMAND_REGISTRY.json regenerate deterministically from os/ entities",
+            "round-trip test passes: os/ entity edit -> regen -> mirror reflects it",
+            "every regenerated mirror carries a `generated-from-os: <commit-sha>` header so hand-edits are detectable"
+          ],
+          "rollback": "git checkout -- .claude/kernel/mirror-gen.mjs mcp-server/src/__tests__/mirror-gen.test.ts",
+          "tests_required": true,
+          "physics_constants_touched": [],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build the mirror generator that reads os/ entities and emits the legacy JSON registries with a generated-from-os header.",
+              "tool_calls": [
+                ".claude/kernel/mirror-gen.mjs"
+              ],
+              "validation": "header present + deterministic output (running twice produces byte-identical files)",
+              "notes": "rgs5: tool=mirror-gen.mjs | input=os/ entities | output=regenerated JSON mirrors | reject_if=a mirror is hand-editable without a regen path | gain=no more 3-partial-registries drift; one source of truth"
+            }
+          ]
+        },
+        {
+          "id": "U-CK06",
+          "id_aliases": [
+            "U-CK-P0-06"
+          ],
+          "title": "Canonical command frontmatter schema (name/desc/version/tier/triggers/consumes/produces/composes_with/effort/model)",
+          "phase": "P0",
+          "sequence": 5,
+          "role": "R1",
+          "role_name": "Architect",
+          "model": "opus-4.6",
+          "effort": 68,
+          "rationale": "NEW — REUSE U-SKU06 skill-registry schema as the base; RECONCILE with U-VAULT04 cross-trigger registry (one registry, not two). This schema IS the kernel's API contract for every command.",
+          "disposition": {
+            "kind": "N",
+            "extends": [
+              "U-VAULT04"
+            ],
+            "reuses": [
+              "U-SKU06"
+            ]
+          },
+          "donor_units": [
+            "U-SKU06",
+            "U-VAULT04"
+          ],
+          "dependencies": [
+            "U-CK04"
+          ],
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "tools": [
+            {
+              "tool": "knowledge/wiki/os/_command-schema.md"
+            }
+          ],
+          "scripts": [],
+          "deliverables": [
+            {
+              "path": "knowledge/wiki/os/_command-schema.md",
+              "type": "doc",
+              "description": "canonical command frontmatter schema (superset of U-SKU06, reconciled with U-VAULT04)"
+            },
+            {
+              "path": "knowledge/wiki/os/_command-schema-reconciliation.md",
+              "type": "doc",
+              "description": "documented reconciliation with U-VAULT04 cross-trigger registry"
+            }
+          ],
+          "exit_conditions": [
+            "canonical frontmatter schema published as os/_command-schema.md",
+            "schema is a SUPERSET of U-SKU06's; U-VAULT04 reconciliation documented",
+            "consumes / produces / composes_with fields defined as the composition contract"
+          ],
+          "rollback": "git checkout -- knowledge/wiki/os/_command-schema.md knowledge/wiki/os/_command-schema-reconciliation.md",
+          "tests_required": false,
+          "physics_constants_touched": [],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Extend U-SKU06 schema with composition fields (consumes/produces/composes_with), reconcile U-VAULT04 cross-trigger registry into the same schema rather than running both in parallel.",
+              "tool_calls": [
+                "knowledge/wiki/os/_command-schema.md"
+              ],
+              "validation": "schema diff vs U-SKU06 shows additions only; reconciliation doc names every U-VAULT04 field with a mapping",
+              "notes": "rgs5: tool=U-SKU06 + U-VAULT04 | input=skill registry schema + cross-trigger registry | output=os/_command-schema.md | reject_if=creates a parallel registry instead of reconciling to one | gain=the migration (P1) + composition (P2) both key off this one schema"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Command-Surface Migration",
+      "description": "Generated mass-migration of the existing slash command corpus to the canonical frontmatter schema, de-hardcoding counts/paths/tool-lists, registering each as an os/commands/ entity. Hand-tune the high-traffic lifecycle commands to thin psk clients. U-CK09 SKIPS /pick-task knowing U-CK10 aliases it in the next unit.",
+      "primary_role": "R2",
+      "primary_model": "opus-4.6",
+      "sessions": "2",
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": [
+        "migration is generated + reversible",
+        "no command loses behavior",
+        "per-category scrutiny tractable",
+        "U-CK09 skips /pick-task to avoid race with U-CK10"
+      ],
+      "gate": {
+        "omega_floor": 1,
+        "safety_floor": 0.7,
+        "ralph_required": false,
+        "anti_regression": true,
+        "test_required": true,
+        "build_required": true,
+        "checkpoint": true,
+        "learning_save": true
+      },
+      "units": [
+        {
+          "id": "U-CK07",
+          "id_aliases": [
+            "U-CK-P1-01"
+          ],
+          "title": "command-migrate.mjs codemod",
+          "phase": "P1",
+          "sequence": 0,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "opus-4.6",
+          "effort": 78,
+          "rationale": "NEW — EXTEND U-WIKI-RENAME-PROPAGATE as the donor cross-surface batch-rewrite engine; extend its reference-scan to .claude/commands/*.md.",
+          "disposition": {
+            "kind": "N",
+            "extends": [
+              "U-WIKI-RENAME-PROPAGATE"
+            ],
+            "reuses": []
+          },
+          "donor_units": [
+            "U-WIKI-RENAME-PROPAGATE"
+          ],
+          "dependencies": [
+            "U-CK06"
+          ],
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "tools": [
+            {
+              "tool": ".claude/scripts/command-migrate.mjs"
+            }
+          ],
+          "scripts": [
+            ".claude/scripts/command-migrate.mjs"
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/scripts/command-migrate.mjs",
+              "type": "script",
+              "description": "codemod with dry-run + apply modes, fails soft per-command"
+            },
+            {
+              "path": "mcp-server/src/__tests__/command-migrate.test.ts",
+              "type": "test",
+              "description": "idempotency + reversibility + per-command fail-soft tests"
+            }
+          ],
+          "exit_conditions": [
+            "command-migrate.mjs --dry-run lists every anti-pattern per command (hardcoded count/path, boilerplate hash, session-id boilerplate)",
+            "idempotent + reversible (git-tracked, dry-run-first)",
+            "fails soft per-command (one bad command does not halt the batch)"
+          ],
+          "rollback": "git checkout -- .claude/scripts/command-migrate.mjs mcp-server/src/__tests__/command-migrate.test.ts",
+          "tests_required": true,
+          "physics_constants_touched": [],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build the codemod on top of U-WIKI-RENAME-PROPAGATE's findReferences/applyRename primitives.",
+              "tool_calls": [
+                ".claude/scripts/command-migrate.mjs"
+              ],
+              "validation": "diff vs U-WIKI-RENAME-PROPAGATE shows reuse, not reimplementation",
+              "notes": "rgs5: tool=command-migrate.mjs | input=U-WIKI-RENAME-PROPAGATE primitives + command corpus | output=command-migrate.mjs (dry-run + apply modes) | reject_if=reimplements batch-rewrite instead of extending the donor engine | gain=a reusable command-corpus codemod for every future bulk command change"
+            }
+          ]
+        },
+        {
+          "id": "U-CK08",
+          "id_aliases": [
+            "U-CK-P1-02"
+          ],
+          "title": "Migrate the command corpus: standardize frontmatter, de-hardcode, register as os/commands/ entities",
+          "phase": "P1",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "opus-4.6",
+          "effort": 85,
+          "rationale": "NEW — REUSE ACP-MS0 command inventory + gap map (do not re-inventory), REUSE U-SKU03 linter (detection), REUSE U-SKU01 3Q gate. Generated, phased by category (13 categories per ACP-MS0).",
+          "disposition": {
+            "kind": "N",
+            "extends": [],
+            "reuses": [
+              "ACP-MS0",
+              "U-SKU03",
+              "U-SKU01"
+            ]
+          },
+          "donor_units": [
+            "ACP-MS0",
+            "U-SKU03",
+            "U-SKU01"
+          ],
+          "dependencies": [
+            "U-CK07"
+          ],
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "tools": [
+            {
+              "tool": ".claude/scripts/command-migrate.mjs"
+            }
+          ],
+          "scripts": [],
+          "deliverables": [
+            {
+              "path": ".claude/commands/",
+              "type": "data",
+              "description": "all commands carry the canonical frontmatter schema"
+            },
+            {
+              "path": "knowledge/wiki/os/commands/",
+              "type": "data",
+              "description": "each command registered as an os/commands/ entity"
+            },
+            {
+              "path": "state/shared/U-CK08-migration-report.md",
+              "type": "state",
+              "description": "per-category migration verdicts"
+            }
+          ],
+          "exit_conditions": [
+            "every command in the corpus carries the canonical frontmatter schema (count derived live from .claude/commands/*.md, not baked)",
+            "zero hardcoded counts/paths remain (verified by U-SKU03 linter sweep)",
+            "each command registered as a knowledge/wiki/os/commands/ entity",
+            "migration run per-category with a scrutiny pass each (13 categories per ACP-MS0)"
+          ],
+          "rollback": "git checkout -- .claude/commands/ knowledge/wiki/os/commands/ state/shared/U-CK08-migration-report.md",
+          "tests_required": true,
+          "physics_constants_touched": [],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Run command-migrate per category, reusing ACP-MS0 inventory + gap map. Each category gets a scrutiny pass before the next runs.",
+              "tool_calls": [
+                ".claude/scripts/command-migrate.mjs"
+              ],
+              "validation": "U-SKU03 linter sweep on migrated corpus returns zero hardcoded-count/path findings",
+              "notes": "rgs5: tool=command-migrate.mjs + ACP-MS0 gap map | input=command categories (13 per ACP-MS0) | output=migrated commands + os/commands/ entities | reject_if=re-inventories commands ACP-MS0 already catalogued | gain=every command becomes a live vault entity the kernel resolves"
+            }
+          ]
+        },
+        {
+          "id": "U-CK09",
+          "id_aliases": [
+            "U-CK-P1-03"
+          ],
+          "title": "Hand-tune the lifecycle commands (startup/checkin/pick-unit/precompact) to thin psk clients — SKIPS /pick-task (handled by U-CK10) and creates /handoff + /boot if absent",
+          "phase": "P1",
+          "sequence": 2,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "opus-4.6",
+          "effort": 72,
+          "rationale": "NEW — startup/checkin/pick-unit/precompact rewritten as thin clients of psk syscalls. /handoff and /boot DO NOT currently exist as slash commands (handoff is a helper script .claude/helpers/per-agent-handoff.mjs; boot logic lives inside /checkin) — U-CK09 either creates them as thin psk shells OR documents the helper-only convention. U-CK10 will alias /pick-task in the immediately-following unit; U-CK09 deliberately skips it to avoid the hand-tune/alias race the per-file scrutiny flagged.",
+          "disposition": {
+            "kind": "N",
+            "extends": [],
+            "reuses": [
+              "psk syscalls"
+            ]
+          },
+          "donor_units": [],
+          "dependencies": [
+            "U-CK03",
+            "U-CK08"
+          ],
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": true,
+          "tools": [
+            {
+              "tool": ".claude/kernel/psk.mjs"
+            }
+          ],
+          "scripts": [],
+          "deliverables": [
+            {
+              "path": ".claude/commands/startup.md",
+              "type": "command",
+              "description": "thin psk client"
+            },
+            {
+              "path": ".claude/commands/checkin.md",
+              "type": "command",
+              "description": "thin psk client"
+            },
+            {
+              "path": ".claude/commands/pick-unit.md",
+              "type": "command",
+              "description": "thin psk client"
+            },
+            {
+              "path": ".claude/commands/precompact.md",
+              "type": "command",
+              "description": "thin psk client"
+            },
+            {
+              "path": ".claude/commands/handoff.md",
+              "type": "command",
+              "description": "NEW thin psk client wrapping per-agent-handoff.mjs (if convention favors a slash command) OR a documented decision-note keeping handoff as a helper-only invocation"
+            },
+            {
+              "path": ".claude/commands/boot.md",
+              "type": "command",
+              "description": "NEW thin psk client OR documented redirect to /checkin (whichever the U-CK09 review concludes)"
+            },
+            {
+              "path": "state/shared/U-CK09-lifecycle-decisions.md",
+              "type": "state",
+              "description": "documented decisions for handoff/boot existence-vs-convention"
+            }
+          ],
+          "exit_conditions": [
+            "each existing lifecycle command body is <=~50 lines: call psk, present, execute",
+            "each keeps a 1-line manual fallback if psk is unavailable",
+            "no lifecycle command hardcodes a count or path",
+            "decisions for /handoff and /boot (create-as-skill vs document-as-helper) recorded in state/shared/U-CK09-lifecycle-decisions.md",
+            "U-CK09 explicitly does NOT modify .claude/commands/pick-task.md (reserved for U-CK10)"
+          ],
+          "rollback": "git checkout -- .claude/commands/startup.md .claude/commands/checkin.md .claude/commands/pick-unit.md .claude/commands/precompact.md .claude/commands/handoff.md .claude/commands/boot.md state/shared/U-CK09-lifecycle-decisions.md",
+          "tests_required": true,
+          "physics_constants_touched": [],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Rewrite the 4 extant lifecycle commands (startup/checkin/pick-unit/precompact) as psk thin clients, preserving every behavior the original had.",
+              "tool_calls": [
+                ".claude/kernel/psk.mjs"
+              ],
+              "validation": "behavior parity test: diff before/after on the documented behaviors (claim slot, regen state, pick top-1, etc.); zero loss",
+              "notes": "rgs5: tool=psk.mjs | input=current 4 lifecycle command files | output=thin-client command files | reject_if=any rewrite drops a behavior the original had | gain=lines of drift-prone markdown collapse to a fraction"
+            },
+            {
+              "number": 2,
+              "instruction": "Decide /handoff and /boot disposition: create slash-command shells iff the operator workflow demands it (per-agent-handoff.mjs invocation friction), else document as helper-only and add the decision to state/shared/U-CK09-lifecycle-decisions.md.",
+              "tool_calls": [
+                ".claude/helpers/per-agent-handoff.mjs"
+              ],
+              "validation": "decisions documented; if shells created, they delegate to psk with no logic reimplementation",
+              "notes": "rgs5: tool=psk.mjs | input=helper invocation patterns | output=handoff/boot disposition | reject_if=create stub shells without documented justification | gain=zero phantom commands; explicit convention"
+            }
+          ]
+        },
+        {
+          "id": "U-CK10",
+          "id_aliases": [
+            "U-CK-P1-04"
+          ],
+          "title": "Merge /pick-task -> /pick-unit alias; deprecate the conflicting roadmap-index path",
+          "phase": "P1",
+          "sequence": 3,
+          "role": "R3",
+          "role_name": "Reviewer",
+          "model": "sonnet-4.6",
+          "effort": 35,
+          "rationale": "NEW — R7 conflict resolution: /pick-task (legacy roadmap-index + claims/ dirs, lives in C:/Users/Mark Villanueva/.claude/commands/pick-task.md) and /pick-unit (deterministic atomic-roadmap, lives in H:/prism/.claude/commands/pick-unit.md) are contradictory; keep the newer/tested one. U-CK09 deliberately skipped /pick-task to avoid the hand-tune/alias race.",
+          "disposition": {
+            "kind": "N",
+            "extends": [],
+            "reuses": []
+          },
+          "donor_units": [],
+          "dependencies": [
+            "U-CK08"
+          ],
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": true,
+          "tools": [],
+          "scripts": [],
+          "deliverables": [
+            {
+              "path": "C:/Users/Mark Villanueva/.claude/commands/pick-task.md",
+              "type": "command",
+              "description": "/pick-task becomes a thin alias delegating to /pick-unit with a deprecation banner"
+            },
+            {
+              "path": "state/shared/U-CK10-pick-task-callers.md",
+              "type": "state",
+              "description": "grep of every reference to /pick-task across the repo + decision per reference"
+            }
+          ],
+          "exit_conditions": [
+            "/pick-task becomes a thin alias delegating to /pick-unit",
+            "one banner explains the merge and points to the canonical command",
+            "no behavior regression for callers that used /pick-task (grep all references, verify each works after alias)"
+          ],
+          "rollback": "git checkout -- 'C:/Users/Mark Villanueva/.claude/commands/pick-task.md' state/shared/U-CK10-pick-task-callers.md",
+          "tests_required": true,
+          "physics_constants_touched": [],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Grep every reference to /pick-task across .claude/, scripts/, docs/. For each caller, verify the alias works or document the migration step required.",
+              "tool_calls": [
+                "grep",
+                "ripgrep"
+              ],
+              "validation": "report enumerates every caller and shows each works post-alias",
+              "notes": "rgs5: tool=ripgrep | input=/pick-task call sites | output=state/shared/U-CK10-pick-task-callers.md | reject_if=any caller breaks silently | gain=safe deprecation"
+            },
+            {
+              "number": 2,
+              "instruction": "Replace /pick-task body with a thin alias + banner. Preserve frontmatter so existing trigger keywords still resolve.",
+              "tool_calls": [],
+              "validation": "/pick-task invocation produces /pick-unit behavior with banner",
+              "notes": "rgs5: tool=Edit | input=pick-task.md + alias banner template | output=/pick-task alias | reject_if=two contradictory roadmap systems still live | gain=one picker contract, surfaced by /pick-dev"
+            }
+          ]
+        },
+        {
+          "id": "U-CK11",
+          "id_aliases": [
+            "U-CK-P1-05"
+          ],
+          "title": "Per-category scrutiny pass over the migrated corpus",
+          "phase": "P1",
+          "sequence": 4,
+          "role": "R3",
+          "role_name": "Reviewer",
+          "model": "opus-4.6",
+          "effort": 50,
+          "rationale": "NEW — the migration touches the entire command corpus; per-category scrutiny keeps review tractable per PRISM doctrine (CLAUDE.md §PER-FILE SCRUTINY GATE).",
+          "disposition": {
+            "kind": "N",
+            "extends": [],
+            "reuses": [
+              "/scrutinize",
+              "scrutiny-3way.mjs"
+            ]
+          },
+          "donor_units": [],
+          "dependencies": [
+            "U-CK08",
+            "U-CK09",
+            "U-CK10"
+          ],
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "tools": [
+            {
+              "tool": ".claude/scripts/scrutiny-3way.mjs"
+            }
+          ],
+          "scripts": [],
+          "deliverables": [
+            {
+              "path": "state/shared/U-CK11-scrutiny-verdicts.md",
+              "type": "state",
+              "description": "per-category scrutiny verdicts + P0/P1 findings + fixes"
+            }
+          ],
+          "exit_conditions": [
+            "each of the 13 categories passes a 2-reviewer scrutiny pass",
+            "all P0/P1 findings fixed",
+            "P2/P3 deferrables logged in state/shared/U-CK11-scrutiny-verdicts.md"
+          ],
+          "rollback": "Restore the scrutiny ledger entry to in_progress via scrutiny-3way.mjs --unmark; re-run the affected category's scrutiny pass after correction.",
+          "tests_required": false,
+          "physics_constants_touched": [],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Scrutinize the migrated corpus per category using the scrutiny-3way.mjs script + 2 parallel reviewer agents per category.",
+              "tool_calls": [
+                ".claude/scripts/scrutiny-3way.mjs"
+              ],
+              "validation": "scrutiny ledger entry for every category, with verdict + findings",
+              "notes": "rgs5: tool=scrutiny-3way.mjs + /scrutinize | input=13 categories of migrated commands | output=scrutiny verdicts + fixes | reject_if=any category ships with an unaddressed P0/P1 | gain=a category-scrutiny pattern reusable for any future bulk command change"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "Composition Layer",
+      "description": "Activate the dormant pipeline_integrations: frontmatter. Build the pipeline registry (adopting ACP-MS0A's automation-chain schema if shipped, else contributing the schema back) + the executor (dry-run first). Populate consumes/produces/composes_with across migrated commands. Extend skill-auto-trigger pipeline-aware.",
+      "primary_role": "R2",
+      "primary_model": "opus-4.6",
+      "sessions": "2",
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": [
+        "executor starts dry-run/suggest-only",
+        "no auto-execution until telemetry proves chains",
+        "reuse ACP schema, do not rebuild"
+      ],
+      "gate": {
+        "omega_floor": 1,
+        "safety_floor": 0.7,
+        "ralph_required": false,
+        "anti_regression": true,
+        "test_required": true,
+        "build_required": true,
+        "checkpoint": true,
+        "learning_save": true
+      },
+      "units": [
+        {
+          "id": "U-CK12",
+          "id_aliases": [
+            "U-CK-P2-01"
+          ],
+          "title": "Pipeline registry — adopt ACP-MS0A automation-chain schema (or contribute back if pending)",
+          "phase": "P2",
+          "sequence": 0,
+          "role": "R1",
+          "role_name": "Architect",
+          "model": "sonnet-4.6",
+          "effort": 35,
+          "rationale": "REUSE-if-shipped / EXTEND-if-pending — ACP-MS0A scoped the automation-chain JSON schema (chain-id/steps/triggers/token-budget/event-to-chain/command-to-chain/fail-closed/telemetry). Adopt it verbatim if shipped; if not, this unit BUILDS the schema and contributes it back to ACP.",
+          "disposition": {
+            "kind": "R",
+            "extends": [],
+            "reuses": [
+              "ACP-MS0A"
+            ]
+          },
+          "donor_units": [
+            "ACP-MS0A"
+          ],
+          "dependencies": [
+            "U-CK06"
+          ],
+          "disposition_conditional": "REUSE if ACP-MS0A.status === 'complete' at unit-claim time; else EXTEND and contribute the schema back to ACP-MS1.",
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "tools": [],
+          "scripts": [],
+          "deliverables": [
+            {
+              "path": "knowledge/wiki/os/pipelines/",
+              "type": "data",
+              "description": "pipeline registry using ACP-MS0A schema"
+            },
+            {
+              "path": "knowledge/wiki/os/pipelines/_schema.md",
+              "type": "doc",
+              "description": "adopted schema or contribution-back note"
+            }
+          ],
+          "exit_conditions": [
+            "pipeline registry lives at knowledge/wiki/os/pipelines/ using ACP-MS0A's schema verbatim if shipped",
+            "if ACP-MS0A unshipped, this unit BUILDS the schema and contributes back to ACP — documented in pipelines/_schema.md",
+            "registry validates against the schema"
+          ],
+          "rollback": "git checkout -- knowledge/wiki/os/pipelines/",
+          "tests_required": true,
+          "physics_constants_touched": [],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Verify ACP-MS0A status at unit-claim time (read mcp-server/data/milestones/ACP-MS0A.json status field). If complete, adopt the schema. If pending, build it here and add an outbound-contribution note.",
+              "tool_calls": [
+                "mcp-server/data/milestones/"
+              ],
+              "validation": "decision documented; registry validates",
+              "notes": "rgs5: tool=ACP-MS0A envelope | input=automation-chain JSON schema | output=os/pipelines/ registry | reject_if=rebuilds a parallel schema when ACP-MS0A's exists | gain=the composition contract is shared with ACP, not forked"
+            }
+          ]
+        },
+        {
+          "id": "U-CK13",
+          "id_aliases": [
+            "U-CK-P2-02"
+          ],
+          "title": "Pipeline EXECUTOR (stage graph, gating, rollback, dry-run-first)",
+          "phase": "P2",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "opus-4.6",
+          "effort": 80,
+          "rationale": "NEW — ACP scoped the schema, not the runtime. The executor runs registered pipelines with per-stage gating + rollback. Contributed back to the ACP line as a future ACP-MS1 unit (see outbound_contributions).",
+          "disposition": {
+            "kind": "N",
+            "extends": [],
+            "reuses": []
+          },
+          "donor_units": [],
+          "dependencies": [
+            "U-CK12"
+          ],
+          "creates_skill": false,
+          "creates_script": true,
+          "creates_hook": false,
+          "creates_command": false,
+          "tools": [
+            {
+              "tool": ".claude/kernel/pipeline-exec.mjs"
+            }
+          ],
+          "scripts": [
+            ".claude/kernel/pipeline-exec.mjs"
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/kernel/pipeline-exec.mjs",
+              "type": "script",
+              "description": "dry-run-first pipeline executor"
+            },
+            {
+              "path": "mcp-server/src/__tests__/pipeline-exec.test.ts",
+              "type": "test",
+              "description": "stage-failure + rollback + dry-run + execute cases"
+            }
+          ],
+          "exit_conditions": [
+            "executor runs a pipeline stage graph with per-stage gating + rollback",
+            "starts in dry-run/suggest-only mode (no auto-execution until telemetry justifies the upgrade)",
+            "npx vitest run pipeline-exec.test.ts green incl. stage-failure + rollback cases"
+          ],
+          "rollback": "git checkout -- .claude/kernel/pipeline-exec.mjs mcp-server/src/__tests__/pipeline-exec.test.ts",
+          "tests_required": true,
+          "physics_constants_touched": [],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Build the dry-run-first pipeline executor via TDD. Stage graph semantics: each stage gated by exit-conditions; failure triggers rollback chain.",
+              "tool_calls": [
+                "superpowers:test-driven-development",
+                ".claude/kernel/pipeline-exec.mjs"
+              ],
+              "validation": "executor refuses to execute (only dry-runs) until --force-execute flag is supplied; rollback chain test passes",
+              "notes": "rgs5: tool=superpowers:test-driven-development | input=ACP-MS0A schema + stage-graph semantics | output=.claude/kernel/pipeline-exec.mjs + test | reject_if=executor auto-executes before telemetry exists to prove chains | gain=every composite command (P3) runs on this one runtime"
+            }
+          ]
+        },
+        {
+          "id": "U-CK14",
+          "id_aliases": [
+            "U-CK-P2-03"
+          ],
+          "title": "Activate pipeline_integrations: frontmatter + wire to executor",
+          "phase": "P2",
+          "sequence": 2,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "sonnet-4.6",
+          "effort": 45,
+          "rationale": "NEW wiring — the pipeline_integrations: field exists in inventory_snapshot.skills_with_pipeline_integrations_approx skills but is read by nothing. Wire it to the executor.",
+          "disposition": {
+            "kind": "N",
+            "extends": [
+              "U-CK13"
+            ],
+            "reuses": [
+              "pipeline_integrations: frontmatter (dormant in shipped skills)"
+            ]
+          },
+          "donor_units": [],
+          "dependencies": [
+            "U-CK13"
+          ],
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "tools": [
+            {
+              "tool": ".claude/kernel/pipeline-exec.mjs"
+            }
+          ],
+          "scripts": [],
+          "deliverables": [
+            {
+              "path": ".claude/kernel/pipeline-exec.mjs",
+              "type": "script",
+              "description": "consumer for pipeline_integrations: field"
+            },
+            {
+              "path": "mcp-server/src/__tests__/pipeline-integrations.test.ts",
+              "type": "test",
+              "description": "round-trip: skill declares pipeline_integrations -> executor lists it as a member"
+            }
+          ],
+          "exit_conditions": [
+            "the dormant pipeline_integrations: field is consumed by the executor",
+            "every skill already declaring it becomes a live pipeline member (count derived live from grep, not baked)",
+            "round-trip test passes"
+          ],
+          "rollback": "git checkout -- .claude/kernel/pipeline-exec.mjs mcp-server/src/__tests__/pipeline-integrations.test.ts",
+          "tests_required": true,
+          "physics_constants_touched": [],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Wire pipeline_integrations: into the executor — parse frontmatter, register skill as pipeline member.",
+              "tool_calls": [
+                ".claude/kernel/pipeline-exec.mjs"
+              ],
+              "validation": "round-trip test green",
+              "notes": "rgs5: tool=pipeline-exec.mjs | input=skills with the dormant field | output=live pipeline membership | reject_if=the field stays declarative metadata nothing reads | gain=composition becomes a formal contract, not prose"
+            }
+          ]
+        },
+        {
+          "id": "U-CK15",
+          "id_aliases": [
+            "U-CK-P2-04"
+          ],
+          "title": "Populate consumes/produces/composes_with frontmatter across migrated commands",
+          "phase": "P2",
+          "sequence": 3,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "sonnet-4.6",
+          "effort": 55,
+          "rationale": "NEW — EXTEND U-CK08 (migration) + EXTEND U-VAULT04 (the wiki->skill declared-linkage precursor). The composition graph data.",
+          "disposition": {
+            "kind": "N",
+            "extends": [
+              "U-CK08",
+              "U-VAULT04"
+            ],
+            "reuses": []
+          },
+          "donor_units": [
+            "U-CK08",
+            "U-VAULT04"
+          ],
+          "dependencies": [
+            "U-CK08",
+            "U-CK14"
+          ],
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "tools": [
+            {
+              "tool": ".claude/scripts/command-migrate.mjs"
+            }
+          ],
+          "scripts": [],
+          "deliverables": [
+            {
+              "path": ".claude/commands/",
+              "type": "data",
+              "description": "commands carry consumes/produces/composes_with"
+            },
+            {
+              "path": "knowledge/wiki/os/commands/",
+              "type": "data",
+              "description": "os/commands entities mirror the composition fields"
+            }
+          ],
+          "exit_conditions": [
+            "migrated commands carry consumes/produces/composes_with",
+            "the Obsidian graph view renders the command dependency graph",
+            "data is consistent with the executor's pipeline registry (cross-check passes)"
+          ],
+          "rollback": "git checkout -- .claude/commands/ knowledge/wiki/os/commands/",
+          "tests_required": true,
+          "physics_constants_touched": [],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Infer + populate composition frontmatter via the codemod (analyze actual call patterns; never guess).",
+              "tool_calls": [
+                ".claude/scripts/command-migrate.mjs"
+              ],
+              "validation": "spot-check 10 random commands — each composition field traces to a real reference",
+              "notes": "rgs5: tool=command-migrate.mjs | input=migrated commands + executor registry | output=populated composition frontmatter | reject_if=composition fields are guessed rather than inferred from real consume/produce | gain=psk tools + the Obsidian graph become the command dependency oracle"
+            }
+          ]
+        },
+        {
+          "id": "U-CK16",
+          "id_aliases": [
+            "U-CK-P2-05"
+          ],
+          "title": "Extend skill-auto-trigger.mjs -> pipeline-aware, fires on PostToolUse/Stop",
+          "phase": "P2",
+          "sequence": 4,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "sonnet-4.6",
+          "effort": 48,
+          "rationale": "EXTEND — DEV-VELOCITY-AUTOTRIGGER-MS0 shipped skill-auto-trigger.mjs (UserPromptSubmit, suggest-only). Extend it to be pipeline-aware and fire on PostToolUse/Stop, not just UserPromptSubmit.",
+          "disposition": {
+            "kind": "E",
+            "extends": [
+              "DEV-VELOCITY-AUTOTRIGGER-MS0/skill-auto-trigger.mjs"
+            ],
+            "reuses": []
+          },
+          "donor_units": [],
+          "dependencies": [
+            "U-CK14"
+          ],
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "tools": [
+            {
+              "tool": ".claude/hooks/skill-auto-trigger.mjs"
+            }
+          ],
+          "scripts": [],
+          "deliverables": [
+            {
+              "path": ".claude/hooks/skill-auto-trigger.mjs",
+              "type": "hook",
+              "description": "pipeline-aware extension (UserPromptSubmit + PostToolUse + Stop)"
+            },
+            {
+              "path": "mcp-server/src/__tests__/skill-auto-trigger-pipeline.test.ts",
+              "type": "test",
+              "description": "fires on PostToolUse and Stop; stays suggest-only"
+            }
+          ],
+          "exit_conditions": [
+            "skill-auto-trigger suggests pipelines, not just single skills",
+            "fires on PostToolUse + Stop in addition to UserPromptSubmit",
+            "stays suggest-only (no auto-execution)"
+          ],
+          "rollback": "git checkout -- .claude/hooks/skill-auto-trigger.mjs mcp-server/src/__tests__/skill-auto-trigger-pipeline.test.ts",
+          "tests_required": true,
+          "physics_constants_touched": [],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Make skill-auto-trigger pipeline + stage aware. Read pipeline registry, suggest pipelines that match the current event.",
+              "tool_calls": [
+                ".claude/hooks/skill-auto-trigger.mjs"
+              ],
+              "validation": "diff vs current hook shows additive changes; no rebuild",
+              "notes": "rgs5: tool=skill-auto-trigger.mjs | input=_skill-triggers.jsonl + pipeline registry | output=pipeline-aware trigger hook | reject_if=rebuilds the trigger hook instead of extending the shipped one | gain=pipelines get surfaced at the right lifecycle moment"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P3",
+      "title": "New Composite Pipeline Commands",
+      "description": "Author 9 new composite pipeline commands against the P2 primitive. Most are thin orchestration shells over existing substrate (engines, crons, skills) — they compose, they do not rebuild. U-CK24 composes /forge-triple + /scrutiny-gate, NOT the forward-looking /forge-engines, /forge-skills, /forge-hooks (those do not exist as separate skills today).",
+      "primary_role": "R2",
+      "primary_model": "sonnet-4.6",
+      "sessions": "2",
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": [
+        "each new command is a thin shell over existing substrate",
+        "per-file scrutiny gate per command",
+        "no duplication of existing skills",
+        "forward-looking references documented"
+      ],
+      "gate": {
+        "omega_floor": 1,
+        "safety_floor": 0.7,
+        "ralph_required": false,
+        "anti_regression": true,
+        "test_required": true,
+        "build_required": true,
+        "checkpoint": true,
+        "learning_save": true
+      },
+      "units": [
+        {
+          "id": "U-CK17",
+          "id_aliases": [
+            "U-CK-P3-01"
+          ],
+          "title": "/session-cycle (checkin -> pick -> research -> build -> close-out -> handoff)",
+          "phase": "P3",
+          "sequence": 0,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "sonnet-4.6",
+          "effort": 50,
+          "rationale": "NEW — composes the lifecycle commands available after U-CK09 (startup/checkin/pick-unit/precompact + handoff/boot per U-CK09's disposition decision). Operates on whatever set U-CK09 finalizes; not hardcoded to 7.",
+          "disposition": {
+            "kind": "N",
+            "extends": [],
+            "reuses": [
+              "psk lifecycle syscalls"
+            ]
+          },
+          "donor_units": [],
+          "dependencies": [
+            "U-CK13",
+            "U-CK09"
+          ],
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": true,
+          "tools": [
+            {
+              "tool": ".claude/kernel/pipeline-exec.mjs"
+            }
+          ],
+          "scripts": [],
+          "deliverables": [
+            {
+              "path": ".claude/commands/session-cycle.md",
+              "type": "command",
+              "description": "registered lifecycle pipeline"
+            },
+            {
+              "path": "knowledge/wiki/os/pipelines/session-cycle.md",
+              "type": "data",
+              "description": "pipeline registry entry"
+            }
+          ],
+          "exit_conditions": [
+            "/session-cycle runs the full lifecycle (over the set U-CK09 finalized) as one registered pipeline",
+            "dry-run mode prints the stage plan",
+            "each stage gated"
+          ],
+          "rollback": "git checkout -- .claude/commands/session-cycle.md knowledge/wiki/os/pipelines/session-cycle.md",
+          "tests_required": true,
+          "physics_constants_touched": [],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Author /session-cycle as a registered pipeline composing the U-CK09-finalized lifecycle commands.",
+              "tool_calls": [
+                ".claude/kernel/pipeline-exec.mjs"
+              ],
+              "validation": "dry-run prints a plan that names each composed lifecycle command",
+              "notes": "rgs5: tool=pipeline-exec.mjs | input=lifecycle commands per U-CK09 | output=.claude/commands/session-cycle.md + os/pipelines/ entry | reject_if=reimplements lifecycle logic instead of composing the commands | gain=the whole session lifecycle becomes one resumable pipeline"
+            }
+          ]
+        },
+        {
+          "id": "U-CK18",
+          "id_aliases": [
+            "U-CK-P3-02"
+          ],
+          "title": "/research <token|unit>",
+          "phase": "P3",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "sonnet-4.6",
+          "effort": 45,
+          "rationale": "NEW shell — EXTEND U-ALL01..06 (AUTO-LEARNING-LOOP substrate, U-ALL01 shipped); /research is a thin orchestration over its MCP actions + the system-viz/master-index/dedup research pack.",
+          "disposition": {
+            "kind": "N",
+            "extends": [
+              "U-ALL01",
+              "U-ALL02",
+              "U-ALL03",
+              "U-ALL04",
+              "U-ALL05",
+              "U-ALL06"
+            ],
+            "reuses": [
+              "/system-viz",
+              "master_index_query",
+              "/dedup"
+            ]
+          },
+          "donor_units": [
+            "U-ALL01",
+            "U-ALL02",
+            "U-ALL03",
+            "U-ALL04",
+            "U-ALL05",
+            "U-ALL06"
+          ],
+          "dependencies": [
+            "U-CK13"
+          ],
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": true,
+          "tools": [
+            {
+              "tool": ".claude/kernel/pipeline-exec.mjs"
+            },
+            {
+              "tool": "prism_session",
+              "action": "master_index_query"
+            },
+            {
+              "tool": "H:/prism/scripts/system-viz-query.mjs"
+            }
+          ],
+          "scripts": [],
+          "deliverables": [
+            {
+              "path": ".claude/commands/research.md",
+              "type": "command",
+              "description": "composes the research-pack stages"
+            },
+            {
+              "path": "knowledge/wiki/os/pipelines/research.md",
+              "type": "data",
+              "description": "pipeline registry entry"
+            }
+          ],
+          "exit_conditions": [
+            "/research replaces the hardcoded research-pack prose currently duplicated in pick-unit/pick-task",
+            "composes system-viz + blast-radius + master-index + awareness-snapshot + orphan-inventory + dedup",
+            "dry-run prints the plan"
+          ],
+          "rollback": "git checkout -- .claude/commands/research.md knowledge/wiki/os/pipelines/research.md",
+          "tests_required": true,
+          "physics_constants_touched": [],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Author /research over the AUTO-LEARNING-LOOP substrate + research-pack commands.",
+              "tool_calls": [
+                ".claude/kernel/pipeline-exec.mjs"
+              ],
+              "validation": "diff vs pick-unit research-pack prose shows /research now subsumes it",
+              "notes": "rgs5: tool=pipeline-exec.mjs | input=U-ALL actions + research-pack commands | output=.claude/commands/research.md | reject_if=rebuilds research engines instead of orchestrating U-ALL | gain=the research pack stops being frozen prose duplicated across pickers"
+            }
+          ]
+        },
+        {
+          "id": "U-CK19",
+          "id_aliases": [
+            "U-CK-P3-03"
+          ],
+          "title": "/scrutiny-gate (per-file 2-agent -> 3-of-3 -> psk record)",
+          "phase": "P3",
+          "sequence": 2,
+          "role": "R3",
+          "role_name": "Reviewer",
+          "model": "opus-4.6",
+          "effort": 55,
+          "rationale": "NEW — EXTEND U-HKA05 (subagent-stop-verifier) + U-HKA08 (mcp-safety-bridge) + U-CLAUDE-MD-BACKFLOW. Formalizes the scrutiny doctrine into a runnable gate.",
+          "disposition": {
+            "kind": "N",
+            "extends": [
+              "U-HKA05",
+              "U-HKA08",
+              "U-CLAUDE-MD-BACKFLOW"
+            ],
+            "reuses": [
+              "scrutiny-3way.mjs"
+            ]
+          },
+          "donor_units": [
+            "U-HKA05",
+            "U-HKA08",
+            "U-CLAUDE-MD-BACKFLOW"
+          ],
+          "dependencies": [
+            "U-CK13"
+          ],
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": true,
+          "tools": [
+            {
+              "tool": ".claude/kernel/pipeline-exec.mjs"
+            },
+            {
+              "tool": ".claude/scripts/scrutiny-3way.mjs"
+            }
+          ],
+          "scripts": [],
+          "deliverables": [
+            {
+              "path": ".claude/commands/scrutiny-gate.md",
+              "type": "command",
+              "description": "runnable scrutiny gate pipeline"
+            },
+            {
+              "path": "knowledge/wiki/os/pipelines/scrutiny-gate.md",
+              "type": "data",
+              "description": "pipeline registry entry"
+            }
+          ],
+          "exit_conditions": [
+            "/scrutiny-gate runs per-file 2-agent review then 3-of-3 consensus then psk record",
+            "verdict gates Stop",
+            "composes existing scrutiny skills, no rebuild"
+          ],
+          "rollback": "git checkout -- .claude/commands/scrutiny-gate.md knowledge/wiki/os/pipelines/scrutiny-gate.md",
+          "tests_required": true,
+          "physics_constants_touched": [],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Author /scrutiny-gate as a runnable gate pipeline composing scrutiny-3way + the verification hooks.",
+              "tool_calls": [
+                ".claude/kernel/pipeline-exec.mjs",
+                ".claude/scripts/scrutiny-3way.mjs"
+              ],
+              "validation": "/scrutiny-gate dry-run prints stages: per-file -> 3-of-3 -> record -> gate Stop",
+              "notes": "rgs5: tool=pipeline-exec.mjs | input=scrutiny-3way + verification hooks | output=.claude/commands/scrutiny-gate.md | reject_if=reimplements scrutiny logic | gain=the scrutiny doctrine becomes a one-command gate"
+            }
+          ]
+        },
+        {
+          "id": "U-CK20",
+          "id_aliases": [
+            "U-CK-P3-04"
+          ],
+          "title": "/learn-pipeline <src> (detect -> extract -> dedup -> tribal -> wiki -> memory)",
+          "phase": "P3",
+          "sequence": 3,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "sonnet-4.6",
+          "effort": 42,
+          "rationale": "NEW shell — REUSE /pdf-learn + /video-learn; EXTEND the U-ALL chain. The unified learn entry point.",
+          "disposition": {
+            "kind": "N",
+            "extends": [
+              "U-ALL01",
+              "U-ALL02",
+              "U-ALL03",
+              "U-ALL04",
+              "U-ALL05",
+              "U-ALL06"
+            ],
+            "reuses": [
+              "/pdf-learn",
+              "/video-learn",
+              "/dedup"
+            ]
+          },
+          "donor_units": [],
+          "dependencies": [
+            "U-CK13"
+          ],
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": true,
+          "tools": [
+            {
+              "tool": ".claude/kernel/pipeline-exec.mjs"
+            }
+          ],
+          "scripts": [],
+          "deliverables": [
+            {
+              "path": ".claude/commands/learn-pipeline.md",
+              "type": "command",
+              "description": "unified learn entry point"
+            },
+            {
+              "path": "knowledge/wiki/os/pipelines/learn-pipeline.md",
+              "type": "data",
+              "description": "pipeline registry entry"
+            }
+          ],
+          "exit_conditions": [
+            "/learn-pipeline detects source type and runs the full ingest->memory chain",
+            "reuses existing learn skills (no extraction engine rebuild)",
+            "dry-run prints the plan"
+          ],
+          "rollback": "git checkout -- .claude/commands/learn-pipeline.md knowledge/wiki/os/pipelines/learn-pipeline.md",
+          "tests_required": true,
+          "physics_constants_touched": [],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Author /learn-pipeline composing the existing learn skills + dedup + tribal + wiki + memory stages.",
+              "tool_calls": [
+                ".claude/kernel/pipeline-exec.mjs"
+              ],
+              "validation": "diff shows zero new extraction logic",
+              "notes": "rgs5: tool=pipeline-exec.mjs | input=/pdf-learn + /video-learn + dedup + tribal + wiki + memory | output=.claude/commands/learn-pipeline.md | reject_if=rebuilds extraction engines | gain=knowledge ingestion is one command, end to end"
+            }
+          ]
+        },
+        {
+          "id": "U-CK21",
+          "id_aliases": [
+            "U-CK-P3-05"
+          ],
+          "title": "/wire-pipeline (orphan-inventory -> dedup -> wire -> test -> close)",
+          "phase": "P3",
+          "sequence": 4,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "sonnet-4.6",
+          "effort": 42,
+          "rationale": "NEW — composes orphan-inventory + dedup + wire + test + close (all existing skills). The orphan-rescue recipe generalized into a one-command pipeline.",
+          "disposition": {
+            "kind": "N",
+            "extends": [],
+            "reuses": [
+              "/orphan-inventory",
+              "/dedup",
+              "/wire-unwired"
+            ]
+          },
+          "donor_units": [],
+          "dependencies": [
+            "U-CK13"
+          ],
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": true,
+          "tools": [
+            {
+              "tool": ".claude/kernel/pipeline-exec.mjs"
+            }
+          ],
+          "scripts": [],
+          "deliverables": [
+            {
+              "path": ".claude/commands/wire-pipeline.md",
+              "type": "command",
+              "description": "orphan-rescue pipeline"
+            },
+            {
+              "path": "knowledge/wiki/os/pipelines/wire-pipeline.md",
+              "type": "data",
+              "description": "pipeline registry entry"
+            }
+          ],
+          "exit_conditions": [
+            "/wire-pipeline runs the orphan-rescue chain as one pipeline",
+            "dry-run prints the plan",
+            "each stage gated by exit conditions of the underlying skill"
+          ],
+          "rollback": "git checkout -- .claude/commands/wire-pipeline.md knowledge/wiki/os/pipelines/wire-pipeline.md",
+          "tests_required": true,
+          "physics_constants_touched": [],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Author /wire-pipeline composing the wiring skills.",
+              "tool_calls": [
+                ".claude/kernel/pipeline-exec.mjs"
+              ],
+              "validation": "diff shows zero wiring logic reimplementation",
+              "notes": "rgs5: tool=pipeline-exec.mjs | input=orphan-inventory + dedup + wire + test + close | output=.claude/commands/wire-pipeline.md | reject_if=reimplements wiring logic | gain=unwired engines get a one-command rescue path"
+            }
+          ]
+        },
+        {
+          "id": "U-CK22",
+          "id_aliases": [
+            "U-CK-P3-06"
+          ],
+          "title": "/diagnose-fix <artifact> (forensic-classify -> suggest -> apply -> test -> trace -> commit)",
+          "phase": "P3",
+          "sequence": 5,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "sonnet-4.6",
+          "effort": 45,
+          "rationale": "NEW — composes existing forensic skills (prism_diagnosis dispatcher actions). The failure-recovery pipeline.",
+          "disposition": {
+            "kind": "N",
+            "extends": [],
+            "reuses": [
+              "prism_diagnosis dispatcher actions"
+            ]
+          },
+          "donor_units": [],
+          "dependencies": [
+            "U-CK13"
+          ],
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": true,
+          "tools": [
+            {
+              "tool": ".claude/kernel/pipeline-exec.mjs"
+            },
+            {
+              "tool": "prism_diagnosis"
+            }
+          ],
+          "scripts": [],
+          "deliverables": [
+            {
+              "path": ".claude/commands/diagnose-fix.md",
+              "type": "command",
+              "description": "failure-recovery pipeline"
+            },
+            {
+              "path": "knowledge/wiki/os/pipelines/diagnose-fix.md",
+              "type": "data",
+              "description": "pipeline registry entry"
+            }
+          ],
+          "exit_conditions": [
+            "/diagnose-fix runs the failure-recovery chain end to end",
+            "dry-run prints the plan"
+          ],
+          "rollback": "git checkout -- .claude/commands/diagnose-fix.md knowledge/wiki/os/pipelines/diagnose-fix.md",
+          "tests_required": true,
+          "physics_constants_touched": [],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Author /diagnose-fix composing forensic skills.",
+              "tool_calls": [
+                ".claude/kernel/pipeline-exec.mjs"
+              ],
+              "validation": "diff shows zero forensic engine rebuild",
+              "notes": "rgs5: tool=pipeline-exec.mjs | input=forensic-classify + suggest + apply + test + trace | output=.claude/commands/diagnose-fix.md | reject_if=rebuilds forensic engines | gain=failure -> fix becomes one command"
+            }
+          ]
+        },
+        {
+          "id": "U-CK23",
+          "id_aliases": [
+            "U-CK-P3-07"
+          ],
+          "title": "/program-perfect <part> (gen -> optimize -> validate -> loop -> ship)",
+          "phase": "P3",
+          "sequence": 6,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "sonnet-4.6",
+          "effort": 45,
+          "rationale": "NEW — composes /program-optimize (extant) + a /program-validate equivalent (built inline here OR composed from existing prism_safety:validate_physics + safety dispatcher actions if a skill name does not yet exist). Bounded iteration loop.",
+          "disposition": {
+            "kind": "N",
+            "extends": [],
+            "reuses": [
+              "/program-optimize",
+              "prism_safety:validate_physics"
+            ]
+          },
+          "donor_units": [],
+          "dependencies": [
+            "U-CK13"
+          ],
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": true,
+          "tools": [
+            {
+              "tool": ".claude/kernel/pipeline-exec.mjs"
+            },
+            {
+              "tool": "prism_safety",
+              "action": "validate_physics"
+            }
+          ],
+          "scripts": [],
+          "deliverables": [
+            {
+              "path": ".claude/commands/program-perfect.md",
+              "type": "command",
+              "description": "program quality loop pipeline"
+            },
+            {
+              "path": "knowledge/wiki/os/pipelines/program-perfect.md",
+              "type": "data",
+              "description": "pipeline registry entry"
+            }
+          ],
+          "exit_conditions": [
+            "/program-perfect runs gen->opt->validate with <=3 iteration loop then ship",
+            "dry-run prints the plan",
+            "validation arm uses prism_safety:validate_physics directly if no /program-validate skill exists yet"
+          ],
+          "rollback": "git checkout -- .claude/commands/program-perfect.md knowledge/wiki/os/pipelines/program-perfect.md",
+          "tests_required": true,
+          "physics_constants_touched": [],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Author /program-perfect composing the program skills + prism_safety:validate_physics.",
+              "tool_calls": [
+                ".claude/kernel/pipeline-exec.mjs"
+              ],
+              "validation": "diff shows zero program-generation reimplementation",
+              "notes": "rgs5: tool=pipeline-exec.mjs | input=gen + optimize + validate + ship | output=.claude/commands/program-perfect.md | reject_if=reimplements program generation | gain=program quality loop is one command"
+            }
+          ]
+        },
+        {
+          "id": "U-CK24",
+          "id_aliases": [
+            "U-CK-P3-08"
+          ],
+          "title": "/forge-supervised (/forge-triple -> /scrutiny-gate -> close)",
+          "phase": "P3",
+          "sequence": 7,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "sonnet-4.6",
+          "effort": 45,
+          "rationale": "NEW — composes /forge-triple (extant, the engine+skill+hook builder) with /scrutiny-gate (built in U-CK19). NOT composing /forge-engines, /forge-skills, /forge-hooks (those are forward-looking decomposed skills that don't exist as separate commands today). If a future milestone splits /forge-triple into those three, /forge-supervised gets re-fitted then.",
+          "disposition": {
+            "kind": "N",
+            "extends": [],
+            "reuses": [
+              "/forge-triple",
+              "/scrutiny-gate (U-CK19)"
+            ]
+          },
+          "donor_units": [
+            "U-CK19"
+          ],
+          "dependencies": [
+            "U-CK13",
+            "U-CK19"
+          ],
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": true,
+          "tools": [
+            {
+              "tool": ".claude/kernel/pipeline-exec.mjs"
+            }
+          ],
+          "scripts": [],
+          "deliverables": [
+            {
+              "path": ".claude/commands/forge-supervised.md",
+              "type": "command",
+              "description": "supervised forge-triple pipeline"
+            },
+            {
+              "path": "knowledge/wiki/os/pipelines/forge-supervised.md",
+              "type": "data",
+              "description": "pipeline registry entry"
+            }
+          ],
+          "exit_conditions": [
+            "/forge-supervised runs /forge-triple then /scrutiny-gate then close-out as one pipeline",
+            "dry-run prints the plan"
+          ],
+          "rollback": "git checkout -- .claude/commands/forge-supervised.md knowledge/wiki/os/pipelines/forge-supervised.md",
+          "tests_required": true,
+          "physics_constants_touched": [],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Author /forge-supervised composing /forge-triple + /scrutiny-gate.",
+              "tool_calls": [
+                ".claude/kernel/pipeline-exec.mjs"
+              ],
+              "validation": "diff shows zero forge logic reimplementation; references only /forge-triple (not the forward-looking decomposed forms)",
+              "notes": "rgs5: tool=pipeline-exec.mjs | input=/forge-triple + /scrutiny-gate | output=.claude/commands/forge-supervised.md | reject_if=reimplements forge logic OR references nonexistent /forge-engines/skills/hooks | gain=supervised forge-triple in one command"
+            }
+          ]
+        },
+        {
+          "id": "U-CK25",
+          "id_aliases": [
+            "U-CK-P3-09"
+          ],
+          "title": "/pipeline <name> meta-command (list/dry-run/execute/resume)",
+          "phase": "P3",
+          "sequence": 8,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "opus-4.6",
+          "effort": 50,
+          "rationale": "NEW — the executor's user-facing command; co-located with the ACP line. The discovery + run + resume face for every pipeline.",
+          "disposition": {
+            "kind": "N",
+            "extends": [],
+            "reuses": [
+              "pipeline-exec.mjs"
+            ]
+          },
+          "donor_units": [],
+          "dependencies": [
+            "U-CK13"
+          ],
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": true,
+          "tools": [
+            {
+              "tool": ".claude/kernel/pipeline-exec.mjs"
+            }
+          ],
+          "scripts": [],
+          "deliverables": [
+            {
+              "path": ".claude/commands/pipeline.md",
+              "type": "command",
+              "description": "executor meta-command (list/dry-run/execute/resume)"
+            }
+          ],
+          "exit_conditions": [
+            "/pipeline list shows every registered pipeline",
+            "/pipeline <name> --dry-run prints the stage plan",
+            "/pipeline <name> --resume continues a crashed pipeline"
+          ],
+          "rollback": "git checkout -- .claude/commands/pipeline.md",
+          "tests_required": true,
+          "physics_constants_touched": [],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Author the /pipeline meta-command exposing list/dry-run/execute/resume.",
+              "tool_calls": [
+                ".claude/kernel/pipeline-exec.mjs"
+              ],
+              "validation": "all 4 subcommands work; resume restores a crashed pipeline to last completed stage",
+              "notes": "rgs5: tool=pipeline-exec.mjs | input=pipeline registry | output=.claude/commands/pipeline.md | reject_if=no resume path for crashed pipelines | gain=the executor gets a user face; all pipelines discoverable"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P4",
+      "title": "Feedback Loop",
+      "description": "Close the three auto-adjust loops: psk record emits real command-invocation telemetry, wire pipeline-telemetry to the dormant adaptive-thresholds.mjs, close the command-utilization -> auto skill-tier loop, and route session outcomes to memory/vault so psk recommend learns.",
+      "primary_role": "R2",
+      "primary_model": "opus-4.6",
+      "sessions": "1-2",
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": [
+        "telemetry is structured events not debug logs",
+        "adaptive-thresholds wiring closes the dormant loop",
+        "no thrash (threshold caps respected)"
+      ],
+      "gate": {
+        "omega_floor": 1,
+        "safety_floor": 0.7,
+        "ralph_required": false,
+        "anti_regression": true,
+        "test_required": true,
+        "build_required": true,
+        "checkpoint": true,
+        "learning_save": true
+      },
+      "units": [
+        {
+          "id": "U-CK26",
+          "id_aliases": [
+            "U-CK-P4-01"
+          ],
+          "title": "psk record emits real command-invocation telemetry -> pipeline-telemetry.jsonl",
+          "phase": "P4",
+          "sequence": 0,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "opus-4.6",
+          "effort": 58,
+          "rationale": "NEW — EXTEND U-SKU06 (it defines the invocation_count_30d field; psk record POPULATES it). Fixes the null-telemetry gap.",
+          "disposition": {
+            "kind": "N",
+            "extends": [
+              "U-SKU06"
+            ],
+            "reuses": [
+              "pipeline-telemetry.mjs"
+            ]
+          },
+          "donor_units": [
+            "U-SKU06"
+          ],
+          "dependencies": [
+            "U-CK01"
+          ],
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "tools": [
+            {
+              "tool": ".claude/kernel/psk.mjs"
+            },
+            {
+              "tool": ".claude/scripts/pipeline-telemetry.mjs"
+            }
+          ],
+          "scripts": [],
+          "deliverables": [
+            {
+              "path": ".claude/kernel/psk.mjs",
+              "type": "script",
+              "description": "psk record syscall implementation"
+            },
+            {
+              "path": "state/shared/pipeline-telemetry.jsonl",
+              "type": "state",
+              "description": "structured command-invocation events"
+            }
+          ],
+          "exit_conditions": [
+            "psk record appends structured command-invocation events to pipeline-telemetry.jsonl",
+            "U-SKU06's invocation_count_30d field is populated from real data",
+            "events are structured (JSON; not console.log dumps)"
+          ],
+          "rollback": "git checkout -- .claude/kernel/psk.mjs; truncate state/shared/pipeline-telemetry.jsonl with backup at state/shared/pipeline-telemetry-rollback.jsonl.bak",
+          "tests_required": true,
+          "physics_constants_touched": [],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Implement psk record telemetry emission via the existing pipeline-telemetry.mjs helper.",
+              "tool_calls": [
+                ".claude/kernel/psk.mjs",
+                ".claude/scripts/pipeline-telemetry.mjs"
+              ],
+              "validation": "every psk syscall invocation produces a structured JSONL event",
+              "notes": "rgs5: tool=pipeline-telemetry.mjs | input=command-invocation events | output=populated pipeline-telemetry.jsonl + invocation_count_30d | reject_if=telemetry is unstructured debug logging | gain=the system finally knows which commands are actually used"
+            }
+          ]
+        },
+        {
+          "id": "U-CK27",
+          "id_aliases": [
+            "U-CK-P4-02"
+          ],
+          "title": "Wire pipeline-telemetry.jsonl -> adaptive-thresholds.mjs",
+          "phase": "P4",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "sonnet-4.6",
+          "effort": 40,
+          "rationale": "NEW wiring — EXTEND U-ALL04 (SynergyClassifierEngine as the classify+adaptive-threshold donor template). adaptive-thresholds.mjs is built but consumed by nothing today.",
+          "disposition": {
+            "kind": "N",
+            "extends": [
+              "U-ALL04"
+            ],
+            "reuses": [
+              "adaptive-thresholds.mjs"
+            ]
+          },
+          "donor_units": [
+            "U-ALL04"
+          ],
+          "dependencies": [
+            "U-CK26"
+          ],
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "tools": [
+            {
+              "tool": ".claude/scripts/adaptive-thresholds.mjs"
+            }
+          ],
+          "scripts": [],
+          "deliverables": [
+            {
+              "path": ".claude/scripts/adaptive-thresholds.mjs",
+              "type": "script",
+              "description": "now consumes pipeline-telemetry.jsonl"
+            },
+            {
+              "path": "state/shared/adaptive-thresholds.json",
+              "type": "state",
+              "description": "re-tuned threshold values"
+            }
+          ],
+          "exit_conditions": [
+            "pipeline-telemetry feeds adaptive-thresholds.mjs",
+            "thresholds re-tune from real telemetry signal",
+            "the dormant feedback machinery is live (each milestone close re-tunes 6 parameters)"
+          ],
+          "rollback": "git checkout -- .claude/scripts/adaptive-thresholds.mjs state/shared/adaptive-thresholds.json; or run `adaptive-thresholds.mjs --reset` to restore defaults.",
+          "tests_required": true,
+          "physics_constants_touched": [],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Wire the dormant telemetry->thresholds loop. Adaptive-thresholds reads pipeline-telemetry.jsonl, computes tuned values.",
+              "tool_calls": [
+                ".claude/scripts/adaptive-thresholds.mjs"
+              ],
+              "validation": "thresholds change vs default when telemetry signal is present",
+              "notes": "rgs5: tool=adaptive-thresholds.mjs | input=pipeline-telemetry.jsonl | output=live adaptive-thresholds re-tune | reject_if=telemetry still accumulates with no consumer | gain=the pipeline gets more accurate every milestone, automatically"
+            }
+          ]
+        },
+        {
+          "id": "U-CK28",
+          "id_aliases": [
+            "U-CK-P4-03"
+          ],
+          "title": "Close command-utilization -> auto skill-tier loop",
+          "phase": "P4",
+          "sequence": 2,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "sonnet-4.6",
+          "effort": 45,
+          "rationale": "NEW — EXTEND U-SKU04 + U-SKU05 (they grade skills read-only) + REUSE SkillTierRegistryEngine classify_all. Closes the loop they leave open.",
+          "disposition": {
+            "kind": "N",
+            "extends": [
+              "U-SKU04",
+              "U-SKU05"
+            ],
+            "reuses": [
+              "SkillTierRegistryEngine.classify_all"
+            ]
+          },
+          "donor_units": [
+            "U-SKU04",
+            "U-SKU05"
+          ],
+          "dependencies": [
+            "U-CK26"
+          ],
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "tools": [
+            {
+              "tool": "prism_skill_script",
+              "action": "skill_tier_classify_all"
+            }
+          ],
+          "scripts": [],
+          "deliverables": [
+            {
+              "path": "mcp-server/src/engines/SkillTierRegistryEngine.ts",
+              "type": "source",
+              "description": "classify_all now writes tiers back (not read-only)"
+            },
+            {
+              "path": "mcp-server/data/state/skill-tier-snapshot-pre-U-CK28.json",
+              "type": "state",
+              "description": "registry state snapshot for rollback"
+            },
+            {
+              "path": "mcp-server/src/__tests__/skill-tier-auto-classify.test.ts",
+              "type": "test",
+              "description": "round-trip: invocation count -> tier reclassification"
+            }
+          ],
+          "exit_conditions": [
+            "command-invocation telemetry drives auto skill-tier reclassification",
+            "SkillTierRegistryEngine.classify_all writes tiers back (not read-only)",
+            "progressive disclosure reflects real usage",
+            "registry snapshot captured pre-classify for rollback"
+          ],
+          "rollback": "Restore mcp-server/data/state/skill-tier-snapshot-pre-U-CK28.json into the SkillTierRegistry via `prism_skill_script:skill_tier_register --bulk-from-snapshot`; git checkout -- mcp-server/src/engines/SkillTierRegistryEngine.ts mcp-server/src/__tests__/skill-tier-auto-classify.test.ts.",
+          "tests_required": true,
+          "physics_constants_touched": [],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Snapshot the current SkillTierRegistry state to a JSON file for rollback before any auto-classify mutation.",
+              "tool_calls": [
+                "prism_skill_script",
+                "skill_tier_list"
+              ],
+              "validation": "snapshot file exists and round-trips via skill_tier_register --bulk-from-snapshot",
+              "notes": "rgs5: tool=prism_skill_script:skill_tier_list | input=current registry | output=mcp-server/data/state/skill-tier-snapshot-pre-U-CK28.json | reject_if=no snapshot before mutation | gain=rollback is concrete, not 'n/a (registry state)'"
+            },
+            {
+              "number": 2,
+              "instruction": "Wire SkillTierRegistryEngine.classify_all to invocation telemetry. Tiers written back on a schedule (every N invocations or once per milestone close).",
+              "tool_calls": [
+                "mcp-server/src/engines/SkillTierRegistryEngine.ts"
+              ],
+              "validation": "auto-classify round-trip test green",
+              "notes": "rgs5: tool=SkillTierRegistryEngine | input=U-SKU04/U-SKU05 grades + invocation telemetry | output=auto-written skill tiers | reject_if=tier classification stays read-only/advisory | gain=the command surface self-tiers from real usage"
+            }
+          ]
+        },
+        {
+          "id": "U-CK29",
+          "id_aliases": [
+            "U-CK-P4-04"
+          ],
+          "title": "outcome -> memory/vault -> psk recommend learns",
+          "phase": "P4",
+          "sequence": 3,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "opus-4.6",
+          "effort": 55,
+          "rationale": "NEW — EXTEND U-VAULT03 (CLAUDE.md back-flow) + REUSE U-VAULT02 / U-WIKI-FLEETING-PROMOTE (memory->wiki promotion). psk recommend reads the promoted analogies.",
+          "disposition": {
+            "kind": "N",
+            "extends": [
+              "U-VAULT03"
+            ],
+            "reuses": [
+              "U-VAULT02",
+              "U-WIKI-FLEETING-PROMOTE"
+            ]
+          },
+          "donor_units": [
+            "U-VAULT02",
+            "U-VAULT03",
+            "U-WIKI-FLEETING-PROMOTE"
+          ],
+          "dependencies": [
+            "U-CK02",
+            "U-CK26"
+          ],
+          "creates_skill": false,
+          "creates_script": false,
+          "creates_hook": false,
+          "creates_command": false,
+          "tools": [
+            {
+              "tool": ".claude/kernel/psk.mjs"
+            }
+          ],
+          "scripts": [],
+          "deliverables": [
+            {
+              "path": ".claude/kernel/psk.mjs",
+              "type": "script",
+              "description": "psk recommend now reads promoted memory"
+            },
+            {
+              "path": "knowledge/wiki/os/sessions/",
+              "type": "data",
+              "description": "session journals"
+            }
+          ],
+          "exit_conditions": [
+            "session outcomes route to memory + os/sessions/ journal",
+            "psk recommend retrieves analogies from promoted memory",
+            "the cross-session learning loop is closed"
+          ],
+          "rollback": "git checkout -- .claude/kernel/psk.mjs; remove knowledge/wiki/os/sessions/ via `git rm -r --cached` then restore last good state.",
+          "tests_required": true,
+          "physics_constants_touched": [],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Route outcomes to vault, make psk recommend learn from them via U-VAULT02/U-WIKI-FLEETING-PROMOTE.",
+              "tool_calls": [
+                ".claude/kernel/psk.mjs"
+              ],
+              "validation": "psk recommend retrieves a fresh analogy after a new outcome is journaled",
+              "notes": "rgs5: tool=psk.mjs + U-VAULT02 | input=session outcomes | output=os/sessions/ journals + learning psk recommend | reject_if=psk recommend is static and ignores prior outcomes | gain=the lifecycle learns which commands + pipelines actually work"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "forge_triple": {
+    "protective_hook": "command-frontmatter-gate.mjs (PreToolUse — blocks command edits that violate the canonical schema; BUILT in U-CK06)",
+    "mcp_action": "prism_session:psk (the syscall layer; BUILT in U-CK01)",
+    "skill": "/pipeline (the executor's user face; BUILT in U-CK25)",
+    "companion_artifact": "/pick-dev (the milestone's S11.6 compounding-gains artifact, BUILT alongside this milestone's registration as a devtools-locked deterministic picker that surfaces COMMAND-KERNEL-MS0 + every other priority-0 milestone)",
+    "ownership": "All three BUILT within COMMAND-KERNEL-MS0. Lifecycle-event hooks (PostCompact, SessionEnd) are CONSUMED from CCM-MS0 (P0-U08/P0-U09), not rebuilt. The pipeline executor (U-CK13) is contributed back to the ACP line as a future ACP-MS1 unit (see outbound_contributions)."
+  },
+  "creates_summary": {
+    "computed_at": "2026-05-14T10:40:00Z",
+    "computed_from": "sum of phases[].units[].creates_* flags",
+    "computed_note": "All values are concrete deliverable counts — refresh after any phase edit. Aggregator query: `for p of phases: for u of p.units: u.creates_*`.",
+    "creates_skills": 0,
+    "creates_scripts": 4,
+    "creates_hooks": 0,
+    "creates_commands": 11,
+    "by_unit": {
+      "scripts": [
+        "U-CK01",
+        "U-CK05",
+        "U-CK07",
+        "U-CK13"
+      ],
+      "commands": [
+        "U-CK09",
+        "U-CK10",
+        "U-CK17",
+        "U-CK18",
+        "U-CK19",
+        "U-CK20",
+        "U-CK21",
+        "U-CK22",
+        "U-CK23",
+        "U-CK24",
+        "U-CK25"
+      ]
+    },
+    "deliverable_type_counts": {
+      "script": 11,
+      "command": 11,
+      "test": 17,
+      "doc": 5,
+      "data": 13,
+      "state": 7,
+      "source": 4,
+      "hook": 2
+    },
+    "deliverable_type_note": "Counts derived from sum of phases[].units[].deliverables[].type. Update on every phase/unit edit."
+  },
+  "compounding_gains": {
+    "primary_artifact": "/pick-dev slash command — a reusable dev-velocity artifact (devtools-locked deterministic picker) built alongside this milestone's registration",
+    "secondary_artifacts": [
+      "psk CLI (.claude/kernel/psk.mjs) — every command + hook composes it",
+      "command-migrate.mjs codemod — reusable for any future bulk command change",
+      "pipeline-exec.mjs — the runtime every composite command runs on",
+      "knowledge/wiki/os/ namespace — the literal OS state store every subsequent milestone reads/writes"
+    ],
+    "class": "skill + script + helper + registry"
+  },
+  "updated_at": "2026-05-14T18:08:57.566Z"
+}

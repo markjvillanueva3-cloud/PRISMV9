@@ -22,12 +22,15 @@
  */
 import { readFileSync, writeFileSync, existsSync, readdirSync } from "node:fs";
 import { resolve, dirname, join, relative, basename } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const PRISM_ROOT = resolve(__dirname, "..");
-const ARCH_DIR = resolve(PRISM_ROOT, "knowledge/wiki/architecture");
+// Input dirs are env-overridable so the U-CLEANUP-D5 test suite can run the real
+// main() against a tmp wiki tree. Defaults are the live PRISM paths. OUT_PATH /
+// STATS_PATH derive from ARCH_DIR so an override redirects the output too.
+const ARCH_DIR = process.env.PRISM_WIKI_ARCH_DIR || resolve(PRISM_ROOT, "knowledge/wiki/architecture");
 const OUT_PATH = join(ARCH_DIR, "_leaf-index.jsonl");
 const STATS_PATH = join(ARCH_DIR, "_stats.md");
 const ORPHANS_PATH = resolve(PRISM_ROOT, "state/shared/wiki-orphans.json");
@@ -35,10 +38,16 @@ const ORPHANS_PATH = resolve(PRISM_ROOT, "state/shared/wiki-orphans.json");
 // recall hooks should still surface them): the ~4.2K atomic tribal tips and the
 // canonical code-tribal entries. Each line gets a distinct `type` so consumers
 // can tell them apart from architecture entries.
-const TRIBAL_DIR = resolve(PRISM_ROOT, "knowledge/tribal");
-const CODE_TRIBAL_DIR = resolve(PRISM_ROOT, "knowledge/wiki/code-tribal");
+const TRIBAL_DIR = process.env.PRISM_WIKI_TRIBAL_DIR || resolve(PRISM_ROOT, "knowledge/tribal");
+const CODE_TRIBAL_DIR = process.env.PRISM_WIKI_CODE_TRIBAL_DIR || resolve(PRISM_ROOT, "knowledge/wiki/code-tribal");
 
 const DESC_MAX = 200;
+const MAX_BOOST_KEYWORDS = 24; // per-entry cap — keeps the leaf-index lean + bounds recall footprint
+
+// Frontmatter keys parsed as YAML arrays. Every other key stays a scalar, exactly
+// as the original scalar-only parser behaved — so title/type/id/category reads are
+// provably unaffected by the D5 array support. Keep this set minimal.
+const ARRAY_KEYS = new Set(["boost_keywords"]);
 
 function walkMd(dir) {
   const out = [];
@@ -55,17 +64,74 @@ function walkMd(dir) {
   return out;
 }
 
+// Frontmatter parser. Scalars behave EXACTLY as the original scalar-only parser
+// (title/type/id/category are unaffected — a value is only ever parsed as an
+// array when its key is in ARRAY_KEYS). Adds the two YAML array forms so
+// `boost_keywords` (U-CLEANUP-D5) is extractable:
+//   inline:  boost_keywords: [hook, settings.json, "*.mjs"]
+//   block:   boost_keywords:
+//              - hook
+//              - settings.json
+// `fm` is a null-prototype object so a literal `__proto__:` / `constructor:`
+// frontmatter key cannot corrupt property reads.
 function parseFrontmatter(content) {
   const m = content.match(/^---\s*\n([\s\S]*?)\n---/);
-  if (!m) return {};
-  const fm = {};
-  for (const line of m[1].split("\n")) {
-    const kv = line.match(/^([a-z_-]+)\s*:\s*(.*)$/i);
-    if (!kv) continue;
-    let v = kv[2].trim().replace(/^['"]|['"]$/g, "");
-    fm[kv[1].trim()] = v;
+  if (!m) return Object.create(null);
+  const fm = Object.create(null);
+  let pendingArrayKey = null; // an ARRAY_KEYS key with empty value — block items may follow
+  for (const raw of m[1].split("\n")) {
+    // block-sequence item ("  - value") for the current pending array key
+    const seq = raw.match(/^\s+-\s+(.*)$/);
+    if (seq && pendingArrayKey) {
+      const item = seq[1].trim().replace(/^['"]|['"]$/g, "");
+      if (item) fm[pendingArrayKey].push(item);
+      continue;
+    }
+    // blank line / YAML comment between a key and its block sequence — skip it
+    // WITHOUT clearing pendingArrayKey (real YAML tolerates this).
+    if (raw.trim() === "" || /^\s*#/.test(raw)) continue;
+    const kv = raw.match(/^([a-z_-]+)\s*:\s*(.*)$/i);
+    if (!kv) { pendingArrayKey = null; continue; }
+    const key = kv[1].trim();
+    const rawVal = kv[2].trim();
+    pendingArrayKey = null;
+    if (ARRAY_KEYS.has(key)) {
+      const inlineArr = rawVal.match(/^\[(.*)\]$/);
+      if (inlineArr) {
+        fm[key] = inlineArr[1]
+          .split(",")
+          .map((s) => s.trim().replace(/^['"]|['"]$/g, ""))
+          .filter(Boolean);
+      } else if (rawVal === "") {
+        // empty value on an array key — start of a block sequence (or empty array)
+        fm[key] = [];
+        pendingArrayKey = key;
+      } else {
+        // a bare scalar written to an array key — wrap it
+        fm[key] = [rawVal.replace(/^['"]|['"]$/g, "")];
+      }
+    } else {
+      // scalar key — byte-identical behavior to the original parser
+      fm[key] = rawVal.replace(/^['"]|['"]$/g, "");
+    }
   }
   return fm;
+}
+
+// Normalize a frontmatter `boost_keywords` value (array | string | absent) into a
+// clean lowercased string[] (or null). Non-string elements are dropped (not
+// stringified). Capped at MAX_BOOST_KEYWORDS to bound a single entry's footprint.
+function normalizeBoostKeywords(v) {
+  let arr = null;
+  if (Array.isArray(v)) arr = v;
+  else if (typeof v === "string" && v.trim()) arr = [v];
+  if (!arr) return null;
+  const out = arr
+    .filter((k) => typeof k === "string")
+    .map((k) => k.toLowerCase().trim())
+    .filter(Boolean)
+    .slice(0, MAX_BOOST_KEYWORDS);
+  return out.length ? out : null;
 }
 
 function firstH1(content) {
@@ -89,11 +155,17 @@ function main() {
   const lines = [];
   let skipped = 0;
   const seenNames = Object.create(null); // de-dup name collisions across corpora
-  function pushEntry(name, title, type, desc, path) {
+  let boostEntryCount = 0;
+  function pushEntry(name, title, type, desc, path, boostKeywords) {
     let n = name; let i = 2;
     while (seenNames[n]) n = `${name}~${i++}`;
     seenNames[n] = 1;
-    lines.push(JSON.stringify({ name: n, title, type, desc, path }));
+    const rec = { name: n, title, type, desc, path };
+    if (Array.isArray(boostKeywords) && boostKeywords.length) {
+      rec.boost_keywords = boostKeywords;
+      boostEntryCount++;
+    }
+    lines.push(JSON.stringify(rec));
   }
   for (const f of files) {
     let content;
@@ -104,7 +176,7 @@ function main() {
     const type = fm.type || "architecture";
     const desc = firstBlockquote(content);
     const path = relative(PRISM_ROOT, f).replace(/\\/g, "/");
-    pushEntry(name, title, type, desc, path);
+    pushEntry(name, title, type, desc, path, normalizeBoostKeywords(fm.boost_keywords));
   }
   const archCount = lines.length;
 
@@ -124,7 +196,7 @@ function main() {
       const firstLine = (body.split(/\r?\n/).find((l) => l.trim() && !l.startsWith("#")) || "").trim().slice(0, DESC_MAX);
       const desc = [title, fm.category ? `[${fm.category}]` : "", firstLine].filter(Boolean).join(" — ").slice(0, DESC_MAX);
       const path = relative(PRISM_ROOT, f).replace(/\\/g, "/");
-      pushEntry(name, title, "tribal-tip", desc, path);
+      pushEntry(name, title, "tribal-tip", desc, path, normalizeBoostKeywords(fm.boost_keywords));
       tribalCount++;
     }
   }
@@ -141,7 +213,7 @@ function main() {
       const type = fm.type || "code-tribal";
       const desc = firstBlockquote(content) || (content.replace(/^---[\s\S]*?\n---\s*\n/, "").split(/\r?\n/).find((l) => l.trim() && !l.startsWith("#")) || "").trim().slice(0, DESC_MAX);
       const path = relative(PRISM_ROOT, f).replace(/\\/g, "/");
-      pushEntry(name, title, type, desc, path);
+      pushEntry(name, title, type, desc, path, normalizeBoostKeywords(fm.boost_keywords));
       codeTribalCount++;
     }
   }
@@ -210,7 +282,13 @@ then \`system-viz-obsidian-bridge-v2\`, \`export-graph-cypher\`, \`inject-wiki-c
 `;
   writeFileSync(STATS_PATH, stats, "utf8");
 
-  process.stdout.write(`leaf-index: ${lines.length} entries (arch ${archCount} + tribal ${tribalCount} + code-tribal ${codeTribalCount}) -> _leaf-index.jsonl (${(Buffer.byteLength(jsonl) / 1048576).toFixed(2)} MB) + _stats.md, ${Date.now() - t0}ms, skipped ${skipped}\n`);
+  process.stdout.write(`leaf-index: ${lines.length} entries (arch ${archCount} + tribal ${tribalCount} + code-tribal ${codeTribalCount}) -> _leaf-index.jsonl (${(Buffer.byteLength(jsonl) / 1048576).toFixed(2)} MB) + _stats.md, ${boostEntryCount} with boost_keywords, ${Date.now() - t0}ms, skipped ${skipped}\n`);
 }
 
-main();
+// Run only when invoked directly — importing this module (the U-CLEANUP-D5 test
+// suite imports parseFrontmatter / normalizeBoostKeywords) must NOT trigger a
+// full regen of the real _leaf-index.jsonl.
+const isDirectRun = !!process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
+if (isDirectRun) main();
+
+export { parseFrontmatter, normalizeBoostKeywords };

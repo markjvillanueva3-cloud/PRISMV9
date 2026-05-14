@@ -352,6 +352,17 @@ export function App() {
               <Route path="erp" element={lazyElement(secure(<ErpDashboard />, 'lead'))} />
               <Route path="home" element={lazyElement(<LandingPage />)} />
               <Route path="post-processor-store" element={lazyElement(<PostProcessorStorePage />)} />
+              {/*
+               * Calculator + PPG matrix — five distinct surfaces, NOT duplicates.
+               * Each has its own audience + component tree. Full catalog: pages/README.md.
+               *   /calculator        — full Calculator Studio (CalculatorPage, components/calculator/*)
+               *   /speed-feed-calc   — focused Codex SFC with smart selectors (components/sfc/*)
+               *   /ppg               — full Post Processor Generator
+               *   /ppg-lite          — focused Codex PPG editor with AI panel (components/ppg/*)
+               *   /post-processor    — marketing landing page (HERO + pricing + testimonials)
+               *                       — route lives at line 242 above; NOT duplicated here.
+               * Cross-links between surfaces are wired via <SurfaceCrossLink>.
+               */}
               <Route path="ppg-lite" element={lazyElement(<PpgPage />)} />
               <Route path="quality-system" element={lazyElement(<QualityPage />)} />
               <Route path="safety-dashboard" element={lazyElement(<SafetyDashboardPage />)} />

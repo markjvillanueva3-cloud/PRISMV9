@@ -23,6 +23,21 @@
  *      their parent process no longer exists (true orphan from a dead session)
  *      AND they're older than MAX_AGE_SECONDS. The current session's MCP servers
  *      always have the live Claude harness as parent, so they are never touched.
+ *   4. Orphan `git.exe` — a git process (a) whose command line references the
+ *      PRISM tree (`*prism*` — scoped like every other category, so an unrelated
+ *      repo's git on the same workstation is NEVER touched), (b) whose parent is
+ *      gone (true orphan from a crashed chat — e.g. a `git` wedged on an
+ *      `index.lock`), and (c) older than MAX_AGE_SECONDS. A live `git commit` /
+ *      `git log --all` (the milestone-progress regen runs the latter, and it can
+ *      run long) ALWAYS has a live parent, so it is never touched even when it
+ *      runs past the age cutoff — the parent-dead gate, not the age gate, is the
+ *      real protection. Limitation: a bare `git` run from the prism CWD (cmdline
+ *      carries no path) won't match the `*prism*` scope — safe-by-missing is the
+ *      deliberate tradeoff over reaping an unrelated repo's git.
+ *
+ * Every kill is appended to `state/shared/.janitor-kills.jsonl` (gitignored) as
+ * `{ts,pid,ppid,name,reason}` — a forensic trail so a wrongful kill is
+ * diagnosable, especially for the repo-touching `orphan-git` category.
  *
  * Modes:
  *   (default)  hot-path: throttled via stamp file (≈20ms no-op most calls,
@@ -99,7 +114,15 @@ $alivePids = @{}
 foreach ($p in $procs) { $alivePids[[int]$p.ProcessId] = $true }
 $killed = 0
 function Kill-Proc($p, $reason) {
-  try { Stop-Process -Id $p.ProcessId -Force -ErrorAction SilentlyContinue; $script:killed++ } catch {}
+  try {
+    Stop-Process -Id $p.ProcessId -Force -ErrorAction SilentlyContinue
+    $script:killed++
+    # Forensic trail: a wrongful kill (esp. orphan-git, which touches a repo)
+    # must be diagnosable. .jsonl is gitignored — pure local churn. Values are
+    # all ints / fixed enums / ISO date, so no JSON escaping is needed.
+    $rec = '{"ts":"' + (Get-Date -Format o) + '","pid":' + [int]$p.ProcessId + ',"ppid":' + [int]$p.ParentProcessId + ',"name":"' + $p.Name + '","reason":"' + $reason + '"}'
+    Add-Content -Path 'H:/prism/state/shared/.janitor-kills.jsonl' -Value $rec -ErrorAction SilentlyContinue
+  } catch {}
 }
 foreach ($p in $procs) {
   if ($p.ProcessId -eq $self) { continue }
@@ -112,7 +135,13 @@ foreach ($p in $procs) {
   # NOT match a bare 'dist/index.js' — too generic; a dead PRISM MCP is reaped
   # by stop_close_prism_nodes_v2 / PRISM Node Orphan Cleaner instead.)
   $isMcp     = ($name -eq 'node.exe') -and ($cl -like '*@playwright*mcp*' -or $cl -like '*mcp-http-bridge.mjs*')
-  if (-not ($isHookNode -or $isHookBash -or $isMcp)) { continue }
+  # Orphan git: git.exe whose cmdline references the PRISM tree (scoped like
+  # every other category — an unrelated repo's git is never touched). Killed
+  # ONLY when ALSO parent-dead (see below) — a live git op always has a live
+  # parent. A bare git invocation from the prism CWD will not match the scope;
+  # safe-by-missing is the deliberate tradeoff.
+  $isGit     = ($name -eq 'git.exe') -and ($cl -like '*prism*')
+  if (-not ($isHookNode -or $isHookBash -or $isMcp -or $isGit)) { continue }
   # Age gate (all categories): never touch anything younger than the cutoff.
   if ($null -ne $p.CreationDate -and $p.CreationDate -ge $cutoff) { continue }
   if ($isHookNode -or $isHookBash) {
@@ -124,6 +153,13 @@ foreach ($p in $procs) {
     # dead session). A live session's MCP always has a live parent.
     $ppid = [int]$p.ParentProcessId
     if (-not $alivePids.ContainsKey($ppid)) { Kill-Proc $p 'orphan-mcp' }
+  }
+  if ($isGit) {
+    # Only kill git.exe whose parent process is gone (true orphan — a crashed
+    # chat's git wedged on an index.lock). A live git commit / git log --all
+    # always has a live parent, so it is never touched even when it runs long.
+    $ppid = [int]$p.ParentProcessId
+    if (-not $alivePids.ContainsKey($ppid)) { Kill-Proc $p 'orphan-git' }
   }
 }
 Write-Output $killed
@@ -140,11 +176,16 @@ Write-Output $killed
     } finally { try { unlinkSync(psFile); } catch {} }
     log(`windows cleanup complete (killed=${killed}, full=${FULL})`);
   } else {
-    // POSIX: kill stale .claude/hooks|helpers node+bash; skip self & this script.
+    // POSIX: kill stale .claude/hooks|helpers node+bash, plus orphan git
+    // (comm=git, prism-scoped cmdline, reparented to init → ppid 1, age-gated).
+    // ppid==1 is intentionally conservative — subreaper init systems may
+    // under-match, which only ever skips a real orphan (safe). Skip self & this
+    // script.
     const cmd =
       `ps -eo pid=,ppid=,etimes=,comm=,args= 2>/dev/null | ` +
-      `awk -v self=${self} '($1+0)!=self && ($3+0)>${MAX_AGE_SECONDS} && ` +
-      `($0 ~ /\\.claude\\/(hooks|helpers)/) && !/node-process-janitor/ {print $1}' | ` +
+      `awk -v self=${self} '($1+0)!=self && !/node-process-janitor/ && ` +
+      `( (($3+0)>${MAX_AGE_SECONDS} && $0 ~ /\\.claude\\/(hooks|helpers)/) || ` +
+      `($4=="git" && ($2+0)==1 && ($3+0)>${MAX_AGE_SECONDS} && tolower($0) ~ /prism/) ) {print $1}' | ` +
       `xargs -r kill -TERM 2>/dev/null; true`;
     execSync(cmd, { timeout: PS_TIMEOUT_MS, stdio: "ignore", shell: "/bin/sh" });
     log(`unix cleanup complete (full=${FULL})`);
