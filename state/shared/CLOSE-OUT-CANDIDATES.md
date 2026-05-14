@@ -1,6 +1,6 @@
 # CLOSE-OUT-CANDIDATES — units that look shipped but envelope says pending
 
-> Generated: 2026-05-14T13:00:57.901Z
+> Generated: 2026-05-14T13:37:42.082Z
 > Source: `scripts/audit-close-out-candidates.mjs`
 > Filter: min-confidence ≥ 0.75
 
