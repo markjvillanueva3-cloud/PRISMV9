@@ -1,0 +1,117 @@
+{
+  "id": "MS-DOCU-FINISH",
+  "version": "7.6.0",
+  "title": "MS-DOCU-FINISH — finish the live Docustrata phase-15 extraction + full phase-8 classifier pass + the v5 rejoin",
+  "brief": "Phase 15 deep-OCR is RUNNING NOW (~47% done as of 2026-05-11, ETA ~8 hrs — no work, just wait). U-DOCU-01 = wait + emit the final corpus snapshot; the 673 huge-container PDFs get the chunked driver. U-DOCU-02 = run the phase-8-tiered classifier (image heuristic → Tesseract title-block → vision LLM) over the full 120K candidate pages → title-block extraction for the ~13K+ drawing-likely pages (~4,500 net-new usable prints; note phase-5e vision-validate found ~5.4% real-PRINT precision in the candidate pool so ~13K 'drawing-likely' ≈ ~1,200-1,500 true drawings). U-DOCU-03 = join v5 — rejoin against the phase-15 deep-OCR PN list + the full 38,251-file JM-Die index (v3/v4 only joined the phase-8/cleaned 466 PNs; v5 likely rescues thousands from the 3,142 'miss'). DROP MinerU (phase 10) — it crashed (torch abort), 0 PNs.",
+  "created_at": "2026-05-11T18:00:32.098Z",
+  "created_by": "claude-99eca613 (register-revenue-roadmap-envelopes.mjs, v7.6 §R10)",
+  "track": "revenue",
+  "track_name": "REVENUE-ROADMAP v7.6",
+  "roadmap_priority": 1,
+  "tier": 0,
+  "status": "completed",
+  "updated_at": "2026-05-14T19:05:00.000Z",
+  "closeout_note": "Closed out 2026-05-14 (claude-d0905490, slot alpha). U-DOCU-01: phase-15 deep-OCR complete (phase15-deep-rescan-parallel.jsonl, 147,761 page rows / 21,545 docs), huge-container chunked driver phase15-deep-rescan-huge-chunked.py committed, phase15-summary.md emitted. U-DOCU-02: satisfied via the superior phase-15->phase-20 path (commit b23ed8564 documents that phase-15 SUPERSEDED phase-8) -> phase20-verified-prints.jsonl (42,337 verified print pages / 9,362 docs). U-DOCU-03: shipped v6, which supersedes the envelope's literal v5 -> blueprint-program-join-full-v6.jsonl (73,876 PN rows; exact 1,113 / loose 746 / ambiguous 87). DELIVERABLE POLICY: the pipeline SCRIPTS are git-tracked (scripts/docustrata/phase16-blueprint-program-join-v6.py + phase20-verified-prints-index.py, Docustrata/.index/phase15-deep-rescan-huge-chunked.py); the ~130 MB JSONL OUTPUTS are intentionally local-only per the 2026-05-12 history-strip policy and are reproducible from the committed scripts.",
+  "source": "§R10.3 — U-DOCU-01 ≈ the existing §R8.3 U-TRAIN-P2P-01 (mark IN PROGRESS, not net-new)",
+  "viz_node_id": "ghost.ms.ms-docu-finish",
+  "doc_propagation": [
+    "claude.md",
+    "gsd",
+    "wiki",
+    "system-viz"
+  ],
+  "dependencies": [],
+  "blocks": [
+    "MS-DOCU-INGEST",
+    "MS-TRAIN-DEEP"
+  ],
+  "phases": [
+    {
+      "id": "P0",
+      "title": "MS-DOCU-FINISH — finish the live Docustrata phase-15 extraction + full phase-8 classifier pass + the v5 rejoin",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "U-DOCU-01",
+          "title": "Complete phase-15 deep-OCR (~21,063-doc / ~120K-page queue, already running) + emit final phase15-summary.md + run the chunked driver on the 673 huge-container PDFs",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "Complete phase-15 deep-OCR (~21,063-doc / ~120K-page queue, already running) + emit final phase15-summary.md + run the chunked driver on the 673 huge-container PDFs — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-docu-finish.udocu-01",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-DOCU-02",
+          "title": "Phase-8-tiered classifier over the full 120K candidate pages → title-block extraction for the ~13K+ drawing-likely pages → prints-corpus-full.jsonl (~4,500 net-new usable prints)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "Phase-8-tiered classifier over the full 120K candidate pages → title-block extraction for the ~13K+ drawing-likely pages → prints-corpus-full.jsonl (~4,500 net-new usable prints) — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-docu-finish.udocu-02",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-DOCU-03",
+          "title": "Join v5 — rejoin against the phase-15 deep-OCR PN list + the full 38,251-file JM-Die index → blueprint-program-join-full-v5.jsonl with final exact/loose/ambiguous counts",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "Join v5 — rejoin against the phase-15 deep-OCR PN list + the full 38,251-file JM-Die index → blueprint-program-join-full-v5.jsonl with final exact/loose/ambiguous counts — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-docu-finish.udocu-03",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        }
+      ]
+    }
+  ],
+  "total_units": 3,
+  "completed_units": 3
+}

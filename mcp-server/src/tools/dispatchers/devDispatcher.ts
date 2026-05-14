@@ -82,7 +82,15 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // dispatchers for orphan engines. Three modes: analyze (single engine),
 // batch_unwired (scan BUILD_STATE.NEEDS_WIRING orphans), dashboard
 // (aggregate top-candidate distribution across all orphans).
-"wiring_potential"] as const;
+"wiring_potential",
+// ORPHAN-RESCUE: StopConditionEngine — pre-flight tool-call stop/warn/allow
+// decisions for hook scripts. evaluate → worst-severity StopEvaluation;
+// should_block → boolean fast-path; evaluate_all → every triggered rule;
+// rules → the 6 rule names. Sibling of the tool_call_* / token_* surfaces.
+"stop_condition_evaluate",
+"stop_condition_should_block",
+"stop_condition_evaluate_all",
+"stop_condition_rules"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -119,6 +127,30 @@ function searchFiles(dir: string, pattern: string, maxResults: number = 20): any
   return results;
 }
 
+interface StopCtxState {
+  totalTokensUsed: number; maxBudget: number; recentFiles: string[];
+  recentGreps: string[]; toolCallCount: number; sessionAgeMinutes: number;
+}
+
+/**
+ * Build a normalized ContextState for StopConditionEngine from loose dispatcher params.
+ * Accepts both camelCase and snake_case keys; coerces sensible defaults so the engine
+ * never sees a missing field or a divide-by-zero maxBudget.
+ */
+function buildStopCtx(raw: unknown): StopCtxState {
+  const c: Record<string, unknown> =
+    raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
+  const arr = (v: unknown): string[] => (Array.isArray(v) ? v.map((x) => String(x)) : []);
+  return {
+    totalTokensUsed: Number(c.totalTokensUsed ?? c.total_tokens_used) || 0,
+    maxBudget: Number(c.maxBudget ?? c.max_budget) || 200000,
+    recentFiles: arr(c.recentFiles ?? c.recent_files),
+    recentGreps: arr(c.recentGreps ?? c.recent_greps),
+    toolCallCount: Number(c.toolCallCount ?? c.tool_call_count) || 0,
+    sessionAgeMinutes: Number(c.sessionAgeMinutes ?? c.session_age_minutes) || 0,
+  };
+}
+
 /** Registers dev dispatcher.
  * @param server - MCP server instance
   * @returns void
@@ -142,7 +174,9 @@ export function registerDevDispatcher(server: any): void {
       // SYS-MS6: Validate params against per-action Zod schema
       const validation = validateActionParams(action, params, ACTION_DEV_SCHEMAS);
       if (!validation.valid) {
-        return { content: [{ type: "text" as const, text: JSON.stringify({ error: `Invalid params for ${action}`, details: validation.errors }) }] };
+        // ValidationResult exposes `errorMessage` (string) — the prior `validation.errors`
+        // was a typo (no such field), so `details` was always silently undefined.
+        return { content: [{ type: "text" as const, text: JSON.stringify({ error: `Invalid params for ${action}`, details: validation.errorMessage }) }] };
       }
       let result: any;
       try {
@@ -2309,6 +2343,54 @@ export function registerDevDispatcher(server: any): void {
             const { toolCallParallelizationEngine } = await import("../../engines/ToolCallParallelizationEngine.js");
             toolCallParallelizationEngine.reset();
             result = { success: true, reset: true };
+            break;
+          }
+
+          // ── Stop Condition Engine ───────────────────────────
+          case "stop_condition_evaluate": {
+            const { stopConditionEngine } = await import("../../engines/StopConditionEngine.js");
+            const ctx = buildStopCtx(params.ctx);
+            const evaluation = stopConditionEngine.evaluate(
+              String(params.tool || ""),
+              (params.params || {}) as Record<string, unknown>,
+              ctx,
+            );
+            result = { success: true, evaluation, ctx };
+            break;
+          }
+          case "stop_condition_should_block": {
+            const { stopConditionEngine } = await import("../../engines/StopConditionEngine.js");
+            const ctx = buildStopCtx(params.ctx);
+            // Call evaluate() once — shouldBlock() is just `evaluate().decision === "block"`,
+            // so deriving `blocked` from the evaluation avoids traversing all rules twice.
+            const evaluation = stopConditionEngine.evaluate(
+              String(params.tool || ""),
+              (params.params || {}) as Record<string, unknown>,
+              ctx,
+            );
+            result = { success: true, blocked: evaluation.decision === "block", evaluation };
+            break;
+          }
+          case "stop_condition_evaluate_all": {
+            const { stopConditionEngine } = await import("../../engines/StopConditionEngine.js");
+            const ctx = buildStopCtx(params.ctx);
+            const evaluations = stopConditionEngine.evaluateAll(
+              String(params.tool || ""),
+              (params.params || {}) as Record<string, unknown>,
+              ctx,
+            );
+            result = {
+              success: true,
+              evaluations,
+              triggeredCount: evaluations.length,
+              totalSavings: stopConditionEngine.totalSavings(evaluations),
+            };
+            break;
+          }
+          case "stop_condition_rules": {
+            const { stopConditionEngine } = await import("../../engines/StopConditionEngine.js");
+            const rules = stopConditionEngine.getRuleNames();
+            result = { success: true, rules, ruleCount: rules.length };
             break;
           }
 

@@ -40,6 +40,18 @@ const _riLibraryOption = z.object({
   features: z.array(z.string()).default([]),
 }).passthrough();
 
+// ── StopConditionEngine shared ctx sub-schema (ENGINE-WIRE: prism_dev stop_condition_* actions) ──
+// All fields optional so validation never blocks on a missing/partial context —
+// the dispatcher coerces sensible defaults (maxBudget→200000, counts→0, arrays→[]).
+const _scContextState = z.object({
+  totalTokensUsed: z.number().nonnegative().optional().describe("Tokens consumed so far this session"),
+  maxBudget: z.number().positive().optional().describe("Session token budget ceiling (dispatcher defaults to 200000)"),
+  recentFiles: z.array(z.string()).optional().describe("Files read/edited in the last N minutes"),
+  recentGreps: z.array(z.string()).optional().describe("Recent grep keys, format 'pattern|path'"),
+  toolCallCount: z.number().nonnegative().optional().describe("Total tool calls so far this session"),
+  sessionAgeMinutes: z.number().nonnegative().optional().describe("Session age in minutes"),
+}).passthrough();
+
 export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   session_boot: z.object({}).optional(),
   build: z.object({ fast: z.boolean().optional() }).optional(),
@@ -80,6 +92,25 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   }),
   tool_call_analyze: z.object({}).optional(),
   tool_call_reset: z.object({}).optional(),
+
+  // ── StopConditionEngine — pre-flight tool-call stop/warn/allow decisions ──
+  // (sibling of tool_call_* / token_* token-economy surfaces; ENGINE-WIRE)
+  stop_condition_evaluate: z.object({
+    tool: z.string().describe("Pending tool name (Read|Grep|Agent|WebFetch|...)"),
+    params: z.record(z.string(), z.any()).optional().describe("Pending tool's input params (file_path, pattern, prompt, url, ...)"),
+    ctx: _scContextState.optional().describe("Context state used by the stop rules"),
+  }),
+  stop_condition_should_block: z.object({
+    tool: z.string().describe("Pending tool name"),
+    params: z.record(z.string(), z.any()).optional().describe("Pending tool's input params"),
+    ctx: _scContextState.optional().describe("Context state used by the stop rules"),
+  }),
+  stop_condition_evaluate_all: z.object({
+    tool: z.string().describe("Pending tool name"),
+    params: z.record(z.string(), z.any()).optional().describe("Pending tool's input params"),
+    ctx: _scContextState.optional().describe("Context state used by the stop rules"),
+  }),
+  stop_condition_rules: z.object({}).optional(),
 
   // File read deduplication
   file_read_record: z.object({

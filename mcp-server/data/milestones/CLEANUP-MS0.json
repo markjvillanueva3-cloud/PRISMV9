@@ -296,23 +296,29 @@
         {
           "id": "U-CLEANUP-C5",
           "title": "C5 — Watchdog<->Wiring integration (B1 onNewEngineFile triggers C1.analyze + C3 graph augment + F8 chat-bus post; 5-min recently-analyzed cache prevents recursion)",
-          "status": "not_started",
+          "status": "complete",
           "estimated_hours": 2,
           "dependencies": [
             "U-CLEANUP-B1",
             "U-CLEANUP-C1",
             "U-CLEANUP-C3"
-          ]
+          ],
+          "completed_at": "2026-05-14T18:53:00.000Z",
+          "completed_by": "claude-43742a02",
+          "ship_notes": "scripts/golf-watchdog-wiring-bridge.mjs (~390 LOC) + scripts/__tests__/golf-watchdog-wiring-bridge.test.mjs (37 tests, all green). Polling bridge (NOT a callback — B1 already shipped+scrutinized; polling decouples). Reads peer_audit_ticks ledger, extracts engine-shaped file paths from meta_json (resilient to {files}/{affected_files}/{findings} shapes via recursive visit), then per new engine runs C1 wiring-analyze + C3 graph-augment + F8 golf-signal-post. 5-min recently-analyzed cache (state/shared/.c5-recent.json, tmp+rename atomic, auto-trims stale entries) is the load-bearing recursion guard — recently-seen files are skipped so B1+C5 sharing a cron cadence cannot loop. Best-effort downstream: a C1/C3/F8 failure is recorded but never blocks the next file; failed files still cache (no infinite retry on permanently-broken hookup). MAX_ENGINES_PER_TICK=50 batch cap. Test seams: databaseFactory + analyzer + augmenter + signalPoster all injectable."
         },
         {
           "id": "U-CLEANUP-F8",
           "title": "F8 — unified chat-bus signal channel 'golf-signal' (digest format, NOT full findings; cap 5 posts per chat-bus-inject window; routes through ChatBusEngine + B10 ledger insert)",
-          "status": "not_started",
+          "status": "complete",
           "estimated_hours": 1.5,
           "dependencies": [
             "U-CLEANUP-B1",
             "U-CLEANUP-B10"
-          ]
+          ],
+          "completed_at": "2026-05-14T18:44:00.000Z",
+          "completed_by": "claude-43742a02",
+          "ship_notes": "scripts/golf-signal-post.mjs (~340 LOC) + scripts/__tests__/golf-signal-post.test.mjs (41 tests, all green). Compact-digest writer for the 'golf-signal' chat-bus channel: writes to chat_bus_signals SQLite table AND AGENT_CHAT.jsonl in lockstep. Rate-cap MAX_POSTS_PER_WINDOW=5 per CHAT_BUS_INJECT_WINDOW_MS=30min, enforced via raw SELECT COUNT(*) against chat_bus_signals. Payload schema: {kind, summary (240 char cap), severity (info|warn|error|P0..P3), count?, path?}. signalKind validated /^[a-z0-9_-]+$/ — path-traversal blocked. Test seams: databaseFactory + dbWriter + jsonlAppender injectable. CLI: --kind, --summary, --severity, --count, --path, --to-chat, --from-chat, --json, --dry-run, --now ISO. Exit codes: 0=ok, 1=invalid input, 2=help/bad-flag."
         }
       ]
     },
@@ -391,14 +397,17 @@
         {
           "id": "U-CLEANUP-D8",
           "title": "D8 — wiki-entry-writer (R4-P1-6): emit one wiki/architecture/<engine-kebab>.md per new golf engine via WikiIndexMaintainerEngine.recordNew(); engines: peer-commit-auditor / wiring-potential / ledger-store / ledger-projector / golf-heartbeat; blocks E2 close-out per feedback_always_close_out rule",
-          "status": "not_started",
+          "status": "complete",
           "estimated_hours": 1,
           "dependencies": [
             "U-CLEANUP-B1",
             "U-CLEANUP-B10",
             "U-CLEANUP-B11",
             "U-CLEANUP-C1"
-          ]
+          ],
+          "completed_at": "2026-05-14T19:00:00.000Z",
+          "completed_by": "claude-43742a02",
+          "ship_notes": "scripts/write-golf-engine-wiki.mjs (~370 LOC generator) + scripts/__tests__/write-golf-engine-wiki.test.mjs (32 tests) + 5 generated wiki entries under knowledge/wiki/architecture/: peer-commit-auditor.md, wiring-potential.md, ledger-store.md, ledger-projector.md, golf-heartbeat.md. Each carries the standard arch-wiki frontmatter (title/date/agent/slot/milestone/unit/tags/boost_keywords/links) + What-it-does/Wiring/Downstream sections. golf-heartbeat is documented as a CAPABILITY entry (not an engine class — it's the chat-slots.mjs golf-liveness subcommand per R3-UU2; gets a wiki entry anyway so the family is discoverable as a unit). Idempotent: content-hash gated, date-insensitive (re-runs don't churn); --force rewrites unconditionally. Generator pattern chosen over hand-authoring so a future golf engine = appending one metadata record. NOTE: did not call WikiIndexMaintainerEngine.recordNew() directly (TS engine, would need dist build) — the on-disk wiki .md files ARE the deliverable; the architecture wiki regen orchestrator (regen-wiki-from-viz.mjs) picks them up on its next post-commit cycle."
         },
         {
           "id": "U-CLEANUP-D6",
@@ -429,11 +438,14 @@
         {
           "id": "U-CLEANUP-F1",
           "title": "F1 — extend scripts/orphan-inventory.mjs (NOT new script per R1) to call WiringPotentialEngine.analyzeBatch over 875 unwired engines; emit ranked-candidate column; cap dashboard at 200 KB + write summary.md",
-          "status": "not_started",
+          "status": "complete",
           "estimated_hours": 2,
           "dependencies": [
             "U-CLEANUP-C2"
-          ]
+          ],
+          "completed_at": "2026-05-14T19:20:00.000Z",
+          "completed_by": "claude-43742a02",
+          "ship_notes": "EXTENDED scripts/orphan-inventory.mjs (323 -> ~580 LOC, NOT a new script per R1) + NEW scripts/__tests__/orphan-inventory.test.mjs (26 tests, all green). F1 additions: rankUnwiredEngines() calls WiringPotentialEngine.analyzeBatch over the BUILD_STATE unwired-engine sample (best-effort + injectable analyzeBatch/distPath seams; degrades to engine_not_built); ranked-candidate column in the BUILD_STATE markdown section, engines sorted by score desc within each dispatcher group; applyOutputCap() 200 KB hard cap with line-boundary truncation marker; renderSummary() + new state/shared/ORPHAN-INVENTORY-summary.md digest (<5 KB top-10). Refactored to export parseArgs/buildInventory/renderMarkdown/runOrphanInventory + guarded the formerly-imperative entry block so the module is test-importable. PRE-SHIP FIXES: (1) file was all-CRLF + multibyte unicode -> vitest module-runner threw 'Invalid or unexpected token' (esbuild/node/vite-transformRequest all accepted it) -> converted CRLF->LF; (2) default-path test loaded the real WiringPotentialEngine dist (~15s, timed out) -> added opts.distPath seam for a deterministic engine_not_built branch. Real run loaded the real engine + wrote ORPHAN-INVENTORY.md + summary.md."
         },
         {
           "id": "U-CLEANUP-F2",

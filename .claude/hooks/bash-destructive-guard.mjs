@@ -130,8 +130,16 @@ const gitRules = [
   },
   {
     id: 'push_delete',
+    // The arg span is [^#\n&;|]* (NOT [^#\n]*) so the greedy match stops at a
+    // command separator. Before this fix the span ran across the whole
+    // compound line, so any `:` in a CHAINED command — `git push origin main
+    // && echo "fix: done"`, `... && node loop-state.mjs --note "X: Y"` —
+    // falsely tripped the `:refspec` branch-delete pattern. 3 legit pushes in
+    // one session escalated the blast-dampener and hard-blocked further
+    // pushes. Anchoring to command separators keeps the real catch
+    // (`git push origin :branch`, `git push --delete origin branch`) intact.
     severity: 'warn',
-    pattern: /\bgit\s+push\s+[^#\n]*(?::[^\s]+|--delete\s+\S+)/,
+    pattern: /\bgit\s+push\s+[^#\n&;|]*(?::[^\s]+|--delete\s+\S+)/,
     impact: 'Removes a branch from the remote.',
     confirm: 'The remote branch will be gone for everyone. Continue?',
   },
