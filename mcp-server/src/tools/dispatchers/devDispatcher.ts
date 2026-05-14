@@ -77,7 +77,12 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // loop the tuner publishes — without this action the tuner's decisions
 // would never reach route() calls in the running server. Boot scripts
 // + post-tuner cron should call this action.
-"router_adaptation_apply"] as const;
+"router_adaptation_apply",
+// CLEANUP-MS0/U-CLEANUP-C2: WiringPotentialEngine (C1) — rank candidate
+// dispatchers for orphan engines. Three modes: analyze (single engine),
+// batch_unwired (scan BUILD_STATE.NEEDS_WIRING orphans), dashboard
+// (aggregate top-candidate distribution across all orphans).
+"wiring_potential"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -4477,6 +4482,172 @@ export function registerDevDispatcher(server: any): void {
                 paths: { state: statePath, log: logPath },
               },
             };
+            break;
+          }
+
+          // ── CLEANUP-MS0/U-CLEANUP-C2: wiring_potential ───────────────
+          // WiringPotentialEngine (shipped in U-CLEANUP-C1) dispatcher
+          // surface. Three modes:
+          //   analyze       — rank candidate dispatchers for ONE orphan.
+          //   batch_unwired — scan BUILD_STATE.NEEDS_WIRING.sample_engines
+          //                   (or explicit engine_names override) and rank
+          //                   candidates per orphan. Cap via top_n.
+          //   dashboard     — aggregate top-candidate distribution across
+          //                   the orphan pool (how many orphans each
+          //                   dispatcher would absorb, ranked desc).
+          // Reads F7 DISPATCHER_CAPACITY.json + BUILD_STATE.json at call
+          // time (no module-load I/O). Routes through MasterIndex via the
+          // engine; never reimplements search.
+          case "wiring_potential": {
+            const { wiringPotentialEngine } = await import("../../engines/WiringPotentialEngine.js");
+            const mode = String(params.mode ?? "analyze");
+
+            // Per-engine analyze opts (passed through to engine.analyze()).
+            const topKRaw = params.top_k ?? params.topK;
+            const topK = topKRaw != null && Number.isFinite(Number(topKRaw))
+              ? Math.min(10, Math.max(1, Math.floor(Number(topKRaw))))
+              : undefined;
+            const minConfRaw = params.min_confidence ?? params.minConfidence;
+            const minConfidence = minConfRaw != null && Number.isFinite(Number(minConfRaw))
+              ? Math.min(1, Math.max(0, Number(minConfRaw)))
+              : undefined;
+            const capacityFile = typeof params.capacity_file === "string"
+              ? params.capacity_file
+              : (typeof params.capacityFile === "string" ? params.capacityFile : undefined);
+
+            const analyzeOpts: any = {};
+            if (topK !== undefined) analyzeOpts.topK = topK;
+            if (minConfidence !== undefined) analyzeOpts.minConfidence = minConfidence;
+            if (capacityFile !== undefined) analyzeOpts.capacityFile = capacityFile;
+
+            switch (mode) {
+              case "analyze": {
+                const engineName = typeof params.engine_name === "string"
+                  ? params.engine_name
+                  : (typeof params.engineName === "string" ? params.engineName : "");
+                if (!engineName) {
+                  result = { success: false, error: "missing_required", field: "engine_name", note: "mode=analyze requires engine_name (the orphan engine to rank candidates for)." };
+                  break;
+                }
+                const report = await wiringPotentialEngine.analyze(engineName, analyzeOpts);
+                result = { success: true, data: report };
+                break;
+              }
+              case "batch_unwired": {
+                const topNRaw = params.top_n ?? params.topN;
+                const topN = topNRaw != null && Number.isFinite(Number(topNRaw))
+                  ? Math.min(200, Math.max(1, Math.floor(Number(topNRaw))))
+                  : 25;
+                // Source orphan names: explicit override or read BUILD_STATE.
+                let engineNames: string[] = [];
+                const warnings: string[] = [];
+                if (Array.isArray(params.engine_names) || Array.isArray(params.engineNames)) {
+                  const src = Array.isArray(params.engine_names) ? params.engine_names : params.engineNames;
+                  engineNames = src.filter((n: unknown): n is string => typeof n === "string" && n.length > 0).slice(0, topN);
+                } else {
+                  // Read BUILD_STATE. PROJECT_ROOT is canonical (main-tree truth)
+                  // — worktree callers see the same orphan list as a main-tree
+                  //   caller would. Reviewer-C noted this is correct shared-state
+                  //   semantics; just document the cwd-independence.
+                  const bsPath = path.resolve(PROJECT_ROOT, "state", "shared", "BUILD_STATE.json");
+                  try {
+                    if (fs.existsSync(bsPath)) {
+                      const bs = JSON.parse(fs.readFileSync(bsPath, "utf8"));
+                      const samples = bs?.NEEDS_WIRING?.sample_engines ?? bs?.NEEDS_WIRING?.engines ?? [];
+                      engineNames = samples
+                        .map((e: any) => (typeof e === "string" ? e : (typeof e?.name === "string" ? e.name : "")))
+                        .filter((n: string) => n.length > 0)
+                        .slice(0, topN);
+                      if (engineNames.length === 0) {
+                        warnings.push(`BUILD_STATE.NEEDS_WIRING is empty at ${bsPath}`);
+                      }
+                    } else {
+                      warnings.push(`BUILD_STATE.json not found at ${bsPath} — empty result returned`);
+                    }
+                  } catch (err) {
+                    // Tolerate malformed file — empty engineNames + explicit warning
+                    // beats silent zero-orphan response that masquerades as success.
+                    warnings.push(`BUILD_STATE.json read failed (${(err as Error).message}) — empty result returned`);
+                  }
+                }
+                const reports = await wiringPotentialEngine.analyzeBatch(engineNames, analyzeOpts);
+                const summary = {
+                  totalAnalyzed: reports.length,
+                  withCandidate: reports.filter((r) => r.topCandidate !== null).length,
+                  noMatch: reports.filter((r) => r.topCandidate === null).length,
+                };
+                result = {
+                  success: true,
+                  data: {
+                    reports,
+                    summary,
+                    warnings,
+                    sourcedFromBuildState: !Array.isArray(params.engine_names) && !Array.isArray(params.engineNames),
+                  },
+                };
+                break;
+              }
+              case "dashboard": {
+                const topNRaw = params.top_n ?? params.topN;
+                const topN = topNRaw != null && Number.isFinite(Number(topNRaw))
+                  ? Math.min(200, Math.max(1, Math.floor(Number(topNRaw))))
+                  : 25;
+                let engineNames: string[] = [];
+                const warnings: string[] = [];
+                const bsPath = path.resolve(PROJECT_ROOT, "state", "shared", "BUILD_STATE.json");
+                try {
+                  if (fs.existsSync(bsPath)) {
+                    const bs = JSON.parse(fs.readFileSync(bsPath, "utf8"));
+                    const samples = bs?.NEEDS_WIRING?.sample_engines ?? bs?.NEEDS_WIRING?.engines ?? [];
+                    engineNames = samples
+                      .map((e: any) => (typeof e === "string" ? e : (typeof e?.name === "string" ? e.name : "")))
+                      .filter((n: string) => n.length > 0)
+                      .slice(0, topN);
+                    if (engineNames.length === 0) {
+                      warnings.push(`BUILD_STATE.NEEDS_WIRING is empty at ${bsPath}`);
+                    }
+                  } else {
+                    warnings.push(`BUILD_STATE.json not found at ${bsPath} — empty dashboard returned`);
+                  }
+                } catch (err) {
+                  warnings.push(`BUILD_STATE.json read failed (${(err as Error).message}) — empty dashboard returned`);
+                }
+                const reports = await wiringPotentialEngine.analyzeBatch(engineNames, analyzeOpts);
+                // Aggregate by top-candidate dispatcher.
+                const byDispatcher = new Map<string, { count: number; avgScore: number; orphans: string[] }>();
+                let unmatched = 0;
+                for (const r of reports) {
+                  if (!r.topCandidate) { unmatched += 1; continue; }
+                  const k = r.topCandidate.dispatcher;
+                  const cur = byDispatcher.get(k) ?? { count: 0, avgScore: 0, orphans: [] };
+                  cur.count += 1;
+                  cur.avgScore = ((cur.avgScore * (cur.count - 1)) + r.topCandidate.score) / cur.count;
+                  cur.orphans.push(r.engineName);
+                  byDispatcher.set(k, cur);
+                }
+                const ranked = Array.from(byDispatcher.entries())
+                  .map(([dispatcher, v]) => ({
+                    dispatcher,
+                    orphanCount: v.count,
+                    avgScore: Number(v.avgScore.toFixed(4)),
+                    orphans: v.orphans,
+                  }))
+                  .sort((a, b) => b.orphanCount - a.orphanCount || b.avgScore - a.avgScore || a.dispatcher.localeCompare(b.dispatcher));
+                result = {
+                  success: true,
+                  data: {
+                    totalAnalyzed: reports.length,
+                    matched: reports.length - unmatched,
+                    unmatched,
+                    byDispatcher: ranked,
+                    warnings,
+                  },
+                };
+                break;
+              }
+              default:
+                result = { success: false, error: "invalid_mode", mode, allowed: ["analyze", "batch_unwired", "dashboard"] };
+            }
             break;
           }
 

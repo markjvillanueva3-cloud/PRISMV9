@@ -513,4 +513,28 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     chat: z.string().optional().describe("Target chat for mode=preview; defaults to 'golf-watchdog' if omitted."),
     limit: z.union([z.string(), z.number()]).optional().describe("Preview row cap; default 50."),
   }).passthrough(),
+
+  // ── CLEANUP-MS0/U-CLEANUP-C2 — wiring_potential ─────────────────────────────
+  // WiringPotentialEngine (C1) dispatcher surface. Three modes:
+  //   - analyze     : rank candidate dispatchers for ONE orphan engine name.
+  //   - batch_unwired: pull BUILD_STATE.NEEDS_WIRING.sample_engines[] and rank
+  //                    candidates per orphan; cap via topN (default 25, max 200).
+  //   - dashboard   : aggregate top-candidate distribution (how many orphans
+  //                    each dispatcher would absorb, grouped + ranked).
+  wiring_potential: z.object({
+    mode: z.enum(["analyze", "batch_unwired", "dashboard"]).default("analyze")
+      .describe("analyze = single engine; batch_unwired = scan BUILD_STATE orphan engines; dashboard = aggregate top-candidate distribution."),
+    engine_name: z.string().min(1).max(200).optional()
+      .describe("Required for mode=analyze. Orphan engine name (e.g. 'GCodeTemplateEngine')."),
+    engine_names: z.array(z.string().min(1).max(200)).optional()
+      .describe("Override for mode=batch_unwired — explicit engine names to analyze instead of reading BUILD_STATE.NEEDS_WIRING."),
+    top_n: z.union([z.string(), z.number()]).optional()
+      .describe("Row cap for batch_unwired / dashboard; default 25, max 200."),
+    top_k: z.union([z.string(), z.number()]).optional()
+      .describe("Per-engine candidate cap (default 3, max 10) — passed through to WiringPotentialEngine.analyze()."),
+    min_confidence: z.union([z.string(), z.number()]).optional()
+      .describe("Drop candidates below this semantic confidence (default MIN_HEURISTIC_CONFIDENCE=0.30)."),
+    capacity_file: z.string().optional()
+      .describe("Override path to F7 DISPATCHER_CAPACITY.json (advanced; defaults to state/shared/DISPATCHER_CAPACITY.json relative to repo root)."),
+  }).passthrough(),
 };

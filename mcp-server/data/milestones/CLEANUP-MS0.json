@@ -7,10 +7,10 @@
   "priority": "P0",
   "owner": "claude-7f79dd78",
   "created_at": "2026-05-13T18:00:00.000Z",
-  "updated_at": "2026-05-14T02:15:00Z",
+  "updated_at": "2026-05-14T02:19:05.075Z",
   "status": "in_progress",
   "total_units": 73,
-  "completed_units": 44,
+  "completed_units": 45,
   "dependencies": [
     "HOOK-SYNERGY-MS0 (H4 envelope, H7 async dispatch, H8 coord_sqlite)",
     "OBSIDIAN-PRISM-OS-MS0 (master-index surface, awareness stack, orphan-inventory)"
@@ -186,11 +186,14 @@
         {
           "id": "U-CLEANUP-C2",
           "title": "C2 — prism_dev:wiring_potential dispatcher action (modes: analyze, batch_unwired, dashboard); E2E round-trip test",
-          "status": "not_started",
+          "status": "complete",
           "estimated_hours": 2,
           "dependencies": [
             "U-CLEANUP-C1"
-          ]
+          ],
+          "completed_at": "2026-05-14T02:19:05.075Z",
+          "completed_by": "claude-4d58ae9b",
+          "ship_notes": "prism_dev:wiring_potential (3 modes: analyze/batch_unwired/dashboard) wired to WiringPotentialEngine. 22 round-trip vitest cases via fake MCP closure. 3-of-3 PASS. Includes BUILD_STATE-unreadable warnings[] surface added in C-fix."
         }
       ]
     },
