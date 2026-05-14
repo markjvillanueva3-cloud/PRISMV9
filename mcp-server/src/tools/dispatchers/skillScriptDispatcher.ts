@@ -25,7 +25,8 @@ const ACTIONS = [
   "skill_load", "skill_recommend", "skill_analyze", "skill_chain", "skill_search_v2", "skill_stats_v2",
   "script_execute_v2", "script_queue", "script_recommend", "script_search_v2", "script_history",
   "bundle_list", "bundle_get", "bundle_for_action", "bundle_for_domain",
-  "skill_tier_register", "skill_tier_assign", "skill_tier_classify_all", "skill_tier_list", "skill_tier_size"
+  "skill_tier_register", "skill_tier_assign", "skill_tier_classify_all", "skill_tier_list", "skill_tier_size",
+  "skill_auto_load", "skill_auto_load_clear_cache",
 ] as const;
 
 function ok(data: any) {
@@ -547,6 +548,24 @@ export function registerSkillScriptDispatcher(server: any): void {
           case "skill_tier_size": {
             const { skillTierRegistryEngine } = await import("../../engines/SkillTierRegistryEngine.js");
             return ok({ success: true, size: skillTierRegistryEngine.size() });
+          }
+
+          case "skill_auto_load": {
+            const { autoLoadForTask, getLoadedExcerptsBlock } = await import("../../engines/SkillAutoLoader.js");
+            const callNumber = typeof params.call_number === "number" ? params.call_number
+              : typeof params.callNumber === "number" ? params.callNumber : 0;
+            const domain = String(params.domain || "");
+            const actionParam = String(params.task_action || params.taskAction || params.action_for_skill || "");
+            const passthrough = (params.params && typeof params.params === "object") ? params.params : undefined;
+            const result = autoLoadForTask(callNumber, domain, actionParam, passthrough);
+            const excerptsBlock = getLoadedExcerptsBlock(result);
+            return ok({ success: true, ...result, excerptsBlock });
+          }
+
+          case "skill_auto_load_clear_cache": {
+            const { clearSkillCache } = await import("../../engines/SkillAutoLoader.js");
+            clearSkillCache();
+            return ok({ success: true, cleared: true });
           }
 
           default:

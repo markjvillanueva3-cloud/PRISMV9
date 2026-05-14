@@ -232,6 +232,23 @@ const skill_tier_list = z.object({
 // Return total registered-skill count (for monitoring registry growth).
 const skill_tier_size = z.object({}).passthrough();
 
+// ── skill_auto_load ─────────────────────────────────────────────────────────
+// Pressure-adaptive smart skill loader — extracts key excerpts from the
+// primary skill for an action plus the predefined chain for a domain.
+const skill_auto_load = z.object({
+  call_number: z.number().int().nonnegative().optional()
+    .describe("Sequential call number this session (used for logging)"),
+  domain: z.string().describe("Task domain (calculations, materials, safety, ...)"),
+  task_action: z.string()
+    .describe("Action label being executed (cutting_force, tool_life, alarm_decode, ...)"),
+  params: z.record(z.string(), z.any()).optional()
+    .describe("Optional opaque parameter bag forwarded to the loader"),
+}).passthrough();
+
+// ── skill_auto_load_clear_cache ─────────────────────────────────────────────
+// Clear the in-memory per-session SkillAutoLoader cache. Admin op.
+const skill_auto_load_clear_cache = z.object({}).passthrough();
+
 // ── Export ───────────────────────────────────────────────────────────────────
 export const ACTION_SKILL_SCRIPT_SCHEMAS: ActionSchemaMap = {
   skill_list,
@@ -266,4 +283,6 @@ export const ACTION_SKILL_SCRIPT_SCHEMAS: ActionSchemaMap = {
   skill_tier_classify_all,
   skill_tier_list,
   skill_tier_size,
+  skill_auto_load,
+  skill_auto_load_clear_cache,
 };
