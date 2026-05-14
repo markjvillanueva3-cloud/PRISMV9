@@ -24,6 +24,21 @@ import {
   ACTION_AI_REASONING_SCHEMAS,
   type AIReasoningAction,
 } from "../../schemas/aiReasoningActionSchemas.js";
+import {
+  AI_CAPABILITY_ACTIONS,
+  ACTION_AI_CAPABILITY_SCHEMAS,
+  type AICapabilityAction,
+} from "../../schemas/aiCapabilityActionSchemas.js";
+
+// ============================================================================
+// AI-MAX-MS0/U-AIMAX10 — merge capability/resource/training action surface
+// into the existing prism_ai dispatcher so callers see one unified action set.
+// ALL_AI_ACTIONS is the wire-level tuple used by z.enum(...); ALL_AI_SCHEMAS
+// is the per-action Zod validation map handed to validateActionParams.
+// ============================================================================
+const ALL_AI_ACTIONS = [...AI_REASONING_ACTIONS, ...AI_CAPABILITY_ACTIONS] as const;
+const ALL_AI_SCHEMAS = { ...ACTION_AI_REASONING_SCHEMAS, ...ACTION_AI_CAPABILITY_SCHEMAS } as const;
+type AIAction = AIReasoningAction | AICapabilityAction;
 
 // Lazy-loaded engine singletons
 let _millFacade: typeof import("../../engines/MillMasterOrchestratorFacadeEngine.js").millMasterOrchestratorFacadeEngine | null = null;
@@ -647,14 +662,14 @@ export const aiReasoningDispatcherDef = {
   name: "prism_ai",
   description: "AI reasoning dispatcher — routes AGI, scientific, wisdom, and adaptive strategy requests through MillMasterOrchestratorFacadeEngine.",
   inputSchema: z.object({
-    action: z.enum(AI_REASONING_ACTIONS).describe("AI reasoning action to execute"),
+    action: z.enum(ALL_AI_ACTIONS).describe("AI reasoning action to execute"),
     params: z.record(z.string(), z.unknown()).optional().describe("Action-specific parameters"),
   }),
 };
 
 /** Execute AI reasoning action */
 export async function executeAIReasoningAction(
-  action: AIReasoningAction,
+  action: AIAction,
   params: Record<string, unknown>
 ): Promise<{ success: boolean; data?: unknown; error?: string }> {
   const startTime = Date.now();
@@ -662,7 +677,8 @@ export async function executeAIReasoningAction(
 
   // Validate params against schema (U-WIRE03: pass the schema MAP, not the per-action schema —
   // validateActionParams indexes the map by action; passing a single Zod object made it always pass).
-  const validation = validateActionParams(action, params, ACTION_AI_REASONING_SCHEMAS);
+  // U-AIMAX10: merged map covers both the legacy AI_REASONING_ACTIONS and the new AI_CAPABILITY_ACTIONS.
+  const validation = validateActionParams(action, params, ALL_AI_SCHEMAS);
   if (!validation.valid) {
     return dispatcherError(validation.error ?? "Validation failed", action, "prism_ai");
   }
@@ -2475,6 +2491,317 @@ export async function executeAIReasoningAction(
         break;
       }
 
+      // ─────────────────────────────────────────────────────────────────────
+      // AI-MAX-MS0/U-AIMAX10 — Capability / Resource / Training (46 actions)
+      // Engines wired:
+      //   AICapabilityMaximizerEngine (9)
+      //   AIResourceLearningEngine (14)
+      //   MasterAITrainingLedgerEngine (8)
+      //   LatheAITrainingEngine (7)
+      //   TrainingLedgerEngine (8)
+      // ─────────────────────────────────────────────────────────────────────
+
+      // Capability — AICapabilityMaximizerEngine
+      case "ai_capability_compute_metrics": {
+        const { aiCapabilityMaximizerEngine } = await import("../../engines/AICapabilityMaximizerEngine.js");
+        result = aiCapabilityMaximizerEngine.computeMetrics();
+        break;
+      }
+      case "ai_capability_get_metrics": {
+        const { aiCapabilityMaximizerEngine } = await import("../../engines/AICapabilityMaximizerEngine.js");
+        result = aiCapabilityMaximizerEngine.getMetrics();
+        break;
+      }
+      case "ai_capability_enhancement_recommendations": {
+        const { aiCapabilityMaximizerEngine } = await import("../../engines/AICapabilityMaximizerEngine.js");
+        result = aiCapabilityMaximizerEngine.getEnhancementRecommendations();
+        break;
+      }
+      case "ai_capability_reasoning_patterns": {
+        const { aiCapabilityMaximizerEngine } = await import("../../engines/AICapabilityMaximizerEngine.js");
+        result = aiCapabilityMaximizerEngine.getReasoningPatterns();
+        break;
+      }
+      case "ai_capability_reasoning_pattern_get": {
+        const { aiCapabilityMaximizerEngine } = await import("../../engines/AICapabilityMaximizerEngine.js");
+        result = aiCapabilityMaximizerEngine.getReasoningPattern(params.id as string);
+        break;
+      }
+      case "ai_capability_knowledge_sources": {
+        const { aiCapabilityMaximizerEngine } = await import("../../engines/AICapabilityMaximizerEngine.js");
+        result = aiCapabilityMaximizerEngine.getKnowledgeSources();
+        break;
+      }
+      case "ai_capability_enhancement_strategy": {
+        const { aiCapabilityMaximizerEngine } = await import("../../engines/AICapabilityMaximizerEngine.js");
+        result = aiCapabilityMaximizerEngine.getEnhancementStrategy(
+          params.area as Parameters<typeof aiCapabilityMaximizerEngine.getEnhancementStrategy>[0],
+        );
+        break;
+      }
+      case "ai_capability_apply_reasoning_pattern": {
+        const { aiCapabilityMaximizerEngine } = await import("../../engines/AICapabilityMaximizerEngine.js");
+        result = aiCapabilityMaximizerEngine.applyReasoningPattern(
+          params.pattern_id as string,
+          params.input as Parameters<typeof aiCapabilityMaximizerEngine.applyReasoningPattern>[1],
+        );
+        break;
+      }
+      case "ai_capability_report": {
+        const { aiCapabilityMaximizerEngine } = await import("../../engines/AICapabilityMaximizerEngine.js");
+        result = aiCapabilityMaximizerEngine.generateCapabilityReport();
+        break;
+      }
+
+      // Resource — AIResourceLearningEngine
+      case "ai_resource_code_quality": {
+        const { aiResourceLearningEngine } = await import("../../engines/AIResourceLearningEngine.js");
+        result = aiResourceLearningEngine.getCodeQualityRecommendations(
+          params.language as "typescript" | "python",
+          params.context as "engine" | "dispatcher" | "cam_script" | "test",
+        );
+        break;
+      }
+      case "ai_resource_material_parameters": {
+        const { aiResourceLearningEngine } = await import("../../engines/AIResourceLearningEngine.js");
+        result = aiResourceLearningEngine.getMaterialParameters(params.material as string);
+        break;
+      }
+      case "ai_resource_hypermill_patterns": {
+        const { aiResourceLearningEngine } = await import("../../engines/AIResourceLearningEngine.js");
+        result = aiResourceLearningEngine.getHyperMillAPIPatterns(params.module as string | undefined);
+        break;
+      }
+      case "ai_resource_okuma_pattern": {
+        const { aiResourceLearningEngine } = await import("../../engines/AIResourceLearningEngine.js");
+        result = aiResourceLearningEngine.getOkumaGCodePattern(params.cycle as string);
+        break;
+      }
+      case "ai_resource_okuma_all": {
+        const { aiResourceLearningEngine } = await import("../../engines/AIResourceLearningEngine.js");
+        result = aiResourceLearningEngine.getAllOkumaPatterns();
+        break;
+      }
+      case "ai_resource_edm_defaults": {
+        const { aiResourceLearningEngine } = await import("../../engines/AIResourceLearningEngine.js");
+        result = aiResourceLearningEngine.getEDMElectrodeDefaults();
+        break;
+      }
+      case "ai_resource_patterns_by_type": {
+        const { aiResourceLearningEngine } = await import("../../engines/AIResourceLearningEngine.js");
+        result = aiResourceLearningEngine.getPatternsByType(
+          params.type as Parameters<typeof aiResourceLearningEngine.getPatternsByType>[0],
+        );
+        break;
+      }
+      case "ai_resource_stats": {
+        const { aiResourceLearningEngine } = await import("../../engines/AIResourceLearningEngine.js");
+        result = aiResourceLearningEngine.getStats();
+        break;
+      }
+      case "ai_resource_training_context": {
+        const { aiResourceLearningEngine } = await import("../../engines/AIResourceLearningEngine.js");
+        result = aiResourceLearningEngine.getTrainingContext();
+        break;
+      }
+      case "ai_resource_extract_gcode": {
+        const { aiResourceLearningEngine } = await import("../../engines/AIResourceLearningEngine.js");
+        result = aiResourceLearningEngine.extractGCodePatterns(params.program_content as string);
+        break;
+      }
+      case "ai_resource_speed_feed": {
+        const { aiResourceLearningEngine } = await import("../../engines/AIResourceLearningEngine.js");
+        result = aiResourceLearningEngine.getRecommendedSpeedFeed(
+          params.material as string,
+          params.operation as "roughing" | "finishing",
+        );
+        break;
+      }
+      case "ai_resource_generate_hypermill_template": {
+        const { aiResourceLearningEngine } = await import("../../engines/AIResourceLearningEngine.js");
+        result = aiResourceLearningEngine.generateHyperMillTemplate(
+          params.task as Parameters<typeof aiResourceLearningEngine.generateHyperMillTemplate>[0],
+        );
+        break;
+      }
+      case "ai_resource_training_data": {
+        const { aiResourceLearningEngine } = await import("../../engines/AIResourceLearningEngine.js");
+        result = aiResourceLearningEngine.getAITrainingData();
+        break;
+      }
+      case "ai_resource_knowledge_coverage": {
+        const { aiResourceLearningEngine } = await import("../../engines/AIResourceLearningEngine.js");
+        result = aiResourceLearningEngine.getKnowledgeCoverage();
+        break;
+      }
+
+      // Training (Master Ledger) — MasterAITrainingLedgerEngine
+      // Snake_case wire → camelCase engine contract for LedgerEntry / LedgerQuery.
+      case "ai_training_master_ingest": {
+        const { masterAITrainingLedgerEngine } = await import("../../engines/MasterAITrainingLedgerEngine.js");
+        const p = params as Record<string, unknown>;
+        result = masterAITrainingLedgerEngine.ingest({
+          runId: p.run_id as string,
+          pipelineType: p.pipeline_type as Parameters<typeof masterAITrainingLedgerEngine.ingest>[0]["pipelineType"],
+          datasetFingerprint: p.dataset_fingerprint as string,
+          version: p.version as string,
+          trainingMetrics: p.training_metrics as Parameters<typeof masterAITrainingLedgerEngine.ingest>[0]["trainingMetrics"],
+          deploymentStatus: p.deployment_status as Parameters<typeof masterAITrainingLedgerEngine.ingest>[0]["deploymentStatus"],
+          sloTargets: p.slo_targets as Parameters<typeof masterAITrainingLedgerEngine.ingest>[0]["sloTargets"],
+          actualVsPredicted: p.actual_vs_predicted as Parameters<typeof masterAITrainingLedgerEngine.ingest>[0]["actualVsPredicted"],
+          createdAt: p.created_at as string,
+          promotedAt: p.promoted_at as string | undefined,
+          notes: p.notes as string | undefined,
+        });
+        break;
+      }
+      case "ai_training_master_replay": {
+        const { masterAITrainingLedgerEngine } = await import("../../engines/MasterAITrainingLedgerEngine.js");
+        result = masterAITrainingLedgerEngine.replay(params.run_id as string);
+        break;
+      }
+      case "ai_training_master_query": {
+        const { masterAITrainingLedgerEngine } = await import("../../engines/MasterAITrainingLedgerEngine.js");
+        const p = params as Record<string, unknown>;
+        const filter: Parameters<typeof masterAITrainingLedgerEngine.query>[0] = {};
+        if (p.pipeline_type !== undefined) filter.pipelineType = p.pipeline_type as NonNullable<typeof filter.pipelineType>;
+        if (p.deployment_status !== undefined) filter.deploymentStatus = p.deployment_status as NonNullable<typeof filter.deploymentStatus>;
+        if (p.created_after !== undefined) filter.createdAfter = p.created_after as string;
+        if (p.created_before !== undefined) filter.createdBefore = p.created_before as string;
+        if (p.min_eval_score !== undefined) filter.minEvalScore = p.min_eval_score as number;
+        result = masterAITrainingLedgerEngine.query(filter);
+        break;
+      }
+      case "ai_training_master_supported_pipelines": {
+        const { masterAITrainingLedgerEngine } = await import("../../engines/MasterAITrainingLedgerEngine.js");
+        result = masterAITrainingLedgerEngine.supportedPipelines();
+        break;
+      }
+      case "ai_training_master_pipeline_stability": {
+        const { masterAITrainingLedgerEngine } = await import("../../engines/MasterAITrainingLedgerEngine.js");
+        result = masterAITrainingLedgerEngine.pipelineStability(
+          params.pipeline_type as Parameters<typeof masterAITrainingLedgerEngine.pipelineStability>[0],
+        );
+        break;
+      }
+      case "ai_training_master_compare": {
+        const { masterAITrainingLedgerEngine } = await import("../../engines/MasterAITrainingLedgerEngine.js");
+        result = masterAITrainingLedgerEngine.compare(
+          params.pipeline_a as Parameters<typeof masterAITrainingLedgerEngine.compare>[0],
+          params.pipeline_b as Parameters<typeof masterAITrainingLedgerEngine.compare>[1],
+        );
+        break;
+      }
+      case "ai_training_master_slo_status": {
+        const { masterAITrainingLedgerEngine } = await import("../../engines/MasterAITrainingLedgerEngine.js");
+        result = masterAITrainingLedgerEngine.sloStatus();
+        break;
+      }
+      case "ai_training_master_total_runs": {
+        const { masterAITrainingLedgerEngine } = await import("../../engines/MasterAITrainingLedgerEngine.js");
+        result = masterAITrainingLedgerEngine.totalRuns();
+        break;
+      }
+
+      // Training (Lathe) — LatheAITrainingEngine
+      case "ai_training_lathe_parse": {
+        const { latheAITrainingEngine } = await import("../../engines/LatheAITrainingEngine.js");
+        result = latheAITrainingEngine.parseProgram(
+          params.content as string,
+          params.filepath as string,
+        );
+        break;
+      }
+      case "ai_training_lathe_extract_params": {
+        const { latheAITrainingEngine } = await import("../../engines/LatheAITrainingEngine.js");
+        result = latheAITrainingEngine.extractParams(
+          params.block as Parameters<typeof latheAITrainingEngine.extractParams>[0],
+        );
+        break;
+      }
+      case "ai_training_lathe_analyze": {
+        const { latheAITrainingEngine } = await import("../../engines/LatheAITrainingEngine.js");
+        result = latheAITrainingEngine.analyzeProgram(
+          params.program as Parameters<typeof latheAITrainingEngine.analyzeProgram>[0],
+        );
+        break;
+      }
+      case "ai_training_lathe_rewrite": {
+        const { latheAITrainingEngine } = await import("../../engines/LatheAITrainingEngine.js");
+        result = latheAITrainingEngine.rewriteProgram(
+          params.analysis as Parameters<typeof latheAITrainingEngine.rewriteProgram>[0],
+        );
+        break;
+      }
+      case "ai_training_lathe_train": {
+        const { latheAITrainingEngine } = await import("../../engines/LatheAITrainingEngine.js");
+        result = latheAITrainingEngine.trainFromPrograms(
+          params.programs as Parameters<typeof latheAITrainingEngine.trainFromPrograms>[0],
+        );
+        break;
+      }
+      case "ai_training_lathe_stats": {
+        const { latheAITrainingEngine } = await import("../../engines/LatheAITrainingEngine.js");
+        result = latheAITrainingEngine.getTrainingStats();
+        break;
+      }
+      case "ai_training_lathe_patterns": {
+        const { latheAITrainingEngine } = await import("../../engines/LatheAITrainingEngine.js");
+        result = latheAITrainingEngine.getLearnedPatterns();
+        break;
+      }
+
+      // Training (Generic Ledger) — TrainingLedgerEngine (snake_case throughout, no remap)
+      case "ai_training_ledger_open_run": {
+        const { trainingLedgerEngine } = await import("../../engines/TrainingLedgerEngine.js");
+        result = trainingLedgerEngine.openRun(
+          params as unknown as Parameters<typeof trainingLedgerEngine.openRun>[0],
+        );
+        break;
+      }
+      case "ai_training_ledger_close_run": {
+        const { trainingLedgerEngine } = await import("../../engines/TrainingLedgerEngine.js");
+        result = trainingLedgerEngine.closeRun(
+          params as unknown as Parameters<typeof trainingLedgerEngine.closeRun>[0],
+        );
+        break;
+      }
+      case "ai_training_ledger_get_run": {
+        const { trainingLedgerEngine } = await import("../../engines/TrainingLedgerEngine.js");
+        result = trainingLedgerEngine.getRun(params.run_id as string);
+        break;
+      }
+      case "ai_training_ledger_list_runs": {
+        const { trainingLedgerEngine } = await import("../../engines/TrainingLedgerEngine.js");
+        result = trainingLedgerEngine.listRuns(
+          params as unknown as Parameters<typeof trainingLedgerEngine.listRuns>[0],
+        );
+        break;
+      }
+      case "ai_training_ledger_drift_report": {
+        const { trainingLedgerEngine } = await import("../../engines/TrainingLedgerEngine.js");
+        result = trainingLedgerEngine.driftReport(params.experiment_id as string);
+        break;
+      }
+      case "ai_training_ledger_snapshot": {
+        const { trainingLedgerEngine } = await import("../../engines/TrainingLedgerEngine.js");
+        result = trainingLedgerEngine.toSnapshot();
+        break;
+      }
+      case "ai_training_ledger_load_snapshot": {
+        const { trainingLedgerEngine } = await import("../../engines/TrainingLedgerEngine.js");
+        trainingLedgerEngine.loadSnapshot(
+          params.snapshot as Parameters<typeof trainingLedgerEngine.loadSnapshot>[0],
+        );
+        result = { ok: true };
+        break;
+      }
+      case "ai_training_ledger_stats": {
+        const { trainingLedgerEngine } = await import("../../engines/TrainingLedgerEngine.js");
+        result = trainingLedgerEngine.getStats();
+        break;
+      }
+
       default: {
         const _exhaustive: never = action;
         return dispatcherError(`Unknown action: ${_exhaustive}`, action, "prism_ai");
@@ -2497,13 +2824,13 @@ export async function executeAIReasoningAction(
 
 /** MCP tool handler entry point */
 export async function aiReasoningDispatcher(
-  args: { action: AIReasoningAction; params?: Record<string, unknown> }
+  args: { action: AIAction; params?: Record<string, unknown> }
 ): Promise<{ success: boolean; data?: unknown; error?: string }> {
   return executeAIReasoningAction(args.action, args.params ?? {});
 }
 
-/** Export action list for registration */
-export { AI_REASONING_ACTIONS };
+/** Export action lists for registration (legacy + U-AIMAX10 merged). */
+export { AI_REASONING_ACTIONS, ALL_AI_ACTIONS };
 
 /** Register dispatcher with MCP server */
 export function registerAIReasoningDispatcher(server: { tool: Function }): void {
@@ -2511,7 +2838,7 @@ export function registerAIReasoningDispatcher(server: { tool: Function }): void 
     aiReasoningDispatcherDef.name,
     aiReasoningDispatcherDef.description,
     aiReasoningDispatcherDef.inputSchema.shape,
-    async ({ action, params = {} }: { action: AIReasoningAction; params?: Record<string, unknown> }) => {
+    async ({ action, params = {} }: { action: AIAction; params?: Record<string, unknown> }) => {
       const result = await executeAIReasoningAction(action, params);
       return { content: [{ type: "text" as const, text: JSON.stringify(result) }] };
     }
