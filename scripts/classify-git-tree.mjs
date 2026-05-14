@@ -18,13 +18,33 @@
 //     - else                                                             → KEEP
 
 import { spawnSync } from "node:child_process";
-import { writeFileSync, mkdirSync, existsSync, statSync } from "node:fs";
+import { writeFileSync, mkdirSync, renameSync, statSync } from "node:fs";
+import { randomBytes } from "node:crypto";
 import path from "node:path";
 
 const ARCHIVE_DAYS = 90; // 3 months
 const PROTECTED_BASE = "cad-fusion-live-ms0"; // primary base; main is checked secondarily
 const SECONDARY_BASE = "main";
 const SHORT_SHA_LEN = 9;
+const SHELL_UNSAFE_RE = /[;&|`$()\n\r<>"']/;
+const TODAY_ISO_DATE = new Date().toISOString().slice(0, 10);
+
+function shellSafe(s) {
+  if (typeof s !== "string") return false;
+  return !SHELL_UNSAFE_RE.test(s);
+}
+
+function quoteForShell(s) {
+  // POSIX single-quote: 'foo' → 'foo', any inner ' becomes '\''
+  return `'${String(s).replace(/'/g, `'\\''`)}'`;
+}
+
+function atomicWrite(filePath, content) {
+  const dir = path.dirname(filePath);
+  const tmp = path.join(dir, `.${path.basename(filePath)}.${process.pid}.${randomBytes(4).toString("hex")}.tmp`);
+  writeFileSync(tmp, content);
+  renameSync(tmp, filePath);
+}
 
 const args = parseArgs(process.argv.slice(2));
 const REPO = args.repo || "H:/prism";
@@ -95,11 +115,16 @@ function lastCommitSubject(branchRef) {
 }
 
 function worktreeDirty(wtPath) {
-  if (!existsSync(wtPath)) return { exists: false, dirty: null, fileCount: 0 };
+  let st;
+  try { st = statSync(wtPath); } catch { return { exists: false, dirty: null, fileCount: 0, stashCount: 0 }; }
+  if (!st.isDirectory()) return { exists: false, dirty: null, fileCount: 0, stashCount: 0 };
   const r = spawnSync("git", ["-C", wtPath, "status", "--porcelain"], { encoding: "utf8" });
-  if (r.error || r.status !== 0) return { exists: true, dirty: null, fileCount: 0 };
+  if (r.error || r.status !== 0) return { exists: true, dirty: null, fileCount: 0, stashCount: 0 };
   const lines = r.stdout.split(/\r?\n/).filter(Boolean);
-  return { exists: true, dirty: lines.length > 0, fileCount: lines.length };
+  // P1 fix: detect stashed WIP — git stash --porcelain doesn't exist, parse `git stash list`
+  const sr = spawnSync("git", ["-C", wtPath, "stash", "list"], { encoding: "utf8" });
+  const stashCount = (sr.status === 0 && sr.stdout) ? sr.stdout.split(/\r?\n/).filter(Boolean).length : 0;
+  return { exists: true, dirty: lines.length > 0 || stashCount > 0, fileCount: lines.length, stashCount };
 }
 
 function listLocalBranches() {
@@ -138,14 +163,19 @@ function classifyWorktree(wt) {
     reason: "",
   };
 
-  // Main repo path: always KEEP
-  if (wt.path === REPO.replace(/\//g, path.sep) || wt.path === REPO) {
+  // Main repo path: always KEEP (P1 fix — path.resolve handles Win backslash + forward slash)
+  const normWt = path.resolve(wt.path);
+  const normRepo = path.resolve(REPO);
+  const wtCmp = process.platform === "win32" ? normWt.toLowerCase() : normWt;
+  const repoCmp = process.platform === "win32" ? normRepo.toLowerCase() : normRepo;
+  if (wtCmp === repoCmp) {
     result.recommendation = "KEEP";
     result.reason = "main repo";
     const d = worktreeDirty(wt.path);
     result.dirExists = d.exists;
     result.dirty = d.dirty;
     result.fileCount = d.fileCount;
+    result.stashCount = d.stashCount;
     return result;
   }
 
@@ -177,6 +207,7 @@ function classifyWorktree(wt) {
   result.dirExists = d.exists;
   result.dirty = d.dirty;
   result.fileCount = d.fileCount;
+  result.stashCount = d.stashCount;
 
   if (!result.dirExists) {
     result.recommendation = "PRUNE_CORRUPT";
@@ -185,9 +216,12 @@ function classifyWorktree(wt) {
   }
 
   if (result.mergedIntoPrimary || result.mergedIntoSecondary) {
-    if (result.dirty) {
+    if (result.dirty || result.stashCount > 0) {
       result.recommendation = "NEEDS_REVIEW";
-      result.reason = `branch merged but worktree has ${result.fileCount} uncommitted file(s)`;
+      const parts = [];
+      if (result.fileCount > 0) parts.push(`${result.fileCount} uncommitted file(s)`);
+      if (result.stashCount > 0) parts.push(`${result.stashCount} stashed entry(ies)`);
+      result.reason = `branch merged but worktree has ${parts.join(" + ")}`;
     } else {
       result.recommendation = "REMOVE_WORKTREE";
       result.reason = `branch merged into ${result.mergedIntoPrimary ? PROTECTED_BASE : SECONDARY_BASE}, worktree clean`;
@@ -206,11 +240,11 @@ function classifyWorktree(wt) {
   return result;
 }
 
-function classifyBranch(b, worktreeBranches) {
+function classifyBranch(b, worktreeBranchesShort) {
   const result = {
     ...b,
     ageDays: ageDays(b.lastCommitTime),
-    inWorktree: worktreeBranches.has(b.name),
+    inWorktree: worktreeBranchesShort.has(b.name),
     mergedIntoPrimary: false,
     mergedIntoSecondary: false,
     recommendation: "KEEP",
@@ -308,28 +342,72 @@ function renderMarkdown(report) {
 
   lines.push(`## Suggested commands (Phase 1+2)`);
   lines.push(``);
+  lines.push(`> Generated ${TODAY_ISO_DATE}. Lines with shell-unsafe characters in branch names or paths are SKIPPED — see "Skipped (unsafe)" below.`);
+  lines.push(``);
   lines.push("```bash");
+  const skipped = [];
+  const repoArg = quoteForShell(report.repo);
+  function safeLine(parts) {
+    // parts: array of {raw: string, kind: 'path'|'ref'|'static'}
+    for (const p of parts) {
+      if (p.kind !== "static" && !shellSafe(p.raw)) {
+        skipped.push(p.raw);
+        return null;
+      }
+    }
+    return parts.map(p => p.kind === "static" ? p.raw : quoteForShell(p.raw)).join("");
+  }
   for (const w of report.worktrees.filter(x => x.recommendation === "PRUNE_CORRUPT")) {
-    lines.push(`git -C ${report.repo} worktree remove --force "${w.path}"  # ${w.reason}`);
+    const line = safeLine([
+      { kind: "static", raw: `git -C ${repoArg} worktree remove --force ` },
+      { kind: "path",   raw: w.path },
+      { kind: "static", raw: `  # PRUNE_CORRUPT` },
+    ]);
+    if (line) lines.push(line);
   }
   for (const w of report.worktrees.filter(x => x.recommendation === "REMOVE_WORKTREE")) {
-    lines.push(`git -C ${report.repo} worktree remove "${w.path}"          # ${w.reason}`);
+    const line = safeLine([
+      { kind: "static", raw: `git -C ${repoArg} worktree remove ` },
+      { kind: "path",   raw: w.path },
+      { kind: "static", raw: `  # merged` },
+    ]);
+    if (line) lines.push(line);
   }
   for (const b of report.branches.filter(x => x.recommendation === "ARCHIVE_TAG_AND_DELETE")) {
-    lines.push(`git -C ${report.repo} tag archive/${b.name}-2026-05-13 ${b.name} && git -C ${report.repo} branch -D ${b.name}`);
+    const line = safeLine([
+      { kind: "static", raw: `git -C ${repoArg} tag ` },
+      { kind: "ref",    raw: `archive/${b.name}-${TODAY_ISO_DATE}` },
+      { kind: "static", raw: ` ` },
+      { kind: "ref",    raw: b.name },
+      { kind: "static", raw: ` && git -C ${repoArg} branch -D ` },
+      { kind: "ref",    raw: b.name },
+    ]);
+    if (line) lines.push(line);
   }
-  lines.push(`git -C ${report.repo} worktree prune  # cleanup metadata`);
+  lines.push(`git -C ${repoArg} worktree prune  # cleanup metadata`);
   lines.push("```");
+  if (skipped.length) {
+    lines.push(``);
+    lines.push(`### Skipped (unsafe characters in ref or path)`);
+    lines.push(``);
+    for (const s of skipped) {
+      lines.push(`- \`${s.replace(/`/g, "\\`")}\`  — verify manually, do not copy-paste`);
+    }
+  }
   return lines.join("\n");
 }
 
 // ------- main -------
 const worktrees = listWorktrees();
-const worktreeBranches = new Set(worktrees.map(w => w.branch).filter(Boolean));
+// P0 fix: porcelain emits `refs/heads/work/foo`; for-each-ref emits `work/foo`.
+// Strip prefix so .has() lookups match.
+const worktreeBranchesShort = new Set(
+  worktrees.map(w => w.branch ? w.branch.replace(/^refs\/heads\//, "") : null).filter(Boolean)
+);
 const branches = listLocalBranches();
 
 const classifiedWt = worktrees.map(classifyWorktree);
-const classifiedBr = branches.map(b => classifyBranch(b, worktreeBranches));
+const classifiedBr = branches.map(b => classifyBranch(b, worktreeBranchesShort));
 
 const report = {
   schemaVersion: 1,
@@ -346,8 +424,8 @@ const report = {
 
 const outDir = path.dirname(OUT_BASE);
 mkdirSync(outDir, { recursive: true });
-writeFileSync(`${OUT_BASE}.json`, JSON.stringify(report, null, 2));
-writeFileSync(`${OUT_BASE}.md`, renderMarkdown(report));
+atomicWrite(`${OUT_BASE}.json`, JSON.stringify(report, null, 2));
+atomicWrite(`${OUT_BASE}.md`, renderMarkdown(report));
 console.log(`Punchlist written:\n  ${OUT_BASE}.json\n  ${OUT_BASE}.md`);
 console.log(`Worktrees: ${JSON.stringify(report.worktreeTally)}`);
 console.log(`Branches:  ${JSON.stringify(report.branchTally)}`);

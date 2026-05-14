@@ -15,6 +15,8 @@ import * as path from "node:path";
 import {
   CrossTerminalBroadcastEngine,
   crossTerminalBroadcastEngine,
+  TRIM_LINE_CAP,
+  TRIM_BYTE_FLOOR,
   type BroadcastEvent,
   type OperatorMessageType,
 } from "../engines/CrossTerminalBroadcastEngine.js";
@@ -284,5 +286,118 @@ describe("CrossTerminalBroadcastEngine", () => {
       expect(received.type).toBe("operator_message");
     }
     sub.unsubscribe();
+  });
+
+  // ─── COORD-MS0/U-COORD08-HARDEN ──────────────────────────────────────────
+  // (1) atomic-rename trim under concurrent appends
+  // (2) setMaxListeners raised above EventEmitter default of 10
+
+  it("concurrent broadcasts produce a well-formed JSONL channel — atomic appends AND atomic-rename trim", async () => {
+    // SCOPE — this is a SINGLE-PROCESS unit test. Vitest sync I/O serializes
+    // within one Node event loop, so we cannot prove cross-PROCESS rename
+    // atomicity here (that's a kernel guarantee on POSIX rename + NTFS
+    // ReplaceFile, exercised in production by 6+ concurrent chat sessions).
+    // What we CAN prove deterministically:
+    //   1. The trim path fires once the pre-seeded channel is over both
+    //      thresholds (read TRIM_LINE_CAP + TRIM_BYTE_FLOOR straight from
+    //      the engine module so the test doesn't drift when those change).
+    //   2. Every line in the post-trim file parses as JSON (a torn write
+    //      from the previous non-atomic implementation would fail this).
+    //   3. The line count stays in [TRIM_LINE_CAP, TRIM_LINE_CAP + N] — the
+    //      file is bounded; appends are not lost outright (worst case some
+    //      of the N concurrent payloads land in another writer's
+    //      read→rename window and are trimmed away, which is documented
+    //      residual behaviour in the engine JSDoc).
+    //   4. No `.trim-*.tmp` orphan files are leaked under success.
+    fs.mkdirSync(path.dirname(channel), { recursive: true });
+
+    // Pre-seed at TRIM_LINE_CAP + 10 lines, padded to comfortably exceed
+    // TRIM_BYTE_FLOOR. Pull both thresholds from the engine so the test
+    // auto-scales if either constant ever changes.
+    const seedCount = TRIM_LINE_CAP + 10;
+    // Pad each seed line so total bytes exceed TRIM_BYTE_FLOOR with margin.
+    // (TRIM_BYTE_FLOOR / seedCount) gives bytes-per-line; double it for headroom.
+    const padBytes = Math.max(40, Math.ceil((TRIM_BYTE_FLOOR / seedCount) * 2));
+    const PADDING = "p".repeat(padBytes);
+    const seedLines: string[] = [];
+    for (let i = 0; i < seedCount; i++) {
+      seedLines.push(
+        JSON.stringify({
+          type: "operator_message",
+          timestamp: new Date(Date.now() - (seedCount - i) * 1000).toISOString(),
+          sessionId: "seed-session",
+          payload: { msgType: "info", content: `seed-${i}-${PADDING}`, from: "seed-session" },
+        }),
+      );
+    }
+    fs.writeFileSync(channel, seedLines.join("\n") + "\n");
+    const seedStat = fs.statSync(channel);
+    // Both trim triggers must now be live before we start.
+    expect(seedStat.size).toBeGreaterThan(TRIM_BYTE_FLOOR);
+    expect(seedLines.length).toBeGreaterThan(TRIM_LINE_CAP);
+
+    // Fire 20 concurrent broadcasts. Each one must (1) append atomically and
+    // (2) immediately trim back to TRIM_LINE_CAP via rename.
+    const N = 20;
+    const results = await Promise.all(
+      Array.from({ length: N }, (_, i) =>
+        engine.broadcastOperatorMessage(`concurrent-${i}`, "info"),
+      ),
+    );
+    expect(results.every((r) => r.ok)).toBe(true);
+
+    const raw = fs.readFileSync(channel, "utf8");
+    const lines = raw.split("\n").filter((l) => l.length > 0);
+    // Bounded growth: file never balloons past TRIM_LINE_CAP + N.
+    expect(lines.length).toBeGreaterThanOrEqual(TRIM_LINE_CAP);
+    expect(lines.length).toBeLessThanOrEqual(TRIM_LINE_CAP + N);
+    // Atomicity check #1: every line parseable. Torn writes would throw
+    // inside JSON.parse; a non-atomic writeFileSync racing with appendFileSync
+    // could leave a partial line, and this assertion would fail.
+    const parsed: BroadcastEvent[] = lines.map((l) => JSON.parse(l) as BroadcastEvent);
+    expect(parsed.every((e) => e.type === "operator_message")).toBe(true);
+    // At least one of the 20 concurrent payloads survives the trim window.
+    // (The exact number is timing-dependent — that's documented residual
+    // behaviour, not a flake, because we only retain the last TRIM_LINE_CAP.)
+    const survivingNewContents = parsed.filter((e) =>
+      typeof e.payload?.content === "string" &&
+      (e.payload.content as string).startsWith("concurrent-"),
+    );
+    expect(survivingNewContents.length).toBeGreaterThanOrEqual(1);
+    // Atomicity check #2: no orphan temp files survived under success path.
+    // (A non-atomic implementation wouldn't create temps at all, so this is
+    // primarily a sanity check on the new code path's cleanup discipline.)
+    const dirEntries = fs.readdirSync(path.dirname(channel));
+    const orphanTemps = dirEntries.filter((e) => e.includes(".trim-") && e.endsWith(".tmp"));
+    expect(orphanTemps.length).toBe(0);
+  });
+
+  it("setMaxListeners is raised to 50 — 30 subscribers do not trigger MaxListenersExceededWarning", () => {
+    // EventEmitter default is 10. Without the hardening fix, mounting 11+
+    // listeners would emit MaxListenersExceededWarning on stderr. Verify
+    // (a) the engine reports its cap as 50, and (b) we can subscribe 30
+    // times without process-level warnings firing.
+    expect(engine.getMaxListeners()).toBe(50);
+
+    // Capture any 'warning' event with name MaxListenersExceededWarning.
+    const warnings: NodeJS.ErrnoException[] = [];
+    const onWarn = (w: NodeJS.ErrnoException) => {
+      if (w?.name === "MaxListenersExceededWarning") warnings.push(w);
+    };
+    process.on("warning", onWarn);
+
+    const subs: Array<{ unsubscribe: () => void }> = [];
+    try {
+      for (let i = 0; i < 30; i++) {
+        subs.push(engine.subscribe(() => { /* sink */ }));
+      }
+      expect(engine.listenerCount("change")).toBe(30);
+      expect(warnings.length).toBe(0);
+    } finally {
+      process.off("warning", onWarn);
+      for (const s of subs) s.unsubscribe();
+    }
+    // All listeners detached cleanly.
+    expect(engine.listenerCount("change")).toBe(0);
   });
 });
