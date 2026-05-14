@@ -72,14 +72,17 @@
       "id": "U-COORD05",
       "title": "Wire Orchestrator to Hook System",
       "phase": "Integration",
-      "status": "pending",
+      "status": "complete",
       "description": "Connect orchestrator to PreToolUse/PostToolUse events for cross-session awareness",
       "deliverables": [
         "cross-session-orchestrator.mjs hook",
         "Event emission on claim/release",
         "Safety check integration"
       ],
-      "audit_source": "Systems Architect"
+      "audit_source": "Systems Architect",
+      "completed_at": "2026-05-14T02:11:21.602Z",
+      "completed_by": "claude-12128945",
+      "ship_notes": "Wired CrossSessionOrchestratorEngine to harness PreToolUse/PostToolUse lifecycle. New hook .claude/hooks/cross-session-orchestrator.mjs (T1, ~180 LOC) reads stdin JSON, routes by --pre/--post argv, calls orchestrator.{claim,release,broadcastMessage} on Edit/Write/MultiEdit/NotebookEdit. NotebookEdit uses notebook_path (not file_path). PreToolUse emits info:edit_started broadcast event; PostToolUse emits cache_invalidate:edited. 250ms broadcast timeout race so the harness PreToolUse latency budget is never breached. Knobs: PRISM_COORD_ORCH_DISABLE=1 (off entirely), PRISM_COORD_ORCH_BLOCK=1 (opt-in hard block on peer conflict), PRISM_COORD_ORCH_TTL_MS=N (default 15min), PRISM_COORD_ORCH_DIST=<url> (test override). Defensive: malformed stdin / missing engine / engine throw → {continue:true} exit 0 (never break harness). Settings wiring: PreToolUse[1] matcher ^(Edit|Write|MultiEdit|NotebookEdit)$ + new PostToolUse entry matcher Edit|Write|MultiEdit|NotebookEdit. Complementary to file-claim-guard.mjs (separate ChatBus backend; advisory vs hard-block contracts). Companion test: crossSessionOrchestratorHook.test.ts — 31/31 pass: 11 defensive contract, 5 tool-allowlist (Edit/Write/MultiEdit/NotebookEdit incl. wrong-field), 3 PostToolUse, 8 adversarial (5000-char path / camelCase keys / string toolInput / NaN+Infinity TTL / 60s TTL), 2 block-path, 3 host invariants (single-line stdout / <3s wall time / clean stderr). Real spawnSync integration tests against process.execPath; no mocks. Backward-compat: getBroadcaster() tolerates both engine.broadcastMessage (post-U-COORD04 source) and engine.broadcast (older dist surface). Backup at backup path. Commit: TBD."
     },
     {
       "id": "U-COORD06",
@@ -123,11 +126,41 @@
       "audit_source": "Developer Experience",
       "completed_at": "2026-05-13T23:59:00Z",
       "completed_in_commits": [
-        "70109cf4a"
+        "70109cf4a",
+        "f26565281 (engine hardening — absorbed into INTEL-OLLAMA-OBSIDIAN-MS0/P23 commit, collision #5)",
+        "d912739b1 (test hardening — absorbed into CLEANUP-MS0/U-GIT-TREE-SWEEP-FIXUP commit, collision #6)"
       ],
       "owner": "claude-0d2e1b74 (slot BRAVO, /loop continuation)",
       "actual_hours": 1,
-      "tests_passed": 37
+      "tests_passed": 37,
+      "hardening_notes": {
+        "hardened_at": "2026-05-13T20:01:31.000Z",
+        "hardened_by": "claude-20ad2d3d",
+        "slot": "alpha",
+        "changes": [
+          "writeToBroadcastChannel: read->writeFileSync replaced with read->writeFileSync(temp)->renameSync (atomic trim)",
+          "TRIM_LINE_CAP=1000 + TRIM_BYTE_FLOOR=32 KiB exported as module-level consts",
+          "crypto.randomBytes(16) replaces Math.random for temp-suffix entropy (defeats predictable-path symlink hijack)",
+          "setMaxListeners(50) added to constructor (eliminates MaxListenersExceededWarning under >10 subscribers)",
+          "JSDoc on writeToBroadcastChannel documents residual cross-process TOCTOU race (read->rename window) — bounded growth, not append-loss-free"
+        ],
+        "tests_added": [
+          "concurrent broadcasts produce a well-formed JSONL channel — atomic appends AND atomic-rename trim",
+          "setMaxListeners is raised to 50 — 30 subscribers do not trigger MaxListenersExceededWarning"
+        ],
+        "test_count": 28,
+        "scrutiny": {
+          "per_file_4_agents": "engine x2 (code-analyzer + reviewer) + test x2 (test-review-agent + reviewer)",
+          "end_of_task_3of3": "arms A+B+C PASS (ledger session claude-20ad2d3d, blockCount=0)"
+        },
+        "deferred_to": "U-COORD09+",
+        "deferred_items": [
+          "Windows EBUSY retry on renameSync",
+          "env knob PRISM_BROADCAST_MAX_LISTENERS for setMaxListeners cap",
+          "_setBroadcastPath test-hook gating (NODE_ENV check)",
+          "proper lockfile / flock to close residual cross-process trim race"
+        ]
+      }
     },
     {
       "id": "U-COORD09",
