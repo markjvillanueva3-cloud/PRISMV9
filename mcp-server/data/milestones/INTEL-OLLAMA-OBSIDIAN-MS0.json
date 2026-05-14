@@ -3336,7 +3336,16 @@
             "SCRUTINIZE",
             "GAP FILL",
             "TIE UP"
-          ]
+          ],
+          "status": "completed",
+          "completed_at": "2026-05-14T01:20:14.636Z",
+          "completed_by": "claude-c56f23b2",
+          "commits": [
+            "f26565281",
+            "1a333b67f",
+            "aa066f059"
+          ],
+          "completion_notes": "P23-U01 ModelTelemetryEngine shipped — per-call JSONL logger with strict shape guard, atomic purge, rotation visibility. Dispatcher actions model_telemetry_{report,log,purge} wired. 27 engine tests pass."
         },
         {
           "id": "P23-U02",
@@ -3369,7 +3378,16 @@
             "SCRUTINIZE",
             "GAP FILL",
             "TIE UP"
-          ]
+          ],
+          "status": "completed",
+          "completed_at": "2026-05-14T01:20:14.636Z",
+          "completed_by": "claude-c56f23b2",
+          "commits": [
+            "f26565281",
+            "1a333b67f",
+            "aa066f059"
+          ],
+          "completion_notes": "P23-U02 adaptive routing shipped — adapt-router-thresholds.mjs cron tuner + ModelRoutingEngine.applyAdaptiveState() + dispatcher action router_adaptation_apply closes the feedback loop. 11 tuner + 9 engine + 6 dispatcher tests pass. 3-of-3 scrutiny cleared after fixing 3 P0s flagged by reviewer C (route() expectedLatencyMs returned declared not effective; PS monitor too aggressive; adaptive loop was open)."
         }
       ]
     }
