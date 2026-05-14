@@ -146,6 +146,68 @@ pool.sort((a, b) =>
   (a.milestone || "").localeCompare(b.milestone || "") ||
   (a.unit_id || "").localeCompare(b.unit_id || ""));
 
+// Heuristic: extract candidate asset names from a unit title for tailored
+// graph queries. Captures `XxxEngine`, `XxxScript`, `XxxHook`, `XxxSkill`,
+// `/skill-name`, and bare PascalCase tokens that look like type identifiers.
+// Returns up to 3 unique tokens — used to generate per-unit research commands.
+function extractAssetTokens(title) {
+  if (!title || typeof title !== "string") return [];
+  const out = new Set();
+  // PascalCase + suffix
+  const m1 = title.match(/\b[A-Z][A-Za-z0-9]+(?:Engine|Script|Hook|Skill|Dispatcher|Bridge|Service|Validator|Optimizer)\b/g);
+  if (m1) m1.forEach((t) => out.add(t));
+  // Slash-prefixed skill names like /broadcast or /pick-unit
+  const m2 = title.match(/\/[a-z][a-z0-9-]+/g);
+  if (m2) m2.forEach((t) => out.add(t));
+  // Bare PascalCase identifiers (fallback when no engine suffix)
+  if (out.size === 0) {
+    const m3 = title.match(/\b[A-Z][A-Za-z0-9]{4,}\b/g);
+    if (m3) m3.slice(0, 2).forEach((t) => out.add(t));
+  }
+  return [...out].slice(0, 3);
+}
+
+// Build a per-pick "research pack" — concrete commands the chat should run
+// BEFORE writing code, ordered by leverage. Always includes /system-viz +
+// /master-index + /awareness-snapshot; adds per-unit graph queries when
+// the title surfaces a likely asset name.
+function researchPack(pick) {
+  const tokens = extractAssetTokens(pick.title);
+  const cmds = [];
+  // Always-applicable surfaces
+  cmds.push({
+    cmd: "/system-viz",
+    why: "open the 3D system map (layer view, in/out-degree, orphans) in browser at :8765",
+  });
+  cmds.push({
+    cmd: `node scripts/system-viz-query.mjs find ${tokens[0] || pick.milestone}`,
+    why: "graph search — locate related nodes (engines, dispatchers, actions, hooks, wiki) by name",
+  });
+  if (tokens.length > 0) {
+    cmds.push({
+      cmd: `node scripts/system-viz-query.mjs blast-radius ${tokens[0]}`,
+      why: "wiring impact — who depends on this and what it depends on (refactor blast-radius)",
+    });
+  }
+  cmds.push({
+    cmd: `prism_session:master_index_query  q="${tokens[0] || pick.title?.slice(0, 40) || pick.unit_id}"`,
+    why: "unified text/semantic search across engines + actions + wiki + memory (use BEFORE Grep/Glob)",
+  });
+  cmds.push({
+    cmd: "/awareness-snapshot",
+    why: "15-line built/wired/drifted digest — see whether the unit's deliverables already exist",
+  });
+  cmds.push({
+    cmd: "/orphan-inventory",
+    why: "built-but-unwired engine punch list — candidates that could be wired to satisfy this unit",
+  });
+  cmds.push({
+    cmd: "/dedup",
+    why: "mandatory before creating ANY new engine / hook / skill / script",
+  });
+  return cmds;
+}
+
 const picks = pool.slice(0, limit).map((u) => ({
   milestone: u.milestone,
   unit_id: u.unit_id,
@@ -157,6 +219,7 @@ const picks = pool.slice(0, limit).map((u) => ({
   envelope: envelopePath(u.milestone),
   effort_minutes: u.effort_minutes ?? u.effort ?? null,
   dependencies: u.dependencies ?? [],
+  research: researchPack({ milestone: u.milestone, unit_id: u.unit_id, title: u.title }),
 }));
 
 const summary = {
@@ -189,5 +252,29 @@ if (wantJson) {
       }
       if (p.effort_minutes) console.log(`   effort: ~${p.effort_minutes} min`);
     });
+
+    // Research pack — emits AFTER the picks so the chat sees the next-step
+    // command surface without re-deriving it. Per user directive 2026-05-13:
+    // pick-unit must guide the chat to /system-viz for file search, research,
+    // wiring, and overall system visual BEFORE touching code.
+    const top = picks[0];
+    console.log("");
+    console.log("─── 💡 Research before claiming (run BEFORE Grep/Glob) ───");
+    console.log(`   Top pick: ${top.milestone} / ${top.unit_id ?? "?"} — ${(top.title || "").slice(0, 60)}`);
+    console.log("");
+    console.log("   System-viz first (overall visual + wiring impact):");
+    top.research
+      .filter((r) => r.cmd.includes("system-viz") || r.cmd.includes("blast-radius") || r.cmd.includes("find "))
+      .forEach((r) => console.log(`     • ${r.cmd}\n         → ${r.why}`));
+    console.log("");
+    console.log("   Search + state (file location + dedup):");
+    top.research
+      .filter((r) => !r.cmd.includes("system-viz") && !r.cmd.includes("blast-radius") && !r.cmd.includes("find "))
+      .forEach((r) => console.log(`     • ${r.cmd}\n         → ${r.why}`));
+    console.log("");
+    console.log("   Order: system-viz → master_index → awareness-snapshot → orphan-inventory → dedup → code.");
+    if (picks.length > 1) {
+      console.log("   (Each picked unit has its own research pack — pass --json to see all.)");
+    }
   }
 }

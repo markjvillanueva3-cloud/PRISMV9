@@ -48,11 +48,34 @@ Same query always returns the same top — no random sampling, no LLM hallucinat
 ## What you get per pick
 
 ```
-[devtools/t1] ACP-MS0 / P0-U02
-  Inventory hook definitions (existing + CCM planned) and map to automation lifecycle stages
-  spec: H:/prism/mcp-server/data/milestones/ACP-MS0.json
-  depends_on: P0-U01
-  effort: ~40 min
+1. [devtools/t1] ACP-MS0 / P0-U02
+   Inventory hook definitions (existing + CCM planned) and map to automation lifecycle stages
+   spec: H:/prism/mcp-server/data/milestones/ACP-MS0.json
+   depends_on: P0-U01
+   effort: ~40 min
+
+─── 💡 Research before claiming (run BEFORE Grep/Glob) ───
+   Top pick: ACP-MS0 / P0-U02 — Inventory hook definitions ...
+
+   System-viz first (overall visual + wiring impact):
+     • /system-viz
+         → open the 3D system map (layer view, in/out-degree, orphans) in browser at :8765
+     • node scripts/system-viz-query.mjs find <asset-token>
+         → graph search — locate related nodes (engines, dispatchers, actions, hooks, wiki) by name
+     • node scripts/system-viz-query.mjs blast-radius <asset-token>
+         → wiring impact — who depends on this and what it depends on (refactor blast-radius)
+
+   Search + state (file location + dedup):
+     • prism_session:master_index_query  q="<asset-token>"
+         → unified text/semantic search across engines + actions + wiki + memory (use BEFORE Grep/Glob)
+     • /awareness-snapshot
+         → 15-line built/wired/drifted digest — see whether the unit's deliverables already exist
+     • /orphan-inventory
+         → built-but-unwired engine punch list — candidates that could be wired to satisfy this unit
+     • /dedup
+         → mandatory before creating ANY new engine / hook / skill / script
+
+   Order: system-viz → master_index → awareness-snapshot → orphan-inventory → dedup → code.
 ```
 
 The `spec:` path is the milestone envelope JSON. Open it + grep for the unit_id to find:
@@ -61,6 +84,22 @@ The `spec:` path is the milestone envelope JSON. Open it + grep for the unit_id 
 - `exit_conditions` (acceptance criteria)
 - `dependencies` (other units that must ship first)
 - `rollback` procedure
+
+## Research pack (auto-emitted with every pick) — user directive 2026-05-13
+
+Every pick-unit output is followed by a **"Research before claiming"** block that names the concrete commands to run BEFORE touching code. The order is deliberate:
+
+1. **`/system-viz`** — the 3D system map at `:8765`. Use for *overall system visual* — see which layer your unit lives in, which other engines cluster around it, where the orphan zones are.
+2. **`node scripts/system-viz-query.mjs find <token>`** — graph search by asset name. Drives *file searching* — given a likely engine/skill/hook name extracted from the unit title, lists the graph nodes and tells you whether it already exists.
+3. **`node scripts/system-viz-query.mjs blast-radius <token>`** — drives *wiring* — shows who depends on the asset (downstream consumers) and what the asset depends on (upstream dependencies). Use to plan dispatcher wiring and to assess refactor blast-radius.
+4. **`prism_session:master_index_query q="<token>"`** — unified text/semantic search across engines + actions + wiki + memory. Use BEFORE Grep/Glob to avoid wasteful searches.
+5. **`/awareness-snapshot`** — 15-line built/wired/drifted digest. Tells you whether the unit's deliverables already partially exist.
+6. **`/orphan-inventory`** — built-but-unwired engines that could satisfy the unit without writing new code.
+7. **`/dedup`** — mandatory before creating ANY new engine / hook / skill / script (the `duplicationGuardEngine` throws on duplicates).
+
+The `<token>` is extracted from the unit title — PascalCase identifiers ending in `Engine`/`Script`/`Hook`/`Skill`/`Dispatcher`/`Bridge`/`Service`/`Validator`/`Optimizer`, slash-prefixed skill names like `/broadcast`, or the milestone id as a fallback.
+
+JSON mode (`--json`) exposes the full per-pick `research[]` array of `{cmd, why}` objects so downstream tools can route the commands programmatically.
 
 ## Slot → chat mapping
 
