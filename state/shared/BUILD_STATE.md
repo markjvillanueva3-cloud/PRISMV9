@@ -1,6 +1,6 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-14T13:33:00.630Z
+> Generated: 2026-05-14T14:13:13.231Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
@@ -8,7 +8,7 @@
 - **2362** engines built and wired (of 3235)
 - **1005** wiki entries indexed
 - **873** engines awaiting dispatcher wiring
-- **3644** units pending across 72 active milestones
+- **3642** units pending across 72 active milestones
 - **2** codex frontend builds awaiting merge
 - **173** milestones with envelope-status drift
 
@@ -65,7 +65,7 @@
 
 ## NEEDS_BUILDING
 
-3644 units across 670 milestones not yet in git.
+3642 units across 670 milestones not yet in git.
 
 ### Envelope-status drift
 
@@ -249,13 +249,13 @@
 
 | Milestone | Phase | Unit | Title |
 |-----------|-------|------|-------|
-| COORD-MS0 |  | U-COORD02 | Add Optimistic Locking with Version Field |
-| COORD-MS0 |  | U-COORD09 | Ambient Awareness Badge |
-| COORD-MS0 |  | U-COORD12 | Checksum Validation on Read |
 | CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A1 | A1 — extend SLOT_NAMES in chat-slots.mjs to add 'golf' (NATO phonetic continuity) |
 | CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A5 | A5 — golf-slot-write-allowlist.mjs PreToolUse T0 hook (path-resolve hardened against ../; allowlist-regex from golf-owned-paths.json; tier frontmatter; bypass env PRISM_GOLF_WRITE_ALLOWLIST_BYPASS=1) |
 | CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A6 | A6 — bootstrap-golf.mjs (mkdir .cron-locks, seed golf-owned-paths.json + golf-token-budget.json + golf-cron-registry.json; .gitignore additions for coordination.db* + .cron-locks/*.lock + .watchdog-last-poll.iso + golf-token-budget.json; detect & rebuild 0-byte coordination.db; git rm --cached on first run) |
 | CLEANUP-MS0 | operator-surfaces-tier-3 | U-CLEANUP-B6 | B6 — 06-peer-audit-tick.ps1 (invokes WatchdogEngine via node -e import; NOT MCP HTTP bridge per R1; sets PRISM_GOLF_TICK=1 env var so Stop gates short-circuit) |
+| COORD-MS0 |  | U-COORD02 | Add Optimistic Locking with Version Field |
+| COORD-MS0 |  | U-COORD09 | Ambient Awareness Badge |
+| COORD-MS0 |  | U-COORD12 | Checksum Validation on Read |
 | AI-MAX-MS0 | session-1 | U-AIMAX01 | hyperMILL Python Script Pattern Extractor |
 | AI-MAX-MS0 | session-1 | U-AIMAX02 | JM DIE Program Pattern Analyzer |
 | AI-MAX-MS0 | session-1 | U-AIMAX03 | Pattern Database & Search Engine |

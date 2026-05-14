@@ -10,7 +10,7 @@
   "updated_at": "2026-05-14T12:52:59.276Z",
   "status": "in_progress",
   "total_units": 73,
-  "completed_units": 52,
+  "completed_units": 53,
   "dependencies": [
     "HOOK-SYNERGY-MS0 (H4 envelope, H7 async dispatch, H8 coord_sqlite)",
     "OBSIDIAN-PRISM-OS-MS0 (master-index surface, awareness stack, orphan-inventory)"
@@ -565,11 +565,13 @@
         {
           "id": "U-CLEANUP-G12",
           "title": "G12 — golf-state-snapshot.mjs (daily copy of coordination.db + golf-owned-paths + cron-registry + token-budget + bug_attribution SQL-dump to H:/prism-backups/golf-state/<ISO>/; prune >30d)",
-          "status": "not_started",
+          "status": "complete",
           "estimated_hours": 1,
           "dependencies": [
             "U-CLEANUP-B10"
-          ]
+          ],
+          "completed_at": "2026-05-14T14:10:00.000Z",
+          "completed_note": "golf-state-snapshot.mjs + 30-golf-state-snapshot.ps1 daily wrapper. 26-case vitest test incl. a real-better-sqlite3 dump-success test. Reclaimed from ghost task-claim by crashed chat 0fe601c1. Per-file scrutiny 2x PASS."
         },
         {
           "id": "U-CLEANUP-G13",
@@ -870,5 +872,5 @@
   "spec_iterations": 4,
   "operator_directive": "User asked to /loop scrutiny rounds until saturated; 152 cumulative findings across 3 rounds integrated; locked scope at 57 units (1 complete, 56 to build, 1 deferred)",
   "last_updated": "2026-05-14T13:06:00.900Z",
-  "shipped_count": 52
+  "shipped_count": 53
 }
