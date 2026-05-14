@@ -7,7 +7,7 @@
   "priority": "P0",
   "owner": "claude-7f79dd78",
   "created_at": "2026-05-13T18:00:00.000Z",
-  "updated_at": "2026-05-14T14:25:07.762Z",
+  "updated_at": "2026-05-14T15:28:43.185Z",
   "status": "in_progress",
   "total_units": 73,
   "completed_units": 55,
@@ -466,7 +466,7 @@
         {
           "id": "U-CLEANUP-F5",
           "title": "F5 — viz-regen-guard.mjs (centralizes regen-wiki-from-viz.mjs calls; hash-gated on manifest-of-deps NOT graph.json itself; refuses if any input >24h older than its regenerator; G6 hard prerequisite)",
-          "status": "not_started",
+          "status": "complete",
           "estimated_hours": 1.5,
           "dependencies": [
             "U-CLEANUP-G6"
@@ -498,11 +498,12 @@
         {
           "id": "U-CLEANUP-G1",
           "title": "G1 — stale-handoff-sweep.ps1 + helpers/handoff-staleness.mjs (diff chat-slots.json last-seen vs handoff mtime; auto-release claims >4h old; 30min cadence)",
-          "status": "not_started",
+          "status": "complete",
           "estimated_hours": 1.5,
           "dependencies": [
             "U-CLEANUP-A1"
-          ]
+          ],
+          "completedAt": "2026-05-14T15:28:43.185Z"
         },
         {
           "id": "U-CLEANUP-G2",

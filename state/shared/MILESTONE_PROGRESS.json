@@ -1,12 +1,12 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-14T14:25:32.315Z",
+  "generatedAt": "2026-05-14T15:49:49.540Z",
   "window": "60.days",
   "totals": {
-    "milestones": 670,
-    "units": 4906,
-    "shipped": 1265,
-    "pending": 3641,
+    "milestones": 671,
+    "units": 4935,
+    "shipped": 1268,
+    "pending": 3667,
     "drift": 173
   },
   "milestones": [
@@ -13731,6 +13731,282 @@
       "units": []
     },
     {
+      "id": "COMMAND-KERNEL-MS0",
+      "title": "Command Kernel — psk syscall layer + composition primitive + Obsidian-as-OS + feedback loop",
+      "track": "BACKEND-DEVTOOLS",
+      "claimedStatus": "not_started",
+      "total": 29,
+      "shipped": 0,
+      "pending": 29,
+      "ratio": 0,
+      "lastShippedDate": "",
+      "derivedStatus": "not_started_real",
+      "drift": "consistent",
+      "units": [
+        {
+          "id": "U-CK01",
+          "title": "psk CLI skeleton + thin prism_session MCP action (syscall dispatch shell)",
+          "phase": "P0",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CK02",
+          "title": "psk whoami / position / manifest syscalls",
+          "phase": "P0",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CK03",
+          "title": "psk handoff / checkin / pick syscalls",
+          "phase": "P0",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CK04",
+          "title": "knowledge/wiki/os/ namespace + entity frontmatter schema",
+          "phase": "P0",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CK05",
+          "title": "Generated-mirror generators (JSON registries become mirrors of os/ entities)",
+          "phase": "P0",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CK06",
+          "title": "Canonical command frontmatter schema (name/desc/version/tier/triggers/consumes/produces/composes_with/effort/model)",
+          "phase": "P0",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CK07",
+          "title": "command-migrate.mjs codemod",
+          "phase": "P1",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CK08",
+          "title": "Migrate the command corpus: standardize frontmatter, de-hardcode, register as os/commands/ entities",
+          "phase": "P1",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CK09",
+          "title": "Hand-tune the lifecycle commands (startup/checkin/pick-unit/precompact) to thin psk clients — SKIPS /pick-task (handled by U-CK10) and creates /handoff + /boot if absent",
+          "phase": "P1",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CK10",
+          "title": "Merge /pick-task -> /pick-unit alias; deprecate the conflicting roadmap-index path",
+          "phase": "P1",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CK11",
+          "title": "Per-category scrutiny pass over the migrated corpus",
+          "phase": "P1",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CK12",
+          "title": "Pipeline registry — adopt ACP-MS0A automation-chain schema (or contribute back if pending)",
+          "phase": "P2",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CK13",
+          "title": "Pipeline EXECUTOR (stage graph, gating, rollback, dry-run-first)",
+          "phase": "P2",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CK14",
+          "title": "Activate pipeline_integrations: frontmatter + wire to executor",
+          "phase": "P2",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CK15",
+          "title": "Populate consumes/produces/composes_with frontmatter across migrated commands",
+          "phase": "P2",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CK16",
+          "title": "Extend skill-auto-trigger.mjs -> pipeline-aware, fires on PostToolUse/Stop",
+          "phase": "P2",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CK17",
+          "title": "/session-cycle (checkin -> pick -> research -> build -> close-out -> handoff)",
+          "phase": "P3",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CK18",
+          "title": "/research <token|unit>",
+          "phase": "P3",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CK19",
+          "title": "/scrutiny-gate (per-file 2-agent -> 3-of-3 -> psk record)",
+          "phase": "P3",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CK20",
+          "title": "/learn-pipeline <src> (detect -> extract -> dedup -> tribal -> wiki -> memory)",
+          "phase": "P3",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CK21",
+          "title": "/wire-pipeline (orphan-inventory -> dedup -> wire -> test -> close)",
+          "phase": "P3",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CK22",
+          "title": "/diagnose-fix <artifact> (forensic-classify -> suggest -> apply -> test -> trace -> commit)",
+          "phase": "P3",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CK23",
+          "title": "/program-perfect <part> (gen -> optimize -> validate -> loop -> ship)",
+          "phase": "P3",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CK24",
+          "title": "/forge-supervised (/forge-triple -> /scrutiny-gate -> close)",
+          "phase": "P3",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CK25",
+          "title": "/pipeline <name> meta-command (list/dry-run/execute/resume)",
+          "phase": "P3",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CK26",
+          "title": "psk record emits real command-invocation telemetry -> pipeline-telemetry.jsonl",
+          "phase": "P4",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CK27",
+          "title": "Wire pipeline-telemetry.jsonl -> adaptive-thresholds.mjs",
+          "phase": "P4",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CK28",
+          "title": "Close command-utilization -> auto skill-tier loop",
+          "phase": "P4",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        },
+        {
+          "id": "U-CK29",
+          "title": "outcome -> memory/vault -> psk recommend learns",
+          "phase": "P4",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null
+        }
+      ]
+    },
+    {
       "id": "BENCH-MS0",
       "title": "Benchmark Suite Core — 15 Parts + Formula Proofs",
       "track": "BENCH",
@@ -24636,10 +24912,10 @@
       "track": "CLEANUP",
       "claimedStatus": "in_progress",
       "total": 73,
-      "shipped": 50,
-      "pending": 23,
-      "ratio": 0.684931506849315,
-      "lastShippedDate": "2026-05-14T09:23:53-05:00",
+      "shipped": 53,
+      "pending": 20,
+      "ratio": 0.726027397260274,
+      "lastShippedDate": "2026-05-14T10:44:13-05:00",
       "derivedStatus": "in_progress_real",
       "drift": "consistent",
       "units": [
@@ -24998,10 +25274,10 @@
           "id": "U-CLEANUP-F5",
           "title": "F5 — viz-regen-guard.mjs (centralizes regen-wiki-from-viz.mjs calls; hash-gated on manifest-of-deps NOT graph.json itself; refuses if any input >24h older than its regenerator; G6 hard prerequisite)",
           "phase": "landscape-consumers-tier-6",
-          "shipped": false,
-          "sha": null,
-          "date": null,
-          "commitMilestoneTag": null
+          "shipped": true,
+          "sha": "24904647cd57f62fb35b10aa06b8760349db6142",
+          "date": "2026-05-14T10:25:14-05:00",
+          "commitMilestoneTag": "CLEANUP-MS0"
         },
         {
           "id": "U-CLEANUP-F6",
@@ -25025,10 +25301,10 @@
           "id": "U-CLEANUP-G1",
           "title": "G1 — stale-handoff-sweep.ps1 + helpers/handoff-staleness.mjs (diff chat-slots.json last-seen vs handoff mtime; auto-release claims >4h old; 30min cadence)",
           "phase": "watchers-tier-6",
-          "shipped": false,
-          "sha": null,
-          "date": null,
-          "commitMilestoneTag": null
+          "shipped": true,
+          "sha": "d7bab1be29e6d7c3989c137c6dad5d8f33ed2d6f",
+          "date": "2026-05-14T10:22:26-05:00",
+          "commitMilestoneTag": "CLEANUP-MS0"
         },
         {
           "id": "U-CLEANUP-G2",
@@ -25178,10 +25454,10 @@
           "id": "U-CLEANUP-E2",
           "title": "E2 — golf-cron-registry.json (schemaVersion 1) + /golf-bootstrap skill that reads registry + calls CronCreate via tool-use; per-cron lockfile with PID+expectedDurationMs; 5 daily slots at 03:17/04:23/05:31/06:43/07:53; UTC discipline",
           "phase": "cleanup-pipeline-tier-6",
-          "shipped": false,
-          "sha": null,
-          "date": null,
-          "commitMilestoneTag": null
+          "shipped": true,
+          "sha": "84154affce1a3d74bc449bd38433a4456f36dca8",
+          "date": "2026-05-14T10:44:13-05:00",
+          "commitMilestoneTag": "CLEANUP-MS0"
         },
         {
           "id": "U-CLEANUP-E3",

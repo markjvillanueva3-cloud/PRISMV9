@@ -1,26 +1,26 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-14T14:25:41.926Z
+> Generated: 2026-05-14T15:49:50.925Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
 
-- **2362** engines built and wired (of 3235)
+- **2365** engines built and wired (of 3235)
 - **1005** wiki entries indexed
-- **873** engines awaiting dispatcher wiring
-- **3641** units pending across 72 active milestones
+- **870** engines awaiting dispatcher wiring
+- **3667** units pending across 72 active milestones
 - **2** codex frontend builds awaiting merge
 - **173** milestones with envelope-status drift
 
 ## BUILT
 
-2362/3235 engines wired (73%); 1005 wiki entries indexed.
+2365/3235 engines wired (73%); 1005 wiki entries indexed.
 
 ```json
 {
   "totalEngines": 3235,
-  "unwired": 873,
-  "wiredDirect": 2195,
+  "unwired": 870,
+  "wiredDirect": 2198,
   "wireExempt": 83,
   "wiredViaHook": 10,
   "wiredViaOrch": 58,
@@ -31,7 +31,7 @@
 
 ## NEEDS_WIRING
 
-873 engines on disk with no dispatcher reference. Top domains by count:
+870 engines on disk with no dispatcher reference. Top domains by count:
 
 | Domain | Unwired count |
 |--------|---------------|
@@ -57,15 +57,15 @@
 | Tribal | 5 |
 | Mobile | 5 |
 | Mastercam | 5 |
-| Master | 4 |
 | Mill | 4 |
 | Agent | 4 |
+| Electrode | 4 |
 
 **Next action:** Pick a top-domain bucket; wire to the matching dispatcher in batches of 5–6 engines (see U-WIRE-LATHE-BATCHN pattern). Wiki cross-refs in `wikiTitle` resolve via `/wiki-query <name>`.
 
 ## NEEDS_BUILDING
 
-3641 units across 670 milestones not yet in git.
+3667 units across 671 milestones not yet in git.
 
 ### Envelope-status drift
 
@@ -320,14 +320,14 @@ Per-domain wired/unwired breakdown across 932 domain prefixes.
 | Mill | 23 | 19 | 4 | 83% |
 | Inventor | 12 | 8 | 4 | 67% |
 | Okuma | 12 | 8 | 4 | 67% |
-| Master | 10 | 6 | 4 | 60% |
 | Agent | 7 | 3 | 4 | 43% |
 | Speed | 7 | 3 | 4 | 43% |
 | Electrode | 6 | 2 | 4 | 33% |
+| Post | 56 | 53 | 3 | 95% |
 
 ## STALE_MILESTONES
 
-230 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).
+231 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).
 
 | Milestone | Track | Reason | Pending | Shipped/Total | Last shipped |
 |-----------|-------|--------|---------|---------------|--------------|
@@ -339,6 +339,7 @@ Per-domain wired/unwired breakdown across 932 domain prefixes.
 | MS-CAM-MASTERY | revenue | never_started | 34 | 0/34 | never |
 | MS-AUDIT-DERIVED-2026-05-10 | audit-derived | never_started | 30 | 0/30 | never |
 | MS2 | revenue | never_started | 30 | 0/30 | never |
+| COMMAND-KERNEL-MS0 | BACKEND-DEVTOOLS | never_started | 29 | 0/29 | never |
 | MS-TRAIN-DEEP | revenue | never_started | 26 | 0/26 | never |
 | CADCAM-AGI-MS0 | CAD-CAM-AGI | never_started | 24 | 0/24 | never |
 | MS-SFC-CALIBRATE | revenue | never_started | 24 | 0/24 | never |
@@ -360,7 +361,6 @@ Per-domain wired/unwired breakdown across 932 domain prefixes.
 | MS-LEGAL | revenue | never_started | 13 | 0/13 | never |
 | CAMX-MS3 | — | never_started | 12 | 0/12 | never |
 | CAMX-MS4 | — | never_started | 12 | 0/12 | never |
-| CAMX-V17-P3 | — | never_started | 12 | 0/12 | never |
 
 **Next action:** Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift.
 

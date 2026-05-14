@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-14T14:25:41.926Z",
+  "generatedAt": "2026-05-14T15:49:50.925Z",
   "headline": {
-    "built_engines": 2362,
+    "built_engines": 2365,
     "built_with_wiki": 1005,
-    "needs_wiring": 873,
-    "needs_building_active_units": 3641,
+    "needs_wiring": 870,
+    "needs_building_active_units": 3667,
     "needs_frontend_merge_count": 2,
     "pending_milestones_with_activity": 72,
     "drift_milestones": 173,
-    "stale_milestones": 230,
+    "stale_milestones": 231,
     "domains_tracked": 932
   },
   "sources": {
@@ -19,11 +19,11 @@
     "engines_index": "H:\\prism\\mcp-server\\data\\state\\ENGINES_INDEX.json"
   },
   "BUILT": {
-    "summary": "2362/3235 engines wired (73%); 1005 wiki entries indexed.",
+    "summary": "2365/3235 engines wired (73%); 1005 wiki entries indexed.",
     "breakdown": {
       "totalEngines": 3235,
-      "unwired": 873,
-      "wiredDirect": 2195,
+      "unwired": 870,
+      "wiredDirect": 2198,
       "wireExempt": 83,
       "wiredViaHook": 10,
       "wiredViaOrch": 58,
@@ -32,7 +32,7 @@
     }
   },
   "NEEDS_WIRING": {
-    "summary": "873 engines on disk with no dispatcher reference. Top domains by count:",
+    "summary": "870 engines on disk with no dispatcher reference. Top domains by count:",
     "top_domains": [
       {
         "domain": "Other",
@@ -123,15 +123,15 @@
         "count": 5
       },
       {
-        "domain": "Master",
-        "count": 4
-      },
-      {
         "domain": "Mill",
         "count": 4
       },
       {
         "domain": "Agent",
+        "count": 4
+      },
+      {
+        "domain": "Electrode",
         "count": 4
       }
     ],
@@ -696,19 +696,6 @@
         ]
       },
       {
-        "domain": "Master",
-        "total": 10,
-        "wired": 6,
-        "unwired": 4,
-        "coverage_pct": 60,
-        "sample_unwired": [
-          "MasterAITrainingLedgerEngine",
-          "MasterIndexGenerator",
-          "MasterPostFineTuningEngine",
-          "MasterPostProcessorUnifiedAGIEngine"
-        ]
-      },
-      {
         "domain": "Agent",
         "total": 7,
         "wired": 3,
@@ -772,6 +759,18 @@
         ]
       },
       {
+        "domain": "Master",
+        "total": 10,
+        "wired": 7,
+        "unwired": 3,
+        "coverage_pct": 70,
+        "sample_unwired": [
+          "MasterIndexGenerator",
+          "MasterPostFineTuningEngine",
+          "MasterPostProcessorUnifiedAGIEngine"
+        ]
+      },
+      {
         "domain": "Unified",
         "total": 9,
         "wired": 6,
@@ -805,18 +804,6 @@
           "VideoELearningAIEngine",
           "VideoReplayOrchestratorEngine",
           "VideoReplayPipelineEngine"
-        ]
-      },
-      {
-        "domain": "Training",
-        "total": 5,
-        "wired": 2,
-        "unwired": 3,
-        "coverage_pct": 40,
-        "sample_unwired": [
-          "TrainingContentIndexEngine",
-          "TrainingDatasetSnapshotEngine",
-          "TrainingLedgerEngine"
         ]
       },
       {
@@ -1126,6 +1113,17 @@
         "sample_unwired": [
           "FormulaHarvesterEngine",
           "FormulaWiringEngine"
+        ]
+      },
+      {
+        "domain": "Training",
+        "total": 5,
+        "wired": 3,
+        "unwired": 2,
+        "coverage_pct": 60,
+        "sample_unwired": [
+          "TrainingContentIndexEngine",
+          "TrainingDatasetSnapshotEngine"
         ]
       },
       {
@@ -4446,16 +4444,6 @@
         "coverage_pct": 0,
         "sample_unwired": [
           "WesternElectricRulesEngine"
-        ]
-      },
-      {
-        "domain": "Wiring",
-        "total": 1,
-        "wired": 0,
-        "unwired": 1,
-        "coverage_pct": 0,
-        "sample_unwired": [
-          "WiringPotentialEngine"
         ]
       },
       {
@@ -8765,6 +8753,14 @@
         "sample_unwired": []
       },
       {
+        "domain": "Wiring",
+        "total": 1,
+        "wired": 1,
+        "unwired": 0,
+        "coverage_pct": 100,
+        "sample_unwired": []
+      },
+      {
         "domain": "Worm",
         "total": 1,
         "wired": 1,
@@ -8783,7 +8779,7 @@
     ]
   },
   "STALE_MILESTONES": {
-    "summary": "230 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).",
+    "summary": "231 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).",
     "threshold_days": 30,
     "rows": [
       {
@@ -8855,6 +8851,15 @@
         "pending": 30,
         "shipped": 0,
         "total": 30,
+        "lastShippedDate": null,
+        "reason": "never_started"
+      },
+      {
+        "id": "COMMAND-KERNEL-MS0",
+        "track": "BACKEND-DEVTOOLS",
+        "pending": 29,
+        "shipped": 0,
+        "total": 29,
         "lastShippedDate": null,
         "reason": "never_started"
       },
@@ -9136,21 +9141,12 @@
         "total": 10,
         "lastShippedDate": null,
         "reason": "never_started"
-      },
-      {
-        "id": "CPL-MS2",
-        "track": "",
-        "pending": 10,
-        "shipped": 0,
-        "total": 10,
-        "lastShippedDate": null,
-        "reason": "never_started"
       }
     ],
     "next_action": "Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift."
   },
   "NEEDS_BUILDING": {
-    "summary": "3641 units across 670 milestones not yet in git.",
+    "summary": "3667 units across 671 milestones not yet in git.",
     "drift_cases": [
       {
         "id": "CC-EXT-MS0",

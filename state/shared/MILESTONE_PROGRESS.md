@@ -1,6 +1,6 @@
 # MILESTONE_PROGRESS — what's actually shipped vs claimed
 
-> Generated: 2026-05-14T14:25:33.199Z
+> Generated: 2026-05-14T15:49:49.936Z
 > Window: last 60.days of git log across all branches
 > Source: `scripts/build-milestone-progress.mjs`
 
@@ -17,17 +17,17 @@ flagging a unit as missing.
 
 ## Headline numbers
 
-- Milestones loaded:        **670**
-- Units across all MS:      **4906**
-- Units shipped (in git):   **1265**
-- Units pending:            **3641**
+- Milestones loaded:        **671**
+- Units across all MS:      **4935**
+- Units shipped (in git):   **1268**
+- Units pending:            **3667**
 - Drift cases:              **173** (envelope status disagrees with git reality)
 
 ## Top recently-active milestones (last shipped → first)
 
 | Milestone | Track | Status (claimed) | Status (real) | Shipped/Total | Last commit |
 |-----------|-------|------------------|---------------|---------------|-------------|
-| CLEANUP-MS0 | CLEANUP | in_progress | in_progress_real | 50/73 (68%) | 2026-05-14 |
+| CLEANUP-MS0 | CLEANUP | in_progress | in_progress_real | 53/73 (73%) | 2026-05-14 |
 | COORD-MS0 | INFRA | unknown | in_progress_real | 9/12 (75%) | 2026-05-14 |
 | AI-MAX-MS0 | AI-MAX | in_progress | in_progress_real | 3/12 (25%) | 2026-05-13 |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | INFRA | not_started | in_progress_real | 80/92 (87%) | 2026-05-13 |
@@ -140,23 +140,23 @@ flagging a unit as missing.
 | MS-CAM-MASTERY | 34 | 34 | 0/34 |
 | MS-AUDIT-DERIVED-2026-05-10 | 30 | 30 | 0/30 |
 | MS2 | 30 | 30 | 0/30 |
+| COMMAND-KERNEL-MS0 | 29 | 29 | 0/29 |
 | EMP-MS0 | 28 | 28 | 0/28 |
 | BP-MS0 | 27 | 28 | 1/28 |
 | MS-TRAIN-DEEP | 26 | 26 | 0/26 |
 | CAMX-MS0.3 | 24 | 24 | 0/24 |
 | CADCAM-AGI-MS0 | 24 | 24 | 0/24 |
 | MS-SFC-CALIBRATE | 24 | 24 | 0/24 |
-| CLEANUP-MS0 | 23 | 73 | 50/73 |
 | MS-PRINT-PROGRAM-LOOP | 23 | 23 | 0/23 |
 | MCAT-MS0 | 22 | 22 | 0/22 |
 | CAMX-MS22 | 20 | 20 | 0/20 |
+| CLEANUP-MS0 | 20 | 73 | 53/73 |
 | MS-PILOT | 20 | 20 | 0/20 |
 | CAMX-V17-P1 | 18 | 18 | 0/18 |
 | CAD-UNIVERSAL-CONTROL-MS0 | 18 | 18 | 0/18 |
 | CALC-HARDEN-MS0 | 18 | 18 | 0/18 |
 | MS-DESKTOP | 18 | 18 | 0/18 |
 | USSH-OPUS47-BOLSTER | 18 | 18 | 0/18 |
-| CAM-PARITY-AGI-MS0 | 16 | 16 | 0/16 |
 
 ## How to use
 
