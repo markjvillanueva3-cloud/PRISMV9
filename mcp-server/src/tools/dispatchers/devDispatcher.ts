@@ -71,7 +71,13 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // written by `scripts/adapt-router-thresholds.mjs`. Returns the on-disk
 // router-adaptation-state.json contents + (optional) recent decisions
 // from router-adaptation.jsonl.
-"router_adaptation_status"] as const;
+"router_adaptation_status",
+// INTEL-OLLAMA-OBSIDIAN-MS0/P23-U02: APPLY the on-disk adaptation state
+// to the live ModelRoutingEngine singleton. This closes the feedback
+// loop the tuner publishes — without this action the tuner's decisions
+// would never reach route() calls in the running server. Boot scripts
+// + post-tuner cron should call this action.
+"router_adaptation_apply"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -4393,6 +4399,46 @@ export function registerDevDispatcher(server: any): void {
             result = { success: true, data: { removed, olderThanMs } };
             break;
           }
+          // INTEL-OLLAMA-OBSIDIAN-MS0/P23-U02 — apply the on-disk adaptation
+          // state to the live ModelRoutingEngine singleton. Closes the
+          // feedback loop: tuner writes router-adaptation-state.json,
+          // this action loads it into route()'s in-memory catalog.
+          case "router_adaptation_apply": {
+            const { modelRoutingEngine } = await import("../../engines/ModelRoutingEngine.js");
+            const stateDir = path.join(MCP_ROOT, "data", "state");
+            const statePath = path.join(stateDir, "router-adaptation-state.json");
+            if (!fs.existsSync(statePath)) {
+              result = { success: false, error: "no_state_file", path: statePath };
+              break;
+            }
+            let parsed: any;
+            try {
+              parsed = JSON.parse(fs.readFileSync(statePath, "utf8"));
+            } catch (err) {
+              result = {
+                success: false,
+                error: "state_parse_failed",
+                detail: err instanceof Error ? err.message : String(err),
+              };
+              break;
+            }
+            const stateMap = parsed && typeof parsed === "object" && parsed.state && typeof parsed.state === "object"
+              ? parsed.state
+              : {};
+            modelRoutingEngine.applyAdaptiveState(stateMap);
+            const applied = modelRoutingEngine.getAdaptiveState();
+            result = {
+              success: true,
+              data: {
+                appliedModels: Object.keys(applied),
+                appliedCount: Object.keys(applied).length,
+                generatedAt: parsed?.generatedAt ?? null,
+                statePath,
+              },
+            };
+            break;
+          }
+
           // INTEL-OLLAMA-OBSIDIAN-MS0/P23-U02 — adaptive routing status surface.
           case "router_adaptation_status": {
             const stateDir = path.join(MCP_ROOT, "data", "state");

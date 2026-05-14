@@ -5,7 +5,10 @@
 #   - 15-min heartbeat tick
 #
 # Kills:
-#   - long-lived orphan bash (>30 min) — current bash.exe processes
+#   - long-lived orphan bash (>4 hours, AND parent is NOT in the protected
+#     parent allow-list — never kills bash spawned by claude-code, VS Code,
+#     the operator's interactive terminal). Raised from 30 min after
+#     reviewer flagged the threshold as too aggressive for normal sessions.
 #   - long-running git (>10 min) — usually hung clone/push
 #   - delegates node reaping to PRISM janitor (--full)
 #
@@ -13,11 +16,22 @@
 
 $ErrorActionPreference = "SilentlyContinue"
 
-$nodeExe   = "H:\Tools\nodejs\node.exe"
-$janitor   = "H:\prism\mcp-server\scripts\node-process-janitor.mjs"
-$logPath   = "H:\prism\state\shared\ram-orphan-monitor.log"
-$myPid     = $PID
-$tickCount = 0
+$nodeExe        = "H:\Tools\nodejs\node.exe"
+$janitor        = "H:\prism\mcp-server\scripts\node-process-janitor.mjs"
+$logPath        = "H:\prism\state\shared\ram-orphan-monitor.log"
+$myPid          = $PID
+$tickCount      = 0
+# Parents whose bash children we MUST NOT kill — these own legitimate
+# long-lived shells used by the operator or the development tooling.
+$ProtectedParents = @(
+  "claude.exe", "Claude.exe",
+  "node.exe",            # claude-code spawns bash via node
+  "Code.exe", "code.exe",
+  "WindowsTerminal.exe",
+  "powershell.exe", "pwsh.exe",
+  "explorer.exe"
+)
+$BashKillAgeMinutes = 240   # 4 hours
 
 # Best-effort log header (don't fail the monitor if log dir missing)
 try {

@@ -408,7 +408,8 @@ export class ModelRoutingEngine {
         backend: pinned.backend,
         model: pinned.id,
         rationale,
-        expectedLatencyMs: pinned.latencyMsTypical,
+        // Return adaptive effective latency so timeout callers see live reality.
+        expectedLatencyMs: this.getEffectiveLatency(pinned.id),
         expectedCostUSD: cost,
         fallbacks: [],
         error: null,
@@ -436,8 +437,9 @@ export class ModelRoutingEngine {
       model: s.model.id,
       expectedCostUSD: s.costUSD,
     }));
+    const winnerEffLatency = this.getEffectiveLatency(winner.model.id);
     rationale.push(
-      `winner ${winner.model.id} (score=${winner.score.toFixed(2)}, cost=$${winner.costUSD.toFixed(4)}, latency=${winner.model.latencyMsTypical}ms)`,
+      `winner ${winner.model.id} (score=${winner.score.toFixed(2)}, cost=$${winner.costUSD.toFixed(4)}, latency=${winnerEffLatency}ms${winnerEffLatency !== winner.model.latencyMsTypical ? ` [adaptive; declared ${winner.model.latencyMsTypical}ms]` : ""})`,
     );
 
     return {
@@ -445,7 +447,9 @@ export class ModelRoutingEngine {
       backend: winner.model.backend,
       model: winner.model.id,
       rationale,
-      expectedLatencyMs: winner.model.latencyMsTypical,
+      // Return adaptive effective latency, not declared, so callers planning
+      // request timeouts see the live reality after applyAdaptiveState.
+      expectedLatencyMs: winnerEffLatency,
       expectedCostUSD: winner.costUSD,
       fallbacks,
       error: null,
