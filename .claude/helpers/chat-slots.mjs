@@ -75,6 +75,16 @@ export const STALE_TTL_MS = 2 * 60 * 1000;
 /** Lock-file timeout for read-modify-write critical sections. */
 export const LOCK_TIMEOUT_MS = 3000;
 
+/** Recency guard for claim races — refuse to claim a slot that was claimed by a
+ *  DIFFERENT chatId within this window unless `force:true`. The window is short
+ *  enough to not interfere with legit /checkin -> /handoff cycles, long enough
+ *  to catch the fleet-startup pathology where two chats both run /checkin in
+ *  the same ~10s and the second writer silently overwrites the first.
+ *  Knob: PRISM_CHAT_SLOTS_RECENT_GUARD_MS (overrides the default at import time). */
+export const RECENT_CLAIM_GUARD_MS = Number.isFinite(parseInt(process.env.PRISM_CHAT_SLOTS_RECENT_GUARD_MS, 10))
+  ? parseInt(process.env.PRISM_CHAT_SLOTS_RECENT_GUARD_MS, 10)
+  : 30 * 1000;
+
 /** Default state file path. Override via env or arg for tests. */
 export const DEFAULT_STATE_PATH = "H:/prism/state/shared/chat-slots.json";
 const DEFAULT_LOCK_PATH = "H:/prism/state/shared/chat-slots.lock";
@@ -255,6 +265,11 @@ export function claimSlot(input, statePath = DEFAULT_STATE_PATH, lockPath = DEFA
   }
   return withLock(() => {
     const file = readSlots(statePath);
+    // Capture pre-sweep state for the recency guard + previousOwner reporting.
+    // We need to know who held each slot BEFORE the crashed-sweep wiped them.
+    /** @type {Record<string, SlotState|null>} */
+    const preSweep = {};
+    for (const n of SLOT_NAMES) preSweep[n] = file.slots[n] ?? null;
     // First, sweep crashed slots — any slot whose chat hasn't heartbeated in
     // CRASH_TTL_MS is implicitly available.
     const now = Date.now();
@@ -274,28 +289,96 @@ export function claimSlot(input, statePath = DEFAULT_STATE_PATH, lockPath = DEFA
         return { ok: true, slot: n, state: refreshed, alreadyOwned: true };
       }
     }
-    // Honor preferSlot if free or crashed.
+    // Honor preferSlot — gating logic:
+    //   · slot is null              → claim it
+    //   · slot is alive/stale       → only if force=true (operator takeover)
+    //   · slot is crashed           → claim it (already swept above, now null)
+    // RECENCY GUARD fires on the force-takeover path: if the slot was claimed
+    // by a DIFFERENT chat within RECENT_CLAIM_GUARD_MS, refuse unless --force
+    // was passed AND the operator explicitly named --confirm-recent. Prevents
+    // the "operator force-takes alpha 5 seconds after some other chat just
+    // claimed it" pathology (one of them is going to silently lose).
     const order = [...SLOT_NAMES];
     if (input.preferSlot && SLOT_NAMES.includes(input.preferSlot)) {
-      const preferred = file.slots[input.preferSlot];
-      const isClaimable = !preferred || classifySlot(preferred, now) === "crashed" || input.force;
-      if (isClaimable) {
+      const preferred = preSweep[input.preferSlot];
+      const liveAfterSweep = file.slots[input.preferSlot];
+      // Case 1: preferred slot is free (was null, or just swept crashed)
+      if (!liveAfterSweep) {
         order.splice(order.indexOf(input.preferSlot), 1);
         order.unshift(input.preferSlot);
       }
+      // Case 2: preferred slot is alive/stale held by SOMEONE ELSE,
+      // operator wants to force-take it. Check the recency guard FIRST.
+      else if (liveAfterSweep.chatId !== input.chatId && input.force) {
+        const claimedMs = Date.parse(liveAfterSweep.claimedAt);
+        const isRecent = Number.isFinite(claimedMs) && (now - claimedMs) < RECENT_CLAIM_GUARD_MS;
+        if (isRecent && !input.confirmRecent) {
+          return {
+            ok: false,
+            error: "slot_recently_claimed",
+            message:
+              `slot '${input.preferSlot}' was claimed by ${liveAfterSweep.chatId} ` +
+              `${Math.round((now - claimedMs) / 1000)}s ago (within recency guard ` +
+              `${Math.round(RECENT_CLAIM_GUARD_MS / 1000)}s). Force-takeover blocked — ` +
+              `pass --confirmRecent to override, or wait for the recency window to expire.`,
+            details: { slot: input.preferSlot, blockedBy: liveAfterSweep, ageMs: now - claimedMs },
+          };
+        }
+        // Recency cleared (or operator confirmed) — force-takeover proceeds:
+        // wipe the slot now so the walk below picks it up.
+        file.slots[input.preferSlot] = null;
+        order.splice(order.indexOf(input.preferSlot), 1);
+        order.unshift(input.preferSlot);
+      }
+      // Case 3: preferred slot held by someone else, no force → fall through
+      // to default walk; the operator gets whatever next-free slot is available.
     }
     // Find first free slot.
     for (const n of order) {
       if (file.slots[n] === null) {
         const claimed = freshState(input);
+        const result = { ok: true, slot: n, state: claimed };
+        // Surface previousOwner when this claim reclaimed a non-null pre-sweep
+        // slot (crashed-sweep, or explicit force-takeover). Operator transparency.
+        const prev = preSweep[n];
+        if (prev && prev.chatId !== input.chatId) {
+          const lastHbMs = Date.parse(prev.lastHeartbeat);
+          result.previousOwner = {
+            chatId: prev.chatId,
+            host: prev.host,
+            pid: prev.pid ?? null,
+            branch: prev.branch ?? null,
+            topic: prev.topic ?? null,
+            activity: prev.activity ?? null,
+            claimedAt: prev.claimedAt,
+            lastHeartbeat: prev.lastHeartbeat,
+            ageMs: Number.isFinite(lastHbMs) ? now - lastHbMs : null,
+            reason: classifySlot(prev, now) === "crashed"
+              ? "crashed-reclaim"
+              : (input.force && preferSlotMatchesExplicit(input.preferSlot, n))
+                ? "force-takeover"
+                : "stale-reclaim",
+          };
+        }
         file.slots[n] = claimed;
         writeSlotsAtomic(file, statePath);
-        return { ok: true, slot: n, state: claimed };
+        return result;
       }
     }
     // All slots full and alive.
     return { ok: false, error: "fleet_full", message: `all ${SLOT_NAMES.length} slots are claimed by alive chats; chat ${input.chatId} should fall back to legacy chatId-based handoff naming or wait for a slot to free` };
   }, lockPath);
+}
+
+/**
+ * The recency guard is bypassed when the caller explicitly asked for THIS slot
+ * via --preferSlot AND we matched it. That is the operator-intent codepath
+ * ("take alpha from the dead chat — I know what I'm doing"). It is NOT a
+ * bypass for the default first-free walk, which is the racy codepath we
+ * want to guard.
+ */
+function preferSlotMatchesExplicit(preferSlot, n) {
+  return typeof preferSlot === "string" && preferSlot === n;
 }
 
 function freshState(input) {
@@ -519,6 +602,7 @@ if (__cliArgv1Basename && import.meta.url.endsWith(__cliArgv1Basename)) {
           activity: flags.activity,
           preferSlot: flags.preferSlot,
           force: flags.force === "true",
+          confirmRecent: flags.confirmRecent === "true",
         });
         break;
       case "heartbeat":
