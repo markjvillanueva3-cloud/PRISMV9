@@ -60,19 +60,32 @@ for i, a in enumerate(sys.argv):
 
 # -- strict part-number filter -------------------------------------------------
 # A real JM-Die print PN looks like: D946-1, FX34L, T3136-031-3D, 232454-A,
-# MCF-1234, PF-22-1A, 442A19-0114. Reject: pure short digit runs, years, dates,
-# phone numbers, single-letter+digit, OCR-noise, dimension callouts.
+# MCF-1234, PF-22-1A, 442A19-0114, AND bare numerics like 9007405 (the dominant
+# JM-Die lathe-program PN shape — e.g. CNC LATHE/AGRATI/9007405.MIN). Reject only
+# UNAMBIGUOUS noise: years, dates, phone numbers, single-letter+digit codes,
+# alpha OCR-noise, and TRUE dimension callouts (a decimal fraction or a unit
+# suffix — NOT every pure-digit string).
+#
+# Design note: phase20 must NOT be stricter than its downstream consumer
+# (phase16-v6 / BlueprintProgramJoinEngine), which already demotes bare 1-4
+# digit PNs via its `bare_short` logic (cannot earn "exact", >8 hits → ambiguous).
+# So phase20 KEEPS bare numerics >= MIN_PN_LEN and lets phase16 make the
+# precision/recall call — phase20's job is to strip noise, not to second-guess
+# the join's ambiguity handling.
 _YEAR_RE = re.compile(r"^(19|20)\d{2}$")
-_PURE_DIGIT_RE = re.compile(r"^\d{1,5}$")
 _SINGLE_ALPHA_DIGIT_RE = re.compile(r"^[A-Z]\d{0,2}$", re.I)
-_DIM_CALLOUT_RE = re.compile(r"^\.?\d+\.?\d*(MM|IN|DEG|R|X)?$", re.I)
-_REPEATED_RE = re.compile(r"(.)\1{3,}")
+# TRUE dimension callout: a decimal fraction (3.250, .500, 12.5MM) OR an integer
+# with a unit suffix (5IN, 90DEG). A bare integer like 9007405 is NOT a callout.
+_DIM_CALLOUT_RE = re.compile(r"^\d*\.\d+(MM|IN|DEG|R|X)?$|^\d+(MM|IN|DEG|R|X)$", re.I)
+# 5+ repeated LETTERS = OCR noise (EEEEE, AAAAA). Repeated DIGITS are NOT
+# rejected — round-number PNs (1000000, 200000) are legitimate.
+_REPEATED_RE = re.compile(r"([A-Z])\1{4,}", re.I)
 _OCR_NOISE_RE = re.compile(r"^[BCDFGHJKLMNPQRSTVWXZ]{5,}$", re.I)
 # date forms: 10-24-20, 10/24/2020, 2020-10-26, 2024_09_11
 _DATE_RE = re.compile(
     r"^(?:\d{1,4}[-/_]\d{1,2}[-/_]\d{2,4})$"
 )
-# US phone: 630-948-5952, (630) 948-5952 → normalized to 6309485952 / 630-948-5952
+# US phone: 630-948-5952, 630.948.5952
 _PHONE_RE = re.compile(r"^\d{3}[-.]?\d{3}[-.]?\d{4}$")
 # structural shape: alnum start+end, dashes/slashes/dots allowed in the middle
 _STRUCT_RE = re.compile(r"^[A-Z0-9][A-Z0-9\-/.]{2,18}[A-Z0-9]$", re.I)
@@ -90,8 +103,6 @@ def is_strong_pn(pn: str) -> bool:
         return False
     if _PHONE_RE.match(s):
         return False
-    if _PURE_DIGIT_RE.match(s) and len(s) < 6:  # pure 4-5 digit = ambiguous, reject
-        return False
     if _SINGLE_ALPHA_DIGIT_RE.match(s):
         return False
     if _DIM_CALLOUT_RE.match(s):
@@ -104,11 +115,12 @@ def is_strong_pn(pn: str) -> bool:
         return False
     if not any(c.isdigit() for c in s):
         return False
-    # require either a structural separator, OR an alpha+digit mix of len>=5,
-    # OR a pure-digit run of len>=6
+    # Accept: a structural separator (D946-1), an alpha+digit mix (FX34L), OR a
+    # bare numeric >= MIN_PN_LEN (9007405). The length floor was already applied
+    # above; phase16 handles bare-short-numeric ambiguity downstream.
     has_sep = any(c in "-/." for c in s)
-    has_mix = any(c.isalpha() for c in s) and any(c.isdigit() for c in s) and len(s) >= 5
-    return has_sep or has_mix or (s.isdigit() and len(s) >= 6)
+    has_mix = any(c.isalpha() for c in s) and any(c.isdigit() for c in s)
+    return has_sep or has_mix or s.isdigit()
 
 
 def page_is_verified_print(fields: dict, strong_pns: list[str]) -> bool:
@@ -127,14 +139,18 @@ def page_is_verified_print(fields: dict, strong_pns: list[str]) -> bool:
 
 
 def _field_score(rec: dict) -> int:
-    """How populated is this page record — used to break (doc_id,page) dup ties."""
+    """How populated is this page record — used to break (doc_id,page) dup ties.
+    part_numbers is scored by STRONG-PN count (capped) so a dup page that OCR'd
+    a pile of garbage PNs cannot outscore one that OCR'd two clean ones."""
     fields = rec.get("fields", {}) or {}
     score = 0
-    for k in ("part_numbers", "drawing_number", "revision", "material", "customer"):
-        v = fields.get(k)
-        if v:
-            score += len(v) if isinstance(v, list) else 1
-    score += int(fields.get("strong_indicators", 0))
+    pns = fields.get("part_numbers")
+    if isinstance(pns, list) and pns:
+        score += min(sum(1 for p in pns if is_strong_pn(p)), 5)
+    for k in ("drawing_number", "revision", "material", "customer"):
+        if fields.get(k):
+            score += 1
+    score += int(fields.get("strong_indicators", 0) or 0)
     return score
 
 
@@ -158,10 +174,18 @@ def main() -> int:
             did = r.get("doc_id")
             if not did:
                 continue
-            doc_meta.setdefault(did, {
-                "filename": r.get("filename"),
-                "disk_path": r.get("disk_path"),
-            })
+            # prefer the most-populated filename / disk_path across dup records
+            # (the parallel+memsafe double-append can leave the first-seen
+            # record with a null disk_path)
+            dm = doc_meta.get(did)
+            if dm is None:
+                doc_meta[did] = {"filename": r.get("filename"),
+                                 "disk_path": r.get("disk_path")}
+            else:
+                if not dm.get("filename") and r.get("filename"):
+                    dm["filename"] = r.get("filename")
+                if not dm.get("disk_path") and r.get("disk_path"):
+                    dm["disk_path"] = r.get("disk_path")
             key = (did, r.get("page_index"))
             if key in best_page:
                 n_dups += 1
@@ -230,13 +254,18 @@ def main() -> int:
                 "customers": doc_customers,
             })
 
-    # -- write outputs ---------------------------------------------------------
-    with open(OUT_PAGES, "w", encoding="utf-8") as f:
-        for rec in verified_pages:
-            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
-    with open(OUT_DOCS, "w", encoding="utf-8") as f:
-        for rec in verified_doc_records:
-            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    # -- write outputs (atomic: tmp + os.replace, so a crash never leaves a
+    #    truncated index for the downstream phase16-v6 join to silently consume)
+    def _atomic_write_lines(path: Path, records: list[dict]) -> None:
+        tmp = path.with_suffix(path.suffix + ".tmp")
+        with open(tmp, "w", encoding="utf-8") as f:
+            for rec in records:
+                f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+        import os as _os
+        _os.replace(tmp, path)
+
+    _atomic_write_lines(OUT_PAGES, verified_pages)
+    _atomic_write_lines(OUT_DOCS, verified_doc_records)
 
     multi_print_docs = sum(1 for r in verified_doc_records if r["verified_print_count"] >= 2)
     big_container_docs = sum(1 for r in verified_doc_records if r["verified_print_count"] >= 5)
