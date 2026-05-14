@@ -1,0 +1,1068 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-05-12T13:00:00.000Z",
+  "description": "Single source of truth for the JM Die per-customer / per-part-number folder library layout. Read by PartFolderOrganizerEngine.ts (on-demand intake of new orders) AND Docustrata/.index/phase18-build-part-library.py (one-time bulk backfill from the print->program join table). Keep the two implementations of sanitizeSegment() in sync with `sanitize` below; everything else is single-sourced here.",
+  "libraryRoot": "H:/PRISM/JM DIE/_PART LIBRARY",
+  "cncSubdir": "CNC PROGRAM",
+  "cadCamSubdir": "CAD-CAM",
+  "manifestName": "part.json",
+  "unassignedCustomer": "_UNASSIGNED",
+  "templateFolder": "_TEMPLATE",
+  "buildSummaryName": "_BUILD_SUMMARY.md",
+  "readmeName": "README.md",
+  "sanitize": {
+    "maxLen": 80,
+    "illegalChars": "<>:\"/\\|?*",
+    "stripControlChars": true,
+    "collapseWhitespace": true,
+    "trimDotsAndSpaces": true,
+    "uppercase": true,
+    "emptyFallback": "_UNNAMED",
+    "rejectTraversal": true
+  },
+  "fileClassification": {
+    "comment": "Used by the on-demand path when a caller passes raw file paths without a kind3 hint. The bulk backfill uses the join table's kind3 ('nc_program' -> CNC, else -> CAD-CAM) directly.",
+    "cncExts": [
+      ".min",
+      ".nc",
+      ".eia",
+      ".hnc",
+      ".h",
+      ".cnc",
+      ".tap",
+      ".ngc",
+      ".mpf",
+      ".spf",
+      ".pim",
+      ".pit",
+      ".lib",
+      ".nci"
+    ],
+    "cadCamExts": [
+      ".mcx-8",
+      ".mcx-9",
+      ".mcx-7",
+      ".mcx",
+      ".mcam",
+      ".emcam",
+      ".ipt",
+      ".iam",
+      ".idw",
+      ".ipn",
+      ".sldprt",
+      ".sldasm",
+      ".slddrw",
+      ".step",
+      ".stp",
+      ".igs",
+      ".iges",
+      ".x_t",
+      ".x_b",
+      ".dwg",
+      ".dxf",
+      ".catpart",
+      ".catproduct",
+      ".f3d",
+      ".f3z",
+      ".stl",
+      ".prt",
+      ".par",
+      ".psm",
+      ".asm",
+      ".3dm",
+      ".jt",
+      ".sat"
+    ]
+  },
+  "customerResolution": {
+    "comment": "Priority order for choosing the customer folder name for a part. 1) the folder a human filed the matched program under (programs[].customer, path-derived) 2) a sane OCR'd title-block customer from the print 3) _UNASSIGNED. After a name is chosen it is run through canonicalize(): leading digits are stripped, then `noisePrefixes`/`noiseRegexes` route obvious non-customers (form labels, title-block fields, die-detail line names, part numbers) to _UNASSIGNED, and `aliases` collapses OCR-garble variants to the canonical company name.",
+    "priority": [
+      "program_path",
+      "print_ocr",
+      "unassigned"
+    ],
+    "printOcrRejectPatterns": [
+      "^\\d+$",
+      "^[\\d\\s\\-./]+$",
+      "^\\d{1,5}\\s",
+      "^(PO|P\\.?O\\.?|QTY|REV|DWG|PART|SHEET|SCALE|DATE|JOB)\\b",
+      "STREET|AVENUE|SUITE|FAX|PHONE|TEL\\b|ZIP\\b"
+    ],
+    "aliasesComment": "canonical -> [OCR-garble variants that mean the same company]. Conservative: only high-confidence clusters. Used by phase19-consolidate-customers.py (one-shot folder merge) AND going forward by resolve_customer/resolveCustomer. Names are compared UPPERCASE after sanitizeSegment + leading-digit strip.",
+    "aliases": [
+      {
+        "canonical": "FASTENAL",
+        "variants": [
+          "FASTENAL COMPANY",
+          "ASTENAL",
+          "ASTENALCOMPANY",
+          "SSTENAL",
+          "FASTENALL",
+          "FASTENALCUSTRE",
+          "FASTE",
+          "FASTEN",
+          "FASTER",
+          "FASTEI",
+          "FASTED",
+          "FASTET",
+          "FASTI",
+          "FASTIEL",
+          "FAST",
+          "FABTEN",
+          "FASITEN",
+          "3FASTE",
+          "IFASTER",
+          "FABTEN",
+          "GEFASTEN",
+          "YRFASTEN"
+        ]
+      },
+      {
+        "canonical": "ALLFAST FASTENING SYSTEMS",
+        "variants": [
+          "ALLFAST",
+          "ALLFASTA",
+          "ALLFASTF",
+          "ALLFASTFA",
+          "ALLFASTFAA",
+          "ALLFASTFAB",
+          "ALLFASTFAR",
+          "ALLFASTFAS",
+          "ALLFASTFAST",
+          "ALLFASTFASTENI",
+          "ALLFASTFF",
+          "ALLFASTFFAS",
+          "ALLFASTFI",
+          "ALLFASTSEME",
+          "LLFAST",
+          "LLFASTFA",
+          "LLFASTFAS",
+          "LLFASTFASTENIN",
+          "LFASTFASTENING",
+          "6322ALLFASTFAS",
+          "A9ALLFASTFA",
+          "FASTENINGSYSTE"
+        ]
+      },
+      {
+        "canonical": "AGRATI",
+        "variants": [
+          "AGRA",
+          "AGRAT",
+          "AGRATIF",
+          "AGRATII",
+          "AGRATIHP",
+          "AGRAITJIPA",
+          "AGRATELPA",
+          "AGRATEP",
+          "AGRATEPA",
+          "AGRATFP",
+          "AGRATIPA",
+          "AGRATIPAI",
+          "AGRATIPAR",
+          "AGRATIPARI",
+          "AGRATIPARK",
+          "AGRATIPARKFORE",
+          "AGRATLPA",
+          "AGRATLPS",
+          "AGRATIIPA",
+          "AGRATIP",
+          "7AGRATIPA",
+          "AAGRATIPA",
+          "TAGRATIF",
+          "OEAGRATEP",
+          "4GRATIPARKFORE",
+          "NGRATIPARKF",
+          "GRATIP",
+          "GRATIPA",
+          "GRATIPARKFORES",
+          "SRATIPARKFORES",
+          "ASRATIPARKFORE",
+          "AGRATI-MEDINA",
+          "AGRATEPA"
+        ]
+      },
+      {
+        "canonical": "HOLO-KROME",
+        "variants": [
+          "HOLOKROME",
+          "HOLO-KROME COMPANY",
+          "HOLOKROMECOMPA",
+          "HOLOKROME43",
+          "3HOLOKROME",
+          "OLOKROME",
+          "1OLOKROMEA",
+          "SSHOLOKROME",
+          "HRA83MINHOLOKR",
+          "HRA845MINHOLOK",
+          "HRA84MINHOLOKR",
+          "HRA86MINHOLOKR",
+          "HRA89MINHOLOKR",
+          "HRC4850HOLOKRO",
+          "HRC5860HOLOKRO",
+          "HRC6062HOLOKRO",
+          "RC5052HOLOKROM",
+          "RC5456HOLOKROM",
+          "RC5860HOLOKROM",
+          "RC606HOLOKROME",
+          "ARC5860HOLOKRO",
+          "RE46042HOLOKRO",
+          "RSRO5SQHOLOKRO",
+          "SEEABOVEHOLCKR",
+          "SEEABOVEHOLOKR",
+          "SEENOTE3HOLOKR",
+          "SEESHEET1HOLOK",
+          "SEETABLEHOLOKR",
+          "SERABOVEHOLOKR",
+          "ASEETABLEHOLOK",
+          "TARDNESSHOLOKR",
+          "HARDNESSHOLOKR",
+          "HARONESSHOLOKR",
+          "HARDNESSHRA845",
+          "HARDNESSZHOLGK",
+          "1ARDNESSHOLOKR",
+          "2HRA83MINHOLOK",
+          "2HRA845MINHOLO",
+          "AHRA845MINHOLO",
+          "HARONESSHOLOKR"
+        ]
+      },
+      {
+        "canonical": "ITW SHAKEPROOF",
+        "variants": [
+          "ITWSHAKEPROOF",
+          "ITWSHAKEPROOF1",
+          "ITW SHAKERPROOF",
+          "SHAKEPROOFAUTO",
+          "WSHAKEPROOF16A",
+          "MACHPARKSHAKEP",
+          "TTWSHA"
+        ]
+      },
+      {
+        "canonical": "ITW",
+        "variants": [
+          "ITWB",
+          "ITWE",
+          "ITWBEELEITZKE",
+          "ITWBEELEITZKE",
+          "TWBEELEITZKE"
+        ]
+      },
+      {
+        "canonical": "PRECISION FORM",
+        "variants": [
+          "PRECISI",
+          "PRECISIC",
+          "PRECISIONFORM",
+          "PRECISK",
+          "PRESICION FORM",
+          "PRECIOSION FORM",
+          "PRECION FORM INC",
+          "RECISIONFORM",
+          "2RECISIONFORM"
+        ]
+      },
+      {
+        "canonical": "MULTITECH INDUSTRIES",
+        "variants": [
+          "MULTI T",
+          "MULTI TECH",
+          "MULTIFECHCOLDF",
+          "MULTITEC",
+          "MULTITEC INDUSTRIES",
+          "MULTITECH IND",
+          "MULTITECHCOLDF",
+          "MULTITECHINDUS",
+          "MULTIFECHCOLDF"
+        ]
+      },
+      {
+        "canonical": "SFS GROUP USA",
+        "variants": [
+          "SFS",
+          "SFS GROUP",
+          "SFS INTEC",
+          "SFSGF",
+          "SFSGR",
+          "SFSGRI",
+          "SFSGROUPUSA",
+          "SFSGROUPUSAINC4",
+          "3FSGROUPUSA",
+          "3SGROUPUSA",
+          "5FSGROUPUSA",
+          "FSFSGR",
+          "FSGROUPUSA",
+          "FSGROUPUSAINC4"
+        ]
+      },
+      {
+        "canonical": "BARNES INDUSTRIES",
+        "variants": [
+          "1BARNESINDUSTR",
+          "11BARNESINDUST",
+          "31BARNESINDUST",
+          "31BARNESINGUST",
+          "51BARNESINDUST",
+          "61BARI",
+          "61BARNE",
+          "61BARNES",
+          "61BARNESINDUST",
+          "64BARNESINDUST",
+          "81BARNESINDUST"
+        ]
+      },
+      {
+        "canonical": "BIRMINGHAM FASTENER",
+        "variants": [
+          "BIRMINGH",
+          "BIRMINGHAM",
+          "BIRMINGHAM FASTENER MFG",
+          "BIRMINGHAMFAST",
+          "3IRMINGHAM"
+        ]
+      },
+      {
+        "canonical": "GRANDEUR FASTENERS",
+        "variants": [
+          "GRANDER FASTENER",
+          "GRANDEU",
+          "GRANDEUF",
+          "GRANDEUR",
+          "GRANDEUR FASTENER UPDATE 10.22.2022",
+          "GRANDEURFASTEN",
+          "GRANDUER FASTENERS",
+          "RANDEUF",
+          "RANDEUR",
+          "RANDEURFASTENE",
+          "SRANDEURFASTEN",
+          "3RANDEURFASTEN",
+          "3SRANDEURFA",
+          "ARANDEURFASTEN",
+          "ASRANDEURFASTE",
+          "IRANDEURFASTEN"
+        ]
+      },
+      {
+        "canonical": "ACCURATE THREADED FASTENERS",
+        "variants": [
+          "ACCURA",
+          "ACCURATE THREADED",
+          "ACCURATETHREAD",
+          "CCURATETHREADE"
+        ]
+      },
+      {
+        "canonical": "WRENTHAM TOOL",
+        "variants": [
+          "WRENTHAM",
+          "WRENTHAMTOOL",
+          "NRENTHAMTOOL",
+          "VRENTHAMTOOL"
+        ]
+      },
+      {
+        "canonical": "FONTANA FASTENERS",
+        "variants": [
+          "FONTAN",
+          "FONTANA",
+          "FONTANAFASTENE",
+          "FONTANAFF",
+          "ONTANAFASTENER",
+          "LEP",
+          "LEP (FONTANA)"
+        ]
+      },
+      {
+        "canonical": "FORGO FASTENERS",
+        "variants": [
+          "FORGO",
+          "FORGO FASTNERS"
+        ]
+      },
+      {
+        "canonical": "OMG INC",
+        "variants": [
+          "OMG",
+          "OMGBUILD",
+          "01OMGTOOLCRIB"
+        ]
+      },
+      {
+        "canonical": "HI-PERFORMANCE FASTENING SYSTEMS",
+        "variants": [
+          "HI-PERFOMANCE",
+          "HI-PERFORMANCE",
+          "HPFS"
+        ]
+      },
+      {
+        "canonical": "ACUMENT GLOBAL TECHNOLOGIES",
+        "variants": [
+          "ACUMENT",
+          "ACUMENT GLOBAL",
+          "ACUMENT SPENCER"
+        ]
+      },
+      {
+        "canonical": "HOWMET AEROSPACE",
+        "variants": [
+          "HOWM",
+          "HOWMET",
+          "HOWMETDELRIO",
+          "IOWMETDELRIO"
+        ]
+      },
+      {
+        "canonical": "ARCONIC",
+        "variants": [
+          "ARCONIC FASTENING SYSTEMS AND RINGS"
+        ]
+      },
+      {
+        "canonical": "ALCOA",
+        "variants": [
+          "ALCOA FASTENING"
+        ]
+      },
+      {
+        "canonical": "JM DIE",
+        "variants": [
+          "JMDIECOMPANYIN",
+          "JMOIECOMPANYIN",
+          "JMTOOLDIE",
+          "JMTOOLDIELLCUS",
+          "JMTOOLDIEORPNO",
+          "3MDIECOMPANYIN",
+          "4MDIECOMPANYIN",
+          "DMDIECOMPANYIN",
+          "JOHOIECOMPANY1",
+          "JDMOLECOMPANYI",
+          "MWTOODIE",
+          "SVCSJMDIECOM",
+          "SVCSIMDIECOM",
+          "SVCSJRNDIECOM",
+          "SVESIMDIECOM",
+          "SYCSJMDIECOM"
+        ]
+      },
+      {
+        "canonical": "MIDWEST FABRICATING",
+        "variants": [
+          "MIDWESTFABRICA",
+          "MID WEST",
+          "MIDWEST"
+        ]
+      },
+      {
+        "canonical": "TFI AEROSPACE",
+        "variants": [
+          "TFI AEROSPACE CORP",
+          "TFIAERC"
+        ]
+      },
+      {
+        "canonical": "JEBCO",
+        "variants": [
+          "JEBCO CORPORATION"
+        ]
+      },
+      {
+        "canonical": "CRESCENT MANUFACTURING",
+        "variants": [
+          "CRESCEN",
+          "CRESCENT",
+          "RESCENT",
+          "AJ MANUFACTURING"
+        ]
+      },
+      {
+        "canonical": "REED & PRINCE",
+        "variants": [
+          "REED & PRINCE MFG"
+        ]
+      },
+      {
+        "canonical": "LAKE ERIE SCREW",
+        "variants": [
+          "LAKE ERIE",
+          "LAKE ERIE PRODUCTS",
+          "LAKE ERIE SCREW CORP"
+        ]
+      },
+      {
+        "canonical": "MEAD INDUSTRIES",
+        "variants": [
+          "MEAD IND",
+          "MEAD INDUSTRIES INC"
+        ]
+      },
+      {
+        "canonical": "TOPURA AMERICA",
+        "variants": [
+          "TOPURA",
+          "TOPURA AMERICA FASTNER"
+        ]
+      },
+      {
+        "canonical": "CONTINENTAL MIDLAND",
+        "variants": [
+          "CONTINEN",
+          "CONTINENT"
+        ]
+      },
+      {
+        "canonical": "VALLEY FASTENER GROUP",
+        "variants": [
+          "VALLEY"
+        ]
+      },
+      {
+        "canonical": "BRAINARD RIVET",
+        "variants": [
+          "BRAINARD"
+        ]
+      },
+      {
+        "canonical": "CLENDENIN BROTHERS",
+        "variants": [
+          "CLENDENIN"
+        ]
+      },
+      {
+        "canonical": "ATF",
+        "variants": [
+          "ATF-ROMULUS",
+          "TFROMULUS",
+          "TF-ROMULUS",
+          "ATF ROMULUS",
+          "ATFROMULUS"
+        ]
+      },
+      {
+        "canonical": "KEYSTONE SCREW",
+        "variants": [
+          "KEYSTONESCREW",
+          "KEYSTONE FASTEMING",
+          "KEYSTONE FASTENING",
+          "KEYSTONE SCREW CORP",
+          "SPECIALTYSCREWCORP",
+          "SPECIALTY SCREW CORP",
+          "QUALITY SCREW"
+        ]
+      },
+      {
+        "canonical": "FALL RIVER",
+        "variants": [
+          "FALLRIVER"
+        ]
+      },
+      {
+        "canonical": "THOMASON",
+        "variants": [
+          "THOMASON MACHINE"
+        ]
+      },
+      {
+        "canonical": "CSM FASTENER PRODUCTS",
+        "variants": [
+          "CSM"
+        ]
+      },
+      {
+        "canonical": "ELITE FASTENERS",
+        "variants": [
+          "ELITE",
+          "ELIEAFASTEN"
+        ]
+      },
+      {
+        "canonical": "BRICO INDUSTRIES",
+        "variants": [
+          "BRICO",
+          "BRICOINDUSTRIE",
+          "WCS INDUSTRIES"
+        ]
+      },
+      {
+        "canonical": "CHOCTAW DEFENSE",
+        "variants": [
+          "CHOCTAW"
+        ]
+      },
+      {
+        "canonical": "CONTINENTAL MIDLAND",
+        "variants": [
+          "CONTINEN",
+          "CONTINENT",
+          "CONTINENTAL MIDLAND"
+        ]
+      },
+      {
+        "canonical": "AIR INDUSTRIES",
+        "variants": [
+          "AIRINDUS",
+          "AIR INDUSTRIES"
+        ]
+      },
+      {
+        "canonical": "MEAD INDUSTRIES",
+        "variants": [
+          "MEAD IND",
+          "MEAD INDUSTRIES INC",
+          "MEAD INDUSTRIES"
+        ]
+      },
+      {
+        "canonical": "QUALITY FORM TOOLS",
+        "variants": [
+          "QUALITY FORM TOOLS"
+        ]
+      },
+      {
+        "canonical": "MICHIGAN BOLT MFG",
+        "variants": [
+          "MICHIGAN BOLT MFG",
+          "MICHIGAN BOLT"
+        ]
+      },
+      {
+        "canonical": "ADDISON FASTENERS",
+        "variants": [
+          "ADDISON FASTENERS",
+          "ADDISON"
+        ]
+      },
+      {
+        "canonical": "ARCONIC FASTENING SYSTEMS AND RINGS",
+        "variants": [
+          "ARCONIC",
+          "ARCONIC FASTENING SYSTEMS AND RINGS"
+        ]
+      },
+      {
+        "canonical": "AMERICAN JEBCO",
+        "variants": [
+          "AMERICAN JEBCO"
+        ]
+      },
+      {
+        "canonical": "WHITESELL",
+        "variants": [
+          "WHITESELL",
+          "WHITESELL CORPORATION"
+        ]
+      },
+      {
+        "canonical": "MACLEAN-FOGG",
+        "variants": [
+          "MACLEAN-FOGG",
+          "MACLEAN FOGG"
+        ]
+      },
+      {
+        "canonical": "VALLEY RIVET",
+        "variants": [
+          "VALLEY RIVET"
+        ]
+      },
+      {
+        "canonical": "CITY OF INDUSTRY",
+        "variants": [
+          "4CITYOFINDUSTR",
+          "CITYOFINDASTRC",
+          "CITYOFINDUSTRY",
+          "E4CITYOFINDUST",
+          "ICITYOFINDUSTR",
+          "RCITYOFINDUSTR"
+        ]
+      },
+      {
+        "canonical": "AMGLO KEMLITE",
+        "variants": [
+          "AMGLOKEMLITELA"
+        ]
+      },
+      {
+        "canonical": "ANDERSON MFG",
+        "variants": [
+          "ANDERSON",
+          "ANDERSON MFG- STABIO"
+        ]
+      },
+      {
+        "canonical": "DARLINGTON",
+        "variants": [
+          "DARLING",
+          "DARLINGTON2NUT"
+        ]
+      },
+      {
+        "canonical": "OPTIMAS",
+        "variants": [
+          "ANIXTER-OPTIMAS"
+        ]
+      },
+      {
+        "canonical": "CHASE FASTENER",
+        "variants": []
+      },
+      {
+        "canonical": "HEDALLOY DIE CORPORATION",
+        "variants": [
+          "EDALLOYDIE"
+        ]
+      },
+      {
+        "canonical": "FITZ MANUFACTURING",
+        "variants": [
+          "FITZ MANUF"
+        ]
+      },
+      {
+        "canonical": "IMPACT TOOL",
+        "variants": []
+      },
+      {
+        "canonical": "HOLLY OPERATIONS",
+        "variants": []
+      },
+      {
+        "canonical": "NATIONAL HEADERS",
+        "variants": [
+          "FORBYNATIONAL"
+        ]
+      },
+      {
+        "canonical": "MONOGRAM AEROSPACE",
+        "variants": [
+          "MONOGRAMAEROSP"
+        ]
+      },
+      {
+        "canonical": "NORTH COAST",
+        "variants": []
+      },
+      {
+        "canonical": "PRECISION FASTENER",
+        "variants": [
+          "PRECIOSION FASTENER"
+        ]
+      },
+      {
+        "canonical": "RHEEM MANUFACTURING",
+        "variants": [
+          "RHEEMMFG143"
+        ]
+      },
+      {
+        "canonical": "UNITED STEEL",
+        "variants": []
+      },
+      {
+        "canonical": "WISCONSIN OIL SPRING",
+        "variants": []
+      },
+      {
+        "canonical": "WOLSELEY THOMASON",
+        "variants": [
+          "WOLSELEY-THOMASON-ALCOA"
+        ]
+      },
+      {
+        "canonical": "TCR ENGINEERING",
+        "variants": [
+          "TCRENGINEE"
+        ]
+      }
+    ],
+    "noisePrefixesComment": "If a customer folder name (UPPERCASE, leading digits stripped) STARTS WITH any of these, it is not a real customer \u2014 it's an OCR-captured form label / title-block field / die-detail line / part number. Such folders are merged into _UNASSIGNED by phase19.",
+    "noisePrefixes": [
+      "PURCHASE ORDER",
+      "PURCHASEORDER",
+      "PURCHASING",
+      "PURCHASIR",
+      "REQUISITIONER",
+      "REAUISITIONER",
+      "REQUISI",
+      "SHIP TO",
+      "SHIPTO",
+      "SHIP ",
+      "SHIPPING",
+      "SHIPPI",
+      "SHINNING",
+      "SHINNI",
+      "SHIPMENT",
+      "ALLSHIPMENT",
+      "ALLSHIRMENT",
+      "ADDRESS",
+      "PART NUMBER",
+      "PARTNUMBER",
+      "PRINTNUMBER",
+      "PRINT NUMBER",
+      "PRINTONREVERSE",
+      "PARNUMBER",
+      "PRINTNUMBER",
+      "DIVISION",
+      "SERVICES",
+      "SELECTEDLOCATI",
+      "VENDOR",
+      "CENTERREPRESEN",
+      "CENTEREPRESEN",
+      "CUSTOMER",
+      "DRAWN DATE",
+      "DRAWNDATE",
+      "DRAWDATE",
+      "DRAWNBY",
+      "DRAWNBA",
+      "DRAWNON",
+      "DRAWNDA",
+      "DRAWNB",
+      "DRAWN",
+      "RAWDATE",
+      "RAWONE",
+      "RAWSATE",
+      "RAWSAE",
+      "SAWNBATE",
+      "SEANDATE",
+      "BRAWN",
+      "JRAWN",
+      "AWNES",
+      "SRAWA",
+      "SRAWH",
+      "SRAWO",
+      "TITLE",
+      "FINISH",
+      "FINIS",
+      "FNSH",
+      "FNGHT",
+      "RINISH",
+      "INISH",
+      "PINISI",
+      "RNISH",
+      "HARDNESS",
+      "HARONESS",
+      "TARDNESS",
+      "TARONESS",
+      "RDNESS",
+      "HRA",
+      "HRC",
+      "RC5",
+      "RC4",
+      "RC6",
+      "RE4",
+      "RSRO",
+      "SCALE",
+      "MATERIAL",
+      "M2STEEL",
+      "FEVEH13",
+      "MATDAN",
+      "REVLEVEL",
+      "REV LEVEL",
+      "REVISION",
+      "REVTJ",
+      "REVT",
+      "DEVIATION",
+      "CHANGES",
+      "CHANGESF",
+      "CHANGESR",
+      "APPROVED",
+      "SEE NOTE",
+      "SEENOTE",
+      "SEE CHART",
+      "SEECHART",
+      "SEE TABLE",
+      "SEETABLE",
+      "SEE ABOVE",
+      "SEEABOVE",
+      "SERABOVE",
+      "SEEMSAND",
+      "SEEEE",
+      "PACKAGES",
+      "PACKING SLIP",
+      "PACKINGSLIP",
+      "RACKINGOLL",
+      "BSPACKING",
+      "FSACKING",
+      "FSPACKING",
+      "PAINGSLIP",
+      "PACKINGOLL",
+      "SAMPLES",
+      "SAMPLE A",
+      "SAMPLEAVAIL",
+      "STOCK",
+      "SEGMENTS",
+      "WAFERS",
+      "BITS",
+      "BORE",
+      "RING",
+      "BUTTONRNG",
+      "BUTTON RNG",
+      "LETTERS",
+      "LETTE",
+      "HELP",
+      "PAGE",
+      "IMAGE",
+      "DB ",
+      "DL ",
+      "INSERT",
+      "PUNCHINSERT",
+      "PUNCHINS",
+      "BACKINSERT",
+      "HEADINSERT",
+      "FRONTINSERT",
+      "FRONTEXTRUD",
+      "POINTINSERT",
+      "POINTING",
+      "KNOCKOUTPIN",
+      "CONINGPIN",
+      "BUSHINGPUN",
+      "TELESCO",
+      "EXTRUDEIN",
+      "TRIMDIE",
+      "TRIMPUNCH",
+      "TRIMAPUN",
+      "DIECUTOFF",
+      "DIE CUT",
+      "BLACK OX",
+      "BLACKOXIDE",
+      "BLACKOXDE",
+      "PNSH",
+      "NSHBLACK",
+      "FILLER",
+      "BFILLER",
+      "MFILLER",
+      "BACKPLATE",
+      "HEADALLOY",
+      "HEAD ALLOY",
+      "ELECTRODE",
+      "ANGULAR",
+      "SLEEVE1",
+      "SEMS ",
+      "SEMS&",
+      "SEMSSPECIAL",
+      "EMSSPECIAL",
+      "GUIDED BACK",
+      "VISE FOR",
+      "SETUPS",
+      "CD TOOLS",
+      "CNC LATHE",
+      "CNC MILL",
+      "HAAS-HURCO",
+      "OKUMA",
+      "MCAM X",
+      "PROGRAMS MCAM",
+      "MATTHEW PROGRAMS",
+      "TOMEK",
+      "NATHANS USB",
+      "IPMAX OP",
+      "PROGRAMS",
+      "SVCS",
+      "SYCS",
+      "ONBEHALFOF",
+      "ASSUMESALL",
+      "CLERANCESARE",
+      "IDENTIFIEDCOUN",
+      "THEDELIVERYOF",
+      "APPROVEDSPECIA",
+      "STCHARLESROAD",
+      "STCI",
+      "STCH",
+      "BEELINE",
+      "BEE LINE",
+      "RACINEAVE",
+      "RACINE AVE",
+      "SRACINEAVE",
+      "RECINEAVE",
+      "ROCINEAVE",
+      "REVINEAVE",
+      "JANICEAVE",
+      "GARFI",
+      "WRIGHTWOOD",
+      "WWRIGHTWOOD",
+      "KNOTTS",
+      "KNOTTST",
+      "WALLINGFORD",
+      "WESTHARTFORD",
+      "AWESTHART",
+      "AEWESTHART",
+      "BSTBYWEST",
+      "IFWESTHART",
+      "RATSIWEST",
+      "REWESTHART",
+      "SRECNOTWEST",
+      "TARDNESSWESTHA",
+      "HARDNESSWOUWES",
+      "PROVIDENCERI",
+      "SINDUSTRIALPAR",
+      "JSTRIALPARK",
+      "GRATIPARKFORES",
+      "OFAMERICA",
+      "OFILLINOIS",
+      "PARTNUMBERS",
+      "VENDORPRODUCT",
+      "MFCSMUNDELEIN",
+      "WUNOIS60120",
+      "WIISCONSINCOIL",
+      "WISCONSINCOILS",
+      "SCONSINCOIL",
+      "REQUISITIONERA",
+      "REQUISITIONERT",
+      "REQUISITIONERJ",
+      "PARTNUMBER",
+      "M16HEXFLAN"
+    ],
+    "noiseRegexesComment": "Stronger filters: a customer folder fully matching one of these regexes (case-insensitive, after sanitizeSegment) -> merged into _UNASSIGNED.",
+    "noiseRegexes": [
+      "^[BCT]-?\\d",
+      "^TB-?\\d",
+      "^BH-?\\d",
+      "^WGP\\d",
+      "^PP-?\\d",
+      "^(AFB|AIT|ABB|PPN|WGP|AFE|AFI|AIE|AIT)-",
+      "^\\d?(ST|ND|RD|TH)(STA?|DIE|PUNCH|B|CONING)",
+      "^\\d?T\\d?RDDIE",
+      "^(ER|ES|PES|MLE|MES|MET|MEA|MEB|MEC|MED|MEE|MEF|MEH|MEI|MEK|MEN|MEP|MEQ|FRAM|ESS|ESM|ESE|PESM|PESS|PESP|SSM|SSF|FNS|RRI|SRT|SRI|TLE|THL|THT|FXS|FRS|FOT|HG|MWT|MAR)\\w*\\d",
+      "^[A-Z]{0,3}(38RDPUNCH|RDDIEFR|RDDIEPOINT|RDDIEMID|NDDIEFR|NDDIEMID|NDDIEEX|RDPUNCHHE|STCONINGPIN|STBLOCK|THPUNCH|THBLOCK)",
+      "^16-?\\d",
+      "^[A-Z0-9]{0,3}(EX|EDM|JOBS|CPM\\d)$",
+      "^A2\\d{4}$",
+      "^WGP",
+      "^WG[AP]\\d",
+      "^T-?P\\d",
+      "^T-?\\d{3,}",
+      "^[A-Z]{5,}$",
+      "^.{0,4}(INSERT|BACKPLATE|PUNCH|EXTRUD|KNOCKOUT|HEADINS|CARBIDEINS|DIEINS|DIEBACK|STRAIGHTIN|COINING|NIBLOCK|DIEPLATE|PUNCHPLATE|DIESET|FILLER|CALLOUT|BEPRPA|PUNCHINS|HEADINS|BLOCKS|RDPUNCH|SETSCREW|HEELBLOCK|CUTOFFINSERT|EJECTORPIN|MARKINGPIN|TRIMMERINSERT|HEXHEAD|CAPSC|POINTING|STSTH).*$",
+      "^.*(STREET|AVENUE|HIGHWAY|BOULEVARD|PARKWAY|RACINEAVE|RAVINEAVE|BEELINEDRI|SOUTHGARFIE).*$",
+      "^.*(BILLTO|SHIPTO|VENDOR|SUPPLIER|PRINTNAME|EACHSHIPMENT|PURCHASEORDER|ACCOUNTSPAYABLE|RECEIVABLE|REVDATE|HEATTREAT).*$",
+      "^[A-Z]{0,4}\\d{3,}[A-Z]+.*$",
+      "^.*(.)\\1{3,}.*$",
+      "^[BCDFGHJKLMNPQRSTVWXZ]{5,}.*$"
+    ],
+    "_noiseRegexLastCatchAllNote": "the final '^[A-Z]{5,}$' is intentionally OMITTED at runtime unless --aggressive \u2014 it would catch real consonant-heavy company truncations; phase19 only uses it with --aggressive"
+  },
+  "manifestFields": {
+    "comment": "The shape of <PART NUMBER>/part.json \u2014 documented here so both writers agree.",
+    "required": [
+      "partNumber",
+      "customer",
+      "customerSource",
+      "createdAt",
+      "createdBy",
+      "schemaVersion"
+    ],
+    "optional": [
+      "partNumberNormalized",
+      "rawVariants",
+      "printCustomersOCR",
+      "matchConfidence",
+      "prints",
+      "cncPrograms",
+      "cadCam",
+      "joinTableSource",
+      "notes",
+      "lastUpdatedAt"
+    ]
+  },
+  "lastUpdatedAt": "2026-05-13T loop-iter1-customer-dedup"
+}
