@@ -12,15 +12,39 @@
  * intent. If not, it deny-with-reason so the chat can re-enter the right
  * worktree or create a new one.
  *
- * FIRES ON:  PreToolUse, matcher ^Bash$
+ * ── ACTIVATION (SLOT-WORKTREE-MS0/U-P1-ROUTE-ACTIVATE, 2026-05-14) ──────
+ * This hook ships ENV-OPT-IN, DEFAULT OFF. It is wired into bash-bundle.mjs
+ * but does NOTHING unless `PRISM_WORKTREE_ROUTE_ENABLE=1` is set in the
+ * environment. Rationale: until the per-slot worktrees exist (SLOT-WORKTREE-MS0
+ * P3-CUTOVER), every chat shares H:/prism on cad-fusion-live-ms0 — arming this
+ * hook fleet-wide would deny routine commits that have no themed worktree to
+ * route to. Default-OFF lets the fleet adopt incrementally: a chat that has its
+ * own slot worktree sets the env var; the rest are unaffected.
+ * The milestone's P3-DEFAULT-ON unit flips the default once every chat is on a
+ * slot worktree. Kill switch (always available, even after default-on):
+ * `PRISM_WORKTREE_ROUTE_DISABLE=1` hard-disables regardless of the enable flag.
+ *
+ * ── CROSS-CUTTING SCOPE WHITELIST ──────────────────────────────────────
+ * Even when armed, commit subjects whose leading scope token matches one of
+ * CROSS_CUTTING_SCOPES (INFRA-FIX, INFRA-CLEANUP, HOOK-FIX, FLEET-FIX) are
+ * allowed on the main tree — they affect every chat, so routing them into one
+ * themed worktree would be wrong. `[MAIN-FORCE]` is the unconditional bypass;
+ * `[MAIN]` is a softer override — it allows genuinely cross-cutting work, but
+ * if the staged files cluster on a theme that HAS a dedicated worktree it
+ * still denies with a route hint (use `[MAIN-FORCE]` to bypass that check).
+ *
+ * FIRES ON:  PreToolUse, matcher ^Bash$ (via bash-bundle.mjs)
  * ACTION:    deny when the commit would land on main while a matching
  *            work/* worktree exists, OR when the commit subject does not
  *            correspond to any active worktree AND the cwd is main.
  * NON-BLOCKING PATHS (allow):
+ *   - PRISM_WORKTREE_ROUTE_ENABLE unset/!=1 (default — hook is dormant)
+ *   - PRISM_WORKTREE_ROUTE_DISABLE=1 (kill switch — always wins)
  *   - commit from within a non-main worktree whose branch matches the
  *     commit scope token (e.g. committing on work/lathe-master while
  *     subject contains LATHE)
  *   - commits with subject prefix [MAIN] (explicit user override)
+ *   - commit subjects whose scope token is in CROSS_CUTTING_SCOPES
  *   - empty/no-subject commits (let git decide — the anti-clobber hook
  *     handles serialization, not routing)
  *
@@ -52,6 +76,23 @@ import { readFileSync, existsSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { exit } from "node:process";
+
+// ── Activation gate (SLOT-WORKTREE-MS0/U-P1-ROUTE-ACTIVATE, 2026-05-14) ──
+// Env-opt-in, DEFAULT OFF. This hook is wired into bash-bundle.mjs but is a
+// pure no-op unless explicitly armed with PRISM_WORKTREE_ROUTE_ENABLE=1.
+// PRISM_WORKTREE_ROUTE_DISABLE=1 is the kill switch and ALWAYS wins — it stays
+// effective after the milestone's P3-DEFAULT-ON flip inverts the default.
+// NOTE: PRISM_*_ENABLE breaks the repo-wide PRISM_*_DISABLE convention on
+// purpose — it is the TRANSITIONAL knob for incremental fleet adoption; once
+// P3-DEFAULT-ON inverts the default, ENABLE becomes vestigial and DISABLE is
+// the live, convention-matching kill switch.
+// First executable statement so a disabled hook costs ~nothing: it exits
+// before reading stdin. That is safe inside bash-bundle.mjs — the runner
+// settles each child via its `close` handler regardless of whether the stdin
+// write landed, and wraps that write in try/catch besides.
+const ROUTE_ENABLED = process.env.PRISM_WORKTREE_ROUTE_ENABLE === "1";
+const ROUTE_DISABLED = process.env.PRISM_WORKTREE_ROUTE_DISABLE === "1";
+if (!ROUTE_ENABLED || ROUTE_DISABLED) exit(0);
 
 // ── Parse stdin ────────────────────────────────────────────────────────
 let payload;
