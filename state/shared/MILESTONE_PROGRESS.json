@@ -1,13 +1,13 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-14T18:11:15.747Z",
+  "generatedAt": "2026-05-14T19:14:38.399Z",
   "window": "60.days",
   "totals": {
     "milestones": 671,
     "units": 4935,
-    "shipped": 1275,
-    "pending": 3660,
-    "drift": 174
+    "shipped": 1280,
+    "pending": 3655,
+    "drift": 175
   },
   "milestones": [
     {
@@ -24912,10 +24912,10 @@
       "track": "CLEANUP",
       "claimedStatus": "in_progress",
       "total": 73,
-      "shipped": 59,
-      "pending": 14,
-      "ratio": 0.8082191780821918,
-      "lastShippedDate": "2026-05-14T12:48:19-05:00",
+      "shipped": 64,
+      "pending": 9,
+      "ratio": 0.8767123287671232,
+      "lastShippedDate": "2026-05-14T14:00:48-05:00",
       "derivedStatus": "in_progress_real",
       "drift": "consistent",
       "units": [
@@ -25094,10 +25094,10 @@
           "id": "U-CLEANUP-B12",
           "title": "B12 — LedgerLoRAExporter (R4-P1-9): nightly read-only cron exports bug_attribution rows in cam_lora_* schema format to state/shared/lora-training/peer-audit-<YYYY-MM>.jsonl; training itself out-of-scope; export preserves option-value once dataset >=1000 rows",
           "phase": "operator-surfaces-tier-3",
-          "shipped": false,
-          "sha": null,
-          "date": null,
-          "commitMilestoneTag": null
+          "shipped": true,
+          "sha": "fc203b823a161c94826d55ff84a4e41d12d34e55",
+          "date": "2026-05-14T13:25:51-05:00",
+          "commitMilestoneTag": "CLEANUP-MS0"
         },
         {
           "id": "U-CLEANUP-C3",
@@ -25121,19 +25121,19 @@
           "id": "U-CLEANUP-C5",
           "title": "C5 — Watchdog<->Wiring integration (B1 onNewEngineFile triggers C1.analyze + C3 graph augment + F8 chat-bus post; 5-min recently-analyzed cache prevents recursion)",
           "phase": "operator-surfaces-tier-3",
-          "shipped": false,
-          "sha": null,
-          "date": null,
-          "commitMilestoneTag": null
+          "shipped": true,
+          "sha": "8a4b4b36b6e4192b4235ffa32d7c77b898ce6636",
+          "date": "2026-05-14T13:54:52-05:00",
+          "commitMilestoneTag": "CLEANUP-MS0"
         },
         {
           "id": "U-CLEANUP-F8",
           "title": "F8 — unified chat-bus signal channel 'golf-signal' (digest format, NOT full findings; cap 5 posts per chat-bus-inject window; routes through ChatBusEngine + B10 ledger insert)",
           "phase": "operator-surfaces-tier-3",
-          "shipped": false,
-          "sha": null,
-          "date": null,
-          "commitMilestoneTag": null
+          "shipped": true,
+          "sha": "d54b6081455637fcce0c917806e7895bced51a45",
+          "date": "2026-05-14T13:45:12-05:00",
+          "commitMilestoneTag": "CLEANUP-MS0"
         },
         {
           "id": "U-CLEANUP-G3",
@@ -25202,19 +25202,19 @@
           "id": "U-CLEANUP-D8",
           "title": "D8 — wiki-entry-writer (R4-P1-6): emit one wiki/architecture/<engine-kebab>.md per new golf engine via WikiIndexMaintainerEngine.recordNew(); engines: peer-commit-auditor / wiring-potential / ledger-store / ledger-projector / golf-heartbeat; blocks E2 close-out per feedback_always_close_out rule",
           "phase": "claude-md-slim-tier-4",
-          "shipped": false,
-          "sha": null,
-          "date": null,
-          "commitMilestoneTag": null
+          "shipped": true,
+          "sha": "ba359d4888c2be789a88121a3c9d1943caf69692",
+          "date": "2026-05-14T14:00:48-05:00",
+          "commitMilestoneTag": "CLEANUP-MS0"
         },
         {
           "id": "U-CLEANUP-D6",
           "title": "D6 — verify net byte target (D1-D7 cuts >= 14 KB; CLAUDE.md final <=25 KB); sample 10 prompts with PRISM_VERBOSE_INJECT=1; injected payload drop >=30%",
           "phase": "claude-md-slim-tier-4",
-          "shipped": false,
-          "sha": null,
-          "date": null,
-          "commitMilestoneTag": null
+          "shipped": true,
+          "sha": "f0d0b822ad3496b2be9d080613876dfad374ce93",
+          "date": "2026-05-14T13:37:11-05:00",
+          "commitMilestoneTag": "CLEANUP-MS0"
         },
         {
           "id": "U-CLEANUP-D7",
@@ -43041,14 +43041,14 @@
       "id": "MS-DOCU-FINISH",
       "title": "MS-DOCU-FINISH — finish the live Docustrata phase-15 extraction + full phase-8 classifier pass + the v5 rejoin",
       "track": "revenue",
-      "claimedStatus": "not_started",
+      "claimedStatus": "completed",
       "total": 3,
       "shipped": 0,
       "pending": 3,
       "ratio": 0,
       "lastShippedDate": "",
       "derivedStatus": "not_started_real",
-      "drift": "consistent",
+      "drift": "claims_completed_but_units_pending",
       "units": [
         {
           "id": "U-DOCU-01",

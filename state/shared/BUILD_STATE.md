@@ -1,6 +1,6 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-14T18:11:16.100Z
+> Generated: 2026-05-14T19:14:48.590Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
@@ -8,9 +8,9 @@
 - **2365** engines built and wired (of 3235)
 - **1005** wiki entries indexed
 - **870** engines awaiting dispatcher wiring
-- **3660** units pending across 73 active milestones
+- **3655** units pending across 73 active milestones
 - **2** codex frontend builds awaiting merge
-- **174** milestones with envelope-status drift
+- **175** milestones with envelope-status drift
 
 ## BUILT
 
@@ -65,7 +65,7 @@
 
 ## NEEDS_BUILDING
 
-3660 units across 671 milestones not yet in git.
+3655 units across 671 milestones not yet in git.
 
 ### Envelope-status drift
 
@@ -232,6 +232,7 @@
 | PIPE-MS0 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | PPG-MS2 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | PROD-GATE-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| MS-DOCU-FINISH | completed | not_started_real | claims_completed_but_units_pending |
 | TWIN-SIM-GATE-MS23 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | SCIMATH-MS0 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | SCIMATH-MS1 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
@@ -250,14 +251,14 @@
 
 | Milestone | Phase | Unit | Title |
 |-----------|-------|------|-------|
-| COMMAND-KERNEL-MS0 | P0 | U-CK02 | psk whoami / position / manifest syscalls |
-| COMMAND-KERNEL-MS0 | P0 | U-CK03 | psk handoff / checkin / pick syscalls |
-| COMMAND-KERNEL-MS0 | P0 | U-CK04 | knowledge/wiki/os/ namespace + entity frontmatter schema |
-| COMMAND-KERNEL-MS0 | P0 | U-CK05 | Generated-mirror generators (JSON registries become mirrors of os/ entities) |
 | CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A1 | A1 — extend SLOT_NAMES in chat-slots.mjs to add 'golf' (NATO phonetic continuity) |
 | CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A5 | A5 — golf-slot-write-allowlist.mjs PreToolUse T0 hook (path-resolve hardened against ../; allowlist-regex from golf-owned-paths.json; tier frontmatter; bypass env PRISM_GOLF_WRITE_ALLOWLIST_BYPASS=1) |
 | CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A6 | A6 — bootstrap-golf.mjs (mkdir .cron-locks, seed golf-owned-paths.json + golf-token-budget.json + golf-cron-registry.json; .gitignore additions for coordination.db* + .cron-locks/*.lock + .watchdog-last-poll.iso + golf-token-budget.json; detect & rebuild 0-byte coordination.db; git rm --cached on first run) |
 | CLEANUP-MS0 | operator-surfaces-tier-3 | U-CLEANUP-B7 | B7 — /peer-audit skill (READ-ONLY operator query; never mutates ledger; mutations only via prism_dev dispatcher action with audit trail) |
+| COMMAND-KERNEL-MS0 | P0 | U-CK02 | psk whoami / position / manifest syscalls |
+| COMMAND-KERNEL-MS0 | P0 | U-CK03 | psk handoff / checkin / pick syscalls |
+| COMMAND-KERNEL-MS0 | P0 | U-CK04 | knowledge/wiki/os/ namespace + entity frontmatter schema |
+| COMMAND-KERNEL-MS0 | P0 | U-CK05 | Generated-mirror generators (JSON registries become mirrors of os/ entities) |
 | COORD-MS0 |  | U-COORD02 | Add Optimistic Locking with Version Field |
 | COORD-MS0 |  | U-COORD09 | Ambient Awareness Badge |
 | COORD-MS0 |  | U-COORD12 | Checksum Validation on Read |
@@ -328,7 +329,7 @@ Per-domain wired/unwired breakdown across 932 domain prefixes.
 
 ## STALE_MILESTONES
 
-230 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).
+229 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).
 
 | Milestone | Track | Reason | Pending | Shipped/Total | Last shipped |
 |-----------|-------|--------|---------|---------------|--------------|
