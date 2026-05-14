@@ -373,3 +373,25 @@ A healthy installation should show `offload rate ≥ 30%` after a session of mix
 5. Obey shared directives for coordination (6 chats running)
 6. Finish current delivery before starting next roadmap pass (per ROADMAP_COLLABORATION_STATE.md gate)
 7. On session end → `/handoff` writes to per-chat file; `/compact` also wires this automatically
+
+## FLEET-REAPER-MS0 (2026-05-14, 6 files shipped)
+
+Slot-aware orphan-process reaper for the 7-chat fleet. Maps every running node/git/bash PID to its owning chat slot via process ancestry + chat-slots.json, reaps orphans of crashed slots gated by **confirm-after-N-ticks** (`firstSeenAt` timestamp, default `2 × 300s = 10 min` continuous candidacy). Three runners: in-session `Monitor` (`/fleet-reaper`), `PRISM Fleet Reaper` Windows scheduled task (5-min cadence, +210s phase offset so it doesn't pile onto Cleanup Orchestrator + Memory Pressure Relief), Stop hook `fleet-reaper-stop.mjs` (throttled 45s — 7 simultaneous Stops collapse to one sweep). Additive — does NOT replace the generic `node-process-janitor` / `cleanup-orchestrator` / `03-memory-pressure-auto-relief` reapers; they cover age/dead-parent/cmdline heuristics, this covers the slot-attribution layer they lack.
+
+**Safety invariant** (load-bearing): a process is a reap CANDIDATE only when its ancestry provably leads to a GENUINELY DEAD PID (`unowned`) OR to a crashed chat slot whose recorded harness PID IS ITSELF DEAD (`owned-by-crashed`). PID reuse + wedged-harness cases (slot crashed but harness process still alive) both resolve to `indeterminate`, never a candidate.
+
+**Kill switch**: `PRISM_FLEET_REAPER_DISABLE=1` makes every runner refuse to kill anything, fleet-wide. `--uninstall` is only per-chat Monitor + the global task.
+
+**Files**:
+- `scripts/fleet-reaper-sweep.mjs` — the brain (`--once` / `--monitor-loop` / `--status` / `--dry-run` / `--stop-event` / `--detach`)
+- `.claude/helpers/process-slot-map.mjs` — PID→slot classifier (vendors `SLOT_NAMES`/`classifySlot`/`readSlots` module-private — chat-slots.mjs is vitest-unloadable; KEEP-IN-SYNC marker + drift-guard test)
+- `.claude/helpers/fleet-reaper.test.mjs` — 66-case vitest suite (real-value assertions, multi-sweep confirm-window integration, hermetic via injected enumerator/slots/killer/ledger)
+- `.claude/hooks/fleet-reaper-stop.mjs` — Stop hook (bounded async stdin, stamp-file throttle, spawn-detached); wired into Stop chain (timeout 3000ms)
+- `.claude/helpers/install-fleet-reaper-task.ps1` — scheduled-task installer (`-DryRun` burn-in, `-StartOffsetSeconds 210`, elevation probe, `-RunNow` poll, `-Uninstall`)
+- `.claude/commands/fleet-reaper.md` — `/fleet-reaper` skill (immediate sweep + ensure task + launch Monitor + 3-state verdict)
+
+**Knobs (env)**: `PRISM_FLEET_REAPER_DISABLE=1` · `PRISM_FLEET_REAPER_DRY_RUN=1` · `PRISM_FLEET_REAPER_KILL_AFTER=N` (default 2) · `PRISM_FLEET_REAPER_AGE_FLOOR_SEC=N` (default 45) · `PRISM_FLEET_REAPER_INTERVAL_SEC=N` (default 300) · `PRISM_FLEET_REAPER_MEM_PRESSURE_PCT=N` (default 90).
+
+**Run `/fleet-reaper` in ONE chat only** — the scheduled task is global; a second chat's Monitor is redundant load on the host the reaper is protecting.
+
+Wiki: `knowledge/wiki/architecture/fleet-reaper.md` · Memory: [[reference_fleet_reaper]] · Sister to [[feedback_never_delete_only_disable]] (`-Uninstall` / `Disable-ScheduledTask` are the reversal levers).
