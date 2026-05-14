@@ -211,8 +211,10 @@
     "U-P1-ROUTE-ACTIVATE": {
       "phase": "P1-ROUTING",
       "title": "Activate dormant worktree-commit-route.mjs hook",
-      "status": "not_started",
-      "deliverables": ["worktree-commit-route.mjs activated, env-opt-in, documented whitelist"]
+      "status": "complete",
+      "commits": ["e2340001a"],
+      "deliverables": ["worktree-commit-route.mjs activated, env-opt-in, documented whitelist"],
+      "note": "Hook was already wired in bash-bundle.mjs but ungated (effectively default-ON, a fleet hazard pre-cutover). Added PRISM_WORKTREE_ROUTE_ENABLE (opt-in, default OFF) + PRISM_WORKTREE_ROUTE_DISABLE (kill switch, always wins) gate as first executable statement; expanded docblock documents the gate + CROSS_CUTTING_SCOPES whitelist. 3-of-3 per-file scrutiny PASS."
     },
     "U-P1-ADD-LANE-GUARD": {
       "phase": "P1-ROUTING",
@@ -300,7 +302,8 @@
     "P3": "Default-on flip is an env-var inversion — revert by re-setting the opt-in default."
   },
   "execution_log": [
-    { "at": "2026-05-14", "by": "claude-2081f435 (slot charlie)", "event": "P0-FOUNDATION complete — 6 units shipped, envelope created post-hoc" }
+    { "at": "2026-05-14", "by": "claude-2081f435 (slot charlie)", "event": "P0-FOUNDATION complete — 6 units shipped, envelope created post-hoc" },
+    { "at": "2026-05-14", "by": "claude-2081f435 (slot charlie)", "event": "P1-ROUTING started — U-P1-ROUTE-ACTIVATE complete (e2340001a): worktree-commit-route.mjs env-opt-in gate, default OFF. U-P1-ADD-LANE-GUARD + U-P1-MAINTREE-WRITE-BLOCK pending." }
   ],
   "out_of_scope": [
     "Migrating the JM Die test-shop worktrees (separate concern)",
