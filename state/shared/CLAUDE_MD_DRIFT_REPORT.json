@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-05-14T01:08:36.109Z",
+  "sources": [
+    "project:H:\\prism\\CLAUDE.md",
+    "user:C:\\Users\\wompu\\.claude\\CLAUDE.md"
+  ],
+  "totals": {
+    "claimsAnalyzed": 109,
+    "drift": 9,
+    "driftRate": 0.083
+  },
+  "bySeverity": {
+    "P0": 7,
+    "P1": 2,
+    "P2": 0
+  },
+  "byKind": {
+    "file-path": 7,
+    "env-knob": 2
+  },
+  "findings": [
+    {
+      "severity": "P0",
+      "kind": "file-path",
+      "source": "project",
+      "lineNumber": 107,
+      "claim": ".claude/settings.js",
+      "resolved": "H:/prism/.claude/settings.js",
+      "observation": "missing",
+      "ok": false
+    },
+    {
+      "severity": "P0",
+      "kind": "file-path",
+      "source": "project",
+      "lineNumber": 115,
+      "claim": "H:/prism/.claude/hooks/foo.mjs",
+      "resolved": "H:/prism/.claude/hooks/foo.mjs",
+      "observation": "missing",
+      "ok": false
+    },
+    {
+      "severity": "P0",
+      "kind": "file-path",
+      "source": "project",
+      "lineNumber": 115,
+      "claim": "state/shared/hook-latency.json",
+      "resolved": "H:/prism/state/shared/hook-latency.json",
+      "observation": "missing",
+      "ok": false
+    },
+    {
+      "severity": "P0",
+      "kind": "file-path",
+      "source": "project",
+      "lineNumber": 123,
+      "claim": "state/shared/async-hook-queue.json",
+      "resolved": "H:/prism/state/shared/async-hook-queue.json",
+      "observation": "missing",
+      "ok": false
+    },
+    {
+      "severity": "P0",
+      "kind": "file-path",
+      "source": "project",
+      "lineNumber": 123,
+      "claim": "state/shared/async-hook-results.json",
+      "resolved": "H:/prism/state/shared/async-hook-results.json",
+      "observation": "missing",
+      "ok": false
+    },
+    {
+      "severity": "P0",
+      "kind": "file-path",
+      "source": "project",
+      "lineNumber": 300,
+      "claim": "state/shared/goal-gate-bypasses.json",
+      "resolved": "H:/prism/state/shared/goal-gate-bypasses.json",
+      "observation": "missing",
+      "ok": false
+    },
+    {
+      "severity": "P0",
+      "kind": "file-path",
+      "source": "project",
+      "lineNumber": 396,
+      "claim": ".claude/cache/ollama-rate-limit.js",
+      "resolved": "H:/prism/.claude/cache/ollama-rate-limit.js",
+      "observation": "missing",
+      "ok": false
+    },
+    {
+      "severity": "P1",
+      "kind": "env-knob",
+      "source": "project",
+      "lineNumber": 58,
+      "claim": "PRISM_SCRUTINY_GIT_TIMEOUT_MS",
+      "observation": "not_found",
+      "ok": false
+    },
+    {
+      "severity": "P1",
+      "kind": "env-knob",
+      "source": "project",
+      "lineNumber": 58,
+      "claim": "PRISM_SCRUTINY_NO_DIFF_FILTER",
+      "observation": "not_found",
+      "ok": false
+    }
+  ]
+}
