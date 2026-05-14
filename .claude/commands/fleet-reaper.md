@@ -1,6 +1,6 @@
 ---
 name: fleet-reaper
-description: Launch the slot-aware orphan-process reaper for the 7-chat fleet. Maps every running node/git/bash process to the chat slot that spawned it (chat-slots.json) and reaps orphans of crashed/dead chats — gated by a confirm-after-N-ticks rule so a live chat's process is never killed. Runs an immediate sweep, ensures the durable 5-min scheduled task, and launches an in-session Monitor for a live reap/memory event feed. Use when orphan node/bash/git processes are piling up, host memory is unstable, or you want hands-off fleet hygiene while 7 chats run concurrently.
+description: Launch the slot-aware orphan-process reaper + RAM/CPU/GPU coordinator for the 7-chat fleet. Maps every running node/git/bash process to the chat slot that spawned it (chat-slots.json) and reaps orphans of crashed/dead chats — gated by a confirm-after-N-ticks rule so a live chat's process is never killed. FLEET-REAPER-MS1 adds three layers: a leftover-bash-task classifier (catches Bash-tool Monitor loops orphaned under a lingering unpinned harness), soft RAM/CPU relief (reversible BelowNormal priority + working-set trim on stale-slot processes under memory pressure), and an Ollama coordinator (pre-warms a GPU model + writes a routing hint that nudges ollama-task-offloader.mjs to absorb more hook-eligible work — converting idle VRAM into Claude-CLI throughput). Runs an immediate sweep, ensures the durable 5-min scheduled task, and launches an in-session Monitor for a live reap/relief/coordinator event feed. Use when orphan node/bash/git processes are piling up, host memory is unstable, the GPU sits idle while commit pressure is high, or you want hands-off fleet hygiene while 7 chats run concurrently.
 type: skill
 model: sonnet
 effort: low
@@ -21,12 +21,16 @@ impact:
     - the FLEET-REAPER pipeline doctrine in H:/PRISM/CLAUDE.md
   downstream:
     - state/shared/fleet-reaper-candidates.json (confirm-after-N-ticks ledger)
-    - state/shared/fleet-reaper.log (JSONL audit of every reap)
+    - state/shared/fleet-reaper.log (JSONL audit of every reap + soft-relief + coordinator outcome)
+    - state/shared/.fleet-reaper-actions.jsonl (FLEET-REAPER-MS1 — append-only soft-relief forensic trail)
+    - state/shared/.ollama-routing-hint.json (FLEET-REAPER-MS1 — TTL'd hint read by ollama-task-offloader.mjs)
     - Windows scheduled task "PRISM Fleet Reaper" (registered if absent; needs an elevated shell)
     - an in-session Monitor watch (live event feed; dies with the chat that armed it)
-    - reaped node/git/bash processes owned by crashed chat slots
+    - reaped node/git/bash processes owned by crashed chat slots; leftover Bash-tool Monitor loops
+    - BelowNormal CPU priority + trimmed working sets on stale-slot processes (reversible)
+    - a pre-warmed Ollama model in GPU VRAM (fire-and-forget, keep_alive-bounded)
   bounded: true
-  reversible: true  # task is Disable/Uninstall-able; Monitor is TaskStop-able; PRISM_FLEET_REAPER_DISABLE=1 is the fleet-wide kill switch
+  reversible: true  # task is Disable/Uninstall-able; Monitor is TaskStop-able; PRISM_FLEET_REAPER_DISABLE=1 is the fleet-wide kill switch; soft relief + hint self-expire
 ---
 
 # /fleet-reaper — slot-aware orphan reaper for the 7-chat fleet
@@ -57,6 +61,13 @@ impact:
 
 - Orphan `node.exe` / `bash.exe` / `git.exe` are accumulating in the OS process list
 - Host memory is creeping up and the 7 chats are getting sluggish / OOM-y
+- A leftover Bash-tool Monitor loop (`while true; do …; sleep N; done`) is still
+  running hours after the chat that spawned it closed — the FLEET-REAPER-MS1
+  `leftover-bash-task` classifier catches these even when the orphaned chat's
+  `claude.exe` lingered unpinned
+- Commit memory is > 90 % and the GPU sits idle — the coordinator pre-warms a
+  local Ollama model and writes a 5-min routing hint so `ollama-task-offloader`
+  absorbs more hook-eligible work instead of competing for the commit budget
 - You want hands-off fleet hygiene running for the rest of the session
 - After a chat crashed or was force-closed (its children are now orphans)
 
@@ -68,6 +79,11 @@ impact:
   layer those reapers lack — run BOTH; they cover different things.
 - To kill a *specific* process you know is bad — just `taskkill` it directly;
   the reaper is for the "which of these 400 processes are orphans?" problem.
+- As a memory *panacea* — soft relief (working-set trim) is reversible and
+  bounded: a process actively touching most of its working set pages it back in
+  within milliseconds. The trim relieves *idle* stale-slot footprint; the
+  *coordinator* (idle GPU → Ollama offload) is the lever that actually moves
+  throughput. Don't expect the trim alone to fix a genuinely overcommitted box.
 
 ## Args: $ARGUMENTS
 
@@ -76,7 +92,18 @@ impact:
 - `--dry-run` — burn-in: every runner this skill arms (the immediate sweep AND the Monitor) gets `--dry-run` — it classifies + decides but NEVER kills. Use to watch slot attribution before going live.
 - `--no-task` — skip the scheduled-task step. ⚠ If no task was already registered, reaping stops when this chat closes (Monitor-only).
 - `--no-monitor` — skip the in-session Monitor. ⚠ If the scheduled task also isn't registered, NOTHING is armed — the confirm clock will never advance.
+- `--no-relief` — skip FLEET-REAPER-MS1 Layer 1 (soft RAM/CPU relief — BelowNormal priority + working-set trim on stale-slot processes). Orphan reaping + the coordinator still run.
+- `--no-coord` — skip FLEET-REAPER-MS1 Layers 2-3 (the GPU/Ollama probe + coordinator pre-warm + routing hint). Orphan reaping + soft relief still run. Use when there is no NVIDIA GPU, Ollama is intentionally down, or you want the reaper purely as a process janitor.
 - `--uninstall` — stop the Monitor armed by THIS chat (TaskStop) and unregister the global "PRISM Fleet Reaper" scheduled task (needs an elevated shell — same as install). Monitors armed in *other* chats are unaffected; for a true fleet-wide stop, use `PRISM_FLEET_REAPER_DISABLE=1`.
+
+`--no-task` / `--no-monitor` / `--uninstall` are pure SKILL-orchestration flags —
+they change what *this skill* arms; the sweep binary does not recognise them.
+`--status` is BOTH: it is a real sweep-CLI flag (the sweep runs read-only) AND it
+tells this skill to skip the install + Monitor steps. `--dry-run` / `--no-coord`
+/ `--no-relief` are sweep-CLI flags: this skill passes those three straight
+through to every runner it arms (the immediate sweep AND the Monitor). The scheduled task takes NO CLI args, so it honours
+`--no-coord` / `--no-relief` only via the `PRISM_FLEET_REAPER_OLLAMA_COORD_DISABLE`
+/ `PRISM_FLEET_REAPER_SOFT_RELIEF_DISABLE` env knobs.
 
 ## Protocol
 
@@ -90,21 +117,35 @@ node H:/prism/scripts/fleet-reaper-sweep.mjs --once --json
 ```bash
 node H:/prism/scripts/fleet-reaper-sweep.mjs --status --json
 ```
-Report from the JSON: the process-class counts under the `slots` field
-(`slots["owned-by-alive"]` / `owned-by-stale` / `owned-by-crashed` / `unowned` /
-`protected` — the JSON field is *named* `slots` but holds PROCESS counts, not
-slot counts), `pending` vs `reapedOk`, `mem.usedPct` (the headline memory % —
-the max of physical & commit), and any `caveats` (e.g. a live slot whose PID
-couldn't be resolved). **For `--status`: also run `schtasks /Query /TN "PRISM
-Fleet Reaper" 2>/dev/null` to report task state, then STOP — skip Steps 2-4's
-install/Monitor and just print the verdict.**
+Report from the JSON:
+- the process-class counts under the `slots` field (`slots["owned-by-alive"]` /
+  `owned-by-stale` / `owned-by-crashed` / `leftover-bash-task` / `unowned` /
+  `protected` — the JSON field is *named* `slots` but holds PROCESS counts, not
+  slot counts), `pending` vs `reapedOk`, `mem.usedPct` (the headline memory % —
+  the max of physical & commit), and any `caveats`;
+- **FLEET-REAPER-MS1** — `softRelief` (`priorityDemoted` / `workingSetTrimmed` /
+  `rssReclaimedBytes`), `gpu` (`available` / `freeMb` / `utilizationPct`),
+  `ollama` (`reachable` / `loaded[]`), and `coordinator` (`shouldPrewarm` /
+  `prewarmFired` / `hintWritten` / `thresholdDelta` / `skipped`).
 
-A sweep reaps a process only when ALL hold: it is `owned-by-crashed` or
-`unowned`, older than the age floor (45s), AND has been continuously a candidate
-for ≥ `kill-after × interval` of wall-clock (default 2 × 300s = 10 min — a
-mid-cycle first-sighting waits up to one extra interval, so ~10-15 min in
-practice). So the first `/fleet-reaper` rarely reaps anything — it *starts the
-confirm clock*. The scheduled task / Monitor close the loop on later ticks.
+**For `--status`: also run `schtasks /Query /TN "PRISM Fleet Reaper"
+2>/dev/null` to report task state, then STOP — skip Steps 2-4's install/Monitor
+and just print the verdict.** `--status` still PROBES the GPU + Ollama (read-only)
+so the verdict can surface them, but never fires prewarm or writes the hint.
+
+A sweep reaps a process only when ALL hold: it is `owned-by-crashed`,
+`unowned`, or `leftover-bash-task`, older than the age floor (45s), AND has been
+continuously a candidate for ≥ `kill-after × interval` of wall-clock (default
+2 × 300s = 10 min — a mid-cycle first-sighting waits up to one extra interval, so
+~10-15 min in practice). The `leftover-bash-task` class carries extra gates at
+classification time (shell name + 15-min age floor + a structural cmd-pattern
+match + an *unpinned* `claude.exe` ancestor + resolved slot data). So the first
+`/fleet-reaper` rarely reaps anything — it *starts the confirm clock*. The
+scheduled task / Monitor close the loop on later ticks.
+
+Soft relief + the coordinator act on EVERY sweep that is not `--status` /
+disabled / `--dry-run` — they do not wait for the confirm clock (their actions
+are reversible / fire-and-forget, not kills).
 
 ### Step 2 — Ensure the durable scheduled task (skip with `--no-task` / `--status`)
 ```bash
@@ -132,12 +173,13 @@ pressure / error) while this chat stays open:
   — **if the user passed `--dry-run`, append `--dry-run` to this command** so the
   Monitor is a burn-in watch that never kills. (The hardcoded form above is the
   LIVE, process-killing watch.)
-- description: `fleet reaper: orphan node/git/bash reaps + memory pressure`
+- description: `fleet reaper: orphan reaps + soft relief + Ollama coordinator`
 - `persistent: true`
 
-The monitor-loop only emits on noteworthy sweeps (reaps, pressure, caveats,
-errors) — quiet sweeps print nothing, so it won't flood the chat. The Monitor
-dies when THIS chat closes; only the scheduled task survives a chat exit.
+The monitor-loop only emits on noteworthy sweeps (reaps, pressure, soft-relief
+nudges, coordinator prewarm/hint, caveats, errors) — quiet sweeps print nothing,
+so it won't flood the chat. The Monitor dies when THIS chat closes; only the
+scheduled task survives a chat exit.
 
 ### Step 4 — Verdict block
 Print the boxed summary, choosing the `verdict:` line by what was actually armed.
@@ -146,15 +188,32 @@ Print the boxed summary, choosing the `verdict:` line by what was actually armed
 
 ```
 ┌─ /fleet-reaper ────────────────────────────────────────
-│ sweep:       ✓ procs: 12 alive · 1 crashed-owned · 2 unowned · mem 78%
+│ sweep:       ✓ procs: 12 alive · 1 stale · 1 crashed-owned · 1 leftover-bash · 2 unowned · mem 91% ⚠
 │ reaped:      0 this run · 4 candidates pending (confirm window)
+│ soft-relief: nudged 3 priority · 2 working-set (~410M reclaimed) · 5 stale-slot targets
+│ gpu:         NVIDIA GeForce RTX 3080  8.5G free / 10G · 4% util
+│ ollama:      reachable · loaded: qwen2.5-coder:7b (4.1G)
+│ hint:        aggressive-offload Δ=-0.15 · TTL 5m · → ollama-task-offloader will absorb more
+│ prewarm:     fired qwen2.5-coder:7b (keep_alive)
 │ task:        ✓ "PRISM Fleet Reaper" registered (5-min scheduled task)
 │ monitor:     ✓ armed (--monitor-loop 300s, persistent) — THIS chat only
 │ ledger:      state/shared/fleet-reaper-candidates.json
-│ audit log:   state/shared/fleet-reaper.log
-│ verdict:     ✅ FLEET HYGIENE ACTIVE — orphans reaped after ~10-15 min confirm
+│ audit logs:  state/shared/fleet-reaper.log · state/shared/.fleet-reaper-actions.jsonl
+│ verdict:     ✅ FLEET HYGIENE ACTIVE — orphans reaped after ~10-15 min confirm; idle VRAM → throughput
 └────────────────────────────────────────────────────────
 ```
+
+When each line appears:
+- `soft-relief` — only when Layer 1 had targets (memory at/above the pressure
+  floor with ≥1 stale-slot process). Absent under `--no-relief` or no pressure.
+- `gpu` / `ollama` — whenever the coordinator layer ran at all. Under `--no-coord`
+  they still print, but in their `unavailable — coordinator skipped (--no-coord)` /
+  `unreachable — coordinator skipped (--no-coord)` form (the probes were skipped,
+  not the lines). Under `--status` they print real probe data (probes are
+  read-only) — only the *actions* below are suppressed.
+- `hint` / `prewarm` — only when the coordinator actually wrote a hint / fired a
+  pre-warm. Absent under `--no-coord`, under `--status` (actions suppressed), and
+  on any sweep where the decision was "no action".
 
 `verdict:` line — pick the honest one:
 - **✅ FLEET HYGIENE ACTIVE** — scheduled task registered AND/OR Monitor armed; a runner will advance the confirm clock.
@@ -169,14 +228,27 @@ Other ⚠/❌ states:
 
 ## Knobs (env — read by the sweep)
 
+Alphabetical. MS0 knobs first, then the FLEET-REAPER-MS1 soft-relief + coordinator knobs.
+
 | knob | effect |
 |------|--------|
-| `PRISM_FLEET_REAPER_DISABLE=1` | **kill switch** — sweep refuses to kill anything, every runner, fleet-wide |
-| `PRISM_FLEET_REAPER_DRY_RUN=1` | classify + decide, never kill (env-global equivalent of `--dry-run`) |
-| `PRISM_FLEET_REAPER_KILL_AFTER=N` | confirm ticks before a kill (default 2) |
-| `PRISM_FLEET_REAPER_AGE_FLOOR_SEC=N` | minimum process age to consider (default 45) |
+| `PRISM_FLEET_REAPER_AGE_FLOOR_SEC=N` | minimum process age to consider for reap (default 45) |
+| `PRISM_FLEET_REAPER_DISABLE=1` | **kill switch** — sweep refuses to kill, nudge, prewarm, or write a hint; every runner, fleet-wide |
+| `PRISM_FLEET_REAPER_DRY_RUN=1` | classify + decide, take no action (env-global equivalent of `--dry-run`) |
 | `PRISM_FLEET_REAPER_INTERVAL_SEC=N` | confirm-tick length in seconds (default 300) |
+| `PRISM_FLEET_REAPER_KILL_AFTER=N` | confirm ticks before a kill (default 2) |
 | `PRISM_FLEET_REAPER_MEM_PRESSURE_PCT=N` | commit/phys % above which kill-after drops to 1 (default 90) |
+| `PRISM_FLEET_REAPER_GPU_DISABLE=1` | **MS1** — skip the GPU probe (`readGpuState` returns unavailable); the coordinator then no-ops |
+| `PRISM_FLEET_REAPER_GPU_FREE_MIN_MB=N` | **MS1** — GPU free-VRAM floor below which the coordinator takes no action (default 2048) |
+| `PRISM_FLEET_REAPER_HINT_THRESHOLD_DELTA=N` | **MS1** — magnitude of the offload-threshold nudge written to the hint, applied negatively; hard-clamped to ≤ 0.30 (default 0.15) |
+| `PRISM_FLEET_REAPER_HINT_TTL_SEC=N` | **MS1** — routing-hint validity window in seconds (default 300 — equal to one sweep interval) |
+| `PRISM_FLEET_REAPER_OLLAMA_COORD_DISABLE=1` | **MS1** — skip Layers 2-3 entirely (env equivalent of `--no-coord`) |
+| `PRISM_FLEET_REAPER_OLLAMA_KEEP_ALIVE=S` | **MS1** — `keep_alive` passed to the Ollama pre-warm POST (default `10m`) |
+| `PRISM_FLEET_REAPER_OLLAMA_PREWARM_MODEL=name` | **MS1** — model the coordinator pre-warms into VRAM (default `qwen2.5-coder:7b`) |
+| `PRISM_FLEET_REAPER_SOFT_RELIEF_AGE_SEC=N` | **MS1** — minimum process age before a soft-relief nudge (default 180) |
+| `PRISM_FLEET_REAPER_SOFT_RELIEF_DISABLE=1` | **MS1** — skip Layer 1 entirely (env equivalent of `--no-relief`) |
+| `PRISM_FLEET_REAPER_SOFT_RELIEF_PRESSURE_PCT=N` | **MS1** — commit/phys % at or above which soft relief + the coordinator act (default 90) |
+| `OLLAMA_URL` | **MS1** — Ollama base URL for the probe + pre-warm (default `http://127.0.0.1:11434`; shared with the rest of the Ollama hook stack) |
 
 ## Why it exists
 
@@ -188,10 +260,21 @@ node.exe belongs to slot delta, and delta is crashed → reap it" vs "belongs to
 alpha, which is alive → leave it." This pipeline is that missing slot-aware
 layer. It is additive — it does not modify or replace any existing reaper.
 
+**FLEET-REAPER-MS1** extends the *reframe* from "kill more" to "use what's
+idle": the box runs near commit-memory ceiling while the GPU sits at single-digit
+utilization. So MS1 (a) catches the specific orphan class the MS0 dead-ancestor
+rule missed — a Bash-tool Monitor loop whose chat died but whose `claude.exe`
+lingered unpinned — and (b) converts idle stale-slot RAM + idle GPU VRAM into
+throughput for the surviving chats, soft-first (reversible priority/trim) and
+kill-last, with the Ollama coordinator the load-bearing lever.
+
 Companion surfaces:
-- `scripts/fleet-reaper-sweep.mjs` — the sweep brain (`--once` / `--monitor-loop` / `--status`)
-- `.claude/helpers/process-slot-map.mjs` — the PID→slot classifier
+- `scripts/fleet-reaper-sweep.mjs` — the sweep brain (`--once` / `--monitor-loop` / `--status`); MS1 added the soft-relief + GPU/Ollama coordinator layers
+- `.claude/helpers/process-slot-map.mjs` — the PID→slot classifier; MS1 added the `leftover-bash-task` class
+- `.claude/hooks/ollama-task-offloader.mjs` — **MS1** — the routing-hint CONSUMER (`loadRoutingHint` lowers its offload bar when the coordinator says the GPU can absorb more)
 - `.claude/hooks/fleet-reaper-stop.mjs` — Stop-hook arm (prompt sweep when a chat ends)
 - `.claude/helpers/install-fleet-reaper-task.ps1` — the scheduled-task installer
+- `state/shared/.ollama-routing-hint.json` — **MS1** — the TTL'd hint file (producer: the sweep; consumer: `ollama-task-offloader.mjs`); contract in `knowledge/wiki/architecture/ollama-routing-hint.md`
+- `state/shared/.fleet-reaper-actions.jsonl` — **MS1** — append-only soft-relief forensic trail (a *dedicated* file — deliberately NOT the kills log `.janitor-kills.jsonl`)
 - `node .claude/helpers/cleanup-orchestrator.mjs` / `/reap-zombies` — the generic
   locks/claims/bash reaper layer (sibling — covers what this pipeline does NOT)

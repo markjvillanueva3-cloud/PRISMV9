@@ -16,7 +16,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { mkdtempSync, rmSync, writeFileSync, readFileSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync, readFileSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
@@ -26,6 +26,9 @@ import {
   isTargetName, isHarnessName, isProtectedCmd,
   buildAncestry, mapPidsToSlots, classifyProcess,
   enumerateProcesses, snapshotFleet, loadPidRegistry, getLastEnumerationError,
+  // FLEET-REAPER-MS1: leftover-bash-task classifier
+  isLeftoverTaskName, matchesLeftoverTaskPattern,
+  LEFTOVER_TASK_PATTERNS, LEFTOVER_AGE_MS_MIN,
 } from "./process-slot-map.mjs";
 
 import {
@@ -33,7 +36,17 @@ import {
   summarize, readHostMemory,
   LEDGER_SCHEMA_VERSION, DEFAULT_INTERVAL_SEC, DEFAULT_AGE_FLOOR_SEC,
   DEFAULT_KILL_AFTER, DEFAULT_MEM_PRESSURE_PCT,
+  // FLEET-REAPER-MS1: Layer 1 (soft relief) + Layer 2/3 (GPU/Ollama coordinator)
+  readSlotProcesses, countSlotsByStatus, selectSoftReliefTargets,
+  applyPriorityRelief, applyWorkingSetTrim,
+  readGpuState, readOllamaState, decideOllamaCoordination,
+  prewarmOllama, writeRoutingHint,
+  DEFAULT_SOFT_RELIEF_AGE_SEC, DEFAULT_OLLAMA_PREWARM_MODEL,
+  DEFAULT_HINT_TTL_SEC, HINT_SCHEMA_VERSION,
 } from "../../scripts/fleet-reaper-sweep.mjs";
+
+// FLEET-REAPER-MS1: the hint CONSUMER — loadRoutingHint round-trips writeRoutingHint.
+import { loadRoutingHint } from "../hooks/ollama-task-offloader.mjs";
 
 // ─── Fixtures & helpers ─────────────────────────────────────────────────────
 
@@ -811,5 +824,832 @@ describe("fleet-reaper: CLI exit-code contract", () => {
     const r = spawnSync(process.execPath, [SCRIPT, "--monitor-loop", "--status"], { encoding: "utf-8", timeout: 15000 });
     expect(r.status).toBe(2);
     expect(r.stderr).toContain("mutually exclusive");
+  });
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+//  FLEET-REAPER-MS1 — leftover-bash-task classifier  (process-slot-map.mjs)
+// ════════════════════════════════════════════════════════════════════════════
+
+const HB_STALE = NOW - 5 * MIN; // 2-10min → "stale"
+const LEFTOVER_CMD = "bash -c 'cd /h/prism && while true; do node x --once; sleep 300; done'";
+const OLD = NOW - 16 * MIN;  // past LEFTOVER_AGE_MS_MIN (15min)
+const YOUNG = NOW - 14 * MIN; // under it
+
+describe("FLEET-REAPER-MS1: leftover-bash-task — pattern + name helpers", () => {
+  it("isLeftoverTaskName matches bash/sh only — node/git are the existing reapers' concern", () => {
+    expect(isLeftoverTaskName("bash.exe")).toBe(true);
+    expect(isLeftoverTaskName("BASH.EXE")).toBe(true);
+    expect(isLeftoverTaskName("sh")).toBe(true);
+    expect(isLeftoverTaskName("node.exe")).toBe(false);
+    expect(isLeftoverTaskName("git.exe")).toBe(false);
+    expect(isLeftoverTaskName("")).toBe(false);
+  });
+
+  it("matchesLeftoverTaskPattern matches the structural while-sleep / tail-grep / inotifywait forms", () => {
+    expect(matchesLeftoverTaskPattern("cd x && while true; do y; sleep 300; done")).toBe(true);
+    expect(matchesLeftoverTaskPattern("while : ; do z; sleep 5; done")).toBe(true);
+    expect(matchesLeftoverTaskPattern("tail -f run.log | grep --line-buffered ERROR")).toBe(true);
+    expect(matchesLeftoverTaskPattern("inotifywait -m /watched/dir")).toBe(true);
+  });
+
+  it("matchesLeftoverTaskPattern REJECTS substrings that lack the structural co-occurrence", () => {
+    expect(matchesLeftoverTaskPattern('echo "while true"')).toBe(false);       // no `do`+`sleep`
+    expect(matchesLeftoverTaskPattern("while true; do echo hi; done")).toBe(false); // no `sleep N`
+    expect(matchesLeftoverTaskPattern("tail -f run.log")).toBe(false);          // no `grep --line-buffered`
+    expect(matchesLeftoverTaskPattern("npm test")).toBe(false);
+    expect(matchesLeftoverTaskPattern("")).toBe(false);
+  });
+
+  it("matchesLeftoverTaskPattern is ReDoS-safe — a 60KB pathological cmdline returns in <50ms", () => {
+    const pathological = "while : ; do ".repeat(5000); // 65KB, no `sleep` token anywhere
+    const t0 = Date.now();
+    const result = matchesLeftoverTaskPattern(pathological);
+    expect(Date.now() - t0).toBeLessThan(50);
+    expect(result).toBe(false); // no `sleep \d+` → no match
+  });
+
+  it("matchesLeftoverTaskPattern stays <50ms when the 60KB input DOES match — truncation bounds the MATCHING path too", () => {
+    // The previous test only proves the *false* path short-circuits fast. This
+    // one forces every regex in the while-sleep signature to actually MATCH on a
+    // 65KB input — the real ReDoS guarantee is that LEFTOVER_CMD_SCAN_MAX slices
+    // the haystack before the regex engine ever sees the pathological length.
+    const matching = "while true; do work; sleep 300; done " + "x".repeat(65000);
+    const t0 = Date.now();
+    const result = matchesLeftoverTaskPattern(matching);
+    expect(Date.now() - t0).toBeLessThan(50);
+    expect(result).toBe(true); // structural form is in the first 4096 chars → matches, fast
+  });
+
+  it("LEFTOVER_TASK_PATTERNS is frozen, has 3 AND-of-simple-regex signatures (drift guard)", () => {
+    expect(Object.isFrozen(LEFTOVER_TASK_PATTERNS)).toBe(true);
+    expect(LEFTOVER_TASK_PATTERNS.length).toBe(3);
+    for (const sig of LEFTOVER_TASK_PATTERNS) {
+      expect(typeof sig.name).toBe("string");
+      expect(Array.isArray(sig.all)).toBe(true);
+      expect(sig.all.length).toBeGreaterThan(0);
+      for (const re of sig.all) expect(re).toBeInstanceOf(RegExp);
+    }
+    expect(LEFTOVER_AGE_MS_MIN).toBe(15 * 60 * 1000);
+  });
+});
+
+describe("FLEET-REAPER-MS1: leftover-bash-task — classifyProcess gates", () => {
+  // bash.exe under an alive, UNPINNED claude.exe (8000 is in no slot).
+  const leftoverTable = (bashExtra = {}) => [
+    proc(1, 0, "wininit.exe"),
+    proc(8000, 1, "claude.exe"),
+    proc(8001, 8000, "bash.exe", { cmd: LEFTOVER_CMD, createdMs: OLD, ...bashExtra }),
+  ];
+
+  it("flags a pattern+old bash under an UNPINNED live harness as leftover-bash-task (a candidate)", () => {
+    const t = leftoverTable();
+    const ctx = makeCtx(t, slotsFile({}));
+    // makeCtx OMITS slotsResolved entirely — this is the common clean-parse path.
+    // classifyProcess must treat an omitted flag as resolved (`slotsResolved = true`
+    // default), so the class still fires. The DEGRADED case (false) is tested below.
+    expect("slotsResolved" in ctx).toBe(false);
+    const r = classifyProcess(t[2], ctx);
+    expect(r.class).toBe("leftover-bash-task");
+    expect(r.isCandidate).toBe(true);
+    expect(r.reason).toMatch(/leftover bash\.exe/);
+  });
+
+  it("does NOT flag when the bash is younger than LEFTOVER_AGE_MS_MIN", () => {
+    const t = leftoverTable({ createdMs: YOUNG });
+    const r = classifyProcess(t[2], makeCtx(t, slotsFile({})));
+    expect(r.class).toBe("owned-by-alive"); // falls through — under the 15-min floor
+    expect(r.isCandidate).toBe(false);
+  });
+
+  it("does NOT flag when the cmdline matches no leftover-task pattern", () => {
+    const t = leftoverTable({ cmd: "bash -c 'ls -la'" });
+    const r = classifyProcess(t[2], makeCtx(t, slotsFile({})));
+    expect(r.class).toBe("owned-by-alive");
+    expect(r.isCandidate).toBe(false);
+  });
+
+  it("does NOT flag a node.exe even with a matching cmdline (shells only)", () => {
+    const t = [
+      proc(1, 0, "wininit.exe"),
+      proc(8000, 1, "claude.exe"),
+      proc(8002, 8000, "node.exe", { cmd: LEFTOVER_CMD, createdMs: OLD }),
+    ];
+    const r = classifyProcess(t[2], makeCtx(t, slotsFile({})));
+    expect(r.class).toBe("owned-by-alive"); // node leftover is the unowned/crashed path, not this
+    expect(r.isCandidate).toBe(false);
+  });
+
+  it("does NOT flag when the claude.exe ancestor is a PINNED alive slot (owned-by-alive wins)", () => {
+    const t = leftoverTable();
+    const sf = slotsFile({ alpha: slot(8000, "claude-pinned", HB_ALIVE) });
+    const r = classifyProcess(t[2], makeCtx(t, sf));
+    expect(r.class).toBe("owned-by-alive"); // step (1) slotPidMap hit — pinned chat, never leftover
+    expect(r.ownerSlot).toBe("alpha");
+    expect(r.isCandidate).toBe(false);
+  });
+
+  it("does NOT flag when the claude.exe ancestor is a PINNED stale slot (owned-by-stale wins)", () => {
+    const t = leftoverTable();
+    const sf = slotsFile({ delta: slot(8000, "claude-stale", HB_STALE) });
+    const r = classifyProcess(t[2], makeCtx(t, sf));
+    expect(r.class).toBe("owned-by-stale"); // a pinned slot — any status — pre-empts leftover-bash-task
+    expect(r.isCandidate).toBe(false);
+  });
+
+  it("does NOT flag when slot data is DEGRADED (slotsResolved false) — degraded data never widens candidates", () => {
+    const t = leftoverTable();
+    const ctx = { ...makeCtx(t, slotsFile({})), slotsResolved: false };
+    const r = classifyProcess(t[2], ctx);
+    expect(r.class).toBe("owned-by-alive"); // suppressed — we can't prove the harness is unpinned
+    expect(r.isCandidate).toBe(false);
+  });
+
+  it("snapshotFleet surfaces a leftover-bash-task in candidates + counts; the dynamic key is carried", () => {
+    const snap = snapshotFleet({
+      enumerator: () => [
+        proc(1, 0, "wininit.exe"),
+        proc(8000, 1, "claude.exe"),
+        proc(8001, 8000, "bash.exe", { cmd: LEFTOVER_CMD, createdMs: OLD }),
+      ],
+      slotsFile: slotsFile({}), pidRegistry: { pids: {} }, selfPid: 999999, now: NOW,
+    });
+    expect(snap.counts["leftover-bash-task"]).toBe(1);
+    expect(snap.candidates.map((c) => c.pid)).toContain(8001);
+    expect(snap.slotsResolved).toBe(true);
+  });
+
+  it("snapshotFleet with a DEGRADED slots file suppresses the class AND surfaces a caveat", () => {
+    const snap = snapshotFleet({
+      enumerator: () => [
+        proc(1, 0, "wininit.exe"),
+        proc(8000, 1, "claude.exe"),
+        proc(8001, 8000, "bash.exe", { cmd: LEFTOVER_CMD, createdMs: OLD }),
+      ],
+      // __slotsResolved:false simulates a corrupt/unreadable chat-slots.json.
+      slotsFile: { schemaVersion: 1, slots: {}, __slotsResolved: false },
+      pidRegistry: { pids: {} }, selfPid: 999999, now: NOW,
+    });
+    expect(snap.slotsResolved).toBe(false);
+    // The class never fired — no candidate carries it, and pid 8001 classifies owned-by-alive.
+    expect(snap.candidates.some((c) => c.class === "leftover-bash-task")).toBe(false);
+    expect(snap.classified.find((c) => c.pid === 8001).class).toBe("owned-by-alive");
+    expect(snap.caveats.some((c) => c.includes("chat-slots file unreadable"))).toBe(true);
+  });
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+//  FLEET-REAPER-MS1 — soft RAM/CPU relief  (fleet-reaper-sweep.mjs Layer 1)
+// ════════════════════════════════════════════════════════════════════════════
+
+describe("FLEET-REAPER-MS1: soft relief — readSlotProcesses / countSlotsByStatus", () => {
+  it("readSlotProcesses indexes classified procs by ownerSlot, summing RSS", () => {
+    const snap = { classified: [
+      { pid: 1, ownerSlot: "delta", ownerStatus: "stale", rssBytes: 100 },
+      { pid: 2, ownerSlot: "delta", ownerStatus: "stale", rssBytes: 200 },
+      { pid: 3, ownerSlot: "alpha", ownerStatus: "alive", rssBytes: 50 },
+      { pid: 4, ownerSlot: null, ownerStatus: null, rssBytes: 999 }, // no slot → skipped
+    ] };
+    const bySlot = readSlotProcesses(snap);
+    expect(bySlot.get("delta").pids).toEqual([1, 2]);
+    expect(bySlot.get("delta").totalRssBytes).toBe(300);
+    expect(bySlot.get("alpha").pids).toEqual([3]);
+    expect(bySlot.has(null)).toBe(false); // unowned procs are not indexed
+  });
+
+  it("countSlotsByStatus tallies distinct slots by status from the slotPidMap", () => {
+    const slotPidMap = new Map([
+      [100, { slot: "alpha", status: "alive" }],
+      [101, { slot: "alpha", status: "alive" }], // same slot — counted once
+      [200, { slot: "delta", status: "stale" }],
+      [300, { slot: "echo", status: "crashed" }],
+    ]);
+    const counts = countSlotsByStatus({ slotPidMap });
+    expect(counts).toEqual({ alive: 1, stale: 1, crashed: 1, idle: 0 });
+  });
+
+  it("countSlotsByStatus tolerates a missing / non-Map slotPidMap", () => {
+    expect(countSlotsByStatus({})).toEqual({ alive: 0, stale: 0, crashed: 0, idle: 0 });
+    expect(countSlotsByStatus({ slotPidMap: null })).toEqual({ alive: 0, stale: 0, crashed: 0, idle: 0 });
+    expect(countSlotsByStatus(null)).toEqual({ alive: 0, stale: 0, crashed: 0, idle: 0 });
+  });
+});
+
+describe("FLEET-REAPER-MS1: soft relief — selectSoftReliefTargets", () => {
+  const snapWith = (classified) => ({ classified });
+
+  it("selects ONLY owned-by-stale processes — never alive, crashed, or unowned", () => {
+    const snap = snapWith([
+      { pid: 1, ppid: 9, name: "node.exe", class: "owned-by-stale", ownerSlot: "delta", isCandidate: false, ageMs: 10 * MIN, rssBytes: 1e8 },
+      { pid: 2, ppid: 9, name: "node.exe", class: "owned-by-alive", ownerSlot: "alpha", isCandidate: false, ageMs: 10 * MIN, rssBytes: 1e8 },
+      { pid: 3, ppid: 9, name: "node.exe", class: "owned-by-crashed", ownerSlot: "echo", isCandidate: true, ageMs: 10 * MIN, rssBytes: 1e8 },
+      { pid: 4, ppid: 9, name: "git.exe", class: "unowned", ownerSlot: null, isCandidate: true, ageMs: 10 * MIN, rssBytes: 1e8 },
+    ]);
+    const { targets } = selectSoftReliefTargets(snap, { softReliefAgeSec: 180, now: NOW });
+    expect(targets.map((t) => t.pid)).toEqual([1]);
+    expect(targets[0].ppid).toBe(9); // ppid threaded through for the audit record
+  });
+
+  it("honors the age floor — a young stale-slot process is skipped, not selected", () => {
+    const snap = snapWith([
+      { pid: 1, ppid: 9, name: "node.exe", class: "owned-by-stale", ownerSlot: "delta", isCandidate: false, ageMs: 30_000, rssBytes: 1e8 },
+    ]);
+    const { targets, skipped } = selectSoftReliefTargets(snap, { softReliefAgeSec: 180, now: NOW });
+    expect(targets).toEqual([]);
+    expect(skipped).toBe(1);
+  });
+
+  it("skips an owned-by-stale process that is ALSO a reap candidate (never double-act with the reap path)", () => {
+    const snap = snapWith([
+      { pid: 1, ppid: 9, name: "node.exe", class: "owned-by-stale", ownerSlot: "delta", isCandidate: true, ageMs: 10 * MIN, rssBytes: 1e8 },
+    ]);
+    const { targets, skipped } = selectSoftReliefTargets(snap, { softReliefAgeSec: 180, now: NOW });
+    expect(targets).toEqual([]);
+    expect(skipped).toBe(1);
+  });
+
+  it("defaults softReliefAgeSec to DEFAULT_SOFT_RELIEF_AGE_SEC when not supplied", () => {
+    // 1s over the default floor → selected; 1s under → skipped.
+    const overFloor = DEFAULT_SOFT_RELIEF_AGE_SEC * 1000 + 1000;
+    const underFloor = DEFAULT_SOFT_RELIEF_AGE_SEC * 1000 - 1000;
+    const snap = snapWith([
+      { pid: 1, ppid: 9, name: "node.exe", class: "owned-by-stale", ownerSlot: "delta", isCandidate: false, ageMs: overFloor, rssBytes: 1e8 },
+      { pid: 2, ppid: 9, name: "node.exe", class: "owned-by-stale", ownerSlot: "delta", isCandidate: false, ageMs: underFloor, rssBytes: 1e8 },
+    ]);
+    const { targets, skipped } = selectSoftReliefTargets(snap, { now: NOW });
+    expect(targets.map((t) => t.pid)).toEqual([1]); // only the over-floor pid
+    expect(skipped).toBe(1);                        // the under-floor pid was skipped
+  });
+});
+
+describe("FLEET-REAPER-MS1: soft relief — applyPriorityRelief / applyWorkingSetTrim", () => {
+  it("applyPriorityRelief: empty pids → []", () => {
+    expect(applyPriorityRelief([], {})).toEqual([]);
+    expect(applyPriorityRelief(null, {})).toEqual([]);
+  });
+
+  it("applyPriorityRelief dry-run never calls the applier and reports demoted:false dryRun:true", () => {
+    let called = false;
+    const out = applyPriorityRelief([10, 20], { dryRun: true, applier: () => { called = true; return []; } });
+    expect(called).toBe(false);
+    expect(out).toEqual([
+      { pid: 10, demoted: false, error: null, dryRun: true },
+      { pid: 20, demoted: false, error: null, dryRun: true },
+    ]);
+  });
+
+  it("applyPriorityRelief delegates to the injected applier when not dry-run", () => {
+    const seen = [];
+    const out = applyPriorityRelief([10, 20], {
+      applier: (pids) => { seen.push(...pids); return pids.map((p) => ({ pid: p, demoted: true, error: null })); },
+    });
+    expect(seen).toEqual([10, 20]);
+    expect(out.every((r) => r.demoted)).toBe(true);
+  });
+
+  it("applyWorkingSetTrim dry-run short-circuits with trimmed:false rssReclaimedBytes:0 dryRun:true", () => {
+    const out = applyWorkingSetTrim([5], { dryRun: true, applier: () => { throw new Error("must not run"); } });
+    expect(out).toEqual([{ pid: 5, trimmed: false, error: null, rssReclaimedBytes: 0, dryRun: true }]);
+  });
+
+  it("applyWorkingSetTrim delegates and surfaces rssReclaimedBytes from the applier", () => {
+    const out = applyWorkingSetTrim([5, 6], {
+      applier: (pids) => pids.map((p) => ({ pid: p, trimmed: true, error: null, rssReclaimedBytes: 4e7 })),
+    });
+    expect(out.reduce((s, r) => s + r.rssReclaimedBytes, 0)).toBe(8e7);
+  });
+});
+
+describe("FLEET-REAPER-MS1: soft relief — runSweep integration", () => {
+  let tmpDir;
+  beforeEach(() => { tmpDir = mkdtempSync(join(tmpdir(), "fleet-reaper-relief-")); });
+  afterEach(() => { try { rmSync(tmpDir, { recursive: true, force: true }); } catch { /* */ } });
+
+  // node hook 9001 under claude.exe 9000, which is a STALE-pinned slot → owned-by-stale.
+  const staleTable = () => [
+    proc(1, 0, "wininit.exe"),
+    proc(9000, 1, "claude.exe"),
+    proc(9001, 9000, "node.exe", { createdMs: NOW - 10 * MIN }),
+  ];
+  const staleSlots = slotsFile({ delta: slot(9000, "claude-stale-d", HB_STALE) });
+  const reliefBase = (over = {}) => ({
+    enumerator: staleTable, slotsFile: staleSlots, pidRegistry: { pids: {} },
+    selfPid: 999999, ledgerPath: join(tmpDir, "ledger.json"),
+    intervalSec: 300, ageFloorSec: 45, killAfter: 2, memPressurePct: 90,
+    noCoord: true, // isolate Layer 1 — Layers 2/3 are exercised separately
+    auditPath: join(tmpDir, "actions.jsonl"),
+    now: NOW,
+    ...over,
+  });
+
+  it("under pressure, soft relief nudges the stale-slot process (injected appliers)", () => {
+    const prioSeen = [];
+    const trimSeen = [];
+    const r = runSweep({
+      ...reliefBase({ readMemory: () => mem(95) }),
+      priorityApplier: (pids) => { prioSeen.push(...pids); return pids.map((p) => ({ pid: p, demoted: true, error: null })); },
+      workingSetApplier: (pids) => { trimSeen.push(...pids); return pids.map((p) => ({ pid: p, trimmed: true, error: null, rssReclaimedBytes: 3e7 })); },
+    });
+    expect(r.softRelief.attempted).toBe(true);
+    expect(prioSeen).toEqual([9001]);
+    expect(trimSeen).toEqual([9001]);
+    expect(r.softRelief.priorityDemoted).toBe(1);
+    expect(r.softRelief.workingSetTrimmed).toBe(1);
+    expect(r.softRelief.rssReclaimedBytes).toBe(3e7);
+  });
+
+  it("NOT under pressure → soft relief does not act, but the shape is stable (no undefined)", () => {
+    const r = runSweep({
+      ...reliefBase({ readMemory: () => mem(50) }),
+      priorityApplier: () => { throw new Error("must not run"); },
+      workingSetApplier: () => { throw new Error("must not run"); },
+    });
+    expect(r.softRelief.attempted).toBe(false);
+    expect(r.softRelief.priorityDemoted).toBe(0);
+    expect(r.softRelief.workingSetTrimmed).toBe(0);
+    expect(r.softRelief.error).toBe(null);
+  });
+
+  it("--no-relief (noRelief) suppresses soft relief even under pressure", () => {
+    const r = runSweep({
+      ...reliefBase({ readMemory: () => mem(99), noRelief: true }),
+      priorityApplier: () => { throw new Error("must not run"); },
+      workingSetApplier: () => { throw new Error("must not run"); },
+    });
+    expect(r.softRelief.attempted).toBe(false);
+  });
+
+  it("status mode never applies soft-relief actions even under pressure", () => {
+    const r = runSweep({
+      ...reliefBase({ readMemory: () => mem(99), mode: "status" }),
+      priorityApplier: () => { throw new Error("must not run"); },
+      workingSetApplier: () => { throw new Error("must not run"); },
+    });
+    expect(r.softRelief.attempted).toBe(false);
+  });
+
+  it("soft relief NEVER targets an alive-slot process, even at 99% memory pressure", () => {
+    const aliveTable = () => [
+      proc(1, 0, "wininit.exe"),
+      proc(9000, 1, "claude.exe"),
+      proc(9001, 9000, "node.exe", { createdMs: NOW - 10 * MIN }),
+    ];
+    const aliveSlots = slotsFile({ alpha: slot(9000, "claude-alive", HB_ALIVE) });
+    const r = runSweep({
+      ...reliefBase({ enumerator: aliveTable, slotsFile: aliveSlots, readMemory: () => mem(99) }),
+      priorityApplier: () => { throw new Error("alive-slot process must never be nudged"); },
+      workingSetApplier: () => { throw new Error("alive-slot process must never be nudged"); },
+    });
+    expect(r.softRelief.attempted).toBe(false); // no owned-by-stale targets
+  });
+
+  it("dry-run decides soft relief but never calls the appliers", () => {
+    const r = runSweep({
+      ...reliefBase({ readMemory: () => mem(95), dryRun: true }),
+      priorityApplier: () => { throw new Error("must not run in dry-run"); },
+      workingSetApplier: () => { throw new Error("must not run in dry-run"); },
+    });
+    // dryRun reaches applyPriorityRelief/applyWorkingSetTrim, which short-circuit
+    // BEFORE the injected applier — so attempted is true, counts stay 0.
+    expect(r.softRelief.attempted).toBe(true);
+    expect(r.softRelief.priorityDemoted).toBe(0);
+    expect(r.softRelief.workingSetTrimmed).toBe(0);
+  });
+
+  it("writes a soft-relief forensic record to the DEDICATED actions JSONL (not the kills log)", () => {
+    const auditPath = join(tmpDir, "actions.jsonl");
+    const r = runSweep({
+      ...reliefBase({ readMemory: () => mem(95), auditPath }),
+      priorityApplier: (pids) => pids.map((p) => ({ pid: p, demoted: true, error: null })),
+      workingSetApplier: (pids) => pids.map((p) => ({ pid: p, trimmed: true, error: null, rssReclaimedBytes: 2e7 })),
+    });
+    expect(r.softRelief.priorityDemoted).toBe(1);
+    // The dedicated audit file exists and carries valid NDJSON with the MS1 reasons +
+    // the {ts,pid,ppid,name,ownerSlot,reason} core shape — NOT mixed into .janitor-kills.jsonl.
+    const lines = readFileSync(auditPath, "utf-8").trim().split("\n").map((l) => JSON.parse(l));
+    const reasons = lines.map((l) => l.reason).sort();
+    expect(reasons).toEqual(["soft-priority-demoted", "soft-workingset-trimmed"]);
+    const prio = lines.find((l) => l.reason === "soft-priority-demoted");
+    expect(prio.pid).toBe(9001);
+    expect(prio.ppid).toBe(9000);          // ppid threaded through for forensic completeness
+    expect(prio.ownerSlot).toBe("delta");
+    expect(typeof prio.ts).toBe("string");
+    const trim = lines.find((l) => l.reason === "soft-workingset-trimmed");
+    expect(trim.rssReclaimedBytes).toBe(2e7);
+  });
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+//  FLEET-REAPER-MS1 — GPU + Ollama coordinator  (fleet-reaper-sweep.mjs Layer 2/3)
+// ════════════════════════════════════════════════════════════════════════════
+
+describe("FLEET-REAPER-MS1: coordinator — readGpuState", () => {
+  it("parses a well-formed nvidia-smi CSV row", () => {
+    const g = readGpuState({ runNvidiaSmi: () => "NVIDIA GeForce RTX 3080, 10240, 1506, 8548, 3" });
+    expect(g.available).toBe(true);
+    expect(g.name).toBe("NVIDIA GeForce RTX 3080");
+    expect(g.totalMb).toBe(10240);
+    expect(g.freeMb).toBe(8548);
+    expect(g.utilizationPct).toBe(3);
+  });
+
+  it("degrades to { available:false } when nvidia-smi is missing (runner returns null)", () => {
+    const g = readGpuState({ runNvidiaSmi: () => null });
+    expect(g.available).toBe(false);
+    expect(g.reason).toMatch(/nvidia-smi/i);
+  });
+
+  it("degrades — never throws — when the runner itself throws", () => {
+    let g;
+    expect(() => { g = readGpuState({ runNvidiaSmi: () => { throw new Error("ENOENT nvidia-smi"); } }); }).not.toThrow();
+    expect(g.available).toBe(false);
+    expect(g.reason).toMatch(/threw/i);
+  });
+
+  it("rejects a malformed CSV row (too few columns / non-numeric memory)", () => {
+    expect(readGpuState({ runNvidiaSmi: () => "GPU, 10240" }).available).toBe(false);
+    expect(readGpuState({ runNvidiaSmi: () => "GPU, abc, def, ghi, jkl" }).available).toBe(false);
+  });
+});
+
+describe("FLEET-REAPER-MS1: coordinator — readOllamaState", () => {
+  it("reports reachable with parsed models + loaded list", () => {
+    const o = readOllamaState({
+      runCurl: (url) => (url.includes("/api/tags")
+        ? JSON.stringify({ models: [{ name: "qwen2.5-coder:7b" }, { name: "llama3.2:3b" }] })
+        : JSON.stringify({ models: [{ name: "qwen2.5-coder:7b", size: 4 * 1024 * 1024 * 1024 }] })),
+    });
+    expect(o.reachable).toBe(true);
+    expect(o.models).toEqual(["qwen2.5-coder:7b", "llama3.2:3b"]);
+    expect(o.loaded[0].model).toBe("qwen2.5-coder:7b");
+    expect(o.loaded[0].sizeMb).toBe(4096);
+  });
+
+  it("reports unreachable when /api/tags returns null", () => {
+    const o = readOllamaState({ runCurl: () => null });
+    expect(o.reachable).toBe(false);
+    expect(o.models).toEqual([]);
+    expect(o.loaded).toEqual([]);
+  });
+
+  it("reports unreachable on non-JSON /api/tags", () => {
+    const o = readOllamaState({ runCurl: () => "<html>502 Bad Gateway</html>" });
+    expect(o.reachable).toBe(false);
+  });
+
+  it("/api/ps is best-effort — reachability still stands on /api/tags if /api/ps fails", () => {
+    const o = readOllamaState({
+      runCurl: (url) => (url.includes("/api/tags") ? JSON.stringify({ models: [] }) : "garbage"),
+    });
+    expect(o.reachable).toBe(true);
+    expect(o.loaded).toEqual([]);
+  });
+});
+
+describe("FLEET-REAPER-MS1: coordinator — decideOllamaCoordination (pure truth table)", () => {
+  const cfg = { gpuFreeMinMb: 2048, prewarmModel: "qwen2.5-coder:7b", prewarmPct: 90, hintPct: 90 };
+  const gpuOk = { available: true, freeMb: 8000, totalMb: 10240, utilizationPct: 5 };
+  const ollamaOk = { reachable: true, models: ["qwen2.5-coder:7b"], loaded: [] };
+
+  it("pressure + GPU headroom + Ollama reachable + model NOT loaded → prewarm AND hint", () => {
+    const d = decideOllamaCoordination({ mem: mem(97), gpu: gpuOk, ollama: ollamaOk, slotCounts: { alive: 3 }, cfg });
+    expect(d.shouldPrewarm).toBe(true);
+    expect(d.shouldHintOffload).toBe(true);
+    expect(d.thresholdDelta).toBeLessThan(0); // negative → lowers the consumer's bar
+    expect(d.skipped).toBe(null);
+  });
+
+  it("model already loaded → no prewarm, still hint", () => {
+    const ollama = { reachable: true, models: ["qwen2.5-coder:7b"], loaded: [{ model: "qwen2.5-coder:7b" }] };
+    const d = decideOllamaCoordination({ mem: mem(97), gpu: gpuOk, ollama, slotCounts: { alive: 2 }, cfg });
+    expect(d.shouldPrewarm).toBe(false);
+    expect(d.shouldHintOffload).toBe(true);
+  });
+
+  it("below the pressure floor → neither prewarm nor hint", () => {
+    const d = decideOllamaCoordination({ mem: mem(70), gpu: gpuOk, ollama: ollamaOk, slotCounts: { alive: 3 }, cfg });
+    expect(d.shouldPrewarm).toBe(false);
+    expect(d.shouldHintOffload).toBe(false);
+    expect(d.thresholdDelta).toBe(0);
+  });
+
+  it("GPU below the headroom floor → skipped, no action", () => {
+    const d = decideOllamaCoordination({ mem: mem(97), gpu: { available: true, freeMb: 500 }, ollama: ollamaOk, slotCounts: { alive: 3 }, cfg });
+    expect(d.shouldPrewarm).toBe(false);
+    expect(d.shouldHintOffload).toBe(false);
+    expect(d.skipped).toMatch(/GPU free/);
+  });
+
+  it("GPU unavailable → skipped with a GPU reason", () => {
+    const d = decideOllamaCoordination({ mem: mem(97), gpu: { available: false, reason: "no nvidia-smi" }, ollama: ollamaOk, slotCounts: { alive: 3 }, cfg });
+    expect(d.skipped).toMatch(/GPU unavailable/);
+  });
+
+  it("Ollama unreachable → skipped with an Ollama reason", () => {
+    const d = decideOllamaCoordination({ mem: mem(97), gpu: gpuOk, ollama: { reachable: false }, slotCounts: { alive: 3 }, cfg });
+    expect(d.skipped).toMatch(/Ollama unreachable/);
+  });
+
+  it("zero alive slots → no hint (nobody to route work to), but prewarm can still fire", () => {
+    const d = decideOllamaCoordination({ mem: mem(97), gpu: gpuOk, ollama: ollamaOk, slotCounts: { alive: 0 }, cfg });
+    expect(d.shouldHintOffload).toBe(false);
+    expect(d.shouldPrewarm).toBe(true); // prewarm doesn't need a consumer — it's VRAM prep
+  });
+
+  it("model loaded AND zero alive slots → the combined corner: neither prewarm nor hint", () => {
+    // The two gates (model-loaded suppresses prewarm; zero-slots suppresses hint)
+    // are tested independently above — this pins the cell where BOTH suppress.
+    const ollama = { reachable: true, models: ["qwen2.5-coder:7b"], loaded: [{ model: "qwen2.5-coder:7b" }] };
+    const d = decideOllamaCoordination({ mem: mem(97), gpu: gpuOk, ollama, slotCounts: { alive: 0 }, cfg });
+    expect(d.shouldPrewarm).toBe(false);     // already loaded — VRAM prep is a no-op
+    expect(d.shouldHintOffload).toBe(false); // nobody alive to route to
+    expect(d.thresholdDelta).toBe(0);
+  });
+
+  it("disabled → noop with skipped='coordinator disabled'", () => {
+    const d = decideOllamaCoordination({ cfg: { disabled: true } });
+    expect(d.skipped).toBe("coordinator disabled");
+    expect(d.shouldPrewarm).toBe(false);
+  });
+
+  it("clamps an oversized hintThresholdDelta to the ±0.30 cap", () => {
+    const d = decideOllamaCoordination({
+      mem: mem(97), gpu: gpuOk, ollama: ollamaOk, slotCounts: { alive: 3 },
+      cfg: { ...cfg, hintThresholdDelta: 9.9 },
+    });
+    expect(d.thresholdDelta).toBe(-0.30); // magnitude clamped, applied negatively
+  });
+
+  it("DRIFT GUARD — exported coordinator defaults match the skill doc + ollama-routing-hint.md wiki", () => {
+    // fleet-reaper.md's Knobs table and knowledge/wiki/architecture/ollama-routing-hint.md
+    // both document these as the defaults. If the code drifts, the docs lie — pin them.
+    expect(DEFAULT_OLLAMA_PREWARM_MODEL).toBe("qwen2.5-coder:7b");
+    expect(DEFAULT_HINT_TTL_SEC).toBe(300); // 300s = one sweep interval — see routing-hint-ttl tribal tip
+  });
+});
+
+describe("FLEET-REAPER-MS1: coordinator — prewarmOllama / writeRoutingHint / loadRoutingHint round-trip", () => {
+  let tmpDir;
+  beforeEach(() => { tmpDir = mkdtempSync(join(tmpdir(), "fleet-reaper-coord-")); });
+  afterEach(() => { try { rmSync(tmpDir, { recursive: true, force: true }); } catch { /* */ } });
+
+  it("prewarmOllama fires the injected spawn with model/url/keepAlive and reports fired:true", () => {
+    let seen;
+    const r = prewarmOllama("qwen2.5-coder:7b", {
+      ollamaUrl: "http://127.0.0.1:11434", keepAlive: "10m",
+      spawnImpl: (model, base, keepAlive) => { seen = { model, base, keepAlive }; return 4242; },
+    });
+    expect(r.fired).toBe(true);
+    expect(r.pid).toBe(4242);
+    expect(seen).toEqual({ model: "qwen2.5-coder:7b", base: "http://127.0.0.1:11434", keepAlive: "10m" });
+  });
+
+  it("prewarmOllama swallows a spawn throw → fired:false with the error captured", () => {
+    let r;
+    expect(() => {
+      r = prewarmOllama("m", { spawnImpl: () => { throw new Error("spawn EACCES"); } });
+    }).not.toThrow();
+    expect(r.fired).toBe(false);
+    expect(r.error).toMatch(/spawn EACCES/);
+  });
+
+  it("writeRoutingHint writes valid JSON via atomic temp+rename (no .tmp residue); validUntil honors hintTtlSec", () => {
+    const path = join(tmpDir, "hint.json");
+    const r = writeRoutingHint(
+      { shouldHintOffload: true, thresholdDelta: -0.15, reason: "commit 97%" },
+      { now: NOW, path, hintTtlSec: 300 },
+    );
+    expect(r.written).toBe(true);
+    expect(r.mode).toBe("aggressive-offload");
+    // Atomicity: the temp file is consumed by renameSync — a reader sees the old
+    // file or the whole new one, never a partial. Residue would mean a copy, not
+    // a rename (and a window where a concurrent reader sees a half-written file).
+    expect(existsSync(`${path}.tmp`)).toBe(false);
+    const hint = JSON.parse(readFileSync(path, "utf-8"));
+    expect(hint.schemaVersion).toBe(HINT_SCHEMA_VERSION);
+    expect(hint.thresholdDelta).toBe(-0.15);
+    expect(Date.parse(hint.validUntil)).toBe(NOW + 300_000);
+  });
+
+  it("writeRoutingHint NEUTRALIZES to mode:auto / delta:0 when !shouldHintOffload", () => {
+    const path = join(tmpDir, "hint.json");
+    const r = writeRoutingHint({ shouldHintOffload: false, thresholdDelta: -0.15, reason: "below floor" }, { now: NOW, path });
+    expect(r.mode).toBe("auto");
+    expect(r.thresholdDelta).toBe(0);
+    const hint = JSON.parse(readFileSync(path, "utf-8"));
+    expect(hint.mode).toBe("auto");
+    expect(hint.thresholdDelta).toBe(0);
+  });
+
+  it("writeRoutingHint hard-clamps thresholdDelta to ±0.30", () => {
+    const path = join(tmpDir, "hint.json");
+    const r = writeRoutingHint({ shouldHintOffload: true, thresholdDelta: -9.9, reason: "x" }, { now: NOW, path });
+    expect(r.thresholdDelta).toBe(-0.30);
+  });
+
+  it("round-trip — loadRoutingHint reads back exactly what writeRoutingHint produced (aggressive)", () => {
+    const path = join(tmpDir, "hint.json");
+    writeRoutingHint({ shouldHintOffload: true, thresholdDelta: -0.15, reason: "commit 96%" }, { now: NOW, path, hintTtlSec: 300 });
+    const hint = loadRoutingHint(NOW, path);
+    expect(hint.thresholdDelta).toBe(-0.15);
+    expect(hint.reason).toBe("commit 96%");
+  });
+
+  it("round-trip — a NEUTRALIZED (mode:auto) hint loads back as null (no behaviour change)", () => {
+    const path = join(tmpDir, "hint.json");
+    writeRoutingHint({ shouldHintOffload: false, thresholdDelta: 0, reason: "below floor" }, { now: NOW, path });
+    expect(loadRoutingHint(NOW, path)).toBe(null);
+  });
+
+  it("round-trip — an EXPIRED hint loads back as null", () => {
+    const path = join(tmpDir, "hint.json");
+    writeRoutingHint({ shouldHintOffload: true, thresholdDelta: -0.15, reason: "x" }, { now: NOW, path, hintTtlSec: 300 });
+    expect(loadRoutingHint(NOW + 300_001, path)).toBe(null); // 1ms past validUntil
+  });
+
+  it("loadRoutingHint tolerates a corrupt hint file (never throws, returns null)", () => {
+    const path = join(tmpDir, "hint.json");
+    writeFileSync(path, "{not valid json");
+    let hint;
+    expect(() => { hint = loadRoutingHint(NOW, path); }).not.toThrow();
+    expect(hint).toBe(null);
+  });
+});
+
+describe("FLEET-REAPER-MS1: coordinator — runSweep integration", () => {
+  let tmpDir;
+  beforeEach(() => { tmpDir = mkdtempSync(join(tmpdir(), "fleet-reaper-coordsweep-")); });
+  afterEach(() => { try { rmSync(tmpDir, { recursive: true, force: true }); } catch { /* */ } });
+
+  // One alive slot so shouldHintOffload can fire.
+  const aliveTable = () => [
+    proc(1, 0, "wininit.exe"),
+    proc(9000, 1, "claude.exe"),
+    proc(9001, 9000, "node.exe", { createdMs: NOW - 10 * MIN }),
+  ];
+  const aliveSlots = slotsFile({ alpha: slot(9000, "claude-a", HB_ALIVE) });
+
+  it("under pressure with GPU headroom — fires prewarm + writes an aggressive hint (injected)", () => {
+    let prewarmCalled = false;
+    let hintDecision = null;
+    const r = runSweep({
+      enumerator: aliveTable, slotsFile: aliveSlots, pidRegistry: { pids: {} },
+      selfPid: 999999, ledgerPath: join(tmpDir, "ledger.json"),
+      readMemory: () => mem(97), noRelief: true, now: NOW,
+      readGpu: () => ({ available: true, freeMb: 8000, totalMb: 10240, utilizationPct: 4, name: "RTX 3080" }),
+      readOllama: () => ({ reachable: true, models: ["qwen2.5-coder:7b"], loaded: [] }),
+      prewarmSpawn: () => { prewarmCalled = true; return 5151; },
+      writeHint: (decision, opts) => {
+        hintDecision = decision;
+        return { written: true, mode: "aggressive-offload", thresholdDelta: decision.thresholdDelta, validUntil: "x", path: opts.path, error: null };
+      },
+      recordEvent: () => {},
+    });
+    expect(r.coordinator.evaluated).toBe(true);
+    expect(r.coordinator.shouldPrewarm).toBe(true);
+    expect(prewarmCalled).toBe(true);
+    expect(r.coordinator.prewarmFired).toBe(true);
+    expect(hintDecision.shouldHintOffload).toBe(true); // writeHint received the aggressive decision
+    expect(r.coordinator.hintWritten).toBe(true);
+  });
+
+  it("--no-coord skips the whole GPU/Ollama layer (probes never run)", () => {
+    let probed = false;
+    const r = runSweep({
+      enumerator: aliveTable, slotsFile: aliveSlots, pidRegistry: { pids: {} },
+      selfPid: 999999, ledgerPath: join(tmpDir, "ledger.json"),
+      readMemory: () => mem(97), noCoord: true, now: NOW,
+      readGpu: () => { probed = true; return { available: true, freeMb: 8000 }; },
+      readOllama: () => { probed = true; return { reachable: true, models: [], loaded: [] }; },
+    });
+    expect(probed).toBe(false);
+    expect(r.coordinator.evaluated).toBe(false);
+    expect(r.coordinator.skipped).toBe("--no-coord");
+  });
+
+  it("status mode probes GPU/Ollama (read-only) but never fires prewarm or writes a hint", () => {
+    let prewarmCalled = false;
+    let hintCalled = false;
+    const r = runSweep({
+      enumerator: aliveTable, slotsFile: aliveSlots, pidRegistry: { pids: {} },
+      selfPid: 999999, ledgerPath: join(tmpDir, "ledger.json"), mode: "status",
+      readMemory: () => mem(97), noRelief: true, now: NOW,
+      readGpu: () => ({ available: true, freeMb: 8000, totalMb: 10240, utilizationPct: 4 }),
+      readOllama: () => ({ reachable: true, models: ["qwen2.5-coder:7b"], loaded: [] }),
+      prewarmSpawn: () => { prewarmCalled = true; return 1; },
+      writeHint: () => { hintCalled = true; return { written: true, mode: "aggressive-offload" }; },
+      recordEvent: () => {},
+    });
+    expect(r.gpu.available).toBe(true);          // probe ran
+    expect(r.coordinator.evaluated).toBe(true);  // pure decision ran
+    expect(prewarmCalled).toBe(false);           // but no action
+    expect(hintCalled).toBe(false);
+  });
+
+  it("dry-run evaluates the coordinator but fires no prewarm and writes no hint", () => {
+    let prewarmCalled = false;
+    let hintCalled = false;
+    const r = runSweep({
+      enumerator: aliveTable, slotsFile: aliveSlots, pidRegistry: { pids: {} },
+      selfPid: 999999, ledgerPath: join(tmpDir, "ledger.json"),
+      readMemory: () => mem(97), noRelief: true, dryRun: true, now: NOW,
+      readGpu: () => ({ available: true, freeMb: 8000, totalMb: 10240, utilizationPct: 4 }),
+      readOllama: () => ({ reachable: true, models: ["qwen2.5-coder:7b"], loaded: [] }),
+      prewarmSpawn: () => { prewarmCalled = true; return 1; },
+      writeHint: () => { hintCalled = true; return { written: true, mode: "aggressive-offload" }; },
+      recordEvent: () => {},
+    });
+    expect(r.coordinator.evaluated).toBe(true);     // decision still computed
+    expect(r.coordinator.shouldPrewarm).toBe(true); // and it WOULD prewarm — but
+    expect(prewarmCalled).toBe(false);              // dry-run takes no action
+    expect(hintCalled).toBe(false);
+  });
+
+  it("INVARIANT — an advisory-layer (coordinator) error NEVER flips r.ok; it surfaces via caveats", () => {
+    // A genuine throw past the probe's own guards must not fail the reap mission.
+    const r = runSweep({
+      enumerator: aliveTable, slotsFile: aliveSlots, pidRegistry: { pids: {} },
+      selfPid: 999999, ledgerPath: join(tmpDir, "ledger.json"),
+      readMemory: () => mem(97), noRelief: true, now: NOW,
+      readGpu: () => { throw new Error("nvidia-smi exploded"); },
+      readOllama: () => ({ reachable: true, models: [], loaded: [] }),
+      recordEvent: () => {},
+    });
+    expect(r.ok).toBe(true);                  // reapFailed === 0 → ok stays true
+    expect(r.reapFailed).toBe(0);
+    expect(r.coordinator.error).toMatch(/nvidia-smi exploded/);
+    expect(r.caveats.some((c) => c.includes("coordinator step failed"))).toBe(true);
+  });
+
+  it("INVARIANT — a readOllama throw NEVER flips r.ok (symmetric to the GPU-probe case)", () => {
+    // The advisory-error invariant must hold for EVERY seam in the Layer 2/3
+    // block, not just readGpu — the GPU probe ran clean here, the Ollama one threw.
+    const r = runSweep({
+      enumerator: aliveTable, slotsFile: aliveSlots, pidRegistry: { pids: {} },
+      selfPid: 999999, ledgerPath: join(tmpDir, "ledger.json"),
+      readMemory: () => mem(97), noRelief: true, now: NOW,
+      readGpu: () => ({ available: true, freeMb: 8000, totalMb: 10240, utilizationPct: 4 }),
+      readOllama: () => { throw new Error("ollama fetch exploded"); },
+      recordEvent: () => {},
+    });
+    expect(r.ok).toBe(true);
+    expect(r.reapFailed).toBe(0);
+    expect(r.coordinator.error).toMatch(/ollama fetch exploded/);
+    expect(r.caveats.some((c) => c.includes("coordinator step failed"))).toBe(true);
+  });
+
+  it("INVARIANT — a writeHint throw NEVER flips r.ok (the action seam, not just the probes)", () => {
+    // Probes are healthy and the decision is aggressive — the throw happens at
+    // the hint-WRITE action. Still advisory: surfaced via caveats, ok stays true.
+    const r = runSweep({
+      enumerator: aliveTable, slotsFile: aliveSlots, pidRegistry: { pids: {} },
+      selfPid: 999999, ledgerPath: join(tmpDir, "ledger.json"),
+      readMemory: () => mem(97), noRelief: true, now: NOW,
+      readGpu: () => ({ available: true, freeMb: 8000, totalMb: 10240, utilizationPct: 4 }),
+      readOllama: () => ({ reachable: true, models: ["qwen2.5-coder:7b"], loaded: [] }),
+      prewarmSpawn: () => 7777,
+      writeHint: () => { throw new Error("hint write exploded"); },
+      recordEvent: () => {},
+    });
+    expect(r.ok).toBe(true);
+    expect(r.reapFailed).toBe(0);
+    expect(r.coordinator.error).toMatch(/hint write exploded/);
+    expect(r.caveats.some((c) => c.includes("coordinator step failed"))).toBe(true);
+  });
+
+  it("telemetry fires EXACTLY ONCE per decision — one prewarm event, one hint event", () => {
+    const events = [];
+    runSweep({
+      enumerator: aliveTable, slotsFile: aliveSlots, pidRegistry: { pids: {} },
+      selfPid: 999999, ledgerPath: join(tmpDir, "ledger.json"),
+      readMemory: () => mem(97), noRelief: true, now: NOW,
+      readGpu: () => ({ available: true, freeMb: 8000, totalMb: 10240, utilizationPct: 4, name: "RTX 3080" }),
+      readOllama: () => ({ reachable: true, models: ["qwen2.5-coder:7b"], loaded: [] }),
+      prewarmSpawn: () => 5151,
+      writeHint: (decision) => ({
+        written: true, mode: "aggressive-offload", thresholdDelta: decision.thresholdDelta,
+        validUntil: "x", path: "x", error: null,
+      }),
+      recordEvent: (e) => events.push(e),
+    });
+    const cats = events.map((e) => e.category);
+    expect(cats.filter((c) => c === "fleet-reaper-prewarm").length).toBe(1);
+    expect(cats.filter((c) => c === "fleet-reaper-hint").length).toBe(1);
+    expect(events.length).toBe(2); // and nothing else — no double-count, no extras
+  });
+
+  it("telemetry stays SILENT in dry-run — decision computed, no events emitted", () => {
+    const events = [];
+    runSweep({
+      enumerator: aliveTable, slotsFile: aliveSlots, pidRegistry: { pids: {} },
+      selfPid: 999999, ledgerPath: join(tmpDir, "ledger.json"),
+      readMemory: () => mem(97), noRelief: true, dryRun: true, now: NOW,
+      readGpu: () => ({ available: true, freeMb: 8000, totalMb: 10240, utilizationPct: 4 }),
+      readOllama: () => ({ reachable: true, models: ["qwen2.5-coder:7b"], loaded: [] }),
+      prewarmSpawn: () => 1,
+      writeHint: () => ({ written: true, mode: "aggressive-offload", thresholdDelta: -0.15 }),
+      recordEvent: (e) => events.push(e),
+    });
+    expect(events.length).toBe(0); // actionsAllowed false → no prewarm/hint → no telemetry
   });
 });

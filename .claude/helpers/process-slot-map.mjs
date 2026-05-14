@@ -99,21 +99,35 @@ function emptySlotsFile() {
  * owns corruption recovery; a reader stays passive). Absent slot keys are
  * backfilled to null so the result always carries all 7 — a true behavioural
  * subset of chat-slots.mjs's readSlots minus only the corrupt-backup write.
+ *
+ * Every return carries `__slotsResolved`:
+ *   - `true`  — we have a DEFINITE answer: the file parsed cleanly, OR the file
+ *               is genuinely absent (no chat has ever claimed a slot → nothing
+ *               is pinned, which is itself a definite statement).
+ *   - `false` — DEGRADED: the file exists but could not be parsed/validated
+ *               (mid-write race, corruption, EBUSY). We do NOT know the slot
+ *               map. FLEET-REAPER-MS1's `leftover-bash-task` classifier reads
+ *               this flag and refuses to classify when it is `false` — a
+ *               degraded slots file must never WIDEN the candidate set (it
+ *               would make every live unpinned-looking harness a false orphan).
+ * The flag is namespaced (`__`) so it never collides with a real slot key and
+ * `mapPidsToSlots` — which only reads `.slots` — is unaffected.
  */
 function readSlots(statePath = DEFAULT_SLOTS_PATH) {
   try {
-    if (!existsSync(statePath)) return emptySlotsFile();
+    if (!existsSync(statePath)) return { ...emptySlotsFile(), __slotsResolved: true };
     const parsed = JSON.parse(readFileSync(statePath, "utf-8"));
     if (!parsed || typeof parsed !== "object" ||
         !parsed.slots || typeof parsed.slots !== "object") {
-      return emptySlotsFile();
+      return { ...emptySlotsFile(), __slotsResolved: false };
     }
     for (const n of SLOT_NAMES) {
       if (!(n in parsed.slots)) parsed.slots[n] = null;
     }
+    parsed.__slotsResolved = true;
     return parsed;
   } catch {
-    return emptySlotsFile();
+    return { ...emptySlotsFile(), __slotsResolved: false };
   }
 }
 
@@ -144,6 +158,95 @@ export const TARGET_NAMES = new Set(["node", "git", "bash", "sh"]);
  *  live chat we couldn't pin to a slot" → protected. Best-effort secondary net;
  *  the primary attribution path is slotPidMap (chat-slots.json `pid` field). */
 export const HARNESS_NAMES = new Set(["claude"]);
+
+/**
+ * Process names eligible for the FLEET-REAPER-MS1 "leftover-bash-task" classifier.
+ * Subset of TARGET_NAMES restricted to shells — the leftover-task pattern is a
+ * shell idiom (`while true; do … sleep N; done`, `tail -f`, etc.). A leftover
+ * node.exe would be a hung helper / orphaned MCP and is the existing reapers'
+ * concern (`owned-by-crashed` / `unowned`), not this one.
+ */
+export const LEFTOVER_TASK_NAMES = new Set(["bash", "sh"]);
+
+/**
+ * Signatures of long-running shell tasks that survive their owning chat. Each
+ * signature is an `all` array of SIMPLE regexes — every regex in the array must
+ * match the cmdline for the signature to fire. This AND-of-simple-regexes shape
+ * is deliberate and load-bearing:
+ *
+ *   - **ReDoS-safe.** Each individual regex is linear (no unbounded `.*`
+ *     between paired tokens, no nested quantifiers). The earlier design used a
+ *     single regex with a `[\s\S]{0,200}` window between `while…do` and
+ *     `sleep` — that is NOT linear: with no `sleep` token the engine retries
+ *     the window at every `while…do` start. Splitting into two independent
+ *     `.test()` calls removes the coupled backtracking entirely.
+ *   - **Structural, not substring.** A literal `echo "while true"` lacks the
+ *     paired `sleep \d+` token, so the `while-sleep-loop` signature does not
+ *     fire. `matchesLeftoverTaskPattern` additionally truncates the haystack to
+ *     LEFTOVER_CMD_SCAN_MAX before testing — a leftover-task signature always
+ *     appears in the first few hundred chars, and the cap kills the
+ *     input-length dimension for an adversarial 64 KB cmdline.
+ *
+ * Vetted against the live `bash.exe` cmdlines we actually observe orphaned:
+ * Bash-tool persistent loops (`while true; do … sleep N; done` — this is the
+ * exact form of the leftover `/fleet-reaper` Monitor wrapper we saw in the
+ * wild) and Claude Code's documented Monitor idioms (`tail -f … | grep
+ * --line-buffered`, `inotifywait -m`).
+ *
+ * NOT included: `--monitor-loop` as a bare substring (dropped — it is a plain
+ * substring that matches doc edits / greps / unrelated flags, and the real
+ * leftover Monitor is a `while…sleep` loop already caught by signature #1; a
+ * direct `node …--monitor-loop` is a `node` process, excluded by
+ * LEFTOVER_TASK_NAMES). NOT included: detachment idioms (`nohup`, `setsid`,
+ * `disown`, `screen -dmS`, `tmux new-session -d`) — those SEVER the harness
+ * ancestry this classifier's branch depends on (the detached shell's parent
+ * becomes init / the multiplexer daemon, never `claude.exe`), so they are
+ * unreachable here by construction and belong to the `unowned` path instead.
+ */
+export const LEFTOVER_TASK_PATTERNS = Object.freeze([
+  { name: "while-sleep-loop", all: [/while\s+(?:true|:)\s*;?\s*do\b/, /\bsleep\s+\d+/] },
+  { name: "tail-f-grep", all: [/\btail\s+-f\b/, /\bgrep\s+--line-buffered\b/] },
+  { name: "inotifywait", all: [/\binotifywait\s+-m\b/] },
+]);
+
+/** Cmdline scan cap for `matchesLeftoverTaskPattern` — a leftover-task
+ *  signature is always near the front; capping the haystack keeps regex cost
+ *  bounded regardless of how long an adversarial `proc.cmd` is. */
+const LEFTOVER_CMD_SCAN_MAX = 4096;
+
+/**
+ * Minimum age before a leftover-pattern shell is considered for reap. 15 min.
+ *
+ * Calibration:
+ *   - longer than the alive-slot heartbeat TTL (2 min) so we never demote a
+ *     fresh helper whose slot just hasn't pinged yet,
+ *   - longer than the kill-after × interval default (10 min) so the existing
+ *     `unowned` path still wins for genuine dead-ancestor orphans (those reap
+ *     at ~10 min; this class is gated to ~15 min here AND re-gated by the
+ *     sweep's confirm-after-N-ticks window before any kill),
+ *   - short enough that a Monitor whose chat died but whose unpinned harness
+ *     persisted is caught within one extra sweep cycle.
+ */
+export const LEFTOVER_AGE_MS_MIN = 15 * 60 * 1000;
+
+/** True when `name` is a shell eligible for leftover-task classification. */
+export function isLeftoverTaskName(n) {
+  return LEFTOVER_TASK_NAMES.has(normName(n));
+}
+
+/**
+ * True when `cmd` matches any LEFTOVER_TASK_PATTERNS signature (every regex in
+ * a signature's `all` array must match). Pure; ReDoS-safe (haystack truncated
+ * to LEFTOVER_CMD_SCAN_MAX, each regex linear).
+ */
+export function matchesLeftoverTaskPattern(cmd) {
+  const hay = String(cmd || "").slice(0, LEFTOVER_CMD_SCAN_MAX);
+  if (!hay) return false;
+  for (const sig of LEFTOVER_TASK_PATTERNS) {
+    if (sig.all.every((re) => re.test(hay))) return true;
+  }
+  return false;
+}
 
 /**
  * Never reap these even when the ancestry looks orphaned — long-lived infra or
@@ -448,17 +551,32 @@ export function mapPidsToSlots(slotsFile, pidRegistry, now = Date.now()) {
  * Classify ONE process by ownership. Returns the canonical record plus:
  *   class       — protected | owned-by-alive | owned-by-stale | owned-by-crashed
  *                 | owned-by-other-live | unowned | indeterminate | not-target
- *   isCandidate — true ONLY for owned-by-crashed and unowned
- *   ageMs       — surfaced for the downstream sweep's age-floor gate; NOT used
- *                 in classification here (classification is pure ownership).
+ *                 | leftover-bash-task (FLEET-REAPER-MS1)
+ *   isCandidate — true for owned-by-crashed, unowned, and leftover-bash-task.
+ *                 The leftover-bash-task path carries EXTRA gates the other two
+ *                 do not (shell name + age floor + structural cmd pattern +
+ *                 unpinned harness + resolved slot data) — see the branch below.
+ *   ageMs       — surfaced for the downstream sweep's age-floor gate; ALSO read
+ *                 here for the leftover-bash-task age gate (the only place
+ *                 classification consults age — every other class is pure
+ *                 ownership).
  *
  * @param {object} proc  one normalized process record
- * @param {object} ctx   { byPid, ancestorsOf, slotPidMap, selfPid?, now? }
+ * @param {object} ctx   { byPid, ancestorsOf, slotPidMap, selfPid?, now?,
+ *                          slotsResolved? }
  *                       byPid / ancestorsOf / slotPidMap are required;
  *                       selfPid defaults to null, now defaults to Date.now().
+ *                       slotsResolved defaults to true — but `snapshotFleet`
+ *                       ALWAYS passes it explicitly (false when the chat-slots
+ *                       file was unreadable). When false, the
+ *                       leftover-bash-task branch is suppressed: degraded slot
+ *                       data must never widen the candidate set.
  */
 export function classifyProcess(proc, ctx) {
-  const { byPid, ancestorsOf, slotPidMap, selfPid = null, now = Date.now() } = ctx;
+  const {
+    byPid, ancestorsOf, slotPidMap, selfPid = null, now = Date.now(),
+    slotsResolved = true,
+  } = ctx;
   const ageMs = Number.isFinite(proc.createdMs) ? Math.max(0, now - proc.createdMs) : null;
   const base = {
     pid: proc.pid,
@@ -476,7 +594,18 @@ export function classifyProcess(proc, ctx) {
     ...extra,
     class: cls,
     reason,
-    isCandidate: cls === "owned-by-crashed" || cls === "unowned",
+    // FLEET-REAPER-MS1: `leftover-bash-task` joins the candidate set. It is the
+    // *only* candidate class allowed to fire under a still-alive ancestor, so
+    // the branch that produces it (below) carries four extra gates the other
+    // two candidate classes do not: (1) shell process name, (2) age ≥
+    // LEFTOVER_AGE_MS_MIN, (3) a structural cmd-pattern match, (4) the slots
+    // file resolved cleanly. The downstream sweep then applies the SAME
+    // confirm-after-N-ticks window it applies to every candidate (it does NOT
+    // re-check the 15-min floor — that floor lives only here). Net effect:
+    // ~15 min classification floor + ~10 min sweep confirm window before any
+    // leftover-bash-task is reaped.
+    isCandidate:
+      cls === "owned-by-crashed" || cls === "unowned" || cls === "leftover-bash-task",
   });
 
   // Non-target processes are out of scope entirely.
@@ -528,7 +657,42 @@ export function classifyProcess(proc, ctx) {
     if (ap) {
       // (2) Alive ancestor.
       if (isHarnessName(ap.name)) {
-        // A live Claude harness we couldn't pin to a slot — still a live chat.
+        // FLEET-REAPER-MS1: an alive `claude.exe` that is NOT pinned to any chat
+        // slot is a *lingering* harness — the chat that spawned us may have died
+        // hours ago while its harness process stuck around. If this process is
+        // itself a shell running a long-running task pattern (`while true;
+        // sleep`, `tail -f … grep`, `inotifywait -m`) AND has been alive longer
+        // than LEFTOVER_AGE_MS_MIN, treat it as a leftover-bash-task candidate.
+        //
+        // Gates, every one load-bearing:
+        //  - slotsResolved: when the chat-slots file was unreadable we CANNOT
+        //    know this harness is unpinned — a degraded read makes every live
+        //    harness *look* unpinned. Suppress the class entirely; fall back to
+        //    the pre-MS1 `owned-by-alive` (the safe direction).
+        //  - isLeftoverTaskName: shells only — a leftover node.exe is the
+        //    existing reapers' `owned-by-crashed`/`unowned` concern.
+        //  - ageMs ≥ LEFTOVER_AGE_MS_MIN: never demote a fresh helper.
+        //  - matchesLeftoverTaskPattern: structural cmd signature, not substring.
+        //
+        // "Unpinned" scope: this checks the NEAREST `claude.exe` ancestor — step
+        // (1) `slotPidMap.has(apid)` returned false for it and for every closer
+        // ancestor. A second, deeper `claude.exe` ancestor is not a real Windows
+        // scenario (the harness does not spawn a child harness), so the nearest
+        // is the only one that matters.
+        if (
+          slotsResolved &&
+          isLeftoverTaskName(proc.name) &&
+          Number.isFinite(ageMs) &&
+          ageMs >= LEFTOVER_AGE_MS_MIN &&
+          matchesLeftoverTaskPattern(proc.cmd)
+        ) {
+          return verdict(
+            "leftover-bash-task",
+            `leftover ${proc.name} (age ${Math.round(ageMs / 1000)}s, ` +
+            `pattern matched) under unpinned harness ${apid}`,
+          );
+        }
+        // Default: a live Claude harness we couldn't pin = "live chat in motion."
         return verdict("owned-by-alive", `live harness ancestor ${apid} (${ap.name})`);
       }
       if (isTargetName(ap.name)) {
@@ -566,7 +730,13 @@ export function classifyProcess(proc, ctx) {
  * @param {string}          [opts.registryPath] path to the PID registry
  * @param {number}          [opts.selfPid]      PID to treat as "self" (default process.pid)
  * @param {number}          [opts.now]          clock injection
- * @returns {{ now, procs, classified, candidates, slotPidMap, caveats, counts }}
+ * @returns {{ now, procs, classified, candidates, slotPidMap, slotsResolved,
+ *            caveats, counts }}
+ *   slotsResolved — false when the chat-slots file existed but could not be
+ *   parsed (degraded). Propagated into the classifier so the FLEET-REAPER-MS1
+ *   leftover-bash-task branch is suppressed on degraded slot data. An injected
+ *   `opts.slotsFile` is treated as resolved unless it explicitly carries
+ *   `__slotsResolved: false` (so tests can exercise the degraded path).
  */
 export function snapshotFleet(opts = {}) {
   const now = Number.isFinite(opts.now) ? opts.now : Date.now();
@@ -575,6 +745,9 @@ export function snapshotFleet(opts = {}) {
   const procs = enumerateProcesses({ enumerator: opts.enumerator });
   const slotsFile = opts.slotsFile || readSlots(opts.slotsPath);
   const pidRegistry = opts.pidRegistry || loadPidRegistry(opts.registryPath);
+  // `readSlots` stamps `__slotsResolved`; an injected slotsFile may omit it
+  // (treated as resolved) or set it false to test the degraded path.
+  const slotsResolved = slotsFile && slotsFile.__slotsResolved === false ? false : true;
 
   const { byPid, ancestorsOf } = buildAncestry(procs);
   const { map: slotPidMap, caveats: slotCaveats } = mapPidsToSlots(slotsFile, pidRegistry, now);
@@ -590,8 +763,15 @@ export function snapshotFleet(opts = {}) {
         : "process enumeration returned 0 processes — OS query likely failed; sweep skipped",
     );
   }
+  // A degraded slots read suppresses the leftover-bash-task class — surface it
+  // so an operator sees WHY no leftover candidates appeared this sweep.
+  if (!slotsResolved) {
+    caveats.push(
+      "chat-slots file unreadable — leftover-bash-task classification suppressed this sweep (degraded slot data must not widen the candidate set)",
+    );
+  }
 
-  const ctx = { byPid, ancestorsOf, slotPidMap, selfPid, now };
+  const ctx = { byPid, ancestorsOf, slotPidMap, selfPid, now, slotsResolved };
   const classified = [];
   for (const p of procs) {
     if (!isTargetName(p.name)) continue;
@@ -602,5 +782,5 @@ export function snapshotFleet(opts = {}) {
   const counts = { targets: classified.length, candidates: candidates.length };
   for (const c of classified) counts[c.class] = (counts[c.class] || 0) + 1;
 
-  return { now, procs, classified, candidates, slotPidMap, caveats, counts };
+  return { now, procs, classified, candidates, slotPidMap, slotsResolved, caveats, counts };
 }

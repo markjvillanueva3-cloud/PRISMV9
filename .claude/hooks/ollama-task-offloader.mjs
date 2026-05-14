@@ -21,7 +21,8 @@
  */
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
-import { dirname } from "node:path";
+import { dirname, resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 import { recordOllamaEvent } from "./lib/ollama-stats.mjs";
 
 // OLLAMA-DEV-01: prefer 127.0.0.1 over `localhost` — on Windows the latter
@@ -31,12 +32,29 @@ const OLLAMA_URL = process.env.OLLAMA_URL || "http://127.0.0.1:11434";
 const STATS_PATH = "H:/prism/mcp-server/data/state/ollama-offload-stats.json";
 const HOOK_NAME = "ollama-task-offloader";
 const RATE_LIMIT_PATH = "H:/prism/mcp-server/data/state/ollama-rate-limits.json";
+// FLEET-REAPER-MS1: the routing hint written by scripts/fleet-reaper-sweep.mjs.
+// CROSS-PROCESS CONTRACT — this literal MUST match the producer's
+// DEFAULT_HINT_PATH (fleet-reaper-sweep.mjs). Hardcoded to the MAIN tree like
+// STATS_PATH / RATE_LIMIT_PATH: hooks always run from H:/prism in production
+// (settings.json points there), never a worktree, and the producer pins the
+// hint to this same absolute path for exactly that reason. Injectable in tests
+// via loadRoutingHint(now, hintPath).
+const HINT_PATH = "H:/prism/state/shared/.ollama-routing-hint.json";
 // OLLAMA-DEV-01: bumped from 2s to 4s — qwen2.5-coder:32b cold-load can
 // take 3+s, and the /api/tags probe should never be the bottleneck.
 const TIMEOUT_MS = 4000;
 const RATE_LIMIT_MS = 5 * 60 * 1000; // 5 minutes per category
 const CONFIDENCE_THRESHOLD = 0.80;
 const INJECT_THRESHOLD = 0.90; // Only inject context above this score
+// FLEET-REAPER-MS1: hard clamp on the hint's thresholdDelta — mirrors the
+// producer-side clamp in fleet-reaper-sweep.mjs so a tampered/corrupt hint
+// file can never push the effective thresholds far out of range.
+const HINT_THRESHOLD_DELTA_CAP = 0.30;
+// FLEET-REAPER-MS1: the hint schema version this consumer understands. Mirrors
+// the producer's HINT_SCHEMA_VERSION. A hint stamped with a DIFFERENT version
+// is fail-soft rejected (a future producer could rename fields) — a hint with
+// NO version is accepted leniently (forward-compat with the v1 producer).
+const HINT_SCHEMA_VERSION = 1;
 
 // Patterns evaluated in order — first match wins. PRISM-specific patterns
 // MUST come before generic catalog patterns: a prompt like
@@ -135,6 +153,57 @@ function recordSuggestion(category) {
   saveRateLimits(limits);
 }
 
+/**
+ * FLEET-REAPER-MS1: load the routing hint written by scripts/fleet-reaper-sweep.mjs.
+ *
+ * The fleet-reaper coordinator writes this file when the host is under memory
+ * pressure AND the GPU can absorb more Ollama work — it nudges this hook to
+ * offload MORE aggressively (a NEGATIVE thresholdDelta lowers the confidence
+ * bar so more tasks clear it). Best-effort + fail-soft: a missing / corrupt /
+ * expired / non-aggressive hint returns null (no behaviour change). Never
+ * throws — a hook must never break on an advisory side-channel.
+ *
+ * @param {number} [now]       clock injection (tests)
+ * @param {string} [hintPath]  path injection (tests)
+ * @returns {{ thresholdDelta:number, reason:string }|null}
+ */
+export function loadRoutingHint(now = Date.now(), hintPath = HINT_PATH) {
+  let raw;
+  try {
+    if (!existsSync(hintPath)) return null;
+    raw = readFileSync(hintPath, "utf8");
+  } catch {
+    return null; // unreadable — treat as no hint
+  }
+  let hint;
+  try {
+    hint = JSON.parse(raw);
+  } catch {
+    // Fail loud (one stderr line) but never throw — a corrupt hint is ignored.
+    process.stderr.write("ollama-task-offloader: routing hint file is corrupt JSON — ignoring\n");
+    return null;
+  }
+  if (!hint || typeof hint !== "object") return null;
+  // Forward-compat: a hint stamped with a version we don't understand is
+  // fail-soft rejected (a future producer may rename fields). A versionless
+  // hint is accepted leniently — the v1 producer always stamps v1, so a
+  // missing version means a hand-edited / pre-v1 file, treated as best-effort.
+  if (hint.schemaVersion != null && hint.schemaVersion !== HINT_SCHEMA_VERSION) return null;
+  // Only "aggressive-offload" applies a delta. "auto" and "disabled" both mean
+  // "no threshold change" — the producer writes "auto" to NEUTRALIZE a stale
+  // aggressive hint, so an "auto" file is the canonical "do nothing" statement.
+  if (hint.mode !== "aggressive-offload") return null;
+  const validUntilMs = Date.parse(hint.validUntil);
+  if (!Number.isFinite(validUntilMs) || now > validUntilMs) return null; // expired / unparseable
+  const rawDelta = Number(hint.thresholdDelta);
+  if (!Number.isFinite(rawDelta) || rawDelta === 0) return null;
+  // Clamp to [-CAP, +CAP] — defence-in-depth over the producer's own clamp.
+  const thresholdDelta = Math.max(
+    -HINT_THRESHOLD_DELTA_CAP, Math.min(HINT_THRESHOLD_DELTA_CAP, rawDelta),
+  );
+  return { thresholdDelta, reason: typeof hint.reason === "string" ? hint.reason : "" };
+}
+
 async function isOllamaAvailable() {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
@@ -213,17 +282,38 @@ async function main() {
     return;
   }
 
+  // FLEET-REAPER-MS1: apply the routing hint (if a valid one exists). A
+  // negative thresholdDelta LOWERS the confidence bar so more tasks clear it —
+  // the fleet-reaper coordinator writes this when commit pressure is high and
+  // the GPU can absorb the work. Effective thresholds are clamped to [0,1].
+  const hint = loadRoutingHint();
+  const confidenceThreshold = hint
+    ? Math.max(0, Math.min(1, CONFIDENCE_THRESHOLD + hint.thresholdDelta))
+    : CONFIDENCE_THRESHOLD;
+  const injectThreshold = hint
+    ? Math.max(0, Math.min(1, INJECT_THRESHOLD + hint.thresholdDelta))
+    : INJECT_THRESHOLD;
+
   if (isRateLimited(classification.category)) {
     recordOllamaEvent({ hook: HOOK_NAME, decision: "suggest", extras: { mode: "silent", reason: "rate-limited" } });
     console.log(JSON.stringify({ continue: true }));
     return;
   }
 
-  if (classification.savings < CONFIDENCE_THRESHOLD) {
+  if (classification.savings < confidenceThreshold) {
     recordOllamaEvent({ hook: HOOK_NAME, decision: "suggest", extras: { mode: "silent", reason: "below-confidence" } });
     console.log(JSON.stringify({ continue: true }));
     return;
   }
+
+  // The hint CHANGED the outcome iff this task cleared the LOWERED bar but
+  // would have failed the DEFAULT (un-hinted) bar. We don't fire a separate
+  // event for it — that would land as a `suggest` and never reach the
+  // dashboard's `byCategory` aggregate (only `offload` decisions do). Instead
+  // the flag rides as `extras` on the real `offload` event below, so the
+  // coordinator's extra-offload contribution is queryable per-category with
+  // zero double-counting.
+  const hintFlippedOutcome = !!(hint && classification.savings < CONFIDENCE_THRESHOLD);
 
   const ollama = await isOllamaAvailable();
   if (!ollama.available) {
@@ -247,9 +337,23 @@ async function main() {
   recordOllamaEvent({
     hook: HOOK_NAME, decision: "offload",
     category: classification.category, tokensSaved: savedTokens,
+    // FLEET-REAPER-MS1: when the coordinator's routing hint is what tipped this
+    // task over the bar, annotate the offload event so the dashboard can
+    // attribute extra offload volume to the coordinator (queryable per-category
+    // via events[].routingHint, no double-counting — one event per offload).
+    ...(hintFlippedOutcome
+      ? {
+        extras: {
+          routingHint: true,
+          thresholdDelta: hint.thresholdDelta,
+          effectiveThreshold: confidenceThreshold,
+          hintReason: hint.reason,
+        },
+      }
+      : {}),
   });
 
-  if (classification.savings < INJECT_THRESHOLD) {
+  if (classification.savings < injectThreshold) {
     recordOllamaEvent({ hook: HOOK_NAME, decision: "suggest", extras: { mode: "silent", reason: "below-inject-threshold" } });
     console.log(JSON.stringify({ continue: true }));
     return;
@@ -284,6 +388,21 @@ async function main() {
   }));
 }
 
-main().catch(() => {
-  console.log(JSON.stringify({ continue: true }));
-});
+// Import-safe guard: the FLEET-REAPER-MS1 test suite imports this module to
+// exercise loadRoutingHint() directly. Without this guard, an import would run
+// main() — which reads fd 0 (stdin) and would hang the vitest worker. Mirrors
+// the same pattern in scripts/fleet-reaper-sweep.mjs.
+const invokedAsCli = (() => {
+  try {
+    if (!process.argv[1]) return false;
+    return pathToFileURL(resolve(process.argv[1])).href === import.meta.url;
+  } catch {
+    return false;
+  }
+})();
+
+if (invokedAsCli) {
+  main().catch(() => {
+    console.log(JSON.stringify({ continue: true }));
+  });
+}
