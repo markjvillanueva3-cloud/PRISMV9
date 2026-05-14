@@ -185,6 +185,58 @@ async function run() {
     eq(readSlots(statePath).slots.bravo.chatId, "claude-BBB", "walk-no-guard bravo set");
   }
 
+  // BLOCKER #4 fix (arm-C scrutiny 2026-05-14): decoupled timestamps —
+  // claimedAt recent (<30s) but lastHeartbeat stale (>10min). This is the
+  // "chat just claimed alpha then immediately died" pathology. Default walk
+  // sweeps alpha as crashed, then the new walk-recency-guard refuses to
+  // silently reclaim it. Operator must force --confirmRecent.
+  {
+    const { statePath, lockPath } = paths("decoupled-ts");
+    cleanups.push(statePath, lockPath);
+    const recentClaim = new Date(Date.now() - 10 * 1000).toISOString();
+    const staleHb = new Date(Date.now() - 11 * 60 * 1000).toISOString();
+    await fsp.mkdir(join(tmpdir(), "prism-chat-slots-smoke"), { recursive: true });
+    await fsp.writeFile(statePath, JSON.stringify({
+      schemaVersion: 1,
+      lastUpdated: staleHb,
+      slots: {
+        alpha: { chatId: "claude-DIED-FAST", host: "h", pid: 1, claimedAt: recentClaim, lastHeartbeat: staleHb, branch: null, topic: null, activity: null },
+        bravo: null, charlie: null, delta: null, echo: null, foxtrot: null, golf: null,
+      },
+    }));
+    const r = claimSlot({ chatId: "claude-NEWCOMER" }, statePath, lockPath);
+    // alpha is BOTH crashed (sweep removes) AND recently-claimed (guard fires).
+    // Expected: walk skips alpha (guarded), picks bravo. previousOwner not surfaced
+    // for bravo (no prior owner there).
+    eq(r.ok, true, "decoupled-ts ok");
+    eq(r.slot, "bravo", "decoupled-ts walks past alpha to bravo");
+    eq(r.previousOwner, undefined, "decoupled-ts no prev on bravo");
+    // alpha is now null (swept) but NOT reassigned
+    eq(readSlots(statePath).slots.alpha, null, "decoupled-ts alpha left null (guarded)");
+    eq(readSlots(statePath).slots.bravo.chatId, "claude-NEWCOMER", "decoupled-ts bravo claimed");
+  }
+
+  // BLOCKER #4 boundary case: decoupled timestamps with ALL slots guarded —
+  // should return all_slots_recently_claimed
+  {
+    const { statePath, lockPath } = paths("all-guarded");
+    cleanups.push(statePath, lockPath);
+    const recentClaim = new Date(Date.now() - 10 * 1000).toISOString();
+    const staleHb = new Date(Date.now() - 11 * 60 * 1000).toISOString();
+    await fsp.mkdir(join(tmpdir(), "prism-chat-slots-smoke"), { recursive: true });
+    const names = ["alpha", "bravo", "charlie", "delta", "echo", "foxtrot", "golf"];
+    const slots = {};
+    for (const n of names) {
+      slots[n] = { chatId: "claude-DEAD-" + n, host: "h", pid: 1, claimedAt: recentClaim, lastHeartbeat: staleHb, branch: null, topic: null, activity: null };
+    }
+    await fsp.writeFile(statePath, JSON.stringify({ schemaVersion: 1, lastUpdated: staleHb, slots }));
+    const r = claimSlot({ chatId: "claude-LATECOMER" }, statePath, lockPath);
+    eq(r.ok, false, "all-guarded ok=false");
+    eq(r.error, "all_slots_recently_claimed", "all-guarded error");
+    eq(r.details.guardedSlots.length, 7, "all-guarded 7 slots");
+    eq(r.details.guardMs, RECENT_CLAIM_GUARD_MS, "all-guarded guardMs");
+  }
+
   // fleet_full
   {
     const { statePath, lockPath } = paths("full");

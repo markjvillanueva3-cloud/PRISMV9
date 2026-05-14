@@ -39,9 +39,16 @@ const MIN_CHAT_ID_LEN = 14;                     // "claude-" + 7 hex chars minim
 const SESSION_ID_PREFIX_LEN = 8;                // first 8 chars of UUID become claude-<8hex>
 const SESSION_ID_PREFIX = "claude-";
 
-const SLOTS_PATH = "H:/prism/state/shared/chat-slots.json";
-const CHAT_SLOTS_HELPER = "H:/prism/.claude/helpers/chat-slots.mjs";
-const SESSION_ID_HELPER = "H:/prism/.claude/helpers/stable-session-id.mjs";
+// BLOCKER #5 (arm-C scrutiny 2026-05-14): paths are hard-coded to the main
+// tree because chat-slots state is intentionally a SINGLE FLEET-WIDE FILE per
+// host — multiple worktrees of the same repo (H:/prism + H:/prism-<scope>/)
+// share the same fleet identity, so they read+write the same chat-slots.json.
+// This is by design, not a bug. The env knobs below let operators override
+// for testing or for an eventual multi-host fleet pattern (each host's main
+// tree owns its own chat-slots.json).
+const SLOTS_PATH = process.env.PRISM_CHAT_SLOTS_PATH || "H:/prism/state/shared/chat-slots.json";
+const CHAT_SLOTS_HELPER = process.env.PRISM_CHAT_SLOTS_HELPER || "H:/prism/.claude/helpers/chat-slots.mjs";
+const SESSION_ID_HELPER = process.env.PRISM_SESSION_ID_HELPER || "H:/prism/.claude/helpers/stable-session-id.mjs";
 
 function readStdin() {
   try {
@@ -50,6 +57,14 @@ function readStdin() {
     return "";
   }
 }
+
+// Hex character class — used to validate session_id prefix before constructing
+// chatId. UUIDs are hex-with-hyphens (e.g. 48450e3d-1234-...), so the leading
+// SESSION_ID_PREFIX_LEN chars MUST be lowercase hex digits for a legitimate
+// claude session id. Closes BLOCKER #3 (arm-C scrutiny 2026-05-14) — the
+// previous fallback accepted any 8+ chars and constructed a garbage chatId
+// that silently never matched any owned slot.
+const HEX_PREFIX_RE = /^[0-9a-f]{8}$/i;
 
 function resolveChatId(rawStdin) {
   // First try: pipe stdin into stable-session-id.mjs (canonical resolver).
@@ -60,15 +75,30 @@ function resolveChatId(rawStdin) {
       encoding: "utf8",
       timeout: SESSION_ID_TIMEOUT_MS,
     });
-    const out = (r.stdout || "").trim();
-    if (out && out.startsWith(SESSION_ID_PREFIX) && out.length >= MIN_CHAT_ID_LEN) return out;
+    // On timeout, spawnSync returns { error: { code: 'ETIMEDOUT' }, status: null }
+    // — fall through to the stdin-parse fallback but surface the failure so
+    // chronic timeouts aren't masked (closes BLOCKER #2 partial-fix path).
+    if (r.error) {
+      try {
+        process.stderr.write(
+          `heartbeat-keepalive: session-id helper timed out or errored (${r.error.code || r.error.message || "unknown"}); using stdin fallback\n`,
+        );
+      } catch {}
+    } else {
+      const out = (r.stdout || "").trim();
+      if (out && out.startsWith(SESSION_ID_PREFIX)) {
+        const hex = out.slice(SESSION_ID_PREFIX.length, SESSION_ID_PREFIX.length + SESSION_ID_PREFIX_LEN);
+        if (HEX_PREFIX_RE.test(hex)) return SESSION_ID_PREFIX + hex;
+      }
+    }
   } catch {}
   // Fallback: try to extract session_id from the raw stdin payload directly.
   try {
     const j = JSON.parse(rawStdin);
     const sid = j.session_id || j.sessionId;
     if (typeof sid === "string" && sid.length >= SESSION_ID_PREFIX_LEN) {
-      return SESSION_ID_PREFIX + sid.slice(0, SESSION_ID_PREFIX_LEN);
+      const hex = sid.slice(0, SESSION_ID_PREFIX_LEN);
+      if (HEX_PREFIX_RE.test(hex)) return SESSION_ID_PREFIX + hex;
     }
   } catch {}
   return null;
@@ -111,8 +141,26 @@ function maybeRefreshHeartbeat(chatId, minAgeMs) {
     encoding: "utf8",
     timeout: HEARTBEAT_HELPER_TIMEOUT_MS,
   });
-  if (res.error) return { skipped: "heartbeat-error", error: String(res.error) };
-  if (res.status !== 0) return { skipped: "heartbeat-nonzero", code: res.status };
+  // BLOCKER #2 (arm-C scrutiny 2026-05-14): surface timeout / non-zero exits
+  // to stderr so chronic failures aren't silently masked. Operators looking
+  // at a "healthy" hook return ({continue:true}) shouldn't be deceived when
+  // the slot is actually aging out.
+  if (res.error) {
+    try {
+      process.stderr.write(
+        `heartbeat-keepalive: refresh failed for slot=${mySlot} chatId=${chatId} (${res.error.code || res.error.message || "unknown"})\n`,
+      );
+    } catch {}
+    return { skipped: "heartbeat-error", error: String(res.error) };
+  }
+  if (res.status !== 0) {
+    try {
+      process.stderr.write(
+        `heartbeat-keepalive: refresh exited nonzero (code=${res.status}) for slot=${mySlot} chatId=${chatId}\n`,
+      );
+    } catch {}
+    return { skipped: "heartbeat-nonzero", code: res.status };
+  }
   return { refreshed: true, slot: mySlot, priorAgeMs: age };
 }
 

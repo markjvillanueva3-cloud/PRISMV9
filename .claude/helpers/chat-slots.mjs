@@ -333,6 +333,50 @@ export function claimSlot(input, statePath = DEFAULT_STATE_PATH, lockPath = DEFA
       // Case 3: preferred slot held by someone else, no force → fall through
       // to default walk; the operator gets whatever next-free slot is available.
     }
+    // Recency guard for the DEFAULT-WALK reclaim path — closes BLOCKER #1
+    // (arm-C scrutiny 2026-05-14). If a slot was crashed-swept above AND its
+    // pre-sweep `claimedAt` was inside the recency window (recent claim by a
+    // chat whose process died before its first heartbeat), refuse to silently
+    // reclaim it on the default walk. Operator must pass --preferSlot
+    // <name> --force --confirmRecent to explicitly take it. Walk continues to
+    // the next free slot otherwise.
+    if (!input.force) {
+      const guardedSlots = new Set();
+      for (const n of order) {
+        if (file.slots[n] === null) {
+          const prev = preSweep[n];
+          if (prev && prev.chatId !== input.chatId) {
+            const claimedMs = Date.parse(prev.claimedAt);
+            if (Number.isFinite(claimedMs) && (now - claimedMs) < RECENT_CLAIM_GUARD_MS) {
+              guardedSlots.add(n);
+            }
+          }
+        }
+      }
+      if (guardedSlots.size > 0) {
+        // Remove guarded slots from walk-eligible set; if all walkable slots
+        // are guarded, fall through to "fleet_full" with an explanatory
+        // details field.
+        for (const n of guardedSlots) {
+          const idx = order.indexOf(n);
+          if (idx >= 0) order.splice(idx, 1);
+        }
+        if (order.length === 0) {
+          return {
+            ok: false,
+            error: "all_slots_recently_claimed",
+            message:
+              `every free slot was claimed by another chat within the recency guard ` +
+              `(${Math.round(RECENT_CLAIM_GUARD_MS / 1000)}s). Wait, or pass ` +
+              `--preferSlot <name> --force --confirmRecent to take one explicitly.`,
+            details: {
+              guardedSlots: [...guardedSlots],
+              guardMs: RECENT_CLAIM_GUARD_MS,
+            },
+          };
+        }
+      }
+    }
     // Find first free slot.
     for (const n of order) {
       if (file.slots[n] === null) {
