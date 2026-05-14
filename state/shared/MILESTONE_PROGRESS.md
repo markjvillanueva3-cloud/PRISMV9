@@ -1,6 +1,6 @@
 # MILESTONE_PROGRESS — what's actually shipped vs claimed
 
-> Generated: 2026-05-14T14:13:12.159Z
+> Generated: 2026-05-14T14:25:33.199Z
 > Window: last 60.days of git log across all branches
 > Source: `scripts/build-milestone-progress.mjs`
 
@@ -19,15 +19,15 @@ flagging a unit as missing.
 
 - Milestones loaded:        **670**
 - Units across all MS:      **4906**
-- Units shipped (in git):   **1264**
-- Units pending:            **3642**
+- Units shipped (in git):   **1265**
+- Units pending:            **3641**
 - Drift cases:              **173** (envelope status disagrees with git reality)
 
 ## Top recently-active milestones (last shipped → first)
 
 | Milestone | Track | Status (claimed) | Status (real) | Shipped/Total | Last commit |
 |-----------|-------|------------------|---------------|---------------|-------------|
-| CLEANUP-MS0 | CLEANUP | in_progress | in_progress_real | 49/73 (67%) | 2026-05-14 |
+| CLEANUP-MS0 | CLEANUP | in_progress | in_progress_real | 50/73 (68%) | 2026-05-14 |
 | COORD-MS0 | INFRA | unknown | in_progress_real | 9/12 (75%) | 2026-05-14 |
 | AI-MAX-MS0 | AI-MAX | in_progress | in_progress_real | 3/12 (25%) | 2026-05-13 |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | INFRA | not_started | in_progress_real | 80/92 (87%) | 2026-05-13 |
@@ -145,8 +145,8 @@ flagging a unit as missing.
 | MS-TRAIN-DEEP | 26 | 26 | 0/26 |
 | CAMX-MS0.3 | 24 | 24 | 0/24 |
 | CADCAM-AGI-MS0 | 24 | 24 | 0/24 |
-| CLEANUP-MS0 | 24 | 73 | 49/73 |
 | MS-SFC-CALIBRATE | 24 | 24 | 0/24 |
+| CLEANUP-MS0 | 23 | 73 | 50/73 |
 | MS-PRINT-PROGRAM-LOOP | 23 | 23 | 0/23 |
 | MCAT-MS0 | 22 | 22 | 0/22 |
 | CAMX-MS22 | 20 | 20 | 0/20 |
