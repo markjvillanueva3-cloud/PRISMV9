@@ -296,13 +296,16 @@
         {
           "id": "U-CLEANUP-C5",
           "title": "C5 — Watchdog<->Wiring integration (B1 onNewEngineFile triggers C1.analyze + C3 graph augment + F8 chat-bus post; 5-min recently-analyzed cache prevents recursion)",
-          "status": "not_started",
+          "status": "complete",
           "estimated_hours": 2,
           "dependencies": [
             "U-CLEANUP-B1",
             "U-CLEANUP-C1",
             "U-CLEANUP-C3"
-          ]
+          ],
+          "completed_at": "2026-05-14T18:53:00.000Z",
+          "completed_by": "claude-43742a02",
+          "ship_notes": "scripts/golf-watchdog-wiring-bridge.mjs (~390 LOC) + scripts/__tests__/golf-watchdog-wiring-bridge.test.mjs (37 tests, all green). Polling bridge (NOT a callback — B1 already shipped+scrutinized; polling decouples). Reads peer_audit_ticks ledger, extracts engine-shaped file paths from meta_json (resilient to {files}/{affected_files}/{findings} shapes via recursive visit), then per new engine runs C1 wiring-analyze + C3 graph-augment + F8 golf-signal-post. 5-min recently-analyzed cache (state/shared/.c5-recent.json, tmp+rename atomic, auto-trims stale entries) is the load-bearing recursion guard — recently-seen files are skipped so B1+C5 sharing a cron cadence cannot loop. Best-effort downstream: a C1/C3/F8 failure is recorded but never blocks the next file; failed files still cache (no infinite retry on permanently-broken hookup). MAX_ENGINES_PER_TICK=50 batch cap. Test seams: databaseFactory + analyzer + augmenter + signalPoster all injectable."
         },
         {
           "id": "U-CLEANUP-F8",
