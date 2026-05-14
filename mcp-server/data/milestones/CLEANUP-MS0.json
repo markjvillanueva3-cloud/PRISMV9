@@ -307,12 +307,15 @@
         {
           "id": "U-CLEANUP-F8",
           "title": "F8 — unified chat-bus signal channel 'golf-signal' (digest format, NOT full findings; cap 5 posts per chat-bus-inject window; routes through ChatBusEngine + B10 ledger insert)",
-          "status": "not_started",
+          "status": "complete",
           "estimated_hours": 1.5,
           "dependencies": [
             "U-CLEANUP-B1",
             "U-CLEANUP-B10"
-          ]
+          ],
+          "completed_at": "2026-05-14T18:44:00.000Z",
+          "completed_by": "claude-43742a02",
+          "ship_notes": "scripts/golf-signal-post.mjs (~340 LOC) + scripts/__tests__/golf-signal-post.test.mjs (41 tests, all green). Compact-digest writer for the 'golf-signal' chat-bus channel: writes to chat_bus_signals SQLite table AND AGENT_CHAT.jsonl in lockstep. Rate-cap MAX_POSTS_PER_WINDOW=5 per CHAT_BUS_INJECT_WINDOW_MS=30min, enforced via raw SELECT COUNT(*) against chat_bus_signals. Payload schema: {kind, summary (240 char cap), severity (info|warn|error|P0..P3), count?, path?}. signalKind validated /^[a-z0-9_-]+$/ — path-traversal blocked. Test seams: databaseFactory + dbWriter + jsonlAppender injectable. CLI: --kind, --summary, --severity, --count, --path, --to-chat, --from-chat, --json, --dry-run, --now ISO. Exit codes: 0=ok, 1=invalid input, 2=help/bad-flag."
         }
       ]
     },
