@@ -71,6 +71,7 @@ const FAST = [
   "generate-data-catalogs-atomic.mjs",
   "generate-git-tree.mjs",
   "generate-vault-graph.mjs",
+  "generate-untracked-files-atomic.mjs",
 ];
 const HEAVY = [
   "generate-fs-deep-inventory.mjs",

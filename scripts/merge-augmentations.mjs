@@ -88,6 +88,7 @@ const stagnantFeats  = loadOptional("stagnant-features-augmentation.json");
 const engineGraph    = loadOptional("engine-graph-augmentation.json");
 const hookBridges    = loadOptional("hook-bridges-augmentation.json");
 const frontendPages  = loadOptional("frontend-pages-augmentation.json");
+const untrackedFiles = loadOptional("untracked-files-augmentation.json");
 const comboDetector  = loadOptional("combo-detector-augmentation.json");
 const engineSat      = loadOptional("engine-saturate-augmentation.json");
 const wikiEntries    = loadOptional("wiki-entries-augmentation.json");
@@ -149,6 +150,7 @@ if (stagnantFeats)   versions.stagnantFeats   = stagnantFeats.generatedAt   ?? "
 if (engineGraph)     versions.engineGraph     = engineGraph.generatedAt     ?? "present";
 if (hookBridges)     versions.hookBridges     = hookBridges.generatedAt     ?? "present";
 if (frontendPages)   versions.frontendPages   = frontendPages.generatedAt   ?? "present";
+if (untrackedFiles)  versions.untrackedFiles  = untrackedFiles.generatedAt  ?? "present";
 if (comboDetector)   versions.comboDetector   = comboDetector.generatedAt   ?? "present";
 if (engineSat)       versions.engineSat       = engineSat.generatedAt       ?? "present";
 if (wikiEntries)     versions.wikiEntries     = wikiEntries.generatedAt     ?? "present";
@@ -914,6 +916,38 @@ if (frontendPages?.newNodes && frontendPages?.newEdges) {
     generatedAt: frontendPages.generatedAt,
     pagesDir: frontendPages.pagesDir,
     stats: frontendPages.stats,
+  };
+}
+
+// Untracked-files layer: source files on disk under mcp-server/{src,web/src}
+// that git does not track, surfaced as a navigable 3-level hierarchy
+// (untracked → classification rollup → per-file leaf). Live-indexed by
+// scripts/audit-untracked-refs.mjs so the viz reflects the CURRENT untracked
+// surface (post-restoration this shrinks; new uncommitted Codex work grows it).
+let untrackedFileNodes = 0, untrackedFileEdges = 0;
+if (untrackedFiles?.newNodes && untrackedFiles?.newEdges) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of untrackedFiles.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    untrackedFileNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of untrackedFiles.newEdges) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    untrackedFileEdges++;
+  }
+  G.meta.untrackedFiles = {
+    generatedAt: untrackedFiles.generatedAt,
+    source: untrackedFiles.source,
+    roots: untrackedFiles.roots,
+    stats: untrackedFiles.stats,
   };
 }
 
