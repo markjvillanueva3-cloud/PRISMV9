@@ -3,6 +3,7 @@
  * orphan-inventory.mjs — Built-but-unwired audit punch list
  *
  * OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-INVENTORY.
+ * Extended by CLEANUP-MS0/U-CLEANUP-F1 — see §F1 EXTENSION below.
  *
  * Reads system-graph.json + applies the same classifier as iter 2's
  * MasterIndexEngine.classifyAllNodes() to find "orphan" nodes (low
@@ -15,29 +16,47 @@
  * iterate over. Each entry: id, label, layer, wiki entries, suggested
  * dispatcher target with rationale.
  *
+ * § F1 EXTENSION (U-CLEANUP-F1):
+ *   - Calls WiringPotentialEngine.analyzeBatch over the BUILD_STATE
+ *     unwired-engine sample to produce a RANKED-CANDIDATE column —
+ *     each unwired engine gets a wiring-potential score so a wiring
+ *     sweep can pick the highest-leverage targets first.
+ *   - Caps the rendered dashboard at OUTPUT_CAP_BYTES (200 KB) — past
+ *     the cap, the markdown is truncated with a "[...truncated]" marker
+ *     so the file never blows the chat-bus-inject budget.
+ *   - Writes a companion state/shared/ORPHAN-INVENTORY-summary.md — a
+ *     <5 KB digest (counts + top-10 ranked candidates) safe to inject.
+ *   - The WiringPotential call is BEST-EFFORT + injectable (`analyzeBatch`
+ *     seam): if the engine can't be loaded (no dist build), the ranked
+ *     column degrades to "—" and the rest of the inventory still renders.
+ *
  * Usage:
- *   node scripts/orphan-inventory.mjs           # writes md
- *   node scripts/orphan-inventory.mjs --json    # machine-readable
- *   node scripts/orphan-inventory.mjs --top 50  # cap at 50 (default 100)
+ *   node scripts/orphan-inventory.mjs            # writes md + summary.md
+ *   node scripts/orphan-inventory.mjs --json     # machine-readable
+ *   node scripts/orphan-inventory.mjs --top 50   # cap at 50 (default 100)
+ *   node scripts/orphan-inventory.mjs --no-rank  # skip WiringPotential ranking
  */
 
 import { readFileSync, writeFileSync, existsSync, statSync } from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const ROOT = "H:/prism";
 const GRAPH_PATH = path.join(ROOT, "state/shared/system-viz/system-graph.json");
 const BUILD_STATE_PATH = path.join(ROOT, "state/shared/BUILD_STATE.json");
 const OUTPUT_PATH = path.join(ROOT, "state/shared/ORPHAN-INVENTORY.md");
+const SUMMARY_PATH = path.join(ROOT, "state/shared/ORPHAN-INVENTORY-summary.md");
 
 const HIGH_DEGREE_PCTILE = 0.85;
 const LOW_DEGREE = 1;
 const EXCLUDED_LAYERS = new Set(["L9", "L11"]);
 const DEFAULT_TOP_K = 100;
 
-const args = process.argv.slice(2);
-const wantJson = args.includes("--json");
-const topIdx = args.indexOf("--top");
-const topK = topIdx >= 0 ? Math.max(1, parseInt(args[topIdx + 1], 10) || DEFAULT_TOP_K) : DEFAULT_TOP_K;
+// F1: hard cap on the rendered dashboard so it never blows the
+// chat-bus-inject / context-window budget. 200 KB per envelope spec.
+export const OUTPUT_CAP_BYTES = 200 * 1024;
+// F1: the summary digest is meant to be cheap to inject — keep it small.
+export const SUMMARY_TOP_RANKED = 10;
 
 /**
  * Heuristic dispatcher hint for an orphan, based on name patterns.
@@ -78,6 +97,165 @@ function suggestDispatcher(label, id) {
   return null;
 }
 
+/**
+ * F1: parse the CLI flags. Extracted to a testable function so the F1
+ * extension can be unit-tested without spawning the script.
+ */
+export function parseArgs(argv) {
+  const out = { json: false, topK: DEFAULT_TOP_K, rank: true };
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+    if (a === "--json") out.json = true;
+    else if (a === "--no-rank") out.rank = false;
+    else if (a === "--top") {
+      const n = parseInt(argv[i + 1], 10);
+      out.topK = Number.isFinite(n) && n > 0 ? n : DEFAULT_TOP_K;
+      i++;
+    }
+  }
+  return out;
+}
+
+/**
+ * F1: rank the BUILD_STATE unwired engines via WiringPotentialEngine.analyzeBatch.
+ *
+ * Best-effort + injectable. The default path attempts to dynamically import
+ * the built engine from `mcp-server/dist`. If the engine isn't available
+ * (no dist build, or the export shape changed), this returns a map of
+ * `{ engineName -> null }` and the caller renders "—" in the ranked column —
+ * the rest of the inventory is unaffected.
+ *
+ * Test seam: `opts.analyzeBatch` lets a unit test inject a fake batch analyzer
+ * so the F1 extension is hermetically testable.
+ *
+ * @param {Array<{name:string}>} unwiredEngines
+ * @param {{ analyzeBatch?: (names:string[]) => Promise<Array<{name:string,score:number,rationale?:string}>> }} [opts]
+ * @returns {Promise<{ source: string, byName: Record<string, {score:number|null,rationale:string|null}> }>}
+ */
+export async function rankUnwiredEngines(unwiredEngines, opts = {}) {
+  const names = (unwiredEngines ?? [])
+    .map((e) => (e && typeof e.name === "string" ? e.name : null))
+    .filter(Boolean);
+  const byName = {};
+  for (const n of names) byName[n] = { score: null, rationale: null };
+
+  if (names.length === 0) return { source: "empty", byName };
+
+  // Injected seam (tests + future MCP-routed callers).
+  if (typeof opts.analyzeBatch === "function") {
+    try {
+      const results = await opts.analyzeBatch(names);
+      if (Array.isArray(results)) {
+        for (const r of results) {
+          if (r && typeof r.name === "string" && r.name in byName) {
+            const score = Number.isFinite(r.score) ? r.score : null;
+            byName[r.name] = { score, rationale: typeof r.rationale === "string" ? r.rationale : null };
+          }
+        }
+      }
+      return { source: "injected", byName };
+    } catch {
+      return { source: "injected_error", byName };
+    }
+  }
+
+  // Default path: try to load the built WiringPotentialEngine. Best-effort —
+  // a missing dist build degrades the ranked column to "—" without failing
+  // the whole inventory run.
+  //
+  // Test seam: `opts.distPath` lets a unit test point at a guaranteed-missing
+  // path so the `engine_not_built` branch is exercised deterministically and
+  // fast — importing the real dist engine pulls the whole engine dependency
+  // graph (~15s) which would otherwise time out the test.
+  try {
+    const distPath = opts.distPath ?? path.join(ROOT, "mcp-server/dist/engines/WiringPotentialEngine.js");
+    if (!existsSync(distPath)) return { source: "engine_not_built", byName };
+    // @vite-ignore: this is a runtime file:// path resolved at call time —
+    // Vite must NOT try to statically analyse / bundle it (it isn't a module
+    // graph dependency; it's a best-effort optional dist load).
+    const mod = await import(/* @vite-ignore */ pathToFileUrl(distPath));
+    const engine = mod.wiringPotentialEngine ?? mod.default ?? null;
+    if (!engine || typeof engine.analyzeBatch !== "function") {
+      return { source: "engine_no_analyzeBatch", byName };
+    }
+    const results = await engine.analyzeBatch(names);
+    if (Array.isArray(results)) {
+      for (const r of results) {
+        if (r && typeof r.name === "string" && r.name in byName) {
+          const score = Number.isFinite(r.score) ? r.score : null;
+          byName[r.name] = { score, rationale: typeof r.rationale === "string" ? r.rationale : null };
+        }
+      }
+    }
+    return { source: "engine", byName };
+  } catch {
+    return { source: "engine_load_error", byName };
+  }
+}
+
+function pathToFileUrl(p) {
+  // Minimal Windows-safe file:// URL builder for dynamic import().
+  const resolved = path.resolve(p).replace(/\\/g, "/");
+  return resolved.startsWith("/") ? `file://${resolved}` : `file:///${resolved}`;
+}
+
+/**
+ * F1: enforce the OUTPUT_CAP_BYTES dashboard cap. If the rendered markdown
+ * exceeds the cap, truncate at a line boundary and append a marker so a
+ * reader knows the file was cut. Pure.
+ */
+export function applyOutputCap(markdown, capBytes = OUTPUT_CAP_BYTES) {
+  const buf = Buffer.from(markdown, "utf-8");
+  if (buf.length <= capBytes) return { markdown, truncated: false, bytes: buf.length };
+  // Truncate to capBytes minus room for the marker, then back up to a newline.
+  const marker = `\n\n---\n_⚠ Output capped at ${Math.round(capBytes / 1024)} KB — ${buf.length - capBytes} bytes truncated. Run with --json for the full set._\n`;
+  const markerBytes = Buffer.byteLength(marker, "utf-8");
+  let slice = buf.subarray(0, Math.max(0, capBytes - markerBytes)).toString("utf-8");
+  const lastNl = slice.lastIndexOf("\n");
+  if (lastNl > 0) slice = slice.slice(0, lastNl);
+  return { markdown: slice + marker, truncated: true, bytes: Buffer.byteLength(slice + marker, "utf-8") };
+}
+
+/**
+ * F1: render the companion summary digest — counts + the top ranked wiring
+ * candidates. Designed to stay under ~5 KB so it's cheap to inject. Pure.
+ */
+export function renderSummary(inv) {
+  const lines = [];
+  lines.push(`# Orphan Inventory — summary digest`);
+  lines.push("");
+  lines.push(`> Generated ${inv.generatedAt} · companion to ORPHAN-INVENTORY.md`);
+  lines.push("");
+  lines.push(`- Graph orphans: **${inv.totalOrphans}**`);
+  const bs = inv.buildState ?? {};
+  const unwired = bs.unwiredEngines ?? [];
+  lines.push(`- BUILD_STATE unwired-engine sample: **${unwired.length}**`);
+  if (inv.ranking) {
+    lines.push(`- WiringPotential ranking source: \`${inv.ranking.source}\``);
+    const ranked = unwired
+      .map((u) => ({ name: u.name, ...(inv.ranking.byName[u.name] ?? { score: null }) }))
+      .filter((r) => Number.isFinite(r.score))
+      .sort((a, b) => b.score - a.score);
+    lines.push(`- Ranked candidates with a score: **${ranked.length}**`);
+    lines.push("");
+    if (ranked.length > 0) {
+      lines.push(`## Top ${Math.min(SUMMARY_TOP_RANKED, ranked.length)} wiring candidates (by WiringPotential score)`);
+      lines.push("");
+      for (const r of ranked.slice(0, SUMMARY_TOP_RANKED)) {
+        const rationale = r.rationale ? ` — _${r.rationale}_` : "";
+        lines.push(`- **${r.name}** · score \`${r.score.toFixed(3)}\`${rationale}`);
+      }
+    } else {
+      lines.push("");
+      lines.push(`_No scored candidates — WiringPotentialEngine ${inv.ranking.source === "engine_not_built" ? "not built (run npm run build:fast)" : "returned no scores"}._`);
+    }
+  }
+  lines.push("");
+  lines.push(`---`);
+  lines.push(`_Full punch list: \`state/shared/ORPHAN-INVENTORY.md\` · regenerate: \`node scripts/orphan-inventory.mjs\`_`);
+  return lines.join("\n");
+}
+
 function safeJson(p) {
   try {
     if (!existsSync(p)) return null;
@@ -100,7 +278,7 @@ function pctile(arr, p) {
   return sorted[Math.min(Math.floor(sorted.length * p), sorted.length - 1)];
 }
 
-function buildInventory() {
+export function buildInventory(topK = DEFAULT_TOP_K) {
   const graph = safeJson(GRAPH_PATH);
   if (!graph || !Array.isArray(graph.nodes) || !Array.isArray(graph.edges)) {
     return { error: "graph missing or malformed", path: GRAPH_PATH };
@@ -228,7 +406,7 @@ function buildInventory() {
   };
 }
 
-function renderMarkdown(inv) {
+export function renderMarkdown(inv) {
   const lines = [];
   lines.push(`# PRISM Orphan Inventory — built-but-unwired audit punch list`);
   lines.push("");
@@ -279,16 +457,39 @@ function renderMarkdown(inv) {
       lines.push(`**Top unwired domains** (full graph, not just sample): ${bs.topDomains.slice(0, 8).map((d) => `${d.domain} (${d.count})`).join(" · ")}`);
       lines.push("");
     }
+    // F1: pull the WiringPotential ranking map (if present) so each engine
+    // can carry a ranked-candidate score column.
+    const rankByName = inv.ranking?.byName ?? {};
+    if (inv.ranking) {
+      lines.push(`**WiringPotential ranking** — source \`${inv.ranking.source}\`. ` +
+        `Engines below carry a \`score\` column when the engine returned one ` +
+        `(higher = better wiring candidate).`);
+      lines.push("");
+    }
+
     const dispatchers = Object.keys(bs.byDispatcher).sort();
     for (const disp of dispatchers) {
       const list = bs.byDispatcher[disp];
       if (!list.length) continue;
       const heading = disp === "_unsuggested" ? "(no suggestion — manual review)" : `**${disp}**`;
       lines.push(`### ${heading} — ${list.length} engine(s)`);
-      for (const u of list) {
+      // F1: within each dispatcher group, sort by WiringPotential score desc
+      // so the highest-leverage candidates surface first.
+      const sortedList = [...list].sort((a, b) => {
+        const sa = rankByName[a.name]?.score;
+        const sb = rankByName[b.name]?.score;
+        const na = Number.isFinite(sa) ? sa : -1;
+        const nb = Number.isFinite(sb) ? sb : -1;
+        return nb - na;
+      });
+      for (const u of sortedList) {
         const reason = u.suggestionReason ? ` _(${u.suggestionReason})_` : "";
         const mtime = u.mtime ? ` · mtime ${u.mtime.slice(0, 10)}` : "";
-        lines.push(`- **${u.name}**${reason}${mtime}`);
+        const rk = rankByName[u.name];
+        const scoreCol = rk && Number.isFinite(rk.score)
+          ? ` · **score \`${rk.score.toFixed(3)}\`**`
+          : (inv.ranking ? ` · score —` : "");
+        lines.push(`- **${u.name}**${scoreCol}${reason}${mtime}`);
       }
       lines.push("");
     }
@@ -300,24 +501,78 @@ function renderMarkdown(inv) {
   return lines.join("\n");
 }
 
-const inv = buildInventory();
-if (inv.error) {
-  process.stderr.write(`[orphan-inventory] ${inv.error}: ${inv.path ?? ""}\n`);
-  process.exit(1);
+/**
+ * F1: full run — build inventory, attach WiringPotential ranking, render,
+ * cap, write both the dashboard and the summary digest. Returns a stats
+ * object; throws nothing (errors surface in the returned `error` field).
+ *
+ * Test seam: `opts.analyzeBatch` + `opts.writeFile` injectable.
+ */
+export async function runOrphanInventory(opts = {}) {
+  const topK = opts.topK ?? DEFAULT_TOP_K;
+  const rank = opts.rank !== false;
+  const inv = buildInventory(topK);
+  if (inv.error) return { error: inv.error, path: inv.path };
+
+  // F1: WiringPotential ranking over the BUILD_STATE unwired-engine sample.
+  if (rank) {
+    inv.ranking = await rankUnwiredEngines(inv.buildState?.unwiredEngines ?? [], opts);
+  }
+
+  if (opts.json) return { json: true, inventory: inv };
+
+  const rawMd = renderMarkdown(inv);
+  const capped = applyOutputCap(rawMd, opts.capBytes ?? OUTPUT_CAP_BYTES);
+  const summary = renderSummary(inv);
+
+  const writer = opts.writeFile ?? ((p, body) => writeFileSync(p, body));
+  writer(OUTPUT_PATH, capped.markdown);
+  writer(SUMMARY_PATH, summary);
+
+  const hinted = inv.orphans.filter((o) => o.suggestedDispatcher).length;
+  const rankedCount = inv.ranking
+    ? Object.values(inv.ranking.byName).filter((v) => Number.isFinite(v.score)).length
+    : 0;
+  return {
+    ok: true,
+    outputPath: OUTPUT_PATH,
+    summaryPath: SUMMARY_PATH,
+    totalOrphans: inv.totalOrphans,
+    shown: inv.cappedAt,
+    hinted,
+    rankingSource: inv.ranking?.source ?? "skipped",
+    rankedCount,
+    truncated: capped.truncated,
+    bytes: capped.bytes,
+    summaryBytes: Buffer.byteLength(summary, "utf-8"),
+  };
 }
 
-if (wantJson) {
-  process.stdout.write(JSON.stringify(inv, null, 2));
-  process.exit(0);
+// F1: guarded entry block — was a top-level imperative block, now gated so
+// the module can be imported by tests without side effects.
+const __filename = fileURLToPath(import.meta.url);
+const __entry = process.argv[1] ? path.resolve(process.argv[1]) : null;
+if (__entry && __filename === __entry) {
+  const cli = parseArgs(process.argv.slice(2));
+  runOrphanInventory(cli).then((res) => {
+    if (res.error) {
+      process.stderr.write(`[orphan-inventory] ${res.error}: ${res.path ?? ""}\n`);
+      process.exit(1);
+    }
+    if (res.json) {
+      process.stdout.write(JSON.stringify(res.inventory, null, 2));
+      process.exit(0);
+    }
+    process.stdout.write(
+      `wrote ${res.outputPath}${res.truncated ? " (capped)" : ""}\n` +
+      `wrote ${res.summaryPath} (${res.summaryBytes} bytes)\n` +
+      `  total orphans: ${res.totalOrphans} (showing ${res.shown})\n` +
+      `  heuristic-hinted: ${res.hinted}/${res.shown}\n` +
+      `  WiringPotential ranking: ${res.rankingSource} (${res.rankedCount} scored)\n`,
+    );
+    process.exit(0);
+  }).catch((e) => {
+    process.stderr.write(`[orphan-inventory] fatal: ${e instanceof Error ? e.stack ?? e.message : String(e)}\n`);
+    process.exit(1);
+  });
 }
-
-const md = renderMarkdown(inv);
-writeFileSync(OUTPUT_PATH, md);
-const hinted = inv.orphans.filter((o) => o.suggestedDispatcher).length;
-process.stdout.write(
-  `wrote ${OUTPUT_PATH}\n` +
-  `  total orphans: ${inv.totalOrphans} (showing ${inv.cappedAt})\n` +
-  `  heuristic-hinted: ${hinted}/${inv.cappedAt}\n` +
-  `  thresholds: in≥${inv.thresholds.inHigh} out≥${inv.thresholds.outHigh}\n`,
-);
-process.exit(0);

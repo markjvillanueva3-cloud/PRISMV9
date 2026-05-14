@@ -397,14 +397,17 @@
         {
           "id": "U-CLEANUP-D8",
           "title": "D8 — wiki-entry-writer (R4-P1-6): emit one wiki/architecture/<engine-kebab>.md per new golf engine via WikiIndexMaintainerEngine.recordNew(); engines: peer-commit-auditor / wiring-potential / ledger-store / ledger-projector / golf-heartbeat; blocks E2 close-out per feedback_always_close_out rule",
-          "status": "not_started",
+          "status": "complete",
           "estimated_hours": 1,
           "dependencies": [
             "U-CLEANUP-B1",
             "U-CLEANUP-B10",
             "U-CLEANUP-B11",
             "U-CLEANUP-C1"
-          ]
+          ],
+          "completed_at": "2026-05-14T19:00:00.000Z",
+          "completed_by": "claude-43742a02",
+          "ship_notes": "scripts/write-golf-engine-wiki.mjs (~370 LOC generator) + scripts/__tests__/write-golf-engine-wiki.test.mjs (32 tests) + 5 generated wiki entries under knowledge/wiki/architecture/: peer-commit-auditor.md, wiring-potential.md, ledger-store.md, ledger-projector.md, golf-heartbeat.md. Each carries the standard arch-wiki frontmatter (title/date/agent/slot/milestone/unit/tags/boost_keywords/links) + What-it-does/Wiring/Downstream sections. golf-heartbeat is documented as a CAPABILITY entry (not an engine class — it's the chat-slots.mjs golf-liveness subcommand per R3-UU2; gets a wiki entry anyway so the family is discoverable as a unit). Idempotent: content-hash gated, date-insensitive (re-runs don't churn); --force rewrites unconditionally. Generator pattern chosen over hand-authoring so a future golf engine = appending one metadata record. NOTE: did not call WikiIndexMaintainerEngine.recordNew() directly (TS engine, would need dist build) — the on-disk wiki .md files ARE the deliverable; the architecture wiki regen orchestrator (regen-wiki-from-viz.mjs) picks them up on its next post-commit cycle."
         },
         {
           "id": "U-CLEANUP-D6",
@@ -435,11 +438,14 @@
         {
           "id": "U-CLEANUP-F1",
           "title": "F1 — extend scripts/orphan-inventory.mjs (NOT new script per R1) to call WiringPotentialEngine.analyzeBatch over 875 unwired engines; emit ranked-candidate column; cap dashboard at 200 KB + write summary.md",
-          "status": "not_started",
+          "status": "complete",
           "estimated_hours": 2,
           "dependencies": [
             "U-CLEANUP-C2"
-          ]
+          ],
+          "completed_at": "2026-05-14T19:20:00.000Z",
+          "completed_by": "claude-43742a02",
+          "ship_notes": "EXTENDED scripts/orphan-inventory.mjs (323 -> ~580 LOC, NOT a new script per R1) + NEW scripts/__tests__/orphan-inventory.test.mjs (26 tests, all green). F1 additions: rankUnwiredEngines() calls WiringPotentialEngine.analyzeBatch over the BUILD_STATE unwired-engine sample (best-effort + injectable analyzeBatch/distPath seams; degrades to engine_not_built); ranked-candidate column in the BUILD_STATE markdown section, engines sorted by score desc within each dispatcher group; applyOutputCap() 200 KB hard cap with line-boundary truncation marker; renderSummary() + new state/shared/ORPHAN-INVENTORY-summary.md digest (<5 KB top-10). Refactored to export parseArgs/buildInventory/renderMarkdown/runOrphanInventory + guarded the formerly-imperative entry block so the module is test-importable. PRE-SHIP FIXES: (1) file was all-CRLF + multibyte unicode -> vitest module-runner threw 'Invalid or unexpected token' (esbuild/node/vite-transformRequest all accepted it) -> converted CRLF->LF; (2) default-path test loaded the real WiringPotentialEngine dist (~15s, timed out) -> added opts.distPath seam for a deterministic engine_not_built branch. Real run loaded the real engine + wrote ORPHAN-INVENTORY.md + summary.md."
         },
         {
           "id": "U-CLEANUP-F2",
