@@ -1,6 +1,6 @@
 # MILESTONE_PROGRESS — what's actually shipped vs claimed
 
-> Generated: 2026-05-14T02:47:05.819Z
+> Generated: 2026-05-14T12:53:25.310Z
 > Window: last 60.days of git log across all branches
 > Source: `scripts/build-milestone-progress.mjs`
 
@@ -19,17 +19,17 @@ flagging a unit as missing.
 
 - Milestones loaded:        **670**
 - Units across all MS:      **4906**
-- Units shipped (in git):   **1253**
-- Units pending:            **3653**
+- Units shipped (in git):   **1259**
+- Units pending:            **3647**
 - Drift cases:              **173** (envelope status disagrees with git reality)
 
 ## Top recently-active milestones (last shipped → first)
 
 | Milestone | Track | Status (claimed) | Status (real) | Shipped/Total | Last commit |
 |-----------|-------|------------------|---------------|---------------|-------------|
+| CLEANUP-MS0 | CLEANUP | in_progress | in_progress_real | 45/73 (62%) | 2026-05-14 |
+| COORD-MS0 | INFRA | unknown | in_progress_real | 8/12 (67%) | 2026-05-14 |
 | AI-MAX-MS0 | AI-MAX | in_progress | in_progress_real | 3/12 (25%) | 2026-05-13 |
-| CLEANUP-MS0 | CLEANUP | in_progress | in_progress_real | 40/73 (55%) | 2026-05-13 |
-| COORD-MS0 | INFRA | unknown | in_progress_real | 7/12 (58%) | 2026-05-13 |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | INFRA | not_started | in_progress_real | 80/92 (87%) | 2026-05-13 |
 | CAD-INFRA-MS0 | CAD-INFRA | complete | in_progress_real | 4/16 (25%) | 2026-05-13 |
 | S1-MS2 | — | not_started | in_progress_real | 9/10 (90%) | 2026-05-13 |
@@ -138,9 +138,9 @@ flagging a unit as missing.
 | MS-MASTERPOST | 44 | 44 | 0/44 |
 | MS1 | 39 | 39 | 0/39 |
 | MS-CAM-MASTERY | 34 | 34 | 0/34 |
-| CLEANUP-MS0 | 33 | 73 | 40/73 |
 | MS-AUDIT-DERIVED-2026-05-10 | 30 | 30 | 0/30 |
 | MS2 | 30 | 30 | 0/30 |
+| CLEANUP-MS0 | 28 | 73 | 45/73 |
 | EMP-MS0 | 28 | 28 | 0/28 |
 | BP-MS0 | 27 | 28 | 1/28 |
 | MS-TRAIN-DEEP | 26 | 26 | 0/26 |
