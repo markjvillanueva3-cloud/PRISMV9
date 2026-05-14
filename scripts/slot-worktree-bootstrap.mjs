@@ -32,7 +32,17 @@
  */
 
 import { execFileSync, spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, writeFileSync, statSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  writeFileSync,
+  statSync,
+  lstatSync,
+  renameSync,
+  unlinkSync,
+} from "node:fs";
+import { randomBytes } from "node:crypto";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { platform } from "node:os";
@@ -149,10 +159,24 @@ function makeJunction(target, link) {
     return { ok: false, error: `target does not exist: ${target}` };
   }
   if (existsSync(link)) {
-    // If it's already a junction/symlink to roughly the right place, leave it.
+    // Distinguish a junction/symlink (which we created on a previous run) from
+    // a REAL directory (e.g. someone ran `npm install` inside the slot tree
+    // before the bootstrap ran). lstatSync().isSymbolicLink() returns true for
+    // BOTH symlinks (POSIX) and directory junctions (Windows) per Node docs.
+    // Leaving a real directory in place would give the slot its OWN
+    // node_modules — defeating the whole junction strategy.
     try {
-      const st = statSync(link);
-      if (st.isDirectory()) return { ok: true, note: "junction (or real dir) already present — leaving as-is" };
+      const st = lstatSync(link);
+      if (st.isSymbolicLink()) {
+        return { ok: true, note: "junction/symlink already present — leaving as-is" };
+      }
+      if (st.isDirectory()) {
+        return {
+          ok: false,
+          error: `link path exists as a REAL directory (not a junction) — refusing to overwrite: ${link}. Move or remove it manually before re-running bootstrap.`,
+        };
+      }
+      return { ok: false, error: `link path exists but is neither junction nor directory: ${link}` };
     } catch (err) {
       return { ok: false, error: `existing link unreadable: ${err.message}` };
     }
@@ -320,22 +344,32 @@ function recordState(results, args) {
   }
   mkdirSync(dirname(STATE_FILE), { recursive: true });
   // Atomic-rename to avoid a peer reading a half-written state.
-  const tmp = STATE_FILE + "." + process.pid + ".tmp";
+  // Temp file uses pid + crypto random so concurrent bootstrap invocations
+  // on the same host don't collide and so a stale .tmp from a crashed run
+  // can't be confused with a live one.
+  const tmpSuffix = `${process.pid}.${randomBytes(6).toString("hex")}`;
+  const tmp = `${STATE_FILE}.${tmpSuffix}.tmp`;
   writeFileSync(tmp, JSON.stringify(state, null, 2) + "\n");
   try {
     // rename is atomic on Windows when target doesn't exist; if it does,
     // unlink first.
     if (existsSync(STATE_FILE)) {
-      const { renameSync, unlinkSync } = require("node:fs");
       unlinkSync(STATE_FILE);
       renameSync(tmp, STATE_FILE);
     } else {
-      const { renameSync } = require("node:fs");
       renameSync(tmp, STATE_FILE);
     }
   } catch (err) {
-    // Fallback: write directly (less atomic but won't lose data).
+    // Fallback: write directly (less atomic but won't lose data). Surface the
+    // failure so the operator can see that the atomic guarantee dropped —
+    // Karpathy R12 "fail loud", per PRISM CLAUDE.md anti-swallow rule.
+    process.stderr.write(
+      `slot-worktree-bootstrap: atomic rename failed (${err && err.message ? err.message : err}), ` +
+      `falling back to non-atomic write of ${STATE_FILE}\n`,
+    );
     writeFileSync(STATE_FILE, JSON.stringify(state, null, 2) + "\n");
+    // Best-effort cleanup of the orphan temp; ignore failures.
+    try { unlinkSync(tmp); } catch {}
   }
 }
 

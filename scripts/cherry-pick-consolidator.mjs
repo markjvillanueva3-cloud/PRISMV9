@@ -321,12 +321,16 @@ function executeCherryPick(plan, args) {
       }
     }
   }
-  // Refuse if the target worktree has uncommitted changes — cherry-pick onto a
-  // dirty tree mangles state and the abort path can't clean it up.
-  const status = gitSafe(args.targetWorktree, ["status", "--porcelain"]);
+  // Refuse if the target worktree has uncommitted TRACKED changes —
+  // cherry-pick onto a dirty tree mangles state and the abort path can't
+  // clean it up. We deliberately pass --untracked-files=no so that harmless
+  // untracked junk (build artifacts, log files, peer-state auto-generation,
+  // .cache scratch) does NOT block --execute. This mirrors
+  // audit-worktrees.mjs:dirtyCount which already ignores untracked.
+  const status = gitSafe(args.targetWorktree, ["status", "--porcelain", "--untracked-files=no"]);
   if (status.ok && status.out.trim()) {
     const head = status.out.split(/\r?\n/).slice(0, 5).join("\n");
-    return { ok: false, refused: true, error: `REFUSED: target worktree has uncommitted changes:\n${head}${status.out.split(/\r?\n/).length > 5 ? "\n  ..." : ""}` };
+    return { ok: false, refused: true, error: `REFUSED: target worktree has uncommitted tracked changes:\n${head}${status.out.split(/\r?\n/).length > 5 ? "\n  ..." : ""}` };
   }
 
   const applied = [];
