@@ -17,7 +17,7 @@ if (process.platform !== "win32") {
   process.exit(2);
 }
 
-const PRISM_ROOT             = "H:/prism";
+const PRISM_ROOT             = process.env.PRISM_ROOT ?? "H:/prism";
 const TASKLIST_TIMEOUT_MS    = 8000;
 const REAPER_TIMEOUT_MS      = 30000;
 const STALE_LOCK_MAX_AGE_MS  = 5 * 60 * 1000;

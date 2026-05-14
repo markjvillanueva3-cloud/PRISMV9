@@ -1,6 +1,6 @@
 # Git Tree Punchlist
 
-Generated: 2026-05-14T01:00:43.879Z
+Generated: 2026-05-14T01:13:34.946Z
 Repo: `H:/prism`
 Primary base: `cad-fusion-live-ms0`  Secondary: `main`
 Archive threshold: 90 days
@@ -25,9 +25,9 @@ Archive threshold: 90 days
 | NEEDS_REVIEW | `H:/prism-graph-context` | `work/graph-context-ms0` | `4568f0a58` | 2d | dirty(48) | branch merged but worktree has 48 uncommitted file(s) + 3 stashed entry(ies) |
 | NEEDS_REVIEW | `H:/prism-merge-staging` | `work/merge-staging-ms0` | `5d557785a` | 6d | dirty(47) | branch merged but worktree has 47 uncommitted file(s) + 3 stashed entry(ies) |
 | NEEDS_REVIEW | `H:/prism-octopus-neural-ms0` | `work/octopus-neural-ms0-v2` | `95e635a15` | 1d | dirty(48) | branch merged but worktree has 48 uncommitted file(s) + 3 stashed entry(ies) |
-| NEEDS_REVIEW | `H:/prism-sfc-calibrate` | `work/sfc-calibrate` | `deed389f4` | 1d | dirty(50) | branch merged but worktree has 50 uncommitted file(s) + 3 stashed entry(ies) |
+| NEEDS_REVIEW | `H:/prism-sfc-calibrate` | `work/sfc-calibrate` | `deed389f4` | 2d | dirty(50) | branch merged but worktree has 50 uncommitted file(s) + 3 stashed entry(ies) |
 | NEEDS_REVIEW | `H:/prism-skills-util` | `work/skills-utilization-ms0` | `a34a5ece8` | 1d | dirty(63) | branch merged but worktree has 63 uncommitted file(s) + 3 stashed entry(ies) |
-| KEEP | `H:/PRISM` | `cad-fusion-live-ms0` | `1a333b67f` | — | dirty(5431) | main repo |
+| KEEP | `H:/PRISM` | `cad-fusion-live-ms0` | `e8535b89d` | — | dirty(5441) | main repo |
 | KEEP | `H:/PRISM/.claude/worktrees/rgs6-audit-v2` | `work/rgs6-audit-v2` | `6c4779375` | 2d | dirty(40) | active unmerged work (last commit 2d ago) |
 | KEEP | `H:/PRISM/.claude/worktrees/u-fus-api01` | `worktree-u-fus-api01` | `59b94c4ad` | 16d | dirty(116) | active unmerged work (last commit 16d ago) |
 | KEEP | `H:/PRISM/.claude/worktrees/u-fus-api02` | `worktree-u-fus-api02` | `46c1ab015` | 16d | dirty(77) | active unmerged work (last commit 16d ago) |
@@ -39,18 +39,18 @@ Archive threshold: 90 days
 | KEEP | `H:/prism-cam-spcfai-ms0` | `work/cam-spcfai-ms0` | `1b77d6c0c` | 8d | dirty(8) | active unmerged work (last commit 8d ago) |
 | KEEP | `H:/prism-claudemd-enforcement` | `meta/claudemd-enforcement` | `f42740ce6` | 16d | dirty(97) | active unmerged work (last commit 16d ago) |
 | KEEP | `H:/prism-cleanup-g19` | `work/cleanup-g19` | `f1192d0a1` | 0d | dirty(0) | active unmerged work (last commit 0d ago) |
-| KEEP | `H:/prism-engine-wire-ms0` | `work/engine-wire-ms0` | `a06dbff40` | 12d | dirty(14) | active unmerged work (last commit 12d ago) |
+| KEEP | `H:/prism-engine-wire-ms0` | `work/engine-wire-ms0` | `a06dbff40` | 13d | dirty(14) | active unmerged work (last commit 13d ago) |
 | KEEP | `H:/prism-file-claim-fix` | `meta/file-claim-fix` | `b7705e931` | 16d | dirty(452) | active unmerged work (last commit 16d ago) |
 | KEEP | `H:/prism-forge-archive` | `archive/forge-orphans-2026-05-01` | `5e4afb24b` | 12d | dirty(15) | active unmerged work (last commit 12d ago) |
 | KEEP | `H:/prism-fusion-ms1` | `work/cam-fusion-ms1` | `6b5ef569e` | 13d | dirty(15) | active unmerged work (last commit 13d ago) |
 | KEEP | `H:/prism-golf-watchdog` | `work/golf-watchdog-ms0` | `fb5149f5c` | 0d | dirty(0) | active unmerged work (last commit 0d ago) |
-| KEEP | `H:/prism-hypermill-ms1` | `work/cam-hypermill-ms1` | `a0277f5fa` | 12d | dirty(3) | active unmerged work (last commit 12d ago) |
+| KEEP | `H:/prism-hypermill-ms1` | `work/cam-hypermill-ms1` | `a0277f5fa` | 13d | dirty(3) | active unmerged work (last commit 13d ago) |
 | KEEP | `H:/prism-intel-p8` | `work/engine-wire-cad-ms0` | `c02745029` | 11d | dirty(6) | active unmerged work (last commit 11d ago) |
 | KEEP | `H:/prism-iooms0` | `work/intel-ollama-obsidian-ms0` | `d1e8b88f7` | 5d | dirty(19) | active unmerged work (last commit 5d ago) |
 | KEEP | `H:/prism-iooms1` | `work/intel-ollama-obsidian-ms1` | `0877aff00` | 12d | dirty(5) | active unmerged work (last commit 12d ago) |
 | KEEP | `H:/prism-knowledge-wiki` | `work/knowledge-wiki-ms0` | `7baa46580` | 16d | dirty(77) | active unmerged work (last commit 16d ago) |
 | KEEP | `H:/prism-lathe-pro-v3` | `work/lathe-pro-v3-ms2` | `3481bdfce` | 7d | dirty(4) | active unmerged work (last commit 7d ago) |
-| KEEP | `H:/prism-lathe-pro-v3-bookkeeping` | `work/lathe-pro-v3-bookkeeping` | `4c3e05356` | 7d | dirty(0) | active unmerged work (last commit 7d ago) |
+| KEEP | `H:/prism-lathe-pro-v3-bookkeeping` | `work/lathe-pro-v3-bookkeeping` | `4c3e05356` | 8d | dirty(0) | active unmerged work (last commit 8d ago) |
 | KEEP | `H:/prism-lathe-prod-ready` | `work/lathe-prod-ready-ms0` | `63843484c` | 9d | dirty(8) | active unmerged work (last commit 9d ago) |
 | KEEP | `H:/prism-macro-domain` | `work/macro-domain-ms0` | `52af52865` | 1d | dirty(48) | active unmerged work (last commit 1d ago) |
 | KEEP | `H:/prism-mill-worktree` | `work/mill-master` | `4aced164f` | 18d | dirty(51) | active unmerged work (last commit 18d ago) |

@@ -18,7 +18,7 @@
 //     - else                                                             → KEEP
 
 import { spawnSync } from "node:child_process";
-import { writeFileSync, mkdirSync, renameSync, statSync } from "node:fs";
+import { writeFileSync, mkdirSync, renameSync, statSync, unlinkSync, existsSync } from "node:fs";
 import { randomBytes } from "node:crypto";
 import path from "node:path";
 
@@ -41,9 +41,15 @@ function quoteForShell(s) {
 
 function atomicWrite(filePath, content) {
   const dir = path.dirname(filePath);
+  mkdirSync(dir, { recursive: true });
   const tmp = path.join(dir, `.${path.basename(filePath)}.${process.pid}.${randomBytes(4).toString("hex")}.tmp`);
-  writeFileSync(tmp, content);
-  renameSync(tmp, filePath);
+  try {
+    writeFileSync(tmp, content, "utf8");
+    renameSync(tmp, filePath);
+  } catch (e) {
+    try { if (existsSync(tmp)) unlinkSync(tmp); } catch { /* ignore */ }
+    throw e;
+  }
 }
 
 const args = parseArgs(process.argv.slice(2));
