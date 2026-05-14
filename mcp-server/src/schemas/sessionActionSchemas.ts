@@ -664,4 +664,20 @@ export const ACTION_SESSION_SCHEMAS: ActionSchemaMap = {
     exclude_layers: z.array(z.string()).optional()
       .describe("Exclude layers (default ['L9','L11'] — fs noise)"),
   }).passthrough(),
+
+  /**
+   * psk — COMMAND-KERNEL-MS0/U-CK01 PRISM Syscall Kernel dispatch.
+   * Thin MCP wrapper around .claude/kernel/psk.mjs's dispatch() function.
+   * 10 declared syscalls (whoami / manifest / position / delta / tools /
+   * pick / checkin / handoff / record / recommend). Each is fail-soft —
+   * the dispatcher returns a structured {ok, syscall, result|error, …}
+   * object even on failure. Per-syscall semantics fill in via U-CK02
+   * (whoami / manifest / position) and U-CK03 (handoff / checkin / pick).
+   */
+  psk: z.object({
+    syscall: z.string().min(1)
+      .describe("Syscall name. One of: whoami, manifest, position, delta, tools, pick, checkin, handoff, record, recommend. Unknown values return ok:false with errorCode:UNKNOWN_SYSCALL."),
+    params: z.record(z.string(), z.unknown()).optional()
+      .describe("Syscall-specific params (e.g. {sessionId} for whoami, {event,command,outcome} for record, {subcommand,terminal,resume,state} for handoff). Forwarded verbatim — each syscall validates its own shape and returns a degraded result on bad input."),
+  }).passthrough(),
 };
