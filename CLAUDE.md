@@ -202,6 +202,25 @@ const result = prismCreativeReasoningEngine.explore(problem, "optimal");
 ```
 **15 scientific domains** (control theory, materials science, robotics, ML, precision, etc.) · **120+ formulas/algorithms** (PID, LQR, Kalman, Johnson-Cook, NURBS, S-curve, CNN, K-means, Abbe error). Entry point: `CrossDisciplinaryDeepLearningEngine`.
 
+## Recent regressions
+<!-- Append-only log per Boris CLAUDE.md back-flow pattern. New entries at TOP. -->
+- 2026-05-14 | `system-viz-live-bridge` PostToolUse hook logged 1,347 `ping-failed:TypeError` events (4.3% of telemetry stream) when local viz server was off — every Edit/Write retried ECONNREFUSED forever | fix: classify TypeError as `viz-not-running` (info) + add 5-min session backoff via `VIZ_DOWN_BACKOFF_MS` + `vizDownFile` sidecar | observed-by: claude-48450e3d /forge-audit-v2 | verify: `node scripts/hook-health-check.mjs --window=1h` should show 0 broken hooks
+- 2026-05-14 | `build-tracker.mjs` PostToolUse:Write fires `/bin/bash: xmalloc: cannot allocate 8192 bytes` (fork-storm symptom under Windows hook load) | fix: not a code bug; run `node .claude/helpers/node-process-janitor.mjs --full` to reap orphan bash.exe + MCP procs | observed-by: claude-48450e3d /forge-audit-v2 | verify: subsequent Write hooks emit no xmalloc errors
+
+## DEV PRODUCTIVITY HOOKS (2026-05-14 /forge-audit-v2 addition)
+3 UserPromptSubmit hooks auto-fire on slash-command keywords to inject pre-flight context. **Knobs**: `PRISM_LOOP_INJECT_DISABLE=1`, `PRISM_PICK_PREFRESH_DISABLE=1`, `PRISM_GOAL_PREREQ_DISABLE=1`. Wired in C: and H: `.claude/settings.json` UserPromptSubmit chain (after token-budget-gate, before auto-consensus).
+
+| Hook | Trigger | Surfaces |
+|---|---|---|
+| `loop-iteration-inject.mjs` | `/loop` | this session's loop-state (iter/target/status), other fleet loops, Karpathy R10 reminder |
+| `pick-prefresh-inject.mjs` | `/pick-unit` `/pick-task` `/checkin` `/pick-build-close` | MILESTONE_PROGRESS + BUILD_STATE + CLOSE-OUT-CANDIDATES staleness, active claims, research order |
+| `goal-prereq-inject.mjs` | `/goal` | CLOSE-OUT-CANDIDATES freshness vs Stop-gate threshold, sibling-unit pending status |
+
+Companion artifacts:
+- `.claude/helpers/loop-state.mjs` — start/tick/read/end/list/reap for resumable `/loop` state (`state/shared/loop-state/loop-<sid>.json`)
+- `.claude/commands/pick-build-close.md` — macro skill: pick → research → build → close-out → handoff
+- `scripts/hook-health-check.mjs` — re-runnable telemetry analyzer (META artifact, baselines hook failure rate)
+
 ## SHARED AGENT BRIDGES (Claude ↔ Codex parity)
 Full catalog moved to [`knowledge/wiki/coordination/shared-directives-index.md`](knowledge/wiki/coordination/shared-directives-index.md) (U-CLEANUP-D3). Six `CLAUDE-CODEX-*-DIRECTIVE.md` files under `state/shared/` plus 4 live-state files (`AGENT_WORKBOARD.md`, `AGENT_CHAT.md`, `AGENT_COORDINATION_STATUS.md`, `ROADMAP_COLLABORATION_STATE.md`). Read the index when coordination rules matter.
 

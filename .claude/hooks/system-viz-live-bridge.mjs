@@ -32,6 +32,9 @@ import * as path from "node:path";
 
 const DEFAULT_COOLDOWN_MS = 3000;
 const REQUEST_TIMEOUT_MS = 180;
+// Backoff multiplier when viz server is unreachable — collapses ECONNREFUSED storms
+// (the dominant hook-telemetry noise source: 1,347 ping-failed events / 4.3% stream).
+const VIZ_DOWN_BACKOFF_MS = 5 * 60 * 1000; // 5 min — viz is optional; don't retry hot
 
 // Edits to these don't move the system graph (or would self-trigger) — skip the ping.
 const IRRELEVANT_PATH_RX =
@@ -71,13 +74,18 @@ function safeSid(sid) {
 export function cooldownFile(sid, env = process.env) {
   return path.join(cacheDir(env), `viz-live-bridge-${safeSid(sid)}.ts`);
 }
+export function vizDownFile(sid, env = process.env) {
+  return path.join(cacheDir(env), `viz-live-bridge-${safeSid(sid)}.down`);
+}
 
 /**
  * Pure decision: should this edit trigger a ping?
+ * @param vizDownUntil - epoch ms; if now < this, viz was recently unreachable, skip.
  * @returns {{fire:boolean, reason:string}}
  */
-export function shouldFire({ filePath, lastFireAt = 0, now = Date.now(), cooldown = DEFAULT_COOLDOWN_MS }) {
+export function shouldFire({ filePath, lastFireAt = 0, now = Date.now(), cooldown = DEFAULT_COOLDOWN_MS, vizDownUntil = 0 }) {
   if (!isGraphRelevant(filePath)) return { fire: false, reason: "path not graph-relevant" };
+  if (vizDownUntil > 0 && now < vizDownUntil) return { fire: false, reason: `viz-down backoff (until ${new Date(vizDownUntil).toISOString()})` };
   // lastFireAt 0/falsy ⇒ never fired this session ⇒ no cooldown to honour.
   if (lastFireAt > 0 && now - lastFireAt < cooldown) return { fire: false, reason: `within client cooldown (${cooldown}ms)` };
   return { fire: true, reason: "ok" };
@@ -87,6 +95,12 @@ function readLastFire(file) {
   try { const n = Number(fs.readFileSync(file, "utf8").trim()); return Number.isFinite(n) ? n : 0; } catch { return 0; }
 }
 function writeLastFire(file, ts) {
+  try { fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, String(ts)); } catch { /* ignore */ }
+}
+function readVizDownUntil(file) {
+  try { const n = Number(fs.readFileSync(file, "utf8").trim()); return Number.isFinite(n) ? n : 0; } catch { return 0; }
+}
+function writeVizDownUntil(file, ts) {
   try { fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, String(ts)); } catch { /* ignore */ }
 }
 
@@ -118,10 +132,22 @@ export async function runBridge({ stdin, env = process.env, now = Date.now(), po
   if (typeof filePath !== "string" || !filePath) return { fired: false, reason: "no file_path" };
   const sid = stdin?.session_id;
   const cf = cooldownFile(sid, env);
-  const decision = shouldFire({ filePath, lastFireAt: readLastFire(cf), now, cooldown: cooldownMs(env) });
+  const df = vizDownFile(sid, env);
+  const decision = shouldFire({
+    filePath, lastFireAt: readLastFire(cf), now, cooldown: cooldownMs(env),
+    vizDownUntil: readVizDownUntil(df),
+  });
   if (!decision.fire) return { fired: false, reason: decision.reason };
   writeLastFire(cf, now); // claim the cooldown slot BEFORE the await, so concurrent edits don't double-fire
   const post = await postFn(vizUrl(env));
+  // Any fetch-level exception (post.error is set) means viz is not usable right
+  // now — TypeError=ECONNREFUSED (off), TimeoutError/AbortError=too slow. All are
+  // expected when viz is optional; set a 5-min backoff so we don't spam telemetry
+  // with 1000+ ping-failed events per session. A post that came back with ok:false
+  // but NO error field = a real HTTP failure (4xx/5xx) — that stays ping-failed.
+  if (post && post.ok === false && post.error) {
+    writeVizDownUntil(df, now + VIZ_DOWN_BACKOFF_MS);
+  }
   return { fired: true, reason: "ok", post };
 }
 
@@ -139,7 +165,12 @@ async function main() {
   catch { return process.stdout.write(JSON.stringify({ continue: true })); }
 
   if (res.fired) {
-    telemetry(process.env, { event: res.post && res.post.ok ? "pinged" : "ping-failed", post: res.post, file: stdin?.tool_input?.file_path ?? null, session: stdin?.session_id ?? null });
+    // pinged = ok · viz-not-running = any fetch exception (off/slow, expected) · ping-failed = real HTTP failure
+    let event;
+    if (res.post && res.post.ok) event = "pinged";
+    else if (res.post && res.post.error) event = "viz-not-running";
+    else event = "ping-failed";
+    telemetry(process.env, { event, post: res.post, file: stdin?.tool_input?.file_path ?? null, session: stdin?.session_id ?? null });
   }
   // Always continue — this hook is a pure side-effect notifier; it never blocks or nudges.
   process.stdout.write(JSON.stringify({ continue: true }));
