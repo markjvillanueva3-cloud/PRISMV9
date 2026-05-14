@@ -58,7 +58,20 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // preserves engine state (ETag, backoff) across calls in the long-lived
 // MCP server. Modes: poll_all (default), poll_one (slug), get_sources,
 // get_state, reset_all.
-"source_sweep"] as const;
+"source_sweep",
+// INTEL-OLLAMA-OBSIDIAN-MS0/P23-U01: per-call LLM telemetry surfaces
+// backed by ModelTelemetryEngine. `model_telemetry_report` returns
+// {windowMs?, totalCalls, byModel:{...}} stats. `model_telemetry_log`
+// appends one entry (used by hooks/agents that fired an Ollama call).
+// `model_telemetry_purge` drops entries older than `olderThanMs`.
+"model_telemetry_report",
+"model_telemetry_log",
+"model_telemetry_purge",
+// INTEL-OLLAMA-OBSIDIAN-MS0/P23-U02: read the adaptive routing state
+// written by `scripts/adapt-router-thresholds.mjs`. Returns the on-disk
+// router-adaptation-state.json contents + (optional) recent decisions
+// from router-adaptation.jsonl.
+"router_adaptation_status"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -4324,6 +4337,100 @@ export function registerDevDispatcher(server: any): void {
               default:
                 result = { error: "invalid_mode", mode, allowed: ["poll_all", "poll_one", "get_sources", "get_state", "reset_all"] };
             }
+            break;
+          }
+
+          // INTEL-OLLAMA-OBSIDIAN-MS0/P23-U01 — ModelTelemetryEngine read/log/purge surfaces.
+          case "model_telemetry_report": {
+            const { modelTelemetryEngine } = await import("../../engines/ModelTelemetryEngine.js");
+            const windowMs = typeof params.windowMs === "number" && Number.isFinite(params.windowMs) && params.windowMs > 0
+              ? params.windowMs
+              : undefined;
+            const stats = modelTelemetryEngine.getStats({ windowMs });
+            const recentLimit = typeof params.recentLimit === "number" && params.recentLimit > 0
+              ? Math.floor(params.recentLimit)
+              : 0;
+            const recent = recentLimit > 0
+              ? modelTelemetryEngine.getRecentCalls({ windowMs, limit: recentLimit })
+              : undefined;
+            result = {
+              success: true,
+              data: {
+                stats,
+                storePath: modelTelemetryEngine.getStorePath(),
+                ...(recent ? { recent } : {}),
+              },
+            };
+            break;
+          }
+          case "model_telemetry_log": {
+            const { modelTelemetryEngine } = await import("../../engines/ModelTelemetryEngine.js");
+            try {
+              const entry = modelTelemetryEngine.logCall({
+                model: String(params.model ?? ""),
+                backend: typeof params.backend === "string" ? params.backend : undefined,
+                taskKind: typeof params.taskKind === "string" ? params.taskKind : undefined,
+                promptTokens: Number(params.promptTokens ?? 0),
+                completionTokens: Number(params.completionTokens ?? 0),
+                latencyMs: Number(params.latencyMs ?? 0),
+                outcome: params.outcome === "fail" || params.outcome === "timeout" ? params.outcome : "ok",
+                errorBrief: typeof params.errorBrief === "string" ? params.errorBrief : undefined,
+              });
+              result = { success: true, data: { entry } };
+            } catch (err) {
+              result = { success: false, error: "invalid_input", detail: err instanceof Error ? err.message : String(err) };
+            }
+            break;
+          }
+          case "model_telemetry_purge": {
+            const { modelTelemetryEngine } = await import("../../engines/ModelTelemetryEngine.js");
+            const olderThanMs = Number(params.olderThanMs ?? 0);
+            if (!Number.isFinite(olderThanMs) || olderThanMs < 0) {
+              result = { success: false, error: "invalid_olderThanMs", value: params.olderThanMs };
+              break;
+            }
+            const removed = modelTelemetryEngine.purgeOlderThan(olderThanMs);
+            result = { success: true, data: { removed, olderThanMs } };
+            break;
+          }
+          // INTEL-OLLAMA-OBSIDIAN-MS0/P23-U02 — adaptive routing status surface.
+          case "router_adaptation_status": {
+            const stateDir = path.join(MCP_ROOT, "data", "state");
+            const statePath = path.join(stateDir, "router-adaptation-state.json");
+            const logPath = path.join(stateDir, "router-adaptation.jsonl");
+            let state: any = null;
+            let stateLoadError: string | null = null;
+            try {
+              if (fs.existsSync(statePath)) {
+                state = JSON.parse(fs.readFileSync(statePath, "utf8"));
+              }
+            } catch (err) {
+              stateLoadError = err instanceof Error ? err.message : String(err);
+            }
+            const recentLimit = typeof params.recentLimit === "number" && params.recentLimit > 0
+              ? Math.min(Math.floor(params.recentLimit), 500)
+              : 50;
+            let recent: any[] = [];
+            try {
+              if (fs.existsSync(logPath)) {
+                const raw = fs.readFileSync(logPath, "utf8");
+                const lines = raw.split(/\r?\n/).filter((l) => l.length > 0);
+                const tail = lines.slice(-recentLimit);
+                recent = tail.map((line) => {
+                  try { return JSON.parse(line); }
+                  catch { return { malformed: true, raw: line.slice(0, 120) }; }
+                });
+              }
+            } catch { /* tolerate */ }
+            result = {
+              success: true,
+              data: {
+                state,
+                stateLoadError,
+                recent,
+                paths: { state: statePath, log: logPath },
+              },
+            };
             break;
           }
 

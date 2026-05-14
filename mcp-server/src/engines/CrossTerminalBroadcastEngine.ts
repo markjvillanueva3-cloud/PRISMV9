@@ -14,8 +14,30 @@
 import { log } from "../utils/Logger.js";
 import * as fs from "fs";
 import * as path from "path";
+import * as crypto from "crypto";
 import { fileURLToPath } from "url";
 import { EventEmitter } from "events";
+
+// ============================================================================
+// CONSTANTS — exported so tests can scale assertions if these change
+// ============================================================================
+
+/**
+ * Max retained lines in the broadcast channel before the trim path fires.
+ * [COORD-MS0/U-COORD08-HARDEN]
+ */
+export const TRIM_LINE_CAP = 1000;
+
+/**
+ * Cheap pre-check threshold (bytes): we only do the read+split work when the
+ * channel file exceeds this. 32 KiB is well below the natural size of 1000
+ * realistic events (~80–250 bytes/event ⇒ 80–250 KB at the line cap), so any
+ * channel that's overshooting the line cap will also be over this floor.
+ * Picked deliberately below 1000 × 80 B = 80 KB so trim cannot be silently
+ * skipped for short events.
+ * [COORD-MS0/U-COORD08-HARDEN]
+ */
+export const TRIM_BYTE_FLOOR = 32 * 1024;
 
 // ============================================================================
 // TYPES
@@ -71,6 +93,12 @@ export class CrossTerminalBroadcastEngine extends EventEmitter {
 
   constructor() {
     super();
+    // Cap raised from EventEmitter default of 10 so high subscribe-count scenarios
+    // (multi-chat fleets, dispatcher fan-out, test harnesses that mount many listeners
+    // against the singleton) don't emit MaxListenersExceededWarning to stderr.
+    // 50 is well above current observed peaks (≈18) and well below any plausible leak.
+    // [COORD-MS0/U-COORD08-HARDEN]
+    this.setMaxListeners(50);
     const thisFile = fileURLToPath(import.meta.url);
     this.baseDir = path.resolve(path.dirname(thisFile), "..", "..");
     this.registryPath = path.join(this.baseDir, "data", "state", "cross-session-asset-registry.json");
@@ -376,6 +404,33 @@ export class CrossTerminalBroadcastEngine extends EventEmitter {
     process.on("exit", () => clearInterval(pollInterval));
   }
 
+  /**
+   * Append an event to the broadcast channel and (if needed) trim it back to
+   * `TRIM_LINE_CAP` lines via an atomic write-temp-then-rename.
+   *
+   * Atomicity scope:
+   *   - The APPEND is OS-atomic at the byte level: `appendFileSync` opens with
+   *     the `'a'` flag (POSIX `O_APPEND`), which guarantees the kernel
+   *     serializes concurrent writes that fit in `PIPE_BUF` (≥4 KiB on every
+   *     modern OS — our serialized events are well under that). On NTFS the
+   *     same property holds via filesystem-level write serialization.
+   *   - The TRIM is replaced-file atomic: readers see either the pre-trim
+   *     content or the post-trim content, never a half-written file. This is
+   *     guaranteed by `fs.renameSync` over the channel.
+   *
+   * Residual race (DOCUMENTED): two processes that both cross the line cap at
+   * the same instant can each read the pre-trim file, each write a temp, and
+   * each rename in turn. The second rename wins; appends that landed in the
+   * read→rename window of the losing writer are lost. This is acceptable for
+   * a coordination channel where every event is also broadcast in-process via
+   * EventEmitter, and where every entry is advisory (not load-bearing). A
+   * future hardening pass could close this via a lockfile or `flock` (tracked
+   * as a U-COORD09+ candidate). Until then, this method NEVER promises
+   * append-loss-freedom under cross-process contention — only line-cap-bounded
+   * growth and per-line parseability.
+   *
+   * [COORD-MS0/U-COORD08-HARDEN]
+   */
   private async writeToBroadcastChannel(event: BroadcastEvent): Promise<void> {
     try {
       const dir = path.dirname(this.broadcastPath);
@@ -383,14 +438,40 @@ export class CrossTerminalBroadcastEngine extends EventEmitter {
         fs.mkdirSync(dir, { recursive: true });
       }
 
-      // Append to channel (JSONL format)
       fs.appendFileSync(this.broadcastPath, JSON.stringify(event) + "\n");
 
-      // Trim channel if too large (keep last 1000 lines)
-      const content = fs.readFileSync(this.broadcastPath, "utf-8");
-      const lines = content.trim().split("\n");
-      if (lines.length > 1000) {
-        fs.writeFileSync(this.broadcastPath, lines.slice(-1000).join("\n") + "\n");
+      // Trim path. Cheap stat first; only read+split when the file is plausibly
+      // over the line cap.
+      let stat: fs.Stats | null = null;
+      try {
+        stat = fs.statSync(this.broadcastPath);
+      } catch {
+        stat = null;
+      }
+      if (stat && stat.size > TRIM_BYTE_FLOOR) {
+        const content = fs.readFileSync(this.broadcastPath, "utf-8");
+        const lines = content.trim().split("\n");
+        if (lines.length > TRIM_LINE_CAP) {
+          const trimmed = lines.slice(-TRIM_LINE_CAP).join("\n") + "\n";
+          // 128-bit random suffix via crypto.randomBytes — defeats the
+          // symlink-pre-creation attack a predictable temp path would expose.
+          const suffix = crypto.randomBytes(16).toString("hex");
+          const tempPath = `${this.broadcastPath}.trim-${process.pid}-${Date.now()}-${suffix}.tmp`;
+          let renamed = false;
+          try {
+            fs.writeFileSync(tempPath, trimmed);
+            fs.renameSync(tempPath, this.broadcastPath);
+            renamed = true;
+          } finally {
+            if (!renamed) {
+              try {
+                fs.unlinkSync(tempPath);
+              } catch {
+                // ignore — temp file may not exist, or be locked by a concurrent attempt
+              }
+            }
+          }
+        }
       }
     } catch (err) {
       log.warn(`[CrossTerminalBroadcast] Could not write to channel: ${err}`);

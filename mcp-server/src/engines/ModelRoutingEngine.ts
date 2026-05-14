@@ -272,8 +272,36 @@ export const DEFAULT_MODEL_CATALOG: ModelSpec[] = [
   },
 ];
 
+/**
+ * Per-model adaptation entry — produced by the P23-U02 tuner
+ * (`scripts/adapt-router-thresholds.mjs`) after analyzing recent
+ * `ModelTelemetryEngine` data. Patches `ModelRoutingEngine`'s in-memory
+ * catalog at runtime so the route() scorer/gates reflect observed reality.
+ *
+ * Field semantics:
+ *   - `effectiveLatencyMs`: overrides the catalog's `latencyMsTypical`
+ *     for scoring + the latency-budget hard wall. Set when observed P95
+ *     diverges materially from the declared typical (faster OR slower).
+ *   - `excludedFromSafety`: when true, the model is rejected from any
+ *     `safety_critical` task even if its `qualityTier ≥ 85`. Set when
+ *     observed failure rate exceeds the tuner threshold.
+ *   - `reason`: free-form audit text propagated from the tuner.
+ *   - `appliedAt`: ISO timestamp the patch was generated.
+ */
+export interface ModelAdaptationEntry {
+  effectiveLatencyMs?: number;
+  excludedFromSafety?: boolean;
+  reason?: string;
+  appliedAt?: string;
+}
+
+/** Map of model id → adaptation. Missing models keep their catalog defaults. */
+export type ModelAdaptiveState = Record<string, ModelAdaptationEntry>;
+
 export class ModelRoutingEngine {
   private catalog: ModelSpec[];
+  /** Active adaptation overrides keyed by model id. Mutated by `applyAdaptiveState`. */
+  private adaptive: ModelAdaptiveState = {};
 
   constructor(catalog: readonly ModelSpec[] = DEFAULT_MODEL_CATALOG) {
     this.catalog = [...catalog];
@@ -288,6 +316,65 @@ export class ModelRoutingEngine {
 
   listModels(): ReadonlyArray<ModelSpec> {
     return this.catalog;
+  }
+
+  /**
+   * Replace the active adaptation state. Pass `{}` to clear overrides
+   * and revert to pure-catalog routing. Validation is strict — any
+   * non-finite `effectiveLatencyMs` or non-boolean `excludedFromSafety`
+   * is dropped (silent) rather than throwing, so a corrupted state file
+   * cannot wedge production routing.
+   */
+  applyAdaptiveState(state: ModelAdaptiveState): void {
+    const cleaned: ModelAdaptiveState = {};
+    for (const [id, entry] of Object.entries(state ?? {})) {
+      if (!entry || typeof entry !== "object") continue;
+      const patch: ModelAdaptationEntry = {};
+      if (
+        typeof entry.effectiveLatencyMs === "number" &&
+        Number.isFinite(entry.effectiveLatencyMs) &&
+        entry.effectiveLatencyMs >= 0
+      ) {
+        patch.effectiveLatencyMs = entry.effectiveLatencyMs;
+      }
+      if (typeof entry.excludedFromSafety === "boolean") {
+        patch.excludedFromSafety = entry.excludedFromSafety;
+      }
+      if (typeof entry.reason === "string" && entry.reason.length > 0) {
+        patch.reason = entry.reason;
+      }
+      if (typeof entry.appliedAt === "string" && entry.appliedAt.length > 0) {
+        patch.appliedAt = entry.appliedAt;
+      }
+      // Only retain entries that produced at least one patch field.
+      if (patch.effectiveLatencyMs !== undefined || patch.excludedFromSafety !== undefined) {
+        cleaned[id] = patch;
+      }
+    }
+    this.adaptive = cleaned;
+  }
+
+  /** Read the active adaptation map (for diagnostics + dispatcher reports). */
+  getAdaptiveState(): ModelAdaptiveState {
+    // Deep copy so callers can't mutate engine internals.
+    const out: ModelAdaptiveState = {};
+    for (const [id, entry] of Object.entries(this.adaptive)) {
+      out[id] = { ...entry };
+    }
+    return out;
+  }
+
+  /**
+   * Return the latency the scorer + canServe gates should use for a given
+   * model, applying any active `effectiveLatencyMs` override. Exposed so
+   * the tuner + dispatcher can show "declared vs effective" diffs.
+   */
+  getEffectiveLatency(modelId: string): number {
+    const m = this.catalog.find((x) => x.id === modelId);
+    if (!m) return 0;
+    const adapt = this.adaptive[modelId];
+    if (adapt?.effectiveLatencyMs !== undefined) return adapt.effectiveLatencyMs;
+    return m.latencyMsTypical;
   }
 
   /**
@@ -403,6 +490,19 @@ export class ModelRoutingEngine {
       if (hardFail) rationale.push(`${m.id}: qualityTier ${m.qualityTier} < 85 for safety_critical`);
       return false;
     }
+    // Adaptive exclusion: tuner observed high failure rate → exclude from safety_critical.
+    const adapt = this.adaptive[m.id];
+    if (
+      adapt?.excludedFromSafety === true &&
+      (req.taskKind === "safety_critical" || req.requireSafety === true)
+    ) {
+      if (hardFail) {
+        rationale.push(
+          `${m.id}: excludedFromSafety=true via adaptive state${adapt.reason ? ` (${adapt.reason})` : ""}`,
+        );
+      }
+      return false;
+    }
 
     // Embeddings stay local — paying frontier rates for vectors is wasteful
     // and none of the cloud chat models produce MiniLM-compatible outputs.
@@ -423,12 +523,17 @@ export class ModelRoutingEngine {
       return false;
     }
 
-    // Latency budget is a hard wall.
-    if (req.latencyBudgetMs !== undefined && m.latencyMsTypical > req.latencyBudgetMs) {
-      if (hardFail)
-        rationale.push(
-          `${m.id}: latency ${m.latencyMsTypical}ms > budget ${req.latencyBudgetMs}ms`,
-        );
+    // Latency budget is a hard wall. Use the adaptive override if the
+    // tuner observed P95 diverging materially from declared typical.
+    const effLatency = this.getEffectiveLatency(m.id);
+    if (req.latencyBudgetMs !== undefined && effLatency > req.latencyBudgetMs) {
+      if (hardFail) {
+        const declared = m.latencyMsTypical;
+        const decoration = effLatency !== declared
+          ? `${effLatency}ms (adaptive; declared ${declared}ms)`
+          : `${effLatency}ms`;
+        rationale.push(`${m.id}: latency ${decoration} > budget ${req.latencyBudgetMs}ms`);
+      }
       return false;
     }
 
@@ -452,10 +557,12 @@ export class ModelRoutingEngine {
 
     // Prefer cheaper and faster when quality is adequate. Normalize both so
     // quality (0-100) can outweigh small cost/latency differences but not a
-    // 10x blowout.
+    // 10x blowout. Use the adaptive effective latency when set so that a
+    // model whose live P95 has degraded gets ranked lower automatically.
     const cost = this.estimateCost(m, req);
     const costPenalty = Math.log10(1 + cost * 1000) * 12; // $0.01 ≈ 1.29 pts
-    const latencyPenalty = (m.latencyMsTypical / 1000) * 3; // 1s ≈ 3 pts
+    const effLatency = this.getEffectiveLatency(m.id);
+    const latencyPenalty = (effLatency / 1000) * 3; // 1s ≈ 3 pts
 
     // Safety-critical biases hard towards quality: keep the penalties but
     // let a 98-tier Opus comfortably beat a 92-tier Sonnet.
