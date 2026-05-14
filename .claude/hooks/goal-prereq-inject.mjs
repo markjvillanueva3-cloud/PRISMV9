@@ -40,7 +40,8 @@ function buildContext() {
   const staleHrs = Number(process.env.PRISM_GOAL_PREREQ_STALE_HRS) || 2;
   const lines = [`─── /goal pre-flight ────────────────────────────`];
 
-  // CLOSE-OUT-CANDIDATES staleness (the Stop hook will block on this)
+  // CLOSE-OUT-CANDIDATES staleness (the Stop hook will block on this).
+  // Schema: { results: [ { milestone, title, file, candidates: [{ unit_id, title, ... }] } ] }
   const coPath = path.join(STATE_DIR, "CLOSE-OUT-CANDIDATES.json");
   const coAge = ageHours(coPath);
   if (coAge == null) {
@@ -51,24 +52,32 @@ function buildContext() {
     lines.push(`   → Refresh: /close-out-audit`);
   } else {
     const co = readJson(coPath);
-    const count = Array.isArray(co?.candidates) ? co.candidates.length : 0;
-    lines.push(`✓ CLOSE-OUT-CANDIDATES fresh (${coAge.toFixed(1)}h, ${count} candidate(s))`);
-    if (count > 0 && Array.isArray(co.candidates)) {
+    // Flatten results[].candidates[] — each candidate carries its parent milestone.
+    const cands = Array.isArray(co?.results)
+      ? co.results.flatMap((r) => (Array.isArray(r.candidates) ? r.candidates.map((c) => ({ ...c, milestone: c.milestone || r.milestone })) : []))
+      : [];
+    lines.push(`✓ CLOSE-OUT-CANDIDATES fresh (${coAge.toFixed(1)}h, ${cands.length} candidate(s))`);
+    if (cands.length > 0) {
       lines.push(`   Pending triage:`);
-      for (const c of co.candidates.slice(0, 3)) {
-        lines.push(`   • ${c.milestone}/${c.unit_id} — ${(c.title || "").slice(0, 60)}`);
+      for (const c of cands.slice(0, 3)) {
+        lines.push(`   • ${c.milestone}/${c.unit_id || c.unit || "?"} — ${(c.title || "").slice(0, 60)}`);
       }
-      if (count > 3) lines.push(`   ... +${count - 3} more`);
+      if (cands.length > 3) lines.push(`   ... +${cands.length - 3} more`);
     }
   }
 
-  // Deferred list awareness
+  // Deferred list awareness. Entry format under `## Entries`:
+  //   <unit-id> | <who> | <iso-ts> | <reason>
   const deferred = path.join(STATE_DIR, "CLOSE-OUT-DEFERRED.md");
   if (fs.existsSync(deferred)) {
     try {
       const content = fs.readFileSync(deferred, "utf-8");
-      const items = (content.match(/^[-*]\s/gm) || []).length;
-      lines.push(`· CLOSE-OUT-DEFERRED: ${items} explicit deferrals registered`);
+      // A deferral entry = a line with ≥3 pipe-delimited fields whose first
+      // field looks like a unit/milestone id (not a markdown table header/rule).
+      const items = (content.match(/^[A-Za-z][\w.-]*\s*\|.*\|.*\|/gm) || [])
+        .filter((l) => !/^\s*[-|]+\s*\|/.test(l)) // exclude `|---|` table rules
+        .length;
+      lines.push(`· CLOSE-OUT-DEFERRED: ${items} explicit deferral(s) registered`);
     } catch { /* skip */ }
   }
 

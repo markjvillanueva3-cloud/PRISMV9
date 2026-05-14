@@ -147,6 +147,10 @@ export async function runBridge({ stdin, env = process.env, now = Date.now(), po
   // but NO error field = a real HTTP failure (4xx/5xx) — that stays ping-failed.
   if (post && post.ok === false && post.error) {
     writeVizDownUntil(df, now + VIZ_DOWN_BACKOFF_MS);
+  } else if (post && post.ok) {
+    // Viz answered — clear any stale backoff so a server that just came up is
+    // pinged immediately instead of waiting out the full 5-min window.
+    try { fs.unlinkSync(df); } catch { /* no backoff file — fine */ }
   }
   return { fired: true, reason: "ok", post };
 }

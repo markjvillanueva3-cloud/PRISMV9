@@ -45,6 +45,9 @@ function readJson(p) {
   try { return JSON.parse(fs.readFileSync(p, "utf-8")); } catch { return null; }
 }
 
+// Claims live at claims/<milestone>/claim.json (ONE per milestone, not per-unit).
+// Schema: { milestone, chatId, slot, lastHeartbeat, claimedAt, units_planned[] }
+const CLAIM_STALE_MS = 5 * 60 * 1000; // >5min since lastHeartbeat = reclaimable
 function activeClaims() {
   try {
     if (!fs.existsSync(CLAIMS_DIR)) return [];
@@ -54,17 +57,17 @@ function activeClaims() {
     const out = [];
     const now = Date.now();
     for (const ms of milestones) {
-      const msDir = path.join(CLAIMS_DIR, ms);
-      let units;
-      try { units = fs.readdirSync(msDir); } catch { continue; }
-      for (const u of units) {
-        const claimFile = path.join(msDir, u, "claim.json");
-        const c = readJson(claimFile);
-        if (!c) continue;
-        const hb = c.heartbeat_at ? new Date(c.heartbeat_at).getTime() : 0;
-        const stale = !hb || (now - hb) > 5 * 60 * 1000; // >5min = stale
-        out.push({ milestone: ms, unit: u, instance: c.instance_id, stale });
-      }
+      const c = readJson(path.join(CLAIMS_DIR, ms, "claim.json"));
+      if (!c) continue;
+      const hb = c.lastHeartbeat ? new Date(c.lastHeartbeat).getTime() : 0;
+      const stale = !hb || (now - hb) > CLAIM_STALE_MS;
+      const units = Array.isArray(c.units_planned) ? c.units_planned.length : 0;
+      out.push({
+        milestone: c.milestone || ms,
+        owner: c.chatId || c.slot || "?",
+        units,
+        stale,
+      });
     }
     return out;
   } catch { return []; }
@@ -94,15 +97,15 @@ function buildContext(_stdin) {
     lines.push(`⚠ BUILD_STATE.json MISSING — run: node H:/prism/scripts/build-state-snapshot.mjs`);
   }
 
-  // CLOSE-OUT candidates
+  // CLOSE-OUT candidates — schema: { results: [ { milestone, candidates: [...] } ] }
   const coPath = path.join(STATE_DIR, "CLOSE-OUT-CANDIDATES.json");
   const co = readJson(coPath);
   const coAge = ageMin(coPath);
-  if (co && Array.isArray(co.candidates)) {
-    const count = co.candidates.length;
+  if (co && Array.isArray(co.results)) {
+    const count = co.results.reduce((n, r) => n + (Array.isArray(r.candidates) ? r.candidates.length : 0), 0);
     const fresh = coAge != null && coAge < 120; // <2h
     lines.push(`${fresh ? "✓" : "⚠"} CLOSE-OUT candidates: ${count}${fresh ? "" : ` (${coAge}m stale — refresh: /close-out-audit)`}`);
-  } else if (coPath) {
+  } else {
     lines.push(`· CLOSE-OUT-CANDIDATES not present (run /close-out-audit before /goal)`);
   }
 
@@ -121,9 +124,9 @@ function buildContext(_stdin) {
     const alive = claims.filter((c) => !c.stale);
     if (alive.length > 0) {
       lines.push(`⚠ ${alive.length} active claim(s) — don't double-claim:`);
-      for (const c of alive.slice(0, 5)) lines.push(`   ${c.milestone}/${c.unit} — ${c.instance}`);
+      for (const c of alive.slice(0, 5)) lines.push(`   ${c.milestone} — ${c.owner} (${c.units} unit(s) planned)`);
     }
-    if (stale.length > 0) lines.push(`· ${stale.length} stale claim(s) reclaimable (heartbeat >5min old)`);
+    if (stale.length > 0) lines.push(`· ${stale.length} stale claim(s) reclaimable (lastHeartbeat >5min old)`);
   }
 
   // Reminder: research order
