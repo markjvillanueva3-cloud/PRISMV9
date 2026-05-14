@@ -69,7 +69,7 @@ Register-ScheduledTask `
   -Action $action `
   -Trigger $trigger `
   -Settings $settings `
-  -Description "Monitors commit-memory pressure every $EveryMinutes minutes. Auto-runs 02-kill-zombie-tsservers + cleanup-orchestrator when usage crosses 85/92/97% thresholds. Cheap noop when memory is healthy. Self-bounds each run to ~100s. Logs to .cache/memory-pressure-log.jsonl." `
+  -Description "Monitors commit-memory pressure every $EveryMinutes minutes. Auto-runs 02-kill-zombie-tsservers + node-process-janitor --full when usage crosses 85/92/97% thresholds. Cheap noop when memory is healthy. Self-bounds each run to ~100s. Logs to .cache/memory-pressure-log.jsonl." `
   -Force | Out-Null
 
 Write-Host "Registered: $TaskName (03-memory-pressure-auto-relief.ps1, every $EveryMinutes min, ExecutionTimeLimit=4min)"

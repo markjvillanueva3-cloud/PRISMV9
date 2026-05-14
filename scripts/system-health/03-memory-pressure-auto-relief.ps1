@@ -21,10 +21,10 @@
 #   < $MediumThresholdPct : run 02-kill-zombie-tsservers.ps1 (stale MCP +
 #                          tsservers + playwright >60 min). Typical
 #                          reclaim: 0.5-2 GB.
-#   < $HeavyThresholdPct  : zombie-tsservers + cleanup-orchestrator.mjs
-#                          (git-locks + chat-bus + zombie-reaper +
-#                          node-orphans + bash-orphans — the consolidated
-#                          reaper layer).
+#   < $HeavyThresholdPct  : zombie-tsservers + node-process-janitor --full
+#                          (reaps Git-for-Windows bash.exe wrappers, orphan
+#                          @playwright/mcp / mcp-http-bridge, dead-parent
+#                          MCP servers).
 #   >= $HeavyThresholdPct : above + dump top 10 processes by RSS to the log
 #                          + emit a Windows toast (best-effort) so the
 #                          operator sees it. Does NOT kill live processes
@@ -47,9 +47,13 @@
 #      under the 120s task limit) — each escalation tier checks the remaining
 #      budget before starting, and the script always exits 0 cleanly rather
 #      than being killed mid-reap.
-# Also fixed: Invoke-NodeJanitor pointed at .claude/hooks/node-process-janitor.mjs
-# which was removed when the reaper layer was consolidated — it silently
-# no-op'd. It is now Invoke-CleanupOrchestrator → .claude/helpers/cleanup-orchestrator.mjs.
+# Both sub-cleaner invocations (Invoke-ZombieTsservers, Invoke-NodeJanitor) now
+# run THROUGH Invoke-Bounded. Previously each used a bare `& $script` /
+# `& $nodeExe $script --full` with NO timeout — under process pressure either
+# could run long enough to blow the task's ExecutionTimeLimit. That unbounded
+# invocation was the real termination cause; the scripts they call
+# (02-kill-zombie-tsservers.ps1, .claude/hooks/node-process-janitor.mjs) are
+# unchanged and were never dead — only their invocation is now bounded.
 #
 # Log format (JSONL): {t, pct, usedGB, totalGB?, action, reclaimedMB?, killed?,
 #                      janitorRan?, timedOut?, topProcs?}.
@@ -124,13 +128,19 @@ function Invoke-Bounded {
   if ($TimeoutSec -le 0) {
     return @{ output = @(); timedOut = $false; exitCode = $null; ran = $false; skipped = 'no_time_budget' }
   }
-  # Two independent reserved temp names — Start-Process requires distinct
-  # stdout/stderr targets, and deriving "$tmpOut.err" leaves a predictable,
-  # un-reserved path (a symlink-TOCTOU surface). Two GetTempFileName() calls
-  # are both random and both OS-reserved.
-  $tmpOut = [System.IO.Path]::GetTempFileName()
-  $tmpErr = [System.IO.Path]::GetTempFileName()
+  # Declared before the try so the finally can see them; assigned INSIDE the try
+  # so a GetTempFileName() IOException (%TEMP% exhausted / unwritable) returns
+  # the error result instead of throwing out of the function and aborting the
+  # whole script — the exact SCHED-kill failure mode this rewrite exists to fix.
+  $tmpOut = $null
+  $tmpErr = $null
   try {
+    # Two independent reserved temp names — Start-Process requires distinct
+    # stdout/stderr targets, and deriving "$tmpOut.err" leaves a predictable,
+    # un-reserved path (a symlink-TOCTOU surface). Two GetTempFileName() calls
+    # are both random and both OS-reserved.
+    $tmpOut = [System.IO.Path]::GetTempFileName()
+    $tmpErr = [System.IO.Path]::GetTempFileName()
     $proc = Start-Process -FilePath $Exe -ArgumentList $ChildArgs -PassThru -NoNewWindow `
       -RedirectStandardOutput $tmpOut -RedirectStandardError $tmpErr -ErrorAction Stop
     Wait-Process -Id $proc.Id -Timeout $TimeoutSec -ErrorAction SilentlyContinue
@@ -158,14 +168,14 @@ function Invoke-Bounded {
     # truncated tail (would only under-report a log number, never corrupt).
     Start-Sleep -Milliseconds 50
     $out = @()
-    if (Test-Path $tmpOut) { $out += @(Get-Content -Path $tmpOut -ErrorAction SilentlyContinue) }
-    if (Test-Path $tmpErr) { $out += @(Get-Content -Path $tmpErr -ErrorAction SilentlyContinue) }
+    if ($tmpOut -and (Test-Path $tmpOut)) { $out += @(Get-Content -Path $tmpOut -ErrorAction SilentlyContinue) }
+    if ($tmpErr -and (Test-Path $tmpErr)) { $out += @(Get-Content -Path $tmpErr -ErrorAction SilentlyContinue) }
     return @{ output = $out; timedOut = $timedOut; exitCode = $exitCode; ran = $true }
   } catch {
     return @{ output = @(); timedOut = $false; exitCode = $null; ran = $false; error = $_.Exception.Message }
   } finally {
-    try { Remove-Item $tmpOut -Force -ErrorAction SilentlyContinue } catch { }
-    try { Remove-Item $tmpErr -Force -ErrorAction SilentlyContinue } catch { }
+    if ($tmpOut) { try { Remove-Item $tmpOut -Force -ErrorAction SilentlyContinue } catch { } }
+    if ($tmpErr) { try { Remove-Item $tmpErr -Force -ErrorAction SilentlyContinue } catch { } }
   }
 }
 
@@ -194,24 +204,23 @@ function Invoke-ZombieTsservers {
   return $res
 }
 
-function Invoke-CleanupOrchestrator {
+function Invoke-NodeJanitor {
   param([int]$TimeoutSec)
-  # Was Invoke-NodeJanitor → '.claude\hooks\node-process-janitor.mjs', which was
-  # removed when the reaper layer was consolidated (the old call silently
-  # no-op'd via the Test-Path guard). cleanup-orchestrator.mjs is the
-  # replacement — it runs the 5 sub-cleaners (git-locks, chat-bus,
-  # zombie-reaper, node-orphans, bash-orphans), the same job the old janitor did.
-  $script = 'H:\prism\.claude\helpers\cleanup-orchestrator.mjs'
+  # node-process-janitor.mjs --full is the scheduled-task "backstop" mode of the
+  # prism-scoped orphan reaper (reaps Git-for-Windows bash.exe wrappers, orphan
+  # @playwright/mcp / mcp-http-bridge, dead-parent MCP servers). The script and
+  # the --full arg are UNCHANGED from the original — the only fix is that the
+  # invocation now goes THROUGH Invoke-Bounded, so a slow run under process
+  # pressure can no longer overrun the scheduled task's ExecutionTimeLimit.
+  $script = 'H:\prism\.claude\hooks\node-process-janitor.mjs'
   if (-not (Test-Path $script)) { return @{ ran = $false; error = 'script_missing' } }
   $nodeExe = $null
   foreach ($cand in @('H:\Tools\nodejs\node.exe', 'C:\Program Files\nodejs\node.exe')) {
     if (Test-Path $cand) { $nodeExe = $cand; break }
   }
   if (-not $nodeExe) { return @{ ran = $false; error = 'node_missing' } }
-  # No flags: this script does not parse the orchestrator's stdout (only
-  # whether it ran), so a bare invocation is the simplest correct call.
-  $r = Invoke-Bounded -Exe $nodeExe -ChildArgs @($script) -TimeoutSec $TimeoutSec
-  # `ran` is honest: it means the orchestrator actually spawned AND finished
+  $r = Invoke-Bounded -Exe $nodeExe -ChildArgs @($script, '--full') -TimeoutSec $TimeoutSec
+  # `ran` is honest: true only if the janitor actually spawned AND finished
   # within budget. A timeout (tree-killed mid-run) reports ran=$false so a
   # JSONL consumer reading janitorRan is not misled.
   $res = @{ ran = ([bool]$r.ran -and -not [bool]$r.timedOut) }
@@ -284,10 +293,10 @@ if ($pct -lt $HeavyThresholdPct) {
     Append-Log @{ pct = $pct; usedGB = $mem.usedGB; action = 'medium_skipped_no_budget' }
     exit 0
   }
-  Write-Host "Memory $pct% > medium threshold $MediumThresholdPct% — zombie + cleanup-orchestrator."
+  Write-Host "Memory $pct% > medium threshold $MediumThresholdPct% — zombie + node-janitor."
   $r1 = Invoke-ZombieTsservers -TimeoutSec ([math]::Min($budget, $ZombieCapSec))
   $budget2 = Get-RemainingSec
-  $r2 = if ($budget2 -gt $MinTierBudgetSec) { Invoke-CleanupOrchestrator -TimeoutSec $budget2 } else { @{ ran = $false; skipped = 'no_budget' } }
+  $r2 = if ($budget2 -gt $MinTierBudgetSec) { Invoke-NodeJanitor -TimeoutSec $budget2 } else { @{ ran = $false; skipped = 'no_budget' } }
   Append-Log @{ pct = $pct; usedGB = $mem.usedGB; action = 'medium'; reclaimedMB = $r1.reclaimedMB; killed = $r1.killed; janitorRan = [bool]$r2.ran; timedOut = ([bool]$r1.timedOut -or [bool]$r2.timedOut) }
   exit 0
 }
@@ -301,7 +310,7 @@ if ($budget -le $MinTierBudgetSec) {
 Write-Host "Memory $pct% > heavy threshold $HeavyThresholdPct% — escalated relief."
 $r1 = Invoke-ZombieTsservers -TimeoutSec ([math]::Min($budget, $ZombieCapSec))
 $budget2 = Get-RemainingSec
-$r2 = if ($budget2 -gt $MinTierBudgetSec) { Invoke-CleanupOrchestrator -TimeoutSec $budget2 } else { @{ ran = $false; skipped = 'no_budget' } }
+$r2 = if ($budget2 -gt $MinTierBudgetSec) { Invoke-NodeJanitor -TimeoutSec $budget2 } else { @{ ran = $false; skipped = 'no_budget' } }
 $topProcs = Dump-TopProcs
 Try-Toast 'PRISM memory pressure' "$pct% used. Reaper ran. Top procs in log: $LogPath"
 Append-Log @{ pct = $pct; usedGB = $mem.usedGB; action = 'heavy'; reclaimedMB = $r1.reclaimedMB; killed = $r1.killed; janitorRan = [bool]$r2.ran; timedOut = ([bool]$r1.timedOut -or [bool]$r2.timedOut); topProcs = $topProcs }
