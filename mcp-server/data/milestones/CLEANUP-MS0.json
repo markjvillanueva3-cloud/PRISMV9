@@ -258,12 +258,15 @@
         {
           "id": "U-CLEANUP-B12",
           "title": "B12 — LedgerLoRAExporter (R4-P1-9): nightly read-only cron exports bug_attribution rows in cam_lora_* schema format to state/shared/lora-training/peer-audit-<YYYY-MM>.jsonl; training itself out-of-scope; export preserves option-value once dataset >=1000 rows",
-          "status": "not_started",
+          "status": "complete",
           "estimated_hours": 1,
           "dependencies": [
             "U-CLEANUP-B5",
             "U-CLEANUP-B10"
-          ]
+          ],
+          "completed_at": "2026-05-14T18:25:00.000Z",
+          "completed_by": "claude-43742a02",
+          "ship_notes": "scripts/export-ledger-lora.mjs (550 LOC) + scripts/system-health/31-ledger-lora-export.ps1 daily wrapper + scripts/__tests__/export-ledger-lora.test.mjs (50 tests). Per-file 2-reviewer scrutiny: 1 PASS, 1 FAIL → P0-1 (month-boundary data loss when nightly cron fires post-midnight UTC) + P0-2 (atomic-write EBUSY race) BOTH FIXED in same iteration. Fixes: (a) runCli default path rewrites BOTH previous + current month idempotently — P0-1; (b) defaultAtomicWrite single retry on EBUSY/EPERM with 50ms backoff — P0-2; (c) PII redaction (gh*/sk-*/AKIA*/Windows-user-path patterns) on dispatch_prompt_excerpt — Reviewer-B P1-1; (d) surrogate-pair-safe truncation on unicode at boundary; (e) real-DB integration test via better-sqlite3 (skips on Node ABI mismatch) — Reviewer-D P1-1; (f) CLI success-path test with seamed databaseFactory — Reviewer-D P1-2. cam_lora schema (instruction/input/output/weight/labels/fingerprint, schemaVersion=1). training_ready flag flips when totalRowsAllMonths >= 1000. 50/50 vitest pass.\n\nDEFERRED to U-CLEANUP-B12-FOLLOWUP (per feedback_always_close_out): unreached --now flag end-to-end test; exit-code-3 distinction for no-rows vs missing-db; readme polish."
         },
         {
           "id": "U-CLEANUP-C3",
