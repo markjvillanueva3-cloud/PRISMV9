@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-05-14T15:08:45.000Z",
+  "generator": "U-CLEANUP-E2 (manual populate; bootstrap-golf.mjs A6 seeded the empty shell)",
+  "lockfileDir": ".cron-locks",
+  "timeBasis": "UTC",
+  "notes": "Five daily hygiene prompts the golf-slot chat schedules via CronCreate at session start. Times intentionally off the :00/:30 marks per fleet-friendly scheduling (jitter reduces shared-tree contention across the 7-slot fleet). Distinct from Windows Task Scheduler health scripts in scripts/system-health/ — those run regardless of which chat is open; these are in-session golf reminders for fleet hygiene the golf chat owns. Per-cron lockfile at .cron-locks/<id>.lock prevents the same prompt from re-firing while a prior fire is still working.",
+  "crons": [
+    {
+      "id": "golf-stale-claim-sweep",
+      "name": "Stale-claim sweep",
+      "scheduleUtc": "03:17",
+      "cronExpr": "17 3 * * *",
+      "description": "Audit stale milestone claims (read-only) via handoff-staleness.mjs. Surfaces claims whose owning chat has been silent >4h. Release is owned by reap-stale-claims.mjs. Targets the /peer-audit skill once U-CLEANUP-B4 ships; until then the prompt invokes the script directly so the cron is never a no-op.",
+      "prompt": "Run node .claude/helpers/handoff-staleness.mjs --json and surface any dead-owner handoffs or unknown-heartbeat claims to the chat bus. Future: this becomes /peer-audit when U-CLEANUP-B4 lands.",
+      "scriptHint": ".claude/helpers/handoff-staleness.mjs --json",
+      "expectedDurationMs": 60000,
+      "enabled": true
+    },
+    {
+      "id": "golf-state-snapshot",
+      "name": "Daily golf-state backup",
+      "scheduleUtc": "04:23",
+      "cronExpr": "23 4 * * *",
+      "description": "Daily backup of golf coordination state — coordination.db + golf-*.json + bug_attribution JSONL dump to H:/prism-backups/golf-state/<ISO>/. 30-day retention. Also runs via Windows Task Scheduler (30-golf-state-snapshot.ps1) for resilience when no golf chat is open.",
+      "prompt": "Run scripts/golf-state-snapshot.mjs --json and report deltas vs last 7 snapshots.",
+      "scriptHint": "scripts/golf-state-snapshot.mjs --json",
+      "expectedDurationMs": 30000,
+      "enabled": true
+    },
+    {
+      "id": "golf-wiki-lint",
+      "name": "Wiki lint sweep",
+      "scheduleUtc": "05:31",
+      "cronExpr": "31 5 * * *",
+      "description": "Lint architecture wiki for stale entries, broken cross-refs, orphans. Auto-emits WIKI_LINT_REPORT.md to state/shared/dashboards/. expectedDurationMs sized for a 700+ entry sweep at ~1s/entry; with STALE_GRACE_MULT=4 the lockfile grace is 20 min, covering legitimate sweeps without spurious self-steal.",
+      "prompt": "/wiki-lint",
+      "scriptHint": "scripts/system-health/09-wiki-lint.ps1",
+      "expectedDurationMs": 300000,
+      "enabled": true
+    },
+    {
+      "id": "golf-frontend-merge-nudge",
+      "name": "Frontend-merge nudge",
+      "scheduleUtc": "06:43",
+      "cronExpr": "43 6 * * *",
+      "description": "Re-emit /frontend-merge-plan when BUILD_STATE.frontendsPending > 0 and the last nudge is >24h old. Posts a chat-bus message rather than blocking.",
+      "prompt": "/frontend-merge-plan",
+      "scriptHint": "scripts/frontend-merge-nudge.mjs",
+      "expectedDurationMs": 30000,
+      "enabled": true
+    },
+    {
+      "id": "golf-close-out-audit",
+      "name": "Close-out audit + CLAUDE.md drift",
+      "scheduleUtc": "07:53",
+      "cronExpr": "53 7 * * *",
+      "description": "Regenerate CLOSE-OUT-CANDIDATES.{json,md} + CLAUDE_MD_DRIFT_REPORT.md. Surfaces shipped-but-pending milestone units to dashboards; advisory only, never auto-flips envelope status.",
+      "prompt": "/close-out-audit",
+      "scriptHint": "scripts/audit-close-out-candidates.mjs",
+      "expectedDurationMs": 90000,
+      "enabled": true
+    }
+  ]
+}
