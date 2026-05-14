@@ -3,6 +3,7 @@ name: close-out-audit
 type: architecture
 layer: automation
 created: 2026-05-13
+boost_keywords: [close out, close-out audit, envelope drift, silent close-out debt, shipped but pending, stale milestone]
 description: Cross-envelope auditor that detects silent close-out debt — units whose deliverable artifacts exist on disk but whose envelope status is still pending. Advisory only.
 links:
   - script: scripts/audit-close-out-candidates.mjs

@@ -5,6 +5,7 @@ agent: claude-80d35610
 slot: alpha
 milestone: OBSIDIAN-PRISM-OS-MS0
 tags: [search, indexing, awareness, dispatchers, obsidian]
+boost_keywords: [master index, awareness stack, search-first, orphan inventory, deep-search, master_index_query]
 links:
   - "[[reference_master_index_surface]]"
   - "[[reference_awareness_stack]]"
