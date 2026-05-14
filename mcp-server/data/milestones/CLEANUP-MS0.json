@@ -7,10 +7,10 @@
   "priority": "P0",
   "owner": "claude-7f79dd78",
   "created_at": "2026-05-13T18:00:00.000Z",
-  "updated_at": "2026-05-14T15:28:43.185Z",
+  "updated_at": "2026-05-14T17:04:17.682Z",
   "status": "in_progress",
   "total_units": 73,
-  "completed_units": 59,
+  "completed_units": 61,
   "dependencies": [
     "HOOK-SYNERGY-MS0 (H4 envelope, H7 async dispatch, H8 coord_sqlite)",
     "OBSIDIAN-PRISM-OS-MS0 (master-index surface, awareness stack, orphan-inventory)"
@@ -542,11 +542,13 @@
         {
           "id": "U-CLEANUP-G8",
           "title": "G8 — cron-registry-reconcile.mjs (diff CronList vs E2 registry; acquire coord_sqlite claim for full read-delete-recreate cycle; 15min cadence; idempotent restart drops orphaned golf-* jobIds)",
-          "status": "not_started",
+          "status": "complete",
           "estimated_hours": 1,
           "dependencies": [
             "U-CLEANUP-A6"
-          ]
+          ],
+          "completed_at": "2026-05-14T17:08:54.933Z",
+          "completed_commit": "pending"
         },
         {
           "id": "U-CLEANUP-G9",
@@ -588,11 +590,12 @@
         {
           "id": "U-CLEANUP-G14",
           "title": "G14 — dr-drill.mjs (MONTHLY restore G12 snapshot to H:/prism-dr-test/; run coord_sqlite health + row-count parity; fail-loud to DR_DRILL_LEDGER.jsonl)",
-          "status": "not_started",
+          "status": "complete",
           "estimated_hours": 1.5,
           "dependencies": [
             "U-CLEANUP-G12"
-          ]
+          ],
+          "completedAt": "2026-05-14T17:04:17.681Z"
         },
         {
           "id": "U-CLEANUP-G15",
