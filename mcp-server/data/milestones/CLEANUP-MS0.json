@@ -7,10 +7,10 @@
   "priority": "P0",
   "owner": "claude-7f79dd78",
   "created_at": "2026-05-13T18:00:00.000Z",
-  "updated_at": "2026-05-14T00:12:52.502Z",
+  "updated_at": "2026-05-14T01:40:56.031Z",
   "status": "in_progress",
   "total_units": 73,
-  "completed_units": 32,
+  "completed_units": 41,
   "dependencies": [
     "HOOK-SYNERGY-MS0 (H4 envelope, H7 async dispatch, H8 coord_sqlite)",
     "OBSIDIAN-PRISM-OS-MS0 (master-index surface, awareness stack, orphan-inventory)"
@@ -150,9 +150,12 @@
         {
           "id": "U-CLEANUP-C1",
           "title": "C1 — WiringPotentialEngine.ts (analyze + analyzeBatch; R4-P0-1: routes through MasterIndexEngine.search via prism_session:master_index_query for candidate lookup — does NOT reimplement; reads node.knowledge.wikiEntries[] + memoryEntries[] pre-joins from graph; reserved for rationale-synthesis layer; consumes F7 capacity output)",
-          "status": "not_started",
+          "status": "complete",
           "estimated_hours": 3,
-          "dependencies": []
+          "dependencies": [],
+          "completed_at": "2026-05-14T01:40:56.031Z",
+          "completed_by": "claude-4d58ae9b",
+          "ship_notes": "WiringPotentialEngine (analyze + analyzeBatch) routing through MasterIndexEngine.query; F7 capacity-aware exclusion; 60/60 tests pass (49 base + 11 F7-schema regression). Class-A silent-breakage bug caught by 3-of-3 scrutiny arm C — fix shipped same commit (normalizeF7DispatcherName + integration-shape regression guards)."
         },
         {
           "id": "U-CLEANUP-B8-CONSOLIDATED",
@@ -460,9 +463,10 @@
         {
           "id": "U-CLEANUP-F7",
           "title": "F7 — build-dispatcher-capacity.mjs (97 dispatchers × actions/limit ratio; flags >=80%; feeds C1; daily)",
-          "status": "not_started",
+          "status": "complete",
           "estimated_hours": 1,
-          "dependencies": []
+          "dependencies": [],
+          "completedAt": "2026-05-14T01:16:55.939Z"
         }
       ]
     },
@@ -659,35 +663,39 @@
         {
           "id": "U-CLEANUP-H2",
           "title": "H2 — skill-utilization audit (22-skill-utilization.ps1; invokes /skill-lint + /skill-test + cross-ref tool-watchdog .tool-runtimes.jsonl; flags 30-day-unused skills as PROPOSED archive candidates — Mark promotes manually NOT auto-mv; addresses HS-06 565-skill token cost; weekly Tue 04:23; writes SKILL_UTILIZATION_REPORT.md)",
-          "status": "not_started",
+          "status": "complete",
           "estimated_hours": 1,
-          "dependencies": []
+          "dependencies": [],
+          "completedAt": "2026-05-14T01:16:55.939Z"
         },
         {
           "id": "U-CLEANUP-H3",
           "title": "H3 — hook-orphan + dead-matcher scan (23-hook-orphan-scan.mjs; consumes HOOK_REGISTRY.json + hook-latency.jsonl + async-hook-results.jsonl; flags 30-day-dormant hooks + dead matcher patterns + orphan files + tier-mismatch (T0 claimed but never blocks); daily 05:31; writes HOOK_UTILIZATION_REPORT.md)",
-          "status": "not_started",
+          "status": "complete",
           "estimated_hours": 1,
-          "dependencies": []
+          "dependencies": [],
+          "completedAt": "2026-05-14T01:16:55.939Z"
         },
         {
           "id": "U-CLEANUP-H4",
           "title": "H4 — CLAUDE.md doctrine-vs-reality drift detector (24-claude-md-drift.mjs; parses both H:/prism/CLAUDE.md and H:/.claude/CLAUDE.md for VERIFIABLE claims: hook-wired / file-exists / engine-shipped-at-SHA / cron-installed / env-knob-grepable; cross-checks; flags P0/P1/P2 drift; R2-PERF2 surfaced 3 such drifts in single audit; daily 06:43; writes CLAUDE_MD_DRIFT_REPORT.md)",
-          "status": "not_started",
+          "status": "complete",
           "estimated_hours": 2,
-          "dependencies": []
+          "dependencies": [],
+          "completedAt": "2026-05-14T01:16:55.939Z"
         },
         {
           "id": "U-CLEANUP-H5",
           "title": "H5 — GSD docs freshness (25-gsd-freshness.mjs; watches mcp-server/data/docs/gsd/*.md; cross-refs hook list vs GSD_QUICK.md SessionStart/UserPromptSubmit/Stop claims; dispatcher count vs DEV_PROTOCOL.md; weekly Wed 07:53; writes GSD_FRESHNESS_REPORT.md)",
-          "status": "not_started",
+          "status": "complete",
           "estimated_hours": 1,
-          "dependencies": []
+          "dependencies": [],
+          "completedAt": "2026-05-14T01:17:40.722Z"
         },
         {
           "id": "U-CLEANUP-H6",
           "title": "H6 — awareness health rollup (build-awareness-health.mjs; daily digest combining H1-H5 into AWARENESS_HEALTH_DASHBOARD.md with summary tables + 30-day trends; F8 chat-bus posts daily digest line; F4 cross-refs for unified operator view; daily 08:17)",
-          "status": "not_started",
+          "status": "complete",
           "estimated_hours": 1,
           "dependencies": [
             "U-CLEANUP-H1",
@@ -695,7 +703,8 @@
             "U-CLEANUP-H3",
             "U-CLEANUP-H4",
             "U-CLEANUP-H5"
-          ]
+          ],
+          "completedAt": "2026-05-14T01:23:23.975Z"
         }
       ]
     },
