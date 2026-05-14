@@ -1,11 +1,11 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-14T02:11:25.821Z",
+  "generatedAt": "2026-05-14T02:47:05.948Z",
   "headline": {
     "built_engines": 2362,
     "built_with_wiki": 1005,
     "needs_wiring": 873,
-    "needs_building_active_units": 3656,
+    "needs_building_active_units": 3653,
     "needs_frontend_merge_count": 2,
     "pending_milestones_with_activity": 72,
     "drift_milestones": 173,
@@ -9150,7 +9150,7 @@
     "next_action": "Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift."
   },
   "NEEDS_BUILDING": {
-    "summary": "3656 units across 670 milestones not yet in git.",
+    "summary": "3653 units across 670 milestones not yet in git.",
     "drift_cases": [
       {
         "id": "CC-EXT-MS0",
@@ -10193,6 +10193,30 @@
     ],
     "top_pending_units": [
       {
+        "milestone": "AI-MAX-MS0",
+        "unit": "U-AIMAX01",
+        "title": "hyperMILL Python Script Pattern Extractor",
+        "phase": "session-1"
+      },
+      {
+        "milestone": "AI-MAX-MS0",
+        "unit": "U-AIMAX02",
+        "title": "JM DIE Program Pattern Analyzer",
+        "phase": "session-1"
+      },
+      {
+        "milestone": "AI-MAX-MS0",
+        "unit": "U-AIMAX03",
+        "title": "Pattern Database & Search Engine",
+        "phase": "session-1"
+      },
+      {
+        "milestone": "AI-MAX-MS0",
+        "unit": "U-AIMAX04",
+        "title": "Tree-of-Thought Reasoning Engine",
+        "phase": "session-2"
+      },
+      {
         "milestone": "CLEANUP-MS0",
         "unit": "U-CLEANUP-A1",
         "title": "A1 — extend SLOT_NAMES in chat-slots.mjs to add 'golf' (NATO phonetic continuity)",
@@ -10212,9 +10236,33 @@
       },
       {
         "milestone": "CLEANUP-MS0",
-        "unit": "U-CLEANUP-C2",
-        "title": "C2 — prism_dev:wiring_potential dispatcher action (modes: analyze, batch_unwired, dashboard); E2E round-trip test",
-        "phase": "dispatchers-tier-2"
+        "unit": "U-CLEANUP-B6",
+        "title": "B6 — 06-peer-audit-tick.ps1 (invokes WatchdogEngine via node -e import; NOT MCP HTTP bridge per R1; sets PRISM_GOLF_TICK=1 env var so Stop gates short-circuit)",
+        "phase": "operator-surfaces-tier-3"
+      },
+      {
+        "milestone": "COORD-MS0",
+        "unit": "U-COORD02",
+        "title": "Add Optimistic Locking with Version Field",
+        "phase": ""
+      },
+      {
+        "milestone": "COORD-MS0",
+        "unit": "U-COORD04",
+        "title": "CrossSessionOrchestratorEngine — Unified Facade",
+        "phase": ""
+      },
+      {
+        "milestone": "COORD-MS0",
+        "unit": "U-COORD06",
+        "title": "Startup Banner — Session Count Display",
+        "phase": ""
+      },
+      {
+        "milestone": "COORD-MS0",
+        "unit": "U-COORD09",
+        "title": "Ambient Awareness Badge",
+        "phase": ""
       },
       {
         "milestone": "INTEL-OLLAMA-OBSIDIAN-MS0",
@@ -10239,30 +10287,6 @@
         "unit": "P7-U02",
         "title": "Cross-PC handoff test — verify H: drive is sufficient",
         "phase": "P7"
-      },
-      {
-        "milestone": "COORD-MS0",
-        "unit": "U-COORD02",
-        "title": "Add Optimistic Locking with Version Field",
-        "phase": ""
-      },
-      {
-        "milestone": "COORD-MS0",
-        "unit": "U-COORD04",
-        "title": "CrossSessionOrchestratorEngine — Unified Facade",
-        "phase": ""
-      },
-      {
-        "milestone": "COORD-MS0",
-        "unit": "U-COORD05",
-        "title": "Wire Orchestrator to Hook System",
-        "phase": ""
-      },
-      {
-        "milestone": "COORD-MS0",
-        "unit": "U-COORD06",
-        "title": "Startup Banner — Session Count Display",
-        "phase": ""
       },
       {
         "milestone": "CAD-INFRA-MS0",
@@ -10311,30 +10335,6 @@
         "unit": "P2-U05",
         "title": "Welding & Joining Page — CREATE NEW",
         "phase": ""
-      },
-      {
-        "milestone": "TRAINING-LEARNING-MS0",
-        "unit": "U-TL-U1-LATHE-TEMPLATE-EXTRACTOR",
-        "title": "LathePartFamilyTemplateExtractorEngine + corpus scanner",
-        "phase": "lathe"
-      },
-      {
-        "milestone": "TRAINING-LEARNING-MS0",
-        "unit": "U-TL-U5-DOMAIN-MATCHERS",
-        "title": "LathePartFamilyMatcherEngine + MillPartFamilyMatcherEngine + WEDMPartFamilyMatcherEngine",
-        "phase": "matchers"
-      },
-      {
-        "milestone": "TRAINING-LEARNING-MS0",
-        "unit": "U-TL-U6-CONTINUOUS-LEARNING",
-        "title": "TrainingTemplateContinuousLearningEngine (ingestLatheOutcome / ingestMillOutcome / ingestWEDMOutcome)",
-        "phase": "closed-loop"
-      },
-      {
-        "milestone": "TRAINING-LEARNING-MS0",
-        "unit": "U-TL-U7-SKILL-AND-CLOSEOUT",
-        "title": "/learn-corpus skill (args: lathe|mill|wedm|electrode-audit|status|match <part>) + ENGINE_DIGEST regen + 3-way scrutiny",
-        "phase": "close-out"
       }
     ],
     "next_action": "Cross-reference MILESTONE_PROGRESS.json. Avoid units already in `shipped` arrays — those are committed but envelope status is stale."

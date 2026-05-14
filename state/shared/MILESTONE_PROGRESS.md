@@ -1,6 +1,6 @@
 # MILESTONE_PROGRESS — what's actually shipped vs claimed
 
-> Generated: 2026-05-14T02:11:25.692Z
+> Generated: 2026-05-14T02:47:05.819Z
 > Window: last 60.days of git log across all branches
 > Source: `scripts/build-milestone-progress.mjs`
 
@@ -19,17 +19,18 @@ flagging a unit as missing.
 
 - Milestones loaded:        **670**
 - Units across all MS:      **4906**
-- Units shipped (in git):   **1250**
-- Units pending:            **3656**
+- Units shipped (in git):   **1253**
+- Units pending:            **3653**
 - Drift cases:              **173** (envelope status disagrees with git reality)
 
 ## Top recently-active milestones (last shipped → first)
 
 | Milestone | Track | Status (claimed) | Status (real) | Shipped/Total | Last commit |
 |-----------|-------|------------------|---------------|---------------|-------------|
-| CLEANUP-MS0 | CLEANUP | in_progress | in_progress_real | 39/73 (53%) | 2026-05-13 |
+| AI-MAX-MS0 | AI-MAX | in_progress | in_progress_real | 3/12 (25%) | 2026-05-13 |
+| CLEANUP-MS0 | CLEANUP | in_progress | in_progress_real | 40/73 (55%) | 2026-05-13 |
+| COORD-MS0 | INFRA | unknown | in_progress_real | 7/12 (58%) | 2026-05-13 |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | INFRA | not_started | in_progress_real | 80/92 (87%) | 2026-05-13 |
-| COORD-MS0 | INFRA | unknown | in_progress_real | 6/12 (50%) | 2026-05-13 |
 | CAD-INFRA-MS0 | CAD-INFRA | complete | in_progress_real | 4/16 (25%) | 2026-05-13 |
 | S1-MS2 | — | not_started | in_progress_real | 9/10 (90%) | 2026-05-13 |
 | TC-MS0 | — | not_started | completed_real | 14/14 (100%) | 2026-05-13 |
@@ -46,7 +47,6 @@ flagging a unit as missing.
 | WIRE-MS0 | WIRE | in_progress | in_progress_real | 15/16 (94%) | 2026-05-13 |
 | TRAINING-LEARNING-MS0 | TRAINING-LEARNING | completed | in_progress_real | 3/7 (43%) | 2026-05-13 |
 | AUTO-LEARNING-LOOP-MS0 | AUTO-LEARNING-LOOP | complete | in_progress_real | 4/12 (33%) | 2026-05-13 |
-| AI-MAX-MS0 | AI-MAX | in_progress | in_progress_real | 2/12 (17%) | 2026-05-13 |
 | BP-MS0 | BP | not_started | in_progress_real | 1/28 (4%) | 2026-05-13 |
 | AWARE-MS0 | AI-CORE | unknown | in_progress_real | 2/8 (25%) | 2026-05-13 |
 | CC-EXT-MS0 | — | not_started | in_progress_real | 5/8 (63%) | 2026-05-13 |
@@ -137,8 +137,8 @@ flagging a unit as missing.
 | LATHE-LORA-MS0 | 50 | 50 | 0/50 |
 | MS-MASTERPOST | 44 | 44 | 0/44 |
 | MS1 | 39 | 39 | 0/39 |
-| CLEANUP-MS0 | 34 | 73 | 39/73 |
 | MS-CAM-MASTERY | 34 | 34 | 0/34 |
+| CLEANUP-MS0 | 33 | 73 | 40/73 |
 | MS-AUDIT-DERIVED-2026-05-10 | 30 | 30 | 0/30 |
 | MS2 | 30 | 30 | 0/30 |
 | EMP-MS0 | 28 | 28 | 0/28 |
