@@ -102,12 +102,7 @@
     "engines": {
         "node": ">=18.0.0"
     },
-    "lint-staged": {
-        "*": [
-            "true"
-        ]
-    },
-    "_lint-staged_disabled_2026-05-10": "Was: tsc --noEmit on *.ts. Failure mode: tsc loads tsconfig.json `include` regardless of file args, so it lint-checked the entire src/** tree on every commit and blocked on peer-chat WIP errors. Combined with husky stash/restore on a 7,090-file working tree, this accumulated ~196,000 loose objects in .git and made all 6 chats hang on git internals. To restore typed pre-commit checks, install `tsc-files` (npm i -D tsc-files) and use \"*.ts\": [\"tsc-files --noEmit --pretty --skipLibCheck\"] which only checks staged files.",
+    "_lint-staged_removed_2026-05-14": "The lint-staged key was REMOVED entirely (was {\"*.never-matches-anything-xyz\":[\"true\"]} fake no-op, briefly {\"*\":[\"true\"]} catch-all). BOTH forms are buggy: the no-match glob made lint-staged's stash/restore DROP staged files (empty commits); the catch-all glob made lint-staged RE-STAGE every modified working-tree file into the commit (over-stage / peer-WIP capture). The husky pre-commit hook (U-HUSKY-PRECOMMIT-HARDEN 2026-05-10) already SKIPS `npx lint-staged` when no config is present — that is the correct no-op path. To restore typed pre-commit checks, install `tsc-files` (npm i -D tsc-files) and add a real config: \"lint-staged\": { \"*.ts\": [\"tsc-files --noEmit --pretty --skipLibCheck\"] } which only checks staged files. Original disable rationale (2026-05-10): tsc --noEmit on *.ts loaded the whole tsconfig include tree, lint-checked all of src/** every commit, blocked on peer-chat WIP, and the husky stash/restore on a 7,090-file working tree accumulated ~196,000 loose objects.",
     "size-limit": [
         {
             "name": "MCP Server Bundle",
