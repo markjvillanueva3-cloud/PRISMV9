@@ -48,7 +48,13 @@ import { execFileSync } from "node:child_process";
 // PRISM is H:-rooted (see CLAUDE.md "Source of truth: H:/prism"); override with PRISM_PART_LIBRARY_LAYOUT
 // if running from elsewhere. If the file isn't found, getLayout() falls back to DEFAULT_LAYOUT (identical
 // values), so a wrong/missing path here is non-fatal — it just makes the layout non-editable-via-file.
-const LAYOUT_CONFIG_PATH = process.env.PRISM_PART_LIBRARY_LAYOUT || "H:/prism/mcp-server/data/state/part-library-layout.json";
+//
+// Resolved lazily on every getLayout() call (NOT captured at module load) so tests can swap
+// PRISM_PART_LIBRARY_LAYOUT mid-run and get the new config; otherwise the prod default would
+// be baked in at the first import and every test override would be silently ignored.
+function layoutConfigPath(): string {
+  return process.env.PRISM_PART_LIBRARY_LAYOUT || "H:/prism/mcp-server/data/state/part-library-layout.json";
+}
 
 export interface PartLibraryLayout {
   schemaVersion: string;
@@ -121,9 +127,9 @@ let _layoutCache: { mtimeMs: number; cfg: PartLibraryLayout } | null = null;
 /** Load (and cache, with mtime invalidation) the layout config. Falls back to DEFAULT_LAYOUT. */
 export function getLayout(): PartLibraryLayout {
   try {
-    const st = fs.statSync(LAYOUT_CONFIG_PATH);
+    const st = fs.statSync(layoutConfigPath());
     if (_layoutCache && _layoutCache.mtimeMs === st.mtimeMs) return _layoutCache.cfg;
-    const raw = JSON.parse(fs.readFileSync(LAYOUT_CONFIG_PATH, "utf-8"));
+    const raw = JSON.parse(fs.readFileSync(layoutConfigPath(), "utf-8"));
     const cfg: PartLibraryLayout = { ...DEFAULT_LAYOUT, ...raw, sanitize: { ...DEFAULT_LAYOUT.sanitize, ...(raw.sanitize ?? {}) }, fileClassification: { ...DEFAULT_LAYOUT.fileClassification, ...(raw.fileClassification ?? {}) }, customerResolution: { ...DEFAULT_LAYOUT.customerResolution, ...(raw.customerResolution ?? {}) } };
     _layoutCache = { mtimeMs: st.mtimeMs, cfg };
     return cfg;
@@ -225,6 +231,11 @@ let _aliasIndex: { mtimeMs: number; map: Map<string, string>; prefixes: string[]
 
 function buildAliasIndex(mtimeMs: number): { mtimeMs: number; map: Map<string, string>; prefixes: string[]; regexes: RegExp[] } {
   const cr = getLayout().customerResolution;
+  // Aggressive mode skips noiseRegexes containing the `{N,}$` quantifier-anchor pair
+  // (e.g. `^[A-Z]{5,}$`, the all-uppercase catch-all). Those match real customer names
+  // like `POPCUST` / `WIDGET` and only fire conservatively when explicitly opted-in.
+  // Mirrors the AGGRESSIVE flag in Docustrata/.index/phase19-consolidate-customers.py.
+  const aggressive = process.env.PRISM_PART_CANONICAL_AGGRESSIVE === "1";
   const map = new Map<string, string>();
   for (const a of cr.aliases ?? []) {
     const can = String(a?.canonical ?? "").toUpperCase().trim();
@@ -238,7 +249,9 @@ function buildAliasIndex(mtimeMs: number): { mtimeMs: number; map: Map<string, s
   const prefixes = (cr.noisePrefixes ?? []).map((p: unknown) => String(p ?? "").toUpperCase().trim()).filter(Boolean);
   const regexes: RegExp[] = [];
   for (const rx of cr.noiseRegexes ?? []) {
-    try { regexes.push(new RegExp(String(rx), "i")); } catch { /* skip malformed */ }
+    const s = String(rx);
+    if (!aggressive && s.includes("{5,}$")) continue; // conservative default
+    try { regexes.push(new RegExp(s, "i")); } catch { /* skip malformed */ }
   }
   return { mtimeMs, map, prefixes, regexes };
 }
