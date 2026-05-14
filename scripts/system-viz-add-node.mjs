@@ -34,6 +34,7 @@
  *   PRISM_SYSTEM_VIZ_DIR                 override base viz dir (test isolation)
  *   PRISM_SYSTEM_VIZ_FLUSH_INTERVAL_MS   override flush interval
  *   PRISM_SYSTEM_VIZ_ADD_NODE_DISABLE=1  no-op disable
+ *   PRISM_SYSTEM_VIZ_ONCOMMIT_PID        override .system-viz-on-commit.pid path (test isolation)
  *
  * Exit codes:
  *   0  enqueued (and possibly flushed) successfully
@@ -108,6 +109,19 @@ export function queuePath()     { return path.join(stagingDir(), "add-node-queue
 export function lastFlushPath() { return path.join(stagingDir(), ".last-flush.iso"); }
 export function pidFilePath()   { return path.join(stagingDir(), ".system-viz-add-node.pid"); }
 export function graphPath()     { return path.join(vizDir(), "system-graph.json"); }
+
+/**
+ * Path to `generate-system-viz.mjs`'s PID lock — the FULL-REGEN writer's
+ * lock, which lives at the repo root (see `system-viz-on-commit.mjs`).
+ * That writer does a non-atomic `writeFileSync` of the same graph, under
+ * THIS separate lock; `flushQueue` checks it to avoid a lost-update race.
+ * Overridable via PRISM_SYSTEM_VIZ_ONCOMMIT_PID for test isolation.
+ */
+export function onCommitPidPath() {
+  const override = process.env.PRISM_SYSTEM_VIZ_ONCOMMIT_PID;
+  if (override && override.trim()) return path.resolve(override);
+  return path.join(ROOT, ".system-viz-on-commit.pid");
+}
 
 // ─── pure helpers (unit-testable in-process) ─────────────────────────────
 
@@ -341,6 +355,23 @@ export function releasePidLock(pPath) {
 }
 
 /**
+ * True if the full-regen writer (`generate-system-viz.mjs`, via
+ * `system-viz-on-commit.mjs`) is currently running — i.e. its PID file
+ * exists AND holds a live process. Stale/dead PIDs return false (the
+ * regen crashed; safe to flush). `flushQueue` defers when this is true
+ * to avoid a lost-update race on the shared 41MB graph.
+ */
+export function isRegenActive(pidPath = onCommitPidPath()) {
+  try {
+    if (!fs.existsSync(pidPath)) return false;
+    const pid = parseInt(fs.readFileSync(pidPath, "utf8").trim(), 10);
+    if (!Number.isFinite(pid) || pid <= 0) return false;
+    try { process.kill(pid, 0); return true; }  // alive
+    catch { return false; }                      // dead PID — stale lock
+  } catch { return false; }
+}
+
+/**
  * Compute the set of entries that appeared in the queue file between the
  * original snapshot and the post-graph-write re-read. Excludes entries
  * that were already in the original snapshot (already classified into
@@ -371,16 +402,37 @@ export function computeConcurrentAdds(rereadEntries, originalSnapshot, flushedBa
  * Splice up to MAX_BATCH queued nodes into the live graph. Idempotent
  * against the graph (skips ids already present). Returns flushed count.
  *
+ * COORDINATION WITH THE FULL-REGEN WRITER — `generate-system-viz.mjs`
+ * (invoked by the post-commit hook + hourly cron) does a non-atomic full
+ * `writeFileSync` of the SAME `system-graph.json`, under a SEPARATE PID
+ * lock (`.system-viz-on-commit.pid`). Our add-node PID lock does not
+ * exclude it. Left uncoordinated, our stale read-modify-write would
+ * silently clobber a fresh full regen. flushQueue defends in three tiers:
+ *   1. DEFER  — if the regen PID lock is held by a live process, skip the
+ *               flush entirely (`error: "regen_active"`, `deferred: true`).
+ *               lastFlush is NOT touched so the next call retries promptly.
+ *   2. CAS    — capture graph mtime at read; if it moved before our
+ *               atomicWriteJson, a regen/peer landed mid-window — ABORT
+ *               the write (`error: "graph_changed_during_flush"`).
+ *   3. VERIFY — after the write, re-read the graph and confirm every id
+ *               we added is present; if a regen clobbered us in the
+ *               stat->rename gap, some are missing — return
+ *               `error: "graph_clobbered_post_write"`.
+ * Every abort path is explicit AND non-destructive (the queue is never
+ * truncated on abort) — never silent, never lost; the batch retries on
+ * the next flush against a stable graph.
+ *
  * On graph-missing returns `{ flushed: 0, skipped: 0, error: "graph_missing" }`
  * rather than throwing — callers can keep enqueueing harmlessly.
  *
  * @internal Caller MUST hold `pidFilePath()` lock — `flushQueue` does
  *           not acquire/release it on its own.
  */
-export function flushQueue({ gPath, qPath, lfPath, now = new Date() } = {}) {
+export function flushQueue({ gPath, qPath, lfPath, onCommitPid, now = new Date() } = {}) {
   gPath  = gPath  || graphPath();
   qPath  = qPath  || queuePath();
   lfPath = lfPath || lastFlushPath();
+  onCommitPid = onCommitPid || onCommitPidPath();
 
   const { entries: queue, corrupt, tooLarge } = readQueue(qPath);
   if (tooLarge) {
@@ -390,9 +442,22 @@ export function flushQueue({ gPath, qPath, lfPath, now = new Date() } = {}) {
     atomicWriteText(lfPath, now.toISOString());
     return { flushed: 0, skipped: 0, corrupt, queueDepth: 0, batch: 0 };
   }
+
+  // TIER 1 — DEFER while the full-regen writer is active. It does a
+  // non-atomic 41MB writeFileSync of the same graph under its own lock.
+  // Do NOT touch lastFlush — the next call should retry promptly, not
+  // wait out the 60s interval.
+  if (isRegenActive(onCommitPid)) {
+    return { flushed: 0, skipped: 0, corrupt, queueDepth: queue.length, batch: 0, deferred: true, error: "regen_active" };
+  }
+
   if (!fs.existsSync(gPath)) {
     return { flushed: 0, skipped: 0, corrupt, queueDepth: queue.length, batch: 0, error: "graph_missing" };
   }
+
+  // TIER 2 (capture) — graph mtime at read, for the optimistic-CAS check.
+  let graphMtimeMs = null;
+  try { graphMtimeMs = fs.statSync(gPath).mtimeMs; } catch { graphMtimeMs = null; }
 
   let graph;
   try { graph = JSON.parse(fs.readFileSync(gPath, "utf8")); }
@@ -410,15 +475,48 @@ export function flushQueue({ gPath, qPath, lfPath, now = new Date() } = {}) {
 
   let added = 0;
   let skipped = 0;
+  const addedIds = [];
   for (const e of batch) {
     if (!e || typeof e.id !== "string") { skipped++; continue; }
     if (existing.has(e.id)) { skipped++; continue; }
     graph.nodes.push(e);
     existing.add(e.id);
+    addedIds.push(e.id);
     added++;
   }
 
-  if (added > 0) atomicWriteJson(gPath, graph);
+  if (added > 0) {
+    // TIER 2 (check) — if the graph mtime moved between our read and now,
+    // a regen/peer landed during our read-modify window. Abort the write;
+    // the queue is left intact so the batch retries against the fresh graph.
+    if (graphMtimeMs !== null) {
+      let mtimeNow = null;
+      try { mtimeNow = fs.statSync(gPath).mtimeMs; } catch { mtimeNow = null; }
+      if (mtimeNow !== null && mtimeNow !== graphMtimeMs) {
+        return { flushed: 0, skipped, corrupt, queueDepth: queue.length, batch: batch.length, error: "graph_changed_during_flush" };
+      }
+    }
+
+    atomicWriteJson(gPath, graph);
+
+    // TIER 3 — post-write verification. Re-read the graph and confirm
+    // every id we added is present. If a regen clobbered us in the
+    // stat->rename gap, some are missing — leave the queue intact so the
+    // batch retries; never truncate on an unverified write.
+    try {
+      const verify = JSON.parse(fs.readFileSync(gPath, "utf8"));
+      const verifyIds = new Set(
+        Array.isArray(verify.nodes) ? verify.nodes.map(n => n && n.id).filter(Boolean) : [],
+      );
+      const missing = addedIds.filter(id => !verifyIds.has(id));
+      if (missing.length > 0) {
+        return { flushed: 0, skipped, corrupt, queueDepth: queue.length, batch: batch.length, error: "graph_clobbered_post_write", clobberedIds: missing.length };
+      }
+    } catch {
+      // Re-read failed (regen mid-write?) — treat as clobbered, queue intact.
+      return { flushed: 0, skipped, corrupt, queueDepth: queue.length, batch: batch.length, error: "graph_clobbered_post_write" };
+    }
+  }
 
   // Re-read the queue RIGHT BEFORE truncating to capture any rows a peer
   // chat appended during the graph write (appendQueue is lock-free).

@@ -70,8 +70,12 @@ beforeEach(() => {
     PRISM_SYSTEM_VIZ_DIR: process.env.PRISM_SYSTEM_VIZ_DIR,
     PRISM_SYSTEM_VIZ_FLUSH_INTERVAL_MS: process.env.PRISM_SYSTEM_VIZ_FLUSH_INTERVAL_MS,
     PRISM_SYSTEM_VIZ_ADD_NODE_DISABLE: process.env.PRISM_SYSTEM_VIZ_ADD_NODE_DISABLE,
+    PRISM_SYSTEM_VIZ_ONCOMMIT_PID: process.env.PRISM_SYSTEM_VIZ_ONCOMMIT_PID,
   };
   process.env.PRISM_SYSTEM_VIZ_DIR = TMP_DIR;
+  // Point the on-commit PID lock at an isolated tmp path so production's
+  // real .system-viz-on-commit.pid can never make a test flaky.
+  process.env.PRISM_SYSTEM_VIZ_ONCOMMIT_PID = path.join(TMP_DIR, ".oncommit.pid");
   delete process.env.PRISM_SYSTEM_VIZ_FLUSH_INTERVAL_MS;
   delete process.env.PRISM_SYSTEM_VIZ_ADD_NODE_DISABLE;
 });
@@ -542,6 +546,156 @@ describe("flushQueue", () => {
     const r = m.flushQueue({});
     expect(r.error).toBe("queue_too_large");
     expect(fs.existsSync(qp)).toBe(true);
+  });
+});
+
+describe("isRegenActive + onCommitPidPath", () => {
+  it("onCommitPidPath honors PRISM_SYSTEM_VIZ_ONCOMMIT_PID override", async () => {
+    const m = await import(SCRIPT_PATH);
+    expect(m.onCommitPidPath()).toBe(path.join(TMP_DIR, ".oncommit.pid"));
+  });
+
+  it("isRegenActive is false when the PID file is absent", async () => {
+    const m = await import(SCRIPT_PATH);
+    expect(m.isRegenActive()).toBe(false);
+  });
+
+  it("isRegenActive is true when the PID file holds a live process", async () => {
+    const m = await import(SCRIPT_PATH);
+    const p = path.join(TMP_DIR, ".oncommit.pid");
+    // process.ppid is alive for the test's duration and probeable on all platforms.
+    fs.writeFileSync(p, String(process.ppid));
+    expect(m.isRegenActive()).toBe(true);
+  });
+
+  it("isRegenActive is false for a dead/stale PID (regen crashed)", async () => {
+    const m = await import(SCRIPT_PATH);
+    const p = path.join(TMP_DIR, ".oncommit.pid");
+    fs.writeFileSync(p, "999999999"); // overwhelmingly unlikely to be a live pid
+    expect(m.isRegenActive()).toBe(false);
+  });
+
+  it("isRegenActive is false for a malformed PID file", async () => {
+    const m = await import(SCRIPT_PATH);
+    const p = path.join(TMP_DIR, ".oncommit.pid");
+    fs.writeFileSync(p, "not-a-pid");
+    expect(m.isRegenActive()).toBe(false);
+  });
+});
+
+describe("flushQueue — full-regen coordination (lost-update defense)", () => {
+  it("TIER 1: defers the flush while the regen writer is active (queue preserved, graph untouched)", async () => {
+    const m = await import(SCRIPT_PATH);
+    seedGraph(TMP_DIR, [{ id: "engine.existing" }]);
+    const qp = m.queuePath();
+    m.appendQueue(qp, m.buildNodeEntry({ label: "Foo" }));
+    // Simulate an active regen by writing a live PID to the on-commit lock.
+    fs.writeFileSync(path.join(TMP_DIR, ".oncommit.pid"), String(process.ppid));
+    const r = m.flushQueue({});
+    expect(r.deferred).toBe(true);
+    expect(r.error).toBe("regen_active");
+    expect(r.flushed).toBe(0);
+    expect(r.queueDepth).toBe(1);
+    // Graph must NOT have been mutated, queue must NOT have been truncated.
+    expect(readGraph(TMP_DIR).nodes.some(n => n.id === "engine.foo")).toBe(false);
+    expect(readGraph(TMP_DIR).nodes.length).toBe(1);
+    expect(readQueueFile(TMP_DIR).length).toBe(1);
+  });
+
+  it("TIER 1: defer does NOT touch last-flush.iso (so the next call retries promptly)", async () => {
+    const m = await import(SCRIPT_PATH);
+    seedGraph(TMP_DIR, []);
+    m.appendQueue(m.queuePath(), m.buildNodeEntry({ label: "Foo" }));
+    fs.writeFileSync(path.join(TMP_DIR, ".oncommit.pid"), String(process.ppid));
+    m.flushQueue({});
+    expect(fs.existsSync(m.lastFlushPath())).toBe(false);
+  });
+
+  it("TIER 1: a dead regen PID does NOT block the flush", async () => {
+    const m = await import(SCRIPT_PATH);
+    seedGraph(TMP_DIR, []);
+    m.appendQueue(m.queuePath(), m.buildNodeEntry({ label: "Foo" }));
+    fs.writeFileSync(path.join(TMP_DIR, ".oncommit.pid"), "999999999"); // dead pid
+    const r = m.flushQueue({});
+    expect(r.flushed).toBe(1);
+    expect(r.batch).toBe(1);
+    expect(readGraph(TMP_DIR).nodes.some(n => n.id === "engine.foo")).toBe(true);
+  });
+
+  it("TIER 2: aborts the write if the graph mtime changes during the read-modify window", async () => {
+    const m = await import(SCRIPT_PATH);
+    seedGraph(TMP_DIR, [{ id: "engine.existing" }]);
+    const qp = m.queuePath();
+    m.appendQueue(qp, m.buildNodeEntry({ label: "Foo" }));
+    // Spy on statSync: first call (the read-time capture) returns the real
+    // mtime; the second call (the pre-write CAS check) returns a DIFFERENT
+    // mtime — simulating a regen that landed mid-window.
+    const realStat = fs.statSync.bind(fs);
+    let statCalls = 0;
+    const spy = vi.spyOn(fs, "statSync").mockImplementation(((p: fs.PathLike, ...rest: unknown[]) => {
+      const s = realStat(p as string, ...(rest as []));
+      if (String(p).endsWith("system-graph.json")) {
+        statCalls++;
+        if (statCalls >= 2) {
+          // Mutate the reported mtime so the CAS check sees a change.
+          return { ...s, mtimeMs: s.mtimeMs + 99999 } as fs.Stats;
+        }
+      }
+      return s;
+    }) as typeof fs.statSync);
+    const r = m.flushQueue({});
+    spy.mockRestore();
+    expect(r.error).toBe("graph_changed_during_flush");
+    expect(r.flushed).toBe(0);
+    // Queue must be intact so the batch retries against the fresh graph.
+    expect(readQueueFile(TMP_DIR).length).toBe(1);
+    // Graph must still be exactly the pre-flush single node — write aborted.
+    expect(readGraph(TMP_DIR).nodes.length).toBe(1);
+    expect(readGraph(TMP_DIR).nodes.some(n => n.id === "engine.foo")).toBe(false);
+  });
+
+  it("TIER 3: detects a post-write clobber and preserves the queue for retry", async () => {
+    const m = await import(SCRIPT_PATH);
+    seedGraph(TMP_DIR, [{ id: "engine.existing" }]);
+    const qp = m.queuePath();
+    m.appendQueue(qp, m.buildNodeEntry({ label: "Foo" }));
+    // Spy on readFileSync: the FIRST graph read returns the real content;
+    // the post-write VERIFY read returns a graph WITHOUT our added id
+    // (simulating a regen that clobbered us in the stat->rename gap).
+    const realRead = fs.readFileSync.bind(fs);
+    let graphReads = 0;
+    const spy = vi.spyOn(fs, "readFileSync").mockImplementation(((p: fs.PathOrFileDescriptor, ...rest: unknown[]) => {
+      const out = realRead(p as string, ...(rest as []));
+      if (String(p).endsWith("system-graph.json")) {
+        graphReads++;
+        if (graphReads >= 2) {
+          // Verify-read: return a graph that does NOT contain engine.foo.
+          return JSON.stringify({ schemaVersion: 1, nodes: [{ id: "engine.existing" }], edges: [] });
+        }
+      }
+      return out;
+    }) as typeof fs.readFileSync);
+    const r = m.flushQueue({});
+    spy.mockRestore();
+    expect(r.error).toBe("graph_clobbered_post_write");
+    expect(r.flushed).toBe(0);
+    expect(r.clobberedIds).toBe(1);
+    // Queue intact — the batch retries on the next flush.
+    expect(readQueueFile(TMP_DIR).length).toBe(1);
+  });
+
+  it("clean path: no regen, stable mtime, verified write — flush succeeds normally", async () => {
+    const m = await import(SCRIPT_PATH);
+    seedGraph(TMP_DIR, []);
+    m.appendQueue(m.queuePath(), m.buildNodeEntry({ label: "Foo" }));
+    const r = m.flushQueue({});
+    expect(r.flushed).toBe(1);
+    expect(r.batch).toBe(1);
+    expect(r.queueDepth).toBe(0);
+    expect(readGraph(TMP_DIR).nodes.some(n => n.id === "engine.foo")).toBe(true);
+    expect(readQueueFile(TMP_DIR).length).toBe(0);
+    // last-flush.iso IS written on a successful flush.
+    expect(fs.existsSync(m.lastFlushPath())).toBe(true);
   });
 });
 
