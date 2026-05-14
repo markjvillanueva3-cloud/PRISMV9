@@ -1,16 +1,16 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-13T23:58:18.505Z",
+  "generatedAt": "2026-05-14T02:01:36.508Z",
   "headline": {
-    "built_engines": 2324,
-    "built_with_wiki": 1073,
-    "needs_wiring": 879,
-    "needs_building_active_units": 3668,
+    "built_engines": 2362,
+    "built_with_wiki": 1005,
+    "needs_wiring": 873,
+    "needs_building_active_units": 3657,
     "needs_frontend_merge_count": 2,
     "pending_milestones_with_activity": 72,
     "drift_milestones": 173,
     "stale_milestones": 230,
-    "domains_tracked": 931
+    "domains_tracked": 932
   },
   "sources": {
     "unwired_audit": "H:\\prism\\state\\shared\\UNWIRED-ENGINE-AUDIT-2026-05-07.json",
@@ -19,24 +19,24 @@
     "engines_index": "H:\\prism\\mcp-server\\data\\state\\ENGINES_INDEX.json"
   },
   "BUILT": {
-    "summary": "2324/3203 engines wired (73%); 1073 wiki entries indexed.",
+    "summary": "2362/3235 engines wired (73%); 1005 wiki entries indexed.",
     "breakdown": {
-      "totalEngines": 3203,
-      "unwired": 879,
-      "wiredDirect": 2161,
-      "wireExempt": 81,
+      "totalEngines": 3235,
+      "unwired": 873,
+      "wiredDirect": 2195,
+      "wireExempt": 83,
       "wiredViaHook": 10,
-      "wiredViaOrch": 56,
+      "wiredViaOrch": 58,
       "wiredViaRoute": 15,
       "wiredViaSingleton": 1
     }
   },
   "NEEDS_WIRING": {
-    "summary": "879 engines on disk with no dispatcher reference. Top domains by count:",
+    "summary": "873 engines on disk with no dispatcher reference. Top domains by count:",
     "top_domains": [
       {
         "domain": "Other",
-        "count": 143
+        "count": 145
       },
       {
         "domain": "Lathe",
@@ -87,10 +87,6 @@
         "count": 7
       },
       {
-        "domain": "Session",
-        "count": 6
-      },
-      {
         "domain": "Process",
         "count": 6
       },
@@ -107,12 +103,12 @@
         "count": 6
       },
       {
-        "domain": "Cross",
+        "domain": "Consensus",
         "count": 6
       },
       {
-        "domain": "Consensus",
-        "count": 6
+        "domain": "Session",
+        "count": 5
       },
       {
         "domain": "Tribal",
@@ -133,6 +129,10 @@
       {
         "domain": "Mill",
         "count": 4
+      },
+      {
+        "domain": "Agent",
+        "count": 4
       }
     ],
     "sample_engines": [
@@ -148,13 +148,6 @@
         "suggestedDispatcher": "prism_cam",
         "mtime": "2026-03-06T13:07:24.000Z",
         "sizeKB": 58,
-        "wikiTitle": null
-      },
-      {
-        "name": "SkillAutoLoader",
-        "suggestedDispatcher": "prism_skill_script",
-        "mtime": "2026-03-06T13:19:48.000Z",
-        "sizeKB": 17,
         "wikiTitle": null
       },
       {
@@ -310,18 +303,25 @@
         "mtime": "2026-03-07T17:48:44.000Z",
         "sizeKB": 5,
         "wikiTitle": null
+      },
+      {
+        "name": "CallChainEngine",
+        "suggestedDispatcher": "prism_ai",
+        "mtime": "2026-03-07T17:52:54.000Z",
+        "sizeKB": 6,
+        "wikiTitle": null
       }
     ],
     "next_action": "Pick a top-domain bucket; wire to the matching dispatcher in batches of 5–6 engines (see U-WIRE-LATHE-BATCHN pattern). Wiki cross-refs in `wikiTitle` resolve via `/wiki-query <name>`."
   },
   "COVERAGE_BY_DOMAIN": {
-    "summary": "Per-domain wired/unwired breakdown across 931 domain prefixes.",
+    "summary": "Per-domain wired/unwired breakdown across 932 domain prefixes.",
     "rows": [
       {
         "domain": "Other",
         "total": 598,
-        "wired": 455,
-        "unwired": 143,
+        "wired": 453,
+        "unwired": 145,
         "coverage_pct": 76,
         "sample_unwired": [
           "AIMLFormulasEngine",
@@ -513,21 +513,6 @@
         ]
       },
       {
-        "domain": "Cross",
-        "total": 67,
-        "wired": 61,
-        "unwired": 6,
-        "coverage_pct": 91,
-        "sample_unwired": [
-          "CrossCAMComparisonLedgerEngine",
-          "CrossProcessAIBridge",
-          "CrossRegistryJoinEngine",
-          "CrossSessionOrchestratorEngine",
-          "CrossTerminalBroadcastEngine",
-          "CrossToolCouplingEngine"
-        ]
-      },
-      {
         "domain": "Print",
         "total": 21,
         "wired": 15,
@@ -555,21 +540,6 @@
           "WireEDMPredictiveIntelligenceEngine",
           "WireEDMResearchAIEngine",
           "WireEDMSelfAwarenessIntegrationEngine"
-        ]
-      },
-      {
-        "domain": "Session",
-        "total": 12,
-        "wired": 6,
-        "unwired": 6,
-        "coverage_pct": 50,
-        "sample_unwired": [
-          "SessionBudgetAdvisorEngine",
-          "SessionEventLogEngine",
-          "SessionHandoffV2Engine",
-          "SessionInsightsLedgerEngine",
-          "SessionLifecycleEngine",
-          "SessionReplayEngine"
         ]
       },
       {
@@ -632,6 +602,20 @@
         ]
       },
       {
+        "domain": "Session",
+        "total": 12,
+        "wired": 7,
+        "unwired": 5,
+        "coverage_pct": 58,
+        "sample_unwired": [
+          "SessionBudgetAdvisorEngine",
+          "SessionEventLogEngine",
+          "SessionInsightsLedgerEngine",
+          "SessionLifecycleEngine",
+          "SessionReplayEngine"
+        ]
+      },
+      {
         "domain": "Tribal",
         "total": 12,
         "wired": 7,
@@ -657,6 +641,19 @@
           "MobileLookupEngine",
           "MobileTimerEngine",
           "MobileVoiceEngine"
+        ]
+      },
+      {
+        "domain": "Cross",
+        "total": 67,
+        "wired": 63,
+        "unwired": 4,
+        "coverage_pct": 94,
+        "sample_unwired": [
+          "CrossCAMComparisonLedgerEngine",
+          "CrossProcessAIBridge",
+          "CrossRegistryJoinEngine",
+          "CrossToolCouplingEngine"
         ]
       },
       {
@@ -763,18 +760,6 @@
         ]
       },
       {
-        "domain": "Context",
-        "total": 14,
-        "wired": 11,
-        "unwired": 3,
-        "coverage_pct": 79,
-        "sample_unwired": [
-          "ContextCheckpointEngine",
-          "ContextCompressionEngine",
-          "ContextWindowPressureEngine"
-        ]
-      },
-      {
         "domain": "Knowledge",
         "total": 10,
         "wired": 7,
@@ -808,18 +793,6 @@
           "PipelineMetricsEngine",
           "PipelineOptimizationEngine",
           "PipelineRegistryBridge"
-        ]
-      },
-      {
-        "domain": "Sinker",
-        "total": 7,
-        "wired": 4,
-        "unwired": 3,
-        "coverage_pct": 57,
-        "sample_unwired": [
-          "SinkerEDMLoRACadenceEngine",
-          "SinkerEDMLoRADatasetBuilderEngine",
-          "SinkerEDMPrintToProgramEngine"
         ]
       },
       {
@@ -1046,17 +1019,6 @@
         ]
       },
       {
-        "domain": "Skill",
-        "total": 10,
-        "wired": 8,
-        "unwired": 2,
-        "coverage_pct": 80,
-        "sample_unwired": [
-          "SkillAutoLoader",
-          "SkillTierRegistryEngine"
-        ]
-      },
-      {
         "domain": "Coolant",
         "total": 9,
         "wired": 7,
@@ -1065,17 +1027,6 @@
         "sample_unwired": [
           "CoolantOptimizationPhysicsEngine",
           "CoolantStrategyAdapter"
-        ]
-      },
-      {
-        "domain": "Macro",
-        "total": 9,
-        "wired": 7,
-        "unwired": 2,
-        "coverage_pct": 78,
-        "sample_unwired": [
-          "MacroConversionAnalyzerEngine",
-          "MacroProgramIntelligenceEngine"
         ]
       },
       {
@@ -1120,6 +1071,17 @@
         "sample_unwired": [
           "OllamaContextFloorEngine",
           "OllamaHookBridgeEngine"
+        ]
+      },
+      {
+        "domain": "Sinker",
+        "total": 7,
+        "wired": 5,
+        "unwired": 2,
+        "coverage_pct": 71,
+        "sample_unwired": [
+          "SinkerEDMLoRACadenceEngine",
+          "SinkerEDMLoRADatasetBuilderEngine"
         ]
       },
       {
@@ -1219,17 +1181,6 @@
         "sample_unwired": [
           "FeedbackCollectorEngine",
           "FeedbackLoopDoctorEngine"
-        ]
-      },
-      {
-        "domain": "Lo",
-        "total": 4,
-        "wired": 2,
-        "unwired": 2,
-        "coverage_pct": 50,
-        "sample_unwired": [
-          "LoRAAdapterRegistryEngine",
-          "LoRADriftCoordinatorEngine"
         ]
       },
       {
@@ -1618,6 +1569,16 @@
         ]
       },
       {
+        "domain": "Context",
+        "total": 14,
+        "wired": 13,
+        "unwired": 1,
+        "coverage_pct": 93,
+        "sample_unwired": [
+          "ContextWindowPressureEngine"
+        ]
+      },
+      {
         "domain": "Surface",
         "total": 13,
         "wired": 12,
@@ -1645,6 +1606,16 @@
         "coverage_pct": 89,
         "sample_unwired": [
           "FeatureRegistryEngine"
+        ]
+      },
+      {
+        "domain": "Macro",
+        "total": 9,
+        "wired": 8,
+        "unwired": 1,
+        "coverage_pct": 89,
+        "sample_unwired": [
+          "MacroConversionAnalyzerEngine"
         ]
       },
       {
@@ -1695,6 +1666,16 @@
         "coverage_pct": 86,
         "sample_unwired": [
           "ThreadMethodSelectorEngine"
+        ]
+      },
+      {
+        "domain": "Model",
+        "total": 6,
+        "wired": 5,
+        "unwired": 1,
+        "coverage_pct": 83,
+        "sample_unwired": [
+          "ModelAttributionEngine"
         ]
       },
       {
@@ -1755,16 +1736,6 @@
         "coverage_pct": 80,
         "sample_unwired": [
           "MachiningEnergyModelEngine"
-        ]
-      },
-      {
-        "domain": "Model",
-        "total": 5,
-        "wired": 4,
-        "unwired": 1,
-        "coverage_pct": 80,
-        "sample_unwired": [
-          "ModelAttributionEngine"
         ]
       },
       {
@@ -1875,6 +1846,16 @@
         "coverage_pct": 75,
         "sample_unwired": [
           "InverseStackupAllocatorEngine"
+        ]
+      },
+      {
+        "domain": "Lo",
+        "total": 4,
+        "wired": 3,
+        "unwired": 1,
+        "coverage_pct": 75,
+        "sample_unwired": [
+          "LoRAAdapterRegistryEngine"
         ]
       },
       {
@@ -4278,6 +4259,16 @@
         ]
       },
       {
+        "domain": "Taptite",
+        "total": 1,
+        "wired": 0,
+        "unwired": 1,
+        "coverage_pct": 0,
+        "sample_unwired": [
+          "TaptiteElectrodeMacroBridgeEngine"
+        ]
+      },
+      {
         "domain": "Thermocouple",
         "total": 1,
         "wired": 0,
@@ -4458,6 +4449,16 @@
         ]
       },
       {
+        "domain": "Wiring",
+        "total": 1,
+        "wired": 0,
+        "unwired": 1,
+        "coverage_pct": 0,
+        "sample_unwired": [
+          "WiringPotentialEngine"
+        ]
+      },
+      {
         "domain": "World",
         "total": 1,
         "wired": 0,
@@ -4519,6 +4520,14 @@
         "domain": "Toolpath",
         "total": 11,
         "wired": 11,
+        "unwired": 0,
+        "coverage_pct": 100,
+        "sample_unwired": []
+      },
+      {
+        "domain": "Skill",
+        "total": 10,
+        "wired": 10,
         "unwired": 0,
         "coverage_pct": 100,
         "sample_unwired": []
@@ -8468,14 +8477,6 @@
         "sample_unwired": []
       },
       {
-        "domain": "Taptite",
-        "total": 1,
-        "wired": 1,
-        "unwired": 0,
-        "coverage_pct": 100,
-        "sample_unwired": []
-      },
-      {
         "domain": "Task",
         "total": 1,
         "wired": 1,
@@ -9149,7 +9150,7 @@
     "next_action": "Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift."
   },
   "NEEDS_BUILDING": {
-    "summary": "3668 units across 670 milestones not yet in git.",
+    "summary": "3657 units across 670 milestones not yet in git.",
     "drift_cases": [
       {
         "id": "CC-EXT-MS0",
@@ -10192,30 +10193,6 @@
     ],
     "top_pending_units": [
       {
-        "milestone": "COORD-MS0",
-        "unit": "U-COORD02",
-        "title": "Add Optimistic Locking with Version Field",
-        "phase": ""
-      },
-      {
-        "milestone": "COORD-MS0",
-        "unit": "U-COORD04",
-        "title": "CrossSessionOrchestratorEngine — Unified Facade",
-        "phase": ""
-      },
-      {
-        "milestone": "COORD-MS0",
-        "unit": "U-COORD05",
-        "title": "Wire Orchestrator to Hook System",
-        "phase": ""
-      },
-      {
-        "milestone": "COORD-MS0",
-        "unit": "U-COORD06",
-        "title": "Startup Banner — Session Count Display",
-        "phase": ""
-      },
-      {
         "milestone": "CLEANUP-MS0",
         "unit": "U-CLEANUP-A1",
         "title": "A1 — extend SLOT_NAMES in chat-slots.mjs to add 'golf' (NATO phonetic continuity)",
@@ -10235,33 +10212,9 @@
       },
       {
         "milestone": "CLEANUP-MS0",
-        "unit": "U-CLEANUP-C1",
-        "title": "C1 — WiringPotentialEngine.ts (analyze + analyzeBatch; R4-P0-1: routes through MasterIndexEngine.search via prism_session:master_index_query for candidate lookup — does NOT reimplement; reads node.knowledge.wikiEntries[] + memoryEntries[] pre-joins from graph; reserved for rationale-synthesis layer; consumes F7 capacity output)",
-        "phase": "engines-tier-1"
-      },
-      {
-        "milestone": "CAD-INFRA-MS0",
-        "unit": "U-CINF01",
-        "title": "CADFileIndexerEngine — master 20,006-file catalog",
-        "phase": ""
-      },
-      {
-        "milestone": "CAD-INFRA-MS0",
-        "unit": "U-CINF02",
-        "title": "CADFileClassifierEngine — part/assembly/drawing/CAM classification",
-        "phase": ""
-      },
-      {
-        "milestone": "CAD-INFRA-MS0",
-        "unit": "U-CINF03",
-        "title": "CADTestStateSchema — per-file atomic state",
-        "phase": ""
-      },
-      {
-        "milestone": "CAD-INFRA-MS0",
-        "unit": "U-CINF05",
-        "title": "CADTestCheckpointEngine — resumable state every 100 files",
-        "phase": ""
+        "unit": "U-CLEANUP-C2",
+        "title": "C2 — prism_dev:wiring_potential dispatcher action (modes: analyze, batch_unwired, dashboard); E2E round-trip test",
+        "phase": "dispatchers-tier-2"
       },
       {
         "milestone": "INTEL-OLLAMA-OBSIDIAN-MS0",
@@ -10286,6 +10239,54 @@
         "unit": "P7-U02",
         "title": "Cross-PC handoff test — verify H: drive is sufficient",
         "phase": "P7"
+      },
+      {
+        "milestone": "COORD-MS0",
+        "unit": "U-COORD02",
+        "title": "Add Optimistic Locking with Version Field",
+        "phase": ""
+      },
+      {
+        "milestone": "COORD-MS0",
+        "unit": "U-COORD04",
+        "title": "CrossSessionOrchestratorEngine — Unified Facade",
+        "phase": ""
+      },
+      {
+        "milestone": "COORD-MS0",
+        "unit": "U-COORD05",
+        "title": "Wire Orchestrator to Hook System",
+        "phase": ""
+      },
+      {
+        "milestone": "COORD-MS0",
+        "unit": "U-COORD06",
+        "title": "Startup Banner — Session Count Display",
+        "phase": ""
+      },
+      {
+        "milestone": "CAD-INFRA-MS0",
+        "unit": "U-CINF01",
+        "title": "CADFileIndexerEngine — master 20,006-file catalog",
+        "phase": ""
+      },
+      {
+        "milestone": "CAD-INFRA-MS0",
+        "unit": "U-CINF02",
+        "title": "CADFileClassifierEngine — part/assembly/drawing/CAM classification",
+        "phase": ""
+      },
+      {
+        "milestone": "CAD-INFRA-MS0",
+        "unit": "U-CINF03",
+        "title": "CADTestStateSchema — per-file atomic state",
+        "phase": ""
+      },
+      {
+        "milestone": "CAD-INFRA-MS0",
+        "unit": "U-CINF05",
+        "title": "CADTestCheckpointEngine — resumable state every 100 files",
+        "phase": ""
       },
       {
         "milestone": "S1-MS2",

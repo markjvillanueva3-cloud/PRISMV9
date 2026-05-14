@@ -1,29 +1,29 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-13T23:58:18.505Z
+> Generated: 2026-05-14T02:01:36.508Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
 
-- **2324** engines built and wired (of 3203)
-- **1073** wiki entries indexed
-- **879** engines awaiting dispatcher wiring
-- **3668** units pending across 72 active milestones
+- **2362** engines built and wired (of 3235)
+- **1005** wiki entries indexed
+- **873** engines awaiting dispatcher wiring
+- **3657** units pending across 72 active milestones
 - **2** codex frontend builds awaiting merge
 - **173** milestones with envelope-status drift
 
 ## BUILT
 
-2324/3203 engines wired (73%); 1073 wiki entries indexed.
+2362/3235 engines wired (73%); 1005 wiki entries indexed.
 
 ```json
 {
-  "totalEngines": 3203,
-  "unwired": 879,
-  "wiredDirect": 2161,
-  "wireExempt": 81,
+  "totalEngines": 3235,
+  "unwired": 873,
+  "wiredDirect": 2195,
+  "wireExempt": 83,
   "wiredViaHook": 10,
-  "wiredViaOrch": 56,
+  "wiredViaOrch": 58,
   "wiredViaRoute": 15,
   "wiredViaSingleton": 1
 }
@@ -31,11 +31,11 @@
 
 ## NEEDS_WIRING
 
-879 engines on disk with no dispatcher reference. Top domains by count:
+873 engines on disk with no dispatcher reference. Top domains by count:
 
 | Domain | Unwired count |
 |--------|---------------|
-| Other | 143 |
+| Other | 145 |
 | Lathe | 89 |
 | Machine | 17 |
 | Multi | 11 |
@@ -48,24 +48,24 @@
 | Milling | 7 |
 | Fusion | 7 |
 | Wet | 7 |
-| Session | 6 |
 | Process | 6 |
 | Print | 6 |
 | Swiss | 6 |
 | Wire | 6 |
-| Cross | 6 |
 | Consensus | 6 |
+| Session | 5 |
 | Tribal | 5 |
 | Mobile | 5 |
 | Mastercam | 5 |
 | Master | 4 |
 | Mill | 4 |
+| Agent | 4 |
 
 **Next action:** Pick a top-domain bucket; wire to the matching dispatcher in batches of 5–6 engines (see U-WIRE-LATHE-BATCHN pattern). Wiki cross-refs in `wikiTitle` resolve via `/wiki-query <name>`.
 
 ## NEEDS_BUILDING
 
-3668 units across 670 milestones not yet in git.
+3657 units across 670 milestones not yet in git.
 
 ### Envelope-status drift
 
@@ -249,22 +249,22 @@
 
 | Milestone | Phase | Unit | Title |
 |-----------|-------|------|-------|
-| COORD-MS0 |  | U-COORD02 | Add Optimistic Locking with Version Field |
-| COORD-MS0 |  | U-COORD04 | CrossSessionOrchestratorEngine — Unified Facade |
-| COORD-MS0 |  | U-COORD05 | Wire Orchestrator to Hook System |
-| COORD-MS0 |  | U-COORD06 | Startup Banner — Session Count Display |
 | CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A1 | A1 — extend SLOT_NAMES in chat-slots.mjs to add 'golf' (NATO phonetic continuity) |
 | CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A5 | A5 — golf-slot-write-allowlist.mjs PreToolUse T0 hook (path-resolve hardened against ../; allowlist-regex from golf-owned-paths.json; tier frontmatter; bypass env PRISM_GOLF_WRITE_ALLOWLIST_BYPASS=1) |
 | CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A6 | A6 — bootstrap-golf.mjs (mkdir .cron-locks, seed golf-owned-paths.json + golf-token-budget.json + golf-cron-registry.json; .gitignore additions for coordination.db* + .cron-locks/*.lock + .watchdog-last-poll.iso + golf-token-budget.json; detect & rebuild 0-byte coordination.db; git rm --cached on first run) |
-| CLEANUP-MS0 | engines-tier-1 | U-CLEANUP-C1 | C1 — WiringPotentialEngine.ts (analyze + analyzeBatch; R4-P0-1: routes through MasterIndexEngine.search via prism_session:master_index_query for candidate lookup — does NOT reimplement; reads node.knowledge.wikiEntries[] + memoryEntries[] pre-joins from graph; reserved for rationale-synthesis layer; consumes F7 capacity output) |
-| CAD-INFRA-MS0 |  | U-CINF01 | CADFileIndexerEngine — master 20,006-file catalog |
-| CAD-INFRA-MS0 |  | U-CINF02 | CADFileClassifierEngine — part/assembly/drawing/CAM classification |
-| CAD-INFRA-MS0 |  | U-CINF03 | CADTestStateSchema — per-file atomic state |
-| CAD-INFRA-MS0 |  | U-CINF05 | CADTestCheckpointEngine — resumable state every 100 files |
+| CLEANUP-MS0 | dispatchers-tier-2 | U-CLEANUP-C2 | C2 — prism_dev:wiring_potential dispatcher action (modes: analyze, batch_unwired, dashboard); E2E round-trip test |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | P5 | P5-U05 | Wire prism_intelligence:diagnose_failure → DiagnosticReasoningEngine |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | P6 | P6-U02 | Add 4 hooks for unforced CLAUDE.md rules |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | P6 | P6-U03 | Awareness hook deduplication — pick 3 canonical, deprecate 10 |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | P7 | P7-U02 | Cross-PC handoff test — verify H: drive is sufficient |
+| COORD-MS0 |  | U-COORD02 | Add Optimistic Locking with Version Field |
+| COORD-MS0 |  | U-COORD04 | CrossSessionOrchestratorEngine — Unified Facade |
+| COORD-MS0 |  | U-COORD05 | Wire Orchestrator to Hook System |
+| COORD-MS0 |  | U-COORD06 | Startup Banner — Session Count Display |
+| CAD-INFRA-MS0 |  | U-CINF01 | CADFileIndexerEngine — master 20,006-file catalog |
+| CAD-INFRA-MS0 |  | U-CINF02 | CADFileClassifierEngine — part/assembly/drawing/CAM classification |
+| CAD-INFRA-MS0 |  | U-CINF03 | CADTestStateSchema — per-file atomic state |
+| CAD-INFRA-MS0 |  | U-CINF05 | CADTestCheckpointEngine — resumable state every 100 files |
 | S1-MS2 | P2 | P2-U05 | Port Thermal Partition + Power/Torque |
 | SCIMATH-MS1 | P2 | P2-U05 | FEMThermalCoupledEngine — sequential/staggered coupling |
 | SCIMATH-MS5 | P2 | P2-U05 | AcceptanceSamplingEngine — configurable AQL + switching rules |
@@ -290,11 +290,11 @@
 
 ## COVERAGE_BY_DOMAIN
 
-Per-domain wired/unwired breakdown across 931 domain prefixes.
+Per-domain wired/unwired breakdown across 932 domain prefixes.
 
 | Domain | Total | Wired | Unwired | Coverage % |
 |--------|-------|-------|---------|-----------|
-| Other | 598 | 455 | 143 | 76% |
+| Other | 598 | 453 | 145 | 76% |
 | Lathe | 188 | 99 | 89 | 53% |
 | Machine | 45 | 28 | 17 | 62% |
 | Multi | 28 | 17 | 11 | 61% |
@@ -307,16 +307,16 @@ Per-domain wired/unwired breakdown across 931 domain prefixes.
 | Fusion | 36 | 29 | 7 | 81% |
 | Milling | 34 | 27 | 7 | 79% |
 | Wet | 15 | 8 | 7 | 53% |
-| Cross | 67 | 61 | 6 | 91% |
 | Print | 21 | 15 | 6 | 71% |
 | Wire | 20 | 14 | 6 | 70% |
-| Session | 12 | 6 | 6 | 50% |
 | Process | 9 | 3 | 6 | 33% |
 | Consensus | 7 | 1 | 6 | 14% |
 | Swiss | 6 | 0 | 6 | 0% |
 | Mastercam | 28 | 23 | 5 | 82% |
+| Session | 12 | 7 | 5 | 58% |
 | Tribal | 12 | 7 | 5 | 58% |
 | Mobile | 6 | 1 | 5 | 17% |
+| Cross | 67 | 63 | 4 | 94% |
 | Mill | 23 | 19 | 4 | 83% |
 | Inventor | 12 | 8 | 4 | 67% |
 | Okuma | 12 | 8 | 4 | 67% |

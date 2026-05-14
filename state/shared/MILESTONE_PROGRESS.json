@@ -1,12 +1,12 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-13T23:58:18.333Z",
+  "generatedAt": "2026-05-14T02:01:36.293Z",
   "window": "60.days",
   "totals": {
     "milestones": 670,
     "units": 4906,
-    "shipped": 1238,
-    "pending": 3668,
+    "shipped": 1249,
+    "pending": 3657,
     "drift": 173
   },
   "milestones": [
@@ -24636,10 +24636,10 @@
       "track": "CLEANUP",
       "claimedStatus": "in_progress",
       "total": 73,
-      "shipped": 27,
-      "pending": 46,
-      "ratio": 0.3698630136986301,
-      "lastShippedDate": "2026-05-13T18:57:00-05:00",
+      "shipped": 38,
+      "pending": 35,
+      "ratio": 0.5205479452054794,
+      "lastShippedDate": "2026-05-13T20:49:52-05:00",
       "derivedStatus": "in_progress_real",
       "drift": "consistent",
       "units": [
@@ -24737,10 +24737,10 @@
           "id": "U-CLEANUP-C1",
           "title": "C1 — WiringPotentialEngine.ts (analyze + analyzeBatch; R4-P0-1: routes through MasterIndexEngine.search via prism_session:master_index_query for candidate lookup — does NOT reimplement; reads node.knowledge.wikiEntries[] + memoryEntries[] pre-joins from graph; reserved for rationale-synthesis layer; consumes F7 capacity output)",
           "phase": "engines-tier-1",
-          "shipped": false,
-          "sha": null,
-          "date": null,
-          "commitMilestoneTag": null
+          "shipped": true,
+          "sha": "0437274291ce0e70e2cf67fd5f30e204a928a6d9",
+          "date": "2026-05-13T20:43:09-05:00",
+          "commitMilestoneTag": "CLEANUP-MS0"
         },
         {
           "id": "U-CLEANUP-B8-CONSOLIDATED",
@@ -24881,10 +24881,10 @@
           "id": "U-CLEANUP-D1",
           "title": "D1 — extract Hook-Synergy 12-KB block (lines ~106-228) to knowledge/wiki/architecture/hook-synergy-overview.md; replace in CLAUDE.md with 4-line summary + /wiki-query pointer",
           "phase": "claude-md-slim-tier-4",
-          "shipped": false,
-          "sha": null,
-          "date": null,
-          "commitMilestoneTag": null
+          "shipped": true,
+          "sha": "499b3b9bc53cf23ee2593f074c1b4664f6c5ae55",
+          "date": "2026-05-13T20:49:52-05:00",
+          "commitMilestoneTag": "CLEANUP-MS0"
         },
         {
           "id": "U-CLEANUP-D2",
@@ -25016,10 +25016,10 @@
           "id": "U-CLEANUP-F7",
           "title": "F7 — build-dispatcher-capacity.mjs (97 dispatchers × actions/limit ratio; flags >=80%; feeds C1; daily)",
           "phase": "landscape-consumers-tier-6",
-          "shipped": false,
-          "sha": null,
-          "date": null,
-          "commitMilestoneTag": null
+          "shipped": true,
+          "sha": "6491e2284cb6e6dcb31a8c5395c3f9636fa2b1e4",
+          "date": "2026-05-13T19:40:27-05:00",
+          "commitMilestoneTag": "CLEANUP-MS0"
         },
         {
           "id": "U-CLEANUP-G1",
@@ -25142,10 +25142,10 @@
           "id": "U-CLEANUP-G17",
           "title": "G17 — 20-coord-db-vacuum.ps1 (weekly Sunday 02:17 PRAGMA wal_checkpoint(TRUNCATE) + VACUUM; log size delta to coord-db-health.json)",
           "phase": "watchers-tier-6",
-          "shipped": false,
-          "sha": null,
-          "date": null,
-          "commitMilestoneTag": null
+          "shipped": true,
+          "sha": "dbbb0134712ba633b3b9ae0941dc8d27159ea2da",
+          "date": "2026-05-13T19:08:30-05:00",
+          "commitMilestoneTag": "CLEANUP-MS0"
         },
         {
           "id": "U-CLEANUP-G18",
@@ -25196,55 +25196,55 @@
           "id": "U-CLEANUP-H1",
           "title": "H1 — memory-garden cron (21-memory-garden.ps1; invokes /memory-prune + scans ~/.claude/projects/H--PRISM/memory/*.md for unreferenced files / dangling MEMORY.md pointers / stale path refs; weekly Mon 04:11; writes MEMORY_GARDEN_REPORT.md; defers prune verdict if no chats active per chat-slots.json)",
           "phase": "awareness-surface-gardening-tier-6",
-          "shipped": false,
-          "sha": null,
-          "date": null,
-          "commitMilestoneTag": null
+          "shipped": true,
+          "sha": "18c8935bf68a7085be072155be5bec0dcaceec00",
+          "date": "2026-05-13T19:16:33-05:00",
+          "commitMilestoneTag": "CLEANUP-MS0"
         },
         {
           "id": "U-CLEANUP-H2",
           "title": "H2 — skill-utilization audit (22-skill-utilization.ps1; invokes /skill-lint + /skill-test + cross-ref tool-watchdog .tool-runtimes.jsonl; flags 30-day-unused skills as PROPOSED archive candidates — Mark promotes manually NOT auto-mv; addresses HS-06 565-skill token cost; weekly Tue 04:23; writes SKILL_UTILIZATION_REPORT.md)",
           "phase": "awareness-surface-gardening-tier-6",
-          "shipped": false,
-          "sha": null,
-          "date": null,
-          "commitMilestoneTag": null
+          "shipped": true,
+          "sha": "f4aee0d7c56fcd772bff91f6fb8b023b45348e43",
+          "date": "2026-05-13T19:48:12-05:00",
+          "commitMilestoneTag": "CLEANUP-MS0"
         },
         {
           "id": "U-CLEANUP-H3",
           "title": "H3 — hook-orphan + dead-matcher scan (23-hook-orphan-scan.mjs; consumes HOOK_REGISTRY.json + hook-latency.jsonl + async-hook-results.jsonl; flags 30-day-dormant hooks + dead matcher patterns + orphan files + tier-mismatch (T0 claimed but never blocks); daily 05:31; writes HOOK_UTILIZATION_REPORT.md)",
           "phase": "awareness-surface-gardening-tier-6",
-          "shipped": false,
-          "sha": null,
-          "date": null,
-          "commitMilestoneTag": null
+          "shipped": true,
+          "sha": "2f089effdda8d48bf1283004981b564fabd84712",
+          "date": "2026-05-13T19:57:21-05:00",
+          "commitMilestoneTag": "CLEANUP-MS0"
         },
         {
           "id": "U-CLEANUP-H4",
           "title": "H4 — CLAUDE.md doctrine-vs-reality drift detector (24-claude-md-drift.mjs; parses both H:/prism/CLAUDE.md and H:/.claude/CLAUDE.md for VERIFIABLE claims: hook-wired / file-exists / engine-shipped-at-SHA / cron-installed / env-knob-grepable; cross-checks; flags P0/P1/P2 drift; R2-PERF2 surfaced 3 such drifts in single audit; daily 06:43; writes CLAUDE_MD_DRIFT_REPORT.md)",
           "phase": "awareness-surface-gardening-tier-6",
-          "shipped": false,
-          "sha": null,
-          "date": null,
-          "commitMilestoneTag": null
+          "shipped": true,
+          "sha": "e8535b89d3a3ff8758bb371d8455243f17fa18d5",
+          "date": "2026-05-13T20:12:03-05:00",
+          "commitMilestoneTag": "CLEANUP-MS0"
         },
         {
           "id": "U-CLEANUP-H5",
           "title": "H5 — GSD docs freshness (25-gsd-freshness.mjs; watches mcp-server/data/docs/gsd/*.md; cross-refs hook list vs GSD_QUICK.md SessionStart/UserPromptSubmit/Stop claims; dispatcher count vs DEV_PROTOCOL.md; weekly Wed 07:53; writes GSD_FRESHNESS_REPORT.md)",
           "phase": "awareness-surface-gardening-tier-6",
-          "shipped": false,
-          "sha": null,
-          "date": null,
-          "commitMilestoneTag": null
+          "shipped": true,
+          "sha": "4e9e46a460a2b5a0e3cfa5e62f2e14586158b179",
+          "date": "2026-05-13T20:17:17-05:00",
+          "commitMilestoneTag": "CLEANUP-MS0"
         },
         {
           "id": "U-CLEANUP-H6",
           "title": "H6 — awareness health rollup (build-awareness-health.mjs; daily digest combining H1-H5 into AWARENESS_HEALTH_DASHBOARD.md with summary tables + 30-day trends; F8 chat-bus posts daily digest line; F4 cross-refs for unified operator view; daily 08:17)",
           "phase": "awareness-surface-gardening-tier-6",
-          "shipped": false,
-          "sha": null,
-          "date": null,
-          "commitMilestoneTag": null
+          "shipped": true,
+          "sha": "0c8b70a768554100307f81d616241af935206232",
+          "date": "2026-05-13T20:21:59-05:00",
+          "commitMilestoneTag": "CLEANUP-MS0"
         },
         {
           "id": "U-CLEANUP-DEFENDER",
@@ -25286,10 +25286,10 @@
           "id": "U-CLEANUP-SLOT-TAKEOVER",
           "title": "golf-slot-takeover.mjs (force-release stale slot claim on golf-spawn if prior PID is dead)",
           "phase": "verification-tier-7",
-          "shipped": false,
-          "sha": null,
-          "date": null,
-          "commitMilestoneTag": null
+          "shipped": true,
+          "sha": "bb3eeea259fc5255d5757346a5e4f1fd12a9817b",
+          "date": "2026-05-13T19:12:09-05:00",
+          "commitMilestoneTag": "CLEANUP-MS0"
         },
         {
           "id": "U-CLEANUP-TELEMETRY-CLOSE",
@@ -29911,7 +29911,7 @@
       "shipped": 80,
       "pending": 12,
       "ratio": 0.8695652173913043,
-      "lastShippedDate": "2026-05-13T17:43:16-05:00",
+      "lastShippedDate": "2026-05-13T20:21:09-05:00",
       "derivedStatus": "in_progress_real",
       "drift": "claims_not_started_but_has_shipped_units",
       "units": [
@@ -30730,8 +30730,8 @@
           "title": "Build ModelTelemetryEngine — log every model invocation with latency + outcome",
           "phase": "P23",
           "shipped": true,
-          "sha": "630463eb713c69c74d36b92dd836cbcd18788b1c",
-          "date": "2026-05-04T08:38:58-05:00",
+          "sha": "df46405e2ea26c4dedf7b586c4b3fde035aafbb5",
+          "date": "2026-05-13T20:21:09-05:00",
           "commitMilestoneTag": "INTEL-OLLAMA-OBSIDIAN-MS0"
         },
         {

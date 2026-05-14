@@ -1,6 +1,6 @@
 # MILESTONE_PROGRESS — what's actually shipped vs claimed
 
-> Generated: 2026-05-13T23:58:18.382Z
+> Generated: 2026-05-14T02:01:36.379Z
 > Window: last 60.days of git log across all branches
 > Source: `scripts/build-milestone-progress.mjs`
 
@@ -19,22 +19,22 @@ flagging a unit as missing.
 
 - Milestones loaded:        **670**
 - Units across all MS:      **4906**
-- Units shipped (in git):   **1238**
-- Units pending:            **3668**
+- Units shipped (in git):   **1249**
+- Units pending:            **3657**
 - Drift cases:              **173** (envelope status disagrees with git reality)
 
 ## Top recently-active milestones (last shipped → first)
 
 | Milestone | Track | Status (claimed) | Status (real) | Shipped/Total | Last commit |
 |-----------|-------|------------------|---------------|---------------|-------------|
+| CLEANUP-MS0 | CLEANUP | in_progress | in_progress_real | 38/73 (52%) | 2026-05-13 |
+| INTEL-OLLAMA-OBSIDIAN-MS0 | INFRA | not_started | in_progress_real | 80/92 (87%) | 2026-05-13 |
 | COORD-MS0 | INFRA | unknown | in_progress_real | 6/12 (50%) | 2026-05-13 |
-| CLEANUP-MS0 | CLEANUP | in_progress | in_progress_real | 27/73 (37%) | 2026-05-13 |
 | CAD-INFRA-MS0 | CAD-INFRA | complete | in_progress_real | 4/16 (25%) | 2026-05-13 |
 | S1-MS2 | — | not_started | in_progress_real | 9/10 (90%) | 2026-05-13 |
 | TC-MS0 | — | not_started | completed_real | 14/14 (100%) | 2026-05-13 |
 | CCM-MS16 | CCM | not_started | completed_real | 12/12 (100%) | 2026-05-13 |
 | CCM-MS17 | CCM | not_started | completed_real | 12/12 (100%) | 2026-05-13 |
-| INTEL-OLLAMA-OBSIDIAN-MS0 | INFRA | not_started | in_progress_real | 80/92 (87%) | 2026-05-13 |
 | MCAT-MS0 | MCAT | in_progress | completed_real | 21/21 (100%) | 2026-05-13 |
 | SCIMATH-MS0 | SCIMATH | not_started | completed_real | 17/17 (100%) | 2026-05-13 |
 | SCIMATH-MS1 | SCIMATH | not_started | in_progress_real | 19/20 (95%) | 2026-05-13 |
@@ -135,9 +135,9 @@ flagging a unit as missing.
 | MS-WIRE-BACKEND | 60 | 60 | 0/60 |
 | MIO-MS0 | 57 | 57 | 0/57 |
 | LATHE-LORA-MS0 | 50 | 50 | 0/50 |
-| CLEANUP-MS0 | 46 | 73 | 27/73 |
 | MS-MASTERPOST | 44 | 44 | 0/44 |
 | MS1 | 39 | 39 | 0/39 |
+| CLEANUP-MS0 | 35 | 73 | 38/73 |
 | MS-CAM-MASTERY | 34 | 34 | 0/34 |
 | MS-AUDIT-DERIVED-2026-05-10 | 30 | 30 | 0/30 |
 | MS2 | 30 | 30 | 0/30 |
