@@ -88,7 +88,14 @@
       "id": "U-COORD06",
       "title": "Startup Banner — Session Count Display",
       "phase": "Integration",
-      "status": "pending",
+      "status": "complete",
+      "completed_at": "2026-05-14T12:48:27Z",
+      "completed_by": "claude-1642fd87",
+      "ship_notes": "Extended coordination-startup-banner.mjs (U-COORD01-era 53-line stub) to the full U-COORD06 deliverable: offline detection (missing/corrupt/null/non-object summary, daemon_active=false, stale-snapshot age detection via PRISM_COORD_BANNER_STALE_MS default 10min); TTL-gated /who discovery hint (PRISM_COORD_BANNER_HINT_TTL_MS default 7d — re-fires periodically so a shared-H:/-drive marker created weeks ago by a peer cannot permanently suppress it, the bug that left the original stub's exists-check dead-on-arrival); session-count phrasing with defensive Number()/isFinite/floor handling of non-numeric/negative/null/fractional active_sessions. Tier corrected T4->T2 (SessionStart is synchronous; T4 is the AsyncHookDispatcher Stop-hook queue). node: import prefix to match sibling injector convention. 48-case vitest suite mcp-server/src/__tests__/coordinationStartupBanner.test.ts: real spawnSync subprocess, no mocks, exact-string + regex assertions only, strips inherited PRISM_COORD_BANNER_* env so a leaked parent knob cannot corrupt a test. Per-file scrutiny: banner 2 rounds x 2 agents (PASS after T4->T2 + TTL-hint fixes), test 1 round x 2 agents (PASS). End-of-task 3-of-3 scrutiny: arms A+B+C all PASS (ledger session claude-1642fd87-u-coord06; verified blobs 0b8ce55e4 hook + b5dba2f0c test). EXT (not git-tracked): banner wired as the last SessionStart hook (post-zombie-reap for an accurate session count) in C:/Users/Mark Villanueva/.claude/settings.json + mirrored H:/.claude/settings.json, timeout 2000ms, backup settings.json.bak-u-coord06-1778762095. Built in worktree H:/prism-coord-ms0 (commit 0ce19b07c on work/coord-ms0); content reached cad-fusion-live-ms0 byte-identical via peer collision commit f650a8ebd ([HOOK-AUDIT]/forge-audit-v2 — title understates scope, swept the U-COORD06 files) per the recurring shared-tree commit-collision pattern. Do NOT re-ship — deliverables verified on-branch at the cited blobs.",
+      "completed_in_commits": [
+        "0ce19b07c (work/coord-ms0 — canonical authoring commit)",
+        "f650a8ebd (cad-fusion-live-ms0 — byte-identical content, absorbed into peer [HOOK-AUDIT]/forge-audit-v2 commit, collision)"
+      ],
       "description": "Show 'Connected to coordination daemon (N sessions online)' on SessionStart",
       "deliverables": [
         "coordination-status-banner.mjs hook",
