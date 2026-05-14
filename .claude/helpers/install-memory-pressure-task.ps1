@@ -47,11 +47,21 @@ $trigger = New-ScheduledTaskTrigger `
   -RepetitionInterval (New-TimeSpan -Minutes $EveryMinutes) `
   -RepetitionDuration (New-TimeSpan -Days 3650)
 
+# ExecutionTimeLimit is the BACKSTOP, not the primary bound. The relief script
+# (03-memory-pressure-auto-relief.ps1) self-bounds every run to its $MaxRuntimeSec
+# (default 100s) — each escalation tier checks the remaining budget and every
+# heavy sub-invocation is a bounded child process. 4 min gives comfortable
+# headroom so a one-off slow OS (WMI hiccup, taskkill latency under fork-storm
+# load) still completes cleanly instead of being SIGKILL'd by the scheduler
+# (which recorded LastTaskResult=267014 SCHED_S_TASK_TERMINATED — the 2-min
+# limit was too tight against the script's own 100s budget). Raised 2026-05-14
+# (SLOT-WORKTREE-MS0 hygiene fix). NOTE: an existing registered task keeps its
+# old limit until re-registered — re-run this installer (elevated) to apply.
 $settings = New-ScheduledTaskSettingsSet `
   -AllowStartIfOnBatteries `
   -DontStopIfGoingOnBatteries `
   -StartWhenAvailable `
-  -ExecutionTimeLimit (New-TimeSpan -Minutes 2) `
+  -ExecutionTimeLimit (New-TimeSpan -Minutes 4) `
   -MultipleInstances IgnoreNew
 
 Register-ScheduledTask `
@@ -59,10 +69,14 @@ Register-ScheduledTask `
   -Action $action `
   -Trigger $trigger `
   -Settings $settings `
-  -Description "Monitors commit-memory pressure every $EveryMinutes minutes. Auto-runs 02-kill-zombie-tsservers + node-process-janitor when usage crosses 85/92/97%% thresholds. Cheap noop when memory is healthy. Logs to .cache/memory-pressure-log.jsonl." `
+  -Description "Monitors commit-memory pressure every $EveryMinutes minutes. Auto-runs 02-kill-zombie-tsservers + cleanup-orchestrator when usage crosses 85/92/97% thresholds. Cheap noop when memory is healthy. Self-bounds each run to ~100s. Logs to .cache/memory-pressure-log.jsonl." `
   -Force | Out-Null
 
-Write-Host "Registered: $TaskName (03-memory-pressure-auto-relief.ps1, every $EveryMinutes min)"
+Write-Host "Registered: $TaskName (03-memory-pressure-auto-relief.ps1, every $EveryMinutes min, ExecutionTimeLimit=4min)"
+Write-Host "NOTE: this Register call is what APPLIES the 4-min ExecutionTimeLimit. Pulling the"
+Write-Host "      commit alone does not — if you only updated the file, re-run this installer"
+Write-Host "      (elevated) to push the new limit onto the live task. The relief script also"
+Write-Host "      self-bounds to ~100s, so the limit is a backstop, not the primary bound."
 
 if ($RunNow) {
   Start-ScheduledTask -TaskName $TaskName
