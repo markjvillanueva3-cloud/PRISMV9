@@ -10,7 +10,7 @@
   "updated_at": "2026-05-14T15:28:43.185Z",
   "status": "in_progress",
   "total_units": 73,
-  "completed_units": 55,
+  "completed_units": 59,
   "dependencies": [
     "HOOK-SYNERGY-MS0 (H4 envelope, H7 async dispatch, H8 coord_sqlite)",
     "OBSIDIAN-PRISM-OS-MS0 (master-index surface, awareness stack, orphan-inventory)"
@@ -558,11 +558,13 @@
         {
           "id": "U-CLEANUP-G10",
           "title": "G10 — viz-output-size.mjs (track state/shared/system-viz/ total bytes; flag >2 GB; archive non-current snapshots; prevents repeat of 2026-05-12 git-history-strip incident)",
-          "status": "not_started",
+          "status": "complete",
           "estimated_hours": 0.5,
           "dependencies": [
             "U-CLEANUP-F5"
-          ]
+          ],
+          "completed_at": "2026-05-14T16:02:53.321Z",
+          "completed_by": "claude-82c64812"
         },
         {
           "id": "U-CLEANUP-G12",
@@ -656,11 +658,14 @@
         {
           "id": "U-CLEANUP-E2",
           "title": "E2 — golf-cron-registry.json (schemaVersion 1) + /golf-bootstrap skill that reads registry + calls CronCreate via tool-use; per-cron lockfile with PID+expectedDurationMs; 5 daily slots at 03:17/04:23/05:31/06:43/07:53; UTC discipline",
-          "status": "not_started",
+          "status": "complete",
           "estimated_hours": 1.5,
           "dependencies": [
             "U-CLEANUP-A6"
-          ]
+          ],
+          "completed_at": "2026-05-14T15:50:15.705Z",
+          "completed_by": "claude-82c64812",
+          "shipped_commit": "84154affc"
         },
         {
           "id": "U-CLEANUP-E3",
