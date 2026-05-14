@@ -71,7 +71,18 @@ export interface PartLibraryLayout {
     rejectTraversal: boolean;
   };
   fileClassification: { cncExts: string[]; cadCamExts: string[]; comment?: string };
-  customerResolution: { priority: string[]; printOcrRejectPatterns: string[]; comment?: string };
+  customerResolution: {
+    priority: string[];
+    printOcrRejectPatterns: string[];
+    /** canonical -> [OCR-garble variants that mean the same company]. Used by canonicalizeCustomer. */
+    aliases?: Array<{ canonical: string; variants?: string[] }>;
+    /** UPPERCASE prefixes that route a sanitized candidate to _UNASSIGNED. */
+    noisePrefixes?: string[];
+    /** Regex sources (JS flavor, case-insensitive at apply time) that route to _UNASSIGNED. */
+    noiseRegexes?: string[];
+    comment?: string;
+    aliasesComment?: string;
+  };
   manifestFields?: { required: string[]; optional: string[]; comment?: string };
 }
 
@@ -201,25 +212,117 @@ export function isPlausibleCustomer(c: unknown): boolean {
   return /[a-z]/i.test(t); // must contain at least one letter
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Customer canonicalization (aliases + noise patterns from layout config)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Memoized index of customerResolution.{aliases, noisePrefixes, noiseRegexes}, keyed on the
+ * config's mtime so an in-place edit of part-library-layout.json is picked up without restart
+ * (matching getLayout()'s invalidation semantics). Built lazily on first canonicalizeCustomer call.
+ */
+let _aliasIndex: { mtimeMs: number; map: Map<string, string>; prefixes: string[]; regexes: RegExp[] } | null = null;
+
+function buildAliasIndex(mtimeMs: number): { mtimeMs: number; map: Map<string, string>; prefixes: string[]; regexes: RegExp[] } {
+  const cr = getLayout().customerResolution;
+  const map = new Map<string, string>();
+  for (const a of cr.aliases ?? []) {
+    const can = String(a?.canonical ?? "").toUpperCase().trim();
+    if (!can) continue;
+    map.set(can, can); // canonical -> itself (idempotent)
+    for (const v of a?.variants ?? []) {
+      const vu = String(v ?? "").toUpperCase().trim();
+      if (vu) map.set(vu, can);
+    }
+  }
+  const prefixes = (cr.noisePrefixes ?? []).map((p: unknown) => String(p ?? "").toUpperCase().trim()).filter(Boolean);
+  const regexes: RegExp[] = [];
+  for (const rx of cr.noiseRegexes ?? []) {
+    try { regexes.push(new RegExp(String(rx), "i")); } catch { /* skip malformed */ }
+  }
+  return { mtimeMs, map, prefixes, regexes };
+}
+
+function aliasIndex(): { map: Map<string, string>; prefixes: string[]; regexes: RegExp[] } {
+  // tie cache validity to the layout cache's mtime (or 0 if file missing — DEFAULT_LAYOUT path)
+  const mt = _layoutCache?.mtimeMs ?? 0;
+  if (!_aliasIndex || _aliasIndex.mtimeMs !== mt) _aliasIndex = buildAliasIndex(mt);
+  return _aliasIndex;
+}
+
+/**
+ * Apply the `customerResolution.aliases` + `noisePrefixes` + `noiseRegexes` map from
+ * part-library-layout.json to an already-sanitized (UPPERCASE) customer name.
+ *
+ * Returns:
+ *   - the canonical company name when the input matches an alias variant (or canonical itself);
+ *   - `_UNASSIGNED` when the input matches a noisePrefix or noiseRegex;
+ *   - the input unchanged when no rule applies (so unknown but plausible names still create
+ *     a customer folder under their own name — phase19 / human review handles the long tail).
+ *
+ * Matching is on the sanitized name as-is, then with leading digits stripped (OCR often prepends
+ * a page/line number, e.g. `61BARNESINDUSTR`). `_UNASSIGNED` / `_UNNAMED` / empty inputs are
+ * returned unchanged. Mirrors the canonicalize() logic in
+ * `Docustrata/.index/phase19-consolidate-customers.py` so the two paths agree.
+ */
+export function canonicalizeCustomer(sanitized: string): string {
+  if (typeof sanitized !== "string") return "";
+  const cfg = getLayout();
+  const unassigned = cfg.unassignedCustomer || "_UNASSIGNED";
+  const empty = cfg.sanitize?.emptyFallback || "_UNNAMED";
+  if (sanitized === "" || sanitized === unassigned || sanitized === empty) return sanitized;
+  const idx = aliasIndex();
+  // 1) exact alias / canonical
+  if (idx.map.has(sanitized)) return idx.map.get(sanitized)!;
+  // 2) leading-digit strip, try again
+  const stripped = sanitized.replace(/^\d+/, "").trim();
+  if (stripped && stripped !== sanitized && idx.map.has(stripped)) return idx.map.get(stripped)!;
+  // 3) noise prefix / regex on both candidates
+  const candidates = stripped && stripped !== sanitized ? [sanitized, stripped] : [sanitized];
+  for (const c of candidates) {
+    for (const p of idx.prefixes) if (p && c.startsWith(p)) return unassigned;
+    for (const rx of idx.regexes) if (rx.test(c)) return unassigned;
+  }
+  // 4) no rule — keep as-is (a plausible but unmapped customer)
+  return sanitized;
+}
+
+/** Test-only: clear the memoized alias index so a config edit is picked up without an mtime change. */
+export function _resetCanonicalizationCache(): void {
+  _aliasIndex = null;
+  _layoutCache = null;
+}
+
 /**
  * Pick the customer folder name. Priority (from the layout config): the human-filed program-folder
- * customer > a sane OCR'd print title-block customer > `_UNASSIGNED`. Returns the *sanitized* name
- * plus which source won.
+ * customer > a sane OCR'd print title-block customer > `_UNASSIGNED`. The chosen raw name is
+ * sanitized AND canonicalized (aliases collapse OCR-garble variants to the canonical company;
+ * noise patterns route obvious non-customers to `_UNASSIGNED`). Returns the canonical name plus
+ * which raw source it came from — note `source` records *provenance*, not the final routing,
+ * so a name from program_path that got noise-routed still reports source="program_path" with
+ * customer="_UNASSIGNED" (the manifest preserves that as "<source>+consolidated" downstream).
  */
 export function resolveCustomer(input: { programCustomers?: unknown[]; printCustomers?: unknown[] }): { customer: string; source: "program_path" | "print_ocr" | "unassigned" } {
   const cfg = getLayout();
+  const unassigned = sanitizeSegment(cfg.unassignedCustomer);
   for (const src of cfg.customerResolution.priority) {
     if (src === "program_path") {
       for (const c of input.programCustomers ?? []) {
-        if (isPlausibleCustomer(c)) return { customer: sanitizeSegment(c), source: "program_path" };
+        if (isPlausibleCustomer(c)) {
+          const customer = canonicalizeCustomer(sanitizeSegment(c));
+          return { customer, source: customer === unassigned ? "unassigned" : "program_path" };
+        }
       }
     } else if (src === "print_ocr") {
       for (const c of input.printCustomers ?? []) {
-        if (isPlausibleCustomer(c)) return { customer: sanitizeSegment(c), source: "print_ocr" };
+        if (isPlausibleCustomer(c)) {
+          const customer = canonicalizeCustomer(sanitizeSegment(c));
+          return { customer, source: customer === unassigned ? "unassigned" : "print_ocr" };
+        }
       }
     }
   }
-  return { customer: sanitizeSegment(cfg.unassignedCustomer), source: "unassigned" };
+  return { customer: unassigned, source: "unassigned" };
 }
 
 /** Classify a program/CAD file path into the CNC-program bucket or the CAD-CAM bucket. */
