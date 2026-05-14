@@ -289,4 +289,134 @@ describe("ModelRoutingEngine", () => {
       );
     });
   });
+
+  // ── P23-U02 adaptive state ───────────────────────────────────────────────
+  describe("applyAdaptiveState — INTEL-OLLAMA-OBSIDIAN-MS0/P23-U02", () => {
+    it("getEffectiveLatency returns the catalog default before adaptation", () => {
+      const declared = engine
+        .listModels()
+        .find((m) => m.id === "claude-sonnet-4-6")!.latencyMsTypical;
+      expect(engine.getEffectiveLatency("claude-sonnet-4-6")).toBe(declared);
+    });
+
+    it("applyAdaptiveState overrides the effective latency for a specific model", () => {
+      engine.applyAdaptiveState({
+        "claude-sonnet-4-6": {
+          effectiveLatencyMs: 3500,
+          reason: "P95 observed at 3500ms",
+          appliedAt: "2026-05-13T00:00:00.000Z",
+        },
+      });
+      expect(engine.getEffectiveLatency("claude-sonnet-4-6")).toBe(3500);
+      // Unaffected models keep their declared latency.
+      const haikuDeclared = engine
+        .listModels()
+        .find((m) => m.id === "claude-haiku-4-5-20251001")!.latencyMsTypical;
+      expect(engine.getEffectiveLatency("claude-haiku-4-5-20251001")).toBe(haikuDeclared);
+    });
+
+    it("adaptive effective latency is honored by the latency-budget hard wall", () => {
+      // Without adaptation: sonnet (1800ms typical) fits an 2000ms budget.
+      const baseline = engine.route(req({ latencyBudgetMs: 2000 }), ctx({ forceModel: "claude-sonnet-4-6" }));
+      expect(baseline.ok).toBe(true);
+
+      // After tuner observes P95=3500ms: same request fails the latency budget.
+      engine.applyAdaptiveState({
+        "claude-sonnet-4-6": { effectiveLatencyMs: 3500, reason: "degraded" },
+      });
+      const degraded = engine.route(req({ latencyBudgetMs: 2000 }), ctx({ forceModel: "claude-sonnet-4-6" }));
+      expect(degraded.ok).toBe(false);
+      expect(degraded.rationale.join(" ")).toMatch(/3500ms.*budget 2000ms/);
+      expect(degraded.rationale.join(" ")).toMatch(/adaptive/);
+    });
+
+    it("excludedFromSafety disqualifies the model from safety_critical taskKind", () => {
+      // Opus normally serves safety_critical (qualityTier 98).
+      const baseline = engine.route(req({ taskKind: "safety_critical" }), ctx({ forceModel: "claude-opus-4-7" }));
+      expect(baseline.ok).toBe(true);
+
+      engine.applyAdaptiveState({
+        "claude-opus-4-7": { excludedFromSafety: true, reason: "elevated failure rate 22% over 100 calls" },
+      });
+      const excluded = engine.route(req({ taskKind: "safety_critical" }), ctx({ forceModel: "claude-opus-4-7" }));
+      expect(excluded.ok).toBe(false);
+      expect(excluded.rationale.join(" ")).toMatch(/excludedFromSafety/);
+      expect(excluded.rationale.join(" ")).toMatch(/22%/);
+
+      // Non-safety taskKinds remain unaffected.
+      const chatPath = engine.route(req({ taskKind: "chat" }), ctx({ forceModel: "claude-opus-4-7" }));
+      expect(chatPath.ok).toBe(true);
+    });
+
+    it("excludedFromSafety also rejects requireSafety=true regardless of taskKind", () => {
+      engine.applyAdaptiveState({
+        "claude-opus-4-7": { excludedFromSafety: true, reason: "from tuner" },
+      });
+      const result = engine.route(
+        req({ taskKind: "chat", requireSafety: true }),
+        ctx({ forceModel: "claude-opus-4-7" }),
+      );
+      expect(result.ok).toBe(false);
+      expect(result.rationale.join(" ")).toMatch(/excludedFromSafety/);
+    });
+
+    it("getAdaptiveState returns a copy that does not mutate engine internals", () => {
+      engine.applyAdaptiveState({
+        "claude-sonnet-4-6": { effectiveLatencyMs: 2500 },
+      });
+      const snapshot = engine.getAdaptiveState();
+      snapshot["claude-sonnet-4-6"]!.effectiveLatencyMs = 99999;
+      // Engine still reports the original value — the snapshot was a copy.
+      expect(engine.getEffectiveLatency("claude-sonnet-4-6")).toBe(2500);
+    });
+
+    it("applyAdaptiveState drops entries with no useful fields (defensive shape guard)", () => {
+      engine.applyAdaptiveState({
+        "claude-sonnet-4-6": { effectiveLatencyMs: 1500 },
+        "junk-model-1": { reason: "no actionable fields" } as never,
+        "junk-model-2": null as never,
+        "junk-model-3": { effectiveLatencyMs: Number.NaN } as never,
+        "junk-model-4": { effectiveLatencyMs: -100 } as never, // negative not allowed
+        "junk-model-5": { excludedFromSafety: "yes" as unknown as boolean },
+      });
+      const state = engine.getAdaptiveState();
+      expect(Object.keys(state).sort()).toEqual(["claude-sonnet-4-6"]);
+      expect(state["claude-sonnet-4-6"]!.effectiveLatencyMs).toBe(1500);
+    });
+
+    it("empty applyAdaptiveState clears prior overrides (reset to catalog defaults)", () => {
+      engine.applyAdaptiveState({
+        "claude-sonnet-4-6": { effectiveLatencyMs: 5000, excludedFromSafety: true },
+      });
+      expect(engine.getEffectiveLatency("claude-sonnet-4-6")).toBe(5000);
+
+      engine.applyAdaptiveState({});
+      expect(engine.getAdaptiveState()).toEqual({});
+
+      const declared = engine
+        .listModels()
+        .find((m) => m.id === "claude-sonnet-4-6")!.latencyMsTypical;
+      expect(engine.getEffectiveLatency("claude-sonnet-4-6")).toBe(declared);
+
+      // Safety-critical no longer blocked.
+      const result = engine.route(req({ taskKind: "safety_critical" }), ctx({ forceModel: "claude-sonnet-4-6" }));
+      expect(result.ok).toBe(true);
+    });
+
+    it("adaptive effective latency influences scoring across candidates", () => {
+      // Force home hardware, code task — sonnet typically wins on quality + cloud-tools.
+      // Degrade sonnet's effective latency dramatically — opus should now outrank it on score
+      // (both keep their declared latencies in the catalog, but the scorer reads via getEffectiveLatency).
+      engine.applyAdaptiveState({
+        "claude-sonnet-4-6": { effectiveLatencyMs: 60_000 }, // pretend 60s P95
+      });
+      const result = engine.route(
+        req({ taskKind: "code", needsTools: true, inputTokens: 1000, outputTokensMax: 1000 }),
+        ctx({ hardware: "home_4080" }),
+      );
+      expect(result.ok).toBe(true);
+      // With 60s effective latency, sonnet's score is pushed below opus/haiku/codex.
+      expect(result.model).not.toBe("claude-sonnet-4-6");
+    });
+  });
 });
