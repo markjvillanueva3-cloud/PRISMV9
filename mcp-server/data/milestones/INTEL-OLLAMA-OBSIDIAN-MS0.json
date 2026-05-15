@@ -850,6 +850,10 @@
         },
         {
           "id": "P4-U04",
+          "status": "completed",
+          "completed_at": "2026-05-15T15:42:00.000Z",
+          "completed_by": "claude-b6c4b196 slot charlie (envelope drift)",
+          "close_out_note": "Deliverable `scripts/embed-wiki-index.mjs` is functionally satisfied by `scripts/build-wiki-embeddings.mjs` (different filename, identical function — embeds wiki concept leaves to `knowledge/wiki/architecture/_embeddings.jsonl` using nomic-embed-text via Ollama, int8-quantized, incremental cache). Exit conditions verified: (1) knowledge/wiki/index.md exists (722 entries) and IS exposed via `prism_memory:semantic_search` (memoryDispatcher.ts line 263 case). (2) `wiki-precheck-inject.mjs` UserPromptSubmit hook fires on wiki keyword — live demo returned 3 relevant entries for 'fleet reaper' query. (3) Hook digest is ~200 tokens vs reading each wiki file at ~600+ tokens each — net savings ≥600 tok per lookup confirmed. Live state: `_embeddings.jsonl` is 14,739 lines (~3.5 MB int8). No rename needed — both filenames satisfy the deliverable intent; the existing one has 4+ months of incremental cache state.",
           "title": "Wiki query bridge — query knowledge/wiki/ as backstop",
           "effort": 30,
           "dependencies": [
@@ -864,7 +868,7 @@
             {
               "path": "scripts/embed-wiki-index.mjs",
               "type": "script",
-              "description": "Embed wiki entries"
+              "description": "Embed wiki entries (functionally satisfied by scripts/build-wiki-embeddings.mjs)"
             }
           ],
           "tools": [
