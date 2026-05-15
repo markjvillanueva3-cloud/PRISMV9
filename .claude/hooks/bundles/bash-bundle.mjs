@@ -13,6 +13,12 @@ const BASH_HOOKS = [
   { path: `${HELPER_BASE}/test-run-gate.mjs`,                timeout: 5000 },
   { path: `${HOOK_BASE}/commit-ownership-guard.mjs`,         timeout: 5000 },
   { path: `${HOOK_BASE}/worktree-commit-route.mjs`,          timeout: 2000 },
+  // SLOT-WORKTREE-MS0/U-P1-ADD-LANE-GUARD (2026-05-15): default-OFF, env-opt-in
+  // (PRISM_GIT_ADD_LANE_ENABLE=1) `git add` SLOT-LANE gate. Blocks staging files
+  // outside the chat's slot worktree root once the per-slot cutover is done.
+  // Pure no-op until armed; activation gate lives inside main(), not top-level,
+  // so the module remains importable by the test/smoke harness.
+  { path: `${HOOK_BASE}/git-add-lane-guard.mjs`,             timeout: 2000 },
   { path: `${HOOK_BASE}/html-companion-guard.mjs`,           timeout: 3000 },
   { path: `${HOOK_BASE}/rtk-auto-suggest.mjs`,               timeout: 2000 },
   { path: `${HOOK_BASE}/bash-destructive-guard.mjs`,         timeout: 2000 },
