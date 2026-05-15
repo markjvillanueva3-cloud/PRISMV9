@@ -929,4 +929,20 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   edge_case_learnings: z.object({}).passthrough().describe("All extracted learnings (from successful >0.99-percentile captures)"),
 
   edge_case_stats: z.object({}).passthrough().describe("Total captures, success rate, parameters tracked, expansion candidates, learnings generated"),
+
+  // ── ResponseTemplateEngine (5 actions) — OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-RESPONSE-TEMPLATE
+  //    Post-dispatch response-formatting hooks. Templates select sections per
+  //    pressure level (full/compact/minimal/skip). Engine is a process singleton.
+  response_template_match: z.object({
+    dispatcher: z.string().min(1).describe("Dispatcher name, e.g. 'prism_data'"),
+    action: z.string().min(1).describe("Action within the dispatcher, e.g. 'material_get'"),
+    result_data: z.any().describe("Raw dispatcher result to project against the template (string is parsed as JSON)"),
+    pressure_pct: z.number().min(0).max(100).default(0).describe("Context-pressure %. >85 skips, 60-85 minimal, 40-60 compact, <40 full"),
+  }).passthrough(),
+  response_template_list: z.object({}).passthrough().describe("List every registered template (id, dispatcher, actions, format, section count)"),
+  response_template_get: z.object({
+    template_id: z.string().min(1).describe("Template id, e.g. 'TPL-MATERIAL'"),
+  }).passthrough(),
+  response_template_stats: z.object({}).passthrough().describe("Template engine telemetry (executions, matches, hit rate, last match, coverage)"),
+  response_template_reset_stats: z.object({}).passthrough().describe("Reset internal counters (testing/dev hook)"),
 };

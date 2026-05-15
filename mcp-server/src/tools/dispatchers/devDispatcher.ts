@@ -174,7 +174,11 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "edge_case_expansion_candidates",
 "edge_case_search",
 "edge_case_learnings",
-"edge_case_stats"] as const;
+"edge_case_stats",
+// ── ResponseTemplateEngine (OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-RESPONSE-TEMPLATE)
+//    Post-dispatch response-formatting hooks. Singleton engine.
+"response_template_match", "response_template_list", "response_template_get",
+"response_template_stats", "response_template_reset_stats"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -5301,6 +5305,43 @@ export function registerDevDispatcher(server: any): void {
           case "edge_case_stats": {
             const { edgeCaseCaptureEngine } = await import("../../engines/EdgeCaseCaptureEngine.js");
             result = { success: true, stats: edgeCaseCaptureEngine.getStatistics() };
+            break;
+          }
+
+          // ── ResponseTemplateEngine (5 actions) — OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-RESPONSE-TEMPLATE
+          //    Post-dispatch response-template formatting engine. Pure pressure-aware
+          //    template selection — no I/O, no external deps.
+          case "response_template_match": {
+            const { ResponseTemplateEngine } = await import("../../engines/ResponseTemplateEngine.js");
+            const engine = ResponseTemplateEngine.getInstance();
+            const match = engine.match(params.dispatcher, params.action, params.result_data, params.pressure_pct ?? 0);
+            result = { success: true, match };
+            break;
+          }
+          case "response_template_list": {
+            const { ResponseTemplateEngine } = await import("../../engines/ResponseTemplateEngine.js");
+            const engine = ResponseTemplateEngine.getInstance();
+            result = { success: true, templates: engine.listTemplates() };
+            break;
+          }
+          case "response_template_get": {
+            const { ResponseTemplateEngine } = await import("../../engines/ResponseTemplateEngine.js");
+            const engine = ResponseTemplateEngine.getInstance();
+            const template = engine.getTemplate(params.template_id);
+            result = { success: true, template };
+            break;
+          }
+          case "response_template_stats": {
+            const { ResponseTemplateEngine } = await import("../../engines/ResponseTemplateEngine.js");
+            const engine = ResponseTemplateEngine.getInstance();
+            result = { success: true, stats: engine.getStats() };
+            break;
+          }
+          case "response_template_reset_stats": {
+            const { ResponseTemplateEngine } = await import("../../engines/ResponseTemplateEngine.js");
+            const engine = ResponseTemplateEngine.getInstance();
+            engine.resetStats();
+            result = { success: true, reset: true };
             break;
           }
 
