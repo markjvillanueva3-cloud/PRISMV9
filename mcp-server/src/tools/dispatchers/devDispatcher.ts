@@ -139,7 +139,16 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "budget_trim_filter_fields",
 "budget_trim_drop_fields",
 "budget_trim_summarize_array",
-"budget_trim_preset"] as const;
+"budget_trim_preset",
+// OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-CONV-BUDGET: ConversationBudgetEngine wire
+// (singleton tracker — token budget alerts + top consumers + estimate remaining ops).
+"conv_budget_record",
+"conv_budget_status",
+"conv_budget_check",
+"conv_budget_top_consumers",
+"conv_budget_status_line",
+"conv_budget_estimate_remaining",
+"conv_budget_reset"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -5091,6 +5100,50 @@ export function registerDevDispatcher(server: any): void {
             const { outputBudgetEngine } = await import("../../engines/OutputBudgetEngine.js");
             const name = (params.name === "compact" || params.name === "normal" || params.name === "verbose") ? params.name : "normal";
             result = { success: true, preset: outputBudgetEngine.preset(name) };
+            break;
+          }
+
+          // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-CONV-BUDGET: ConversationBudgetEngine wire (2026-05-15)
+          case "conv_budget_record": {
+            const { conversationBudgetEngine } = await import("../../engines/ConversationBudgetEngine.js");
+            conversationBudgetEngine.recordToolCall(
+              String(params.tool ?? "Other"),
+              Number(params.input_tokens) || 0,
+              Number(params.output_tokens) || 0,
+            );
+            result = { success: true, recorded: true };
+            break;
+          }
+          case "conv_budget_status": {
+            const { conversationBudgetEngine } = await import("../../engines/ConversationBudgetEngine.js");
+            result = { success: true, status: conversationBudgetEngine.getStatus() };
+            break;
+          }
+          case "conv_budget_check": {
+            const { conversationBudgetEngine } = await import("../../engines/ConversationBudgetEngine.js");
+            result = { success: true, alert: conversationBudgetEngine.checkBudget() };
+            break;
+          }
+          case "conv_budget_top_consumers": {
+            const { conversationBudgetEngine } = await import("../../engines/ConversationBudgetEngine.js");
+            const n = typeof params.n === "number" ? params.n : 5;
+            result = { success: true, top: conversationBudgetEngine.getTopConsumers(n) };
+            break;
+          }
+          case "conv_budget_status_line": {
+            const { conversationBudgetEngine } = await import("../../engines/ConversationBudgetEngine.js");
+            result = { success: true, line: conversationBudgetEngine.getStatusLine() };
+            break;
+          }
+          case "conv_budget_estimate_remaining": {
+            const { conversationBudgetEngine } = await import("../../engines/ConversationBudgetEngine.js");
+            result = { success: true, estimate: conversationBudgetEngine.estimateRemaining() };
+            break;
+          }
+          case "conv_budget_reset": {
+            const { conversationBudgetEngine } = await import("../../engines/ConversationBudgetEngine.js");
+            conversationBudgetEngine.reset();
+            result = { success: true, reset: true };
             break;
           }
 

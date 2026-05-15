@@ -768,4 +768,27 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   budget_trim_preset: z.object({
     name: z.enum(["compact", "normal", "verbose"]).describe("Preset bundle (compact=1500ch/3items/depth2; normal=5000ch/10items/depth4; verbose=20000ch/50items/depth8)"),
   }).passthrough().describe("Get a preset BudgetOptions configuration"),
+
+  // ── OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-CONV-BUDGET ──────────────────────
+  // ConversationBudgetEngine — singleton tracker for conversation-level token
+  // usage with 50/70/90% threshold alerts and top-N consumer breakdown.
+  conv_budget_record: z.object({
+    tool: z.string().min(1).max(64).describe("Tool name (Read|Write|Edit|Glob|Grep|Bash|Agent|Other)"),
+    input_tokens: z.number().int().nonnegative().describe("Input tokens consumed"),
+    output_tokens: z.number().int().nonnegative().describe("Output tokens consumed"),
+  }).passthrough().describe("Record one tool call's token usage"),
+
+  conv_budget_status: z.object({}).passthrough().describe("Full usage status: toolCalls, inputTokens, outputTokens, largestCall, byTool, totalTokens, budgetPercent, remaining"),
+
+  conv_budget_check: z.object({}).passthrough().describe("Budget alert if budgetPercent crosses 50/70/90 thresholds; null otherwise"),
+
+  conv_budget_top_consumers: z.object({
+    n: z.number().int().positive().max(50).optional().describe("Number of top consumers to return (default 5)"),
+  }).passthrough().describe("Top-N tools by total tokens consumed"),
+
+  conv_budget_status_line: z.object({}).passthrough().describe("Compact one-line status (Tokens/Budget | Calls | Largest)"),
+
+  conv_budget_estimate_remaining: z.object({}).passthrough().describe("Estimate remaining operations: {reads, greps, edits, dispatchers}"),
+
+  conv_budget_reset: z.object({}).passthrough().describe("Clear all usage tracking"),
 };
