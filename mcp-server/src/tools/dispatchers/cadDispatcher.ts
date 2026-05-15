@@ -3285,6 +3285,13 @@ Params vary by action — pass relevant fields in params object.`,
                 : Array.isArray(params.latheEntries)
                   ? params.latheEntries
                   : [];
+              const mcxEntries = Array.isArray(params.mcx_entries)
+                ? params.mcx_entries
+                : Array.isArray(params.mcxEntries)
+                  ? params.mcxEntries
+                  : Array.isArray(params.mcxProgramEntries)
+                    ? params.mcxProgramEntries
+                    : undefined;
 
               let cadMasterIndex = null;
               const cadPath: string | undefined =

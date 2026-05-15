@@ -658,6 +658,12 @@ export const programEquivalentIndexComposeSchema = z
       .describe(
         "JMDieDiskIndexEntry[] for the lathe half of the archive — .MIN/.MAC files. Empty array runs CAD-only mode.",
       ),
+    mcx_entries: z
+      .array(z.record(z.string(), z.unknown()))
+      .optional()
+      .describe(
+        "Optional McxBatchPerFileResult[] from McxBatchExtractorEngine (LATHE-PROD-READY-MS0/U-LPR28) — the mill-side Mastercam binary corpus (.mcx/.mcx-8/.mcx-9/.mcam). Each ok-status entry with a resolvable JM-Die PN becomes a mill-gcode kind row. Omit/empty for CAD+lathe-only mode.",
+      ),
     join_jsonl_path: z
       .string()
       .optional()
