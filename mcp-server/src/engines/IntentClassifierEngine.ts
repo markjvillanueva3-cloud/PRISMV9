@@ -14,6 +14,7 @@
  * @version 1.0.0
  * @date 2026-04-14
  */
+// WIRE-EXEMPT: PUOA tier-routing classifier consumed today by tests only — kar-ms6-puoa-routes.test.ts, kar-ms7-unified-orchestrator.test.ts, IntentClassifierEngine.test.ts. No singleton wrapper; production dispatcher action (prism_session:classify_intent) tracked as iter21 unit U-INTENT-WIRE. This exemption is temporary pending that wiring.
 import { classifyTask, } from "./TaskAgentClassifier.js";
 // ============================================================================
 // INTENT PATTERNS

@@ -134,6 +134,9 @@ const DataDispatcherSchema = z.object({
     // U-PPL-D1 / MS-PRINT-PROGRAM-LOOP Track D: ProgramPrintLinkIndexEngine surfaces (2 actions, mirror of prism_dev)
     "program_print_link_lookup",
     "program_print_link_coverage",
+    // MS-PRINT-PROGRAM-LOOP/U-PPL-C2: CustomerMaterialMapEngine (2 actions)
+    "customer_material_map_build",
+    "customer_material_lookup",
   ]),
   params: z.record(z.string(), z.any()).optional()
 });
@@ -2539,6 +2542,73 @@ export function registerDataDispatcher(server: any): void {
             break;
           }
 
+          // ── MS-PRINT-PROGRAM-LOOP/U-PPL-C2: CustomerMaterialMapEngine ──
+          // Pure-transform engine — caller supplies pre-collected ProgramSampleEntry[]
+          // (customer + filename + optional back-annotated blueprint material) and
+          // the engine aggregates into a per-customer ISO-513 distribution. The Zod
+          // schema validates entry shape at the MCP boundary; the engine itself
+          // FAIL-LOUDs on non-array input (TypeError) — wrapped here by dispatcherError.
+          //
+          // CONSUMER CONTRACT NOTE (slimResponse interaction):
+          //   `customer_material_lookup` returns `{ customer, distribution, map_stats }`
+          //   where `distribution` is null on lookup miss (unknown customer). The
+          //   `slimResponse` post-process at line ~2395 strips null/undefined
+          //   fields to save tokens, so consumers will see `distribution: undefined`
+          //   (field absent) on miss, NOT `distribution: null`. Check
+          //   `data.distribution == null` (loose equality) — both shapes encode the
+          //   same miss. `map_stats.customer_count > 0` confirms the build ran.
+          //
+          // VALIDATION FLOW (reviewer B P0 reassurance):
+          //   1. The dispatcher router (`registerActionDispatcher` upstream) runs
+          //      `ACTION_DATA_SCHEMAS[action].safeParse(params)` BEFORE this case
+          //      fires. Bad shapes (sub-2-char customer, non-array programs,
+          //      out-of-enum iso_group) are rejected at the MCP boundary with
+          //      `success: false` — verified by `dataDispatcher.uppl-c2.test.ts`
+          //      describe block "schema validation — Zod rejects bad input shapes".
+          //   2. The `as Parameters<...>[0]` cast below is therefore safe — Zod
+          //      already validated the array shape.
+          //   3. The engine ALSO has a runtime FAIL-LOUD TypeError on non-array
+          //      input (defense in depth) — wrapped here by `dispatcherError`.
+          case "customer_material_map_build": {
+            try {
+              const { buildCustomerMaterialMap } =
+                await import("../../engines/CustomerMaterialMapEngine.js");
+              const bp = typeof params === "object" && params !== null ? params as Record<string, unknown> : {};
+              const programs = Array.isArray(bp.programs) ? bp.programs : [];
+              const map = buildCustomerMaterialMap(programs as Parameters<typeof buildCustomerMaterialMap>[0]);
+              result = { success: true, data: { map } };
+            } catch (err) {
+              result = dispatcherError(err, action, "prism_data");
+            }
+            break;
+          }
+          case "customer_material_lookup": {
+            try {
+              const { buildCustomerMaterialMap, lookupMaterialDistribution } =
+                await import("../../engines/CustomerMaterialMapEngine.js");
+              const bp = typeof params === "object" && params !== null ? params as Record<string, unknown> : {};
+              const customer = typeof bp.customer === "string" ? bp.customer : "";
+              if (customer.trim().length === 0) {
+                result = { success: false, error: "customer is required (non-empty string)" };
+                break;
+              }
+              const programs = Array.isArray(bp.programs) ? bp.programs : [];
+              const map = buildCustomerMaterialMap(programs as Parameters<typeof buildCustomerMaterialMap>[0]);
+              const distribution = lookupMaterialDistribution(map, customer);
+              result = {
+                success: true,
+                data: {
+                  customer,
+                  distribution,  // null when customer not found
+                  map_stats: map.stats,
+                },
+              };
+            } catch (err) {
+              result = dispatcherError(err, action, "prism_data");
+            }
+            break;
+          }
+
           default:
             return jsonResponse({ error: `Unknown action: ${action}` });
         }
@@ -2550,5 +2620,5 @@ export function registerDataDispatcher(server: any): void {
     }
   );
 
-  log.info("[dataDispatcher] Registered prism_data (142 actions)");
+  log.info("[dataDispatcher] Registered prism_data (144 actions)");
 }
