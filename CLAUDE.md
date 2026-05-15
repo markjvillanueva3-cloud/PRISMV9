@@ -395,3 +395,20 @@ Slot-aware orphan-process reaper for the 7-chat fleet. Maps every running node/g
 **Run `/fleet-reaper` in ONE chat only** — the scheduled task is global; a second chat's Monitor is redundant load on the host the reaper is protecting.
 
 Wiki: `knowledge/wiki/architecture/fleet-reaper.md` · Memory: [[reference_fleet_reaper]] · Sister to [[feedback_never_delete_only_disable]] (`-Uninstall` / `Disable-ScheduledTask` are the reversal levers).
+
+## FLEET-REAPER-MS1 (2026-05-14 — Phase 2, 6 units, strictly additive over MS0)
+
+Three new layers in `fleet-reaper-sweep.mjs` + a new candidate class + a hint consumer + the alpha-slot guardian. Reframes the reaper from "kill more" to "use what's idle" — the box runs near the commit-memory ceiling while the GPU sits at single-digit utilization.
+
+- **U-PHASE2-BASH-CLASSIFIER** (`process-slot-map.mjs`) — new `leftover-bash-task` candidate class: bash/sh + structural cmd-pattern (AND-of-simple-regexes, 4096-char truncation = ReDoS-safe) + age ≥ 15 min + an **UNPINNED** `claude.exe` ancestor + resolved slot data. Catches the orphan MS0 missed — a Bash-tool Monitor loop whose chat died but whose `claude.exe` lingered unpinned. Degraded slot data never widens the candidate set.
+- **U-PHASE2-SOFT-RELIEF** (Layer 1) — reversible RAM/CPU relief on **stale-slot** processes only: BelowNormal priority + working-set trim (.NET `EmptyWorkingSet`). Age floor 180 s. Audit → dedicated `state/shared/.fleet-reaper-actions.jsonl` (NOT the kills log).
+- **U-PHASE2-GPU-PROBE** (Layer 2) — `readGpuState` (nvidia-smi CSV, fail-soft) + `readOllamaState` (`/api/tags` + `/api/ps`, honors `OLLAMA_URL`).
+- **U-PHASE2-OLLAMA-COORD** (Layer 3) — `decideOllamaCoordination` (pure) + `prewarmOllama` (fire-and-forget GPU model load) + `writeRoutingHint` (atomic, TTL'd, neutralizes a stale aggressive hint to `mode:auto`). Advisory: a coordinator error NEVER flips the reap-mission `ok`.
+- **U-PHASE2-HINT-CONSUMER** (`ollama-task-offloader.mjs`) — `loadRoutingHint` reads `state/shared/.ollama-routing-hint.json` (fixed absolute literal — cross-process contract), applies `thresholdDelta` clamped to ±0.30 so more hook-eligible work clears for Ollama.
+- **U-PHASE2-ALPHA-GUARDIAN** (`alpha-slot-reaper-guardian.mjs`) — **the chat slotted into `alpha` OWNS the reaper.** SessionStart + UserPromptSubmit hook: for the alpha chat it ensures the "PRISM Fleet Reaper" scheduled task is registered + enabled and kicks a throttled detached `--once` sweep; every other chat is a near-instant silent no-op. Advisory-only, never blocks. Stamp-throttled (≤ 1 expensive pass / 4 min).
+
+**Doctrine — alpha owns the reaper**: whoever holds the `alpha` slot is responsible for the fleet reaper being live. The guardian hook enforces it automatically; if the durable scheduled task is ever missing/disabled it emits a LOUD advisory telling alpha to run `/fleet-reaper`. Coverage gap (honest): a task disabled while the alpha chat sits idle isn't caught until alpha's next prompt — the scheduled task's own self-heal + the Monitor are the backstops.
+
+**New CLI flags**: `--no-coord` (skip Layers 2-3 — GPU/Ollama probe + coordinator) · `--no-relief` (skip Layer 1). **New knobs**: `PRISM_FLEET_REAPER_{GPU_DISABLE,GPU_FREE_MIN_MB,HINT_THRESHOLD_DELTA,HINT_TTL_SEC,OLLAMA_COORD_DISABLE,OLLAMA_KEEP_ALIVE,OLLAMA_PREWARM_MODEL,SOFT_RELIEF_AGE_SEC,SOFT_RELIEF_DISABLE,SOFT_RELIEF_PRESSURE_PCT}` + `OLLAMA_URL` (reused) · `PRISM_ALPHA_GUARDIAN_DISABLE=1` · `PRISM_ALPHA_GUARDIAN_NO_SWEEP=1`.
+
+Tests: `fleet-reaper.test.mjs` 66 → 137 `it()` cases (vitest harness currently blocked by a pre-existing vite-transform bug — code verified via `node --check` + esbuild + plain-import + a live production sweep). Wiki: `knowledge/wiki/architecture/fleet-reaper.md` (Phase 2 section) · `ollama-routing-hint.md` · `alpha-slot-reaper-guardian.md`. Memory: [[feedback_alpha_owns_reaper]] · [[reference_fleet_reaper_ms1]].

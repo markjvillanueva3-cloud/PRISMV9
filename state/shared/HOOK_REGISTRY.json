@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-13T12:45:58.207Z",
+  "generatedAt": "2026-05-15T02:13:37.311Z",
   "generatedBy": "scripts/build-hook-registry.mjs",
   "repoRoot": "H:/prism",
   "hooksDir": ".claude/hooks",
@@ -22,27 +22,27 @@
     }
   ],
   "counts": {
-    "hookFiles": 463,
-    "wired": 174,
-    "orphaned": 289,
+    "hookFiles": 478,
+    "wired": 186,
+    "orphaned": 292,
     "disabled": 0,
     "skipped": 0,
     "byEvent": {
-      "PreToolUse": 159,
-      "PostToolUse": 81,
-      "SessionStart": 63,
-      "Stop": 61,
-      "UserPromptSubmit": 24,
+      "PreToolUse": 161,
+      "PostToolUse": 82,
+      "SessionStart": 66,
+      "UserPromptSubmit": 30,
+      "Stop": 63,
       "PreCompact": 12,
       "SubagentStart": 2,
       "SubagentStop": 1
     },
     "byType": {
-      "command": 403
+      "command": 417
     },
     "byLayer": {
-      "user": 198,
-      "project": 205
+      "user": 211,
+      "project": 206
     }
   },
   "hooks": [
@@ -291,7 +291,7 @@
       "description": "AI Command Awareness — SessionStart Hook",
       "descriptionInferred": false,
       "tier": "T4",
-      "sizeBytes": 12247,
+      "sizeBytes": 12606,
       "lines": 360
     },
     {
@@ -341,11 +341,11 @@
       "wired": false,
       "disabled": false,
       "events": [],
-      "description": "UserPromptSubmit hook (U-AWARE06).",
+      "description": "UserPromptSubmit injector (U-AWARE04).",
       "descriptionInferred": false,
-      "tier": "T4",
-      "sizeBytes": 869,
-      "lines": 20
+      "tier": "T2",
+      "sizeBytes": 3401,
+      "lines": 96
     },
     {
       "id": "ai-reasoning-inject",
@@ -460,6 +460,35 @@
       "tier": "T0",
       "sizeBytes": 4597,
       "lines": 112
+    },
+    {
+      "id": "alpha-slot-reaper-guardian",
+      "file": ".claude/hooks/alpha-slot-reaper-guardian.mjs",
+      "wired": true,
+      "disabled": false,
+      "events": [
+        {
+          "event": "SessionStart",
+          "matcher": "",
+          "timeout": 10000,
+          "type": "command",
+          "layer": "user",
+          "disabled": false
+        },
+        {
+          "event": "UserPromptSubmit",
+          "matcher": "",
+          "timeout": 10000,
+          "type": "command",
+          "layer": "user",
+          "disabled": false
+        }
+      ],
+      "description": "the ALPHA slot owns the fleet reaper.",
+      "descriptionInferred": false,
+      "tier": "T3",
+      "sizeBytes": 14741,
+      "lines": 317
     },
     {
       "id": "always-build-guard",
@@ -725,6 +754,18 @@
       "lines": 415
     },
     {
+      "id": "auto-learn-budget-guard",
+      "file": ".claude/hooks/auto-learn-budget-guard.mjs",
+      "wired": false,
+      "disabled": false,
+      "events": [],
+      "description": "AUTO-LEARNING-LOOP-MS0 / U-ALL11",
+      "descriptionInferred": false,
+      "tier": "T1",
+      "sizeBytes": 6631,
+      "lines": 199
+    },
+    {
       "id": "auto-lint-post-edit",
       "file": ".claude/hooks/auto-lint-post-edit.mjs",
       "wired": true,
@@ -870,7 +911,7 @@
       "description": "Awareness Snapshot Hook — AI-AWARE-HARDEN/U-AWR11",
       "descriptionInferred": false,
       "tier": "T4",
-      "sizeBytes": 7392,
+      "sizeBytes": 7576,
       "lines": 185
     },
     {
@@ -973,8 +1014,8 @@
       "description": "PreToolUse Bash",
       "descriptionInferred": false,
       "tier": "T1",
-      "sizeBytes": 12316,
-      "lines": 318
+      "sizeBytes": 12924,
+      "lines": 326
     },
     {
       "id": "bash-orphan-cleaner",
@@ -1011,6 +1052,27 @@
       "tier": "T4",
       "sizeBytes": 3499,
       "lines": 106
+    },
+    {
+      "id": "blueprint-join-index-stale-check",
+      "file": ".claude/hooks/blueprint-join-index-stale-check.mjs",
+      "wired": true,
+      "disabled": false,
+      "events": [
+        {
+          "event": "SessionStart",
+          "matcher": "",
+          "timeout": 2000,
+          "type": "command",
+          "layer": "user",
+          "disabled": false
+        }
+      ],
+      "description": "SessionStart hook",
+      "descriptionInferred": false,
+      "tier": "T4",
+      "sizeBytes": 4839,
+      "lines": 100
     },
     {
       "id": "build-create-detector",
@@ -1477,6 +1539,27 @@
       "lines": 99
     },
     {
+      "id": "close-out-audit-suggest",
+      "file": ".claude/hooks/close-out-audit-suggest.mjs",
+      "wired": true,
+      "disabled": false,
+      "events": [
+        {
+          "event": "UserPromptSubmit",
+          "matcher": "",
+          "timeout": 1500,
+          "type": "command",
+          "layer": "user",
+          "disabled": false
+        }
+      ],
+      "description": "close-out-audit-suggest.mjs",
+      "descriptionInferred": false,
+      "tier": "T2",
+      "sizeBytes": 5141,
+      "lines": 154
+    },
+    {
       "id": "code-completeness-gate",
       "file": ".claude/hooks/code-completeness-gate.mjs",
       "wired": true,
@@ -1540,7 +1623,7 @@
       "description": "COGNITIVE-BRIDGE-MS0/U-WIRE-COG-BATCH10",
       "descriptionInferred": false,
       "tier": "T3",
-      "sizeBytes": 3499,
+      "sizeBytes": 3604,
       "lines": 106
     },
     {
@@ -1595,6 +1678,18 @@
       "tier": "T1",
       "sizeBytes": 7764,
       "lines": 204
+    },
+    {
+      "id": "commit-format-validator",
+      "file": ".claude/hooks/commit-format-validator.mjs",
+      "wired": false,
+      "disabled": false,
+      "events": [],
+      "description": "PostToolUse Bash (P6-U02).",
+      "descriptionInferred": false,
+      "tier": "T3",
+      "sizeBytes": 4106,
+      "lines": 129
     },
     {
       "id": "commit-ownership-guard",
@@ -1808,14 +1903,23 @@
     {
       "id": "coordination-startup-banner",
       "file": ".claude/hooks/coordination-startup-banner.mjs",
-      "wired": false,
+      "wired": true,
       "disabled": false,
-      "events": [],
+      "events": [
+        {
+          "event": "SessionStart",
+          "matcher": "",
+          "timeout": 2000,
+          "type": "command",
+          "layer": "user",
+          "disabled": false
+        }
+      ],
       "description": "coordination-startup-banner.mjs (U-COORD06)",
       "descriptionInferred": false,
-      "tier": "T4",
-      "sizeBytes": 1277,
-      "lines": 54
+      "tier": "T2",
+      "sizeBytes": 8115,
+      "lines": 223
     },
     {
       "id": "coordination-update-reminder",
@@ -1886,8 +1990,37 @@
       "description": "Force Cross-Session Visibility",
       "descriptionInferred": false,
       "tier": "T1",
-      "sizeBytes": 6386,
+      "sizeBytes": 6581,
       "lines": 196
+    },
+    {
+      "id": "cross-session-orchestrator",
+      "file": ".claude/hooks/cross-session-orchestrator.mjs",
+      "wired": true,
+      "disabled": false,
+      "events": [
+        {
+          "event": "PostToolUse",
+          "matcher": "Edit|Write|MultiEdit|NotebookEdit",
+          "timeout": 4000,
+          "type": "command",
+          "layer": "user",
+          "disabled": false
+        },
+        {
+          "event": "PreToolUse",
+          "matcher": "^(Edit|Write|MultiEdit|NotebookEdit)$",
+          "timeout": 4000,
+          "type": "command",
+          "layer": "user",
+          "disabled": false
+        }
+      ],
+      "description": "PreToolUse / PostToolUse cross-session event bridge",
+      "descriptionInferred": false,
+      "tier": "T1",
+      "sizeBytes": 7784,
+      "lines": 220
     },
     {
       "id": "cross-terminal-conflict",
@@ -2649,6 +2782,18 @@
       "lines": 499
     },
     {
+      "id": "engine-digest-precheck",
+      "file": ".claude/hooks/engine-digest-precheck.mjs",
+      "wired": false,
+      "disabled": false,
+      "events": [],
+      "description": "PreToolUse Write/Edit (P6-U02).",
+      "descriptionInferred": false,
+      "tier": "T1",
+      "sizeBytes": 5424,
+      "lines": 165
+    },
+    {
       "id": "erp-quote-variance-guard",
       "file": ".claude/hooks/erp-quote-variance-guard.mjs",
       "wired": false,
@@ -2991,6 +3136,27 @@
       "lines": 94
     },
     {
+      "id": "fleet-reaper-stop",
+      "file": ".claude/hooks/fleet-reaper-stop.mjs",
+      "wired": true,
+      "disabled": false,
+      "events": [
+        {
+          "event": "Stop",
+          "matcher": "",
+          "timeout": 3000,
+          "type": "command",
+          "layer": "user",
+          "disabled": false
+        }
+      ],
+      "description": "Stop-hook arm of the slot-aware orphan reaper.",
+      "descriptionInferred": false,
+      "tier": "T4",
+      "sizeBytes": 6663,
+      "lines": 160
+    },
+    {
       "id": "forge-intent-claim",
       "file": ".claude/hooks/forge-intent-claim.mjs",
       "wired": false,
@@ -3204,7 +3370,7 @@
         {
           "event": "Stop",
           "matcher": "",
-          "timeout": 8000,
+          "timeout": 2000,
           "type": "command",
           "layer": "project",
           "disabled": false
@@ -3246,6 +3412,48 @@
       "lines": 99
     },
     {
+      "id": "goal-complete-gate",
+      "file": ".claude/hooks/goal-complete-gate.mjs",
+      "wired": true,
+      "disabled": false,
+      "events": [
+        {
+          "event": "Stop",
+          "matcher": "",
+          "timeout": 3000,
+          "type": "command",
+          "layer": "user",
+          "disabled": false
+        }
+      ],
+      "description": "goal-complete-gate.mjs",
+      "descriptionInferred": false,
+      "tier": "T0",
+      "sizeBytes": 11562,
+      "lines": 309
+    },
+    {
+      "id": "goal-prereq-inject",
+      "file": ".claude/hooks/goal-prereq-inject.mjs",
+      "wired": true,
+      "disabled": false,
+      "events": [
+        {
+          "event": "UserPromptSubmit",
+          "matcher": "",
+          "timeout": 5000,
+          "type": "command",
+          "layer": "user",
+          "disabled": false
+        }
+      ],
+      "description": "UserPromptSubmit hook for /goal awareness.",
+      "descriptionInferred": false,
+      "tier": "T2",
+      "sizeBytes": 6023,
+      "lines": 137
+    },
+    {
       "id": "goal-stack-init",
       "file": ".claude/hooks/goal-stack-init.mjs",
       "wired": false,
@@ -3268,6 +3476,27 @@
       "tier": "T4",
       "sizeBytes": 1656,
       "lines": 63
+    },
+    {
+      "id": "golf-slot-write-allowlist",
+      "file": ".claude/hooks/golf-slot-write-allowlist.mjs",
+      "wired": true,
+      "disabled": false,
+      "events": [
+        {
+          "event": "PreToolUse",
+          "matcher": "^(Edit|Write|MultiEdit|NotebookEdit)$",
+          "timeout": 3000,
+          "type": "command",
+          "layer": "project",
+          "disabled": false
+        }
+      ],
+      "description": "PreToolUse T0 hook (U-CLEANUP-A5)",
+      "descriptionInferred": false,
+      "tier": "T0",
+      "sizeBytes": 14476,
+      "lines": 348
     },
     {
       "id": "grep-index-first",
@@ -3415,6 +3644,27 @@
       "tier": "T2",
       "sizeBytes": 2947,
       "lines": 101
+    },
+    {
+      "id": "heartbeat-keepalive",
+      "file": ".claude/hooks/heartbeat-keepalive.mjs",
+      "wired": true,
+      "disabled": false,
+      "events": [
+        {
+          "event": "UserPromptSubmit",
+          "matcher": "",
+          "timeout": 8,
+          "type": "command",
+          "layer": "user",
+          "disabled": false
+        }
+      ],
+      "description": "UserPromptSubmit hook that refreshes this chat's",
+      "descriptionInferred": false,
+      "tier": "T3",
+      "sizeBytes": 8434,
+      "lines": 204
     },
     {
       "id": "hook-basin-drift",
@@ -3569,8 +3819,8 @@
       "description": "HOOK-SYNERGY-MS0 / U-HOOK-TIERS (H3)",
       "descriptionInferred": false,
       "tier": "T1",
-      "sizeBytes": 2604,
-      "lines": 73
+      "sizeBytes": 3094,
+      "lines": 86
     },
     {
       "id": "hook-tla-invariant",
@@ -3741,11 +3991,11 @@
           "disabled": false
         }
       ],
-      "description": "UserPromptSubmit hook (U-AWARE02, refactored H9).",
+      "description": "UserPromptSubmit hook (U-AWARE02, refactored H9 + saturation arm).",
       "descriptionInferred": false,
       "tier": "T2",
-      "sizeBytes": 2150,
-      "lines": 54
+      "sizeBytes": 6696,
+      "lines": 152
     },
     {
       "id": "inventory-on-write",
@@ -4054,6 +4304,39 @@
       "tier": "T3",
       "sizeBytes": 4209,
       "lines": 122
+    },
+    {
+      "id": "loop-iteration-inject",
+      "file": ".claude/hooks/loop-iteration-inject.mjs",
+      "wired": true,
+      "disabled": false,
+      "events": [
+        {
+          "event": "UserPromptSubmit",
+          "matcher": "",
+          "timeout": 5000,
+          "type": "command",
+          "layer": "user",
+          "disabled": false
+        }
+      ],
+      "description": "UserPromptSubmit hook for /loop awareness.",
+      "descriptionInferred": false,
+      "tier": "T2",
+      "sizeBytes": 4824,
+      "lines": 113
+    },
+    {
+      "id": "macro-bulk-emit-guard",
+      "file": ".claude/hooks/macro-bulk-emit-guard.mjs",
+      "wired": false,
+      "disabled": false,
+      "events": [],
+      "description": "MACRO-PROGRAM-PIPELINE-MS0/MS0-U6 SAFETY HOOK.",
+      "descriptionInferred": false,
+      "tier": "T0",
+      "sizeBytes": 8511,
+      "lines": 225
     },
     {
       "id": "magic-number-detector",
@@ -4498,7 +4781,7 @@
       "description": "SessionStart hook",
       "descriptionInferred": false,
       "tier": "T4",
-      "sizeBytes": 3901,
+      "sizeBytes": 4025,
       "lines": 125
     },
     {
@@ -4510,7 +4793,7 @@
       "description": "PreToolUse hook",
       "descriptionInferred": false,
       "tier": "T1",
-      "sizeBytes": 3575,
+      "sizeBytes": 3688,
       "lines": 114
     },
     {
@@ -4644,8 +4927,8 @@
       "description": "Node Process Janitor — PreToolUse `.*` (hot path) + scheduled `--full` (backstop)",
       "descriptionInferred": false,
       "tier": "T3",
-      "sizeBytes": 7063,
-      "lines": 157
+      "sizeBytes": 9844,
+      "lines": 198
     },
     {
       "id": "npm-output-condenser",
@@ -4929,8 +5212,8 @@
       "description": "UserPromptSubmit hook",
       "descriptionInferred": false,
       "tier": "T4",
-      "sizeBytes": 11171,
-      "lines": 290
+      "sizeBytes": 17605,
+      "lines": 409
     },
     {
       "id": "ollama-terminal-watcher",
@@ -5193,6 +5476,27 @@
       "tier": "T0",
       "sizeBytes": 4052,
       "lines": 145
+    },
+    {
+      "id": "pick-prefresh-inject",
+      "file": ".claude/hooks/pick-prefresh-inject.mjs",
+      "wired": true,
+      "disabled": false,
+      "events": [
+        {
+          "event": "UserPromptSubmit",
+          "matcher": "",
+          "timeout": 5000,
+          "type": "command",
+          "layer": "user",
+          "disabled": false
+        }
+      ],
+      "description": "UserPromptSubmit hook for /pick-unit /pick-task /checkin.",
+      "descriptionInferred": false,
+      "tier": "T2",
+      "sizeBytes": 6850,
+      "lines": 158
     },
     {
       "id": "plugin-inventory-surface",
@@ -5824,7 +6128,7 @@
       "description": "SessionStart hook",
       "descriptionInferred": false,
       "tier": "T4",
-      "sizeBytes": 11820,
+      "sizeBytes": 12133,
       "lines": 314
     },
     {
@@ -6458,7 +6762,7 @@
       "description": "Self-Awareness Enforcement Hook (UserPromptSubmit)",
       "descriptionInferred": false,
       "tier": "T1",
-      "sizeBytes": 1917,
+      "sizeBytes": 1973,
       "lines": 57
     },
     {
@@ -6775,8 +7079,8 @@
       "description": "SessionStart hook",
       "descriptionInferred": false,
       "tier": "T4",
-      "sizeBytes": 4311,
-      "lines": 124
+      "sizeBytes": 4424,
+      "lines": 125
     },
     {
       "id": "session-start-compact-p1",
@@ -6893,8 +7197,8 @@
       "description": "single SessionStart hook for the context-injector /",
       "descriptionInferred": false,
       "tier": "T4",
-      "sizeBytes": 4614,
-      "lines": 97
+      "sizeBytes": 5007,
+      "lines": 102
     },
     {
       "id": "sessionstart-critical-path",
@@ -7270,7 +7574,7 @@
       "description": "Tier 6 Stop Hook",
       "descriptionInferred": false,
       "tier": "T4",
-      "sizeBytes": 1194,
+      "sizeBytes": 1234,
       "lines": 41
     },
     {
@@ -8246,8 +8550,8 @@
       "description": "PostToolUse(Edit|Write|MultiEdit) → ping the live system-viz.",
       "descriptionInferred": false,
       "tier": "T3",
-      "sizeBytes": 6792,
-      "lines": 153
+      "sizeBytes": 10079,
+      "lines": 209
     },
     {
       "id": "task-created-claim-guard",
@@ -8965,8 +9269,8 @@
       "description": "UserPromptSubmit hook.",
       "descriptionInferred": false,
       "tier": "T4",
-      "sizeBytes": 11913,
-      "lines": 255
+      "sizeBytes": 20580,
+      "lines": 410
     },
     {
       "id": "wiki-recall-on-read",
@@ -9032,7 +9336,7 @@
       "description": "Working Set Awareness — PreToolUse Hook (Write/Edit)",
       "descriptionInferred": false,
       "tier": "T1",
-      "sizeBytes": 2592,
+      "sizeBytes": 2689,
       "lines": 98
     },
     {
@@ -9063,8 +9367,8 @@
       "description": "PreToolUse(Bash) worktree-routing enforcement",
       "descriptionInferred": false,
       "tier": "T0",
-      "sizeBytes": 21939,
-      "lines": 530
+      "sizeBytes": 24893,
+      "lines": 571
     },
     {
       "id": "write-import-check",
