@@ -128,7 +128,18 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "prompt_template_by_category",
 "prompt_template_categories",
 "prompt_template_search",
-"prompt_template_stats"] as const;
+"prompt_template_stats",
+// OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-BUDGET-TRIM: wire OutputBudgetEngine
+// (NOT same as OutputBudgetEnforcerEngine which surfaces output_budget_*; this is
+//  a smaller stateless trim/filter/budget-estimator utility — use budget_trim_*
+//  prefix to avoid collision).
+"budget_trim_enforce",
+"budget_trim_estimate_tokens",
+"budget_trim_exceeds_budget",
+"budget_trim_filter_fields",
+"budget_trim_drop_fields",
+"budget_trim_summarize_array",
+"budget_trim_preset"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -5035,6 +5046,51 @@ export function registerDevDispatcher(server: any): void {
           case "prompt_template_stats": {
             const { promptTemplateEngine } = await import("../../engines/PromptTemplateEngine.js");
             result = { success: true, stats: promptTemplateEngine.getStats() };
+            break;
+          }
+
+          // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-BUDGET-TRIM: OutputBudgetEngine wire (2026-05-15)
+          case "budget_trim_enforce": {
+            const { outputBudgetEngine } = await import("../../engines/OutputBudgetEngine.js");
+            const options = (params.options || {}) as Record<string, unknown>;
+            result = { success: true, trimmed: outputBudgetEngine.enforce(params.data, options) };
+            break;
+          }
+          case "budget_trim_estimate_tokens": {
+            const { outputBudgetEngine } = await import("../../engines/OutputBudgetEngine.js");
+            result = { success: true, tokens: outputBudgetEngine.estimateTokens(params.data) };
+            break;
+          }
+          case "budget_trim_exceeds_budget": {
+            const { outputBudgetEngine } = await import("../../engines/OutputBudgetEngine.js");
+            result = { success: true, exceeds: outputBudgetEngine.exceedsBudget(params.data, Number(params.max_tokens)) };
+            break;
+          }
+          case "budget_trim_filter_fields": {
+            const { outputBudgetEngine } = await import("../../engines/OutputBudgetEngine.js");
+            const obj = (params.obj || {}) as Record<string, unknown>;
+            const keep = Array.isArray(params.keep) ? params.keep.map((k: unknown) => String(k)) : [];
+            result = { success: true, filtered: outputBudgetEngine.filterFields(obj, keep) };
+            break;
+          }
+          case "budget_trim_drop_fields": {
+            const { outputBudgetEngine } = await import("../../engines/OutputBudgetEngine.js");
+            const obj = (params.obj || {}) as Record<string, unknown>;
+            const drop = Array.isArray(params.drop) ? params.drop.map((k: unknown) => String(k)) : [];
+            result = { success: true, filtered: outputBudgetEngine.dropFieldsFrom(obj, drop) };
+            break;
+          }
+          case "budget_trim_summarize_array": {
+            const { outputBudgetEngine } = await import("../../engines/OutputBudgetEngine.js");
+            const arr = Array.isArray(params.arr) ? params.arr : [];
+            const keep = typeof params.keep === "number" ? params.keep : 3;
+            result = { success: true, summary: outputBudgetEngine.summarizeArray(arr, keep) };
+            break;
+          }
+          case "budget_trim_preset": {
+            const { outputBudgetEngine } = await import("../../engines/OutputBudgetEngine.js");
+            const name = (params.name === "compact" || params.name === "normal" || params.name === "verbose") ? params.name : "normal";
+            result = { success: true, preset: outputBudgetEngine.preset(name) };
             break;
           }
 

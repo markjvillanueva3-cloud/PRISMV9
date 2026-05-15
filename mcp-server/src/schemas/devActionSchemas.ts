@@ -724,4 +724,48 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   }).passthrough().describe("Keyword search across templates"),
 
   prompt_template_stats: z.object({}).passthrough().describe("{total, categories, avgTokens}"),
+
+  // ── OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-BUDGET-TRIM ───────────────────────
+  // OutputBudgetEngine — stateless output trim/filter/budget-estimator. NOT the
+  // OutputBudgetEnforcerEngine (output_budget_* actions); that's a different
+  // engine with persistent rules. This one is pure-functional utilities.
+  budget_trim_enforce: z.object({
+    data: z.unknown().describe("Any value to trim against the budget"),
+    options: z.object({
+      maxChars: z.number().int().positive().max(1000000).optional(),
+      keepFields: z.array(z.string()).optional(),
+      dropFields: z.array(z.string()).optional(),
+      maxArrayItems: z.number().int().positive().max(10000).optional(),
+      maxDepth: z.number().int().positive().max(20).optional(),
+      truncationMarker: z.string().optional(),
+    }).passthrough().optional(),
+  }).passthrough().describe("Trim data to fit a budget; default 5000 chars / 10 array items / 4 depth"),
+
+  budget_trim_estimate_tokens: z.object({
+    data: z.unknown().describe("Any value to estimate token count for"),
+  }).passthrough().describe("Estimate token count (~4 chars/token)"),
+
+  budget_trim_exceeds_budget: z.object({
+    data: z.unknown().describe("Any value to check"),
+    max_tokens: z.number().int().positive().describe("Token budget"),
+  }).passthrough().describe("Return true if data exceeds the budget"),
+
+  budget_trim_filter_fields: z.object({
+    obj: z.record(z.string(), z.unknown()).describe("Object to filter"),
+    keep: z.array(z.string()).describe("Field allowlist — only these are kept"),
+  }).passthrough().describe("Keep only the named fields"),
+
+  budget_trim_drop_fields: z.object({
+    obj: z.record(z.string(), z.unknown()).describe("Object to filter"),
+    drop: z.array(z.string()).describe("Field denylist — these are dropped"),
+  }).passthrough().describe("Drop the named fields"),
+
+  budget_trim_summarize_array: z.object({
+    arr: z.array(z.unknown()).describe("Array to summarize"),
+    keep: z.number().int().positive().max(1000).optional().describe("Items to keep at each end (default 3)"),
+  }).passthrough().describe("Keep first N + last N items, return {items, total, showing}"),
+
+  budget_trim_preset: z.object({
+    name: z.enum(["compact", "normal", "verbose"]).describe("Preset bundle (compact=1500ch/3items/depth2; normal=5000ch/10items/depth4; verbose=20000ch/50items/depth8)"),
+  }).passthrough().describe("Get a preset BudgetOptions configuration"),
 };
