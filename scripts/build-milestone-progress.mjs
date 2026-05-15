@@ -162,6 +162,13 @@ async function loadMilestones() {
       if (!ms?.id) continue;
       // Collect unit IDs from any phases[].units[].id structure.
       const units = [];
+      // Envelope-side overlay for status + commits per unit (object-keyed map).
+      // Carried through so computeProgress can fall back to envelope truth when
+      // a commit was absorbed into a peer's subject (multi-chat collision) or
+      // the unit is operational-only (tags/branch-deletes, no commit at all).
+      const unitOverlay = (ms.units && typeof ms.units === "object" && !Array.isArray(ms.units))
+        ? ms.units
+        : {};
       if (Array.isArray(ms.phases)) {
         for (const phase of ms.phases) {
           if (!Array.isArray(phase?.units)) continue;
@@ -171,6 +178,8 @@ async function loadMilestones() {
               title: u.title ?? "",
               phase: phase.id ?? "",
               dependencies: u.dependencies ?? [],
+              envelopeStatus: unitOverlay[u.id]?.status ?? null,
+              envelopeCommits: Array.isArray(unitOverlay[u.id]?.commits) ? unitOverlay[u.id].commits : [],
             });
           }
         }
@@ -185,7 +194,37 @@ async function loadMilestones() {
             title: u.title ?? "",
             phase: u.session != null ? `session-${u.session}` : "",
             dependencies: u.dependencies ?? u.depends_on ?? [],
+            envelopeStatus: u.status ?? null,
+            envelopeCommits: Array.isArray(u.commits) ? u.commits : [],
           });
+        }
+      }
+      // Fallback: object-keyed `ms.units{}` (e.g. SLOT-WORKTREE-MS0). Many
+      // envelopes use a map keyed by unit-id while `phases[].units[]` is just
+      // a list of id strings. Without this branch, those envelopes also leak
+      // to total=0 even though phases[].units lists every unit.
+      if (units.length === 0 && ms.units && typeof ms.units === "object" && !Array.isArray(ms.units)) {
+        for (const [unitId, u] of Object.entries(ms.units)) {
+          if (typeof unitId === "string" && unitId.length) units.push({
+            id: unitId,
+            title: u?.title ?? "",
+            phase: u?.phase ?? "",
+            dependencies: u?.dependencies ?? u?.depends_on ?? [],
+            envelopeStatus: u?.status ?? null,
+            envelopeCommits: Array.isArray(u?.commits) ? u.commits : [],
+          });
+        }
+      }
+      // Phase B: enrich phases[]-derived units with overlay (object-keyed
+      // ms.units{}) when both forms coexist (the common SLOT-WORKTREE-MS0
+      // shape). Without this, phases[]-derived units have envelopeStatus=null
+      // even though ms.units[id] has authoritative status/commits.
+      for (const u of units) {
+        if ((u.envelopeStatus === null || u.envelopeStatus === undefined) && unitOverlay[u.id]) {
+          u.envelopeStatus = unitOverlay[u.id]?.status ?? u.envelopeStatus;
+          if ((!u.envelopeCommits || u.envelopeCommits.length === 0) && Array.isArray(unitOverlay[u.id]?.commits)) {
+            u.envelopeCommits = unitOverlay[u.id].commits;
+          }
         }
       }
       milestones.push({
@@ -203,15 +242,18 @@ async function loadMilestones() {
   return milestones;
 }
 
-function computeProgress(milestones, shipped) {
+function computeProgress(milestones, shipped, shaSet) {
   // For each milestone, look up each unit in the shipped index.
   // Match strategy: exact (milestone-tag, unit-id) pair first;
   // fallback to (any-milestone-tag, unit-id) — useful when the tag
-  // shifted (e.g. [MAIN] [SCOPE]/U-X vs bare [SCOPE]/U-X).
+  // shifted (e.g. [MAIN] [SCOPE]/U-X vs bare [SCOPE]/U-X);
+  // envelope fallbacks recover units absorbed into peer commits + ops-only
+  // units (tags/branch-deletes with no commit) that the envelope marks complete.
   const byUnitOnly = new Map();
   for (const [key, val] of shipped.entries()) {
     if (!byUnitOnly.has(val.unitId)) byUnitOnly.set(val.unitId, val);
   }
+  const haveShaSet = shaSet && typeof shaSet.has === "function" && shaSet.size > 0;
 
   const result = [];
   for (const ms of milestones) {
@@ -222,11 +264,39 @@ function computeProgress(milestones, shipped) {
       const uid = u.id.toUpperCase();
       const exactKey = `${msTag}::${uid}`;
       let hit = shipped.get(exactKey) ?? null;
-      if (!hit) hit = byUnitOnly.get(uid) ?? null;
+      let source = hit ? "git-exact" : null;
+      if (!hit) {
+        hit = byUnitOnly.get(uid) ?? null;
+        if (hit) source = "git-unit-only";
+      }
+      // Envelope canonical fallback (1): unit declares specific commit SHAs and
+      // at least one is reachable in the git log window. Covers commits absorbed
+      // into a peer's subject during shared-tree commit-collision (the exact
+      // class of bug SLOT-WORKTREE-MS0 exists to eliminate — see
+      // [[reference_coord_ms0_u1_collision]]).
+      if (!hit && haveShaSet && Array.isArray(u.envelopeCommits)) {
+        for (const declaredSha of u.envelopeCommits) {
+          if (typeof declaredSha !== "string" || declaredSha === "pending") continue;
+          const sha = declaredSha.trim();
+          if (sha && shaSet.has(sha)) {
+            hit = { sha, date: "", subject: "", milestoneTag: msTag, unitId: uid };
+            source = "envelope-commit";
+            break;
+          }
+        }
+      }
+      // Envelope canonical fallback (2): unit marked complete with NO commit
+      // expected (tag-only / branch-delete / pure-ops unit). The envelope is
+      // the source of truth for these — no git subject will ever match.
+      if (!hit && (u.envelopeStatus === "complete" || u.envelopeStatus === "completed")
+          && (!u.envelopeCommits || u.envelopeCommits.length === 0)) {
+        hit = { sha: null, date: "", subject: "(envelope-asserted, no commit)", milestoneTag: msTag, unitId: uid };
+        source = "envelope-status";
+      }
       const isShipped = !!hit;
       if (isShipped) {
         shippedCount++;
-        if (hit.date > lastShippedDate) lastShippedDate = hit.date;
+        if (hit.date && hit.date > lastShippedDate) lastShippedDate = hit.date;
       }
       return {
         id: u.id,
@@ -236,6 +306,7 @@ function computeProgress(milestones, shipped) {
         sha: hit?.sha ?? null,
         date: hit?.date ?? null,
         commitMilestoneTag: hit?.milestoneTag ?? null,
+        source,
       };
     });
     const total = ms.units.length;
@@ -367,7 +438,23 @@ async function main() {
   const shipped = loadShippedFromGit();
   process.stderr.write(`[milestone-progress] indexed ${shipped.size} (milestone-tag, unit-id) commits\n`);
 
-  const progress = computeProgress(milestones, shipped);
+  // Full SHA index for the envelope-canonical fallback: any envelope unit that
+  // declares a `commits: ["<sha>"]` entry can be marked shipped if that sha is
+  // reachable from any branch in the SINCE window — recovers absorbed-into-peer
+  // commits where the subject doesn't carry our [MS]/U-ID pattern. We also
+  // build a prefix Set at lengths 7..12 so envelope short-SHAs (typical: 9-10
+  // chars) match without a `git rev-parse` subprocess per unit.
+  const shaSet = new Set();
+  for (const line of git(["log", "--all", `--since=${SINCE}`, "--format=%H"]).split("\n")) {
+    const sha = line.trim();
+    if (sha) shaSet.add(sha);
+  }
+  for (const sha of shaSet) {
+    for (let n = 7; n <= 12; n += 1) shaSet.add(sha.slice(0, n));
+  }
+  process.stderr.write(`[milestone-progress] indexed ${shaSet.size} SHA tokens (40-char + 7..12-char prefixes)\n`);
+
+  const progress = computeProgress(milestones, shipped, shaSet);
 
   // Sort canonical: by track, then by id, for stable JSON diff.
   progress.sort((a, b) =>
