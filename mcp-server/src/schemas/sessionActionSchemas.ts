@@ -733,4 +733,47 @@ export const ACTION_SESSION_SCHEMAS: ActionSchemaMap = {
     confirm: optBool
       .describe("EXPLICIT confirmation required to actually delete files. Default false; without this the action returns a dry-run preview only."),
   }).passthrough(),
+
+  // ==========================================================================
+  // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-SESSION-LIFECYCLE (5 actions)
+  // Wires SessionLifecycleEngine (W3:D5, 489 LOC, was orphan): exposes
+  // multi-metric session quality scoring (5-dimension ensemble: task
+  // completion, reliability, safety adherence, efficiency, continuity),
+  // metrics inspection, and final-handoff generation for crash recovery.
+  // Note: orphan-inventory suggested prism_auth based on "Session" name
+  // heuristic, but the engine's docblock states it's called by
+  // "autoHookWrapper cadence + sessionDispatcher session_end" — wiring
+  // to prism_session is the correct route.
+  // ==========================================================================
+
+  /** lifecycle_metrics — Read current SessionMetrics (tool_calls, hook stats,
+   * pressure, latency, etc). No params. */
+  lifecycle_metrics: z.object({}).passthrough(),
+
+  /** lifecycle_quality_score — Compute 5-dimension session quality (0-100)
+   * with letter grade (A+..F) and weakest-dimension recommendation.
+   * Weighted ensemble: task_completion 0.30 / reliability 0.25 /
+   * safety_adherence 0.20 / efficiency 0.15 / continuity 0.10. */
+  lifecycle_quality_score: z.object({}).passthrough(),
+
+  /** lifecycle_session_id — Get the canonical session id this engine is
+   * tracking (format: SESSION-{epochMs}). */
+  lifecycle_session_id: z.object({}).passthrough(),
+
+  /** lifecycle_call_count — Get total tool calls recorded this session. */
+  lifecycle_call_count: z.object({}).passthrough(),
+
+  /** lifecycle_final_handoff — Generate a final handoff document (quality
+   * score + metrics summary + resume context) AND write it to
+   * state/next_session_prep.json. Use at session_end. */
+  lifecycle_final_handoff: z.object({
+    phase: z.string().min(1)
+      .describe("Current phase/milestone tag (e.g., 'OBSIDIAN-PRISM-OS-MS0/iter-3')"),
+    quick_resume: z.string().min(1)
+      .describe("One-line directive for the next session"),
+    pending_tasks: z.array(z.string()).optional()
+      .describe("Optional list of pending task descriptions (first 10 retained)"),
+    key_findings: z.array(z.string()).optional()
+      .describe("Optional list of key findings/decisions from this session (first 5 retained)"),
+  }).passthrough(),
 };

@@ -185,7 +185,19 @@ const ACTIONS = [
   "handoff_coord_status",
   "handoff_coord_inject",
   "handoff_coord_load_sessions",
-  "handoff_coord_cleanup_stale"
+  "handoff_coord_cleanup_stale",
+  // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-SESSION-LIFECYCLE — wires
+  // SessionLifecycleEngine (W3:D5, 489 LOC, was orphan). Exposes the
+  // 5-dimension session quality ensemble (task_completion / reliability /
+  // safety_adherence / efficiency / continuity → 0-100 + letter grade)
+  // plus metrics inspection + final-handoff generation. Engine is a
+  // process-wide singleton via getInstance(); record-* methods stay
+  // internal (cadence-wrapper-driven), only read/handoff surfaces exposed.
+  "lifecycle_metrics",
+  "lifecycle_quality_score",
+  "lifecycle_session_id",
+  "lifecycle_call_count",
+  "lifecycle_final_handoff"
 ] as const;
 
 function ok(data: any) {
@@ -1928,6 +1940,53 @@ export function registerSessionDispatcher(server: any): void {
               max_age_ms: maxAgeMs,
               cleaned,
             });
+          }
+
+          // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-SESSION-LIFECYCLE —
+          // 5 actions wrapping SessionLifecycleEngine (W3:D5, was orphan).
+          // Engine is a process-wide Singleton via getInstance(); we expose
+          // the convenience export functions where available (cleaner API)
+          // and getInstance() for the two accessors without convenience
+          // helpers (getSessionId, getCallCount).
+          case "lifecycle_metrics": {
+            const mod = await import("../../engines/SessionLifecycleEngine.js");
+            const metrics = mod.getSessionMetrics();
+            return ok({ success: true, metrics });
+          }
+
+          case "lifecycle_quality_score": {
+            const mod = await import("../../engines/SessionLifecycleEngine.js");
+            const score = mod.getSessionQualityScore();
+            return ok({ success: true, score });
+          }
+
+          case "lifecycle_session_id": {
+            const mod = await import("../../engines/SessionLifecycleEngine.js");
+            const sessionId = mod.SessionLifecycleEngine.getInstance().getSessionId();
+            return ok({ success: true, session_id: sessionId });
+          }
+
+          case "lifecycle_call_count": {
+            const mod = await import("../../engines/SessionLifecycleEngine.js");
+            const callCount = mod.SessionLifecycleEngine.getInstance().getCallCount();
+            return ok({ success: true, call_count: callCount });
+          }
+
+          case "lifecycle_final_handoff": {
+            const mod = await import("../../engines/SessionLifecycleEngine.js");
+            const phase = String(params.phase);
+            const quickResume = String(params.quick_resume);
+            const pendingTasks = Array.isArray(params.pending_tasks)
+              ? (params.pending_tasks as unknown[]).map((t) => String(t))
+              : [];
+            const keyFindings = Array.isArray(params.key_findings)
+              ? (params.key_findings as unknown[]).map((f) => String(f))
+              : [];
+            const handoff = mod.generateSessionHandoff(phase, quickResume, pendingTasks, keyFindings);
+            if (!handoff) {
+              return ok({ success: false, error: "handoff_generation_failed" });
+            }
+            return ok({ success: true, handoff });
           }
 
           default:
