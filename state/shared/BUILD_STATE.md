@@ -1,6 +1,6 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-15T20:00:22.277Z
+> Generated: 2026-05-15T20:02:46.932Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
@@ -327,7 +327,7 @@ Per-domain wired/unwired breakdown across 932 domain prefixes.
 
 ## STALE_MILESTONES
 
-227 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).
+226 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).
 
 | Milestone | Track | Reason | Pending | Shipped/Total | Last shipped |
 |-----------|-------|--------|---------|---------------|--------------|
@@ -340,7 +340,6 @@ Per-domain wired/unwired breakdown across 932 domain prefixes.
 | MS-AUDIT-DERIVED-2026-05-10 | audit-derived | never_started | 30 | 0/30 | never |
 | MS2 | revenue | never_started | 30 | 0/30 | never |
 | MS-TRAIN-DEEP | revenue | never_started | 26 | 0/26 | never |
-| OBSIDIAN-INTELLIGENCE-MS3 | INTEL | never_started | 25 | 0/25 | never |
 | CADCAM-AGI-MS0 | CAD-CAM-AGI | never_started | 24 | 0/24 | never |
 | MS-SFC-CALIBRATE | revenue | never_started | 24 | 0/24 | never |
 | MS-PILOT | revenue | never_started | 20 | 0/20 | never |
@@ -361,6 +360,7 @@ Per-domain wired/unwired breakdown across 932 domain prefixes.
 | CAMX-MS3 | — | never_started | 12 | 0/12 | never |
 | CAMX-MS4 | — | never_started | 12 | 0/12 | never |
 | CAMX-V17-P3 | — | never_started | 12 | 0/12 | never |
+| AI-WIRE-MS0 | AI-WIRE | never_started | 12 | 0/12 | never |
 
 **Next action:** Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift.
 

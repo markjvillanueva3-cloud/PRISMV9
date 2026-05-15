@@ -7,7 +7,12 @@
   "created_by": "claude-a2b1b5ca (atomization of UNIFIED-PLAN.md per user /goal scope expansion)",
   "track": "INTEL",
   "track_name": "Obsidian-Intelligence Layer (compound architecture)",
-  "status": "not_started",
+  "status": "in_progress",
+  "in_progress_since": "2026-05-15T19:33:00.000Z",
+  "completed_units": 0,
+  "partial_ship_units": 1,
+  "total_units": 24,
+  "first_unit_partial_shipped": "A1 (U-DOCKER-HOOK-BROKER) — 5 artifacts + 15 tests; live-Docker burn-in pending engine restore",
   "priority": "HIGH",
   "tier": "dev-infra",
   "omega_target": 0.85,
@@ -68,7 +73,39 @@
           ],
           "tools": ["Docker Desktop", "Bash", "PowerShell installer"],
           "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
-          "rollback": "Stop + remove container; revert .claude/helpers/docker-hook-broker.mjs; settings.json reverts to direct hook execution"
+          "rollback": "Stop + remove container; revert .claude/helpers/docker-hook-broker.mjs; settings.json reverts to direct hook execution",
+          "status": "in_progress",
+          "in_progress_since": "2026-05-15T19:33:00.000Z",
+          "owner": "claude-a2b1b5ca slot hotel",
+          "partial_ship": {
+            "shipped_at": "2026-05-15T20:01:00.000Z",
+            "artifacts_complete": [
+              "scripts/docker/prism-hooks-broker.Dockerfile — alpine node:22, non-root, healthcheck wired, port 9876, mounts .claude/hooks read-only",
+              "scripts/docker/prism-hooks-broker-server.mjs — HTTP broker (/healthz, POST /hook/:name, POST /reload), hot-reload via mtime cache, two-layer hook-name validation (whitelist regex + path-resolve boundary), per-call execution timeout, graceful SIGTERM/SIGINT, supporting deliverable beyond the envelope's original 4",
+              ".claude/helpers/docker-hook-broker.mjs — HTTP client with fallback-to-subprocess on network failure / 501 / timeout, per-call cfg() env-var reads, validateHookName() rejects path-traversal before any path or URL flow, EPIPE-safe spawn, settled-flag guards on req.write",
+              "scripts/install-prism-hooks-container.ps1 — idempotent installer (-DryRun / -Uninstall / -SkipBuild / -NoTask), preflight that surfaces Docker-down recovery sequence, optional scheduled-task watchdog at 5min cadence, idempotent task registration",
+              ".claude/helpers/docker-hook-broker.test.mjs — 15/15 node:test cases pass (1.25s), real assertions covering broker-up path, 501 fallback, network-failure fallback, 5xx no-mask, timeout fallback, name-validation rejects (../, absolute, separators, NUL), 256KB stdin backpressure round-trip, PRISM_BROKER_DISABLE escape hatch, 50-call burn-in"
+            ],
+            "exit_conditions_blocked_on_docker_engine_restore": [
+              "Docker container 'prism-hooks' runs persistently — REQUIRES live Docker engine (currently ETIMEDOUT)",
+              "Per-event cold-start eliminated, xmalloc OOMs drop to zero in 24h burn-in — REQUIRES Docker engine + 24h observation",
+              "Round-trip test: 50 rapid PreToolUse fires complete with zero forked-process failures — REQUIRES container running"
+            ],
+            "exit_conditions_satisfied_in_artifact_form": [
+              "Hook-broker dispatcher proxies PreToolUse/PostToolUse/Stop/SessionStart/UserPromptSubmit events via HTTP — proxy code shipped, tested with mock server",
+              "Fallback to legacy in-process node execution if container is down (graceful degrade) — fallback path implemented + tested (5 of 15 test cases cover fallback decisions)"
+            ],
+            "follow_up": "When operator restores Docker engine (per H:/prism/knowledge/memories/feedback/feedback_docker_wsl_recovery.md): (1) pwsh -File scripts/install-prism-hooks-container.ps1 (2) verify http://127.0.0.1:9876/healthz returns 200 (3) for the 50-fire burn-in: keep settings.json hooks pointing at portable-node for now — wiring the broker into settings.json is a separate unit (would touch every hook entry; risky without burn-in evidence first) (4) bake-in monitoring via node-process-janitor xmalloc count for 24h",
+            "scrutiny_record": {
+              "session_id": "ms3-a1-2026-05-15",
+              "arm_a_reviewer_verdict": "PASS high-confidence — fallback routing correct, server-side path-traversal validator wired into both request handler + loadHook",
+              "arm_b_code_analyzer_verdict": "PASS high-confidence — all P0/P1 remediated, two-layer defense holds on Windows path normalization, mental walk of every traversal vector confirmed safe",
+              "p0_findings_fixed_count": 2,
+              "p1_findings_fixed_count": 5,
+              "remaining_p2_advisory_count": 2,
+              "scrutiny_type": "per-file (the load-bearing helper docker-hook-broker.mjs got two parallel reviewer agents, fix cycle, re-dispatch, both PASS); end-of-task 3-of-3 deferred (metadata-heavy commit, no physics/safety surface)"
+            }
+          }
         },
         {
           "id": "A2",
