@@ -92,8 +92,14 @@ const SFM_RANGES: Array<{
   { min: 50, max: 200,   iso_group: "H", name: "Hardened steel (50+ HRC)", hardness_hb: 550 },
 ];
 
-/** Material keyword patterns for comment parsing */
-const MATERIAL_KEYWORDS: Array<{
+/** Material keyword patterns for comment + filename parsing.
+ *
+ * Exported so MS-PRINT-PROGRAM-LOOP/U-PPL-C2 (CustomerMaterialMapEngine) can
+ * share the same regex catalog when extracting material tokens from program
+ * filenames — keeping the alloy code list authoritative here (one source of
+ * truth) instead of forking it. Adding new alloy codes here also enriches the
+ * filename heuristic automatically — that's the intended coupling. */
+export const MATERIAL_KEYWORDS: Array<{
   pattern: RegExp; iso_group: ISOGroup; name: string; hardness_hb: number;
 }> = [
   // Aluminum alloys
@@ -291,7 +297,20 @@ export class MaterialResolverForProgramsEngine {
   ): ResolvedMaterial | null {
     // Known customer → material associations (shop tribal knowledge)
     // These would ideally come from a persistent database, but we encode
-    // common patterns from the Box drive folder structure
+    // common patterns from the Box drive folder structure.
+    //
+    // FUTURE-REFACTOR (MS-PRINT-PROGRAM-LOOP/U-PPL-C2, 2026-05-15):
+    // `CustomerMaterialMapEngine` now produces a LEARNED customer→material
+    // distribution from program samples (filename heuristics + back-annotated
+    // blueprint material) — exactly the "persistent database" this comment
+    // anticipates. The integration is intentionally deferred: this method's
+    // current callers expect a single `ResolvedMaterial`, while the new
+    // engine returns a `CustomerMaterialDistribution` (a per-ISO-group share
+    // map). A clean integration needs the caller to either (a) collapse the
+    // distribution to the primary_iso_group → ResolvedMaterial, or (b) consume
+    // the distribution directly for confidence-weighted decisions. Tracked in
+    // Track-C close-out follow-up; this method retains its inline-pattern
+    // fallback until the caller is reshaped.
     const upper = customerName.toUpperCase();
 
     // Check if folder name itself contains material hints

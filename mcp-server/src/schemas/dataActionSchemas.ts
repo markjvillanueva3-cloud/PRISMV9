@@ -321,6 +321,55 @@ const tool_catalog_adaptive_recommend = z.object({
   required_coating: optStr.describe("Required coating constraint"),
 }).passthrough();
 
+// ============================================================================
+// MS-PRINT-PROGRAM-LOOP/U-PPL-C2 — CustomerMaterialMapEngine (2 actions)
+// ============================================================================
+//
+// `CustomerMaterialMapEngine` produces a LEARNED customer→material distribution
+// from program samples + filename heuristics (4140 / 6061 / 303 / HRC52 / …) +
+// optional back-annotated blueprint material. Pure-transform — the dispatcher
+// passes pre-collected sample programs in; persistence is a separate CLI script.
+//
+// Closes the data gap MaterialResolverForProgramsEngine._resolveFromCustomer()
+// flags in code ("would ideally come from a persistent database"). Feeds Track B
+// U-PPL-B3 ArchiveReoptimizationBatchEngine for material inference over the
+// 16,558-program lathe archive.
+
+const programSampleEntryShape = z.object({
+  customer: z.string().min(2).describe(
+    "Customer name (folder name from JM-Die archive: ALCOA, TOPURA, etc.). " +
+      "Trimmed at engine entry; sub-2-char names are dropped as invalid.",
+  ),
+  filename: z.string().min(1).describe(
+    "Program filename — drives the filename material-token heuristic.",
+  ),
+  filepath: z.string().optional().describe(
+    "Optional full path — preserved for downstream traceability only.",
+  ),
+  back_annotated_material: z.string().optional().describe(
+    "Optional explicit material name from a back-annotated print (highest priority).",
+  ),
+  back_annotated_iso_group: z.enum(["P", "M", "K", "N", "S", "H"]).optional().describe(
+    "Optional explicit ISO 513 group from a back-annotated print.",
+  ),
+});
+
+const customer_material_map_build = z.object({
+  programs: z.array(programSampleEntryShape).describe(
+    "Required list of program samples to aggregate into a customer→material map.",
+  ),
+}).passthrough();
+
+const customer_material_lookup = z.object({
+  customer: z.string().min(1).describe(
+    "Customer name to look up. Lookup is case-insensitive over trim+upper.",
+  ),
+  programs: z.array(programSampleEntryShape).describe(
+    "Required list of program samples to aggregate before looking up the target customer. " +
+      "The map is built in-memory per-call; persistence is a separate CLI script.",
+  ),
+}).passthrough();
+
 /** A C T I O N_ D A T A_ S C H E M A S constant.
  */
 export const ACTION_DATA_SCHEMAS: ActionSchemaMap = {
@@ -381,4 +430,7 @@ export const ACTION_DATA_SCHEMAS: ActionSchemaMap = {
   material_interpolation_find,
   tool_db_bridge_query,
   tool_catalog_adaptive_recommend,
+  // MS-PRINT-PROGRAM-LOOP/U-PPL-C2: CustomerMaterialMapEngine (2 actions)
+  customer_material_map_build,
+  customer_material_lookup,
 };
