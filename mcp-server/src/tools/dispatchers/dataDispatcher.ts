@@ -130,6 +130,9 @@ const DataDispatcherSchema = z.object({
     "material_interpolation_find",
     "tool_db_bridge_query",
     "tool_catalog_adaptive_recommend",
+    // U-PPL-D1 / MS-PRINT-PROGRAM-LOOP Track D: ProgramPrintLinkIndexEngine surfaces (2 actions, mirror of prism_dev)
+    "program_print_link_lookup",
+    "program_print_link_coverage",
   ]),
   params: z.record(z.string(), z.any()).optional()
 });
@@ -2336,6 +2339,57 @@ export function registerDataDispatcher(server: any): void {
             break;
           }
 
+          // ── U-PPL-D1 / MS-PRINT-PROGRAM-LOOP Track D: prism_data mirror of ProgramPrintLinkIndexEngine ──
+          // Mirrors prism_dev:program_print_link_{lookup,coverage}. Identical surface contract,
+          // identical engine import, identical error handling — but routed through prism_data
+          // because the operations are pure registry-style read lookups against the JM-Die
+          // archive (no physics compute). See devDispatcher.ts:1480-1532 for the dev twin.
+          case "program_print_link_lookup": {
+            try {
+              const { loadLinkIndex, lookupPrintForProgram, lookupProgramsForPrint } =
+                await import("../../engines/ProgramPrintLinkIndexEngine.js");
+              const bp = typeof params === "object" && params !== null ? params as Record<string, unknown> : {};
+              const direction = bp.direction === "program_for_print" ? "program_for_print" : "print_for_program";
+              const query = typeof bp.query === "string" ? bp.query.trim() : "";
+              if (query.length === 0) {
+                result = { error: "query is required (a program path or a part number)" };
+                break;
+              }
+              const inputProgramPaths = Array.isArray(bp.input_program_paths)
+                ? bp.input_program_paths.filter((p): p is string => typeof p === "string")
+                : undefined;
+              const joinJsonlPath = typeof bp.join_jsonl_path === "string" ? bp.join_jsonl_path : undefined;
+              const index = await loadLinkIndex({ inputProgramPaths, joinJsonlPath });
+              const lookup = direction === "program_for_print"
+                ? lookupProgramsForPrint(query, index)
+                : lookupPrintForProgram(query, index);
+              result = { success: true, data: { direction, lookup, index_stats: index.stats } };
+            } catch (err) {
+              result = dispatcherError(err, action, "prism_data");
+            }
+            break;
+          }
+          case "program_print_link_coverage": {
+            try {
+              const { loadLinkIndex, coverageReport } =
+                await import("../../engines/ProgramPrintLinkIndexEngine.js");
+              const bp = typeof params === "object" && params !== null ? params as Record<string, unknown> : {};
+              const inputProgramPaths = Array.isArray(bp.input_program_paths)
+                ? bp.input_program_paths.filter((p): p is string => typeof p === "string")
+                : undefined;
+              const archiveProgramPaths = Array.isArray(bp.archive_program_paths)
+                ? bp.archive_program_paths.filter((p): p is string => typeof p === "string")
+                : undefined;
+              const joinJsonlPath = typeof bp.join_jsonl_path === "string" ? bp.join_jsonl_path : undefined;
+              const index = await loadLinkIndex({ inputProgramPaths, joinJsonlPath });
+              const report = coverageReport(index, { archiveProgramPaths });
+              result = { success: true, data: { report } };
+            } catch (err) {
+              result = dispatcherError(err, action, "prism_data");
+            }
+            break;
+          }
+
           default:
             return jsonResponse({ error: `Unknown action: ${action}` });
         }
@@ -2347,5 +2401,5 @@ export function registerDataDispatcher(server: any): void {
     }
   );
 
-  log.info("[dataDispatcher] Registered prism_data (140 actions)");
+  log.info("[dataDispatcher] Registered prism_data (142 actions)");
 }
