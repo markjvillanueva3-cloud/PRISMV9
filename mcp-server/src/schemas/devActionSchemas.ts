@@ -63,6 +63,18 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   test_smoke: z.object({}).optional(),
   test_results: z.object({}).optional(),
 
+  // ── U-DOCU-04 / MS-DOCU-INGEST: BlueprintProgramJoinEngine query-layer lookups ──
+  // Point lookups against the pre-built v6 blueprint↔program join + the
+  // title-block-verified training triples. Path options are intentionally NOT
+  // in the schema — the actions always query the default Docustrata/.index join
+  // (no arbitrary-file-read surface, no cross-action singleton-cache poisoning).
+  program_for_print: z.object({
+    part_number: z.string().min(1).describe("Part number from a print / title block — loose-normalized before lookup (op-prefix / material-code / rev-letter stripped)"),
+  }),
+  print_for_program: z.object({
+    program_path: z.string().min(1).describe("Program/CAD file path (any slash style, any case) — returns the print(s) joined to it"),
+  }),
+
   // AUTO-LEARNING-LOOP-MS0/U-ALL01 step-5 — ReputableSourceMonitorEngine surface.
   source_sweep: z.object({
     mode: z.enum(["poll_all", "poll_one", "get_sources", "get_state", "reset_all"])
@@ -568,4 +580,26 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     capacity_file: z.string().optional()
       .describe("Override path to F7 DISPATCHER_CAPACITY.json (advanced; defaults to state/shared/DISPATCHER_CAPACITY.json relative to repo root)."),
   }).passthrough(),
+
+  // ── OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-CALL-CHAIN ────────────────────────
+  // CallChainEngine — tool-call anti-pattern detector (glob->read->grep,
+  // read->edit->read, grep->read->edit, etc) with 60s time-window matching.
+  // Complements tool_call_* (ToolCallParallelizationEngine, parallel-batch
+  // tracker) — different engine, different surface.
+  tool_chain_record: z.object({
+    tool: z.string().min(1).max(64).describe("Tool name as recorded (Read, Grep, Edit, Bash, etc)"),
+    target: z.string().max(2048).optional().describe("File path / pattern / URL the tool acted on (used to match read->edit->read same-target patterns)"),
+  }).passthrough().describe("Record one tool call. Returns the anti-pattern if the latest segment triggers one (else null)."),
+
+  tool_chain_detected: z.object({}).passthrough().describe("Return all anti-patterns detected so far on this chain"),
+
+  tool_chain_string: z.object({
+    last: z.number().int().positive().max(100).optional().describe("How many recent links to include (default 10)"),
+  }).passthrough().describe("Get the chain as a compact 'Tool -> Tool -> Tool' arrow string"),
+
+  tool_chain_summary: z.object({}).passthrough().describe("Human-readable summary of detected anti-patterns + total token waste"),
+
+  tool_chain_suggest: z.object({}).passthrough().describe("Optimization suggestions based on tool-count clustering in the last 10 calls"),
+
+  tool_chain_reset: z.object({}).passthrough().describe("Clear the chain and detected patterns"),
 };
