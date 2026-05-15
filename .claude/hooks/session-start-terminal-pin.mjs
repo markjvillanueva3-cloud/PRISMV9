@@ -83,6 +83,7 @@ function claimSlotForWindow(chatId, windowId) {
     "--chatId", chatId,
     "--terminalWindowId", windowId,
     "--activity", "session-start-auto-pin",
+    "--startupAuto", "true",
   ], { encoding: "utf-8", timeout: CLAIM_TIMEOUT_MS, windowsHide: true });
   if (r.status !== 0 || !r.stdout) return null;
   try { return JSON.parse(r.stdout); } catch { return null; }
@@ -101,6 +102,35 @@ async function main() {
 
   const result = claimSlotForWindow(chatId, windowId);
   if (!result?.ok) { emit(SILENCE); return; }
+
+  // F10 — pipeline replay: when terminal-pin inherits a slot AND the prior
+  // chat had `pipelineStep` set (mid-loop), surface an auto-resume hint with
+  // the prior iter/target so the new chat can pick up where the old one
+  // left off. This complements the per-chat handoff RESUME directive
+  // (session-start-auto-resume.mjs covers /compact; F10 covers the same-
+  // window-new-chat case where chatId changed but the window persisted).
+  const state = result.state || {};
+  if (result.terminalPinned && state.pipelineStep) {
+    const iter = state.pipelineIter ?? null;
+    const target = state.pipelineTarget ?? null;
+    const progress = (iter != null && target != null) ? ` (iter ${iter}/${target})` : "";
+    emit({
+      continue: true,
+      hookSpecificOutput: {
+        hookEventName: "SessionStart",
+        additionalContext: [
+          `## 🔁 Pipeline replay — slot ${result.slot} re-bound to this window`,
+          ``,
+          `Previous chat (${result.previousChatId}) was mid-pipeline:`,
+          `  • step: \`${state.pipelineStep}\`${progress}`,
+          `  • last activity: \`${state.activity || "—"}\``,
+          ``,
+          `To continue: re-invoke the pipeline (\`/checkin /loop ...\`) — the loop-state for the prior chat is in \`state/shared/loop-state/loop-${result.previousChatId.replace(/^claude-/, "")}*.json\`. Carry the iter/target forward.`,
+        ].join("\n"),
+      },
+    });
+    return;
+  }
 
   // Verbose path — surface a short confirmation when the operator opts in.
   // Otherwise stay silent. The verbose line is informational only and never
