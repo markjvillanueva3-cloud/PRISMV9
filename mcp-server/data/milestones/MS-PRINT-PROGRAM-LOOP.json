@@ -351,13 +351,24 @@
           "title": "[Track C] U-CUSTOMER-MATERIAL-MAP (= RES-MS21 core) — learned customer→material map (.MIN headers are blank; material from the customer relationship + filename heuristics like '4140 ROLLER', 'M5', 'HRC-52-54'); source: LATHE_AI_TRAINING_REPORT's customersAnalyzed + filename parsing + the back-annotated prints (material 57% of the time). Feeds Track B U-PPL-B3",
           "effort": 90,
           "dependencies": [],
+          "status": "completed",
+          "completed_at": "2026-05-15T20:48:00Z",
+          "completed_by": "claude-339c8ff7 (slot bravo, /loop iter 3/4 post-/compact)",
           "exit_conditions": [
             "Implementation complete per description",
             "Tests pass: npx vitest run",
             "Typecheck clean: npx tsc --noEmit",
             "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
           ],
-          "description": "[Track C] U-CUSTOMER-MATERIAL-MAP (= RES-MS21 core) — learned customer→material map (.MIN headers are blank; material from the customer relationship + filename heuristics like '4140 ROLLER', 'M5', 'HRC-52-54'); source: LATHE_AI_TRAINING_REPORT's customersAnalyzed + filename parsing + the back-annotated prints (material 57% of the time). Feeds Track B U-PPL-B3 — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "exit_evidence": {
+            "engine": "mcp-server/src/engines/CustomerMaterialMapEngine.ts (~660 LOC, pure-transform composition) — exports buildCustomerMaterialMap, lookupMaterialDistribution, extractMaterialFromFilename, extractMaterialFromCustomerFolder, resolveEntryMaterial + CustomerMaterialMapEngine class + singleton + Zod ProgramSampleEntrySchema + ISO_GROUP_SCHEMA + SOURCE_CONFIDENCE constants. Composes (does NOT fork) MATERIAL_KEYWORDS from MaterialResolverForProgramsEngine via newly-exported const (single-line export edit). Defenses: MAX_FILENAME_LEN=1024 ReDoS guard, module-load no-/g-flag assertion, zero-width match scanFrom+=1 defense, thread-context disambiguation (rejects M2/M5/S7/P20 alloy codes when filename contains SCREW/BOLT/TAPTITE/THREAD — JM-Die heavy fastener work). Source priority blueprint(0.90) > filename(0.70) > folder(0.50). FAIL-LOUD TypeError on non-array input.",
+            "tests": "mcp-server/src/__tests__/CustomerMaterialMapEngine.test.ts (64 tests) + mcp-server/src/__tests__/dataDispatcher.uppl-c2.test.ts (11 tests) — combined 75/75 PASS in ~3.5s. Real-value reference assertions against JM-Die customers (TOPURA, ALCOA, JACOBSON, TFI Aerospace). Lock-tests pin MATERIAL_KEYWORDS catalog order + no-/g-flag invariant. Coverage: happy paths (9 alloy groups) + path/case/boundary (7) + thread-context (6) + MAX_FILENAME_LEN (2) + folder source (3) + source-priority (5) + FAIL-LOUD/invalid-entries (3) + distribution math (7 incl. ISO_GROUPS tie-breaking) + lookup (4) + class wrapper (3) + Zod boundary (6) + adversarial (4) + integration (1).",
+            "tsc": "Pre-existing TSC errors in dataDispatcher.ts (line 2297 materialInterpolationEngine signature drift + line 2400 slimResponse arity, both pre-existing per D1/D2/D3 close-out notes) untouched. No new U-PPL-C2 files introduce errors.",
+            "dispatcher": "prism_data: customer_material_map_build + customer_material_lookup wired (dataDispatcher.ts case blocks + z.enum entries; dataActionSchemas.ts inline schemas + ACTION_DATA_SCHEMAS map entries). prism_data action count 142 → 144 (140 baseline + 2 D1 + 2 C2). WIRE-EXEMPT(prism_turning, prism_machining_kb) tag documented in engine header per CLAUDE.md §ENGINE WIRING rule — data-engine surface; downstream U-PPL-B3 / U-PPL-A5 consumers will call prism_data:customer_material_lookup directly (mirrors U-PPL-D3 ArchiveToPartsCatalogIngester precedent).",
+            "scrutiny": "Per-file gate ran twice: engine (A PASS, B FAIL→fixed→PASS — 1 P0 thread-context + 4 P1 fixed); test (A PASS, B PASS — 2 P1 fixed); wiring batch (A PASS, B PASS — 1 P2 note added). End-of-task 3-of-3 at session uppl-c2-339c8ff7: A PASS + B FAIL→fixed→PASS (FUTURE-REFACTOR note in MaterialResolverForProgramsEngine + validation flow comment) + C FAIL→fixed→PASS (zero-width match defense + WIRE-EXEMPT tag). All 3 marked PASS after fixes verified by 75/75 retest.",
+            "commits": "slot/bravo 7e1ad610b (engine + tests + wiring); cad-fusion-live-ms0 merge commit 173f6305b (resolved D1+C2 coexistence in dataActionSchemas + dataDispatcher; D1's 2 actions kept alongside C2's 2 actions; merge preserves both Track-D and Track-C surfaces)."
+          },
+          "closeout_note": "Shipped 2026-05-15 by claude-339c8ff7 (slot bravo, /loop iter 3/4 post-/compact). MS-PRINT-PROGRAM-LOOP completed_units 4 → 5. CustomerMaterialMapEngine closes the data gap MaterialResolverForProgramsEngine._resolveFromCustomer() flags in code (the inline comment said 'would ideally come from a persistent database' — this IS that database). Pure-transform engine; caller composes data from LATHE_AI_TRAINING_REPORT's bestPrograms/worstPrograms (per-customer filename samples), back-annotated print sidecars (when joined via U-PPL-D1), and direct directory walks. Inline FUTURE-REFACTOR note in MaterialResolverForProgramsEngine._resolveFromCustomer documents the deferred integration (the existing engine's `resolve()` consumers expect a single ResolvedMaterial; this engine returns a distribution — a clean handoff needs the caller reshape, deferred per Track-C close-out plan). Wire-only-to-prism_data is intentional per WIRE-EXEMPT tag (data-engine surface; downstream consumers integrate via the data dispatcher, not via dedicated mirrors that would create dead actions). The thread-context P0 fix (rejecting M2/M5/S7 when filename has SCREW/BOLT/TAPTITE) addresses a real JM-Die false-positive class — TOPURA's bestProgram is literally 'C-159-7-M5-TAPTITE2000-CASE.min' where M5 is the thread spec, not M5 tool steel.",
           "four_loop": [
             "BUILD",
             "SCRUTINIZE",
@@ -677,8 +688,8 @@
     }
   ],
   "total_units": 23,
-  "completed_units": 4,
-  "updated_at": "2026-05-15T17:10:00.000Z",
-  "updated_by": "claude-2081f435 (U-PPL-D1 prism_data mirror + U-PPL-D2 envelope flip + U-PPL-D3 ArchiveToPartsCatalogIngester ship, slot echo)",
+  "completed_units": 5,
+  "updated_at": "2026-05-15T20:48:00.000Z",
+  "updated_by": "claude-339c8ff7 (U-PPL-C2 CustomerMaterialMapEngine ship, slot bravo, /loop iter 3/4 post-/compact)",
   "started_at": "2026-05-15T16:30:00.000Z"
 }
