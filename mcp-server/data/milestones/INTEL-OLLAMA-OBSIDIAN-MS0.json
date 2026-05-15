@@ -378,7 +378,11 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "delete script + remove cron entry if scheduled | preserve as .deprecated.json; no destructive delete"
+          "rollback": "delete script + remove cron entry if scheduled | preserve as .deprecated.json; no destructive delete",
+          "status": "completed",
+          "completed_at": "2026-05-15T14:55:26.707Z",
+          "completed_by": "claude-b6c4b196 slot charlie (envelope drift)",
+          "close_out_note": "Pure envelope drift. All 3 exit conditions pre-existing: (1) schema at mcp-server/src/schemas/unifiedErrorLedger.ts has all 7 required fields (id, ts, source enum {hook_block,pattern_memory,recovery,session,learner}, tool, context, signature, embedding_id) with Zod v4 + .describe() per convention; (2) migration script scripts/migrate-error-ledgers.mjs exists; (3) old files preserved as .deprecated (error-memory.json.deprecated etc.). UNIFIED_ERROR_LEDGER.jsonl + UNIFIED_ERROR_LEDGER.index.json already populated."
         },
         {
           "id": "P2-U02",
