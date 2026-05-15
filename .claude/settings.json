@@ -415,6 +415,26 @@
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/stop_close_prism_nodes_v2.mjs",
             "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/scrutinize-before-stop.mjs",
+            "timeout": 10000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/enforce-handoff-topic.mjs",
+            "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/error-pattern-promote.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/leave-a-copy-behind-guard.mjs",
+            "timeout": 5000
           }
         ]
       }
@@ -432,7 +452,7 @@
       },
       {
         "matcher": "^(Edit|Write|MultiEdit|NotebookEdit)$",
-        "_disabled_by": "U-D3 hook bundling — memory-relevance-inject now runs inside edit-bundle.mjs SHARED_HOOKS",
+        "_disabled_by": "HVA-DEDUPE-2026-05-15: PreToolUse precompact-auto-trigger handled by user-level matcher:''; this matcher kept as documentation of prior wiring. memory-relevance-inject was retired by U-D3 hook bundling — runs inside edit-bundle.mjs SHARED_HOOKS.",
         "hooks": []
       },
       {
@@ -703,6 +723,16 @@
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/archived-skill-suggest.mjs",
             "timeout": 1500
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/wiki-precheck-inject.mjs",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/chat-bus-inject.mjs",
+            "timeout": 3000
           }
         ]
       }
@@ -713,8 +743,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/precompact-auto-trigger.mjs --post",
-            "timeout": 2000
+            "command": "\"H:/.claude/bin/portable-node\" -e \"/* HVA-DEDUPE 2026-05-15: precompact-auto-trigger PostToolUse retired per the hook's own docstring guidance ('canonical entry is PreToolUse only — wiring on both Pre+Post doubled the transcript read per tool call for no benefit'). PreToolUse entry above is preserved. Source: H:/prism/.claude/hooks/precompact-auto-trigger.mjs. To revert: restore the --post arg here. */ process.exit(0)\"",
+            "timeout": 1000
           },
           {
             "type": "command",
@@ -738,8 +768,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/precompact-auto-trigger.mjs --post",
-            "timeout": 2000
+            "command": "\"H:/.claude/bin/portable-node\" -e \"/* HVA-DEDUPE 2026-05-15: precompact-auto-trigger PostToolUse retired per the hook's own docstring guidance ('canonical entry is PreToolUse only — wiring on both Pre+Post doubled the transcript read per tool call for no benefit'). PreToolUse entry above handles SOFT inject on Read-class tools too. Source: H:/prism/.claude/hooks/precompact-auto-trigger.mjs. To revert: restore the --post arg here. */ process.exit(0)\"",
+            "timeout": 1000
           }
         ]
       },

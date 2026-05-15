@@ -321,6 +321,40 @@ const tool_catalog_adaptive_recommend = z.object({
   required_coating: optStr.describe("Required coating constraint"),
 }).passthrough();
 
+// ── U-PPL-D1 / MS-PRINT-PROGRAM-LOOP Track D: prism_data mirror ──
+// Two read-only surfaces (mirrors of prism_dev): the print↔program link index
+// composes BlueprintProgramJoinEngine (v6 join) + enhanced JM-Die PN normalizer
+// (T8047D3 ITW / C2500-2497 SCREWS / 9082526 AGRATI / BU-1365-0000-002 TFI) +
+// program-side seed augmentation. Mirrored into prism_data because the actions
+// are pure registry-style lookups against the JM-Die archive (no compute, no
+// physics) — they belong alongside cross_lookup, dsl_lookup, database_search.
+const program_print_link_lookup = z.object({
+  direction: z.enum(["print_for_program", "program_for_print"]).describe(
+    "Lookup direction. print_for_program = given a program path, return its print(s). program_for_print = given a part number, return its programs.",
+  ),
+  query: z.string().min(1).describe(
+    "Query value — a program file path when direction=print_for_program, or a part number when direction=program_for_print.",
+  ),
+  input_program_paths: z.array(z.string()).optional().describe(
+    "Optional list of program file paths to feed the program-side seed augmentation BEFORE the lookup. When omitted, only the v6 join + training triples are consulted (no enhanced-normalizer rescue).",
+  ),
+  join_jsonl_path: z.string().optional().describe(
+    "Override the v6 join JSONL path. Default: <repo>/Docustrata/.index/blueprint-program-join-full-v6.jsonl.",
+  ),
+}).passthrough();
+
+const program_print_link_coverage = z.object({
+  archive_program_paths: z.array(z.string()).optional().describe(
+    "Optional list of archive program paths to compute the disk-side gap against. When supplied, the report includes in_v6_join / rescued_by_seed / still_orphan counts + orphan_rate_pct.",
+  ),
+  input_program_paths: z.array(z.string()).optional().describe(
+    "Optional list of program paths to feed the seed augmentation before computing coverage. When omitted, the seed augmentation is skipped + rescued_by_seed = 0.",
+  ),
+  join_jsonl_path: z.string().optional().describe(
+    "Override the v6 join JSONL path. Default: <repo>/Docustrata/.index/blueprint-program-join-full-v6.jsonl.",
+  ),
+}).passthrough();
+
 /** A C T I O N_ D A T A_ S C H E M A S constant.
  */
 export const ACTION_DATA_SCHEMAS: ActionSchemaMap = {
@@ -381,4 +415,7 @@ export const ACTION_DATA_SCHEMAS: ActionSchemaMap = {
   material_interpolation_find,
   tool_db_bridge_query,
   tool_catalog_adaptive_recommend,
+  // U-PPL-D1 / MS-PRINT-PROGRAM-LOOP Track D: ProgramPrintLinkIndexEngine (2 actions, mirror of prism_dev)
+  program_print_link_lookup,
+  program_print_link_coverage,
 };

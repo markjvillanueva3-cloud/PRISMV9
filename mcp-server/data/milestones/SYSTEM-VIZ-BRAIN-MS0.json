@@ -1,0 +1,116 @@
+{
+  "id": "SYSTEM-VIZ-BRAIN-MS0",
+  "title": "/system-viz as the PRISM OS/Brain — auto-memory + tribal injection + functional control surface + 10-chat coord",
+  "track": "devtools",
+  "status": "in_progress",
+  "created_at": "2026-05-15",
+  "owner_intent": "User directive 2026-05-15: 'pivot to system-viz upgrades. /system-viz should be the visual and functional representation of the prism os/brain in obsidian. improve auto generated memories, auto generated scripts and hooks to inject relevant memories and tribal knowledge, usage and updating of prism-awareness, usage of neural network, ai systems, deep learning and deep reasoning systems, rtk, ollama, qdrant, precompact, compact, session handoffs for 10 chats in the checkin system. utilize relevant forge slash command.' + 'make audits utilize /system-viz for more efficient searches'",
+  "doctrine_principle": "every audit/regen/discovery script MUST declare its system-viz-query first; Grep/Glob only as fallback when graph confidence < 0.5. Forge-triple bundles auto-enforce this in the generated stub.",
+  "phases": [
+    { "id": "P0-FOUND", "title": "Foundation — system-viz-first audit framework + ledger expansion", "units": ["U-P0-AUDIT-VIZ-FIRST", "U-P0-TRIGGER-LEDGER-EXPAND", "U-P0-HOOK-ORPHAN-RECONCILE", "U-P0-SVB-DOCTRINE"] },
+    { "id": "P1-MEMORY", "title": "Auto-memory loop — distill, inject, recall", "units": ["U-P1-POST-SHIP-DISTILL", "U-P1-TRIBAL-BY-DOMAIN-INJECT", "U-P1-QDRANT-EPISODIC-RECALL", "U-P1-HANDOFF-MEMORY-SEED", "U-P1-WIKI-PRELOAD-BY-DOMAIN"] },
+    { "id": "P2-VIZ-BRAIN", "title": "/system-viz as functional control surface", "units": ["U-P2-NODE-CLICK-DISPATCH", "U-P2-LIVE-DRIFT-OVERLAY", "U-P2-SLOT-OWNERSHIP-OVERLAY", "U-P2-GRAPH-SEARCH-MASTERINDEX", "U-P2-COT-REASON-BLAST-RADIUS"] },
+    { "id": "P3-AUTO-BUILD", "title": "Autonomous building pipeline", "units": ["U-P3-VERIFY-UNIT-READY", "U-P3-FORGE-OLLAMA-CODEGEN", "U-P3-SHIP-QUALITY-GATE", "U-P3-VIZ-FIRST-REDIRECT-GLOB"] },
+    { "id": "P4-COST", "title": "Token + cost optimization", "units": ["U-P4-RTK-AUTO-WRAP", "U-P4-OLLAMA-COST-ROUTING", "U-P4-TOKEN-BUDGET-TELEMETRY"] },
+    { "id": "P5-FLEET-COORD", "title": "10-chat fleet coordination + handoff", "units": ["U-P5-CHECKIN-FLEET-CONTEXT", "U-P5-MULTI-CHAT-UNBLOCK-DETECT", "U-P5-COORD-SQLITE-LIVE-SWAP", "U-P5-FLEET-AWARENESS-PANEL"] }
+  ],
+  "units": {
+    "U-P0-AUDIT-VIZ-FIRST": {
+      "phase": "P0-FOUND",
+      "title": "System-viz-first audit framework — hook + skill that auto-runs system-viz-query before Grep/Glob",
+      "status": "complete",
+      "shipped_by": "claude-a61bbf34 (slot delta)",
+      "shipped_at": "2026-05-15",
+      "deliverables": [
+        ".claude/hooks/audit-viz-first-inject.mjs — UserPromptSubmit T2 hook detects audit keywords (audit/inventory/find all/where is/check for/are there any) and (a) auto-runs system-viz-query find on the noun, (b) injects top-K hits, (c) logs fallback when confidence low",
+        ".claude/commands/audit-viz-first.md — `/audit-viz-first <query>` skill, explicit invocation wrapping system-viz-query.mjs find + master_index_query",
+        "Wire hook into C:/Users/wompu/.claude/settings.json UserPromptSubmit chain after master-index-precheck-inject (mirrored auto to H:/.claude/settings.json by c-to-h-mirror)",
+        "Regen _skill-triggers.jsonl so /audit-viz-first surfaces on audit keywords"
+      ],
+      "rationale": "Audit findings 2026-05-15 showed THREE wrong claims when agents used grep instead of system-viz: OllamaHookBridgeEngine wired (not orphan), QdrantMemoryEngine wired (not orphan), CrossDisciplinaryDeepLearningEngine wired (not orphan), distill-tribal exists (not missing), rtk hooks exist (not missing). Building this framework prevents future agent grep-only audits."
+    },
+    "U-P0-TRIGGER-LEDGER-EXPAND": {
+      "phase": "P0-FOUND",
+      "title": "Expand skill auto-trigger coverage 16 to ~120 (top-discoverability skills)",
+      "status": "pending",
+      "deliverables": [
+        "Add auto_trigger: {keywords: [...]} frontmatter to ~100 high-value skill .md files (forge-*, dedup, wire-unwired, scrutinize, awareness-snapshot, master-index, deep-search, pick-*, close-out-*, ollama-*, wiki-*, system-viz, /checkin, /handoff, /precompact, all domain studios)",
+        "Re-run node scripts/extract-skill-triggers.mjs to regen knowledge/wiki/architecture/_skill-triggers.jsonl",
+        "Spot-check skill-auto-trigger.mjs hook fires on representative prompts"
+      ],
+      "rationale": "Audit confirmed 16/560 (2.9%) skills surface automatically. 98% require explicit /skill-name invocation. Biggest discoverability gap."
+    },
+    "U-P0-HOOK-ORPHAN-RECONCILE": {
+      "phase": "P0-FOUND",
+      "title": "Reconcile 447 orphan hook files vs 109 wired in settings.json",
+      "status": "pending",
+      "deliverables": [
+        "scripts/audit-hook-wiring.mjs (uses system-viz-query find for each .mjs in .claude/hooks/, classifies wired/orphan/disabled/superseded)",
+        "state/shared/HOOK-ORPHAN-CLASSIFICATION.md dashboard (per-orphan: keep/wire/archive recommendation; never delete per [[feedback_never_delete_only_disable]])",
+        "Wire confirmed-real orphans (target 20 high-value) into settings.json individual entries (NOT bundle, per CLAUDE.md doctrine)"
+      ]
+    },
+    "U-P0-SVB-DOCTRINE": {
+      "phase": "P0-FOUND",
+      "title": "Adopt system-viz-first doctrine in CLAUDE.md + wiki",
+      "status": "pending",
+      "deliverables": [
+        "CLAUDE.md adds §SYSTEM-VIZ-FIRST AUDIT DOCTRINE pointer (200 line cap respected)",
+        "knowledge/wiki/architecture/system-viz-first-audit.md (full doctrine + 4-step protocol + the 3 audit-correction examples from 2026-05-15)",
+        "memory entry feedback_system_viz_first_audit.md + MEMORY.md index line"
+      ]
+    },
+    "U-P1-POST-SHIP-DISTILL": {
+      "phase": "P1-MEMORY",
+      "title": "Auto-distill tribal knowledge to wiki + Obsidian memory on chat-end / unit-ship",
+      "status": "complete",
+      "shipped_by": "claude-a61bbf34 (slot delta)",
+      "shipped_at": "2026-05-15",
+      "deliverables": [
+        ".claude/hooks/post-ship-distill.mjs — Stop hook fires when most-recent commit's body contains [SCOPE]/U-<id> pattern OR /goal completion detected; extracts: session error-learner entries, scrutiny ledger notes, decision-log diffs, file-touch list; calls distill-tribal script with --session-id arg",
+        "Adapter writes BOTH to knowledge/wiki/code-tribal/<unit-slug>.md (git-tracked) AND C:/Users/Mark Villanueva/.claude/projects/H--PRISM/memory/reference_<slug>.md (cross-session Obsidian); dedup hash check (SHA-256 of normalized content) prevents double-entries",
+        "Wire post-ship-distill into Stop chain after scrutinize-before-stop, before git-sync-stop"
+      ],
+      "rationale": "Audit confirmed distill-tribal script + skill exist; what's missing is the Stop hook that auto-fires it on unit-ship. Closes the learning loop without operator intervention."
+    },
+    "U-P1-TRIBAL-BY-DOMAIN-INJECT": {
+      "phase": "P1-MEMORY",
+      "title": "Auto-inject top-3 tribal tips on domain keywords (mill/lathe/EDM/5-axis/grind)",
+      "status": "pending"
+    },
+    "U-P1-QDRANT-EPISODIC-RECALL": {
+      "phase": "P1-MEMORY",
+      "title": "Qdrant episodic recall on SessionStart + UserPromptSubmit (xproc_episodic_recall)",
+      "status": "pending"
+    },
+    "U-P1-HANDOFF-MEMORY-SEED": {
+      "phase": "P1-MEMORY",
+      "title": "Handoff envelope carries memory_seed (distilled session lessons) for next chat",
+      "status": "pending"
+    },
+    "U-P1-WIKI-PRELOAD-BY-DOMAIN": {
+      "phase": "P1-MEMORY",
+      "title": "Preload top-K wiki hits matching milestone domain on /checkin",
+      "status": "pending"
+    },
+    "U-P2-NODE-CLICK-DISPATCH": { "phase": "P2-VIZ-BRAIN", "title": "Click /system-viz node to invoke its dispatcher's primary action", "status": "pending" },
+    "U-P2-LIVE-DRIFT-OVERLAY": { "phase": "P2-VIZ-BRAIN", "title": "5-min auto-regen + drift overlay (red-pulse nodes where envelope-vs-git differ)", "status": "pending" },
+    "U-P2-SLOT-OWNERSHIP-OVERLAY": { "phase": "P2-VIZ-BRAIN", "title": "Color nodes by which of 10 chat slots edited them last; handoff dotted edges", "status": "pending" },
+    "U-P2-GRAPH-SEARCH-MASTERINDEX": { "phase": "P2-VIZ-BRAIN", "title": "Search bar in /system-viz viewer routes to master_index_query (semantic, not regex)", "status": "pending" },
+    "U-P2-COT-REASON-BLAST-RADIUS": { "phase": "P2-VIZ-BRAIN", "title": "Right-click node → prism_ai:cot_reason with upstream/downstream graph context", "status": "pending" },
+    "U-P3-VERIFY-UNIT-READY": { "phase": "P3-AUTO-BUILD", "title": "Pre-claim dependency check on /pick-unit — block if depends_on chain unshipped", "status": "pending" },
+    "U-P3-FORGE-OLLAMA-CODEGEN": { "phase": "P3-AUTO-BUILD", "title": "/forge-triple auto-spawns Ollama qwen2.5-coder for boilerplate stubs", "status": "pending" },
+    "U-P3-SHIP-QUALITY-GATE": { "phase": "P3-AUTO-BUILD", "title": "Stop hook blocks commit if tests fail / scrutiny incomplete / SPC red", "status": "pending" },
+    "U-P3-VIZ-FIRST-REDIRECT-GLOB": { "phase": "P3-AUTO-BUILD", "title": "PreToolUse:Glob/Grep redirects cross-cutting searches to system-viz-query", "status": "pending" },
+    "U-P4-RTK-AUTO-WRAP": { "phase": "P4-COST", "title": "Bash PreToolUse transparent wrap: git/gh/vitest/tsc/docker → rtk <same> (verify rtk-auto-suggest is suggest-only first)", "status": "pending" },
+    "U-P4-OLLAMA-COST-ROUTING": { "phase": "P4-COST", "title": "PreToolUse:Bash detects expensive Claude ops, routes to local Ollama qwen2.5-coder", "status": "pending" },
+    "U-P4-TOKEN-BUDGET-TELEMETRY": { "phase": "P4-COST", "title": "Surface remaining token budget + savings in /checkin Report", "status": "pending" },
+    "U-P5-CHECKIN-FLEET-CONTEXT": { "phase": "P5-FLEET-COORD", "title": "/checkin surfaces fleet-wide active work + handoff suggestions to a fresh chat", "status": "pending" },
+    "U-P5-MULTI-CHAT-UNBLOCK-DETECT": { "phase": "P5-FLEET-COORD", "title": "PostToolUse: when chat-N commits, scan task graph; if chat-M is blocked on what just shipped, notify", "status": "pending" },
+    "U-P5-COORD-SQLITE-LIVE-SWAP": { "phase": "P5-FLEET-COORD", "title": "Swap work-claim.mjs from WORK_CLAIMS.json to SQLite (CoordinationStoreEngine H8 is ready, not yet swapped)", "status": "pending" },
+    "U-P5-FLEET-AWARENESS-PANEL": { "phase": "P5-FLEET-COORD", "title": "10-chat awareness panel — who's doing what right now, last commits, blocking links", "status": "pending" }
+  },
+  "execution_log": [
+    { "at": "2026-05-15T16:00Z", "by": "claude-a61bbf34 (slot delta)", "event": "MILESTONE CREATED — SYSTEM-VIZ-BRAIN-MS0 envelope spawned after 3 parallel system-viz audits + user directive 'do all of them autonomously'. P0 keystone units: U-P0-AUDIT-VIZ-FIRST (build the audit framework that prevents future grep-only mistakes) and U-P1-POST-SHIP-DISTILL (closes auto-memory loop). Realistic session throughput: 2-4 units full quality; rest handed off to subsequent chats. Per-file 3-of-3 scrutiny gate applies. Per [[feedback_no_schedule_wakeup_in_loop]] no wakeups between iters." }
+  ]
+}
