@@ -435,6 +435,12 @@
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/leave-a-copy-behind-guard.mjs",
             "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/autonomous-loop-watchdog.mjs",
+            "timeout": 3000,
+            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER11 — Tier-0 Stop hook for autonomous yolo-mode runs. Detects runaway /loop iterations + signals stop-condition violations. Silent on normal Stops. Was orphan in ORPHAN-HOOKS-2026-05-15.json."
           }
         ]
       }
@@ -488,6 +494,12 @@
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/critical-file-guard.mjs",
             "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/code-completeness-gate.mjs",
+            "timeout": 5000,
+            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER11 — Tier-0 PreToolUse gate on Edit/Write/MultiEdit. Blocks edits that ship obvious stubs / placeholder asserts / large commented-out code blocks (paired with comprehensive-build doctrine in CLAUDE.md). Was orphan."
           }
         ]
       },
@@ -748,6 +760,24 @@
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/ai-feature-recommend.mjs",
             "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/discipline-expert-inject.mjs",
+            "timeout": 5000,
+            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER11 — Tier-4 UserPromptSubmit advisory. Injects expert-role context (40KB doctrine bundle) on demand. continueOnError. Was orphan in ORPHAN-HOOKS-2026-05-15.json."
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/auto-precompact-watchdog.mjs",
+            "timeout": 3000,
+            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER11 — Tier-4 UserPromptSubmit watchdog. Queues precompact handoff on a cadence so a chat that approaches token limit without /precompact still gets a handoff written. continueOnError. Was orphan."
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/claudemd-ollama-enforcer.mjs",
+            "timeout": 5000,
+            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER11 — Tier-4 UserPromptSubmit advisory. Enforces CLAUDE.md Ollama-routing rule (offload code summarize/explain/classify to local 7b). continueOnError. Was orphan."
           }
         ]
       }
