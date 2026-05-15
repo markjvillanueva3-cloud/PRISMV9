@@ -3317,4 +3317,42 @@ export const ACTION_CALC_SCHEMAS: ActionSchemaMap = {
     material: z.enum(['aluminum','steel','stainless','titanium','cast_iron','custom']).describe('Workpiece material — sets unit-power factor; "custom" requires custom_factor'),
     custom_factor: optPosNum.describe('Custom unit-power factor (only when material="custom"); default 1.0'),
   }).passthrough().describe('Cutting power HP/kW = MRR × unit-power factor (QuickCalcEngine.cuttingPower)'),
+
+  // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-SMART-DEFAULTS: SmartDefaultsEngine wire (2026-05-15)
+  // Context-aware default RPM/feed/DOC/WOC/coolant from material × tool. SFM baselines
+  // (NOT Kienzle/Taylor coefficients — these are reference-table cutting speeds).
+  smart_defaults_get: z.object({
+    material: z.string().min(1).describe('Material name — 6061/7075/aluminum/1018/4140/steel/stainless/titanium/inconel/brass/etc'),
+    tool_diameter: posNum.describe('Tool diameter (inches)'),
+    flutes: z.number().int().positive().max(20).optional().describe('Number of flutes (default 3)'),
+    tool_material: z.enum(['carbide','hss','ceramic','diamond']).optional().describe('Tool material (default "carbide")'),
+    operation: z.enum(['milling','finishing','roughing','slotting']).optional().describe('Operation (default "milling")'),
+  }).passthrough().describe('Compute defaults: {rpm, feed_ipm, doc_in, woc_in, coolant}'),
+
+  smart_defaults_sfm: z.object({
+    material: z.string().min(1).describe('Material name'),
+    tool_material: z.enum(['carbide','hss','ceramic','diamond']).optional().describe('Tool material (default "carbide")'),
+  }).passthrough().describe('SFM baseline for material × tool material'),
+
+  smart_defaults_chipload: z.object({
+    diameter: posNum.describe('Tool diameter (inches)'),
+  }).passthrough().describe('Default carbide chip load by diameter (nearest-neighbor lookup)'),
+
+  smart_defaults_engagement: z.object({
+    diameter: posNum.describe('Tool diameter (inches)'),
+    material: z.string().min(1).describe('Material name'),
+    operation: z.enum(['milling','finishing','roughing','slotting']).optional().describe('Operation (default "milling")'),
+  }).passthrough().describe('DOC and WOC defaults as inches (scaled by material hardness + operation)'),
+
+  smart_defaults_coolant: z.object({
+    material: z.string().min(1).describe('Material name'),
+  }).passthrough().describe('Coolant recommendation (flood/high-pressure flood/air blast/mist or dry)'),
+
+  smart_defaults_materials: z.object({}).passthrough().describe('List all 18 supported material keys'),
+
+  smart_defaults_oneliner: z.object({
+    material: z.string().min(1).describe('Material name'),
+    diameter: posNum.describe('Tool diameter (inches)'),
+    flutes: z.number().int().positive().max(20).optional().describe('Number of flutes (default 3)'),
+  }).passthrough().describe('One-line setup summary: "<material> Øx 3fl: RPM=N F=M DOC=A WOC=B coolant"'),
 };

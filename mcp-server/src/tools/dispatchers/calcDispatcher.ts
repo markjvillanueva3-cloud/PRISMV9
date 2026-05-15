@@ -1018,6 +1018,11 @@ const ACTIONS = [
   // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-QUICK-CALC: 10 actions wiring QuickCalcEngine
   "quick_rpm", "quick_feed_rate", "quick_mrr", "quick_surface_speed", "quick_chip_load",
   "quick_tap_drill", "quick_cutting_time", "quick_scallop_height", "quick_thread_pitch", "quick_cutting_power",
+  // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-SMART-DEFAULTS: 7 actions wiring SmartDefaultsEngine
+  // (context-aware default RPM/feed/DOC/WOC/coolant — NOT Kienzle/Taylor; SFM baselines).
+  "smart_defaults_get", "smart_defaults_sfm", "smart_defaults_chipload",
+  "smart_defaults_engagement", "smart_defaults_coolant", "smart_defaults_materials",
+  "smart_defaults_oneliner",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -8854,6 +8859,60 @@ export function registerCalcDispatcher(server: any): void {
           case "quick_cutting_power": {
             const { quickCalcEngine } = await import("../../engines/QuickCalcEngine.js");
             result = quickCalcEngine.cuttingPower(params.mrr_in3min, params.material, params.custom_factor);
+            break;
+          }
+
+          // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-SMART-DEFAULTS: SmartDefaultsEngine wire (2026-05-15)
+          case "smart_defaults_get": {
+            const { smartDefaultsEngine } = await import("../../engines/SmartDefaultsEngine.js");
+            result = { success: true, defaults: smartDefaultsEngine.getDefaults(
+              String(params.material),
+              Number(params.tool_diameter),
+              typeof params.flutes === "number" ? params.flutes : 3,
+              typeof params.tool_material === "string" ? params.tool_material : "carbide",
+              typeof params.operation === "string" ? params.operation : "milling",
+            ) };
+            break;
+          }
+          case "smart_defaults_sfm": {
+            const { smartDefaultsEngine } = await import("../../engines/SmartDefaultsEngine.js");
+            result = { success: true, sfm: smartDefaultsEngine.getSFM(
+              String(params.material),
+              typeof params.tool_material === "string" ? params.tool_material : "carbide",
+            ) };
+            break;
+          }
+          case "smart_defaults_chipload": {
+            const { smartDefaultsEngine } = await import("../../engines/SmartDefaultsEngine.js");
+            result = { success: true, chipload_in: smartDefaultsEngine.getChipload(Number(params.diameter)) };
+            break;
+          }
+          case "smart_defaults_engagement": {
+            const { smartDefaultsEngine } = await import("../../engines/SmartDefaultsEngine.js");
+            result = { success: true, engagement: smartDefaultsEngine.getEngagement(
+              Number(params.diameter),
+              String(params.material),
+              typeof params.operation === "string" ? params.operation : "milling",
+            ) };
+            break;
+          }
+          case "smart_defaults_coolant": {
+            const { smartDefaultsEngine } = await import("../../engines/SmartDefaultsEngine.js");
+            result = { success: true, coolant: smartDefaultsEngine.getCoolant(String(params.material)) };
+            break;
+          }
+          case "smart_defaults_materials": {
+            const { smartDefaultsEngine } = await import("../../engines/SmartDefaultsEngine.js");
+            result = { success: true, materials: smartDefaultsEngine.listMaterials() };
+            break;
+          }
+          case "smart_defaults_oneliner": {
+            const { smartDefaultsEngine } = await import("../../engines/SmartDefaultsEngine.js");
+            result = { success: true, line: smartDefaultsEngine.oneLiner(
+              String(params.material),
+              Number(params.diameter),
+              typeof params.flutes === "number" ? params.flutes : 3,
+            ) };
             break;
           }
 
