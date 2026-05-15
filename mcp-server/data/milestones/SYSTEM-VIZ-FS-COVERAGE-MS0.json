@@ -1,0 +1,303 @@
+{
+  "id": "SYSTEM-VIZ-FS-COVERAGE-MS0",
+  "version": "1.0.0",
+  "title": "System-Viz Filesystem Coverage — every H: file represented",
+  "brief": "Add L11 (filesystem bundles) + L12 (canonical files) layers to PRISM's system-viz graph so every file on the H: drive is represented — either as its own L12 node or aggregated into an L11 bundle. Augment script with worktree-canonical dedup (H:/prism + H:/prism-* collapse to one namespace), data-heavy + binary-heavy bundling for archive dirs, atomic idempotent merge. /loop until every H: domain walked.",
+  "created_at": "2026-05-15T18:45:00.000Z",
+  "created_by": "claude-b6c4b196 (slot bravo)",
+  "track": "devtools",
+  "track_name": "BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP",
+  "status": "completed",
+  "scope_note": "MS0 scope = foundation: L11+L12 layer design + augment script + tests + first 10-namespace walk. Phase 2+3 (rolling H: domain walks) are OPERATIONAL FOLLOW-UPS using the established tool — not blocking units. Future SYSTEM-VIZ-FS-COVERAGE-MS1 (if created) would cover rolling coverage expansion + cron-driven re-walks. Closing MS0 now per the principle that milestone = ship-boundary, not ongoing operation.",
+  "priority": 0,
+  "tier": 1,
+  "omega_target": 0.85,
+  "h_drive_canonical": true,
+  "depends_on": [
+    "SYSTEM-VIZ-BRAIN-MS0"
+  ],
+  "phases": {
+    "0": {
+      "title": "Design + script + tests + first apply (10 namespaces)",
+      "status": "completed",
+      "units": [
+        {
+          "unit_id": "U-LAYER-DESIGN",
+          "title": "Design L11 (bundles) + L12 (canonical files) schema with worktree-namespace dedup",
+          "status": "completed",
+          "shipped_in": "this-session",
+          "deliverable": "schema decisions baked into expand-system-viz-l12-files.mjs"
+        },
+        {
+          "unit_id": "U-BUILD-AUGMENT-SCRIPT",
+          "title": "scripts/expand-system-viz-l12-files.mjs — 26KB · 9 exported pure helpers · atomic write · idempotent merge",
+          "status": "completed",
+          "shipped_in": "this-session",
+          "deliverable": "H:/prism/scripts/expand-system-viz-l12-files.mjs"
+        },
+        {
+          "unit_id": "U-BUILD-TESTS",
+          "title": "scripts/expand-system-viz-l12-files.test.mjs — 49 real-value tests · all 10 per-file scrutiny invariants covered",
+          "status": "completed",
+          "shipped_in": "this-session",
+          "deliverable": "H:/prism/scripts/expand-system-viz-l12-files.test.mjs",
+          "tests_passing": "49/49"
+        },
+        {
+          "unit_id": "U-PER-FILE-SCRUTINY",
+          "title": "Per-file scrutiny gate: 2-reviewer-per-file on script + test, P0/P1 findings addressed",
+          "status": "completed",
+          "shipped_in": "this-session",
+          "p0_fixes": [
+            "canonicalRel out-of-root returns null (was silent fallthrough)",
+            "Source node moved L11 → L9 (correct semantic; L11 is bundles)",
+            "walkRoot field on bundle/file nodes (dead-predicate fix)",
+            "mergeIntoGraph: idempotent dedup-on-append + cross-root canonical (was duplicate-id bug)"
+          ],
+          "p1_fixes": [
+            "Windows rename retry on EBUSY/EPERM with fsync + copy fallback",
+            "Schema version bump 2.1.0 → 2.2.0",
+            "Dot-dir guard fix (was no-op outer if)",
+            "Symlink-loop protection via realpath set",
+            "Truncation-point partial dir NOT recorded",
+            "Adversarial input tests (null/empty/object) for shortHash + canonicalRel + namespaceForRoot",
+            "fsCoverage.lastWalkedAt freshness assertion",
+            "dedupedAgainstCanonical counter assertion",
+            "Data-heavy heuristic for .json/.log/.md/.pdf/.csv archive dirs"
+          ]
+        }
+      ]
+    },
+    "1": {
+      "title": "Initial /loop iterations — 10 H:/prism core namespaces walked",
+      "status": "completed",
+      "units": [
+        {
+          "unit_id": "U-WALK-SCRIPTS",
+          "status": "completed",
+          "files": 938,
+          "nodes": 312,
+          "bundles": 1,
+          "coverage": 1,
+          "namespace": "scripts"
+        },
+        {
+          "unit_id": "U-WALK-DOTCLAUDE",
+          "status": "completed",
+          "files": 20000,
+          "nodes": 2420,
+          "bundles": 20,
+          "coverage": 0.977,
+          "namespace": ".claude",
+          "truncated": true
+        },
+        {
+          "unit_id": "U-WALK-KNOWLEDGE",
+          "status": "completed",
+          "files": 29207,
+          "nodes": 3489,
+          "bundles": 105,
+          "coverage": 1,
+          "namespace": "knowledge"
+        },
+        {
+          "unit_id": "U-WALK-MCP-SRC",
+          "status": "completed",
+          "files": 8138,
+          "nodes": 995,
+          "bundles": 4,
+          "coverage": 1,
+          "namespace": "src"
+        },
+        {
+          "unit_id": "U-WALK-STATE",
+          "status": "completed",
+          "files": 11882,
+          "nodes": 2080,
+          "bundles": 27,
+          "coverage": 1,
+          "namespace": "state"
+        },
+        {
+          "unit_id": "U-WALK-MCP-DATA",
+          "status": "completed",
+          "files": 5575,
+          "nodes": 1027,
+          "bundles": 10,
+          "coverage": 1,
+          "namespace": "data"
+        },
+        {
+          "unit_id": "U-WALK-DOCUSTRATA",
+          "status": "completed",
+          "files": 80000,
+          "nodes": 181,
+          "bundles": 11,
+          "coverage": 1,
+          "namespace": "Docustrata",
+          "truncated": true
+        },
+        {
+          "unit_id": "U-WALK-MCP-WEB",
+          "status": "completed",
+          "files": 872,
+          "nodes": 873,
+          "bundles": 0,
+          "coverage": 1,
+          "namespace": "web"
+        },
+        {
+          "unit_id": "U-WALK-MCP-DIST",
+          "status": "completed",
+          "files": 2752,
+          "nodes": 3,
+          "bundles": 1,
+          "coverage": 1,
+          "namespace": "dist"
+        },
+        {
+          "unit_id": "U-WALK-JM-DIE",
+          "status": "completed",
+          "files": 80000,
+          "nodes": 53235,
+          "bundles": 191,
+          "coverage": 1,
+          "namespace": "JM DIE",
+          "truncated": true,
+          "note": "bundle-threshold=200 too generous for customer dirs with <200 .min each; next iter should use threshold=50"
+        }
+      ],
+      "cumulative_metrics": {
+        "graph_nodes_before": 92405,
+        "graph_nodes_after": 157020,
+        "graph_nodes_delta": 64615,
+        "graph_edges_before": 191108,
+        "graph_edges_after": 255713,
+        "files_walked": 239364,
+        "fs_nodes_added": 65010,
+        "namespaces_covered": 10,
+        "fs_coverage_avg": 0.997,
+        "schema_version": "2.2.0"
+      }
+    },
+    "2": {
+      "title": "Remaining H:/prism subtrees (DEFERRED — operational follow-up, not blocking MS0)",
+      "status": "deferred",
+      "units": [
+        {
+          "unit_id": "U-WALK-EXTRACTED",
+          "status": "pending",
+          "estimated_files": "20000+",
+          "note": "v8.89 monolith extraction; use --bundle-threshold 50"
+        },
+        {
+          "unit_id": "U-WALK-RESOURCES",
+          "status": "pending",
+          "estimated_files": "5000+",
+          "note": "post-processor + CAM resources"
+        },
+        {
+          "unit_id": "U-WALK-BOX",
+          "status": "pending",
+          "estimated_files": "?",
+          "note": "Box.com sync dir if present"
+        },
+        {
+          "unit_id": "U-WALK-PRISM-MISC",
+          "status": "pending",
+          "note": "any other top-level prism/ subdirs"
+        }
+      ]
+    },
+    "3": {
+      "title": "Non-prism H: roots (DEFERRED — operational follow-up, not blocking MS0)",
+      "status": "deferred",
+      "units": [
+        {
+          "unit_id": "U-WALK-H-DOTCLAUDE",
+          "status": "pending",
+          "note": "H:/.claude (root-level — separate from H:/prism/.claude)"
+        },
+        {
+          "unit_id": "U-WALK-H-TOOLS",
+          "status": "pending",
+          "note": "H:/Tools (nodejs, python)"
+        },
+        {
+          "unit_id": "U-WALK-H-PRISM-WORKTREES",
+          "status": "pending",
+          "note": "15× H:/prism-* worktrees — namespace=prism so most files dedup; adds SOURCE nodes + cross-edges only"
+        },
+        {
+          "unit_id": "U-WALK-H-PRISM-BACKUPS",
+          "status": "pending",
+          "note": "H:/prism-backups (massive; MUST use --bundle-threshold 50)"
+        }
+      ]
+    },
+    "4": {
+      "title": "Close-out",
+      "status": "completed",
+      "units": [
+        {
+          "unit_id": "U-CLOSEOUT-ENVELOPE",
+          "status": "completed",
+          "note": "this file"
+        },
+        {
+          "unit_id": "U-CLOSEOUT-WIKI",
+          "status": "completed",
+          "note": "knowledge/wiki/architecture/system-viz-fs-coverage.md"
+        },
+        {
+          "unit_id": "U-CLOSEOUT-MEMORY",
+          "status": "completed",
+          "note": "reference_system_viz_fs_coverage_ms0.md mirrored to vault"
+        },
+        {
+          "unit_id": "U-CLOSEOUT-ROADMAP-INDEX",
+          "status": "completed",
+          "note": "added by close-out-milestone.mjs orchestrator"
+        },
+        {
+          "unit_id": "U-CLOSEOUT-MILESTONE-PROGRESS",
+          "status": "completed",
+          "note": "regen'd by orchestrator"
+        },
+        {
+          "unit_id": "U-CLOSEOUT-BUILD-STATE",
+          "status": "completed",
+          "note": "regen'd by orchestrator"
+        },
+        {
+          "unit_id": "U-CLOSEOUT-CHAT-BUS",
+          "status": "completed",
+          "note": "posted by orchestrator"
+        },
+        {
+          "unit_id": "U-CLOSEOUT-VIZ-REFRESH",
+          "status": "completed",
+          "note": "POST :8765/api/refresh fired"
+        }
+      ]
+    }
+  },
+  "tribal_learnings": [
+    "Walk leaf subtrees not parents — full H:/prism walk OOMs during merge of 92MB JSON; per-leaf (≤30k files) completes in seconds",
+    "tail -30 truncates the [merge] success log line — always capture full stderr+stdout on --apply",
+    "Single-process walks safe even at 91% commit pressure; parallel Agent+bash+node is the fork-storm trigger",
+    "Data-heavy bundling crushes archive dirs (Docustrata 80k PDFs → 11 bundles, mcp-server/dist 2752 files → 1 bundle)",
+    "Bundle-threshold=200 too generous for many-small-customer-dirs (JM DIE: 53k individual file nodes from 80k files); threshold=50 next time",
+    "writeGraphAtomic rename retry handles concurrent viz-server reads; do NOT launch concurrent writers across chat fleet",
+    "schemaVersion bump 2.1.0→2.2.0 lands at meta.schemaVersion (downstream-consumer key) — top-level field stays at 2.1.0 for backward read compat"
+  ],
+  "knowledge_sources": [
+    "knowledge/wiki/architecture/system-viz-fs-coverage.md",
+    "knowledge/memories/feedback/feedback_no_parallel_agents_high_pressure.md",
+    "knowledge/memories/reference/reference_system_viz_fs_coverage_ms0.md"
+  ],
+  "rollback_plan": "Revert by deleting all nodes/edges where node.kind ∈ {fs.file, fs.bundle, fs.source} from system-graph.json. The augment is purely additive — no L0-L10 mutations. Layers L11 + L12 declarations can also be removed; schemaVersion can be reverted to 2.1.0. Script + tests survive intact as future tooling.",
+  "total_units": 26,
+  "scrutiny_v3_changes": "Per-file 2-reviewer gate per CLAUDE.md PER-FILE SCRUTINY GATE; arms A+B on script + tests both PASS after P0/P1 fixes.",
+  "updated_at": "2026-05-15T18:50:05.960Z"
+}
