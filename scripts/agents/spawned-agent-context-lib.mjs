@@ -258,15 +258,30 @@ function inferTribalDomain(subagentType) {
  * @returns {{ mi: {tokens, hits}, tribal: {tokens, hits, prefDomain} }}
  */
 function runPerTaskSearches(taskNote, subagentType) {
+  // Kill switch — closes Reviewer C P1 (no escape hatch in spawned-agent
+  // path). `PRISM_SUBAGENT_PER_TASK_INJECT=0` disables both injections
+  // for every spawned subagent; `PRISM_MASTER_INDEX_INJECT=0` also gates
+  // this path so a single env-var disables BOTH the parent prompt and
+  // every subagent.
+  if (
+    process.env.PRISM_SUBAGENT_PER_TASK_INJECT === "0"
+    || process.env.PRISM_MASTER_INDEX_INJECT === "0"
+  ) {
+    return { mi: { tokens: [], hits: [] }, tribal: { tokens: [], hits: [], prefDomain: null } };
+  }
   if (!taskNote || taskNote.length < 6) {
     return { mi: { tokens: [], hits: [] }, tribal: { tokens: [], hits: [], prefDomain: null } };
   }
+  // Per-task top-K — tunable via PRISM_SUBAGENT_PER_TASK_K (default 5).
+  // Clamp [1, 20] to match the parent-prompt hook's clamp.
+  const rawK = Number(process.env.PRISM_SUBAGENT_PER_TASK_K);
+  const topK = Number.isFinite(rawK) ? Math.max(1, Math.min(20, rawK)) : TOP_K_PER_TASK;
   const prefDomain = inferTribalDomain(subagentType);
   let mi = { tokens: [], hits: [] };
   let tribal = { tokens: [], hits: [], prefDomain };
-  try { mi = runMasterIndexSearch(taskNote, { topK: TOP_K_PER_TASK }); } catch { /* fail-safe */ }
+  try { mi = runMasterIndexSearch(taskNote, { topK }); } catch { /* fail-safe */ }
   try {
-    const r = runTribalSearch(taskNote, { topK: TOP_K_PER_TASK, prefDomain });
+    const r = runTribalSearch(taskNote, { topK, prefDomain });
     tribal = { ...r, prefDomain };
   } catch { /* fail-safe */ }
   return { mi, tribal };

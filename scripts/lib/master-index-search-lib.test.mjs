@@ -236,6 +236,59 @@ describe("loadGraph", () => {
     const g2 = loadGraph(GRAPH_PATH);
     assert.notStrictEqual(g1, g2, "mtime change must invalidate cache");
   });
+  it("skips malformed nodes mid-array without aborting the whole load (Reviewer C P0)", () => {
+    // One bad node with non-array wikiEntries — used to crash .map().
+    const badGraph = {
+      nodes: [
+        {
+          id: "engine:Good1",
+          label: "Good1",
+          info: "ok",
+          layer: "L7",
+          status: "built",
+          knowledge: { wikiEntries: [{ name: "good1" }], memoryEntries: [] },
+        },
+        {
+          id: "engine:BadKnowledge",
+          label: "BadKnowledge",
+          info: "broken",
+          layer: "L7",
+          status: "built",
+          knowledge: { wikiEntries: "not-an-array", memoryEntries: { not: "array" } },
+        },
+        {
+          id: "engine:Good2",
+          label: "Good2",
+          info: "ok",
+          layer: "L7",
+          status: "built",
+          knowledge: { wikiEntries: [], memoryEntries: [] },
+        },
+      ],
+    };
+    const badPath = path.join(TMP_DIR, "malformed-mid-array.json");
+    writeFileSync(badPath, JSON.stringify(badGraph));
+    _resetCachesForTests();
+    const g = loadGraph(badPath);
+    assert.ok(g, "load must succeed despite one malformed node");
+    assert.strictEqual(g.nodes.length, 3, "all 3 nodes preserved in nodes list");
+    // Inverted index should still have entries from the GOOD nodes
+    assert.ok(g.inverted.get("good1"), "good1 token must still be indexed");
+    assert.ok(g.inverted.get("good2"), "good2 token must still be indexed");
+  });
+  it("refuses graph files larger than PRISM_GRAPH_MAX_BYTES (Reviewer C P0)", () => {
+    _resetCachesForTests();
+    const origLimit = process.env.PRISM_GRAPH_MAX_BYTES;
+    try {
+      // Set limit to 100 bytes — fixture is way bigger
+      process.env.PRISM_GRAPH_MAX_BYTES = "100";
+      const g = loadGraph(GRAPH_PATH);
+      assert.strictEqual(g, null, "oversized graph must return null");
+    } finally {
+      if (origLimit === undefined) delete process.env.PRISM_GRAPH_MAX_BYTES;
+      else process.env.PRISM_GRAPH_MAX_BYTES = origLimit;
+    }
+  });
 });
 
 // -- searchGraphHits ------------------------------------------------------
@@ -349,6 +402,25 @@ describe("loadTribalIndex", () => {
     const t1 = loadTribalIndex(TRIBAL_PATH);
     const t2 = loadTribalIndex(TRIBAL_PATH);
     assert.strictEqual(t1, t2);
+  });
+  it("skips malformed tribal entries without aborting the whole load (Reviewer C P0)", () => {
+    const badTribal = {
+      schemaVersion: "1.0.0",
+      entries: [
+        { id: "tribal:01", source: "shop", domain: "mill", title: "ok-one", text: "good content" },
+        null,                                                                // bad entry
+        "string-entry-not-object",                                           // bad entry
+        { id: "tribal:02", source: "shop", domain: "lathe", title: "ok-two", text: "more good" },
+      ],
+    };
+    const badPath = path.join(TMP_DIR, "tribal-mixed.json");
+    writeFileSync(badPath, JSON.stringify(badTribal));
+    _resetCachesForTests();
+    const t = loadTribalIndex(badPath);
+    assert.ok(t, "load must succeed despite 2 bad entries");
+    // Only the 2 good entries should index
+    assert.strictEqual(t.entries.length, 2, "only valid entries kept");
+    assert.ok(t.inverted.get("good"), "'good' must be indexed from valid entries");
   });
 });
 
