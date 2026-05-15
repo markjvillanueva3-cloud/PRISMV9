@@ -640,11 +640,52 @@ export const cadLatheTemplatePlaceSchema = z.object({
   dry_run: z.boolean().optional().describe("Do everything except write."),
 });
 
+// MS-PRINT-PROGRAM-LOOP/U-PPL-D4 — CADArchiveJoinAugmenterEngine inputs.
+export const cadArchiveJoinAugmentSchema = z.object({
+  masterIndexPath: z
+    .string()
+    .optional()
+    .describe(
+      "Absolute path to CADFileIndexerEngine master-index.json. Defaults to <cwd>/data/state/cad-file-index/master-index.json.",
+    ),
+  joinJsonlPath: z
+    .string()
+    .optional()
+    .describe(
+      "Path to BlueprintProgramJoinEngine v6 JSONL. Defaults to Docustrata/.index/blueprint-program-join-full-v6.jsonl.",
+    ),
+  triplesJsonlPath: z
+    .string()
+    .optional()
+    .describe("Optional training-triples-v4.jsonl path (forwarded to loadJoinIndex)."),
+  maxLineBytes: z
+    .number()
+    .int()
+    .positive()
+    .optional()
+    .describe("Per-line byte cap when streaming the join JSONL. Default 4 MiB."),
+  millOnly: z
+    .boolean()
+    .optional()
+    .describe(
+      "When true, reject CAD entries whose machineCategory is not in {mill, hurco, hypermill}. Default false (include all categories).",
+    ),
+  formats: z
+    .array(z.string())
+    .optional()
+    .describe(
+      "Optional override of the format allowlist. Defaults to MILL_PROGRAM_FORMATS (.ipt/.iam/.f3d/.f3z/.sldprt/.sldasm).",
+    ),
+});
+
 /**
  * Action schemas for prism_cad dispatcher.
  * Maps action name to Zod schema for validation.
  */
 export const ACTION_CAD_SCHEMAS: Record<string, z.ZodType<any>> = {
+  // MS-PRINT-PROGRAM-LOOP/U-PPL-D4
+  cad_archive_join_augment: cadArchiveJoinAugmentSchema,
+  cad_archive_join_augment_dry: cadArchiveJoinAugmentSchema,
   // Geometry
   geometry_create: geometryCreateSchema,
   geometry_transform: geometryTransformSchema,
