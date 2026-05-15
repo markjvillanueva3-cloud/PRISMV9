@@ -405,6 +405,40 @@ const error_remediation_known_errors = z.object({
 }).passthrough();
 
 // ============================================================================
+// OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-ALARM-ESCALATION (7 actions)
+// Wires AlarmEscalationEngine (RT-MS2 Real-Time Notifications, 264 LOC,
+// was orphan in BUILD_STATE.NEEDS_WIRING). Live-state alarm trigger →
+// acknowledge → resolve pipeline with timed escalation. Distinct from
+// AlarmIntelligenceEngine (alarm_intel_*) which is the HBK-MS3 handbook
+// lookup surface — this is the live-state escalation pipeline.
+// ============================================================================
+
+const alarm_esc_trigger = z.object({
+  rule_id: z.string().min(1).describe("Alarm rule id (e.g., SPINDLE_OVERLOAD, TOOL_LIFE_LOW, MACHINE_CRASH)"),
+  source: z.string().min(1).describe("Alarm source (e.g., 'machine:haas-vf2')"),
+  message: z.string().min(1).describe("Human-readable alarm message"),
+  details: z.record(z.string(), z.unknown()).optional().describe("Optional structured details (sensor readings, context)"),
+}).passthrough();
+const alarm_esc_acknowledge = z.object({
+  alarm_id: z.string().min(1).describe("Alarm id (format: ALM-NNNNNN)"),
+  user_id: z.string().min(1).describe("Operator/user id taking ownership"),
+}).passthrough();
+const alarm_esc_resolve = z.object({
+  alarm_id: z.string().min(1).describe("Alarm id to resolve"),
+}).passthrough();
+const alarm_esc_active = z.object({
+  severity: z.enum(["info", "warn", "critical", "emergency"]).optional()
+    .describe("Filter by severity"),
+  source: z.string().optional().describe("Filter by source (substring match)"),
+}).passthrough();
+const alarm_esc_history = z.object({
+  limit: z.number().int().positive().max(1000).optional()
+    .describe("Cap returned alarms (default 50, max 1000)"),
+}).passthrough();
+const alarm_esc_rules = z.object({}).passthrough();
+const alarm_esc_stats = z.object({}).passthrough();
+
+// ============================================================================
 // EXPORT MAP
 // ============================================================================
 
@@ -455,4 +489,12 @@ export const DIAGNOSIS_ACTION_SCHEMAS: ActionSchemaMap = {
   error_remediation_suggest,
   error_remediation_apply,
   error_remediation_known_errors,
+  // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-ALARM-ESCALATION (7)
+  alarm_esc_trigger,
+  alarm_esc_acknowledge,
+  alarm_esc_resolve,
+  alarm_esc_active,
+  alarm_esc_history,
+  alarm_esc_rules,
+  alarm_esc_stats,
 };
