@@ -453,6 +453,12 @@
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/autonomous-loop-watchdog.mjs",
             "timeout": 3000,
             "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER11 — Tier-0 Stop hook for autonomous yolo-mode runs. Detects runaway /loop iterations + signals stop-condition violations. Silent on normal Stops. Was orphan in ORPHAN-HOOKS-2026-05-15.json."
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/bash-orphan-cleaner.mjs",
+            "timeout": 9000,
+            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER20 — Tier-4 Stop hook. Reaps orphan bash.exe descendants of THIS claude.exe (peer-safe ppid scoping). Skips bash.exe with live children (protects background tasks) + <60s old (protects in-flight Bash tool calls). Caps 20 kills/run. Knob: PRISM_BASH_CLEANUP=0. Was orphan in ORPHAN-HOOKS-2026-05-15.json."
           }
         ]
       }
@@ -687,6 +693,18 @@
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/asset-deletion-block.mjs",
             "timeout": 2500,
             "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER18 — Tier-1 PreToolUse(Bash) asset-deletion gate. HARD-BLOCKS rm -rf / rmdir / del /fqs / Remove-Item / fs.rm / unlinkSync targeting protected paths (.claude/hooks/, .claude/commands/, .claude/scripts/, .claude/settings, engines/, dispatchers/, schemas/, __tests__/, JM DIE/, Resources/). Bash branch of dual-fire (Edit branch wired at Pre[3]). Enforces 'never delete only disable' rule from [[feedback_never_delete_only_disable]]. continueOnError. Was orphan in ORPHAN-HOOKS-2026-05-15.json."
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/auto-fork-executor.mjs",
+            "timeout": 5000,
+            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER20 — Tier-0 PreToolUse(Bash) auto-fork executor for `git commit`. When worktree-commit-route would BLOCK with a printed `git worktree add ...` instruction, this hook actually EXECUTES the fork (spawnSync git worktree add + git stash push -u) and blocks the commit with one-shot retry-from-new-tree instructions. Saves the multi-chat conflict-fork-rule cycle from being parsed wrong / skipped under context pressure. Knob: PRISM_AUTO_FORK=0. Was orphan in ORPHAN-HOOKS-2026-05-15.json."
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/bash-result-cache.mjs",
+            "timeout": 2000,
+            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER20 — Tier-1 PreToolUse(Bash) cache for read-only idempotent commands. Whitelist: git log/diff/show/status/branch/blame, ls, wc, du, stat, file, pwd, whoami, date. Rejects any with side-effect primitives (>, >>, |, &&, ||, ;, &, $(), rm, cp, mv, etc). 3-min TTL. Cache key = sessionId + cmd + cwd. On hit, denies with cached digest. Token-saver for repeat probes. Was orphan in ORPHAN-HOOKS-2026-05-15.json."
           }
         ]
       },
