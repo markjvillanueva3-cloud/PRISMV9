@@ -22,6 +22,7 @@ import {
   cooldownFile,
   shouldFire,
   runBridge,
+  telemetryRecordFor,
 } from "../system-viz-live-bridge.mjs";
 
 let TMP;
@@ -153,5 +154,70 @@ describe("runBridge — end to end (postFn injected, never hits the network)", (
     const r = await runBridge({ stdin: { tool_name: "NotebookEdit", tool_input: { path: "notebooks/x.ipynb" }, session_id: "nb" }, env: envFor(), now: 1.1e7, postFn: fn });
     expect(r.fired).toBe(true);
     expect(list.length).toBe(1);
+  });
+});
+
+describe("telemetryRecordFor — viz-down is an expected state, not an error", () => {
+  // Regression fix: the optional /system-viz dev server being off must NOT produce an
+  // `error:"TypeError"` line in hook-telemetry.jsonl. That was the dominant recurring
+  // "hook error" fleet-wide — one per session per 5-min backoff window, on every chat.
+  const stdin = { tool_input: { file_path: "H:/prism/mcp-server/src/engines/X.ts" }, session_id: "s1" };
+
+  it("not fired (cooldown / backoff / irrelevant path) → null, nothing logged", () => {
+    expect(telemetryRecordFor({ fired: false, reason: "within client cooldown" }, stdin)).toBe(null);
+    expect(telemetryRecordFor(null, stdin)).toBe(null);
+    expect(telemetryRecordFor(undefined, stdin)).toBe(null);
+  });
+
+  it("viz-not-running — fetch TypeError (ECONNREFUSED, server off) → null, NOT logged as an error", () => {
+    expect(telemetryRecordFor({ fired: true, post: { ok: false, error: "TypeError" } }, stdin)).toBe(null);
+  });
+
+  it("viz-not-running — AbortError / TimeoutError (viz too slow) → null", () => {
+    expect(telemetryRecordFor({ fired: true, post: { ok: false, error: "AbortError" } }, stdin)).toBe(null);
+    expect(telemetryRecordFor({ fired: true, post: { ok: false, error: "TimeoutError" } }, stdin)).toBe(null);
+  });
+
+  it("pinged — viz answered 200 → logged as 'pinged' with file+session and the full post payload", () => {
+    const r = telemetryRecordFor({ fired: true, post: { ok: true, httpStatus: 200, status: "started" } }, stdin);
+    expect(r).toEqual({
+      event: "pinged",
+      post: { ok: true, httpStatus: 200, status: "started" },
+      file: "H:/prism/mcp-server/src/engines/X.ts",
+      session: "s1",
+    });
+  });
+
+  it("ping-failed — viz is UP but returned HTTP 5xx (a genuine fault) → STILL logged", () => {
+    const r = telemetryRecordFor({ fired: true, post: { ok: false, httpStatus: 503 } }, stdin);
+    expect(r).toEqual({
+      event: "ping-failed",
+      post: { ok: false, httpStatus: 503 },
+      file: "H:/prism/mcp-server/src/engines/X.ts",
+      session: "s1",
+    });
+  });
+
+  it("missing / null stdin → record still builds with null file+session, never throws", () => {
+    expect(telemetryRecordFor({ fired: true, post: { ok: true } }, {})).toEqual({
+      event: "pinged", post: { ok: true }, file: null, session: null,
+    });
+    expect(telemetryRecordFor({ fired: true, post: { ok: true } }, null)).toEqual({
+      event: "pinged", post: { ok: true }, file: null, session: null,
+    });
+  });
+
+  it("malformed post — bare {} from adversarial postFn → null, NOT bogus ping-failed", () => {
+    // Scrutiny finding (Arm C, 2026-05-14): a custom postFn returning {} (no ok, no error)
+    // would previously have fallen through to `event:"ping-failed"` with an empty payload —
+    // pollution of the failure channel with non-diagnostic noise. Explicit null fix.
+    expect(telemetryRecordFor({ fired: true, post: {} }, stdin)).toBe(null);
+  });
+
+  it("malformed post — undefined / null post while fired → null, never throws", () => {
+    // defaultPost never returns undefined, but a custom postFn that throws-then-catches
+    // upstream could. Guard against it explicitly rather than fall through to ping-failed.
+    expect(telemetryRecordFor({ fired: true, post: undefined }, stdin)).toBe(null);
+    expect(telemetryRecordFor({ fired: true, post: null }, stdin)).toBe(null);
   });
 });

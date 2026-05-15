@@ -155,6 +155,53 @@ export async function runBridge({ stdin, env = process.env, now = Date.now(), po
   return { fired: true, reason: "ok", post };
 }
 
+/**
+ * Pure: build the hook-telemetry.jsonl record for a runBridge result — or null to log nothing.
+ *
+ * `viz-not-running` (the optional /system-viz dev server simply isn't up — a fetch-level
+ * TypeError/AbortError) is the EXPECTED steady state of an optional tool, not an error.
+ * Logging it was the dominant recurring `error:"TypeError"` line in hook-telemetry.jsonl
+ * (one per session per 5-min backoff window, fleet-wide) — so it is no longer logged at all.
+ * `pinged` (viz answered) and `ping-failed` (viz is UP but returned a real HTTP 4xx/5xx —
+ * a genuine fault) are still logged.
+ *
+ * Why no longer logged at all (vs the prior `event:"viz-not-running"` info classification
+ * documented in CLAUDE.md's recent-regressions log): even an info-level row was still
+ * 1 record per session per 5-min backoff window across the fleet — pure noise for an
+ * optional dev tool. The per-session `.down` sidecar (`viz-live-bridge-<sid>.down`)
+ * stores the backoff-until epoch; operators can `ls -la` the sidecar (or check its mtime)
+ * to see when viz was last detected down. The sidecar is intentionally minimal — for
+ * richer viz-down forensics, check the /system-viz dev server's own logs.
+ * `scripts/hook-health-check.mjs` still has `viz-not-running` in its `NEUTRAL_EVENTS` set
+ * to correctly classify historical JSONL rows written before this fix.
+ *
+ * Decision table:
+ *   res falsy / not fired           → null  (cooldown / backoff / irrelevant path)
+ *   post falsy or empty {}          → null  (malformed poster injection — never produced
+ *                                            by defaultPost; guards against adversarial
+ *                                            custom postFn returning a bare {})
+ *   post.ok === true                → "pinged" record
+ *   post.error set                  → null  (viz off / unreachable — expected)
+ *   post.ok === false (HTTP fault)  → "ping-failed" record
+ *
+ * @returns {object|null} telemetry record to append, or null when nothing should be logged.
+ */
+export function telemetryRecordFor(res, stdin) {
+  if (!res || !res.fired) return null;
+  const post = res.post;
+  const file = stdin?.tool_input?.file_path ?? null;
+  const session = stdin?.session_id ?? null;
+  // Malformed post (undefined, null, or bare {} from a custom postFn) ⇒ don't log.
+  // defaultPost always returns {ok:true,...} or {ok:false,httpStatus} or {ok:false,error}.
+  // A post with NO ok AND NO error is non-diagnostic noise — never emit ping-failed for it.
+  if (!post || (post.ok === undefined && post.error === undefined)) return null;
+  if (post.ok) return { event: "pinged", post, file, session };
+  // Fetch-level exception (post.error set) ⇒ viz server not running — expected, don't log.
+  if (post.error) return null;
+  // post.ok === false with NO error field ⇒ a real HTTP failure from a server that IS up.
+  return { event: "ping-failed", post, file, session };
+}
+
 async function main() {
   let stdin = null;
   try {
@@ -168,14 +215,10 @@ async function main() {
   try { res = await runBridge({ stdin }); }
   catch { return process.stdout.write(JSON.stringify({ continue: true })); }
 
-  if (res.fired) {
-    // pinged = ok · viz-not-running = any fetch exception (off/slow, expected) · ping-failed = real HTTP failure
-    let event;
-    if (res.post && res.post.ok) event = "pinged";
-    else if (res.post && res.post.error) event = "viz-not-running";
-    else event = "ping-failed";
-    telemetry(process.env, { event, post: res.post, file: stdin?.tool_input?.file_path ?? null, session: stdin?.session_id ?? null });
-  }
+  // viz-not-running (the optional dev server is off) is an expected state, not an error —
+  // telemetryRecordFor returns null for it, so it never reaches hook-telemetry.jsonl.
+  const rec = telemetryRecordFor(res, stdin);
+  if (rec) telemetry(process.env, rec);
   // Always continue — this hook is a pure side-effect notifier; it never blocks or nudges.
   process.stdout.write(JSON.stringify({ continue: true }));
 }
