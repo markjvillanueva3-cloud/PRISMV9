@@ -473,7 +473,7 @@ async function getEngine(name: string): Promise<any> {
     case "metaLearning":
       return _ppMetaLearning ??= (await import("../../engines/PostProcessorMetaLearningEngine.js")).postProcessorMetaLearningEngine;
     case "feedOptimizer":
-      return _ppFeedOptimizer ??= (await import("../../engines/PostProcessorFeedOptimizerEngine.js")).postProcessorFeedOptimizerEngine;
+      return _ppFeedOptimizer ??= (await import("../../engines/PostProcessorFeedOptimizerEngine.js")).postProcessorFeedOptimizer;
     case "generator":
       return _ppGenerator ??= (await import("../../engines/PostProcessorGeneratorEngine.js")).postProcessorGeneratorEngine;
     case "api":
@@ -491,7 +491,7 @@ async function getEngine(name: string): Promise<any> {
     case "mfgKnowledgeGraph":
       return _mfgKnowledgeGraph ??= (await import("../../engines/ManufacturingKnowledgeGraphEngine.js")).manufacturingKnowledgeGraphEngine;
     case "knowledgeGraph":
-      return _knowledgeGraph ??= (await import("../../engines/KnowledgeGraphEngine.js")).knowledgeGraphEngine;
+      return _knowledgeGraph ??= (await import("../../engines/KnowledgeGraphEngine.js")).knowledgeGraph;
 
     // Tribal Knowledge Activation (PP-TRIBAL-ACTIVATION)
     case "tribalActivation":

@@ -1267,6 +1267,84 @@ const asset_calibration_due = z.object({
 }).passthrough();
 
 // ============================================================================
+// PREVENTIVE MAINTENANCE (9) — OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-PM
+// ============================================================================
+
+const pmPartSchema = z.object({
+  part_name: z.string().describe("Part name"),
+  part_number: z.string().describe("Manufacturer part number"),
+  quantity: z.number().int().nonnegative().describe("Quantity required"),
+  unit_cost: z.number().nonnegative().describe("Unit cost in USD"),
+});
+
+const pm_schedule_create = z.object({
+  machine_id: z.string().describe("Machine identifier"),
+  machine_name: z.string().describe("Human-readable machine name"),
+  task_name: z.string().describe("PM task title (e.g. 'Oil change')"),
+  trigger_type: z.enum(["calendar", "hours"]).describe("Schedule trigger"),
+  interval_days: z.number().int().positive().optional()
+    .describe("Calendar interval (required when trigger_type='calendar')"),
+  interval_hours: z.number().positive().optional()
+    .describe("Hours interval (required when trigger_type='hours')"),
+  last_completed_at: z.string().optional().describe("ISO timestamp of last completion"),
+  last_completed_hours: z.number().nonnegative().optional()
+    .describe("Machine hours at last completion"),
+  parts_list: z.array(pmPartSchema).optional().describe("Parts required for this task"),
+  estimated_duration_min: z.number().nonnegative().describe("Estimated duration in minutes"),
+  instructions: z.string().describe("Task instructions"),
+}).passthrough();
+
+const pm_schedule_list = z.object({
+  machine_id: z.string().optional().describe("Filter by machine id"),
+  overdue_only: z.boolean().optional().describe("Only return overdue schedules"),
+}).passthrough();
+
+const pm_schedule_is_due = z.object({
+  schedule_id: z.string().describe("Schedule id to check"),
+  current_hours: z.number().nonnegative().optional()
+    .describe("Current machine hours (needed for hours-trigger schedules)"),
+}).passthrough();
+
+const pm_work_order_generate = z.object({
+  schedule_id: z.string().describe("Parent PM schedule id"),
+  scheduled_date: z.string().describe("ISO date when the WO should run"),
+}).passthrough();
+
+const pm_work_order_complete = z.object({
+  work_order_id: z.string().describe("Work order id"),
+  labor_hours: z.number().nonnegative().describe("Actual labor hours spent"),
+  notes: z.string().optional().describe("Completion notes"),
+  parts_used: z.array(pmPartSchema).optional().describe("Actual parts consumed (overrides parts_list)"),
+}).passthrough();
+
+const pm_overdue_alerts = z.object({
+  current_machine_hours: z.record(z.string(), z.number().nonnegative()).optional()
+    .describe("Machine id → current hours map (for hours-based schedules)"),
+}).passthrough();
+
+const pm_downtime_record = z.object({
+  machine_id: z.string().describe("Machine identifier"),
+  type: z.enum(["scheduled", "unscheduled"]).describe("Downtime type"),
+  started_at: z.string().describe("ISO timestamp of downtime start"),
+  ended_at: z.string().optional().describe("ISO timestamp of downtime end (open if undefined)"),
+  duration_min: z.number().nonnegative().optional().describe("Computed automatically from started_at+ended_at if absent"),
+  work_order_id: z.string().optional().describe("Associated work order (if any)"),
+  cause: z.string().optional().describe("Free-text cause"),
+}).passthrough();
+
+const pm_work_order_list = z.object({
+  status: z.enum(["open", "in_progress", "complete", "cancelled"]).optional()
+    .describe("Filter by WO status"),
+  machine_id: z.string().optional().describe("Filter by machine"),
+  assigned_to: z.string().optional().describe("Filter by assignee"),
+}).passthrough();
+
+const pm_work_order_assign = z.object({
+  work_order_id: z.string().describe("Work order id"),
+  assigned_to: z.string().describe("Operator/technician id"),
+}).passthrough();
+
+// ============================================================================
 // CUSTOMER MANAGEMENT (14)
 // ============================================================================
 
@@ -2203,6 +2281,16 @@ export const ACTION_BUSINESS_SCHEMAS: ActionSchemaMap = {
   asset_list,
   asset_transfer,
   asset_calibration_due,
+  // Preventive Maintenance (OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-PM)
+  pm_schedule_create,
+  pm_schedule_list,
+  pm_schedule_is_due,
+  pm_work_order_generate,
+  pm_work_order_complete,
+  pm_overdue_alerts,
+  pm_downtime_record,
+  pm_work_order_list,
+  pm_work_order_assign,
   // Customer Management
   customer_create,
   customer_get,
