@@ -157,7 +157,13 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "tcb_can_batch",
 "tcb_stats",
 "tcb_summary",
-"tcb_reset"] as const;
+"tcb_reset",
+// OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-DATA-VALIDATION: wire DataValidationEngine
+// (DQ-MS1 data quality pipeline — validates materials, cutting params, jobs).
+"dv_validate_material",
+"dv_validate_cutting_params",
+"dv_validate_job",
+"dv_stats"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -5191,6 +5197,28 @@ export function registerDevDispatcher(server: any): void {
             const { toolCallBatchEngine } = await import("../../engines/ToolCallBatchEngine.js");
             toolCallBatchEngine.reset();
             result = { success: true, reset: true };
+            break;
+          }
+
+          // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-DATA-VALIDATION: DataValidationEngine wire (2026-05-15)
+          case "dv_validate_material": {
+            const { dataValidationEngine } = await import("../../engines/DataValidationEngine.js");
+            result = { success: true, validation: dataValidationEngine.validateMaterial(params) };
+            break;
+          }
+          case "dv_validate_cutting_params": {
+            const { dataValidationEngine } = await import("../../engines/DataValidationEngine.js");
+            result = { success: true, validation: dataValidationEngine.validateCuttingParams(params) };
+            break;
+          }
+          case "dv_validate_job": {
+            const { dataValidationEngine } = await import("../../engines/DataValidationEngine.js");
+            result = { success: true, validation: dataValidationEngine.validateJob(params) };
+            break;
+          }
+          case "dv_stats": {
+            const { dataValidationEngine } = await import("../../engines/DataValidationEngine.js");
+            result = { success: true, stats: dataValidationEngine.stats() };
             break;
           }
 
