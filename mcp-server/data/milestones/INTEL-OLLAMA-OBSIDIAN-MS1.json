@@ -1,0 +1,1428 @@
+{
+  "id": "INTEL-OLLAMA-OBSIDIAN-MS1",
+  "version": "1.0.0",
+  "title": "Multi-Agent Sovereignty — Codex Plugin + Obsidian Skills + Octopus Consensus + Ollama-qwen + H-drive Roadmap Home",
+  "brief": "Wire openai/codex-plugin-cc (Apache-2.0) + kepano/obsidian-skills (MIT) + nyldn/claude-octopus consensus pattern (MIT) into PRISM as a unified multi-agent dev/review surface. Codex plans + Claude builds + ollama-qwen offloads cheap classification + 5-provider 75% consensus gate fires on shop_floor-tier edits. Foundation phase (P0) enforces that every roadmap/milestone/position file lives on H: so every chat and every machine follows the same canonical plan. Knowledge sources: YouTube videos Fu5KIG2Jm1g (Run Together) + RChO5deJ_fE (Plan Together), repo READMEs, existing INTEL-OLLAMA-OBSIDIAN-MS0 substrate.",
+  "created_at": "2026-04-28T00:00:00Z",
+  "created_by": "claude-cba638c3 via /rgs generate (3-agent scrutiny variant)",
+  "track": "INFRA",
+  "track_name": "Multi-Agent Sovereignty + Cross-Machine Plan Persistence",
+  "status": "in_progress",
+  "priority": "HIGH",
+  "tier": "dev-infra",
+  "omega_target": 0.9,
+  "omega_floor_per_phase": 0.9,
+  "estimated_sessions_p50": 10,
+  "estimated_sessions_p90": 14,
+  "depends_on": [
+    "INTEL-OLLAMA-OBSIDIAN-MS0",
+    "LOCAL-LLM-MS0"
+  ],
+  "h_drive_canonical": true,
+  "knowledge_sources": {
+    "engines": [
+      "ModelRoutingEngine — gpt-5-codex catalog entry (line 261)",
+      "PRISMSelfAwarenessEngine — multi-agent strategy",
+      "MultiAgentAIInterfaceEngine — provider routing",
+      "OllamaHookBridgeEngine — local-LLM plumbing",
+      "QdrantMemoryEngine — wiki vector store (from MS0)",
+      "DuplicationGuardEngine — must check before any new asset"
+    ],
+    "directives": [
+      "state/shared/CLAUDE-CODEX-MCP-DIRECTIVE.md",
+      "state/shared/CLAUDE-CODEX-COORDINATION-DIRECTIVE.md",
+      "state/shared/CLAUDE-CODEX-COMMAND-BRIDGE.md",
+      "state/shared/CLAUDE-CODEX-SPAWNED-AGENT-DIRECTIVE.md",
+      ".codex/AGENTS.md"
+    ],
+    "external": [
+      "https://github.com/openai/codex-plugin-cc (Apache-2.0)",
+      "https://github.com/kepano/obsidian-skills (MIT)",
+      "https://github.com/nyldn/claude-octopus (MIT)",
+      "YouTube Fu5KIG2Jm1g — Run Claude AND Codex Together",
+      "YouTube RChO5deJ_fE — Make Claude + Codex Plan Together"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — consult before persona prompt design",
+      "MachiningPlaybookEngine — anti-patterns for safety-critical edits"
+    ]
+  },
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Foundation — H-Drive Roadmap Home Enforcement",
+      "rationale": "Every downstream phase produces or modifies plan files. Without H-drive enforcement, roadmaps drift to C:/ on one machine and never reach the other. Land this BEFORE any other unit so every artifact in P1-P4 is born on H:.",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "PreToolUse hook pre-write-roadmap-home.mjs blocks roadmap writes outside H:",
+          "effort": 30,
+          "dependencies": [],
+          "exit_conditions": [
+            "Hook deny-blocks Write/Edit/MultiEdit to non-H: paths matching ROADMAP_FILE_RE or milestones/ directory",
+            "Hook allows H:/ paths and non-roadmap paths",
+            "5 smoke-test cases pass (block C: roadmap, allow H: roadmap, allow C: non-roadmap, block C: milestones/, lowercase variants)",
+            "Wired in H:/.claude/settings.json under PreToolUse Edit|Write|MultiEdit matcher"
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/hooks/pre-write-roadmap-home.mjs",
+              "type": "hook",
+              "description": "PreToolUse hook enforcing H-drive home for roadmap files"
+            }
+          ],
+          "tools": [
+            "Write",
+            "Bash for smoke test"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "Remove hook entry from settings.json + move hook file to .claude/hooks/.deprecated/",
+          "status": "complete",
+          "closed_at": "2026-05-15T19:13:39.288Z",
+          "closed_by": "claude-a2b1b5ca (post-compact drift-close)",
+          "close_evidence": {
+            "method": "git-log-grep",
+            "commits": [
+              "62f611111",
+              "a70f1c18f",
+              "19d743b21"
+            ],
+            "commit_count": 10,
+            "audit_unit_id": "P0-U01"
+          }
+        },
+        {
+          "id": "P0-U02",
+          "title": "Stop hook stop_on_non_h_roadmap.mjs scans well-known C:/D: locations for orphan roadmaps",
+          "effort": 30,
+          "dependencies": [
+            "P0-U01"
+          ],
+          "exit_conditions": [
+            "Hook scans C:/Users/*/Desktop, Documents, C:/temp, D:/temp",
+            "Hook returns continue:false with violation list when orphans exist",
+            "Hook fails-open on errors (never breaks Stop)",
+            "Wired in H:/.claude/settings.json under Stop hooks list"
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/hooks/stop_on_non_h_roadmap.mjs",
+              "type": "hook",
+              "description": "Stop hook scanning for roadmap files outside H:"
+            }
+          ],
+          "tools": [
+            "Write",
+            "Bash for smoke test"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "Remove hook entry from settings.json + move hook file to .claude/hooks/.deprecated/",
+          "status": "complete",
+          "closed_at": "2026-05-15T19:13:39.288Z",
+          "closed_by": "claude-a2b1b5ca (post-compact drift-close)",
+          "close_evidence": {
+            "method": "git-log-grep",
+            "commits": [
+              "8004569cd",
+              "305bb8e33",
+              "76371bd68"
+            ],
+            "commit_count": 10,
+            "audit_unit_id": "P0-U02"
+          }
+        },
+        {
+          "id": "P0-U03",
+          "title": "Tests + sweep: scan workspace for existing orphan roadmaps and migrate them",
+          "effort": 45,
+          "dependencies": [
+            "P0-U02"
+          ],
+          "exit_conditions": [
+            "Vitest test suite covers ROADMAP_FILE_RE with 12 cases (positive + negative + lowercase + MS-envelope + filename + directory)",
+            "Test suite covers H_HOME_RE with C:/, D:/, /c/, /mnt/c/ negative cases and H:/, /h/, /mnt/h/ positive cases",
+            "One-shot migration script reports zero orphans on H:/ AND on C:/ scan roots after run"
+          ],
+          "deliverables": [
+            {
+              "path": "mcp-server/src/__tests__/RoadmapHomeEnforcement.test.ts",
+              "type": "test",
+              "description": "Vitest suite for both hooks' regex + behavior"
+            },
+            {
+              "path": "scripts/sweep-orphan-roadmaps.mjs",
+              "type": "script",
+              "description": "One-shot migration: list-and-move orphan roadmaps from C:/D: to H:/"
+            }
+          ],
+          "tools": [
+            "Write",
+            "vitest"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "Delete test file + script; revert any moved files via git reflog if migration was run",
+          "status": "complete",
+          "closed_at": "2026-05-15T19:13:39.288Z",
+          "closed_by": "claude-a2b1b5ca (post-compact drift-close)",
+          "close_evidence": {
+            "method": "git-log-grep",
+            "commits": [
+              "a84aefd3d",
+              "8004569cd",
+              "305bb8e33"
+            ],
+            "commit_count": 10,
+            "audit_unit_id": "P0-U03"
+          }
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Codex Plugin Integration — Plan, Delegate, Review through openai/codex-plugin-cc",
+      "rationale": "User has a paid Codex subscription. The plugin's /codex:rescue + /codex:review + /codex:adversarial-review give Claude a same-machine bridge to GPT-5/Codex via the user's local codex login (no separate API key). Independent error sampling between two model families is the core mechanism that makes shop_floor (Ω≥0.95) achievable.",
+      "sessions": "2",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "Install codex-plugin-cc + verify auth shares with .codex/AGENTS.md / codex login",
+          "effort": 30,
+          "dependencies": [
+            "P0-U02"
+          ],
+          "exit_conditions": [
+            "Plugin installed via /plugin marketplace add openai/codex-plugin-cc + /plugin install codex@openai-codex",
+            "/codex:setup reports auth OK (shared with existing codex login)",
+            "/codex:status returns valid empty job list",
+            "Posted result to AGENT_CHAT.md so Codex CLI session sees the plugin is live"
+          ],
+          "deliverables": [
+            {
+              "path": "state/shared/CODEX-PLUGIN-CC-INSTALL.md",
+              "type": "doc",
+              "description": "Install transcript + auth verification log + recovery commands"
+            }
+          ],
+          "tools": [
+            "/plugin marketplace add",
+            "/codex:setup",
+            "/codex:status"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "/plugin uninstall codex@openai-codex",
+          "status": "complete",
+          "closed_at": "2026-05-15T19:13:39.288Z",
+          "closed_by": "claude-a2b1b5ca (post-compact drift-close)",
+          "close_evidence": {
+            "method": "git-log-grep",
+            "commits": [
+              "3746eab34",
+              "0c3420f11"
+            ],
+            "commit_count": 2,
+            "audit_unit_id": "P1-U01"
+          }
+        },
+        {
+          "id": "P1-U02",
+          "title": "Build PRISMCodexBridgeEngine — wraps /codex:rescue with safety-tier metadata",
+          "effort": 90,
+          "dependencies": [
+            "P1-U01"
+          ],
+          "exit_conditions": [
+            "Engine class with static methods, JSDoc, AtomicValue-style returns",
+            "Maps PRISM safety_tier → Codex {model, reasoning_effort} (shop_floor → gpt-5+high, sim → gpt-5-mini+low)",
+            "Test: 4 tier combinations validate parameter selection against published Codex docs",
+            "Companion test file in src/__tests__/"
+          ],
+          "deliverables": [
+            {
+              "path": "mcp-server/src/engines/PRISMCodexBridgeEngine.ts",
+              "type": "engine",
+              "description": "Tier-aware Codex delegation wrapper"
+            },
+            {
+              "path": "mcp-server/src/__tests__/PRISMCodexBridgeEngine.test.ts",
+              "type": "test",
+              "description": "Tier mapping + boundary cases"
+            }
+          ],
+          "tools": [
+            "Write",
+            "vitest",
+            "duplicationGuardEngine.mustCheckBeforeCreating()"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "Delete engine + test files; no dispatcher wiring yet so no cascade",
+          "status": "complete",
+          "closed_at": "2026-05-15T19:13:39.288Z",
+          "closed_by": "claude-a2b1b5ca (post-compact drift-close)",
+          "close_evidence": {
+            "method": "git-log-grep",
+            "commits": [
+              "c3f3576af",
+              "ae5b0b05e"
+            ],
+            "commit_count": 2,
+            "audit_unit_id": "P1-U02"
+          }
+        },
+        {
+          "id": "P1-U03",
+          "title": "Wire prism_orchestrate:codex_delegate + codex_review actions",
+          "effort": 60,
+          "dependencies": [
+            "P1-U02"
+          ],
+          "exit_conditions": [
+            "Two new actions in orchestrateDispatcher.ts z.enum",
+            "Schemas validate (taskDescription, tier, files?) for delegate; (filesChanged, mode='standard'|'adversarial') for review",
+            "Round-trip dispatcher → engine → Codex CLI → response test passes",
+            "Action descriptions surface in MCP tool listing"
+          ],
+          "deliverables": [
+            {
+              "path": "mcp-server/src/tools/dispatchers/orchestrateDispatcher.ts",
+              "type": "source",
+              "description": "Add codex_delegate + codex_review actions"
+            },
+            {
+              "path": "mcp-server/src/schemas/orchestrateActionSchemas.ts",
+              "type": "source",
+              "description": "Add Zod schemas"
+            },
+            {
+              "path": "mcp-server/src/__tests__/CodexBridgeDispatcher.test.ts",
+              "type": "test",
+              "description": "Round-trip dispatcher test"
+            }
+          ],
+          "tools": [
+            "Edit",
+            "vitest"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "git revert dispatcher + schema edits; delete test",
+          "status": "complete",
+          "closed_at": "2026-05-15T19:13:39.288Z",
+          "closed_by": "claude-a2b1b5ca (post-compact drift-close)",
+          "close_evidence": {
+            "method": "git-log-grep",
+            "commits": [
+              "48293537d",
+              "cc8826199"
+            ],
+            "commit_count": 2,
+            "audit_unit_id": "P1-U03"
+          }
+        },
+        {
+          "id": "P1-U04",
+          "title": "Replace Stop-hook scrutiny with /codex:adversarial-review when plugin is available",
+          "effort": 60,
+          "dependencies": [
+            "P1-U03"
+          ],
+          "exit_conditions": [
+            "scrutinize-before-stop.mjs detects plugin presence and prefers Codex adversarial review",
+            "Falls back to existing Claude reviewer-subagent if plugin absent",
+            "Scrutiny ledger entry records which family ran the review",
+            "Smoke test (4 cases): (a) stage a known-bad change containing a stub return → Codex review output asserted to contain 'stub' OR 'placeholder' verdict; (b) stage a known-good change → review output asserted to contain 'PASS' verdict; (c) plugin uninstalled → fallback path asserted via ledger entry tag='claude-only'; (d) Codex CLI returns non-zero exit → hook asserted to fail-open (Stop continues with warning, not blocking)"
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/hooks/scrutinize-before-stop.mjs",
+              "type": "hook",
+              "description": "Modified to prefer Codex adversarial review with fallback"
+            }
+          ],
+          "tools": [
+            "Edit",
+            "Bash"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "git revert hook edit",
+          "status": "complete",
+          "closed_at": "2026-05-15T19:13:39.288Z",
+          "closed_by": "claude-a2b1b5ca (post-compact drift-close)",
+          "close_evidence": {
+            "method": "git-log-grep",
+            "commits": [
+              "99f8b6b97",
+              "e16931bf5",
+              "2c0b84eb7"
+            ],
+            "commit_count": 4,
+            "audit_unit_id": "P1-U04"
+          }
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "Plan-Then-Build Workflow — Codex emits 95%-confident plan, Claude implements",
+      "rationale": "Video RChO5deJ_fE pattern: Codex asks clarifying questions until 95% confident, emits plan, Claude implements, diff returns to Codex for review. Different reasoning modes for plan vs build catches errors that single-family loops miss.",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "P2-U01",
+          "title": "/codex-plan PRISM skill — wraps the 95%-confident plan-then-execute pattern",
+          "effort": 60,
+          "dependencies": [
+            "P1-U03"
+          ],
+          "exit_conditions": [
+            "Skill spec at .claude/commands/codex-plan.md with full procedure",
+            "Procedure: invoke prism_orchestrate:codex_delegate(mode='plan'), capture plan, surface to user, on approval execute as Claude",
+            "Skill registered in claude-codex-command-registry.json",
+            "Plan-quality assertion: invoking /codex-plan on a fixed reference task ('add a stub Kienzle calc unit-test') produces a plan whose markdown contains ALL of: (a) explicit file path under mcp-server/src/__tests__/, (b) a Kienzle reference value with citation, (c) ≥3 enumerated steps. Plain string-match assertions, not subjective. Timing budget: ≤45s end-to-end."
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/commands/codex-plan.md",
+              "type": "skill",
+              "description": "Plan-then-build slash command"
+            }
+          ],
+          "tools": [
+            "Write",
+            "/codex:rescue manually for validation"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "Delete skill file + registry entry",
+          "status": "complete",
+          "closed_at": "2026-05-15T19:13:39.288Z",
+          "closed_by": "claude-a2b1b5ca (post-compact drift-close)",
+          "close_evidence": {
+            "method": "git-log-grep",
+            "commits": [
+              "150e9b0a7",
+              "ff534cb24",
+              "56b878295"
+            ],
+            "commit_count": 3,
+            "audit_unit_id": "P2-U01"
+          }
+        },
+        {
+          "id": "P2-U02",
+          "title": "Round-trip plan → build → review test with 3 spanning variability cases",
+          "effort": 90,
+          "dependencies": [
+            "P2-U01"
+          ],
+          "exit_conditions": [
+            "Test 1 — physics: Codex plans Kienzle calculation, Claude implements, Codex reviews. Result must match published value within ±5%.",
+            "Test 2 — post-processor: Codex plans Okuma-to-Fanuc translation snippet, Claude implements, Codex reviews. Output G-code parseable.",
+            "Test 3 — dispatcher edit: Codex plans new action wiring, Claude implements, Codex reviews. Round-trip schema → engine → response works.",
+            "Each test asserts the THREE-stage trace was logged in scrutiny ledger"
+          ],
+          "deliverables": [
+            {
+              "path": "mcp-server/src/__tests__/CodexClaudeRoundTrip.test.ts",
+              "type": "test",
+              "description": "3-variability-case round-trip suite"
+            }
+          ],
+          "tools": [
+            "vitest",
+            "/codex-plan"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "Delete test file",
+          "status": "complete",
+          "closed_at": "2026-05-15T19:13:39.288Z",
+          "closed_by": "claude-a2b1b5ca (post-compact drift-close)",
+          "close_evidence": {
+            "method": "git-log-grep",
+            "commits": [
+              "7c83d7296",
+              "0b09e1498"
+            ],
+            "commit_count": 2,
+            "audit_unit_id": "P2-U02"
+          }
+        },
+        {
+          "id": "P2-U03",
+          "title": "Integrate Codex provider into existing forge-team agent pattern",
+          "effort": 45,
+          "dependencies": [
+            "P2-U02"
+          ],
+          "exit_conditions": [
+            "forge-team config accepts a codex_reviewer member in addition to Claude reviewers",
+            "When invoked, forge-team spawns Codex review job in parallel with Claude reviewer subagent",
+            "Both reviews recorded in scrutiny ledger with provider tag",
+            "Content correctness test: 1 forge-team invocation on a known-buggy file (intentional off-by-one) produces 2 review records both flagging the same bug; the bug description must be string-matched in BOTH records (not just record-count check)"
+          ],
+          "deliverables": [
+            {
+              "path": "mcp-server/src/engines/MultiAgentAIInterfaceEngine.ts",
+              "type": "engine",
+              "description": "Add codex_reviewer member type"
+            },
+            {
+              "path": "mcp-server/src/__tests__/ForgeTeamCodexMember.test.ts",
+              "type": "test",
+              "description": "Verify dual-family review"
+            }
+          ],
+          "tools": [
+            "Edit",
+            "vitest"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "git revert engine + delete test",
+          "status": "complete",
+          "closed_at": "2026-05-15T19:13:39.288Z",
+          "closed_by": "claude-a2b1b5ca (post-compact drift-close)",
+          "close_evidence": {
+            "method": "git-log-grep",
+            "commits": [
+              "7c83d7296",
+              "c7370ce04"
+            ],
+            "commit_count": 2,
+            "audit_unit_id": "P2-U03"
+          }
+        }
+      ]
+    },
+    {
+      "id": "P3",
+      "title": "Obsidian Skills Adoption — Wikilinks for wiki, JSON Canvas for roadmap, defuddle for ingest",
+      "rationale": "kepano/obsidian-skills (5 skills, MIT) already speaks the SKILL.md cross-agent format used by Claude Code + Codex + OpenCode. Lifting these skills gives PRISM's 722-entry wiki visual graph navigation, the 685-milestone roadmap a JSON Canvas DAG render, and the /pdf-learn pipeline a clean HTML→Markdown extractor (defuddle) instead of raw HTML chunks.",
+      "sessions": "2",
+      "units": [
+        {
+          "id": "P3-U01",
+          "title": "Install obsidian-skills + build ObsidianVaultExporterEngine",
+          "effort": 60,
+          "dependencies": [
+            "P0-U03"
+          ],
+          "exit_conditions": [
+            "Plugin installed via /plugin marketplace add kepano/obsidian-skills",
+            "Engine exposes exportNode(nodeId) → { wikilink_md, plain_md_fallback }",
+            "Engine static-method shape, AtomicValue-style return, JSDoc + companion test",
+            "Test: 5 wiki entries round-trip wikilink → vault → wikilink with byte-equality",
+            "Adversarial test: 4 hostile wikilink targets ([[../../../etc/passwd]], [[..\\..\\windows\\system32]], [[//absolute/path]], [[C:/system32]]) all rejected by resolver with structured error; vault-relative resolution enforced"
+          ],
+          "deliverables": [
+            {
+              "path": "mcp-server/src/engines/ObsidianVaultExporterEngine.ts",
+              "type": "engine",
+              "description": "Bidirectional wiki ↔ vault converter with GitHub-render fallback + path-traversal guard"
+            },
+            {
+              "path": "mcp-server/src/__tests__/ObsidianVaultExporterEngine.test.ts",
+              "type": "test",
+              "description": "Round-trip + GitHub-fallback + 4 path-traversal adversarial cases"
+            }
+          ],
+          "tools": [
+            "Write",
+            "vitest"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "Delete engine + test; uninstall plugin",
+          "status": "complete",
+          "closed_at": "2026-05-15T19:13:39.288Z",
+          "closed_by": "claude-a2b1b5ca (post-compact drift-close)",
+          "close_evidence": {
+            "method": "git-log-grep",
+            "commits": [
+              "71a984d3e"
+            ],
+            "commit_count": 1,
+            "audit_unit_id": "P3-U01"
+          }
+        },
+        {
+          "id": "P3-U02",
+          "title": "Convert knowledge/wiki/index.md (722 entries) to wikilink format with plain-MD fallback",
+          "effort": 60,
+          "dependencies": [
+            "P3-U01"
+          ],
+          "exit_conditions": [
+            "All 722 entries converted; original committed to git first for rollback",
+            "Random-sample 10 entries: links resolve in Obsidian vault AND render as plain text on GitHub",
+            "WikiIndexMaintainerEngine still passes its self-test against new format",
+            "No broken inbound links from non-wiki PRISM markdown"
+          ],
+          "deliverables": [
+            {
+              "path": "knowledge/wiki/index.md",
+              "type": "data",
+              "description": "Converted to Obsidian Flavored Markdown"
+            }
+          ],
+          "tools": [
+            "Edit",
+            "Bash for verification"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "git revert knowledge/wiki/index.md",
+          "status": "complete",
+          "closed_at": "2026-05-15T19:13:39.288Z",
+          "closed_by": "claude-a2b1b5ca (post-compact drift-close)",
+          "close_evidence": {
+            "method": "git-log-grep",
+            "commits": [
+              "c2fc79f7f"
+            ],
+            "commit_count": 1,
+            "audit_unit_id": "P3-U02"
+          }
+        },
+        {
+          "id": "P3-U03",
+          "title": "Build RoadmapCanvasGeneratorEngine — emits roadmap.canvas (JSON Canvas spec) from roadmap-index.json",
+          "effort": 75,
+          "dependencies": [
+            "P3-U01"
+          ],
+          "exit_conditions": [
+            "Engine reads roadmap-index.json (685 milestones) and emits canvas with nodes (milestones) + edges (depends_on)",
+            "Output validates against JSON Canvas spec (schema check)",
+            "Test: 3 small synthetic roadmaps + 1 full roadmap round-trip without size or cycle errors",
+            "Canvas opens in Obsidian without errors",
+            "Pagination test: 685-node full-roadmap canvas asserted byte size <5MB OR auto-paginated by track into N canvases each <5MB; assertion uses fs.statSync on emitted file(s), not generic 'no errors'",
+            "Topo-sort cycle handler: synthetic 3-node cycle (A→B→C→A) injected; engine MUST detect and emit a structured warning + skip cycle edges rather than infinite-loop"
+          ],
+          "deliverables": [
+            {
+              "path": "mcp-server/src/engines/RoadmapCanvasGeneratorEngine.ts",
+              "type": "engine",
+              "description": "JSON Canvas emitter for roadmap DAG"
+            },
+            {
+              "path": "knowledge/wiki/roadmap.canvas",
+              "type": "data",
+              "description": "Generated canvas (committed)"
+            },
+            {
+              "path": "mcp-server/src/__tests__/RoadmapCanvasGeneratorEngine.test.ts",
+              "type": "test",
+              "description": "Spec compliance + cycle handling + size limits"
+            }
+          ],
+          "tools": [
+            "Write",
+            "vitest"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "Delete engine + test + canvas file",
+          "status": "complete",
+          "closed_at": "2026-05-15T19:13:39.288Z",
+          "closed_by": "claude-a2b1b5ca (post-compact drift-close)",
+          "close_evidence": {
+            "method": "git-log-grep",
+            "commits": [
+              "df6ff6d33"
+            ],
+            "commit_count": 1,
+            "audit_unit_id": "P3-U03"
+          }
+        },
+        {
+          "id": "P3-U04",
+          "title": "Wire defuddle skill into /pdf-learn + /url-ingest pipelines",
+          "effort": 60,
+          "dependencies": [
+            "P3-U01"
+          ],
+          "exit_conditions": [
+            "/pdf-learn invokes defuddle on raw HTML before Ollama embedding",
+            "/url-ingest does the same",
+            "Test 3 reference URLs (Sandvik, Kennametal, Modern Machine Shop): defuddle output noise-stripped (asserted by token count <50% of raw)",
+            "Embedding similarity for known query improves vs raw-HTML baseline (asserted by recall@5 ≥ baseline)",
+            "Adversarial: 3 hostile HTML payloads (script-tag injection, comment-form 'IGNORE PRIOR INSTRUCTIONS', oversized 5MB page) sandboxed; defuddle output asserted to contain ZERO script content, ZERO instruction-override strings, and bounded length",
+            "Sandbox: defuddle runs in worker_threads with no fs/net/child_process access — 1 unit test validates capability whitelist by attempting fs.readFile and asserting rejection"
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/commands/pdf-learn.md",
+              "type": "skill",
+              "description": "Modified to use defuddle pre-Ollama"
+            },
+            {
+              "path": ".claude/commands/url-ingest.md",
+              "type": "skill",
+              "description": "Modified to use defuddle pre-Ollama"
+            },
+            {
+              "path": "mcp-server/src/__tests__/DefuddleIngestPipeline.test.ts",
+              "type": "test",
+              "description": "3-URL reference test"
+            }
+          ],
+          "tools": [
+            "Edit",
+            "Write",
+            "vitest"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "git revert skill edits + delete test",
+          "status": "complete",
+          "closed_at": "2026-05-15T19:13:39.288Z",
+          "closed_by": "claude-a2b1b5ca (post-compact drift-close)",
+          "close_evidence": {
+            "method": "git-log-grep",
+            "commits": [
+              "8bad82e46"
+            ],
+            "commit_count": 1,
+            "audit_unit_id": "P3-U04"
+          }
+        }
+      ]
+    },
+    {
+      "id": "P4",
+      "title": "Octopus Consensus Gate — 75% N-of-5 quorum on shop-floor edits, plus AGENT_CONFLICT_ARBITRATION fix",
+      "rationale": "Shop-floor tier requires Ω≥0.95 / S(x)≥0.98 — five-sigma. Single-provider review can't hit five-sigma on its own. Lifting the claude-octopus 75% consensus pattern (MIT) over 5 independent providers (Claude + Codex + qwen2.5-coder + qwen2.5 + ollama-mistral) provides independent error sampling. P4 also fixes the AGENT_CONFLICT_ARBITRATION substrate that the prior audit identified as missing — the consensus gate's dissent log lives there.",
+      "sessions": "3",
+      "units": [
+        {
+          "id": "P4-U01",
+          "title": "Build PRISMConsensusGateEngine — N-provider parallel query with quorum threshold",
+          "effort": 105,
+          "dependencies": [
+            "P1-U02",
+            "P3-U04"
+          ],
+          "exit_conditions": [
+            "Engine runs ≤5 providers in parallel with 45s timeout each",
+            "Reports per-provider verdict + dissent rationale + quorum decision (PASS / CONDITIONAL / FAIL)",
+            "Partial quorum (≥3-of-5 valid) → CONDITIONAL with explicit downgrade flag",
+            "Cache by content hash so re-run with no code change returns cached decision (prevents quorum gaming)",
+            "≥1 cloud provider (Claude OR Codex) MUST be in the active quorum — gate refuses to vote with only ollama providers; enforced in code AND asserted by Test 9",
+            "Codex provider chunks any input >18K tokens into ≤16K-token windows before review; per-chunk verdicts merged via majority within the provider's vote — asserted by Test 10 with synthetic 25K-token diff",
+            "Test cases (10 total): 5 unanimous-correct, 1 split 3v2, 1 unanimous-wrong-detected-by-dissent, 1 timeout-fallback, 1 cloud-provider-mandatory (4-ollama-only call refused), 1 oversized-input chunked-review correctness"
+          ],
+          "deliverables": [
+            {
+              "path": "mcp-server/src/engines/PRISMConsensusGateEngine.ts",
+              "type": "engine",
+              "description": "Multi-provider quorum engine"
+            },
+            {
+              "path": "mcp-server/src/__tests__/PRISMConsensusGateEngine.test.ts",
+              "type": "test",
+              "description": "10 quorum scenarios (5 unanimous-correct, split, dissent-detect, timeout, cloud-mandatory, chunked-review)"
+            }
+          ],
+          "tools": [
+            "Write",
+            "vitest",
+            "duplicationGuardEngine"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "Delete engine + test",
+          "status": "complete",
+          "closed_at": "2026-05-15T19:13:39.288Z",
+          "closed_by": "claude-a2b1b5ca (post-compact drift-close)",
+          "close_evidence": {
+            "method": "git-log-grep",
+            "commits": [
+              "e8ec5553a"
+            ],
+            "commit_count": 1,
+            "audit_unit_id": "P4-U01"
+          }
+        },
+        {
+          "id": "P4-U02",
+          "title": "Wire prism_safety:consensus_gate action + AGENT_CONFLICT_ARBITRATION substrate fix",
+          "effort": 90,
+          "dependencies": [
+            "P4-U01"
+          ],
+          "exit_conditions": [
+            "New action consensus_gate in safetyDispatcher.ts z.enum + Zod schema",
+            "Round-trip dispatcher → engine → quorum decision",
+            "Initialize AGENT_CONFLICT_ARBITRATION.json + .md (currently missing per earlier audit) and add to agent-coordination.mjs FILES map",
+            "Gate writes dissent records to AGENT_CONFLICT_ARBITRATION.json on non-unanimous decisions"
+          ],
+          "deliverables": [
+            {
+              "path": "mcp-server/src/tools/dispatchers/safetyDispatcher.ts",
+              "type": "source",
+              "description": "Add consensus_gate action"
+            },
+            {
+              "path": "mcp-server/src/schemas/safetyActionSchemas.ts",
+              "type": "source",
+              "description": "Add Zod schema"
+            },
+            {
+              "path": "state/shared/AGENT_CONFLICT_ARBITRATION.json",
+              "type": "data",
+              "description": "Initialized arbitration log"
+            },
+            {
+              "path": "state/shared/AGENT_CONFLICT_ARBITRATION.md",
+              "type": "data",
+              "description": "Markdown render"
+            },
+            {
+              "path": ".claude/helpers/agent-coordination.mjs",
+              "type": "helper",
+              "description": "Add arbitration writer"
+            }
+          ],
+          "tools": [
+            "Edit",
+            "Write",
+            "vitest"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "git revert dispatcher + helper edits; delete arbitration files",
+          "status": "complete",
+          "closed_at": "2026-05-15T19:13:39.288Z",
+          "closed_by": "claude-a2b1b5ca (post-compact drift-close)",
+          "close_evidence": {
+            "method": "git-log-grep",
+            "commits": [
+              "e8ec5553a"
+            ],
+            "commit_count": 1,
+            "audit_unit_id": "P4-U02"
+          }
+        },
+        {
+          "id": "P4-U03",
+          "title": "Hook pre-shop-floor-commit-consensus.mjs auto-fires gate on safety-critical staged files",
+          "effort": 75,
+          "dependencies": [
+            "P4-U02"
+          ],
+          "exit_conditions": [
+            "Hook (PreToolUse on Bash 'git commit') detects staged files matching trigger policy: src/physics/constants.ts, *PostProcessor*.ts, *GcodeEmit*.ts, Kienzle/Taylor coefficient files",
+            "On match: invokes prism_safety:consensus_gate; on FAIL: deny commit; on CONDITIONAL: warn but allow",
+            "Hook bypasses cleanly when no trigger files staged (zero overhead path)",
+            "Verdict-correctness test (4 cases): (a) intentionally bad constants edit (kc1.1=99 for steel) staged → gate FAIL → commit BLOCKED, asserted by exit-code !=0 AND deny-reason contains 'consensus FAIL'; (b) doc-only edit → hook silent, asserted by zero gate invocation in ledger; (c) good constants edit (kc1.1 unchanged but reformatted) → gate PASS → commit ALLOWED; (d) gate timeout → hook returns CONDITIONAL with explicit warning string in commit-deny reason"
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/hooks/pre-shop-floor-commit-consensus.mjs",
+              "type": "hook",
+              "description": "Auto-quorum on safety-critical commits"
+            }
+          ],
+          "tools": [
+            "Write",
+            "Bash"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "Remove hook from settings.json + delete file",
+          "status": "complete",
+          "closed_at": "2026-05-15T19:13:39.288Z",
+          "closed_by": "claude-a2b1b5ca (post-compact drift-close)",
+          "close_evidence": {
+            "method": "git-log-grep",
+            "commits": [
+              "32489ebdc"
+            ],
+            "commit_count": 1,
+            "audit_unit_id": "P4-U03"
+          }
+        },
+        {
+          "id": "P4-U04",
+          "title": "/consensus-gate skill — manual invocation with custom providers/threshold",
+          "effort": 30,
+          "dependencies": [
+            "P4-U02"
+          ],
+          "exit_conditions": [
+            "Skill spec at .claude/commands/consensus-gate.md",
+            "Accepts --providers comma-list, --threshold 0..1, --target file glob",
+            "Invokes prism_safety:consensus_gate and surfaces decision + dissent",
+            "Decision-correctness test: skill called with --target=<known-buggy-file> --threshold=0.75 returns decision=FAIL with dissent[].provider list of length ≥2; same skill on --target=<clean-file> returns decision=PASS with all provider verdicts equal. Output asserted by JSON-parsed structure, not just timing or exit code."
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/commands/consensus-gate.md",
+              "type": "skill",
+              "description": "Manual quorum-gate invocation"
+            }
+          ],
+          "tools": [
+            "Write"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "Delete skill",
+          "status": "complete",
+          "closed_at": "2026-05-15T19:13:39.288Z",
+          "closed_by": "claude-a2b1b5ca (post-compact drift-close)",
+          "close_evidence": {
+            "method": "git-log-grep",
+            "commits": [
+              "163eb946a",
+              "32489ebdc",
+              "e8ec5553a"
+            ],
+            "commit_count": 3,
+            "audit_unit_id": "P4-U04"
+          }
+        },
+        {
+          "id": "P4-U05",
+          "title": "5 manufacturing personas + persona-weighted voting in the gate",
+          "effort": 90,
+          "dependencies": [
+            "P4-U01"
+          ],
+          "exit_conditions": [
+            "5 personas authored: post-processor-engineer, kienzle-physicist, shop-floor-safety-auditor, dialect-translator, fixture-designer",
+            "Each persona = prompt prefix + provider profile preference + domain weight",
+            "Gate routes by question domain: a Kienzle question gets kienzle-physicist weighted 1.5x in the quorum",
+            "Published-baseline test: 5 fixture questions (one per persona domain) with KNOWN-CORRECT answer derived from canonical sources (kc1.1 from constants.ts, ISO 13041 fixture rule, Sandvik feed-per-tooth table, Okuma OSP G68.2 syntax, NCG quality grade Ra). Persona-weighted voting MUST produce the canonical answer for ≥4 of 5 domains; neutral (unweighted) voting is recorded as baseline for diff. Test fails if persona weighting does NOT outperform neutral on ≥3 of 5 domains."
+          ],
+          "deliverables": [
+            {
+              "path": "mcp-server/src/data/manufacturing-personas.ts",
+              "type": "data",
+              "description": "5 persona definitions"
+            },
+            {
+              "path": "mcp-server/src/engines/PRISMConsensusGateEngine.ts",
+              "type": "engine",
+              "description": "Add persona-weighted voting"
+            },
+            {
+              "path": "mcp-server/src/__tests__/PersonaWeightedConsensus.test.ts",
+              "type": "test",
+              "description": "5-domain weighted-voting validation"
+            }
+          ],
+          "tools": [
+            "Write",
+            "Edit",
+            "vitest"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "Delete personas data + test; revert engine edit"
+        }
+      ]
+    },
+    {
+      "id": "P5",
+      "title": "Multi-Chat Coordination Hardening — edit-time lane gate, auto-fork on conflict, cross-chat directive detection, arbitration audit log",
+      "rationale": "Existing rails (commit-ownership-guard, worktree-commit-route, chat-bus-inject) fire at COMMIT time or are advisory only. By then a chat has already produced an hour of work in a peer's tree, and the printed `git worktree add` instruction is sometimes parsed wrong or skipped under context pressure. This phase closes the gap with edit-time enforcement, automated fork execution, prompt-time cross-chat directive detection, and a single audit log so we can SEE whether the rails are actually firing.",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "P5-U01",
+          "title": "PreToolUse(Edit/Write/MultiEdit) lane gate — block edits in peer-claimed files",
+          "effort": 60,
+          "dependencies": [
+            "P0-U02"
+          ],
+          "exit_conditions": [
+            "Hook reads chat-bus claim ledger (state/shared/chat-bus/claims/*.json)",
+            "Blocks Edit/Write/MultiEdit when target matches an active foreign claim",
+            "Allows when target unclaimed OR claimed by own session OR claim expired",
+            "Block reason includes peer sessionId + pcName + exact `git worktree add` fork command",
+            "Path normalisation: case-insensitive, slash-direction-agnostic",
+            "PRISM_CHAT_BUS_CLAIMS_DIR env override for hermetic tests",
+            "14-test vitest suite covers all pass-through + block branches",
+            "Fail-open on every internal error — never breaks Edit"
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/hooks/pre-edit-lane-guard.mjs",
+              "type": "hook",
+              "description": "PreToolUse Edit/Write/MultiEdit lane gate"
+            },
+            {
+              "path": "mcp-server/src/__tests__/PreEditLaneGuard.test.ts",
+              "type": "test",
+              "description": "Hermetic-tmpdir test suite (14 cases)"
+            }
+          ],
+          "tools": [
+            "Write",
+            "vitest"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "Remove from settings.json + delete hook file. Existing commit-time rails still apply.",
+          "status": "complete",
+          "closed_at": "2026-05-15T19:13:39.288Z",
+          "closed_by": "claude-a2b1b5ca (post-compact drift-close)",
+          "close_evidence": {
+            "method": "git-log-grep",
+            "commits": [
+              "32489ebdc"
+            ],
+            "commit_count": 1,
+            "audit_unit_id": "P5-U01"
+          }
+        },
+        {
+          "id": "P5-U02",
+          "title": "Auto-fork-executor — actually run `git worktree add` + stash, not just print instructions",
+          "effort": 75,
+          "dependencies": [
+            "P5-U01"
+          ],
+          "exit_conditions": [
+            "PreToolUse hook on Bash matching `git commit`",
+            "Detects when commit would land on wrong tree (cwd is main, no themed worktree exists for scope, scope is parseable)",
+            "Auto-creates new worktree at ../prism-<scope>-<idTag> with branch work/<scope>-<idTag>",
+            "Stashes work-in-progress (staged + untracked) with key `auto-fork-<scope>-<idTag>-<ts>` so it can be restored in the new tree",
+            "Blocks original commit with structured message containing single-line retry: `cd <newPath> && git stash pop && <orig commit>`",
+            "Defers silently when (a) [MAIN]/[MAIN-FORCE] override, (b) themed worktree already exists, (c) target branch already exists, (d) all candidate paths collide, (e) git command fails — leaves worktree-commit-route to handle text-only path",
+            "PRISM_AUTO_FORK=0 kill switch",
+            "13-test vitest suite uses per-test hermetic git repo (mkdtemp + git init + initial commit) to verify worktree actually appears on disk"
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/hooks/auto-fork-executor.mjs",
+              "type": "hook",
+              "description": "Auto-fork executor"
+            },
+            {
+              "path": "mcp-server/src/__tests__/AutoForkExecutor.test.ts",
+              "type": "test",
+              "description": "Hermetic-git test suite (13 cases)"
+            }
+          ],
+          "tools": [
+            "Write",
+            "vitest",
+            "Bash for hermetic git scaffold"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "Remove from settings.json + delete hook. PRISM_AUTO_FORK=0 disables without removal."
+        },
+        {
+          "id": "P5-U03",
+          "title": "UserPromptSubmit cross-chat directive detector — warn when prompt looks like 'tell other chat to X'",
+          "effort": 45,
+          "dependencies": [],
+          "exit_conditions": [
+            "Hook scans prompts for three pattern shapes: `<claude-XXX> should/needs/must`, `tell|ask|inform <peer-or-broad-target> to`, `(all|every|peer) chats? should/need to`",
+            "Strips fenced code blocks + inline backticks + markdown blockquote BEFORE matching to avoid false positives on log-line pastes",
+            "Skips self-references — `claude-cba638c3 should X` from cba638c3 is harmless",
+            "NEVER blocks — emits additionalContext warning so chat sees it before responding",
+            "Echoes targeted entity + sample snippet + `prism_context chat_post` redirect in the warning",
+            "PRISM_DIRECTIVE_WARN=0 kill switch",
+            "17-test vitest suite covering 8 no-warn paths + 8 warn paths + 1 single-count guarantee"
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/hooks/cross-chat-directive-detector.mjs",
+              "type": "hook",
+              "description": "UserPromptSubmit directive detector"
+            },
+            {
+              "path": "mcp-server/src/__tests__/CrossChatDirectiveDetector.test.ts",
+              "type": "test",
+              "description": "Test suite (17 cases)"
+            }
+          ],
+          "tools": [
+            "Write",
+            "vitest"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "Remove from settings.json + delete hook."
+        },
+        {
+          "id": "P5-U04",
+          "title": "Arbitration audit log — single source of truth for fork/block/warn events + handoff surface",
+          "effort": 60,
+          "dependencies": [
+            "P5-U01",
+            "P5-U02",
+            "P5-U03"
+          ],
+          "exit_conditions": [
+            "Helper at .claude/helpers/arbitration-log.mjs with appendEvent / readEvents / summarizeEvents / renderSummaryLine API + matching CLI",
+            "Storage at state/shared/AGENT_CONFLICT_ARBITRATION.json — same file P4-U02 declares as the consensus-gate dissent log (pre-emptively created here)",
+            "Concurrency-safe: read-merge-write with .lock dir (mkdir is atomic on Windows + Unix), bounded retry, falls through silently on lock contention",
+            "Schema-versioned (1.0.0); bounded to 5000 events; malformed log auto-rebuilt",
+            "P5-U01 / P5-U02 / P5-U03 hooks all wire into this log via sync spawnSync of the CLI — never breaks the hook on any error",
+            "PRISM_ARBITRATION_LOG env override for hermetic tests",
+            "renderSummaryLine produces a one-line handoff string like 'Arbitrations (24h): 3 auto-fork, 1 lane-block — last: auto-fork at <ts>'",
+            "14-test vitest suite covers append/read/summary/render-line + schema discipline + in-process API",
+            "Combined run of all 4 P5 test files: 56/56 pass (no regression of U01/U02/U03 hooks)"
+          ],
+          "deliverables": [
+            {
+              "path": ".claude/helpers/arbitration-log.mjs",
+              "type": "helper",
+              "description": "Append-only event log + CLI"
+            },
+            {
+              "path": "state/shared/AGENT_CONFLICT_ARBITRATION.json",
+              "type": "data",
+              "description": "Created on first append (lazy)"
+            },
+            {
+              "path": "mcp-server/src/__tests__/ArbitrationLog.test.ts",
+              "type": "test",
+              "description": "14-case suite"
+            }
+          ],
+          "tools": [
+            "Write",
+            "Edit",
+            "vitest"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "Delete helper + test; remove logArbitration calls from the three hooks. Hooks themselves still function without the log."
+        }
+      ]
+    }
+  ],
+  "forge_triple": {
+    "DECLARED_THIS_MILESTONE": [
+      {
+        "kind": "hook",
+        "name": "pre-write-roadmap-home.mjs",
+        "BUILT_IN": "P0-U01"
+      },
+      {
+        "kind": "hook",
+        "name": "stop_on_non_h_roadmap.mjs",
+        "BUILT_IN": "P0-U02"
+      },
+      {
+        "kind": "hook",
+        "name": "pre-shop-floor-commit-consensus.mjs",
+        "BUILT_IN": "P4-U03"
+      },
+      {
+        "kind": "hook",
+        "name": "pre-edit-lane-guard.mjs",
+        "BUILT_IN": "P5-U01"
+      },
+      {
+        "kind": "hook",
+        "name": "auto-fork-executor.mjs",
+        "BUILT_IN": "P5-U02"
+      },
+      {
+        "kind": "hook",
+        "name": "cross-chat-directive-detector.mjs",
+        "BUILT_IN": "P5-U03"
+      },
+      {
+        "kind": "helper",
+        "name": "arbitration-log.mjs",
+        "BUILT_IN": "P5-U04"
+      },
+      {
+        "kind": "engine",
+        "name": "PRISMCodexBridgeEngine",
+        "BUILT_IN": "P1-U02"
+      },
+      {
+        "kind": "engine",
+        "name": "PRISMConsensusGateEngine",
+        "BUILT_IN": "P4-U01 + persona extension P4-U05"
+      },
+      {
+        "kind": "engine",
+        "name": "ObsidianVaultExporterEngine",
+        "BUILT_IN": "P3-U01"
+      },
+      {
+        "kind": "engine",
+        "name": "RoadmapCanvasGeneratorEngine",
+        "BUILT_IN": "P3-U03"
+      },
+      {
+        "kind": "action",
+        "name": "prism_orchestrate:codex_delegate",
+        "BUILT_IN": "P1-U03"
+      },
+      {
+        "kind": "action",
+        "name": "prism_orchestrate:codex_review",
+        "BUILT_IN": "P1-U03"
+      },
+      {
+        "kind": "action",
+        "name": "prism_safety:consensus_gate",
+        "BUILT_IN": "P4-U02"
+      },
+      {
+        "kind": "skill",
+        "name": "/codex-plan",
+        "BUILT_IN": "P2-U01"
+      },
+      {
+        "kind": "skill",
+        "name": "/consensus-gate",
+        "BUILT_IN": "P4-U04"
+      }
+    ],
+    "DECLARED_BUT_BUILT_ELSEWHERE": [],
+    "CONSUMED_FROM_OTHER_MILESTONES": [
+      {
+        "kind": "engine",
+        "name": "QdrantMemoryEngine",
+        "FROM": "INTEL-OLLAMA-OBSIDIAN-MS0 P0-U01"
+      },
+      {
+        "kind": "engine",
+        "name": "OllamaHookBridgeEngine",
+        "FROM": "LOCAL-LLM-MS0"
+      }
+    ]
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "pre-write-roadmap-home.mjs (P0-U01)",
+      "stop_on_non_h_roadmap.mjs (P0-U02)",
+      "pre-shop-floor-commit-consensus.mjs (P4-U03)",
+      "pre-edit-lane-guard.mjs (P5-U01)",
+      "auto-fork-executor.mjs (P5-U02)",
+      "cross-chat-directive-detector.mjs (P5-U03)"
+    ],
+    "new_helpers": [
+      "arbitration-log.mjs (P5-U04)"
+    ],
+    "new_actions": [
+      "prism_orchestrate:codex_delegate (P1-U03)",
+      "prism_orchestrate:codex_review (P1-U03)",
+      "prism_safety:consensus_gate (P4-U02)"
+    ],
+    "new_skills": [
+      "/codex-plan (P2-U01)",
+      "/consensus-gate (P4-U04)"
+    ],
+    "new_engines": [
+      "PRISMCodexBridgeEngine (P1-U02)",
+      "PRISMConsensusGateEngine (P4-U01)",
+      "ObsidianVaultExporterEngine (P3-U01)",
+      "RoadmapCanvasGeneratorEngine (P3-U03)"
+    ],
+    "available_to": [
+      "All future milestones (consensus gate)",
+      "INTEL-OLLAMA-OBSIDIAN-MS0 retroactively (wiki conversion)",
+      "CAD-COMPLETE-MS0 (review patterns)",
+      "LATHE-PROD-READY-MS0 (review patterns)"
+    ]
+  },
+  "enforcement": {
+    "active_hooks_during_execution": [
+      "pre-write-roadmap-home.mjs (after P0-U01 — protects subsequent envelope writes)",
+      "stop_on_non_h_roadmap.mjs (after P0-U02 — catches escapes)",
+      "duplication-hard-block.mjs (always)",
+      "physics-review (when constants touched in P4)",
+      "scrutinize-before-stop.mjs (post-P1-U04: now Codex-augmented)"
+    ],
+    "self_protection": "After P0 lands, this very milestone envelope cannot be written outside H: by any later session"
+  },
+  "compaction_strategy": {
+    "compact_after_units": [
+      "P0-U03",
+      "P1-U03",
+      "P2-U01",
+      "P2-U03",
+      "P3-U02",
+      "P3-U04",
+      "P4-U02",
+      "P4-U05",
+      "P5-U02",
+      "P5-U04"
+    ],
+    "rationale": "Every ≤3 units. Forced compact after P4-U02 because the AGENT_CONFLICT_ARBITRATION substrate fix touches multiple shared files. Tightened from 6 to 8 points after architecture-agent scrutiny flagged two 4-unit windows (P1-U04→P2-U03 and P3-U03→P4-U02) — added P2-U01 and P3-U04 to honor the 3-unit cadence and not strand non-trivial canvas/defuddle work."
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint (every 5-10 calls)",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "variability_axis": {
+    "inputs": "safety tier × edit class × material group (P/M/K/N/S/H) × dialect × machine type × CAM system",
+    "states": "plan-only · plan→build · build→review · build→consensus · review→fix-loop · consensus-dissent→arbitration",
+    "failure_modes": [
+      "Codex plugin offline / login expired → fall back to Claude-only review with degraded confidence",
+      "Ollama provider down → quorum drops below threshold → CONDITIONAL pass with explicit downgrade",
+      "All 4 ollama providers AGREE wrongly → mitigated by mandating ≥1 cloud provider in quorum",
+      "Codex output too large (>20K tokens) → chunked review per file",
+      "Wiki backlink graph cycle → defuddle/canvas chokes → topo-sort detect-and-warn",
+      "Canvas regen on 685-node DAG exceeds 5MB → paginate by track",
+      "User stages safety-critical edit but plugin not installed → hook degrades to Claude-only with warning"
+    ],
+    "adversarial": [
+      "Prompt injection in defuddled HTML → sandboxed extractor with whitelist",
+      "Path-traversal in [[wikilink]] target → resolver enforces vault-relative",
+      "Consensus gate gamed by user re-running until quorum → cache by content hash, refuse re-vote without code change",
+      "Hostile patch from compromised Codex plugin → consensus gate catches via Claude+ollama dissent"
+    ]
+  },
+  "exit_gate": {
+    "criteria": [
+      "All 23 units complete with passing tests",
+      "Both P0 hooks fire correctly on synthetic violations (no false negatives)",
+      "Codex plugin /codex:setup reports auth OK from this machine AND the other shared-H: machine",
+      "Consensus gate runs end-to-end on a synthetic Kienzle constant edit and produces 5 verdicts + decision",
+      "AGENT_CONFLICT_ARBITRATION.json exists with ≥1 real arbitration record (auto-fork, lane-block, directive-warn, or consensus-dissent)",
+      "Random-sample 10 wiki entries open in Obsidian via wikilinks AND render on GitHub",
+      "roadmap.canvas opens in Obsidian and shows the full 685-milestone DAG without size errors",
+      "P5 multi-chat rails fire on synthetic peer-claim conflict: lane gate blocks Edit, auto-fork creates ../prism-<scope>-<id>, audit log captures both events"
+    ],
+    "omega_floor": 0.9,
+    "svi_delta_target": "+5%",
+    "scrutiny_floor": "average ≥80 on 3-agent scrutiny (this milestone), no agent <60"
+  },
+  "completed_units": 19,
+  "total_units": 23,
+  "updated_at": "2026-05-15T19:13:39.288Z",
+  "in_progress_since": "2026-05-15T19:12:16.353Z",
+  "drift_close_audit": {
+    "audited_at": "2026-05-15T19:13:39.288Z",
+    "audited_by": "claude-a2b1b5ca",
+    "method": "git log --grep=<unit_id> per atomic unit",
+    "flipped_this_run": 19,
+    "already_complete_in_envelope": 0,
+    "truly_missing_no_commits": 4,
+    "remaining_units": [
+      "P4/P4-U05 — 5 manufacturing personas + persona-weighted voting in the gate",
+      "P5/P5-U02 — Auto-fork-executor — actually run `git worktree add` + stash, not just",
+      "P5/P5-U03 — UserPromptSubmit cross-chat directive detector — warn when prompt look",
+      "P5/P5-U04 — Arbitration audit log — single source of truth for fork/block/warn eve"
+    ],
+    "note": "Envelope previously claimed status=not_started while git showed 19/23 units shipped. This is an envelope-reality drift correction, not new work. Remaining 4 units have no git evidence and represent real outstanding scope."
+  }
+}

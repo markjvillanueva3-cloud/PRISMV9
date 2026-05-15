@@ -19,7 +19,7 @@ import { ACTION_CAD_SCHEMAS } from "../../schemas/cadActionSchemas.js";
 
 let _cad: any, _geometry: any, _mesh: any, _feature: any, _stock: any, _wcs: any, _dfm: any, _dfmPipeline: any, _sketch: any, _partLib: any, _assembly: any;
 let _cadTaxonomy: any, _cadQueryGen: any, _f360Gen: any, _f360Bridge: any, _swGen: any, _mcGen: any, _hcGen: any, _nxGen: any, _impeller: any, _blisk: any;
-let _cadCorpusOrch: any, _cadEmbedIndex: any, _cadPipeline: any, _cadRegenTest: any, _geoCompare: any, _cadRegistry: any, _inventorGen: any, _naca: any, _loftedWing: any, _gear: any, _spring: any, _cadTrialLearn: any, _printToFusion: any, _printToMastercam: any, _printToInventor: any, _printToSolidWorks: any, _printToEsprit: any, _espritGen: any, _printToAllCads: any, _printToHyperCADSAnalysis: any, _swLive: any, _espritLive: any, _bprintToAllCads: any;
+let _cadCorpusOrch: any, _cadEmbedIndex: any, _cadPipeline: any, _cadRegenTest: any, _geoCompare: any, _cadRegistry: any, _inventorGen: any, _naca: any, _loftedWing: any, _gear: any, _spring: any, _cadTrialLearn: any, _printToFusion: any, _printToMastercam: any, _printToInventor: any, _printToSolidWorks: any, _printToEsprit: any, _espritGen: any, _printToAllCads: any, _printToHyperCADSAnalysis: any, _swLive: any, _espritLive: any, _bprintToAllCads: any, _cadArchiveJoinAug: any;
 let _capNegotiator: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -46,6 +46,7 @@ async function getEngine(name: string): Promise<any> {
     case "blisk": return _blisk ??= new (await import("../../engines/BliskCADEngine.js")).BliskCADEngine();
     case "cadCorpusOrch": return _cadCorpusOrch ??= (await import("../../engines/CADTrainingCorpusOrchestratorEngine.js")).cadTrainingCorpusOrchestratorEngine;
     case "cadEmbedIndex": return _cadEmbedIndex ??= (await import("../../engines/CADEmbeddingIndexOrchestratorEngine.js")).cadEmbeddingIndexOrchestratorEngine;
+    case "cadArchiveJoinAug": return _cadArchiveJoinAug ??= (await import("../../engines/CADArchiveJoinAugmenterEngine.js")).cadArchiveJoinAugmenterEngine;
     case "cadPipeline": return _cadPipeline ??= (await import("../../engines/CADTrainingPipelineOrchestratorEngine.js")).cadTrainingPipelineOrchestratorEngine;
     case "cadRegenTest": return _cadRegenTest ??= (await import("../../engines/CADRegenerationTestEngine.js")).cadRegenerationTestEngine;
     case "geoCompare": return _geoCompare ??= (await import("../../engines/CADGeometryComparisonEngine.js")).cadGeometryComparisonEngine;
@@ -187,6 +188,11 @@ const ACTIONS = [
   "cad_corpus_orchestrate", "cad_corpus_scan", "cad_corpus_status",
   // CAD Embedding Index Orchestrator (U-CADC18)
   "cad_index_ingest", "cad_index_query", "cad_index_stats", "cad_index_clear", "cad_index_similar",
+  // CAD Archive → Print-Program Join Augmenter (MS-PRINT-PROGRAM-LOOP/U-PPL-D4) —
+  // bridges CADFileIndexerEngine master-index.json → BlueprintProgramJoinEngine v6
+  // join, treating .ipt/.iam/.f3d/.f3z/.sldprt/.sldasm as program-equivalent for
+  // mill jobs (JM Die tribal rule: Inventor/Fusion/SolidWorks mill saves NO G-code).
+  "cad_archive_join_augment", "cad_archive_join_augment_dry",
   // CAD Training Pipeline Orchestrator (U-CADC19)
   "cad_pipeline_run", "cad_pipeline_validate", "cad_pipeline_status", "cad_pipeline_clear",
   // CAD Training MCP Actions (U-CADC20)
@@ -1492,6 +1498,31 @@ Params vary by action — pass relevant fields in params object.`,
             const engine = await getEngine("cadEmbedIndex");
             const similar = engine.findSimilar(params?.sourcePath, params?.k ?? 5);
             result = { success: true, results: similar, count: similar.length };
+            break;
+          }
+          // CAD Archive → Print-Program Join Augmenter (MS-PRINT-PROGRAM-LOOP/U-PPL-D4)
+          case "cad_archive_join_augment": {
+            const engine = await getEngine("cadArchiveJoinAug");
+            const augResult = await engine.loadAndAugment(params ?? {});
+            result = {
+              success: true,
+              newLinks: augResult.newLinks,
+              stats: augResult.stats,
+            };
+            break;
+          }
+          case "cad_archive_join_augment_dry": {
+            // Stats-only variant for dashboards — same load + augment, but
+            // strips the link payload (can be 20K-entry array in prod).
+            const engine = await getEngine("cadArchiveJoinAug");
+            const augResult = await engine.loadAndAugment(params ?? {});
+            result = {
+              success: true,
+              stats: augResult.stats,
+              // Surface the count as a top-level field so callers don't have
+              // to dig into stats to know how many links would be emitted.
+              newLinkCount: augResult.stats.newLinks,
+            };
             break;
           }
           // CAD Training Pipeline Orchestrator (U-CADC19)
@@ -3294,6 +3325,9 @@ Params vary by action — pass relevant fields in params object.`,
               const composeResult = await programEquivalentIndexEngine.compose({
                 cadMasterIndex,
                 latheProgramEntries: latheEntries,
+                mcxProgramEntries: mcxEntries as Parameters<
+                  typeof programEquivalentIndexEngine.compose
+                >[0]["mcxProgramEntries"],
                 linkIndex: linkIndex as Parameters<
                   typeof programEquivalentIndexEngine.compose
                 >[0]["linkIndex"],

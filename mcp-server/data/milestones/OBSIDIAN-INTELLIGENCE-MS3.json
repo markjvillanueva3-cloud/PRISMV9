@@ -1,0 +1,602 @@
+{
+  "id": "OBSIDIAN-INTELLIGENCE-MS3",
+  "version": "1.0.0",
+  "title": "Obsidian-Intelligence Layer — Stabilization + Autonomous Workflows + HTML Outputs + Company Brain + IdeaBlock RAG + Capture Surfaces + Agent Observability",
+  "brief": "Atomized envelope synthesized from OBSIDIAN-INTELLIGENCE-MS3-UNIFIED-PLAN.md (claude-cee63f1f, 2026-05-09). 24 units across 7 tracks. Track A (stabilization, 2u) unblocks everything by killing xmalloc OOMs via persistent prism-hooks Docker broker + finishing the Write|Edit|MultiEdit matcher on the reread-signal hook. Track B (6 autonomous workflows from cyrilXBT) ships compounding daily/weekly value via Daily Context, Connection Finder, Queue Processor, Weekly Synthesis, Project Auto-Updater, Knowledge Distillation. Track C (3 HTML outputs from Thariq/Anthropic playbook) makes Claude-generated reports info-dense + interactive (no more 100-line markdown walls). Track D (5 Company Brain units from Sentra/Ashwin reframe) adds provenance, ontology, conflict resolution, action traces, and context-evaluation gates — the BIG architectural shift. Track E (4 IdeaBlock RAG units from Akshay Pachaar/Blockify pattern) replaces chunk-window retrieval with question+validated-answer atomic blocks (~40x corpus reduction, ~2.3x retrieval relevance). Track F (2 capture surfaces) ships voice memo watcher + PDF highlights-only ingest. Track G (3 agent observability from darkzodchi 3-rule playbook) adds narrow job descriptions + pixel-dept overlay + runtime alerts. Sources: 5 X articles fetched via jina reader (state/shared/x-fetch/), 6 shipped OBSIDIAN-VIZ-MS0 units, 3 in-flight MS2 units, U-DOCKER-HOOK-BROKER handoff. Original spec: state/shared/specs/OBSIDIAN-INTELLIGENCE-MS3-UNIFIED-PLAN.md.",
+  "created_at": "2026-05-15T19:10:00.000Z",
+  "created_by": "claude-a2b1b5ca (atomization of UNIFIED-PLAN.md per user /goal scope expansion)",
+  "track": "INTEL",
+  "track_name": "Obsidian-Intelligence Layer (compound architecture)",
+  "status": "not_started",
+  "priority": "HIGH",
+  "tier": "dev-infra",
+  "omega_target": 0.85,
+  "omega_floor_per_phase": 0.85,
+  "estimated_sessions_p50": 12,
+  "estimated_sessions_p90": 18,
+  "depends_on": [
+    "OBSIDIAN-COMPOUND-MS1",
+    "OBSIDIAN-VIZ-MS0"
+  ],
+  "depends_on_soft": [
+    "INTEL-OLLAMA-OBSIDIAN-MS0 (P0/P1 vector backbone — feeds Track E)",
+    "INTEL-OLLAMA-OBSIDIAN-MS1 (P0 H-drive home — feeds Tracks B,C,D output paths)"
+  ],
+  "h_drive_canonical": true,
+  "atomization_source": "state/shared/specs/OBSIDIAN-INTELLIGENCE-MS3-UNIFIED-PLAN.md",
+  "knowledge_sources": {
+    "external_articles": [
+      "cyrilXBT — 'Vault Writes Back to Itself' (validates 3-layer architecture, provides 6 workflow prompts)",
+      "Thariq @ Anthropic — 'Unreasonable Effectiveness of HTML' (all specs/reports should be HTML, not markdown)",
+      "darkzodchi — 'AI team that doesn't quit' (narrow job descriptions, real-time observability, Pixel-Department viz)",
+      "Ashwin Gopinath @ Sentra — 'Company Brain' (provenance, ontology, conflict resolution, action traces, evals)",
+      "Akshay Pachaar — 'You're doing RAG wrong' (IdeaBlocks replace chunks; 40x corpus reduction, 2.3x relevance)"
+    ],
+    "engines_to_consult": [
+      "ObsidianMemoryRagEngine (replaced by IdeaBlockRagEngine in Track E)",
+      "WikiRecallCounterEngine (extended in D1 provenance)",
+      "QdrantMemoryEngine (feeds Track E embedding)",
+      "OllamaHookBridgeEngine (drives B3 Queue Processor classifier)",
+      "DuplicationGuardEngine (must check before any new engine in D,E,F,G)"
+    ],
+    "fetched_bodies": "state/shared/x-fetch/"
+  },
+  "phases": [
+    {
+      "id": "A",
+      "title": "Stabilization (PREREQ for everything)",
+      "rationale": "Without A1 (DOCKER-BROKER), every other unit suffers xmalloc OOMs that are blocking the 6-chat fleet right now. Land A1+A2 first.",
+      "sessions": "1-2",
+      "units": [
+        {
+          "id": "A1",
+          "title": "U-DOCKER-HOOK-BROKER — persistent prism-hooks container holds all 50+ hooks warm",
+          "effort": 180,
+          "dependencies": [],
+          "exit_conditions": [
+            "Docker container 'prism-hooks' runs persistently with all hook scripts pre-loaded",
+            "Hook-broker dispatcher proxies PreToolUse/PostToolUse/Stop/SessionStart/UserPromptSubmit events to the container via HTTP/IPC",
+            "Per-event cold-start eliminated (xmalloc OOMs across 6 chats observed to drop to zero in 24h burn-in)",
+            "Fallback to legacy in-process node execution if container is down (graceful degrade)",
+            "Round-trip test: 50 rapid PreToolUse fires complete with zero forked-process failures"
+          ],
+          "deliverables": [
+            { "path": "scripts/docker/prism-hooks-broker.Dockerfile", "type": "infra", "description": "Container definition with node + all hook source files baked in" },
+            { "path": ".claude/helpers/docker-hook-broker.mjs", "type": "helper", "description": "HTTP client that routes hook events to the container with timeout + fallback" },
+            { "path": "scripts/install-prism-hooks-container.ps1", "type": "infra", "description": "Idempotent installer (build + start + scheduled-task auto-restart)" },
+            { "path": ".claude/helpers/docker-hook-broker.test.mjs", "type": "test", "description": "Burn-in test: 100 concurrent hook fires with fork-storm prevention" }
+          ],
+          "tools": ["Docker Desktop", "Bash", "PowerShell installer"],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "rollback": "Stop + remove container; revert .claude/helpers/docker-hook-broker.mjs; settings.json reverts to direct hook execution"
+        },
+        {
+          "id": "A2",
+          "title": "U-REREAD-SIGNAL-FINISH — wire Write|Edit|MultiEdit matcher so recall counter sees writes (currently fires only on Reads)",
+          "effort": 25,
+          "dependencies": [],
+          "exit_conditions": [
+            "WikiRecallCounterEngine.recordEvent() fires on Write/Edit/MultiEdit (not only Read)",
+            "Existing 22/22 tests still pass",
+            "New 3 tests: write/edit/multiedit increment counter",
+            "PostToolUse hook matcher updated in settings.json"
+          ],
+          "deliverables": [
+            { "path": ".claude/hooks/wiki-recall-on-write.mjs", "type": "hook", "description": "Mirror of wiki-recall-on-read.mjs but for write events" },
+            { "path": "mcp-server/src/__tests__/WikiRecallCounter.write-events.test.ts", "type": "test", "description": "Write event counter assertions" }
+          ],
+          "tools": ["Write"],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "rollback": "Remove hook entry from settings.json; the new helper module is harmless if unwired"
+        }
+      ]
+    },
+    {
+      "id": "B",
+      "title": "Autonomous Workflows (cyrilXBT 6-workflow playbook)",
+      "rationale": "Vault-writes-back-to-itself pattern. 6 cron + watcher workflows produce compounding daily/weekly value from existing memory + wiki + inbox content.",
+      "sessions": "2-3",
+      "units": [
+        {
+          "id": "B1",
+          "title": "U-DAILY-CONTEXT-WORKFLOW — synthesize yesterday's daily note + active projects + inbox into morning brief",
+          "effort": 90,
+          "dependencies": ["A1"],
+          "exit_conditions": [
+            "6 AM cron writes knowledge/memories/generated/DAILY-CONTEXT-YYYY-MM-DD.md",
+            "Output references at least 3 source files (yesterday's note + 1 project overview + ≥1 inbox item)",
+            "Ollama qwen2.5-coder summarizer used (token-economy compliant)",
+            "Test: dry-run on fixture inputs produces deterministic markdown"
+          ],
+          "deliverables": [
+            { "path": "mcp-server/src/engines/DailyContextWorkflowEngine.ts", "type": "engine", "description": "Reads yesterday's daily note + project overviews + inbox, emits brief via Ollama" },
+            { "path": "scripts/cron/daily-context-cron.ps1", "type": "infra", "description": "Scheduled-task wrapper" },
+            { "path": "mcp-server/src/__tests__/DailyContextWorkflow.test.ts", "type": "test", "description": "Fixture-driven generation test" }
+          ],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "rollback": "Disable scheduled task; engine stays unwired"
+        },
+        {
+          "id": "B2",
+          "title": "U-CONNECTION-FINDER — weekly cron finds non-obvious cross-domain/contradiction/evidence connections",
+          "effort": 90,
+          "dependencies": ["A1"],
+          "exit_conditions": [
+            "Sun 6 AM cron writes knowledge/memories/generated/CONNECTIONS-YYYY-WW.md",
+            "Connection types tagged: cross-domain | contradiction | evidence",
+            "Uses Qdrant cosine similarity to find candidate pairs, Ollama to rank novelty",
+            "Test: known-pairs corpus surfaces ≥80% of seeded connections"
+          ],
+          "deliverables": [
+            { "path": "mcp-server/src/engines/ConnectionFinderEngine.ts", "type": "engine", "description": "Cosine-pair + Ollama-rank pipeline" },
+            { "path": "scripts/cron/connection-finder-cron.ps1", "type": "infra", "description": "Weekly scheduled-task wrapper" },
+            { "path": "mcp-server/src/__tests__/ConnectionFinder.test.ts", "type": "test", "description": "Seeded-connection recall test" }
+          ],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "rollback": "Disable scheduled task"
+        },
+        {
+          "id": "B3",
+          "title": "U-QUEUE-PROCESSOR — fs.watch knowledge/memories/queue/ for RESEARCH-X/SYNTHESIZE-X/DRAFT-X files, process via Ollama or Claude (size-gated)",
+          "effort": 120,
+          "dependencies": ["A1"],
+          "exit_conditions": [
+            "Watcher service running (cron OR Stop hook poll, 2h cadence)",
+            "File naming: RESEARCH-*.md | SYNTHESIZE-*.md | DRAFT-*.md",
+            "Output to knowledge/memories/generated/<basename>-output.md",
+            "Input file moves to knowledge/memories/archive/ on completion",
+            "Token-budget gate: <2KB input → Ollama, ≥2KB → Claude queue (manual)",
+            "Test: 3 fixture files → 3 outputs + 3 archived"
+          ],
+          "deliverables": [
+            { "path": "mcp-server/src/engines/QueueProcessorEngine.ts", "type": "engine", "description": "Queue watcher + classifier + Ollama/Claude router" },
+            { "path": "scripts/queue-processor-daemon.mjs", "type": "infra", "description": "Long-running watcher or 2h-cron entry" },
+            { "path": "mcp-server/src/__tests__/QueueProcessor.test.ts", "type": "test", "description": "End-to-end queue → output → archive" }
+          ],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "rollback": "Stop daemon; files in queue/ stay untouched"
+        },
+        {
+          "id": "B4",
+          "title": "U-WEEKLY-SYNTHESIS — Sunday 8 PM retro: 4-question synthesis of the week",
+          "effort": 60,
+          "dependencies": ["B1"],
+          "exit_conditions": [
+            "Sun 8 PM cron writes knowledge/memories/generated/WEEKLY-YYYY-WW.md",
+            "4 sections: moved / didn't move / emerging patterns / top-3 next-week leverage",
+            "Reads last 7 DAILY-CONTEXT files for input",
+            "Test: dry-run on 7-day fixture produces all 4 sections"
+          ],
+          "deliverables": [
+            { "path": "mcp-server/src/engines/WeeklySynthesisEngine.ts", "type": "engine", "description": "Reads daily-context lineage + emits retro" },
+            { "path": "scripts/cron/weekly-synthesis-cron.ps1", "type": "infra", "description": "Sunday-evening scheduled-task wrapper" },
+            { "path": "mcp-server/src/__tests__/WeeklySynthesis.test.ts", "type": "test", "description": "Fixture-driven retro generation" }
+          ],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "rollback": "Disable scheduled task"
+        },
+        {
+          "id": "B5",
+          "title": "U-PROJECT-AUTO-UPDATER — fs.watch project subfolders, auto-update overview.md with one-line change summary",
+          "effort": 75,
+          "dependencies": ["A1"],
+          "exit_conditions": [
+            "fs.watch fires on knowledge/projects/*/file change events",
+            "Ollama summarizes diff to one line, appended to project's overview.md '## Recent activity' section",
+            "Last 20 lines retained, older drop into archive section",
+            "Test: simulated 5 file changes produce 5 summary lines in overview.md"
+          ],
+          "deliverables": [
+            { "path": "mcp-server/src/engines/ProjectAutoUpdaterEngine.ts", "type": "engine", "description": "fs.watch + diff-summarize + overview-edit" },
+            { "path": "scripts/project-auto-updater-daemon.mjs", "type": "infra", "description": "Watcher daemon" },
+            { "path": "mcp-server/src/__tests__/ProjectAutoUpdater.test.ts", "type": "test", "description": "Simulated change → overview update" }
+          ],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "rollback": "Stop daemon; overview.md files unchanged going forward"
+        },
+        {
+          "id": "B6",
+          "title": "U-KNOWLEDGE-DISTILLATION — monthly distill 30 days of resources/areas notes into canonical per-topic references",
+          "effort": 120,
+          "dependencies": ["E2"],
+          "exit_conditions": [
+            "1st-of-month cron writes knowledge/wiki/distillations/YYYY-MM-<topic>.md",
+            "Topic clusters derived from IdeaBlock embeddings (depends on E2 dedup)",
+            "Source memo paths preserved in distillation frontmatter",
+            "Test: 30-day fixture yields ≥3 distillation files with valid frontmatter"
+          ],
+          "deliverables": [
+            { "path": "mcp-server/src/engines/KnowledgeDistillationEngine.ts", "type": "engine", "description": "Cluster + render distillations from IdeaBlocks" },
+            { "path": "scripts/cron/knowledge-distillation-cron.ps1", "type": "infra", "description": "Monthly scheduled-task wrapper" },
+            { "path": "mcp-server/src/__tests__/KnowledgeDistillation.test.ts", "type": "test", "description": "30-day fixture → distillation files" }
+          ],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "rollback": "Disable scheduled task"
+        }
+      ]
+    },
+    {
+      "id": "C",
+      "title": "HTML Output Mode (Thariq/Anthropic playbook)",
+      "rationale": "Claude-generated specs/reports should be info-dense HTML (SVG, tables, interactivity, scripts) once outputs exceed ~100 lines. Direct relevance to CLAUDE-BRIEF, BUILD_STATE, scrutiny reports.",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "C1",
+          "title": "U-HTML-OUTPUT-MODE — add --html flag to generate-claude-brief / generate-system-viz / build-state-snapshot",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "--html flag generates HTML alongside markdown (no replacement)",
+            "Each HTML file embeds SVG/tables/color-coded status",
+            "Standalone (no external CDN deps for offline open)",
+            "Test: --html flag produces valid HTML5 + asserts presence of <svg> + <table>"
+          ],
+          "deliverables": [
+            { "path": "mcp-server/scripts/generate-claude-brief.mjs", "type": "modify", "description": "--html flag" },
+            { "path": "mcp-server/scripts/build-state-snapshot.mjs", "type": "modify", "description": "--html flag" },
+            { "path": "scripts/generate-system-viz.mjs", "type": "modify", "description": "--html flag (alongside existing graph.html)" },
+            { "path": "mcp-server/src/__tests__/HtmlOutputMode.test.ts", "type": "test", "description": "Validates each --html output" }
+          ],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "rollback": "Remove --html flag handling; markdown output unchanged"
+        },
+        {
+          "id": "C2",
+          "title": "U-HTML-DASHBOARD — unified state/shared/system-viz/dashboard.html aggregating viz + brief + build_state + scrutiny + recall top-20 + chat-bus + workboard",
+          "effort": 120,
+          "dependencies": ["C1"],
+          "exit_conditions": [
+            "dashboard.html opens in browser without dependencies (self-contained)",
+            "7 panels: viz embed, CLAUDE-BRIEF, BUILD_STATE, scrutiny ledger, recall top-20, chat-bus presence, workboard",
+            "Auto-regenerates on Stop hook (T3, non-blocking)",
+            "Test: panel HTML validates + each panel has ≥1 data row"
+          ],
+          "deliverables": [
+            { "path": "scripts/generate-dashboard-html.mjs", "type": "script", "description": "Aggregator that produces dashboard.html" },
+            { "path": ".claude/hooks/stop-dashboard-regen.mjs", "type": "hook", "description": "Stop hook firing dashboard regen async" },
+            { "path": "mcp-server/src/__tests__/DashboardHtml.test.ts", "type": "test", "description": "Panel-presence assertions" }
+          ],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "rollback": "Remove Stop hook entry; dashboard.html stays as last-generated snapshot"
+        },
+        {
+          "id": "C3",
+          "title": "U-HTML-DESIGN-SYSTEM — extract PRISM design system reference from mcp-server/web/ so HTML generations match style",
+          "effort": 60,
+          "dependencies": [],
+          "exit_conditions": [
+            "state/shared/design-system.html catalogs colors, fonts, button styles, layouts from mcp-server/web/",
+            "C1+C2 outputs import design system tokens (CSS vars)",
+            "Visual consistency check: dashboard.html + claude-brief.html share palette",
+            "Test: design-system.html lists ≥10 components with usage examples"
+          ],
+          "deliverables": [
+            { "path": "scripts/extract-design-system.mjs", "type": "script", "description": "Walks mcp-server/web/, emits design-system.html" },
+            { "path": "state/shared/design-system.html", "type": "doc", "description": "Generated reference" },
+            { "path": "mcp-server/src/__tests__/DesignSystemExtract.test.ts", "type": "test", "description": "Validates extracted catalog" }
+          ],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "rollback": "Delete extracted file; downstream HTML generators fall back to inline styles"
+        }
+      ]
+    },
+    {
+      "id": "D",
+      "title": "Company Brain (Sentra/Ashwin reframe — BIGGEST architectural shift)",
+      "rationale": "Markdown brains hit scale walls without provenance, ontology, conflict resolution, action traces, evals. JM Die is multi-user → we're at organizational scale. Allow 2-3 sessions; this is foundational.",
+      "sessions": "2-3",
+      "units": [
+        {
+          "id": "D1",
+          "title": "U-PROVENANCE-LAYER — every memory/wiki entry gets source frontmatter (agent, sessionId, writeEvent, parentMemory?)",
+          "effort": 90,
+          "dependencies": ["A2"],
+          "exit_conditions": [
+            "Frontmatter validates via new Zod schema: { agent, sessionId, writeEvent, parentMemory? }",
+            "memory-mirror-to-vault.mjs auto-enriches on write",
+            "WikiRecallCounterEngine reads provenance to weight recall freshness",
+            "Migration: existing memos backfilled where derivable from filename/mtime",
+            "Test: 5 fixture writes produce valid provenance blocks; missing fields rejected"
+          ],
+          "deliverables": [
+            { "path": "mcp-server/src/schemas/memoryProvenanceSchema.ts", "type": "schema", "description": "Zod schema for provenance frontmatter" },
+            { "path": ".claude/helpers/memory-mirror-to-vault.mjs", "type": "modify", "description": "Inject provenance on write" },
+            { "path": "scripts/backfill-memory-provenance.mjs", "type": "script", "description": "One-shot backfill for existing memos" },
+            { "path": "mcp-server/src/__tests__/MemoryProvenance.test.ts", "type": "test", "description": "Schema + enrichment test" }
+          ],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "rollback": "Remove enrichment from mirror script; existing provenance stays as inert frontmatter"
+        },
+        {
+          "id": "D2",
+          "title": "U-ONTOLOGY-LAYER — explicit type tagging fact|interpretation, current|deprecated|draft, public|internal|confidential",
+          "effort": 75,
+          "dependencies": ["D1"],
+          "exit_conditions": [
+            "New MemoryOntologyEngine validates frontmatter ontology fields",
+            "Zod enum schemas for kind | state | visibility",
+            "Memory mirror rejects writes with missing/invalid ontology",
+            "Backfill applied where heuristically derivable",
+            "Test: 6 fixture writes (3 valid, 3 invalid) → 3 accept + 3 reject"
+          ],
+          "deliverables": [
+            { "path": "mcp-server/src/engines/MemoryOntologyEngine.ts", "type": "engine", "description": "Ontology validator + classifier" },
+            { "path": "mcp-server/src/schemas/memoryOntologySchema.ts", "type": "schema", "description": "Zod enums" },
+            { "path": "mcp-server/src/__tests__/MemoryOntology.test.ts", "type": "test", "description": "Accept/reject matrix" }
+          ],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "rollback": "Loosen validator to warn-only mode"
+        },
+        {
+          "id": "D3",
+          "title": "U-CONFLICT-RESOLUTION — when 2 chats edit same memory key concurrently, capture both versions in conflicts/<key>.diff.md",
+          "effort": 90,
+          "dependencies": ["D1"],
+          "exit_conditions": [
+            "MemoryConflictResolverEngine detects concurrent writes via SHA256 + timestamp window",
+            "Conflict policies enum: last-writer | first-writer | human-arbitrate",
+            "On conflict: write knowledge/memories/conflicts/<key>.diff.md with both versions + winner",
+            "Test: simulated 2-chat race produces conflict file + correct winner",
+            "Confirm with user that semantic conflicts are different from file-level (commit-ownership-guard already exists)"
+          ],
+          "deliverables": [
+            { "path": "mcp-server/src/engines/MemoryConflictResolverEngine.ts", "type": "engine", "description": "Race detection + policy enforcement" },
+            { "path": "mcp-server/src/__tests__/MemoryConflictResolver.test.ts", "type": "test", "description": "Simulated race matrix" }
+          ],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "rollback": "Disable detection; last-writer-wins becomes implicit default"
+        },
+        {
+          "id": "D4",
+          "title": "U-ACTION-TRACES — log every agent write as graph edge (agent, prompt-hash, tool, target-memory, timestamp)",
+          "effort": 75,
+          "dependencies": ["A2", "D1"],
+          "exit_conditions": [
+            "Append-only JSONL at state/shared/action-traces.jsonl",
+            "Edge schema: { ts, agent, sessionId, promptHash, tool, target, action }",
+            "Queryable via prism_session:action_trace_query dispatcher action",
+            "system-viz adds action-trace overlay layer (read-only timeline)",
+            "Test: 10 simulated writes → 10 JSONL entries + query returns by-agent and by-target filters"
+          ],
+          "deliverables": [
+            { "path": "mcp-server/src/engines/ActionTraceEngine.ts", "type": "engine", "description": "Append-only logger + query API" },
+            { "path": "mcp-server/src/tools/dispatchers/sessionDispatcher.ts", "type": "modify", "description": "Add action_trace_query action" },
+            { "path": "mcp-server/src/__tests__/ActionTrace.test.ts", "type": "test", "description": "Logger + query test" },
+            { "path": "scripts/system-viz-action-overlay.mjs", "type": "script", "description": "Render trace timeline into viz" }
+          ],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "rollback": "Stop logging; existing JSONL stays as historical record"
+        },
+        {
+          "id": "D5",
+          "title": "U-CONTEXT-EVAL-GATE — before any agent acts, eval whether retrieved context was complete vs golden eval set",
+          "effort": 120,
+          "dependencies": ["D1", "E3"],
+          "exit_conditions": [
+            "ContextEvalEngine compares retrieved-set vs ideal-set on every memory action",
+            "Golden eval set seeded manually at state/shared/context-eval-golden.json",
+            "Coverage drop > threshold → BLOCK (shop_floor) | WARN (default)",
+            "PreToolUse hook fires evaluator on memory:semantic_search responses",
+            "Test: known-coverage corpus + 5 query scenarios produce expected pass/warn/block verdicts"
+          ],
+          "deliverables": [
+            { "path": "mcp-server/src/engines/ContextEvalEngine.ts", "type": "engine", "description": "Retrieved-vs-ideal coverage scorer" },
+            { "path": "state/shared/context-eval-golden.json", "type": "data", "description": "Seed golden set (manual + scripted)" },
+            { "path": ".claude/hooks/pre-memory-context-eval.mjs", "type": "hook", "description": "PreToolUse evaluator" },
+            { "path": "mcp-server/src/__tests__/ContextEval.test.ts", "type": "test", "description": "Coverage-verdict matrix" }
+          ],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "rollback": "Set hook to warn-only or remove; engine stays unwired"
+        }
+      ]
+    },
+    {
+      "id": "E",
+      "title": "IdeaBlock RAG (Akshay/Blockify pattern)",
+      "rationale": "Chunk-window is the wrong retrieval unit. IdeaBlocks = question + validated-answer + governance fields. ~40x corpus reduction + 2.3x retrieval relevance + 13.55% accuracy gain. Direct upgrade path for ObsidianMemoryRagEngine.",
+      "sessions": "1-2",
+      "units": [
+        {
+          "id": "E1",
+          "title": "U-IDEABLOCK-EXTRACTOR — convert memory/wiki .md → IdeaBlocks via Ollama structured output (qwen2.5-coder:7b)",
+          "effort": 120,
+          "dependencies": [],
+          "exit_conditions": [
+            "IdeaBlock schema: { question, answer(2-3 sentences), source_path, source_offset, governance_tags[] }",
+            "Ollama structured-output JSON mode used",
+            "1 .md → N IdeaBlocks (one per atomic claim)",
+            "Test: 5 fixture .md files produce expected ≥10 IdeaBlocks with valid schema"
+          ],
+          "deliverables": [
+            { "path": "mcp-server/src/engines/IdeaBlockExtractorEngine.ts", "type": "engine", "description": "Ollama-driven extractor" },
+            { "path": "mcp-server/src/schemas/ideaBlockSchema.ts", "type": "schema", "description": "Zod IdeaBlock schema" },
+            { "path": "mcp-server/src/__tests__/IdeaBlockExtractor.test.ts", "type": "test", "description": "Extraction fidelity test" }
+          ],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "rollback": "Stop extraction; existing IdeaBlocks remain as inert JSONL"
+        },
+        {
+          "id": "E2",
+          "title": "U-IDEABLOCK-DEDUP — iterative cosine-similarity dedup at 80-85% threshold, 3-5 rounds, collapses near-duplicates",
+          "effort": 90,
+          "dependencies": ["E1"],
+          "exit_conditions": [
+            "Dedup uses Qdrant cosine similarity over IdeaBlock embeddings",
+            "Configurable threshold (default 0.82) and max rounds (default 4)",
+            "Per round: cluster → merge canonical → re-embed → re-cluster",
+            "Convergence detection: zero new merges in a round",
+            "Test: synthetic duplicate corpus collapses to expected canonical count"
+          ],
+          "deliverables": [
+            { "path": "mcp-server/src/engines/IdeaBlockDedupEngine.ts", "type": "engine", "description": "Iterative cosine clustering" },
+            { "path": "mcp-server/src/__tests__/IdeaBlockDedup.test.ts", "type": "test", "description": "Synthetic dedup test" }
+          ],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "rollback": "Skip dedup; IdeaBlocks remain raw extraction set"
+        },
+        {
+          "id": "E3",
+          "title": "U-IDEABLOCK-RAG-ENGINE — replace ObsidianMemoryRagEngine chunk-window retrieval with IdeaBlock matching",
+          "effort": 90,
+          "dependencies": ["E2"],
+          "exit_conditions": [
+            "New IdeaBlockRagEngine implements same public API as ObsidianMemoryRagEngine (drop-in)",
+            "Retrieval returns ranked IdeaBlocks with answer + source link",
+            "Expected ≥2x retrieval relevance vs chunk-window baseline (measured via fixed eval queries)",
+            "Test: 20-query eval set shows relevance lift; A/B against old engine"
+          ],
+          "deliverables": [
+            { "path": "mcp-server/src/engines/IdeaBlockRagEngine.ts", "type": "engine", "description": "IdeaBlock-based RAG retrieval" },
+            { "path": "mcp-server/src/__tests__/IdeaBlockRag.test.ts", "type": "test", "description": "A/B relevance eval" }
+          ],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "rollback": "Switch dispatcher back to ObsidianMemoryRagEngine via singleton swap"
+        },
+        {
+          "id": "E4",
+          "title": "U-IDEABLOCK-GOVERNANCE — auto-tag each block with clearance | version-state | product-line | export-control",
+          "effort": 60,
+          "dependencies": ["E1"],
+          "exit_conditions": [
+            "Governance tags machine-applied (not author-applied) via Ollama classifier",
+            "Tags enum: clearance ∈ {public,internal,confidential} | version_state ∈ {current,deprecated,draft} | product_line ∈ {sfc,master-post,cad-cam-ai,...} | export_control ∈ {none,EAR,ITAR}",
+            "Tags persisted in IdeaBlock frontmatter",
+            "Test: known-clearance fixture corpus classified at ≥85% accuracy"
+          ],
+          "deliverables": [
+            { "path": "mcp-server/src/engines/IdeaBlockGovernanceEngine.ts", "type": "engine", "description": "Ollama-driven tagger" },
+            { "path": "mcp-server/src/__tests__/IdeaBlockGovernance.test.ts", "type": "test", "description": "Classification accuracy test" }
+          ],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "rollback": "Stop tagging; existing tags remain"
+        }
+      ]
+    },
+    {
+      "id": "F",
+      "title": "Capture Surfaces (already queued)",
+      "rationale": "Two contained capture flows: voice memos via Whisper + PDF-highlights-only ingest. F1 is shop-floor capture surface for JM Die operators.",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "F1",
+          "title": "U-VOICE-CAPTURE — Whisper local bridge → operator voice memos → tribal knowledge ingest (phase 1: watcher only)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "fs.watch on configured capture-dir for .wav/.mp3 files",
+            "Whisper (whisper.cpp or whisper-faster) local transcript → .md to knowledge/memories/inbox/",
+            "Transcript frontmatter: source=voice | captured_at | audio_path",
+            "Test: 2 fixture .wav files produce 2 inbox .md with valid frontmatter",
+            "Telegram bot deferred to Phase 2 (separate unit)"
+          ],
+          "deliverables": [
+            { "path": "scripts/voice-capture-watcher.mjs", "type": "script", "description": "fs.watch + Whisper invoke + .md write" },
+            { "path": "scripts/install-whisper-local.ps1", "type": "infra", "description": "Whisper.cpp installer" },
+            { "path": "mcp-server/src/__tests__/VoiceCapture.test.ts", "type": "test", "description": "Fixture .wav → .md" }
+          ],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "rollback": "Stop watcher; existing transcripts retained"
+        },
+        {
+          "id": "F2",
+          "title": "U-HIGHLIGHTS-ONLY — --highlights-only flag on /pdf-learn extracts only PDF highlight annotations (Adobe /Highlight subtype)",
+          "effort": 45,
+          "dependencies": [],
+          "exit_conditions": [
+            "PDFKnowledgeIngestEngine adds extractHighlightsOnly() method",
+            "Filter: PDF annotation subtype /Highlight only",
+            "Cuts ingest noise ≥90% vs full-body extraction on benchmark PDFs",
+            "Test: 3 fixture PDFs with mixed highlight + body → highlight-only output assertion"
+          ],
+          "deliverables": [
+            { "path": "mcp-server/src/engines/PDFKnowledgeIngestEngine.ts", "type": "modify", "description": "Add extractHighlightsOnly()" },
+            { "path": ".claude/commands/pdf-learn.md", "type": "modify", "description": "Add --highlights-only flag" },
+            { "path": "mcp-server/src/__tests__/PDFHighlightsOnly.test.ts", "type": "test", "description": "Highlight-only extraction test" }
+          ],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "rollback": "Remove flag; default full-body extraction restored"
+        }
+      ]
+    },
+    {
+      "id": "G",
+      "title": "Agent Observability (darkzodchi 3-rule playbook)",
+      "rationale": "Narrow job descriptions per agent + real-time visualization + runtime alerts. Replaces vibe agents with specificity.",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "G1",
+          "title": "U-AGENT-JOB-DESCRIPTIONS — codify narrow job descriptions per subagent type in AGENT_JOB_DESCRIPTIONS.md",
+          "effort": 45,
+          "dependencies": [],
+          "exit_conditions": [
+            "state/shared/AGENT_JOB_DESCRIPTIONS.md catalogs all ~30 subagent types",
+            "Per-agent fields: role | scope | inputs | outputs | refusal-cases",
+            "Subagent system prompts updated to reference the doc",
+            "Test: schema validates all entries; broken-refusal-case → CI fail"
+          ],
+          "deliverables": [
+            { "path": "state/shared/AGENT_JOB_DESCRIPTIONS.md", "type": "doc", "description": "Per-agent job descriptions" },
+            { "path": "scripts/validate-agent-job-descriptions.mjs", "type": "script", "description": "Schema validator" },
+            { "path": "mcp-server/src/__tests__/AgentJobDescriptions.test.ts", "type": "test", "description": "Schema + completeness test" }
+          ],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "rollback": "Doc stays; agents fall back to vibe behavior"
+        },
+        {
+          "id": "G2",
+          "title": "U-AGENT-PIXEL-DEPT-OVERLAY — extend system-viz with agent-status overlay (idle/typing/parsing/errored) from chat-bus heartbeats",
+          "effort": 90,
+          "dependencies": ["D4"],
+          "exit_conditions": [
+            "generate-system-viz.mjs adds agent-status overlay layer",
+            "Status derived from chat-slots.json heartbeat age + AGENT_CHAT.jsonl latest entry",
+            "Viewer JS renders subagent nodes color-coded by status",
+            "Test: simulated 4-state chat-slots produce expected overlay JSON"
+          ],
+          "deliverables": [
+            { "path": "scripts/generate-system-viz.mjs", "type": "modify", "description": "Add agent-overlay layer" },
+            { "path": "state/shared/system-viz/agent-overlay.css", "type": "asset", "description": "Status color tokens" },
+            { "path": "state/shared/system-viz/agent-overlay.js", "type": "asset", "description": "Viewer JS renderer" },
+            { "path": "mcp-server/src/__tests__/AgentOverlay.test.ts", "type": "test", "description": "Overlay JSON shape test" }
+          ],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "rollback": "Remove overlay layer from viz generator; viewer unchanged"
+        },
+        {
+          "id": "G3",
+          "title": "U-AGENT-RUNTIME-ALERTS — watchdog: if subagent runs >N min without progress, PushNotification alert",
+          "effort": 60,
+          "dependencies": [],
+          "exit_conditions": [
+            ".claude/hooks/agent-watchdog.mjs polls chat-slots + AGENT_CHAT for stalled subagents",
+            "N configurable via PRISM_AGENT_WATCHDOG_STALL_MIN (default 10)",
+            "PushNotification sent on stall detection (rate-limited to 1 per agent per hour)",
+            "Test: simulated stall produces single notification; non-stall scenario silent"
+          ],
+          "deliverables": [
+            { "path": ".claude/hooks/agent-watchdog.mjs", "type": "hook", "description": "Stall detector + notifier" },
+            { "path": "mcp-server/src/__tests__/AgentWatchdog.test.ts", "type": "test", "description": "Stall scenario test" }
+          ],
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "rollback": "Remove hook entry from settings.json"
+        }
+      ]
+    }
+  ],
+  "total_units": 24,
+  "completed_units": 0,
+  "execution_order_hint": "1. A1 + A2 (stabilize first). 2. C1 + E1 + F2 in parallel (isolated tracks). 3. B3 → B1 → B4 → B2 → B5 → B6 (workflows; B6 depends on E2). 4. D1 → D4 → D2 → D3 → D5 (Company Brain; 2-3 sessions). 5. F1 + G1-G3 in parallel after D stabilizes.",
+  "risks_open_questions": [
+    "Track D5 context-eval requires golden eval set — where does ground-truth come from? Manual seed needed.",
+    "D3 vs commit-ownership-guard: PRISM already has file-level guard; D3 is for semantic memory-key conflicts (different scope). Confirm with user before building.",
+    "Track E vs Track B6: Both touch distillation. E is per-claim (IdeaBlock), B6 is per-topic (multi-claim doc). E first; B6 becomes 'render distillations from IdeaBlocks'.",
+    "Whisper scope (F1): Telegram bot for voice memos = real shop-floor capture surface. Bot deployment + auth + retention = real work. Phase F1 as just-the-watcher first."
+  ],
+  "depends_on_hard": [
+    "OBSIDIAN-COMPOUND-MS1 (provides memory-mirror infrastructure that D1 extends)",
+    "OBSIDIAN-VIZ-MS0 (provides system-viz layer that G2 extends + D4 trace overlay)"
+  ]
+}

@@ -1,6 +1,6 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-15T19:06:50.865Z
+> Generated: 2026-05-15T19:19:49.508Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
@@ -8,9 +8,9 @@
 - **2377** engines built and wired (of 3238)
 - **1073** wiki entries indexed
 - **861** engines awaiting dispatcher wiring
-- **3198** units pending across 82 active milestones
+- **3224** units pending across 81 active milestones
 - **2** codex frontend builds awaiting merge
-- **175** milestones with envelope-status drift
+- **173** milestones with envelope-status drift
 
 ## BUILT
 
@@ -65,7 +65,7 @@
 
 ## NEEDS_BUILDING
 
-3198 units across 675 milestones not yet in git.
+3224 units across 676 milestones not yet in git.
 
 ### Envelope-status drift
 
@@ -202,8 +202,6 @@
 | EIGC-MS8 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | EIGC-MS9 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | INFRA-AGI-ROUTER-MS2 | not_started | completed_real | claims_not_started_but_has_shipped_units |
-| INTEL-OLLAMA-OBSIDIAN-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
-| INTEL-OLLAMA-OBSIDIAN-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | L6-BACKPROP-REGISTRY-MS25 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | KNOWLEDGE-VAULT-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | MULTI-CLI-SYNC-HOOK-MS28 | not_started | completed_real | claims_not_started_but_has_shipped_units |
@@ -255,10 +253,6 @@
 | SYSTEM-VIZ-BRAIN-MS0 | P1-MEMORY | U-P1-QDRANT-EPISODIC-RECALL | Qdrant episodic recall on SessionStart + UserPromptSubmit (xproc_episodic_recall) |
 | SYSTEM-VIZ-BRAIN-MS0 | P2-VIZ-BRAIN | U-P2-NODE-CLICK-DISPATCH | Click /system-viz node to invoke its dispatcher's primary action |
 | SYSTEM-VIZ-BRAIN-MS0 | P2-VIZ-BRAIN | U-P2-LIVE-DRIFT-OVERLAY | 5-min auto-regen + drift overlay (red-pulse nodes where envelope-vs-git differ) |
-| MS-PRINT-PROGRAM-LOOP | P0 | U-PPL-A1 | [Track A] U-MIN-FINGERPRINT (= RES-MS26) — structural-fingerprint the 16,558 turning .MIN → cluster into the 8-14 macro families (seed: ProgramMacroConverterEngine + LATHE_AI_TRAINING_REPORT's 14 patterns + the 7 hand-built .MIN templates in Resources/MACRO PROGRAMS/) |
-| MS-PRINT-PROGRAM-LOOP | P0 | U-PPL-A2 | [Track A] U-FAMILY-PARAM-EXTRACT — per family, extract the 8-15 driving parameters (ODs/lengths/bore-dia/thread-spec/chamfers) — the turning analogue of the .xlsm's 34 dims |
-| MS-PRINT-PROGRAM-LOOP | P0 | U-PPL-A3 | [Track A] MS-RES-XLSM-ENGINE core — olevba-decode the .xlsm's vbaProject.bin → reverse the 34-dim→geometry math per the 11 die templates; register the mill die families as PRISM parametric templates (wrap & extend) — see MS-RES-XLSM-ENGINE |
-| MS-PRINT-PROGRAM-LOOP | P0 | U-PPL-A4 | [Track A] MachineDomainTemplateLibraryEngine (NEW) — registry of parametric program skeletons keyed by (partFamily, machineDomain, controller); each refs a ProvenRecipe + a GCodeTemplate parametrization; wire to prism_proven_pipeline (template_register/get/list/instantiate) + prism_cam |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | P5 | P5-U05 | Wire prism_intelligence:diagnose_failure → DiagnosticReasoningEngine |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | P6 | P6-U02 | Add 4 hooks for unforced CLAUDE.md rules |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | P6 | P6-U03 | Awareness hook deduplication — pick 3 canonical, deprecate 10 |
@@ -275,6 +269,10 @@
 | L8-P2-MS2 | P0 | P0-U07 | Predictive Maintenance Panel |
 | L8-P2-MS2 | P0 | P0-U08 | ERP Overview Page |
 | L8-P2-MS2 | P0 | P0-U09 | ERP Layout & Navigation |
+| CCM-MS14 | P0 | P0-U06 | Cache hit rate monitor |
+| CCM-MS14 | P0 | P0-U07 | Cascade failure detector |
+| CCM-MS14 | P0 | P0-U08 | Monte Carlo convergence monitor |
+| CCM-MS14 | P0 | P0-U09 | silentCatch fire rate monitor |
 
 **Next action:** Cross-reference MILESTONE_PROGRESS.json. Avoid units already in `shipped` arrays — those are committed but envelope status is stale.
 
@@ -329,7 +327,7 @@ Per-domain wired/unwired breakdown across 932 domain prefixes.
 
 ## STALE_MILESTONES
 
-226 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).
+227 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).
 
 | Milestone | Track | Reason | Pending | Shipped/Total | Last shipped |
 |-----------|-------|--------|---------|---------------|--------------|
@@ -342,6 +340,7 @@ Per-domain wired/unwired breakdown across 932 domain prefixes.
 | MS-AUDIT-DERIVED-2026-05-10 | audit-derived | never_started | 30 | 0/30 | never |
 | MS2 | revenue | never_started | 30 | 0/30 | never |
 | MS-TRAIN-DEEP | revenue | never_started | 26 | 0/26 | never |
+| OBSIDIAN-INTELLIGENCE-MS3 | INTEL | never_started | 25 | 0/25 | never |
 | CADCAM-AGI-MS0 | CAD-CAM-AGI | never_started | 24 | 0/24 | never |
 | MS-SFC-CALIBRATE | revenue | never_started | 24 | 0/24 | never |
 | MS-PILOT | revenue | never_started | 20 | 0/20 | never |
@@ -362,7 +361,6 @@ Per-domain wired/unwired breakdown across 932 domain prefixes.
 | CAMX-MS3 | — | never_started | 12 | 0/12 | never |
 | CAMX-MS4 | — | never_started | 12 | 0/12 | never |
 | CAMX-V17-P3 | — | never_started | 12 | 0/12 | never |
-| AI-WIRE-MS0 | AI-WIRE | never_started | 12 | 0/12 | never |
 
 **Next action:** Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift.
 

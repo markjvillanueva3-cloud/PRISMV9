@@ -7,7 +7,7 @@
   "created_by": "claude-9c056864 via /forge-audit + 5 parallel scout agents",
   "track": "INFRA",
   "track_name": "Intelligence Infrastructure Wiring",
-  "status": "not_started",
+  "status": "in_progress",
   "priority": "HIGH",
   "tier": "dev-infra",
   "omega_target": 0.7,
@@ -57,7 +57,20 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json"
+          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json",
+          "status": "complete",
+          "closed_at": "2026-05-15T19:13:39.288Z",
+          "closed_by": "claude-a2b1b5ca (post-compact drift-close)",
+          "close_evidence": {
+            "method": "git-log-grep",
+            "commits": [
+              "62f611111",
+              "a70f1c18f",
+              "19d743b21"
+            ],
+            "commit_count": 10,
+            "audit_unit_id": "P0-U01"
+          }
         },
         {
           "id": "P0-U02",
@@ -98,7 +111,20 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "git revert the unit's commit (commit subject contains unit ID) | git revert; old schema preserved in git history"
+          "rollback": "git revert the unit's commit (commit subject contains unit ID) | git revert; old schema preserved in git history",
+          "status": "complete",
+          "closed_at": "2026-05-15T19:13:39.288Z",
+          "closed_by": "claude-a2b1b5ca (post-compact drift-close)",
+          "close_evidence": {
+            "method": "git-log-grep",
+            "commits": [
+              "8004569cd",
+              "305bb8e33",
+              "76371bd68"
+            ],
+            "commit_count": 10,
+            "audit_unit_id": "P0-U02"
+          }
         },
         {
           "id": "P0-U03",
@@ -207,7 +233,19 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "restore settings.json from mcp-server/data/state/settings-baseline-* backup | move hook to .claude/hooks/.deprecated/ + unwire from settings.json"
+          "rollback": "restore settings.json from mcp-server/data/state/settings-baseline-* backup | move hook to .claude/hooks/.deprecated/ + unwire from settings.json",
+          "status": "complete",
+          "closed_at": "2026-05-15T19:13:39.288Z",
+          "closed_by": "claude-a2b1b5ca (post-compact drift-close)",
+          "close_evidence": {
+            "method": "git-log-grep",
+            "commits": [
+              "3746eab34",
+              "0c3420f11"
+            ],
+            "commit_count": 2,
+            "audit_unit_id": "P1-U01"
+          }
         },
         {
           "id": "P1-U02",
@@ -242,7 +280,19 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json | preserve as .deprecated.json; no destructive delete"
+          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json | preserve as .deprecated.json; no destructive delete",
+          "status": "complete",
+          "closed_at": "2026-05-15T19:13:39.288Z",
+          "closed_by": "claude-a2b1b5ca (post-compact drift-close)",
+          "close_evidence": {
+            "method": "git-log-grep",
+            "commits": [
+              "c3f3576af",
+              "ae5b0b05e"
+            ],
+            "commit_count": 2,
+            "audit_unit_id": "P1-U02"
+          }
         },
         {
           "id": "P1-U03",
@@ -273,7 +323,19 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "delete script + remove cron entry if scheduled"
+          "rollback": "delete script + remove cron entry if scheduled",
+          "status": "complete",
+          "closed_at": "2026-05-15T19:13:39.288Z",
+          "closed_by": "claude-a2b1b5ca (post-compact drift-close)",
+          "close_evidence": {
+            "method": "git-log-grep",
+            "commits": [
+              "48293537d",
+              "cc8826199"
+            ],
+            "commit_count": 2,
+            "audit_unit_id": "P1-U03"
+          }
         },
         {
           "id": "P1-U04",
@@ -346,7 +408,20 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json | delete script + remove cron entry if scheduled"
+          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json | delete script + remove cron entry if scheduled",
+          "status": "complete",
+          "closed_at": "2026-05-15T19:13:39.288Z",
+          "closed_by": "claude-a2b1b5ca (post-compact drift-close)",
+          "close_evidence": {
+            "method": "git-log-grep",
+            "commits": [
+              "73788a146",
+              "3d540cec0",
+              "ff3efcb93"
+            ],
+            "commit_count": 3,
+            "audit_unit_id": "P1-U05"
+          }
         }
       ],
       "primary_role": "R3"
@@ -435,7 +510,19 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json"
+          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json",
+          "status": "complete",
+          "closed_at": "2026-05-15T19:13:39.288Z",
+          "closed_by": "claude-a2b1b5ca (post-compact drift-close)",
+          "close_evidence": {
+            "method": "git-log-grep",
+            "commits": [
+              "7c83d7296",
+              "0b09e1498"
+            ],
+            "commit_count": 2,
+            "audit_unit_id": "P2-U02"
+          }
         },
         {
           "id": "P2-U03",
@@ -472,7 +559,19 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "git revert the unit's commit (commit subject contains unit ID)"
+          "rollback": "git revert the unit's commit (commit subject contains unit ID)",
+          "status": "complete",
+          "closed_at": "2026-05-15T19:13:39.288Z",
+          "closed_by": "claude-a2b1b5ca (post-compact drift-close)",
+          "close_evidence": {
+            "method": "git-log-grep",
+            "commits": [
+              "7c83d7296",
+              "c7370ce04"
+            ],
+            "commit_count": 2,
+            "audit_unit_id": "P2-U03"
+          }
         },
         {
           "id": "P2-U04",
@@ -555,7 +654,18 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json | delete script + remove cron entry if scheduled"
+          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json | delete script + remove cron entry if scheduled",
+          "status": "complete",
+          "closed_at": "2026-05-15T19:13:39.288Z",
+          "closed_by": "claude-a2b1b5ca (post-compact drift-close)",
+          "close_evidence": {
+            "method": "git-log-grep",
+            "commits": [
+              "71a984d3e"
+            ],
+            "commit_count": 1,
+            "audit_unit_id": "P3-U01"
+          }
         },
         {
           "id": "P3-U02",
@@ -588,7 +698,18 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json | delete script + remove cron entry if scheduled"
+          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json | delete script + remove cron entry if scheduled",
+          "status": "complete",
+          "closed_at": "2026-05-15T19:13:39.288Z",
+          "closed_by": "claude-a2b1b5ca (post-compact drift-close)",
+          "close_evidence": {
+            "method": "git-log-grep",
+            "commits": [
+              "c2fc79f7f"
+            ],
+            "commit_count": 1,
+            "audit_unit_id": "P3-U02"
+          }
         },
         {
           "id": "P3-U03",
@@ -623,7 +744,18 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "git revert the unit's commit (commit subject contains unit ID) | delete script + remove cron entry if scheduled"
+          "rollback": "git revert the unit's commit (commit subject contains unit ID) | delete script + remove cron entry if scheduled",
+          "status": "complete",
+          "closed_at": "2026-05-15T19:13:39.288Z",
+          "closed_by": "claude-a2b1b5ca (post-compact drift-close)",
+          "close_evidence": {
+            "method": "git-log-grep",
+            "commits": [
+              "df6ff6d33"
+            ],
+            "commit_count": 1,
+            "audit_unit_id": "P3-U03"
+          }
         },
         {
           "id": "P3-U04",
@@ -658,7 +790,18 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json | delete script + remove cron entry if scheduled"
+          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json | delete script + remove cron entry if scheduled",
+          "status": "complete",
+          "closed_at": "2026-05-15T19:13:39.288Z",
+          "closed_by": "claude-a2b1b5ca (post-compact drift-close)",
+          "close_evidence": {
+            "method": "git-log-grep",
+            "commits": [
+              "8bad82e46"
+            ],
+            "commit_count": 1,
+            "audit_unit_id": "P3-U04"
+          }
         },
         {
           "id": "P3-U05",
@@ -783,7 +926,18 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json | delete script + remove cron entry if scheduled"
+          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json | delete script + remove cron entry if scheduled",
+          "status": "complete",
+          "closed_at": "2026-05-15T19:13:39.288Z",
+          "closed_by": "claude-a2b1b5ca (post-compact drift-close)",
+          "close_evidence": {
+            "method": "git-log-grep",
+            "commits": [
+              "e8ec5553a"
+            ],
+            "commit_count": 1,
+            "audit_unit_id": "P4-U01"
+          }
         },
         {
           "id": "P4-U02",
@@ -816,7 +970,18 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json | delete script + remove cron entry if scheduled"
+          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json | delete script + remove cron entry if scheduled",
+          "status": "complete",
+          "closed_at": "2026-05-15T19:13:39.288Z",
+          "closed_by": "claude-a2b1b5ca (post-compact drift-close)",
+          "close_evidence": {
+            "method": "git-log-grep",
+            "commits": [
+              "e8ec5553a"
+            ],
+            "commit_count": 1,
+            "audit_unit_id": "P4-U02"
+          }
         },
         {
           "id": "P4-U03",
@@ -846,7 +1011,18 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json"
+          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json",
+          "status": "complete",
+          "closed_at": "2026-05-15T19:13:39.288Z",
+          "closed_by": "claude-a2b1b5ca (post-compact drift-close)",
+          "close_evidence": {
+            "method": "git-log-grep",
+            "commits": [
+              "32489ebdc"
+            ],
+            "commit_count": 1,
+            "audit_unit_id": "P4-U03"
+          }
         },
         {
           "id": "P4-U04",
@@ -922,7 +1098,18 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "git revert the unit's commit (commit subject contains unit ID)"
+          "rollback": "git revert the unit's commit (commit subject contains unit ID)",
+          "status": "complete",
+          "closed_at": "2026-05-15T19:13:39.288Z",
+          "closed_by": "claude-a2b1b5ca (post-compact drift-close)",
+          "close_evidence": {
+            "method": "git-log-grep",
+            "commits": [
+              "32489ebdc"
+            ],
+            "commit_count": 1,
+            "audit_unit_id": "P5-U01"
+          }
         },
         {
           "id": "P5-U02",
@@ -1224,7 +1411,18 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "delete script + remove cron entry if scheduled"
+          "rollback": "delete script + remove cron entry if scheduled",
+          "status": "complete",
+          "closed_at": "2026-05-15T19:13:39.288Z",
+          "closed_by": "claude-a2b1b5ca (post-compact drift-close)",
+          "close_evidence": {
+            "method": "git-log-grep",
+            "commits": [
+              "63a8b32ce"
+            ],
+            "commit_count": 1,
+            "audit_unit_id": "P7-U01"
+          }
         },
         {
           "id": "P7-U02",
@@ -3016,7 +3214,18 @@
             "SCRUTINIZE",
             "GAP FILL",
             "TIE UP"
-          ]
+          ],
+          "status": "complete",
+          "closed_at": "2026-05-15T19:13:39.288Z",
+          "closed_by": "claude-a2b1b5ca (post-compact drift-close)",
+          "close_evidence": {
+            "method": "git-log-grep",
+            "commits": [
+              "091f22762"
+            ],
+            "commit_count": 1,
+            "audit_unit_id": "P20-U01"
+          }
         },
         {
           "id": "P20-U02",
@@ -3268,7 +3477,19 @@
             "SCRUTINIZE",
             "GAP FILL",
             "TIE UP"
-          ]
+          ],
+          "status": "complete",
+          "closed_at": "2026-05-15T19:13:39.288Z",
+          "closed_by": "claude-a2b1b5ca (post-compact drift-close)",
+          "close_evidence": {
+            "method": "git-log-grep",
+            "commits": [
+              "a8506f828",
+              "b60dd777b"
+            ],
+            "commit_count": 2,
+            "audit_unit_id": "P22-U01"
+          }
         },
         {
           "id": "P22-U02",
@@ -3303,7 +3524,18 @@
             "SCRUTINIZE",
             "GAP FILL",
             "TIE UP"
-          ]
+          ],
+          "status": "complete",
+          "closed_at": "2026-05-15T19:13:39.288Z",
+          "closed_by": "claude-a2b1b5ca (post-compact drift-close)",
+          "close_evidence": {
+            "method": "git-log-grep",
+            "commits": [
+              "b60dd777b"
+            ],
+            "commit_count": 1,
+            "audit_unit_id": "P22-U02"
+          }
         },
         {
           "id": "P22-U03",
@@ -3592,5 +3824,74 @@
       "4_vision": "llama3.2-vision:11b",
       "5_claude_only": "Reserved for safety-critical, novel architecture, final synthesis"
     }
+  },
+  "completed_units": 37,
+  "updated_at": "2026-05-15T19:13:39.288Z",
+  "in_progress_since": "2026-05-15T19:12:16.353Z",
+  "drift_close_audit": {
+    "audited_at": "2026-05-15T19:13:39.288Z",
+    "audited_by": "claude-a2b1b5ca",
+    "method": "git log --grep=<unit_id> per atomic unit",
+    "flipped_this_run": 20,
+    "already_complete_in_envelope": 17,
+    "truly_missing_no_commits": 55,
+    "remaining_units": [
+      "P3/P10-U04 — Build MemoryFabricRouterEngine — single entry for 12 memory engines",
+      "P5/P5-U02 — Wire prism_ai:causal_analyze → CausalReasoningEngine",
+      "P5/P5-U03 — Wire prism_ai:counterfactual_predict → CounterfactualReasoningEngine",
+      "P5/P5-U04 — Wire prism_ai:scientific_reason → ScientificReasoningEngine (independe",
+      "P5/P5-U05 — Wire prism_intelligence:diagnose_failure → DiagnosticReasoningEngine",
+      "P8/P8-U01 — Inventory all 161 z.any() instances + classify by replacement type",
+      "P8/P8-U02 — Replace z.any() in adaptiveControl, atcs, autonomous schemas (high-tra",
+      "P8/P8-U03 — Sweep remaining ~150 z.any() across all other schemas",
+      "P8/P8-U04 — Backfill .describe() on all 340 schema fields via Ollama",
+      "P8/P8-U05 — Add prism_dev:schema_coverage_audit dispatcher action",
+      "P9/P9-U01 — Add tests for 4 untested AUTO engines",
+      "P9/P9-U02 — Wire SelfImprovementPatternEngine to AutoFixPipelineEngine handoff",
+      "P9/P9-U03 — Wire QualityDashboardEngine alerts to PreCompact + Stop hooks",
+      "P9/P9-U04 — Add buildDispatcher + hookDispatcher + sessionDispatcher consumers of ",
+      "P9/P9-U05 — TokenEconomyEngine end-of-session report",
+      "P10/P10-U01 — Consolidate 17 awareness hooks down to 3 canonical",
+      "P10/P10-U02 — Build ValidationOrchestratorEngine — single entry point for 19 validat",
+      "P10/P10-U03 — Build AuditChainEngine — consolidate 13 audit engines under single dis",
+      "P10/P10-U04 — Build MemoryFabricRouterEngine — single entry for 12 memory engines",
+      "P10/P10-U05 — Skill cluster consolidation — create /audit /review /validate-program ",
+      "P10/P10-U06 — Consolidate 44 audit scripts into 1 unified audit.mjs with subcommands",
+      "P11/P11-U01 — Add policy frontmatter (auto-invoke triggers) to top 25 dev-quality sk",
+      "P11/P11-U02 — Wire 25 dangling dev-quality hooks (Tier 1-3 from Agent 3)",
+      "P11/P11-U03 — Cron-schedule top 10 dev scripts (mirror-c-to-h, vault-population-audi",
+      "P11/P11-U04 — Run skill-modernize on remaining 125 skills (model / effort / context ",
+      "P11/P11-U05 — Generate 8 new dev-quality skill .md files (Agent 1 finding)",
+      "P11/P11-U07 — Wire 14 critical-gap awareness/goal/continuity hooks (Agent 3 finding)",
+      "P11/P11-U08 — Consolidate 16 stop_on_* event gates into single canonical Stop chain",
+      "P12/P12-U01 — Split securityDispatcher (1055 actions) into 5 sub-dispatchers",
+      "P13/P13-U01 — Audit existing docker-compose.yml + Dockerfiles across PRISM + peer re",
+      "P13/P13-U02 — Create docker-compose.intel.yml — Qdrant + Ollama orchestrated togethe",
+      "P13/P13-U03 — Build batch-processor container for PDF/document ingestion (offload fr",
+      "P13/P13-U04 — Peer-repo CI: docker-compose validates all 20 prism-* sibling repos ag",
+      "P14/P14-U01 — Inventory + classify resources/ subdirectories (skip machining-specifi",
+      "P14/P14-U02 — PDF batch-ingest worker (uses P13 batch-processor container)",
+      "P14/P14-U03 — Auto-link ingested chunks to existing engines/dispatchers via semantic",
+      "P14/P14-U04 — Wiki-bootstrap from MIT courses (general physics/ML chapters only)",
+      "P15/P15-U01 — Audit all .claude/memory.db files across worktrees + sessions",
+      "P15/P15-U02 — Build CrossSessionMemoryBridge engine + dispatcher action",
+      "P15/P15-U03 — Plan-file ingest worker — extract decision trajectories from .claude/p",
+      "P16/P16-U01 — Map all sibling repos + their unique dispatcher/engine/hook signatures",
+      "P16/P16-U02 — Identify 5-10 high-value engines/hooks worth merging into canonical",
+      "P16/P16-U03 — Merge top 5 candidates into canonical PRISM (each with dedup check)",
+      "P17/P17-U02 — Ensure docker-compose.intel.yml Qdrant volume is on H: (cross-PC persi",
+      "P17/P17-U03 — LoRA training pipeline activation — test-lathe-lora as proof of concep",
+      "P18/P18-U01 — Audit + classify 22 catalog extractors — keep extraction framework, ar",
+      "P18/P18-U02 — Build ExtractionFrameworkEngine + dispatcher action",
+      "P19/P19-U01 — Cron schedule 6 critical drift-detection scripts via Windows Task Sche",
+      "P19/P19-U02 — Drift alert hook — surface scheduled-job alerts at SessionStart",
+      "P20/P20-U02 — Optional: ollama pull llama3.3:70b for high-complexity tasks (disk-con",
+      "P20/P20-U03 — Build ModelRouterEngine — route by task complexity tier",
+      "P20/P20-U04 — Refactor existing Ollama hooks to use ModelRouterEngine",
+      "P21/P21-U01 — Build VisionExtractionEngine — wraps llama3.2-vision for image+text un",
+      "P21/P21-U02 — Refactor PDF extraction pipeline to detect + extract image content via",
+      "P21/P21-U03 — Update /pdf-learn skill to invoke vision pipeline for image-heavy PDFs"
+    ],
+    "note": "Envelope previously claimed status=not_started while git showed 37/92 units shipped. This is an envelope-reality drift correction, not new work. Remaining 55 units have no git evidence and represent real outstanding scope."
   }
 }

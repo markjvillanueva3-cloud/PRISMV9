@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-15T19:06:50.865Z",
+  "generatedAt": "2026-05-15T19:19:49.508Z",
   "headline": {
     "built_engines": 2377,
     "built_with_wiki": 1073,
     "needs_wiring": 861,
-    "needs_building_active_units": 3198,
+    "needs_building_active_units": 3224,
     "needs_frontend_merge_count": 2,
-    "pending_milestones_with_activity": 82,
-    "drift_milestones": 175,
-    "stale_milestones": 226,
+    "pending_milestones_with_activity": 81,
+    "drift_milestones": 173,
+    "stale_milestones": 227,
     "domains_tracked": 932
   },
   "sources": {
@@ -8767,7 +8767,7 @@
     ]
   },
   "STALE_MILESTONES": {
-    "summary": "226 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).",
+    "summary": "227 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).",
     "threshold_days": 30,
     "rows": [
       {
@@ -8848,6 +8848,15 @@
         "pending": 26,
         "shipped": 0,
         "total": 26,
+        "lastShippedDate": null,
+        "reason": "never_started"
+      },
+      {
+        "id": "OBSIDIAN-INTELLIGENCE-MS3",
+        "track": "INTEL",
+        "pending": 25,
+        "shipped": 0,
+        "total": 25,
         "lastShippedDate": null,
         "reason": "never_started"
       },
@@ -9120,21 +9129,12 @@
         "total": 10,
         "lastShippedDate": null,
         "reason": "never_started"
-      },
-      {
-        "id": "CADCAM-DAGI-MS3",
-        "track": "CAD-CAM-DEEPAGI",
-        "pending": 10,
-        "shipped": 0,
-        "total": 10,
-        "lastShippedDate": null,
-        "reason": "never_started"
       }
     ],
     "next_action": "Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift."
   },
   "NEEDS_BUILDING": {
-    "summary": "3198 units across 675 milestones not yet in git.",
+    "summary": "3224 units across 676 milestones not yet in git.",
     "drift_cases": [
       {
         "id": "CC-EXT-MS0",
@@ -9923,18 +9923,6 @@
         "drift": "claims_not_started_but_has_shipped_units"
       },
       {
-        "id": "INTEL-OLLAMA-OBSIDIAN-MS0",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "INTEL-OLLAMA-OBSIDIAN-MS1",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
         "id": "L6-BACKPROP-REGISTRY-MS25",
         "claimed": "not_started",
         "real": "completed_real",
@@ -10213,30 +10201,6 @@
         "phase": "P2-VIZ-BRAIN"
       },
       {
-        "milestone": "MS-PRINT-PROGRAM-LOOP",
-        "unit": "U-PPL-A1",
-        "title": "[Track A] U-MIN-FINGERPRINT (= RES-MS26) — structural-fingerprint the 16,558 turning .MIN → cluster into the 8-14 macro families (seed: ProgramMacroConverterEngine + LATHE_AI_TRAINING_REPORT's 14 patterns + the 7 hand-built .MIN templates in Resources/MACRO PROGRAMS/)",
-        "phase": "P0"
-      },
-      {
-        "milestone": "MS-PRINT-PROGRAM-LOOP",
-        "unit": "U-PPL-A2",
-        "title": "[Track A] U-FAMILY-PARAM-EXTRACT — per family, extract the 8-15 driving parameters (ODs/lengths/bore-dia/thread-spec/chamfers) — the turning analogue of the .xlsm's 34 dims",
-        "phase": "P0"
-      },
-      {
-        "milestone": "MS-PRINT-PROGRAM-LOOP",
-        "unit": "U-PPL-A3",
-        "title": "[Track A] MS-RES-XLSM-ENGINE core — olevba-decode the .xlsm's vbaProject.bin → reverse the 34-dim→geometry math per the 11 die templates; register the mill die families as PRISM parametric templates (wrap & extend) — see MS-RES-XLSM-ENGINE",
-        "phase": "P0"
-      },
-      {
-        "milestone": "MS-PRINT-PROGRAM-LOOP",
-        "unit": "U-PPL-A4",
-        "title": "[Track A] MachineDomainTemplateLibraryEngine (NEW) — registry of parametric program skeletons keyed by (partFamily, machineDomain, controller); each refs a ProvenRecipe + a GCodeTemplate parametrization; wire to prism_proven_pipeline (template_register/get/list/instantiate) + prism_cam",
-        "phase": "P0"
-      },
-      {
         "milestone": "INTEL-OLLAMA-OBSIDIAN-MS0",
         "unit": "P5-U05",
         "title": "Wire prism_intelligence:diagnose_failure → DiagnosticReasoningEngine",
@@ -10330,6 +10294,30 @@
         "milestone": "L8-P2-MS2",
         "unit": "P0-U09",
         "title": "ERP Layout & Navigation",
+        "phase": "P0"
+      },
+      {
+        "milestone": "CCM-MS14",
+        "unit": "P0-U06",
+        "title": "Cache hit rate monitor",
+        "phase": "P0"
+      },
+      {
+        "milestone": "CCM-MS14",
+        "unit": "P0-U07",
+        "title": "Cascade failure detector",
+        "phase": "P0"
+      },
+      {
+        "milestone": "CCM-MS14",
+        "unit": "P0-U08",
+        "title": "Monte Carlo convergence monitor",
+        "phase": "P0"
+      },
+      {
+        "milestone": "CCM-MS14",
+        "unit": "P0-U09",
+        "title": "silentCatch fire rate monitor",
         "phase": "P0"
       }
     ],

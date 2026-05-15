@@ -1,6 +1,6 @@
 # MILESTONE_PROGRESS — what's actually shipped vs claimed
 
-> Generated: 2026-05-15T19:06:50.165Z
+> Generated: 2026-05-15T19:19:43.259Z
 > Window: last 60.days of git log across all branches
 > Source: `scripts/build-milestone-progress.mjs`
 
@@ -17,19 +17,18 @@ flagging a unit as missing.
 
 ## Headline numbers
 
-- Milestones loaded:        **675**
-- Units across all MS:      **5091**
-- Units shipped (in git):   **1893**
-- Units pending:            **3198**
-- Drift cases:              **175** (envelope status disagrees with git reality)
+- Milestones loaded:        **676**
+- Units across all MS:      **5116**
+- Units shipped (in git):   **1892**
+- Units pending:            **3224**
+- Drift cases:              **173** (envelope status disagrees with git reality)
 
 ## Top recently-active milestones (last shipped → first)
 
 | Milestone | Track | Status (claimed) | Status (real) | Shipped/Total | Last commit |
 |-----------|-------|------------------|---------------|---------------|-------------|
 | SYSTEM-VIZ-BRAIN-MS0 | devtools | in_progress | in_progress_real | 10/26 (38%) | 2026-05-15 |
-| MS-PRINT-PROGRAM-LOOP | revenue | in_progress | in_progress_real | 1/23 (4%) | 2026-05-15 |
-| INTEL-OLLAMA-OBSIDIAN-MS0 | INFRA | not_started | in_progress_real | 80/92 (87%) | 2026-05-15 |
+| INTEL-OLLAMA-OBSIDIAN-MS0 | INFRA | in_progress | in_progress_real | 80/92 (87%) | 2026-05-15 |
 | CC-EXT-MS0 | — | not_started | in_progress_real | 5/8 (63%) | 2026-05-15 |
 | CC-EXT-MS1 | — | not_started | in_progress_real | 5/8 (63%) | 2026-05-15 |
 | CC-EXT-MS2 | — | not_started | in_progress_real | 5/8 (63%) | 2026-05-15 |
@@ -57,6 +56,7 @@ flagging a unit as missing.
 | QA-MS7 | — | not_started | in_progress_real | 5/7 (71%) | 2026-05-15 |
 | QA-MS8 | — | complete | in_progress_real | 4/5 (80%) | 2026-05-15 |
 | QA-MS9 | — | not_started | in_progress_real | 5/7 (71%) | 2026-05-15 |
+| S3-MS1 | — | not_started | in_progress_real | 5/8 (63%) | 2026-05-15 |
 
 ## Drift cases (claim vs git disagrees)
 
@@ -143,11 +143,12 @@ flagging a unit as missing.
 | COMMAND-KERNEL-MS0 | 27 | 29 | 2/29 |
 | BP-MS0 | 27 | 28 | 1/28 |
 | MS-TRAIN-DEEP | 26 | 26 | 0/26 |
+| OBSIDIAN-INTELLIGENCE-MS3 | 25 | 25 | 0/25 |
 | CAMX-MS0.3 | 24 | 24 | 0/24 |
 | CADCAM-AGI-MS0 | 24 | 24 | 0/24 |
 | MS-SFC-CALIBRATE | 24 | 24 | 0/24 |
+| MS-PRINT-PROGRAM-LOOP | 23 | 23 | 0/23 |
 | MCAT-MS0 | 22 | 22 | 0/22 |
-| MS-PRINT-PROGRAM-LOOP | 22 | 23 | 1/23 |
 | CAMX-MS22 | 20 | 20 | 0/20 |
 | MS-PILOT | 20 | 20 | 0/20 |
 | CAMX-V17-P1 | 18 | 18 | 0/18 |
@@ -156,7 +157,6 @@ flagging a unit as missing.
 | MS-DESKTOP | 18 | 18 | 0/18 |
 | USSH-OPUS47-BOLSTER | 18 | 18 | 0/18 |
 | CAM-PARITY-AGI-MS0 | 16 | 16 | 0/16 |
-| CAMX-MS0.5 | 16 | 16 | 0/16 |
 
 ## How to use
 
