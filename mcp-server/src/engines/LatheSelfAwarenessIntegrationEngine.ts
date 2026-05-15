@@ -1249,28 +1249,33 @@ export class LatheSelfAwarenessIntegrationEngine {
   howDoI(task: string): CapabilityMatch | null {
     log.info(`[LatheSelfAwareness] howDoI: "${task}"`);
 
-    const result = prismSelfAwarenessEngine.howDoI(task);
-
-    // If PRISM found a match, enhance with lathe context
-    if (result && this.isLatheRelevant(result)) {
-      return result;
+    // NOTE: prismSelfAwarenessEngine.howDoI returns
+    // { approach, steps, recommendedActions }, NOT CapabilityMatch — its
+    // result is intentionally NOT propagated through this function. We log it
+    // for observability and fall through to lathe-specific action resolution
+    // which builds a real CapabilityMatch. The legacy `source` and
+    // `alternatives` fields on the returned object are not part of the
+    // CapabilityMatch contract and were removed to fix the TS2353 cluster.
+    const prismHint = prismSelfAwarenessEngine.howDoI(task);
+    if (prismHint) {
+      log.debug(`[LatheSelfAwareness] prism hint approach=${prismHint.approach}`);
     }
 
     // Search lathe-specific actions
     const latheAction = this.findLatheAction(task);
     if (latheAction) {
+      const [dispatcher, action] = latheAction.split(":");
       return {
-        dispatcher: latheAction.split(":")[0],
-        action: latheAction.split(":")[1],
+        capability: latheAction,
+        dispatcher,
+        action,
         fullAction: latheAction,
         description: this.getActionDescription(latheAction),
         confidence: 0.85,
-        source: "index",
-        alternatives: this.findAlternativeActions(task).map((a) => a.fullAction),
       };
     }
 
-    return result;
+    return null;
   }
 
   /**
@@ -1397,7 +1402,9 @@ export class LatheSelfAwarenessIntegrationEngine {
       actions: LATHE_MCP_ACTIONS.length,
       tribalTips: manifest.counts.tribalTips,
       formulas: manifest.counts.formulas,
-      algorithms: manifest.counts.algorithms,
+      // algorithms is now an optional field on ManifestCounts; default to 0
+      // when computeStats() hasn't surveyed an algorithm count yet.
+      algorithms: manifest.counts.algorithms ?? 0,
       jmDiePrograms: 16558, // Lathe programs from JM Die
       jmDieCustomers: 119,
       categories,
