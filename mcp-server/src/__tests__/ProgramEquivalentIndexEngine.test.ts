@@ -26,6 +26,7 @@ import {
 import type { JMDieDiskIndexEntry } from "../engines/JMDieArchiveBackAnnotationEngine.js";
 import type { PrintRefLookupFn } from "../engines/ProgramEquivalentIndexEngine.js";
 import type { MasterIndex, CADFileEntry } from "../schemas/cadFileIndexSchema.js";
+import type { McxBatchPerFileResult } from "../engines/McxBatchExtractorEngine.js";
 
 // ── Test fixtures ────────────────────────────────────────────────────────────
 
@@ -74,6 +75,26 @@ function makeLatheEntry(over: Partial<JMDieDiskIndexEntry> = {}): JMDieDiskIndex
     machine: "lathe",
     size: 4096,
     mtime: "2026-05-15T00:00:00Z",
+    ...over,
+  };
+}
+
+function makeMcxEntry(
+  over: Partial<McxBatchPerFileResult> = {},
+): McxBatchPerFileResult {
+  return {
+    fileId: "mcx-1",
+    sourcePath: "H:/PRISM/JM DIE/CNC MILL HAAS/ITW/T8047D3.mcx-8",
+    status: "ok",
+    customer: "ITW",
+    format: ".mcx-8",
+    magicVerified: true,
+    bytesScanned: 16384,
+    zlibChunks: 12,
+    estimatedOperations: 6,
+    embeddedStringCount: 240,
+    durationMs: 18,
+    error: null,
     ...over,
   };
 }
@@ -170,6 +191,231 @@ describe("ProgramEquivalentIndexEngine — happy paths", () => {
     expect(result.cad_source.byFormat[".ipt"]).toBe(1);
     expect(result.cad_source.byFormat[".iam"]).toBe(1);
     expect(result.lathe_source.recognized).toBe(1);
+  });
+});
+
+describe("ProgramEquivalentIndexEngine — mill-gcode bridge (D5)", () => {
+  it("projects a single .mcx-8 ok-status entry into a mill-gcode entry", () => {
+    const result = buildProgramEquivalentIndex({
+      cadMasterIndex: null,
+      latheProgramEntries: [],
+      mcxProgramEntries: [makeMcxEntry()],
+    });
+    expect(result.entries.length).toBe(1);
+    expect(result.entries[0]!.kind).toBe("mill-gcode");
+    expect(result.entries[0]!.format).toBe(".mcx-8");
+    expect(result.entries[0]!.machine_category).toBe("mill");
+    expect(result.entries[0]!.customer).toBe("ITW");
+    expect(result.entries[0]!.part_number_normalized).toBe("8047D3");
+    expect(result.entries[0]!.size_bytes).toBe(16384);
+    expect(result.mcx_source.totalEntries).toBe(1);
+    expect(result.mcx_source.recognized).toBe(1);
+    expect(result.mcx_source.skipped_non_ok).toBe(0);
+    expect(result.mcx_source.skipped_no_pn).toBe(0);
+    expect(result.mcx_source.byFormat[".mcx-8"]).toBe(1);
+    expect(result.mcx_source.byMagicVerified.verified).toBe(1);
+    expect(result.mcx_source.byMagicVerified.unverified).toBe(0);
+    expect(result.byKind["mill-gcode"]).toBe(1);
+    expect(result.byKind["cad-as-program"]).toBe(0);
+    expect(result.byKind["lathe-gcode"]).toBe(0);
+    expect(result.byCustomer["ITW"]).toBe(1);
+    expect(result.byPartNumber["8047D3"]).toBe(1);
+  });
+
+  it("composes CAD + lathe + mill into a 3-way unified index", () => {
+    const cad = makeCadMasterIndex([
+      makeCadEntry({
+        absolutePath: "H:/PRISM/JM DIE/CNC MILL HAAS/AGRATI/9082526.ipt",
+        customer: "AGRATI",
+      }),
+    ]);
+    const lathe = [
+      makeLatheEntry({
+        path: "H:/PRISM/JM DIE/CNC LATHE/SCREWS/C2500-2497.MIN",
+        stem: "C2500-2497",
+        customer: "SCREWS",
+      }),
+    ];
+    const mcx = [
+      makeMcxEntry({
+        sourcePath: "H:/PRISM/JM DIE/HYPERMILL/TFI/BU-1365-0000-002.mcx-8",
+        customer: "TFI",
+      }),
+    ];
+    const result = buildProgramEquivalentIndex({
+      cadMasterIndex: cad,
+      latheProgramEntries: lathe,
+      mcxProgramEntries: mcx,
+    });
+    expect(result.entries.length).toBe(3);
+    expect(result.byKind["cad-as-program"]).toBe(1);
+    expect(result.byKind["lathe-gcode"]).toBe(1);
+    expect(result.byKind["mill-gcode"]).toBe(1);
+    expect(result.byPartNumber["9082526"]).toBe(1);
+    expect(result.byPartNumber["2500-2497"]).toBe(1);
+    expect(result.byPartNumber["1365-0000-002"]).toBe(1);
+    expect(result.byCustomer["AGRATI"]).toBe(1);
+    expect(result.byCustomer["SCREWS"]).toBe(1);
+    expect(result.byCustomer["TFI"]).toBe(1);
+  });
+
+  it("counts every status!=ok mcx entry as skipped_non_ok", () => {
+    const mcx = [
+      makeMcxEntry({ fileId: "ok1", status: "ok" }),
+      makeMcxEntry({
+        fileId: "fail1",
+        status: "parse_failed",
+        error: "bad magic",
+      }),
+      makeMcxEntry({
+        fileId: "io1",
+        status: "io_error",
+        error: "EACCES",
+      }),
+      makeMcxEntry({ fileId: "exist1", status: "skipped_existing" }),
+      makeMcxEntry({ fileId: "over1", status: "skipped_oversize" }),
+    ];
+    const result = buildProgramEquivalentIndex({
+      cadMasterIndex: null,
+      latheProgramEntries: [],
+      mcxProgramEntries: mcx,
+    });
+    expect(result.mcx_source.totalEntries).toBe(5);
+    expect(result.mcx_source.recognized).toBe(1);
+    expect(result.mcx_source.skipped_non_ok).toBe(4);
+    expect(result.mcx_source.skipped_no_pn).toBe(0);
+    expect(result.byKind["mill-gcode"]).toBe(1);
+  });
+
+  it("counts ok-but-no-PN as skipped_no_pn (not skipped_non_ok)", () => {
+    const mcx = [
+      makeMcxEntry({
+        fileId: "nopn",
+        sourcePath: "H:/PRISM/JM DIE/CNC MILL HAAS/ITW/ab.mcx-8",
+      }),
+    ];
+    const result = buildProgramEquivalentIndex({
+      cadMasterIndex: null,
+      latheProgramEntries: [],
+      mcxProgramEntries: mcx,
+    });
+    expect(result.mcx_source.totalEntries).toBe(1);
+    expect(result.mcx_source.recognized).toBe(0);
+    expect(result.mcx_source.skipped_non_ok).toBe(0);
+    expect(result.mcx_source.skipped_no_pn).toBe(1);
+    expect(result.byKind["mill-gcode"]).toBe(0);
+  });
+
+  it("aggregates byFormat across .mcx / .mcx-8 / .mcx-9 / .mcam", () => {
+    const mcx = [
+      makeMcxEntry({
+        fileId: "f1",
+        sourcePath: "H:/x/T8047D3.mcx",
+        format: ".mcx",
+      }),
+      makeMcxEntry({
+        fileId: "f2",
+        sourcePath: "H:/x/T8048D3.mcx-8",
+        format: ".mcx-8",
+      }),
+      makeMcxEntry({
+        fileId: "f3",
+        sourcePath: "H:/x/T8049D3.mcx-9",
+        format: ".mcx-9",
+      }),
+      makeMcxEntry({
+        fileId: "f4",
+        sourcePath: "H:/x/T8050D3.mcam",
+        format: ".mcam",
+      }),
+    ];
+    const result = buildProgramEquivalentIndex({
+      cadMasterIndex: null,
+      latheProgramEntries: [],
+      mcxProgramEntries: mcx,
+    });
+    expect(result.mcx_source.byFormat[".mcx"]).toBe(1);
+    expect(result.mcx_source.byFormat[".mcx-8"]).toBe(1);
+    expect(result.mcx_source.byFormat[".mcx-9"]).toBe(1);
+    expect(result.mcx_source.byFormat[".mcam"]).toBe(1);
+    expect(result.mcx_source.recognized).toBe(4);
+  });
+
+  it("partitions magicVerified into verified vs unverified counts", () => {
+    const mcx = [
+      makeMcxEntry({ fileId: "v1", magicVerified: true }),
+      makeMcxEntry({
+        fileId: "v2",
+        sourcePath: "H:/x/T9001.mcx-8",
+        magicVerified: true,
+      }),
+      makeMcxEntry({
+        fileId: "u1",
+        sourcePath: "H:/x/T9002.mcx-8",
+        magicVerified: false,
+      }),
+    ];
+    const result = buildProgramEquivalentIndex({
+      cadMasterIndex: null,
+      latheProgramEntries: [],
+      mcxProgramEntries: mcx,
+    });
+    expect(result.mcx_source.byMagicVerified.verified).toBe(2);
+    expect(result.mcx_source.byMagicVerified.unverified).toBe(1);
+  });
+
+  it("treats unknown-format mcx entries as skipped_non_ok", () => {
+    const mcx = [
+      makeMcxEntry({
+        fileId: "unk",
+        sourcePath: "H:/x/T8047D3.bin",
+        format: "unknown",
+      }),
+    ];
+    const result = buildProgramEquivalentIndex({
+      cadMasterIndex: null,
+      latheProgramEntries: [],
+      mcxProgramEntries: mcx,
+    });
+    expect(result.mcx_source.recognized).toBe(0);
+    expect(result.mcx_source.skipped_non_ok).toBe(1);
+  });
+
+  it("attaches print_ref via lookupFn DI for a mill-gcode entry", () => {
+    const millPath =
+      "H:/PRISM/JM DIE/CNC MILL HAAS/ITW/T8047D3.mcx-8";
+    const lookup = makeLookupFn(millPath, "PRINT-T8047D3", "exact");
+    const result = buildProgramEquivalentIndex({
+      cadMasterIndex: null,
+      latheProgramEntries: [],
+      mcxProgramEntries: [makeMcxEntry({ sourcePath: millPath })],
+      lookupFn: lookup,
+    });
+    expect(result.entries[0]!.print_ref?.print_id).toBe("PRINT-T8047D3");
+    expect(result.entries[0]!.print_ref?.match_confidence).toBe("exact");
+    expect(result.linked).toBe(1);
+  });
+
+  it("throws fail-loud on non-array mcxProgramEntries", () => {
+    expect(() =>
+      buildProgramEquivalentIndex({
+        cadMasterIndex: null,
+        latheProgramEntries: [],
+        mcxProgramEntries: "not-an-array" as unknown as readonly McxBatchPerFileResult[],
+      }),
+    ).toThrow(/mcxProgramEntries must be an array/);
+  });
+
+  it("treats omitted mcxProgramEntries as empty (CAD+lathe-only mode unchanged)", () => {
+    const result = buildProgramEquivalentIndex({
+      cadMasterIndex: null,
+      latheProgramEntries: [makeLatheEntry()],
+    });
+    expect(result.mcx_source.totalEntries).toBe(0);
+    expect(result.mcx_source.recognized).toBe(0);
+    expect(result.mcx_source.byMagicVerified.verified).toBe(0);
+    expect(result.mcx_source.byMagicVerified.unverified).toBe(0);
+    expect(result.byKind["mill-gcode"]).toBe(0);
   });
 });
 

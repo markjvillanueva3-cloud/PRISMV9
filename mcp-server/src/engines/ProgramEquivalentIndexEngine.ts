@@ -51,6 +51,7 @@ import {
   normalizeJMDiePN,
 } from "./ProgramPrintLinkIndexEngine.js";
 import type { MasterIndex, CADFileEntry } from "../schemas/cadFileIndexSchema.js";
+import type { McxBatchPerFileResult } from "./McxBatchExtractorEngine.js";
 
 // ============================================================================
 // CONSTANTS
@@ -75,11 +76,31 @@ export const DEFAULT_PROGRAM_EQUIVALENT_OUTPUT =
  */
 export const LATHE_GCODE_EXTENSIONS = new Set<string>([".min", ".mac"]);
 
+/**
+ * Recognized mill-gcode extensions — Mastercam binary container family.
+ * Bridges to McxProgramParserEngine (LATHE-PROD-READY-MS0/U-LPR26) +
+ * McxBatchExtractorEngine (U-LPR28). The "lathe-prod-ready" milestone name is
+ * historical — the parser handles BOTH mill and lathe Mastercam files; we
+ * carve them into the unified index by mapping every Mastercam binary as
+ * "mill-gcode" since (a) the JM Die mill archive is overwhelmingly .mcx-8,
+ * (b) embedded `machine_hints` can downgrade a row to lathe via the
+ * `machine_category` field at consumption time without re-keying the index.
+ */
+export const MILL_GCODE_EXTENSIONS = new Set<string>([
+  ".mcx",
+  ".mcx-8",
+  ".mcx-9",
+  ".mcam",
+]);
+
 // ============================================================================
 // TYPES
 // ============================================================================
 
-export type ProgramEquivalentKind = "cad-as-program" | "lathe-gcode";
+export type ProgramEquivalentKind =
+  | "cad-as-program"
+  | "lathe-gcode"
+  | "mill-gcode";
 
 /**
  * One row in the unified index. Either a CAD file projected as a program
@@ -120,6 +141,14 @@ export interface ProgramEquivalentIndex {
     skipped_not_lathe: number;
     skipped_no_pn: number;
   };
+  mcx_source: {
+    totalEntries: number;
+    recognized: number;
+    skipped_non_ok: number;
+    skipped_no_pn: number;
+    byFormat: Record<string, number>;
+    byMagicVerified: { verified: number; unverified: number };
+  };
   entries: readonly ProgramEquivalentEntry[];
   byKind: Record<ProgramEquivalentKind, number>;
   byCustomer: Record<string, number>;
@@ -149,6 +178,12 @@ export interface ComposeOptions {
   cadMasterIndex: MasterIndex | null;
   /** Lathe-side disk entries; ext `.MIN` recognized as program-equivalent. */
   latheProgramEntries: readonly JMDieDiskIndexEntry[];
+  /**
+   * Mill-side Mastercam binary parse results from {@link McxBatchExtractorEngine}.
+   * Entries with `status: "ok"` and a resolvable PN become `kind: "mill-gcode"`.
+   * Optional — omit / pass `[]` for a CAD+lathe-only build.
+   */
+  mcxProgramEntries?: readonly McxBatchPerFileResult[];
   /**
    * Optional U-PPL-D1 link index — enables print-ref attachment via the real
    * `lookupPrintForProgram`. Ignored when `lookupFn` is also supplied.
@@ -309,6 +344,68 @@ function isLatheProgram(entry: JMDieDiskIndexEntry): boolean {
   return LATHE_GCODE_EXTENSIONS.has(normalizeExt(entry));
 }
 
+/** Is this McxBatchPerFileResult recognized as a mill-class Mastercam binary? */
+function isMillProgram(entry: McxBatchPerFileResult): boolean {
+  return MILL_GCODE_EXTENSIONS.has((entry.format || "").toLowerCase());
+}
+
+/**
+ * Project one Mastercam-binary batch result into a ProgramEquivalentEntry.
+ * Only `status === "ok"` rows become entries; everything else (parse_failed,
+ * io_error, skipped_existing, skipped_oversize) is reported as `skipped_non_ok`
+ * in the aggregate counts so downstream consumers can audit corpus health
+ * without re-walking the disk.
+ */
+function mcxEntryToProgramEquivalent(
+  entry: McxBatchPerFileResult,
+  lookup: PrintRefLookupFn | undefined,
+): {
+  entry?: ProgramEquivalentEntry;
+  outcome: "recognized" | "skipped_non_ok" | "skipped_no_pn";
+} {
+  if (entry.status !== "ok") {
+    return { outcome: "skipped_non_ok" };
+  }
+  if (!isMillProgram(entry)) {
+    return { outcome: "skipped_non_ok" };
+  }
+  const sourcePath = typeof entry.sourcePath === "string" ? entry.sourcePath : "";
+  if (sourcePath.length === 0) {
+    return { outcome: "skipped_no_pn" };
+  }
+  const basename = nodePath.basename(sourcePath);
+  const stem = basename.replace(/\.[^.]+$/, "");
+  const pn = resolvePNFromBasename(stem);
+  if (!pn.normalized) {
+    return { outcome: "skipped_no_pn" };
+  }
+  const sample = pn.candidates.slice(0, 3);
+  const programEntry: ProgramEquivalentEntry = {
+    kind: "mill-gcode",
+    path: sourcePath,
+    format: (entry.format || "").toLowerCase(),
+    customer:
+      typeof entry.customer === "string" && entry.customer.length > 0
+        ? entry.customer
+        : undefined,
+    machine_category: "mill",
+    size_bytes:
+      typeof entry.bytesScanned === "number" && entry.bytesScanned > 0
+        ? entry.bytesScanned
+        : undefined,
+    last_modified: undefined,
+    part_number_normalized: pn.normalized,
+    pn_candidates: sample.length > 0 ? sample : undefined,
+  };
+  if (lookup && sourcePath.length > 0) {
+    const printRef = lookup(sourcePath);
+    if (printRef && (printRef.print_id || printRef.match_confidence)) {
+      programEntry.print_ref = printRef;
+    }
+  }
+  return { entry: programEntry, outcome: "recognized" };
+}
+
 /** Project one lathe disk entry into a ProgramEquivalentEntry. */
 function latheEntryToProgramEquivalent(
   entry: JMDieDiskIndexEntry,
@@ -413,14 +510,26 @@ export function buildProgramEquivalentIndex(
     }
   }
 
-  // Lathe half (with limit cap)
+  // Lathe half (with limit cap — shared across lathe + mill streams so a
+  // caller passing limit:N sees AT MOST N total non-CAD entries processed)
   let recognized = 0;
   let skippedNotLathe = 0;
   let skippedNoPn = 0;
+  const mcxListPreview = opts.mcxProgramEntries;
+  if (
+    mcxListPreview !== undefined &&
+    mcxListPreview !== null &&
+    !Array.isArray(mcxListPreview)
+  ) {
+    throw new Error(
+      "ProgramEquivalentIndexEngine: mcxProgramEntries must be an array",
+    );
+  }
   const cap =
     typeof opts.limit === "number" && opts.limit > 0
       ? opts.limit
-      : opts.latheProgramEntries.length;
+      : opts.latheProgramEntries.length +
+        (Array.isArray(mcxListPreview) ? mcxListPreview.length : 0);
   let processed = 0;
   for (const e of opts.latheProgramEntries) {
     if (processed >= cap) break;
@@ -448,6 +557,50 @@ export function buildProgramEquivalentIndex(
     }
   }
 
+  // Mill half (Mastercam binary corpus) — sibling to the lathe half.
+  // Honors the same `limit` cap counted across BOTH lathe and mill streams
+  // so a caller passing limit:N to bound runtime sees AT MOST N total
+  // (lathe + mill) entries processed. This matches the lathe-only D4
+  // semantics: "process exactly cap entries between the two streams".
+  let mcxRecognized = 0;
+  let mcxSkippedNonOk = 0;
+  let mcxSkippedNoPn = 0;
+  const mcxByFormat: Record<string, number> = {};
+  let mcxVerified = 0;
+  let mcxUnverified = 0;
+  const mcxList = Array.isArray(mcxListPreview) ? mcxListPreview : [];
+  for (const m of mcxList) {
+    if (processed >= cap) break;
+    processed++;
+    const fmt = (m.format || "unknown").toLowerCase();
+    mcxByFormat[fmt] = (mcxByFormat[fmt] ?? 0) + 1;
+    if (m.magicVerified === true) mcxVerified++;
+    else mcxUnverified++;
+    const projection = mcxEntryToProgramEquivalent(m, lookup);
+    if (projection.outcome === "skipped_non_ok") {
+      mcxSkippedNonOk++;
+      continue;
+    }
+    if (projection.outcome === "skipped_no_pn") {
+      mcxSkippedNoPn++;
+      continue;
+    }
+    if (projection.entry) {
+      mcxRecognized++;
+      entries.push(projection.entry);
+      if (projection.entry.customer) {
+        byCustomer[projection.entry.customer] =
+          (byCustomer[projection.entry.customer] ?? 0) + 1;
+      }
+      if (projection.entry.part_number_normalized) {
+        byPartNumber[projection.entry.part_number_normalized] =
+          (byPartNumber[projection.entry.part_number_normalized] ?? 0) + 1;
+      }
+    }
+  }
+
+  // Recount linked AFTER mcx entries are pushed so mill-gcode print_refs
+  // are included in the aggregate.
   let linked = 0;
   for (const e of entries) {
     if (e.print_ref && (e.print_ref.print_id || e.print_ref.match_confidence)) {
@@ -458,6 +611,7 @@ export function buildProgramEquivalentIndex(
   const byKind: Record<ProgramEquivalentKind, number> = {
     "cad-as-program": 0,
     "lathe-gcode": 0,
+    "mill-gcode": 0,
   };
   for (const e of entries) byKind[e.kind]++;
 
@@ -473,6 +627,14 @@ export function buildProgramEquivalentIndex(
       recognized,
       skipped_not_lathe: skippedNotLathe,
       skipped_no_pn: skippedNoPn,
+    },
+    mcx_source: {
+      totalEntries: mcxList.length,
+      recognized: mcxRecognized,
+      skipped_non_ok: mcxSkippedNonOk,
+      skipped_no_pn: mcxSkippedNoPn,
+      byFormat: mcxByFormat,
+      byMagicVerified: { verified: mcxVerified, unverified: mcxUnverified },
     },
     entries,
     byKind,
