@@ -48,7 +48,8 @@ export function registerThreadDispatcher(server: any): void {
         "thread_mill_cycle_time",
         "thread_mill_recommend_tool",
         "thread_mill_lookup_standard",
-        "thread_mill_chip_thinning"
+        "thread_mill_chip_thinning",
+        "thread_method_select"
       ]),
       params: z.record(z.string(), z.any()).optional()
     },
@@ -104,6 +105,14 @@ export function registerThreadDispatcher(server: any): void {
           const method = THREAD_MILL_ACTIONS[action];
           const tmResult = (ThreadMillingPhysicsEngine as any)[method](params);
           return { content: [{ type: "text", text: JSON.stringify(tmResult) }] };
+        }
+
+        // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-THREAD-METHOD-SELECTOR
+        // Wire ThreadMethodSelectorEngine via static select() — pure decision function.
+        if (action === "thread_method_select") {
+          const { ThreadMethodSelectorEngine } = await import("../../engines/ThreadMethodSelectorEngine.js");
+          const tmsResult = ThreadMethodSelectorEngine.select(params as any);
+          return { content: [{ type: "text", text: JSON.stringify({ success: true, ...tmsResult }) }] };
         }
 
         const result = await handleThreadTool(action, params);

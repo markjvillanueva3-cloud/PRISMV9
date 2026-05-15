@@ -104,6 +104,25 @@ const validate_thread_fit_class = z.object({
   fit_class: z.string().min(1),
 }).passthrough();
 
+// OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-THREAD-METHOD-SELECTOR — wire ThreadMethodSelectorEngine
+const thread_method_select = z.object({
+  thread_form: z.enum(["metric", "unified", "bsp", "npt", "acme", "buttress", "trapezoidal"])
+    .describe("Thread profile form"),
+  pitch_mm: posNum.describe("Thread pitch in mm"),
+  major_diameter_mm: posNum.describe("Major (nominal) diameter in mm"),
+  hole_depth_mm: optPosNum.describe("Required hole depth for internal threads"),
+  blind_hole: optBool.describe("True if hole is blind (closed bottom)"),
+  material_iso_group: z.enum(["P", "M", "K", "N", "S", "H"]).optional()
+    .describe("ISO machinability group"),
+  material_hardness_hrc: optNum.describe("Material hardness in HRC (default 30)"),
+  production_qty: optNum.describe("Lot size (default 1)"),
+  machine_has_rigid_tap: optBool.describe("Machine has rigid-tapping capability"),
+  machine_has_live_tooling: optBool.describe("Machine has live tooling / milling head"),
+  tolerance_class: optStr.describe("Thread tolerance class (6g, 6H, 4h, etc.)"),
+  surface_finish_um: optPosNum.describe("Required surface finish Ra in microns"),
+  internal: optBool.describe("True = internal (nut), false = external (bolt); default true"),
+}).passthrough();
+
 // ============================================================================
 // CODE GENERATION (1 action)
 // ============================================================================
@@ -138,6 +157,7 @@ export const ACTION_THREAD_SCHEMAS: ActionSchemaMap = {
   // Selection / Validation
   select_thread_insert,
   validate_thread_fit_class,
+  thread_method_select,
   // Code generation
   generate_thread_gcode,
 };
