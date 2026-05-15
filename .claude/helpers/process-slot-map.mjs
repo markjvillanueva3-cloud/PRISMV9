@@ -54,20 +54,21 @@ import { randomBytes } from "node:crypto";
 // chat-slots.mjs's readSlots it never writes a `.corrupt-*` backup — a reader
 // must not mutate a file a peer process owns.
 //
-// KEEP IN SYNC WITH chat-slots.mjs (verified 2026-05-14):
-//   SLOT_NAMES         = [alpha, bravo, charlie, delta, echo, foxtrot, golf]
+// KEEP IN SYNC WITH chat-slots.mjs (verified 2026-05-15, expanded to 10):
+//   SLOT_NAMES         = [alpha..juliett]  (9 work + 1 hygiene; golf = hygiene)
 //   STALE_TTL_MS       = 2 * 60 * 1000     (alive  if heartbeat younger)
 //   CRASH_TTL_MS       = 10 * 60 * 1000    (stale below this, crashed above)
 //   classifySlot()     = idle | alive | stale | crashed (same branch logic)
-//   readSlots() parse + 7-slot-backfill contract (only the corrupt-backup WRITE
+//   readSlots() parse + 10-slot-backfill contract (only the corrupt-backup WRITE
 //     is intentionally dropped here — the parse/shape behaviour must still track)
 //   DEFAULT_SLOTS_PATH (chat-slots.mjs calls this DEFAULT_STATE_PATH)
 // The drift guard in fleet-reaper.test.mjs text-asserts these values against
 // chat-slots.mjs so silent drift becomes a red test. If chat-slots.mjs ever
 // becomes vitest-loadable, delete this block and restore the direct import.
 
-/** NATO-phonetic slot names — alpha..foxtrot work slots + golf hygiene slot. */
-const SLOT_NAMES = ["alpha", "bravo", "charlie", "delta", "echo", "foxtrot", "golf"];
+/** NATO-phonetic slot names — alpha..foxtrot + hotel..india work slots + golf hygiene + juliett work.
+ *  Expanded 2026-05-15 per `[[feedback_fleet_design_10_chats]]`. Total 10. */
+const SLOT_NAMES = ["alpha", "bravo", "charlie", "delta", "echo", "foxtrot", "golf", "hotel", "india", "juliett"];
 
 /** A slot whose heartbeat is younger than this is "alive". */
 const STALE_TTL_MS = 2 * 60 * 1000;

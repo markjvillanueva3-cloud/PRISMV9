@@ -1,9 +1,9 @@
 ---
 name: checkin
-description: Check this chat into the 7-slot PRISM fleet (claim alpha/bravo/charlie/delta/echo/foxtrot work slots OR golf hygiene slot), bind the handoff filename to the slot, reap crashed slots + stale file-claims, and verify there's no envelope/code drift, no peer-owned files staged, no stale index.lock, no diverge-from-origin. Run once at the start of any chat that's part of the multi-chat fleet, and again right after a /compact. Cheap (~5s, mostly node helpers).
+description: One-stop development pipeline entry. Claim a slot in the 10-chat PRISM fleet (alpha..india work + juliett hygiene; golf is also hygiene back-compat) — bind handoff to slot, reap crashed slots, drift/commit-hygiene check, then EMIT THE FULL DEV PIPELINE for whatever task the operator hands over in the args. Pipeline auto-injects prism-awareness + system-viz + Obsidian-PRISM-OS + tribal knowledge + AI/neural/deep-reasoning routing + CLAUDE.md rules. Files created get registered to /system-viz galaxy. End-of-session precompact/compact/handoff rules are appended automatically so a typed `/checkin <task>` is the only thing the operator needs.
 trigger:
   autoSuggest:
-    keywords: ["checkin", "check in", "check into the system", "claim a slot", "fleet slot", "which chat am i", "login to the fleet"]
+    keywords: ["checkin", "check in", "claim a slot", "fleet slot", "which chat am i", "login to the fleet", "start a development pipeline", "begin a unit", "begin loop", "start loop"]
 ---
 
 # /checkin — Fleet Check-In + Drift / Conflict / Commit Guard
@@ -186,7 +186,156 @@ any `## SECTION` header you haven't seen before — surface it in the report as
 If the verdict is ⚠, list the 1-3 concrete next actions (the fix commands above) and stop — don't start work until they're resolved.
 
 ## Notes
-- Slots are NATO-phonetic (7 total): **alpha · bravo · charlie · delta · echo · foxtrot** are **work** slots (default auto-claim picks the first free one), and **golf** is the dedicated **hygiene** slot (claimed only with `--golf`, write-allowlist bound via `golf-slot-write-allowlist.mjs`). An 8th chat returns `fleet_full` — force-take an inactive slot instead of spawning a nameless one.
+- Slots are NATO-phonetic (10 total, expanded 2026-05-15 per [[feedback_fleet_design_10_chats]]): **alpha · bravo · charlie · delta · echo · foxtrot · hotel · india · juliett** are **work** slots (default auto-claim picks the first free one), and **golf** is the dedicated **hygiene** slot (claimed only with `--golf`, write-allowlist bound via `golf-slot-write-allowlist.mjs`). An 11th chat returns `fleet_full` — force-take an inactive slot instead of spawning a nameless one. Terminal-window pinning ([[reference_session_continuity_stack_2026_05_15]]) makes 10 PowerShell windows resolve to 10 deterministic slots — same window → same slot across /compact and /clear.
 - The slot binding lives for the chat's lifetime or until its heartbeat goes >10min stale (then it's auto-reclaimed). `/checkin`, `/handoff`, `/compact` refresh the heartbeat manually — but as of 2026-05-14, the **`heartbeat-keepalive.mjs` UserPromptSubmit hook** (T3, knob `PRISM_HEARTBEAT_KEEPALIVE_DISABLE=1`) refreshes it automatically on every prompt when the heartbeat is older than 60 s. The 2026-05-14 "alpha disappeared after 17 min of user think-time" bug is what motivated the hook; with it active, slots stay alive across user idle gaps as long as the chat is responsive at all. The hook is silent on success — operators only see it surface in fleet-status when an idle chat's heartbeat refresh-ages stays <60s instead of climbing toward the 10min reclaim threshold.
 - Companion commands: `/who` (just your identity), `node scripts/fleet-status.mjs` (the boxed fleet dashboard, `--watch` to live-tail), `/six-chat-bootstrap` (the ONE-time master setup that assigns 6 phases to 6 slots — different thing, run once not per-chat), `/six-chat-commit-consensus` (the commit gate for the 6-chat protocol), `/handoff` (session-end), `/precompact` (before /compact).
-- `/checkin` does NOT commit anything and does NOT start work — it's purely "establish identity + verify the lane is safe". Run it, read the verdict, then go.
+- `/checkin` always claims/refreshes the slot + runs the drift gate. When `/checkin` is invoked WITH task descriptions in the args (e.g. `/checkin /loop  read H:\last.md and complete all units`), it ADDITIONALLY emits the full dev pipeline below. Without args it stops at the §Report and lets you decide what to do.
+
+---
+
+# THE DEV PIPELINE — emitted when /checkin has a task argument
+
+When `$ARGUMENTS` contains a task/unit/loop/goal directive (heuristic: contains any of `/loop`, `/goal`, `/pick-unit`, `/pick-dev`, `unit`, `task`, `complete`, `ship`, `build`, `wire`, or a verbatim filepath), Claude proceeds through the steps below INSTEAD OF stopping at the §Report. The §Report still runs first — drift/dirty-tree blocks still apply.
+
+## Step 8 — Awareness inject (auto-loaded; verify it landed)
+
+The harness UserPromptSubmit hooks already injected these on this turn — confirm by glancing at them:
+
+| Surface | Where it shows up | When to drill |
+|---|---|---|
+| `claudeMd` block | top of the system reminders | for doctrine rules + recent regressions |
+| `master-index pre-search` | top-5 hits matching prompt tokens | for code/wiki entry points |
+| `wiki-precheck-inject` | top-3 wiki entries (BM25 + cosine) | when the prompt mentions an unfamiliar concept |
+| `awareness-snapshot` | 15-line digest (built/unwired/drift counts) | first thing every turn |
+| `BUILD_STATE` injection | engines wired/unwired, frontends pending | before touching ANY engine/dispatcher |
+| `MILESTONE_PROGRESS` | shipped vs claimed per envelope | before claiming you'll build something already shipped |
+| `pick/checkin prefresh` | staleness of milestone/build-state | check >30m staleness → regen first |
+| `/loop awareness` | other active loops in the fleet | avoid stepping on a peer's loop |
+| `CLAUDE-BRIEF.md` | full PRISM context (regenerated each SessionStart) | when you need the WHOLE picture |
+| `recent regressions` | last 10 known-broken bugs to avoid | always glance at this |
+
+**If any of the above is missing or stale (>30m), re-fire with**:
+```bash
+node H:/prism/scripts/build-milestone-progress.mjs
+node H:/prism/scripts/build-state-snapshot.mjs
+node H:/prism/mcp-server/scripts/generate-claude-brief.mjs
+```
+
+## Step 9 — /system-viz galaxy as visual master-index
+
+The graph is the canonical visual map. Use it BEFORE Grep/Glob/Agent on any cross-cutting search.
+
+| When | Use |
+|---|---|
+| "what code touches X" | `prism_session:master_index_query` action OR `/master-index <X>` skill |
+| "is this engine wired" | `prism_session:master_index_node_status` action OR check BUILD_STATE injection |
+| "what depends on this" | `node H:/prism/scripts/system-viz-query.mjs <node>` |
+| "show me the graph" | `/system-viz` (opens browser at :8765, the live 3D map) |
+| Add a file → galaxy update | The Stop hook `stop-system-viz-reminder.mjs` (T3, 2026-05-15) reminds at session end. Or fire-and-forget now: `curl -fsS -X POST http://localhost:8765/api/refresh -m 2 >/dev/null 2>&1 &` |
+| Full pipeline regen (~8 min) | `node H:/prism/scripts/regen-wiki-from-viz.mjs` |
+
+**Node-to-node wiring + pipeline discovery:**
+- `prism_session:dispatcher_map_compact` — full dispatcher graph in <2KB
+- `prism_session:action_search <pattern>` — find an action across ~7500 actions
+- `prism_session:tool_route_best <task>` — let the router pick the best tool
+
+## Step 10 — Obsidian-PRISM-OS routing (memories / skills / scripts / hooks via AI)
+
+Treat the wiki + memory vault as the second brain. The cognitive layer routes through Ollama (local) and Qdrant (vectors) when available.
+
+| Need | Surface |
+|---|---|
+| Memory recall on edited file | `memory-relevance` hook auto-injects matching `[[memo]]` entries (PRISM_MEMORY_RELEVANCE=1) |
+| Skill auto-suggest | `skill-auto-trigger.mjs` UserPromptSubmit hook reads `_skill-triggers.jsonl` |
+| Wiki recall on read | `wiki-recall-on-read.mjs` PostToolUse:Read auto-injects wiki summaries |
+| Wiki semantic search | `/wiki-query <q>` (BM25 + nomic-embed cosine fallback) |
+| Add to memory | Write `C:/Users/<user>/.claude/projects/H--PRISM/memory/<kind>_<slug>.md` — memory-mirror auto-syncs to vault |
+| AI orchestration | `prism_ai:ai_route_mill_pipeline` / `prism_ai:cot_reason` / `prism_ai:scientific_reason` |
+| Neural prediction | `prism_ai:neural_recommend` / `prism_ai:neural_route` / `prism_ai:cognitive_neural_synthesize` |
+| Deep reasoning | `prism_intelligence:cognitive_mfg_reason` / `prism_ai:ai_mill_agi_reason` |
+| Deep learning predict | `prism_ai:ai_milling_deep_reason` / `prism_ai:cad_neural_generate` |
+| Tribal-knowledge tips | `prism_knowledge:tribal_search` / `tribal_suggest` / `cognitive_tribal_maximizer_query` |
+| Ollama offload (local 7b) | Auto-routed for code summarize/explain/classify (`OllamaHookBridgeEngine`) |
+| Qdrant vector recall | `xproc_episodic_recall` / `xproc_outcome_retrieve_similar` |
+
+## Step 11 — CLAUDE.md rules + GSD + skills/scripts/hooks
+
+Always-active layers (verify on every loop iteration — they're cheap):
+
+- **CLAUDE.md** at `H:/prism/CLAUDE.md` (project) + `~/.claude/CLAUDE.md` (global). Doctrine pointers + recent regressions. Auto-injected on every prompt.
+- **GSD protocol** via `prism_gsd:core` (dispatcher) or read `mcp-server/data/docs/gsd/GSD_QUICK.md`. Session lifecycle, hook fan-out, command bridge.
+- **Skills index** via `prism_skill_script:skill_search` + `/master-index <task>`. ~440 skills auto-injected per SessionStart.
+- **Scripts** via `prism_skill_script:script_search`. Re-runnable helpers live in `H:/prism/scripts/` and `H:/prism/mcp-server/scripts/`.
+- **Hooks** registry via `prism_hook:list` + `prism_hook:manifest`. PreToolUse / PostToolUse / Stop / SessionStart / UserPromptSubmit.
+
+## Step 12 — Run /loop until tasks complete (= /goal)
+
+When the args contain `/loop` or a list of units/tasks:
+
+1. **Pre-loop checkpoint** — write loop state:
+   ```bash
+   STABLE="claude-<8hex>"
+   node H:/prism/.claude/helpers/loop-state.mjs start --session "$STABLE" --task "<one-line task>" --target <iter-count>
+   ```
+2. **Per-iteration** (do NOT call `ScheduleWakeup` between iterations per [[feedback_no_schedule_wakeup_in_loop]]):
+   - Pick the next unit/task (`/pick-unit` for next roadmap unit, or pop the next item from your TaskCreate list)
+   - Apply Karpathy R10: state done/verified/left BEFORE writing code
+   - Run the per-file scrutiny gate if multi-file ([[feedback_parallel_scrutiny_per_file]])
+   - Tick the loop: `node H:/prism/.claude/helpers/loop-state.mjs tick --session "$STABLE" --status ok --note "<one line>"`
+   - Karpathy R12: surface uncertainty — never silently skip failing tests
+3. **Goal-complete gate** — `/goal` Stop hook blocks unless `state/shared/CLOSE-OUT-CANDIDATES.json` is fresh (<2h) and all candidate `unit_id`s are committed OR in `CLOSE-OUT-DEFERRED.md`. Run `/close-out-audit` to refresh.
+4. **End-of-loop** — `node H:/prism/.claude/helpers/loop-state.mjs end --session "$STABLE" --reason done`
+
+## Step 13 — Files created → /system-viz galaxy
+
+Every Write/Edit/MultiEdit on `H:/prism/**` will trigger the Stop hook `stop-system-viz-reminder.mjs` to nudge a refresh. To pre-empt — fire the async refresh ANY time after a meaningful batch:
+
+```bash
+curl -fsS -X POST http://localhost:8765/api/refresh -m 2 >/dev/null 2>&1 &
+```
+
+The full pipeline (regenerates wiki + index + nomic embeddings) is `node H:/prism/scripts/regen-wiki-from-viz.mjs` — only run when you've added an engine/dispatcher/major hook and need the wiki entries fresh now.
+
+## Step 14 — End-of-session pipeline (precompact / compact / handoff)
+
+Use these IN ORDER as the session approaches token limit OR when work ships:
+
+1. **Per-file scrutiny gate** ([[feedback_parallel_scrutiny_per_file]]) — every file in a multi-file build, 2 parallel reviewer agents.
+2. **End-of-task 3-of-3 scrutiny gate** ([[feedback_scrutiny_3of3_readonly]]) — `node H:/prism/.claude/scripts/scrutiny-3way.mjs --session-id <id>` → dispatch 3 reviewer agents in parallel → mark each PASS.
+3. **Roadmap close-out** ([[feedback_roadmap_close_out]]) — touch all 4 surfaces (envelope + roadmap-index + MILESTONE_PROGRESS + BUILD_STATE + chat-bus). Orchestrator: `node H:/prism/scripts/close-out-milestone.mjs --milestone <MS-ID>`.
+4. **Doc reflection** ([[feedback_reflect_all_changes_post_update]]) — CLAUDE.md + MEMORY.md + wiki + Obsidian memory all updated for every change-set.
+5. **Commit hygiene** — `[SCOPE-MS#]/U-<id>: title` format; never `--no-verify` unless explicitly authorized.
+6. **Precompact (BEFORE token limit)** — invoke the `precompact` skill via the Skill tool. Writes per-chat handoff. The precompact-pending guard hook blocks Stop until /compact runs.
+7. **Compact** — operator types `/compact`. PreCompact hook fires; auto-resume hook (`session-start-auto-resume.mjs`, matcher:"compact") will inject the RESUME directive on the next prompt — no need for the operator to say "continue".
+8. **Terminal-pin auto-claim** — on the next prompt, `session-start-terminal-pin.mjs` re-binds the slot to this PowerShell window. The new chat sees the same slot — never drift.
+9. **Stop-time viz reminder** — `stop-system-viz-reminder.mjs` nudges a /system-viz refresh if H: drive files changed.
+10. **Handoff** — invoke `/handoff` skill at session end to lock the RESUME for the next chat.
+
+## High-ROI features the user may have missed (check before declaring pipeline complete)
+
+User asked: *"check to see if I left high roi features out of this pipeline"*. The following are auto-available but easy to forget:
+
+| Feature | When to use | Action / Skill |
+|---|---|---|
+| ATCS (Autonomous Task Completion System) | Multi-session execution with quality gates | `prism_atcs:task_init` → `task_resume` |
+| `/forge-audit-v2` (Boris doctrine) | Codebase quality audit, peer-reviewer required | `/forge-audit-v2` |
+| `/close-out-audit` | Silent close-out debt detection | `/close-out-audit` (advisory only) |
+| `/run-continuous` | Continuous unit execution from atomic-roadmap | `/run-continuous` |
+| `/pick-build-close` | Pick → research → build → close-out macro | `/pick-build-close` |
+| `/verify-loop` | Verification feedback loop (Boris #1) | `/verify-loop` |
+| `/sparc` cognitive system | Structured Problem-Action-Result-Code framework | `/sparc` |
+| `prism_sp:cognitive_*` | RL / Bayes / ILP / KV-cache / attention anchor | `prism_sp:cognitive_init` first |
+| Tier-6 octopus-neural | Multi-provider neural consensus (Claude + Ollama + Codex) | wired via `octopus-provider-probe` hook |
+| `prism_guard:agi_containment_evaluate` | Safety on AGI proposals | always before AGI-tier writes |
+| `prism_omega:compute` / `auto_score` | Ω(x) quality score (0.25R+0.20C+0.15P+0.30S+0.10L) | HARD: S(x) ≥ 0.70 |
+| `prism_safety:*` | 30 safety actions (collision/coolant/spindle/tool/workholding) | every cutting-physics change |
+| `/awareness-snapshot` | 60-line system digest + drift report | first thing in a fresh session |
+| `/orphan-inventory` | Built-but-unwired engines with dispatcher hints | when a wiring milestone is open |
+| `/utilization-dashboard` | hubs/sinks/sources/ghosts node classification | when graph feels stale |
+| `/deep-search` | search → reason → neural (in that order) | when master-index hit confidence < 0.5 |
+| `prism_telemetry:get_dashboard` | Dispatcher latency + anomaly summary | when something feels slow |
+| `prism_hook:hook_efficiency_roi` | Hook coverage/utilization/return-on-token | when hook costs feel high |
+| `prism_memory:semantic_search` | Cross-session memory graph + Qdrant fallback | when "I solved this before" feeling hits |
+| `prism_intake:webhook_ingest` | HMAC-verified external personal-knowledge intake | for X posts / RSS / manual capture |
+
+**Use them as a checklist — invoke ANY that match the current task before declaring the pipeline complete.**

@@ -80,6 +80,7 @@ function readStdinSync() {
 }
 
 const TRANSCRIPT_TAIL_BYTES = 512 * 1024; // last 512 KB is far more than one assistant turn
+const COMPACT_SCAN_BYTES = 8 * 1024 * 1024; // 8 MB scan window for compact boundary detection
 
 /** Read only the tail of a (possibly large) file — O(1) instead of O(size). */
 function readTail(filePath, maxBytes) {
@@ -93,6 +94,46 @@ function readTail(filePath, maxBytes) {
     return buf.toString("utf-8");
   } finally {
     fs.closeSync(fd);
+  }
+}
+
+/**
+ * Find the byte offset of the line AFTER the most recent `isCompactSummary:true`
+ * entry in the transcript. Returns 0 if no compact marker found in the scan
+ * window — caller treats whole file as post-compact.
+ *
+ * Root cause this solves: the transcript JSONL is APPENDED-to (never truncated)
+ * on /compact, so a session that has compacted carries the pre-compact bytes
+ * forever. The previous estimateFromBytes() divided the entire file size by
+ * 3.5 and reported the pre-compact bloat as current-context tokens — false-
+ * positive 1.43M-token block immediately after a successful compact (observed
+ * 2026-05-15, session 6eac1b66). The fix: only count bytes AFTER the last
+ * compact boundary.
+ */
+function findLastCompactOffset(transcriptPath, fileSize) {
+  if (!fileSize || fileSize <= 0) return 0;
+  const start = Math.max(0, fileSize - COMPACT_SCAN_BYTES);
+  const len = fileSize - start;
+  let fd = -1;
+  try {
+    fd = fs.openSync(transcriptPath, "r");
+    const buf = Buffer.allocUnsafe(len);
+    fs.readSync(fd, buf, 0, len, start);
+    const text = buf.toString("utf-8");
+    const re = /"isCompactSummary"\s*:\s*true/g;
+    let lastMatch = -1;
+    let m;
+    while ((m = re.exec(text)) !== null) lastMatch = m.index;
+    if (lastMatch < 0) return 0;
+    const lineEnd = text.indexOf("\n", lastMatch);
+    if (lineEnd < 0) return 0;
+    return start + lineEnd + 1;
+  } catch {
+    return 0;
+  } finally {
+    if (fd >= 0) {
+      try { fs.closeSync(fd); } catch { /* ignore */ }
+    }
   }
 }
 
@@ -121,9 +162,25 @@ function lastAssistantTokens(transcriptPath) {
 }
 
 function estimateFromBytes(transcriptPath) {
+  // COMPACT-BOUNDARY-AWARE byte estimator.
+  //
+  // /compact leaves the JSONL transcript untouched — pre-compact bytes stay on
+  // disk forever. Dividing the entire size by CHARS_PER_TOKEN reports the
+  // accumulated session size as current-context tokens, which after one
+  // /compact is wildly inflated (5 MB transcript → 1.43 M tokens reported
+  // immediately after a successful compact, observed 2026-05-15 session
+  // 6eac1b66 — exact match for st.size / 3.5).
+  //
+  // Use findLastCompactOffset() to identify the byte position of the most
+  // recent compact boundary. Count only bytes AFTER that boundary. When no
+  // marker is found (fresh session, scan window misses an older compact),
+  // fall back to whole-file size — that's the legacy behaviour and is correct
+  // when there's been no compact.
   try {
     const st = fs.statSync(transcriptPath);
-    return Math.floor(st.size / CHARS_PER_TOKEN);
+    const compactOffset = findLastCompactOffset(transcriptPath, st.size);
+    const relevantBytes = Math.max(0, st.size - compactOffset);
+    return Math.floor(relevantBytes / CHARS_PER_TOKEN);
   } catch { return 0; }
 }
 
@@ -235,7 +292,7 @@ function main() {
     // output files inflate the on-disk size). Log + soft-nudge instead of
     // hard-blocking. Blocking work over a measurement bug is worse than
     // letting a slightly-over-budget turn through.
-    if (tokens > CONTEXT_CAP * 1.5) {
+    if (tokens > CONTEXT_CAP * 1.1) {
       try {
         fs.appendFileSync(
           "H:/prism/state/shared/precompact-trigger.jsonl",
