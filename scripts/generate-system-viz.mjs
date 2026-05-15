@@ -426,7 +426,93 @@ const WORKTREE_VERDICT_COLOR = {
   MERGE:       "#3b82f6", // settled, clean, unowned — ready to land — blue
   PRUNE:       "#94a3b8", // 0 ahead, tracked-clean — safe to remove — gray
   INVESTIGATE: "#f59e0b", // locked / detached / too-big / contradiction — amber
+  // U-VIZ-WORKTREE-MAP-EXT (2026-05-15) — ghost verdicts for archived history.
+  // Drained/parked worktrees are removed from the live fleet but the archive tag
+  // + (optional) WIP-patch are the recoverability anchors. Surfacing them as
+  // ghost nodes keeps the drain history visible in /system-viz.
+  DRAINED:     "#7c3aed", // worktree removed + branch deleted; archive tag = SHA pin — purple
+  PARKED:      "#475569", // worktree removed but branch survives on origin; merge candidate — slate
 };
+/**
+ * Enumerate `archive/slot-worktree-ms0-{drain,park}-*` git tags and pair each
+ * with its (optional) WIP-patch artifact on disk. Returns a Map keyed by the
+ * worktree base name (last segment of the tag) so the worktree emit loop can
+ * fold in `archive_tag` + `archive_status` + `wip_patch_*` on live entries AND
+ * emit ghost nodes for entries that have no live worktree any more.
+ *
+ * Fail-soft: any git/fs failure returns an empty Map so the graph build is
+ * never blocked by archive enumeration hiccups.
+ */
+function loadWorktreeArchiveIndex() {
+  const index = new Map();
+  // git tag -l — list archive tags only. The pattern is intentionally narrow:
+  // the SLOT-WORKTREE-MS0 archive convention is `archive/slot-worktree-ms0-{drain,park}-<date>/<base>`.
+  let raw = "";
+  try {
+    raw = execFileSync("git", ["tag", "-l", "archive/slot-worktree-ms0-*"], {
+      cwd: ROOT, encoding: "utf8", timeout: 60_000, maxBuffer: 4 * 1024 * 1024, windowsHide: true,
+    });
+  } catch {
+    return index;
+  }
+  const tags = raw.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  // Patch directories live under state/shared/archive-patches/<archive-name>/<base>.diff.
+  // Walk every direct subdir once and key by `${dirName}::${base}` so a base name
+  // shared across drain + park directories doesn't collide.
+  const patchRoot = path.join(ROOT, "state", "shared", "archive-patches");
+  const patchIndex = new Map(); // key: `${archiveName}::${base}` -> { path, bytes }
+  if (fs.existsSync(patchRoot)) {
+    let dirs = [];
+    try { dirs = fs.readdirSync(patchRoot); } catch { dirs = []; }
+    for (const d of dirs) {
+      const dPath = path.join(patchRoot, d);
+      let stat;
+      try { stat = fs.statSync(dPath); } catch { continue; }
+      if (!stat.isDirectory()) continue;
+      let entries = [];
+      try { entries = fs.readdirSync(dPath); } catch { entries = []; }
+      for (const f of entries) {
+        if (!f.endsWith(".diff")) continue;
+        const base = f.replace(/\.diff$/, "");
+        let fStat;
+        try { fStat = fs.statSync(path.join(dPath, f)); } catch { continue; }
+        patchIndex.set(`${d}::${base}`, {
+          path: path.posix.join("state", "shared", "archive-patches", d, f),
+          bytes: fStat.size,
+        });
+      }
+    }
+  }
+  for (const tag of tags) {
+    // tag shape: archive/slot-worktree-ms0-{drain|park}-<date>/<base>
+    const m = tag.match(/^archive\/slot-worktree-ms0-(drain|park)-(\d{4}-\d{2}-\d{2})\/(.+)$/);
+    if (!m) continue;
+    const [, kind, date, base] = m;
+    const archiveDir = `slot-worktree-ms0-${kind}-${date}`;
+    const status = kind === "park" ? "PARKED" : "DRAINED";
+    const patch = patchIndex.get(`${archiveDir}::${base}`) || null;
+    // Resolve the tagged SHA (best-effort; no fatal if it fails).
+    let sha = null;
+    try {
+      sha = execFileSync("git", ["rev-list", "-n", "1", tag], {
+        cwd: ROOT, encoding: "utf8", timeout: 10_000, windowsHide: true,
+      }).trim() || null;
+    } catch { /* leave sha null */ }
+    // If the same base appears under both drain and park (shouldn't happen but
+    // defensively): drain wins because its tag implies the branch is gone.
+    const existing = index.get(base);
+    if (existing && existing.status === "DRAINED") continue;
+    index.set(base, {
+      tag,
+      status,
+      archive_date: date,
+      sha,
+      wip_patch_path: patch ? patch.path : null,
+      wip_patch_bytes: patch ? patch.bytes : 0,
+    });
+  }
+  return index;
+}
 function loadWorktreeAudit() {
   const auditScript = path.join(ROOT, "scripts", "audit-worktrees.mjs");
   if (!fs.existsSync(auditScript)) return null;
@@ -449,24 +535,37 @@ function loadWorktreeAudit() {
   }
 }
 const worktreeAudit = loadWorktreeAudit();
-let worktreeSummary = { total: 0, KEEP: 0, MERGE: 0, PRUNE: 0, INVESTIGATE: 0, base: null, generatedAt: null };
+// U-VIZ-WORKTREE-MAP-EXT (2026-05-15) — archive index is filesystem+git state,
+// not part of the live audit. Loaded once and used both to enrich live nodes and
+// to emit ghost nodes for tags whose worktree has been removed.
+const worktreeArchive = loadWorktreeArchiveIndex();
+let worktreeSummary = {
+  total: 0, KEEP: 0, MERGE: 0, PRUNE: 0, INVESTIGATE: 0,
+  DRAINED: 0, PARKED: 0, archived_total: 0,
+  base: null, generatedAt: null,
+};
 if (worktreeAudit) {
   const wc = worktreeAudit.counts || {};
   worktreeSummary = {
     total: worktreeAudit.worktrees.length,
     KEEP: wc.KEEP ?? 0, MERGE: wc.MERGE ?? 0, PRUNE: wc.PRUNE ?? 0, INVESTIGATE: wc.INVESTIGATE ?? 0,
+    DRAINED: 0, PARKED: 0, archived_total: 0,
     base: worktreeAudit.base ?? null,
     generatedAt: worktreeAudit.generatedAt ?? null,
   };
   // Hub anchor so the worktree fleet renders as one cluster in L9.
   addNode({
     id: "wt.root", layer: "L9", subgroup: "worktrees",
-    label: `Git Worktrees\n${worktreeSummary.total} trees`,
+    label: `Git Worktrees\n${worktreeSummary.total} live · ${worktreeArchive.size} archived`,
     color: "#64748b", status: "built", size: 1.2,
     info: `git worktree fleet — KEEP ${worktreeSummary.KEEP} · MERGE ${worktreeSummary.MERGE} · ` +
-          `PRUNE ${worktreeSummary.PRUNE} · INVESTIGATE ${worktreeSummary.INVESTIGATE} · base ${worktreeSummary.base ?? "?"}`,
+          `PRUNE ${worktreeSummary.PRUNE} · INVESTIGATE ${worktreeSummary.INVESTIGATE} · ` +
+          `archived ${worktreeArchive.size} (P2-DRAIN) · base ${worktreeSummary.base ?? "?"}`,
   });
   const seenWtIds = new Set(["wt.root"]);
+  // Track which archive-index entries got folded into a LIVE worktree node so
+  // the ghost-emit pass below only fires for the remainder (drained+parked).
+  const liveBaseHits = new Set();
   for (const wt of worktreeAudit.worktrees) {
     const base = String(wt.path || "").replace(/[\\/]+$/, "").split(/[\\/]/).pop() || "unknown";
     const idSafe = base.replace(/[^a-zA-Z0-9._-]/g, "_").toLowerCase();
@@ -481,6 +580,15 @@ if (worktreeAudit) {
     const size = Math.min(1.4, Math.max(0.5, 0.5 + Math.log10((ahead ?? 0) + 1) * 0.35));
     const lastCommit = wt.lastCommitIso ? String(wt.lastCommitIso).slice(0, 10) : "—";
     const ownerNote = wt.owner ? ` · owner ${wt.owner.slot}${wt.owner.alive ? " ⚠ALIVE" : ""}` : "";
+    // U-VIZ-WORKTREE-MAP-EXT — fold archive metadata into the live node if the
+    // base name happens to match a known archive tag. The expected case is rare
+    // (a worktree archive-tagged but not removed) — when it hits, the operator
+    // can see both the live state AND the recoverability anchor.
+    const archive = worktreeArchive.get(base) || null;
+    if (archive) liveBaseHits.add(base);
+    const archiveNote = archive
+      ? ` · 📦${archive.status.toLowerCase()} ${archive.archive_date}${archive.wip_patch_bytes ? ` (+${archive.wip_patch_bytes}b WIP)` : ""}`
+      : "";
     addNode({
       id: wtId, layer: "L9", subgroup: "worktrees",
       label: `${base}\n${wt.branch || "(detached)"}`,
@@ -488,7 +596,8 @@ if (worktreeAudit) {
       status: "built", size,
       info: `${wt.path} · ${wt.branch || "(detached)"} · +${ahead ?? "?"}/-${behind ?? "?"} · ` +
             `last ${lastCommit} · ${verdict}${ownerNote}` +
-            (wt.dirtyCount ? ` · dirty:${wt.dirtyCount}` : ""),
+            (wt.dirtyCount ? ` · dirty:${wt.dirtyCount}` : "") +
+            archiveNote,
       verdict,
       branch: wt.branch || null,
       ahead, behind,
@@ -499,8 +608,64 @@ if (worktreeAudit) {
       detached: !!wt.detached,
       owner: wt.owner ? { slot: wt.owner.slot, alive: !!wt.owner.alive } : null,
       reasons: Array.isArray(wt.reasons) ? wt.reasons.slice(0, 6) : [],
+      archive_tag: archive ? archive.tag : null,
+      archive_status: archive ? archive.status : null,
+      archive_date: archive ? archive.archive_date : null,
+      archive_sha: archive ? archive.sha : null,
+      wip_patch_path: archive ? archive.wip_patch_path : null,
+      wip_patch_bytes: archive ? archive.wip_patch_bytes : 0,
     });
     addEdge(wtId, "wt.root", "worktree", "active", 0.4);
+  }
+  // ---- Ghost archive nodes (drained + parked) ----
+  // For each archive-tag whose base name didn't match a live worktree, emit a
+  // ghost L9 node so the drain history is part of the visual index. These
+  // represent recoverable history that isn't currently checked out anywhere.
+  for (const [base, archive] of worktreeArchive.entries()) {
+    if (liveBaseHits.has(base)) continue; // already folded into a live node
+    const idSafe = base.replace(/[^a-zA-Z0-9._-]/g, "_").toLowerCase();
+    let ghostId = `wt.archived.${idSafe}.${archive.status.toLowerCase()}`;
+    let dupN = 2;
+    while (seenWtIds.has(ghostId)) { ghostId = `wt.archived.${idSafe}.${archive.status.toLowerCase()}.${dupN++}`; }
+    seenWtIds.add(ghostId);
+    const verdict = archive.status; // "DRAINED" | "PARKED"
+    const wipNote = archive.wip_patch_bytes
+      ? ` · WIP ${archive.wip_patch_bytes}b @ ${archive.wip_patch_path}`
+      : " · no WIP-patch (clean drain)";
+    addNode({
+      id: ghostId, layer: "L9", subgroup: "worktrees",
+      label: `${base}\n(${verdict.toLowerCase()})`,
+      color: WORKTREE_VERDICT_COLOR[verdict],
+      status: "built", size: 0.55,
+      info: `[archived ${verdict.toLowerCase()} ${archive.archive_date}] ` +
+            `tag ${archive.tag}` +
+            (archive.sha ? ` · sha ${archive.sha.slice(0, 8)}` : "") +
+            wipNote +
+            ` · recover: git checkout ${archive.tag}`,
+      verdict,
+      branch: null,
+      ahead: null, behind: null,
+      worktreePath: null,
+      lastCommitIso: null,
+      dirtyCount: null,
+      locked: false,
+      detached: false,
+      owner: null,
+      reasons: [verdict === "DRAINED"
+        ? "Worktree removed + branch deleted; archive tag is the SHA pin."
+        : "Worktree removed but branch survives on origin — merge candidate."],
+      archive_tag: archive.tag,
+      archive_status: archive.status,
+      archive_date: archive.archive_date,
+      archive_sha: archive.sha,
+      wip_patch_path: archive.wip_patch_path,
+      wip_patch_bytes: archive.wip_patch_bytes,
+      ghost: true,
+    });
+    addEdge(ghostId, "wt.root", "worktree-archived", "archived", 0.25);
+    if (verdict === "DRAINED") worktreeSummary.DRAINED++;
+    else if (verdict === "PARKED") worktreeSummary.PARKED++;
+    worktreeSummary.archived_total++;
   }
 }
 

@@ -177,25 +177,35 @@ else if (cmd === "worktrees") {
   // Git worktree fleet — the L9 `worktrees` subgroup mapped in by
   // generate-system-viz.mjs (which reuses audit-worktrees.mjs). Grouped by
   // verdict so the land-ready / safe-to-prune trees surface first.
-  const KNOWN_VERDICTS = ["MERGE", "PRUNE", "INVESTIGATE", "KEEP"];
+  // U-VIZ-WORKTREE-MAP-EXT (2026-05-15) — DRAINED + PARKED are ghost nodes for
+  // archive-tagged worktrees that have been removed from the live fleet but
+  // whose history is recoverable via `git checkout <tag>`. Surface them so the
+  // drain trail is queryable, not just visible in the 3D map.
+  const KNOWN_VERDICTS = ["MERGE", "PRUNE", "INVESTIGATE", "KEEP", "PARKED", "DRAINED"];
   const wts = G.nodes.filter(n => n.layer === "L9" && n.subgroup === "worktrees" && n.id !== "wt.root");
   const summary = (G.meta && G.meta.worktrees) ? G.meta.worktrees : null;
-  const byVerdict = { MERGE: [], PRUNE: [], INVESTIGATE: [], KEEP: [] };
+  const byVerdict = { MERGE: [], PRUNE: [], INVESTIGATE: [], KEEP: [], PARKED: [], DRAINED: [] };
   for (const n of wts) {
     // Any node missing a known verdict (stale graph format) falls into
     // INVESTIGATE so it still surfaces rather than being silently dropped.
     const v = KNOWN_VERDICTS.includes(n.verdict) ? n.verdict : "INVESTIGATE";
     byVerdict[v].push(n);
   }
+  const liveCount = byVerdict.KEEP.length + byVerdict.MERGE.length + byVerdict.PRUNE.length + byVerdict.INVESTIGATE.length;
+  const ghostCount = byVerdict.PARKED.length + byVerdict.DRAINED.length;
   const lines = [];
-  lines.push(`Git worktrees (${wts.length} total${summary && summary.base ? `, base ${summary.base}` : ""}):`);
+  lines.push(`Git worktrees (${liveCount} live + ${ghostCount} archived${summary && summary.base ? `, base ${summary.base}` : ""}):`);
   if (summary) {
     lines.push(`  KEEP ${summary.KEEP ?? 0} · MERGE ${summary.MERGE ?? 0} · PRUNE ${summary.PRUNE ?? 0} · INVESTIGATE ${summary.INVESTIGATE ?? 0}`);
+    if ((summary.archived_total ?? 0) > 0) {
+      lines.push(`  📦 PARKED ${summary.PARKED ?? 0} · DRAINED ${summary.DRAINED ?? 0} (archive-tagged, recoverable)`);
+    }
   } else {
     lines.push("  (no meta.worktrees summary — graph predates worktree mapping; regenerate via scripts/generate-system-viz.mjs)");
   }
   lines.push("");
-  // MERGE/PRUNE first (actionable: land or remove), INVESTIGATE, KEEP last.
+  // MERGE/PRUNE first (actionable: land or remove), INVESTIGATE, KEEP, then
+  // archived (PARKED → merge candidates, DRAINED → SHA-only pins) last.
   for (const v of KNOWN_VERDICTS) {
     const rows = byVerdict[v].slice().sort((a, b) => (b.ahead ?? -1) - (a.ahead ?? -1));
     if (!rows.length) continue;
@@ -206,7 +216,15 @@ else if (cmd === "worktrees") {
       const dirty = r.dirtyCount ? ` dirty:${r.dirtyCount}` : "";
       const owner = r.owner && r.owner.alive ? " ⚠ALIVE-OWNER" : "";
       const locked = r.locked ? " 🔒locked" : "";
-      lines.push(`  · ${nm.padEnd(30)} [${br}]  +${r.ahead ?? "?"}/-${r.behind ?? "?"}${dirty}${owner}${locked}`);
+      // For ghost rows: replace +/- (n/a) with the archive tag + WIP hint.
+      if (v === "PARKED" || v === "DRAINED") {
+        const tag = r.archive_tag ? ` 📦${r.archive_tag.replace(/^archive\//, "")}` : "";
+        const wip = (r.wip_patch_bytes && r.wip_patch_bytes > 0) ? ` WIP:${r.wip_patch_bytes}b` : "";
+        const sha = r.archive_sha ? ` sha:${String(r.archive_sha).slice(0, 8)}` : "";
+        lines.push(`  · ${nm.padEnd(30)} (archived ${r.archive_date ?? "?"})${tag}${sha}${wip}`);
+      } else {
+        lines.push(`  · ${nm.padEnd(30)} [${br}]  +${r.ahead ?? "?"}/-${r.behind ?? "?"}${dirty}${owner}${locked}`);
+      }
     }
     lines.push("");
   }
@@ -216,6 +234,8 @@ else if (cmd === "worktrees") {
   out(lines.join("\n"), {
     summary,
     count: wts.length,
+    liveCount,
+    archivedCount: ghostCount,
     worktrees: wts.map(n => ({
       id: n.id,
       name: n.label ? n.label.split("\n")[0] : n.id,
@@ -230,6 +250,14 @@ else if (cmd === "worktrees") {
       lastCommitIso: n.lastCommitIso ?? null,
       owner: n.owner ?? null,
       reasons: Array.isArray(n.reasons) ? n.reasons : [],
+      // U-VIZ-WORKTREE-MAP-EXT — archive enrichment (null on live-only nodes).
+      archive_tag: n.archive_tag ?? null,
+      archive_status: n.archive_status ?? null,
+      archive_date: n.archive_date ?? null,
+      archive_sha: n.archive_sha ?? null,
+      wip_patch_path: n.wip_patch_path ?? null,
+      wip_patch_bytes: n.wip_patch_bytes ?? 0,
+      ghost: !!n.ghost,
     })),
   });
 }
