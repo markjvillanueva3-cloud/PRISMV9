@@ -22,6 +22,12 @@ const SAFETY_HOOKS = [
   { path: `${HOOK_BASE}/ban-facade-patterns.mjs`,            timeout: 3000 },
   { path: `${HOOK_BASE}/file-ownership-tracker.mjs`,         timeout: 2000 },
   { path: `${HOOK_BASE}/work-claim.mjs`,                     timeout: 2000 },
+  // SLOT-WORKTREE-MS0/U-P1-MAINTREE-WRITE-BLOCK (2026-05-15): default-OFF,
+  // env-opt-in (PRISM_MAINTREE_WRITE_BLOCK_ENABLE=1) gate that blocks slot
+  // chats from editing the main integration tree (H:/prism). Pre-cutover
+  // no-op (no chat is bound to a `slot/*` branch yet). The integrator slot
+  // (golf) is exempt by name. Kill switch: PRISM_MAINTREE_WRITE_BLOCK_DISABLE=1.
+  { path: `${HOOK_BASE}/main-tree-write-block.mjs`,          timeout: 2000 },
   { path: `${HOOK_BASE}/duplication-hard-block.mjs`,         timeout: 3000 },
   { path: `${HOOK_BASE}/asset-deletion-block.mjs`,           timeout: 3000 },
   { path: `${HOOK_BASE}/settings-json-addonly-guard.mjs`,    timeout: 2000 },

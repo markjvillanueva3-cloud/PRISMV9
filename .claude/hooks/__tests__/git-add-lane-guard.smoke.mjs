@@ -131,11 +131,15 @@ t("findWT garbage porcelain (random lines)", () => {
   return threw === false && result === null;
 });
 
-// resolveSlotScope
-const SLOTS = { slots: [
-  { slot: "alpha", state: null, status: "idle" },
-  { slot: "charlie", status: "active", state: { chatId: "claude-abcd1234", branch: "slot/charlie" } },
-]};
+// resolveSlotScope — fixture mirrors the REAL chat-slots.json schema:
+//   { schemaVersion, lastUpdated, slots: { <slot>: { chatId, branch, ... } } }
+// (`slots.slots` is an OBJECT keyed by slot name, NOT an array. Original
+// fixture used an array shape — that bug was caught by the sibling
+// main-tree-write-block.mjs smoke harness against the real file.)
+const SLOTS = { slots: {
+  alpha:   null, // idle
+  charlie: { chatId: "claude-abcd1234", branch: "slot/charlie" },
+}};
 t("scope happy", () => {
   const s = m.resolveSlotScope({ sessionId:"claude-abcd1234", slots:SLOTS, porcelain:SAMPLE, cwd:"H:/prism-slot-charlie" });
   return s && s.slot === "charlie" && s.branch === "slot/charlie" && s.root === "h:/prism-slot-charlie";
@@ -143,8 +147,11 @@ t("scope happy", () => {
 t("scope null on missing sid", () => m.resolveSlotScope({ sessionId:null, slots:SLOTS, porcelain:SAMPLE, cwd:"H:/x" }) === null);
 t("scope null on missing slots", () => m.resolveSlotScope({ sessionId:"claude-abcd1234", slots:null, porcelain:SAMPLE, cwd:"H:/x" }) === null);
 t("scope null on no match", () => m.resolveSlotScope({ sessionId:"claude-99999999", slots:SLOTS, porcelain:SAMPLE, cwd:"H:/x" }) === null);
-t("scope null on unbound", () => m.resolveSlotScope({ sessionId:"claude-xx", slots:{slots:[{slot:"a",state:{chatId:"claude-xx"}}]}, porcelain:SAMPLE, cwd:"H:/x" }) === null);
-t("scope null on no worktree match", () => m.resolveSlotScope({ sessionId:"claude-xx", slots:{slots:[{slot:"a",state:{chatId:"claude-xx",branch:"slot/missing"}}]}, porcelain:SAMPLE, cwd:"H:/x" }) === null);
+t("scope null on unbound (no branch)", () => m.resolveSlotScope({ sessionId:"claude-xx", slots:{slots:{a:{chatId:"claude-xx"}}}, porcelain:SAMPLE, cwd:"H:/x" }) === null);
+t("scope null on no worktree match", () => m.resolveSlotScope({ sessionId:"claude-xx", slots:{slots:{a:{chatId:"claude-xx",branch:"slot/missing"}}}, porcelain:SAMPLE, cwd:"H:/x" }) === null);
+// Defense-in-depth: legacy array shape (if any old fixture sneaks in) → null, not throw.
+t("scope returns null on legacy array shape", () => m.resolveSlotScope({ sessionId:"x", slots:{slots:[]}, porcelain:SAMPLE, cwd:"H:/x" }) === null);
+t("scope null on idle slot (null state)", () => m.resolveSlotScope({ sessionId:"x", slots:{slots:{alpha:null}}, porcelain:SAMPLE, cwd:"H:/x" }) === null);
 
 // decideOnInvocations
 const S = { slot:"charlie", branch:"slot/charlie", root:"h:/prism-slot-charlie", cwd:"h:/prism-slot-charlie" };

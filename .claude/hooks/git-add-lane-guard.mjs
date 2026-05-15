@@ -309,6 +309,15 @@ function gitWorktreePorcelain(cwd) {
 /**
  * Resolve the slot scope (slot worktree root absolute path) for this chat.
  * Returns null if any step fails — caller MUST fail-open on null.
+ *
+ * Schema match: state/shared/chat-slots.json is shaped
+ *   { schemaVersion, lastUpdated, slots: { alpha:{chatId,branch,...}, bravo:{...}, ... } }
+ * `slots.slots` is an OBJECT keyed by slot name, NOT an array, and the chat
+ * state is the direct value (no nested `state` field). The original
+ * U-P1-ADD-LANE-GUARD ship used an `.find()` over an array — would throw
+ * TypeError when armed against the real file. Caught while writing the
+ * sibling main-tree-write-block hook + back-fixed here. Today the hook is
+ * default-OFF so the latent bug never fired in production.
  */
 export function resolveSlotScope({
   sessionId,
@@ -317,15 +326,23 @@ export function resolveSlotScope({
   cwd,
 }) {
   if (!sessionId || !slots || !slots.slots) return null;
-  const slotEntry = slots.slots.find(
-    (s) => s.state && s.state.chatId === sessionId,
-  );
-  if (!slotEntry || !slotEntry.state || !slotEntry.state.branch) return null;
-  const root = findWorktreeForBranch(porcelain, slotEntry.state.branch);
+  const bag = slots.slots;
+  if (typeof bag !== "object" || Array.isArray(bag)) return null;
+  let matchedSlot = null;
+  let matchedBranch = null;
+  for (const [slotName, state] of Object.entries(bag)) {
+    if (state && typeof state === "object" && state.chatId === sessionId) {
+      matchedSlot = slotName;
+      matchedBranch = state.branch || null;
+      break;
+    }
+  }
+  if (!matchedSlot || !matchedBranch) return null;
+  const root = findWorktreeForBranch(porcelain, matchedBranch);
   if (!root) return null;
   return {
-    slot: slotEntry.slot,
-    branch: slotEntry.state.branch,
+    slot: matchedSlot,
+    branch: matchedBranch,
     root: canonicalize(root),
     cwd: canonicalize(cwd),
   };
