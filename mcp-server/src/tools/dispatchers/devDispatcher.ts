@@ -163,7 +163,18 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "dv_validate_material",
 "dv_validate_cutting_params",
 "dv_validate_job",
-"dv_stats"] as const;
+"dv_stats",
+// OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-EDGE-CASE: wire EdgeCaseCaptureEngine
+// (Phase 0.25 Adaptive Variability — captures + learns from boundary operations,
+// drives envelope expansion via VariabilityEnvelopeEngine integration).
+"edge_case_capture",
+"edge_case_auto_capture",
+"edge_case_summary",
+"edge_case_all_summaries",
+"edge_case_expansion_candidates",
+"edge_case_search",
+"edge_case_learnings",
+"edge_case_stats"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -5219,6 +5230,77 @@ export function registerDevDispatcher(server: any): void {
           case "dv_stats": {
             const { dataValidationEngine } = await import("../../engines/DataValidationEngine.js");
             result = { success: true, stats: dataValidationEngine.stats() };
+            break;
+          }
+
+          // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-EDGE-CASE: EdgeCaseCaptureEngine wire (2026-05-15).
+          // Engine is a singleton with in-memory captures + integration with
+          // VariabilityEnvelopeEngine. capture() requires {operation, parameter, value, outcome,
+          // context} and computes percentile via the envelope engine.
+          case "edge_case_capture": {
+            const { edgeCaseCaptureEngine } = await import("../../engines/EdgeCaseCaptureEngine.js");
+            const cap = edgeCaseCaptureEngine.capture({
+              operation: String(params.operation ?? "unknown"),
+              parameter: String(params.parameter ?? ""),
+              value: Number(params.value ?? 0),
+              outcome: (params.outcome ?? "success") as "success" | "marginal" | "failure",
+              context: (params.context && typeof params.context === "object") ? params.context : {},
+              measurements: params.measurements,
+              operatorNotes: params.operator_notes,
+            });
+            result = { success: true, capture: cap };
+            break;
+          }
+          case "edge_case_auto_capture": {
+            const { edgeCaseCaptureEngine } = await import("../../engines/EdgeCaseCaptureEngine.js");
+            const cap = edgeCaseCaptureEngine.autoCaptureIfEdge(
+              String(params.parameter ?? ""),
+              Number(params.value ?? 0),
+              (params.outcome ?? "success") as "success" | "marginal" | "failure",
+              (params.context && typeof params.context === "object") ? params.context : {},
+              String(params.operation ?? "unknown"),
+            );
+            result = { success: true, captured: cap !== null, capture: cap };
+            break;
+          }
+          case "edge_case_summary": {
+            const { edgeCaseCaptureEngine } = await import("../../engines/EdgeCaseCaptureEngine.js");
+            result = { success: true, summary: edgeCaseCaptureEngine.getSummary(String(params.parameter ?? "")) };
+            break;
+          }
+          case "edge_case_all_summaries": {
+            const { edgeCaseCaptureEngine } = await import("../../engines/EdgeCaseCaptureEngine.js");
+            result = { success: true, summaries: edgeCaseCaptureEngine.getAllSummaries() };
+            break;
+          }
+          case "edge_case_expansion_candidates": {
+            const { edgeCaseCaptureEngine } = await import("../../engines/EdgeCaseCaptureEngine.js");
+            result = { success: true, candidates: edgeCaseCaptureEngine.getExpansionCandidates() };
+            break;
+          }
+          case "edge_case_search": {
+            const { edgeCaseCaptureEngine } = await import("../../engines/EdgeCaseCaptureEngine.js");
+            const criteria = {
+              parameter: params.parameter ? String(params.parameter) : undefined,
+              outcome: params.outcome as "success" | "marginal" | "failure" | undefined,
+              minPercentile: params.min_percentile != null ? Number(params.min_percentile) : undefined,
+              maxPercentile: params.max_percentile != null ? Number(params.max_percentile) : undefined,
+              material: params.material ? String(params.material) : undefined,
+              machine: params.machine ? String(params.machine) : undefined,
+              since: params.since ? String(params.since) : undefined,
+            };
+            const matches = edgeCaseCaptureEngine.search(criteria);
+            result = { success: true, count: matches.length, matches };
+            break;
+          }
+          case "edge_case_learnings": {
+            const { edgeCaseCaptureEngine } = await import("../../engines/EdgeCaseCaptureEngine.js");
+            result = { success: true, learnings: edgeCaseCaptureEngine.getAllLearnings() };
+            break;
+          }
+          case "edge_case_stats": {
+            const { edgeCaseCaptureEngine } = await import("../../engines/EdgeCaseCaptureEngine.js");
+            result = { success: true, stats: edgeCaseCaptureEngine.getStatistics() };
             break;
           }
 
