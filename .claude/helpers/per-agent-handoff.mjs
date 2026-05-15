@@ -42,7 +42,11 @@ function atomicWriteSync(filePath, data, encoding = "utf-8") {
   }
 }
 
-const HANDOFFS_DIR = path.resolve("H:/prism/state/shared/handoffs");
+// HANDOFFS_DIR is overridable via PRISM_HANDOFFS_DIR env for test isolation —
+// production callers leave it unset (defaults to canonical state/shared/handoffs).
+const HANDOFFS_DIR = process.env.PRISM_HANDOFFS_DIR
+  ? path.resolve(process.env.PRISM_HANDOFFS_DIR)
+  : path.resolve("H:/prism/state/shared/handoffs");
 const PICKUP_QUEUE = path.resolve("H:/prism/state/shared/PICKUP_QUEUE.json");
 const PICKUP_QUEUE_MD = path.resolve("H:/prism/state/shared/PICKUP_QUEUE.md");
 const LEGACY_HANDOFF = path.resolve("H:/prism/state/HANDOFF.md");
@@ -282,6 +286,39 @@ const PLACEHOLDER_RESUMES_FOR_GATE = new Set([
   "pre-compact snapshot (resume generated)",
 ]);
 
+/**
+ * Scan ALL handoff files for the given instance and return true if ANY
+ * carries a meaningful (non-placeholder, >=30 chars) RESUME written within
+ * the last `maxAgeMin` minutes. This is topic-agnostic — closes the
+ * topic-mismatch hole scrutiny caught (a hook writing under topic A could
+ * silently shadow a real /precompact RESUME under topic B).
+ */
+function anyFreshLiveChatHandoffForInstance(instance, maxAgeMin = 5) {
+  try {
+    if (!fs.existsSync(HANDOFFS_DIR)) return false;
+    const safeInstance = sanitizeFilename(instance);
+    const prefix = `HANDOFF-${safeInstance}`;
+    const now = Date.now();
+    const cutoff = now - maxAgeMin * 60_000;
+    for (const f of fs.readdirSync(HANDOFFS_DIR)) {
+      if (!f.startsWith(prefix) || !f.endsWith(".md")) continue;
+      const fp = path.join(HANDOFFS_DIR, f);
+      try {
+        const st = fs.statSync(fp);
+        if (st.mtimeMs < cutoff) continue;
+        const content = fs.readFileSync(fp, "utf-8");
+        const m = content.match(/## RESUME\n([\s\S]*?)(?=\n##|\n$)/);
+        if (!m) continue;
+        const resume = (m[1] || "").trim();
+        if (resume.length < 30) continue;
+        if (PLACEHOLDER_RESUMES_FOR_GATE.has(resume.toLowerCase())) continue;
+        return true;
+      } catch { /* skip unreadable */ }
+    }
+    return false;
+  } catch { return false; }
+}
+
 function isLiveChatSource(args) {
   const src = (args.source || "").toString().trim().toLowerCase();
   return src === "live-chat";
@@ -333,15 +370,19 @@ function rejectNonLiveChat(args, op, identity) {
           "Got: " + JSON.stringify(((args.resume || "") + "").slice(0, 60)),
       };
     }
-    if (identity && freshLiveChatHandoffExists(identity, args, 5)) {
+    // Topic-agnostic anti-clobber: scan ALL handoffs for this instance, not
+    // just the topic the hook computed. Closes the scrutiny-caught hole where
+    // a hook writing under topic A could shadow a real /precompact RESUME
+    // under topic B for the same chat instance.
+    if (identity && anyFreshLiveChatHandoffForInstance(identity.instance, 5)) {
       return {
         ok: false,
         error: "writer_banned",
         op,
         rejectedBy: "fresh-live-chat-resume-exists",
         message:
-          "Fresh /precompact handoff already exists (<5min old) with a real RESUME. " +
-          "Hook write skipped to avoid clobbering live-chat directive.",
+          "Fresh /precompact handoff already exists (<5min old) with a real RESUME " +
+          "somewhere under this instance. Hook write skipped to avoid clobbering live-chat directive.",
       };
     }
     return null; // accepted via the strictly-gated exception
