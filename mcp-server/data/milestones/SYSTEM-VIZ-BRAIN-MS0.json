@@ -148,7 +148,18 @@
     "U-P1-HANDOFF-MEMORY-SEED": {
       "phase": "P1-MEMORY",
       "title": "Handoff envelope carries memory_seed (distilled session lessons) for next chat",
-      "status": "pending"
+      "status": "complete",
+      "shipped_by": "claude-a61bbf34 (slot alpha)",
+      "shipped_at": "2026-05-15",
+      "shipped_commit": "d82e34b5d",
+      "deliverables": [
+        "scripts/handoff-memory-seed.mjs — CLI: --instance | --file | --dry-run, idempotent",
+        ".claude/hooks/handoff-memory-seed-stop.mjs — Stop hook T3 timeout 3000ms wired between post-ship-distill and stop-regression-backflow",
+        "3 signal tiers: top-3 ERROR_LEARN_LEDGER + top-2 reference_post_ship_* + top-1 wiki code-tribal learning",
+        "memory/reference_handoff_memory_seed.md + MEMORY.md index line",
+        "Architectural choice: strictly additive — does NOT modify load-bearing per-agent-handoff.mjs"
+      ],
+      "rationale": "Carries forward what was just learned so the next chat starts with context not blank slate. The third leg of the session-continuity stack (recall → resume → seed)."
     },
     "U-P1-WIKI-PRELOAD-BY-DOMAIN": {
       "phase": "P1-MEMORY",
