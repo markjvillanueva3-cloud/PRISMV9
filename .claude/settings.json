@@ -554,6 +554,24 @@
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/pre-rename-guard.mjs",
             "timeout": 3000,
             "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER15 — Tier-0 PreToolUse(Edit|Write|MultiEdit|NotebookEdit) rename guard. Phase 0.8 — when an edit moves a file, requires alias-table update + dependent notification before proceeding. Prevents silent import breakage cascade. continueOnError. Was orphan in ORPHAN-HOOKS-2026-05-15.json."
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/asset-deletion-block.mjs",
+            "timeout": 2500,
+            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER18 — Tier-1 PreToolUse(Edit|Write|MultiEdit|NotebookEdit) asset-deletion gate. HARD-BLOCKS edits that disable hooks via settings.json (\"disableAllHooks\":true / \"enabled\":false). Edit/Write branch of dual-fire (Bash branch wired separately at Pre[14]). Enforces 'never delete only disable' rule from [[feedback_never_delete_only_disable]]. Was orphan in ORPHAN-HOOKS-2026-05-15.json."
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/anti-pattern-detector.mjs",
+            "timeout": 3000,
+            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER18 — Tier-0 PreToolUse(Edit|Write|MultiEdit|NotebookEdit) security + anti-pattern guard. HARD-BLOCKS on RegExp/SQL/shell injection patterns + eval() usage; WARNs on await-in-loop + event-listener-leak + missing-error-handling. Skip-if guards keep false-positives low. continueOnError. Was orphan in ORPHAN-HOOKS-2026-05-15.json."
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/async-pattern-checker.mjs",
+            "timeout": 3000,
+            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER18 — Tier-1 PreToolUse(Edit|Write|MultiEdit|NotebookEdit) async/await anti-pattern checker. WARNs on await-in-forEach, floating promises, long .then chains, return-await, Promise without .catch. Complements anti-pattern-detector with async-specific checks. continueOnError. Was orphan in ORPHAN-HOOKS-2026-05-15.json."
           }
         ]
       },
@@ -663,6 +681,12 @@
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/tsc-baseline-regression-gate.mjs",
             "timeout": 3000,
             "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER13 — Tier-0 PreToolUse(Bash) gate. AUTONOMOUS-FOOLPROOF-MS0 U-AF02 — bounds compounding type-error damage to exactly 1 commit by gating bash builds against a stored baseline. Sister to the 1259->1227 TSC progress this session (iter 11 + iter 12)."
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/asset-deletion-block.mjs",
+            "timeout": 2500,
+            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER18 — Tier-1 PreToolUse(Bash) asset-deletion gate. HARD-BLOCKS rm -rf / rmdir / del /fqs / Remove-Item / fs.rm / unlinkSync targeting protected paths (.claude/hooks/, .claude/commands/, .claude/scripts/, .claude/settings, engines/, dispatchers/, schemas/, __tests__/, JM DIE/, Resources/). Bash branch of dual-fire (Edit branch wired at Pre[3]). Enforces 'never delete only disable' rule from [[feedback_never_delete_only_disable]]. continueOnError. Was orphan in ORPHAN-HOOKS-2026-05-15.json."
           }
         ]
       },
@@ -1116,6 +1140,18 @@
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/posttool-error-explain.mjs",
             "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/auto-bug-hunt-after-build.mjs",
+            "timeout": 3000,
+            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER18 — Tier-3 PostToolUse(Bash) build-failure surfacer. On vitest/tsc/npm-test/npm-build/npm-ci FAIL, injects structured bug-hunt prompt as additionalContext so model investigates before continuing. Per-session dedup (10-min window per command-family). continueOnError. Was orphan in ORPHAN-HOOKS-2026-05-15.json."
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/anti-regression-auto-sweep.mjs",
+            "timeout": 130000,
+            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER18 — Tier-3 PostToolUse(Bash) anti-regression sweep. After git commit, runs cached vitest sweep + decideAntiRegressionSweep(); BLOCKS autonomous loop when regression detected. Pure I/O glue; decision policy lives in lib/autonomous-foolproof-logic.mjs (14 vitest cases). Fast-paths non-Bash + non-commit + non-autonomous in <5ms. continueOnError (broken sweep doesn't hard-block; real regression still emits continue:false). Was orphan in ORPHAN-HOOKS-2026-05-15.json."
           }
         ]
       },
