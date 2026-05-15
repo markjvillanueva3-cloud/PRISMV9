@@ -25,6 +25,9 @@ import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { createHash, randomBytes } from "node:crypto";
 import { pathToFileURL } from "node:url";
+// SYSTEM-VIZ-BRAIN-MS0/U-P1-WIKI-PRELOAD-BY-DOMAIN — bias top-K toward the
+// active chat's milestone domain. Knob: PRISM_WIKI_DOMAIN_BIAS_DISABLE=1.
+import { getDomainTokens, domainBoostFor, chatIdFromInput } from "../helpers/wiki-domain-bias.mjs";
 
 // Paths are env-overridable so the hook is testable in isolation (a vitest suite
 // points these at a tmpdir). Defaults are the live PRISM paths.
@@ -360,6 +363,21 @@ async function main(injectedInput) {
       candidates.push({ e, leaf: true, boosted: true, boostHits: hits, matches: MIN_MATCHES, s: BOOST_BASE_SCORE + (hits.length - 1) * BOOST_PER_KEYWORD });
     }
   }
+  // U-P1-WIKI-PRELOAD-BY-DOMAIN: bias candidates toward the active milestone
+  // domain (chat-slots topic + branch + CURRENT_POSITION H1). Capped at +4.5
+  // so a deliberate curated boost_keywords match (BOOST_BASE_SCORE=12) still
+  // dominates. No-op when knob disabled or no slot domain resolvable.
+  let domainBoostCount = 0;
+  try {
+    const domainTokens = getDomainTokens({ chatId: chatIdFromInput(input) });
+    if (domainTokens.length) {
+      for (const c of candidates) {
+        const b = domainBoostFor(c.e, domainTokens);
+        if (b > 0) { c.s += b; c.domainBoost = b; domainBoostCount++; }
+      }
+    }
+  } catch { /* domain bias is best-effort — never break the inject path */ }
+
   // De-dup by entry name, then top-K by score (highest score wins; on a tie the
   // first-inserted survives — index.md entries are pushed before leaf entries).
   const seen = new Set();
@@ -383,7 +401,7 @@ async function main(injectedInput) {
     logMiss(promptToks, semReason);
     return out({});
   }
-  tele("matched", { hits: ranked.length, top_score: Math.round(ranked[0].s * 10) / 10, leaf_hits: ranked.filter(r => r.leaf).length, boost_hits: ranked.filter(r => r.boosted).length });
+  tele("matched", { hits: ranked.length, top_score: Math.round(ranked[0].s * 10) / 10, leaf_hits: ranked.filter(r => r.leaf).length, boost_hits: ranked.filter(r => r.boosted).length, domain_boosted: domainBoostCount });
   const header = "## 📚 Wiki precheck — relevant entries already known";
   const entryLines = ranked.map(x => {
     const tag = x.boosted ? ` _(boost: ${x.boostHits.slice(0, 3).join(", ")})_` : "";
