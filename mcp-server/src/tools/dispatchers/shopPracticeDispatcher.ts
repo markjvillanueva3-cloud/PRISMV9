@@ -1013,9 +1013,27 @@ export function registerShopPracticeDispatcher(server: any): void {
 
         const validation = validateActionParams(action, params, ACTION_SHOP_PRACTICE_SCHEMAS);
         if (!validation.valid) {
-          // ValidationResult exposes `error?: z.ZodError` (not `errors`) — the
-          // ZodError carries the issue list under `.issues`.
-          return dispatcherError("prism_shop_practice", action, validation.error?.issues.map((e) => e.message).join("; ") ?? "Invalid parameters");
+          // dispatcherError signature is `(error, action, dispatcher)` — the
+          // error message goes FIRST and the dispatcher name LAST (cross-
+          // check: aiReasoningDispatcher.ts:683, adaptiveControlDispatcher.ts:316).
+          // The pre-existing call here had BOTH halves of the bug — wrong field
+          // (`validation.errors` doesn't exist on ValidationResult; it's
+          // `validation.error?: z.ZodError`) AND wrong argument order
+          // (the literal "prism_shop_practice" was landing in the user-facing
+          // `error` field while the dynamic message landed in `dispatcher`).
+          //
+          // The Zod issue's `.message` alone is opaque ("Required", "Invalid
+          // option: expected one of ...") — it omits the field path, which is
+          // the single most useful piece of context for a client trying to
+          // fix their request. Format as `<path>: <message>` so the user-
+          // facing error names the failing field every time.
+          const formatted = validation.error?.issues
+            .map((e) => {
+              const where = e.path.length ? e.path.join(".") + ": " : "";
+              return `${where}${e.message}`;
+            })
+            .join("; ") ?? "Invalid parameters";
+          return dispatcherError(formatted, action, "prism_shop_practice");
         }
 
         const handler = ACTION_HANDLERS[action];

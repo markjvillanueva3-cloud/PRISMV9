@@ -313,17 +313,26 @@ describe("tribal-enrich wire — in-process dispatcher round-trip", () => {
     expect(sources.length).toBe(expected);
   });
 
-  it("tribal_enrich rejects via the Zod boundary when process_type is missing", async () => {
+  it("tribal_enrich rejects via the Zod boundary when process_type is missing AND the user-facing error names the failing field", async () => {
     const handler = await buildHandler();
     const out = await handler({ action: "tribal_enrich", params: {} });
     const body = parseResponse(out);
     // dispatcherError shape: { success:false, error, action, dispatcher, ... }
+    // The `error` field MUST carry the Zod issue text (e.g. mentioning
+    // `process_type`) — NOT the dispatcher name string. A previous bug in this
+    // file passed the dispatcher name in the `error` arg slot and the Zod
+    // diagnostics into the `dispatcher` slot, making every validation failure
+    // surface as `error: "prism_shop_practice"` (opaque to callers). Pin the
+    // field-name substring here so any future regression of the argument
+    // order fails THIS test, not silently in production.
     expect(body.success).toBe(false);
     expect(typeof body.error).toBe("string");
-    expect((body.error as string).length).toBeGreaterThan(0);
+    expect(body.error as string).toMatch(/process_type/i);
+    expect(body.dispatcher).toBe("prism_shop_practice");
+    expect(body.action).toBe("tribal_enrich");
   });
 
-  it("tribal_enrich rejects an unknown process_type at the Zod boundary", async () => {
+  it("tribal_enrich rejects an unknown process_type at the Zod boundary AND the error mentions the bad value", async () => {
     const handler = await buildHandler();
     const out = await handler({
       action: "tribal_enrich",
@@ -331,6 +340,10 @@ describe("tribal-enrich wire — in-process dispatcher round-trip", () => {
     });
     const body = parseResponse(out);
     expect(body.success).toBe(false);
+    // The Zod issue should mention either the field name, the bad value, or
+    // an "Invalid"/"option" keyword — anything proving the issue text reached
+    // the user-facing `error` field (vs. the swallowed-dispatcher-name bug).
+    expect(body.error as string).toMatch(/process_type|laser_cutting|Invalid|option/i);
   });
 
   it("tribal_enrich_check returns { has_knowledge: boolean, process_type } that echoes the requested process_type", async () => {
@@ -378,11 +391,14 @@ describe("tribal-enrich wire — in-process dispatcher round-trip", () => {
     expect(body.count).toBe((body.controller_tips as unknown[]).length);
   });
 
-  it("tribal_enrich_controller_only rejects when controller is missing", async () => {
+  it("tribal_enrich_controller_only rejects when controller is missing AND the user-facing error names the failing field", async () => {
     const handler = await buildHandler();
     const out = await handler({ action: "tribal_enrich_controller_only", params: {} });
     const body = parseResponse(out);
     expect(body.success).toBe(false);
+    // Same argument-order regression guard as the tribal_enrich case above.
+    expect(body.error as string).toMatch(/controller/i);
+    expect(body.dispatcher).toBe("prism_shop_practice");
   });
 });
 
