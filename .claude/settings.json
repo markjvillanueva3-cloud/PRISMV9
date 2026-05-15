@@ -217,6 +217,12 @@
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/karpathy-discipline-inject.mjs",
             "timeout": 5000,
             "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER13 — Tier-4 SessionStart inject. Auto-injects the canonical Karpathy 4 rules + PRISM awareness reminders into the main thread (subagents already get them via agent-rules-inject.mjs). Was orphan; closes the main-thread doctrine gap."
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/embedder-inject-qdrant.mjs",
+            "timeout": 5000,
+            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER15 — Tier-4 SessionStart smoke-test. INTEL-OLLAMA-OBSIDIAN-MS0/P0-U01. Lazily injects an Ollama embedder (nomic-embed-text, 768-d) into QdrantMemoryEngineSingleton on first use. Confirms Qdrant + Ollama embedder ready at session start so semantic recall is warm. continueOnError. Was orphan in ORPHAN-HOOKS-2026-05-15.json."
           }
         ]
       }
@@ -536,6 +542,18 @@
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/test-coverage-enforcer.mjs",
             "timeout": 3000,
             "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER14 — Tier-1 PreToolUse(Write) coverage discipline. Enforces that new files come with tests (no stub assertions). Paired with comprehensive-build doctrine. Was orphan."
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/api-contract-enforcer.mjs",
+            "timeout": 3000,
+            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER15 — Tier-1 PreToolUse(Edit|Write|MultiEdit|NotebookEdit) contract guard. Detects breaking API changes (removed exports, signature mutations) so dependent callers don't silently break. continueOnError. Was orphan in ORPHAN-HOOKS-2026-05-15.json."
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/pre-rename-guard.mjs",
+            "timeout": 3000,
+            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER15 — Tier-0 PreToolUse(Edit|Write|MultiEdit|NotebookEdit) rename guard. Phase 0.8 — when an edit moves a file, requires alias-table update + dependent notification before proceeding. Prevents silent import breakage cascade. continueOnError. Was orphan in ORPHAN-HOOKS-2026-05-15.json."
           }
         ]
       },
@@ -844,6 +862,12 @@
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/self-awareness-enforce.mjs",
             "timeout": 3000,
             "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER14 — Tier-1 UserPromptSubmit. Enforces PRISM self-awareness rituals (inventory check, duplication guard, awareness snapshot) before substantive work. Was orphan."
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/goal-stack-inject.mjs",
+            "timeout": 3000,
+            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER15 — Tier-4 UserPromptSubmit advisory. Phase 0.13 goal-stack inject; surfaces top-5 active goals to maintain goal continuity across the session (paired with Karpathy R4 goal-driven execution). continueOnError. Was orphan in ORPHAN-HOOKS-2026-05-15.json."
           }
         ]
       }
@@ -897,6 +921,12 @@
       {
         "matcher": "Edit|Write|MultiEdit",
         "hooks": [
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/embedding-cache-guard.mjs",
+            "timeout": 3000,
+            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER15 — Tier-4 PostToolUse(Edit|Write|MultiEdit) observability. CADCAM-DAGI-MS0/U-DAGI05. Monitors embedder cache size + hit-rate; warns on memory pressure / inefficient cache. Silent on healthy state. Sister to embedder-inject-qdrant. continueOnError. Was orphan in ORPHAN-HOOKS-2026-05-15.json."
+          },
           {
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/directive-summary-refresh-iooms.mjs",
