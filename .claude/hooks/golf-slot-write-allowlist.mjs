@@ -109,6 +109,16 @@ const FALLBACK_ALLOW = [
   /^state\/shared\/\.watchdog-last-poll\.iso$/,
   /^state\/shared\/\.peer-audit-cache\.json$/,
   /^state\/shared\/\.cron-locks\/.+\.lock$/,
+  // Blueprint-join refresh last-run record (U-DOCU-04 / MS-DOCU-INGEST).
+  // Written by 33-blueprint-join-refresh.ps1 in both the Windows-task path
+  // (no hook intercept — sub-process PowerShell write) and the golf-cron-
+  // registry in-session reminder path (golf-blueprint-join-refresh —
+  // PowerShell sub-process also bypasses the Edit/Write surface). The path
+  // is declared golf-owned HERE for doctrinal completeness: a future hook
+  // or chat that needs to Edit/Write this file from a golf chat will not
+  // be blocked, and the allowlist is the canonical "what golf may produce"
+  // contract.
+  /^state\/shared\/blueprint-join-refresh-last\.json$/,
   // System-viz staging dir (C3 writes here, F5 merges to live graph)
   /^state\/shared\/system-viz\/staging\/.+/,
   // Operational logs under mcp-server/data/state/ — read-only logs from MCP

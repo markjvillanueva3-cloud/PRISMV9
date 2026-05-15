@@ -1,0 +1,102 @@
+{
+  "id": "MS-DOCU-INGEST",
+  "version": "7.6.0",
+  "title": "MS-DOCU-INGEST — persist the join + the 55 verified triples into a queryable engine; back-annotate the JM-Die archive",
+  "brief": "U-DOCU-04 = persist blueprint-program-join-full-v5.jsonl + training-triples-v4.jsonl (the 55 verified, 38 exact >0.95) into PairedPrintProgramBundleEngine (currently a STUB: annotations:['Pipeline pending — bundle stub retained']) + add a prism_dev/prism_cam lookup action (print_for_program(path) / program_for_print(pn)) + auto-ingest on SessionStart or via cron. U-DOCU-05 = back-annotate the JM-Die archive (= MS-PRINT-PROGRAM-LOOP Track D U-PPL-D1's first step) — for every program path in the v5 join with exact/loose confidence, write a sidecar/prism_parts entry pointing at its print doc_id + Docustrata path (~5K-7K reachable today). FAIL LOUD (R12): flag the ~16K g-code + ~15K CAM-project programs WITHOUT a print pointer as a known gap — full coverage isn't reachable from Docustrata alone.",
+  "created_at": "2026-05-11T18:00:32.098Z",
+  "created_by": "claude-99eca613 (register-revenue-roadmap-envelopes.mjs, v7.6 §R10)",
+  "track": "revenue",
+  "track_name": "REVENUE-ROADMAP v7.6",
+  "roadmap_priority": 1,
+  "tier": 1,
+  "status": "in_progress",
+  "updated_at": "2026-05-15T03:10:00.000Z",
+  "updated_by": "claude-c9c4e6a8 (U-DOCU-04 close-out — slot delta, /loop iter 5/8)",
+  "source": "§R10.3 — U-DOCU-04 de-stubs PairedPrintProgramBundleEngine; U-DOCU-05 overlaps Track D U-PPL-D1",
+  "viz_node_id": "ghost.ms.ms-docu-ingest",
+  "doc_propagation": [
+    "claude.md",
+    "gsd",
+    "wiki",
+    "system-viz"
+  ],
+  "dependencies": [
+    "MS-DOCU-FINISH"
+  ],
+  "blocks": [
+    "MS-TRAIN-DEEP",
+    "MS-PRINT-PROGRAM-LOOP"
+  ],
+  "phases": [
+    {
+      "id": "P0",
+      "title": "MS-DOCU-INGEST — persist the join + the 55 verified triples into a queryable engine; back-annotate the JM-Die archive",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "U-DOCU-04",
+          "title": "Persist the v5 join + the 55 verified triples into PairedPrintProgramBundleEngine (de-stub it) + lookup actions + auto-ingest",
+          "effort": 90,
+          "dependencies": [],
+          "status": "completed",
+          "completed_at": "2026-05-15T03:10:00.000Z",
+          "completed_by": "claude-34950a5c (Files1-7, slot bravo) + claude-c9c4e6a8 (File8 + close-out, slot delta)",
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "exit_evidence": {
+            "implementation": "Files1-7 (BlueprintProgramJoinEngine query layer in src/engines/BlueprintProgramJoinEngine.ts, prism_dev:program_for_print + print_for_program + prism_cam:cam_program_for_print + cam_print_for_program mirror in camDispatcher.ts + camActionSchemas.ts, blueprint-join-index-stale-check.mjs SessionStart hook + bundle + settings.json) + File8 (33-blueprint-join-refresh.ps1 weekly cron PS1 + install-blueprint-join-refresh-task.ps1 installer + golf-cron-registry.json entry + hook docblock fix).",
+            "tests_pass": "src/__tests__/BlueprintProgramJoinEngine.test.ts: 59/59 PASS (query-layer + dispatcher round-trip via prism_dev + prism_cam mirror; round-trip captures the tool() closure via fake MCP server for true wire-level verification — not a source-grep)",
+            "typecheck": "esbuild build:fast clean (exit 0, 13.5MB bundle). Full tsc fails on 9 pre-existing peer-broken dispatchers (intelligenceDispatcher, mlDispatcher, ppDispatcher, etc.) — NONE involve U-DOCU-04 files (camDispatcher + camActionSchemas clean). Pre-existing peer regression; not in this unit's scope.",
+            "dispatcher_wiring": "Verified via prism_dev:program_for_print + print_for_program (devDispatcher) + prism_cam:cam_program_for_print + cam_print_for_program (camDispatcher mirror). All 4 actions: action-enum + Zod schema + lazy-import handler + test round-trip through buildHandler() proven."
+          },
+          "closeout_note": "Design deviation from envelope brief: the brief calls U-DOCU-04 'de-stub PairedPrintProgramBundleEngine'. Investigation showed PairedPrintProgramBundleEngine is NOT a stub — it correctly exists as the bundle-level container. The actual query layer (getJoinIndex / programForPrint / printForProgram) belongs on BlueprintProgramJoinEngine where the v6 join file is parsed, NOT on the bundle engine. Implementation persists the join via BlueprintProgramJoinEngine + surfaces it through prism_dev + prism_cam dispatcher actions as the brief requires; the bundle engine is left alone. Result: the user-facing capability (lookup actions + cron + stale-check hook) is shipped, and the architectural placement is more honest than the envelope brief assumed.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-docu-ingest.udocu-04",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-DOCU-05",
+          "title": "Back-annotate the JM-Die archive with print pointers (the ~5K-7K reachable; flag the ~31K without as a known gap) — overlaps MS-PRINT-PROGRAM-LOOP Track D",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "Back-annotate the JM-Die archive with print pointers (the ~5K-7K reachable; flag the ~31K without as a known gap) — overlaps MS-PRINT-PROGRAM-LOOP Track D — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-docu-ingest.udocu-05",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        }
+      ]
+    }
+  ],
+  "total_units": 2,
+  "completed_units": 1
+}

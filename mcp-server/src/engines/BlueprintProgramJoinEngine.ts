@@ -18,7 +18,9 @@
  */
 
 import * as fs from "node:fs";
+import * as path from "node:path";
 import * as readline from "node:readline";
+import { fileURLToPath } from "node:url";
 
 // ============================================================================
 // TYPES — public
@@ -363,11 +365,14 @@ function partNumbersFromRow(row: Phase8Row): string[] {
  * and every program file that matched.
  *
  * Confidence:
- *   exact — at least one candidate hit on the program side equals
- *           the blueprint candidate exactly (post-normalization).
- *   loose — at least one program hit on the loose-normalized form
- *           (material/rev stripped) but no exact hit.
- *   miss  — no program file matched any candidate.
+ *   exact     — at least one candidate hit on the program side equals
+ *               the blueprint candidate exactly (post-normalization).
+ *   loose     — at least one program hit on the loose-normalized form
+ *               (material/rev stripped) but no exact hit.
+ *   ambiguous — a match was found but the program count exceeds
+ *               `maxProgramsPerMatch` (default 25) — too many collisions
+ *               to be useful (e.g. short numeric PNs like "0001").
+ *   miss      — no program file matched any candidate.
  */
 async function joinBlueprintsToPrograms(
   phase8Path: string,
@@ -519,6 +524,665 @@ async function joinBlueprintsToPrograms(
 }
 
 // ============================================================================
+// QUERY LAYER — load a pre-built join JSONL + serve point lookups
+// (U-DOCU-04 / MS-DOCU-INGEST)
+// ============================================================================
+//
+// The functions above PRODUCE a join JSONL (batch, streaming aggregation). The
+// functions below LOAD a pre-built join JSONL — the v6 join from
+// scripts/docustrata/phase16-blueprint-program-join-v6.py — plus the
+// title-block-verified training-triples-v4.jsonl, and answer two point queries
+// the producer cannot:
+//
+//   programForPrint(pn)       — given a part number, which programs/CAD files?
+//   printForProgram(path)     — given a program file path, which print doc(s)?
+//
+// The v6 JSONL is a SUPERSET of JoinRecord (extra fields: n_programs,
+// print_customers, raw_pn_variants; richer program refs with kind/relation/via).
+// The training triples additionally carry the actual print-PDF disk path — the
+// v6 join only carries blueprint doc_ids. Both files are streamed line-by-line
+// so LOAD-time peak memory is bounded by the largest single line, not the file
+// size — but the resulting Maps DO hold every row, so total resident memory
+// scales with row count (fine for the ~74K-row v6 join). The Maps are held in a
+// process-level singleton cache (mtime-guarded, single-flight) so dispatcher
+// actions never re-stream the file.
+//
+// FAIL-LOUD policy (CLAUDE.md R12): loadJoinIndex throws on a missing join file
+// AND on a file that exists but yields zero valid rows — a success-shaped empty
+// index is worse than an error because every query then silently returns
+// found:false and nothing tells the operator the file was corrupt/half-written.
+
+/** A program reference as it appears in the v6 join JSONL (richer than ProgramFileRef). */
+export interface JoinIndexProgramRef {
+  source_path: string;
+  filename?: string;
+  customer?: string;
+  machineCategory?: string;
+  ext?: string;
+  /** Coarse kind — "program" | "cad" | ... */
+  kind?: string;
+  /** Fine kind — "cam_project" | "g_code" | ... */
+  kind3?: string;
+  /** Relation label — "has_cam_project" | "has_g_code" | ... */
+  relation?: string;
+  /** How the program matched the print — "exact" | "loose" | ... */
+  via?: string;
+  customer_match?: string;
+}
+
+/**
+ * match_confidence values emitted by the v6 Python join producer
+ * (`scripts/docustrata/phase16-blueprint-program-join-v6.py`). A SUPERSET of
+ * {@link MatchConfidence}: the v6 producer adds `"garbage"` for OCR-junk part
+ * numbers (~6.6% of the real corpus — confirmed against the live join file +
+ * `phase16-v6-summary.md`). `MatchConfidence` stays the 4-member union because
+ * the in-process TS producer (`joinBlueprintsToPrograms`) never emits garbage —
+ * only the Python v6 file does.
+ */
+export type V6MatchConfidence = MatchConfidence | "garbage";
+
+/** One row of the v6 join JSONL. Superset of JoinRecord. */
+export interface JoinIndexRow {
+  part_number: string;
+  part_number_normalized: string;
+  blueprints: BlueprintRef[];
+  programs: JoinIndexProgramRef[];
+  match_confidence: V6MatchConfidence;
+  n_programs?: number;
+  print_customers?: string[];
+  raw_pn_variants?: string[];
+}
+
+/** One candidate program from a training triple. */
+export interface TrainingCandidateProgram {
+  name: string;
+  path: string;
+  machine?: string;
+  customer_folder?: string;
+  score: number;
+  reason?: string;
+  program_kind?: string;
+}
+
+/** One row of training-triples-v4.jsonl — a title-block-verified print↔program triple. */
+export interface TrainingTripleRow {
+  print_id: string;
+  print_filename: string;
+  print_disk_path: string;
+  tb_part_number: string | null;
+  tb_drawing_number: string | null;
+  tb_revision: string | null;
+  tb_customer: string | null;
+  tb_material: string | null;
+  tb_description: string | null;
+  candidate_programs: TrainingCandidateProgram[];
+  candidate_cad: unknown[];
+  match_confidence: number;
+  has_program: boolean;
+}
+
+/** A resolved program→print link (the unit returned by printForProgram). */
+export interface ProgramToPrintLink {
+  program_path: string;
+  part_number: string;
+  part_number_normalized: string;
+  /** Which corpus produced this link. */
+  source: "join_v6" | "training_triple";
+  /** v6 join confidence ("exact"/"loose"/...) or "triple:<numeric>" for triples. */
+  match_confidence: string;
+  /** Print blueprint-page doc_ids — populated from the v6 join. */
+  print_doc_ids: string[];
+  /** Actual print-PDF disk path — only training triples carry this. */
+  print_disk_path?: string;
+  /** Training-triple print id — only training triples carry this. */
+  print_id?: string;
+}
+
+/** The loaded, queryable index. */
+export interface JoinIndex {
+  /** normalized part number → v6 join row */
+  byNormalizedPN: Map<string, JoinIndexRow>;
+  /** normalized program-path key → program→print links */
+  byProgramPath: Map<string, ProgramToPrintLink[]>;
+  /** normalized part number → training triples */
+  triplesByPN: Map<string, TrainingTripleRow[]>;
+  stats: {
+    joinRows: number;
+    /**
+     * v6 join lines that were SKIPPED — over-cap, JSON-parse-fail, or
+     * shape-fail. The producer (`joinBlueprintsToPrograms`) counts malformed
+     * lines into its summary; the query layer carries the same signal here so
+     * a half-written 60 MB JSONL doesn't load "successfully" while silently
+     * dropping its truncated tail.
+     */
+    joinRowsMalformed: number;
+    tripleRows: number;
+    /** training-triple lines skipped — over-cap / parse-fail / shape-fail. */
+    triplesRowsMalformed: number;
+    programPaths: number;
+    joinJsonlPath: string;
+    triplesJsonlPath: string | null;
+    joinMtimeMs: number;
+    triplesMtimeMs: number;
+    loadedAt: number;
+  };
+}
+
+export interface ProgramForPrintResult {
+  found: boolean;
+  query: string;
+  part_number_normalized: string;
+  /**
+   * Which corpora contributed:
+   *   "join_v6"         — only the v6 join matched (programs[] + blueprints[] populated)
+   *   "training_triple" — only a training triple matched (training_programs[] populated, programs[] EMPTY)
+   *   "both"            — both matched
+   *   "none"            — no match (found:false)
+   * A consumer that only reads `programs[]` will see an empty array on a
+   * "training_triple" hit — always check `source` and fall back to
+   * `training_programs[]`.
+   */
+  source: "join_v6" | "training_triple" | "both" | "none";
+  match_confidence: V6MatchConfidence | null;
+  programs: JoinIndexProgramRef[];
+  blueprints: BlueprintRef[];
+  n_programs: number;
+  print_customers: string[];
+  /** Title-block-verified programs, if a training triple matched this PN. */
+  training_programs: TrainingCandidateProgram[];
+}
+
+export interface PrintForProgramResult {
+  found: boolean;
+  query: string;
+  program_path_key: string;
+  links: ProgramToPrintLink[];
+}
+
+export interface LoadJoinIndexOptions {
+  /** Path to the v6 join JSONL. Defaults to Docustrata/.index/blueprint-program-join-full-v6.jsonl. */
+  joinJsonlPath?: string;
+  /** Path to training-triples-v4.jsonl. Defaults to Docustrata/.index/training-triples-v4.jsonl; skipped if absent. */
+  triplesJsonlPath?: string;
+  /** Hard cap on a single JSONL line (bytes); over-cap lines skipped. Default 4 MiB. */
+  maxLineBytes?: number;
+}
+
+const DEFAULT_JOIN_REL = "Docustrata/.index/blueprint-program-join-full-v6.jsonl";
+const DEFAULT_TRIPLES_REL = "Docustrata/.index/training-triples-v4.jsonl";
+const DEFAULT_MAX_QUERY_LINE_BYTES = 4 * 1024 * 1024;
+/**
+ * Levels to climb in {@link findRepoRoot} looking for `Docustrata/.index/`.
+ * `<root>/mcp-server/src/engines/` is 3 levels; the esbuild bundle at
+ * `<root>/mcp-server/dist/index.js` is 2 — 8 gives generous headroom.
+ */
+const MAX_REPO_ROOT_WALK_DEPTH = 8;
+/**
+ * The closed set of `match_confidence` values the v6 Python producer emits —
+ * the 4 {@link MatchConfidence} members PLUS `"garbage"` (see
+ * {@link V6MatchConfidence}). Must stay in sync with the producer: a value the
+ * producer emits but this set omits would reject every such row as malformed
+ * (the 2026-05-14 round-2 review caught exactly this — `"garbage"` is 6.6% of
+ * the live corpus).
+ */
+const VALID_MATCH_CONFIDENCE: ReadonlySet<V6MatchConfidence> = new Set<V6MatchConfidence>([
+  "exact",
+  "loose",
+  "ambiguous",
+  "miss",
+  "garbage",
+]);
+
+/**
+ * Normalize a program file path into a stable lookup key — case-insensitive and
+ * slash-agnostic so a Windows `H:\PRISM\JM DIE\...\X.MIN` reference and a
+ * forward-slash form collide.
+ */
+export function normalizeProgramPathKey(p: string): string {
+  if (typeof p !== "string") return "";
+  return p.trim().replace(/\\/g, "/").toLowerCase();
+}
+
+/**
+ * Walk up from this module's directory to find the PRISM repo root — the
+ * directory that contains `Docustrata/.index/`. Works from both
+ * `<root>/mcp-server/src/engines/` (tsx) and `<root>/mcp-server/dist/` (built).
+ * Falls back to cwd, then null.
+ */
+function findRepoRoot(): string | null {
+  let dir = path.dirname(fileURLToPath(import.meta.url));
+  for (let i = 0; i < MAX_REPO_ROOT_WALK_DEPTH; i++) {
+    if (fs.existsSync(path.join(dir, "Docustrata", ".index"))) return dir;
+    const parent = path.dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  if (fs.existsSync(path.join(process.cwd(), "Docustrata", ".index"))) return process.cwd();
+  return null;
+}
+
+function isJoinIndexRow(v: unknown): v is JoinIndexRow {
+  if (typeof v !== "object" || v === null) return false;
+  const r = v as Record<string, unknown>;
+  return (
+    typeof r.part_number === "string" &&
+    typeof r.part_number_normalized === "string" &&
+    Array.isArray(r.blueprints) &&
+    Array.isArray(r.programs) &&
+    typeof r.match_confidence === "string" &&
+    // The cast on the type guard claims `V6MatchConfidence` — so the guard must
+    // actually verify membership, not just `typeof string`. A v6 row whose
+    // producer emitted an out-of-union value genuinely does not fit JoinIndexRow
+    // and is counted malformed rather than silently widened past the type.
+    VALID_MATCH_CONFIDENCE.has(r.match_confidence as V6MatchConfidence)
+  );
+}
+
+function isTrainingTripleRow(v: unknown): v is TrainingTripleRow {
+  if (typeof v !== "object" || v === null) return false;
+  const r = v as Record<string, unknown>;
+  return (
+    typeof r.print_id === "string" &&
+    typeof r.print_disk_path === "string" &&
+    Array.isArray(r.candidate_programs)
+  );
+}
+
+function pushLink(
+  m: Map<string, ProgramToPrintLink[]>,
+  key: string,
+  link: ProgramToPrintLink,
+): void {
+  if (key.length === 0) return;
+  const existing = m.get(key);
+  if (existing) {
+    // One program path can be joined by both corpora — dedup by (source, PN).
+    if (
+      !existing.some(
+        (l) => l.source === link.source && l.part_number_normalized === link.part_number_normalized,
+      )
+    ) {
+      existing.push(link);
+    }
+  } else {
+    m.set(key, [link]);
+  }
+}
+
+function pushTriple(
+  m: Map<string, TrainingTripleRow[]>,
+  key: string,
+  row: TrainingTripleRow,
+): void {
+  const existing = m.get(key);
+  if (existing) existing.push(row);
+  else m.set(key, [row]);
+}
+
+/**
+ * Stream a pre-built v6 join JSONL (+ optional training-triples JSONL) into an
+ * in-memory {@link JoinIndex}. Lines are parsed one at a time so peak memory is
+ * bounded by the largest line, not the file size — but the resulting Maps hold
+ * every row. Prefer {@link getJoinIndex} for the cached singleton over calling
+ * this directly per query.
+ *
+ * @param options - explicit JSONL paths + maxLineBytes; all default sensibly.
+ * @returns the loaded, queryable JoinIndex.
+ * @throws if the join JSONL cannot be found.
+ */
+export async function loadJoinIndex(options: LoadJoinIndexOptions = {}): Promise<JoinIndex> {
+  const root = findRepoRoot();
+  const joinPath =
+    options.joinJsonlPath ?? (root ? path.join(root, DEFAULT_JOIN_REL) : DEFAULT_JOIN_REL);
+  const triplesPath =
+    options.triplesJsonlPath ?? (root ? path.join(root, DEFAULT_TRIPLES_REL) : null);
+  const maxLineBytes = options.maxLineBytes ?? DEFAULT_MAX_QUERY_LINE_BYTES;
+
+  if (!fs.existsSync(joinPath)) {
+    throw new Error(
+      `join JSONL not found at ${joinPath} ` +
+        `(run scripts/docustrata/phase16-blueprint-program-join-v6.py to produce it)`,
+    );
+  }
+  // Capture the join file's mtime ONCE here, right after the existsSync check —
+  // not at return time. Re-statting after the whole 60 MB stream completes
+  // widens the TOCTOU window (the file could vanish mid-read) and would throw
+  // inside the return-object construction. The cache mtime-guard only needs the
+  // value as of load start anyway.
+  const joinMtimeMs = fs.statSync(joinPath).mtimeMs;
+
+  const byNormalizedPN = new Map<string, JoinIndexRow>();
+  const byProgramPath = new Map<string, ProgramToPrintLink[]>();
+  const triplesByPN = new Map<string, TrainingTripleRow[]>();
+
+  // ── Stream the v6 join ──
+  // A skipped line (over-cap / parse-fail / shape-fail) is counted into
+  // joinRowsMalformed — a half-written JSONL whose tail is truncated garbage
+  // must not load "successfully" with the operator none the wiser.
+  let joinRows = 0;
+  let joinRowsMalformed = 0;
+  {
+    const rl = readline.createInterface({
+      input: fs.createReadStream(joinPath, { encoding: "utf-8" }),
+      crlfDelay: Infinity,
+    });
+    for await (const line of rl) {
+      if (line.length === 0) continue;
+      if (Buffer.byteLength(line, "utf-8") > maxLineBytes) {
+        joinRowsMalformed++;
+        continue;
+      }
+      let row: unknown;
+      try {
+        row = JSON.parse(line);
+      } catch {
+        joinRowsMalformed++;
+        continue;
+      }
+      if (!isJoinIndexRow(row)) {
+        joinRowsMalformed++;
+        continue;
+      }
+      joinRows++;
+      const norm = row.part_number_normalized || normalizePartNumber(row.part_number);
+      if (norm.length === 0) continue;
+      // Last-writer-wins — the v6 producer already aggregates one row per PN.
+      byNormalizedPN.set(norm, row);
+      for (const prog of row.programs) {
+        if (typeof prog?.source_path !== "string" || prog.source_path.length === 0) continue;
+        pushLink(byProgramPath, normalizeProgramPathKey(prog.source_path), {
+          program_path: prog.source_path,
+          part_number: row.part_number,
+          part_number_normalized: norm,
+          source: "join_v6",
+          match_confidence: row.match_confidence,
+          // `b?.doc_id` — isJoinIndexRow only checks `Array.isArray(blueprints)`,
+          // not element shape, so a null/element-less blueprint must not crash
+          // the .map; the type guard on .filter then drops any non-string id.
+          print_doc_ids: row.blueprints
+            .map((b) => b?.doc_id)
+            .filter((d): d is string => typeof d === "string"),
+        });
+      }
+    }
+  }
+
+  // FAIL-LOUD (CLAUDE.md R12): a join file that exists but yields zero valid
+  // rows is corrupt / wrong-schema / half-written. A success-shaped empty index
+  // makes every downstream query silently return found:false with nothing
+  // telling the operator the file was bad — so throw instead.
+  if (joinRows === 0) {
+    throw new Error(
+      `join JSONL at ${joinPath} yielded 0 valid rows ` +
+        `(${joinRowsMalformed} malformed line(s) — file empty, corrupt, or wrong schema; ` +
+        `re-run scripts/docustrata/phase16-blueprint-program-join-v6.py)`,
+    );
+  }
+
+  // ── Stream the training triples (optional — skipped silently if absent) ──
+  let tripleRows = 0;
+  let triplesRowsMalformed = 0;
+  let triplesMtimeMs = 0;
+  const triplesResolved = triplesPath && fs.existsSync(triplesPath) ? triplesPath : null;
+  if (triplesResolved) {
+    triplesMtimeMs = fs.statSync(triplesResolved).mtimeMs;
+    const rl = readline.createInterface({
+      input: fs.createReadStream(triplesResolved, { encoding: "utf-8" }),
+      crlfDelay: Infinity,
+    });
+    for await (const line of rl) {
+      if (line.length === 0) continue;
+      if (Buffer.byteLength(line, "utf-8") > maxLineBytes) {
+        triplesRowsMalformed++;
+        continue;
+      }
+      let row: unknown;
+      try {
+        row = JSON.parse(line);
+      } catch {
+        triplesRowsMalformed++;
+        continue;
+      }
+      if (!isTrainingTripleRow(row)) {
+        triplesRowsMalformed++;
+        continue;
+      }
+      tripleRows++;
+      const pnNorm = normalizePartNumber(row.tb_part_number ?? "");
+      if (pnNorm.length > 0) pushTriple(triplesByPN, pnNorm, row);
+      for (const cand of row.candidate_programs) {
+        if (typeof cand?.path !== "string" || cand.path.length === 0) continue;
+        pushLink(byProgramPath, normalizeProgramPathKey(cand.path), {
+          program_path: cand.path,
+          part_number: row.tb_part_number ?? "",
+          part_number_normalized: pnNorm,
+          source: "training_triple",
+          match_confidence: `triple:${row.match_confidence}`,
+          print_doc_ids: [],
+          print_disk_path: row.print_disk_path,
+          print_id: row.print_id,
+        });
+      }
+    }
+  }
+
+  return {
+    byNormalizedPN,
+    byProgramPath,
+    triplesByPN,
+    stats: {
+      joinRows,
+      joinRowsMalformed,
+      tripleRows,
+      triplesRowsMalformed,
+      programPaths: byProgramPath.size,
+      joinJsonlPath: joinPath,
+      triplesJsonlPath: triplesResolved,
+      joinMtimeMs,
+      triplesMtimeMs,
+      loadedAt: Date.now(),
+    },
+  };
+}
+
+/**
+ * programForPrint — given a part number, return the programs/CAD files joined
+ * to it in the v6 join, plus any title-block-verified training-triple programs
+ * for the same PN. The PN is loose-normalized (op-prefix / material-code / rev
+ * letter stripped) so a blueprint "2845" resolves a program "L-2845-D2.MIN".
+ *
+ * @param partNumber - raw part number from a print / title block.
+ * @param index - a loaded JoinIndex (see {@link getJoinIndex}).
+ * @returns the join row's programs + blueprints + the verified training programs.
+ */
+export function programForPrint(partNumber: string, index: JoinIndex): ProgramForPrintResult {
+  const norm = normalizePartNumber(partNumber ?? "");
+  const empty: ProgramForPrintResult = {
+    found: false,
+    query: partNumber ?? "",
+    part_number_normalized: norm,
+    source: "none",
+    match_confidence: null,
+    programs: [],
+    blueprints: [],
+    n_programs: 0,
+    print_customers: [],
+    training_programs: [],
+  };
+  if (norm.length === 0) return empty;
+
+  const triples = index.triplesByPN.get(norm) ?? [];
+  const trainingPrograms: TrainingCandidateProgram[] = [];
+  for (const t of triples) {
+    for (const c of t.candidate_programs) trainingPrograms.push(c);
+  }
+
+  const row = index.byNormalizedPN.get(norm);
+  if (!row) {
+    // No v6 join row, but a training triple may still verify programs for this PN.
+    if (trainingPrograms.length === 0) return empty;
+    // Full literal (not `{ ...empty, ... }`): a spread silently inherits
+    // empty's defaults for any field not overridden, so a future required
+    // field added to ProgramForPrintResult would compile-error on the literal
+    // return below but NOT on a spread — keep both returns fully explicit.
+    return {
+      found: true,
+      query: partNumber ?? "",
+      part_number_normalized: norm,
+      source: "training_triple",
+      match_confidence: null,
+      programs: [],
+      blueprints: [],
+      n_programs: 0,
+      print_customers: [],
+      training_programs: trainingPrograms,
+    };
+  }
+
+  return {
+    found: true,
+    query: partNumber ?? "",
+    part_number_normalized: norm,
+    source: trainingPrograms.length > 0 ? "both" : "join_v6",
+    match_confidence: row.match_confidence,
+    // Spread-copy the Map-owned arrays: `row` lives inside the process-level
+    // singleton cache, so handing out its arrays by reference would let a
+    // consumer's `.sort()`/`.push()` silently corrupt the cached index for
+    // every later query. (`trainingPrograms` is already a fresh array; its
+    // elements are shared refs, which is fine — consumers serialize, not mutate.)
+    programs: [...row.programs],
+    blueprints: [...row.blueprints],
+    n_programs: row.n_programs ?? row.programs.length,
+    print_customers: row.print_customers ? [...row.print_customers] : [],
+    training_programs: trainingPrograms,
+  };
+}
+
+/**
+ * printForProgram — given a program file path, return the print(s) it was
+ * joined to. Resolves through BOTH corpora: the v6 join contributes blueprint
+ * page doc_ids, the training triples contribute the actual print-PDF disk path
+ * + print id. Path matching is case-insensitive and slash-agnostic.
+ *
+ * @param programPath - a program/CAD file path (any slash style, any case).
+ * @param index - a loaded JoinIndex (see {@link getJoinIndex}).
+ * @returns every program→print link found for the path (possibly from both corpora).
+ */
+export function printForProgram(programPath: string, index: JoinIndex): PrintForProgramResult {
+  const key = normalizeProgramPathKey(programPath ?? "");
+  // Spread-copy: `byProgramPath`'s arrays are owned by the singleton cache —
+  // hand out a copy so a consumer cannot mutate the cached index.
+  const links = key.length > 0 ? [...(index.byProgramPath.get(key) ?? [])] : [];
+  return {
+    found: links.length > 0,
+    query: programPath ?? "",
+    program_path_key: key,
+    links,
+  };
+}
+
+// ── Process-level singleton cache (mtime-guarded, single-flight) ──
+let _cachedIndex: JoinIndex | null = null;
+let _cacheLoad: Promise<JoinIndex> | null = null;
+
+/**
+ * Cached {@link JoinIndex} accessor. The first call streams the JSONL; later
+ * calls return the cached index unless the join file's mtime changed (then it
+ * reloads). Concurrent first-callers share one in-flight load (single-flight).
+ *
+ * Note: `options` is honored only by the caller that actually INITIATES the
+ * load. A cache hit, and any concurrent caller that joins an in-flight load,
+ * get the existing index regardless of the options they passed. Tests that
+ * need a fresh load with different paths must call {@link clearJoinIndexCache}
+ * first. The mtime guard watches the join file only; if you rebuild the triples
+ * file without touching the join file, call clearJoinIndexCache() to reload.
+ *
+ * If the join file's mtime cannot be read on a cache hit — it vanished, or is
+ * mid-atomic-rename during the weekly rebuild cron — the already-loaded index
+ * is served STALE rather than nulled, so a transient rename window does not
+ * turn every query into a hard error; the next call re-checks once the file
+ * is back.
+ */
+export async function getJoinIndex(options: LoadJoinIndexOptions = {}): Promise<JoinIndex> {
+  if (_cachedIndex) {
+    // Capture a stable non-null reference: the `_cachedIndex = null` on the
+    // mtime-changed path below would otherwise re-widen `_cachedIndex` back to
+    // `JoinIndex | null` for the `catch`, so `return _cachedIndex` there would
+    // not typecheck. `cached` keeps the narrowed type.
+    const cached = _cachedIndex;
+    try {
+      const m = fs.statSync(cached.stats.joinJsonlPath).mtimeMs;
+      if (m === cached.stats.joinMtimeMs) return cached;
+      // mtime changed → the file was rebuilt → drop the cache and reload below.
+      _cachedIndex = null;
+    } catch {
+      // statSync failed — file vanished or is mid-atomic-rename. The in-memory
+      // index is still serviceable; serve it stale rather than forcing a hard
+      // reload-error during the rename window.
+      return cached;
+    }
+  }
+  if (_cacheLoad) return _cacheLoad;
+  _cacheLoad = loadJoinIndex(options)
+    .then((idx) => {
+      _cachedIndex = idx;
+      _cacheLoad = null;
+      return idx;
+    })
+    .catch((err) => {
+      _cacheLoad = null;
+      throw err;
+    });
+  return _cacheLoad;
+}
+
+/** Clear the singleton cache — used by tests and after a join rebuild. */
+export function clearJoinIndexCache(): void {
+  _cachedIndex = null;
+  _cacheLoad = null;
+}
+
+/**
+ * queryProgramForPrint — dispatcher-friendly one-call surface: loads (or reuses)
+ * the cached {@link JoinIndex}, then runs {@link programForPrint}. Use THIS from
+ * a dispatcher action — the pure `programForPrint(pn, index)` form takes a
+ * JoinIndex object (not a Promise) and is for tests / batch callers that hold
+ * the index across many lookups. Calling `programForPrint(pn, getJoinIndex())`
+ * by mistake passes a Promise and throws at `.get` — these wrappers remove that
+ * async/sync footgun.
+ *
+ * @param partNumber - raw part number from a print / title block.
+ * @param options - optional explicit JSONL paths (see {@link LoadJoinIndexOptions});
+ *   honored only if this call initiates the index load (see {@link getJoinIndex}).
+ * @throws if the join JSONL cannot be loaded (missing / corrupt — fail loud).
+ */
+export async function queryProgramForPrint(
+  partNumber: string,
+  options: LoadJoinIndexOptions = {},
+): Promise<ProgramForPrintResult> {
+  const index = await getJoinIndex(options);
+  return programForPrint(partNumber, index);
+}
+
+/**
+ * queryPrintForProgram — dispatcher-friendly one-call surface: loads (or reuses)
+ * the cached {@link JoinIndex}, then runs {@link printForProgram}. See
+ * {@link queryProgramForPrint} for why the wrapper exists.
+ *
+ * @param programPath - a program/CAD file path (any slash style, any case).
+ * @param options - optional explicit JSONL paths; honored only if this call
+ *   initiates the index load (see {@link getJoinIndex}).
+ * @throws if the join JSONL cannot be loaded (missing / corrupt — fail loud).
+ */
+export async function queryPrintForProgram(
+  programPath: string,
+  options: LoadJoinIndexOptions = {},
+): Promise<PrintForProgramResult> {
+  const index = await getJoinIndex(options);
+  return printForProgram(programPath, index);
+}
+
+// ============================================================================
 // CLASS WRAPPER (engines.md convention) + SINGLETON EXPORT
 // ============================================================================
 
@@ -530,17 +1194,37 @@ async function joinBlueprintsToPrograms(
  *   blueprintProgramJoinEngine.joinBlueprintsToPrograms(...)
  */
 export class BlueprintProgramJoinEngine {
+  // ── producer (Phase 8 → join JSONL) ──
   static normalizePartNumber = normalizePartNumber;
   static extractPartNumberCandidates = extractPartNumberCandidates;
   static joinBlueprintsToPrograms = joinBlueprintsToPrograms;
   static indexProgramsFromLabels = indexProgramsFromLabels;
   static indexProgramsFromMasterIndex = indexProgramsFromMasterIndex;
+  // ── query layer (load v6 join JSONL → point lookups) ──
+  static normalizeProgramPathKey = normalizeProgramPathKey;
+  static loadJoinIndex = loadJoinIndex;
+  static getJoinIndex = getJoinIndex;
+  static clearJoinIndexCache = clearJoinIndexCache;
+  static programForPrint = programForPrint;
+  static printForProgram = printForProgram;
+  static queryProgramForPrint = queryProgramForPrint;
+  static queryPrintForProgram = queryPrintForProgram;
 }
 
 export const blueprintProgramJoinEngine = {
+  // producer
   normalizePartNumber,
   extractPartNumberCandidates,
   joinBlueprintsToPrograms,
   indexProgramsFromLabels,
   indexProgramsFromMasterIndex,
+  // query layer
+  normalizeProgramPathKey,
+  loadJoinIndex,
+  getJoinIndex,
+  clearJoinIndexCache,
+  programForPrint,
+  printForProgram,
+  queryProgramForPrint,
+  queryPrintForProgram,
 };

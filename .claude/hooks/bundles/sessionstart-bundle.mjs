@@ -47,6 +47,11 @@ const SUB_HOOKS = [
   { path: `${HOOK_BASE}/cognitive-budget-allocator.mjs`,  timeout: 3000 },
   { path: `${HOOK_BASE}/curiosity-explorer.mjs`,          timeout: 3000 },
   { path: `${HOOK_BASE}/agent-worktree-stale-unlock.mjs`, timeout: 3000 },
+  // U-DOCU-04/MS-DOCU-INGEST — cheap canary: warns if the v6 blueprint↔program
+  // join JSONL is missing or >10d stale (single fs.statSync, no streaming).
+  // Also registered as an individual SessionStart entry — the bundle's own
+  // settings.json wiring is currently dormant (see the hook's docblock).
+  { path: `${HOOK_BASE}/blueprint-join-index-stale-check.mjs`, timeout: 2000 },
 ];
 
 function getConcurrency() {

@@ -327,4 +327,16 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
     machineType: z.string().min(1).describe("Machine type (e.g., '3_axis_lathe')"),
     controllerSeries: z.string().optional().describe("Optional controller series filter"),
   }).passthrough(),
+
+  // U-DOCU-04 / MS-DOCU-INGEST: BlueprintProgramJoinEngine query-layer lookups.
+  // Mirrors program_for_print / print_for_program in devActionSchemas.ts. Strict
+  // single-param objects (no .passthrough()) — path options are intentionally NOT
+  // accepted: the actions always query the default Docustrata/.index v6 join, so
+  // there is no arbitrary-file-read surface and no cross-action cache poisoning.
+  cam_program_for_print: z.object({
+    part_number: z.string().min(1).describe("Part number from a print / title block — loose-normalized before lookup (op-prefix / material-code / rev-letter stripped)"),
+  }),
+  cam_print_for_program: z.object({
+    program_path: z.string().min(1).describe("Program/CAD file path (any slash style, any case) — returns the print(s) joined to it"),
+  }),
 };

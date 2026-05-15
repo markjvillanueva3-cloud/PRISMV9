@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-05-14T15:08:45.000Z",
-  "generator": "U-CLEANUP-E2 (manual populate; bootstrap-golf.mjs A6 seeded the empty shell)",
+  "generatedAt": "2026-05-15T03:00:00.000Z",
+  "generator": "U-CLEANUP-E2 (manual populate; bootstrap-golf.mjs A6 seeded the empty shell); U-DOCU-04 (MS-DOCU-INGEST) appended golf-blueprint-join-refresh weekly cron",
   "lockfileDir": ".cron-locks",
   "timeBasis": "UTC",
-  "notes": "Five daily hygiene prompts the golf-slot chat schedules via CronCreate at session start. Times intentionally off the :00/:30 marks per fleet-friendly scheduling (jitter reduces shared-tree contention across the 7-slot fleet). Distinct from Windows Task Scheduler health scripts in scripts/system-health/ — those run regardless of which chat is open; these are in-session golf reminders for fleet hygiene the golf chat owns. Per-cron lockfile at .cron-locks/<id>.lock prevents the same prompt from re-firing while a prior fire is still working.",
+  "notes": "Hygiene prompts the golf-slot chat schedules via CronCreate at session start. Times intentionally off the :00/:30 marks per fleet-friendly scheduling (jitter reduces shared-tree contention across the 7-slot fleet). Distinct from Windows Task Scheduler health scripts in scripts/system-health/ — those run regardless of which chat is open; these are in-session golf reminders for fleet hygiene the golf chat owns. Per-cron lockfile at .cron-locks/<id>.lock prevents the same prompt from re-firing while a prior fire is still working. Two entries (golf-state-snapshot, golf-blueprint-join-refresh) intentionally pair with a Windows Scheduled Task sibling — the in-session prompt is a cheap freshness/plan check (e.g. -DryRun) and the Windows task does the heavy work regardless of which chat is open.",
   "crons": [
     {
       "id": "golf-stale-claim-sweep",
@@ -59,6 +59,17 @@
       "prompt": "/close-out-audit",
       "scriptHint": "scripts/audit-close-out-candidates.mjs",
       "expectedDurationMs": 90000,
+      "enabled": true
+    },
+    {
+      "id": "golf-blueprint-join-refresh",
+      "name": "Blueprint↔program join freshness check",
+      "scheduleUtc": "08:47",
+      "cronExpr": "47 8 * * 0",
+      "description": "Weekly Sunday freshness/plan check on the blueprint↔program join index (Docustrata/.index/blueprint-program-join-full-v6.jsonl). Runs the canonical refresh wrapper in -DryRun mode: skips phase20 + phase16 python execution, just streams the v6 jsonl, parses the first 20 records, validates required keys + match_confidence values, and writes state/shared/blueprint-join-refresh-last.json for ad-hoc audit + chat-bus surfacing (NOT consumed by a hook today; the SessionStart stale-check hook blueprint-join-index-stale-check.mjs reads only v6 jsonl mtime — extending it to also read this validation record is a planned follow-up). Also runs via Windows Task Scheduler ('PRISM Blueprint Join Refresh', registered by .claude/helpers/install-blueprint-join-refresh-task.ps1) for the REAL weekly rebuild — that fires regardless of which chat is open and does the heavy python rebuild; this in-session reminder is the cheap freshness check that surfaces validation results to the chat bus. Same dual-mechanism precedent as golf-state-snapshot.",
+      "prompt": "Run powershell.exe -NoProfile -ExecutionPolicy Bypass -File H:/prism/scripts/system-health/33-blueprint-join-refresh.ps1 -DryRun -Json and surface the v6 join freshness (validation.lineCount, validation.sampleOk, validation.matchConfidenceDistribution, validation.valid) to the chat bus. If validation.valid is false or sampleErrors is non-empty, post a chat-bus warning naming the failure mode so the next non-golf chat triggers the Windows task manually or flips the wrapper to live mode.",
+      "scriptHint": "scripts/system-health/33-blueprint-join-refresh.ps1 -DryRun -Json",
+      "expectedDurationMs": 60000,
       "enabled": true
     }
   ]

@@ -4,13 +4,16 @@
  *
  * Drift watcher for the golf hygiene chat's daily cron schedule.
  *
- * The golf chat schedules 5 daily hygiene prompts via Claude's `CronCreate`
- * tool at session start. The canonical list — id, cron expression, prompt —
- * is checked into `state/shared/golf-cron-registry.json` (U-CLEANUP-E2 shipped
- * commit 84154affc). When the golf chat crashes mid-registration or a
- * `CronDelete` slips, the live cron table goes out of sync with the registry;
- * E2's per-cron lockfile gate prevents double-fires but cannot resurrect a
- * missing registration. G8 closes that gap.
+ * The golf chat schedules ≥5 hygiene prompts via Claude's `CronCreate` tool at
+ * session start (5 daily + 1 weekly post-U-DOCU-04; the count grows over time
+ * as new hygiene crons land — code never assumes a fixed count, it iterates
+ * raw.crons.length). The canonical list — id, cron expression, prompt — is
+ * checked into `state/shared/golf-cron-registry.json` (U-CLEANUP-E2 shipped
+ * commit 84154affc; U-DOCU-04 appended golf-blueprint-join-refresh). When the
+ * golf chat crashes mid-registration or a `CronDelete` slips, the live cron
+ * table goes out of sync with the registry; E2's per-cron lockfile gate
+ * prevents double-fires but cannot resurrect a missing registration. G8 closes
+ * that gap.
  *
  * INPUT MODEL
  *   Claude's `CronList` tool is not callable from Node — it lives in the
@@ -126,6 +129,14 @@ const KNOWN_GOLF_SLASH_PROMPTS = new Set([
 // matcher is intentionally broad — the bracketing `Run ` and trailing `.mjs`
 // extension prevent false-positives, but ANY path under scripts/ or
 // .claude/helpers/ counts (signal 3 — scriptHint equality — is the strict one).
+// NOTE (U-DOCU-04): signal-2 (this regex) does NOT match the
+// `Run powershell.exe -NoProfile ...` shape used by golf-blueprint-join-refresh
+// (its prompt invokes a Windows scheduled-task wrapper PS1 directly). That is
+// fine because signal-1 (`id.startsWith("golf-")`) and signal-3 (scriptHint
+// equality) both cover it; this regex is intentionally not widened to avoid
+// false-positives on stray `Run powershell.exe ...` text in non-golf prompts.
+// If a future entry's prompt shape diverges from these three signals AND has
+// no `golf-` id prefix, classification will need a fourth signal.
 const GOLF_PROMPT_RE = /^Run\s+(?:node\s+)?(?:H:\/prism\/)?(?:scripts|\.claude\/helpers)\//i;
 
 // ─── arg parsing ────────────────────────────────────────────────────────────

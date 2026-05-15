@@ -2093,6 +2093,9 @@ export const ACTIONS = [
   "post_siemens_legacy_profile",       // SiemensLegacyControllerEngine.getProfile
   // OBSIDIAN-AUTOMATE-MS3/U-PRINT-PROGRAM-JOIN: blueprint <-> program lookup
   "cam_print_program_lookup",          // BlueprintProgramJoinEngine.joinBlueprintsToPrograms
+  // U-DOCU-04/MS-DOCU-INGEST: blueprint<->program join query layer (point lookups)
+  "cam_program_for_print",             // BlueprintProgramJoinEngine.queryProgramForPrint
+  "cam_print_for_program",             // BlueprintProgramJoinEngine.queryPrintForProgram
 ] as const;
 
 // MS-P0.5-COORD U-P0.5-COORD-01: Register CAM dispatcher with WEDM-action filter
@@ -5299,6 +5302,50 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
                 })),
               }));
             result = { success: true, data: { summary, top_joins: topJoins } };
+            break;
+          }
+          case "cam_program_for_print": {
+            // U-DOCU-04 / MS-DOCU-INGEST — point lookup: given a part number
+            // from a print, return every program/CAD file joined to it (the v6
+            // blueprint↔program join + title-block-verified training triples).
+            // Path options are deliberately NOT exposed to MCP callers — the
+            // action always queries the default Docustrata/.index v6 join.
+            // Exposing joinJsonlPath would be an arbitrary-file-read surface and
+            // would let one action poison the shared singleton cache for the
+            // other (see BlueprintProgramJoinEngine.getJoinIndex JSDoc).
+            // Mirrors prism_dev:program_for_print (devDispatcher.ts).
+            const { blueprintProgramJoinEngine } = await import("../../engines/BlueprintProgramJoinEngine.js");
+            const partNumber = typeof params.part_number === "string" ? params.part_number.trim() : "";
+            if (partNumber.length === 0) {
+              result = { error: "part_number is required (a part number from a print / title block)" };
+              break;
+            }
+            try {
+              result = { success: true, data: await blueprintProgramJoinEngine.queryProgramForPrint(partNumber) };
+            } catch (err) {
+              // queryProgramForPrint fails loud if the v6 join JSONL is missing
+              // or corrupt — surface that as an attributed dispatcher error.
+              result = dispatcherError(err, action, "prism_cam");
+            }
+            break;
+          }
+          case "cam_print_for_program": {
+            // U-DOCU-04 / MS-DOCU-INGEST — reverse lookup: given a program/CAD
+            // file path, return the print(s) it was joined to (blueprint page
+            // doc_ids from the v6 join + the print-PDF disk path from the
+            // training triples). Path matching is case/slash-insensitive.
+            // Mirrors prism_dev:print_for_program (devDispatcher.ts).
+            const { blueprintProgramJoinEngine } = await import("../../engines/BlueprintProgramJoinEngine.js");
+            const programPath = typeof params.program_path === "string" ? params.program_path.trim() : "";
+            if (programPath.length === 0) {
+              result = { error: "program_path is required (a program/CAD file path)" };
+              break;
+            }
+            try {
+              result = { success: true, data: await blueprintProgramJoinEngine.queryPrintForProgram(programPath) };
+            } catch (err) {
+              result = dispatcherError(err, action, "prism_cam");
+            }
             break;
           }
           case "cross_cam_recommend": {
