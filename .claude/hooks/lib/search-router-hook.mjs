@@ -9,6 +9,35 @@
  *
  * ROI: Each intercepted search saves ~200-500 tokens of Grep/Glob output.
  * Over a session with 30-50 searches, that's 6K-25K tokens saved.
+ *
+ * ───────────────────────────────────────────────────────────────────────────
+ * R7-ORPHANED (claude-a2b1b5ca, 2026-05-14):
+ *
+ * This hook is NOT wired in any settings.json (C:, H:, or project), NOT in
+ * any bundle, and has NO live importers in the main tree. It has been
+ * functionally dead since at least 2026-05-12. SUPERSEDED by the dynamic
+ * MasterIndexEngine (mcp-server/src/engines/MasterIndexEngine.ts) which
+ * ships 4 wired surfaces:
+ *   - action `prism_session:master_index_query`
+ *   - skill `/master-index <query>`
+ *   - hook `master-index-precheck-inject.mjs` (UserPromptSubmit T2, wired
+ *     2026-05-14 — orphan-rescue companion to this annotation)
+ *   - engine singleton `masterIndexEngine` (TypeScript imports)
+ *
+ * Per Karpathy R7 (CLAUDE.md): "Two existing patterns contradict → pick
+ * the more recent / more tested one, say why, flag the other for cleanup."
+ * The MasterIndexEngine is more recent (2026-05-12 ship), more tested
+ * (26 real-value tests), and the graph-based approach scales to all 110K
+ * system-graph nodes versus the static ~1.8KB MASTER_INDEX_COMPACT.md
+ * cheat-sheet this hook reads. The .md cheat-sheet itself is COMPLEMENTARY
+ * (human-readable digest) and survives — it's only the keyword-routing
+ * hook that's superseded.
+ *
+ * DO NOT delete (per the never-delete-only-disable rule). DO NOT re-wire
+ * without first checking master-index parity. Future cleanup: rename to
+ * .archive.<date> after a quiescence window or fold into the engine if a
+ * static keyword-route layer turns out to be genuinely needed.
+ * ───────────────────────────────────────────────────────────────────────────
  */
 import * as fs from 'fs';
 
