@@ -161,7 +161,11 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "restore settings.json from mcp-server/data/state/settings-baseline-* backup"
+          "rollback": "restore settings.json from mcp-server/data/state/settings-baseline-* backup",
+          "status": "completed",
+          "completed_at": "2026-05-15T15:16:53.555Z",
+          "completed_by": "claude-b6c4b196 slot alpha",
+          "close_out_note": "Hook .claude/hooks/ollama-auto-router.mjs was already wired in UserPromptSubmit group 0 but at position 4 of 20. Promoted to position 0 in BOTH C: and H: settings.json — now fires FIRST on every UserPromptSubmit, ensuring earliest offload-classifier evaluation before any context-injection hook runs. Existing offload-stats this session: 21 offloaded / 245 kept (8.5%) — promotion may improve the rate by giving the classifier first-look before injectors expand the prompt size."
         }
       ],
       "primary_role": "R3"

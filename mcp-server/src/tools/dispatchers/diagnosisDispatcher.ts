@@ -89,6 +89,15 @@ const REMEDIATION_ACTIONS = [
   "error_remediation_suggest", "error_remediation_apply", "error_remediation_known_errors",
 ] as const;
 
+// -- Alarm Escalation (OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-ALARM-ESCALATION) --
+// AlarmEscalationEngine (RT-MS2 Real-Time Notifications, 264 LOC, was orphan).
+// Distinct from ALARM_INTEL_ACTIONS (HBK-MS3 handbook lookup) — this is the
+// live-state alarm trigger/escalate/acknowledge pipeline.
+const ALARM_ESC_ACTIONS = [
+  "alarm_esc_trigger", "alarm_esc_acknowledge", "alarm_esc_resolve",
+  "alarm_esc_active", "alarm_esc_history", "alarm_esc_rules", "alarm_esc_stats",
+] as const;
+
 const ACTIONS = [
   ...FORENSIC_ACTIONS,
   ...INVERSE_ACTIONS,
@@ -97,6 +106,7 @@ const ACTIONS = [
   ...SCRAP_RISK_ACTIONS,
   ...ALARM_INTEL_ACTIONS,
   ...REMEDIATION_ACTIONS,
+  ...ALARM_ESC_ACTIONS,
 ] as const;
 
 // ============================================================================
@@ -295,6 +305,61 @@ export function registerDiagnosisDispatcher(server: any): void {
             case "alarm_intel_lookup": result = alarmIntelligenceEngine.lookupAlarmEnhanced(params as any); break;
             case "alarm_intel_batch": result = alarmIntelligenceEngine.batchLookup(params.machine_id, params.codes ?? params.alarm_codes ?? [], params.controller); break;
             case "alarm_intel_search": result = alarmIntelligenceEngine.searchAlarmIntelligence(params.query ?? "", params.machine_id, params.limit); break;
+          }
+        } else if (ALARM_ESC_ACTIONS.includes(action as ActionString as typeof ALARM_ESC_ACTIONS[number])) {
+          // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-ALARM-ESCALATION
+          const { alarmEscalationEngine } = await import("../../engines/AlarmEscalationEngine.js");
+          switch (action) {
+            case "alarm_esc_trigger": {
+              const alarm = alarmEscalationEngine.trigger(
+                String(params.rule_id),
+                String(params.source),
+                String(params.message),
+                (params.details as Record<string, unknown>) ?? {},
+              );
+              result = { success: true, alarm };
+              break;
+            }
+            case "alarm_esc_acknowledge": {
+              const alarm = alarmEscalationEngine.acknowledge(
+                String(params.alarm_id),
+                String(params.user_id),
+              );
+              result = alarm
+                ? { success: true, alarm }
+                : { success: false, error: "alarm_not_found_or_not_active", alarm_id: String(params.alarm_id) };
+              break;
+            }
+            case "alarm_esc_resolve": {
+              const alarm = alarmEscalationEngine.resolve(String(params.alarm_id));
+              result = alarm
+                ? { success: true, alarm }
+                : { success: false, error: "alarm_not_found", alarm_id: String(params.alarm_id) };
+              break;
+            }
+            case "alarm_esc_active": {
+              const filter: { severity?: "info" | "warn" | "critical" | "emergency"; source?: string } = {};
+              if (params.severity) filter.severity = params.severity as typeof filter.severity;
+              if (params.source) filter.source = String(params.source);
+              const alarms = alarmEscalationEngine.getActive(Object.keys(filter).length ? filter : undefined);
+              result = { success: true, count: alarms.length, alarms };
+              break;
+            }
+            case "alarm_esc_history": {
+              const limit = typeof params.limit === "number" ? params.limit : 50;
+              const alarms = alarmEscalationEngine.history(limit);
+              result = { success: true, count: alarms.length, limit, alarms };
+              break;
+            }
+            case "alarm_esc_rules": {
+              const rules = alarmEscalationEngine.getRules();
+              result = { success: true, count: rules.length, rules };
+              break;
+            }
+            case "alarm_esc_stats": {
+              result = { success: true, stats: alarmEscalationEngine.stats() };
+              break;
+            }
           }
         } else if (REMEDIATION_ACTIONS.includes(action as ActionString as typeof REMEDIATION_ACTIONS[number])) {
           const { errorRemediationEngine } = await import("../../engines/ErrorRemediationEngine.js");
