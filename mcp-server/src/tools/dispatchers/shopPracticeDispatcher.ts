@@ -73,6 +73,11 @@ const ACTIONS = [
   "tribal_get",
   "tribal_list",
   "tribal_categories",
+  "tribal_enrich",
+  "tribal_enrich_check",
+  "tribal_enrich_tips_only",
+  "tribal_enrich_playbook_only",
+  "tribal_enrich_controller_only",
 ] as const;
 
 // Python & cad-engine paths — uses centralized PATHS.PYTHON
@@ -751,6 +756,12 @@ async function handleTribalAdd(params: Record<string, any>): Promise<any> {
     operation_types: params.operation_types,
   });
 
+  // capture() returns KnowledgeTip | null — null on a persistence/validation
+  // failure inside the engine. Surface that loudly rather than dereferencing null.
+  if (!tip) {
+    return { error: "Failed to capture tribal tip — capture() returned null (engine rejected the tip or persistence failed)" };
+  }
+
   return {
     success: true,
     tip: {
@@ -860,6 +871,69 @@ async function handleTribalCategories(_params: Record<string, any>): Promise<any
 }
 
 // ---------------------------------------------------------------------------
+// Tribal Enrichment Coordinator actions (TribalEnrichmentCoordinatorEngine)
+// ---------------------------------------------------------------------------
+// Unified coordinator: fetches tribal tips + playbook rules + controller tips
+// in one call for any P2P process pipeline. The engine's EnrichmentInput is
+// already snake_case, so params map straight through with no camel remap — we
+// still build the object field-by-field to keep the dispatcher↔engine contract
+// explicit (a renamed engine field surfaces as a tsc error, not a silent drop).
+
+/** Build the engine's EnrichmentInput from validated dispatcher params. */
+function buildEnrichmentInput(params: Record<string, any>) {
+  return {
+    process_type: params.process_type,
+    material: params.material,
+    controller: params.controller,
+    thickness_mm: params.thickness_mm,
+    tolerance_mm: params.tolerance_mm,
+    surface_finish_Ra_um: params.surface_finish_Ra_um,
+    is_thin_wall: params.is_thin_wall,
+    hardness_hrc: params.hardness_hrc,
+  };
+}
+
+/**
+ * Full unified enrichment — tribal tips + playbook rules + controller tips +
+ * a human-readable merged advisory + the knowledge-source provenance list.
+ */
+async function handleTribalEnrich(params: Record<string, any>): Promise<any> {
+  const { tribalEnrichmentCoordinatorEngine } = await import("../../engines/TribalEnrichmentCoordinatorEngine.js");
+  return tribalEnrichmentCoordinatorEngine.enrich(buildEnrichmentInput(params));
+}
+
+/**
+ * Quick boolean check — does ANY knowledge (tribal/playbook/controller) exist
+ * for this configuration? Wrapped in a typed object (never a raw primitive).
+ */
+async function handleTribalEnrichCheck(params: Record<string, any>): Promise<any> {
+  const { tribalEnrichmentCoordinatorEngine } = await import("../../engines/TribalEnrichmentCoordinatorEngine.js");
+  const hasKnowledge = await tribalEnrichmentCoordinatorEngine.hasKnowledge(buildEnrichmentInput(params));
+  return { has_knowledge: hasKnowledge, process_type: params.process_type };
+}
+
+/** Just the tribal-knowledge tips for this configuration (no playbook/controller). */
+async function handleTribalEnrichTipsOnly(params: Record<string, any>): Promise<any> {
+  const { tribalEnrichmentCoordinatorEngine } = await import("../../engines/TribalEnrichmentCoordinatorEngine.js");
+  const tips = await tribalEnrichmentCoordinatorEngine.getTribalOnly(buildEnrichmentInput(params));
+  return { count: tips.length, tips };
+}
+
+/** Just the playbook rules for this configuration (no tribal/controller). */
+async function handleTribalEnrichPlaybookOnly(params: Record<string, any>): Promise<any> {
+  const { tribalEnrichmentCoordinatorEngine } = await import("../../engines/TribalEnrichmentCoordinatorEngine.js");
+  const rules = await tribalEnrichmentCoordinatorEngine.getPlaybookOnly(buildEnrichmentInput(params));
+  return { count: rules.length, rules };
+}
+
+/** Just the controller-specific programming tips for the given controller family. */
+async function handleTribalEnrichControllerOnly(params: Record<string, any>): Promise<any> {
+  const { tribalEnrichmentCoordinatorEngine } = await import("../../engines/TribalEnrichmentCoordinatorEngine.js");
+  const tips = await tribalEnrichmentCoordinatorEngine.getControllerOnly(params.controller);
+  return { count: tips.length, controller: params.controller, controller_tips: tips };
+}
+
+// ---------------------------------------------------------------------------
 // Action routing
 // ---------------------------------------------------------------------------
 
@@ -887,6 +961,11 @@ const ACTION_HANDLERS: Record<string, (p: Record<string, any>) => Promise<any>> 
   tribal_get: handleTribalGet,
   tribal_list: handleTribalList,
   tribal_categories: handleTribalCategories,
+  tribal_enrich: handleTribalEnrich,
+  tribal_enrich_check: handleTribalEnrichCheck,
+  tribal_enrich_tips_only: handleTribalEnrichTipsOnly,
+  tribal_enrich_playbook_only: handleTribalEnrichPlaybookOnly,
+  tribal_enrich_controller_only: handleTribalEnrichControllerOnly,
 };
 
 // ---------------------------------------------------------------------------
@@ -934,7 +1013,9 @@ export function registerShopPracticeDispatcher(server: any): void {
 
         const validation = validateActionParams(action, params, ACTION_SHOP_PRACTICE_SCHEMAS);
         if (!validation.valid) {
-          return dispatcherError("prism_shop_practice", action, Array.isArray(validation.errors) ? validation.errors.map((e: any) => e.message).join("; ") : "Invalid parameters");
+          // ValidationResult exposes `error?: z.ZodError` (not `errors`) — the
+          // ZodError carries the issue list under `.issues`.
+          return dispatcherError("prism_shop_practice", action, validation.error?.issues.map((e) => e.message).join("; ") ?? "Invalid parameters");
         }
 
         const handler = ACTION_HANDLERS[action];

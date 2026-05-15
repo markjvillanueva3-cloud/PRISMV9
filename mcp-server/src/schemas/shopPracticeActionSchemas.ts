@@ -197,6 +197,45 @@ const tribal_list = z.object({
 
 const tribal_categories = z.object({}).passthrough();
 
+// ============================================================================
+// TRIBAL ENRICHMENT COORDINATOR (5 actions)
+// ============================================================================
+// Wires TribalEnrichmentCoordinatorEngine — a unified coordinator that fetches
+// tribal tips + playbook rules + controller-specific tips in one call for any
+// P2P process pipeline. Enum values mirror the engine's ProcessType /
+// ControllerType unions exactly so an out-of-range string is rejected at the
+// Zod boundary rather than silently returning empty results.
+
+const _processTypeEnum = z.enum([
+  "wire_edm", "sinker_edm", "milling", "turning", "grinding", "multi_axis",
+]);
+const _controllerEnum = z.enum([
+  "fanuc", "sodick", "makino", "mitsubishi", "agiecharmilles",
+  "siemens", "haas", "okuma", "mazak",
+]);
+
+// Shared enrichment input — process_type required, everything else optional.
+// Physical quantities are constrained positive (a negative thickness/tolerance/
+// hardness is nonsense and would only ever come from a caller bug).
+const _enrichmentInputShape = {
+  process_type: _processTypeEnum.describe("Manufacturing process: wire_edm, sinker_edm, milling, turning, grinding, or multi_axis"),
+  material: optStr.describe("Workpiece material name (e.g. 'D2 tool steel', 'Inconel 718')"),
+  controller: _controllerEnum.optional().describe("CNC/EDM controller family for controller-specific programming tips"),
+  thickness_mm: optPosNum.describe("Stock or wall thickness in mm"),
+  tolerance_mm: optPosNum.describe("Required tolerance in mm"),
+  surface_finish_Ra_um: optPosNum.describe("Target surface finish Ra in micrometres"),
+  is_thin_wall: optBool.describe("True if the part has thin-wall features"),
+  hardness_hrc: optPosNum.describe("Material hardness in HRC"),
+};
+
+const tribal_enrich = z.object(_enrichmentInputShape).passthrough();
+const tribal_enrich_check = z.object(_enrichmentInputShape).passthrough();
+const tribal_enrich_tips_only = z.object(_enrichmentInputShape).passthrough();
+const tribal_enrich_playbook_only = z.object(_enrichmentInputShape).passthrough();
+const tribal_enrich_controller_only = z.object({
+  controller: _controllerEnum.describe("CNC/EDM controller family to fetch programming tips for"),
+}).passthrough();
+
 export const ACTION_SHOP_PRACTICE_SCHEMAS: ActionSchemaMap = {
   practice_ingest,
   practice_search,
@@ -221,4 +260,9 @@ export const ACTION_SHOP_PRACTICE_SCHEMAS: ActionSchemaMap = {
   tribal_get,
   tribal_list,
   tribal_categories,
+  tribal_enrich,
+  tribal_enrich_check,
+  tribal_enrich_tips_only,
+  tribal_enrich_playbook_only,
+  tribal_enrich_controller_only,
 };
