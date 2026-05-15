@@ -220,8 +220,15 @@
     "U-P1-ADD-LANE-GUARD": {
       "phase": "P1-ROUTING",
       "title": "Ship git-add-lane-guard hook",
-      "status": "not_started",
-      "deliverables": ["git-add-lane-guard.mjs — blocks staging files outside the chat's slot scope when armed"]
+      "status": "complete",
+      "commits": ["b4118a7f0"],
+      "deliverables": [
+        ".claude/hooks/git-add-lane-guard.mjs — net-new PreToolUse(Bash) hook; default-OFF env-opt-in (PRISM_GIT_ADD_LANE_ENABLE=1); kill switch PRISM_GIT_ADD_LANE_DISABLE=1",
+        ".claude/hooks/__tests__/git-add-lane-guard.test.mjs — vitest suite (parked: pre-existing vite-transform harness bug, FLEET-REAPER-MS1 documented blocker)",
+        ".claude/hooks/__tests__/git-add-lane-guard.smoke.mjs — direct-import smoke harness, 71/71 PASS (LOAD-BEARING test until the vitest harness is unblocked)",
+        ".claude/hooks/bundles/bash-bundle.mjs — wired after sibling worktree-commit-route, same 2000ms budget"
+      ],
+      "note": "Dedup decision: NET-NEW. Coverage map: pre-edit-lane-guard.mjs covers Edit/Write/MultiEdit by peer-CLAIM; file-claim-commit-guard.mjs covers `git commit` by peer-CLAIM (and `git add` chained with commit); worktree-commit-route.mjs covers `git commit` by worktree mismatch. The gap this hook fills = BARE `git add` by SLOT WORKTREE SCOPE — a different concern (slot lane vs file claim) and a different trigger (unchained add). Confirmed by reading all three sibling hook headers. Build-time P0 caught + fixed during work: original top-level `exit(0)` activation gate killed any test harness doing `await import(...)`. Smoke harness printed 'boot' then silently died inside the import. Fix moved `if (!isHookArmed()) exit(0)` INSIDE main(); the smoke harness's `await import(...)` is now the import-safety regression assertion. Per-file 3-of-3 scrutiny PASS (code-analyzer + reviewer, both PASS). 4 P1 hygiene items from reviewer all fixed in the same commit: P1-B3 payload.cwd precedence, P1-B4 smoke env-isolation, P1-B1 +2 quote-escape cases, P1-B5 +2 malformed-porcelain cases. Today-state (pre-cutover, all chats in H:/prism on cad-fusion-live-ms0) the hook is a near-no-op even when armed (single worktree → no out-of-scope possible); becomes meaningful POST-P3-CUTOVER when each slot has its own `H:/prism-slot-<name>` worktree."
     },
     "U-P1-MAINTREE-WRITE-BLOCK": {
       "phase": "P1-ROUTING",
@@ -320,7 +327,8 @@
     { "at": "2026-05-14", "by": "claude-2081f435 (slot charlie)", "event": "P0-FOUNDATION complete — 6 units shipped, envelope created post-hoc" },
     { "at": "2026-05-14", "by": "claude-2081f435 (slot charlie)", "event": "P1-ROUTING started — U-P1-ROUTE-ACTIVATE complete (e2340001a): worktree-commit-route.mjs env-opt-in gate, default OFF. U-P1-ADD-LANE-GUARD + U-P1-MAINTREE-WRITE-BLOCK pending." },
     { "at": "2026-05-15", "by": "claude-2081f435 (slot charlie)", "event": "U-VIZ-WORKTREE-MAP complete (36b353f54): all 51 git worktrees mapped into /system-viz as L9 `worktrees`-subgroup nodes (verdict-colored, queryable via system-viz-query.mjs worktrees, headline trend). P2-DRAIN triage tooling — user-requested." },
-    { "at": "2026-05-15", "by": "claude-2081f435 (slot charlie)", "event": "U-P2-AUDIT-REFRESH complete: re-ran audit-worktrees.mjs -> WORKTREE-AUDIT-2026-05-15.{md,json}. Fleet grew 48 -> 51 worktrees vs the 2026-05-14 baseline; verdict split now KEEP 23 / MERGE 2 / PRUNE 3 / INVESTIGATE 23. 2 MERGE + 3 PRUNE candidates surfaced for the drain batches. envelope audit_doc + knowledge_sources repointed. Shipped in 76ff1fe39 — files correct + tracked, but absorbed into peer ALPHA's [FLEET-REAPER-MS1]/U-PHASE2-ALPHA-GUARDIAN commit (4th shared-tree commit collision in 72h; the exact pain this milestone exists to eliminate structurally)." }
+    { "at": "2026-05-15", "by": "claude-2081f435 (slot charlie)", "event": "U-P2-AUDIT-REFRESH complete: re-ran audit-worktrees.mjs -> WORKTREE-AUDIT-2026-05-15.{md,json}. Fleet grew 48 -> 51 worktrees vs the 2026-05-14 baseline; verdict split now KEEP 23 / MERGE 2 / PRUNE 3 / INVESTIGATE 23. 2 MERGE + 3 PRUNE candidates surfaced for the drain batches. envelope audit_doc + knowledge_sources repointed. Shipped in 76ff1fe39 — files correct + tracked, but absorbed into peer ALPHA's [FLEET-REAPER-MS1]/U-PHASE2-ALPHA-GUARDIAN commit (4th shared-tree commit collision in 72h; the exact pain this milestone exists to eliminate structurally)." },
+    { "at": "2026-05-15", "by": "claude-2081f435 (slot charlie)", "event": "U-P1-ADD-LANE-GUARD complete (b4118a7f0): net-new PreToolUse(Bash) hook + vitest suite (parked) + load-bearing smoke harness (71/71 PASS) + bash-bundle wiring. Default-OFF env-opt-in (PRISM_GIT_ADD_LANE_ENABLE=1). Dedup decision: NET-NEW (different concern from sibling lane-guards — slot WORKTREE SCOPE on bare `git add`, not peer CLAIM on Edit/commit). Build-time P0 caught + fixed: top-level `exit(0)` activation gate broke importability; moved inside main(). Per-file 3-of-3 PASS, 4 P1 hygiene items all fixed in the ship commit. P1-ROUTING now 2/3 units complete (U-P1-MAINTREE-WRITE-BLOCK pending)." }
   ],
   "out_of_scope": [
     "Migrating the JM Die test-shop worktrees (separate concern)",

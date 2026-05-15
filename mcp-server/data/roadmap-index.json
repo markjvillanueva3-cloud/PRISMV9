@@ -145,13 +145,13 @@
       "track": "INFRA-CONSOLIDATE",
       "status": "in_progress",
       "total_units": 15,
-      "completed_units": 9,
+      "completed_units": 10,
       "completed_phases": [
         "P0-FOUNDATION"
       ],
       "envelope": "mcp-server/data/milestones/SLOT-WORKTREE-MS0.json",
       "created_at": "2026-05-14",
-      "note": "Prevention-by-structure successor to WORKTREE-CONSOLIDATE-MS0. P0 shipped (6 units): architecture+tooling, scrutiny fixes, orphan-branch audit+reap, lint-staged root-cause fix, push-guard fix. P1-ROUTING started: U-P1-ROUTE-ACTIVATE shipped (e2340001a) — worktree-commit-route.mjs env-opt-in gate. P2-DRAIN tooling: U-VIZ-WORKTREE-MAP shipped (36b353f54) — all 51 worktrees mapped into /system-viz as a living visual index. U-P2-AUDIT-REFRESH shipped — WORKTREE-AUDIT-2026-05-15.{md,json} refreshed (fleet 48 -> 51, KEEP 23 / MERGE 2 / PRUNE 3 / INVESTIGATE 23)."
+      "note": "Prevention-by-structure successor to WORKTREE-CONSOLIDATE-MS0. P0 shipped (6 units): architecture+tooling, scrutiny fixes, orphan-branch audit+reap, lint-staged root-cause fix, push-guard fix. P1-ROUTING started: U-P1-ROUTE-ACTIVATE shipped (e2340001a) — worktree-commit-route.mjs env-opt-in gate. P2-DRAIN tooling: U-VIZ-WORKTREE-MAP shipped (36b353f54) — all 51 worktrees mapped into /system-viz as a living visual index. U-P2-AUDIT-REFRESH shipped — WORKTREE-AUDIT-2026-05-15.{md,json} refreshed (fleet 48 -> 51, KEEP 23 / MERGE 2 / PRUNE 3 / INVESTIGATE 23). U-P1-ADD-LANE-GUARD shipped (b4118a7f0) -- net-new git-add slot-lane guard hook, default-OFF env-opt-in, per-file 3-of-3 PASS, 71/71 smoke tests."
     },
     {
       "id": "INFRA-CONSENSUS-WIRE-MS0",
@@ -11758,6 +11758,15 @@
       "pipeline": "/forge6 (brainstorm) -> /rgs6 generate (this emit)",
       "compounding_artifact": "/pick-dev (companion skill built this commit)",
       "description": "Synthesis-layer capstone: psk CLI + thin MCP syscall layer every slash command resolves live state through; formal pipeline-composition primitive that activates the dormant pipeline_integrations frontmatter; the Obsidian wiki promoted to the literal OS state store; closed command-telemetry -> adaptive-thresholds feedback loop; migration of the existing command corpus to standardized de-hardcoded frontmatter; and a set of new composite pipeline commands. Line-successor to OBSIDIAN-PRISM-OS-MS0."
+    },
+    {
+      "id": "FLEET-REAPER-MS1",
+      "title": "Fleet Reaper Phase 2 — leftover-bash classifier + soft RAM relief + GPU/Ollama coordinator + alpha-slot guardian",
+      "status": "completed",
+      "completedAt": "2026-05-15T00:00:00Z",
+      "unitsTotal": 6,
+      "unitsCompleted": 6,
+      "envelope": "mcp-server/data/milestones/FLEET-REAPER-MS1.json"
     }
   ],
   "total_milestones": 747,
