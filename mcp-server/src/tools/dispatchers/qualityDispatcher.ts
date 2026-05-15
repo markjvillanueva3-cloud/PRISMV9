@@ -35,6 +35,7 @@ const ACTIONS = [
   "blueprint_extract", "blueprint_inspection_plan", "blueprint_setup_sheet",
   "bias_correct", "cmm_plan", "cpk_predict",
   "fai_disposition", "fai_evaluate_characteristic", "fai_generate_forms", "fai_run",
+  "finish_target_advise",
   "gauge_rr", "gdt_validate", "measurement_analyze",
   "spc_calculate", "tolerance_stack",
 ] as const;
@@ -228,6 +229,13 @@ Params vary by action — pass relevant fields in params object.`,
           case "fai_disposition": {
             const { dispositionRecommendation } = await import("../../engines/FirstArticleInspectionPipelineEngine.js");
             result = dispositionRecommendation(params.results ?? params.characteristics ?? []);
+            break;
+          }
+          case "finish_target_advise": {
+            // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-FINISH-TARGET-ADVISOR
+            const mod = await import("../../engines/FinishTargetAdvisorEngine.js");
+            type FinishInput = Parameters<typeof mod.FinishTargetAdvisorEngine.advise>[0];
+            result = mod.FinishTargetAdvisorEngine.advise(params as FinishInput);
             break;
           }
           default:

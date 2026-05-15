@@ -184,6 +184,41 @@ const fai_disposition = z.object({
 }).passthrough();
 
 // ============================================================================
+// SURFACE FINISH ADVISORY (1) — OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-FINISH-TARGET-ADVISOR
+// ============================================================================
+
+/** finish_target_advise — Boothroyd Ra advisory with BUE/thermal/wear/vibration/coolant corrections
+ * Formulas: Ra(turn/bore) = f²/(32·r), Ra(mill) = fz²/(32·R) per Boothroyd & Knight.
+ * BUE/coolant factor tables from Sandvik Coromant App Guide + Machinery's Handbook 31e. */
+const finish_target_advise = z.object({
+  operation: z.enum([
+    "turning", "milling", "drilling", "grinding", "boring", "reaming", "honing", "lapping",
+  ]).describe("Machining operation type — drives the achievable Ra range"),
+  feed_mm_rev: z.number().positive().optional()
+    .describe("Feed per revolution (turning/boring/drilling/reaming) in mm/rev"),
+  feed_per_tooth_mm: z.number().positive().optional()
+    .describe("Feed per tooth (milling) in mm — used in Boothroyd Ra formula"),
+  tool_nose_radius_mm: z.number().positive().optional()
+    .describe("Insert nose radius for turning/boring (mm) — Ra ∝ 1/r"),
+  cutter_diameter_mm: z.number().positive().optional()
+    .describe("End-mill diameter for milling Ra formula (mm)"),
+  material_iso_group: z.enum(["P", "M", "K", "N", "S", "H"]).optional()
+    .describe("ISO material group — drives BUE-factor lookup"),
+  material_hardness_hrc: z.number().optional()
+    .describe("Hardness HRC (informational, future use)"),
+  cutting_speed_m_min: z.number().nonnegative().optional()
+    .describe("Cutting speed m/min — drives thermal factor (low=BUE-prone, high=reduced BUE)"),
+  coolant: z.enum(["flood", "mist", "mql", "dry", "cryogenic", "high_pressure"]).optional()
+    .describe("Coolant strategy — drives the coolant Ra multiplier"),
+  depth_of_cut_mm: z.number().positive().optional()
+    .describe("Depth of cut (mm) — drives vibration factor"),
+  tool_wear_vb_mm: z.number().nonnegative().optional()
+    .describe("Flank-wear land VB (mm) — Ra degrades 50% at VB=0.3 mm"),
+  target_ra_um: z.number().positive().optional()
+    .describe("Desired target Ra (µm) — advisor checks feasibility"),
+}).passthrough();
+
+// ============================================================================
 // EXPORT MAP
 // ============================================================================
 
@@ -210,4 +245,6 @@ export const QUALITY_ACTION_SCHEMAS: ActionSchemaMap = {
   fai_generate_forms,
   fai_evaluate_characteristic,
   fai_disposition,
+  // Surface Finish Advisory (1)
+  finish_target_advise,
 };
