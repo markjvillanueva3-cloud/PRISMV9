@@ -182,6 +182,32 @@ function approve() {
   process.stdout.write(JSON.stringify({ decision: "approve" }));
 }
 
+/**
+ * F9 — accept /goal when this session's /loop ended with iter >= target.
+ * Reads `state/shared/loop-state/loop-<sid>.json` written by
+ * `.claude/helpers/loop-state.mjs`. Returns { ok, reason } where ok=true
+ * means the loop genuinely met its target and /goal should clear.
+ */
+function checkLoopTargetMet(sessionId) {
+  try {
+    if (!sessionId) return { ok: false, reason: "no_session_id" };
+    const fs = require("node:fs");
+    const path = `H:/prism/state/shared/loop-state/loop-${sessionId}.json`;
+    if (!fs.existsSync(path)) return { ok: false, reason: "no_loop_state" };
+    const raw = fs.readFileSync(path, "utf-8");
+    const state = JSON.parse(raw);
+    if (state.status !== "ended") return { ok: false, reason: `loop_status=${state.status}` };
+    const iter = Number(state.iter || 0);
+    const target = Number(state.target || 0);
+    if (target > 0 && iter >= target) {
+      return { ok: true, reason: `loop ended iter ${iter}/${target}` };
+    }
+    return { ok: false, reason: `loop iter ${iter} < target ${target}` };
+  } catch (e) {
+    return { ok: false, reason: `error: ${e.message}` };
+  }
+}
+
 async function main() {
   if (disabled()) return approve();
   const event = await readStdinJson();
@@ -193,6 +219,18 @@ async function main() {
   if (bypassed()) {
     logBypass("PRISM_GOAL_GATE_AUDIT_BYPASS=1");
     return approve();
+  }
+
+  // F9 — loop-target-met accept path. If this session ran a /loop that
+  // ended with iter>=target, accept that as completion (alongside the
+  // existing close-out-audit triage path). Disabled by
+  // PRISM_GOAL_GATE_LOOP_ACCEPT_DISABLE=1.
+  if (process.env.PRISM_GOAL_GATE_LOOP_ACCEPT_DISABLE !== "1") {
+    const loopAccept = checkLoopTargetMet(event && event.session_id);
+    if (loopAccept.ok) {
+      process.stderr.write(`[goal-complete-gate] loop-target-met accept: ${loopAccept.reason}\n`);
+      return approve();
+    }
   }
 
   const audit = readAudit();
