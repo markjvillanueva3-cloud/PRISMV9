@@ -26,8 +26,25 @@
 
 import { promises as fs } from "node:fs";
 import { spawnSync } from "node:child_process";
+import {
+  runMasterIndexSearch,
+  runTribalSearch,
+} from "../lib/master-index-search-lib.mjs";
 
 const PRISM = "H:/prism";
+
+// Tribal domain inferred from subagent type — boosts in-domain tribal tips
+// when the type implies a manufacturing domain. Falls back to no boost.
+const SUBAGENT_TYPE_TO_TRIBAL_DOMAIN = {
+  "mill-reviewer": "mill",
+  "physics-reviewer": "mill",
+  "lathe-reviewer": "lathe",
+  "wedm-reviewer": "wedm",
+  "cad-reviewer": "cad",
+  "cam-reviewer": "cam",
+  "wiring-review-agent": null,
+  "test-review-agent": null,
+};
 
 const FILES = {
   currentPosition: `${PRISM}/state/CURRENT_POSITION.md`,
@@ -208,12 +225,60 @@ async function findPerChatHandoff(parentInstance) {
   } catch { return null; }
 }
 
+// -- per-task knowledge injection (master-index + tribal) -------------
+// Hoisted constant: when the taskNote yields fewer tokens, the searches
+// short-circuit silently — bundle still renders, just without the
+// per-task sections. Matches runMasterIndexSearch / runTribalSearch
+// internal floor (tokens.length < 2 returns empty hits).
+const TOP_K_PER_TASK = 5;
+
+function inferTribalDomain(subagentType) {
+  const key = subagentType.toLowerCase();
+  if (key in SUBAGENT_TYPE_TO_TRIBAL_DOMAIN) return SUBAGENT_TYPE_TO_TRIBAL_DOMAIN[key];
+  // Fuzzy fallback: substring match on type name
+  if (key.includes("mill") || key.includes("physics")) return "mill";
+  if (key.includes("lathe") || key.includes("turn")) return "lathe";
+  if (key.includes("wedm") || key.includes("edm")) return "wedm";
+  if (key.includes("cad")) return "cad";
+  if (key.includes("cam") || key.includes("toolpath")) return "cam";
+  return null;
+}
+
+/**
+ * Run per-subagent-task keyword searches against system-graph + tribal index.
+ * Both searches are sync, network-free, mtime-cached. Failures (missing file,
+ * bad JSON, empty hits) return empty arrays — never throw.
+ *
+ * The system-graph cache invalidates automatically when peers regenerate
+ * the graph (e.g., SYSTEM-VIZ-FS-COVERAGE-MS0 expanding L12 leaves) — no
+ * manual sync required.
+ *
+ * @param {string} taskNote — first 240 chars of the subagent prompt
+ * @param {string} subagentType
+ * @returns {{ mi: {tokens, hits}, tribal: {tokens, hits, prefDomain} }}
+ */
+function runPerTaskSearches(taskNote, subagentType) {
+  if (!taskNote || taskNote.length < 6) {
+    return { mi: { tokens: [], hits: [] }, tribal: { tokens: [], hits: [], prefDomain: null } };
+  }
+  const prefDomain = inferTribalDomain(subagentType);
+  let mi = { tokens: [], hits: [] };
+  let tribal = { tokens: [], hits: [], prefDomain };
+  try { mi = runMasterIndexSearch(taskNote, { topK: TOP_K_PER_TASK }); } catch { /* fail-safe */ }
+  try {
+    const r = runTribalSearch(taskNote, { topK: TOP_K_PER_TASK, prefDomain });
+    tribal = { ...r, prefDomain };
+  } catch { /* fail-safe */ }
+  return { mi, tribal };
+}
+
 // -- main bundle builder ---------------------------------------------
 export async function buildSpawnedAgentAdditionalContext(options = {}) {
   const parentFamily = options.parentFamily?.trim() || "Claude";
   const parentInstance = options.parentInstance?.trim() || "";
   const subagentType = options.subagentType?.trim() || "spawned";
   const tasknote = options.taskNote ? truncate(options.taskNote, 200) : null;
+  const fullTaskNote = options.taskNote ? String(options.taskNote).slice(0, 1200) : "";
 
   const [
     positionText, inventoryText, sviText, sviWatch, coord, roadmap,
@@ -319,6 +384,42 @@ export async function buildSpawnedAgentAdditionalContext(options = {}) {
   lines.push(`    \`node H:/prism/scripts/system-viz-query.mjs blast-radius <nodeId>\``);
   lines.push(`    \`node H:/prism/scripts/system-viz-query.mjs roadmap-candidates\``);
   lines.push(``);
+
+  // ── PER-TASK KNOWLEDGE (master-index + tribal — fresh per subagent) ──
+  // Run a keyword search against system-graph + tribal-embed-index using
+  // THIS subagent's prompt as the query. Both searches are sync, network-
+  // free, mtime-cached. Empty hit lists skip the section entirely.
+  //
+  // Sync-to-system-viz: system-graph cache invalidates on file mtime — when
+  // peers expand the graph (e.g., SYSTEM-VIZ-FS-COVERAGE-MS0 adding L12
+  // filesystem leaves), the next subagent spawn picks up the new nodes
+  // automatically.
+  const perTask = runPerTaskSearches(fullTaskNote, subagentType);
+  if (perTask.mi.hits.length > 0) {
+    lines.push(`## 🧭 Master-index pre-search for THIS subagent's task`);
+    lines.push(`Query tokens: ${perTask.mi.tokens.join(", ")}`);
+    lines.push(``);
+    for (const h of perTask.mi.hits) {
+      const w = h.wiki.length > 0 ? `  wiki: ${h.wiki.slice(0, 2).join(", ")}` : "";
+      const m = h.memory.length > 0 ? `  mem: ${h.memory.slice(0, 1).join(", ")}` : "";
+      lines.push(`  • [${h.layer}/${h.status}] ${h.label}${w ? "\n   " + w : ""}${m ? "\n   " + m : ""}`);
+    }
+    lines.push(``);
+    lines.push(`_Source: \`state/shared/system-viz/system-graph.json\` (mtime-synced to live graph)._`);
+    lines.push(``);
+  }
+  if (perTask.tribal.hits.length > 0) {
+    const pd = perTask.tribal.prefDomain;
+    lines.push(`## 🧠 Relevant tribal knowledge for THIS subagent's task${pd ? ` (boosted: ${pd})` : ""}`);
+    lines.push(`Query tokens: ${perTask.tribal.tokens.join(", ")}`);
+    lines.push(``);
+    for (const h of perTask.tribal.hits) {
+      lines.push(`  • [${h.domain}/${h.source}] ${h.title}${h.path ? `  (${h.path})` : ""}`);
+    }
+    lines.push(``);
+    lines.push(`_Source: \`state/shared/tribal-embed-index.json\` (keyword path — deeper recall via \`tribal-rerank.mjs --query "..."\`)._`);
+    lines.push(``);
+  }
 
   // ── DOCTRINE & MEMORY (operating playbooks + cross-session memory) ──
   lines.push(`## Doctrine & memory — READ these before non-trivial work`);
