@@ -83,15 +83,20 @@ import path from "node:path";
 import { exit } from "node:process";
 
 // ── Activation-gate evaluation ─────────────────────────────────────────
-// Default OFF. EVALUATED at module load (cheap), but the early-exit fires
-// only inside main() so the module is safely IMPORTABLE by tests. (A bare
-// top-level `exit(0)` here would kill any test harness that does
+// Default ON since SLOT-WORKTREE-MS0/U-P3-DEFAULT-ON (2026-05-15). The
+// 11-slot worktree fleet is now bootstrapped (U-P3-BOOTSTRAP shipped as
+// 65c5c3148), so slot chats can adopt slot-routing immediately. The
+// transitional PRISM_GIT_ADD_LANE_ENABLE=1 knob is preserved as a no-op
+// for back-compat (chats that set it just stay armed); PRISM_GIT_ADD_LANE_DISABLE=1
+// is the live kill switch and ALWAYS wins.
+// EVALUATED at module load (cheap), but the early-exit fires only inside
+// main() so the module is safely IMPORTABLE by tests. (A bare top-level
+// `exit(0)` here would kill any test harness that does
 // `await import("./git-add-lane-guard.mjs")` — found via the smoke
 // harness when it printed "boot" then silently died inside the import.)
 function isHookArmed() {
-  const enabled = process.env.PRISM_GIT_ADD_LANE_ENABLE === "1";
   const disabled = process.env.PRISM_GIT_ADD_LANE_DISABLE === "1";
-  return enabled && !disabled;
+  return !disabled;
 }
 
 // ── Constants ──────────────────────────────────────────────────────────

@@ -85,10 +85,16 @@ import { exit } from "node:process";
 // `exit(0)`). This is the lesson from U-P1-ADD-LANE-GUARD: a top-level
 // `exit(0)` kills any test harness doing `await import(...)`. The gate
 // fires from inside main() so the module stays importable. ──
+// Default ON since SLOT-WORKTREE-MS0/U-P3-DEFAULT-ON (2026-05-15). The
+// 11-slot worktree fleet is bootstrapped (U-P3-BOOTSTRAP @ 65c5c3148);
+// slot chats may not write to the main tree H:/prism (only golf, the
+// integrator slot, is exempt — see decideOnEdit). The transitional
+// PRISM_MAINTREE_WRITE_BLOCK_ENABLE=1 knob is preserved as a no-op
+// for back-compat; PRISM_MAINTREE_WRITE_BLOCK_DISABLE=1 is the live
+// kill switch and ALWAYS wins.
 function isHookArmed() {
-  const enabled = process.env.PRISM_MAINTREE_WRITE_BLOCK_ENABLE === "1";
   const disabled = process.env.PRISM_MAINTREE_WRITE_BLOCK_DISABLE === "1";
-  return enabled && !disabled;
+  return !disabled;
 }
 
 // ── Constants ──────────────────────────────────────────────────────────

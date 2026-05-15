@@ -77,22 +77,24 @@ import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { exit } from "node:process";
 
-// ── Activation gate (SLOT-WORKTREE-MS0/U-P1-ROUTE-ACTIVATE, 2026-05-14) ──
-// Env-opt-in, DEFAULT OFF. This hook is wired into bash-bundle.mjs but is a
-// pure no-op unless explicitly armed with PRISM_WORKTREE_ROUTE_ENABLE=1.
-// PRISM_WORKTREE_ROUTE_DISABLE=1 is the kill switch and ALWAYS wins — it stays
-// effective after the milestone's P3-DEFAULT-ON flip inverts the default.
-// NOTE: PRISM_*_ENABLE breaks the repo-wide PRISM_*_DISABLE convention on
-// purpose — it is the TRANSITIONAL knob for incremental fleet adoption; once
-// P3-DEFAULT-ON inverts the default, ENABLE becomes vestigial and DISABLE is
-// the live, convention-matching kill switch.
+// ── Activation gate (SLOT-WORKTREE-MS0/U-P1-ROUTE-ACTIVATE 2026-05-14
+//                    → U-P3-DEFAULT-ON 2026-05-15) ────────────────────────
+// DEFAULT ON since the 11-slot worktree fleet is bootstrapped
+// (U-P3-BOOTSTRAP @ 65c5c3148 — `git worktree list` shows all 11
+// H:/prism-slot-<name>). PRISM_WORKTREE_ROUTE_DISABLE=1 is the live kill
+// switch and ALWAYS wins. The transitional PRISM_WORKTREE_ROUTE_ENABLE=1
+// knob is preserved as a no-op for back-compat (chats that set it stay
+// armed; the convention-matching DISABLE is the live opt-out).
 // First executable statement so a disabled hook costs ~nothing: it exits
 // before reading stdin. That is safe inside bash-bundle.mjs — the runner
 // settles each child via its `close` handler regardless of whether the stdin
 // write landed, and wraps that write in try/catch besides.
-const ROUTE_ENABLED = process.env.PRISM_WORKTREE_ROUTE_ENABLE === "1";
+// TECH DEBT: this hook predates the U-P1-ADD-LANE-GUARD import-safety
+// lesson and still uses a top-level exit() (vs the isHookArmed()+main()
+// pattern in git-add-lane-guard.mjs + main-tree-write-block.mjs). Cheap
+// refactor when this hook grows tests — for now it has none in tree.
 const ROUTE_DISABLED = process.env.PRISM_WORKTREE_ROUTE_DISABLE === "1";
-if (!ROUTE_ENABLED || ROUTE_DISABLED) exit(0);
+if (ROUTE_DISABLED) exit(0);
 
 // ── Parse stdin ────────────────────────────────────────────────────────
 let payload;
