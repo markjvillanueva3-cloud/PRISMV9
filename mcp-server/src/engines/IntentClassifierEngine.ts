@@ -14,7 +14,6 @@
  * @version 1.0.0
  * @date 2026-04-14
  */
-// WIRE-EXEMPT: invoked directly by PRISMUnifiedOrchestratorEngine.ts + CADFailureTriageEngine.ts via static-method static API — no dispatcher action surface needed. Routing classifier, not a tool.
 import { classifyTask, } from "./TaskAgentClassifier.js";
 // ============================================================================
 // INTENT PATTERNS
