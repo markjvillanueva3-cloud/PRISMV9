@@ -90,6 +90,15 @@ function projectHeadline(headline, nowIso) {
   for (const k of keys) {
     if (k in headline) row[k] = headline[k];
   }
+  // `worktrees` arrives as a nested object {total,KEEP,MERGE,PRUNE,INVESTIGATE};
+  // project the total as a scalar so the git-worktree fleet size trends over
+  // time. SLOT-WORKTREE-MS0 exists to DRAIN the fleet (~51 → ~9 canonical) —
+  // this is the metric that proves the drain is working. Guarded so an old
+  // graph (no worktrees field, or null) appends a row without it rather than
+  // crashing.
+  if (headline.worktrees && typeof headline.worktrees.total === "number") {
+    row.worktrees = headline.worktrees.total;
+  }
   return row;
 }
 
