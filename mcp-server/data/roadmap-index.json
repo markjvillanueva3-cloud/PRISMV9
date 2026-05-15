@@ -145,14 +145,15 @@
       "track": "INFRA-CONSOLIDATE",
       "status": "in_progress",
       "total_units": 15,
-      "completed_units": 12,
+      "completed_units": 13,
       "completed_phases": [
         "P0-FOUNDATION",
-        "P1-ROUTING"
+        "P1-ROUTING",
+        "P2-DRAIN"
       ],
       "envelope": "mcp-server/data/milestones/SLOT-WORKTREE-MS0.json",
       "created_at": "2026-05-14",
-      "note": "Prevention-by-structure successor to WORKTREE-CONSOLIDATE-MS0. P0 shipped (6 units): architecture+tooling, scrutiny fixes, orphan-branch audit+reap, lint-staged root-cause fix, push-guard fix. P1-ROUTING started: U-P1-ROUTE-ACTIVATE shipped (e2340001a) — worktree-commit-route.mjs env-opt-in gate. P2-DRAIN tooling: U-VIZ-WORKTREE-MAP shipped (36b353f54) — all 51 worktrees mapped into /system-viz as a living visual index. U-P2-AUDIT-REFRESH shipped — WORKTREE-AUDIT-2026-05-15.{md,json} refreshed (fleet 48 -> 51, KEEP 23 / MERGE 2 / PRUNE 3 / INVESTIGATE 23). U-P1-ADD-LANE-GUARD shipped (b4118a7f0) -- net-new git-add slot-lane guard hook, default-OFF env-opt-in, per-file 3-of-3 PASS, 71/71 smoke tests. U-P1-MAINTREE-WRITE-BLOCK shipped (10c5e40c3) -- P1-ROUTING now 3/3 complete (all default-OFF env-opt-in until P3-DEFAULT-ON); back-fixed a latent schema bug in U-P1-ADD-LANE-GUARD in the same commit (slots.slots is object-keyed, not array). [2026-05-15 U-P2-DRAIN-BATCH-A complete] 11 worktree paths drained (3 PRUNE + 2 PARK + 6 INVESTIGATE-easy), fleet 51→41 (-20%), 11 archive tags + 2 WIP-patches pushed, 13 branches deleted via safe `-d`. 2 MERGE candidates (hypermill-ms1 +15 / tsc-cleanup-ms0 +88) parked pending operator-gated integration. BATCH-B (17 INVESTIGATE incl. high-risk slot-alpha/cad-complete/iooms0) + P3-BOOTSTRAP + P3-DEFAULT-ON still pending."
+      "note": "Prevention-by-structure successor to WORKTREE-CONSOLIDATE-MS0. P0 shipped (6 units): architecture+tooling, scrutiny fixes, orphan-branch audit+reap, lint-staged root-cause fix, push-guard fix. P1-ROUTING started: U-P1-ROUTE-ACTIVATE shipped (e2340001a) — worktree-commit-route.mjs env-opt-in gate. P2-DRAIN tooling: U-VIZ-WORKTREE-MAP shipped (36b353f54) — all 51 worktrees mapped into /system-viz as a living visual index. U-P2-AUDIT-REFRESH shipped — WORKTREE-AUDIT-2026-05-15.{md,json} refreshed (fleet 48 -> 51, KEEP 23 / MERGE 2 / PRUNE 3 / INVESTIGATE 23). U-P1-ADD-LANE-GUARD shipped (b4118a7f0) -- net-new git-add slot-lane guard hook, default-OFF env-opt-in, per-file 3-of-3 PASS, 71/71 smoke tests. U-P1-MAINTREE-WRITE-BLOCK shipped (10c5e40c3) -- P1-ROUTING now 3/3 complete (all default-OFF env-opt-in until P3-DEFAULT-ON); back-fixed a latent schema bug in U-P1-ADD-LANE-GUARD in the same commit (slots.slots is object-keyed, not array). [2026-05-15 U-P2-DRAIN-BATCH-A complete] 11 worktree paths drained (3 PRUNE + 2 PARK + 6 INVESTIGATE-easy), fleet 51→41 (-20%), 11 archive tags + 2 WIP-patches pushed, 13 branches deleted via safe `-d`. 2 MERGE candidates (hypermill-ms1 +15 / tsc-cleanup-ms0 +88) parked pending operator-gated integration. BATCH-B (17 INVESTIGATE incl. high-risk slot-alpha/cad-complete/iooms0) + P3-BOOTSTRAP + P3-DEFAULT-ON still pending. [2026-05-15 U-P2-DRAIN-BATCH-B complete] P2-DRAIN phase done (4/4 units). 15 worktree paths removed (2 drain + 13 PARK), 15 archive tags + 13 WIP-patches pushed. Fleet 41→26 (-37% batch / -49% cumulative). 2 explicit deferrals: slot-alpha (P3-BOOTSTRAP scope) + cad-complete (operator review). P3-CUTOVER (BOOTSTRAP + DEFAULT-ON) remains, scope widened to 10-work + 1-hygiene = 11-slot capacity per 2026-05-15 fleet-design-10-chats directive."
     },
     {
       "id": "INFRA-CONSENSUS-WIRE-MS0",
@@ -11378,10 +11379,10 @@
       "id": "MS-DOCU-INGEST",
       "title": "MS-DOCU-INGEST — persist the join + the 55 verified triples into a queryable engine; back-annotate the JM-Die archive",
       "track": "revenue",
-      "status": "not_started",
+      "status": "in_progress",
       "tier": 1,
       "total_units": 2,
-      "completed_units": 0,
+      "completed_units": 1,
       "dependencies": [
         "MS-DOCU-FINISH"
       ],
@@ -11396,7 +11397,8 @@
       "viz_node_id": "ghost.ms.ms-docu-ingest",
       "description": "U-DOCU-04 = persist blueprint-program-join-full-v5.jsonl + training-triples-v4.jsonl (the 55 verified, 38 exact >0.95) into PairedPrintProgramBundleEngine (currently a STUB: annotations:['Pipeline pending — bundle stub retained']) + add a prism_dev/prism_cam lookup action (print_",
       "source": "§R10.3 — U-DOCU-04 de-stubs PairedPrintProgramBundleEngine; U-DOCU-05 overlaps Track D U-PPL-D1",
-      "roadmap_priority": 1
+      "roadmap_priority": 1,
+      "updated_at": "2026-05-15T13:25:00.000Z"
     },
     {
       "id": "MS-PRINT-PROGRAM-LOOP",

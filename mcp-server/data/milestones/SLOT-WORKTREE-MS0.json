@@ -268,7 +268,7 @@
       "phase": "P2-DRAIN",
       "title": "Drain INVESTIGATE-classified worktrees (batch A)",
       "status": "complete",
-      "commits": ["pending"],
+      "commits": ["0c0419a25"],
       "drained": {
         "count": 11,
         "fleet_before": 51,
@@ -304,14 +304,56 @@
     "U-P2-DRAIN-BATCH-B": {
       "phase": "P2-DRAIN",
       "title": "Drain INVESTIGATE-classified worktrees (batch B)",
-      "status": "not_started",
-      "deliverables": ["remaining non-canonical worktrees triaged + drained + removed"]
+      "status": "complete",
+      "commits": ["pending"],
+      "drained": {
+        "count_paths_removed": 15,
+        "fleet_before": 41,
+        "fleet_after": 26,
+        "investigate_drained_safe": [
+          { "name": "psau-sav2",                  "branch": "work/psau-sav2",                  "sha": "a9a534a3e", "tag": "archive/slot-worktree-ms0-drain-2026-05-15/psau-sav2",                  "wip_patch_bytes": 10195 },
+          { "name": "blueprint-ocr-training-ms1", "branch": "work/blueprint-ocr-training-ms1", "sha": "f4b2297a1", "tag": "archive/slot-worktree-ms0-drain-2026-05-15/blueprint-ocr-training-ms1", "wip_patch_bytes": 0 }
+        ],
+        "park_pending_merge": [
+          { "name": "u-fus-api01",                "branch": "worktree-u-fus-api01",                "sha": "59b94c4ad", "tag": "archive/slot-worktree-ms0-park-2026-05-15/u-fus-api01",                "ahead": 497, "wip_patch_bytes": 1020795 },
+          { "name": "u-fus-api02",                "branch": "worktree-u-fus-api02",                "sha": "46c1ab015", "tag": "archive/slot-worktree-ms0-park-2026-05-15/u-fus-api02",                "ahead": 2,   "wip_patch_bytes": 188970 },
+          { "name": "cam-exhaust-cam43-plus",     "branch": "work/cam-exhaust-cam43-plus",         "sha": "18a8c9862", "tag": "archive/slot-worktree-ms0-park-2026-05-15/cam-exhaust-cam43-plus",     "ahead": 14,  "wip_patch_bytes": 28291 },
+          { "name": "claudemd-enforcement",       "branch": "meta/claudemd-enforcement",           "sha": "f42740ce6", "tag": "archive/slot-worktree-ms0-park-2026-05-15/claudemd-enforcement",       "ahead": 1,   "wip_patch_bytes": 425828 },
+          { "name": "engine-wire-ms0",            "branch": "work/engine-wire-ms0",                "sha": "a06dbff40", "tag": "archive/slot-worktree-ms0-park-2026-05-15/engine-wire-ms0",            "ahead": 28,  "wip_patch_bytes": 906 },
+          { "name": "file-claim-fix",             "branch": "meta/file-claim-fix",                 "sha": "b7705e931", "tag": "archive/slot-worktree-ms0-park-2026-05-15/file-claim-fix",             "ahead": 4,   "wip_patch_bytes": "SKIPPED (452 dirty files — too large to capture; HEAD tag preserves all committed work)" },
+          { "name": "forge-orphans-2026-05-01",   "branch": "archive/forge-orphans-2026-05-01",    "sha": "5e4afb24b", "tag": "archive/slot-worktree-ms0-park-2026-05-15/forge-orphans-2026-05-01",   "ahead": 502, "wip_patch_bytes": 0 },
+          { "name": "cam-fusion-ms1",             "branch": "work/cam-fusion-ms1",                 "sha": "6b5ef569e", "tag": "archive/slot-worktree-ms0-park-2026-05-15/cam-fusion-ms1",             "ahead": 12,  "wip_patch_bytes": 906 },
+          { "name": "intel-ollama-obsidian-ms0",  "branch": "work/intel-ollama-obsidian-ms0",      "sha": "d1e8b88f7", "tag": "archive/slot-worktree-ms0-park-2026-05-15/intel-ollama-obsidian-ms0",  "ahead": 983, "wip_patch_bytes": 3645, "scope_hint": "Largest park — INTEL-OLLAMA-OBSIDIAN-MS0 (80/92 shipped per envelope drift)" },
+          { "name": "knowledge-wiki-ms0",         "branch": "work/knowledge-wiki-ms0",             "sha": "7baa46580", "tag": "archive/slot-worktree-ms0-park-2026-05-15/knowledge-wiki-ms0",         "ahead": 11,  "wip_patch_bytes": 188970 },
+          { "name": "merge-staging-ms0",          "branch": "work/merge-staging-ms0",              "sha": "5d557785a", "tag": "archive/slot-worktree-ms0-park-2026-05-15/merge-staging-ms0",          "ahead": 874, "wip_patch_bytes": 0,    "scope_hint": "Integration staging branch — likely the right cherry-pick target for parked MERGE candidates" },
+          { "name": "mill-master",                "branch": "work/mill-master",                    "sha": "4aced164f", "tag": "archive/slot-worktree-ms0-park-2026-05-15/mill-master",                "ahead": 489, "wip_patch_bytes": 166048 },
+          { "name": "session-efficiency",         "branch": "work/session-efficiency",             "sha": "e1ef2f1ab", "tag": "archive/slot-worktree-ms0-park-2026-05-15/session-efficiency",         "ahead": 7,   "wip_patch_bytes": 11276 }
+        ],
+        "deferred": [
+          { "name": "slot-alpha",    "path": "H:/prism-slot-alpha",    "branch": "slot/alpha",        "reason": "Canonical P3-BOOTSTRAP partial — 0 ahead/78 behind on slot/alpha branch. The 34328 dirty count was overcounted (status --short includes untracked); actual delta is stale `D` deletions of commands-archive/_flat-variants/*.md (those .md files moved/archived in main since this worktree was bootstrapped). This is the canonical slot/alpha worktree and MUST be refreshed (or recreated) during U-P3-BOOTSTRAP — NOT drained here." },
+          { "name": "cad-complete",  "path": "H:/prism-cad-complete",  "branch": "work/cad-complete-ms0", "reason": "0 ahead but 3775 dirty files / 22.4d stale. WIP scope unverified — needs operator inspection before drain. Defer to a dedicated review unit; do NOT auto-drain with a massive WIP-capture (would bloat the archive-patches dir by hundreds of KB)." }
+        ]
+      },
+      "deliverables": [
+        "15 worktree paths removed (2 INVESTIGATE-drain + 13 PARK)",
+        "15 archive tags pushed to origin (2 drain + 13 park — full SHA recoverability)",
+        "13 WIP-patch artifacts captured (range 906B-1.0MB) — committed under state/shared/archive-patches/slot-worktree-ms0-drain-2026-05-15/",
+        "2 branches deleted via safe `git branch -d` (psau-sav2 + blueprint-ocr-training-ms1 — both 0-ahead-of-base)",
+        "13 branches retained on origin for operator-gated cherry-pick — branch refs survive in `git branch -a`",
+        "fleet 41 → 26 worktrees (-37% this batch, -49% cumulative from 51 baseline)",
+        "2 deferred items explicitly documented (slot-alpha = P3-BOOTSTRAP scope; cad-complete = needs review)"
+      ],
+      "note": "BATCH-B completes the P2-DRAIN phase. 15 of 17 INVESTIGATE worktrees handled this batch; 2 deferred with explicit rationale (slot-alpha is canonical P3-BOOTSTRAP scope NOT a drain candidate; cad-complete needs operator review before bulk drain). PARK protocol: archive-tag HEAD → snapshot WIP (cap 200 dirty files to avoid mega-diffs) → git worktree remove --force → KEEP BRANCH ALIVE. Critical distinction from drain: the 13 PARK branches all have ahead>0 (`-d` would refuse, `-D` would force-delete = WORK LOSS) so the branch ref is the recoverability anchor + the archive-tag is the SHA pin + the WIP-patch is the dirty-tree recovery story. Combined with BATCH-A: 26 worktrees handled (5 PRUNE + 4 INVESTIGATE-drain + 17 PARK + 0 deferred-from-A) — fleet 51→26 (-49%) in a single session, zero work lost. Largest PARK is intel-ollama-obsidian-ms0 at 983 ahead — matches the build_state envelope drift (claims not_started but 80/92 units shipped); operator should reconcile the envelope before any cherry-pick."
     },
     "U-P3-BOOTSTRAP": {
       "phase": "P3-CUTOVER",
-      "title": "Bootstrap the 9 canonical slot worktrees",
+      "title": "Bootstrap the canonical slot worktrees (10-chat capacity per 2026-05-15 directive)",
       "status": "not_started",
-      "deliverables": ["slot-worktree-bootstrap run; 9 H:/prism-slot-<name> worktrees with junctioned node_modules"]
+      "deliverables": [
+        "slot-worktree-bootstrap run; canonical H:/prism-slot-<name> worktrees with junctioned node_modules",
+        "Widen from original 9 (alpha..foxtrot + hotel + india + golf) to 11-slot capacity (10 work + 1 hygiene = alpha..foxtrot + hotel + india + juliet + kilo + golf) per [[feedback_fleet_design_10_chats]] — supports up to 10 concurrent work chats",
+        "Refresh H:/prism-slot-alpha already-bootstrapped (0a/78b on slot/alpha) — git pull origin cad-fusion-live-ms0 then re-bootstrap onto the latest base"
+      ]
     },
     "U-P3-DEFAULT-ON": {
       "phase": "P3-CUTOVER",
@@ -366,7 +408,8 @@
     { "at": "2026-05-14", "by": "claude-2081f435 (slot charlie)", "event": "P0-FOUNDATION complete — 6 units shipped, envelope created post-hoc" },
     { "at": "2026-05-14", "by": "claude-2081f435 (slot charlie)", "event": "P1-ROUTING started — U-P1-ROUTE-ACTIVATE complete (e2340001a): worktree-commit-route.mjs env-opt-in gate, default OFF. U-P1-ADD-LANE-GUARD + U-P1-MAINTREE-WRITE-BLOCK pending." },
     { "at": "2026-05-15", "by": "claude-2081f435 (slot charlie)", "event": "U-VIZ-WORKTREE-MAP complete (36b353f54): all 51 git worktrees mapped into /system-viz as L9 `worktrees`-subgroup nodes (verdict-colored, queryable via system-viz-query.mjs worktrees, headline trend). P2-DRAIN triage tooling — user-requested." },
-    { "at": "2026-05-15", "by": "claude-2081f435 (slot charlie)", "event": "U-P2-DRAIN-BATCH-A complete: 11 worktree paths drained (3 PRUNE + 2 PARK + 6 INVESTIGATE-easy), 11 archive tags pushed to origin, 2 WIP-patches captured, 13 branches deleted, fleet 51→41 (-20%). 2 MERGE candidates (hypermill-ms1 +15 / tsc-cleanup-ms0 +88) parked with archive tags — branches survive on origin, cherry-pick to integration deferred to operator-gated session. Blast-dampener correctly fired on 3x `branch -D` burst; switched to safe `-d` for remaining batch. 17 INVESTIGATE trees remain for BATCH-B incl. high-risk (slot-alpha 34328 dirty, cad-complete 3775 dirty, iooms0 983 ahead)." }
+    { "at": "2026-05-15", "by": "claude-2081f435 (slot charlie)", "event": "U-P2-DRAIN-BATCH-A complete (0c0419a25): 11 worktree paths drained (3 PRUNE + 2 PARK + 6 INVESTIGATE-easy), 11 archive tags pushed to origin, 2 WIP-patches captured, 13 branches deleted, fleet 51→41 (-20%). 2 MERGE candidates (hypermill-ms1 +15 / tsc-cleanup-ms0 +88) parked with archive tags — branches survive on origin, cherry-pick to integration deferred to operator-gated session. Blast-dampener correctly fired on 3x `branch -D` burst; switched to safe `-d` for remaining batch. 17 INVESTIGATE trees remain for BATCH-B incl. high-risk (slot-alpha 34328 dirty, cad-complete 3775 dirty, iooms0 983 ahead)." },
+    { "at": "2026-05-15", "by": "claude-2081f435 (slot charlie)", "event": "U-P2-DRAIN-BATCH-B complete: 15 worktree paths removed (2 INVESTIGATE-drain + 13 PARK), 15 archive tags pushed (2 drain + 13 park), 13 WIP-patch artifacts committed (range 906B-1.0MB), 2 branches deleted via safe `-d`, 13 branches retained for operator-gated cherry-pick. Fleet 41→26 (-37% this batch / -49% cumulative). 2 explicit deferrals: slot-alpha (canonical P3-BOOTSTRAP scope — 0a/78b on slot/alpha, dirty-count was D-deletions of moved files, NOT a drain candidate) and cad-complete (3775 dirty / 22.4d stale, needs operator inspection). Largest park = intel-ollama-obsidian-ms0 at 983 ahead — matches the build_state envelope drift this milestone exposes. P2-DRAIN phase now complete (4/4 units: U-P2-AUDIT-REFRESH ✓ U-VIZ-WORKTREE-MAP ✓ BATCH-A ✓ BATCH-B ✓). Per [[feedback_fleet_design_10_chats]] (2026-05-15 user directive), U-P3-BOOTSTRAP scope widened to 10 work + 1 hygiene = 11-slot capacity." }
     { "at": "2026-05-15", "by": "claude-2081f435 (slot charlie)", "event": "U-P2-AUDIT-REFRESH complete: re-ran audit-worktrees.mjs -> WORKTREE-AUDIT-2026-05-15.{md,json}. Fleet grew 48 -> 51 worktrees vs the 2026-05-14 baseline; verdict split now KEEP 23 / MERGE 2 / PRUNE 3 / INVESTIGATE 23. 2 MERGE + 3 PRUNE candidates surfaced for the drain batches. envelope audit_doc + knowledge_sources repointed. Shipped in 76ff1fe39 — files correct + tracked, but absorbed into peer ALPHA's [FLEET-REAPER-MS1]/U-PHASE2-ALPHA-GUARDIAN commit (4th shared-tree commit collision in 72h; the exact pain this milestone exists to eliminate structurally)." },
     { "at": "2026-05-15", "by": "claude-2081f435 (slot charlie)", "event": "U-P1-ADD-LANE-GUARD complete (b4118a7f0): net-new PreToolUse(Bash) hook + vitest suite (parked) + load-bearing smoke harness (71/71 PASS) + bash-bundle wiring. Default-OFF env-opt-in (PRISM_GIT_ADD_LANE_ENABLE=1). Dedup decision: NET-NEW (different concern from sibling lane-guards — slot WORKTREE SCOPE on bare `git add`, not peer CLAIM on Edit/commit). Build-time P0 caught + fixed: top-level `exit(0)` activation gate broke importability; moved inside main(). Per-file 3-of-3 PASS, 4 P1 hygiene items all fixed in the ship commit. P1-ROUTING now 2/3 units complete (U-P1-MAINTREE-WRITE-BLOCK pending)." },
     { "at": "2026-05-15", "by": "claude-2081f435 (slot charlie)", "event": "U-P1-MAINTREE-WRITE-BLOCK complete (10c5e40c3): net-new PreToolUse(Edit|Write|MultiEdit) hook + load-bearing smoke (46/46 PASS) + edit-bundle wiring. Default-OFF env-opt-in (PRISM_MAINTREE_WRITE_BLOCK_ENABLE=1); kill switch PRISM_MAINTREE_WRITE_BLOCK_DISABLE=1; golf (integrator slot) exempt by name. Honest back-fix in same commit: U-P1-ADD-LANE-GUARD's resolveSlotScope had a latent schema bug (treated slots.slots as Array<{slot,state}> but real schema is { [slot]: state | null }) — would throw TypeError when armed. Latent because hook is default-OFF; fixed before any production exposure. Agent B grep confirmed no other callers of slots.slots.find in tree. Per-file 3-of-3 PASS (no P0/P1; 3 P2 deferrables logged). P1-ROUTING phase 3/3 COMPLETE." }

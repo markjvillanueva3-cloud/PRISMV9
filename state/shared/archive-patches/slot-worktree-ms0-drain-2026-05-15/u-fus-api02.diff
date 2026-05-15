@@ -1,0 +1,4888 @@
+diff --git a/mcp-server/src/algorithms/SurfaceFinishPredictor.ts b/mcp-server/src/algorithms/SurfaceFinishPredictor.ts
+deleted file mode 100644
+index ab4767efd..000000000
+--- a/mcp-server/src/algorithms/SurfaceFinishPredictor.ts
++++ /dev/null
+@@ -1,431 +0,0 @@
+-/**
+- * Surface Finish Predictor — Kinematic Roughness Algorithm
+- *
+- * Implements the Brammertz kinematic roughness model:
+- *   Ra_ideal = f²/(32R) + re/2
+- *
+- * Where:
+- *   - Ra: Arithmetic average roughness [µm]
+- *   - f: Feed per tooth or feed per revolution [mm]
+- *   - R: Tool nose radius [mm]
+- *   - re: Edge radius [mm]
+- *
+- * Also includes:
+- *   - BUE (built-up edge) correction
+- *   - Vibration/chatter correction
+- *   - Material correction factors
+- *
+- * S1-MS2 P2-U02: Created 2026-04-12
+- *
+- * @see Brammertz, P.H. (1961) "Die Entstehung der Oberflächenrauheit beim Feindrehen"
+- * @see Whitehouse, D.J. (2002) "Surfaces and their Measurement"
+- * @see ISO 4287:1997 "Surface texture parameters"
+- *
+- * @module algorithms/SurfaceFinishPredictor
+- */
+-
+-import {
+-  type Algorithm,
+-  type AlgorithmInput,
+-  type AlgorithmOutput,
+-  type AlgorithmMeta,
+-  type AtomicValue,
+-  type ValidationResult,
+-  type SafetyScore,
+-  createAtomicValue,
+-  computeSafetyScore,
+-  createValidationResult,
+-} from "./types.js";
+-
+-import type { ISOGroup } from "../physics/constants.js";
+-
+-// ─── Input Interface ─────────────────────────────────���─────────────
+-
+-/**
+- * Surface finish predictor input parameters
+- */
+-export interface SurfaceFinishInput extends AlgorithmInput {
+-  /** Feed per tooth (milling) or feed per rev (turning) [mm] */
+-  feed_mm: number;
+-  /** Tool nose radius [mm] — insert nose R or ball/bull endmill corner R */
+-  tool_radius_mm: number;
+-  /** Cutting edge radius [µm] — typically 5-20µm for sharp, 20-50µm for honed */
+-  edge_radius_um?: number;
+-  /** Cutting speed [m/min] — for BUE estimation */
+-  cutting_speed_mpm?: number;
+-  /** Radial depth (stepover) [mm] — for scallop height calculation */
+-  stepover_mm?: number;
+-  /** Tool type for scallop model */
+-  tool_type?: "ball" | "flat" | "bull" | "barrel";
+-  /** Tool diameter [mm] — required for scallop calculation */
+-  tool_diameter_mm?: number;
+-  /** Vibration amplitude estimate [µm] — adds to roughness */
+-  vibration_um?: number;
+-  /** Operation type */
+-  operation?: "turning" | "milling" | "boring";
+-}
+-
+-// ─── Output Interface ──────────────────────────────────────────────
+-
+-/**
+- * Surface finish predictor output
+- */
+-export interface SurfaceFinishOutput extends AlgorithmOutput {
+-  /** Predicted arithmetic average roughness [µm] */
+-  Ra: AtomicValue<number>;
+-  /** Peak-to-valley roughness (Rt) [µm] */
+-  Rt: AtomicValue<number>;
+-  /** Ten-point height (Rz ≈ 0.85×Rt) [µm] */
+-  Rz: AtomicValue<number>;
+-  /** Theoretical ideal Ra (kinematic only) [µm] */
+-  Ra_ideal: AtomicValue<number>;
+-  /** Scallop height [µm] — from stepover (milling) */
+-  scallop_height: AtomicValue<number>;
+-  /** BUE correction factor applied */
+-  bue_factor: number;
+-  /** Vibration contribution [µm] */
+-  vibration_contribution: number;
+-  /** Material correction factor applied */
+-  material_factor: number;
+-  /** Composite Ra including all effects [µm] */
+-  Ra_composite: AtomicValue<number>;
+-}
+-
+-// ──��� Material Correction Factors ───────────────────────────────────
+-
+-/**
+- * Material correction factors for surface finish.
+- * Base factor = 1.0 for carbon steel (reference).
+- *
+- * @see Sandvik Coromant "Metal Cutting Technical Guide"
+- */
+-const MATERIAL_FACTORS: Record<ISOGroup, number> = {
+-  P: 1.00, // Steel — reference
+-  M: 1.15, // Stainless — work hardening tends to worsen finish
+-  K: 0.85, // Cast iron — graphite provides lubrication
+-  N: 0.75, // Aluminum — excellent finish achievable
+-  S: 1.25, // Superalloys — difficult to achieve good finish
+-  H: 1.10, // Hardened — hard turning can achieve mirror finish with CBN
+-};
+-
+-// ─── BUE Speed Threshold ───────────────────────────────────────────
+-
+-/**
+- * BUE (built-up edge) formation speed range per ISO group.
+- * BUE forms at low-medium speeds, causing surface degradation.
+- * Above the max speed, BUE is typically eliminated.
+- *
+- * @see Shaw "Metal Cutting Principles", Trent "Metal Cutting"
+- */
+-const BUE_SPEED_RANGE: Record<ISOGroup, { min: number; max: number }> = {
+-  P: { min: 20, max: 80 },   // Steel: 20-80 m/min
+-  M: { min: 15, max: 60 },   // Stainless: BUE up to ~60 m/min
+-  K: { min: 30, max: 100 },  // Cast iron: less BUE due to graphite
+-  N: { min: 40, max: 150 },  // Aluminum: strong BUE tendency
+-  S: { min: 10, max: 40 },   // Superalloys: BUE at very low speeds
+-  H: { min: 50, max: 120 },  // Hardened: minimal BUE with CBN
+-};
+-
+-// ─── Valid Ranges ─────────────────────────────────────────────���────
+-
+-const VALID_RANGES = {
+-  feed_mm: { min: 0.01, max: 2.0, unit: "mm" },
+-  tool_radius_mm: { min: 0.1, max: 25.0, unit: "mm" },
+-  edge_radius_um: { min: 1, max: 100, unit: "µm" },
+-  cutting_speed_mpm: { min: 5, max: 2000, unit: "m/min" },
+-  stepover_mm: { min: 0.05, max: 50, unit: "mm" },
+-};
+-
+-// ─── Surface Finish Predictor Class ────────────────────────────────
+-
+-/**
+- * Surface finish predictor algorithm implementation.
+- *
+- * Uses Brammertz kinematic model as foundation with corrections
+- * for real-world effects (BUE, vibration, material properties).
+- */
+-class SurfaceFinishPredictorImpl implements Algorithm<SurfaceFinishInput, SurfaceFinishOutput> {
+-  private static readonly VERSION = "1.0.0";
+-
+-  /**
+-   * Validate surface finish predictor inputs.
+-   */
+-  validate(input: SurfaceFinishInput): ValidationResult {
+-    const errors: string[] = [];
+-    const warnings: string[] = [];
+-
+-    // Required fields
+-    if (input.feed_mm === undefined || input.feed_mm === null) {
+-      errors.push("feed_mm is required");
+-    } else if (input.feed_mm <= 0) {
+-      errors.push("feed_mm must be positive");
+-    } else if (input.feed_mm > VALID_RANGES.feed_mm.max) {
+-      warnings.push(`feed_mm (${input.feed_mm}) above typical maximum — very rough cut`);
+-    }
+-
+-    if (input.tool_radius_mm === undefined || input.tool_radius_mm === null) {
+-      errors.push("tool_radius_mm is required");
+-    } else if (input.tool_radius_mm <= 0) {
+-      errors.push("tool_radius_mm must be positive");
+-    }
+-
+-    // Optional field validation
+-    if (input.edge_radius_um !== undefined && input.edge_radius_um < 0) {
+-      errors.push("edge_radius_um cannot be negative");
+-    }
+-
+-    if (input.stepover_mm !== undefined && input.tool_diameter_mm === undefined) {
+-      warnings.push("stepover_mm provided without tool_diameter_mm — scallop calculation limited");
+-    }
+-
+-    // Material validation
+-    if (input.iso_group && !MATERIAL_FACTORS[input.iso_group]) {
+-      warnings.push(`Unknown ISO group '${input.iso_group}' — using default factor`);
+-    }
+-
+-    return createValidationResult(errors, warnings);
+-  }
+-
+-  /**
+-   * Calculate surface finish parameters.
+-   *
+-   * Primary model: Brammertz kinematic roughness
+-   *   Ra_ideal = f²/(32R) + re/2
+-   */
+-  calculate(input: SurfaceFinishInput): SurfaceFinishOutput {
+-    const validation = this.validate(input);
+-    if (!validation.valid) {
+-      throw new Error(`Surface finish validation failed: ${(validation.errors ?? []).join(", ")}`);
+-    }
+-
+-    const warnings = [...(validation.warnings ?? [])];
+-
+-    const f = input.feed_mm;
+-    const R = input.tool_radius_mm;
+-    const re_um = input.edge_radius_um ?? 10; // Default 10µm sharp edge
+-    const re_mm = re_um / 1000;
+-    const Vc = input.cutting_speed_mpm ?? 120; // Default moderate speed
+-    // input.iso_group is typed ISOGroup | string; narrow via cast + default to "P".
+-    const isoGroup: ISOGroup = ((input.iso_group ?? "P") as ISOGroup);
+-
+-    // ── Brammertz Kinematic Roughness ──
+-    // Rt = f²/(8R) + re/2 (peak-to-valley)
+-    // Ra ≈ Rt/4 for regular periodic profiles
+-    const Rt_mm = (f * f) / (8 * R) + re_mm / 2;
+-    const Rt_um = Rt_mm * 1000;
+-    const Ra_ideal_um = Rt_um / 4;
+-
+-    // ── Scallop Height (for milling with stepover) ──
+-    let scallop_um = 0;
+-    if (input.stepover_mm && input.tool_diameter_mm) {
+-      const ae = input.stepover_mm;
+-      const D = input.tool_diameter_mm;
+-      const toolR = D / 2;
+-      const toolType = input.tool_type ?? "flat";
+-
+-      switch (toolType) {
+-        case "ball": {
+-          // Ball endmill: h = R - sqrt(R² - (ae/2)²)
+-          const half_ae = ae / 2;
+-          if (half_ae < toolR) {
+-            scallop_um = (toolR - Math.sqrt(toolR * toolR - half_ae * half_ae)) * 1000;
+-          } else {
+-            scallop_um = toolR * 1000;
+-          }
+-          break;
+-        }
+-        case "barrel": {
+-          // Barrel cutter: very low scallop due to large effective radius
+-          // Typical barrel R = 200-500mm
+-          const barrelR = 250; // mm
+-          const half_ae = ae / 2;
+-          scallop_um = (barrelR - Math.sqrt(barrelR * barrelR - half_ae * half_ae)) * 1000;
+-          break;
+-        }
+-        case "bull": {
+-          // Bull nose: compromise between ball and flat
+-          const cornerR = R; // Use nose radius
+-          const half_ae = ae / 2;
+-          if (half_ae < cornerR) {
+-            scallop_um = (cornerR - Math.sqrt(cornerR * cornerR - half_ae * half_ae)) * 1000;
+-          } else {
+-            scallop_um = cornerR * 1000;
+-          }
+-          break;
+-        }
+-        default: // flat
+-          // Flat endmill scallop on inclined surface: ae²/(8R) approximation
+-          scallop_um = ((ae * ae) / (8 * toolR)) * 1000;
+-      }
+-    }
+-
+-    // ── BUE Correction ──
+-    // BUE forms at low-medium cutting speeds, degrades surface
+-    let bueFactor = 1.0;
+-    const bueRange = BUE_SPEED_RANGE[isoGroup] ?? BUE_SPEED_RANGE.P;
+-    if (Vc >= bueRange.min && Vc <= bueRange.max) {
+-      // In BUE formation zone — surface degrades by 20-50%
+-      const bueIntensity = 1 - ((Vc - bueRange.min) / (bueRange.max - bueRange.min));
+-      bueFactor = 1 + 0.3 * bueIntensity; // Up to 30% worse
+-      warnings.push(`Cutting speed ${Vc} m/min in BUE formation zone — surface may be degraded`);
+-    }
+-
+-    // ── Material Correction ──
+-    const materialFactor = MATERIAL_FACTORS[isoGroup] ?? 1.0;
+-
+-    // ── Vibration Contribution ──
+-    const vibration_um = input.vibration_um ?? 0;
+-    if (vibration_um > Ra_ideal_um) {
+-      warnings.push("Vibration amplitude exceeds kinematic roughness — vibration-dominated finish");
+-    }
+-
+-    // ── Composite Ra ──
+-    // RSS combination of kinematic, scallop, and vibration contributions
+-    const scallop_ra_equiv = scallop_um / 4; // Convert scallop Rt to Ra equivalent
+-    const Ra_kinematic_corrected = Ra_ideal_um * bueFactor * materialFactor;
+-    const Ra_composite = Math.sqrt(
+-      Ra_kinematic_corrected * Ra_kinematic_corrected +
+-      scallop_ra_equiv * scallop_ra_equiv +
+-      vibration_um * vibration_um
+-    );
+-
+-    // Rz ≈ 0.85 × Rt for machined surfaces (ISO approximation)
+-    const Rz_um = Rt_um * 0.85 * bueFactor * materialFactor;
+-
+-    // Practical Ra (with BUE and material corrections)
+-    const Ra_practical = Ra_ideal_um * bueFactor * materialFactor;
+-
+-    // ── Safety Score ──
+-    let physicsScore = 1.0;
+-    if (f > 0.5) physicsScore -= 0.1; // Heavy feed — less predictable
+-    if (Ra_composite > 10) physicsScore -= 0.1; // Very rough
+-
+-    let rangeScore = 1.0;
+-    if ((validation.warnings ?? []).length > 0) rangeScore -= 0.1 * (validation.warnings ?? []).length;
+-    rangeScore = Math.max(0, rangeScore);
+-
+-    let materialScore = 1.0;
+-    if (!input.iso_group) materialScore = 0.85;
+-
+-    const processScore = 0.95;
+-
+-    const safety = computeSafetyScore(physicsScore, rangeScore, materialScore, processScore);
+-
+-    const uncertaintyPct = safety.score > 0.9 ? 10 : safety.score > 0.7 ? 15 : 25;
+-
+-    return {
+-      Ra: createAtomicValue(Ra_practical, "µm", uncertaintyPct, "Brammertz-corrected", safety.score,
+-        `Ra = (f²/32R + re/2)/4 × BUE × material = ${Ra_practical.toFixed(3)}µm`),
+-      Rt: createAtomicValue(Rt_um * bueFactor * materialFactor, "µm", uncertaintyPct, "Brammertz", safety.score,
+-        `Rt = f²/(8R) + re/2 = ${Rt_um.toFixed(3)}µm`),
+-      Rz: createAtomicValue(Rz_um, "µm", uncertaintyPct, "ISO-estimate", safety.score,
+-        "Rz ≈ 0.85 × Rt"),
+-      Ra_ideal: createAtomicValue(Ra_ideal_um, "µm", 8, "Brammertz-ideal", 0.98,
+-        `Ra_ideal = f²/(32R) = ${Ra_ideal_um.toFixed(3)}µm`),
+-      scallop_height: createAtomicValue(scallop_um, "µm", 10, "geometry", 0.95,
+-        input.tool_type ? `${input.tool_type} endmill scallop` : "no stepover"),
+-      bue_factor: bueFactor,
+-      vibration_contribution: vibration_um,
+-      material_factor: materialFactor,
+-      Ra_composite: createAtomicValue(Ra_composite, "µm", uncertaintyPct, "RSS-composite", safety.score,
+-        "√(Ra² + (scallop/4)² + vibration²)"),
+-      safety,
+-      computed_at: new Date().toISOString(),
+-      algorithm_version: SurfaceFinishPredictorImpl.VERSION,
+-      warnings,
+-    };
+-  }
+-
+-  /**
+-   * Get surface finish predictor metadata.
+-   */
+-  getMetadata(): AlgorithmMeta {
+-    return {
+-      id: "surface_finish_predictor",
+-      name: "Surface Finish Predictor (Brammertz Model)",
+-      version: SurfaceFinishPredictorImpl.VERSION,
+-      domain: "surface",
+-      category: "roughness",
+-      description: "Predicts surface roughness parameters (Ra, Rt, Rz) using the Brammertz kinematic " +
+-        "model with corrections for BUE formation, material properties, and vibration effects. " +
+-        "Also calculates scallop height for milling operations with stepover.",
+-      equation_plain: "Ra_ideal = f²/(32R) + re/2",
+-      equation_latex: "R_a = \\frac{f^2}{32R} + \\frac{r_e}{2}",
+-      references: [
+-        {
+-          authors: "Brammertz, P.H.",
+-          title: "Die Entstehung der Oberflächenrauheit beim Feindrehen",
+-          publication: "Industrie-Anzeiger",
+-          year: 1961,
+-          pages: "25-32",
+-        },
+-        {
+-          authors: "Whitehouse, D.J.",
+-          title: "Surfaces and their Measurement",
+-          publication: "Kogan Page Science",
+-          year: 2002,
+-          doi: "978-1903996010",
+-        },
+-        {
+-          authors: "ISO",
+-          title: "ISO 4287:1997 — Surface texture: Profile method",
+-          publication: "International Organization for Standardization",
+-          year: 1997,
+-        },
+-      ],
+-      assumptions: [
+-        "Regular periodic profile (ideal tool path)",
+-        "No tool wear (fresh cutting edge)",
+-        "Constant chip cross-section",
+-        "Rigid workpiece and tool (unless vibration specified)",
+-        "Ra ≈ Rt/4 for sinusoidal/parabolic profiles",
+-      ],
+-      limitations: [
+-        "Does not model thermal damage or white layer formation",
+-        "BUE effect is empirical approximation",
+-        "Vibration contribution requires external input",
+-        "Not valid for interrupted cuts (end milling entry/exit)",
+-        "Very low feeds (<0.01mm): edge radius dominates — model less accurate",
+-      ],
+-      valid_ranges: VALID_RANGES,
+-      applicable_materials: ["P", "M", "K", "N", "S", "H"],
+-      last_validated: "2026-04-12",
+-      validation_score: 0.97,
+-    };
+-  }
+-
+-  /**
+-   * Calculate optimal feed for target Ra.
+-   * From Brammertz: f = √(32R × (Ra_target - re/2))
+-   */
+-  optimalFeedForRa(targetRa_um: number, toolRadius_mm: number, edgeRadius_um: number = 10): number {
+-    const re_mm = edgeRadius_um / 1000;
+-    const Ra_target_mm = targetRa_um / 1000;
+-    // Ra = f²/(32R) + re/2  →  f = √(32R × (Ra - re/2))
+-    const innerTerm = 32 * toolRadius_mm * (Ra_target_mm - re_mm / 2);
+-    if (innerTerm <= 0) return 0.01; // Minimum feed
+-    return Math.sqrt(innerTerm);
+-  }
+-}
+-
+-// ─── Export Singleton ──────────────────────────────────────────────
+-
+-/**
+- * Surface Finish Predictor singleton instance.
+- *
+- * Usage:
+- * ```typescript
+- * import { SurfaceFinishPredictor } from "./algorithms/SurfaceFinishPredictor.js";
+- *
+- * const result = SurfaceFinishPredictor.calculate({
+- *   feed_mm: 0.15,
+- *   tool_radius_mm: 0.8,
+- *   edge_radius_um: 10,
+- *   cutting_speed_mpm: 200,
+- *   iso_group: "P",
+- * });
+- *
+- * console.log(result.Ra); // { value: 0.88, unit: "µm", ... }
+- * ```
+- */
+-export const SurfaceFinishPredictor = new SurfaceFinishPredictorImpl();
+diff --git a/mcp-server/src/data/wedm-published-machines.ts b/mcp-server/src/data/wedm-published-machines.ts
+deleted file mode 100644
+index 59136a7ba..000000000
+--- a/mcp-server/src/data/wedm-published-machines.ts
++++ /dev/null
+@@ -1,440 +0,0 @@
+-/**
+- * Wire EDM Machine Specifications — Published Manufacturer Data
+- *
+- * EVERY value has a source citation. Zero synthetic values.
+- *
+- * Sources:
+- *   - Mitsubishi: MC Machinery product pages (mcmachinery.com), dl.mitsubishielectric.com catalogs
+- *   - Sodick: sodick.com/sodick.eu brochures (VL400-600QH_4Pager)
+- *   - Makino: makino.com product pages (U6, U86)
+- *   - AgieCharmilles: gfms.com product pages (CUT P Pro series)
+- *   - General: Modern Machine Shop "Buying a Wire EDM" series (mmsonline.com)
+- */
+-
+-export interface WEDMMachineSpec {
+-  manufacturer: string;
+-  model: string;
+-  /** Axis travels in mm: [X, Y, Z] */
+-  travels_mm: { x: number; y: number; z: number };
+-  /** UV axis travel from center in mm */
+-  uv_travel_mm: { u: number; v: number };
+-  /** Max workpiece dimensions in mm: [W, D, H] */
+-  max_workpiece_mm: { w: number; d: number; h: number };
+-  /** Max submerged weight in kg */
+-  max_weight_kg: number;
+-  /** Wire diameter range in mm */
+-  wire_range_mm: { min: number; max: number };
+-  /** Standard taper angle in degrees @ thickness in mm */
+-  taper: { angle_deg: number; at_thickness_mm: number };
+-  /** Optional wide-angle taper */
+-  wide_taper?: { angle_deg: number; at_thickness_mm: number };
+-  /** Minimum start hole diameter in mm */
+-  min_start_hole_mm: number;
+-  /** Resolution/minimum drive unit in mm */
+-  resolution_mm: number;
+-  /** Best achievable surface finish Ra in μm */
+-  best_ra_um: number;
+-  /** Fastest rough cutting speed in mm²/min (if published) */
+-  max_cut_speed_mm2_min?: number;
+-  /** Accuracy ± in mm */
+-  accuracy_mm?: number;
+-  /** Power supply model */
+-  power_supply: string;
+-  /** KVA rating */
+-  kva: number;
+-  /** Tank capacity in liters */
+-  tank_liters: number;
+-  /** Machine weight in kg */
+-  machine_weight_kg: number;
+-  /** Source URL or reference */
+-  source: string;
+-}
+-
+-export const WEDM_MACHINE_SPECS: WEDMMachineSpec[] = [
+-  // ═══════════════════════════════════════════════════════════════════════════
+-  // MITSUBISHI
+-  // ════════════════════════════════════��══════════════════════════════════════
+-  {
+-    manufacturer: "Mitsubishi",
+-    model: "MV1200-S Advance M800",
+-    travels_mm: { x: 400, y: 300, z: 220 },
+-    uv_travel_mm: { u: 75, v: 75 },  // ±75mm from center (estimated from MV2400-R spec)
+-    max_workpiece_mm: { w: 810, d: 700, h: 215 },
+-    max_weight_kg: 500,
+-    wire_range_mm: { min: 0.10, max: 0.30 },
+-    taper: { angle_deg: 15, at_thickness_mm: 200 },
+-    wide_taper: { angle_deg: 45, at_thickness_mm: 45 },
+-    min_start_hole_mm: 0.50,
+-    resolution_mm: 0.00005,  // 50nm
+-    best_ra_um: 0.2,  // Rz 1.6μm → Ra ≈ 0.2μm (Source: Mitsubishi MV-R spec)
+-    power_supply: "V350-V AEII",
+-    kva: 13.5,
+-    tank_liters: 550,  // 145 gallons
+-    machine_weight_kg: 2700,
+-    source: "https://www.mcmachinery.com/product/mv1200-s-advance-type-m800/",
+-  },
+-  {
+-    manufacturer: "Mitsubishi",
+-    model: "MV2400-R Advance Plus M800",
+-    travels_mm: { x: 600, y: 400, z: 310 },
+-    uv_travel_mm: { u: 75, v: 75 },  // ±75mm from center
+-    max_workpiece_mm: { w: 1050, d: 820, h: 305 },
+-    max_weight_kg: 1500,
+-    wire_range_mm: { min: 0.10, max: 0.30 },
+-    taper: { angle_deg: 15, at_thickness_mm: 260 },
+-    wide_taper: { angle_deg: 45, at_thickness_mm: 60 },
+-    min_start_hole_mm: 0.50,
+-    resolution_mm: 0.00005,  // 50nm / 2μin
+-    best_ra_um: 0.1,  // 4Ra finish option
+-    max_cut_speed_mm2_min: 410,  // MV-S spec: 410 mm²/min (26% faster than prev gen)
+-    power_supply: "V350-V AEII",
+-    kva: 13.5,
+-    tank_liters: 860,  // 227 gallons
+-    machine_weight_kg: 3500,
+-    source: "https://www.mcmachinery.com/product/mv2400-r-advance-plus-m800-wire-edm/",
+-  },
+-
+-  // ���══════════════════════════════════════════════════════════════════════════
+-  // SODICK
+-  // ════��═══════════════════════��══════════════════════════════════════════���═══
+-  {
+-    manufacturer: "Sodick",
+-    model: "VL400Q",
+-    travels_mm: { x: 400, y: 300, z: 220 },
+-    uv_travel_mm: { u: 60, v: 60 },  // ±60mm (estimated from taper spec)
+-    max_workpiece_mm: { w: 770, d: 590, h: 220 },
+-    max_weight_kg: 500,
+-    wire_range_mm: { min: 0.10, max: 0.30 },
+-    taper: { angle_deg: 10, at_thickness_mm: 220 },  // Standard nozzle: 10°
+-    wide_taper: { angle_deg: 20, at_thickness_mm: 220 },  // 10mm ID nozzle: 20°
+-    min_start_hole_mm: 0.50,
+-    resolution_mm: 0.0001,  // 100nm (linear motor)
+-    best_ra_um: 0.2,
+-    power_supply: "Smart Pulse",
+-    kva: 15,
+-    tank_liters: 500,
+-    machine_weight_kg: 2800,
+-    source: "https://sodick.com/product/vl400q/, VL400-600QH brochure",
+-  },
+-  {
+-    manufacturer: "Sodick",
+-    model: "VL600Q",
+-    travels_mm: { x: 600, y: 400, z: 270 },
+-    uv_travel_mm: { u: 80, v: 80 },
+-    max_workpiece_mm: { w: 1050, d: 820, h: 270 },
+-    max_weight_kg: 1000,
+-    wire_range_mm: { min: 0.10, max: 0.30 },
+-    taper: { angle_deg: 10, at_thickness_mm: 270 },
+-    wide_taper: { angle_deg: 20, at_thickness_mm: 270 },
+-    min_start_hole_mm: 0.50,
+-    resolution_mm: 0.0001,
+-    best_ra_um: 0.2,
+-    power_supply: "Smart Pulse",
+-    kva: 15,
+-    tank_liters: 700,
+-    machine_weight_kg: 3500,
+-    source: "https://sodick.com VL series brochure",
+-  },
+-
+-  // ═���════════════════════════════════════════════════��════════════════════════
+-  // MAKINO
+-  // ═══════════���═══════════════���═════════════════════════════════��═════════════
+-  {
+-    manufacturer: "Makino",
+-    model: "U6",
+-    travels_mm: { x: 400, y: 300, z: 256 },
+-    uv_travel_mm: { u: 60, v: 60 },
+-    max_workpiece_mm: { w: 770, d: 590, h: 256 },
+-    max_weight_kg: 500,
+-    wire_range_mm: { min: 0.10, max: 0.30 },
+-    taper: { angle_deg: 15, at_thickness_mm: 256 },
+-    min_start_hole_mm: 0.50,
+-    resolution_mm: 0.0001,
+-    best_ra_um: 0.4,  // HyperCut: Ra 0.4μm in 3 passes (Source: makino.com U6)
+-    power_supply: "HyperCut",
+-    kva: 15,
+-    tank_liters: 500,
+-    machine_weight_kg: 2800,
+-    source: "https://www.makino.com/en-us/machine-technology/machines/wire-edm/u6",
+-  },
+-  {
+-    manufacturer: "Makino",
+-    model: "U6 H.E.A.T. Extreme",
+-    travels_mm: { x: 400, y: 300, z: 256 },
+-    uv_travel_mm: { u: 60, v: 60 },
+-    max_workpiece_mm: { w: 770, d: 590, h: 256 },
+-    max_weight_kg: 500,
+-    wire_range_mm: { min: 0.05, max: 0.30 },
+-    taper: { angle_deg: 15, at_thickness_mm: 256 },
+-    min_start_hole_mm: 0.30,
+-    resolution_mm: 0.00005,  // 50nm
+-    best_ra_um: 0.1,  // Crystal Machining: Ra 0.1μm (Source: makino.eu U6 H.E.A.T.)
+-    power_supply: "HyperCut + Crystal Machining",
+-    kva: 15,
+-    tank_liters: 500,
+-    machine_weight_kg: 2900,
+-    source: "https://www.makino.eu/en-us/machine-technology/machines/wire-edm/u6-h-e-a-t-extreme",
+-  },
+-  {
+-    manufacturer: "Makino",
+-    model: "U86",
+-    travels_mm: { x: 800, y: 600, z: 510 },
+-    uv_travel_mm: { u: 120, v: 120 },
+-    max_workpiece_mm: { w: 1400, d: 987, h: 510 },
+-    max_weight_kg: 3000,
+-    wire_range_mm: { min: 0.10, max: 0.30 },
+-    taper: { angle_deg: 15, at_thickness_mm: 510 },
+-    min_start_hole_mm: 0.50,
+-    resolution_mm: 0.0001,
+-    best_ra_um: 0.4,
+-    power_supply: "HyperCut",
+-    kva: 25,
+-    tank_liters: 1200,
+-    machine_weight_kg: 8000,
+-    source: "https://www.makino.com/en-us/machine-technology/machines/wire-edm/u86",
+-  },
+-
+-  // ══════��════════════════════════════════════════════════════════════════════
+-  // AGIECHARMILLES (GF MACHINING)
+-  // ═════════════���═════════════════════════════════════════════════════════════
+-  {
+-    manufacturer: "AgieCharmilles",
+-    model: "CUT P 350",
+-    travels_mm: { x: 350, y: 250, z: 256 },
+-    uv_travel_mm: { u: 60, v: 60 },
+-    max_workpiece_mm: { w: 750, d: 550, h: 256 },
+-    max_weight_kg: 400,
+-    wire_range_mm: { min: 0.10, max: 0.33 },
+-    taper: { angle_deg: 15, at_thickness_mm: 256 },
+-    min_start_hole_mm: 0.40,
+-    resolution_mm: 0.0001,
+-    best_ra_um: 0.05,  // CUT X series: Ra 0.05μm (Source: gfms.com CUT X)
+-    accuracy_mm: 0.002,  // ±2μm contour accuracy (Source: Profil-Expert spec)
+-    power_supply: "POWER-EXPERT + Intelligent Power Generator",
+-    kva: 15,
+-    tank_liters: 480,
+-    machine_weight_kg: 3200,
+-    source: "https://www.gfms.com/en-us/machines/edm/wire-cutting/agiecharmilles-cut-p-pro-series.html",
+-  },
+-  {
+-    manufacturer: "AgieCharmilles",
+-    model: "CUT P 550",
+-    travels_mm: { x: 550, y: 350, z: 400 },
+-    uv_travel_mm: { u: 80, v: 80 },
+-    max_workpiece_mm: { w: 1050, d: 750, h: 400 },
+-    max_weight_kg: 1500,
+-    wire_range_mm: { min: 0.10, max: 0.33 },
+-    taper: { angle_deg: 15, at_thickness_mm: 400 },
+-    min_start_hole_mm: 0.40,
+-    resolution_mm: 0.0001,
+-    best_ra_um: 0.05,
+-    accuracy_mm: 0.002,
+-    power_supply: "POWER-EXPERT + Intelligent Power Generator",
+-    kva: 20,
+-    tank_liters: 850,
+-    machine_weight_kg: 5000,
+-    source: "https://www.gfms.com/en-us/machines/edm/wire-cutting/agiecharmilles-cut-p-pro-series.html",
+-  },
+-];
+-
+-// ════���════════════════════════════════════════════════════��═════════════════
+-// PUBLISHED CUTTING CONDITION DATA
+-// ════════════════════════════════════════════════════��══════════════════════
+-
+-/**
+- * Published wire EDM cutting speeds by material and thickness.
+- * Source: Lemhunter "Master Wire EDM Costs & Time" (lemhunter.com),
+- *         Modern Machine Shop "Buying a Wire EDM Part 3" (mmsonline.com),
+- *         Makino HyperCut specification (makino.com)
+- */
+-export interface PublishedCuttingCondition {
+-  material: string;
+-  thickness_mm: number;
+-  wire_diameter_mm: number;
+-  wire_type: string;
+-  /** Rough cut speed in mm²/min */
+-  rough_speed_mm2_min: number;
+-  /** Rough cut feed rate in mm/min (= speed / thickness) */
+-  rough_feed_mm_min: number;
+-  /** Target Ra after all passes in μm */
+-  target_ra_um: number;
+-  /** Number of passes (rough + skim) */
+-  total_passes: number;
+-  source: string;
+-}
+-
+-export const PUBLISHED_CUTTING_CONDITIONS: PublishedCuttingCondition[] = [
+-  // From Lemhunter published table
+-  {
+-    material: "tool_steel",
+-    thickness_mm: 50,
+-    wire_diameter_mm: 0.25,
+-    wire_type: "brass",
+-    rough_speed_mm2_min: 150,
+-    rough_feed_mm_min: 3.0,  // 150/50
+-    target_ra_um: 3.2,
+-    total_passes: 1,
+-    source: "Lemhunter 'Master Wire EDM Costs & Time' table",
+-  },
+-  {
+-    material: "stainless_steel",
+-    thickness_mm: 40,
+-    wire_diameter_mm: 0.25,
+-    wire_type: "brass",
+-    rough_speed_mm2_min: 120,
+-    rough_feed_mm_min: 3.0,  // 120/40
+-    target_ra_um: 2.5,
+-    total_passes: 1,
+-    source: "Lemhunter 'Master Wire EDM Costs & Time' table",
+-  },
+-  {
+-    material: "titanium",
+-    thickness_mm: 30,
+-    wire_diameter_mm: 0.25,
+-    wire_type: "brass",
+-    rough_speed_mm2_min: 80,
+-    rough_feed_mm_min: 2.67,  // 80/30
+-    target_ra_um: 1.6,
+-    total_passes: 2,
+-    source: "Lemhunter 'Master Wire EDM Costs & Time' table",
+-  },
+-  {
+-    material: "aluminum",
+-    thickness_mm: 60,
+-    wire_diameter_mm: 0.25,
+-    wire_type: "brass",
+-    rough_speed_mm2_min: 200,
+-    rough_feed_mm_min: 3.33,  // 200/60
+-    target_ra_um: 3.2,
+-    total_passes: 1,
+-    source: "Lemhunter 'Master Wire EDM Costs & Time' table",
+-  },
+-  // From Lemhunter feed rate chart
+-  {
+-    material: "mild_steel",
+-    thickness_mm: 25,  // assumed standard test thickness
+-    wire_diameter_mm: 0.25,
+-    wire_type: "brass",
+-    rough_speed_mm2_min: 100,  // 4.0 mm/min × 25mm
+-    rough_feed_mm_min: 4.0,
+-    target_ra_um: 3.2,
+-    total_passes: 1,
+-    source: "Lemhunter feed rate chart",
+-  },
+-  {
+-    material: "hardened_steel",
+-    thickness_mm: 25,
+-    wire_diameter_mm: 0.25,
+-    wire_type: "brass",
+-    rough_speed_mm2_min: 62.5,  // 2.5 × 25
+-    rough_feed_mm_min: 2.5,
+-    target_ra_um: 1.6,
+-    total_passes: 3,
+-    source: "Lemhunter feed rate chart",
+-  },
+-  {
+-    material: "tungsten_carbide",
+-    thickness_mm: 25,
+-    wire_diameter_mm: 0.25,
+-    wire_type: "brass",
+-    rough_speed_mm2_min: 25,  // 1.0 × 25
+-    rough_feed_mm_min: 1.0,
+-    target_ra_um: 0.8,
+-    total_passes: 4,
+-    source: "Lemhunter feed rate chart",
+-  },
+-  {
+-    material: "copper",
+-    thickness_mm: 25,
+-    wire_diameter_mm: 0.25,
+-    wire_type: "brass",
+-    rough_speed_mm2_min: 112.5,  // 4.5 × 25
+-    rough_feed_mm_min: 4.5,
+-    target_ra_um: 3.2,
+-    total_passes: 1,
+-    source: "Lemhunter feed rate chart",
+-  },
+-  // From Mitsubishi MV-S spec
+-  {
+-    material: "tool_steel",
+-    thickness_mm: 50,
+-    wire_diameter_mm: 0.25,
+-    wire_type: "brass",
+-    rough_speed_mm2_min: 410,
+-    rough_feed_mm_min: 8.2,  // 410/50
+-    target_ra_um: 3.2,
+-    total_passes: 1,
+-    source: "Mitsubishi MV-S spec: 410 mm²/min fastest rough (mitsubishielectric-edm.eu)",
+-  },
+-  // From Makino HyperCut
+-  {
+-    material: "tool_steel",
+-    thickness_mm: 50,
+-    wire_diameter_mm: 0.25,
+-    wire_type: "brass",
+-    rough_speed_mm2_min: 300,  // estimated from 3-pass cycle time
+-    rough_feed_mm_min: 6.0,
+-    target_ra_um: 0.4,
+-    total_passes: 3,
+-    source: "Makino HyperCut: Ra 0.4μm in 3 passes (makino.com U6)",
+-  },
+-];
+-
+-// ═══════════════════════════════════════════════════════════════════════════
+-// PUBLISHED SPARK GAP AND OFFSET DATA
+-// ═══════════════��═══════════════════════════════════════════════════════════
+-
+-/**
+- * Published spark gap (overcut) values.
+- * Source: ScienceDirect (AISI 4140 study), Wikipedia EDM article,
+- *         Modern Machine Shop, ResearchGate
+- */
+-export const PUBLISHED_SPARK_GAP = {
+-  /** Typical spark gap range for wire EDM in mm */
+-  typical_range_mm: { min: 0.025, max: 0.050 },
+-  /** Source: "normally between 25 µm and 50 µm" (Wikipedia EDM article) */
+-
+-  /** Average kerf width for 0.25mm brass wire on steel: 0.335mm */
+-  /** Overcut per side: (0.335 - 0.25) / 2 = 0.0425mm ≈ 42.5μm */
+-  kerf_0_25mm_brass_steel_mm: 0.335,
+-  /** Source: ResearchGate "Evaluation of optimal parameters for machining brass with wire cut EDM" */
+-
+-  /** Optimum gap distance for AISI 4140: 0.5mm (larger gap for stability) */
+-  aisi_4140_optimum_gap_mm: 0.5,
+-  /** Source: ScienceDirect "Study Spark Gap of WEDM on AISI 4140" */
+-
+-  /** Finish pass offset can be as small as 3μm (0.003mm) */
+-  min_finish_offset_mm: 0.003,
+-  /** Source: Modern Machine Shop "Buying a Wire EDM Part 3" */
+-
+-  /** Typical rough pass offset for 0.010" (0.254mm) wire: ~0.005" (0.127mm) */
+-  /** Includes wire radius + spark gap + stock allowance */
+-  typical_rough_offset_inch: 0.005,
+-  /** Source: Modern Machine Shop */
+-};
+-
+-/**
+- * Published surface finish vs number of passes.
+- * Source: Modern Machine Shop, Makino HyperCut spec, Mitsubishi MV-R spec
+- */
+-export const PUBLISHED_RA_VS_PASSES = [
+-  { passes: 1, ra_um: 3.2, source: "Rough cut only — typical first cut Ra" },
+-  { passes: 2, ra_um: 1.6, source: "1 rough + 1 skim" },
+-  { passes: 3, ra_um: 0.4, source: "Makino HyperCut 3-pass (makino.com)" },
+-  { passes: 4, ra_um: 0.2, source: "Mitsubishi MV-R H-FS (mitsubishielectric-edm.eu)" },
+-  { passes: 5, ra_um: 0.1, source: "Makino Crystal Machining / AgieCharmilles CUT X" },
+-  { passes: 6, ra_um: 0.05, source: "AgieCharmilles CUT X (gfms.com) — mirror finish" },
+-  // Modern Machine Shop: "as many as 6-7 skim cuts for 4-5 microinch (0.10-0.13μm) Ra"
+-];
+-
+-/**
+- * Historical cutting speed progression (shows technology improvement).
+- * Source: Modern Machine Shop "Buying a Wire EDM Part 3"
+- */
+-export const CUTTING_SPEED_HISTORY = [
+-  { era: "1980s", speed_sq_in_hr: 3.5, source: "MMS" },
+-  { era: "1990s", speed_sq_in_hr: 17, source: "MMS" },
+-  { era: "2010s", speed_sq_in_hr: 37, source: "MMS" },
+-  { era: "2020s", speed_sq_in_hr: 45, source: "MMS: current machines up to 45 sq in/hr" },
+-  // 45 sq in/hr = 45 × 645.16 mm² / 60 min ≈ 484 mm²/min
+-];
+diff --git a/mcp-server/src/engines/ChainFailureRecoveryEngine.ts b/mcp-server/src/engines/ChainFailureRecoveryEngine.ts
+deleted file mode 100644
+index e0d1a9c3c..000000000
+--- a/mcp-server/src/engines/ChainFailureRecoveryEngine.ts
++++ /dev/null
+@@ -1,458 +0,0 @@
+-/**
+- * ChainFailureRecoveryEngine — ACP-MS2B
+- *
+- * Handles chain step failures with structured strategies:
+- *   1. Retry with exponential backoff (configurable max retries)
+- *   2. Graceful degradation (skip non-required steps, use fallbacks)
+- *   3. User notification generation (structured failure reports)
+- *   4. Recovery plan computation (what to do when a chain is broken)
+- *
+- * Each chain step has a fail_behavior from AutomationChainEngine:
+- *   - fail_closed: abort entire chain, report error
+- *   - degrade_silent: skip step, continue silently
+- *   - degrade_warn: skip step, continue with warning
+- *   - ask_user: pause chain, generate question for user
+- *
+- * Sources:
+- *   - ACP-MS2B: Chain Failure Recovery
+- *   - AutomationChainEngine chain/step definitions
+- *   - BuildGuardChainEngine step execution model
+- */
+-
+-import type { FailBehavior, ChainStep } from "./AutomationChainEngine.js";
+-
+-// ============================================================================
+-// TYPES
+-// ============================================================================
+-
+-export type RecoveryStrategy =
+-  | "retry"           // Retry the step with backoff
+-  | "skip"            // Skip and continue chain
+-  | "fallback"        // Use alternative implementation
+-  | "abort"           // Abort the entire chain
+-  | "ask_user";       // Pause and ask user for guidance
+-
+-export type FailureSeverity = "transient" | "recoverable" | "permanent";
+-
+-export interface StepFailure {
+-  chain_id: string;
+-  step_id: string;
+-  step_action: string;
+-  error_message: string;
+-  error_code?: string;
+-  timestamp: string;
+-  attempt: number;
+-  max_attempts: number;
+-  duration_ms: number;
+-}
+-
+-export interface RetryConfig {
+-  max_retries: number;
+-  initial_delay_ms: number;
+-  backoff_multiplier: number;
+-  max_delay_ms: number;
+-  jitter: boolean;
+-}
+-
+-export interface RecoveryPlan {
+-  strategy: RecoveryStrategy;
+-  severity: FailureSeverity;
+-  reason: string;
+-  retry_config?: RetryConfig;
+-  fallback_action?: string;
+-  user_message?: string;
+-  remaining_steps: string[];
+-  skipped_steps: string[];
+-}
+-
+-export interface ChainRecoveryResult {
+-  chain_id: string;
+-  original_failure: StepFailure;
+-  recovery_plan: RecoveryPlan;
+-  recovery_executed: boolean;
+-  recovery_success: boolean;
+-  total_attempts: number;
+-  total_recovery_time_ms: number;
+-  user_notification?: UserNotification;
+-}
+-
+-export interface UserNotification {
+-  severity: "info" | "warning" | "error" | "critical";
+-  title: string;
+-  body: string;
+-  actions: Array<{ label: string; action: string }>;
+-  timestamp: string;
+-}
+-
+-export interface ChainHealthSummary {
+-  chain_id: string;
+-  total_executions: number;
+-  total_failures: number;
+-  failure_rate: number;
+-  most_failing_step: string | null;
+-  recovery_success_rate: number;
+-  mean_recovery_time_ms: number;
+-}
+-
+-// ============================================================================
+-// DEFAULT RETRY CONFIGS
+-// ============================================================================
+-
+-const DEFAULT_RETRY_CONFIGS: Record<string, RetryConfig> = {
+-  typecheck: { max_retries: 2, initial_delay_ms: 500, backoff_multiplier: 2, max_delay_ms: 5000, jitter: false },
+-  test_execution: { max_retries: 1, initial_delay_ms: 1000, backoff_multiplier: 2, max_delay_ms: 10000, jitter: false },
+-  load_bundles: { max_retries: 3, initial_delay_ms: 200, backoff_multiplier: 2, max_delay_ms: 2000, jitter: true },
+-  run_tsc: { max_retries: 2, initial_delay_ms: 500, backoff_multiplier: 2, max_delay_ms: 5000, jitter: false },
+-  classify_task: { max_retries: 1, initial_delay_ms: 100, backoff_multiplier: 1, max_delay_ms: 500, jitter: false },
+-  safety_check: { max_retries: 0, initial_delay_ms: 0, backoff_multiplier: 1, max_delay_ms: 0, jitter: false },
+-  default: { max_retries: 1, initial_delay_ms: 300, backoff_multiplier: 2, max_delay_ms: 3000, jitter: true },
+-};
+-
+-/** Error patterns that indicate transient failures */
+-const TRANSIENT_PATTERNS = [
+-  /ENOENT/i,
+-  /EBUSY/i,
+-  /EAGAIN/i,
+-  /timed?\s*out/i,
+-  /network/i,
+-  /connection refused/i,
+-  /ECONNRESET/i,
+-  /lock/i,
+-];
+-
+-/** Error patterns that indicate permanent failures */
+-const PERMANENT_PATTERNS = [
+-  /cannot find module/i,
+-  /syntax\s*error/i,
+-  /type error.*not assignable/i,
+-  /maximum call stack/i,
+-  /out of memory/i,
+-  /permission denied/i,
+-];
+-
+-// ============================================================================
+-// ENGINE
+-// ============================================================================
+-
+-export class ChainFailureRecoveryEngine {
+-
+-  private history: StepFailure[] = [];
+-
+-  // ── Failure Classification ─────────────────────────────────
+-
+-  /**
+-   * Classify an error as transient, recoverable, or permanent.
+-   *
+-   * @param errorMessage The error message from the failed step
+-   * @param errorCode Optional TS/system error code
+-   * @returns Failure severity classification
+-   */
+-  classifyFailure(errorMessage: string, errorCode?: string): FailureSeverity {
+-    const msg = errorMessage.toLowerCase();
+-
+-    // Check transient patterns first
+-    if (TRANSIENT_PATTERNS.some(p => p.test(msg))) {
+-      return "transient";
+-    }
+-
+-    // Check permanent patterns
+-    if (PERMANENT_PATTERNS.some(p => p.test(msg))) {
+-      return "permanent";
+-    }
+-
+-    // TS errors with known trivial codes are recoverable
+-    if (errorCode && ["TS6133", "TS6196", "TS1005", "TS2552"].includes(errorCode)) {
+-      return "recoverable";
+-    }
+-
+-    // Default: recoverable (optimistic)
+-    return "recoverable";
+-  }
+-
+-  // ── Recovery Plan Computation ──────────────────────────────
+-
+-  /**
+-   * Compute a recovery plan for a failed chain step.
+-   *
+-   * @param failure The step failure details
+-   * @param failBehavior The chain's configured fail behavior
+-   * @param stepRequired Whether the step is marked as required
+-   * @param remainingStepIds IDs of steps not yet executed
+-   * @returns Recovery plan with strategy and user guidance
+-   */
+-  computeRecoveryPlan(
+-    failure: StepFailure,
+-    failBehavior: FailBehavior,
+-    stepRequired: boolean,
+-    remainingStepIds: string[],
+-  ): RecoveryPlan {
+-    const severity = this.classifyFailure(failure.error_message, failure.error_code);
+-
+-    // Rule 1: fail_closed always aborts
+-    if (failBehavior === "fail_closed") {
+-      return {
+-        strategy: "abort",
+-        severity,
+-        reason: `Chain is fail_closed — step '${failure.step_id}' failure aborts entire chain`,
+-        user_message: `Chain aborted: ${failure.step_action} failed — ${failure.error_message}`,
+-        remaining_steps: [],
+-        skipped_steps: remainingStepIds,
+-      };
+-    }
+-
+-    // Rule 2: ask_user pauses
+-    if (failBehavior === "ask_user") {
+-      return {
+-        strategy: "ask_user",
+-        severity,
+-        reason: `Chain configured to ask user on failure`,
+-        user_message: `Step '${failure.step_action}' failed: ${failure.error_message}. How should we proceed?`,
+-        remaining_steps: remainingStepIds,
+-        skipped_steps: [],
+-      };
+-    }
+-
+-    // Rule 3: Transient failures → retry
+-    if (severity === "transient" && failure.attempt < failure.max_attempts) {
+-      const retryConfig = DEFAULT_RETRY_CONFIGS[failure.step_action] || DEFAULT_RETRY_CONFIGS.default;
+-      return {
+-        strategy: "retry",
+-        severity,
+-        reason: `Transient failure detected — retry with backoff (attempt ${failure.attempt + 1}/${failure.max_attempts})`,
+-        retry_config: retryConfig,
+-        remaining_steps: remainingStepIds,
+-        skipped_steps: [],
+-      };
+-    }
+-
+-    // Rule 4: Recoverable + not required → skip
+-    if (!stepRequired && (failBehavior === "degrade_silent" || failBehavior === "degrade_warn")) {
+-      return {
+-        strategy: "skip",
+-        severity,
+-        reason: `Non-required step — ${failBehavior === "degrade_warn" ? "skipping with warning" : "skipping silently"}`,
+-        user_message: failBehavior === "degrade_warn"
+-          ? `Warning: skipped '${failure.step_action}' — ${failure.error_message}`
+-          : undefined,
+-        remaining_steps: remainingStepIds,
+-        skipped_steps: [failure.step_id],
+-      };
+-    }
+-
+-    // Rule 5: Required step with retries remaining → retry
+-    if (stepRequired && failure.attempt < failure.max_attempts) {
+-      const retryConfig = DEFAULT_RETRY_CONFIGS[failure.step_action] || DEFAULT_RETRY_CONFIGS.default;
+-      return {
+-        strategy: "retry",
+-        severity,
+-        reason: `Required step failed — retrying (attempt ${failure.attempt + 1}/${failure.max_attempts})`,
+-        retry_config: retryConfig,
+-        remaining_steps: remainingStepIds,
+-        skipped_steps: [],
+-      };
+-    }
+-
+-    // Rule 6: Required step, max retries exhausted → abort
+-    return {
+-      strategy: "abort",
+-      severity,
+-      reason: `Required step '${failure.step_id}' failed after ${failure.attempt} attempt(s) — aborting chain`,
+-      user_message: `Chain failed: ${failure.step_action} could not be completed — ${failure.error_message}`,
+-      remaining_steps: [],
+-      skipped_steps: remainingStepIds,
+-    };
+-  }
+-
+-  // ── Retry Delay Computation ────────────────────────────────
+-
+-  /**
+-   * Compute the delay before the next retry attempt.
+-   *
+-   * @param attempt Current attempt number (0-based)
+-   * @param config Retry configuration
+-   * @returns Delay in milliseconds
+-   */
+-  computeRetryDelay(attempt: number, config: RetryConfig): number {
+-    const baseDelay = config.initial_delay_ms * Math.pow(config.backoff_multiplier, attempt);
+-    const capped = Math.min(baseDelay, config.max_delay_ms);
+-
+-    if (config.jitter) {
+-      // Add ±25% jitter to prevent thundering herd
+-      const jitterRange = capped * 0.25;
+-      return capped + (Math.random() * 2 - 1) * jitterRange;
+-    }
+-
+-    return capped;
+-  }
+-
+-  // ── User Notification Generation ─────���─────────────────────
+-
+-  /**
+-   * Generate a structured user notification for a chain failure.
+-   *
+-   * @param failure Step failure details
+-   * @param plan Recovery plan
+-   * @returns Formatted notification with actionable suggestions
+-   */
+-  generateNotification(failure: StepFailure, plan: RecoveryPlan): UserNotification {
+-    const severityMap: Record<RecoveryStrategy, UserNotification["severity"]> = {
+-      retry: "info",
+-      skip: "warning",
+-      fallback: "warning",
+-      abort: "error",
+-      ask_user: "critical",
+-    };
+-
+-    const actions: UserNotification["actions"] = [];
+-
+-    if (plan.strategy === "abort") {
+-      actions.push(
+-        { label: "Retry chain", action: "retry_chain" },
+-        { label: "Skip this step", action: "skip_step" },
+-        { label: "View error details", action: "show_error" },
+-      );
+-    } else if (plan.strategy === "ask_user") {
+-      actions.push(
+-        { label: "Retry", action: "retry_step" },
+-        { label: "Skip", action: "skip_step" },
+-        { label: "Abort chain", action: "abort_chain" },
+-      );
+-    } else if (plan.strategy === "skip") {
+-      actions.push(
+-        { label: "Acknowledged", action: "dismiss" },
+-        { label: "View details", action: "show_error" },
+-      );
+-    }
+-
+-    return {
+-      severity: severityMap[plan.strategy],
+-      title: `${plan.strategy === "abort" ? "Chain Failed" : "Chain Warning"}: ${failure.step_action}`,
+-      body: plan.user_message || plan.reason,
+-      actions,
+-      timestamp: new Date().toISOString(),
+-    };
+-  }
+-
+-  // ── Full Recovery Execution ────────────────────────────────
+-
+-  /**
+-   * Execute recovery for a failed step.
+-   * This is the main entry point for chain failure handling.
+-   *
+-   * @param failure Step failure
+-   * @param failBehavior Chain's fail behavior config
+-   * @param stepRequired Whether step is required
+-   * @param remainingSteps Remaining steps in the chain
+-   * @returns Recovery result with plan, notification, and outcome
+-   */
+-  recover(
+-    failure: StepFailure,
+-    failBehavior: FailBehavior,
+-    stepRequired: boolean,
+-    remainingSteps: string[],
+-  ): ChainRecoveryResult {
+-    const start = Date.now();
+-
+-    // Record in history
+-    this.history.push(failure);
+-
+-    // Compute plan
+-    const plan = this.computeRecoveryPlan(failure, failBehavior, stepRequired, remainingSteps);
+-
+-    // Generate notification only for user-visible strategies
+-    const notification = (plan.strategy === "abort" || plan.strategy === "ask_user" ||
+-      (plan.strategy === "skip" && plan.user_message))
+-      ? this.generateNotification(failure, plan)
+-      : undefined;
+-
+-    // Determine if recovery was "successful" (chain can continue)
+-    const canContinue = plan.strategy === "retry" || plan.strategy === "skip" || plan.strategy === "fallback";
+-
+-    return {
+-      chain_id: failure.chain_id,
+-      original_failure: failure,
+-      recovery_plan: plan,
+-      recovery_executed: true,
+-      recovery_success: canContinue,
+-      total_attempts: failure.attempt,
+-      total_recovery_time_ms: Date.now() - start,
+-      user_notification: notification,
+-    };
+-  }
+-
+-  // ── Health Summary ─────────────────────────────────────────
+-
+-  /**
+-   * Compute health summary from recorded failure history.
+-   *
+-   * @param chainId Filter to specific chain (optional)
+-   * @returns Health metrics for the chain
+-   */
+-  getHealthSummary(chainId?: string): ChainHealthSummary {
+-    const relevant = chainId
+-      ? this.history.filter(f => f.chain_id === chainId)
+-      : this.history;
+-
+-    if (relevant.length === 0) {
+-      return {
+-        chain_id: chainId || "all",
+-        total_executions: 0,
+-        total_failures: 0,
+-        failure_rate: 0,
+-        most_failing_step: null,
+-        recovery_success_rate: 1,
+-        mean_recovery_time_ms: 0,
+-      };
+-    }
+-
+-    // Count failures per step
+-    const stepCounts = new Map<string, number>();
+-    for (const f of relevant) {
+-      stepCounts.set(f.step_id, (stepCounts.get(f.step_id) || 0) + 1);
+-    }
+-
+-    let mostFailingStep: string | null = null;
+-    let maxCount = 0;
+-    for (const [step, count] of stepCounts) {
+-      if (count > maxCount) {
+-        maxCount = count;
+-        mostFailingStep = step;
+-      }
+-    }
+-
+-    const totalTime = relevant.reduce((sum, f) => sum + f.duration_ms, 0);
+-
+-    return {
+-      chain_id: chainId || "all",
+-      total_executions: relevant.length,
+-      total_failures: relevant.length,
+-      failure_rate: 1.0, // All entries are failures
+-      most_failing_step: mostFailingStep,
+-      recovery_success_rate: 0, // Would need recovery outcomes to compute
+-      mean_recovery_time_ms: totalTime / relevant.length,
+-    };
+-  }
+-
+-  /**
+-   * Get the retry configuration for a given step action.
+-   */
+-  getRetryConfig(stepAction: string): RetryConfig {
+-    return DEFAULT_RETRY_CONFIGS[stepAction] || DEFAULT_RETRY_CONFIGS.default;
+-  }
+-
+-  /**
+-   * Clear failure history (useful for testing/session reset).
+-   */
+-  clearHistory(): void {
+-    this.history = [];
+-  }
+-
+-  /**
+-   * Get raw failure history.
+-   */
+-  getHistory(): StepFailure[] {
+-    return [...this.history];
+-  }
+-}
+-
+-export const chainFailureRecoveryEngine = new ChainFailureRecoveryEngine();
+diff --git a/mcp-server/src/engines/MillPatternMinerEngine.ts b/mcp-server/src/engines/MillPatternMinerEngine.ts
+deleted file mode 100644
+index 271ccdfe6..000000000
+--- a/mcp-server/src/engines/MillPatternMinerEngine.ts
++++ /dev/null
+@@ -1,777 +0,0 @@
+-/**
+- * MillPatternMinerEngine — Mine Milling Patterns from Parsed Programs
+- *
+- * Analyzes parsed Haas/Hurco/Roku-Roku mill programs to extract
+- * milling-specific patterns beyond speed/feed data.
+- *
+- * Extracts:
+- *   - Pocket strategies (trochoidal, adaptive, standard)
+- *   - HSM parameters by material (step-over ratios, DOC)
+- *   - Plunge strategies (ramp, helix, bore)
+- *   - Chip load per tool type/diameter
+- *   - Entry/exit strategies
+- *   - Coolant usage patterns
+- *   - RPM vs tool diameter relationships
+- *   - Canned cycle usage frequency
+- *   - Smoothing mode preferences (G187 on Haas, AICC on Roku-Roku)
+- *
+- * Feeds pattern data into PRISM's milling knowledge base and
+- * SpeedFeedOrchestratorEngine calibration tables.
+- *
+- * @module engines/MillPatternMinerEngine
+- */
+-
+-import { log } from "../utils/Logger.js";
+-import type { HaasProgram, HaasToolSection, HaasOperation } from "./HaasParserEngine.js";
+-import type { HurcoProgram, HurcoToolSection, HurcoOperation } from "./HurcoParserEngine.js";
+-import type { RokuRokuProgram, RokuRokuToolSection, RokuRokuOperation } from "./RokuRokuParserEngine.js";
+-
+-// ============================================================================
+-// TYPES
+-// ============================================================================
+-
+-export interface MillPattern {
+-  pattern_type: string;
+-  g_code: string;
+-  frequency: number;
+-  programs: string[];
+-  context: string;
+-}
+-
+-export interface PocketStrategy {
+-  type: "standard" | "trochoidal" | "adaptive" | "peel_mill" | "spiral" | "unknown";
+-  g_code: string;
+-  frequency: number;
+-  step_over_pct: number | null;
+-  doc_mm: number | null;
+-  programs: string[];
+-}
+-
+-export interface PlungeStrategy {
+-  type: "direct" | "ramp" | "helix" | "bore" | "pre_drill" | "unknown";
+-  frequency: number;
+-  programs: string[];
+-}
+-
+-export interface ChipLoadSample {
+-  program: string;
+-  tool_number: number;
+-  tool_desc: string | null;
+-  diameter_mm: number | null;
+-  flute_count: number | null;
+-  rpm: number;
+-  feed_rate: number;
+-  chip_load: number | null;
+-  operation: string;
+-}
+-
+-export interface HSMProfile {
+-  controller: "haas" | "hurco" | "rokuroku";
+-  smoothing_mode: string | null;
+-  aicc_enabled: boolean;
+-  hpcc_enabled: boolean;
+-  sss_enabled: boolean;
+-  max_rpm: number;
+-  min_tool_dia_mm: number | null;
+-  frequency: number;
+-  programs: string[];
+-}
+-
+-export interface CannedCycleUsage {
+-  g_code: string;
+-  description: string;
+-  frequency: number;
+-  avg_params: Record<string, number>;
+-  programs: string[];
+-}
+-
+-export interface CoolantPattern {
+-  code: string;
+-  type: "flood" | "mist" | "through_tool" | "air_blast" | "off" | "unknown";
+-  frequency: number;
+-  programs: string[];
+-}
+-
+-export interface MillMineResult {
+-  total_programs: number;
+-  total_tools: number;
+-  total_operations: number;
+-  pocket_strategies: PocketStrategy[];
+-  plunge_strategies: PlungeStrategy[];
+-  chip_load_samples: ChipLoadSample[];
+-  hsm_profiles: HSMProfile[];
+-  canned_cycles: CannedCycleUsage[];
+-  coolant_patterns: CoolantPattern[];
+-  top_patterns: MillPattern[];
+-  rpm_diameter_data: Array<{ rpm: number; diameter_mm: number; program: string }>;
+-}
+-
+-// ============================================================================
+-// CANNED CYCLE DEFINITIONS
+-// ============================================================================
+-
+-const CANNED_CYCLE_MAP: Record<string, string> = {
+-  G73: "high-speed peck drill",
+-  G74: "reverse tapping",
+-  G76: "fine boring",
+-  G80: "canned cycle cancel",
+-  G81: "spot drill / center drill",
+-  G82: "counter bore / spot face",
+-  G83: "deep hole peck drill",
+-  G84: "tapping",
+-  G85: "bore in, bore out",
+-  G86: "bore in, rapid out",
+-  G87: "bore in, manual retract",
+-  G88: "bore in, dwell, manual out",
+-  G89: "bore in, dwell, bore out",
+-};
+-
+-const COOLANT_CODES: Record<string, CoolantPattern["type"]> = {
+-  M08: "flood",
+-  M07: "mist",
+-  M88: "through_tool",
+-  M51: "air_blast",
+-  M09: "off",
+-};
+-
+-// ============================================================================
+-// ENGINE
+-// ============================================================================
+-
+-export class MillPatternMinerEngine {
+-  /**
+-   * Mine patterns from a collection of parsed Haas programs.
+-   */
+-  mineHaas(programs: Array<{ filename: string; parsed: HaasProgram }>): MillMineResult {
+-    const result = this._initResult();
+-
+-    for (const { filename, parsed } of programs) {
+-      result.total_programs++;
+-      result.total_tools += parsed.toolSections.length;
+-
+-      for (const section of parsed.toolSections) {
+-        result.total_operations += section.operations.length;
+-        this._extractHaasChipLoads(filename, section, result);
+-        this._extractHaasCannedCycles(filename, section.operations, result);
+-      }
+-
+-      this._extractHaasSmoothing(filename, parsed, result);
+-      this._extractHaasCoolant(filename, parsed, result);
+-      this._extractPlungeFromOps(filename, parsed.operations, result);
+-      this._extractPocketFromOps(filename, parsed.operations, result);
+-    }
+-
+-    this._computeTopPatterns(result);
+-    return result;
+-  }
+-
+-  /**
+-   * Mine patterns from a collection of parsed Hurco programs.
+-   */
+-  mineHurco(programs: Array<{ filename: string; parsed: HurcoProgram }>): MillMineResult {
+-    const result = this._initResult();
+-
+-    for (const { filename, parsed } of programs) {
+-      result.total_programs++;
+-      result.total_tools += parsed.toolSections.length;
+-
+-      for (const section of parsed.toolSections) {
+-        result.total_operations += section.operations.length;
+-        this._extractHurcoChipLoads(filename, section, result);
+-        this._extractHurcoCannedCycles(filename, section.operations, result);
+-      }
+-
+-      this._extractHurcoCoolant(filename, parsed, result);
+-      this._extractPlungeFromOps(filename, parsed.operations as any[], result);
+-      this._extractPocketFromOps(filename, parsed.operations as any[], result);
+-    }
+-
+-    this._computeTopPatterns(result);
+-    return result;
+-  }
+-
+-  /**
+-   * Mine patterns from a collection of parsed Roku-Roku programs.
+-   */
+-  mineRokuRoku(programs: Array<{ filename: string; parsed: RokuRokuProgram }>): MillMineResult {
+-    const result = this._initResult();
+-
+-    for (const { filename, parsed } of programs) {
+-      result.total_programs++;
+-      result.total_tools += parsed.toolSections.length;
+-
+-      for (const section of parsed.toolSections) {
+-        result.total_operations += section.operations.length;
+-        this._extractRokuRokuChipLoads(filename, section, result);
+-        this._extractRokuRokuCannedCycles(filename, section.operations, result);
+-      }
+-
+-      this._extractRokuRokuHSM(filename, parsed, result);
+-      this._extractRokuRokuRPMDiameter(filename, parsed, result);
+-      this._extractPlungeFromOps(filename, parsed.operations as any[], result);
+-      this._extractPocketFromOps(filename, parsed.operations as any[], result);
+-    }
+-
+-    this._computeTopPatterns(result);
+-    return result;
+-  }
+-
+-  /**
+-   * Mine patterns from a mixed collection of all three parser types.
+-   */
+-  mineAll(programs: Array<{
+-    filename: string;
+-    controller: "haas" | "hurco" | "rokuroku";
+-    parsed: HaasProgram | HurcoProgram | RokuRokuProgram;
+-  }>): MillMineResult {
+-    const haas = programs
+-      .filter(p => p.controller === "haas")
+-      .map(p => ({ filename: p.filename, parsed: p.parsed as HaasProgram }));
+-    const hurco = programs
+-      .filter(p => p.controller === "hurco")
+-      .map(p => ({ filename: p.filename, parsed: p.parsed as HurcoProgram }));
+-    const roku = programs
+-      .filter(p => p.controller === "rokuroku")
+-      .map(p => ({ filename: p.filename, parsed: p.parsed as RokuRokuProgram }));
+-
+-    const results = [
+-      haas.length > 0 ? this.mineHaas(haas) : null,
+-      hurco.length > 0 ? this.mineHurco(hurco) : null,
+-      roku.length > 0 ? this.mineRokuRoku(roku) : null,
+-    ].filter(Boolean) as MillMineResult[];
+-
+-    return this._mergeResults(results);
+-  }
+-
+-  // ────────────────────────────────────────────────────────────────
+-  // PRIVATE: Initialization
+-  // ─────────────────────���──────────────────────────────────────────
+-
+-  private _initResult(): MillMineResult {
+-    return {
+-      total_programs: 0,
+-      total_tools: 0,
+-      total_operations: 0,
+-      pocket_strategies: [],
+-      plunge_strategies: [],
+-      chip_load_samples: [],
+-      hsm_profiles: [],
+-      canned_cycles: [],
+-      coolant_patterns: [],
+-      top_patterns: [],
+-      rpm_diameter_data: [],
+-    };
+-  }
+-
+-  // ────────────────────────────────────────────────────────────────
+-  // PRIVATE: Haas extraction
+-  // ───��──────────────────��─────────────────────────────���───────────
+-
+-  private _extractHaasChipLoads(filename: string, section: HaasToolSection, result: MillMineResult): void {
+-    if (!section.spindle_rpm || section.spindle_rpm <= 0) return;
+-
+-    for (const op of section.operations) {
+-      const feed = op.params.F != null ? Number(op.params.F) : null;
+-      if (feed == null || feed <= 0) continue;
+-
+-      result.chip_load_samples.push({
+-        program: filename,
+-        tool_number: section.tool_number,
+-        tool_desc: section.tool_comment,
+-        diameter_mm: null,
+-        flute_count: null,
+-        rpm: section.spindle_rpm,
+-        feed_rate: feed,
+-        chip_load: null,  // Can't compute without flute count
+-        operation: op.type,
+-      });
+-    }
+-  }
+-
+-  private _extractHaasCannedCycles(filename: string, operations: HaasOperation[], result: MillMineResult): void {
+-    for (const op of operations) {
+-      if (op.g_code in CANNED_CYCLE_MAP) {
+-        this._addCannedCycle(result, op.g_code, filename, op.params);
+-      }
+-    }
+-  }
+-
+-  private _extractHaasSmoothing(filename: string, parsed: HaasProgram, result: MillMineResult): void {
+-    if (parsed.hasG187Smoothing) {
+-      result.hsm_profiles.push({
+-        controller: "haas",
+-        smoothing_mode: "G187",
+-        aicc_enabled: false,
+-        hpcc_enabled: false,
+-        sss_enabled: false,
+-        max_rpm: Math.max(...parsed.toolSections.map(s => s.spindle_rpm || 0), 0),
+-        min_tool_dia_mm: null,
+-        frequency: 1,
+-        programs: [filename],
+-      });
+-    }
+-  }
+-
+-  private _extractHaasCoolant(filename: string, parsed: HaasProgram, result: MillMineResult): void {
+-    for (const line of parsed.rawLines) {
+-      for (const [code, type] of Object.entries(COOLANT_CODES)) {
+-        if (line.includes(code)) {
+-          this._addCoolant(result, code, type, filename);
+-        }
+-      }
+-    }
+-  }
+-
+-  // ──────────────────────────────��─────────────────────────────────
+-  // PRIVATE: Hurco extraction
+-  // ───────────���────────────────────────────────���───────────────────
+-
+-  private _extractHurcoChipLoads(filename: string, section: HurcoToolSection, result: MillMineResult): void {
+-    if (!section.spindle_rpm || section.spindle_rpm <= 0) return;
+-
+-    const chipLoad = section.diameter != null && section.flute_count != null && section.feed_rate != null
+-      ? section.feed_rate / (section.spindle_rpm * section.flute_count)
+-      : null;
+-
+-    if (section.feed_rate && section.feed_rate > 0) {
+-      result.chip_load_samples.push({
+-        program: filename,
+-        tool_number: section.tool_number,
+-        tool_desc: section.tool_description,
+-        diameter_mm: section.diameter,
+-        flute_count: section.flute_count,
+-        rpm: section.spindle_rpm,
+-        feed_rate: section.feed_rate,
+-        chip_load: chipLoad,
+-        operation: section.operations[0]?.type || "unknown",
+-      });
+-    }
+-  }
+-
+-  private _extractHurcoCannedCycles(filename: string, operations: HurcoOperation[], result: MillMineResult): void {
+-    for (const op of operations) {
+-      if (op.g_code && op.g_code in CANNED_CYCLE_MAP) {
+-        this._addCannedCycle(result, op.g_code, filename, op.params);
+-      }
+-    }
+-  }
+-
+-  private _extractHurcoCoolant(filename: string, parsed: HurcoProgram, result: MillMineResult): void {
+-    for (const line of parsed.rawLines) {
+-      for (const [code, type] of Object.entries(COOLANT_CODES)) {
+-        if (line.includes(code)) {
+-          this._addCoolant(result, code, type, filename);
+-        }
+-      }
+-    }
+-  }
+-
+-  // ──────────────────────────────��─────────────────────────────────
+-  // PRIVATE: Roku-Roku extraction
+-  // ──��─────────────────────────────────────────────────────────────
+-
+-  private _extractRokuRokuChipLoads(filename: string, section: RokuRokuToolSection, result: MillMineResult): void {
+-    if (!section.spindle_rpm || section.spindle_rpm <= 0) return;
+-    if (!section.feed_rate || section.feed_rate <= 0) return;
+-
+-    const chipLoad = section.diameter_mm != null
+-      ? section.feed_rate / section.spindle_rpm  // single-flute approximation for micro mills
+-      : null;
+-
+-    result.chip_load_samples.push({
+-      program: filename,
+-      tool_number: section.tool_number,
+-      tool_desc: section.tool_comment,
+-      diameter_mm: section.diameter_mm,
+-      flute_count: null,
+-      rpm: section.spindle_rpm,
+-      feed_rate: section.feed_rate,
+-      chip_load: chipLoad,
+-      operation: section.operations[0]?.type || "micro_mill",
+-    });
+-  }
+-
+-  private _extractRokuRokuCannedCycles(filename: string, operations: RokuRokuOperation[], result: MillMineResult): void {
+-    for (const op of operations) {
+-      if (op.g_code in CANNED_CYCLE_MAP) {
+-        this._addCannedCycle(result, op.g_code, filename, op.params);
+-      }
+-    }
+-  }
+-
+-  private _extractRokuRokuHSM(filename: string, parsed: RokuRokuProgram, result: MillMineResult): void {
+-    if (parsed.hasAICC || parsed.hasHPCC || parsed.hasSSS || parsed.hasNanoSmoothing) {
+-      result.hsm_profiles.push({
+-        controller: "rokuroku",
+-        smoothing_mode: parsed.hasHPCC ? "G05_P10000" : parsed.hasAICC ? "G05.1_Q1" : parsed.hasSSS ? "SSS" : "nano",
+-        aicc_enabled: parsed.hasAICC,
+-        hpcc_enabled: parsed.hasHPCC,
+-        sss_enabled: parsed.hasSSS,
+-        max_rpm: parsed.maxRPM,
+-        min_tool_dia_mm: parsed.minToolDia,
+-        frequency: 1,
+-        programs: [filename],
+-      });
+-    }
+-  }
+-
+-  private _extractRokuRokuRPMDiameter(filename: string, parsed: RokuRokuProgram, result: MillMineResult): void {
+-    for (const section of parsed.toolSections) {
+-      if (section.spindle_rpm > 0 && section.diameter_mm != null && section.diameter_mm > 0) {
+-        result.rpm_diameter_data.push({
+-          rpm: section.spindle_rpm,
+-          diameter_mm: section.diameter_mm,
+-          program: filename,
+-        });
+-      }
+-    }
+-  }
+-
+-  // ─���──────────────────────────────────────────────────────────────
+-  // PRIVATE: Generic pattern extraction
+-  // ────────────────────────────────────────────────────────────────
+-
+-  private _extractPlungeFromOps(filename: string, operations: Array<{ type: string; g_code?: string | null; params?: Record<string, any> }>, result: MillMineResult): void {
+-    for (const op of operations) {
+-      let plungeType: PlungeStrategy["type"] | null = null;
+-
+-      if (op.type === "drill" || op.type === "center_drill") {
+-        plungeType = "direct";
+-      } else if (op.type === "helix" || op.type === "helix_bore") {
+-        plungeType = "helix";
+-      } else if (op.type === "ramp" || op.type === "ramp_entry") {
+-        plungeType = "ramp";
+-      } else if (op.type === "bore" || op.type === "boring") {
+-        plungeType = "bore";
+-      }
+-
+-      if (plungeType) {
+-        const existing = result.plunge_strategies.find(p => p.type === plungeType);
+-        if (existing) {
+-          existing.frequency++;
+-          if (!existing.programs.includes(filename)) existing.programs.push(filename);
+-        } else {
+-          result.plunge_strategies.push({
+-            type: plungeType,
+-            frequency: 1,
+-            programs: [filename],
+-          });
+-        }
+-      }
+-    }
+-  }
+-
+-  private _extractPocketFromOps(filename: string, operations: Array<{ type: string; g_code?: string | null; params?: Record<string, any> }>, result: MillMineResult): void {
+-    for (const op of operations) {
+-      let pocketType: PocketStrategy["type"] | null = null;
+-      let gCode = "";
+-
+-      if (op.type === "pocket" || op.type === "pocket_mill") {
+-        pocketType = "standard";
+-        gCode = op.g_code || "";
+-      } else if (op.type === "trochoidal" || op.type === "dynamic_mill") {
+-        pocketType = "trochoidal";
+-        gCode = op.g_code || "";
+-      } else if (op.type === "adaptive" || op.type === "adaptive_clearing") {
+-        pocketType = "adaptive";
+-        gCode = op.g_code || "";
+-      } else if (op.type === "peel_mill" || op.type === "peel") {
+-        pocketType = "peel_mill";
+-        gCode = op.g_code || "";
+-      }
+-
+-      if (pocketType) {
+-        const existing = result.pocket_strategies.find(p => p.type === pocketType);
+-        if (existing) {
+-          existing.frequency++;
+-          if (!existing.programs.includes(filename)) existing.programs.push(filename);
+-        } else {
+-          result.pocket_strategies.push({
+-            type: pocketType,
+-            g_code: gCode,
+-            frequency: 1,
+-            step_over_pct: null,
+-            doc_mm: null,
+-            programs: [filename],
+-          });
+-        }
+-      }
+-    }
+-  }
+-
+-  // ─────────────────────────��──────────────────────────────────────
+-  // PRIVATE: Accumulator helpers
+-  // ────────────────────────────────────────────────────────────────
+-
+-  private _addCannedCycle(result: MillMineResult, gCode: string, filename: string, params: Record<string, any>): void {
+-    const existing = result.canned_cycles.find(c => c.g_code === gCode);
+-    if (existing) {
+-      existing.frequency++;
+-      if (!existing.programs.includes(filename)) existing.programs.push(filename);
+-      // Update average params
+-      for (const [key, val] of Object.entries(params)) {
+-        const numVal = Number(val);
+-        if (!isNaN(numVal)) {
+-          existing.avg_params[key] = existing.avg_params[key] != null
+-            ? (existing.avg_params[key] * (existing.frequency - 1) + numVal) / existing.frequency
+-            : numVal;
+-        }
+-      }
+-    } else {
+-      const avgParams: Record<string, number> = {};
+-      for (const [key, val] of Object.entries(params)) {
+-        const numVal = Number(val);
+-        if (!isNaN(numVal)) avgParams[key] = numVal;
+-      }
+-      result.canned_cycles.push({
+-        g_code: gCode,
+-        description: CANNED_CYCLE_MAP[gCode] || "unknown",
+-        frequency: 1,
+-        avg_params: avgParams,
+-        programs: [filename],
+-      });
+-    }
+-  }
+-
+-  private _addCoolant(result: MillMineResult, code: string, type: CoolantPattern["type"], filename: string): void {
+-    const existing = result.coolant_patterns.find(c => c.code === code);
+-    if (existing) {
+-      existing.frequency++;
+-      if (!existing.programs.includes(filename)) existing.programs.push(filename);
+-    } else {
+-      result.coolant_patterns.push({
+-        code,
+-        type,
+-        frequency: 1,
+-        programs: [filename],
+-      });
+-    }
+-  }
+-
+-  // ────────���────────────────────────────���──────────────────────────
+-  // PRIVATE: Post-processing
+-  // ──────────���─────────────────────────────────────────────────────
+-
+-  private _computeTopPatterns(result: MillMineResult): void {
+-    const patterns: MillPattern[] = [];
+-
+-    // Add canned cycles as patterns
+-    for (const cycle of result.canned_cycles) {
+-      patterns.push({
+-        pattern_type: "canned_cycle",
+-        g_code: cycle.g_code,
+-        frequency: cycle.frequency,
+-        programs: cycle.programs,
+-        context: cycle.description,
+-      });
+-    }
+-
+-    // Add pocket strategies as patterns
+-    for (const pocket of result.pocket_strategies) {
+-      patterns.push({
+-        pattern_type: "pocket_strategy",
+-        g_code: pocket.g_code,
+-        frequency: pocket.frequency,
+-        programs: pocket.programs,
+-        context: pocket.type,
+-      });
+-    }
+-
+-    // Add coolant patterns
+-    for (const coolant of result.coolant_patterns) {
+-      patterns.push({
+-        pattern_type: "coolant",
+-        g_code: coolant.code,
+-        frequency: coolant.frequency,
+-        programs: coolant.programs,
+-        context: coolant.type,
+-      });
+-    }
+-
+-    // Sort by frequency descending
+-    patterns.sort((a, b) => b.frequency - a.frequency);
+-    result.top_patterns = patterns.slice(0, 20);
+-  }
+-
+-  private _mergeResults(results: MillMineResult[]): MillMineResult {
+-    const merged = this._initResult();
+-
+-    for (const r of results) {
+-      merged.total_programs += r.total_programs;
+-      merged.total_tools += r.total_tools;
+-      merged.total_operations += r.total_operations;
+-      merged.pocket_strategies.push(...r.pocket_strategies);
+-      merged.plunge_strategies.push(...r.plunge_strategies);
+-      merged.chip_load_samples.push(...r.chip_load_samples);
+-      merged.hsm_profiles.push(...r.hsm_profiles);
+-      merged.canned_cycles.push(...r.canned_cycles);
+-      merged.coolant_patterns.push(...r.coolant_patterns);
+-      merged.rpm_diameter_data.push(...r.rpm_diameter_data);
+-    }
+-
+-    // Deduplicate canned cycles by g_code
+-    const cycleMap = new Map<string, CannedCycleUsage>();
+-    for (const c of merged.canned_cycles) {
+-      const existing = cycleMap.get(c.g_code);
+-      if (existing) {
+-        existing.frequency += c.frequency;
+-        for (const p of c.programs) {
+-          if (!existing.programs.includes(p)) existing.programs.push(p);
+-        }
+-      } else {
+-        cycleMap.set(c.g_code, { ...c });
+-      }
+-    }
+-    merged.canned_cycles = Array.from(cycleMap.values());
+-
+-    // Deduplicate coolant patterns
+-    const coolMap = new Map<string, CoolantPattern>();
+-    for (const c of merged.coolant_patterns) {
+-      const existing = coolMap.get(c.code);
+-      if (existing) {
+-        existing.frequency += c.frequency;
+-        for (const p of c.programs) {
+-          if (!existing.programs.includes(p)) existing.programs.push(p);
+-        }
+-      } else {
+-        coolMap.set(c.code, { ...c });
+-      }
+-    }
+-    merged.coolant_patterns = Array.from(coolMap.values());
+-
+-    this._computeTopPatterns(merged);
+-
+-    log.debug(`[MillPatternMiner] Mined ${merged.total_programs} programs: ` +
+-      `${merged.chip_load_samples.length} chip load samples, ` +
+-      `${merged.canned_cycles.length} canned cycle types, ` +
+-      `${merged.hsm_profiles.length} HSM profiles`);
+-
+-    return merged;
+-  }
+-
+-  // ────────────────────────────────────────────────────────────────
+-  // JM DIE INTEGRATION (KAR-MS2 U-KAR12)
+-  // ────────────────────────────────────────────────────────────────
+-
+-  /**
+-   * Mine patterns from JM Die mill programs.
+-   * Processes .nc files from CNC MILL HAAS, HAAS-HURCO, ROKU-ROKU folders.
+-   * @param programEntries - Program entries from JMDieProgramInventoryEngine
+-   */
+-  mineJMDiePrograms(programEntries: Array<{
+-    filePath: string;
+-    programType: string;
+-    controller: string;
+-    customer: string;
+-    topFolder: string;
+-  }>): MillMineResult & { byCustomer: Record<string, number>; byTopFolder: Record<string, number> } {
+-    const result = this._initResult() as MillMineResult & {
+-      byCustomer: Record<string, number>;
+-      byTopFolder: Record<string, number>;
+-    };
+-    result.byCustomer = {};
+-    result.byTopFolder = {};
+-
+-    // Filter to mill programs only
+-    const millPrograms = programEntries.filter(p => p.programType === "mill");
+-
+-    log.info(`[MillPatternMiner] Processing ${millPrograms.length} JM Die mill programs...`);
+-
+-    for (const entry of millPrograms) {
+-      result.total_programs++;
+-      result.byCustomer[entry.customer] = (result.byCustomer[entry.customer] || 0) + 1;
+-      result.byTopFolder[entry.topFolder] = (result.byTopFolder[entry.topFolder] || 0) + 1;
+-
+-      try {
+-        // Read and parse based on controller
+-        const fs = require("fs");
+-        const source = fs.readFileSync(entry.filePath, "utf-8");
+-
+-        if (entry.controller === "haas_ngc") {
+-          const { haasParserEngine } = require("./HaasParserEngine.js");
+-          const parsed = haasParserEngine.parse(source, entry.filePath);
+-          result.total_tools += parsed.toolSections.length;
+-
+-          for (const section of parsed.toolSections) {
+-            result.total_operations += section.operations.length;
+-            this._extractHaasChipLoads(entry.filePath, section, result);
+-            this._extractHaasCannedCycles(entry.filePath, section.operations, result);
+-          }
+-        } else if (entry.controller === "hurco_winmax") {
+-          const { hurcoParserEngine } = require("./HurcoParserEngine.js");
+-          const parsed = hurcoParserEngine.parse(source, entry.filePath);
+-          result.total_tools += parsed.toolSections.length;
+-
+-          for (const section of parsed.toolSections) {
+-            result.total_operations += section.operations.length;
+-            this._extractHurcoChipLoads(entry.filePath, section, result);
+-            this._extractHurcoCannedCycles(entry.filePath, section.operations, result);
+-          }
+-        } else if (entry.controller === "fanuc") {
+-          // Roku-Roku uses FANUC-style controller
+-          const { rokuRokuParserEngine } = require("./RokuRokuParserEngine.js");
+-          const parsed = rokuRokuParserEngine.parse(source, entry.filePath);
+-          result.total_tools += parsed.toolSections.length;
+-
+-          for (const section of parsed.toolSections) {
+-            result.total_operations += section.operations.length;
+-            this._extractRokuRokuChipLoads(entry.filePath, section, result);
+-            this._extractRokuRokuCannedCycles(entry.filePath, section.operations, result);
+-          }
+-        }
+-      } catch (e) {
+-        // Continue on parse errors - log but don't fail batch
+-        log.debug(`[MillPatternMiner] Parse error for ${entry.filePath}: ${e}`);
+-      }
+-    }
+-
+-    this._computeTopPatterns(result);
+-
+-    log.info(`[MillPatternMiner] JM Die mining complete: ` +
+-      `${result.total_programs} programs, ${result.chip_load_samples.length} chip load samples, ` +
+-      `${Object.keys(result.byCustomer).length} customers`);
+-
+-    return result;
+-  }
+-
+-  /**
+-   * Get HSM engagement patterns grouped by material (inferred from customer/part)
+-   */
+-  getEngagementPatterns(result: MillMineResult): Array<{
+-    stepOverRange: { min: number; max: number; avg: number };
+-    docRange: { min: number; max: number; avg: number };
+-    frequency: number;
+-  }> {
+-    const patterns: Array<{
+-      stepOverRange: { min: number; max: number; avg: number };
+-      docRange: { min: number; max: number; avg: number };
+-      frequency: number;
+-    }> = [];
+-
+-    // Group pocket strategies by step-over
+-    const withStepOver = result.pocket_strategies.filter(p => p.step_over_pct !== null);
+-    if (withStepOver.length > 0) {
+-      const stepOvers = withStepOver.map(p => p.step_over_pct!);
+-      const docs = withStepOver.filter(p => p.doc_mm !== null).map(p => p.doc_mm!);
+-
+-      patterns.push({
+-        stepOverRange: {
+-          min: Math.min(...stepOvers),
+-          max: Math.max(...stepOvers),
+-          avg: stepOvers.reduce((a, b) => a + b, 0) / stepOvers.length,
+-        },
+-        docRange: docs.length > 0 ? {
+-          min: Math.min(...docs),
+-          max: Math.max(...docs),
+-          avg: docs.reduce((a, b) => a + b, 0) / docs.length,
+-        } : { min: 0, max: 0, avg: 0 },
+-        frequency: withStepOver.reduce((sum, p) => sum + p.frequency, 0),
+-      });
+-    }
+-
+-    return patterns;
+-  }
+-}
+-
+-// Singleton export
+-export const millPatternMinerEngine = new MillPatternMinerEngine();
+diff --git a/mcp-server/src/schemas/businessActionSchemas.ts b/mcp-server/src/schemas/businessActionSchemas.ts
+deleted file mode 100644
+index e82186465..000000000
+--- a/mcp-server/src/schemas/businessActionSchemas.ts
++++ /dev/null
+@@ -1,2393 +0,0 @@
+-/**
+- * Business Dispatcher Action Schemas
+- * ====================================
+- * Per-action Zod schemas for all prism_business actions.
+- * Validated AFTER normalizeParams(), BEFORE engine dispatch.
+- *
+- * @module schemas/businessActionSchemas
+- * @version 1.0.0
+- */
+-
+-import { z } from "zod";
+-import type { ActionSchemaMap } from "./actionSchemaTypes.js";
+-
+-// ============================================================================
+-// REUSABLE FIELD SCHEMAS
+-// ============================================================================
+-
+-const posNum = z.number().positive();
+-const optPosNum = z.number().positive().optional();
+-const optNum = z.number().optional();
+-const optStr = z.string().optional();
+-const str = z.string().min(1);
+-const optBool = z.boolean().optional();
+-
+-// ============================================================================
+-// FINANCIAL (4)
+-// ============================================================================
+-
+-const financial_npv = z.object({
+-  cash_flows: z.array(z.number()).optional(),
+-  cashFlows: z.array(z.number()).optional(),
+-  discount_rate: z.number().optional(),
+-  discountRate: z.number().optional(),
+-}).passthrough();
+-
+-const financial_irr = z.object({
+-  cash_flows: z.array(z.number()).optional(),
+-  cashFlows: z.array(z.number()).optional(),
+-  guess: z.number().optional(),
+-}).passthrough();
+-
+-const financial_breakeven = z.object({
+-  fixed_costs: z.number().optional(),
+-  fixedCosts: z.number().optional(),
+-  price_per_unit: z.number().optional(),
+-  pricePerUnit: z.number().optional(),
+-  variable_cost_per_unit: z.number().optional(),
+-  variableCostPerUnit: z.number().optional(),
+-}).passthrough();
+-
+-const financial_machine_investment = z.object({
+-  machine_cost: optNum,
+-  annual_revenue: optNum,
+-  annual_costs: optNum,
+-  useful_life_years: optNum,
+-  salvage_value: optNum,
+-}).passthrough();
+-
+-// ============================================================================
+-// INVENTORY (4)
+-// ============================================================================
+-
+-const inventory_eoq = z.object({
+-  annual_demand: optNum,
+-  order_cost: optNum,
+-  holding_cost: optNum,
+-}).passthrough();
+-
+-const inventory_safety_stock = z.object({
+-  avg_demand: optNum,
+-  demand_std_dev: optNum,
+-  avg_lead_time: optNum,
+-  lead_time_std_dev: optNum,
+-  service_level: optNum,
+-}).passthrough();
+-
+-const inventory_abc = z.object({
+-  items: z.array(z.record(z.string(), z.unknown())).optional(),
+-}).passthrough();
+-
+-const inventory_tool_optimize = z.object({
+-  tools: z.array(z.record(z.string(), z.unknown())).optional(),
+-}).passthrough();
+-
+-// ============================================================================
+-// JOB LIFECYCLE (4)
+-// ============================================================================
+-
+-const job_create = z.object({
+-  customer: optStr,
+-  part_number: optStr,
+-  quantity: optNum,
+-  due_date: optStr,
+-  material: optStr,
+-  notes: optStr,
+-}).passthrough();
+-
+-const job_update_status = z.object({
+-  job_id: optStr,
+-  jobId: optStr,
+-  status: optStr,
+-  new_status: optStr,
+-  user: optStr,
+-  notes: optStr,
+-}).passthrough();
+-
+-const job_summary = z.object({
+-  job_id: optStr,
+-  jobId: optStr,
+-}).passthrough();
+-
+-const job_dashboard = z.object({}).passthrough();
+-
+-// ============================================================================
+-// PURCHASING (4)
+-// ============================================================================
+-
+-const purchasing_search = z.object({
+-  query: z.string().optional(),
+-}).passthrough();
+-
+-const purchasing_recommend = z.object({
+-  need: optStr,
+-  query: optStr,
+-  priority: optStr,
+-}).passthrough();
+-
+-const purchasing_manufacturers = z.object({
+-  category: optStr,
+-}).passthrough();
+-
+-const purchasing_summary = z.object({}).passthrough();
+-
+-// ============================================================================
+-// COSTING (3)
+-// ============================================================================
+-
+-const costing_job_cost = z.object({
+-  material_cost: optNum,
+-  machine_time_min: optNum,
+-  machine_rate_hr: optNum,
+-  setup_time_min: optNum,
+-  quantity: optNum,
+-}).passthrough();
+-
+-const costing_material = z.object({
+-  material: optStr,
+-  weight_kg: optNum,
+-  cost_per_kg: optNum,
+-}).passthrough();
+-
+-const costing_machining = z.object({
+-  cycle_time_min: optNum,
+-  machine_rate_hr: optNum,
+-  setup_time_min: optNum,
+-}).passthrough();
+-
+-// ============================================================================
+-// QUOTING (2)
+-// ============================================================================
+-
+-const quoting_generate = z.object({
+-  rush: optBool,
+-  repeat_order: optBool,
+-  repeatOrder: optBool,
+-  target_margin: optNum,
+-  targetMargin: optNum,
+-  customer: optStr,
+-  notes: optStr,
+-}).passthrough();
+-
+-const quoting_price_breaks = z.object({
+-  quantities: z.array(z.number()).optional(),
+-}).passthrough();
+-
+-// ============================================================================
+-// SCHEDULING (4)
+-// ============================================================================
+-
+-const scheduling_single_machine = z.object({
+-  jobs: z.array(z.record(z.string(), z.unknown())).optional(),
+-  rule: z.string().optional(),
+-}).passthrough();
+-
+-const scheduling_johnsons = z.object({
+-  jobs: z.array(z.record(z.string(), z.unknown())).optional(),
+-}).passthrough();
+-
+-const scheduling_job_shop = z.object({
+-  jobs: z.array(z.record(z.string(), z.unknown())).optional(),
+-  machines: z.array(z.record(z.string(), z.unknown())).optional(),
+-  rule: z.string().optional(),
+-}).passthrough();
+-
+-const scheduling_cpm = z.object({
+-  activities: z.array(z.record(z.string(), z.unknown())).optional(),
+-}).passthrough();
+-
+-// ============================================================================
+-// REPORTING (6)
+-// ============================================================================
+-
+-const reporting_dashboard = z.object({
+-  production: z.array(z.record(z.string(), z.unknown())).optional(),
+-  quality: z.array(z.record(z.string(), z.unknown())).optional(),
+-  period: optStr,
+-}).passthrough();
+-
+-const reporting_pareto = z.object({
+-  data: z.array(z.record(z.string(), z.unknown())).optional(),
+-}).passthrough();
+-
+-const reporting_production = z.object({
+-  records: z.array(z.record(z.string(), z.unknown())).optional(),
+-}).passthrough();
+-
+-const reporting_quality = z.object({
+-  records: z.array(z.record(z.string(), z.unknown())).optional(),
+-}).passthrough();
+-
+-const reporting_financial = z.object({
+-  records: z.array(z.record(z.string(), z.unknown())).optional(),
+-}).passthrough();
+-
+-const reporting_trend = z.object({
+-  data: z.array(z.record(z.string(), z.unknown())).optional(),
+-  window_size: z.number().int().min(1).optional(),
+-  windowSize: z.number().int().min(1).optional(),
+-}).passthrough();
+-
+-// ============================================================================
+-// EMPLOYEE (5)
+-// ============================================================================
+-
+-const employee_create = z.object({
+-  name: optStr,
+-  department: optStr,
+-  role: optStr,
+-  hourly_rate: optNum,
+-}).passthrough();
+-
+-const employee_search = z.object({
+-  query: optStr,
+-  department: optStr,
+-  skill: optStr,
+-}).passthrough();
+-
+-const employee_add_skill = z.object({
+-  employee_id: optStr,
+-  employeeId: optStr,
+-  skill: z.record(z.string(), z.unknown()).optional(),
+-  skill_name: optStr,
+-  level: z.number().int().min(1).max(5).optional(),
+-}).passthrough();
+-
+-const employee_utilization = z.object({
+-  employee_id: optStr,
+-  employeeId: optStr,
+-  period: optStr,
+-  scheduled_hours: optNum,
+-  scheduledHours: optNum,
+-  time_entries: z.array(z.record(z.string(), z.unknown())).optional(),
+-  timeEntries: z.array(z.record(z.string(), z.unknown())).optional(),
+-}).passthrough();
+-
+-const employee_dept_summary = z.object({}).passthrough();
+-
+-// ============================================================================
+-// TIMECLOCK (7)
+-// ============================================================================
+-
+-const clock_in = z.object({
+-  employee_id: optStr,
+-  employeeId: optStr,
+-  timestamp: optStr,
+-}).passthrough();
+-
+-const clock_out = z.object({
+-  employee_id: optStr,
+-  employeeId: optStr,
+-  timestamp: optStr,
+-}).passthrough();
+-
+-const job_time_start = z.object({
+-  employee_id: optStr,
+-  employeeId: optStr,
+-  job_id: optStr,
+-  jobId: optStr,
+-  operation: optStr,
+-  machine_id: optStr,
+-  machineId: optStr,
+-  timestamp: optStr,
+-}).passthrough();
+-
+-const job_time_stop = z.object({
+-  employee_id: optStr,
+-  employeeId: optStr,
+-  job_id: optStr,
+-  jobId: optStr,
+-  timestamp: optStr,
+-  notes: optStr,
+-}).passthrough();
+-
+-const timecard_summary = z.object({
+-  employee_id: optStr,
+-  employeeId: optStr,
+-  period: optStr,
+-  start_date: optStr,
+-  startDate: optStr,
+-  end_date: optStr,
+-  endDate: optStr,
+-}).passthrough();
+-
+-const attendance_report = z.object({
+-  start_date: optStr,
+-  startDate: optStr,
+-  end_date: optStr,
+-  endDate: optStr,
+-  department: optStr,
+-}).passthrough();
+-
+-const who_clocked_in = z.object({}).passthrough();
+-
+-// ============================================================================
+-// PAYROLL (3)
+-// ============================================================================
+-
+-const payroll_create_period = z.object({
+-  start_date: optStr,
+-  startDate: optStr,
+-  end_date: optStr,
+-  endDate: optStr,
+-  pay_date: optStr,
+-  payDate: optStr,
+-  type: z.string().optional(),
+-}).passthrough();
+-
+-const payroll_run = z.object({
+-  period_id: optStr,
+-  periodId: optStr,
+-}).passthrough();
+-
+-const payroll_pay_stub = z.object({
+-  employee_id: optStr,
+-  employeeId: optStr,
+-  period_id: optStr,
+-  periodId: optStr,
+-}).passthrough();
+-
+-// ============================================================================
+-// INVOICING (5)
+-// ============================================================================
+-
+-const invoice_create = z.object({
+-  customer_id: optStr,
+-  customer_name: optStr,
+-  line_items: z.array(z.record(z.string(), z.unknown())).optional(),
+-}).passthrough();
+-
+-const invoice_from_job = z.object({
+-  job_id: optStr,
+-  jobId: optStr,
+-}).passthrough();
+-
+-const invoice_payment = z.object({
+-  invoice_id: optStr,
+-  invoiceId: optStr,
+-  amount: z.number().optional(),
+-  method: optStr,
+-  reference: optStr,
+-  date: optStr,
+-  notes: optStr,
+-}).passthrough();
+-
+-const invoice_list = z.object({
+-  status: optStr,
+-  customer_name: optStr,
+-  customerName: optStr,
+-  job_id: optStr,
+-  jobId: optStr,
+-}).passthrough();
+-
+-const invoice_aging = z.object({}).passthrough();
+-
+-// ============================================================================
+-// TOOL USAGE (6)
+-// ============================================================================
+-
+-const tool_inventory_add = z.object({
+-  tool_type: optStr,
+-  manufacturer: optStr,
+-  part_number: optStr,
+-  description: optStr,
+-  cost_per_edge: optNum,
+-  edges_per_insert: optNum,
+-}).passthrough();
+-
+-const tool_start_usage = z.object({
+-  tool_id: optStr,
+-  toolId: optStr,
+-  job_id: optStr,
+-  jobId: optStr,
+-  operation: optStr,
+-  machine_id: optStr,
+-  machineId: optStr,
+-  employee_id: optStr,
+-  employeeId: optStr,
+-  timestamp: optStr,
+-}).passthrough();
+-
+-const tool_end_usage = z.object({
+-  usage_id: optStr,
+-  usageId: optStr,
+-  cutting_minutes: optNum,
+-  cuttingMinutes: optNum,
+-  parts_cut: optNum,
+-  partsCut: optNum,
+-  wear_pct: optNum,
+-  wearPct: optNum,
+-  status: optStr,
+-  timestamp: optStr,
+-  notes: optStr,
+-}).passthrough();
+-
+-const tool_regrind = z.object({
+-  tool_id: optStr,
+-  toolId: optStr,
+-  restored_life_pct: optNum,
+-  restoredLifePct: optNum,
+-}).passthrough();
+-
+-const tool_job_cost = z.object({
+-  job_id: optStr,
+-  jobId: optStr,
+-}).passthrough();
+-
+-const tool_reorder_alerts = z.object({}).passthrough();
+-
+-// ============================================================================
+-// ACTUAL COST (3 + 3 enhancements)
+-// ============================================================================
+-
+-const actual_cost_calculate = z.object({
+-  job_id: optStr,
+-  material_cost: optNum,
+-  labor_cost: optNum,
+-  overhead_cost: optNum,
+-}).passthrough();
+-
+-const actual_cost_variance = z.object({
+-  job_id: optStr,
+-  jobId: optStr,
+-}).passthrough();
+-
+-const actual_cost_profitability = z.object({
+-  job_id: optStr,
+-  jobId: optStr,
+-}).passthrough();
+-
+-const actual_cost_forecast = z.object({
+-  job_id: z.string().optional(),
+-  pct_complete: z.number().optional(),
+-}).passthrough();
+-
+-const actual_cost_margin_alerts = z.object({
+-  threshold_pct: z.number().optional(),
+-}).passthrough();
+-
+-const actual_cost_trend = z.object({
+-  job_ids: z.array(z.string()).optional(),
+-}).passthrough();
+-
+-// ============================================================================
+-// QUOTE ESTIMATOR (4)
+-// ============================================================================
+-
+-const quote_estimate = z.object({
+-  material: optStr,
+-  quantity: optNum,
+-  complexity: optStr,
+-}).passthrough();
+-
+-const quote_compare_materials = z.object({
+-  materials: z.array(z.string()).optional(),
+-}).passthrough();
+-
+-const quote_what_if = z.object({
+-  scenarios: z.array(z.record(z.string(), z.unknown())).optional(),
+-}).passthrough();
+-
+-const quote_price_breaks_advanced = z.object({
+-  quantity: optNum,
+-  material: optStr,
+-}).passthrough();
+-
+-// ============================================================================
+-// INSTANT QUOTE PIPELINE (3)
+-// ============================================================================
+-
+-const instant_quote = z.object({
+-  part_name: str.describe("Part name or identifier"),
+-  material: str.describe("Material key (e.g. aluminum_6061, steel_4140)"),
+-  quantity: z.number().int().positive().describe("Order quantity"),
+-  bounding_box_mm: z.object({
+-    x: posNum.describe("X dimension in mm"),
+-    y: posNum.describe("Y dimension in mm"),
+-    z: posNum.describe("Z dimension in mm"),
+-  }).optional().describe("Part bounding box"),
+-  part_volume_cm3: optPosNum.describe("Finished part volume in cm³"),
+-  iso_group: z.enum(["P", "M", "K", "N", "S", "H"]).optional().describe("ISO material group"),
+-  machine_type: optStr.describe("Machine type override"),
+-  features: z.array(z.object({
+-    type: str.describe("Feature type (hole, pocket, slot, thread, etc.)"),
+-    count: z.number().int().positive().describe("Feature count"),
+-    tolerance_mm: optPosNum.describe("Tightest tolerance in mm"),
+-    surface_finish_ra: optPosNum.describe("Surface finish Ra in µm"),
+-    depth_ratio: optPosNum.describe("Depth-to-width ratio"),
+-    is_blind: optBool.describe("Is blind feature"),
+-    requires_5axis: optBool.describe("Requires 5-axis access"),
+-    wall_thickness_mm: optPosNum.describe("Adjacent wall thickness"),
+-    corner_radius_mm: optPosNum.describe("Internal corner radius"),
+-  })).optional().describe("Part features for DFM and complexity inference"),
+-  secondary_ops: z.array(z.object({
+-    type: str.describe("Secondary op type"),
+-    vendor_quote: optPosNum,
+-    notes: optStr,
+-  })).optional().describe("Secondary operations"),
+-  inspection_level: z.enum(["minimal", "standard", "detailed", "full_cmm"]).optional(),
+-  first_article_required: optBool,
+-  certifications: z.array(z.string()).optional(),
+-  rush: optBool,
+-  rush_tier: z.enum(["standard", "3day", "next_day"]).optional(),
+-  customer_tier: z.enum(["A", "B", "C", "new"]).optional(),
+-  repeat_order: optBool,
+-  target_margin_pct: optPosNum,
+-}).passthrough();
+-
+-const instant_quote_qty_breaks = z.object({
+-  unit_price_at_qty: posNum.describe("Current unit price"),
+-  quantity: z.number().int().positive().describe("Current quantity"),
+-  machine_type: optStr.describe("Machine type for learning curve"),
+-  complexity: z.enum(["simple", "medium", "complex", "very_complex"]).optional(),
+-  setup_cost: optNum.describe("Fixed setup cost"),
+-  programming_cost: optNum.describe("Fixed programming cost"),
+-}).passthrough();
+-
+-const instant_quote_lead_time = z.object({
+-  base_lead_days: z.number().int().positive().describe("Base lead time in business days"),
+-  unit_price: posNum.describe("Unit price for tier pricing"),
+-  quantity: z.number().int().positive().describe("Order quantity"),
+-}).passthrough();
+-
+-// ============================================================================
+-// QUOTE REVISIONS (6)
+-// ============================================================================
+-
+-const quote_revise = z.object({
+-  quote_id: str.describe("Quote ID to revise"),
+-  unit_price_usd: z.number().min(0).describe("Unit price in USD"),
+-  total_price_usd: z.number().min(0).describe("Total price in USD"),
+-  quantity: z.number().int().positive().describe("Quantity"),
+-  ci95_low_usd: optNum.describe("CI95 lower bound"),
+-  ci95_high_usd: optNum.describe("CI95 upper bound"),
+-  confidence_pct: optNum.describe("Confidence percentage 0-100"),
+-  cost_breakdown: z.record(z.string(), z.unknown()).optional(),
+-  change_summary: optStr.describe("Description of what changed"),
+-  revised_by: optStr.describe("User ID who revised"),
+-}).passthrough();
+-
+-const quote_get_history = z.object({
+-  quote_id: str.describe("Quote ID"),
+-}).passthrough();
+-
+-const quote_compare_revisions = z.object({
+-  quote_id: str.describe("Quote ID"),
+-  revision_a: z.number().int().positive().describe("First revision number"),
+-  revision_b: z.number().int().positive().describe("Second revision number"),
+-}).passthrough();
+-
+-const quote_status_change = z.object({
+-  quote_id: str.describe("Quote ID"),
+-  to_status: z.enum(["draft", "sent", "viewed", "accepted", "rejected", "expired", "revised"]).describe("Target status"),
+-  changed_by: optStr.describe("User ID"),
+-  reason: optStr.describe("Reason for status change"),
+-}).passthrough();
+-
+-const quote_generate_share_token = z.object({
+-  quote_id: str.describe("Quote ID"),
+-  expires_in_days: z.number().int().positive().optional().describe("Token expiry in days (default 30)"),
+-  created_by: optStr.describe("User ID"),
+-}).passthrough();
+-
+-const quote_get_by_token = z.object({
+-  token: str.describe("Share token string"),
+-}).passthrough();
+-
+-// ============================================================================
+-// SECONDARY OPS (5)
+-// ============================================================================
+-
+-const sec_ops_list = z.object({
+-  category: optStr,
+-}).passthrough();
+-
+-const sec_ops_quote = z.object({
+-  operation_id: optStr,
+-  operationId: optStr,
+-  quantity: z.number().int().optional(),
+-  material: optStr,
+-  requires_masking: optBool,
+-  requiresMasking: optBool,
+-  masking_areas: optNum,
+-  maskingAreas: optNum,
+-  rush: optBool,
+-  vendor_quote_override: optNum,
+-  vendorQuoteOverride: optNum,
+-}).passthrough();
+-
+-const sec_ops_batch_quote = z.object({
+-  operations: z.array(z.record(z.string(), z.unknown())).optional(),
+-}).passthrough();
+-
+-const sec_ops_find_vendors = z.object({
+-  operation_id: optStr,
+-  operationId: optStr,
+-}).passthrough();
+-
+-const sec_ops_recommend = z.object({
+-  material: z.string().optional(),
+-  application: z.string().optional(),
+-}).passthrough();
+-
+-// ============================================================================
+-// QUOTE ANALYTICS (6)
+-// ============================================================================
+-
+-const analytics_record = z.object({
+-  quote_id: optStr,
+-  customer: optStr,
+-  total_price: optNum,
+-}).passthrough();
+-
+-const analytics_update_outcome = z.object({
+-  quote_id: optStr,
+-  quoteId: optStr,
+-  status: optStr,
+-  loss_reason: optStr,
+-  lossReason: optStr,
+-  loss_notes: optStr,
+-  lossNotes: optStr,
+-  competing_price: optNum,
+-  competingPrice: optNum,
+-}).passthrough();
+-
+-const analytics_record_actuals = z.object({
+-  quote_id: optStr,
+-  quoteId: optStr,
+-  cost_breakdown: z.record(z.string(), z.unknown()).optional(),
+-  costBreakdown: z.record(z.string(), z.unknown()).optional(),
+-  cycle_time_min: optNum,
+-  cycleTimeMin: optNum,
+-  lead_days: optNum,
+-  leadDays: optNum,
+-}).passthrough();
+-
+-const analytics_accuracy = z.object({}).passthrough();
+-
+-const analytics_conversion = z.object({}).passthrough();
+-
+-const analytics_calibration = z.object({}).passthrough();
+-
+-// ============================================================================
+-// ORDER MANAGER (8)
+-// ============================================================================
+-
+-const order_create = z.object({
+-  customer: optStr,
+-  part_number: optStr,
+-  quantity: optNum,
+-}).passthrough();
+-
+-const order_update_status = z.object({
+-  order_id: optStr,
+-  orderId: optStr,
+-  status: optStr,
+-  notes: optStr,
+-}).passthrough();
+-
+-const order_list = z.object({
+-  status: optStr,
+-}).passthrough();
+-
+-const order_work_order_create = z.object({
+-  order_id: optStr,
+-  operations: z.array(z.record(z.string(), z.unknown())).optional(),
+-}).passthrough();
+-
+-const order_log_time = z.object({
+-  wo_id: optStr,
+-  woId: optStr,
+-  minutes: z.number().optional(),
+-}).passthrough();
+-
+-const order_log_production = z.object({
+-  wo_id: optStr,
+-  woId: optStr,
+-  quantity: z.number().optional(),
+-  scrap: z.number().optional(),
+-}).passthrough();
+-
+-const order_machine_queue = z.object({
+-  machine: z.string().optional(),
+-}).passthrough();
+-
+-const order_metrics = z.object({}).passthrough();
+-
+-// ============================================================================
+-// PURCHASE ORDERS (7)
+-// ============================================================================
+-
+-const po_create = z.object({
+-  supplier_id: z.string().optional(),
+-  supplier_name: z.string().optional(),
+-  line_items: z.array(z.record(z.string(), z.unknown())).optional(),
+-  payment_terms: optStr,
+-  notes: optStr,
+-  linked_jobs: z.array(z.string()).optional(),
+-}).passthrough();
+-
+-const po_approve = z.object({
+-  po_id: z.string().optional(),
+-  approved_by: z.string().optional(),
+-}).passthrough();
+-
+-const po_receive = z.object({
+-  po_id: z.string().optional(),
+-  received_by: z.string().optional(),
+-  line_items: z.array(z.record(z.string(), z.unknown())).optional(),
+-  packing_slip: optStr,
+-}).passthrough();
+-
+-const po_three_way_match = z.object({
+-  po_id: z.string().optional(),
+-  invoice_total: z.number().optional(),
+-  invoice_line_prices: z.array(z.number()).optional(),
+-}).passthrough();
+-
+-const po_list = z.object({
+-  status: optStr,
+-  supplier: optStr,
+-}).passthrough();
+-
+-const po_ap_aging = z.object({}).passthrough();
+-
+-const po_spend_by_category = z.object({}).passthrough();
+-
+-// ============================================================================
+-// GENERAL LEDGER (9)
+-// ============================================================================
+-
+-const gl_chart_of_accounts = z.object({}).passthrough();
+-
+-const gl_journal_entry = z.object({
+-  date: optStr,
+-  description: z.string().optional(),
+-  source: z.string().optional(),
+-  reference_id: optStr,
+-  lines: z.array(z.record(z.string(), z.unknown())).optional(),
+-  auto_post: optBool,
+-}).passthrough();
+-
+-const gl_record_invoice = z.object({
+-  invoice_id: z.string().optional(),
+-  amount: z.number().optional(),
+-  tax: z.number().optional(),
+-  date: optStr,
+-}).passthrough();
+-
+-const gl_record_payment = z.object({
+-  invoice_id: z.string().optional(),
+-  amount: z.number().optional(),
+-  date: optStr,
+-}).passthrough();
+-
+-const gl_record_purchase = z.object({
+-  po_id: z.string().optional(),
+-  amount: z.number().optional(),
+-  tax: z.number().optional(),
+-  category: z.string().optional(),
+-  date: optStr,
+-}).passthrough();
+-
+-const gl_record_payroll = z.object({
+-  period: z.string().optional(),
+-  gross: z.number().optional(),
+-  taxes: z.number().optional(),
+-  net: z.number().optional(),
+-  date: optStr,
+-}).passthrough();
+-
+-const gl_trial_balance = z.object({
+-  as_of: optStr,
+-}).passthrough();
+-
+-const gl_income_statement = z.object({
+-  period_start: z.string().optional(),
+-  period_end: z.string().optional(),
+-}).passthrough();
+-
+-const gl_balance_sheet = z.object({
+-  as_of: optStr,
+-}).passthrough();
+-
+-// ============================================================================
+-// CAPACITY PLANNING (7)
+-// ============================================================================
+-
+-const capacity_machines = z.object({}).passthrough();
+-
+-const capacity_schedule_job = z.object({
+-  job_id: z.string().optional(),
+-  operations: z.array(z.record(z.string(), z.unknown())).optional(),
+-  due_date: z.string().optional(),
+-  priority: z.number().optional(),
+-}).passthrough();
+-
+-const capacity_machine_load = z.object({
+-  machine_id: z.string().optional(),
+-  period_weeks: z.number().optional(),
+-}).passthrough();
+-
+-const capacity_all_loads = z.object({
+-  period_weeks: z.number().optional(),
+-}).passthrough();
+-
+-const capacity_bottlenecks = z.object({
+-  period_weeks: z.number().optional(),
+-}).passthrough();
+-
+-const capacity_what_if = z.object({
+-  operations: z.array(z.record(z.string(), z.unknown())).optional(),
+-  desired_start: optStr,
+-  desired_end: optStr,
+-}).passthrough();
+-
+-const capacity_summary = z.object({}).passthrough();
+-
+-// ============================================================================
+-// QUALITY MANAGEMENT (12)
+-// ============================================================================
+-
+-const quality_spc_chart = z.object({
+-  characteristic: z.string().optional(),
+-  part_number: z.string().optional(),
+-  operation: z.string().optional(),
+-  nominal: z.number().optional(),
+-  usl: z.number().optional(),
+-  lsl: z.number().optional(),
+-  data: z.array(z.number()).optional(),
+-  subgroup_size: z.number().int().optional(),
+-}).passthrough();
+-
+-const quality_calibration_add = z.object({
+-  equipment_id: z.string().optional(),
+-  equipment_name: z.string().optional(),
+-  type: z.string().optional(),
+-  serial_number: z.string().optional(),
+-  last_calibration: z.string().optional(),
+-  next_calibration: z.string().optional(),
+-  calibrated_by: z.string().optional(),
+-  certificate_number: optStr,
+-  accuracy: z.string().optional(),
+-}).passthrough();
+-
+-const quality_calibration_dashboard = z.object({}).passthrough();
+-
+-const quality_material_cert = z.object({
+-  heat_lot: z.string().optional(),
+-  material: z.string().optional(),
+-  supplier: z.string().optional(),
+-  po_number: optStr,
+-  cert_date: z.string().optional(),
+-  properties: z.array(z.record(z.string(), z.unknown())).optional(),
+-  linked_jobs: z.array(z.string()).optional(),
+-  document_ref: optStr,
+-}).passthrough();
+-
+-const quality_trace_heat_lot = z.object({
+-  heat_lot: z.string().optional(),
+-}).passthrough();
+-
+-const quality_trace_job = z.object({
+-  job_id: z.string().optional(),
+-}).passthrough();
+-
+-const quality_ncr_create = z.object({
+-  job_id: z.string().optional(),
+-  part_number: z.string().optional(),
+-  created_by: z.string().optional(),
+-  description: z.string().optional(),
+-  severity: z.enum(["minor", "major", "critical"]).optional(),
+-  category: z.enum(["dimensional", "surface", "material", "process", "documentation"]).optional(),
+-  disposition: z.enum(["pending", "use_as_is", "rework", "scrap", "return_to_vendor"]).optional(),
+-  root_cause: optStr,
+-  corrective_action: optStr,
+-  cost_impact: z.number().optional(),
+-  quantity_affected: z.number().int().optional(),
+-}).passthrough();
+-
+-const quality_ncr_update = z.object({
+-  ncr_id: z.string().optional(),
+-  disposition: optStr,
+-  root_cause: optStr,
+-  corrective_action: optStr,
+-  status: optStr,
+-}).passthrough();
+-
+-const quality_ncr_dashboard = z.object({}).passthrough();
+-
+-const quality_fai_create = z.object({
+-  job_id: z.string().optional(),
+-  part_number: z.string().optional(),
+-  revision: z.string().optional(),
+-  inspection_date: z.string().optional(),
+-  inspector: z.string().optional(),
+-  characteristics: z.array(z.record(z.string(), z.unknown())).optional(),
+-  notes: optStr,
+-}).passthrough();
+-
+-const quality_fai_list = z.object({
+-  job_id: optStr,
+-}).passthrough();
+-
+-const quality_kpis = z.object({}).passthrough();
+-
+-// ============================================================================
+-// MACHINE RATE DATABASE (4)
+-// ============================================================================
+-
+-const machine_rate_lookup = z.object({
+-  machine_id: optStr,
+-  machine_type: optStr,
+-}).passthrough();
+-
+-const machine_rate_list = z.object({
+-  family: optStr,
+-}).passthrough();
+-
+-const machine_rate_compare = z.object({
+-  machine_ids: z.array(z.string()).optional(),
+-}).passthrough();
+-
+-const machine_rate_effective = z.object({
+-  machine_id: optStr,
+-  oee_level: optStr,
+-}).passthrough();
+-
+-// ============================================================================
+-// SHOP CONFIGURATION (5) — Session 5-2
+-// ============================================================================
+-
+-const shop_config_get = z.object({
+-  profile_id: optStr,
+-}).passthrough();
+-
+-const shop_config_update = z.object({
+-  profile_id: optStr,
+-  name: optStr,
+-  overhead_pct: z.number().optional(),
+-  material_markup_pct: z.number().optional(),
+-  tooling_cost_per_op: z.number().optional(),
+-  material_cost_per_part_default: z.number().optional(),
+-  rates: z.object({
+-    labor_per_hr: z.number().optional(),
+-    overhead_per_hr: z.number().optional(),
+-    admin_per_hr: z.number().optional(),
+-    setup_per_hr: z.number().optional(),
+-    programming_per_hr: z.number().optional(),
+-    inspection_per_hr: z.number().optional(),
+-  }).optional(),
+-  machines: z.array(z.object({
+-    id: z.string(),
+-    name: z.string(),
+-    type: z.string(),
+-    hourly_rate: z.number(),
+-    efficiency_factor: z.number(),
+-    capabilities: z.array(z.string()),
+-    hours_per_shift: z.number(),
+-    shifts_per_day: z.number(),
+-    days_per_week: z.number(),
+-  })).optional(),
+-}).passthrough();
+-
+-const shop_config_machines = z.object({
+-  profile_id: optStr,
+-  machine_id: optStr,
+-  add: z.object({
+-    id: z.string(), name: z.string(), type: z.string(),
+-    hourly_rate: z.number(), efficiency_factor: z.number(),
+-    capabilities: z.array(z.string()),
+-    hours_per_shift: z.number(), shifts_per_day: z.number(), days_per_week: z.number(),
+-  }).optional(),
+-  update: z.record(z.string(), z.unknown()).optional(),
+-  remove: optStr,
+-}).passthrough();
+-
+-const shop_config_rates = z.object({
+-  profile_id: optStr,
+-  update: z.object({
+-    labor_per_hr: z.number().optional(),
+-    overhead_per_hr: z.number().optional(),
+-    admin_per_hr: z.number().optional(),
+-    setup_per_hr: z.number().optional(),
+-    programming_per_hr: z.number().optional(),
+-    inspection_per_hr: z.number().optional(),
+-  }).optional(),
+-}).passthrough();
+-
+-const shop_config_reset = z.object({
+-  profile_id: optStr,
+-}).passthrough();
+-
+-// ============================================================================
+-// BLUEPRINT -> QUOTE BRIDGE (2)
+-// ============================================================================
+-
+-const blueprint_to_quote = z.object({
+-  analysis: z.record(z.string(), z.unknown()).optional(),
+-  overrides: z.record(z.string(), z.unknown()).optional(),
+-}).passthrough();
+-
+-const blueprint_resolve_material = z.object({
+-  material: z.string().optional(),
+-}).passthrough();
+-
+-// ============================================================================
+-// SHEET METAL QUOTING (1)
+-// ============================================================================
+-
+-const sheet_metal_quote = z.object({
+-  material: optStr,
+-  thickness_mm: optNum,
+-  length_mm: optNum,
+-  width_mm: optNum,
+-  quantity: optNum,
+-}).passthrough();
+-
+-// ============================================================================
+-// ADDITIVE MANUFACTURING QUOTING (3)
+-// ============================================================================
+-
+-const additive_quote = z.object({
+-  technology: optStr,
+-  material: optStr,
+-  volume_cm3: optNum,
+-  quantity: optNum,
+-}).passthrough();
+-
+-const additive_list_materials = z.object({
+-  technology: optStr,
+-}).passthrough();
+-
+-const additive_compare_technologies = z.object({
+-  options: z.array(z.string()).optional(),
+-}).passthrough();
+-
+-// ============================================================================
+-// INJECTION MOLD QUOTING (3)
+-// ============================================================================
+-
+-const injection_mold_quote = z.object({
+-  material: optStr,
+-  part_volume_cm3: optNum,
+-  quantity: optNum,
+-  num_cavities: optNum,
+-}).passthrough();
+-
+-const injection_mold_materials = z.object({}).passthrough();
+-
+-const injection_mold_dfm = z.object({
+-  wall_thickness_mm: optNum,
+-  draft_angle_deg: optNum,
+-  undercuts: optBool,
+-}).passthrough();
+-
+-// ============================================================================
+-// STOCK SIZE OPTIMIZER (3)
+-// ============================================================================
+-
+-const stock_size_optimize = z.object({
+-  material: optStr,
+-  finished_od_mm: optNum,
+-  finished_length_mm: optNum,
+-}).passthrough();
+-
+-const stock_size_catalog = z.object({
+-  material: z.string().optional(),
+-}).passthrough();
+-
+-const stock_size_nesting = z.object({
+-  parts: z.array(z.record(z.string(), z.unknown())).optional(),
+-}).passthrough();
+-
+-// ============================================================================
+-// MARKET MATERIAL PRICING (4)
+-// ============================================================================
+-
+-const material_price_lookup = z.object({
+-  material: optStr,
+-  form: optStr,
+-  region: optStr,
+-}).passthrough();
+-
+-const material_price_adjust = z.object({
+-  index: z.string().optional(),
+-  multiplier: z.number().optional(),
+-  as_of: optStr,
+-  trend: z.string().optional(),
+-}).passthrough();
+-
+-const material_price_compare = z.object({
+-  materials: z.array(z.string()).optional(),
+-  form: optStr,
+-  region: optStr,
+-}).passthrough();
+-
+-const material_surcharge = z.object({
+-  material: optStr,
+-  weight_kg: optNum,
+-}).passthrough();
+-
+-// ============================================================================
+-// HR & COMPLIANCE (16)
+-// ============================================================================
+-
+-const hr_benefits_list = z.object({}).passthrough();
+-
+-const hr_enroll = z.object({
+-  employee_id: z.string().optional(),
+-  plan_ids: z.array(z.string()).optional(),
+-}).passthrough();
+-
+-const hr_enrollment = z.object({
+-  employee_id: z.string().optional(),
+-}).passthrough();
+-
+-const hr_pto_init = z.object({
+-  employee_id: z.string().optional(),
+-  years_of_service: z.number().optional(),
+-}).passthrough();
+-
+-const hr_pto_request = z.object({
+-  employee_id: z.string().optional(),
+-  type: z.enum(["vacation", "sick", "personal", "bereavement"]).optional(),
+-  start_date: z.string().optional(),
+-  end_date: z.string().optional(),
+-  hours: z.number().optional(),
+-  notes: optStr,
+-}).passthrough();
+-
+-const hr_pto_approve = z.object({
+-  request_id: z.string().optional(),
+-  approved_by: z.string().optional(),
+-}).passthrough();
+-
+-const hr_pto_balance = z.object({
+-  employee_id: z.string().optional(),
+-}).passthrough();
+-
+-const hr_training_add = z.object({
+-  employee_id: z.string().optional(),
+-  course_name: z.string().optional(),
+-  category: z.string().optional(),
+-  completed_date: z.string().optional(),
+-  expiration_date: optStr,
+-  instructor: optStr,
+-  score: optNum,
+-  certificate_id: optStr,
+-}).passthrough();
+-
+-const hr_training_history = z.object({
+-  employee_id: z.string().optional(),
+-}).passthrough();
+-
+-const hr_training_expiring = z.object({
+-  within_days: z.number().int().optional(),
+-}).passthrough();
+-
+-const hr_review_create = z.object({
+-  employee_id: z.string().optional(),
+-  reviewer_id: z.string().optional(),
+-  review_date: z.string().optional(),
+-  period: z.string().optional(),
+-  overall_rating: z.number().min(1).max(5).optional(),
+-  categories: z.array(z.record(z.string(), z.unknown())).optional(),
+-  goals: z.array(z.string()).optional(),
+-  compensation_change: z.record(z.string(), z.unknown()).optional(),
+-  notes: optStr,
+-}).passthrough();
+-
+-const hr_reviews = z.object({
+-  employee_id: z.string().optional(),
+-}).passthrough();
+-
+-const hr_compensation_history = z.object({
+-  employee_id: z.string().optional(),
+-}).passthrough();
+-
+-const hr_compliance_alerts = z.object({}).passthrough();
+-
+-const hr_dashboard = z.object({}).passthrough();
+-
+-// ============================================================================
+-// CUSTOMER MANAGEMENT (14)
+-// ============================================================================
+-
+-const customer_create = z.object({
+-  name: z.string().optional(),
+-  company: z.string().optional(),
+-  contact_name: z.string().optional(),
+-  email: z.string().optional(),
+-  phone: z.string().optional(),
+-  address: z.record(z.string(), z.string()).optional(),
+-  credit_limit: z.number().optional(),
+-  payment_terms: z.string().optional(),
+-  pricing_tier: z.string().optional(),
+-  discount_pct: z.number().min(0).max(100).optional(),
+-  tax_exempt: optBool,
+-  tax_id: optStr,
+-  tags: z.array(z.string()).optional(),
+-  notes: optStr,
+-  status: optStr,
+-}).passthrough();
+-
+-const customer_get = z.object({
+-  customer_id: optStr,
+-  id: optStr,
+-}).passthrough();
+-
+-const customer_update = z.object({
+-  customer_id: optStr,
+-  id: optStr,
+-  updates: z.record(z.string(), z.unknown()).optional(),
+-}).passthrough();
+-
+-const customer_search = z.object({
+-  query: optStr,
+-  q: optStr,
+-}).passthrough();
+-
+-const customer_list = z.object({
+-  status: optStr,
+-  tier: optStr,
+-  pricing_tier: optStr,
+-}).passthrough();
+-
+-const customer_credit_check = z.object({
+-  customer_id: z.string().optional(),
+-  order_amount: z.number().optional(),
+-}).passthrough();
+-
+-const customer_log_comm = z.object({
+-  customer_id: z.string().optional(),
+-  date: optStr,
+-  type: z.string().optional(),
+-  subject: z.string().optional(),
+-  details: z.string().optional(),
+-  logged_by: z.string().optional(),
+-  follow_up_date: optStr,
+-  follow_up_done: optBool,
+-}).passthrough();
+-
+-const customer_comm_history = z.object({
+-  customer_id: z.string().optional(),
+-  limit: z.number().int().optional(),
+-}).passthrough();
+-
+-const customer_follow_ups = z.object({}).passthrough();
+-
+-const customer_create_opportunity = z.object({
+-  customer_id: z.string().optional(),
+-  description: z.string().optional(),
+-  estimated_value: z.number().optional(),
+-  stage: z.string().optional(),
+-  probability_pct: z.number().min(0).max(100).optional(),
+-  close_date: optStr,
+-  quote_id: optStr,
+-}).passthrough();
+-
+-const customer_update_opportunity = z.object({
+-  opportunity_id: optStr,
+-  id: optStr,
+-  stage: optStr,
+-  probability_pct: z.number().min(0).max(100).optional(),
+-  close_date: optStr,
+-  lost_reason: optStr,
+-}).passthrough();
+-
+-const customer_pipeline = z.object({}).passthrough();
+-
+-const customer_analytics = z.object({
+-  customer_id: z.string().optional(),
+-}).passthrough();
+-
+-const customer_top = z.object({
+-  limit: z.number().int().optional(),
+-}).passthrough();
+-
+-// ============================================================================
+-// INTEGRATION / EXPORT (6)
+-// ============================================================================
+-
+-const integration_export_qb = z.object({
+-  transactions: z.array(z.record(z.string(), z.unknown())).optional(),
+-}).passthrough();
+-
+-const integration_export_csv = z.object({
+-  transactions: z.array(z.record(z.string(), z.unknown())).optional(),
+-}).passthrough();
+-
+-const integration_export_payroll_tax = z.object({
+-  period: z.string().optional(),
+-  employees: z.array(z.record(z.string(), z.unknown())).optional(),
+-}).passthrough();
+-
+-const integration_reconcile_bank = z.object({
+-  statement_date: z.string().optional(),
+-  bank_balance: z.number().optional(),
+-  book_balance: z.number().optional(),
+-  deposits_in_transit: z.array(z.number()).optional(),
+-  outstanding_checks: z.array(z.number()).optional(),
+-  bank_charges: optNum,
+-  interest_earned: optNum,
+-}).passthrough();
+-
+-const integration_export_ar_aging = z.object({
+-  invoices: z.array(z.record(z.string(), z.unknown())).optional(),
+-}).passthrough();
+-
+-const integration_formats = z.object({}).passthrough();
+-
+-// ============================================================================
+-// BATCH OPTIMIZATION (4)
+-// ============================================================================
+-
+-const batch_group = z.object({
+-  jobs: z.array(z.record(z.string(), z.unknown())).optional(),
+-}).passthrough();
+-
+-const batch_sequence = z.object({
+-  jobs: z.array(z.record(z.string(), z.unknown())).optional(),
+-}).passthrough();
+-
+-const batch_setup_matrix = z.object({
+-  jobs: z.array(z.record(z.string(), z.unknown())).optional(),
+-}).passthrough();
+-
+-const batch_capacity = z.object({
+-  jobs: z.array(z.record(z.string(), z.unknown())).optional(),
+-  available_hours_per_day: z.number().optional(),
+-  horizon_days: z.number().int().optional(),
+-}).passthrough();
+-
+-// ============================================================================
+-// LEARNING PATH (4)
+-// ============================================================================
+-
+-const learning_assess = z.object({
+-  operator_id: z.string().optional(),
+-  current_skills: z.record(z.string(), z.number()).optional(),
+-  target_role: z.string().optional(),
+-}).passthrough();
+-
+-const learning_plan = z.object({
+-  operator_id: z.string().optional(),
+-  current_skills: z.record(z.string(), z.number()).optional(),
+-  target_role: z.string().optional(),
+-}).passthrough();
+-
+-const learning_progress = z.object({
+-  operator_id: z.string().optional(),
+-  current_skills: z.record(z.string(), z.number()).optional(),
+-  target_role: z.string().optional(),
+-  completed_module_ids: z.array(z.string()).optional(),
+-}).passthrough();
+-
+-const learning_recommend = z.object({
+-  current_skills: z.record(z.string(), z.number()).optional(),
+-}).passthrough();
+-
+-// ============================================================================
+-// CASTING QUOTING (4)
+-// ============================================================================
+-
+-const casting_quote = z.object({
+-  process: z.string().optional(),
+-  material: z.string().optional(),
+-  part_volume_cm3: z.number().optional(),
+-  bounding_box_cm3: optNum,
+-  quantity: z.number().int().optional(),
+-  annual_volume: optNum,
+-  num_cores: optNum,
+-  num_slides: optNum,
+-  surface_finish: optStr,
+-  secondary_machining: optBool,
+-  xray_inspection: optBool,
+-  heat_treat: optBool,
+-  tight_tolerance: optBool,
+-  markup_pct: optNum,
+-}).passthrough();
+-
+-const casting_materials = z.object({}).passthrough();
+-
+-const casting_compare_processes = z.object({
+-  material: z.string().optional(),
+-  part_volume_cm3: z.number().optional(),
+-  quantity: z.number().int().optional(),
+-}).passthrough();
+-
+-const casting_dfm = z.object({
+-  process: z.string().optional(),
+-  material: z.string().optional(),
+-  wall_thickness_mm: z.number().optional(),
+-  draft_angle_deg: optNum,
+-  undercuts: optBool,
+-  max_section_mm: optNum,
+-  cores: optNum,
+-}).passthrough();
+-
+-// ============================================================================
+-// WELD/FABRICATION QUOTING (3)
+-// ============================================================================
+-
+-const weld_fab_quote = z.object({
+-  joints: z.array(z.record(z.string(), z.unknown())).optional(),
+-  process: optStr,
+-  material: z.string().optional(),
+-  filler_density_kg_m3: optNum,
+-  nde_method: optStr,
+-  nde_coverage_pct: optNum,
+-  stress_relief: optBool,
+-  hot_dip_galvanize: optBool,
+-  blast_and_paint: optBool,
+-  quantity: optNum,
+-  fit_up_hours: optNum,
+-  markup_pct: optNum,
+-}).passthrough();
+-
+-const weld_fab_joint_cost = z.object({
+-  type: z.string().optional(),
+-  length_mm: z.number().optional(),
+-  thickness_mm: z.number().optional(),
+-  process: optStr,
+-  position: optStr,
+-}).passthrough();
+-
+-const weld_fab_consumables = z.object({
+-  joints: z.array(z.record(z.string(), z.unknown())).optional(),
+-  process: optStr,
+-}).passthrough();
+-
+-// ============================================================================
+-// MULTI-PROCESS QUOTING (2)
+-// ============================================================================
+-
+-const multi_process_quote = z.object({
+-  project_name: optStr,
+-  part_name: optStr,
+-  steps: z.array(z.record(z.string(), z.unknown())).optional(),
+-  quantity: z.number().int().optional(),
+-  markup_pct: optNum,
+-  rush: optBool,
+-  shipping_cost: optNum,
+-  packaging_cost_per_unit: optNum,
+-  engineering_hours: optNum,
+-  engineering_rate_hr: optNum,
+-}).passthrough();
+-
+-const multi_process_estimate = z.object({
+-  steps: z.array(z.record(z.string(), z.unknown())).optional(),
+-  quantity: z.number().int().optional(),
+-  markup_pct: optNum,
+-}).passthrough();
+-
+-// ============================================================================
+-// PROGRAMMER PRODUCTIVITY (5)
+-// ============================================================================
+-
+-const productivity_log = z.object({
+-  userId: str,
+-  eventType: z.enum([
+-    "sf_calc", "program_check", "crash_prevented",
+-    "tip_viewed", "course_completed", "tool_selected",
+-    "safety_check", "tolerance_check",
+-    "cycle_time_improved", "material_used",
+-    "operation_used",
+-  ]),
+-  details: z.record(z.string(), z.any()).optional(),
+-}).passthrough();
+-
+-const productivity_summary = z.object({
+-  userId: str,
+-  period: z.enum(["week", "month", "year"]).optional(),
+-}).passthrough();
+-
+-const productivity_achievements = z.object({
+-  userId: str,
+-}).passthrough();
+-
+-const productivity_digest = z.object({
+-  userId: str,
+-}).passthrough();
+-
+-const productivity_compare = z.object({
+-  userId: str,
+-}).passthrough();
+-
+-// ============================================================================
+-// APPROVAL WORKFLOWS (Session 6-6)
+-// ============================================================================
+-
+-const entityTypeEnum = z.enum([
+-  "quote", "purchase_order", "invoice", "payroll", "ncr",
+-  "job", "change_order", "credit_memo",
+-]).describe("Entity type for approval workflow");
+-
+-const workflow_configure = z.object({
+-  entity_type: entityTypeEnum,
+-  name: z.string().describe("Workflow name"),
+-  description: z.string().optional().describe("Workflow description"),
+-  steps: z.array(z.object({
+-    step_number: z.number().int().positive().describe("Sequential step number"),
+-    role_required: z.string().describe("Role required to approve this step"),
+-    action_label: z.string().describe("Human-readable action description"),
+-    auto_approve_below_usd: z.number().nonnegative().optional().describe("Auto-approve threshold in USD"),
+-    timeout_hours: z.number().positive().optional().describe("Hours before step is overdue"),
+-  })).min(1).describe("Approval steps in order"),
+-  created_by: z.string().optional().describe("Actor creating the workflow"),
+-}).passthrough();
+-
+-const workflow_submit = z.object({
+-  entity_type: entityTypeEnum,
+-  entity_id: z.string().describe("Entity ID to submit for approval"),
+-  submitted_by: z.string().describe("Actor submitting the approval"),
+-  entity_amount: z.number().nonnegative().optional().describe("Dollar amount for auto-approve threshold"),
+-  metadata: z.record(z.string(), z.unknown()).optional().describe("Additional metadata"),
+-  workflow_name: z.string().optional().describe("Specific workflow name to use"),
+-}).passthrough();
+-
+-const workflow_decide = z.object({
+-  instance_id: z.string().describe("Approval instance ID"),
+-  decision: z.enum(["approved", "rejected", "delegated"]).describe("Decision"),
+-  decided_by: z.string().describe("Actor making the decision"),
+-  reason: z.string().optional().describe("Reason for decision"),
+-  delegated_to: z.string().optional().describe("Delegate target (required if delegated)"),
+-  decider_roles: z.array(z.string()).optional().describe("Roles held by decider — validated against step role_required"),
+-}).passthrough();
+-
+-const workflow_pending = z.object({
+-  entity_type: entityTypeEnum.optional(),
+-  role: z.string().optional().describe("Filter by role required"),
+-}).passthrough();
+-
+-const approval_workflow_status = z.object({
+-  instance_id: z.string().describe("Approval instance ID"),
+-}).passthrough();
+-
+-const workflow_cancel = z.object({
+-  instance_id: z.string().describe("Approval instance ID to cancel"),
+-  cancelled_by: z.string().describe("Actor cancelling"),
+-  reason: z.string().optional().describe("Cancellation reason"),
+-}).passthrough();
+-
+-const approval_workflow_list = z.object({
+-  entity_type: entityTypeEnum.optional(),
+-}).passthrough();
+-
+-const workflow_stats = z.object({}).passthrough();
+-
+-const workflow_requires_approval = z.object({
+-  entity_type: entityTypeEnum,
+-  amount: z.number().nonnegative().optional().describe("Dollar amount to check"),
+-}).passthrough();
+-
+-const workflow_entity_history = z.object({
+-  entity_type: entityTypeEnum,
+-  entity_id: z.string().describe("Entity ID"),
+-}).passthrough();
+-
+-// ============================================================================
+-// RECORD TIMELINE & COMMENTS (Session 6-6)
+-// ============================================================================
+-
+-const timelineEventTypeEnum = z.enum([
+-  "created", "updated", "status_changed", "approval_submitted",
+-  "approval_decided", "approval_completed", "file_attached",
+-  "comment_added", "assigned", "linked", "unlinked",
+-  "emailed", "printed", "exported", "archived", "custom",
+-]).describe("Timeline event type");
+-
+-const timeline_get = z.object({
+-  entity_type: z.string().describe("Entity type"),
+-  entity_id: z.string().describe("Entity ID"),
+-  event_types: z.array(timelineEventTypeEnum).optional().describe("Filter by event types"),
+-  since: z.string().optional().describe("ISO timestamp — only events after this time"),
+-  limit: z.number().int().positive().optional().describe("Max entries to return"),
+-}).passthrough();
+-
+-const timeline_add = z.object({
+-  entity_type: z.string().describe("Entity type"),
+-  entity_id: z.string().describe("Entity ID"),
+-  event_type: timelineEventTypeEnum,
+-  actor: z.string().optional().describe("Who performed the action"),
+-  summary: z.string().describe("Human-readable summary of what happened"),
+-  details: z.record(z.string(), z.unknown()).optional().describe("Structured event details"),
+-}).passthrough();
+-
+-const comment_create = z.object({
+-  entity_type: z.string().describe("Entity type"),
+-  entity_id: z.string().describe("Entity ID"),
+-  author_name: z.string().describe("Comment author display name"),
+-  author_id: z.string().optional().describe("Author user ID"),
+-  body: z.string().min(1).describe("Comment body text"),
+-  parent_id: z.string().optional().describe("Parent comment ID for threading"),
+-  attachments: z.array(z.object({
+-    file_id: z.string(), filename: z.string(), mime_type: z.string(), size_bytes: z.number(),
+-    url: z.string().optional(),
+-  })).optional().describe("File attachments"),
+-  is_internal: z.boolean().optional().describe("Internal-only comment (not visible to customers)"),
+-}).passthrough();
+-
+-const comment_list = z.object({
+-  entity_type: z.string().describe("Entity type"),
+-  entity_id: z.string().describe("Entity ID"),
+-  include_internal: z.boolean().optional().describe("Include internal comments"),
+-}).passthrough();
+-
+-const comment_edit = z.object({
+-  comment_id: z.string().describe("Comment ID to edit"),
+-  body: z.string().min(1).describe("New comment body"),
+-  editor_name: z.string().describe("Who is editing"),
+-}).passthrough();
+-
+-const comment_delete = z.object({
+-  comment_id: z.string().describe("Comment ID to soft-delete"),
+-  deleted_by: z.string().describe("Who is deleting"),
+-}).passthrough();
+-
+-// ============================================================================
+-// JOB TRAVELER (Session 6-7)
+-// ============================================================================
+-
+-const stepStatusEnum = z.enum(["pending", "setup", "running", "complete", "skipped", "hold"]).describe("Routing step status");
+-
+-const traveler_create = z.object({
+-  job_id: z.string().describe("Unique job identifier"),
+-  steps: z.array(z.object({
+-    step_number: z.number().int().positive().describe("Operation number (10, 20, 30...)"),
+-    operation: z.string().describe("Operation name (e.g., 'Rough Mill', 'Heat Treat')"),
+-    machine_id: z.string().optional().describe("Target machine ID"),
+-    work_center: z.string().optional().describe("Work center group"),
+-    est_setup_min: z.number().nonnegative().optional().describe("Estimated setup time in minutes"),
+-    est_cycle_min: z.number().nonnegative().optional().describe("Estimated per-part cycle time in minutes"),
+-    quantity: z.number().int().positive().optional().describe("Number of parts to run"),
+-    is_outside_service: z.boolean().optional().describe("True if vendor/outside operation"),
+-    vendor_name: z.string().optional().describe("Outside service vendor name"),
+-    is_inspection: z.boolean().optional().describe("True if inspection/gate step"),
+-    notes: z.string().optional().describe("Operation notes"),
+-  })).min(1).describe("Routing steps in order"),
+-  created_by: z.string().optional().describe("Creator"),
+-}).passthrough();
+-
+-const traveler_start_setup = z.object({
+-  job_id: z.string().describe("Job ID"),
+-  step_number: z.number().int().positive().describe("Step to start setup on"),
+-  operator_id: z.string().describe("Operator performing setup"),
+-}).passthrough();
+-
+-const traveler_start_cycle = z.object({
+-  job_id: z.string().describe("Job ID"),
+-  step_number: z.number().int().positive().describe("Step to start cycle on"),
+-  operator_id: z.string().describe("Operator running cycle"),
+-}).passthrough();
+-
+-const traveler_complete_step = z.object({
+-  job_id: z.string().describe("Job ID"),
+-  step_number: z.number().int().positive().describe("Step to complete"),
+-  operator_id: z.string().describe("Operator completing step"),
+-  skip: z.boolean().optional().describe("Skip this step instead of completing"),
+-  parts_complete: z.number().int().nonnegative().optional().describe("Number of good parts completed"),
+-  parts_scrapped: z.number().int().nonnegative().optional().describe("Number of parts scrapped"),
+-  notes: z.string().optional().describe("Completion notes"),
+-}).passthrough();
+-
+-const traveler_get_active = z.object({}).passthrough();
+-
+-const traveler_get = z.object({
+-  job_id: z.string().describe("Job ID to retrieve"),
+-}).passthrough();
+-
+-const traveler_scan = z.object({
+-  code: z.string().describe("Barcode/QR scan code (format: JOB-{id}-STEP-{num})"),
+-  operator_id: z.string().optional().describe("Operator scanning"),
+-  action: z.enum(["auto", "start_setup", "start_cycle", "complete"]).optional().describe("Force specific action instead of auto-detect"),
+-}).passthrough();
+-
+-// ============================================================================
+-// MACHINE DISPATCH (Session 6-7)
+-// ============================================================================
+-
+-const dispatch_queue_job = z.object({
+-  machine_id: z.string().describe("Target machine ID"),
+-  job_id: z.string().describe("Job ID to queue"),
+-  step_number: z.number().int().positive().optional().describe("Specific routing step"),
+-  priority: z.number().int().optional().describe("Priority (lower = higher priority)"),
+-  est_setup_min: z.number().nonnegative().optional().describe("Estimated setup minutes"),
+-  est_cycle_min: z.number().nonnegative().optional().describe("Estimated cycle minutes"),
+-  due_date: z.string().optional().describe("Job due date (ISO)"),
+-  is_rush: z.boolean().optional().describe("Rush/hot job flag"),
+-  setup_group: z.string().optional().describe("Tooling group for setup reduction"),
+-  queued_by: z.string().optional().describe("Who queued the job"),
+-}).passthrough();
+-
+-const dispatch_get_queue = z.object({
+-  machine_id: z.string().describe("Machine ID to get queue for"),
+-}).passthrough();
+-
+-const dispatch_reorder = z.object({
+-  machine_id: z.string().describe("Machine ID"),
+-  order: z.array(z.string()).describe("Entry IDs in new priority order"),
+-  reordered_by: z.string().optional().describe("Who reordered"),
+-}).passthrough();
+-
+-const dispatch_get_all_queues = z.object({}).passthrough();
+-
+-const dispatch_what_if = z.object({
+-  machine_id: z.string().describe("Machine ID for simulation"),
+-  insert_job_id: z.string().optional().describe("Job to simulate inserting"),
+-  insert_position: z.number().int().nonnegative().optional().describe("Position to insert at"),
+-  est_setup_min: z.number().nonnegative().optional().describe("Setup time for simulated job"),
+-  est_cycle_min: z.number().nonnegative().optional().describe("Cycle time for simulated job"),
+-}).passthrough();
+-
+-const dispatch_remove = z.object({
+-  entry_id: z.string().describe("Queue entry ID to remove"),
+-  removed_by: z.string().optional().describe("Who removed the entry"),
+-}).passthrough();
+-
+-// ============================================================================
+-// MILESTONE TRACKING (Session 6-9)
+-// ============================================================================
+-
+-const milestoneKeyEnum = z.enum([
+-  "quote_sent", "quote_accepted", "order_confirmed", "design_review",
+-  "material_ordered", "material_received", "programming", "setup",
+-  "first_article", "production", "quality_inspection", "finishing",
+-  "packing_shipping", "delivered",
+-]);
+-
+-const milestone_create_timeline = z.object({
+-  job_id: str.describe("Job ID to create milestone timeline for"),
+-  quote_id: optStr.describe("Associated quote ID"),
+-  customer_id: optStr.describe("Customer ID"),
+-  start_at_milestone: milestoneKeyEnum.optional().describe("Milestone to start at (default: quote_sent)"),
+-}).passthrough();
+-
+-const milestone_get_timeline = z.object({
+-  job_id: str.describe("Job ID"),
+-}).passthrough();
+-
+-const milestone_advance = z.object({
+-  job_id: str.describe("Job ID"),
+-  milestone_key: milestoneKeyEnum.optional().describe("Specific milestone to advance (default: current active)"),
+-  notes: optStr.describe("Advance notes"),
+-  advanced_by: optStr.describe("Who advanced the milestone"),
+-}).passthrough();
+-
+-const milestone_skip = z.object({
+-  job_id: str.describe("Job ID"),
+-  milestone_key: milestoneKeyEnum.describe("Milestone to skip"),
+-  reason: optStr.describe("Reason for skipping"),
+-}).passthrough();
+-
+-const milestone_on_job_status = z.object({
+-  job_id: str.describe("Job ID"),
+-  new_status: str.describe("New job lifecycle status"),
+-}).passthrough();
+-
+-const milestone_events = z.object({
+-  job_id: optStr.describe("Filter events by job ID"),
+-  limit: z.number().int().positive().optional().describe("Max events to return"),
+-}).passthrough();
+-
+-const milestone_list_jobs = z.object({}).passthrough();
+-
+-const milestone_delete = z.object({
+-  job_id: str.describe("Job ID to delete timeline for"),
+-}).passthrough();
+-
+-// ============================================================================
+-// CUSTOMER PORTAL (Session 6-9)
+-// ============================================================================
+-
+-const portalTokenTypeEnum = z.enum(["quote", "order"]);
+-const portalScopeEnum = z.enum(["view", "respond", "documents", "messages"]);
+-const qualityDocTypeEnum = z.enum(["fai_as9102", "material_cert", "coc", "inspection_report", "ndt_report"]);
+-const qualityDocStatusEnum = z.enum(["draft", "pending_review", "approved", "rejected"]);
+-
+-const portal_create_token = z.object({
+-  token_type: portalTokenTypeEnum.describe("Token type: quote or order"),
+-  entity_id: str.describe("Quote ID or Job ID"),
+-  customer_id: optStr.describe("Customer ID"),
+-  scope: z.array(portalScopeEnum).optional().describe("Token scopes (default: [view])"),
+-  expires_in_days: z.number().int().min(1).max(365).optional().describe("Expiry in days (default: 30)"),
+-  rate_limit: z.number().int().min(1).max(100).optional().describe("Requests per minute (default: 10)"),
+-  created_by: optStr.describe("Who created the token"),
+-}).passthrough();
+-
+-const portal_revoke_token = z.object({
+-  token: str.describe("Portal token string to revoke"),
+-}).passthrough();
+-
+-const portal_list_tokens = z.object({
+-  entity_id: str.describe("Entity ID to list tokens for"),
+-}).passthrough();
+-
+-const portal_validate_token = z.object({
+-  token: str.describe("Portal token string to validate"),
+-  required_scope: portalScopeEnum.optional().describe("Required scope for this request"),
+-}).passthrough();
+-
+-const portal_quote_view = z.object({
+-  quote_id: str.describe("Quote ID"),
+-  revision: z.record(z.string(), z.any()).optional().describe("Quote revision data"),
+-  status: optStr.describe("Quote status"),
+-}).passthrough();
+-
+-const portal_quote_respond = z.object({
+-  quote_id: str.describe("Quote ID"),
+-  response: z.enum(["accept", "reject", "request_changes"]).describe("Customer response"),
+-  customer_name: str.describe("Customer name"),
+-  message: optStr.describe("Optional message"),
+-  requested_changes: z.array(z.string()).optional().describe("List of requested changes"),
+-}).passthrough();
+-
+-const portal_order_status = z.object({
+-  job_id: str.describe("Job ID"),
+-  job: z.record(z.string(), z.any()).optional().describe("Job data"),
+-  timeline: z.record(z.string(), z.any()).optional().describe("Timeline data"),
+-}).passthrough();
+-
+-const portal_add_quality_doc = z.object({
+-  job_id: str.describe("Job ID"),
+-  doc_type: qualityDocTypeEnum.describe("Document type"),
+-  file_id: optStr.describe("File storage ID"),
+-  title: str.describe("Document title"),
+-  status: qualityDocStatusEnum.optional().describe("Initial status (default: draft)"),
+-  notes: optStr.describe("Notes"),
+-}).passthrough();
+-
+-const portal_update_quality_doc = z.object({
+-  doc_id: str.describe("Document ID"),
+-  job_id: str.describe("Job ID"),
+-  status: qualityDocStatusEnum.optional().describe("New status"),
+-  reviewed_by: optStr.describe("Reviewer name"),
+-  notes: optStr.describe("Review notes"),
+-}).passthrough();
+-
+-const portal_list_quality_docs = z.object({
+-  job_id: str.describe("Job ID"),
+-  portal_mode: optBool.describe("If true, only show approved docs"),
+-}).passthrough();
+-
+-const portal_get_quality_doc = z.object({
+-  job_id: str.describe("Job ID"),
+-  doc_id: str.describe("Document ID"),
+-}).passthrough();
+-
+-const portal_send_message = z.object({
+-  entity_type: portalTokenTypeEnum.describe("Entity type: quote or order"),
+-  entity_id: str.describe("Entity ID"),
+-  sender_type: z.enum(["customer", "shop"]).describe("Who is sending"),
+-  sender_name: str.describe("Sender name"),
+-  message: z.string().min(1).max(5000).describe("Message text (max 5000 chars)"),
+-}).passthrough();
+-
+-const portal_list_messages = z.object({
+-  entity_type: portalTokenTypeEnum.describe("Entity type"),
+-  entity_id: str.describe("Entity ID"),
+-  limit: z.number().int().positive().optional().describe("Max messages (default: 50)"),
+-}).passthrough();
+-
+-const portal_mark_read = z.object({
+-  entity_type: portalTokenTypeEnum.describe("Entity type"),
+-  entity_id: str.describe("Entity ID"),
+-  sender_type: z.enum(["customer", "shop"]).describe("Mark messages from this sender as read"),
+-}).passthrough();
+-
+-// ============================================================================
+-// QUOTE-TO-SHIP PIPELINE (Session 5-9)
+-// ============================================================================
+-
+-const quote_to_ship_run = z.object({
+-  material_spec: z.string().describe("Material specification (e.g. '6061-T6', 'Ti-6Al-4V')"),
+-  quantity: z.number().int().positive().describe("Number of parts requested"),
+-  drawing_pdf: z.string().optional().describe("Path to drawing PDF for OCR intake"),
+-  drawing_text: z.string().optional().describe("Pre-extracted OCR/plain text for blueprint analysis"),
+-  step_file: z.string().optional().describe("Path to STEP/IGES file for geometric intake"),
+-  feature_candidates: z.array(z.object({
+-    type: z.string().describe("Feature type (pocket, hole, slot, chamfer, etc.)"),
+-    dimensions: z.record(z.string(), z.number()).optional().describe("Dimension key-value pairs in mm"),
+-    position: z.object({ x: z.number(), y: z.number(), z: z.number() }).optional(),
+-  })).optional().describe("Pre-identified feature candidates"),
+-  customer_id: z.string().optional().describe("Customer identifier for tracking"),
+-  machine_ids: z.array(z.string()).optional().describe("Machine IDs available for this job"),
+-  priority: z.enum(["standard", "rush", "hot"]).optional().describe("Job priority level"),
+-  controller: z.string().optional().describe("Controller type for post processing"),
+-  pre_approved: z.boolean().optional().describe("Skip approval gate if true"),
+-  tolerances: z.array(z.object({
+-    feature: z.string(),
+-    value_mm: z.number(),
+-  })).optional().describe("Tolerance requirements per feature"),
+-  surface_finish_ra_um: z.number().optional().describe("Surface finish requirement (Ra, micrometers)"),
+-}).passthrough();
+-
+-const quote_to_ship_validate = z.object({
+-  material_spec: z.string().describe("Material specification to validate"),
+-  quantity: z.number().int().positive().optional().describe("Quantity to validate"),
+-  drawing_pdf: z.string().optional().describe("Path to drawing PDF"),
+-  step_file: z.string().optional().describe("Path to STEP/IGES file"),
+-}).passthrough();
+-
+-const quote_to_ship_status = z.object({}).passthrough();
+-
+-// ============================================================================
+-// EXPORT MAP
+-// ============================================================================
+-
+-export const ACTION_BUSINESS_SCHEMAS: ActionSchemaMap = {
+-  // Financial
+-  financial_npv,
+-  financial_irr,
+-  financial_breakeven,
+-  financial_machine_investment,
+-  // Inventory
+-  inventory_eoq,
+-  inventory_safety_stock,
+-  inventory_abc,
+-  inventory_tool_optimize,
+-  // Job Lifecycle
+-  job_create,
+-  job_update_status,
+-  job_summary,
+-  job_dashboard,
+-  // Purchasing
+-  purchasing_search,
+-  purchasing_recommend,
+-  purchasing_manufacturers,
+-  purchasing_summary,
+-  // Costing
+-  costing_job_cost,
+-  costing_material,
+-  costing_machining,
+-  // Quoting
+-  quoting_generate,
+-  quoting_price_breaks,
+-  // Scheduling
+-  scheduling_single_machine,
+-  scheduling_johnsons,
+-  scheduling_job_shop,
+-  scheduling_cpm,
+-  // Reporting
+-  reporting_dashboard,
+-  reporting_pareto,
+-  reporting_production,
+-  reporting_quality,
+-  reporting_financial,
+-  reporting_trend,
+-  // Employee
+-  employee_create,
+-  employee_search,
+-  employee_add_skill,
+-  employee_utilization,
+-  employee_dept_summary,
+-  // TimeClock
+-  clock_in,
+-  clock_out,
+-  job_time_start,
+-  job_time_stop,
+-  timecard_summary,
+-  attendance_report,
+-  who_clocked_in,
+-  // Payroll
+-  payroll_create_period,
+-  payroll_run,
+-  payroll_pay_stub,
+-  // Invoicing
+-  invoice_create,
+-  invoice_from_job,
+-  invoice_payment,
+-  invoice_list,
+-  invoice_aging,
+-  // Tool Usage
+-  tool_inventory_add,
+-  tool_start_usage,
+-  tool_end_usage,
+-  tool_regrind,
+-  tool_job_cost,
+-  tool_reorder_alerts,
+-  // Actual Cost
+-  actual_cost_calculate,
+-  actual_cost_variance,
+-  actual_cost_profitability,
+-  actual_cost_forecast,
+-  actual_cost_margin_alerts,
+-  actual_cost_trend,
+-  // Quote Estimator
+-  quote_estimate,
+-  quote_compare_materials,
+-  quote_what_if,
+-  quote_price_breaks_advanced,
+-  // Instant Quote Pipeline
+-  instant_quote,
+-  instant_quote_qty_breaks,
+-  instant_quote_lead_time,
+-  // Quote Revisions
+-  quote_revise,
+-  quote_get_history,
+-  quote_compare_revisions,
+-  quote_status_change,
+-  quote_generate_share_token,
+-  quote_get_by_token,
+-  // Secondary Ops
+-  sec_ops_list,
+-  sec_ops_quote,
+-  sec_ops_batch_quote,
+-  sec_ops_find_vendors,
+-  sec_ops_recommend,
+-  // Quote Analytics
+-  analytics_record,
+-  analytics_update_outcome,
+-  analytics_record_actuals,
+-  analytics_accuracy,
+-  analytics_conversion,
+-  analytics_calibration,
+-  // Order Manager
+-  order_create,
+-  order_update_status,
+-  order_list,
+-  order_work_order_create,
+-  order_log_time,
+-  order_log_production,
+-  order_machine_queue,
+-  order_metrics,
+-  // Purchase Orders
+-  po_create,
+-  po_approve,
+-  po_receive,
+-  po_three_way_match,
+-  po_list,
+-  po_ap_aging,
+-  po_spend_by_category,
+-  // General Ledger
+-  gl_chart_of_accounts,
+-  gl_journal_entry,
+-  gl_record_invoice,
+-  gl_record_payment,
+-  gl_record_purchase,
+-  gl_record_payroll,
+-  gl_trial_balance,
+-  gl_income_statement,
+-  gl_balance_sheet,
+-  // Capacity Planning
+-  capacity_machines,
+-  capacity_schedule_job,
+-  capacity_machine_load,
+-  capacity_all_loads,
+-  capacity_bottlenecks,
+-  capacity_what_if,
+-  capacity_summary,
+-  // Quality Management
+-  quality_spc_chart,
+-  quality_calibration_add,
+-  quality_calibration_dashboard,
+-  quality_material_cert,
+-  quality_trace_heat_lot,
+-  quality_trace_job,
+-  quality_ncr_create,
+-  quality_ncr_update,
+-  quality_ncr_dashboard,
+-  quality_fai_create,
+-  quality_fai_list,
+-  quality_kpis,
+-  // Machine Rate Database
+-  machine_rate_lookup,
+-  machine_rate_list,
+-  machine_rate_compare,
+-  machine_rate_effective,
+-  // Shop Configuration
+-  shop_config_get,
+-  shop_config_update,
+-  shop_config_machines,
+-  shop_config_rates,
+-  shop_config_reset,
+-  // Blueprint -> Quote Bridge
+-  blueprint_to_quote,
+-  blueprint_resolve_material,
+-  // Sheet Metal Quoting
+-  sheet_metal_quote,
+-  // Additive Manufacturing Quoting
+-  additive_quote,
+-  additive_list_materials,
+-  additive_compare_technologies,
+-  // Injection Mold Quoting
+-  injection_mold_quote,
+-  injection_mold_materials,
+-  injection_mold_dfm,
+-  // Stock Size Optimizer
+-  stock_size_optimize,
+-  stock_size_catalog,
+-  stock_size_nesting,
+-  // Market Material Pricing
+-  material_price_lookup,
+-  material_price_adjust,
+-  material_price_compare,
+-  material_surcharge,
+-  // HR & Compliance
+-  hr_benefits_list,
+-  hr_enroll,
+-  hr_enrollment,
+-  hr_pto_init,
+-  hr_pto_request,
+-  hr_pto_approve,
+-  hr_pto_balance,
+-  hr_training_add,
+-  hr_training_history,
+-  hr_training_expiring,
+-  hr_review_create,
+-  hr_reviews,
+-  hr_compensation_history,
+-  hr_compliance_alerts,
+-  hr_dashboard,
+-  // Customer Management
+-  customer_create,
+-  customer_get,
+-  customer_update,
+-  customer_search,
+-  customer_list,
+-  customer_credit_check,
+-  customer_log_comm,
+-  customer_comm_history,
+-  customer_follow_ups,
+-  customer_create_opportunity,
+-  customer_update_opportunity,
+-  customer_pipeline,
+-  customer_analytics,
+-  customer_top,
+-  // Integration / Export
+-  integration_export_qb,
+-  integration_export_csv,
+-  integration_export_payroll_tax,
+-  integration_reconcile_bank,
+-  integration_export_ar_aging,
+-  integration_formats,
+-  // Batch Optimization
+-  batch_group,
+-  batch_sequence,
+-  batch_setup_matrix,
+-  batch_capacity,
+-  // Learning Path
+-  learning_assess,
+-  learning_plan,
+-  learning_progress,
+-  learning_recommend,
+-  // Casting Quoting
+-  casting_quote,
+-  casting_materials,
+-  casting_compare_processes,
+-  casting_dfm,
+-  // Weld/Fabrication Quoting
+-  weld_fab_quote,
+-  weld_fab_joint_cost,
+-  weld_fab_consumables,
+-  // Multi-Process Quoting
+-  multi_process_quote,
+-  multi_process_estimate,
+-  // Programmer Productivity
+-  productivity_log,
+-  productivity_summary,
+-  productivity_achievements,
+-  productivity_digest,
+-  productivity_compare,
+-  // Approval Workflows (Session 6-6)
+-  workflow_configure,
+-  workflow_submit,
+-  workflow_decide,
+-  workflow_pending,
+-  approval_workflow_status,
+-  workflow_cancel,
+-  approval_workflow_list,
+-  workflow_stats,
+-  workflow_requires_approval,
+-  workflow_entity_history,
+-  // Record Timeline & Comments (Session 6-6)
+-  timeline_get,
+-  timeline_add,
+-  comment_create,
+-  comment_list,
+-  comment_edit,
+-  comment_delete,
+-  // Job Traveler (Session 6-7)
+-  traveler_create,
+-  traveler_start_setup,
+-  traveler_start_cycle,
+-  traveler_complete_step,
+-  traveler_get_active,
+-  traveler_get,
+-  traveler_scan,
+-  // Machine Dispatch (Session 6-7)
+-  dispatch_queue_job,
+-  dispatch_get_queue,
+-  dispatch_reorder,
+-  dispatch_get_all_queues,
+-  dispatch_what_if,
+-  dispatch_remove,
+-  // Milestone Tracking (Session 6-9)
+-  milestone_create_timeline,
+-  milestone_get_timeline,
+-  milestone_advance,
+-  milestone_skip,
+-  milestone_on_job_status,
+-  milestone_events,
+-  milestone_list_jobs,
+-  milestone_delete,
+-  // Customer Portal (Session 6-9)
+-  portal_create_token,
+-  portal_revoke_token,
+-  portal_list_tokens,
+-  portal_validate_token,
+-  portal_quote_view,
+-  portal_quote_respond,
+-  portal_order_status,
+-  portal_add_quality_doc,
+-  portal_update_quality_doc,
+-  portal_list_quality_docs,
+-  portal_get_quality_doc,
+-  portal_send_message,
+-  portal_list_messages,
+-  portal_mark_read,
+-  // Quote-to-Ship Pipeline (Session 5-9)
+-  quote_to_ship_run,
+-  quote_to_ship_validate,
+-  quote_to_ship_status,
+-  // Job Profitability Waterfall
+-  profitability_analyze: z.object({
+-    revenue: posNum.describe("Total job revenue"),
+-    material_cost: posNum.describe("Raw material cost"),
+-    tool_cost: posNum.describe("Tooling cost"),
+-    labor_hours: posNum.describe("Labor hours"),
+-    labor_rate_per_hour: posNum.describe("Labor rate $/hr"),
+-    machine_hours: posNum.describe("Machine hours"),
+-    machine_rate_per_hour: posNum.describe("Machine rate $/hr"),
+-    setup_time_hours: z.number().nonnegative().describe("Setup time in hours"),
+-    scrap_count: z.number().nonnegative().describe("Number of scrapped parts"),
+-    scrap_cost_per_unit: z.number().nonnegative().describe("Cost per scrapped unit"),
+-    rework_count: optNum.describe("Number of reworked parts"),
+-    rework_cost_per_unit: optNum.describe("Cost per reworked unit"),
+-    overhead_pct: optNum.describe("Overhead percentage"),
+-    secondary_ops_cost: optNum.describe("Secondary operations cost"),
+-  }).passthrough(),
+-  profitability_compare: z.object({
+-    jobs: z.array(z.object({
+-      name: str.describe("Job name"),
+-      revenue: posNum,
+-      material_cost: posNum,
+-      tool_cost: posNum,
+-      labor_hours: posNum,
+-      labor_rate_per_hour: posNum,
+-      machine_hours: posNum,
+-      machine_rate_per_hour: posNum,
+-      setup_time_hours: z.number().nonnegative(),
+-      scrap_count: z.number().nonnegative(),
+-      scrap_cost_per_unit: z.number().nonnegative(),
+-    }).passthrough()).describe("Array of jobs to compare"),
+-  }).passthrough(),
+-  profitability_sensitivity: z.object({
+-    baseline: z.object({
+-      revenue: posNum,
+-      material_cost: posNum,
+-      tool_cost: posNum,
+-      labor_hours: posNum,
+-      labor_rate_per_hour: posNum,
+-      machine_hours: posNum,
+-      machine_rate_per_hour: posNum,
+-      setup_time_hours: z.number().nonnegative(),
+-      scrap_count: z.number().nonnegative(),
+-      scrap_cost_per_unit: z.number().nonnegative(),
+-    }).passthrough().describe("Baseline job input"),
+-    scenarios: z.array(z.object({
+-      name: str.describe("Scenario name"),
+-      changes: z.record(z.string(), z.any()).describe("Parameter overrides"),
+-    })).describe("What-if scenarios"),
+-  }).passthrough(),
+-  // Quote Generation (QuoteEngine)
+-  quote_generate: z.object({
+-    customer_name: str.describe("Customer name"),
+-    part_name: str.describe("Part name"),
+-    quantity: z.number().int().positive().describe("Order quantity"),
+-    cost_per_part: posNum.describe("Cost per part"),
+-    setup_cost: z.number().nonnegative().describe("Setup cost"),
+-    material_cost_per_part: posNum.describe("Material cost per part"),
+-    cycle_time_min: posNum.describe("Cycle time in minutes"),
+-    num_setups: z.number().int().positive().describe("Number of setups"),
+-    complexity: z.enum(["simple", "moderate", "complex", "extreme"]).describe("Part complexity"),
+-    urgency: z.enum(["standard", "rush", "emergency"]).describe("Order urgency"),
+-    repeat_order: optBool.describe("Whether this is a repeat order"),
+-  }).passthrough(),
+-  quote_quantity_breaks: z.object({
+-    customer_name: str.describe("Customer name"),
+-    part_name: str.describe("Part name"),
+-    quantity: z.number().int().positive().describe("Base quantity"),
+-    cost_per_part: posNum.describe("Cost per part"),
+-    setup_cost: z.number().nonnegative().describe("Setup cost"),
+-    material_cost_per_part: posNum.describe("Material cost per part"),
+-    cycle_time_min: posNum.describe("Cycle time in minutes"),
+-    num_setups: z.number().int().positive().describe("Number of setups"),
+-    complexity: z.enum(["simple", "moderate", "complex", "extreme"]).describe("Part complexity"),
+-    urgency: z.enum(["standard", "rush", "emergency"]).describe("Order urgency"),
+-    quantities: z.array(z.number().int().positive()).optional().describe("Quantities to compute breaks for"),
+-  }).passthrough(),
+-  quote_margin_analysis: z.object({
+-    customer_name: str.describe("Customer name"),
+-    part_name: str.describe("Part name"),
+-    quantity: z.number().int().positive().describe("Order quantity"),
+-    cost_per_part: posNum.describe("Cost per part"),
+-    setup_cost: z.number().nonnegative().describe("Setup cost"),
+-    material_cost_per_part: posNum.describe("Material cost per part"),
+-    cycle_time_min: posNum.describe("Cycle time in minutes"),
+-    num_setups: z.number().int().positive().describe("Number of setups"),
+-    complexity: z.enum(["simple", "moderate", "complex", "extreme"]).describe("Part complexity"),
+-    urgency: z.enum(["standard", "rush", "emergency"]).describe("Order urgency"),
+-  }).passthrough(),
+-  // �                                ──
+-  tool_inv_check_availability: z.object({
+-    operations: z.array(z.object({
+-      type: z.string().describe("Operation type (face_mill, pocket, drill, turn, thread, etc.)"),
+-      material: z.string().describe("ISO group or material name"),
+-      diameter: z.number().optional().describe("Required tool diameter in mm"),
+-      depth: z.number().optional().describe("Depth of cut in mm"),
+-    })).describe("Operations to check tool availability for"),
+-    on_hand_tools: z.array(z.object({
+-      id: z.string(),
+-      diameter: z.number(),
+-      type: z.string(),
+-      flutes: z.number().optional(),
+-      coating: z.string().optional(),
+-      condition: z.enum(["new", "good", "worn", "needs_regrind", "retired"]).optional(),
+-      total_cutting_minutes: z.number().optional(),
+-      tool_material: z.string().optional(),
+-      flute_length_mm: z.number().optional(),
+-      overall_length_mm: z.number().optional(),
+-    })).optional().describe("On-hand tool inventory"),
+-  }).passthrough(),
+-  tool_inv_suggest_substitutes: z.object({
+-    required_diameter: z.number().positive().describe("Required tool diameter in mm"),
+-    required_type: z.string().describe("Required tool type (endmill, drill, tap, etc.)"),
+-    material: z.string().describe("Workpiece material (ISO group or name)"),
+-    on_hand_tools: z.array(z.any()).optional().describe("On-hand tool inventory"),
+-    max_results: z.number().int().positive().optional().describe("Max substitutes to return (default 5)"),
+-  }).passthrough(),
+-  tool_inv_reorder_list: z.object({
+-    on_hand_tools: z.array(z.any()).optional().describe("On-hand tool inventory"),
+-    min_stock_level: z.number().int().positive().optional().describe("Minimum stock level per tool type (default 1)"),
+-    upcoming_jobs: z.array(z.object({
+-      job_name: z.string().optional(),
+-      operations: z.array(z.object({
+-        type: z.string(),
+-        diameter: z.number().optional(),
+-        material: z.string(),
+-      })),
+-    })).optional().describe("Upcoming jobs to check tool needs"),
+-  }).passthrough(),
+-  tool_inv_optimize_crib: z.object({
+-    usage_history: z.array(z.object({
+-      tool_id: z.string().describe("Tool ID"),
+-      jobs_completed: z.number().int().nonnegative().describe("Number of jobs completed"),
+-      last_used: z.string().describe("ISO date of last usage"),
+-    })).describe("Historical tool usage records"),
+-    on_hand_tools: z.array(z.any()).optional().describe("On-hand tool inventory"),
+-    max_tools: z.number().int().positive().optional().describe("Max tool crib capacity"),
+-    idle_days_threshold: z.number().int().positive().optional().describe("Days idle before flagging for retirement (default 90)"),
+-  }).passthrough(),
+-};
+diff --git a/state/FINDINGS.txt b/state/FINDINGS.txt
+deleted file mode 100644
+index 7629d4a4f..000000000
+Binary files a/state/FINDINGS.txt and /dev/null differ
+diff --git a/state/SESSION_DIGEST.md b/state/SESSION_DIGEST.md
+deleted file mode 100644
+index f5a87328a..000000000
+Binary files a/state/SESSION_DIGEST.md and /dev/null differ
+diff --git a/state/SESSION_STATE.md b/state/SESSION_STATE.md
+deleted file mode 100644
+index 92b91e6ab..000000000
+Binary files a/state/SESSION_STATE.md and /dev/null differ
+diff --git a/state/SUMMARY.txt b/state/SUMMARY.txt
+deleted file mode 100644
+index 1b5bbfedf..000000000
+Binary files a/state/SUMMARY.txt and /dev/null differ
+diff --git a/state/certificates/certs/2026-04-14_2e8aecbd-7133-4cc5-8ee0-a38051e92a9f.json b/state/certificates/certs/2026-04-14_2e8aecbd-7133-4cc5-8ee0-a38051e92a9f.json
+deleted file mode 100644
+index c94560244..000000000
+Binary files a/state/certificates/certs/2026-04-14_2e8aecbd-7133-4cc5-8ee0-a38051e92a9f.json and /dev/null differ
+diff --git a/state/certificates/certs/2026-04-14_6398f7ad-317e-4369-bdc0-5e2cd8e65b5a.json b/state/certificates/certs/2026-04-14_6398f7ad-317e-4369-bdc0-5e2cd8e65b5a.json
+deleted file mode 100644
+index 09be29497..000000000
+Binary files a/state/certificates/certs/2026-04-14_6398f7ad-317e-4369-bdc0-5e2cd8e65b5a.json and /dev/null differ
+diff --git a/state/certificates/certs/2026-04-14_7a02b21d-9bd2-4cdd-806b-3eb7713f346c.json b/state/certificates/certs/2026-04-14_7a02b21d-9bd2-4cdd-806b-3eb7713f346c.json
+deleted file mode 100644
+index 2ec120ff2..000000000
+Binary files a/state/certificates/certs/2026-04-14_7a02b21d-9bd2-4cdd-806b-3eb7713f346c.json and /dev/null differ
+diff --git a/state/certificates/certs/2026-04-14_8dda6628-8f63-4914-8662-ef68ce6bf259.json b/state/certificates/certs/2026-04-14_8dda6628-8f63-4914-8662-ef68ce6bf259.json
+deleted file mode 100644
+index 5c7cf6889..000000000
+Binary files a/state/certificates/certs/2026-04-14_8dda6628-8f63-4914-8662-ef68ce6bf259.json and /dev/null differ
+diff --git a/state/checkpoints/CP-20260414T143843.json b/state/checkpoints/CP-20260414T143843.json
+deleted file mode 100644
+index 318d3ae16..000000000
+Binary files a/state/checkpoints/CP-20260414T143843.json and /dev/null differ
+diff --git a/state/checkpoints/CP-20260414T171724.json b/state/checkpoints/CP-20260414T171724.json
+deleted file mode 100644
+index badb6d2ad..000000000
+Binary files a/state/checkpoints/CP-20260414T171724.json and /dev/null differ
+diff --git a/state/pre_build_snapshot.json b/state/pre_build_snapshot.json
+deleted file mode 100644
+index f0ff0fe6d..000000000
+Binary files a/state/pre_build_snapshot.json and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/binary-fragments/2026-04-09_42fea879-8c69-456b-8e1e-9f527aec1b7f.json b/state/quarantine/2026-04-25-zlib-blobs/binary-fragments/2026-04-09_42fea879-8c69-456b-8e1e-9f527aec1b7f.json
+deleted file mode 100644
+index 1ec869326..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/binary-fragments/2026-04-09_42fea879-8c69-456b-8e1e-9f527aec1b7f.json and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/binary-fragments/TASK_COORDINATION_SPEC.md b/state/quarantine/2026-04-25-zlib-blobs/binary-fragments/TASK_COORDINATION_SPEC.md
+deleted file mode 100644
+index 936db3310..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/binary-fragments/TASK_COORDINATION_SPEC.md and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/binary-fragments/lathe-deep-workholding.test.ts b/state/quarantine/2026-04-25-zlib-blobs/binary-fragments/lathe-deep-workholding.test.ts
+deleted file mode 100644
+index 35fd8df25..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/binary-fragments/lathe-deep-workholding.test.ts and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/binary-fragments/lathe-workholding.test.ts b/state/quarantine/2026-04-25-zlib-blobs/binary-fragments/lathe-workholding.test.ts
+deleted file mode 100644
+index bf7c75b25..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/binary-fragments/lathe-workholding.test.ts and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/binary-fragments/ppg-haas-hurco-validation.test.ts b/state/quarantine/2026-04-25-zlib-blobs/binary-fragments/ppg-haas-hurco-validation.test.ts
+deleted file mode 100644
+index a41d33601..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/binary-fragments/ppg-haas-hurco-validation.test.ts and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/binary-fragments/ppg-heidenhain-dialect.test.ts b/state/quarantine/2026-04-25-zlib-blobs/binary-fragments/ppg-heidenhain-dialect.test.ts
+deleted file mode 100644
+index b151c0283..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/binary-fragments/ppg-heidenhain-dialect.test.ts and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/binary-fragments/ppg-siemens-dialect.test.ts b/state/quarantine/2026-04-25-zlib-blobs/binary-fragments/ppg-siemens-dialect.test.ts
+deleted file mode 100644
+index 980765e68..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/binary-fragments/ppg-siemens-dialect.test.ts and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/binary-fragments/stochastic-edm.test.ts b/state/quarantine/2026-04-25-zlib-blobs/binary-fragments/stochastic-edm.test.ts
+deleted file mode 100644
+index df3c69a8e..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/binary-fragments/stochastic-edm.test.ts and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/binary-fragments/todo.md b/state/quarantine/2026-04-25-zlib-blobs/binary-fragments/todo.md
+deleted file mode 100644
+index 89d2d4d8f..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/binary-fragments/todo.md and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/certs/2026-04-09_dbdb38ea-4595-4806-961d-0dec2535e5f5.json b/state/quarantine/2026-04-25-zlib-blobs/certs/2026-04-09_dbdb38ea-4595-4806-961d-0dec2535e5f5.json
+deleted file mode 100644
+index 01f29705b..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/certs/2026-04-09_dbdb38ea-4595-4806-961d-0dec2535e5f5.json and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/commands/biz-health.md b/state/quarantine/2026-04-25-zlib-blobs/commands/biz-health.md
+deleted file mode 100644
+index 1756119fa..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/commands/biz-health.md and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/docs/PPG_CONTROLLER_MATRIX.md b/state/quarantine/2026-04-25-zlib-blobs/docs/PPG_CONTROLLER_MATRIX.md
+deleted file mode 100644
+index a59cdb746..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/docs/PPG_CONTROLLER_MATRIX.md and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/docs/PPG_ROLLBACK_PROCEDURES.md b/state/quarantine/2026-04-25-zlib-blobs/docs/PPG_ROLLBACK_PROCEDURES.md
+deleted file mode 100644
+index 813640756..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/docs/PPG_ROLLBACK_PROCEDURES.md and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/docs/PPG_SAFETY_AUDIT.md b/state/quarantine/2026-04-25-zlib-blobs/docs/PPG_SAFETY_AUDIT.md
+deleted file mode 100644
+index c6a5ca3c6..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/docs/PPG_SAFETY_AUDIT.md and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/handoffs/HANDOFF-Claude-s-MarkV-1775836171346.md b/state/quarantine/2026-04-25-zlib-blobs/handoffs/HANDOFF-Claude-s-MarkV-1775836171346.md
+deleted file mode 100644
+index 4d9739923..000000000
+--- a/state/quarantine/2026-04-25-zlib-blobs/handoffs/HANDOFF-Claude-s-MarkV-1775836171346.md
++++ /dev/null
+@@ -1,2 +0,0 @@
+-x�Y�n���5��@A�rV�~�^���"ɉ���JN�w2E�$V�吶�x/[��Eۻ�`{Ӌ�A���h��93�(�w��b[�̜9����4��tx����#�N�g���h�QJ��t�j�����"�g�q=��k�\���qv�It�%�|�
+-�RW��\����pF.Ĭ�ѣ4��*P��q�$��\
+\ No newline at end of file
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/handoffs/HANDOFF-Claude-s-MarkV-1775847705501.md b/state/quarantine/2026-04-25-zlib-blobs/handoffs/HANDOFF-Claude-s-MarkV-1775847705501.md
+deleted file mode 100644
+index ff074d16e..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/handoffs/HANDOFF-Claude-s-MarkV-1775847705501.md and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/handoffs/HANDOFF-LATHE-PRO-MS3-sessions14-15-complete.md b/state/quarantine/2026-04-25-zlib-blobs/handoffs/HANDOFF-LATHE-PRO-MS3-sessions14-15-complete.md
+deleted file mode 100644
+index ee8f0ace4..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/handoffs/HANDOFF-LATHE-PRO-MS3-sessions14-15-complete.md and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/handoffs/HANDOFF-LATHE-PRO-MS4a-complete.md b/state/quarantine/2026-04-25-zlib-blobs/handoffs/HANDOFF-LATHE-PRO-MS4a-complete.md
+deleted file mode 100644
+index 59a5aac85..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/handoffs/HANDOFF-LATHE-PRO-MS4a-complete.md and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/handoffs/HANDOFF-LATHE-PRO-MS4b-complete.md b/state/quarantine/2026-04-25-zlib-blobs/handoffs/HANDOFF-LATHE-PRO-MS4b-complete.md
+deleted file mode 100644
+index 751ac7c54..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/handoffs/HANDOFF-LATHE-PRO-MS4b-complete.md and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/handoffs/HANDOFF-LATHE-PRO-MS5-complete.md b/state/quarantine/2026-04-25-zlib-blobs/handoffs/HANDOFF-LATHE-PRO-MS5-complete.md
+deleted file mode 100644
+index 77dcddd3b..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/handoffs/HANDOFF-LATHE-PRO-MS5-complete.md and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/handoffs/HANDOFF-LATHE-PRO-MS6a-complete.md b/state/quarantine/2026-04-25-zlib-blobs/handoffs/HANDOFF-LATHE-PRO-MS6a-complete.md
+deleted file mode 100644
+index 34ee98935..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/handoffs/HANDOFF-LATHE-PRO-MS6a-complete.md and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/handoffs/HANDOFF-ppg-real-ms0-complete.md b/state/quarantine/2026-04-25-zlib-blobs/handoffs/HANDOFF-ppg-real-ms0-complete.md
+deleted file mode 100644
+index 8dcb13b59..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/handoffs/HANDOFF-ppg-real-ms0-complete.md and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/handoffs/HANDOFF-ppg-real-s10-complete.md b/state/quarantine/2026-04-25-zlib-blobs/handoffs/HANDOFF-ppg-real-s10-complete.md
+deleted file mode 100644
+index 09e7967a7..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/handoffs/HANDOFF-ppg-real-s10-complete.md and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/handoffs/HANDOFF-ppg-real-s11-complete.md b/state/quarantine/2026-04-25-zlib-blobs/handoffs/HANDOFF-ppg-real-s11-complete.md
+deleted file mode 100644
+index 5d0a217bb..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/handoffs/HANDOFF-ppg-real-s11-complete.md and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/handoffs/HANDOFF-ppg-real-s12-complete.md b/state/quarantine/2026-04-25-zlib-blobs/handoffs/HANDOFF-ppg-real-s12-complete.md
+deleted file mode 100644
+index 4afff7cdd..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/handoffs/HANDOFF-ppg-real-s12-complete.md and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/handoffs/HANDOFF-ppg-real-s8-complete.md b/state/quarantine/2026-04-25-zlib-blobs/handoffs/HANDOFF-ppg-real-s8-complete.md
+deleted file mode 100644
+index 0e200faa1..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/handoffs/HANDOFF-ppg-real-s8-complete.md and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/handoffs/HANDOFF-ppg-real-s9-complete.md b/state/quarantine/2026-04-25-zlib-blobs/handoffs/HANDOFF-ppg-real-s9-complete.md
+deleted file mode 100644
+index c320bc53d..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/handoffs/HANDOFF-ppg-real-s9-complete.md and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/milestones/MILL-HARD-MS0-FINDINGS.md b/state/quarantine/2026-04-25-zlib-blobs/milestones/MILL-HARD-MS0-FINDINGS.md
+deleted file mode 100644
+index 519a305b5..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/milestones/MILL-HARD-MS0-FINDINGS.md and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/misc/launch.json b/state/quarantine/2026-04-25-zlib-blobs/misc/launch.json
+deleted file mode 100644
+index 943527aa3..000000000
+--- a/state/quarantine/2026-04-25-zlib-blobs/misc/launch.json
++++ /dev/null
+@@ -1,3 +0,0 @@
+-x��n�@�{�S�|"Ɔ���B��X�DU�-���?���U�>D�>PߤOҙ5AJZ��CZ�`��ٙ����E��t
+-�f���5�#"�N�;|�^�[n�r�4|˕iBs�_�Q#��46R��\%�h)��@d\��C/�3�-�y�J������ɵI�;`r���0�RP1�����
+-q.�p�K.!L��@��αp
+\ No newline at end of file
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/tests/calculatorProgrammingCatalog.test.ts b/state/quarantine/2026-04-25-zlib-blobs/tests/calculatorProgrammingCatalog.test.ts
+deleted file mode 100644
+index b1c308ce7..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/tests/calculatorProgrammingCatalog.test.ts and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/tests/cwedm-live-ship-test.test.ts b/state/quarantine/2026-04-25-zlib-blobs/tests/cwedm-live-ship-test.test.ts
+deleted file mode 100644
+index 4f25f1369..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/tests/cwedm-live-ship-test.test.ts and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/tests/lathe-grooving-parting.test.ts b/state/quarantine/2026-04-25-zlib-blobs/tests/lathe-grooving-parting.test.ts
+deleted file mode 100644
+index 98dd2a61c..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/tests/lathe-grooving-parting.test.ts and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/tests/lathe-hard-turning.test.ts b/state/quarantine/2026-04-25-zlib-blobs/tests/lathe-hard-turning.test.ts
+deleted file mode 100644
+index cf809d5b5..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/tests/lathe-hard-turning.test.ts and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/tests/lathe-swiss-multichannel.test.ts b/state/quarantine/2026-04-25-zlib-blobs/tests/lathe-swiss-multichannel.test.ts
+deleted file mode 100644
+index 8fdf91985..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/tests/lathe-swiss-multichannel.test.ts and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/tests/lathe-threading.test.ts b/state/quarantine/2026-04-25-zlib-blobs/tests/lathe-threading.test.ts
+deleted file mode 100644
+index 4d3a6770e..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/tests/lathe-threading.test.ts and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/tests/ppg-comparison-report.test.ts b/state/quarantine/2026-04-25-zlib-blobs/tests/ppg-comparison-report.test.ts
+deleted file mode 100644
+index 2fe3afca5..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/tests/ppg-comparison-report.test.ts and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/tests/ppg-dmg-brother-doosan-dialect.test.ts b/state/quarantine/2026-04-25-zlib-blobs/tests/ppg-dmg-brother-doosan-dialect.test.ts
+deleted file mode 100644
+index 4429d6640..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/tests/ppg-dmg-brother-doosan-dialect.test.ts and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/tests/ppg-e2e-journey-a.test.ts b/state/quarantine/2026-04-25-zlib-blobs/tests/ppg-e2e-journey-a.test.ts
+deleted file mode 100644
+index 4f78af427..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/tests/ppg-e2e-journey-a.test.ts and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/tests/ppg-e2e-journey-b.test.ts b/state/quarantine/2026-04-25-zlib-blobs/tests/ppg-e2e-journey-b.test.ts
+deleted file mode 100644
+index 6f0b0374e..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/tests/ppg-e2e-journey-b.test.ts and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/tests/ppg-haas-hurco-dialect.test.ts b/state/quarantine/2026-04-25-zlib-blobs/tests/ppg-haas-hurco-dialect.test.ts
+deleted file mode 100644
+index 4eae18dbe..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/tests/ppg-haas-hurco-dialect.test.ts and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/tests/ppg-machinist-trust.test.ts b/state/quarantine/2026-04-25-zlib-blobs/tests/ppg-machinist-trust.test.ts
+deleted file mode 100644
+index e195884c6..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/tests/ppg-machinist-trust.test.ts and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/tests/ppg-mazak-okuma-dialect.test.ts b/state/quarantine/2026-04-25-zlib-blobs/tests/ppg-mazak-okuma-dialect.test.ts
+deleted file mode 100644
+index ba1989e3d..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/tests/ppg-mazak-okuma-dialect.test.ts and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/tests/ppg-performance.test.ts b/state/quarantine/2026-04-25-zlib-blobs/tests/ppg-performance.test.ts
+deleted file mode 100644
+index 77275605e..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/tests/ppg-performance.test.ts and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/tests/ppg-validation-harness.test.ts b/state/quarantine/2026-04-25-zlib-blobs/tests/ppg-validation-harness.test.ts
+deleted file mode 100644
+index e7cd23277..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/tests/ppg-validation-harness.test.ts and /dev/null differ
+diff --git a/state/quarantine/2026-04-25-zlib-blobs/tests/wedm-calculator-panels.test.ts b/state/quarantine/2026-04-25-zlib-blobs/tests/wedm-calculator-panels.test.ts
+deleted file mode 100644
+index 2553b55c4..000000000
+Binary files a/state/quarantine/2026-04-25-zlib-blobs/tests/wedm-calculator-panels.test.ts and /dev/null differ
+diff --git a/state/shared/SYSTEM-CAPABILITIES.md b/state/shared/SYSTEM-CAPABILITIES.md
+deleted file mode 100644
+index d35d90924..000000000
+Binary files a/state/shared/SYSTEM-CAPABILITIES.md and /dev/null differ
+diff --git a/state/shared/handoffs/archive/HANDOFF-Claude-s-MarkV-1775836171346.md b/state/shared/handoffs/archive/HANDOFF-Claude-s-MarkV-1775836171346.md
+deleted file mode 100644
+index 4d9739923..000000000
+--- a/state/shared/handoffs/archive/HANDOFF-Claude-s-MarkV-1775836171346.md
++++ /dev/null
+@@ -1,2 +0,0 @@
+-x�Y�n���5��@A�rV�~�^���"ɉ���JN�w2E�$V�吶�x/[��Eۻ�`{Ӌ�A���h��93�(�w��b[�̜9����4��tx����#�N�g���h�QJ��t�j�����"�g�q=��k�\���qv�It�%�|�
+-�RW��\����pF.Ĭ�ѣ4��*P��q�$��\
+\ No newline at end of file
+diff --git a/state/shared/handoffs/archive/HANDOFF-Claude-s-MarkV-1775847705501.md b/state/shared/handoffs/archive/HANDOFF-Claude-s-MarkV-1775847705501.md
+deleted file mode 100644
+index ff074d16e..000000000
+Binary files a/state/shared/handoffs/archive/HANDOFF-Claude-s-MarkV-1775847705501.md and /dev/null differ
+diff --git a/state/shared/handoffs/archive/HANDOFF-LATHE-PRO-MS3-sessions14-15-complete.md b/state/shared/handoffs/archive/HANDOFF-LATHE-PRO-MS3-sessions14-15-complete.md
+deleted file mode 100644
+index ee8f0ace4..000000000
+Binary files a/state/shared/handoffs/archive/HANDOFF-LATHE-PRO-MS3-sessions14-15-complete.md and /dev/null differ
+diff --git a/state/shared/handoffs/archive/HANDOFF-LATHE-PRO-MS4a-complete.md b/state/shared/handoffs/archive/HANDOFF-LATHE-PRO-MS4a-complete.md
+deleted file mode 100644
+index 59a5aac85..000000000
+Binary files a/state/shared/handoffs/archive/HANDOFF-LATHE-PRO-MS4a-complete.md and /dev/null differ
+diff --git a/state/shared/handoffs/archive/HANDOFF-LATHE-PRO-MS4b-complete.md b/state/shared/handoffs/archive/HANDOFF-LATHE-PRO-MS4b-complete.md
+deleted file mode 100644
+index 751ac7c54..000000000
+Binary files a/state/shared/handoffs/archive/HANDOFF-LATHE-PRO-MS4b-complete.md and /dev/null differ
+diff --git a/state/shared/handoffs/archive/HANDOFF-LATHE-PRO-MS5-complete.md b/state/shared/handoffs/archive/HANDOFF-LATHE-PRO-MS5-complete.md
+deleted file mode 100644
+index 77dcddd3b..000000000
+Binary files a/state/shared/handoffs/archive/HANDOFF-LATHE-PRO-MS5-complete.md and /dev/null differ
+diff --git a/state/shared/handoffs/archive/HANDOFF-LATHE-PRO-MS6a-complete.md b/state/shared/handoffs/archive/HANDOFF-LATHE-PRO-MS6a-complete.md
+deleted file mode 100644
+index 34ee98935..000000000
+Binary files a/state/shared/handoffs/archive/HANDOFF-LATHE-PRO-MS6a-complete.md and /dev/null differ
+diff --git a/state/shared/handoffs/archive/HANDOFF-ppg-real-ms0-complete.md b/state/shared/handoffs/archive/HANDOFF-ppg-real-ms0-complete.md
+deleted file mode 100644
+index 8dcb13b59..000000000
+Binary files a/state/shared/handoffs/archive/HANDOFF-ppg-real-ms0-complete.md and /dev/null differ
+diff --git a/state/shared/handoffs/archive/HANDOFF-ppg-real-s10-complete.md b/state/shared/handoffs/archive/HANDOFF-ppg-real-s10-complete.md
+deleted file mode 100644
+index 09e7967a7..000000000
+Binary files a/state/shared/handoffs/archive/HANDOFF-ppg-real-s10-complete.md and /dev/null differ
+diff --git a/state/shared/handoffs/archive/HANDOFF-ppg-real-s11-complete.md b/state/shared/handoffs/archive/HANDOFF-ppg-real-s11-complete.md
+deleted file mode 100644
+index 5d0a217bb..000000000
+Binary files a/state/shared/handoffs/archive/HANDOFF-ppg-real-s11-complete.md and /dev/null differ
+diff --git a/state/shared/handoffs/archive/HANDOFF-ppg-real-s12-complete.md b/state/shared/handoffs/archive/HANDOFF-ppg-real-s12-complete.md
+deleted file mode 100644
+index 4afff7cdd..000000000
+Binary files a/state/shared/handoffs/archive/HANDOFF-ppg-real-s12-complete.md and /dev/null differ
+diff --git a/state/shared/handoffs/archive/HANDOFF-ppg-real-s8-complete.md b/state/shared/handoffs/archive/HANDOFF-ppg-real-s8-complete.md
+deleted file mode 100644
+index 0e200faa1..000000000
+Binary files a/state/shared/handoffs/archive/HANDOFF-ppg-real-s8-complete.md and /dev/null differ
+diff --git a/state/shared/handoffs/archive/HANDOFF-ppg-real-s9-complete.md b/state/shared/handoffs/archive/HANDOFF-ppg-real-s9-complete.md
+deleted file mode 100644
+index c320bc53d..000000000
+Binary files a/state/shared/handoffs/archive/HANDOFF-ppg-real-s9-complete.md and /dev/null differ
+diff --git a/state/shared/handoffs/archive/HANDOFF-wedm-100pct-s4-complete.md b/state/shared/handoffs/archive/HANDOFF-wedm-100pct-s4-complete.md
+deleted file mode 100644
+index 17ee32d00..000000000
+--- a/state/shared/handoffs/archive/HANDOFF-wedm-100pct-s4-complete.md
++++ /dev/null
+@@ -1,57 +0,0 @@
+-# HANDOFF: WEDM-100PCT-MS0 S4 Complete
+-Updated: 2026-04-05
+-
+-## STATE
+-S4 COMPLETE — 3/3 units done (U-W100-10, U-W100-11, U-W100-12)
+-
+-## RESUME
+-Continue WEDM-100PCT-MS0 at S5. Next units:
+-- U-W100-13: E-pack validation — generated codes map to valid machine parameters
+-- U-W100-14: Arc reversal on Pass 3 (G42+G3 → G41+G2, confirmed missing by audit)
+-- U-W100-15: UV taper G-code emission (NOZE TEST format: G1 X Y U V on same line)
+-Read milestone S5 knowledge sources before coding.
+-
+-## COMPLETED THIS SESSION (S4)
+-
+-### U-W100-10: Skim feed from wire deflection beam mechanics
+-- Replaced arbitrary 1.5^n multipliers with physics-based deflection model
+-- Formula: Feed_skim_n = Feed_rough × (1/γ^(n/2))^β, β=0.5
+-- Toenshoff gamma (material-specific) drives skim current reduction
+-- Steel (γ=0.25): skim factors = 1.41×, 2.0×, 2.83×, 4.0× — matches published
+-- Cap at 4× rough (machine servo limit)
+-- File: WireEDMSettingsEngine.ts
+-
+-### U-W100-11: E-Pack code generator
+-- Enhanced generateEPackCode() with physics-aware encoding
+-- Format: E{material_group:1-7}{thickness_code:0-9}{condition:1-5}{pass:1-9}
+-- Material groups from ISO thermal/electrical properties
+-- Thickness codes expanded 0-9 (was 0-5)
+-- Condition codes from target Ra + wire type
+-- Real program validation: ITW SHAKEPROOF E1221-E1224 ✓, NOZE TEST E2821-E2825 ✓
+-- Added decodeEPackCode() for reverse mapping
+-- 75 tests pass
+-- File: WEDMPrintToProgramEngine.ts (exported functions)
+-
+-### U-W100-12: E-Pack table import engine
+-- NEW ENGINE: EPackTableImportEngine.ts
+-- Supports JSON, CSV/TSV, key-value (INI) import formats
+-- Auto-detect format from content or filename
+-- Physics bounds validation (rejects impossible values)
+-- Fallback chain: imported ��� published → error (never synthetic)
+-- Mitsubishi, Sodick, Fanuc key mappings (ON/OFF/IP, TON/TOFF/IAP, etc.)
+-- 39 tests pass
+-- File: src/engines/EPackTableImportEngine.ts
+-
+-## TEST COUNTS
+-- 454/454 WEDM tests across 10 suites
+-- Build PASS (60.3MB, 0 TS errors)
+-- Milestone: 13/38 units complete
+-
+-## FILES MODIFIED
+-- src/engines/WireEDMSettingsEngine.ts (skim feed physics)
+-- src/engines/WEDMPrintToProgramEngine.ts (E-pack generator enhanced)
+-- src/engines/EPackTableImportEngine.ts (NEW)
+-- src/__tests__/wedm-epack-generator.test.ts (NEW, 75 tests)
+-- src/__tests__/wedm-epack-import.test.ts (NEW, 39 tests)
+-- src/__tests__/cwedm-real-shop-programs.test.ts (boundary fix: >= vs >)
+-- data/milestones/WEDM-100PCT-MS0.json (13/38)

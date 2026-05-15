@@ -1,0 +1,219 @@
+diff --git a/.mcp.json b/.mcp.json
+index e4c4461a2..4c7db5888 100644
+--- a/.mcp.json
++++ b/.mcp.json
+@@ -1,4 +1,5 @@
+ {
++  "//": "postgres and sentry removed â€” their ${DATABASE_URL} / ${SENTRY_AUTH_TOKEN} env vars were unset so the servers failed to start on every session. Re-add when you actually configure those integrations.",
+   "mcpServers": {
+     "prism": {
+       "type": "stdio",
+@@ -22,31 +23,11 @@
+         "LOG_LEVEL": "info"
+       }
+     },
+-    "postgres": {
+-      "type": "stdio",
+-      "command": "npx",
+-      "args": [
+-        "-y",
+-        "@modelcontextprotocol/server-postgres",
+-        "${DATABASE_URL}"
+-      ]
+-    },
+-    "sentry": {
+-      "type": "stdio",
+-      "command": "npx",
+-      "args": [
+-        "-y",
+-        "@sentry/mcp-server"
+-      ],
+-      "env": {
+-        "SENTRY_AUTH_TOKEN": "${SENTRY_AUTH_TOKEN}",
+-        "SENTRY_ORG": "${SENTRY_ORG_SLUG}"
+-      }
+-    },
+     "claude-flow": {
+       "type": "stdio",
+       "command": "npx",
+       "args": [
++        "-y",
+         "claude-flow",
+         "mcp",
+         "start"
+diff --git a/state/FINDINGS.txt b/state/FINDINGS.txt
+deleted file mode 100644
+index 7629d4a4f..000000000
+Binary files a/state/FINDINGS.txt and /dev/null differ
+diff --git a/state/SESSION_DIGEST.md b/state/SESSION_DIGEST.md
+deleted file mode 100644
+index f5a87328a..000000000
+Binary files a/state/SESSION_DIGEST.md and /dev/null differ
+diff --git a/state/SESSION_STATE.md b/state/SESSION_STATE.md
+deleted file mode 100644
+index 92b91e6ab..000000000
+Binary files a/state/SESSION_STATE.md and /dev/null differ
+diff --git a/state/SUMMARY.txt b/state/SUMMARY.txt
+deleted file mode 100644
+index 1b5bbfedf..000000000
+Binary files a/state/SUMMARY.txt and /dev/null differ
+diff --git a/state/certificates/certs/2026-04-14_2e8aecbd-7133-4cc5-8ee0-a38051e92a9f.json b/state/certificates/certs/2026-04-14_2e8aecbd-7133-4cc5-8ee0-a38051e92a9f.json
+deleted file mode 100644
+index c94560244..000000000
+Binary files a/state/certificates/certs/2026-04-14_2e8aecbd-7133-4cc5-8ee0-a38051e92a9f.json and /dev/null differ
+diff --git a/state/certificates/certs/2026-04-14_6398f7ad-317e-4369-bdc0-5e2cd8e65b5a.json b/state/certificates/certs/2026-04-14_6398f7ad-317e-4369-bdc0-5e2cd8e65b5a.json
+deleted file mode 100644
+index 09be29497..000000000
+Binary files a/state/certificates/certs/2026-04-14_6398f7ad-317e-4369-bdc0-5e2cd8e65b5a.json and /dev/null differ
+diff --git a/state/certificates/certs/2026-04-14_7a02b21d-9bd2-4cdd-806b-3eb7713f346c.json b/state/certificates/certs/2026-04-14_7a02b21d-9bd2-4cdd-806b-3eb7713f346c.json
+deleted file mode 100644
+index 2ec120ff2..000000000
+Binary files a/state/certificates/certs/2026-04-14_7a02b21d-9bd2-4cdd-806b-3eb7713f346c.json and /dev/null differ
+diff --git a/state/certificates/certs/2026-04-14_8dda6628-8f63-4914-8662-ef68ce6bf259.json b/state/certificates/certs/2026-04-14_8dda6628-8f63-4914-8662-ef68ce6bf259.json
+deleted file mode 100644
+index 5c7cf6889..000000000
+Binary files a/state/certificates/certs/2026-04-14_8dda6628-8f63-4914-8662-ef68ce6bf259.json and /dev/null differ
+diff --git a/state/checkpoints/CP-20260414T143843.json b/state/checkpoints/CP-20260414T143843.json
+deleted file mode 100644
+index 318d3ae16..000000000
+Binary files a/state/checkpoints/CP-20260414T143843.json and /dev/null differ
+diff --git a/state/checkpoints/CP-20260414T171724.json b/state/checkpoints/CP-20260414T171724.json
+deleted file mode 100644
+index badb6d2ad..000000000
+Binary files a/state/checkpoints/CP-20260414T171724.json and /dev/null differ
+diff --git a/state/pre_build_snapshot.json b/state/pre_build_snapshot.json
+deleted file mode 100644
+index f0ff0fe6d..000000000
+Binary files a/state/pre_build_snapshot.json and /dev/null differ
+diff --git a/state/shared/SYSTEM-CAPABILITIES.md b/state/shared/SYSTEM-CAPABILITIES.md
+deleted file mode 100644
+index d35d90924..000000000
+Binary files a/state/shared/SYSTEM-CAPABILITIES.md and /dev/null differ
+diff --git a/state/shared/TASK_COORDINATION_SPEC.md b/state/shared/TASK_COORDINATION_SPEC.md
+deleted file mode 100644
+index 936db3310..000000000
+Binary files a/state/shared/TASK_COORDINATION_SPEC.md and /dev/null differ
+diff --git a/state/shared/handoffs/archive/HANDOFF-Claude-s-MarkV-1775836171346.md b/state/shared/handoffs/archive/HANDOFF-Claude-s-MarkV-1775836171346.md
+deleted file mode 100644
+index 4d9739923..000000000
+--- a/state/shared/handoffs/archive/HANDOFF-Claude-s-MarkV-1775836171346.md
++++ /dev/null
+@@ -1,2 +0,0 @@
+-x¥YÝnÛÈî5Ÿâ@A±rVŠ~Ç^¡»€"É‰±þÑJN²w2E$VÉå¶•x/[ ÀEÛ»þ`{Ó‹¾AŸ¢‘h¡ß93¤(¯w“¶b[ÔÌœ9ßùÎá4ˆ¦txØÞÿÙ#ŽNÆgÔÍÒhèQJ¯Ût¦j‘¸©…ô"ógÊq=¢‹k•\ûêÆqvÇIt%š|ì
+-¡Â”RW¯È\­ý¹ï™“ÜpF.Ä¬ñÑ£4ŠÒ*Pžˆq½$ÒÚ\
+\ No newline at end of file
+diff --git a/state/shared/handoffs/archive/HANDOFF-Claude-s-MarkV-1775847705501.md b/state/shared/handoffs/archive/HANDOFF-Claude-s-MarkV-1775847705501.md
+deleted file mode 100644
+index ff074d16e..000000000
+Binary files a/state/shared/handoffs/archive/HANDOFF-Claude-s-MarkV-1775847705501.md and /dev/null differ
+diff --git a/state/shared/handoffs/archive/HANDOFF-LATHE-PRO-MS3-sessions14-15-complete.md b/state/shared/handoffs/archive/HANDOFF-LATHE-PRO-MS3-sessions14-15-complete.md
+deleted file mode 100644
+index ee8f0ace4..000000000
+Binary files a/state/shared/handoffs/archive/HANDOFF-LATHE-PRO-MS3-sessions14-15-complete.md and /dev/null differ
+diff --git a/state/shared/handoffs/archive/HANDOFF-LATHE-PRO-MS4a-complete.md b/state/shared/handoffs/archive/HANDOFF-LATHE-PRO-MS4a-complete.md
+deleted file mode 100644
+index 59a5aac85..000000000
+Binary files a/state/shared/handoffs/archive/HANDOFF-LATHE-PRO-MS4a-complete.md and /dev/null differ
+diff --git a/state/shared/handoffs/archive/HANDOFF-LATHE-PRO-MS4b-complete.md b/state/shared/handoffs/archive/HANDOFF-LATHE-PRO-MS4b-complete.md
+deleted file mode 100644
+index 751ac7c54..000000000
+Binary files a/state/shared/handoffs/archive/HANDOFF-LATHE-PRO-MS4b-complete.md and /dev/null differ
+diff --git a/state/shared/handoffs/archive/HANDOFF-LATHE-PRO-MS5-complete.md b/state/shared/handoffs/archive/HANDOFF-LATHE-PRO-MS5-complete.md
+deleted file mode 100644
+index 77dcddd3b..000000000
+Binary files a/state/shared/handoffs/archive/HANDOFF-LATHE-PRO-MS5-complete.md and /dev/null differ
+diff --git a/state/shared/handoffs/archive/HANDOFF-LATHE-PRO-MS6a-complete.md b/state/shared/handoffs/archive/HANDOFF-LATHE-PRO-MS6a-complete.md
+deleted file mode 100644
+index 34ee98935..000000000
+Binary files a/state/shared/handoffs/archive/HANDOFF-LATHE-PRO-MS6a-complete.md and /dev/null differ
+diff --git a/state/shared/handoffs/archive/HANDOFF-ppg-real-ms0-complete.md b/state/shared/handoffs/archive/HANDOFF-ppg-real-ms0-complete.md
+deleted file mode 100644
+index 8dcb13b59..000000000
+Binary files a/state/shared/handoffs/archive/HANDOFF-ppg-real-ms0-complete.md and /dev/null differ
+diff --git a/state/shared/handoffs/archive/HANDOFF-ppg-real-s10-complete.md b/state/shared/handoffs/archive/HANDOFF-ppg-real-s10-complete.md
+deleted file mode 100644
+index 09e7967a7..000000000
+Binary files a/state/shared/handoffs/archive/HANDOFF-ppg-real-s10-complete.md and /dev/null differ
+diff --git a/state/shared/handoffs/archive/HANDOFF-ppg-real-s11-complete.md b/state/shared/handoffs/archive/HANDOFF-ppg-real-s11-complete.md
+deleted file mode 100644
+index 5d0a217bb..000000000
+Binary files a/state/shared/handoffs/archive/HANDOFF-ppg-real-s11-complete.md and /dev/null differ
+diff --git a/state/shared/handoffs/archive/HANDOFF-ppg-real-s12-complete.md b/state/shared/handoffs/archive/HANDOFF-ppg-real-s12-complete.md
+deleted file mode 100644
+index 4afff7cdd..000000000
+Binary files a/state/shared/handoffs/archive/HANDOFF-ppg-real-s12-complete.md and /dev/null differ
+diff --git a/state/shared/handoffs/archive/HANDOFF-ppg-real-s8-complete.md b/state/shared/handoffs/archive/HANDOFF-ppg-real-s8-complete.md
+deleted file mode 100644
+index 0e200faa1..000000000
+Binary files a/state/shared/handoffs/archive/HANDOFF-ppg-real-s8-complete.md and /dev/null differ
+diff --git a/state/shared/handoffs/archive/HANDOFF-ppg-real-s9-complete.md b/state/shared/handoffs/archive/HANDOFF-ppg-real-s9-complete.md
+deleted file mode 100644
+index c320bc53d..000000000
+Binary files a/state/shared/handoffs/archive/HANDOFF-ppg-real-s9-complete.md and /dev/null differ
+diff --git a/state/shared/handoffs/archive/HANDOFF-wedm-100pct-s4-complete.md b/state/shared/handoffs/archive/HANDOFF-wedm-100pct-s4-complete.md
+deleted file mode 100644
+index 17ee32d00..000000000
+--- a/state/shared/handoffs/archive/HANDOFF-wedm-100pct-s4-complete.md
++++ /dev/null
+@@ -1,57 +0,0 @@
+-# HANDOFF: WEDM-100PCT-MS0 S4 Complete
+-Updated: 2026-04-05
+-
+-## STATE
+-S4 COMPLETE â€” 3/3 units done (U-W100-10, U-W100-11, U-W100-12)
+-
+-## RESUME
+-Continue WEDM-100PCT-MS0 at S5. Next units:
+-- U-W100-13: E-pack validation â€” generated codes map to valid machine parameters
+-- U-W100-14: Arc reversal on Pass 3 (G42+G3 â†’ G41+G2, confirmed missing by audit)
+-- U-W100-15: UV taper G-code emission (NOZE TEST format: G1 X Y U V on same line)
+-Read milestone S5 knowledge sources before coding.
+-
+-## COMPLETED THIS SESSION (S4)
+-
+-### U-W100-10: Skim feed from wire deflection beam mechanics
+-- Replaced arbitrary 1.5^n multipliers with physics-based deflection model
+-- Formula: Feed_skim_n = Feed_rough Ã— (1/Î³^(n/2))^Î², Î²=0.5
+-- Toenshoff gamma (material-specific) drives skim current reduction
+-- Steel (Î³=0.25): skim factors = 1.41Ã—, 2.0Ã—, 2.83Ã—, 4.0Ã— â€” matches published
+-- Cap at 4Ã— rough (machine servo limit)
+-- File: WireEDMSettingsEngine.ts
+-
+-### U-W100-11: E-Pack code generator
+-- Enhanced generateEPackCode() with physics-aware encoding
+-- Format: E{material_group:1-7}{thickness_code:0-9}{condition:1-5}{pass:1-9}
+-- Material groups from ISO thermal/electrical properties
+-- Thickness codes expanded 0-9 (was 0-5)
+-- Condition codes from target Ra + wire type
+-- Real program validation: ITW SHAKEPROOF E1221-E1224 âœ“, NOZE TEST E2821-E2825 âœ“
+-- Added decodeEPackCode() for reverse mapping
+-- 75 tests pass
+-- File: WEDMPrintToProgramEngine.ts (exported functions)
+-
+-### U-W100-12: E-Pack table import engine
+-- NEW ENGINE: EPackTableImportEngine.ts
+-- Supports JSON, CSV/TSV, key-value (INI) import formats
+-- Auto-detect format from content or filename
+-- Physics bounds validation (rejects impossible values)
+-- Fallback chain: imported ï¿½ï¿½ï¿½ published â†’ error (never synthetic)
+-- Mitsubishi, Sodick, Fanuc key mappings (ON/OFF/IP, TON/TOFF/IAP, etc.)
+-- 39 tests pass
+-- File: src/engines/EPackTableImportEngine.ts
+-
+-## TEST COUNTS
+-- 454/454 WEDM tests across 10 suites
+-- Build PASS (60.3MB, 0 TS errors)
+-- Milestone: 13/38 units complete
+-
+-## FILES MODIFIED
+-- src/engines/WireEDMSettingsEngine.ts (skim feed physics)
+-- src/engines/WEDMPrintToProgramEngine.ts (E-pack generator enhanced)
+-- src/engines/EPackTableImportEngine.ts (NEW)
+-- src/__tests__/wedm-epack-generator.test.ts (NEW, 75 tests)
+-- src/__tests__/wedm-epack-import.test.ts (NEW, 39 tests)
+-- src/__tests__/cwedm-real-shop-programs.test.ts (boundary fix: >= vs >)
+-- data/milestones/WEDM-100PCT-MS0.json (13/38)
+diff --git a/state/todo.md b/state/todo.md
+deleted file mode 100644
+index 89d2d4d8f..000000000
+Binary files a/state/todo.md and /dev/null differ
