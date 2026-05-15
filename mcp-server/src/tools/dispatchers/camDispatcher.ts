@@ -2096,6 +2096,7 @@ export const ACTIONS = [
   // U-DOCU-04/MS-DOCU-INGEST: blueprint<->program join query layer (point lookups)
   "cam_program_for_print",             // BlueprintProgramJoinEngine.queryProgramForPrint
   "cam_print_for_program",             // BlueprintProgramJoinEngine.queryPrintForProgram
+  "cam_read_print_pointer",            // U-DOCU-05 mirror — JMDieArchiveBackAnnotationEngine.readPrintPointer
 ] as const;
 
 // MS-P0.5-COORD U-P0.5-COORD-01: Register CAM dispatcher with WEDM-action filter
@@ -5346,6 +5347,21 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             } catch (err) {
               result = dispatcherError(err, action, "prism_cam");
             }
+            break;
+          }
+          case "cam_read_print_pointer": {
+            // U-DOCU-05 / MS-DOCU-INGEST — fast sidecar lookup for a CAM consumer.
+            // Returns the per-program print-pointer sidecar (written by
+            // JMDieArchiveBackAnnotationEngine.backAnnotateArchive) if it exists
+            // and was written by us; null otherwise. Mirrors prism_dev:read_print_pointer.
+            const { jmDieArchiveBackAnnotationEngine } = await import("../../engines/JMDieArchiveBackAnnotationEngine.js");
+            const programPath = typeof params.program_path === "string" ? params.program_path.trim() : "";
+            if (programPath.length === 0) {
+              result = { error: "program_path is required (a program/CAD file path)" };
+              break;
+            }
+            const sidecar = jmDieArchiveBackAnnotationEngine.readPrintPointer(programPath);
+            result = { success: true, data: { found: sidecar !== null, sidecar } };
             break;
           }
           case "cross_cam_recommend": {

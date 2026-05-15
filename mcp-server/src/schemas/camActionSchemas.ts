@@ -339,4 +339,8 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
   cam_print_for_program: z.object({
     program_path: z.string().min(1).describe("Program/CAD file path (any slash style, any case) — returns the print(s) joined to it"),
   }),
+  // U-DOCU-05 / MS-DOCU-INGEST: CAM-side mirror of prism_dev:read_print_pointer.
+  cam_read_print_pointer: z.object({
+    program_path: z.string().min(1).describe("Program/CAD file path — returns the print-pointer sidecar if present and provenance == self (written by JMDieArchiveBackAnnotationEngine)."),
+  }),
 };
