@@ -814,4 +814,34 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   tcb_summary: z.object({}).passthrough().describe("Human-readable summary of batching opportunities + total tokens saveable"),
 
   tcb_reset: z.object({}).passthrough().describe("Clear all history"),
+
+  // ── OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-DATA-VALIDATION ──────────────────
+  // DataValidationEngine — DQ-MS1 data quality pipeline (material/cutting/job
+  // validation with severity-tagged issues and 0-100 score).
+  dv_validate_material: z.object({
+    name: z.string().optional(),
+    hardness_hrc: z.number().optional(),
+    tensile_strength_mpa: z.number().optional(),
+    density_kg_m3: z.number().optional(),
+    thermal_conductivity: z.number().optional(),
+    iso_group: z.string().optional(),
+  }).passthrough().describe("Validate material properties — ranges + ISO group + required fields"),
+
+  dv_validate_cutting_params: z.object({
+    rpm: z.number().optional(),
+    feed_rate: z.number().optional(),
+    feed_per_tooth: z.number().optional(),
+    axial_depth: z.number().optional(),
+    radial_depth: z.number().optional(),
+    tool_diameter: z.number().optional(),
+    number_of_teeth: z.number().int().optional(),
+  }).passthrough().describe("Validate cutting parameters — physics ranges + cross-field consistency"),
+
+  dv_validate_job: z.object({
+    job_id: z.string().optional(),
+    material: z.unknown().optional(),
+    operation: z.string().optional(),
+  }).passthrough().describe("Validate a job payload — nested material + operation + completeness"),
+
+  dv_stats: z.object({}).passthrough().describe("Validation count + engine internal stats"),
 };
