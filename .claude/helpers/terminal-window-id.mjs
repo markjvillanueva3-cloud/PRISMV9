@@ -50,11 +50,13 @@
  * is slow, scheme degrades to `pp`.
  *
  * Knobs:
- *   PRISM_TERMINAL_WINDOW_ID         — explicit override (CI / tests)
- *   PRISM_TERMINAL_WINDOW_ID_DISABLE — return null (disables pinning)
- *   PRISM_TWID_TIMEOUT_MS            — ancestry-walk budget (default 2000)
- *   PRISM_TWID_CACHE_DISABLE         — skip tier-0 cache
- *   PRISM_TWID_CACHE_FILE            — override cache path (tests)
+ *   PRISM_TERMINAL_WINDOW_ID              — explicit override (CI / tests)
+ *   PRISM_TERMINAL_WINDOW_ID_DISABLE      — return null (disables pinning)
+ *   PRISM_TWID_TIMEOUT_MS                 — ancestry-walk budget (default 2000)
+ *   PRISM_TWID_CACHE_DISABLE              — skip tier-0 cache
+ *   PRISM_TWID_CACHE_FILE                 — override cache path (tests)
+ *   PRISM_TWID_AUTOUPGRADE_DISABLE        — disable cache-hit auto-upgrade probe
+ *   PRISM_TWID_AUTOUPGRADE_THROTTLE_MS    — probe throttle (default 30000, floor 1000)
  *
  * @returns {string|null}
  */
@@ -71,7 +73,8 @@ const MAX_ANCESTOR_HOPS = 8;
 
 // Tier ranking: higher number = higher priority. Used by never-downgrade rule.
 const TIER_RANK = { "wt": 4, "ps": 3, "pa": 2, "pp": 1 };
-const MAX_TIER = 4;
+// Derived from TIER_RANK so adding a new tier auto-updates the ceiling.
+const MAX_TIER = Math.max(...Object.values(TIER_RANK));
 
 // Cache-hit auto-upgrade probe throttle. When the cached entry's tier is below
 // MAX_TIER, the resolver re-attempts a fresh resolution at most once per this
@@ -79,7 +82,16 @@ const MAX_TIER = 4;
 // Closes Reviewer B P2 (CHECKIN-UPGRADE-MS0 commit 59465d7c2 follow-up): a
 // session that first resolved to tw-pp-* (wmic flaked) would otherwise freeze
 // at tier 1 forever, defeating the never-downgrade rule's intent.
-const AUTOUPGRADE_THROTTLE_MS = Number(process.env.PRISM_TWID_AUTOUPGRADE_THROTTLE_MS || 30000);
+//
+// Hard floor 1000ms: closes 3-of-3 reviewer C P1 (THROTTLE=0 caused probe-
+// storm — every cache-hit spawned powershell). Resolved at call-time, not
+// module-load (closes reviewers B+C P1 — module-load capture defeated the
+// per-call env override).
+const AUTOUPGRADE_THROTTLE_FLOOR_MS = 1000;
+function autoUpgradeThrottleMs() {
+  const raw = Number(process.env.PRISM_TWID_AUTOUPGRADE_THROTTLE_MS || 30000);
+  return Math.max(Number.isFinite(raw) ? raw : 30000, AUTOUPGRADE_THROTTLE_FLOOR_MS);
+}
 
 function cacheFile() {
   return process.env.PRISM_TWID_CACHE_FILE || DEFAULT_CACHE_FILE;
@@ -233,21 +245,30 @@ export function resolveTerminalWindowId(opts = {}) {
       const lastProbeMs = Number(Date.parse(hit.lastProbeAt || hit.recordedAt || "")) || 0;
       const ageMs = now - lastProbeMs;
       const upgradeDisabled = process.env.PRISM_TWID_AUTOUPGRADE_DISABLE === "1";
+      // Read throttle at call-time (Reviewer B+C P1 fix — module-load capture
+      // silently defeated per-call env override).
+      const throttleMs = autoUpgradeThrottleMs();
       const shouldProbe = !upgradeDisabled
         && cachedTier > 0
         && cachedTier < MAX_TIER
-        && ageMs >= AUTOUPGRADE_THROTTLE_MS;
+        && ageMs >= throttleMs;
 
       if (shouldProbe) {
         const fresh = computeFreshId(opts);
         if (fresh && tierOf(fresh) > cachedTier) {
+          // Chain upgradedFrom as array — preserves audit trail across
+          // multi-step upgrades (tw-pp → tw-ps → tw-wt). Closes Reviewer B
+          // P2 (overwrite was losing prior-tier history).
+          const priorChain = Array.isArray(hit.upgradedFrom)
+            ? hit.upgradedFrom
+            : (hit.upgradedFrom ? [hit.upgradedFrom] : []);
           cache[sessionId] = {
             id: fresh,
             tier: tierOf(fresh),
             recordedAt: hit.recordedAt || new Date(now).toISOString(),
             lastSeenAt: new Date(now).toISOString(),
             lastProbeAt: new Date(now).toISOString(),
-            upgradedFrom: hit.id,
+            upgradedFrom: [...priorChain, hit.id],
           };
           writeCache(cache);
           return fresh;

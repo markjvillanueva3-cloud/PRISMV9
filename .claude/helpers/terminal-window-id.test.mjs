@@ -28,6 +28,8 @@ const ORIG_ENV = {
   PRISM_TERMINAL_WINDOW_ID_DISABLE: process.env.PRISM_TERMINAL_WINDOW_ID_DISABLE,
   PRISM_TWID_CACHE_FILE: process.env.PRISM_TWID_CACHE_FILE,
   PRISM_TWID_CACHE_DISABLE: process.env.PRISM_TWID_CACHE_DISABLE,
+  PRISM_TWID_AUTOUPGRADE_DISABLE: process.env.PRISM_TWID_AUTOUPGRADE_DISABLE,
+  PRISM_TWID_AUTOUPGRADE_THROTTLE_MS: process.env.PRISM_TWID_AUTOUPGRADE_THROTTLE_MS,
   WT_SESSION: process.env.WT_SESSION,
 };
 
@@ -35,6 +37,8 @@ function resetEnv() {
   delete process.env.PRISM_TERMINAL_WINDOW_ID;
   delete process.env.PRISM_TERMINAL_WINDOW_ID_DISABLE;
   delete process.env.PRISM_TWID_CACHE_DISABLE;
+  delete process.env.PRISM_TWID_AUTOUPGRADE_DISABLE;
+  delete process.env.PRISM_TWID_AUTOUPGRADE_THROTTLE_MS;
   delete process.env.WT_SESSION;
   process.env.PRISM_TWID_CACHE_FILE = TMP_CACHE;
 }
@@ -291,11 +295,11 @@ describe("resolveTerminalWindowId — auto-upgrade probe on cache hit (Reviewer 
     process.env.WT_SESSION = "abcdef12-3456-7890-abcd-ef1234567890";
     const got = resolveTerminalWindowId({ sessionId: "sess-upgrade-1" });
     assert.match(got, /^tw-wt-/, `expected tw-wt-* upgrade, got ${got}`);
-    // Cache should now reflect the upgrade with upgradedFrom set.
+    // Cache should now reflect the upgrade with upgradedFrom chained as array.
     const cache = JSON.parse(fs.readFileSync(TMP_CACHE, "utf-8"));
     assert.match(cache["sess-upgrade-1"].id, /^tw-wt-/);
     assert.equal(cache["sess-upgrade-1"].tier, 4);
-    assert.equal(cache["sess-upgrade-1"].upgradedFrom, "tw-pp-12345");
+    assert.deepEqual(cache["sess-upgrade-1"].upgradedFrom, ["tw-pp-12345"]);
   });
   it("does NOT probe when within throttle window — returns cached", () => {
     // Seed cache with a RECENT low-tier entry (lastProbeAt < 30s ago).
@@ -355,27 +359,79 @@ describe("resolveTerminalWindowId — auto-upgrade probe on cache hit (Reviewer 
     assert.ok(newProbeMs > oldProbeMs, "lastProbeAt should advance after probe attempt");
     assert.equal(cache["sess-no-improve"].id, "tw-ps-55555", "id should stay tw-ps");
   });
-  it("throttle window is configurable via PRISM_TWID_AUTOUPGRADE_THROTTLE_MS", () => {
-    // Custom throttle: 50ms instead of 30s
-    process.env.PRISM_TWID_AUTOUPGRADE_THROTTLE_MS = "50";
-    // Cache entry from 200ms ago — well past 50ms throttle, should probe.
-    const oldTime = new Date(Date.now() - 200).toISOString();
+  it("PRISM_TWID_AUTOUPGRADE_THROTTLE_MS is read at call-time (Reviewer B+C P1)", async () => {
+    // The throttle is read INSIDE resolveTerminalWindowId() via autoUpgradeThrottleMs(),
+    // not captured at module-load. Set a tight 1000ms throttle (== floor), seed a
+    // cache entry 1.5s old, verify the probe fires.
+    process.env.PRISM_TWID_AUTOUPGRADE_THROTTLE_MS = "1000";
+    const oldTime = new Date(Date.now() - 1500).toISOString();
     fs.writeFileSync(TMP_CACHE, JSON.stringify({
-      "sess-custom-throttle": {
+      "sess-callsite-throttle": {
         id: "tw-pp-22222", tier: 1,
         recordedAt: oldTime, lastSeenAt: oldTime, lastProbeAt: oldTime,
       },
     }, null, 2));
     process.env.WT_SESSION = "abcdef12-3456-7890-abcd-ef1234567890";
-    // NOTE: the throttle constant is read at module-load time, so this test
-    // verifies the env knob exists — full behavior requires fresh import.
-    // We still assert auto-upgrade happens (default 30s is so large that
-    // the 60s-old oldTime would NOT trigger upgrade; the 200ms oldTime here
-    // would also not trigger with default 30s. The 50ms env value makes the
-    // 200ms-old entry probe-eligible).
-    const got = resolveTerminalWindowId({ sessionId: "sess-custom-throttle" });
-    // Either upgrade happened (env knob took effect during module load) or
-    // didn't (env knob set after load). Both are valid; assert no crash.
-    assert.ok(typeof got === "string" && got.length > 0);
+    const got = resolveTerminalWindowId({ sessionId: "sess-callsite-throttle" });
+    // 1500ms > 1000ms throttle → probe fires → WT_SESSION available → upgrades to tw-wt-*
+    assert.match(got, /^tw-wt-/, `expected tw-wt-* upgrade at call-time throttle, got ${got}`);
+  });
+  it("THROTTLE_MS=0 is clamped to floor (1000ms) — no probe-storm DoS (Reviewer C P1)", () => {
+    // Setting THROTTLE_MS=0 used to cause every cache-hit to spawn powershell.
+    // Now clamped to AUTOUPGRADE_THROTTLE_FLOOR_MS (1000).
+    process.env.PRISM_TWID_AUTOUPGRADE_THROTTLE_MS = "0";
+    // Seed cache 500ms old — below clamped floor of 1000ms, should NOT probe.
+    const oldTime = new Date(Date.now() - 500).toISOString();
+    fs.writeFileSync(TMP_CACHE, JSON.stringify({
+      "sess-throttle-zero": {
+        id: "tw-pp-33333", tier: 1,
+        recordedAt: oldTime, lastSeenAt: oldTime, lastProbeAt: oldTime,
+      },
+    }, null, 2));
+    process.env.WT_SESSION = "abcdef12-3456-7890-abcd-ef1234567890";
+    const got = resolveTerminalWindowId({ sessionId: "sess-throttle-zero" });
+    // Floor (1000ms) > age (500ms) → no probe → cached tw-pp returns.
+    assert.equal(got, "tw-pp-33333", "floor must prevent probe-storm");
+  });
+  it("upgradedFrom is CHAINED across multi-step upgrades (Reviewer B P2)", () => {
+    // A session that already upgraded tw-pp → tw-ps (upgradedFrom: ["tw-pp-x"])
+    // should preserve that history when upgrading again to tw-wt.
+    const oldTime = new Date(Date.now() - 60_000).toISOString();
+    fs.writeFileSync(TMP_CACHE, JSON.stringify({
+      "sess-chained": {
+        id: "tw-ps-77777", tier: 3,    // already once-upgraded
+        recordedAt: oldTime, lastSeenAt: oldTime, lastProbeAt: oldTime,
+        upgradedFrom: ["tw-pp-44444"],
+      },
+    }, null, 2));
+    process.env.WT_SESSION = "abcdef12-3456-7890-abcd-ef1234567890";
+    const got = resolveTerminalWindowId({ sessionId: "sess-chained" });
+    assert.match(got, /^tw-wt-/);
+    const cache = JSON.parse(fs.readFileSync(TMP_CACHE, "utf-8"));
+    assert.deepEqual(
+      cache["sess-chained"].upgradedFrom,
+      ["tw-pp-44444", "tw-ps-77777"],
+      "upgradedFrom should chain prior history + the just-replaced id",
+    );
+  });
+  it("upgradedFrom handles legacy string format (back-compat)", () => {
+    // Pre-fix cache may have upgradedFrom as bare string. Verify migration.
+    const oldTime = new Date(Date.now() - 60_000).toISOString();
+    fs.writeFileSync(TMP_CACHE, JSON.stringify({
+      "sess-legacy": {
+        id: "tw-ps-88888", tier: 3,
+        recordedAt: oldTime, lastSeenAt: oldTime, lastProbeAt: oldTime,
+        upgradedFrom: "tw-pp-66666",   // LEGACY string format
+      },
+    }, null, 2));
+    process.env.WT_SESSION = "abcdef12-3456-7890-abcd-ef1234567890";
+    const got = resolveTerminalWindowId({ sessionId: "sess-legacy" });
+    assert.match(got, /^tw-wt-/);
+    const cache = JSON.parse(fs.readFileSync(TMP_CACHE, "utf-8"));
+    assert.deepEqual(
+      cache["sess-legacy"].upgradedFrom,
+      ["tw-pp-66666", "tw-ps-88888"],
+      "legacy string should wrap into array",
+    );
   });
 });
