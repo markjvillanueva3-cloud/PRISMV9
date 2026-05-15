@@ -1,13 +1,13 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-15T14:55:39.083Z",
+  "generatedAt": "2026-05-15T15:27:53.193Z",
   "headline": {
     "built_engines": 2377,
-    "built_with_wiki": 1005,
+    "built_with_wiki": 1073,
     "needs_wiring": 861,
-    "needs_building_active_units": 3184,
+    "needs_building_active_units": 3183,
     "needs_frontend_merge_count": 2,
-    "pending_milestones_with_activity": 81,
+    "pending_milestones_with_activity": 80,
     "drift_milestones": 175,
     "stale_milestones": 227,
     "domains_tracked": 932
@@ -19,7 +19,7 @@
     "engines_index": "H:\\prism\\mcp-server\\data\\state\\ENGINES_INDEX.json"
   },
   "BUILT": {
-    "summary": "2377/3238 engines wired (73%); 1005 wiki entries indexed.",
+    "summary": "2377/3238 engines wired (73%); 1073 wiki entries indexed.",
     "breakdown": {
       "totalEngines": 3238,
       "unwired": 861,
@@ -9134,7 +9134,7 @@
     "next_action": "Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift."
   },
   "NEEDS_BUILDING": {
-    "summary": "3184 units across 673 milestones not yet in git.",
+    "summary": "3183 units across 673 milestones not yet in git.",
     "drift_cases": [
       {
         "id": "CC-EXT-MS0",
@@ -10189,30 +10189,6 @@
     ],
     "top_pending_units": [
       {
-        "milestone": "KNOWLEDGE-VAULT-MS0",
-        "unit": "U-VAULT01",
-        "title": "Vault-schema doc (CLAUDE.md role definition)",
-        "phase": "P0"
-      },
-      {
-        "milestone": "KNOWLEDGE-VAULT-MS0",
-        "unit": "U-VAULT02",
-        "title": "Memory→wiki promotion engine",
-        "phase": "P0"
-      },
-      {
-        "milestone": "KNOWLEDGE-VAULT-MS0",
-        "unit": "U-VAULT04",
-        "title": "Skill ↔ wiki cross-trigger registry",
-        "phase": "P0"
-      },
-      {
-        "milestone": "KNOWLEDGE-VAULT-MS0",
-        "unit": "U-VAULT05",
-        "title": "Domain MOC generator (Nick Milo pattern)",
-        "phase": "P0"
-      },
-      {
         "milestone": "INTEL-OLLAMA-OBSIDIAN-MS0",
         "unit": "P5-U05",
         "title": "Wire prism_intelligence:diagnose_failure → DiagnosticReasoningEngine",
@@ -10237,100 +10213,124 @@
         "phase": "P7"
       },
       {
-        "milestone": "SLOT-WORKTREE-MS0",
-        "unit": "U-P2-AUDIT-REFRESH",
-        "title": "Refresh the worktree audit against current state",
-        "phase": "P2-DRAIN"
-      },
-      {
-        "milestone": "COMMAND-KERNEL-MS0",
-        "unit": "U-CK02",
-        "title": "psk whoami / position / manifest syscalls",
+        "milestone": "CCM-MS0",
+        "unit": "P0-U06",
+        "title": "WorktreeCreate hook",
         "phase": "P0"
       },
       {
-        "milestone": "COMMAND-KERNEL-MS0",
-        "unit": "U-CK03",
-        "title": "psk handoff / checkin / pick syscalls",
+        "milestone": "CCM-MS0",
+        "unit": "P0-U07",
+        "title": "WorktreeRemove hook",
         "phase": "P0"
       },
       {
-        "milestone": "COMMAND-KERNEL-MS0",
-        "unit": "U-CK04",
-        "title": "knowledge/wiki/os/ namespace + entity frontmatter schema",
+        "milestone": "CCM-MS0",
+        "unit": "P0-U08",
+        "title": "PostCompact hook",
         "phase": "P0"
       },
       {
-        "milestone": "COMMAND-KERNEL-MS0",
-        "unit": "U-CK05",
-        "title": "Generated-mirror generators (JSON registries become mirrors of os/ entities)",
+        "milestone": "CCM-MS0",
+        "unit": "P0-U09",
+        "title": "SessionEnd hook",
         "phase": "P0"
       },
       {
-        "milestone": "CLEANUP-MS0",
-        "unit": "U-CLEANUP-A1",
-        "title": "A1 — extend SLOT_NAMES in chat-slots.mjs to add 'golf' (NATO phonetic continuity)",
-        "phase": "bootstrap-tier-0"
+        "milestone": "L8-P1-MS2",
+        "unit": "P0-U06",
+        "title": "Knowledge Search",
+        "phase": "P0"
       },
       {
-        "milestone": "CLEANUP-MS0",
-        "unit": "U-CLEANUP-A5",
-        "title": "A5 — golf-slot-write-allowlist.mjs PreToolUse T0 hook (path-resolve hardened against ../; allowlist-regex from golf-owned-paths.json; tier frontmatter; bypass env PRISM_GOLF_WRITE_ALLOWLIST_BYPASS=1)",
-        "phase": "bootstrap-tier-0"
+        "milestone": "L8-P1-MS2",
+        "unit": "P0-U07",
+        "title": "Material Selection Wizard",
+        "phase": "P0"
       },
       {
-        "milestone": "CLEANUP-MS0",
-        "unit": "U-CLEANUP-A6",
-        "title": "A6 — bootstrap-golf.mjs (mkdir .cron-locks, seed golf-owned-paths.json + golf-token-budget.json + golf-cron-registry.json; .gitignore additions for coordination.db* + .cron-locks/*.lock + .watchdog-last-poll.iso + golf-token-budget.json; detect & rebuild 0-byte coordination.db; git rm --cached on first run)",
-        "phase": "bootstrap-tier-0"
+        "milestone": "L8-P1-MS2",
+        "unit": "P0-U08",
+        "title": "Tool Selection Wizard",
+        "phase": "P0"
       },
       {
-        "milestone": "CLEANUP-MS0",
-        "unit": "U-CLEANUP-B7",
-        "title": "B7 — /peer-audit skill (READ-ONLY operator query; never mutates ledger; mutations only via prism_dev dispatcher action with audit trail)",
-        "phase": "operator-surfaces-tier-3"
+        "milestone": "L8-P1-MS2",
+        "unit": "P0-U09",
+        "title": "Machine Selection Wizard",
+        "phase": "P0"
       },
       {
-        "milestone": "COORD-MS0",
-        "unit": "U-COORD02",
-        "title": "Add Optimistic Locking with Version Field",
-        "phase": ""
+        "milestone": "L8-P2-MS2",
+        "unit": "P0-U06",
+        "title": "Capacity Analytics Dashboard",
+        "phase": "P0"
       },
       {
-        "milestone": "COORD-MS0",
-        "unit": "U-COORD09",
-        "title": "Ambient Awareness Badge",
-        "phase": ""
+        "milestone": "L8-P2-MS2",
+        "unit": "P0-U07",
+        "title": "Predictive Maintenance Panel",
+        "phase": "P0"
       },
       {
-        "milestone": "COORD-MS0",
-        "unit": "U-COORD12",
-        "title": "Checksum Validation on Read",
-        "phase": ""
+        "milestone": "L8-P2-MS2",
+        "unit": "P0-U08",
+        "title": "ERP Overview Page",
+        "phase": "P0"
       },
       {
-        "milestone": "AI-MAX-MS0",
-        "unit": "U-AIMAX09",
-        "title": "Feature Cascade Enhancement",
-        "phase": "session-3"
+        "milestone": "L8-P2-MS2",
+        "unit": "P0-U09",
+        "title": "ERP Layout & Navigation",
+        "phase": "P0"
       },
       {
-        "milestone": "AI-MAX-MS0",
-        "unit": "U-AIMAX11",
-        "title": "AI Reasoning Skill Commands",
-        "phase": "session-4"
+        "milestone": "CCM-MS14",
+        "unit": "P0-U06",
+        "title": "Cache hit rate monitor",
+        "phase": "P0"
       },
       {
-        "milestone": "AI-MAX-MS0",
-        "unit": "U-AIMAX12",
-        "title": "AI Capability Protective Hook",
-        "phase": "session-4"
+        "milestone": "CCM-MS14",
+        "unit": "P0-U07",
+        "title": "Cascade failure detector",
+        "phase": "P0"
       },
       {
-        "milestone": "CAD-INFRA-MS0",
-        "unit": "U-CINF01",
-        "title": "CADFileIndexerEngine — master 20,006-file catalog",
-        "phase": ""
+        "milestone": "CCM-MS14",
+        "unit": "P0-U08",
+        "title": "Monte Carlo convergence monitor",
+        "phase": "P0"
+      },
+      {
+        "milestone": "CCM-MS14",
+        "unit": "P0-U09",
+        "title": "silentCatch fire rate monitor",
+        "phase": "P0"
+      },
+      {
+        "milestone": "CCM-MS5",
+        "unit": "P0-U06",
+        "title": "Batch skill updater",
+        "phase": "P0"
+      },
+      {
+        "milestone": "CCM-MS5",
+        "unit": "P0-U07",
+        "title": "Batch test runner",
+        "phase": "P0"
+      },
+      {
+        "milestone": "CCM-MS5",
+        "unit": "P0-U08",
+        "title": "Cron management skill",
+        "phase": "P0"
+      },
+      {
+        "milestone": "CCM-MS5",
+        "unit": "P0-U09",
+        "title": "Schema drift cron",
+        "phase": "P0"
       }
     ],
     "next_action": "Cross-reference MILESTONE_PROGRESS.json. Avoid units already in `shipped` arrays — those are committed but envelope status is stale."
