@@ -40,6 +40,14 @@ const ORPHANS_PATH = resolve(PRISM_ROOT, "state/shared/wiki-orphans.json");
 // can tell them apart from architecture entries.
 const TRIBAL_DIR = process.env.PRISM_WIKI_TRIBAL_DIR || resolve(PRISM_ROOT, "knowledge/tribal");
 const CODE_TRIBAL_DIR = process.env.PRISM_WIKI_CODE_TRIBAL_DIR || resolve(PRISM_ROOT, "knowledge/wiki/code-tribal");
+// Personal-memory mirror: `memory-mirror-to-vault.mjs` writes the auto-memory
+// dir (`feedback_*.md`, `reference_*.md`, `project_*.md`, `user_*.md`, …) into
+// `knowledge/memories/` so it lives in-vault alongside the wiki tree. Indexing
+// them here is how the recall hooks (wiki-precheck-inject, wiki-recall-on-read)
+// surface memories semantically — keyword-only matching via
+// memory-relevance-inject.mjs stays in place for PreToolUse:Edit (different
+// recall surface). Skips `MEMORY.md` (index file) and `_index/` (also indexes).
+const MEMORIES_DIR = process.env.PRISM_WIKI_MEMORIES_DIR || resolve(PRISM_ROOT, "knowledge/memories");
 
 const DESC_MAX = 200;
 const MAX_BOOST_KEYWORDS = 24; // per-entry cap — keeps the leaf-index lean + bounds recall footprint
@@ -217,6 +225,77 @@ function main() {
       codeTribalCount++;
     }
   }
+  // Personal-memory mirror (knowledge/memories/**) — auto-mirrored from the
+  // C:\Users\…\.claude\projects\H--PRISM\memory dir by memory-mirror-to-vault.mjs.
+  // Index pattern parallels code-tribal: parse frontmatter, derive name + title +
+  // type + first-line desc. Skip `MEMORY.md` (index file) + `_index/` subtree
+  // (also index files). Dedup by `name` against entries already pushed: the
+  // mirror writes BOTH a flat top-level copy AND the categorized subdir copy of
+  // each memory, so without dedup we'd double-index every entry.
+  let memoryCount = 0;
+  // Per-corpus dedup set: the memory mirror writes BOTH a flat top-level copy
+  // (e.g. `feedback_alpha_owns_reaper.md`) AND a categorized-subdir copy
+  // (`feedback/feedback_alpha_owns_reaper.md`). Without explicit dedup,
+  // pushEntry's `~2` suffix logic would mint duplicate entries (one per copy,
+  // verified 2026-05-14 — 124 memories had `~2` siblings). Track the canonical
+  // frontmatter `name` per file and skip on collision. Walk order is depth-first
+  // alphabetical, so the subdir copy is encountered before the flat copy (because
+  // `feedback/` < `feedback_*.md` lexicographically); the subdir copy wins.
+  const seenMemoryNames = new Set();
+  if (existsSync(MEMORIES_DIR)) {
+    for (const f of walkMd(MEMORIES_DIR)) {
+      const baseName = basename(f, ".md");
+      if (baseName === "MEMORY" || baseName === "MEMORY.md") continue;
+      const rel = relative(MEMORIES_DIR, f).replace(/\\/g, "/");
+      // Skip _index/ subtree — those are wiki-index files, not memory entries.
+      if (rel.startsWith("_index/")) continue;
+      let content;
+      try { content = readFileSync(f, "utf8"); } catch { skipped++; continue; }
+      const fm = parseFrontmatter(content);
+      // `name` is the canonical slug; fall back to basename. Skip if we already
+      // pushed this slug (flat + categorized-subdir copies of the same memory).
+      const name = (fm.name && String(fm.name).trim()) || baseName;
+      if (seenMemoryNames.has(name)) continue;
+      seenMemoryNames.add(name);
+      const title = fm.title || firstH1(content) || name;
+      // memory type: feedback / reference / project / user / mistakes / patterns.
+      // Frontmatter stores it nested under `metadata: type:` per the global
+      // CLAUDE.md schema; fall back to first path segment ("feedback/foo.md"
+      // → "feedback") then default to "memory".
+      // Privacy gate — opt-out for memories that should NOT enter the recall
+      // surface. Top-level scalar frontmatter fields (the parser only handles
+      // scalars + ARRAY_KEYS — nested `metadata: { private: true }` would not
+      // round-trip here; documented in the global CLAUDE.md memory schema as
+      // a top-level field). Honors both string "true" and boolean true.
+      if (fm.private === true || fm.private === "true" ||
+          fm.exclude_from_index === true || fm.exclude_from_index === "true") {
+        continue;
+      }
+      // Path-segment fallback is only valid when the file lives in a category
+      // subdir — for a flat top-level file like `devops_improvements.md` the
+      // first segment IS the filename, which would mint a useless one-off type
+      // ("memory-devops_improvements.md"). Default to "uncategorized" in that
+      // case so the type universe stays bounded.
+      //
+      // The frontmatter parser at lines ~85-127 is scalar-only with an array
+      // exception (ARRAY_KEYS) — nested `metadata: { type: feedback }` does NOT
+      // round-trip, so we DO NOT read `fm.metadata.type` (a previous draft did,
+      // but the expression was dead — confirmed by reviewer pass 2026-05-14).
+      // Resolution order: top-level `fm.type` → path segment → "uncategorized".
+      const pathSegment = rel.includes("/") ? rel.split("/")[0] : null;
+      const metaType = fm.type || pathSegment || "uncategorized";
+      const type = `memory-${String(metaType).toLowerCase().replace(/\.md$/, "")}`;
+      const desc =
+        firstBlockquote(content) ||
+        (fm.description && String(fm.description).slice(0, DESC_MAX)) ||
+        (content.replace(/^---[\s\S]*?\n---\s*\n/, "").split(/\r?\n/).find((l) => l.trim() && !l.startsWith("#")) || "")
+          .trim()
+          .slice(0, DESC_MAX);
+      const path = relative(PRISM_ROOT, f).replace(/\\/g, "/");
+      pushEntry(name, title, type, desc, path, normalizeBoostKeywords(fm.boost_keywords));
+      memoryCount++;
+    }
+  }
   const jsonl = lines.join("\n") + "\n";
   writeFileSync(OUT_PATH, jsonl, "utf8");
 
@@ -248,7 +327,7 @@ tags: [architecture, wiki, stats, self-awareness]
 > \`index.md\` lines — it does **not** see this tree. This file is the real
 > number. (If you maintain \`generate-system-viz.mjs\`, count \`architecture/**/*.md\`.)
 
-**Total recall-index entries:** ${lines.length}  (\`architecture/\` tree: ${archCount} · tribal tips: ${tribalCount} · code-tribal: ${codeTribalCount})
+**Total recall-index entries:** ${lines.length}  (\`architecture/\` tree: ${archCount} · tribal tips: ${tribalCount} · code-tribal: ${codeTribalCount} · memories: ${memoryCount})
 **Leaf index:** \`_leaf-index.jsonl\` (${(Buffer.byteLength(jsonl) / 1048576).toFixed(2)} MB) — consumed by \`wiki-precheck-inject.mjs\` (BM25 + cosine) and \`wiki-recall-on-read.mjs\` for keyword/path recall
 **Semantic index:** \`_embeddings.jsonl\` (int8 nomic-embed-text vectors over concept entries; built by \`build-wiki-embeddings.mjs\` — present iff Ollama was reachable at last regen)
 **Orphan rate:** ${orphanLine}  (rescue hub: \`_orphans-rescue.md\` — every orphan gets an inbound link there, so effective orphan rate ≈ 0)
@@ -282,7 +361,7 @@ then \`system-viz-obsidian-bridge-v2\`, \`export-graph-cypher\`, \`inject-wiki-c
 `;
   writeFileSync(STATS_PATH, stats, "utf8");
 
-  process.stdout.write(`leaf-index: ${lines.length} entries (arch ${archCount} + tribal ${tribalCount} + code-tribal ${codeTribalCount}) -> _leaf-index.jsonl (${(Buffer.byteLength(jsonl) / 1048576).toFixed(2)} MB) + _stats.md, ${boostEntryCount} with boost_keywords, ${Date.now() - t0}ms, skipped ${skipped}\n`);
+  process.stdout.write(`leaf-index: ${lines.length} entries (arch ${archCount} + tribal ${tribalCount} + code-tribal ${codeTribalCount} + memories ${memoryCount}) -> _leaf-index.jsonl (${(Buffer.byteLength(jsonl) / 1048576).toFixed(2)} MB) + _stats.md, ${boostEntryCount} with boost_keywords, ${Date.now() - t0}ms, skipped ${skipped}\n`);
 }
 
 // Run only when invoked directly — importing this module (the U-CLEANUP-D5 test

@@ -73,9 +73,21 @@ const OLLAMA_HOST = process.env.OLLAMA_HOST || "127.0.0.1:11434";
 const OLLAMA_URL = `http://${OLLAMA_HOST.replace(/^https?:\/\//, "")}/api/embeddings`;
 
 // Concept entry types worth a vector. Actions excluded unless --include-actions.
+// Personal-memory entries (`memory-feedback`, `memory-reference`, `memory-project`,
+// `memory-user`, `memory-uncategorized`, `memory-mistakes`, `memory-patterns`,
+// `memory-lessons`, `memory-decisions`, `memory-inbox`) ARE embedded — the
+// recall layer uses them as a semantic shortcut to the personal-memory mirror
+// at `knowledge/memories/**`. Added 2026-05-14 by the memory→obsidian unit;
+// before that they entered via the `|| true` default-include fallthrough below,
+// which made the inclusion invisible to a maintainer reading this set. Making
+// them explicit fixes that documentation gap.
 const CONCEPT_TYPES = new Set([
   "engine", "dispatcher", "registry", "architecture", "skill", "hook",
   "formula", "algorithm", "milestone", "monolith", "frontend", "domain", "layer",
+  "tribal-tip", "code-tribal",
+  "memory-feedback", "memory-reference", "memory-project", "memory-user",
+  "memory-uncategorized", "memory-mistakes", "memory-patterns",
+  "memory-lessons", "memory-decisions", "memory-inbox",
 ]);
 function isConcept(r) {
   if (FLAGS.includeActions) return true;
@@ -83,6 +95,9 @@ function isConcept(r) {
   if (t === "action") return false;
   // Heuristic: action entries live under actions/ in the path
   if (String(r.path || "").includes("/actions/")) return false;
+  // Explicit memory-type pass — any `memory-<kind>` type (so a new category
+  // schema added without updating CONCEPT_TYPES still embeds correctly).
+  if (t.startsWith("memory-")) return true;
   return CONCEPT_TYPES.has(t) || true; // default-include any non-action concept
 }
 
