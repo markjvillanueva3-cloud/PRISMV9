@@ -1,15 +1,15 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-15T15:27:53.193Z",
+  "generatedAt": "2026-05-15T19:06:50.865Z",
   "headline": {
     "built_engines": 2377,
     "built_with_wiki": 1073,
     "needs_wiring": 861,
-    "needs_building_active_units": 3183,
+    "needs_building_active_units": 3198,
     "needs_frontend_merge_count": 2,
-    "pending_milestones_with_activity": 80,
+    "pending_milestones_with_activity": 82,
     "drift_milestones": 175,
-    "stale_milestones": 227,
+    "stale_milestones": 226,
     "domains_tracked": 932
   },
   "sources": {
@@ -4461,6 +4461,14 @@
         "sample_unwired": []
       },
       {
+        "domain": "Program",
+        "total": 11,
+        "wired": 11,
+        "unwired": 0,
+        "coverage_pct": 100,
+        "sample_unwired": []
+      },
+      {
         "domain": "Toolpath",
         "total": 11,
         "wired": 11,
@@ -4478,14 +4486,6 @@
       },
       {
         "domain": "Cutting",
-        "total": 9,
-        "wired": 9,
-        "unwired": 0,
-        "coverage_pct": 100,
-        "sample_unwired": []
-      },
-      {
-        "domain": "Program",
         "total": 9,
         "wired": 9,
         "unwired": 0,
@@ -4910,6 +4910,14 @@
       },
       {
         "domain": "Adhesive",
+        "total": 2,
+        "wired": 2,
+        "unwired": 0,
+        "coverage_pct": 100,
+        "sample_unwired": []
+      },
+      {
+        "domain": "Archive",
         "total": 2,
         "wired": 2,
         "unwired": 0,
@@ -5582,14 +5590,6 @@
       },
       {
         "domain": "Approval",
-        "total": 1,
-        "wired": 1,
-        "unwired": 0,
-        "coverage_pct": 100,
-        "sample_unwired": []
-      },
-      {
-        "domain": "Archive",
         "total": 1,
         "wired": 1,
         "unwired": 0,
@@ -8767,7 +8767,7 @@
     ]
   },
   "STALE_MILESTONES": {
-    "summary": "227 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).",
+    "summary": "226 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).",
     "threshold_days": 30,
     "rows": [
       {
@@ -8866,15 +8866,6 @@
         "pending": 24,
         "shipped": 0,
         "total": 24,
-        "lastShippedDate": null,
-        "reason": "never_started"
-      },
-      {
-        "id": "MS-PRINT-PROGRAM-LOOP",
-        "track": "revenue",
-        "pending": 23,
-        "shipped": 0,
-        "total": 23,
         "lastShippedDate": null,
         "reason": "never_started"
       },
@@ -9129,12 +9120,21 @@
         "total": 10,
         "lastShippedDate": null,
         "reason": "never_started"
+      },
+      {
+        "id": "CADCAM-DAGI-MS3",
+        "track": "CAD-CAM-DEEPAGI",
+        "pending": 10,
+        "shipped": 0,
+        "total": 10,
+        "lastShippedDate": null,
+        "reason": "never_started"
       }
     ],
     "next_action": "Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift."
   },
   "NEEDS_BUILDING": {
-    "summary": "3183 units across 673 milestones not yet in git.",
+    "summary": "3198 units across 675 milestones not yet in git.",
     "drift_cases": [
       {
         "id": "CC-EXT-MS0",
@@ -10189,6 +10189,54 @@
     ],
     "top_pending_units": [
       {
+        "milestone": "SYSTEM-VIZ-BRAIN-MS0",
+        "unit": "U-P0-HOOK-ORPHAN-RECONCILE",
+        "title": "Reconcile 447 orphan hook files vs 109 wired in settings.json",
+        "phase": "P0-FOUND"
+      },
+      {
+        "milestone": "SYSTEM-VIZ-BRAIN-MS0",
+        "unit": "U-P1-QDRANT-EPISODIC-RECALL",
+        "title": "Qdrant episodic recall on SessionStart + UserPromptSubmit (xproc_episodic_recall)",
+        "phase": "P1-MEMORY"
+      },
+      {
+        "milestone": "SYSTEM-VIZ-BRAIN-MS0",
+        "unit": "U-P2-NODE-CLICK-DISPATCH",
+        "title": "Click /system-viz node to invoke its dispatcher's primary action",
+        "phase": "P2-VIZ-BRAIN"
+      },
+      {
+        "milestone": "SYSTEM-VIZ-BRAIN-MS0",
+        "unit": "U-P2-LIVE-DRIFT-OVERLAY",
+        "title": "5-min auto-regen + drift overlay (red-pulse nodes where envelope-vs-git differ)",
+        "phase": "P2-VIZ-BRAIN"
+      },
+      {
+        "milestone": "MS-PRINT-PROGRAM-LOOP",
+        "unit": "U-PPL-A1",
+        "title": "[Track A] U-MIN-FINGERPRINT (= RES-MS26) — structural-fingerprint the 16,558 turning .MIN → cluster into the 8-14 macro families (seed: ProgramMacroConverterEngine + LATHE_AI_TRAINING_REPORT's 14 patterns + the 7 hand-built .MIN templates in Resources/MACRO PROGRAMS/)",
+        "phase": "P0"
+      },
+      {
+        "milestone": "MS-PRINT-PROGRAM-LOOP",
+        "unit": "U-PPL-A2",
+        "title": "[Track A] U-FAMILY-PARAM-EXTRACT — per family, extract the 8-15 driving parameters (ODs/lengths/bore-dia/thread-spec/chamfers) — the turning analogue of the .xlsm's 34 dims",
+        "phase": "P0"
+      },
+      {
+        "milestone": "MS-PRINT-PROGRAM-LOOP",
+        "unit": "U-PPL-A3",
+        "title": "[Track A] MS-RES-XLSM-ENGINE core — olevba-decode the .xlsm's vbaProject.bin → reverse the 34-dim→geometry math per the 11 die templates; register the mill die families as PRISM parametric templates (wrap & extend) — see MS-RES-XLSM-ENGINE",
+        "phase": "P0"
+      },
+      {
+        "milestone": "MS-PRINT-PROGRAM-LOOP",
+        "unit": "U-PPL-A4",
+        "title": "[Track A] MachineDomainTemplateLibraryEngine (NEW) — registry of parametric program skeletons keyed by (partFamily, machineDomain, controller); each refs a ProvenRecipe + a GCodeTemplate parametrization; wire to prism_proven_pipeline (template_register/get/list/instantiate) + prism_cam",
+        "phase": "P0"
+      },
+      {
         "milestone": "INTEL-OLLAMA-OBSIDIAN-MS0",
         "unit": "P5-U05",
         "title": "Wire prism_intelligence:diagnose_failure → DiagnosticReasoningEngine",
@@ -10282,54 +10330,6 @@
         "milestone": "L8-P2-MS2",
         "unit": "P0-U09",
         "title": "ERP Layout & Navigation",
-        "phase": "P0"
-      },
-      {
-        "milestone": "CCM-MS14",
-        "unit": "P0-U06",
-        "title": "Cache hit rate monitor",
-        "phase": "P0"
-      },
-      {
-        "milestone": "CCM-MS14",
-        "unit": "P0-U07",
-        "title": "Cascade failure detector",
-        "phase": "P0"
-      },
-      {
-        "milestone": "CCM-MS14",
-        "unit": "P0-U08",
-        "title": "Monte Carlo convergence monitor",
-        "phase": "P0"
-      },
-      {
-        "milestone": "CCM-MS14",
-        "unit": "P0-U09",
-        "title": "silentCatch fire rate monitor",
-        "phase": "P0"
-      },
-      {
-        "milestone": "CCM-MS5",
-        "unit": "P0-U06",
-        "title": "Batch skill updater",
-        "phase": "P0"
-      },
-      {
-        "milestone": "CCM-MS5",
-        "unit": "P0-U07",
-        "title": "Batch test runner",
-        "phase": "P0"
-      },
-      {
-        "milestone": "CCM-MS5",
-        "unit": "P0-U08",
-        "title": "Cron management skill",
-        "phase": "P0"
-      },
-      {
-        "milestone": "CCM-MS5",
-        "unit": "P0-U09",
-        "title": "Schema drift cron",
         "phase": "P0"
       }
     ],

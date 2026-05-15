@@ -86,6 +86,7 @@ let _additiveQuote: any;
 let _hrCompliance: any;
 let _customerMgmt: any;
 let _equipmentAsset: any;
+let _preventiveMaintenance: any;
 let _integrationAdapter: any;
 let _injectionMoldQuote: any;
 let _programmerProductivity: any;
@@ -241,6 +242,10 @@ async function getEngine(name: string): Promise<any> {
       return _equipmentAsset ??= (
         await import("../../engines/EquipmentAssetEngine.js")
       ).equipmentAssetEngine;
+    case "preventiveMaintenance":
+      return _preventiveMaintenance ??= (
+        await import("../../engines/PreventiveMaintenanceEngine.js")
+      ).preventiveMaintenanceEngine;
     case "integrationAdapter":
       return _integrationAdapter ??= (
         await import("../../engines/IntegrationAdapterEngine.js")
@@ -830,6 +835,16 @@ const ACTIONS = [
   "lathe_agi_kg_trace",
   "lathe_agi_kg_stats",
   "lathe_agi_safety_check",
+  // ── Preventive Maintenance (OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-PM) ──
+  "pm_schedule_create",
+  "pm_schedule_list",
+  "pm_schedule_is_due",
+  "pm_work_order_generate",
+  "pm_work_order_complete",
+  "pm_overdue_alerts",
+  "pm_downtime_record",
+  "pm_work_order_list",
+  "pm_work_order_assign",
 ] as const;
 
 /** Registers business dispatcher.
@@ -2279,6 +2294,103 @@ Params vary by action — pass relevant fields in params object.`,
           case "asset_calibration_due": {
             const engine = await getEngine("equipmentAsset");
             result = { due: engine.getDueCalibrations(params.days_ahead) };
+            break;
+          }
+
+          // ── Preventive Maintenance (OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-PM) ──
+          case "pm_schedule_create": {
+            const engine = await getEngine("preventiveMaintenance");
+            result = {
+              schedule: engine.createSchedule({
+                machine_id: params.machine_id,
+                machine_name: params.machine_name,
+                task_name: params.task_name,
+                trigger_type: params.trigger_type,
+                interval_days: params.interval_days,
+                interval_hours: params.interval_hours,
+                last_completed_at: params.last_completed_at,
+                last_completed_hours: params.last_completed_hours,
+                parts_list: params.parts_list ?? [],
+                estimated_duration_min: params.estimated_duration_min,
+                instructions: params.instructions,
+              }),
+            };
+            break;
+          }
+          case "pm_schedule_list": {
+            const engine = await getEngine("preventiveMaintenance");
+            result = {
+              schedules: engine.listSchedules({
+                machine_id: params.machine_id,
+                overdue_only: params.overdue_only,
+              }),
+            };
+            break;
+          }
+          case "pm_schedule_is_due": {
+            const engine = await getEngine("preventiveMaintenance");
+            // Look up schedule first so the helper can be called with an object, not an id.
+            const schedule = engine.listSchedules().find((s: any) => s.id === params.schedule_id);
+            if (!schedule) {
+              result = { error: `PM schedule not found: ${params.schedule_id}` };
+            } else {
+              result = { is_due: engine.isScheduleDue(schedule, params.current_hours) };
+            }
+            break;
+          }
+          case "pm_work_order_generate": {
+            const engine = await getEngine("preventiveMaintenance");
+            result = { work_order: engine.generateWorkOrder(params.schedule_id, params.scheduled_date) };
+            break;
+          }
+          case "pm_work_order_complete": {
+            const engine = await getEngine("preventiveMaintenance");
+            result = {
+              work_order: engine.completeWorkOrder(params.work_order_id, {
+                labor_hours: params.labor_hours,
+                notes: params.notes,
+                parts_used: params.parts_used,
+              }),
+            };
+            break;
+          }
+          case "pm_overdue_alerts": {
+            const engine = await getEngine("preventiveMaintenance");
+            const hoursMap = params.current_machine_hours
+              ? new Map<string, number>(Object.entries(params.current_machine_hours))
+              : undefined;
+            result = { alerts: engine.getOverdueAlerts(hoursMap) };
+            break;
+          }
+          case "pm_downtime_record": {
+            const engine = await getEngine("preventiveMaintenance");
+            result = {
+              downtime: engine.recordDowntime({
+                machine_id: params.machine_id,
+                type: params.type,
+                started_at: params.started_at,
+                ended_at: params.ended_at,
+                duration_min: params.duration_min,
+                work_order_id: params.work_order_id,
+                cause: params.cause,
+              }),
+            };
+            break;
+          }
+          case "pm_work_order_list": {
+            const engine = await getEngine("preventiveMaintenance");
+            result = {
+              work_orders: engine.listWorkOrders({
+                status: params.status,
+                machine_id: params.machine_id,
+                assigned_to: params.assigned_to,
+              }),
+            };
+            break;
+          }
+          case "pm_work_order_assign": {
+            const engine = await getEngine("preventiveMaintenance");
+            result = { work_order: engine.assignWorkOrder(params.work_order_id, params.assigned_to) };
             break;
           }
 

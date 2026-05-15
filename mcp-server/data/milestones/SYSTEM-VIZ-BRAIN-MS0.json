@@ -138,7 +138,16 @@
     "U-P1-TRIBAL-BY-DOMAIN-INJECT": {
       "phase": "P1-MEMORY",
       "title": "Auto-inject top-3 tribal tips on domain keywords (mill/lathe/EDM/5-axis/grind)",
-      "status": "pending"
+      "status": "complete",
+      "shipped_by": "claude-a61bbf34 (slot delta)",
+      "shipped_at": "2026-05-15T18:55:00Z",
+      "shipped_commit": "173291ff7",
+      "deliverables": [
+        ".claude/hooks/tribal-by-domain-inject.mjs (138 LOC, UserPromptSubmit T2 injector)",
+        ".claude/hooks/tribal-by-domain-inject.test.mjs (38 hermetic node:test cases)",
+        "wired in C:/.claude/settings.json UserPromptSubmit chain timeout=5000ms (auto-mirrored to H:)",
+        "reuses wiki-domain-bias.mjs helper + tribal-rerank.mjs subprocess (no new dep)"
+      ]
     },
     "U-P1-QDRANT-EPISODIC-RECALL": {
       "phase": "P1-MEMORY",
@@ -297,6 +306,14 @@
       "at": "2026-05-15T18:30:12.525Z",
       "by": "claude-a61bbf34 (slot alpha)",
       "event": "SHIPPED U-P1-WIKI-PRELOAD-BY-DOMAIN (590ba4a77) + U-P3-VIZ-FIRST-REDIRECT-GLOB (absorbed into peer commit d06cdefa9, files tracked). 9/26 milestone complete."
+    },
+    {
+      "ts": "2026-05-15T18:55:00Z",
+      "by": "claude-a61bbf34 (slot delta)",
+      "event": "unit_complete",
+      "unit_id": "U-P1-TRIBAL-BY-DOMAIN-INJECT",
+      "commit": "173291ff7",
+      "notes": "P1-A + P1-B from per-file scrutiny addressed before commit; 38/38 tests pass"
     }
   ]
 }
