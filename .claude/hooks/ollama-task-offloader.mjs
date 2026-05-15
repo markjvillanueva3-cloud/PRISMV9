@@ -27,6 +27,11 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { recordOllamaEvent } from "./lib/ollama-stats.mjs";
+// SYSTEM-VIZ-BRAIN-MS0/U-P4-OLLAMA-COST-ROUTING: cost-aware model selection.
+// Replaces the previous hardcoded preference list — same category, smaller
+// model when the task is trivial; escalates upward (never downward) when the
+// target tier is absent. Pure function, deterministic, fully tested.
+import { routeModelForTask } from "./lib/ollama-cost-router.mjs";
 
 // OLLAMA-DEV-01: prefer 127.0.0.1 over `localhost` — on Windows the latter
 // often resolves to ::1 (IPv6) but Ollama binds IPv4 by default, causing
@@ -245,19 +250,9 @@ function classifyPrompt(prompt) {
   return { offloadable: false, category: "unknown", savings: 0 };
 }
 
-function selectBestModel(models) {
-  const preference = [
-    "qwen2.5-coder:7b",
-    "qwen2.5-coder:14b",
-    "codellama:7b",
-    "deepseek-coder:6.7b",
-    "llama3.2:3b",
-  ];
-  for (const want of preference) {
-    if (models.includes(want)) return want;
-  }
-  return models[0] || null;
-}
+// Legacy `selectBestModel` was a single hardcoded preference list applied to
+// every task category. Replaced 2026-05-15 by U-P4-OLLAMA-COST-ROUTING — see
+// lib/ollama-cost-router.mjs (routeModelForTask) for the cost-aware decision.
 
 async function main() {
   let payload;
@@ -331,29 +326,41 @@ async function main() {
     return;
   }
 
-  const model = selectBestModel(ollama.models);
+  // U-P4-OLLAMA-COST-ROUTING: pick a category-appropriate model tier instead
+  // of always returning the first match from a hardcoded preference list. The
+  // route result also carries `tier` (cheap/balanced/strong/best/fallback/none)
+  // and `reason`, both of which ride along on the offload event so the
+  // dashboard can audit whether the host actually held the model the task
+  // wanted, or whether we escalated / fell back.
+  const route = routeModelForTask({
+    category: classification.category,
+    available: ollama.models,
+  });
+  const model = route.model;
   const estimatedTokens = Math.ceil(prompt.length / 4) * 2;
   const savedTokens = Math.round(estimatedTokens * classification.savings);
 
   recordSuggestion(classification.category);
 
+  // Always-on extras for cost-routing visibility. Merged with the optional
+  // routing-hint extras below so a single offload event carries both signals.
+  const costExtras = {
+    modelTier: route.tier,
+    modelReason: route.reason,
+  };
+
   recordOllamaEvent({
     hook: HOOK_NAME, decision: "offload",
     category: classification.category, tokensSaved: savedTokens,
-    // FLEET-REAPER-MS1: when the coordinator's routing hint is what tipped this
-    // task over the bar, annotate the offload event so the dashboard can
-    // attribute extra offload volume to the coordinator (queryable per-category
-    // via events[].routingHint, no double-counting — one event per offload).
-    ...(hintFlippedOutcome
+    extras: hintFlippedOutcome
       ? {
-        extras: {
-          routingHint: true,
-          thresholdDelta: hint.thresholdDelta,
-          effectiveThreshold: confidenceThreshold,
-          hintReason: hint.reason,
-        },
+        ...costExtras,
+        routingHint: true,
+        thresholdDelta: hint.thresholdDelta,
+        effectiveThreshold: confidenceThreshold,
+        hintReason: hint.reason,
       }
-      : {}),
+      : costExtras,
   });
 
   if (classification.savings < injectThreshold) {
