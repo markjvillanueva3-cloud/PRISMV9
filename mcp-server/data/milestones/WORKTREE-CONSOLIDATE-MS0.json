@@ -1,0 +1,1027 @@
+{
+  "id": "WORKTREE-CONSOLIDATE-MS0",
+  "title": "H: Drive Worktree Consolidation — Land Stranded Commits + Fix Lint-Staged Root Cause",
+  "track": "INFRA-CONSOLIDATE",
+  "status": "superseded",
+  "superseded_by": "SLOT-WORKTREE-MS0",
+  "superseded_at": "2026-05-15",
+  "superseded_reason": "Prevention-by-structure pivot. The recovery-tool framing of WORKTREE-CONSOLIDATE-MS0 (cherry-pick stranded commits, drain trees, fix lint-staged) addressed symptoms — the shared-tree commit-collision class kept recurring because there was no STRUCTURAL separation between concurrent chats. SLOT-WORKTREE-MS0 replaced it with per-slot worktrees (10 work + 1 hygiene = 11 canonical H:/prism-slot-<name>) + routing hooks (worktree-commit-route + git-add-lane-guard + main-tree-write-block, all default-ON post-U-P3-DEFAULT-ON 964ff51f9), so 10 chats can commit concurrently with zero serialization. The 32-unit recovery-tool work is partially absorbed (lint-staged fix → U-LINTSTAGED-FIX; worktree drain → U-P2-DRAIN-BATCH-A/B + U-VIZ-WORKTREE-MAP family) — the remaining unfinished units are obsolete because the structural fix eliminated the class of bug they were targeting. See SLOT-WORKTREE-MS0 envelope for full traceability.",
+  "version": "1.0.0",
+  "schemaVersion": 2,
+  "created_at": "2026-05-06",
+  "updated_at": "2026-05-15",
+  "priority": "HIGH",
+  "target_omega": 0.92,
+  "description": "Consolidate 45 active git worktrees by cherry-picking stranded commits into a dedicated `merge-staging-ms0` side branch, fast-forwarding to main, and pruning dead trees. Concurrent fix: build the missing `.lintstagedrc.json` config (root cause of recurring FIX1/FIX2 stash-leakage commits in T2-02, T3-04, T4-01, CAD-FUSION-LIVE PHASE1). Reduce active worktree count from 45 → ~31, recover 798+682+63 commit-deltas from prism-ppgh05 / prism-ppg-advancedpost / prism-mill-worktree, and reconcile orphan files + duplicate-engine clusters surfaced in DOMAIN-SCRUTINY-2026-05-06.md.",
+  "context_doc": "H:/.claude/plans/brainstorm-a-generate-a-purring-matsumoto.md",
+  "audit_doc": "H:/PRISM/state/shared/WORKTREE-AUDIT-2026-05-06.md",
+  "scrutiny_doc": "H:/PRISM/state/shared/DOMAIN-SCRUTINY-2026-05-06.md",
+  "goals": [
+    "Land 4 small ready worktrees (data-loss-fix, guard-wire-ms0, omega-loader-ms0, cam-ms1-93a0) via fast-forward",
+    "Land 3 stranded big worktrees (ppgh05/Multus, ppg-advancedpost, mill-worktree/MS-AI-WIRING) via cherry-pick + 3-of-3 scrutiny",
+    "Triage 11 orphan branches (no worktree, but unmerged commits) — discovered 2026-05-06: claude/zen-dirac (1318), work/intel-p8-schema (616), claude/affectionate-perlman (270), claude/fervent-bohr (201), work/lathe-master (62), work/wedm-consolidated (44), claude/interesting-shamir (22), work/ai-aware-harden (22), archive-2026-02-01 (1), work/ussh-sci (already merged)",
+    "Fix lint-staged stash leakage by adding `.lintstagedrc.json` root-cause fix",
+    "Triage 14 INVESTIGATE worktrees into salvage / retire / prune buckets",
+    "Reconcile 5 orphan files + Collision/MillingAGI/Cost engine clusters",
+    "Run targeted test-legitimacy audit (filter the 1500 raw matches to real EOL violations)",
+    "Prune 10 dead locked agent-* worktrees",
+    "Achieve net worktree count ≈ 31 (was 45) with 0 stranded production-grade engines"
+  ],
+  "total_units": 32,
+  "total_units_history": [
+    { "version": "1.0.0", "total": 28, "note": "original 8-phase plan covering 45 worktrees" },
+    { "version": "1.1.0", "total": 32, "note": "2026-05-06 organization-verification pass discovered 11 orphan branches not in any worktree (real branch count = 56, not 45). Added P4-5-ORPHAN-BRANCHES with 4 units." }
+  ],
+  "knowledge_sources": {
+    "engines": [
+      "DuplicationGuardEngine.ts (1340 LOC) — checkBeforeCreating, mustNotReExtract, searchExisting",
+      "ShopSchedulerEngine.ts — U-CONSOL1/U-CONSOL2 reference pattern for engine consolidation",
+      "PRISMSelfAwarenessEngine.ts — capability search + JM Die path resolver",
+      "OkumaMultusB250IIMillTurnMasterPostEngine.ts (in prism-ppgh05, NOT in main) — the prize",
+      "MillAIWiring.ts (in prism-mill-worktree) — MS-AI-WIRING U1-U17 helper"
+    ],
+    "scripts": [
+      ".claude/scripts/scrutiny-3way.mjs — 3-of-3 multi-CLI gate orchestrator (Codex+Gemini+Opus)",
+      ".claude/helpers/scrutiny-ledger.mjs — per-provider verdict tracking",
+      ".claude/helpers/per-agent-handoff.mjs — per-chat handoff write/read"
+    ],
+    "hooks": [
+      "worktree-commit-route.mjs — routes commits by scope; needs [MERGE-STAGING] whitelist add",
+      "git-anti-clobber.mjs — per-worktree git-mutation lock (already wired)",
+      "scrutinize-before-stop.mjs — Stop-hook that enforces 3-of-3 gate",
+      "test-legitimacy.mjs — only blocks WEAK EOL .toBeDefined(); raw 1500 grep is misleading",
+      "duplication-hard-block.mjs — PreToolUse blocker on duplicate engine creation",
+      "file-claim-guard.mjs — blocks edits on peer-claimed files"
+    ],
+    "skills": [
+      "/dedup → prism_dev:engine_overlap_scan — cluster-level overlap scan",
+      "/scrutinize — standalone code quality review",
+      "/handoff — per-chat session continuity",
+      "/forge-triple — engine + skill + hook bundle for new tooling",
+      "/test — smart vitest runner",
+      "/checkpoint — context checkpoint before destructive ops"
+    ],
+    "dispatchers": [
+      "prism_dev:engine_overlap_scan — Stage 10 dedup audit input",
+      "prism_dev:copilot_check_duplication — pre-create gate",
+      "prism_session:dispatcher_map_compact — route lookup",
+      "prism_session:action_search — capability search",
+      "prism_context:claim_file / chat_post — multi-chat coordination"
+    ],
+    "tribal": [
+      "feedback_h_drive_portable — H: drive must stay portable across PCs",
+      "feedback_dont_soften_completeness_gates — never set continueOnError:true on safety hooks",
+      "user_multi_terminal_workflow — 6+ concurrent Claude chats, file-claim-guard mandatory",
+      "feedback_cross_session_duplication — cross-session asset retention via DuplicationGuardEngine"
+    ],
+    "reference_docs": [
+      "state/shared/WORKTREE-AUDIT-2026-05-06.md (45-worktree classification)",
+      "state/shared/DOMAIN-SCRUTINY-2026-05-06.md (10-domain readiness scorecard)",
+      "state/shared/handoffs/CONTINUE-CAD.md (XPROC + cad-fidx-solidworks branch context)",
+      "CLAUDE.md §Conflict-fork rule (multi-chat lane discipline)",
+      "PRISM-INVENTORY-LATEST.md (live counts)"
+    ]
+  },
+  "phases": [
+    {
+      "id": "P0-FOUNDATION",
+      "title": "Stop-the-bleeding tooling + merge-staging worktree",
+      "session": 1,
+      "smart_config": {
+        "role": "R3-Systems Architect + R5-Build Doctor",
+        "model": "sonnet-4.6",
+        "effort": "HIGH",
+        "context_budget": "30%"
+      },
+      "intent": "After this session: lint-staged stash leakage stops; cherry-pick consolidator script exists; merge-staging worktree is a clean side-branch off main; orphan + test-legitimacy audits produce actionable JSON outputs.",
+      "skills": ["/checkpoint", "/test", "/scrutinize"],
+      "plugins": ["Vitest MCP", "ESLint MCP", "codebase-memory-mcp"],
+      "mcp_lifecycle": ["context_boot", "dispatcher_map_compact", "memory_recall", "auto_checkpoint", "memory_save"],
+      "exit_gate": {
+        "criteria": [
+          "`.lintstagedrc.json` exists at repo root with explicit ts/tsx/md/json rules; husky pre-commit smoke-test passes without spurious stash",
+          "`scripts/cherry-pick-consolidator.mjs`, `orphan-file-audit.mjs`, `test-legitimacy-targeted.mjs` exist and run end-to-end (no thrown errors)",
+          "`worktree-commit-route.mjs` MAIN_WHITELIST_PREFIXES includes `[MERGE-STAGING]`",
+          "`git worktree list` shows `H:/prism-merge-staging` on `work/merge-staging-ms0` based on main HEAD",
+          "ORPHAN-AUDIT-2026-05-06.json + TEST-LEGITIMACY-VIOLATIONS-2026-05-06.json written to state/shared/",
+          "omega ≥ 0.92, SVI delta ≥ 0 (no degradation)"
+        ],
+        "omega_floor": 0.92
+      },
+      "units": [
+        "U-FND01",
+        "U-FND02",
+        "U-FND03",
+        "U-FND04",
+        "U-FND05"
+      ],
+      "compact_after": true
+    },
+    {
+      "id": "P1-FAST-FORWARD",
+      "title": "4 small ready-to-land worktrees",
+      "session": 2,
+      "smart_config": {
+        "role": "R5-Build Doctor",
+        "model": "sonnet-4.6",
+        "effort": "MEDIUM",
+        "context_budget": "25%"
+      },
+      "intent": "After this session: data-loss-fix, guard-wire-ms0, omega-loader-ms0 cherry-picked into staging; cam-ms1-93a0 (Mastercam 8/8) cherry-picked + scrutinized; staging branch fast-forwarded to main.",
+      "peer_coordination": "Source worktrees (data-loss-fix, guard-wire-ms0, omega-loader-ms0) are dormant (idle 6-9d, no active peer claims). cam-ms1-93a0 also idle 5d. Pre-flight: read chat-bus, run prism_context:claim_file on H:/prism-merge-staging only (sources are read-only via `git -C`). No ack required — proceed.",
+      "skills": ["/test", "/scrutinize", "/handoff", "/checkpoint"],
+      "plugins": ["Vitest MCP", "codebase-memory-mcp"],
+      "mcp_lifecycle": ["context_boot", "memory_recall", "auto_checkpoint", "wip_capture"],
+      "exit_gate": {
+        "criteria": [
+          "Cherry-picks 8f3527e2e + 94194af1a + e628b0c4c land cleanly on staging (zero merge conflicts)",
+          "16 [MAIN]-tagged commits from cam-ms1-93a0 land in staging",
+          "`npx vitest run src/__tests__/{Mastercam,Fusion360,Inventor}*.test.ts` PASS in staging",
+          "3-of-3 scrutiny gate PASS for cam-ms1-93a0 batch (Codex + Gemini + Opus)",
+          "main fast-forwards from staging; 4 source worktrees pruned",
+          "omega ≥ 0.92"
+        ],
+        "omega_floor": 0.92
+      },
+      "units": [
+        "U-FF01",
+        "U-FF02",
+        "U-FF03",
+        "U-FF04"
+      ],
+      "compact_after": true
+    },
+    {
+      "id": "P2-PPGH05",
+      "title": "Land prism-ppgh05 (Multus + OkumaOSPMill PPGOH + HurcoV11 PPGH series)",
+      "session": 3,
+      "smart_config": {
+        "role": "R1-Manufacturing Expert + R5-Build Doctor",
+        "model": "opus-4.7",
+        "effort": "MAX",
+        "context_budget": "60%"
+      },
+      "intent": "After this session: OkumaMultusB250IIMillTurnMasterPostEngine + 25+ U-PPGMU/PPGOH/PPGH commits land on main. Multus production claim becomes truthful.",
+      "skills": ["/lathe-studio", "/post-validate", "/physics-verify", "/scrutinize", "/test", "/checkpoint", "/handoff"],
+      "plugins": ["Vitest MCP", "ESLint MCP", "codebase-memory-mcp"],
+      "mcp_lifecycle": ["context_boot", "dispatcher_map_compact", "memory_recall", "auto_checkpoint", "tool_route_best", "memory_save"],
+      "peer_coordination": "Wait for claude-31dfad9c to complete current PPGMU commits (ArcFeedFactor tests + safetyDispatcher edits). Post intent to chat-bus before starting cherry-pick range.",
+      "exit_gate": {
+        "criteria": [
+          "OkumaMultusB250IIMillTurnMasterPostEngine.ts exists in main HEAD (not just prism-ppgh05)",
+          "All [MAIN]-tagged ppgh05 commits cherry-picked to staging",
+          "`npx vitest run src/__tests__/{Okuma,Hurco,Multus,Mill}*.test.ts` PASS",
+          "verifyEmittedForceEstimates() static method verified intact",
+          "3-of-3 scrutiny gate PASS",
+          "Per-block force-comment regression test PASS (compares emitted vs canonical Kienzle)",
+          "main fast-forwards from staging; prism-ppgh05 worktree pruned"
+        ],
+        "omega_floor": 0.95
+      },
+      "units": [
+        "U-PPGH-PEER",
+        "U-PPGH-CHERRY",
+        "U-PPGH-VERIFY",
+        "U-PPGH-LAND"
+      ],
+      "compact_after": true
+    },
+    {
+      "id": "P3-PPG-ADVANCED",
+      "title": "Land prism-ppg-advancedpost (AdvancedPost + RapidReposition + AutoSpeedFeed pipelines)",
+      "session": 4,
+      "smart_config": {
+        "role": "R1-Manufacturing Expert + R5-Build Doctor",
+        "model": "opus-4.7",
+        "effort": "HIGH",
+        "context_budget": "55%"
+      },
+      "intent": "After this session: AdvancedPostProcessor pipeline + RapidRepositionOptEngine + AutoSpeedFeed pipeline wired to Hurco + Okuma. JM Die fleet profiles registered. HyperMillProbingBridge / BladeRoughing / HeatTreatment test coverage lands.",
+      "skills": ["/post-validate", "/auto-speed-feed", "/physics-verify", "/scrutinize", "/test", "/checkpoint", "/handoff"],
+      "plugins": ["Vitest MCP", "ESLint MCP", "codebase-memory-mcp"],
+      "mcp_lifecycle": ["context_boot", "memory_recall", "auto_checkpoint", "memory_save"],
+      "peer_coordination": "No active peer claims on prism-ppg-advancedpost (idle 4d). Acquire git-anti-clobber lock before cherry-pick.",
+      "exit_gate": {
+        "criteria": [
+          "All [MAIN]-tagged ppg-advancedpost commits cherry-picked to staging",
+          "AdvancedPostProcessor pipeline → Hurco + Okuma wiring tests PASS",
+          "RapidRepositionOptEngine pipeline tests PASS",
+          "AutoSpeedFeed pipeline → Okuma + Hurco wiring tests PASS",
+          "JM Die fleet profile schema validated",
+          "3-of-3 scrutiny gate PASS",
+          "main fast-forwards from staging; prism-ppg-advancedpost worktree pruned"
+        ],
+        "omega_floor": 0.92
+      },
+      "units": [
+        "U-PPGW-CHERRY",
+        "U-PPGW-VERIFY",
+        "U-PPGW-LAND"
+      ],
+      "compact_after": true
+    },
+    {
+      "id": "P4-MILL-AI-WIRING",
+      "title": "Land prism-mill-worktree (MILL-MASTER-AI-WIRING U1-U17)",
+      "session": 5,
+      "smart_config": {
+        "role": "R1-Manufacturing Expert + R3-Systems Architect",
+        "model": "opus-4.7",
+        "effort": "MAX",
+        "context_budget": "60%"
+      },
+      "intent": "After this session: 17 retrofit units wiring MillingMachineIntelligence, FiveAxisAIUltraIntelligence, MillingDeepAIHardening, MillTurnSwissPipeline, MillComprehensiveNeural, MillingHeadIntelligence, MillPatternMiner onto PRISM AI via MillAIWiring.ts. `mill_prism_reason` dispatcher action active. MXU telemetry live.",
+      "peer_coordination": "prism-mill-worktree has uncommitted modifications and is idle 12d. Peer chats may reawaken — read chat-bus before each cherry-pick batch; if any peer claims a file in prism-mill-worktree, post intent via prism_context:chat_post and wait for ack OR claim expiry (default 15min TTL). Acquire git-anti-clobber per-worktree lock on prism-mill-worktree before reading.",
+      "skills": ["/mill-master", "/mill-awareness", "/physics-verify", "/calibrate", "/scrutinize", "/test", "/forge-triple", "/checkpoint", "/handoff"],
+      "plugins": ["Vitest MCP", "ESLint MCP", "codebase-memory-mcp"],
+      "mcp_lifecycle": ["context_boot", "dispatcher_map_compact", "memory_recall", "auto_checkpoint", "wip_capture", "memory_save"],
+      "exit_gate": {
+        "criteria": [
+          "20+ uncommitted modifications in prism-mill-worktree resolved (committed as [MAIN] [MILL-MASTER-AI-WIRING]/U-W17-FINAL or stashed-with-label)",
+          "63 ahead-commits cherry-picked to staging (after pre-step resolves)",
+          "`mill_prism_reason` action enumerated in dispatcher schema + lazy-import wired",
+          "MillAIWiring.ts exports: wireMillingMachineIntelligence, wireFiveAxisAI, wireMillingDeepAI, wireMillTurnSwiss",
+          "`npx vitest run src/__tests__/Mill*.test.ts` PASS in staging",
+          "3-of-3 scrutiny gate PASS",
+          "main fast-forwards from staging"
+        ],
+        "omega_floor": 0.92
+      },
+      "units": [
+        "U-MAW-PRESTAGE",
+        "U-MAW-CHERRY",
+        "U-MAW-VERIFY",
+        "U-MAW-LAND"
+      ],
+      "compact_after": true
+    },
+    {
+      "id": "P4-5-ORPHAN-BRANCHES",
+      "title": "Triage 11 orphan branches (no worktree, but unmerged commits exist)",
+      "session": 5.5,
+      "smart_config": {
+        "role": "R5-Build Doctor + R6-Test Reviewer",
+        "model": "opus-4.7",
+        "effort": "HIGH",
+        "context_budget": "50%"
+      },
+      "intent": "After this session: 11 orphan branches (claude/* and work/* without worktrees) have explicit dispositions. Total branch count drops from 56 → ~33.",
+      "peer_coordination": "All orphan branches are dormant (no chats hold them). Read-only checks via `git log` are safe. claim merge-staging-ms0 only.",
+      "skills": ["/scrutinize", "/test", "/handoff", "/checkpoint"],
+      "plugins": ["codebase-memory-mcp"],
+      "mcp_lifecycle": ["context_boot", "memory_recall", "auto_checkpoint", "memory_save"],
+      "discovered_orphans_2026_05_06": {
+        "PRUNE_immediate": [
+          { "branch": "work/ussh-sci", "ahead": 0, "behind": 54, "merged_to_main": true, "last": "3 weeks ago", "action": "git branch -D work/ussh-sci (already merged, safe)" }
+        ],
+        "TAG_THEN_PRUNE": [
+          { "branch": "archive-2026-02-01", "ahead": 1, "last": "10 weeks ago", "action": "git tag archive/v9.0-snapshot-2026-02-01 archive-2026-02-01; git branch -D archive-2026-02-01" }
+        ],
+        "INVESTIGATE_high_value": [
+          { "branch": "claude/zen-dirac", "ahead": 1318, "last": "6 weeks ago", "scope": "academy curriculum 28 courses", "action": "REQUIRES USER DECISION — 1318 commits is a major scope; either (a) cherry-pick valuable academy units to merge-staging, (b) tag as `legacy/academy-2026-03-26-snapshot` and retire, or (c) treat as separate ACADEMY-MS0 milestone" },
+          { "branch": "work/intel-p8-schema", "ahead": 616, "last": "5 days ago", "scope": "INTEL-OLLAMA-OBSIDIAN-MS0/P7-U01 token-economy benchmark", "action": "OVERLAPS with prism-intel-p8 worktree (work/engine-wire-cad-ms0, 675 ahead). Cherry-pick distinct commits to merge-staging or fold into prism-iooms0 lane." },
+          { "branch": "work/lathe-master", "ahead": 62, "last": "2 weeks ago", "scope": "LATHE-PRO-MS10/U-LPE01-08 cost optimization + batch economics", "action": "Likely superseded by lathe-pro-v3. Cherry-pick LPE01-08 cost commits to merge-staging if not already in lathe-pro-v3-bookkeeping" },
+          { "branch": "work/wedm-consolidated", "ahead": 44, "last": "2 weeks ago", "scope": "WEDM-CONSOLIDATION units feedback+workpiece", "action": "Cherry-pick to merge-staging; verify WEDM regression tests PASS" },
+          { "branch": "work/ai-aware-harden", "ahead": 22, "last": "3 weeks ago", "scope": "WEDMControllerDialectVerifier safety", "action": "Cherry-pick MS-P2.5-SAFETY commits; tightly scoped, low risk" }
+        ],
+        "INVESTIGATE_legacy_claude_branches": [
+          { "branch": "claude/affectionate-perlman", "ahead": 270, "last": "2 months ago", "action": "Read commit log; if no production-grade commits, tag as `legacy/claude-perlman-2026-03-snapshot` and delete" },
+          { "branch": "claude/fervent-bohr", "ahead": 201, "last": "2 months ago", "action": "Read commit log; tag-and-delete if abandoned" },
+          { "branch": "claude/interesting-shamir", "ahead": 22, "last": "3 months ago", "scope": "R2-MS0-T2 benchmark wiring", "action": "Cherry-pick R2-MS0-T2 commits if benchmarks not already in main" }
+        ]
+      },
+      "exit_gate": {
+        "criteria": [
+          "work/ussh-sci pruned (already merged)",
+          "archive-2026-02-01 tagged + pruned",
+          "Each INVESTIGATE_high_value branch has explicit disposition recorded (cherry-picked OR retired with tag)",
+          "Each legacy claude/* branch tagged or pruned",
+          "BRANCH-AUDIT-2026-05-06.md written documenting orphan-branch dispositions",
+          "Final orphan-branch count (excluding main/master) ≤ 2"
+        ],
+        "omega_floor": 0.90
+      },
+      "units": ["U-ORPH-PRUNE", "U-ORPH-TAG", "U-ORPH-INVESTIGATE-HIGH", "U-ORPH-INVESTIGATE-CLAUDE"],
+      "compact_after": true
+    },
+    {
+      "id": "P5-INVESTIGATE-TRIAGE",
+      "title": "Triage 14 INVESTIGATE worktrees (subgroups A-G)",
+      "session": 6,
+      "smart_config": {
+        "role": "R5-Build Doctor + R6-Test Reviewer",
+        "model": "opus-4.7",
+        "effort": "HIGH",
+        "context_budget": "55%"
+      },
+      "intent": "After this session: aborted-rebase trees recovered (ppgh? deletions discarded); destructive-deletion meta-trees scoped down; iooms1 MS-CLOSE merged or retired; xproc-neural broken-tree documented as lost; forge-archive tagged + retired.",
+      "peer_coordination": "All 14 INVESTIGATE worktrees are idle (≥7d) with no active peer claims. Subgroup A (cad-complete, cam-exhaust, u-fus-api01, u-fus-api02) cross-checks chat-bus before each cherry-pick batch since these intersect with shared dispatcher files. Read chat-bus pre-flight; if any peer claims a file in scope, post intent and defer.",
+      "skills": ["/scrutinize", "/test", "/handoff", "/checkpoint"],
+      "plugins": ["Vitest MCP", "codebase-memory-mcp"],
+      "mcp_lifecycle": ["context_boot", "memory_recall", "auto_checkpoint", "memory_save"],
+      "exit_gate": {
+        "criteria": [
+          "Subgroup A (4 trees: cad-complete, cam-exhaust, u-fus-api01, u-fus-api02): valid [MAIN] commits cherry-picked, deletions discarded; u-fus-api02 live-engine deletions NEVER applied",
+          "Subgroup B (3 trees: claudemd-enforcement, file-claim-fix, knowledge-wiki): only scope-matching commits salvaged",
+          "Subgroup C (iooms1): full delta scrutinized; squash-merged as [INTEL-OLLAMA-OBSIDIAN-MS1]/MS-CLOSE OR retired",
+          "Subgroup D (session-efficiency, psau-sav2): clean commits cherry-picked",
+          "Subgroup E (xproc-neural): worktree + branch deleted; loss documented in state/shared/XPROC-NEURAL-LOSS-2026-05-06.md",
+          "Subgroup F (forge-archive): tagged as `archive/forge-orphans-2026-05-01-final`; worktree pruned",
+          "Subgroup G (agent-abd2bcee): force-removed",
+          "3-of-3 scrutiny gate PASS for subgroup C only",
+          "main fast-forwards from staging"
+        ],
+        "omega_floor": 0.90
+      },
+      "units": [
+        "U-INV-A",
+        "U-INV-B",
+        "U-INV-C",
+        "U-INV-D",
+        "U-INV-E",
+        "U-INV-F",
+        "U-INV-G"
+      ],
+      "compact_after": true
+    },
+    {
+      "id": "P6-DEDUP-AUDIT",
+      "title": "Orphan files + Collision/MillingAGI/Cost cluster reconciliation",
+      "session": 7,
+      "smart_config": {
+        "role": "R3-Systems Architect + R6-Test Reviewer",
+        "model": "sonnet-4.6",
+        "effort": "MEDIUM",
+        "context_budget": "30%"
+      },
+      "intent": "After this session: 5 orphan files deleted (3 .js stale + 2 *-1 orphans). CostEstimation/CostEstimator pair reconciled. Collision cluster canonical = CollisionDetectionEngine; specialty engines verified. MillingAGI cluster confirmed at 2 (Master + Orchestration), no consolidation needed.",
+      "peer_coordination": "Engine deletions touch shared registry surface — pre-flight: claim engines/index.ts via prism_context:claim_file; verify ORPHAN-AUDIT-2026-05-06.json safe_to_delete=true entries have zero peer-active import references via grep cross-worktree.",
+      "skills": ["/dedup", "/delete", "/scrutinize", "/checkpoint"],
+      "plugins": ["codebase-memory-mcp"],
+      "mcp_lifecycle": ["context_boot", "memory_recall", "auto_checkpoint", "memory_save"],
+      "exit_gate": {
+        "criteria": [
+          "AutoWiringEngine.js, QualityDashboardEngine.js, QualityScoreEngine.js deleted; .ts versions verified as the only consumers",
+          "ActualCostEngine.ts-1, ChatterStabilityLobeEngi-1, WEDMPrintToProgramEngine-1 (no extension) deleted",
+          "`prism_dev:engine_overlap_scan --candidate=CollisionDetectionEngine` shows canonical assignment; deprecated wrappers marked with `@deprecated` JSDoc",
+          "CostEstimationEngine vs CostEstimatorEngine similarity assessed; one deprecated if ≥70% similar",
+          "`grep -rln 'AutoWiringEngine.js'` returns zero before deletion",
+          "Build PASS: `npm run build` (full tsc + esbuild)",
+          "anti-regression vitest sweep PASS"
+        ],
+        "omega_floor": 0.90
+      },
+      "units": [
+        "U-DDP01",
+        "U-DDP02",
+        "U-DDP03"
+      ],
+      "compact_after": true
+    },
+    {
+      "id": "P7-FINAL",
+      "title": "Test legitimacy targeted audit + prune dead worktrees + roadmap close",
+      "session": 8,
+      "smart_config": {
+        "role": "R6-Test Reviewer + R5-Build Doctor",
+        "model": "sonnet-4.6",
+        "effort": "MEDIUM",
+        "context_budget": "30%"
+      },
+      "intent": "After this session: real toBeDefined() violation list (NOT the 1500 raw count) is published; top 100 critical-path violations fixed. 10 dead locked agent-* worktrees pruned. Final state: ~31 active worktrees. WORKTREE-AUDIT + DOMAIN-SCRUTINY docs updated with closeout deltas.",
+      "skills": ["/test", "/scrutinize", "/handoff"],
+      "plugins": ["Vitest MCP"],
+      "mcp_lifecycle": ["context_boot", "auto_checkpoint", "system_snapshot", "memory_save", "checkpoint_enhanced"],
+      "exit_gate": {
+        "criteria": [
+          "scripts/test-legitimacy-targeted.mjs run; output JSON shows real-violation count (target: <500)",
+          "Top 100 priority violations fixed (mill physics, lathe safety, WEDM AGI critical-path)",
+          "10 PRUNE-list worktrees removed: stabilize-cba638c3 + 9 locked agent-* (force-removed)",
+          "`git worktree list | wc -l` ≤ 32 (was 45)",
+          "WORKTREE-AUDIT-2026-05-06.md updated with `final_outcome` section",
+          "DOMAIN-SCRUTINY-2026-05-06.md scores updated post-merge (mill +0.10, lathe +0.30, post +0.25)",
+          "`npm run build` final PASS; `node scripts/update-prism-inventory.mjs` regenerates PRISM-INVENTORY-LATEST.md",
+          "BASELINE_INVENTORY.json schemaVersion bumped + engine-count delta documented in milestone closeout (engine-count delta MUST match cherry-pick sum: ≈ +1 Multus + N AI-WIRING engines − 5 orphans − N deprecation marks)",
+          "merge-staging-ms0 branch + worktree retired",
+          "3-of-3 scrutiny gate PASS for milestone closeout commit"
+        ],
+        "omega_floor": 0.95
+      },
+      "units": [
+        "U-FNL-TLA",
+        "U-FNL-PRUNE",
+        "U-FNL-CLOSE"
+      ],
+      "compact_after": false
+    }
+  ],
+  "units": {
+    "U-FND01": {
+      "id": "U-FND01",
+      "title": "Build .lintstagedrc.json (root cause fix for FIX1/FIX2 stash leakage)",
+      "depends_on": [],
+      "steps": [
+        {
+          "number": 1,
+          "instruction": "Read .husky/pre-commit to understand current lint-staged invocation",
+          "tool_calls": ["Read"],
+          "validation": "Pre-commit hook references `npx lint-staged`; no .lintstagedrc.json yet"
+        },
+        {
+          "number": 2,
+          "instruction": "Create .lintstagedrc.json at repo root with explicit rules: { '**/*.{ts,tsx}': ['eslint --fix', 'prettier --write'], '**/*.{md,json}': ['prettier --write'] }",
+          "tool_calls": ["Write"]
+        },
+        {
+          "number": 3,
+          "instruction": "Run husky pre-commit smoke test: stage a single .md file, attempt commit, verify lint-staged processes only the .md (no rogue stash of unrelated files)",
+          "tool_calls": ["Bash"],
+          "validation": "git stash list shows no orphaned stash entries after smoke commit"
+        }
+      ],
+      "deliverables": [
+        {
+          "path": ".lintstagedrc.json",
+          "type": "config",
+          "description": "Explicit lint-staged rules; eliminates stash-leakage class of bug",
+          "line_count_est": 6
+        }
+      ],
+      "exit_criteria": [
+        ".lintstagedrc.json exists at repo root",
+        "Smoke commit completes without orphaned stash",
+        "`grep -c 'lost in prior lint-staged stash' .git/COMMIT_EDITMSG` returns 0 going forward"
+      ],
+      "rollback": {
+        "files_created": [".lintstagedrc.json"],
+        "files_modified": [],
+        "abort_criteria": [
+          "smoke commit produces orphaned stash (lint-staged config wrong)",
+          "husky pre-commit fails with new config",
+          "any pre-existing test breaks because of formatting auto-write"
+        ],
+        "procedure": "git rm .lintstagedrc.json; git restore --staged .; git stash list and inspect any stashes; revert via `git checkout HEAD~1 -- .lintstagedrc.json` if pushed"
+      },
+      "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"]
+    },
+    "U-FND02": {
+      "id": "U-FND02",
+      "title": "Build cherry-pick-consolidator.mjs (drives merge-staging cherry-picks safely)",
+      "depends_on": ["U-FND01"],
+      "steps": [
+        {
+          "number": 1,
+          "instruction": "Read .claude/hooks/git-anti-clobber.mjs to understand lock acquire/release contract",
+          "tool_calls": ["Read"]
+        },
+        {
+          "number": 2,
+          "instruction": "Write mcp-server/scripts/cherry-pick-consolidator.mjs accepting --from <worktree>, --range <sha>, --filter <regex>, --to <staging-branch>; uses `git -C <path>` everywhere; acquires git-anti-clobber lock on source; uses `git cherry-pick -x` to preserve provenance",
+          "tool_calls": ["Write"]
+        },
+        {
+          "number": 3,
+          "instruction": "Add dry-run mode (--dry) that prints the commit list without executing",
+          "tool_calls": ["Edit"]
+        },
+        {
+          "number": 4,
+          "instruction": "Smoke test against a known-clean range (e.g. `data-loss-fix` 1-commit range) with --dry; verify output lists the single commit",
+          "tool_calls": ["Bash"]
+        }
+      ],
+      "deliverables": [
+        {
+          "path": "mcp-server/scripts/cherry-pick-consolidator.mjs",
+          "type": "script",
+          "description": "Cherry-picks commits from a stranded worktree into merge-staging, with conflict detection and lock coordination",
+          "line_count_est": 220
+        }
+      ],
+      "exit_criteria": [
+        "Script exists and `node ... --help` prints usage",
+        "--dry mode against data-loss-fix lists exactly 1 commit (8f3527e2e)",
+        "Lock acquire/release works without interfering with peer chats (verified via state/shared/GIT_LOCK_*.json)"
+      ],
+      "rollback": {
+        "files_created": ["mcp-server/scripts/cherry-pick-consolidator.mjs"],
+        "files_modified": [],
+        "abort_criteria": ["script throws on --dry against known-clean range", "lock acquire collides with peer chat (deadlock)"],
+        "procedure": "git rm mcp-server/scripts/cherry-pick-consolidator.mjs; release any held locks via state/shared/GIT_LOCK_*.json delete"
+      },
+      "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"]
+    },
+    "U-FND03": {
+      "id": "U-FND03",
+      "title": "Build orphan-file-audit.mjs",
+      "depends_on": ["U-FND01"],
+      "steps": [
+        {
+          "number": 1,
+          "instruction": "Write mcp-server/scripts/orphan-file-audit.mjs that scans src/engines/ for: (a) {Name}.js + {Name}.ts pairs, (b) files matching `*-1` (no extension), (c) files matching `*Engi-1` (truncated)",
+          "tool_calls": ["Write"]
+        },
+        {
+          "number": 2,
+          "instruction": "For each finding, run grep to verify import-count and produce JSON: { path, type: 'js_ts_pair'|'numeric_orphan'|'truncated_orphan', referenced_in: [files], safe_to_delete: bool }",
+          "tool_calls": ["Edit"]
+        },
+        {
+          "number": 3,
+          "instruction": "Output to state/shared/ORPHAN-AUDIT-2026-05-06.json",
+          "tool_calls": ["Bash"]
+        }
+      ],
+      "deliverables": [
+        {
+          "path": "mcp-server/scripts/orphan-file-audit.mjs",
+          "type": "script",
+          "description": "Enumerates orphan engine files and their reference status",
+          "line_count_est": 140
+        },
+        {
+          "path": "state/shared/ORPHAN-AUDIT-2026-05-06.json",
+          "type": "state",
+          "description": "Output of orphan audit; consumed by P6"
+        }
+      ],
+      "exit_criteria": [
+        "Script runs without error",
+        "ORPHAN-AUDIT-2026-05-06.json exists with at least the 6 known orphans (3 .js pairs + 3 *-1 / *Engi-1 entries)",
+        "Each entry has populated `referenced_in` array (zero for stale .js files)"
+      ],
+      "rollback": {
+        "files_created": ["mcp-server/scripts/orphan-file-audit.mjs", "state/shared/ORPHAN-AUDIT-2026-05-06.json"],
+        "files_modified": [],
+        "abort_criteria": ["script throws on src/engines scan", "JSON output is malformed"],
+        "procedure": "git rm both files"
+      },
+      "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"]
+    },
+    "U-FND04": {
+      "id": "U-FND04",
+      "title": "Build test-legitimacy-targeted.mjs (filter raw 1500 to real EOL violations)",
+      "depends_on": ["U-FND01"],
+      "steps": [
+        {
+          "number": 1,
+          "instruction": "Read .claude/hooks/test-legitimacy.mjs and extract the EXACT regex used for weak-EOL .toBeDefined() detection",
+          "tool_calls": ["Read"]
+        },
+        {
+          "number": 2,
+          "instruction": "Write mcp-server/scripts/test-legitimacy-targeted.mjs that applies that regex (NOT a broader grep) to all *.test.ts files; outputs per-file violation list with line numbers",
+          "tool_calls": ["Write"]
+        },
+        {
+          "number": 3,
+          "instruction": "Output to state/shared/TEST-LEGITIMACY-VIOLATIONS-2026-05-06.json with { total_files_scanned, raw_grep_count, real_violation_count, files: [{path, lines: [N], snippets: [...]}] }",
+          "tool_calls": ["Edit"]
+        }
+      ],
+      "deliverables": [
+        {
+          "path": "mcp-server/scripts/test-legitimacy-targeted.mjs",
+          "type": "script",
+          "description": "Applies the EXACT test-legitimacy hook regex to enumerate real violations",
+          "line_count_est": 160
+        },
+        {
+          "path": "state/shared/TEST-LEGITIMACY-VIOLATIONS-2026-05-06.json",
+          "type": "state",
+          "description": "Real violation list (expected count <500, NOT 1500); consumed by P7"
+        }
+      ],
+      "exit_criteria": [
+        "Output JSON shows raw_grep_count = ~1500 AND real_violation_count is much smaller (likely 50-300)",
+        "Violations include file path + line number + 80-char snippet for triage",
+        "Top-10 violations include domain breakdown (mill / lathe / wedm / etc.)"
+      ],
+      "rollback": {
+        "files_created": ["mcp-server/scripts/test-legitimacy-targeted.mjs", "state/shared/TEST-LEGITIMACY-VIOLATIONS-2026-05-06.json"],
+        "files_modified": [],
+        "abort_criteria": ["regex extracted from hook is wrong (false-positive rate >20%)"],
+        "procedure": "git rm both files"
+      },
+      "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"]
+    },
+    "U-FND05": {
+      "id": "U-FND05",
+      "title": "Extend worktree-commit-route.mjs whitelist + create merge-staging-ms0 worktree",
+      "depends_on": ["U-FND02"],
+      "steps": [
+        {
+          "number": 1,
+          "instruction": "Add `[MERGE-STAGING]` to MAIN_WHITELIST_PREFIXES in .claude/hooks/worktree-commit-route.mjs",
+          "tool_calls": ["Edit"]
+        },
+        {
+          "number": 2,
+          "instruction": "Create the staging worktree: `git worktree add H:/prism-merge-staging -b work/merge-staging-ms0 main`",
+          "tool_calls": ["Bash"]
+        },
+        {
+          "number": 3,
+          "instruction": "Smoke commit `[MERGE-STAGING]/U-FND05: bootstrap merge-staging` from H:/prism-merge-staging; verify worktree-commit-route.mjs allows it",
+          "tool_calls": ["Bash"]
+        }
+      ],
+      "deliverables": [
+        {
+          "path": ".claude/hooks/worktree-commit-route.mjs",
+          "type": "hook",
+          "description": "Routing hook with MERGE-STAGING whitelist extension",
+          "line_count_est": 5
+        }
+      ],
+      "exit_criteria": [
+        "git worktree list shows H:/prism-merge-staging on work/merge-staging-ms0",
+        "Smoke commit lands without route hook denial",
+        "Lock state/shared/GIT_LOCK_merge-staging_*.json acquires + releases cleanly"
+      ],
+      "rollback": {
+        "files_created": [],
+        "files_modified": [".claude/hooks/worktree-commit-route.mjs"],
+        "abort_criteria": ["worktree-commit-route.mjs Stop hook test FAIL after edit", "smoke commit blocked"],
+        "procedure": "git -C H:/prism-merge-staging branch -D work/merge-staging-ms0 && git worktree remove H:/prism-merge-staging --force; git restore .claude/hooks/worktree-commit-route.mjs"
+      },
+      "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"]
+    },
+    "U-FF01": {
+      "id": "U-FF01",
+      "title": "Cherry-pick data-loss-fix (1 commit)",
+      "depends_on": ["U-FND05"],
+      "steps": [
+        { "number": 1, "instruction": "node mcp-server/scripts/cherry-pick-consolidator.mjs --from H:/PRISM/.claude/worktrees/data-loss-fix --range '8f3527e2e^..8f3527e2e' --to work/merge-staging-ms0 --dry", "tool_calls": ["Bash"] },
+        { "number": 2, "instruction": "Run without --dry; verify cherry-pick clean", "tool_calls": ["Bash"] },
+        { "number": 3, "instruction": "Run vitest on data-loss-fix-touched files", "tool_calls": ["Bash"] }
+      ],
+      "deliverables": [],
+      "exit_criteria": ["8f3527e2e cherry-picked to staging", "no merge conflicts", "tests PASS"],
+      "rollback": { "files_created": [], "files_modified": [], "abort_criteria": ["cherry-pick conflict"], "procedure": "git -C H:/prism-merge-staging cherry-pick --abort" },
+      "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"]
+    },
+    "U-FF02": {
+      "id": "U-FF02",
+      "title": "Cherry-pick guard-wire-ms0 + omega-loader-ms0 (2 commits)",
+      "depends_on": ["U-FF01"],
+      "steps": [
+        { "number": 1, "instruction": "Cherry-pick 94194af1a (guard-wire) + e628b0c4c (omega-loader)", "tool_calls": ["Bash"] },
+        { "number": 2, "instruction": "Run vitest on guard + omega-touched files", "tool_calls": ["Bash"] }
+      ],
+      "deliverables": [],
+      "exit_criteria": ["both commits in staging", "tests PASS"],
+      "rollback": { "files_created": [], "files_modified": [], "abort_criteria": ["cherry-pick conflict"], "procedure": "git cherry-pick --abort" },
+      "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"]
+    },
+    "U-FF03": {
+      "id": "U-FF03",
+      "title": "Cherry-pick cam-ms1-93a0 (Mastercam 8/8, 16 [MAIN] commits) + scrutiny gate",
+      "depends_on": ["U-FF02"],
+      "steps": [
+        { "number": 1, "instruction": "Cherry-pick all [MAIN]-tagged commits in cam-ms1-93a0 main..HEAD using --filter '\\[MAIN\\]'", "tool_calls": ["Bash"] },
+        { "number": 2, "instruction": "Run `npx vitest run src/__tests__/{Mastercam,Fusion360,Inventor}*.test.ts`", "tool_calls": ["Bash"] },
+        { "number": 3, "instruction": "Run 3-of-3 scrutiny: `node .claude/scripts/scrutiny-3way.mjs --target HEAD~16..HEAD --session-id <sid>`; dispatch Opus reviewer agent in parallel; record verdict", "tool_calls": ["Bash", "Agent"] }
+      ],
+      "deliverables": [],
+      "exit_criteria": ["exactly 16 [MAIN] commits in staging", "all Mastercam/Fusion360/Inventor tests PASS (specific count: 254/254 per CONTINUE-CAD.md)", "git diff confirms ZERO modifications to constants.ts", "Codex+Gemini+Opus 3-of-3 scrutiny gate PASS (`node .claude/scripts/scrutiny-3way.mjs --target HEAD~16..HEAD`)"],
+      "rollback": { "files_created": [], "files_modified": [], "abort_criteria": ["any reviewer FAIL (not 'maybe' — explicit FAIL verdict)", "failing_tests > 0", "constants.ts modified", "omega < 0.92"], "procedure": "git -C H:/prism-merge-staging reset --hard HEAD~16; document in handoff; defer P2 to next session" },
+      "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"]
+    },
+    "U-FF04": {
+      "id": "U-FF04",
+      "title": "Fast-forward main from staging + prune 4 source worktrees",
+      "depends_on": ["U-FF03"],
+      "steps": [
+        { "number": 1, "instruction": "git checkout main && git merge --ff-only work/merge-staging-ms0 && git push", "tool_calls": ["Bash"] },
+        { "number": 2, "instruction": "git worktree remove .claude/worktrees/data-loss-fix && ... (3 small + cam-ms1-93a0)", "tool_calls": ["Bash"] }
+      ],
+      "deliverables": [],
+      "exit_criteria": ["main fast-forwarded", "4 worktrees gone", "git worktree list count = 41"],
+      "rollback": { "files_created": [], "files_modified": [], "abort_criteria": ["push rejected (remote diverged)"], "procedure": "git push --force-with-lease (only with explicit user approval)" },
+      "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"]
+    },
+    "U-PPGH-PEER": {
+      "id": "U-PPGH-PEER",
+      "title": "Coordinate with claude-31dfad9c on prism-ppgh05",
+      "depends_on": ["U-FF04"],
+      "steps": [
+        { "number": 1, "instruction": "Post intent to chat-bus via prism_context:chat_post requesting peer ETA on PPGMU completion", "tool_calls": ["mcp__prism__prism_context"] },
+        { "number": 2, "instruction": "Wait for peer claim expiry OR ack; verify no active claims on prism-ppgh05 files", "tool_calls": ["Read"] }
+      ],
+      "deliverables": [],
+      "exit_criteria": ["chat-bus shows zero claims on prism-ppgh05/* by other chats", "lane is clear for cherry-pick"],
+      "rollback": { "files_created": [], "files_modified": [], "abort_criteria": ["peer never acks within 30 min"], "procedure": "Defer P3 to next session" },
+      "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"]
+    },
+    "U-PPGH-CHERRY": {
+      "id": "U-PPGH-CHERRY",
+      "title": "Cherry-pick all [MAIN]-tagged ppgh05 commits",
+      "depends_on": ["U-PPGH-PEER"],
+      "steps": [
+        { "number": 1, "instruction": "Run consolidator with --filter '\\[MAIN\\]' against H:/prism-ppgh05; expect ~25-30 commits", "tool_calls": ["Bash"] }
+      ],
+      "deliverables": [],
+      "exit_criteria": ["all [MAIN] commits in staging", "OkumaMultusB250IIMillTurnMasterPostEngine.ts present in staging tree"],
+      "rollback": { "files_created": [], "files_modified": [], "abort_criteria": ["cherry-pick conflict on shared camDispatcher.ts"], "procedure": "git cherry-pick --abort; manually merge dispatcher conflicts" },
+      "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"]
+    },
+    "U-PPGH-VERIFY": {
+      "id": "U-PPGH-VERIFY",
+      "title": "Verify Multus + Hurco + Okuma test suites pass + 3-of-3 gate",
+      "depends_on": ["U-PPGH-CHERRY"],
+      "steps": [
+        { "number": 1, "instruction": "npx vitest run src/__tests__/{Okuma,Hurco,Multus}*.test.ts", "tool_calls": ["Bash"] },
+        { "number": 2, "instruction": "Run /physics-verify + verifyEmittedForceEstimates() static method against canonical Kienzle for known parts; assert force-estimate drift ≤ 2% vs pre-merge baseline", "tool_calls": ["Bash"] },
+        { "number": 3, "instruction": "Run 3-of-3 scrutiny gate", "tool_calls": ["Bash", "Agent"] }
+      ],
+      "deliverables": [],
+      "exit_criteria": ["all targeted tests PASS", "verifyEmittedForceEstimates() drift ≤ 2% from pre-merge baseline (NOT 15% — tightened)", "git diff main..HEAD must show ZERO changes to mcp-server/src/physics/constants.ts (read-only physics policy)", "git diff main..HEAD must show ZERO new inline Kienzle/Taylor literals (grep gate: `grep -E 'kc1\\.1\\s*=\\s*[0-9]|tayl' src/engines/`)", "/physics-verify PASS", "Codex+Gemini+Opus 3-of-3 scrutiny PASS (script: `node .claude/scripts/scrutiny-3way.mjs --target HEAD~25..HEAD`)"],
+      "rollback": { "files_created": [], "files_modified": [], "abort_criteria": ["failing_tests > 0", "force_estimate_drift > 5% (rollback gate matches exit_criteria 2% target with safety margin)", "constants.ts modified", "any reviewer FAIL", "omega < 0.95"], "procedure": "git -C H:/prism-merge-staging reset --hard origin/main; document failure in handoff; defer P2 to next session" },
+      "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"]
+    },
+    "U-PPGH-LAND": {
+      "id": "U-PPGH-LAND",
+      "title": "Fast-forward main from staging + prune ppgh05",
+      "depends_on": ["U-PPGH-VERIFY"],
+      "steps": [
+        { "number": 1, "instruction": "git checkout main && git merge --ff-only work/merge-staging-ms0 && git push", "tool_calls": ["Bash"] },
+        { "number": 2, "instruction": "git worktree remove H:/prism-ppgh05 (after confirming peer is done)", "tool_calls": ["Bash"] }
+      ],
+      "deliverables": [],
+      "exit_criteria": ["main has Multus engine", "ppgh05 worktree gone"],
+      "rollback": { "files_created": [], "files_modified": [], "abort_criteria": ["peer still active in ppgh05"], "procedure": "Skip prune; ppgh05 can stay as long as needed" },
+      "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"]
+    },
+    "U-PPGW-CHERRY": { "id": "U-PPGW-CHERRY", "title": "Cherry-pick ppg-advancedpost [MAIN] commits", "depends_on": ["U-PPGH-LAND"], "steps": [{"number": 1, "instruction": "Run consolidator against H:/prism-ppg-advancedpost", "tool_calls": ["Bash"]}], "deliverables": [], "exit_criteria": ["all [MAIN] commits in staging"], "rollback": {"files_created": [], "files_modified": [], "abort_criteria": ["conflict"], "procedure": "abort"}, "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"] },
+    "U-PPGW-VERIFY": { "id": "U-PPGW-VERIFY", "title": "Verify AdvancedPost+RapidReposition+AutoSpeedFeed wiring tests + /physics-verify + 3-of-3", "depends_on": ["U-PPGW-CHERRY"], "steps": [{"number": 1, "instruction": "npx vitest run src/__tests__/{AdvancedPost,RapidReposition,AutoSpeedFeed}*.test.ts; run /physics-verify on emitted G-code samples (force-estimate drift ≤ 2%); 3-of-3 scrutiny", "tool_calls": ["Bash", "Agent"]}], "deliverables": [], "exit_criteria": ["all wiring tests PASS (specific count: ≥30 tests across 3 pipelines)", "/physics-verify drift ≤ 2% vs pre-merge baseline", "git diff confirms ZERO modifications to constants.ts", "Codex+Gemini+Opus 3-of-3 scrutiny PASS"], "rollback": {"files_created": [], "files_modified": [], "abort_criteria": ["failing_tests > 0", "force_estimate_drift > 5%", "any reviewer FAIL", "omega < 0.92"], "procedure": "git -C H:/prism-merge-staging reset --hard origin/main; defer P3 to next session"}, "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"] },
+    "U-PPGW-LAND": { "id": "U-PPGW-LAND", "title": "Fast-forward main + prune ppg-advancedpost", "depends_on": ["U-PPGW-VERIFY"], "steps": [{"number": 1, "instruction": "ff-only merge + worktree remove", "tool_calls": ["Bash"]}], "deliverables": [], "exit_criteria": ["main updated", "worktree gone"], "rollback": {"files_created": [], "files_modified": [], "abort_criteria": ["push reject"], "procedure": "force-with-lease only with user OK"}, "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"] },
+    "U-MAW-PRESTAGE": { "id": "U-MAW-PRESTAGE", "title": "Resolve 20+ uncommitted modifications in prism-mill-worktree", "depends_on": ["U-PPGW-LAND"], "steps": [{"number": 1, "instruction": "git -C H:/prism-mill-worktree status; classify each modification (real work vs sync drift); commit valid as [MAIN] [MILL-MASTER-AI-WIRING]/U-W17-FINAL or stash with label", "tool_calls": ["Bash"]}], "deliverables": [], "exit_criteria": ["working tree clean OR labeled-stash created", "no uncommitted physics changes"], "rollback": {"files_created": [], "files_modified": [], "abort_criteria": ["modifications include destructive deletions"], "procedure": "git stash with label; document"}, "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"] },
+    "U-MAW-CHERRY": { "id": "U-MAW-CHERRY", "title": "Cherry-pick mill-worktree 63 ahead-commits", "depends_on": ["U-MAW-PRESTAGE"], "steps": [{"number": 1, "instruction": "Run consolidator with --filter '\\[MILL-MASTER-AI-WIRING\\]|\\[MAIN\\]'", "tool_calls": ["Bash"]}], "deliverables": [], "exit_criteria": ["all valid commits in staging", "MillAIWiring.ts present"], "rollback": {"files_created": [], "files_modified": [], "abort_criteria": ["conflict"], "procedure": "abort"}, "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"] },
+    "U-MAW-VERIFY": { "id": "U-MAW-VERIFY", "title": "Verify mill_prism_reason action + Mill tests + /physics-verify + 3-of-3", "depends_on": ["U-MAW-CHERRY"], "steps": [{"number": 1, "instruction": "npx vitest run src/__tests__/Mill*.test.ts; verify mill_prism_reason in dispatcher schema; run /physics-verify cross-pipeline check; run /calibrate dry-run on MillAIWiring path; 3-of-3 scrutiny", "tool_calls": ["Bash", "Agent"]}], "deliverables": [], "exit_criteria": ["all Mill*.test.ts PASS (specific count: ≥40 tests)", "mill_prism_reason action enumerated in intelligenceDispatcher.ts schema", "/physics-verify reports zero drift on representative MillAIWiring path", "git diff confirms ZERO modifications to constants.ts", "Codex+Gemini+Opus 3-of-3 scrutiny PASS"], "rollback": {"files_created": [], "files_modified": [], "abort_criteria": ["mill_prism_reason missing", "any failing_tests > 0", "/physics-verify drift > 1%", "constants.ts modified", "any reviewer FAIL"], "procedure": "git -C H:/prism-merge-staging reset --hard origin/main; document failure in handoff; defer P4 to next session"}, "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"] },
+    "U-MAW-LAND": { "id": "U-MAW-LAND", "title": "Fast-forward main + prune mill-worktree", "depends_on": ["U-MAW-VERIFY"], "steps": [{"number": 1, "instruction": "ff-only merge + remove", "tool_calls": ["Bash"]}], "deliverables": [], "exit_criteria": ["main updated"], "rollback": {"files_created": [], "files_modified": [], "abort_criteria": ["reject"], "procedure": "force-with-lease only with user OK"}, "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"] },
+    "U-ORPH-PRUNE": { "id": "U-ORPH-PRUNE", "title": "Prune work/ussh-sci (already merged) + tag-and-delete archive-2026-02-01", "depends_on": ["U-MAW-LAND"], "steps": [{"number": 1, "instruction": "Verify ussh-sci is fully merged: `git branch --merged main | grep ussh-sci`; if YES, `git branch -D work/ussh-sci`. Tag archive: `git tag archive/v9.0-snapshot-2026-02-01 archive-2026-02-01 && git branch -D archive-2026-02-01`", "tool_calls": ["Bash"]}], "deliverables": [], "exit_criteria": ["work/ussh-sci deleted (it was already merged)", "archive-2026-02-01 tag created + branch deleted", "git branch shows 2 fewer entries"], "rollback": {"files_created": [], "files_modified": [], "abort_criteria": ["ussh-sci NOT actually merged (--merged check fails)"], "procedure": "Move ussh-sci to INVESTIGATE_high_value if unmerged; tag-only is safe regardless"}, "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"] },
+    "U-ORPH-TAG": { "id": "U-ORPH-TAG", "title": "Tag-and-prune legacy claude/* branches if abandoned", "depends_on": ["U-ORPH-PRUNE"], "steps": [{"number": 1, "instruction": "For each of claude/affectionate-perlman, claude/fervent-bohr: read last 10 commits; if no production-grade commits (just `chore`/`docs`/`merge` titles), tag as `legacy/claude-<name>-snapshot-2026-05-06` and delete. If any production commit exists, escalate to U-ORPH-INVESTIGATE-CLAUDE.", "tool_calls": ["Bash"]}], "deliverables": [], "exit_criteria": ["abandoned legacy claude branches tagged + deleted", "production-bearing claude branches escalated to next unit"], "rollback": {"files_created": [], "files_modified": [], "abort_criteria": ["uncertain whether commits are production-grade"], "procedure": "Default to tag-only (no delete); document for user decision"}, "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"] },
+    "U-ORPH-INVESTIGATE-HIGH": { "id": "U-ORPH-INVESTIGATE-HIGH", "title": "Cherry-pick high-value orphan branches (intel-p8-schema, lathe-master, wedm-consolidated, ai-aware-harden)", "depends_on": ["U-ORPH-TAG"], "steps": [{"number": 1, "instruction": "For each branch (intel-p8-schema 616, lathe-master 62, wedm-consolidated 44, ai-aware-harden 22): use `cherry-pick-consolidator.mjs --from main --range main..<branch> --filter '\\[MAIN\\]'` against the orphan branch directly (no source worktree needed); resolve any conflicts; run targeted vitest", "tool_calls": ["Bash"]}, {"number": 2, "instruction": "Run 3-of-3 scrutiny on the cherry-pick batch", "tool_calls": ["Bash", "Agent"]}], "deliverables": [], "exit_criteria": ["valuable [MAIN]-tagged commits cherry-picked to staging", "redundant commits (already in main via different SHA) skipped via cherry-pick equivalence", "test PASS on each batch", "3-of-3 scrutiny PASS"], "rollback": {"files_created": [], "files_modified": [], "abort_criteria": ["conflict resolution requires user input", "test FAIL"], "procedure": "abort cherry-pick, document, defer that specific branch"}, "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"] },
+    "U-ORPH-INVESTIGATE-CLAUDE": { "id": "U-ORPH-INVESTIGATE-CLAUDE", "title": "Triage claude/zen-dirac (1318 commits academy curriculum) + claude/interesting-shamir + escalated others", "depends_on": ["U-ORPH-INVESTIGATE-HIGH"], "steps": [{"number": 1, "instruction": "claude/zen-dirac: 1318 commits is too large to cherry-pick blindly. Read scope (academy curriculum 28 courses); ESCALATE to user decision: (a) treat as separate ACADEMY-MS0 milestone, (b) tag-and-retire as `legacy/academy-2026-03-26-snapshot`, or (c) cherry-pick selective `[ACADEMY]`-tagged commits only", "tool_calls": ["Bash", "AskUserQuestion"]}, {"number": 2, "instruction": "claude/interesting-shamir: 22 R2-MS0-T2 benchmark commits — verify if already in main via git cherry; if NEW, cherry-pick", "tool_calls": ["Bash"]}, {"number": 3, "instruction": "Write state/shared/BRANCH-AUDIT-2026-05-06.md documenting all 11 orphan-branch dispositions", "tool_calls": ["Write"]}], "deliverables": [{"path": "state/shared/BRANCH-AUDIT-2026-05-06.md", "type": "doc", "description": "Final orphan-branch disposition record"}], "exit_criteria": ["zen-dirac decision recorded (user-approved disposition)", "interesting-shamir disposed", "BRANCH-AUDIT-2026-05-06.md written", "final orphan branch count ≤ 2 (only main + master remain unattached)"], "rollback": {"files_created": ["state/shared/BRANCH-AUDIT-2026-05-06.md"], "files_modified": [], "abort_criteria": ["user decision deferred"], "procedure": "Document deferral; tag-only zen-dirac as snapshot to prevent future drift"}, "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"] },
+    "U-INV-A": { "id": "U-INV-A", "title": "Subgroup A — aborted-rebase trees (cad-complete, cam-exhaust, u-fus-api01, u-fus-api02)", "depends_on": ["U-MAW-LAND"], "steps": [{"number": 1, "instruction": "Per tree: git rebase --abort if applicable; cherry-pick valid [MAIN] commits; DISCARD deletions of live engines (esp. u-fus-api02 MillPatternMiner/SurfaceFinishPredictor/ChainFailureRecovery); prune", "tool_calls": ["Bash"]}], "deliverables": [], "exit_criteria": ["valid commits salvaged", "live-engine deletions NEVER applied", "4 worktrees pruned"], "rollback": {"files_created": [], "files_modified": [], "abort_criteria": ["destructive deletion lands accidentally"], "procedure": "git revert immediately"}, "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"] },
+    "U-INV-B": { "id": "U-INV-B", "title": "Subgroup B — destructive-deletion meta trees", "depends_on": ["U-INV-A"], "steps": [{"number": 1, "instruction": "Cherry-pick only scope-matching [META]/[CLAUDEMD-FIX] commits; discard everything else", "tool_calls": ["Bash"]}], "deliverables": [], "exit_criteria": ["only scope-matching commits salvaged"], "rollback": {"files_created": [], "files_modified": [], "abort_criteria": ["WEDM test deletion lands"], "procedure": "revert"}, "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"] },
+    "U-INV-C": { "id": "U-INV-C", "title": "Subgroup C — iooms1 MS-CLOSE squash or retire", "depends_on": ["U-INV-B"], "steps": [{"number": 1, "instruction": "Run 3-of-3 scrutiny on iooms1 full delta vs main; if PASS squash-merge as [INTEL-OLLAMA-OBSIDIAN-MS1]/MS-CLOSE; if FAIL retire branch", "tool_calls": ["Bash", "Agent"]}], "deliverables": [], "exit_criteria": ["squash-merge OR retire decision recorded"], "rollback": {"files_created": [], "files_modified": [], "abort_criteria": ["scrutiny inconclusive"], "procedure": "defer to user decision"}, "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"] },
+    "U-INV-D": { "id": "U-INV-D", "title": "Subgroup D — session-efficiency, psau-sav2", "depends_on": ["U-INV-C"], "steps": [{"number": 1, "instruction": "Cherry-pick clean commits, discard deletions, prune", "tool_calls": ["Bash"]}], "deliverables": [], "exit_criteria": ["clean commits salvaged"], "rollback": {"files_created": [], "files_modified": [], "abort_criteria": ["conflict"], "procedure": "abort"}, "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"] },
+    "U-INV-E": { "id": "U-INV-E", "title": "Subgroup E — xproc-neural broken tree", "depends_on": ["U-INV-D"], "steps": [{"number": 1, "instruction": "Document loss in state/shared/XPROC-NEURAL-LOSS-2026-05-06.md (what was staged, why unrecoverable); delete worktree + branch", "tool_calls": ["Write", "Bash"]}], "deliverables": [{"path": "state/shared/XPROC-NEURAL-LOSS-2026-05-06.md", "type": "doc", "description": "Loss documentation for xproc-neural broken branch"}], "exit_criteria": ["doc written", "branch deleted"], "rollback": {"files_created": ["state/shared/XPROC-NEURAL-LOSS-2026-05-06.md"], "files_modified": [], "abort_criteria": ["recovery is possible after all"], "procedure": "delete doc; restore branch (unlikely)"}, "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"] },
+    "U-INV-F": { "id": "U-INV-F", "title": "Subgroup F — forge-archive tag + retire", "depends_on": ["U-INV-E"], "steps": [{"number": 1, "instruction": "git tag archive/forge-orphans-2026-05-01-final HEAD-of-archive-branch; git worktree remove; git branch -D archive/forge-orphans-2026-05-01", "tool_calls": ["Bash"]}], "deliverables": [], "exit_criteria": ["tag exists", "branch retired"], "rollback": {"files_created": [], "files_modified": [], "abort_criteria": ["tag conflict"], "procedure": "tag with -final-2 suffix"}, "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"] },
+    "U-INV-G": { "id": "U-INV-G", "title": "Subgroup G — dead locked agent-abd2bcee", "depends_on": ["U-INV-F"], "steps": [{"number": 1, "instruction": "git worktree remove --force .claude/worktrees/agent-abd2bcee", "tool_calls": ["Bash"]}], "deliverables": [], "exit_criteria": ["worktree gone"], "rollback": {"files_created": [], "files_modified": [], "abort_criteria": ["force fails"], "procedure": "manual delete + git worktree prune"}, "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"] },
+    "U-DDP01": { "id": "U-DDP01", "title": "Delete 5 orphan files (3 .js stale + 2 *-1 + 1 truncated)", "depends_on": ["U-INV-G"], "steps": [{"number": 1, "instruction": "Read ORPHAN-AUDIT-2026-05-06.json; for each safe_to_delete entry, verify zero imports via grep; git rm", "tool_calls": ["Bash"]}], "deliverables": [], "exit_criteria": ["AutoWiringEngine.js + QualityDashboardEngine.js + QualityScoreEngine.js + ActualCostEngine.ts-1 + ChatterStabilityLobeEngi-1 + WEDMPrintToProgramEngine-1 deleted", "build PASS"], "rollback": {"files_created": [], "files_modified": [], "abort_criteria": ["build breaks (file was actually imported)"], "procedure": "git restore"}, "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"] },
+    "U-DDP02": { "id": "U-DDP02", "title": "Cost engine pair reconciliation", "depends_on": ["U-DDP01"], "steps": [{"number": 1, "instruction": "Run duplicationGuardEngine.checkBeforeCreating against CostEstimation; if CostEstimationEngine.ts vs CostEstimatorEngine.ts ≥70% similar, deprecate the lesser-wired with @deprecated JSDoc", "tool_calls": ["Bash", "Edit"]}], "deliverables": [], "exit_criteria": ["similarity assessed", "deprecation applied if warranted"], "rollback": {"files_created": [], "files_modified": ["src/engines/CostEstim{ation,ator}Engine.ts"], "abort_criteria": ["wrong engine deprecated"], "procedure": "git restore"}, "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"] },
+    "U-DDP03": { "id": "U-DDP03", "title": "Collision cluster canonical assignment + MillingAGI confirmation", "depends_on": ["U-DDP02"], "steps": [{"number": 1, "instruction": "Run prism_dev:engine_overlap_scan --candidate=CollisionDetectionEngine; mark thin-wrapper duplicates @deprecated; verify MillingAGI cluster is 2-engine (Master + Orchestration) not 7", "tool_calls": ["mcp__prism__prism_dev"]}], "deliverables": [], "exit_criteria": ["Collision canonical = CollisionDetectionEngine", "deprecation marks applied", "MillingAGI confirmed at 2"], "rollback": {"files_created": [], "files_modified": [], "abort_criteria": ["mis-deprecation"], "procedure": "git restore"}, "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"] },
+    "U-FNL-TLA": { "id": "U-FNL-TLA", "title": "Test legitimacy targeted audit + top 100 fixes", "depends_on": ["U-DDP03"], "steps": [{"number": 1, "instruction": "node mcp-server/scripts/test-legitimacy-targeted.mjs; triage top 100 by domain; replace each EOL .toBeDefined() with concrete assertion", "tool_calls": ["Bash", "Edit"]}], "deliverables": [], "exit_criteria": ["real-violation count published", "top 100 fixed", "anti-regression vitest sweep PASS"], "rollback": {"files_created": [], "files_modified": ["~100 *.test.ts files"], "abort_criteria": ["test regression"], "procedure": "git restore per-file"}, "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"] },
+    "U-FNL-PRUNE": { "id": "U-FNL-PRUNE", "title": "Prune 10 dead PRUNE-list worktrees", "depends_on": ["U-FNL-TLA"], "steps": [{"number": 1, "instruction": "Per PRUNE list in WORKTREE-AUDIT: verify lockfile shows non-active PID, then `git worktree remove --force` on each (stabilize-cba638c3 + 9 locked agent-*)", "tool_calls": ["Bash"]}], "deliverables": [], "exit_criteria": ["10 worktrees gone", "git worktree list shows ~31 entries"], "rollback": {"files_created": [], "files_modified": [], "abort_criteria": ["lockfile shows live PID"], "procedure": "skip that tree"}, "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"] },
+    "U-FNL-CLOSE": { "id": "U-FNL-CLOSE", "title": "Update audit docs + close milestone", "depends_on": ["U-FNL-PRUNE"], "steps": [{"number": 1, "instruction": "Update WORKTREE-AUDIT-2026-05-06.md with `final_outcome` section; update DOMAIN-SCRUTINY-2026-05-06.md scores; run update-prism-inventory.mjs; retire merge-staging-ms0; commit + 3-of-3 scrutiny + push", "tool_calls": ["Edit", "Bash", "Agent"]}], "deliverables": [{"path": "state/shared/WORKTREE-AUDIT-2026-05-06.md", "type": "doc", "description": "Updated with closeout section"}, {"path": "state/shared/DOMAIN-SCRUTINY-2026-05-06.md", "type": "doc", "description": "Updated readiness scores"}, {"path": "PRISM-INVENTORY-LATEST.md", "type": "doc", "description": "Regenerated"}], "exit_criteria": ["docs updated", "merge-staging branch retired", "scrutiny PASS", "milestone status=complete"], "rollback": {"files_created": [], "files_modified": ["state/shared/WORKTREE-AUDIT-2026-05-06.md", "state/shared/DOMAIN-SCRUTINY-2026-05-06.md", "PRISM-INVENTORY-LATEST.md"], "abort_criteria": ["scrutiny FAIL on closeout commit"], "procedure": "fix findings; re-scrutinize"}, "four_loop": ["BUILD", "SCRUTINIZE", "GAP_FILL", "TIE_UP"] }
+  },
+  "forge_triple": {
+    "protective_hook": {
+      "name": "merge-staging-route",
+      "scope": "PreToolUse:Bash on git commit; ensures [MERGE-STAGING] commits only land in H:/prism-merge-staging worktree; blocks accidental landings elsewhere",
+      "ownership": "BUILT",
+      "built_in": "U-FND05 (extension to existing worktree-commit-route.mjs whitelist)",
+      "consumed_by": ["U-FF01", "U-FF02", "U-FF03", "U-FF04", "U-PPGH-CHERRY", "U-PPGH-LAND", "U-PPGW-CHERRY", "U-PPGW-LAND", "U-MAW-CHERRY", "U-MAW-LAND", "U-INV-A through U-INV-G", "U-DDP01-03", "U-FNL-CLOSE"]
+    },
+    "mcp_action": {
+      "name": "prism_dev:cherry_pick_consolidate",
+      "consumer_intent": "Drives cherry-pick from a stranded worktree → merge-staging with conflict detection + lock acquire/release",
+      "ownership": "BUILT (script-level)",
+      "built_in": "Wraps mcp-server/scripts/cherry-pick-consolidator.mjs (built U-FND02). Dispatcher wiring DEFERRED — callable via Bash directly for now.",
+      "consumed_by": ["U-FF01", "U-FF02", "U-FF03", "U-PPGH-CHERRY", "U-PPGW-CHERRY", "U-MAW-CHERRY", "U-INV-A through U-INV-D"]
+    },
+    "skill_command": {
+      "name": "/consolidate-worktree",
+      "trigger": "User runs /consolidate-worktree <source-worktree> [--filter regex] to cherry-pick into merge-staging",
+      "ownership": "DECLARED",
+      "built_in": "DECLARED here, BUILT in follow-up milestone if usage demands. Script-level interface (U-FND02) is the BUILT artifact for this milestone.",
+      "deferred_reason": "Pattern: build script first, ship for use; promote to /skill if usage merits ergonomic wrapper"
+    },
+    "additional_built_artifacts": {
+      "scripts": [
+        { "name": "cherry-pick-consolidator.mjs", "ownership": "BUILT", "built_in": "U-FND02" },
+        { "name": "orphan-file-audit.mjs", "ownership": "BUILT", "built_in": "U-FND03", "consumed_by": ["U-DDP01"] },
+        { "name": "test-legitimacy-targeted.mjs", "ownership": "BUILT", "built_in": "U-FND04", "consumed_by": ["U-FNL-TLA"] }
+      ],
+      "configs": [
+        { "name": ".lintstagedrc.json", "ownership": "BUILT", "built_in": "U-FND01", "consumed_by": ["all phases (root-cause fix for FIX1/FIX2 stash leakage; benefits every commit)"] }
+      ],
+      "modified_hooks": [
+        { "name": ".claude/hooks/worktree-commit-route.mjs", "ownership": "MODIFIED", "modified_in": "U-FND05", "change": "Add [MERGE-STAGING] to MAIN_WHITELIST_PREFIXES" }
+      ]
+    }
+  },
+  "feature_cascade": {
+    "new_hooks": [],
+    "new_actions": [],
+    "new_skills": [],
+    "new_scripts": [
+      "mcp-server/scripts/cherry-pick-consolidator.mjs (P0)",
+      "mcp-server/scripts/orphan-file-audit.mjs (P0)",
+      "mcp-server/scripts/test-legitimacy-targeted.mjs (P0)"
+    ],
+    "modified_hooks": [
+      ".claude/hooks/worktree-commit-route.mjs (whitelist + [MERGE-STAGING] in P0)"
+    ],
+    "new_configs": [
+      ".lintstagedrc.json (P0 — root cause fix for stash leakage)"
+    ],
+    "available_to": [
+      "P1-FAST-FORWARD",
+      "P2-PPGH05",
+      "P3-PPG-ADVANCED",
+      "P4-MILL-AI-WIRING",
+      "P5-INVESTIGATE-TRIAGE",
+      "P6-DEDUP-AUDIT",
+      "P7-FINAL"
+    ],
+    "consumed_by": {
+      "P1-FAST-FORWARD": ["cherry-pick-consolidator.mjs", ".lintstagedrc.json", "worktree-commit-route.mjs (extension)"],
+      "P2-PPGH05": ["cherry-pick-consolidator.mjs", "worktree-commit-route.mjs"],
+      "P3-PPG-ADVANCED": ["cherry-pick-consolidator.mjs", "worktree-commit-route.mjs"],
+      "P4-MILL-AI-WIRING": ["cherry-pick-consolidator.mjs", "worktree-commit-route.mjs"],
+      "P5-INVESTIGATE-TRIAGE": ["cherry-pick-consolidator.mjs", "worktree-commit-route.mjs"],
+      "P6-DEDUP-AUDIT": ["orphan-file-audit.mjs → ORPHAN-AUDIT-2026-05-06.json"],
+      "P7-FINAL": ["test-legitimacy-targeted.mjs → TEST-LEGITIMACY-VIOLATIONS-2026-05-06.json"]
+    }
+  },
+  "enforcement": {
+    "pre_level": [
+      "duplication-hard-block.mjs — blocks duplicate engine creation if any U-* attempts to create",
+      "file-claim-guard.mjs — blocks edits on peer-claimed files (active throughout)",
+      "comprehensive-build-enforce.mjs — blocks stub/partial work on script and config builds"
+    ],
+    "post_level": [
+      "test-legitimacy.mjs — verifies any new test we add doesn't violate weak-EOL rule",
+      "stop_on_failing_tests.mjs — Stop hook blocks if vitest fails after a P-phase merge"
+    ],
+    "compact_level": [
+      "scrutinize-before-stop.mjs — 3-of-3 multi-CLI gate fires on each phase boundary commit",
+      "enforce-handoff-topic.mjs — handoff slug must include [MERGE-STAGING] topic"
+    ],
+    "post_compact": [
+      "PostCompact hook writes SESSION_ARTIFACTS.json (Feature Cascade) so subsequent sessions know what scripts/hooks exist now"
+    ]
+  },
+  "mcp_lifecycle_global": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map_compact",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search '<phase goal>'"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint (every 5-10 calls)",
+      "prism_session:action_search (per phase pivot)",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "cross_track_dependencies": {
+    "soft": [
+      "INFRA-NEURAL-LEDGER-MS1 — peer chats are mid-flight on T5 Bayesian (BayesianMLP, ConformalPrediction, DeepEnsemble, CalibrationAuditor). Wait for those commits to land before cherry-picking any conflicting work",
+      "Mastercam 8/8 commits in cam-ms1-93a0 are independent of CAD-COMPLETE-MS0; safe to land"
+    ],
+    "hard": [
+      "CAM-EXHAUST-MS0 — peer chat claude-eeccf458 owns CAMNeuralEnsembleEngine + PhysicsNeuralBridgeEngine + camDispatcher in cam-exhaust-ms0 lane (HARD: concurrent edits would trigger file-claim-guard mid-cherry-pick and break P5 Subgroup A). MUST coordinate via prism_context:claim_file before any cherry-pick touching cam-exhaust-ms0 files."
+    ]
+  },
+  "scrutiny_log": {
+    "rounds": [
+      {
+        "round": 1,
+        "timestamp": "2026-05-06T17:30Z",
+        "average_score": 82.0,
+        "verdict": "PASS",
+        "scores": {
+          "protocol_structure": 100,
+          "unit_naming": 100,
+          "dependency_graph": 88,
+          "exit_gate_rigor": 78,
+          "completeness_coverage": 96,
+          "physics_rigor": 62,
+          "forge_triple_ownership": 60,
+          "feature_cascade": 74,
+          "mcp_utilization": 78,
+          "cross_roadmap_coherence": 84
+        },
+        "fixes_applied_post_round_1": [
+          "Physics Rigor: PPGH/MAW gain explicit /physics-verify + verifyEmittedForceEstimates() with ≤2% drift threshold",
+          "Feature Cascade: available_to replaced with explicit phase IDs; consumed_by map added per phase",
+          "Cross-Roadmap: CAM-EXHAUST-MS0 promoted from soft → hard cross-track dependency",
+          "P7: BASELINE_INVENTORY.json re-verification + schemaVersion bump added to exit_criteria",
+          "Phantom skill cleanup: PPGH/PPGW gain /checkpoint + /handoff; MAW gains /physics-verify"
+        ],
+        "deferred_fixes": [
+          "Forge-triple per-unit DECLARED/BUILT/CONSUMED tags (Agent 7 finding) — schema-level fix, deferred to follow-up since milestone-level forge_triple block IS the schema standard",
+          "Per-phase peer_coordination block (Agent 10 finding) — partial fix applied (P2 already has it; P1/P4/P5/P6 left as 'use file-claim-guard hooks which already enforce)"
+        ]
+      },
+      {
+        "round": 2,
+        "timestamp": "2026-05-06T18:00Z",
+        "verdict": "PASS",
+        "verified_scores": {
+          "forge_triple_ownership": { "round_1": 60, "round_2": 92, "delta": "+32", "remaining_minor": "skill_command lacks consumed_by:[] uniformity" },
+          "physics_rigor": { "round_1": 62, "round_2": 96, "delta": "+34", "remaining_minor": "U-PPGH-VERIFY abort_criteria still references old 15% threshold (cosmetic; exit_criteria correctly enforce 2%)" },
+          "feature_cascade": { "round_1": 74, "round_2": 95, "delta": "+21", "remaining_minor": ".lintstagedrc.json consumed_by uses prose 'all phases' instead of enumerated phase IDs" }
+        },
+        "average_round_2_projected": 91.7,
+        "improvements_applied": {
+          "forge_triple": "Added ownership tags (BUILT/DECLARED/MODIFIED); added consumed_by per artifact; additional_built_artifacts block enumerates scripts + configs + modified_hooks",
+          "physics": "Force-estimate drift threshold tightened 15%→2%; explicit `git diff constants.ts must be empty` in PPGH/PPGW/MAW exit_criteria; /physics-verify + /calibrate referenced; inline Kienzle/Taylor grep gate added",
+          "cascade": "available_to → explicit phase IDs; consumed_by map; per-artifact consumed_by lists",
+          "exit_gate": "U-FF03/U-PPGW-VERIFY/U-MAW-VERIFY explicit 3-of-3 scrutiny criterion + numeric drift thresholds + numeric abort_criteria (force_estimate_drift > 5%, failing_tests > 0, omega < 0.92)",
+          "mcp_utilization": "PPGH/PPGW/MAW gain /checkpoint + /handoff; MAW gains /calibrate; P5/P6 gain /checkpoint; ESLint MCP added to PPGW plugins",
+          "cross_roadmap": "peer_coordination block added to P1/P4/P5/P6"
+        },
+        "remaining_deferred": [
+          "Skill /consolidate-worktree remains DECLARED (no /skill file built); promoting to BUILT requires user demand signal",
+          "U-PPGH-VERIFY abort_criteria threshold cosmetic mismatch (force drift >15% in abort vs ≤2% in exit) — does not affect gate behavior since exit_criteria fail-closed"
+        ]
+      }
+    ],
+    "target_score": 80,
+    "min_per_agent_score": 40,
+    "agents": [
+      "Protocol Structure",
+      "Unit Naming",
+      "Dependency Graph",
+      "Exit Gate Rigor",
+      "Completeness Coverage",
+      "Physics Rigor",
+      "Forge-Triple Ownership",
+      "Feature Cascade",
+      "MCP Utilization",
+      "Cross-Roadmap Coherence"
+    ]
+  },
+  "rollback_plan": {
+    "per_merge": "Cherry-picks land on merge-staging-ms0 first. If verification fails, `git -C H:/prism-merge-staging reset --hard origin/main` and retry.",
+    "per_phase": "Each phase commits independently. If P3a corrupts, P0/P1/P2 are already in main.",
+    "catastrophic": "Source worktrees remain intact until P7 prunes. Source-of-truth preserved until final pass."
+  },
+  "execution_log": [
+    {
+      "phase": "P0-FOUNDATION",
+      "status": "complete",
+      "executed_at": "2026-05-06",
+      "session_id": "claude-e7271397",
+      "commit_landed": "51eb90fc5 (later rebased to 931e55c66 onto origin/main, then squashed into c3e97e5a1 push)",
+      "units_executed": ["U-FND01", "U-FND02", "U-FND03", "U-FND04", "U-FND05"],
+      "notes": "All 5 foundation units shipped in single commit on work/merge-staging-ms0. Discovered cam-phase5-impl-gate.mjs missing on main HEAD (added later, never back-merged) — pulled forward into foundation commit."
+    },
+    {
+      "phase": "P1-FAST-FORWARD",
+      "status": "complete (3 of 4 planned units; U-FF03 graduated)",
+      "executed_at": "2026-05-06",
+      "session_id": "claude-e7271397",
+      "units_executed": ["U-FF01", "U-FF02 (a+b)", "U-FF04 (modified)"],
+      "units_graduated": ["U-FF03 — cam-ms1-93a0 grew from 16 commits at audit time to 626 actual (357 [MAIN]-tagged + 246 untagged + 18 CAD-FIDX + 5 other). Too large for FF phase. Needs dedicated phase or merge into P3-PPG-ADVANCED scope."],
+      "main_advanced": "e91b79d6f → c3e97e5a1 (4 commits: foundation tooling + data-loss-fix + guard-orphan-wire + omega-loader)",
+      "worktrees_pruned": ["data-loss-fix", "guard-wire-ms0", "omega-loader-ms0"],
+      "branches_deleted": ["worktree-data-loss-fix", "worktree-guard-wire-ms0", "worktree-omega-loader-ms0"],
+      "rebase_conflicts_resolved": [
+        {
+          "file": "mcp-server/src/tools/dispatchers/guardDispatcher.ts",
+          "type": "additive (different action enum entries + different case blocks)",
+          "resolution": "kept both sides — INTEL-OLLAMA-OBSIDIAN error_ledger_* actions + ORPHAN-WIRE 7 guard actions",
+          "verification": "post-push grep confirmed agi_containment_evaluate appears in enum + case on origin/main"
+        }
+      ],
+      "rebase_observation": "origin/main moved 43 commits ahead during P0 work (INTEL-OLLAMA-OBSIDIAN-MS0 landed). Rebase onto origin/main was required mid-phase; should be expected for any worktree work that takes >1 day."
+    },
+    {
+      "phase": "P6-DEDUP-AUDIT (orphan files subtask)",
+      "status": "deferred",
+      "executed_at": "2026-05-06",
+      "session_id": "claude-e7271397",
+      "blocker": "pre-delete-guard.mjs hook does stem-matching on engine names. All 12 'safe_to_delete' orphans (.ts-1, .t-1, -1 truncated) share stems with live engines that have skill/dispatcher references, so the guard rejects the entire batch even though the orphans themselves have zero references.",
+      "remediation_options": [
+        "Use the /delete skill per-file (designed to handle this case)",
+        "Extend pre-delete-guard.mjs with an orphan-suffix exemption (.ts-1, .t-1, -1$, Engi-1$, Engin-1$, .-1$)",
+        "Bypass via direct fs.unlinkSync (not recommended — guard is real safety property)"
+      ]
+    }
+  ],
+  "out_of_scope": [
+    "Building Mazak / Heidenhain / Siemens 840D / Hass NGC mill posts (separate milestone)",
+    "Building Trumpf / Bystronic / Amada laser posts (separate milestone)",
+    "Sinker EDM controller dialects (separate milestone)",
+    "Plasma P2P pipeline (separate milestone)"
+  ],
+  "estimated_effort": {
+    "total_hours": "17-23",
+    "total_sessions": "8 (one per phase)",
+    "compaction_after_each_phase": true
+  }
+}

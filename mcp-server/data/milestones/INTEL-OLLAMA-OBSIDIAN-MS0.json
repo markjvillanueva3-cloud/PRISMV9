@@ -161,7 +161,11 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "restore settings.json from mcp-server/data/state/settings-baseline-* backup"
+          "rollback": "restore settings.json from mcp-server/data/state/settings-baseline-* backup",
+          "status": "completed",
+          "completed_at": "2026-05-15T15:16:53.555Z",
+          "completed_by": "claude-b6c4b196 slot alpha",
+          "close_out_note": "Hook .claude/hooks/ollama-auto-router.mjs was already wired in UserPromptSubmit group 0 but at position 4 of 20. Promoted to position 0 in BOTH C: and H: settings.json — now fires FIRST on every UserPromptSubmit, ensuring earliest offload-classifier evaluation before any context-injection hook runs. Existing offload-stats this session: 21 offloaded / 245 kept (8.5%) — promotion may improve the rate by giving the classifier first-look before injectors expand the prompt size."
         }
       ],
       "primary_role": "R3"
@@ -691,7 +695,11 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "restore settings.json from mcp-server/data/state/settings-baseline-* backup | move hook to .claude/hooks/.deprecated/ + unwire from settings.json"
+          "rollback": "restore settings.json from mcp-server/data/state/settings-baseline-* backup | move hook to .claude/hooks/.deprecated/ + unwire from settings.json",
+          "status": "completed",
+          "completed_at": "2026-05-15T15:08:49.141Z",
+          "completed_by": "claude-b6c4b196 slot charlie",
+          "close_out_note": "Hook was BUILT but UNWIRED (same class as P6-U01). Wired into UserPromptSubmit on BOTH settings.json (C: + H:) with 5000ms timeout. Live smoke test: prompt \"can you remember the last time...\" returned 5 memory hits + injected additionalContext via continue:true (exit 0, valid JSON). DEVIATION FROM SPEC: current hook returns raw file paths in additionalContext, not the Ollama-summarized 50-word digest specified in exit_conditions #2 — the Ollama-summarization step is a P2 enhancement worth filing as a follow-up unit (call it P3-U05-FOLLOWUP-OLLAMA-SUMMARIZE). The keyword detection + vault search + 800-tok savings path work; the summarization is the missing layer."
         },
         {
           "id": "P10-U04",
@@ -1458,7 +1466,11 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "restore settings.json from mcp-server/data/state/settings-baseline-* backup | move hook to .claude/hooks/.deprecated/ + unwire from settings.json"
+          "rollback": "restore settings.json from mcp-server/data/state/settings-baseline-* backup | move hook to .claude/hooks/.deprecated/ + unwire from settings.json",
+          "status": "completed",
+          "completed_at": "2026-05-15T15:28:43.479Z",
+          "completed_by": "claude-b6c4b196 slot alpha",
+          "close_out_note": "Built .claude/hooks/zany-reintroduction-block.mjs (PreToolUse Write/Edit/MultiEdit gate). Diff-aware: only BLOCKS when proposed file would have MORE z.any() occurrences than current — preserves rollouts that remove z.any(). Wired in both C: + H: settings.json with 3000ms timeout. 34-case test (.claude/helpers/zany-reintroduction-block.test.mjs) covers: countZAny regex stability + edge cases, applyMultiEdit sequential ops + replace_all + unmatched, computeProposedText for Write/Edit/MultiEdit, full subprocess smoke for PASS/BLOCK/override paths. All 34 pass. Knob: PRISM_ZANY_BLOCK_DISABLE=1. Independent of P8-U05 dependency — hook is regex-based, not engine-dependent."
         }
       ],
       "primary_role": "R1"
