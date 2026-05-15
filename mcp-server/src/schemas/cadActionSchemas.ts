@@ -640,11 +640,64 @@ export const cadLatheTemplatePlaceSchema = z.object({
   dry_run: z.boolean().optional().describe("Do everything except write."),
 });
 
+// ── U-PPL-D4 Program-Equivalent Index ─────────────────────────────────────────
+// Pure composition over an existing CAD master-index (UniversalCADIndexEngine)
+// + lathe `.MIN` JMDieDiskIndexEntry[]. Optional D1 link-index for print-ref
+// enrichment. Output writes to data/state/cad-file-index/program-equivalent-index.json
+// (sibling of the CAD master-index.json — never clobbers it).
+export const programEquivalentIndexComposeSchema = z
+  .object({
+    cad_master_index_path: z
+      .string()
+      .optional()
+      .describe(
+        "Path to an existing CAD master-index.json (from UniversalCADIndexEngine.index()). When omitted the engine runs in lathe-only mode.",
+      ),
+    lathe_entries: z
+      .array(z.record(z.string(), z.unknown()))
+      .describe(
+        "JMDieDiskIndexEntry[] for the lathe half of the archive — .MIN/.MAC files. Empty array runs CAD-only mode.",
+      ),
+    join_jsonl_path: z
+      .string()
+      .optional()
+      .describe(
+        "Optional v6 join JSONL from BlueprintProgramJoinEngine — when present the engine loads the D1 link-index and enriches each entry with a print-ref.",
+      ),
+    input_program_paths: z
+      .array(z.string())
+      .optional()
+      .describe(
+        "Optional augmentation paths for the D1 link-index program-seed.",
+      ),
+    dry_run: z
+      .boolean()
+      .optional()
+      .describe(
+        "Safety gate — true (default) computes + returns only. Set false to atomically write program-equivalent-index.json.",
+      ),
+    output_path: z
+      .string()
+      .optional()
+      .describe(
+        "Override the output path (defaults to data/state/cad-file-index/program-equivalent-index.json).",
+      ),
+    limit: z
+      .number()
+      .int()
+      .nonnegative()
+      .optional()
+      .describe("Cap on lathe entries processed (0 = no cap)."),
+  })
+  .passthrough();
+
 /**
  * Action schemas for prism_cad dispatcher.
  * Maps action name to Zod schema for validation.
  */
 export const ACTION_CAD_SCHEMAS: Record<string, z.ZodType<any>> = {
+  // U-PPL-D4
+  program_equivalent_index_compose: programEquivalentIndexComposeSchema,
   // Geometry
   geometry_create: geometryCreateSchema,
   geometry_transform: geometryTransformSchema,

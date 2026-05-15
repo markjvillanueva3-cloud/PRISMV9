@@ -114,7 +114,23 @@ function entryName(entry) {
 
 /**
  * Load system-graph.json with mtime-based caching. Returns null on any error
- * (missing file, parse failure, malformed shape). Safe to call repeatedly.
+ * (missing file, parse failure, malformed shape, file too large). Safe to
+ * call repeatedly.
+ *
+ * Defensive: per-node try/continue + Array.isArray guards on knowledge.*
+ * fields. A single malformed node (e.g., regen partial-write, schema drift)
+ * does NOT crash the entire load — bad nodes are skipped silently.
+ *
+ * Size budget: refuses to load files larger than `MAX_GRAPH_BYTES` (default
+ * 200 MB). The system-graph.json sits at ~88 MB as of 2026-05-15 and grows
+ * as system-viz expands L11/L12 leaves — the budget protects subagent-spawn
+ * latency from runaway. Tunable via `PRISM_GRAPH_MAX_BYTES`.
+ *
+ * Note on perf: each subagent spawn is a fresh node subprocess, so the
+ * mtime cache only helps WITHIN ONE invocation (e.g., when the spawned-
+ * agent lib calls runMasterIndexSearch + runTribalSearch back-to-back).
+ * Subsequent SubagentStart events re-pay the cold parse. Pre-built
+ * inverted-index sidecars are the deeper fix (tracked for follow-up).
  *
  * @param {string} [graphPath]
  * @returns {{ nodes: Array, inverted: Map<string, Set<string>> } | null}
@@ -123,6 +139,8 @@ export function loadGraph(graphPath = DEFAULT_GRAPH_PATH) {
   if (!existsSync(graphPath)) return null;
   let stat;
   try { stat = statSync(graphPath); } catch { return null; }
+  const maxBytes = Number(process.env.PRISM_GRAPH_MAX_BYTES) || (200 * 1024 * 1024);
+  if (stat.size > maxBytes) return null;
   if (
     _graphCache.path === graphPath
     && _graphCache.mtimeMs === stat.mtimeMs
@@ -139,13 +157,26 @@ export function loadGraph(graphPath = DEFAULT_GRAPH_PATH) {
   const inverted = new Map();
   for (const n of nodes) {
     if (!n || typeof n.id !== "string") continue;
-    const wikiNames = (n.knowledge?.wikiEntries ?? []).map(entryName).join(" ");
-    const memNames = (n.knowledge?.memoryEntries ?? []).map(entryName).join(" ");
-    const blob = `${n.id} ${n.label ?? ""} ${n.info ?? ""} ${wikiNames} ${memNames}`;
-    for (const tok of tokenize(blob, { maxTokens: Number.MAX_SAFE_INTEGER, maxLen: Number.MAX_SAFE_INTEGER })) {
-      let bucket = inverted.get(tok);
-      if (!bucket) { bucket = new Set(); inverted.set(tok, bucket); }
-      bucket.add(n.id);
+    try {
+      // Defensive: knowledge.* MUST be arrays. Schema drift / partial-write
+      // bugs upstream have produced object or null values here — without
+      // the Array.isArray guard, .map() throws and the entire 92K-node
+      // load aborts (Reviewer C P0 finding).
+      const wikiArr = Array.isArray(n.knowledge?.wikiEntries) ? n.knowledge.wikiEntries : [];
+      const memArr = Array.isArray(n.knowledge?.memoryEntries) ? n.knowledge.memoryEntries : [];
+      const wikiNames = wikiArr.map(entryName).join(" ");
+      const memNames = memArr.map(entryName).join(" ");
+      const blob = `${n.id} ${n.label ?? ""} ${n.info ?? ""} ${wikiNames} ${memNames}`;
+      for (const tok of tokenize(blob, { maxTokens: Number.MAX_SAFE_INTEGER, maxLen: Number.MAX_SAFE_INTEGER })) {
+        let bucket = inverted.get(tok);
+        if (!bucket) { bucket = new Set(); inverted.set(tok, bucket); }
+        bucket.add(n.id);
+      }
+    } catch {
+      // Per-node failure — skip and continue. Total-load semantics: a
+      // few skipped nodes is acceptable degradation; aborting the whole
+      // load on one bad row is not (Reviewer C P0 finding).
+      continue;
     }
   }
   const wrapper = { nodes, inverted };
@@ -181,9 +212,17 @@ export function searchGraphHits(graph, queryTokens, opts = {}) {
       const idLower = node.id.toLowerCase();
       const labelLower = (node.label ?? "").toLowerCase();
       const infoLower = (node.info ?? "").toLowerCase();
-      const wikiBlob = (node.knowledge?.wikiEntries ?? [])
+      // Array.isArray guard parity with loadGraph — closes the
+      // "fragile incidental safety" finding (Reviewer C P5 note).
+      // searchGraphHits previously trusted that loadGraph's malformed-
+      // node skip meant no bad knowledge fields could reach here; but
+      // the malformed nodes ARE preserved in `graph.nodes` (only
+      // skipped from `inverted`). If a future caller iterates nodes
+      // directly OR adds a token-less candidate path, the unguarded
+      // `.map()` would throw. Cheap defense.
+      const wikiBlob = (Array.isArray(node.knowledge?.wikiEntries) ? node.knowledge.wikiEntries : [])
         .map(entryName).join(" ").toLowerCase();
-      const memBlob = (node.knowledge?.memoryEntries ?? [])
+      const memBlob = (Array.isArray(node.knowledge?.memoryEntries) ? node.knowledge.memoryEntries : [])
         .map(entryName).join(" ").toLowerCase();
       let s = 0;
       if (labelLower.includes(tok)) s += W_LABEL;
@@ -262,30 +301,45 @@ export function loadTribalIndex(indexPath = DEFAULT_TRIBAL_PATH) {
   ) {
     return _tribalCache.wrapper;
   }
+  // Size budget — tribal-embed-index sits at ~5.8 MB as of 2026-05-15
+  // and grows; the same `PRISM_GRAPH_MAX_BYTES` knob caps it.
+  const maxBytes = Number(process.env.PRISM_GRAPH_MAX_BYTES) || (200 * 1024 * 1024);
+  if (stat.size > maxBytes) return null;
   let raw;
   try { raw = JSON.parse(readFileSync(indexPath, "utf8")); }
   catch { return null; }
   if (!raw || !Array.isArray(raw.entries)) return null;
 
   // Slim entries — drop embedding arrays we don't need on this path.
-  const entries = raw.entries.map((e, idx) => ({
-    idx,
-    id: e.id || `tribal:${idx}`,
-    source: e.source || "",
-    domain: e.domain || "general",
-    title: e.title || "",
-    path: e.path || "",
-    text: (e.text || "").slice(0, 2000),
-  }));
+  // Per-entry try/catch: a single bad entry doesn't abort the whole load
+  // (defensive against schema drift / partial-write — Reviewer C P0 class).
+  const entries = [];
+  for (let idx = 0; idx < raw.entries.length; idx++) {
+    const e = raw.entries[idx];
+    if (!e || typeof e !== "object") continue;
+    try {
+      entries.push({
+        idx,
+        id: String(e.id || `tribal:${idx}`),
+        source: String(e.source || ""),
+        domain: String(e.domain || "general"),
+        title: String(e.title || ""),
+        path: String(e.path || ""),
+        text: String(e.text || "").slice(0, 2000),
+      });
+    } catch { continue; }
+  }
 
   const inverted = new Map();
   for (const e of entries) {
-    const blob = `${e.title} ${e.text} ${e.domain}`;
-    for (const tok of tokenize(blob, { maxTokens: Number.MAX_SAFE_INTEGER, maxLen: Number.MAX_SAFE_INTEGER })) {
-      let bucket = inverted.get(tok);
-      if (!bucket) { bucket = new Set(); inverted.set(tok, bucket); }
-      bucket.add(e.idx);
-    }
+    try {
+      const blob = `${e.title} ${e.text} ${e.domain}`;
+      for (const tok of tokenize(blob, { maxTokens: Number.MAX_SAFE_INTEGER, maxLen: Number.MAX_SAFE_INTEGER })) {
+        let bucket = inverted.get(tok);
+        if (!bucket) { bucket = new Set(); inverted.set(tok, bucket); }
+        bucket.add(e.idx);
+      }
+    } catch { continue; }
   }
 
   const wrapper = { entries, inverted };

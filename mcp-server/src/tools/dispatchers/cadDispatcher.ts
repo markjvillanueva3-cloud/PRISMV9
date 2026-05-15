@@ -331,6 +331,9 @@ const ACTIONS = [
   // dispatcher so CAD/training-pipeline consumers don't have to cross-dispatch into prism_turning to place a
   // lathe template; family enum is already constrained to the 4 OSP-anchored lathe families by the schema.
   "cad_lathe_template_place",          // MacroLibraryEngine.placeMacroTemplate — lathe-scoped bridge under prism_cad
+  // U-PPL-D4 (MS-PRINT-PROGRAM-LOOP Track D): pure composition over UniversalCADIndexEngine
+  // output + lathe .MIN entries → unified ProgramEquivalentIndex (CAD-as-program + lathe-gcode).
+  "program_equivalent_index_compose",
 ] as const;
 
 /** Registers cad dispatcher.
@@ -3232,6 +3235,82 @@ Params vary by action — pass relevant fields in params object.`,
               dryRun: (params.dryRun ?? params.dry_run) === true,
             });
             result = { success: data.placed || data.dryRun === true, data };
+            break;
+          }
+          // U-PPL-D4: ProgramEquivalentIndexEngine — composes UniversalCADIndexEngine CAD master-index
+          // with lathe .MIN JMDieDiskIndexEntry[]. Optional D1 join_jsonl_path triggers print-ref
+          // enrichment. Pure composition: no new scanner; reuses ProgramPrintLinkIndexEngine's
+          // normalizer + lookup. Output writes to data/state/cad-file-index/program-equivalent-index.json
+          // (sibling of CAD master-index.json — never clobbers it).
+          case "program_equivalent_index_compose": {
+            try {
+              const { programEquivalentIndexEngine } = await import(
+                "../../engines/ProgramEquivalentIndexEngine.js"
+              );
+              const fs = await import("node:fs");
+
+              const latheEntries = Array.isArray(params.lathe_entries)
+                ? params.lathe_entries
+                : Array.isArray(params.latheEntries)
+                  ? params.latheEntries
+                  : [];
+
+              let cadMasterIndex = null;
+              const cadPath: string | undefined =
+                typeof params.cad_master_index_path === "string"
+                  ? params.cad_master_index_path
+                  : typeof params.cadMasterIndexPath === "string"
+                    ? params.cadMasterIndexPath
+                    : undefined;
+              if (cadPath && fs.existsSync(cadPath)) {
+                const raw = fs.readFileSync(cadPath, "utf-8");
+                cadMasterIndex = JSON.parse(raw);
+              }
+
+              const joinPath: string | undefined =
+                typeof params.join_jsonl_path === "string"
+                  ? params.join_jsonl_path
+                  : typeof params.joinJsonlPath === "string"
+                    ? params.joinJsonlPath
+                    : undefined;
+              const inputProgramPaths: readonly string[] = Array.isArray(
+                params.input_program_paths ?? params.inputProgramPaths,
+              )
+                ? ((params.input_program_paths ??
+                    params.inputProgramPaths) as readonly string[])
+                : [];
+
+              let linkIndex: unknown = undefined;
+              if (joinPath || inputProgramPaths.length > 0) {
+                const { loadLinkIndex } = await import(
+                  "../../engines/ProgramPrintLinkIndexEngine.js"
+                );
+                linkIndex = loadLinkIndex({
+                  joinJsonlPath: joinPath ?? "",
+                  inputProgramPaths,
+                });
+              }
+
+              const composeResult = await programEquivalentIndexEngine.compose({
+                cadMasterIndex,
+                latheProgramEntries: latheEntries,
+                linkIndex: linkIndex as Parameters<
+                  typeof programEquivalentIndexEngine.compose
+                >[0]["linkIndex"],
+                dryRun: (params.dryRun ?? params.dry_run) !== false,
+                outputPath:
+                  typeof params.output_path === "string"
+                    ? params.output_path
+                    : typeof params.outputPath === "string"
+                      ? params.outputPath
+                      : undefined,
+                limit:
+                  typeof params.limit === "number" ? params.limit : undefined,
+              });
+              result = { success: true, data: composeResult };
+            } catch (err) {
+              result = dispatcherError(err, action, "prism_cad");
+            }
             break;
           }
           default:
