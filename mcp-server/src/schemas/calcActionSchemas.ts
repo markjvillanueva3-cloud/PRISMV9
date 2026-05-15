@@ -3253,4 +3253,68 @@ export const ACTION_CALC_SCHEMAS: ActionSchemaMap = {
     rated_power_kw: optPosNum.describe('Machine rated power (kW)'),
     cutting_time_min: optPosNum.describe('Cutting time (min)'),
   }).passthrough().describe('Integrated adaptive physics bridge: chip+coolant+spindle+wear analysis'),
+
+  // ==========================================================================
+  // OBSIDIAN-PRISM-OS-MS0 / U-ORPHAN-RESCUE-QUICK-CALC — 10 actions for
+  // QuickCalcEngine (orphan-rescue wire, 2026-05-15). Zero dispatcher overhead
+  // path for the 10 most common CNC calcs. Engine has 14 vitest cases in
+  // __tests__/quick-calc-engine.test.ts.
+  // ==========================================================================
+  quick_rpm: z.object({
+    surface_speed: posNum.describe('Surface speed — SFM (imperial) or Vc m/min (metric)'),
+    diameter: posNum.describe('Tool diameter — inches (imperial) or mm (metric)'),
+    metric: optBool.describe('true → diameter is in mm and surface_speed is Vc; default false (imperial)'),
+  }).passthrough().describe('RPM from surface speed and diameter (QuickCalcEngine.rpm)'),
+
+  quick_feed_rate: z.object({
+    rpm: posNum.describe('Spindle RPM'),
+    chip_load: posNum.describe('Chip load per tooth (fz) — inches (imperial) or mm (metric)'),
+    flutes: posNum.describe('Number of flutes/teeth'),
+    metric: optBool.describe('true → chip_load is mm and result feed_mmmin is the source unit; default false'),
+  }).passthrough().describe('Feed rate from RPM, chip load, flutes (QuickCalcEngine.feedRate)'),
+
+  quick_mrr: z.object({
+    woc: posNum.describe('Width of cut — inches or mm'),
+    doc: posNum.describe('Depth of cut — inches or mm'),
+    feed_rate: posNum.describe('Feed rate — IPM (imperial) or mm/min (metric)'),
+    metric: optBool.describe('true → all inputs metric; default false (imperial)'),
+  }).passthrough().describe('Material removal rate (QuickCalcEngine.mrr)'),
+
+  quick_surface_speed: z.object({
+    rpm: posNum.describe('Spindle RPM'),
+    diameter: posNum.describe('Tool diameter — inches or mm'),
+    metric: optBool.describe('true → diameter is mm and Vc is reported in m/min; default false (SFM)'),
+  }).passthrough().describe('Surface speed from RPM and diameter (QuickCalcEngine.surfaceSpeed)'),
+
+  quick_chip_load: z.object({
+    feed_rate: posNum.describe('Feed rate — IPM (imperial) or mm/min (metric)'),
+    rpm: posNum.describe('Spindle RPM'),
+    flutes: posNum.describe('Number of flutes/teeth'),
+    metric: optBool.describe('true → feed_rate is mm/min; default false (IPM)'),
+  }).passthrough().describe('Back-calculate chip load (QuickCalcEngine.chipLoad)'),
+
+  quick_tap_drill: z.object({
+    major_dia: posNum.describe('Thread major diameter (mm)'),
+    pitch: posNum.describe('Thread pitch (mm)'),
+  }).passthrough().describe('Metric tap drill diameter, D_drill = D_major − pitch (QuickCalcEngine.tapDrill)'),
+
+  quick_cutting_time: z.object({
+    distance: posNum.describe('Cut length (units must match feed_rate)'),
+    feed_rate: posNum.describe('Feed rate (length / minute)'),
+  }).passthrough().describe('Cutting time T = L / F (QuickCalcEngine.cuttingTime)'),
+
+  quick_scallop_height: z.object({
+    tool_radius: posNum.describe('Ball-nose tool radius'),
+    stepover: posNum.describe('Stepover between adjacent passes'),
+  }).passthrough().describe('Scallop height for ball-nose, h = R − √(R² − (step/2)²) (QuickCalcEngine.scallopHeight)'),
+
+  quick_thread_pitch: z.object({
+    tpi: posNum.describe('Threads per inch'),
+  }).passthrough().describe('Thread pitch from TPI — returns mm + inches (QuickCalcEngine.threadPitch)'),
+
+  quick_cutting_power: z.object({
+    mrr_in3min: posNum.describe('Material removal rate (in³/min)'),
+    material: z.enum(['aluminum','steel','stainless','titanium','cast_iron','custom']).describe('Workpiece material — sets unit-power factor; "custom" requires custom_factor'),
+    custom_factor: optPosNum.describe('Custom unit-power factor (only when material="custom"); default 1.0'),
+  }).passthrough().describe('Cutting power HP/kW = MRR × unit-power factor (QuickCalcEngine.cuttingPower)'),
 };

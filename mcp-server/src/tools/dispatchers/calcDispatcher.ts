@@ -1015,6 +1015,9 @@ const ACTIONS = [
   "chatter_neural_classify", "thermal_neural_predict",
   "adaptive_param_space_record", "adaptive_param_space_query",
   "adaptive_machining_process", "adaptive_physics_bridge",
+  // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-QUICK-CALC: 10 actions wiring QuickCalcEngine
+  "quick_rpm", "quick_feed_rate", "quick_mrr", "quick_surface_speed", "quick_chip_load",
+  "quick_tap_drill", "quick_cutting_time", "quick_scallop_height", "quick_thread_pitch", "quick_cutting_power",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -8801,6 +8804,59 @@ export function registerCalcDispatcher(server: any): void {
             result = adaptivePhysicsBridgeEngine.performIntegratedAnalysis(conditions, cuttingPower, ratedPower, cuttingTime);
             break;
           }
+
+          // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-QUICK-CALC: 10 actions wiring QuickCalcEngine (2026-05-15)
+          case "quick_rpm": {
+            const { quickCalcEngine } = await import("../../engines/QuickCalcEngine.js");
+            result = quickCalcEngine.rpm(params.surface_speed, params.diameter, params.metric === true);
+            break;
+          }
+          case "quick_feed_rate": {
+            const { quickCalcEngine } = await import("../../engines/QuickCalcEngine.js");
+            result = quickCalcEngine.feedRate(params.rpm, params.chip_load, params.flutes, params.metric === true);
+            break;
+          }
+          case "quick_mrr": {
+            const { quickCalcEngine } = await import("../../engines/QuickCalcEngine.js");
+            result = quickCalcEngine.mrr(params.woc, params.doc, params.feed_rate, params.metric === true);
+            break;
+          }
+          case "quick_surface_speed": {
+            const { quickCalcEngine } = await import("../../engines/QuickCalcEngine.js");
+            result = quickCalcEngine.surfaceSpeed(params.rpm, params.diameter, params.metric === true);
+            break;
+          }
+          case "quick_chip_load": {
+            const { quickCalcEngine } = await import("../../engines/QuickCalcEngine.js");
+            result = quickCalcEngine.chipLoad(params.feed_rate, params.rpm, params.flutes, params.metric === true);
+            break;
+          }
+          case "quick_tap_drill": {
+            const { quickCalcEngine } = await import("../../engines/QuickCalcEngine.js");
+            result = quickCalcEngine.tapDrill(params.major_dia, params.pitch);
+            break;
+          }
+          case "quick_cutting_time": {
+            const { quickCalcEngine } = await import("../../engines/QuickCalcEngine.js");
+            result = quickCalcEngine.cuttingTime(params.distance, params.feed_rate);
+            break;
+          }
+          case "quick_scallop_height": {
+            const { quickCalcEngine } = await import("../../engines/QuickCalcEngine.js");
+            result = quickCalcEngine.scallopHeight(params.tool_radius, params.stepover);
+            break;
+          }
+          case "quick_thread_pitch": {
+            const { quickCalcEngine } = await import("../../engines/QuickCalcEngine.js");
+            result = quickCalcEngine.threadPitch(params.tpi);
+            break;
+          }
+          case "quick_cutting_power": {
+            const { quickCalcEngine } = await import("../../engines/QuickCalcEngine.js");
+            result = quickCalcEngine.cuttingPower(params.mrr_in3min, params.material, params.custom_factor);
+            break;
+          }
+
 default:
             throw new Error(`Unknown calculation action: ${action}`);
         }
