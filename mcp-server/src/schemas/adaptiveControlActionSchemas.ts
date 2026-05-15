@@ -342,7 +342,10 @@ const _variabilityEvidence = z.array(z.object({
 
 const variability_evaluate = z.object({
   parameter: z.string().describe("Parameter name (e.g. spindle_rpm, feed_rate, depth_of_cut)"),
-  value: z.number().describe("Observed value to score against the envelope"),
+  // .finite() — evaluate() on an unknown parameter mints+stores a default envelope
+  // derived from this value; an Infinity/NaN value would seed a poisoned envelope
+  // into the process-lifetime singleton (calculatePercentile divides by the gaps).
+  value: z.number().finite().describe("Observed value to score against the envelope"),
   context: z.record(z.string(), z.any()).optional().describe("Optional evaluation context"),
 }).passthrough();
 
