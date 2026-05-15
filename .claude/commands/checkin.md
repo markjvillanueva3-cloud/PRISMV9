@@ -4,6 +4,13 @@ description: One-stop development pipeline entry. Claim a slot in the 10-chat PR
 trigger:
   autoSuggest:
     keywords: ["checkin", "check in", "claim a slot", "fleet slot", "which chat am i", "login to the fleet", "start a development pipeline", "begin a unit", "begin loop", "start loop"]
+triggers:
+  - event: UserPromptSubmit
+    matcher:
+      type: keyword
+      value: "checkin|/checkin|claim slot|fleet checkin|fleet check-in"
+    score: 0.85
+    action: suggest
 ---
 
 # /checkin — Fleet Check-In + Drift / Conflict / Commit Guard
@@ -163,6 +170,22 @@ If FRESH: scan the SessionStart `claudeMd` block (already in your context) for
 any `## SECTION` header you haven't seen before — surface it in the report as
 `claude_md_changed: <yes|no>`.
 
+### 6g. Local-compute health (Ollama + Docker services)
+Shipped 2026-05-15 (OLLAMA-PIPELINE-MS0). Probes Ollama daemon + Docker engine + Qdrant + Postgres + Prometheus. Single line output; underpins the §Report `local_compute:` line and gates the new pipeline hooks (`ollama-pipeline-injector`, `ollama-prewarm-on-pipeline`).
+```bash
+node H:/prism/scripts/ollama-docker-health.mjs           # one-line text
+node H:/prism/scripts/ollama-docker-health.mjs --json    # machine-readable
+node H:/prism/scripts/ollama-docker-health.mjs --require ollama,qdrant  # exit 1 if any required service is down
+```
+**What it tells you:**
+- Ollama up + model count + how many are warm in VRAM. If `0 warm`, the first hook call will cold-start (~3s for qwen2.5-coder:7b, ~12s for qwen2.5-coder:32b).
+- Docker engine responsive (`docker ps -q`).
+- Qdrant (port 6333), Postgres (`postgres-prism` container), Prometheus (port 9090) status.
+
+**If Ollama is down:** `node H:/prism/mcp-server/scripts/ollama-docker-launcher.mjs --services=ollama --skip-pull` (background spawn, idempotent). Surface as a §Report warning, not a block.
+
+**If Docker engine is unresponsive (500 errors on `docker ps`):** advise `wsl --shutdown && wsl` then restart Docker Desktop. The launcher's status file at `state/shared/DOCKER_RUNTIME_STATE.json` will confirm last-known-good.
+
 ### 7. Report — print this boxed one-glance status
 ```
 ┌─ /checkin ─────────────────────────────────────────────
@@ -179,6 +202,7 @@ any `## SECTION` header you haven't seen before — surface it in the report as
 │ drift:       <D> milestone(s) drifted  [✓ none  |  ⚠ <ids> — /envelope-sync if yours]
 │ tree:        <clean | dirty: N files>  ·  origin: <ahead A / behind B | offline>
 │ staged:      <empty | ⚠ N files staged — git reset HEAD>
+│ local_compute: <one-line from §6g — Ollama+Docker+Qdrant+Postgres+Prometheus>
 │ your slice:  <only if --roadmap given> <N> <roadmap> units in your lane — #1: <ms/unit — title>
 │ verdict:     ✅ CLEAR — go  |  ⚠ <one-line: what to resolve first>
 └────────────────────────────────────────────────────────
