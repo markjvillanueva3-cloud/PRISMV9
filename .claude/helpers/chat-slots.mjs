@@ -117,6 +117,14 @@ const SCHEMA_VERSION = 2;
  *           /compact + new chats in the same window. When set, claimSlot()
  *           prefers re-binding to the SAME slot regardless of chatId churn.
  *           Schema v2 field; missing on v1 records.
+ * @property {string|null} [pipelineStep] — current /checkin pipeline step
+ *           (e.g. "Step 8 awareness-inject", "Step 12 iter 3/5"). Updated
+ *           via setPipelineStep(). Schema v2 field; null when not in pipeline.
+ *           Used by fleet-status.mjs + /system-viz "fleet" subgroup to render
+ *           per-slot phase visibility across 10 concurrent chats.
+ * @property {number|null} [pipelineIter] — current loop iteration index when
+ *           pipelineStep refers to a /loop body. Null otherwise.
+ * @property {number|null} [pipelineTarget] — target iteration count.
  *
  * @typedef {Object} SlotsFile
  * @property {number} schemaVersion
@@ -497,7 +505,38 @@ function refreshState(prev, input) {
     // first claim by a chat with a window id stamps the field even if the
     // record was created without one). Never blank an existing id.
     terminalWindowId: input.terminalWindowId ?? prev.terminalWindowId ?? null,
+    // Pipeline-step visibility (10-chat fleet). Null preserves prev value;
+    // explicit null in input means "exit pipeline" so we honor that.
+    pipelineStep: input.pipelineStep !== undefined ? input.pipelineStep : (prev.pipelineStep ?? null),
+    pipelineIter: input.pipelineIter !== undefined ? input.pipelineIter : (prev.pipelineIter ?? null),
+    pipelineTarget: input.pipelineTarget !== undefined ? input.pipelineTarget : (prev.pipelineTarget ?? null),
   };
+}
+
+/**
+ * Update the pipeline-step visibility fields for the slot owned by this
+ * chatId. Idempotent. Use this to surface "Step 12 iter 3/5" to the fleet
+ * dashboard + /system-viz "fleet" subgroup. Returns the updated slot or
+ * an error if the chat doesn't own a slot.
+ *
+ * @param {{chatId:string, pipelineStep:string|null, pipelineIter?:number|null, pipelineTarget?:number|null}} input
+ */
+export function setPipelineStep(input, statePath = DEFAULT_STATE_PATH, lockPath = DEFAULT_LOCK_PATH) {
+  if (!input || typeof input.chatId !== "string") {
+    return { ok: false, error: "invalid_input", message: "chatId required" };
+  }
+  return withLock(() => {
+    const file = readSlots(statePath);
+    for (const n of SLOT_NAMES) {
+      const s = file.slots[n];
+      if (s && s.chatId === input.chatId) {
+        file.slots[n] = refreshState(s, input);
+        writeSlotsAtomic(file, statePath);
+        return { ok: true, slot: n, state: file.slots[n] };
+      }
+    }
+    return { ok: false, error: "no_slot_owned", message: `chat ${input.chatId} owns no slot — call claimSlot first` };
+  }, lockPath);
 }
 
 /**
@@ -706,6 +745,14 @@ if (__cliArgv1Basename && import.meta.url.endsWith(__cliArgv1Basename)) {
           branch: flags.branch,
           topic: flags.topic,
           activity: flags.activity,
+        });
+        break;
+      case "pipeline-step":
+        result = setPipelineStep({
+          chatId: flags.chatId,
+          pipelineStep: flags.pipelineStep ?? null,
+          pipelineIter: flags.pipelineIter ? parseInt(flags.pipelineIter, 10) : null,
+          pipelineTarget: flags.pipelineTarget ? parseInt(flags.pipelineTarget, 10) : null,
         });
         break;
       case "release":
