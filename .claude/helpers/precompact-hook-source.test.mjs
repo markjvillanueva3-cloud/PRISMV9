@@ -25,7 +25,8 @@ const SHORT_RESUME = "hi";
 
 function callWriter(args) {
   const env = { ...process.env, PRISM_HANDOFFS_DIR: TMP_HANDOFFS };
-  const r = spawnSync("node", [HELPER, ...args], {
+  // Use process.execPath (absolute) — bare "node" is ENOENT on Windows from spawn.
+  const r = spawnSync(process.execPath, [HELPER, ...args], {
     encoding: "utf-8", timeout: 6000, env, windowsHide: true,
   });
   let parsed = null;

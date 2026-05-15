@@ -929,4 +929,51 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   edge_case_learnings: z.object({}).passthrough().describe("All extracted learnings (from successful >0.99-percentile captures)"),
 
   edge_case_stats: z.object({}).passthrough().describe("Total captures, success rate, parameters tracked, expansion candidates, learnings generated"),
+
+  // ── OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-REVERSE-INDEX ────────────────────
+  // ReverseIndexEngine — Phase 0.7 bidirectional asset lookup with WAL-style
+  // crash recovery. 5 named indexes:
+  //   ACTION_TO_ENGINE | SKILL_TO_ACTION | ENGINE_TO_DEPENDENTS |
+  //   KEYWORD_TO_ASSETS | TYPE_TO_ASSETS
+  rev_idx_action_to_engine: z.object({
+    action: z.string().min(1).describe("Dispatcher action name (case-insensitive)"),
+  }).passthrough().describe("Which engine(s) handle this action — returns string[]"),
+
+  rev_idx_skill_to_action: z.object({
+    skill: z.string().min(1).describe("Slash-command/skill name (case-insensitive)"),
+  }).passthrough().describe("Which dispatcher action(s) does this skill invoke — returns string[]"),
+
+  rev_idx_engine_to_dependents: z.object({
+    engine: z.string().min(1).describe("Engine name (case-insensitive)"),
+  }).passthrough().describe("Which engines import/depend on this engine — returns string[]"),
+
+  rev_idx_keyword_search: z.object({
+    keyword: z.string().min(1).describe("Keyword from JSDoc/description (case-insensitive)"),
+  }).passthrough().describe("Fuzzy keyword → asset names — returns string[]"),
+
+  rev_idx_assets_by_type: z.object({
+    asset_type: z.string().min(1).describe("Asset type (engine|action|skill|hook|...)"),
+  }).passthrough().describe("All assets of a given type — returns string[]"),
+
+  rev_idx_add_mapping: z.object({
+    index_name: z.enum(["ACTION_TO_ENGINE", "SKILL_TO_ACTION", "ENGINE_TO_DEPENDENTS", "KEYWORD_TO_ASSETS", "TYPE_TO_ASSETS"]).describe("Target index"),
+    key: z.string().min(1).describe("Lookup key (normalized to lowercase)"),
+    value: z.string().min(1).describe("Value to append (deduped, no double-add)"),
+  }).passthrough().describe("Add a mapping with WAL logging — returns IndexUpdateResult"),
+
+  rev_idx_remove_mapping: z.object({
+    index_name: z.enum(["ACTION_TO_ENGINE", "SKILL_TO_ACTION", "ENGINE_TO_DEPENDENTS", "KEYWORD_TO_ASSETS", "TYPE_TO_ASSETS"]).describe("Target index"),
+    key: z.string().min(1).describe("Lookup key (normalized to lowercase)"),
+    value: z.string().min(1).describe("Value to remove (entry deleted if no values left)"),
+  }).passthrough().describe("Remove a mapping with WAL logging — returns IndexUpdateResult"),
+
+  rev_idx_rebuild: z.object({
+    index_name: z.enum(["ACTION_TO_ENGINE", "SKILL_TO_ACTION", "ENGINE_TO_DEPENDENTS", "KEYWORD_TO_ASSETS", "TYPE_TO_ASSETS"]).describe("Index to rebuild from source files"),
+  }).passthrough().describe("Rebuild a single index by re-scanning source files — destructive, persists"),
+
+  rev_idx_rebuild_all: z.object({}).passthrough().describe("Rebuild all 5 indexes — heavyweight, scans dispatchers + engines dirs"),
+
+  rev_idx_stats: z.object({}).passthrough().describe("Per-index stats: {totalKeys, totalValues, avgValuesPerKey} for all 5 indexes"),
+
+  rev_idx_recover_wal: z.object({}).passthrough().describe("Replay uncommitted WAL entries after crash — returns count recovered"),
 };
