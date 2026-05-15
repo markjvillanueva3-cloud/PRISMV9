@@ -680,4 +680,57 @@ export const ACTION_SESSION_SCHEMAS: ActionSchemaMap = {
     params: z.record(z.string(), z.unknown()).optional()
       .describe("Syscall-specific params (e.g. {sessionId} for whoami, {event,command,outcome} for record, {subcommand,terminal,resume,state} for handoff). Forwarded verbatim — each syscall validates its own shape and returns a degraded result on bad input."),
   }).passthrough(),
+
+  // ==========================================================================
+  // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-MULTI-SESSION-HANDOFF (4 actions)
+  // Wires MultiSessionHandoffCoordinatorEngine (U-CTX05, 358 LOC, was orphan):
+  // reads all HANDOFF-*.md in state/shared, merges work queues, detects
+  // claim conflicts, formats an injection-ready digest, and supports
+  // stale-handoff cleanup (DESTRUCTIVE — gated behind dry_run + confirm).
+  // ==========================================================================
+
+  /**
+   * handoff_coord_status — Run coordinate() across all session handoffs.
+   * Returns the merged work queue (pending goals, next actions, conflicts)
+   * + recommendations + tokenEstimate for the formatted-injection variant.
+   */
+  handoff_coord_status: z.object({
+    handoff_dir: optStr
+      .describe("Override the handoff directory (default: H:/prism/state/shared). Useful for tests / alternate worktrees."),
+  }).passthrough(),
+
+  /**
+   * handoff_coord_inject — Pre-rendered markdown digest suitable for
+   * UserPromptSubmit injection. Same data as handoff_coord_status but
+   * formatted as `## Multi-Session Handoff\n…` ~150-400 char block.
+   */
+  handoff_coord_inject: z.object({
+    handoff_dir: optStr
+      .describe("Override the handoff directory (default: H:/prism/state/shared)."),
+  }).passthrough(),
+
+  /**
+   * handoff_coord_load_sessions — Raw enumeration of every HANDOFF-*.md
+   * parsed into SessionSnapshot (family, machine, lastActive, claims,
+   * openGoals, nextActions, status active|stale). Returns sorted newest-first.
+   */
+  handoff_coord_load_sessions: z.object({
+    handoff_dir: optStr
+      .describe("Override the handoff directory (default: H:/prism/state/shared)."),
+  }).passthrough(),
+
+  /**
+   * handoff_coord_cleanup_stale — DESTRUCTIVE: delete HANDOFF-*.md files
+   * older than max_age_ms. SAFE BY DEFAULT — without confirm:true the
+   * action runs in dry-run mode and returns the list of files that WOULD
+   * be deleted. Pass {confirm:true} to actually unlink them.
+   */
+  handoff_coord_cleanup_stale: z.object({
+    handoff_dir: optStr
+      .describe("Override the handoff directory (default: H:/prism/state/shared)."),
+    max_age_ms: z.union([z.string(), z.number()]).optional()
+      .describe("Stale threshold in ms (default 1800000 = 30 min). Clamped to ≥60000 (1 min) to prevent foot-gunning."),
+    confirm: optBool
+      .describe("EXPLICIT confirmation required to actually delete files. Default false; without this the action returns a dry-run preview only."),
+  }).passthrough(),
 };
