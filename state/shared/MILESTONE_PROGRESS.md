@@ -1,6 +1,6 @@
 # MILESTONE_PROGRESS — what's actually shipped vs claimed
 
-> Generated: 2026-05-15T15:27:52.784Z
+> Generated: 2026-05-15T18:30:33.078Z
 > Window: last 60.days of git log across all branches
 > Source: `scripts/build-milestone-progress.mjs`
 
@@ -17,16 +17,18 @@ flagging a unit as missing.
 
 ## Headline numbers
 
-- Milestones loaded:        **673**
-- Units across all MS:      **5065**
-- Units shipped (in git):   **1882**
-- Units pending:            **3183**
+- Milestones loaded:        **674**
+- Units across all MS:      **5091**
+- Units shipped (in git):   **1891**
+- Units pending:            **3200**
 - Drift cases:              **175** (envelope status disagrees with git reality)
 
 ## Top recently-active milestones (last shipped → first)
 
 | Milestone | Track | Status (claimed) | Status (real) | Shipped/Total | Last commit |
 |-----------|-------|------------------|---------------|---------------|-------------|
+| SYSTEM-VIZ-BRAIN-MS0 | devtools | in_progress | in_progress_real | 9/26 (35%) | 2026-05-15 |
+| INTEL-OLLAMA-OBSIDIAN-MS0 | INFRA | not_started | in_progress_real | 80/92 (87%) | 2026-05-15 |
 | CC-EXT-MS0 | — | not_started | in_progress_real | 5/8 (63%) | 2026-05-15 |
 | CC-EXT-MS1 | — | not_started | in_progress_real | 5/8 (63%) | 2026-05-15 |
 | CC-EXT-MS2 | — | not_started | in_progress_real | 5/8 (63%) | 2026-05-15 |
@@ -55,8 +57,6 @@ flagging a unit as missing.
 | QA-MS8 | — | complete | in_progress_real | 4/5 (80%) | 2026-05-15 |
 | QA-MS9 | — | not_started | in_progress_real | 5/7 (71%) | 2026-05-15 |
 | S3-MS1 | — | not_started | in_progress_real | 5/8 (63%) | 2026-05-15 |
-| S3-MS2 | — | not_started | in_progress_real | 5/6 (83%) | 2026-05-15 |
-| S3-MS3 | — | not_started | in_progress_real | 5/6 (83%) | 2026-05-15 |
 
 ## Drift cases (claim vs git disagrees)
 
@@ -155,8 +155,8 @@ flagging a unit as missing.
 | CAM-EXHAUST-MS0 | 18 | 189 | 171/189 |
 | MS-DESKTOP | 18 | 18 | 0/18 |
 | USSH-OPUS47-BOLSTER | 18 | 18 | 0/18 |
+| SYSTEM-VIZ-BRAIN-MS0 | 17 | 26 | 9/26 |
 | CAM-PARITY-AGI-MS0 | 16 | 16 | 0/16 |
-| CAMX-MS0.5 | 16 | 16 | 0/16 |
 
 ## How to use
 

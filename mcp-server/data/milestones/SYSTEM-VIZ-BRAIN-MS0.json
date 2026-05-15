@@ -164,7 +164,15 @@
     "U-P1-WIKI-PRELOAD-BY-DOMAIN": {
       "phase": "P1-MEMORY",
       "title": "Preload top-K wiki hits matching milestone domain on /checkin",
-      "status": "pending"
+      "status": "complete",
+      "shipped_by": "claude-a61bbf34 (slot alpha)",
+      "shipped_at": "2026-05-15",
+      "shipped_commit": "590ba4a77",
+      "deliverables": [
+        ".claude/helpers/wiki-domain-bias.mjs (3 exports: getDomainTokens, domainBoostFor, chatIdFromInput; ~120 LOC)",
+        ".claude/helpers/wiki-domain-bias.test.mjs (26 hermetic node:test cases all passing)",
+        ".claude/hooks/wiki-precheck-inject.mjs EDIT: import + 12-line surgical insert after candidate collection"
+      ]
     },
     "U-P2-NODE-CLICK-DISPATCH": {
       "phase": "P2-VIZ-BRAIN",
@@ -209,7 +217,15 @@
     "U-P3-VIZ-FIRST-REDIRECT-GLOB": {
       "phase": "P3-AUTO-BUILD",
       "title": "PreToolUse:Glob/Grep redirects cross-cutting searches to system-viz-query",
-      "status": "pending"
+      "status": "complete",
+      "shipped_by": "claude-a61bbf34 (slot alpha)",
+      "shipped_at": "2026-05-15",
+      "shipped_commit": "d06cdefa9 (absorbed by peer commit — files correct + tracked, message understates scope)",
+      "deliverables": [
+        ".claude/hooks/viz-first-redirect.mjs (T2 PreToolUse:Glob|Grep, ~180 LOC, 4 exports)",
+        ".claude/hooks/viz-first-redirect.test.mjs (19 hermetic node:test cases, all passing)",
+        "C:/H:/.claude/settings.json PreToolUse[13] (Glob|Grep group) — timeout 2500ms"
+      ]
     },
     "U-P4-RTK-AUTO-WRAP": {
       "phase": "P4-COST",
@@ -276,6 +292,11 @@
       "at": "2026-05-15T16:00Z",
       "by": "claude-a61bbf34 (slot delta)",
       "event": "MILESTONE CREATED — SYSTEM-VIZ-BRAIN-MS0 envelope spawned after 3 parallel system-viz audits + user directive 'do all of them autonomously'. P0 keystone units: U-P0-AUDIT-VIZ-FIRST (build the audit framework that prevents future grep-only mistakes) and U-P1-POST-SHIP-DISTILL (closes auto-memory loop). Realistic session throughput: 2-4 units full quality; rest handed off to subsequent chats. Per-file 3-of-3 scrutiny gate applies. Per [[feedback_no_schedule_wakeup_in_loop]] no wakeups between iters."
+    },
+    {
+      "at": "2026-05-15T18:30:12.525Z",
+      "by": "claude-a61bbf34 (slot alpha)",
+      "event": "SHIPPED U-P1-WIKI-PRELOAD-BY-DOMAIN (590ba4a77) + U-P3-VIZ-FIRST-REDIRECT-GLOB (absorbed into peer commit d06cdefa9, files tracked). 9/26 milestone complete."
     }
   ]
 }
