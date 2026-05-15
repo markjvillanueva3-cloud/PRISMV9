@@ -29,6 +29,8 @@ const STATE_DIR = PATHS.STATE_DIR;
 const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_read", "file_write", "server_info", "test_smoke", "test_results", "svi_compute", "svi_read", "svi_summary", "erp_persistence_health", "engine_overlap_scan", "quality_score", "quality_score_read", "quality_score_summary", "auto_wiring_analyze", "auto_wiring_scan", "schema_gap_scan", "test_gap_scan", "formula_accuracy", "formula_accuracy_read", "formula_accuracy_summary", "self_improvement_scan", "self_improvement_read", "self_improvement_summary", "auto_fix_generate", "auto_fix_read", "auto_fix_summary", "auto_fix_approve", "auto_fix_promote", "quality_dashboard", "quality_dashboard_read", "quality_dashboard_summary", "output_budget_enforce", "output_budget_stats", "output_budget_set_rule", "context_inventory_add", "context_inventory_query", "context_inventory_summary", "cost_route", "cost_route_infer", "import_cost_analyze", "import_cost_heavy", "import_cost_report", "token_ledger_record", "token_ledger_summary", "token_ledger_project", "token_ledger_reset", "tool_cost_predict", "tool_cost_affordable", "tool_fingerprint_check", "tool_fingerprint_stats", "tool_fingerprint_reset", "schema_generate", "schema_generate_read", "schema_generate_summary", "test_generate", "test_generate_scan", "test_generate_read", "test_generate_summary", "route_sync_scan", "route_sync_read", "route_sync_summary", "gap_scan", "gap_scan_read", "gap_scan_summary", "auto_forge", "auto_forge_summary", "resource_census", "resource_census_read", "resource_census_summary", "pdf_pipeline_classify", "pdf_pipeline_extract", "pdf_pipeline_read", "pdf_pipeline_summary", "blueprint_ingest_phase8", "blueprint_ingest_phase15", "print_program_join", "program_for_print", "print_for_program",
 // U-DOCU-05 / MS-DOCU-INGEST: JMDieArchiveBackAnnotationEngine surfaces (3 actions).
 "back_annotate_archive", "back_annotate_gap_report", "read_print_pointer",
+// U-PPL-D1 / MS-PRINT-PROGRAM-LOOP Track D: ProgramPrintLinkIndexEngine surfaces (2 actions).
+"program_print_link_lookup", "program_print_link_coverage",
 "machine_harden_audit", "machine_harden_enrich", "machine_harden_validate", "machine_harden_read", "machine_harden_summary", "error_remediation", "memory_consolidation", "build_guard_validate", "build_guard_track_edit", "build_guard_typecheck", "build_guard_affected_tests", "build_guard_chain", "build_guard_classify", "chain_recover", "chain_health", "chain_notify", "context_pressure", "context_load_plan", "context_compact_plan", "context_health", "sf_autopilot_run", "sf_autopilot_resolve_material", "sf_autopilot_resolve_tool", "pp_autopilot_run", "pp_autopilot_resolve_dialect", "pp_autopilot_print_to_program", "quote_autopilot_run", "quote_autopilot_calibrate", "quote_autopilot_record_actual", "capability_census", "capability_census_report", "capability_census_save", "copilot_suggest", "copilot_check_duplication", "copilot_template", "token_budget", "token_record_spending", "token_detect_waste", "token_economy_report", "token_economy_stats", "token_economy_session", "token_economy_set_budget", "token_economy_reset", "skill_inline_record", "skill_inline_decision", "skill_inline_plan", "skill_inline_content", "skill_inline_format", "skill_inline_top", "skill_inline_clear", "skill_test", "skill_quality_registry_build", "skill_quality_registry_read", "skill_audit", "skill_refinement_digest", "output_cache_store", "output_cache_get", "output_cache_find", "output_cache_stats", "output_cache_reset", "compaction_survival_record", "compaction_survival_plan", "compaction_survival_handoff", "compaction_survival_stats", "memory_store", "memory_search", "memory_stats", "memory_record_learning", "memory_set_preference", "memory_get_preference", "capability_path_list", "capability_path_progress", "capability_path_suggest", "workflow_list", "workflow_plan", "workflow_create", "pillar_list", "pillar_score", "pillar_summary", "pillar_gate", "discover_search", "discover_browse", "discover_recommend", "discover_what_can_i_do", "effectiveness_report", "effectiveness_score", "effectiveness_record", "effectiveness_validate", "self_awareness_refresh", "self_awareness_manifest", "self_awareness_gaps", "self_awareness_recommend", "self_awareness_find", "edit_impact_build_graph", "edit_impact_predict", "edit_impact_stats", "change_radius_predict", "change_radius_predict_sync", "build_plan", "build_plan_from_unit", "step_decompose", "gap_predict", "gap_scan_file", "gap_scan_batch", "user_model_get", "user_model_set_experience", "user_model_record_edit", "user_model_reset", "coder_mode_current", "coder_mode_set", "coder_mode_should_surface", "build_advise", "build_debrief", "build_debrief_recent", "simulate_build", "overlay_preview", "risk_forecast", "risk_warnings", "risk_record_outcome", "gate_history_record", "gate_history_aggregates", "gate_history_calibration", "gate_history_summary", "critical_path", "critical_path_announce", "critical_units", "roadmap_dag_stats", "roadmap_dag_node", "roadmap_dag_ancestors", "roadmap_dag_descendants", "integration_foresight", "integration_validate", "integration_similar", "context_budget_forecast", "context_should_compact", "rollback_plan", "rollback_verify", "rollback_plan_and_verify", "rollback_render_script", "knowledge_gap_scan", "knowledge_gap_check", "no_go_respond", "disclose_shape", "disclose_raw", "anchor_claim", "anchor_stats", "error_explain", "git_safety_classify", "git_safety_is_destructive", "copy_paste_detect", "feedback_loop_record", "feedback_loop_diagnose", "feedback_loop_reset", "feedback_override", "feedback_measurement", "feedback_scrap", "feedback_recommendation_emitted", "feedback_record", "feedback_query", "feedback_stats", "feature_registry_register", "feature_registry_get", "feature_registry_list", "feature_registry_seal", "feature_registry_stats", "dq_validate_row", "dq_validate_batch", "training_snapshot_create", "training_snapshot_load", "training_snapshot_list", "training_snapshot_stats", "recon_reconcile", "recon_query", "recon_stats", "htn_decompose", "strips_plan", "cpm_pert_analyze", "monte_carlo_schedule", "type_aware_references", "symbol_impact", "type_flow_trace", "tool_call_record", "tool_call_analyze", "tool_call_reset", "file_read_record", "file_read_should_skip", "file_read_report", "stale_segment_record", "stale_segment_prune", "stale_segment_mark", "reorient_record_anchor", "reorient_deactivate_anchor", "reorient_record_prompt", "reorient_record_tool_call", "reorient_generate_brief", "reorient_should_generate", "reorient_stats", "reorient_update_config", "reorient_reset", "model_aware_detect", "model_aware_zone", "model_aware_cadence", "model_aware_current_cadence", "foresight_report", "error_budget_set_target", "error_budget_record", "error_budget_status", "error_budget_list", "distributed_critical_path", "replan_evaluate", "schema_snapshot", "schema_restore_snapshot", "schema_history", "schema_migrations_list", "failure_risk_analyze", "failure_modes_list", "failure_mode_get", "failure_cascade_chain", "ollama_hook_query", "ollama_hook_status", "ollama_hook_config", "audit_harness_security", "spec_html_render", "dev_awareness_find_similar", "dev_awareness_bootstrap_report", "dev_capability_metrics", "dev_system_recommend_engines", "dev_auto_utilize_analyze", "dev_test_ast_analyze", "dev_test_coverage_uncovered", "dev_test_registry_get_material", "dev_test_resource_filter", "dev_skill_gap_analyze",
 "adaptive_threshold_observe", "adaptive_threshold_get", "adaptive_threshold_get_all", "adaptive_threshold_should_flag", "adaptive_threshold_probability",
 "roadmap_intel_assess_complexity", "roadmap_intel_optimize", "roadmap_intel_predict_effort", "roadmap_intel_record_outcome", "roadmap_intel_build_vs_integrate", "roadmap_intel_health",
@@ -178,7 +180,22 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // ── ResponseTemplateEngine (OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-RESPONSE-TEMPLATE)
 //    Post-dispatch response-formatting hooks. Singleton engine.
 "response_template_match", "response_template_list", "response_template_get",
-"response_template_stats", "response_template_reset_stats"] as const;
+"response_template_stats", "response_template_reset_stats",
+// OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-REVERSE-INDEX: ReverseIndexEngine
+// (Phase 0.7 AGI-proximity bidirectional asset lookup — 5 indexes:
+//  ACTION_TO_ENGINE, SKILL_TO_ACTION, ENGINE_TO_DEPENDENTS, KEYWORD_TO_ASSETS,
+//  TYPE_TO_ASSETS — with WAL-style crash recovery).
+"rev_idx_action_to_engine",
+"rev_idx_skill_to_action",
+"rev_idx_engine_to_dependents",
+"rev_idx_keyword_search",
+"rev_idx_assets_by_type",
+"rev_idx_add_mapping",
+"rev_idx_remove_mapping",
+"rev_idx_rebuild",
+"rev_idx_rebuild_all",
+"rev_idx_stats",
+"rev_idx_recover_wal"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -1453,6 +1470,54 @@ export function registerDevDispatcher(server: any): void {
             }
             const sidecar = jmDieArchiveBackAnnotationEngine.readPrintPointer(programPath);
             result = { success: true, data: { found: sidecar !== null, sidecar } };
+            break;
+          }
+
+          // ── U-PPL-D1 / MS-PRINT-PROGRAM-LOOP Track D: ProgramPrintLinkIndexEngine ──
+          case "program_print_link_lookup": {
+            try {
+              const { loadLinkIndex, lookupPrintForProgram, lookupProgramsForPrint } =
+                await import("../../engines/ProgramPrintLinkIndexEngine.js");
+              const bp = typeof params === "object" && params !== null ? params as Record<string, unknown> : {};
+              const direction = bp.direction === "program_for_print" ? "program_for_print" : "print_for_program";
+              const query = typeof bp.query === "string" ? bp.query.trim() : "";
+              if (query.length === 0) {
+                result = { error: "query is required (a program path or a part number)" };
+                break;
+              }
+              const inputProgramPaths = Array.isArray(bp.input_program_paths)
+                ? bp.input_program_paths.filter((p): p is string => typeof p === "string")
+                : undefined;
+              const joinJsonlPath = typeof bp.join_jsonl_path === "string" ? bp.join_jsonl_path : undefined;
+              // loadLinkIndex throws (FAIL-LOUD) if the v6 join file is missing/corrupt —
+              // the catch below forwards that to dispatcherError so the operator sees it.
+              const index = await loadLinkIndex({ inputProgramPaths, joinJsonlPath });
+              const lookup = direction === "program_for_print"
+                ? lookupProgramsForPrint(query, index)
+                : lookupPrintForProgram(query, index);
+              result = { success: true, data: { direction, lookup, index_stats: index.stats } };
+            } catch (err) {
+              result = dispatcherError(err, action, "prism_dev");
+            }
+            break;
+          }
+          case "program_print_link_coverage": {
+            try {
+              const { loadLinkIndex, coverageReport } =
+                await import("../../engines/ProgramPrintLinkIndexEngine.js");
+              const bp = typeof params === "object" && params !== null ? params as Record<string, unknown> : {};
+              const inputProgramPaths = Array.isArray(bp.input_program_paths)
+                ? bp.input_program_paths.filter((p): p is string => typeof p === "string")
+                : undefined;
+              const archiveProgramPaths = Array.isArray(bp.archive_program_paths)
+                ? bp.archive_program_paths.filter((p): p is string => typeof p === "string")
+                : undefined;
+              const joinJsonlPath = typeof bp.join_jsonl_path === "string" ? bp.join_jsonl_path : undefined;
+              const index = await loadLinkIndex({ inputProgramPaths, joinJsonlPath });
+              result = { success: true, data: coverageReport(index, { archiveProgramPaths }) };
+            } catch (err) {
+              result = dispatcherError(err, action, "prism_dev");
+            }
             break;
           }
 
@@ -5342,6 +5407,79 @@ export function registerDevDispatcher(server: any): void {
             const engine = ResponseTemplateEngine.getInstance();
             engine.resetStats();
             result = { success: true, reset: true };
+            break;
+          }
+
+          // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-REVERSE-INDEX: ReverseIndexEngine wire (2026-05-15).
+          // Engine is a singleton with 5 named indexes + WAL logging for crash recovery.
+          // All methods are async — these cases await the engine API directly.
+          case "rev_idx_action_to_engine": {
+            const { reverseIndexEngine } = await import("../../engines/ReverseIndexEngine.js");
+            result = { success: true, engines: await reverseIndexEngine.actionToEngine(String(params.action ?? "")) };
+            break;
+          }
+          case "rev_idx_skill_to_action": {
+            const { reverseIndexEngine } = await import("../../engines/ReverseIndexEngine.js");
+            result = { success: true, actions: await reverseIndexEngine.skillToAction(String(params.skill ?? "")) };
+            break;
+          }
+          case "rev_idx_engine_to_dependents": {
+            const { reverseIndexEngine } = await import("../../engines/ReverseIndexEngine.js");
+            result = { success: true, dependents: await reverseIndexEngine.engineToDependents(String(params.engine ?? "")) };
+            break;
+          }
+          case "rev_idx_keyword_search": {
+            const { reverseIndexEngine } = await import("../../engines/ReverseIndexEngine.js");
+            result = { success: true, assets: await reverseIndexEngine.keywordSearch(String(params.keyword ?? "")) };
+            break;
+          }
+          case "rev_idx_assets_by_type": {
+            const { reverseIndexEngine } = await import("../../engines/ReverseIndexEngine.js");
+            result = { success: true, assets: await reverseIndexEngine.assetsByType(String(params.asset_type ?? params.type ?? "")) };
+            break;
+          }
+          case "rev_idx_add_mapping": {
+            const { reverseIndexEngine } = await import("../../engines/ReverseIndexEngine.js");
+            const update = await reverseIndexEngine.addMapping(
+              String(params.index_name ?? params.index ?? "KEYWORD_TO_ASSETS") as any,
+              String(params.key ?? ""),
+              String(params.value ?? ""),
+            );
+            result = { success: update.success, update };
+            break;
+          }
+          case "rev_idx_remove_mapping": {
+            const { reverseIndexEngine } = await import("../../engines/ReverseIndexEngine.js");
+            const update = await reverseIndexEngine.removeMapping(
+              String(params.index_name ?? params.index ?? "KEYWORD_TO_ASSETS") as any,
+              String(params.key ?? ""),
+              String(params.value ?? ""),
+            );
+            result = { success: update.success, update };
+            break;
+          }
+          case "rev_idx_rebuild": {
+            const { reverseIndexEngine } = await import("../../engines/ReverseIndexEngine.js");
+            const update = await reverseIndexEngine.rebuildIndex(
+              String(params.index_name ?? params.index ?? "TYPE_TO_ASSETS") as any,
+            );
+            result = { success: update.success, update };
+            break;
+          }
+          case "rev_idx_rebuild_all": {
+            const { reverseIndexEngine } = await import("../../engines/ReverseIndexEngine.js");
+            const rebuild = await reverseIndexEngine.rebuildAll();
+            result = { success: rebuild.success, rebuild };
+            break;
+          }
+          case "rev_idx_stats": {
+            const { reverseIndexEngine } = await import("../../engines/ReverseIndexEngine.js");
+            result = { success: true, stats: await reverseIndexEngine.getStats() };
+            break;
+          }
+          case "rev_idx_recover_wal": {
+            const { reverseIndexEngine } = await import("../../engines/ReverseIndexEngine.js");
+            result = { success: true, recovered: await reverseIndexEngine.recoverFromWAL() };
             break;
           }
 

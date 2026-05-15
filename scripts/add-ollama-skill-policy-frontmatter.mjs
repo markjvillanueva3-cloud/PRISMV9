@@ -44,7 +44,8 @@
  */
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { homedir } from "node:os";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 
 const args = new Set(process.argv.slice(2));
 const DRY_RUN = args.has("--dry-run");
@@ -304,5 +305,15 @@ function main() {
   process.exit(anyFailed ? 1 : 0);
 }
 
-const isMain = import.meta.url.startsWith("file:") && process.argv[1] && import.meta.url.endsWith(process.argv[1].replace(/\\/g, "/").split("/").pop());
+// Canonical ESM main-detection: compare normalized file URLs rather than
+// basename suffixes. The earlier `endsWith(basename)` heuristic would have
+// fired `main()` on any import whose path happened to end in the same
+// filename — fragile across Windows backslash paths, spawn() invocations,
+// and test runners. Flagged in 3-of-3 scrutiny (arms B+C consensus).
+const isMain = (() => {
+  try {
+    if (!process.argv[1]) return false;
+    return pathToFileURL(process.argv[1]).href === import.meta.url;
+  } catch { return false; }
+})();
 if (isMain) main();
