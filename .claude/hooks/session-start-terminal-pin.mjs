@@ -56,16 +56,20 @@ function stableIdFromSession(sid) {
   return hex.length === 8 ? `claude-${hex}` : null;
 }
 
-async function resolveWindowId() {
+async function resolveWindowId(sessionId) {
   // Prefer in-process import so we don't pay spawn cost on every SessionStart.
   // Fall back to subprocess if the module fails to load.
+  // Pass sessionId so the resolver's tier-0 cache activates (kills the
+  // intermittent-wmic drift class — the most common observed lane-drift
+  // pathology on Win11 hosts).
   try {
     if (!fs.existsSync(TERMINAL_WINDOW_HELPER)) return null;
     const mod = await import(pathToFileURL(TERMINAL_WINDOW_HELPER).href);
-    return mod.resolveTerminalWindowId() || null;
+    return mod.resolveTerminalWindowId({ sessionId }) || null;
   } catch {
     try {
-      const r = spawnSync(NODE_BIN, [TERMINAL_WINDOW_HELPER], {
+      const args = sessionId ? [TERMINAL_WINDOW_HELPER, sessionId] : [TERMINAL_WINDOW_HELPER];
+      const r = spawnSync(NODE_BIN, args, {
         encoding: "utf-8", timeout: CLAIM_TIMEOUT_MS, windowsHide: true,
       });
       if (r.status !== 0) return null;

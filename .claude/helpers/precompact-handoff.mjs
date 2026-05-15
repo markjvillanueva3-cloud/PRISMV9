@@ -375,28 +375,137 @@ function main() {
     identity = inferAgentIdentity({ agent: args.agent, family: args.agentFamily });
   }
 
-  // BANNED FROM WRITING (2026-05-06).
-  // Per-agent handoffs may be written ONLY by the live Claude chat. Hooks
-  // (this one, formerly the PreCompact auto-writer) and subagents produced
-  // generic stubs ("Pre-compact snapshot (RESUME generated)") that overwrote
-  // the meaningful RESUME directives the live chat had crafted. The live chat
-  // is the only context with enough information to write a useful resume —
-  // it has the conversation history, the in-flight task, the precise next
-  // step. The /precompact and /handoff skills now pass --source live-chat
-  // when invoking per-agent-handoff.mjs write, and any non-live-chat write
-  // is rejected with error: "writer_banned".
-  //
-  // This hook now ONLY emits a systemMessage:
-  //   - If the live chat wrote a handoff in the last 5 minutes (via
-  //     /precompact), reassure that resume is preserved.
-  //   - Else, remind the user to run /precompact BEFORE /compact so the
-  //     next session has a useful RESUME directive.
+  // 2026-05-15: AUTO-WRITE under strict gates (user directive: "make compact
+  // slash command auto generate the precompact"). Per-agent-handoff.mjs now
+  // accepts --source precompact-hook IF resume passes validation and no fresh
+  // live-chat handoff exists. We never clobber a real /precompact RESUME.
   const existing = getExistingResume(identity.instance, 5);
-  const msg = existing
-    ? `precompact: handoff write skipped (BANNED for hooks). Live-chat /precompact RESUME (${existing.slice(0, 80).replace(/"/g, '\\"')}...) is preserved.`
-    : `precompact: handoff write skipped (BANNED for hooks). No fresh /precompact RESUME found — run /precompact in the live chat BEFORE /compact so the next session has a real RESUME directive.`;
+  if (existing) {
+    const msg = `precompact: live-chat /precompact RESUME preserved (${existing.slice(0, 80).replace(/"/g, '\\"')}...)`;
+    console.log(JSON.stringify({ continue: true, systemMessage: msg }));
+    return;
+  }
 
+  // Synthesize a real RESUME from session state (already does heavy lifting)
+  const synthesized = generateSmartResume(identity);
+  if (!synthesized || synthesized.length < 30) {
+    const msg = `precompact: handoff auto-write skipped — synthesized RESUME too short (${synthesized?.length ?? 0} chars). Run /precompact in live chat for a real directive.`;
+    console.log(JSON.stringify({ continue: true, systemMessage: msg }));
+    return;
+  }
+
+  // Slot-prefix the topic — coincides with /checkin slot binding per user
+  // directive "precompact session handoffs coincide with checkin slots".
+  // Slot lookup: chat-slots.json keyed by chatId.
+  let slotPrefix = "";
+  try {
+    const slotsFile = path.resolve("H:/prism/state/shared/chat-slots.json");
+    if (fs.existsSync(slotsFile)) {
+      const slots = JSON.parse(fs.readFileSync(slotsFile, "utf-8"));
+      for (const [slotName, slot] of Object.entries(slots.slots || {})) {
+        if (slot && slot.chatId === identity.instance) {
+          slotPrefix = slotName;
+          break;
+        }
+      }
+    }
+  } catch { /* best-effort */ }
+
+  const baseTopic = extractTopicSlug() || "session";
+  const finalTopic = slotPrefix ? `${slotPrefix}-${baseTopic}` : baseTopic;
+
+  // Write via per-agent-handoff.mjs with the new strictly-gated source
+  const writerPath = path.resolve("H:/prism/.claude/helpers/per-agent-handoff.mjs");
+  const writeResult = spawnSync("node", [
+    writerPath, "write",
+    "--source", "precompact-hook",
+    "--terminal", identity.instance,
+    "--topic", finalTopic,
+    "--resume", synthesized,
+    "--state", `(precompact auto-write — slot ${slotPrefix || "unbound"})`,
+  ], { encoding: "utf-8", timeout: 5000, windowsHide: true });
+
+  let writeOk = false;
+  let writeMsg = "(no output)";
+  let writtenFile = null;
+  try {
+    const out = (writeResult.stdout || "").trim();
+    if (out) {
+      const j = JSON.parse(out);
+      writeOk = !!j.ok;
+      writeMsg = j.ok ? `wrote ${j.file || "(unknown path)"}` : `rejected: ${j.rejectedBy || j.error}`;
+      if (j.ok && j.file) writtenFile = j.file;
+    }
+  } catch {
+    writeMsg = writeResult.stderr?.trim().slice(0, 120) || "spawn failed";
+  }
+
+  // 2026-05-15: PAD-TO-FIXED-SIZE per user directive ("make the precompact
+  // hook generate a session handoff the exact same size everytime"). Pads
+  // the just-written handoff to PRISM_PRECOMPACT_HANDOFF_PAD_BYTES (default
+  // 4096). Padding goes in an HTML comment block so it's invisible to
+  // markdown renderers + /startup's RESUME parser.
+  //
+  // Why fixed size:
+  //   - deterministic byte budget for the RESUME survival path
+  //   - predictable headroom between HARD threshold and 1M context cap
+  //   - audit-friendly: all auto-generated handoffs are uniform in disk usage
+  //
+  // Knobs:
+  //   PRISM_PRECOMPACT_HANDOFF_PAD_BYTES=N  — target size (default 4096)
+  //   PRISM_PRECOMPACT_HANDOFF_PAD_DISABLE=1 — skip padding entirely
+  let padInfo = "no-pad";
+  if (writeOk && writtenFile && process.env.PRISM_PRECOMPACT_HANDOFF_PAD_DISABLE !== "1") {
+    try {
+      const target = Number(process.env.PRISM_PRECOMPACT_HANDOFF_PAD_BYTES) || 4096;
+      padInfo = padFileToBytes(writtenFile, target);
+    } catch (e) {
+      padInfo = `pad-failed: ${(e && e.message) ? e.message.slice(0, 60) : "unknown"}`;
+    }
+  }
+
+  const msg = writeOk
+    ? `precompact: auto-write OK (${writeMsg}, topic=${finalTopic}, ${padInfo})`
+    : `precompact: auto-write attempted (${writeMsg}). Run /precompact in live chat to override.`;
   console.log(JSON.stringify({ continue: true, systemMessage: msg }));
 }
 
-try { main(); } catch { process.stdout.write(JSON.stringify({ continue: true })); }
+/**
+ * Pad a handoff file to exactly `targetBytes` by appending an HTML-comment
+ * block. The comment is invisible to markdown renderers AND to the RESUME
+ * extractor in /startup (which regex-matches `^## RESUME\n...`).
+ *
+ * Returns a short status string for logging.
+ *
+ * If the file is already larger than targetBytes, returns "pad-skipped-oversize".
+ * If padding succeeds, returns "padded=<bytes>".
+ */
+export function padFileToBytes(filePath, targetBytes) {
+  if (!fs.existsSync(filePath)) return "pad-skipped-missing";
+  const cur = fs.statSync(filePath).size;
+  if (cur >= targetBytes) return `pad-skipped-oversize(${cur})`;
+  const deficit = targetBytes - cur;
+  // Reserve room for the marker fence: "\n\n<!-- pad: ".length + " -->\n".length
+  const fenceHead = "\n\n<!-- pad: ";
+  const fenceTail = " -->\n";
+  const reserved = fenceHead.length + fenceTail.length;
+  if (deficit <= reserved) {
+    // Too small to fit a fence — append plain spaces to hit exact target
+    fs.appendFileSync(filePath, " ".repeat(Math.max(0, deficit)));
+    return `padded=${deficit}-bare`;
+  }
+  const fillCount = deficit - reserved;
+  const filler = "x".repeat(fillCount);  // 'x' is a single byte in UTF-8
+  fs.appendFileSync(filePath, fenceHead + filler + fenceTail);
+  const finalSize = fs.statSync(filePath).size;
+  return `padded=${deficit}, final=${finalSize}`;
+}
+
+// CLI gate — only run main() when invoked directly (NOT on import). The
+// import path is used by tests + by other helpers that want to reuse the
+// padFileToBytes export.
+const __cliArgv1 = (process.argv[1] || "").replace(/\\/g, "/");
+const __cliArgv1Basename = __cliArgv1.split("/").pop() || "";
+if (__cliArgv1Basename && import.meta.url.endsWith(__cliArgv1Basename)) {
+  try { main(); } catch { process.stdout.write(JSON.stringify({ continue: true })); }
+}
