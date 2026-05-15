@@ -157,7 +157,7 @@ export class IntentClassifierEngine {
      * Detect category with full scoring details for AI reasoning.
      */
     detectCategoryWithScores(normalized: any) {
-        const scores = {
+        const scores: Record<string, number> = {
             query: 0,
             calculate: 0,
             optimize: 0,
@@ -359,7 +359,7 @@ export class IntentClassifierEngine {
             quoting: { id: "quoting-orchestrator", name: "Quote Generation Orchestrator" },
         };
         for (const domain of domains) {
-            const orch = DOMAIN_ORCHESTRATORS[domain];
+            const orch = (DOMAIN_ORCHESTRATORS as Record<string, { id: string; name: string }>)[domain];
             if (orch) {
                 recommendations.push({
                     orchestrator_id: orch.id,
@@ -467,7 +467,7 @@ export class IntentClassifierEngine {
             },
             {
                 step: "category_detection",
-                input: Object.entries(scores).filter(([, s]) => s > 0).map(([c, s]) => `${c}:${s}`).join(", ") || "none",
+                input: (Object.entries(scores) as [string, number][]).filter(([, s]) => s > 0).map(([c, s]) => `${c}:${s}`).join(", ") || "none",
                 decision: `Selected ${category} (score: ${scores[category]})`,
                 confidence: ambiguity.detected ? 0.6 : 0.9,
             },
@@ -504,7 +504,7 @@ export class IntentClassifierEngine {
             }
         }
         // Second-best category if close
-        const sortedScores = Object.entries(scores)
+        const sortedScores = (Object.entries(scores) as [string, number][])
             .filter(([c, s]) => s > 0 && c !== category)
             .sort((a, b) => b[1] - a[1]);
         if (sortedScores.length > 0 && sortedScores[0][1] >= scores[category] - 1) {
