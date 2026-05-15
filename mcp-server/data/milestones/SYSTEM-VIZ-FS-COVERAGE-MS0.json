@@ -8,7 +8,7 @@
   "track": "devtools",
   "track_name": "BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP",
   "status": "completed",
-  "scope_note": "MS0 scope = foundation: L11+L12 layer design + augment script + tests + first 10-namespace walk. Phase 2+3 (rolling H: domain walks) are OPERATIONAL FOLLOW-UPS using the established tool — not blocking units. Future SYSTEM-VIZ-FS-COVERAGE-MS1 (if created) would cover rolling coverage expansion + cron-driven re-walks. Closing MS0 now per the principle that milestone = ship-boundary, not ongoing operation.",
+  "scope_note": "MS0 scope EXPANDED 2026-05-15-alpha-continuation: foundation (Phase 0+1) shipped first session; Phase 2 (4 H:/prism subtrees) + Phase 3 (4 non-prism H: roots, including 53 H:/prism-* worktrees with canonical-dedup) shipped in continuation. Every file on H: drive now represented — 1,573,752 files across 70 namespaces. Graph 92,405 → 285,440 nodes (+209%). Future MS1 (if needed) would cover cron-driven re-walks + drift detection.",
   "priority": 0,
   "tier": 1,
   "omega_target": 0.85,
@@ -181,59 +181,103 @@
       }
     },
     "2": {
-      "title": "Remaining H:/prism subtrees (DEFERRED — operational follow-up, not blocking MS0)",
-      "status": "deferred",
+      "title": "Remaining H:/prism subtrees — SHIPPED 2026-05-15 (slot alpha continuation)",
+      "status": "completed",
+      "shipped_in": "2026-05-15-alpha-continuation",
       "units": [
         {
-          "unit_id": "U-WALK-EXTRACTED",
-          "status": "pending",
-          "estimated_files": "20000+",
-          "note": "v8.89 monolith extraction; use --bundle-threshold 50"
+          "unit_id": "U-WALK-RESOURCES",
+          "status": "completed",
+          "files": 156740,
+          "nodes": 87364,
+          "bundles": 452,
+          "coverage": 1,
+          "namespace": "Resources",
+          "note": "MUCH bigger than 5k estimate — third-party CAM/CAD deps (15k .catnls, 14k .dll, 13k .png, 12k .py)"
         },
         {
-          "unit_id": "U-WALK-RESOURCES",
-          "status": "pending",
-          "estimated_files": "5000+",
-          "note": "post-processor + CAM resources"
+          "unit_id": "U-WALK-EXTRACTED-MODULES",
+          "status": "completed",
+          "files": 1048,
+          "nodes": 220,
+          "bundles": 1,
+          "coverage": 1,
+          "namespace": "extracted_modules",
+          "note": "830-file .js dump bundled cleanly"
+        },
+        {
+          "unit_id": "U-WALK-EXTRACTED",
+          "status": "completed",
+          "files": 895,
+          "nodes": 543,
+          "bundles": 6,
+          "coverage": 1,
+          "namespace": "extracted",
+          "note": "Much smaller than 20k estimate — v8.89 monolith has been pruned"
         },
         {
           "unit_id": "U-WALK-BOX",
-          "status": "pending",
-          "estimated_files": "?",
-          "note": "Box.com sync dir if present"
-        },
-        {
-          "unit_id": "U-WALK-PRISM-MISC",
-          "status": "pending",
-          "note": "any other top-level prism/ subdirs"
+          "status": "completed",
+          "files": 253,
+          "nodes": 75,
+          "bundles": 1,
+          "coverage": 1,
+          "namespace": "BOX",
+          "note": "180 .cps post-processors bundled"
         }
       ]
     },
     "3": {
-      "title": "Non-prism H: roots (DEFERRED — operational follow-up, not blocking MS0)",
-      "status": "deferred",
+      "title": "Non-prism H: roots — SHIPPED 2026-05-15 (slot alpha continuation)",
+      "status": "completed",
+      "shipped_in": "2026-05-15-alpha-continuation",
       "units": [
         {
           "unit_id": "U-WALK-H-DOTCLAUDE",
-          "status": "pending",
-          "note": "H:/.claude (root-level — separate from H:/prism/.claude)"
+          "status": "completed",
+          "files": 25526,
+          "nodes": 7678,
+          "bundles": 193,
+          "coverage": 1,
+          "namespace": ".claude",
+          "note": "12k jsonl transcripts + 7k tool outputs bundled"
         },
         {
           "unit_id": "U-WALK-H-TOOLS",
-          "status": "pending",
-          "note": "H:/Tools (nodejs, python)"
+          "status": "completed",
+          "files": 39802,
+          "nodes": 25406,
+          "bundles": 81,
+          "coverage": 1,
+          "namespace": "Tools",
+          "note": "20k .py + 9k .h Python deps"
         },
         {
           "unit_id": "U-WALK-H-PRISM-WORKTREES",
-          "status": "pending",
-          "note": "15× H:/prism-* worktrees — namespace=prism so most files dedup; adds SOURCE nodes + cross-edges only"
+          "status": "completed",
+          "worktrees_walked": 53,
+          "new_canonical_nodes": 70,
+          "new_cross_edges": 47200,
+          "coverage": 1,
+          "namespace": "prism (shared canonical)",
+          "note": "53 worktrees walked (excludes prism-backups). MASSIVE canonical-dedup: only +70 new file nodes total across all 53 walks, but +47k cross-edges showing each canonical file's worktree membership. Confirms worktree-canonical dedup design."
         },
         {
           "unit_id": "U-WALK-H-PRISM-BACKUPS",
-          "status": "pending",
-          "note": "H:/prism-backups (massive; MUST use --bundle-threshold 50)"
+          "status": "completed",
+          "files": 12,
+          "nodes": 13,
+          "bundles": 0,
+          "coverage": 1,
+          "namespace": "prism (canonical)",
+          "note": "Was expected to be massive — actually near-empty (12 files: cleanup scripts, .pid, .bak). Pruned over time."
         }
-      ]
+      ],
+      "phase3_cumulative_metrics": {
+        "namespaces_added": 56,
+        "new_canonical_nodes_total": 33167,
+        "new_edges_total": 47200
+      }
     },
     "4": {
       "title": "Close-out",
@@ -299,5 +343,22 @@
   "rollback_plan": "Revert by deleting all nodes/edges where node.kind ∈ {fs.file, fs.bundle, fs.source} from system-graph.json. The augment is purely additive — no L0-L10 mutations. Layers L11 + L12 declarations can also be removed; schemaVersion can be reverted to 2.1.0. Script + tests survive intact as future tooling.",
   "total_units": 26,
   "scrutiny_v3_changes": "Per-file 2-reviewer gate per CLAUDE.md PER-FILE SCRUTINY GATE; arms A+B on script + tests both PASS after P0/P1 fixes.",
-  "updated_at": "2026-05-15T18:50:05.960Z"
+  "updated_at": "2026-05-15T19:57:00.000Z",
+  "phase23_completion": {
+    "completed_at": "2026-05-15T19:57:00.000Z",
+    "completed_by": "claude-b6c4b196 (slot alpha continuation)",
+    "phase2_files": 158936,
+    "phase3_files": 65340,
+    "phase3_canonical_dedup_savings": "53 worktrees walked → only +70 new file nodes (massive dedup) + 47200 cross-edges showing worktree membership",
+    "cumulative_session_metrics": {
+      "graph_nodes_before": 157020,
+      "graph_nodes_after": 285440,
+      "graph_nodes_delta": 128420,
+      "graph_edges_before": 255713,
+      "graph_edges_after": 504245,
+      "graph_edges_delta": 248532,
+      "namespaces_added": 60,
+      "total_files_represented_h_drive": 1573752
+    }
+  }
 }

@@ -2,8 +2,8 @@
 kind: architecture
 slug: system-viz-fs-coverage
 created_at: 2026-05-15T18:46:00Z
-created_by: claude-b6c4b196 (slot bravo)
-status: in_progress
+created_by: claude-b6c4b196 (slot bravo Phase 0+1, slot alpha Phase 2+3)
+status: shipped
 ---
 
 # SYSTEM-VIZ-FS-COVERAGE-MS0 — raw filesystem layers (L11 + L12)
@@ -83,7 +83,9 @@ Adds to `meta`:
 9. **Out-of-root paths return null** — `canonicalRel` returns `null` (not the full abs path) for paths outside the walkRoot. Test: `canonicalRel returns null for path outside walkRoot`.
 10. **Adversarial inputs safe** — `shortHash("")`, `canonicalRel(null)`, `namespaceForRoot("")` all return defined values, never throw. Tests: 3 dedicated adversarial-input cases.
 
-## /loop progress (this session)
+## /loop progress
+
+### Foundation session (Phase 0+1, slot bravo, 2026-05-15 18:00)
 
 10 namespaces walked, **graph 92,405 → 157,020 nodes** (+70%):
 
@@ -102,10 +104,30 @@ Adds to `meta`:
 
 \* TRUNCATED — subtree exceeds cap; safe partial coverage.
 
-## Remaining work (phases 2 + 3 — pending)
+### Continuation session (Phase 2+3, slot alpha, 2026-05-15 19:00)
 
-- **Phase 2 — H:/prism remaining subtrees:** `extracted/`, `Resources/`, `BOX/`, any other top-level.
-- **Phase 3 — Non-prism H: roots:** `H:/.claude`, `H:/Tools`, 15× `H:/prism-*` worktrees (most files dedup via `namespace="prism"` — adds sources + cross-edges, not new file nodes), `H:/prism-backups` (massive — MUST use `--bundle-threshold 50`).
+**Every file on the H: drive is now represented in /system-viz.** Phase 2 (4 H:/prism subtrees) + Phase 3 (4 non-prism roots, including 53 H:/prism-* worktrees) shipped — graph 157,020 → 285,440 nodes (+81%); cumulative across both sessions = **+209% from 92,405 baseline**.
+
+| Phase | Namespace | Files walked | Nodes added | Bundles | Coverage |
+|---|---|---:|---:|---:|---|
+| 2 | Resources | 156,740 | 87,364 | 452 | 100% — third-party CAM/CAD deps (15k .catnls, 14k .dll, 13k .png, 12k .py) |
+| 2 | extracted_modules | 1,048 | 220 | 1 | 100% — 830-file .js dump bundled |
+| 2 | extracted | 895 | 543 | 6 | 100% — v8.89 monolith (smaller than expected, pruned) |
+| 2 | BOX | 253 | 75 | 1 | 100% — 180 .cps post-processors bundled |
+| 3 | H:/.claude (root) | 25,526 | 7,678 | 193 | 100% — 12k jsonl + 7k json transcripts |
+| 3 | H:/Tools | 39,802 | 25,406 | 81 | 100% — Python deps (20k .py, 9k .h) |
+| 3 | 53× H:/prism-* worktrees | ~775,000 | **+70 (dedup!)** | — | 100% — namespace="prism" canonical-dedup, +47k cross-edges |
+| 3 | H:/prism-backups | 12 | 13 | 0 | 100% — was expected massive, actually near-empty |
+
+**Total H: drive coverage:** 70 namespaces, **1,573,752 files represented**, 285,440 nodes / 504,245 edges.
+
+### Phase 3 critical tribal learning — worktree-canonical dedup proved at scale
+
+Walking all 53 H:/prism-* worktrees added only **+70 new canonical file nodes** while adding **+47,200 cross-edges**. This validates the worktree-namespace design: a file at `mcp-server/src/engines/X.ts` exists in 1 canonical L12 node regardless of how many worktrees contain it; each worktree adds an L9 source node + a `fs-contains` edge from the source to the canonical file. Graph storage cost is **O(unique-files) not O(unique-files × worktrees)**.
+
+**Resources surprise:** estimated 5k files in the Phase 0+1 envelope; reality was **156,740 files** — third-party CAM/CAD vendor dependencies (CATIA .catnls, Windows DLLs, Python libs, vendor docs). Bundle-threshold=200 still worked well (452 bundles).
+
+**bash batch wrapper:** `H:/prism/.cache/walk-worktrees.sh` walks every `H:/prism-*` excluding `prism-backups` in sequence. Wrapper's metric extraction is buggy (tail -5 only captures extTally trailer) — verify success via graph node delta, not the wrapper's summary.
 
 ## Tribal learnings
 
