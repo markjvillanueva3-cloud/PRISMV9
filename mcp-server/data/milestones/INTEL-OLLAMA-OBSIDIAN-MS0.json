@@ -1115,6 +1115,10 @@
         {
           "id": "P6-U03",
           "title": "Awareness hook deduplication — pick 3 canonical, deprecate 10",
+          "status": "completed",
+          "completed_at": "2026-05-13",
+          "completed_by": "fleet (deprecation batch in .claude/hooks/.deprecated/awareness-2026-05-13/)",
+          "close_out_note": "Executed 2026-05-13 with a different canonical set than the spec's verbatim list. ACTUAL canonical wired (3): ai-command-awareness.mjs, awareness-snapshot-inject.mjs, multi-computer-awareness.mjs. SPEC verbatim list was awareness-snapshot/awareness-bootstrap/prism-awareness-cache. ACTUAL deprecated (10) in .claude/hooks/.deprecated/awareness-2026-05-13/: ai-command-awareness, awareness-snapshot, cog-bridge-awareness-rebuild, cross-session-awareness, multi-computer-awareness, multi-session-awareness, prism-awareness-v2, self-awareness-enforce, stop_on_awareness_degraded, working-set-awareness — ai-command-awareness + multi-computer-awareness were later RESTORED to live (with un-deprecated copies in .claude/hooks/) because both proved load-bearing on the actual wired chain. Outcome-compliant (3 wired, 10 deprecated, asset-preservation rule honored) but not spec-compliant on the canonical names. P2 follow-up: align spec or document the canonical-set drift in a wiki entry. Closed 2026-05-14 by claude-b6c4b196 (slot bravo) during /pick-dev tag-team of INTEL-OLLAMA-OBSIDIAN-MS0.",
           "effort": 50,
           "dependencies": [],
           "exit_conditions": [
