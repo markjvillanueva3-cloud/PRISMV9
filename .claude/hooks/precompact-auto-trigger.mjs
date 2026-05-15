@@ -29,9 +29,16 @@
  *   tool call. Falls back to byte-estimation (size / 3.5) when unavailable.
  *
  * Thresholds (configurable via env):
- *   PRECOMPACT_SOFT_TOKENS  (default 800000) — soft inject
- *   PRECOMPACT_HARD_TOKENS  (default 900000) — hard block (buffer for
+ *   PRECOMPACT_SOFT_TOKENS  (default 880000) — soft inject
+ *   PRECOMPACT_HARD_TOKENS  (default 940000) — hard block (buffer for
  *                                                pre-compact + compact chain)
+ *
+ *   AUTOCOMPACT-AUTONOMOUS-MS0/U-AAM01 (2026-05-15): defaults bumped from
+ *   800K/900K to 880K/940K. With `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=95` the
+ *   CLI fires at ~950K, so the 10K HARD→CLI buffer is the precompact
+ *   handoff's write budget. Old defaults left 60K of unused context (~6%
+ *   of the 1M window) — that's now used for actual reasoning instead of
+ *   sitting idle past the SOFT/HARD thresholds.
  *
  * Dedup:
  *   Writes a cache marker so the soft inject fires once per crossing, not
@@ -61,12 +68,14 @@ function softFiredPath(sid) {
 }
 
 // Thresholds are paired with CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=95 (950K of 1M):
-//   SOFT 800K — nudge Claude to run /precompact (non-blocking)
-//   HARD 900K — last-chance block BEFORE native autocompact at 950K, so
-//                 /precompact has room to write the handoff in the 50K
-//                 buffer between HARD and native autocompact.
-const SOFT = Number(process.env.PRECOMPACT_SOFT_TOKENS || 800_000);
-const HARD = Number(process.env.PRECOMPACT_HARD_TOKENS || 900_000);
+//   SOFT 880K — nudge Claude to run /precompact (non-blocking, ~70K headroom
+//                 to plan + write the handoff before HARD)
+//   HARD 940K — last-chance block BEFORE native autocompact at 950K, so
+//                 /precompact has room to write the handoff in the 10K
+//                 buffer between HARD and native autocompact. Bumped from
+//                 900K (AAM01) — old 50K buffer was over-provisioned.
+const SOFT = Number(process.env.PRECOMPACT_SOFT_TOKENS || 880_000);
+const HARD = Number(process.env.PRECOMPACT_HARD_TOKENS || 940_000);
 const CONTEXT_CAP = Number(process.env.PRECOMPACT_CONTEXT_CAP || 1_000_000);
 const CHARS_PER_TOKEN = 3.5;
 

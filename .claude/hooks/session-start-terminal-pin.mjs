@@ -93,6 +93,32 @@ function claimSlotForWindow(chatId, windowId) {
   try { return JSON.parse(r.stdout); } catch { return null; }
 }
 
+// AUTOCOMPACT-AUTONOMOUS-MS0/U-AAM01: scan handoffs/ for the most recent
+// HANDOFF-<chatId>-<slot>-<topic>.md and extract the `slot:` + `topic:` from
+// frontmatter. Used to detect "prior session held slot X, but peer took it
+// during my crash/compact window" — surfaced as an additionalContext warning
+// so the operator (or the model) knows to force-take. Fail-soft: returns
+// `{slot:null, topic:null, file:null}` on any error.
+function readPriorSlotFromHandoff(chatId) {
+  try {
+    const handoffsDir = "H:/prism/state/shared/handoffs";
+    if (!fs.existsSync(handoffsDir)) return { slot: null, topic: null, file: null };
+    const wanted = `HANDOFF-${chatId}-`;
+    const candidates = fs.readdirSync(handoffsDir)
+      .filter(n => n.startsWith(wanted) && n.endsWith(".md"))
+      .map(n => ({ name: n, mtime: fs.statSync(`${handoffsDir}/${n}`).mtimeMs }))
+      .sort((a, b) => b.mtime - a.mtime);
+    if (candidates.length === 0) return { slot: null, topic: null, file: null };
+    const file = `${handoffsDir}/${candidates[0].name}`;
+    const content = fs.readFileSync(file, "utf-8");
+    const slotM = content.match(/^slot:\s*([^\n]*)$/m);
+    const topicM = content.match(/^topic:\s*([^\n]*)$/m);
+    const slot = slotM ? (slotM[1].trim().toLowerCase() || null) : null;
+    const topic = topicM ? (topicM[1].trim() || null) : null;
+    return { slot, topic, file: candidates[0].name };
+  } catch { return { slot: null, topic: null, file: null }; }
+}
+
 async function main() {
   if (process.env.PRISM_TERMINAL_PIN_DISABLE === "1") { emit(SILENCE); return; }
   if (!fs.existsSync(CHAT_SLOTS_HELPER)) { emit(SILENCE); return; }
@@ -134,6 +160,38 @@ async function main() {
       },
     });
     return;
+  }
+
+  // AUTOCOMPACT-AUTONOMOUS-MS0/U-AAM01: slot-mismatch warning.
+  // When the most recent handoff for this chatId names a slot but the
+  // current claim landed in a DIFFERENT slot, surface this loud — a peer
+  // took the prior slot while this chat was crashed / mid-compact. The
+  // operator (or model) decides whether to force-take or live with the new
+  // slot. Quiet path: same slot OR no handoff with slot info OR no current
+  // slot returned. Disable: PRISM_TERMINAL_PIN_NO_MISMATCH_WARN=1.
+  if (process.env.PRISM_TERMINAL_PIN_NO_MISMATCH_WARN !== "1") {
+    const prior = readPriorSlotFromHandoff(chatId);
+    const currentSlot = (result.slot || "").toString().toLowerCase();
+    if (prior.slot && currentSlot && prior.slot !== currentSlot) {
+      emit({
+        continue: true,
+        hookSpecificOutput: {
+          hookEventName: "SessionStart",
+          additionalContext: [
+            `## ⚠ Slot drift — prior session held \`${prior.slot}\`, current claim is \`${currentSlot}\``,
+            ``,
+            `The handoff \`${prior.file}\` carries \`slot: ${prior.slot}\` but the terminal-pin claim landed on \`${currentSlot}\`. A peer chat took \`${prior.slot}\` while this chat was crashed or mid-compact.`,
+            ``,
+            `**Options:**`,
+            `1. Live with \`${currentSlot}\` — re-bind handoff: \`/checkin --topic ${prior.topic || "<new-topic>"}\``,
+            `2. Force-take \`${prior.slot}\` (only if peer is genuinely dead): \`node H:/prism/.claude/helpers/chat-slots.mjs claim --chatId ${chatId} --preferSlot ${prior.slot} --force true --confirmRecent true\``,
+            ``,
+            `Check who holds \`${prior.slot}\` first: \`node H:/prism/scripts/fleet-status.mjs\``,
+          ].join("\n"),
+        },
+      });
+      return;
+    }
   }
 
   // Verbose path — surface a short confirmation when the operator opts in.

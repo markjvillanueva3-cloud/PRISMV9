@@ -444,15 +444,41 @@ function cmdWrite(identity, args) {
   // The knowledge/handoffs/ NTFS junction maps to state/shared/handoffs/, so
   // Obsidian sees these files natively. Frontmatter gives backlinks, search,
   // and graph view by session/topic/status.
-  const slotTag = (args?.slot || "").toString().trim().toLowerCase();
-  const isGolf = slotTag === "golf";
+  //
+  // AUTOCOMPACT-AUTONOMOUS-MS0/U-AAM01 (2026-05-15): slot resolution.
+  // Priority order:
+  //   1. --slot explicit (golf chats pass this — preserves U-CLEANUP-A4 behavior)
+  //   2. chat-slots.json lookup by chatId (NEW — populates slot for alpha..foxtrot
+  //      so post-/compact session-start-auto-resume + terminal-pin can recover the
+  //      prior slot and surface "slot held by peer" warnings)
+  //   3. empty (no slot binding known)
+  // Fail-soft: lookup errors silently fall through to empty.
+  const explicitSlot = (args?.slot || "").toString().trim().toLowerCase();
+  const isGolf = explicitSlot === "golf";
+  let resolvedSlot = explicitSlot;
+  if (!resolvedSlot && identity?.instance) {
+    try {
+      const slotsPath = path.resolve("H:/prism/state/shared/chat-slots.json");
+      if (fs.existsSync(slotsPath)) {
+        const slotsState = JSON.parse(fs.readFileSync(slotsPath, "utf-8"));
+        const slots = slotsState?.slots || slotsState || {};
+        for (const [slotName, slotData] of Object.entries(slots)) {
+          if (slotData?.chatId === identity.instance) {
+            resolvedSlot = slotName.toLowerCase();
+            break;
+          }
+        }
+      }
+    } catch { /* fail-soft — leave slot empty */ }
+  }
   const frontmatter = [
     "---",
     `session: ${identity.instance}`,
     `topic: ${effectiveTopic || ""}`,
-    // Slot keying: only "golf" remaps the filename base (U-CLEANUP-A4).
-    // alpha..foxtrot work chats stay instance-keyed (slot field empty).
-    `slot: ${isGolf ? "golf" : ""}`,
+    // Slot field carries the binding for post-/compact recovery. "golf" still
+    // remaps the filename base (U-CLEANUP-A4); alpha..foxtrot are now populated
+    // (was empty before AAM01) so auto-resume + terminal-pin can read them.
+    `slot: ${resolvedSlot}`,
     `written_at: ${now()}`,
     `machine: ${identity.machine}`,
     `family: ${identity.family}`,
