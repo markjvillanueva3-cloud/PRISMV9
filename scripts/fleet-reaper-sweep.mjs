@@ -1,4 +1,10 @@
-#!/usr/bin/env node
+// NOTE: no shebang. This file IS run as a CLI (--once / --monitor-loop / etc.)
+// but ALL its invocations go through explicit `node X.mjs` (the scheduled task,
+// the Stop-hook arm, the /fleet-reaper skill, the alpha-guardian) — never via
+// chmod+x + `./X.mjs` direct execution. A line-1 `#!` is fine for node + esbuild
+// + bash but vite's SSR transform does NOT strip it; it injects its preamble
+// above, stranding `#!` mid-file and breaking the whole .claude/helpers/*.test.mjs
+// vitest suite. Removing the vestigial shebang is the cleanest fix.
 /**
  * fleet-reaper-sweep.mjs — slot-aware orphan process reaper for the 7-chat fleet.
  *
@@ -1296,6 +1302,12 @@ export function runSweep(opts = {}) {
 }
 
 function clampInt(value, fallback, min, max) {
+  // `null` and `undefined` must short-circuit to fallback BEFORE Number() —
+  // `Number(null) === 0` which is finite, so without this guard a null upstream
+  // (e.g. envInt() returning null for an unset env var, then `?? null`) silently
+  // clamps to `min` instead of using the meaningful default. That bug
+  // manifested as soft-relief firing at 1% pressure instead of 90%.
+  if (value === null || value === undefined) value = fallback;
   const n = Number(value);
   // Clamp the fallback too — a misconfigured default should still land in range.
   const base = Number.isFinite(n) ? Math.trunc(n) : fallback;

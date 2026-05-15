@@ -1,4 +1,9 @@
-#!/usr/bin/env node
+// NOTE: no shebang — this file is import-only (no CLI block, no direct
+// execution). A line-1 `#!` is fine for node/esbuild but vite's SSR transform
+// does NOT strip it and injects its preamble above, stranding the `#!` mid-file
+// and breaking the whole .claude/helpers/*.test.mjs vitest suite (V8: "Invalid
+// or unexpected token"). Cleanest fix is the shebang's absence — it never had
+// a job here.
 /**
  * process-slot-map.mjs — map running node/git/bash processes to the PRISM chat
  * slot (alpha..foxtrot+golf) that spawned them, via process ancestry.

@@ -1,5 +1,8 @@
-#!/usr/bin/env node
 // tier: T4
+// NOTE: no shebang. The hook runs via explicit `node X.mjs` in the harness's
+// UserPromptSubmit chain — never chmod+x. vite's SSR transform does not strip
+// a line-1 `#!` and injects its preamble above, stranding the `#!` mid-file
+// and breaking vitest's import of this file. Removing it is the cleanest fix.
 /**
  * ollama-task-offloader.mjs — UserPromptSubmit hook
  * RE-ENABLED: 2026-04-26 (LOCAL-LLM-MS0 U-LLMH01)
