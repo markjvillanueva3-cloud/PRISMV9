@@ -1282,6 +1282,52 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-CAMPAIGN: half-wire completion.
+          // CampaignEngine was in z.enum + calcExtractKeyValues slimmer but lacked
+          // main-switch cases — same gotcha as iter-13 (SpindleHarmonicsQuality).
+          // 4 actions: campaign_create, campaign_validate, campaign_optimize,
+          // campaign_cycle_time. list_actions:true on campaign_create returns
+          // the action catalog instead of running create (matches engine convention).
+          case "campaign_create": {
+            const { createCampaign, listCampaignActions } = await import("../../engines/CampaignEngine.js");
+            if (params.list_actions) {
+              result = { success: true, actions: listCampaignActions() };
+              break;
+            }
+            try {
+              result = createCampaign(params.config as any, params.operation_results as any);
+            } catch (err) {
+              result = { error: err instanceof Error ? err.message : String(err) };
+            }
+            break;
+          }
+
+          case "campaign_validate": {
+            const { validateCampaign } = await import("../../engines/CampaignEngine.js");
+            result = validateCampaign(params.config as any);
+            break;
+          }
+
+          case "campaign_optimize": {
+            const { optimizeCampaign } = await import("../../engines/CampaignEngine.js");
+            try {
+              result = optimizeCampaign(params.config as any, params.target as any);
+            } catch (err) {
+              result = { error: err instanceof Error ? err.message : String(err) };
+            }
+            break;
+          }
+
+          case "campaign_cycle_time": {
+            const { estimateCycleTime } = await import("../../engines/CampaignEngine.js");
+            try {
+              result = estimateCycleTime(params.config as any);
+            } catch (err) {
+              result = { error: err instanceof Error ? err.message : String(err) };
+            }
+            break;
+          }
+
           case "surface_finish": {
             const { calculateSurfaceFinish } = await import("../../engines/ManufacturingCalculations.js");
             result = calculateSurfaceFinish(

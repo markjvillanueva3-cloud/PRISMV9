@@ -177,7 +177,11 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "edge_case_search",
 "edge_case_learnings",
 "edge_case_stats",
-// OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-REVERSE-INDEX: wire ReverseIndexEngine
+// ── ResponseTemplateEngine (OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-RESPONSE-TEMPLATE)
+//    Post-dispatch response-formatting hooks. Singleton engine.
+"response_template_match", "response_template_list", "response_template_get",
+"response_template_stats", "response_template_reset_stats",
+// OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-REVERSE-INDEX: ReverseIndexEngine
 // (Phase 0.7 AGI-proximity bidirectional asset lookup — 5 indexes:
 //  ACTION_TO_ENGINE, SKILL_TO_ACTION, ENGINE_TO_DEPENDENTS, KEYWORD_TO_ASSETS,
 //  TYPE_TO_ASSETS — with WAL-style crash recovery).
@@ -191,7 +195,13 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "rev_idx_rebuild",
 "rev_idx_rebuild_all",
 "rev_idx_stats",
-"rev_idx_recover_wal"] as const;
+"rev_idx_recover_wal",
+// OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-IMPACT-ANALYSIS: ImpactAnalysisEngine.
+// Read-only surfaces only — executeRename is NOT MCP-exposed (destructive).
+"impact_analyze_rename",
+"impact_analyze_delete",
+"impact_can_delete",
+"impact_find_orphans"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -5369,6 +5379,43 @@ export function registerDevDispatcher(server: any): void {
             break;
           }
 
+          // ── ResponseTemplateEngine (5 actions) — OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-RESPONSE-TEMPLATE
+          //    Post-dispatch response-template formatting engine. Pure pressure-aware
+          //    template selection — no I/O, no external deps.
+          case "response_template_match": {
+            const { ResponseTemplateEngine } = await import("../../engines/ResponseTemplateEngine.js");
+            const engine = ResponseTemplateEngine.getInstance();
+            const match = engine.match(params.dispatcher, params.action, params.result_data, params.pressure_pct ?? 0);
+            result = { success: true, match };
+            break;
+          }
+          case "response_template_list": {
+            const { ResponseTemplateEngine } = await import("../../engines/ResponseTemplateEngine.js");
+            const engine = ResponseTemplateEngine.getInstance();
+            result = { success: true, templates: engine.listTemplates() };
+            break;
+          }
+          case "response_template_get": {
+            const { ResponseTemplateEngine } = await import("../../engines/ResponseTemplateEngine.js");
+            const engine = ResponseTemplateEngine.getInstance();
+            const template = engine.getTemplate(params.template_id);
+            result = { success: true, template };
+            break;
+          }
+          case "response_template_stats": {
+            const { ResponseTemplateEngine } = await import("../../engines/ResponseTemplateEngine.js");
+            const engine = ResponseTemplateEngine.getInstance();
+            result = { success: true, stats: engine.getStats() };
+            break;
+          }
+          case "response_template_reset_stats": {
+            const { ResponseTemplateEngine } = await import("../../engines/ResponseTemplateEngine.js");
+            const engine = ResponseTemplateEngine.getInstance();
+            engine.resetStats();
+            result = { success: true, reset: true };
+            break;
+          }
+
           // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-REVERSE-INDEX: ReverseIndexEngine wire (2026-05-15).
           // Engine is a singleton with 5 named indexes + WAL logging for crash recovery.
           // All methods are async — these cases await the engine API directly.
@@ -5439,6 +5486,48 @@ export function registerDevDispatcher(server: any): void {
           case "rev_idx_recover_wal": {
             const { reverseIndexEngine } = await import("../../engines/ReverseIndexEngine.js");
             result = { success: true, recovered: await reverseIndexEngine.recoverFromWAL() };
+            break;
+          }
+
+          // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-IMPACT-ANALYSIS: ImpactAnalysisEngine wire (2026-05-15).
+          // Read-only surfaces only — destructive executeRename() NOT MCP-exposed.
+          case "impact_analyze_rename": {
+            const { impactAnalysisEngine } = await import("../../engines/ImpactAnalysisEngine.js");
+            const report = await impactAnalysisEngine.analyzeRename({
+              fromName: String(params.from_name ?? params.fromName ?? ""),
+              toName: String(params.to_name ?? params.toName ?? ""),
+              assetType: String(params.asset_type ?? params.assetType ?? "engine") as any,
+              dryRun: true,
+            });
+            result = { success: true, report };
+            break;
+          }
+          case "impact_analyze_delete": {
+            const { impactAnalysisEngine } = await import("../../engines/ImpactAnalysisEngine.js");
+            const report = await impactAnalysisEngine.analyzeDelete({
+              name: String(params.name ?? ""),
+              assetType: String(params.asset_type ?? params.assetType ?? "engine") as any,
+              force: Boolean(params.force ?? false),
+              dryRun: true,
+            });
+            result = { success: true, report };
+            break;
+          }
+          case "impact_can_delete": {
+            const { impactAnalysisEngine } = await import("../../engines/ImpactAnalysisEngine.js");
+            const safe = await impactAnalysisEngine.canSafelyDelete(
+              String(params.name ?? ""),
+              String(params.asset_type ?? params.assetType ?? "engine") as any,
+            );
+            result = { success: true, can_delete: safe };
+            break;
+          }
+          case "impact_find_orphans": {
+            const { impactAnalysisEngine } = await import("../../engines/ImpactAnalysisEngine.js");
+            const orphans = await impactAnalysisEngine.findOrphans(
+              String(params.asset_type ?? params.assetType ?? "engine") as any,
+            );
+            result = { success: true, count: orphans.length, orphans };
             break;
           }
 

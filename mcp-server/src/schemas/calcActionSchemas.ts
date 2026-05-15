@@ -41,8 +41,25 @@ const gcodeOp = z.object({
   feed: z.number().optional(), speed: z.number().optional(),
 }).passthrough();
 
-/** Campaign operation result row */
-const campaignResultRow = z.array(z.union([z.string(), z.number(), z.boolean(), z.null()]));
+/** Campaign operation result row.
+ * OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-CAMPAIGN — schema fix.
+ * Was z.array(primitives) which mismatched the engine signature OperationResult[][].
+ * Engine (CampaignEngine.createCampaign) expects each row to be an OperationResult
+ * object. .passthrough() lets the engine evolve fields without breaking the schema. */
+const campaignResultRow = z.array(z.object({
+  sequence: z.number().int(),
+  feature: z.string(),
+  cutting_speed_m_min: z.number(),
+  feed_rate_mm_min: z.number(),
+  spindle_rpm: z.number(),
+  mrr_cm3_min: z.number(),
+  cutting_force_n: z.number(),
+  tool_life_min: z.number(),
+  cycle_time_min: z.number(),
+  surface_finish_ra: z.number().optional(),
+  power_kw: z.number(),
+  warnings: z.array(z.string()),
+}).passthrough());
 
 /** Plan operation entry */
 const planOperation = z.object({
@@ -426,9 +443,13 @@ const fit_analysis = z.object({
 // CAMPAIGN (4 actions)
 // ============================================================================
 
+// OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-CAMPAIGN: config + operation_results made
+// optional so the list_actions:true catalog-discovery path can be called without
+// supplying a full campaign payload. Validation on the engine side throws a clear
+// error if config/operation_results are missing when list_actions is absent.
 const campaign_create = z.object({
-  config: dynamicRecord,
-  operation_results: z.array(campaignResultRow),
+  config: dynamicRecord.optional(),
+  operation_results: z.array(campaignResultRow).optional(),
   list_actions: optBool,
 }).passthrough();
 

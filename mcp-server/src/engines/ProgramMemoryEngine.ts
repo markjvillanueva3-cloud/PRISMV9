@@ -36,6 +36,31 @@ export interface ProgramRecord {
   last_used: string;
   use_count: number;
   rated_good: boolean;
+  /**
+   * Optional pointer to the linked blueprint (back-annotated via U-PPL-D1's
+   * ProgramPrintLinkIndexEngine). Absent when no print could be matched.
+   * Populated by the dispatcher's auto-link orchestration on save, or
+   * explicitly via `linkPrint()`.
+   */
+  linked_blueprint_path?: string;
+  /**
+   * Match confidence (v6 union: "exact" | "loose" | "ambiguous" |
+   * "filename_exact" | "filename_loose") — kept as string for forward-compat
+   * with future enum extensions, validated only at the dispatcher layer.
+   */
+  linked_blueprint_confidence?: string;
+  /** Optional 1-indexed PDF page when the print is multi-page (Docustrata containers). */
+  linked_blueprint_page?: number;
+}
+
+/**
+ * Print-pointer payload — the shape `linkPrint()` and the dispatcher's
+ * auto-link orchestration both produce.
+ */
+export interface BlueprintLinkInfo {
+  path: string;
+  confidence: string;
+  page?: number;
 }
 
 export interface ToolDefault {
@@ -66,6 +91,15 @@ export class ProgramMemoryEngine {
 
   /**
    * Save tool assignments for a program.
+   *
+   * Backwards-compatible: the optional `linkInfo` 6th arg attaches a
+   * blueprint pointer if the caller (typically the dispatcher's auto-link
+   * orchestration around `ProgramPrintLinkIndexEngine.lookupPrintForProgram`)
+   * has already resolved one. Older 5-arg calls keep working unchanged.
+   *
+   * If `linkInfo` is omitted on re-save AND the existing record already had
+   * a link, the prior link is preserved (re-save without a new resolution
+   * must not silently strip a known-good pointer).
    */
   save(
     customer: string,
@@ -73,9 +107,20 @@ export class ProgramMemoryEngine {
     filename: string,
     dialect: string,
     assignments: ToolAssignment[],
+    linkInfo?: BlueprintLinkInfo | null,
   ): ProgramRecord {
     const key = this._makeKey(customer, partNumber);
     const existing = this.records.get(key);
+
+    const validated = linkInfo ? this._validateLinkInfo(linkInfo) : null;
+    const preserved =
+      validated === null && existing?.linked_blueprint_path
+        ? {
+            path: existing.linked_blueprint_path,
+            confidence: existing.linked_blueprint_confidence ?? "unknown",
+            page: existing.linked_blueprint_page,
+          }
+        : validated;
 
     const record: ProgramRecord = {
       key,
@@ -87,11 +132,96 @@ export class ProgramMemoryEngine {
       last_used: new Date().toISOString(),
       use_count: existing ? existing.use_count + 1 : 1,
       rated_good: existing?.rated_good ?? false,
+      ...(preserved
+        ? {
+            linked_blueprint_path: preserved.path,
+            linked_blueprint_confidence: preserved.confidence,
+            ...(preserved.page !== undefined ? { linked_blueprint_page: preserved.page } : {}),
+          }
+        : {}),
     };
 
     this.records.set(key, record);
     log.debug(`[ProgramMemory] Saved ${assignments.length} assignments for ${customer}/${partNumber}`);
     return record;
+  }
+
+  /**
+   * Attach a blueprint pointer to an EXISTING record (post-hoc / operator-
+   * invoked path). Returns the updated record or null if no record exists
+   * for the customer/part. To ATTACH-OR-MISS without silent creation, this
+   * is the surface — `save()` is the auto-create-on-link surface.
+   *
+   * Setting `linkInfo` to `null` explicitly CLEARS the pointer (e.g. after
+   * a v6 join confidence drops to "miss"). The clear path is the only way
+   * to remove an attached link — `save()` always preserves a prior link.
+   */
+  linkPrint(
+    customer: string,
+    partNumber: string,
+    linkInfo: BlueprintLinkInfo | null,
+  ): ProgramRecord | null {
+    const key = this._makeKey(customer, partNumber);
+    const record = this.records.get(key);
+    if (!record) return null;
+
+    if (linkInfo === null) {
+      delete record.linked_blueprint_path;
+      delete record.linked_blueprint_confidence;
+      delete record.linked_blueprint_page;
+      return record;
+    }
+
+    const validated = this._validateLinkInfo(linkInfo);
+    if (!validated) {
+      // FAIL-LOUD: caller passed a malformed link → throw so the operator sees
+      // the bug rather than getting a silently-untouched record back.
+      throw new Error(
+        `[ProgramMemory.linkPrint] invalid linkInfo for ${customer}/${partNumber}: ` +
+          `path must be non-empty string, confidence must be non-empty string, ` +
+          `page (if present) must be finite positive integer`,
+      );
+    }
+
+    record.linked_blueprint_path = validated.path;
+    record.linked_blueprint_confidence = validated.confidence;
+    if (validated.page !== undefined) {
+      record.linked_blueprint_page = validated.page;
+    } else {
+      delete record.linked_blueprint_page;
+    }
+    return record;
+  }
+
+  /**
+   * Validate a BlueprintLinkInfo payload. Returns the canonicalized form
+   * (with `page` dropped if not a finite positive integer) or null if the
+   * payload is structurally unusable. Used by both `save()` (which prefers
+   * to drop silent) and `linkPrint()` (which throws on miss).
+   */
+  private _validateLinkInfo(
+    info: BlueprintLinkInfo,
+  ): BlueprintLinkInfo | null {
+    if (!info || typeof info !== "object") return null;
+    const path = typeof info.path === "string" ? info.path.trim() : "";
+    const confidence =
+      typeof info.confidence === "string" ? info.confidence.trim() : "";
+    if (path.length === 0 || confidence.length === 0) return null;
+    let page: number | undefined;
+    if (info.page !== undefined && info.page !== null) {
+      if (
+        typeof info.page === "number" &&
+        Number.isFinite(info.page) &&
+        Number.isInteger(info.page) &&
+        info.page >= 1
+      ) {
+        page = info.page;
+      }
+      // Silently drop a malformed page on save (don't throw — the path +
+      // confidence are still useful). linkPrint() wraps this validator with
+      // its own throw on whole-payload miss.
+    }
+    return page === undefined ? { path, confidence } : { path, confidence, page };
   }
 
   /**

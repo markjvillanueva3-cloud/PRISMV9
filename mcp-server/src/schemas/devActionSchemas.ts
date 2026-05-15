@@ -930,6 +930,22 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
 
   edge_case_stats: z.object({}).passthrough().describe("Total captures, success rate, parameters tracked, expansion candidates, learnings generated"),
 
+  // ── ResponseTemplateEngine (5 actions) — OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-RESPONSE-TEMPLATE
+  //    Post-dispatch response-formatting hooks. Templates select sections per
+  //    pressure level (full/compact/minimal/skip). Engine is a process singleton.
+  response_template_match: z.object({
+    dispatcher: z.string().min(1).describe("Dispatcher name, e.g. 'prism_data'"),
+    action: z.string().min(1).describe("Action within the dispatcher, e.g. 'material_get'"),
+    result_data: z.any().describe("Raw dispatcher result to project against the template (string is parsed as JSON)"),
+    pressure_pct: z.number().min(0).max(100).default(0).describe("Context-pressure %. >85 skips, 60-85 minimal, 40-60 compact, <40 full"),
+  }).passthrough(),
+  response_template_list: z.object({}).passthrough().describe("List every registered template (id, dispatcher, actions, format, section count)"),
+  response_template_get: z.object({
+    template_id: z.string().min(1).describe("Template id, e.g. 'TPL-MATERIAL'"),
+  }).passthrough(),
+  response_template_stats: z.object({}).passthrough().describe("Template engine telemetry (executions, matches, hit rate, last match, coverage)"),
+  response_template_reset_stats: z.object({}).passthrough().describe("Reset internal counters (testing/dev hook)"),
+
   // ── OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-REVERSE-INDEX ────────────────────
   // ReverseIndexEngine — Phase 0.7 bidirectional asset lookup with WAL-style
   // crash recovery. 5 named indexes:
@@ -976,4 +992,32 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   rev_idx_stats: z.object({}).passthrough().describe("Per-index stats: {totalKeys, totalValues, avgValuesPerKey} for all 5 indexes"),
 
   rev_idx_recover_wal: z.object({}).passthrough().describe("Replay uncommitted WAL entries after crash — returns count recovered"),
+
+  // ── OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-IMPACT-ANALYSIS ──────────────────
+  // ImpactAnalysisEngine — Phase 0.8 rename/delete impact protocol. Read-only
+  // surfaces ONLY (executeRename is destructive + NOT MCP-exposed).
+  impact_analyze_rename: z.object({
+    from_name: z.string().min(1).describe("Current asset name"),
+    to_name: z.string().min(1).describe("Target new asset name"),
+    asset_type: z.enum(["engine", "dispatcher", "action", "skill", "hook", "test", "schema"])
+      .describe("Asset category"),
+  }).passthrough().describe("Analyze rename impact — returns ImpactReport with direct/transitive dependents + breaking changes (always dry-run via MCP)"),
+
+  impact_analyze_delete: z.object({
+    name: z.string().min(1).describe("Asset name to analyze"),
+    asset_type: z.enum(["engine", "dispatcher", "action", "skill", "hook", "test", "schema"])
+      .describe("Asset category"),
+    force: z.boolean().optional().describe("If true, treat dependent-blocking as warning instead of error"),
+  }).passthrough().describe("Analyze delete impact — returns ImpactReport. Always dry-run via MCP."),
+
+  impact_can_delete: z.object({
+    name: z.string().min(1).describe("Asset name"),
+    asset_type: z.enum(["engine", "dispatcher", "action", "skill", "hook", "test", "schema"])
+      .describe("Asset category"),
+  }).passthrough().describe("Boolean: is this asset safe to delete (no dependents AND not CRITICAL_ASSETS)"),
+
+  impact_find_orphans: z.object({
+    asset_type: z.enum(["engine", "dispatcher", "action", "skill", "hook", "test", "schema"])
+      .describe("Asset category to scan"),
+  }).passthrough().describe("Find all assets of the given type with zero direct dependents"),
 };
