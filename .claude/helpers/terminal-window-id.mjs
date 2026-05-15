@@ -17,30 +17,44 @@
  *   drifting.
  *
  * Resolution order (each step is best-effort; falls through on failure):
+ *   0. Cache hit — keyed on Claude session id. Within a single chat, every
+ *      resolver call returns the same id (kills the "wmic flaked once" drift
+ *      class — the most common observed pathology).
  *   1. WT_SESSION env var — Windows Terminal sets a UUID per tab/pane that
  *      persists for the tab's entire lifetime. Inherited by every child
  *      process (claude.exe, node, bash). This is the canonical id when
  *      Windows Terminal hosts the session.
- *   2. Ancestor PowerShell PID — walk `process.ppid` upward via `tasklist`
- *      until we find a powershell.exe / pwsh.exe / cmd.exe. The shell PID
- *      persists for the window's lifetime. Used when WT_SESSION is absent
- *      (conhost.exe directly, VS Code integrated terminal, SSH session).
- *   3. Immediate ppid — the direct parent process PID. Last resort.
+ *   2. Ancestor PowerShell PID — walk `process.ppid` upward via `Get-CimInstance`
+ *      (Win11-native, replaces deprecated wmic) until we find a powershell.exe /
+ *      pwsh.exe / cmd.exe. The shell PID persists for the window's lifetime.
+ *      Used when WT_SESSION is absent (conhost.exe directly, VS Code integrated
+ *      terminal, SSH session).
+ *   3. First non-shell-child ancestor — walk past bash.exe / cmd.exe / sh.exe
+ *      / wsh.exe and use the first NON-shell-child ancestor PID. This is more
+ *      stable than tier-4 because bash.exe is per-tool-call (varies) while its
+ *      grandparent claude.exe is per-chat (stable).
+ *   4. Immediate ppid — the direct parent process PID. Last resort.
  *
  * Output format: a stable string `tw-<scheme>-<id>` where scheme ∈
- *   { wt, ps, pp } (Windows Terminal session, PowerShell ancestor, parent
- *   PID). Same window resolves to the same id across multiple invocations
- *   regardless of which scheme actually fires (caches first resolved id in
- *   ~/.claude/cache/terminal-window-id-<scheme>-<id>.lock for diagnostics).
+ *   { wt, ps, pa, pp } (Windows Terminal session, PowerShell ancestor,
+ *   Non-bash-child Parent Ancestor, parent PID). Same window resolves to the
+ *   same id across multiple invocations regardless of which scheme actually
+ *   fires (caches first resolved id in cache/terminal-window-cache.json).
  *
- * Pure / no side effects beyond an optional one-time diagnostic write.
- * Bounded runtime: tasklist call has a 2-second hard timeout. If anything
+ * Never-downgrade rule: once a session has resolved to a high-tier id
+ * (tw-wt-*, tw-ps-*, tw-pa-*), it can never overwrite with a lower-tier
+ * id (tw-pp-*). Prevents the "wmic worked once then flaked" drift class.
+ *
+ * Pure / no side effects beyond the cache write.
+ * Bounded runtime: each spawn has a 2-second hard timeout. If everything
  * is slow, scheme degrades to `pp`.
  *
  * Knobs:
  *   PRISM_TERMINAL_WINDOW_ID         — explicit override (CI / tests)
  *   PRISM_TERMINAL_WINDOW_ID_DISABLE — return null (disables pinning)
- *   PRISM_TWID_TIMEOUT_MS            — tasklist budget (default 2000)
+ *   PRISM_TWID_TIMEOUT_MS            — ancestry-walk budget (default 2000)
+ *   PRISM_TWID_CACHE_DISABLE         — skip tier-0 cache
+ *   PRISM_TWID_CACHE_FILE            — override cache path (tests)
  *
  * @returns {string|null}
  */
@@ -49,18 +63,52 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 
-const TASKLIST_TIMEOUT_MS = Number(process.env.PRISM_TWID_TIMEOUT_MS || 2000);
-const DIAG_DIR = "H:/prism/.claude/cache";
+const TIMEOUT_MS = Number(process.env.PRISM_TWID_TIMEOUT_MS || 2000);
+const DEFAULT_CACHE_FILE = "H:/prism/.claude/cache/terminal-window-cache.json";
 const SHELL_BASENAMES = new Set(["powershell.exe", "pwsh.exe", "cmd.exe"]);
-// PID ancestor walk depth cap — most claude → bash/cmd → shell chains are 2-4
-// hops; 8 is generous and prevents pathological loops on PID reuse.
+const SHELL_CHILD_BASENAMES = new Set(["bash.exe", "sh.exe", "wsh.exe", "conhost.exe", "node.exe"]);
 const MAX_ANCESTOR_HOPS = 8;
+
+// Tier ranking: higher number = higher priority. Used by never-downgrade rule.
+const TIER_RANK = { "wt": 4, "ps": 3, "pa": 2, "pp": 1 };
+
+function cacheFile() {
+  return process.env.PRISM_TWID_CACHE_FILE || DEFAULT_CACHE_FILE;
+}
+
+function readCache() {
+  try {
+    const p = cacheFile();
+    if (!fs.existsSync(p)) return {};
+    const raw = fs.readFileSync(p, "utf-8");
+    if (!raw || raw.trim().length === 0) return {};
+    const j = JSON.parse(raw);
+    return (j && typeof j === "object") ? j : {};
+  } catch { return {}; }
+}
+
+function writeCache(obj) {
+  try {
+    const p = cacheFile();
+    const dir = path.dirname(p);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(p, JSON.stringify(obj, null, 2));
+    return true;
+  } catch { return false; }
+}
+
+export function tierOf(id) {
+  if (typeof id !== "string") return 0;
+  const m = id.match(/^tw-([a-z]+)-/);
+  if (!m) return 0;
+  return TIER_RANK[m[1]] || 0;
+}
 
 function safeSpawnSync(cmd, args, opts = {}) {
   try {
     return spawnSync(cmd, args, {
       encoding: "utf-8",
-      timeout: TASKLIST_TIMEOUT_MS,
+      timeout: TIMEOUT_MS,
       windowsHide: true,
       ...opts,
     });
@@ -70,51 +118,83 @@ function safeSpawnSync(cmd, args, opts = {}) {
 }
 
 /**
- * Walk PID ancestry on Windows using `wmic process` (faster + structured) or
- * `tasklist /v` (fallback). Returns the first ancestor whose ImageName is a
- * shell from SHELL_BASENAMES, or null on miss.
+ * Single-step PID → {name, ppid} lookup. Tries Get-CimInstance first
+ * (Win11-native), falls back to wmic (Win10-legacy), then tasklist.
  *
- * wmic is being deprecated on Windows 11 but is still present on most hosts;
- * `tasklist` is the universal fallback. Both calls are timeout-bounded.
+ * Returns { name: lowercase-basename, ppid: number } or null.
  */
-function findAncestorShellPid(startPid) {
+export function getProcessInfo(pid) {
+  if (!Number.isFinite(pid) || pid <= 0) return null;
+
+  // Tier A: PowerShell Get-CimInstance — Win11-native, structured JSON
+  const psCmd = `Get-CimInstance Win32_Process -Filter "ProcessId=${pid}" | Select-Object Name,ParentProcessId | ConvertTo-Json -Compress`;
+  const psResult = safeSpawnSync("powershell", ["-NoProfile", "-NonInteractive", "-Command", psCmd]);
+  if (psResult.status === 0 && psResult.stdout) {
+    try {
+      const j = JSON.parse(psResult.stdout.trim());
+      if (j && j.Name) {
+        return { name: String(j.Name).toLowerCase().trim(), ppid: Number(j.ParentProcessId) };
+      }
+    } catch { /* fall through */ }
+  }
+
+  // Tier B: wmic (deprecated on Win11 but often still installed)
+  const wmicResult = safeSpawnSync("wmic", [
+    "process", "where", `ProcessId=${pid}`,
+    "get", "ParentProcessId,Name", "/format:csv",
+  ]);
+  if (wmicResult.status === 0 && wmicResult.stdout) {
+    const lines = wmicResult.stdout.split(/\r?\n/).filter(l => l.trim() && !l.startsWith("Node,"));
+    if (lines.length > 0) {
+      const cols = lines[0].split(",");
+      if (cols.length >= 3) {
+        const name = (cols[1] || "").toLowerCase().trim();
+        const ppid = parseInt(cols[2], 10);
+        if (name) return { name, ppid: Number.isFinite(ppid) ? ppid : 0 };
+      }
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Walk PID ancestry. Stops at first match of `stopPredicate(name) → true`
+ * or after MAX_ANCESTOR_HOPS. Returns the PID of the matching ancestor,
+ * or null if no match (still respects timeout).
+ */
+function walkAncestors(startPid, stopPredicate) {
   if (!Number.isFinite(startPid) || startPid <= 0) return null;
   let pid = startPid;
   for (let hop = 0; hop < MAX_ANCESTOR_HOPS; hop++) {
     if (!Number.isFinite(pid) || pid <= 0) return null;
-    // Query parent process + image name. wmic is fastest when available.
-    const r = safeSpawnSync("wmic", [
-      "process", "where", `ProcessId=${pid}`,
-      "get", "ParentProcessId,Name", "/format:csv",
-    ]);
-    if (r.status !== 0 || !r.stdout) return null;
-    // CSV format: "Node,Name,ParentProcessId" header + one row.
-    const lines = r.stdout.split(/\r?\n/).filter(l => l.trim() && !l.startsWith("Node,"));
-    if (lines.length === 0) return null;
-    const cols = lines[0].split(",");
-    if (cols.length < 3) return null;
-    const name = (cols[1] || "").toLowerCase().trim();
-    const ppid = parseInt(cols[2], 10);
-    if (SHELL_BASENAMES.has(name)) return pid;
-    if (!Number.isFinite(ppid) || ppid <= 0 || ppid === pid) return null;
-    pid = ppid;
+    const info = getProcessInfo(pid);
+    if (!info) return null;
+    if (stopPredicate(info.name, pid)) return pid;
+    if (!Number.isFinite(info.ppid) || info.ppid <= 0 || info.ppid === pid) return null;
+    pid = info.ppid;
   }
   return null;
 }
 
-function writeDiagOnce(id) {
-  try {
-    if (!fs.existsSync(DIAG_DIR)) fs.mkdirSync(DIAG_DIR, { recursive: true });
-    const marker = path.join(DIAG_DIR, `terminal-window-${id.replace(/[^a-z0-9-]/gi, "_")}.lock`);
-    if (!fs.existsSync(marker)) {
-      fs.writeFileSync(marker, JSON.stringify({ id, pid: process.pid, recordedAt: new Date().toISOString() }));
-    }
-  } catch { /* diag is best-effort */ }
+export function findAncestorShellPid(startPid) {
+  return walkAncestors(startPid, (name) => SHELL_BASENAMES.has(name));
+}
+
+/**
+ * Tier-3 helper: find the first ancestor that is NOT a shell-child (not
+ * bash.exe / sh.exe / cmd.exe / conhost.exe / node.exe). The intent: skip
+ * past the per-tool-call bash.exe and short-lived helpers to reach the
+ * stable claude.exe / harness process. Its PID is per-chat-stable.
+ */
+export function findStableAncestorPid(startPid) {
+  return walkAncestors(startPid, (name) => !SHELL_CHILD_BASENAMES.has(name) && !SHELL_BASENAMES.has(name));
 }
 
 /**
  * @param {Object} [opts]
  * @param {number} [opts.ppid] — override parent pid (tests)
+ * @param {string} [opts.sessionId] — Claude session id for cache key
  * @returns {string|null}
  */
 export function resolveTerminalWindowId(opts = {}) {
@@ -125,12 +205,56 @@ export function resolveTerminalWindowId(opts = {}) {
     return override.trim();
   }
 
+  const useCache = process.env.PRISM_TWID_CACHE_DISABLE !== "1";
+  const sessionId = (opts.sessionId && typeof opts.sessionId === "string") ? opts.sessionId : null;
+
+  // TIER 0: cache by sessionId
+  if (useCache && sessionId) {
+    const cache = readCache();
+    const hit = cache[sessionId];
+    if (hit && typeof hit.id === "string" && hit.id.length > 0) {
+      // Refresh lastSeenAt and return — never re-resolve within same session
+      hit.lastSeenAt = new Date().toISOString();
+      cache[sessionId] = hit;
+      writeCache(cache);
+      return hit.id;
+    }
+  }
+
+  // Compute fresh
+  const fresh = computeFreshId(opts);
+  if (!fresh) return null;
+
+  // Persist with never-downgrade
+  if (useCache && sessionId) {
+    const cache = readCache();
+    const existing = cache[sessionId];
+    if (existing && tierOf(existing.id) >= tierOf(fresh)) {
+      // Never overwrite a higher-or-equal-tier cached entry with a lower one.
+      // This is the never-downgrade rule: tw-ps stays even if a later
+      // resolve returns tw-pp due to transient process-walk failure.
+      existing.lastSeenAt = new Date().toISOString();
+      cache[sessionId] = existing;
+      writeCache(cache);
+      return existing.id;
+    }
+    cache[sessionId] = {
+      id: fresh,
+      tier: tierOf(fresh),
+      recordedAt: new Date().toISOString(),
+      lastSeenAt: new Date().toISOString(),
+    };
+    writeCache(cache);
+  }
+
+  return fresh;
+}
+
+function computeFreshId(opts = {}) {
   // 1. Windows Terminal session UUID (most reliable; per-pane lifetime).
   const wt = process.env.WT_SESSION;
   if (typeof wt === "string" && /^[0-9a-f-]{8,}$/i.test(wt)) {
-    const id = `tw-wt-${wt.toLowerCase()}`;
-    writeDiagOnce(id);
-    return id;
+    return `tw-wt-${wt.toLowerCase()}`;
   }
 
   const ppid = Number.isFinite(opts.ppid) ? opts.ppid : process.ppid;
@@ -138,24 +262,29 @@ export function resolveTerminalWindowId(opts = {}) {
   // 2. PowerShell/cmd ancestor — survives child-process churn within the window.
   const shellPid = findAncestorShellPid(ppid);
   if (Number.isFinite(shellPid) && shellPid > 0) {
-    const id = `tw-ps-${shellPid}`;
-    writeDiagOnce(id);
-    return id;
+    return `tw-ps-${shellPid}`;
   }
 
-  // 3. Bare parent pid — last resort.
+  // 3. First non-shell-child ancestor — skip bash.exe/conhost.exe/etc to
+  //    reach the stable claude.exe harness. Per-chat-stable (not as good as
+  //    per-window but better than per-bash-call ppid).
+  const stablePid = findStableAncestorPid(ppid);
+  if (Number.isFinite(stablePid) && stablePid > 0) {
+    return `tw-pa-${stablePid}`;
+  }
+
+  // 4. Bare parent pid — last resort. Per-bash-call so unstable.
   if (Number.isFinite(ppid) && ppid > 0) {
-    const id = `tw-pp-${ppid}`;
-    writeDiagOnce(id);
-    return id;
+    return `tw-pp-${ppid}`;
   }
 
   return null;
 }
 
-// CLI: `node terminal-window-id.mjs` prints the resolved id (or "null").
+// CLI: `node terminal-window-id.mjs [sessionId]` prints the resolved id (or "null").
 const __cliArgv1 = (process.argv[1] || "").replace(/\\/g, "/");
 const __cliArgv1Basename = __cliArgv1.split("/").pop() || "";
 if (__cliArgv1Basename && import.meta.url.endsWith(__cliArgv1Basename)) {
-  process.stdout.write((resolveTerminalWindowId() || "null") + "\n");
+  const cliSessionId = process.argv[2] || null;
+  process.stdout.write((resolveTerminalWindowId({ sessionId: cliSessionId }) || "null") + "\n");
 }

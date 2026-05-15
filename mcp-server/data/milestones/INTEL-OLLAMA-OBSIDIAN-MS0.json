@@ -2090,6 +2090,10 @@
         },
         {
           "id": "P11-U06",
+          "status": "completed",
+          "completed_at": "2026-05-15T15:52:00.000Z",
+          "completed_by": "claude-b6c4b196 slot charlie",
+          "close_out_note": "Added 3 missing policy fields (token_cost_estimate, cost_model, description) + enriched English-phrase triggers to all 9 ollama-* skills via idempotent script `scripts/add-ollama-skill-policy-frontmatter.mjs` (3 pure-fn exports + 21 plain-node:assert tests, all green). Each skill now reports its skill-fire token cost (80-130 tok, all <500), the offload route (`ollama-local`), and a one-line description. Enriched triggers (e.g. 'summarize', 'tl;dr', 'condense' for ollama-summarize) enable auto-invoke on natural English. C:↔H: mirror replicated automatically via the c-to-h-mirror hook (verified empty diff).",
           "title": "Ollama family skills — add policy frontmatter to 9 ollama-* skills",
           "effort": 30,
           "dependencies": [

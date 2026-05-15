@@ -253,22 +253,99 @@ function addToQueue(item) {
 
 // ── Commands ─────────────────────────────────────────────────────
 
-// Writers banned to live chat ONLY. Hooks (PreCompact auto-writer) and
-// subagents (Agent-spawned) produced generic stubs like "Pre-compact snapshot
-// (RESUME generated)" that clobbered the meaningful RESUME directives the live
-// chat had crafted. After /compact, /startup would read these stubs and have
-// no idea what the chat was actually doing. User feedback 2026-05-06: "ban
-// handlers and subagents from writing handoffs. live chat claude needs to
-// handle it, we always have issues with per agent handoffs being generics
-// and stubs". The /precompact and /handoff skills (run by the live chat)
-// pass --source live-chat explicitly. Anything else is rejected.
+// Writers banned to live chat ONLY (with one strictly-gated exception below).
+// Hooks (PreCompact auto-writer) and subagents (Agent-spawned) produced
+// generic stubs like "Pre-compact snapshot (RESUME generated)" that clobbered
+// the meaningful RESUME directives the live chat had crafted. After /compact,
+// /startup would read these stubs and have no idea what the chat was actually
+// doing. User feedback 2026-05-06: "ban handlers and subagents from writing
+// handoffs. live chat claude needs to handle it, we always have issues with
+// per agent handoffs being generics and stubs". The /precompact and /handoff
+// skills (run by the live chat) pass --source live-chat explicitly.
+//
+// EXCEPTION (2026-05-15, /compact-auto-precompact directive):
+// --source precompact-hook is accepted ONLY when ALL of:
+//   (a) resume is non-empty and not a known placeholder
+//   (b) resume.length >= 30 (real content, not a stub)
+//   (c) the target handoff file does NOT have a fresh live-chat RESUME within
+//       the last 5 minutes (anti-clobber — never overwrite real /precompact)
+// The hook still writes a slot-prefixed handoff so /startup can resume. If
+// the live chat ran /precompact this session, that RESUME is preserved.
+const PLACEHOLDER_RESUMES_FOR_GATE = new Set([
+  "",
+  "true",
+  "unknown",
+  "compacting",
+  "compacting — read per-agent handoff on restore",
+  "compacting - read per-agent handoff on restore",
+  "check git log and roadmap for next steps.",
+  "pre-compact snapshot (resume generated)",
+]);
+
 function isLiveChatSource(args) {
   const src = (args.source || "").toString().trim().toLowerCase();
   return src === "live-chat";
 }
 
-function rejectNonLiveChat(args, op) {
+function isPrecompactHookSource(args) {
+  const src = (args.source || "").toString().trim().toLowerCase();
+  return src === "precompact-hook";
+}
+
+function precompactHookResumeIsValid(args) {
+  const r = (args.resume || "").toString().trim();
+  if (!r) return false;
+  if (r.length < 30) return false;
+  if (PLACEHOLDER_RESUMES_FOR_GATE.has(r.toLowerCase())) return false;
+  return true;
+}
+
+function freshLiveChatHandoffExists(identity, args, maxAgeMin = 5) {
+  try {
+    const base = resolveHandoffBase(identity, args);
+    const file = handoffPath(base, args.topic);
+    if (!fs.existsSync(file)) return false;
+    const ageMin = (Date.now() - fs.statSync(file).mtimeMs) / 60_000;
+    if (ageMin > maxAgeMin) return false;
+    const content = fs.readFileSync(file, "utf-8");
+    // Heuristic: any RESUME section length >= 30 chars that isn't a placeholder
+    const m = content.match(/## RESUME\n([\s\S]*?)(?=\n##|\n$)/);
+    if (!m) return false;
+    const resume = (m[1] || "").trim();
+    if (resume.length < 30) return false;
+    if (PLACEHOLDER_RESUMES_FOR_GATE.has(resume.toLowerCase())) return false;
+    return true;
+  } catch { return false; }
+}
+
+function rejectNonLiveChat(args, op, identity) {
   if (isLiveChatSource(args)) return null;
+  // Precompact-hook exception — strict validation
+  if (op === "write" && isPrecompactHookSource(args)) {
+    if (!precompactHookResumeIsValid(args)) {
+      return {
+        ok: false,
+        error: "writer_banned",
+        op,
+        rejectedBy: "precompact-hook-validation",
+        message:
+          "--source precompact-hook requires a non-placeholder resume of >=30 chars. " +
+          "Got: " + JSON.stringify(((args.resume || "") + "").slice(0, 60)),
+      };
+    }
+    if (identity && freshLiveChatHandoffExists(identity, args, 5)) {
+      return {
+        ok: false,
+        error: "writer_banned",
+        op,
+        rejectedBy: "fresh-live-chat-resume-exists",
+        message:
+          "Fresh /precompact handoff already exists (<5min old) with a real RESUME. " +
+          "Hook write skipped to avoid clobbering live-chat directive.",
+      };
+    }
+    return null; // accepted via the strictly-gated exception
+  }
   return {
     ok: false,
     error: "writer_banned",
@@ -278,12 +355,13 @@ function rejectNonLiveChat(args, op) {
       "Hooks (PreCompact auto-writer) and subagents are banned — they produce " +
       "generic stubs that overwrite real RESUME directives. To write a handoff, " +
       "have the LIVE chat run /precompact or /handoff (those skills pass " +
-      "--source live-chat explicitly). See memory: feedback_handoff_writers.md.",
+      "--source live-chat explicitly). See memory: feedback_handoff_writers.md. " +
+      "PreCompact hooks may use --source precompact-hook with strict validation.",
   };
 }
 
 function cmdWrite(identity, args) {
-  const banned = rejectNonLiveChat(args, "write");
+  const banned = rejectNonLiveChat(args, "write", identity);
   if (banned) return banned;
   ensureDirs();
   // SAFETY NET: auto-derive topic when caller omits --topic. Prevents bare-named

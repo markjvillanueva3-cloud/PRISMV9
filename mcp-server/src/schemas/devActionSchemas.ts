@@ -100,6 +100,38 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     program_path: z.string().min(1).describe("Program/CAD file path — returns the print-pointer sidecar if present and provenance == self."),
   }),
 
+  // ── U-PPL-D1 / MS-PRINT-PROGRAM-LOOP Track D: ProgramPrintLinkIndexEngine ──
+  // Composite link-index surfaces built on top of BlueprintProgramJoinEngine (U-DOCU-04)
+  // + the enhanced JM-Die PN normalizer (T8047D3 ITW / C2500-2497 SCREWS / 9082526 AGRATI
+  // / BU-1365-0000-002 TFI) + program-side seed augmentation. Two surfaces:
+  //   - program_print_link_lookup: composite resolver for either direction
+  //   - program_print_link_coverage: confidence breakdown + disk-side gap report
+  program_print_link_lookup: z.object({
+    direction: z.enum(["print_for_program", "program_for_print"]).describe(
+      "Lookup direction. print_for_program = given a program path, return its print(s). program_for_print = given a part number, return its programs.",
+    ),
+    query: z.string().min(1).describe(
+      "Query value — a program file path when direction=print_for_program, or a part number when direction=program_for_print.",
+    ),
+    input_program_paths: z.array(z.string()).optional().describe(
+      "Optional list of program file paths to feed the program-side seed augmentation BEFORE the lookup. When omitted, only the v6 join + training triples are consulted (no enhanced-normalizer rescue).",
+    ),
+    join_jsonl_path: z.string().optional().describe(
+      "Override the v6 join JSONL path. Default: <repo>/Docustrata/.index/blueprint-program-join-full-v6.jsonl.",
+    ),
+  }),
+  program_print_link_coverage: z.object({
+    archive_program_paths: z.array(z.string()).optional().describe(
+      "Optional list of archive program paths to compute the disk-side gap against. When supplied, the report includes in_v6_join / rescued_by_seed / still_orphan counts + orphan_rate_pct.",
+    ),
+    input_program_paths: z.array(z.string()).optional().describe(
+      "Optional list of program paths to feed the seed augmentation before computing coverage. When omitted, the seed augmentation is skipped + rescued_by_seed = 0.",
+    ),
+    join_jsonl_path: z.string().optional().describe(
+      "Override the v6 join JSONL path. Default: <repo>/Docustrata/.index/blueprint-program-join-full-v6.jsonl.",
+    ),
+  }).optional(),
+
   // AUTO-LEARNING-LOOP-MS0/U-ALL01 step-5 — ReputableSourceMonitorEngine surface.
   source_sweep: z.object({
     mode: z.enum(["poll_all", "poll_one", "get_sources", "get_state", "reset_all"])
@@ -844,4 +876,57 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   }).passthrough().describe("Validate a job payload — nested material + operation + completeness"),
 
   dv_stats: z.object({}).passthrough().describe("Validation count + engine internal stats"),
+
+  // ── OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-EDGE-CASE ────────────────────────
+  // EdgeCaseCaptureEngine — Phase 0.25 Adaptive Variability Framework. Records
+  // boundary operations + drives envelope expansion via VariabilityEnvelopeEngine.
+  edge_case_capture: z.object({
+    operation: z.string().min(1).describe("Operation name (e.g. 'pocket', 'thread_mill', 'finishing')"),
+    parameter: z.string().min(1).describe("Parameter being captured (e.g. 'rpm', 'feed_per_tooth')"),
+    value: z.number().describe("The captured value at boundary"),
+    outcome: z.enum(["success", "marginal", "failure"]).describe("How the operation ended"),
+    context: z.object({
+      material: z.string().optional(),
+      machine: z.string().optional(),
+      tool: z.string().optional(),
+      operation_type: z.string().optional(),
+    }).passthrough().describe("Context dict — material/machine/tool/operation_type"),
+    measurements: z.object({
+      vibration: z.number().optional(),
+      temperature: z.number().optional(),
+      power: z.number().optional(),
+      surface_roughness: z.number().optional(),
+    }).passthrough().optional().describe("Sensor measurements at capture"),
+    operator_notes: z.string().optional().describe("Free-text operator notes"),
+  }).passthrough().describe("Capture an edge-case operation — auto-computes percentile via VariabilityEnvelopeEngine, generates learnings when percentile > 0.99 + success"),
+
+  edge_case_auto_capture: z.object({
+    parameter: z.string().min(1).describe("Parameter to evaluate against envelope"),
+    value: z.number().describe("Current value"),
+    outcome: z.enum(["success", "marginal", "failure"]).describe("Operation outcome"),
+    context: z.object({}).passthrough().describe("Context dict"),
+    operation: z.string().optional().describe("Operation name (default 'unknown')"),
+  }).passthrough().describe("Auto-capture ONLY if percentile >= 0.95 — returns null if not at edge"),
+
+  edge_case_summary: z.object({
+    parameter: z.string().min(1).describe("Parameter to summarize"),
+  }).passthrough().describe("Per-parameter summary: count, success rate, avg percentile, expansion potential"),
+
+  edge_case_all_summaries: z.object({}).passthrough().describe("Summaries for every parameter tracked"),
+
+  edge_case_expansion_candidates: z.object({}).passthrough().describe("Parameters with >=3 successful >0.99-percentile captures — envelope-expansion candidates"),
+
+  edge_case_search: z.object({
+    parameter: z.string().optional(),
+    outcome: z.enum(["success", "marginal", "failure"]).optional(),
+    min_percentile: z.number().min(0).max(1).optional(),
+    max_percentile: z.number().min(0).max(1).optional(),
+    material: z.string().optional(),
+    machine: z.string().optional(),
+    since: z.string().optional().describe("ISO timestamp lower bound"),
+  }).passthrough().describe("Filter captures by criteria — used by post-mortem reviews"),
+
+  edge_case_learnings: z.object({}).passthrough().describe("All extracted learnings (from successful >0.99-percentile captures)"),
+
+  edge_case_stats: z.object({}).passthrough().describe("Total captures, success rate, parameters tracked, expansion candidates, learnings generated"),
 };
