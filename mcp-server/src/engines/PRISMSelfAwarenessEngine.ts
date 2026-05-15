@@ -54,6 +54,11 @@ export interface ManifestCounts {
   formulas: number;
   jmDiePrograms: number;
   jmDieCustomers: number;
+  /**
+   * Algorithm count. Optional — populated only when computeStats() includes an
+   * algorithm scan. Defaults to undefined for back-compat with older snapshots.
+   */
+  algorithms?: number;
 }
 
 export interface EngineEntry {
@@ -100,6 +105,19 @@ export interface CapabilityMatch {
   action?: string;
   dispatcher?: string;
   path?: string;
+  /**
+   * Ready-to-invoke fully-qualified action identifier (e.g. "prism_calc:cutting_force"),
+   * populated when the match has both `dispatcher` and `action`. Documented in CLAUDE.md
+   * as part of the findCapabilities() contract — restored 2026-05-14 after a refactor
+   * dropped the field from the public interface.
+   */
+  fullAction?: string;
+  /**
+   * Free-form human-readable description of the matched capability — for engine-typed
+   * matches this mirrors `engine.description` from the manifest. Optional; not all
+   * match types carry one.
+   */
+  description?: string;
 }
 
 export interface EngineMatch {
@@ -263,6 +281,7 @@ class PRISMSelfAwarenessEngine {
           confidence: Math.min(score / queryTerms.length / 3, 1),
           engine: engine.name,
           path: engine.path,
+          description: engine.description || undefined,
         });
       }
     }
@@ -279,11 +298,13 @@ class PRISMSelfAwarenessEngine {
       }
 
       if (score > 0) {
+        const fullAction = `${action.dispatcher}:${action.action}`;
         matches.push({
-          capability: `${action.dispatcher}:${action.action}`,
+          capability: fullAction,
           confidence: Math.min(score / queryTerms.length / 3, 1),
           action: action.action,
           dispatcher: action.dispatcher,
+          fullAction,
         });
       }
     }
