@@ -106,7 +106,17 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "read_optimize_recommend",
 "read_optimize_oneliner",
 "read_optimize_batch",
-"read_optimize_batch_cost"] as const;
+"read_optimize_batch_cost",
+// OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-COMPACT-FMT: wire CompactFormatterEngine
+// (token-efficient output formatting — table, kv, summarize, compact, etc).
+"compact_table",
+"compact_kv_pairs",
+"compact_summarize_array",
+"compact_compact",
+"compact_system_line",
+"compact_diff_stat",
+"compact_test_result",
+"compact_truncate"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -4862,6 +4872,68 @@ export function registerDevDispatcher(server: any): void {
             const files = Array.isArray(params.files) ? params.files.map((f: unknown) => String(f)) : [];
             const cost = readOptimizerEngine.estimateBatchCost(files);
             result = { success: true, cost };
+            break;
+          }
+
+          // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-COMPACT-FMT: CompactFormatterEngine wire (2026-05-15)
+          case "compact_table": {
+            const { compactFormatterEngine } = await import("../../engines/CompactFormatterEngine.js");
+            result = { success: true, text: compactFormatterEngine.table(
+              (params.data || []) as Array<Record<string, unknown>>,
+              String(params.key_field),
+              String(params.value_field),
+              typeof params.sep === "string" ? params.sep : undefined,
+            ) };
+            break;
+          }
+          case "compact_kv_pairs": {
+            const { compactFormatterEngine } = await import("../../engines/CompactFormatterEngine.js");
+            result = { success: true, text: compactFormatterEngine.kvPairs(
+              (params.data || {}) as Record<string, unknown>,
+              params.inline !== false,
+            ) };
+            break;
+          }
+          case "compact_summarize_array": {
+            const { compactFormatterEngine } = await import("../../engines/CompactFormatterEngine.js");
+            const arr = Array.isArray(params.arr) ? params.arr : [];
+            const maxItems = typeof params.max_items === "number" ? params.max_items : 5;
+            result = { success: true, text: compactFormatterEngine.summarizeArray(arr, maxItems) };
+            break;
+          }
+          case "compact_compact": {
+            const { compactFormatterEngine } = await import("../../engines/CompactFormatterEngine.js");
+            result = { success: true, text: compactFormatterEngine.compact(params.data, {
+              maxChars: typeof params.max_chars === "number" ? params.max_chars : undefined,
+              level: (params.level === "minimal" || params.level === "standard" || params.level === "verbose") ? params.level : undefined,
+            }) };
+            break;
+          }
+          case "compact_system_line": {
+            const { compactFormatterEngine } = await import("../../engines/CompactFormatterEngine.js");
+            result = { success: true, text: compactFormatterEngine.systemLine((params.counts || {}) as Record<string, number>) };
+            break;
+          }
+          case "compact_diff_stat": {
+            const { compactFormatterEngine } = await import("../../engines/CompactFormatterEngine.js");
+            result = { success: true, text: compactFormatterEngine.compactDiffStat(String(params.diff_stat || "")) };
+            break;
+          }
+          case "compact_test_result": {
+            const { compactFormatterEngine } = await import("../../engines/CompactFormatterEngine.js");
+            result = { success: true, text: compactFormatterEngine.compactTestResult(
+              Number(params.passed) || 0,
+              Number(params.failed) || 0,
+              Number(params.skipped) || 0,
+            ) };
+            break;
+          }
+          case "compact_truncate": {
+            const { compactFormatterEngine } = await import("../../engines/CompactFormatterEngine.js");
+            result = { success: true, text: compactFormatterEngine.truncate(
+              String(params.text || ""),
+              typeof params.max_len === "number" ? params.max_len : 100,
+            ) };
             break;
           }
 

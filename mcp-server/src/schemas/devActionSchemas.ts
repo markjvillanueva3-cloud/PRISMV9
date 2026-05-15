@@ -650,4 +650,50 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   read_optimize_batch_cost: z.object({
     files: z.array(z.string().min(1).max(2048)).min(1).max(500).describe("File paths to estimate cost for"),
   }).passthrough().describe("Estimate total + optimized token cost across a batch; returns {total, optimized, savings}"),
+
+  // ── OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-COMPACT-FMT ───────────────────────
+  // CompactFormatterEngine — pure formatting utilities (table, kv, summarize,
+  // compact, system-line, diff-stat, test-result, truncate). All methods are
+  // stateless; engine is a singleton only for parity with the rest of the file.
+  compact_table: z.object({
+    data: z.array(z.record(z.string(), z.unknown())).describe("Array of objects to render as 'key:value | key:value'"),
+    key_field: z.string().min(1).describe("Property to use as the left-side label"),
+    value_field: z.string().min(1).describe("Property to use as the right-side value"),
+    sep: z.string().max(8).optional().describe("Separator between entries (default ' | ')"),
+  }).passthrough().describe("Render data as a compact 'k:v | k:v' line"),
+
+  compact_kv_pairs: z.object({
+    data: z.record(z.string(), z.unknown()).describe("Object to render as key=value pairs"),
+    inline: z.boolean().optional().describe("true (default) joins with spaces; false joins with newlines"),
+  }).passthrough().describe("Render an object as compact key=value pairs"),
+
+  compact_summarize_array: z.object({
+    arr: z.array(z.unknown()).describe("Items to summarize"),
+    max_items: z.number().int().positive().max(100).optional().describe("Maximum items to show before '+N more' (default 5)"),
+  }).passthrough().describe("Show first N items + '+X more' suffix when exceeded"),
+
+  compact_compact: z.object({
+    data: z.unknown().describe("Any value — object/array/primitive — to compact"),
+    max_chars: z.number().int().positive().max(64000).optional().describe("Hard cap on output length (default 2000)"),
+    level: z.enum(["minimal", "standard", "verbose"]).optional().describe("Depth/string-length preset (default 'standard')"),
+  }).passthrough().describe("Compact a nested value into a single-line summary string"),
+
+  compact_system_line: z.object({
+    counts: z.record(z.string(), z.number()).describe("Counts to render with single-letter prefixes (engines→E, dispatchers→D, etc)"),
+  }).passthrough().describe("Compact PRISM count summary like '3236E/97D/7244A'"),
+
+  compact_diff_stat: z.object({
+    diff_stat: z.string().describe("Raw output from 'git diff --stat'"),
+  }).passthrough().describe("Compress a git diff --stat into a one-line summary"),
+
+  compact_test_result: z.object({
+    passed: z.number().int().nonnegative().describe("Pass count"),
+    failed: z.number().int().nonnegative().describe("Fail count"),
+    skipped: z.number().int().nonnegative().optional().describe("Skip count (default 0)"),
+  }).passthrough().describe("Render test counts as 'N✓ M✗ K⊘'"),
+
+  compact_truncate: z.object({
+    text: z.string().describe("Text to truncate at a word boundary"),
+    max_len: z.number().int().positive().max(10000).optional().describe("Max length (default 100)"),
+  }).passthrough().describe("Truncate text at the nearest word boundary"),
 };
