@@ -1,20 +1,20 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-15T14:55:39.083Z
+> Generated: 2026-05-15T15:27:53.193Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
 
 - **2377** engines built and wired (of 3238)
-- **1005** wiki entries indexed
+- **1073** wiki entries indexed
 - **861** engines awaiting dispatcher wiring
-- **3184** units pending across 81 active milestones
+- **3183** units pending across 80 active milestones
 - **2** codex frontend builds awaiting merge
 - **175** milestones with envelope-status drift
 
 ## BUILT
 
-2377/3238 engines wired (73%); 1005 wiki entries indexed.
+2377/3238 engines wired (73%); 1073 wiki entries indexed.
 
 ```json
 {
@@ -65,7 +65,7 @@
 
 ## NEEDS_BUILDING
 
-3184 units across 673 milestones not yet in git.
+3183 units across 673 milestones not yet in git.
 
 ### Envelope-status drift
 
@@ -251,30 +251,30 @@
 
 | Milestone | Phase | Unit | Title |
 |-----------|-------|------|-------|
-| KNOWLEDGE-VAULT-MS0 | P0 | U-VAULT01 | Vault-schema doc (CLAUDE.md role definition) |
-| KNOWLEDGE-VAULT-MS0 | P0 | U-VAULT02 | Memory→wiki promotion engine |
-| KNOWLEDGE-VAULT-MS0 | P0 | U-VAULT04 | Skill ↔ wiki cross-trigger registry |
-| KNOWLEDGE-VAULT-MS0 | P0 | U-VAULT05 | Domain MOC generator (Nick Milo pattern) |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | P5 | P5-U05 | Wire prism_intelligence:diagnose_failure → DiagnosticReasoningEngine |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | P6 | P6-U02 | Add 4 hooks for unforced CLAUDE.md rules |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | P6 | P6-U03 | Awareness hook deduplication — pick 3 canonical, deprecate 10 |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | P7 | P7-U02 | Cross-PC handoff test — verify H: drive is sufficient |
-| SLOT-WORKTREE-MS0 | P2-DRAIN | U-P2-AUDIT-REFRESH | Refresh the worktree audit against current state |
-| COMMAND-KERNEL-MS0 | P0 | U-CK02 | psk whoami / position / manifest syscalls |
-| COMMAND-KERNEL-MS0 | P0 | U-CK03 | psk handoff / checkin / pick syscalls |
-| COMMAND-KERNEL-MS0 | P0 | U-CK04 | knowledge/wiki/os/ namespace + entity frontmatter schema |
-| COMMAND-KERNEL-MS0 | P0 | U-CK05 | Generated-mirror generators (JSON registries become mirrors of os/ entities) |
-| CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A1 | A1 — extend SLOT_NAMES in chat-slots.mjs to add 'golf' (NATO phonetic continuity) |
-| CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A5 | A5 — golf-slot-write-allowlist.mjs PreToolUse T0 hook (path-resolve hardened against ../; allowlist-regex from golf-owned-paths.json; tier frontmatter; bypass env PRISM_GOLF_WRITE_ALLOWLIST_BYPASS=1) |
-| CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A6 | A6 — bootstrap-golf.mjs (mkdir .cron-locks, seed golf-owned-paths.json + golf-token-budget.json + golf-cron-registry.json; .gitignore additions for coordination.db* + .cron-locks/*.lock + .watchdog-last-poll.iso + golf-token-budget.json; detect & rebuild 0-byte coordination.db; git rm --cached on first run) |
-| CLEANUP-MS0 | operator-surfaces-tier-3 | U-CLEANUP-B7 | B7 — /peer-audit skill (READ-ONLY operator query; never mutates ledger; mutations only via prism_dev dispatcher action with audit trail) |
-| COORD-MS0 |  | U-COORD02 | Add Optimistic Locking with Version Field |
-| COORD-MS0 |  | U-COORD09 | Ambient Awareness Badge |
-| COORD-MS0 |  | U-COORD12 | Checksum Validation on Read |
-| AI-MAX-MS0 | session-3 | U-AIMAX09 | Feature Cascade Enhancement |
-| AI-MAX-MS0 | session-4 | U-AIMAX11 | AI Reasoning Skill Commands |
-| AI-MAX-MS0 | session-4 | U-AIMAX12 | AI Capability Protective Hook |
-| CAD-INFRA-MS0 |  | U-CINF01 | CADFileIndexerEngine — master 20,006-file catalog |
+| CCM-MS0 | P0 | P0-U06 | WorktreeCreate hook |
+| CCM-MS0 | P0 | P0-U07 | WorktreeRemove hook |
+| CCM-MS0 | P0 | P0-U08 | PostCompact hook |
+| CCM-MS0 | P0 | P0-U09 | SessionEnd hook |
+| L8-P1-MS2 | P0 | P0-U06 | Knowledge Search |
+| L8-P1-MS2 | P0 | P0-U07 | Material Selection Wizard |
+| L8-P1-MS2 | P0 | P0-U08 | Tool Selection Wizard |
+| L8-P1-MS2 | P0 | P0-U09 | Machine Selection Wizard |
+| L8-P2-MS2 | P0 | P0-U06 | Capacity Analytics Dashboard |
+| L8-P2-MS2 | P0 | P0-U07 | Predictive Maintenance Panel |
+| L8-P2-MS2 | P0 | P0-U08 | ERP Overview Page |
+| L8-P2-MS2 | P0 | P0-U09 | ERP Layout & Navigation |
+| CCM-MS14 | P0 | P0-U06 | Cache hit rate monitor |
+| CCM-MS14 | P0 | P0-U07 | Cascade failure detector |
+| CCM-MS14 | P0 | P0-U08 | Monte Carlo convergence monitor |
+| CCM-MS14 | P0 | P0-U09 | silentCatch fire rate monitor |
+| CCM-MS5 | P0 | P0-U06 | Batch skill updater |
+| CCM-MS5 | P0 | P0-U07 | Batch test runner |
+| CCM-MS5 | P0 | P0-U08 | Cron management skill |
+| CCM-MS5 | P0 | P0-U09 | Schema drift cron |
 
 **Next action:** Cross-reference MILESTONE_PROGRESS.json. Avoid units already in `shipped` arrays — those are committed but envelope status is stale.
 

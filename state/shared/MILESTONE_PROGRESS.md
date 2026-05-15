@@ -1,6 +1,6 @@
 # MILESTONE_PROGRESS — what's actually shipped vs claimed
 
-> Generated: 2026-05-15T15:03:06.363Z
+> Generated: 2026-05-15T15:27:52.784Z
 > Window: last 60.days of git log across all branches
 > Source: `scripts/build-milestone-progress.mjs`
 
@@ -27,36 +27,36 @@ flagging a unit as missing.
 
 | Milestone | Track | Status (claimed) | Status (real) | Shipped/Total | Last commit |
 |-----------|-------|------------------|---------------|---------------|-------------|
-| KNOWLEDGE-VAULT-MS0 | KNOWLEDGE-VAULT | not_started | in_progress_real | 1/6 (17%) | 2026-05-15 |
-| INTEL-OLLAMA-OBSIDIAN-MS0 | INFRA | not_started | in_progress_real | 80/92 (87%) | 2026-05-15 |
-| SLOT-WORKTREE-MS0 | INFRA-CONSOLIDATE | complete | completed_real | 16/16 (100%) | 2026-05-15 |
-| COMMAND-KERNEL-MS0 | BACKEND-DEVTOOLS | not_started | in_progress_real | 2/29 (7%) | 2026-05-15 |
-| FLEET-REAPER-MS1 | INFRA-FLEET-HYGIENE | completed | completed_real | 6/6 (100%) | 2026-05-14 |
-| CLEANUP-MS0 | CLEANUP | in_progress | in_progress_real | 64/73 (88%) | 2026-05-14 |
-| COORD-MS0 | INFRA | unknown | in_progress_real | 9/12 (75%) | 2026-05-14 |
-| AI-MAX-MS0 | AI-MAX | in_progress | in_progress_real | 9/12 (75%) | 2026-05-13 |
-| CAD-INFRA-MS0 | CAD-INFRA | complete | in_progress_real | 4/16 (25%) | 2026-05-13 |
-| S1-MS2 | — | not_started | in_progress_real | 9/10 (90%) | 2026-05-13 |
-| TC-MS0 | — | not_started | completed_real | 14/14 (100%) | 2026-05-13 |
-| CCM-MS16 | CCM | not_started | completed_real | 12/12 (100%) | 2026-05-13 |
-| CCM-MS17 | CCM | not_started | completed_real | 12/12 (100%) | 2026-05-13 |
-| MCAT-MS0 | MCAT | in_progress | completed_real | 21/21 (100%) | 2026-05-13 |
-| SCIMATH-MS0 | SCIMATH | not_started | completed_real | 17/17 (100%) | 2026-05-13 |
-| SCIMATH-MS1 | SCIMATH | not_started | in_progress_real | 19/20 (95%) | 2026-05-13 |
-| SCIMATH-MS2 | SCIMATH | not_started | completed_real | 15/15 (100%) | 2026-05-13 |
-| SCIMATH-MS4 | SCIMATH | not_started | completed_real | 15/15 (100%) | 2026-05-13 |
-| SCIMATH-MS5 | SCIMATH | not_started | in_progress_real | 22/23 (96%) | 2026-05-13 |
-| SCIMATH-MS6 | SCIMATH | not_started | completed_real | 17/17 (100%) | 2026-05-13 |
-| SCIMATH-MS7 | SCIMATH | not_started | completed_real | 15/15 (100%) | 2026-05-13 |
-| WIRE-MS0 | WIRE | in_progress | in_progress_real | 15/16 (94%) | 2026-05-13 |
-| TRAINING-LEARNING-MS0 | TRAINING-LEARNING | completed | in_progress_real | 3/7 (43%) | 2026-05-13 |
-| AUTO-LEARNING-LOOP-MS0 | AUTO-LEARNING-LOOP | complete | in_progress_real | 4/12 (33%) | 2026-05-13 |
-| BP-MS0 | BP | not_started | in_progress_real | 1/28 (4%) | 2026-05-13 |
-| AWARE-MS0 | AI-CORE | unknown | in_progress_real | 2/8 (25%) | 2026-05-13 |
-| CC-EXT-MS0 | — | not_started | in_progress_real | 5/8 (63%) | 2026-05-13 |
-| CC-EXT-MS1 | — | not_started | in_progress_real | 5/8 (63%) | 2026-05-13 |
-| CC-EXT-MS2 | — | not_started | in_progress_real | 5/8 (63%) | 2026-05-13 |
-| CC-EXT-MS3 | — | not_started | in_progress_real | 5/6 (83%) | 2026-05-13 |
+| CC-EXT-MS0 | — | not_started | in_progress_real | 5/8 (63%) | 2026-05-15 |
+| CC-EXT-MS1 | — | not_started | in_progress_real | 5/8 (63%) | 2026-05-15 |
+| CC-EXT-MS2 | — | not_started | in_progress_real | 5/8 (63%) | 2026-05-15 |
+| CC-EXT-MS3 | — | not_started | in_progress_real | 5/6 (83%) | 2026-05-15 |
+| CC-EXT-MS4 | — | not_started | completed_real | 5/5 (100%) | 2026-05-15 |
+| CC-EXT-MS5 | — | not_started | completed_real | 5/5 (100%) | 2026-05-15 |
+| CC-EXT-MS6 | — | not_started | in_progress_real | 5/6 (83%) | 2026-05-15 |
+| L2-P4-MS1 | — | not_started | in_progress_real | 5/10 (50%) | 2026-05-15 |
+| L8-P0-MS2 | — | not_started | in_progress_real | 5/12 (42%) | 2026-05-15 |
+| L8-P1-MS2 | — | not_started | in_progress_real | 5/15 (33%) | 2026-05-15 |
+| L8-P2-MS2 | — | not_started | in_progress_real | 5/15 (33%) | 2026-05-15 |
+| L9-P1-MS1 | — | not_started | in_progress_real | 5/8 (63%) | 2026-05-15 |
+| L9-P2-MS1 | — | not_started | in_progress_real | 5/8 (63%) | 2026-05-15 |
+| QA-MS0 | — | not_started | in_progress_real | 5/6 (83%) | 2026-05-15 |
+| QA-MS1 | — | not_started | in_progress_real | 5/7 (71%) | 2026-05-15 |
+| QA-MS10 | — | not_started | in_progress_real | 5/6 (83%) | 2026-05-15 |
+| QA-MS11 | — | not_started | in_progress_real | 5/6 (83%) | 2026-05-15 |
+| QA-MS12 | — | not_started | in_progress_real | 4/5 (80%) | 2026-05-15 |
+| QA-MS13 | — | not_started | in_progress_real | 5/6 (83%) | 2026-05-15 |
+| QA-MS2 | — | not_started | in_progress_real | 5/6 (83%) | 2026-05-15 |
+| QA-MS3 | — | not_started | in_progress_real | 5/7 (71%) | 2026-05-15 |
+| QA-MS4 | — | not_started | in_progress_real | 5/6 (83%) | 2026-05-15 |
+| QA-MS5 | — | not_started | in_progress_real | 5/8 (63%) | 2026-05-15 |
+| QA-MS6 | — | not_started | in_progress_real | 5/8 (63%) | 2026-05-15 |
+| QA-MS7 | — | not_started | in_progress_real | 5/7 (71%) | 2026-05-15 |
+| QA-MS8 | — | complete | in_progress_real | 4/5 (80%) | 2026-05-15 |
+| QA-MS9 | — | not_started | in_progress_real | 5/7 (71%) | 2026-05-15 |
+| S3-MS1 | — | not_started | in_progress_real | 5/8 (63%) | 2026-05-15 |
+| S3-MS2 | — | not_started | in_progress_real | 5/6 (83%) | 2026-05-15 |
+| S3-MS3 | — | not_started | in_progress_real | 5/6 (83%) | 2026-05-15 |
 
 ## Drift cases (claim vs git disagrees)
 
