@@ -559,7 +559,7 @@ export function registerSkillScriptDispatcher(server: any): void {
             const passthrough = (params.params && typeof params.params === "object") ? params.params : undefined;
             const result = autoLoadForTask(callNumber, domain, actionParam, passthrough);
             const excerptsBlock = getLoadedExcerptsBlock(result);
-            return ok({ success: true, ...result, excerptsBlock });
+            return ok({ ...result, success: true, excerptsBlock });
           }
 
           case "skill_auto_load_clear_cache": {

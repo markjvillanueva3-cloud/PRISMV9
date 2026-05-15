@@ -211,6 +211,12 @@
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/agent-worktree-stale-unlock.mjs",
             "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/karpathy-discipline-inject.mjs",
+            "timeout": 5000,
+            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER13 — Tier-4 SessionStart inject. Auto-injects the canonical Karpathy 4 rules + PRISM awareness reminders into the main thread (subagents already get them via agent-rules-inject.mjs). Was orphan; closes the main-thread doctrine gap."
           }
         ]
       }
@@ -435,6 +441,12 @@
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/leave-a-copy-behind-guard.mjs",
             "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/autonomous-loop-watchdog.mjs",
+            "timeout": 3000,
+            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER11 — Tier-0 Stop hook for autonomous yolo-mode runs. Detects runaway /loop iterations + signals stop-condition violations. Silent on normal Stops. Was orphan in ORPHAN-HOOKS-2026-05-15.json."
           }
         ]
       }
@@ -488,6 +500,24 @@
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/critical-file-guard.mjs",
             "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/code-completeness-gate.mjs",
+            "timeout": 5000,
+            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER11 — Tier-0 PreToolUse gate on Edit/Write/MultiEdit. Blocks edits that ship obvious stubs / placeholder asserts / large commented-out code blocks (paired with comprehensive-build doctrine in CLAUDE.md). Was orphan."
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/settings-json-addonly-guard.mjs",
+            "timeout": 3000,
+            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER13 — Tier-0 PreToolUse(Edit|Write) guard. Enforces settings.json ADD-ONLY rule. Blocks edits that remove existing entries (must disable, not delete). Drift-rescue: CLAUDE.md doctrine names this rule but the hook was orphan in ORPHAN-HOOKS-2026-05-15.json."
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/master-index-search-gate.mjs",
+            "timeout": 3000,
+            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER13 — Tier-1 PreToolUse self-awareness gate (U-AWARE03). Searches MASTER_INDEX before new engine/algo/skill creation; warns on duplicates. DRIFT RESCUE: CLAUDE.md MANDATORY SELF-AWARENESS section claims this fires automatically; was orphan."
           }
         ]
       },
@@ -591,6 +621,12 @@
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/bundles/bash-bundle.mjs",
             "timeout": 8000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/tsc-baseline-regression-gate.mjs",
+            "timeout": 3000,
+            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER13 — Tier-0 PreToolUse(Bash) gate. AUTONOMOUS-FOOLPROOF-MS0 U-AF02 — bounds compounding type-error damage to exactly 1 commit by gating bash builds against a stored baseline. Sister to the 1259->1227 TSC progress this session (iter 11 + iter 12)."
           }
         ]
       },
@@ -748,6 +784,24 @@
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/ai-feature-recommend.mjs",
             "timeout": 2000
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/discipline-expert-inject.mjs",
+            "timeout": 5000,
+            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER11 — Tier-4 UserPromptSubmit advisory. Injects expert-role context (40KB doctrine bundle) on demand. continueOnError. Was orphan in ORPHAN-HOOKS-2026-05-15.json."
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/auto-precompact-watchdog.mjs",
+            "timeout": 3000,
+            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER11 — Tier-4 UserPromptSubmit watchdog. Queues precompact handoff on a cadence so a chat that approaches token limit without /precompact still gets a handoff written. continueOnError. Was orphan."
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/claudemd-ollama-enforcer.mjs",
+            "timeout": 5000,
+            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER11 — Tier-4 UserPromptSubmit advisory. Enforces CLAUDE.md Ollama-routing rule (offload code summarize/explain/classify to local 7b). continueOnError. Was orphan."
           }
         ]
       }
