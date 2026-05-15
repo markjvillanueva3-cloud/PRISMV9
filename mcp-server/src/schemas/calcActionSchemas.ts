@@ -3355,4 +3355,13 @@ export const ACTION_CALC_SCHEMAS: ActionSchemaMap = {
     diameter: posNum.describe('Tool diameter (inches)'),
     flutes: z.number().int().positive().max(20).optional().describe('Number of flutes (default 3)'),
   }).passthrough().describe('One-line setup summary: "<material> Øx 3fl: RPM=N F=M DOC=A WOC=B coolant"'),
+
+  // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-ROUGHNESS: RoughnessConversionEngine wire (2026-05-15)
+  // Half-wired: roughness_convert was in ACTIONS + slimmer mapper but missing the switch case.
+  // Now completes the contract per ISO 4287/1302 (Ra/Rz/Rq/Rt/Ra_uin/N_grade).
+  roughness_convert: z.object({
+    value: z.number().nonnegative().describe('Roughness value (units determined by from_scale)'),
+    from_scale: z.enum(['Ra_um','Rz_um','Rq_um','Rt_um','Ra_uin','N_grade']).describe('Source scale'),
+    to_scale: z.enum(['Ra_um','Rz_um','Rq_um','Rt_um','Ra_uin','N_grade']).describe('Target scale'),
+  }).passthrough().describe('Convert between surface-roughness scales (ISO 4287/1302) — returns value + all-equivalents + N-grade label + typical process + uncertainty %'),
 };

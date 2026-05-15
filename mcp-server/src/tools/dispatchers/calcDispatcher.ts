@@ -8916,6 +8916,19 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-ROUGHNESS: RoughnessConversionEngine wire (2026-05-15)
+          // Half-wired: roughness_convert was in ACTIONS + slimmer mapper but missing the switch case.
+          // Completes the contract; the slimmer at line 242 returns {from, to, value, n_grade, process, unc_pct}.
+          case "roughness_convert": {
+            const { roughnessConversionEngine } = await import("../../engines/RoughnessConversionEngine.js");
+            result = roughnessConversionEngine.convert({
+              value: Number(params.value),
+              from_scale: String(params.from_scale) as "Ra_um"|"Rz_um"|"Rq_um"|"Rt_um"|"Ra_uin"|"N_grade",
+              to_scale: String(params.to_scale) as "Ra_um"|"Rz_um"|"Rq_um"|"Rt_um"|"Ra_uin"|"N_grade",
+            });
+            break;
+          }
+
 default:
             throw new Error(`Unknown calculation action: ${action}`);
         }
