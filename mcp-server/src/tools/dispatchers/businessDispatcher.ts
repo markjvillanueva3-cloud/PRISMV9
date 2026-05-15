@@ -85,6 +85,7 @@ let _sheetMetalQuote: any;
 let _additiveQuote: any;
 let _hrCompliance: any;
 let _customerMgmt: any;
+let _equipmentAsset: any;
 let _integrationAdapter: any;
 let _injectionMoldQuote: any;
 let _programmerProductivity: any;
@@ -236,6 +237,10 @@ async function getEngine(name: string): Promise<any> {
       return _customerMgmt ??= (
         await import("../../engines/CustomerManagementEngine.js")
       ).customerManagementEngine;
+    case "equipmentAsset":
+      return _equipmentAsset ??= (
+        await import("../../engines/EquipmentAssetEngine.js")
+      ).equipmentAssetEngine;
     case "integrationAdapter":
       return _integrationAdapter ??= (
         await import("../../engines/IntegrationAdapterEngine.js")
@@ -566,6 +571,13 @@ const ACTIONS = [
   "hr_compensation_history",
   "hr_compliance_alerts",
   "hr_dashboard",
+  // ── Equipment Assets (BIZ-MS5 U-BIZ37) ──
+  "asset_compute_depreciation",
+  "asset_register",
+  "asset_depreciation_schedule",
+  "asset_list",
+  "asset_transfer",
+  "asset_calibration_due",
   // ── Customer Management ──
   "customer_create",
   "customer_get",
@@ -2200,6 +2212,76 @@ Params vary by action — pass relevant fields in params object.`,
             break;
           }
 
+          // ── Equipment Assets (BIZ-MS5 U-BIZ37) ──
+          case "asset_compute_depreciation": {
+            const engine = await getEngine("equipmentAsset");
+            result = {
+              depreciation_amount: engine.computeDepreciation(
+                params.purchase_cost,
+                params.salvage_value,
+                params.useful_life_years,
+                params.method,
+                params.months_elapsed,
+              ),
+            };
+            break;
+          }
+          case "asset_register": {
+            const engine = await getEngine("equipmentAsset");
+            result = engine.registerAsset({
+              asset_tag: params.asset_tag,
+              name: params.name,
+              category: params.category,
+              manufacturer: params.manufacturer,
+              model_number: params.model_number,
+              serial_number: params.serial_number,
+              location: params.location,
+              purchase_date: params.purchase_date,
+              purchase_cost: params.purchase_cost,
+              salvage_value: params.salvage_value,
+              useful_life_years: params.useful_life_years,
+              depreciation_method: params.depreciation_method,
+              status: params.status,
+              calibration_required: params.calibration_required,
+              last_calibration_date: params.last_calibration_date,
+              next_calibration_date: params.next_calibration_date,
+              calibration_interval_days: params.calibration_interval_days,
+              notes: params.notes,
+            });
+            break;
+          }
+          case "asset_depreciation_schedule": {
+            const engine = await getEngine("equipmentAsset");
+            result = { schedule: engine.getDepreciationSchedule(params.asset_id) };
+            break;
+          }
+          case "asset_list": {
+            const engine = await getEngine("equipmentAsset");
+            result = {
+              assets: engine.listAssets({
+                category: params.category,
+                location: params.location,
+                calibration_required: params.calibration_required,
+                status: params.status,
+              }),
+            };
+            break;
+          }
+          case "asset_transfer": {
+            const engine = await getEngine("equipmentAsset");
+            result = engine.transferAsset(params.asset_id, {
+              to_location: params.to_location,
+              transferred_by: params.transferred_by,
+              reason: params.reason,
+            });
+            break;
+          }
+          case "asset_calibration_due": {
+            const engine = await getEngine("equipmentAsset");
+            result = { due: engine.getDueCalibrations(params.days_ahead) };
+            break;
+          }
+
           // ── Customer Management ──
           case "customer_create": {
             const engine = await getEngine("customerMgmt");
@@ -3508,7 +3590,11 @@ Params vary by action — pass relevant fields in params object.`,
           text: JSON.stringify(result, null, 2),
         });
       } catch (err: any) {
-        return dispatcherError("prism_business", action, err);
+        // Bug fix 2026-05-15 (iter8 EquipmentAsset wire): arg order was reversed
+        // (dispatcher, action, error) — signature is (error, action, dispatcher).
+        // Pre-fix, engine errors surfaced as literal string "prism_business" in
+        // the `error` field, hiding real failure messages from MCP callers.
+        return dispatcherError(err, action, "prism_business");
       }
     },
   );

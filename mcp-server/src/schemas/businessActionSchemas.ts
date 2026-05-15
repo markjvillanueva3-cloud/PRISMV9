@@ -1211,6 +1211,62 @@ const hr_compliance_alerts = z.object({}).passthrough();
 const hr_dashboard = z.object({}).passthrough();
 
 // ============================================================================
+// EQUIPMENT ASSETS (6) — BIZ-MS5 U-BIZ37
+// depreciation (straight-line + MACRS 5yr/7yr), registry, transfers, calibration
+// ============================================================================
+
+const asset_compute_depreciation = z.object({
+  purchase_cost: z.number().positive(),
+  salvage_value: z.number().min(0),
+  useful_life_years: z.number().positive(),
+  method: z.enum(["straight_line", "macrs_5yr", "macrs_7yr"]),
+  months_elapsed: z.number().min(0),
+}).passthrough();
+
+const asset_register = z.object({
+  asset_tag: z.string(),
+  name: z.string(),
+  category: z.enum(["machine", "fixture", "gage", "tooling", "other"]),
+  manufacturer: z.string(),
+  model_number: z.string(),
+  serial_number: z.string(),
+  location: z.string(),
+  purchase_date: z.string(),
+  purchase_cost: z.number().positive(),
+  salvage_value: z.number().min(0),
+  useful_life_years: z.number().positive(),
+  depreciation_method: z.enum(["straight_line", "macrs_5yr", "macrs_7yr"]),
+  status: z.enum(["active", "disposed", "transferred"]),
+  calibration_required: z.boolean(),
+  last_calibration_date: z.string().optional(),
+  next_calibration_date: z.string().optional(),
+  calibration_interval_days: z.number().optional(),
+  notes: z.string().optional(),
+}).passthrough();
+
+const asset_depreciation_schedule = z.object({
+  asset_id: z.string(),
+}).passthrough();
+
+const asset_list = z.object({
+  category: z.enum(["machine", "fixture", "gage", "tooling", "other"]).optional(),
+  location: z.string().optional(),
+  calibration_required: z.boolean().optional(),
+  status: z.enum(["active", "disposed", "transferred"]).optional(),
+}).passthrough();
+
+const asset_transfer = z.object({
+  asset_id: z.string(),
+  to_location: z.string(),
+  transferred_by: z.string(),
+  reason: z.string(),
+}).passthrough();
+
+const asset_calibration_due = z.object({
+  days_ahead: z.number().min(0).optional(),
+}).passthrough();
+
+// ============================================================================
 // CUSTOMER MANAGEMENT (14)
 // ============================================================================
 
@@ -2140,6 +2196,13 @@ export const ACTION_BUSINESS_SCHEMAS: ActionSchemaMap = {
   hr_compensation_history,
   hr_compliance_alerts,
   hr_dashboard,
+  // Equipment Assets (BIZ-MS5 U-BIZ37)
+  asset_compute_depreciation,
+  asset_register,
+  asset_depreciation_schedule,
+  asset_list,
+  asset_transfer,
+  asset_calibration_due,
   // Customer Management
   customer_create,
   customer_get,
@@ -2340,7 +2403,7 @@ export const ACTION_BUSINESS_SCHEMAS: ActionSchemaMap = {
     complexity: z.enum(["simple", "moderate", "complex", "extreme"]).describe("Part complexity"),
     urgency: z.enum(["standard", "rush", "emergency"]).describe("Order urgency"),
   }).passthrough(),
-  // �                                ──
+  // �                                ──
   tool_inv_check_availability: z.object({
     operations: z.array(z.object({
       type: z.string().describe("Operation type (face_mill, pocket, drill, turn, thread, etc.)"),
