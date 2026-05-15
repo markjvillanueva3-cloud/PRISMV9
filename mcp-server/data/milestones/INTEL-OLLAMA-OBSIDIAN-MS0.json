@@ -2725,7 +2725,11 @@
             "SCRUTINIZE",
             "GAP FILL",
             "TIE UP"
-          ]
+          ],
+          "status": "completed",
+          "completed_at": "2026-05-15T14:31:50.853Z",
+          "completed_by": "claude-b6c4b196 slot delta",
+          "close_out_note": "nomic-embed-text already pulled (peer + prior session work). This unit shipped the missing deliverable scripts/setup-embedding-model.mjs (idempotent setup + smoke test). Live verdict: cold 32ms (floor 8000ms), warm min 28ms / avg 30ms over 3 runs (floor 100ms — per-embedding spec). Used MIN warm latency for verdict, not avg, because warm-run #1 can be polluted by model context-swap from other consumers (observed in initial run: 3153ms first then 40-46ms steady-state). All 3 envelope exit conditions met: model pulled, 768-dim, <100ms per embedding."
         },
         {
           "id": "P17-U02",

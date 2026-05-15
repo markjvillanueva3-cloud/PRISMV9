@@ -124,8 +124,11 @@ function spawnHook(input, env) {
     windowsHide: true,
   });
 }
-t("CLI: default-off silent no-op", () => {
-  const r = spawnHook(JSON.stringify({ tool_name:"Edit", tool_input:{ file_path:"H:/prism/x.ts" } }), {});
+t("CLI: kill switch silent no-op (default-ON post-U-P3-DEFAULT-ON)", () => {
+  // Was "default-off silent no-op" pre-U-P3-DEFAULT-ON. Post-flip the hook
+  // is ON by default; verify the kill switch path produces a silent no-op.
+  const r = spawnHook(JSON.stringify({ tool_name:"Edit", tool_input:{ file_path:"H:/prism/x.ts" } }),
+    { PRISM_MAINTREE_WRITE_BLOCK_DISABLE: "1" });
   return r.status === 0 && r.stdout === "";
 });
 t("CLI: kill switch wins over enable", () => {

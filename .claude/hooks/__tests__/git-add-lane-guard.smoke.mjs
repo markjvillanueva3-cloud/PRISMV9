@@ -204,8 +204,12 @@ function spawnHook(input, env) {
   });
   return r;
 }
-t("CLI: default-off silent no-op", () => {
-  const r = spawnHook(JSON.stringify({ tool_name:"Bash", tool_input:{ command:"git add ." } }), {});
+t("CLI: kill switch silent no-op (default-ON post-U-P3-DEFAULT-ON)", () => {
+  // Was "default-off silent no-op" pre-U-P3-DEFAULT-ON. Post-flip the hook is
+  // ON by default, so the right way to verify "exit silently without doing
+  // work" is to set the kill switch and confirm zero output.
+  const r = spawnHook(JSON.stringify({ tool_name:"Bash", tool_input:{ command:"git add ." } }),
+    { PRISM_GIT_ADD_LANE_DISABLE: "1" });
   return r.status === 0 && r.stdout === "";
 });
 t("CLI: kill switch wins over enable", () => {
