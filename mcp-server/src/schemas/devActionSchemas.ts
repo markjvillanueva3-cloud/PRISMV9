@@ -791,4 +791,27 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   conv_budget_estimate_remaining: z.object({}).passthrough().describe("Estimate remaining operations: {reads, greps, edits, dispatchers}"),
 
   conv_budget_reset: z.object({}).passthrough().describe("Clear all usage tracking"),
+
+  // ── OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-TCB ──────────────────────────────
+  // ToolCallBatchEngine — singleton history-based batching advisor with 5
+  // pattern detectors (multiple-reads, grep-then-read, multiple-globs,
+  // read-then-grep-same, sequential-independent-reads).
+  tcb_record: z.object({
+    tool: z.string().min(1).max(64).describe("Tool name (Read|Grep|Glob|Bash|Edit|Write|...)"),
+    tool_params: z.record(z.string(), z.unknown()).optional().describe("Params dict (used for path/file_path matching in grep-then-read pattern)"),
+  }).passthrough().describe("Record one tool call into the batch history"),
+
+  tcb_analyze: z.object({
+    window_size: z.number().int().positive().max(50).optional().describe("Recent window to analyze (default 10)"),
+  }).passthrough().describe("Detect batching opportunities in the last window_size calls"),
+
+  tcb_can_batch: z.object({
+    tool: z.string().min(1).max(64).describe("Tool name to check"),
+  }).passthrough().describe("Return {batchable, with[]} — whether pending tool can join the active parallel batch"),
+
+  tcb_stats: z.object({}).passthrough().describe("History stats: {total, byTool, parallelRatio}"),
+
+  tcb_summary: z.object({}).passthrough().describe("Human-readable summary of batching opportunities + total tokens saveable"),
+
+  tcb_reset: z.object({}).passthrough().describe("Clear all history"),
 };

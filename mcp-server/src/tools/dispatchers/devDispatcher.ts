@@ -148,7 +148,16 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "conv_budget_top_consumers",
 "conv_budget_status_line",
 "conv_budget_estimate_remaining",
-"conv_budget_reset"] as const;
+"conv_budget_reset",
+// OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-TCB: wire ToolCallBatchEngine
+// (batching opportunity advisor — 5 patterns: multiple-reads, grep-then-read,
+//  multiple-globs, read-then-grep-same, sequential-independent-reads).
+"tcb_record",
+"tcb_analyze",
+"tcb_can_batch",
+"tcb_stats",
+"tcb_summary",
+"tcb_reset"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -5143,6 +5152,44 @@ export function registerDevDispatcher(server: any): void {
           case "conv_budget_reset": {
             const { conversationBudgetEngine } = await import("../../engines/ConversationBudgetEngine.js");
             conversationBudgetEngine.reset();
+            result = { success: true, reset: true };
+            break;
+          }
+
+          // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-TCB: ToolCallBatchEngine wire (2026-05-15)
+          case "tcb_record": {
+            const { toolCallBatchEngine } = await import("../../engines/ToolCallBatchEngine.js");
+            toolCallBatchEngine.record(
+              String(params.tool ?? "Other"),
+              (params.tool_params || {}) as Record<string, unknown>,
+            );
+            result = { success: true, recorded: true };
+            break;
+          }
+          case "tcb_analyze": {
+            const { toolCallBatchEngine } = await import("../../engines/ToolCallBatchEngine.js");
+            const windowSize = typeof params.window_size === "number" ? params.window_size : 10;
+            result = { success: true, opportunities: toolCallBatchEngine.analyze(windowSize) };
+            break;
+          }
+          case "tcb_can_batch": {
+            const { toolCallBatchEngine } = await import("../../engines/ToolCallBatchEngine.js");
+            result = { success: true, check: toolCallBatchEngine.canBatch(String(params.tool ?? "")) };
+            break;
+          }
+          case "tcb_stats": {
+            const { toolCallBatchEngine } = await import("../../engines/ToolCallBatchEngine.js");
+            result = { success: true, stats: toolCallBatchEngine.getStats() };
+            break;
+          }
+          case "tcb_summary": {
+            const { toolCallBatchEngine } = await import("../../engines/ToolCallBatchEngine.js");
+            result = { success: true, summary: toolCallBatchEngine.getSummary() };
+            break;
+          }
+          case "tcb_reset": {
+            const { toolCallBatchEngine } = await import("../../engines/ToolCallBatchEngine.js");
+            toolCallBatchEngine.reset();
             result = { success: true, reset: true };
             break;
           }
