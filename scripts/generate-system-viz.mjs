@@ -23,6 +23,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { execFileSync } from "node:child_process";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -411,6 +412,96 @@ for (const r of hRootSubtrees.sort()) {
   addNode({ id, layer: "L9", subgroup: "h_root",
     label: `H:/${r}/`, color: "#475569", status: "built", size: 0.55,
     info: `Non-prism subtree on H:/ — ${r}` });
+}
+
+// ---------- L9 Git Worktrees (live `git worktree list` via audit-worktrees.mjs) ----------
+// Worktrees are filesystem siblings of H:/prism, so they live in L9 — a dedicated
+// `worktrees` subgroup, no new layer (zero viewer/tier changes). Reuses
+// scripts/audit-worktrees.mjs as a READ-ONLY subprocess: it is the single source
+// of truth for worktree enumeration + KEEP/MERGE/PRUNE/INVESTIGATE classification,
+// so no git logic is duplicated here. Graph regen must NEVER fail because the
+// audit hiccupped — every failure path degrades cleanly to "no worktree nodes".
+const WORKTREE_VERDICT_COLOR = {
+  KEEP:        "#22c55e", // active dev / live owner — green
+  MERGE:       "#3b82f6", // settled, clean, unowned — ready to land — blue
+  PRUNE:       "#94a3b8", // 0 ahead, tracked-clean — safe to remove — gray
+  INVESTIGATE: "#f59e0b", // locked / detached / too-big / contradiction — amber
+};
+function loadWorktreeAudit() {
+  const auditScript = path.join(ROOT, "scripts", "audit-worktrees.mjs");
+  if (!fs.existsSync(auditScript)) return null;
+  let stdout = "";
+  try {
+    stdout = execFileSync(process.execPath, [auditScript, "--json", "--no-write"], {
+      cwd: ROOT, encoding: "utf8", timeout: 180_000, maxBuffer: 16 * 1024 * 1024, windowsHide: true,
+    });
+  } catch (err) {
+    // audit-worktrees exits 1 when git reports a problem but STILL prints valid
+    // JSON to stdout — recover it from the thrown error before giving up.
+    stdout = (err && typeof err.stdout === "string") ? err.stdout : "";
+    if (!stdout.trim()) return null;
+  }
+  try {
+    const parsed = JSON.parse(stdout);
+    return (parsed && Array.isArray(parsed.worktrees)) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+const worktreeAudit = loadWorktreeAudit();
+let worktreeSummary = { total: 0, KEEP: 0, MERGE: 0, PRUNE: 0, INVESTIGATE: 0, base: null, generatedAt: null };
+if (worktreeAudit) {
+  const wc = worktreeAudit.counts || {};
+  worktreeSummary = {
+    total: worktreeAudit.worktrees.length,
+    KEEP: wc.KEEP ?? 0, MERGE: wc.MERGE ?? 0, PRUNE: wc.PRUNE ?? 0, INVESTIGATE: wc.INVESTIGATE ?? 0,
+    base: worktreeAudit.base ?? null,
+    generatedAt: worktreeAudit.generatedAt ?? null,
+  };
+  // Hub anchor so the worktree fleet renders as one cluster in L9.
+  addNode({
+    id: "wt.root", layer: "L9", subgroup: "worktrees",
+    label: `Git Worktrees\n${worktreeSummary.total} trees`,
+    color: "#64748b", status: "built", size: 1.2,
+    info: `git worktree fleet — KEEP ${worktreeSummary.KEEP} · MERGE ${worktreeSummary.MERGE} · ` +
+          `PRUNE ${worktreeSummary.PRUNE} · INVESTIGATE ${worktreeSummary.INVESTIGATE} · base ${worktreeSummary.base ?? "?"}`,
+  });
+  const seenWtIds = new Set(["wt.root"]);
+  for (const wt of worktreeAudit.worktrees) {
+    const base = String(wt.path || "").replace(/[\\/]+$/, "").split(/[\\/]/).pop() || "unknown";
+    const idSafe = base.replace(/[^a-zA-Z0-9._-]/g, "_").toLowerCase();
+    let wtId = `wt.${idSafe}`;
+    let dupN = 2;
+    while (seenWtIds.has(wtId)) { wtId = `wt.${idSafe}.${dupN++}`; }
+    seenWtIds.add(wtId);
+    const verdict = wt.verdict || "INVESTIGATE";
+    const ahead = Number.isFinite(wt.ahead) ? wt.ahead : null;
+    const behind = Number.isFinite(wt.behind) ? wt.behind : null;
+    // log-scaled size by commits-ahead so a hot branch visibly grows; clamp 0.5..1.4
+    const size = Math.min(1.4, Math.max(0.5, 0.5 + Math.log10((ahead ?? 0) + 1) * 0.35));
+    const lastCommit = wt.lastCommitIso ? String(wt.lastCommitIso).slice(0, 10) : "—";
+    const ownerNote = wt.owner ? ` · owner ${wt.owner.slot}${wt.owner.alive ? " ⚠ALIVE" : ""}` : "";
+    addNode({
+      id: wtId, layer: "L9", subgroup: "worktrees",
+      label: `${base}\n${wt.branch || "(detached)"}`,
+      color: WORKTREE_VERDICT_COLOR[verdict] || WORKTREE_VERDICT_COLOR.INVESTIGATE,
+      status: "built", size,
+      info: `${wt.path} · ${wt.branch || "(detached)"} · +${ahead ?? "?"}/-${behind ?? "?"} · ` +
+            `last ${lastCommit} · ${verdict}${ownerNote}` +
+            (wt.dirtyCount ? ` · dirty:${wt.dirtyCount}` : ""),
+      verdict,
+      branch: wt.branch || null,
+      ahead, behind,
+      worktreePath: wt.path,
+      lastCommitIso: wt.lastCommitIso ?? null,
+      dirtyCount: Number.isFinite(wt.dirtyCount) ? wt.dirtyCount : null,
+      locked: !!wt.locked,
+      detached: !!wt.detached,
+      owner: wt.owner ? { slot: wt.owner.slot, alive: !!wt.owner.alive } : null,
+      reasons: Array.isArray(wt.reasons) ? wt.reasons.slice(0, 6) : [],
+    });
+    addEdge(wtId, "wt.root", "worktree", "active", 0.4);
+  }
 }
 
 // ---------- L10 Vault (per-file memory + wiki nodes + wiki-link edges) ----------
@@ -815,6 +906,7 @@ const meta = {
   pageClusters,
   totals: { nodes: nodes.length, edges: edges.length + suggestionEdges.length, layers: 11 },
   vault: { memories: vaultMemory.length, wiki: vaultWiki.length, wikiLinkEdges: wikiLinkEdgeCount, brokenWikiLinks: wikiLinkBrokenCount },
+  worktrees: worktreeSummary,
   roadmap,
 };
 const layers = [

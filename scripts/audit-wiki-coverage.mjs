@@ -126,7 +126,7 @@ function isStructural(kind, layer) {
   if (layer === "L11") return true;                       // deep-filesystem leaves — never documented individually
   if (/^file_/.test(kind)) return true;                    // one "kind" per extension on L11
   if (/_engines$/.test(kind)) return true;                 // domain buckets (engines are `atomic_engine`)
-  if (/^(deep_subtree|prism|h_root|prism_2|h_root_2)$/.test(kind)) return true;  // fs dir nodes
+  if (/^(deep_subtree|prism|h_root|prism_2|h_root_2|worktrees)$/.test(kind)) return true;  // fs dir nodes (worktrees = L9 git-worktree fleet, mapped by generate-system-viz.mjs — structural, no per-node wiki page)
   if (/^memory(_|$)/.test(kind) || kind === "feedback" || kind === "project" || kind === "reference" || kind === "uncategorized" || kind === "user" || kind === "consensus" || kind === "lessons" || kind === "entities") return true;  // memory vault / wiki side-folders
   return STRUCTURAL_BUCKETS.has(kind);
 }
