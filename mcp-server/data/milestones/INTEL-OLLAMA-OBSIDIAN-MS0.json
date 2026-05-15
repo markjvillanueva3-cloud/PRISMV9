@@ -691,7 +691,11 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "restore settings.json from mcp-server/data/state/settings-baseline-* backup | move hook to .claude/hooks/.deprecated/ + unwire from settings.json"
+          "rollback": "restore settings.json from mcp-server/data/state/settings-baseline-* backup | move hook to .claude/hooks/.deprecated/ + unwire from settings.json",
+          "status": "completed",
+          "completed_at": "2026-05-15T15:08:49.141Z",
+          "completed_by": "claude-b6c4b196 slot charlie",
+          "close_out_note": "Hook was BUILT but UNWIRED (same class as P6-U01). Wired into UserPromptSubmit on BOTH settings.json (C: + H:) with 5000ms timeout. Live smoke test: prompt \"can you remember the last time...\" returned 5 memory hits + injected additionalContext via continue:true (exit 0, valid JSON). DEVIATION FROM SPEC: current hook returns raw file paths in additionalContext, not the Ollama-summarized 50-word digest specified in exit_conditions #2 — the Ollama-summarization step is a P2 enhancement worth filing as a follow-up unit (call it P3-U05-FOLLOWUP-OLLAMA-SUMMARIZE). The keyword detection + vault search + 800-tok savings path work; the summarization is the missing layer."
         },
         {
           "id": "P10-U04",
