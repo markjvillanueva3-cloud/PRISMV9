@@ -598,7 +598,17 @@
             "skill",
             "digest",
             "system-viz"
-          ]
+          ],
+          "status": "completed",
+          "completed_at": "2026-05-15T17:10:00.000Z",
+          "completed_by": "claude-2081f435 (slot echo, post-/compact /loop iter 3)",
+          "exit_evidence": {
+            "implementation": "ArchiveToPartsCatalogIngesterEngine.ts (~340 LOC, pure transform, no fs walking) — exports ingestArchive(opts), groupByNormalizedPN(entries), DEFAULT_INGEST_LIMIT, ArchiveToPartsCatalogIngesterEngine class + singleton. Composes (does not duplicate) U-PPL-D1's normalizeJMDiePN + extractJMDieCandidates + PROGRAM_EQUIVALENT_EXTENSIONS + lookupPrintForProgram (link enrichment branch); U-DOCU-05's JMDieDiskIndexEntry type (archive walker output shape, no fs reads in this engine); PartsLibraryEngine.create. Behaviors: dryRun=true default (safety gate), idempotent on re-ingest (search-before-create avoids duplicate-part-number throw), groups multi-program-per-PN into one Part with program_count, FAIL-LOUD on non-array entries[] input.",
+            "tests_pass": "src/__tests__/ArchiveToPartsCatalogIngesterEngine.test.ts: 14/14 PASS in 19ms. Coverage: 3 happy paths (single, multi-PN grouping, link-enriched) + 3 variability spans (non-program extensions, multi-customer ITW/ALCOA/OPTIMAS, dotless 'min' extension) + 3 input rejection (non-array fuzz, no-stem-or-name, sub-MIN_PN_REMAINDER_LENGTH) + 3 adversarial (empty entries[], limit cap, idempotent re-run preserves part_id) + 2 wiring regression (singleton delegates, class wrapper exposes). Real-value assertions throughout — no toBeDefined() stubs. Parts-library Map state cleared between tests via cast-through-unknown private-Map clear (no public reset() exists on engine).",
+            "typecheck": "Pre-existing TSC errors in dataDispatcher.ts (lines 2297 + 2400, both peer-broken before this session — materialInterpolationEngine signature drift + slimResponse arity) untouched. New U-PPL-D3 files introduce no new errors.",
+            "dispatcher_wiring": "Verified — prism_parts:part_ingest_from_archive wired (action enum line 22, case block in partsLibraryDispatcher.ts, Zod schema in partsLibraryActionSchemas.ts). Optional link-enrichment branch: when join_jsonl_path OR input_program_paths is supplied, the dispatcher lazy-imports loadLinkIndex from ProgramPrintLinkIndexEngine + feeds it through. FAIL-LOUD on missing/corrupt v6 join via the outer try/catch which routes through dispatcherError. partsLibraryDispatcher ACTIONS count 17 → 18."
+          },
+          "closeout_note": "U-PPL-D3 shipped this session by echo (claude-2081f435). New engine ArchiveToPartsCatalogIngesterEngine is a thin pure-transform composer over U-PPL-D1 (normalizer + extractor + lookupPrintForProgram) + U-DOCU-05 (disk-index entry type) + PartsLibraryEngine.create. Did NOT duplicate JMDieArchiveBackAnnotationEngine's prism_parts/<pn-norm>.json sidecar writer — that engine produces filesystem index entries; this engine produces in-memory partsLibraryEngine records (the prism_parts dispatcher's catalog). They are complementary surfaces, not duplicates. Per-file scrutiny found 1 fixture-shape bug pre-test-pass: the test fixture's ProgramToPrintLink shape was off (used a nested prints[] array with print_id; the real BlueprintProgramJoinEngine.ProgramToPrintLink puts print_id AT TOP LEVEL with print_doc_ids[]). Fixed both engine (now extracts print_id at top-level, falls back to print_doc_ids[0]) and fixture. All 14 tests green after fix. No commit collisions (echo lane is post-compact-clean)."
         },
         {
           "id": "U-PPL-D4",
@@ -656,8 +666,8 @@
     }
   ],
   "total_units": 23,
-  "completed_units": 2,
-  "updated_at": "2026-05-15T16:55:00.000Z",
-  "updated_by": "claude-2081f435 (U-PPL-D1 prism_data mirror + U-PPL-D2 envelope flip, slot echo)",
+  "completed_units": 3,
+  "updated_at": "2026-05-15T17:10:00.000Z",
+  "updated_by": "claude-2081f435 (U-PPL-D1 prism_data mirror + U-PPL-D2 envelope flip + U-PPL-D3 ArchiveToPartsCatalogIngester ship, slot echo)",
   "started_at": "2026-05-15T16:30:00.000Z"
 }

@@ -118,4 +118,33 @@ export const PARTS_LIBRARY_ACTION_SCHEMAS: Record<string, z.ZodType> = {
   part_deduplicate: z.object({}),
 
   part_stats: z.object({}),
+
+  // ── U-PPL-D3 / MS-PRINT-PROGRAM-LOOP Track D: ArchiveToPartsCatalogIngester ──
+  // Walks an array of JM-Die disk-index entries (the v2 enumeration of every
+  // program file on disk), resolves a normalized PN for each, optionally
+  // attaches the matched print PDF via U-PPL-D1's ProgramPrintLinkIndexEngine,
+  // and creates/updates the corresponding prism_parts entry. Makes the parts
+  // catalog the join hub for archive-driven workflows (quote/schedule/traveler).
+  part_ingest_from_archive: z.object({
+    entries: z.array(z.object({
+      path: z.string().min(1).describe("Absolute or archive-relative path to the program file."),
+      name: z.string().optional().describe("Basename of the program file."),
+      stem: z.string().optional().describe("Filename stem (no extension) — preferred PN-extraction source."),
+      ext: z.string().optional().describe("File extension (with or without leading dot)."),
+      customer: z.string().optional().describe("JM-Die customer folder this entry came from."),
+      machine: z.string().optional().describe("Machine category (lathe / mill / wedm / ...)."),
+      kind: z.string().optional().describe("Indexer's kind classification."),
+      size: z.number().optional().describe("File size in bytes."),
+      mtime: z.string().optional().describe("ISO-8601 mtime."),
+    })).describe("Array of disk-index entries (typically from jm-die-index-v2.json or JMDieArchiveBackAnnotationEngine's walker)."),
+    join_jsonl_path: z.string().optional().describe(
+      "Optional path to the v6 blueprint↔program join JSONL. When supplied (and input_program_paths also supplied for seed augmentation), each PN's primary program is link-looked-up and the matched print is attached as drawing_file_id.",
+    ),
+    input_program_paths: z.array(z.string()).optional().describe(
+      "Optional seed paths fed to ProgramPrintLinkIndexEngine.loadLinkIndex for the program-side seed augmentation BEFORE link lookup. Without this, only the v6 join is consulted (no enhanced-normalizer rescue).",
+    ),
+    dryRun: z.boolean().optional().describe("Safety gate. Default TRUE — returns the diagnostic without calling partsLibraryEngine.create. Set false to actually mutate."),
+    limit: z.number().int().min(0).optional().describe("Cap on entries processed in one call. 0 or undefined = no cap."),
+    tagFromEntry: z.boolean().optional().describe("Tag the new Part with customer + machine from the disk entry. Default true."),
+  }),
 };
