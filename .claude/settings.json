@@ -518,6 +518,24 @@
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/master-index-search-gate.mjs",
             "timeout": 3000,
             "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER13 — Tier-1 PreToolUse self-awareness gate (U-AWARE03). Searches MASTER_INDEX before new engine/algo/skill creation; warns on duplicates. DRIFT RESCUE: CLAUDE.md MANDATORY SELF-AWARENESS section claims this fires automatically; was orphan."
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/h-drive-enforcement.mjs",
+            "timeout": 3000,
+            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER14 — Tier-1 PreToolUse guard. Blocks writes outside H: drive (per [[feedback_h_drive_master]] — H: is the MASTER portable drive). Was orphan."
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/sx-gate.mjs",
+            "timeout": 3000,
+            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER14 — Tier-4 PreToolUse(Write) hard-block gate. Blocks writes when S(x) safety score < 0.70 for the affected file. Paired with prism_safety + prism_omega doctrine. Was orphan."
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/test-coverage-enforcer.mjs",
+            "timeout": 3000,
+            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER14 — Tier-1 PreToolUse(Write) coverage discipline. Enforces that new files come with tests (no stub assertions). Paired with comprehensive-build doctrine. Was orphan."
           }
         ]
       },
@@ -802,6 +820,30 @@
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/claudemd-ollama-enforcer.mjs",
             "timeout": 5000,
             "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER11 — Tier-4 UserPromptSubmit advisory. Enforces CLAUDE.md Ollama-routing rule (offload code summarize/explain/classify to local 7b). continueOnError. Was orphan."
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/prompt-rules-inject.mjs",
+            "timeout": 3000,
+            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER14 — Tier-2 UserPromptSubmit. Auto-injects Karpathy doctrine + token budget + tiered safety gates (shop-floor S(x)>=0.98) + duplication-guard reminder. Cache-friendly after turn 1. Was orphan."
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/optimal-context-inject.mjs",
+            "timeout": 5000,
+            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER14 — Tier-4 UserPromptSubmit. Selects optimal context budget allocation per prompt. Was orphan."
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/quality-dashboard-inject.mjs",
+            "timeout": 2000,
+            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER14 — Tier-2 UserPromptSubmit. Injects quality dashboard (build staleness, pending alerts). Was orphan."
+          },
+          {
+            "type": "command",
+            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/self-awareness-enforce.mjs",
+            "timeout": 3000,
+            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER14 — Tier-1 UserPromptSubmit. Enforces PRISM self-awareness rituals (inventory check, duplication guard, awareness snapshot) before substantive work. Was orphan."
           }
         ]
       }
