@@ -233,7 +233,7 @@
       "phase": "P2-DRAIN",
       "title": "Refresh the worktree audit against current state",
       "status": "complete",
-      "commits": ["pending"],
+      "commits": ["76ff1fe39"],
       "deliverables": ["state/shared/WORKTREE-AUDIT-2026-05-15.{md,json} regenerated via audit-worktrees.mjs"],
       "note": "Re-ran the deterministic READ-ONLY audit. Fleet GREW since the 2026-05-14 baseline: 48 -> 51 worktrees in ~11.5h (P2-DRAIN batches not yet started, so the +3 are new in-flight trees). New verdict split: KEEP 23 / MERGE 2 / PRUNE 3 / INVESTIGATE 23 (was KEEP 27 / MERGE 0 / PRUNE 1 / INVESTIGATE 20). 2 settled MERGE candidates surfaced (prism-tsc-cleanup, prism-hypermill-ms1) + 3 zero-ahead PRUNE candidates (prism-awareness-mega, prism-docu-print-loop, prism-fleet-reaper-ms1). envelope audit_doc + knowledge_sources repointed to the 2026-05-15 files. generate-system-viz.mjs reads the audit live as a --json subprocess, so /system-viz reflects the refresh with no viz change. Confirms the drain (U-P2-DRAIN-BATCH-A/B) is the next real work — the fleet is not draining on its own."
     },
@@ -320,7 +320,7 @@
     { "at": "2026-05-14", "by": "claude-2081f435 (slot charlie)", "event": "P0-FOUNDATION complete — 6 units shipped, envelope created post-hoc" },
     { "at": "2026-05-14", "by": "claude-2081f435 (slot charlie)", "event": "P1-ROUTING started — U-P1-ROUTE-ACTIVATE complete (e2340001a): worktree-commit-route.mjs env-opt-in gate, default OFF. U-P1-ADD-LANE-GUARD + U-P1-MAINTREE-WRITE-BLOCK pending." },
     { "at": "2026-05-15", "by": "claude-2081f435 (slot charlie)", "event": "U-VIZ-WORKTREE-MAP complete (36b353f54): all 51 git worktrees mapped into /system-viz as L9 `worktrees`-subgroup nodes (verdict-colored, queryable via system-viz-query.mjs worktrees, headline trend). P2-DRAIN triage tooling — user-requested." },
-    { "at": "2026-05-15", "by": "claude-2081f435 (slot charlie)", "event": "U-P2-AUDIT-REFRESH complete: re-ran audit-worktrees.mjs -> WORKTREE-AUDIT-2026-05-15.{md,json}. Fleet grew 48 -> 51 worktrees vs the 2026-05-14 baseline; verdict split now KEEP 23 / MERGE 2 / PRUNE 3 / INVESTIGATE 23. 2 MERGE + 3 PRUNE candidates surfaced for the drain batches. envelope audit_doc + knowledge_sources repointed." }
+    { "at": "2026-05-15", "by": "claude-2081f435 (slot charlie)", "event": "U-P2-AUDIT-REFRESH complete: re-ran audit-worktrees.mjs -> WORKTREE-AUDIT-2026-05-15.{md,json}. Fleet grew 48 -> 51 worktrees vs the 2026-05-14 baseline; verdict split now KEEP 23 / MERGE 2 / PRUNE 3 / INVESTIGATE 23. 2 MERGE + 3 PRUNE candidates surfaced for the drain batches. envelope audit_doc + knowledge_sources repointed. Shipped in 76ff1fe39 — files correct + tracked, but absorbed into peer ALPHA's [FLEET-REAPER-MS1]/U-PHASE2-ALPHA-GUARDIAN commit (4th shared-tree commit collision in 72h; the exact pain this milestone exists to eliminate structurally)." }
   ],
   "out_of_scope": [
     "Migrating the JM Die test-shop worktrees (separate concern)",
