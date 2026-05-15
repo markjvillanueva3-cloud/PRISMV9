@@ -196,6 +196,9 @@ Full manifest: `state/shared/PRISM-COMMANDS-MANIFEST.md`
 ## TEST SHOP — JM Die Company
 Canonical test shop for ALL PRISM development. Full profile + API moved to [`knowledge/wiki/reference/jm-die-profile.md`](knowledge/wiki/reference/jm-die-profile.md) (U-CLEANUP-D4). Profile source: `mcp-server/src/data/jm-die-profile.ts`. Shop config: `ShopConfigurationEngine.ts` (21 machines). Archive: `JM DIE/` (24,545 files, 100+ customers — ITW, Alcoa, Optimas, SFS, Holo-Krome). Direct API: `prismSelfAwarenessEngine.{getJMDieCustomerPath,searchTribalKnowledge,searchPlaybookRules,recommendAIFeatures}` — see wiki entry for signatures.
 
+## KNOWLEDGE VAULT — 5-namespace schema (U-VAULT01, 2026-05-15)
+PRISM's knowledge lives in 5 namespaces — `memory` (cross-session feedback/reference) + `wiki` (project-lifetime architecture) + `commands` (skills) + `handoffs` (inter-session) + `specs` (audits/plans). CLAUDE.md is the **doctrine pointer index**, NOT a 6th namespace — ≤200 lines of dense pointers, drill into wiki for detail. Promotion path: fleeting → memory → wiki → CLAUDE.md pointer. Back-flow path: regression → `## Recent regressions` (auto by U-VAULT03 hook — pending). Command frontmatter validated by `.claude/schemas/command-frontmatter.schema.json` (U-CK06; baseline today 33/167 valid). Full schema doc: [`knowledge/wiki/architecture/knowledge-vault-schema.md`](knowledge/wiki/architecture/knowledge-vault-schema.md).
+
 ## WIKI PROTOCOL (Karpathy LLM-Wiki — see `WIKI_SCHEMA.md`)
 PRISM has a compounding markdown wiki at `H:/prism/knowledge/wiki/`. **Query it before re-deriving.**
 - `wiki/index.md` — 722-entry catalog (575 engines + 90 dispatchers + 57 memories), maintained by `WikiIndexMaintainerEngine`
