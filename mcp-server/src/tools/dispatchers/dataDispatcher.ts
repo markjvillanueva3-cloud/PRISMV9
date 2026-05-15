@@ -142,6 +142,62 @@ function jsonResponse(data: any) {
   return { content: [{ type: "text" as const, text: JSON.stringify(data) }] };
 }
 
+/**
+ * U-PPL-D2 — auto-link orchestration helper.
+ *
+ * Given a program path, returns the BlueprintLinkInfo to attach (or null if
+ * no link could be resolved). Resolves the doc-id → filename via the parent
+ * v6 join row's `blueprints[]` because `ProgramToPrintLink` only carries the
+ * `print_doc_ids[]` reference (a doc_id is NOT a usable path — reviewer B
+ * P0 fix). Page resolves from the matching BlueprintRef.page_index (1-indexed).
+ *
+ * Resolution priority:
+ *   1. training_triple link → use `print_disk_path` directly (real disk path).
+ *   2. v6 link → look up parent join row by `part_number_normalized`, find the
+ *      BlueprintRef whose doc_id matches `print_doc_ids[0]`, use its filename
+ *      + (page_index + 1).
+ *   3. Both miss → null (caller falls through to "no link attached").
+ */
+async function resolveAutoLink(
+  programPath: string,
+  joinJsonlPath: string | undefined,
+  inputProgramPaths: string[] | undefined,
+): Promise<{ path: string; confidence: string; page?: number } | null> {
+  const { lookupPrintForProgram, loadLinkIndex } = await import(
+    "../../engines/ProgramPrintLinkIndexEngine.js"
+  );
+  const idx = await loadLinkIndex({
+    joinJsonlPath,
+    inputProgramPaths,
+  });
+  const lookup = lookupPrintForProgram(programPath, idx);
+  if (!lookup.found || !lookup.links || lookup.links.length === 0) {
+    return null;
+  }
+  const link = lookup.links[0]!;
+  // Training-triple branch — disk path is authoritative.
+  if (link.print_disk_path && link.print_disk_path.length > 0) {
+    return { path: link.print_disk_path, confidence: link.match_confidence };
+  }
+  // v6 join branch — resolve doc_id → BlueprintRef.filename via the parent row.
+  const docId = link.print_doc_ids?.[0];
+  if (!docId) return null;
+  const parentRow = idx.joinIndex.byNormalizedPN.get(link.part_number_normalized);
+  if (!parentRow || !Array.isArray(parentRow.blueprints) || parentRow.blueprints.length === 0) {
+    return null;
+  }
+  const bp =
+    parentRow.blueprints.find((b) => b.doc_id === docId) ?? parentRow.blueprints[0]!;
+  if (!bp.filename || bp.filename.length === 0) return null;
+  const page =
+    typeof bp.page_index === "number" && Number.isFinite(bp.page_index) && bp.page_index >= 0
+      ? bp.page_index + 1
+      : undefined;
+  return page !== undefined
+    ? { path: bp.filename, confidence: link.match_confidence, page }
+    : { path: bp.filename, confidence: link.match_confidence };
+}
+
 /** Registers data dispatcher.
  * @param server - MCP server instance
   * @returns void
@@ -1958,50 +2014,14 @@ export function registerDataDispatcher(server: any): void {
               params.program_path
             ) {
               try {
-                const { lookupPrintForProgram, loadLinkIndex } = await import(
-                  "../../engines/ProgramPrintLinkIndexEngine.js"
-                );
-                const idx = await loadLinkIndex({
-                  joinJsonlPath: (params.join_jsonl_path ?? undefined) as
-                    | string
-                    | undefined,
-                  inputProgramPaths: (params.input_program_paths ?? undefined) as
-                    | string[]
-                    | undefined,
-                });
-                const lookup = lookupPrintForProgram(
+                linkInfo = await resolveAutoLink(
                   params.program_path as string,
-                  idx,
+                  (params.join_jsonl_path ?? undefined) as string | undefined,
+                  (params.input_program_paths ?? undefined) as string[] | undefined,
                 );
-                if (lookup.found && lookup.links && lookup.links.length > 0) {
-                  const top = lookup.links[0] as unknown as Record<string, unknown>;
-                  // v6-join links carry print_doc_ids[]; training-triple links
-                  // carry print_disk_path; the rare normalized result may carry
-                  // a top-level print_path. Try them in disk-path-first order.
-                  const docIds = Array.isArray(top.print_doc_ids)
-                    ? (top.print_doc_ids as unknown[])
-                    : [];
-                  const path =
-                    ((top.print_disk_path as string | undefined) ??
-                      (top.print_path as string | undefined) ??
-                      (top.path as string | undefined) ??
-                      (typeof docIds[0] === "string" ? (docIds[0] as string) : undefined) ??
-                      "") as string;
-                  const confidence = ((top.match_confidence ??
-                    top.match_kind ??
-                    "unknown") as string);
-                  const page =
-                    typeof top.print_page === "number"
-                      ? (top.print_page as number)
-                      : undefined;
-                  if (path && confidence) {
-                    linkInfo = page !== undefined ? { path, confidence, page } : { path, confidence };
-                  }
-                }
               } catch (err) {
                 // FAIL-LOUD on link-index unreadable (caller asked for auto-link but
-                // index is missing/corrupt) — surface in metadata, not silent miss.
-                // Save still proceeds without a link.
+                // index is missing/corrupt) — log + still complete the save.
                 log.warn(
                   `[box_program_memory_save] auto-link failed for ${String(params.program_path)}: ` +
                     `${err instanceof Error ? err.message : String(err)}`,
@@ -2072,22 +2092,16 @@ export function registerDataDispatcher(server: any): void {
                 "[box_program_memory_link_print] mode=auto requires program_path",
               );
             }
-            const { lookupPrintForProgram, loadLinkIndex } = await import(
-              "../../engines/ProgramPrintLinkIndexEngine.js"
-            );
             // A missing/corrupt/empty join file must NOT escalate to a dispatcher
-            // error in auto mode — it's a miss, not a caller bug. Wrap the load
-            // and treat any failure as "no link found" (return unchanged record).
-            let autoIdx: Awaited<ReturnType<typeof loadLinkIndex>> | null = null;
+            // error in auto mode — it's a miss, not a caller bug. Treat any
+            // failure as "no link found" (return unchanged record).
+            let autoLink: { path: string; confidence: string; page?: number } | null = null;
             try {
-              autoIdx = await loadLinkIndex({
-                joinJsonlPath: (params.join_jsonl_path ?? undefined) as
-                  | string
-                  | undefined,
-                inputProgramPaths: (params.input_program_paths ?? undefined) as
-                  | string[]
-                  | undefined,
-              });
+              autoLink = await resolveAutoLink(
+                programPath,
+                (params.join_jsonl_path ?? undefined) as string | undefined,
+                (params.input_program_paths ?? undefined) as string[] | undefined,
+              );
             } catch (err) {
               log.warn(
                 `[box_program_memory_link_print] auto-mode load failed for ${programPath}: ` +
@@ -2096,35 +2110,13 @@ export function registerDataDispatcher(server: any): void {
               result = programMemoryEngine.recall(customer, partNumber);
               break;
             }
-            const lookup = lookupPrintForProgram(programPath, autoIdx);
-            if (!lookup.found || !lookup.links || lookup.links.length === 0) {
-              // No link found — return the unchanged record (or null) without
-              // mutating. linkPrint(customer, part, null) would CLEAR; that's
-              // the wrong behavior in auto mode (lookup miss != operator clear).
+            if (!autoLink) {
+              // Lookup miss != operator clear. Return unchanged record without
+              // mutating (linkPrint(..., null) would CLEAR — wrong here).
               result = programMemoryEngine.recall(customer, partNumber);
               break;
             }
-            const top = lookup.links[0] as unknown as Record<string, unknown>;
-            const docIds = Array.isArray(top.print_doc_ids)
-              ? (top.print_doc_ids as unknown[])
-              : [];
-            const path = ((top.print_disk_path as string | undefined) ??
-              (top.print_path as string | undefined) ??
-              (top.path as string | undefined) ??
-              (typeof docIds[0] === "string" ? (docIds[0] as string) : undefined) ??
-              "") as string;
-            const confidence = (top.match_confidence ?? top.match_kind ?? "unknown") as string;
-            const page =
-              typeof top.print_page === "number" ? (top.print_page as number) : undefined;
-            if (!path) {
-              result = programMemoryEngine.recall(customer, partNumber);
-              break;
-            }
-            result = programMemoryEngine.linkPrint(customer, partNumber, {
-              path,
-              confidence,
-              ...(page !== undefined ? { page } : {}),
-            });
+            result = programMemoryEngine.linkPrint(customer, partNumber, autoLink);
             break;
           }
 

@@ -159,15 +159,15 @@ describe("box_program_memory_save — auto-link orchestration (U-PPL-D2)", () =>
     });
     expect(r.ok).toBe(true);
     const record = r.data as Record<string, unknown>;
-    const linkedPath = record.linked_blueprint_path as string | undefined;
-    // The v6 join feeds back a print descriptor; the dispatcher's lookup
-    // resolver may produce the print filename or full path depending on
-    // index shape. Either way, an attachment must happen.
-    expect(typeof linkedPath).toBe("string");
-    expect((linkedPath ?? "").length).toBeGreaterThan(0);
-    const conf = record.linked_blueprint_confidence as string;
-    expect(typeof conf).toBe("string");
-    expect(conf.length).toBeGreaterThan(0);
+    // Reviewer B P0 fix — must resolve to the BlueprintRef.filename ("9082526.pdf"),
+    // NOT the doc_id ("bp-9082526"). A doc-id starting with "bp-" would mean
+    // the dispatcher attached the parent join row's reference instead of the
+    // filename. Pin the assertion to the concrete fixture value.
+    expect(record.linked_blueprint_path).toBe("9082526.pdf");
+    // page_index in the fixture is 3 → 1-indexed page should be 4
+    expect(record.linked_blueprint_page).toBe(4);
+    // confidence must be one of the v6 confidence strings (test fixture used "exact")
+    expect(record.linked_blueprint_confidence).toBe("exact");
   });
 
   it("save proceeds normally when auto-link finds no match (no link attached)", async () => {
@@ -260,9 +260,10 @@ describe("box_program_memory_link_print — three modes (U-PPL-D2)", () => {
     });
     expect(r.ok).toBe(true);
     const record = r.data as Record<string, unknown>;
-    const linkedPath = record.linked_blueprint_path as string | undefined;
-    expect(typeof linkedPath).toBe("string");
-    expect((linkedPath ?? "").length).toBeGreaterThan(0);
+    // Reviewer B P0 fix — must resolve doc_id → filename via parent v6 row.
+    expect(record.linked_blueprint_path).toBe("9082526.pdf");
+    expect(record.linked_blueprint_page).toBe(4);
+    expect(record.linked_blueprint_confidence).toBe("exact");
   });
 
   it("mode=clear strips a prior link", async () => {
