@@ -71,6 +71,15 @@ const MAX_ANCESTOR_HOPS = 8;
 
 // Tier ranking: higher number = higher priority. Used by never-downgrade rule.
 const TIER_RANK = { "wt": 4, "ps": 3, "pa": 2, "pp": 1 };
+const MAX_TIER = 4;
+
+// Cache-hit auto-upgrade probe throttle. When the cached entry's tier is below
+// MAX_TIER, the resolver re-attempts a fresh resolution at most once per this
+// many ms — if the fresh tier is higher, the cache entry upgrades.
+// Closes Reviewer B P2 (CHECKIN-UPGRADE-MS0 commit 59465d7c2 follow-up): a
+// session that first resolved to tw-pp-* (wmic flaked) would otherwise freeze
+// at tier 1 forever, defeating the never-downgrade rule's intent.
+const AUTOUPGRADE_THROTTLE_MS = Number(process.env.PRISM_TWID_AUTOUPGRADE_THROTTLE_MS || 30000);
 
 function cacheFile() {
   return process.env.PRISM_TWID_CACHE_FILE || DEFAULT_CACHE_FILE;
@@ -208,13 +217,53 @@ export function resolveTerminalWindowId(opts = {}) {
   const useCache = process.env.PRISM_TWID_CACHE_DISABLE !== "1";
   const sessionId = (opts.sessionId && typeof opts.sessionId === "string") ? opts.sessionId : null;
 
-  // TIER 0: cache by sessionId
+  // TIER 0: cache by sessionId — with throttled auto-upgrade probe.
+  // If the cached entry is below MAX_TIER (i.e. a degraded tw-pp/tw-pa/tw-ps
+  // resolution), we re-attempt fresh resolution at most once per
+  // AUTOUPGRADE_THROTTLE_MS. If the fresh tier is HIGHER, we upgrade the
+  // cache entry. This closes Reviewer B P2 — the never-downgrade rule's
+  // write-side compare was unreachable on cache-hit, freezing degraded
+  // entries at their first-resolution tier forever.
   if (useCache && sessionId) {
     const cache = readCache();
     const hit = cache[sessionId];
     if (hit && typeof hit.id === "string" && hit.id.length > 0) {
-      // Refresh lastSeenAt and return — never re-resolve within same session
-      hit.lastSeenAt = new Date().toISOString();
+      const cachedTier = tierOf(hit.id);
+      const now = Date.now();
+      const lastProbeMs = Number(Date.parse(hit.lastProbeAt || hit.recordedAt || "")) || 0;
+      const ageMs = now - lastProbeMs;
+      const upgradeDisabled = process.env.PRISM_TWID_AUTOUPGRADE_DISABLE === "1";
+      const shouldProbe = !upgradeDisabled
+        && cachedTier > 0
+        && cachedTier < MAX_TIER
+        && ageMs >= AUTOUPGRADE_THROTTLE_MS;
+
+      if (shouldProbe) {
+        const fresh = computeFreshId(opts);
+        if (fresh && tierOf(fresh) > cachedTier) {
+          cache[sessionId] = {
+            id: fresh,
+            tier: tierOf(fresh),
+            recordedAt: hit.recordedAt || new Date(now).toISOString(),
+            lastSeenAt: new Date(now).toISOString(),
+            lastProbeAt: new Date(now).toISOString(),
+            upgradedFrom: hit.id,
+          };
+          writeCache(cache);
+          return fresh;
+        }
+        // Probe ran but didn't beat the cached tier — record the attempt
+        // so we don't probe again until the throttle window passes.
+        hit.lastProbeAt = new Date(now).toISOString();
+        hit.lastSeenAt = new Date(now).toISOString();
+        cache[sessionId] = hit;
+        writeCache(cache);
+        return hit.id;
+      }
+
+      // No probe needed (cache is MAX_TIER, throttle window unexpired, or
+      // upgrade disabled). Refresh lastSeenAt and return.
+      hit.lastSeenAt = new Date(now).toISOString();
       cache[sessionId] = hit;
       writeCache(cache);
       return hit.id;
