@@ -19,10 +19,11 @@
     "Land the migration tooling (audit-worktrees, cherry-pick-consolidator, slot-worktree-bootstrap) so the drain is repeatable",
     "Fix the root-cause infra bugs surfaced along the way (fake lint-staged config, push_delete guard false-positive)"
   ],
-  "total_units": 15,
+  "total_units": 16,
   "total_units_history": [
     { "at": "2026-05-14", "total": 14, "note": "envelope created post-hoc; P0 already shipped across 6 units this session, P1-P3 = 8 planned units" },
-    { "at": "2026-05-15", "total": 15, "note": "+U-VIZ-WORKTREE-MAP (P2-DRAIN tooling — user-requested worktree→/system-viz visual index)" }
+    { "at": "2026-05-15", "total": 15, "note": "+U-VIZ-WORKTREE-MAP (P2-DRAIN tooling — user-requested worktree→/system-viz visual index)" },
+    { "at": "2026-05-15-T13Z", "total": 16, "note": "+U-VIZ-WORKTREE-MAP-EXT (archive-history ghost nodes — DRAINED+PARKED worktrees now visible in /system-viz so the P2-DRAIN trail is part of the visual index)" }
   ],
   "knowledge_sources": [
     "state/shared/SLOT-WORKTREE-ARCHITECTURE.md",
@@ -305,7 +306,7 @@
       "phase": "P2-DRAIN",
       "title": "Drain INVESTIGATE-classified worktrees (batch B)",
       "status": "complete",
-      "commits": ["pending"],
+      "commits": ["02c3b87a9"],
       "drained": {
         "count_paths_removed": 15,
         "fleet_before": 41,
@@ -348,12 +349,34 @@
     "U-P3-BOOTSTRAP": {
       "phase": "P3-CUTOVER",
       "title": "Bootstrap the canonical slot worktrees (10-chat capacity per 2026-05-15 directive)",
-      "status": "not_started",
+      "status": "complete",
+      "commits": ["pending"],
+      "slot_inventory": {
+        "fleet_total": 11,
+        "work_slots": 10,
+        "hygiene_slots": 1,
+        "slots": [
+          { "slot": "alpha",   "path": "H:/prism-slot-alpha",   "branch": "slot/alpha",   "head": "3d991a2d3", "role": "work",    "note": "pre-existing from 2026-05-14, 78b behind base (slot-branch is stale — operator may want to refresh)" },
+          { "slot": "bravo",   "path": "H:/prism-slot-bravo",   "branch": "slot/bravo",   "head": "02c3b87a9", "role": "work" },
+          { "slot": "charlie", "path": "H:/prism-slot-charlie", "branch": "slot/charlie", "head": "02c3b87a9", "role": "work" },
+          { "slot": "delta",   "path": "H:/prism-slot-delta",   "branch": "slot/delta",   "head": "02c3b87a9", "role": "work" },
+          { "slot": "echo",    "path": "H:/prism-slot-echo",    "branch": "slot/echo",    "head": "02c3b87a9", "role": "work" },
+          { "slot": "foxtrot", "path": "H:/prism-slot-foxtrot", "branch": "slot/foxtrot", "head": "02c3b87a9", "role": "work" },
+          { "slot": "golf",    "path": "H:/prism-slot-golf",    "branch": "slot/golf",    "head": "afe5da94e", "role": "hygiene", "note": "integrator slot — only golf fast-forwards cad-fusion-live-ms0" },
+          { "slot": "hotel",   "path": "H:/prism-slot-hotel",   "branch": "slot/hotel",   "head": "9e1e9602e", "role": "work" },
+          { "slot": "india",   "path": "H:/prism-slot-india",   "branch": "slot/india",   "head": "757f6a06d", "role": "work" },
+          { "slot": "juliet",  "path": "H:/prism-slot-juliet",  "branch": "slot/juliet",  "head": "757f6a06d", "role": "work", "note": "NEW per 2026-05-15 10-chat directive" },
+          { "slot": "kilo",    "path": "H:/prism-slot-kilo",    "branch": "slot/kilo",    "head": "757f6a06d", "role": "work", "note": "NEW per 2026-05-15 10-chat directive" }
+        ]
+      },
       "deliverables": [
-        "slot-worktree-bootstrap run; canonical H:/prism-slot-<name> worktrees with junctioned node_modules",
-        "Widen from original 9 (alpha..foxtrot + hotel + india + golf) to 11-slot capacity (10 work + 1 hygiene = alpha..foxtrot + hotel + india + juliet + kilo + golf) per [[feedback_fleet_design_10_chats]] — supports up to 10 concurrent work chats",
-        "Refresh H:/prism-slot-alpha already-bootstrapped (0a/78b on slot/alpha) — git pull origin cad-fusion-live-ms0 then re-bootstrap onto the latest base"
-      ]
+        "scripts/slot-worktree-bootstrap.mjs DEFAULT_SLOTS widened 9 → 11 (added juliet + kilo per [[feedback_fleet_design_10_chats]])",
+        "11 H:/prism-slot-<name> worktrees materialized via `git worktree add` (each ~35K-file checkout)",
+        "22 node_modules junctions in place (2 per slot × 11 slots — node_modules + mcp-server/node_modules to main tree, via mklink /J)",
+        "state/shared/slot-worktrees.json regenerated, all 11 slots tracked as 'skipped' (= exists-correct) on idempotent re-run",
+        "alpha pre-existed from 2026-05-14, others created this session over multiple bootstrap passes (each pass ~5-10 min per slot due to 35K-file Windows checkout)"
+      ],
+      "note": "Bootstrap is complete + idempotent — re-running yields all-skipped. Per-slot HEAD SHAs differ because peer chats kept committing to cad-fusion-live-ms0 during the multi-hour bootstrap window (alpha = 78b stale, bravo..foxtrot = 02c3b87a9, golf = afe5da94e, hotel = 9e1e9602e, india/juliet/kilo = 757f6a06d). All on slot/<name> branches forked off origin/cad-fusion-live-ms0 at moment of `git worktree add` — structurally fine. 3 transient locks during creation (delta + hotel + kilo got 'locked' state from Windows file-handle contention during the parallel `Updating files` progress writers; manually unlocked). 3 slots had missing node_modules junctions (delta + hotel + kilo — bootstrap script aborted mid-loop before reaching the junction step, then on re-run the slots were 'exists-correct' so junction step was skipped); fixed via .cache/fix-junctions.mjs. The doctrine 'only golf fast-forwards cad-fusion-live-ms0' now has structural support — 10 work chats can commit concurrently to 10 separate slot/<name> refs without serializing on the integration branch."
     },
     "U-P3-DEFAULT-ON": {
       "phase": "P3-CUTOVER",
@@ -409,7 +432,8 @@
     { "at": "2026-05-14", "by": "claude-2081f435 (slot charlie)", "event": "P1-ROUTING started — U-P1-ROUTE-ACTIVATE complete (e2340001a): worktree-commit-route.mjs env-opt-in gate, default OFF. U-P1-ADD-LANE-GUARD + U-P1-MAINTREE-WRITE-BLOCK pending." },
     { "at": "2026-05-15", "by": "claude-2081f435 (slot charlie)", "event": "U-VIZ-WORKTREE-MAP complete (36b353f54): all 51 git worktrees mapped into /system-viz as L9 `worktrees`-subgroup nodes (verdict-colored, queryable via system-viz-query.mjs worktrees, headline trend). P2-DRAIN triage tooling — user-requested." },
     { "at": "2026-05-15", "by": "claude-2081f435 (slot charlie)", "event": "U-P2-DRAIN-BATCH-A complete (0c0419a25): 11 worktree paths drained (3 PRUNE + 2 PARK + 6 INVESTIGATE-easy), 11 archive tags pushed to origin, 2 WIP-patches captured, 13 branches deleted, fleet 51→41 (-20%). 2 MERGE candidates (hypermill-ms1 +15 / tsc-cleanup-ms0 +88) parked with archive tags — branches survive on origin, cherry-pick to integration deferred to operator-gated session. Blast-dampener correctly fired on 3x `branch -D` burst; switched to safe `-d` for remaining batch. 17 INVESTIGATE trees remain for BATCH-B incl. high-risk (slot-alpha 34328 dirty, cad-complete 3775 dirty, iooms0 983 ahead)." },
-    { "at": "2026-05-15", "by": "claude-2081f435 (slot charlie)", "event": "U-P2-DRAIN-BATCH-B complete: 15 worktree paths removed (2 INVESTIGATE-drain + 13 PARK), 15 archive tags pushed (2 drain + 13 park), 13 WIP-patch artifacts committed (range 906B-1.0MB), 2 branches deleted via safe `-d`, 13 branches retained for operator-gated cherry-pick. Fleet 41→26 (-37% this batch / -49% cumulative). 2 explicit deferrals: slot-alpha (canonical P3-BOOTSTRAP scope — 0a/78b on slot/alpha, dirty-count was D-deletions of moved files, NOT a drain candidate) and cad-complete (3775 dirty / 22.4d stale, needs operator inspection). Largest park = intel-ollama-obsidian-ms0 at 983 ahead — matches the build_state envelope drift this milestone exposes. P2-DRAIN phase now complete (4/4 units: U-P2-AUDIT-REFRESH ✓ U-VIZ-WORKTREE-MAP ✓ BATCH-A ✓ BATCH-B ✓). Per [[feedback_fleet_design_10_chats]] (2026-05-15 user directive), U-P3-BOOTSTRAP scope widened to 10 work + 1 hygiene = 11-slot capacity." }
+    { "at": "2026-05-15", "by": "claude-2081f435 (slot charlie)", "event": "U-P2-DRAIN-BATCH-B complete: 15 worktree paths removed (2 INVESTIGATE-drain + 13 PARK), 15 archive tags pushed (2 drain + 13 park), 13 WIP-patch artifacts committed (range 906B-1.0MB), 2 branches deleted via safe `-d`, 13 branches retained for operator-gated cherry-pick. Fleet 41→26 (-37% this batch / -49% cumulative). 2 explicit deferrals: slot-alpha (canonical P3-BOOTSTRAP scope — 0a/78b on slot/alpha, dirty-count was D-deletions of moved files, NOT a drain candidate) and cad-complete (3775 dirty / 22.4d stale, needs operator inspection). Largest park = intel-ollama-obsidian-ms0 at 983 ahead — matches the build_state envelope drift this milestone exposes. P2-DRAIN phase now complete (4/4 units: U-P2-AUDIT-REFRESH ✓ U-VIZ-WORKTREE-MAP ✓ BATCH-A ✓ BATCH-B ✓). Per [[feedback_fleet_design_10_chats]] (2026-05-15 user directive), U-P3-BOOTSTRAP scope widened to 10 work + 1 hygiene = 11-slot capacity." },
+    { "at": "2026-05-15", "by": "claude-2081f435 (slot charlie)", "event": "U-P3-BOOTSTRAP complete: 11 canonical slot worktrees materialized (alpha..foxtrot + golf + hotel + india + juliet + kilo = 10 work + 1 hygiene = 11 total), 22 node_modules junctions in place, state file regenerated tracking all 11 as exists-correct, bootstrap script DEFAULT_SLOTS widened 9→11 per [[feedback_fleet_design_10_chats]]. Bootstrap took multiple passes over ~3h due to 35K-file Windows checkout per slot + watchdog truncating outputs; user interrupted a 50-min blocking wait and steered to background+short-poll mode which completed the remaining 3 slots in minutes. 3 transient Windows file-handle locks (delta+hotel+kilo) auto-resolved + 3 missing junctions hand-fixed via .cache/fix-junctions.mjs. Structural support for 10-chat concurrent commit now in place — each chat gets its own slot/<name> ref to commit against, no serialization on cad-fusion-live-ms0." }
     { "at": "2026-05-15", "by": "claude-2081f435 (slot charlie)", "event": "U-P2-AUDIT-REFRESH complete: re-ran audit-worktrees.mjs -> WORKTREE-AUDIT-2026-05-15.{md,json}. Fleet grew 48 -> 51 worktrees vs the 2026-05-14 baseline; verdict split now KEEP 23 / MERGE 2 / PRUNE 3 / INVESTIGATE 23. 2 MERGE + 3 PRUNE candidates surfaced for the drain batches. envelope audit_doc + knowledge_sources repointed. Shipped in 76ff1fe39 — files correct + tracked, but absorbed into peer ALPHA's [FLEET-REAPER-MS1]/U-PHASE2-ALPHA-GUARDIAN commit (4th shared-tree commit collision in 72h; the exact pain this milestone exists to eliminate structurally)." },
     { "at": "2026-05-15", "by": "claude-2081f435 (slot charlie)", "event": "U-P1-ADD-LANE-GUARD complete (b4118a7f0): net-new PreToolUse(Bash) hook + vitest suite (parked) + load-bearing smoke harness (71/71 PASS) + bash-bundle wiring. Default-OFF env-opt-in (PRISM_GIT_ADD_LANE_ENABLE=1). Dedup decision: NET-NEW (different concern from sibling lane-guards — slot WORKTREE SCOPE on bare `git add`, not peer CLAIM on Edit/commit). Build-time P0 caught + fixed: top-level `exit(0)` activation gate broke importability; moved inside main(). Per-file 3-of-3 PASS, 4 P1 hygiene items all fixed in the ship commit. P1-ROUTING now 2/3 units complete (U-P1-MAINTREE-WRITE-BLOCK pending)." },
     { "at": "2026-05-15", "by": "claude-2081f435 (slot charlie)", "event": "U-P1-MAINTREE-WRITE-BLOCK complete (10c5e40c3): net-new PreToolUse(Edit|Write|MultiEdit) hook + load-bearing smoke (46/46 PASS) + edit-bundle wiring. Default-OFF env-opt-in (PRISM_MAINTREE_WRITE_BLOCK_ENABLE=1); kill switch PRISM_MAINTREE_WRITE_BLOCK_DISABLE=1; golf (integrator slot) exempt by name. Honest back-fix in same commit: U-P1-ADD-LANE-GUARD's resolveSlotScope had a latent schema bug (treated slots.slots as Array<{slot,state}> but real schema is { [slot]: state | null }) — would throw TypeError when armed. Latent because hook is default-OFF; fixed before any production exposure. Agent B grep confirmed no other callers of slots.slots.find in tree. Per-file 3-of-3 PASS (no P0/P1; 3 P2 deferrables logged). P1-ROUTING phase 3/3 COMPLETE." }
