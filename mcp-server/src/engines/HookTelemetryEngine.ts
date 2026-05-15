@@ -12,9 +12,20 @@
  *
  * Theory: M/M/1 queue for single-threaded hook execution
  *
+ * Persistence layer (2026-05-15, pillar-telemetry-recovery U-PTR01):
+ *   Set env `PRISM_HOOK_TELEMETRY_PATH` to an absolute JSON path to enable
+ *   crash-survivable telemetry. The engine auto-loads on construct (sync) and
+ *   debounce-flushes (default 5000 ms) on every recordEnd. Atomic write via
+ *   `.tmp` + rename. Set `PRISM_HOOK_TELEMETRY_DISABLE=1` to skip even when
+ *   the path is set. Backward compat: with neither env set, behavior is the
+ *   pre-2026-05-15 in-memory-only engine.
+ *
  * @module Phase0.25 Scientific Foundations
  * @see UNIVERSAL-SKILLS-SCRIPTS-HOOKS-PLAN-ADDENDUM-2026-04-18.md §IV
  */
+
+import * as fs from "node:fs";
+import * as path from "node:path";
 
 export interface HookInvocation {
   hookName: string;
@@ -69,6 +80,40 @@ interface HookMetrics {
   lastInvocation: number;
 }
 
+// Persistence (pillar-telemetry-recovery U-PTR01) ──────────────────────────────
+const PERSIST_ENV_PATH = "PRISM_HOOK_TELEMETRY_PATH";
+const PERSIST_ENV_DISABLE = "PRISM_HOOK_TELEMETRY_DISABLE";
+const PERSIST_ENV_DEBOUNCE_MS = "PRISM_HOOK_TELEMETRY_DEBOUNCE_MS";
+const DEFAULT_DEBOUNCE_MS = 5000;
+const SCHEMA_VERSION = 1;
+
+interface PersistedTelemetry {
+  schemaVersion: number;
+  savedAt: number;
+  windowMs: number;
+  maxLatencySamples: number;
+  hooks: Record<string, HookMetrics>;
+  invocationTimestamps: number[];
+  completionTimestamps: number[];
+  alerts: Alert[];
+}
+
+export interface PersistResult {
+  ok: boolean;
+  path: string;
+  bytesWritten?: number;
+  error?: string;
+}
+
+export interface LoadResult {
+  ok: boolean;
+  path: string;
+  loadedHooks: number;
+  loadedAlerts: number;
+  prunedTimestamps: number;
+  error?: string;
+}
+
 class HookTelemetryEngineImpl {
   private hooks: Map<string, HookMetrics>;
   private invocationTimestamps: number[];  // For arrival rate calculation
@@ -76,6 +121,13 @@ class HookTelemetryEngineImpl {
   private alerts: Alert[];
   private windowMs: number;  // Time window for rate calculations
   private maxLatencySamples: number;
+
+  // Persistence state
+  private persistPath: string | null;
+  private persistDisabled: boolean;
+  private debounceMs: number;
+  private debounceTimer: ReturnType<typeof setTimeout> | null;
+  private dirty: boolean;
 
   // Thresholds
   private readonly UTILIZATION_WARNING = 0.7;
@@ -93,6 +145,188 @@ class HookTelemetryEngineImpl {
     this.alerts = [];
     this.windowMs = windowMs;
     this.maxLatencySamples = maxLatencySamples;
+
+    // Persistence config (opt-in via env)
+    const envPath = process.env[PERSIST_ENV_PATH]?.trim();
+    this.persistPath = envPath && envPath.length > 0 ? envPath : null;
+    this.persistDisabled = process.env[PERSIST_ENV_DISABLE] === "1";
+    const envDebounce = process.env[PERSIST_ENV_DEBOUNCE_MS];
+    const parsedDebounce = envDebounce ? parseInt(envDebounce, 10) : NaN;
+    this.debounceMs =
+      Number.isFinite(parsedDebounce) && parsedDebounce >= 0
+        ? parsedDebounce
+        : DEFAULT_DEBOUNCE_MS;
+    this.debounceTimer = null;
+    this.dirty = false;
+
+    // Auto-load if path is set, persistence not disabled, and file exists.
+    // Failures are non-fatal: corrupted state must not block MCP boot.
+    if (this.persistPath && !this.persistDisabled && fs.existsSync(this.persistPath)) {
+      const result = this.loadPersisted();
+      if (!result.ok && result.error) {
+        console.warn(
+          `[HookTelemetryEngine] auto-load failed from ${this.persistPath}: ${result.error}`,
+        );
+      }
+    }
+  }
+
+  /**
+   * Get the configured persistence path (null = in-memory only).
+   */
+  getPersistPath(): string | null {
+    return this.persistPath;
+  }
+
+  /**
+   * Set or clear the persistence path at runtime. Passing null disables
+   * persistence and cancels any pending flush.
+   */
+  setPersistPath(filePath: string | null): void {
+    if (this.debounceTimer) {
+      clearTimeout(this.debounceTimer);
+      this.debounceTimer = null;
+    }
+    this.persistPath = filePath && filePath.trim().length > 0 ? filePath : null;
+    this.dirty = false;
+  }
+
+  /**
+   * Mark the in-memory state dirty and schedule a debounced flush. Public so
+   * external mutations (e.g. test fixtures) can trigger persistence. No-op if
+   * persistPath is unset or persistence is env-disabled.
+   */
+  markDirty(): void {
+    if (!this.persistPath || this.persistDisabled) return;
+    this.dirty = true;
+    if (this.debounceTimer) return;
+    this.debounceTimer = setTimeout(() => {
+      this.debounceTimer = null;
+      if (this.dirty) {
+        this.persist();
+      }
+    }, this.debounceMs);
+    // Allow the Node process to exit even with a pending flush — recovery on
+    // next boot is acceptable.
+    if (typeof (this.debounceTimer as { unref?: () => void }).unref === "function") {
+      (this.debounceTimer as { unref: () => void }).unref();
+    }
+  }
+
+  /**
+   * Atomically persist current telemetry to disk. Writes to `<path>.tmp` then
+   * renames over the destination. Does NOT throw — returns a structured result.
+   */
+  persist(filePath?: string): PersistResult {
+    const target = filePath ?? this.persistPath;
+    if (!target) {
+      return { ok: false, path: "", error: "no persistPath configured" };
+    }
+    try {
+      // Build a serializable snapshot
+      const hooksObj: Record<string, HookMetrics> = {};
+      for (const [name, metrics] of this.hooks) {
+        hooksObj[name] = {
+          latencies: [...metrics.latencies],
+          invocations: metrics.invocations,
+          successes: metrics.successes,
+          failures: metrics.failures,
+          blocks: metrics.blocks,
+          lastInvocation: metrics.lastInvocation,
+        };
+      }
+      const payload: PersistedTelemetry = {
+        schemaVersion: SCHEMA_VERSION,
+        savedAt: Date.now(),
+        windowMs: this.windowMs,
+        maxLatencySamples: this.maxLatencySamples,
+        hooks: hooksObj,
+        invocationTimestamps: [...this.invocationTimestamps],
+        completionTimestamps: [...this.completionTimestamps],
+        alerts: [...this.alerts],
+      };
+      const json = JSON.stringify(payload);
+      const dir = path.dirname(target);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+      const tmp = `${target}.tmp`;
+      fs.writeFileSync(tmp, json, { encoding: "utf8" });
+      fs.renameSync(tmp, target);
+      this.dirty = false;
+      return { ok: true, path: target, bytesWritten: Buffer.byteLength(json, "utf8") };
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      return { ok: false, path: target, error: msg };
+    }
+  }
+
+  /**
+   * Load persisted telemetry from disk and merge into the in-memory state.
+   * Replaces (does not append to) the current state — designed for boot.
+   * Old timestamps outside `windowMs` are pruned during load.
+   */
+  loadPersisted(filePath?: string): LoadResult {
+    const target = filePath ?? this.persistPath;
+    if (!target) {
+      return { ok: false, path: "", loadedHooks: 0, loadedAlerts: 0, prunedTimestamps: 0, error: "no persistPath configured" };
+    }
+    try {
+      if (!fs.existsSync(target)) {
+        return { ok: false, path: target, loadedHooks: 0, loadedAlerts: 0, prunedTimestamps: 0, error: "file not found" };
+      }
+      const raw = fs.readFileSync(target, "utf8");
+      const parsed = JSON.parse(raw) as PersistedTelemetry;
+      if (!parsed || typeof parsed !== "object" || parsed.schemaVersion !== SCHEMA_VERSION) {
+        return {
+          ok: false,
+          path: target,
+          loadedHooks: 0,
+          loadedAlerts: 0,
+          prunedTimestamps: 0,
+          error: `schemaVersion mismatch (got ${(parsed as PersistedTelemetry | null)?.schemaVersion ?? "missing"}, want ${SCHEMA_VERSION})`,
+        };
+      }
+      // Replace state
+      const newHooks = new Map<string, HookMetrics>();
+      const hooksObj = parsed.hooks ?? {};
+      for (const [name, metrics] of Object.entries(hooksObj)) {
+        newHooks.set(name, {
+          latencies: Array.isArray(metrics.latencies) ? [...metrics.latencies] : [],
+          invocations: Number(metrics.invocations) || 0,
+          successes: Number(metrics.successes) || 0,
+          failures: Number(metrics.failures) || 0,
+          blocks: Number(metrics.blocks) || 0,
+          lastInvocation: Number(metrics.lastInvocation) || 0,
+        });
+      }
+      const beforePrune =
+        (Array.isArray(parsed.invocationTimestamps) ? parsed.invocationTimestamps.length : 0) +
+        (Array.isArray(parsed.completionTimestamps) ? parsed.completionTimestamps.length : 0);
+      this.hooks = newHooks;
+      this.invocationTimestamps = Array.isArray(parsed.invocationTimestamps)
+        ? [...parsed.invocationTimestamps]
+        : [];
+      this.completionTimestamps = Array.isArray(parsed.completionTimestamps)
+        ? [...parsed.completionTimestamps]
+        : [];
+      this.alerts = Array.isArray(parsed.alerts) ? [...parsed.alerts] : [];
+      // Prune timestamps that fell outside the window since last save
+      this.pruneTimestamps();
+      const afterPrune = this.invocationTimestamps.length + this.completionTimestamps.length;
+      const pruned = Math.max(0, beforePrune - afterPrune);
+      this.dirty = false;
+      return {
+        ok: true,
+        path: target,
+        loadedHooks: this.hooks.size,
+        loadedAlerts: this.alerts.length,
+        prunedTimestamps: pruned,
+      };
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      return { ok: false, path: target, loadedHooks: 0, loadedAlerts: 0, prunedTimestamps: 0, error: msg };
+    }
   }
 
   /**
@@ -163,6 +397,9 @@ class HookTelemetryEngineImpl {
 
     // Check for alerts
     this.checkAlerts(invocation.hookName, metrics, latency);
+
+    // Schedule a debounced persist (no-op if persistPath unset)
+    this.markDirty();
   }
 
   /**
@@ -409,13 +646,20 @@ class HookTelemetryEngineImpl {
   }
 
   /**
-   * Reset all telemetry
+   * Reset all telemetry. Cancels any pending persist flush so test resets are
+   * deterministic — tests can wait for a flush, call reset(), and not have a
+   * delayed timer overwrite a fresh fixture moments later.
    */
   reset(): void {
+    if (this.debounceTimer) {
+      clearTimeout(this.debounceTimer);
+      this.debounceTimer = null;
+    }
     this.hooks.clear();
     this.invocationTimestamps = [];
     this.completionTimestamps = [];
     this.alerts = [];
+    this.dirty = false;
   }
 
   /**

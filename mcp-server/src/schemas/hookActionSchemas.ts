@@ -247,6 +247,21 @@ const hook_bandit_select = z.object({
 
 const hook_telemetry_metrics = z.object({}).passthrough();
 
+// pillar-telemetry-recovery U-PTR01: crash-survivable hook telemetry ──────────
+const hook_telemetry_persist = z.object({
+  path: z.string().min(1).optional().describe(
+    "Absolute path to write the snapshot. Default: PRISM_HOOK_TELEMETRY_PATH env or the configured engine path.",
+  ),
+}).passthrough();
+
+const hook_telemetry_load = z.object({
+  path: z.string().min(1).optional().describe(
+    "Absolute path to load the snapshot from. Default: PRISM_HOOK_TELEMETRY_PATH env or the configured engine path.",
+  ),
+}).passthrough();
+
+const hook_telemetry_status = z.object({}).passthrough();
+
 const hook_efficiency_roi = z.object({
   session_budget: z.number().positive().optional().describe("Session token budget for ROI calc (default 150000)"),
 }).passthrough();
@@ -334,6 +349,9 @@ export const HOOK_ACTION_SCHEMAS: ActionSchemaMap = {
   hook_coverage_analyze,
   hook_bandit_select,
   hook_telemetry_metrics,
+  hook_telemetry_persist,
+  hook_telemetry_load,
+  hook_telemetry_status,
   hook_efficiency_roi,
   // HOOK-MANIFEST-DAG-MS26/P0-U01: static hook manifest
   manifest,
