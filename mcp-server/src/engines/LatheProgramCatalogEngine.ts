@@ -1,3 +1,13 @@
+// WIRE-EXEMPT: legacy LATHE-AWARE-HARDEN MS10 engine — pre-dates U-PPL-D2.
+// The existing surfaces (classifyFile / scanDirectory / findSimilarPrograms /
+// getProgrammingHistory / getStyleDistribution) are not yet wired into any
+// dispatcher; the U-PPL-D2 additions (linkPrint / linkPrintBatch /
+// validateLinkInfo) are reachable through the parent ProgramMemoryEngine
+// dispatcher path (prism_data:box_program_memory_link_print) via the
+// shared resolveAutoLink() helper in dataDispatcher.ts. A dedicated
+// prism_turning:lathe_catalog_* action set is filed as a LATHE-MASTER
+// follow-up — out of scope for U-PPL-D2 (the unit spec scoped wiring to
+// ProgramMemoryEngine only). Companion: reference_u_ppl_d2_print_pointer_fields.
 /**
  * LatheProgramCatalogEngine (E108)
  * =================================
