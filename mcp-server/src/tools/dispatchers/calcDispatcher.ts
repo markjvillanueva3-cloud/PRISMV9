@@ -3925,6 +3925,43 @@ export function registerCalcDispatcher(server: any): void {
             });
             break;
           }
+          // ── SpindleHarmonicsQualityEngine wiring (was half-wired: action enum +
+          //    result-slimmer present at lines 214/216/218, but no main switch case
+          //    invoking the engine — landed by OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-
+          //    SPINDLE-HARMONICS-QUALITY).
+          case "spindle_harmonic_analysis": {
+            const { spindleHarmonicsQualityEngine } = await import("../../engines/SpindleHarmonicsQualityEngine.js");
+            result = spindleHarmonicsQualityEngine.analyze({
+              spindle_rpm: params.spindle_rpm,
+              num_flutes: params.num_flutes ?? 4,
+              machine_modes: params.machine_modes ?? { natural_frequencies_Hz: [800] },
+              max_harmonic_order: params.max_harmonic_order,
+              bandwidth_pct: params.bandwidth_pct,
+            });
+            break;
+          }
+          case "spindle_optimal_rpm": {
+            const { spindleHarmonicsQualityEngine } = await import("../../engines/SpindleHarmonicsQualityEngine.js");
+            result = spindleHarmonicsQualityEngine.findOptimalRpm(
+              params.num_flutes ?? 4,
+              params.machine_modes ?? { natural_frequencies_Hz: [800] },
+              params.rpm_min ?? 2000,
+              params.rpm_max ?? 12000,
+              params.rpm_step,
+            );
+            break;
+          }
+          case "spindle_quality_map": {
+            const { spindleHarmonicsQualityEngine } = await import("../../engines/SpindleHarmonicsQualityEngine.js");
+            result = spindleHarmonicsQualityEngine.qualityMap(
+              params.num_flutes ?? 4,
+              params.machine_modes ?? { natural_frequencies_Hz: [800] },
+              params.rpm_min ?? 2000,
+              params.rpm_max ?? 12000,
+              params.rpm_step,
+            );
+            break;
+          }
           case "thread_mill_calc": {
             const { threadMillingEngine } = await import("../../engines/ThreadMillingEngine.js");
             result = threadMillingEngine.calculate({
