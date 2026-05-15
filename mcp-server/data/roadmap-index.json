@@ -145,13 +145,14 @@
       "track": "INFRA-CONSOLIDATE",
       "status": "in_progress",
       "total_units": 15,
-      "completed_units": 10,
+      "completed_units": 11,
       "completed_phases": [
-        "P0-FOUNDATION"
+        "P0-FOUNDATION",
+        "P1-ROUTING"
       ],
       "envelope": "mcp-server/data/milestones/SLOT-WORKTREE-MS0.json",
       "created_at": "2026-05-14",
-      "note": "Prevention-by-structure successor to WORKTREE-CONSOLIDATE-MS0. P0 shipped (6 units): architecture+tooling, scrutiny fixes, orphan-branch audit+reap, lint-staged root-cause fix, push-guard fix. P1-ROUTING started: U-P1-ROUTE-ACTIVATE shipped (e2340001a) — worktree-commit-route.mjs env-opt-in gate. P2-DRAIN tooling: U-VIZ-WORKTREE-MAP shipped (36b353f54) — all 51 worktrees mapped into /system-viz as a living visual index. U-P2-AUDIT-REFRESH shipped — WORKTREE-AUDIT-2026-05-15.{md,json} refreshed (fleet 48 -> 51, KEEP 23 / MERGE 2 / PRUNE 3 / INVESTIGATE 23). U-P1-ADD-LANE-GUARD shipped (b4118a7f0) -- net-new git-add slot-lane guard hook, default-OFF env-opt-in, per-file 3-of-3 PASS, 71/71 smoke tests."
+      "note": "Prevention-by-structure successor to WORKTREE-CONSOLIDATE-MS0. P0 shipped (6 units): architecture+tooling, scrutiny fixes, orphan-branch audit+reap, lint-staged root-cause fix, push-guard fix. P1-ROUTING started: U-P1-ROUTE-ACTIVATE shipped (e2340001a) — worktree-commit-route.mjs env-opt-in gate. P2-DRAIN tooling: U-VIZ-WORKTREE-MAP shipped (36b353f54) — all 51 worktrees mapped into /system-viz as a living visual index. U-P2-AUDIT-REFRESH shipped — WORKTREE-AUDIT-2026-05-15.{md,json} refreshed (fleet 48 -> 51, KEEP 23 / MERGE 2 / PRUNE 3 / INVESTIGATE 23). U-P1-ADD-LANE-GUARD shipped (b4118a7f0) -- net-new git-add slot-lane guard hook, default-OFF env-opt-in, per-file 3-of-3 PASS, 71/71 smoke tests. U-P1-MAINTREE-WRITE-BLOCK shipped (10c5e40c3) -- P1-ROUTING now 3/3 complete (all default-OFF env-opt-in until P3-DEFAULT-ON); back-fixed a latent schema bug in U-P1-ADD-LANE-GUARD in the same commit (slots.slots is object-keyed, not array)."
     },
     {
       "id": "INFRA-CONSENSUS-WIRE-MS0",
