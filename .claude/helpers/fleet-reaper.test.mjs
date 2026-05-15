@@ -76,10 +76,10 @@ function slot(pid, chatId, heartbeatMs) {
   };
 }
 
-/** Build a synthetic chat-slots file (the 7 canonical slot keys). */
+/** Build a synthetic chat-slots file (the 10 canonical slot keys per 2026-05-15 expansion). */
 function slotsFile(slots) {
-  const file = { schemaVersion: 1, lastUpdated: iso(NOW), slots: {} };
-  for (const n of ["alpha", "bravo", "charlie", "delta", "echo", "foxtrot", "golf"]) {
+  const file = { schemaVersion: 2, lastUpdated: iso(NOW), slots: {} };
+  for (const n of ["alpha", "bravo", "charlie", "delta", "echo", "foxtrot", "golf", "hotel", "india", "juliett"]) {
     file.slots[n] = slots[n] || null;
   }
   return file;
@@ -432,7 +432,7 @@ describe("process-slot-map: vendored chat-slots primitives — drift guard", () 
     // transform. Pin SLOT_NAMES / STALE_TTL_MS / CRASH_TTL_MS against the
     // canonical source so silent drift of the vendored copies becomes a red test.
     const canonical = readFileSync(new URL("./chat-slots.mjs", import.meta.url), "utf-8");
-    expect(canonical).toMatch(/SLOT_NAMES = \["alpha", "bravo", "charlie", "delta", "echo", "foxtrot", "golf"\]/);
+    expect(canonical).toMatch(/SLOT_NAMES = \["alpha", "bravo", "charlie", "delta", "echo", "foxtrot", "golf", "hotel", "india", "juliett"\]/);
     expect(canonical).toMatch(/STALE_TTL_MS = 2 \* 60 \* 1000/);
     expect(canonical).toMatch(/CRASH_TTL_MS = 10 \* 60 \* 1000/);
   });

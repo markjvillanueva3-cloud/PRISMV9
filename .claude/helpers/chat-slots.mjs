@@ -3,7 +3,7 @@
  * chat-slots.mjs — 7-slot fleet manager for concurrent PRISM chats.
  *
  * Replaces opaque 8-char hex chat ids in handoff filenames with NATO-phonetic
- * slot names (alpha/bravo/charlie/delta/echo/foxtrot/golf). Each Claude/Codex
+ * slot names (alpha..juliett — 9 work + 1 hygiene = 10 total). Each Claude/Codex
  * session at SessionStart claims the first free slot; the slot binding lives
  * for the lifetime of the chat (or until the 10-minute heartbeat TTL elapses
  * and the slot is auto-reclaimed for the next session).
@@ -51,19 +51,22 @@ import { hostname } from "node:os";
 
 // ─── Constants ──────────────────────────────────────────────────────────
 
-/** NATO phonetic alphabet — first 7. Stable order; auto-claim picks first free.
+/** NATO phonetic alphabet — first 10. Stable order; auto-claim picks first free.
  *  Slot 7 ("golf") is the dedicated hygiene/cleanup chat per CLEANUP-MS0:
  *  - Reaps orphan node/bash/git processes (memory monitor + extended reapers)
  *  - Watchdog for peer commits (B4 reviewer-dispatch + cascade-route via Ollama)
  *  - Grooms system-viz graph (C-series wiring-potential + C5 augment-on-new-engine)
  *  - Gardens awareness surfaces (H-series memories/skills/hooks/CLAUDE.md/GSD drift)
- *  TODO(U-CLEANUP-A5): Golf will be bound by the write-allowlist hook
- *  (golf-slot-write-allowlist.mjs, U-CLEANUP-A5) and may NOT commit feature code
- *  — read-only auditor + state/shared/* writes only.
- *  SECURITY GAP (until A5 ships): cross-worktree firewall already blocks
- *  shared-state writes from worktrees; A5 hardens this with explicit slot=golf
- *  detection + path allowlist. Do NOT claim golf for feature work before A5. */
-export const SLOT_NAMES = ["alpha", "bravo", "charlie", "delta", "echo", "foxtrot", "golf"];
+ *  Bound by `golf-slot-write-allowlist.mjs` (U-CLEANUP-A5): may NOT commit
+ *  feature code — read-only auditor + state/shared/* writes only.
+ *
+ *  Slots 8-10 ("hotel", "india", "juliett") added 2026-05-15 per the user
+ *  directive `[[feedback_fleet_design_10_chats]]`. They are WORK slots
+ *  (no allowlist restriction) — total fleet is now 9 work + 1 hygiene = 10.
+ *  See `[[reference_session_continuity_stack_2026_05_15]]` for the
+ *  terminal-window pinning that makes 10 concurrent PowerShell windows each
+ *  resolve to a deterministic slot. */
+export const SLOT_NAMES = ["alpha", "bravo", "charlie", "delta", "echo", "foxtrot", "golf", "hotel", "india", "juliett"];
 
 /** Crash TTL — slot is considered crashed/reclaimable after this many ms with
  *  no heartbeat update. 10min matches the existing chat-bus claim TTL. */
@@ -89,7 +92,13 @@ export const RECENT_CLAIM_GUARD_MS = Number.isFinite(parseInt(process.env.PRISM_
 export const DEFAULT_STATE_PATH = "H:/prism/state/shared/chat-slots.json";
 const DEFAULT_LOCK_PATH = "H:/prism/state/shared/chat-slots.lock";
 
-const SCHEMA_VERSION = 1;
+// schemaVersion 2 (2026-05-15): adds optional `terminalWindowId` field to
+// SlotState so a single PowerShell/terminal window keeps the same slot across
+// /compact, /clear, and any new chat session spawned in the same window.
+// Backward-compat: missing field falls back to chatId-only behavior — slots
+// claimed under v1 keep working, they just don't get window-pinning until
+// they re-claim with a window id.
+const SCHEMA_VERSION = 2;
 
 // ─── Schema ─────────────────────────────────────────────────────────────
 
@@ -103,6 +112,11 @@ const SCHEMA_VERSION = 1;
  * @property {string|null} branch       — current git branch
  * @property {string|null} topic        — current work topic
  * @property {string|null} activity     — short description of what chat is doing now
+ * @property {string|null} [terminalWindowId] — stable PowerShell/terminal window
+ *           identity (e.g. "tw-wt-<uuid>" or "tw-ps-<pid>"). Persists across
+ *           /compact + new chats in the same window. When set, claimSlot()
+ *           prefers re-binding to the SAME slot regardless of chatId churn.
+ *           Schema v2 field; missing on v1 records.
  *
  * @typedef {Object} SlotsFile
  * @property {number} schemaVersion
@@ -289,6 +303,37 @@ export function claimSlot(input, statePath = DEFAULT_STATE_PATH, lockPath = DEFA
         return { ok: true, slot: n, state: refreshed, alreadyOwned: true };
       }
     }
+    // TERMINAL-WINDOW PIN (schema v2): if this chat belongs to a window that
+    // ALREADY owns a slot (different chatId — typically because of /compact,
+    // /clear, or a new chat session spawned in the same PowerShell), inherit
+    // that slot instead of claiming a new one. This makes slot↔window binding
+    // survive session churn and prevents lane drift in the multi-window fleet.
+    if (typeof input.terminalWindowId === "string" && input.terminalWindowId.length > 0) {
+      for (const n of SLOT_NAMES) {
+        const s = file.slots[n];
+        // Only re-bind to slots that are STILL ALIVE (not crashed-swept).
+        // A crashed slot was already nulled above; reaching here means the
+        // prior owner is alive but had a different chatId — same window.
+        if (s && s.terminalWindowId === input.terminalWindowId) {
+          const previousChatId = s.chatId;
+          const inherited = {
+            ...refreshState(s, input),
+            chatId: input.chatId,        // new session id takes over
+            terminalWindowId: input.terminalWindowId,
+          };
+          file.slots[n] = inherited;
+          writeSlotsAtomic(file, statePath);
+          return {
+            ok: true,
+            slot: n,
+            state: inherited,
+            alreadyOwned: true,
+            terminalPinned: true,
+            previousChatId,
+          };
+        }
+      }
+    }
     // Honor preferSlot — gating logic:
     //   · slot is null              → claim it
     //   · slot is alive/stale       → only if force=true (operator takeover)
@@ -436,6 +481,7 @@ function freshState(input) {
     branch: input.branch ?? null,
     topic: input.topic ?? null,
     activity: input.activity ?? null,
+    terminalWindowId: input.terminalWindowId ?? null,
   };
 }
 
@@ -447,6 +493,10 @@ function refreshState(prev, input) {
     topic: input.topic ?? prev.topic,
     activity: input.activity ?? prev.activity,
     pid: input.pid ?? prev.pid,
+    // Allow re-binding a window id (e.g. when migrating v1 → v2 slots — the
+    // first claim by a chat with a window id stamps the field even if the
+    // record was created without one). Never blank an existing id.
+    terminalWindowId: input.terminalWindowId ?? prev.terminalWindowId ?? null,
   };
 }
 
@@ -647,6 +697,7 @@ if (__cliArgv1Basename && import.meta.url.endsWith(__cliArgv1Basename)) {
           preferSlot: flags.preferSlot,
           force: flags.force === "true",
           confirmRecent: flags.confirmRecent === "true",
+          terminalWindowId: flags.terminalWindowId,
         });
         break;
       case "heartbeat":
