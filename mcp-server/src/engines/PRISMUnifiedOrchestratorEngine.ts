@@ -1355,7 +1355,7 @@ export class PRISMUnifiedOrchestratorEngine {
         adjustment: structuredContext.modifiers.vc_modifier,
         adjustment_type: "multiplier",
         reason: "Tribal knowledge speed modifier",
-        source_tip_id: structuredContext.modifiers.source_tips[0] || "tribal_advisor",
+        source_tip_id: structuredContext.modifiers.source_tips?.[0] || "tribal_advisor",
         confidence: structuredContext.modifiers.confidence,
         source: "advisor",
       });
@@ -1366,7 +1366,7 @@ export class PRISMUnifiedOrchestratorEngine {
         adjustment: structuredContext.modifiers.fz_modifier,
         adjustment_type: "multiplier",
         reason: "Tribal knowledge feed modifier",
-        source_tip_id: structuredContext.modifiers.source_tips[0] || "tribal_advisor",
+        source_tip_id: structuredContext.modifiers.source_tips?.[0] || "tribal_advisor",
         confidence: structuredContext.modifiers.confidence,
         source: "advisor",
       });
@@ -1394,7 +1394,7 @@ export class PRISMUnifiedOrchestratorEngine {
         description: `Maximum cutting speed: ${structuredContext.constraints.max_speed} m/min`,
         severity: "high",
         reason: "Tribal knowledge speed limit",
-        source_tip_id: structuredContext.constraints.source_tips[0] || "tribal_advisor",
+        source_tip_id: structuredContext.constraints.source_tips?.[0] || "tribal_advisor",
         source: "advisor",
       });
     }
@@ -2404,9 +2404,9 @@ export class PRISMUnifiedOrchestratorEngine {
       });
       machineAdvice.push(`Max RPM: ${constraints.max_rpm} (tribal limit)`);
     }
-    if (constraints.forbidden_machines.length > 0) {
+    if ((constraints.forbidden_machines?.length ?? 0) > 0) {
       tribalRisks.push({
-        risk: `Avoid machines: ${constraints.forbidden_machines.join(", ")}`,
+        risk: `Avoid machines: ${(constraints.forbidden_machines ?? []).join(", ")}`,
         severity: "medium",
         source: "tribal_constraint",
       });
@@ -2438,9 +2438,9 @@ export class PRISMUnifiedOrchestratorEngine {
     }
 
     const matchingTips = new Set([
-      ...modifiers.source_tips,
-      ...constraints.source_tips,
-      ...advisory.source_tips.map((t: any) => t.id),
+      ...(modifiers.source_tips ?? []),
+      ...(constraints.source_tips ?? []),
+      ...(advisory.source_tips ?? []).map((t: any) => t.id),
     ]).size;
 
     return {
@@ -2491,8 +2491,8 @@ export class PRISMUnifiedOrchestratorEngine {
     }
 
     // Check for constraint conflicts
-    if (tribalContext.constraints.required_machine && tribalContext.constraints.forbidden_machines.length > 0) {
-      if (tribalContext.constraints.forbidden_machines.includes(tribalContext.constraints.required_machine.toLowerCase())) {
+    if (tribalContext.constraints.required_machine && (tribalContext.constraints.forbidden_machines?.length ?? 0) > 0) {
+      if ((tribalContext.constraints.forbidden_machines ?? []).includes(tribalContext.constraints.required_machine.toLowerCase())) {
         enhancedRisks.push({
           risk: "Conflicting tribal constraints: required machine is also forbidden",
           severity: "critical",
@@ -2540,13 +2540,14 @@ export class PRISMUnifiedOrchestratorEngine {
 
     // Add modifier summary
     const modifiers = tribalContext.modifiers;
-    if (modifiers.evidence_count > 0) {
+    const evidenceCount = modifiers.evidence_count ?? 0;
+    if (evidenceCount > 0) {
       const modSummary: string[] = [];
       if (modifiers.vc_modifier !== 1) modSummary.push(`Vc×${modifiers.vc_modifier.toFixed(2)}`);
       if (modifiers.fz_modifier !== 1) modSummary.push(`fz×${modifiers.fz_modifier.toFixed(2)}`);
       if (modifiers.tool_life_modifier !== 1) modSummary.push(`tool life×${modifiers.tool_life_modifier.toFixed(1)}`);
       if (modSummary.length > 0) {
-        parts.push(`Recommended adjustments: ${modSummary.join(", ")} (${(modifiers.confidence * 100).toFixed(0)}% confidence from ${modifiers.evidence_count} tips).`);
+        parts.push(`Recommended adjustments: ${modSummary.join(", ")} (${(modifiers.confidence * 100).toFixed(0)}% confidence from ${evidenceCount} tips).`);
       }
     }
 
@@ -2678,10 +2679,11 @@ export class PRISMUnifiedOrchestratorEngine {
     }
 
     // Identify tribal knowledge gaps
+    const tribalEvidenceCount = tribalContext.modifiers.evidence_count ?? 0;
     if (tribalContext.matching_tips === 0) {
       enhancedGaps.push("No matching tribal knowledge found for this task context");
-    } else if (tribalContext.modifiers.evidence_count < 5) {
-      enhancedGaps.push(`Limited tribal evidence (${tribalContext.modifiers.evidence_count} tips) - may not be statistically robust`);
+    } else if (tribalEvidenceCount < 5) {
+      enhancedGaps.push(`Limited tribal evidence (${tribalEvidenceCount} tips) - may not be statistically robust`);
     }
 
     return {
