@@ -1,0 +1,91 @@
+{
+  "id": "SYSTEM-VIZ-FS-COVERAGE-MS1",
+  "version": "1.0.0",
+  "title": "System-Viz Filesystem Coverage MS1 — re-walks, drift detection, truncation recovery",
+  "brief": "Follow-up to SYSTEM-VIZ-FS-COVERAGE-MS0 (shipped 2026-05-15 — 1.57M files / 70 namespaces). MS0 froze a snapshot; MS1 keeps the graph honest. Phase 0: re-walk the 3 namespaces flagged truncated in MS0 (.claude/H:/prism/.claude @ 20k cap, JM DIE @ 80k cap, Docustrata @ 80k cap) with raised caps. Phase 1: cron-driven daily re-walk of the top-N most-churned namespaces. Phase 2: drift detector (graph fsCoverage.lastWalkedAt vs disk dir mtimes) that surfaces stale namespaces + suggests re-walk targets.",
+  "created_at": "2026-05-15T20:30:00.000Z",
+  "created_by": "claude-b6c4b196 (slot alpha)",
+  "track": "devtools",
+  "track_name": "BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP",
+  "status": "in_progress",
+  "scope_note": "MS0 declared every H: file represented BUT 3 namespaces hit the safety cap and are flagged truncated. MS1 (a) recovers those, (b) institutes a cron cadence so the snapshot stays current, (c) detects drift between graph and disk so an operator (or chat) knows when a re-walk is overdue.",
+  "priority": 0,
+  "tier": 1,
+  "omega_target": 0.85,
+  "h_drive_canonical": true,
+  "depends_on": [
+    "SYSTEM-VIZ-FS-COVERAGE-MS0",
+    "SYSTEM-VIZ-BRAIN-MS0"
+  ],
+  "phases": {
+    "0": {
+      "title": "Truncation recovery — re-walk the 3 capped namespaces",
+      "status": "in_progress",
+      "units": [
+        {
+          "unit_id": "U-MS1-REWALK-DOTCLAUDE",
+          "title": "Re-walk H:/prism/.claude with --max-files 100000 (was capped at 20k)",
+          "status": "in_progress",
+          "deliverable": ".claude namespace fsCoverage.truncated === false",
+          "max_files": 100000
+        },
+        {
+          "unit_id": "U-MS1-REWALK-JMDIE",
+          "title": "Re-walk H:/prism/JM DIE with --max-files 200000 --bundle-threshold 50 (was capped at 80k)",
+          "status": "in_progress",
+          "deliverable": "JM DIE namespace fsCoverage.truncated === false",
+          "max_files": 200000
+        },
+        {
+          "unit_id": "U-MS1-REWALK-DOCUSTRATA",
+          "title": "Re-walk H:/prism/Docustrata with --max-files 200000 --bundle-threshold 50 (was capped at 80k)",
+          "status": "in_progress",
+          "deliverable": "Docustrata namespace fsCoverage.truncated === false",
+          "max_files": 200000
+        }
+      ]
+    },
+    "1": {
+      "title": "Cron-driven daily re-walk for top-churn namespaces",
+      "status": "deferred",
+      "units": [
+        {
+          "unit_id": "U-MS1-CRON-RUNNER",
+          "title": "scripts/cron-revwalk.mjs — daily Windows scheduled task that re-walks top-N namespaces by churn (dir mtime delta since last walk)",
+          "status": "deferred",
+          "deliverable": "Scheduled task `PRISM System-Viz Re-walk Daily` registered, runs 03:00 local"
+        },
+        {
+          "unit_id": "U-MS1-CHURN-RANKER",
+          "title": "Pure helper that ranks namespaces by churn rate (recent disk activity vs lastWalkedAt)",
+          "status": "deferred",
+          "deliverable": "scripts/lib/namespace-churn-ranker.mjs + tests"
+        }
+      ]
+    },
+    "2": {
+      "title": "Drift detection — graph vs disk reality",
+      "status": "deferred",
+      "units": [
+        {
+          "unit_id": "U-MS1-DRIFT-DETECTOR",
+          "title": "scripts/detect-system-viz-drift.mjs — diffs fsCoverage.lastWalkedAt against current dir mtimes, flags >24h stale + >5% file-count delta",
+          "status": "deferred",
+          "deliverable": "scripts/detect-system-viz-drift.mjs + state/shared/system-viz/DRIFT_REPORT.json"
+        },
+        {
+          "unit_id": "U-MS1-DRIFT-SKILL",
+          "title": "Skill: /system-viz-drift surfaces the latest drift report inline",
+          "status": "deferred",
+          "deliverable": ".claude/commands/system-viz-drift.md"
+        },
+        {
+          "unit_id": "U-MS1-DRIFT-STOP-HOOK",
+          "title": "Stop hook: stop-system-viz-drift.mjs — once per session, if drift report >12h old or >10 stale namespaces, nudge a refresh",
+          "status": "deferred",
+          "deliverable": ".claude/hooks/stop-system-viz-drift.mjs wired in BOTH settings.json copies"
+        }
+      ]
+    }
+  }
+}
