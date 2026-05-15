@@ -615,13 +615,24 @@
           "title": "[Track D] Rebuild cad-file-index/master-index.json from the CAD half of the archive (.ipt/.iam/.f3d/.SLDPRT/.MIN — treat CAD files as program-equivalent for mill jobs) so the CAD-program join stops missing (currently only 38 print→CAM-project hits); extend CADRegistryEngine / the CAD-index scanner. May overlap MS-RES-MACHINE-MODELS / RES-MS10 — check cad_registry_scan first",
           "effort": 90,
           "dependencies": [],
+          "status": "completed",
+          "completed_at": "2026-05-15T13:38:00Z",
+          "completed_by": "claude-2081f435 (slot echo, post-/compact /loop iter 4)",
           "exit_conditions": [
             "Implementation complete per description",
             "Tests pass: npx vitest run",
             "Typecheck clean: npx tsc --noEmit",
             "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
           ],
-          "description": "[Track D] Rebuild cad-file-index/master-index.json from the CAD half of the archive (.ipt/.iam/.f3d/.SLDPRT/.MIN — treat CAD files as program-equivalent for mill jobs) so the CAD-program join stops missing (currently only 38 print→CAM-project hits); extend CADRegistryEngine / the CAD-index scanner. May overlap MS-RES-MACHINE-MODELS / RES-MS10 — check cad_registry_scan first — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "exit_evidence": {
+            "engine": "mcp-server/src/engines/ProgramEquivalentIndexEngine.ts (pure composition, ~395 LOC) — joins UniversalCADIndexEngine MasterIndex with lathe .MIN JMDieDiskIndexEntry[] into a unified ProgramEquivalentIndex. NO new scanner — composes UniversalCADIndexEngine (existing) + D1's PN normalizer + D1's lookupPrintForProgram. Per envelope brief 'check cad_registry_scan first', confirmed CADFileIndexerEngine + UniversalCADIndexEngine + cad_registry_scan action all already exist; D4 fills the .MIN gap (not in TARGET_CAD_FORMATS) with a separate composition surface (program-equivalent-index.json sibling, never clobbers CAD master-index.json).",
+            "tests": "mcp-server/src/__tests__/ProgramEquivalentIndexEngine.test.ts — 21/21 PASS (happy paths, PN extraction edge cases, link enrichment via DI lookupFn, input rejection, dryRun safety, write atomicity, wiring).",
+            "tsc": "npx tsc --noEmit clean for D4 surfaces.",
+            "dispatcher": "cadDispatcher.ts — program_equivalent_index_compose action added (lazy-imports engine + optional D1 loadLinkIndex when join_jsonl_path/input_program_paths supplied).",
+            "schema": "cadActionSchemas.ts — programEquivalentIndexComposeSchema added with .passthrough() pattern matching surrounding code.",
+            "composes_not_duplicates": "Imports CADFileEntry/MasterIndex types from cadFileIndexSchema, ProgramPrintLinkIndex from ProgramPrintLinkIndexEngine, lookupPrintForProgram/extractJMDieCandidates/normalizeJMDiePN from the D1 engine, JMDieDiskIndexEntry from JMDieArchiveBackAnnotationEngine. No new scanner, no forked normalizer, no duplicate part-number logic."
+          },
+          "closeout_note": "Shipped 2026-05-15 by claude-2081f435 (slot echo, post-/compact /loop iter 4). MS-PRINT-PROGRAM-LOOP completed_units 3 → 4. The envelope warning 'May overlap MS-RES-MACHINE-MODELS / RES-MS10 — check cad_registry_scan first' was well-founded: UniversalCADIndexEngine (U-CADC01, CAD-COMPLETE-MS0) already covers 15 CAD formats incl. .ipt/.iam/.f3d/.SLDPRT, and CADFileIndexerEngine already writes to data/state/cad-file-index/master-index.json. D4 does NOT rebuild that — it adds a sibling program-equivalent-index.json that joins the existing CAD surface with lathe .MIN entries (the gap, not in TARGET_CAD_FORMATS), enriched with optional D1 print pointers. Engine is pure-transform (no fs walking; caller supplies entries). Test fixture uses DI lookupFn pattern to avoid coupling tests to the brittle ProgramPrintLinkIndex internal shape — production path still routes through real lookupPrintForProgram via buildLookupFromIndex.",
           "four_loop": [
             "BUILD",
             "SCRUTINIZE",
@@ -666,7 +677,7 @@
     }
   ],
   "total_units": 23,
-  "completed_units": 3,
+  "completed_units": 4,
   "updated_at": "2026-05-15T17:10:00.000Z",
   "updated_by": "claude-2081f435 (U-PPL-D1 prism_data mirror + U-PPL-D2 envelope flip + U-PPL-D3 ArchiveToPartsCatalogIngester ship, slot echo)",
   "started_at": "2026-05-15T16:30:00.000Z"
