@@ -135,10 +135,59 @@ Bucketed file count surfaces what touched what (`3 files: 2 hooks, 1 helper`). O
 | `PRISM_VIZ_REMINDER_DISABLE` | (off) | Disable Stop-time viz reminder |
 | `PRISM_VIZ_REMINDER_MIN_FILES` | 1 | Min H-drive writes before reminding |
 
+## Piece 4 — /compact auto-generates the precompact handoff (2026-05-15, commit 5c4778b59)
+
+The 2026-05-06 handoff-writer ban (hooks/subagents cannot write per-agent handoffs — they produced generic stubs) had a side effect: a chat that ran `/compact` without first manually invoking `/precompact` got no real RESUME directive — the next session resumed blind.
+
+**Fix:** `precompact-handoff.mjs` (PreCompact hook) now auto-writes when no fresh live-chat handoff exists:
+
+1. `getExistingResume()` null → call `generateSmartResume()` (pulls CURRENT_POSITION + roadmap claims + recent commits)
+2. Look up this chat's slot from `chat-slots.json` by chatId → topic becomes `<slot>-<topic>`
+3. Write via `per-agent-handoff.mjs --source precompact-hook` (NEW strictly-gated source)
+4. Pad the written file to a deterministic size via `padFileToBytes()`
+
+**`--source precompact-hook` strict gates** (in `per-agent-handoff.mjs`):
+
+| Gate | Rejection `rejectedBy` |
+|---|---|
+| resume empty / <30 chars / placeholder | `precompact-hook-validation` |
+| fresh live-chat RESUME exists (<5min) | `fresh-live-chat-resume-exists` |
+
+The ban is NOT lifted — `precompact-hook` is a strict exception. Live-chat `/precompact` always wins.
+
+### Fixed-size handoffs — `padFileToBytes()`
+
+`padFileToBytes(filePath, targetBytes)` appends an HTML-comment block (`<!-- pad: xxx… -->`) to hit an exact byte count. Invisible to markdown renderers and to the `## RESUME` extractor. Skips when the file is already ≥ target (`pad-skipped-oversize`).
+
+| Knob | Default | Purpose |
+|---|---|---|
+| `PRISM_PRECOMPACT_HANDOFF_PAD_BYTES` | 4096 | Target handoff size |
+| `PRISM_PRECOMPACT_HANDOFF_PAD_DISABLE` | (off) | Skip padding |
+
+**Why fixed-size**: deterministic byte budget for the RESUME survival path; predictable headroom between the HARD threshold (900K tokens) and the 1M cap. **Not a substitute for autocompact** — disabling Claude CLI autocompact entirely kills the session at the 1M wall. Cap `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` at 95-98.
+
+## terminal-window-id.mjs resolver hardening (2026-05-15, commit 5c4778b59)
+
+The original Piece-3 resolver had a latent bug: the 3 tiers (`WT_SESSION` → wmic ancestor → bare ppid) silently degraded. wmic flakes intermittently on Win11 (deprecated) → resolver drops to tier-3 ppid (the per-tool-call bash.exe PID) → produces a DIFFERENT id for the same window → chat-slots claims a NEW slot → lane drift. Live-reproduced this session: `tw-pp-36100`, `tw-ps-23476`, `tw-pp-28796` — three ids, one window.
+
+**Fix:**
+- **Tier-0 cache** keyed on sessionId (`.claude/cache/terminal-window-cache.json`) — within-chat invocations always return the cached id
+- **Never-downgrade**: `tw-wt(4) > tw-ps(3) > tw-pa(2) > tw-pp(1)` — a cached high-tier id is never overwritten by a transient low-tier resolve
+- **`Get-CimInstance Win32_Process`** runs before wmic (Win11-native, structured JSON)
+- **New tier-3 `tw-pa`**: first non-shell-child ancestor (skips bash.exe/cmd.exe/conhost.exe/node.exe) → reaches the stable claude.exe harness PID
+
+| Knob | Default | Purpose |
+|---|---|---|
+| `PRISM_TWID_CACHE_FILE` | `.claude/cache/terminal-window-cache.json` | Override (tests) |
+| `PRISM_TWID_CACHE_DISABLE` | (off) | Skip tier-0 cache |
+
 ## Related
 
 - [[reference_session_continuity_stack_2026_05_15]] — memory cross-link
+- [[reference_precompact_hook_autowrite_2026_05_15]] — Piece 4 memory
+- [[reference_twid_resolver_cache_2026_05_15]] — resolver hardening memory
 - [[feedback_fleet_design_10_chats]] — 10-chat scale directive
 - [[feedback_reflect_all_changes_post_update]] — 4-surface doc reflection rule
-- [[reference_fleet_reaper_ms1]] — slot-aware reaper (depends on chat-slots state; my schema-v2 change is additive — no impact)
+- [[feedback_handoff_writers]] — the ban that `precompact-hook` strictly excepts
+- [[reference_fleet_reaper_ms1]] — slot-aware reaper (depends on chat-slots state; schema-v2 change is additive — no impact)
 - [[reference_harness_hang_prevention]] — broader continuity infra context
