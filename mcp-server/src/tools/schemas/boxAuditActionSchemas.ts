@@ -200,11 +200,61 @@ export const BoxProgramMemorySaveSchema = z.object({
     feed_rate: z.number().nullable().optional(),
     notes: z.string().nullable().optional(),
   })).min(1),
+  // U-PPL-D2 — explicit/auto blueprint link
+  linked_blueprint_path: z.string().min(1).optional().describe(
+    "Optional explicit pointer to the linked blueprint. When omitted, the dispatcher attempts auto-resolution via ProgramPrintLinkIndexEngine.lookupPrintForProgram using the supplied filename."
+  ),
+  linked_blueprint_confidence: z.string().min(1).optional().describe(
+    "Match confidence string from ProgramPrintLinkIndexEngine. Required when linked_blueprint_path is provided explicitly."
+  ),
+  linked_blueprint_page: z.number().int().positive().finite().optional().describe(
+    "1-indexed PDF page for multi-page (Docustrata container) prints."
+  ),
+  // Auto-link controls
+  program_path: z.string().min(1).optional().describe(
+    "Absolute path to the source program file. When provided AND no explicit linked_blueprint_path is supplied, the dispatcher calls ProgramPrintLinkIndexEngine.lookupPrintForProgram(program_path) to auto-resolve a blueprint pointer."
+  ),
+  join_jsonl_path: z.string().optional().describe(
+    "Optional override for the v6 join index source (delegates to BlueprintProgramJoinEngine.loadJoinIndex). Used only when program_path is set."
+  ),
+  input_program_paths: z.array(z.string()).optional().describe(
+    "Optional program-side seed paths for ProgramPrintLinkIndexEngine.buildProgramSeedAugmentation. Used only when program_path is set."
+  ),
+  auto_link: z.boolean().optional().default(true).describe(
+    "Set false to suppress auto-resolution entirely even when program_path is set (e.g. for a known-empty-archive test)."
+  ),
 });
 
 export const BoxProgramMemoryRecallSchema = z.object({
   customer: z.string().min(1),
   part_number: z.string().min(1),
+});
+
+/**
+ * U-PPL-D2 — explicit post-hoc / batch / clear-the-pointer surface.
+ *
+ *   - mode=`explicit`  → caller supplies linked_blueprint_path (+ confidence + optional page)
+ *   - mode=`auto`      → caller supplies program_path, dispatcher resolves via the link index
+ *   - mode=`clear`     → unconditionally strips any prior pointer
+ *
+ * Returns the updated ProgramRecord, or null when no record exists for the
+ * customer/part (FAIL-LOUD on the dispatcher side, not silent create — use
+ * `box_program_memory_save` to create+link in one call).
+ */
+export const BoxProgramMemoryLinkPrintSchema = z.object({
+  customer: z.string().min(1),
+  part_number: z.string().min(1),
+  mode: z.enum(["explicit", "auto", "clear"]).default("auto").describe(
+    "explicit = use the supplied linked_blueprint_path; auto = call ProgramPrintLinkIndexEngine.lookupPrintForProgram(program_path); clear = strip any prior pointer."
+  ),
+  // For mode=explicit
+  linked_blueprint_path: z.string().min(1).optional(),
+  linked_blueprint_confidence: z.string().min(1).optional(),
+  linked_blueprint_page: z.number().int().positive().finite().optional(),
+  // For mode=auto
+  program_path: z.string().min(1).optional(),
+  join_jsonl_path: z.string().optional(),
+  input_program_paths: z.array(z.string()).optional(),
 });
 
 // ── BOX-MS8: Wire EDM Parsing + Mill Pattern Mining ─────────
@@ -253,6 +303,7 @@ export const BOX_ACTION_SCHEMAS: Record<string, z.ZodType> = {
   box_program_memory_recall: BoxProgramMemoryRecallSchema,
   box_program_memory_defaults: z.object({}),
   box_program_memory_stats: z.object({}),
+  box_program_memory_link_print: BoxProgramMemoryLinkPrintSchema,
   box_parse_wedm: BoxParseWEDMSchema,
   box_mine_mill_patterns: BoxMineMillPatternsSchema,
 };

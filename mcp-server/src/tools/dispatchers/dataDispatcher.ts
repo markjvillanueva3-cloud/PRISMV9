@@ -107,6 +107,7 @@ const DataDispatcherSchema = z.object({
     // BOX-MS7: Calculator page — program upload + tool callout + auto S/F
     "box_upload_analyze", "box_tool_callouts", "box_program_memory_save",
     "box_program_memory_recall", "box_program_memory_defaults", "box_program_memory_stats",
+    "box_program_memory_link_print",
     // BOX-MS8: Wire EDM parsing + mill pattern mining
     "box_parse_wedm", "box_mine_mill_patterns",
     // QCMG-WIRE-MS0: 14 unwired quality/controller/material/grinding engines
@@ -139,6 +140,62 @@ const DataDispatcherSchema = z.object({
 
 function jsonResponse(data: any) {
   return { content: [{ type: "text" as const, text: JSON.stringify(data) }] };
+}
+
+/**
+ * U-PPL-D2 — auto-link orchestration helper.
+ *
+ * Given a program path, returns the BlueprintLinkInfo to attach (or null if
+ * no link could be resolved). Resolves the doc-id → filename via the parent
+ * v6 join row's `blueprints[]` because `ProgramToPrintLink` only carries the
+ * `print_doc_ids[]` reference (a doc_id is NOT a usable path — reviewer B
+ * P0 fix). Page resolves from the matching BlueprintRef.page_index (1-indexed).
+ *
+ * Resolution priority:
+ *   1. training_triple link → use `print_disk_path` directly (real disk path).
+ *   2. v6 link → look up parent join row by `part_number_normalized`, find the
+ *      BlueprintRef whose doc_id matches `print_doc_ids[0]`, use its filename
+ *      + (page_index + 1).
+ *   3. Both miss → null (caller falls through to "no link attached").
+ */
+async function resolveAutoLink(
+  programPath: string,
+  joinJsonlPath: string | undefined,
+  inputProgramPaths: string[] | undefined,
+): Promise<{ path: string; confidence: string; page?: number } | null> {
+  const { lookupPrintForProgram, loadLinkIndex } = await import(
+    "../../engines/ProgramPrintLinkIndexEngine.js"
+  );
+  const idx = await loadLinkIndex({
+    joinJsonlPath,
+    inputProgramPaths,
+  });
+  const lookup = lookupPrintForProgram(programPath, idx);
+  if (!lookup.found || !lookup.links || lookup.links.length === 0) {
+    return null;
+  }
+  const link = lookup.links[0]!;
+  // Training-triple branch — disk path is authoritative.
+  if (link.print_disk_path && link.print_disk_path.length > 0) {
+    return { path: link.print_disk_path, confidence: link.match_confidence };
+  }
+  // v6 join branch — resolve doc_id → BlueprintRef.filename via the parent row.
+  const docId = link.print_doc_ids?.[0];
+  if (!docId) return null;
+  const parentRow = idx.joinIndex.byNormalizedPN.get(link.part_number_normalized);
+  if (!parentRow || !Array.isArray(parentRow.blueprints) || parentRow.blueprints.length === 0) {
+    return null;
+  }
+  const bp =
+    parentRow.blueprints.find((b) => b.doc_id === docId) ?? parentRow.blueprints[0]!;
+  if (!bp.filename || bp.filename.length === 0) return null;
+  const page =
+    typeof bp.page_index === "number" && Number.isFinite(bp.page_index) && bp.page_index >= 0
+      ? bp.page_index + 1
+      : undefined;
+  return page !== undefined
+    ? { path: bp.filename, confidence: link.match_confidence, page }
+    : { path: bp.filename, confidence: link.match_confidence };
 }
 
 /** Registers data dispatcher.
@@ -1940,12 +1997,44 @@ export function registerDataDispatcher(server: any): void {
 
           case "box_program_memory_save": {
             const { programMemoryEngine } = await import("../../engines/ProgramMemoryEngine.js");
+            // U-PPL-D2: resolve a blueprint pointer if the operator supplied one
+            // explicitly OR if a program_path is given and auto_link != false.
+            let linkInfo: { path: string; confidence: string; page?: number } | null = null;
+            const explicitPath = (params.linked_blueprint_path ?? null) as string | null;
+            const explicitConf = (params.linked_blueprint_confidence ?? null) as string | null;
+            const explicitPage = (params.linked_blueprint_page ?? undefined) as number | undefined;
+            if (explicitPath && explicitConf) {
+              linkInfo = {
+                path: explicitPath,
+                confidence: explicitConf,
+                ...(explicitPage !== undefined ? { page: explicitPage } : {}),
+              };
+            } else if (
+              (params.auto_link === undefined || params.auto_link === true) &&
+              params.program_path
+            ) {
+              try {
+                linkInfo = await resolveAutoLink(
+                  params.program_path as string,
+                  (params.join_jsonl_path ?? undefined) as string | undefined,
+                  (params.input_program_paths ?? undefined) as string[] | undefined,
+                );
+              } catch (err) {
+                // FAIL-LOUD on link-index unreadable (caller asked for auto-link but
+                // index is missing/corrupt) — log + still complete the save.
+                log.warn(
+                  `[box_program_memory_save] auto-link failed for ${String(params.program_path)}: ` +
+                    `${err instanceof Error ? err.message : String(err)}`,
+                );
+              }
+            }
             result = programMemoryEngine.save(
               (params.customer ?? "") as string,
               (params.part_number ?? "") as string,
               (params.filename ?? "") as string,
               (params.dialect ?? "unknown") as string,
               (params.assignments ?? []) as any[],
+              linkInfo,
             );
             break;
           }
@@ -1968,6 +2057,66 @@ export function registerDataDispatcher(server: any): void {
           case "box_program_memory_stats": {
             const { programMemoryEngine } = await import("../../engines/ProgramMemoryEngine.js");
             result = programMemoryEngine.getStats();
+            break;
+          }
+
+          case "box_program_memory_link_print": {
+            const { programMemoryEngine } = await import("../../engines/ProgramMemoryEngine.js");
+            const customer = (params.customer ?? "") as string;
+            const partNumber = (params.part_number ?? "") as string;
+            const mode = ((params.mode ?? "auto") as "explicit" | "auto" | "clear");
+            if (mode === "clear") {
+              result = programMemoryEngine.linkPrint(customer, partNumber, null);
+              break;
+            }
+            if (mode === "explicit") {
+              const path = (params.linked_blueprint_path ?? "") as string;
+              const confidence = (params.linked_blueprint_confidence ?? "") as string;
+              const page = (params.linked_blueprint_page ?? undefined) as number | undefined;
+              if (!path || !confidence) {
+                throw new Error(
+                  "[box_program_memory_link_print] mode=explicit requires linked_blueprint_path AND linked_blueprint_confidence",
+                );
+              }
+              result = programMemoryEngine.linkPrint(customer, partNumber, {
+                path,
+                confidence,
+                ...(page !== undefined ? { page } : {}),
+              });
+              break;
+            }
+            // mode=auto
+            const programPath = (params.program_path ?? "") as string;
+            if (!programPath) {
+              throw new Error(
+                "[box_program_memory_link_print] mode=auto requires program_path",
+              );
+            }
+            // A missing/corrupt/empty join file must NOT escalate to a dispatcher
+            // error in auto mode — it's a miss, not a caller bug. Treat any
+            // failure as "no link found" (return unchanged record).
+            let autoLink: { path: string; confidence: string; page?: number } | null = null;
+            try {
+              autoLink = await resolveAutoLink(
+                programPath,
+                (params.join_jsonl_path ?? undefined) as string | undefined,
+                (params.input_program_paths ?? undefined) as string[] | undefined,
+              );
+            } catch (err) {
+              log.warn(
+                `[box_program_memory_link_print] auto-mode load failed for ${programPath}: ` +
+                  `${err instanceof Error ? err.message : String(err)}`,
+              );
+              result = programMemoryEngine.recall(customer, partNumber);
+              break;
+            }
+            if (!autoLink) {
+              // Lookup miss != operator clear. Return unchanged record without
+              // mutating (linkPrint(..., null) would CLEAR — wrong here).
+              result = programMemoryEngine.recall(customer, partNumber);
+              break;
+            }
+            result = programMemoryEngine.linkPrint(customer, partNumber, autoLink);
             break;
           }
 

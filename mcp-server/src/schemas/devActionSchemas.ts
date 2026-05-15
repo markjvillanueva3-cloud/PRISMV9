@@ -992,4 +992,32 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   rev_idx_stats: z.object({}).passthrough().describe("Per-index stats: {totalKeys, totalValues, avgValuesPerKey} for all 5 indexes"),
 
   rev_idx_recover_wal: z.object({}).passthrough().describe("Replay uncommitted WAL entries after crash — returns count recovered"),
+
+  // ── OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-IMPACT-ANALYSIS ──────────────────
+  // ImpactAnalysisEngine — Phase 0.8 rename/delete impact protocol. Read-only
+  // surfaces ONLY (executeRename is destructive + NOT MCP-exposed).
+  impact_analyze_rename: z.object({
+    from_name: z.string().min(1).describe("Current asset name"),
+    to_name: z.string().min(1).describe("Target new asset name"),
+    asset_type: z.enum(["engine", "dispatcher", "action", "skill", "hook", "test", "schema"])
+      .describe("Asset category"),
+  }).passthrough().describe("Analyze rename impact — returns ImpactReport with direct/transitive dependents + breaking changes (always dry-run via MCP)"),
+
+  impact_analyze_delete: z.object({
+    name: z.string().min(1).describe("Asset name to analyze"),
+    asset_type: z.enum(["engine", "dispatcher", "action", "skill", "hook", "test", "schema"])
+      .describe("Asset category"),
+    force: z.boolean().optional().describe("If true, treat dependent-blocking as warning instead of error"),
+  }).passthrough().describe("Analyze delete impact — returns ImpactReport. Always dry-run via MCP."),
+
+  impact_can_delete: z.object({
+    name: z.string().min(1).describe("Asset name"),
+    asset_type: z.enum(["engine", "dispatcher", "action", "skill", "hook", "test", "schema"])
+      .describe("Asset category"),
+  }).passthrough().describe("Boolean: is this asset safe to delete (no dependents AND not CRITICAL_ASSETS)"),
+
+  impact_find_orphans: z.object({
+    asset_type: z.enum(["engine", "dispatcher", "action", "skill", "hook", "test", "schema"])
+      .describe("Asset category to scan"),
+  }).passthrough().describe("Find all assets of the given type with zero direct dependents"),
 };

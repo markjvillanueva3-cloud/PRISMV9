@@ -67,6 +67,26 @@ export interface ProgramCatalogEntry {
   success_rate?: number; // 0..1
   file_size_bytes?: number;
   file_ext: string;
+  /**
+   * Optional pointer to the linked blueprint (back-annotated via U-PPL-D1's
+   * ProgramPrintLinkIndexEngine). Absent until either a `register()` call
+   * supplies the link OR `linkPrint()` is called post-hoc.
+   */
+  linked_blueprint_path?: string;
+  /** Match confidence (v6 union: "exact"/"loose"/"ambiguous"/"filename_exact"/"filename_loose"). */
+  linked_blueprint_confidence?: string;
+  /** 1-indexed PDF page when the print is multi-page (Docustrata containers). */
+  linked_blueprint_page?: number;
+}
+
+/**
+ * Print-pointer payload — accepted by `linkPrint()` and by `register()`'s
+ * upstream caller (the dispatcher's auto-link orchestration).
+ */
+export interface BlueprintLinkInfo {
+  path: string;
+  confidence: string;
+  page?: number;
 }
 
 export interface PartSpec {
@@ -187,9 +207,108 @@ class LatheProgramCatalogEngineImpl {
 
   /**
    * Register a program entry in the catalog (idempotent — keyed by path).
+   *
+   * When re-registering an already-cataloged path WITHOUT a link payload
+   * (`entry.linked_blueprint_path` undefined), a previously-attached link
+   * is PRESERVED — auto-rescan must not silently strip a known-good
+   * pointer. Pass the link fields explicitly on the new entry to overwrite,
+   * or call `linkPrint(path, null)` to clear.
    */
   register(entry: ProgramCatalogEntry): void {
+    const existing = this.catalog.get(entry.path);
+    if (
+      existing?.linked_blueprint_path &&
+      !entry.linked_blueprint_path
+    ) {
+      entry = {
+        ...entry,
+        linked_blueprint_path: existing.linked_blueprint_path,
+        linked_blueprint_confidence: existing.linked_blueprint_confidence,
+        ...(existing.linked_blueprint_page !== undefined
+          ? { linked_blueprint_page: existing.linked_blueprint_page }
+          : {}),
+      };
+    }
     this.catalog.set(entry.path, entry);
+  }
+
+  /**
+   * Attach a blueprint pointer to an EXISTING catalog entry (post-hoc /
+   * operator-invoked path). Returns the updated entry, or null if no entry
+   * exists for the path. Pass `linkInfo === null` to explicitly clear the
+   * pointer. FAIL-LOUD on malformed payload (throws) — silent miss would
+   * hide a caller bug.
+   */
+  linkPrint(
+    programPath: string,
+    linkInfo: BlueprintLinkInfo | null,
+  ): ProgramCatalogEntry | null {
+    const entry = this.catalog.get(programPath);
+    if (!entry) return null;
+    if (linkInfo === null) {
+      delete entry.linked_blueprint_path;
+      delete entry.linked_blueprint_confidence;
+      delete entry.linked_blueprint_page;
+      return entry;
+    }
+    const validated = validateLinkInfo(linkInfo);
+    if (!validated) {
+      throw new Error(
+        `[LatheProgramCatalog.linkPrint] invalid linkInfo for ${programPath}: ` +
+          `path must be non-empty string, confidence must be non-empty string, ` +
+          `page (if present) must be finite positive integer`,
+      );
+    }
+    entry.linked_blueprint_path = validated.path;
+    entry.linked_blueprint_confidence = validated.confidence;
+    if (validated.page !== undefined) {
+      entry.linked_blueprint_page = validated.page;
+    } else {
+      delete entry.linked_blueprint_page;
+    }
+    return entry;
+  }
+
+  /**
+   * Bulk-attach blueprint pointers (e.g. from a batch back-annotation pass).
+   * Returns {attached, missing, invalid} counts. `invalid` payloads are
+   * skipped (do NOT throw on a single bad row — bulk callers want progress).
+   */
+  linkPrintBatch(
+    pairs: Array<{ programPath: string; linkInfo: BlueprintLinkInfo | null }>,
+  ): { attached: number; missing: number; invalid: number; cleared: number } {
+    let attached = 0;
+    let missing = 0;
+    let invalid = 0;
+    let cleared = 0;
+    for (const p of pairs) {
+      const entry = this.catalog.get(p.programPath);
+      if (!entry) {
+        missing++;
+        continue;
+      }
+      if (p.linkInfo === null) {
+        delete entry.linked_blueprint_path;
+        delete entry.linked_blueprint_confidence;
+        delete entry.linked_blueprint_page;
+        cleared++;
+        continue;
+      }
+      const validated = validateLinkInfo(p.linkInfo);
+      if (!validated) {
+        invalid++;
+        continue;
+      }
+      entry.linked_blueprint_path = validated.path;
+      entry.linked_blueprint_confidence = validated.confidence;
+      if (validated.page !== undefined) {
+        entry.linked_blueprint_page = validated.page;
+      } else {
+        delete entry.linked_blueprint_page;
+      }
+      attached++;
+    }
+    return { attached, missing, invalid, cleared };
   }
 
   /**
@@ -552,6 +671,35 @@ class LatheProgramCatalogEngineImpl {
 
 function round3(n: number): number {
   return Math.round(n * 1000) / 1000;
+}
+
+/**
+ * Validate a BlueprintLinkInfo payload. Returns canonicalized form (page
+ * dropped if not a finite positive integer) or null on structural miss.
+ * Exported so the dispatcher's auto-link orchestration can pre-validate
+ * before mass-registering.
+ */
+export function validateLinkInfo(
+  info: BlueprintLinkInfo,
+): BlueprintLinkInfo | null {
+  if (!info || typeof info !== "object") return null;
+  const path = typeof info.path === "string" ? info.path.trim() : "";
+  const confidence =
+    typeof info.confidence === "string" ? info.confidence.trim() : "";
+  if (path.length === 0 || confidence.length === 0) return null;
+  let page: number | undefined;
+  if (info.page !== undefined && info.page !== null) {
+    if (
+      typeof info.page === "number" &&
+      Number.isFinite(info.page) &&
+      Number.isInteger(info.page) &&
+      info.page >= 1
+    ) {
+      page = info.page;
+    }
+    // Otherwise silently drop malformed page — path + confidence still useful.
+  }
+  return page === undefined ? { path, confidence } : { path, confidence, page };
 }
 
 // ── Singleton Export ───────────────────────────────────────────────────────
