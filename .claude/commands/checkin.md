@@ -258,7 +258,7 @@ Treat the wiki + memory vault as the second brain. The cognitive layer routes th
 | Ollama offload (local 7b) | Auto-routed for code summarize/explain/classify (`OllamaHookBridgeEngine`) |
 | Qdrant vector recall | `xproc_episodic_recall` / `xproc_outcome_retrieve_similar` |
 
-## Step 11 — CLAUDE.md rules + GSD + skills/scripts/hooks
+## Step 11 — CLAUDE.md rules + GSD + skills/scripts/hooks + RTK + context-extension
 
 Always-active layers (verify on every loop iteration — they're cheap):
 
@@ -267,6 +267,10 @@ Always-active layers (verify on every loop iteration — they're cheap):
 - **Skills index** via `prism_skill_script:skill_search` + `/master-index <task>`. ~440 skills auto-injected per SessionStart.
 - **Scripts** via `prism_skill_script:script_search`. Re-runnable helpers live in `H:/prism/scripts/` and `H:/prism/mcp-server/scripts/`.
 - **Hooks** registry via `prism_hook:list` + `prism_hook:manifest`. PreToolUse / PostToolUse / Stop / SessionStart / UserPromptSubmit.
+- **RTK token savings** — prefix bash with `rtk` for 60-99% output reduction on git/gh/npm/vitest/tsc/docker/grep/cat. `rtk vitest run` (99%), `rtk git status` (59%), `rtk gh pr checks` (79%). Skip only if output <500 chars. `/rtk-setup` if not installed.
+- **Context extension** — per-chat `state/shared/handoffs/HANDOFF-<slot>-<topic>.md` (10 chats), `MEMORY.md` index (<200 lines), `ENGINE_DIGEST.md` + `DISPATCHER_DIGEST.md` for zero-IO discovery, load-on-demand skills, keyword-gated UserPromptSubmit injections. The /precompact → /compact → SessionStart:compact → auto-resume chain (Step 14) closes the long-running loop.
+
+**REMINDER (slot-claim is mandatory, NOT optional):** Steps 1-7 above MUST run even when /checkin has a task arg. The pipeline (Steps 8-14) is ADDITIVE — never replaces slot-claim. If §Report verdict is ⚠ STOP, do NOT enter the pipeline; resolve the verdict first.
 
 ## Step 12 — Run /loop until tasks complete (= /goal)
 
