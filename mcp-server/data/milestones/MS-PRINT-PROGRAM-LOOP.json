@@ -562,7 +562,17 @@
             "skill",
             "digest",
             "system-viz"
-          ]
+          ],
+          "status": "completed",
+          "completed_at": "2026-05-15T16:55:00.000Z",
+          "completed_by": "claude-2081f435 (slot echo, post-/compact iter) — verification close-out (work shipped earlier across multiple peer commits, this session verified + flipped envelope)",
+          "exit_evidence": {
+            "implementation": "ProgramMemoryEngine.ProgramRecord carries linked_blueprint_path + linked_blueprint_confidence + linked_blueprint_page fields (src/engines/ProgramMemoryEngine.ts:45-53). LatheProgramCatalogEngine.ProgramCatalogEntry carries the same triplet (src/engines/LatheProgramCatalogEngine.ts:75-79). Both engines export BlueprintLinkInfo for the shared print-pointer payload shape. Auto-link orchestration in box_program_memory_save (dataDispatcher.ts:1942-2009) lazy-imports ProgramPrintLinkIndexEngine and invokes lookupPrintForProgram when program_path is supplied AND auto_link != false; FAIL-LOUD warn on index-load failure (save proceeds without link rather than silent-fail). Explicit-mode (operator supplies linked_blueprint_path + linked_blueprint_confidence) takes precedence over auto-link. linkPrint() method on ProgramMemoryEngine for after-the-fact attachment; never silently strips an existing link on re-save without new resolution.",
+            "tests_pass": "src/__tests__/ProgramMemoryEngine.linkPrint.test.ts: 27/27 PASS in 20ms. src/__tests__/LatheProgramCatalogEngine.test.ts: 36/36 PASS in 26ms. Combined 63/63 PASS — exercises both explicit and auto-link modes, link-preservation on re-save, and the box_program_memory_link_print dispatcher action.",
+            "typecheck": "Pre-existing TSC errors in dataDispatcher.ts (lines 2297 + 2400, both pre-existing — materialInterpolationEngine signature drift + slimResponse arity) untouched. No U-PPL-D2 file introduces new errors.",
+            "dispatcher_wiring": "Verified — prism_data: box_program_memory_link_print action wired (dataDispatcher.ts:2032, action enum line 110). Auto-link path on box_program_memory_save invokes ProgramPrintLinkIndexEngine.lookupPrintForProgram. Both surfaces invoke through the dispatcher path, not only the engine singleton."
+          },
+          "closeout_note": "U-PPL-D2 was implementation-complete across peer commits (engine field additions + dispatcher auto-link wiring + box_program_memory_link_print action + tests) prior to this session — envelope status had not been flipped. echo (claude-2081f435) verified existing artifacts on disk, confirmed 63/63 tests pass, and flipped the envelope. No new code shipped for this unit. The 4 print-pointer fields use snake_case in the actual implementation (linked_blueprint_path/confidence/page) — envelope title's camelCase form (linkedBlueprintPath) is a doc-vs-code drift but not a functional issue. Same pattern as U-PPL-D1 prism_data mirror close-out earlier this session."
         },
         {
           "id": "U-PPL-D3",
@@ -646,8 +656,8 @@
     }
   ],
   "total_units": 23,
-  "completed_units": 1,
-  "updated_at": "2026-05-15T16:30:00.000Z",
-  "updated_by": "claude-339c8ff7 (U-PPL-D1 close-out, slot charlie)",
+  "completed_units": 2,
+  "updated_at": "2026-05-15T16:55:00.000Z",
+  "updated_by": "claude-2081f435 (U-PPL-D1 prism_data mirror + U-PPL-D2 envelope flip, slot echo)",
   "started_at": "2026-05-15T16:30:00.000Z"
 }
