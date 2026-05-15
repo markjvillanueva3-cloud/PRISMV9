@@ -398,6 +398,22 @@ Sections:
 
 A healthy installation should show `offload rate ≥ 30%` after a session of mixed work. `offloaded=0, keptOnClaude>0` means the offloader is classifying tasks but Ollama is unreachable or rate-limited — check `http://127.0.0.1:11434/api/tags` and the rate-limit file at `.claude/cache/ollama-rate-limit.json`.
 
+## OLLAMA-PIPELINE-MS0 (2026-05-15, commit c34405927) — wire local LLM into skill pipelines
+
+Closes the gap where 21 ollama hooks + 8 engines existed but `/forge-audit`, `/rgs`, `/forge-triple` had **zero Ollama mentions** (9% offload rate vs 30% healthy target). Three load-bearing artifacts:
+
+| Artifact | Role | Knob |
+|----------|------|------|
+| `scripts/ollama-docker-health.mjs` | CLI probe — Ollama daemon + Docker + Qdrant + Postgres + Prometheus in 1 line. `--text`/`--json`/`--require ollama,qdrant` gate. Uses curl subprocess (node fetch/http both fail under parallel-localhost-probe contention). | n/a |
+| `.claude/hooks/ollama-pipeline-injector.mjs` | UserPromptSubmit T2 4000ms — matches 9 pipeline triggers (`/forge-audit`, `/rgs`, `/scrutinize`, `/dedup`, `/precompact`, `/deep-search`, `/pdf-learn`, `/close-out-audit`, `/forge-triple`), injects concrete model + saving recommendations. | `PRISM_OLLAMA_PIPELINE_INJECT=0` |
+| `.claude/hooks/ollama-prewarm-on-pipeline.mjs` | UserPromptSubmit T3 3000ms — when trigger fires AND model NOT warm, spawns detached `curl /api/generate` with `keep_alive=10m`. 10-min per-model cooldown stamp. Hides cold-load latency in Claude reasoning window. | `PRISM_OLLAMA_PREWARM_DISABLE=1` |
+
+Wiring in C:/.claude/settings.json UserPromptSubmit chain (auto-mirrored to H:/.claude/settings.json by c-to-h-mirror). Skill-doc updates: `/checkin` §6g local-compute health + `local_compute:` Report line; `/forge-audit` + `/rgs` skill bodies (gitignored — local-only) carry explicit phase→model routing tables. The injector hook is the canonical source — skill text is advisory documentation.
+
+The deeper insight: 21 hooks fire on harness events automatically (good), but SKILL .md runbooks didn't reference Ollama — so post-`/compact` chats re-derived from skill text and missed the wiring. The injector makes the routes **deterministic and surface-visible on every invocation**.
+
+Wiki: [`knowledge/wiki/architecture/ollama-pipeline-ms0.md`](knowledge/wiki/architecture/ollama-pipeline-ms0.md). Memory: [[reference_ollama_pipeline_ms0_2026_05_15]].
+
 ## ONE-GLANCE CHECKLIST (every new task)
 1. Read HANDOFF for this chat via per-agent-handoff.mjs `read`
 2. If building/auditing/investigating → hooks auto-inject inventory + duplicate guards
