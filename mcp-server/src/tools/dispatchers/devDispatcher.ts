@@ -99,7 +99,14 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "tool_chain_string",
 "tool_chain_summary",
 "tool_chain_suggest",
-"tool_chain_reset"] as const;
+"tool_chain_reset",
+// OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-READ-OPT: wire ReadOptimizerEngine
+// (file-read strategy advisor — given file path + intent, returns one of
+//  skip|full|offset|grep|digest with estimated token cost).
+"read_optimize_recommend",
+"read_optimize_oneliner",
+"read_optimize_batch",
+"read_optimize_batch_cost"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -4818,6 +4825,43 @@ export function registerDevDispatcher(server: any): void {
             const { callChainEngine } = await import("../../engines/CallChainEngine.js");
             callChainEngine.reset();
             result = { success: true, reset: true };
+            break;
+          }
+
+          // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-READ-OPT: ReadOptimizerEngine wire (2026-05-15)
+          case "read_optimize_recommend": {
+            const { readOptimizerEngine } = await import("../../engines/ReadOptimizerEngine.js");
+            const rec = readOptimizerEngine.recommend(
+              String(params.file_path ?? params.path ?? ""),
+              typeof params.intent === "string" ? params.intent : undefined,
+            );
+            result = { success: true, recommendation: rec };
+            break;
+          }
+          case "read_optimize_oneliner": {
+            const { readOptimizerEngine } = await import("../../engines/ReadOptimizerEngine.js");
+            const line = readOptimizerEngine.oneLiner(
+              String(params.file_path ?? params.path ?? ""),
+              typeof params.intent === "string" ? params.intent : undefined,
+            );
+            result = { success: true, line };
+            break;
+          }
+          case "read_optimize_batch": {
+            const { readOptimizerEngine } = await import("../../engines/ReadOptimizerEngine.js");
+            const files = Array.isArray(params.files) ? params.files.map((f: unknown) => String(f)) : [];
+            const recs = readOptimizerEngine.batchRecommend(
+              files,
+              typeof params.intent === "string" ? params.intent : undefined,
+            );
+            result = { success: true, recommendations: recs };
+            break;
+          }
+          case "read_optimize_batch_cost": {
+            const { readOptimizerEngine } = await import("../../engines/ReadOptimizerEngine.js");
+            const files = Array.isArray(params.files) ? params.files.map((f: unknown) => String(f)) : [];
+            const cost = readOptimizerEngine.estimateBatchCost(files);
+            result = { success: true, cost };
             break;
           }
 

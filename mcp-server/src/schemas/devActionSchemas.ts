@@ -75,6 +75,31 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     program_path: z.string().min(1).describe("Program/CAD file path (any slash style, any case) — returns the print(s) joined to it"),
   }),
 
+  // ── U-DOCU-05 / MS-DOCU-INGEST: JMDieArchiveBackAnnotationEngine surfaces ──
+  // Back-annotate the JM-Die archive with print-pointer sidecars + a prism_parts
+  // index, derived from the v6 blueprint↔program join + training triples. The
+  // gap report scans both the join AND the JM-Die disk index (jm-die-index-v2.json)
+  // and FAIL-LOUDs on programs on disk with NO join row (~16K g-code + ~15K
+  // cam_project unreachable from Docustrata alone — per envelope brief).
+  back_annotate_archive: z.object({
+    dry_run: z.boolean().optional().describe("Plan-only; no files written. Defaults TRUE — first call previews blast radius before mutation."),
+    confidence_filter: z.array(z.enum(["exact", "loose", "ambiguous", "garbage", "miss"]))
+      .optional()
+      .describe("Which v6 match_confidence values to annotate. Default ['exact','loose']."),
+    archive_root: z.string().optional().describe("Override the archive root (the dir containing Docustrata/.index AND JM DIE/). Default auto-resolved."),
+    write_parts_index: z.boolean().optional().describe("Write per-PN entries under Docustrata/.index/prism_parts/. Default TRUE."),
+    limit: z.number().int().nonnegative().optional().describe("Cap on programs processed per call. 0 = no cap. Useful for operator-incremental runs."),
+    allow_roots: z.array(z.string()).optional().describe("Allow-list of root prefixes for the program-path trust-boundary check. Default [archive_root]."),
+  }).optional(),
+  back_annotate_gap_report: z.object({
+    archive_root: z.string().optional().describe("Override the archive root used to locate jm-die-index-v2.json."),
+    dry_run: z.boolean().optional().describe("If true (default false), don't persist; just return the report."),
+    disk_index_path: z.string().optional().describe("Override the path to jm-die-index-v2.json. Default <archive_root>/Docustrata/.index/jm-die-index-v2.json."),
+  }).optional(),
+  read_print_pointer: z.object({
+    program_path: z.string().min(1).describe("Program/CAD file path — returns the print-pointer sidecar if present and provenance == self."),
+  }),
+
   // AUTO-LEARNING-LOOP-MS0/U-ALL01 step-5 — ReputableSourceMonitorEngine surface.
   source_sweep: z.object({
     mode: z.enum(["poll_all", "poll_one", "get_sources", "get_state", "reset_all"])
@@ -602,4 +627,27 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   tool_chain_suggest: z.object({}).passthrough().describe("Optimization suggestions based on tool-count clustering in the last 10 calls"),
 
   tool_chain_reset: z.object({}).passthrough().describe("Clear the chain and detected patterns"),
+
+  // ── OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-READ-OPT ──────────────────────────
+  // ReadOptimizerEngine — file-read strategy advisor. Returns one of 5 strategies
+  // (skip|full|offset|grep|digest) with estimated token cost. Reads real
+  // filesystem (fs.statSync); non-existent path returns strategy="full".
+  read_optimize_recommend: z.object({
+    file_path: z.string().min(1).max(2048).describe("Absolute or relative path to the file to read"),
+    intent: z.string().max(1024).optional().describe("Optional grep-like search intent — when present, large files are routed to grep instead of digest"),
+  }).passthrough().describe("Recommend optimal read strategy for a single file"),
+
+  read_optimize_oneliner: z.object({
+    file_path: z.string().min(1).max(2048).describe("Absolute or relative path"),
+    intent: z.string().max(1024).optional().describe("Optional grep intent — see read_optimize_recommend"),
+  }).passthrough().describe("Compact one-line recommendation string (STRATEGY: reason (~N tokens))"),
+
+  read_optimize_batch: z.object({
+    files: z.array(z.string().min(1).max(2048)).min(1).max(500).describe("File paths to recommend strategies for"),
+    intent: z.string().max(1024).optional().describe("Shared grep intent applied to each file"),
+  }).passthrough().describe("Recommend strategies for a batch of files"),
+
+  read_optimize_batch_cost: z.object({
+    files: z.array(z.string().min(1).max(2048)).min(1).max(500).describe("File paths to estimate cost for"),
+  }).passthrough().describe("Estimate total + optimized token cost across a batch; returns {total, optimized, savings}"),
 };
