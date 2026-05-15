@@ -21,6 +21,7 @@ import { dispatcherError, validateActionParams } from "../../utils/dispatcherMid
 import { ACTION_SESSION_SCHEMAS } from "../../schemas/sessionActionSchemas.js";
 import * as fs from "fs";
 import * as path from "path";
+import * as os from "os";
 import { execFileSync } from "child_process";
 import { hookExecutor, type HookPhase } from "../../engines/HookExecutor.js";
 import type { StateEvent } from "../../types/prism-schema.js";
@@ -175,7 +176,28 @@ const ACTIONS = [
   // Composes 10 declared syscalls (whoami / manifest / position / delta /
   // tools / pick / checkin / handoff / record / recommend) over existing
   // helpers + engines. U-CK02/CK03 fill the per-syscall semantics.
-  "psk"
+  "psk",
+  // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-MULTI-SESSION-HANDOFF — wire
+  // MultiSessionHandoffCoordinatorEngine (U-CTX05, was orphan). Reads every
+  // HANDOFF-*.md in state/shared, merges open goals + next actions across
+  // sessions, detects claim conflicts, formats an injection-ready digest,
+  // and supports stale-handoff cleanup (gated behind dry-run + confirm).
+  "handoff_coord_status",
+  "handoff_coord_inject",
+  "handoff_coord_load_sessions",
+  "handoff_coord_cleanup_stale",
+  // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-SESSION-LIFECYCLE — wires
+  // SessionLifecycleEngine (W3:D5, 489 LOC, was orphan). Exposes the
+  // 5-dimension session quality ensemble (task_completion / reliability /
+  // safety_adherence / efficiency / continuity → 0-100 + letter grade)
+  // plus metrics inspection + final-handoff generation. Engine is a
+  // process-wide singleton via getInstance(); record-* methods stay
+  // internal (cadence-wrapper-driven), only read/handoff surfaces exposed.
+  "lifecycle_metrics",
+  "lifecycle_quality_score",
+  "lifecycle_session_id",
+  "lifecycle_call_count",
+  "lifecycle_final_handoff"
 ] as const;
 
 function ok(data: any) {
@@ -1790,6 +1812,181 @@ export function registerSessionDispatcher(server: any): void {
             }
             const result = await pskDispatch(syscall, syscallParams);
             return ok(result);
+          }
+
+          // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-MULTI-SESSION-HANDOFF —
+          // 4 actions wrapping MultiSessionHandoffCoordinatorEngine (U-CTX05).
+          // All four lazy-import the engine via dynamic import() per
+          // dispatchers.md convention. A custom handoff_dir param instantiates
+          // a fresh engine; default uses the package singleton (HANDOFF_DIR =
+          // H:/prism/state/shared). cleanup_stale is destructive and refuses
+          // to unlink without explicit {confirm:true} (dry-run by default).
+          case "handoff_coord_status": {
+            const mod = await import("../../engines/MultiSessionHandoffCoordinatorEngine.js");
+            const engine = params.handoff_dir
+              ? new mod.MultiSessionHandoffCoordinatorEngine(String(params.handoff_dir))
+              : mod.multiSessionHandoffCoordinatorEngine;
+            // engine.coordinate() already returns { success: true, workQueue, recommendations, tokenEstimate }
+            return ok(engine.coordinate());
+          }
+
+          case "handoff_coord_inject": {
+            const mod = await import("../../engines/MultiSessionHandoffCoordinatorEngine.js");
+            const engine = params.handoff_dir
+              ? new mod.MultiSessionHandoffCoordinatorEngine(String(params.handoff_dir))
+              : mod.multiSessionHandoffCoordinatorEngine;
+            const text = engine.formatForInjection();
+            return ok({
+              success: true,
+              text,
+              tokenEstimate: Math.ceil(text.length / 3.5),
+              bytes: Buffer.byteLength(text, "utf-8"),
+            });
+          }
+
+          case "handoff_coord_load_sessions": {
+            const mod = await import("../../engines/MultiSessionHandoffCoordinatorEngine.js");
+            const engine = params.handoff_dir
+              ? new mod.MultiSessionHandoffCoordinatorEngine(String(params.handoff_dir))
+              : mod.multiSessionHandoffCoordinatorEngine;
+            const sessions = engine.loadAllSessions();
+            const active = sessions.filter((s) => s.status === "active").length;
+            const stale = sessions.filter((s) => s.status === "stale").length;
+            return ok({
+              success: true,
+              count: sessions.length,
+              active,
+              stale,
+              sessions,
+            });
+          }
+
+          case "handoff_coord_cleanup_stale": {
+            // DESTRUCTIVE — dry-run by default. Requires explicit confirm:true
+            // to actually unlink. max_age_ms clamped ≥ 60_000 (1 min) to
+            // prevent foot-gunning (an op that nukes a fresh handoff is
+            // almost certainly an accident).
+            const mod = await import("../../engines/MultiSessionHandoffCoordinatorEngine.js");
+            const engine = params.handoff_dir
+              ? new mod.MultiSessionHandoffCoordinatorEngine(String(params.handoff_dir))
+              : mod.multiSessionHandoffCoordinatorEngine;
+            const requestedMaxAge = Number(params.max_age_ms ?? 30 * 60 * 1000);
+            const maxAgeMs = Math.max(
+              60_000,
+              Number.isFinite(requestedMaxAge) ? requestedMaxAge : 30 * 60 * 1000
+            );
+            const confirm = params.confirm === true;
+
+            if (!confirm) {
+              // Dry-run path: enumerate would-be-deleted files without unlink.
+              const files = engine.findHandoffFiles();
+              const now = Date.now();
+              const wouldDelete: Array<{ file: string; ageMs: number; ageMinutes: number }> = [];
+              for (const file of files) {
+                try {
+                  const stat = fs.statSync(file);
+                  const ageMs = now - stat.mtimeMs;
+                  if (ageMs > maxAgeMs) {
+                    wouldDelete.push({
+                      file,
+                      ageMs,
+                      ageMinutes: Math.round(ageMs / 60_000),
+                    });
+                  }
+                } catch { /* skip unreadable */ }
+              }
+              return ok({
+                success: true,
+                dry_run: true,
+                max_age_ms: maxAgeMs,
+                scanned: files.length,
+                would_delete_count: wouldDelete.length,
+                would_delete: wouldDelete,
+                note: "DESTRUCTIVE op — pass {confirm:true} to actually delete. max_age_ms clamped to ≥60_000.",
+              });
+            }
+
+            // Confirmed path: actually delete — but FIRST verify handoff_dir
+            // resolves under an allowlist. Reviewer B P1.3: an operator typo
+            // of `handoff_dir: "C:/Users"` + `confirm:true` would unlink files
+            // outside the handoff tree. The engine has no path guard, so the
+            // dispatcher enforces it here. Allowed roots: H:/prism/state, the
+            // OS tmp dir (for tests), and the engine's default singleton dir.
+            if (params.handoff_dir) {
+              const resolved = path.resolve(String(params.handoff_dir)).replace(/\\/g, "/");
+              const allowedRoots = [
+                "H:/prism/state",
+                path.resolve(os.tmpdir()).replace(/\\/g, "/"),
+              ];
+              const inAllowedRoot = allowedRoots.some((root) => {
+                const rootResolved = path.resolve(root).replace(/\\/g, "/");
+                return resolved === rootResolved || resolved.startsWith(rootResolved + "/");
+              });
+              if (!inAllowedRoot) {
+                return ok({
+                  success: false,
+                  error: "handoff_dir_not_in_allowlist",
+                  resolved,
+                  allowed_roots: allowedRoots,
+                  note: "DESTRUCTIVE cleanup_stale with confirm:true refuses to operate outside H:/prism/state/** or the OS tmp dir. Dry-run mode (without confirm:true) is unrestricted.",
+                });
+              }
+            }
+            const cleaned = engine.cleanupStaleSessions(maxAgeMs);
+            return ok({
+              success: true,
+              dry_run: false,
+              confirmed: true,
+              max_age_ms: maxAgeMs,
+              cleaned,
+            });
+          }
+
+          // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-SESSION-LIFECYCLE —
+          // 5 actions wrapping SessionLifecycleEngine (W3:D5, was orphan).
+          // Engine is a process-wide Singleton via getInstance(); we expose
+          // the convenience export functions where available (cleaner API)
+          // and getInstance() for the two accessors without convenience
+          // helpers (getSessionId, getCallCount).
+          case "lifecycle_metrics": {
+            const mod = await import("../../engines/SessionLifecycleEngine.js");
+            const metrics = mod.getSessionMetrics();
+            return ok({ success: true, metrics });
+          }
+
+          case "lifecycle_quality_score": {
+            const mod = await import("../../engines/SessionLifecycleEngine.js");
+            const score = mod.getSessionQualityScore();
+            return ok({ success: true, score });
+          }
+
+          case "lifecycle_session_id": {
+            const mod = await import("../../engines/SessionLifecycleEngine.js");
+            const sessionId = mod.SessionLifecycleEngine.getInstance().getSessionId();
+            return ok({ success: true, session_id: sessionId });
+          }
+
+          case "lifecycle_call_count": {
+            const mod = await import("../../engines/SessionLifecycleEngine.js");
+            const callCount = mod.SessionLifecycleEngine.getInstance().getCallCount();
+            return ok({ success: true, call_count: callCount });
+          }
+
+          case "lifecycle_final_handoff": {
+            const mod = await import("../../engines/SessionLifecycleEngine.js");
+            const phase = String(params.phase);
+            const quickResume = String(params.quick_resume);
+            const pendingTasks = Array.isArray(params.pending_tasks)
+              ? (params.pending_tasks as unknown[]).map((t) => String(t))
+              : [];
+            const keyFindings = Array.isArray(params.key_findings)
+              ? (params.key_findings as unknown[]).map((f) => String(f))
+              : [];
+            const handoff = mod.generateSessionHandoff(phase, quickResume, pendingTasks, keyFindings);
+            if (!handoff) {
+              return ok({ success: false, error: "handoff_generation_failed" });
+            }
+            return ok({ success: true, handoff });
           }
 
           default:
