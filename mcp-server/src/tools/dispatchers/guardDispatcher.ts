@@ -366,7 +366,7 @@ async function fireHook(hookId: string, data: Record<string, any>): Promise<any>
     const hookContext: Partial<HookContext> = {
       operation: data.tool_name || 'unknown',
       phase: 'pre-calculation' as HookPhase,
-      timestamp: new Date(),
+      timestamp: new Date().toISOString(),
       target: { type: 'calculation', data: data },
       metadata: { hookId, ...data },
     };
