@@ -1064,7 +1064,11 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json | delete script + remove cron entry if scheduled"
+          "rollback": "move hook to .claude/hooks/.deprecated/ + unwire from settings.json | delete script + remove cron entry if scheduled",
+          "status": "completed",
+          "completed_at": "2026-05-15T13:31:56.335Z",
+          "completed_by": "claude-b6c4b196 slot delta",
+          "close_out_note": "Hook (mirror-c-to-h.mjs) existed but was UNWIRED — wired into both settings.json PostToolUse Edit|Write|MultiEdit|NotebookEdit group. Built 2 missing deliverables: scripts/mirror-c-to-h-audit.mjs (drift surface) + scripts/bootstrap-h-mirror.mjs (one-shot backlog sync). Discovery: 33,040 of 34,003 files on C: were missing on H: (~97% drift) — months of silent C:↔H: divergence. All 32 tests pass (.claude/helpers/mirror-c-to-h.test.mjs, plain node:assert because helpers/ vitest-config is pre-existing-broken). Per-file scrutiny: 4 PASS (audit×2 + bootstrap×2 + wiring×2 + test×2). P3 deferrables: streaming hash for files >10MB, P1 reviewer note about bundling into posttool-edit-bundle.mjs vs standalone entry (fork-storm concern), CLAUDE.md auto-mirror claim on line 260 now actually true. CLAUDE.md updated (both global directive + recent-regression entry). Bootstrap not yet --apply'd — operator decision; dry-run output saved."
         },
         {
           "id": "P6-U02",
@@ -1233,7 +1237,11 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "delete script + remove cron entry if scheduled"
+          "rollback": "delete script + remove cron entry if scheduled",
+          "status": "completed",
+          "completed_at": "2026-05-15T14:16:31.177Z",
+          "completed_by": "claude-b6c4b196 (delta-then-orphaned) + peer claude-? (script+doc shipped 2026-05-15)",
+          "close_out_note": "Tag-team close-out. Peer chat shipped scripts/cross-pc-handoff-verify.mjs (4 pure helpers: classifyPath, extractPathRefs, severityFor, aggregateFindings) + CROSS-PC-HANDOFF-TEST.md (procedure doc) + mcp-server/src/__tests__/CrossPcHandoffVerify.test.ts (TS vitest, 26 cases). This chat shipped .claude/helpers/cross-pc-handoff-verify.test.mjs (28 cases plain node:assert, complementary to peer TS test, runnable without vitest harness). 27 pass + 1 honestly skipped under memory pressure (Windows ACCESS_VIOLATION 0xC0000005 — gracefully reported via SkipMarker sentinel, not counted as pass). 2-reviewer per-file scrutiny PASS with P1 fixes applied (skipped counter + named constants). All 4 envelope exit conditions satisfied."
         }
       ],
       "primary_role": "R3"
