@@ -46,6 +46,11 @@ const ACTIONS = [
   "budget_track",
   "budget_report",
   "budget_reset",
+  // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-SESSION-BUDGET-ADVISOR: 4 actions
+  "session_budget_advise",
+  "session_budget_one_liner",
+  "session_budget_should_compact",
+  "session_budget_estimate_capacity",
   // D2: Context Intelligence — Python module wiring
   "attention_score",
   "focus_optimize",
@@ -853,6 +858,62 @@ ${todoState.blockingIssues.length > 0 ? todoState.blockingIssues.map(i => `- ${i
 
           case "budget_reset": {
             return ok(ContextBudgetEngine.resetBudget());
+          }
+
+          // ================================================================
+          // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-SESSION-BUDGET-ADVISOR
+          // SessionBudgetAdvisorEngine — unified meta-advisor (consolidates
+          // ConversationBudgetEngine, TokenAccountingEngine, CallChainEngine,
+          // HookEfficiencyEngine signals into one compact output).
+          // ================================================================
+          case "session_budget_advise": {
+            const { sessionBudgetAdvisorEngine } = await import("../../engines/SessionBudgetAdvisorEngine.js");
+            const metrics = {
+              budgetMax: params.budgetMax,
+              tokensUsed: params.tokensUsed,
+              hookSaves: params.hookSaves ?? 0,
+              hookBlocks: params.hookBlocks ?? 0,
+              antiPatterns: params.antiPatterns ?? [],
+              topExpensiveTool: params.topExpensiveTool ?? "",
+              topExpensiveTokens: params.topExpensiveTokens ?? 0,
+              toolCallCount: params.toolCallCount ?? 0,
+              efficiencyScore: params.efficiencyScore ?? 100,
+            };
+            return ok(sessionBudgetAdvisorEngine.advise(metrics));
+          }
+          case "session_budget_one_liner": {
+            const { sessionBudgetAdvisorEngine } = await import("../../engines/SessionBudgetAdvisorEngine.js");
+            const metrics = {
+              budgetMax: params.budgetMax,
+              tokensUsed: params.tokensUsed,
+              hookSaves: 0,
+              hookBlocks: 0,
+              antiPatterns: [],
+              topExpensiveTool: "",
+              topExpensiveTokens: 0,
+              toolCallCount: params.toolCallCount ?? 0,
+              efficiencyScore: params.efficiencyScore ?? 100,
+            };
+            return ok({ line: sessionBudgetAdvisorEngine.oneLiner(metrics) });
+          }
+          case "session_budget_should_compact": {
+            const { sessionBudgetAdvisorEngine } = await import("../../engines/SessionBudgetAdvisorEngine.js");
+            const metrics = {
+              budgetMax: params.budgetMax,
+              tokensUsed: params.tokensUsed,
+              hookSaves: 0,
+              hookBlocks: 0,
+              antiPatterns: [],
+              topExpensiveTool: "",
+              topExpensiveTokens: 0,
+              toolCallCount: 0,
+              efficiencyScore: 100,
+            };
+            return ok({ shouldCompact: sessionBudgetAdvisorEngine.shouldCompact(metrics) });
+          }
+          case "session_budget_estimate_capacity": {
+            const { sessionBudgetAdvisorEngine } = await import("../../engines/SessionBudgetAdvisorEngine.js");
+            return ok(sessionBudgetAdvisorEngine.estimateCapacity(params.remaining));
           }
 
           // ================================================================

@@ -1,0 +1,673 @@
+{
+  "id": "MS-PRINT-PROGRAM-LOOP",
+  "version": "7.6.0",
+  "title": "MS-PRINT-PROGRAM-LOOP — the 4-track print→program closed loop (templates / re-optimize / lathe-knowledge-direct / back-annotate), ~22 units",
+  "brief": "All 4 capabilities built on EXISTING engines + one orchestrator per track. ANTI-DUP (extend/compose, NEVER fork): ProvenPartRecipeEngine, GCodeIntelligencePipelineEngine, TurningProgramAssemblerEngine, BlueprintProgramJoinEngine, ProgramMemoryEngine, PartLibraryEngine, LatheProgramOptimizerEngine, MillProgramOptimizerEngine, LathePartClassifierEngine — run duplicationGuardEngine.checkBeforeCreating() on every new engine. U-INV-LATHE-06 (the MS2 combinatoric print-to-program-SaaS unit) RESCOPES to reference this milestone. Track C (lathe-knowledge-direct) is Revenue-Day-1-eligible per the §R10.5 lock (turned parts bypass CAD/CAM — the dominant class, 16,558 .MIN → ~8-14 archetypes). U-PPL-D5 (the .mcx-8 binary parser) is the highest-leverage unit — unlocks all the mill arms (the .mcx-8 are unreadable binaries today; MILL_AI_TRAINING_REPORT cold at 27 programs because of it).",
+  "created_at": "2026-05-11T18:00:32.098Z",
+  "created_by": "claude-99eca613 (register-revenue-roadmap-envelopes.mjs, v7.6 §R10)",
+  "track": "revenue",
+  "track_name": "REVENUE-ROADMAP v7.6",
+  "roadmap_priority": 1,
+  "tier": 1,
+  "status": "in_progress",
+  "source": "§R10.4 — Track C is tier-0-eligible; Tracks A/B/D + U-PPL-D5 are tier 1-2",
+  "viz_node_id": "ghost.ms.ms-print-program-loop",
+  "doc_propagation": [
+    "claude.md",
+    "gsd",
+    "wiki",
+    "system-viz"
+  ],
+  "dependencies": [
+    "MS-PAY",
+    "MS-CRITWIRE",
+    "MS-DOCU-INGEST",
+    "MS-RES-NC-MINE"
+  ],
+  "blocks": [
+    "MS-RES-XLSM-ENGINE",
+    "MS-TRAIN-DEEP"
+  ],
+  "phases": [
+    {
+      "id": "P0",
+      "title": "MS-PRINT-PROGRAM-LOOP — the 4-track print→program closed loop (templates / re-optimize / lathe-knowledge-direct / back-annotate), ~22 units",
+      "sessions": "6",
+      "units": [
+        {
+          "id": "U-PPL-A1",
+          "title": "[Track A] U-MIN-FINGERPRINT (= RES-MS26) — structural-fingerprint the 16,558 turning .MIN → cluster into the 8-14 macro families (seed: ProgramMacroConverterEngine + LATHE_AI_TRAINING_REPORT's 14 patterns + the 7 hand-built .MIN templates in Resources/MACRO PROGRAMS/)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "[Track A] U-MIN-FINGERPRINT (= RES-MS26) — structural-fingerprint the 16,558 turning .MIN → cluster into the 8-14 macro families (seed: ProgramMacroConverterEngine + LATHE_AI_TRAINING_REPORT's 14 patterns + the 7 hand-built .MIN templates in Resources/MACRO PROGRAMS/) — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-print-program-loop.uppl-a1",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-PPL-A2",
+          "title": "[Track A] U-FAMILY-PARAM-EXTRACT — per family, extract the 8-15 driving parameters (ODs/lengths/bore-dia/thread-spec/chamfers) — the turning analogue of the .xlsm's 34 dims",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "[Track A] U-FAMILY-PARAM-EXTRACT — per family, extract the 8-15 driving parameters (ODs/lengths/bore-dia/thread-spec/chamfers) — the turning analogue of the .xlsm's 34 dims — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-print-program-loop.uppl-a2",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-PPL-A3",
+          "title": "[Track A] MS-RES-XLSM-ENGINE core — olevba-decode the .xlsm's vbaProject.bin → reverse the 34-dim→geometry math per the 11 die templates; register the mill die families as PRISM parametric templates (wrap & extend) — see MS-RES-XLSM-ENGINE",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "[Track A] MS-RES-XLSM-ENGINE core — olevba-decode the .xlsm's vbaProject.bin → reverse the 34-dim→geometry math per the 11 die templates; register the mill die families as PRISM parametric templates (wrap & extend) — see MS-RES-XLSM-ENGINE — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-print-program-loop.uppl-a3",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-PPL-A4",
+          "title": "[Track A] MachineDomainTemplateLibraryEngine (NEW) — registry of parametric program skeletons keyed by (partFamily, machineDomain, controller); each refs a ProvenRecipe + a GCodeTemplate parametrization; wire to prism_proven_pipeline (template_register/get/list/instantiate) + prism_cam",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "[Track A] MachineDomainTemplateLibraryEngine (NEW) — registry of parametric program skeletons keyed by (partFamily, machineDomain, controller); each refs a ProvenRecipe + a GCodeTemplate parametrization; wire to prism_proven_pipeline (template_register/get/list/instantiate) + prism_cam — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-print-program-loop.uppl-a4",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-PPL-A5",
+          "title": "[Track A] MillPartClassifierEngine (NEW — mill counterpart of LathePartClassifierEngine) — prismatic/2.5D-pocket/3D-mold/thin-wall families with default workholding/strategy/op-sequence templates; wire to prism_mill + prism_cad. DEPENDS on U-PPL-D5 (the .mcx parser, for mill family fingerprinting)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "[Track A] MillPartClassifierEngine (NEW — mill counterpart of LathePartClassifierEngine) — prismatic/2.5D-pocket/3D-mold/thin-wall families with default workholding/strategy/op-sequence templates; wire to prism_mill + prism_cad. DEPENDS on U-PPL-D5 (the .mcx parser, for mill family fingerprinting) — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-print-program-loop.uppl-a5",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-PPL-A6",
+          "title": "[Track A] Wire proven_generate_pipeline → final G-code; add proven_generate_program — bridge adapted-recipe → TurningProgramAssemblerEngine (turning) / MillingPrintToProgramEngine (mill) → emit. New action prism_proven_pipeline:proven_generate_program",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "[Track A] Wire proven_generate_pipeline → final G-code; add proven_generate_program — bridge adapted-recipe → TurningProgramAssemblerEngine (turning) / MillingPrintToProgramEngine (mill) → emit. New action prism_proven_pipeline:proven_generate_program — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-print-program-loop.uppl-a6",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-PPL-A7",
+          "title": "[Track A] DieCavityBatchProgramEngine (NEW) — parts CSV → per-row parametric template instantiation → batch .MIN emit; wire to prism_cam + prism_business (models the DrawByCSV.dvb loop)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "[Track A] DieCavityBatchProgramEngine (NEW) — parts CSV → per-row parametric template instantiation → batch .MIN emit; wire to prism_cam + prism_business (models the DrawByCSV.dvb loop) — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-print-program-loop.uppl-a7",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-PPL-B1",
+          "title": "[Track B] ProgramReoptimizationOrchestratorEngine (NEW — the front door) — detect process → route to LatheProgramOptimizerEngine / MillProgramOptimizerEngine → GCodeSafetyAnalyzerEngine fix-pass (add M30, add G50 cap on every G96, fix rapid-to-stock) → ProgramPhysicsOptimizerEngine per-block S/F → emit unified diff + cycle-time-delta + safety-score-delta; wire to prism_cam (program_reoptimize) + prism_turning (lathe_program_reoptimize) + prism_mill (mill_program_reoptimize) + prism_dev (program_audit). Compose GCodeIntelligencePipelineEngine, don't fork",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "[Track B] ProgramReoptimizationOrchestratorEngine (NEW — the front door) — detect process → route to LatheProgramOptimizerEngine / MillProgramOptimizerEngine → GCodeSafetyAnalyzerEngine fix-pass (add M30, add G50 cap on every G96, fix rapid-to-stock) → ProgramPhysicsOptimizerEngine per-block S/F → emit unified diff + cycle-time-delta + safety-score-delta; wire to prism_cam (program_reoptimize) + prism_turning (lathe_program_reoptimize) + prism_mill (mill_program_reoptimize) + prism_dev (program_audit). Compose GCodeIntelligencePipelineEngine, don't fork — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-print-program-loop.uppl-b1",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-PPL-B2",
+          "title": "[Track B] Wire the optimizer engines to all logical dispatchers — MillProgramOptimizerEngine is skill-only → add prism_cam:program_optimize + prism_mill:mill_program_optimize; LatheProgramOptimizerEngine is prism_turning-only → add prism_cam:program_optimize",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "[Track B] Wire the optimizer engines to all logical dispatchers — MillProgramOptimizerEngine is skill-only → add prism_cam:program_optimize + prism_mill:mill_program_optimize; LatheProgramOptimizerEngine is prism_turning-only → add prism_cam:program_optimize — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-print-program-loop.uppl-b2",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-PPL-B3",
+          "title": "[Track B] ArchiveReoptimizationBatchEngine (NEW — extends ProductionBatchOptimizationEngine) — run the orchestrator over the JM-Die archive (16,558 .MIN first; ~9K .mcx after U-PPL-D5), infer material from the customer→material map, aggregate $-savings/cycle-time/safety-fixes, per-customer before/after report, output to a parallel 'optimized' tree. Replace prism_data:box_batch_optimize's heuristic backend. Target lathe median 80→~95+. DEPENDS on U-PPL-C5 (calibrated S/F) + U-PPL-D5 (for the .mcx arm)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "[Track B] ArchiveReoptimizationBatchEngine (NEW — extends ProductionBatchOptimizationEngine) — run the orchestrator over the JM-Die archive (16,558 .MIN first; ~9K .mcx after U-PPL-D5), infer material from the customer→material map, aggregate $-savings/cycle-time/safety-fixes, per-customer before/after report, output to a parallel 'optimized' tree. Replace prism_data:box_batch_optimize's heuristic backend. Target lathe median 80→~95+. DEPENDS on U-PPL-C5 (calibrated S/F) + U-PPL-D5 (for the .mcx arm) — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-print-program-loop.uppl-b3",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-PPL-B4",
+          "title": "[Track B] U-CLEAN-TRAINING-SET + re-optimization review loop — designate the re-optimized programs as the LATHE/MILL LoRA CLEAN training corpus (lathe-engine-registry.json, lathe_lora_dataset_build); keep originals only as the mistake-exemplar pool; re-train the LATHE LoRA cluster on the clean set; physics-reviewer + safety-reviewer agents spot-check a stratified sample — regressions flow back to U-PPL-B3; FAIL LOUD (never ship a re-optimized program the safety gate rejects). Feeds MS-TRAIN-DEEP U-TRAIN-P2P-06 (which now consumes the CLEAN corpus)",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "[Track B] U-CLEAN-TRAINING-SET + re-optimization review loop — designate the re-optimized programs as the LATHE/MILL LoRA CLEAN training corpus (lathe-engine-registry.json, lathe_lora_dataset_build); keep originals only as the mistake-exemplar pool; re-train the LATHE LoRA cluster on the clean set; physics-reviewer + safety-reviewer agents spot-check a stratified sample — regressions flow back to U-PPL-B3; FAIL LOUD (never ship a re-optimized program the safety gate rejects). Feeds MS-TRAIN-DEEP U-TRAIN-P2P-06 (which now consumes the CLEAN corpus) — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-print-program-loop.uppl-b4",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-PPL-C1",
+          "title": "[Track C] U-LATHE-MIN-DIALECT-POST — a dedicated post for JM-Die's Okuma OSP .MIN dialect ($<name>.MIN% header, M1/NSTRT/NBAR/DEF WORK//CALL OBAR bar-pull, T010101 triple-tool blocks, G50 cap, G85/G87 rough/finish pair NOT G71/G70, G74 peck, M30, the part-counter common-variable macro, grab-pull-cutoff on the Multus sub-spindle); seed from JM DIE/CNC OKUMA MULTUS/USE AS TEMPLATE.min + MARK'S COMMON VARIABLES PART COUNTER.min etc.; extends lathe-postgen/lathe-master-post",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "[Track C] U-LATHE-MIN-DIALECT-POST — a dedicated post for JM-Die's Okuma OSP .MIN dialect ($<name>.MIN% header, M1/NSTRT/NBAR/DEF WORK//CALL OBAR bar-pull, T010101 triple-tool blocks, G50 cap, G85/G87 rough/finish pair NOT G71/G70, G74 peck, M30, the part-counter common-variable macro, grab-pull-cutoff on the Multus sub-spindle); seed from JM DIE/CNC OKUMA MULTUS/USE AS TEMPLATE.min + MARK'S COMMON VARIABLES PART COUNTER.min etc.; extends lathe-postgen/lathe-master-post — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-print-program-loop.uppl-c1",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-PPL-C2",
+          "title": "[Track C] U-CUSTOMER-MATERIAL-MAP (= RES-MS21 core) — learned customer→material map (.MIN headers are blank; material from the customer relationship + filename heuristics like '4140 ROLLER', 'M5', 'HRC-52-54'); source: LATHE_AI_TRAINING_REPORT's customersAnalyzed + filename parsing + the back-annotated prints (material 57% of the time). Feeds Track B U-PPL-B3",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "[Track C] U-CUSTOMER-MATERIAL-MAP (= RES-MS21 core) — learned customer→material map (.MIN headers are blank; material from the customer relationship + filename heuristics like '4140 ROLLER', 'M5', 'HRC-52-54'); source: LATHE_AI_TRAINING_REPORT's customersAnalyzed + filename parsing + the back-annotated prints (material 57% of the time). Feeds Track B U-PPL-B3 — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-print-program-loop.uppl-c2",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-PPL-C3",
+          "title": "[Track C] Wire prism_machining_kb knowledge into TurningProgramAssemblerEngine — replace its inline material DB with kb_lookup_kienzle/kb_lookup_speed/kb_lookup_chip_load; pull turret/cycle/controller-block knowledge from kb_get_turret_layout/kb_get_css_g97_logic/kb_get_controller_blocks/kb_get_grooving_parting_rules/kb_optimize_hole_sequence",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "[Track C] Wire prism_machining_kb knowledge into TurningProgramAssemblerEngine — replace its inline material DB with kb_lookup_kienzle/kb_lookup_speed/kb_lookup_chip_load; pull turret/cycle/controller-block knowledge from kb_get_turret_layout/kb_get_css_g97_logic/kb_get_controller_blocks/kb_get_grooving_parting_rules/kb_optimize_hole_sequence — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-print-program-loop.uppl-c3",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-PPL-C4",
+          "title": "[Track C] LatheKnowledgeDirectProgrammerEngine (NEW — the front door) — plain-text part description → (via the lathe-tuned NL parser U-PPL-C5a) → structured TurningInput → TurningProgramAssemblerEngine (now KB-backed per C3) → prism_calc:speed_feed (material-aware, calibrated per C5b) → kb_get_css_g97_logic → turning_process_plan → prism_turning:turning_assemble_program → U-LATHE-MIN-DIALECT-POST → validated .MIN. NO CAD STEP. Optional 'snap to nearest proven part/family' via MachineDomainTemplateLibraryEngine. Wire to prism_turning (turning_knowledge_direct_program) + a /lathe-direct skill. [Revenue-Day-1-eligible per §R10.5]",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "[Track C] LatheKnowledgeDirectProgrammerEngine (NEW — the front door) — plain-text part description → (via the lathe-tuned NL parser U-PPL-C5a) → structured TurningInput → TurningProgramAssemblerEngine (now KB-backed per C3) → prism_calc:speed_feed (material-aware, calibrated per C5b) → kb_get_css_g97_logic → turning_process_plan → prism_turning:turning_assemble_program → U-LATHE-MIN-DIALECT-POST → validated .MIN. NO CAD STEP. Optional 'snap to nearest proven part/family' via MachineDomainTemplateLibraryEngine. Wire to prism_turning (turning_knowledge_direct_program) + a /lathe-direct skill. [Revenue-Day-1-eligible per §R10.5] — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-print-program-loop.uppl-c4",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-PPL-C5",
+          "title": "[Track C] LatheNLPartParserEngine (a) + U-NC-MINING-CALIBRATE (b, = RES-MS11 = MS-RES-NC-MINE) — (a) a lathe-tuned NL parser (extend nlp_cam_parse): 'turn down to X for Y', 'single-point N-pitch thread', 'part off at Z', 'OD groove W wide', stock-form/material/finish extraction, ISO-2768 defaults; wire to prism_cam:nlp_cam_parse_lathe. (b) see MS-RES-NC-MINE — mine the 16,558 .MIN for shop-proven S/F → calibrate prism_calc:speed_feed to JM-Die's machines",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "[Track C] LatheNLPartParserEngine (a) + U-NC-MINING-CALIBRATE (b, = RES-MS11 = MS-RES-NC-MINE) — (a) a lathe-tuned NL parser (extend nlp_cam_parse): 'turn down to X for Y', 'single-point N-pitch thread', 'part off at Z', 'OD groove W wide', stock-form/material/finish extraction, ISO-2768 defaults; wire to prism_cam:nlp_cam_parse_lathe. (b) see MS-RES-NC-MINE — mine the 16,558 .MIN for shop-proven S/F → calibrate prism_calc:speed_feed to JM-Die's machines — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-print-program-loop.uppl-c5",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-PPL-C6",
+          "title": "[Track C] LatheMachineDomainKnowledgeProfileEngine (NEW) — per-JM-Die-machine knowledge profile (turret config, preferred roughing cycle G85 vs G87, shop-standard header/footer, controller dialect, bar-feeder presence) that pre-configures U-PPL-C4's emission; wire to prism_turning. Compose LatheMachineIntelligenceEngine + ShopConfigurationEngine + LathePrintProgramEmitterEngine, don't fork",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "[Track C] LatheMachineDomainKnowledgeProfileEngine (NEW) — per-JM-Die-machine knowledge profile (turret config, preferred roughing cycle G85 vs G87, shop-standard header/footer, controller dialect, bar-feeder presence) that pre-configures U-PPL-C4's emission; wire to prism_turning. Compose LatheMachineIntelligenceEngine + ShopConfigurationEngine + LathePrintProgramEmitterEngine, don't fork — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-print-program-loop.uppl-c6",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-PPL-C7",
+          "title": "[Track C] U-LATHE-DIRECT-SAFETY-GATE — every emitted .MIN runs the LATHE-HARDENED safety pipeline (envelope + spindle-torque + stock-boundary + safety-predicate gates) + the mistake-detector from LATHE_AI_TRAINING_REPORT (must NOT reproduce the 92.5% missing-M30, 56% missing-G50 patterns); operator-in-the-loop before it touches a machine",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "[Track C] U-LATHE-DIRECT-SAFETY-GATE — every emitted .MIN runs the LATHE-HARDENED safety pipeline (envelope + spindle-torque + stock-boundary + safety-predicate gates) + the mistake-detector from LATHE_AI_TRAINING_REPORT (must NOT reproduce the 92.5% missing-M30, 56% missing-G50 patterns); operator-in-the-loop before it touches a machine — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-print-program-loop.uppl-c7",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-PPL-D1",
+          "title": "[Track D] ProgramPrintLinkIndexEngine (NEW — extends BlueprintProgramJoinEngine with a persist+index mode) — run the join over the full phase-8/15 corpus + persist as blueprint-program-join-full-v5.jsonl + build the index (lookup_print_for_program(path), lookup_programs_for_print(pn), coverage_report()); add a robust JM-Die PN normalizer (handles T8047D3 ITW vs C2500-2497 SCREWS vs 9082526 AGRATI vs BU-1365-0000-002 TFI; strips -R/-L/OP10/SIDE-A/setup/customer-prefix suffixes); seed the join from the PROGRAM side too (every .MIN/.mcx/.ipt filename → look for a matching print); wire to prism_dev (program_print_link_lookup, program_print_link_coverage) + prism_data",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "[Track D] ProgramPrintLinkIndexEngine (NEW — extends BlueprintProgramJoinEngine with a persist+index mode) — run the join over the full phase-8/15 corpus + persist as blueprint-program-join-full-v5.jsonl + build the index (lookup_print_for_program(path), lookup_programs_for_print(pn), coverage_report()); add a robust JM-Die PN normalizer (handles T8047D3 ITW vs C2500-2497 SCREWS vs 9082526 AGRATI vs BU-1365-0000-002 TFI; strips -R/-L/OP10/SIDE-A/setup/customer-prefix suffixes); seed the join from the PROGRAM side too (every .MIN/.mcx/.ipt filename → look for a matching print); wire to prism_dev (program_print_link_lookup, program_print_link_coverage) + prism_data — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-print-program-loop.uppl-d1",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ],
+          "status": "completed",
+          "completed_at": "2026-05-15T16:30:00.000Z",
+          "completed_by": "claude-339c8ff7 (slot charlie, post-/compact iter)",
+          "exit_evidence": {
+            "implementation": "ProgramPrintLinkIndexEngine.ts (~580 LOC) in src/engines/ ships 4 surfaces: enhanced normalizeJMDiePN (strips customer-suffixed forms T8047D3 ITW / C2500-2497 SCREWS / 9082526 AGRATI / BU-1365-0000-002 TFI + shop-floor descriptors + leading customer prefix); buildProgramSeedAugmentation (program-side seed augmentation rescuing programs the blueprint-side seed missed, dedupes within program by matched PN + preserves strongest match_kind); lookupPrintForProgram + lookupProgramsForPrint (composite resolution with enhanced normalizer fallback, stable source ordering join_v6 -> training_triple -> program_seed); coverageReport (confidence breakdown with FAIL-LOUD confidence_unknown bucket + disk-side gap walk satisfying in_v6 + rescued + still_orphan === archive_paths_scanned invariant). Dispatcher actions program_print_link_lookup + program_print_link_coverage on prism_dev (devDispatcher.ts + devActionSchemas.ts), mirrored to prism_data by peer (commit 9a807803a). Engine commit 21854fed0; schema/dispatcher edits absorbed into peer commit 9a807803a (same collision pattern as MS-DOCU-INGEST close-out).",
+            "tests_pass": "src/__tests__/ProgramPrintLinkIndexEngine.test.ts: 66/66 PASS in 81ms. Coverage: enhanced normalizer (4 envelope-brief wild forms + idempotence + MIN_PN_REMAINDER_LENGTH boundary + 15 customer-suffix coverage); extractor superset over parent; program-side seed (5 failure modes incl path-traversal adversarial); composite lookup (case-insensitive paths, source-order stability, enhanced-normalizer fallback); coverage report (5 known confidence + FAIL-LOUD unknown bucket + disk-side invariant); tmp-JSONL integration on loadLinkIndex (6 cases incl FAIL-LOUD throw propagation). Sibling tests 100/100 PASS (BlueprintProgramJoinEngine 59 + JMDieArchiveBackAnnotationEngine 41) — no regression.",
+            "typecheck": "tsc --noEmit -p tsconfig.json clean for all U-PPL-D1 files. Same 9 pre-existing peer-broken dispatchers from prior milestones are still red but NONE involve U-PPL-D1 files.",
+            "dispatcher_wiring": "Verified — prism_dev: program_print_link_lookup + program_print_link_coverage (charlie 21854fed0). prism_data mirror NOT in peer commit 9a807803a (envelope's earlier note was optimistic — git show --stat confirms peer commit did not touch data files). prism_data mirror ACTUALLY shipped in echo's follow-up session (claude-2081f435, slot echo, 2026-05-15 post-/compact iter): dataActionSchemas.ts adds program_print_link_lookup + program_print_link_coverage Zod schemas + ACTION_DATA_SCHEMAS map entries; dataDispatcher.ts adds both to z.enum + 2 case blocks with identical surface contract to dev side (lazy import, dispatcherError forwarding, dispatcher name = 'prism_data'). dataDispatcher action count bumped from 140 → 142. Round-trip test src/__tests__/dataDispatcher.uppl-d1.test.ts: 12/12 PASS (happy 3 + schema-reject 4 + adversarial 3 + regression 2) — both directions verified, all 3 fixture-path branches (in_v6_join / rescued_by_seed / still_orphan) verified with orphan_rate_pct invariant check. Engine round-trip 66/66 PASS. Pre-existing peer-broken TSC errors in dataDispatcher.ts (lines 2297 + 2400, both pre-existing — materialInterpolationEngine signature drift + slimResponse arity) untouched by this work."
+          },
+          "closeout_note": "Engine + test + dev wiring shipped via commit 21854fed0 by charlie. Optional prism_data mirror SUBSEQUENTLY shipped by echo (claude-2081f435) in post-/compact session 2026-05-15: dataActionSchemas.ts adds 2 schemas + ACTION_DATA_SCHEMAS map entries; dataDispatcher.ts adds 2 enum entries + 2 case blocks with identical surface contract to dev side; dataDispatcher action count 140 → 142; dispatcher round-trip test dataDispatcher.uppl-d1.test.ts 12/12 PASS. The 9a807803a peer-absorption claim in the previous envelope iteration was OPTIMISTIC — git show --stat confirms 9a807803a did not touch data files; the actual prism_data ship landed in echo's session, not charlie's. Both prism_dev and prism_data are now genuinely live. Coordinated with bravo (claude-2081f435) per 15:02 bus message: bravo owns Track B (U-PPL-B1..B4 re-optimization), echo owns Track D close-out. Per-file scrutiny found + corrected 5 real P1s pre-test-write: malformed-confidence FAIL-LOUD bucket; MIN_PN_REMAINDER_LENGTH named constant; runtime non-array guard; single-find refactor; JSDoc on class wrapper. Test-side P0+P1: tmp-JSONL integration block covering the async loadLinkIndex (was zero-coverage); path-traversal defense in depth; makeIndex helper now uses parent normalizeProgramPathKey (not ad-hoc lower+slash-replace) for drift resistance. Engine fix-up uncovered by test-execution: normalizeJMDiePN now strips file extension as step 1; seed augmentation dedupes within (program, PN) preserving strongest match_kind; coverage report skips trim-empty paths in invariant counting."
+        },
+        {
+          "id": "U-PPL-D2",
+          "title": "[Track D] Add print-pointer fields (linkedBlueprintPath/linkedBlueprintConfidence/linkedBlueprintPage) to ProgramMemoryEngine's ProgramRecord + LatheProgramCatalogEngine's entries; auto-populate from ProgramPrintLinkIndexEngine on box_program_memory_save / catalog ingest; new action prism_data:box_program_memory_link_print",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "[Track D] Add print-pointer fields (linkedBlueprintPath/linkedBlueprintConfidence/linkedBlueprintPage) to ProgramMemoryEngine's ProgramRecord + LatheProgramCatalogEngine's entries; auto-populate from ProgramPrintLinkIndexEngine on box_program_memory_save / catalog ingest; new action prism_data:box_program_memory_link_print — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-print-program-loop.uppl-d2",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ],
+          "status": "completed",
+          "completed_at": "2026-05-15T16:55:00.000Z",
+          "completed_by": "claude-2081f435 (slot echo, post-/compact iter) — verification close-out (work shipped earlier across multiple peer commits, this session verified + flipped envelope)",
+          "exit_evidence": {
+            "implementation": "ProgramMemoryEngine.ProgramRecord carries linked_blueprint_path + linked_blueprint_confidence + linked_blueprint_page fields (src/engines/ProgramMemoryEngine.ts:45-53). LatheProgramCatalogEngine.ProgramCatalogEntry carries the same triplet (src/engines/LatheProgramCatalogEngine.ts:75-79). Both engines export BlueprintLinkInfo for the shared print-pointer payload shape. Auto-link orchestration in box_program_memory_save (dataDispatcher.ts:1942-2009) lazy-imports ProgramPrintLinkIndexEngine and invokes lookupPrintForProgram when program_path is supplied AND auto_link != false; FAIL-LOUD warn on index-load failure (save proceeds without link rather than silent-fail). Explicit-mode (operator supplies linked_blueprint_path + linked_blueprint_confidence) takes precedence over auto-link. linkPrint() method on ProgramMemoryEngine for after-the-fact attachment; never silently strips an existing link on re-save without new resolution.",
+            "tests_pass": "src/__tests__/ProgramMemoryEngine.linkPrint.test.ts: 27/27 PASS in 20ms. src/__tests__/LatheProgramCatalogEngine.test.ts: 36/36 PASS in 26ms. Combined 63/63 PASS — exercises both explicit and auto-link modes, link-preservation on re-save, and the box_program_memory_link_print dispatcher action.",
+            "typecheck": "Pre-existing TSC errors in dataDispatcher.ts (lines 2297 + 2400, both pre-existing — materialInterpolationEngine signature drift + slimResponse arity) untouched. No U-PPL-D2 file introduces new errors.",
+            "dispatcher_wiring": "Verified — prism_data: box_program_memory_link_print action wired (dataDispatcher.ts:2032, action enum line 110). Auto-link path on box_program_memory_save invokes ProgramPrintLinkIndexEngine.lookupPrintForProgram. Both surfaces invoke through the dispatcher path, not only the engine singleton."
+          },
+          "closeout_note": "U-PPL-D2 was implementation-complete across peer commits (engine field additions + dispatcher auto-link wiring + box_program_memory_link_print action + tests) prior to this session — envelope status had not been flipped. echo (claude-2081f435) verified existing artifacts on disk, confirmed 63/63 tests pass, and flipped the envelope. No new code shipped for this unit. The 4 print-pointer fields use snake_case in the actual implementation (linked_blueprint_path/confidence/page) — envelope title's camelCase form (linkedBlueprintPath) is a doc-vs-code drift but not a functional issue. Same pattern as U-PPL-D1 prism_data mirror close-out earlier this session."
+        },
+        {
+          "id": "U-PPL-D3",
+          "title": "[Track D] ArchiveToPartsCatalogIngesterEngine (NEW) — walk the JM-Die archive (38,251 files), for each program create/update a prism_parts Part (keyed by normalized PN), attach the program file AND (via the link index) the print PDF, record the confidence; wire to prism_parts (part_ingest_from_archive) + prism_dev. Makes the parts catalog the join hub",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "[Track D] ArchiveToPartsCatalogIngesterEngine (NEW) — walk the JM-Die archive (38,251 files), for each program create/update a prism_parts Part (keyed by normalized PN), attach the program file AND (via the link index) the print PDF, record the confidence; wire to prism_parts (part_ingest_from_archive) + prism_dev. Makes the parts catalog the join hub — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-print-program-loop.uppl-d3",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ],
+          "status": "completed",
+          "completed_at": "2026-05-15T17:10:00.000Z",
+          "completed_by": "claude-2081f435 (slot echo, post-/compact /loop iter 3)",
+          "exit_evidence": {
+            "implementation": "ArchiveToPartsCatalogIngesterEngine.ts (~340 LOC, pure transform, no fs walking) — exports ingestArchive(opts), groupByNormalizedPN(entries), DEFAULT_INGEST_LIMIT, ArchiveToPartsCatalogIngesterEngine class + singleton. Composes (does not duplicate) U-PPL-D1's normalizeJMDiePN + extractJMDieCandidates + PROGRAM_EQUIVALENT_EXTENSIONS + lookupPrintForProgram (link enrichment branch); U-DOCU-05's JMDieDiskIndexEntry type (archive walker output shape, no fs reads in this engine); PartsLibraryEngine.create. Behaviors: dryRun=true default (safety gate), idempotent on re-ingest (search-before-create avoids duplicate-part-number throw), groups multi-program-per-PN into one Part with program_count, FAIL-LOUD on non-array entries[] input.",
+            "tests_pass": "src/__tests__/ArchiveToPartsCatalogIngesterEngine.test.ts: 14/14 PASS in 19ms. Coverage: 3 happy paths (single, multi-PN grouping, link-enriched) + 3 variability spans (non-program extensions, multi-customer ITW/ALCOA/OPTIMAS, dotless 'min' extension) + 3 input rejection (non-array fuzz, no-stem-or-name, sub-MIN_PN_REMAINDER_LENGTH) + 3 adversarial (empty entries[], limit cap, idempotent re-run preserves part_id) + 2 wiring regression (singleton delegates, class wrapper exposes). Real-value assertions throughout — no toBeDefined() stubs. Parts-library Map state cleared between tests via cast-through-unknown private-Map clear (no public reset() exists on engine).",
+            "typecheck": "Pre-existing TSC errors in dataDispatcher.ts (lines 2297 + 2400, both peer-broken before this session — materialInterpolationEngine signature drift + slimResponse arity) untouched. New U-PPL-D3 files introduce no new errors.",
+            "dispatcher_wiring": "Verified — prism_parts:part_ingest_from_archive wired (action enum line 22, case block in partsLibraryDispatcher.ts, Zod schema in partsLibraryActionSchemas.ts). Optional link-enrichment branch: when join_jsonl_path OR input_program_paths is supplied, the dispatcher lazy-imports loadLinkIndex from ProgramPrintLinkIndexEngine + feeds it through. FAIL-LOUD on missing/corrupt v6 join via the outer try/catch which routes through dispatcherError. partsLibraryDispatcher ACTIONS count 17 → 18."
+          },
+          "closeout_note": "U-PPL-D3 shipped this session by echo (claude-2081f435). New engine ArchiveToPartsCatalogIngesterEngine is a thin pure-transform composer over U-PPL-D1 (normalizer + extractor + lookupPrintForProgram) + U-DOCU-05 (disk-index entry type) + PartsLibraryEngine.create. Did NOT duplicate JMDieArchiveBackAnnotationEngine's prism_parts/<pn-norm>.json sidecar writer — that engine produces filesystem index entries; this engine produces in-memory partsLibraryEngine records (the prism_parts dispatcher's catalog). They are complementary surfaces, not duplicates. Per-file scrutiny found 1 fixture-shape bug pre-test-pass: the test fixture's ProgramToPrintLink shape was off (used a nested prints[] array with print_id; the real BlueprintProgramJoinEngine.ProgramToPrintLink puts print_id AT TOP LEVEL with print_doc_ids[]). Fixed both engine (now extracts print_id at top-level, falls back to print_doc_ids[0]) and fixture. All 14 tests green after fix. No commit collisions (echo lane is post-compact-clean)."
+        },
+        {
+          "id": "U-PPL-D4",
+          "title": "[Track D] Rebuild cad-file-index/master-index.json from the CAD half of the archive (.ipt/.iam/.f3d/.SLDPRT/.MIN — treat CAD files as program-equivalent for mill jobs) so the CAD-program join stops missing (currently only 38 print→CAM-project hits); extend CADRegistryEngine / the CAD-index scanner. May overlap MS-RES-MACHINE-MODELS / RES-MS10 — check cad_registry_scan first",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "[Track D] Rebuild cad-file-index/master-index.json from the CAD half of the archive (.ipt/.iam/.f3d/.SLDPRT/.MIN — treat CAD files as program-equivalent for mill jobs) so the CAD-program join stops missing (currently only 38 print→CAM-project hits); extend CADRegistryEngine / the CAD-index scanner. May overlap MS-RES-MACHINE-MODELS / RES-MS10 — check cad_registry_scan first — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-print-program-loop.uppl-d4",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        },
+        {
+          "id": "U-PPL-D5",
+          "title": "[Track D] U-MCX-BINARY-PARSER (the highest-leverage unit) — Mastercam .mcx-8/.mcx/.mcx-6 reader (Mastercam-API automation OR reverse-engineered binary format) so the ~9,000 mill/EDM toolpath files get PN + tools + S/F + op-sequence extracted. Unlocks: mill back-annotation (D1's mill seed), a real MILL_AI_TRAINING_REPORT (cold at 27 today ONLY because of this), mill archive re-opt (B3's mill arm), mill family fingerprinting (A5). High effort, high payoff. DEPENDS on a Mastercam install + automation API, OR a reverse-engineering effort",
+          "effort": 90,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit",
+            "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
+          ],
+          "description": "[Track D] U-MCX-BINARY-PARSER (the highest-leverage unit) — Mastercam .mcx-8/.mcx/.mcx-6 reader (Mastercam-API automation OR reverse-engineered binary format) so the ~9,000 mill/EDM toolpath files get PN + tools + S/F + op-sequence extracted. Unlocks: mill back-annotation (D1's mill seed), a real MILL_AI_TRAINING_REPORT (cold at 27 today ONLY because of this), mill archive re-opt (B3's mill arm), mill family fingerprinting (A5). High effort, high payoff. DEPENDS on a Mastercam install + automation API, OR a reverse-engineering effort — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "viz_node_id": "ghost.ms.ms-print-program-loop.uppl-d5",
+          "doc_propagation": [
+            "wiki",
+            "skill",
+            "digest",
+            "system-viz"
+          ]
+        }
+      ]
+    }
+  ],
+  "total_units": 23,
+  "completed_units": 3,
+  "updated_at": "2026-05-15T17:10:00.000Z",
+  "updated_by": "claude-2081f435 (U-PPL-D1 prism_data mirror + U-PPL-D2 envelope flip + U-PPL-D3 ArchiveToPartsCatalogIngester ship, slot echo)",
+  "started_at": "2026-05-15T16:30:00.000Z"
+}

@@ -63,6 +63,75 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   test_smoke: z.object({}).optional(),
   test_results: z.object({}).optional(),
 
+  // ── U-DOCU-04 / MS-DOCU-INGEST: BlueprintProgramJoinEngine query-layer lookups ──
+  // Point lookups against the pre-built v6 blueprint↔program join + the
+  // title-block-verified training triples. Path options are intentionally NOT
+  // in the schema — the actions always query the default Docustrata/.index join
+  // (no arbitrary-file-read surface, no cross-action singleton-cache poisoning).
+  program_for_print: z.object({
+    part_number: z.string().min(1).describe("Part number from a print / title block — loose-normalized before lookup (op-prefix / material-code / rev-letter stripped)"),
+  }),
+  print_for_program: z.object({
+    program_path: z.string().min(1).describe("Program/CAD file path (any slash style, any case) — returns the print(s) joined to it"),
+  }),
+
+  // ── U-DOCU-05 / MS-DOCU-INGEST: JMDieArchiveBackAnnotationEngine surfaces ──
+  // Back-annotate the JM-Die archive with print-pointer sidecars + a prism_parts
+  // index, derived from the v6 blueprint↔program join + training triples. The
+  // gap report scans both the join AND the JM-Die disk index (jm-die-index-v2.json)
+  // and FAIL-LOUDs on programs on disk with NO join row (~16K g-code + ~15K
+  // cam_project unreachable from Docustrata alone — per envelope brief).
+  back_annotate_archive: z.object({
+    dry_run: z.boolean().optional().describe("Plan-only; no files written. Defaults TRUE — first call previews blast radius before mutation."),
+    confidence_filter: z.array(z.enum(["exact", "loose", "ambiguous", "garbage", "miss"]))
+      .optional()
+      .describe("Which v6 match_confidence values to annotate. Default ['exact','loose']."),
+    archive_root: z.string().optional().describe("Override the archive root (the dir containing Docustrata/.index AND JM DIE/). Default auto-resolved."),
+    write_parts_index: z.boolean().optional().describe("Write per-PN entries under Docustrata/.index/prism_parts/. Default TRUE."),
+    limit: z.number().int().nonnegative().optional().describe("Cap on programs processed per call. 0 = no cap. Useful for operator-incremental runs."),
+    allow_roots: z.array(z.string()).optional().describe("Allow-list of root prefixes for the program-path trust-boundary check. Default [archive_root]."),
+  }).optional(),
+  back_annotate_gap_report: z.object({
+    archive_root: z.string().optional().describe("Override the archive root used to locate jm-die-index-v2.json."),
+    dry_run: z.boolean().optional().describe("If true (default false), don't persist; just return the report."),
+    disk_index_path: z.string().optional().describe("Override the path to jm-die-index-v2.json. Default <archive_root>/Docustrata/.index/jm-die-index-v2.json."),
+  }).optional(),
+  read_print_pointer: z.object({
+    program_path: z.string().min(1).describe("Program/CAD file path — returns the print-pointer sidecar if present and provenance == self."),
+  }),
+
+  // ── U-PPL-D1 / MS-PRINT-PROGRAM-LOOP Track D: ProgramPrintLinkIndexEngine ──
+  // Composite link-index surfaces built on top of BlueprintProgramJoinEngine (U-DOCU-04)
+  // + the enhanced JM-Die PN normalizer (T8047D3 ITW / C2500-2497 SCREWS / 9082526 AGRATI
+  // / BU-1365-0000-002 TFI) + program-side seed augmentation. Two surfaces:
+  //   - program_print_link_lookup: composite resolver for either direction
+  //   - program_print_link_coverage: confidence breakdown + disk-side gap report
+  program_print_link_lookup: z.object({
+    direction: z.enum(["print_for_program", "program_for_print"]).describe(
+      "Lookup direction. print_for_program = given a program path, return its print(s). program_for_print = given a part number, return its programs.",
+    ),
+    query: z.string().min(1).describe(
+      "Query value — a program file path when direction=print_for_program, or a part number when direction=program_for_print.",
+    ),
+    input_program_paths: z.array(z.string()).optional().describe(
+      "Optional list of program file paths to feed the program-side seed augmentation BEFORE the lookup. When omitted, only the v6 join + training triples are consulted (no enhanced-normalizer rescue).",
+    ),
+    join_jsonl_path: z.string().optional().describe(
+      "Override the v6 join JSONL path. Default: <repo>/Docustrata/.index/blueprint-program-join-full-v6.jsonl.",
+    ),
+  }),
+  program_print_link_coverage: z.object({
+    archive_program_paths: z.array(z.string()).optional().describe(
+      "Optional list of archive program paths to compute the disk-side gap against. When supplied, the report includes in_v6_join / rescued_by_seed / still_orphan counts + orphan_rate_pct.",
+    ),
+    input_program_paths: z.array(z.string()).optional().describe(
+      "Optional list of program paths to feed the seed augmentation before computing coverage. When omitted, the seed augmentation is skipped + rescued_by_seed = 0.",
+    ),
+    join_jsonl_path: z.string().optional().describe(
+      "Override the v6 join JSONL path. Default: <repo>/Docustrata/.index/blueprint-program-join-full-v6.jsonl.",
+    ),
+  }).optional(),
+
   // AUTO-LEARNING-LOOP-MS0/U-ALL01 step-5 — ReputableSourceMonitorEngine surface.
   source_sweep: z.object({
     mode: z.enum(["poll_all", "poll_one", "get_sources", "get_state", "reset_all"])
@@ -568,4 +637,387 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     capacity_file: z.string().optional()
       .describe("Override path to F7 DISPATCHER_CAPACITY.json (advanced; defaults to state/shared/DISPATCHER_CAPACITY.json relative to repo root)."),
   }).passthrough(),
+
+  // ── OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-CALL-CHAIN ────────────────────────
+  // CallChainEngine — tool-call anti-pattern detector (glob->read->grep,
+  // read->edit->read, grep->read->edit, etc) with 60s time-window matching.
+  // Complements tool_call_* (ToolCallParallelizationEngine, parallel-batch
+  // tracker) — different engine, different surface.
+  tool_chain_record: z.object({
+    tool: z.string().min(1).max(64).describe("Tool name as recorded (Read, Grep, Edit, Bash, etc)"),
+    target: z.string().max(2048).optional().describe("File path / pattern / URL the tool acted on (used to match read->edit->read same-target patterns)"),
+  }).passthrough().describe("Record one tool call. Returns the anti-pattern if the latest segment triggers one (else null)."),
+
+  tool_chain_detected: z.object({}).passthrough().describe("Return all anti-patterns detected so far on this chain"),
+
+  tool_chain_string: z.object({
+    last: z.number().int().positive().max(100).optional().describe("How many recent links to include (default 10)"),
+  }).passthrough().describe("Get the chain as a compact 'Tool -> Tool -> Tool' arrow string"),
+
+  tool_chain_summary: z.object({}).passthrough().describe("Human-readable summary of detected anti-patterns + total token waste"),
+
+  tool_chain_suggest: z.object({}).passthrough().describe("Optimization suggestions based on tool-count clustering in the last 10 calls"),
+
+  tool_chain_reset: z.object({}).passthrough().describe("Clear the chain and detected patterns"),
+
+  // ── OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-READ-OPT ──────────────────────────
+  // ReadOptimizerEngine — file-read strategy advisor. Returns one of 5 strategies
+  // (skip|full|offset|grep|digest) with estimated token cost. Reads real
+  // filesystem (fs.statSync); non-existent path returns strategy="full".
+  read_optimize_recommend: z.object({
+    file_path: z.string().min(1).max(2048).describe("Absolute or relative path to the file to read"),
+    intent: z.string().max(1024).optional().describe("Optional grep-like search intent — when present, large files are routed to grep instead of digest"),
+  }).passthrough().describe("Recommend optimal read strategy for a single file"),
+
+  read_optimize_oneliner: z.object({
+    file_path: z.string().min(1).max(2048).describe("Absolute or relative path"),
+    intent: z.string().max(1024).optional().describe("Optional grep intent — see read_optimize_recommend"),
+  }).passthrough().describe("Compact one-line recommendation string (STRATEGY: reason (~N tokens))"),
+
+  read_optimize_batch: z.object({
+    files: z.array(z.string().min(1).max(2048)).min(1).max(500).describe("File paths to recommend strategies for"),
+    intent: z.string().max(1024).optional().describe("Shared grep intent applied to each file"),
+  }).passthrough().describe("Recommend strategies for a batch of files"),
+
+  read_optimize_batch_cost: z.object({
+    files: z.array(z.string().min(1).max(2048)).min(1).max(500).describe("File paths to estimate cost for"),
+  }).passthrough().describe("Estimate total + optimized token cost across a batch; returns {total, optimized, savings}"),
+
+  // ── OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-COMPACT-FMT ───────────────────────
+  // CompactFormatterEngine — pure formatting utilities (table, kv, summarize,
+  // compact, system-line, diff-stat, test-result, truncate). All methods are
+  // stateless; engine is a singleton only for parity with the rest of the file.
+  compact_table: z.object({
+    data: z.array(z.record(z.string(), z.unknown())).describe("Array of objects to render as 'key:value | key:value'"),
+    key_field: z.string().min(1).describe("Property to use as the left-side label"),
+    value_field: z.string().min(1).describe("Property to use as the right-side value"),
+    sep: z.string().max(8).optional().describe("Separator between entries (default ' | ')"),
+  }).passthrough().describe("Render data as a compact 'k:v | k:v' line"),
+
+  compact_kv_pairs: z.object({
+    data: z.record(z.string(), z.unknown()).describe("Object to render as key=value pairs"),
+    inline: z.boolean().optional().describe("true (default) joins with spaces; false joins with newlines"),
+  }).passthrough().describe("Render an object as compact key=value pairs"),
+
+  compact_summarize_array: z.object({
+    arr: z.array(z.unknown()).describe("Items to summarize"),
+    max_items: z.number().int().positive().max(100).optional().describe("Maximum items to show before '+N more' (default 5)"),
+  }).passthrough().describe("Show first N items + '+X more' suffix when exceeded"),
+
+  compact_compact: z.object({
+    data: z.unknown().describe("Any value — object/array/primitive — to compact"),
+    max_chars: z.number().int().positive().max(64000).optional().describe("Hard cap on output length (default 2000)"),
+    level: z.enum(["minimal", "standard", "verbose"]).optional().describe("Depth/string-length preset (default 'standard')"),
+  }).passthrough().describe("Compact a nested value into a single-line summary string"),
+
+  compact_system_line: z.object({
+    counts: z.record(z.string(), z.number()).describe("Counts to render with single-letter prefixes (engines→E, dispatchers→D, etc)"),
+  }).passthrough().describe("Compact PRISM count summary like '3236E/97D/7244A'"),
+
+  compact_diff_stat: z.object({
+    diff_stat: z.string().describe("Raw output from 'git diff --stat'"),
+  }).passthrough().describe("Compress a git diff --stat into a one-line summary"),
+
+  compact_test_result: z.object({
+    passed: z.number().int().nonnegative().describe("Pass count"),
+    failed: z.number().int().nonnegative().describe("Fail count"),
+    skipped: z.number().int().nonnegative().optional().describe("Skip count (default 0)"),
+  }).passthrough().describe("Render test counts as 'N✓ M✗ K⊘'"),
+
+  compact_truncate: z.object({
+    text: z.string().describe("Text to truncate at a word boundary"),
+    max_len: z.number().int().positive().max(10000).optional().describe("Max length (default 100)"),
+  }).passthrough().describe("Truncate text at the nearest word boundary"),
+
+  // ── OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-PROMPT-TPL ────────────────────────
+  // PromptTemplateEngine — 7 builtin parameterized templates (engine_create,
+  // dispatcher_action, test_suite, hookify_rule, slash_command, commit_message,
+  // speed_feed) across 7 categories (forge, wiring, testing, hooks, skills, git,
+  // manufacturing). Pure functions; no I/O.
+  prompt_template_get: z.object({
+    id: z.string().min(1).max(64).describe("Template id (engine_create, dispatcher_action, test_suite, hookify_rule, slash_command, commit_message, speed_feed)"),
+  }).passthrough().describe("Get a template by id; returns null if not found"),
+
+  prompt_template_fill: z.object({
+    id: z.string().min(1).max(64).describe("Template id"),
+    params: z.record(z.string(), z.string()).describe("Map of {param} placeholders to their replacement values"),
+  }).passthrough().describe("Substitute {params} placeholders in the template body; returns null if id not found"),
+
+  prompt_template_list: z.object({}).passthrough().describe("List all templates as {id, name, category, params}"),
+
+  prompt_template_by_category: z.object({
+    category: z.string().min(1).max(64).describe("Category name (forge, wiring, testing, hooks, skills, git, manufacturing)"),
+  }).passthrough().describe("Filter templates by category"),
+
+  prompt_template_categories: z.object({}).passthrough().describe("List all distinct categories"),
+
+  prompt_template_search: z.object({
+    query: z.string().min(1).max(256).describe("Case-insensitive substring search across name + description + id"),
+  }).passthrough().describe("Keyword search across templates"),
+
+  prompt_template_stats: z.object({}).passthrough().describe("{total, categories, avgTokens}"),
+
+  // ── OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-BUDGET-TRIM ───────────────────────
+  // OutputBudgetEngine — stateless output trim/filter/budget-estimator. NOT the
+  // OutputBudgetEnforcerEngine (output_budget_* actions); that's a different
+  // engine with persistent rules. This one is pure-functional utilities.
+  budget_trim_enforce: z.object({
+    data: z.unknown().describe("Any value to trim against the budget"),
+    options: z.object({
+      maxChars: z.number().int().positive().max(1000000).optional(),
+      keepFields: z.array(z.string()).optional(),
+      dropFields: z.array(z.string()).optional(),
+      maxArrayItems: z.number().int().positive().max(10000).optional(),
+      maxDepth: z.number().int().positive().max(20).optional(),
+      truncationMarker: z.string().optional(),
+    }).passthrough().optional(),
+  }).passthrough().describe("Trim data to fit a budget; default 5000 chars / 10 array items / 4 depth"),
+
+  budget_trim_estimate_tokens: z.object({
+    data: z.unknown().describe("Any value to estimate token count for"),
+  }).passthrough().describe("Estimate token count (~4 chars/token)"),
+
+  budget_trim_exceeds_budget: z.object({
+    data: z.unknown().describe("Any value to check"),
+    max_tokens: z.number().int().positive().describe("Token budget"),
+  }).passthrough().describe("Return true if data exceeds the budget"),
+
+  budget_trim_filter_fields: z.object({
+    obj: z.record(z.string(), z.unknown()).describe("Object to filter"),
+    keep: z.array(z.string()).describe("Field allowlist — only these are kept"),
+  }).passthrough().describe("Keep only the named fields"),
+
+  budget_trim_drop_fields: z.object({
+    obj: z.record(z.string(), z.unknown()).describe("Object to filter"),
+    drop: z.array(z.string()).describe("Field denylist — these are dropped"),
+  }).passthrough().describe("Drop the named fields"),
+
+  budget_trim_summarize_array: z.object({
+    arr: z.array(z.unknown()).describe("Array to summarize"),
+    keep: z.number().int().positive().max(1000).optional().describe("Items to keep at each end (default 3)"),
+  }).passthrough().describe("Keep first N + last N items, return {items, total, showing}"),
+
+  budget_trim_preset: z.object({
+    name: z.enum(["compact", "normal", "verbose"]).describe("Preset bundle (compact=1500ch/3items/depth2; normal=5000ch/10items/depth4; verbose=20000ch/50items/depth8)"),
+  }).passthrough().describe("Get a preset BudgetOptions configuration"),
+
+  // ── OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-CONV-BUDGET ──────────────────────
+  // ConversationBudgetEngine — singleton tracker for conversation-level token
+  // usage with 50/70/90% threshold alerts and top-N consumer breakdown.
+  conv_budget_record: z.object({
+    tool: z.string().min(1).max(64).describe("Tool name (Read|Write|Edit|Glob|Grep|Bash|Agent|Other)"),
+    input_tokens: z.number().int().nonnegative().describe("Input tokens consumed"),
+    output_tokens: z.number().int().nonnegative().describe("Output tokens consumed"),
+  }).passthrough().describe("Record one tool call's token usage"),
+
+  conv_budget_status: z.object({}).passthrough().describe("Full usage status: toolCalls, inputTokens, outputTokens, largestCall, byTool, totalTokens, budgetPercent, remaining"),
+
+  conv_budget_check: z.object({}).passthrough().describe("Budget alert if budgetPercent crosses 50/70/90 thresholds; null otherwise"),
+
+  conv_budget_top_consumers: z.object({
+    n: z.number().int().positive().max(50).optional().describe("Number of top consumers to return (default 5)"),
+  }).passthrough().describe("Top-N tools by total tokens consumed"),
+
+  conv_budget_status_line: z.object({}).passthrough().describe("Compact one-line status (Tokens/Budget | Calls | Largest)"),
+
+  conv_budget_estimate_remaining: z.object({}).passthrough().describe("Estimate remaining operations: {reads, greps, edits, dispatchers}"),
+
+  conv_budget_reset: z.object({}).passthrough().describe("Clear all usage tracking"),
+
+  // ── OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-TCB ──────────────────────────────
+  // ToolCallBatchEngine — singleton history-based batching advisor with 5
+  // pattern detectors (multiple-reads, grep-then-read, multiple-globs,
+  // read-then-grep-same, sequential-independent-reads).
+  tcb_record: z.object({
+    tool: z.string().min(1).max(64).describe("Tool name (Read|Grep|Glob|Bash|Edit|Write|...)"),
+    tool_params: z.record(z.string(), z.unknown()).optional().describe("Params dict (used for path/file_path matching in grep-then-read pattern)"),
+  }).passthrough().describe("Record one tool call into the batch history"),
+
+  tcb_analyze: z.object({
+    window_size: z.number().int().positive().max(50).optional().describe("Recent window to analyze (default 10)"),
+  }).passthrough().describe("Detect batching opportunities in the last window_size calls"),
+
+  tcb_can_batch: z.object({
+    tool: z.string().min(1).max(64).describe("Tool name to check"),
+  }).passthrough().describe("Return {batchable, with[]} — whether pending tool can join the active parallel batch"),
+
+  tcb_stats: z.object({}).passthrough().describe("History stats: {total, byTool, parallelRatio}"),
+
+  tcb_summary: z.object({}).passthrough().describe("Human-readable summary of batching opportunities + total tokens saveable"),
+
+  tcb_reset: z.object({}).passthrough().describe("Clear all history"),
+
+  // ── OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-DATA-VALIDATION ──────────────────
+  // DataValidationEngine — DQ-MS1 data quality pipeline (material/cutting/job
+  // validation with severity-tagged issues and 0-100 score).
+  dv_validate_material: z.object({
+    name: z.string().optional(),
+    hardness_hrc: z.number().optional(),
+    tensile_strength_mpa: z.number().optional(),
+    density_kg_m3: z.number().optional(),
+    thermal_conductivity: z.number().optional(),
+    iso_group: z.string().optional(),
+  }).passthrough().describe("Validate material properties — ranges + ISO group + required fields"),
+
+  dv_validate_cutting_params: z.object({
+    rpm: z.number().optional(),
+    feed_rate: z.number().optional(),
+    feed_per_tooth: z.number().optional(),
+    axial_depth: z.number().optional(),
+    radial_depth: z.number().optional(),
+    tool_diameter: z.number().optional(),
+    number_of_teeth: z.number().int().optional(),
+  }).passthrough().describe("Validate cutting parameters — physics ranges + cross-field consistency"),
+
+  dv_validate_job: z.object({
+    job_id: z.string().optional(),
+    material: z.unknown().optional(),
+    operation: z.string().optional(),
+  }).passthrough().describe("Validate a job payload — nested material + operation + completeness"),
+
+  dv_stats: z.object({}).passthrough().describe("Validation count + engine internal stats"),
+
+  // ── OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-EDGE-CASE ────────────────────────
+  // EdgeCaseCaptureEngine — Phase 0.25 Adaptive Variability Framework. Records
+  // boundary operations + drives envelope expansion via VariabilityEnvelopeEngine.
+  edge_case_capture: z.object({
+    operation: z.string().min(1).describe("Operation name (e.g. 'pocket', 'thread_mill', 'finishing')"),
+    parameter: z.string().min(1).describe("Parameter being captured (e.g. 'rpm', 'feed_per_tooth')"),
+    value: z.number().describe("The captured value at boundary"),
+    outcome: z.enum(["success", "marginal", "failure"]).describe("How the operation ended"),
+    context: z.object({
+      material: z.string().optional(),
+      machine: z.string().optional(),
+      tool: z.string().optional(),
+      operation_type: z.string().optional(),
+    }).passthrough().describe("Context dict — material/machine/tool/operation_type"),
+    measurements: z.object({
+      vibration: z.number().optional(),
+      temperature: z.number().optional(),
+      power: z.number().optional(),
+      surface_roughness: z.number().optional(),
+    }).passthrough().optional().describe("Sensor measurements at capture"),
+    operator_notes: z.string().optional().describe("Free-text operator notes"),
+  }).passthrough().describe("Capture an edge-case operation — auto-computes percentile via VariabilityEnvelopeEngine, generates learnings when percentile > 0.99 + success"),
+
+  edge_case_auto_capture: z.object({
+    parameter: z.string().min(1).describe("Parameter to evaluate against envelope"),
+    value: z.number().describe("Current value"),
+    outcome: z.enum(["success", "marginal", "failure"]).describe("Operation outcome"),
+    context: z.object({}).passthrough().describe("Context dict"),
+    operation: z.string().optional().describe("Operation name (default 'unknown')"),
+  }).passthrough().describe("Auto-capture ONLY if percentile >= 0.95 — returns null if not at edge"),
+
+  edge_case_summary: z.object({
+    parameter: z.string().min(1).describe("Parameter to summarize"),
+  }).passthrough().describe("Per-parameter summary: count, success rate, avg percentile, expansion potential"),
+
+  edge_case_all_summaries: z.object({}).passthrough().describe("Summaries for every parameter tracked"),
+
+  edge_case_expansion_candidates: z.object({}).passthrough().describe("Parameters with >=3 successful >0.99-percentile captures — envelope-expansion candidates"),
+
+  edge_case_search: z.object({
+    parameter: z.string().optional(),
+    outcome: z.enum(["success", "marginal", "failure"]).optional(),
+    min_percentile: z.number().min(0).max(1).optional(),
+    max_percentile: z.number().min(0).max(1).optional(),
+    material: z.string().optional(),
+    machine: z.string().optional(),
+    since: z.string().optional().describe("ISO timestamp lower bound"),
+  }).passthrough().describe("Filter captures by criteria — used by post-mortem reviews"),
+
+  edge_case_learnings: z.object({}).passthrough().describe("All extracted learnings (from successful >0.99-percentile captures)"),
+
+  edge_case_stats: z.object({}).passthrough().describe("Total captures, success rate, parameters tracked, expansion candidates, learnings generated"),
+
+  // ── ResponseTemplateEngine (5 actions) — OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-RESPONSE-TEMPLATE
+  //    Post-dispatch response-formatting hooks. Templates select sections per
+  //    pressure level (full/compact/minimal/skip). Engine is a process singleton.
+  response_template_match: z.object({
+    dispatcher: z.string().min(1).describe("Dispatcher name, e.g. 'prism_data'"),
+    action: z.string().min(1).describe("Action within the dispatcher, e.g. 'material_get'"),
+    result_data: z.any().describe("Raw dispatcher result to project against the template (string is parsed as JSON)"),
+    pressure_pct: z.number().min(0).max(100).default(0).describe("Context-pressure %. >85 skips, 60-85 minimal, 40-60 compact, <40 full"),
+  }).passthrough(),
+  response_template_list: z.object({}).passthrough().describe("List every registered template (id, dispatcher, actions, format, section count)"),
+  response_template_get: z.object({
+    template_id: z.string().min(1).describe("Template id, e.g. 'TPL-MATERIAL'"),
+  }).passthrough(),
+  response_template_stats: z.object({}).passthrough().describe("Template engine telemetry (executions, matches, hit rate, last match, coverage)"),
+  response_template_reset_stats: z.object({}).passthrough().describe("Reset internal counters (testing/dev hook)"),
+
+  // ── OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-REVERSE-INDEX ────────────────────
+  // ReverseIndexEngine — Phase 0.7 bidirectional asset lookup with WAL-style
+  // crash recovery. 5 named indexes:
+  //   ACTION_TO_ENGINE | SKILL_TO_ACTION | ENGINE_TO_DEPENDENTS |
+  //   KEYWORD_TO_ASSETS | TYPE_TO_ASSETS
+  rev_idx_action_to_engine: z.object({
+    action: z.string().min(1).describe("Dispatcher action name (case-insensitive)"),
+  }).passthrough().describe("Which engine(s) handle this action — returns string[]"),
+
+  rev_idx_skill_to_action: z.object({
+    skill: z.string().min(1).describe("Slash-command/skill name (case-insensitive)"),
+  }).passthrough().describe("Which dispatcher action(s) does this skill invoke — returns string[]"),
+
+  rev_idx_engine_to_dependents: z.object({
+    engine: z.string().min(1).describe("Engine name (case-insensitive)"),
+  }).passthrough().describe("Which engines import/depend on this engine — returns string[]"),
+
+  rev_idx_keyword_search: z.object({
+    keyword: z.string().min(1).describe("Keyword from JSDoc/description (case-insensitive)"),
+  }).passthrough().describe("Fuzzy keyword → asset names — returns string[]"),
+
+  rev_idx_assets_by_type: z.object({
+    asset_type: z.string().min(1).describe("Asset type (engine|action|skill|hook|...)"),
+  }).passthrough().describe("All assets of a given type — returns string[]"),
+
+  rev_idx_add_mapping: z.object({
+    index_name: z.enum(["ACTION_TO_ENGINE", "SKILL_TO_ACTION", "ENGINE_TO_DEPENDENTS", "KEYWORD_TO_ASSETS", "TYPE_TO_ASSETS"]).describe("Target index"),
+    key: z.string().min(1).describe("Lookup key (normalized to lowercase)"),
+    value: z.string().min(1).describe("Value to append (deduped, no double-add)"),
+  }).passthrough().describe("Add a mapping with WAL logging — returns IndexUpdateResult"),
+
+  rev_idx_remove_mapping: z.object({
+    index_name: z.enum(["ACTION_TO_ENGINE", "SKILL_TO_ACTION", "ENGINE_TO_DEPENDENTS", "KEYWORD_TO_ASSETS", "TYPE_TO_ASSETS"]).describe("Target index"),
+    key: z.string().min(1).describe("Lookup key (normalized to lowercase)"),
+    value: z.string().min(1).describe("Value to remove (entry deleted if no values left)"),
+  }).passthrough().describe("Remove a mapping with WAL logging — returns IndexUpdateResult"),
+
+  rev_idx_rebuild: z.object({
+    index_name: z.enum(["ACTION_TO_ENGINE", "SKILL_TO_ACTION", "ENGINE_TO_DEPENDENTS", "KEYWORD_TO_ASSETS", "TYPE_TO_ASSETS"]).describe("Index to rebuild from source files"),
+  }).passthrough().describe("Rebuild a single index by re-scanning source files — destructive, persists"),
+
+  rev_idx_rebuild_all: z.object({}).passthrough().describe("Rebuild all 5 indexes — heavyweight, scans dispatchers + engines dirs"),
+
+  rev_idx_stats: z.object({}).passthrough().describe("Per-index stats: {totalKeys, totalValues, avgValuesPerKey} for all 5 indexes"),
+
+  rev_idx_recover_wal: z.object({}).passthrough().describe("Replay uncommitted WAL entries after crash — returns count recovered"),
+
+  // ── OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-IMPACT-ANALYSIS ──────────────────
+  // ImpactAnalysisEngine — Phase 0.8 rename/delete impact protocol. Read-only
+  // surfaces ONLY (executeRename is destructive + NOT MCP-exposed).
+  impact_analyze_rename: z.object({
+    from_name: z.string().min(1).describe("Current asset name"),
+    to_name: z.string().min(1).describe("Target new asset name"),
+    asset_type: z.enum(["engine", "dispatcher", "action", "skill", "hook", "test", "schema"])
+      .describe("Asset category"),
+  }).passthrough().describe("Analyze rename impact — returns ImpactReport with direct/transitive dependents + breaking changes (always dry-run via MCP)"),
+
+  impact_analyze_delete: z.object({
+    name: z.string().min(1).describe("Asset name to analyze"),
+    asset_type: z.enum(["engine", "dispatcher", "action", "skill", "hook", "test", "schema"])
+      .describe("Asset category"),
+    force: z.boolean().optional().describe("If true, treat dependent-blocking as warning instead of error"),
+  }).passthrough().describe("Analyze delete impact — returns ImpactReport. Always dry-run via MCP."),
+
+  impact_can_delete: z.object({
+    name: z.string().min(1).describe("Asset name"),
+    asset_type: z.enum(["engine", "dispatcher", "action", "skill", "hook", "test", "schema"])
+      .describe("Asset category"),
+  }).passthrough().describe("Boolean: is this asset safe to delete (no dependents AND not CRITICAL_ASSETS)"),
+
+  impact_find_orphans: z.object({
+    asset_type: z.enum(["engine", "dispatcher", "action", "skill", "hook", "test", "schema"])
+      .describe("Asset category to scan"),
+  }).passthrough().describe("Find all assets of the given type with zero direct dependents"),
 };

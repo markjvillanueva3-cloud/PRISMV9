@@ -339,4 +339,48 @@ export const ACTION_CAM_SCHEMAS: Record<string, z.ZodType> = {
   cam_print_for_program: z.object({
     program_path: z.string().min(1).describe("Program/CAD file path (any slash style, any case) — returns the print(s) joined to it"),
   }),
+  // U-DOCU-05 / MS-DOCU-INGEST: CAM-side mirror of prism_dev:read_print_pointer.
+  cam_read_print_pointer: z.object({
+    program_path: z.string().min(1).describe("Program/CAD file path — returns the print-pointer sidecar if present and provenance == self (written by JMDieArchiveBackAnnotationEngine)."),
+  }),
+
+  // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-GCODE-TEMPLATE: 5 GCodeTemplateEngine wires.
+  // Controller-agnostic G-code generator covering 11+ controller families (Fanuc, Haas,
+  // Mazak, Okuma, Siemens, Heidenhain, Hurco, Centroid, GRBL, LinuxCNC, Mach3/4).
+  // Was orphan (no dispatcher reference) per BUILD_STATE.NEEDS_WIRING.
+  gcode_template_resolve_controller: z.object({
+    controller: z.string().min(1).describe("Controller name or alias (e.g. 'fanuc', 'haas vf', '840d', 'tnc640')"),
+  }).passthrough(),
+  gcode_template_generate: z.object({
+    controller: z.string().min(1).describe("Controller name or alias"),
+    operation: z.string().min(1).describe("Operation type (e.g. 'drilling', 'facing', 'thread_milling', 'peck_drilling', 'boring')"),
+    params: z.object({
+      rpm: z.number().describe("Spindle RPM"),
+      feed_rate: z.number().describe("Feed rate mm/min"),
+      tool_number: z.number().int().optional(),
+      coolant: z.enum(["flood", "mist", "tsc", "off"]).optional(),
+      z_safe: z.number().optional().describe("Default 5 mm"),
+      z_depth: z.number().optional().describe("Target Z (negative for cuts)"),
+      work_offset: z.string().optional().describe("Default G54"),
+      peck_depth: z.number().optional().describe("mm per peck (G83/G73)"),
+      dwell: z.number().optional().describe("Dwell at bottom (sec)"),
+      pitch: z.number().optional().describe("Tap pitch mm/rev"),
+      orient_angle: z.number().optional(),
+      shift_amount: z.number().optional(),
+      thread_diameter: z.number().optional(),
+      thread_pitch: z.number().optional(),
+      thread_depth: z.number().optional(),
+      thread_direction: z.enum(["right", "left"]).optional(),
+      program_name: z.string().optional(),
+    }).passthrough().describe("GCodeParams — see engine interface for full shape"),
+  }).passthrough(),
+  gcode_template_generate_program: z.object({
+    controller: z.string().min(1).describe("Controller name or alias"),
+    operations: z.array(z.object({
+      operation: z.string().min(1),
+      params: z.record(z.string(), z.unknown()),
+    })).min(1).describe("Ordered array of operation blocks"),
+  }).passthrough(),
+  gcode_template_list_controllers: z.object({}).passthrough(),
+  gcode_template_list_operations: z.object({}).passthrough(),
 };

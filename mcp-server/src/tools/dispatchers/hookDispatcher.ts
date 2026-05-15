@@ -23,6 +23,8 @@ const ACTIONS = [
   // ENGINE-WIRE-MS0/U-WIRE17: 5 hook orchestration engines
   "hook_orch_plan", "hook_coverage_analyze", "hook_bandit_select",
   "hook_telemetry_metrics", "hook_efficiency_roi",
+  // pillar-telemetry-recovery U-PTR01: persistent hook telemetry
+  "hook_telemetry_persist", "hook_telemetry_load", "hook_telemetry_status",
   // HOOK-MANIFEST-DAG-MS26/P0-U01: static hook manifest (catalog + DAG-validator input)
   "manifest",
   // HOOK-MANIFEST-DAG-MS26/P0-U02: cycle detection + deterministic order over the manifest
@@ -205,6 +207,30 @@ export function registerHookDispatcher(server: any): void {
           case "hook_telemetry_metrics": {
             const { hookTelemetryEngine } = await import("../../engines/HookTelemetryEngine.js");
             return ok(hookTelemetryEngine.getSystemMetrics());
+          }
+          // pillar-telemetry-recovery U-PTR01: persist current hook telemetry to disk
+          case "hook_telemetry_persist": {
+            const { hookTelemetryEngine } = await import("../../engines/HookTelemetryEngine.js");
+            const targetPath = typeof params.path === "string" ? params.path : undefined;
+            return ok(hookTelemetryEngine.persist(targetPath));
+          }
+          // pillar-telemetry-recovery U-PTR01: load persisted hook telemetry from disk
+          case "hook_telemetry_load": {
+            const { hookTelemetryEngine } = await import("../../engines/HookTelemetryEngine.js");
+            const targetPath = typeof params.path === "string" ? params.path : undefined;
+            return ok(hookTelemetryEngine.loadPersisted(targetPath));
+          }
+          // pillar-telemetry-recovery U-PTR01: report whether persistence is configured
+          case "hook_telemetry_status": {
+            const { hookTelemetryEngine } = await import("../../engines/HookTelemetryEngine.js");
+            const persistPath = hookTelemetryEngine.getPersistPath();
+            return ok({
+              persistPath,
+              persistenceEnabled: persistPath !== null,
+              envVar: "PRISM_HOOK_TELEMETRY_PATH",
+              disabledByEnv: process.env.PRISM_HOOK_TELEMETRY_DISABLE === "1",
+              debounceMsEnv: "PRISM_HOOK_TELEMETRY_DEBOUNCE_MS",
+            });
           }
           case "hook_efficiency_roi": {
             const { hookEfficiencyEngine } = await import("../../engines/HookEfficiencyEngine.js");

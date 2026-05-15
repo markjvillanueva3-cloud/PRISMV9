@@ -73,13 +73,22 @@
           "title": "Back-annotate the JM-Die archive with print pointers (the ~5K-7K reachable; flag the ~31K without as a known gap) — overlaps MS-PRINT-PROGRAM-LOOP Track D",
           "effort": 90,
           "dependencies": [],
+          "status": "completed",
+          "completed_at": "2026-05-15T13:55:00.000Z",
+          "completed_by": "claude-339c8ff7 (slot charlie, /loop iter 1, fork H:/prism-docu-print-org → ff-back to cad-fusion-live-ms0)",
           "exit_conditions": [
             "Implementation complete per description",
             "Tests pass: npx vitest run",
             "Typecheck clean: npx tsc --noEmit",
             "Dispatcher wiring verified: import + call + action-enum + Zod schema all match (test invokes through the dispatcher, not only the engine singleton)"
           ],
-          "description": "Back-annotate the JM-Die archive with print pointers (the ~5K-7K reachable; flag the ~31K without as a known gap) — overlaps MS-PRINT-PROGRAM-LOOP Track D — follow the 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP); run duplicationGuardEngine.checkBeforeCreating() before any new asset; wire to ALL logical dispatchers; doc-backflow per MS-DOCFLOW.",
+          "exit_evidence": {
+            "implementation": "JMDieArchiveBackAnnotationEngine.ts (~570 LOC) in src/engines/ ships 4 surfaces: backAnnotateArchive (idempotent sidecar+parts-index writer with dryRun:true default safety gate, foreign-sidecar provenance check, path-traversal trust-boundary check via isPathUnderAllowedRoot, confidence-filter spanning exact/loose), generateGapReport (TWO surfaces — join-side confidence breakdown AND disk-side orphan walk against jm-die-index-v2.json's 38,251-entry universe per envelope brief's 'FAIL LOUD on ~31K orphans' demand), readPrintPointer (fast sidecar lookup with self-provenance check), computeGapReport pure transform. Dispatcher actions back_annotate_archive + back_annotate_gap_report + read_print_pointer in prism_dev (devActionSchemas.ts + devDispatcher.ts ACTIONS enum + 3 case handlers).",
+            "tests_pass": "src/__tests__/JMDieArchiveBackAnnotationEngine.test.ts: 41/41 PASS (pure transforms + I/O orchestrator with injected JoinIndex + tmp-dir archive root + spanning exact/loose/ambiguous confidence variability + 4 failure-mode tests [skipped_path_unsafe / missing_program_file / skipped_no_source_path / skipped_no_part_number] + 2 adversarial [path-traversal in PN, oversize 10K-entry disk index] + idempotence + foreign-sidecar provenance + dryRun gate verification + sample-cap-at-PER_OUTCOME_SAMPLE_CAP).",
+            "typecheck": "tsc --noEmit -p tsconfig.json clean for all U-DOCU-05 files (engine + dispatcher + schemas + test). Same 9 pre-existing peer-broken dispatchers from U-DOCU-04 are still red but NONE involve U-DOCU-05 files.",
+            "dispatcher_wiring": "Verified — prism_dev: back_annotate_archive + back_annotate_gap_report + read_print_pointer. All 3 actions: ACTIONS enum + Zod schema in ACTION_DEV_SCHEMAS + lazy-import case handler + dispatcherError forwarding for fail-loud errors. Two-reviewer per-file scrutiny on engine returned FAIL on first pass (3 P0s + 3 P1s); rewrite addressed all P0/P1 findings — most critically the gap-report was scanning the wrong universe (join-only rather than join + disk-index) which the envelope explicitly demanded FAIL-LOUD on."
+          },
+          "closeout_note": "Two-reviewer per-file scrutiny found and corrected 3 P0s before the test file was written: (a) gap report was wrong universe — only join rows scanned, not the on-disk 38,251-program archive the envelope brief explicitly demands FAIL-LOUD on; fix: added disk-side gap by walking jm-die-index-v2.json + diff vs byProgramPath. (b) dead wrotePartsIndexThisRow flag — removed. (c) skipped_no_part_number counter mislabeled — split into skipped_no_part_number (row-level empty PN) + skipped_no_source_path (program-level empty path). Also addressed: archiveRoot path-construction double-separator bug (path.join now used), isOurSidecar double-read of foreign files (combined into readSidecarWithProvenance), trust-boundary on program paths from the Python-emitted v6 join (new isPathUnderAllowedRoot validator + skipped_path_unsafe outcome). Concurrent-modification on per-PN parts-index is data-safe by construction — the entry is fully derivable from (row, triple), so two writers produce identical content + safeWriteSync is per-file atomic.",
           "four_loop": [
             "BUILD",
             "SCRUTINIZE",
@@ -98,5 +107,7 @@
     }
   ],
   "total_units": 2,
-  "completed_units": 1
+  "completed_units": 2,
+  "status": "completed",
+  "completed_at": "2026-05-15T13:55:00.000Z"
 }

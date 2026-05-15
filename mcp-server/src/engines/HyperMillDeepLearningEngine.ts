@@ -69,7 +69,8 @@ export type HyperMillFeatureType =
   | "rib_thin_wall"        // Thin rib or wall
   | "deep_cavity"          // Deep mold cavity
   | "bore_large"           // Large ID bore
-  | "ruled_surface";       // Developable ruled surface
+  | "ruled_surface"        // Developable ruled surface
+  | "steep_wall";          // Steep wall / near-vertical face (≥75° from horizontal)
 
 /** Material group for strategy tuning */
 export type HyperMillMaterialGroup =
@@ -107,10 +108,15 @@ export interface HyperMillStrategy {
   suitable_materials: HyperMillMaterialGroup[];
   /** Required machine kinematics */
   required_kinematics: HyperMillMachineKinematics[];
-  /** Typical ap (axial depth) as fraction of tool diameter */
-  ap_factor?: number;
-  /** Typical ae (radial depth) as fraction of tool diameter */
-  ae_factor?: number;
+  /**
+   * Typical ap (axial depth) as fraction of tool diameter. `null` is a
+   * deliberate "not applicable" marker for strategies where axial depth is
+   * driven by geometry (e.g. plunge milling along contour), not a chosen
+   * fraction. `undefined` is "unspecified — use category default".
+   */
+  ap_factor?: number | null;
+  /** Typical ae (radial depth) as fraction of tool diameter. See ap_factor for null/undefined semantics. */
+  ae_factor?: number | null;
   /** Manual section reference */
   manual_ref: string;
   /** Manual page range (approx) */
@@ -2299,6 +2305,7 @@ export class HyperMillDeepLearningEngine {
       deep_cavity: "deep narrow cavity (depth/width > 3)",
       bore_large: "large-diameter single-point bore",
       ruled_surface: "developable surface with straight generatrices",
+      steep_wall: "near-vertical wall (≥75° from horizontal — finishing constraint)",
     };
     return desc[feature] ?? feature;
   }

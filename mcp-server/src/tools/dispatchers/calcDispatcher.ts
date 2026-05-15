@@ -1015,6 +1015,14 @@ const ACTIONS = [
   "chatter_neural_classify", "thermal_neural_predict",
   "adaptive_param_space_record", "adaptive_param_space_query",
   "adaptive_machining_process", "adaptive_physics_bridge",
+  // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-QUICK-CALC: 10 actions wiring QuickCalcEngine
+  "quick_rpm", "quick_feed_rate", "quick_mrr", "quick_surface_speed", "quick_chip_load",
+  "quick_tap_drill", "quick_cutting_time", "quick_scallop_height", "quick_thread_pitch", "quick_cutting_power",
+  // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-SMART-DEFAULTS: 7 actions wiring SmartDefaultsEngine
+  // (context-aware default RPM/feed/DOC/WOC/coolant — NOT Kienzle/Taylor; SFM baselines).
+  "smart_defaults_get", "smart_defaults_sfm", "smart_defaults_chipload",
+  "smart_defaults_engagement", "smart_defaults_coolant", "smart_defaults_materials",
+  "smart_defaults_oneliner",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -1271,6 +1279,52 @@ export function registerCalcDispatcher(server: any): void {
               params.feed_per_tooth || params.feed,
               params.axial_depth || params.ap || params.depth
             );
+            break;
+          }
+
+          // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-CAMPAIGN: half-wire completion.
+          // CampaignEngine was in z.enum + calcExtractKeyValues slimmer but lacked
+          // main-switch cases — same gotcha as iter-13 (SpindleHarmonicsQuality).
+          // 4 actions: campaign_create, campaign_validate, campaign_optimize,
+          // campaign_cycle_time. list_actions:true on campaign_create returns
+          // the action catalog instead of running create (matches engine convention).
+          case "campaign_create": {
+            const { createCampaign, listCampaignActions } = await import("../../engines/CampaignEngine.js");
+            if (params.list_actions) {
+              result = { success: true, actions: listCampaignActions() };
+              break;
+            }
+            try {
+              result = createCampaign(params.config as any, params.operation_results as any);
+            } catch (err) {
+              result = { error: err instanceof Error ? err.message : String(err) };
+            }
+            break;
+          }
+
+          case "campaign_validate": {
+            const { validateCampaign } = await import("../../engines/CampaignEngine.js");
+            result = validateCampaign(params.config as any);
+            break;
+          }
+
+          case "campaign_optimize": {
+            const { optimizeCampaign } = await import("../../engines/CampaignEngine.js");
+            try {
+              result = optimizeCampaign(params.config as any, params.target as any);
+            } catch (err) {
+              result = { error: err instanceof Error ? err.message : String(err) };
+            }
+            break;
+          }
+
+          case "campaign_cycle_time": {
+            const { estimateCycleTime } = await import("../../engines/CampaignEngine.js");
+            try {
+              result = estimateCycleTime(params.config as any);
+            } catch (err) {
+              result = { error: err instanceof Error ? err.message : String(err) };
+            }
             break;
           }
 
@@ -3915,6 +3969,43 @@ export function registerCalcDispatcher(server: any): void {
               machine_natural_freqs_Hz: params.machine_natural_freqs_Hz,
               threshold_um: params.threshold_um,
             });
+            break;
+          }
+          // ── SpindleHarmonicsQualityEngine wiring (was half-wired: action enum +
+          //    result-slimmer present at lines 214/216/218, but no main switch case
+          //    invoking the engine — landed by OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-
+          //    SPINDLE-HARMONICS-QUALITY).
+          case "spindle_harmonic_analysis": {
+            const { spindleHarmonicsQualityEngine } = await import("../../engines/SpindleHarmonicsQualityEngine.js");
+            result = spindleHarmonicsQualityEngine.analyze({
+              spindle_rpm: params.spindle_rpm,
+              num_flutes: params.num_flutes ?? 4,
+              machine_modes: params.machine_modes ?? { natural_frequencies_Hz: [800] },
+              max_harmonic_order: params.max_harmonic_order,
+              bandwidth_pct: params.bandwidth_pct,
+            });
+            break;
+          }
+          case "spindle_optimal_rpm": {
+            const { spindleHarmonicsQualityEngine } = await import("../../engines/SpindleHarmonicsQualityEngine.js");
+            result = spindleHarmonicsQualityEngine.findOptimalRpm(
+              params.num_flutes ?? 4,
+              params.machine_modes ?? { natural_frequencies_Hz: [800] },
+              params.rpm_min ?? 2000,
+              params.rpm_max ?? 12000,
+              params.rpm_step,
+            );
+            break;
+          }
+          case "spindle_quality_map": {
+            const { spindleHarmonicsQualityEngine } = await import("../../engines/SpindleHarmonicsQualityEngine.js");
+            result = spindleHarmonicsQualityEngine.qualityMap(
+              params.num_flutes ?? 4,
+              params.machine_modes ?? { natural_frequencies_Hz: [800] },
+              params.rpm_min ?? 2000,
+              params.rpm_max ?? 12000,
+              params.rpm_step,
+            );
             break;
           }
           case "thread_mill_calc": {
@@ -8801,6 +8892,126 @@ export function registerCalcDispatcher(server: any): void {
             result = adaptivePhysicsBridgeEngine.performIntegratedAnalysis(conditions, cuttingPower, ratedPower, cuttingTime);
             break;
           }
+
+          // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-QUICK-CALC: 10 actions wiring QuickCalcEngine (2026-05-15)
+          case "quick_rpm": {
+            const { quickCalcEngine } = await import("../../engines/QuickCalcEngine.js");
+            result = quickCalcEngine.rpm(params.surface_speed, params.diameter, params.metric === true);
+            break;
+          }
+          case "quick_feed_rate": {
+            const { quickCalcEngine } = await import("../../engines/QuickCalcEngine.js");
+            result = quickCalcEngine.feedRate(params.rpm, params.chip_load, params.flutes, params.metric === true);
+            break;
+          }
+          case "quick_mrr": {
+            const { quickCalcEngine } = await import("../../engines/QuickCalcEngine.js");
+            result = quickCalcEngine.mrr(params.woc, params.doc, params.feed_rate, params.metric === true);
+            break;
+          }
+          case "quick_surface_speed": {
+            const { quickCalcEngine } = await import("../../engines/QuickCalcEngine.js");
+            result = quickCalcEngine.surfaceSpeed(params.rpm, params.diameter, params.metric === true);
+            break;
+          }
+          case "quick_chip_load": {
+            const { quickCalcEngine } = await import("../../engines/QuickCalcEngine.js");
+            result = quickCalcEngine.chipLoad(params.feed_rate, params.rpm, params.flutes, params.metric === true);
+            break;
+          }
+          case "quick_tap_drill": {
+            const { quickCalcEngine } = await import("../../engines/QuickCalcEngine.js");
+            result = quickCalcEngine.tapDrill(params.major_dia, params.pitch);
+            break;
+          }
+          case "quick_cutting_time": {
+            const { quickCalcEngine } = await import("../../engines/QuickCalcEngine.js");
+            result = quickCalcEngine.cuttingTime(params.distance, params.feed_rate);
+            break;
+          }
+          case "quick_scallop_height": {
+            const { quickCalcEngine } = await import("../../engines/QuickCalcEngine.js");
+            result = quickCalcEngine.scallopHeight(params.tool_radius, params.stepover);
+            break;
+          }
+          case "quick_thread_pitch": {
+            const { quickCalcEngine } = await import("../../engines/QuickCalcEngine.js");
+            result = quickCalcEngine.threadPitch(params.tpi);
+            break;
+          }
+          case "quick_cutting_power": {
+            const { quickCalcEngine } = await import("../../engines/QuickCalcEngine.js");
+            result = quickCalcEngine.cuttingPower(params.mrr_in3min, params.material, params.custom_factor);
+            break;
+          }
+
+          // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-SMART-DEFAULTS: SmartDefaultsEngine wire (2026-05-15)
+          case "smart_defaults_get": {
+            const { smartDefaultsEngine } = await import("../../engines/SmartDefaultsEngine.js");
+            result = { success: true, defaults: smartDefaultsEngine.getDefaults(
+              String(params.material),
+              Number(params.tool_diameter),
+              typeof params.flutes === "number" ? params.flutes : 3,
+              typeof params.tool_material === "string" ? params.tool_material : "carbide",
+              typeof params.operation === "string" ? params.operation : "milling",
+            ) };
+            break;
+          }
+          case "smart_defaults_sfm": {
+            const { smartDefaultsEngine } = await import("../../engines/SmartDefaultsEngine.js");
+            result = { success: true, sfm: smartDefaultsEngine.getSFM(
+              String(params.material),
+              typeof params.tool_material === "string" ? params.tool_material : "carbide",
+            ) };
+            break;
+          }
+          case "smart_defaults_chipload": {
+            const { smartDefaultsEngine } = await import("../../engines/SmartDefaultsEngine.js");
+            result = { success: true, chipload_in: smartDefaultsEngine.getChipload(Number(params.diameter)) };
+            break;
+          }
+          case "smart_defaults_engagement": {
+            const { smartDefaultsEngine } = await import("../../engines/SmartDefaultsEngine.js");
+            result = { success: true, engagement: smartDefaultsEngine.getEngagement(
+              Number(params.diameter),
+              String(params.material),
+              typeof params.operation === "string" ? params.operation : "milling",
+            ) };
+            break;
+          }
+          case "smart_defaults_coolant": {
+            const { smartDefaultsEngine } = await import("../../engines/SmartDefaultsEngine.js");
+            result = { success: true, coolant: smartDefaultsEngine.getCoolant(String(params.material)) };
+            break;
+          }
+          case "smart_defaults_materials": {
+            const { smartDefaultsEngine } = await import("../../engines/SmartDefaultsEngine.js");
+            result = { success: true, materials: smartDefaultsEngine.listMaterials() };
+            break;
+          }
+          case "smart_defaults_oneliner": {
+            const { smartDefaultsEngine } = await import("../../engines/SmartDefaultsEngine.js");
+            result = { success: true, line: smartDefaultsEngine.oneLiner(
+              String(params.material),
+              Number(params.diameter),
+              typeof params.flutes === "number" ? params.flutes : 3,
+            ) };
+            break;
+          }
+
+          // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-ROUGHNESS: RoughnessConversionEngine wire (2026-05-15)
+          // Half-wired: roughness_convert was in ACTIONS + slimmer mapper but missing the switch case.
+          // Completes the contract; the slimmer at line 242 returns {from, to, value, n_grade, process, unc_pct}.
+          case "roughness_convert": {
+            const { roughnessConversionEngine } = await import("../../engines/RoughnessConversionEngine.js");
+            result = roughnessConversionEngine.convert({
+              value: Number(params.value),
+              from_scale: String(params.from_scale) as "Ra_um"|"Rz_um"|"Rq_um"|"Rt_um"|"Ra_uin"|"N_grade",
+              to_scale: String(params.to_scale) as "Ra_um"|"Rz_um"|"Rq_um"|"Rt_um"|"Ra_uin"|"N_grade",
+            });
+            break;
+          }
+
 default:
             throw new Error(`Unknown calculation action: ${action}`);
         }

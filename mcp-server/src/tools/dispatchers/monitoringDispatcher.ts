@@ -1,14 +1,17 @@
 /**
  * prism_monitoring — Monitoring & Observability Dispatcher
  *
- * 9 actions across 1 engine:
+ * 18 actions across 2 engines:
  *   Grafana Bridge (9): grafana_push_metrics, grafana_query,
  *     grafana_query_range, grafana_create_dashboard,
  *     grafana_manufacturing_dashboard, grafana_export_simulation,
  *     grafana_export_spc, grafana_export_tool_life,
  *     grafana_configure_alerts
+ *   Metrics Engine (9): metric_define, metric_increment, metric_gauge,
+ *     metric_observe, metric_get_counter, metric_get_gauge,
+ *     metric_get_histogram, metric_export, metric_reset
  *
- * @milestone MON-MS0
+ * @milestone MON-MS0 + OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-METRICS
  */
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
@@ -18,6 +21,7 @@ import { ACTION_MONITORING_SCHEMAS } from "../../schemas/monitoringActionSchemas
 
 // Lazy engine cache
 let _grafanaBridge: any;
+let _metrics: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -25,6 +29,10 @@ async function getEngine(name: string): Promise<any> {
       return _grafanaBridge ??= (
         await import("../../engines/GrafanaBridgeEngine.js")
       ).grafanaBridgeEngine;
+    case "metrics":
+      return _metrics ??= (
+        await import("../../engines/MetricsEngine.js")
+      ).metricsEngine;
     default:
       throw new Error(`Unknown engine: ${name}`);
   }
@@ -40,6 +48,16 @@ const ACTIONS = [
   "grafana_export_spc",
   "grafana_export_tool_life",
   "grafana_configure_alerts",
+  // ── Metrics Engine (9) — OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-METRICS
+  "metric_define",
+  "metric_increment",
+  "metric_gauge",
+  "metric_observe",
+  "metric_get_counter",
+  "metric_get_gauge",
+  "metric_get_histogram",
+  "metric_export",
+  "metric_reset",
 ] as const;
 
 /** Registers monitoring dispatcher.
@@ -124,6 +142,69 @@ Params vary by action — pass relevant fields in params object.`,
             result = engine.configureAlerts(params);
             break;
           }
+
+          // ── Metrics Engine ──
+          case "metric_define": {
+            const engine = await getEngine("metrics");
+            const def = {
+              name: params.name,
+              type: params.type,
+              description: params.description,
+              labels: params.labels ?? [],
+              unit: params.unit,
+            };
+            engine.define(def);
+            result = { success: true, defined: def };
+            break;
+          }
+          case "metric_increment": {
+            const engine = await getEngine("metrics");
+            const value = engine.increment(params.name, params.value ?? 1, params.labels);
+            result = { success: true, name: params.name, value, labels: params.labels };
+            break;
+          }
+          case "metric_gauge": {
+            const engine = await getEngine("metrics");
+            engine.gauge(params.name, params.value, params.labels);
+            result = { success: true, name: params.name, value: params.value, labels: params.labels };
+            break;
+          }
+          case "metric_observe": {
+            const engine = await getEngine("metrics");
+            engine.observe(params.name, params.value, params.labels);
+            result = { success: true, name: params.name, value: params.value, labels: params.labels };
+            break;
+          }
+          case "metric_get_counter": {
+            const engine = await getEngine("metrics");
+            const value = engine.getCounter(params.name, params.labels);
+            result = { success: true, name: params.name, value, labels: params.labels };
+            break;
+          }
+          case "metric_get_gauge": {
+            const engine = await getEngine("metrics");
+            const value = engine.getGauge(params.name, params.labels);
+            result = { success: true, name: params.name, value, labels: params.labels };
+            break;
+          }
+          case "metric_get_histogram": {
+            const engine = await getEngine("metrics");
+            const histogram = engine.getHistogram(params.name, params.labels, params.buckets);
+            result = { success: true, histogram };
+            break;
+          }
+          case "metric_export": {
+            const engine = await getEngine("metrics");
+            result = { success: true, snapshot: engine.export() };
+            break;
+          }
+          case "metric_reset": {
+            const engine = await getEngine("metrics");
+            engine.reset();
+            result = { success: true, reset: true };
+            break;
+          }
+
           default:
             return dispatcherError(`Unknown monitoring action: ${action}`, action, "prism_monitoring");
         }

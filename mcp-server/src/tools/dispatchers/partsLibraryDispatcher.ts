@@ -19,6 +19,8 @@ const ACTIONS = [
   "file_get_attachments", "file_find_by_hash", "file_delete", "file_list", "file_stats",
   "part_create", "part_search", "part_get", "part_add_revision", "part_list_revisions",
   "part_find_similar", "part_deduplicate", "part_stats",
+  // U-PPL-D3 / MS-PRINT-PROGRAM-LOOP Track D: ArchiveToPartsCatalogIngesterEngine
+  "part_ingest_from_archive",
 ] as const;
 
 export function registerPartsLibraryDispatcher(server: any): void {
@@ -228,6 +230,42 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "part_stats": {
             const { partsLibraryEngine } = await import("../../engines/PartsLibraryEngine.js");
             result = partsLibraryEngine.getStats();
+            break;
+          }
+
+          // ── U-PPL-D3 / MS-PRINT-PROGRAM-LOOP Track D: ArchiveToPartsCatalogIngester ──
+          case "part_ingest_from_archive": {
+            const { archiveToPartsCatalogIngesterEngine } = await import(
+              "../../engines/ArchiveToPartsCatalogIngesterEngine.js"
+            );
+            // Optional link-enrichment: when join_jsonl_path OR input_program_paths
+            // is supplied, lazy-load the composite link index BEFORE the ingest so
+            // each PN's primary program can carry a print pointer. FAIL-LOUD: a
+            // missing/corrupt join file throws and the dispatcher catch wraps that
+            // into dispatcherError so the operator sees a structured envelope.
+            const joinJsonlPath =
+              typeof params.join_jsonl_path === "string" ? params.join_jsonl_path : undefined;
+            const inputProgramPaths = Array.isArray(params.input_program_paths)
+              ? (params.input_program_paths as unknown[]).filter(
+                  (p): p is string => typeof p === "string",
+                )
+              : undefined;
+            let linkIndex: import("../../engines/ProgramPrintLinkIndexEngine.js").ProgramPrintLinkIndex | undefined;
+            if (joinJsonlPath !== undefined || inputProgramPaths !== undefined) {
+              const { loadLinkIndex } = await import(
+                "../../engines/ProgramPrintLinkIndexEngine.js"
+              );
+              linkIndex = await loadLinkIndex({ joinJsonlPath, inputProgramPaths });
+            }
+            result = archiveToPartsCatalogIngesterEngine.ingestArchive({
+              entries: (params.entries ?? []) as Parameters<
+                typeof archiveToPartsCatalogIngesterEngine.ingestArchive
+              >[0]["entries"],
+              linkIndex,
+              dryRun: params.dryRun !== false,
+              limit: typeof params.limit === "number" ? params.limit : undefined,
+              tagFromEntry: params.tagFromEntry !== false,
+            });
             break;
           }
 

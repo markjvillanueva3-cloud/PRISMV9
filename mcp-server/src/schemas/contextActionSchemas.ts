@@ -125,6 +125,34 @@ export const ACTION_CONTEXT_SCHEMAS: Record<string, z.ZodTypeAny> = {
   budget_report: z.object({}).optional(),
   budget_reset: z.object({}).optional(),
 
+  // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-SESSION-BUDGET-ADVISOR: 4 actions for
+  // SessionBudgetAdvisorEngine — unified meta-advisor that fuses budget +
+  // efficiency + hook + anti-pattern signals. Was orphan (no dispatcher ref).
+  session_budget_advise: z.object({
+    budgetMax: z.number().positive(),
+    tokensUsed: z.number().min(0),
+    hookSaves: z.number().min(0).optional(),
+    hookBlocks: z.number().min(0).optional(),
+    antiPatterns: z.array(z.string()).optional(),
+    topExpensiveTool: z.string().optional(),
+    topExpensiveTokens: z.number().min(0).optional(),
+    toolCallCount: z.number().min(0).optional(),
+    efficiencyScore: z.number().min(0).max(100).optional(),
+  }).passthrough(),
+  session_budget_one_liner: z.object({
+    budgetMax: z.number().positive(),
+    tokensUsed: z.number().min(0),
+    toolCallCount: z.number().min(0).optional(),
+    efficiencyScore: z.number().min(0).max(100).optional(),
+  }).passthrough(),
+  session_budget_should_compact: z.object({
+    budgetMax: z.number().positive(),
+    tokensUsed: z.number().min(0),
+  }).passthrough(),
+  session_budget_estimate_capacity: z.object({
+    remaining: z.number().min(0),
+  }).passthrough(),
+
   // Context intelligence
   attention_score: z.object({
     content: z.string(),

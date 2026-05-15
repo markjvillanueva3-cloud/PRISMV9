@@ -1,0 +1,153 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://prism/schemas/command-frontmatter.schema.json",
+  "title": "PRISM Command Frontmatter Schema (COMMAND-KERNEL-MS0 / U-CK06)",
+  "description": "Canonical YAML frontmatter for skills under .claude/commands/*.md. Underpins the psk syscall layer + composition primitive. Backward-compat: anything beyond the 6 core fields is optional; existing skills with only `name` + `description` validate against this schema today, then get progressively enriched by the U-CK08 corpus migration.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["name", "description"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-z][a-z0-9-]*(:[a-z0-9-]+)?$",
+      "description": "Skill slug — kebab-case, optional one-level namespace (e.g. `sparc:ask`). Lowercase, hyphenated. Becomes the slash-command name (/<name>)."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 16,
+      "description": "Single-paragraph hook surfaced in the auto-suggest list. Should state WHAT the skill does in 1-3 sentences plus when to use it."
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-z0-9.]+)?$",
+      "description": "Semver. Bump major on incompatible argument changes, minor on additive behaviour, patch on bug fixes / doc tweaks."
+    },
+    "tier": {
+      "type": "string",
+      "enum": ["T0", "T1", "T2", "T3", "T4", "T5"],
+      "description": "Hook-tier alignment. T0 = critical (blocks Stop on failure), T1 = high-priority (advisory), T2 = inject (UserPromptSubmit additionalContext), T3 = nudge, T4 = telemetry / advisory only, T5 = experimental. Used by the auto-trigger orchestrator to budget execution."
+    },
+    "trigger": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "autoSuggest": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "keywords": {
+              "type": "array",
+              "items": { "type": "string", "minLength": 2 },
+              "minItems": 1,
+              "uniqueItems": true,
+              "description": "Substrings matched against the user prompt by `skill-auto-trigger.mjs`. Top-K (default 3) skills are surfaced as suggestions."
+            },
+            "regex": {
+              "type": "string",
+              "description": "Optional regex pattern. When provided, used INSTEAD of keywords (one or the other)."
+            },
+            "minScore": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Minimum BM25 score required to surface (0..1). Default 0.3."
+            }
+          }
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["UserPromptSubmit", "PreToolUse", "PostToolUse", "Stop", "SessionStart", "PreCompact", "SubagentStart"]
+          },
+          "uniqueItems": true,
+          "description": "Hook events that may auto-invoke this skill (advisory; the harness wiring is separate)."
+        }
+      }
+    },
+    "consumes": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true,
+      "description": "Inputs this skill reads from: file paths, dispatcher actions (e.g. `prism_dev:build_state_summary`), other skills, or environment variables. Used by the dependency-graph generator to surface upstream changes that invalidate cached outputs."
+    },
+    "produces": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true,
+      "description": "Outputs this skill writes: file paths, dispatcher actions emitted, persistent state files. Used by downstream skills to declare `consumes`."
+    },
+    "composes_with": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^/[a-z][a-z0-9-]*(:[a-z0-9-]+)?$" },
+      "uniqueItems": true,
+      "description": "Other slash-commands this skill orchestrates internally (e.g. /checkin composes_with: ['/handoff','/precompact']). Used by U-CK25 /pipeline meta-command for static dependency analysis."
+    },
+    "pipeline_integrations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["pipeline", "phase"],
+        "properties": {
+          "pipeline": {
+            "type": "string",
+            "description": "Pipeline name (e.g. forge, forge-audit, rgs, roadmap, close-out, session-cycle)."
+          },
+          "phase": {
+            "type": "string",
+            "description": "Phase identifier within that pipeline (e.g. preflight, surface-enum, verify, emit)."
+          },
+          "ordering": {
+            "type": "string",
+            "enum": ["before", "during", "after"],
+            "description": "Where in the phase this skill fires. Default: during."
+          }
+        }
+      },
+      "uniqueItems": false,
+      "description": "Registers this skill as a participant in named pipelines. Read by U-CK14 (activate pipeline_integrations) + U-CK16 (skill-auto-trigger pipeline-aware)."
+    },
+    "model": {
+      "type": "string",
+      "enum": ["opus", "sonnet", "haiku", "auto"],
+      "description": "Preferred Claude tier. `auto` defers to model-router. Default: inherit from caller (no override)."
+    },
+    "effort": {
+      "type": "string",
+      "enum": ["low", "medium", "high", "max"],
+      "description": "Reasoning depth hint to the harness. Default: inherit."
+    },
+    "allowed-tools": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true,
+      "description": "Tools this skill needs (e.g. ['Read','Edit','Bash']). Empty = inherits from session policy."
+    },
+    "context": {
+      "type": "string",
+      "enum": ["minimal", "normal", "extended", "max"],
+      "description": "Context-budget hint. `minimal` = short skill, no exploration; `max` = research-heavy. Default: normal."
+    },
+    "owner": {
+      "type": "string",
+      "description": "Slot or chat that owns the skill (e.g. 'alpha', 'golf', 'pp-team'). Used for routing + ownership audits."
+    },
+    "deprecated": {
+      "oneOf": [
+        { "type": "boolean" },
+        { "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "since": { "type": "string", "format": "date" },
+            "replacement": { "type": "string", "description": "Slug of the replacement skill, if any" },
+            "remove_after": { "type": "string", "format": "date" }
+          }
+        }
+      ],
+      "description": "Mark the skill deprecated. Picked up by skill-lint."
+    }
+  }
+}

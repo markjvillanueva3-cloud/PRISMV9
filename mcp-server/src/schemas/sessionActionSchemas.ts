@@ -680,4 +680,100 @@ export const ACTION_SESSION_SCHEMAS: ActionSchemaMap = {
     params: z.record(z.string(), z.unknown()).optional()
       .describe("Syscall-specific params (e.g. {sessionId} for whoami, {event,command,outcome} for record, {subcommand,terminal,resume,state} for handoff). Forwarded verbatim — each syscall validates its own shape and returns a degraded result on bad input."),
   }).passthrough(),
+
+  // ==========================================================================
+  // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-MULTI-SESSION-HANDOFF (4 actions)
+  // Wires MultiSessionHandoffCoordinatorEngine (U-CTX05, 358 LOC, was orphan):
+  // reads all HANDOFF-*.md in state/shared, merges work queues, detects
+  // claim conflicts, formats an injection-ready digest, and supports
+  // stale-handoff cleanup (DESTRUCTIVE — gated behind dry_run + confirm).
+  // ==========================================================================
+
+  /**
+   * handoff_coord_status — Run coordinate() across all session handoffs.
+   * Returns the merged work queue (pending goals, next actions, conflicts)
+   * + recommendations + tokenEstimate for the formatted-injection variant.
+   */
+  handoff_coord_status: z.object({
+    handoff_dir: optStr
+      .describe("Override the handoff directory (default: H:/prism/state/shared). Useful for tests / alternate worktrees."),
+  }).passthrough(),
+
+  /**
+   * handoff_coord_inject — Pre-rendered markdown digest suitable for
+   * UserPromptSubmit injection. Same data as handoff_coord_status but
+   * formatted as `## Multi-Session Handoff\n…` ~150-400 char block.
+   */
+  handoff_coord_inject: z.object({
+    handoff_dir: optStr
+      .describe("Override the handoff directory (default: H:/prism/state/shared)."),
+  }).passthrough(),
+
+  /**
+   * handoff_coord_load_sessions — Raw enumeration of every HANDOFF-*.md
+   * parsed into SessionSnapshot (family, machine, lastActive, claims,
+   * openGoals, nextActions, status active|stale). Returns sorted newest-first.
+   */
+  handoff_coord_load_sessions: z.object({
+    handoff_dir: optStr
+      .describe("Override the handoff directory (default: H:/prism/state/shared)."),
+  }).passthrough(),
+
+  /**
+   * handoff_coord_cleanup_stale — DESTRUCTIVE: delete HANDOFF-*.md files
+   * older than max_age_ms. SAFE BY DEFAULT — without confirm:true the
+   * action runs in dry-run mode and returns the list of files that WOULD
+   * be deleted. Pass {confirm:true} to actually unlink them.
+   */
+  handoff_coord_cleanup_stale: z.object({
+    handoff_dir: optStr
+      .describe("Override the handoff directory (default: H:/prism/state/shared)."),
+    max_age_ms: z.union([z.string(), z.number()]).optional()
+      .describe("Stale threshold in ms (default 1800000 = 30 min). Clamped to ≥60000 (1 min) to prevent foot-gunning."),
+    confirm: optBool
+      .describe("EXPLICIT confirmation required to actually delete files. Default false; without this the action returns a dry-run preview only."),
+  }).passthrough(),
+
+  // ==========================================================================
+  // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-SESSION-LIFECYCLE (5 actions)
+  // Wires SessionLifecycleEngine (W3:D5, 489 LOC, was orphan): exposes
+  // multi-metric session quality scoring (5-dimension ensemble: task
+  // completion, reliability, safety adherence, efficiency, continuity),
+  // metrics inspection, and final-handoff generation for crash recovery.
+  // Note: orphan-inventory suggested prism_auth based on "Session" name
+  // heuristic, but the engine's docblock states it's called by
+  // "autoHookWrapper cadence + sessionDispatcher session_end" — wiring
+  // to prism_session is the correct route.
+  // ==========================================================================
+
+  /** lifecycle_metrics — Read current SessionMetrics (tool_calls, hook stats,
+   * pressure, latency, etc). No params. */
+  lifecycle_metrics: z.object({}).passthrough(),
+
+  /** lifecycle_quality_score — Compute 5-dimension session quality (0-100)
+   * with letter grade (A+..F) and weakest-dimension recommendation.
+   * Weighted ensemble: task_completion 0.30 / reliability 0.25 /
+   * safety_adherence 0.20 / efficiency 0.15 / continuity 0.10. */
+  lifecycle_quality_score: z.object({}).passthrough(),
+
+  /** lifecycle_session_id — Get the canonical session id this engine is
+   * tracking (format: SESSION-{epochMs}). */
+  lifecycle_session_id: z.object({}).passthrough(),
+
+  /** lifecycle_call_count — Get total tool calls recorded this session. */
+  lifecycle_call_count: z.object({}).passthrough(),
+
+  /** lifecycle_final_handoff — Generate a final handoff document (quality
+   * score + metrics summary + resume context) AND write it to
+   * state/next_session_prep.json. Use at session_end. */
+  lifecycle_final_handoff: z.object({
+    phase: z.string().min(1)
+      .describe("Current phase/milestone tag (e.g., 'OBSIDIAN-PRISM-OS-MS0/iter-3')"),
+    quick_resume: z.string().min(1)
+      .describe("One-line directive for the next session"),
+    pending_tasks: z.array(z.string()).optional()
+      .describe("Optional list of pending task descriptions (first 10 retained)"),
+    key_findings: z.array(z.string()).optional()
+      .describe("Optional list of key findings/decisions from this session (first 5 retained)"),
+  }).passthrough(),
 };

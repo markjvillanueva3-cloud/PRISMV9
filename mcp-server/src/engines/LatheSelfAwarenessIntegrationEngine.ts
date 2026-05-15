@@ -1211,12 +1211,12 @@ export class LatheSelfAwarenessIntegrationEngine {
     const matchingEngines = this.findMatchingEngines(query);
 
     // Get tribal knowledge
-    const tribalKnowledge = prismSelfAwarenessEngine.searchTribalKnowledge(query, {
+    const tribalKnowledge = prismSelfAwarenessEngine.searchTribalKnowledgeSync(query, {
       limit: 10,
     });
 
     // Get playbook rules
-    const playbookRules = prismSelfAwarenessEngine.searchPlaybookRules(query, {
+    const playbookRules = prismSelfAwarenessEngine.searchPlaybookRulesSync(query, {
       limit: 5,
     });
 
@@ -1479,13 +1479,13 @@ export class LatheSelfAwarenessIntegrationEngine {
     const parallelGroups = this.findParallelGroups(executionOrder);
 
     // Get tribal knowledge
-    const tribalKnowledge = prismSelfAwarenessEngine.searchTribalKnowledge(
+    const tribalKnowledge = prismSelfAwarenessEngine.searchTribalKnowledgeSync(
       task,
       { limit: 5 }
     );
 
     // Get playbook rules
-    const playbookRules = prismSelfAwarenessEngine.searchPlaybookRules(
+    const playbookRules = prismSelfAwarenessEngine.searchPlaybookRulesSync(
       task,
       { limit: 5 }
     );
@@ -1567,7 +1567,7 @@ export class LatheSelfAwarenessIntegrationEngine {
 
     // Get tribal knowledge applied
     const tribalKnowledgeApplied = prismSelfAwarenessEngine
-      .searchTribalKnowledge(task.description, { limit: 3 })
+      .searchTribalKnowledgeSync(task.description, { limit: 3 })
       .map((tk: any) => tk.title);
 
     // Generate warnings and recommendations
@@ -1768,7 +1768,7 @@ export class LatheSelfAwarenessIntegrationEngine {
     const formulas = this.findFormulasForConcept(concept);
 
     // Find tribal tips
-    const tribalTips = prismSelfAwarenessEngine.searchTribalKnowledge(
+    const tribalTips = prismSelfAwarenessEngine.searchTribalKnowledgeSync(
       concept,
       { limit: 5 }
     );
@@ -1872,13 +1872,13 @@ export class LatheSelfAwarenessIntegrationEngine {
     const aiFeatures = prismSelfAwarenessEngine.searchAIFeatures("lathe");
 
     // Get tribal knowledge samples
-    const tribalKnowledge = prismSelfAwarenessEngine.searchTribalKnowledge(
+    const tribalKnowledge = prismSelfAwarenessEngine.searchTribalKnowledgeSync(
       "turning lathe",
       { limit: 10 }
     );
 
     // Get playbook rules
-    const playbookRules = prismSelfAwarenessEngine.searchPlaybookRules(
+    const playbookRules = prismSelfAwarenessEngine.searchPlaybookRulesSync(
       "lathe turning",
       { limit: 10 }
     );
@@ -2003,13 +2003,13 @@ export class LatheSelfAwarenessIntegrationEngine {
 
     // Get tribal knowledge based on available context
     const query = this.buildContextQuery(context);
-    const tribalKnowledge = prismSelfAwarenessEngine.searchTribalKnowledge(
+    const tribalKnowledge = prismSelfAwarenessEngine.searchTribalKnowledgeSync(
       query,
       { limit: 5 }
     );
 
     // Get playbook rules
-    const playbookRules = prismSelfAwarenessEngine.searchPlaybookRules(
+    const playbookRules = prismSelfAwarenessEngine.searchPlaybookRulesSync(
       query,
       { limit: 5 }
     );
@@ -2409,8 +2409,8 @@ export class LatheSelfAwarenessIntegrationEngine {
       supportingEngines: [],
       executionOrder: [fallbackEngine.engineName],
       parallelGroups: [[fallbackEngine.engineName]],
-      tribalKnowledgeInjection: prismSelfAwarenessEngine.searchTribalKnowledge(task, { limit: 3 }),
-      playbookRulesApplied: prismSelfAwarenessEngine.searchPlaybookRules(task, { limit: 3 }),
+      tribalKnowledgeInjection: prismSelfAwarenessEngine.searchTribalKnowledgeSync(task, { limit: 3 }),
+      playbookRulesApplied: prismSelfAwarenessEngine.searchPlaybookRulesSync(task, { limit: 3 }),
       jmDieContext: null,
       confidenceScore: 0.7,
       reasoningPath: [`No specific engine match for "${task}", using orchestration fallback`],

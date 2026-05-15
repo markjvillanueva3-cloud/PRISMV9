@@ -41,8 +41,25 @@ const gcodeOp = z.object({
   feed: z.number().optional(), speed: z.number().optional(),
 }).passthrough();
 
-/** Campaign operation result row */
-const campaignResultRow = z.array(z.union([z.string(), z.number(), z.boolean(), z.null()]));
+/** Campaign operation result row.
+ * OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-CAMPAIGN — schema fix.
+ * Was z.array(primitives) which mismatched the engine signature OperationResult[][].
+ * Engine (CampaignEngine.createCampaign) expects each row to be an OperationResult
+ * object. .passthrough() lets the engine evolve fields without breaking the schema. */
+const campaignResultRow = z.array(z.object({
+  sequence: z.number().int(),
+  feature: z.string(),
+  cutting_speed_m_min: z.number(),
+  feed_rate_mm_min: z.number(),
+  spindle_rpm: z.number(),
+  mrr_cm3_min: z.number(),
+  cutting_force_n: z.number(),
+  tool_life_min: z.number(),
+  cycle_time_min: z.number(),
+  surface_finish_ra: z.number().optional(),
+  power_kw: z.number(),
+  warnings: z.array(z.string()),
+}).passthrough());
 
 /** Plan operation entry */
 const planOperation = z.object({
@@ -426,9 +443,13 @@ const fit_analysis = z.object({
 // CAMPAIGN (4 actions)
 // ============================================================================
 
+// OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-CAMPAIGN: config + operation_results made
+// optional so the list_actions:true catalog-discovery path can be called without
+// supplying a full campaign payload. Validation on the engine side throws a clear
+// error if config/operation_results are missing when list_actions is absent.
 const campaign_create = z.object({
-  config: dynamicRecord,
-  operation_results: z.array(campaignResultRow),
+  config: dynamicRecord.optional(),
+  operation_results: z.array(campaignResultRow).optional(),
   list_actions: optBool,
 }).passthrough();
 
@@ -3253,4 +3274,115 @@ export const ACTION_CALC_SCHEMAS: ActionSchemaMap = {
     rated_power_kw: optPosNum.describe('Machine rated power (kW)'),
     cutting_time_min: optPosNum.describe('Cutting time (min)'),
   }).passthrough().describe('Integrated adaptive physics bridge: chip+coolant+spindle+wear analysis'),
+
+  // ==========================================================================
+  // OBSIDIAN-PRISM-OS-MS0 / U-ORPHAN-RESCUE-QUICK-CALC — 10 actions for
+  // QuickCalcEngine (orphan-rescue wire, 2026-05-15). Zero dispatcher overhead
+  // path for the 10 most common CNC calcs. Engine has 14 vitest cases in
+  // __tests__/quick-calc-engine.test.ts.
+  // ==========================================================================
+  quick_rpm: z.object({
+    surface_speed: posNum.describe('Surface speed — SFM (imperial) or Vc m/min (metric)'),
+    diameter: posNum.describe('Tool diameter — inches (imperial) or mm (metric)'),
+    metric: optBool.describe('true → diameter is in mm and surface_speed is Vc; default false (imperial)'),
+  }).passthrough().describe('RPM from surface speed and diameter (QuickCalcEngine.rpm)'),
+
+  quick_feed_rate: z.object({
+    rpm: posNum.describe('Spindle RPM'),
+    chip_load: posNum.describe('Chip load per tooth (fz) — inches (imperial) or mm (metric)'),
+    flutes: posNum.describe('Number of flutes/teeth'),
+    metric: optBool.describe('true → chip_load is mm and result feed_mmmin is the source unit; default false'),
+  }).passthrough().describe('Feed rate from RPM, chip load, flutes (QuickCalcEngine.feedRate)'),
+
+  quick_mrr: z.object({
+    woc: posNum.describe('Width of cut — inches or mm'),
+    doc: posNum.describe('Depth of cut — inches or mm'),
+    feed_rate: posNum.describe('Feed rate — IPM (imperial) or mm/min (metric)'),
+    metric: optBool.describe('true → all inputs metric; default false (imperial)'),
+  }).passthrough().describe('Material removal rate (QuickCalcEngine.mrr)'),
+
+  quick_surface_speed: z.object({
+    rpm: posNum.describe('Spindle RPM'),
+    diameter: posNum.describe('Tool diameter — inches or mm'),
+    metric: optBool.describe('true → diameter is mm and Vc is reported in m/min; default false (SFM)'),
+  }).passthrough().describe('Surface speed from RPM and diameter (QuickCalcEngine.surfaceSpeed)'),
+
+  quick_chip_load: z.object({
+    feed_rate: posNum.describe('Feed rate — IPM (imperial) or mm/min (metric)'),
+    rpm: posNum.describe('Spindle RPM'),
+    flutes: posNum.describe('Number of flutes/teeth'),
+    metric: optBool.describe('true → feed_rate is mm/min; default false (IPM)'),
+  }).passthrough().describe('Back-calculate chip load (QuickCalcEngine.chipLoad)'),
+
+  quick_tap_drill: z.object({
+    major_dia: posNum.describe('Thread major diameter (mm)'),
+    pitch: posNum.describe('Thread pitch (mm)'),
+  }).passthrough().describe('Metric tap drill diameter, D_drill = D_major − pitch (QuickCalcEngine.tapDrill)'),
+
+  quick_cutting_time: z.object({
+    distance: posNum.describe('Cut length (units must match feed_rate)'),
+    feed_rate: posNum.describe('Feed rate (length / minute)'),
+  }).passthrough().describe('Cutting time T = L / F (QuickCalcEngine.cuttingTime)'),
+
+  quick_scallop_height: z.object({
+    tool_radius: posNum.describe('Ball-nose tool radius'),
+    stepover: posNum.describe('Stepover between adjacent passes'),
+  }).passthrough().describe('Scallop height for ball-nose, h = R − √(R² − (step/2)²) (QuickCalcEngine.scallopHeight)'),
+
+  quick_thread_pitch: z.object({
+    tpi: posNum.describe('Threads per inch'),
+  }).passthrough().describe('Thread pitch from TPI — returns mm + inches (QuickCalcEngine.threadPitch)'),
+
+  quick_cutting_power: z.object({
+    mrr_in3min: posNum.describe('Material removal rate (in³/min)'),
+    material: z.enum(['aluminum','steel','stainless','titanium','cast_iron','custom']).describe('Workpiece material — sets unit-power factor; "custom" requires custom_factor'),
+    custom_factor: optPosNum.describe('Custom unit-power factor (only when material="custom"); default 1.0'),
+  }).passthrough().describe('Cutting power HP/kW = MRR × unit-power factor (QuickCalcEngine.cuttingPower)'),
+
+  // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-SMART-DEFAULTS: SmartDefaultsEngine wire (2026-05-15)
+  // Context-aware default RPM/feed/DOC/WOC/coolant from material × tool. SFM baselines
+  // (NOT Kienzle/Taylor coefficients — these are reference-table cutting speeds).
+  smart_defaults_get: z.object({
+    material: z.string().min(1).describe('Material name — 6061/7075/aluminum/1018/4140/steel/stainless/titanium/inconel/brass/etc'),
+    tool_diameter: posNum.describe('Tool diameter (inches)'),
+    flutes: z.number().int().positive().max(20).optional().describe('Number of flutes (default 3)'),
+    tool_material: z.enum(['carbide','hss','ceramic','diamond']).optional().describe('Tool material (default "carbide")'),
+    operation: z.enum(['milling','finishing','roughing','slotting']).optional().describe('Operation (default "milling")'),
+  }).passthrough().describe('Compute defaults: {rpm, feed_ipm, doc_in, woc_in, coolant}'),
+
+  smart_defaults_sfm: z.object({
+    material: z.string().min(1).describe('Material name'),
+    tool_material: z.enum(['carbide','hss','ceramic','diamond']).optional().describe('Tool material (default "carbide")'),
+  }).passthrough().describe('SFM baseline for material × tool material'),
+
+  smart_defaults_chipload: z.object({
+    diameter: posNum.describe('Tool diameter (inches)'),
+  }).passthrough().describe('Default carbide chip load by diameter (nearest-neighbor lookup)'),
+
+  smart_defaults_engagement: z.object({
+    diameter: posNum.describe('Tool diameter (inches)'),
+    material: z.string().min(1).describe('Material name'),
+    operation: z.enum(['milling','finishing','roughing','slotting']).optional().describe('Operation (default "milling")'),
+  }).passthrough().describe('DOC and WOC defaults as inches (scaled by material hardness + operation)'),
+
+  smart_defaults_coolant: z.object({
+    material: z.string().min(1).describe('Material name'),
+  }).passthrough().describe('Coolant recommendation (flood/high-pressure flood/air blast/mist or dry)'),
+
+  smart_defaults_materials: z.object({}).passthrough().describe('List all 18 supported material keys'),
+
+  smart_defaults_oneliner: z.object({
+    material: z.string().min(1).describe('Material name'),
+    diameter: posNum.describe('Tool diameter (inches)'),
+    flutes: z.number().int().positive().max(20).optional().describe('Number of flutes (default 3)'),
+  }).passthrough().describe('One-line setup summary: "<material> Øx 3fl: RPM=N F=M DOC=A WOC=B coolant"'),
+
+  // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-ROUGHNESS: RoughnessConversionEngine wire (2026-05-15)
+  // Half-wired: roughness_convert was in ACTIONS + slimmer mapper but missing the switch case.
+  // Now completes the contract per ISO 4287/1302 (Ra/Rz/Rq/Rt/Ra_uin/N_grade).
+  roughness_convert: z.object({
+    value: z.number().nonnegative().describe('Roughness value (units determined by from_scale)'),
+    from_scale: z.enum(['Ra_um','Rz_um','Rq_um','Rt_um','Ra_uin','N_grade']).describe('Source scale'),
+    to_scale: z.enum(['Ra_um','Rz_um','Rq_um','Rt_um','Ra_uin','N_grade']).describe('Target scale'),
+  }).passthrough().describe('Convert between surface-roughness scales (ISO 4287/1302) — returns value + all-equivalents + N-grade label + typical process + uncertainty %'),
 };

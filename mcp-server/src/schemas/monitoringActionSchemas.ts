@@ -118,6 +118,61 @@ const grafana_configure_alerts = z.object({
 }).passthrough();
 
 // ============================================================================
+// METRICS ENGINE (9 actions) — application metrics: counters, gauges, histograms
+// MetricsEngine wired by OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-METRICS (iter 12)
+// ============================================================================
+
+const metricName = z.string().min(1).describe("Metric name (alphanumeric, dot/underscore allowed)");
+const metricLabels = z.record(z.string(), z.string()).optional().describe("Optional label set for high-cardinality grouping");
+const metricType = z.enum(["counter", "gauge", "histogram", "timer"]);
+
+const metric_define = z.object({
+  name: metricName,
+  type: metricType.describe("Metric type — counter/gauge/histogram/timer"),
+  description: z.string().min(1).describe("Human-readable description"),
+  labels: z.array(z.string()).default([]).describe("Permitted label keys (for documentation only)"),
+  unit: z.string().optional().describe("Unit of measure (seconds, bytes, etc.)"),
+}).passthrough();
+
+const metric_increment = z.object({
+  name: metricName,
+  value: z.number().default(1).describe("Increment delta (must be >0 by convention; negative allowed but unusual)"),
+  labels: metricLabels,
+}).passthrough();
+
+const metric_gauge = z.object({
+  name: metricName,
+  value: z.number().describe("Gauge absolute value"),
+  labels: metricLabels,
+}).passthrough();
+
+const metric_observe = z.object({
+  name: metricName,
+  value: z.number().describe("Sample value to observe into the histogram"),
+  labels: metricLabels,
+}).passthrough();
+
+const metric_get_counter = z.object({
+  name: metricName,
+  labels: metricLabels,
+}).passthrough();
+
+const metric_get_gauge = z.object({
+  name: metricName,
+  labels: metricLabels,
+}).passthrough();
+
+const metric_get_histogram = z.object({
+  name: metricName,
+  labels: metricLabels,
+  buckets: z.array(z.number()).optional().describe("Custom histogram bucket boundaries (defaults to Prometheus-standard set)"),
+}).passthrough();
+
+const metric_export = z.object({}).passthrough().describe("Export all metrics as a Prometheus-compatible snapshot (no params)");
+
+const metric_reset = z.object({}).passthrough().describe("Clear ALL metrics state (counters/gauges/histograms/labels) — destructive, no params");
+
+// ============================================================================
 // EXPORT MAP
 // ============================================================================
 
@@ -131,4 +186,13 @@ export const ACTION_MONITORING_SCHEMAS: ActionSchemaMap = {
   grafana_export_spc,
   grafana_export_tool_life,
   grafana_configure_alerts,
+  metric_define,
+  metric_increment,
+  metric_gauge,
+  metric_observe,
+  metric_get_counter,
+  metric_get_gauge,
+  metric_get_histogram,
+  metric_export,
+  metric_reset,
 };

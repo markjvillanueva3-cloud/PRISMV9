@@ -64,7 +64,7 @@ function paths(suffix) {
 
 async function seedSlot(statePath, slot, chatId, ageMs, extras = {}) {
   const ts = new Date(Date.now() - ageMs).toISOString();
-  const slots = { alpha: null, bravo: null, charlie: null, delta: null, echo: null, foxtrot: null, golf: null };
+  const slots = { alpha: null, bravo: null, charlie: null, delta: null, echo: null, foxtrot: null, golf: null, hotel: null, india: null, juliett: null };
   slots[slot] = {
     chatId,
     host: extras.host || "h",
@@ -76,14 +76,14 @@ async function seedSlot(statePath, slot, chatId, ageMs, extras = {}) {
     activity: extras.activity || null,
   };
   await fsp.mkdir(join(tmpdir(), "prism-chat-slots-smoke"), { recursive: true });
-  await fsp.writeFile(statePath, JSON.stringify({ schemaVersion: 1, lastUpdated: ts, slots }));
+  await fsp.writeFile(statePath, JSON.stringify({ schemaVersion: 2, lastUpdated: ts, slots }));
 }
 async function seedEmpty(statePath) {
   await fsp.mkdir(join(tmpdir(), "prism-chat-slots-smoke"), { recursive: true });
   await fsp.writeFile(statePath, JSON.stringify({
-    schemaVersion: 1,
+    schemaVersion: 2,
     lastUpdated: new Date().toISOString(),
-    slots: { alpha: null, bravo: null, charlie: null, delta: null, echo: null, foxtrot: null, golf: null },
+    slots: { alpha: null, bravo: null, charlie: null, delta: null, echo: null, foxtrot: null, golf: null, hotel: null, india: null, juliett: null },
   }));
 }
 
@@ -224,16 +224,16 @@ async function run() {
     const recentClaim = new Date(Date.now() - 10 * 1000).toISOString();
     const staleHb = new Date(Date.now() - 11 * 60 * 1000).toISOString();
     await fsp.mkdir(join(tmpdir(), "prism-chat-slots-smoke"), { recursive: true });
-    const names = ["alpha", "bravo", "charlie", "delta", "echo", "foxtrot", "golf"];
+    const names = ["alpha", "bravo", "charlie", "delta", "echo", "foxtrot", "golf", "hotel", "india", "juliett"];
     const slots = {};
     for (const n of names) {
       slots[n] = { chatId: "claude-DEAD-" + n, host: "h", pid: 1, claimedAt: recentClaim, lastHeartbeat: staleHb, branch: null, topic: null, activity: null };
     }
-    await fsp.writeFile(statePath, JSON.stringify({ schemaVersion: 1, lastUpdated: staleHb, slots }));
+    await fsp.writeFile(statePath, JSON.stringify({ schemaVersion: 2, lastUpdated: staleHb, slots }));
     const r = claimSlot({ chatId: "claude-LATECOMER" }, statePath, lockPath);
     eq(r.ok, false, "all-guarded ok=false");
     eq(r.error, "all_slots_recently_claimed", "all-guarded error");
-    eq(r.details.guardedSlots.length, 7, "all-guarded 7 slots");
+    eq(r.details.guardedSlots.length, 10, "all-guarded 10 slots");
     eq(r.details.guardMs, RECENT_CLAIM_GUARD_MS, "all-guarded guardMs");
   }
 
@@ -244,11 +244,11 @@ async function run() {
     const now = new Date().toISOString();
     await fsp.mkdir(join(tmpdir(), "prism-chat-slots-smoke"), { recursive: true });
     const slots = {};
-    const names = ["alpha", "bravo", "charlie", "delta", "echo", "foxtrot", "golf"];
+    const names = ["alpha", "bravo", "charlie", "delta", "echo", "foxtrot", "golf", "hotel", "india", "juliett"];
     for (const n of names) {
       slots[n] = { chatId: "claude-" + n, host: "h", pid: 1, claimedAt: now, lastHeartbeat: now, branch: null, topic: null, activity: null };
     }
-    await fsp.writeFile(statePath, JSON.stringify({ schemaVersion: 1, lastUpdated: now, slots }));
+    await fsp.writeFile(statePath, JSON.stringify({ schemaVersion: 2, lastUpdated: now, slots }));
     const r = claimSlot({ chatId: "claude-INTRUDER" }, statePath, lockPath);
     eq(r.ok, false, "fleet_full ok=false");
     eq(r.error, "fleet_full", "fleet_full error");
@@ -337,9 +337,9 @@ async function run() {
     await seedSlot(statePath, "alpha", "claude-AAA", 30 * 1000);
     const r = getStatus(statePath);
     eq(r.ok, true, "status ok");
-    eq(r.slots.length, 7, "status 7 slots");
+    eq(r.slots.length, 10, "status 10 slots");
     eq(r.summary.alive, 1, "status alive=1");
-    eq(r.summary.idle, 6, "status idle=6");
+    eq(r.summary.idle, 9, "status idle=9");
     eq(r.summary.stale, 0, "status stale=0");
     eq(r.summary.crashed, 0, "status crashed=0");
   }

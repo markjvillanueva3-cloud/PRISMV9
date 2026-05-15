@@ -26,7 +26,12 @@ const SRC_DIR = path.join(MCP_ROOT, "src");
 const DIST_DIR = path.join(MCP_ROOT, "dist");
 const DOCS_DIR = path.join(MCP_ROOT, "data", "docs");
 const STATE_DIR = PATHS.STATE_DIR;
-const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_read", "file_write", "server_info", "test_smoke", "test_results", "svi_compute", "svi_read", "svi_summary", "erp_persistence_health", "engine_overlap_scan", "quality_score", "quality_score_read", "quality_score_summary", "auto_wiring_analyze", "auto_wiring_scan", "schema_gap_scan", "test_gap_scan", "formula_accuracy", "formula_accuracy_read", "formula_accuracy_summary", "self_improvement_scan", "self_improvement_read", "self_improvement_summary", "auto_fix_generate", "auto_fix_read", "auto_fix_summary", "auto_fix_approve", "auto_fix_promote", "quality_dashboard", "quality_dashboard_read", "quality_dashboard_summary", "output_budget_enforce", "output_budget_stats", "output_budget_set_rule", "context_inventory_add", "context_inventory_query", "context_inventory_summary", "cost_route", "cost_route_infer", "import_cost_analyze", "import_cost_heavy", "import_cost_report", "token_ledger_record", "token_ledger_summary", "token_ledger_project", "token_ledger_reset", "tool_cost_predict", "tool_cost_affordable", "tool_fingerprint_check", "tool_fingerprint_stats", "tool_fingerprint_reset", "schema_generate", "schema_generate_read", "schema_generate_summary", "test_generate", "test_generate_scan", "test_generate_read", "test_generate_summary", "route_sync_scan", "route_sync_read", "route_sync_summary", "gap_scan", "gap_scan_read", "gap_scan_summary", "auto_forge", "auto_forge_summary", "resource_census", "resource_census_read", "resource_census_summary", "pdf_pipeline_classify", "pdf_pipeline_extract", "pdf_pipeline_read", "pdf_pipeline_summary", "blueprint_ingest_phase8", "blueprint_ingest_phase15", "print_program_join", "machine_harden_audit", "machine_harden_enrich", "machine_harden_validate", "machine_harden_read", "machine_harden_summary", "error_remediation", "memory_consolidation", "build_guard_validate", "build_guard_track_edit", "build_guard_typecheck", "build_guard_affected_tests", "build_guard_chain", "build_guard_classify", "chain_recover", "chain_health", "chain_notify", "context_pressure", "context_load_plan", "context_compact_plan", "context_health", "sf_autopilot_run", "sf_autopilot_resolve_material", "sf_autopilot_resolve_tool", "pp_autopilot_run", "pp_autopilot_resolve_dialect", "pp_autopilot_print_to_program", "quote_autopilot_run", "quote_autopilot_calibrate", "quote_autopilot_record_actual", "capability_census", "capability_census_report", "capability_census_save", "copilot_suggest", "copilot_check_duplication", "copilot_template", "token_budget", "token_record_spending", "token_detect_waste", "token_economy_report", "token_economy_stats", "token_economy_session", "token_economy_set_budget", "token_economy_reset", "skill_inline_record", "skill_inline_decision", "skill_inline_plan", "skill_inline_content", "skill_inline_format", "skill_inline_top", "skill_inline_clear", "skill_test", "skill_quality_registry_build", "skill_quality_registry_read", "skill_audit", "skill_refinement_digest", "output_cache_store", "output_cache_get", "output_cache_find", "output_cache_stats", "output_cache_reset", "compaction_survival_record", "compaction_survival_plan", "compaction_survival_handoff", "compaction_survival_stats", "memory_store", "memory_search", "memory_stats", "memory_record_learning", "memory_set_preference", "memory_get_preference", "capability_path_list", "capability_path_progress", "capability_path_suggest", "workflow_list", "workflow_plan", "workflow_create", "pillar_list", "pillar_score", "pillar_summary", "pillar_gate", "discover_search", "discover_browse", "discover_recommend", "discover_what_can_i_do", "effectiveness_report", "effectiveness_score", "effectiveness_record", "effectiveness_validate", "self_awareness_refresh", "self_awareness_manifest", "self_awareness_gaps", "self_awareness_recommend", "self_awareness_find", "edit_impact_build_graph", "edit_impact_predict", "edit_impact_stats", "change_radius_predict", "change_radius_predict_sync", "build_plan", "build_plan_from_unit", "step_decompose", "gap_predict", "gap_scan_file", "gap_scan_batch", "user_model_get", "user_model_set_experience", "user_model_record_edit", "user_model_reset", "coder_mode_current", "coder_mode_set", "coder_mode_should_surface", "build_advise", "build_debrief", "build_debrief_recent", "simulate_build", "overlay_preview", "risk_forecast", "risk_warnings", "risk_record_outcome", "gate_history_record", "gate_history_aggregates", "gate_history_calibration", "gate_history_summary", "critical_path", "critical_path_announce", "critical_units", "roadmap_dag_stats", "roadmap_dag_node", "roadmap_dag_ancestors", "roadmap_dag_descendants", "integration_foresight", "integration_validate", "integration_similar", "context_budget_forecast", "context_should_compact", "rollback_plan", "rollback_verify", "rollback_plan_and_verify", "rollback_render_script", "knowledge_gap_scan", "knowledge_gap_check", "no_go_respond", "disclose_shape", "disclose_raw", "anchor_claim", "anchor_stats", "error_explain", "git_safety_classify", "git_safety_is_destructive", "copy_paste_detect", "feedback_loop_record", "feedback_loop_diagnose", "feedback_loop_reset", "feedback_override", "feedback_measurement", "feedback_scrap", "feedback_recommendation_emitted", "feedback_record", "feedback_query", "feedback_stats", "feature_registry_register", "feature_registry_get", "feature_registry_list", "feature_registry_seal", "feature_registry_stats", "dq_validate_row", "dq_validate_batch", "training_snapshot_create", "training_snapshot_load", "training_snapshot_list", "training_snapshot_stats", "recon_reconcile", "recon_query", "recon_stats", "htn_decompose", "strips_plan", "cpm_pert_analyze", "monte_carlo_schedule", "type_aware_references", "symbol_impact", "type_flow_trace", "tool_call_record", "tool_call_analyze", "tool_call_reset", "file_read_record", "file_read_should_skip", "file_read_report", "stale_segment_record", "stale_segment_prune", "stale_segment_mark", "reorient_record_anchor", "reorient_deactivate_anchor", "reorient_record_prompt", "reorient_record_tool_call", "reorient_generate_brief", "reorient_should_generate", "reorient_stats", "reorient_update_config", "reorient_reset", "model_aware_detect", "model_aware_zone", "model_aware_cadence", "model_aware_current_cadence", "foresight_report", "error_budget_set_target", "error_budget_record", "error_budget_status", "error_budget_list", "distributed_critical_path", "replan_evaluate", "schema_snapshot", "schema_restore_snapshot", "schema_history", "schema_migrations_list", "failure_risk_analyze", "failure_modes_list", "failure_mode_get", "failure_cascade_chain", "ollama_hook_query", "ollama_hook_status", "ollama_hook_config", "audit_harness_security", "spec_html_render", "dev_awareness_find_similar", "dev_awareness_bootstrap_report", "dev_capability_metrics", "dev_system_recommend_engines", "dev_auto_utilize_analyze", "dev_test_ast_analyze", "dev_test_coverage_uncovered", "dev_test_registry_get_material", "dev_test_resource_filter", "dev_skill_gap_analyze",
+const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_read", "file_write", "server_info", "test_smoke", "test_results", "svi_compute", "svi_read", "svi_summary", "erp_persistence_health", "engine_overlap_scan", "quality_score", "quality_score_read", "quality_score_summary", "auto_wiring_analyze", "auto_wiring_scan", "schema_gap_scan", "test_gap_scan", "formula_accuracy", "formula_accuracy_read", "formula_accuracy_summary", "self_improvement_scan", "self_improvement_read", "self_improvement_summary", "auto_fix_generate", "auto_fix_read", "auto_fix_summary", "auto_fix_approve", "auto_fix_promote", "quality_dashboard", "quality_dashboard_read", "quality_dashboard_summary", "output_budget_enforce", "output_budget_stats", "output_budget_set_rule", "context_inventory_add", "context_inventory_query", "context_inventory_summary", "cost_route", "cost_route_infer", "import_cost_analyze", "import_cost_heavy", "import_cost_report", "token_ledger_record", "token_ledger_summary", "token_ledger_project", "token_ledger_reset", "tool_cost_predict", "tool_cost_affordable", "tool_fingerprint_check", "tool_fingerprint_stats", "tool_fingerprint_reset", "schema_generate", "schema_generate_read", "schema_generate_summary", "test_generate", "test_generate_scan", "test_generate_read", "test_generate_summary", "route_sync_scan", "route_sync_read", "route_sync_summary", "gap_scan", "gap_scan_read", "gap_scan_summary", "auto_forge", "auto_forge_summary", "resource_census", "resource_census_read", "resource_census_summary", "pdf_pipeline_classify", "pdf_pipeline_extract", "pdf_pipeline_read", "pdf_pipeline_summary", "blueprint_ingest_phase8", "blueprint_ingest_phase15", "print_program_join", "program_for_print", "print_for_program",
+// U-DOCU-05 / MS-DOCU-INGEST: JMDieArchiveBackAnnotationEngine surfaces (3 actions).
+"back_annotate_archive", "back_annotate_gap_report", "read_print_pointer",
+// U-PPL-D1 / MS-PRINT-PROGRAM-LOOP Track D: ProgramPrintLinkIndexEngine surfaces (2 actions).
+"program_print_link_lookup", "program_print_link_coverage",
+"machine_harden_audit", "machine_harden_enrich", "machine_harden_validate", "machine_harden_read", "machine_harden_summary", "error_remediation", "memory_consolidation", "build_guard_validate", "build_guard_track_edit", "build_guard_typecheck", "build_guard_affected_tests", "build_guard_chain", "build_guard_classify", "chain_recover", "chain_health", "chain_notify", "context_pressure", "context_load_plan", "context_compact_plan", "context_health", "sf_autopilot_run", "sf_autopilot_resolve_material", "sf_autopilot_resolve_tool", "pp_autopilot_run", "pp_autopilot_resolve_dialect", "pp_autopilot_print_to_program", "quote_autopilot_run", "quote_autopilot_calibrate", "quote_autopilot_record_actual", "capability_census", "capability_census_report", "capability_census_save", "copilot_suggest", "copilot_check_duplication", "copilot_template", "token_budget", "token_record_spending", "token_detect_waste", "token_economy_report", "token_economy_stats", "token_economy_session", "token_economy_set_budget", "token_economy_reset", "skill_inline_record", "skill_inline_decision", "skill_inline_plan", "skill_inline_content", "skill_inline_format", "skill_inline_top", "skill_inline_clear", "skill_test", "skill_quality_registry_build", "skill_quality_registry_read", "skill_audit", "skill_refinement_digest", "output_cache_store", "output_cache_get", "output_cache_find", "output_cache_stats", "output_cache_reset", "compaction_survival_record", "compaction_survival_plan", "compaction_survival_handoff", "compaction_survival_stats", "memory_store", "memory_search", "memory_stats", "memory_record_learning", "memory_set_preference", "memory_get_preference", "capability_path_list", "capability_path_progress", "capability_path_suggest", "workflow_list", "workflow_plan", "workflow_create", "pillar_list", "pillar_score", "pillar_summary", "pillar_gate", "discover_search", "discover_browse", "discover_recommend", "discover_what_can_i_do", "effectiveness_report", "effectiveness_score", "effectiveness_record", "effectiveness_validate", "self_awareness_refresh", "self_awareness_manifest", "self_awareness_gaps", "self_awareness_recommend", "self_awareness_find", "edit_impact_build_graph", "edit_impact_predict", "edit_impact_stats", "change_radius_predict", "change_radius_predict_sync", "build_plan", "build_plan_from_unit", "step_decompose", "gap_predict", "gap_scan_file", "gap_scan_batch", "user_model_get", "user_model_set_experience", "user_model_record_edit", "user_model_reset", "coder_mode_current", "coder_mode_set", "coder_mode_should_surface", "build_advise", "build_debrief", "build_debrief_recent", "simulate_build", "overlay_preview", "risk_forecast", "risk_warnings", "risk_record_outcome", "gate_history_record", "gate_history_aggregates", "gate_history_calibration", "gate_history_summary", "critical_path", "critical_path_announce", "critical_units", "roadmap_dag_stats", "roadmap_dag_node", "roadmap_dag_ancestors", "roadmap_dag_descendants", "integration_foresight", "integration_validate", "integration_similar", "context_budget_forecast", "context_should_compact", "rollback_plan", "rollback_verify", "rollback_plan_and_verify", "rollback_render_script", "knowledge_gap_scan", "knowledge_gap_check", "no_go_respond", "disclose_shape", "disclose_raw", "anchor_claim", "anchor_stats", "error_explain", "git_safety_classify", "git_safety_is_destructive", "copy_paste_detect", "feedback_loop_record", "feedback_loop_diagnose", "feedback_loop_reset", "feedback_override", "feedback_measurement", "feedback_scrap", "feedback_recommendation_emitted", "feedback_record", "feedback_query", "feedback_stats", "feature_registry_register", "feature_registry_get", "feature_registry_list", "feature_registry_seal", "feature_registry_stats", "dq_validate_row", "dq_validate_batch", "training_snapshot_create", "training_snapshot_load", "training_snapshot_list", "training_snapshot_stats", "recon_reconcile", "recon_query", "recon_stats", "htn_decompose", "strips_plan", "cpm_pert_analyze", "monte_carlo_schedule", "type_aware_references", "symbol_impact", "type_flow_trace", "tool_call_record", "tool_call_analyze", "tool_call_reset", "file_read_record", "file_read_should_skip", "file_read_report", "stale_segment_record", "stale_segment_prune", "stale_segment_mark", "reorient_record_anchor", "reorient_deactivate_anchor", "reorient_record_prompt", "reorient_record_tool_call", "reorient_generate_brief", "reorient_should_generate", "reorient_stats", "reorient_update_config", "reorient_reset", "model_aware_detect", "model_aware_zone", "model_aware_cadence", "model_aware_current_cadence", "foresight_report", "error_budget_set_target", "error_budget_record", "error_budget_status", "error_budget_list", "distributed_critical_path", "replan_evaluate", "schema_snapshot", "schema_restore_snapshot", "schema_history", "schema_migrations_list", "failure_risk_analyze", "failure_modes_list", "failure_mode_get", "failure_cascade_chain", "ollama_hook_query", "ollama_hook_status", "ollama_hook_config", "audit_harness_security", "spec_html_render", "dev_awareness_find_similar", "dev_awareness_bootstrap_report", "dev_capability_metrics", "dev_system_recommend_engines", "dev_auto_utilize_analyze", "dev_test_ast_analyze", "dev_test_coverage_uncovered", "dev_test_registry_get_material", "dev_test_resource_filter", "dev_skill_gap_analyze",
 "adaptive_threshold_observe", "adaptive_threshold_get", "adaptive_threshold_get_all", "adaptive_threshold_should_flag", "adaptive_threshold_probability",
 "roadmap_intel_assess_complexity", "roadmap_intel_optimize", "roadmap_intel_predict_effort", "roadmap_intel_record_outcome", "roadmap_intel_build_vs_integrate", "roadmap_intel_health",
 // HOOK-SYNERGY-MS0/U-HOOK-REGISTRY (H2): query state/shared/HOOK_REGISTRY.json
@@ -90,7 +95,113 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "stop_condition_evaluate",
 "stop_condition_should_block",
 "stop_condition_evaluate_all",
-"stop_condition_rules"] as const;
+"stop_condition_rules",
+// OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-CALL-CHAIN: wire CallChainEngine
+// (anti-pattern detector for tool-call sequences — complements tool_call_*
+//  which wraps ToolCallParallelizationEngine; this one wraps CallChainEngine).
+"tool_chain_record",
+"tool_chain_detected",
+"tool_chain_string",
+"tool_chain_summary",
+"tool_chain_suggest",
+"tool_chain_reset",
+// OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-READ-OPT: wire ReadOptimizerEngine
+// (file-read strategy advisor — given file path + intent, returns one of
+//  skip|full|offset|grep|digest with estimated token cost).
+"read_optimize_recommend",
+"read_optimize_oneliner",
+"read_optimize_batch",
+"read_optimize_batch_cost",
+// OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-COMPACT-FMT: wire CompactFormatterEngine
+// (token-efficient output formatting — table, kv, summarize, compact, etc).
+"compact_table",
+"compact_kv_pairs",
+"compact_summarize_array",
+"compact_compact",
+"compact_system_line",
+"compact_diff_stat",
+"compact_test_result",
+"compact_truncate",
+// OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-PROMPT-TPL: wire PromptTemplateEngine
+// (7 builtin parameterized templates for engine/dispatcher/test/hook/skill/commit/speed-feed).
+"prompt_template_get",
+"prompt_template_fill",
+"prompt_template_list",
+"prompt_template_by_category",
+"prompt_template_categories",
+"prompt_template_search",
+"prompt_template_stats",
+// OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-BUDGET-TRIM: wire OutputBudgetEngine
+// (NOT same as OutputBudgetEnforcerEngine which surfaces output_budget_*; this is
+//  a smaller stateless trim/filter/budget-estimator utility — use budget_trim_*
+//  prefix to avoid collision).
+"budget_trim_enforce",
+"budget_trim_estimate_tokens",
+"budget_trim_exceeds_budget",
+"budget_trim_filter_fields",
+"budget_trim_drop_fields",
+"budget_trim_summarize_array",
+"budget_trim_preset",
+// OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-CONV-BUDGET: ConversationBudgetEngine wire
+// (singleton tracker — token budget alerts + top consumers + estimate remaining ops).
+"conv_budget_record",
+"conv_budget_status",
+"conv_budget_check",
+"conv_budget_top_consumers",
+"conv_budget_status_line",
+"conv_budget_estimate_remaining",
+"conv_budget_reset",
+// OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-TCB: wire ToolCallBatchEngine
+// (batching opportunity advisor — 5 patterns: multiple-reads, grep-then-read,
+//  multiple-globs, read-then-grep-same, sequential-independent-reads).
+"tcb_record",
+"tcb_analyze",
+"tcb_can_batch",
+"tcb_stats",
+"tcb_summary",
+"tcb_reset",
+// OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-DATA-VALIDATION: wire DataValidationEngine
+// (DQ-MS1 data quality pipeline — validates materials, cutting params, jobs).
+"dv_validate_material",
+"dv_validate_cutting_params",
+"dv_validate_job",
+"dv_stats",
+// OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-EDGE-CASE: wire EdgeCaseCaptureEngine
+// (Phase 0.25 Adaptive Variability — captures + learns from boundary operations,
+// drives envelope expansion via VariabilityEnvelopeEngine integration).
+"edge_case_capture",
+"edge_case_auto_capture",
+"edge_case_summary",
+"edge_case_all_summaries",
+"edge_case_expansion_candidates",
+"edge_case_search",
+"edge_case_learnings",
+"edge_case_stats",
+// ── ResponseTemplateEngine (OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-RESPONSE-TEMPLATE)
+//    Post-dispatch response-formatting hooks. Singleton engine.
+"response_template_match", "response_template_list", "response_template_get",
+"response_template_stats", "response_template_reset_stats",
+// OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-REVERSE-INDEX: ReverseIndexEngine
+// (Phase 0.7 AGI-proximity bidirectional asset lookup — 5 indexes:
+//  ACTION_TO_ENGINE, SKILL_TO_ACTION, ENGINE_TO_DEPENDENTS, KEYWORD_TO_ASSETS,
+//  TYPE_TO_ASSETS — with WAL-style crash recovery).
+"rev_idx_action_to_engine",
+"rev_idx_skill_to_action",
+"rev_idx_engine_to_dependents",
+"rev_idx_keyword_search",
+"rev_idx_assets_by_type",
+"rev_idx_add_mapping",
+"rev_idx_remove_mapping",
+"rev_idx_rebuild",
+"rev_idx_rebuild_all",
+"rev_idx_stats",
+"rev_idx_recover_wal",
+// OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-IMPACT-ANALYSIS: ImpactAnalysisEngine.
+// Read-only surfaces only — executeRename is NOT MCP-exposed (destructive).
+"impact_analyze_rename",
+"impact_analyze_delete",
+"impact_can_delete",
+"impact_find_orphans"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -1270,6 +1381,149 @@ export function registerDevDispatcher(server: any): void {
                 })),
               }));
             result = { success: true, data: { summary, top_joins: topJoins } };
+            break;
+          }
+          case "program_for_print": {
+            // U-DOCU-04 / MS-DOCU-INGEST — point lookup: given a part number
+            // from a print, return every program/CAD file joined to it (the v6
+            // blueprint↔program join + title-block-verified training triples).
+            // Path options are deliberately NOT exposed to MCP callers — the
+            // action always queries the default Docustrata/.index v6 join.
+            // Exposing joinJsonlPath would be an arbitrary-file-read surface and
+            // would let one action poison the shared singleton cache for the
+            // other (see BlueprintProgramJoinEngine.getJoinIndex JSDoc).
+            const { blueprintProgramJoinEngine } = await import("../../engines/BlueprintProgramJoinEngine.js");
+            const bp = typeof params === "object" && params !== null ? params as Record<string, unknown> : {};
+            const partNumber = typeof bp.part_number === "string" ? bp.part_number.trim() : "";
+            if (partNumber.length === 0) {
+              result = { error: "part_number is required (a part number from a print / title block)" };
+              break;
+            }
+            try {
+              result = { success: true, data: await blueprintProgramJoinEngine.queryProgramForPrint(partNumber) };
+            } catch (err) {
+              // queryProgramForPrint fails loud if the v6 join JSONL is missing
+              // or corrupt — surface that as an attributed dispatcher error.
+              result = dispatcherError(err, action, "prism_dev");
+            }
+            break;
+          }
+          case "print_for_program": {
+            // U-DOCU-04 / MS-DOCU-INGEST — reverse lookup: given a program/CAD
+            // file path, return the print(s) it was joined to (blueprint page
+            // doc_ids from the v6 join + the print-PDF disk path from the
+            // training triples). Path matching is case/slash-insensitive.
+            const { blueprintProgramJoinEngine } = await import("../../engines/BlueprintProgramJoinEngine.js");
+            const bp = typeof params === "object" && params !== null ? params as Record<string, unknown> : {};
+            const programPath = typeof bp.program_path === "string" ? bp.program_path.trim() : "";
+            if (programPath.length === 0) {
+              result = { error: "program_path is required (a program/CAD file path)" };
+              break;
+            }
+            try {
+              result = { success: true, data: await blueprintProgramJoinEngine.queryPrintForProgram(programPath) };
+            } catch (err) {
+              result = dispatcherError(err, action, "prism_dev");
+            }
+            break;
+          }
+
+          // ── U-DOCU-05 / MS-DOCU-INGEST: JMDieArchiveBackAnnotationEngine ──
+          case "back_annotate_archive": {
+            const { jmDieArchiveBackAnnotationEngine } = await import("../../engines/JMDieArchiveBackAnnotationEngine.js");
+            const bp = typeof params === "object" && params !== null ? params as Record<string, unknown> : {};
+            try {
+              result = {
+                success: true,
+                data: await jmDieArchiveBackAnnotationEngine.backAnnotateArchive({
+                  dryRun: typeof bp.dry_run === "boolean" ? bp.dry_run as boolean : undefined,
+                  confidenceFilter: Array.isArray(bp.confidence_filter) ? bp.confidence_filter as any : undefined,
+                  archiveRoot: typeof bp.archive_root === "string" ? bp.archive_root as string : undefined,
+                  writePartsIndex: typeof bp.write_parts_index === "boolean" ? bp.write_parts_index as boolean : undefined,
+                  limit: typeof bp.limit === "number" ? bp.limit as number : undefined,
+                  allowRoots: Array.isArray(bp.allow_roots) ? bp.allow_roots as string[] : undefined,
+                }),
+              };
+            } catch (err) {
+              result = dispatcherError(err, action, "prism_dev");
+            }
+            break;
+          }
+          case "back_annotate_gap_report": {
+            const { jmDieArchiveBackAnnotationEngine } = await import("../../engines/JMDieArchiveBackAnnotationEngine.js");
+            const bp = typeof params === "object" && params !== null ? params as Record<string, unknown> : {};
+            try {
+              result = {
+                success: true,
+                data: await jmDieArchiveBackAnnotationEngine.generateGapReport({
+                  archiveRoot: typeof bp.archive_root === "string" ? bp.archive_root as string : undefined,
+                  dryRun: typeof bp.dry_run === "boolean" ? bp.dry_run as boolean : undefined,
+                  diskIndexPath: typeof bp.disk_index_path === "string" ? bp.disk_index_path as string : undefined,
+                }),
+              };
+            } catch (err) {
+              result = dispatcherError(err, action, "prism_dev");
+            }
+            break;
+          }
+          case "read_print_pointer": {
+            const { jmDieArchiveBackAnnotationEngine } = await import("../../engines/JMDieArchiveBackAnnotationEngine.js");
+            const bp = typeof params === "object" && params !== null ? params as Record<string, unknown> : {};
+            const programPath = typeof bp.program_path === "string" ? bp.program_path.trim() : "";
+            if (programPath.length === 0) {
+              result = { error: "program_path is required (a program/CAD file path)" };
+              break;
+            }
+            const sidecar = jmDieArchiveBackAnnotationEngine.readPrintPointer(programPath);
+            result = { success: true, data: { found: sidecar !== null, sidecar } };
+            break;
+          }
+
+          // ── U-PPL-D1 / MS-PRINT-PROGRAM-LOOP Track D: ProgramPrintLinkIndexEngine ──
+          case "program_print_link_lookup": {
+            try {
+              const { loadLinkIndex, lookupPrintForProgram, lookupProgramsForPrint } =
+                await import("../../engines/ProgramPrintLinkIndexEngine.js");
+              const bp = typeof params === "object" && params !== null ? params as Record<string, unknown> : {};
+              const direction = bp.direction === "program_for_print" ? "program_for_print" : "print_for_program";
+              const query = typeof bp.query === "string" ? bp.query.trim() : "";
+              if (query.length === 0) {
+                result = { error: "query is required (a program path or a part number)" };
+                break;
+              }
+              const inputProgramPaths = Array.isArray(bp.input_program_paths)
+                ? bp.input_program_paths.filter((p): p is string => typeof p === "string")
+                : undefined;
+              const joinJsonlPath = typeof bp.join_jsonl_path === "string" ? bp.join_jsonl_path : undefined;
+              // loadLinkIndex throws (FAIL-LOUD) if the v6 join file is missing/corrupt —
+              // the catch below forwards that to dispatcherError so the operator sees it.
+              const index = await loadLinkIndex({ inputProgramPaths, joinJsonlPath });
+              const lookup = direction === "program_for_print"
+                ? lookupProgramsForPrint(query, index)
+                : lookupPrintForProgram(query, index);
+              result = { success: true, data: { direction, lookup, index_stats: index.stats } };
+            } catch (err) {
+              result = dispatcherError(err, action, "prism_dev");
+            }
+            break;
+          }
+          case "program_print_link_coverage": {
+            try {
+              const { loadLinkIndex, coverageReport } =
+                await import("../../engines/ProgramPrintLinkIndexEngine.js");
+              const bp = typeof params === "object" && params !== null ? params as Record<string, unknown> : {};
+              const inputProgramPaths = Array.isArray(bp.input_program_paths)
+                ? bp.input_program_paths.filter((p): p is string => typeof p === "string")
+                : undefined;
+              const archiveProgramPaths = Array.isArray(bp.archive_program_paths)
+                ? bp.archive_program_paths.filter((p): p is string => typeof p === "string")
+                : undefined;
+              const joinJsonlPath = typeof bp.join_jsonl_path === "string" ? bp.join_jsonl_path : undefined;
+              const index = await loadLinkIndex({ inputProgramPaths, joinJsonlPath });
+              result = { success: true, data: coverageReport(index, { archiveProgramPaths }) };
+            } catch (err) {
+              result = dispatcherError(err, action, "prism_dev");
+            }
             break;
           }
 
@@ -4730,6 +4984,550 @@ export function registerDevDispatcher(server: any): void {
               default:
                 result = { success: false, error: "invalid_mode", mode, allowed: ["analyze", "batch_unwired", "dashboard"] };
             }
+            break;
+          }
+
+          // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-CALL-CHAIN: CallChainEngine wire (2026-05-15)
+          case "tool_chain_record": {
+            const { callChainEngine } = await import("../../engines/CallChainEngine.js");
+            const detected = callChainEngine.add(String(params.tool ?? "Other"), String(params.target ?? ""));
+            result = { success: true, detected, chain: callChainEngine.getChainString(20) };
+            break;
+          }
+          case "tool_chain_detected": {
+            const { callChainEngine } = await import("../../engines/CallChainEngine.js");
+            result = { success: true, detected: callChainEngine.getDetected() };
+            break;
+          }
+          case "tool_chain_string": {
+            const { callChainEngine } = await import("../../engines/CallChainEngine.js");
+            const last = typeof params.last === "number" ? params.last : 10;
+            result = { success: true, chain: callChainEngine.getChainString(last) };
+            break;
+          }
+          case "tool_chain_summary": {
+            const { callChainEngine } = await import("../../engines/CallChainEngine.js");
+            result = { success: true, summary: callChainEngine.getSummary() };
+            break;
+          }
+          case "tool_chain_suggest": {
+            const { callChainEngine } = await import("../../engines/CallChainEngine.js");
+            result = { success: true, suggestions: callChainEngine.suggest() };
+            break;
+          }
+          case "tool_chain_reset": {
+            const { callChainEngine } = await import("../../engines/CallChainEngine.js");
+            callChainEngine.reset();
+            result = { success: true, reset: true };
+            break;
+          }
+
+          // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-READ-OPT: ReadOptimizerEngine wire (2026-05-15)
+          case "read_optimize_recommend": {
+            const { readOptimizerEngine } = await import("../../engines/ReadOptimizerEngine.js");
+            const rec = readOptimizerEngine.recommend(
+              String(params.file_path ?? params.path ?? ""),
+              typeof params.intent === "string" ? params.intent : undefined,
+            );
+            result = { success: true, recommendation: rec };
+            break;
+          }
+          case "read_optimize_oneliner": {
+            const { readOptimizerEngine } = await import("../../engines/ReadOptimizerEngine.js");
+            const line = readOptimizerEngine.oneLiner(
+              String(params.file_path ?? params.path ?? ""),
+              typeof params.intent === "string" ? params.intent : undefined,
+            );
+            result = { success: true, line };
+            break;
+          }
+          case "read_optimize_batch": {
+            const { readOptimizerEngine } = await import("../../engines/ReadOptimizerEngine.js");
+            const files = Array.isArray(params.files) ? params.files.map((f: unknown) => String(f)) : [];
+            const recs = readOptimizerEngine.batchRecommend(
+              files,
+              typeof params.intent === "string" ? params.intent : undefined,
+            );
+            result = { success: true, recommendations: recs };
+            break;
+          }
+          case "read_optimize_batch_cost": {
+            const { readOptimizerEngine } = await import("../../engines/ReadOptimizerEngine.js");
+            const files = Array.isArray(params.files) ? params.files.map((f: unknown) => String(f)) : [];
+            const cost = readOptimizerEngine.estimateBatchCost(files);
+            result = { success: true, cost };
+            break;
+          }
+
+          // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-COMPACT-FMT: CompactFormatterEngine wire (2026-05-15)
+          case "compact_table": {
+            const { compactFormatterEngine } = await import("../../engines/CompactFormatterEngine.js");
+            result = { success: true, text: compactFormatterEngine.table(
+              (params.data || []) as Array<Record<string, unknown>>,
+              String(params.key_field),
+              String(params.value_field),
+              typeof params.sep === "string" ? params.sep : undefined,
+            ) };
+            break;
+          }
+          case "compact_kv_pairs": {
+            const { compactFormatterEngine } = await import("../../engines/CompactFormatterEngine.js");
+            result = { success: true, text: compactFormatterEngine.kvPairs(
+              (params.data || {}) as Record<string, unknown>,
+              params.inline !== false,
+            ) };
+            break;
+          }
+          case "compact_summarize_array": {
+            const { compactFormatterEngine } = await import("../../engines/CompactFormatterEngine.js");
+            const arr = Array.isArray(params.arr) ? params.arr : [];
+            const maxItems = typeof params.max_items === "number" ? params.max_items : 5;
+            result = { success: true, text: compactFormatterEngine.summarizeArray(arr, maxItems) };
+            break;
+          }
+          case "compact_compact": {
+            const { compactFormatterEngine } = await import("../../engines/CompactFormatterEngine.js");
+            result = { success: true, text: compactFormatterEngine.compact(params.data, {
+              maxChars: typeof params.max_chars === "number" ? params.max_chars : undefined,
+              level: (params.level === "minimal" || params.level === "standard" || params.level === "verbose") ? params.level : undefined,
+            }) };
+            break;
+          }
+          case "compact_system_line": {
+            const { compactFormatterEngine } = await import("../../engines/CompactFormatterEngine.js");
+            result = { success: true, text: compactFormatterEngine.systemLine((params.counts || {}) as Record<string, number>) };
+            break;
+          }
+          case "compact_diff_stat": {
+            const { compactFormatterEngine } = await import("../../engines/CompactFormatterEngine.js");
+            result = { success: true, text: compactFormatterEngine.compactDiffStat(String(params.diff_stat || "")) };
+            break;
+          }
+          case "compact_test_result": {
+            const { compactFormatterEngine } = await import("../../engines/CompactFormatterEngine.js");
+            result = { success: true, text: compactFormatterEngine.compactTestResult(
+              Number(params.passed) || 0,
+              Number(params.failed) || 0,
+              Number(params.skipped) || 0,
+            ) };
+            break;
+          }
+          case "compact_truncate": {
+            const { compactFormatterEngine } = await import("../../engines/CompactFormatterEngine.js");
+            result = { success: true, text: compactFormatterEngine.truncate(
+              String(params.text || ""),
+              typeof params.max_len === "number" ? params.max_len : 100,
+            ) };
+            break;
+          }
+
+          // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-PROMPT-TPL: PromptTemplateEngine wire (2026-05-15)
+          case "prompt_template_get": {
+            const { promptTemplateEngine } = await import("../../engines/PromptTemplateEngine.js");
+            result = { success: true, template: promptTemplateEngine.get(String(params.id)) };
+            break;
+          }
+          case "prompt_template_fill": {
+            const { promptTemplateEngine } = await import("../../engines/PromptTemplateEngine.js");
+            const tplParams = (params.params || {}) as Record<string, string>;
+            result = { success: true, text: promptTemplateEngine.fill(String(params.id), tplParams) };
+            break;
+          }
+          case "prompt_template_list": {
+            const { promptTemplateEngine } = await import("../../engines/PromptTemplateEngine.js");
+            result = { success: true, templates: promptTemplateEngine.list() };
+            break;
+          }
+          case "prompt_template_by_category": {
+            const { promptTemplateEngine } = await import("../../engines/PromptTemplateEngine.js");
+            result = { success: true, templates: promptTemplateEngine.byCategory(String(params.category)) };
+            break;
+          }
+          case "prompt_template_categories": {
+            const { promptTemplateEngine } = await import("../../engines/PromptTemplateEngine.js");
+            result = { success: true, categories: promptTemplateEngine.categories() };
+            break;
+          }
+          case "prompt_template_search": {
+            const { promptTemplateEngine } = await import("../../engines/PromptTemplateEngine.js");
+            result = { success: true, templates: promptTemplateEngine.search(String(params.query)) };
+            break;
+          }
+          case "prompt_template_stats": {
+            const { promptTemplateEngine } = await import("../../engines/PromptTemplateEngine.js");
+            result = { success: true, stats: promptTemplateEngine.getStats() };
+            break;
+          }
+
+          // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-BUDGET-TRIM: OutputBudgetEngine wire (2026-05-15)
+          case "budget_trim_enforce": {
+            const { outputBudgetEngine } = await import("../../engines/OutputBudgetEngine.js");
+            const options = (params.options || {}) as Record<string, unknown>;
+            result = { success: true, trimmed: outputBudgetEngine.enforce(params.data, options) };
+            break;
+          }
+          case "budget_trim_estimate_tokens": {
+            const { outputBudgetEngine } = await import("../../engines/OutputBudgetEngine.js");
+            result = { success: true, tokens: outputBudgetEngine.estimateTokens(params.data) };
+            break;
+          }
+          case "budget_trim_exceeds_budget": {
+            const { outputBudgetEngine } = await import("../../engines/OutputBudgetEngine.js");
+            result = { success: true, exceeds: outputBudgetEngine.exceedsBudget(params.data, Number(params.max_tokens)) };
+            break;
+          }
+          case "budget_trim_filter_fields": {
+            const { outputBudgetEngine } = await import("../../engines/OutputBudgetEngine.js");
+            const obj = (params.obj || {}) as Record<string, unknown>;
+            const keep = Array.isArray(params.keep) ? params.keep.map((k: unknown) => String(k)) : [];
+            result = { success: true, filtered: outputBudgetEngine.filterFields(obj, keep) };
+            break;
+          }
+          case "budget_trim_drop_fields": {
+            const { outputBudgetEngine } = await import("../../engines/OutputBudgetEngine.js");
+            const obj = (params.obj || {}) as Record<string, unknown>;
+            const drop = Array.isArray(params.drop) ? params.drop.map((k: unknown) => String(k)) : [];
+            result = { success: true, filtered: outputBudgetEngine.dropFieldsFrom(obj, drop) };
+            break;
+          }
+          case "budget_trim_summarize_array": {
+            const { outputBudgetEngine } = await import("../../engines/OutputBudgetEngine.js");
+            const arr = Array.isArray(params.arr) ? params.arr : [];
+            const keep = typeof params.keep === "number" ? params.keep : 3;
+            result = { success: true, summary: outputBudgetEngine.summarizeArray(arr, keep) };
+            break;
+          }
+          case "budget_trim_preset": {
+            const { outputBudgetEngine } = await import("../../engines/OutputBudgetEngine.js");
+            const name = (params.name === "compact" || params.name === "normal" || params.name === "verbose") ? params.name : "normal";
+            result = { success: true, preset: outputBudgetEngine.preset(name) };
+            break;
+          }
+
+          // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-CONV-BUDGET: ConversationBudgetEngine wire (2026-05-15)
+          case "conv_budget_record": {
+            const { conversationBudgetEngine } = await import("../../engines/ConversationBudgetEngine.js");
+            conversationBudgetEngine.recordToolCall(
+              String(params.tool ?? "Other"),
+              Number(params.input_tokens) || 0,
+              Number(params.output_tokens) || 0,
+            );
+            result = { success: true, recorded: true };
+            break;
+          }
+          case "conv_budget_status": {
+            const { conversationBudgetEngine } = await import("../../engines/ConversationBudgetEngine.js");
+            result = { success: true, status: conversationBudgetEngine.getStatus() };
+            break;
+          }
+          case "conv_budget_check": {
+            const { conversationBudgetEngine } = await import("../../engines/ConversationBudgetEngine.js");
+            result = { success: true, alert: conversationBudgetEngine.checkBudget() };
+            break;
+          }
+          case "conv_budget_top_consumers": {
+            const { conversationBudgetEngine } = await import("../../engines/ConversationBudgetEngine.js");
+            const n = typeof params.n === "number" ? params.n : 5;
+            result = { success: true, top: conversationBudgetEngine.getTopConsumers(n) };
+            break;
+          }
+          case "conv_budget_status_line": {
+            const { conversationBudgetEngine } = await import("../../engines/ConversationBudgetEngine.js");
+            result = { success: true, line: conversationBudgetEngine.getStatusLine() };
+            break;
+          }
+          case "conv_budget_estimate_remaining": {
+            const { conversationBudgetEngine } = await import("../../engines/ConversationBudgetEngine.js");
+            result = { success: true, estimate: conversationBudgetEngine.estimateRemaining() };
+            break;
+          }
+          case "conv_budget_reset": {
+            const { conversationBudgetEngine } = await import("../../engines/ConversationBudgetEngine.js");
+            conversationBudgetEngine.reset();
+            result = { success: true, reset: true };
+            break;
+          }
+
+          // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-TCB: ToolCallBatchEngine wire (2026-05-15)
+          case "tcb_record": {
+            const { toolCallBatchEngine } = await import("../../engines/ToolCallBatchEngine.js");
+            toolCallBatchEngine.record(
+              String(params.tool ?? "Other"),
+              (params.tool_params || {}) as Record<string, unknown>,
+            );
+            result = { success: true, recorded: true };
+            break;
+          }
+          case "tcb_analyze": {
+            const { toolCallBatchEngine } = await import("../../engines/ToolCallBatchEngine.js");
+            const windowSize = typeof params.window_size === "number" ? params.window_size : 10;
+            result = { success: true, opportunities: toolCallBatchEngine.analyze(windowSize) };
+            break;
+          }
+          case "tcb_can_batch": {
+            const { toolCallBatchEngine } = await import("../../engines/ToolCallBatchEngine.js");
+            result = { success: true, check: toolCallBatchEngine.canBatch(String(params.tool ?? "")) };
+            break;
+          }
+          case "tcb_stats": {
+            const { toolCallBatchEngine } = await import("../../engines/ToolCallBatchEngine.js");
+            result = { success: true, stats: toolCallBatchEngine.getStats() };
+            break;
+          }
+          case "tcb_summary": {
+            const { toolCallBatchEngine } = await import("../../engines/ToolCallBatchEngine.js");
+            result = { success: true, summary: toolCallBatchEngine.getSummary() };
+            break;
+          }
+          case "tcb_reset": {
+            const { toolCallBatchEngine } = await import("../../engines/ToolCallBatchEngine.js");
+            toolCallBatchEngine.reset();
+            result = { success: true, reset: true };
+            break;
+          }
+
+          // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-DATA-VALIDATION: DataValidationEngine wire (2026-05-15)
+          case "dv_validate_material": {
+            const { dataValidationEngine } = await import("../../engines/DataValidationEngine.js");
+            result = { success: true, validation: dataValidationEngine.validateMaterial(params) };
+            break;
+          }
+          case "dv_validate_cutting_params": {
+            const { dataValidationEngine } = await import("../../engines/DataValidationEngine.js");
+            result = { success: true, validation: dataValidationEngine.validateCuttingParams(params) };
+            break;
+          }
+          case "dv_validate_job": {
+            const { dataValidationEngine } = await import("../../engines/DataValidationEngine.js");
+            result = { success: true, validation: dataValidationEngine.validateJob(params) };
+            break;
+          }
+          case "dv_stats": {
+            const { dataValidationEngine } = await import("../../engines/DataValidationEngine.js");
+            result = { success: true, stats: dataValidationEngine.stats() };
+            break;
+          }
+
+          // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-EDGE-CASE: EdgeCaseCaptureEngine wire (2026-05-15).
+          // Engine is a singleton with in-memory captures + integration with
+          // VariabilityEnvelopeEngine. capture() requires {operation, parameter, value, outcome,
+          // context} and computes percentile via the envelope engine.
+          case "edge_case_capture": {
+            const { edgeCaseCaptureEngine } = await import("../../engines/EdgeCaseCaptureEngine.js");
+            const cap = edgeCaseCaptureEngine.capture({
+              operation: String(params.operation ?? "unknown"),
+              parameter: String(params.parameter ?? ""),
+              value: Number(params.value ?? 0),
+              outcome: (params.outcome ?? "success") as "success" | "marginal" | "failure",
+              context: (params.context && typeof params.context === "object") ? params.context : {},
+              measurements: params.measurements,
+              operatorNotes: params.operator_notes,
+            });
+            result = { success: true, capture: cap };
+            break;
+          }
+          case "edge_case_auto_capture": {
+            const { edgeCaseCaptureEngine } = await import("../../engines/EdgeCaseCaptureEngine.js");
+            const cap = edgeCaseCaptureEngine.autoCaptureIfEdge(
+              String(params.parameter ?? ""),
+              Number(params.value ?? 0),
+              (params.outcome ?? "success") as "success" | "marginal" | "failure",
+              (params.context && typeof params.context === "object") ? params.context : {},
+              String(params.operation ?? "unknown"),
+            );
+            result = { success: true, captured: cap !== null, capture: cap };
+            break;
+          }
+          case "edge_case_summary": {
+            const { edgeCaseCaptureEngine } = await import("../../engines/EdgeCaseCaptureEngine.js");
+            result = { success: true, summary: edgeCaseCaptureEngine.getSummary(String(params.parameter ?? "")) };
+            break;
+          }
+          case "edge_case_all_summaries": {
+            const { edgeCaseCaptureEngine } = await import("../../engines/EdgeCaseCaptureEngine.js");
+            result = { success: true, summaries: edgeCaseCaptureEngine.getAllSummaries() };
+            break;
+          }
+          case "edge_case_expansion_candidates": {
+            const { edgeCaseCaptureEngine } = await import("../../engines/EdgeCaseCaptureEngine.js");
+            result = { success: true, candidates: edgeCaseCaptureEngine.getExpansionCandidates() };
+            break;
+          }
+          case "edge_case_search": {
+            const { edgeCaseCaptureEngine } = await import("../../engines/EdgeCaseCaptureEngine.js");
+            const criteria = {
+              parameter: params.parameter ? String(params.parameter) : undefined,
+              outcome: params.outcome as "success" | "marginal" | "failure" | undefined,
+              minPercentile: params.min_percentile != null ? Number(params.min_percentile) : undefined,
+              maxPercentile: params.max_percentile != null ? Number(params.max_percentile) : undefined,
+              material: params.material ? String(params.material) : undefined,
+              machine: params.machine ? String(params.machine) : undefined,
+              since: params.since ? String(params.since) : undefined,
+            };
+            const matches = edgeCaseCaptureEngine.search(criteria);
+            result = { success: true, count: matches.length, matches };
+            break;
+          }
+          case "edge_case_learnings": {
+            const { edgeCaseCaptureEngine } = await import("../../engines/EdgeCaseCaptureEngine.js");
+            result = { success: true, learnings: edgeCaseCaptureEngine.getAllLearnings() };
+            break;
+          }
+          case "edge_case_stats": {
+            const { edgeCaseCaptureEngine } = await import("../../engines/EdgeCaseCaptureEngine.js");
+            result = { success: true, stats: edgeCaseCaptureEngine.getStatistics() };
+            break;
+          }
+
+          // ── ResponseTemplateEngine (5 actions) — OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-RESPONSE-TEMPLATE
+          //    Post-dispatch response-template formatting engine. Pure pressure-aware
+          //    template selection — no I/O, no external deps.
+          case "response_template_match": {
+            const { ResponseTemplateEngine } = await import("../../engines/ResponseTemplateEngine.js");
+            const engine = ResponseTemplateEngine.getInstance();
+            const match = engine.match(params.dispatcher, params.action, params.result_data, params.pressure_pct ?? 0);
+            result = { success: true, match };
+            break;
+          }
+          case "response_template_list": {
+            const { ResponseTemplateEngine } = await import("../../engines/ResponseTemplateEngine.js");
+            const engine = ResponseTemplateEngine.getInstance();
+            result = { success: true, templates: engine.listTemplates() };
+            break;
+          }
+          case "response_template_get": {
+            const { ResponseTemplateEngine } = await import("../../engines/ResponseTemplateEngine.js");
+            const engine = ResponseTemplateEngine.getInstance();
+            const template = engine.getTemplate(params.template_id);
+            result = { success: true, template };
+            break;
+          }
+          case "response_template_stats": {
+            const { ResponseTemplateEngine } = await import("../../engines/ResponseTemplateEngine.js");
+            const engine = ResponseTemplateEngine.getInstance();
+            result = { success: true, stats: engine.getStats() };
+            break;
+          }
+          case "response_template_reset_stats": {
+            const { ResponseTemplateEngine } = await import("../../engines/ResponseTemplateEngine.js");
+            const engine = ResponseTemplateEngine.getInstance();
+            engine.resetStats();
+            result = { success: true, reset: true };
+            break;
+          }
+
+          // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-REVERSE-INDEX: ReverseIndexEngine wire (2026-05-15).
+          // Engine is a singleton with 5 named indexes + WAL logging for crash recovery.
+          // All methods are async — these cases await the engine API directly.
+          case "rev_idx_action_to_engine": {
+            const { reverseIndexEngine } = await import("../../engines/ReverseIndexEngine.js");
+            result = { success: true, engines: await reverseIndexEngine.actionToEngine(String(params.action ?? "")) };
+            break;
+          }
+          case "rev_idx_skill_to_action": {
+            const { reverseIndexEngine } = await import("../../engines/ReverseIndexEngine.js");
+            result = { success: true, actions: await reverseIndexEngine.skillToAction(String(params.skill ?? "")) };
+            break;
+          }
+          case "rev_idx_engine_to_dependents": {
+            const { reverseIndexEngine } = await import("../../engines/ReverseIndexEngine.js");
+            result = { success: true, dependents: await reverseIndexEngine.engineToDependents(String(params.engine ?? "")) };
+            break;
+          }
+          case "rev_idx_keyword_search": {
+            const { reverseIndexEngine } = await import("../../engines/ReverseIndexEngine.js");
+            result = { success: true, assets: await reverseIndexEngine.keywordSearch(String(params.keyword ?? "")) };
+            break;
+          }
+          case "rev_idx_assets_by_type": {
+            const { reverseIndexEngine } = await import("../../engines/ReverseIndexEngine.js");
+            result = { success: true, assets: await reverseIndexEngine.assetsByType(String(params.asset_type ?? params.type ?? "")) };
+            break;
+          }
+          case "rev_idx_add_mapping": {
+            const { reverseIndexEngine } = await import("../../engines/ReverseIndexEngine.js");
+            const update = await reverseIndexEngine.addMapping(
+              String(params.index_name ?? params.index ?? "KEYWORD_TO_ASSETS") as any,
+              String(params.key ?? ""),
+              String(params.value ?? ""),
+            );
+            result = { success: update.success, update };
+            break;
+          }
+          case "rev_idx_remove_mapping": {
+            const { reverseIndexEngine } = await import("../../engines/ReverseIndexEngine.js");
+            const update = await reverseIndexEngine.removeMapping(
+              String(params.index_name ?? params.index ?? "KEYWORD_TO_ASSETS") as any,
+              String(params.key ?? ""),
+              String(params.value ?? ""),
+            );
+            result = { success: update.success, update };
+            break;
+          }
+          case "rev_idx_rebuild": {
+            const { reverseIndexEngine } = await import("../../engines/ReverseIndexEngine.js");
+            const update = await reverseIndexEngine.rebuildIndex(
+              String(params.index_name ?? params.index ?? "TYPE_TO_ASSETS") as any,
+            );
+            result = { success: update.success, update };
+            break;
+          }
+          case "rev_idx_rebuild_all": {
+            const { reverseIndexEngine } = await import("../../engines/ReverseIndexEngine.js");
+            const rebuild = await reverseIndexEngine.rebuildAll();
+            result = { success: rebuild.success, rebuild };
+            break;
+          }
+          case "rev_idx_stats": {
+            const { reverseIndexEngine } = await import("../../engines/ReverseIndexEngine.js");
+            result = { success: true, stats: await reverseIndexEngine.getStats() };
+            break;
+          }
+          case "rev_idx_recover_wal": {
+            const { reverseIndexEngine } = await import("../../engines/ReverseIndexEngine.js");
+            result = { success: true, recovered: await reverseIndexEngine.recoverFromWAL() };
+            break;
+          }
+
+          // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-IMPACT-ANALYSIS: ImpactAnalysisEngine wire (2026-05-15).
+          // Read-only surfaces only — destructive executeRename() NOT MCP-exposed.
+          case "impact_analyze_rename": {
+            const { impactAnalysisEngine } = await import("../../engines/ImpactAnalysisEngine.js");
+            const report = await impactAnalysisEngine.analyzeRename({
+              fromName: String(params.from_name ?? params.fromName ?? ""),
+              toName: String(params.to_name ?? params.toName ?? ""),
+              assetType: String(params.asset_type ?? params.assetType ?? "engine") as any,
+              dryRun: true,
+            });
+            result = { success: true, report };
+            break;
+          }
+          case "impact_analyze_delete": {
+            const { impactAnalysisEngine } = await import("../../engines/ImpactAnalysisEngine.js");
+            const report = await impactAnalysisEngine.analyzeDelete({
+              name: String(params.name ?? ""),
+              assetType: String(params.asset_type ?? params.assetType ?? "engine") as any,
+              force: Boolean(params.force ?? false),
+              dryRun: true,
+            });
+            result = { success: true, report };
+            break;
+          }
+          case "impact_can_delete": {
+            const { impactAnalysisEngine } = await import("../../engines/ImpactAnalysisEngine.js");
+            const safe = await impactAnalysisEngine.canSafelyDelete(
+              String(params.name ?? ""),
+              String(params.asset_type ?? params.assetType ?? "engine") as any,
+            );
+            result = { success: true, can_delete: safe };
+            break;
+          }
+          case "impact_find_orphans": {
+            const { impactAnalysisEngine } = await import("../../engines/ImpactAnalysisEngine.js");
+            const orphans = await impactAnalysisEngine.findOrphans(
+              String(params.asset_type ?? params.assetType ?? "engine") as any,
+            );
+            result = { success: true, count: orphans.length, orphans };
             break;
           }
 

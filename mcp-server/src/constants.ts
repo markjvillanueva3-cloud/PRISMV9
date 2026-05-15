@@ -171,82 +171,119 @@ export type PrismPaths = typeof PATHS;
 
 // ============================================================================
 // REGISTRY TYPE COMPAT SHIMS
-// String-literal unions imported by src/types.ts and downstream registry types.
-// These are loose enough to accept incoming legacy data; tighten incrementally.
+// Const arrays (UPPER_SNAKE) + derived types (PascalCase). The const arrays
+// satisfy Zod's `z.enum([string, ...string[]])` tuple requirement; the derived
+// types preserve every PascalCase consumer. Loose enough to accept legacy data
+// — tighten incrementally.
 // ============================================================================
 
-export type IsoMaterialGroup = "P" | "M" | "K" | "N" | "S" | "H" | "X";
+export const ISO_MATERIAL_GROUPS = ["P", "M", "K", "N", "S", "H", "X"] as const;
+export type IsoMaterialGroup = typeof ISO_MATERIAL_GROUPS[number];
 
 export type MaterialCategory = typeof MATERIAL_CATEGORIES[number];
 
-export type MaterialLayer = "core" | "extended" | "specialty" | "user" | "legacy";
+export const MATERIAL_LAYERS = ["core", "extended", "specialty", "user", "legacy"] as const;
+export type MaterialLayer = typeof MATERIAL_LAYERS[number];
 
-export type MachineType =
-  | "mill" | "lathe" | "mill_turn" | "swiss" | "vmc" | "hmc" | "vtl"
-  | "wire_edm" | "sinker_edm" | "grinder" | "waterjet" | "laser" | "router"
-  | "drill_press" | "saw" | "press" | "robot" | "additive" | "other";
+export const MACHINE_TYPES = [
+  "mill", "lathe", "mill_turn", "swiss", "vmc", "hmc", "vtl",
+  "wire_edm", "sinker_edm", "grinder", "waterjet", "laser", "router",
+  "drill_press", "saw", "press", "robot", "additive", "other",
+] as const;
+export type MachineType = typeof MACHINE_TYPES[number];
 
-export type MachineLayer = "core" | "extended" | "user" | "legacy";
+export const MACHINE_LAYERS = ["core", "extended", "user", "legacy"] as const;
+export type MachineLayer = typeof MACHINE_LAYERS[number];
 
-export type ControllerFamily =
-  | "fanuc" | "siemens" | "haas" | "okuma" | "mitsubishi" | "mazak" | "heidenhain"
-  | "fagor" | "centroid" | "linuxcnc" | "grbl" | "mach3" | "mach4" | "pathpilot"
-  | "marlin" | "fluidnc" | "selca" | "nakamura" | "tsugami" | "sodick"
-  | "agie" | "makino" | "charmilles" | "other";
+export const CONTROLLER_FAMILIES = [
+  "fanuc", "siemens", "haas", "okuma", "mitsubishi", "mazak", "heidenhain",
+  "fagor", "centroid", "linuxcnc", "grbl", "mach3", "mach4", "pathpilot",
+  "marlin", "fluidnc", "selca", "nakamura", "tsugami", "sodick",
+  "agie", "makino", "charmilles", "other",
+] as const;
+export type ControllerFamily = typeof CONTROLLER_FAMILIES[number];
 
-export type AlarmSeverity = "info" | "warning" | "error" | "critical" | "fatal";
+export const ALARM_SEVERITIES = ["info", "warning", "error", "critical", "fatal"] as const;
+export type AlarmSeverity = typeof ALARM_SEVERITIES[number];
 
-export type AlarmCategory =
-  | "axis" | "spindle" | "coolant" | "tool_change" | "controller" | "power"
-  | "communication" | "memory" | "safety" | "limit" | "servo" | "lubrication"
-  | "hydraulic" | "pneumatic" | "operator" | "program" | "feedback" | "other";
+export const ALARM_CATEGORIES = [
+  "axis", "spindle", "coolant", "tool_change", "controller", "power",
+  "communication", "memory", "safety", "limit", "servo", "lubrication",
+  "hydraulic", "pneumatic", "operator", "program", "feedback", "other",
+] as const;
+export type AlarmCategory = typeof ALARM_CATEGORIES[number];
 
-export type ToolType =
-  | "endmill" | "ballmill" | "facemill" | "drill" | "reamer" | "tap" | "thread_mill"
-  | "boring_bar" | "turning_insert" | "grooving_insert" | "threading_insert"
-  | "parting_tool" | "broach" | "countersink" | "counterbore" | "spot_drill"
-  | "chamfer_mill" | "lollipop_mill" | "form_tool" | "knurling_tool"
-  | "burnishing_tool" | "probe" | "wheel" | "dresser" | "edm_electrode"
-  | "wire_edm_electrode" | "laser_head" | "waterjet_head" | "other";
+export const TOOL_TYPES = [
+  "endmill", "ballmill", "facemill", "drill", "reamer", "tap", "thread_mill",
+  "boring_bar", "turning_insert", "grooving_insert", "threading_insert",
+  "parting_tool", "broach", "countersink", "counterbore", "spot_drill",
+  "chamfer_mill", "lollipop_mill", "form_tool", "knurling_tool",
+  "burnishing_tool", "probe", "wheel", "dresser", "edm_electrode",
+  "wire_edm_electrode", "laser_head", "waterjet_head", "other",
+] as const;
+export type ToolType = typeof TOOL_TYPES[number];
 
-export type ToolMaterial = "carbide" | "cermet" | "ceramic" | "cbn" | "pcd" | "hss" | "diamond";
+export const TOOL_MATERIALS = ["carbide", "cermet", "ceramic", "cbn", "pcd", "hss", "diamond"] as const;
+export type ToolMaterial = typeof TOOL_MATERIALS[number];
 
-export type AgentTier = "tier-0" | "tier-1" | "tier-2" | "tier-3" | "specialist" | "advisor" | "supervisor";
+export const AGENT_TIERS = ["tier-0", "tier-1", "tier-2", "tier-3", "specialist", "advisor", "supervisor"] as const;
+export type AgentTier = typeof AGENT_TIERS[number];
 
-export type HookPattern = "pre" | "post" | "wrap" | "stream" | "cadence" | "error" | "validation" | "advisory";
+export const HOOK_PATTERNS = ["pre", "post", "wrap", "stream", "cadence", "error", "validation", "advisory"] as const;
+export type HookPattern = typeof HOOK_PATTERNS[number];
 
-export type HookLevel = "info" | "warning" | "error" | "block" | "critical";
+export const HOOK_LEVELS = ["info", "warning", "error", "block", "critical"] as const;
+export type HookLevel = typeof HOOK_LEVELS[number];
 
-export type ResponseFormat = "json" | "markdown" | "text" | "table" | "code" | "stream";
+export const RESPONSE_FORMATS = ["json", "markdown", "text", "table", "code", "stream"] as const;
+export type ResponseFormat = typeof RESPONSE_FORMATS[number];
 
-export type OptimizationTarget =
-  | "cost" | "time" | "quality" | "tool_life" | "energy" | "throughput"
-  | "surface_finish" | "force" | "power" | "deflection" | "chatter" | "balanced";
+export const OPTIMIZATION_TARGETS = [
+  "cost", "time", "quality", "tool_life", "energy", "throughput",
+  "surface_finish", "force", "power", "deflection", "chatter", "balanced",
+] as const;
+export type OptimizationTarget = typeof OPTIMIZATION_TARGETS[number];
 
-export type OperationType =
-  | "roughing" | "finishing" | "semi_finishing" | "facing" | "profiling" | "pocketing"
-  | "drilling" | "boring" | "reaming" | "tapping" | "thread_milling" | "turning"
-  | "grooving" | "parting" | "threading" | "knurling" | "chamfering"
-  | "deburring" | "engraving" | "polishing" | "grinding" | "honing" | "lapping"
-  | "wire_edm" | "sinker_edm" | "laser_cut" | "waterjet_cut" | "plasma_cut"
-  | "additive" | "probing" | "other";
+export const OPERATION_TYPES = [
+  "roughing", "finishing", "semi_finishing", "facing", "profiling", "pocketing",
+  "drilling", "boring", "reaming", "tapping", "thread_milling", "turning",
+  "grooving", "parting", "threading", "knurling", "chamfering",
+  "deburring", "engraving", "polishing", "grinding", "honing", "lapping",
+  "wire_edm", "sinker_edm", "laser_cut", "waterjet_cut", "plasma_cut",
+  "additive", "probing", "other",
+] as const;
+export type OperationType = typeof OPERATION_TYPES[number];
 
-export type FormulaDomain =
-  | "cutting_force" | "tool_life" | "power" | "torque" | "deflection" | "thermal"
-  | "vibration" | "stability" | "surface_finish" | "wear" | "stress" | "strain"
-  | "fatigue" | "fracture" | "material" | "tribology" | "kinematic"
-  | "geometric" | "statistical" | "control" | "other";
+export const FORMULA_DOMAINS = [
+  "cutting_force", "tool_life", "power", "torque", "deflection", "thermal",
+  "vibration", "stability", "surface_finish", "wear", "stress", "strain",
+  "fatigue", "fracture", "material", "tribology", "kinematic",
+  "geometric", "statistical", "control", "other",
+] as const;
+export type FormulaDomain = typeof FORMULA_DOMAINS[number];
 
 export type QualityComponent = "R" | "C" | "P" | "S" | "L";
 
-export type SwarmPattern =
-  | "hierarchical" | "mesh" | "ring" | "star" | "hybrid" | "adaptive"
-  | "consensus" | "leader_follower" | "peer_to_peer" | "broadcast";
+export const SWARM_PATTERNS = [
+  "hierarchical", "mesh", "ring", "star", "hybrid", "adaptive",
+  "consensus", "leader_follower", "peer_to_peer", "broadcast",
+] as const;
+export type SwarmPattern = typeof SWARM_PATTERNS[number];
 
-export type WorkflowType =
-  | "linear" | "branching" | "parallel" | "iterative" | "ralph" | "consensus"
-  | "supervised" | "autonomous" | "interactive" | "scheduled" | "event_driven";
+export const WORKFLOW_TYPES = [
+  "linear", "branching", "parallel", "iterative", "ralph", "consensus",
+  "supervised", "autonomous", "interactive", "scheduled", "event_driven",
+] as const;
+export type WorkflowType = typeof WORKFLOW_TYPES[number];
 
-export type ScriptCategory =
-  | "build" | "test" | "deploy" | "extract" | "validate" | "report" | "migration"
-  | "fixture" | "tool" | "data" | "ai" | "ci" | "release" | "diagnostic" | "other";
+export const SCRIPT_CATEGORIES = [
+  "build", "test", "deploy", "extract", "validate", "report", "migration",
+  "fixture", "tool", "data", "ai", "ci", "release", "diagnostic", "other",
+] as const;
+export type ScriptCategory = typeof SCRIPT_CATEGORIES[number];
+
+export const EXPORT_FORMATS = [
+  "json", "csv", "excel", "xlsx", "pdf", "dxf", "step", "gcode",
+  "setup_sheet", "markdown", "html",
+] as const;
+export type ExportFormatKind = typeof EXPORT_FORMATS[number];

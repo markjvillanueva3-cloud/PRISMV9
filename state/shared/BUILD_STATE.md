@@ -1,27 +1,27 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-14T19:14:48.590Z
+> Generated: 2026-05-15T15:27:53.193Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
 
-- **2365** engines built and wired (of 3235)
-- **1005** wiki entries indexed
-- **870** engines awaiting dispatcher wiring
-- **3655** units pending across 73 active milestones
+- **2377** engines built and wired (of 3238)
+- **1073** wiki entries indexed
+- **861** engines awaiting dispatcher wiring
+- **3183** units pending across 80 active milestones
 - **2** codex frontend builds awaiting merge
 - **175** milestones with envelope-status drift
 
 ## BUILT
 
-2365/3235 engines wired (73%); 1005 wiki entries indexed.
+2377/3238 engines wired (73%); 1073 wiki entries indexed.
 
 ```json
 {
-  "totalEngines": 3235,
-  "unwired": 870,
-  "wiredDirect": 2198,
-  "wireExempt": 83,
+  "totalEngines": 3238,
+  "unwired": 861,
+  "wiredDirect": 2208,
+  "wireExempt": 85,
   "wiredViaHook": 10,
   "wiredViaOrch": 58,
   "wiredViaRoute": 15,
@@ -31,16 +31,16 @@
 
 ## NEEDS_WIRING
 
-870 engines on disk with no dispatcher reference. Top domains by count:
+861 engines on disk with no dispatcher reference. Top domains by count:
 
 | Domain | Unwired count |
 |--------|---------------|
 | Other | 145 |
 | Lathe | 89 |
 | Machine | 17 |
-| Multi | 11 |
 | Turning | 11 |
 | Tool | 10 |
+| Multi | 10 |
 | Five | 9 |
 | Shop | 9 |
 | Outcome | 8 |
@@ -54,10 +54,10 @@
 | Wire | 6 |
 | Consensus | 6 |
 | Session | 5 |
-| Tribal | 5 |
 | Mobile | 5 |
 | Mastercam | 5 |
 | Mill | 4 |
+| Tribal | 4 |
 | Agent | 4 |
 | Electrode | 4 |
 
@@ -65,7 +65,7 @@
 
 ## NEEDS_BUILDING
 
-3655 units across 671 milestones not yet in git.
+3183 units across 673 milestones not yet in git.
 
 ### Envelope-status drift
 
@@ -205,6 +205,7 @@
 | INTEL-OLLAMA-OBSIDIAN-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | INTEL-OLLAMA-OBSIDIAN-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | L6-BACKPROP-REGISTRY-MS25 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| KNOWLEDGE-VAULT-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | MULTI-CLI-SYNC-HOOK-MS28 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | SCHEMA-MIGRATION-RUNNER-MS27 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | HITL-OPERATOR-UI-MS24 | not_started | completed_real | claims_not_started_but_has_shipped_units |
@@ -213,7 +214,6 @@
 | OT-IT-SECURITY-MS20 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | TENANT-ONBOARD-MS29 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | LATHE-P2P-CONSENSUS-MS4 | not_started | completed_real | claims_not_started_but_has_shipped_units |
-| MACRO-PROGRAM-PIPELINE-MS0 | completed | not_started_real | claims_completed_but_units_pending |
 | MXU-MS0 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | MXU-MS0A | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | MXU-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
@@ -233,6 +233,7 @@
 | PPG-MS2 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | PROD-GATE-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | MS-DOCU-FINISH | completed | not_started_real | claims_completed_but_units_pending |
+| MS-DOCU-INGEST | completed | not_started_real | claims_completed_but_units_pending |
 | TWIN-SIM-GATE-MS23 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | SCIMATH-MS0 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | SCIMATH-MS1 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
@@ -245,36 +246,35 @@
 | SIM-MS0 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | TOOLS-AUDIT-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | TRAINING-LEARNING-MS0 | completed | in_progress_real | claims_completed_but_units_pending |
-| WEDM-ERP-MS0 | completed | not_started_real | claims_completed_but_units_pending |
 
 ### Top pending units (most-recently-active milestones first)
 
 | Milestone | Phase | Unit | Title |
 |-----------|-------|------|-------|
-| CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A1 | A1 — extend SLOT_NAMES in chat-slots.mjs to add 'golf' (NATO phonetic continuity) |
-| CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A5 | A5 — golf-slot-write-allowlist.mjs PreToolUse T0 hook (path-resolve hardened against ../; allowlist-regex from golf-owned-paths.json; tier frontmatter; bypass env PRISM_GOLF_WRITE_ALLOWLIST_BYPASS=1) |
-| CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A6 | A6 — bootstrap-golf.mjs (mkdir .cron-locks, seed golf-owned-paths.json + golf-token-budget.json + golf-cron-registry.json; .gitignore additions for coordination.db* + .cron-locks/*.lock + .watchdog-last-poll.iso + golf-token-budget.json; detect & rebuild 0-byte coordination.db; git rm --cached on first run) |
-| CLEANUP-MS0 | operator-surfaces-tier-3 | U-CLEANUP-B7 | B7 — /peer-audit skill (READ-ONLY operator query; never mutates ledger; mutations only via prism_dev dispatcher action with audit trail) |
-| COMMAND-KERNEL-MS0 | P0 | U-CK02 | psk whoami / position / manifest syscalls |
-| COMMAND-KERNEL-MS0 | P0 | U-CK03 | psk handoff / checkin / pick syscalls |
-| COMMAND-KERNEL-MS0 | P0 | U-CK04 | knowledge/wiki/os/ namespace + entity frontmatter schema |
-| COMMAND-KERNEL-MS0 | P0 | U-CK05 | Generated-mirror generators (JSON registries become mirrors of os/ entities) |
-| COORD-MS0 |  | U-COORD02 | Add Optimistic Locking with Version Field |
-| COORD-MS0 |  | U-COORD09 | Ambient Awareness Badge |
-| COORD-MS0 |  | U-COORD12 | Checksum Validation on Read |
-| AI-MAX-MS0 | session-1 | U-AIMAX01 | hyperMILL Python Script Pattern Extractor |
-| AI-MAX-MS0 | session-1 | U-AIMAX02 | JM DIE Program Pattern Analyzer |
-| AI-MAX-MS0 | session-1 | U-AIMAX03 | Pattern Database & Search Engine |
-| AI-MAX-MS0 | session-2 | U-AIMAX04 | Tree-of-Thought Reasoning Engine |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | P5 | P5-U05 | Wire prism_intelligence:diagnose_failure → DiagnosticReasoningEngine |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | P6 | P6-U02 | Add 4 hooks for unforced CLAUDE.md rules |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | P6 | P6-U03 | Awareness hook deduplication — pick 3 canonical, deprecate 10 |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | P7 | P7-U02 | Cross-PC handoff test — verify H: drive is sufficient |
-| CAD-INFRA-MS0 |  | U-CINF01 | CADFileIndexerEngine — master 20,006-file catalog |
-| CAD-INFRA-MS0 |  | U-CINF02 | CADFileClassifierEngine — part/assembly/drawing/CAM classification |
-| CAD-INFRA-MS0 |  | U-CINF03 | CADTestStateSchema — per-file atomic state |
-| CAD-INFRA-MS0 |  | U-CINF05 | CADTestCheckpointEngine — resumable state every 100 files |
-| S1-MS2 | P2 | P2-U05 | Port Thermal Partition + Power/Torque |
+| CCM-MS0 | P0 | P0-U06 | WorktreeCreate hook |
+| CCM-MS0 | P0 | P0-U07 | WorktreeRemove hook |
+| CCM-MS0 | P0 | P0-U08 | PostCompact hook |
+| CCM-MS0 | P0 | P0-U09 | SessionEnd hook |
+| L8-P1-MS2 | P0 | P0-U06 | Knowledge Search |
+| L8-P1-MS2 | P0 | P0-U07 | Material Selection Wizard |
+| L8-P1-MS2 | P0 | P0-U08 | Tool Selection Wizard |
+| L8-P1-MS2 | P0 | P0-U09 | Machine Selection Wizard |
+| L8-P2-MS2 | P0 | P0-U06 | Capacity Analytics Dashboard |
+| L8-P2-MS2 | P0 | P0-U07 | Predictive Maintenance Panel |
+| L8-P2-MS2 | P0 | P0-U08 | ERP Overview Page |
+| L8-P2-MS2 | P0 | P0-U09 | ERP Layout & Navigation |
+| CCM-MS14 | P0 | P0-U06 | Cache hit rate monitor |
+| CCM-MS14 | P0 | P0-U07 | Cascade failure detector |
+| CCM-MS14 | P0 | P0-U08 | Monte Carlo convergence monitor |
+| CCM-MS14 | P0 | P0-U09 | silentCatch fire rate monitor |
+| CCM-MS5 | P0 | P0-U06 | Batch skill updater |
+| CCM-MS5 | P0 | P0-U07 | Batch test runner |
+| CCM-MS5 | P0 | P0-U08 | Cron management skill |
+| CCM-MS5 | P0 | P0-U09 | Schema drift cron |
 
 **Next action:** Cross-reference MILESTONE_PROGRESS.json. Avoid units already in `shipped` arrays — those are committed but envelope status is stale.
 
@@ -296,12 +296,12 @@ Per-domain wired/unwired breakdown across 932 domain prefixes.
 
 | Domain | Total | Wired | Unwired | Coverage % |
 |--------|-------|-------|---------|-----------|
-| Other | 599 | 454 | 145 | 76% |
+| Other | 600 | 455 | 145 | 76% |
 | Lathe | 188 | 99 | 89 | 53% |
 | Machine | 45 | 28 | 17 | 62% |
-| Multi | 28 | 17 | 11 | 61% |
 | Turning | 24 | 13 | 11 | 54% |
 | Tool | 57 | 47 | 10 | 82% |
+| Multi | 28 | 18 | 10 | 64% |
 | Shop | 16 | 7 | 9 | 44% |
 | Five | 12 | 3 | 9 | 25% |
 | Outcome | 8 | 0 | 8 | 0% |
@@ -316,12 +316,12 @@ Per-domain wired/unwired breakdown across 932 domain prefixes.
 | Swiss | 6 | 0 | 6 | 0% |
 | Mastercam | 28 | 23 | 5 | 82% |
 | Session | 12 | 7 | 5 | 58% |
-| Tribal | 12 | 7 | 5 | 58% |
 | Mobile | 6 | 1 | 5 | 17% |
 | Cross | 67 | 63 | 4 | 94% |
 | Mill | 23 | 19 | 4 | 83% |
 | Inventor | 12 | 8 | 4 | 67% |
 | Okuma | 12 | 8 | 4 | 67% |
+| Tribal | 12 | 8 | 4 | 67% |
 | Agent | 7 | 3 | 4 | 43% |
 | Speed | 7 | 3 | 4 | 43% |
 | Electrode | 6 | 2 | 4 | 33% |
@@ -329,7 +329,7 @@ Per-domain wired/unwired breakdown across 932 domain prefixes.
 
 ## STALE_MILESTONES
 
-229 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).
+227 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).
 
 | Milestone | Track | Reason | Pending | Shipped/Total | Last shipped |
 |-----------|-------|--------|---------|---------------|--------------|

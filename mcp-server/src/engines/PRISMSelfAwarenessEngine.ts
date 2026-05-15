@@ -703,6 +703,163 @@ class PRISMSelfAwarenessEngine {
   }
 
   // ============================================================================
+  // SYNC ADAPTERS — used by integration engines (Lathe / Mill / Five-Axis) in
+  // non-async hot paths. Each is the sync twin of the canonical async method
+  // declared above; they read the same on-disk state (TRIBAL_KNOWLEDGE_PATH +
+  // JM_DIE_ROOT) and return plain arrays so callers can compose without await.
+  // Documented in H:/prism/CLAUDE.md §Self-Awareness Engine and the parent
+  // mcp-server CLAUDE.md API table.
+  // ============================================================================
+
+  /**
+   * Synchronous variant of {@link searchTribalKnowledge} with an options bag.
+   * @param query - Search query (case-insensitive substring against tip + category).
+   * @param opts.limit - Cap on returned entries (default 20).
+   */
+  searchTribalKnowledgeSync(query: string, opts?: { limit?: number }): TribalKnowledgeEntry[] {
+    const limit = opts?.limit ?? 20;
+    try {
+      if (!fs.existsSync(TRIBAL_KNOWLEDGE_PATH)) return [];
+      const data = JSON.parse(fs.readFileSync(TRIBAL_KNOWLEDGE_PATH, "utf8"));
+      const tips = data.tips || data.entries || [];
+      const queryLower = query.toLowerCase();
+      const results: TribalKnowledgeEntry[] = [];
+      for (const tip of tips) {
+        const tipText = (tip.tip || tip.content || "").toLowerCase();
+        const category = (tip.category || "").toLowerCase();
+        if (tipText.includes(queryLower) || category.includes(queryLower)) {
+          results.push({
+            tip: tip.tip || tip.content,
+            title: (tip.tip || tip.content || "").substring(0, 50),
+            category: tip.category || "general",
+            source: tip.source || "tribal",
+            confidence: tipText.includes(queryLower) ? 0.9 : 0.7,
+          });
+        }
+        if (results.length >= limit) break;
+      }
+      return results;
+    } catch {
+      return [];
+    }
+  }
+
+  /**
+   * Synchronous variant of {@link searchPlaybookRules} returning the tip text
+   * array directly (derived from {@link searchTribalKnowledgeSync}).
+   */
+  searchPlaybookRulesSync(query: string, opts?: { limit?: number }): string[] {
+    return this.searchTribalKnowledgeSync(query, opts).map((t) => t.tip);
+  }
+
+  /**
+   * Lightweight name-only AI-feature search used by domain integration engines.
+   * Matches engine name + capability tags + machineTypes against the query
+   * substring and returns engine names. Reads the cached manifest so cost is
+   * one disk read in the steady state.
+   */
+  searchAIFeatures(query: string): string[] {
+    const q = query.toLowerCase();
+    // Prefer cached manifest (populated by any prior async getManifest()); fall
+    // back to a fresh sync engine scan when the cache is empty so this stays
+    // callable from non-async hot paths.
+    const engines: EngineEntry[] = this.manifest?.engines ?? this.loadEngines();
+    return engines
+      .filter((e) =>
+        e.name.toLowerCase().includes(q)
+        || (e.capabilities || []).some((c) => c.toLowerCase().includes(q))
+        || (e.machineTypes || []).some((m) => m.toLowerCase().includes(q)),
+      )
+      .map((e) => e.name);
+  }
+
+  /**
+   * Search the JM Die directory tree for customer folders whose names match
+   * (case-insensitive substring; empty query returns every customer).
+   * Each result aggregates the machine-type folders the customer appears under
+   * (e.g. CNC LATHE + CNC MILL → ["lathe", "mill"]).
+   */
+  searchJMDieCustomer(name: string): Array<{ name: string; path: string; machineTypes: string[] }> {
+    const q = name.toLowerCase();
+    const byCustomer = new Map<string, { name: string; path: string; machineTypes: Set<string> }>();
+    try {
+      if (!fs.existsSync(JM_DIE_ROOT)) return [];
+      const machineDirs = fs.readdirSync(JM_DIE_ROOT).filter((d) => {
+        try { return fs.statSync(path.join(JM_DIE_ROOT, d)).isDirectory(); } catch { return false; }
+      });
+      for (const machineDir of machineDirs) {
+        const machinePath = path.join(JM_DIE_ROOT, machineDir);
+        const machineType = this.inferMachineTypeFromDir(machineDir);
+        let customers: string[] = [];
+        try { customers = fs.readdirSync(machinePath); } catch { continue; }
+        for (const c of customers) {
+          if (q && !c.toLowerCase().includes(q)) continue;
+          const cPath = path.join(machinePath, c);
+          let isDir = false;
+          try { isDir = fs.statSync(cPath).isDirectory(); } catch { continue; }
+          if (!isDir) continue;
+          const key = c.toUpperCase();
+          const existing = byCustomer.get(key) ?? { name: c, path: cPath, machineTypes: new Set<string>() };
+          existing.machineTypes.add(machineType);
+          byCustomer.set(key, existing);
+        }
+      }
+    } catch {
+      // Best-effort search — return whatever aggregated so far.
+    }
+    const results: Array<{ name: string; path: string; machineTypes: string[] }> = [];
+    for (const v of byCustomer.values()) {
+      results.push({ name: v.name, path: v.path, machineTypes: Array.from(v.machineTypes) });
+    }
+    return results;
+  }
+
+  /**
+   * Return every JM Die customer (no filter). Convenience wrapper around
+   * {@link searchJMDieCustomer} with an empty query.
+   */
+  getJMDieCustomers(): Array<{ name: string; path: string; machineTypes: string[] }> {
+    return this.searchJMDieCustomer("");
+  }
+
+  /**
+   * Resolve the JM Die top-level directories matching a machine-type tag
+   * (case-insensitive substring against directory names — "lathe" matches
+   * "CNC LATHE", "mill" matches "CNC MILL", etc.). Returns absolute paths.
+   */
+  getJMDieProgramPaths(machineType: string): string[] {
+    const q = machineType.toLowerCase();
+    const paths: string[] = [];
+    try {
+      if (!fs.existsSync(JM_DIE_ROOT)) return paths;
+      for (const e of fs.readdirSync(JM_DIE_ROOT)) {
+        const full = path.join(JM_DIE_ROOT, e);
+        let isDir = false;
+        try { isDir = fs.statSync(full).isDirectory(); } catch { continue; }
+        if (!isDir) continue;
+        if (e.toLowerCase().includes(q)) paths.push(full);
+      }
+    } catch {
+      // Best-effort.
+    }
+    return paths;
+  }
+
+  /** Map a JM Die top-level folder name onto a normalized machine-type tag. */
+  private inferMachineTypeFromDir(dir: string): string {
+    const u = dir.toUpperCase();
+    if (u.includes("LATHE")) return "lathe";
+    if (u.includes("MILL")) return "mill";
+    if (u.includes("WEDM") || u.includes("WIRE EDM")) return "wedm";
+    if (u.includes("EDM")) return "edm";
+    if (u.includes("SWISS")) return "swiss";
+    if (u.includes("GRIND")) return "grind";
+    if (u.includes("DRILL")) return "drill";
+    if (u.includes("LASER")) return "laser";
+    return "other";
+  }
+
+  // ============================================================================
   // PRIVATE HELPERS
   // ============================================================================
 
