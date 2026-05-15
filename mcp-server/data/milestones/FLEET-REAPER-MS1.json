@@ -1,0 +1,129 @@
+{
+  "id": "FLEET-REAPER-MS1",
+  "title": "Fleet Reaper Phase 2 — leftover-bash classifier + soft RAM relief + GPU/Ollama coordinator + alpha-slot guardian",
+  "track": "INFRA-FLEET-HYGIENE",
+  "status": "completed",
+  "version": "1.0.0",
+  "schemaVersion": 2,
+  "created_at": "2026-05-14",
+  "updated_at": "2026-05-15",
+  "completed_at": "2026-05-15",
+  "priority": "HIGH",
+  "target_omega": 0.85,
+  "description": "Strictly additive over FLEET-REAPER-MS0. Three new layers in fleet-reaper-sweep.mjs (soft RAM/CPU relief, GPU/Ollama probe, Ollama coordinator) + a new leftover-bash-task candidate class in process-slot-map.mjs + a TTL'd routing-hint consumer in ollama-task-offloader.mjs + the alpha-slot-reaper-guardian hook that pins reaper-ownership to the alpha chat. Reframes the reaper from 'kill more orphans' to 'use what's idle' — the box runs near the commit-memory ceiling while the GPU sits at single-digit utilization; convert idle GPU VRAM + idle stale-slot RAM into 6-chat throughput, soft-first (reversible), kill-last.",
+  "context_doc": "knowledge/wiki/architecture/fleet-reaper.md",
+  "knowledge_sources": [
+    "knowledge/wiki/architecture/fleet-reaper.md",
+    "knowledge/wiki/architecture/ollama-routing-hint.md",
+    "knowledge/wiki/architecture/alpha-slot-reaper-guardian.md",
+    "knowledge/wiki/code-tribal/leftover-monitor-bash-pattern.md",
+    "knowledge/wiki/code-tribal/gpu-absorb-threshold.md",
+    "knowledge/wiki/code-tribal/soft-relief-age-floor.md",
+    "knowledge/wiki/code-tribal/routing-hint-ttl.md",
+    "knowledge/memories/feedback/feedback_alpha_owns_reaper.md",
+    "knowledge/memories/reference/reference_fleet_reaper_ms1.md"
+  ],
+  "goals": [
+    "Catch the orphan class FLEET-REAPER-MS0 missed: a Bash-tool Monitor loop whose chat died but whose claude.exe lingered alive but unpinned",
+    "Convert idle GPU VRAM into commit-memory relief via an Ollama pre-warm + routing hint that lowers ollama-task-offloader's offload bar under pressure",
+    "Apply reversible soft relief (priority + working-set trim) to stale-slot processes BEFORE the 10-min crashed-slot threshold escalates to a kill",
+    "Pin reaper-ownership to the alpha chat via a SessionStart+UserPromptSubmit hook so the durable scheduled task stays registered + enabled"
+  ],
+  "total_units": 6,
+  "phases": [
+    {
+      "id": "PHASE2",
+      "title": "Phase 2 — three layers + a new candidate class + the alpha-slot guardian",
+      "session": 1,
+      "smart_config": {
+        "role": "R3-Systems Architect + R5-Build Doctor",
+        "model": "opus-4.7",
+        "effort": "HIGH",
+        "context_budget": "60%"
+      },
+      "intent": "After this phase: the leftover-bash-task class is wired into classifyProcess; soft RAM/CPU relief acts on stale-slot processes; the GPU + Ollama probe + coordinator are integrated into runSweep; the routing-hint contract is established (producer: fleet-reaper-sweep; consumer: ollama-task-offloader); the alpha-slot guardian is wired into both SessionStart and UserPromptSubmit; all docs (CLAUDE.md + wiki + 4 tribal tips + 2 memory entries) are doc-synced; the 137-case vitest suite is green.",
+      "skills": ["/fleet-reaper", "/scrutinize", "/wiki-query"],
+      "exit_gate": {
+        "criteria": [
+          "All 6 units shipped + per-file 2-reviewer scrutiny PASS on every file",
+          "Full 137-case fleet-reaper.test.mjs vitest suite green (was 66; +71 new cases)",
+          "Vite-transform follow-up #1 closed (was blocking the helper test suite — fixed by removing vestigial shebangs + clampInt null-handling guard)",
+          "CLAUDE.md + knowledge/wiki/architecture/fleet-reaper.md Phase 2 section + 3 new wiki entries + 4 tribal tips + 2 memory entries all landed",
+          "HOOK_REGISTRY.json regenerated; alpha-slot-reaper-guardian.mjs registered as wired (SessionStart + UserPromptSubmit, timeout 10000)"
+        ],
+        "omega_floor": 0.85
+      },
+      "units": [
+        "U-PHASE2-BASH-CLASSIFIER",
+        "U-PHASE2-SOFT-RELIEF",
+        "U-PHASE2-GPU-PROBE",
+        "U-PHASE2-OLLAMA-COORD",
+        "U-PHASE2-HINT-CONSUMER",
+        "U-PHASE2-ALPHA-GUARDIAN"
+      ]
+    }
+  ],
+  "units": {
+    "U-PHASE2-BASH-CLASSIFIER": {
+      "status": "completed",
+      "files": [".claude/helpers/process-slot-map.mjs"],
+      "ship_commit": "f22a86d74",
+      "description": "New leftover-bash-task candidate class: bash/sh + structural cmd-pattern (AND-of-simple-regexes, 4096-char truncation = ReDoS-safe) + age >= 15 min + UNPINNED claude.exe ancestor + resolved slot data. __slotsResolved flag threaded through snapshotFleet — degraded slot data never widens the candidate set."
+    },
+    "U-PHASE2-SOFT-RELIEF": {
+      "status": "completed",
+      "files": ["scripts/fleet-reaper-sweep.mjs"],
+      "ship_commit": "f22a86d74",
+      "description": "Layer 1 — reversible RAM/CPU relief on stale-slot processes only: BelowNormal priority + working-set trim (.NET EmptyWorkingSet). Age floor 180s. Audit -> dedicated state/shared/.fleet-reaper-actions.jsonl."
+    },
+    "U-PHASE2-GPU-PROBE": {
+      "status": "completed",
+      "files": ["scripts/fleet-reaper-sweep.mjs"],
+      "ship_commit": "f22a86d74",
+      "description": "Layer 2 — readGpuState (nvidia-smi CSV, fail-soft) + readOllamaState (/api/tags + /api/ps, honors OLLAMA_URL)."
+    },
+    "U-PHASE2-OLLAMA-COORD": {
+      "status": "completed",
+      "files": ["scripts/fleet-reaper-sweep.mjs"],
+      "ship_commit": "f22a86d74",
+      "description": "Layer 3 — decideOllamaCoordination (pure truth table) + prewarmOllama (fire-and-forget) + writeRoutingHint (atomic, TTL'd, neutralizes a stale aggressive hint to mode:auto)."
+    },
+    "U-PHASE2-HINT-CONSUMER": {
+      "status": "completed",
+      "files": [".claude/hooks/ollama-task-offloader.mjs"],
+      "ship_commit": "f22a86d74",
+      "description": "loadRoutingHint reads state/shared/.ollama-routing-hint.json (fixed absolute literal — cross-process contract), applies thresholdDelta clamped to +/-0.30 so more hook-eligible work clears for Ollama."
+    },
+    "U-PHASE2-ALPHA-GUARDIAN": {
+      "status": "completed",
+      "files": [
+        ".claude/hooks/alpha-slot-reaper-guardian.mjs",
+        "knowledge/wiki/architecture/alpha-slot-reaper-guardian.md",
+        "knowledge/memories/feedback/feedback_alpha_owns_reaper.md"
+      ],
+      "ship_commit": "76ff1fe39",
+      "description": "SessionStart + UserPromptSubmit hook. For the alpha chat: ensures the PRISM Fleet Reaper scheduled task is registered + enabled, kicks a throttled detached --once sweep, emits a LOUD advisory on missing/disabled. Every other chat is a silent no-op. Stamp-throttled even under PRISM_ALPHA_GUARDIAN_NO_SWEEP=1. Both per-file reviewers PASS."
+    }
+  },
+  "ship_commits": [
+    "f22a86d74",
+    "ac1b260ae",
+    "76ff1fe39",
+    "4a5adc7f2"
+  ],
+  "follow_ups": [
+    {
+      "id": "FU1",
+      "title": "vitest helper-suite blocked by vite-transform bug",
+      "status": "closed",
+      "closed_in": "4a5adc7f2",
+      "note": "Vite's SSR transform did not strip a line-1 shebang and stranded it mid-file. Removed vestigial shebangs from 3 files + fixed a clampInt null-handling bug surfaced by the now-running tests. Full 137-case suite green."
+    },
+    {
+      "id": "FU2",
+      "title": "Coordinator gating behavior — observed 'below pressure floor' at 98.7% commit",
+      "status": "open",
+      "note": "decideOllamaCoordination gates on mem.usedPct = max(physUsedPct, commitUsedPct). The observed silent-at-98.7%-commit may be a denominator question (TotalVirtualMemorySize) — or it may be resolved by the clampInt fix (was clamping the pressure gate to 1%). Re-observe post-fix to confirm."
+    }
+  ]
+}
