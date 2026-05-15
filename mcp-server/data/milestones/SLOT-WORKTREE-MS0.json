@@ -19,9 +19,10 @@
     "Land the migration tooling (audit-worktrees, cherry-pick-consolidator, slot-worktree-bootstrap) so the drain is repeatable",
     "Fix the root-cause infra bugs surfaced along the way (fake lint-staged config, push_delete guard false-positive)"
   ],
-  "total_units": 14,
+  "total_units": 15,
   "total_units_history": [
-    { "at": "2026-05-14", "total": 14, "note": "envelope created post-hoc; P0 already shipped across 6 units this session, P1-P3 = 8 planned units" }
+    { "at": "2026-05-14", "total": 14, "note": "envelope created post-hoc; P0 already shipped across 6 units this session, P1-P3 = 8 planned units" },
+    { "at": "2026-05-15", "total": 15, "note": "+U-VIZ-WORKTREE-MAP (P2-DRAIN tooling — user-requested worktree→/system-viz visual index)" }
   ],
   "knowledge_sources": [
     "state/shared/SLOT-WORKTREE-ARCHITECTURE.md",
@@ -234,6 +235,18 @@
       "status": "not_started",
       "deliverables": ["WORKTREE-AUDIT-<date>.{md,json} regenerated via audit-worktrees.mjs"]
     },
+    "U-VIZ-WORKTREE-MAP": {
+      "phase": "P2-DRAIN",
+      "title": "Map all git worktrees into /system-viz as a living visual index",
+      "status": "complete",
+      "commits": ["36b353f54"],
+      "deliverables": [
+        "generate-system-viz.mjs emits every worktree as an L9 `worktrees`-subgroup node (wt.root hub + per-tree nodes, verdict-colored, full audit payload), reusing audit-worktrees.mjs as a read-only --json subprocess (no duplicated git logic)",
+        "system-viz-query.mjs `worktrees` subcommand (fleet grouped by verdict, human table + --json) + `headline` now carries worktree counts for build-headline-history trend tracking",
+        "audit-wiki-coverage.mjs whitelists `worktrees` as a structural node kind (no spurious wiki-coverage gap)"
+      ],
+      "note": "User-requested: 'map all git trees to /system-viz so we can keep a better visualize index of it.' 51 worktrees mapped; meta.worktrees summary feeds the headline trend so fleet size is a time series, not a snapshot. Directly supports P2-DRAIN triage (MERGE/PRUNE/INVESTIGATE verdicts are now visible + queryable). Per-file 3-of-3 scrutiny PASS on both source files. Note: system-viz-query.mjs was previously untracked — this commit makes it tracked."
+    },
     "U-P2-DRAIN-BATCH-A": {
       "phase": "P2-DRAIN",
       "title": "Drain INVESTIGATE-classified worktrees (batch A)",
@@ -303,7 +316,8 @@
   },
   "execution_log": [
     { "at": "2026-05-14", "by": "claude-2081f435 (slot charlie)", "event": "P0-FOUNDATION complete — 6 units shipped, envelope created post-hoc" },
-    { "at": "2026-05-14", "by": "claude-2081f435 (slot charlie)", "event": "P1-ROUTING started — U-P1-ROUTE-ACTIVATE complete (e2340001a): worktree-commit-route.mjs env-opt-in gate, default OFF. U-P1-ADD-LANE-GUARD + U-P1-MAINTREE-WRITE-BLOCK pending." }
+    { "at": "2026-05-14", "by": "claude-2081f435 (slot charlie)", "event": "P1-ROUTING started — U-P1-ROUTE-ACTIVATE complete (e2340001a): worktree-commit-route.mjs env-opt-in gate, default OFF. U-P1-ADD-LANE-GUARD + U-P1-MAINTREE-WRITE-BLOCK pending." },
+    { "at": "2026-05-15", "by": "claude-2081f435 (slot charlie)", "event": "U-VIZ-WORKTREE-MAP complete (36b353f54): all 51 git worktrees mapped into /system-viz as L9 `worktrees`-subgroup nodes (verdict-colored, queryable via system-viz-query.mjs worktrees, headline trend). P2-DRAIN triage tooling — user-requested." }
   ],
   "out_of_scope": [
     "Migrating the JM Die test-shop worktrees (separate concern)",
