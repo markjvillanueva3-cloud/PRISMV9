@@ -696,4 +696,32 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     text: z.string().describe("Text to truncate at a word boundary"),
     max_len: z.number().int().positive().max(10000).optional().describe("Max length (default 100)"),
   }).passthrough().describe("Truncate text at the nearest word boundary"),
+
+  // ── OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-PROMPT-TPL ────────────────────────
+  // PromptTemplateEngine — 7 builtin parameterized templates (engine_create,
+  // dispatcher_action, test_suite, hookify_rule, slash_command, commit_message,
+  // speed_feed) across 7 categories (forge, wiring, testing, hooks, skills, git,
+  // manufacturing). Pure functions; no I/O.
+  prompt_template_get: z.object({
+    id: z.string().min(1).max(64).describe("Template id (engine_create, dispatcher_action, test_suite, hookify_rule, slash_command, commit_message, speed_feed)"),
+  }).passthrough().describe("Get a template by id; returns null if not found"),
+
+  prompt_template_fill: z.object({
+    id: z.string().min(1).max(64).describe("Template id"),
+    params: z.record(z.string(), z.string()).describe("Map of {param} placeholders to their replacement values"),
+  }).passthrough().describe("Substitute {params} placeholders in the template body; returns null if id not found"),
+
+  prompt_template_list: z.object({}).passthrough().describe("List all templates as {id, name, category, params}"),
+
+  prompt_template_by_category: z.object({
+    category: z.string().min(1).max(64).describe("Category name (forge, wiring, testing, hooks, skills, git, manufacturing)"),
+  }).passthrough().describe("Filter templates by category"),
+
+  prompt_template_categories: z.object({}).passthrough().describe("List all distinct categories"),
+
+  prompt_template_search: z.object({
+    query: z.string().min(1).max(256).describe("Case-insensitive substring search across name + description + id"),
+  }).passthrough().describe("Keyword search across templates"),
+
+  prompt_template_stats: z.object({}).passthrough().describe("{total, categories, avgTokens}"),
 };

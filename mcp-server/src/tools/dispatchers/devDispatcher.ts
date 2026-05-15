@@ -116,7 +116,16 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "compact_system_line",
 "compact_diff_stat",
 "compact_test_result",
-"compact_truncate"] as const;
+"compact_truncate",
+// OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-PROMPT-TPL: wire PromptTemplateEngine
+// (7 builtin parameterized templates for engine/dispatcher/test/hook/skill/commit/speed-feed).
+"prompt_template_get",
+"prompt_template_fill",
+"prompt_template_list",
+"prompt_template_by_category",
+"prompt_template_categories",
+"prompt_template_search",
+"prompt_template_stats"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -4934,6 +4943,44 @@ export function registerDevDispatcher(server: any): void {
               String(params.text || ""),
               typeof params.max_len === "number" ? params.max_len : 100,
             ) };
+            break;
+          }
+
+          // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-PROMPT-TPL: PromptTemplateEngine wire (2026-05-15)
+          case "prompt_template_get": {
+            const { promptTemplateEngine } = await import("../../engines/PromptTemplateEngine.js");
+            result = { success: true, template: promptTemplateEngine.get(String(params.id)) };
+            break;
+          }
+          case "prompt_template_fill": {
+            const { promptTemplateEngine } = await import("../../engines/PromptTemplateEngine.js");
+            const tplParams = (params.params || {}) as Record<string, string>;
+            result = { success: true, text: promptTemplateEngine.fill(String(params.id), tplParams) };
+            break;
+          }
+          case "prompt_template_list": {
+            const { promptTemplateEngine } = await import("../../engines/PromptTemplateEngine.js");
+            result = { success: true, templates: promptTemplateEngine.list() };
+            break;
+          }
+          case "prompt_template_by_category": {
+            const { promptTemplateEngine } = await import("../../engines/PromptTemplateEngine.js");
+            result = { success: true, templates: promptTemplateEngine.byCategory(String(params.category)) };
+            break;
+          }
+          case "prompt_template_categories": {
+            const { promptTemplateEngine } = await import("../../engines/PromptTemplateEngine.js");
+            result = { success: true, categories: promptTemplateEngine.categories() };
+            break;
+          }
+          case "prompt_template_search": {
+            const { promptTemplateEngine } = await import("../../engines/PromptTemplateEngine.js");
+            result = { success: true, templates: promptTemplateEngine.search(String(params.query)) };
+            break;
+          }
+          case "prompt_template_stats": {
+            const { promptTemplateEngine } = await import("../../engines/PromptTemplateEngine.js");
+            result = { success: true, stats: promptTemplateEngine.getStats() };
             break;
           }
 
