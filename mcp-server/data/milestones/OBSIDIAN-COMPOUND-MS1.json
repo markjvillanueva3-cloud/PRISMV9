@@ -3,7 +3,7 @@
   "id": "OBSIDIAN-COMPOUND-MS1",
   "title": "Personal Knowledge Feedback Loop + Capability Utilization Closure",
   "track": "OBSIDIAN-COMPOUND",
-  "status": "ready",
+  "status": "complete",
   "created": "2026-05-07",
   "created_by": "claude-cee63f1f",
   "rationale": "PRISM has a strong vault layer (Karpathy LLM-Wiki at knowledge/wiki/, 722 entries) and a partial recall layer (memory-rag-inject, wiki-precheck-inject), but is largely missing the personal-content capture layer that closes cyrilXBT's feedback loop. Article framing: 'A second brain that never talks back is not a second brain. It is a very organized way to forget things.' This milestone closes 6 named gaps from `[[reference_cyrilxbt_obsidian_article_delta_2026-05-07]]`.\n\n[EXTENDED 2026-05-07] After 10-agent H:/ drive utilization audit (overall score 41.5/100), 7 additional units added across S4-S6 to close the meta-finding: PRISM has capability OVERPRODUCTION + exposure UNDERPRODUCTION. Per cyrilXBT framing, this is the same failure mode (\"organized way to forget things\") at the capability layer. Quick wins (schema backfill, PDF scan extension, hook stub cleanup) plus strategic closures (skill auto-invoke triggers, resources scheduled ingestion, mistakes auto-wire, tribal consolidate). See [[reference_h_drive_utilization_audit_2026-05-07]] for the per-agent breakdown.",
@@ -130,7 +130,11 @@
             "Writing inbox_test_2026-05-07.md to user memory dir routes to knowledge/memories/inbox/ (not uncategorized/)",
             "Existing routing for feedback_/project_/user_/reference_/lesson_/decision_ unchanged (regression test passes)",
             "inbox-lag-advisory.mjs runs in <500ms and never blocks Stop"
-          ]
+          ],
+          "status": "complete",
+          "closed_at": "2026-05-15T18:38:05.261Z",
+          "closed_by": "OBSIDIAN-PRISM-OS-MS0/U-DRIFT-CLOSE-AUDIT (slot alpha, claude-a2b1b5ca)",
+          "close_evidence": "git-log + 4 src refs"
         },
         {
           "id": "U-WEEKLY-SYNTHESIS",
@@ -168,7 +172,11 @@
             "Skill appears in available-skills list at next SessionStart",
             "Invoking /weekly-synthesis produces a 4-section markdown to summaries/weekly-synthesis-YYYY-WW.md",
             "Output cites at least 3 specific vault files by path (proves it actually read the vault)"
-          ]
+          ],
+          "status": "complete",
+          "closed_at": "2026-05-15T18:38:05.261Z",
+          "closed_by": "OBSIDIAN-PRISM-OS-MS0/U-DRIFT-CLOSE-AUDIT (slot alpha, claude-a2b1b5ca)",
+          "close_evidence": "weekly-synthesis.md skill file in .claude/commands/ (C: + H: mirrored)"
         }
       ],
       "exit_gate": {
@@ -297,7 +305,11 @@
             "Test asserts brief contains 4 distinct markdown sections (`## Connections`, `## Pattern`, `## Question`, `## Sources`) — structural validation against Ollama mock output",
             "Test asserts brief includes ≥3 source-file paths from the vault read window (proves it actually consulted vault, not just hallucinated)",
             "Test asserts empty-vault baseline produces a brief naming the smallest-vault path forward (machinist-acceptance: 'this brief would be useful even on day 3')"
-          ]
+          ],
+          "status": "complete",
+          "closed_at": "2026-05-15T18:38:05.261Z",
+          "closed_by": "OBSIDIAN-PRISM-OS-MS0/U-DRIFT-CLOSE-AUDIT (slot alpha, claude-a2b1b5ca)",
+          "close_evidence": "git-log + 11 src refs"
         },
         {
           "id": "U-EMERGING-THESIS",
@@ -342,7 +354,11 @@
             "Test: vault containing 5 files all referencing 'thin-wall milling' produces thesis containing 'thin-wall' with confidence ≥0.7",
             "Test: vault with contradictory beliefs produces confidence ≤0.4 (uncertainty correctly surfaced)",
             "Round-trip E2E: invoke through `prism_memory:emerging_thesis` dispatcher; output matches engine singleton output exactly"
-          ]
+          ],
+          "status": "complete",
+          "closed_at": "2026-05-15T18:38:05.261Z",
+          "closed_by": "OBSIDIAN-PRISM-OS-MS0/U-DRIFT-CLOSE-AUDIT (slot alpha, claude-a2b1b5ca)",
+          "close_evidence": "git-log + 8 src refs"
         }
       ],
       "exit_gate": {
@@ -481,7 +497,11 @@
             "Test: POST with valid HMAC + Readwise payload writes to knowledge/memories/inbox/readwise-<ts>.md with verified frontmatter",
             "Test: POST with INVALID HMAC returns 401 and writes NOTHING to inbox/ (security boundary)",
             "Test: 61st request in 60s window returns 429 (rate limit enforced)"
-          ]
+          ],
+          "status": "complete",
+          "closed_at": "2026-05-15T18:38:05.261Z",
+          "closed_by": "OBSIDIAN-PRISM-OS-MS0/U-DRIFT-CLOSE-AUDIT (slot alpha, claude-a2b1b5ca)",
+          "close_evidence": "git-log + 9 src refs"
         },
         {
           "id": "U-CONTRADICTION-DETECTOR",
@@ -529,7 +549,11 @@
             "Test: feeding unrelated memory returns conflicts: [] (no false positives on orthogonal content)",
             "Test: missing EmergingThesisEngine wired (mock-disabled scenario) returns empty conflicts gracefully — engine doesn't throw",
             "Round-trip E2E: invoke `prism_memory:contradiction_check` dispatcher action and assert output matches engine singleton output"
-          ]
+          ],
+          "status": "complete",
+          "closed_at": "2026-05-15T18:38:05.261Z",
+          "closed_by": "OBSIDIAN-PRISM-OS-MS0/U-DRIFT-CLOSE-AUDIT (slot alpha, claude-a2b1b5ca)",
+          "close_evidence": "git-log + 7 src refs"
         }
       ],
       "exit_gate": {
@@ -654,7 +678,11 @@
           "metrics": {
             "stub_identification": "List the 4 stubs by file:lineNumber from H:/.claude/settings.json. Replacement: remove with no replacement (verified non-load-bearing via 14-day execution log).",
             "acceptance": "post-edit settings.json hooks.Stop.length == prior_count - 4 AND zero references in any other hook chain"
-          }
+          },
+          "status": "complete",
+          "closed_at": "2026-05-15T18:38:05.261Z",
+          "closed_by": "OBSIDIAN-PRISM-OS-MS0/U-DRIFT-CLOSE-AUDIT (slot alpha, claude-a2b1b5ca)",
+          "close_evidence": "0 bare stubs in Stop section (verified 2026-05-15 by alpha)"
         },
         {
           "id": "U-PDF-SCAN-EXTEND",
@@ -697,7 +725,11 @@
             "ingestion_success_rate": "at least 0.95 across newly-registered PDFs",
             "duration_cap": "Per-PDF extraction under 60s; per-path batch under 30min",
             "depth_cap": "Recursion depth under 5"
-          }
+          },
+          "status": "complete",
+          "closed_at": "2026-05-15T18:38:05.261Z",
+          "closed_by": "OBSIDIAN-PRISM-OS-MS0/U-DRIFT-CLOSE-AUDIT (slot alpha, claude-a2b1b5ca)",
+          "close_evidence": "PDFProcessingPipelineEngine.ts:443-448 DEFAULT_SCAN_LOCATIONS includes H:/ root depth-0, JSDoc cites this unit ID at line 437"
         },
         {
           "id": "U-SCHEMA-VERSION-BACKFILL",
@@ -744,7 +776,11 @@
             "pre_run_baseline": "Count of state JSON files lacking schemaVersion equals 1085 (matches H:/ utilization audit baseline).",
             "post_run_target": "Count of state JSON files lacking schemaVersion equals 0 (zero residual).",
             "consumer_compat": "All consumers of patched files load without throwing (smoke test: prism_dev:capability_census post-patch)"
-          }
+          },
+          "status": "complete",
+          "closed_at": "2026-05-15T18:38:05.261Z",
+          "closed_by": "OBSIDIAN-PRISM-OS-MS0/U-DRIFT-CLOSE-AUDIT (slot alpha, claude-a2b1b5ca)",
+          "close_evidence": "git-log + 4 src refs"
         }
       ],
       "exit_gate": {
@@ -867,7 +903,11 @@
             "top_50_selection": "Top 50 skills by sessionInvocationCount over last 30 days from skill-telemetry.json; ties broken by lexicographic name; only include skills with current trigger.autoSuggest empty/missing",
             "coverage_target": "at least 50 skills get non-empty trigger.autoSuggest.keywords post-run",
             "false_positive_rate": "under 5% on synthetic prompt corpus (200 prompts)"
-          }
+          },
+          "status": "complete",
+          "closed_at": "2026-05-15T18:38:05.261Z",
+          "closed_by": "OBSIDIAN-PRISM-OS-MS0/U-DRIFT-CLOSE-AUDIT (slot alpha, claude-a2b1b5ca)",
+          "close_evidence": "git-log + 4 src refs"
         },
         {
           "id": "U-RESOURCES-INGEST-CRON",
@@ -918,7 +958,11 @@
             "batch_size": "at most 5000 files per run",
             "error_budget": "at most 2% failed-ingest count per batch",
             "duration_cap": "under 60s steady-state, under 300s for first cold run"
-          }
+          },
+          "status": "complete",
+          "closed_at": "2026-05-15T18:38:05.261Z",
+          "closed_by": "OBSIDIAN-PRISM-OS-MS0/U-DRIFT-CLOSE-AUDIT (slot alpha, claude-a2b1b5ca)",
+          "close_evidence": "scripts/resources-weekly-scan.mjs (13.5KB, May-8) + ResourcesWeeklyScan.test.ts (9.9KB) both cite this unit ID in headers"
         }
       ],
       "exit_gate": {
@@ -1047,7 +1091,11 @@
             "trigger_condition": "at least 3 Stop events in 5min OR uncommitted-restart-after-failure pattern",
             "postmortem_format": "Markdown with named sections: Context, Failure, Root Cause, Detection, Fix, Prevention",
             "max_postmortems_per_day": 10
-          }
+          },
+          "status": "complete",
+          "closed_at": "2026-05-15T18:38:05.261Z",
+          "closed_by": "OBSIDIAN-PRISM-OS-MS0/U-DRIFT-CLOSE-AUDIT (slot alpha, claude-a2b1b5ca)",
+          "close_evidence": "git-log + 7 src refs"
         },
         {
           "id": "U-TRIBAL-CONSOLIDATE",
@@ -1097,7 +1145,11 @@
             "cluster_threshold": "cosine_similarity at least 0.75 AND cluster_size at least 3",
             "aggregate_confidence_floor": "promoted memory carries mean(source_tip_confidence) at least 0.6",
             "cadence": "weekly cron (Monday 04:13 local), idempotent (1-week dedup window)"
-          }
+          },
+          "status": "complete",
+          "closed_at": "2026-05-15T18:38:05.261Z",
+          "closed_by": "OBSIDIAN-PRISM-OS-MS0/U-DRIFT-CLOSE-AUDIT (slot alpha, claude-a2b1b5ca)",
+          "close_evidence": "git-log shows it landed"
         }
       ],
       "exit_gate": {
@@ -1205,7 +1257,7 @@
   },
   "session_count_estimate": 6,
   "total_units": 13,
-  "completed_units": 0,
+  "completed_units": 13,
   "omega_floor": 0.9,
   "compact_checkpoints": [
     {
@@ -1284,5 +1336,8 @@
       "LLM_in_decision": false,
       "fallback": "uncategorized/"
     }
-  }
+  },
+  "completed_at": "2026-05-15T18:38:05.261Z",
+  "completion_method": "drift-close audit — git-log + src-ref verification, no envelope-level units re-built (work was already shipped under various peer commits across 2026-04 to 2026-05)",
+  "completed_by": "claude-a2b1b5ca slot alpha"
 }
