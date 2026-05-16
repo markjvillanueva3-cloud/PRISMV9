@@ -216,6 +216,10 @@ const ACTIONS = [
 
   // WIRE-UNWIRED-MS0/U-WIRE-TTW: TurningToolpathWearEngine (LATHE-PRO-MS1/U-LPR12)
   "turning_toolpath_wear",                  // accumulateWear — CSS-aware per-segment wear + interrupted-cut shock + engagement factor
+
+  // WIRE-UNWIRED-MS0/U-WIRE-TRG: TurningRulesGeneratorEngine (LATHE-PRO)
+  "turning_rules_generate",                 // generate — speed/feed/DoC envelope rules per material×tool×machine×op
+  "turning_rules_stats",                    // getStats — supported rule kinds + ISO groups + operations
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1447,6 +1451,36 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "turning_toolpath_wear": {
             const { turningToolpathWearEngine } = await import("../../engines/TurningToolpathWearEngine.js");
             const data = turningToolpathWearEngine.accumulateWear(params as any);
+            result = { success: true, data };
+            break;
+          }
+
+          // WIRE-UNWIRED-MS0/U-WIRE-TRG: TurningRulesGeneratorEngine — 2 surfaces
+          // Generates structured speed/feed/DoC/spindle/chatter envelope rules
+          // parameterized by material × tool × machine × operation. Each rule
+          // carries bounds {min,max,unit,field}, priority 1-10, and a literature
+          // source (Sandvik 2023 / Machinery's Handbook 31e / machine spec).
+          // generate() is conditional: velocity rules need iso_group, feed/DoC
+          // need operation, spindle needs machine_class, chatter needs tool_type
+          // — a context with only `material` legitimately yields zero rules.
+          // getStats() is a zero-arg discovery surface (supported enums).
+          // mergeRuleSets is intentionally NOT wired — it's a composition
+          // helper (caller feeds generate() outputs back); no standalone value
+          // and wiring it would impose a full MachiningRule serialization
+          // contract for no caller. Reference: Sandvik Coromant 2023 turning
+          // tables; Machinery's Handbook 31st Ed.
+          case "turning_rules_generate":
+          case "turning_rules_stats": {
+            const { turningRulesGeneratorEngine } = await import("../../engines/TurningRulesGeneratorEngine.js");
+            let data: unknown;
+            switch (action) {
+              case "turning_rules_generate":
+                data = turningRulesGeneratorEngine.generate(params as any);
+                break;
+              case "turning_rules_stats":
+                data = turningRulesGeneratorEngine.getStats();
+                break;
+            }
             result = { success: true, data };
             break;
           }

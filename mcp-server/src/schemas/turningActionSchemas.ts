@@ -933,6 +933,36 @@ const turning_toolpath_wear = z.object({
   "Per-segment toolpath wear integration (TurningToolpathWearEngine.accumulateWear). Returns segments[] with per-segment wear/Vc/time/life_fraction, total_wear_um (cumulative), total_life_fraction, remaining_life_min, parts_per_edge, hotspot_segment, and exceeds_vb_max boolean (true when cumulative wear breaches VB_max=300µm).",
 );
 
+// ============================================================================
+// WIRE-UNWIRED-MS0/U-WIRE-TRG — TurningRulesGeneratorEngine (LATHE-PRO)
+// Generates structured speed/feed/DoC/spindle/chatter envelope rules. The
+// generate() context is mostly optional: only `material` is required, and
+// each rule family is gated by its own context field (velocity↔iso_group,
+// feed/DoC↔operation, spindle↔machine_class, chatter↔tool_type) — so a
+// material-only context legitimately returns zero rules. getStats() is
+// zero-arg. Reference: Sandvik Coromant 2023; Machinery's Handbook 31e.
+// ============================================================================
+
+const turning_rules_generate = z.object({
+  material: z.string().min(1).describe("Workpiece material name (required) — stamped into rule conditions."),
+  iso_group: z.enum(["P", "M", "K", "N", "S", "H"]).optional()
+    .describe("ISO 513 group — REQUIRED for velocity_envelope rules; omit and Vc rules are skipped."),
+  operation: z.enum([
+    "roughing", "finishing", "threading", "grooving", "parting", "drilling", "boring",
+  ]).optional()
+    .describe("Operation — REQUIRED for feed_envelope + doc_envelope rules; omit and they're skipped."),
+  tool_type: z.string().optional()
+    .describe("Tool type string — REQUIRED for chatter_constraint (L/D); body material inferred from substring (dampened/heavy_metal/carbide/steel)."),
+  machine_class: z.enum(["slant_bed", "vertical", "swiss", "mill_turn"]).optional()
+    .describe("Machine class — REQUIRED for spindle_constraint (RPM cap); omit and it's skipped."),
+}).passthrough().describe(
+  "Generate machining envelope rules (TurningRulesGeneratorEngine.generate). Returns { context, rules[] (each with bounds {min,max,unit,field}, priority 1-10, literature source), generated_at, rule_count_by_kind }. Rule families are gated by their context field — a material-only context yields zero rules by design.",
+);
+
+const turning_rules_stats = z.object({}).passthrough().describe(
+  "Rule-generator capability stats (TurningRulesGeneratorEngine.getStats). Zero-arg. Returns { rule_kinds[], supported_iso_groups[], supported_operations[], rules_generated } — use for UI discovery of valid generate() context values.",
+);
+
 export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   chuck_force,
   tailstock,
@@ -1073,4 +1103,8 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
 
   // WIRE-UNWIRED-MS0/U-WIRE-TTW: TurningToolpathWearEngine — 1 surface
   turning_toolpath_wear,
+
+  // WIRE-UNWIRED-MS0/U-WIRE-TRG: TurningRulesGeneratorEngine — 2 surfaces
+  turning_rules_generate,
+  turning_rules_stats,
 };
