@@ -46,11 +46,11 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { loadGraph } from "./lib/system-viz-graph.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const VIZ_DIR = path.join(ROOT, "state", "shared", "system-viz");
-const GRAPH = path.join(VIZ_DIR, "system-graph.json");
 
 // Tuning constants
 const CONVERGE_MIN = 3;       // distinct sources to qualify a target as a convergence point
@@ -61,7 +61,6 @@ const HIER_EDGE_TYPES = new Set(["contains", "fs"]);  // pure containment — no
 const AGGREGATOR_REGEX = /aggregat|orchestrat|master|fusion|router|bridge|coordinator|consensus|gateway/i;
 const FILE_LAYERS = new Set(["L9", "L10", "L11"]);
 
-function loadGraph() { return JSON.parse(fs.readFileSync(GRAPH, "utf8")); }
 
 function classifyKind(node) {
   if (!node) return "unknown";

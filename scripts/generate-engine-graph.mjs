@@ -19,11 +19,11 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { loadGraph } from "./lib/system-viz-graph.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const VIZ_DIR = path.join(ROOT, "state", "shared", "system-viz");
-const GRAPH = path.join(VIZ_DIR, "system-graph.json");
 const ENGINE_DIR = path.join(ROOT, "mcp-server", "src", "engines");
 
 const MAX_GHOST_PER_ENGINE = 4;     // cap noise: top-K suggested peers per engine
@@ -40,9 +40,6 @@ function listEngines() {
     }));
 }
 
-function loadGraph() {
-  return JSON.parse(fs.readFileSync(GRAPH, "utf8"));
-}
 
 function loadDomainKeys(graph) {
   const rollups = graph.nodes.filter(n =>

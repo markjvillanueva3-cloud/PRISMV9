@@ -22,17 +22,14 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { loadGraph } from "./lib/system-viz-graph.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const VIZ_DIR = path.join(ROOT, "state", "shared", "system-viz");
-const GRAPH = path.join(VIZ_DIR, "system-graph.json");
 const DISP_DIR = path.join(ROOT, "mcp-server", "src", "tools", "dispatchers");
 const ENGINE_DIR = path.join(ROOT, "mcp-server", "src", "engines");
 
-function loadGraph() {
-  return JSON.parse(fs.readFileSync(GRAPH, "utf8"));
-}
 
 function listDispatcherFiles() {
   if (!fs.existsSync(DISP_DIR)) return [];
