@@ -8,7 +8,9 @@
   "track": "RGS",
   "track_name": "Roadmap Guidance System",
   "status": "in_progress",
-  "depends_on": ["RGS-TOOL-AUTOINVOKE-MS0"],
+  "depends_on": [
+    "RGS-TOOL-AUTOINVOKE-MS0"
+  ],
   "phases": [
     {
       "id": "P0",
@@ -48,7 +50,8 @@
           "title": "Nightly cron replan",
           "description": "Windows scheduled task running the planner + Ollama with --time-budget. Without it the sidecar rots; everything downstream depends on live Ollama-synth plans. Pattern: install-fleet-reaper-task.ps1.",
           "effort": 90,
-          "status": "not_started"
+          "status": "complete",
+          "completedAt": "2026-05-16T19:28:27.544Z"
         },
         {
           "id": "U-DOMAIN-RULES",
@@ -103,8 +106,8 @@
   ],
   "sidecar": "state/shared/roadmap-tool-plans.json",
   "wiki": "knowledge/wiki/architecture/rgs-tool-autoinvoke-ms1.md",
-  "completed_units": 1,
+  "completed_units": 2,
   "total_units": 8,
-  "updated_at": "2026-05-16T00:00:00Z",
+  "updated_at": "2026-05-16T19:28:27.544Z",
   "notes": "Core MS0 lesson encoded in U-INTEG-FIX-P0: a 'pure core + injected readers' design MUST ship one real-data E2E test — hermetic fakes do not prove production wiring. Punch list: docs/superpowers/specs/2026-05-16-rgs-tool-autoinvoke-MS1-punchlist.md."
 }

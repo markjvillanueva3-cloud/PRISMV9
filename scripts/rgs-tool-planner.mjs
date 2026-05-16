@@ -13,9 +13,10 @@
  *    for the nightly cron — see .claude/helpers/install-rgs-planner-task.ps1)
  *
  * Exported core (testable):
- *   async function runPlanner({ units, complexityFor, readers,
- *                               sidecarPath, checkpointPath, force, degraded })
- *     → { planned, skipped, degraded, sidecar }
+ *   async function runPlanner({ units, complexityFor, readers, sidecarPath,
+ *                               checkpointPath, force, degraded,
+ *                               timeBudgetMs, nowFn, onFlush })
+ *     → { planned, skipped, deferred, budgetExhausted, degraded, sidecar }
  */
 
 import fs from "node:fs";

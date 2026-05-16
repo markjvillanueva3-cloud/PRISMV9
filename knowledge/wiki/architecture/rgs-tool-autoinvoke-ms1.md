@@ -50,9 +50,20 @@ after the fixes.
 The 6 reader factories in `rgs-tool-planner.mjs` are now `export`ed so the E2E
 test can exercise the real wiring.
 
+## U-CRON (shipped — commit `025d5c248`)
+
+Nightly cron replan so the tool-plan sidecar never rots. `rgs-tool-planner.mjs`
+gained `--time-budget <min>` — caps wall-clock runtime; the loop stops before
+the next unit once the budget is spent, and per-unit checkpointing resumes the
+next night. Wired the previously-dead `onFlush` callback so a long budgeted run
+re-stamps its planner lock on every flush (it would otherwise age past the
+10-min lock and be stolen). `install-rgs-planner-task.ps1` registers the nightly
+Windows scheduled task (default 3:13 AM, `--time-budget 60`), modeled on
+`install-fleet-reaper-task.ps1`. 4 new node:test suites (T8–T11); 92/92 green.
+
 ## P1 backlog (validated by the audit, not yet built)
 
-`U-CRON` (nightly replan) · `U-DOMAIN-RULES` (mill/lathe/wedm/cam/cad pipeline
+`U-DOMAIN-RULES` (mill/lathe/wedm/cam/cad pipeline
 rules + domain skill triggers) · `U-DISPATCHER` (`prism_dev:roadmap_tool_plan_*`)
 · `U-FEEDBACK-FORCING` (pickup composite-key fallback) · `U-RIE-ADAPTER`
 (RoadmapIntelligenceEngine complexity adapter) · `U-CALIBRATION`
