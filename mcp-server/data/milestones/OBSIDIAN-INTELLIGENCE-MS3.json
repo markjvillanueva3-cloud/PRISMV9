@@ -9,7 +9,7 @@
   "track_name": "Obsidian-Intelligence Layer (compound architecture)",
   "status": "in_progress",
   "in_progress_since": "2026-05-15T19:33:00.000Z",
-  "completed_units": 8,
+  "completed_units": 9,
   "partial_ship_units": 1,
   "total_units": 24,
   "first_unit_partial_shipped": "A1 (U-DOCKER-HOOK-BROKER) — 5 artifacts + 15 tests; live-Docker burn-in pending engine restore",
@@ -816,7 +816,36 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "Disable detection; last-writer-wins becomes implicit default"
+          "rollback": "Disable detection; last-writer-wins becomes implicit default",
+          "status": "completed",
+          "completed_at": "2026-05-16T04:47:00.000Z",
+          "owner": "claude-c0f06dee slot charlie",
+          "ship_record": {
+            "shipped_at": "2026-05-16T04:47:00.000Z",
+            "commit": "a6a119663",
+            "artifacts": [
+              "mcp-server/src/engines/MemoryConflictResolverEngine.ts (~710 LOC — pure detectConflict (SHA256+timestamp-window; reasons concurrent|superseded|identical-content|same-author) + side-effecting resolveConflict; ConflictPolicySchema last-writer|first-writer|human-arbitrate w/ deterministic exact-ts agent-id tiebreak; append-only <key>.diff.md serialized by token-stamped advisory lockfile (atomic renameSync steal, token-checked release); lock-timeout never drops the record — spills to unique <key>.diff.locktimeout-* (degraded:true); frozen singleton)",
+              "mcp-server/src/__tests__/MemoryConflictResolverEngine.test.ts (50 hermetic vitest cases — 50/50 PASS)",
+              "mcp-server/src/tools/dispatchers/sessionDispatcher.ts (MODIFIED — prism_session:memory_conflict_resolve action enum + lazy-import case)",
+              "mcp-server/src/schemas/sessionActionSchemas.ts (MODIFIED — memory_conflict_resolve .strict() schema, existing/incoming shapes match MemoryWriteSchema)"
+            ],
+            "exit_conditions_met": [
+              "detectConflict detects concurrent writes via SHA256 + timestamp window (reason concurrent within window, superseded beyond — both persisted per the data-loss invariant)",
+              "Conflict policies enum: last-writer | first-writer | human-arbitrate (ConflictPolicySchema)",
+              "On conflict: writes knowledge/memories/conflicts/<key>.diff.md with both full versions + policy-selected winner (append-only sections)",
+              "Test: simulated 2-chat race produces conflict file + correct winner (50/50 vitest PASS incl. the named race exit-condition test)",
+              "Semantic-vs-file-level distinction documented in-engine (commit-ownership-guard is a file/git lock; this is a post-hoc semantic reconciliation layer) — clarification resolved in-doc rather than blocking the autonomous loop"
+            ],
+            "scrutiny": "Per-file 2-arm gate: engine 2/2 + test 2/2 + wiring 2/2 PASS across 4 rounds (P0 data-loss-on-lock-timeout, P0 spoofable-section-counter, P1 read-modify-write clobber, P1 wrong-owner lock release — all fixed at the gates). End-of-task 3-of-3: arms A+B+C all PASS at session claude-c0f06dee (commit a6a119663).",
+            "deferred": [
+              "P2: dispatcher echoes winner.content (up to 5MB) — consider returning hash+role instead",
+              "P2: spill-path containment re-check parity with the canonical path (safe by construction today)",
+              "P2: dispatcherError leaks host path via err.stack on a genuine fs error (pre-existing dispatcher behavior, not D3-introduced)",
+              "P2: no dispatcher-level E2E round-trip test for memory_conflict_resolve (engine fully covered; wiring mechanically simple)",
+              "follow-up: a reconcile cron/skill to fold *.diff.locktimeout-* spill files + *.lock.stale-* husks back into <key>.diff.md",
+              "follow-up: a PostToolUse memory-mirror-race hook calling resolveConflict (the engine write-path consumer — out of D3 scope)"
+            ]
+          }
         },
         {
           "id": "D4",
