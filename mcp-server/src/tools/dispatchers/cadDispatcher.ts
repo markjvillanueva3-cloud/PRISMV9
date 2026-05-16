@@ -244,6 +244,7 @@ const ACTIONS = [
   "cad_gdt_stackup",            // GDTStackupEngine — stackup compute with tolerances
   "cad_tolerance_apply",        // ToleranceAwareGenerationEngine — apply tolerances to ops
   "cad_pdf_blueprint_extract",  // PDFBlueprintDimensionExtractor — PDF text → dim list
+  "cad_pdf_pattern_rescue_extract", // PDFBlueprintPatternRescueEngine — MS1-U2 rescue: fractional/limit/N-grade/microinch patterns
   "cad_dimensional_signature",  // DimensionalSignatureEngine — STEP text → dim signature
   "cad_machine_type_classify",  // MachineTypeClassifierEngine — print/CAD → machine type
   "cad_pattern_database",       // PatternDatabaseEngine — surface training patterns
@@ -2288,10 +2289,38 @@ Params vary by action — pass relevant fields in params object.`,
               );
             }
             const { pdfBlueprintDimensionExtractorEngine } = await import("../../engines/PDFBlueprintDimensionExtractorEngine.js");
+            const { pdfBlueprintPatternRescueEngine } = await import("../../engines/PDFBlueprintPatternRescueEngine.js");
             const drawing_units = params.drawing_units === "inch" ? "inch" : "mm";
-            const data = pdfBlueprintDimensionExtractorEngine.extractDimensions({
+            const base = pdfBlueprintDimensionExtractorEngine.extractDimensions({
               text_content: params.text_content,
               drawing_units,
+            });
+            // MS1-U2 rescue: compose additive patterns (fractional dims, limit-pair
+            // dims, ISO 1302 N-grade Ra, standalone microinch). Result shape grows;
+            // existing consumers see strictly more entries, never fewer.
+            const rescue = pdfBlueprintPatternRescueEngine.extract({
+              text_content: params.text_content,
+              default_unit: drawing_units,
+            });
+            const data = {
+              ...base,
+              dimensions: [...base.dimensions, ...rescue.dimensions],
+              surface_finishes: [...base.surface_finishes, ...rescue.surface_finishes],
+              rescue_counts: rescue.rescue_counts,
+            };
+            result = { success: true, data };
+            break;
+          }
+          case "cad_pdf_pattern_rescue_extract": {
+            if (typeof params.text_content !== "string") {
+              return dispatcherError(
+                new Error("cad_pdf_pattern_rescue_extract requires text_content: string"),
+                action, "prism_cad",
+              );
+            }
+            const { pdfBlueprintPatternRescueEngine } = await import("../../engines/PDFBlueprintPatternRescueEngine.js");
+            const data = pdfBlueprintPatternRescueEngine.extract({
+              text_content: params.text_content,
             });
             result = { success: true, data };
             break;

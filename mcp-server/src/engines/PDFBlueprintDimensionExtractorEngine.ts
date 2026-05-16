@@ -5,7 +5,13 @@
  * specifications, and part info from text-based PDF blueprint content.
  * Uses regex pattern matching for manufacturing drawing conventions.
  *
- * Actions: pdf_extract_dimensions
+ * Actions: cad_pdf_blueprint_extract (via cadDispatcher)
+ *
+ * Sister engine for the BLUEPRINT-OCR-TRAINING-MS1 / U2 rescue: see
+ * PDFBlueprintPatternRescueEngine.ts — the v8.89.002 PRISM_OCR_ENGINE.js
+ * monolith fork is rescued there as additive pattern extractors (fractional
+ * dims, limit-pair dims, ISO 1302 N-grade Ra, standalone microinch) without
+ * editing this engine's existing extraction paths.
  */
 
 // ============================================================================
