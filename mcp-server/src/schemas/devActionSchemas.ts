@@ -1052,4 +1052,11 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
       limit: z.number().int().positive().optional(),
     }).passthrough().optional().describe("Ranking options"),
   }).passthrough().describe("Rank backlog units by Ψ-delta per estimated hour"),
+
+  // ── OBSIDIAN-INTELLIGENCE-MS3/F2: PDFHighlightExtractorEngine wiring ──────
+  // /pdf-learn --highlights-only mode — extract ONLY user-authored /Highlight
+  // annotations from a PDF (90%+ ingest-noise reduction vs full-body extract).
+  pdf_highlights_extract: z.object({
+    pdf_path: z.string().min(1).describe("Absolute or relative path to the .pdf file to extract /Highlight annotations from"),
+  }).passthrough().describe("Extract only /Highlight subtype annotations from a PDF (F2 --highlights-only mode)"),
 };
