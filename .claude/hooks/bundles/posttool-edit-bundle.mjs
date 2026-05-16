@@ -43,8 +43,11 @@ const SUB_HOOKS = [
   { path: `${HOOK_BASE}/c-to-h-mirror.mjs`,                     timeout: 3000 },
   { path: `${HOOK_BASE}/edit-multiedit-suggest.mjs`,            timeout: 2000 },
   { path: `${HOOK_BASE}/auto-lint-post-edit.mjs`,               timeout: 1500 }, // detached eslint --fix; returns ~10ms (set PRISM_LINT_INLINE=1 for the old blocking behavior + bump this)
-  { path: `${HOOK_BASE}/build-cache-manager.mjs`,               timeout: 3000 },
-  { path: `${HOOK_BASE}/build-tracker.mjs`,                     timeout: 2000 },
+  // build-cache-manager.mjs + build-tracker.mjs intentionally NOT bundled here:
+  // both live in .claude/helpers/ (not hooks/) and already fire correctly via
+  // settings.json's literal helpers/ path (lines ~999/1004). The prior
+  // ${HOOK_BASE}/ refs resolved to .claude/hooks/ → ENOENT (dead) AND were
+  // redundant double-wires. Removed 2026-05-16 (AAM04 scope-mismatch audit).
   { path: `${HOOK_BASE}/dispatcher-import-validator.mjs`,       timeout: 3000 },
   { path: `${HOOK_BASE}/jm-die-provenance-guard.mjs`,           timeout: 3000 },
   { path: `${HOOK_BASE}/ingestion-cache-root-guard.mjs`,        timeout: 3000 },
