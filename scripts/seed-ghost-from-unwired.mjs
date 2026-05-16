@@ -27,6 +27,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { buildEngineDispatcherMap, inferDispatcherBySibling } from "./lib/wired-engine-mapper.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -91,21 +92,27 @@ export function splitCamelCase(s) {
     .replace(/-/g, " ");                         // kebab-case → space
 }
 
-export function inferDispatcher(engineName) {
+export function inferDispatcher(engineName, opts = {}) {
   if (typeof engineName !== "string" || engineName.length === 0) {
     return { dispatcher: "UNKNOWN", confidence: 0, reason: "empty/invalid name" };
   }
   const tokenized = splitCamelCase(engineName);
   const flat = engineName.toLowerCase();
   for (const rule of DISPATCHER_INFERENCE_RULES) {
-    // Match against both the space-split form (word-boundaries) AND the lowercased
-    // raw name as a flat substring search (catches "gcode" inside "GCodeEngine").
-    // The flat-substring pass uses the pattern source string directly.
     if (rule.pattern.test(tokenized) || rule.pattern.test(flat) || rule.pattern.test(engineName)) {
       return { dispatcher: rule.dispatcher, confidence: rule.confidence, reason: rule.reason };
     }
   }
-  return { dispatcher: "UNKNOWN", confidence: 0, reason: "no keyword match — manual review needed" };
+  // Keyword inference exhausted → fall back to sibling-prefix inference when
+  // a wired-engine map is supplied. This closes the UNKNOWN tail for engines
+  // whose name has no domain keyword but whose prefix matches existing wired
+  // engines (e.g. "AtomicWritesEngine" → siblings "AtomicMultiFileWriteEngine"
+  // → already wired to prism_dev).
+  if (opts.wiredMap) {
+    const sib = inferDispatcherBySibling(engineName, opts.wiredMap);
+    if (sib) return sib;
+  }
+  return { dispatcher: "UNKNOWN", confidence: 0, reason: "no keyword match + no sibling — manual review needed" };
 }
 
 /**
@@ -152,8 +159,8 @@ export function listUnwiredEngines(enginesDir, dispatchersDir, opts = {}) {
  * Build a ghost node (+ optional edge) for a single unwired engine.
  * Returns { node, edge | null }. Node always emitted; edge only if confidence >= MIN_CONFIDENCE.
  */
-export function buildGhostFromUnwired(engine) {
-  const inf = inferDispatcher(engine.name);
+export function buildGhostFromUnwired(engine, opts = {}) {
+  const inf = inferDispatcher(engine.name, opts);
   const node = {
     id: `ghost.unwired.${engine.name}`,
     layer: "L13",
@@ -237,12 +244,16 @@ export function main() {
   const unwired = listUnwiredEngines(ENGINES_DIR, DISPATCHERS_DIR, { limit: opts.limit });
   console.log(`Found ${unwired.length} unwired engines`);
 
+  // Build wired-engine→dispatcher map ONCE for sibling-inference fallback.
+  const wiredMap = buildEngineDispatcherMap(DISPATCHERS_DIR);
+  console.log(`Wired-engine map built — ${wiredMap.size} engines have known dispatcher refs`);
+
   const byConfidence = { high: 0, medium: 0, low: 0, none: 0 };
   const byDispatcher = {};
   const nodes = [];
   const edges = [];
   for (const e of unwired) {
-    const { node, edge } = buildGhostFromUnwired(e);
+    const { node, edge } = buildGhostFromUnwired(e, { wiredMap });
     nodes.push(node);
     if (edge) edges.push(edge);
     if (node.confidence >= 0.8) byConfidence.high++;
