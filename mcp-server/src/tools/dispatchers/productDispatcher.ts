@@ -177,6 +177,10 @@ function productExtractKeyValues(action: string, result: any): Record<string, an
       return { fastest: result.fastest_machine, slowest: result.slowest_machine, spread_sec: result.time_spread_seconds, machines: result.machines?.length };
     case "ppg_feature_select":
       return { features: result.selected_features?.length, confidence: result.confidence, cycle_time_pct: result.estimated_improvement?.cycle_time_pct, safety: result.estimated_improvement?.safety_score };
+    case "ppg_check_tier":
+      return { target: result.action, required_tier: result.required_tier, user_tier: result.user_tier, allowed: result.allowed };
+    case "ppg_list_features":
+      return { tiers: Object.keys(result.tiers ?? {}).length };
     // Shop Manager
     case "shop_job":
       return { material: result.material, operations: result.operations?.length, cycle_time_min: result.total_cycle_time_min };
