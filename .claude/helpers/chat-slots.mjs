@@ -847,8 +847,11 @@ if (__cliArgv1Basename && import.meta.url.endsWith(__cliArgv1Basename)) {
           // so the window-pin moves with explicit slot changes (e.g.
           // /checkin-<slot> doesn't lose the window<->slot binding after a
           // force-take). Fail-soft: pinning is best-effort.
+          // Thread sessionId so resolveTerminalWindowId's per-session cache
+          // actually hits — without it every CLI claim pays a cold subprocess
+          // walk (Arm C scrutiny finding, 2026-05-16).
           terminalWindowId: flags.terminalWindowId ?? (() => {
-            try { return resolveTerminalWindowId(); } catch { return null; }
+            try { return resolveTerminalWindowId({ sessionId: flags.chatId }); } catch { return null; }
           })(),
         });
         break;
