@@ -378,4 +378,19 @@ export const ACTION_ORCHESTRATION_SCHEMAS: ActionSchemaMap = {
     force_backend: z.enum(["ollama", "anthropic", "openai"]).optional().describe("Override backend selection"),
     force_model: z.string().optional().describe("Override model id"),
   }).passthrough(),
+
+  // ── WIRE-UNWIRED-MS0/U-WIRE02: AgentRegistryEngine — recommend Task-tool agents ──
+  agent_recommend: z.object({
+    prompt: z.string().min(1).describe("Task description to match Task-tool agents against"),
+    agents: z.array(z.object({
+      name: z.string().min(1),
+      category: z.string().min(1),
+      description: z.string().min(1),
+      triggers: z.array(z.string().min(1)).min(1),
+      costTier: z.enum(["low", "medium", "high"]),
+      exampleInvocations: z.array(z.string()).optional(),
+    })).optional().describe("Optional inline agent catalog; defaults to data/state/AGENT_REGISTRY.json"),
+    registryFile: z.string().optional().describe("Optional absolute path to an agent registry JSON file"),
+    limit: z.number().int().positive().max(50).optional().describe("Max matches to return (default 3)"),
+  }).passthrough().describe("Recommend Task-tool agents for a prompt by keyword-trigger match"),
 };

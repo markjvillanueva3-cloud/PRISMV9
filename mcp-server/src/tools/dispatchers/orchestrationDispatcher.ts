@@ -40,6 +40,8 @@ import * as TaskClaimService from "../../services/TaskClaimService.js";
 import { agentRegistry } from "../../registries/AgentRegistry.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { classifyTask } from "../../engines/TaskAgentClassifier.js";
+import * as path from "path";
+import { PATHS } from "../../constants.js";
 
 const ACTIONS = [
   "agent_execute", "agent_parallel", "agent_pipeline",
@@ -67,7 +69,9 @@ const ACTIONS = [
   "cognitive_neural_synthesize",
   "cognitive_neural_list_weights",
   "cognitive_meta_orchestrate",
-  "cognitive_neural_comprehensive_predict"
+  "cognitive_neural_comprehensive_predict",
+  // WIRE-UNWIRED-MS0/U-WIRE02: AgentRegistryEngine — recommend Task-tool agents for a prompt.
+  "agent_recommend"
 ] as const;
 
 function ok(data: any) {
@@ -859,6 +863,40 @@ export function registerOrchestrationDispatcher(server: any): void {
             } catch (e: any) {
               return ok({ decision: { ok: false, backend: null, model: null, rationale: "router exception", fallbacks: [], error: e?.message ?? "route failed" } });
             }
+          }
+
+          // WIRE-UNWIRED-MS0/U-WIRE02: AgentRegistryEngine — recommend Task-tool
+          // agents for a prompt by keyword-trigger match. Fresh instance per call;
+          // loads the 134-agent catalog from data/state/AGENT_REGISTRY.json unless
+          // an inline `agents` catalog (or a `registryFile` path) is supplied.
+          case "agent_recommend": {
+            const { AgentRegistryEngine } = await import("../../engines/AgentRegistryEngine.js");
+            const p = params as Record<string, unknown>;
+            const prompt = typeof p.prompt === "string" ? p.prompt.trim() : "";
+            if (!prompt) return ok({ error: "agent_recommend requires a non-empty 'prompt'" });
+            const engine = new AgentRegistryEngine();
+            try {
+              const inline = p.agents;
+              if (Array.isArray(inline) && inline.length > 0) {
+                engine.registerAll(inline as Parameters<typeof engine.registerAll>[0]);
+              } else {
+                const file = typeof p.registryFile === "string" && p.registryFile.trim()
+                  ? p.registryFile
+                  : path.join(PATHS.MCP_SERVER, "data", "state", "AGENT_REGISTRY.json");
+                engine.loadFromRegistryFile(file);
+              }
+            } catch (e: any) {
+              return ok({ error: `agent_recommend: failed to load agent catalog — ${e?.message ?? String(e)}` });
+            }
+            const limit = typeof p.limit === "number" && p.limit > 0 ? Math.floor(p.limit) : 3;
+            const matches = engine.match(prompt, limit);
+            return ok({
+              success: true,
+              prompt,
+              totalAgents: engine.size(),
+              matchCount: matches.length,
+              matches,
+            });
           }
 
           default: return ok({ error: `Unknown action: ${action}`, available: ACTIONS });
