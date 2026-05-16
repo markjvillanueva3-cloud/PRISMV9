@@ -123,20 +123,30 @@ class BarStockCutPlanEngineImpl {
         unfulfilled.push({ requirement_id: p.reqId, shortage: p.lengthWithAllowance });
         continue;
       }
+      // Alias to narrowed locals — TS can't track barInFlight across the
+      // openNewBar() closure call (closure has an early-return path), so the
+      // re-narrowed type collapses to `never` without explicit aliasing.
+      // Mutations on `flight` still propagate via shared reference.
+      let flight: CutAssignment = barInFlight;
+      let bar: BarStockOption = currentBar;
+
       // Need part + kerf if not first on bar. Only the part itself
       // counts as "used"; kerf is waste that reduces availableOnBar.
-      const kerfPrefix = barInFlight.cuts.length > 0 ? kerf : 0;
+      const kerfPrefix = flight.cuts.length > 0 ? kerf : 0;
       const need = p.lengthWithAllowance + kerfPrefix;
       if (need > availableOnBar) {
         // close current bar, open new
-        barInFlight.remnant_mm = availableOnBar;
-        barInFlight.utilization_pct = round1((barInFlight.used_mm / currentBar.length_mm) * 100);
-        assignments.push(barInFlight);
+        flight.remnant_mm = availableOnBar;
+        flight.utilization_pct = round1((flight.used_mm / bar.length_mm) * 100);
+        assignments.push(flight);
         openNewBar();
         if (!currentBar || !barInFlight) {
           unfulfilled.push({ requirement_id: p.reqId, shortage: p.lengthWithAllowance });
           continue;
         }
+        // Re-alias after openNewBar mutated the outer refs
+        flight = barInFlight;
+        bar = currentBar;
         // Retry on fresh bar (no kerf prefix)
         if (p.lengthWithAllowance > availableOnBar) {
           unfulfilled.push({
@@ -145,22 +155,24 @@ class BarStockCutPlanEngineImpl {
           });
           continue;
         }
-        barInFlight.used_mm += p.lengthWithAllowance;
+        flight.used_mm += p.lengthWithAllowance;
         availableOnBar -= p.lengthWithAllowance;
       } else {
-        barInFlight.used_mm += p.lengthWithAllowance;
+        flight.used_mm += p.lengthWithAllowance;
         availableOnBar -= need;
       }
       // Increment cut count
-      const existing = barInFlight.cuts.find((c: any) => c.requirement_id === p.reqId);
+      const existing = flight.cuts.find((c) => c.requirement_id === p.reqId);
       if (existing) existing.count++;
-      else barInFlight.cuts.push({ requirement_id: p.reqId, count: 1 });
+      else flight.cuts.push({ requirement_id: p.reqId, count: 1 });
     }
 
     if (barInFlight && currentBar) {
-      barInFlight.remnant_mm = availableOnBar;
-      barInFlight.utilization_pct = round1((barInFlight.used_mm / currentBar.length_mm) * 100);
-      assignments.push(barInFlight);
+      const flight: CutAssignment = barInFlight;
+      const bar: BarStockOption = currentBar;
+      flight.remnant_mm = availableOnBar;
+      flight.utilization_pct = round1((flight.used_mm / bar.length_mm) * 100);
+      assignments.push(flight);
     }
 
     // Build summary
