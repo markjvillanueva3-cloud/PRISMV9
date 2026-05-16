@@ -222,6 +222,9 @@ const ACTIONS = [
   "cad_corpus_learn_prevalence", "cad_corpus_apply_learned",
   "cad_step_parse_file", "cad_step_parse_string", "cad_step_evidence_for_kinds",
   "cad_blueprint_infer_class", "cad_blueprint_flag_features",
+  // BLUEPRINT-OCR-TRAINING-MS1/U-MS1-U3 — ground-truth registry blueprint join
+  "gt_blueprint_register", "gt_blueprint_join_docustrata", "gt_enumerate_by_tier",
+  "gt_flag_ambiguities", "gt_training_pairs_by_customer",
   "cad_harvest_catalog", "cad_harvest_paired_sources", "cad_harvest_can_redistribute",
   // CAD-FUSION-LIVE-MS0 PHASE18: 6-CAD execution router (SW/Inv/MC/HyperCAD/Fusion/Esprit unifier)
   "cad_route_detect_system", "cad_route_supported_systems", "cad_route_plan_execution",
@@ -2434,6 +2437,77 @@ Params vary by action — pass relevant fields in params object.`,
             }
             const { blueprintToCADGenerationEngine } = await import("../../engines/BlueprintToCADGenerationEngine.js");
             const data = blueprintToCADGenerationEngine.extractFeatures(ocr as Parameters<typeof blueprintToCADGenerationEngine.extractFeatures>[0]);
+            result = { success: true, data, count: data.length };
+            break;
+          }
+          // BLUEPRINT-OCR-TRAINING-MS1/U-MS1-U3 — ground-truth registry blueprint join
+          case "gt_blueprint_register": {
+            if (
+              !params.pdfPath ||
+              typeof params.page !== "number" ||
+              !params.region ||
+              !params.extractionType ||
+              !params.value ||
+              !params.confidenceTier ||
+              !params.sourceProvenance
+            ) {
+              return dispatcherError(
+                new Error("gt_blueprint_register requires pdfPath, page, region, extractionType, value, confidenceTier, sourceProvenance"),
+                action, "prism_cad",
+              );
+            }
+            const { groundTruthRegistryEngine } = await import("../../engines/GroundTruthRegistryEngine.js");
+            const data = groundTruthRegistryEngine.registerBlueprintExtraction(
+              params as Parameters<typeof groundTruthRegistryEngine.registerBlueprintExtraction>[0],
+            );
+            result = { success: true, data };
+            break;
+          }
+          case "gt_blueprint_join_docustrata": {
+            if (!params.rootDir || !params.indexPath) {
+              return dispatcherError(
+                new Error("gt_blueprint_join_docustrata requires rootDir + indexPath"),
+                action, "prism_cad",
+              );
+            }
+            const { groundTruthRegistryEngine } = await import("../../engines/GroundTruthRegistryEngine.js");
+            const data = groundTruthRegistryEngine.joinDocustrataToPartLibrary(
+              params as Parameters<typeof groundTruthRegistryEngine.joinDocustrataToPartLibrary>[0],
+            );
+            result = { success: true, data };
+            break;
+          }
+          case "gt_enumerate_by_tier": {
+            if (!params.tier) {
+              return dispatcherError(
+                new Error("gt_enumerate_by_tier requires tier"),
+                action, "prism_cad",
+              );
+            }
+            const { groundTruthRegistryEngine } = await import("../../engines/GroundTruthRegistryEngine.js");
+            const data = groundTruthRegistryEngine.enumerateByConfidenceTier(
+              params as Parameters<typeof groundTruthRegistryEngine.enumerateByConfidenceTier>[0],
+            );
+            result = { success: true, data, count: data.length };
+            break;
+          }
+          case "gt_flag_ambiguities": {
+            const { groundTruthRegistryEngine } = await import("../../engines/GroundTruthRegistryEngine.js");
+            const data = groundTruthRegistryEngine.flagAmbiguities();
+            result = { success: true, data, count: data.length };
+            break;
+          }
+          case "gt_training_pairs_by_customer": {
+            if (!params.customer || typeof params.customer !== "string") {
+              return dispatcherError(
+                new Error("gt_training_pairs_by_customer requires customer"),
+                action, "prism_cad",
+              );
+            }
+            const { groundTruthRegistryEngine } = await import("../../engines/GroundTruthRegistryEngine.js");
+            const data = groundTruthRegistryEngine.getTrainingPairsByCustomer(
+              params as Parameters<typeof groundTruthRegistryEngine.getTrainingPairsByCustomer>[0],
+            );
             result = { success: true, data, count: data.length };
             break;
           }
