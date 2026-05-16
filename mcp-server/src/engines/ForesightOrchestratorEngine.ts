@@ -87,13 +87,20 @@ export class ForesightOrchestratorEngine {
       } catch { /* best-effort */ }
     }
 
+    // Build sections for ProgressiveDisclosure — every section needs `title` +
+    // `tokens` (rough char/4 estimate) per ForesightSection contract.
+    const verdictBody = `verdict=${verdict}`;
+    const riskBody = JSON.stringify(risk ?? {});
+    const gapBody = JSON.stringify(knowledgeGap ?? {});
+    const budgetBody = JSON.stringify(contextBudget ?? {});
+    const estTokens = (s: string): number => Math.ceil(s.length / 4);
     const disclosed = this.safeCall(() =>
       progressiveDisclosureEngine.disclose({
         sections: [
-          { key: "verdict", severity: severity === "block" ? 5 : severity === "warn" ? 3 : 1, body: `verdict=${verdict}` },
-          { key: "risk", severity: 3, body: JSON.stringify(risk ?? {}) },
-          { key: "knowledgeGap", severity: 2, body: JSON.stringify(knowledgeGap ?? {}) },
-          { key: "contextBudget", severity: 4, body: JSON.stringify(contextBudget ?? {}) },
+          { key: "verdict", title: "Verdict", tokens: estTokens(verdictBody), severity: severity === "block" ? 5 : severity === "warn" ? 3 : 1, body: verdictBody },
+          { key: "risk", title: "Failure Risk", tokens: estTokens(riskBody), severity: 3, body: riskBody },
+          { key: "knowledgeGap", title: "Knowledge Gap", tokens: estTokens(gapBody), severity: 2, body: gapBody },
+          { key: "contextBudget", title: "Context Budget", tokens: estTokens(budgetBody), severity: 4, body: budgetBody },
         ],
       }),
     );
@@ -109,7 +116,11 @@ export class ForesightOrchestratorEngine {
     if (warnCount >= 2) score = "warn";
     const gapRec = knowledgeGap as { topRelevance?: number } | undefined;
     if (gapRec && typeof gapRec.topRelevance === "number" && gapRec.topRelevance < 0.5) {
-      score = score === "block" ? "block" : "warn";
+      // At this point in the flow, score is "ok" or "warn" only — block isn't
+      // assignable until L116 below. Original ternary `score === "block" ?
+      // "block" : "warn"` was unreachable (TS2367). Direct assign to "warn"
+      // preserves intent (escalate on low relevance, don't downgrade).
+      score = "warn";
     }
     const ctxRec = contextBudget as { recommendation?: string } | undefined;
     if (ctxRec?.recommendation === "handoff_now" || ctxRec?.recommendation === "compact_now") {
