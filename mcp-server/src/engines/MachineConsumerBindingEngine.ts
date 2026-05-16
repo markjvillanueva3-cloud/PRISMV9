@@ -230,45 +230,62 @@ class MachineConsumerBindingEngine {
       const spindleId = profile.selectedSpindlePackageId || "standard";
       const spindlePkg = machineCapabilitySurfaceEngine.getSpindlePackage(spindleId);
 
+      // Resolve identity + kinematics from the merged view. The overlay
+      // (UserMachineProfileOverlay) carries option selections + the
+      // capability snapshot; the shop machine carries physical config
+      // (envelope, rates, axis capabilities).
+      const shopMachine = mergedView.shop_machine;
+      const snapshot = profile.machine;
+      const axisCount = shopMachine.capabilities.includes("5axis")
+        ? 5
+        : shopMachine.capabilities.includes("4axis")
+          ? 4
+          : 3;
+      const axes =
+        axisCount >= 5
+          ? ["X", "Y", "Z", "A", "C"]
+          : axisCount === 4
+            ? ["X", "Y", "Z", "A"]
+            : ["X", "Y", "Z"];
+
       // Build the bound context
       const context: BoundMachineContext = {
         shop_machine_id,
-        display_name: mergedView.shop_machine.display_name || shop_machine_id,
-        machine_type: profile.machine_type || "mill",
-        manufacturer: profile.manufacturer || "Unknown",
-        model: profile.model || "Unknown",
+        display_name: shopMachine.name || shop_machine_id,
+        machine_type: shopMachine.type || "mill",
+        manufacturer: snapshot.manufacturerLabel || "Unknown",
+        model: snapshot.modelLabel || "Unknown",
         controller: {
           id: controllerId,
-          family: controllerCaps?.family || controllerId,
-          capabilities: controllerCaps?.capabilities || [],
+          family: controllerCaps?.controllerFamily || controllerId,
+          capabilities: controllerCaps?.cannedCycles || [],
         },
         spindle: {
           id: spindleId,
-          max_rpm: spindlePkg?.max_rpm || profile.max_spindle_rpm || 10000,
-          max_power_kw: spindlePkg?.power_kw || profile.max_power_kw || 15,
-          torque_nm: spindlePkg?.torque_nm || 50,
+          max_rpm: spindlePkg?.maxRpm || shopMachine.max_rpm || 10000,
+          max_power_kw: spindlePkg?.ratedPower || shopMachine.max_power_kw || 15,
+          torque_nm: spindlePkg?.continuousTorque || shopMachine.max_torque_nm || 50,
         },
         coolant: {
           enabled_strategies: profile.enabledCoolantStrategyIds || ["flood"],
           primary_type: profile.enabledCoolantStrategyIds?.[0] || "flood",
         },
         envelope: {
-          x_mm: profile.work_envelope?.x_mm || 500,
-          y_mm: profile.work_envelope?.y_mm || 400,
-          z_mm: profile.work_envelope?.z_mm || 400,
-          table_load_kg: profile.work_envelope?.table_load_kg,
+          x_mm: shopMachine.work_envelope?.x_mm || 500,
+          y_mm: 400,
+          z_mm: shopMachine.work_envelope?.z_mm || 400,
         },
         kinematics: {
-          axis_count: profile.axis_count || 3,
-          axes: profile.axes || ["X", "Y", "Z"],
-          has_rotary: (profile.axis_count || 3) > 3,
-          rotary_axes: profile.rotary_axes,
+          axis_count: axisCount,
+          axes,
+          has_rotary: axisCount > 3,
+          rotary_axes: axisCount > 3 ? axes.slice(3) : undefined,
         },
-        machine_rate_per_hour: profile.hourly_rate || 85,
+        machine_rate_per_hour: shopMachine.hourly_rate || 85,
         provenance: {
-          canonical_package_id: mergedView.canonical_package_id,
-          overlay_id: mergedView.overlay_id,
-          confidence: profile.confidence || 0.85,
+          canonical_package_id: mergedView.canonical_package?.canonical_id,
+          overlay_id: mergedView.overlay?.overlay_id,
+          confidence: 0.85,
           last_validated: new Date().toISOString(),
         },
       };
@@ -402,7 +419,7 @@ class MachineConsumerBindingEngine {
       const mergedView = shopMachineOverlayEngine.getMergedView(machine.id);
       result.push({
         shop_machine_id: machine.id,
-        display_name: mergedView?.shop_machine.display_name || machine.name || machine.id,
+        display_name: mergedView?.shop_machine.name || machine.name || machine.id,
         bound: this.bindingCache.has(machine.id),
       });
     }
