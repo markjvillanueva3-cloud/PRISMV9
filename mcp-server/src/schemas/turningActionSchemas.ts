@@ -681,6 +681,87 @@ const lathe_partoff_safety_gate = z.object({
   "Parting-off safety gate (LathePartoffSafetyRailEngine.evaluate). Returns passed + gates[] + violations[] + advisories[] + summary. SAFETY-CRITICAL: any hard_block gate failure flips passed=false.",
 );
 
+// ============================================================================
+// WIRE-UNWIRED-MS0/U-WIRE-LWH — LatheWorkholdingEngine (6 actions)
+// SAFETY-RELEVANT: clamping force determines ejection risk; ISO 10218 SF=2.5
+// minimum is enforced inside the engine. Thresholds grounded in DIN 6350,
+// Machinery's Handbook 31st Ed., Schunk + Hainbuch catalogs.
+// ============================================================================
+
+const _stockForm = z.enum(["bar", "forging", "casting", "hex_bar", "tube", "pre_machined"]);
+
+const lathe_workholding_select_jaw = z.object({
+  grip_diameter_mm: posNum.describe("Part OD at grip location in mm (>0)."),
+  bore_id_mm: z.number().nonnegative().optional()
+    .describe("Part ID at grip location in mm (0 if solid)."),
+  wall_thickness_mm: optPosNum.describe("Optional wall thickness in mm; auto-computed from OD - ID when omitted."),
+  tolerance_mm: optPosNum.describe("Tightest part tolerance in mm (default 0.1)."),
+  surface_finish_ra_um: optPosNum.describe("Required surface finish Ra in micrometers (default 3.2)."),
+  batch_size: z.number().int().positive().optional().describe("Batch quantity (default 1)."),
+  stock_form: _stockForm.optional().describe("Stock form (default 'bar')."),
+  material: z.string().optional().describe("Material name for friction/modulus lookup (default steel)."),
+  cutting_force_n: optPosNum.describe("Cutting force resultant in N (default 2000)."),
+  is_ferrous: z.boolean().optional().describe("True if magnetic chuck is a viable alternative."),
+  part_length_mm: optPosNum.describe("Optional part length in mm."),
+}).passthrough().describe(
+  "Lathe jaw selection (LatheWorkholdingEngine.selectJaw). Decision tree: thin-wall → 6-jaw/collet, tight-tol → soft-bored, irregular stock → soft, fine Ra → soft, high volume → collet. Returns recommended jaw + alternatives + clamping force + ISO 10218 SF.",
+);
+
+const lathe_workholding_trilobe = z.object({
+  od_mm: posNum.describe("Part OD in mm (>0)."),
+  id_mm: z.number().nonnegative().describe("Part through-bore ID in mm (≥0)."),
+  jaw_width_mm: optPosNum.describe("Jaw axial contact width in mm (default 10)."),
+  youngs_modulus_gpa: optPosNum.describe("Optional Young's modulus override in GPa."),
+  clamp_force_n: posNum.describe("Total 3-jaw clamping force in N (>0)."),
+  tolerance_mm: optPosNum.describe("Part diametric tolerance in mm (default 0.05) — distortion must be < tol/2 to pass."),
+  material: z.string().optional().describe("Material name for modulus lookup."),
+}).passthrough().describe(
+  "Trilobe distortion for a thin-walled ring in 3-jaw chuck (LatheWorkholdingEngine.calculateTrilobe). δ = F·R³/(E·I), I = b·t³/12 (Nee & Tao). Returns δ in µm + acceptance + max safe force.",
+);
+
+const lathe_workholding_face_driver = z.object({
+  axial_force_n: posNum.describe("Axial force from tailstock/actuator in N (>0)."),
+  n_pins: z.number().int().min(2).max(12).optional().describe("Number of drive pins (default 4)."),
+  mu: z.number().min(0.05).max(1).optional().describe("Pin/part friction coefficient (default 0.25 for serrated)."),
+  pin_circle_radius_mm: posNum.describe("Mean radius of pin circle in mm (>0)."),
+  required_torque_nm: optPosNum.describe("Required cutting torque in Nm (default = 50% of transmittable)."),
+}).passthrough().describe(
+  "Face driver torque transmission (LatheWorkholdingEngine.calculateFaceDriver). T = F_axial · μ · r_mean · n_pins. Returns transmittable torque + SF + adequacy.",
+);
+
+const lathe_workholding_expanding_mandrel = z.object({
+  bore_id_mm: posNum.describe("Part bore ID in mm (>0)."),
+  od_mm: posNum.describe("Part OD in mm (>0)."),
+  mandrel_od_mm: posNum.describe("Mandrel OD (unexpanded) in mm (>0)."),
+  interference_mm: optPosNum.describe("Diametral interference in mm (default 0.02)."),
+  contact_length_mm: posNum.describe("Contact length in mm (>0)."),
+  youngs_modulus_gpa: optPosNum.describe("Optional E override in GPa."),
+  poisson_ratio: z.number().min(0.1).max(0.5).optional().describe("Poisson's ratio (default 0.3)."),
+  mu: z.number().min(0.05).max(1).optional().describe("Friction coefficient (default 0.15)."),
+  required_torque_nm: optPosNum.describe("Required cutting torque in Nm (default = 40% of grip torque)."),
+  material: z.string().optional().describe("Material name."),
+}).passthrough().describe(
+  "Expanding mandrel grip via Lame thick-wall equations (LatheWorkholdingEngine.calculateExpandingMandrel). p = Δ·E/(r·((r_o²+r_i²)/(r_o²-r_i²)+ν)). Returns contact pressure + grip torque + SF.",
+);
+
+const lathe_workholding_magnetic_chuck = z.object({
+  holding_force_n_per_cm2: optPosNum.describe("Chuck-spec holding force per cm² (default 80 N/cm²)."),
+  contact_area_cm2: posNum.describe("Contact area in cm² (>0)."),
+  is_ferrous: z.boolean().describe("Magnetic chuck only works on ferrous parts — false rejects."),
+  part_thickness_mm: posNum.describe("Part thickness in mm (>0); <10mm linearly de-rates holding force."),
+  required_force_n: optPosNum.describe("Required holding force in N (default = 30% of available)."),
+}).passthrough().describe(
+  "Magnetic chuck holding force (LatheWorkholdingEngine.calculateMagneticChuck). Ferrous-only; thin parts de-rate. Returns holding force + ISO 10218 SF + adequacy.",
+);
+
+const lathe_workholding_stock_form = z.object({
+  stock_form: _stockForm.describe("Stock form classification."),
+  grip_diameter_mm: posNum.describe("Grip diameter / across-flats in mm (>0)."),
+  wall_thickness_mm: optPosNum.describe("Tube wall thickness in mm (only used for tube; default 3)."),
+}).passthrough().describe(
+  "Stock-form workholding + roughing-cycle recommendation (LatheWorkholdingEngine.stockFormRecommendation). Returns jaw type + G71/G72/G73 cycle + clamping notes.",
+);
+
 export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   chuck_force,
   tailstock,
@@ -801,4 +882,12 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
 
   // WIRE-UNWIRED-MS0/U-WIRE-PARTOFF: LathePartoffSafetyRailEngine surface
   lathe_partoff_safety_gate,
+
+  // WIRE-UNWIRED-MS0/U-WIRE-LWH: LatheWorkholdingEngine — 6 surfaces
+  lathe_workholding_select_jaw,
+  lathe_workholding_trilobe,
+  lathe_workholding_face_driver,
+  lathe_workholding_expanding_mandrel,
+  lathe_workholding_magnetic_chuck,
+  lathe_workholding_stock_form,
 };

@@ -196,6 +196,14 @@ const ACTIONS = [
 
   // WIRE-UNWIRED-MS0/U-WIRE-PARTOFF: LathePartoffSafetyRailEngine (SAFETY-CRITICAL)
   "lathe_partoff_safety_gate",              // evaluate — 7-gate parting-off go/no-go rail
+
+  // WIRE-UNWIRED-MS0/U-WIRE-LWH: LatheWorkholdingEngine (SAFETY-RELEVANT — ISO 10218)
+  "lathe_workholding_select_jaw",           // selectJaw — decision tree across 7 jaw types
+  "lathe_workholding_trilobe",              // calculateTrilobe — thin-ring 3-jaw distortion (Nee & Tao)
+  "lathe_workholding_face_driver",          // calculateFaceDriver — pin-circle torque transmission
+  "lathe_workholding_expanding_mandrel",    // calculateExpandingMandrel — Lame thick-wall grip
+  "lathe_workholding_magnetic_chuck",       // calculateMagneticChuck — ferrous-only holding force
+  "lathe_workholding_stock_form",           // stockFormRecommendation — jaw + G71/G72/G73 selection
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1303,6 +1311,45 @@ Actions: ${ACTIONS.join(", ")}.`,
             const { lathePartoffSafetyRailEngine } = await import("../../engines/LathePartoffSafetyRailEngine.js");
             const data = lathePartoffSafetyRailEngine.evaluate(params as any);
             result = { success: data.passed, data };
+            break;
+          }
+
+          // WIRE-UNWIRED-MS0/U-WIRE-LWH: LatheWorkholdingEngine — 6 surfaces
+          // SAFETY-RELEVANT: ISO 10218 SF=2.5 minimum enforced in-engine.
+          // The 6 cases share one lazy import to minimize cold-start cost.
+          case "lathe_workholding_select_jaw":
+          case "lathe_workholding_trilobe":
+          case "lathe_workholding_face_driver":
+          case "lathe_workholding_expanding_mandrel":
+          case "lathe_workholding_magnetic_chuck":
+          case "lathe_workholding_stock_form": {
+            const { latheWorkholdingEngine } = await import("../../engines/LatheWorkholdingEngine.js");
+            let data: unknown;
+            switch (action) {
+              case "lathe_workholding_select_jaw":
+                data = latheWorkholdingEngine.selectJaw(params as any);
+                break;
+              case "lathe_workholding_trilobe":
+                data = latheWorkholdingEngine.calculateTrilobe(params as any);
+                break;
+              case "lathe_workholding_face_driver":
+                data = latheWorkholdingEngine.calculateFaceDriver(params as any);
+                break;
+              case "lathe_workholding_expanding_mandrel":
+                data = latheWorkholdingEngine.calculateExpandingMandrel(params as any);
+                break;
+              case "lathe_workholding_magnetic_chuck":
+                data = latheWorkholdingEngine.calculateMagneticChuck(params as any);
+                break;
+              case "lathe_workholding_stock_form":
+                data = latheWorkholdingEngine.stockFormRecommendation(
+                  (params as any).stock_form,
+                  (params as any).grip_diameter_mm,
+                  (params as any).wall_thickness_mm,
+                );
+                break;
+            }
+            result = { success: true, data };
             break;
           }
 
