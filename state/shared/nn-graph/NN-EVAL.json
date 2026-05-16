@@ -1,5 +1,27 @@
 {
   "deferred": true,
-  "reason": "no-checkpoint",
-  "note": "The GNN tier-5 harness is built and tested; a trained checkpoint (U4 pipeline) is required to produce metrics."
+  "reason": "insufficient-reference-pool",
+  "checkpointPresent": true,
+  "poolSize": 0,
+  "checkpointMeta": {
+    "trainedAt": "2026-05-16T21:34:13.774Z",
+    "nodeCount": 20460,
+    "cappedNodes": 5998,
+    "truncated": true,
+    "edgeCount": 6562,
+    "trainEdgeCount": 5250,
+    "testEdgeCount": 1312,
+    "evalNegativeCount": 1312,
+    "epochs": 30,
+    "trained": true,
+    "finalLoss": 0.7372709108514249,
+    "inputDim": 8,
+    "hiddenDim": 64,
+    "embedDim": 32,
+    "auroc": 0.09607579891061868,
+    "brierRaw": 0.3252856030347025,
+    "brierCalibrated": 0.24947944373141195,
+    "calibratorReliable": true,
+    "calibratorN": 2624
+  }
 }

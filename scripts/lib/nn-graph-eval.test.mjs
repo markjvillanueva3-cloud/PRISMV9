@@ -354,6 +354,49 @@ test("renderReport — deferred result renders a DEFERRED status + the harness n
   assert.match(md, /harness is built and unit-tested/);
 });
 
+test("renderReport — deferred WITH a present checkpoint does NOT claim no checkpoint exists", () => {
+  // Regression guard: before the honesty fix, every deferred reason printed
+  // "Re-run it once a trained checkpoint exists" — actively false once U4
+  // produced a checkpoint that loaded but the graph had no reference pool.
+  const md = renderReport({
+    deferred: true,
+    reason: "insufficient-reference-pool",
+    checkpointPresent: true,
+    poolSize: 0,
+    checkpointMeta: { auroc: 0.0961, brierRaw: 0.3253, brierCalibrated: 0.2495,
+      epochs: 30, finalLoss: 0.7373, calibratorReliable: true, calibratorN: 2624 },
+  });
+  assert.match(md, /Status: DEFERRED/);
+  assert.match(md, /insufficient-reference-pool/);
+  assert.match(md, /checkpoint \*\*is present and loaded cleanly\*\*/,
+    "must state the checkpoint is present");
+  assert.match(md, /U4 training-pipeline blocker is resolved/);
+  assert.match(md, /Reference pool in the current system-viz graph: \*\*0\*\*/,
+    "must report the actual reference-pool size that blocks the holdout");
+  assert.match(md, /AUROC 0\.0961/, "link-prediction diagnostic is surfaced");
+  assert.match(md, /nn-graph-eval\.mjs --checkpoint/, "exact unblock command is given");
+  assert.doesNotMatch(md, /Re-run it once a\s+trained checkpoint exists/,
+    "must NOT print the no-checkpoint prose when a checkpoint is present");
+});
+
+test("renderReport — present checkpoint WITHOUT metadata softens the claim (no U4-resolved overclaim)", () => {
+  // The strong "trained / U4 blocker resolved" claim must be backed by the
+  // checkpoint's embedded training metadata. checkpointPresent alone only
+  // proves a predictor loaded — an untrained/zero-weight model loads the same.
+  const md = renderReport({
+    deferred: true, reason: "empty-holdout", checkpointPresent: true, poolSize: 3,
+  });
+  assert.match(md, /loaded cleanly/);
+  assert.match(md, /training provenance is \*\*unverified\*\*/,
+    "no-metadata path must explicitly flag training provenance as unverified");
+  assert.doesNotMatch(md, /U4 training-pipeline blocker is resolved/,
+    "must NOT assert U4 resolved without empirical training metadata");
+  assert.doesNotMatch(md, /\*\*is present and loaded cleanly\*\* — the/,
+    "the metadata-backed strong phrasing is reserved for the cm-present path");
+  assert.match(md, /Reference pool in the current system-viz graph: \*\*3\*\*/);
+  assert.doesNotMatch(md, /Re-run it once a\s+trained checkpoint exists/);
+});
+
 test("renderReport — graded result renders the gate table + verdict + honesty caveat", () => {
   const result = {
     deferred: false, assessedAt: "2026-01-01T00:00:00Z", holdoutN: 10,

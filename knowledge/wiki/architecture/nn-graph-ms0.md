@@ -126,3 +126,34 @@ node scripts/lib/graphsage-train-pipeline.mjs --help
 
 U6 `6655a98a1` · U7 `e7db71cbc` (this session, slot alpha) · U4c `645f5fe99` ·
 U4d `ae25ba33d` · U5 `458ece24a` (prior sessions).
+
+## Continuation — 2026-05-16b (slot alpha, claude-fe461853)
+
+Not new GNN science — the AUROC=0.096 anti-correlation was already triply
+empirically confirmed by the prior session (see the memory note's tail; the
+deploy path is a NEW unit, not MS0). This continuation delivered two real,
+in-scope things:
+
+1. **Eval-harness honesty fix** (`scripts/lib/nn-graph-eval.mjs`). The
+   deferred-report writer printed *"Re-run it once a trained checkpoint
+   exists"* for **every** deferred reason — actively false once a checkpoint
+   loads but the graph has no reference pool. Fix: `runAssessment` plumbs
+   `checkpointPresent` / `poolSize` / best-effort `checkpointMeta`;
+   `renderReport` branches the prose (no-checkpoint vs data-blocked
+   `insufficient-reference-pool`), and the strong "trained / U4-resolved"
+   claim is **gated on embedded `checkpointMeta`** (a loaded predictor alone
+   does not prove training — P1 raised by reviewer B, fixed). +2 fail-on-revert
+   regression tests; 48/48 `node:test`; 2-reviewer per-file gate PASS.
+2. **Reproducible deferred state.** The U4 checkpoint
+   (`state/shared/nn-graph/graphsage-checkpoint.json`, 152 KB) was never
+   committed (was `??` untracked). Now committed + `NN-EVAL.{md,json}`
+   regenerated, so a fresh tree shows the honest data-blocked state without
+   re-running training. Blocker moved code-side → **data-side**: `poolSize
+   0 < 2` (live graph has 0 `ghost.unwired-engine` reference ghosts; the
+   tier-5 gate is dormant by data, exactly as designed).
+
+**Deploy gate remains DEFERRED.** Real progress needs `U-NEG-SAMPLE-STRATIFIED`
+(cheap: layer-stratified negative sampling — should push pretext AUROC > 0.5)
+or `U4-768D-FEATURES` (the proven path). Re-run `node
+scripts/lib/nn-graph-eval.mjs` after any system-viz regen that yields ≥2
+high-confidence reference ghosts — no retraining needed for the data to change.

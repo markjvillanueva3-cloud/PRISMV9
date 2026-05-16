@@ -257,7 +257,8 @@ export function buildHoldout(graph, opts = {}) {
 export function assessHoldout(graph, predictor, opts = {}) {
   const { holdout, poolSize } = buildHoldout(graph, opts);
   if (holdout.length === 0) {
-    return { n: 0, skipped: true, reason: poolSize < 2 ? "insufficient-reference-pool" : "empty-holdout",
+    return { n: 0, skipped: true, poolSize,
+      reason: poolSize < 2 ? "insufficient-reference-pool" : "empty-holdout",
       metrics: {}, buckets: [], samples: [] };
   }
   const targetNames = new Set(holdout.map((h) => h.label));
@@ -326,18 +327,30 @@ export function runAssessment(opts = {}) {
     }
   }
   let predictor = opts.predictor;
+  // An injected predictor (test path) counts as a present model — a real
+  // checkpoint is only consulted when no predictor was supplied.
+  let checkpointPresent = !!predictor;
+  let checkpointMeta = null;
   if (!predictor) {
-    const loaded = loadGnnCheckpoint(opts.checkpoint || path.join(OUT_DIR, "graphsage-checkpoint.json"),
-      { readFileImpl: opts.readFileImpl });
+    const ckptPath = opts.checkpoint || path.join(OUT_DIR, "graphsage-checkpoint.json");
+    const loaded = loadGnnCheckpoint(ckptPath, { readFileImpl: opts.readFileImpl });
     if (!loaded.ok) {
-      return { deferred: true, reason: loaded.reason,
+      return { deferred: true, reason: loaded.reason, checkpointPresent: false,
         note: "The GNN tier-5 harness is built and tested; a trained checkpoint (U4 pipeline) is required to produce metrics." };
     }
     predictor = loaded.predictor;
+    checkpointPresent = true;
+    // Best-effort: surface the trained link-prediction diagnostic so a
+    // deferred report stays informative. Absence must never break the report.
+    try {
+      const ckpt = JSON.parse((opts.readFileImpl || fs.readFileSync)(ckptPath, "utf8"));
+      checkpointMeta = ckpt && ckpt.metadata ? ckpt.metadata : null;
+    } catch { /* metadata is optional context, not load-bearing */ }
   }
   const scored = assessHoldout(graph, predictor, opts);
   if (scored.skipped) {
-    return { deferred: true, reason: scored.reason };
+    return { deferred: true, reason: scored.reason, checkpointPresent,
+      poolSize: scored.poolSize, checkpointMeta };
   }
   const grade = gradeMetrics(scored.metrics);
   return {
@@ -352,11 +365,57 @@ export function runAssessment(opts = {}) {
   };
 }
 
+/** JSON-safe fixed-precision formatter; non-finite degrades to "n/a". */
+const fmtNum = (x) =>
+  x == null || !Number.isFinite(Number(x)) ? "n/a" : Number(x).toFixed(4);
+
 /** Render a result from runAssessment as the report markdown body. */
 export function renderReport(result) {
   const L = [`# NN-GRAPH-MS0 GNN Tier-5 Assessment — ${REPORT_NAME}`, ""];
   if (result.deferred) {
     L.push(`**Status: DEFERRED** — ${result.reason}`, "");
+    // A present-but-ungradeable checkpoint is a *different* state from no
+    // checkpoint at all. Reporting the generic "re-run once a checkpoint
+    // exists" prose here would actively misstate that a model was trained.
+    if (result.checkpointPresent) {
+      const cm = result.checkpointMeta;
+      // Only the embedded training metadata (epochs, finalLoss, trainedAt) is
+      // empirical proof the model was actually trained. "A predictor loaded"
+      // alone does NOT justify the strong "U4 blocker resolved" claim — an
+      // untrained / zero-weight / metadata-less checkpoint loads identically.
+      if (cm) {
+        L.push("A trained GraphSAGE checkpoint **is present and loaded cleanly** — the",
+          "U4 training-pipeline blocker is resolved.", "");
+      } else {
+        L.push("A GraphSAGE checkpoint **loaded cleanly**, but it carries no embedded",
+          "training metadata — training provenance is **unverified** (the U4",
+          "pipeline stamps `metadata`; its absence means this model's origin",
+          "cannot be confirmed from the checkpoint alone).", "");
+      }
+      L.push("The deploy gate cannot be graded yet for a **data-side** reason, not",
+        "a code-side one:", "");
+      const pool = Number.isFinite(result.poolSize) ? result.poolSize : 0;
+      L.push(`- Reference pool in the current system-viz graph: **${pool}** high-`,
+        "  confidence ghost classifications (a leave-out holdout needs >= 2). The",
+        "  tier-5 gate is dormant by data — the `ghost.unwired-engine` count",
+        "  fluctuates 0..811 with each system-viz regeneration and is currently",
+        "  at the low end.", "");
+      if (cm) {
+        L.push("Trained-checkpoint link-prediction diagnostic (the pretext task —",
+          "expected weak on this heterophilous, type-imbalanced graph; this is",
+          "NOT the deploy gate):", "",
+          `- AUROC ${fmtNum(cm.auroc)} · Brier(raw) ${fmtNum(cm.brierRaw)} · Brier(cal) ${fmtNum(cm.brierCalibrated)}`,
+          `- epochs ${cm.epochs ?? "?"} · finalLoss ${fmtNum(cm.finalLoss)} · calibrator ${cm.calibratorReliable ? "reliable" : "low-sample"} (n=${cm.calibratorN ?? "?"})`,
+          "");
+      }
+      L.push("**Unblock:** re-run after a system-viz regeneration that yields >= 2",
+        "high-confidence reference ghosts (no retraining needed — only the graph",
+        "data must change):", "",
+        "```",
+        "node scripts/lib/nn-graph-eval.mjs --checkpoint state/shared/nn-graph/graphsage-checkpoint.json",
+        "```");
+      return L.join("\n") + "\n";
+    }
     if (result.note) L.push(result.note, "");
     L.push("The assessment harness is built and unit-tested. Re-run it once a",
       "trained checkpoint exists to produce metrics.");
