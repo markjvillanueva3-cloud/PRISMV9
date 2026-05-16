@@ -103,10 +103,13 @@ The fleet commits per-slot: each work slot has a long-lived `slot/<name>` branch
 
 **Otherwise migrate this chat:**
 ```bash
-# 1. SAFETY — a chat with uncommitted CRITICAL work in the main tree must NOT
-#    migrate yet: once branch=slot/*, main-tree-write-block denies all H:/prism
-#    Edit/Write. Commit or revert that work first, then re-run /checkin.
-rtk git -C H:/prism status --porcelain 2>&1 | grep -E '\.(ts|mjs|tsx|json|md)$' | head -5
+# 1. SAFETY — a chat with uncommitted CRITICAL SOURCE work in the main tree
+#    must NOT migrate yet: once branch=slot/*, main-tree-write-block denies all
+#    H:/prism Edit/Write. Commit/revert that source work first, then re-run.
+#    Match SOURCE files only (.ts/.mjs/.tsx) — the shared tree is perpetually
+#    dirty with auto-regenerated state JSON + digest .md churn; gating on those
+#    would stall the cutover permanently (it would never fire).
+rtk git -C H:/prism status --porcelain 2>&1 | grep -E '\.(ts|mjs|tsx)$' | head -5
 # 2. If clean → bring the slot branch current with the target, then bind the slot:
 node H:/prism/scripts/slot-integrator.mjs --slot "$SLOT" --sync-down 2>&1 | tail -2
 node H:/prism/.claude/helpers/chat-slots.mjs heartbeat --chatId "$STABLE" --branch "slot/$SLOT"
