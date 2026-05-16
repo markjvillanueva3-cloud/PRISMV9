@@ -28,6 +28,7 @@ import {
   renderHtmlPage,
   HTML_REPORT_SCHEMA_VERSION,
 } from "./lib/html-report-render.mjs";
+import { buildAgentOverlay, parseChatJsonl } from "./lib/agent-overlay.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -37,6 +38,10 @@ const OUT_FILE = path.join(OUT_DIR, "system-graph.json");
 // graph.html 3D viewer. Different role: summary is info-dense, printable,
 // air-gap-safe; graph.html is the interactive WebGL 3D viz.
 const OUT_HTML = path.join(OUT_DIR, "system-graph-summary.html");
+// OBSIDIAN-INTELLIGENCE-MS3/G2: the agent-status overlay is a SEPARATE sibling
+// file, never embedded in system-graph.json — its live, time-varying agent
+// state must not churn the canonical structural graph or its consumers.
+const OUT_AGENT_OVERLAY = path.join(OUT_DIR, "agent-overlay.json");
 
 const CLI_ARGS = new Set(process.argv.slice(2));
 const FLAGS = { html: CLI_ARGS.has("--html") };
@@ -1114,6 +1119,39 @@ console.log(`  built engines: ${built}/${counts.engines} (${Math.round(100*built
 console.log(`  dispatchers wired: ${dispatcherFiles.length} files`);
 console.log(`  vault: ${vaultMemory.length} memories + ${vaultWiki.length} wiki = ${vaultMemory.length + vaultWiki.length} L10 nodes; ${wikiLinkEdgeCount} [[wiki-link]] edges (${wikiLinkBrokenCount} broken refs)`);
 console.log(`  roadmap phases: ${roadmap.phases.length}; phase 2 wire-up candidates: ${roadmap.phases[2].items.length}`);
+
+// OBSIDIAN-INTELLIGENCE-MS3/G2: agent-status overlay layer. Classifies every
+// occupied chat slot (typing|parsing|idle|errored) from chat-slots.json
+// heartbeat age + AGENT_CHAT.jsonl, and writes it to its OWN sibling file
+// (agent-overlay.json) — see OUT_AGENT_OVERLAY above for why it is not folded
+// into system-graph.json. The agent-overlay.js viewer renders it.
+{
+  const chatSlots = safeReadJson(path.join(ROOT, "state", "shared", "chat-slots.json"), null);
+  let chatEntries = [];
+  try {
+    const jsonlPath = path.join(ROOT, "state", "shared", "AGENT_CHAT.jsonl");
+    if (fs.existsSync(jsonlPath)) {
+      // tail-bounded — the append-only log can grow large; recent lines carry
+      // the freshest per-slot state.
+      chatEntries = parseChatJsonl(fs.readFileSync(jsonlPath, "utf8"), 500);
+    }
+  } catch {
+    /* AGENT_CHAT.jsonl is best-effort — the overlay still builds from slots */
+  }
+  try {
+    const agentOverlay = buildAgentOverlay({ chatSlots, chatEntries });
+    fs.writeFileSync(OUT_AGENT_OVERLAY, JSON.stringify(agentOverlay, null, 2));
+    const ac = agentOverlay.counts;
+    console.log(
+      `  agent overlay: ${OUT_AGENT_OVERLAY}  (${ac.occupied} active — ` +
+        `${ac.typing} typing · ${ac.parsing} parsing · ${ac.idle} idle · ${ac.errored} errored)`
+    );
+  } catch (err) {
+    // The overlay is a best-effort additive layer — system-graph.json is
+    // already on disk, so an overlay failure must never abort the generator.
+    console.warn(`  agent overlay: SKIPPED — ${err && err.message ? err.message : err}`);
+  }
+}
 
 // OBSIDIAN-INTELLIGENCE-MS3/C1: emit a summary HTML report when --html is
 // set. Standalone, no CDN refs; complements (does NOT replace) the
