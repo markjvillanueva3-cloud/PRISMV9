@@ -7,7 +7,7 @@
  * Can be triggered by hooks, dispatchers, or scheduled tasks.
  */
 
-import { BaseEngine } from "./BaseEngine.js";
+import { BaseEngine, type EngineCapability } from "./BaseEngine.js";
 import { logger } from "../utils/Logger.js";
 import * as fs from "fs";
 import * as path from "path";
@@ -131,8 +131,42 @@ export class KnowledgeIngestionOrchestratorEngine extends BaseEngine {
   private resourcesRoot: string;
 
   constructor(resourcesPath?: string) {
-    super();
+    super({
+      name: "KnowledgeIngestionOrchestratorEngine",
+      version: "1.0.0",
+      domain: "knowledge",
+      description: "Routes discovered resources (tool catalogs, handbooks, MIT courses, papers, manuals, standards) to the right extraction engine and aggregates results.",
+    });
     this.resourcesRoot = resourcesPath || "H:/prism/resources";
+  }
+
+  // BaseEngine surface — keeps the engine type-checkable and plays into the
+  // generic execute() contract so dispatchers can invoke uniformly.
+
+  getCapabilities(): EngineCapability[] {
+    return [
+      {
+        name: "ingest_resource",
+        description: "Detect category from path, route to specialist extractor, aggregate results.",
+        actions: [
+          "tool_catalog", "handbook", "mit_course", "academic_paper",
+          "machine_manual", "standard",
+        ],
+      },
+    ];
+  }
+
+  validate(input: unknown): string | null {
+    if (!input || typeof input !== "object") return "input must be a DiscoveredResource object";
+    const r = input as { path?: unknown; category?: unknown; name?: unknown };
+    if (typeof r.path !== "string" || !r.path) return "input.path must be a non-empty string";
+    if (typeof r.name !== "string" || !r.name) return "input.name must be a non-empty string";
+    if (typeof r.category !== "string" || !r.category) return "input.category must be a non-empty string";
+    return null;
+  }
+
+  protected async executeImpl(input: unknown): Promise<unknown> {
+    return this.ingestResource(input as DiscoveredResource);
   }
 
   /**
@@ -322,9 +356,12 @@ export class KnowledgeIngestionOrchestratorEngine extends BaseEngine {
     const { pdfFormulaExtractionEngine } = await import("./PDFFormulaExtractionEngine.js");
     const { pdfMaterialPropertyExtractionEngine } = await import("./PDFMaterialPropertyExtractionEngine.js");
 
-    // Track for extraction (would need actual PDF text extraction)
-    result.extracted.formulas = pdfFormulaExtractionEngine.getStats().formulasFound;
-    result.extracted.materials = pdfMaterialPropertyExtractionEngine.getStats().materialsFound;
+    // Track for extraction (would need actual PDF text extraction).
+    // Both engines' getStats() returns { totalExtracted, ...byCategory/byISOGroup,
+    // validatedCount, averageConfidence } — `formulasFound`/`materialsFound`
+    // were stale property names from an earlier API.
+    result.extracted.formulas = pdfFormulaExtractionEngine.getStats().totalExtracted;
+    result.extracted.materials = pdfMaterialPropertyExtractionEngine.getStats().totalExtracted;
   }
 
   private async ingestMITCourse(resource: DiscoveredResource, result: ExtractionResult): Promise<void> {
@@ -349,9 +386,9 @@ export class KnowledgeIngestionOrchestratorEngine extends BaseEngine {
   }
 
   private async ingestAcademicPaper(resource: DiscoveredResource, result: ExtractionResult): Promise<void> {
-    // Academic paper extraction (would need PDF parsing)
+    // Academic paper extraction (would need PDF parsing).
     const { pdfFormulaExtractionEngine } = await import("./PDFFormulaExtractionEngine.js");
-    result.extracted.formulas = pdfFormulaExtractionEngine.getStats().formulasFound;
+    result.extracted.formulas = pdfFormulaExtractionEngine.getStats().totalExtracted;
   }
 
   private async ingestMachineManual(resource: DiscoveredResource, result: ExtractionResult): Promise<void> {
