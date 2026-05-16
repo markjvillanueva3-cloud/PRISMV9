@@ -48,6 +48,10 @@ interface CacheEntry {
 }
 
 interface BackupEntry {
+  // Index signature lets the entry be passed directly to HookResult.data
+  // (Record<string, unknown>) without double-cast — known fields below stay
+  // strongly typed for in-engine reads.
+  [key: string]: unknown;
   id: string;
   source: string;
   timestamp: string;
@@ -56,6 +60,7 @@ interface BackupEntry {
 }
 
 interface NotificationEntry {
+  [key: string]: unknown;
   id: string;
   type: "info" | "warning" | "error" | "success";
   message: string;
@@ -337,20 +342,20 @@ const onBackupCreate: HookDefinition = {
   enabled: true,
   
   tags: ["backup", "automation", "safety"],
-  
-  condition: (context: HookContext): boolean => {
-    // Only backup important files
-    const path = context.target?.path || "";
-    return path.includes("MASTER") || 
-           path.includes("DATABASE") ||
-           path.includes("_EXPANDED") ||
-           path.includes("CURRENT_STATE");
-  },
-  
+
   handler: (context: HookContext): HookResult => {
     const hook = onBackupCreate;
-    
+
+    // Self-gating — only backup important files (HookExecutor invokes every
+    // handler unconditionally; the original `condition` field was dead code).
     const filePath = context.target?.path || "unknown";
+    if (!(filePath.includes("MASTER") ||
+          filePath.includes("DATABASE") ||
+          filePath.includes("_EXPANDED") ||
+          filePath.includes("CURRENT_STATE"))) {
+      return hookSuccess(hook, "File not in backup-allowlist — skipped");
+    }
+
     const oldContent = context.content?.old;
     
     if (!oldContent) {
@@ -482,7 +487,7 @@ const onSessionCompleteNotify: HookDefinition = {
     };
     
     automationState.notifications.push(notification);
-    
+
     return hookSuccess(hook, `Session completion notification created`, {
       data: notification
     });

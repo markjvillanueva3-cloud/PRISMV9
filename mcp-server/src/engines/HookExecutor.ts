@@ -181,6 +181,11 @@ export interface HookContext {
     process?: number;
     learning?: number;
   };
+  /** Results from prior hooks in the same chain. Populated by hook-orchestrator
+   *  call sites that fan out a sequence of hooks for one event — downstream
+   *  hooks (notifier, recorder, summarizer) read this to react to upstream
+   *  blocks/warnings. Optional so single-shot invocations still type-check. */
+  previousResults?: HookResult[];
 }
 
 /** Result returned from hook execution */
