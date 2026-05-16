@@ -1,0 +1,110 @@
+{
+  "id": "RGS-TOOL-AUTOINVOKE-MS1",
+  "version": "1.0.0",
+  "title": "RGS Tool Autoinvoke MS1 — Integration hardening + backlog",
+  "brief": "Fix the 10 P0 integration bugs the MS0 post-ship audit found (the real reader factories were never end-to-end tested), then work the validated MS1 backlog: nightly replan, domain rules, dispatcher wiring, feedback forcing, RIE adapter, calibration, transfer priors.",
+  "created_at": "2026-05-16T00:00:00Z",
+  "created_by": "claude-02436db5",
+  "track": "RGS",
+  "track_name": "Roadmap Guidance System",
+  "status": "in_progress",
+  "depends_on": ["RGS-TOOL-AUTOINVOKE-MS0"],
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Integration hardening",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "U-INTEG-FIX-P0",
+          "title": "Fix 10 P0 integration bugs + real-data E2E oracle",
+          "description": "MS0 shipped 97 unit tests that injected FAKE readers; every P0 lived in the orchestrator's REAL reader factories, untested end-to-end. Fixes P0-1 (tribal reader {hits} destructure + h.title), P0-2 (ollama bridge IPv4 default), P0-3 (ollama reader timeoutMs), P0-4 (capabilities reader tokenize-per-token), P0-5 (drop /forge-triple boilerplate over-fire), P0-6a/b/c (feedback loop: flat sidecar read, composite-key split, tier+verdict outcome-record contract), P0-7 (coverage flat-source read), P0-8 (rgs.md route handlers), P0-9 (BUILD_STATE re-snapshot), P0-10 (stop-hook git timeout 8000->2500ms). Adds scripts/rgs-tool-planner.e2e.test.mjs — the real-data regression oracle (11 failing assertions on buggy code -> 84/84 green).",
+          "effort": 180,
+          "status": "complete",
+          "commit_sha": "b287c1614",
+          "completed_at": "2026-05-16T00:00:00Z",
+          "deliverables": [
+            "scripts/rgs-tool-planner.e2e.test.mjs",
+            "scripts/rgs-tool-planner.mjs (modified)",
+            ".claude/hooks/lib/ollama-hook-bridge.mjs (modified)",
+            "scripts/lib/rgs-pipeline-rules.mjs (modified)",
+            ".claude/hooks/pick-prefresh-inject.mjs (modified)",
+            "scripts/lib/rgs-plan-outcome.mjs (modified)",
+            ".claude/hooks/rgs-outcome-record-stop.mjs (modified)",
+            "scripts/rgs-plan-coverage.mjs (modified)",
+            "scripts/rgs-plan-coverage.test.mjs (fixture corrected)",
+            ".claude/commands/rgs.md (route handlers — gitignored)"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "MS1 backlog (validated by the post-ship audit)",
+      "sessions": "4-6",
+      "units": [
+        {
+          "id": "U-CRON",
+          "title": "Nightly cron replan",
+          "description": "Windows scheduled task running the planner + Ollama with --time-budget. Without it the sidecar rots; everything downstream depends on live Ollama-synth plans. Pattern: install-fleet-reaper-task.ps1.",
+          "effort": 90,
+          "status": "not_started"
+        },
+        {
+          "id": "U-DOMAIN-RULES",
+          "title": "Domain pipeline rules + skill triggers",
+          "description": "Add mill/lathe/wedm/cam/cad pipeline rules to rgs-pipeline-rules.mjs (only 7 rules today -> 42% generic fallback). Register manufacturing-domain skills in _skill-triggers.jsonl (38 harness skills, ZERO domain skills today).",
+          "effort": 90,
+          "status": "not_started"
+        },
+        {
+          "id": "U-DISPATCHER",
+          "title": "Dispatcher wiring — prism_dev:roadmap_tool_plan_*",
+          "description": "Wire prism_dev:roadmap_tool_plan_{query,build,coverage} actions — 948 plans in a sidecar no dispatcher can read is an engine-wiring-doctrine violation.",
+          "effort": 75,
+          "status": "not_started"
+        },
+        {
+          "id": "U-FEEDBACK-FORCING",
+          "title": "Pickup composite-key fallback",
+          "description": "Operators do not type composite MS::unit keys -> picked events never fire -> the feedback loop never accumulates data. pick-prefresh-inject must fall back to active-claim / CURRENT_POSITION.md to resolve the unit key.",
+          "effort": 60,
+          "status": "not_started"
+        },
+        {
+          "id": "U-RIE-ADAPTER",
+          "title": "RoadmapIntelligenceEngine complexity adapter",
+          "description": "Replace the complexityFor heuristic (57.6% of units have effort:0 -> all default tier M) with a synthetic-Milestone adapter over RoadmapIntelligenceEngine, per-MS cache.",
+          "effort": 75,
+          "status": "not_started"
+        },
+        {
+          "id": "U-CALIBRATION",
+          "title": "Outcome confidence calibration",
+          "description": "Compose CAMConfidenceCalibrationEngine once >=50 outcomes accumulate (degenerate before that threshold).",
+          "effort": 60,
+          "status": "not_started"
+        },
+        {
+          "id": "U-TRANSFER",
+          "title": "Cross-milestone transfer priors",
+          "description": "Use prism_ai:xproc_transfer_* to seed cold-start milestones with priors from completed sibling milestones.",
+          "effort": 75,
+          "status": "not_started"
+        }
+      ]
+    }
+  ],
+  "dependencies": [],
+  "exit_conditions": [
+    "U-INTEG-FIX-P0: all 10 P0s fixed, real-data E2E test green, 3-of-3 scrutiny PASS",
+    "P1 backlog units shipped with committed SHAs",
+    "Planner produces useful (non-degraded) plans against real readers"
+  ],
+  "sidecar": "state/shared/roadmap-tool-plans.json",
+  "wiki": "knowledge/wiki/architecture/rgs-tool-autoinvoke-ms1.md",
+  "completed_units": 1,
+  "total_units": 8,
+  "updated_at": "2026-05-16T00:00:00Z",
+  "notes": "Core MS0 lesson encoded in U-INTEG-FIX-P0: a 'pure core + injected readers' design MUST ship one real-data E2E test — hermetic fakes do not prove production wiring. Punch list: docs/superpowers/specs/2026-05-16-rgs-tool-autoinvoke-MS1-punchlist.md."
+}
