@@ -1,6 +1,6 @@
 # MILESTONE_PROGRESS — what's actually shipped vs claimed
 
-> Generated: 2026-05-16T02:55:03.177Z
+> Generated: 2026-05-16T03:32:01.957Z
 > Window: last 60.days of git log across all branches
 > Source: `scripts/build-milestone-progress.mjs`
 
@@ -19,9 +19,9 @@ flagging a unit as missing.
 
 - Milestones loaded:        **679**
 - Units across all MS:      **5116**
-- Units shipped (in git):   **635**
-- Units pending:            **4481**
-- Drift cases:              **11** (envelope status disagrees with git reality)
+- Units shipped (in git):   **636**
+- Units pending:            **4480**
+- Drift cases:              **10** (envelope status disagrees with git reality)
 
 ## Top recently-active milestones (last shipped → first)
 
@@ -71,7 +71,6 @@ flagging a unit as missing.
 | MS-DOCU-FINISH | completed | not_started_real | claims_completed_but_units_pending |
 | MS-DOCU-INGEST | completed | not_started_real | claims_completed_but_units_pending |
 | SKILLS-UTILIZATION-MS0 | completed | not_started_real | claims_completed_but_units_pending |
-| BLUEPRINT-OCR-TRAINING-MS1 | completed | in_progress_real | claims_completed_but_units_pending |
 | TRAINING-LEARNING-MS0 | completed | not_started_real | claims_completed_but_units_pending |
 
 ## Top milestones with most pending units

@@ -1,6 +1,6 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-16T02:55:03.317Z
+> Generated: 2026-05-16T03:32:02.098Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
@@ -8,9 +8,9 @@
 - **2377** engines built and wired (of 3238)
 - **1073** wiki entries indexed
 - **861** engines awaiting dispatcher wiring
-- **4481** units pending across 15 active milestones
+- **4480** units pending across 14 active milestones
 - **2** codex frontend builds awaiting merge
-- **11** milestones with envelope-status drift
+- **10** milestones with envelope-status drift
 
 ## BUILT
 
@@ -65,7 +65,7 @@
 
 ## NEEDS_BUILDING
 
-4481 units across 679 milestones not yet in git.
+4480 units across 679 milestones not yet in git.
 
 ### Envelope-status drift
 
@@ -80,7 +80,6 @@
 | MS-DOCU-FINISH | completed | not_started_real | claims_completed_but_units_pending |
 | MS-DOCU-INGEST | completed | not_started_real | claims_completed_but_units_pending |
 | SKILLS-UTILIZATION-MS0 | completed | not_started_real | claims_completed_but_units_pending |
-| BLUEPRINT-OCR-TRAINING-MS1 | completed | in_progress_real | claims_completed_but_units_pending |
 | TRAINING-LEARNING-MS0 | completed | not_started_real | claims_completed_but_units_pending |
 
 ### Top pending units (most-recently-active milestones first)

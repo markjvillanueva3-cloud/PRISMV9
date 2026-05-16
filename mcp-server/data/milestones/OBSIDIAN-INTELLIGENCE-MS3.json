@@ -9,7 +9,7 @@
   "track_name": "Obsidian-Intelligence Layer (compound architecture)",
   "status": "in_progress",
   "in_progress_since": "2026-05-15T19:33:00.000Z",
-  "completed_units": 7,
+  "completed_units": 8,
   "partial_ship_units": 1,
   "total_units": 24,
   "first_unit_partial_shipped": "A1 (U-DOCKER-HOOK-BROKER) — 5 artifacts + 15 tests; live-Docker burn-in pending engine restore",
@@ -861,7 +861,24 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "Stop logging; existing JSONL stays as historical record"
+          "rollback": "Stop logging; existing JSONL stays as historical record",
+          "status": "completed",
+          "ship_record": {
+            "commit": "f432ace730f57d1332b6d66b1fcd70c9a7d7f15c",
+            "shipped_by": "claude-c0f06dee",
+            "slot": "charlie",
+            "shipped_at": "2026-05-16T03:31:32.162Z",
+            "tests": "22/22 vitest PASS",
+            "scrutiny": "3-of-3 PASS (session c0f06dee, target f432ace7)",
+            "per_file_scrutiny": "8 dispatches all PASS, 4 P0 + 7 P1 fixed at gates",
+            "deliverables": [
+              "mcp-server/src/engines/ActionTraceEngine.ts",
+              "mcp-server/src/tools/dispatchers/sessionDispatcher.ts (action_trace_query)",
+              "mcp-server/src/schemas/sessionActionSchemas.ts",
+              "mcp-server/src/__tests__/ActionTrace.test.ts",
+              "scripts/system-viz-action-overlay.mjs"
+            ]
+          }
         },
         {
           "id": "D5",

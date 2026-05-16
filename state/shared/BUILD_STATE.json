@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-16T02:55:03.317Z",
+  "generatedAt": "2026-05-16T03:32:02.098Z",
   "headline": {
     "built_engines": 2377,
     "built_with_wiki": 1073,
     "needs_wiring": 861,
-    "needs_building_active_units": 4481,
+    "needs_building_active_units": 4480,
     "needs_frontend_merge_count": 2,
-    "pending_milestones_with_activity": 15,
-    "drift_milestones": 11,
+    "pending_milestones_with_activity": 14,
+    "drift_milestones": 10,
     "stale_milestones": 394,
     "domains_tracked": 933
   },
@@ -2123,6 +2123,16 @@
         ]
       },
       {
+        "domain": "Action",
+        "total": 2,
+        "wired": 1,
+        "unwired": 1,
+        "coverage_pct": 50,
+        "sample_unwired": [
+          "ActionSchemaCacheEngine"
+        ]
+      },
+      {
         "domain": "Bob",
         "total": 2,
         "wired": 1,
@@ -2600,16 +2610,6 @@
         "coverage_pct": 0,
         "sample_unwired": [
           "ActionableErrorTemplateEngine"
-        ]
-      },
-      {
-        "domain": "Action",
-        "total": 1,
-        "wired": 0,
-        "unwired": 1,
-        "coverage_pct": 0,
-        "sample_unwired": [
-          "ActionSchemaCacheEngine"
         ]
       },
       {
@@ -4445,6 +4445,14 @@
         "sample_unwired": []
       },
       {
+        "domain": "Program",
+        "total": 12,
+        "wired": 12,
+        "unwired": 0,
+        "coverage_pct": 100,
+        "sample_unwired": []
+      },
+      {
         "domain": "Strategy",
         "total": 12,
         "wired": 12,
@@ -4456,14 +4464,6 @@
         "domain": "Thermal",
         "total": 12,
         "wired": 12,
-        "unwired": 0,
-        "coverage_pct": 100,
-        "sample_unwired": []
-      },
-      {
-        "domain": "Program",
-        "total": 11,
-        "wired": 11,
         "unwired": 0,
         "coverage_pct": 100,
         "sample_unwired": []
@@ -9142,7 +9142,7 @@
     "next_action": "Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift."
   },
   "NEEDS_BUILDING": {
-    "summary": "4481 units across 679 milestones not yet in git.",
+    "summary": "4480 units across 679 milestones not yet in git.",
     "drift_cases": [
       {
         "id": "MF-MS1",
@@ -9196,12 +9196,6 @@
         "id": "SKILLS-UTILIZATION-MS0",
         "claimed": "completed",
         "real": "not_started_real",
-        "drift": "claims_completed_but_units_pending"
-      },
-      {
-        "id": "BLUEPRINT-OCR-TRAINING-MS1",
-        "claimed": "completed",
-        "real": "in_progress_real",
         "drift": "claims_completed_but_units_pending"
       },
       {
