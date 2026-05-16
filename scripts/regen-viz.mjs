@@ -37,6 +37,7 @@ const FAST = [
   "generate-layer-bridges.mjs",
   "generate-stagnant-features.mjs",
   "generate-misc-tasks-features.mjs",
+  "generate-bridge-synergy-features.mjs",
   "generate-engine-graph.mjs",
   "generate-hook-bridges.mjs",
   "generate-frontend-pages.mjs",

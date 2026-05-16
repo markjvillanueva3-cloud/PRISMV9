@@ -1,0 +1,177 @@
+{
+  "agent": 5,
+  "source_roadmap": "GIT-TREE-REMEDIATION-MS0",
+  "scannedFile": "state/shared/specs/GIT-TREE-REMEDIATION-MS0-ROADMAP-2026-05-12.md",
+  "unitCount": 24,
+  "units": [
+    {
+      "unit_id": "U-GC-00",
+      "milestone": "GIT-TREE-REMEDIATION-MS0",
+      "title": "Decision gate: which trunk is canonical?",
+      "intent": "Pick the canonical trunk (recommended: cad-fusion-live-ms0); blocks trunk-dependent units.",
+      "status": "pending"
+    },
+    {
+      "unit_id": "U-GC-01",
+      "milestone": "GIT-TREE-REMEDIATION-MS0",
+      "title": "Decision gate: keep or delete archive/forge-orphans-2026-05-01",
+      "intent": "Decide whether to keep the 3.09 GB whisper-model archive branch as cold storage or delete it (-3.3 GB).",
+      "status": "pending"
+    },
+    {
+      "unit_id": "U-GC-02",
+      "milestone": "GIT-TREE-REMEDIATION-MS0",
+      "title": "Decision gate: do the history rewrite + force-push",
+      "intent": "Decide whether to rewrite history and force-push to unblock cad-f's push (recommended: yes).",
+      "status": "pending"
+    },
+    {
+      "unit_id": "U-GC-03",
+      "milestone": "GIT-TREE-REMEDIATION-MS0",
+      "title": "Add .gitignore block for generated artifacts",
+      "intent": "Append generated-artifact paths (system-graph.json etc.) to root .gitignore so they stop getting committed.",
+      "status": "pending"
+    },
+    {
+      "unit_id": "U-GC-04",
+      "milestone": "GIT-TREE-REMEDIATION-MS0",
+      "title": "git rm --cached the now-ignored tracked artifacts",
+      "intent": "Untrack the 118.76 MB system-graph.json blob and other ignored artifacts from the next tree, then commit.",
+      "status": "pending"
+    },
+    {
+      "unit_id": "U-GC-04b",
+      "milestone": "GIT-TREE-REMEDIATION-MS0",
+      "title": "Remove brave-euclid stray worktree + delete 14 worktree-agent-* cruft branches",
+      "intent": "Remove the wrong-drive orphan worktree and prune the 14 merged auto-generated worktree-agent-* branches (doc id U-GC-06b, executes in P0).",
+      "status": "pending"
+    },
+    {
+      "unit_id": "U-GC-05",
+      "milestone": "GIT-TREE-REMEDIATION-MS0",
+      "title": "git reflog expire + git gc --prune=now",
+      "intent": "Reclaim ~41.5 GiB of loose-object garbage, shrinking .git from ~42 GB to ~3-5 GB without rewriting branches.",
+      "status": "pending"
+    },
+    {
+      "unit_id": "U-GC-06",
+      "milestone": "GIT-TREE-REMEDIATION-MS0",
+      "title": "git config worktree.baseRef head + new trunk-guard.mjs SessionStart hook",
+      "intent": "Set worktree.baseRef=head (doc id U-GC-05cfg) and create trunk-guard.mjs to detect HEAD not descending from the canonical trunk.",
+      "status": "pending"
+    },
+    {
+      "unit_id": "U-GC-07",
+      "milestone": "GIT-TREE-REMEDIATION-MS0",
+      "title": "worktree-commit-route.mjs: [MAIN] bypasses worktree-routing only, never trunk-routing",
+      "intent": "Add a trunk-ancestry check that runs before [MAIN]/[MAIN-FORCE] bypasses, warn-first then block.",
+      "status": "pending"
+    },
+    {
+      "unit_id": "U-GC-08",
+      "milestone": "GIT-TREE-REMEDIATION-MS0",
+      "title": "Reconcile stale doctrine + point /sync-rebase at the canonical trunk",
+      "intent": "Fix outdated CLAUDE.md/GSD docs, dangling refs, the git-stash instruction, and /sync-rebase's --base default.",
+      "status": "pending"
+    },
+    {
+      "unit_id": "U-GC-09",
+      "milestone": "GIT-TREE-REMEDIATION-MS0",
+      "title": "History rewrite: strip generated blobs via filter-repo on a fresh mirror",
+      "intent": "Mirror-backup then run git filter-repo to remove >100 MB system-graph.json blobs so cad-f can finally push.",
+      "status": "pending"
+    },
+    {
+      "unit_id": "U-GC-10",
+      "milestone": "GIT-TREE-REMEDIATION-MS0",
+      "title": "Force-push the rewritten history; re-sync every worktree",
+      "intent": "Force-push the rewrite to origin and reset --hard all ~40 worktrees to the new history.",
+      "status": "pending"
+    },
+    {
+      "unit_id": "U-GC-11",
+      "milestone": "GIT-TREE-REMEDIATION-MS0",
+      "title": "Characterize main's 874 unique commits",
+      "intent": "Analyze and classify main's unique work (superseded / salvageable / genuinely-unique) into MAIN-UNIQUE-WORK-AUDIT.md.",
+      "status": "pending"
+    },
+    {
+      "unit_id": "U-GC-12",
+      "milestone": "GIT-TREE-REMEDIATION-MS0",
+      "title": "Reconcile main's unique work onto cad-f (staging branch) OR declare cad-f canonical",
+      "intent": "Path A: cherry-pick/merge main's unique clusters via merge-staging branch; Path B: archive main and skip reconcile.",
+      "status": "pending"
+    },
+    {
+      "unit_id": "U-GC-13",
+      "milestone": "GIT-TREE-REMEDIATION-MS0",
+      "title": "Promote the canonical trunk to main; retire the old trunks",
+      "intent": "Rename canonical trunk to main, repoint origin/HEAD, retire/archive old trunks (cad-f, master, merge-staging).",
+      "status": "pending"
+    },
+    {
+      "unit_id": "U-GC-14",
+      "milestone": "GIT-TREE-REMEDIATION-MS0",
+      "title": "Sweep all 40 worktrees for uncommitted WIP before P2's reset --hard",
+      "intent": "Triage ~17k+ uncommitted lines across worktrees (commit/discard/archive) so the force-push doesn't destroy WIP.",
+      "status": "pending"
+    },
+    {
+      "unit_id": "U-GC-15",
+      "milestone": "GIT-TREE-REMEDIATION-MS0",
+      "title": "Retire the broken work/xproc-neural worktree",
+      "intent": "Remove the 0-commit broken xproc-neural worktree and its 13,119 untracked files after WIP triage.",
+      "status": "pending"
+    },
+    {
+      "unit_id": "U-GC-16",
+      "milestone": "GIT-TREE-REMEDIATION-MS0",
+      "title": "Retire the stale-merged worktrees/branches",
+      "intent": "Remove worktrees/branches fully absorbed into the canonical trunk (cost-cascade, graph-context, sfc-calibrate, etc.).",
+      "status": "pending"
+    },
+    {
+      "unit_id": "U-GC-17",
+      "milestone": "GIT-TREE-REMEDIATION-MS0",
+      "title": "Triage the ~24 stale-unmerged work-branch forks",
+      "intent": "User triages each abandoned milestone fork (revive / merge / archive-and-retire) into STALE-FORK-TRIAGE.md.",
+      "status": "pending"
+    },
+    {
+      "unit_id": "U-GC-18",
+      "milestone": "GIT-TREE-REMEDIATION-MS0",
+      "title": "Retire worktree-u-fus-api01/02",
+      "intent": "Triage WIP then remove the two idle auto-named fus-api worktrees, folding api01's 497 commits into U-GC-17.",
+      "status": "pending"
+    },
+    {
+      "unit_id": "U-GC-19",
+      "milestone": "GIT-TREE-REMEDIATION-MS0",
+      "title": "Clean the claude/* auto-branches + origin/archive-2026-02-01 + origin/worktree-data-loss-fix",
+      "intent": "Review and archive-and-retire stale Claude-Code auto-generated branches and old remote-only branches.",
+      "status": "pending"
+    },
+    {
+      "unit_id": "U-GC-20",
+      "milestone": "GIT-TREE-REMEDIATION-MS0",
+      "title": "Decide on archive/forge-orphans-2026-05-01 (the 3.09 GB whisper model)",
+      "intent": "Execute the U-GC-01 decision: keep the 3.3 GB archive branch or confirm recoverability and delete it.",
+      "status": "pending"
+    },
+    {
+      "unit_id": "U-GC-21",
+      "milestone": "GIT-TREE-REMEDIATION-MS0",
+      "title": "Post-cleanup verification suite",
+      "intent": "Run git fsck/count-objects/push-dry-run + hook checks to verify the remediated repo (.git <2 GiB, pushable).",
+      "status": "pending"
+    },
+    {
+      "unit_id": "U-GC-22",
+      "milestone": "GIT-TREE-REMEDIATION-MS0",
+      "title": "Document the new topology + update memory + CLAUDE.md",
+      "intent": "Write GIT-TOPOLOGY.md, update CLAUDE.md/memory, mark the milestone complete, schedule backup-mirror deletion.",
+      "status": "pending"
+    }
+  ],
+  "reason": ""
+}
