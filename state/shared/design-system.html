@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>PRISM Design System</title>
+  <style>
+:root {
+  --bg-base: #0f172a;
+  --bg-elevated: #1e293b;
+  --bg-muted: #334155;
+  --fg-primary: #f1f5f9;
+  --fg-muted: #94a3b8;
+  --fg-subtle: #64748b;
+  --accent-primary: #6366f1;
+  --accent-success: #22c55e;
+  --accent-warning: #f59e0b;
+  --accent-critical: #ef4444;
+  --accent-info: #3b82f6;
+  --border-muted: #475569;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Code', 'Consolas', monospace;
+  --size-xs: 0.75rem;
+  --size-sm: 0.875rem;
+  --size-base: 1rem;
+  --size-lg: 1.125rem;
+  --size-xl: 1.5rem;
+  --size-2xl: 2rem;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg-base);
+  color: var(--fg-primary);
+  font-family: var(--font-sans);
+  font-size: var(--size-base);
+  margin: 0;
+  padding: var(--space-6);
+  line-height: 1.5;
+}
+h1 { font-size: var(--size-2xl); margin: 0 0 var(--space-4); }
+h2 { font-size: var(--size-xl); margin: var(--space-6) 0 var(--space-3); border-bottom: 1px solid var(--border-muted); padding-bottom: var(--space-1); }
+.muted { color: var(--fg-muted); font-size: var(--size-sm); }
+code { font-family: var(--font-mono); font-size: var(--size-sm); background: var(--bg-base); padding: 0.125rem 0.375rem; border-radius: var(--radius-sm); color: var(--fg-primary); border: 1px solid var(--border-muted); }
+.tag { display: inline-block; margin: 0.125rem; }
+table { width: 100%; border-collapse: collapse; margin: var(--space-3) 0; }
+th, td { text-align: left; padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--border-muted); vertical-align: middle; }
+th { background: var(--bg-muted); font-weight: 600; }
+.swatch { display: inline-block; width: 32px; height: 24px; border-radius: var(--radius-sm); border: 1px solid var(--border-muted); }
+.meta { color: var(--fg-muted); font-size: var(--size-sm); margin-top: var(--space-4); }
+  </style>
+</head>
+<body>
+  <h1>PRISM Design System</h1>
+  <p class="muted">Canonical token catalog — colors, typography, components — for HTML outputs (CLAUDE-BRIEF.html, BUILD_STATE.html, dashboard.html). Import as CSS vars; never hardcode hex values.</p>
+
+  <h2>Colors</h2>
+  <table>
+    <thead><tr><th>Token</th><th>Sample</th><th>Hex</th><th>Notes</th></tr></thead>
+    <tbody>
+        <tr>
+          <td><code>--bg-base</code></td>
+          <td><span class="swatch" style="background: #0f172a;"></span></td>
+          <td><code>#0f172a</code></td>
+          <td>slate-900 — page background</td>
+        </tr>
+        <tr>
+          <td><code>--bg-elevated</code></td>
+          <td><span class="swatch" style="background: #1e293b;"></span></td>
+          <td><code>#1e293b</code></td>
+          <td>slate-800 — card/panel</td>
+        </tr>
+        <tr>
+          <td><code>--bg-muted</code></td>
+          <td><span class="swatch" style="background: #334155;"></span></td>
+          <td><code>#334155</code></td>
+          <td>slate-700 — input/divider</td>
+        </tr>
+        <tr>
+          <td><code>--fg-primary</code></td>
+          <td><span class="swatch" style="background: #f1f5f9;"></span></td>
+          <td><code>#f1f5f9</code></td>
+          <td>slate-100 — body text</td>
+        </tr>
+        <tr>
+          <td><code>--fg-muted</code></td>
+          <td><span class="swatch" style="background: #94a3b8;"></span></td>
+          <td><code>#94a3b8</code></td>
+          <td>slate-400 — secondary text</td>
+        </tr>
+        <tr>
+          <td><code>--fg-subtle</code></td>
+          <td><span class="swatch" style="background: #64748b;"></span></td>
+          <td><code>#64748b</code></td>
+          <td>slate-500 — captions</td>
+        </tr>
+        <tr>
+          <td><code>--accent-primary</code></td>
+          <td><span class="swatch" style="background: #6366f1;"></span></td>
+          <td><code>#6366f1</code></td>
+          <td>indigo-500 — primary action</td>
+        </tr>
+        <tr>
+          <td><code>--accent-success</code></td>
+          <td><span class="swatch" style="background: #22c55e;"></span></td>
+          <td><code>#22c55e</code></td>
+          <td>green-500 — OK/PASS</td>
+        </tr>
+        <tr>
+          <td><code>--accent-warning</code></td>
+          <td><span class="swatch" style="background: #f59e0b;"></span></td>
+          <td><code>#f59e0b</code></td>
+          <td>amber-500 — WARN</td>
+        </tr>
+        <tr>
+          <td><code>--accent-critical</code></td>
+          <td><span class="swatch" style="background: #ef4444;"></span></td>
+          <td><code>#ef4444</code></td>
+          <td>red-500 — CRITICAL/FAIL</td>
+        </tr>
+        <tr>
+          <td><code>--accent-info</code></td>
+          <td><span class="swatch" style="background: #3b82f6;"></span></td>
+          <td><code>#3b82f6</code></td>
+          <td>blue-500 — info badge</td>
+        </tr>
+        <tr>
+          <td><code>--border-muted</code></td>
+          <td><span class="swatch" style="background: #475569;"></span></td>
+          <td><code>#475569</code></td>
+          <td>slate-600 — panel border</td>
+        </tr>
+    </tbody>
+  </table>
+
+  <h2>Typography</h2>
+  <table>
+    <thead><tr><th>Token</th><th>Sample</th><th>Value</th><th>Notes</th></tr></thead>
+    <tbody>
+        <tr>
+          <td><code>--font-sans</code></td>
+          <td style="font-family: var(--font-sans); font-size: inherit;">Sample 0123 Aa</td>
+          <td><code>ui-sans-serif, system-ui, -apple-system, sans-serif</code></td>
+          <td>body</td>
+        </tr>
+        <tr>
+          <td><code>--font-mono</code></td>
+          <td style="font-family: var(--font-mono); font-size: inherit;">Sample 0123 Aa</td>
+          <td><code>ui-monospace, 'Cascadia Code', 'Consolas', monospace</code></td>
+          <td>code/tabular</td>
+        </tr>
+        <tr>
+          <td><code>--size-xs</code></td>
+          <td style="font-family: inherit; font-size: var(--size-xs);">Sample 0123 Aa</td>
+          <td><code>0.75rem</code></td>
+          <td>12px — captions</td>
+        </tr>
+        <tr>
+          <td><code>--size-sm</code></td>
+          <td style="font-family: inherit; font-size: var(--size-sm);">Sample 0123 Aa</td>
+          <td><code>0.875rem</code></td>
+          <td>14px — body small</td>
+        </tr>
+        <tr>
+          <td><code>--size-base</code></td>
+          <td style="font-family: inherit; font-size: var(--size-base);">Sample 0123 Aa</td>
+          <td><code>1rem</code></td>
+          <td>16px — body default</td>
+        </tr>
+        <tr>
+          <td><code>--size-lg</code></td>
+          <td style="font-family: inherit; font-size: var(--size-lg);">Sample 0123 Aa</td>
+          <td><code>1.125rem</code></td>
+          <td>18px — subheading</td>
+        </tr>
+        <tr>
+          <td><code>--size-xl</code></td>
+          <td style="font-family: inherit; font-size: var(--size-xl);">Sample 0123 Aa</td>
+          <td><code>1.5rem</code></td>
+          <td>24px — heading</td>
+        </tr>
+        <tr>
+          <td><code>--size-2xl</code></td>
+          <td style="font-family: inherit; font-size: var(--size-2xl);">Sample 0123 Aa</td>
+          <td><code>2rem</code></td>
+          <td>32px — page title</td>
+        </tr>
+    </tbody>
+  </table>
+
+  <h2>Components</h2>
+  <table>
+    <thead><tr><th>Token</th><th>Preview</th><th>CSS</th></tr></thead>
+    <tbody>
+        <tr>
+          <td><code>btn-primary</code></td>
+          <td><span class="btn-primary" style="background: var(--accent-primary); color: var(--fg-primary); padding: 0.5rem 1rem; border-radius: var(--radius-md); border: none; cursor: pointer; font-weight: 500;">demo</span></td>
+          <td><code>background: var(--accent-primary); color: var(--fg-primary); padding: 0.5rem 1rem; border-radius: var(--radius-md); border: none; cursor: pointer; font-weight: 500;</code></td>
+        </tr>
+        <tr>
+          <td><code>btn-ghost</code></td>
+          <td><span class="btn-ghost" style="background: transparent; color: var(--fg-primary); padding: 0.5rem 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-muted); cursor: pointer;">demo</span></td>
+          <td><code>background: transparent; color: var(--fg-primary); padding: 0.5rem 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-muted); cursor: pointer;</code></td>
+        </tr>
+        <tr>
+          <td><code>card</code></td>
+          <td><span class="card" style="background: var(--bg-elevated); border: 1px solid var(--border-muted); border-radius: var(--radius-lg); padding: var(--space-4);">demo</span></td>
+          <td><code>background: var(--bg-elevated); border: 1px solid var(--border-muted); border-radius: var(--radius-lg); padding: var(--space-4);</code></td>
+        </tr>
+        <tr>
+          <td><code>badge-ok</code></td>
+          <td><span class="badge-ok" style="background: var(--accent-success); color: white; padding: 0.125rem 0.5rem; border-radius: var(--radius-sm); font-size: var(--size-xs); font-weight: 600;">demo</span></td>
+          <td><code>background: var(--accent-success); color: white; padding: 0.125rem 0.5rem; border-radius: var(--radius-sm); font-size: var(--size-xs); font-weight: 600;</code></td>
+        </tr>
+        <tr>
+          <td><code>badge-warn</code></td>
+          <td><span class="badge-warn" style="background: var(--accent-warning); color: black; padding: 0.125rem 0.5rem; border-radius: var(--radius-sm); font-size: var(--size-xs); font-weight: 600;">demo</span></td>
+          <td><code>background: var(--accent-warning); color: black; padding: 0.125rem 0.5rem; border-radius: var(--radius-sm); font-size: var(--size-xs); font-weight: 600;</code></td>
+        </tr>
+        <tr>
+          <td><code>badge-fail</code></td>
+          <td><span class="badge-fail" style="background: var(--accent-critical); color: white; padding: 0.125rem 0.5rem; border-radius: var(--radius-sm); font-size: var(--size-xs); font-weight: 600;">demo</span></td>
+          <td><code>background: var(--accent-critical); color: white; padding: 0.125rem 0.5rem; border-radius: var(--radius-sm); font-size: var(--size-xs); font-weight: 600;</code></td>
+        </tr>
+        <tr>
+          <td><code>code-block</code></td>
+          <td><span class="code-block" style="background: var(--bg-base); color: var(--fg-primary); padding: var(--space-3); border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: var(--size-sm); overflow-x: auto;">demo</span></td>
+          <td><code>background: var(--bg-base); color: var(--fg-primary); padding: var(--space-3); border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: var(--size-sm); overflow-x: auto;</code></td>
+        </tr>
+        <tr>
+          <td><code>table</code></td>
+          <td><span class="table" style="width: 100%; border-collapse: collapse;">demo</span></td>
+          <td><code>width: 100%; border-collapse: collapse;</code></td>
+        </tr>
+        <tr>
+          <td><code>table-th</code></td>
+          <td><span class="table-th" style="text-align: left; padding: var(--space-2) var(--space-3); background: var(--bg-muted); color: var(--fg-primary); font-weight: 600; border-bottom: 1px solid var(--border-muted);">demo</span></td>
+          <td><code>text-align: left; padding: var(--space-2) var(--space-3); background: var(--bg-muted); color: var(--fg-primary); font-weight: 600; border-bottom: 1px solid var(--border-muted);</code></td>
+        </tr>
+        <tr>
+          <td><code>table-td</code></td>
+          <td><span class="table-td" style="padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--border-muted);">demo</span></td>
+          <td><code>padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--border-muted);</code></td>
+        </tr>
+        <tr>
+          <td><code>panel-header</code></td>
+          <td><span class="panel-header" style="display: flex; justify-content: space-between; align-items: center; padding: var(--space-2) var(--space-4); background: var(--bg-muted); border-bottom: 1px solid var(--border-muted); font-weight: 600;">demo</span></td>
+          <td><code>display: flex; justify-content: space-between; align-items: center; padding: var(--space-2) var(--space-4); background: var(--bg-muted); border-bottom: 1px solid var(--border-muted); font-weight: 600;</code></td>
+        </tr>
+    </tbody>
+  </table>
+
+    <h2>Tailwind classes observed in web/src/</h2>
+    <p class="muted">Classes scanned from web component sources (best-effort, deduped, sorted).</p>
+    <p><code class="tag">absolute</code> <code class="tag">accent-amber-400</code> <code class="tag">accent-cyan-400</code> <code class="tag">accent-emerald-400</code> <code class="tag">animate-pulse</code> <code class="tag">animate-spin</code> <code class="tag">appearance-none</code> <code class="tag">backdrop-blur</code> <code class="tag">backdrop-blur-md</code> <code class="tag">backdrop-blur-sm</code> <code class="tag">bg-amber-100</code> <code class="tag">bg-amber-400</code> <code class="tag">bg-amber-50</code> <code class="tag">bg-amber-600</code> <code class="tag">bg-blue-100</code> <code class="tag">bg-blue-50</code> <code class="tag">bg-blue-500</code> <code class="tag">bg-blue-600</code> <code class="tag">bg-cyan-300</code> <code class="tag">bg-cyan-500</code> <code class="tag">bg-cyan-600</code> <code class="tag">bg-emerald-400</code> <code class="tag">bg-emerald-50</code> <code class="tag">bg-emerald-500</code> <code class="tag">bg-emerald-600</code> <code class="tag">bg-gradient-to-br</code> <code class="tag">bg-gradient-to-r</code> <code class="tag">bg-gray-100</code> <code class="tag">bg-gray-200</code> <code class="tag">bg-gray-50</code> <code class="tag">bg-green-600</code> <code class="tag">bg-orange-600</code> <code class="tag">bg-primary-600</code> <code class="tag">bg-prism-100</code> <code class="tag">bg-prism-50</code> <code class="tag">bg-prism-500</code> <code class="tag">bg-prism-600</code> <code class="tag">bg-purple-600</code> <code class="tag">bg-red-100</code> <code class="tag">bg-red-600</code> <code class="tag">bg-rose-500</code> <code class="tag">bg-rose-600</code> <code class="tag">bg-slate-100</code> <code class="tag">bg-slate-50</code> <code class="tag">bg-slate-600</code> <code class="tag">bg-slate-700</code> <code class="tag">bg-slate-800</code> <code class="tag">bg-slate-900</code> <code class="tag">bg-slate-950</code> <code class="tag">bg-teal-50</code> <code class="tag">bg-transparent</code> <code class="tag">bg-white</code> <code class="tag">bg-yellow-50</code> <code class="tag">bg-yellow-600</code> <code class="tag">bg-zinc-800</code> <code class="tag">bg-zinc-900</code> <code class="tag">bg-zinc-950</code> <code class="tag">block</code> <code class="tag">border</code> <code class="tag">border-0</code> <code class="tag">border-amber-200</code> <code class="tag">border-b</code> <code class="tag">border-collapse</code> <code class="tag">border-dashed</code> <code class="tag">border-emerald-200</code> <code class="tag">border-emerald-700</code> <code class="tag">border-gray-100</code> <code class="tag">border-gray-200</code> <code class="tag">border-gray-300</code> <code class="tag">border-neutral-700</code> <code class="tag">border-r</code> <code class="tag">border-slate-100</code> <code class="tag">border-slate-200</code> <code class="tag">border-slate-300</code> <code class="tag">border-slate-500</code> <code class="tag">border-slate-600</code> <code class="tag">border-slate-700</code> <code class="tag">border-t</code> <code class="tag">border-teal-200</code> <code class="tag">border-zinc-600</code> <code class="tag">border-zinc-700</code> <code class="tag">border-zinc-800</code> <code class="tag">bottom-0</code> <code class="tag">bottom-1</code> <code class="tag">btn-icon</code> <code class="tag">calculator-warning-attention-inline</code> <code class="tag">cancel-btn</code> <code class="tag">capitalize</code> <code class="tag">close-btn</code> <code class="tag">col-span-2</code> <code class="tag">cursor-move</code> <code class="tag">cursor-pointer</code> <code class="tag">dark:bg-gray-800</code> <code class="tag">dark:bg-slate-700</code> <code class="tag">dark:bg-slate-800</code> <code class="tag">dark:border-slate-600</code> <code class="tag">dark:border-slate-700</code> <code class="tag">dark:hover:bg-slate-700</code> <code class="tag">dark:text-gray-100</code> <code class="tag">dark:text-gray-300</code> <code class="tag">dark:text-gray-400</code> <code class="tag">dark:text-slate-100</code> <code class="tag">dark:text-slate-200</code> <code class="tag">dark:text-slate-300</code> <code class="tag">dark:text-slate-400</code> <code class="tag">dark:text-yellow-300</code> <code class="tag">disabled:bg-slate-900</code> <code class="tag">disabled:bg-zinc-700</code> <code class="tag">disabled:cursor-not-allowed</code> <code class="tag">disabled:opacity-30</code> <code class="tag">disabled:opacity-40</code> <code class="tag">disabled:opacity-50</code> <code class="tag">disabled:text-slate-500</code> <code class="tag">duration-300</code> <code class="tag">duration-500</code> <code class="tag">feedback-buttons</code> <code class="tag">feedback-icon</code> <code class="tag">feedback-label</code> <code class="tag">fill-gray-600</code> <code class="tag">fill-slate-400</code> <code class="tag">fill-white</code> <code class="tag">fill-zinc-300</code> <code class="tag">fixed</code> <code class="tag">flex</code> <code class="tag">flex-1</code> <code class="tag">flex-col</code> <code class="tag">flex-shrink-0</code> <code class="tag">flex-wrap</code> <code class="tag">focus-within:opacity-100</code> <code class="tag">focus-within:w-16</code> <code class="tag">focus:border-primary-500</code> <code class="tag">focus:border-prism-500</code> <code class="tag">focus:outline-none</code> <code class="tag">focus:ring-1</code> <code class="tag">focus:ring-2</code> <code class="tag">focus:ring-primary-500</code> <code class="tag">focus:ring-prism-500</code> <code class="tag">font-black</code> <code class="tag">font-bold</code> <code class="tag">font-medium</code> <code class="tag">font-mono</code> <code class="tag">font-normal</code> <code class="tag">font-semibold</code> <code class="tag">from-cyan-500</code> <code class="tag">from-slate-950</code> <code class="tag">gap-0</code> <code class="tag">gap-1</code> <code class="tag">gap-2</code> <code class="tag">gap-3</code> <code class="tag">gap-4</code> <code class="tag">gap-6</code> <code class="tag">gap-x-3</code> <code class="tag">gap-y-1</code> <code class="tag">grid</code> <code class="tag">grid-cols-1</code> <code class="tag">grid-cols-2</code> <code class="tag">grid-cols-3</code> <code class="tag">grid-cols-4</code> <code class="tag">grid-cols-5</code> <code class="tag">grid-cols-6</code> <code class="tag">group</code> <code class="tag">h-1</code> <code class="tag">h-10</code> <code class="tag">h-12</code> <code class="tag">h-16</code> <code class="tag">h-2</code> <code class="tag">h-20</code> <code class="tag">h-24</code> <code class="tag">h-3</code> <code class="tag">h-32</code> <code class="tag">h-4</code> <code class="tag">h-40</code> <code class="tag">h-5</code> <code class="tag">h-6</code> <code class="tag">h-8</code> <code class="tag">h-9</code> <code class="tag">h-auto</code> <code class="tag">h-full</code> <code class="tag">hidden</code> <code class="tag">hover:bg-amber-200</code> <code class="tag">hover:bg-amber-500</code> <code class="tag">hover:bg-blue-500</code> <code class="tag">hover:bg-cyan-200</code> <code class="tag">hover:bg-cyan-500</code> <code class="tag">hover:bg-emerald-500</code> <code class="tag">hover:bg-gray-200</code> <code class="tag">hover:bg-gray-50</code> <code class="tag">hover:bg-green-500</code> <code class="tag">hover:bg-green-700</code> <code class="tag">hover:bg-orange-500</code> <code class="tag">hover:bg-primary-700</code> <code class="tag">hover:bg-prism-700</code> <code class="tag">hover:bg-purple-500</code> <code class="tag">hover:bg-red-500</code> <code class="tag">hover:bg-rose-500</code> <code class="tag">hover:bg-slate-100</code> <code class="tag">hover:bg-slate-500</code> <code class="tag">hover:bg-slate-600</code> <code class="tag">hover:bg-slate-700</code> <code class="tag">hover:bg-slate-800</code></p>
+    <p class="muted">… 377 more not shown.</p>
+  
+  <div class="meta">
+    <p>Generated by <code>scripts/extract-design-system.mjs</code>. Components: 11 · Colors: 12 · Typography: 8.</p>
+  </div>
+</body>
+</html>
