@@ -131,11 +131,40 @@ t("parseBundleChildren: captures child basenames from bundle source", () => {
 t("parseBundleChildren: excludes self-reference (bundle naming itself)", () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "wa-self-"));
   try {
-    const src = `// self-ref shouldn't count: "myself.mjs" and child "other.mjs"`;
+    // Test fixture uses realistic bundle-reference shapes (`${HOOK_BASE}/...`)
+    // because the regex now (correctly) requires a path separator before the
+    // basename — bare-name string literals are no longer captured.
+    const src = "// self-ref shouldn't count: \"${HOOK_BASE}/myself.mjs\" and child \"${HOOK_BASE}/other.mjs\"";
     fs.writeFileSync(path.join(tmp, "myself.mjs"), src);
     const r = parseBundleChildren(tmp);
     assert.equal(r.has("myself.mjs"), false, "self-ref excluded");
     assert.equal(r.has("other.mjs"), true, "child captured");
+  } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+});
+
+t("parseBundleChildren: bare-name string literals NOT captured (regression guard for 2026-05-16 smoke-test false-positive class)", () => {
+  // bundles/smoke-test.mjs builds temp paths via `join(tempDir, "ok.mjs")` —
+  // the JS string literal `"ok.mjs"` is bare, NOT a wiring reference.
+  // The auditor's prior greedy regex captured 6 such names as "dangling"
+  // bundle children. This guard locks the fix in: a string literal that
+  // contains NO `/` or `\` before `.mjs` must NOT be captured.
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "wa-bare-"));
+  try {
+    const src = `
+      // bare-name string literals — these are decision tags, fixture names,
+      // return-value labels, NOT wiring references:
+      const HOOK_OK = join(tempDir, "ok.mjs");
+      const HOOK_BLOCK = join(tempDir, "block.mjs");
+      return { reason: "timeout.mjs" };
+      // a real wiring reference DOES contain a separator and SHOULD be captured:
+      const real = "\${HOOK_BASE}/real-child.mjs";
+    `;
+    fs.writeFileSync(path.join(tmp, "fixture-bundle.mjs"), src);
+    const r = parseBundleChildren(tmp);
+    assert.equal(r.has("ok.mjs"), false, "bare 'ok.mjs' excluded");
+    assert.equal(r.has("block.mjs"), false, "bare 'block.mjs' excluded");
+    assert.equal(r.has("timeout.mjs"), false, "bare 'timeout.mjs' excluded");
+    assert.equal(r.has("real-child.mjs"), true, "path-shaped ref captured");
   } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
 });
 

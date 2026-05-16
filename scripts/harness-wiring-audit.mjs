@@ -153,8 +153,13 @@ export function parseBundleChildren(bundleDir) {
     catch { continue; }
     // Match any .mjs basename referenced as a child path. Cover both
     // `${HOOK_BASE}/foo.mjs` (the documented pattern) and direct
-    // `../foo.mjs` imports. Liberal capture, basename-strip for normalization.
-    const pattern = /["'`]([^"'`\s]*?[\w-]+\.mjs)["'`]/g;
+    // `../foo.mjs` imports. **Require a path separator** before the basename
+    // — `"foo.mjs"` as a bare string literal (decision tag, test fixture
+    // name passed to `join(tempDir, "foo.mjs")`, return-value label) is NOT
+    // a wiring reference, and the regex must not capture it (the prior
+    // version produced 6 false-positive "dangling" entries from
+    // bundles/smoke-test.mjs alone — verified 2026-05-16).
+    const pattern = /["'`]([^"'`\s]*[/\\][^"'`\s/\\]+\.mjs)["'`]/g;
     let m;
     while ((m = pattern.exec(src)) !== null) {
       const cleaned = m[1].replace(/\\/g, "/");
