@@ -12,13 +12,13 @@
  * survive the next N steps?"
  */
 
-import type { BuildStep } from "./AtomicStepDecomposerEngine.js";
+import type { AtomicStep } from "./AtomicStepDecomposerEngine.js";
 
 export type ModelTier = "opus_4_7_1m" | "opus_4_6" | "sonnet_4_6" | "opus_4_5" | "haiku_4_5" | "unknown";
 
 export interface ContextBudgetForecastInput {
   currentTokens: number;
-  remainingSteps: BuildStep[];
+  remainingSteps: AtomicStep[];
   modelTier?: ModelTier;
   /** Override the safety margin as fraction of the window (default 0.15). */
   safetyMarginPct?: number;
