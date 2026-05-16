@@ -231,3 +231,17 @@ process. make sure memory is always stable so 7 chats can work at the same time.
 The slot-aware layer is what distinguishes "if it's not being used" from the
 existing generic age-only heuristics — "not being used" means "the chat that
 spawned it is gone," and only this pipeline can prove that.
+
+## Autonomy + enumeration-robustness hardening (2026-05-16b)
+
+Slot alpha, claude-fe461853, commit `2cd22c52`. After a live "reaper not staying open / orphans accumulate / xmalloc fork-storm" report.
+
+**ROOT CAUSE (the reaper was blind, not dead):** `process-slot-map.mjs` `windowsEnumerate()` runs a PS `Get-CimInstance Win32_Process | ConvertTo-Json`. PS 5.1 `ConvertTo-Json` emits **raw C0 control bytes** inside JSON string literals (no `\u`-escaping). One process whose `CommandLine` has a control char (a `node --eval` payload) → invalid JSON → Node `JSON.parse` throws → the **entire** enumeration degrades to empty → 0 candidates while orphans pile up. Fix: strip `[\x00-\x1F]`→space in the PS script *before* `ConvertTo-Json` (lossless for structural cmdline matching; space-not-empty avoids token fusion). Live-verified `0 candidates+caveat → 2 candidates, no caveat`. Pinned by a fail-on-revert test (`matchesLeftoverTaskPattern`: raw→true, space→true, empty→false).
+
+**Installer → true-autonomous:** `install-fleet-reaper-task.ps1` registered with no `-Principal` ⇒ `Logon Mode: Interactive only` (dies when you log off). Now: default **S4U** principal (`-RunLevel Highest`, whether-logged-on-or-not, no stored password); `-AsSystem` (machine account); `-Interactive` (legacy); a second `-AtStartup` trigger (pre-login reboot resume); `-RestartCount 3 -RestartInterval 1m`; `Register-ScheduledTask` splatted so `-Principal` is omitted in legacy mode. `-Uninstall` / `Disable-ScheduledTask` reversibility intact.
+
+**Set-and-forget command (one elevated run):**
+```
+powershell -NoProfile -ExecutionPolicy Bypass -File H:/prism/.claude/helpers/install-fleet-reaper-task.ps1 -RunNow
+```
+Add `-AsSystem` for machine-account mode. After this the durable task is the always-on mechanism — no chat-side Monitor needed. Memory: [[reference_fleet_reaper_autonomy_robust_2026_05_16]].
