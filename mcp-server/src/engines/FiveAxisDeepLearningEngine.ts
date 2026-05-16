@@ -764,6 +764,9 @@ Respond with strategy recommendation, parameters, and reasoning.`;
 // MAIN ENGINE CLASS
 // ============================================================================
 
+// WIRE-EXEMPT: internal-layer engine — consumed by FiveAxisOrchestrationEngine,
+// FiveAxisAIUltraIntelligenceEngine, registries/AISubsystemRegistry, mcp/agentConfig.
+// Exercised by MILL-HARD-MS5/6/7.test.ts + 5AXIS-DEEP.test.ts (milestone-named, not 1:1).
 export class FiveAxisDeepLearningEngine {
   private static learningLog: LearningOutcome[] = [];
 

@@ -959,6 +959,12 @@ function mrr(ae_mm: number, ap_mm: number, feed_mmmin: number): number {
 // ENGINE CLASS
 // ============================================================================
 
+// WIRE-EXEMPT: internal-layer engine — exports MaterialProps / FiveAxisStrategyEntry /
+// MachineKinematics5Ax types + FIVE_AXIS_STRATEGY_CATALOG consumed by 7+ engines
+// (FiveAxisCADTemplateEngine, FiveAxisDeepLearningEngine, FiveAxisOrchestrationEngine,
+//  FiveAxisAIUltraIntelligenceEngine, VirtualMachiningDeepLearningEngine,
+//  NeuralIntegrationEngine, registries/AISubsystemRegistry). Exercised by
+// MILL-HARD-MS4/5/6/7.test.ts + 5AXIS-DEEP.test.ts (milestone-named, not 1:1).
 export class FiveAxisToolpathSynthesisEngine {
   /**
    * Synthesize optimal 5-axis toolpath strategy with AI reasoning.
