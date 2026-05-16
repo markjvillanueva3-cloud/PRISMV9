@@ -54,7 +54,7 @@ export const ValidatorResultSchema = z.object({
   passed: z.boolean(),
   score: z.number().min(0).max(1),
   issues: z.array(ValidationIssueSchema),
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
   duration_ms: z.number(),
 });
 
