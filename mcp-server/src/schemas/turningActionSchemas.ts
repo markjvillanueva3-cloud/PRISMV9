@@ -1025,6 +1025,52 @@ const turning_vendor_catalog_stats = z.object({}).passthrough().describe(
   "Per-vendor catalog inventory (VendorTurningCatalogExtractorEngine.getStats). Hydrates the catalog on first call. Returns { vendors: [{ vendor, stats: { total_inserts, total_holders, total_grades, total_cutting_data, insert_shapes, chipbreaker_types } }] }.",
 );
 
+// ============================================================================
+// WIRE-UNWIRED-MS0/U-WIRE-MOP — LatheMultiOpPlannerEngine (LATHE-PRO-MS3/U-LPS03)
+// Op1/Op2 flip planning + soft-jaw boring G-code. Feature `position` drives
+// access classification (chuck_end→op1, tailstock_end→op2, through→either).
+// Reference: Peter Smid CNC Programming Handbook Ch. 2; Machinery's Handbook
+// 31st Ed. — Workholding.
+// ============================================================================
+
+const _multiOpFeature = z.object({
+  id: z.string().min(1).describe("Feature identifier (unique within the part)."),
+  type: z.string().min(1).describe("Feature type label (free-form, e.g. 'od_groove', 'thru_bore')."),
+  position: z.enum(["chuck_end", "tailstock_end", "middle", "through"])
+    .describe("Which end the feature is on — drives Op1/Op2 access classification."),
+  diameter_mm: optPosNum.describe("Nominal feature diameter in mm."),
+  length_mm: optPosNum.describe("Feature length in mm."),
+  tolerance_mm: optPosNum.describe("Feature tolerance in mm."),
+  is_bore: z.boolean().optional().describe("True if this is a bore (drives drill/rough_bore/finish_bore ops)."),
+  is_through: z.boolean().optional().describe("True if accessible from either end (classified 'either')."),
+  requires_facing: z.boolean().optional().describe("True if the feature requires a facing pass."),
+  has_threads: z.boolean().optional().describe("True if the feature is threaded (adds thread_od/thread_id op)."),
+}).passthrough();
+
+const lathe_multiop_plan = z.object({
+  part_length_mm: posNum.describe("Part overall length in mm (>0)."),
+  max_od_mm: posNum.describe("Part maximum OD in mm (>0) — grip-diameter fallback."),
+  features: z.array(_multiOpFeature).min(1)
+    .describe("Features to machine (at least one) — position classifies Op1 vs Op2."),
+  stock_od_mm: optPosNum.describe("Stock bar diameter in mm (optional)."),
+  concentricity_mm: optPosNum
+    .describe("Tightest concentricity requirement in mm — <0.010 selects indicator_alignment, else soft_jaw_bore_to_od (default 0.025)."),
+  iso_group: z.string().optional().describe("Material ISO group (optional)."),
+  controller: z.enum(["fanuc", "okuma", "haas", "mazak", "siemens"]).optional()
+    .describe("Controller dialect for the soft-jaw boring G-code (default fanuc)."),
+}).passthrough().describe(
+  "Plan an Op1/Op2 flip for a turned part (LatheMultiOpPlannerEngine.plan). Returns { needs_flip, reasoning[], op1, op2|null, soft_jaw_boring|null, z_transfer|null, concentricity|null, total_operations, estimated_setup_changes }. needs_flip=false when every feature is Op1-accessible.",
+);
+
+const lathe_softjaw_boring = z.object({
+  bore_diameter_mm: posNum.describe("Target finished bore diameter in mm (>0) — clearance fit to the Op1 finished OD."),
+  bore_depth_mm: posNum.describe("Bore depth in mm (>0)."),
+  controller: z.enum(["fanuc", "okuma", "haas", "mazak", "siemens"]).optional()
+    .describe("Controller dialect (default fanuc): Fanuc/Haas G71-G70, Okuma GROV/GFIN, Mazak G71-G70, Siemens CYCLE95."),
+}).passthrough().describe(
+  "Generate a standalone soft-jaw boring program (LatheMultiOpPlannerEngine.generateSoftJawBoring). Returns { bore_diameter_mm, bore_depth_mm, bore_tolerance_mm:0.025, gcode (controller-specific rough+finish bore), notes[] }.",
+);
+
 export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   chuck_force,
   tailstock,
@@ -1177,4 +1223,8 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   turning_vendor_grade_recommend,
   turning_vendor_iso_code_resolve,
   turning_vendor_catalog_stats,
+
+  // WIRE-UNWIRED-MS0/U-WIRE-MOP: LatheMultiOpPlannerEngine — 2 surfaces
+  lathe_multiop_plan,
+  lathe_softjaw_boring,
 };

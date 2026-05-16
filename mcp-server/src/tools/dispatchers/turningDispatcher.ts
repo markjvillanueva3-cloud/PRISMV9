@@ -228,6 +228,10 @@ const ACTIONS = [
   "turning_vendor_grade_recommend",         // recommendGrade — ISO-group + operation → ranked grade list
   "turning_vendor_iso_code_resolve",        // resolveISOCode — parse + catalog match
   "turning_vendor_catalog_stats",           // getStats — per-vendor catalog inventory
+
+  // WIRE-UNWIRED-MS0/U-WIRE-MOP: LatheMultiOpPlannerEngine (LATHE-PRO-MS3/U-LPS03)
+  "lathe_multiop_plan",                     // plan — Op1/Op2 flip planning + soft-jaw bore + Z-transfer + concentricity
+  "lathe_softjaw_boring",                   // generateSoftJawBoring — standalone soft-jaw bore G-code (5 controllers)
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1508,6 +1512,34 @@ Actions: ${ACTIONS.join(", ")}.`,
           // (caller feeds a prior search hit back); no standalone value.
           // Reference: ISO 1832 (insert designation), ISO 5608 (holders),
           // Sandvik Coromant Turning Guide 2023-2024.
+          // WIRE-UNWIRED-MS0/U-WIRE-MOP: LatheMultiOpPlannerEngine — 2 surfaces
+          // plan() detects two-sided-access features and generates the full
+          // Op1/Op2 flip plan (soft-jaw bore Ø, Z-datum transfer, concentricity
+          // strategy gated on tolerance: <10µm → indicator alignment, else
+          // bore-to-OD). generateSoftJawBoring() is also called inside plan()
+          // but has clear standalone value (5 controller dialects: Fanuc/Haas
+          // G71-G70, Okuma GROV/GFIN, Mazak, Siemens CYCLE95). Both wired.
+          // Reference: Peter Smid CNC Programming Handbook Ch. 2;
+          // Machinery's Handbook 31st Ed. — Workholding.
+          case "lathe_multiop_plan":
+          case "lathe_softjaw_boring": {
+            const { latheMultiOpPlannerEngine } = await import("../../engines/LatheMultiOpPlannerEngine.js");
+            const p = params as any;
+            let data: unknown;
+            switch (action) {
+              case "lathe_multiop_plan":
+                data = latheMultiOpPlannerEngine.plan(p);
+                break;
+              case "lathe_softjaw_boring":
+                data = latheMultiOpPlannerEngine.generateSoftJawBoring(
+                  p.bore_diameter_mm, p.bore_depth_mm, p.controller ?? "fanuc",
+                );
+                break;
+            }
+            result = { success: true, data };
+            break;
+          }
+
           case "turning_iso1832_parse":
           case "turning_chipbreaker_classify":
           case "turning_vendor_insert_search":
