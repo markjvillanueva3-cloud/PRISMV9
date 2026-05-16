@@ -18,9 +18,13 @@
 
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
+import os from "node:os";
 
+// Derive from homedir — a hardcoded foreign-user path here caused fail-open
+// 0% recall fleet-wide (this fires via edit-bundle.mjs on every Edit).
 const MEMORY_DIR =
-  "C:/Users/Mark Villanueva/.claude/projects/H--PRISM/memory";
+  process.env.PRISM_MEMORY_DIR ||
+  path.join(os.homedir(), ".claude", "projects", "H--prism", "memory");
 const MAX_HITS_INJECTED = 3;
 const MAX_BODY_PER_HIT = 350;
 const MAX_TOTAL_CHARS = 1500;
