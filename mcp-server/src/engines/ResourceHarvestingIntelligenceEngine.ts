@@ -1,3 +1,14 @@
+// WIRE-EXEMPT: consumed by test suites + wiring manifest + AI auto-utilization
+// engine, not via a dispatcher action. Verified consumers (grep-confirmed
+// 2026-05-15):
+//   - mcp-server/src/__tests__/RESOURCE-HARVEST-MS0.test.ts          (5 refs, full integration)
+//   - mcp-server/src/schemas/WiringManifest.ts                       (manifest entry)
+//   - mcp-server/src/engines/AIAutoUtilizationEngine.ts              (engines_used: ["ResourceHarvestingIntelligenceEngine", ...])
+// Engine surface is intentionally direct-API (called by orchestrators that
+// know its full method shape) — no dispatcher action is appropriate today
+// since callers consume typed shapes (HarvestingPlan, ResourceCatalog) that
+// don't fit the dispatcher's Record<string, unknown> envelope without lossy
+// flattening.
 /**
  * ResourceHarvestingIntelligenceEngine — RESOURCE-HARVEST-MS0: Exhaustive Resource Intelligence
  *

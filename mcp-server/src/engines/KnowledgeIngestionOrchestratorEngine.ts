@@ -1,3 +1,13 @@
+// WIRE-EXEMPT: invoked directly by tests + wiring manifest, not via a
+// dispatcher action. Verified consumers (grep-confirmed 2026-05-15):
+//   - mcp-server/src/__tests__/knowledge-wiring-integration.test.ts (46 refs)
+//   - mcp-server/src/__tests__/gcode-cycle-extraction.test.ts        (5 refs)
+//   - mcp-server/src/schemas/WiringManifest.ts                       (manifest entry)
+//   - mcp-server/src/engines/AIAutoUtilizationEngine.ts              (engines_used name string)
+// Future iter U-KNOWLEDGE-INGEST-WIRE will add a prism_knowledge dispatcher
+// action surface (input: DiscoveredResource, output: ExtractionResult) so
+// hooks/scheduled-tasks can invoke uniformly via BaseEngine.execute() — that
+// contract was put in place by U-HVA-REWIRE-ITER29 (commit 1cafb6e3f).
 /**
  * KnowledgeIngestionOrchestratorEngine.ts
  * PDF-EXT-MS2 U-PDF13: Course-to-Academy Bridge + Auto-Ingestion Pipeline
