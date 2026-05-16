@@ -554,4 +554,8 @@ class MachinePackageSelectionEngine {
   }
 }
 
+// WIRE-EXEMPT: MCAT-MS0/P2-U01 — package-driven successor to MachineSelectionEngine,
+// which is the surface wired in calcDispatcher (machine recommend/compare/validate).
+// Migrating those actions to this engine is a separate machine-migration unit; this
+// tsc-fix pass only repaired type drift and did not introduce the orphan state.
 export const machinePackageSelectionEngine = new MachinePackageSelectionEngine();

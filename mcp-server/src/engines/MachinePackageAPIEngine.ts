@@ -738,4 +738,6 @@ class MachinePackageAPIEngine {
   }
 }
 
+// WIRE-EXEMPT: internal-layer engine — consumed by MachineAuditEngine and
+// MachineProfilePropagationEngine; no MCP dispatcher surface intended.
 export const machinePackageAPIEngine = new MachinePackageAPIEngine();
