@@ -56,6 +56,25 @@ export const DISPATCHER_INFERENCE_RULES = Object.freeze([
   { pattern: /\b(safety[-_]?guard|agi[-_]?containment|guard)/i, dispatcher: "prism_guard", confidence: 0.72, reason: "guard/containment keyword" },
   { pattern: /\b(blueprint|drawing|ocr|gd&t|gdt|inspection|cmm)/i, dispatcher: "prism_intake", confidence: 0.70, reason: "drawing/intake keyword" },
   { pattern: /\b(quote|cost|estimate|biz|invoice|customer|erp)/i, dispatcher: "prism_session", confidence: 0.55, reason: "business/quote keyword (low conf — review)" },
+  // Phase-6 additions — patterns surfaced from the 456 UNKNOWN tail
+  { pattern: /\b(abstract|hierarchy|synergy|authority|attractor|cognitive|emergent|symbol)/i, dispatcher: "prism_intelligence", confidence: 0.68, reason: "abstract/cognitive intelligence keyword" },
+  { pattern: /\b(agent|workflow|autopilot|pipeline|executor|worker|orchestrat|broker|scheduler|atcs)/i, dispatcher: "prism_orchestrate", confidence: 0.75, reason: "agent/workflow/orchestration keyword" },
+  { pattern: /\b(schema|cache|atomic|registry|config|backup|restore|migration|lifecycle|persist|state[-_]?manager)/i, dispatcher: "prism_dev", confidence: 0.70, reason: "schema/registry/dev-infra keyword" },
+  { pattern: /\b(asset|acquisition|recommendation|specializ|capability)/i, dispatcher: "prism_session", confidence: 0.62, reason: "asset/recommendation keyword" },
+  { pattern: /\b(auth|authoriz|jwt|oauth|credential|token[-_]?validator)/i, dispatcher: "prism_session", confidence: 0.65, reason: "auth/credential keyword" },
+  { pattern: /\b(as9100|iso[-_]?9001|traceab|reliab|defect|qms|compliance)/i, dispatcher: "prism_safety", confidence: 0.72, reason: "compliance/traceability keyword" },
+  { pattern: /\b(autocad|catia|nx[-_]|inventor|sw[-_]|plugin|addin|bridge|dotnet)/i, dispatcher: "prism_cam", confidence: 0.70, reason: "CAM-bridge plugin keyword" },
+  { pattern: /\b(arc|fillet|chamfer|mesh|geom|nurbs|spline|bezier|tessell)/i, dispatcher: "prism_cad", confidence: 0.72, reason: "geometry/mesh keyword" },
+  { pattern: /\b(pump|piston|ball[-_]?mill|bar[-_]?remnant|gear|bearing|spindle[-_]?body)/i, dispatcher: "prism_cam", confidence: 0.65, reason: "mechanical component keyword (mapped to CAM dispatcher)" },
+  { pattern: /\b(advanced[-_]?cnc|strateg|cycle|preset|template[-_]?engine)/i, dispatcher: "prism_cam", confidence: 0.65, reason: "advanced CNC/strategy keyword" },
+  { pattern: /\b(validator|validation|guard|sanitize|verify)/i, dispatcher: "prism_safety", confidence: 0.60, reason: "validator/guard keyword" },
+  { pattern: /\b(extractor|parser|tokeniz|lexer|ingest|harvester|spider|crawler)/i, dispatcher: "prism_intake", confidence: 0.68, reason: "extractor/parser keyword" },
+  { pattern: /\b(generator|render|emit|transform|compil)/i, dispatcher: "prism_cam", confidence: 0.58, reason: "generator/render keyword (low conf — review)" },
+  { pattern: /\b(predictor|classifier|recommender|regressor|estimator)/i, dispatcher: "prism_ai", confidence: 0.72, reason: "ML predictor/classifier keyword" },
+  { pattern: /\b(event|stream|queue|pubsub|notify|alert|watchdog|monitor|telem|health)/i, dispatcher: "prism_dev", confidence: 0.65, reason: "event/monitor keyword" },
+  { pattern: /\b(post[-_]?proc|macro[-_]?compose|nc[-_]?script|gcode[-_]?compose)/i, dispatcher: "prism_cam", confidence: 0.78, reason: "post-processor compose keyword" },
+  { pattern: /\b(mill|milling|drill|tap|bore|countersink|reamer|endmill|ballmill)/i, dispatcher: "prism_cam", confidence: 0.65, reason: "milling tool keyword (catch-all)" },
+  { pattern: /\b(base|abstract[-_]?engine|core[-_]?engine|util|helper)/i, dispatcher: "prism_dev", confidence: 0.50, reason: "base/util keyword (low conf — review)" },
 ]);
 
 export const MIN_CONFIDENCE = 0.5;

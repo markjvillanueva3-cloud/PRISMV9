@@ -67,7 +67,9 @@ describe("inferDispatcher", () => {
     assert.equal(r.dispatcher, "prism_session");
   });
   test("no keyword match → UNKNOWN with confidence 0", () => {
-    const r = inferDispatcher("RandomNoiseGenerator");
+    // Use a deliberately keyword-free name (no domain words after the camelCase
+    // split). "XyzzyFooBar" → tokenized "Xyzzy Foo Bar" — no rule matches.
+    const r = inferDispatcher("XyzzyFooBar");
     assert.equal(r.dispatcher, "UNKNOWN");
     assert.equal(r.confidence, 0);
   });
