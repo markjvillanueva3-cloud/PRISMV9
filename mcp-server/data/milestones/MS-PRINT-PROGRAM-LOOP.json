@@ -663,6 +663,16 @@
           "title": "[Track D] U-MCX-BINARY-PARSER (the highest-leverage unit) — Mastercam .mcx-8/.mcx/.mcx-6 reader (Mastercam-API automation OR reverse-engineered binary format) so the ~9,000 mill/EDM toolpath files get PN + tools + S/F + op-sequence extracted. Unlocks: mill back-annotation (D1's mill seed), a real MILL_AI_TRAINING_REPORT (cold at 27 today ONLY because of this), mill archive re-opt (B3's mill arm), mill family fingerprinting (A5). High effort, high payoff. DEPENDS on a Mastercam install + automation API, OR a reverse-engineering effort",
           "effort": 90,
           "dependencies": [],
+          "status": "completed",
+          "completed_at": "2026-05-15T19:30:56.000Z",
+          "completed_by": "claude-2081f435 (envelope-sync only; engine + bridge shipped by claude-a61bbf34 slot echo /loop iter 5 — commits 601b9547b + ce43d04b8)",
+          "exit_evidence": {
+            "implementation": "Honest-scoping (slot echo /loop iter 4) found McxProgramParserEngine + McxBatchExtractorEngine ALREADY SHIPPED under LATHE-PROD-READY-MS0/U-LPR26+U-LPR28 — the highest-leverage real value of D5 was a BRIDGE, not a fresh parser. Commit 601b9547b extends ProgramEquivalentKind union ('mill-gcode' as 3rd kind), adds buildMillProgramEntries + mcxEntryToProgramEquivalent pure transform, mcx_source aggregation (totalEntries/recognized/skipped_non_ok/skipped_no_pn/byFormat/byMagicVerified), mcxProgramEntries on ComposeOptions, fixes limit-cap default to span lathe+mill streams, moves linked-count loop after mcx iteration so mill print_refs aggregate. Commit ce43d04b8 lands the cadActionSchemas mcx_entries field + cadDispatcher mcxEntries extraction (lost in a peer conflict-resolution cycle then re-applied — same shared-tree absorption pattern as D1/D3/D4).",
+            "tests_pass": "src/__tests__/ProgramEquivalentIndexEngine.test.ts 31/31 PASS (21 pre-existing D4 + 10 new D5-bridge: mill-only mode, 3-way CAD+lathe+mill compose, status filtering [parse_failed/io_error/skipped_existing/skipped_oversize → skipped_non_ok], ok-but-no-PN → skipped_no_pn, byFormat aggregation, magicVerified partitioning, unknown-format handling, print_ref DI enrichment, fail-loud on non-array mcxProgramEntries, CAD+lathe-only backward compat).",
+            "typecheck": "esbuild build:fast clean. Full tsc fails on the same 9 pre-existing peer-broken dispatchers from U-DOCU-04/05 — NONE of them are CAD-side or touch U-PPL-D5 files.",
+            "dispatcher_wiring": "prism_cad:program_equivalent_index_compose accepts mcx_entries[] end-to-end — schema field on programEquivalentIndexComposeSchema, dispatcher case extracts (snake/camel/legacy aliases), passes through as mcxProgramEntries to programEquivalentIndexEngine.compose(). True wire-level verification (not source-grep) was the engine round-trip in the test."
+          },
+          "closeout_note": "Envelope-only flip — the deliverable shipped 2026-05-15 (claude-a61bbf34 slot echo /loop iter 5, commits 601b9547b + ce43d04b8) and the commit body explicitly states 'Track D 4/5 -> 5/5. MS-PRINT-PROGRAM-LOOP completed_units 4 -> 5 (of 23).' but the envelope was never bumped — the subsequent U-PPL-C2-CLOSEOUT commit (41550074c) treated 5 as the C2 closeout target, leaving D5 unaccounted. This commit flips the unit status + bumps completed_units 5 -> 6 to reflect git reality. No code changes; no scrutiny gate (data-only envelope edit per [[reference_milestone_progress_surface]]). Track D is now genuinely 5/5 complete.",
           "exit_conditions": [
             "Implementation complete per description",
             "Tests pass: npx vitest run",
@@ -688,8 +698,8 @@
     }
   ],
   "total_units": 23,
-  "completed_units": 5,
-  "updated_at": "2026-05-15T20:48:00.000Z",
-  "updated_by": "claude-339c8ff7 (U-PPL-C2 CustomerMaterialMapEngine ship, slot bravo, /loop iter 3/4 post-/compact)",
+  "completed_units": 6,
+  "updated_at": "2026-05-16T00:02:00.000Z",
+  "updated_by": "claude-2081f435 (U-PPL-D5 envelope-sync — Track D 5/5; engine shipped 2026-05-15 commits 601b9547b+ce43d04b8)",
   "started_at": "2026-05-15T16:30:00.000Z"
 }
