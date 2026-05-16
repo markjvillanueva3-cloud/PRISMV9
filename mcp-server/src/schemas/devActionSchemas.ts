@@ -1078,4 +1078,23 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   pdf_highlights_extract: z.object({
     pdf_path: z.string().min(1).describe("Absolute or relative path to the .pdf file to extract /Highlight annotations from"),
   }).passthrough().describe("Extract only /Highlight subtype annotations from a PDF (F2 --highlights-only mode)"),
+
+  // ── COST-CASCADE-MS0/U-MULTI-AGENT-COST-TELEMETRY ────────────────────────
+  // Per-tentacle, per-task-class multi-LLM cost ledger. record() appends one
+  // JSONL line; aggregate() streams active+rotated segments over a window.
+  // inputTokens/outputTokens may be null (degraded — tentacle gave no usage);
+  // costUSD MUST be 0 (not omitted) for local/free tentacles.
+  cost_telemetry_record: z.object({
+    tentacle: z.string().min(1).describe("LLM tentacle id (claude/ollama/codex/octopus/k2/...)"),
+    taskClass: z.string().min(1).describe("Task class (deep_reasoning/summarize/classify/...)"),
+    inputTokens: z.number().int().nonnegative().nullable().describe("Prompt tokens, or null when the tentacle reported no usage"),
+    outputTokens: z.number().int().nonnegative().nullable().describe("Completion tokens, or null when unknown"),
+    latencyMs: z.number().nonnegative().describe("Call latency in ms"),
+    costUSD: z.number().nonnegative().describe("USD cost — 0 (explicit, not omitted) for local/free tentacles"),
+    meta: z.record(z.string(), z.unknown()).optional().describe("Optional free-form context (model id, session, etc.)"),
+  }).passthrough().describe("Append one per-call cost record to the multi-LLM cost ledger"),
+
+  cost_telemetry_aggregate: z.object({
+    windowHours: z.number().positive().describe("Trailing window in hours (must be > 0)"),
+  }).passthrough().describe("Aggregate the cost ledger over the trailing window — per-tentacle + per-task-class sums (streams active+rotated segments)"),
 };

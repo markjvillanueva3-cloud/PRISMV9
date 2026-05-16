@@ -206,7 +206,10 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "impact_analyze_rename",
 "impact_analyze_delete",
 "impact_can_delete",
-"impact_find_orphans"] as const;
+"impact_find_orphans",
+// COST-CASCADE-MS0/U-MULTI-AGENT-COST-TELEMETRY: per-tentacle/per-task-class cost ledger
+"cost_telemetry_record",
+"cost_telemetry_aggregate"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -1302,6 +1305,36 @@ export function registerDevDispatcher(server: any): void {
             const ph = typeof params === "object" && params !== null ? params as Record<string, unknown> : {};
             const { PDFHighlightExtractorEngine } = await import("../../engines/PDFHighlightExtractorEngine.js");
             result = PDFHighlightExtractorEngine.extractHighlightsOnly(ph.pdf_path as string);
+            break;
+          }
+
+          // COST-CASCADE-MS0/U-MULTI-AGENT-COST-TELEMETRY. Params are
+          // schema-validated by validateActionParams before this switch, so
+          // the case forwards directly. record() is SYNC (hot-path append);
+          // aggregate() is ASYNC (streams active+rotated segments).
+          case "cost_telemetry_record": {
+            const cp = typeof params === "object" && params !== null ? params as Record<string, unknown> : {};
+            const { MultiAgentCostTelemetryEngine } = await import("../../engines/MultiAgentCostTelemetryEngine.js");
+            result = MultiAgentCostTelemetryEngine.record({
+              tentacle: cp.tentacle as string,
+              taskClass: cp.taskClass as string,
+              inputTokens: (cp.inputTokens ?? null) as number | null,
+              outputTokens: (cp.outputTokens ?? null) as number | null,
+              latencyMs: cp.latencyMs as number,
+              costUSD: cp.costUSD as number,
+              meta:
+                cp.meta && typeof cp.meta === "object" && !Array.isArray(cp.meta)
+                  ? (cp.meta as Record<string, unknown>)
+                  : undefined,
+            });
+            break;
+          }
+          case "cost_telemetry_aggregate": {
+            const cp = typeof params === "object" && params !== null ? params as Record<string, unknown> : {};
+            const { MultiAgentCostTelemetryEngine } = await import("../../engines/MultiAgentCostTelemetryEngine.js");
+            result = await MultiAgentCostTelemetryEngine.aggregate(
+              cp.windowHours as number,
+            );
             break;
           }
           case "blueprint_ingest_phase8": {
