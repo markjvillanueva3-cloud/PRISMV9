@@ -9,7 +9,7 @@
   "updated_at": "2026-05-12T20:30:00.000Z",
   "status": "in_progress",
   "total_units": 8,
-  "completed_units": 1,
+  "completed_units": 2,
   "dependencies": ["TRAINING-LEARNING-MS0", "MACRO-PROGRAM-PIPELINE-MS0"],
   "cross_links": {
     "consumes": ["TRAINING-LEARNING-MS0 (template families inform retrieval context)"],
@@ -95,7 +95,7 @@
   },
   "units": [
     {"id": "MS1-U1", "title": "Rescue + wire prism-enhanced-gdt-engine + prism-gdt-fcf-parser (Phase 2, T1)", "status": "completed", "atomic_phase": 2, "tier": 1, "shipped_sha": "e88cf6429", "shipped_at": "2026-05-12T20:30:00.000Z", "notes": "Plus restored 2 deleted LATHE-PRO-MS8 engines (GDTCalloutParserEngine + FCFSyntaxValidatorEngine) that the dispatcher imports — fixed runtime time bombs in cad_gdt_callout_parse + cad_fcf_validate. 135/135 tests pass."},
-    {"id": "MS1-U2", "title": "Rescue + wire prism-ocr-engine monolith fork (Phase 2, T1)", "status": "not_started", "atomic_phase": 2, "tier": 1},
+    {"id": "MS1-U2", "title": "Rescue + wire prism-ocr-engine monolith fork (Phase 2, T1)", "status": "completed", "atomic_phase": 2, "tier": 1, "shipped_sha": "edc0c0eaf", "shipped_at": "2026-05-16T00:14:00.000Z", "notes": "NEW sibling engine PDFBlueprintPatternRescueEngine.ts (385 LOC pure-transform) rescues 4 pattern groups absent from sister extractors: fractional dims (1/2\", 3/8, 1-1/2\"), limit-pair dims (1.000/1.002), ISO 1302 N-grade Ra (N1..N12 lookup), standalone microinch (32 µin without Ra prefix). Tesseract.js browser orchestration deemed obsolete; not lifted. Wired into cad_pdf_blueprint_extract via additive composition (existing consumers see strictly more entries, never fewer) + new standalone action cad_pdf_pattern_rescue_extract. 84/84 tests PASS (17 sister regression + 67 new). 2-of-2 per-file scrutiny gate: 2 P0 + 6 P1 found and all fixed pre-commit (raw_text slice math; ReDoS-ambiguous regex; lookbehind off-by-one; veto-window widening; drawing_units plumbing; sister-engine docstring redirect). Deferred follow-ups: validateCompleteness() symmetry (rescue dims not in sister scoring), cadDispatcher integration test (BATCH1-5 MockMCPServer harness pending)."},
     {"id": "MS1-U3", "title": "Extend groundtruthregistryengine with blueprint-extraction join (Phase 2, T1)", "status": "not_started", "atomic_phase": 2, "tier": 1},
     {"id": "MS1-U4", "title": "Extend groundtruthvalidationengine with extraction-confidence cross-validation (Phase 2, T1)", "status": "not_started", "atomic_phase": 2, "tier": 1},
     {"id": "MS1-U5", "title": "Extend blueprint-accuracy-guard + new blueprint-coverage-floor-guard Stop hook (Phase 2, T0/T1)", "status": "not_started", "atomic_phase": 2, "tier": 1},
