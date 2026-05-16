@@ -38,7 +38,14 @@
  */
 
 import { log } from "../utils/Logger.js";
-import { type ControllerFamily } from "./ControllerKnowledgeEngine.js";
+// Engine-local controller MODEL vocabulary. Distinct from the family-level
+// ControllerModel in ControllerKnowledgeEngine — the NN classifier discriminates
+// between fanuc_31i vs fanuc_0i, siemens_840d vs other Siemens, etc., so a
+// family-level type would erase the labels the classifier predicts.
+export type ControllerModel =
+  | "fanuc_31i" | "fanuc_0i"
+  | "haas_ngc" | "siemens_840d" | "heidenhain_tnc" | "okuma_osp"
+  | "hurco_winmax" | "mazatrol" | "brother_c00" | "mitsubishi_m80";
 
 // ============================================================================
 // NEURAL NETWORK TYPES
@@ -74,7 +81,7 @@ export interface TrainingSample {
   input: number[];
   output: number[];
   metadata?: {
-    controller?: ControllerFamily;
+    controller?: ControllerModel;
     machineConfig?: string;
     quality?: number;
   };
@@ -95,7 +102,7 @@ export interface GCodePattern {
   pattern: string[];
   frequency: number;
   quality_score: number;
-  controllers: ControllerFamily[];
+  controllers: ControllerModel[];
 }
 
 /** Safety sequence */
@@ -148,17 +155,17 @@ export interface HMMResult {
 
 /** Prior probability for each controller family */
 export interface ControllerPrior {
-  controller: ControllerFamily;
+  controller: ControllerModel;
   prior: number;           // P(controller) — shop usage frequency
   featureLikelihoods: Map<string, number>; // P(feature|controller)
 }
 
 /** Bayesian classification result */
 export interface BayesianResult {
-  controller: ControllerFamily;
+  controller: ControllerModel;
   posterior: number;       // P(controller|evidence)
-  priors: Record<ControllerFamily, number>;
-  likelihoods: Record<ControllerFamily, number>;
+  priors: Record<ControllerModel, number>;
+  likelihoods: Record<ControllerModel, number>;
   evidence: number;        // Normalizing constant P(evidence)
 }
 
@@ -229,7 +236,7 @@ export interface OptimizedSequence {
 
 /** Extracted controller signature from tribal knowledge */
 interface ControllerSignature {
-  family: ControllerFamily;
+  family: ControllerModel;
   uniqueGCodes: string[];      // G-codes unique to this controller
   uniqueMCodes: string[];      // M-codes unique to this controller
   uniqueCycles: string[];      // Named cycles (CYCLE832, CYCL DEF, etc.)
@@ -700,23 +707,23 @@ const bayesianFunctions = {
    */
   calculatePosterior: (
     features: number[],
-    priors: Map<ControllerFamily, number>,
-    likelihoods: Map<ControllerFamily, (f: number[]) => number>
+    priors: Map<ControllerModel, number>,
+    likelihoods: Map<ControllerModel, (f: number[]) => number>
   ): BayesianResult => {
-    const controllers: ControllerFamily[] = [
+    const controllers: ControllerModel[] = [
       "hurco_winmax", "haas_ngc", "fanuc_31i", "okuma_osp",
       "heidenhain_tnc", "siemens_840d", "mazatrol", "brother_c00", "mitsubishi_m80"
     ];
 
     // Calculate likelihoods P(features|controller)
-    const likelihoodValues: Record<ControllerFamily, number> = {} as Record<ControllerFamily, number>;
+    const likelihoodValues: Record<ControllerModel, number> = {} as Record<ControllerModel, number>;
     for (const c of controllers) {
       const likelihoodFn = likelihoods.get(c);
       likelihoodValues[c] = likelihoodFn ? likelihoodFn(features) : 0.1;
     }
 
     // Calculate unnormalized posteriors
-    const unnormalizedPosteriors: Record<ControllerFamily, number> = {} as Record<ControllerFamily, number>;
+    const unnormalizedPosteriors: Record<ControllerModel, number> = {} as Record<ControllerModel, number>;
     for (const c of controllers) {
       const prior = priors.get(c) || (1 / controllers.length);
       unnormalizedPosteriors[c] = likelihoodValues[c] * prior;
@@ -726,9 +733,9 @@ const bayesianFunctions = {
     const evidence = Object.values(unnormalizedPosteriors).reduce((sum, p) => sum + p, 0);
 
     // Normalize posteriors
-    const posteriors: Record<ControllerFamily, number> = {} as Record<ControllerFamily, number>;
+    const posteriors: Record<ControllerModel, number> = {} as Record<ControllerModel, number>;
     let maxPosterior = 0;
-    let bestController: ControllerFamily = "fanuc_31i";
+    let bestController: ControllerModel = "fanuc_31i";
 
     for (const c of controllers) {
       posteriors[c] = evidence > 0 ? unnormalizedPosteriors[c] / evidence : 1 / controllers.length;
@@ -739,7 +746,7 @@ const bayesianFunctions = {
     }
 
     // Build priors record
-    const priorsRecord: Record<ControllerFamily, number> = {} as Record<ControllerFamily, number>;
+    const priorsRecord: Record<ControllerModel, number> = {} as Record<ControllerModel, number>;
     for (const c of controllers) {
       priorsRecord[c] = priors.get(c) || (1 / controllers.length);
     }
@@ -1370,11 +1377,11 @@ export class PostProcessorNeuralNetworkEngine {
   /**
    * Classify controller from G-code
    */
-  classifyController(code: string): { controller: ControllerFamily; confidence: number } {
+  classifyController(code: string): { controller: ControllerModel; confidence: number } {
     const features = G_CODE_FEATURES.extractProgramFeatures(code);
     const prediction = this._forward("ControllerClassifier", features);
 
-    const controllers: ControllerFamily[] = [
+    const controllers: ControllerModel[] = [
       "hurco_winmax", "haas_ngc", "fanuc_31i", "okuma_osp",
       "heidenhain_tnc", "siemens_840d", "mazatrol", "brother_c00", "mitsubishi_m80"
     ];
@@ -1462,7 +1469,7 @@ export class PostProcessorNeuralNetworkEngine {
   /**
    * Learn from successful post processor output
    */
-  learnFromExample(code: string, quality: number, controller: ControllerFamily): void {
+  learnFromExample(code: string, quality: number, controller: ControllerModel): void {
     const features = G_CODE_FEATURES.extractProgramFeatures(code);
     const sample: TrainingSample = {
       input: features,
@@ -1547,7 +1554,7 @@ export class PostProcessorNeuralNetworkEngine {
    */
   classifyControllerBayesian(code: string): BayesianResult {
     // Build priors from JM Die shop profile (empirical usage)
-    const priors = new Map<ControllerFamily, number>([
+    const priors = new Map<ControllerModel, number>([
       ["hurco_winmax", 0.25],   // Primary 5-axis mill
       ["haas_ngc", 0.15],       // Common VMC
       ["fanuc_31i", 0.15],      // Many OEM machines
@@ -1560,7 +1567,7 @@ export class PostProcessorNeuralNetworkEngine {
     ]);
 
     // Build likelihood functions from signatures
-    const likelihoods = new Map<ControllerFamily, (f: number[]) => number>();
+    const likelihoods = new Map<ControllerModel, (f: number[]) => number>();
     for (const sig of CONTROLLER_SIGNATURES) {
       likelihoods.set(sig.family, (_f: number[]) =>
         bayesianFunctions.signatureLikelihood(code, sig)
@@ -1723,7 +1730,7 @@ export class PostProcessorNeuralNetworkEngine {
     sequence: OptimizedSequence;
     mutualInfo: MutualInfoResult;
     safety: { score: number; issues: string[] };
-    controller: { controller: ControllerFamily; confidence: number };
+    controller: { controller: ControllerModel; confidence: number };
   } {
     return {
       hmm: this.analyzeWithHMM(code),
