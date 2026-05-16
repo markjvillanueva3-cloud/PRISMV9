@@ -220,6 +220,14 @@ const ACTIONS = [
   // WIRE-UNWIRED-MS0/U-WIRE-TRG: TurningRulesGeneratorEngine (LATHE-PRO)
   "turning_rules_generate",                 // generate — speed/feed/DoC envelope rules per material×tool×machine×op
   "turning_rules_stats",                    // getStats — supported rule kinds + ISO groups + operations
+
+  // WIRE-UNWIRED-MS0/U-WIRE-VTC: VendorTurningCatalogExtractorEngine (L2-P1-MS2 U-LAT22)
+  "turning_iso1832_parse",                  // parseISO1832Designation — pure ISO 1832 insert-code decoder
+  "turning_chipbreaker_classify",           // classifyChipbreaker — pure code → finishing/medium/roughing/universal
+  "turning_vendor_insert_search",           // searchInserts — query the ~4095-insert Tungaloy+Widia catalog
+  "turning_vendor_grade_recommend",         // recommendGrade — ISO-group + operation → ranked grade list
+  "turning_vendor_iso_code_resolve",        // resolveISOCode — parse + catalog match
+  "turning_vendor_catalog_stats",           // getStats — per-vendor catalog inventory
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1480,6 +1488,66 @@ Actions: ${ACTIONS.join(", ")}.`,
               case "turning_rules_stats":
                 data = turningRulesGeneratorEngine.getStats();
                 break;
+            }
+            result = { success: true, data };
+            break;
+          }
+
+          // WIRE-UNWIRED-MS0/U-WIRE-VTC: VendorTurningCatalogExtractorEngine
+          // — 6 surfaces. Two are PURE exported functions (parseISO1832 /
+          // classifyChipbreaker) needing no catalog state. The other four
+          // query the stateful catalogs Map — which is EMPTY in a fresh MCP
+          // process because `turning-vendor-catalog-loader.ts` had ZERO
+          // callers (the ~4095-insert Tungaloy+Widia catalog was dormant
+          // dead data). This wiring activates it: every catalog-backed case
+          // calls the idempotent `ensureCatalogsLoaded()` (load-once `_loaded`
+          // guard) before querying, so the first dispatch hydrates the
+          // catalog and all subsequent calls are a boolean no-op.
+          // findCompatibleHolders + getCuttingParameters are intentionally
+          // NOT wired — composition methods taking a full TurningInsertRecord
+          // (caller feeds a prior search hit back); no standalone value.
+          // Reference: ISO 1832 (insert designation), ISO 5608 (holders),
+          // Sandvik Coromant Turning Guide 2023-2024.
+          case "turning_iso1832_parse":
+          case "turning_chipbreaker_classify":
+          case "turning_vendor_insert_search":
+          case "turning_vendor_grade_recommend":
+          case "turning_vendor_iso_code_resolve":
+          case "turning_vendor_catalog_stats": {
+            const eng = await import("../../engines/VendorTurningCatalogExtractorEngine.js");
+            const p = params as any;
+            let data: unknown;
+            switch (action) {
+              case "turning_iso1832_parse":
+                data = eng.parseISO1832Designation(p.designation);
+                break;
+              case "turning_chipbreaker_classify":
+                data = { chipbreaker_type: eng.classifyChipbreaker(p.code) };
+                break;
+              case "turning_vendor_insert_search": {
+                const { ensureCatalogsLoaded } = await import("../../data/turning-vendor-catalog-loader.js");
+                ensureCatalogsLoaded();
+                data = { inserts: eng.vendorTurningCatalogExtractorEngine.searchInserts(p) };
+                break;
+              }
+              case "turning_vendor_grade_recommend": {
+                const { ensureCatalogsLoaded } = await import("../../data/turning-vendor-catalog-loader.js");
+                ensureCatalogsLoaded();
+                data = { grades: eng.vendorTurningCatalogExtractorEngine.recommendGrade(p) };
+                break;
+              }
+              case "turning_vendor_iso_code_resolve": {
+                const { ensureCatalogsLoaded } = await import("../../data/turning-vendor-catalog-loader.js");
+                ensureCatalogsLoaded();
+                data = eng.vendorTurningCatalogExtractorEngine.resolveISOCode(p.designation);
+                break;
+              }
+              case "turning_vendor_catalog_stats": {
+                const { ensureCatalogsLoaded } = await import("../../data/turning-vendor-catalog-loader.js");
+                ensureCatalogsLoaded();
+                data = { vendors: eng.vendorTurningCatalogExtractorEngine.getStats() };
+                break;
+              }
             }
             result = { success: true, data };
             break;

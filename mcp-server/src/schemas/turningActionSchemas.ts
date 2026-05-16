@@ -963,6 +963,68 @@ const turning_rules_stats = z.object({}).passthrough().describe(
   "Rule-generator capability stats (TurningRulesGeneratorEngine.getStats). Zero-arg. Returns { rule_kinds[], supported_iso_groups[], supported_operations[], rules_generated } — use for UI discovery of valid generate() context values.",
 );
 
+// ============================================================================
+// WIRE-UNWIRED-MS0/U-WIRE-VTC — VendorTurningCatalogExtractorEngine (U-LAT22)
+// 2 pure decoders + 4 catalog-backed queries (each ensureCatalogsLoaded()-
+// guarded to hydrate the dormant ~4095-insert Tungaloy+Widia catalog).
+// Reference: ISO 1832 / ISO 5608 / Sandvik Turning Guide 2023-2024.
+// ============================================================================
+
+const _isoInsertShape = z.enum([
+  "C", "D", "E", "H", "K", "L", "M", "O", "P", "R", "S", "T", "V", "W",
+]);
+const _chipbreakerType = z.enum(["finishing", "medium", "roughing", "universal"]);
+
+const turning_iso1832_parse = z.object({
+  designation: z.string().min(7)
+    .describe("ISO 1832 insert designation, e.g. 'CNMG120408-PM' (min 7 chars — shape+clearance+tolerance+fixing+size)."),
+}).passthrough().describe(
+  "Decode an ISO 1832 insert designation (VendorTurningCatalogExtractorEngine.parseISO1832Designation). PURE — no catalog needed. Returns { iso_shape, iso_clearance, iso_tolerance, iso_fixing, ic_mm, thickness_mm, nose_radius_mm, chipbreaker, cutting_edge_count } or null when < 7 chars.",
+);
+
+const turning_chipbreaker_classify = z.object({
+  code: z.string().min(1)
+    .describe("Chipbreaker code, e.g. 'PM', 'MF', 'MR' — classified by lookup table."),
+}).passthrough().describe(
+  "Classify a chipbreaker code (VendorTurningCatalogExtractorEngine.classifyChipbreaker). PURE. Returns { chipbreaker_type: finishing | medium | roughing | universal }.",
+);
+
+const turning_vendor_insert_search = z.object({
+  designation: z.string().optional().describe("Substring match on insert designation (uppercased)."),
+  shape: _isoInsertShape.optional().describe("ISO 1832 shape filter."),
+  ic_mm: optPosNum.describe("Inscribed-circle filter in mm (±0.5mm tolerance)."),
+  nose_radius_mm: optPosNum.describe("Nose-radius filter in mm (±0.05mm tolerance)."),
+  iso_group: z.enum(["P", "M", "K", "N", "S", "H"]).optional().describe("ISO 513 material-group filter."),
+  vendor: z.string().optional().describe("Vendor filter (case-insensitive)."),
+  chipbreaker_type: _chipbreakerType.optional().describe("Chipbreaker-type filter."),
+  limit: z.number().int().positive().optional().describe("Max results (default 50)."),
+}).passthrough().describe(
+  "Search the unified vendor turning-insert catalog (VendorTurningCatalogExtractorEngine.searchInserts). Hydrates the ~4095-insert Tungaloy+Widia catalog on first call (ensureCatalogsLoaded). All filters optional — an empty query returns the first `limit` inserts. Returns { inserts: TurningInsertRecord[] }.",
+);
+
+const turning_vendor_grade_recommend = z.object({
+  iso_group: z.string().min(1)
+    .describe("ISO 513 material group the grade must support (P/M/K/N/S/H)."),
+  operation: z.enum(["finishing", "medium", "roughing"])
+    .describe("Operation — roughing sorts by toughness, finishing by wear resistance."),
+  vendor: z.string().optional().describe("Vendor filter (case-insensitive)."),
+  substrate: z.enum(["carbide", "cermet", "ceramic", "cbn", "pcd"]).optional()
+    .describe("Substrate filter."),
+}).passthrough().describe(
+  "Recommend insert grades for a material+operation (VendorTurningCatalogExtractorEngine.recommendGrade). Hydrates the catalog on first call. Returns { grades: TurningGradeRecord[] } sorted by toughness (roughing) or wear resistance (finishing).",
+);
+
+const turning_vendor_iso_code_resolve = z.object({
+  designation: z.string().min(1)
+    .describe("ISO 1832 designation to parse + match against the catalog."),
+}).passthrough().describe(
+  "Resolve an ISO code to parsed fields + catalog matches (VendorTurningCatalogExtractorEngine.resolveISOCode). Hydrates the catalog on first call. Returns { parsed: Partial<TurningInsertRecord> | null, matches: TurningInsertRecord[] }.",
+);
+
+const turning_vendor_catalog_stats = z.object({}).passthrough().describe(
+  "Per-vendor catalog inventory (VendorTurningCatalogExtractorEngine.getStats). Hydrates the catalog on first call. Returns { vendors: [{ vendor, stats: { total_inserts, total_holders, total_grades, total_cutting_data, insert_shapes, chipbreaker_types } }] }.",
+);
+
 export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   chuck_force,
   tailstock,
@@ -1107,4 +1169,12 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   // WIRE-UNWIRED-MS0/U-WIRE-TRG: TurningRulesGeneratorEngine — 2 surfaces
   turning_rules_generate,
   turning_rules_stats,
+
+  // WIRE-UNWIRED-MS0/U-WIRE-VTC: VendorTurningCatalogExtractorEngine — 6 surfaces
+  turning_iso1832_parse,
+  turning_chipbreaker_classify,
+  turning_vendor_insert_search,
+  turning_vendor_grade_recommend,
+  turning_vendor_iso_code_resolve,
+  turning_vendor_catalog_stats,
 };
