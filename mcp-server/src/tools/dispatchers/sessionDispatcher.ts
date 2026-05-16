@@ -197,7 +197,12 @@ const ACTIONS = [
   "lifecycle_quality_score",
   "lifecycle_session_id",
   "lifecycle_call_count",
-  "lifecycle_final_handoff"
+  "lifecycle_final_handoff",
+  // OBSIDIAN-INTELLIGENCE-MS3/U-ACTION-TRACES (D4) — read-only query over the
+  // append-only agent-write trace log (state/shared/action-traces.jsonl).
+  // Backed by ActionTraceEngine.queryTraces. The recordTrace write-path is
+  // the engine API consumed by a future PostToolUse trace hook.
+  "action_trace_query"
 ] as const;
 
 function ok(data: any) {
@@ -1987,6 +1992,46 @@ export function registerSessionDispatcher(server: any): void {
               return ok({ success: false, error: "handoff_generation_failed" });
             }
             return ok({ success: true, handoff });
+          }
+
+          // OBSIDIAN-INTELLIGENCE-MS3/U-ACTION-TRACES (D4) — read-only query
+          // over the append-only agent-write trace log. Lazy-imported per
+          // the dispatcher lazy-import convention.
+          case "action_trace_query": {
+            const { queryTraces } = await import(
+              "../../engines/ActionTraceEngine.js"
+            );
+            const result = queryTraces({
+              agent: typeof params.agent === "string" ? params.agent : undefined,
+              target:
+                typeof params.target === "string" ? params.target : undefined,
+              tool: typeof params.tool === "string" ? params.tool : undefined,
+              sessionId:
+                typeof params.sessionId === "string"
+                  ? params.sessionId
+                  : undefined,
+              action:
+                typeof params.action === "string" ? params.action : undefined,
+              sinceTs:
+                typeof params.sinceTs === "string" ? params.sinceTs : undefined,
+              limit:
+                typeof params.limit === "number" ? params.limit : undefined,
+              order:
+                params.order === "desc"
+                  ? "desc"
+                  : params.order === "asc"
+                    ? "asc"
+                    : undefined,
+            });
+            // Don't leak the absolute host log path through the MCP tool
+            // surface — basename is enough for a caller to know which log
+            // answered the query (filename is fixed; the dir is host layout).
+            const { file: traceFile, ...rest } = result;
+            return ok({
+              success: true,
+              ...rest,
+              file: traceFile ? traceFile.replace(/^.*[/\\]/, "") : traceFile,
+            });
           }
 
           default:

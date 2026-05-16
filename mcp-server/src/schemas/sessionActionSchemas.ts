@@ -776,4 +776,28 @@ export const ACTION_SESSION_SCHEMAS: ActionSchemaMap = {
     key_findings: z.array(z.string()).optional()
       .describe("Optional list of key findings/decisions from this session (first 5 retained)"),
   }).passthrough(),
+
+  /** action_trace_query — OBSIDIAN-INTELLIGENCE-MS3/U-ACTION-TRACES (D4).
+   * Read-only query over the append-only agent-write trace log
+   * (state/shared/action-traces.jsonl). All filters optional; empty params
+   * returns the most recent `limit` edges. Backed by
+   * ActionTraceEngine.queryTraces. */
+  action_trace_query: z.object({
+    agent: z.string().min(1).optional()
+      .describe("Filter to one agent id (e.g. 'claude-c0f06dee')"),
+    target: z.string().min(1).optional()
+      .describe("Filter to one written target (file path or memory key)"),
+    tool: z.string().min(1).optional()
+      .describe("Filter to one tool (Write | Edit | MultiEdit | memory-mirror | ...)"),
+    sessionId: z.string().min(1).optional()
+      .describe("Filter to one stable session id"),
+    action: z.string().min(1).optional()
+      .describe("Filter to one semantic action label"),
+    sinceTs: z.string().min(1).optional()
+      .describe("Only edges with ts >= this ISO-8601 timestamp"),
+    limit: z.number().int().positive().max(100000).optional()
+      .describe("Max edges returned (default 1000). Applied after filtering."),
+    order: z.enum(["asc", "desc"]).optional()
+      .describe("'asc' = chronological/file order (default), 'desc' = most-recent first"),
+  }).strict(),
 };
