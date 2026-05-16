@@ -215,14 +215,12 @@
           {
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/karpathy-discipline-inject.mjs",
-            "timeout": 5000,
-            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER13 — Tier-4 SessionStart inject. Auto-injects the canonical Karpathy 4 rules + PRISM awareness reminders into the main thread (subagents already get them via agent-rules-inject.mjs). Was orphan; closes the main-thread doctrine gap."
+            "timeout": 5000
           },
           {
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/embedder-inject-qdrant.mjs",
-            "timeout": 5000,
-            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER15 — Tier-4 SessionStart smoke-test. INTEL-OLLAMA-OBSIDIAN-MS0/P0-U01. Lazily injects an Ollama embedder (nomic-embed-text, 768-d) into QdrantMemoryEngineSingleton on first use. Confirms Qdrant + Ollama embedder ready at session start so semantic recall is warm. continueOnError. Was orphan in ORPHAN-HOOKS-2026-05-15.json."
+            "timeout": 5000
           }
         ]
       }
@@ -451,14 +449,12 @@
           {
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/autonomous-loop-watchdog.mjs",
-            "timeout": 3000,
-            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER11 — Tier-0 Stop hook for autonomous yolo-mode runs. Detects runaway /loop iterations + signals stop-condition violations. Silent on normal Stops. Was orphan in ORPHAN-HOOKS-2026-05-15.json."
+            "timeout": 3000
           },
           {
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/bash-orphan-cleaner.mjs",
-            "timeout": 9000,
-            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER20 — Tier-4 Stop hook. Reaps orphan bash.exe descendants of THIS claude.exe (peer-safe ppid scoping). Skips bash.exe with live children (protects background tasks) + <60s old (protects in-flight Bash tool calls). Caps 20 kills/run. Knob: PRISM_BASH_CLEANUP=0. Was orphan in ORPHAN-HOOKS-2026-05-15.json."
+            "timeout": 9000
           }
         ]
       }
@@ -476,7 +472,6 @@
       },
       {
         "matcher": "^(Edit|Write|MultiEdit|NotebookEdit)$",
-        "_disabled_by": "HVA-DEDUPE-2026-05-15: PreToolUse precompact-auto-trigger handled by user-level matcher:''; this matcher kept as documentation of prior wiring. memory-relevance-inject was retired by U-D3 hook bundling — runs inside edit-bundle.mjs SHARED_HOOKS.",
         "hooks": []
       },
       {
@@ -499,12 +494,6 @@
           },
           {
             "type": "command",
-            "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/golf-slot-write-allowlist.mjs",
-            "timeout": 3000,
-            "_purpose": "CLEANUP-MS0 U-CLEANUP-A5 — Tier-0 PreToolUse blocker. Enforces write-allowlist when golf slot is claimed by this session; silent no-op otherwise. Runs AFTER hook-cross-worktree-block (worktree firewall first) and BEFORE comprehensive-build-enforce (allowlist before stub-detection). Bypass: PRISM_GOLF_WRITE_ALLOWLIST_BYPASS=1."
-          },
-          {
-            "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/file-claim-guard.mjs",
             "timeout": 3000
           },
@@ -516,68 +505,57 @@
           {
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/code-completeness-gate.mjs",
-            "timeout": 5000,
-            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER11 — Tier-0 PreToolUse gate on Edit/Write/MultiEdit. Blocks edits that ship obvious stubs / placeholder asserts / large commented-out code blocks (paired with comprehensive-build doctrine in CLAUDE.md). Was orphan."
+            "timeout": 5000
           },
           {
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/settings-json-addonly-guard.mjs",
-            "timeout": 3000,
-            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER13 — Tier-0 PreToolUse(Edit|Write) guard. Enforces settings.json ADD-ONLY rule. Blocks edits that remove existing entries (must disable, not delete). Drift-rescue: CLAUDE.md doctrine names this rule but the hook was orphan in ORPHAN-HOOKS-2026-05-15.json."
+            "timeout": 3000
           },
           {
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/master-index-search-gate.mjs",
-            "timeout": 3000,
-            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER13 — Tier-1 PreToolUse self-awareness gate (U-AWARE03). Searches MASTER_INDEX before new engine/algo/skill creation; warns on duplicates. DRIFT RESCUE: CLAUDE.md MANDATORY SELF-AWARENESS section claims this fires automatically; was orphan."
+            "timeout": 3000
           },
           {
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/h-drive-enforcement.mjs",
-            "timeout": 3000,
-            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER14 — Tier-1 PreToolUse guard. Blocks writes outside H: drive (per [[feedback_h_drive_master]] — H: is the MASTER portable drive). Was orphan."
+            "timeout": 3000
           },
           {
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/sx-gate.mjs",
-            "timeout": 3000,
-            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER14 — Tier-4 PreToolUse(Write) hard-block gate. Blocks writes when S(x) safety score < 0.70 for the affected file. Paired with prism_safety + prism_omega doctrine. Was orphan."
+            "timeout": 3000
           },
           {
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/test-coverage-enforcer.mjs",
-            "timeout": 3000,
-            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER14 — Tier-1 PreToolUse(Write) coverage discipline. Enforces that new files come with tests (no stub assertions). Paired with comprehensive-build doctrine. Was orphan."
+            "timeout": 3000
           },
           {
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/api-contract-enforcer.mjs",
-            "timeout": 3000,
-            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER15 — Tier-1 PreToolUse(Edit|Write|MultiEdit|NotebookEdit) contract guard. Detects breaking API changes (removed exports, signature mutations) so dependent callers don't silently break. continueOnError. Was orphan in ORPHAN-HOOKS-2026-05-15.json."
+            "timeout": 3000
           },
           {
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/pre-rename-guard.mjs",
-            "timeout": 3000,
-            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER15 — Tier-0 PreToolUse(Edit|Write|MultiEdit|NotebookEdit) rename guard. Phase 0.8 — when an edit moves a file, requires alias-table update + dependent notification before proceeding. Prevents silent import breakage cascade. continueOnError. Was orphan in ORPHAN-HOOKS-2026-05-15.json."
+            "timeout": 3000
           },
           {
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/asset-deletion-block.mjs",
-            "timeout": 2500,
-            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER18 — Tier-1 PreToolUse(Edit|Write|MultiEdit|NotebookEdit) asset-deletion gate. HARD-BLOCKS edits that disable hooks via settings.json (\"disableAllHooks\":true / \"enabled\":false). Edit/Write branch of dual-fire (Bash branch wired separately at Pre[14]). Enforces 'never delete only disable' rule from [[feedback_never_delete_only_disable]]. Was orphan in ORPHAN-HOOKS-2026-05-15.json."
+            "timeout": 2500
           },
           {
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/anti-pattern-detector.mjs",
-            "timeout": 3000,
-            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER18 — Tier-0 PreToolUse(Edit|Write|MultiEdit|NotebookEdit) security + anti-pattern guard. HARD-BLOCKS on RegExp/SQL/shell injection patterns + eval() usage; WARNs on await-in-loop + event-listener-leak + missing-error-handling. Skip-if guards keep false-positives low. continueOnError. Was orphan in ORPHAN-HOOKS-2026-05-15.json."
+            "timeout": 3000
           },
           {
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/async-pattern-checker.mjs",
-            "timeout": 3000,
-            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER18 — Tier-1 PreToolUse(Edit|Write|MultiEdit|NotebookEdit) async/await anti-pattern checker. WARNs on await-in-forEach, floating promises, long .then chains, return-await, Promise without .catch. Complements anti-pattern-detector with async-specific checks. continueOnError. Was orphan in ORPHAN-HOOKS-2026-05-15.json."
+            "timeout": 3000
           }
         ]
       },
@@ -608,12 +586,10 @@
       },
       {
         "matcher": "Bash|Read|Edit|Write|MultiEdit",
-        "_disabled_by": "U-D3 hook bundling — mcp-route-suggest now runs inside edit-bundle.mjs / bash-bundle.mjs / read-bundle.mjs SHARED_HOOKS",
         "hooks": []
       },
       {
         "matcher": "^Skill$",
-        "_disabled_by": "Tier-1 harness audit 2026-05-10 — full-registry parse on every /skill call was IO-heavy under 6-chat load. Stop binding retained for true skill-wiring gate; PreToolUse binding removed as duplicate enforcement.",
         "hooks": []
       },
       {
@@ -685,26 +661,22 @@
           {
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/tsc-baseline-regression-gate.mjs",
-            "timeout": 3000,
-            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER13 — Tier-0 PreToolUse(Bash) gate. AUTONOMOUS-FOOLPROOF-MS0 U-AF02 — bounds compounding type-error damage to exactly 1 commit by gating bash builds against a stored baseline. Sister to the 1259->1227 TSC progress this session (iter 11 + iter 12)."
+            "timeout": 3000
           },
           {
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/asset-deletion-block.mjs",
-            "timeout": 2500,
-            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER18 — Tier-1 PreToolUse(Bash) asset-deletion gate. HARD-BLOCKS rm -rf / rmdir / del /fqs / Remove-Item / fs.rm / unlinkSync targeting protected paths (.claude/hooks/, .claude/commands/, .claude/scripts/, .claude/settings, engines/, dispatchers/, schemas/, __tests__/, JM DIE/, Resources/). Bash branch of dual-fire (Edit branch wired at Pre[3]). Enforces 'never delete only disable' rule from [[feedback_never_delete_only_disable]]. continueOnError. Was orphan in ORPHAN-HOOKS-2026-05-15.json."
+            "timeout": 2500
           },
           {
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/auto-fork-executor.mjs",
-            "timeout": 5000,
-            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER20 — Tier-0 PreToolUse(Bash) auto-fork executor for `git commit`. When worktree-commit-route would BLOCK with a printed `git worktree add ...` instruction, this hook actually EXECUTES the fork (spawnSync git worktree add + git stash push -u) and blocks the commit with one-shot retry-from-new-tree instructions. Saves the multi-chat conflict-fork-rule cycle from being parsed wrong / skipped under context pressure. Knob: PRISM_AUTO_FORK=0. Was orphan in ORPHAN-HOOKS-2026-05-15.json."
+            "timeout": 5000
           },
           {
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/bash-result-cache.mjs",
-            "timeout": 2000,
-            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER20 — Tier-1 PreToolUse(Bash) cache for read-only idempotent commands. Whitelist: git log/diff/show/status/branch/blame, ls, wc, du, stat, file, pwd, whoami, date. Rejects any with side-effect primitives (>, >>, |, &&, ||, ;, &, $(), rm, cp, mv, etc). 3-min TTL. Cache key = sessionId + cmd + cwd. On hit, denies with cached digest. Token-saver for repeat probes. Was orphan in ORPHAN-HOOKS-2026-05-15.json."
+            "timeout": 2000
           }
         ]
       },
@@ -730,7 +702,6 @@
       },
       {
         "matcher": "Edit",
-        "_disabled_by": "U-D3 hook bundling — edit-old-string-verify now runs inside edit-bundle.mjs EDIT_ONLY_HOOKS",
         "hooks": []
       },
       {
@@ -866,50 +837,42 @@
           {
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/discipline-expert-inject.mjs",
-            "timeout": 5000,
-            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER11 — Tier-4 UserPromptSubmit advisory. Injects expert-role context (40KB doctrine bundle) on demand. continueOnError. Was orphan in ORPHAN-HOOKS-2026-05-15.json."
+            "timeout": 5000
           },
           {
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/auto-precompact-watchdog.mjs",
-            "timeout": 3000,
-            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER11 — Tier-4 UserPromptSubmit watchdog. Queues precompact handoff on a cadence so a chat that approaches token limit without /precompact still gets a handoff written. continueOnError. Was orphan."
+            "timeout": 3000
           },
           {
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/claudemd-ollama-enforcer.mjs",
-            "timeout": 5000,
-            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER11 — Tier-4 UserPromptSubmit advisory. Enforces CLAUDE.md Ollama-routing rule (offload code summarize/explain/classify to local 7b). continueOnError. Was orphan."
+            "timeout": 5000
           },
           {
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/prompt-rules-inject.mjs",
-            "timeout": 3000,
-            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER14 — Tier-2 UserPromptSubmit. Auto-injects Karpathy doctrine + token budget + tiered safety gates (shop-floor S(x)>=0.98) + duplication-guard reminder. Cache-friendly after turn 1. Was orphan."
+            "timeout": 3000
           },
           {
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/optimal-context-inject.mjs",
-            "timeout": 5000,
-            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER14 — Tier-4 UserPromptSubmit. Selects optimal context budget allocation per prompt. Was orphan."
+            "timeout": 5000
           },
           {
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/quality-dashboard-inject.mjs",
-            "timeout": 2000,
-            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER14 — Tier-2 UserPromptSubmit. Injects quality dashboard (build staleness, pending alerts). Was orphan."
+            "timeout": 2000
           },
           {
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/self-awareness-enforce.mjs",
-            "timeout": 3000,
-            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER14 — Tier-1 UserPromptSubmit. Enforces PRISM self-awareness rituals (inventory check, duplication guard, awareness snapshot) before substantive work. Was orphan."
+            "timeout": 3000
           },
           {
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/goal-stack-inject.mjs",
-            "timeout": 3000,
-            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER15 — Tier-4 UserPromptSubmit advisory. Phase 0.13 goal-stack inject; surfaces top-5 active goals to maintain goal continuity across the session (paired with Karpathy R4 goal-driven execution). continueOnError. Was orphan in ORPHAN-HOOKS-2026-05-15.json."
+            "timeout": 3000
           }
         ]
       }
@@ -966,8 +929,7 @@
           {
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/embedding-cache-guard.mjs",
-            "timeout": 3000,
-            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER15 — Tier-4 PostToolUse(Edit|Write|MultiEdit) observability. CADCAM-DAGI-MS0/U-DAGI05. Monitors embedder cache size + hit-rate; warns on memory pressure / inefficient cache. Silent on healthy state. Sister to embedder-inject-qdrant. continueOnError. Was orphan in ORPHAN-HOOKS-2026-05-15.json."
+            "timeout": 3000
           },
           {
             "type": "command",
@@ -1162,14 +1124,12 @@
           {
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/auto-bug-hunt-after-build.mjs",
-            "timeout": 3000,
-            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER18 — Tier-3 PostToolUse(Bash) build-failure surfacer. On vitest/tsc/npm-test/npm-build/npm-ci FAIL, injects structured bug-hunt prompt as additionalContext so model investigates before continuing. Per-session dedup (10-min window per command-family). continueOnError. Was orphan in ORPHAN-HOOKS-2026-05-15.json."
+            "timeout": 3000
           },
           {
             "type": "command",
             "command": "\"H:/.claude/bin/portable-node\" H:/prism/.claude/hooks/anti-regression-auto-sweep.mjs",
-            "timeout": 130000,
-            "_purpose": "BACKEND-DEVTOOLS-HVA U-HVA-REWIRE-ITER18 — Tier-3 PostToolUse(Bash) anti-regression sweep. After git commit, runs cached vitest sweep + decideAntiRegressionSweep(); BLOCKS autonomous loop when regression detected. Pure I/O glue; decision policy lives in lib/autonomous-foolproof-logic.mjs (14 vitest cases). Fast-paths non-Bash + non-commit + non-autonomous in <5ms. continueOnError (broken sweep doesn't hard-block; real regression still emits continue:false). Was orphan in ORPHAN-HOOKS-2026-05-15.json."
+            "timeout": 130000
           }
         ]
       },
@@ -1299,7 +1259,13 @@
     "supabase@claude-plugins-official": true,
     "typescript-lsp@claude-plugins-official": true,
     "swift-lsp@claude-plugins-official": true,
-    "octo@nyldn-plugins": false
+    "octo@nyldn-plugins": true,
+    "ralph-loop@claude-plugins-official": true,
+    "security-guidance@claude-plugins-official": true,
+    "chrome-devtools-mcp@claude-plugins-official": true,
+    "csharp-lsp@claude-plugins-official": true,
+    "playground@claude-plugins-official": true,
+    "obsidian@obsidian-skills": true
   },
   "extraKnownMarketplaces": {
     "nyldn-plugins": {
