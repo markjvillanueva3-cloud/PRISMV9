@@ -231,6 +231,8 @@ const ACTIONS = [
   // BLUEPRINT-OCR-TRAINING-MS1/U-MS1-U6 — BlueprintCorpusHarvestEngine
   "corpus_harvest_mit", "corpus_harvest_vendor", "corpus_harvest_online",
   "corpus_enumerate", "corpus_verify_fresh", "corpus_build_index",
+  // BLUEPRINT-OCR-TRAINING-MS1/U-MS1-U7 — BlueprintExtractionRAGEngine (centerpiece)
+  "blueprint_rag_extract", "blueprint_rag_explain", "blueprint_rag_compare_to_baseline",
   "cad_harvest_catalog", "cad_harvest_paired_sources", "cad_harvest_can_redistribute",
   // CAD-FUSION-LIVE-MS0 PHASE18: 6-CAD execution router (SW/Inv/MC/HyperCAD/Fusion/Esprit unifier)
   "cad_route_detect_system", "cad_route_supported_systems", "cad_route_plan_execution",
@@ -2704,6 +2706,64 @@ Params vary by action — pass relevant fields in params object.`,
             const { blueprintCorpusHarvestEngine } = await import("../../engines/BlueprintCorpusHarvestEngine.js");
             const data = blueprintCorpusHarvestEngine.verifyCorpusFresh(
               params as Parameters<typeof blueprintCorpusHarvestEngine.verifyCorpusFresh>[0],
+            );
+            result = { success: true, data };
+            break;
+          }
+          // BLUEPRINT-OCR-TRAINING-MS1/U-MS1-U7 — BlueprintExtractionRAGEngine
+          // MCP path requires precomputedVisionRegions[] (vision backend
+          // function cannot cross MCP boundary).
+          case "blueprint_rag_extract": {
+            if (!params.request || !params.backendId || !Array.isArray(params.precomputedVisionRegions)) {
+              return dispatcherError(
+                new Error("blueprint_rag_extract requires request, backendId, precomputedVisionRegions[] + optionally precomputedSources for corpus/tribal/similar/family"),
+                action, "prism_cad",
+              );
+            }
+            const { blueprintExtractionRAGEngine } = await import("../../engines/BlueprintExtractionRAGEngine.js");
+            const visionRegions = params.precomputedVisionRegions as Array<{ regionId: string; dimType: string; value: string; confidence: number; bbox?: { x: number; y: number; width: number; height: number } }>;
+            const ps = (params.precomputedSources ?? {}) as { corpus?: unknown[]; tribal?: unknown[]; similar?: unknown[]; family?: unknown };
+            const data = await blueprintExtractionRAGEngine.extract({
+              request: params.request as Parameters<typeof blueprintExtractionRAGEngine.extract>[0]["request"],
+              backendId: params.backendId as string,
+              ...(typeof params.topK === "number" ? { topK: params.topK } : {}),
+              io: {
+                retrieveCorpus: async () => (Array.isArray(ps.corpus) ? ps.corpus : []) as Parameters<typeof blueprintExtractionRAGEngine.extract>[0]["io"]["retrieveCorpus"] extends ((...a: never[]) => Promise<infer R>) ? R : never,
+                retrieveTribal: async () => (Array.isArray(ps.tribal) ? ps.tribal : []) as Parameters<typeof blueprintExtractionRAGEngine.extract>[0]["io"]["retrieveTribal"] extends ((...a: never[]) => Promise<infer R>) ? R : never,
+                retrieveSimilarPrints: async () => (Array.isArray(ps.similar) ? ps.similar : []) as Parameters<typeof blueprintExtractionRAGEngine.extract>[0]["io"]["retrieveSimilarPrints"] extends ((...a: never[]) => Promise<infer R>) ? R : never,
+                matchFamily: ps.family
+                  ? async () => ps.family as Awaited<ReturnType<NonNullable<Parameters<typeof blueprintExtractionRAGEngine.extract>[0]["io"]["matchFamily"]>>>
+                  : undefined,
+                visionExtract: async () => visionRegions as Awaited<ReturnType<NonNullable<Parameters<typeof blueprintExtractionRAGEngine.extract>[0]["io"]["visionExtract"]>>>,
+              },
+            });
+            result = { success: true, data };
+            break;
+          }
+          case "blueprint_rag_explain": {
+            if (!params.extractionId) {
+              return dispatcherError(
+                new Error("blueprint_rag_explain requires extractionId"),
+                action, "prism_cad",
+              );
+            }
+            const { blueprintExtractionRAGEngine } = await import("../../engines/BlueprintExtractionRAGEngine.js");
+            const data = blueprintExtractionRAGEngine.explain(
+              params as Parameters<typeof blueprintExtractionRAGEngine.explain>[0],
+            );
+            result = { success: true, data };
+            break;
+          }
+          case "blueprint_rag_compare_to_baseline": {
+            if (!params.ragExtraction || !Array.isArray(params.baselineRegions)) {
+              return dispatcherError(
+                new Error("blueprint_rag_compare_to_baseline requires ragExtraction + baselineRegions[]"),
+                action, "prism_cad",
+              );
+            }
+            const { blueprintExtractionRAGEngine } = await import("../../engines/BlueprintExtractionRAGEngine.js");
+            const data = blueprintExtractionRAGEngine.compareToBaseline(
+              params as Parameters<typeof blueprintExtractionRAGEngine.compareToBaseline>[0],
             );
             result = { success: true, data };
             break;
