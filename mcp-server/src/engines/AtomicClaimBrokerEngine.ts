@@ -184,9 +184,17 @@ function resolveClaimsFile(): string {
   if (!inTestRuntime) {
     return DEFAULT_CLAIMS_FILE;
   }
+  // Directory-containment check (NOT a bare string-prefix test) — a sibling
+  // directory whose name shares the tmp prefix (e.g. ".../Temp-evil/foo") must
+  // not slip through. Requires `tmpRoot` itself OR `tmpRoot + path.sep` as a
+  // prefix. `path.resolve` already collapses `..` segments, so traversal
+  // attacks like "/tmp/../etc/passwd" land outside tmpRoot and are rejected.
   const tmpRoot = path.resolve(os.tmpdir());
   const resolvedOverride = path.resolve(override);
-  if (!resolvedOverride.startsWith(tmpRoot)) {
+  const insideTmp =
+    resolvedOverride === tmpRoot ||
+    resolvedOverride.startsWith(tmpRoot + path.sep);
+  if (!insideTmp) {
     return DEFAULT_CLAIMS_FILE;
   }
   return override;
