@@ -75,7 +75,7 @@ const OFFLOADABLE_PATTERNS = [
   // user's actual orchestration prompts). Higher confidence — catch first.
   { pattern: /\b(list|show|enumerate)\s+.*(engines?|dispatchers?|hooks?|skills?|actions?)\b/i, category: "prism_inventory", savings: 0.85 },
   { pattern: /\bwhat\s+(actions?|methods?|fields?)\s+.*(in|on|of|does)\s+\w+(dispatcher|engine|registry|schema)/i, category: "prism_introspect", savings: 0.85 },
-  { pattern: /\b(summarize|recap|what.*happened in)\s+.*(git\s+log|commits?|changes?|session|handoff)\b/i, category: "git_summary", savings: 0.88 },
+  { pattern: /\b(summarize|recap|what.*happened in)\s+(the\s+)?(git\s+log|commits?|session|handoff)\b/i, category: "git_summary", savings: 0.88 },
   { pattern: /\b(check|verify|audit)\s+.*(inventory|count|digest|orphan|wiring)\b/i, category: "prism_audit", savings: 0.82 },
   { pattern: /\bdescribe\s+(this|the)\s+(file|module|function|class|engine|hook)\b/i, category: "explanation", savings: 0.88 },
 
@@ -89,26 +89,32 @@ const OFFLOADABLE_PATTERNS = [
   { pattern: /list\s+(all|the)|show\s+(me|all)/i, category: "summary", savings: 0.75 },
 ];
 
-// OLLAMA-DEV-01 fix: previous patterns were too broad (every dev prompt
-// contains "add" / "fix" / "implement"), so 14/14 prompts were KEPT on
-// Claude even when they were perfectly explainable. Two changes:
-//   1. Tightened patterns to genuinely Claude-only signals (safety,
-//      physics constants, multi-file changes, deep reasoning).
-//   2. Order inverted in classifyPrompt: a positive OFFLOADABLE match
-//      now wins over KEEP_ON_CLAUDE — the keep list is the FALLBACK
-//      for prompts with no clear offload signal, not a veto.
+// Keep-list: {pattern, category}[]. Tight patterns covering genuinely
+// Claude-only signals. A positive OFFLOADABLE match wins; this list is
+// the fallback labeler when no offload signal hits.
 const KEEP_ON_CLAUDE = [
-  // Safety + physics — never offload
-  /\b(safety[-\s]critical|collision[-\s]check|kienzle|taylor|johnson[-\s]cook)\b/i,
-  /\b(force|stress|thermal|deflection)\s+(calculation|model|verify|validate)/i,
+  // PRISM orchestration commands — keep on Claude (multi-tool, slot-binding,
+  // /loop control-flow) but label honestly. This block was the missing tier:
+  // every /checkin/loop/goal prompt previously fell through to "unknown".
+  // Left-anchored to (start-of-string | whitespace) so a literal mention of a
+  // slash-command inside English ("the /goal is ambitious") does NOT mis-label
+  // as orchestration. Real invocations are always at line-start or after WS.
+  { pattern: /(^|\s)\/(checkin|checkin-(alpha|bravo|charlie|delta|echo|foxtrot|golf|hotel|india|juliett|kilo|lima)|loop|goal|handoff|compact|precompact|forge-triple|forge-audit|forge|dedup|wire|scrutinize|pick-unit|pick-task|rgs|close-out-audit|close-out|fleet-reaper|envelope-sync|impact|smart|system-viz|wiki-query|master-index|pdf-learn|video-learn|shop-knowledge)\b/i, category: "orchestration" },
+  // Safety+physics is fully gated by SAFETY_PRE at the top of classifyPrompt
+  // (runs BEFORE OFFLOADABLE_PATTERNS). No keep-list entry needed here —
+  // SAFETY_PRE returns before this loop is reached for any matching prompt.
   // Multi-file or codebase-wide work
-  /\b(refactor|restructure|reorganize)\s+(the|this|entire|whole|all)/i,
-  /\b(across|throughout|all)\s+(files|the\s+codebase|the\s+repo)/i,
+  { pattern: /\b(refactor|restructure|reorganize)\s+(the|this|entire|whole|all)/i, category: "multi_file" },
+  { pattern: /\b(across|throughout|all)\s+(files|the\s+codebase|the\s+repo)/i, category: "multi_file" },
   // Git ops that must run locally with full context
-  /\b(commit|push|deploy|merge|rebase)\s+(this|the|now|to|from)/i,
+  { pattern: /\b(commit|push|deploy|merge|rebase)\s+(this|the|now|to|from)/i, category: "git_ops" },
   // Deep reasoning that needs Claude's chain-of-thought
-  /\b(root\s+cause|deep\s+(analysis|dive)|trace\s+through)\b/i,
-  /\b(forge|scrutinize)\b/i,
+  { pattern: /\b(root\s+cause|deep\s+(analysis|dive|reason|reasoning|thinking)|trace\s+through)\b/i, category: "deep_reasoning" },
+  { pattern: /\b(forge|scrutinize)\b/i, category: "deep_reasoning" },
+  // Operator directives (small, concrete imperatives that are NOT explanations)
+  { pattern: /\b(fix|repair|diagnose|debug|investigate)\s+(this|the|that|prism|whatever|why)\b/i, category: "operator_directive" },
+  { pattern: /\b(continue|resume|pick\s+up|where\s+you\s+left\s+off|keep\s+going|close\s+out|wrap\s+up|finish\s+up)\b/i, category: "operator_directive" },
+  { pattern: /\b(sync|make\s+sure|ensure)\s+(the|h|c|files?|settings|drive|peer|chats)/i, category: "operator_directive" },
 ];
 
 function loadStats() {
@@ -228,8 +234,72 @@ async function isOllamaAvailable() {
   }
 }
 
+// SAFETY_PRE: prompts mentioning canonical physics constants or safety-critical
+// terms must NEVER offload, even if they also say "explain" or "summarize".
+// Local Ollama models DO NOT carry mcp-server/src/physics/constants.ts (kc1.1
+// per ISO group / Taylor / Johnson-Cook) — sending an "explain the kienzle
+// model" prompt to a model lacking the constants produces wrong / hallucinated
+// values, the exact failure class CLAUDE.md §SAFETY forbids one layer up.
+//
+// Token disambiguation rules:
+//   • kienzle / johnson-cook / safety-critical — bare match (vanishingly rare
+//     outside physics)
+//   • taylor — must be followed by a physics-life-equation context word
+//     (tool-life / wear / equation / formula). Excludes math (taylor series /
+//     expansion) and names ("taylor swift").
+//   • collision-check — must be followed by a manufacturing-context word
+//     (on / for / the / toolpath / cycle / spindle / fixture / machine).
+//     Excludes hash/git/CS collision-check usage.
+const SAFETY_PRE = /\b(?:kienzle|johnson[-\s]cook|safety[-\s]critical|taylor\s+(?:tool[-\s]life|wear|equation|formula)|collision[-\s]check\s+(?:on|for|the|toolpath|cycle|spindle|fixture|machine)|(?:force|stress|thermal|deflection)\s+(?:calculation|model|verify|validate))\b/i;
+
+// Unicode-confusable homoglyph map covering the three highest-volume confusable
+// script families (Cyrillic + Greek + Latin-Extended) for ASCII lowercase
+// targets in the safety vocab. Per Unicode TR39 §4 confusablesSummary.txt.
+// Keys are the confusable codepoint; values the ASCII equivalent SAFETY_PRE
+// expects. Without this map, an attacker (or copy-paste from a paper with
+// Greek omicron pasted as Latin o) bypasses the canonical-name match.
+const UNICODE_HOMOGLYPHS = {
+  // Cyrillic
+  "а": "a", "е": "e", "о": "o", "р": "p", "с": "c", "х": "x", "у": "y",
+  "і": "i", "ј": "j", "к": "k",
+  // Greek
+  "α": "a", "ε": "e", "ο": "o", "ρ": "p", "ν": "v", "χ": "x", "ι": "i",
+  "κ": "k", "μ": "u", "τ": "t", "γ": "y",
+  // Latin-Extended (turkish dotless-i + slashed-o/l + others; NFKD does NOT
+  // decompose these because they have no canonical equivalent).
+  "ı": "i", "ł": "l", "đ": "d", "ø": "o",
+};
+const HOMOGLYPH_RX = /[аеорсхуіјкαεορνχικμτγıłđø]/g;
+// Default_Ignorable_Code_Point covers the entire Unicode-defined set of
+// invisible / format / control chars an attacker can splice into a banned word
+// to evade \b: ZWSP/ZWNJ/ZWJ, BOM, SHY, bidi controls (LRO/RLO/LRM/RLM/LRE/
+// RLE/PDF/LRI/RLI/FSI/PDI), word-joiner, Mongolian VS, variation selectors
+// (FE00-FE0F + E0100-E01EF), tag chars (E0000-E007F). ~4174 codepoints in
+// total — one regex covers all of them per Unicode TR9 + TR39.
+const INVISIBLE_RX = /[̀-ͯ]|\p{Default_Ignorable_Code_Point}/gu;
+
+/**
+ * Normalize a (lowercased) prompt before safety-classifier inspection.
+ * NFKD decomposition + default-ignorable strip + homoglyph remap closes the
+ * bypass surface for: combining diacritics ("kïenzle"), zero-width / bidi
+ * controls ("kien‮zle"), Cyrillic ("кienzle"), Greek ("jοhnson"), Latin-
+ * Extended ("kıenzle"). Idempotent — safe to call on already-normalized input.
+ * Operates on lowercased input — caller is responsible for `.toLowerCase()`.
+ */
+function normalizeForSafety(s) {
+  return s.normalize("NFKD")
+    .replace(INVISIBLE_RX, "")
+    .replace(HOMOGLYPH_RX, (c) => UNICODE_HOMOGLYPHS[c] || c);
+}
+
 function classifyPrompt(prompt) {
   const p = prompt.toLowerCase();
+
+  // Safety-physics pre-gate — see SAFETY_PRE comment above. Normalize first so
+  // Unicode homoglyphs / zero-width splicing cannot evade the gate.
+  if (SAFETY_PRE.test(normalizeForSafety(p))) {
+    return { offloadable: false, category: "safety_physics", savings: 0 };
+  }
 
   // OLLAMA-DEV-01: positive offload signal wins. If a prompt explicitly
   // says "explain X" or "summarize Y", offload even if it incidentally
@@ -241,14 +311,19 @@ function classifyPrompt(prompt) {
   }
 
   // No positive offload signal — apply the keep-list as a final filter.
-  for (const re of KEEP_ON_CLAUDE) {
-    if (re.test(p)) {
-      return { offloadable: false, category: "complex", savings: 0 };
+  // Each entry now carries its own category label for accurate telemetry.
+  for (const { pattern, category } of KEEP_ON_CLAUDE) {
+    if (pattern.test(p)) {
+      return { offloadable: false, category, savings: 0 };
     }
   }
 
   return { offloadable: false, category: "unknown", savings: 0 };
 }
+
+// Test-only export: the helper that pure-tests can reach without spawning
+// the hook process. Same classifier the hook uses at runtime.
+export { classifyPrompt };
 
 // Legacy `selectBestModel` was a single hardcoded preference list applied to
 // every task category. Replaced 2026-05-15 by U-P4-OLLAMA-COST-ROUTING — see
