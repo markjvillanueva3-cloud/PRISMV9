@@ -15,9 +15,10 @@
  */
 
 import { log } from "../utils/Logger.js";
-import type { CanonicalMachinePackage, MachineConfidenceBreakdown } from "../types/MachinePackage.js";
+import type { CanonicalMachinePackage, CanonicalMachineType } from "../types/MachinePackage.js";
+import type { MachineAxisTopology } from "../contracts/userMachineProfile.js";
+import { CONTROLLER_FAMILIES, type ControllerFamily } from "../constants.js";
 import { machineConfidenceCalculatorEngine, type ConfidenceResult } from "./MachineConfidenceCalculatorEngine.js";
-import { machineOptionMatrixEngine, type ValidationResult } from "./MachineOptionMatrixEngine.js";
 import { machineVocabularyNormalizerEngine } from "./MachineVocabularyNormalizerEngine.js";
 import { machineService } from "../services/MachineService.js";
 
@@ -41,11 +42,25 @@ export interface PackageSelectionRequirements {
   production_volume?: "prototype" | "low" | "medium" | "high";
 }
 
+/**
+ * Result of validating a package's controller/coolant options against a
+ * job's requirements. Local to this engine — distinct from the
+ * MachineOptionMatrixEngine's matrix-level ValidationResult.
+ */
+export interface OptionValidationResult {
+  valid: boolean;
+  machineId: string;
+  selectedOptions: { controller?: string; spindle: string; coolant: string };
+  issues: string[];
+  warnings: string[];
+  timestamp: string;
+}
+
 export interface PackageCandidate {
   package: CanonicalMachinePackage;
   score: number;
   confidence: ConfidenceResult;
-  optionValidation?: ValidationResult;
+  optionValidation?: OptionValidationResult;
   rationale: string[];
   limitations: string[];
   dataQuality: "high" | "medium" | "low" | "insufficient";
@@ -110,7 +125,7 @@ class MachinePackageSelectionEngine {
         continue;
       }
 
-      let optionValidation: ValidationResult | undefined;
+      let optionValidation: OptionValidationResult | undefined;
       if (requirements.coolant_type || requirements.controller_preference) {
         optionValidation = this.validateOptions(pkg, requirements);
         if (!optionValidation.valid) {
@@ -157,7 +172,7 @@ class MachinePackageSelectionEngine {
     const packages: CanonicalMachinePackage[] = [];
 
     try {
-      const machines = machineService.list();
+      const machines = machineService.search({});
       for (const m of machines) {
         const pkg = this.convertToPackage(m);
         if (pkg) {
@@ -180,16 +195,23 @@ class MachinePackageSelectionEngine {
     if (!machine.id) return null;
 
     const mfrNorm = machineVocabularyNormalizerEngine.normalizeManufacturer(machine.manufacturer ?? "Unknown");
+    const manufacturer = mfrNorm.normalized?.name ?? machine.manufacturer ?? "Unknown";
+    const canonicalType = this.normalizeType(machine.type);
+    const now = new Date().toISOString();
 
     return {
       canonical_id: machine.id,
-      manufacturer: mfrNorm.normalized?.name ?? machine.manufacturer ?? "Unknown",
+      source_record_ids: [machine.id],
+      version: 1,
+      manufacturer,
+      manufacturer_id: manufacturer.toLowerCase().replace(/\s+/g, "-"),
       model: machine.model ?? machine.name ?? machine.id,
-      type: this.normalizeType(machine.type),
+      raw_type: typeof machine.type === "string" ? machine.type : "unknown",
+      canonical_type: canonicalType,
+      topology: this.topologyFor(canonicalType),
       controller: {
-        family: machine.controller?.family ?? "Unknown",
-        model: machine.controller?.model,
-        vendor: machine.controller?.vendor,
+        manufacturer: this.coerceControllerFamily(machine.controller?.manufacturer ?? machine.controller?.family),
+        model: machine.controller?.model ?? "Unknown",
       },
       spindle: {
         max_rpm: machine.spindle?.max_rpm ?? machine.envelope?.max_rpm ?? 10000,
@@ -201,29 +223,59 @@ class MachinePackageSelectionEngine {
         y: machine.envelope?.y_travel ?? machine.envelope?.y ?? 400,
         z: machine.envelope?.z_travel ?? machine.envelope?.z ?? 400,
       },
-      coolant: {
-        type: machine.coolant?.type ?? "flood",
-        pressure: machine.coolant?.pressure,
-      },
       axes: {
-        count: machine.simultaneous_axes ?? machine.axes?.count ?? 3,
         linear_axes: machine.axes?.linear_axes ?? 3,
         rotary_axes: machine.axes?.rotary_axes ?? 0,
+        simultaneous_axes: machine.simultaneous_axes ?? machine.axes?.simultaneous_axes,
       },
       tool_changer: {
         capacity: machine.tool_changer?.capacity ?? machine.tool_capacity ?? 20,
       },
+      coolant: {
+        mist_coolant: machine.coolant?.mist_coolant ?? false,
+        high_pressure_option: machine.coolant?.high_pressure_option ?? false,
+      },
+      controller_packages: [],
+      spindle_packages: [],
+      coolant_strategies: [],
+      allowed_options: [],
+      confidence: { controller: 0.5, spindle: 0.5, coolant: 0.5, envelope: 0.5, axes: 0.5, tool_changer: 0.5, overall: 0.5 },
       provenance: {},
       ambiguities: [],
       enrichment_history: [],
-      confidence_breakdown: { controller: 0.5, spindle: 0.5, coolant: 0.5, envelope: 0.5, axes: 0.5, tool_changer: 0.5, overall: 0.5 },
-      source_ids: [machine.id],
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
+      primary_layer: "core",
+      generated_at: now,
     };
   }
 
-  private normalizeType(rawType: string | undefined): CanonicalMachinePackage["type"] {
+  /** Coerce an arbitrary controller-family string to a canonical ControllerFamily. */
+  private coerceControllerFamily(raw: unknown): ControllerFamily {
+    const s = String(raw ?? "").toLowerCase().trim();
+    return (CONTROLLER_FAMILIES as readonly string[]).includes(s) ? (s as ControllerFamily) : "other";
+  }
+
+  /** Map a canonical machine type to its axis topology. */
+  private topologyFor(type: CanonicalMachineType): MachineAxisTopology {
+    switch (type) {
+      case "VMC": return "3_axis_vertical";
+      case "HMC": return "3_axis_horizontal";
+      case "5AXIS": return "5_axis_vertical";
+      case "LATHE": return "2_axis_lathe";
+      case "MILL_TURN": return "mill_turn";
+      case "SWISS": return "swiss";
+      case "VTL": return "vtl";
+      case "EDM_WIRE": return "wire_edm";
+      case "EDM_SINKER": return "sinker_edm";
+      case "LASER": return "laser";
+      case "WATERJET": return "waterjet";
+      case "ROUTER": return "router";
+      case "BORING_MILL": return "3_axis_horizontal";
+      case "DRILL_TAP": return "3_axis_vertical";
+      default: return "other";
+    }
+  }
+
+  private normalizeType(rawType: string | undefined): CanonicalMachineType {
     if (!rawType) return "OTHER";
     const lower = rawType.toLowerCase();
     if (lower.includes("vmc") || lower.includes("vertical machining")) return "VMC";
@@ -250,27 +302,27 @@ class MachinePackageSelectionEngine {
            z >= req.part_envelope_mm.z;
   }
 
-  private validateOptions(pkg: CanonicalMachinePackage, req: PackageSelectionRequirements): ValidationResult {
+  private validateOptions(pkg: CanonicalMachinePackage, req: PackageSelectionRequirements): OptionValidationResult {
     const issues: string[] = [];
     let valid = true;
 
     if (req.controller_preference) {
       const ctrlNorm = machineVocabularyNormalizerEngine.normalizeController(req.controller_preference);
-      const pkgCtrl = pkg.controller?.family?.toLowerCase() ?? "";
+      const pkgCtrl = pkg.controller?.manufacturer?.toLowerCase() ?? "";
       const reqCtrl = ctrlNorm.normalized?.family?.toLowerCase() ?? req.controller_preference.toLowerCase();
 
       if (!pkgCtrl.includes(reqCtrl) && !reqCtrl.includes(pkgCtrl)) {
-        issues.push(`Controller ${pkg.controller?.family} doesn't match preference ${req.controller_preference}`);
+        issues.push(`Controller ${pkg.controller?.manufacturer} doesn't match preference ${req.controller_preference}`);
       }
     }
 
     if (req.coolant_type) {
       const coolNorm = machineVocabularyNormalizerEngine.normalizeCoolant(req.coolant_type);
-      const pkgCool = pkg.coolant?.type ?? "flood";
+      const pkgCool = this.coolantLabel(pkg.coolant);
       const reqCool = coolNorm.normalized?.type ?? req.coolant_type;
 
       if (pkgCool !== reqCool && req.coolant_type !== "any") {
-        if (req.coolant_type.includes("through") && pkgCool !== "through_spindle" && pkgCool !== "through_tool") {
+        if (req.coolant_type.includes("through") && !pkg.spindle?.through_spindle_coolant) {
           issues.push(`Coolant ${pkgCool} doesn't support through-spindle requirement`);
           valid = false;
         }
@@ -281,14 +333,22 @@ class MachinePackageSelectionEngine {
       valid,
       machineId: pkg.canonical_id,
       selectedOptions: {
-        controller: pkg.controller?.family,
+        controller: pkg.controller?.manufacturer,
         spindle: `${pkg.spindle?.max_rpm ?? 0} RPM`,
-        coolant: pkg.coolant?.type,
+        coolant: this.coolantLabel(pkg.coolant),
       },
       issues,
       warnings: issues.filter(i => !i.includes("doesn't support")),
       timestamp: new Date().toISOString(),
     };
+  }
+
+  /** Derive a human-readable coolant label from the canonical MachineCoolant subsystem. */
+  private coolantLabel(coolant: CanonicalMachinePackage["coolant"]): string {
+    if (!coolant) return "flood";
+    if (coolant.mist_coolant) return "mist";
+    if (coolant.high_pressure_option) return "high_pressure";
+    return "flood";
   }
 
   private scorePackage(
@@ -333,12 +393,13 @@ class MachinePackageSelectionEngine {
       rationale.push(`Machine accuracy data available for verification`);
     }
 
-    const axes = pkg.axes ?? { count: 3, rotary_axes: 0 };
+    const axes = pkg.axes ?? { linear_axes: 3, rotary_axes: 0, simultaneous_axes: 3 };
+    const totalAxes = axes.simultaneous_axes ?? (axes.linear_axes + axes.rotary_axes);
     const neededRotary = req.needs_rotary_axes ?? 0;
     if (axes.rotary_axes >= neededRotary) {
       score += SCORING_WEIGHTS.axes_match;
       if (neededRotary > 0) {
-        rationale.push(`${axes.count}-axis (${axes.rotary_axes} rotary) meets requirement`);
+        rationale.push(`${totalAxes}-axis (${axes.rotary_axes} rotary) meets requirement`);
       }
     } else if (neededRotary > 0) {
       score -= SCORING_WEIGHTS.axes_match;
@@ -353,7 +414,7 @@ class MachinePackageSelectionEngine {
       limitations.push(`Low confidence data (${(confidence.overall * 100).toFixed(0)}%) — verify specs`);
     }
 
-    if (req.shop_owned_only && pkg.source_ids?.includes("shop-inventory")) {
+    if (req.shop_owned_only && pkg.source_record_ids.includes("shop-inventory")) {
       score += SCORING_WEIGHTS.shop_owned_bonus;
       rationale.push("Shop-owned machine");
     }
@@ -369,7 +430,10 @@ class MachinePackageSelectionEngine {
   }
 
   private getFallbackPackages(): CanonicalMachinePackage[] {
-    const fallbacks = [
+    const fallbacks: Array<{
+      id: string; mfr: string; model: string; type: CanonicalMachineType;
+      x: number; y: number; z: number; rpm: number; power: number; axes: number;
+    }> = [
       { id: "haas_vf2", mfr: "Haas", model: "VF-2", type: "VMC", x: 762, y: 406, z: 508, rpm: 8100, power: 22.4, axes: 3 },
       { id: "haas_umc500", mfr: "Haas", model: "UMC-500", type: "5AXIS", x: 508, y: 406, z: 394, rpm: 8100, power: 22.4, axes: 5 },
       { id: "dmg_dmu50", mfr: "DMG MORI", model: "DMU 50", type: "5AXIS", x: 500, y: 450, z: 400, rpm: 14000, power: 25, axes: 5 },
@@ -377,24 +441,33 @@ class MachinePackageSelectionEngine {
       { id: "mazak_integrex", mfr: "Mazak", model: "INTEGREX i-200", type: "MILL_TURN", x: 615, y: 230, z: 905, rpm: 12000, power: 22, axes: 5 },
     ];
 
-    return fallbacks.map(f => ({
+    const now = new Date().toISOString();
+    return fallbacks.map((f): CanonicalMachinePackage => ({
       canonical_id: f.id,
+      source_record_ids: ["fallback"],
+      version: 1,
       manufacturer: f.mfr,
+      manufacturer_id: f.mfr.toLowerCase().replace(/\s+/g, "-"),
       model: f.model,
-      type: f.type as CanonicalMachinePackage["type"],
-      controller: { family: "Unknown" },
+      raw_type: f.type,
+      canonical_type: f.type,
+      topology: this.topologyFor(f.type),
+      controller: { manufacturer: "other", model: "Unknown" },
       spindle: { max_rpm: f.rpm, power: f.power },
       envelope: { x: f.x, y: f.y, z: f.z },
-      coolant: { type: "flood" },
-      axes: { count: f.axes, linear_axes: Math.min(f.axes, 3), rotary_axes: Math.max(0, f.axes - 3) },
+      axes: { linear_axes: Math.min(f.axes, 3), rotary_axes: Math.max(0, f.axes - 3) },
       tool_changer: { capacity: 20 },
+      coolant: { mist_coolant: false, high_pressure_option: false },
+      controller_packages: [],
+      spindle_packages: [],
+      coolant_strategies: [],
+      allowed_options: [],
+      confidence: { controller: 0.3, spindle: 0.5, coolant: 0.3, envelope: 0.6, axes: 0.5, tool_changer: 0.3, overall: 0.4 },
       provenance: {},
       ambiguities: [],
       enrichment_history: [],
-      confidence_breakdown: { controller: 0.3, spindle: 0.5, coolant: 0.3, envelope: 0.6, axes: 0.5, tool_changer: 0.3, overall: 0.4 },
-      source_ids: ["fallback"],
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
+      primary_layer: "core",
+      generated_at: now,
     }));
   }
 
