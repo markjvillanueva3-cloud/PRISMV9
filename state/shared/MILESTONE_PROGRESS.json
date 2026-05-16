@@ -1,12 +1,12 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-16T05:30:54.787Z",
+  "generatedAt": "2026-05-16T19:12:34.440Z",
   "window": "60.days",
   "totals": {
-    "milestones": 680,
-    "units": 5128,
-    "shipped": 636,
-    "pending": 4492,
+    "milestones": 681,
+    "units": 5136,
+    "shipped": 639,
+    "pending": 4497,
     "drift": 11
   },
   "milestones": [
@@ -28453,9 +28453,9 @@
       "track": "devtools",
       "claimedStatus": "in_progress",
       "total": 26,
-      "shipped": 12,
-      "pending": 14,
-      "ratio": 0.46153846153846156,
+      "shipped": 15,
+      "pending": 11,
+      "ratio": 0.5769230769230769,
       "lastShippedDate": "",
       "derivedStatus": "in_progress_real",
       "drift": "consistent",
@@ -28654,21 +28654,21 @@
           "id": "U-P4-OLLAMA-COST-ROUTING",
           "title": "PreToolUse:Bash detects expensive Claude ops, routes to local Ollama qwen2.5-coder",
           "phase": "P4-COST",
-          "shipped": false,
+          "shipped": true,
           "sha": null,
-          "date": null,
-          "commitMilestoneTag": null,
-          "source": null
+          "date": "",
+          "commitMilestoneTag": "SYSTEM-VIZ-BRAIN-MS0",
+          "source": "envelope-status"
         },
         {
           "id": "U-P4-TOKEN-BUDGET-TELEMETRY",
           "title": "Surface remaining token budget + savings in /checkin Report",
           "phase": "P4-COST",
-          "shipped": false,
+          "shipped": true,
           "sha": null,
-          "date": null,
-          "commitMilestoneTag": null,
-          "source": null
+          "date": "",
+          "commitMilestoneTag": "SYSTEM-VIZ-BRAIN-MS0",
+          "source": "envelope-status"
         },
         {
           "id": "U-P5-CHECKIN-FLEET-CONTEXT",
@@ -28684,11 +28684,11 @@
           "id": "U-P5-MULTI-CHAT-UNBLOCK-DETECT",
           "title": "PostToolUse: when chat-N commits, scan task graph; if chat-M is blocked on what just shipped, notify",
           "phase": "P5-FLEET-COORD",
-          "shipped": false,
+          "shipped": true,
           "sha": null,
-          "date": null,
-          "commitMilestoneTag": null,
-          "source": null
+          "date": "",
+          "commitMilestoneTag": "SYSTEM-VIZ-BRAIN-MS0",
+          "source": "envelope-status"
         },
         {
           "id": "U-P5-COORD-SQLITE-LIVE-SWAP",
@@ -53752,6 +53752,101 @@
           "id": "U-DOCS",
           "title": "5-surface doc reflection + milestone envelope",
           "phase": "P0",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null,
+          "source": null
+        }
+      ]
+    },
+    {
+      "id": "RGS-TOOL-AUTOINVOKE-MS1",
+      "title": "RGS Tool Autoinvoke MS1 — Integration hardening + backlog",
+      "track": "RGS",
+      "claimedStatus": "in_progress",
+      "total": 8,
+      "shipped": 0,
+      "pending": 8,
+      "ratio": 0,
+      "lastShippedDate": "",
+      "derivedStatus": "not_started_real",
+      "drift": "consistent",
+      "units": [
+        {
+          "id": "U-INTEG-FIX-P0",
+          "title": "Fix 10 P0 integration bugs + real-data E2E oracle",
+          "phase": "P0",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null,
+          "source": null
+        },
+        {
+          "id": "U-CRON",
+          "title": "Nightly cron replan",
+          "phase": "P1",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null,
+          "source": null
+        },
+        {
+          "id": "U-DOMAIN-RULES",
+          "title": "Domain pipeline rules + skill triggers",
+          "phase": "P1",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null,
+          "source": null
+        },
+        {
+          "id": "U-DISPATCHER",
+          "title": "Dispatcher wiring — prism_dev:roadmap_tool_plan_*",
+          "phase": "P1",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null,
+          "source": null
+        },
+        {
+          "id": "U-FEEDBACK-FORCING",
+          "title": "Pickup composite-key fallback",
+          "phase": "P1",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null,
+          "source": null
+        },
+        {
+          "id": "U-RIE-ADAPTER",
+          "title": "RoadmapIntelligenceEngine complexity adapter",
+          "phase": "P1",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null,
+          "source": null
+        },
+        {
+          "id": "U-CALIBRATION",
+          "title": "Outcome confidence calibration",
+          "phase": "P1",
+          "shipped": false,
+          "sha": null,
+          "date": null,
+          "commitMilestoneTag": null,
+          "source": null
+        },
+        {
+          "id": "U-TRANSFER",
+          "title": "Cross-milestone transfer priors",
+          "phase": "P1",
           "shipped": false,
           "sha": null,
           "date": null,

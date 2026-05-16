@@ -1,6 +1,6 @@
 # MILESTONE_PROGRESS — what's actually shipped vs claimed
 
-> Generated: 2026-05-16T05:30:54.847Z
+> Generated: 2026-05-16T19:12:34.494Z
 > Window: last 60.days of git log across all branches
 > Source: `scripts/build-milestone-progress.mjs`
 
@@ -17,10 +17,10 @@ flagging a unit as missing.
 
 ## Headline numbers
 
-- Milestones loaded:        **680**
-- Units across all MS:      **5128**
-- Units shipped (in git):   **636**
-- Units pending:            **4492**
+- Milestones loaded:        **681**
+- Units across all MS:      **5136**
+- Units shipped (in git):   **639**
+- Units pending:            **4497**
 - Drift cases:              **11** (envelope status disagrees with git reality)
 
 ## Top recently-active milestones (last shipped → first)
@@ -51,7 +51,7 @@ flagging a unit as missing.
 | CAM-EXHAUST-MS0 | CAM-EXHAUST | ready | in_progress_real | 156/189 (83%) |  |
 | CK-MS0 | CK | complete | completed_real | 5/5 (100%) |  |
 | CK-MS1 | CK | complete | completed_real | 4/4 (100%) |  |
-| SYSTEM-VIZ-BRAIN-MS0 | devtools | in_progress | in_progress_real | 12/26 (46%) |  |
+| SYSTEM-VIZ-BRAIN-MS0 | devtools | in_progress | in_progress_real | 15/26 (58%) |  |
 | COORD-MS0 | INFRA | unknown | in_progress_real | 9/12 (75%) |  |
 | TOKEN-OPT-MS0 | INFRA | complete | completed_real | 7/7 (100%) |  |
 | SLOT-WORKTREE-MS0 | INFRA-CONSOLIDATE | complete | in_progress_real | 1/16 (6%) |  |

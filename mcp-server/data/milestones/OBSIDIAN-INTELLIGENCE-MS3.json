@@ -9,7 +9,7 @@
   "track_name": "Obsidian-Intelligence Layer (compound architecture)",
   "status": "in_progress",
   "in_progress_since": "2026-05-15T19:33:00.000Z",
-  "completed_units": 9,
+  "completed_units": 10,
   "partial_ship_units": 1,
   "total_units": 24,
   "first_unit_partial_shipped": "A1 (U-DOCKER-HOOK-BROKER) — 5 artifacts + 15 tests; live-Docker burn-in pending engine restore",
@@ -1290,7 +1290,34 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "Remove overlay layer from viz generator; viewer unchanged"
+          "rollback": "Remove overlay layer from viz generator; viewer unchanged",
+          "status": "completed",
+          "completed_at": "2026-05-16T19:10:00.000Z",
+          "owner": "claude-c0f06dee slot charlie",
+          "ship_record": {
+            "shipped_at": "2026-05-16T19:10:00.000Z",
+            "commit": "c1e7c6d06",
+            "artifacts": [
+              "scripts/lib/agent-overlay.mjs (NEW — pure overlay lib: classifyAgentStatus typing|parsing|idle|errored from heartbeat age + matched AGENT_CHAT entry; matchChatEntry pid + strict-host + future-skew clamp; buildAgentOverlay assembles the overlay JSON; ACTIVE/IDLE thresholds vendored — no chat-slots.mjs import since it is vitest-unloadable; parseChatJsonl tail-bounded torn-line-tolerant)",
+              "scripts/generate-system-viz.mjs (MODIFIED — additive: imports buildAgentOverlay/parseChatJsonl and writes state/shared/system-viz/agent-overlay.json as a SEPARATE sibling file, never folded into system-graph.json; build+write try/catch-isolated so an overlay failure can never abort the generator)",
+              "state/shared/system-viz/agent-overlay.css (NEW asset — air-gap-safe status color tokens + badge styling; force-tracked because the dir is gitignored)",
+              "state/shared/system-viz/agent-overlay.js (NEW asset — air-gap-safe classic-browser viewer renderer; textContent-only, no innerHTML — lastMessage is untrusted multi-writer input; renderAgentOverlay/fetchAgentOverlay/mountAgentOverlay; force-tracked)",
+              "mcp-server/src/__tests__/AgentOverlay.test.ts (NEW — 42 hermetic vitest cases, 42/42 PASS: 4-state overlay full-object toEqual + 3 drift-guards re-reading chat-slots.mjs / agent-overlay.css / agent-overlay.js)"
+            ],
+            "exit_conditions_met": [
+              "generate-system-viz.mjs adds the agent-status overlay layer — writes agent-overlay.json on every run",
+              "Status derived from chat-slots.json heartbeat age + AGENT_CHAT.jsonl latest matched entry (pid+host); an error status in the matched chat entry overrides",
+              "Viewer JS (agent-overlay.js) renders subagent badges color-coded by status, paired with agent-overlay.css",
+              "Test: simulated 4-state chat-slots produce the expected overlay JSON — full-object toEqual assertion in AgentOverlay.test.ts"
+            ],
+            "scrutiny": "Per-file 2-arm gate: lib 4 rounds (P1 numeric-timestamp misrank, future-timestamp selection, asymmetric host guard, unclamped negative age, graph-churn, untrusted-lastMessage marker, magic number + a raw-control-byte authoring bug — all fixed), viewer pair 2 rounds (P1 replaceChildren 2020+ API, unrendered pipeline/branch, topic/age truncation collision — all fixed), test 1, generator 1 — all PASS. End-of-task 3-of-3: arms A+B+C all PASS at session claude-c0f06dee (commit c1e7c6d06).",
+            "deferred": [
+              "P2: the CSS drift-guard is a substring presence check, not a structural status->hex binding check",
+              "P2: the threshold drift-guard regex assumes the N*N*N literal form in chat-slots.mjs (fails loud — the correct direction — if the form ever changes)",
+              "P2: the generator reads AGENT_CHAT.jsonl fully into memory before parseChatJsonl tail-truncates to 500 lines — a transient spike on a multi-MB log; could stream-tail in a future hardening pass",
+              "note: the 5 G2 files were first swept into peer commit 919a2d254 by a shared-index collision, then re-committed cleanly as c1e7c6d06 via explicit-pathspec git commit after the peer reset their commit"
+            ]
+          }
         },
         {
           "id": "G3",

@@ -1,29 +1,29 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-16T05:30:58.410Z
+> Generated: 2026-05-16T19:12:34.713Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
 
-- **2377** engines built and wired (of 3238)
+- **2421** engines built and wired (of 3257)
 - **1073** wiki entries indexed
-- **861** engines awaiting dispatcher wiring
-- **4492** units pending across 14 active milestones
+- **836** engines awaiting dispatcher wiring
+- **4497** units pending across 14 active milestones
 - **2** codex frontend builds awaiting merge
 - **11** milestones with envelope-status drift
 
 ## BUILT
 
-2377/3238 engines wired (73%); 1073 wiki entries indexed.
+2421/3257 engines wired (74%); 1073 wiki entries indexed.
 
 ```json
 {
-  "totalEngines": 3238,
-  "unwired": 861,
-  "wiredDirect": 2208,
-  "wireExempt": 85,
+  "totalEngines": 3257,
+  "unwired": 836,
+  "wiredDirect": 2245,
+  "wireExempt": 93,
   "wiredViaHook": 10,
-  "wiredViaOrch": 58,
+  "wiredViaOrch": 57,
   "wiredViaRoute": 15,
   "wiredViaSingleton": 1
 }
@@ -31,16 +31,16 @@
 
 ## NEEDS_WIRING
 
-861 engines on disk with no dispatcher reference. Top domains by count:
+836 engines on disk with no dispatcher reference. Top domains by count:
 
 | Domain | Unwired count |
 |--------|---------------|
-| Other | 145 |
+| Other | 144 |
 | Lathe | 89 |
 | Machine | 17 |
 | Turning | 11 |
-| Tool | 10 |
 | Multi | 10 |
+| Tool | 9 |
 | Five | 9 |
 | Shop | 9 |
 | Outcome | 8 |
@@ -53,19 +53,19 @@
 | Swiss | 6 |
 | Wire | 6 |
 | Consensus | 6 |
-| Session | 5 |
 | Mobile | 5 |
 | Mastercam | 5 |
 | Mill | 4 |
 | Tribal | 4 |
-| Agent | 4 |
 | Electrode | 4 |
+| Speed | 4 |
+| Okuma | 4 |
 
 **Next action:** Pick a top-domain bucket; wire to the matching dispatcher in batches of 5–6 engines (see U-WIRE-LATHE-BATCHN pattern). Wiki cross-refs in `wikiTitle` resolve via `/wiki-query <name>`.
 
 ## NEEDS_BUILDING
 
-4492 units across 680 milestones not yet in git.
+4497 units across 681 milestones not yet in git.
 
 ### Envelope-status drift
 
@@ -107,10 +107,10 @@
 | WIRE-MS0 |  | P0-U03 | Diagnosis & Troubleshooting — ENHANCE RootCausePage |
 | WIRE-MS0 |  | P1-U01 | CNC Operations — ENHANCE PostProcessorGeneratorPage |
 | WIRE-MS0 |  | P1-U02 | Knowledge Extension — ENHANCE KnowledgeBrowserPage |
-| SYSTEM-VIZ-BRAIN-MS0 | P0-FOUND | U-P0-HOOK-ORPHAN-RECONCILE | Reconcile 447 orphan hook files vs 109 wired in settings.json |
-| SYSTEM-VIZ-BRAIN-MS0 | P1-MEMORY | U-P1-QDRANT-EPISODIC-RECALL | Qdrant episodic recall on SessionStart + UserPromptSubmit (xproc_episodic_recall) |
-| SYSTEM-VIZ-BRAIN-MS0 | P2-VIZ-BRAIN | U-P2-NODE-CLICK-DISPATCH | Click /system-viz node to invoke its dispatcher's primary action |
-| SYSTEM-VIZ-BRAIN-MS0 | P2-VIZ-BRAIN | U-P2-LIVE-DRIFT-OVERLAY | 5-min auto-regen + drift overlay (red-pulse nodes where envelope-vs-git differ) |
+| CAD-INFRA-MS0 |  | U-CINF01 | CADFileIndexerEngine — master 20,006-file catalog |
+| CAD-INFRA-MS0 |  | U-CINF02 | CADFileClassifierEngine — part/assembly/drawing/CAM classification |
+| CAD-INFRA-MS0 |  | U-CINF03 | CADTestStateSchema — per-file atomic state |
+| CAD-INFRA-MS0 |  | U-CINF05 | CADTestCheckpointEngine — resumable state every 100 files |
 
 **Next action:** Cross-reference MILESTONE_PROGRESS.json. Avoid units already in `shipped` arrays — those are committed but envelope status is stale.
 
@@ -132,12 +132,12 @@ Per-domain wired/unwired breakdown across 933 domain prefixes.
 
 | Domain | Total | Wired | Unwired | Coverage % |
 |--------|-------|-------|---------|-----------|
-| Other | 603 | 458 | 145 | 76% |
+| Other | 603 | 459 | 144 | 76% |
 | Lathe | 188 | 99 | 89 | 53% |
 | Machine | 45 | 28 | 17 | 62% |
 | Turning | 25 | 14 | 11 | 56% |
-| Tool | 57 | 47 | 10 | 82% |
 | Multi | 28 | 18 | 10 | 64% |
+| Tool | 57 | 48 | 9 | 84% |
 | Shop | 16 | 7 | 9 | 44% |
 | Five | 12 | 3 | 9 | 25% |
 | Outcome | 8 | 0 | 8 | 0% |
@@ -151,17 +151,17 @@ Per-domain wired/unwired breakdown across 933 domain prefixes.
 | Consensus | 8 | 2 | 6 | 25% |
 | Swiss | 6 | 0 | 6 | 0% |
 | Mastercam | 28 | 23 | 5 | 82% |
-| Session | 12 | 7 | 5 | 58% |
 | Mobile | 6 | 1 | 5 | 17% |
 | Cross | 67 | 63 | 4 | 94% |
 | Mill | 24 | 20 | 4 | 83% |
 | Inventor | 12 | 8 | 4 | 67% |
 | Okuma | 12 | 8 | 4 | 67% |
 | Tribal | 12 | 8 | 4 | 67% |
-| Agent | 7 | 3 | 4 | 43% |
 | Speed | 7 | 3 | 4 | 43% |
 | Electrode | 6 | 2 | 4 | 33% |
 | Post | 56 | 53 | 3 | 95% |
+| Session | 12 | 9 | 3 | 75% |
+| Master | 10 | 7 | 3 | 70% |
 
 ## STALE_MILESTONES
 

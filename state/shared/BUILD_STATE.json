@@ -1,11 +1,11 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-16T05:30:58.410Z",
+  "generatedAt": "2026-05-16T19:12:34.713Z",
   "headline": {
-    "built_engines": 2377,
+    "built_engines": 2421,
     "built_with_wiki": 1073,
-    "needs_wiring": 861,
-    "needs_building_active_units": 4492,
+    "needs_wiring": 836,
+    "needs_building_active_units": 4497,
     "needs_frontend_merge_count": 2,
     "pending_milestones_with_activity": 14,
     "drift_milestones": 11,
@@ -19,24 +19,24 @@
     "engines_index": "H:\\prism\\mcp-server\\data\\state\\ENGINES_INDEX.json"
   },
   "BUILT": {
-    "summary": "2377/3238 engines wired (73%); 1073 wiki entries indexed.",
+    "summary": "2421/3257 engines wired (74%); 1073 wiki entries indexed.",
     "breakdown": {
-      "totalEngines": 3238,
-      "unwired": 861,
-      "wiredDirect": 2208,
-      "wireExempt": 85,
+      "totalEngines": 3257,
+      "unwired": 836,
+      "wiredDirect": 2245,
+      "wireExempt": 93,
       "wiredViaHook": 10,
-      "wiredViaOrch": 58,
+      "wiredViaOrch": 57,
       "wiredViaRoute": 15,
       "wiredViaSingleton": 1
     }
   },
   "NEEDS_WIRING": {
-    "summary": "861 engines on disk with no dispatcher reference. Top domains by count:",
+    "summary": "836 engines on disk with no dispatcher reference. Top domains by count:",
     "top_domains": [
       {
         "domain": "Other",
-        "count": 145
+        "count": 144
       },
       {
         "domain": "Lathe",
@@ -51,12 +51,12 @@
         "count": 11
       },
       {
-        "domain": "Tool",
+        "domain": "Multi",
         "count": 10
       },
       {
-        "domain": "Multi",
-        "count": 10
+        "domain": "Tool",
+        "count": 9
       },
       {
         "domain": "Five",
@@ -107,10 +107,6 @@
         "count": 6
       },
       {
-        "domain": "Session",
-        "count": 5
-      },
-      {
         "domain": "Mobile",
         "count": 5
       },
@@ -127,11 +123,15 @@
         "count": 4
       },
       {
-        "domain": "Agent",
+        "domain": "Electrode",
         "count": 4
       },
       {
-        "domain": "Electrode",
+        "domain": "Speed",
+        "count": 4
+      },
+      {
+        "domain": "Okuma",
         "count": 4
       }
     ],
@@ -144,24 +144,10 @@
         "wikiTitle": null
       },
       {
-        "name": "GCodeTemplateEngine",
-        "suggestedDispatcher": "prism_cam",
-        "mtime": "2026-03-06T13:07:24.000Z",
-        "sizeKB": 58,
-        "wikiTitle": null
-      },
-      {
         "name": "EventEngine",
         "suggestedDispatcher": "UNKNOWN — review manually",
         "mtime": "2026-03-06T13:23:06.000Z",
         "sizeKB": 7,
-        "wikiTitle": null
-      },
-      {
-        "name": "MetricsEngine",
-        "suggestedDispatcher": "prism_monitoring",
-        "mtime": "2026-03-06T13:23:06.000Z",
-        "sizeKB": 8,
         "wikiTitle": null
       },
       {
@@ -179,20 +165,6 @@
         "wikiTitle": null
       },
       {
-        "name": "ResponseTemplateEngine",
-        "suggestedDispatcher": "UNKNOWN — review manually",
-        "mtime": "2026-03-06T13:23:06.000Z",
-        "sizeKB": 26,
-        "wikiTitle": null
-      },
-      {
-        "name": "RoughnessConversionEngine",
-        "suggestedDispatcher": "UNKNOWN — review manually",
-        "mtime": "2026-03-06T13:23:06.000Z",
-        "sizeKB": 7,
-        "wikiTitle": null
-      },
-      {
         "name": "CadBridge",
         "suggestedDispatcher": "prism_cad",
         "mtime": "2026-03-06T13:24:20.000Z",
@@ -200,79 +172,9 @@
         "wikiTitle": null
       },
       {
-        "name": "CampaignEngine",
-        "suggestedDispatcher": "prism_cam",
-        "mtime": "2026-03-06T13:24:20.000Z",
-        "sizeKB": 56,
-        "wikiTitle": null
-      },
-      {
-        "name": "SpindleHarmonicsQualityEngine",
-        "suggestedDispatcher": "prism_quality",
-        "mtime": "2026-03-06T14:08:50.000Z",
-        "sizeKB": 11,
-        "wikiTitle": null
-      },
-      {
-        "name": "SessionLifecycleEngine",
-        "suggestedDispatcher": "prism_auth",
-        "mtime": "2026-03-06T17:09:18.000Z",
-        "sizeKB": 18,
-        "wikiTitle": null
-      },
-      {
-        "name": "AlarmEscalationEngine",
-        "suggestedDispatcher": "prism_diagnosis",
-        "mtime": "2026-03-07T04:22:46.000Z",
-        "sizeKB": 8,
-        "wikiTitle": null
-      },
-      {
-        "name": "DataValidationEngine",
-        "suggestedDispatcher": "UNKNOWN — review manually",
-        "mtime": "2026-03-07T05:20:52.000Z",
-        "sizeKB": 9,
-        "wikiTitle": null
-      },
-      {
         "name": "BatchQueryEngine",
         "suggestedDispatcher": "UNKNOWN — review manually",
         "mtime": "2026-03-07T16:29:28.000Z",
-        "sizeKB": 5,
-        "wikiTitle": null
-      },
-      {
-        "name": "OutputBudgetEngine",
-        "suggestedDispatcher": "UNKNOWN — review manually",
-        "mtime": "2026-03-07T16:47:38.000Z",
-        "sizeKB": 6,
-        "wikiTitle": null
-      },
-      {
-        "name": "PromptTemplateEngine",
-        "suggestedDispatcher": "UNKNOWN — review manually",
-        "mtime": "2026-03-07T16:55:46.000Z",
-        "sizeKB": 5,
-        "wikiTitle": null
-      },
-      {
-        "name": "ConversationBudgetEngine",
-        "suggestedDispatcher": "UNKNOWN — review manually",
-        "mtime": "2026-03-07T17:12:04.000Z",
-        "sizeKB": 5,
-        "wikiTitle": null
-      },
-      {
-        "name": "ToolCallBatchEngine",
-        "suggestedDispatcher": "UNKNOWN — review manually",
-        "mtime": "2026-03-07T17:40:34.000Z",
-        "sizeKB": 6,
-        "wikiTitle": null
-      },
-      {
-        "name": "SessionBudgetAdvisorEngine",
-        "suggestedDispatcher": "prism_auth",
-        "mtime": "2026-03-07T18:59:30.000Z",
         "sizeKB": 5,
         "wikiTitle": null
       },
@@ -310,6 +212,104 @@
         "mtime": "2026-03-07T19:22:10.000Z",
         "sizeKB": 6,
         "wikiTitle": null
+      },
+      {
+        "name": "FileAccessPatternEngine",
+        "suggestedDispatcher": "UNKNOWN — review manually",
+        "mtime": "2026-03-07T19:22:34.000Z",
+        "sizeKB": 6,
+        "wikiTitle": null
+      },
+      {
+        "name": "CompactPlannerEngine",
+        "suggestedDispatcher": "prism_orchestrate",
+        "mtime": "2026-03-07T19:24:52.000Z",
+        "sizeKB": 6,
+        "wikiTitle": null
+      },
+      {
+        "name": "PromptCompressionEngine",
+        "suggestedDispatcher": "prism_forming",
+        "mtime": "2026-03-07T19:28:36.000Z",
+        "sizeKB": 4,
+        "wikiTitle": null
+      },
+      {
+        "name": "SessionEventLogEngine",
+        "suggestedDispatcher": "prism_auth",
+        "mtime": "2026-03-07T19:29:38.000Z",
+        "sizeKB": 5,
+        "wikiTitle": null
+      },
+      {
+        "name": "MasterIndexGenerator",
+        "suggestedDispatcher": "UNKNOWN — review manually",
+        "mtime": "2026-03-07T19:30:10.000Z",
+        "sizeKB": 12,
+        "wikiTitle": null
+      },
+      {
+        "name": "ParallelCallPlannerEngine",
+        "suggestedDispatcher": "prism_orchestrate",
+        "mtime": "2026-03-07T19:32:48.000Z",
+        "sizeKB": 5,
+        "wikiTitle": null
+      },
+      {
+        "name": "IncrementalReadEngine",
+        "suggestedDispatcher": "UNKNOWN — review manually",
+        "mtime": "2026-03-07T19:33:08.000Z",
+        "sizeKB": 5,
+        "wikiTitle": null
+      },
+      {
+        "name": "SwarmGroupExecutor",
+        "suggestedDispatcher": "prism_orchestrate",
+        "mtime": "2026-03-07T19:33:34.000Z",
+        "sizeKB": 12,
+        "wikiTitle": null
+      },
+      {
+        "name": "ToolCallHistogramEngine",
+        "suggestedDispatcher": "UNKNOWN — review manually",
+        "mtime": "2026-03-07T19:38:08.000Z",
+        "sizeKB": 4,
+        "wikiTitle": null
+      },
+      {
+        "name": "WasteDetectorEngine",
+        "suggestedDispatcher": "UNKNOWN — review manually",
+        "mtime": "2026-03-07T19:38:34.000Z",
+        "sizeKB": 5,
+        "wikiTitle": null
+      },
+      {
+        "name": "BallScrewSelectionEngine",
+        "suggestedDispatcher": "UNKNOWN — review manually",
+        "mtime": "2026-03-07T20:06:26.000Z",
+        "sizeKB": 9,
+        "wikiTitle": null
+      },
+      {
+        "name": "SchemaCompactEngine",
+        "suggestedDispatcher": "UNKNOWN — review manually",
+        "mtime": "2026-03-07T20:07:40.000Z",
+        "sizeKB": 5,
+        "wikiTitle": null
+      },
+      {
+        "name": "ToolOutputSummarizerEngine",
+        "suggestedDispatcher": "UNKNOWN — review manually",
+        "mtime": "2026-03-07T20:10:52.000Z",
+        "sizeKB": 6,
+        "wikiTitle": null
+      },
+      {
+        "name": "ConversationTrimmerEngine",
+        "suggestedDispatcher": "UNKNOWN — review manually",
+        "mtime": "2026-03-07T20:13:50.000Z",
+        "sizeKB": 4,
+        "wikiTitle": null
       }
     ],
     "next_action": "Pick a top-domain bucket; wire to the matching dispatcher in batches of 5–6 engines (see U-WIRE-LATHE-BATCHN pattern). Wiki cross-refs in `wikiTitle` resolve via `/wiki-query <name>`."
@@ -320,8 +320,8 @@
       {
         "domain": "Other",
         "total": 603,
-        "wired": 458,
-        "unwired": 145,
+        "wired": 459,
+        "unwired": 144,
         "coverage_pct": 76,
         "sample_unwired": [
           "AIMLFormulasEngine",
@@ -378,21 +378,6 @@
         ]
       },
       {
-        "domain": "Tool",
-        "total": 57,
-        "wired": 47,
-        "unwired": 10,
-        "coverage_pct": 82,
-        "sample_unwired": [
-          "ToolCallBatchEngine",
-          "ToolCallBatchOptimizerEngine",
-          "ToolCallDeduplicatorEngine",
-          "ToolCallHistogramEngine",
-          "ToolCallPipelineEngine",
-          "ToolCallThrottleEngine"
-        ]
-      },
-      {
         "domain": "Multi",
         "total": 28,
         "wired": 18,
@@ -405,6 +390,21 @@
           "MultiObjectiveParetoEngine",
           "MultiPathReasoningEngine",
           "MultiSetupFeasibilityChainEngine"
+        ]
+      },
+      {
+        "domain": "Tool",
+        "total": 57,
+        "wired": 48,
+        "unwired": 9,
+        "coverage_pct": 84,
+        "sample_unwired": [
+          "ToolCallBatchOptimizerEngine",
+          "ToolCallDeduplicatorEngine",
+          "ToolCallHistogramEngine",
+          "ToolCallPipelineEngine",
+          "ToolCallThrottleEngine",
+          "ToolDatabaseDeepLearningEngine"
         ]
       },
       {
@@ -602,20 +602,6 @@
         ]
       },
       {
-        "domain": "Session",
-        "total": 12,
-        "wired": 7,
-        "unwired": 5,
-        "coverage_pct": 58,
-        "sample_unwired": [
-          "SessionBudgetAdvisorEngine",
-          "SessionEventLogEngine",
-          "SessionInsightsLedgerEngine",
-          "SessionLifecycleEngine",
-          "SessionReplayEngine"
-        ]
-      },
-      {
         "domain": "Mobile",
         "total": 6,
         "wired": 1,
@@ -695,19 +681,6 @@
         ]
       },
       {
-        "domain": "Agent",
-        "total": 7,
-        "wired": 3,
-        "unwired": 4,
-        "coverage_pct": 43,
-        "sample_unwired": [
-          "AgentAutoUpdateEngine",
-          "AgentRegistryEngine",
-          "AgentSpecializationProfileEngine",
-          "AgentWorkflowEngine"
-        ]
-      },
-      {
         "domain": "Speed",
         "total": 7,
         "wired": 3,
@@ -746,15 +719,15 @@
         ]
       },
       {
-        "domain": "Knowledge",
-        "total": 10,
-        "wired": 7,
+        "domain": "Session",
+        "total": 12,
+        "wired": 9,
         "unwired": 3,
-        "coverage_pct": 70,
+        "coverage_pct": 75,
         "sample_unwired": [
-          "KnowledgeGraphFeatureProjectorEngine",
-          "KnowledgeGraphNeuralBridgeEngine",
-          "KnowledgeIngestionOrchestratorEngine"
+          "SessionEventLogEngine",
+          "SessionInsightsLedgerEngine",
+          "SessionReplayEngine"
         ]
       },
       {
@@ -791,6 +764,18 @@
           "PipelineMetricsEngine",
           "PipelineOptimizationEngine",
           "PipelineRegistryBridge"
+        ]
+      },
+      {
+        "domain": "Agent",
+        "total": 7,
+        "wired": 4,
+        "unwired": 3,
+        "coverage_pct": 57,
+        "sample_unwired": [
+          "AgentAutoUpdateEngine",
+          "AgentSpecializationProfileEngine",
+          "AgentWorkflowEngine"
         ]
       },
       {
@@ -854,18 +839,6 @@
         ]
       },
       {
-        "domain": "Ground",
-        "total": 4,
-        "wired": 1,
-        "unwired": 3,
-        "coverage_pct": 25,
-        "sample_unwired": [
-          "GroundTruthBatchExtractor",
-          "GroundTruthRegistryEngine",
-          "GroundTruthValidationEngine"
-        ]
-      },
-      {
         "domain": "Live",
         "total": 4,
         "wired": 1,
@@ -887,18 +860,6 @@
           "BusinessDocumentExtractorEngine",
           "BusinessIntelligenceEngine",
           "BusinessSyncEngine"
-        ]
-      },
-      {
-        "domain": "Prompt",
-        "total": 3,
-        "wired": 0,
-        "unwired": 3,
-        "coverage_pct": 0,
-        "sample_unwired": [
-          "PromptCachingEngine",
-          "PromptCompressionEngine",
-          "PromptTemplateEngine"
         ]
       },
       {
@@ -993,6 +954,17 @@
         ]
       },
       {
+        "domain": "Knowledge",
+        "total": 10,
+        "wired": 8,
+        "unwired": 2,
+        "coverage_pct": 80,
+        "sample_unwired": [
+          "KnowledgeGraphFeatureProjectorEngine",
+          "KnowledgeGraphNeuralBridgeEngine"
+        ]
+      },
+      {
         "domain": "Coolant",
         "total": 9,
         "wired": 7,
@@ -1001,17 +973,6 @@
         "sample_unwired": [
           "CoolantOptimizationPhysicsEngine",
           "CoolantStrategyAdapter"
-        ]
-      },
-      {
-        "domain": "Spindle",
-        "total": 9,
-        "wired": 7,
-        "unwired": 2,
-        "coverage_pct": 78,
-        "sample_unwired": [
-          "SpindleHarmonicsQualityEngine",
-          "SpindleTorqueGateEngine"
         ]
       },
       {
@@ -1078,6 +1039,17 @@
         "sample_unwired": [
           "BarFeedPitchOptimizerEngine",
           "BarRemnantManagementEngine"
+        ]
+      },
+      {
+        "domain": "Memory",
+        "total": 6,
+        "wired": 4,
+        "unwired": 2,
+        "coverage_pct": 67,
+        "sample_unwired": [
+          "MemoryConflictResolverEngine",
+          "MemorySyncEngine"
         ]
       },
       {
@@ -1191,17 +1163,6 @@
         ]
       },
       {
-        "domain": "Output",
-        "total": 4,
-        "wired": 2,
-        "unwired": 2,
-        "coverage_pct": 50,
-        "sample_unwired": [
-          "OutputBudgetEngine",
-          "OutputTruncatorEngine"
-        ]
-      },
-      {
         "domain": "Qdrant",
         "total": 4,
         "wired": 2,
@@ -1210,17 +1171,6 @@
         "sample_unwired": [
           "QdrantCapacityPlannerEngine",
           "QdrantVectorStoreEngine"
-        ]
-      },
-      {
-        "domain": "Resource",
-        "total": 4,
-        "wired": 2,
-        "unwired": 2,
-        "coverage_pct": 50,
-        "sample_unwired": [
-          "ResourceExtractionStateEngine",
-          "ResourceHarvestingIntelligenceEngine"
         ]
       },
       {
@@ -1268,17 +1218,6 @@
         ]
       },
       {
-        "domain": "Conversation",
-        "total": 3,
-        "wired": 1,
-        "unwired": 2,
-        "coverage_pct": 33,
-        "sample_unwired": [
-          "ConversationBudgetEngine",
-          "ConversationTrimmerEngine"
-        ]
-      },
-      {
         "domain": "Counterfactual",
         "total": 3,
         "wired": 1,
@@ -1312,17 +1251,6 @@
         ]
       },
       {
-        "domain": "Intent",
-        "total": 3,
-        "wired": 1,
-        "unwired": 2,
-        "coverage_pct": 33,
-        "sample_unwired": [
-          "IntentClassifierEngine",
-          "IntentRouterEngine"
-        ]
-      },
-      {
         "domain": "Monte",
         "total": 3,
         "wired": 1,
@@ -1345,14 +1273,14 @@
         ]
       },
       {
-        "domain": "Response",
+        "domain": "Prompt",
         "total": 3,
         "wired": 1,
         "unwired": 2,
         "coverage_pct": 33,
         "sample_unwired": [
-          "ResponseCacheEngine",
-          "ResponseTemplateEngine"
+          "PromptCachingEngine",
+          "PromptCompressionEngine"
         ]
       },
       {
@@ -1364,6 +1292,17 @@
         "sample_unwired": [
           "UncertaintyPropagationEngine",
           "UncertaintyPropagationPipelineEngine"
+        ]
+      },
+      {
+        "domain": "Action",
+        "total": 2,
+        "wired": 0,
+        "unwired": 2,
+        "coverage_pct": 0,
+        "sample_unwired": [
+          "ActionSchemaCacheEngine",
+          "ActionTraceEngine"
         ]
       },
       {
@@ -1386,17 +1325,6 @@
         "sample_unwired": [
           "ConveyorBeltEngine",
           "ConveyorDesignEngine"
-        ]
-      },
-      {
-        "domain": "Data",
-        "total": 2,
-        "wired": 0,
-        "unwired": 2,
-        "coverage_pct": 0,
-        "sample_unwired": [
-          "DataQualityEngine",
-          "DataValidationEngine"
         ]
       },
       {
@@ -1563,6 +1491,16 @@
         ]
       },
       {
+        "domain": "Program",
+        "total": 12,
+        "wired": 11,
+        "unwired": 1,
+        "coverage_pct": 92,
+        "sample_unwired": [
+          "ProgramEquivalentIndexEngine"
+        ]
+      },
+      {
         "domain": "Laser",
         "total": 10,
         "wired": 9,
@@ -1590,6 +1528,16 @@
         "coverage_pct": 89,
         "sample_unwired": [
           "MacroConversionAnalyzerEngine"
+        ]
+      },
+      {
+        "domain": "Spindle",
+        "total": 9,
+        "wired": 8,
+        "unwired": 1,
+        "coverage_pct": 89,
+        "sample_unwired": [
+          "SpindleTorqueGateEngine"
         ]
       },
       {
@@ -1630,26 +1578,6 @@
         "coverage_pct": 86,
         "sample_unwired": [
           "SetupSheetLibraryEngine"
-        ]
-      },
-      {
-        "domain": "Thread",
-        "total": 7,
-        "wired": 6,
-        "unwired": 1,
-        "coverage_pct": 86,
-        "sample_unwired": [
-          "ThreadMethodSelectorEngine"
-        ]
-      },
-      {
-        "domain": "Memory",
-        "total": 6,
-        "wired": 5,
-        "unwired": 1,
-        "coverage_pct": 83,
-        "sample_unwired": [
-          "MemorySyncEngine"
         ]
       },
       {
@@ -1823,6 +1751,16 @@
         ]
       },
       {
+        "domain": "Ground",
+        "total": 4,
+        "wired": 3,
+        "unwired": 1,
+        "coverage_pct": 75,
+        "sample_unwired": [
+          "GroundTruthBatchExtractor"
+        ]
+      },
+      {
         "domain": "Inverse",
         "total": 4,
         "wired": 3,
@@ -1853,6 +1791,16 @@
         ]
       },
       {
+        "domain": "Output",
+        "total": 4,
+        "wired": 3,
+        "unwired": 1,
+        "coverage_pct": 75,
+        "sample_unwired": [
+          "OutputTruncatorEngine"
+        ]
+      },
+      {
         "domain": "Prism",
         "total": 4,
         "wired": 3,
@@ -1870,6 +1818,16 @@
         "coverage_pct": 75,
         "sample_unwired": [
           "RealTimeOptimizationEngine"
+        ]
+      },
+      {
+        "domain": "Resource",
+        "total": 4,
+        "wired": 3,
+        "unwired": 1,
+        "coverage_pct": 75,
+        "sample_unwired": [
+          "ResourceExtractionStateEngine"
         ]
       },
       {
@@ -1910,16 +1868,6 @@
         "coverage_pct": 75,
         "sample_unwired": [
           "WorkflowIntegrationHelper"
-        ]
-      },
-      {
-        "domain": "Alarm",
-        "total": 3,
-        "wired": 2,
-        "unwired": 1,
-        "coverage_pct": 67,
-        "sample_unwired": [
-          "AlarmEscalationEngine"
         ]
       },
       {
@@ -1973,6 +1921,16 @@
         ]
       },
       {
+        "domain": "Conversation",
+        "total": 3,
+        "wired": 2,
+        "unwired": 1,
+        "coverage_pct": 67,
+        "sample_unwired": [
+          "ConversationTrimmerEngine"
+        ]
+      },
+      {
         "domain": "Cps",
         "total": 3,
         "wired": 2,
@@ -2023,6 +1981,16 @@
         ]
       },
       {
+        "domain": "Intent",
+        "total": 3,
+        "wired": 2,
+        "unwired": 1,
+        "coverage_pct": 67,
+        "sample_unwired": [
+          "IntentRouterEngine"
+        ]
+      },
+      {
         "domain": "Ledger",
         "total": 3,
         "wired": 2,
@@ -2040,6 +2008,16 @@
         "coverage_pct": 67,
         "sample_unwired": [
           "ProvenSpeedFeedAggregatorEngine"
+        ]
+      },
+      {
+        "domain": "Response",
+        "total": 3,
+        "wired": 2,
+        "unwired": 1,
+        "coverage_pct": 67,
+        "sample_unwired": [
+          "ResponseCacheEngine"
         ]
       },
       {
@@ -2123,13 +2101,13 @@
         ]
       },
       {
-        "domain": "Action",
+        "domain": "Archive",
         "total": 2,
         "wired": 1,
         "unwired": 1,
         "coverage_pct": 50,
         "sample_unwired": [
-          "ActionSchemaCacheEngine"
+          "ArchiveToPartsCatalogIngesterEngine"
         ]
       },
       {
@@ -2240,6 +2218,16 @@
         "coverage_pct": 50,
         "sample_unwired": [
           "DailyFlashReportEngine"
+        ]
+      },
+      {
+        "domain": "Data",
+        "total": 2,
+        "wired": 1,
+        "unwired": 1,
+        "coverage_pct": 50,
+        "sample_unwired": [
+          "DataQualityEngine"
         ]
       },
       {
@@ -2723,16 +2711,6 @@
         ]
       },
       {
-        "domain": "Bash",
-        "total": 1,
-        "wired": 0,
-        "unwired": 1,
-        "coverage_pct": 0,
-        "sample_unwired": [
-          "BashCommandClassifierEngine"
-        ]
-      },
-      {
         "domain": "Blade",
         "total": 1,
         "wired": 0,
@@ -2820,16 +2798,6 @@
         "coverage_pct": 0,
         "sample_unwired": [
           "CalibratedSimulationEngine"
-        ]
-      },
-      {
-        "domain": "Campaign",
-        "total": 1,
-        "wired": 0,
-        "unwired": 1,
-        "coverage_pct": 0,
-        "sample_unwired": [
-          "CampaignEngine"
         ]
       },
       {
@@ -3173,16 +3141,6 @@
         ]
       },
       {
-        "domain": "Edge",
-        "total": 1,
-        "wired": 0,
-        "unwired": 1,
-        "coverage_pct": 0,
-        "sample_unwired": [
-          "EdgeCaseCaptureEngine"
-        ]
-      },
-      {
         "domain": "Ejector",
         "total": 1,
         "wired": 0,
@@ -3233,16 +3191,6 @@
         ]
       },
       {
-        "domain": "Equipment",
-        "total": 1,
-        "wired": 0,
-        "unwired": 1,
-        "coverage_pct": 0,
-        "sample_unwired": [
-          "EquipmentAssetEngine"
-        ]
-      },
-      {
         "domain": "Execution",
         "total": 1,
         "wired": 0,
@@ -3280,16 +3228,6 @@
         "coverage_pct": 0,
         "sample_unwired": [
           "FanSelectionEngine"
-        ]
-      },
-      {
-        "domain": "Finish",
-        "total": 1,
-        "wired": 0,
-        "unwired": 1,
-        "coverage_pct": 0,
-        "sample_unwired": [
-          "FinishTargetAdvisorEngine"
         ]
       },
       {
@@ -3483,16 +3421,6 @@
         ]
       },
       {
-        "domain": "Impact",
-        "total": 1,
-        "wired": 0,
-        "unwired": 1,
-        "coverage_pct": 0,
-        "sample_unwired": [
-          "ImpactAnalysisEngine"
-        ]
-      },
-      {
         "domain": "Infinite",
         "total": 1,
         "wired": 0,
@@ -3640,16 +3568,6 @@
         "coverage_pct": 0,
         "sample_unwired": [
           "MetacognitionBudgetEngine"
-        ]
-      },
-      {
-        "domain": "Metrics",
-        "total": 1,
-        "wired": 0,
-        "unwired": 1,
-        "coverage_pct": 0,
-        "sample_unwired": [
-          "MetricsEngine"
         ]
       },
       {
@@ -3913,16 +3831,6 @@
         ]
       },
       {
-        "domain": "Preventive",
-        "total": 1,
-        "wired": 0,
-        "unwired": 1,
-        "coverage_pct": 0,
-        "sample_unwired": [
-          "PreventiveMaintenanceEngine"
-        ]
-      },
-      {
         "domain": "Profile",
         "total": 1,
         "wired": 0,
@@ -4043,16 +3951,6 @@
         ]
       },
       {
-        "domain": "Reverse",
-        "total": 1,
-        "wired": 0,
-        "unwired": 1,
-        "coverage_pct": 0,
-        "sample_unwired": [
-          "ReverseIndexEngine"
-        ]
-      },
-      {
         "domain": "Rocket",
         "total": 1,
         "wired": 0,
@@ -4070,16 +3968,6 @@
         "coverage_pct": 0,
         "sample_unwired": [
           "RollbackPlannerEngine"
-        ]
-      },
-      {
-        "domain": "Roughness",
-        "total": 1,
-        "wired": 0,
-        "unwired": 1,
-        "coverage_pct": 0,
-        "sample_unwired": [
-          "RoughnessConversionEngine"
         ]
       },
       {
@@ -4293,16 +4181,6 @@
         ]
       },
       {
-        "domain": "Upstream",
-        "total": 1,
-        "wired": 0,
-        "unwired": 1,
-        "coverage_pct": 0,
-        "sample_unwired": [
-          "UpstreamValidationHandshakeEngine"
-        ]
-      },
-      {
         "domain": "Utilization",
         "total": 1,
         "wired": 0,
@@ -4445,14 +4323,6 @@
         "sample_unwired": []
       },
       {
-        "domain": "Program",
-        "total": 12,
-        "wired": 12,
-        "unwired": 0,
-        "coverage_pct": 100,
-        "sample_unwired": []
-      },
-      {
         "domain": "Strategy",
         "total": 12,
         "wired": 12,
@@ -4518,6 +4388,14 @@
       },
       {
         "domain": "Part",
+        "total": 7,
+        "wired": 7,
+        "unwired": 0,
+        "coverage_pct": 100,
+        "sample_unwired": []
+      },
+      {
+        "domain": "Thread",
         "total": 7,
         "wired": 7,
         "unwired": 0,
@@ -4725,6 +4603,14 @@
         "sample_unwired": []
       },
       {
+        "domain": "Alarm",
+        "total": 3,
+        "wired": 3,
+        "unwired": 0,
+        "coverage_pct": 100,
+        "sample_unwired": []
+      },
+      {
         "domain": "Audit",
         "total": 3,
         "wired": 3,
@@ -4910,14 +4796,6 @@
       },
       {
         "domain": "Adhesive",
-        "total": 2,
-        "wired": 2,
-        "unwired": 0,
-        "coverage_pct": 100,
-        "sample_unwired": []
-      },
-      {
-        "domain": "Archive",
         "total": 2,
         "wired": 2,
         "unwired": 0,
@@ -5701,6 +5579,14 @@
         "sample_unwired": []
       },
       {
+        "domain": "Bash",
+        "total": 1,
+        "wired": 1,
+        "unwired": 0,
+        "coverage_pct": 100,
+        "sample_unwired": []
+      },
+      {
         "domain": "Bearing",
         "total": 1,
         "wired": 1,
@@ -5862,6 +5748,14 @@
       },
       {
         "domain": "Call",
+        "total": 1,
+        "wired": 1,
+        "unwired": 0,
+        "coverage_pct": 100,
+        "sample_unwired": []
+      },
+      {
+        "domain": "Campaign",
         "total": 1,
         "wired": 1,
         "unwired": 0,
@@ -6485,6 +6379,14 @@
         "sample_unwired": []
       },
       {
+        "domain": "Edge",
+        "total": 1,
+        "wired": 1,
+        "unwired": 0,
+        "coverage_pct": 100,
+        "sample_unwired": []
+      },
+      {
         "domain": "Eigensolver",
         "total": 1,
         "wired": 1,
@@ -6558,6 +6460,14 @@
       },
       {
         "domain": "Environmental",
+        "total": 1,
+        "wired": 1,
+        "unwired": 0,
+        "coverage_pct": 100,
+        "sample_unwired": []
+      },
+      {
+        "domain": "Equipment",
         "total": 1,
         "wired": 1,
         "unwired": 0,
@@ -6678,6 +6588,14 @@
       },
       {
         "domain": "Finishing",
+        "total": 1,
+        "wired": 1,
+        "unwired": 0,
+        "coverage_pct": 100,
+        "sample_unwired": []
+      },
+      {
+        "domain": "Finish",
         "total": 1,
         "wired": 1,
         "unwired": 0,
@@ -6990,6 +6908,14 @@
       },
       {
         "domain": "Image",
+        "total": 1,
+        "wired": 1,
+        "unwired": 0,
+        "coverage_pct": 100,
+        "sample_unwired": []
+      },
+      {
+        "domain": "Impact",
         "total": 1,
         "wired": 1,
         "unwired": 0,
@@ -7310,6 +7236,14 @@
       },
       {
         "domain": "Metaheuristic",
+        "total": 1,
+        "wired": 1,
+        "unwired": 0,
+        "coverage_pct": 100,
+        "sample_unwired": []
+      },
+      {
+        "domain": "Metrics",
         "total": 1,
         "wired": 1,
         "unwired": 0,
@@ -7685,6 +7619,14 @@
         "sample_unwired": []
       },
       {
+        "domain": "Preventive",
+        "total": 1,
+        "wired": 1,
+        "unwired": 0,
+        "coverage_pct": 100,
+        "sample_unwired": []
+      },
+      {
         "domain": "Principal",
         "total": 1,
         "wired": 1,
@@ -7965,6 +7907,14 @@
         "sample_unwired": []
       },
       {
+        "domain": "Reverse",
+        "total": 1,
+        "wired": 1,
+        "unwired": 0,
+        "coverage_pct": 100,
+        "sample_unwired": []
+      },
+      {
         "domain": "Rigid",
         "total": 1,
         "wired": 1,
@@ -8022,6 +7972,14 @@
       },
       {
         "domain": "Rotational",
+        "total": 1,
+        "wired": 1,
+        "unwired": 0,
+        "coverage_pct": 100,
+        "sample_unwired": []
+      },
+      {
+        "domain": "Roughness",
         "total": 1,
         "wired": 1,
         "unwired": 0,
@@ -8693,6 +8651,14 @@
         "sample_unwired": []
       },
       {
+        "domain": "Upstream",
+        "total": 1,
+        "wired": 1,
+        "unwired": 0,
+        "coverage_pct": 100,
+        "sample_unwired": []
+      },
+      {
         "domain": "Variance",
         "total": 1,
         "wired": 1,
@@ -9142,7 +9108,7 @@
     "next_action": "Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift."
   },
   "NEEDS_BUILDING": {
-    "summary": "4492 units across 680 milestones not yet in git.",
+    "summary": "4497 units across 681 milestones not yet in git.",
     "drift_cases": [
       {
         "id": "MF-MS1",
@@ -9333,28 +9299,28 @@
         "phase": ""
       },
       {
-        "milestone": "SYSTEM-VIZ-BRAIN-MS0",
-        "unit": "U-P0-HOOK-ORPHAN-RECONCILE",
-        "title": "Reconcile 447 orphan hook files vs 109 wired in settings.json",
-        "phase": "P0-FOUND"
+        "milestone": "CAD-INFRA-MS0",
+        "unit": "U-CINF01",
+        "title": "CADFileIndexerEngine — master 20,006-file catalog",
+        "phase": ""
       },
       {
-        "milestone": "SYSTEM-VIZ-BRAIN-MS0",
-        "unit": "U-P1-QDRANT-EPISODIC-RECALL",
-        "title": "Qdrant episodic recall on SessionStart + UserPromptSubmit (xproc_episodic_recall)",
-        "phase": "P1-MEMORY"
+        "milestone": "CAD-INFRA-MS0",
+        "unit": "U-CINF02",
+        "title": "CADFileClassifierEngine — part/assembly/drawing/CAM classification",
+        "phase": ""
       },
       {
-        "milestone": "SYSTEM-VIZ-BRAIN-MS0",
-        "unit": "U-P2-NODE-CLICK-DISPATCH",
-        "title": "Click /system-viz node to invoke its dispatcher's primary action",
-        "phase": "P2-VIZ-BRAIN"
+        "milestone": "CAD-INFRA-MS0",
+        "unit": "U-CINF03",
+        "title": "CADTestStateSchema — per-file atomic state",
+        "phase": ""
       },
       {
-        "milestone": "SYSTEM-VIZ-BRAIN-MS0",
-        "unit": "U-P2-LIVE-DRIFT-OVERLAY",
-        "title": "5-min auto-regen + drift overlay (red-pulse nodes where envelope-vs-git differ)",
-        "phase": "P2-VIZ-BRAIN"
+        "milestone": "CAD-INFRA-MS0",
+        "unit": "U-CINF05",
+        "title": "CADTestCheckpointEngine — resumable state every 100 files",
+        "phase": ""
       }
     ],
     "next_action": "Cross-reference MILESTONE_PROGRESS.json. Avoid units already in `shipped` arrays — those are committed but envelope status is stale."
