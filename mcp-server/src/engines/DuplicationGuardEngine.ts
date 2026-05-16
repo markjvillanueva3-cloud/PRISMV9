@@ -65,6 +65,7 @@ export interface AssetRegistry {
   actions: Map<string, ExistingAsset>;
   extractions: Map<string, ExistingAsset>;
   skills: Map<string, ExistingAsset>;
+  scripts: Map<string, ExistingAsset>;
   hooks: Map<string, ExistingAsset>;
 }
 
@@ -550,6 +551,7 @@ export class DuplicationGuardEngine {
       actions: new Map(),
       extractions: new Map(),
       skills: new Map(),
+      scripts: new Map(),
       hooks: new Map(),
     };
 

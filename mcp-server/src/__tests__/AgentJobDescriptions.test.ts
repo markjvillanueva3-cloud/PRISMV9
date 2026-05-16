@@ -10,7 +10,6 @@
  */
 import { describe, it, expect } from "vitest";
 import * as fs from "node:fs";
-// @ts-expect-error — sibling .mjs script.
 import { parseAgentDocs, validateAgents } from "../../../scripts/validate-agent-job-descriptions.mjs";
 
 const REAL_DOC_PATH = "H:/prism/state/shared/AGENT_JOB_DESCRIPTIONS.md";

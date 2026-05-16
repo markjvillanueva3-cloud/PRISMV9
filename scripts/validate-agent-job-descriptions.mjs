@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /**
  * validate-agent-job-descriptions.mjs — OBSIDIAN-INTELLIGENCE-MS3 / G1
  *
