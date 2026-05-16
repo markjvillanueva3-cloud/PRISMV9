@@ -1,0 +1,179 @@
+/*
+ * agent-overlay.css — status color tokens + badge styling for the
+ * system-viz agent-status overlay.
+ *
+ * OBSIDIAN-INTELLIGENCE-MS3 / G2 (U-AGENT-PIXEL-DEPT-OVERLAY).
+ *
+ * Air-gap-safe: no @import, no web fonts, no CDN. Loaded by agent-overlay.js
+ * (or graph.html) to render the color-coded subagent badges produced by
+ * scripts/lib/agent-overlay.mjs -> state/shared/system-viz/agent-overlay.json.
+ *
+ * KEEP-IN-SYNC: the four --agent-* status hex values below MIRROR
+ * STATUS_COLORS in scripts/lib/agent-overlay.mjs. AgentOverlay.test.ts
+ * re-reads this file and asserts every STATUS_COLORS hex is present here.
+ */
+
+:root {
+  --agent-typing: #22c55e;  /* green — actively producing output */
+  --agent-parsing: #3b82f6; /* blue  — active, mid-pipeline */
+  --agent-idle: #64748b;    /* slate — heartbeat present, no recent activity */
+  --agent-errored: #ef4444; /* red   — explicit error, or heartbeat dead */
+
+  --agent-panel-bg: rgba(15, 23, 42, 0.92);
+  --agent-panel-border: #1e293b;
+  --agent-text: #e2e8f0;
+  --agent-text-dim: #94a3b8;
+}
+
+.agent-overlay-panel {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 268px;
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 12px 14px;
+  background: var(--agent-panel-bg);
+  border: 1px solid var(--agent-panel-border);
+  border-radius: 8px;
+  font-family: ui-monospace, "Cascadia Code", "Consolas", monospace;
+  font-size: 12px;
+  color: var(--agent-text);
+  z-index: 50;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+}
+
+.agent-overlay-title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--agent-text-dim);
+  margin-bottom: 8px;
+}
+
+.agent-overlay-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  margin-bottom: 10px;
+  font-size: 10px;
+  color: var(--agent-text-dim);
+}
+
+.agent-overlay-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.agent-overlay-legend .legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.legend-dot.status-typing { background: var(--agent-typing); }
+.legend-dot.status-parsing { background: var(--agent-parsing); }
+.legend-dot.status-idle { background: var(--agent-idle); }
+.legend-dot.status-errored { background: var(--agent-errored); }
+
+.agent-badge {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 8px;
+  margin-bottom: 4px;
+  background: rgba(30, 41, 59, 0.6);
+  border-left: 3px solid var(--agent-idle);
+  border-radius: 4px;
+}
+
+.agent-badge.status-typing { border-left-color: var(--agent-typing); }
+.agent-badge.status-parsing { border-left-color: var(--agent-parsing); }
+.agent-badge.status-idle { border-left-color: var(--agent-idle); }
+.agent-badge.status-errored { border-left-color: var(--agent-errored); }
+
+.agent-badge .agent-dot {
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+  margin-top: 2px;
+  border-radius: 50%;
+  background: var(--agent-idle);
+}
+
+.agent-badge.status-typing .agent-dot {
+  background: var(--agent-typing);
+  animation: agent-pulse 1.4s ease-in-out infinite;
+}
+.agent-badge.status-parsing .agent-dot { background: var(--agent-parsing); }
+.agent-badge.status-idle .agent-dot { background: var(--agent-idle); }
+.agent-badge.status-errored .agent-dot { background: var(--agent-errored); }
+
+@keyframes agent-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+.agent-badge .agent-body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.agent-badge .agent-slot {
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.agent-badge .agent-status {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--agent-text-dim);
+  margin-left: 6px;
+}
+
+.agent-badge .agent-metarow {
+  display: flex;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+/* Topic truncates when long; age never does — it stays readable. */
+.agent-badge .agent-topic {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--agent-text-dim);
+  font-size: 10px;
+}
+
+.agent-badge .agent-age {
+  flex: 0 0 auto;
+  color: var(--agent-text-dim);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.agent-badge .agent-meta {
+  display: block;
+  margin-top: 2px;
+  color: var(--agent-text-dim);
+  font-size: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.agent-overlay-empty {
+  color: var(--agent-text-dim);
+  font-style: italic;
+  padding: 6px 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agent-badge.status-typing .agent-dot { animation: none; }
+}
