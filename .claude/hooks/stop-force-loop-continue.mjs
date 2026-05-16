@@ -44,7 +44,7 @@
  */
 
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync, writeFileSync, statSync, mkdirSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync, statSync, mkdirSync, readdirSync, renameSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 
 const REPO_ROOT = "H:/prism";
@@ -115,8 +115,7 @@ function bumpReinjectCount(sid) {
 function findHandoff(sid) {
   if (!existsSync(HANDOFFS_DIR)) return null;
   try {
-    const fs = require("node:fs");
-    const files = fs.readdirSync(HANDOFFS_DIR).filter(f => f.startsWith("HANDOFF-") && f.endsWith(".md") && f.includes(sid));
+    const files = readdirSync(HANDOFFS_DIR).filter(f => f.startsWith("HANDOFF-") && f.endsWith(".md") && f.includes(sid));
     if (!files.length) return null;
     // Newest matching file wins
     const sorted = files.map(f => ({ f, mtimeMs: statSync(resolve(HANDOFFS_DIR, f)).mtimeMs })).sort((a, b) => b.mtimeMs - a.mtimeMs);
@@ -159,7 +158,7 @@ Last note: ${loopState.lastNote ?? "(none)"}
     // Atomic write
     const tmp = `${handoffPath}.${process.pid}.tmp`;
     writeFileSync(tmp, newContent);
-    require("node:fs").renameSync(tmp, handoffPath);
+    renameSync(tmp, handoffPath);
     return true;
   } catch (e) { vlog(`write err: ${e.message?.slice(0, 200)}`); return false; }
 }

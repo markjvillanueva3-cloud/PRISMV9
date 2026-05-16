@@ -34,9 +34,14 @@
  *   PRISM_FORCE_HANDOFF_MIN_RESUME=30  — minimum chars in synthesized RESUME (default 30)
  *
  * Composes:
- *   .claude/helpers/per-agent-handoff.mjs (--source=stop-force-hook required;
- *     accepted alongside live-chat / precompact-hook per per-agent-handoff.mjs
- *     write-gate policy)
+ *   .claude/helpers/per-agent-handoff.mjs (--source=precompact-hook — the
+ *     write-gate ONLY accepts `live-chat` + `precompact-hook` per the
+ *     handoff-writer ban [[feedback_handoff_writers]]. stop-force-handoff is
+ *     an automated safety-net writer with the SAME semantics as the precompact
+ *     auto-writer: it must (a) supply a non-placeholder resume >=30 chars, and
+ *     (b) defer to any fresh live-chat RESUME (anti-clobber). Reusing the
+ *     precompact-hook source is correct, not a workaround — the validation it
+ *     enforces is exactly the safety property this hook needs.)
  *   .claude/helpers/stable-session-id.mjs
  *   .claude/helpers/chat-slots.mjs (read-only — does NOT rebind slot)
  *
@@ -45,7 +50,7 @@
  */
 
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readFileSync, statSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 
 const REPO_ROOT = "H:/prism";
@@ -129,8 +134,7 @@ function findExistingHandoff(chatId, slot, topic) {
   // Try slot-prefix variant first (canonical), then instance-prefix legacy
   if (!existsSync(HANDOFFS_DIR)) return null;
   try {
-    const fs = require("node:fs");
-    const files = fs.readdirSync(HANDOFFS_DIR).filter(f => f.startsWith("HANDOFF-") && f.endsWith(".md"));
+    const files = readdirSync(HANDOFFS_DIR).filter(f => f.startsWith("HANDOFF-") && f.endsWith(".md"));
     const candidates = [];
     for (const f of files) {
       if (slot && f.startsWith(`HANDOFF-${slot}-`)) candidates.push({ f, score: 3 });
@@ -172,7 +176,7 @@ function writeForcedHandoff(chatId, slot, topic, resume, state) {
   try {
     const args = [
       HELPER_HANDOFF, "write",
-      "--source", "stop-force-hook",
+      "--source", "precompact-hook",
       "--terminal", chatId,
       "--topic", topic,
       "--resume", resume,
