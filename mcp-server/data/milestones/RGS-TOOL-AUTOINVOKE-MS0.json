@@ -1,0 +1,186 @@
+{
+  "id": "RGS-TOOL-AUTOINVOKE-MS0",
+  "version": "1.0.0",
+  "title": "RGS Tool Autoinvoke — Per-roadmap-unit toolchain enrichment + outcome feedback loop",
+  "brief": "Attach a self-correcting PRISM toolchain (dev pipeline + tribal + skills + MCP tools + review agents) to every open roadmap unit, surfaced at pickup, learning from shipped/blocked outcomes.",
+  "created_at": "2026-05-16T00:00:00Z",
+  "created_by": "claude-02436db5",
+  "track": "RGS",
+  "track_name": "Roadmap Guidance System",
+  "status": "completed",
+  "completed_at": "2026-05-16T00:00:00Z",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Design, Build, Surface, Feedback",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "U-SPEC",
+          "title": "Hardened design spec + allowlist unblock",
+          "description": "10-agent pre-build scrutiny review of architecture. Key findings: compose-not-rebuild, fold-into-pick-prefresh, graph-load-once, promote feedback loop to MS0.",
+          "effort": 30,
+          "status": "completed",
+          "commit_sha": "04ccd9556",
+          "completed_at": "2026-05-16T00:00:00Z",
+          "deliverables": [
+            "docs/superpowers/specs/2026-05-16-rgs-tool-autoinvoke-design.md"
+          ]
+        },
+        {
+          "id": "U-PLAN",
+          "title": "10-task TDD implementation plan",
+          "description": "Ordered build plan with test-first discipline for all 10 build units.",
+          "effort": 20,
+          "status": "completed",
+          "commit_sha": "18257886d",
+          "completed_at": "2026-05-16T00:00:00Z",
+          "deliverables": [
+            "docs/superpowers/plans/2026-05-16-rgs-tool-autoinvoke.md"
+          ]
+        },
+        {
+          "id": "U-VIZLIB",
+          "title": "scripts/lib/system-viz-graph.mjs — loadGraph/findInGraph, load-once cache",
+          "description": "Shared graph lib with mtime-keyed cache. Converts 4.3h cold-load to 3.4s on re-use. Used by planner, fusion, and surface hooks.",
+          "effort": 40,
+          "status": "completed",
+          "commit_sha": "023964759",
+          "completed_at": "2026-05-16T00:00:00Z",
+          "deliverables": [
+            "scripts/lib/system-viz-graph.mjs"
+          ]
+        },
+        {
+          "id": "U-OLLAMAFMT",
+          "title": "ollama-hook-bridge.mjs additive format passthrough",
+          "description": "Additive format field passthrough in OllamaHookBridgeEngine enabling structured JSON output from qwen2.5-coder:7b for fusion synthesis.",
+          "effort": 20,
+          "status": "completed",
+          "commit_sha": "7b1ede136",
+          "completed_at": "2026-05-16T00:00:00Z",
+          "deliverables": [
+            ".claude/hooks/ollama-hook-bridge.mjs (modified)"
+          ]
+        },
+        {
+          "id": "U-ENUM",
+          "title": "scripts/lib/rgs-unit-enum.mjs — open-unit enumerator",
+          "description": "Enumerates 4,404 open roadmap units by joining milestone envelopes with MILESTONE_PROGRESS status. Filters to not_started + in_progress.",
+          "effort": 40,
+          "status": "completed",
+          "commit_sha": "188397949",
+          "completed_at": "2026-05-16T00:00:00Z",
+          "deliverables": [
+            "scripts/lib/rgs-unit-enum.mjs"
+          ]
+        },
+        {
+          "id": "U-RULES",
+          "title": "scripts/lib/rgs-pipeline-rules.mjs — keyword→pipeline+agent rule table",
+          "description": "The sole net-new knowledge artifact. ~30 keyword clusters mapping unit keywords to recommended pipelines + agent roles covering build/test/dispatcher/hook/schema/CAD/CAM/WEDM/lathe/mill/post/quote/ERP/memory/UI/docs.",
+          "effort": 50,
+          "status": "completed",
+          "commit_sha": "b2cec23d1",
+          "completed_at": "2026-05-16T00:00:00Z",
+          "deliverables": [
+            "scripts/lib/rgs-pipeline-rules.mjs"
+          ]
+        },
+        {
+          "id": "U-FUSION",
+          "title": "scripts/lib/rgs-signal-fusion.mjs — pure fuser, minimum-plan contract, Beta re-rank",
+          "description": "Pure signal fusion combining capability search + skill triggers + graph hits + tribal + rules. Minimum-plan contract ensures every unit gets at least a baseline plan. Beta distribution re-ranks tools using outcome history.",
+          "effort": 60,
+          "status": "completed",
+          "commit_sha": "8b3ca72c3",
+          "completed_at": "2026-05-16T00:00:00Z",
+          "deliverables": [
+            "scripts/lib/rgs-signal-fusion.mjs"
+          ]
+        },
+        {
+          "id": "U-PLANNER",
+          "title": "scripts/rgs-tool-planner.mjs — detached batch orchestrator",
+          "description": "Detached batch orchestrator reading open units, running signal fusion, writing JSONL checkpoints (atomic flush), with file lock preventing concurrent runs. Resumes from checkpoint after interruption.",
+          "effort": 60,
+          "status": "completed",
+          "commit_sha": "444ecb44b",
+          "completed_at": "2026-05-16T00:00:00Z",
+          "deliverables": [
+            "scripts/rgs-tool-planner.mjs"
+          ]
+        },
+        {
+          "id": "U-OUTCOME",
+          "title": "Feedback loop — rgs-plan-outcome.mjs + rgs-outcome-record-stop.mjs Stop hook",
+          "description": "Outcome extractor reads session transcript to classify ship/block/abandon. Stop hook appends to roadmap-tool-plans.json outcome log. Signal fusion reads outcomes for Beta re-rank. Wired in both settings.json.",
+          "effort": 60,
+          "status": "completed",
+          "commit_sha": "9052c6eb1",
+          "completed_at": "2026-05-16T00:00:00Z",
+          "deliverables": [
+            "scripts/lib/rgs-plan-outcome.mjs",
+            ".claude/hooks/rgs-outcome-record-stop.mjs"
+          ]
+        },
+        {
+          "id": "U-SURFACE",
+          "title": "pick-prefresh-inject.mjs extended — tool-plan surfacing, no new hook",
+          "description": "Extended pick-prefresh-inject to surface tool-plan recommendations at /pick-unit and /rgs pickup. No new hook — folded into existing inject per scrutiny recommendation.",
+          "effort": 40,
+          "status": "completed",
+          "commit_sha": "d967c701e",
+          "completed_at": "2026-05-16T00:00:00Z",
+          "deliverables": [
+            ".claude/hooks/pick-prefresh-inject.mjs (modified)"
+          ]
+        },
+        {
+          "id": "U-COVERAGE",
+          "title": "scripts/rgs-plan-coverage.mjs — anti-rot %-fresh dashboard + /rgs tool-plan op",
+          "description": "Anti-rot coverage dashboard reporting % of open units with fresh tool-plans (age < PRISM_RGS_PLAN_STALE_DAYS). Wired as /rgs tool-plan-coverage op. Healthy target: fresh_pct >= 80.",
+          "effort": 40,
+          "status": "completed",
+          "commit_sha": "0c2274f9d",
+          "completed_at": "2026-05-16T00:00:00Z",
+          "deliverables": [
+            "scripts/rgs-plan-coverage.mjs"
+          ]
+        },
+        {
+          "id": "U-DOCS",
+          "title": "5-surface doc reflection + milestone envelope",
+          "description": "Wiki entry (knowledge/wiki/architecture/rgs-tool-autoinvoke-ms0.md), CLAUDE.md pointer, MEMORY.md line, Obsidian memory (reference_rgs_tool_autoinvoke_ms0_2026_05_16.md), settings.json grep verification, milestone envelope + state regen.",
+          "effort": 30,
+          "status": "completed",
+          "completed_at": "2026-05-16T00:00:00Z",
+          "deliverables": [
+            "knowledge/wiki/architecture/rgs-tool-autoinvoke-ms0.md",
+            "mcp-server/data/milestones/RGS-TOOL-AUTOINVOKE-MS0.json",
+            "C:/Users/wompu/.claude/projects/H--prism/memory/reference_rgs_tool_autoinvoke_ms0_2026_05_16.md"
+          ]
+        }
+      ]
+    }
+  ],
+  "dependencies": [],
+  "exit_conditions": [
+    "All 12 units shipped with committed SHAs",
+    "rgs-outcome-record-stop wired in both settings.json (verified 1/1 each)",
+    "Anti-rot coverage dashboard live (/rgs tool-plan-coverage)",
+    "5-surface doc reflection complete"
+  ],
+  "sidecar": "state/shared/roadmap-tool-plans.json",
+  "knobs": {
+    "PRISM_RGS_TOOL_PLAN_INJECT": "1",
+    "PRISM_RGS_OUTCOME_RECORD_DISABLE": "0",
+    "PRISM_RGS_PLANNER_BATCH_SIZE": "50",
+    "PRISM_RGS_PLAN_STALE_DAYS": "7"
+  },
+  "wiki": "knowledge/wiki/architecture/rgs-tool-autoinvoke-ms0.md",
+  "completed_units": 12,
+  "total_units": 12,
+  "updated_at": "2026-05-16T00:00:00Z",
+  "notes": "10-agent pre-build scrutiny review hardened design before first line of code. Key architectural decisions: compose-not-rebuild (only rule table is net-new), fold surfacing into existing pick-prefresh-inject hook, graph-load-once lib, feedback loop promoted from MS1 to MS0."
+}

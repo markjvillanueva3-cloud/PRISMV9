@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-16T04:48:32.621Z",
+  "generatedAt": "2026-05-16T05:30:58.410Z",
   "headline": {
     "built_engines": 2377,
     "built_with_wiki": 1073,
     "needs_wiring": 861,
-    "needs_building_active_units": 4480,
+    "needs_building_active_units": 4492,
     "needs_frontend_merge_count": 2,
     "pending_milestones_with_activity": 14,
-    "drift_milestones": 10,
+    "drift_milestones": 11,
     "stale_milestones": 394,
     "domains_tracked": 933
   },
@@ -9142,7 +9142,7 @@
     "next_action": "Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift."
   },
   "NEEDS_BUILDING": {
-    "summary": "4480 units across 679 milestones not yet in git.",
+    "summary": "4492 units across 680 milestones not yet in git.",
     "drift_cases": [
       {
         "id": "MF-MS1",
@@ -9188,6 +9188,12 @@
       },
       {
         "id": "MS-DOCU-INGEST",
+        "claimed": "completed",
+        "real": "not_started_real",
+        "drift": "claims_completed_but_units_pending"
+      },
+      {
+        "id": "RGS-TOOL-AUTOINVOKE-MS0",
         "claimed": "completed",
         "real": "not_started_real",
         "drift": "claims_completed_but_units_pending"

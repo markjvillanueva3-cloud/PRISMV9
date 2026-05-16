@@ -1,6 +1,6 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-16T04:48:32.621Z
+> Generated: 2026-05-16T05:30:58.410Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
@@ -8,9 +8,9 @@
 - **2377** engines built and wired (of 3238)
 - **1073** wiki entries indexed
 - **861** engines awaiting dispatcher wiring
-- **4480** units pending across 14 active milestones
+- **4492** units pending across 14 active milestones
 - **2** codex frontend builds awaiting merge
-- **10** milestones with envelope-status drift
+- **11** milestones with envelope-status drift
 
 ## BUILT
 
@@ -65,7 +65,7 @@
 
 ## NEEDS_BUILDING
 
-4480 units across 679 milestones not yet in git.
+4492 units across 680 milestones not yet in git.
 
 ### Envelope-status drift
 
@@ -79,6 +79,7 @@
 | OCTOPUS-NEURAL-MS0 | completed | not_started_real | claims_completed_but_units_pending |
 | MS-DOCU-FINISH | completed | not_started_real | claims_completed_but_units_pending |
 | MS-DOCU-INGEST | completed | not_started_real | claims_completed_but_units_pending |
+| RGS-TOOL-AUTOINVOKE-MS0 | completed | not_started_real | claims_completed_but_units_pending |
 | SKILLS-UTILIZATION-MS0 | completed | not_started_real | claims_completed_but_units_pending |
 | TRAINING-LEARNING-MS0 | completed | not_started_real | claims_completed_but_units_pending |
 

@@ -1,6 +1,6 @@
 # MILESTONE_PROGRESS — what's actually shipped vs claimed
 
-> Generated: 2026-05-16T04:48:32.479Z
+> Generated: 2026-05-16T05:30:54.847Z
 > Window: last 60.days of git log across all branches
 > Source: `scripts/build-milestone-progress.mjs`
 
@@ -17,11 +17,11 @@ flagging a unit as missing.
 
 ## Headline numbers
 
-- Milestones loaded:        **679**
-- Units across all MS:      **5116**
+- Milestones loaded:        **680**
+- Units across all MS:      **5128**
 - Units shipped (in git):   **636**
-- Units pending:            **4480**
-- Drift cases:              **10** (envelope status disagrees with git reality)
+- Units pending:            **4492**
+- Drift cases:              **11** (envelope status disagrees with git reality)
 
 ## Top recently-active milestones (last shipped → first)
 
@@ -70,6 +70,7 @@ flagging a unit as missing.
 | OCTOPUS-NEURAL-MS0 | completed | not_started_real | claims_completed_but_units_pending |
 | MS-DOCU-FINISH | completed | not_started_real | claims_completed_but_units_pending |
 | MS-DOCU-INGEST | completed | not_started_real | claims_completed_but_units_pending |
+| RGS-TOOL-AUTOINVOKE-MS0 | completed | not_started_real | claims_completed_but_units_pending |
 | SKILLS-UTILIZATION-MS0 | completed | not_started_real | claims_completed_but_units_pending |
 | TRAINING-LEARNING-MS0 | completed | not_started_real | claims_completed_but_units_pending |
 
