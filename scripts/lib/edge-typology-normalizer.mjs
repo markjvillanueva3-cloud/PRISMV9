@@ -51,6 +51,17 @@ export const CORE_EDGE_TYPES = Object.freeze([
  * (372,731 nodes / 591,479 edges).
  */
 export const EDGE_TYPE_MAP = Object.freeze({
+  // Identity mappings — make normalizeEdgeType + coreTypeCounts idempotent
+  // on already-normalized graphs. Without these, calling
+  // `coreTypeCounts(normalizeGraph(g))` returns 0 for the 5 cores below
+  // (the 2 that overlap with raw type names — `contains`, `ghost-wire` — work
+  // by accident). Adding explicit entries fixes that without special-casing.
+  "imports": "imports",
+  "calls": "calls",
+  "references": "references",
+  "wires": "wires",
+  "composes": "composes",
+
   // imports
   "engine_import": "imports",
   "lazy_import": "imports",
