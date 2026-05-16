@@ -823,6 +823,73 @@ const lathe_sequence_validate = z.object({
   "Validate a turning sequence against hard constraints (LatheSequenceOptimizerEngine.validateSequence). Returns { violations: string[] } — empty array means the sequence respects every hard rule.",
 );
 
+// ============================================================================
+// WIRE-UNWIRED-MS0/U-WIRE-TWP — TurningWearPredictionEngine
+// (LATHE-PRO-MS1 U-LPR14, U-LPR15, U-LPR16) — Per-op Usui wear, chip-form
+// taxonomy, batch life predictor. Engine API preserves Vc_m_min as a camel-
+// Pascal key (matches the canonical Taylor/Kienzle physics signature), so
+// schemas mirror that naming exactly.
+// ============================================================================
+
+/** ISO 513 material groups. */
+const _isoGroup = z.enum(["P", "M", "K", "N", "S", "H"]);
+
+/** Single turning operation (mirrors engine's TurningOperation interface). */
+const _turningWearOp = z.object({
+  id: z.string().min(1).describe("Operation identifier (unique within sequence)."),
+  type: z.enum([
+    "od_rough", "od_finish", "face_rough", "face_finish",
+    "bore_rough", "bore_finish", "groove", "thread", "cutoff", "drill",
+  ]).describe("Operation type — drives chip-form + wear-mode classification."),
+  insert_station: z.number().int().nonnegative()
+    .describe("Turret station performing this op — per-station wear accumulates separately."),
+  diameter_mm: posNum.describe("Diameter being machined in mm (>0)."),
+  cut_length_mm: posNum.describe("Cut length in mm (>0)."),
+  ap_mm: posNum.describe("Depth of cut in mm (>0)."),
+  f_mm_rev: posNum.describe("Feed per revolution in mm/rev (>0)."),
+  Vc_m_min: posNum.describe("Cutting speed in m/min (>0) — Taylor/Kienzle canonical key."),
+  passes: z.number().int().positive().describe("Number of passes (>=1)."),
+  interrupted: z.boolean().optional().describe("True if this is an interrupted cut."),
+}).passthrough();
+
+const turning_wear_per_op = z.object({
+  iso_group: _isoGroup.describe("ISO 513 material group — drives Usui A/B + Kienzle kc1.1/mc + chip-form base."),
+  material_name: z.string().optional().describe("Optional material name for thermal-conductivity lookup."),
+  hardness_HB: optPosNum.describe("Brinell hardness in HB (optional)."),
+  coating: z.string().optional().describe("Optional coating identifier (TiN, AlTiN, etc.)."),
+  nose_radius_mm: optPosNum.describe("Insert nose radius in mm (optional)."),
+  operations: z.array(_turningWearOp).min(1)
+    .describe("At least one operation to accumulate wear over."),
+}).passthrough().describe(
+  "Per-operation Usui wear accumulation (TurningWearPredictionEngine.accumulatePerOperation). Returns operations[] (per-op wear µm + Fc + temp + chip form), station_wear (cumulative per turret station), and stations_at_risk (stations beyond 75% of VB_max=300µm).",
+);
+
+const turning_wear_chip_form = z.object({
+  iso_group: _isoGroup.describe("ISO 513 material group — chip-form base classification."),
+  vc_m_min: posNum.describe("Cutting speed in m/min (>0). Low ratio→BUE, high ratio→segmented."),
+  f_mm_rev: posNum.describe("Feed per revolution in mm/rev (>0). Drives chipbreaker class selection."),
+  ap_mm: posNum.describe("Depth of cut in mm (>0). Drives chipbreaker class selection."),
+}).passthrough().describe(
+  "Chip-form prediction with wear-mode mapping (TurningWearPredictionEngine.predictChipForm). Returns chip_type (continuous/segmented/discontinuous/lamellar/built_up_edge), primary + secondary wear modes, chip_control_difficulty in [0..1], recommended chipbreaker_class (F/M/R), and rationale.",
+);
+
+const turning_wear_batch_life = z.object({
+  iso_group: _isoGroup.describe("ISO 513 material group."),
+  material_name: z.string().optional().describe("Optional material name for thermal lookup."),
+  coating: z.string().optional().describe("Optional coating identifier."),
+  nose_radius_mm: optPosNum.describe("Insert nose radius in mm (optional)."),
+  operations: z.array(_turningWearOp).min(1)
+    .describe("Operations per part (wear accumulates per station across all ops)."),
+  batch_quantity: z.number().int().positive()
+    .describe("Production batch size in parts (>=1)."),
+  insert_cost_per_edge: optPosNum
+    .describe("Insert cost per edge in USD (default $8.00 per edge)."),
+  target_parts_per_edge: optPosNum
+    .describe("Optional target parts-per-edge — triggers Vc adjustment suggestion via Taylor T∝Vc^(-1/n)."),
+}).passthrough().describe(
+  "Batch life predictor with cost analysis + Vc optimization (TurningWearPredictionEngine.predictBatchLife). Returns parts_per_edge (worst station), insert_changes_per_batch, per-station change_schedule, cost breakdown (total + per-part-tooling + edges_consumed), and optional optimization { current/target parts_per_edge, suggested_vc_m_min, adjustment_pct }.",
+);
+
 export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   chuck_force,
   tailstock,
@@ -955,4 +1022,9 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   // WIRE-UNWIRED-MS0/U-WIRE-LSO: LatheSequenceOptimizerEngine — 2 surfaces
   lathe_sequence_optimize,
   lathe_sequence_validate,
+
+  // WIRE-UNWIRED-MS0/U-WIRE-TWP: TurningWearPredictionEngine — 3 surfaces
+  turning_wear_per_op,
+  turning_wear_chip_form,
+  turning_wear_batch_life,
 };

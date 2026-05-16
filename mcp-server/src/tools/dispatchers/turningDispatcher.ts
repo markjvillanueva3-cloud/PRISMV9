@@ -208,6 +208,11 @@ const ACTIONS = [
   // WIRE-UNWIRED-MS0/U-WIRE-LSO: LatheSequenceOptimizerEngine (LATHE-PRO-MS3/U-LPS02)
   "lathe_sequence_optimize",                // optimize — multi-criteria operation sequencing w/ hard constraints
   "lathe_sequence_validate",                // validateSequence — return hard-constraint violation list
+
+  // WIRE-UNWIRED-MS0/U-WIRE-TWP: TurningWearPredictionEngine (LATHE-PRO-MS1 U-LPR14/15/16)
+  "turning_wear_per_op",                    // accumulatePerOperation — Usui dW/dt + per-station accumulation
+  "turning_wear_chip_form",                 // predictChipForm — ISO-group → chip type → wear mode mapping
+  "turning_wear_batch_life",                // predictBatchLife — parts-per-edge + change schedule + Vc optimization
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1388,6 +1393,39 @@ Actions: ${ACTIONS.join(", ")}.`,
                     (params as any).operations,
                   ),
                 };
+                break;
+            }
+            result = { success: true, data };
+            break;
+          }
+
+          // WIRE-UNWIRED-MS0/U-WIRE-TWP: TurningWearPredictionEngine — 3 surfaces
+          // Combines Usui wear (dW/dt = A·σn·Vs·exp(-B/θ)) + Kienzle force +
+          // Loewen-Shaw temperature + ISO-3685 VB_max + Sandvik chip-form
+          // taxonomy. The 3 cases share one lazy import to amortize cold-start.
+          // accumulatePerOperation returns a station_wear Record keyed by
+          // numeric station — already JSON-safe (numbers become string keys
+          // through JSON.stringify), no Map serialization needed here.
+          // Reference: Usui, Shirakashi & Kitagawa (1978); Loewen & Shaw (1954);
+          // Altintas "Manufacturing Automation" §§2.3, 4.5; ISO 3685:1993.
+          case "turning_wear_per_op":
+          case "turning_wear_chip_form":
+          case "turning_wear_batch_life": {
+            const { turningWearPredictionEngine } = await import("../../engines/TurningWearPredictionEngine.js");
+            let data: unknown;
+            switch (action) {
+              case "turning_wear_per_op":
+                data = turningWearPredictionEngine.accumulatePerOperation(params as any);
+                break;
+              case "turning_wear_chip_form": {
+                const p = params as any;
+                data = turningWearPredictionEngine.predictChipForm(
+                  p.iso_group, p.vc_m_min, p.f_mm_rev, p.ap_mm,
+                );
+                break;
+              }
+              case "turning_wear_batch_life":
+                data = turningWearPredictionEngine.predictBatchLife(params as any);
                 break;
             }
             result = { success: true, data };
