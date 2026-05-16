@@ -213,6 +213,9 @@ const ACTIONS = [
   "turning_wear_per_op",                    // accumulatePerOperation — Usui dW/dt + per-station accumulation
   "turning_wear_chip_form",                 // predictChipForm — ISO-group → chip type → wear mode mapping
   "turning_wear_batch_life",                // predictBatchLife — parts-per-edge + change schedule + Vc optimization
+
+  // WIRE-UNWIRED-MS0/U-WIRE-TTW: TurningToolpathWearEngine (LATHE-PRO-MS1/U-LPR12)
+  "turning_toolpath_wear",                  // accumulateWear — CSS-aware per-segment wear + interrupted-cut shock + engagement factor
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1428,6 +1431,22 @@ Actions: ${ACTIONS.join(", ")}.`,
                 data = turningWearPredictionEngine.predictBatchLife(params as any);
                 break;
             }
+            result = { success: true, data };
+            break;
+          }
+
+          // WIRE-UNWIRED-MS0/U-WIRE-TTW: TurningToolpathWearEngine — 1 surface
+          // Toolpath-aware wear integration along turning segments. Models:
+          //   • CSS speed modulation across diameter changes (Vc varies with D)
+          //   • Interrupted-cut shock loading (1+0.5·min(intr/4,1) multiplier)
+          //   • Engagement factor (ap/nose_radius)^0.15 — wear concentration
+          //   • VB linear model: VB = VB_max · life_fraction (ISO 3685:1993)
+          // Different from TurningWearPredictionEngine (per-op Usui): this one
+          // integrates over toolpath SEGMENTS with variable Vc due to CSS.
+          // Reference: Sandvik "CSS and tool life" application note; ISO 3685:1993.
+          case "turning_toolpath_wear": {
+            const { turningToolpathWearEngine } = await import("../../engines/TurningToolpathWearEngine.js");
+            const data = turningToolpathWearEngine.accumulateWear(params as any);
             result = { success: true, data };
             break;
           }

@@ -890,6 +890,49 @@ const turning_wear_batch_life = z.object({
   "Batch life predictor with cost analysis + Vc optimization (TurningWearPredictionEngine.predictBatchLife). Returns parts_per_edge (worst station), insert_changes_per_batch, per-station change_schedule, cost breakdown (total + per-part-tooling + edges_consumed), and optional optimization { current/target parts_per_edge, suggested_vc_m_min, adjustment_pct }.",
 );
 
+// ============================================================================
+// WIRE-UNWIRED-MS0/U-WIRE-TTW — TurningToolpathWearEngine (LATHE-PRO-MS1/U-LPR12)
+// Per-toolpath-segment wear integration. Distinct from TurningWearPrediction
+// (per-op Usui): this one accumulates wear along SEGMENTS with variable Vc
+// driven by CSS, plus interrupted-cut shock loading and ap/nose_radius
+// engagement geometry. Reference: Sandvik "CSS and tool life" + ISO 3685.
+// ============================================================================
+
+const _toolpathSegment = z.object({
+  id: z.string().min(1).describe("Segment identifier (unique within the toolpath)."),
+  op_type: z.enum([
+    "od_rough", "od_finish", "face_rough", "face_finish",
+    "bore", "groove", "thread", "cutoff",
+  ]).describe("Operation type for this segment."),
+  d_start_mm: z.number().nonnegative().describe("Diameter at segment START in mm (≥0)."),
+  d_end_mm: z.number().nonnegative().describe("Diameter at segment END in mm (≥0). Differs from d_start for facing/tapered cuts."),
+  cut_length_mm: posNum.describe("Cut length along this segment in mm (>0)."),
+  ap_mm: posNum.describe("Depth of cut in mm (>0)."),
+  f_mm_rev: posNum.describe("Feed per revolution in mm/rev (>0)."),
+  passes: z.number().int().positive().describe("Number of passes through this segment (≥1)."),
+  interrupted: z.boolean().optional().describe("True if this segment is an interrupted cut."),
+  interruptions_per_rev: z.number().nonnegative().optional()
+    .describe("Interruptions per revolution — drives shock-loading multiplier (1 + 0.5·min(intr/4, 1))."),
+}).passthrough();
+
+const turning_toolpath_wear = z.object({
+  iso_group: _isoGroup.describe("ISO 513 material group."),
+  material_name: z.string().optional().describe("Optional material name."),
+  Vc_m_min: posNum
+    .describe("Target CSS speed in m/min (>0) — clamped by max_rpm when CSS mode is on."),
+  css_mode: z.boolean().optional()
+    .describe("True if constant-surface-speed mode is active (Vc varies with diameter)."),
+  max_rpm: optPosNum
+    .describe("Max spindle RPM cap for CSS clamping (default 4000)."),
+  nose_radius_mm: posNum
+    .describe("Insert nose radius in mm (>0) — drives engagement factor (ap/nose_radius)^0.15."),
+  coating: z.string().optional().describe("Insert coating identifier."),
+  segments: z.array(_toolpathSegment).min(1)
+    .describe("Toolpath segments in execution order (at least one)."),
+}).passthrough().describe(
+  "Per-segment toolpath wear integration (TurningToolpathWearEngine.accumulateWear). Returns segments[] with per-segment wear/Vc/time/life_fraction, total_wear_um (cumulative), total_life_fraction, remaining_life_min, parts_per_edge, hotspot_segment, and exceeds_vb_max boolean (true when cumulative wear breaches VB_max=300µm).",
+);
+
 export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   chuck_force,
   tailstock,
@@ -1027,4 +1070,7 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   turning_wear_per_op,
   turning_wear_chip_form,
   turning_wear_batch_life,
+
+  // WIRE-UNWIRED-MS0/U-WIRE-TTW: TurningToolpathWearEngine — 1 surface
+  turning_toolpath_wear,
 };
