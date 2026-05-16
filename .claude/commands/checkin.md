@@ -110,12 +110,14 @@ node H:/prism/scripts/audit-roadmap-drift.mjs 2>&1 | tail -10                 # 
 
 ### 6. Commit-hygiene check
 ```bash
-rm -f H:/prism/.git/index.lock 2>/dev/null                                    # clear a crashed-git-proc lock
-git -C H:/prism status --short 2>&1 | head -20                                # dirty tree?
-git -C H:/prism rev-list --left-right --count HEAD...@{u} 2>/dev/null          # "<ahead>  <behind>" vs origin (blank if offline / no upstream)
-git -C H:/prism diff --cached --name-only 2>&1                                 # anything STAGED? (should be empty at checkin)
-git -C H:/prism worktree list 2>&1 | head                                     # confirm you're in the right worktree for your scope
+rm -f H:/prism/.git/index.lock 2>/dev/null                                       # clear a crashed-git-proc lock
+rtk git -C H:/prism status --short 2>&1 | head -20                               # dirty tree? (RTK compresses ~59%)
+rtk git -C H:/prism rev-list --left-right --count HEAD...@{u} 2>/dev/null         # "<ahead>  <behind>" vs origin (blank if offline / no upstream)
+rtk git -C H:/prism diff --cached --name-only 2>&1                                # anything STAGED? (should be empty at checkin)
+rtk git -C H:/prism worktree list 2>&1 | head                                    # confirm you're in the right worktree for your scope
 ```
+
+**RTK note**: bash output reduction 60-99% on git/gh/npm/tsc/docker — use `rtk` prefix in every /checkin pipeline iteration. Skip only if the output is <500 chars (then RTK is no-op). The hint hook fires on every bash call as a reminder.
 Interpret:
 - **dirty tree with uncommitted critical files** (engines, schemas, physics, settings, hooks) → don't start new work until those are committed or reverted; the `stop_on_uncommitted_critical` Stop hook will block you otherwise.
 - **behind origin** → `git -C H:/prism pull --rebase` *if* it's clean to do so; if there are local commits + conflicts, fork to your own worktree per the conflict-fork rule (`git worktree add ../prism-<scope> -b work/<scope>`).
@@ -169,6 +171,29 @@ node -e "['H:/prism/CLAUDE.md','C:/Users/wompu/.claude/CLAUDE.md'].forEach(p=>{t
 If FRESH: scan the SessionStart `claudeMd` block (already in your context) for
 any `## SECTION` header you haven't seen before — surface it in the report as
 `claude_md_changed: <yes|no>`.
+
+**Also surface the 3 most recent regressions** so the operator sees known-broken paths BEFORE starting work (matches the dev-tool utilization-audit improvement #3, 2026-05-16):
+
+```bash
+# Last 3 entries from CLAUDE.md "## Recent regressions" section. Compact display.
+node -e "
+const fs = require('fs');
+const md = fs.readFileSync('H:/prism/CLAUDE.md', 'utf8');
+const start = md.indexOf('## Recent regressions');
+if (start < 0) { console.log('  (no recent regressions section)'); process.exit(0); }
+const block = md.slice(start);
+const end = block.search(/\n## [A-Z]/);
+const body = end > 0 ? block.slice(0, end) : block;
+const entries = body.split(/\n- /).slice(1, 4);  // first 3 after the header
+entries.forEach(e => {
+  const first = e.split('\n')[0];
+  const head = first.match(/^[\d-]+ \| \*\*([^*]+?)\*\*/)?.[1] || first.slice(0, 100);
+  console.log('  • ' + head);
+});
+" 2>&1 | head -5
+```
+
+Use these as a "watch out" advisory in §Report (`regressions:` line, 1 entry per row). NOT a blocker — informational.
 
 ### 6g. Local-compute health (Ollama + Docker services)
 Shipped 2026-05-15 (OLLAMA-PIPELINE-MS0). Probes Ollama daemon + Docker engine + Qdrant + Postgres + Prometheus. Single line output; underpins the §Report `local_compute:` line and gates the new pipeline hooks (`ollama-pipeline-injector`, `ollama-prewarm-on-pipeline`).
@@ -231,6 +256,26 @@ Surface results in §Report below as `fleet topics:` (active slots showing topic
 
 **Composition note:** this step is read-only on every existing surface — no new state file, no new lock, no peer-claim conflict. All failures degrade gracefully (missing input = empty section, never blocks /checkin).
 
+### 6i. Tribal knowledge pull (NEW — utilization-audit improvement #2, 2026-05-16)
+Actually USE the `prism_knowledge:tribal_search` surface that Step 10 documents (today it's only NAMED, never INVOKED). Pull the top-3 tribal tips relevant to the bound topic + any task keywords from `$ARGUMENTS`, surface in §Report so the operator sees experiential warnings BEFORE entering the dev pipeline.
+
+```bash
+# Build query from topic + args (skip if no signal)
+QUERY="$TOPIC $ARGUMENTS"
+# Trim to first 200 chars to keep MCP call cheap
+QUERY=$(echo "$QUERY" | tr '\n' ' ' | sed 's/  */ /g' | head -c 200)
+echo "tribal query: $QUERY"
+```
+
+Then invoke the MCP dispatcher action via the prism_session router (preferred over re-implementing search):
+- Direct: `prism_knowledge:tribal_search` with `{ "query": "<QUERY>", "limit": 3, "minRelevance": 0.4 }`
+- Fallback: `prism_session:tool_route_best` if the prism_knowledge dispatcher is unreachable
+- Last-resort: `prism_knowledge:tribal_suggest` (semantic — uses Ollama embeddings)
+
+The top-3 hits become §Report `tribal hits:` lines (one per row, abbreviated to ~80 chars). Skip if all relevance scores <0.4 (no signal). NEVER blocks /checkin — pure advisory.
+
+**Composition note**: this step also adds value on a SLOT-LOCKED variant (e.g. `/checkin-alpha`) where the topic is forced to `alpha-work` — the query becomes whatever the operator passes as the task directive in `$ARGUMENTS`, which is the strongest signal we have for what tribal context is relevant.
+
 ### 7. Report — print this boxed one-glance status
 ```
 ┌─ /checkin ─────────────────────────────────────────────
@@ -248,6 +293,8 @@ Surface results in §Report below as `fleet topics:` (active slots showing topic
 │ tree:        <clean | dirty: N files>  ·  origin: <ahead A / behind B | offline>
 │ staged:      <empty | ⚠ N files staged — git reset HEAD>
 │ local_compute: <one-line from §6g — Ollama+Docker+Qdrant+Postgres+Prometheus>
+│ regressions:    <top-3 from CLAUDE.md "## Recent regressions" — bold-title only, "watch out" advisory>
+│ tribal hits:    <top-3 tribal_search hits for topic+args, score >=0.4 — abbreviated to ~80 chars each>
 │ fleet topics:   <slot=topic, slot=topic, … — one line summary of who's working on what>
 │ fleet loops:    <slot iter/target (age), … — only slots currently in /loop>
 │ pickup cands:   <K> stale-but-actionable handoff(s)  [✓ none  |  → top: <file> "<RESUME excerpt>"]
