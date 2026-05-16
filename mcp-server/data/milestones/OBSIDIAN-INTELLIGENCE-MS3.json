@@ -9,7 +9,7 @@
   "track_name": "Obsidian-Intelligence Layer (compound architecture)",
   "status": "in_progress",
   "in_progress_since": "2026-05-15T19:33:00.000Z",
-  "completed_units": 0,
+  "completed_units": 3,
   "partial_ship_units": 1,
   "total_units": 24,
   "first_unit_partial_shipped": "A1 (U-DOCKER-HOOK-BROKER) — 5 artifacts + 15 tests; live-Docker burn-in pending engine restore",
@@ -451,7 +451,29 @@
             { "path": "mcp-server/src/__tests__/IdeaBlockExtractor.test.ts", "type": "test", "description": "Extraction fidelity test" }
           ],
           "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
-          "rollback": "Stop extraction; existing IdeaBlocks remain as inert JSONL"
+          "rollback": "Stop extraction; existing IdeaBlocks remain as inert JSONL",
+          "status": "completed",
+          "completed_at": "2026-05-16T00:13:00.000Z",
+          "completed_by": "claude-a2b1b5ca slot hotel",
+          "commit_sha": "dedb0c7d7",
+          "commit_branch": "work/hotel-e1-recover",
+          "exit_conditions_verified": [
+            "schema exit-1: IdeaBlock schema { question, answer, source_path, source_offset, governance_tags } shipped in mcp-server/src/schemas/ideaBlockSchema.ts (V1 + rolling alias, .strict() mode, NFC normalize, control-char regex, depth-aware path-traversal refinement)",
+            "schema exit-2: Ollama qwen2.5-coder:7b structured output JSON mode wired in IdeaBlockExtractorEngine (mode='json' + responseFormat enforced, 60s hard timeout, MAX_PARSE_ATTEMPTS=2 repair-retry)",
+            "schema exit-3: 1 .md → N IdeaBlocks shipped (depth-aware brace matcher walks left-to-right; hostile-payload safe; promoteRaw NFC + governance_tags filter fallback to ['unknown'])",
+            "schema exit-4: 5-fixture exit-condition test PASSED (21/21 vitest cases, 23ms — produced ≥10 IdeaBlocks with unique content-addressed 24-hex IDs from sha256(NFC(question) + U+001F + NFC(answer)))"
+          ],
+          "scrutiny_record": {
+            "session_id": "ms3-e1-2026-05-15-hotel",
+            "per_file_gate_runs": 3,
+            "schema_arm_a_verdict": "PASS w/ 2 P1 fixed pre-commit",
+            "schema_arm_b_verdict": "FAIL w/ 2 P0 + 4 P1 — all remediated (.strict() over .passthrough(), source_path refinement, control-char regex, 24-hex id, closed error enum, governance_tags fallback)",
+            "engine_arm_a_verdict": "FAIL w/ 1 P0 + 2 P1 — all remediated (greedy slice in tryParseJson was hostile-payload exploitable; replaced with depth-aware brace matcher)",
+            "engine_arm_b_verdict": "FAIL w/ 1 P0 + 2 P1 — all remediated (fail() 5-arg→4-arg, REFUSAL_PATTERN + REFUSAL_MAX_LEN constants, repair-retry telemetry)",
+            "test_arm_verdict": "PASS — 21/21 vitest cases in 23ms",
+            "p2_advisory_count": 4
+          },
+          "recovery_notes": "Initial commit attempt 84238a963 was hijacked by peer-absorption (6th this session). Sibling worktree H:/prism-hotel-e1 forked per [[feedback_conflict_fork_rule]]. Global blob corruption (4036819b for monitoringActionSchemas.ts) repaired via git hash-object -w. Final commit dedb0c7d7 landed cleanly on branch work/hotel-e1-recover, pushed to origin. Merge back via fast-forward once main tree stabilizes."
         },
         {
           "id": "E2",
