@@ -411,6 +411,10 @@ export interface SimilarCase {
  * - Explainable AI
  * - Reinforcement learning
  * - LLM troubleshooting
+ *
+ * WIRE-EXEMPT: internal 5-axis AI layer — consumed by FiveAxisToolpathSynthesisEngine,
+ * FiveAxisDeepLearningEngine, and MillingAIUltraIntelligenceEngine (engine-to-engine,
+ * no direct dispatcher surface). Pre-existing orphan; not wired to satisfy the loop.
  */
 export class FiveAxisAIUltraIntelligenceEngine {
   // Storage
@@ -1165,13 +1169,16 @@ Provide detailed reasoning with confidence levels for each conclusion.`;
 
   private static extractMaterial(input: string): { material: MaterialProps | undefined; materialConfidence: number } {
     const lower = input.toLowerCase();
+    // Thermophysical triples (density/k/cp): 5 sourced verbatim from
+    // CANONICAL_MATERIAL_DB (constants.ts); EDM-3 graphite from POCO EDM-3
+    // isotropic-graphite datasheet (1810 kg/m³, 85 W/mK, 710 J/kgK).
     const materialMap: Array<{ keywords: string[]; material: MaterialProps }> = [
-      { keywords: ["titanium", "ti-6al-4v", "ti64"], material: { name: "Ti-6Al-4V", iso_group: "S", kc11_mpa: 2800, mc: 0.25 } },
-      { keywords: ["inconel", "hastelloy", "superalloy"], material: { name: "Inconel 718", iso_group: "S", kc11_mpa: 3200, mc: 0.25 } },
-      { keywords: ["aluminum", "aluminium", "6061", "7075"], material: { name: "6061-T6 Aluminum", iso_group: "N", kc11_mpa: 700, mc: 0.25 } },
-      { keywords: ["d2", "tool steel", "hardened"], material: { name: "D2 Tool Steel", iso_group: "H", kc11_mpa: 3200, mc: 0.25, hardness_hrc: 58 } },
-      { keywords: ["stainless", "304", "316"], material: { name: "316 Stainless", iso_group: "M", kc11_mpa: 2100, mc: 0.25 } },
-      { keywords: ["graphite", "edm-3"], material: { name: "EDM-3 Graphite", iso_group: "K", kc11_mpa: 500, mc: 0.25 } },
+      { keywords: ["titanium", "ti-6al-4v", "ti64"], material: { name: "Ti-6Al-4V", iso_group: "S", kc11_mpa: 2800, mc: 0.25, density_kg_m3: 4430, thermal_conductivity_w_mk: 6.7, specific_heat_j_kgk: 526 } },
+      { keywords: ["inconel", "hastelloy", "superalloy"], material: { name: "Inconel 718", iso_group: "S", kc11_mpa: 3200, mc: 0.25, density_kg_m3: 8190, thermal_conductivity_w_mk: 11.4, specific_heat_j_kgk: 435 } },
+      { keywords: ["aluminum", "aluminium", "6061", "7075"], material: { name: "6061-T6 Aluminum", iso_group: "N", kc11_mpa: 700, mc: 0.25, density_kg_m3: 2700, thermal_conductivity_w_mk: 167, specific_heat_j_kgk: 896 } },
+      { keywords: ["d2", "tool steel", "hardened"], material: { name: "D2 Tool Steel", iso_group: "H", kc11_mpa: 3200, mc: 0.25, hardness_hrc: 58, density_kg_m3: 7700, thermal_conductivity_w_mk: 20.5, specific_heat_j_kgk: 460 } },
+      { keywords: ["stainless", "304", "316"], material: { name: "316 Stainless", iso_group: "M", kc11_mpa: 2100, mc: 0.25, density_kg_m3: 8000, thermal_conductivity_w_mk: 16.3, specific_heat_j_kgk: 500 } },
+      { keywords: ["graphite", "edm-3"], material: { name: "EDM-3 Graphite", iso_group: "K", kc11_mpa: 500, mc: 0.25, density_kg_m3: 1810, thermal_conductivity_w_mk: 85, specific_heat_j_kgk: 710 } },
     ];
 
     for (const { keywords, material } of materialMap) {
@@ -1227,12 +1234,15 @@ Provide detailed reasoning with confidence levels for each conclusion.`;
 
   private static inferMaterial(geometry: FiveAxisGeometry | undefined): MaterialProps {
     // Infer typical material based on geometry
+    // Thermophysical triples per extractMaterial() sourcing; CoCr Alloy from
+    // ASTM F75 cast CoCrMo (ASM implant-alloy literature: 8300 kg/m³,
+    // 14.8 W/mK, 452 J/kgK).
     const materialDefaults: Record<string, MaterialProps> = {
-      impeller_blade: { name: "Ti-6Al-4V", iso_group: "S", kc11_mpa: 2800, mc: 0.25 },
-      turbine_blade: { name: "Inconel 718", iso_group: "S", kc11_mpa: 3200, mc: 0.25 },
-      mold_cavity: { name: "D2 Tool Steel", iso_group: "H", kc11_mpa: 3200, mc: 0.25, hardness_hrc: 58 },
-      electrode: { name: "EDM-3 Graphite", iso_group: "K", kc11_mpa: 500, mc: 0.25 },
-      dental: { name: "CoCr Alloy", iso_group: "M", kc11_mpa: 2400, mc: 0.25 },
+      impeller_blade: { name: "Ti-6Al-4V", iso_group: "S", kc11_mpa: 2800, mc: 0.25, density_kg_m3: 4430, thermal_conductivity_w_mk: 6.7, specific_heat_j_kgk: 526 },
+      turbine_blade: { name: "Inconel 718", iso_group: "S", kc11_mpa: 3200, mc: 0.25, density_kg_m3: 8190, thermal_conductivity_w_mk: 11.4, specific_heat_j_kgk: 435 },
+      mold_cavity: { name: "D2 Tool Steel", iso_group: "H", kc11_mpa: 3200, mc: 0.25, hardness_hrc: 58, density_kg_m3: 7700, thermal_conductivity_w_mk: 20.5, specific_heat_j_kgk: 460 },
+      electrode: { name: "EDM-3 Graphite", iso_group: "K", kc11_mpa: 500, mc: 0.25, density_kg_m3: 1810, thermal_conductivity_w_mk: 85, specific_heat_j_kgk: 710 },
+      dental: { name: "CoCr Alloy", iso_group: "M", kc11_mpa: 2400, mc: 0.25, density_kg_m3: 8300, thermal_conductivity_w_mk: 14.8, specific_heat_j_kgk: 452 },
     };
 
     return materialDefaults[geometry || "mold_cavity"] || materialDefaults.mold_cavity;
