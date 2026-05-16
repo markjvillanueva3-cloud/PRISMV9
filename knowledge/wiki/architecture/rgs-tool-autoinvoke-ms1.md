@@ -61,6 +61,69 @@ re-stamps its planner lock on every flush (it would otherwise age past the
 Windows scheduled task (default 3:13 AM, `--time-budget 60`), modeled on
 `install-fleet-reaper-task.ps1`. 4 new node:test suites (T8–T11); 92/92 green.
 
+## U-DOMAIN-RULES (shipped — 2026-05-16)
+
+Closes the punch-list's 42% generic-fallback gap. Adds five
+manufacturing-domain rules to `scripts/lib/rgs-pipeline-rules.mjs` mapping unit
+text to the canonical Tier-3 parent skills:
+
+| Keyword pattern | Skill | Confidence |
+|---|---|---|
+| `\bmill(ing|-turn)?\b` | `/mill` | 0.80 |
+| structural test (`\blathe\b` ∪ `\bmazak\s+lathe\b` ∪ `okuma+model` ∪ `turning+context`) | `/lathe` | 0.80 |
+| `\bwedm\b|\bwire[-\s]*edm\b|\bsinker[-\s]*edm\b` | `/wedm` | 0.80 |
+| `\bcam(?:ming)?\b|\btoolpath\b` | `/cam-strategy` | 0.75 |
+| `\bcad\b|\bblueprint\b|\bprint[-\s]*to[-\s]*program\b` | `/cad-from-blueprint` | 0.80 |
+
+Also fixed in the same edit (scope-justified — all surface from the per-file
+scrutiny on the rules table):
+
+- **Wire-EDM false-match (punch-list P1)** — the original
+  `/wire|dispatcher|unwired|orphan|wiring/i` rule fired `/wire-unwired` on every
+  Wire-EDM unit. Tightened with a structural test fn that excludes wire-EDM
+  context first, then requires `\bunwired\b|\borphan\b|\bdispatcher\b|\bwiring\b`.
+  The same fix applied to the `AGENT_RULES` wiring-review-agent (Arm A P3-2 —
+  exact same bug class three rules above, surfaced by reviewer).
+- **`/lathe` polysemy guard (Arm A P0-1)** — bare `turning` matched "a turning
+  point in the project"; bare `okuma` matched "Okuma operator manual" but Okuma
+  also builds HMCs/VMCs/grinders. Replaced with a structural test that requires
+  `okuma` to pair with a lathe-model token (LT/LB/MULTUS/SimulTurn/...) and
+  `turning` to pair with a manufacturing-context noun.
+- **Deep-freeze contract (Arm A P0-2)** — file-header docstring promised
+  "mutation throws in strict mode" but `Object.freeze` is shallow; the inner
+  rule objects mutated silently. Added a `deepFreezeArray()` helper that freezes
+  each entry; the docstring contract now actually holds. Two regression-guard
+  assertions in the test file (`assert.throws(...)` on `.confidence = 999`).
+- **`/cad-from-blueprint` `\bdrawing\b` drop (Arm A P1-2 / Arm B P2)** — too
+  broad ("drawing conclusions from data", "drawing power from the spindle").
+  The remaining tokens cover the real CAD-intake surface.
+
+**Skill-trigger registration (envelope's second deliverable)** — added
+canonical `triggers:` YAML frontmatter blocks (event/matcher.type/matcher.value/
+score/action — mirroring `/lathe-studio`'s shape) to the 5 parent skills:
+`mill.md`, `lathe.md`, `wedm.md`, `cam-strategy.md`, `cad-from-blueprint.md`.
+The `_skill-triggers.jsonl` regen via `scripts/extract-skill-triggers.mjs`
+picks them up automatically (33 unique skills → 36 entries after regen; 5 new
+domain entries verified present).
+
+End-to-end command bridge live-verified via 3 smoke tests of the
+`skill-auto-trigger.mjs` hook with representative domain prompts — `/mill`,
+`/wedm`, and `/cad-from-blueprint` each surface correctly via
+`hookSpecificOutput.additionalContext`.
+
+**Tests:** `scripts/lib/rgs-pipeline-rules.test.mjs` grew from 22 → 31 cases
+(+13 = 5 domain positives + 2 polysemy guards + 2 freeze-contract guards +
+1 mill-turn composite + 1 milligrams edge + 2 agent-rule contrapositives + 1
+Okuma-LB-model positive). All 31 GREEN.
+
+**Per-file scrutiny:** Arm A (code-analyzer) returned FAIL with 2 P0 + 2 P1;
+Arm B (independent reviewer) returned PASS WITH P1. All Arm A P0/P1 addressed
+in the same edit. Arm B's P1 (`mean()` → `max()` aggregator in
+`scripts/lib/rgs-signal-fusion.mjs:194`) is a pre-existing downstream bug this
+edit aggravates (more multi-match → more confidence dilution) — deferred to a
+follow-up unit; the `DETERMINISTIC_CONF_CAP=0.6` absorbs most of the loss until
+then.
+
 ## P1 backlog (validated by the audit, not yet built)
 
 `U-DOMAIN-RULES` (mill/lathe/wedm/cam/cad pipeline

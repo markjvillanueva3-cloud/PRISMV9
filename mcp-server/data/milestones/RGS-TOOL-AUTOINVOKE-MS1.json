@@ -56,9 +56,20 @@
         {
           "id": "U-DOMAIN-RULES",
           "title": "Domain pipeline rules + skill triggers",
-          "description": "Add mill/lathe/wedm/cam/cad pipeline rules to rgs-pipeline-rules.mjs (only 7 rules today -> 42% generic fallback). Register manufacturing-domain skills in _skill-triggers.jsonl (38 harness skills, ZERO domain skills today).",
+          "description": "Add mill/lathe/wedm/cam/cad pipeline rules to rgs-pipeline-rules.mjs (only 7 rules today -> 42% generic fallback). Register manufacturing-domain skills in _skill-triggers.jsonl (38 harness skills, ZERO domain skills today). Plus the punch-list 'Wire EDM false-matches /wire-unwired' fix + Arm A scrutiny P0s (deep-freeze the rule arrays per the file-header contract, lathe-rule polysemy guard for 'turning'/'okuma' bare matches) + Arm A P1-2 (drop \\bdrawing\\b — too broad) + Arm A P3-2 (apply the same wire-EDM exclusion to AGENT_RULES — exact same bug class).",
           "effort": 90,
-          "status": "not_started"
+          "status": "complete",
+          "completedAt": "2026-05-16T20:55:00.000Z",
+          "deliverables": [
+            "scripts/lib/rgs-pipeline-rules.mjs (+5 domain rules, /wire-unwired tightening, /lathe polysemy guard, /cad-from-blueprint \\bdrawing\\b drop, AGENT_RULES wire-EDM exclusion, deepFreezeArray helper, camming-intentional comment)",
+            "scripts/lib/rgs-pipeline-rules.test.mjs (22 -> 31 cases; +13 = 5 domain positives + 5 polysemy/freeze guards + 1 mill-turn composite + 1 milligrams edge + 1 agent contrapositive)",
+            ".claude/commands/mill.md (triggers: YAML block added)",
+            ".claude/commands/lathe.md (triggers: YAML block added)",
+            ".claude/commands/wedm.md (triggers: YAML block added)",
+            ".claude/commands/cam-strategy.md (triggers: YAML block added — sibling to existing policy.triggers)",
+            ".claude/commands/cad-from-blueprint.md (triggers: YAML block added)",
+            "knowledge/wiki/architecture/_skill-triggers.jsonl (regenerated — 5 new domain entries: mill, lathe, wedm, cam-strategy, cad-from-blueprint)"
+          ]
         },
         {
           "id": "U-DISPATCHER",
@@ -106,8 +117,8 @@
   ],
   "sidecar": "state/shared/roadmap-tool-plans.json",
   "wiki": "knowledge/wiki/architecture/rgs-tool-autoinvoke-ms1.md",
-  "completed_units": 2,
+  "completed_units": 3,
   "total_units": 8,
-  "updated_at": "2026-05-16T19:28:27.544Z",
+  "updated_at": "2026-05-16T20:55:00.000Z",
   "notes": "Core MS0 lesson encoded in U-INTEG-FIX-P0: a 'pure core + injected readers' design MUST ship one real-data E2E test — hermetic fakes do not prove production wiring. Punch list: docs/superpowers/specs/2026-05-16-rgs-tool-autoinvoke-MS1-punchlist.md."
 }
