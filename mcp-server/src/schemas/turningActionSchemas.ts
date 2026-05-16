@@ -608,6 +608,46 @@ const lathe_training_template_list = z.object({
   "List all on-disk lathe training templates. Returns family name + file path + size + modified-at per entry."
 );
 
+// ============================================================================
+// WIRE-UNWIRED-MS0/U-WIRE-TURNINSP — TurningInspectionPlanEngine
+// First-article + production inspection plan: ANSI/ASQ Z1.4 AQL sampling,
+// ISO 1101/12181 form measurement, AS9102 first-article. Pure computation —
+// no clamping force, no I/O — so it is NOT in the cross-field physics set.
+// ============================================================================
+
+const _inspFeature = z.object({
+  id: z.string().min(1).describe("Feature identifier (e.g. 'OD1', 'BORE-A')."),
+  kind: z.enum(["od", "bore", "face", "thread", "groove", "chamfer", "radius", "taper"])
+    .describe("Turned-feature type — drives measurement-method selection."),
+  nominal_mm: z.number().positive()
+    .describe("Nominal dimension in mm (diameter for od/bore, length for face)."),
+  tolerance_mm: z.number().positive()
+    .describe("Total tolerance band in mm — drives tolerance class + sampling tightness."),
+  ra_target_um: z.number().positive().optional()
+    .describe("Optional surface-finish target Ra in micrometers; adds a Surftest pass to the plan."),
+  criticality: z.enum(["cosmetic", "functional", "critical", "safety_critical"]).optional()
+    .describe("Feature criticality — escalates inspection frequency (default functional)."),
+  requires_form_tolerance: z.boolean().optional()
+    .describe("True if the feature carries a roundness/cylindricity callout — forces CMM probing."),
+  form_tolerance_mm: z.number().positive().optional()
+    .describe("Optional form-tolerance band in mm (roundness/cylindricity)."),
+}).passthrough();
+
+const turning_inspection_plan = z.object({
+  part_id: z.string().min(1).describe("Part identifier the inspection plan is generated for."),
+  lot_size: z.number().int().positive()
+    .describe("Production lot size in parts (>0) — drives AQL sample size."),
+  features: z.array(_inspFeature).min(1).describe("Inspected features (at least one)."),
+  regulatory_regime: z.enum(["commercial", "automotive", "aerospace", "medical"]).optional()
+    .describe("Customer/spec regime — aerospace/medical force every-part + first-article (default commercial)."),
+  cmm_available: z.boolean().optional()
+    .describe("True if the shop has a CMM available (default true)."),
+  probe_available: z.boolean().optional()
+    .describe("True if on-machine probing is available (default false)."),
+}).passthrough().describe(
+  "Generate a first-article + production inspection plan for a turned part (TurningInspectionPlanEngine.generate).",
+);
+
 export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   chuck_force,
   tailstock,
@@ -722,4 +762,7 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
 
   // MS-PRINT-PROGRAM-LOOP/U-PPL-B1: ProgramReoptimizationOrchestratorEngine
   lathe_program_reoptimize,
+
+  // WIRE-UNWIRED-MS0/U-WIRE-TURNINSP: TurningInspectionPlanEngine surface
+  turning_inspection_plan,
 };

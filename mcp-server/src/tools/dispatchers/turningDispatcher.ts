@@ -190,6 +190,9 @@ const ACTIONS = [
 
   // TRAINING-LEARNING-MS0/U-TL-U6: TrainingTemplateContinuousLearningEngine
   "training_ingest_lathe_outcome",          // ingestLatheOutcome — append shipped-job outcome to lathe ledger
+
+  // WIRE-UNWIRED-MS0/U-WIRE-TURNINSP: TurningInspectionPlanEngine
+  "turning_inspection_plan",                // generate — first-article + production inspection plan (AQL/ISO/AS9102)
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1274,6 +1277,16 @@ Actions: ${ACTIONS.join(", ")}.`,
               targetMachines: params.targetMachines,
             });
             result = { success: data.summary.filesEmitted > 0, data };
+            break;
+          }
+
+          // WIRE-UNWIRED-MS0/U-WIRE-TURNINSP: TurningInspectionPlanEngine.
+          // Pure computation — ANSI/ASQ Z1.4 AQL sampling, ISO 1101/12181 form
+          // measurement, AS9102 first-article. No clamping force, no I/O.
+          case "turning_inspection_plan": {
+            const { turningInspectionPlanEngine } = await import("../../engines/TurningInspectionPlanEngine.js");
+            const data = turningInspectionPlanEngine.generate(params as any);
+            result = { success: true, data };
             break;
           }
 
