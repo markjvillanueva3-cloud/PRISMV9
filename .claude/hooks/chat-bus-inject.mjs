@@ -11,13 +11,24 @@
  * On-disk contract mirrors ChatBusEngine.ts (state/shared/chat-bus/{messages,claims,cursors,presence}).
  * Non-blocking — only adds context via hookSpecificOutput.additionalContext.
  *
+ * COMPACT MODE (U-COORD09, COORD-MS0):
+ *   When `PRISM_CHAT_BUS_COMPACT=1` is set, the multi-line peer/claim/message
+ *   block is replaced by a single-line ambient-awareness badge
+ *   (e.g. `## 🔗 Chat Bus — you=claude-X · 3 peers online · 12 foreign claims · 5 unread`).
+ *   The verbose block can run 30-50 lines per UserPromptSubmit; the badge is
+ *   one line, ~80-150 chars — a ~95% token reduction at the cost of dropping
+ *   peer-id / claim-path detail. Default remains verbose for backward compat.
+ *
  * See: mcp-server/src/engines/ChatBusEngine.ts for authoritative read/write logic.
+ *
+ * @unit COORD-MS0/U-COORD09 — ambient awareness badge (compact format option)
  */
 
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { spawnSync } from "node:child_process";
 import os from "node:os";
+import { fileURLToPath } from "node:url";
 
 function readStdinSafe() {
   try {
@@ -38,6 +49,10 @@ const STABLE_ID_HELPER = "H:/prism/.claude/helpers/stable-session-id.mjs";
 const PRESENCE_TTL_MS = 10 * 60 * 1000;
 const MAX_MESSAGES_INJECTED = 20;
 const MAX_BODY_CHARS = 400;
+// U-COORD09: opt-in compact mode collapses the verbose peer/claim/message
+// block to a one-line badge. Read per-call from process.env (not cached at
+// module load) so tests + operators can flip without restarting the harness.
+export const COMPACT_MODE_ENV = "PRISM_CHAT_BUS_COMPACT";
 
 function ensureDir(p) {
   if (!fs.existsSync(p)) fs.mkdirSync(p, { recursive: true });
@@ -144,7 +159,40 @@ function activePeers(sessionId) {
   return peers;
 }
 
-function formatBrief({ messages, claims, peers, sessionId }) {
+/**
+ * Compact ambient-awareness badge — single-line replacement for formatBrief
+ * when PRISM_CHAT_BUS_COMPACT=1. U-COORD09. Empty-return contract: when there
+ * are zero peers AND zero foreign claims AND zero unread messages, emit "" so
+ * the caller skips injection (matches formatBrief's contract; symmetric).
+ *
+ * NOTE — peers-only suppression differs from formatBrief: the verbose
+ * formatter swallows peers-only state (`if (messages.length === 0 && claims.length === 0) return ""`),
+ * but the badge IS the peer count, so the compact form intentionally surfaces
+ * peers-only too. The cost is one inline line; the value is operators see
+ * "3 peers online" even when no claims have been posted yet.
+ */
+export function formatCompactBadge({ messages, claims, peers, sessionId }) {
+  const total = peers.length + claims.length + messages.length;
+  if (total === 0) return "";
+  const parts = [`you=\`${sessionId}\``];
+  if (peers.length > 0) {
+    parts.push(`${peers.length} peer${peers.length === 1 ? "" : "s"} online`);
+  }
+  if (claims.length > 0) {
+    parts.push(
+      `${claims.length} foreign claim${claims.length === 1 ? "" : "s"}`
+    );
+  }
+  if (messages.length > 0) {
+    parts.push(`${messages.length} unread`);
+  }
+  return (
+    `## 🔗 Chat Bus — ${parts.join(" · ")} ` +
+    `_(unset PRISM_CHAT_BUS_COMPACT for the full peer/claim list)_`
+  );
+}
+
+export function formatBrief({ messages, claims, peers, sessionId }) {
   const lines = [];
   lines.push("## 🔗 Chat Bus — Live Inter-Chat Signals");
   lines.push(`_You are \`${sessionId}\`. ${peers.length} peer chat(s) active in last 10min._`);
@@ -213,7 +261,13 @@ async function main() {
   const claims = activeForeignClaims(sessionId);
   const peers = activePeers(sessionId);
 
-  const brief = formatBrief({ messages, claims, peers, sessionId });
+  // U-COORD09: per-call env read so the operator can flip compact ↔ verbose
+  // mid-session without restarting the harness. Empty string and any value
+  // other than "1" are treated as off — strict opt-in, no default surprise.
+  const compactMode = process.env[COMPACT_MODE_ENV] === "1";
+  const brief = compactMode
+    ? formatCompactBadge({ messages, claims, peers, sessionId })
+    : formatBrief({ messages, claims, peers, sessionId });
 
   if (!brief) {
     console.log(JSON.stringify({ continue: true }));
@@ -231,6 +285,24 @@ async function main() {
   );
 }
 
-main().catch(() => {
-  console.log(JSON.stringify({ continue: true }));
-});
+// Only fire main() when this file is the entrypoint — not when imported by a
+// test. Without this gate, `node --test chat-bus-inject.test.mjs` would
+// import the hook, which would run main() at import time and pollute stdout
+// with the harness JSON payload (test harness exit 255). U-COORD09.
+const isEntrypoint = (() => {
+  try {
+    const argv1 = process.argv[1] ? path.resolve(process.argv[1]) : "";
+    const here = path.resolve(fileURLToPath(import.meta.url));
+    return argv1 === here;
+  } catch {
+    // If anything goes wrong with path resolution, fall back to the
+    // pre-U-COORD09 always-run behavior — the production hook must still fire.
+    return true;
+  }
+})();
+
+if (isEntrypoint) {
+  main().catch(() => {
+    console.log(JSON.stringify({ continue: true }));
+  });
+}

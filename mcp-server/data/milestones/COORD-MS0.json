@@ -176,14 +176,17 @@
       "id": "U-COORD09",
       "title": "Ambient Awareness Badge",
       "phase": "UX",
-      "status": "pending",
+      "status": "complete",
+      "completed_at": "2026-05-16",
+      "completed_by": "claude-a61bbf34 (slot echo)",
       "description": "Show '(N online)' inline instead of multiline injection",
       "deliverables": [
         "Update session-awareness-inject.mjs",
         "Compact format option",
         "Context token reduction"
       ],
-      "audit_source": "Developer Experience + Performance"
+      "audit_source": "Developer Experience + Performance",
+      "ship_notes": "RE-SCOPED: spec named a non-existent canonical file (session-awareness-inject.mjs lived only in a stale worktree). Implemented the deliverable's INTENT — token reduction on the multi-line peer/claim/message block — on the canonical UserPromptSubmit hook that today emits that block: .claude/hooks/chat-bus-inject.mjs. Added exported `formatCompactBadge()` + `COMPACT_MODE_ENV` constant; main() branches on process.env[PRISM_CHAT_BUS_COMPACT] per call. Default remains verbose (backward compat). Compact format: single-line badge `## 🔗 Chat Bus — you=X · N peers online · M foreign claims · K unread _(unset PRISM_CHAT_BUS_COMPACT for the full peer/claim list)_`. Live smoke-test confirms ~85% token reduction (verbose ~1.5KB → compact ~250B at fleet scale). Also added: entrypoint gate (process.argv[1] === fileURLToPath(import.meta.url) with path.resolve normalization + fail-safe-true on path-resolution error) so `node --test` can import the hook without triggering main()'s side effects. 15-case node:test companion in .claude/hooks/chat-bus-inject.test.mjs covering: env-name export, empty-return contract, single-category emission (peers/claims/messages), all-three combined with separator invariant, singular/plural agreement (1 peer vs 2 peers; 1 foreign claim vs 2 foreign claims), single-line invariant, bounded size at 50/100/100 input scale, session-id verbatim embedding, footer-names-env-knob, formatBrief regression guards (peers-only suppression unchanged, empty unchanged, verbose multi-line still emitted). Per-file 2-arm scrutiny: PASS/PASS (Arm A code-analyzer + Arm B reviewer). 3 surviving mutations identified as P2 integration-shaped follow-ups (env-knob truthy-vs-strict, entrypoint-gate removal, path-normalization) — all require spawn-with-env tests rather than formatter tests; mutation #3 (separator) killed in-line via assert.match(out, / · /). Honest residuals (commit message + memory): (1) the compact badge drops actionable detail — peer ids, claim paths, message bodies — operators see counts only; footer documents the toggle for verbose escape; (2) Windows case-folding on `===` of resolved paths is not bullet-proof but the fallback-to-true escape hatch in the entrypoint gate keeps production fail-safe; (3) intentional contract deviation from formatBrief: compact badge surfaces peers-only state which formatBrief swallows — peers-only IS the badge's value proposition."
     },
     {
       "id": "U-COORD10",
