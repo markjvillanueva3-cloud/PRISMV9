@@ -522,5 +522,8 @@ class MachineAwareSpeedFeedEngine {
 // EXPORT
 // ============================================================================
 
+// WIRE-EXEMPT: internal speed/feed constraint layer — consumed
+// programmatically by the SFC outcome-wire middleware
+// (src/middleware/sfcOutcomeWire.ts); not a standalone MCP dispatcher action.
 export const machineAwareSpeedFeedEngine = new MachineAwareSpeedFeedEngine();
 export { MachineAwareSpeedFeedEngine };

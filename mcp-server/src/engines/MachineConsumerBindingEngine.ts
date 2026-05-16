@@ -493,4 +493,7 @@ class MachineConsumerBindingEngine {
   }
 }
 
+// WIRE-EXEMPT: internal binding layer — consumed programmatically by
+// MachinePackageAPIEngine, AcquisitionRecommendationEngine and
+// CalculatorPRISMModeEngine; not a standalone MCP dispatcher action.
 export const machineConsumerBindingEngine = new MachineConsumerBindingEngine();
