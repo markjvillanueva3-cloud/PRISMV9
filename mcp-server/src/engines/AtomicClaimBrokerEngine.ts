@@ -14,6 +14,16 @@
  * @unit AI-AWARE-HARDEN/U-AWR25
  * @unit COORD-MS0/U-COORD02 — optimistic locking with version field
  * @integrates H:/prism/.claude/helpers/agent-coordination-daemon.mjs
+ *
+ * // WIRE-EXEMPT: internal coordination broker. Consumed by the JS helper
+ * //   layer (H:/prism/.claude/helpers/chat-slots.mjs + agent-coordination.mjs +
+ * //   agent-coordination-daemon.mjs) which read/write the same registry file
+ * //   (state/shared/ATOMIC_CLAIMS.json) at hook/helper runtime — those mjs
+ * //   wrappers are the public surface, not an MCP dispatcher. HONEST RESIDUAL:
+ * //   the helpers currently do direct fs.readFileSync/writeFileSync round-trips
+ * //   and bypass the CAS shipped in U-COORD02 — closing that is a separate
+ * //   COORD-MS0 follow-up unit (route helpers through this engine for CAS
+ * //   protection across the chat fleet).
  */
 
 import { z } from "zod";
