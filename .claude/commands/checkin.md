@@ -530,12 +530,18 @@ node H:/prism/.claude/helpers/chat-slots.mjs pipeline-step --chatId "$STABLE" --
 ```
 
 **Per-iteration** (do NOT call `ScheduleWakeup` between iterations per [[feedback_no_schedule_wakeup_in_loop]]):
-1. **Pick** the next pending unit — the §6b lane slice if `--roadmap` was given, else `/pick-unit` (highest-priority first: devtools `roadmap_priority===0` ahead of revenue). Respect peer file-claims + lane discipline — skip anything a peer holds; never commit peer-claimed files.
+1. **Pick** the next pending unit — the §6b lane slice if `--roadmap` was given, else `/pick-unit --slot $SLOT --chatId "$STABLE"` (highest-priority first: devtools `roadmap_priority===0` ahead of revenue). Passing `--chatId` engages the **PER-SLOT-CLAIM-MS0/U-PSC02 filter** — units another slot has actively claimed are excluded from the pool (peer-claim count shown in the header). Respect peer file-claims + lane discipline — skip anything a peer holds; never commit peer-claimed files.
+1a. **Claim** the picked unit so no peer races you on it:
+   ```bash
+   node H:/prism/.claude/helpers/slot-task-claim.mjs claim \
+     --slot $SLOT --chatId "$STABLE" --unit "<MILESTONE>::<U-ID>" --phase building --ttl-ms 5400000
+   ```
+   If the claim returns `{"ok":false,"conflict":{...}}` (exit 1) a peer grabbed it in the race window — go back to step 1 and pick the next unit. The claim auto-releases on commit (step 5 → U-PSC04 post-commit hook parses the `[SCOPE]/U-ID` subject). Knob `PRISM_SLOT_TASK_CLAIM_DISABLE=1` skips claim/heartbeat entirely (reverts to advisory-lane-only behavior).
 2. **Karpathy R10** — state done / verified / left BEFORE writing code.
 3. **Build** the unit. For any multi-file unit the **per-file scrutiny gate is mandatory** — 2 parallel reviewer agents after each file, fix every P0/P1 before the next file ([[feedback_parallel_scrutiny_per_file]]). Scrutiny is NOT optional in the autonomous loop — yolo speed never skips it.
 4. **Auto-fix** failures up to 3× (see doctrine above).
-5. **Commit** atomically — `[SCOPE-MS#]/U-ID: title`, one commit per logical unit.
-6. **Tick** — `node H:/prism/.claude/helpers/loop-state.mjs tick --session "$STABLE" --status ok|fail --note "<one line>"` then `node H:/prism/.claude/helpers/chat-slots.mjs pipeline-step --chatId "$STABLE" --pipelineStep autonomous-loop --pipelineIter <iter> --pipelineTarget <T>` (keeps the fleet dashboard live).
+5. **Commit** atomically — `[SCOPE-MS#]/U-ID: title`, one commit per logical unit. The post-commit hook (U-PSC04) auto-releases the slot-task claim for the committed `MILESTONE::U-ID`.
+6. **Tick + heartbeat** — `node H:/prism/.claude/helpers/loop-state.mjs tick --session "$STABLE" --status ok|fail --note "<one line>"` then `node H:/prism/.claude/helpers/chat-slots.mjs pipeline-step --chatId "$STABLE" --pipelineStep autonomous-loop --pipelineIter <iter> --pipelineTarget <T>`. If the current unit is still in-flight across multiple iterations (long build), refresh its claim so the TTL doesn't lapse mid-work: `node H:/prism/.claude/helpers/slot-task-claim.mjs heartbeat --slot $SLOT --chatId "$STABLE" --unit "<MILESTONE>::<U-ID>"`.
 7. **Karpathy R12** — surface uncertainty; never silently skip a failing test or an unverified edge case.
 
 **Stop conditions** — end the loop (`node H:/prism/.claude/helpers/loop-state.mjs end --session "$STABLE" --reason <reason>`) when:
