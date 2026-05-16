@@ -268,7 +268,7 @@ export function renderHtml(inv) {
 <td>${esc(it.source_type)}</td><td>${it.occurrences}x</td>
 <td><button onclick="navigator.clipboard.writeText(this.dataset.c)" data-c="${copy}">copy</button></td></tr>`;
   }).join("\n");
-  return `<!doctype html><html><head><meta charset="utf-8"><title>MISC-TASKS Inventory</title>
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>MISC-TASKS Inventory</title>
 <style>
 body{font:14px/1.5 system-ui,sans-serif;margin:2rem;background:#0f172a;color:#e2e8f0}
 h1{color:#38bdf8}.stat{display:inline-block;background:#1e293b;padding:.4rem .8rem;margin:.2rem;border-radius:6px}
@@ -276,17 +276,21 @@ table{border-collapse:collapse;width:100%;margin-top:1rem}th,td{border:1px solid
 th{background:#1e293b;cursor:pointer}tr:nth-child(even){background:#1e293b55}
 button{background:#0ea5e9;border:0;color:#fff;padding:.2rem .5rem;border-radius:4px;cursor:pointer}
 td:nth-child(4){max-width:32rem}
+.skip-link{position:absolute;left:-999px}.skip-link:focus{left:1rem;top:1rem;background:#0ea5e9;color:#fff;padding:.4rem .8rem;border-radius:4px}
 </style></head><body>
-<h1>MISC-TASKS Inventory — Orphaned Incomplete Work</h1>
+<a href="#content" class="skip-link">Skip to content</a>
+<main id="content" role="main">
+<h1 id="title">MISC-TASKS Inventory — Orphaned Incomplete Work</h1>
 <p>Generated ${esc(inv.generatedAt)} · schemaVersion ${esc(inv.schemaVersion)} · <b>advisory — human-verify before roadmap promotion</b></p>
 <div>
 <span class="stat">raw ${s.rawItems}</span><span class="stat">deduped ${s.afterDedupe}</span>
 <span class="stat">excl. completed ${s.excludedCompleted}</span><span class="stat">excl. roadmapped ${s.excludedRoadmapped}</span>
 <span class="stat" style="background:#0369a1">final misc ${s.finalMisc}</span>
 </div>
-<table id="t"><thead><tr><th>ID</th><th>Conf</th><th>Domain</th><th>Title</th><th>Unit/MS</th><th>Source</th><th>Seen</th><th></th></tr></thead>
+<table id="t"><thead><tr><th>ID</th><th>Conf</th><th>Domain</th><th>Title</th><th>Unit/MS</th><th>Source</th><th>Seen</th><th>Copy</th></tr></thead>
 <tbody>${rows}</tbody></table>
 <p style="margin-top:1rem;color:#94a3b8">${esc(inv.provenance.nextPhase)}</p>
+</main>
 <script>
 document.querySelectorAll('#t th').forEach((th,i)=>th.addEventListener('click',()=>{
  const tb=document.querySelector('#t tbody'),rows=[...tb.rows];
