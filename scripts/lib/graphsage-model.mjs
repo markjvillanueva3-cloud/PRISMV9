@@ -11,7 +11,9 @@
  *   h^0_v = x_v                                          (input features)
  *   layer k:  agg   = mean( h^{k-1}_u : u in neighbours(v) )
  *             pre   = W^k . concat( h^{k-1}_v , agg )
- *             act   = ReLU(pre)
+ *             act   = ReLU(pre) on the hidden layer; linear (identity) on the
+ *                     OUTPUT layer — a ReLU'd embedding is trapped in the
+ *                     positive orthant, forcing every cosine similarity >= 0
  *             h^k_v = act / ||act||                       (L2-normalized)
  *   z_v = h^2_v                                          (the node embedding)
  * Link score for an edge (u,v) is sigmoid(z_u . z_v) — since the z's are
@@ -77,8 +79,10 @@ function validateDims(name, v) {
  * Construct a 2-layer GraphSAGE model. Weights are Glorot-uniform initialized
  * from a seeded PRNG (deterministic). Each layer's W is a flat Float64Array,
  * row-major [outDim x inDim] where inDim is the concat width 2*(layer input).
- * Returns { config, k, layers:[{W,rows,cols}] }; W is mutable in place so the
- * trainer can apply gradient updates and the checkpoint loader can persist it.
+ * Returns { config, k, layers:[{W,rows,cols,activation}] }; activation is
+ * "relu" for the hidden layer and "linear" for the output layer. W is mutable
+ * in place so the trainer can apply gradient updates and the checkpoint loader
+ * can persist it.
  */
 export function createModel(opts = {}) {
   const inputDim = opts.inputDim;
@@ -94,12 +98,16 @@ export function createModel(opts = {}) {
     { rows: hiddenDim, cols: 2 * inputDim },  // layer 1: concat(x, agg) -> hidden
     { rows: embedDim, cols: 2 * hiddenDim },  // layer 2: concat(h1, agg) -> embed
   ];
-  const layers = layerSpec.map(({ rows, cols }) => {
+  const layers = layerSpec.map(({ rows, cols }, idx) => {
     // fanIn = concat width (cols), fanOut = rows.
     const limit = glorotLimit(cols, rows);
     const W = new Float64Array(rows * cols);
     for (let i = 0; i < W.length; i++) W[i] = (rng() * 2 - 1) * limit;
-    return { W, rows, cols };
+    // Hidden layer (idx 0) uses ReLU; the OUTPUT layer (idx 1) is linear — a
+    // ReLU'd final embedding is trapped in the positive orthant, forcing every
+    // cosine similarity >= 0 and squashing link scores into [0.5, 0.73].
+    const activation = idx === 0 ? "relu" : "linear";
+    return { W, rows, cols, activation };
   });
   return { config: { inputDim, hiddenDim, embedDim, seed }, k: 2, layers };
 }
@@ -152,10 +160,12 @@ function forwardLayer(layer, nodeIds, adjacency, hPrev, inDim) {
       concat[inDim + i] = agg[i];
     }
     const pre = matVec(W, rows, cols, concat);
+    const relu = layer.activation === "relu";
     const act = new Float64Array(rows);
     let sq = 0;
     for (let o = 0; o < rows; o++) {
-      const a = pre[o] > 0 ? pre[o] : 0; // ReLU
+      // ReLU on a hidden layer; linear (identity) on the output layer.
+      const a = relu && pre[o] < 0 ? 0 : pre[o];
       act[o] = a;
       sq += a * a;
     }

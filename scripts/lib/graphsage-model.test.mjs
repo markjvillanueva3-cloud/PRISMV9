@@ -42,8 +42,8 @@ function handModel(inputDim, hiddenDim, embedDim, W0, W1) {
     config: { inputDim, hiddenDim, embedDim, seed: 0 },
     k: 2,
     layers: [
-      { W: Float64Array.from(W0), rows: hiddenDim, cols: 2 * inputDim },
-      { W: Float64Array.from(W1), rows: embedDim, cols: 2 * hiddenDim },
+      { W: Float64Array.from(W0), rows: hiddenDim, cols: 2 * inputDim, activation: "relu" },
+      { W: Float64Array.from(W1), rows: embedDim, cols: 2 * hiddenDim, activation: "linear" },
     ],
   };
 }
@@ -152,6 +152,18 @@ describe("forward — hand-computed math", () => {
     const { cache } = forward(model, adj, feat);
     const h1b = cache.layers[0].h.get("b"); // ReLU([2,0]) -> /2 -> [1,0]
     assert.ok(Math.abs(h1b[0] - 1) < 1e-9 && Math.abs(h1b[1]) < 1e-9, `h1_b = ${h1b}`);
+  });
+
+  it("ReLU on the hidden layer clamps a negative pre-activation to zero", () => {
+    // W0 row 0 = self[0]-self[1], row 1 = self[1]. Node feat [1,5] -> layer-1
+    // pre = [-4, 5]; ReLU zeros the -4. A (buggy) linear hidden layer would
+    // keep it, giving a different h1 — so this test genuinely pins the ReLU.
+    const W0 = [1, -1, 0, 0, 0, 1, 0, 0];
+    const Wid = [1, 0, 0, 0, 0, 1, 0, 0];
+    const model = handModel(2, 2, 2, W0, Wid);
+    const { cache } = forward(model, new Map([["n", []]]), new Map([["n", [1, 5]]]));
+    const h1 = cache.layers[0].h.get("n"); // normalize(ReLU([-4,5])) = [0,1]
+    assert.ok(Math.abs(h1[0]) < 1e-9 && Math.abs(h1[1] - 1) < 1e-9, `h1 = ${h1}`);
   });
 
   it("aggregates a zero vector for a node with no neighbours (no divide-by-zero)", () => {
