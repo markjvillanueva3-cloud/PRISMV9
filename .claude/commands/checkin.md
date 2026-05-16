@@ -1,6 +1,6 @@
 ---
 name: checkin
-description: One-stop development pipeline entry. Claim a slot in the 10-chat PRISM fleet (alpha..india work + juliett hygiene; golf is also hygiene back-compat) — bind handoff to slot, reap crashed slots, drift/commit-hygiene check, then EMIT THE FULL DEV PIPELINE for whatever task the operator hands over in the args. Pipeline auto-injects prism-awareness + system-viz + Obsidian-PRISM-OS + tribal knowledge + AI/neural/deep-reasoning routing + CLAUDE.md rules. Files created get registered to /system-viz galaxy. End-of-session precompact/compact/handoff rules are appended automatically so a typed `/checkin <task>` is the only thing the operator needs.
+description: One-stop development pipeline entry. Claim a slot in the 12-chat PRISM fleet (alpha..foxtrot + hotel..lima work slots + golf hygiene) — bind handoff to slot, reap crashed slots, drift/commit-hygiene check, then EMIT THE FULL DEV PIPELINE for whatever task the operator hands over in the args. Pipeline auto-injects prism-awareness + system-viz + Obsidian-PRISM-OS + tribal knowledge + AI/neural/deep-reasoning routing + CLAUDE.md rules. Files created get registered to /system-viz galaxy. End-of-session precompact/compact/handoff rules are appended automatically so a typed `/checkin <task>` is the only thing the operator needs. With a loop keyword (`/loop`, `autopilot`, `continuous`, `until complete`) it engages a keyword-gated autonomous continuous-work loop — the /autopilot-full + /yolo-mode doctrine rolled into the slot system — that picks units, builds, scrutinizes, commits and re-engages itself across every /compact boundary.
 trigger:
   autoSuggest:
     keywords: ["checkin", "check in", "claim a slot", "fleet slot", "which chat am i", "login to the fleet", "start a development pipeline", "begin a unit", "begin loop", "start loop"]
@@ -15,18 +15,20 @@ triggers:
 
 # /checkin — Fleet Check-In + Drift / Conflict / Commit Guard
 
-Run this in any chat that's one of the ~7 concurrent PRISM chats (6 work slots + 1 hygiene slot). It (a) claims this chat a stable human-readable slot name, (b) makes the per-chat handoff save under that slot, (c) cleans up crashed-slot / stale-claim debris, (d) surfaces anything that would cause a silent overwrite, a roadmap-drift surprise, or a commit collision, and (e) — if you pass `--roadmap` — narrows this chat's work surface to one of the two roadmaps. Auto-fixes the safe stuff; surfaces (with the fix command) the stuff that needs your call.
+Run this in any chat that's one of the ~12 concurrent PRISM chats (11 work slots + 1 hygiene slot). It (a) claims this chat a stable human-readable slot name, (b) makes the per-chat handoff save under that slot, (c) cleans up crashed-slot / stale-claim debris, (d) surfaces anything that would cause a silent overwrite, a roadmap-drift surprise, or a commit collision, and (e) — if you pass `--roadmap` — narrows this chat's work surface to one of the two roadmaps. Auto-fixes the safe stuff; surfaces (with the fix command) the stuff that needs your call.
 
 **Re-run it after every `/compact`** (the slot heartbeat needs refreshing; a compact can also leave a stale index.lock).
 
 ## Args: $ARGUMENTS
-- *(empty)* — standard check-in; this chat works the full atomized roadmap as a **work slot** (claims the first free of `alpha..foxtrot`).
+- *(empty)* — standard check-in; this chat works the full atomized roadmap as a **work slot** (claims the first free work slot — `alpha..foxtrot` or `hotel..lima`).
 - `--topic <slug>` — override the auto-derived topic. By default `/checkin` extracts the topic from the most recent commit's `[SCOPE-MS#]` tag — but with 6 chats committing every few minutes that scope can be ANY peer's scope, not yours (this is the 2026-05-14 "I got bound to command-kernel-ms0 but my actual work was git-tree" bug). Pass `--topic git-tree-work` to bind explicitly. Slug should be kebab-case (`worktree-consolidate`, `sfc-calibrate`, etc.); the `<slot>-<topic>` handoff filename is built from this. Auto-derive stays as the fallback when omitted.
 - `--force --confirmRecent --preferSlot <name>` — force-take a slot held by another chat that ALSO claimed it within the last 30 s (the recency-guard window). The default `--force` alone is refused with `slot_recently_claimed` to protect against double-claim races during fleet startup; adding `--confirmRecent` is the operator's explicit "yes, I really mean it" override. Use only when you've verified the other chat is genuinely dead or the operator told you to take their slot.
 - `--golf` — this chat is the **hygiene slot** (golf). Claim is restricted to the dedicated golf slot — never alpha..foxtrot. Golf is bound by the write-allowlist hook (`golf-slot-write-allowlist.mjs`, U-CLEANUP-A5) and may only touch the exact paths in `FALLBACK_ALLOW`: `state/shared/dashboards/**`, the named ledger JSONLs (`bug-attribution-ledger`, `peer-audit-ticks`, `wiki-inject-misses`, `golf-envelope-mutations`, `system-viz-headline-history`, `DR_DRILL_LEDGER`), the named report dashboards (`HOOK_HEALTH_DIGEST.md`, `WIRING-CANDIDATES-DASHBOARD.md`, `WIKI_LINT_REPORT.md`, `DISPATCHER_CAPACITY.md`, `MEMORY_GARDEN_REPORT.md`, `SKILL_UTILIZATION_REPORT.md`, `HOOK_UTILIZATION_REPORT.md`, `CLAUDE_MD_DRIFT_REPORT.md`, `GSD_FRESHNESS_REPORT.md`, `AWARENESS_HEALTH_DASHBOARD.md`, `SYSTEM_VIZ_LIVEDIFF.md`, `JSONL_CONSUMER_AUDIT.md`), `state/shared/AGENT_CHAT.jsonl`, the golf-owned configs (`golf-*.json`, `.envelope-drift-last.json`, `.watchdog-last-poll.iso`, `.peer-audit-cache.json`, `.cron-locks/*.lock`), `state/shared/system-viz/staging/**`, and `mcp-server/data/state/**.log`. Anything outside that list — including any source code, dispatcher, hook, skill, or test — gets blocked at PreToolUse. Use this for a chat dedicated to fleet hygiene (orphan reaper telemetry, drift-report regeneration, ledger triage, stale-slot reaping, CLOSE-OUT-DEFERRED triage, etc.). Mutually exclusive with `--roadmap`. The hook's block message names the canonical list — always trust the hook's emitted message over this prose when they drift.
 - `--roadmap devtools` — this chat is on the **backend-development roadmap** (`BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP`; `track:"devtools"` units) — **the prioritized roadmap, do these first**. Always claims a work slot (`alpha..foxtrot`).
 - `--roadmap revenue` — this chat is on the **revenue roadmap** (`REVENUE-ROADMAP-v7.6` §R1–§R10; `track:"revenue"` units) — runs *after* / *behind* the devtools roadmap (`roadmap_priority` 1 vs 0); a revenue chat mostly does low-priority revenue background work until the devtools P0 (the dev tooling) has landed. Always claims a work slot (`alpha..foxtrot`).
 - When `--roadmap <name>` is given, Step 7's report adds a **"your slice"** line — your lane's ordered run-list, scoped to that roadmap (feed it to `/run-continuous`). Compute it from `state/shared/atomic-roadmap.json` (`roadmap[]` = every unit · `laneAssignments[]` = which units go to chat 1..6 · slot→chat is **alpha=1 · bravo=2 · charlie=3 · delta=4 · echo=5 · foxtrot=6**; **golf is slot 7 = hygiene, no roadmap-lane assignment**). `--roadmap devtools` → your lane minus revenue, i.e. units with `roadmap_priority === 0` (the BACKEND-DEVTOOLS-RGS6 P0 dev-tooling tracks — `HOOKS-AUTOMATION-V2`, `SKILLS-UTILIZATION`, `AUTO-LEARNING-LOOP`, `COST-CASCADE`, `TOOL-INVENTORY`, `GRAPH-AS-LLM-CONTEXT`, … — sort to the top by tier). `--roadmap revenue` → your lane filtered to `track === "revenue"`. **There is no literal `track == "devtools"` value** — `track` holds the *milestone* track name; devtools-vs-revenue is the `roadmap_priority` field (0 vs 1). The per-chat `state/shared/atomic-roadmap-chat-<N>.md` file is the same list pre-rendered as a table. When `--roadmap` is omitted, the chat sees the full ~3,663-unit roadmap.
+- `/loop` · `autopilot` · `continuous` · `/run-continuous` · "until complete" · "until done" · "keep going" · "as long as possible" — any of these in the args **engages the autonomous continuous-work loop** (Step 12): the chat keeps picking pending units, building them (with the mandatory per-file scrutiny gate), committing, and ticking `loop-state.mjs` until it runs out of units, hits a hard blocker, or `/compact` fires — then it auto-resumes itself after the compact. This is the `/autopilot-full` + `/yolo-mode` doctrine rolled into the slot system. Keyword-gated: a bare `/checkin`, or a single bounded `/checkin <task>` with no loop keyword, does NOT loop.
+- `--no-loop` — suppress autonomous-loop engagement even when a loop keyword is present. If a loop is already `running` for this chat, `--no-loop` ENDS it (`loop-state end --reason operator-halt`). The operator off-switch for a runaway or unwanted loop.
 
 ## Steps — run all of these, then print the §Report
 
@@ -71,7 +73,24 @@ node H:/prism/.claude/helpers/chat-slots.mjs claim --chatId "$STABLE" --branch "
 - **previousOwner field** — if your claim reclaimed a slot from another chat (crashed-reclaim, stale-reclaim, or force-takeover), the result also carries a `previousOwner` block: `{ chatId, host, pid, branch, topic, activity, claimedAt, lastHeartbeat, ageMs, reason }`. Surface this in §7 so the operator can see who got kicked out — silent overwrites are how slot-thrash hides in the fleet (the 2026-05-14 "alpha disappeared mid-session" bug was invisible until the user pointed it out).
 - **Slot roles:** `alpha..foxtrot` are *work slots* (6) — feature commits go here. `golf` is the *hygiene slot* (1) — write-allowlist bound (see `--golf` arg above + `golf-slot-write-allowlist.mjs`).
 - If `ok:false, error:"slot_recently_claimed"` → your `--preferSlot --force` targeted a slot that was claimed by another chat within the last 30 s (the recency-guard window). The `details.blockedBy` field names them. If they're genuinely dead or the operator told you to take their slot, re-run with `--force true --confirmRecent true`. Otherwise pick a different slot or wait for the window to expire.
-- If `ok:false, error:"fleet_full"` → all 7 slots are held by alive chats; run `node H:/prism/scripts/fleet-status.mjs` to see who, then ask the operator which dead chat's slot to force-take (`... claim --chatId "$STABLE" --preferSlot <name> --force true --confirmRecent true`). The 7 slots cover the design fleet — there is no `legacy-8hex` fallback any more; if you genuinely need an 8th concurrent chat, force-take an inactive slot rather than spawning a nameless chat. **Remember the slot name — call it `$SLOT` below.**
+- If `ok:false, error:"fleet_full"` → all 12 slots are held by alive chats; run `node H:/prism/scripts/fleet-status.mjs` to see who, then ask the operator which dead chat's slot to force-take (`... claim --chatId "$STABLE" --preferSlot <name> --force true --confirmRecent true`). The 12 slots cover the design fleet — there is no `legacy-8hex` fallback any more; if you genuinely need a 13th concurrent chat, force-take an inactive slot rather than spawning a nameless chat. **Remember the slot name — call it `$SLOT` below.**
+
+### 2b. Loop-resume detection (autonomous-loop continuity)
+Before anything else, check whether this chat is mid-loop — a `/compact` re-fires `/checkin --topic <slot>-<topic>` with NO loop keyword, so loop **continuation** comes from here, not the keyword gate.
+```bash
+node H:/prism/.claude/helpers/loop-state.mjs reap                        # ages running>4h → "stale", clears old ended loops
+node H:/prism/.claude/helpers/loop-state.mjs read --session "$STABLE"    # then read THIS chat's loop
+```
+`reap` must run FIRST: `read` returns the raw state object, so a >4h-idle loop still reports `status:"running"` until `reap` rewrites it to `"stale"`. Interpret the `read` JSON:
+- `{ok:false}` (no state file for this chat) → no loop; no resume.
+- `status:"running"` → set `RESUMING=1`; capture `iter`/`target`/`task`. Step 12 re-engages and continues — do NOT call `loop-state start` again (`start` overwrites the file and resets `iter` to 0).
+- `status:"stale"` (was running, >4h idle — `reap` just marked it) → do NOT auto-resume; surface it in §Report so the operator runs `/loop` to restart or `--no-loop` to clear.
+- `status:"ended"`/`"abandoned"` → no resume. A fresh loop starts only if Step 12's keyword gate fires.
+- `$ARGUMENTS` contains `--no-loop` AND a `running` loop exists → `node H:/prism/.claude/helpers/loop-state.mjs end --session "$STABLE" --reason operator-halt`; do NOT re-engage.
+
+The loop-state file is keyed on `--session "$STABLE"` — constant across `/compact` (the SessionStart "Chat Isolation" 8-hex doesn't change), so the loop survives a compact **provided** the precompact handoff wrote a valid `<slot>-<topic>` + RESUME (else the auto-resume `/checkin` never fires and the loop sits orphaned until the 4h `reap`).
+
+**Rule:** the keyword gate engages a *fresh* loop; an active `running` loop-state *resumes* regardless of args. The post-`/compact` auto-fire (`/checkin --topic <slot>-<topic>`) carries no args, so a resumed loop keeps going until it finishes or you explicitly type `/checkin --no-loop`.
 
 ### 3. Bind the handoff to the slot
 Make this chat's handoff save as `HANDOFF-<slot>-<topic>.md` so the fleet dashboard + resume picker show the slot name.
@@ -347,7 +366,7 @@ Every surface it prints as `MUST invoke:` is **mandatory before declaring the pi
 │ prev owner:  <only if previousOwner present>
 │                $previousOwner.chatId ($previousOwner.reason, last seen $previousOwner.ageMs ms ago)
 │                  topic=$previousOwner.topic  activity=$previousOwner.activity
-│ fleet:       <N>/7 slots alive — <list: alpha=…, bravo=…, …, golf=…>
+│ fleet:       <N>/12 slots alive — <list: alpha=…, bravo=…, …, golf=…>
 │ chat bus:    <K> peer file-claims · <M> unread msgs · <P> active peers
 │ drift:       <D> milestone(s) drifted  [✓ none  |  ⚠ <ids> — /envelope-sync if yours]
 │ tree:        <clean | dirty: N files>  ·  origin: <ahead A / behind B | offline>
@@ -363,6 +382,7 @@ Every surface it prints as `MUST invoke:` is **mandatory before declaring the pi
 │ plan:           <only if HAS_TASK=1> <3-step CoT plan from prism_ai:cot_reason — 1 step per row, ~80 chars>
 │ fleet topics:   <slot=topic, slot=topic, … — one line summary of who's working on what>
 │ fleet loops:    <slot iter/target (age), … — only slots currently in /loop>
+│ loop:        <none | RESUMING iter N/target — "<task>" | will-engage: "<task>" | ⚠ stale — /loop or --no-loop>
 │ pickup cands:   <K> stale-but-actionable handoff(s)  [✓ none  |  → top: <file> "<RESUME excerpt>"]
 │ your slice:  <only if --roadmap given> <N> <roadmap> units in your lane — #1: <ms/unit — title>
 │ verdict:     ✅ CLEAR — go  |  ⚠ <one-line: what to resolve first>
@@ -380,7 +400,7 @@ If the verdict is ⚠, list the 1-3 concrete next actions (the fix commands abov
 
 # THE DEV PIPELINE — emitted when /checkin has a task argument
 
-When `$ARGUMENTS` contains a task/unit/loop/goal directive (heuristic: contains any of `/loop`, `/goal`, `/pick-unit`, `/pick-dev`, `unit`, `task`, `complete`, `ship`, `build`, `wire`, or a verbatim filepath), Claude proceeds through the steps below INSTEAD OF stopping at the §Report. The §Report still runs first — drift/dirty-tree blocks still apply.
+When `$ARGUMENTS` contains a task/unit/loop/goal directive (heuristic: contains any of `/loop`, `/goal`, `/pick-unit`, `/pick-dev`, `autopilot`, `continuous`, `/run-continuous`, `keep going`, `keep working`, `as long as possible`, `until complete`, `until done`, `unit`, `task`, `complete`, `ship`, `build`, `wire`, or a verbatim filepath), Claude proceeds through the steps below INSTEAD OF stopping at the §Report. The loop/continuous keywords additionally engage the **Step 12 autonomous loop**; the others run the pipeline once. The §Report still runs first — drift/dirty-tree blocks still apply.
 
 > **⚙ AUTO-INVOKED, not named-only (2026-05-16).** The recall/index/AI surfaces tabled in Steps 8-11 are **already fired** by §6k (master-index + memory + wiki + skill + tribal recall, Ollama-distilled) and §6l (deterministic High-ROI gate) above — results are in §Report (`master-index:` / `vault recall:` / `tribal hits:` / `skills matched:` / `must-invoke:`). Steps 8-11 below are the **WHAT-reference** (the catalog of every surface + when to drill deeper / re-fire), NOT a passive menu. The recall+distill ran in **local compute** (Obsidian indexes + local Ollama) so reading them costs Claude ~15 lines, not a search+summarize pass. Per the user directive, nothing in this pipeline is "named-but-never-invoked" anymore — if you add a surface to a Step 8-11 table, also add it to `checkin-recall.mjs` or the §6l gate so it actually fires.
 
@@ -455,27 +475,56 @@ Always-active layers (verify on every loop iteration — they're cheap):
 - **Scripts** via `prism_skill_script:script_search`. Re-runnable helpers live in `H:/prism/scripts/` and `H:/prism/mcp-server/scripts/`.
 - **Hooks** registry via `prism_hook:list` + `prism_hook:manifest`. PreToolUse / PostToolUse / Stop / SessionStart / UserPromptSubmit.
 - **RTK token savings** — prefix bash with `rtk` for 60-99% output reduction on git/gh/npm/vitest/tsc/docker/grep/cat. `rtk vitest run` (99%), `rtk git status` (59%), `rtk gh pr checks` (79%). Skip only if output <500 chars. `/rtk-setup` if not installed.
-- **Context extension** — per-chat `state/shared/handoffs/HANDOFF-<slot>-<topic>.md` (10 chats), `MEMORY.md` index (<200 lines), `ENGINE_DIGEST.md` + `DISPATCHER_DIGEST.md` for zero-IO discovery, load-on-demand skills, keyword-gated UserPromptSubmit injections. The /precompact → /compact → SessionStart:compact → auto-resume chain (Step 14) closes the long-running loop.
+- **Context extension** — per-chat `state/shared/handoffs/HANDOFF-<slot>-<topic>.md` (12 chats), `MEMORY.md` index (<200 lines), `ENGINE_DIGEST.md` + `DISPATCHER_DIGEST.md` for zero-IO discovery, load-on-demand skills, keyword-gated UserPromptSubmit injections. The /precompact → /compact → SessionStart:compact → auto-resume chain (Step 14) closes the long-running loop.
 
 **REMINDER (slot-claim is mandatory, NOT optional):** Steps 1-7 above MUST run even when /checkin has a task arg. The pipeline (Steps 8-14) is ADDITIVE — never replaces slot-claim. If §Report verdict is ⚠ STOP, do NOT enter the pipeline; resolve the verdict first.
 
-## Step 12 — Run /loop until tasks complete (= /goal)
+## Step 12 — Autonomous Loop (rolled-in /autopilot-full + /yolo-mode)
 
-When the args contain `/loop` or a list of units/tasks:
+The continuous-work engine. This is the `/autopilot-full` + `/yolo-mode` doctrine rolled into the slot system — those two skills stay available standalone for their full forms; this is the slot-native loop.
 
-1. **Pre-loop checkpoint** — write loop state:
-   ```bash
-   STABLE="claude-<8hex>"
-   node H:/prism/.claude/helpers/loop-state.mjs start --session "$STABLE" --task "<one-line task>" --target <iter-count>
-   ```
-2. **Per-iteration** (do NOT call `ScheduleWakeup` between iterations per [[feedback_no_schedule_wakeup_in_loop]]):
-   - Pick the next unit/task (`/pick-unit` for next roadmap unit, or pop the next item from your TaskCreate list)
-   - Apply Karpathy R10: state done/verified/left BEFORE writing code
-   - Run the per-file scrutiny gate if multi-file ([[feedback_parallel_scrutiny_per_file]])
-   - Tick the loop: `node H:/prism/.claude/helpers/loop-state.mjs tick --session "$STABLE" --status ok --note "<one line>"`
-   - Karpathy R12: surface uncertainty — never silently skip failing tests
-3. **Goal-complete gate** — `/goal` Stop hook blocks unless `state/shared/CLOSE-OUT-CANDIDATES.json` is fresh (<2h) and all candidate `unit_id`s are committed OR in `CLOSE-OUT-DEFERRED.md`. Run `/close-out-audit` to refresh.
-4. **End-of-loop** — `node H:/prism/.claude/helpers/loop-state.mjs end --session "$STABLE" --reason done`
+**Engagement (keyword-gated).** Enter this loop when EITHER:
+- `$ARGUMENTS` contains a loop keyword — `/loop`, `autopilot`, `continuous`, `/run-continuous`, "until complete/done", "keep going/working", "as long as possible"; OR
+- Step 2b set `RESUMING=1` (an active `running` loop-state exists — continue it regardless of args).
+
+A bare `/checkin`, or a single bounded `/checkin <task>` with no loop keyword, does NOT enter this loop. `--no-loop` suppresses it (and ends a running loop — see Step 2b).
+
+Match the loop keywords as **explicit intent / whole words**, not substrings — `continuous` means "run continuously", not the `continuous` inside `continuous-integration` or `ContinuousImprovementEngine`; `until done` / `keep going` must read as a loop directive, not incidental phrasing. When genuinely ambiguous, treat the arg as a single bounded task (no loop) — the operator can always add `/loop` to force one.
+
+**Autonomy doctrine (condensed /yolo-mode).** Inside the loop:
+- **Zero questions** — don't ask "should I proceed?"; auto-select the highest-priority pending unit and go.
+- **No implicit unit caps** — run until genuinely out of units, a hard blocker, or the operator halts. Context pressure does NOT end the loop — it *suspends* it across `/compact` (see Compaction survival below). Never self-impose "do N then check in" — that's a hidden question.
+- **Auto-fix 3×** — on any build/test/hook error: diagnose → fix root cause → retry, max 3 attempts per error; after 3, log it, skip the unit, continue.
+- **Write directly** — make the change, don't propose it. Stop to ask ONLY on genuine blocking ambiguity (two fundamentally different valid outcomes, intent un-inferable).
+
+**Pre-loop** (skip entirely if `RESUMING=1` — Step 2b already found the live loop):
+```bash
+# target = count of pending units in your lane/slice (§6b), else 25
+node H:/prism/.claude/helpers/loop-state.mjs start --session "$STABLE" --task "<one-line task>" --target <T>
+node H:/prism/.claude/helpers/chat-slots.mjs pipeline-step --chatId "$STABLE" --pipelineStep autonomous-loop --pipelineIter 0 --pipelineTarget <T>
+```
+
+**Per-iteration** (do NOT call `ScheduleWakeup` between iterations per [[feedback_no_schedule_wakeup_in_loop]]):
+1. **Pick** the next pending unit — the §6b lane slice if `--roadmap` was given, else `/pick-unit` (highest-priority first: devtools `roadmap_priority===0` ahead of revenue). Respect peer file-claims + lane discipline — skip anything a peer holds; never commit peer-claimed files.
+2. **Karpathy R10** — state done / verified / left BEFORE writing code.
+3. **Build** the unit. For any multi-file unit the **per-file scrutiny gate is mandatory** — 2 parallel reviewer agents after each file, fix every P0/P1 before the next file ([[feedback_parallel_scrutiny_per_file]]). Scrutiny is NOT optional in the autonomous loop — yolo speed never skips it.
+4. **Auto-fix** failures up to 3× (see doctrine above).
+5. **Commit** atomically — `[SCOPE-MS#]/U-ID: title`, one commit per logical unit.
+6. **Tick** — `node H:/prism/.claude/helpers/loop-state.mjs tick --session "$STABLE" --status ok|fail --note "<one line>"` then `node H:/prism/.claude/helpers/chat-slots.mjs pipeline-step --chatId "$STABLE" --pipelineStep autonomous-loop --pipelineIter <iter> --pipelineTarget <T>` (keeps the fleet dashboard live).
+7. **Karpathy R12** — surface uncertainty; never silently skip a failing test or an unverified edge case.
+
+**Stop conditions** — end the loop (`node H:/prism/.claude/helpers/loop-state.mjs end --session "$STABLE" --reason <reason>`) when:
+- No pending units remain in your lane → `--reason done`.
+- A `tick` returns `status:"abandoned"` (runaway guard: `iter > 2×target`) → STOP, report what looped.
+- A unit hard-blocks after 3 auto-fix attempts → log it, skip THAT unit, continue with the next (do NOT end the loop for one bad unit).
+- Genuine blocking ambiguity → stop and ask the operator.
+- Context pressure → see Compaction survival below.
+
+**Goal-complete gate** — if the loop was entered via `/goal`, the `goal-complete-gate` Stop hook blocks unless `state/shared/CLOSE-OUT-CANDIDATES.json` is fresh (<2h) and every candidate `unit_id` is committed OR in `CLOSE-OUT-DEFERRED.md`. Run `/close-out-audit` to refresh.
+
+**Compaction survival (the "work as long as possible" mechanism).** When `precompact-auto-trigger` fires (~880K tokens) or context is tight: finish the in-flight unit cleanly, then run the **Step 14 end-of-session pipeline** (per-file scrutiny → 3-of-3 gate → close-out → doc reflection → commit → precompact → `/compact`). **Leave loop-state `running`** — do NOT call `loop-state end`. After `/compact`, `session-start-auto-resume` re-fires `/checkin`; its Step 2b finds the `running` loop-state and re-engages this loop. The loop therefore spans `/compact` boundaries — **as long as** each precompact handoff writes a valid `<slot>-<topic>` + RESUME so the auto-resume `/checkin` actually fires. If a handoff write fails, the loop is not lost but pauses: its loop-state sits `running` and orphaned until either the next manual `/checkin` (Step 2b resumes it) or the 4h `reap` marks it `stale`.
+
+**Runaway safety** — `loop-state` auto-abandons at `iter > 2×target`; `autonomous-loop-watchdog` (Stop, 15-min idle) and `autonomous-loop-defer` (PreToolUse tool-rate cap) already guard the fleet; `/checkin --no-loop` is the operator off-switch.
 
 ## Step 13 — Files created → /system-viz galaxy
 
@@ -496,7 +545,7 @@ Use these IN ORDER as the session approaches token limit OR when work ships:
 3. **Roadmap close-out** ([[feedback_roadmap_close_out]]) — touch all 4 surfaces (envelope + roadmap-index + MILESTONE_PROGRESS + BUILD_STATE + chat-bus). Orchestrator: `node H:/prism/scripts/close-out-milestone.mjs --milestone <MS-ID>`.
 4. **Doc reflection** ([[feedback_reflect_all_changes_post_update]]) — CLAUDE.md + MEMORY.md + wiki + Obsidian memory all updated for every change-set.
 5. **Commit hygiene** — `[SCOPE-MS#]/U-<id>: title` format; never `--no-verify` unless explicitly authorized.
-6. **Precompact (BEFORE token limit)** — invoke the `precompact` skill via the Skill tool. Writes per-chat handoff. The precompact-pending guard hook blocks Stop until /compact runs.
+6. **Precompact (BEFORE token limit)** — invoke the `precompact` skill via the Skill tool. Writes per-chat handoff. The precompact-pending guard hook blocks Stop until /compact runs. **If an autonomous loop (Step 12) is mid-flight, leave its loop-state `running`** — do NOT `loop-state end` — so the post-`/compact` `/checkin` Step 2b finds and resumes it. Name the loop task in the precompact RESUME so the handoff stays human-readable.
 7. **Compact** — operator types `/compact`. PreCompact hook fires; auto-resume hook (`session-start-auto-resume.mjs`, matcher:"compact") will inject the RESUME directive on the next prompt — no need for the operator to say "continue".
 8. **Terminal-pin auto-claim** — on the next prompt, `session-start-terminal-pin.mjs` re-binds the slot to this PowerShell window. The new chat sees the same slot — never drift.
 9. **Stop-time viz reminder** — `stop-system-viz-reminder.mjs` nudges a /system-viz refresh if H: drive files changed.
