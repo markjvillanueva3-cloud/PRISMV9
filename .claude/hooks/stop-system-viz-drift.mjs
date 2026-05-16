@@ -32,6 +32,12 @@ import path from "node:path";
 const HOME_DRIVE_LETTER = process.env.SystemDrive || "C:";
 const REPO_ROOT = "H:/prism";
 const REPORT_PATH = path.join(REPO_ROOT, "state", "shared", "system-viz", "DRIFT_REPORT.json");
+// W1 / U-FOLD-DEFAULT consumer: the newly-built fold-debt marker written by
+// scripts/system-viz-on-commit.mjs. This Stop hook is its consumer so a
+// stuck fold (commits paused → last batch never folded) reaches the operator
+// instead of silently degrading viz highlights.
+const FOLD_DEBT_PATH = path.join(REPO_ROOT, "state", "shared", "system-viz", ".newly-built-fold-debt.json");
+const DEFAULT_FOLD_DEBT_MAX_HRS = 6;
 const STAMP_PATH = path.join(REPO_ROOT, "state", "shared", ".drift-stop-stamp.json");
 const DEFAULT_REPORT_MAX_AGE_MS = 12 * 60 * 60 * 1000;
 const DEFAULT_DRIFT_THRESHOLD = 10;
@@ -119,6 +125,21 @@ function main() {
     }
     if (truncated > 0) reasons.push(`${truncated} truncated namespace${truncated > 1 ? "s" : ""}`);
     if (rootMissing > 0) reasons.push(`${rootMissing} root-missing namespace${rootMissing > 1 ? "s" : ""}`);
+  }
+
+  // W1 / U-FOLD-DEFAULT consumer. Canonical staleness logic lives in
+  // foldDebtVerdict() (scripts/system-viz-on-commit.mjs); the rule is
+  // inlined here (3 lines) per hook-self-containment (.claude/rules/hooks.md)
+  // — keep the two in sync if the rule ever grows.
+  const foldDebt = readJsonSafe(FOLD_DEBT_PATH);
+  if (foldDebt && foldDebt.status !== "folded" && Number(foldDebt.pendingCount) > 0) {
+    const tsMs = Date.parse(foldDebt.ts ?? "");
+    const ageHrs = Number.isFinite(tsMs) ? (now - tsMs) / 3_600_000 : Infinity;
+    const maxHrs = clamped(process.env.PRISM_FOLD_DEBT_MAX_HRS, DEFAULT_FOLD_DEBT_MAX_HRS);
+    if (ageHrs > maxHrs) {
+      const ageStr = Number.isFinite(ageHrs) ? `${ageHrs.toFixed(1)}h` : "∞ (no/invalid timestamp)";
+      reasons.push(`${foldDebt.pendingCount} newly-built node(s) unfolded ${ageStr} — commits paused? → \`FOLD_NEWLY_BUILT=1 node H:/prism/scripts/system-viz-on-commit.mjs\` (check: \`--fold-debt-status\`)`);
+    }
   }
 
   if (reasons.length === 0) silent();
