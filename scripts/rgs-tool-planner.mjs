@@ -39,6 +39,9 @@ const LOCK_MAX_AGE_MS = 10 * 60 * 1000; // 10 min
 const LOCK_REFRESH_EVERY = 50; // units
 const ATOMIC_RETRY_MAX = 3;
 const ATOMIC_RETRY_DELAY_MS = 100;
+const CAPABILITIES_HITS_PER_TOKEN = 8;   // findInGraph limit per query token
+const OLLAMA_READER_TIMEOUT_MS = 30000;  // qwen2.5-coder:7b synthesis: 2.5-4.3s typical
+const OLLAMA_READER_MAX_TOKENS = 400;    // synthesis response token budget
 const DEFAULT_SIDECAR_PATH = path.join(REPO_ROOT, "state", "shared", "roadmap-tool-plans.json");
 const DEFAULT_CHECKPOINT_PATH = path.join(REPO_ROOT, "state", "shared", ".roadmap-tool-plans.checkpoint.jsonl");
 const DEFAULT_LOCK_PATH = path.join(REPO_ROOT, "state", "shared", ".roadmap-tool-plans.lock");
@@ -234,14 +237,28 @@ function releaseLock(lockPath) {
  * @param {object} G - loaded graph
  * @returns {(text: string) => Promise<{engines: string[], mcpTools: string[]}>}
  */
-function makeCapabilitiesReader(G) {
+export function makeCapabilitiesReader(G) {
   return async function capabilities(text) {
     try {
       const { findInGraph } = await import("./lib/system-viz-graph.mjs");
-      const hits = findInGraph(G, text, { limit: 12 });
+      const { tokenize } = await import("./lib/master-index-search-lib.mjs");
+      // findInGraph does a whole-PHRASE substring match — passing the full unit
+      // text matches nothing. Tokenize (drops stopwords, caps at 8 tokens) and
+      // query per token, unioning hit nodes deduped by id. Cost is
+      // O(tokens × nodes) per unit; acceptable for the detached batch planner
+      // — batch time-budgeting is U-CRON's concern.
+      const tokens = tokenize(text);
+      if (tokens.length === 0) return { engines: [], mcpTools: [] };
+      const seenNodes = new Map();
+      for (const tok of tokens) {
+        for (const node of findInGraph(G, tok, { limit: CAPABILITIES_HITS_PER_TOKEN })) {
+          const nid = String(node.id ?? node.label ?? "");
+          if (nid && !seenNodes.has(nid)) seenNodes.set(nid, node);
+        }
+      }
       const engines = [];
       const mcpTools = [];
-      for (const node of hits) {
+      for (const node of seenNodes.values()) {
         const lbl = String(node.label ?? node.id ?? "");
         const layer = String(node.layer ?? "");
         const subgroup = String(node.subgroup ?? "");
@@ -269,16 +286,19 @@ function makeCapabilitiesReader(G) {
  * Build tribal reader using master-index-search-lib if available.
  * Falls back to [] on any error.
  */
-async function makeTribalReader() {
+export async function makeTribalReader() {
   try {
     const lib = await import("./lib/master-index-search-lib.mjs");
     if (typeof lib.runTribalSearch !== "function") throw new Error("runTribalSearch not exported");
     return async function tribal(text, { prefDomain } = {}) {
       try {
-        const hits = await lib.runTribalSearch(text, { prefDomain, limit: 8 });
+        // runTribalSearch returns { tokens, hits } — destructure hits (an
+        // array). hit shape (searchTribalHits): { id, source, domain, title,
+        // path, score }. The display field is `title`, not tip/text/label.
+        const { hits } = await lib.runTribalSearch(text, { prefDomain, topK: 8 });
         return (hits ?? []).map((h) => ({
-          id:     String(h.id ?? h.key ?? ""),
-          tip:    String(h.tip ?? h.text ?? h.label ?? ""),
+          id:     String(h.id ?? ""),
+          tip:    String(h.title ?? ""),
           score:  typeof h.score === "number" ? h.score : 0,
           domain: String(h.domain ?? prefDomain ?? ""),
         }));
@@ -296,7 +316,7 @@ async function makeTribalReader() {
  * Returns names of skills whose matcher.value regex matches text.
  * Falls back to [] on any error.
  */
-function makeSkillTriggersReader() {
+export function makeSkillTriggersReader() {
   let triggers = null;
   return async function skillTriggers(text) {
     if (!triggers) {
@@ -337,7 +357,7 @@ function makeSkillTriggersReader() {
  * reader always returns {shipped:false}. The reader exists to satisfy the
  * fuseSignals contract (which can override verdict to "close-out" if shipped).
  */
-function makeBuildStateReader() {
+export function makeBuildStateReader() {
   return async function buildState(_unit) {
     return { shipped: false };
   };
@@ -347,13 +367,16 @@ function makeBuildStateReader() {
  * outcomes reader: aggregates from outcomes JSONL if it exists.
  * Falls back to zeros on missing/corrupt file.
  */
-function makeOutcomesReader() {
+export function makeOutcomesReader() {
   let outcomesCache = null;
   return async function outcomes({ pipeline, tier, verdict }) {
     if (!outcomesCache) {
       outcomesCache = [];
+      // Path resolved at first-call time so hermetic tests can redirect it
+      // (parity with rgs-outcome-record-stop.mjs / pick-prefresh-inject.mjs).
+      const outcomesPath = process.env.PRISM_RGS_OUTCOMES_PATH || OUTCOMES_PATH;
       try {
-        const raw = fs.readFileSync(OUTCOMES_PATH, "utf8");
+        const raw = fs.readFileSync(outcomesPath, "utf8");
         for (const line of raw.split("\n")) {
           const t = line.trim();
           if (!t) continue;
@@ -363,13 +386,18 @@ function makeOutcomesReader() {
         // file missing — stays []
       }
     }
+    // OutcomeRecord shape (rgs-plan-outcome.mjs extractOutcomes):
+    //   { v, ts, unitKey, outcome:"shipped"|"blocked"|"reverted",
+    //     predictedPipelines:string[], tier, verdict }
+    // Aggregate per (pipeline ∈ predictedPipelines, tier, verdict) — count by
+    // the record's `outcome`, NOT non-existent shipped/blocked/reverted fields.
     let shipped = 0, blocked = 0, reverted = 0;
     for (const rec of outcomesCache) {
-      if (rec.pipeline === pipeline && rec.tier === tier && rec.verdict === verdict) {
-        shipped  += rec.shipped  ?? 0;
-        blocked  += rec.blocked  ?? 0;
-        reverted += rec.reverted ?? 0;
-      }
+      if (rec.tier !== tier || rec.verdict !== verdict) continue;
+      if (!Array.isArray(rec.predictedPipelines) || !rec.predictedPipelines.includes(pipeline)) continue;
+      if (rec.outcome === "shipped") shipped++;
+      else if (rec.outcome === "blocked") blocked++;
+      else if (rec.outcome === "reverted") reverted++;
     }
     return { shipped, blocked, reverted };
   };
@@ -378,10 +406,16 @@ function makeOutcomesReader() {
 /**
  * ollama reader factory. Returns undefined when ollamaOff or degraded.
  */
-function makeOllamaReader(queryOllamaFn) {
+export function makeOllamaReader(queryOllamaFn) {
   return async function ollama(prompt) {
     try {
-      return await queryOllamaFn(prompt, { format: "json", maxTokens: 400 });
+      // qwen2.5-coder:7b synthesis runs 2.5-4.3s; the bridge default timeout
+      // (500ms) aborts every call. Override generously.
+      return await queryOllamaFn(prompt, {
+        format: "json",
+        maxTokens: OLLAMA_READER_MAX_TOKENS,
+        timeoutMs: OLLAMA_READER_TIMEOUT_MS,
+      });
     } catch {
       return { success: false, response: null };
     }

@@ -25,7 +25,9 @@
  * @typedef {{
  *   unitKey: string,
  *   sid: string,
- *   predictedPipelines: string[]
+ *   predictedPipelines: string[],
+ *   tier?: string,
+ *   verdict?: string
  * }} PickedEvent
  *
  * @typedef {{
@@ -41,7 +43,9 @@
  *   ts: string,
  *   unitKey: string,
  *   outcome: "shipped"|"blocked"|"reverted",
- *   predictedPipelines: string[]
+ *   predictedPipelines: string[],
+ *   tier: string,
+ *   verdict: string
  * }} OutcomeRecord
  */
 
@@ -131,11 +135,15 @@ export function extractOutcomes(inputs, opts = {}) {
   // --- Classify each picked event ----------------------------------------
   const results = [];
   for (const event of pickedEvents) {
-    const { unitKey, predictedPipelines = [] } = event;
+    const { unitKey, predictedPipelines = [], tier = "", verdict = "" } = event;
 
-    // Extract the canonical U-id from unitKey (unitKey IS the U-id per spec,
-    // but defensively also try extracting from the string).
-    const candidateIds = new Set([unitKey, ...extractUnitIds(" " + unitKey)]);
+    // unitKey may be a composite key (MS::U-id) — split on :: so the bare
+    // U-id is a candidate, then run the U-id regex over each part too.
+    const candidateIds = new Set();
+    for (const part of String(unitKey).split("::")) {
+      candidateIds.add(part);
+      for (const id of extractUnitIds(" " + part)) candidateIds.add(id);
+    }
 
     let outcome;
     const isShipped = [...candidateIds].some(
@@ -158,6 +166,8 @@ export function extractOutcomes(inputs, opts = {}) {
       unitKey,
       outcome,
       predictedPipelines: [...predictedPipelines],
+      tier,
+      verdict,
     });
   }
 

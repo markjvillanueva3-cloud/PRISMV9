@@ -68,6 +68,11 @@ const REVERT_RE = /revert|rollback/i;
 /** Unit-id pattern for revert subject extraction. */
 const UNIT_ID_RE = /(?:[\[/\s]|^)(U-[A-Z0-9][A-Z0-9-]*)/gm;
 
+/** spawnSync git timeout. Must stay below the settings.json harness timeout
+ *  for this hook so the git child is reaped cleanly before the hook is
+ *  hard-killed (an orphaned git child otherwise leaks). */
+const GIT_SPAWN_TIMEOUT_MS = 2500;
+
 // ---------------------------------------------------------------------------
 // Bootstrap — always-emit helper
 // ---------------------------------------------------------------------------
@@ -117,6 +122,8 @@ async function main() {
             unitKey: rec.unitKey,
             sid: rec.sid ?? "",
             predictedPipelines: rec.predictedPipelines,
+            tier: typeof rec.tier === "string" ? rec.tier : "",
+            verdict: typeof rec.verdict === "string" ? rec.verdict : "",
           });
         }
       } catch {
@@ -143,7 +150,7 @@ async function main() {
       const result = spawnSync(
         "git",
         ["-C", PRISM_ROOT, "log", `-${COMMIT_LOOKBACK}`, "--format=%B"],
-        { encoding: "utf-8", timeout: 8000 }
+        { encoding: "utf-8", timeout: GIT_SPAWN_TIMEOUT_MS }
       );
       if (result.status === 0 && result.stdout) {
         // git log --format=%B separates commits with blank lines; split on double-newline
@@ -167,7 +174,7 @@ async function main() {
       const result = spawnSync(
         "git",
         ["-C", PRISM_ROOT, "log", "--since=24 hours ago", "--format=%s"],
-        { encoding: "utf-8", timeout: 8000 }
+        { encoding: "utf-8", timeout: GIT_SPAWN_TIMEOUT_MS }
       );
       if (result.status === 0 && result.stdout) {
         revertSubjects = result.stdout.split("\n").filter(Boolean);

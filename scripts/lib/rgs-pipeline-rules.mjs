@@ -29,10 +29,14 @@ const RULES = Object.freeze([
   {
     // Requires an actual build signal: engine\b (right-boundary only, catches FooEngine)
     // paired with skill/hook anywhere in the text (order-independent, no span regex),
-    // OR explicit forge-triple / new-engine phrase.
-    // "Update README wording" has neither -> does NOT match.
+    // OR an explicit "new engine" phrase.
+    // The literal `forge-triple` phrase was REMOVED as a trigger (P0-5): envelope
+    // descriptions carry boilerplate "forge-triple ownership in milestone header"
+    // which fired this rule on ~98.6% of units. A genuine triple is still caught
+    // by the structural engine + skill/hook signal.
+    // "Update README wording" matches neither -> does NOT match.
     // Implementation: custom test function avoids catastrophic-backtrack risk of .{0,N} spans.
-    test: { test: (s) => (/engine\b/i.test(s) && /\b(skill|hook)\b/i.test(s)) || /forge.?triple/i.test(s) || /\bnew engine\b/i.test(s) },
+    test: { test: (s) => (/engine\b/i.test(s) && /\b(skill|hook)\b/i.test(s)) || /\bnew engine\b/i.test(s) },
     skill: "/forge-triple",
     why: "unit creates an engine + skill + hook triple",
     confidence: 0.85,

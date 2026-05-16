@@ -115,12 +115,13 @@ function buildToolPlanSection(prompt, sid) {
   const unitKey = extractUnitKey(prompt);
   if (!unitKey) return null;
 
-  const entry = loadToolPlan(unitKey);
-  if (!entry || !entry.plan) return null;
+  // Sidecar stores the ToolPlan FLAT: plans[unitKey] IS the plan (no .plan
+  // nesting). loadToolPlan returns that plan object directly.
+  const plan = loadToolPlan(unitKey);
+  if (!plan) return null;
 
-  const plan = entry.plan;
   const { isStale: sidecarAged } = sidecarStaleness();
-  const planStale = entry.stale === true || sidecarAged;
+  const planStale = plan.stale === true || sidecarAged;
 
   const lines = [];
 
@@ -188,6 +189,10 @@ function buildToolPlanSection(prompt, sid) {
     predictedPipelines: Array.isArray(plan.pipelines)
       ? plan.pipelines.map(p => p.skill)
       : [],
+    // tier + verdict feed the outcome-record schema so the feedback loop can
+    // re-rank per (pipeline, tier, verdict). Flat ToolPlan fields.
+    tier: typeof plan.complexityTier === "string" ? plan.complexityTier : "",
+    verdict: typeof plan.buildVsIntegrate === "string" ? plan.buildVsIntegrate : "",
     event: "picked",
   });
 

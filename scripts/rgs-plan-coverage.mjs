@@ -26,7 +26,7 @@ const OUTCOMES_PATH = path.join(REPO_ROOT, "state", "shared", "roadmap-tool-plan
 
 /**
  * @typedef {{ key: string }} OpenUnit
- * @typedef {{ schemaVersion: string, plans: Record<string, { plan: { pipelines: Array<{skill:string}>, source?: string }, sourceHash: string }> }} Sidecar
+ * @typedef {{ schemaVersion: string, plans: Record<string, { pipelines: Array<{skill:string}>, source?: string }> }} Sidecar
  * @typedef {{ v: number, ts: string, unitKey: string, outcome: "shipped"|"blocked"|"reverted", predictedPipelines: string[] }} OutcomeRecord
  *
  * @typedef {{
@@ -78,10 +78,11 @@ export function coverage({ openUnits, sidecar, outcomes }) {
     e.shipRate = (e.shipped + 1) / (e.shipped + e.blocked + e.reverted + 2);
   }
 
-  // bySource: count plans by plan.source
+  // bySource: count plans by .source. The sidecar stores each ToolPlan FLAT
+  // (plans[key] IS the plan — no .plan nesting), so read entry.source directly.
   const bySource = {};
   for (const entry of Object.values(plans)) {
-    const src = entry?.plan?.source ?? "unknown";
+    const src = entry?.source ?? "unknown";
     bySource[src] = (bySource[src] ?? 0) + 1;
   }
 

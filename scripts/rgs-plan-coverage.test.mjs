@@ -28,14 +28,16 @@ function makeOutcome(unitKey, outcome, pipelines = ["forge-triple", "rgs"]) {
   };
 }
 
+// Plans are stored FLAT: plans[key] IS the ToolPlan (no .plan nesting, no
+// sourceHash — the hash lives in the checkpoint JSONL, never the sidecar).
 const SIDECAR_3_PLANS = {
   schemaVersion: "1.0.0",
   generatedAt: new Date().toISOString(),
   degraded: false,
   plans: {
-    "MS-A::U-01": { plan: { pipelines: [{ skill: "forge-triple" }], source: "ollama" }, sourceHash: "abc" },
-    "MS-A::U-02": { plan: { pipelines: [{ skill: "rgs" }], source: "deterministic" }, sourceHash: "def" },
-    "MS-B::U-01": { plan: { pipelines: [{ skill: "forge-triple" }, { skill: "scrutinize" }], source: "ollama" }, sourceHash: "ghi" },
+    "MS-A::U-01": { pipelines: [{ skill: "forge-triple" }], source: "ollama" },
+    "MS-A::U-02": { pipelines: [{ skill: "rgs" }], source: "deterministic" },
+    "MS-B::U-01": { pipelines: [{ skill: "forge-triple" }, { skill: "scrutinize" }], source: "ollama" },
   },
 };
 
@@ -149,7 +151,7 @@ test("shipRate Laplace: all zeros (skill in outcome with outcome=shipped, count 
 // Test 5: bySource counts
 // ---------------------------------------------------------------------------
 
-test("bySource: counts plans by plan.source field", () => {
+test("bySource: counts plans by their flat .source field", () => {
   // SIDECAR_3_PLANS has 2 ollama + 1 deterministic
   const openUnits = [
     makeUnit("MS-A::U-01"),

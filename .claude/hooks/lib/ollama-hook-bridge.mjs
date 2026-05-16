@@ -9,7 +9,9 @@
  *   if (result.success) { use result.response } else { use regex fallback }
  */
 
-const OLLAMA_BASE_URL = process.env.OLLAMA_URL || 'http://localhost:11434';
+// Default host is 127.0.0.1 (NOT localhost): Node resolves `localhost` to IPv6
+// ::1, but Ollama binds IPv4-only → ECONNREFUSED. Override with OLLAMA_URL.
+const OLLAMA_BASE_URL = process.env.OLLAMA_URL || 'http://127.0.0.1:11434';
 const DEFAULT_TIMEOUT_MS = 500;
 const DEFAULT_MODEL = 'qwen2.5-coder:7b';
 
