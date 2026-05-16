@@ -14,6 +14,7 @@ import {
   callOllamaBatch,
   parseBatchResponse,
   chunkBatches,
+  classificationToGraphUpdate,
   VALID_DISPATCHERS,
   LLM_CONFIDENCE,
   DEFAULT_MODEL,
@@ -187,5 +188,83 @@ describe("constants", () => {
   test("DEFAULT_MODEL is a string", () => {
     assert.equal(typeof DEFAULT_MODEL, "string");
     assert.match(DEFAULT_MODEL, /^qwen/);
+  });
+});
+
+// classificationToGraphUpdate — the merge helper extracted for the tier-5 gate
+// (NN-GRAPH-MS0/U-NNG-INFERENCE-FIFTH-TIER). It must keep the LLM 4-tier
+// behaviour byte-identical (a classification with no confidence/reason gets the
+// LLM defaults) while ALSO honoring a GNN classification's own confidence/reason.
+describe("classificationToGraphUpdate (tier-5 merge helper)", () => {
+  const ghostNode = () => ({
+    id: "ghost.unwired.X", kind: "ghost.unwired-engine",
+    label: "XEngine", proposed_wiring: "UNKNOWN",
+  });
+
+  test("LLM-shape classification gets the LLM confidence + reason defaults", () => {
+    const node = ghostNode();
+    const edge = classificationToGraphUpdate(
+      node, { engine: "XEngine", dispatcher: "prism_cam" }, "qwen2.5-coder:7b");
+    assert.equal(node.proposed_wiring, "prism_cam");
+    assert.equal(node.confidence, LLM_CONFIDENCE);
+    assert.equal(node.reason, "LLM-classified via qwen2.5-coder:7b");
+    assert.match(node.info, /prism_cam/);
+    assert.match(node.info, /confidence 0\.55/, "info mirrors the formatted confidence");
+    assert.equal(edge.intensity, LLM_CONFIDENCE);
+  });
+
+  test("GNN-shape classification carries its own confidence + reason", () => {
+    const node = ghostNode();
+    const c = {
+      engine: "XEngine", dispatcher: "prism_turning",
+      confidence: 0.74, reason: "GNN tier-5 k-NN label-prop (voteShare 0.81, k=12)",
+    };
+    const edge = classificationToGraphUpdate(node, c, "qwen2.5-coder:7b");
+    assert.equal(node.confidence, 0.74);
+    assert.equal(node.reason, c.reason);
+    assert.match(node.info, /GNN tier-5/);
+    assert.match(node.info, /confidence 0\.74/, "info mirrors the formatted confidence");
+    assert.equal(edge.intensity, 0.74);
+  });
+
+  test("returns a well-formed proposed-wire edge", () => {
+    const edge = classificationToGraphUpdate(
+      ghostNode(), { engine: "XEngine", dispatcher: "prism_calc", confidence: 0.8, reason: "r" }, "m");
+    assert.deepEqual(edge, {
+      from: "ghost.unwired.X", to: "dispatcher.prism_calc", type: "ghost-wire",
+      relation: "proposed-wire", status: "proposed", intensity: 0.8,
+    });
+  });
+
+  test("rejects an invalid / __proto__ dispatcher with null (node untouched)", () => {
+    for (const bad of ["__proto__", "constructor", "notprism", "", "prism_", "PRISM_CAM"]) {
+      const node = ghostNode();
+      const edge = classificationToGraphUpdate(
+        node, { engine: "XEngine", dispatcher: bad, confidence: 0.9, reason: "r" }, "m");
+      assert.equal(edge, null, bad);
+      assert.equal(node.proposed_wiring, "UNKNOWN", `${bad} must not mutate the node`);
+    }
+  });
+
+  test("returns null for a missing node or classification", () => {
+    assert.equal(classificationToGraphUpdate(null, { dispatcher: "prism_cam" }, "m"), null);
+    assert.equal(classificationToGraphUpdate(ghostNode(), null, "m"), null);
+  });
+
+  test("non-finite confidence falls back to the LLM confidence", () => {
+    for (const badConf of [NaN, Infinity, "0.5", undefined]) {
+      const node = ghostNode();
+      const edge = classificationToGraphUpdate(
+        node, { engine: "XEngine", dispatcher: "prism_cam", confidence: badConf, reason: "r" }, "m");
+      assert.equal(node.confidence, LLM_CONFIDENCE, String(badConf));
+      assert.equal(edge.intensity, LLM_CONFIDENCE);
+    }
+  });
+
+  test("empty-string reason falls back to the LLM default reason", () => {
+    const node = ghostNode();
+    classificationToGraphUpdate(
+      node, { engine: "XEngine", dispatcher: "prism_cam", confidence: 0.7, reason: "" }, "qwen");
+    assert.equal(node.reason, "LLM-classified via qwen");
   });
 });

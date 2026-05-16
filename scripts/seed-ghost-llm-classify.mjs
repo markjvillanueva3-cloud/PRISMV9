@@ -30,6 +30,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { gnnClassifyUnknowns } from "./seed-ghost-gnn-classify.mjs";
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const GRAPH_PATH = path.join(ROOT, "state", "shared", "system-viz", "system-graph.json");
@@ -186,6 +188,39 @@ export function chunkBatches(arr, n) {
   return out;
 }
 
+/** Pattern a graph-writable dispatcher name must match (prism_calc, prism_turning, …). */
+const WRITABLE_DISPATCHER_RE = /^prism_[a-z0-9_]+$/;
+
+/**
+ * Apply one classification to its ghost `node` (mutates it) and return the
+ * proposed-wire edge to append — or null when `c.dispatcher` is not a writable
+ * prism_* name. Both producers (LLM parseBatchResponse, GNN gnnClassifyUnknowns)
+ * pre-validate; this guard protects direct callers of the export. A
+ * classification may carry its own `confidence` + `reason` (the GNN tier-5
+ * path); absent those, the LLM defaults apply.
+ */
+export function classificationToGraphUpdate(node, c, fallbackModel) {
+  if (!node || !c || typeof c.dispatcher !== "string" || !WRITABLE_DISPATCHER_RE.test(c.dispatcher)) {
+    return null;
+  }
+  const conf = Number.isFinite(c.confidence) ? c.confidence : LLM_CONFIDENCE;
+  const reason = typeof c.reason === "string" && c.reason
+    ? c.reason
+    : `LLM-classified via ${fallbackModel}`;
+  node.proposed_wiring = c.dispatcher;
+  node.confidence = conf;
+  node.reason = reason;
+  node.info = `Unwired engine — proposed wiring: ${c.dispatcher} (confidence ${conf.toFixed(2)}, reason: ${reason})`;
+  return {
+    from: node.id,
+    to: `dispatcher.${c.dispatcher}`,
+    type: "ghost-wire",
+    relation: "proposed-wire",
+    status: "proposed",
+    intensity: conf,
+  };
+}
+
 function atomicWrite(filePath, content) {
   const tmp = filePath + ".tmp";
   fs.writeFileSync(tmp, content);
@@ -222,13 +257,32 @@ function parseArgs(argv) {
 
 export async function main() {
   const opts = parseArgs(process.argv.slice(2));
-  const unknowns = loadUnknownGhosts(GRAPH_PATH).slice(0, opts.limit);
+  let unknowns = loadUnknownGhosts(GRAPH_PATH).slice(0, opts.limit);
   console.log(`Found ${unknowns.length} UNKNOWN ghost-unwired-engines`);
 
   if (unknowns.length === 0) {
     console.log("Nothing to classify — UNKNOWN tail empty.");
     return;
   }
+
+  // --- Tier-5 GNN gate (NN-GRAPH-MS0/U-NNG-INFERENCE-FIFTH-TIER) ----------
+  // The GraphSAGE classifier pre-empts the LLM for any UNKNOWN it resolves at
+  // or above PRISM_NNG_MIN_CONF. Hybrid stays the floor: a missing checkpoint
+  // or PRISM_NNG_DISABLE=1 makes this a no-op and every engine falls through
+  // to the LLM tier exactly as before. gnnClassifyUnknowns is read-only — the
+  // single graph merge+write below owns applying these classifications.
+  const gnn = gnnClassifyUnknowns(unknowns);
+  const gnnByName = new Map(gnn.classifications.map((c) => [c.engine, c]));
+  if (gnnByName.size > 0) {
+    console.log(`Tier-5 GNN pre-classified ${gnnByName.size}/${unknowns.length} (${gnn.reason})`);
+    unknowns = unknowns.filter((u) => !gnnByName.has(u.name));
+  } else {
+    // skipped:true => the tier could not run; skipped:false => it ran but
+    // nothing cleared the gate. Either way the LLM tier handles all UNKNOWN.
+    const word = gnn.skipped ? "inactive" : "ran, 0 above gate";
+    console.log(`Tier-5 GNN ${word} (${gnn.reason}) — LLM tier handles all UNKNOWN`);
+  }
+  const gnnClassifications = [...gnnByName.values()];
 
   // Read headers for each (sync; small files)
   const engines = unknowns.map((u) => ({
@@ -247,7 +301,7 @@ export async function main() {
     return;
   }
 
-  const allClassifications = [];
+  const allClassifications = [...gnnClassifications];
   let batchIdx = 0;
   for (const batch of batches) {
     batchIdx++;
@@ -263,7 +317,11 @@ export async function main() {
     allClassifications.push(...r.parsed);
   }
 
-  console.log(`\nClassified ${allClassifications.length}/${engines.length} via LLM`);
+  // `allClassifications` was seeded with the GNN tier-5 results — report the
+  // LLM-only count against the LLM batch set, and the GNN contribution apart.
+  const llmCount = allClassifications.length - gnnClassifications.length;
+  console.log(`\nClassified ${llmCount}/${engines.length} via LLM` +
+    (gnnClassifications.length > 0 ? ` (+ ${gnnClassifications.length} via GNN tier-5)` : ""));
 
   // Merge into graph
   const g = JSON.parse(fs.readFileSync(GRAPH_PATH, "utf8"));
@@ -277,19 +335,9 @@ export async function main() {
   for (const c of allClassifications) {
     const node = nameToNode.get(c.engine);
     if (!node) continue;
-    node.proposed_wiring = c.dispatcher;
-    node.confidence = LLM_CONFIDENCE;
-    node.reason = `LLM-classified via ${opts.model}`;
-    node.info = `Unwired engine — proposed wiring: ${c.dispatcher} (confidence ${LLM_CONFIDENCE.toFixed(2)}, reason: LLM-classified via ${opts.model})`;
+    const edge = classificationToGraphUpdate(node, c, opts.model);
+    if (!edge) continue;
     nodesUpdated++;
-    const edge = {
-      from: node.id,
-      to: `dispatcher.${c.dispatcher}`,
-      type: "ghost-wire",
-      relation: "proposed-wire",
-      status: "proposed",
-      intensity: LLM_CONFIDENCE,
-    };
     const key = `${edge.from}::${edge.to}::${edge.type}`;
     if (!existingEdgeKeys.has(key)) {
       g.edges.push(edge);
