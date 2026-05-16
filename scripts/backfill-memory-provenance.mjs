@@ -51,6 +51,16 @@ import {
   buildProvenanceFromHookInput,
 } from "../mcp-server/src/schemas/memoryProvenanceSchema.ts";
 
+// D2 — OBSIDIAN-INTELLIGENCE-MS3 / U-ONTOLOGY-LAYER. Backfill also injects
+// inferred ontology blocks for memos lacking one. Idempotent: memos with
+// an existing valid ontology block are skipped.
+import {
+  MEMORY_ONTOLOGY_SCHEMA_VERSION,
+  classifyFromFilename,
+  extractOntologyFromFrontmatter,
+  mergeIntoExistingFrontmatter,
+} from "../mcp-server/src/schemas/memoryOntologySchema.ts";
+
 // Default fallback agent for files where git log produces nothing usable
 // (file not tracked, repo unavailable, etc). Matches the AgentIdSchema regex.
 const FALLBACK_AGENT = "backfill-00000000";
@@ -335,32 +345,84 @@ function main() {
       );
       continue;
     }
-    if (alreadyHasProvenance) {
-      counts.alreadyOk++;
-      if (isVerbose) process.stdout.write(`SKIP   ${filePath} (already provenanced)\n`);
+    // D2 ontology check (independent of provenance — a file can have
+    // provenance but no ontology, or vice versa).
+    let alreadyHasOntology = false;
+    try {
+      const existingOnt = extractOntologyFromFrontmatter(content);
+      if (existingOnt) alreadyHasOntology = true;
+    } catch (err) {
+      // Symmetric error reporting with D1: include the first 200 chars of
+      // the bad frontmatter so the operator can fix without opening the file.
+      counts.errors++;
+      const fmEnd = content.indexOf("\n---", 4);
+      const snippet =
+        fmEnd === -1
+          ? content.slice(0, 200)
+          : content.slice(0, Math.min(fmEnd + 4, 200));
+      process.stderr.write(
+        `backfill: existing ontology invalid in ${filePath}: ${err && err.message ? err.message : err}\n  block(first 200 chars): ${snippet.replace(/\n/g, "\\n")}\n`,
+      );
       continue;
     }
-    const st = statSync(filePath);
-    const mtimeIso = new Date(st.mtimeMs).toISOString();
-    const category = deriveCategoryFromPath(filePath, rootAbs);
-    const agentFromGit = deriveAgentFromGitLog(filePath);
-    const provenance = buildProvenanceForFile({
-      filePath,
-      mtimeIso,
-      category,
-      agentFromGit,
-      host,
-    });
-    const enriched = injectProvenanceFrontmatter(content, provenance);
+
+    if (alreadyHasProvenance && alreadyHasOntology) {
+      counts.alreadyOk++;
+      if (isVerbose) process.stdout.write(`SKIP   ${filePath} (already provenanced + ontology)\n`);
+      continue;
+    }
+
+    let enriched = content;
+    const fileName = basename(filePath);
+
+    // Inject provenance if missing.
+    if (!alreadyHasProvenance) {
+      const st = statSync(filePath);
+      const mtimeIso = new Date(st.mtimeMs).toISOString();
+      const category = deriveCategoryFromPath(filePath, rootAbs);
+      const agentFromGit = deriveAgentFromGitLog(filePath);
+      const provenance = buildProvenanceForFile({
+        filePath,
+        mtimeIso,
+        category,
+        agentFromGit,
+        host,
+      });
+      enriched = injectProvenanceFrontmatter(enriched, provenance);
+    }
+
+    // Inject ontology if missing (heuristic classification by filename+body).
+    // Defense-in-depth: if classifyFromFilename or merge throws on this file,
+    // count it as an error + continue rather than aborting the whole loop
+    // (Arm A P1: keep loop atomicity invariant).
+    if (!alreadyHasOntology) {
+      try {
+        const ontology = classifyFromFilename(fileName, enriched);
+        enriched = mergeIntoExistingFrontmatter(enriched, ontology);
+      } catch (err) {
+        counts.errors++;
+        process.stderr.write(
+          `backfill: ontology inject failed for ${filePath}: ${err && err.message ? err.message : err}\n`,
+        );
+        continue;
+      }
+    }
+
     if (isDryRun) {
       counts.enriched++;
-      process.stdout.write(`WOULD  ${filePath} → agent=${provenance.agent} category=${provenance.category}\n`);
+      const provTag = alreadyHasProvenance ? "" : " +prov";
+      const ontTag = alreadyHasOntology ? "" : " +ont";
+      process.stdout.write(`WOULD  ${filePath}${provTag}${ontTag}\n`);
       continue;
     }
     try {
       atomicWrite(filePath, enriched);
       counts.enriched++;
-      if (isVerbose) process.stdout.write(`WROTE  ${filePath}\n`);
+      if (isVerbose) {
+        const provTag = alreadyHasProvenance ? "" : " +prov";
+        const ontTag = alreadyHasOntology ? "" : " +ont";
+        process.stdout.write(`WROTE  ${filePath}${provTag}${ontTag}\n`);
+      }
     } catch (err) {
       counts.errors++;
       process.stderr.write(

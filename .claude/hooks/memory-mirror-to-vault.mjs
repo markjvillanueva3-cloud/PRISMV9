@@ -79,6 +79,99 @@ function contentHasFrontmatter(content) {
   return /^---\s*\n/.test(content.replace(/^﻿/, ""));
 }
 
+// ── D2 (U-ONTOLOGY-LAYER) inline helpers ─────────────────────────────
+// Mirror the canonical TS schema at src/schemas/memoryOntologySchema.ts
+// because portable node hooks can't import from .ts. Keep logic in lockstep:
+// any change here MUST also change the TS file (the test suite locks both).
+
+function classifyOntologyInline(filename, body) {
+  const base = String(filename).toLowerCase().replace(/^.*[\\/]/, "");
+  const b = String(body || "").toLowerCase();
+  let kind = "fact";
+  if (/^feedback[_-]/.test(base)) kind = "interpretation";
+  let state = "current";
+  // Body-side state classification is restricted to frontmatter-style
+  // declarations only (status: deprecated). The earlier loose `[deprecated]`
+  // body substring match misclassified legitimate memos that mention the
+  // word in narrative context (e.g., "this is [deprecated] in favor of Y"
+  // describing an OTHER thing, not the memo itself).  Filename-side keeps
+  // its broader matching since filenames are authored, not narrative.
+  if (/\[deprecated\]|\[stale\]|^deprecated[_-]/.test(base) || /^status:\s*deprecated/m.test(b)) {
+    state = "deprecated";
+  } else if (/^draft[_-]|[_-]draft[_-]|[_-]draft\.md$|[_-]wip[_-]|^wip[_-]|[_-]wip\.md$/.test(base) || /^status:\s*draft/m.test(b)) {
+    state = "draft";
+  }
+  let visibility = "internal";
+  if (/(^|[_-])(private|confidential|incident|secret)([_-]|\.md$)/.test(base) || /^visibility:\s*confidential/m.test(b)) {
+    visibility = "confidential";
+  }
+  return { kind, state, visibility };
+}
+
+function formatOntologyInline(ont) {
+  return [
+    "ontology:",
+    `  schemaVersion: 1.0.0`,
+    `  kind: ${ont.kind}`,
+    `  state: ${ont.state}`,
+    `  visibility: ${ont.visibility}`,
+  ].join("\n");
+}
+
+function hasOntologyBlock(content) {
+  if (typeof content !== "string") return false;
+  const t = content.replace(/^﻿/, "");
+  if (!/^---\s*\n/.test(t)) return false;
+  const end = t.indexOf("\n---", 4);
+  if (end === -1) return false;
+  const block = t.slice(4, end);
+  // Column-0 only — matches the scanner regex in mergeOntologyInline so the
+  // two functions agree on "ontology block exists" (P0-2 from scrutiny: a
+  // nested `metadata:\n  ontology:` was previously detected here but missed
+  // by merge → would have caused duplicate-block insertion).
+  return /^ontology\s*:/m.test(block);
+}
+
+// State-machine merge — mirrors mergeIntoExistingFrontmatter in the schema.
+// Splices out any existing `ontology:` block (between its line and the next
+// top-level key) then injects `ontBlock` before the closing `---`.
+function mergeOntologyInline(content, ontBlock) {
+  const hasBom = content.startsWith("﻿");
+  const body = hasBom ? content.slice(1) : content;
+  if (!/^---\s*\n/.test(body)) {
+    const fresh = `---\n${ontBlock}\n---\n${body}`;
+    return hasBom ? "﻿" + fresh : fresh;
+  }
+  const endIdx = body.indexOf("\n---", 4);
+  if (endIdx === -1) return content; // unterminated — bail without corrupting
+  const existing = body.slice(4, endIdx);
+  const rest = body.slice(endIdx + 4);
+  const lines = existing.split("\n");
+  let startLine = -1, endLine = -1;
+  for (let i = 0; i < lines.length; i++) {
+    if (startLine === -1) {
+      if (/^ontology\s*:/.test(lines[i])) startLine = i;
+      continue;
+    }
+    if (/^[A-Za-z][A-Za-z0-9_]*\s*:/.test(lines[i])) {
+      endLine = i - 1;
+      break;
+    }
+  }
+  let cleaned = lines;
+  if (startLine !== -1) {
+    if (endLine === -1) endLine = lines.length - 1;
+    cleaned = lines.slice(0, startLine).concat(lines.slice(endLine + 1));
+  }
+  const cleanExisting = cleaned
+    .join("\n")
+    .replace(/\n{2,}/g, "\n")
+    .replace(/^\n+/, "")
+    .replace(/\n+$/, "");
+  const merged = `---\n${cleanExisting}${cleanExisting.length > 0 ? "\n" : ""}${ontBlock}\n---${rest}`;
+  return hasBom ? "﻿" + merged : merged;
+}
+
 const VAULT_TARGET = "H:/prism/knowledge/memories";
 const MCP_URL = process.env.MCP_HTTP_URL ?? "http://127.0.0.1:3100/mcp";
 const EMBED_TIMEOUT_MS = 8_000;
@@ -291,11 +384,33 @@ async function main() {
         machine: hostname(),
       };
       const block = formatProvenanceInline(built);
-      contentToWrite = block + content;
+      // Strip BOM from content before prepending — otherwise the BOM ends up
+      // stranded between the closing `---` and the body (scrutiny P0-1).
+      const contentNoBom = content.startsWith("﻿") ? content.slice(1) : content;
+      contentToWrite = block + contentNoBom;
       provenanceNote = ` +prov(${agent})`;
     }
   } catch (e) {
     provenanceNote = ` (prov-error:${e?.message ?? "unknown"})`;
+  }
+
+  // Ontology injection (D2 — OBSIDIAN-INTELLIGENCE-MS3).
+  // Soft-launch: always inject inferred ontology when missing (no env gate,
+  // matches the "warn-only by default" decision in the engine until backfill
+  // covers all legacy memos). Existing ontology blocks are KEPT as-is —
+  // never overwrite a memo's own classification.
+  let ontologyNote = "";
+  try {
+    if (hasOntologyBlock(contentToWrite)) {
+      ontologyNote = ` (ont-kept)`;
+    } else {
+      const inferred = classifyOntologyInline(filename, content);
+      const ontBlock = formatOntologyInline(inferred);
+      contentToWrite = mergeOntologyInline(contentToWrite, ontBlock);
+      ontologyNote = ` +ont(${inferred.kind}/${inferred.state}/${inferred.visibility})`;
+    }
+  } catch (e) {
+    ontologyNote = ` (ont-error:${e?.message ?? "unknown"})`;
   }
 
   try { writeFileSync(targetPath, contentToWrite); }
@@ -310,7 +425,7 @@ async function main() {
     continue: true,
     hookSpecificOutput: {
       hookEventName: "PostToolUse",
-      additionalContext: `memory-mirror: ${cat}/${filename}${classifierNote}${provenanceNote} → vault, embed=${status}`,
+      additionalContext: `memory-mirror: ${cat}/${filename}${classifierNote}${provenanceNote}${ontologyNote} → vault, embed=${status}`,
     },
   }));
 }

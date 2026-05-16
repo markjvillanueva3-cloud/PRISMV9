@@ -212,15 +212,39 @@ export function extractProvenanceFromFrontmatter(
   if (endIdx === -1) return null;
   const block = trimmed.slice(4, endIdx);
   if (!/^\s*provenance:/m.test(block)) return null;
-  const obj: Record<string, unknown> = {};
+  // Prototype-less object so hostile `__proto__:` YAML keys can't mutate
+  // Object.prototype — they become own-properties and Zod's .strict()
+  // rejects them as unknown keys. Mirrors the D2 patch + E1 lesson.
+  const obj: Record<string, unknown> = Object.create(null) as Record<string, unknown>;
+  // State-machine scoping (fix for D2 co-existence bug — pre-D2, this loop
+  // matched EVERY 2-space-indented line in the frontmatter regardless of
+  // which top-level block it was under. With both `provenance:` and
+  // `ontology:` (D2) present, the loop slurped ontology's child keys into
+  // `obj` and Zod's `.strict()` threw `unrecognized_keys`. Now we track
+  // which top-level block we're inside; child keys are only collected when
+  // we're inside the `provenance:` block.)
+  let inProvenance = false;
   for (const rawLine of block.split("\n")) {
     const line = rawLine.replace(/\r$/, "");
+    // Top-level key at column 0 — enter or exit the provenance block.
+    if (/^[A-Za-z][A-Za-z0-9_]*\s*:/.test(line)) {
+      inProvenance = /^provenance\s*:/.test(line);
+      continue;
+    }
+    if (!inProvenance) continue;
     // Match EXACTLY 2 spaces (the indent formatProvenanceFrontmatter emits).
     // Tightening from `\s{2,}` prevents a hostile memo with `      agent: X`
     // under a foreign block from leaking into our flat key map.
     const m = line.match(/^ {2}([A-Za-z][A-Za-z0-9_]*)\s*:\s*(.*?)\s*$/);
     if (!m) continue;
     const key = m[1];
+    // Karpathy R12 fail-loud: a duplicate key is almost always a partial-edit
+    // / merge bug — throw rather than silently last-wins.
+    if (key in obj) {
+      throw new Error(
+        `memoryProvenanceSchema: duplicate key '${key}' in provenance frontmatter`,
+      );
+    }
     let val: string = m[2];
     // strip surrounding quotes (single or double)
     if (
