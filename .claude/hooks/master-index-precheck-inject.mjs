@@ -29,7 +29,9 @@
  * the cache automatically. No manual refresh required.
  */
 
-import { readFileSync } from "node:fs";
+import { readFileSync, statSync } from "node:fs";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import { runMasterIndexSearch } from "../../scripts/lib/master-index-search-lib.mjs";
 
 // --------------------------------------------------------------------------
@@ -38,6 +40,29 @@ import { runMasterIndexSearch } from "../../scripts/lib/master-index-search-lib.
 
 const ENABLED = process.env.PRISM_MASTER_INDEX_INJECT !== "0";
 const TOP_K = clampInt(process.env.PRISM_MASTER_INDEX_K, 5, 1, 20);
+const DSL_EMIT = process.env.PRISM_MASTER_INDEX_DSL_EMIT !== "0";
+
+// CODE_SYSTEM_INDEX.json reverse-lookup (SYSTEM-VIZ-DSL-MS0).
+// 12,772 codes including AC/SK/ML/FM/GH from supplementary extraction.
+// mtime-cached — peer regen of the index invalidates automatically.
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const DSL_INDEX_PATH = join(__dirname, "..", "..", "mcp-server", "data", "docs", "CODE_SYSTEM_INDEX.json");
+let _dslCache = { mtimeMs: 0, reverse: null };
+function loadDslReverse() {
+  try {
+    const st = statSync(DSL_INDEX_PATH);
+    if (st.mtimeMs === _dslCache.mtimeMs && _dslCache.reverse) return _dslCache.reverse;
+    const j = JSON.parse(readFileSync(DSL_INDEX_PATH, "utf8"));
+    _dslCache = { mtimeMs: st.mtimeMs, reverse: j.reverse || {} };
+    return _dslCache.reverse;
+  } catch { return null; }
+}
+function dslLookup(name) {
+  if (!DSL_EMIT || typeof name !== "string" || name.length === 0) return null;
+  const rev = loadDslReverse();
+  if (!rev) return null;
+  return rev[name] || rev[name.toLowerCase()] || null;
+}
 
 // --------------------------------------------------------------------------
 // Helpers
@@ -85,9 +110,11 @@ function main() {
   // Render compact reminder block — keep it under ~1KB to avoid
   // dominating context. Each line: layer / label / wiki[0] / memory[0].
   const lines = hits.map((h) => {
+    const code = dslLookup(h.label);
+    const prefix = code ? `[${code}] ` : "";
     const w = h.wiki.length > 0 ? `  wiki: ${h.wiki.slice(0, 2).join(", ")}` : "";
     const m = h.memory.length > 0 ? `  mem: ${h.memory.slice(0, 1).join(", ")}` : "";
-    return `  • [${h.layer}/${h.status}] ${h.label}${w ? "\n   " + w : ""}${m ? "\n   " + m : ""}`;
+    return `  • [${h.layer}/${h.status}] ${prefix}${h.label}${w ? "\n   " + w : ""}${m ? "\n   " + m : ""}`;
   });
 
   const block = `## 🧭 Master-index pre-search (top ${hits.length} of system-graph + obsidian)
