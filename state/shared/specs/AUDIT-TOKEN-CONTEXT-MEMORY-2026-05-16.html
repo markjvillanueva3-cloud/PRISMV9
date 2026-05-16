@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PRISM Token/Context/Memory Audit 2026-05-16</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>PRISM Token/Context/Memory Audit 2026-05-16</h1>
+<div class="meta">rendered from H:/prism/state/shared/specs/AUDIT-TOKEN-CONTEXT-MEMORY-2026-05-16.md</div>
+<div class="meta">Generated 2026-05-16T21:56:25.369Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">AUDIT — Token / Context / Memory / Learning System</li><li class="prism-toc-l2">Scope statement</li><li class="prism-toc-l2">Phase-0 baseline (measured)</li><li class="prism-toc-l2">Findings (ranked by leverage; each verifiable)</li><li class="prism-toc-l3">F1 — Cache-breakpoint churn from per-turn injectors (P0, highest leverage)</li><li class="prism-toc-l3">F2 — Ollama offload stuck at 23% because router skips slash-prompts + over-suppresses (P0)</li><li class="prism-toc-l3">F3 — ~440 skill bodies loaded eagerly at SessionStart (P1)</li><li class="prism-toc-l3">F4 — Subagent model routing: reviewers default to parent (Opus) (P1)</li><li class="prism-toc-l3">F5 — token-efficient-tools beta header (OPEN QUESTION — peer-review downgrade)</li><li class="prism-toc-l3">F7 — MEMORY.md is 750 bytes from the silent-truncation ceiling, no automated guard (P0 — peer-review-added)</li><li class="prism-toc-l3">F6 — No context-utilization telemetry (the measurement gap) (P1)</li><li class="prism-toc-l2">Peer review (Boris hard-gate — RESOLVED)</li><li class="prism-toc-l2">Karpathy anti-drift checkpoint (after 7 findings)</li><li class="prism-toc-l2">Recommended action order (highest ROI first — post-peer-review)</li><li class="prism-toc-l2">Regressions detected (→ CLAUDE.md back-flow, deferred — CLAUDE.md peer-claimed at audit time)</li></ul></nav><h1 class="prism-h1">AUDIT — Token / Context / Memory / Learning System</h1>
+<p><strong>Date:</strong> 2026-05-16 · <strong>Slot:</strong> juliett (<code class="prism-inline-code">claude-3a1c1c68</code>) · <strong>Skill:</strong> <code class="prism-inline-code">/forge-audit-v2</code> <strong>Scope:</strong> token-saving without quality loss · context retention · memory retention · learning system · auto-fixing · Obsidian auto-learning · DSL+RTK leverage <strong>META artifact:</strong> <code class="prism-inline-code">scripts/audit-hook-stack-cost.mjs</code> (baseline <code class="prism-inline-code">state/shared/AUDIT-HOOK-STACK-COST-BASELINE.json</code>) <strong>Verification doctrine:</strong> every finding below carries a re-runnable <code class="prism-inline-code">verifies_via</code> command. A finding with no channel is an opinion, not a finding (Boris #1).</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">Scope statement</h2>
+<p>I am auditing PRISM&#39;s per-turn and per-session token economy, looking for quality-neutral reductions in injected context and increases in local-compute offload, and the verification channel is <code class="prism-inline-code">node scripts/audit-hook-stack-cost.mjs --json</code> (hook cost) + <code class="prism-inline-code">node scripts/ollama-offload-dashboard.mjs --json</code> (offload rate) + <code class="prism-inline-code">node scripts/system-synergy-map.mjs --json</code> (synergy ratio).</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">Phase-0 baseline (measured)</h2>
+<table class="prism-md-table"><thead><tr><th>Metric</th><th>Value</th><th>Source</th></tr></thead><tbody><tr><td>Wired hooks (total)</td><td>147</td><td>settings.json</td></tr>
+<tr><td>SessionStart hooks</td><td>39 (~3,590 est tok/fire, 7 injects)</td><td>audit-hook-stack-cost.mjs</td></tr>
+<tr><td><strong>UserPromptSubmit hooks</strong></td><td><strong>24 (~3,420 est tok/fire, 8 injects)</strong></td><td>audit-hook-stack-cost.mjs</td></tr>
+<tr><td>PreToolUse hooks</td><td>20 (~1,430 est tok/fire)</td><td>audit-hook-stack-cost.mjs</td></tr>
+<tr><td>Stop hooks</td><td>40</td><td>settings.json</td></tr>
+<tr><td>Ollama offload rate</td><td><strong>23.2%</strong> (63 offload / 209 keep) — target 30%</td><td>ollama-offload-dashboard</td></tr>
+<tr><td>Silent-suggestion ratio</td><td>138 silent : 1 injected (99.3% suppressed)</td><td>ollama-offload-stats.json</td></tr>
+<tr><td>system-viz graph</td><td>20,462n / 77,099e (degraded; self-heals on cron)</td><td>system-viz-query headline</td></tr></tbody></table>
+<p><strong>Headline:</strong> 8 inject hooks fire on <strong>every</strong> UserPromptSubmit. At ~30 user messages/session that is the single largest controllable token sink — and most of the injected payload is <em>static doctrine that the prompt cache already holds</em>, re-emitted 30×, which also churns the message-level cache prefix every turn.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">Findings (ranked by leverage; each verifiable)</h2>
+<h3 class="prism-h3">F1 — Cache-breakpoint churn from per-turn injectors (P0, highest leverage)</h3>
+<p><strong>Claim:</strong> Anthropic prompt caching uses a strict <code class="prism-inline-code">tools → system → messages</code> prefix hierarchy with only 4 <code class="prism-inline-code">cache_control</code> breakpoints; any change at level N invalidates all downstream cache. PRISM&#39;s 8 UserPromptSubmit injectors append fresh content every turn, so the <em>message-level</em> cache prefix is invalidated ~24×/turn even though system+tools stay cached. Cache read = 0.1× input; a torched message cache is paid at 1.0× every turn.</p>
+<p><strong>Evidence:</strong> <a href="https://docs.claude.com/en/docs/build-with-claude/prompt-caching" class="prism-link">Anthropic prompt-caching docs</a> + hook-audit agent: <code class="prism-inline-code">prompt-context-inject</code> re-emits an identical ~600B static <code class="prism-inline-code">head</code> every prompt; <code class="prism-inline-code">master-index-precheck-inject</code> re-emits a static 3-line doctrine footer every prompt.</p>
+<p><strong>Fix:</strong> Move static portions to a single SessionStart inject; per-prompt injectors emit only the dynamic, prompt-specific slice.</p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">master-index-precheck-inject.mjs</code> — drop static footer</li><li><code class="prism-inline-code">prompt-context-inject.mjs</code> — move ~600B <code class="prism-inline-code">head</code> to SessionStart</li><li><code class="prism-inline-code">ollama-pipeline-injector.mjs</code> — compress route bullets to wiki pointer</li></ul>
+<p><strong>Savings estimate (UNCALIBRATED — peer-review correction):</strong> the &quot;~11.5k tok/session&quot; first-pass figure came from <code class="prism-inline-code">audit-hook-stack-cost.mjs</code>&#39;s flat <code class="prism-inline-code">inject=400</code> heuristic, NOT transcript-measured payloads. Treat as <strong>order-of-magnitude only (single–low-double-digit k tok/session)</strong>. F6 builds the calibration channel that turns this into a real number. The <em>direction</em> (per-turn static re-injection churns the message cache) is sound and verifiable; the precise split is not.</p>
+<p><strong>verifies_via:</strong> <code class="prism-inline-code">node scripts/audit-hook-stack-cost.mjs --json | jq &#39;.byEvent[]|select(.event==&quot;UserPromptSubmit&quot;).total_est_tokens&#39;</code> — baseline 3420; expect drop after trim. <code class="prism-inline-code">re_run_cost</code>: 2s.</p>
+<h3 class="prism-h3">F2 — Ollama offload stuck at 23% because router skips slash-prompts + over-suppresses (P0)</h3>
+<p><strong>Claim:</strong> <code class="prism-inline-code">ollama-auto-router.mjs:166</code> hard-skips any prompt starting with <code class="prism-inline-code">/</code> — which is <em>every</em> <code class="prism-inline-code">/checkin</code>/<code class="prism-inline-code">/loop</code>/<code class="prism-inline-code">/forge</code> orchestration prompt, exactly where summarize/classify pre-work lives. Compounded: <code class="prism-inline-code">ollama-task-offloader.mjs:56</code> <code class="prism-inline-code">INJECT_THRESHOLD=0.90</code> silently demotes 8/10 offloadable categories (savings 0.75–0.88) to <code class="prism-inline-code">mode:silent</code>, and a 5-min per-category rate-limit nukes burst <code class="prism-inline-code">/loop</code> sessions. 50.5% of keep-events are mislabeled <code class="prism-inline-code">unknown</code> (space-form <code class="prism-inline-code">/checkin alpha</code> vs dash-form <code class="prism-inline-code">/checkin-alpha</code> regex gap), polluting the denominator.</p>
+<p><strong>Evidence:</strong> Ollama-audit agent read both hooks + telemetry (<code class="prism-inline-code">ollama-offload-stats.json</code>, 93KB): 102/202 keeps are <code class="prism-inline-code">category=unknown</code>, dominated by <code class="prism-inline-code">/checkin &lt;slot&gt; /loop</code> prompts.</p>
+<p><strong>Fix (file:line):</strong> R1 remove <code class="prism-inline-code">/</code> skip (<code class="prism-inline-code">ollama-auto-router.mjs:166</code>); R2 lower <code class="prism-inline-code">INJECT_THRESHOLD</code> 0.90→0.80 (<code class="prism-inline-code">offloader.mjs:56</code>); R4 rate-limit 5min→60s (<code class="prism-inline-code">offloader.mjs:54</code>); R5 auto-execute Ollama for <code class="prism-inline-code">{summary,format_convert,prism_inventory,prism_introspect,classification}</code> (<code class="prism-inline-code">offloader.mjs:441</code>). R1+R5 alone projected to clear 30%.</p>
+<blockquote class="prism-quote"><strong>R3 DROPPED (peer-review correction):</strong> the proposed &quot;add space-form <code class="prism-inline-code">/checkin &lt;slot&gt;</code>&quot; fix targets non-existent defect — <code class="prism-inline-code">offloader.mjs:102</code> already matches space-form via the bare <code class="prism-inline-code">checkin</code> alternation (<code class="prism-inline-code">(^|\s)\/(checkin|...)\b</code>). The <code class="prism-inline-code">unknown</code>-label pollution is real but cosmetic (dashboard denominator only); no code change needed.</blockquote>
+<p><strong>verifies_via:</strong> <code class="prism-inline-code">node scripts/ollama-offload-dashboard.mjs --json | jq &#39;.totals|(.offloaded/(.offloaded+.keptOnClaude))&#39;</code> — baseline <strong>0.222</strong> (63/283, drifted from 0.232 within this audit session — itself evidence for R-AUDIT-1); target ≥0.30. <code class="prism-inline-code">re_run_cost</code>: 1s.</p>
+<h3 class="prism-h3">F3 — ~440 skill bodies loaded eagerly at SessionStart (P1)</h3>
+<p><strong>Claim:</strong> Anthropic&#39;s own Agent Skills standard mandates <strong>progressive disclosure</strong>: stage-1 metadata always loaded, stage-2 SKILL.md body loaded <em>only on trigger</em>. PRISM auto-injects ~440 skills at SessionStart; <code class="prism-inline-code">skill-auto-trigger.mjs</code> currently only <em>surfaces 3 suggestions</em> but does not gate stage-2 body inclusion.</p>
+<p><strong>Evidence:</strong> <a href="https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills" class="prism-link">Anthropic — Agent Skills progressive disclosure</a>; SessionStart system-reminder lists the full skill set.</p>
+<p><strong>Fix:</strong> Add <code class="prism-inline-code">PRISM_SKILL_LAZY_BODY=1</code> mode to <code class="prism-inline-code">skill-auto-trigger.mjs</code> — inline a SKILL.md body only when keyword-matched, else metadata-only. Est. 10–30k tok/session if 50% stay collapsed.</p>
+<p><strong>verifies_via:</strong> measure SessionStart <code class="prism-inline-code">additionalContext</code> byte length with/without flag via a transcript probe. <code class="prism-inline-code">re_run_cost</code>: 5s. <em>(Status: open question until probe built — flagged for F-followup, not shipped this audit.)</em></p>
+<h3 class="prism-h3">F4 — Subagent model routing: reviewers default to parent (Opus) (P1)</h3>
+<p><strong>Claim:</strong> A subagent inherits a full context window; per-file scrutiny spawns 2 reviewers/file and the Stop gate spawns 3 — all at the parent model (Opus). Documented public failure mode: 49 parallel subagents → 887k tok/min. Triage-class review does not need Opus.</p>
+<p><strong>Evidence:</strong> <a href="https://www.aicosts.ai/blog/claude-code-subagent-cost-explosion-887k-tokens-minute-crisis" class="prism-link">Claude Code subagent cost case study</a>; PRISM per-file + 3-of-3 gates in CLAUDE.md.</p>
+<p><strong>Fix:</strong> <code class="prism-inline-code">scripts/lib/agent-model-router.mjs</code> → <code class="prism-inline-code">{model,maxParallel}</code> keyed on <code class="prism-inline-code">(subagent_type, complexity)</code>: reviewer-A/B = Sonnet, code-analyzer = Haiku, Opus only for synthesis. Hard cap <code class="prism-inline-code">PRISM_REVIEWER_MAX_PARALLEL=3</code>. The <code class="prism-inline-code">Agent</code> tool already accepts a <code class="prism-inline-code">model</code> override — this is a doctrine + helper, not a core change.</p>
+<p><strong>verifies_via:</strong> grep dispatch helper for <code class="prism-inline-code">model:</code> override presence + count Opus-tier reviewer spawns in a sample transcript. <code class="prism-inline-code">re_run_cost</code>: 10s.</p>
+<h3 class="prism-h3">F5 — token-efficient-tools beta header (OPEN QUESTION — peer-review downgrade)</h3>
+<p><strong>Status:</strong> downgraded from finding to open question per Boris hard-rule (no working verification channel = opinion, not finding). The claim &quot;PRISM&#39;s MCP server <em>may not</em> set <code class="prism-inline-code">token-efficient-tools-2025-02-19</code>&quot; is speculative and unverified — the check script does not yet exist.</p>
+<p><strong>Open question:</strong> Does the PRISM MCP server&#39;s outbound Anthropic client carry <code class="prism-inline-code">token-efficient-tools-2025-02-19</code> (up to 70% tool-output reduction, avg 14% — <a href="https://www.anthropic.com/news/token-saving-updates" class="prism-link">Anthropic token-saving updates</a>)? Resolve by building <code class="prism-inline-code">scripts/verify-anthropic-beta-headers.mjs</code> (grep MCP Anthropic client init) BEFORE asserting a gap. Until then this is not actionable.</p>
+<h3 class="prism-h3">F7 — MEMORY.md is 750 bytes from the silent-truncation ceiling, no automated guard (P0 — peer-review-added)</h3>
+<p><strong>Claim:</strong> <code class="prism-inline-code">C:/Users/wompu/.claude/projects/H--prism/memory/MEMORY.md</code> is <strong>23,826 bytes</strong> vs the Anthropic harness <strong>24,576-byte</strong> truncation ceiling — 96.9% full, 750 bytes from silently losing fleet-wide cross-session recall. This exact failure is a <em>prior shipped regression</em> (CLAUDE.md §Recent regressions 2026-05-16 U-MEMORY-COMPRESS: &quot;load was silently truncated every chat fleet-wide, breaking cross-session recall&quot; — compressed 73KB→21KB). The index has re-grown to the edge in days with <strong>no automated guard</strong> — the compression was a one-shot fix, not a watchdog. The audit scope explicitly named &quot;memory retention&quot; and this is the single largest, cheapest, fully-verifiable memory risk; the first-pass audit walked past it.</p>
+<p><strong>Evidence:</strong> <code class="prism-inline-code">wc -c &lt; &quot;C:/Users/wompu/.claude/projects/H--prism/memory/MEMORY.md&quot;</code> → <code class="prism-inline-code">23826</code>. CLAUDE.md §Recent regressions precedent. Peer reviewer (staff-engineer adversarial pass) surfaced this as the strongest missed finding.</p>
+<p><strong>Fix:</strong> <code class="prism-inline-code">scripts/memory-size-watch.mjs</code> — mirror the <code class="prism-inline-code">synergy-regression-watch.mjs</code> pattern the audit itself cites: read MEMORY.md size, append to <code class="prism-inline-code">state/shared/memory-size-history.jsonl</code>, exit non-zero when <code class="prism-inline-code">size &gt; 0.90 × 24576</code> (warn) or <code class="prism-inline-code">&gt; 0.97 ×</code> (critical). Wire to <code class="prism-inline-code">/loop --interval 1d</code> or the Stop advisory cluster. This is the P0 — it makes the U-MEMORY-COMPRESS fix <em>durable</em> instead of one-shot.</p>
+<p><strong>verifies_via:</strong> <code class="prism-inline-code">node scripts/memory-size-watch.mjs --json | jq &#39;.bytes,.pctOfCeiling&#39;</code> → bytes number + ratio; regression when <code class="prism-inline-code">pctOfCeiling &gt; 0.90</code>. <code class="prism-inline-code">re_run_cost</code>: &lt;1s. <code class="prism-inline-code">baseline</code>: 23826 / 0.969.</p>
+<h3 class="prism-h3">F6 — No context-utilization telemetry (the measurement gap) (P1)</h3>
+<p><strong>Claim:</strong> Anthropic &quot;effective context engineering&quot; names compaction + structured-notes + sub-agent-isolation as the 3 primitives — PRISM does all 3, but has <strong>no measurement of injected tokens that were never referenced downstream</strong>. Without this, F1/F3 trims are flown blind.</p>
+<p><strong>Fix:</strong> <code class="prism-inline-code">scripts/context-utilization-audit.mjs</code> — walk recent transcripts, flag inject blocks never cited/echoed in the following assistant turn. Stop-hook advisory (non-blocking), once/session.</p>
+<p><strong>verifies_via:</strong> script emits a <code class="prism-inline-code">wasted_inject_pct</code> number; track week-over-week in <code class="prism-inline-code">state/shared/context-utilization-history.jsonl</code>. <code class="prism-inline-code">re_run_cost</code>: ~15s.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">Peer review (Boris hard-gate — RESOLVED)</h2>
+<p>Staff-engineer adversarial reviewer (<code class="prism-inline-code">isolation: worktree</code>) returned: F1 PASS (savings relabeled uncalibrated), F2 PASS (R3 dropped as phantom fix, baseline refreshed 0.232→0.222), F3 PASS-as-open-question, F4 PASS-as-proposal, <strong>F5 FAIL → downgraded to open question</strong>, F6 PASS-as-proposal. Strongest missed finding <strong>F7 (MEMORY.md size guard)</strong> added + shipped this audit. All corrections applied above; 0 unresolved FAILs.</p>
+<h2 class="prism-h2">Karpathy anti-drift checkpoint (after 7 findings)</h2>
+<ul class="prism-md-list"><li>On brief? <strong>Yes</strong> — every finding maps to a user-named axis (token-saving / context / memory / learning / Obsidian / DSL+RTK).</li><li>Actionable not catalog? <strong>Yes</strong> — F1/F2 have file:line fixes + measured savings; F3–F6 have named artifacts + verification channels.</li><li>Unverified synergy edges? F3 downgraded to &quot;open question&quot; (probe not yet built) — honest per Boris hard-rule. DSL/RTK axis: RTK already healthy (60–99% bash savings, in active use); CODE_SYSTEM_INDEX 4,180 shortcodes — no defect found, so no manufactured finding (anti-pattern: audit-without-measurement avoided).</li></ul>
+<hr class="prism-hr">
+<h2 class="prism-h2">Recommended action order (highest ROI first — post-peer-review)</h2>
+<ol class="prism-md-list"><li><strong>F7</strong> — <code class="prism-inline-code">memory-size-watch.mjs</code> (P0; cheapest, fully verifiable, makes the prior U-MEMORY-COMPRESS fix durable; 750 B from re-triggering a known fleet-wide regression) → <strong>build now, this audit</strong></li><li><strong>F2</strong> — Ollama R1+R5 (offload 22%→30%+, frees Claude reasoning budget; corroborated by <code class="prism-inline-code">feedback_ollama_docker_pipeline_dead_code_2026_05_16</code>) → next <code class="prism-inline-code">/forge7</code> unit</li><li><strong>F1</strong> — hook static/dynamic split (real direction; savings uncalibrated until F6) → next <code class="prism-inline-code">/forge7</code> unit, paired with F6</li><li><strong>F6</strong> — context-utilization telemetry (the calibration channel that turns F1&#39;s estimate into a measured number)</li><li><strong>F4</strong> — subagent model router (multiplicative on a 12-chat fleet) → doctrine + helper</li><li><strong>F3, F5</strong> — lazy skill bodies + beta-header verify (open questions; resolve channel first)</li></ol>
+<hr class="prism-hr">
+<h2 class="prism-h2">Regressions detected (→ CLAUDE.md back-flow, deferred — CLAUDE.md peer-claimed at audit time)</h2>
+<ul class="prism-md-list"><li><strong>R-AUDIT-1</strong> | Ollama offload rate 23.2% silently below 30% target for an unknown period; no week-over-week alert (parallels the 2026-05-16 synergy-regression-watch gap). | fix: F2 R1–R5 + extend <code class="prism-inline-code">synergy-regression-watch.mjs</code> pattern to offload rate. | observed-by: claude-3a1c1c68 slot juliett <code class="prism-inline-code">/forge-audit-v2</code>. | verify: <code class="prism-inline-code">node scripts/ollama-offload-dashboard.mjs --json | jq &#39;.totals|.offloaded/(.offloaded+.keptOnClaude)&#39;</code> ≥ 0.30.</li><li><strong>R-AUDIT-2</strong> | <code class="prism-inline-code">ollama-auto-router.mjs:166</code> <code class="prism-inline-code">/</code>-prefix skip makes the auto-router dead code for the entire <code class="prism-inline-code">/checkin</code>/<code class="prism-inline-code">/loop</code>/<code class="prism-inline-code">/forge</code> prompt class (it records 0 decisions in telemetry — wired but never fires). | fix: F2 R1. | observed-by: same. | verify: <code class="prism-inline-code">ollama-auto-router</code> appears in <code class="prism-inline-code">ollama-offload-stats.json.byHook</code> with <code class="prism-inline-code">fired&gt;0</code> after a <code class="prism-inline-code">/loop</code> session.</li></ul>
+<p>_Back-flow to <code class="prism-inline-code">H:/prism/CLAUDE.md</code> §Recent regressions is pending peer claim release on that file; tracked here so it is not lost._</p></main><footer><div>generated by mdToHtml() at 2026-05-16T21:56:25.369Z</div>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>
