@@ -412,12 +412,28 @@ export class GapEscalationControllerEngine {
   private makeDecision(gap: GapAnalysis): EscalationDecision {
     const level = this.confidenceToLevel(gap.confidence);
 
+    // GapAnalysis (PRISMSelfAwarenessEngine.ts L131) does NOT carry `canHandle`
+    // or `reason` fields — its interface is { query, hasCapability, confidence,
+    // matches, suggestions, missingCapabilities, timestamp }. Derive the same
+    // semantics here:
+    //   canHandle  ≡ hasCapability
+    //   reason     ≡ synthesized from matches (when capable) OR from
+    //                missingCapabilities (when not capable)
+    const canHandle = gap.hasCapability;
+    const matchName = gap.matches.length > 0 ? gap.matches[0].capability : "no match";
+    const missing = gap.missingCapabilities.length > 0
+      ? gap.missingCapabilities.join(", ")
+      : "unspecified capability";
+    const baseReason = canHandle
+      ? `Capability available: ${matchName} (${gap.matches.length} match(es))`
+      : `Missing capabilities: ${missing}`;
+
     return {
       level,
       confidence: gap.confidence,
-      can_proceed: gap.canHandle && (level === "PROCEED" || level === "CAUTION"),
+      can_proceed: canHandle && (level === "PROCEED" || level === "CAUTION"),
       requires_human: level === "HALT" || level === "WARNING",
-      reason: gap.canHandle ? gap.reason : `Gap detected: ${gap.reason}`,
+      reason: canHandle ? baseReason : `Gap detected: ${baseReason}`,
       suggestions: gap.suggestions,
       timestamp: new Date().toISOString(),
     };
