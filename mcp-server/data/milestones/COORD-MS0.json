@@ -27,7 +27,10 @@
       "id": "U-COORD02",
       "title": "Add Optimistic Locking with Version Field",
       "phase": "Foundation",
-      "status": "pending",
+      "status": "complete",
+      "completed_at": "2026-05-16",
+      "completed_by": "claude-a61bbf34 (slot echo)",
+      "ship_notes": "Optimistic concurrency control added to AtomicClaimBrokerEngine. (1) ClaimRegistry schema + interface gained a `version` field — z.number().optional() so pre-U-COORD02 registry files still parse; readRegistry normalizes a missing/corrupt value to 0 via the new normalizeVersion(). (2) atomicWrite() now does a compare-and-swap: it re-reads the on-disk version and throws the new StaleRegistryError when it differs from the version the caller read, else writes version+1 — the pure decision is the exported casVersionCheck(). (3) A new commitWithRetry() helper does read->compute->CAS-write with bounded retry (3 attempts); releaseClaim/updateClaimState/reapZombies route through it so a stale-version rejection retries instead of spuriously failing. acquireClaim already had its own retry loop and absorbs the new error type unchanged. getStats() now surfaces `version`. Companion test AtomicClaimBrokerEngine-U-COORD02.test.ts — 33 vitest cases (casVersionCheck/normalizeVersion pure, StaleRegistryError, version threading through every mutation, white-box atomicWrite CAS-throw, commitWithRetry retry-on-stale + no-retry-on-real-IO-error, backward-compat with pre-version files); 33/33 green, sibling -U-AWR25 still 12/12, tsc clean. Per-file 2-arm scrutiny PASS on both files. A test-injection seam (PRISM_ATOMIC_CLAIMS_FILE env override) keeps the suite off the live fleet registry. Honest residual: the re-read->rename window is not a kernel mutex (sub-ms double-pass race remains, documented in the engine); external direct writers of ATOMIC_CLAIMS.json such as zombie-reaper-daemon.mjs bypass the CAS — a pre-existing seam, not closed here. Shipped slot echo, /loop iteration on COORD-MS0.",
       "description": "Add version field to AtomicClaimBrokerEngine, reject writes where version != expected",
       "deliverables": [
         "Version field in ClaimRegistry schema",
