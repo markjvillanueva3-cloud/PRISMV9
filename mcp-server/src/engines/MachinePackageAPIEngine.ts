@@ -230,11 +230,11 @@ class MachinePackageAPIEngine {
         provenance: ctx.provenance.canonical_package_id || "shop-defined",
       };
 
-      if (mergedView?.overlay_id) {
+      if (mergedView?.overlay) {
         detail.overlay = {
-          id: mergedView.overlay_id,
-          user_id: mergedView.read_model.profile.user_id || "system",
-          created_at: mergedView.read_model.created_at || new Date().toISOString(),
+          id: mergedView.overlay.overlay_id,
+          user_id: mergedView.read_model.profile.userId || "system",
+          created_at: mergedView.overlay.created_at || new Date().toISOString(),
         };
       }
 
@@ -283,7 +283,7 @@ class MachinePackageAPIEngine {
           machine_type: m.type || "unknown",
           manufacturer: m.name?.split(" ")[0] || "Unknown",
           model: m.name || m.id,
-          has_overlay: !!mergedView?.overlay_id,
+          has_overlay: !!mergedView?.overlay,
           confidence: binding.context?.provenance.confidence || 0.5,
         };
       });
@@ -366,7 +366,7 @@ class MachinePackageAPIEngine {
           machine_type: m.type || "unknown",
           manufacturer: m.name?.split(" ")[0] || "Unknown",
           model: m.name || m.id,
-          has_overlay: !!mergedView?.overlay_id,
+          has_overlay: !!mergedView?.overlay,
           confidence: binding.context?.provenance.confidence || 0.5,
         };
       });
@@ -390,7 +390,7 @@ class MachinePackageAPIEngine {
       machineConsumerBindingEngine.invalidate(input.shop_machine_id);
 
       return this.wrapResponse({
-        overlay_id: overlay.id,
+        overlay_id: overlay.overlay_id,
       });
     } catch (error: any) {
       return this.errorResponse(error.message || "Failed to create overlay");
