@@ -252,18 +252,6 @@ export function registerKnowledgeExtDispatcher(server: any): void {
           return { content: [{ type: "text" as const, text: JSON.stringify(formatted) }] };
         }
 
-        // Context-pressure-aware slimming
-        const pressure = getCurrentPressurePct();
-        if (pressure > 50) {
-          const keyValues = knowledgeExtractKeyValues(action, result);
-          return {
-            content: [{ type: "text" as const, text: JSON.stringify(slimResponse(
-              { action, ...result, _keyValues: keyValues },
-              getSlimLevel(pressure)
-            )) }],
-          };
-        }
-
         return { content: [{ type: "text" as const, text: JSON.stringify({ action, ...result }) }] };
       } catch (err: any) {
         log.error(`[prism_knowledge_ext] ${action} failed: ${err.message}`);

@@ -71,6 +71,8 @@ const ACTIONS = [
   "turning_robust_optimize",
   // MS-PRINT-PROGRAM-LOOP/U-PPL-A1: structural fingerprint + cluster classify
   "turning_min_fingerprint", "turning_min_classify",
+  // MS-PRINT-PROGRAM-LOOP/U-PPL-B1: program reoptimization orchestrator (lathe arm)
+  "lathe_program_reoptimize",
   // ENGINE-WIRE-LATHE-MS0/U-WIRE-LATHE-BATCH1: 6 unwired lathe engines
   "lathe_css_optimize",                  // LatheCSSOptimizerEngine.optimize
   "lathe_chip_predict_type",             // LatheChipMechanicsEngine.predictChipType
@@ -532,6 +534,25 @@ Actions: ${ACTIONS.join(", ")}.`,
               p.threshold ?? DEFAULT_DISTANCE_THRESHOLD,
             );
             result = { success: true, data };
+            break;
+          }
+          // ─────────────────────────────────────────────────────────────────
+          // MS-PRINT-PROGRAM-LOOP/U-PPL-B1: ProgramReoptimizationOrchestrator
+          // (lathe arm — prism_cam/prism_mill/prism_dev wiring is U-PPL-B2)
+          // ─────────────────────────────────────────────────────────────────
+          case "lathe_program_reoptimize": {
+            const { programReoptimizationOrchestratorEngine } =
+              await import("../../engines/ProgramReoptimizationOrchestratorEngine.js");
+            const p = params as Parameters<
+              typeof programReoptimizationOrchestratorEngine.reoptimize
+            >[0];
+            // Force lathe routing through this dispatcher (it IS the lathe one)
+            // unless the caller explicitly overrides.
+            const data = await programReoptimizationOrchestratorEngine.reoptimize({
+              ...p,
+              process: p.process ?? "lathe",
+            });
+            result = { success: data.ok, data };
             break;
           }
           // ─────────────────────────────────────────────────────────────────

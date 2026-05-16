@@ -70,6 +70,20 @@ const turning_min_classify = z
   })
   .passthrough();
 
+// MS-PRINT-PROGRAM-LOOP/U-PPL-B1 — ProgramReoptimizationOrchestratorEngine
+const lathe_program_reoptimize = z
+  .object({
+    gcode: z.string().min(1),
+    process: z.enum(["auto", "lathe", "mill"]).optional(),
+    controller: z
+      .enum(["fanuc", "haas", "siemens", "heidenhain", "mazak", "okuma"])
+      .optional(),
+    strictness: z.enum(["standard", "strict", "aerospace"]).optional(),
+    filename: z.string().optional(),
+    runPhysicsPass: z.boolean().optional(),
+  })
+  .passthrough();
+
 // ============================================================================
 // chuck_force — ChuckJawForceEngine
 // ============================================================================
@@ -705,4 +719,7 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   // MS-PRINT-PROGRAM-LOOP/U-PPL-A1: TurningMinFingerprintEngine surfaces
   turning_min_fingerprint,
   turning_min_classify,
+
+  // MS-PRINT-PROGRAM-LOOP/U-PPL-B1: ProgramReoptimizationOrchestratorEngine
+  lathe_program_reoptimize,
 };
