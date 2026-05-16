@@ -1,16 +1,16 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-05-15T20:02:46.932Z",
+  "generatedAt": "2026-05-16T02:55:03.317Z",
   "headline": {
     "built_engines": 2377,
     "built_with_wiki": 1073,
     "needs_wiring": 861,
-    "needs_building_active_units": 3224,
+    "needs_building_active_units": 4481,
     "needs_frontend_merge_count": 2,
-    "pending_milestones_with_activity": 81,
-    "drift_milestones": 173,
-    "stale_milestones": 226,
-    "domains_tracked": 932
+    "pending_milestones_with_activity": 15,
+    "drift_milestones": 11,
+    "stale_milestones": 394,
+    "domains_tracked": 933
   },
   "sources": {
     "unwired_audit": "H:\\prism\\state\\shared\\UNWIRED-ENGINE-AUDIT-2026-05-07.json",
@@ -315,12 +315,12 @@
     "next_action": "Pick a top-domain bucket; wire to the matching dispatcher in batches of 5–6 engines (see U-WIRE-LATHE-BATCHN pattern). Wiki cross-refs in `wikiTitle` resolve via `/wiki-query <name>`."
   },
   "COVERAGE_BY_DOMAIN": {
-    "summary": "Per-domain wired/unwired breakdown across 932 domain prefixes.",
+    "summary": "Per-domain wired/unwired breakdown across 933 domain prefixes.",
     "rows": [
       {
         "domain": "Other",
-        "total": 601,
-        "wired": 456,
+        "total": 603,
+        "wired": 458,
         "unwired": 145,
         "coverage_pct": 76,
         "sample_unwired": [
@@ -364,10 +364,10 @@
       },
       {
         "domain": "Turning",
-        "total": 24,
-        "wired": 13,
+        "total": 25,
+        "wired": 14,
         "unwired": 11,
-        "coverage_pct": 54,
+        "coverage_pct": 56,
         "sample_unwired": [
           "TurningEnvelopeDistanceEngine",
           "TurningInspectionPlanEngine",
@@ -644,8 +644,8 @@
       },
       {
         "domain": "Mill",
-        "total": 23,
-        "wired": 19,
+        "total": 24,
+        "wired": 20,
         "unwired": 4,
         "coverage_pct": 83,
         "sample_unwired": [
@@ -1081,6 +1081,17 @@
         ]
       },
       {
+        "domain": "Customer",
+        "total": 5,
+        "wired": 3,
+        "unwired": 2,
+        "coverage_pct": 60,
+        "sample_unwired": [
+          "CustomerKnowledgeEngine",
+          "CustomerPortfolioMinerEngine"
+        ]
+      },
+      {
         "domain": "Deep",
         "total": 5,
         "wired": 3,
@@ -1133,17 +1144,6 @@
         "sample_unwired": [
           "CostEstimationEngine",
           "CostEstimatorEngine"
-        ]
-      },
-      {
-        "domain": "Customer",
-        "total": 4,
-        "wired": 2,
-        "unwired": 2,
-        "coverage_pct": 50,
-        "sample_unwired": [
-          "CustomerKnowledgeEngine",
-          "CustomerPortfolioMinerEngine"
         ]
       },
       {
@@ -1713,6 +1713,16 @@
         ]
       },
       {
+        "domain": "Memory",
+        "total": 5,
+        "wired": 4,
+        "unwired": 1,
+        "coverage_pct": 80,
+        "sample_unwired": [
+          "MemorySyncEngine"
+        ]
+      },
+      {
         "domain": "Predictive",
         "total": 5,
         "wired": 4,
@@ -1830,16 +1840,6 @@
         "coverage_pct": 75,
         "sample_unwired": [
           "LoRAAdapterRegistryEngine"
-        ]
-      },
-      {
-        "domain": "Memory",
-        "total": 4,
-        "wired": 3,
-        "unwired": 1,
-        "coverage_pct": 75,
-        "sample_unwired": [
-          "MemorySyncEngine"
         ]
       },
       {
@@ -4477,6 +4477,14 @@
         "sample_unwired": []
       },
       {
+        "domain": "Blueprint",
+        "total": 10,
+        "wired": 10,
+        "unwired": 0,
+        "coverage_pct": 100,
+        "sample_unwired": []
+      },
+      {
         "domain": "Skill",
         "total": 10,
         "wired": 10,
@@ -4512,14 +4520,6 @@
         "domain": "Part",
         "total": 7,
         "wired": 7,
-        "unwired": 0,
-        "coverage_pct": 100,
-        "sample_unwired": []
-      },
-      {
-        "domain": "Blueprint",
-        "total": 6,
-        "wired": 6,
         "unwired": 0,
         "coverage_pct": 100,
         "sample_unwired": []
@@ -5182,6 +5182,14 @@
       },
       {
         "domain": "Hurco",
+        "total": 2,
+        "wired": 2,
+        "unwired": 0,
+        "coverage_pct": 100,
+        "sample_unwired": []
+      },
+      {
+        "domain": "Idea",
         "total": 2,
         "wired": 2,
         "unwired": 0,
@@ -8767,7 +8775,7 @@
     ]
   },
   "STALE_MILESTONES": {
-    "summary": "226 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).",
+    "summary": "394 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).",
     "threshold_days": 30,
     "rows": [
       {
@@ -8843,6 +8851,24 @@
         "reason": "never_started"
       },
       {
+        "id": "COMMAND-KERNEL-MS0",
+        "track": "BACKEND-DEVTOOLS",
+        "pending": 29,
+        "shipped": 0,
+        "total": 29,
+        "lastShippedDate": null,
+        "reason": "never_started"
+      },
+      {
+        "id": "BP-MS0",
+        "track": "BP",
+        "pending": 28,
+        "shipped": 0,
+        "total": 28,
+        "lastShippedDate": null,
+        "reason": "never_started"
+      },
+      {
         "id": "MS-TRAIN-DEEP",
         "track": "revenue",
         "pending": 26,
@@ -8870,8 +8896,35 @@
         "reason": "never_started"
       },
       {
+        "id": "SCIMATH-MS5",
+        "track": "SCIMATH",
+        "pending": 23,
+        "shipped": 0,
+        "total": 23,
+        "lastShippedDate": null,
+        "reason": "never_started"
+      },
+      {
+        "id": "CLI-MS0",
+        "track": "CLI",
+        "pending": 22,
+        "shipped": 0,
+        "total": 22,
+        "lastShippedDate": null,
+        "reason": "never_started"
+      },
+      {
         "id": "MS-PILOT",
         "track": "revenue",
+        "pending": 20,
+        "shipped": 0,
+        "total": 20,
+        "lastShippedDate": null,
+        "reason": "never_started"
+      },
+      {
+        "id": "SCIMATH-MS1",
+        "track": "SCIMATH",
         "pending": 20,
         "shipped": 0,
         "total": 20,
@@ -8893,6 +8946,24 @@
         "pending": 18,
         "shipped": 0,
         "total": 18,
+        "lastShippedDate": null,
+        "reason": "never_started"
+      },
+      {
+        "id": "SCIMATH-MS0",
+        "track": "SCIMATH",
+        "pending": 17,
+        "shipped": 0,
+        "total": 17,
+        "lastShippedDate": null,
+        "reason": "never_started"
+      },
+      {
+        "id": "SCIMATH-MS6",
+        "track": "SCIMATH",
+        "pending": 17,
+        "shipped": 0,
+        "total": 17,
         "lastShippedDate": null,
         "reason": "never_started"
       },
@@ -8942,6 +9013,15 @@
         "reason": "never_started"
       },
       {
+        "id": "CCM-MS0",
+        "track": "CCM",
+        "pending": 16,
+        "shipped": 0,
+        "total": 16,
+        "lastShippedDate": null,
+        "reason": "never_started"
+      },
+      {
         "id": "MS-CRITWIRE",
         "track": "revenue",
         "pending": 16,
@@ -8960,7 +9040,34 @@
         "reason": "never_started"
       },
       {
+        "id": "SCIMATH-MS3",
+        "track": "SCIMATH",
+        "pending": 16,
+        "shipped": 0,
+        "total": 16,
+        "lastShippedDate": null,
+        "reason": "never_started"
+      },
+      {
         "id": "CAMX-V17-P11",
+        "track": "",
+        "pending": 15,
+        "shipped": 0,
+        "total": 15,
+        "lastShippedDate": null,
+        "reason": "never_started"
+      },
+      {
+        "id": "L8-P1-MS2",
+        "track": "",
+        "pending": 15,
+        "shipped": 0,
+        "total": 15,
+        "lastShippedDate": null,
+        "reason": "never_started"
+      },
+      {
+        "id": "L8-P2-MS2",
         "track": "",
         "pending": 15,
         "shipped": 0,
@@ -8978,6 +9085,42 @@
         "reason": "never_started"
       },
       {
+        "id": "SCIMATH-MS2",
+        "track": "SCIMATH",
+        "pending": 15,
+        "shipped": 0,
+        "total": 15,
+        "lastShippedDate": null,
+        "reason": "never_started"
+      },
+      {
+        "id": "SCIMATH-MS4",
+        "track": "SCIMATH",
+        "pending": 15,
+        "shipped": 0,
+        "total": 15,
+        "lastShippedDate": null,
+        "reason": "never_started"
+      },
+      {
+        "id": "SCIMATH-MS7",
+        "track": "SCIMATH",
+        "pending": 15,
+        "shipped": 0,
+        "total": 15,
+        "lastShippedDate": null,
+        "reason": "never_started"
+      },
+      {
+        "id": "TC-MS0",
+        "track": "",
+        "pending": 14,
+        "shipped": 0,
+        "total": 14,
+        "lastShippedDate": null,
+        "reason": "never_started"
+      },
+      {
         "id": "CADCAM-DAGI-MS2",
         "track": "CAD-CAM-DEEPAGI",
         "pending": 14,
@@ -8987,146 +9130,11 @@
         "reason": "never_started"
       },
       {
-        "id": "MS-FRONTEND",
-        "track": "revenue",
+        "id": "CCM-MS13",
+        "track": "CCM",
         "pending": 14,
         "shipped": 0,
         "total": 14,
-        "lastShippedDate": null,
-        "reason": "never_started"
-      },
-      {
-        "id": "MS-LEGAL",
-        "track": "revenue",
-        "pending": 13,
-        "shipped": 0,
-        "total": 13,
-        "lastShippedDate": null,
-        "reason": "never_started"
-      },
-      {
-        "id": "CAMX-MS3",
-        "track": "",
-        "pending": 12,
-        "shipped": 0,
-        "total": 12,
-        "lastShippedDate": null,
-        "reason": "never_started"
-      },
-      {
-        "id": "CAMX-MS4",
-        "track": "",
-        "pending": 12,
-        "shipped": 0,
-        "total": 12,
-        "lastShippedDate": null,
-        "reason": "never_started"
-      },
-      {
-        "id": "CAMX-V17-P3",
-        "track": "",
-        "pending": 12,
-        "shipped": 0,
-        "total": 12,
-        "lastShippedDate": null,
-        "reason": "never_started"
-      },
-      {
-        "id": "AI-WIRE-MS0",
-        "track": "AI-WIRE",
-        "pending": 12,
-        "shipped": 0,
-        "total": 12,
-        "lastShippedDate": null,
-        "reason": "never_started"
-      },
-      {
-        "id": "MS-INFRA",
-        "track": "revenue",
-        "pending": 12,
-        "shipped": 0,
-        "total": 12,
-        "lastShippedDate": null,
-        "reason": "never_started"
-      },
-      {
-        "id": "MS-MONOLITH-HARVEST",
-        "track": "revenue",
-        "pending": 11,
-        "shipped": 0,
-        "total": 11,
-        "lastShippedDate": null,
-        "reason": "never_started"
-      },
-      {
-        "id": "CAMX-MS0.7",
-        "track": "",
-        "pending": 10,
-        "shipped": 0,
-        "total": 10,
-        "lastShippedDate": null,
-        "reason": "never_started"
-      },
-      {
-        "id": "CAMX-MS11",
-        "track": "",
-        "pending": 10,
-        "shipped": 0,
-        "total": 10,
-        "lastShippedDate": null,
-        "reason": "never_started"
-      },
-      {
-        "id": "CAMX-MS5",
-        "track": "",
-        "pending": 10,
-        "shipped": 0,
-        "total": 10,
-        "lastShippedDate": null,
-        "reason": "never_started"
-      },
-      {
-        "id": "CAMX-MS6",
-        "track": "",
-        "pending": 10,
-        "shipped": 0,
-        "total": 10,
-        "lastShippedDate": null,
-        "reason": "never_started"
-      },
-      {
-        "id": "CAMX-MS7",
-        "track": "",
-        "pending": 10,
-        "shipped": 0,
-        "total": 10,
-        "lastShippedDate": null,
-        "reason": "never_started"
-      },
-      {
-        "id": "CAMX-MS9",
-        "track": "",
-        "pending": 10,
-        "shipped": 0,
-        "total": 10,
-        "lastShippedDate": null,
-        "reason": "never_started"
-      },
-      {
-        "id": "CPL-MS2",
-        "track": "",
-        "pending": 10,
-        "shipped": 0,
-        "total": 10,
-        "lastShippedDate": null,
-        "reason": "never_started"
-      },
-      {
-        "id": "CADCAM-DAGI-MS3",
-        "track": "CAD-CAM-DEEPAGI",
-        "pending": 10,
-        "shipped": 0,
-        "total": 10,
         "lastShippedDate": null,
         "reason": "never_started"
       }
@@ -9134,350 +9142,8 @@
     "next_action": "Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift."
   },
   "NEEDS_BUILDING": {
-    "summary": "3224 units across 676 milestones not yet in git.",
+    "summary": "4481 units across 679 milestones not yet in git.",
     "drift_cases": [
-      {
-        "id": "CC-EXT-MS0",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "CC-EXT-MS1",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "CC-EXT-MS2",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "CC-EXT-MS3",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "CC-EXT-MS4",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "CC-EXT-MS5",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "CC-EXT-MS6",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "CC-MS0",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "CC-MS1",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "CC-MS10",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "CC-MS11",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "CC-MS2",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "CC-MS3",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "CC-MS4",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "CC-MS5",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "CC-MS6",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "CC-MS7",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "CC-MS8",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "CC-MS9",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "L0-NEW-MS0",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "L0-P0-MS1",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "L0-P0-MS2",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "L0-P1-MS1",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "L0-P2-MS1",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "L1-P0-MS1",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "L1-P1-MS1",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "L1-P1-MS2",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "L1-P2-MS1",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "L10-P0-MS1",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "L10-P1-MS1",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "L10-P2-MS1",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "L10-P3-MS1",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "L2-P0-MS1",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "L2-P1-MS1",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "L2-P2-MS1",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "L2-P3-MS1",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "L2-P4-MS1",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "L3-P0-MS1",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "L3-P1-MS1",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "L4-P0-MS1",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "L4-P1-MS1",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "L5-P0-MS1",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "L5-P0-MS2",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "L5-P1-MS1",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "L6-P0-MS1",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "L6-P1-MS1",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "L7-P0-MS1",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "L8-P0-MS1",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "L8-P0-MS2",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "L8-P1-MS1",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "L8-P1-MS2",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "L8-P2-MS1",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "L8-P2-MS2",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "L8-P3-MS1",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "L9-P0-MS1",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "L9-P1-MS1",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "L9-P2-MS1",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
       {
         "id": "MF-MS1",
         "claimed": "completed",
@@ -9491,604 +9157,28 @@
         "drift": "claims_completed_but_units_pending"
       },
       {
-        "id": "QA-MS0",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
+        "id": "ACP-MS0",
+        "claimed": "completed",
+        "real": "not_started_real",
+        "drift": "claims_completed_but_units_pending"
       },
       {
-        "id": "QA-MS1",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
+        "id": "HOOKS-AUTOMATION-V2-MS0",
+        "claimed": "completed",
+        "real": "not_started_real",
+        "drift": "claims_completed_but_units_pending"
       },
       {
-        "id": "QA-MS10",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
+        "id": "INFRA-CLOSEOUT-MS0",
+        "claimed": "completed",
+        "real": "not_started_real",
+        "drift": "claims_completed_but_units_pending"
       },
       {
-        "id": "QA-MS11",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "QA-MS12",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "QA-MS13",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "QA-MS14",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "QA-MS2",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "QA-MS3",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "QA-MS4",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "QA-MS5",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "QA-MS6",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "QA-MS7",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "QA-MS9",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "S0-MS1",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "S1-MS1",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "S1-MS2",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "S2-MS1",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "S2-MS2",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "S3-MS1",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "S3-MS2",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "S3-MS3",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "S4-MS1",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "TC-MS0",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "ULT-MS1",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "ULT-MS2",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "ULT-MS3",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "ULT-MS4",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "ULT-MS5",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "ACP-MS0A",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "ACP-MS1",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "ACP-MS2",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "ACP-MS2B",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "ACP-MS3",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "ACP-MS4",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "ACP-MS5",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "ACP-MS6",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "ACP-MS7",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "APP-MS0",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "COMMAND-KERNEL-MS0",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "BP-MS0",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "CCM-MS0",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "CCM-MS1",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "CCM-MS10",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "CCM-MS11",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "CCM-MS12",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "CCM-MS13",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "CCM-MS14",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "CCM-MS15",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "CCM-MS16",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "CCM-MS17",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "CCM-MS2",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "CCM-MS3",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "CCM-MS4",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "CCM-MS5",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "CCM-MS6",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "CCM-MS7",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "CCM-MS8",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "CCM-MS9",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "CLI-MS0",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "EIGC-MS0",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "EIGC-MS0A",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "EIGC-MS10",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "EIGC-MS2",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "EIGC-MS3",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "EIGC-MS4",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "EIGC-MS5",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "EIGC-MS6",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "EIGC-MS7",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "EIGC-MS8",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "EIGC-MS9",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "INFRA-AGI-ROUTER-MS2",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "L6-BACKPROP-REGISTRY-MS25",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "KNOWLEDGE-VAULT-MS0",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "MULTI-CLI-SYNC-HOOK-MS28",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "SCHEMA-MIGRATION-RUNNER-MS27",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "HITL-OPERATOR-UI-MS24",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "RT-ADAPTIVE-MS22",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "RT-ADAPTIVE-MS22a",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "OT-IT-SECURITY-MS20",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "TENANT-ONBOARD-MS29",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "LATHE-P2P-CONSENSUS-MS4",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "MXU-MS0",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "MXU-MS0A",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "MXU-MS1",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "MXU-MS10",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "MXU-MS2",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "MXU-MS3",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "MXU-MS4",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "MXU-MS5",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "MXU-MS6",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "MXU-MS7",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "MXU-MS8",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "MXU-MS9",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "PCCA-MS0",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "PCCA-MS0A",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "PCCA-MS1",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "PIPE-MS0",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "PPG-MS2",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "PROD-GATE-MS0",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
+        "id": "OCTOPUS-NEURAL-MS0",
+        "claimed": "completed",
+        "real": "not_started_real",
+        "drift": "claims_completed_but_units_pending"
       },
       {
         "id": "MS-DOCU-FINISH",
@@ -10103,79 +9193,145 @@
         "drift": "claims_completed_but_units_pending"
       },
       {
-        "id": "TWIN-SIM-GATE-MS23",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
+        "id": "SKILLS-UTILIZATION-MS0",
+        "claimed": "completed",
+        "real": "not_started_real",
+        "drift": "claims_completed_but_units_pending"
       },
       {
-        "id": "SCIMATH-MS0",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "SCIMATH-MS1",
-        "claimed": "not_started",
+        "id": "BLUEPRINT-OCR-TRAINING-MS1",
+        "claimed": "completed",
         "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "SCIMATH-MS2",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "SCIMATH-MS3",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "SCIMATH-MS4",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "SCIMATH-MS5",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "SCIMATH-MS6",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "SCIMATH-MS7",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "SIM-MS0",
-        "claimed": "not_started",
-        "real": "completed_real",
-        "drift": "claims_not_started_but_has_shipped_units"
-      },
-      {
-        "id": "TOOLS-AUDIT-MS0",
-        "claimed": "not_started",
-        "real": "in_progress_real",
-        "drift": "claims_not_started_but_has_shipped_units"
+        "drift": "claims_completed_but_units_pending"
       },
       {
         "id": "TRAINING-LEARNING-MS0",
         "claimed": "completed",
-        "real": "in_progress_real",
+        "real": "not_started_real",
         "drift": "claims_completed_but_units_pending"
       }
     ],
     "top_pending_units": [
+      {
+        "milestone": "CAD-COMPLETE-MS0",
+        "unit": "U-CADC22",
+        "title": "U-CADC22 — CAD-COMPLETE-MS0 unit 3",
+        "phase": "PHASE-6"
+      },
+      {
+        "milestone": "CAD-COMPLETE-MS0",
+        "unit": "U-CADC23",
+        "title": "U-CADC23 — CAD-COMPLETE-MS0 unit 4",
+        "phase": "PHASE-6"
+      },
+      {
+        "milestone": "CAD-COMPLETE-MS0",
+        "unit": "U-CADC32",
+        "title": "U-CADC32 — CAD-COMPLETE-MS0 unit 5",
+        "phase": "PHASE-7"
+      },
+      {
+        "milestone": "CAD-COMPLETE-MS0",
+        "unit": "U-CADC33",
+        "title": "U-CADC33 — CAD-COMPLETE-MS0 unit 6",
+        "phase": "PHASE-7"
+      },
+      {
+        "milestone": "CAM-EXHAUST-MS0",
+        "unit": "U-CAM79",
+        "title": "Dispatcher Wiring â€” CAM Function Dispatcher",
+        "phase": ""
+      },
+      {
+        "milestone": "CAM-EXHAUST-MS0",
+        "unit": "U-CAM80",
+        "title": "Integration Tests â€” Per-CAM Function Coverage",
+        "phase": ""
+      },
+      {
+        "milestone": "CAM-EXHAUST-MS0",
+        "unit": "U-CAM81",
+        "title": "Integration Tests â€” Cross-CAM Translation",
+        "phase": ""
+      },
+      {
+        "milestone": "CAM-EXHAUST-MS0",
+        "unit": "U-CAM82",
+        "title": "Integration Tests â€” AGI Reasoning Validation",
+        "phase": ""
+      },
+      {
+        "milestone": "CAD-UNIVERSAL-CONTROL-MS0",
+        "unit": "U-CUC04",
+        "title": "Unknown-extension detector + surface",
+        "phase": ""
+      },
+      {
+        "milestone": "CAD-UNIVERSAL-CONTROL-MS0",
+        "unit": "U-CUC05",
+        "title": "New-customer-directory watcher (Stop hook, debounced hourly)",
+        "phase": ""
+      },
+      {
+        "milestone": "CAD-UNIVERSAL-CONTROL-MS0",
+        "unit": "U-CUC06",
+        "title": "Volume-delta alert in AGENT_CHAT.md on >5% extension-volume shift",
+        "phase": ""
+      },
+      {
+        "milestone": "CAD-UNIVERSAL-CONTROL-MS0",
+        "unit": "U-CUC07",
+        "title": "P0 gap: DXF generator — pure-JS DxfWriterEngine + bridge",
+        "phase": ""
+      },
+      {
+        "milestone": "SLOT-WORKTREE-MS0",
+        "unit": "U-PHASE0",
+        "title": "Per-slot worktree architecture + migration tooling",
+        "phase": "P0-FOUNDATION"
+      },
+      {
+        "milestone": "SLOT-WORKTREE-MS0",
+        "unit": "U-PHASE0-FIX",
+        "title": "P0/P1 fixes from 3-of-3 scrutiny",
+        "phase": "P0-FOUNDATION"
+      },
+      {
+        "milestone": "SLOT-WORKTREE-MS0",
+        "unit": "U-AGENT-ORPHAN-AUDIT",
+        "title": "Verify 15 worktree-agent-* orphan branches",
+        "phase": "P0-FOUNDATION"
+      },
+      {
+        "milestone": "SLOT-WORKTREE-MS0",
+        "unit": "U-LINTSTAGED-FIX",
+        "title": "Remove the fake lint-staged config that silently ate commits",
+        "phase": "P0-FOUNDATION"
+      },
+      {
+        "milestone": "WIRE-MS0",
+        "unit": "P0-U02",
+        "title": "Machine Live Dashboard — ENHANCE ShopFloorLivePage",
+        "phase": ""
+      },
+      {
+        "milestone": "WIRE-MS0",
+        "unit": "P0-U03",
+        "title": "Diagnosis & Troubleshooting — ENHANCE RootCausePage",
+        "phase": ""
+      },
+      {
+        "milestone": "WIRE-MS0",
+        "unit": "P1-U01",
+        "title": "CNC Operations — ENHANCE PostProcessorGeneratorPage",
+        "phase": ""
+      },
+      {
+        "milestone": "WIRE-MS0",
+        "unit": "P1-U02",
+        "title": "Knowledge Extension — ENHANCE KnowledgeBrowserPage",
+        "phase": ""
+      },
       {
         "milestone": "SYSTEM-VIZ-BRAIN-MS0",
         "unit": "U-P0-HOOK-ORPHAN-RECONCILE",
@@ -10199,126 +9355,6 @@
         "unit": "U-P2-LIVE-DRIFT-OVERLAY",
         "title": "5-min auto-regen + drift overlay (red-pulse nodes where envelope-vs-git differ)",
         "phase": "P2-VIZ-BRAIN"
-      },
-      {
-        "milestone": "INTEL-OLLAMA-OBSIDIAN-MS0",
-        "unit": "P5-U05",
-        "title": "Wire prism_intelligence:diagnose_failure → DiagnosticReasoningEngine",
-        "phase": "P5"
-      },
-      {
-        "milestone": "INTEL-OLLAMA-OBSIDIAN-MS0",
-        "unit": "P6-U02",
-        "title": "Add 4 hooks for unforced CLAUDE.md rules",
-        "phase": "P6"
-      },
-      {
-        "milestone": "INTEL-OLLAMA-OBSIDIAN-MS0",
-        "unit": "P6-U03",
-        "title": "Awareness hook deduplication — pick 3 canonical, deprecate 10",
-        "phase": "P6"
-      },
-      {
-        "milestone": "INTEL-OLLAMA-OBSIDIAN-MS0",
-        "unit": "P7-U02",
-        "title": "Cross-PC handoff test — verify H: drive is sufficient",
-        "phase": "P7"
-      },
-      {
-        "milestone": "CCM-MS0",
-        "unit": "P0-U06",
-        "title": "WorktreeCreate hook",
-        "phase": "P0"
-      },
-      {
-        "milestone": "CCM-MS0",
-        "unit": "P0-U07",
-        "title": "WorktreeRemove hook",
-        "phase": "P0"
-      },
-      {
-        "milestone": "CCM-MS0",
-        "unit": "P0-U08",
-        "title": "PostCompact hook",
-        "phase": "P0"
-      },
-      {
-        "milestone": "CCM-MS0",
-        "unit": "P0-U09",
-        "title": "SessionEnd hook",
-        "phase": "P0"
-      },
-      {
-        "milestone": "L8-P1-MS2",
-        "unit": "P0-U06",
-        "title": "Knowledge Search",
-        "phase": "P0"
-      },
-      {
-        "milestone": "L8-P1-MS2",
-        "unit": "P0-U07",
-        "title": "Material Selection Wizard",
-        "phase": "P0"
-      },
-      {
-        "milestone": "L8-P1-MS2",
-        "unit": "P0-U08",
-        "title": "Tool Selection Wizard",
-        "phase": "P0"
-      },
-      {
-        "milestone": "L8-P1-MS2",
-        "unit": "P0-U09",
-        "title": "Machine Selection Wizard",
-        "phase": "P0"
-      },
-      {
-        "milestone": "L8-P2-MS2",
-        "unit": "P0-U06",
-        "title": "Capacity Analytics Dashboard",
-        "phase": "P0"
-      },
-      {
-        "milestone": "L8-P2-MS2",
-        "unit": "P0-U07",
-        "title": "Predictive Maintenance Panel",
-        "phase": "P0"
-      },
-      {
-        "milestone": "L8-P2-MS2",
-        "unit": "P0-U08",
-        "title": "ERP Overview Page",
-        "phase": "P0"
-      },
-      {
-        "milestone": "L8-P2-MS2",
-        "unit": "P0-U09",
-        "title": "ERP Layout & Navigation",
-        "phase": "P0"
-      },
-      {
-        "milestone": "CCM-MS14",
-        "unit": "P0-U06",
-        "title": "Cache hit rate monitor",
-        "phase": "P0"
-      },
-      {
-        "milestone": "CCM-MS14",
-        "unit": "P0-U07",
-        "title": "Cascade failure detector",
-        "phase": "P0"
-      },
-      {
-        "milestone": "CCM-MS14",
-        "unit": "P0-U08",
-        "title": "Monte Carlo convergence monitor",
-        "phase": "P0"
-      },
-      {
-        "milestone": "CCM-MS14",
-        "unit": "P0-U09",
-        "title": "silentCatch fire rate monitor",
-        "phase": "P0"
       }
     ],
     "next_action": "Cross-reference MILESTONE_PROGRESS.json. Avoid units already in `shipped` arrays — those are committed but envelope status is stale."

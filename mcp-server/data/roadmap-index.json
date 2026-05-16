@@ -1,7 +1,7 @@
 {
   "version": "9.8.0",
   "title": "PRISM Unified Roadmap v2.0 - 11 Lanes, 4 Seats",
-  "updated_at": "2026-05-15T15:27:49.207Z",
+  "updated_at": "2026-05-15T20:34:42.813Z",
   "comprehensive_roadmap_2026_05_04": {
     "doc": "state/shared/PRISM-COMPREHENSIVE-ROADMAP-2026-05-04.md",
     "json": "milestones/comprehensive-roadmap-2026-05-04.json",
@@ -10632,9 +10632,9 @@
       "id": "OBSIDIAN-COMPOUND-MS1",
       "title": "Personal Knowledge Feedback Loop + Capability Utilization Closure",
       "track": "OBSIDIAN-COMPOUND",
-      "status": "ready",
+      "status": "complete",
       "total_units": 13,
-      "completed_units": 0,
+      "completed_units": 13,
       "dependencies": [
         "OBSIDIAN-MS0",
         "INTEL-OLLAMA-OBSIDIAN-MS0"
@@ -10651,7 +10651,9 @@
         "continue OBSIDIAN-COMPOUND-MS1",
         "continue obsidian compound",
         "resume obsidian feedback loop"
-      ]
+      ],
+      "_legacyStatus": "ready",
+      "completed_at": "2026-05-15T18:41:02.632Z"
     },
     {
       "id": "MS-CI-GATES",
@@ -11777,11 +11779,45 @@
       "unitsTotal": 6,
       "unitsCompleted": 6,
       "envelope": "mcp-server/data/milestones/FLEET-REAPER-MS1.json"
+    },
+    {
+      "id": "AUTONOMOUS-FLEET-MS0",
+      "title": "Autonomous-Fleet — force-hooks for never-stop loops + /startup refresh + stress harness",
+      "track": "INFRA-AUTONOMY",
+      "roadmap": "devtools",
+      "status": "in_progress",
+      "total_units": 4,
+      "completed_units": 3,
+      "priority": "P0",
+      "owner": "claude-alpha",
+      "created_at": "2026-05-16",
+      "envelope": "mcp-server/data/milestones/AUTONOMOUS-FLEET-MS0.json",
+      "depends_on": [
+        "AUTOCOMPACT-AUTONOMOUS-MS0"
+      ],
+      "description": "Force-hooks closing complementary Stop-side gaps to AUTOCOMPACT-AUTONOMOUS-MS0 (stop-force-handoff + stop-force-loop-continue + /startup refresh + stress harness for the 10-12 chat fleet running /yolo-mode autonomously)"
+    },
+    {
+      "id": "NN-GRAPH-MS0",
+      "title": "Hybrid neural-symbolic GNN — GraphSAGE link-prediction over system-viz",
+      "track": "INFRA-INTELLIGENCE",
+      "roadmap": "devtools",
+      "status": "in_progress",
+      "total_units": 8,
+      "completed_units": 1,
+      "priority": "P1",
+      "owner": "claude-alpha",
+      "created_at": "2026-05-16",
+      "envelope": "mcp-server/data/milestones/NN-GRAPH-MS0.json",
+      "blocked_by": [
+        "AUTONOMOUS-FLEET-MS0"
+      ],
+      "description": "GraphSAGE link-prediction GNN as 5th tier in wiring-inference cascade. Composes 4 existing engines (OllamaEmbedder 768-d, KGFeatureProjector pattern, EmbeddingPipeline, LocalEmbedding fallback). Strictly additive — hybrid 4-tier baseline always-on; GNN augments at confidence >= PRISM_NNG_MIN_CONF (default 0.7)."
     }
   ],
-  "total_milestones": 747,
+  "total_milestones": 750,
   "completed_milestones": 361,
-  "last_modified": "2026-05-15",
+  "last_modified": "2026-05-16T02:54:34.662Z",
   "_last_reconcile": {
     "at": "2026-04-25T23:04:44.937Z",
     "changed_count": 77,
@@ -11800,5 +11836,11 @@
     "added": 0,
     "updated": 12,
     "version": "RGS6.1.0"
+  },
+  "_last_register_2026_05_16": {
+    "added": [
+      "AUTONOMOUS-FLEET-MS0",
+      "NN-GRAPH-MS0"
+    ]
   }
 }
