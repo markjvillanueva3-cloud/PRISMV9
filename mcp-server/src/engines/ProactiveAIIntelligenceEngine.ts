@@ -258,8 +258,10 @@ export class ProactiveAIIntelligenceEngine {
       });
     }
 
-    // Check for tribal knowledge that might help
-    const tribalTips = prismSelfAwarenessEngine.searchTribalKnowledge(intent);
+    // Check for tribal knowledge that might help.
+    // searchTribalKnowledge returns Promise<TribalKnowledgeEntry[]> — must await
+    // before iterating; the enclosing analyzeIntent is already async (L231).
+    const tribalTips = await prismSelfAwarenessEngine.searchTribalKnowledge(intent);
     if (tribalTips.length > 0) {
       suggestions.push({
         id: `tribal-${Date.now()}`,
@@ -287,8 +289,10 @@ export class ProactiveAIIntelligenceEngine {
       });
     }
 
-    // Check for playbook rules that might apply
-    const rules = prismSelfAwarenessEngine.searchPlaybookRules(intent);
+    // Check for playbook rules that might apply.
+    // searchPlaybookRules returns Promise<string[]> — must await before reading
+    // length/some on it.
+    const rules = await prismSelfAwarenessEngine.searchPlaybookRules(intent);
     if (rules.length > 0) {
       const hasAntiPattern = rules.some((r: any) => r.category === "anti_pattern");
       if (hasAntiPattern) {
