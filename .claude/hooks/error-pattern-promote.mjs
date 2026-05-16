@@ -47,6 +47,18 @@ function slug(s) {
   return String(s || "unknown").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, SLUG_MAX_LEN) || "unknown";
 }
 
+// Stable grouping key. The ledger's `fingerprint` embeds the raw command
+// (and `file_suffix` is command-polluted for Bash rows), so neither groups
+// recurrences — same logical error from different commands stays unique and
+// never reaches THRESHOLD. error_class+trigger is the clean discriminator;
+// hook_id distinguishes HOOK_BLOCK rows. Falls back to tool, never command.
+function stableKey(e) {
+  const cls = e.error_class || e.tool || "unknown";
+  const disc = e.trigger || e.hook_id || e.tool || "general";
+  const key = e.hook_id ? `${cls}|${disc}|${e.hook_id}` : `${cls}|${disc}`;
+  return key.toLowerCase();
+}
+
 function atomicWrite(path, content) {
   // wx flag = exclusive create; concurrent writes from other PIDs surface as EEXIST.
   // Treat EEXIST as "another chat already drafted this stub" — success, no-op.
@@ -116,7 +128,7 @@ function main() {
   });
   const groups = Object.create(null);
   for (const e of recent) {
-    const fp = e.fingerprint || `${e.tool || "?"}_${e.error_class || "?"}`;
+    const fp = stableKey(e);
     (groups[fp] ||= []).push(e);
   }
   if (!existsSync(LESSONS_DIR)) { try { mkdirSync(LESSONS_DIR, { recursive: true }); } catch {} }
