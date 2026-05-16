@@ -1,189 +1,263 @@
 {
   "schemaVersion": 1,
   "description": "Tier 6 stop-hooks registry for session exit validation",
-  "lastUpdated": "2026-04-18T20:00:00.000Z",
+  "lastUpdated": "2026-05-16T03:12:32.607Z",
+  "generatedBy": "scripts/build-stop-hook-registry.mjs",
+  "counts": {
+    "total": 35,
+    "bySeverity": {
+      "warn": 25,
+      "block": 9,
+      "pass": 1
+    },
+    "skipped": 0
+  },
   "hooks": [
-    {
-      "name": "stop_on_uncommitted_critical",
-      "file": "stop_on_uncommitted_critical.mjs",
-      "description": "Prevents exit when CRITICAL-classified files have uncommitted changes",
-      "severity": "warn",
-      "tier": 6
-    },
-    {
-      "name": "stop_on_orphan_children",
-      "file": "stop_on_orphan_children.mjs",
-      "description": "Prevents exit when background agents are still running",
-      "severity": "warn",
-      "tier": 6
-    },
-    {
-      "name": "stop_on_open_lock",
-      "file": "stop_on_open_lock.mjs",
-      "description": "Auto-releases file locks held by this session on exit",
-      "severity": "pass",
-      "tier": 6
-    },
-    {
-      "name": "stop_on_open_claim",
-      "file": "stop_on_open_claim.mjs",
-      "description": "Prevents exit when claims are held without completion",
-      "severity": "warn",
-      "tier": 6
-    },
-    {
-      "name": "stop_on_incomplete_pipeline",
-      "file": "stop_on_incomplete_pipeline.mjs",
-      "description": "Prevents exit when extraction/forge pipelines are half-finished",
-      "severity": "warn",
-      "tier": 6
-    },
-    {
-      "name": "stop_on_dirty_registry",
-      "file": "stop_on_dirty_registry.mjs",
-      "description": "Prevents exit when registries have unflushed changes",
-      "severity": "warn",
-      "tier": 6
-    },
-    {
-      "name": "stop_on_failing_tests",
-      "file": "stop_on_failing_tests.mjs",
-      "description": "Prevents exit when loop-scope tests are failing",
-      "severity": "warn",
-      "tier": 6
-    },
-    {
-      "name": "stop_on_build_error",
-      "file": "stop_on_build_error.mjs",
-      "description": "Prevents exit when build has new TS errors",
-      "severity": "warn",
-      "tier": 6
-    },
-    {
-      "name": "stop_on_sx_fail",
-      "file": "stop_on_sx_fail.mjs",
-      "description": "Prevents exit when files touched have S(x) < 0.70",
-      "severity": "warn",
-      "tier": 6
-    },
     {
       "name": "stop_on_awareness_degraded",
       "file": "stop_on_awareness_degraded.mjs",
-      "description": "Warns when awareness score dropped below threshold",
+      "description": "Warns when awareness score dropped below threshold during session.",
       "severity": "warn",
-      "tier": 6
-    },
-    {
-      "name": "stop_on_svi_regression",
-      "file": "stop_on_svi_regression.mjs",
-      "description": "Warns when SVI decreased during session",
-      "severity": "warn",
-      "tier": 6
-    },
-    {
-      "name": "stop_on_unregistered_asset",
-      "file": "stop_on_unregistered_asset.mjs",
-      "description": "Warns when new assets not registered",
-      "severity": "warn",
-      "tier": 6
-    },
-    {
-      "name": "stop_on_orphan_engine",
-      "file": "stop_on_orphan_engine.mjs",
-      "description": "Warns when engine created without dispatcher wiring",
-      "severity": "warn",
-      "tier": 6
-    },
-    {
-      "name": "stop_on_missing_tests",
-      "file": "stop_on_missing_tests.mjs",
-      "description": "Warns when engine/feature created without test coverage",
-      "severity": "warn",
-      "tier": 6
-    },
-    {
-      "name": "stop_on_extraction_incomplete",
-      "file": "stop_on_extraction_incomplete.mjs",
-      "description": "Warns when PDF/video extraction is incomplete",
-      "severity": "warn",
-      "tier": 6
-    },
-    {
-      "name": "stop_on_roadmap_drift",
-      "file": "stop_on_roadmap_drift.mjs",
-      "description": "Warns when work doesn't match claimed roadmap unit",
-      "severity": "warn",
-      "tier": 6
-    },
-    {
-      "name": "stop_on_uncommitted_memory",
-      "file": "stop_on_uncommitted_memory.mjs",
-      "description": "Warns when memory entries edited but not synced",
-      "severity": "warn",
-      "tier": 6
-    },
-    {
-      "name": "stop_on_stale_handoff",
-      "file": "stop_on_stale_handoff.mjs",
-      "description": "Warns when handoff file is >24h old",
-      "severity": "warn",
-      "tier": 6
+      "tier": 4
     },
     {
       "name": "stop_on_broken_imports",
       "file": "stop_on_broken_imports.mjs",
-      "description": "Warns when import statements point to missing files",
+      "description": "stop_on_broken_imports.mjs — Tier 6 Stop Hook (IMPROVED)",
       "severity": "warn",
-      "tier": 6
+      "tier": 4
+    },
+    {
+      "name": "stop_on_build_error",
+      "file": "stop_on_build_error.mjs",
+      "description": "Prevents exit when build has new TS errors from this session.",
+      "severity": "warn",
+      "tier": 4
+    },
+    {
+      "name": "stop_on_c_drive_write",
+      "file": "stop_on_c_drive_write.mjs",
+      "description": "Defense-in-depth companion to the PreToolUse `h-drive-enforcement.mjs` hook.",
+      "severity": "block",
+      "tier": 0
     },
     {
       "name": "stop_on_circular_deps",
       "file": "stop_on_circular_deps.mjs",
-      "description": "Warns when new circular dependency introduced",
+      "description": "Warns when new circular dependency introduced.",
       "severity": "warn",
-      "tier": 6
+      "tier": 4
     },
     {
-      "name": "stop_on_undocumented_action",
-      "file": "stop_on_undocumented_action.mjs",
-      "description": "Warns when MCP action exists without schema/doc",
-      "severity": "warn",
-      "tier": 6
+      "name": "stop_on_content_deletion",
+      "file": "stop_on_content_deletion.mjs",
+      "description": "Content Deletion Guard",
+      "severity": "block",
+      "tier": 4
     },
     {
-      "name": "stop_on_unsafe_gcode",
-      "file": "stop_on_unsafe_gcode.mjs",
-      "description": "Warns when G-code generated with safety warnings",
+      "name": "stop_on_cutting_calculation_protocol",
+      "file": "stop_on_cutting_calculation_protocol.mjs",
+      "description": "stop_on_cutting_calculation_protocol.mjs",
       "severity": "warn",
-      "tier": 6
+      "tier": 4
+    },
+    {
+      "name": "stop_on_dirty_registry",
+      "file": "stop_on_dirty_registry.mjs",
+      "description": "Prevents exit when extraction-log or asset registry has unflushed changes.",
+      "severity": "warn",
+      "tier": 4
     },
     {
       "name": "stop_on_duplicate_created",
       "file": "stop_on_duplicate_created.mjs",
-      "description": "Warns when duplicate asset bypassed dedup guard",
+      "description": "Warns when duplicate asset bypassed dedup guard.",
       "severity": "warn",
-      "tier": 6
+      "tier": 4
+    },
+    {
+      "name": "stop_on_extraction_incomplete",
+      "file": "stop_on_extraction_incomplete.mjs",
+      "description": "Warns when PDF/video extraction started but not finished.",
+      "severity": "warn",
+      "tier": 4
+    },
+    {
+      "name": "stop_on_failing_tests",
+      "file": "stop_on_failing_tests.mjs",
+      "description": "stop_on_failing_tests.mjs — Stop Hook (SAFETY-CRITICAL, FAIL-CLOSED)",
+      "severity": "block",
+      "tier": 0
     },
     {
       "name": "stop_on_formula_uncited",
       "file": "stop_on_formula_uncited.mjs",
-      "description": "Warns when formula exists without provenance citation",
+      "description": "Warns when formula exists without provenance citation.",
       "severity": "warn",
-      "tier": 6
-    },
-    {
-      "name": "stop_on_skill_unwired",
-      "file": "stop_on_skill_unwired.mjs",
-      "description": "Warns when skill created without hook anchor",
-      "severity": "warn",
-      "tier": 6
+      "tier": 4
     },
     {
       "name": "stop_on_hook_unregistered",
       "file": "stop_on_hook_unregistered.mjs",
-      "description": "Warns when hook file not in registry",
+      "description": "Warns when hook file not in registry.",
       "severity": "warn",
-      "tier": 6
+      "tier": 4
+    },
+    {
+      "name": "stop_on_hook_unregistration",
+      "file": "stop_on_hook_unregistration.mjs",
+      "description": "RULE: Sessions cannot unregister hooks from settings.json unless the user",
+      "severity": "block",
+      "tier": 4
+    },
+    {
+      "name": "stop_on_incomplete_pipeline",
+      "file": "stop_on_incomplete_pipeline.mjs",
+      "description": "Prevents exit when extraction or forge pipelines are half-finished.",
+      "severity": "warn",
+      "tier": 4
+    },
+    {
+      "name": "stop_on_missing_tests",
+      "file": "stop_on_missing_tests.mjs",
+      "description": "Warns when engine/feature created without test coverage.",
+      "severity": "warn",
+      "tier": 4
+    },
+    {
+      "name": "stop_on_non_h_roadmap",
+      "file": "stop_on_non_h_roadmap.mjs",
+      "description": "Stop on non h roadmap",
+      "severity": "warn",
+      "tier": 4
+    },
+    {
+      "name": "stop_on_open_claim",
+      "file": "stop_on_open_claim.mjs",
+      "description": "Prevents exit when claims are held without completion record.",
+      "severity": "warn",
+      "tier": 4
+    },
+    {
+      "name": "stop_on_open_lock",
+      "file": "stop_on_open_lock.mjs",
+      "description": "Prevents exit when file locks are held by this session.",
+      "severity": "pass",
+      "tier": 4
+    },
+    {
+      "name": "stop_on_orphan_children",
+      "file": "stop_on_orphan_children.mjs",
+      "description": "Prevents exit when background agents are still running.",
+      "severity": "warn",
+      "tier": 4
+    },
+    {
+      "name": "stop_on_orphan_engine",
+      "file": "stop_on_orphan_engine.mjs",
+      "description": "Warns when engine created without dispatcher wiring.",
+      "severity": "warn",
+      "tier": 4
+    },
+    {
+      "name": "stop_on_repeat_error",
+      "file": "stop_on_repeat_error.mjs",
+      "description": "Reads error-memory.json. If any error signature has fired ≥3 times in the",
+      "severity": "block",
+      "tier": 4
+    },
+    {
+      "name": "stop_on_roadmap_drift",
+      "file": "stop_on_roadmap_drift.mjs",
+      "description": "Warns when work doesn't match claimed roadmap unit.",
+      "severity": "warn",
+      "tier": 4
+    },
+    {
+      "name": "stop_on_session_mistake_digest",
+      "file": "stop_on_session_mistake_digest.mjs",
+      "description": "stop_on_session_mistake_digest.mjs — Stop hook (non-blocking)",
+      "severity": "block",
+      "tier": 4
+    },
+    {
+      "name": "stop_on_skill_unwired",
+      "file": "stop_on_skill_unwired.mjs",
+      "description": "Warns when skill created without hook anchor.",
+      "severity": "warn",
+      "tier": 4
+    },
+    {
+      "name": "stop_on_stale_handoff",
+      "file": "stop_on_stale_handoff.mjs",
+      "description": "Warns when handoff file is >24h old.",
+      "severity": "warn",
+      "tier": 4
+    },
+    {
+      "name": "stop_on_svi_regression",
+      "file": "stop_on_svi_regression.mjs",
+      "description": "Warns when System Variability Index decreased during session.",
+      "severity": "warn",
+      "tier": 4
+    },
+    {
+      "name": "stop_on_sx_fail",
+      "file": "stop_on_sx_fail.mjs",
+      "description": "Prevents exit when any file touched has S(x) < 0.70.",
+      "severity": "warn",
+      "tier": 4
+    },
+    {
+      "name": "stop_on_uncommitted_critical",
+      "file": "stop_on_uncommitted_critical.mjs",
+      "description": "Prevents exit when CRITICAL-classified files have uncommitted changes.",
+      "severity": "warn",
+      "tier": 0
+    },
+    {
+      "name": "stop_on_uncommitted_memory",
+      "file": "stop_on_uncommitted_memory.mjs",
+      "description": "Warns when memory entries edited but not synced.",
+      "severity": "warn",
+      "tier": 4
+    },
+    {
+      "name": "stop_on_undocumented_action",
+      "file": "stop_on_undocumented_action.mjs",
+      "description": "Warns when MCP action exists without schema/documentation.",
+      "severity": "warn",
+      "tier": 4
+    },
+    {
+      "name": "stop_on_unregistered_asset",
+      "file": "stop_on_unregistered_asset.mjs",
+      "description": "Warns when new assets created but not registered in cross-session registry.",
+      "severity": "warn",
+      "tier": 4
+    },
+    {
+      "name": "stop_on_unsafe_gcode",
+      "file": "stop_on_unsafe_gcode.mjs",
+      "description": "stop_on_unsafe_gcode.mjs — Tier 6 Stop Hook (IMPROVED)",
+      "severity": "block",
+      "tier": 4
+    },
+    {
+      "name": "stop_on_unwired_assets",
+      "file": "stop_on_unwired_assets.mjs",
+      "description": "BLOCKS session termination when newly-built assets are not yet",
+      "severity": "block",
+      "tier": 0
+    },
+    {
+      "name": "stop_on_user_correction",
+      "file": "stop_on_user_correction.mjs",
+      "description": "Scans the session transcript for user correction phrases (no/don't/stop/wrong/",
+      "severity": "block",
+      "tier": 4
     }
-  ]
+  ],
+  "skipped": []
 }

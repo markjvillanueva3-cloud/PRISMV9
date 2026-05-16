@@ -18,6 +18,10 @@ import { readFileSync } from "node:fs";
 
 const REPO = "H:/prism";
 const BUILDER = REPO + "/scripts/build-hook-registry.mjs";
+// Also regenerate the Tier-6 STOP_HOOK_REGISTRY.json — it has its own generator
+// (build-stop-hook-registry.mjs) and previously went 24 days stale because
+// nothing fired it, making stop_on_hook_unregistered.mjs warn every session.
+const BUILDER_STOP = REPO + "/scripts/build-stop-hook-registry.mjs";
 // `.claude/hooks/<anything>.mjs` (incl. bundles/) OR `.claude/settings.json` / `.claude/settings.local.json`
 const RELEVANT_RE = /[\\/]\.claude[\\/]hooks[\\/].*\.mjs$|[\\/]\.claude[\\/]settings(?:\.local)?\.json$/i;
 
@@ -43,15 +47,17 @@ function main() {
   const touchedHookLand = relevantPaths(hookInput.tool_input || {}).some((p) => RELEVANT_RE.test(String(p).replace(/\\/g, "/")));
   if (!touchedHookLand) { process.stdout.write(JSON.stringify({ continue: true })); return; }
 
-  // fire-and-forget — regenerate the registry in the background; never block the tool
-  try {
-    const child = spawn(process.execPath, [BUILDER], { cwd: REPO, stdio: "ignore", windowsHide: true, detached: true });
-    child.unref?.();
-  } catch { /* spawn failed under fork pressure — the verify cron + next SessionStart will catch up */ }
+  // fire-and-forget — regenerate BOTH registries in the background; never block the tool
+  for (const builder of [BUILDER, BUILDER_STOP]) {
+    try {
+      const child = spawn(process.execPath, [builder], { cwd: REPO, stdio: "ignore", windowsHide: true, detached: true });
+      child.unref?.();
+    } catch { /* spawn failed under fork pressure — the verify cron + next SessionStart will catch up */ }
+  }
 
   process.stdout.write(JSON.stringify({
     continue: true,
-    hookSpecificOutput: { hookEventName: "PostToolUse", additionalContext: "↻ HOOK_REGISTRY.json regen queued (a .claude/hooks change was detected)" },
+    hookSpecificOutput: { hookEventName: "PostToolUse", additionalContext: "↻ HOOK_REGISTRY.json + STOP_HOOK_REGISTRY.json regen queued (a .claude/hooks change was detected)" },
   }));
 }
 
