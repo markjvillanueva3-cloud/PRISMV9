@@ -261,12 +261,30 @@
     "U-P4-OLLAMA-COST-ROUTING": {
       "phase": "P4-COST",
       "title": "PreToolUse:Bash detects expensive Claude ops, routes to local Ollama qwen2.5-coder",
-      "status": "pending"
+      "status": "complete",
+      "shipped_by": "claude-a61bbf34 (slot bravo)",
+      "shipped_at": "2026-05-15",
+      "shipped_commit": "831d04c2b",
+      "deliverables": [
+        ".claude/hooks/lib/ollama-cost-router.mjs — NEW pure routeModelForTask({category,available}) + 4-tier model ladder (cheap->balanced->strong->best); escalate-up-only, never-de-escalate",
+        ".claude/hooks/__tests__/ollama-cost-router.test.mjs — 22 node:test cases (peer-absorbed in 173f6305b)",
+        ".claude/hooks/ollama-task-offloader.mjs — 3 surgical edits: import the router, drop the hardcoded selectBestModel, propagate tier into recordOllamaEvent extras"
+      ],
+      "rationale": "Replaces the offloader's inline model-selection with a pure tested router. Completes Phase 4 (3/3). 2-of-2 per-file scrutiny PASS, 0 P0/P1. Envelope status flipped in close-out 2026-05-16 (slot echo) — the execution_log carried the shipped record but the unit status was never flipped (silent close-out debt)."
     },
     "U-P4-TOKEN-BUDGET-TELEMETRY": {
       "phase": "P4-COST",
       "title": "Surface remaining token budget + savings in /checkin Report",
-      "status": "pending"
+      "status": "complete",
+      "shipped_by": "claude-a61bbf34 (slot bravo)",
+      "shipped_at": "2026-05-15",
+      "shipped_commit": "97185f094",
+      "deliverables": [
+        "JSONL telemetry layer on the existing token-budget-gate hook (v:1 schema)",
+        "New dashboard CLI joining session-id->slot via chat-slots.json; NIST nearest-rank p95; ledger-missing first-run UX",
+        "memory/reference_token_budget_telemetry.md + MEMORY.md index line"
+      ],
+      "rationale": "Adds the telemetry + dashboard so token budget and savings are surfaced per the unit intent. 2-of-2 per-file scrutiny PASS, all P1s fixed pre-commit. Envelope status flipped in close-out 2026-05-16 (slot echo)."
     },
     "U-P5-CHECKIN-FLEET-CONTEXT": {
       "phase": "P5-FLEET-COORD",
@@ -284,7 +302,16 @@
     "U-P5-MULTI-CHAT-UNBLOCK-DETECT": {
       "phase": "P5-FLEET-COORD",
       "title": "PostToolUse: when chat-N commits, scan task graph; if chat-M is blocked on what just shipped, notify",
-      "status": "pending"
+      "status": "complete",
+      "shipped_by": "claude-a61bbf34 (slot echo)",
+      "shipped_at": "2026-05-16",
+      "shipped_commit": "44ac1b52c",
+      "deliverables": [
+        "scripts/unblock-detect.mjs — peer-commit unblock detector. Reads roadmap-index.json milestones[] dependencies[], classifies every milestone DONE/READY/BLOCKED via a one-level (non-recursive, cycle-safe) direct-dependency check, cross-refs recent git-log scoped [MILESTONE-ID] commits. Focus mode (--milestone M) + fleet mode (every READY pickup candidate, newly-unblocked first).",
+        "scripts/unblock-detect.test.mjs — 49 node:test cases incl a hermetic git-fixture repo. All pass.",
+        "memory/reference_unblock_detect_2026_05_16.md + MEMORY.md index line"
+      ],
+      "rationale": "ARCHITECTURE DEVIATION (deliberate, documented): the unit spec called for a PostToolUse hook auto-firing on every commit. Shipped instead as an operator/chat-invoked CLI per feedback_dont_wire_for_wiring_sake_2026_05_16 — a PostToolUse hook firing on every commit across the 12-chat fleet is exactly the per-commit noise the anti-wiring doctrine forbids. The CLI delivers the same detection capability (a chat runs unblock-detect.mjs --milestone M to see whether a peer commit just unblocked it) without the fleet-wide noise. Unit intent satisfied; the auto-fire surface intentionally not built. 3-of-3 Stop scrutiny PASS (ledger ubd-44ac1b52c). Envelope flipped in close-out 2026-05-16 (slot echo)."
     },
     "U-P5-COORD-SQLITE-LIVE-SWAP": {
       "phase": "P5-FLEET-COORD",
@@ -345,6 +372,13 @@
       ],
       "scrutiny": "2-of-2 per-file gate PASS (code-analyzer + reviewer); 0 P0/P1; 4 P2/P3 deferred to handoff",
       "notes": "Completes SYSTEM-VIZ-BRAIN-MS0 Phase 4 (3/3). 6th shared-tree absorption this session — test file landed via peer merge before lib could be staged."
+    },
+    {
+      "ts": "2026-05-16T18:55:00Z",
+      "by": "claude-a61bbf34 (slot echo)",
+      "event": "close_out_drift_flip",
+      "units": ["U-P4-OLLAMA-COST-ROUTING", "U-P4-TOKEN-BUDGET-TELEMETRY", "U-P5-MULTI-CHAT-UNBLOCK-DETECT"],
+      "notes": "Iteration 1 of /loop close-out. These 3 units shipped with real commits (831d04c2b / 97185f094 / 44ac1b52c), memory references, and scrutiny PASS, but the unit status was never flipped (silent close-out debt). Verified each against git log + memory + scrutiny ledger before flipping. Complete count 12->15 of 26. U-P5-MULTI-CHAT-UNBLOCK-DETECT shipped as an operator-invoked CLI, not the spec'd PostToolUse hook — deviation documented in its unit rationale per feedback_dont_wire_for_wiring_sake."
     }
   ]
 }
