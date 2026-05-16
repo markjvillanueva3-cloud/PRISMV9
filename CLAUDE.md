@@ -228,6 +228,28 @@ const result = prismCreativeReasoningEngine.explore(problem, "optimal");
 ```
 **15 scientific domains** (control theory, materials science, robotics, ML, precision, etc.) · **120+ formulas/algorithms** (PID, LQR, Kalman, Johnson-Cook, NURBS, S-curve, CNN, K-means, Abbe error). Entry point: `CrossDisciplinaryDeepLearningEngine`.
 
+## LEARN-FROM-MISTAKES PROTOCOL (2026-05-16 — OBSIDIAN-INTELLIGENCE-MS3 meta-infra)
+
+Auto-capture loop so PRISM systematically learns from mistakes, errors, bugs, fixes, regressions, P0/P1 findings, hostile-input bypasses, footguns, false-positives, and "got burned" moments. Strictly additive, advisory-only, never blocks. Full architecture: [`knowledge/wiki/architecture/learning-from-mistakes.md`](knowledge/wiki/architecture/learning-from-mistakes.md). Standing rule: [[feedback_always_capture_lessons]].
+
+| Surface | Role |
+|---------|------|
+| `scripts/scan-for-learning-keywords.mjs` | CLI scanner — last N commits + working diff + memory dedup → punch list of UNCAPTURED hits. JSON or human-readable. |
+| `.claude/hooks/mistake-keyword-flag.mjs` (T2) | PostToolUse Bash/Edit/Write/MultiEdit advisory — injects "capture this lesson" nudge when output contains a hot keyword. Per-keyword 600 s cooldown. |
+| `.claude/hooks/stop-learning-capture-prompt.mjs` (T3) | Stop hook advisory — at session end, surfaces top-5 uncaptured hits. 900 s throttle. Non-blocking. |
+| `.claude/commands/learn-from-mistake.md` | `/learn-from-mistake` skill — manual capture entry; writes structured memo (Why: + How to apply: + Related:). |
+
+**Keyword catalog (severity: critical > warn > info):**
+- `critical` — `P0`, `HOSTILE`, `EXPLOITABLE`, `VULNERABLE`, `corrupted`
+- `warn` — `P1`, `FAIL(ED)`, `regression`, `hijack(ed)`, `crash(ed)`, `footgun`, `got burned`, `false-positive`, `false-negative`, `mistake`
+- `info` — `error`, `TypeError`, `ReferenceError`, `fix(ed)`, `patch(ed)`, `oops`, `in hindsight`, `next time`, `lesson learned`, `antipattern`, `trap`, `pitfall`
+
+**Memo template (every captured lesson MUST encode):** (1) Summary h1 + `description:` frontmatter, (2) **Why:** concrete incident, (3) **How to apply:** actionable rule, (4) **Related:** `[[memo-slug]]` cross-links + wiki entry + CLAUDE.md section, (5) MEMORY.md index entry (one line, <200 chars).
+
+**Knobs:** `PRISM_LEARNING_SCAN_DISABLE=1` · `PRISM_LEARNING_SCAN_WINDOW_COMMITS=N` · `PRISM_MISTAKE_FLAG_DISABLE=1` · `PRISM_MISTAKE_FLAG_MIN_SEVERITY=critical` · `PRISM_MISTAKE_FLAG_COOLDOWN_SEC=N` · `PRISM_STOP_LEARNING_DISABLE=1` · `PRISM_STOP_LEARNING_THROTTLE_SEC=N` · `PRISM_STOP_LEARNING_MAX_HITS=N`
+
+**Tests:** scanner 20/20 ✓ · PostToolUse hook 19/19 ✓ · Stop hook 14/14 ✓ — all node:test, all pure-function units, adversarial coverage. Wiring: 2 settings.json entries (operator-armed, NOT auto-wired by this ship). All artifacts function standalone via CLI regardless of harness wiring.
+
 ## Recent regressions
 <!-- Append-only log per Boris CLAUDE.md back-flow pattern. New entries at TOP. -->
 - 2026-05-15 | **`c-to-h-mirror` hook was DOCUMENTED but NEVER WIRED (silent C:↔H: drift for months).** Both global and project CLAUDE.md claimed "c-to-h-mirror hook auto-replicates C: → H: on every save" since 2026-05-12 at the latest. Reality: `.claude/hooks/mirror-c-to-h.mjs` existed but had ZERO entries in either settings.json. Every Claude session on this PC wrote to `C:\Users\<u>\.claude\` (memory, plans, transcripts) and silently failed to mirror to `H:\.claude\`. Live audit on 2026-05-15: **34,003 files walked on C:, 33,040 missing on H:** (≈97% drift), 575 correctly excluded by the hook's exclusion list, 388 already in sync. | fix: INTEL-OLLAMA-OBSIDIAN-MS0/P6-U01 (claude-b6c4b196 slot delta 2026-05-15) wired the hook into the `Edit|Write|MultiEdit|NotebookEdit` PostToolUse group in BOTH `C:\Users\<u>\.claude\settings.json` AND `H:\.claude\settings.json` (timeout 3000ms, byte-identical 30064 bytes); shipped 2 supporting scripts (`scripts/mirror-c-to-h-audit.mjs` to surface drift, `scripts/bootstrap-h-mirror.mjs` for one-shot backlog sync with --apply); 32 vitest tests in `.claude/helpers/mirror-c-to-h.test.mjs` (plain `node:assert` because the helpers/ vitest-config has a pre-existing infra bug). | verify: `node scripts/mirror-c-to-h-audit.mjs` → `missing-on-h: 0` after running `node scripts/bootstrap-h-mirror.mjs --apply` once. The hook continues to fire on every Edit/Write going forward.

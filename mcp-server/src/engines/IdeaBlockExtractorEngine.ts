@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: downstream-deferred — composed by E3 IdeaBlockRagEngine (charlie queue) which IS dispatcher-wired via prism_knowledge. E1 is the leaf producer; E2 (dedup) + E3 (retrieval) + E4 (governance) form the upstream wiring path. Tracked in OBSIDIAN-INTELLIGENCE-MS3 envelope phase E.
 /**
  * IdeaBlockExtractorEngine — OBSIDIAN-INTELLIGENCE-MS3 / E1
  * ==========================================================
