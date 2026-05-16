@@ -800,4 +800,36 @@ export const ACTION_SESSION_SCHEMAS: ActionSchemaMap = {
     order: z.enum(["asc", "desc"]).optional()
       .describe("'asc' = chronological/file order (default), 'desc' = most-recent first"),
   }).strict(),
+
+  /** memory_conflict_resolve — OBSIDIAN-INTELLIGENCE-MS3/U-CONFLICT-RESOLUTION
+   * (D3). Detect a semantic conflict between two writes to the same memory
+   * key and, on a real conflict, persist both versions + a policy-selected
+   * winner to knowledge/memories/conflicts/<key>.diff.md. Backed by
+   * MemoryConflictResolverEngine.resolveConflict. */
+  memory_conflict_resolve: z.object({
+    key: z.string().min(1)
+      .describe("Logical memory key — sanitized to a basename (no slashes / '..')"),
+    existing: z.object({
+      agent: z.string().min(1).max(64)
+        .describe("Chat/agent id that produced the on-record write"),
+      sessionId: z.string().min(1).max(64)
+        .describe("Stable session id of the on-record write"),
+      content: z.string().max(5_000_000)
+        .describe("Full content of the on-record write (may be empty)"),
+      ts: z.string().min(1).describe("ISO-8601 timestamp of the on-record write"),
+    }).strict().describe("The write already on record for this key"),
+    incoming: z.object({
+      agent: z.string().min(1).max(64)
+        .describe("Chat/agent id that produced the incoming write"),
+      sessionId: z.string().min(1).max(64)
+        .describe("Stable session id of the incoming write"),
+      content: z.string().max(5_000_000)
+        .describe("Full content of the incoming write (may be empty)"),
+      ts: z.string().min(1).describe("ISO-8601 timestamp of the incoming write"),
+    }).strict().describe("The new incoming write for the same key"),
+    windowMs: z.number().positive().optional()
+      .describe("Concurrency window in ms (default 30000): within → 'concurrent', beyond → 'superseded'"),
+    policy: z.enum(["last-writer", "first-writer", "human-arbitrate"]).optional()
+      .describe("Resolution policy (default last-writer)"),
+  }).strict(),
 };

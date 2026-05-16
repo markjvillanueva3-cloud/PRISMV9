@@ -202,7 +202,13 @@ const ACTIONS = [
   // append-only agent-write trace log (state/shared/action-traces.jsonl).
   // Backed by ActionTraceEngine.queryTraces. The recordTrace write-path is
   // the engine API consumed by a future PostToolUse trace hook.
-  "action_trace_query"
+  "action_trace_query",
+  // OBSIDIAN-INTELLIGENCE-MS3/U-CONFLICT-RESOLUTION (D3) — detect a semantic
+  // conflict between two writes to the same memory key and, on a real
+  // conflict, persist both versions + a policy-selected winner to
+  // knowledge/memories/conflicts/<key>.diff.md. Backed by
+  // MemoryConflictResolverEngine.resolveConflict.
+  "memory_conflict_resolve"
 ] as const;
 
 function ok(data: any) {
@@ -2032,6 +2038,42 @@ export function registerSessionDispatcher(server: any): void {
               ...rest,
               file: traceFile ? traceFile.replace(/^.*[/\\]/, "") : traceFile,
             });
+          }
+
+          // OBSIDIAN-INTELLIGENCE-MS3/U-CONFLICT-RESOLUTION (D3) — detect +
+          // resolve a semantic memory-key conflict. Lazy-imported per the
+          // dispatcher lazy-import convention. The engine result's `file`
+          // is already a basename (no host-path leak by construction).
+          case "memory_conflict_resolve": {
+            const { resolveConflict } = await import(
+              "../../engines/MemoryConflictResolverEngine.js"
+            );
+            const result = resolveConflict({
+              key: params.key as string,
+              existing: params.existing as {
+                agent: string;
+                sessionId: string;
+                content: string;
+                ts: string;
+              },
+              incoming: params.incoming as {
+                agent: string;
+                sessionId: string;
+                content: string;
+                ts: string;
+              },
+              windowMs:
+                typeof params.windowMs === "number"
+                  ? params.windowMs
+                  : undefined,
+              policy:
+                params.policy === "first-writer" ||
+                params.policy === "human-arbitrate" ||
+                params.policy === "last-writer"
+                  ? params.policy
+                  : undefined,
+            });
+            return ok({ success: true, ...result });
           }
 
           default:
