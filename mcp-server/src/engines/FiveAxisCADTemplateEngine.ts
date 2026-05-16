@@ -321,6 +321,11 @@ export interface HookExecutionResult {
  * - User-modifiable variables
  * - Automatic variant generation
  */
+// WIRE-EXEMPT: internal-layer engine — consumed by FiveAxisAggregatorEngine and
+// FiveAxisToolpathSynthesisEngine (registries/engines index re-export); no MCP
+// dispatcher surface intended. Exercised by 5AXIS-DEEP.test.ts (milestone-named,
+// not 1:1). This tsc-fix pass repaired MaterialProps field drift only and did
+// not introduce the orphan state.
 export class FiveAxisCADTemplateEngine {
   private static hooks: Map<string, CADTemplateHook> = new Map();
   private static templates: Map<string, ParametricTemplate> = new Map();
@@ -1561,9 +1566,9 @@ export class FiveAxisCADTemplateEngine {
       material_variants: {
         enabled: true,
         alternative_materials: [
-          { name: "M2 HSS", iso_group: "H", hardness_hrc: 62, kc1_1: 3400, mc: 0.25 },
-          { name: "S7 Tool Steel", iso_group: "H", hardness_hrc: 54, kc1_1: 3000, mc: 0.25 },
-          { name: "A2 Tool Steel", iso_group: "H", hardness_hrc: 58, kc1_1: 3100, mc: 0.25 },
+          { name: "M2 HSS", iso_group: "H", hardness_hrc: 62, kc11_mpa: 3400, mc: 0.25, density_kg_m3: 8160, thermal_conductivity_w_mk: 21, specific_heat_j_kgk: 420 },
+          { name: "S7 Tool Steel", iso_group: "H", hardness_hrc: 54, kc11_mpa: 3000, mc: 0.25, density_kg_m3: 7833, thermal_conductivity_w_mk: 27, specific_heat_j_kgk: 460 },
+          { name: "A2 Tool Steel", iso_group: "H", hardness_hrc: 58, kc11_mpa: 3100, mc: 0.25, density_kg_m3: 7860, thermal_conductivity_w_mk: 24, specific_heat_j_kgk: 460 },
         ],
         recalculate_strategy: true,
       },
@@ -1581,10 +1586,10 @@ export class FiveAxisCADTemplateEngine {
     newMaterial: MaterialProps
   ): TemplateVariant["impact"] {
     const hardnessDiff = (newMaterial.hardness_hrc || 0) - (original.hardness_hrc || 0);
-    const kc1_1Diff = (newMaterial.kc1_1 || 0) - (original.kc1_1 || 0);
+    const kc1_1Diff = (newMaterial.kc11_mpa || 0) - (original.kc11_mpa || 0);
 
     return {
-      cycle_time_change_pct: kc1_1Diff > 0 ? (kc1_1Diff / original.kc1_1) * 20 : (kc1_1Diff / original.kc1_1) * 15,
+      cycle_time_change_pct: kc1_1Diff > 0 ? (kc1_1Diff / original.kc11_mpa) * 20 : (kc1_1Diff / original.kc11_mpa) * 15,
       tool_life_impact: hardnessDiff > 2 ? "worse" : hardnessDiff < -2 ? "better" : "same",
       surface_finish_impact: "same",
       strategy_change_needed: Math.abs(hardnessDiff) > 5,
