@@ -7,8 +7,10 @@
  *   node --max-old-space-size=4096 scripts/rgs-tool-planner.mjs ...
  *
  * CLI usage:
- *   node scripts/rgs-tool-planner.mjs [--all-open] [--milestone <id>]
- *     [--unit <ms::id>] [--limit N] [--force] [--ollama-off] [--json]
+ *   node scripts/rgs-tool-planner.mjs [--milestone <id>] [--unit <ms::id>]
+ *     [--limit N] [--time-budget <min>] [--force] [--ollama-off] [--json]
+ *   (bare invocation = every open unit; --time-budget caps wall-clock runtime
+ *    for the nightly cron — see .claude/helpers/install-rgs-planner-task.ps1)
  *
  * Exported core (testable):
  *   async function runPlanner({ units, complexityFor, readers,
@@ -36,7 +38,6 @@ const REPO_ROOT = path.resolve(__dirname, "..");
 const SCHEMA_VERSION = "1.0.0";
 const FLUSH_EVERY = 50;
 const LOCK_MAX_AGE_MS = 10 * 60 * 1000; // 10 min
-const LOCK_REFRESH_EVERY = 50; // units
 const ATOMIC_RETRY_MAX = 3;
 const ATOMIC_RETRY_DELAY_MS = 100;
 const CAPABILITIES_HITS_PER_TOKEN = 8;   // findInGraph limit per query token
@@ -445,9 +446,17 @@ function sleep(ms) {
  *   checkpointPath: string,
  *   force?: boolean,
  *   degraded?: boolean,
- *   onFlush?: (plans: object) => void,
+ *   timeBudgetMs?: number,
+ *   nowFn?: () => number,
+ *   onFlush?: () => void,
  * }} opts
- * @returns {Promise<{planned:number, skipped:number, degraded:boolean, sidecar:string}>}
+ * @returns {Promise<{planned:number, skipped:number, deferred:number, budgetExhausted:boolean, degraded:boolean, sidecar:string}>}
+ *
+ * timeBudgetMs>0 caps wall-clock runtime: once the budget is spent the loop
+ * stops before the next unit (the unit in flight always finishes; per-unit
+ * checkpointing means the next run resumes). nowFn is injectable for tests.
+ * onFlush fires after every sidecar flush — the CLI uses it to re-stamp the
+ * planner lock so a long budgeted run never lets its own lock go stale.
  */
 export async function runPlanner({
   units,
@@ -457,6 +466,9 @@ export async function runPlanner({
   checkpointPath,
   force = false,
   degraded = false,
+  timeBudgetMs = 0,
+  nowFn = Date.now,
+  onFlush,
 }) {
   // Load checkpoint set (key → hash)
   const completedSet = readCheckpoint(checkpointPath);
@@ -467,10 +479,22 @@ export async function runPlanner({
   let planned = 0;
   let skipped = 0;
   let processedSinceFlush = 0;
+  let budgetExhausted = false;
+
+  // Wall-clock anchor for the optional time budget (nowFn injectable for tests).
+  const startTime = nowFn();
 
   const { fuseSignals } = await import("./lib/rgs-signal-fusion.mjs");
 
   for (const unit of units) {
+    // Time-budget gate (U-CRON): once the budget is spent, stop BEFORE the
+    // next unit. The unit in flight always finishes; per-unit checkpointing
+    // lets the next run resume. timeBudgetMs<=0 → unlimited (default).
+    if (timeBudgetMs > 0 && nowFn() - startTime >= timeBudgetMs) {
+      budgetExhausted = true;
+      break;
+    }
+
     const complexity = complexityFn(unit);
     const hash = sourceHash(unit, complexity);
 
@@ -512,13 +536,17 @@ export async function runPlanner({
     if (processedSinceFlush >= FLUSH_EVERY) {
       await flushSidecar(sidecarPath, buildSidecarDoc(plans, degraded));
       processedSinceFlush = 0;
+      if (typeof onFlush === "function") onFlush();
     }
   }
 
   // Final flush
   await flushSidecar(sidecarPath, buildSidecarDoc(plans, degraded));
+  if (typeof onFlush === "function") onFlush();
 
-  return { planned, skipped, degraded, sidecar: sidecarPath };
+  // deferred = units the time budget cut off (0 when the budget was not hit).
+  const deferred = units.length - planned - skipped;
+  return { planned, skipped, deferred, budgetExhausted, degraded, sidecar: sidecarPath };
 }
 
 function buildSidecarDoc(plans, degraded) {
@@ -553,6 +581,13 @@ async function main() {
   const limitFilter = (() => {
     const i = args.indexOf("--limit");
     return i >= 0 ? Number(args[i + 1]) : null;
+  })();
+  // --time-budget <minutes>: cap wall-clock runtime (U-CRON nightly replan).
+  // Invalid / non-positive values are ignored (treated as unlimited).
+  const timeBudgetMin = (() => {
+    const i = args.indexOf("--time-budget");
+    const v = i >= 0 ? Number(args[i + 1]) : null;
+    return Number.isFinite(v) && v > 0 ? v : null;
   })();
 
   const sidecarPath    = DEFAULT_SIDECAR_PATH;
@@ -629,22 +664,9 @@ async function main() {
     readers.ollama = makeOllamaReader(queryOllamaFn);
   }
 
-  // Lock refresh on flush
-  let unitsSinceLockRefresh = 0;
-  const origFlush = flushSidecar;
-  const flushWithLockRefresh = async (p, d) => {
-    unitsSinceLockRefresh += LOCK_REFRESH_EVERY;
-    if (unitsSinceLockRefresh >= LOCK_REFRESH_EVERY) {
-      writeLock(lockPath);
-      unitsSinceLockRefresh = 0;
-    }
-    return origFlush(p, d);
-  };
-  // We use flushSidecar directly inside runPlanner; for the CLI, lock refresh
-  // is handled by the periodic flush inside runPlanner every FLUSH_EVERY units.
-  // The writeLock call is best-effort — we touch the lock file on every flush.
-  void flushWithLockRefresh; // acknowledged — CLI uses runPlanner directly
-
+  // Lock refresh: runPlanner calls onFlush after every sidecar flush; we
+  // re-stamp the lock there so a long --time-budget run never lets its own
+  // lock age past LOCK_MAX_AGE_MS and get stolen by a concurrent invocation.
   const result = await runPlanner({
     units,
     complexityFor: complexityFor,
@@ -653,6 +675,8 @@ async function main() {
     checkpointPath,
     force: forceFlag,
     degraded,
+    timeBudgetMs: timeBudgetMin ? timeBudgetMin * 60 * 1000 : 0,
+    onFlush: () => writeLock(lockPath),
   });
 
   // Release lock
@@ -660,20 +684,23 @@ async function main() {
 
   if (jsonOut) {
     process.stdout.write(JSON.stringify({
-      units:    units.length,
-      planned:  result.planned,
-      skipped:  result.skipped,
-      degraded: result.degraded,
-      sidecar:  result.sidecar,
+      units:           units.length,
+      planned:         result.planned,
+      skipped:         result.skipped,
+      deferred:        result.deferred,
+      budgetExhausted: result.budgetExhausted,
+      degraded:        result.degraded,
+      sidecar:         result.sidecar,
     }, null, 2) + "\n");
   } else {
     process.stdout.write(
       `[rgs-tool-planner] Done.\n` +
-      `  units:    ${units.length}\n` +
-      `  planned:  ${result.planned}\n` +
-      `  skipped:  ${result.skipped}\n` +
-      `  degraded: ${result.degraded}\n` +
-      `  sidecar:  ${result.sidecar}\n`
+      `  units:           ${units.length}\n` +
+      `  planned:         ${result.planned}\n` +
+      `  skipped:         ${result.skipped}\n` +
+      `  deferred:        ${result.deferred}${result.budgetExhausted ? " (time budget reached — resume next run)" : ""}\n` +
+      `  degraded:        ${result.degraded}\n` +
+      `  sidecar:         ${result.sidecar}\n`
     );
   }
 }

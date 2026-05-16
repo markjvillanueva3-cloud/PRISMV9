@@ -462,6 +462,154 @@ describe("T7: generic error (no RGS_DETERMINISTIC_PLAN_INVALID sentinel) for 1 u
 });
 
 // ---------------------------------------------------------------------------
+// T8: --time-budget — injected nowFn trips the budget mid-batch (U-CRON)
+// ---------------------------------------------------------------------------
+
+describe("T8: time budget truncates the batch and defers the rest", () => {
+  let result;
+  let sidecarPath;
+  let checkpointPath;
+
+  before(async () => {
+    const tmp = makeTmpDir();
+    sidecarPath = path.join(tmp, "roadmap-tool-plans.json");
+    checkpointPath = path.join(tmp, ".roadmap-tool-plans.checkpoint.jsonl");
+
+    // nowFn is called once for startTime, then once per loop iteration (top).
+    // Calls 1-3 return 0 (under budget) → units 1 & 2 process; call 4 returns
+    // a large value → iteration 3 trips the budget and breaks.
+    let nowCalls = 0;
+    const nowFn = () => {
+      nowCalls++;
+      return nowCalls <= 3 ? 0 : 999999;
+    };
+
+    result = await runPlanner({
+      units: fakeUnits(3),
+      complexityFor: stableComplexity,
+      readers: makeReaders(),
+      sidecarPath,
+      checkpointPath,
+      force: false,
+      timeBudgetMs: 1,
+      nowFn,
+    });
+  });
+
+  it("budgetExhausted is true", () => {
+    assert.equal(result.budgetExhausted, true);
+  });
+
+  it("planned=2, deferred=1 (third unit cut off)", () => {
+    assert.equal(result.planned, 2, `planned=${result.planned}`);
+    assert.equal(result.deferred, 1, `deferred=${result.deferred}`);
+  });
+
+  it("only the 2 processed units are in the sidecar", () => {
+    const data = JSON.parse(fs.readFileSync(sidecarPath, "utf8"));
+    assert.equal(Object.keys(data.plans).length, 2);
+  });
+
+  it("the 2 processed units are checkpointed for resume", () => {
+    const raw = fs.readFileSync(checkpointPath, "utf8");
+    const lines = raw.split("\n").filter((l) => l.trim());
+    assert.equal(lines.length, 2, "checkpoint must hold exactly the 2 processed units");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// T9: a budget-truncated run resumes — deferred unit is planned next run
+// ---------------------------------------------------------------------------
+
+describe("T9: resume after budget truncation plans the deferred unit", () => {
+  let result2;
+
+  before(async () => {
+    const tmp = makeTmpDir();
+    const sidecarPath = path.join(tmp, "roadmap-tool-plans.json");
+    const checkpointPath = path.join(tmp, ".roadmap-tool-plans.checkpoint.jsonl");
+    const units = fakeUnits(3);
+
+    let nowCalls = 0;
+    const nowFn = () => { nowCalls++; return nowCalls <= 3 ? 0 : 999999; };
+
+    // Run 1 — budget trips at unit 3 → 2 planned, 1 deferred.
+    await runPlanner({
+      units, complexityFor: stableComplexity, readers: makeReaders(),
+      sidecarPath, checkpointPath, force: false, timeBudgetMs: 1, nowFn,
+    });
+
+    // Run 2 — no budget. The 2 checkpointed units skip; the deferred one plans.
+    result2 = await runPlanner({
+      units, complexityFor: stableComplexity, readers: makeReaders(),
+      sidecarPath, checkpointPath, force: false,
+    });
+  });
+
+  it("resume run planned=1, skipped=2", () => {
+    assert.equal(result2.planned, 1, `planned=${result2.planned}`);
+    assert.equal(result2.skipped, 2, `skipped=${result2.skipped}`);
+  });
+
+  it("resume run budgetExhausted=false, deferred=0", () => {
+    assert.equal(result2.budgetExhausted, false);
+    assert.equal(result2.deferred, 0);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// T10: onFlush fires (CLI wires it to planner-lock refresh)
+// ---------------------------------------------------------------------------
+
+describe("T10: onFlush callback fires after the sidecar flush", () => {
+  let flushCount;
+
+  before(async () => {
+    const tmp = makeTmpDir();
+    flushCount = 0;
+    await runPlanner({
+      units: fakeUnits(3),
+      complexityFor: stableComplexity,
+      readers: makeReaders(),
+      sidecarPath: path.join(tmp, "roadmap-tool-plans.json"),
+      checkpointPath: path.join(tmp, ".roadmap-tool-plans.checkpoint.jsonl"),
+      force: false,
+      onFlush: () => { flushCount++; },
+    });
+  });
+
+  it("onFlush was invoked at least once (final flush)", () => {
+    assert.ok(flushCount >= 1, `onFlush fired ${flushCount} times, expected >=1`);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// T11: no time budget → budgetExhausted false, deferred 0, all planned
+// ---------------------------------------------------------------------------
+
+describe("T11: unlimited (no timeBudgetMs) — all units planned, nothing deferred", () => {
+  let result;
+
+  before(async () => {
+    const tmp = makeTmpDir();
+    result = await runPlanner({
+      units: fakeUnits(4),
+      complexityFor: stableComplexity,
+      readers: makeReaders(),
+      sidecarPath: path.join(tmp, "roadmap-tool-plans.json"),
+      checkpointPath: path.join(tmp, ".roadmap-tool-plans.checkpoint.jsonl"),
+      force: false,
+    });
+  });
+
+  it("budgetExhausted false, deferred 0, planned 4", () => {
+    assert.equal(result.budgetExhausted, false);
+    assert.equal(result.deferred, 0);
+    assert.equal(result.planned, 4);
+  });
+});
+
+// ---------------------------------------------------------------------------
 // Cleanup
 // ---------------------------------------------------------------------------
 
