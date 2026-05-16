@@ -235,8 +235,8 @@ class MachineCapabilitySurfaceEngine {
     if (!pkg) return null;
 
     const ctrl = pkg.controller ?? {};
-    const family = (ctrl.family ?? "unknown").toLowerCase();
-    const normalized = machineVocabularyNormalizerEngine.normalizeController(ctrl.family ?? "");
+    const family = (ctrl.manufacturer ?? "unknown").toLowerCase();
+    const normalized = machineVocabularyNormalizerEngine.normalizeController(ctrl.manufacturer ?? "");
 
     const baseFeatures = CONTROLLER_PROFILES[family] ?? CONTROLLER_PROFILES["fanuc"] ?? {};
     const features: ControllerFeatureSet = {
@@ -256,9 +256,9 @@ class MachineCapabilitySurfaceEngine {
 
     return {
       machineId,
-      controllerFamily: normalized.normalized?.family ?? ctrl.family ?? "Unknown",
+      controllerFamily: normalized.normalized?.family ?? ctrl.manufacturer ?? "Unknown",
       controllerModel: ctrl.model,
-      vendor: normalized.normalized?.vendor ?? ctrl.vendor ?? "Unknown",
+      vendor: normalized.normalized?.vendor ?? ctrl.manufacturer ?? "Unknown",
       features,
       programmingDialect: this.inferDialect(family),
       macroSupport: {
@@ -315,8 +315,10 @@ class MachineCapabilitySurfaceEngine {
     if (!pkg) return null;
 
     const coolant = pkg.coolant ?? {};
-    const coolType = coolant.type ?? "flood";
-    const pressure = coolant.pressure ?? "medium";
+    // MachineCoolant has no type/pressure fields; derive the coolant type
+    // from the mist_coolant flag and default the pressure tier to medium.
+    const coolType: string = "mist_coolant" in coolant && coolant.mist_coolant ? "mist" : "flood";
+    const pressure: string = "medium";
 
     const strategies: CoolantOption[] = [
       { id: "flood", type: "flood", available: true, standard: true },
@@ -484,7 +486,7 @@ class MachineCapabilitySurfaceEngine {
     }
 
     try {
-      const machine = machineService.get(machineId);
+      const machine = machineService.getMachine(machineId);
       if (machine) {
         const pkg = this.convertToPackage(machine);
         if (pkg) {
@@ -504,7 +506,7 @@ class MachineCapabilitySurfaceEngine {
 
   private loadAllPackages(): CanonicalMachinePackage[] {
     try {
-      const machines = machineService.list();
+      const machines = machineService.search({});
       return machines.map(m => this.convertToPackage(m)).filter((p): p is CanonicalMachinePackage => p !== null);
     } catch {
       return this.getFallbackPackages();
