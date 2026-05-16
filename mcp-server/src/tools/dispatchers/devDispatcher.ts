@@ -166,6 +166,8 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "dv_validate_cutting_params",
 "dv_validate_job",
 "dv_stats",
+// WIRE-UNWIRED-MS0: BashCommandClassifierEngine — truly-unwired backend dev-tool (2026-05-16).
+"bash_classify",
 // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-EDGE-CASE: wire EdgeCaseCaptureEngine
 // (Phase 0.25 Adaptive Variability — captures + learns from boundary operations,
 // drives envelope expansion via VariabilityEnvelopeEngine integration).
@@ -5305,6 +5307,38 @@ export function registerDevDispatcher(server: any): void {
           case "dv_stats": {
             const { dataValidationEngine } = await import("../../engines/DataValidationEngine.js");
             result = { success: true, stats: dataValidationEngine.stats() };
+            break;
+          }
+
+          // WIRE-UNWIRED-MS0: BashCommandClassifierEngine wire (2026-05-16).
+          // Was a truly-unwired backend dev-tool engine (no dispatcher, no test,
+          // no consumer). classify() is pure; we build a FRESH instance per call
+          // so report() reflects only this call's commands — no cross-MCP-call
+          // singleton-history leak (the exported singleton accumulates forever).
+          case "bash_classify": {
+            const { BashCommandClassifierEngine } = await import("../../engines/BashCommandClassifierEngine.js");
+            const p = params as Record<string, unknown>;
+            const rawList = p.commands;
+            const single = p.command;
+            const commands: string[] = Array.isArray(rawList)
+              ? rawList.filter((c): c is string => typeof c === "string" && c.trim().length > 0)
+              : (typeof single === "string" && single.trim().length > 0 ? [single] : []);
+            if (commands.length === 0) {
+              result = { error: "bash_classify requires 'command' (non-empty string) or 'commands' (non-empty string[])" };
+              break;
+            }
+            const engine = new BashCommandClassifierEngine();
+            for (const c of commands) engine.classify(c);
+            const report = engine.report();
+            result = {
+              success: true,
+              count: report.commands.length,
+              classifications: report.commands,
+              totalEstimatedTokens: report.totalEstimatedTokens,
+              totalSaveable: report.totalSaveable,
+              topCategories: report.topCategories,
+              recommendations: report.recommendations,
+            };
             break;
           }
 

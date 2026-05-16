@@ -1020,4 +1020,14 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     asset_type: z.enum(["engine", "dispatcher", "action", "skill", "hook", "test", "schema"])
       .describe("Asset category to scan"),
   }).passthrough().describe("Find all assets of the given type with zero direct dependents"),
+
+  // ── WIRE-UNWIRED-MS0: BashCommandClassifierEngine (2026-05-16) ────────────
+  // Was a truly-unwired backend dev-tool engine (no dispatcher, no test, no
+  // consumer). classify() is pure: bash command → category + est. output
+  // tokens + token-efficient alternative. Provide a single `command` OR a
+  // `commands` batch; the dispatcher case rejects the empty-input case.
+  bash_classify: z.object({
+    command: z.string().min(1).optional().describe("A single bash command to classify"),
+    commands: z.array(z.string().min(1)).optional().describe("A batch of bash commands to classify"),
+  }).passthrough().describe("Classify bash command(s) → category, est. output tokens, token-efficient alternative"),
 };
