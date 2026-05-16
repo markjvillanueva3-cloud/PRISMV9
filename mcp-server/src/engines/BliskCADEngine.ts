@@ -770,7 +770,7 @@ export class BliskCADEngine {
       kind,
       args: args as CADOperationArgs,
       comment,
-      index,
+      opIndex: index,
     };
   }
 }

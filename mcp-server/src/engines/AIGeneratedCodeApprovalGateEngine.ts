@@ -943,7 +943,7 @@ export class AIGeneratedCodeApprovalGateEngine {
           : f.probability > 0.4 ? "high"
           : f.probability > 0.2 ? "medium"
           : "low";
-        const category = (f as any).category ?? "other";
+        const category: RiskCategory = (f as any).category ?? "other";
         factors.push({
           ...f,
           category,

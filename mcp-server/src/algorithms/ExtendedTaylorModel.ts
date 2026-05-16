@@ -291,7 +291,7 @@ class ExtendedTaylorModelImpl implements Algorithm<TaylorInput, TaylorOutput> {
         C = input.material.taylor_C;
         n = input.material.taylor_n;
         isoGroup = input.material.iso_group;
-        materialSource = input.material.name;
+        materialSource = input.material.name ?? "custom";
       }
     } else if (input.iso_group) {
       isoGroup = input.iso_group as ISOGroup;

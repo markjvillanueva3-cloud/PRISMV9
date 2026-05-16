@@ -179,7 +179,7 @@ class SurfaceFinishPredictorImpl implements Algorithm<SurfaceFinishInput, Surfac
     }
 
     // Material validation
-    if (input.iso_group && !MATERIAL_FACTORS[input.iso_group]) {
+    if (input.iso_group && !MATERIAL_FACTORS[input.iso_group as ISOGroup]) {
       warnings.push(`Unknown ISO group '${input.iso_group}' — using default factor`);
     }
 
