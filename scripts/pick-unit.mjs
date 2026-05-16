@@ -31,6 +31,7 @@
 
 import { readFileSync, existsSync } from "node:fs";
 import path from "node:path";
+import { peerClaimedSet, readStore as readClaimStore } from "../.claude/helpers/slot-task-claim.mjs";
 
 const ROOT = "H:/prism";
 const ROADMAP_PATH = path.join(ROOT, "state/shared/atomic-roadmap.json");
@@ -50,6 +51,13 @@ const priorityFilter = argVal("--priority", "devtools").toLowerCase();
 const tierFilter = args.includes("--tier") ? Number(argVal("--tier", "")) : null;
 const limit = Math.max(1, Number(argVal("--limit", "5")) || 5);
 const wantJson = args.includes("--json");
+// PER-SLOT-CLAIM-MS0/U-PSC02: identity for slot-task-claim filter. When
+// --chatId is provided, peer-claimed units are filtered out of the pool.
+// When omitted, NO filter is applied (so legacy callers behave identically).
+// --no-claim-filter disables the filter even when --chatId is provided
+// (for debugging or admin pick-unit invocations).
+const chatId = argVal("--chatId", "");
+const noClaimFilter = args.includes("--no-claim-filter");
 
 function safeJson(p) {
   try {
@@ -123,6 +131,24 @@ let pool = isCleanupQuery
 const beforeShipped = pool.length;
 pool = pool.filter((u) => !shipped.has(`${u.milestone}::${u.unit_id ?? "?"}`));
 const afterShipped = pool.length;
+
+// PER-SLOT-CLAIM-MS0/U-PSC02: filter peer-claimed units. Only applies when
+// caller passes --chatId (identity required for safe filtering — without it
+// we have no way to tell self-claims from peer-claims). Defaults to no-filter
+// to preserve legacy `node scripts/pick-unit.mjs` behavior.
+let peerClaimedCount = 0;
+if (chatId && !noClaimFilter) {
+  const claimStore = readClaimStore();
+  // Note: readOnly stores (corrupt/schema-mismatch) still let us READ peer
+  // claims — we just can't write. That's correct for pick-unit (read-only).
+  const unitIds = pool.map((u) => `${u.milestone}::${u.unit_id ?? "?"}`);
+  const claimedByPeers = peerClaimedSet(claimStore, slot, chatId, unitIds, new Date().toISOString());
+  peerClaimedCount = claimedByPeers.size;
+  if (peerClaimedCount > 0) {
+    pool = pool.filter((u) => !claimedByPeers.has(`${u.milestone}::${u.unit_id ?? "?"}`));
+  }
+}
+const afterClaimFilter = pool.length;
 
 if (priorityFilter === "devtools") pool = pool.filter((u) => u.roadmap_priority === 0);
 else if (priorityFilter === "revenue") pool = pool.filter((u) => u.roadmap_priority === 1);
@@ -228,7 +254,9 @@ const summary = {
   lane_size: lane?.units?.length ?? (isCleanupQuery ? roadmap.roadmap.length : 0),
   before_shipped_filter: beforeShipped,
   after_shipped_filter: afterShipped,
-  filter: { priority: priorityFilter, tier: tierFilter },
+  peer_claimed_filtered: peerClaimedCount,
+  after_claim_filter: afterClaimFilter,
+  filter: { priority: priorityFilter, tier: tierFilter, chatId: chatId || null, claimFilter: !!chatId && !noClaimFilter },
   candidates: picks.length,
   pool_remaining: pool.length,
 };
@@ -236,9 +264,10 @@ const summary = {
 if (wantJson) {
   console.log(JSON.stringify({ summary, picks }, null, 2));
 } else {
-  console.log(`# pick-unit — slot=${slot} chat=${chat} priority=${priorityFilter}${tierFilter !== null ? ` tier=${tierFilter}` : ""}`);
+  console.log(`# pick-unit — slot=${slot} chat=${chat} priority=${priorityFilter}${tierFilter !== null ? ` tier=${tierFilter}` : ""}${chatId ? ` chatId=${chatId.slice(0, 15)}` : ""}`);
   const laneSize = lane?.units?.length ?? (isCleanupQuery ? roadmap.roadmap.length : 0);
-  console.log(`Lane size ${laneSize} · after-shipped ${afterShipped} · pool after filter ${pool.length} · showing top ${picks.length}`);
+  const claimLine = peerClaimedCount > 0 ? ` · peer-claimed ${peerClaimedCount}` : "";
+  console.log(`Lane size ${laneSize} · after-shipped ${afterShipped}${claimLine} · pool after filter ${pool.length} · showing top ${picks.length}`);
   console.log("");
   if (picks.length === 0) {
     console.log("(no candidates match — relax filters or pick another lane)");
