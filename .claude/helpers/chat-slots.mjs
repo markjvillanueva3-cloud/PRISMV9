@@ -48,6 +48,7 @@
 import { promises as fs, existsSync, mkdirSync, readFileSync, writeFileSync, renameSync, statSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { hostname } from "node:os";
+import { resolveTerminalWindowId } from "./terminal-window-id.mjs";
 
 // ─── Constants ──────────────────────────────────────────────────────────
 
@@ -318,10 +319,28 @@ export function claimSlot(input, statePath = DEFAULT_STATE_PATH, lockPath = DEFA
         file.slots[n] = null;
       }
     }
-    // If chat already owns a slot, refresh its heartbeat and return it.
+    // Operator-override predicate: an explicit `--preferSlot <other> --force`
+    // is the /checkin-<slot> intent — it must BEAT both inheritance early-
+    // returns below (chatId-owns AND terminal-window-pin). Without this guard
+    // a post-/compact chat already pinned to slot A could not be moved to
+    // slot B even by an explicit operator force-take (observed pathology:
+    // /checkin-lima silently returning charlie — U-SLOT-FORCE-FIX, 2026-05-16).
+    const wantsDifferentSlot = (currentSlot) =>
+      typeof input.preferSlot === "string" &&
+      SLOT_NAMES.includes(input.preferSlot) &&
+      input.preferSlot !== currentSlot &&
+      input.force === true;
+
+    // If chat already owns a slot, refresh its heartbeat and return it —
+    // UNLESS the operator force-asked to move to a different slot. In that
+    // case release the current slot and fall through to the preferSlot path.
     for (const n of SLOT_NAMES) {
       const s = file.slots[n];
       if (s && s.chatId === input.chatId) {
+        if (wantsDifferentSlot(n)) {
+          file.slots[n] = null;
+          break;
+        }
         const refreshed = refreshState(s, input);
         file.slots[n] = refreshed;
         writeSlotsAtomic(file, statePath);
@@ -340,6 +359,12 @@ export function claimSlot(input, statePath = DEFAULT_STATE_PATH, lockPath = DEFA
         // A crashed slot was already nulled above; reaching here means the
         // prior owner is alive but had a different chatId — same window.
         if (s && s.terminalWindowId === input.terminalWindowId) {
+          // Same operator-override guard: don't inherit the window's slot
+          // when the operator explicitly asked for a different one + --force.
+          if (wantsDifferentSlot(n)) {
+            file.slots[n] = null;
+            break;
+          }
           const previousChatId = s.chatId;
           const inherited = {
             ...refreshState(s, input),
@@ -818,7 +843,13 @@ if (__cliArgv1Basename && import.meta.url.endsWith(__cliArgv1Basename)) {
           preferSlot: flags.preferSlot,
           force: flags.force === "true",
           confirmRecent: flags.confirmRecent === "true",
-          terminalWindowId: flags.terminalWindowId,
+          // Auto-resolve when the CLI caller didn't pass --terminalWindowId,
+          // so the window-pin moves with explicit slot changes (e.g.
+          // /checkin-<slot> doesn't lose the window<->slot binding after a
+          // force-take). Fail-soft: pinning is best-effort.
+          terminalWindowId: flags.terminalWindowId ?? (() => {
+            try { return resolveTerminalWindowId(); } catch { return null; }
+          })(),
         });
         break;
       case "heartbeat":
