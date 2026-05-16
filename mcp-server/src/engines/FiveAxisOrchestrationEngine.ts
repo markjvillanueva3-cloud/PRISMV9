@@ -223,7 +223,12 @@ export interface RTCPDialect {
   activation_code: string;       // G43.4, G43.5, TRAORI, etc.
   deactivation_code: string;     // G49, TRAFOOF, etc.
   tcp_point: "tool_tip" | "gauge_point" | "pivot_point";
-  rotation_order: "ABC" | "ACB" | "BAC" | "BCA" | "CAB" | "CBA";
+  // 5-axis machines have exactly 2 rotary axes → RTCP rotation order is a
+  // 2-char ordered rotary pair (e.g. "AC" = A then C). 3-char permutations
+  // retained for generic/3-rotary descriptors.
+  rotation_order:
+    | "AB" | "AC" | "BA" | "BC" | "CA" | "CB"
+    | "ABC" | "ACB" | "BAC" | "BCA" | "CAB" | "CBA";
   angle_format: "degrees" | "radians";
   inverse_time_feed: boolean;
   feed_code_inverse: string;     // G93
@@ -431,6 +436,11 @@ export interface SurfaceQualityAnalysis {
  * - Collision recovery
  * - Adaptive feedrate
  * - Surface quality prediction
+ *
+ * WIRE-EXEMPT: internal 5-axis orchestration layer — engine-to-engine
+ * consumers (FiveAxisAggregator, FiveAxisAIUltraIntelligence,
+ * FiveAxisDeepLearning, FiveAxisToolpathSynthesis), no dispatcher surface.
+ * Pre-existing orphan; not wired to satisfy the loop.
  */
 export class FiveAxisOrchestrationEngine {
   // Storage
@@ -1409,7 +1419,8 @@ IF COLLISION { 5AX_POINT(lead=15); }`,
       scallop,
       feedPerTooth,
       operation.tool,
-      { name: "Default", iso_group: "P", kc11_mpa: 1800, mc: 0.25 }
+      // P-group reference thermophysical: AISI 1045 from CANONICAL_MATERIAL_DB
+      { name: "Default", iso_group: "P", kc11_mpa: 1800, mc: 0.25, density_kg_m3: 7850, thermal_conductivity_w_mk: 49.8, specific_heat_j_kgk: 486 }
     );
 
     const meetsTarget = raPrediction.predicted_ra_um <= targetRa_um;
