@@ -98,8 +98,9 @@ export type HookPhase =
 /** Hook execution modes */
 export type HookMode = "blocking" | "warning" | "logging" | "silent";
 
-/** Hook priority levels */
-export type HookPriority = "critical" | "high" | "normal" | "low";
+/** Hook priority levels. "background" runs after "low" and is intended for
+ * fire-and-forget observability/telemetry hooks that must never block. */
+export type HookPriority = "critical" | "high" | "normal" | "low" | "background";
 
 /** Hook categories for organization */
 export type HookCategory =
@@ -168,6 +169,18 @@ export interface HookContext {
   material?: string;
   /** Tool being used */
   tool?: string;
+  /** Optional quality metrics snapshot from Omega quality model — populated
+   *  by orchestrators that have just scored Ω(x); observability hooks read it
+   *  to track quality-trend percentiles. All sub-fields optional so partial
+   *  scoring (e.g. only S(x)) still type-checks. */
+  quality?: {
+    omega?: number;
+    safety?: number;
+    reasoning?: number;
+    code?: number;
+    process?: number;
+    learning?: number;
+  };
 }
 
 /** Result returned from hook execution */
@@ -301,6 +314,7 @@ const PRIORITY_ORDER: Record<HookPriority, number> = {
   high: 1,
   normal: 2,
   low: 3,
+  background: 4,
 };
 
 /**

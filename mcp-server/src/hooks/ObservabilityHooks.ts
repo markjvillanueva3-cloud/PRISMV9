@@ -173,20 +173,21 @@ const onSlowOperationDetect: HookDefinition = {
   enabled: true,
   
   tags: ["performance", "slow", "alert"],
-  
-  condition: (context: HookContext): boolean => {
-    const duration = context.metadata?.durationMs as number | undefined;
-    return duration !== undefined && duration > 5000;  // > 5 seconds
-  },
-  
+
   handler: (context: HookContext): HookResult => {
     const hook = onSlowOperationDetect;
-    
+
+    const duration = context.metadata?.durationMs as number | undefined;
+    // Self-gating guard — HookExecutor invokes every handler unconditionally,
+    // so the slow-operation check has to live HERE, not in a `condition` field.
+    // Threshold: 5000 ms (5 s).
+    if (duration === undefined || duration <= 5000) {
+      return hookSuccess(hook, "Operation under slow-threshold; no alert");
+    }
+
     const operation = context.operation || "unknown";
-    const duration = context.metadata?.durationMs as number;
-    
     log.warn(`SLOW OPERATION: ${operation} took ${(duration/1000).toFixed(2)}s`);
-    
+
     return hookSuccess(hook, `Slow operation detected: ${operation} (${duration}ms)`, {
       data: { operation, durationMs: duration, threshold: 5000 },
       actions: ["performance_alert"]
@@ -270,12 +271,16 @@ const onToolCallFrequency: HookDefinition = {
     const hook = onToolCallFrequency;
     
     const toolName = context.operation || "unknown";
-    const callCount = context.session?.toolCalls || 0;
-    
+    // context.session.toolCalls is `unknown` in the HookContext shape — narrow
+    // numerically so the buffer-zone comparisons below type-check. Non-numeric
+    // values collapse to 0 (same as the prior `|| 0` runtime behavior).
+    const rawCalls = context.session?.toolCalls;
+    const callCount = typeof rawCalls === "number" && Number.isFinite(rawCalls) ? rawCalls : 0;
+
     // Determine buffer zone
     let zone: string;
     let zoneColor: string;
-    
+
     if (callCount <= 8) {
       zone = "GREEN";
       zoneColor = "🟢";
@@ -378,14 +383,15 @@ const onValidationFailure: HookDefinition = {
   enabled: true,
   
   tags: ["validation", "failure", "tracking"],
-  
-  condition: (context: HookContext): boolean => {
-    return context.metadata?.validationFailed === true;
-  },
-  
+
   handler: (context: HookContext): HookResult => {
     const hook = onValidationFailure;
-    
+
+    // Self-gating guard — only fire on actual validation failures.
+    if (context.metadata?.validationFailed !== true) {
+      return hookSuccess(hook, "No validation failure to track");
+    }
+
     const validationType = context.metadata?.validationType as string || "unknown";
     const failures = context.metadata?.failures as string[] || [];
     
