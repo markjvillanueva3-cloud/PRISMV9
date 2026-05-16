@@ -225,6 +225,12 @@ export interface HookDefinition {
   enabled: boolean;
   /** Tags for filtering */
   tags?: string[];
+  /** Optional event name for HookRegistry's index-by-event lookup. Cadence
+   *  hooks set this to a dotted event path (e.g. "phase.post-safety-check")
+   *  so registry consumers can fan-out by event independent of `phase`.
+   *  Not consumed by HookExecutor itself — advisory metadata for the
+   *  HookRegistry side of the registration pipeline (see HookRegistry.ts:821). */
+  event?: string;
   /** The handler function */
   handler: (context: HookContext) => HookResult | Promise<HookResult>;
 }
