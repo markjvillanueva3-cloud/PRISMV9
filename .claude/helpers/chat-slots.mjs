@@ -581,6 +581,71 @@ export function heartbeat(input, statePath = DEFAULT_STATE_PATH, lockPath = DEFA
 }
 
 /**
+ * Rename the chat occupying a slot — updates the slot's `topic` (the label
+ * shown in fleet-status / resume picker) and optionally `activity`, in place,
+ * WITHOUT releasing or re-claiming the slot. The slot binding (chatId, pid,
+ * terminalWindowId, claimedAt) is preserved; only the human-facing label
+ * changes. Heartbeat is refreshed so the rename counts as liveness.
+ *
+ * Resolves the target slot in priority order:
+ *   1. explicit --slot <name>            (operator names it directly)
+ *   2. --chatId <id> → the slot it owns  (rename "my chat")
+ *
+ * topic is sanitized: lowercased, [^a-z0-9-] → '-', collapsed, ≤ 32 chars
+ * (matches the handoff-topic sanitizer so the slot label and the
+ * HANDOFF-<id>-<topic>.md filename stay consistent).
+ */
+export function renameChat(input, statePath = DEFAULT_STATE_PATH, lockPath = DEFAULT_LOCK_PATH) {
+  if (!input || typeof input.topic !== "string" || input.topic.trim() === "") {
+    return { ok: false, error: "invalid_input", message: "topic required (the new chat name)" };
+  }
+  if (!input.slot && !input.chatId) {
+    return { ok: false, error: "invalid_input", message: "either --slot or --chatId required" };
+  }
+  const sanitized = input.topic
+    .toLowerCase()
+    .replace(/[^a-z0-9-]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 32);
+  if (!sanitized) {
+    return { ok: false, error: "invalid_input", message: `topic '${input.topic}' sanitized to empty — use [a-z0-9-]` };
+  }
+  return withLock(() => {
+    const file = readSlots(statePath);
+    let targetSlot = null;
+    if (input.slot) {
+      if (!SLOT_NAMES.includes(input.slot)) {
+        return { ok: false, error: "unknown_slot", message: `slot '${input.slot}' not in ${SLOT_NAMES.join(",")}` };
+      }
+      if (!file.slots[input.slot]) {
+        return { ok: false, error: "slot_empty", message: `slot '${input.slot}' is not currently claimed` };
+      }
+      targetSlot = input.slot;
+    } else {
+      for (const n of SLOT_NAMES) {
+        const s = file.slots[n];
+        if (s && s.chatId === input.chatId) { targetSlot = n; break; }
+      }
+      if (!targetSlot) {
+        return { ok: false, error: "no_slot_owned", message: `chat ${input.chatId} does not own any slot` };
+      }
+    }
+    const prev = file.slots[targetSlot];
+    const oldTopic = prev.topic ?? null;
+    const renamed = {
+      ...prev,
+      topic: sanitized,
+      activity: input.activity ?? prev.activity ?? null,
+      lastHeartbeat: new Date().toISOString(),
+    };
+    file.slots[targetSlot] = renamed;
+    writeSlotsAtomic(file, statePath);
+    return { ok: true, slot: targetSlot, oldTopic, newTopic: sanitized, chatId: prev.chatId, state: renamed };
+  }, lockPath);
+}
+
+/**
  * Release the slot owned by this chatId (clean exit on Stop).
  */
 export function releaseSlot(input, statePath = DEFAULT_STATE_PATH, lockPath = DEFAULT_LOCK_PATH) {
@@ -772,6 +837,14 @@ if (__cliArgv1Basename && import.meta.url.endsWith(__cliArgv1Basename)) {
           pipelineTarget: flags.pipelineTarget ? parseInt(flags.pipelineTarget, 10) : null,
         });
         break;
+      case "rename":
+        result = renameChat({
+          chatId: flags.chatId,
+          slot: flags.slot,
+          topic: flags.topic,
+          activity: flags.activity,
+        });
+        break;
       case "release":
         result = releaseSlot({ chatId: flags.chatId });
         break;
@@ -788,7 +861,7 @@ if (__cliArgv1Basename && import.meta.url.endsWith(__cliArgv1Basename)) {
         result = getGolfLiveness();
         break;
       default:
-        result = { ok: false, error: "unknown_action", message: `unknown action '${action}'; valid: claim, heartbeat, release, reclaim, status, find, golf-liveness` };
+        result = { ok: false, error: "unknown_action", message: `unknown action '${action}'; valid: claim, heartbeat, rename, release, reclaim, status, find, golf-liveness` };
     }
   } catch (e) {
     result = { ok: false, error: "exception", message: e.message };
