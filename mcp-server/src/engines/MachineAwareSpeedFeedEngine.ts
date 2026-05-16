@@ -140,17 +140,20 @@ class MachineAwareSpeedFeedEngine {
    * Extract machine constraints from CanonicalMachinePackage
    */
   extractConstraints(pkg: CanonicalMachinePackage): MachineConstraints {
-    const spindle = pkg.spindle ?? {};
-    const axes = pkg.axes ?? {};
+    const spindle = pkg.spindle;
+    const axes = pkg.axes;
 
+    // MachineSpindle exposes rated power/torque directly. Max cutting feed
+    // and base (constant-torque) RPM are not modeled on the canonical
+    // package type, so they use conservative defaults.
     return {
       maxRpm: spindle.max_rpm ?? 10000,
       minRpm: spindle.min_rpm ?? 50,
-      maxFeedRate: axes.max_feed_mmmin ?? spindle.max_feed ?? 15000,
-      maxPower: spindle.power_continuous_kw ?? spindle.power_kw ?? 15,
-      maxTorque: spindle.max_torque_nm ?? spindle.torque_nm ?? 100,
-      baseRpm: spindle.base_rpm ?? spindle.torque_rpm ?? 1500,
-      rapidRate: axes.rapid_mmmin ?? 30000,
+      maxFeedRate: 15000,
+      maxPower: spindle.power ?? 15,
+      maxTorque: spindle.torque ?? 100,
+      baseRpm: 1500,
+      rapidRate: axes?.x_rapid ?? 30000,
     };
   }
 
