@@ -648,6 +648,39 @@ const turning_inspection_plan = z.object({
   "Generate a first-article + production inspection plan for a turned part (TurningInspectionPlanEngine.generate).",
 );
 
+// ============================================================================
+// WIRE-UNWIRED-MS0/U-WIRE-PARTOFF — LathePartoffSafetyRailEngine
+// SAFETY-CRITICAL: parting-off go/no-go gate (7 deterministic gates: tool
+// overhang ratio, surface speed SFM, feed/rev, chip clearance, chip breaker
+// vs UTS, workholding adequacy, sub-spindle purge). Thresholds grounded in
+// Sandvik parting guide + Machinery's Handbook 31st ed.
+// ============================================================================
+
+const lathe_partoff_safety_gate = z.object({
+  part_diameter_mm: posNum
+    .describe("Part outer diameter at the parting line in mm (>0)."),
+  parting_width_mm: posNum
+    .describe("Parting blade / insert width in mm (>0). Drives every ratio gate."),
+  tool_overhang_mm: posNum
+    .describe("Tool overhang from toolholder face in mm (>0). L/D > 4 hard-blocks."),
+  spindle_rpm: posNum
+    .describe("Spindle speed in RPM (>0). Combined with diameter to compute SFM."),
+  feed_mm_per_rev: posNum
+    .describe("Axial feed in mm/rev (>0). Hard-block above 0.25, warn above 0.12."),
+  material_uts_mpa: posNum
+    .describe("Ultimate tensile strength of workpiece material in MPa (>0). Drives chip-breaker requirement."),
+  workholding_type: z.enum(["chuck", "collet", "bar_puller", "sub_spindle"])
+    .describe("Workholding type — bar_puller on D > 50mm raises a warn gate."),
+  chip_clearance_mm: posNum
+    .describe("Clearance between tool/holder and the next feature on the part in mm (>0). Hard-blocks below 1.5× width."),
+  has_subspindle_purge: z.boolean()
+    .describe("True if a sub-spindle purge / air-blow plan is present. Only evaluated when workholding_type==='sub_spindle'."),
+  chip_breaker: z.enum(["none", "groove", "coated", "high_positive"])
+    .describe("Insert chip-breaker geometry. 'none' on UTS ≥ 600 MPa raises a warn gate."),
+}).passthrough().describe(
+  "Parting-off safety gate (LathePartoffSafetyRailEngine.evaluate). Returns passed + gates[] + violations[] + advisories[] + summary. SAFETY-CRITICAL: any hard_block gate failure flips passed=false.",
+);
+
 export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   chuck_force,
   tailstock,
@@ -765,4 +798,7 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
 
   // WIRE-UNWIRED-MS0/U-WIRE-TURNINSP: TurningInspectionPlanEngine surface
   turning_inspection_plan,
+
+  // WIRE-UNWIRED-MS0/U-WIRE-PARTOFF: LathePartoffSafetyRailEngine surface
+  lathe_partoff_safety_gate,
 };

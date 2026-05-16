@@ -193,6 +193,9 @@ const ACTIONS = [
 
   // WIRE-UNWIRED-MS0/U-WIRE-TURNINSP: TurningInspectionPlanEngine
   "turning_inspection_plan",                // generate — first-article + production inspection plan (AQL/ISO/AS9102)
+
+  // WIRE-UNWIRED-MS0/U-WIRE-PARTOFF: LathePartoffSafetyRailEngine (SAFETY-CRITICAL)
+  "lathe_partoff_safety_gate",              // evaluate — 7-gate parting-off go/no-go rail
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1287,6 +1290,19 @@ Actions: ${ACTIONS.join(", ")}.`,
             const { turningInspectionPlanEngine } = await import("../../engines/TurningInspectionPlanEngine.js");
             const data = turningInspectionPlanEngine.generate(params as any);
             result = { success: true, data };
+            break;
+          }
+
+          // WIRE-UNWIRED-MS0/U-WIRE-PARTOFF: LathePartoffSafetyRailEngine.
+          // SAFETY-CRITICAL — parting-off 7-gate rail (overhang, SFM, feed,
+          // chip clearance, chip breaker vs UTS, workholding, sub-spindle
+          // purge). result.success mirrors verdict.passed: any hard_block
+          // gate failure flips it false so callers can short-circuit on
+          // BLOCKED before reading the verdict body.
+          case "lathe_partoff_safety_gate": {
+            const { lathePartoffSafetyRailEngine } = await import("../../engines/LathePartoffSafetyRailEngine.js");
+            const data = lathePartoffSafetyRailEngine.evaluate(params as any);
+            result = { success: data.passed, data };
             break;
           }
 
