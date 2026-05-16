@@ -54,8 +54,13 @@ export function fingerprint(text) {
 }
 
 export function fileSuffix(filePath) {
-  if (!filePath) return "";
+  if (!filePath || typeof filePath !== "string") return "";
   const base = path.basename(filePath);
+  // A real filename carries no shell metacharacters/whitespace. When it
+  // does, the caller passed a command string (Bash events have no file) —
+  // return "" rather than emit a polluted suffix like "ts 2>&1 | tail -80"
+  // that fragments error-pattern grouping.
+  if (/[\s|&;<>$`*?]/.test(base)) return "";
   if (base.endsWith(".test.ts") || base.endsWith(".spec.ts")) return "test.ts";
   if (base.endsWith(".test.mjs") || base.endsWith(".spec.mjs")) return "test.mjs";
   const ext = path.extname(base).toLowerCase();

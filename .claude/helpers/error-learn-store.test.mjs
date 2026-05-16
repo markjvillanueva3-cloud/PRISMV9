@@ -74,6 +74,19 @@ describe("fileSuffix — extension classification", () => {
     const { fileSuffix } = await loadStore();
     expect(fileSuffix("")).toBe("");
   });
+
+  it("rejects command strings — Bash events have no file (anti-pollution)", async () => {
+    const { fileSuffix } = await loadStore();
+    // Capture hooks passed Bash commands to fileSuffix, yielding garbage
+    // "suffixes" (e.g. "ts 2>&1 | tail -80") that fragmented promote grouping.
+    expect(fileSuffix("npm run build")).toBe("");
+    expect(fileSuffix("cd h:/prism  node x.mjs 2>&1 | tail -80")).toBe("");
+    expect(fileSuffix("node scripts/health.mjs 2>&1 | head -5")).toBe("");
+    expect(fileSuffix(null)).toBe("");
+    expect(fileSuffix(42)).toBe("");
+    // A real path whose PARENT dir has a space but basename is clean still works.
+    expect(fileSuffix("C:/Users/Mark Villanueva/.claude/x.ts")).toBe("ts");
+  });
 });
 
 describe("recordEvent + readAll — persistence", () => {
