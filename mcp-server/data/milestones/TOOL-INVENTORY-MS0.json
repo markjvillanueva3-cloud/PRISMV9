@@ -57,9 +57,14 @@
             "U-TOOLINV-08"
           ],
           "viz_node_id": "core.mcp.qdrantsurface",
-          "viz_node_status": "needs_creation",
+          "viz_node_status": "created",
           "loop_schedule": "none (one-shot adopt; health-check in U-TOOLINV-09)",
-          "status": "not_started",
+          "status": "completed",
+          "completed_at": "2026-05-16T21:45:00Z",
+          "completed_by": "claude-c0f06dee/charlie",
+          "ship_commit": "c7157f898",
+          "ship_notes": "QdrantSurfaceEngine adapts QdrantMemoryEngine to standard qdrant MCP tool surface (vector_search/vector_upsert); wired into prism_memory as qdrant_vector_search + qdrant_vector_upsert (5-surface: z.enum/schema/case/description/available all consistent, verified by 2 wiring reviewers). 48/48 tests (37 engine unit + 11 dispatcher round-trip), tsc clean. Per-file 2-arm scrutiny PASS/PASS on engine+test (round 2 after round-1 FAIL: BYTES->CHARS rename, R12 cause propagation, +5 adversarial tests; reviewer-B withdrew a hallucinated proto-pollution P0) AND PASS/PASS on the wiring batch (no regression to existing 30 actions). Adopt-log recorded at state/shared/external-mcp-adopt-log.jsonl (gitignored local ledger per PRISM convention). Files absorbed into peer commit c7157f898 (RGS-TOOL-AUTOINVOKE-MS1 subject) by a concurrent git commit -a collision — files verified correct + on HEAD, not re-created.",
+          "closeout_pattern": "commit-collision: deliverable files correct + on HEAD under a peer's commit subject; closed against real SHA c7157f898 not a TOOL-INVENTORY-prefixed commit",
           "four_loop": [
             "BUILD",
             "SCRUTINIZE",
@@ -418,5 +423,5 @@
   ],
   "total_units": 10,
   "declared_total_units": 10,
-  "completed_units": 0
+  "completed_units": 1
 }
