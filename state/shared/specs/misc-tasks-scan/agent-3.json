@@ -1,0 +1,438 @@
+{
+  "agent": 3,
+  "scannedCount": 152,
+  "matchedFiles": 47,
+  "items": [
+    {
+      "title": "Wire action-triple-sync.mjs PreToolUse hook into settings.json",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/590046fd-a077-4a6c-9f21-6d740e2bd2b7.jsonl",
+      "source_type": "transcript",
+      "evidence": "action-triple-sync.mjs hook is NOT yet wired into .claude/settings.json. The hook is tested and ready; activation requires adding it. 'Integration Pending' section.",
+      "milestone_or_unit_id": "W2-A",
+      "looks_completed": false,
+      "suggested_domain": "hooks",
+      "confidence": 0.85
+    },
+    {
+      "title": "U-HPS05 html-a11y-guard.mjs pre-commit hook + settings.json wiring (logic shipped, hook deferred to alpha lane)",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/58e6d5d4-d778-470b-85ca-be98ecc848bb.jsonl",
+      "source_type": "transcript",
+      "evidence": "DEFERRED to the hooks lane: U-HPS05 pre-commit hook .claude/hooks/html-a11y-guard.mjs + its settings.json entry. check-spec-html-a11y.ts logic callable today, hook not built.",
+      "milestone_or_unit_id": "U-HPS05",
+      "looks_completed": false,
+      "suggested_domain": "hooks",
+      "confidence": 0.8
+    },
+    {
+      "title": "HC-5 drift-guard --check-drift wired as per-commit hook (left for alpha's lane)",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/58e6d5d4-d778-470b-85ca-be98ecc848bb.jsonl",
+      "source_type": "transcript",
+      "evidence": "HC-5 drift-guard ships as a callable --check-drift; wiring it as a per-commit hook is @alpha's lane (left for later).",
+      "milestone_or_unit_id": null,
+      "looks_completed": false,
+      "suggested_domain": "hooks",
+      "confidence": 0.7
+    },
+    {
+      "title": "673 oversized PDFs still deferred (drawing-likely PDF extraction)",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/58e6d5d4-d778-470b-85ca-be98ecc848bb.jsonl",
+      "source_type": "transcript",
+      "evidence": "records at resume (~15,280 is_drawing_likely). 673 oversized PDFs still deferred to [later]",
+      "milestone_or_unit_id": null,
+      "looks_completed": false,
+      "suggested_domain": "docs",
+      "confidence": 0.6
+    },
+    {
+      "title": "Wire StripeBillingEngine into businessDispatcher (completely orphaned engine)",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/6b6f30f3-d257-4171-b681-0e11c64155f8.jsonl",
+      "source_type": "transcript",
+      "evidence": "U-BILL1: IN PROGRESS — 9 new actions added to businessDispatcher ACTIONS array. Switch cases NOT yet written. StripeBillingEngine lazy-load NOT yet added.",
+      "milestone_or_unit_id": "U-BILL1",
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.85
+    },
+    {
+      "title": "Auto-Redaction / Blueprint redaction engine for print sharing (not yet built)",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/725e0fe7-99a9-497c-952a-0b2d2a014c7f.jsonl",
+      "source_type": "transcript",
+      "evidence": "Gaps Found: Auto-Redaction for Prints (not yet built). NOTE: Digital blueprint/print redaction engine not yet built. Blueprint redaction engine | 1-2 days.",
+      "milestone_or_unit_id": null,
+      "looks_completed": false,
+      "suggested_domain": "cad",
+      "confidence": 0.75
+    },
+    {
+      "title": "verify_tier wiring for master_post_* cases in camDispatcher (DEFERRED to U-PPGM17d)",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/6ac8fa2d-3808-494b-b1b4-81a6ea3bdecf.jsonl",
+      "source_type": "transcript",
+      "evidence": "camDispatcher.ts | master_post_* cases (~5400-5700) — verify_tier wiring DEFERRED to U-PPGM17d",
+      "milestone_or_unit_id": "U-PPGM17d",
+      "looks_completed": false,
+      "suggested_domain": "cam",
+      "confidence": 0.8
+    },
+    {
+      "title": "Structured-tool API for stickout_mm population in MillOperation path (deferred to U-PPGH11)",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/6ac8fa2d-3808-494b-b1b4-81a6ea3bdecf.jsonl",
+      "source_type": "transcript",
+      "evidence": "stickout_mm stay undefined under flat-MillOperation path; populated only when structured-tool API lands (deferred to U-PPGH11)",
+      "milestone_or_unit_id": "U-PPGH11",
+      "looks_completed": false,
+      "suggested_domain": "cam",
+      "confidence": 0.75
+    },
+    {
+      "title": "Wire LLMEngine.ts live API call into LocalModelOrchestrator (single-line drop-in deferred to live-API session)",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/69e7fe09-05c1-438b-adcb-d347bc62277b.jsonl",
+      "source_type": "transcript",
+      "evidence": "Deferred to live-API session: actual LLMEngine.ts wiring (single drop-in where the SDK call is made) and the >80% hit-rate validation.",
+      "milestone_or_unit_id": "U-LLM5",
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.7
+    },
+    {
+      "title": "openai backend not yet wired in LocalModelOrchestratorEngine routing",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/626f28a4-578a-4103-8d90-b809d9cd36d2.jsonl",
+      "source_type": "transcript",
+      "evidence": "openai → not yet wired; returns structured error so the caller can fall back to a cheaper cloud option",
+      "milestone_or_unit_id": "PP-0.19-U-LLM1",
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.6
+    },
+    {
+      "title": "U-LTH04b CANONICAL_MATERIAL_DB schema extension (Johnson-Cook + AISI designations) + engine migration",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/74c37eb1-4904-4cb9-92d7-d17ea95df204.jsonl",
+      "source_type": "transcript",
+      "evidence": "CANONICAL_MATERIAL_DB schema lacks Johnson-Cook + AISI designations. Refactor deferred to new unit U-LTH04b (schema extension + engine migration).",
+      "milestone_or_unit_id": "U-LTH04b",
+      "looks_completed": false,
+      "suggested_domain": "lathe",
+      "confidence": 0.85
+    },
+    {
+      "title": "fleet-reaper Stop hook file (task #4) — separate Stop hook not yet built",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/76a392af-6ede-4688-ba7e-5ef9ec1099cd.jsonl",
+      "source_type": "transcript",
+      "evidence": "The Stop hook (task #4, not yet built) must background fleet-reaper-sweep.mjs --once --stop-event --detach and get a sub-second return.",
+      "milestone_or_unit_id": null,
+      "looks_completed": true,
+      "suggested_domain": "hooks",
+      "confidence": 0.4
+    },
+    {
+      "title": "TribalKnowledgeEngine Stage 5.3 hardcoded — defer real integration to MS2",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/62d2360f-c6de-4000-ad8b-ec23c6ee9e00.jsonl",
+      "source_type": "transcript",
+      "evidence": "TribalKnowledgeEngine (3,700+ tips) — Stage 5.3 currently hardcoded, defer to MS2",
+      "milestone_or_unit_id": "MS2",
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.6
+    },
+    {
+      "title": "U-CAMP14 MasterPostProcessorUnifiedAGIEngine test coverage incomplete / deferred",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/6b1c0174-0f62-49a6-8ee8-8236aa2dd531.jsonl",
+      "source_type": "transcript",
+      "evidence": "engines, tests, and dispatcher wiring in place, but U-CAMP14 is still incomplete. 'Per fail loud — I'll fix what's fixable + defer U-CAMP14.'",
+      "milestone_or_unit_id": "U-CAMP14",
+      "looks_completed": false,
+      "suggested_domain": "cam",
+      "confidence": 0.7
+    },
+    {
+      "title": "Fusion360 add-in HTTP server (Architecture B, 14-endpoint) deferred to next milestone",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/7f8f05d3-1e14-4087-96b6-5eb5fc241889.jsonl",
+      "source_type": "transcript",
+      "evidence": "Stage 2 (deferred to next milestone, NOT in this plan): Architecture B: 14-endpoint HTTP server inside the add-in for Fusion360LiveBridge.",
+      "milestone_or_unit_id": "U-FUS-API01",
+      "looks_completed": false,
+      "suggested_domain": "cad",
+      "confidence": 0.7
+    },
+    {
+      "title": "MASTER_INDEX not yet wired into /rgs 7-stage pipeline",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/771c83b8-e6e0-4bab-a64a-4c0dca0d4597.jsonl",
+      "source_type": "transcript",
+      "evidence": "/rgs = 7-stage pipeline, 250+ skills, MASTER_INDEX not yet wired",
+      "milestone_or_unit_id": null,
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.55
+    },
+    {
+      "title": "CloudCAMIndexerEngine not yet wired (cloud CAM history not indexed — learning pipeline gap)",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/6f837f70-8fc3-4fdd-9628-2f6efaee7cbe.jsonl",
+      "source_type": "transcript",
+      "evidence": "Gap 4: Cloud CAM History Not Indexed (Learning Pipeline Incomplete). CloudCAMIndexerEngine not yet wired.",
+      "milestone_or_unit_id": null,
+      "looks_completed": false,
+      "suggested_domain": "cam",
+      "confidence": 0.65
+    },
+    {
+      "title": "7 hyperMILL engines not yet wired to dispatchers (HyperMillMultiAxisEngine, HyperMillCycleDefaultsEngine, etc.)",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/6f837f70-8fc3-4fdd-9628-2f6efaee7cbe.jsonl",
+      "source_type": "transcript",
+      "evidence": "Not Yet Wired (7 engines): HyperMillMultiAxisEngine (4 public methods), HyperMillCycleDefaultsEngine (needs method extraction), ...",
+      "milestone_or_unit_id": null,
+      "looks_completed": false,
+      "suggested_domain": "cam",
+      "confidence": 0.65
+    },
+    {
+      "title": "G-code annotation engine not yet wired to optimize feed rates in real-time",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/74402da8-2dc0-43d7-9660-0d032874db88.jsonl",
+      "source_type": "transcript",
+      "evidence": "Injects annotations into G-code comments (lines 278-281). Not yet wired to optimize feed rates in real-time.",
+      "milestone_or_unit_id": null,
+      "looks_completed": false,
+      "suggested_domain": "cam",
+      "confidence": 0.55
+    },
+    {
+      "title": "SolidWorks/Esprit live-bridge COM execution not yet wired (honest mock returns ok:false)",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/7b738148-48f6-4cbb-9f96-e2ca8a2969e2.jsonl",
+      "source_type": "transcript",
+      "evidence": "SolidWorksLiveBridge / EspritLiveBridge: COM execution not yet wired (requires Windows + SOLIDWORKS.exe/Esprit.Application + cscript.exe shim).",
+      "milestone_or_unit_id": null,
+      "looks_completed": false,
+      "suggested_domain": "cam",
+      "confidence": 0.5
+    },
+    {
+      "title": "SolidWorks code generator default branch 'not yet implemented' TODO per kind",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/57d23b67-4c3e-4b3a-aa41-2b6cf83ac7e0.jsonl",
+      "source_type": "transcript",
+      "evidence": "default: em.warn(`Operation '${kind}' not yet implemented for SolidWorks`); em.line(`' TODO: Implement ${kind}`);",
+      "milestone_or_unit_id": null,
+      "looks_completed": false,
+      "suggested_domain": "cad",
+      "confidence": 0.55
+    },
+    {
+      "title": "CAD/CAM image-heavy manuals deferred (CAD_Manual, CAM_Manual)",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/59021ce0-5134-4904-bc03-c645a7d54274.jsonl",
+      "source_type": "transcript",
+      "evidence": "CAD_Manual and CAM_Manual were image-heavy documents that the user deferred to [later]",
+      "milestone_or_unit_id": null,
+      "looks_completed": false,
+      "suggested_domain": "docs",
+      "confidence": 0.55
+    },
+    {
+      "title": "CAM-UIX-MS0 RGS stage 10 (protective hook + skill) deferred",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/5de28e07-f47a-4cc4-a10d-4247f6637660.jsonl",
+      "source_type": "transcript",
+      "evidence": "CAM-UIX-MS0.json rgs_stages_applied: '1-9 (stage 10 deferred to [later])'",
+      "milestone_or_unit_id": "CAM-UIX-MS0",
+      "looks_completed": false,
+      "suggested_domain": "cam",
+      "confidence": 0.55
+    },
+    {
+      "title": "Wave 1 Session 6-5 deferred (wave execution incomplete)",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/5e8b479f-8f1e-40f0-808e-68092e14d6f7.jsonl",
+      "source_type": "transcript",
+      "evidence": "Wave 1 execution: Sessions 6-1 through 6-4 complete. Session 6-5 deferred to [later].",
+      "milestone_or_unit_id": null,
+      "looks_completed": false,
+      "suggested_domain": "other",
+      "confidence": 0.5
+    },
+    {
+      "title": "FilletAgent / CoolingHoleAgent / BalanceAgent + Assembly file (.IAM/.SLDASM) handling deferred from CAD swarm",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/56e8282e-4899-4d55-92c6-7a6eccb3051f.jsonl",
+      "source_type": "transcript",
+      "evidence": "Add FilletAgent, CoolingHoleAgent, BalanceAgent to swarm (Agent 7) - defer to [later]; Assembly file (.IAM, .SLDASM) handling (Agent 4) - defer to [later].",
+      "milestone_or_unit_id": null,
+      "looks_completed": false,
+      "suggested_domain": "cad",
+      "confidence": 0.6
+    },
+    {
+      "title": "Fusion360LiveBridgeEngine + PrintToFusion360Bridge appear incomplete / partially affected",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/5ea0222e-eb7f-4174-93e4-af37394b3424.jsonl",
+      "source_type": "transcript",
+      "evidence": "some of the other engine modifications in Fusion360LiveBridgeEngine.ts and PrintToFusion360Bridge.ts appear to be incomplete or partially affected.",
+      "milestone_or_unit_id": null,
+      "looks_completed": false,
+      "suggested_domain": "cad",
+      "confidence": 0.45
+    },
+    {
+      "title": "ProductPillarEngine shows incomplete pillars (productDispatcher stub reference)",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/626f28a4-578a-4103-8d90-b809d9cd36d2.jsonl",
+      "source_type": "transcript",
+      "evidence": "prism_dev:pillar_summary → ProductPillarEngine shows incomplete [pillars]; productDispatcher has stub reference, incomplete.",
+      "milestone_or_unit_id": null,
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.5
+    },
+    {
+      "title": "Multiple dispatchers referenced but incomplete (nlHookDispatcher, maintenanceDispatcher, memoryDispatcher, autonomousDispatcher)",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/7e8e6820-3db1-4a45-984b-130b507c0878.jsonl",
+      "source_type": "transcript",
+      "evidence": "untested-engines.md: Dispatcher Wiring — productDispatcher stub reference incomplete; nlHookDispatcher referenced but INCOMPLETE; maintenanceDispatcher incomplete; memoryDispatcher INCOMPLETE; autonomousDispatcher incomplete.",
+      "milestone_or_unit_id": null,
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.6
+    },
+    {
+      "title": "Live-Excel COM bridge for electrode templates deferred to v2 (parsed-snapshot only for MS0)",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/6cd0b2a0-a484-4c22-b7ff-d07c5a6a304c.jsonl",
+      "source_type": "transcript",
+      "evidence": "xlsm bridged as READ-ONLY first-class asset (parsed-snapshot path for MS0; live-Excel COM deferred to v2).",
+      "milestone_or_unit_id": null,
+      "looks_completed": false,
+      "suggested_domain": "wedm",
+      "confidence": 0.55
+    },
+    {
+      "title": "Mixed-session validation run (Steps 3-5) deferred to manual spike",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/671e2b1f-1b84-4189-8e2b-e44fb0ea8c69.jsonl",
+      "source_type": "transcript",
+      "evidence": "Steps 3-5 (manual mixed-session validation run) deferred to [later]; subagent matcher full validation deferred to manual spike.",
+      "milestone_or_unit_id": null,
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.45
+    },
+    {
+      "title": "T10-02, T10-03 missing (Tier 10 incomplete)",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/5b19c960-5295-4574-b536-659a5148fff2.jsonl",
+      "source_type": "transcript",
+      "evidence": "#25: T10 missing T10-02, T10-03 (Tier 10 incomplete)",
+      "milestone_or_unit_id": null,
+      "looks_completed": false,
+      "suggested_domain": "other",
+      "confidence": 0.5
+    },
+    {
+      "title": "U-LPI07 Tests (25+) — incomplete lathe-print-import unit",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/5ceef0e6-5e4c-4327-8893-472b1f71c595.jsonl",
+      "source_type": "transcript",
+      "evidence": "U-LPI07, which explicitly calls for 'Tests (25+)' and is actually the incomplete [unit]. Maps directly to U-LPI07 (Tests 25+) — incomplete.",
+      "milestone_or_unit_id": "U-LPI07",
+      "looks_completed": false,
+      "suggested_domain": "lathe",
+      "confidence": 0.6
+    },
+    {
+      "title": "SolidCAM post-processor deferred from PHASE-9 (4 priority CAMs done, SolidCAM not)",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/57d23b67-4c3e-4b3a-aa41-2b6cf83ac7e0.jsonl",
+      "source_type": "transcript",
+      "evidence": "CAMPostInvokeOrchestratorEngine.ts: gap for the 4 priority CAMs in PHASE-9 (SolidCAM deferred to [later])",
+      "milestone_or_unit_id": null,
+      "looks_completed": false,
+      "suggested_domain": "cam",
+      "confidence": 0.55
+    },
+    {
+      "title": "P2-U05 and P3-U01 deferred from L0-NEW-MS0 (10/12 units complete)",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/5621c4f7-6dcb-4da2-a8be-51e37bef599a.jsonl",
+      "source_type": "transcript",
+      "evidence": "L0-NEW-MS0/position.json notes: '10/12 units complete. P2-U05 deferred to L1. P3-U01 deferred.'",
+      "milestone_or_unit_id": "L0-NEW-MS0",
+      "looks_completed": false,
+      "suggested_domain": "other",
+      "confidence": 0.55
+    },
+    {
+      "title": "GNN incomplete (P1-HIGH gap), no GPU acceleration",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/69e7fe09-05c1-438b-adcb-d347bc62277b.jsonl",
+      "source_type": "transcript",
+      "evidence": "No GPU acceleration | Pure TypeScript | P1-HIGH; GNN incomplete [gap row]",
+      "milestone_or_unit_id": null,
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.4
+    },
+    {
+      "title": "LatheBirdNest gap engine identified but not yet built (PENDING_GAP_ENGINES)",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/69e7fe09-05c1-438b-adcb-d347bc62277b.jsonl",
+      "source_type": "transcript",
+      "evidence": "PENDING_GAP_ENGINES: 'Gap engines identified by analysis but not yet built. Rule: ALWAYS BUILD, NEVER SKIP.' — LatheBirdNest... entry.",
+      "milestone_or_unit_id": null,
+      "looks_completed": false,
+      "suggested_domain": "lathe",
+      "confidence": 0.5
+    },
+    {
+      "title": "MILL-MASTER backend wiring incomplete (12 units, several incomplete)",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/68c7d127-dc52-4ed2-a52d-7bd793b32092.jsonl",
+      "source_type": "transcript",
+      "evidence": "Backend Wiring (51 actions, 6-engine orchestrator) — total units: 12 | incomplete: [n]; WEDM Hardening 20-Agent Scrutiny Remediation incomplete.",
+      "milestone_or_unit_id": null,
+      "looks_completed": false,
+      "suggested_domain": "mill",
+      "confidence": 0.45
+    },
+    {
+      "title": "anti-regression-auto-sweep.mjs hook stubbed out (no real validation)",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/72bb539a-1cb7-4992-b2d3-4bd67fac4676.jsonl",
+      "source_type": "transcript",
+      "evidence": "another incomplete... block at line 79 where the anti-regression-auto-sweep.mjs hook is stubbed out",
+      "milestone_or_unit_id": null,
+      "looks_completed": false,
+      "suggested_domain": "hooks",
+      "confidence": 0.55
+    },
+    {
+      "title": "CAMStrategyRecommenderEngine only stubbed out",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/6e2e36f3-5e03-4a53-bac3-09c424e3a0fb.jsonl",
+      "source_type": "transcript",
+      "evidence": "thinking: 'I'm noticing the CAMStrategyRecommenderEngine is only stubbed out'",
+      "milestone_or_unit_id": null,
+      "looks_completed": false,
+      "suggested_domain": "cam",
+      "confidence": 0.5
+    },
+    {
+      "title": "Weibull RUL incomplete — 9 residual MAJORS deferred (tracked in v7.2 R5.5)",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/6e58491a-fc62-4f9c-a36f-5844f8368a55.jsonl",
+      "source_type": "transcript",
+      "evidence": "(deferred, tracked in v7.2 R5.5) 9 residual MAJORS — Weibull RUL incomplete",
+      "milestone_or_unit_id": null,
+      "looks_completed": false,
+      "suggested_domain": "other",
+      "confidence": 0.45
+    },
+    {
+      "title": "NFC badge login + IndexedDB offline queue deferred to v2 (shop-floor mobile)",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/7dbc5453-6790-4d46-b2ad-39b379833916.jsonl",
+      "source_type": "transcript",
+      "evidence": "Deferred to v2: NFC badge login ($2500 hardware, defer until MVP proves value); IndexedDB offline queue (v1: show offline banner).",
+      "milestone_or_unit_id": null,
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.5
+    },
+    {
+      "title": "real-sim re-integration deferred (proceeds with --sim-source=synthetic flag)",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/79a27dc2-0c8a-4bcb-acf5-990ec6f3ad42.jsonl",
+      "source_type": "transcript",
+      "evidence": "proceeds with --sim-source=synthetic flag; real-sim re-integration deferred to [later]",
+      "milestone_or_unit_id": null,
+      "looks_completed": false,
+      "suggested_domain": "cam",
+      "confidence": 0.45
+    },
+    {
+      "title": "JobProfitabilityWaterfallEngine inflates margins when actuals incomplete (cost fallback bug)",
+      "source_path": "C:/Users/wompu/.claude/projects/H--prism/6b6f30f3-d257-4171-b681-0e11c64155f8.jsonl",
+      "source_type": "transcript",
+      "evidence": "JobProfitabilityWaterfallEngine inflates margins when actuals are incomplete (cost fallback in profitability waterfall).",
+      "milestone_or_unit_id": null,
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.5
+    }
+  ],
+  "reason": ""
+}

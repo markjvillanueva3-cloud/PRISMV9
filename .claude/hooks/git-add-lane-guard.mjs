@@ -112,14 +112,21 @@ const BROAD_GLOB_TOKENS = new Set([".", "-A", "--all", "-u", "--update"]);
 
 // ── Pure helpers (exported for tests) ──────────────────────────────────
 
-/** Canonical absolute path: forward slashes, drive lowercased, no trailing `/`. */
+/**
+ * Canonical absolute path: forward slashes, no trailing `/`. On Windows the
+ * whole path is lowercased (NTFS is case-insensitive) so a worktree root
+ * reported by `git worktree list` as `H:/PRISM` compares equal to a cwd of
+ * `h:/prism` — the same directory. Drive-letter-only lowercasing left the
+ * rest case-sensitive and false-blocked every legitimate main-tree stage.
+ */
 export function canonicalize(p) {
   if (!p) return "";
   const abs = path.isAbsolute(p) ? p : path.resolve(p);
-  return abs
+  const fwd = abs
     .replace(/\\/g, "/")
     .replace(/^([A-Za-z]):/, (_, d) => d.toLowerCase() + ":")
     .replace(/\/+$/, "");
+  return process.platform === "win32" ? fwd.toLowerCase() : fwd;
 }
 
 /**

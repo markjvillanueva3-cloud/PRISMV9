@@ -1,0 +1,588 @@
+{
+  "agent": 10,
+  "scannedCount": 25,
+  "matchedFiles": 22,
+  "items": [
+    {
+      "title": "U-CAMP01 Mastercam Deep Learning + Material Bridge — cross-CAM parity unverified across all 4 sibling CAM systems",
+      "source_path": "state/shared/CLOSE-OUT-DEFERRED.md",
+      "source_type": "close-out",
+      "evidence": "U-CAMP01 deferred: deliverable files resolve but cross-CAM parity requires verifying ALL 4 sibling CAM systems before declaring complete",
+      "milestone_or_unit_id": "U-CAMP01",
+      "looks_completed": false,
+      "suggested_domain": "cam",
+      "confidence": 0.85
+    },
+    {
+      "title": "U-CAMP13 CAM AGI Master Orchestrator — engine wiring + dispatcher integration not verified end-to-end",
+      "source_path": "state/shared/CLOSE-OUT-DEFERRED.md",
+      "source_type": "close-out",
+      "evidence": "U-CAMP13 deferred: orchestrator file resolves but engine wiring + dispatcher integration not verified; needs dedicated session to audit API surface",
+      "milestone_or_unit_id": "U-CAMP13",
+      "looks_completed": false,
+      "suggested_domain": "cam",
+      "confidence": 0.85
+    },
+    {
+      "title": "U-CAMP14 Post Processor AGI Unification — cross-CAM coverage (Fanuc/Siemens/Haas/Mazak/Okuma) per-controller verification pending",
+      "source_path": "state/shared/CLOSE-OUT-DEFERRED.md",
+      "source_type": "close-out",
+      "evidence": "U-CAMP14 deferred: unification doc/script resolves but cross-CAM coverage requires per-controller verification",
+      "milestone_or_unit_id": "U-CAMP14",
+      "looks_completed": false,
+      "suggested_domain": "cam",
+      "confidence": 0.85
+    },
+    {
+      "title": "U-CAMP15 Master Post Fine-Tuning System — training-loop and shipped fine-tuned weights need separate verification",
+      "source_path": "state/shared/CLOSE-OUT-DEFERRED.md",
+      "source_type": "close-out",
+      "evidence": "U-CAMP15 deferred: file token resolves but training-loop and shipped fine-tuned weights need verification; audit confidence 1.0 reflects file presence only",
+      "milestone_or_unit_id": "U-CAMP15",
+      "looks_completed": false,
+      "suggested_domain": "cam",
+      "confidence": 0.8
+    },
+    {
+      "title": "CAM-PARITY-AGI-MS0 — 4 units (U-CAMP01/13/14/15) all status:pending, advisory close-out candidates not yet shipped",
+      "source_path": "state/shared/CLOSE-OUT-CANDIDATES.json",
+      "source_type": "close-out",
+      "evidence": "CAM-PARITY-AGI-MS0 candidates[]: 4 units all status pending, confidence 1.0 (file presence only), advisoryOnly+mustHumanVerify",
+      "milestone_or_unit_id": "CAM-PARITY-AGI-MS0",
+      "looks_completed": false,
+      "suggested_domain": "cam",
+      "confidence": 0.7
+    },
+    {
+      "title": "PPG-WIRE-MS5/U-PPGW-OkumaMill-Tribal — Okuma mill tribal knowledge (only ~6 inline OSP-mill tips, needs pdf-learn or okuma-dialect extraction)",
+      "source_path": "state/shared/RESUME_POSTS.md",
+      "source_type": "resume-post",
+      "evidence": "Successor candidate 'genuinely open': engine ships ~6 inline OSP-mill tips; no Okuma-mill source programs in JM Die archive",
+      "milestone_or_unit_id": "U-PPGW-OkumaMill-Tribal",
+      "looks_completed": false,
+      "suggested_domain": "cam",
+      "confidence": 0.75
+    },
+    {
+      "title": "PPG pre-existing followups — 4 unfixed TS/physics bugs (PhysicsSidecarBuilder zod narrowing, PrismPathConstantEngagement MaterialEntry shape, SolidCAMAIOrchestration broken singletons, HurcoV11 kc1_1 swap)",
+      "source_path": "state/shared/RESUME_POSTS.md",
+      "source_type": "resume-post",
+      "evidence": "PRE-EXISTING FOLLOWUPS table: 4 pre-existing TS errors / brokenness flagged 'separate cleanup units', track under PPG-HARDEN",
+      "milestone_or_unit_id": "PPG-HARDEN",
+      "looks_completed": false,
+      "suggested_domain": "cam",
+      "confidence": 0.7
+    },
+    {
+      "title": "U-PPGM17d — wire verify_tier through camDispatcher.ts master_post_mitsubishi_mv1200r + master_post_by_machine MITSUBISHI branch",
+      "source_path": "state/shared/RESUME_POSTS_TOMORROW.md",
+      "source_type": "resume-post",
+      "evidence": "Priority 1 NEXT ACTION: dispatcher cases do NOT pass verify_tier through; blocked by peer claim on camDispatcher.ts",
+      "milestone_or_unit_id": "U-PPGM17d",
+      "looks_completed": false,
+      "suggested_domain": "cam",
+      "confidence": 0.8
+    },
+    {
+      "title": "PPG-HARDEN U-PPGH01..U-PPGH05 — 28 pre-existing HurcoV11MillMasterPostEngine sync-path test failures (postSingle, UltiMotion G187, RPM warning prefix, physics_checks count, setup_sheet)",
+      "source_path": "state/shared/RESUME_POSTS_TOMORROW.md",
+      "source_type": "resume-post",
+      "evidence": "Priority 2: 28 HurcoV11 sync-path failures still open; triage into <=5 named sub-failures U-PPGH01..U-PPGH05",
+      "milestone_or_unit_id": "PPG-HARDEN",
+      "looks_completed": false,
+      "suggested_domain": "cam",
+      "confidence": 0.8
+    },
+    {
+      "title": "Parallel verifier coverage sweep — apply verifyWEDMBlockAnnotations per-tier physics gate pattern to Okuma OSP-P*M mill, Okuma B250 lathe, Hurco V11",
+      "source_path": "state/shared/RESUME_POSTS_TOMORROW.md",
+      "source_type": "resume-post",
+      "evidence": "Priority 3: 30-min sweep to confirm no tribal-knowledge-driven emit deviation the generic verifier misses on 3 master posts",
+      "milestone_or_unit_id": null,
+      "looks_completed": false,
+      "suggested_domain": "cam",
+      "confidence": 0.55
+    },
+    {
+      "title": "CLEANUP-MS0 — milestone has 73 pending units (0 shipped per MILESTONE_PROGRESS); /loop stopped at iter 2/20 with 17 units remaining",
+      "source_path": "state/shared/MILESTONE_PROGRESS.md",
+      "source_type": "milestone-progress",
+      "evidence": "CLEANUP-MS0 73 pending / 73 total / 0 shipped; AGENT_CHAT precompact note: 'CLEANUP-MS0 57/73, /loop iter 2/20, 17 units remaining'",
+      "milestone_or_unit_id": "CLEANUP-MS0",
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.6
+    },
+    {
+      "title": "U-CLEANUP-G8 — golf-cron-registry reconciliation blocked: depends on E2 (not_started) for undefined crons[] schema (jobId/lockfile shape)",
+      "source_path": "state/shared/AGENT_CHAT.jsonl",
+      "source_type": "chat-bus",
+      "evidence": "RELEASING U-CLEANUP-G8: real dep-ordering blocker — reconciles E2's golf-cron-registry but E2 not_started, crons[] schema undefined",
+      "milestone_or_unit_id": "U-CLEANUP-G8",
+      "looks_completed": false,
+      "suggested_domain": "hooks",
+      "confidence": 0.8
+    },
+    {
+      "title": "OBSIDIAN-INTELLIGENCE-MS3 hotel-queue C1+C2 — IdeaBlock html-render units deferred to peer-claimed html-report-render.mjs",
+      "source_path": "state/shared/AGENT_CHAT.jsonl",
+      "source_type": "chat-bus",
+      "evidence": "/loop ENDED iter 6/8: C1 deferred to peer claude-c0f06dee html-report-render.mjs claim, C2 deps on C1; D5+B6+G2 deps on charlie D1+E2+D4",
+      "milestone_or_unit_id": "OBSIDIAN-INTELLIGENCE-MS3",
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.7
+    },
+    {
+      "title": "F2 U-HIGHLIGHTS-ONLY — SKIPPED: PDFKnowledgeIngestEngine.ts does not exist; spec says 'modify' but engine missing, true effort ~3hr CREATE-from-scratch",
+      "source_path": "state/shared/AGENT_CHAT.jsonl",
+      "source_type": "chat-bus",
+      "evidence": "F2 (U-HIGHLIGHTS-ONLY) SKIPPED — spec-blocker: PDFKnowledgeIngestEngine.ts does NOT exist; recommend envelope edit",
+      "milestone_or_unit_id": "U-HIGHLIGHTS-ONLY",
+      "looks_completed": false,
+      "suggested_domain": "docs",
+      "confidence": 0.8
+    },
+    {
+      "title": "P1-A stop-regression-bundle — BUILT + 6/6 tested but NOT wired into settings.json (folds 10 dev-tool Stop gates); wiring deferred",
+      "source_path": "state/shared/AGENT_CHAT.jsonl",
+      "source_type": "chat-bus",
+      "evidence": "P1-A stop-regression-bundle BUILT+6/6-tested but NOT wired (option A); 2 machining gates left standalone; wiring=deferred",
+      "milestone_or_unit_id": null,
+      "looks_completed": false,
+      "suggested_domain": "hooks",
+      "confidence": 0.75
+    },
+    {
+      "title": "SYSTEM-VIZ-FS-COVERAGE Phase 2+3 — remaining H: domains DEFERRED as operational follow-ups after L12 foundation shipped",
+      "source_path": "state/shared/AGENT_CHAT.jsonl",
+      "source_type": "chat-bus",
+      "evidence": "shipped foundation expand-system-viz-l12-files.mjs; Phase 2+3 (remaining H: domains) DEFERRED as operational follow-ups",
+      "milestone_or_unit_id": null,
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.55
+    },
+    {
+      "title": "U-DOCKER-HOOK-BROKER (Tier 1) — persistent prism-hooks container holding 50+ hooks warm; never built, blocks OBSIDIAN-INTELLIGENCE-MS3 Track A",
+      "source_path": "state/shared/specs/2026-05-09-U-DOCKER-HOOK-BROKER.md",
+      "source_type": "spec",
+      "evidence": "Handed-off unit; docker-compose.yml exists but no docker/ subdir; spec says 'U-DOCKER-HOOK-BROKER not yet built'",
+      "milestone_or_unit_id": "U-DOCKER-HOOK-BROKER",
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.85
+    },
+    {
+      "title": "Docker Tiers 2-4 — MCP server consolidation + agent isolation containers + TSserver pen, deferred after Tier 1 broker",
+      "source_path": "state/shared/specs/2026-05-09-U-DOCKER-HOOK-BROKER.md",
+      "source_type": "spec",
+      "evidence": "Out of scope for this unit: Tiers 2-4 (MCP consolidation, agent containers, TSserver pen) — separate units after Tier 1",
+      "milestone_or_unit_id": null,
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.65
+    },
+    {
+      "title": "U-FORGE-AUDIT-OMNISCIENT — upgrade /forge-audit to conductor emitting audit-overlay.json (5 phase scripts, ~1000 LOC); build deferred to fresh session",
+      "source_path": "state/shared/specs/2026-05-09-U-FORGE-AUDIT-OMNISCIENT.md",
+      "source_type": "spec",
+      "evidence": "build target: post-/compact session; 7 files to create (forge-audit-omniscient.mjs + 5 phase scripts + schema); aggregate-agent-findings.mjs uncommitted",
+      "milestone_or_unit_id": "U-FORGE-AUDIT-OMNISCIENT",
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.8
+    },
+    {
+      "title": "U-FORGE-OMNISCIENT — omniscient version of /forge analogous to forge-audit upgrade, separate unit after U-FORGE-AUDIT-OMNISCIENT",
+      "source_path": "state/shared/specs/2026-05-09-U-FORGE-AUDIT-OMNISCIENT.md",
+      "source_type": "spec",
+      "evidence": "Out of scope: the /forge upgrade (analogous omniscient version) — U-FORGE-OMNISCIENT, separate unit after this one ships",
+      "milestone_or_unit_id": "U-FORGE-OMNISCIENT",
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.6
+    },
+    {
+      "title": "U-FORGE-AUDIT-RIGOR — ts-morph/madge/knip/semgrep integration into forge-audit (Tier 2 follow-up)",
+      "source_path": "state/shared/specs/2026-05-09-U-FORGE-AUDIT-OMNISCIENT.md",
+      "source_type": "spec",
+      "evidence": "Out of scope: ts-morph / madge / knip / semgrep integration -> U-FORGE-AUDIT-RIGOR (Tier 2 follow-up)",
+      "milestone_or_unit_id": "U-FORGE-AUDIT-RIGOR",
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.55
+    },
+    {
+      "title": "U-VIZ-OVERLAY-RENDER — consume audit-overlay.json to tint the system-viz 3D graph (claude-0413eca6 viz lane, coordination follow-up)",
+      "source_path": "state/shared/specs/2026-05-09-U-FORGE-AUDIT-OMNISCIENT.md",
+      "source_type": "spec",
+      "evidence": "Visualization-side overlay rendering -> U-VIZ-OVERLAY-RENDER (claude-0413eca6 lane); consumption-side hookup is a follow-up coordination unit",
+      "milestone_or_unit_id": "U-VIZ-OVERLAY-RENDER",
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.6
+    },
+    {
+      "title": "MACRO-PROGRAM-PIPELINE-MS0 — 7-unit milestone (macro fill -> S(x)-gated emit -> per-machine .MIN), SCOPED only, 0/7 completed, execution deferred",
+      "source_path": "state/shared/specs/MACRO-PROGRAM-PIPELINE-MS0-2026-05-12.md",
+      "source_type": "spec",
+      "evidence": "Status SCOPED; total_units 7 completed 0; safety-critical program-generation half deferred to next session(s)",
+      "milestone_or_unit_id": "MACRO-PROGRAM-PIPELINE-MS0",
+      "looks_completed": false,
+      "suggested_domain": "lathe",
+      "confidence": 0.85
+    },
+    {
+      "title": "MACRO-PROGRAM-PIPELINE MS0-U2/U4/U5/U6/U7 — MacroFillOrchestrator, safety gate, per-machine emit, bulk fan-out, /macro-program skill (U1+U3 may be done)",
+      "source_path": "state/shared/specs/MACRO-PROGRAM-PIPELINE-MS0-2026-05-12.md",
+      "source_type": "spec",
+      "evidence": "DOMAIN-STUDIO-NODE-MAP marks MacroLibraryEngine (U1) built; U2-U7 safety-critical fill/gate/emit/bulk/skill still pending execution",
+      "milestone_or_unit_id": "MACRO-PROGRAM-PIPELINE-MS0",
+      "looks_completed": false,
+      "suggested_domain": "lathe",
+      "confidence": 0.7
+    },
+    {
+      "title": "MACRO-PROGRAM-PIPELINE-MS0 not registered as milestone envelope — JSON to register at mcp-server/data/milestones/MACRO-PROGRAM-PIPELINE-MS0.json",
+      "source_path": "state/shared/specs/MACRO-PROGRAM-PIPELINE-MS0-2026-05-12.md",
+      "source_type": "spec",
+      "evidence": "spec section 'How to register this milestone' provides envelope JSON; registration step pending",
+      "milestone_or_unit_id": "MACRO-PROGRAM-PIPELINE-MS0",
+      "looks_completed": false,
+      "suggested_domain": "lathe",
+      "confidence": 0.6
+    },
+    {
+      "title": "TRAINING-LEARNING-MS0 — 7-unit domain template-corpus milestone (Lathe/Mill/WEDM extractors + electrode audit + Excel macro bridge), SCOPED, 0/7, execution deferred",
+      "source_path": "state/shared/specs/TRAINING-LEARNING-MS0-2026-05-12.md",
+      "source_type": "spec",
+      "evidence": "Status SCOPED; total_units 7 completed 0; corpus scan 24,545 files; MILESTONE_PROGRESS lists drift claims_completed_but_units_pending",
+      "milestone_or_unit_id": "TRAINING-LEARNING-MS0",
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.85
+    },
+    {
+      "title": "TRAINING-LEARNING-MS0 — 6 engines to build (Lathe/Mill/WEDM Template+Matcher, ElectrodeCoverageAudit, TaptiteElectrodeMacroBridge, TrainingTemplateContinuousLearning) + 4 phase20 scripts + /learn-corpus skill",
+      "source_path": "state/shared/specs/TRAINING-LEARNING-MS0-2026-05-12.md",
+      "source_type": "spec",
+      "evidence": "section 'Engines to build': 6 engines + 3 phase scripts + 1 skill; electrode-coverage audit safety-critical read-only",
+      "milestone_or_unit_id": "TRAINING-LEARNING-MS0",
+      "looks_completed": false,
+      "suggested_domain": "wedm",
+      "confidence": 0.75
+    },
+    {
+      "title": "PRISM-STAB-MS0 — 15-unit stabilization roadmap (A1-A5/B1-B6/C1-C4: git-sync, orphan reaper, handoff store, Quartz, injection re-arch); not auto-executed, awaiting trigger",
+      "source_path": "state/shared/specs/2026-05-09-prism-stabilization-roadmap.md",
+      "source_type": "spec",
+      "evidence": "15 units, 3 phases; 'Not auto-executed (Mark must trigger A1 explicitly to start)'; not integrated into main atomic-roadmap",
+      "milestone_or_unit_id": "PRISM-STAB-MS0",
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.75
+    },
+    {
+      "title": "Tribal node-binder sub-project C — keystone schema + binder + tribal-context-inject PreToolUse hook (G1-G8 goals); approved-design, not built",
+      "source_path": "state/shared/specs/2026-05-09-tribal-node-binder-design.md",
+      "source_type": "spec",
+      "evidence": "status approved-design; binder engine + store + resolver + hook + rebuild script all 'New' to build; wires tribal tips to system-viz nodes",
+      "milestone_or_unit_id": null,
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.7
+    },
+    {
+      "title": "Tribal auto-wiring sub-projects A/B/D/E — mine extracted/ for tips, ingest 3400-tip *-cam-tips.js backlog, HTML render layer, NN needed-now auto-utilization trigger",
+      "source_path": "state/shared/specs/2026-05-09-tribal-node-binder-design.md",
+      "source_type": "spec",
+      "evidence": "parent-roadmap 'tribal-knowledge-auto-wiring-program' lists 5 sub-projects A/B/C/D/E; this spec is C only, A/B/D/E are follow-on-specs",
+      "milestone_or_unit_id": null,
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.6
+    },
+    {
+      "title": "OBSIDIAN-INTELLIGENCE-MS3 — 24-unit plan across 7 tracks (Stabilization/Workflows/HTML/CompanyBrain/IdeaBlock/Capture/AgentObs); most units never started",
+      "source_path": "state/shared/specs/OBSIDIAN-INTELLIGENCE-MS3-UNIFIED-PLAN.md",
+      "source_type": "spec",
+      "evidence": "24 units enumerated; MILESTONE_PROGRESS shows OBSIDIAN-INTELLIGENCE-MS3 25 pending / 25 total; ~8 units shipped per chat-bus (E1/C3/F1/G3/E4/C2/A2/D1)",
+      "milestone_or_unit_id": "OBSIDIAN-INTELLIGENCE-MS3",
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.75
+    },
+    {
+      "title": "OBSIDIAN-INTELLIGENCE-MS3 Track B — 6 cyrilXBT autonomous workflows (DailyContext, ConnectionFinder, QueueProcessor, WeeklySynthesis, ProjectAutoUpdater, KnowledgeDistillation)",
+      "source_path": "state/shared/specs/OBSIDIAN-INTELLIGENCE-MS3-UNIFIED-PLAN.md",
+      "source_type": "spec",
+      "evidence": "Track B B1-B6: 6 autonomous-workflow units with cron triggers, no engine names; not in shipped-unit list",
+      "milestone_or_unit_id": "OBSIDIAN-INTELLIGENCE-MS3",
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.65
+    },
+    {
+      "title": "OBSIDIAN-INTELLIGENCE-MS3 Track D — Company Brain 5 units (Provenance/Ontology/ConflictResolution/ActionTraces/ContextEvalGate) - D1 shipped, D2/D3/D5 pending",
+      "source_path": "state/shared/specs/OBSIDIAN-INTELLIGENCE-MS3-UNIFIED-PLAN.md",
+      "source_type": "spec",
+      "evidence": "Track D D1-D5: MemoryOntologyEngine, MemoryConflictResolverEngine, ContextEvalEngine new builds; D1/D4 shipped per chat-bus, D2/D3/D5 pending",
+      "milestone_or_unit_id": "OBSIDIAN-INTELLIGENCE-MS3",
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.65
+    },
+    {
+      "title": "OBSIDIAN-INTELLIGENCE-MS3 Track F+G — Voice Capture (Whisper bridge) + Agent Observability (JobDescriptions/PixelDeptOverlay/RuntimeAlerts)",
+      "source_path": "state/shared/specs/OBSIDIAN-INTELLIGENCE-MS3-UNIFIED-PLAN.md",
+      "source_type": "spec",
+      "evidence": "Track F F1-F2 (voice + PDF highlights), Track G G1-G3 (agent obs); G3 shipped per chat-bus, F1/G1/G2 pending",
+      "milestone_or_unit_id": "OBSIDIAN-INTELLIGENCE-MS3",
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.6
+    },
+    {
+      "title": "PRISM compaction settings.json patches — CLAUDE_AUTOCOMPACT_PCT_OVERRIDE + MAX_OUTPUT_TOKENS + bundle 18+ SessionStart hooks to cron + fix stable-session-id resolver",
+      "source_path": "state/shared/specs/ANALYSIS-HANDOFF-SYSTEM-2026-05-11.md",
+      "source_type": "spec",
+      "evidence": "section 7 action checklist P0-P3: settings.json edits, SessionStart hook audit/bundle, stable-session-id fix, handoff-staleness-check",
+      "milestone_or_unit_id": null,
+      "looks_completed": false,
+      "suggested_domain": "hooks",
+      "confidence": 0.6
+    },
+    {
+      "title": "handoff-staleness-check.mjs — SessionStart hook diffing RESUME-named milestones against on-disk state to detect parallel-chat completion",
+      "source_path": "state/shared/specs/ANALYSIS-HANDOFF-SYSTEM-2026-05-11.md",
+      "source_type": "spec",
+      "evidence": "section 4 Patches: add state/shared/handoffs/handoff-staleness-check.mjs; auto-mark superseded handoffs; no handoff-staleness detector exists",
+      "milestone_or_unit_id": null,
+      "looks_completed": false,
+      "suggested_domain": "hooks",
+      "confidence": 0.65
+    },
+    {
+      "title": "HOOK-SYNERGY-V2 — 13-unit hook-system architecture (H1-H13: registry, telemetry, creation gate, async dispatcher, fast-lane, SQLite WAL, circuit-breaker)",
+      "source_path": "state/shared/specs/HOOK-SYSTEM-SYNERGY-V2.md",
+      "source_type": "spec",
+      "evidence": "13 atomic units H1-H13; 480-hook overload; estimated 14-20h; HOOKS-AUTOMATION-V2-MS0 drift in MILESTONE_PROGRESS claims_completed_but_units_pending",
+      "milestone_or_unit_id": "HOOK-SYNERGY-MS0",
+      "looks_completed": false,
+      "suggested_domain": "hooks",
+      "confidence": 0.7
+    },
+    {
+      "title": "HOOK-SYNERGY stretch units H7-H10 — AsyncHookDispatcher, SQLite WAL coord store, hook->engine compression, cross-worktree firewall",
+      "source_path": "state/shared/specs/HOOK-SYNERGY-V2-PLAN.md",
+      "source_type": "spec",
+      "evidence": "Phase H7-H10 marked '(stretch)'; HOOK-SYNERGY-MS0 partly shipped per CLAUDE.md (11 units 2026-05-12..13) but H7-H10 stretch status unclear",
+      "milestone_or_unit_id": "HOOK-SYNERGY-MS0",
+      "looks_completed": false,
+      "suggested_domain": "hooks",
+      "confidence": 0.55
+    },
+    {
+      "title": "K2-CLOUD-MS0 — 13-unit Kimi K2.6:cloud mid-tier integration (K1-K12 + K4.5); K1 inventory shipped, K2-K12 awaiting HOOK-SYNERGY H1+H6, blocked",
+      "source_path": "state/shared/specs/K2-CLOUD-INTEGRATION-PLAN.md",
+      "source_type": "spec",
+      "evidence": "13 atomic units K1-K12+K4.5; status 'planned (awaiting user scheduling)'; K1 shipped 29d0d18ec, K2-K12 blocked by HOOK-SYNERGY",
+      "milestone_or_unit_id": "K2-CLOUD-MS0",
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.8
+    },
+    {
+      "title": "K2-CLOUD K3 K2CloudOllamaEngine — re-apply reverted AISystemRouterEngine.ts K2 edits (kimi-k2.6:cloud backend, KIMI_K2_PRICING, helpers) lost in session crash",
+      "source_path": "state/shared/specs/SESSION-2026-05-10-ROADMAP.md",
+      "source_type": "spec",
+      "evidence": "section 3 Note: AISystemRouterEngine.ts K2 edits REVERTED by session crash before commit; K2 must be re-applied after Wave 0 stabilizes",
+      "milestone_or_unit_id": "K2-CLOUD-MS0",
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.75
+    },
+    {
+      "title": "HTML-COMPANION-MS0 / HTML-PRIMARY-MS0 — spec-html-companion generator + ~90% overlapping milestone pair (audit found 6/7 units are 1:1 mirrors)",
+      "source_path": "state/shared/specs/SESSION-2026-05-10-ROADMAP.md",
+      "source_type": "spec",
+      "evidence": "HTML-COMPANION-MS0 4 units not_started; BACKEND-DEVTOOLS audit F3: HTML-COMPANION-MS0 ~90% overlap with HTML-PRIMARY-MS0, needs collapse to one owner",
+      "milestone_or_unit_id": "HTML-COMPANION-MS0",
+      "looks_completed": false,
+      "suggested_domain": "docs",
+      "confidence": 0.7
+    },
+    {
+      "title": "VIZ-COVERAGE-MS0 — single-unit fix for system-viz vs BUILD_STATE coverage discrepancy (88% viz vs 71% BUILD_STATE)",
+      "source_path": "state/shared/specs/SESSION-2026-05-10-ROADMAP.md",
+      "source_type": "spec",
+      "evidence": "Track 4 VIZ-COVERAGE-MS0 1 unit 0 done not_started; generate-system-viz.mjs must read from BUILD_STATE.COVERAGE_BY_DOMAIN.rows",
+      "milestone_or_unit_id": "VIZ-COVERAGE-MS0",
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.7
+    },
+    {
+      "title": "SYSTEM-SYNERGY-AUDIT Track H — 8 synergy-edge units (tribal->wiki promote, viz tribal/agent/handoff layers, neural feedback loop, handoff prune cron, master-index memories, stop-hook aggregator)",
+      "source_path": "state/shared/specs/SYSTEM-SYNERGY-AUDIT-2026-05-09.md",
+      "source_type": "spec",
+      "evidence": "Track H H1-H8 fills 60 missing inter-surface edges; audit remediation downgrades H1/H2/H4 to verify-only, H3/H5/H6/H7/H8 remain unbuilt",
+      "milestone_or_unit_id": null,
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.65
+    },
+    {
+      "title": "SYSTEM-SYNERGY-AUDIT Track I — 4 forge5 phantom-tool scripts (viz-completeness-check, viz-progress-update, auto-wire-plan, compounding-gains-audit) referenced in doctrine but never built",
+      "source_path": "state/shared/specs/SYSTEM-SYNERGY-AUDIT-2026-05-09.md",
+      "source_type": "spec",
+      "evidence": "Track I I1-I4: 4 phantom tools referenced in /forge5 doctrine but don't exist; either build or strip from doctrine",
+      "milestone_or_unit_id": null,
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.7
+    },
+    {
+      "title": "GIT-TREE-REMEDIATION-MS0 — 23-unit git-tree cleanup roadmap (U-GC-00..22); 43GB .git, cad-fusion-live-ms0 unpushable 113MB blob, 4 unrelated histories; PLANNING status",
+      "source_path": "state/shared/specs/GIT-TREE-REMEDIATION-MS0-ROADMAP-2026-05-12.md",
+      "source_type": "spec",
+      "evidence": "Status PLANNING, no git mutations; 23 units, 3 blocking decision gates; not registered in roadmap-index.json",
+      "milestone_or_unit_id": "GIT-TREE-REMEDIATION-MS0",
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.8
+    },
+    {
+      "title": "GIT-TREE-REMEDIATION-MS0 — v2 binding revision needed: 14 P0-blocking fixes + freeze-enforcement unit + worktree.baseRef-as-harness-setting + Path C merge option",
+      "source_path": "state/shared/specs/GIT-TREE-REMEDIATION-MS0-SCRUTINY-1.md",
+      "source_type": "spec",
+      "evidence": "Scrutiny verdict: spine sound but Correctness 74/Safety 58/Completeness 68; v2 roadmap revision owed before execution-ready",
+      "milestone_or_unit_id": "GIT-TREE-REMEDIATION-MS0",
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.65
+    },
+    {
+      "title": "BACKEND-DEVTOOLS-RGS6 — v2 binding revision (REVISE verdict): re-map 74 invalid viz_node_ids, collapse 4+5 duplicate engines, fix 9 dangling deps, complete 15 tier-less units",
+      "source_path": "state/shared/specs/BACKEND-DEVTOOLS-RGS6-AUDIT-V2-2026-05-11.md",
+      "source_type": "spec",
+      "evidence": "Verdict REVISE: 3 BLOCKER + 7 MAJOR; atomized pass never bound to live graph; estimated REVISE effort 6-10h mechanical",
+      "milestone_or_unit_id": "BACKEND-DEVTOOLS-RGS6",
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.7
+    },
+    {
+      "title": "ROADMAP-VIZ-BINDING-MS0 — RoadmapVizBindingEngine + roadmap-viz-overlay.mjs flipping ghost->built on verify pass (BACKEND-DEVTOOLS audit F11, un-atomized)",
+      "source_path": "state/shared/specs/BACKEND-DEVTOOLS-RGS6-AUDIT-V2-2026-05-11.md",
+      "source_type": "spec",
+      "evidence": "F11: no unit makes roadmap completion flip ghost node status; needs dedicated ROADMAP-VIZ-BINDING-MS0 or fold into GRAPH-AS-LLM-CONTEXT",
+      "milestone_or_unit_id": "ROADMAP-VIZ-BINDING-MS0",
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.6
+    },
+    {
+      "title": "BACKEND-DEVTOOLS-RGS6 81-unit mega-roadmap — 9 milestones (TOOL-INVENTORY/WIKI-EVOLVE/LOOP-MIGRATE/COST-CASCADE/MACHINE-CONNECTIVITY + 4 extended); ready-for-execution, not executed",
+      "source_path": "state/shared/specs/SESSION-2026-05-10-BACKEND-DEVTOOLS-RGS6-ROADMAP.md",
+      "source_type": "spec",
+      "evidence": "81 units across 9 milestones, 5 new milestones; status ready-for-execution; SKILLS-UTILIZATION-MS0 drift in MILESTONE_PROGRESS",
+      "milestone_or_unit_id": "BACKEND-DEVTOOLS-RGS6",
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.7
+    },
+    {
+      "title": "MACHINE-CONNECTIVITY-MS0 — wire MTConnect/MQTT/OPC-UA connectors; audit found 2 engines already exist (must reclassify build->extend)",
+      "source_path": "state/shared/specs/BACKEND-DEVTOOLS-RGS6-AUDIT-V2-2026-05-11.md",
+      "source_type": "spec",
+      "evidence": "F4: U-MTCONNECT-ADAPTER + U-MQTT-EVENT-BUS propose engines that already exist (eng.bridge.mtconnectadapterengine, eng.sensor.mqttbridgeengine)",
+      "milestone_or_unit_id": "MACHINE-CONNECTIVITY-MS0",
+      "looks_completed": false,
+      "suggested_domain": "machine",
+      "confidence": 0.6
+    },
+    {
+      "title": "COST-CASCADE-MS0 / OCTOPUS-NEURAL-MS0 — multi-tier AI cascade + neural routing; OCTOPUS-NEURAL drift claims_completed_but_units_pending",
+      "source_path": "state/shared/specs/BACKEND-DEVTOOLS-RGS6-AUDIT-V2-2026-05-11.md",
+      "source_type": "spec",
+      "evidence": "8-unit COST-CASCADE + 5-unit OCTOPUS-NEURAL milestones; OCTOPUS-NEURAL-MS0 MILESTONE_PROGRESS drift; CascadeCalibration/MoaLayer2 build-twice",
+      "milestone_or_unit_id": "OCTOPUS-NEURAL-MS0",
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.6
+    },
+    {
+      "title": "BLUEPRINT-OCR-TRAINING-MS1 — RAG-augmented blueprint OCR + LoRA training + closed-loop continual learning; 3 monolith engines to rescue + 2 to extend",
+      "source_path": "state/shared/specs/BLUEPRINT-OCR-TRAINING-MS1-2026-05-12.md",
+      "source_type": "spec",
+      "evidence": "forge4-scoped milestone; U-T1-R1/R2 rescue prism-enhanced-gdt/prism-gdt-fcf-parser/prism-ocr-engine monolith forks (unwired); 3 new engines + 2 extensions",
+      "milestone_or_unit_id": "BLUEPRINT-OCR-TRAINING-MS1",
+      "looks_completed": false,
+      "suggested_domain": "cad",
+      "confidence": 0.75
+    },
+    {
+      "title": "GOLF-WATCHDOG-MS0 — 7th-slot cleanup + WatchdogEngine + WiringPotentialEngine + CLAUDE.md slim; PLAN ONLY, awaiting user sign-off (golf slot since shipped via CLEANUP-MS0)",
+      "source_path": "state/shared/specs/GOLF-WATCHDOG-MS0-2026-05-13.md",
+      "source_type": "spec",
+      "evidence": "Status PLAN ONLY awaiting sign-off; subsystems A(5)/B(7)/C(5)/D(6)/F(8) units; WatchdogEngine, WiringPotentialEngine new builds",
+      "milestone_or_unit_id": "GOLF-WATCHDOG-MS0",
+      "looks_completed": false,
+      "suggested_domain": "hooks",
+      "confidence": 0.6
+    },
+    {
+      "title": "GOLF-WATCHDOG Subsystem D — CLAUDE.md slim via Obsidian extraction (D1-D6: extract hook-synergy/master-index/bridges/jm-die sections + keyword-gated rehydration hooks)",
+      "source_path": "state/shared/specs/GOLF-WATCHDOG-MS0-2026-05-13.md",
+      "source_type": "spec",
+      "evidence": "Subsystem D D1-D6: move 43KB CLAUDE.md reference detail to wiki, target <=25KB, build wiki-section-inject.mjs rehydration hook",
+      "milestone_or_unit_id": "GOLF-WATCHDOG-MS0",
+      "looks_completed": false,
+      "suggested_domain": "docs",
+      "confidence": 0.55
+    },
+    {
+      "title": "GOLF-WATCHDOG Subsystem F — landscape consumers (8 units): unwired-batch wiring sweep, envelope-drift cron, frontend-merge nudge for 875 unwired engines + 2 pending FE merges",
+      "source_path": "state/shared/specs/GOLF-WATCHDOG-MS0-2026-05-13.md",
+      "source_type": "spec",
+      "evidence": "Subsystem F F1-F8: react to 875 unwired engines + 2 envelope drifts + 2 pending frontend merges via cadence scripts",
+      "milestone_or_unit_id": "GOLF-WATCHDOG-MS0",
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.55
+    },
+    {
+      "title": "DOMAIN-STUDIO program-generation MS0 unit execution — safety-critical per-machine program emit deferred to next sessions (operator-in-loop, S(x)>=0.70)",
+      "source_path": "state/shared/specs/DOMAIN-STUDIO-NODE-MAP.md",
+      "source_type": "spec",
+      "evidence": "Status: 'MS0 unit execution = next sessions — the program-generation half is safety-critical, no bulk-auto-emit'",
+      "milestone_or_unit_id": null,
+      "looks_completed": false,
+      "suggested_domain": "lathe",
+      "confidence": 0.55
+    },
+    {
+      "title": "C2 Action-surface overlay (system-viz) — blocked: graph has 0 actEng edges, needs regen-viz --full pass",
+      "source_path": "state/shared/specs/SYSTEM-VIZ-HIGH-VALUE-FEATURES-2026-05-11.md",
+      "source_type": "spec",
+      "evidence": "Tier C C2 marked 'blocked': current graph has only 14 L4a action nodes and 0 actEng edges; re-open after next --full regen",
+      "milestone_or_unit_id": null,
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.6
+    },
+    {
+      "title": "System-viz Tier D backlog — 4 involved features (tribal-density heatmap, full Lvault layer, schema-evolution trace, dead-pixel auto-sweep)",
+      "source_path": "state/shared/specs/SYSTEM-VIZ-HIGH-VALUE-FEATURES-2026-05-11.md",
+      "source_type": "spec",
+      "evidence": "Tier D D1-D4 backlog: revisit when budget allows; tribal-density heatmap, Lvault layer, schema-evolution trace, dead-pixel sweep",
+      "milestone_or_unit_id": null,
+      "looks_completed": false,
+      "suggested_domain": "infra",
+      "confidence": 0.5
+    }
+  ],
+  "reason": ""
+}

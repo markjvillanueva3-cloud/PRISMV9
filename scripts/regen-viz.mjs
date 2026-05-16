@@ -36,6 +36,7 @@ const FAST = [
   "generate-knowledge-galaxy.mjs",
   "generate-layer-bridges.mjs",
   "generate-stagnant-features.mjs",
+  "generate-misc-tasks-features.mjs",
   "generate-engine-graph.mjs",
   "generate-hook-bridges.mjs",
   "generate-frontend-pages.mjs",

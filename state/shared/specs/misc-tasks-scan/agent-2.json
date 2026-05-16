@@ -1,0 +1,418 @@
+{
+ "agent": 2,
+ "scannedCount": 119,
+ "matchedFiles": 55,
+ "items": [
+  {
+   "title": "Fix invalid HookPhase 'pre-wiring' on KnowledgeHooks.ts line 332 (KAR-MS1 U-KAR07)",
+   "source_path": "C:/Users/wompu/.claude/projects/H--prism/2d5f83fd-5962-4f49-85f2-9988a830948c.jsonl",
+   "source_type": "transcript",
+   "evidence": "Still need to fix line 332: `phase: \"pre-wiring\"` -> valid HookPhase. Created KnowledgeHooks.ts with two hooks but encountered type error on the phase values.",
+   "milestone_or_unit_id": "U-KAR07",
+   "looks_completed": false,
+   "suggested_domain": "hooks",
+   "confidence": 0.6
+  },
+  {
+   "title": "Wire NISTAIRMFComplianceEngine into complianceDispatcher.ts and commit (engine + 19 tests built, not wired)",
+   "source_path": "C:/Users/wompu/.claude/projects/H--prism/2d94e41e-d14f-468a-8a31-d3dcd2003d9d.jsonl",
+   "source_type": "transcript",
+   "evidence": "The engine is implemented but NOT YET wired into complianceDispatcher.ts and NOT YET committed. 19/19 tests pass.",
+   "milestone_or_unit_id": "U-LPR-OPS-NIST",
+   "looks_completed": false,
+   "suggested_domain": "infra",
+   "confidence": 0.55
+  },
+  {
+   "title": "LatencyBudgetDecompositionEngine (U-LPR-PERF-SLO) — source+tests written but not run, not wired, not committed",
+   "source_path": "C:/Users/wompu/.claude/projects/H--prism/2d94e41e-d14f-468a-8a31-d3dcd2003d9d.jsonl",
+   "source_type": "transcript",
+   "evidence": "In-progress: U-LPR-PERF-SLO (Phase-10) — LatencyBudgetDecompositionEngine source + tests written; not yet run, not yet wired, not yet committed.",
+   "milestone_or_unit_id": "U-LPR-PERF-SLO",
+   "looks_completed": false,
+   "suggested_domain": "lathe",
+   "confidence": 0.6
+  },
+  {
+   "title": "WIRE-EXEMPT marker admits LatheProgramCatalogEngine pre-existing surfaces never wired (classifyFile/scanDirectory/findSimilarPrograms/getProgrammingHistory/getStyleDistribution)",
+   "source_path": "C:/Users/wompu/.claude/projects/H--prism/339c8ff7-73f9-4ab2-9d68-2e10d32f5267.jsonl",
+   "source_type": "transcript",
+   "evidence": "Engine pre-dates U-PPL-D2; pre-existing surfaces (classifyFile/scanDirectory/findSimilarPrograms/getProgrammingHistory/getStyleDistribution) not yet wired.",
+   "milestone_or_unit_id": "U-PPL-D2",
+   "looks_completed": false,
+   "suggested_domain": "lathe",
+   "confidence": 0.55
+  },
+  {
+   "title": "MockMCPServer harness retrofit for BATCH1-5 + U-PPL-A5 wiring tests (P0-2 deferred)",
+   "source_path": "C:/Users/wompu/.claude/projects/H--prism/339c8ff7-73f9-4ab2-9d68-2e10d32f5267.jsonl",
+   "source_type": "transcript",
+   "evidence": "Logged follow-up units (in memory + handoff, NOT auto-claimed): MockMCPServer harness retrofit for BATCH1-5 + U-PPL-A5 wiring tests (P0-2 deferred).",
+   "milestone_or_unit_id": "MS-PRINT-PROGRAM-LOOP",
+   "looks_completed": false,
+   "suggested_domain": "infra",
+   "confidence": 0.7
+  },
+  {
+   "title": "Backfill 6 BATCH1 missing schemas (mill_helical_calc etc.)",
+   "source_path": "C:/Users/wompu/.claude/projects/H--prism/339c8ff7-73f9-4ab2-9d68-2e10d32f5267.jsonl",
+   "source_type": "transcript",
+   "evidence": "Logged follow-up units (NOT auto-claimed): Backfill 6 BATCH1 missing schemas (mill_helical_calc ...).",
+   "milestone_or_unit_id": null,
+   "looks_completed": false,
+   "suggested_domain": "mill",
+   "confidence": 0.7
+  },
+  {
+   "title": "U3-U8 OBSIDIAN-INTELLIGENCE 3-of-3 end-of-task scrutiny deferred to next chat (only U5 passed full scrutiny)",
+   "source_path": "C:/Users/wompu/.claude/projects/H--prism/339c8ff7-73f9-4ab2-9d68-2e10d32f5267.jsonl",
+   "source_type": "transcript",
+   "evidence": "3-of-3 end-of-task scrutiny PASS on U5 (one full pass; U3-U8 deferred to next chat per autonomous-loop test directive). Post-ship distill memos for U3-U8 pending.",
+   "milestone_or_unit_id": "OBSIDIAN-INTELLIGENCE-MS3",
+   "looks_completed": false,
+   "suggested_domain": "infra",
+   "confidence": 0.6
+  },
+  {
+   "title": "P2 deferred: JSONL concurrent-write atomicity + sid-sharded block ledger",
+   "source_path": "C:/Users/wompu/.claude/projects/H--prism/339c8ff7-73f9-4ab2-9d68-2e10d32f5267.jsonl",
+   "source_type": "transcript",
+   "evidence": "P2 deferred items from per-file scrutiny: JSONL concurrent-write atomicity; Sid-sharded block ledger.",
+   "milestone_or_unit_id": null,
+   "looks_completed": false,
+   "suggested_domain": "infra",
+   "confidence": 0.5
+  },
+  {
+   "title": "Continue CAM-EXHAUST-MS0 vendor-engine backfill — CAMRecommendEngine/CAMToolGetEngine/MastercamControllerCatalogEngine still unclaimed",
+   "source_path": "C:/Users/wompu/.claude/projects/H--prism/33c70c0d-5eb3-4665-b130-fc94af54b8c0.jsonl",
+   "source_type": "transcript",
+   "evidence": "Continue CAM-EXHAUST-MS0 vendor-engine backfill in next session — pick 2-3 from CONTINUE_CAM_WORK.md remaining queue (CAMRecommendEngine, CAMToolGetEngine, MastercamControllerCatalogEngine smallest unclaimed).",
+   "milestone_or_unit_id": "CAM-EXHAUST-MS0",
+   "looks_completed": false,
+   "suggested_domain": "cam",
+   "confidence": 0.6
+  },
+  {
+   "title": "Wave-1 P0-U04 — promote ollama-auto-router to first UserPromptSubmit matcher in settings.json (not shipped)",
+   "source_path": "C:/Users/wompu/.claude/projects/H--prism/3764678e-8888-488b-9a79-2d9f9d2df267.jsonl",
+   "source_type": "transcript",
+   "evidence": "Pending Tasks: P0-U04 (~15min): promote ollama-auto-router to first UserPromptSubmit matcher in H:/.claude/settings.json.",
+   "milestone_or_unit_id": "P0-U04",
+   "looks_completed": false,
+   "suggested_domain": "hooks",
+   "confidence": 0.6
+  },
+  {
+   "title": "Wave-1 P2-U01 — UNIFIED_ERROR_LEDGER schema + Zod schema + ingest stub (not shipped)",
+   "source_path": "C:/Users/wompu/.claude/projects/H--prism/3764678e-8888-488b-9a79-2d9f9d2df267.jsonl",
+   "source_type": "transcript",
+   "evidence": "Pending Tasks: P2-U01 (~30min): UNIFIED_ERROR_LEDGER schema in mcp-server/data/state/ + Zod schema in src/schemas/ + ingest stub.",
+   "milestone_or_unit_id": "P2-U01",
+   "looks_completed": false,
+   "suggested_domain": "infra",
+   "confidence": 0.6
+  },
+  {
+   "title": "P4-U03 — pre-shop-floor-commit-consensus.mjs hook drafted inline but never written to disk",
+   "source_path": "C:/Users/wompu/.claude/projects/H--prism/3764678e-8888-488b-9a79-2d9f9d2df267.jsonl",
+   "source_type": "transcript",
+   "evidence": "20/23 done. P4-U03 hook drafted inline in prior chat but NOT written. Trigger pattern: src/physics/constants.ts, PostProcessor*.ts, GcodeEmit*.ts, kienzle*, taylor*.",
+   "milestone_or_unit_id": "P4-U03",
+   "looks_completed": false,
+   "suggested_domain": "hooks",
+   "confidence": 0.65
+  },
+  {
+   "title": "Crash recovery and orphan node cleanup deferred — blocked by precompact threshold",
+   "source_path": "C:/Users/wompu/.claude/projects/H--prism/379c35e0-101e-45ef-a542-8bab640aca59.jsonl",
+   "source_type": "transcript",
+   "evidence": "Crash recovery and orphan node cleanup: blocked by precompact threshold; deferred to [next session].",
+   "milestone_or_unit_id": null,
+   "looks_completed": false,
+   "suggested_domain": "infra",
+   "confidence": 0.5
+  },
+  {
+   "title": "camxMs22U01ActionSchemas.ts missing — flagged as cross-chat coordination signal, not fixed in lane",
+   "source_path": "C:/Users/wompu/.claude/projects/H--prism/379c35e0-101e-45ef-a542-8bab640aca59.jsonl",
+   "source_type": "transcript",
+   "evidence": "Ongoing: Pre-existing camxMs22U01ActionSchemas.ts missing — flagged to user as cross-chat coordination signal. NOT being fixed in this lane.",
+   "milestone_or_unit_id": "camxMs22U01",
+   "looks_completed": false,
+   "suggested_domain": "cam",
+   "confidence": 0.55
+  },
+  {
+   "title": "Revert broken parent-PID gating in 3 files + lower PRESENCE_TTL_MS to 5min (Windows parent-PID approach broken)",
+   "source_path": "C:/Users/wompu/.claude/projects/H--prism/379c35e0-101e-45ef-a542-8bab640aca59.jsonl",
+   "source_type": "transcript",
+   "evidence": "claudeParentPid is unstable... The parent-PID approach is broken on Windows. Next session should revert the parent-PID gating in the 3 files, lowering PRESENCE_TTL_MS to 5 minutes.",
+   "milestone_or_unit_id": null,
+   "looks_completed": false,
+   "suggested_domain": "hooks",
+   "confidence": 0.55
+  },
+  {
+   "title": "U-CAM48 incomplete — catia/drilling.json + catia/5axis.json still need to be created",
+   "source_path": "C:/Users/wompu/.claude/projects/H--prism/38460387-a5bc-44f3-95a4-50a0eec02f96.jsonl",
+   "source_type": "transcript",
+   "evidence": "U-CAM48 (in progress): Still need to create: mcp-server/data/cam-functions/catia/drilling.json (hole operations), catia/5axis.json (multi-axis specific operations).",
+   "milestone_or_unit_id": "U-CAM48",
+   "looks_completed": false,
+   "suggested_domain": "cam",
+   "confidence": 0.6
+  },
+  {
+   "title": "KnowledgeIngestEngine tests + ingest-pdfs.mjs driver + knowledgeDispatcher ingest_pdf wiring + live 116-PDF Qdrant ingest — all not done",
+   "source_path": "C:/Users/wompu/.claude/projects/H--prism/41281702-30a9-441f-9984-d4e143219be9.jsonl",
+   "source_type": "transcript",
+   "evidence": "KnowledgeIngestEngine tests: NOT YET CREATED. scripts/ingest-pdfs.mjs driver: NOT YET CREATED. Wire ingest_pdf action to knowledgeDispatcher: NOT YET DONE. Live ingestion of 116 PDFs (5.4 GB) into Qdrant: NOT YET RUN.",
+   "milestone_or_unit_id": null,
+   "looks_completed": false,
+   "suggested_domain": "infra",
+   "confidence": 0.7
+  },
+  {
+   "title": "67 React page files exist but only ~20 routed in App.tsx (Diagnosis, EDM, Grinding, Turning, Welding, Vibration unrouted)",
+   "source_path": "C:/Users/wompu/.claude/projects/H--prism/414ba3e5-f6e9-449a-81f1-a3399d25f480.jsonl",
+   "source_type": "transcript",
+   "evidence": "Not all 67 page files are routed — the App.tsx router only has ~20 routes defined, with many pages existing as files but not yet connected (Diagnosis, EDM, Grinding, Turning, Welding, Vibration, etc.).",
+   "milestone_or_unit_id": null,
+   "looks_completed": false,
+   "suggested_domain": "other",
+   "confidence": 0.65
+  },
+  {
+   "title": "Build React components for v8 features + wire to existing MCP dispatchers (remaining work)",
+   "source_path": "C:/Users/wompu/.claude/projects/H--prism/414ba3e5-f6e9-449a-81f1-a3399d25f480.jsonl",
+   "source_type": "transcript",
+   "evidence": "The remaining work is building React components for the v8 features and wiring them to the existing MCP dispatchers.",
+   "milestone_or_unit_id": null,
+   "looks_completed": false,
+   "suggested_domain": "other",
+   "confidence": 0.5
+  },
+  {
+   "title": "Docustrata print extraction — clean up duplicate-similar customer categories, file CNC/CAD/CAM per customer+part",
+   "source_path": "C:/Users/wompu/.claude/projects/H--prism/419e02ba-a719-44ef-8764-569164eb1ee1.jsonl",
+   "source_type": "transcript",
+   "evidence": "keep extracting prints from docustrata folder. clean up the categories. customer names that are very similar probably the same. need all cnc programs for mill/lathe/wire; cad files; cad and cam files in proper folders.",
+   "milestone_or_unit_id": null,
+   "looks_completed": false,
+   "suggested_domain": "cad",
+   "confidence": 0.7
+  },
+  {
+   "title": "10-chat slot expansion (alpha..india + juliett) designed but never wired in chat-slots.mjs code",
+   "source_path": "C:/Users/wompu/.claude/projects/H--prism/41db1b82-95ec-4f76-bff8-293146973f7e.jsonl",
+   "source_type": "transcript",
+   "evidence": "Current chat-slots.mjs defines 7 NATO slots. The 10-chat expansion to alpha..india + juliett is designed (per feedback_fleet_design_10_chats) but not yet wired in code.",
+   "milestone_or_unit_id": null,
+   "looks_completed": false,
+   "suggested_domain": "infra",
+   "confidence": 0.6
+  },
+  {
+   "title": "Phase 11 lathe units still pending after U-LPR-OPS-DR (BACKUP/ONBOARD/etc.)",
+   "source_path": "C:/Users/wompu/.claude/projects/H--prism/4533c031-2c0d-4d7d-9a34-dfb1cb856921.jsonl",
+   "source_type": "transcript",
+   "evidence": "Subsequent Phase 11 units still pending: U-LPR-OPS-BAC[KUP]... after committing U-LPR-OPS-DR.",
+   "milestone_or_unit_id": "LATHE-PROD-READY-MS0",
+   "looks_completed": true,
+   "suggested_domain": "lathe",
+   "confidence": 0.4
+  },
+  {
+   "title": "U-LPR07 remaining work scoped but not finished (lathe program store/flag)",
+   "source_path": "C:/Users/wompu/.claude/projects/H--prism/45d42b3b-0ac6-4924-9b24-ba628d6c5d31.jsonl",
+   "source_type": "transcript",
+   "evidence": "Baseline green: 38/38 store + flag tests pass. Now I have a clear scope for U-LPR07's remaining work.",
+   "milestone_or_unit_id": "U-LPR07",
+   "looks_completed": false,
+   "suggested_domain": "lathe",
+   "confidence": 0.45
+  },
+  {
+   "title": "14 failing WEDM test files requiring engine feature builds — deferred to fresh-context session",
+   "source_path": "C:/Users/wompu/.claude/projects/H--prism/464af690-f711-48c7-ac0f-37dae3d96d66.jsonl",
+   "source_type": "transcript",
+   "evidence": "Ongoing (deferred to next session): 14 failing files requiring engine feature builds (WEDM-FAILURE-BREAKDOWN-2026-04-23.md). WEDMHeadClearanceWiring needs safety_gate + check() method; WEDMRaPredictorEngine producing NaN; dispatcher action registration for wedm_lora_create/wedm_gnn_*.",
+   "milestone_or_unit_id": null,
+   "looks_completed": false,
+   "suggested_domain": "wedm",
+   "confidence": 0.7
+  },
+  {
+   "title": "Wire WEDM backend capability to Codex-built frontend + update app to utilize what was built",
+   "source_path": "C:/Users/wompu/.claude/projects/H--prism/464af690-f711-48c7-ac0f-37dae3d96d66.jsonl",
+   "source_type": "transcript",
+   "evidence": "we still need to wire to the front end built that codex built and make any updates to the app that is needed to utilize what was built backend (for print to cnc program for wire).",
+   "milestone_or_unit_id": null,
+   "looks_completed": false,
+   "suggested_domain": "wedm",
+   "confidence": 0.6
+  },
+  {
+   "title": "U-S0-04 incomplete — add case handlers for 8 tribal-activation actions + wire TribalKnowledgeActivationEngine methods",
+   "source_path": "C:/Users/wompu/.claude/projects/H--prism/404e2eb8-d36a-4dfd-962a-9b210d2be6f2.jsonl",
+   "source_type": "transcript",
+   "evidence": "Complete U-S0-04: Activate 3,594 dormant tribal tips. TRIBAL_ACTIVATION_ACTIONS array added to knowledgeDispatcher. Still need to add case handlers for the 8 new actions. Need to wire to TribalKnowledgeActivationEngine methods.",
+   "milestone_or_unit_id": "U-S0-04",
+   "looks_completed": false,
+   "suggested_domain": "infra",
+   "confidence": 0.65
+  },
+  {
+   "title": "6 Measurement & QC engines not created — CMMImportEngine/CMMHistoryEngine/SurfaceMeasureEngine/ProbeRecordEngine/ProbeDriftEngine/MeasureSummaryEngine + tests/exports",
+   "source_path": "C:/Users/wompu/.claude/projects/H--prism/404e2eb8-d36a-4dfd-962a-9b210d2be6f2.jsonl",
+   "source_type": "transcript",
+   "evidence": "6 Measurement & QC engines NOT YET CREATED: CMMImportEngine, CMMHistoryEngine, SurfaceMeasureEngine, ProbeRecordEngine, ProbeDriftEngine, MeasureSummaryEngine. Tests and exports NOT YET DONE.",
+   "milestone_or_unit_id": null,
+   "looks_completed": false,
+   "suggested_domain": "infra",
+   "confidence": 0.65
+  },
+  {
+   "title": "DuplicationGuard/command-suggestion hook written but not wired into settings.json and not tested",
+   "source_path": "C:/Users/wompu/.claude/projects/H--prism/3d6ed651-0899-4914-a085-33693ca5f94d.jsonl",
+   "source_type": "transcript",
+   "evidence": "The hook was written but not yet wired into settings.json and not tested. (Mandatory rules about DuplicationGuard and command suggestions.)",
+   "milestone_or_unit_id": null,
+   "looks_completed": false,
+   "suggested_domain": "hooks",
+   "confidence": 0.55
+  },
+  {
+   "title": "WEDM-100PCT-MS0 — S1 U-W100-02 (replace PASS_BASELINES with published lookup) NOT STARTED, 35 units remaining S2-S11",
+   "source_path": "C:/Users/wompu/.claude/projects/H--prism/3c93458e-6160-4049-97a3-4060539e018f.jsonl",
+   "source_type": "transcript",
+   "evidence": "S1 U-W100-02: Replace PASS_BASELINES with published lookup — NOT STARTED. 35 more units remaining across S2-S11.",
+   "milestone_or_unit_id": "WEDM-100PCT-MS0",
+   "looks_completed": false,
+   "suggested_domain": "wedm",
+   "confidence": 0.55
+  },
+  {
+   "title": "F360 Fixture Integration — add /cam/setups, /cam/setup/stock, /cam/setup/bodies endpoints + Workholding tab; deferred architectural items",
+   "source_path": "C:/Users/wompu/.claude/projects/H--prism/3cc79f23-218b-456a-9d44-8ad49d3050ac.jsonl",
+   "source_type": "transcript",
+   "evidence": "F360 Fixture Integration — Add /cam/setups, /cam/setup/stock, /cam/setup/bodies endpoints to PRISMBridge. Add Workholding tab to intelligence panel. Also deferred architectural [items].",
+   "milestone_or_unit_id": null,
+   "looks_completed": false,
+   "suggested_domain": "cam",
+   "confidence": 0.6
+  },
+  {
+   "title": "TK-3 through TK-7 Tribal Knowledge Propagation Roadmap (feedback loops, frontend propagation, search/explain, tenant specialization) — not done",
+   "source_path": "C:/Users/wompu/.claude/projects/H--prism/490727e5-8e95-4ec4-bbbc-18ccc6aeb61e.jsonl",
+   "source_type": "transcript",
+   "evidence": "TK-3 through TK-7 from the Tribal Knowledge Propagation Roadmap (feedback loops, frontend propagation, search/explain, tenant specialization) [pending].",
+   "milestone_or_unit_id": null,
+   "looks_completed": false,
+   "suggested_domain": "infra",
+   "confidence": 0.6
+  },
+  {
+   "title": "FORGE-TRIPLE blocked — VideoLearningEngine/ApprovalWorkflowEngine/RecordTimelineEngine need protective hooks + missing from MASTER_INDEX",
+   "source_path": "C:/Users/wompu/.claude/projects/H--prism/490727e5-8e95-4ec4-bbbc-18ccc6aeb61e.jsonl",
+   "source_type": "transcript",
+   "evidence": "FORGE-TRIPLE BLOCKED: VideoLearningEngine, ApprovalWorkflowEngine, RecordTimelineEngine need protective hooks. INDEX SYNC BLOCKED: same engines missing from MASTER_INDEX_COMPACT.md.",
+   "milestone_or_unit_id": null,
+   "looks_completed": false,
+   "suggested_domain": "infra",
+   "confidence": 0.6
+  },
+  {
+   "title": "QuoteRevisionEngine computeQtyBreaks bugs deferred — Wright's method not normalized to qty=1, Math.pow(1,b) dead code",
+   "source_path": "C:/Users/wompu/.claude/projects/H--prism/4c73c6db-f05a-4822-b73e-8fe4564a82a5.jsonl",
+   "source_type": "transcript",
+   "evidence": "Remaining (non-blocking, deferred to next session): HIGH: Wright's computeQtyBreaks public method doesn't normalize to qty=1 baseline; HIGH: Math.pow(1,b) dead code division in computeQtyBreaks.",
+   "milestone_or_unit_id": null,
+   "looks_completed": false,
+   "suggested_domain": "other",
+   "confidence": 0.6
+  },
+  {
+   "title": "ValueStreamPage falls back to hardcoded data — getValueStreamData not fully wired, needs seed-to-state refactor",
+   "source_path": "C:/Users/wompu/.claude/projects/H--prism/46b1f34c-ec26-4619-b86f-900e1595acb3.jsonl",
+   "source_type": "transcript",
+   "evidence": "The ValueStreamPage already tries to call getValueStreamData but falls back to hardcoded data. Converting this to use state would require significant refactoring.",
+   "milestone_or_unit_id": null,
+   "looks_completed": false,
+   "suggested_domain": "other",
+   "confidence": 0.55
+  },
+  {
+   "title": "BIZ-MS6 needs 3 new engines — BusinessSyncEngine, CashFlowProjectionEngine, BurdenRateEngine",
+   "source_path": "C:/Users/wompu/.claude/projects/H--prism/46b1f34c-ec26-4619-b86f-900e1595acb3.jsonl",
+   "source_type": "transcript",
+   "evidence": "BIZ-MS6 needs 3 new engines (BusinessSyncEngine, CashFlowProjectionEngine, BurdenRateEngine). This is the real remaining work.",
+   "milestone_or_unit_id": "BIZ-MS6",
+   "looks_completed": false,
+   "suggested_domain": "other",
+   "confidence": 0.55
+  },
+  {
+   "title": "MIT-course math capabilities not yet implemented (interval arithmetic and other opportunity gaps)",
+   "source_path": "C:/Users/wompu/.claude/projects/H--prism/4e48853f-4db9-4875-867b-c9eaf0fc82b9.jsonl",
+   "source_type": "transcript",
+   "evidence": "Not Yet Implemented (biggest opportunity gaps): [table of] What / MIT Course / Impact on PRISM.",
+   "milestone_or_unit_id": null,
+   "looks_completed": false,
+   "suggested_domain": "other",
+   "confidence": 0.45
+  },
+  {
+   "title": "CAM-EXHAUST-MS0 B1 (content contract) + B3/B6 (operation contract) + Mastercam adapter read-only-to-operation-create — remaining work",
+   "source_path": "C:/Users/wompu/.claude/projects/H--prism/50f0af04-beaa-42b2-ba6f-df3515d088ee.jsonl",
+   "source_type": "transcript",
+   "evidence": "B3 — Extend Mastercam adapter from read-only to operation-create. Emergent theme: real code exists, wiring does not. Remaining work is the content contract (B1) and the operation contract (B3, B6).",
+   "milestone_or_unit_id": "CAM-EXHAUST-MS0",
+   "looks_completed": false,
+   "suggested_domain": "cam",
+   "confidence": 0.55
+  },
+  {
+   "title": "ARCH-MS2/MS3 deferred type mapping — MaterialData<->Material and MachineSpec<->Machine consolidation",
+   "source_path": "C:/Users/wompu/.claude/projects/H--prism/5022f788-b00d-4397-bb65-d6e6e77c42fb.jsonl",
+   "source_type": "transcript",
+   "evidence": "ARCH-MS3: Engine contract adoption + type consolidation (4 units) — includes type mapping for MaterialData<->Material and MachineSpec<->Machine that U-SHAD02/03 deferred.",
+   "milestone_or_unit_id": "ARCH-MS3",
+   "looks_completed": false,
+   "suggested_domain": "infra",
+   "confidence": 0.5
+  },
+  {
+   "title": "Background agent returned a plan not shipped code (CAM-EXHAUST-MS0) — hit shell constraints, never created the 3 files",
+   "source_path": "C:/Users/wompu/.claude/projects/H--prism/50f0af04-beaa-42b2-ba6f-df3515d088ee.jsonl",
+   "source_type": "transcript",
+   "evidence": "The background agent returned a plan, not shipped code — it hit shell constraints and never created the files. I'll ship the three artifacts now.",
+   "milestone_or_unit_id": "CAM-EXHAUST-MS0",
+   "looks_completed": true,
+   "suggested_domain": "cam",
+   "confidence": 0.35
+  },
+  {
+   "title": "5 error-learn hooks still need header-read to confirm matchers before wiring (1/6 wired)",
+   "source_path": "C:/Users/wompu/.claude/projects/H--prism/549c9f4f-854a-47df-aad4-1783f66f881c.jsonl",
+   "source_type": "transcript",
+   "evidence": "Iter 6: prepare to wire 2 doctrine-clear error-learn hooks (the rest need header-read to confirm matchers — defer to next session).",
+   "milestone_or_unit_id": null,
+   "looks_completed": false,
+   "suggested_domain": "hooks",
+   "confidence": 0.6
+  },
+  {
+   "title": "Video-learn pipeline 5D — review generated TypeScript files and fill in domain-specific logic from extracted knowledge",
+   "source_path": "C:/Users/wompu/.claude/projects/H--prism/3d52cfb2-1766-42f5-9473-2fff44a5dcb8.jsonl",
+   "source_type": "transcript",
+   "evidence": "After auto-write, review each generated TypeScript file and fill in domain-specific logic from extracted knowledge. 5D: Brainstorm Follow-Up Work.",
+   "milestone_or_unit_id": null,
+   "looks_completed": false,
+   "suggested_domain": "docs",
+   "confidence": 0.4
+  }
+ ],
+ "reason": ""
+}
