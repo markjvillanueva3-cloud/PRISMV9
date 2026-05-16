@@ -362,13 +362,12 @@ eventBus.registerAction("accrue_job_costs", async (params) => {
       return { skipped: true, reason: "No costs to accrue" };
     }
 
-    // Use recordJobCost which handles proper GL entries for job costs
-    const entry = generalLedgerEngine.recordJobCost({
+    // recordWipToCogs takes a single amount (cost breakdown is event-payload only).
+    // The earlier inline recordJobCost API was never implemented on GeneralLedgerEngine;
+    // WIP→COGS is the correct GL operation for accruing realized job costs.
+    const entry = generalLedgerEngine.recordWipToCogs({
       job_id: job_id || `JOB-${Date.now()}`,
-      labor: labor_cost,
-      material: material_cost,
-      tooling: tooling_cost,
-      overhead: overhead_cost,
+      amount: total_cost,
       date: new Date().toISOString().slice(0, 10),
     });
 
@@ -426,27 +425,29 @@ eventBus.registerAction("update_capacity_from_estimate", async (params) => {
       return { error: "Missing machine_id or estimated_seconds" };
     }
 
-    // Update capacity planning with new cycle time estimate
-    const loadUpdate = capacityPlanningEngine.updateMachineLoad(machine_id, {
-      job_id: job_id || `EST-${Date.now()}`,
-      duration_hours: estimated_seconds / 3600,
-      source: "cycle_time_estimate",
-    });
+    // CapacityPlanningEngine has no updateMachineLoad — only scheduleJob (which books
+    // the slot) and getMachineLoad (read-only). Read current load and publish that
+    // alongside the new estimate; a downstream scheduler-context-aware handler can
+    // call scheduleJob with full operation context. (The reactive chain doesn't have
+    // job-operation breakdown to call scheduleJob honestly.)
+    const loadUpdate = capacityPlanningEngine.getMachineLoad(machine_id);
+    void job_id; // estimate payload reserved for downstream scheduler
 
     // Emit capacity.updated event
     await eventBus.publish(EventTypes.CAPACITY_UPDATED, {
       machine_id,
       machine_name: loadUpdate.machine_name,
-      time_window: loadUpdate.time_window,
+      time_window: loadUpdate.period,
       available_hours: loadUpdate.available_hours,
-      scheduled_hours: loadUpdate.scheduled_hours,
+      scheduled_hours: loadUpdate.loaded_hours,
       utilization_pct: loadUpdate.utilization_pct,
-      pending_jobs: loadUpdate.pending_jobs,
+      pending_jobs: loadUpdate.jobs.length,
       status: loadUpdate.status,
+      estimated_hours: estimated_seconds / 3600,
     });
 
-    log.info(`[Scheduling Chain] Capacity updated for ${machine_id}: ${loadUpdate.utilization_pct.toFixed(1)}% utilization`);
-    return { updated: true, utilization_pct: loadUpdate.utilization_pct };
+    log.info(`[Scheduling Chain] Capacity read for ${machine_id}: ${loadUpdate.utilization_pct.toFixed(1)}% utilization (estimate ${(estimated_seconds / 3600).toFixed(2)}h pending)`);
+    return { read: true, utilization_pct: loadUpdate.utilization_pct };
   } catch (err) {
     log.error(`[Scheduling Chain] update_capacity_from_estimate failed: ${err}`);
     return { error: String(err) };
@@ -458,26 +459,28 @@ eventBus.registerAction("reoptimize_schedule", async (params) => {
   try {
     const { machine_id, utilization_pct } = params;
     
-    // Only reoptimize if utilization is high or very low
+    // Only signal re-optimization if utilization is high or very low.
+    // schedulingEngine.optimize(jobs, machines) requires Job[] + MachineSlot[] arrays.
+    // The reactive chain doesn't carry job/machine snapshots; emit a request event so
+    // a scheduling-context-aware service can perform the real optimize. Honest payload —
+    // no fake schedule_id / makespan numbers.
     if (utilization_pct > 85 || utilization_pct < 20) {
-      const result = schedulingEngine.optimize({
-        machines: machine_id ? [machine_id] : [],
-        optimization_type: utilization_pct > 85 ? "rebalance" : "consolidate",
-      });
+      const optimization_type: "rebalance" | "consolidate" = utilization_pct > 85 ? "rebalance" : "consolidate";
 
-      // Emit schedule.optimized event
       await eventBus.publish(EventTypes.SCHEDULE_OPTIMIZED, {
-        schedule_id: result.schedule_id,
-        affected_machines: result.affected_machines,
-        affected_jobs: result.affected_jobs,
-        optimization_type: result.optimization_type,
-        makespan_before_min: result.makespan_before_min,
-        makespan_after_min: result.makespan_after_min,
-        improvement_pct: result.improvement_pct,
+        schedule_id: `REQ-${Date.now()}`,
+        affected_machines: machine_id ? [machine_id] : [],
+        affected_jobs: [],
+        optimization_type,
+        makespan_before_min: 0,
+        makespan_after_min: 0,
+        improvement_pct: 0,
+        request_only: true,
+        reason: utilization_pct > 85 ? "overloaded" : "underutilized",
       });
 
-      log.info(`[Scheduling Chain] Schedule optimized: ${result.improvement_pct?.toFixed(1)}% improvement`);
-      return { optimized: true, improvement_pct: result.improvement_pct };
+      log.info(`[Scheduling Chain] Re-optimization requested for ${machine_id ?? "fleet"} @ ${utilization_pct}% (${optimization_type})`);
+      return { requested: true, machine_id, utilization_pct, optimization_type };
     }
 
     return { skipped: true, reason: `utilization ${utilization_pct}% within normal range` };
