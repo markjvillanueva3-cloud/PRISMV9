@@ -281,6 +281,120 @@ describe("train", () => {
   });
 });
 
+describe("train — excludeEdges (leakage-safe split augment)", () => {
+  // Why this exists: when the pipeline does a train/test edge split it builds
+  // `trainAdj` from train edges only and passes it to train(). The trainer's
+  // internal rejection set would then NOT contain held-out test edges, so a
+  // real test edge could be neg-sampled and the model taught to push it
+  // apart — driving eval AUROC BELOW random. excludeEdges lets the pipeline
+  // pass the full edge list (train + test) so the trainer's neg-sampling
+  // rejects every real edge, not just the ones in trainAdj.
+
+  it("never neg-samples a pair listed in excludeEdges", () => {
+    // Tiny adjacency with ONE train edge (a,b). The held-out edge (a,d) is
+    // real-but-absent from adj — the leakage candidate.
+    const adj = new Map([
+      ["a", ["b"]],
+      ["b", ["a"]],
+      ["c", []],
+      ["d", []],
+    ]);
+    const feat = new Map([
+      ["a", [0.1, 0.2, 0.3]],
+      ["b", [0.4, 0.5, 0.6]],
+      ["c", [0.7, 0.1, 0.2]],
+      ["d", [0.2, 0.8, 0.4]],
+    ]);
+
+    // sampleNegativeEdges is the exact function the trainer calls inside its
+    // epoch loop. Verify the rejection set is honored. Use the file-level
+    // EDGE_SEP / keyOf helpers — they LOCK the trainer's NUL-separator
+    // contract, so a future EDGE_KEY_SEP change in the trainer surfaces as a
+    // matching update here (no silent tripwire de-arm).
+    const forbidden = new Set([keyOf("a", "d"), keyOf("a", "b")]);
+    const negs = sampleNegativeEdges(["a", "b", "c", "d"], forbidden, 50, mulberryLike(99));
+    const seen = new Set(negs.map(({ u, v }) => keyOf(u, v)));
+    assert.equal(seen.has(keyOf("a", "d")), false, "(a,d) leaked into negs");
+    assert.equal(seen.has(keyOf("a", "b")), false, "(a,b) leaked into negs");
+
+    // Round-trip via train(): with excludeEdges containing (a,d), training
+    // converges deterministically (no contamination signal in lossHistory).
+    const m1 = createModel({ inputDim: 3, hiddenDim: 4, embedDim: 3, seed: 1 });
+    const m2 = createModel({ inputDim: 3, hiddenDim: 4, embedDim: 3, seed: 1 });
+    const r1 = train(m1, adj, feat, {
+      epochs: 20, batchSize: 4, negRatio: 4, seed: 17,
+      excludeEdges: [["a", "d"]],
+    });
+    const r2 = train(m2, adj, feat, {
+      epochs: 20, batchSize: 4, negRatio: 4, seed: 17,
+      excludeEdges: [["a", "d"]],
+    });
+    assert.deepEqual(r1.lossHistory, r2.lossHistory, "excludeEdges must not break determinism");
+    assert.equal(r1.trained, true);
+  });
+
+  it("is backward-compatible — omitting excludeEdges preserves prior loss history", () => {
+    const { adj, feat } = twoCommunityGraph();
+    const m1 = createModel({ inputDim: 3, hiddenDim: 6, embedDim: 4, seed: 4 });
+    const m2 = createModel({ inputDim: 3, hiddenDim: 6, embedDim: 4, seed: 4 });
+    const noExclude = train(m1, adj, feat, { epochs: 30, batchSize: 8, seed: 11 });
+    const emptyExclude = train(m2, adj, feat, { epochs: 30, batchSize: 8, seed: 11, excludeEdges: [] });
+    // An empty excludeEdges adds zero keys to the rejection set, so behavior
+    // must be byte-identical to omitting the param entirely.
+    assert.deepEqual(noExclude.lossHistory, emptyExclude.lossHistory);
+  });
+
+  it("silently skips malformed entries (null, length<2, self-loop, missing endpoint)", () => {
+    const { adj, feat } = twoCommunityGraph();
+    const model = createModel({ inputDim: 3, hiddenDim: 4, embedDim: 3, seed: 1 });
+    // None of these should throw — the docstring promises silent-skip on
+    // malformed input.
+    assert.doesNotThrow(() => train(model, adj, feat, {
+      epochs: 5, batchSize: 4, seed: 1,
+      excludeEdges: [
+        null,                        // null entry
+        ["a0"],                      // length < 2
+        ["a0", "a0"],                // self-loop
+        ["a0", null],                // null endpoint
+        [null, "a1"],                // null endpoint
+        "not-a-pair",                // wrong type
+        ["a0", "a1"],                // one valid entry survives
+      ],
+    }));
+  });
+
+  it("ignores non-iterable excludeEdges (number, null, undefined) without throwing", () => {
+    const { adj, feat } = twoCommunityGraph();
+    const m1 = createModel({ inputDim: 3, hiddenDim: 4, embedDim: 3, seed: 1 });
+    const m2 = createModel({ inputDim: 3, hiddenDim: 4, embedDim: 3, seed: 1 });
+    const m3 = createModel({ inputDim: 3, hiddenDim: 4, embedDim: 3, seed: 1 });
+    const baseline = train(m1, adj, feat, { epochs: 5, batchSize: 4, seed: 1 });
+    assert.doesNotThrow(() => train(m2, adj, feat, { epochs: 5, batchSize: 4, seed: 1, excludeEdges: 42 }));
+    assert.doesNotThrow(() => train(m3, adj, feat, { epochs: 5, batchSize: 4, seed: 1, excludeEdges: null }));
+    // Non-iterable degrades to no-op — same training trajectory as omitting it.
+    const m4 = createModel({ inputDim: 3, hiddenDim: 4, embedDim: 3, seed: 1 });
+    const noopRun = train(m4, adj, feat, { epochs: 5, batchSize: 4, seed: 1, excludeEdges: 42 });
+    assert.deepEqual(baseline.lossHistory, noopRun.lossHistory);
+  });
+
+  it("accepts a Set of [u,v] pairs in addition to an array (iterable contract)", () => {
+    const { adj, feat } = twoCommunityGraph();
+    const model = createModel({ inputDim: 3, hiddenDim: 4, embedDim: 3, seed: 1 });
+    // Set stores array references — duplicate-VALUE pairs would still be
+    // distinct entries. The trainer relies on iterability, not value dedup;
+    // canonicalization happens via edgeKey() inside the trainer regardless.
+    // Mix one out-of-graph pair (ax, zz) — exercises the "add a key not
+    // already in the trainer's edgeSet" merge path, which an in-graph-only
+    // Set wouldn't (every twoCommunityGraph intra-clique pair is in adj).
+    const r = train(model, adj, feat, {
+      epochs: 5, batchSize: 4, seed: 1,
+      excludeEdges: new Set([["a0", "b5"], ["ax", "zz"]]),
+    });
+    assert.equal(r.trained, true);
+    assert.equal(r.lossHistory.length, 5);
+  });
+});
+
 describe("R9 — link prediction learns to separate edges from non-edges", () => {
   it("scores real edges above non-edges (AUC well above random) after training", () => {
     const { adj, feat, A, B } = twoCommunityGraph();

@@ -283,6 +283,14 @@ function applyGradient(W, grad, lr) {
  * Seed-deterministic. Returns { lossHistory, finalLoss, epochs, trained }.
  * A graph with no usable edges returns trained:false (link prediction is
  * undefined without edges) rather than throwing.
+ *
+ * options.excludeEdges — optional iterable of [u,v] pairs whose canonical
+ * edgeKey is added to the negative-sampling rejection set BEFORE epoch 1.
+ * The caller passes additional real edges (typically held-out test edges
+ * or any edges absent from `adjacency` but still real in the full graph)
+ * so the trainer never neg-samples them. Backward compatible — omit and the
+ * trainer behaves exactly as before. Pairs with a missing/equal endpoint
+ * are skipped silently; non-iterable values are ignored.
  */
 export function train(model, adjacency, features, options = {}) {
   const opt = { ...TRAIN_DEFAULTS, ...options };
@@ -305,6 +313,21 @@ export function train(model, adjacency, features, options = {}) {
   }
   if (edges.length === 0) {
     return { lossHistory: [], finalLoss: NaN, epochs: 0, trained: false };
+  }
+
+  // Optional rejection-set augment: real edges the caller knows about but
+  // that aren't in `adj` (e.g. held-out test edges from a leakage-safe split).
+  // Adds to edgeSet only — never adds to `edges` (these are NOT trained on).
+  // Iterates safely: non-iterable -> ignored; malformed entry -> skipped.
+  const exclude = opt.excludeEdges;
+  if (exclude != null && typeof exclude[Symbol.iterator] === "function") {
+    for (const pair of exclude) {
+      if (!Array.isArray(pair) || pair.length < 2) continue;
+      const a = pair[0];
+      const b = pair[1];
+      if (a == null || b == null || a === b) continue;
+      edgeSet.add(edgeKey(a, b));
+    }
   }
 
   const nodeIds = [...feat.keys()];
