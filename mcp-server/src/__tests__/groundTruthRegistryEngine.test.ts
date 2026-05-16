@@ -18,6 +18,14 @@ import {
   inferComplexity,
   MACHINE_CATEGORIES,
   COMPLEXITY_TIERS,
+  CONFIDENCE_TIERS,
+  SOURCE_PROVENANCES,
+  BlueprintExtractionRecordSchema,
+  TrainingPairSchema,
+  isReadOnlyTarget,
+  extractJmDieItems,
+  readGroundTruthValuesForPart,
+  classifyConfidenceTier,
 } from "../engines/GroundTruthRegistryEngine.js";
 
 let engine: GroundTruthRegistryEngine;
@@ -377,5 +385,552 @@ describe("metadata + constants", () => {
     expect(MACHINE_CATEGORIES).toContain("edm");
     expect(MACHINE_CATEGORIES).toContain("other");
     expect(COMPLEXITY_TIERS).toEqual(["simple", "medium", "complex"]);
+  });
+});
+
+// ── BLUEPRINT-OCR-TRAINING-MS1/U-MS1-U3 extensions ───────────────────────
+
+describe("blueprint extension constants", () => {
+  it("CONFIDENCE_TIERS exposes the 4-tier scheme", () => {
+    expect(CONFIDENCE_TIERS).toEqual([
+      "operator_verified",
+      "ensemble_consensus",
+      "single_backend",
+      "ambiguous",
+    ]);
+  });
+  it("SOURCE_PROVENANCES exposes 4 trust levels", () => {
+    expect(SOURCE_PROVENANCES).toEqual([
+      "macro_vc_var",
+      "erp_actual",
+      "operator_correction",
+      "ocr_inferred",
+    ]);
+  });
+});
+
+describe("isReadOnlyTarget — HARD RULE enforcement", () => {
+  it("blocks Automated Program_Corrected 5-25.xlsm", () => {
+    expect(isReadOnlyTarget("H:/PRISM/JM DIE/Automated Program_Corrected 5-25.xlsm")).toBe(true);
+  });
+  it("blocks _PART LIBRARY/<customer>/<pn>/CNC PROGRAM/", () => {
+    expect(isReadOnlyTarget("H:/PRISM/_PART LIBRARY/ALCOA/ABC123/CNC PROGRAM/main.nc")).toBe(true);
+  });
+  it("allows mcp-server/data/training/blueprint-extractions.jsonl", () => {
+    expect(isReadOnlyTarget("mcp-server/data/training/blueprint-extractions.jsonl")).toBe(false);
+  });
+  it("returns false on empty/null", () => {
+    expect(isReadOnlyTarget("")).toBe(false);
+    expect(isReadOnlyTarget(null as unknown as string)).toBe(false);
+  });
+  it("REGRESSION Arm-B P1: case-insensitive on xlsm pattern", () => {
+    // UPPERCASE: forensic capture / Windows occasionally returns uppercase ext
+    expect(isReadOnlyTarget("H:/PRISM/JM DIE/AUTOMATED PROGRAM_CORRECTED 5-25.XLSM")).toBe(true);
+    // mixedCase
+    expect(isReadOnlyTarget("H:/PRISM/JM DIE/AutoMated Program_Corrected 5-25.Xlsm")).toBe(true);
+  });
+  it("REGRESSION Arm-B P1: version-bump tolerant on xlsm pattern", () => {
+    // 6-25 (next year's book)
+    expect(isReadOnlyTarget("H:/JM DIE/Automated Program_Corrected 6-25.xlsm")).toBe(true);
+    // 5-26 (next month's book)
+    expect(isReadOnlyTarget("H:/JM DIE/Automated Program_Corrected 5-26.xlsm")).toBe(true);
+    // No version suffix (defensive)
+    expect(isReadOnlyTarget("H:/JM DIE/Automated Program_Corrected.xlsm")).toBe(true);
+  });
+  it("REGRESSION Arm-B P1: CNC PROGRAM dir without trailing slash", () => {
+    // Without the (?:\/|$) anchor fix, this bypassed the deny-list when
+    // operator passed the dir directly as a target (no path.join child append).
+    expect(isReadOnlyTarget("H:/PRISM/_PART LIBRARY/ALCOA/AB-001/CNC PROGRAM")).toBe(true);
+    expect(isReadOnlyTarget("H:/PRISM/_PART_LIBRARY/X/Y/CNC_PROGRAM")).toBe(true);
+  });
+});
+
+describe("classifyConfidenceTier", () => {
+  it("returns single_backend on empty input", () => {
+    expect(classifyConfidenceTier({})).toBe("single_backend");
+  });
+  it("returns operator_verified when operator_correction present", () => {
+    expect(
+      classifyConfidenceTier({ operator_correction: "1.000", macro_vc_var: "1.001" }),
+    ).toBe("operator_verified");
+  });
+  it("returns ensemble_consensus when 2+ sources agree", () => {
+    expect(
+      classifyConfidenceTier({ macro_vc_var: "1.000", erp_actual: "1.000" }),
+    ).toBe("ensemble_consensus");
+  });
+  it("returns ambiguous when 2+ sources disagree", () => {
+    expect(
+      classifyConfidenceTier({ macro_vc_var: "1.000", erp_actual: "1.500" }),
+    ).toBe("ambiguous");
+  });
+  it("returns single_backend when only one source", () => {
+    expect(classifyConfidenceTier({ macro_vc_var: "1.000" })).toBe("single_backend");
+  });
+});
+
+describe("extractJmDieItems — permissive manifest shape support", () => {
+  it("handles {files:[...]} shape", () => {
+    const items = extractJmDieItems({
+      files: [
+        { customer: "alcoa", partNumber: "AB-001", pdfPath: "/p1.pdf" },
+        { customer: "ITW", partNumber: "ZZ-9", pdfPath: "/p2.pdf", page: 3 },
+      ],
+    });
+    expect(items.length).toBe(2);
+    expect(items[0]?.customer).toBe("ALCOA"); // uppercased
+    expect(items[1]?.page).toBe(3);
+  });
+  it("handles {entries:[...]} shape", () => {
+    const items = extractJmDieItems({ entries: [{ customer: "X", partNumber: "Y", pdfPath: "/p.pdf" }] });
+    expect(items.length).toBe(1);
+  });
+  it("handles flat array shape", () => {
+    const items = extractJmDieItems([
+      { customer: "A", partNumber: "1", pdfPath: "/p.pdf" },
+    ]);
+    expect(items.length).toBe(1);
+  });
+  it("returns [] on null/undefined/non-object", () => {
+    expect(extractJmDieItems(null)).toEqual([]);
+    expect(extractJmDieItems(undefined)).toEqual([]);
+    expect(extractJmDieItems(42)).toEqual([]);
+  });
+  it("REGRESSION Arm-B P1: handles {records:[...]} shape (third permissive variant)", () => {
+    const items = extractJmDieItems({
+      records: [{ customer: "ALCOA", partNumber: "AB-001", pdfPath: "/p.pdf" }],
+    });
+    expect(items.length).toBe(1);
+    expect(items[0]?.customer).toBe("ALCOA");
+  });
+  it("skips malformed entries (missing required keys)", () => {
+    const items = extractJmDieItems({
+      files: [
+        { customer: "A" }, // missing partNumber + pdfPath
+        { customer: "B", partNumber: "X", pdfPath: "/p.pdf" }, // valid
+      ],
+    });
+    expect(items.length).toBe(1);
+    expect(items[0]?.customer).toBe("B");
+  });
+  it("preserves valid regions, drops malformed ones", () => {
+    const items = extractJmDieItems({
+      files: [
+        {
+          customer: "A", partNumber: "1", pdfPath: "/p.pdf",
+          regions: [
+            { x: 0, y: 0, width: 10, height: 5 },
+            { x: 0, y: 0, width: -1, height: 5 }, // invalid: width <= 0
+            "not-an-object",
+          ],
+        },
+      ],
+    });
+    expect(items[0]?.regions?.length).toBe(1);
+  });
+});
+
+describe("registerBlueprintExtraction", () => {
+  let tmpDir: string;
+  beforeEach(() => {
+    engine.resetBlueprintState();
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "prism-u3-"));
+  });
+  afterEach(() => {
+    try { fs.rmSync(tmpDir, { recursive: true, force: true }); } catch { /* */ }
+  });
+
+  it("appends a valid extraction to in-memory + JSONL", () => {
+    const rec = engine.registerBlueprintExtraction({
+      pdfPath: "/test/blueprint.pdf",
+      page: 2,
+      region: { x: 100, y: 50, width: 80, height: 30 },
+      extractionType: "dimension",
+      value: "1.250",
+      confidenceTier: "operator_verified",
+      sourceProvenance: "operator_correction",
+      customer: "ALCOA",
+      partNumber: "AB-001",
+      trainingDir: tmpDir,
+    });
+    expect(rec.value).toBe("1.250");
+    expect(rec.customer).toBe("ALCOA");
+    expect(rec.extractionId.startsWith("bpe:")).toBe(true);
+    const jsonlPath = path.join(tmpDir, "blueprint-extractions.jsonl");
+    expect(fs.existsSync(jsonlPath)).toBe(true);
+    const lines = fs.readFileSync(jsonlPath, "utf8").trim().split("\n");
+    expect(lines.length).toBe(1);
+    const parsed = JSON.parse(lines[0]!);
+    expect(parsed.value).toBe("1.250");
+  });
+
+  it("HARD RULE: refuses to write to Automated Program_Corrected 5-25.xlsm", () => {
+    expect(() =>
+      engine.registerBlueprintExtraction({
+        pdfPath: "/p.pdf",
+        page: 1,
+        region: { x: 0, y: 0, width: 1, height: 1 },
+        extractionType: "dimension",
+        value: "1",
+        confidenceTier: "single_backend",
+        sourceProvenance: "ocr_inferred",
+        trainingDir: "H:/PRISM/JM DIE/Automated Program_Corrected 5-25.xlsm",
+      }),
+    ).toThrow(/BLOCKED/);
+  });
+
+  it("HARD RULE: refuses to write to _PART LIBRARY CNC PROGRAM", () => {
+    expect(() =>
+      engine.registerBlueprintExtraction({
+        pdfPath: "/p.pdf",
+        page: 1,
+        region: { x: 0, y: 0, width: 1, height: 1 },
+        extractionType: "dimension",
+        value: "1",
+        confidenceTier: "single_backend",
+        sourceProvenance: "ocr_inferred",
+        trainingDir: "H:/PRISM/_PART LIBRARY/ALCOA/AB-001/CNC PROGRAM",
+      }),
+    ).toThrow(/BLOCKED/);
+  });
+
+  it("rejects invalid region (zero width)", () => {
+    expect(() =>
+      engine.registerBlueprintExtraction({
+        pdfPath: "/p.pdf",
+        page: 1,
+        region: { x: 0, y: 0, width: 0, height: 1 },
+        extractionType: "dimension",
+        value: "1",
+        confidenceTier: "single_backend",
+        sourceProvenance: "ocr_inferred",
+        trainingDir: tmpDir,
+      }),
+    ).toThrow(/invalid blueprint extraction/);
+  });
+
+  it("schema validates the canonical shape end-to-end", () => {
+    const sample = {
+      extractionId: "bpe:foo:1:0x0",
+      pdfPath: "/p.pdf",
+      page: 1,
+      region: { x: 0, y: 0, width: 10, height: 10 },
+      extractionType: "dimension" as const,
+      value: "1",
+      confidenceTier: "single_backend" as const,
+      sourceProvenance: "ocr_inferred" as const,
+      customer: "X",
+      recordedAt: new Date().toISOString(),
+    };
+    expect(BlueprintExtractionRecordSchema.safeParse(sample).success).toBe(true);
+  });
+});
+
+describe("readGroundTruthValuesForPart", () => {
+  let tmpDir: string;
+  beforeEach(() => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "prism-u3-gt-"));
+  });
+  afterEach(() => {
+    try { fs.rmSync(tmpDir, { recursive: true, force: true }); } catch { /* */ }
+  });
+
+  it("returns {} when part.json missing", () => {
+    const errs: string[] = [];
+    const result = readGroundTruthValuesForPart(
+      path.join(tmpDir, "missing.json"),
+      { existsSync: fs.existsSync, readFileSync: fs.readFileSync },
+      errs,
+    );
+    expect(result).toEqual({});
+    expect(errs.length).toBe(0);
+  });
+
+  it("extracts macroVCVars + erpActuals when both present", () => {
+    const partJson = path.join(tmpDir, "part.json");
+    fs.writeFileSync(partJson, JSON.stringify({
+      macroVCVars: { dim1: "1.000" },
+      erpActuals: { dim1: "1.002" },
+    }), "utf8");
+    const errs: string[] = [];
+    const result = readGroundTruthValuesForPart(partJson, fs, errs);
+    expect(result.macro_vc_var).toBe("1.000");
+    expect(result.erp_actual).toBe("1.002");
+  });
+
+  it("handles numeric values via String() coercion", () => {
+    const partJson = path.join(tmpDir, "part.json");
+    fs.writeFileSync(partJson, JSON.stringify({ macroVCVars: { dim1: 1.25 } }), "utf8");
+    const errs: string[] = [];
+    const result = readGroundTruthValuesForPart(partJson, fs, errs);
+    expect(result.macro_vc_var).toBe("1.25");
+  });
+
+  it("records parse errors but doesn't throw", () => {
+    const partJson = path.join(tmpDir, "part.json");
+    fs.writeFileSync(partJson, "{ not valid json", "utf8");
+    const errs: string[] = [];
+    const result = readGroundTruthValuesForPart(partJson, fs, errs);
+    expect(result).toEqual({});
+    expect(errs.length).toBe(1);
+    expect(errs[0]).toMatch(/parse error/);
+  });
+});
+
+describe("enumerateByConfidenceTier", () => {
+  let tmpDir: string;
+  beforeEach(() => {
+    engine.resetBlueprintState();
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "prism-u3-enum-"));
+    // Seed 3 records across tiers
+    for (const tier of ["operator_verified", "ensemble_consensus", "single_backend"] as const) {
+      engine.registerBlueprintExtraction({
+        pdfPath: `/p-${tier}.pdf`,
+        page: 1,
+        region: { x: 0, y: 0, width: 10, height: 10 },
+        extractionType: "dimension",
+        value: tier,
+        confidenceTier: tier,
+        sourceProvenance: "ocr_inferred",
+        trainingDir: tmpDir,
+      });
+    }
+  });
+  afterEach(() => {
+    try { fs.rmSync(tmpDir, { recursive: true, force: true }); } catch { /* */ }
+  });
+
+  it("returns extractions at the requested tier", () => {
+    const list = engine.enumerateByConfidenceTier({ tier: "operator_verified" });
+    expect(list.length).toBe(1);
+    expect(list[0]?.value).toBe("operator_verified");
+  });
+  it("returns empty array for tier with no records", () => {
+    expect(engine.enumerateByConfidenceTier({ tier: "ambiguous" })).toEqual([]);
+  });
+  it("respects limit", () => {
+    // Seed two more operator_verified records
+    for (let i = 0; i < 2; i++) {
+      engine.registerBlueprintExtraction({
+        pdfPath: `/extra-${i}.pdf`,
+        page: 1,
+        region: { x: 0, y: 0, width: 1, height: 1 },
+        extractionType: "dimension",
+        value: String(i),
+        confidenceTier: "operator_verified",
+        sourceProvenance: "operator_correction",
+        trainingDir: tmpDir,
+      });
+    }
+    const list = engine.enumerateByConfidenceTier({ tier: "operator_verified", limit: 2 });
+    expect(list.length).toBe(2);
+  });
+  it("throws on invalid tier", () => {
+    expect(() =>
+      engine.enumerateByConfidenceTier({ tier: "nonexistent" as never }),
+    ).toThrow(/invalid tier/);
+  });
+});
+
+describe("joinDocustrataToPartLibrary + flagAmbiguities + getTrainingPairsByCustomer", () => {
+  let tmpDir: string;
+  let indexPath: string;
+  let partLibRoot: string;
+  let trainingDir: string;
+
+  beforeEach(() => {
+    engine.resetBlueprintState();
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "prism-u3-join-"));
+    indexPath = path.join(tmpDir, "jm-die-index-v2.json");
+    partLibRoot = path.join(tmpDir, "_PART_LIBRARY");
+    trainingDir = path.join(tmpDir, "training");
+
+    // Seed a 3-customer manifest
+    const manifest = {
+      files: [
+        { customer: "ALCOA", partNumber: "AB-001", pdfPath: "/pdf/alcoa-ab001.pdf", page: 1 },
+        { customer: "ITW", partNumber: "ZZ-9", pdfPath: "/pdf/itw-zz9.pdf", page: 1 },
+        { customer: "CONTINENTAL MIDLAND", partNumber: "CM-22", pdfPath: "/pdf/cm-22.pdf", page: 1 },
+      ],
+    };
+    fs.writeFileSync(indexPath, JSON.stringify(manifest), "utf8");
+
+    // ALCOA: macro + ERP agree → ensemble_consensus
+    fs.mkdirSync(path.join(partLibRoot, "ALCOA", "AB-001"), { recursive: true });
+    fs.writeFileSync(
+      path.join(partLibRoot, "ALCOA", "AB-001", "part.json"),
+      JSON.stringify({
+        macroVCVars: { dim1: "1.000" },
+        erpActuals: { dim1: "1.000" },
+      }),
+      "utf8",
+    );
+
+    // ITW: macro + ERP disagree → ambiguous
+    fs.mkdirSync(path.join(partLibRoot, "ITW", "ZZ-9"), { recursive: true });
+    fs.writeFileSync(
+      path.join(partLibRoot, "ITW", "ZZ-9", "part.json"),
+      JSON.stringify({
+        macroVCVars: { dim1: "0.500" },
+        erpActuals: { dim1: "0.502" },
+      }),
+      "utf8",
+    );
+
+    // CONTINENTAL MIDLAND: operator correction present → operator_verified
+    fs.mkdirSync(path.join(partLibRoot, "CONTINENTAL MIDLAND", "CM-22"), { recursive: true });
+    fs.writeFileSync(
+      path.join(partLibRoot, "CONTINENTAL MIDLAND", "CM-22", "part.json"),
+      JSON.stringify({
+        macroVCVars: { dim1: "2.000" },
+        operatorCorrections: { dim1: "2.005" },
+      }),
+      "utf8",
+    );
+  });
+
+  afterEach(() => {
+    try { fs.rmSync(tmpDir, { recursive: true, force: true }); } catch { /* */ }
+  });
+
+  it("joins all 3 customers + writes JSONL with the expected count", () => {
+    const result = engine.joinDocustrataToPartLibrary({
+      rootDir: tmpDir,
+      indexPath,
+      partLibraryRoot: partLibRoot,
+      trainingDir,
+    });
+    expect(result.indexErrors).toEqual([]);
+    expect(result.pairsCreated).toBe(3);
+    expect(result.byCustomer.ALCOA).toBe(1);
+    expect(result.byCustomer.ITW).toBe(1);
+    expect(result.byCustomer["CONTINENTAL MIDLAND"]).toBe(1);
+    expect(result.byConfidenceTier.ensemble_consensus).toBe(1);
+    expect(result.byConfidenceTier.ambiguous).toBe(1);
+    expect(result.byConfidenceTier.operator_verified).toBe(1);
+    expect(result.indexErrors).toEqual([]);
+
+    const jsonl = path.join(trainingDir, "training-pairs.jsonl");
+    expect(fs.existsSync(jsonl)).toBe(true);
+    const lines = fs.readFileSync(jsonl, "utf8").trim().split("\n");
+    expect(lines.length).toBe(3);
+  });
+
+  it("flagAmbiguities surfaces ITW (macro≠erp) but NOT ALCOA (agree)", () => {
+    engine.joinDocustrataToPartLibrary({
+      rootDir: tmpDir,
+      indexPath,
+      partLibraryRoot: partLibRoot,
+      trainingDir,
+    });
+    const flags = engine.flagAmbiguities();
+    expect(flags.length).toBe(1);
+    expect(flags[0]?.customer).toBe("ITW");
+    expect(flags[0]?.conflictingValues.length).toBe(2);
+    expect(flags[0]?.recommendation).toMatch(/Operator review/);
+  });
+
+  it("getTrainingPairsByCustomer case-insensitive customer match", () => {
+    engine.joinDocustrataToPartLibrary({
+      rootDir: tmpDir,
+      indexPath,
+      partLibraryRoot: partLibRoot,
+      trainingDir,
+    });
+    expect(engine.getTrainingPairsByCustomer({ customer: "alcoa" }).length).toBe(1);
+    expect(engine.getTrainingPairsByCustomer({ customer: "ALCOA" }).length).toBe(1);
+    expect(engine.getTrainingPairsByCustomer({ customer: "missing" }).length).toBe(0);
+  });
+
+  it("respects limit on getTrainingPairsByCustomer", () => {
+    // Seed two more ALCOA pairs via direct registration on a second part.json
+    fs.mkdirSync(path.join(partLibRoot, "ALCOA", "AB-002"), { recursive: true });
+    fs.writeFileSync(
+      path.join(partLibRoot, "ALCOA", "AB-002", "part.json"),
+      JSON.stringify({ macroVCVars: { dim1: "1.5" } }),
+      "utf8",
+    );
+    const manifest2 = {
+      files: [
+        { customer: "ALCOA", partNumber: "AB-001", pdfPath: "/p1.pdf" },
+        { customer: "ALCOA", partNumber: "AB-002", pdfPath: "/p2.pdf" },
+      ],
+    };
+    const idx2 = path.join(tmpDir, "jm-die-index-v2-extra.json");
+    fs.writeFileSync(idx2, JSON.stringify(manifest2), "utf8");
+    engine.joinDocustrataToPartLibrary({
+      rootDir: tmpDir,
+      indexPath: idx2,
+      partLibraryRoot: partLibRoot,
+      trainingDir,
+    });
+    expect(engine.getTrainingPairsByCustomer({ customer: "ALCOA", limit: 1 }).length).toBe(1);
+  });
+
+  it("returns indexErrors when jm-die-index-v2.json missing", () => {
+    const result = engine.joinDocustrataToPartLibrary({
+      rootDir: tmpDir,
+      indexPath: path.join(tmpDir, "missing.json"),
+      partLibraryRoot: partLibRoot,
+      trainingDir,
+    });
+    expect(result.pairsCreated).toBe(0);
+    expect(result.indexErrors.length).toBe(1);
+    expect(result.indexErrors[0]).toMatch(/does not exist/);
+  });
+
+  it("returns indexErrors on corrupt manifest", () => {
+    const corrupt = path.join(tmpDir, "corrupt.json");
+    fs.writeFileSync(corrupt, "{ not valid json", "utf8");
+    const result = engine.joinDocustrataToPartLibrary({
+      rootDir: tmpDir,
+      indexPath: corrupt,
+      partLibraryRoot: partLibRoot,
+      trainingDir,
+    });
+    expect(result.pairsCreated).toBe(0);
+    expect(result.indexErrors[0]).toMatch(/failed to parse/);
+  });
+
+  it("skips parts with no _PART LIBRARY folder gracefully", () => {
+    const manifest3 = {
+      files: [
+        { customer: "GHOST", partNumber: "X-9", pdfPath: "/g.pdf" },
+      ],
+    };
+    const idx3 = path.join(tmpDir, "ghost.json");
+    fs.writeFileSync(idx3, JSON.stringify(manifest3), "utf8");
+    const result = engine.joinDocustrataToPartLibrary({
+      rootDir: tmpDir,
+      indexPath: idx3,
+      partLibraryRoot: partLibRoot,
+      trainingDir,
+    });
+    expect(result.pairsCreated).toBe(0);
+  });
+
+  it("TrainingPairSchema validates a real joined pair", () => {
+    engine.joinDocustrataToPartLibrary({
+      rootDir: tmpDir,
+      indexPath,
+      partLibraryRoot: partLibRoot,
+      trainingDir,
+    });
+    const pairs = engine.getTrainingPairsByCustomer({ customer: "ALCOA" });
+    expect(pairs.length).toBe(1);
+    expect(TrainingPairSchema.safeParse(pairs[0]).success).toBe(true);
+  });
+
+  it("blueprintState reports current counts + tier distribution", () => {
+    engine.joinDocustrataToPartLibrary({
+      rootDir: tmpDir,
+      indexPath,
+      partLibraryRoot: partLibRoot,
+      trainingDir,
+    });
+    const state = engine.blueprintState();
+    expect(state.trainingPairsCount).toBe(3);
+    expect(state.pairsByCustomer.ALCOA).toBe(1);
+    expect(state.pairsByCustomer["CONTINENTAL MIDLAND"]).toBe(1);
   });
 });
