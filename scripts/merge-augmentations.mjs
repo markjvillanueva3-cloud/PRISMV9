@@ -87,6 +87,7 @@ const layerBridges   = loadOptional("layer-bridges-augmentation.json");
 const stagnantFeats  = loadOptional("stagnant-features-augmentation.json");
 const miscTasks      = loadOptional("misc-tasks-augmentation.json");
 const bridgeSynergy  = loadOptional("bridge-synergy-augmentation.json");
+const priorityQueue  = loadOptional("priority-queue-augmentation.json");
 const engineGraph    = loadOptional("engine-graph-augmentation.json");
 const hookBridges    = loadOptional("hook-bridges-augmentation.json");
 const frontendPages  = loadOptional("frontend-pages-augmentation.json");
@@ -151,6 +152,7 @@ if (layerBridges)    versions.layerBridges    = layerBridges.generatedAt    ?? "
 if (stagnantFeats)   versions.stagnantFeats   = stagnantFeats.generatedAt   ?? "present";
 if (miscTasks)       versions.miscTasks       = miscTasks.generatedAt       ?? "present";
 if (bridgeSynergy)   versions.bridgeSynergy   = bridgeSynergy.generatedAt   ?? "present";
+if (priorityQueue)   versions.priorityQueue   = priorityQueue.generatedAt   ?? "present";
 if (engineGraph)     versions.engineGraph     = engineGraph.generatedAt     ?? "present";
 if (hookBridges)     versions.hookBridges     = hookBridges.generatedAt     ?? "present";
 if (frontendPages)   versions.frontendPages   = frontendPages.generatedAt   ?? "present";
@@ -904,6 +906,34 @@ if (bridgeSynergy?.newNodes) {
   };
 }
 
+// Priority-queue layer: ghost.priority_queue roost + one color-coded
+// priority-unit child per remaining work item from ROADMAP-CONSOLIDATED.
+// Source: scripts/generate-priority-queue-features.mjs.
+let priorityQueueNodes = 0, priorityQueueEdges = 0;
+if (priorityQueue?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of priorityQueue.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    priorityQueueNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (priorityQueue.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    priorityQueueEdges++;
+  }
+  G.meta.priorityQueue = {
+    generatedAt: priorityQueue.generatedAt,
+    stats: priorityQueue.stats,
+  };
+}
+
 // Engine internal graph: 1.2k atomic engine L5 nodes (for engines with
 // cross-import activity), real engine→engine import edges (active), plus
 // ghost suggested-peer edges (status:ghost) for plausible bridges that
@@ -1400,7 +1430,7 @@ G.schemaVersion = "2.29.0";
 fs.writeFileSync(graphPath, JSON.stringify(G));
 console.log(`merged augmentations into ${graphPath}`);
 console.log(`  obsidian: ${obsidian ? "yes" : "missing"}  awareness: ${awareness ? "yes" : "missing"}  novelty: ${novelty ? "yes" : "missing"}  business: ${business ? "yes" : "missing"}`);
-console.log(`  nodes augmented: ${mergedNodes}  coreInventory: ${coreInventoryChildren}  fsInventory: ${fsInventoryChildren}  engineDomain: ${engineDomainChildren}  knowledgeInv: ${knowledgeInvChildren}  stalenessAnnotated: ${stalenessAnnotated}  fsDeep: ${fsDeepNodes} nodes, ${fsDeepEdges} edges  l11Leaves: ${l11Nodes} nodes, ${l11Edges} edges  wiring: ${wiringAnnotated} annotated, ${wiringPhantomEdges} phantom edges  galaxies: ${galaxyAnnotated} (+${galaxyMolsAttached} planets)  knowledge: ${knowledgeNodes} nodes, ${knowledgeEdges} edges, ${knowledgeAnnotated} annotated  layerBridges: ${bridgeEdges} new edges  stagnant: ${stagnantNodes} nodes / ${stagnantEdges} edges  miscTasks: ${miscTaskNodes} nodes / ${miscTaskEdges} edges  bridgeSynergy: ${bridgeSynergyNodes} nodes / ${bridgeSynergyEdges} edges  engineGraph: ${engineGraphNodes} nodes / ${engineGraphEdges} edges  hookBridges: ${hookBridgesEdges} edges  frontendPages: ${frontendPageNodes} nodes / ${frontendPageEdges} edges  combo: ${comboNodes} nodes / ${comboEdges} edges  engineSat: ${engSatNodes} nodes / ${engSatEdges} edges  wikiEntries: ${wikiNodes} nodes / ${wikiEdges} edges  formulasAtomic: ${formulaNodes} / ${formulaEdges}  personas: ${personaNodes} / ${personaEdges}  skills: ${skillNodes} / ${skillEdges}  schemas: ${schemaNodes} / ${schemaEdges}  algos: ${algoNodes} / ${algoEdges}  transport: ${transportNodes} / ${transportEdges}  aiTier: ${aiTierNodes} / ${aiTierEdges}  actions: ${actionNodes} / ${actionEdges}  hooks: ${hookNodes} / ${hookEdges}  tests: ${testNodes} / ${testEdges}  scriptsAtom: ${scriptNodesA} / ${scriptEdgesA}  memories: ${memoryNodes} / ${memoryEdges}  regEnt: ${regEntNodes} / ${regEntEdges}  actEng: 0 / ${actEngEdges}  ghosts: ${G.meta.ghostSummary.ghostNodes} nodes / ${G.meta.ghostSummary.ghostEdges} edges`);
+console.log(`  nodes augmented: ${mergedNodes}  coreInventory: ${coreInventoryChildren}  fsInventory: ${fsInventoryChildren}  engineDomain: ${engineDomainChildren}  knowledgeInv: ${knowledgeInvChildren}  stalenessAnnotated: ${stalenessAnnotated}  fsDeep: ${fsDeepNodes} nodes, ${fsDeepEdges} edges  l11Leaves: ${l11Nodes} nodes, ${l11Edges} edges  wiring: ${wiringAnnotated} annotated, ${wiringPhantomEdges} phantom edges  galaxies: ${galaxyAnnotated} (+${galaxyMolsAttached} planets)  knowledge: ${knowledgeNodes} nodes, ${knowledgeEdges} edges, ${knowledgeAnnotated} annotated  layerBridges: ${bridgeEdges} new edges  stagnant: ${stagnantNodes} nodes / ${stagnantEdges} edges  miscTasks: ${miscTaskNodes} nodes / ${miscTaskEdges} edges  bridgeSynergy: ${bridgeSynergyNodes} nodes / ${bridgeSynergyEdges} edges  priorityQueue: ${priorityQueueNodes} nodes / ${priorityQueueEdges} edges  engineGraph: ${engineGraphNodes} nodes / ${engineGraphEdges} edges  hookBridges: ${hookBridgesEdges} edges  frontendPages: ${frontendPageNodes} nodes / ${frontendPageEdges} edges  combo: ${comboNodes} nodes / ${comboEdges} edges  engineSat: ${engSatNodes} nodes / ${engSatEdges} edges  wikiEntries: ${wikiNodes} nodes / ${wikiEdges} edges  formulasAtomic: ${formulaNodes} / ${formulaEdges}  personas: ${personaNodes} / ${personaEdges}  skills: ${skillNodes} / ${skillEdges}  schemas: ${schemaNodes} / ${schemaEdges}  algos: ${algoNodes} / ${algoEdges}  transport: ${transportNodes} / ${transportEdges}  aiTier: ${aiTierNodes} / ${aiTierEdges}  actions: ${actionNodes} / ${actionEdges}  hooks: ${hookNodes} / ${hookEdges}  tests: ${testNodes} / ${testEdges}  scriptsAtom: ${scriptNodesA} / ${scriptEdgesA}  memories: ${memoryNodes} / ${memoryEdges}  regEnt: ${regEntNodes} / ${regEntEdges}  actEng: 0 / ${actEngEdges}  ghosts: ${G.meta.ghostSummary.ghostNodes} nodes / ${G.meta.ghostSummary.ghostEdges} edges`);
 console.log(`  L7-saturation: camVendor=${camVCNodes}n/${camVCEdges}e  tsRegEnt=${tsRENodes}n/${tsREEdges}e  physics=${phyANodes}n/${phyAEdges}e`);
 console.log(`  L5-edges:      engineImp=${engineImpEdgeCount} new edges  testCov=${testCovEdgeCount} new edges`);
 console.log(`  Phase 2:       jmDie=${jmDieNodes}n/${jmDieEdges}e  frontendDeep=${frontDNodes}n/${frontDEdges}e  wikiX=${wikiXNodes}n/${wikiXEdges}e  schemaEng=${schemaEdgeCount}e  enginePhys=${physEdgeCount}e`);

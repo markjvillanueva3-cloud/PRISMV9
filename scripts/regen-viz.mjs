@@ -39,6 +39,7 @@ const FAST = [
   "generate-misc-tasks-features.mjs",
   "consolidate-roadmaps.mjs",
   "generate-bridge-synergy-features.mjs",
+  "generate-priority-queue-features.mjs",
   "generate-engine-graph.mjs",
   "generate-hook-bridges.mjs",
   "generate-frontend-pages.mjs",
