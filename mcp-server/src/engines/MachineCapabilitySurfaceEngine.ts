@@ -17,7 +17,8 @@
  */
 
 import { log } from "../utils/Logger.js";
-import type { CanonicalMachinePackage } from "../types/MachinePackage.js";
+import type { CanonicalMachinePackage, CanonicalMachineType } from "../types/MachinePackage.js";
+import type { MachineAxisTopology } from "../contracts/userMachineProfile.js";
 import { machineService } from "../services/MachineService.js";
 import { machineVocabularyNormalizerEngine } from "./MachineVocabularyNormalizerEngine.js";
 
@@ -298,11 +299,11 @@ class MachineCapabilitySurfaceEngine {
       peakPower: power * 1.25,
       continuousTorque: torque,
       peakTorque: torque * 1.5,
-      taper: this.inferTaper(pkg.type, maxRpm),
+      taper: this.inferTaper(pkg.canonical_type, maxRpm),
       bearingType: maxRpm > 15000 ? "ceramic_hybrid" : "steel_roller",
       coolingType: maxRpm > 12000 ? "oil_air" : "oil_jacket",
       powerCurve: this.generatePowerCurve(maxRpm, power, torque),
-      speedRanges: this.inferSpeedRanges(maxRpm, pkg.type),
+      speedRanges: this.inferSpeedRanges(maxRpm, pkg.canonical_type),
       limitations: this.inferSpindleLimitations(maxRpm, power, torque),
     };
   }
@@ -374,7 +375,7 @@ class MachineCapabilitySurfaceEngine {
       machineId,
       manufacturer: pkg.manufacturer,
       model: pkg.model,
-      type: pkg.type,
+      type: pkg.canonical_type,
       controller,
       spindle,
       coolant,
@@ -516,25 +517,75 @@ class MachineCapabilitySurfaceEngine {
   private convertToPackage(machine: any): CanonicalMachinePackage | null {
     if (!machine?.id) return null;
 
+    const manufacturer = machine.manufacturer ?? "Unknown";
+    const canonicalType = this.toCanonicalType(machine.type);
+    const now = new Date().toISOString();
+
     return {
       canonical_id: machine.id,
-      manufacturer: machine.manufacturer ?? "Unknown",
+      source_record_ids: [machine.id],
+      version: 1,
+      manufacturer,
+      manufacturer_id: String(manufacturer).toLowerCase().replace(/\s+/g, "-"),
       model: machine.model ?? machine.name ?? machine.id,
-      type: machine.type ?? "VMC",
-      controller: machine.controller ?? {},
-      spindle: machine.spindle ?? {},
-      envelope: machine.envelope ?? {},
-      coolant: machine.coolant ?? {},
-      axes: machine.axes ?? { count: 3 },
-      tool_changer: machine.tool_changer ?? {},
+      raw_type: typeof machine.type === "string" ? machine.type : "unknown",
+      canonical_type: canonicalType,
+      topology: this.topologyForType(canonicalType),
+      controller: machine.controller ?? { manufacturer: "other", model: "Unknown" },
+      spindle: machine.spindle ?? { max_rpm: 10000, power: 15 },
+      envelope: machine.envelope ?? { x: 500, y: 400, z: 400 },
+      axes: machine.axes ?? { linear_axes: 3, rotary_axes: 0 },
+      tool_changer: machine.tool_changer ?? { capacity: 20 },
+      coolant: machine.coolant ?? { mist_coolant: false, high_pressure_option: false },
+      controller_packages: [],
+      spindle_packages: [],
+      coolant_strategies: [],
+      allowed_options: [],
+      confidence: { controller: 0.5, spindle: 0.5, coolant: 0.5, envelope: 0.5, axes: 0.5, tool_changer: 0.5, overall: 0.5 },
       provenance: {},
       ambiguities: [],
       enrichment_history: [],
-      confidence_breakdown: { controller: 0.5, spindle: 0.5, coolant: 0.5, envelope: 0.5, axes: 0.5, tool_changer: 0.5, overall: 0.5 },
-      source_ids: [machine.id],
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
+      primary_layer: "core",
+      generated_at: now,
     };
+  }
+
+  /** Normalize an arbitrary raw machine-type string to a CanonicalMachineType (default VMC). */
+  private toCanonicalType(raw: unknown): CanonicalMachineType {
+    const s = String(raw ?? "").toLowerCase();
+    if (s.includes("5") && s.includes("axis")) return "5AXIS";
+    if (s.includes("hmc") || s.includes("horizontal")) return "HMC";
+    if (s.includes("mill_turn") || s.includes("millturn") || s.includes("multitask")) return "MILL_TURN";
+    if (s.includes("swiss")) return "SWISS";
+    if (s.includes("vtl")) return "VTL";
+    if (s.includes("lathe") || s.includes("turn")) return "LATHE";
+    if (s.includes("grind")) return "GRINDER";
+    if (s.includes("wire") && s.includes("edm")) return "EDM_WIRE";
+    if (s.includes("sinker") || s.includes("edm")) return "EDM_SINKER";
+    if (s.includes("laser")) return "LASER";
+    if (s.includes("water")) return "WATERJET";
+    if (s.includes("router")) return "ROUTER";
+    if (s.includes("boring")) return "BORING_MILL";
+    return "VMC";
+  }
+
+  /** Map a canonical machine type to its axis topology. */
+  private topologyForType(type: CanonicalMachineType): MachineAxisTopology {
+    switch (type) {
+      case "HMC": return "3_axis_horizontal";
+      case "5AXIS": return "5_axis_vertical";
+      case "LATHE": return "2_axis_lathe";
+      case "MILL_TURN": return "mill_turn";
+      case "SWISS": return "swiss";
+      case "VTL": return "vtl";
+      case "EDM_WIRE": return "wire_edm";
+      case "EDM_SINKER": return "sinker_edm";
+      case "LASER": return "laser";
+      case "WATERJET": return "waterjet";
+      case "ROUTER": return "router";
+      case "BORING_MILL": return "3_axis_horizontal";
+      default: return "3_axis_vertical";
+    }
   }
 
   private getFallbackPackage(machineId: string): CanonicalMachinePackage | null {
@@ -543,11 +594,24 @@ class MachineCapabilitySurfaceEngine {
   }
 
   private getFallbackPackages(): CanonicalMachinePackage[] {
+    const now = new Date().toISOString();
+    const base = {
+      version: 1,
+      controller_packages: [],
+      spindle_packages: [],
+      coolant_strategies: [],
+      allowed_options: [],
+      provenance: {},
+      ambiguities: [],
+      enrichment_history: [],
+      primary_layer: "core" as const,
+      generated_at: now,
+    };
     return [
-      { canonical_id: "haas_vf2", manufacturer: "Haas", model: "VF-2", type: "VMC", controller: { family: "Haas", vendor: "Haas" }, spindle: { max_rpm: 8100, power: 22.4 }, coolant: { type: "flood", pressure: "medium" }, envelope: { x: 762, y: 406, z: 508 }, axes: { count: 3 }, tool_changer: { capacity: 20 }, provenance: {}, ambiguities: [], enrichment_history: [], confidence_breakdown: { controller: 0.5, spindle: 0.5, coolant: 0.5, envelope: 0.5, axes: 0.5, tool_changer: 0.5, overall: 0.5 }, source_ids: ["fallback"], created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-      { canonical_id: "dmg_dmu50", manufacturer: "DMG MORI", model: "DMU 50", type: "5AXIS", controller: { family: "Siemens", model: "840D", vendor: "Siemens" }, spindle: { max_rpm: 14000, power: 25 }, coolant: { type: "through_spindle", pressure: "high" }, envelope: { x: 500, y: 450, z: 400 }, axes: { count: 5 }, tool_changer: { capacity: 30 }, provenance: {}, ambiguities: [], enrichment_history: [], confidence_breakdown: { controller: 0.6, spindle: 0.6, coolant: 0.6, envelope: 0.6, axes: 0.6, tool_changer: 0.6, overall: 0.6 }, source_ids: ["fallback"], created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-      { canonical_id: "okuma_lb3000", manufacturer: "Okuma", model: "LB3000 EX II", type: "LATHE", controller: { family: "OSP", model: "OSP-P300", vendor: "Okuma" }, spindle: { max_rpm: 5000, power: 22, torque: 190 }, coolant: { type: "flood", pressure: "medium" }, envelope: { x: 260, y: 0, z: 500 }, axes: { count: 2 }, tool_changer: { capacity: 12 }, provenance: {}, ambiguities: [], enrichment_history: [], confidence_breakdown: { controller: 0.6, spindle: 0.7, coolant: 0.5, envelope: 0.6, axes: 0.6, tool_changer: 0.5, overall: 0.6 }, source_ids: ["fallback"], created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-    ] as CanonicalMachinePackage[];
+      { ...base, canonical_id: "haas_vf2", source_record_ids: ["fallback"], manufacturer: "Haas", manufacturer_id: "haas", model: "VF-2", raw_type: "VMC", canonical_type: "VMC", topology: "3_axis_vertical", controller: { manufacturer: "haas", model: "NGC" }, spindle: { max_rpm: 8100, power: 22.4 }, coolant: { mist_coolant: false, high_pressure_option: false }, envelope: { x: 762, y: 406, z: 508 }, axes: { linear_axes: 3, rotary_axes: 0 }, tool_changer: { capacity: 20 }, confidence: { controller: 0.5, spindle: 0.5, coolant: 0.5, envelope: 0.5, axes: 0.5, tool_changer: 0.5, overall: 0.5 } },
+      { ...base, canonical_id: "dmg_dmu50", source_record_ids: ["fallback"], manufacturer: "DMG MORI", manufacturer_id: "dmg-mori", model: "DMU 50", raw_type: "5AXIS", canonical_type: "5AXIS", topology: "5_axis_vertical", controller: { manufacturer: "siemens", model: "840D" }, spindle: { max_rpm: 14000, power: 25 }, coolant: { mist_coolant: false, high_pressure_option: true }, envelope: { x: 500, y: 450, z: 400 }, axes: { linear_axes: 3, rotary_axes: 2 }, tool_changer: { capacity: 30 }, confidence: { controller: 0.6, spindle: 0.6, coolant: 0.6, envelope: 0.6, axes: 0.6, tool_changer: 0.6, overall: 0.6 } },
+      { ...base, canonical_id: "okuma_lb3000", source_record_ids: ["fallback"], manufacturer: "Okuma", manufacturer_id: "okuma", model: "LB3000 EX II", raw_type: "LATHE", canonical_type: "LATHE", topology: "2_axis_lathe", controller: { manufacturer: "okuma", model: "OSP-P300" }, spindle: { max_rpm: 5000, power: 22, torque: 190 }, coolant: { mist_coolant: false, high_pressure_option: false }, envelope: { x: 260, y: 0, z: 500 }, axes: { linear_axes: 2, rotary_axes: 0 }, tool_changer: { capacity: 12 }, confidence: { controller: 0.6, spindle: 0.7, coolant: 0.5, envelope: 0.6, axes: 0.6, tool_changer: 0.5, overall: 0.6 } },
+    ];
   }
 
   private inferMacroType(family: string): MacroCapabilities["type"] {
