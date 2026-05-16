@@ -226,7 +226,12 @@ async function main() {
   log(`system-graph written: ${args.out}`);
 }
 
-main().catch((e) => {
-  console.error("[course-extract] FATAL:", e && (e.stack || e.message || e));
-  process.exit(1);
-});
+// Only run main() when invoked directly (not when imported as a module).
+import { fileURLToPath } from "node:url";
+const __thisFile = fileURLToPath(import.meta.url);
+if (process.argv[1] && process.argv[1].replace(/\\/g, "/") === __thisFile.replace(/\\/g, "/")) {
+  main().catch((e) => {
+    console.error("[course-extract] FATAL:", e && (e.stack || e.message || e));
+    process.exit(1);
+  });
+}
