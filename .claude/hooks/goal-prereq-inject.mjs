@@ -23,6 +23,20 @@ import * as path from "node:path";
 
 const TRIGGER_RX = /(^|\s)\/goal(\s|$)/i;
 const STATE_DIR = path.join("H:", "prism", "state", "shared");
+const ENVELOPE_DIR = path.join("H:", "prism", "mcp-server", "data", "milestones");
+
+/**
+ * Lazy-import verifyUnitReady from scripts/verify-unit-ready.mjs (shipped in
+ * SYSTEM-VIZ-BRAIN-MS0/U-P3-VERIFY-UNIT-READY 2026-05-16). Wrapped in try/catch
+ * so an absent helper degrades to "no pre-flight dep check" gracefully — this
+ * hook must never block /goal entry even if the helper is missing.
+ */
+async function loadVerifyUnitReady() {
+  try {
+    const mod = await import("../../scripts/verify-unit-ready.mjs");
+    return mod.verifyUnitReady;
+  } catch { return null; }
+}
 
 function readStdin() {
   try {
@@ -36,7 +50,7 @@ function readStdin() {
 function readJson(p) { try { return JSON.parse(fs.readFileSync(p, "utf-8")); } catch { return null; } }
 function ageHours(p) { try { return (Date.now() - fs.statSync(p).mtimeMs) / 3600000; } catch { return null; } }
 
-function buildContext() {
+async function buildContext() {
   const staleHrs = Number(process.env.PRISM_GOAL_PREREQ_STALE_HRS) || 2;
   const lines = [`─── /goal pre-flight ────────────────────────────`];
 
@@ -103,6 +117,42 @@ function buildContext() {
                 lines.push(`     • ${typeof u === "string" ? u : u.unit_id || JSON.stringify(u)}`);
               }
             }
+
+            // NEW (U-P3-VERIFY-UNIT-READY composition, 2026-05-16 audit ladder #5):
+            // For each pending sibling, run verifyUnitReady against the milestone
+            // envelope. Surface blocked deps as ⚠ — operator sees prereq problems
+            // BEFORE typing /goal complete, not at Stop-time when goal-complete-gate
+            // already blocks.
+            const verifyUnitReady = await loadVerifyUnitReady();
+            if (verifyUnitReady && pending > 0) {
+              const envPath = path.join(ENVELOPE_DIR, `${ms}.json`);
+              const env = readJson(envPath);
+              if (env && env.units) {
+                const envelopes = { [ms]: env };
+                const blocked = [];
+                for (const u of (entry.pending || []).slice(0, 5)) {
+                  const unitId = typeof u === "string" ? u : (u.unit_id || u.unit);
+                  if (!unitId) continue;
+                  try {
+                    const r = verifyUnitReady({ envelopes, unitRef: { milestone: ms, unit_id: unitId } });
+                    if (r && !r.ready && Array.isArray(r.missingDeps) && r.missingDeps.length > 0) {
+                      blocked.push({ unitId, missing: r.missingDeps });
+                    }
+                  } catch { /* helper errored on this unit — skip silently per non-blocking contract */ }
+                }
+                if (blocked.length > 0) {
+                  lines.push(`   ⛔ Unit(s) with unsatisfied prereqs (verify-unit-ready):`);
+                  for (const b of blocked.slice(0, 3)) {
+                    const depList = b.missing.slice(0, 2).map(m => {
+                      const id = m.unit_id ? `${m.milestone || ms}:${m.unit_id}` : m.dep;
+                      return `${id} (${m.reason}${m.status ? "=" + m.status : ""})`;
+                    }).join(", ");
+                    lines.push(`     ⛔ ${b.unitId} — blocked by: ${depList}`);
+                  }
+                  if (blocked.length > 3) lines.push(`     ... +${blocked.length - 3} more blocked`);
+                }
+              }
+            }
           }
         }
       }
@@ -114,7 +164,7 @@ function buildContext() {
   return lines.join("\n");
 }
 
-function main() {
+async function main() {
   if (String(process.env.PRISM_GOAL_PREREQ_DISABLE ?? "") === "1") {
     process.stdout.write(JSON.stringify({ continue: true }));
     return;
@@ -125,12 +175,11 @@ function main() {
     process.stdout.write(JSON.stringify({ continue: true }));
     return;
   }
-  const ctx = buildContext();
+  const ctx = await buildContext();
   process.stdout.write(JSON.stringify({
     continue: true,
     hookSpecificOutput: { hookEventName: "UserPromptSubmit", additionalContext: ctx },
   }));
 }
 
-try { main(); }
-catch { process.stdout.write(JSON.stringify({ continue: true })); }
+main().catch(() => process.stdout.write(JSON.stringify({ continue: true })));
