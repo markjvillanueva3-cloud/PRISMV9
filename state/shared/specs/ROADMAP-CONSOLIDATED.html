@@ -9,14 +9,14 @@ th{background:#1e293b}tr:nth-child(even){background:#1e293b55}
 <a href="#content" class="skip-link">Skip to content</a>
 <main id="content" role="main">
 <h1 id="title">PRISM Roadmap — Consolidated Inventory</h1>
-<p>Generated 2026-05-16T19:22:38.596Z · schemaVersion 1.0.0 · <b>advisory — human-verify</b></p>
+<p>Generated 2026-05-16T19:36:54.127Z · schemaVersion 1.0.0 · <b>advisory — human-verify</b></p>
 <div>
 <span class="stat">milestones 849</span><span class="stat">pending units 4497</span>
 <span class="stat">prose un-consolidated 969</span><span class="stat">misc orphans 318</span>
 <span class="stat">wiring units 26</span><span class="stat">deep-integration 16</span>
 <span class="stat" style="background:#0369a1">grand total 5826</span>
 </div>
-<h2>Bridge layer — wiring units</h2>
+<h2 id="wiring">Bridge layer — wiring units</h2>
 <table><thead><tr><th>Unit</th><th>Domain</th><th>Engines</th><th>Intent</th></tr></thead><tbody><tr><td>U-BRIDGE-WIRE-OTHER</td><td>Other</td><td>144</td><td>Connect the 144 built-but-unwired Other-domain engines into their natural MCP dispatcher(s) so the capability is reachable.</td></tr>
 <tr><td>U-BRIDGE-WIRE-LATHE</td><td>Lathe</td><td>89</td><td>Connect the 89 built-but-unwired Lathe-domain engines into their natural MCP dispatcher(s) so the capability is reachable.</td></tr>
 <tr><td>U-BRIDGE-WIRE-MACHINE</td><td>Machine</td><td>17</td><td>Connect the 17 built-but-unwired Machine-domain engines into their natural MCP dispatcher(s) so the capability is reachable.</td></tr>
@@ -43,7 +43,7 @@ th{background:#1e293b}tr:nth-child(even){background:#1e293b55}
 <tr><td>U-BRIDGE-WIRE-SPEED</td><td>Speed</td><td>4</td><td>Connect the 4 built-but-unwired Speed-domain engines into their natural MCP dispatcher(s) so the capability is reachable.</td></tr>
 <tr><td>U-BRIDGE-WIRE-OKUMA</td><td>Okuma</td><td>4</td><td>Connect the 4 built-but-unwired Okuma-domain engines into their natural MCP dispatcher(s) so the capability is reachable.</td></tr>
 <tr><td>U-BRIDGE-WIRE-LONGTAIL</td><td>Long-tail (domains outside the top 25)</td><td>442</td><td>Connect the remaining 442 built-but-unwired engines (small/misc domains beyond the top 25) into their MCP dispatchers.</td></tr></tbody></table>
-<h2>Bridge layer — deep-integration units</h2>
+<h2 id="deep-integration">Bridge layer — deep-integration units</h2>
 <table><thead><tr><th>Unit</th><th>From → To</th><th>Intent</th></tr></thead><tbody><tr><td>U-BRIDGE-SFC-FUSION</td><td>SpeedFeedOrchestrator → cam_fusion bridge</td><td>Physics-backed speeds/feeds flow directly into Fusion 360 toolpath generation.</td></tr>
 <tr><td>U-BRIDGE-SFC-HYPERMILL</td><td>SpeedFeedOrchestrator → cam_hypermill bridge</td><td>SFC output drives hyperMILL cycle parameters.</td></tr>
 <tr><td>U-BRIDGE-SFC-MASTERCAM</td><td>SpeedFeedOrchestrator → cam_mastercam bridge</td><td>SFC output drives Mastercam operation parameters.</td></tr>
@@ -60,7 +60,7 @@ th{background:#1e293b}tr:nth-child(even){background:#1e293b55}
 <tr><td>U-BRIDGE-ERP-SCHED</td><td>ERP integration → scheduling + capacity engines</td><td>ERP work orders drive machine scheduling and capacity planning.</td></tr>
 <tr><td>U-BRIDGE-ERP-QUOTE</td><td>ERP integration → quoting + cost engines</td><td>Quoting and should-cost analysis read from and write to ERP.</td></tr>
 <tr><td>U-BRIDGE-OPERATOR-GATES</td><td>operator approval layer → CAD + CAM + post pipelines</td><td>Unconditional operator review gates wired at every autonomous-output boundary.</td></tr></tbody></table>
-<h2>Milestone rollup</h2>
+<h2 id="rollup">Milestone rollup</h2>
 <table><thead><tr><th>Milestone</th><th>Shipped/Total</th><th>Pending</th><th>Status</th></tr></thead><tbody><tr><td>5AXIS-AI</td><td>1/1</td><td>0</td><td>completed_real</td></tr>
 <tr><td>ACP-MS0</td><td>0/5</td><td>5</td><td>not_started_real</td></tr>
 <tr><td>ACP-MS0A</td><td>0/5</td><td>5</td><td>not_started_real</td></tr>

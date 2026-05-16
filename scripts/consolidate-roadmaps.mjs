@@ -350,11 +350,11 @@ th{background:#1e293b}tr:nth-child(even){background:#1e293b55}
 <span class="stat">wiring units ${s.bridgeWiringUnits}</span><span class="stat">deep-integration ${s.deepIntegrationUnits}</span>
 <span class="stat" style="background:#0369a1">grand total ${s.grandTotalRemaining}</span>
 </div>
-<h2>Bridge layer — wiring units</h2>
+<h2 id="wiring">Bridge layer — wiring units</h2>
 <table><thead><tr><th>Unit</th><th>Domain</th><th>Engines</th><th>Intent</th></tr></thead><tbody>${wRows}</tbody></table>
-<h2>Bridge layer — deep-integration units</h2>
+<h2 id="deep-integration">Bridge layer — deep-integration units</h2>
 <table><thead><tr><th>Unit</th><th>From → To</th><th>Intent</th></tr></thead><tbody>${dRows}</tbody></table>
-<h2>Milestone rollup</h2>
+<h2 id="rollup">Milestone rollup</h2>
 <table><thead><tr><th>Milestone</th><th>Shipped/Total</th><th>Pending</th><th>Status</th></tr></thead><tbody>${mRows}</tbody></table>
 </main></body></html>`;
 }
