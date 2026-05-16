@@ -233,6 +233,11 @@ const ACTIONS = [
   "corpus_enumerate", "corpus_verify_fresh", "corpus_build_index",
   // BLUEPRINT-OCR-TRAINING-MS1/U-MS1-U7 — BlueprintExtractionRAGEngine (centerpiece)
   "blueprint_rag_extract", "blueprint_rag_explain", "blueprint_rag_compare_to_baseline",
+  // BLUEPRINT-OCR-TRAINING-MS1/U-MS1-U8 — BlueprintLoRABridge + BlueprintCoverageAudit
+  "blueprint_lora_prepare_set", "blueprint_lora_export", "blueprint_lora_register_endpoint",
+  "blueprint_lora_history",
+  "blueprint_coverage_audit", "blueprint_coverage_by_customer", "blueprint_coverage_flag_retrain",
+  "blueprint_coverage_report",
   "cad_harvest_catalog", "cad_harvest_paired_sources", "cad_harvest_can_redistribute",
   // CAD-FUSION-LIVE-MS0 PHASE18: 6-CAD execution router (SW/Inv/MC/HyperCAD/Fusion/Esprit unifier)
   "cad_route_detect_system", "cad_route_supported_systems", "cad_route_plan_execution",
@@ -2764,6 +2769,114 @@ Params vary by action — pass relevant fields in params object.`,
             const { blueprintExtractionRAGEngine } = await import("../../engines/BlueprintExtractionRAGEngine.js");
             const data = blueprintExtractionRAGEngine.compareToBaseline(
               params as Parameters<typeof blueprintExtractionRAGEngine.compareToBaseline>[0],
+            );
+            result = { success: true, data };
+            break;
+          }
+          // BLUEPRINT-OCR-TRAINING-MS1/U-MS1-U8 — LoRA bridge + coverage audit
+          case "blueprint_lora_prepare_set": {
+            if (!params.confidenceTier || !Array.isArray(params.precomputedPairs)) {
+              return dispatcherError(
+                new Error("blueprint_lora_prepare_set requires confidenceTier + precomputedPairs[] (MCP path)"),
+                action, "prism_cad",
+              );
+            }
+            const { blueprintLoRABridgeEngine } = await import("../../engines/BlueprintLoRABridgeEngine.js");
+            const data = await blueprintLoRABridgeEngine.prepareTrainingSet({
+              confidenceTier: params.confidenceTier as Parameters<typeof blueprintLoRABridgeEngine.prepareTrainingSet>[0]["confidenceTier"],
+              ...(typeof params.sizeCap === "number" ? { sizeCap: params.sizeCap } : {}),
+              io: { loadTrainingPairs: async () => params.precomputedPairs as Parameters<NonNullable<Parameters<typeof blueprintLoRABridgeEngine.prepareTrainingSet>[0]["io"]>["loadTrainingPairs"]>[0] extends never ? never : Awaited<ReturnType<NonNullable<NonNullable<Parameters<typeof blueprintLoRABridgeEngine.prepareTrainingSet>[0]["io"]>["loadTrainingPairs"]>>> },
+            });
+            result = { success: true, data };
+            break;
+          }
+          case "blueprint_lora_export": {
+            if (!params.setId || !params.provider || !params.outputPath) {
+              return dispatcherError(
+                new Error("blueprint_lora_export requires setId + provider + outputPath"),
+                action, "prism_cad",
+              );
+            }
+            const { blueprintLoRABridgeEngine } = await import("../../engines/BlueprintLoRABridgeEngine.js");
+            const data = await blueprintLoRABridgeEngine.exportBundle(
+              params as Parameters<typeof blueprintLoRABridgeEngine.exportBundle>[0],
+            );
+            result = { success: true, data };
+            break;
+          }
+          case "blueprint_lora_register_endpoint": {
+            if (!params.bundleId || !params.endpointURL || !params.providerType) {
+              return dispatcherError(
+                new Error("blueprint_lora_register_endpoint requires bundleId + endpointURL + providerType"),
+                action, "prism_cad",
+              );
+            }
+            const { blueprintLoRABridgeEngine } = await import("../../engines/BlueprintLoRABridgeEngine.js");
+            const data = blueprintLoRABridgeEngine.registerExternalEndpoint(
+              params as Parameters<typeof blueprintLoRABridgeEngine.registerExternalEndpoint>[0],
+            );
+            result = { success: true, data };
+            break;
+          }
+          case "blueprint_lora_history": {
+            const { blueprintLoRABridgeEngine } = await import("../../engines/BlueprintLoRABridgeEngine.js");
+            const history = blueprintLoRABridgeEngine.getExportHistory();
+            const active = blueprintLoRABridgeEngine.getActiveBundles();
+            result = { success: true, data: { history, active } };
+            break;
+          }
+          case "blueprint_coverage_audit": {
+            if (!params.rootDir || !params.indexPath || !Array.isArray(params.precomputedRecords)) {
+              return dispatcherError(
+                new Error("blueprint_coverage_audit requires rootDir + indexPath + precomputedRecords[]"),
+                action, "prism_cad",
+              );
+            }
+            const { blueprintCoverageAuditEngine } = await import("../../engines/BlueprintCoverageAuditEngine.js");
+            const data = await blueprintCoverageAuditEngine.auditCoverage({
+              rootDir: params.rootDir as string,
+              indexPath: params.indexPath as string,
+              io: { loadRecords: async () => params.precomputedRecords as Awaited<ReturnType<NonNullable<NonNullable<Parameters<typeof blueprintCoverageAuditEngine.auditCoverage>[0]["io"]>["loadRecords"]>>> },
+            });
+            result = { success: true, data };
+            break;
+          }
+          case "blueprint_coverage_by_customer": {
+            if (!params.customer || typeof params.customer !== "string") {
+              return dispatcherError(
+                new Error("blueprint_coverage_by_customer requires customer"),
+                action, "prism_cad",
+              );
+            }
+            const { blueprintCoverageAuditEngine } = await import("../../engines/BlueprintCoverageAuditEngine.js");
+            const data = blueprintCoverageAuditEngine.byCustomer({ customer: params.customer });
+            result = { success: true, data };
+            break;
+          }
+          case "blueprint_coverage_flag_retrain": {
+            if (!params.baselineSnapshotId) {
+              return dispatcherError(
+                new Error("blueprint_coverage_flag_retrain requires baselineSnapshotId"),
+                action, "prism_cad",
+              );
+            }
+            const { blueprintCoverageAuditEngine } = await import("../../engines/BlueprintCoverageAuditEngine.js");
+            const data = blueprintCoverageAuditEngine.flagRetrain(
+              params as Parameters<typeof blueprintCoverageAuditEngine.flagRetrain>[0],
+            );
+            result = { success: true, data, count: data.length };
+            break;
+          }
+          case "blueprint_coverage_report": {
+            if (!params.format || !params.outDir) {
+              return dispatcherError(
+                new Error("blueprint_coverage_report requires format (md|json) + outDir"),
+                action, "prism_cad",
+              );
+            }
+            const { blueprintCoverageAuditEngine } = await import("../../engines/BlueprintCoverageAuditEngine.js");
+            const data = blueprintCoverageAuditEngine.generateReport(
+              params as Parameters<typeof blueprintCoverageAuditEngine.generateReport>[0],
             );
             result = { success: true, data };
             break;
