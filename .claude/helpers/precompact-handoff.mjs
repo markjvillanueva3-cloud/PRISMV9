@@ -414,9 +414,15 @@ function main() {
   const baseTopic = extractTopicSlug() || "session";
   const finalTopic = slotPrefix ? `${slotPrefix}-${baseTopic}` : baseTopic;
 
-  // Write via per-agent-handoff.mjs with the new strictly-gated source
+  // Write via per-agent-handoff.mjs with the new strictly-gated source.
+  // CRITICAL: spawn with process.execPath, NOT bare "node". Under portable-node
+  // (process.execPath = H:\Tools\nodejs\node.exe, but `node` is NOT on the
+  // PreCompact hook child's PATH) bare spawnSync("node",...) returns ENOENT with
+  // stdout=undefined, which the parser below silently froze at "(no output)" —
+  // every /compact no-op'd the handoff write. (Same fix already applied in the
+  // line-337 terminal-resolver spawn + precompact-hook-source.test.mjs:28.)
   const writerPath = path.resolve("H:/prism/.claude/helpers/per-agent-handoff.mjs");
-  const writeResult = spawnSync("node", [
+  const writeResult = spawnSync(process.execPath, [
     writerPath, "write",
     "--source", "precompact-hook",
     "--terminal", identity.instance,
@@ -428,16 +434,28 @@ function main() {
   let writeOk = false;
   let writeMsg = "(no output)";
   let writtenFile = null;
-  try {
-    const out = (writeResult.stdout || "").trim();
-    if (out) {
-      const j = JSON.parse(out);
-      writeOk = !!j.ok;
-      writeMsg = j.ok ? `wrote ${j.file || "(unknown path)"}` : `rejected: ${j.rejectedBy || j.error}`;
-      if (j.ok && j.file) writtenFile = j.file;
+  if (writeResult.error) {
+    // Spawn itself failed (ENOENT, EACCES, timeout-kill, ...). FAIL LOUD —
+    // never let this collapse into the vague "(no output)" that hid the
+    // bare-"node" ENOENT bug for an unknown number of /compact cycles.
+    writeMsg = `SPAWN FAILED: ${writeResult.error.code || writeResult.error.message || "unknown"}`;
+  } else {
+    try {
+      const out = (writeResult.stdout || "").trim();
+      if (out) {
+        const j = JSON.parse(out);
+        writeOk = !!j.ok;
+        writeMsg = j.ok ? `wrote ${j.file || "(unknown path)"}` : `rejected: ${j.rejectedBy || j.error}`;
+        if (j.ok && j.file) writtenFile = j.file;
+      } else {
+        // Writer spawned OK but emitted nothing — still surface it loudly
+        // (status + any stderr) rather than the silent init placeholder.
+        const errTail = (writeResult.stderr || "").trim().slice(0, 80);
+        writeMsg = `writer emitted no stdout (status=${writeResult.status}, stderr=${errTail || "empty"})`;
+      }
+    } catch {
+      writeMsg = writeResult.stderr?.trim().slice(0, 120) || "spawn failed";
     }
-  } catch {
-    writeMsg = writeResult.stderr?.trim().slice(0, 120) || "spawn failed";
   }
 
   // 2026-05-15: PAD-TO-FIXED-SIZE per user directive ("make the precompact

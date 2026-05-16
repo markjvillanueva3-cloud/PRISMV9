@@ -137,3 +137,51 @@ describe("padFileToBytes — determinism across N handoffs", () => {
     for (const sz of finalSizes) assert.equal(sz, target);
   });
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Regression: the precompact hook MUST spawn the per-agent-handoff writer with
+// process.execPath, never bare "node". Under portable-node (process.execPath =
+// H:\Tools\nodejs\node.exe but `node` NOT on the spawned child's PATH), a bare
+// spawnSync("node", ...) returns ENOENT with stdout=undefined. The hook's
+// result parser does `(writeResult.stdout || "").trim()` → "" → the `if (out)`
+// guard is skipped → JSON.parse never runs → the `catch` never fires →
+// writeMsg stays frozen at its init value "(no output)". Net effect: EVERY
+// /compact silently no-ops the precompact handoff write, leaving a stale RESUME.
+// Observed 2026-05-16 (session claude-339c8ff7): user reported "/compact doesn't
+// kick off precompact anymore". The sibling test file precompact-hook-source
+// .test.mjs:28 already documents this exact footgun in its own harness — the
+// production hook just never applied the lesson.
+describe("precompact-handoff — writer spawn must use process.execPath (portable-node ENOENT regression)", () => {
+  const RAW_SRC = fs.readFileSync(
+    path.resolve("H:/prism/.claude/helpers/precompact-handoff.mjs"), "utf-8",
+  );
+  // Strip block + line comments before the bare-"node" assertion. The guard
+  // must inspect EXECUTABLE CODE, not prose — this file's own WHY-comment
+  // legitimately mentions the spawnSync("node",...) antipattern it's warning
+  // against. (Comment-blind source guards are the AAM04 over-greedy-regex
+  // regression class — CLAUDE.md "Recent regressions" 2026-05-16.)
+  const SRC = RAW_SRC
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/(^|[^:])\/\/.*$/gm, "$1");
+  it('does NOT spawn any child via bare "node" (ENOENT under portable-node)', () => {
+    assert.ok(
+      !/spawnSync\(\s*['"]node['"]/.test(SRC),
+      'precompact-handoff.mjs must not spawn child node via bare "node" — use process.execPath',
+    );
+  });
+  it("spawns the per-agent-handoff writer via process.execPath", () => {
+    assert.match(
+      SRC,
+      /const writeResult = spawnSync\(\s*process\.execPath\s*,/,
+      "the writer spawn (const writeResult = ...) must use process.execPath",
+    );
+  });
+  it("inspects writeResult.error so a spawn failure is loud, not swallowed", () => {
+    // Karpathy R12 fail-loud: the original silent "(no output)" swallow is WHY
+    // this bug went undetected. The result parser must surface writeResult.error.
+    assert.match(
+      SRC, /writeResult\.error/,
+      "spawn-failure (writeResult.error) must be surfaced, not frozen at '(no output)'",
+    );
+  });
+});
