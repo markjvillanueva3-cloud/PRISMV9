@@ -51,22 +51,39 @@ import { hostname } from "node:os";
 
 // ─── Constants ──────────────────────────────────────────────────────────
 
-/** NATO phonetic alphabet — first 10. Stable order; auto-claim picks first free.
- *  Slot 7 ("golf") is the dedicated hygiene/cleanup chat per CLEANUP-MS0:
+/** NATO phonetic alphabet — first 12. Stable order; auto-claim picks first free.
+ *  Slot 7 ("golf") is HISTORICALLY the dedicated hygiene/cleanup chat per
+ *  CLEANUP-MS0:
  *  - Reaps orphan node/bash/git processes (memory monitor + extended reapers)
  *  - Watchdog for peer commits (B4 reviewer-dispatch + cascade-route via Ollama)
  *  - Grooms system-viz graph (C-series wiring-potential + C5 augment-on-new-engine)
  *  - Gardens awareness surfaces (H-series memories/skills/hooks/CLAUDE.md/GSD drift)
- *  Bound by `golf-slot-write-allowlist.mjs` (U-CLEANUP-A5): may NOT commit
- *  feature code — read-only auditor + state/shared/* writes only.
+ *  Bound by `golf-slot-write-allowlist.mjs` (U-CLEANUP-A5): writes outside
+ *  the named ledger/dashboard set are blocked.
+ *
+ *  2026-05-16 operator directive (/checkin-<slot> family): golf MAY now be
+ *  used as a normal work slot. The allowlist hook still fires keyed on
+ *  slot==="golf"; bypass with PRISM_GOLF_WRITE_ALLOWLIST_BYPASS=1 OR disable
+ *  the hook in settings.json. The slot table itself does not distinguish
+ *  hygiene vs work — that's a hook-level concern.
  *
  *  Slots 8-10 ("hotel", "india", "juliett") added 2026-05-15 per the user
  *  directive `[[feedback_fleet_design_10_chats]]`. They are WORK slots
- *  (no allowlist restriction) — total fleet is now 9 work + 1 hygiene = 10.
+ *  (no allowlist restriction).
+ *
+ *  Slots 11-12 ("kilo", "lima") added 2026-05-16 per the operator directive
+ *  to support /checkin-<slot> for all 12 NATO letters through Lima. Additive
+ *  forward-compat: schemaVersion intentionally NOT bumped because the
+ *  expansion is a strict superset (old chat-slots.json files get the new
+ *  keys populated as null on next assertSlotFile; no migration needed).
+ *  Bumping would force a state-file reset across active peers — strictly
+ *  worse than the additive path. Total fleet is now 11 work + 1 historically-
+ *  hygiene = 12.
+ *
  *  See `[[reference_session_continuity_stack_2026_05_15]]` for the
- *  terminal-window pinning that makes 10 concurrent PowerShell windows each
+ *  terminal-window pinning that makes 12 concurrent PowerShell windows each
  *  resolve to a deterministic slot. */
-export const SLOT_NAMES = ["alpha", "bravo", "charlie", "delta", "echo", "foxtrot", "golf", "hotel", "india", "juliett"];
+export const SLOT_NAMES = ["alpha", "bravo", "charlie", "delta", "echo", "foxtrot", "golf", "hotel", "india", "juliett", "kilo", "lima"];
 
 /** Crash TTL — slot is considered crashed/reclaimable after this many ms with
  *  no heartbeat update. 10min matches the existing chat-bus claim TTL. */
