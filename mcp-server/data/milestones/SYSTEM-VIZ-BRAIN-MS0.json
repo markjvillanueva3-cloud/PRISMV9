@@ -271,7 +271,15 @@
     "U-P5-CHECKIN-FLEET-CONTEXT": {
       "phase": "P5-FLEET-COORD",
       "title": "/checkin surfaces fleet-wide active work + handoff suggestions to a fresh chat",
-      "status": "pending"
+      "status": "complete",
+      "shipped_by": "claude-a61bbf34 (slot echo)",
+      "shipped_at": "2026-05-16",
+      "deliverables": [
+        ".claude/commands/checkin.md — NEW step 6h (Fleet activity + handoff suggestions) composes existing helpers (fleet-status.mjs, loop-state.mjs list, chat-slots.json, state/shared/handoffs/) into a single read-only block. Adds 3 lines to §Report: fleet topics, fleet loops, pickup cands. Especially valuable when a fresh chat does /checkin and needs to decide between continuing a peer abandoned work, helping a struggling peer, or picking something new. Stale-handoff scanner skips stub/placeholder RESUMEs.",
+        "Composition approach (zero new state) — no new lock file, no new claim path, no new scheduled task. Reads each surface and degrades gracefully on missing input. Honors --skip-fleet-context flag for high-contention runs.",
+        "Doctrine-aligned: extends an existing skill surface rather than introducing a parallel workflow. Doc-only edit; single-file commit; no per-file scrutiny gate (not a multi-file build)."
+      ],
+      "rationale": "Fresh-chat onboarding cost was high — the operator had to either remember to run fleet-status manually or scan the chat-bus block for active peers. /checkin already runs all the required helpers; this unit just promotes their output into the canonical §Report block so the answer is visible at the first prompt of every new chat. Especially load-bearing for the 10-chat fleet design directive [[feedback_fleet_design_10_chats]] where the peer-activity surface needs to scale gracefully."
     },
     "U-P5-MULTI-CHAT-UNBLOCK-DETECT": {
       "phase": "P5-FLEET-COORD",

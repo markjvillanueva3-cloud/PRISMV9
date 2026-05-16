@@ -186,6 +186,51 @@ node H:/prism/scripts/ollama-docker-health.mjs --require ollama,qdrant  # exit 1
 
 **If Docker engine is unresponsive (500 errors on `docker ps`):** advise `wsl --shutdown && wsl` then restart Docker Desktop. The launcher's status file at `state/shared/DOCKER_RUNTIME_STATE.json` will confirm last-known-good.
 
+### 6h. Fleet activity + handoff suggestions (NEW — SYSTEM-VIZ-BRAIN-MS0/U-P5-CHECKIN-FLEET-CONTEXT)
+Surfaces what every other chat in the fleet is actually working on AND stale-but-actionable handoffs a fresh chat could pick up. Composes the existing `chat-slots.mjs`, `fleet-status.mjs`, `loop-state.mjs list`, and the per-agent handoff dir into ONE block — especially valuable when a fresh chat does /checkin and needs to decide between (a) continuing a peer's abandoned work, (b) offering to help a struggling peer, or (c) picking something new without stepping on anyone.
+
+```bash
+# (a) Per-slot topic + loop-iter + last commit (one row per slot, includes golf)
+node H:/prism/scripts/fleet-status.mjs 2>&1 | head -30
+
+# (b) Active /loop sessions across all slots (target/iter/recent-note)
+node H:/prism/.claude/helpers/loop-state.mjs list 2>&1 | head -20
+
+# (c) Stale handoffs (mtime >24h) whose owning chat-id has NO current claim —
+#     candidates a fresh chat could pick up. Skips stubs/placeholder RESUMEs.
+node -e "
+const fs = require('fs'), path = require('path');
+const dir = 'H:/prism/state/shared/handoffs';
+let slots = {};
+try { slots = JSON.parse(fs.readFileSync('H:/prism/state/shared/chat-slots.json','utf8')).slots || {}; } catch {}
+const owners = new Set(Object.values(slots).filter(s => s && s.chatId).map(s => s.chatId));
+const files = fs.readdirSync(dir).filter(f => /^HANDOFF-claude-[0-9a-f]{8}.*\.md\$/i.test(f));
+const now = Date.now();
+const stale = files
+  .map(f => ({ f, mtime: fs.statSync(path.join(dir,f)).mtimeMs }))
+  .filter(({f, mtime}) => {
+    const ageH = (now - mtime) / 3600000;
+    if (ageH < 24) return false;
+    const m = f.match(/HANDOFF-(claude-[0-9a-f]{8})/i);
+    return m && !owners.has(m[1]);
+  })
+  .sort((a,b) => b.mtime - a.mtime)
+  .slice(0, 5);
+for (const { f, mtime } of stale) {
+  const ageH = Math.floor((now - mtime) / 3600000);
+  const body = fs.readFileSync(path.join(dir,f),'utf8');
+  const resume = (body.match(/## RESUME\n([\s\S]*?)(?=\n## |\$)/) || [,''])[1].trim().split('\n')[0].slice(0,100);
+  if (resume && !/^\(?TODO|^placeholder|^stub/i.test(resume)) {
+    console.log('  ' + f + ' (' + ageH + 'h old) → ' + resume);
+  }
+}
+"
+```
+
+Surface results in §Report below as `fleet topics:` (active slots showing topic+iter), `fleet loops:` (slots in /loop with iter/target/age), and `pickup candidates:` (stale handoffs the operator could redirect this chat to). Use `--skip-fleet-context` to disable when running under high contention.
+
+**Composition note:** this step is read-only on every existing surface — no new state file, no new lock, no peer-claim conflict. All failures degrade gracefully (missing input = empty section, never blocks /checkin).
+
 ### 7. Report — print this boxed one-glance status
 ```
 ┌─ /checkin ─────────────────────────────────────────────
@@ -203,6 +248,9 @@ node H:/prism/scripts/ollama-docker-health.mjs --require ollama,qdrant  # exit 1
 │ tree:        <clean | dirty: N files>  ·  origin: <ahead A / behind B | offline>
 │ staged:      <empty | ⚠ N files staged — git reset HEAD>
 │ local_compute: <one-line from §6g — Ollama+Docker+Qdrant+Postgres+Prometheus>
+│ fleet topics:   <slot=topic, slot=topic, … — one line summary of who's working on what>
+│ fleet loops:    <slot iter/target (age), … — only slots currently in /loop>
+│ pickup cands:   <K> stale-but-actionable handoff(s)  [✓ none  |  → top: <file> "<RESUME excerpt>"]
 │ your slice:  <only if --roadmap given> <N> <roadmap> units in your lane — #1: <ms/unit — title>
 │ verdict:     ✅ CLEAR — go  |  ⚠ <one-line: what to resolve first>
 └────────────────────────────────────────────────────────
