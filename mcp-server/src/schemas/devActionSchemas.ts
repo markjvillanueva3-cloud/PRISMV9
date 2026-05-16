@@ -1030,4 +1030,26 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     command: z.string().min(1).optional().describe("A single bash command to classify"),
     commands: z.array(z.string().min(1)).optional().describe("A batch of bash commands to classify"),
   }).passthrough().describe("Classify bash command(s) → category, est. output tokens, token-efficient alternative"),
+
+  // ── WIRE-UNWIRED-MS0/U-WIRE03: SVIRankedBacklogEngine ────────────────────
+  // Rank backlog units by Ψ-delta / estimated hour. Pure engine — the caller
+  // supplies each unit's projection (a SVIImpactProjectorEngine ProjectionResult;
+  // only `psiDelta` is consumed here, so the rest is passthrough).
+  svi_ranked_backlog: z.object({
+    units: z.array(z.object({
+      id: z.string().min(1),
+      title: z.string(),
+      estimatedHours: z.number().positive(),
+      projection: z.object({ psiDelta: z.number() }).passthrough(),
+      status: z.enum(["pending", "in_progress", "blocked", "completed"]).optional(),
+      dependencies: z.array(z.string()).optional(),
+      tags: z.array(z.string()).optional(),
+    })).min(1).describe("Backlog units to rank (each needs estimatedHours > 0 and projection.psiDelta)"),
+    options: z.object({
+      respectDependencies: z.boolean().optional(),
+      excludeCompleted: z.boolean().optional(),
+      includeTags: z.array(z.string()).optional(),
+      limit: z.number().int().positive().optional(),
+    }).passthrough().optional().describe("Ranking options"),
+  }).passthrough().describe("Rank backlog units by Ψ-delta per estimated hour"),
 };

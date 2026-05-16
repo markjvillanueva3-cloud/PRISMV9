@@ -168,6 +168,8 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "dv_stats",
 // WIRE-UNWIRED-MS0: BashCommandClassifierEngine — truly-unwired backend dev-tool (2026-05-16).
 "bash_classify",
+// WIRE-UNWIRED-MS0/U-WIRE03: SVIRankedBacklogEngine — rank backlog by Ψ-delta/hour.
+"svi_ranked_backlog",
 // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-EDGE-CASE: wire EdgeCaseCaptureEngine
 // (Phase 0.25 Adaptive Variability — captures + learns from boundary operations,
 // drives envelope expansion via VariabilityEnvelopeEngine integration).
@@ -5339,6 +5341,34 @@ export function registerDevDispatcher(server: any): void {
               topCategories: report.topCategories,
               recommendations: report.recommendations,
             };
+            break;
+          }
+
+          // WIRE-UNWIRED-MS0/U-WIRE03: SVIRankedBacklogEngine — rank backlog units
+          // by Ψ-delta per estimated hour ("what should I do next?"). Pure engine;
+          // the caller supplies units (each with projection.psiDelta) + options.
+          case "svi_ranked_backlog": {
+            const { SVIRankedBacklogEngine } = await import("../../engines/SVIRankedBacklogEngine.js");
+            const p = params as Record<string, unknown>;
+            const units = p.units;
+            if (!Array.isArray(units) || units.length === 0) {
+              result = { error: "svi_ranked_backlog requires a non-empty 'units' array" };
+              break;
+            }
+            const engine = new SVIRankedBacklogEngine();
+            try {
+              const ranked = engine.rank(
+                units as Parameters<typeof engine.rank>[0],
+                (p.options ?? {}) as Parameters<typeof engine.rank>[1],
+              );
+              result = {
+                success: true,
+                ranked,
+                summary: engine.summary(ranked),
+              };
+            } catch (e: any) {
+              result = { error: `svi_ranked_backlog: ${e?.message ?? String(e)}` };
+            }
             break;
           }
 
