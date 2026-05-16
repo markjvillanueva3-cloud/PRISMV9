@@ -84,7 +84,7 @@ function contentHasFrontmatter(content) {
 // because portable node hooks can't import from .ts. Keep logic in lockstep:
 // any change here MUST also change the TS file (the test suite locks both).
 
-function classifyOntologyInline(filename, body) {
+export function classifyOntologyInline(filename, body) {
   const base = String(filename).toLowerCase().replace(/^.*[\\/]/, "");
   const b = String(body || "").toLowerCase();
   let kind = "fact";
@@ -108,7 +108,7 @@ function classifyOntologyInline(filename, body) {
   return { kind, state, visibility };
 }
 
-function formatOntologyInline(ont) {
+export function formatOntologyInline(ont) {
   return [
     "ontology:",
     `  schemaVersion: 1.0.0`,
@@ -118,7 +118,7 @@ function formatOntologyInline(ont) {
   ].join("\n");
 }
 
-function hasOntologyBlock(content) {
+export function hasOntologyBlock(content) {
   if (typeof content !== "string") return false;
   const t = content.replace(/^﻿/, "");
   if (!/^---\s*\n/.test(t)) return false;
@@ -135,7 +135,7 @@ function hasOntologyBlock(content) {
 // State-machine merge — mirrors mergeIntoExistingFrontmatter in the schema.
 // Splices out any existing `ontology:` block (between its line and the next
 // top-level key) then injects `ontBlock` before the closing `---`.
-function mergeOntologyInline(content, ontBlock) {
+export function mergeOntologyInline(content, ontBlock) {
   const hasBom = content.startsWith("﻿");
   const body = hasBom ? content.slice(1) : content;
   if (!/^---\s*\n/.test(body)) {
@@ -406,8 +406,17 @@ async function main() {
     } else {
       const inferred = classifyOntologyInline(filename, content);
       const ontBlock = formatOntologyInline(inferred);
+      const beforeMerge = contentToWrite;
       contentToWrite = mergeOntologyInline(contentToWrite, ontBlock);
-      ontologyNote = ` +ont(${inferred.kind}/${inferred.state}/${inferred.visibility})`;
+      // mergeOntologyInline silently returns input unchanged on unterminated
+      // frontmatter (so the hook never corrupts a malformed memo). Detect
+      // that short-circuit by checking content equality and emit an honest
+      // ont-skip note instead of a false-positive +ont audit (3-of-3 Arm B).
+      if (contentToWrite === beforeMerge && !hasOntologyBlock(contentToWrite)) {
+        ontologyNote = ` (ont-skip:unterminated-frontmatter)`;
+      } else {
+        ontologyNote = ` +ont(${inferred.kind}/${inferred.state}/${inferred.visibility})`;
+      }
     }
   } catch (e) {
     ontologyNote = ` (ont-error:${e?.message ?? "unknown"})`;
@@ -430,8 +439,18 @@ async function main() {
   }));
 }
 
-main().catch((e) => {
-  // Never block — log to stderr, return continue:true
-  process.stderr.write(`memory-mirror error: ${e?.message ?? e}\n`);
-  console.log(JSON.stringify({ continue: true }));
-});
+// Gate main() to direct-CLI invocation only, so the parity test (and any
+// other importer of the exported inline helpers) doesn't trigger the
+// hook's stdin-reading side effect.
+const _isCli =
+  import.meta.url.startsWith("file:") &&
+  process.argv[1] &&
+  import.meta.url ===
+    new URL(process.argv[1].replace(/\\/g, "/"), "file:").href;
+if (_isCli) {
+  main().catch((e) => {
+    // Never block — log to stderr, return continue:true
+    process.stderr.write(`memory-mirror error: ${e?.message ?? e}\n`);
+    console.log(JSON.stringify({ continue: true }));
+  });
+}

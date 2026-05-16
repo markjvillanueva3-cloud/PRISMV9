@@ -1,3 +1,10 @@
+// WIRE-EXEMPT: this engine's canonical write-time consumer is the portable-node
+// memory-mirror-to-vault.mjs hook (which CANNOT import .ts and so re-implements
+// the schema's pure helpers inline in lockstep; KEEP-IN-SYNC contract). The
+// engine is consumed directly by scripts/backfill-memory-provenance.mjs (via
+// tsx) and by the 67-case vitest suite. A future `prism_memory:ontology_*`
+// dispatcher action set is the natural follow-up; deferred until D2 graduates
+// from soft-launch (no env gate) to strict-mode enforcement.
 /**
  * MemoryOntologyEngine.ts — ontology validator + classifier for the vault.
  *

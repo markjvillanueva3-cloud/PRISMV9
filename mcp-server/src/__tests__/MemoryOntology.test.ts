@@ -680,7 +680,7 @@ describe("D1-only memo backward compatibility", () => {
     expect(extractProvenanceFromFrontmatter(memo)).toBe(null);
   });
 
-  it("classifyFromFilename(name, provenanceBlock) does NOT flip state/visibility — backfill order-safety", () => {
+  it("classifyFromFilename(name, provenanceBlock) does NOT flip state/visibility — backfill order-safety (3-of-3 Arm B P1)", () => {
     // Regression for the backfill Arm B P1-3 concern: backfill injects
     // provenance THEN runs classifyFromFilename on the now-enriched body.
     // The provenance block emits keys like `agent:`, `sessionId:`, `writeEvent:`,
@@ -691,5 +691,130 @@ describe("D1-only memo backward compatibility", () => {
     expect(result.kind).toBe("fact");
     expect(result.state).toBe("current");
     expect(result.visibility).toBe("internal");
+  });
+});
+
+// ════════════════════════════════════════════════════════════════════
+// KEEP-IN-SYNC parity: .mjs hook inline helpers vs .ts schema helpers
+// 3-of-3 Arm B + Arm C blocker — locks the duplicated-implementation
+// contract documented at .claude/hooks/memory-mirror-to-vault.mjs L78-81.
+// ════════════════════════════════════════════════════════════════════
+
+import {
+  classifyOntologyInline as hookClassify,
+  formatOntologyInline as hookFormat,
+  hasOntologyBlock as hookHas,
+  mergeOntologyInline as hookMerge,
+  // @ts-expect-error — the .mjs file has no .d.ts; runtime export is real
+} from "../../../.claude/hooks/memory-mirror-to-vault.mjs";
+
+describe("KEEP-IN-SYNC parity: .mjs hook inline vs .ts schema (3-of-3 Arm B+C blocker)", () => {
+  const FILENAME_FIXTURES = [
+    "reference_thing.md",
+    "feedback_thing.md",
+    "incident_postmortem.md",
+    "draft_proposal.md",
+    "draftsman_log.md",
+    "incidental_note.md",
+    "not_deprecated.md",
+    "deprecated_legacy.md",
+    "private_helper.md",
+    "secret_info.md",
+    "confidential.md",
+    "uncategorized.md",
+  ];
+
+  it("hookClassify produces same kind/state/visibility as schema classifyFromFilename across 12 filename fixtures", () => {
+    for (const name of FILENAME_FIXTURES) {
+      const hookResult = hookClassify(name, "");
+      const schemaResult = classifyFromFilename(name, "");
+      expect(hookResult.kind).toBe(schemaResult.kind);
+      expect(hookResult.state).toBe(schemaResult.state);
+      expect(hookResult.visibility).toBe(schemaResult.visibility);
+    }
+  });
+
+  it("hookClassify body-side regex parity — status:deprecated + status:draft + visibility:confidential", () => {
+    const fixtures = [
+      ["plain.md", "# title\n\nplain body"],
+      ["plain.md", "---\nstatus: deprecated\n---\nbody"],
+      ["plain.md", "---\nstatus: draft\n---\nbody"],
+      ["plain.md", "---\nvisibility: confidential\n---\nbody"],
+      ["plain.md", "# narrative [deprecated] mention only"],
+    ];
+    for (const [name, body] of fixtures) {
+      const h = hookClassify(name, body);
+      const s = classifyFromFilename(name, body);
+      expect(h.state).toBe(s.state);
+      expect(h.visibility).toBe(s.visibility);
+      expect(h.kind).toBe(s.kind);
+    }
+  });
+
+  it("hookHas matches schema extractOntologyFromFrontmatter null-vs-not-null across 6 fixtures", () => {
+    const fixtures = [
+      "# bare body, no frontmatter",
+      "---\ntitle: hello\n---\nbody",
+      "---\nontology:\n  kind: fact\n  state: current\n  visibility: internal\n---\nbody",
+      "---\nprovenance:\n  agent: claude-12345678\n---\nbody",
+      "---\nprovenance:\n  agent: claude-12345678\nontology:\n  kind: fact\n  state: current\n  visibility: internal\n---\nbody",
+      "﻿---\nontology:\n  kind: fact\n  state: current\n  visibility: internal\n---\nbody",
+    ];
+    for (const content of fixtures) {
+      const hookSays = hookHas(content);
+      // Schema returns object (truthy) or null. Coerce to boolean for parity.
+      let schemaSays: boolean;
+      try {
+        schemaSays = extractOntologyFromFrontmatter(content) !== null;
+      } catch {
+        // If schema throws on a fixture, hookHas must STILL be a real boolean
+        // (the hook doesn't throw on detection; it only throws on merge/parse).
+        schemaSays = false;
+      }
+      expect(hookSays).toBe(schemaSays);
+    }
+  });
+
+  it("hookFormat emits a 5-line block matching the schema's first 5 emitted lines", () => {
+    const ont = { kind: "interpretation" as const, state: "draft" as const, visibility: "public" as const };
+    const hookOut = hookFormat(ont);
+    // Hook emits: ontology:\n  schemaVersion: 1.0.0\n  kind: ...\n  state: ...\n  visibility: ...
+    const expectedLines = [
+      "ontology:",
+      "  schemaVersion: 1.0.0",
+      "  kind: interpretation",
+      "  state: draft",
+      "  visibility: public",
+    ];
+    expect(hookOut).toBe(expectedLines.join("\n"));
+  });
+
+  it("hookMerge into bare body produces same result as schema mergeIntoExistingFrontmatter for minimal ontology", () => {
+    const minimal = { kind: "fact" as const, state: "current" as const, visibility: "internal" as const };
+    const ontBlock = hookFormat(minimal);
+    const hookOut = hookMerge("# bare body\n", ontBlock);
+    const schemaOut = mergeIntoExistingFrontmatter(
+      "# bare body\n",
+      MemoryOntologySchema.parse(minimal),
+    );
+    // Both should produce equivalent frontmatter + same body. The schema adds
+    // schemaVersion in its KEY_ORDER iteration so both emissions match.
+    expect(hookOut.startsWith("---\nontology:\n")).toBe(true);
+    expect(schemaOut.startsWith("---\nontology:\n")).toBe(true);
+    expect(hookOut.endsWith("# bare body\n")).toBe(true);
+    expect(schemaOut.endsWith("# bare body\n")).toBe(true);
+    // Re-extract both — they MUST round-trip to the same ontology.
+    const hookExtract = extractOntologyFromFrontmatter(hookOut);
+    const schemaExtract = extractOntologyFromFrontmatter(schemaOut);
+    expect(hookExtract?.kind).toBe(schemaExtract?.kind);
+    expect(hookExtract?.state).toBe(schemaExtract?.state);
+    expect(hookExtract?.visibility).toBe(schemaExtract?.visibility);
+  });
+
+  it("hookMerge on unterminated frontmatter returns INPUT unchanged (silent bail; corrupted memo preserved)", () => {
+    const broken = "---\nfoo: bar\nno closing fence";
+    const ontBlock = hookFormat({ kind: "fact", state: "current", visibility: "internal" });
+    const result = hookMerge(broken, ontBlock);
+    expect(result).toBe(broken);
   });
 });
