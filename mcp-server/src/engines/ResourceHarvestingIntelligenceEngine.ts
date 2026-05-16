@@ -1875,11 +1875,14 @@ export class ResourceHarvestingIntelligenceEngine {
       totalPages: number;
       domains: number;
     };
-    mitCourses: ReturnType<typeof this.getMITCourseIntegrationInfo>;
-    tribalKnowledge: ReturnType<typeof this.getTribalKnowledgeIntegrationInfo>;
-    videoLearning: ReturnType<typeof this.getVideoLearningIntegrationInfo>;
-    documentLearning: ReturnType<typeof this.getDocumentLearningIntegrationInfo>;
-    aiAgent: ReturnType<typeof this.getAIAgentIntegrationInfo>;
+    // `ReturnType<typeof this.X>` doesn't type-check in a class type position
+    // (TS treats `this` as implicit any here). Use the indexed-access form
+    // `Class["method"]` then ReturnType — same semantics, type-safe.
+    mitCourses: ReturnType<ResourceHarvestingIntelligenceEngine["getMITCourseIntegrationInfo"]>;
+    tribalKnowledge: ReturnType<ResourceHarvestingIntelligenceEngine["getTribalKnowledgeIntegrationInfo"]>;
+    videoLearning: ReturnType<ResourceHarvestingIntelligenceEngine["getVideoLearningIntegrationInfo"]>;
+    documentLearning: ReturnType<ResourceHarvestingIntelligenceEngine["getDocumentLearningIntegrationInfo"]>;
+    aiAgent: ReturnType<ResourceHarvestingIntelligenceEngine["getAIAgentIntegrationInfo"]>;
     totalKnowledgeSources: number;
     readyForHarvesting: boolean;
   } {
