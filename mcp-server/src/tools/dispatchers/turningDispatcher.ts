@@ -204,6 +204,10 @@ const ACTIONS = [
   "lathe_workholding_expanding_mandrel",    // calculateExpandingMandrel — Lame thick-wall grip
   "lathe_workholding_magnetic_chuck",       // calculateMagneticChuck — ferrous-only holding force
   "lathe_workholding_stock_form",           // stockFormRecommendation — jaw + G71/G72/G73 selection
+
+  // WIRE-UNWIRED-MS0/U-WIRE-LSO: LatheSequenceOptimizerEngine (LATHE-PRO-MS3/U-LPS02)
+  "lathe_sequence_optimize",                // optimize — multi-criteria operation sequencing w/ hard constraints
+  "lathe_sequence_validate",                // validateSequence — return hard-constraint violation list
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1347,6 +1351,43 @@ Actions: ${ACTIONS.join(", ")}.`,
                   (params as any).grip_diameter_mm,
                   (params as any).wall_thickness_mm,
                 );
+                break;
+            }
+            result = { success: true, data };
+            break;
+          }
+
+          // WIRE-UNWIRED-MS0/U-WIRE-LSO: LatheSequenceOptimizerEngine — 2 surfaces
+          // Hard constraints (face first / part-off last / center-drill before
+          // drill / rough before finish / thread after OD-finish / G97 for
+          // drill+tap+ream) are non-overridable; soft objectives are
+          // multi-criteria weighted (cycle-time, tool-life, tool-changes,
+          // thermal). The result's spindle_modes Map is serialized to a plain
+          // object so it survives the JSON wire boundary.
+          // Reference: Peter Smid CNC Programming Handbook Ch. 2,
+          // Machinery's Handbook 31st Ed. Process Planning.
+          case "lathe_sequence_optimize":
+          case "lathe_sequence_validate": {
+            const { latheSequenceOptimizerEngine } = await import("../../engines/LatheSequenceOptimizerEngine.js");
+            let data: unknown;
+            switch (action) {
+              case "lathe_sequence_optimize": {
+                const r = latheSequenceOptimizerEngine.optimize(
+                  (params as any).operations,
+                  (params as any).constraints ?? {},
+                );
+                // Map → object so MCP JSON wire keeps the spindle-mode mapping.
+                const spindle_modes: Record<string, string> = {};
+                for (const [k, v] of r.spindle_modes) spindle_modes[k] = v;
+                data = { ...r, spindle_modes };
+                break;
+              }
+              case "lathe_sequence_validate":
+                data = {
+                  violations: latheSequenceOptimizerEngine.validateSequence(
+                    (params as any).operations,
+                  ),
+                };
                 break;
             }
             result = { success: true, data };

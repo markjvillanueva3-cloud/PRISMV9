@@ -762,6 +762,67 @@ const lathe_workholding_stock_form = z.object({
   "Stock-form workholding + roughing-cycle recommendation (LatheWorkholdingEngine.stockFormRecommendation). Returns jaw type + G71/G72/G73 cycle + clamping notes.",
 );
 
+// ============================================================================
+// WIRE-UNWIRED-MS0/U-WIRE-LSO — LatheSequenceOptimizerEngine (LATHE-PRO-MS3/U-LPS02)
+// Multi-criteria operation sequencing for turned parts. Hard constraints
+// (face first, part-off last, center-drill→drill→ream→tap, rough→finish,
+// thread-after-OD-finish, G97 for drill/tap/ream) are non-overridable. Soft
+// objectives are weighted [0..1]: cycle time, tool life, tool changes,
+// thermal drift. Reference: Peter Smid, CNC Programming Handbook Ch. 2.
+// ============================================================================
+
+/** Closed enum of supported turning operation types (mirrors engine's OperationType). */
+const _seqOpType = z.enum([
+  "face", "center_drill", "rough_od", "finish_od", "rough_bore", "finish_bore",
+  "drill", "ream", "tap", "thread_od", "thread_id",
+  "groove_od", "groove_id", "groove_face", "part_off",
+  "chamfer", "knurl", "polish", "g73_rough", "keyway",
+  "profile_od", "profile_bore",
+]);
+
+const _seqOperation = z.object({
+  id: z.string().min(1).describe("Operation identifier (unique within the sequence)."),
+  type: _seqOpType.describe("Turning operation type — drives priority tier + spindle mode."),
+  feature_id: z.string().optional().describe("Optional feature this operation acts on (for rough/finish pairing)."),
+  tool_number: z.number().int().nonnegative().optional().describe("Tool number for change-minimization grouping."),
+  estimated_time_sec: z.number().nonnegative().optional().describe("Estimated cycle time in seconds (for cycle-time score)."),
+  is_roughing: z.boolean().optional().describe("Mark roughing op for thermal sequencing (auto-detected from type if omitted)."),
+  is_finishing: z.boolean().optional().describe("Mark finishing op for thermal sequencing (auto-detected from type if omitted)."),
+  tolerance_mm: z.number().positive().optional().describe("Required tolerance in mm — sub-threshold values force thermal sequencing."),
+  tool_group: z.string().optional().describe("Tool group for change-minimization when tool_number is shared/missing."),
+}).passthrough();
+
+const _seqConstraints = z.object({
+  thermal_tolerance_threshold_mm: z.number().positive().optional()
+    .describe("Tolerance below which thermal rough→cool→finish sequencing fires (default 0.05mm)."),
+  force_thermal_sequencing: z.boolean().optional()
+    .describe("Force thermal sequencing even on loose-tolerance parts."),
+  weight_cycle_time: z.number().min(0).max(1).optional()
+    .describe("Cycle-time minimization weight 0..1 (default 0.3)."),
+  weight_tool_life: z.number().min(0).max(1).optional()
+    .describe("Tool-life maximization weight 0..1 (default 0.2)."),
+  weight_tool_changes: z.number().min(0).max(1).optional()
+    .describe("Tool-change minimization weight 0..1 (default 0.3)."),
+  weight_thermal: z.number().min(0).max(1).optional()
+    .describe("Thermal-drift minimization weight 0..1 (default 0.2)."),
+}).passthrough();
+
+const lathe_sequence_optimize = z.object({
+  operations: z.array(_seqOperation).min(1)
+    .describe("Unordered operations to sequence (at least one)."),
+  constraints: _seqConstraints.optional()
+    .describe("Optional soft-objective weights + thermal thresholds."),
+}).passthrough().describe(
+  "Optimize turning operation sequence (LatheSequenceOptimizerEngine.optimize). Returns sorted operations[], spindle_modes per op (G96 vs G97), tool_changes count, thermal_sequencing_active flag, constraint_violations[], optimization_score in [0..1], and reasoning[].",
+);
+
+const lathe_sequence_validate = z.object({
+  operations: z.array(_seqOperation).min(1)
+    .describe("Already-ordered operations to validate against hard constraints."),
+}).passthrough().describe(
+  "Validate a turning sequence against hard constraints (LatheSequenceOptimizerEngine.validateSequence). Returns { violations: string[] } — empty array means the sequence respects every hard rule.",
+);
+
 export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   chuck_force,
   tailstock,
@@ -890,4 +951,8 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   lathe_workholding_expanding_mandrel,
   lathe_workholding_magnetic_chuck,
   lathe_workholding_stock_form,
+
+  // WIRE-UNWIRED-MS0/U-WIRE-LSO: LatheSequenceOptimizerEngine — 2 surfaces
+  lathe_sequence_optimize,
+  lathe_sequence_validate,
 };
