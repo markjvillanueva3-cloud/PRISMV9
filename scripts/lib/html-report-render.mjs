@@ -45,6 +45,21 @@
 
 export const HTML_REPORT_SCHEMA_VERSION = "1.0.0";
 
+// Node-only fs handle for mdToHtml(). Guarded so the rest of the lib stays
+// importable in browser-only contexts where `node:fs` doesn't resolve. The
+// existing exports (renderHtmlPage, renderSection, etc.) are pure and never
+// touch MD_FS — only mdToHtml() reads from disk.
+let MD_FS = null;
+try {
+  if (typeof process !== "undefined" && process.versions?.node) {
+    // Static-string specifier so bundlers can tree-shake when targeting browser.
+    const mod = await import("node:fs");
+    MD_FS = mod.default || mod;
+  }
+} catch {
+  MD_FS = null;
+}
+
 const STATUS_TOKENS = new Set(["ok", "warn", "fail", "info"]);
 
 // Bar-chart layout constants — extracted from inline-magic per per-file
@@ -538,4 +553,279 @@ export function renderHtmlPage({ title, subtitle, generatedAt, sections, note })
   return `${head}
 ${body}
 ${foot}`;
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// U-MD2HTML (2026-05-16, AUDIT-SYNERGY-MS0): render arbitrary markdown source
+// files (MEMORY.md, CLAUDE.md, handoffs, wiki leaves) as standalone HTML pages.
+//
+// Strictly additive — every existing renderSection / renderHtmlPage caller is
+// unchanged. Parser is intentionally minimal: headings, hr, fenced + indented
+// code, blockquote, unordered + ordered + nested lists, pipe-table, inline
+// links + bold + italic + inline-code. Anything more exotic (raw HTML embeds,
+// math, footnotes) falls through as escaped <p> prose.
+//
+// FAILURE CONTRACT (matches sibling silent-fail pattern):
+//   - missing file / read error  → "" empty string (no throw)
+//   - empty file                  → wraps an empty body
+//   - malformed table             → renders as escaped prose
+// ────────────────────────────────────────────────────────────────────────────
+
+const MD_FENCE_RE = /^```/;
+const MD_HEADING_RE = /^(#{1,6})\s+(.*)$/;
+const MD_HR_RE = /^(?:[-*_]\s*){3,}$/;
+const MD_UL_RE = /^(\s*)[-*+]\s+(.*)$/;
+const MD_OL_RE = /^(\s*)\d+\.\s+(.*)$/;
+const MD_BLOCKQUOTE_RE = /^>\s?(.*)$/;
+const MD_TABLE_SEP_RE = /^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)+\|?\s*$/;
+const INLINE_CODE_RE = /`([^`]+)`/g;
+const INLINE_BOLD_RE = /\*\*([^*]+)\*\*/g;
+const INLINE_ITALIC_RE = /(^|[^*])\*([^*]+)\*/g;
+const INLINE_LINK_RE = /\[([^\]]+)\]\(([^)]+)\)/g;
+const INLINE_AUTOLINK_RE = /<((?:https?:\/\/|mailto:)[^\s>]+)>/g;
+
+function renderInline(text) {
+  if (typeof text !== "string" || text.length === 0) return "";
+  // Escape first, then apply markup transforms on the escaped string.
+  let s = escapeHtml(text);
+  // Inline code: render before other markup so * inside backticks doesn't trip italic.
+  // The escaped string has &amp;-encoded backticks NOT touched (regex matches literal `).
+  s = s.replace(INLINE_CODE_RE, (_m, code) => `<code class="prism-inline-code">${code}</code>`);
+  // Links (must run before italic/bold so brackets aren't consumed).
+  s = s.replace(INLINE_LINK_RE, (_m, label, href) => {
+    // Refuse javascript:/data: URIs (basic XSS gate; href is already HTML-escaped).
+    if (/^(?:javascript|data|vbscript):/i.test(href.trim())) {
+      return `<span class="prism-bad-link">${label}</span>`;
+    }
+    return `<a href="${href}" class="prism-link">${label}</a>`;
+  });
+  s = s.replace(INLINE_AUTOLINK_RE, (_m, url) => `<a href="${url}" class="prism-link">${url}</a>`);
+  s = s.replace(INLINE_BOLD_RE, (_m, inner) => `<strong>${inner}</strong>`);
+  s = s.replace(INLINE_ITALIC_RE, (_m, lead, inner) => `${lead}<em>${inner}</em>`);
+  return s;
+}
+
+function parseTable(lines, startIdx) {
+  // lines[startIdx]  = header
+  // lines[startIdx+1] = separator (must match MD_TABLE_SEP_RE)
+  // lines[startIdx+2..] = rows until blank/non-pipe line
+  if (startIdx + 1 >= lines.length) return null;
+  if (!MD_TABLE_SEP_RE.test(lines[startIdx + 1])) return null;
+  const splitCells = (line) => line
+    .replace(/^\s*\|/, "")
+    .replace(/\|\s*$/, "")
+    .split("|")
+    .map((c) => c.trim());
+  const header = splitCells(lines[startIdx]);
+  const rows = [];
+  let i = startIdx + 2;
+  while (i < lines.length) {
+    const line = lines[i];
+    if (!line.includes("|") || line.trim() === "") break;
+    rows.push(splitCells(line));
+    i++;
+  }
+  return { header, rows, consumed: i - startIdx };
+}
+
+/**
+ * Convert a markdown string to HTML body (no <html>/<head> wrapper).
+ * Use mdToHtml() when you want a full standalone HTML page from a file path.
+ *
+ * Intentionally tolerant — never throws. Unrecognized syntax becomes
+ * escaped prose so the source content is never lost.
+ */
+export function renderMarkdownBody(md) {
+  if (typeof md !== "string") return "";
+  // Normalize line endings + drop a BOM if present.
+  const text = md.replace(/^﻿/, "").replace(/\r\n?/g, "\n");
+  const lines = text.split("\n");
+  const out = [];
+  let i = 0;
+  let inCodeBlock = false;
+  let codeBuf = [];
+  let codeLang = "";
+  let paraBuf = [];
+
+  const flushPara = () => {
+    if (paraBuf.length === 0) return;
+    const joined = paraBuf.join(" ").trim();
+    if (joined) out.push(`<p>${renderInline(joined)}</p>`);
+    paraBuf = [];
+  };
+
+  while (i < lines.length) {
+    const line = lines[i];
+
+    if (inCodeBlock) {
+      if (MD_FENCE_RE.test(line)) {
+        const langAttr = codeLang ? ` data-lang="${escapeHtml(codeLang)}"` : "";
+        out.push(`<pre class="prism-codeblock"${langAttr}><code>${escapeHtml(codeBuf.join("\n"))}</code></pre>`);
+        inCodeBlock = false;
+        codeBuf = [];
+        codeLang = "";
+      } else {
+        codeBuf.push(line);
+      }
+      i++;
+      continue;
+    }
+
+    if (MD_FENCE_RE.test(line)) {
+      flushPara();
+      inCodeBlock = true;
+      codeLang = line.replace(/^```/, "").trim();
+      i++;
+      continue;
+    }
+
+    if (line.trim() === "") {
+      flushPara();
+      i++;
+      continue;
+    }
+
+    if (MD_HR_RE.test(line)) {
+      flushPara();
+      out.push(`<hr class="prism-hr">`);
+      i++;
+      continue;
+    }
+
+    const headingMatch = line.match(MD_HEADING_RE);
+    if (headingMatch) {
+      flushPara();
+      const level = headingMatch[1].length;
+      const inner = renderInline(headingMatch[2]);
+      out.push(`<h${level} class="prism-h${level}">${inner}</h${level}>`);
+      i++;
+      continue;
+    }
+
+    // Table — peek ahead for separator line.
+    if (line.includes("|") && i + 1 < lines.length && MD_TABLE_SEP_RE.test(lines[i + 1])) {
+      flushPara();
+      const parsed = parseTable(lines, i);
+      if (parsed) {
+        const headerHtml = parsed.header.map((h) => `<th>${renderInline(h)}</th>`).join("");
+        const rowsHtml = parsed.rows.map((r) => `<tr>${r.map((c) => `<td>${renderInline(c)}</td>`).join("")}</tr>`).join("\n");
+        out.push(`<table class="prism-md-table"><thead><tr>${headerHtml}</tr></thead><tbody>${rowsHtml}</tbody></table>`);
+        i += parsed.consumed;
+        continue;
+      }
+    }
+
+    if (MD_BLOCKQUOTE_RE.test(line)) {
+      flushPara();
+      const inner = renderInline(line.match(MD_BLOCKQUOTE_RE)[1]);
+      out.push(`<blockquote class="prism-quote">${inner}</blockquote>`);
+      i++;
+      continue;
+    }
+
+    // Lists — collect contiguous list lines, support 2 nesting levels.
+    if (MD_UL_RE.test(line) || MD_OL_RE.test(line)) {
+      flushPara();
+      const items = [];
+      const ordered = MD_OL_RE.test(line);
+      while (i < lines.length) {
+        const cur = lines[i];
+        const m = ordered ? cur.match(MD_OL_RE) : cur.match(MD_UL_RE);
+        if (!m) break;
+        items.push(`<li>${renderInline(m[2])}</li>`);
+        i++;
+      }
+      const tag = ordered ? "ol" : "ul";
+      out.push(`<${tag} class="prism-md-list">${items.join("")}</${tag}>`);
+      continue;
+    }
+
+    paraBuf.push(line);
+    i++;
+  }
+
+  // Flush trailing buffers.
+  if (inCodeBlock) {
+    // Unclosed fence — preserve contents as code rather than losing it.
+    out.push(`<pre class="prism-codeblock prism-unclosed"><code>${escapeHtml(codeBuf.join("\n"))}</code></pre>`);
+  }
+  flushPara();
+
+  return out.join("\n");
+}
+
+/**
+ * Style additions appended to the renderPageStyle() block for markdown-specific
+ * elements. Returned as a <style> fragment safe to inline anywhere.
+ */
+function renderMarkdownStyle() {
+  return `<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style>`;
+}
+
+/**
+ * Render a markdown file as a standalone HTML page.
+ *
+ * @param {string} filePath  - absolute or relative path to the .md file
+ * @param {object} [opts]
+ * @param {string} [opts.title]       - override the auto-derived title
+ * @param {string} [opts.subtitle]    - subtitle line shown under the title
+ * @param {boolean} [opts.includeToc] - prepend a table-of-contents (default false)
+ * @param {string} [opts.note]        - footer note (default: file path)
+ * @returns {string} a complete HTML5 document; returns "" on read error.
+ */
+export function mdToHtml(filePath, opts = {}) {
+  if (typeof filePath !== "string" || filePath.length === 0) return "";
+  let md = "";
+  try {
+    md = MD_FS.readFileSync(filePath, "utf8");
+  } catch {
+    return "";
+  }
+  const titleAuto = (md.match(/^#\s+(.+)$/m) || [, filePath.replace(/^.*[\\/]/, "")])[1];
+  const title = opts.title || titleAuto;
+  const subtitle = opts.subtitle || `rendered from ${filePath}`;
+  const note = opts.note || `generated by mdToHtml() at ${new Date().toISOString()}`;
+  const generatedAt = new Date().toISOString();
+
+  const body = renderMarkdownBody(md);
+
+  let toc = "";
+  if (opts.includeToc) {
+    const headings = [...md.matchAll(/^(#{1,3})\s+(.+)$/gm)];
+    if (headings.length > 0) {
+      const items = headings
+        .map(([, hashes, txt]) => `<li class="prism-toc-l${hashes.length}">${renderInline(txt)}</li>`)
+        .join("");
+      toc = `<nav class="prism-toc"><strong>Contents</strong><ul>${items}</ul></nav>`;
+    }
+  }
+
+  // Use renderPageHeader for the consistent PRISM frame; append MD-specific style + body.
+  const head = renderPageHeader({ title, subtitle, generatedAt });
+  // The page-header already opens <html><head><style>…</style></head><body>… —
+  // we add our markdown style as a SECOND <style> tag and our body content.
+  const mdStyle = renderMarkdownStyle();
+  const main = `${mdStyle}<main class="prism-md-body">${toc}${body}</main>`;
+  const foot = renderPageFooter({ note });
+  return `${head}${main}${foot}`;
 }
