@@ -9,7 +9,7 @@
   "track_name": "Obsidian-Intelligence Layer (compound architecture)",
   "status": "in_progress",
   "in_progress_since": "2026-05-15T19:33:00.000Z",
-  "completed_units": 4,
+  "completed_units": 5,
   "partial_ship_units": 1,
   "total_units": 24,
   "first_unit_partial_shipped": "A1 (U-DOCKER-HOOK-BROKER) — 5 artifacts + 15 tests; live-Docker burn-in pending engine restore",
@@ -652,7 +652,56 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "Remove enrichment from mirror script; existing provenance stays as inert frontmatter"
+          "rollback": "Remove enrichment from mirror script; existing provenance stays as inert frontmatter",
+          "status": "completed",
+          "completed_at": "2026-05-16T01:36:00.000Z",
+          "owner": "claude-c0f06dee slot charlie",
+          "ship_record": {
+            "shipped_at": "2026-05-16T01:36:00.000Z",
+            "artifacts": [
+              "mcp-server/src/schemas/memoryProvenanceSchema.ts (~290 LOC, 10 exports — Zod v4 schema + AgentIdSchema/SessionIdSchema/WriteEventSchema/ParentMemorySchema/VaultCategorySchema/MemoryProvenanceSchema + formatProvenanceFrontmatter/extractProvenanceFromFrontmatter/buildProvenanceFromHookInput pure helpers, .strict() top-level, .describe() on every field)",
+              ".claude/hooks/memory-mirror-to-vault.mjs (MODIFIED — inlined yamlScalarInline+formatProvenanceInline+contentHasFrontmatter; provenance block prepended to memos lacking existing frontmatter; smoke-tested produces +prov(claude-c0f06dee) → vault with all 7 fields)",
+              "scripts/backfill-memory-provenance.mjs (~390 LOC, 5 exported pure helpers + CLI main — categorizeByPrefix/deriveAgentFromGitLog/buildProvenanceForFile/injectProvenanceFrontmatter/walkMemoryVault; --dry-run/--check/--root/--limit/--verbose; idempotent + atomic write + lstat symlink rejection + BOM preservation + Zod-failure stderr with snippet)",
+              "mcp-server/src/__tests__/MemoryProvenance.test.ts (100 vitest cases — 100/100 PASS in 27ms; covers 15 exports, 5-fixture envelope exit condition split into named tests, missing-field rejection, end-to-end backfill round-trip + idempotency check)"
+            ],
+            "exit_conditions_met": [
+              "Frontmatter validates via Zod schema {agent, sessionId, writeEvent, parentMemory?} (MemoryProvenanceSchema.strict() with .describe() on every field per H:/.claude/rules/schemas.md)",
+              "memory-mirror-to-vault.mjs auto-enriches on write (smoke-test verified: input session_id c0f06deed6f24070 → vault file prepended with --- provenance: --- block carrying agent=claude-c0f06dee, sessionId=c0f06deed6f24070, writeEvent=Write, writtenAt=ISO, category=feedback, sourceTool=memory-mirror-to-vault, machine=DESKTOP-N7MI1VB)",
+              "Migration: backfill helper walks vault, lstat-rejects symlinks, derives agent from git log + 8-char session id slice, falls back to backfill-00000000 when git author is human; merges into existing frontmatter (verified against real memos with metadata: blocks)",
+              "Test: 5 fixture writes (claude/agent/codex/backfill/manual family prefixes × 5 categories) round-trip through format → extract → schema parse; missing required fields (agent, sessionId, writeEvent) rejected (3 separate .toThrow() tests)"
+            ],
+            "per_file_scrutiny": {
+              "schema": {
+                "armA_code_analyzer": "PASS",
+                "armB_reviewer": "FAIL_false_positive",
+                "notes": "Arm B P0 claim was a misread — extractProvenanceFromFrontmatter DOES end with MemoryProvenanceSchema.parse(obj), verified by passing test case throws on malformed agent. P1 fixes applied: tightened ISO timestamp regex with full-form anchor + Date.parse refine; tightened indent regex from s{2,} to exactly two spaces."
+              },
+              "backfill": {
+                "armA_code_analyzer": "PASS_with_3_P1",
+                "armB_reviewer": "PASS_with_2_P1",
+                "P1_fixes_applied": [
+                  "Arm A P1-1 symlink protection: walkMemoryVault now uses lstatSync + st.isSymbolicLink() skip",
+                  "Arm B P1-1 BOM preservation: injectProvenanceFrontmatter detects BOM, strips for normalization, re-prepends to output",
+                  "Arm B P1-2 error context: stderr now includes first-200-char snippet of bad frontmatter for operator actionability"
+                ],
+                "P1_deferred": [
+                  "--root path-traversal validation (low-risk for one-shot script with explicit --root arg)",
+                  "--limit semantic clarification (cosmetic)"
+                ]
+              },
+              "hook": {
+                "armA_reviewer": "PASS",
+                "armB_code_analyzer": "PASS",
+                "notes": "No P0/P1 findings. P2 deferred: CRLF mixing cosmetic, agent regex case normalization."
+              },
+              "test": {
+                "armA_test_review": "PASS",
+                "armB_reviewer": "PASS",
+                "notes": "100% real-value assertion coverage. P2 deferred: tighten .toThrow() with regex/class."
+              }
+            },
+            "scrutiny_note": "8 parallel agents dispatched (2 per file × 4 files). 7 PASS, 1 FAIL false-positive (verified against passing test). All legitimate P1s fixed in-session; 100/100 vitest cases re-verified PASS after fixes."
+          }
         },
         {
           "id": "D2",

@@ -27,6 +27,57 @@
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { dirname, join, basename } from "node:path";
+import { hostname } from "node:os";
+
+// ─── Provenance frontmatter (D1 — OBSIDIAN-INTELLIGENCE-MS3) ──────────
+//
+// Inlined here (not imported) because the harness invokes hooks via portable
+// node WITHOUT --experimental-strip-types, so loading the TypeScript schema
+// at mcp-server/src/schemas/memoryProvenanceSchema.ts would always fail. The
+// canonical schema + Zod validation lives in that .ts file; this hook
+// implements the minimum-viable subset for live writes. Backfill is where
+// Zod validation runs (scripts/backfill-memory-provenance.mjs imports the
+// .ts file via tsx).
+//
+// Contract: emit a `---\nprovenance:\n  ...\n---\n` block prepended to the
+// mirrored file iff (a) the content has no existing frontmatter, and (b) we
+// have a valid agent id derived from the harness session_id.
+
+const MEMORY_PROVENANCE_SCHEMA_VERSION_INLINE = "1.0.0";
+
+function yamlScalarInline(s) {
+  return /^[\w.\-+/:T]+$/.test(s) ? s : JSON.stringify(s);
+}
+
+function formatProvenanceInline(prov) {
+  // Mirror the key order used by the canonical TS implementation so diffs
+  // stay clean across the two code paths.
+  const KEY_ORDER = [
+    "schemaVersion",
+    "agent",
+    "sessionId",
+    "writeEvent",
+    "writtenAt",
+    "category",
+    "parentMemory",
+    "sourceTool",
+    "machine",
+  ];
+  const lines = ["---", "provenance:"];
+  for (const k of KEY_ORDER) {
+    const v = prov[k];
+    if (v === undefined || v === null || v === "") continue;
+    lines.push(`  ${k}: ${yamlScalarInline(String(v))}`);
+  }
+  lines.push("---");
+  return lines.join("\n") + "\n";
+}
+
+// Strip BOM + check for opening frontmatter fence.
+function contentHasFrontmatter(content) {
+  if (typeof content !== "string") return false;
+  return /^---\s*\n/.test(content.replace(/^﻿/, ""));
+}
 
 const VAULT_TARGET = "H:/prism/knowledge/memories";
 const MCP_URL = process.env.MCP_HTTP_URL ?? "http://127.0.0.1:3100/mcp";
@@ -212,19 +263,54 @@ async function main() {
   const targetDir = join(VAULT_TARGET, cat);
   const targetPath = join(targetDir, filename);
   ensureDir(targetDir);
-  try { writeFileSync(targetPath, content); }
+
+  // Provenance injection (D1 — OBSIDIAN-INTELLIGENCE-MS3).
+  // Prepend the YAML provenance frontmatter when the file doesn't already
+  // have one. Live mirror only adds provenance to UNFRONTMATTERED memos;
+  // memos that already carry their own frontmatter are deferred to the
+  // backfill script (which can do a structural merge with Zod validation).
+  let contentToWrite = content;
+  let provenanceNote = "";
+  try {
+    const sid = String(input?.session_id ?? input?.sessionId ?? "");
+    const eightHex = sid.slice(0, 8);
+    const agent = /^[0-9a-f]{8}$/i.test(eightHex) ? `claude-${eightHex}` : null;
+    if (!agent || sid.length < 8) {
+      provenanceNote = ` (prov-skip:no-sid)`;
+    } else if (contentHasFrontmatter(content)) {
+      provenanceNote = ` (prov-defer:fm-exists)`;
+    } else {
+      const built = {
+        schemaVersion: MEMORY_PROVENANCE_SCHEMA_VERSION_INLINE,
+        agent,
+        sessionId: sid,
+        writeEvent: tool,
+        writtenAt: new Date().toISOString(),
+        category: cat,
+        sourceTool: "memory-mirror-to-vault",
+        machine: hostname(),
+      };
+      const block = formatProvenanceInline(built);
+      contentToWrite = block + content;
+      provenanceNote = ` +prov(${agent})`;
+    }
+  } catch (e) {
+    provenanceNote = ` (prov-error:${e?.message ?? "unknown"})`;
+  }
+
+  try { writeFileSync(targetPath, contentToWrite); }
   catch (e) {
     console.log(JSON.stringify({ continue: true, hookSpecificOutput: { hookEventName: "PostToolUse", additionalContext: `memory-mirror: write failed (${e?.message ?? e})` } }));
     return;
   }
 
-  const embedResult = await embedRemote("note", `${cat}/${filename}`, content.slice(0, 16_384), { source: "memory-mirror", category: cat, filename });
+  const embedResult = await embedRemote("note", `${cat}/${filename}`, contentToWrite.slice(0, 16_384), { source: "memory-mirror", category: cat, filename });
   const status = embedResult.ok ? "ok" : `embed-skip(${embedResult.reason ?? "unknown"})`;
   console.log(JSON.stringify({
     continue: true,
     hookSpecificOutput: {
       hookEventName: "PostToolUse",
-      additionalContext: `memory-mirror: ${cat}/${filename}${classifierNote} → vault, embed=${status}`,
+      additionalContext: `memory-mirror: ${cat}/${filename}${classifierNote}${provenanceNote} → vault, embed=${status}`,
     },
   }));
 }
