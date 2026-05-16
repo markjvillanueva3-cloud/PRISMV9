@@ -48,6 +48,11 @@ const MINIMAL_ALLOWLIST = new Set([
   // MS0-U6 macro bulk-emit safety — blocks Stop on unapproved batches.
   // Operator approval gate is unconditional; profile cannot disable.
   "macro-bulk-emit-guard",
+  // BLUEPRINT-OCR-TRAINING-MS1/U-MS1-U5 coverage-floor gate — blocks Stop when
+  // session changed blueprint extraction-path code without a fresh audit.
+  // Spec-mandated MINIMAL_ALLOWLIST: cannot be silently suppressed under
+  // PRISM_HOOK_PROFILE=minimal.
+  "blueprint-coverage-floor-guard",
 ]);
 
 function getProfile() {
