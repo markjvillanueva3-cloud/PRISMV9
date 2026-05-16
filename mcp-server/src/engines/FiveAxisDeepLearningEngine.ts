@@ -668,9 +668,9 @@ function generateChainOfThought(
     type: "analysis",
     content: `Machine ${request.machine.machine_id} has ${request.machine.kinematic_type} configuration with ${request.machine.rtcp_enabled ? "RTCP enabled" : "RTCP disabled"}.`,
     evidence: [
-      `Primary rotary: ${request.machine.primary_rotary}-axis`,
-      `Secondary rotary: ${request.machine.secondary_rotary}-axis`,
-      `TCPM mode: ${request.machine.tcpm_mode}`,
+      `Primary rotary: ${request.machine.primary_axis}-axis`,
+      `Secondary rotary: ${request.machine.secondary_axis}-axis`,
+      `TCPM mode: ${request.machine.rtcp_enabled ? "enabled" : "disabled"}`,
     ],
   });
 
@@ -1751,7 +1751,7 @@ export class FiveAxisDeepLearningEngine {
 
     // Generate recommended G-code preamble for RTCP with Okuma OSP-P300
     const gcodeNotes: string[] = [];
-    if (strategy.rtcp_required) {
+    if (strategy.axis_config === "5_simultaneous") {
       gcodeNotes.push("G43.4 H_ (OSP-P300 RTCP enable before entry)");
       gcodeNotes.push("G49 (RTCP cancel on retract)");
     }

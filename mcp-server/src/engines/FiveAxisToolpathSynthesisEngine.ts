@@ -151,6 +151,9 @@ export interface MaterialProps {
   density_kg_m3: number;
   thermal_conductivity_w_mk: number;
   specific_heat_j_kgk: number;
+  /** Optional Rockwell-C hardness — used by FiveAxisDeepLearningEngine /
+   *  FiveAxisCADTemplateEngine for hardened-material classification. */
+  hardness_hrc?: number;
 }
 
 /** Tool specification */
