@@ -38,16 +38,20 @@ const GENERATORS = {
     output: resolve(PRISM_ROOT, "state/shared/CLAUDE-BRIEF.html"),
     flag: "--html",
     extraArgs: ["--write"],
-    // Generator runs in <1s when all inputs present
-    timeoutMs: 30_000,
+    // Spawn timeout MUST be < vitest hookTimeout (default 30s) so the
+    // SUT timer wins the race (clean spawn-exit + non-null result.code)
+    // before vitest aborts the beforeAll. 20s leaves 10s of vitest
+    // headroom for setup + teardown.
+    timeoutMs: 20_000,
   },
   buildState: {
     script: resolve(PRISM_ROOT, "scripts/build-state-snapshot.mjs"),
     output: resolve(PRISM_ROOT, "state/shared/BUILD_STATE.html"),
     flag: "--html",
     extraArgs: [] as string[],
-    // build-state-snapshot scans hundreds of engines, ~3-8s
-    timeoutMs: 60_000,
+    // Spawn timeout MUST be < vitest hookTimeout (default 30s). Scans
+    // hundreds of engines, ~3-8s typical; 20s leaves vitest headroom.
+    timeoutMs: 20_000,
   },
   systemViz: {
     script: resolve(PRISM_ROOT, "scripts/generate-system-viz.mjs"),

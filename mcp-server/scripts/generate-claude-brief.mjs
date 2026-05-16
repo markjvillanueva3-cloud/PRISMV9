@@ -27,7 +27,7 @@
  * artifacts it reads from. The brief-drift-monitor.mjs scheduled task watches
  * for material drift and regenerates this brief automatically.
  */
-import { readFileSync, writeFileSync, existsSync, statSync, readdirSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, statSync, readdirSync, renameSync, unlinkSync } from "node:fs";
 import { resolve, dirname, join as pathJoin } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -430,7 +430,14 @@ if (FLAGS.inject || FLAGS.both) {
 // data into headline cards + tables + an SVG bar chart of unwired
 // engine domains, matching the Thariq/Anthropic playbook for
 // info-dense CLI output. Standalone (no CDN); opens offline.
-if (FLAGS.html || FLAGS.both) {
+//
+// Gate is `FLAGS.html` ALONE (not OR-ed with FLAGS.both) — the envelope
+// contract is "--html flag generates HTML alongside markdown". Default
+// invocations (SessionStart hook, plain `--write`, no-args) MUST NOT
+// write HTML; the flag is the opt-in. The markdown side still writes
+// on default-mode via the FLAGS.both branch above; this preserves the
+// SessionStart-hook contract that the hook was wired against.
+if (FLAGS.html) {
   const sections = [];
 
   sections.push({
@@ -550,7 +557,20 @@ if (FLAGS.html || FLAGS.both) {
     sections,
     note: `Source markdown: state/shared/CLAUDE-BRIEF.md · render schema ${HTML_REPORT_SCHEMA_VERSION}`,
   });
-  writeFileSync(BRIEF_HTML_PATH, html, "utf8");
+  // Atomic write: tmp + rename, so concurrent SessionStart spawns in
+  // the 10-chat fleet can never leave a half-written CLAUDE-BRIEF.html
+  // (matches sibling build-state-snapshot.mjs's atomicWriteFileSync).
+  const tmpPath = `${BRIEF_HTML_PATH}.tmp-${process.pid}-${Date.now()}`;
+  writeFileSync(tmpPath, html, "utf8");
+  try {
+    renameSync(tmpPath, BRIEF_HTML_PATH);
+  } catch (err) {
+    // EACCES / ENOSPC / file-lock race — surface the failure but don't
+    // wipe the prior CLAUDE-BRIEF.html on disk. The markdown brief was
+    // already written above; HTML failure is non-fatal to the session.
+    try { unlinkSync(tmpPath); } catch { /* tmp removal best-effort */ }
+    process.stderr.write(`[claude-brief] HTML write failed: ${err.message}\n`);
+  }
 }
 
 process.exit(0);
