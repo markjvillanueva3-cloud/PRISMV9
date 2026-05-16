@@ -166,10 +166,30 @@ export function normalizeVersion(raw: number | undefined): number {
  * Resolve the claims-registry file path. Honors the PRISM_ATOMIC_CLAIMS_FILE
  * env override (read per call, after module load) so tests can point the broker
  * at a throwaway temp file instead of unlinking the live fleet registry.
+ *
+ * The override is gated by defense-in-depth: it is honored only when the
+ * process is in a known test runtime (NODE_ENV === "test" OR vitest's VITEST
+ * env set) AND the override path resolves under the OS temp directory. A
+ * leaked env var from a forgotten shell export, a CI job that bled into a
+ * deploy job, or a copy-pasted debug command must NEVER silently redirect the
+ * live fleet registry to a stray location.
  */
 function resolveClaimsFile(): string {
   const override = process.env.PRISM_ATOMIC_CLAIMS_FILE;
-  return override && override.length > 0 ? override : DEFAULT_CLAIMS_FILE;
+  if (!override || override.length === 0) {
+    return DEFAULT_CLAIMS_FILE;
+  }
+  const inTestRuntime =
+    process.env.NODE_ENV === "test" || !!process.env.VITEST;
+  if (!inTestRuntime) {
+    return DEFAULT_CLAIMS_FILE;
+  }
+  const tmpRoot = path.resolve(os.tmpdir());
+  const resolvedOverride = path.resolve(override);
+  if (!resolvedOverride.startsWith(tmpRoot)) {
+    return DEFAULT_CLAIMS_FILE;
+  }
+  return override;
 }
 
 // ============================================================================
@@ -310,7 +330,15 @@ class AtomicClaimBrokerEngine {
         if (err instanceof StaleRegistryError) {
           continue; // concurrent writer won — re-read and recompute
         }
-        return { committed: false, result: last.result }; // real I/O error
+        // Real I/O error (EACCES/ENOSPC/etc) — log a forensic breadcrumb
+        // before aborting; the boolean caller-contract is preserved, but the
+        // operator gets a trail. R12 fail-loud over silent-swallow.
+        // eslint-disable-next-line no-console
+        console.error(
+          "[AtomicClaimBrokerEngine] commitWithRetry aborting on non-stale error: " +
+            ((err as Error | undefined)?.message ?? String(err))
+        );
+        return { committed: false, result: last.result };
       }
     }
     return { committed: false, result: last.result }; // retries exhausted
