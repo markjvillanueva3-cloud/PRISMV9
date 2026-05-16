@@ -276,6 +276,30 @@ The top-3 hits become §Report `tribal hits:` lines (one per row, abbreviated to
 
 **Composition note**: this step also adds value on a SLOT-LOCKED variant (e.g. `/checkin-alpha`) where the topic is forced to `alpha-work` — the query becomes whatever the operator passes as the task directive in `$ARGUMENTS`, which is the strongest signal we have for what tribal context is relevant.
 
+### 6j. AI plan generation on non-trivial args (NEW — utilization-audit improvement #6, 2026-05-16)
+Actually USE the `prism_ai:cot_reason` surface that Step 10 documents (today it's only NAMED, never INVOKED). When `$ARGUMENTS` carries a non-trivial task directive, fire CoT reasoning ONCE and inject the 3-step plan into §Report so the operator has a structured approach before entering the dev pipeline.
+
+Heuristic: invoke when ALL of these are true:
+- `$ARGUMENTS` length ≥ 50 chars (trivial 1-word args don't need a plan)
+- At least one verb match in: ship, build, fix, wire, test, audit, refactor, optimize, extract, complete, replace, harden, distill, sync, restore
+- No `--skip-plan` flag
+
+```bash
+# Heuristic gate (set HAS_TASK=1 if all conditions met)
+HAS_TASK=$([ ${#ARGUMENTS} -ge 50 ] && echo "$ARGUMENTS" | grep -qiE '(ship|build|fix|wire|test|audit|refactor|optimize|extract|complete|replace|harden|distill|sync|restore)' && [ "$1" != "--skip-plan" ] && echo 1 || echo 0)
+```
+
+When `HAS_TASK=1`, invoke the MCP dispatcher action:
+- Primary: `prism_ai:cot_reason` with `{ "problem": "<ARGUMENTS>", "max_steps": 3, "format": "compact" }`
+- Fallback: `prism_intelligence:cognitive_mfg_reason` if prism_ai is unreachable
+- Last-resort: `prism_session:tool_route_best` to let the router pick
+
+The top-3 plan steps become §Report `plan:` lines (one numbered step per row, abbreviated to ~80 chars each). NEVER blocks /checkin — pure plan injection. If both primary AND fallback dispatchers fail (e.g. Ollama down), skip silently.
+
+**Composition note**: this is the AI/neural surface complement to step 6i's tribal pull. Together they answer "what did we learn last time?" (6i) + "what's the plan this time?" (6j) BEFORE the dev pipeline starts. The two together are the difference between AI-as-documentation and AI-as-tool-execution.
+
+**Token budget**: cot_reason typically returns 200-400 tokens for compact 3-step plans. The §Report adds ~6 lines. Net cost is small relative to a single dev-pipeline iter.
+
 ### 7. Report — print this boxed one-glance status
 ```
 ┌─ /checkin ─────────────────────────────────────────────
@@ -295,6 +319,7 @@ The top-3 hits become §Report `tribal hits:` lines (one per row, abbreviated to
 │ local_compute: <one-line from §6g — Ollama+Docker+Qdrant+Postgres+Prometheus>
 │ regressions:    <top-3 from CLAUDE.md "## Recent regressions" — bold-title only, "watch out" advisory>
 │ tribal hits:    <top-3 tribal_search hits for topic+args, score >=0.4 — abbreviated to ~80 chars each>
+│ plan:           <only if HAS_TASK=1> <3-step CoT plan from prism_ai:cot_reason — 1 step per row, ~80 chars>
 │ fleet topics:   <slot=topic, slot=topic, … — one line summary of who's working on what>
 │ fleet loops:    <slot iter/target (age), … — only slots currently in /loop>
 │ pickup cands:   <K> stale-but-actionable handoff(s)  [✓ none  |  → top: <file> "<RESUME excerpt>"]
