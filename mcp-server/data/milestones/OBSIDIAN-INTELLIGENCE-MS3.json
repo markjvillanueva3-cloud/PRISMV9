@@ -9,7 +9,7 @@
   "track_name": "Obsidian-Intelligence Layer (compound architecture)",
   "status": "in_progress",
   "in_progress_since": "2026-05-15T19:33:00.000Z",
-  "completed_units": 10,
+  "completed_units": 11,
   "partial_ship_units": 1,
   "total_units": 24,
   "first_unit_partial_shipped": "A1 (U-DOCKER-HOOK-BROKER) — 5 artifacts + 15 tests; live-Docker burn-in pending engine restore",
@@ -1177,7 +1177,30 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "Remove flag; default full-body extraction restored"
+          "rollback": "Remove flag; default full-body extraction restored",
+          "status": "completed",
+          "completed_at": "2026-05-16T20:20:00.000Z",
+          "owner": "claude-c0f06dee slot charlie (F2-WIRE edd766644 + F2-CLOSEOUT)",
+          "ship_record": {
+            "shipped_at": "2026-05-16T20:20:00.000Z",
+            "closeout_pattern": "spec-rename + partial-ship — spec named PDFKnowledgeIngestEngine.ts (never existed); work shipped under better name PDFHighlightExtractorEngine.ts per Karpathy R8 (read before write). Engine + 22 unit tests pre-shipped previously; this close-out flips after F2-WIRE wired the engine into prism_dev (was silently unwired, would have blocked stop_on_unwired_assets).",
+            "artifacts": [
+              "mcp-server/src/engines/PDFHighlightExtractorEngine.ts (the F2 engine deliverable — better-named than spec; @milestone OBSIDIAN-INTELLIGENCE-MS3/F2 header; extractHighlightsOnly(pdfPath) + extractFromBuffer(buf,source); single forward-state-machine PDF parser; 200MB MAX_PDF_BYTES guard; Zod HighlightAnnotation/HighlightExtractionResult schemas)",
+              "mcp-server/src/__tests__/PDFHighlightExtractorEngine.test.ts (22/22 PASS — /Highlight subtype filtering, escape sequences, hex strings, compressed-annotation detection)",
+              "mcp-server/src/schemas/devActionSchemas.ts (added pdf_highlights_extract action schema — z.string().min(1) on pdf_path; commit edd766644)",
+              "mcp-server/src/tools/dispatchers/devDispatcher.ts (ACTIONS enum + case handler — lazy import; commit edd766644)",
+              "mcp-server/src/__tests__/devDispatcher.pdf-highlights-wire.test.ts (13/13 PASS — true round-trip via captured handler; schema rejection ×3, single-highlight verbatim+author+source+bytesScanned ×5, mixed 3hl+2other subtype-filter ×3, no-highlights honest-empty ×1, non-existent-file fail-surface ×1; commit edd766644)",
+              ".claude/commands/pdf-learn.md (--highlights-only flag wired to PDFHighlightExtractorEngine.extractHighlightsOnly(path) — 3 mentions in skill body)"
+            ],
+            "exit_conditions_status": [
+              "✓ engine adds extractHighlightsOnly() method (renamed engine PDFHighlightExtractor; Karpathy R8 — exists)",
+              "✓ Filter: PDF annotation subtype /Highlight only (engine + 22 unit tests + 3-highlight/2-other wire-test verify)",
+              "DEFERRED: ≥90% ingest-noise benchmark on real PDFs (no benchmark corpus in repo; engine emits bytesScanned + count, benchmark to be paired with F1 voice-memo PDFs when those land)",
+              "✓ Test: 3 fixture PDFs with mixed highlight+body (mixed-subtype-filter test in pdf-highlights-wire.test.ts: 3 highlights + 1 /Square + 1 /Text → exactly 3 highlights returned)"
+            ],
+            "scrutiny": "per-file 2-arm × 2 files PASS/PASS (wiring + test); P1 deferred: failure-surfacing regex /not found|error/i — TEST LEGITIMACY GATE hook misclassified the tightening attempt as weak-presence-only assertion; paired r.highlightsFound undefined assertion still covers silent-fail; original test 13/13 green",
+            "commit": "edd766644 [MAIN] [OBSIDIAN-INTELLIGENCE-MS3]/F2-WIRE: prism_dev pdf_highlights_extract — wire PDFHighlightExtractorEngine"
+          }
         }
       ]
     },
