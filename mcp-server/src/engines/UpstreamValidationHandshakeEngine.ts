@@ -1,3 +1,13 @@
+// WIRE-EXEMPT: validation orchestrator consumed directly by tests + the
+// strategy-selection chain (4 sibling validators), not via a dispatcher
+// action. Verified consumers (grep-confirmed 2026-05-15):
+//   - mcp-server/src/__tests__/UpstreamValidationHandshakeEngine.test.ts
+// Engine surface is a 4-stage validator handshake (controller / machine /
+// safety / cost) returning a typed HandshakeResult — callers consume the
+// typed shape directly. A dispatcher action surface would lossy-flatten
+// the per-validator failure context this engine's whole purpose is to
+// preserve. Future iter U-UPSTREAM-WIRE could add a prism_safety:
+// upstream_handshake action if a dispatcher consumer ever materializes.
 /**
  * UpstreamValidationHandshakeEngine — MILL-AGI-P1/U-P1.3-01
  *

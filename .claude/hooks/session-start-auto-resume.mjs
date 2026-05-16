@@ -50,6 +50,15 @@ const SESSION_ID_HEX_LEN = 8;                // stable id = first 8 hex of UUID
 const MIN_RESUME_BODY_LEN = 8;               // shorter than this = empty placeholder
 const MAX_INJECTED_RESUME_BYTES = 6000;      // cap to avoid blowing context
 
+// Canonical 10-slot fleet (NATO phonetic): 9 work slots + 1 hygiene.
+// Used by parseSlotAndTopic() to lift slot from a topic-prefixed string
+// when the frontmatter `slot:` field is empty (Gap 4's auto-resolve isn't
+// always reliable; topic field typically carries `<slot>-<topic>`).
+export const SLOT_NAMES = new Set([
+  "alpha", "bravo", "charlie", "delta", "echo",
+  "foxtrot", "golf", "hotel", "india", "juliett",
+]);
+
 const MAX_AGE_MIN = Number(process.env.PRISM_AUTO_RESUME_MAX_AGE_MIN || DEFAULT_MAX_AGE_MIN);
 const SILENCE = { continue: true, suppressOutput: true };
 
@@ -77,21 +86,36 @@ function getHandoff(stableId) {
   try { return JSON.parse(r.stdout); } catch { return null; }
 }
 
-function extractResume(content) {
+export function extractResume(content) {
   if (!content || typeof content !== "string") return null;
-  // Markdown handoff format: `## RESUME` section.
-  const m = content.match(/##\s*RESUME\s*\n([\s\S]*?)(?:\n##\s|\n```|\n---\s*$|$)/i);
-  if (!m) return null;
-  const body = m[1].trim();
-  if (!body || body.length < MIN_RESUME_BODY_LEN) return null;
-  // Cap injected size — RESUMEs longer than the cap get truncated with a marker.
-  if (body.length > MAX_INJECTED_RESUME_BYTES) {
-    return body.slice(0, MAX_INJECTED_RESUME_BYTES) + "\n\n…[truncated — full RESUME in handoff file]";
+  // Split on level-2 headings so we get one section per ## block. The split
+  // strips the `\n## ` prefix from each non-first chunk — easier and more
+  // predictable than balancing lazy/greedy alternation in a single regex
+  // (the prior regex let `## NEXT` slip into the captured RESUME body when
+  // the body was empty, breaking the empty-body sentinel contract).
+  //
+  // Prepend "\n" so a `## RESUME` at the very start of the document is also
+  // a split boundary — otherwise it stays inside section[0] (which the loop
+  // below skips) and the function returns null even for a valid first-line
+  // RESUME heading.
+  const sections = ("\n" + content).split(/\n##\s/);
+  for (let i = 1; i < sections.length; i++) {
+    const sec = sections[i];
+    if (!/^RESUME\b/i.test(sec)) continue;
+    // Strip the heading-line (everything up to the first newline) — that's
+    // `RESUME` itself, possibly with a trailing comment. What remains is the
+    // section body until the next `\n## ` (which the split already removed).
+    const body = sec.replace(/^[^\n]*\n/, "").trim();
+    if (!body || body.length < MIN_RESUME_BODY_LEN) return null;
+    if (body.length > MAX_INJECTED_RESUME_BYTES) {
+      return body.slice(0, MAX_INJECTED_RESUME_BYTES) + "\n\n…[truncated — full RESUME in handoff file]";
+    }
+    return body;
   }
-  return body;
+  return null;
 }
 
-function ageMinutesFromFrontmatter(content) {
+export function ageMinutesFromFrontmatter(content) {
   if (!content) return null;
   const m = content.match(/written_at:\s*['"]?([0-9T:.\-Z]+)['"]?/);
   if (!m) return null;
@@ -100,12 +124,96 @@ function ageMinutesFromFrontmatter(content) {
   return (Date.now() - t) / 60000;
 }
 
-function stableIdFromSession(sid) {
+export function stableIdFromSession(sid) {
   if (!sid || typeof sid !== "string") return null;
   // Stable id = "claude-" + leading 8 hex chars of UUID
   const hex = sid.replace(/[^0-9a-f]/gi, "").toLowerCase().slice(0, SESSION_ID_HEX_LEN);
   if (hex.length !== SESSION_ID_HEX_LEN) return null;
   return `claude-${hex}`;
+}
+
+/**
+ * Gap 3 (AUTOCOMPACT-AUTONOMOUS-MS0): parse `slot:` and `topic:` from handoff
+ * frontmatter so the post-/compact chat can be told to re-fire /checkin with
+ * its slot-bound topic. When the frontmatter `slot:` field is blank (Gap 4's
+ * auto-resolve from chat-slots.json isn't always reliable), fall back to
+ * lifting the slot from the topic field's `<slot>-<rest>` prefix — that's
+ * how /checkin writes its handoff topic argument, so it round-trips.
+ *
+ * Returns {slot: "", topic: ""} on any parse failure; callers gate the
+ * /checkin directive on both being non-empty.
+ *
+ * @param {string} content — full handoff markdown including frontmatter
+ * @returns {{slot: string, topic: string}}
+ */
+export function parseSlotAndTopic(content) {
+  if (!content || typeof content !== "string") return { slot: "", topic: "" };
+  let slot = "";
+  let topic = "";
+  // Frontmatter lines are `key: value` on their own line. Slot may be blank
+  // (one trailing space + newline is valid YAML for empty string); topic is
+  // a free-form slug. Both are anchored to start-of-line via /m flag.
+  //
+  // CRITICAL: use [ \t]* not \s* between the colon and the value — \s
+  // includes \n, so a greedy \s* would consume the line terminator and
+  // pull the next line's content into the slot capture. Tabs + spaces only.
+  const slotMatch = content.match(/^slot:[ \t]*([^\r\n]*?)[ \t]*$/m);
+  if (slotMatch) slot = slotMatch[1].trim().toLowerCase();
+  const topicMatch = content.match(/^topic:[ \t]*([^\r\n]+?)[ \t]*$/m);
+  if (topicMatch) topic = topicMatch[1].trim();
+  // Fallback: if slot is empty but topic starts with a canonical slot prefix,
+  // split it. Example: topic="charlie-obsidian-pipeline-loop" → slot=charlie,
+  // topic=obsidian-pipeline-loop. Only accepts known NATO slot names so a
+  // freeform topic like "fixture-design-loop" doesn't accidentally lift
+  // "fixture" as a slot.
+  if (!slot && topic) {
+    const dashIdx = topic.indexOf("-");
+    if (dashIdx > 0) {
+      const candidate = topic.slice(0, dashIdx).toLowerCase();
+      if (SLOT_NAMES.has(candidate)) {
+        slot = candidate;
+        topic = topic.slice(dashIdx + 1);
+      }
+    }
+  }
+  return { slot, topic };
+}
+
+/**
+ * Gap 3: build the markdown directive that tells the post-/compact chat to
+ * auto-fire /checkin BEFORE following the resume body. Without this, the
+ * chat sees the resume but its slot heartbeat may have lapsed during the
+ * compact window (peer chats can claim during the compact-release window
+ * opened by precompact-release-slot.mjs).
+ *
+ * Returns "" when slot or topic is missing — the caller suppresses the
+ * directive block in that case so a malformed handoff doesn't inject a
+ * broken /checkin invocation.
+ *
+ * Knob: PRISM_AUTO_RESUME_NO_CHECKIN=1 disables the directive entirely
+ * (operator wants pure RESUME without auto-fire). Checked at call site.
+ *
+ * @param {{slot: string, topic: string}} parsed — output of parseSlotAndTopic
+ * @returns {string} — markdown block or "" on missing fields
+ */
+export function buildCheckinDirective({ slot, topic } = {}) {
+  if (!slot || !topic) return "";
+  // Topic slug is safe: came from frontmatter (operator-typed kebab-case) or
+  // from the lifted SLOT_NAMES prefix (alphanumeric only). No shell metachars.
+  const arg = `${slot}-${topic}`;
+  return [
+    "",
+    "**NEXT ACTION (auto-fire BEFORE following the resume directive):**",
+    "",
+    "```",
+    `/checkin --topic ${arg}`,
+    "```",
+    "",
+    "This re-claims the slot heartbeat (the compact window may have lapsed it),",
+    "refreshes drift / dirty-tree / peer-claim state, and re-injects the slot-bound",
+    "handoff. Only AFTER /checkin completes its §Report should you proceed with the",
+    "resume directive above.",
+  ].join("\n");
 }
 
 function main() {
@@ -140,22 +248,36 @@ function main() {
   const resume = extractResume(handoff.content);
   if (!resume) { emit(SILENCE); return; }
 
+  // Gap 3: append `/checkin --topic <slot>-<topic>` auto-fire directive so
+  // the post-/compact chat re-claims its slot heartbeat (lapsed during the
+  // compact-release window) BEFORE following the resume body. Suppressed
+  // when slot/topic parse fails OR when operator disables via knob.
+  const noCheckin = process.env.PRISM_AUTO_RESUME_NO_CHECKIN === "1";
+  const checkinBlock = noCheckin
+    ? ""
+    : buildCheckinDirective(parseSlotAndTopic(handoff.content));
+
+  const lines = [
+    `## 🔁 AUTO-RESUME after /compact (per-chat handoff)`,
+    ``,
+    `Handoff file: ${handoff.file || "?"}`,
+    `Age: ${age != null ? Math.round(age) + "m" : "unknown"}`,
+    ``,
+    `**Resume directive:**`,
+    ``,
+    resume,
+  ];
+  if (checkinBlock) lines.push(checkinBlock);
+  lines.push(
+    ``,
+    `*Proceed without asking unless the directive conflicts with the user's most recent message. If the user already gave a fresh instruction in their first post-compact message, that takes priority.*`,
+  );
+
   emit({
     continue: true,
     hookSpecificOutput: {
       hookEventName: "SessionStart",
-      additionalContext: [
-        `## 🔁 AUTO-RESUME after /compact (per-chat handoff)`,
-        ``,
-        `Handoff file: ${handoff.file || "?"}`,
-        `Age: ${age != null ? Math.round(age) + "m" : "unknown"}`,
-        ``,
-        `**Resume directive:**`,
-        ``,
-        resume,
-        ``,
-        `*Proceed without asking unless the directive conflicts with the user's most recent message. If the user already gave a fresh instruction in their first post-compact message, that takes priority.*`,
-      ].join("\n"),
+      additionalContext: lines.join("\n"),
     },
   });
 }
