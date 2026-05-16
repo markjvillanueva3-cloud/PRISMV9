@@ -33,12 +33,24 @@ import { existsSync, statSync, readdirSync, writeFileSync, renameSync, unlinkSyn
 import { spawnSync } from "node:child_process";
 import { join, resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  renderHtmlPage,
+  HTML_REPORT_SCHEMA_VERSION,
+} from "./lib/html-report-render.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const REPO_ROOT = resolve(dirname(__filename), "..");
 const STATE_DIR = resolve(REPO_ROOT, "state/shared");
 const OUT_JSON = resolve(STATE_DIR, "BUILD_STATE.json");
 const OUT_MD = resolve(STATE_DIR, "BUILD_STATE.md");
+const OUT_HTML = resolve(STATE_DIR, "BUILD_STATE.html");
+
+// OBSIDIAN-INTELLIGENCE-MS3/C1: --html flag emits an HTML sibling.
+// Strictly additive — JSON + MD continue to write unconditionally.
+const CLI_ARGS = new Set(process.argv.slice(2));
+const FLAGS = {
+  html: CLI_ARGS.has("--html"),
+};
 
 // Frontend tree manifest. The two codex builds the user flagged for merge
 // are listed first; main is the canonical target.
@@ -472,12 +484,148 @@ async function main() {
   atomicWriteFileSync(OUT_JSON, JSON.stringify(out, null, 2) + "\n");
   atomicWriteFileSync(OUT_MD, renderMD(out));
 
+  if (FLAGS.html) {
+    atomicWriteFileSync(OUT_HTML, renderHtml(out));
+    process.stderr.write(`[build-state] wrote ${OUT_HTML}\n`);
+  }
+
   process.stderr.write(
     `[build-state] wrote ${OUT_JSON}\n[build-state] wrote ${OUT_MD}\n`,
   );
   process.stderr.write(
     `[build-state] BUILT=${built}  NEEDS_WIRING=${stat.unwired}  NEEDS_BUILDING=${out.headline.needs_building_active_units}  NEEDS_FRONTEND=${out.headline.needs_frontend_merge_count}\n`,
   );
+}
+
+/**
+ * OBSIDIAN-INTELLIGENCE-MS3/C1: render BUILD_STATE.json as an HTML report.
+ * Pure function — takes the same `out` object that goes to JSON/MD and
+ * produces a standalone HTML5 page via the shared html-report-render lib.
+ * Air-gap safe (no CDN); see scripts/lib/html-report-render.mjs.
+ */
+function renderHtml(out) {
+  const sections = [];
+  const hl = out.headline || {};
+
+  sections.push({
+    kind: "headline",
+    cards: [
+      { label: "Engines wired", value: String(hl.built_engines ?? 0), status: "ok" },
+      { label: "With wiki entry", value: String(hl.built_with_wiki ?? 0), status: "info" },
+      { label: "Needs wiring", value: String(hl.needs_wiring ?? 0), status: (hl.needs_wiring ?? 0) > 0 ? "warn" : "ok" },
+      { label: "Pending units", value: String(hl.needs_building_active_units ?? 0), status: "info" },
+      { label: "Active milestones", value: String(hl.pending_milestones_with_activity ?? 0), status: "info" },
+      { label: "Frontend pending", value: String(hl.needs_frontend_merge_count ?? 0), status: (hl.needs_frontend_merge_count ?? 0) > 0 ? "warn" : "ok" },
+      { label: "Envelope drift", value: String(hl.drift_milestones ?? 0), status: (hl.drift_milestones ?? 0) > 0 ? "warn" : "ok" },
+      { label: "Stale milestones", value: String(hl.stale_milestones ?? 0), status: (hl.stale_milestones ?? 0) > 0 ? "warn" : "ok" },
+    ],
+  });
+
+  const topDomains = (out.NEEDS_WIRING && Array.isArray(out.NEEDS_WIRING.top_domains))
+    ? out.NEEDS_WIRING.top_domains
+    : [];
+  if (topDomains.length > 0) {
+    sections.push({
+      kind: "barchart",
+      label: "Top unwired engine domains",
+      data: topDomains.slice(0, 10).map((d) => ({
+        label: d.domain,
+        value: Number(d.count) || 0,
+        status: "warn",
+      })),
+    });
+  }
+
+  const driftCases = (out.NEEDS_BUILDING && Array.isArray(out.NEEDS_BUILDING.drift_cases))
+    ? out.NEEDS_BUILDING.drift_cases
+    : [];
+  if (driftCases.length > 0) {
+    sections.push({
+      kind: "table",
+      caption: "Envelope-status drift (claim vs git)",
+      headers: ["Milestone", "Claimed", "Real", "Drift"],
+      rows: driftCases.map((d) => [
+        d.id,
+        d.claimed,
+        { value: d.real, status: "warn" },
+        { value: d.drift, status: "fail" },
+      ]),
+    });
+  }
+
+  const frontends = (out.NEEDS_FRONTEND && Array.isArray(out.NEEDS_FRONTEND.trees))
+    ? out.NEEDS_FRONTEND.trees
+    : [];
+  if (frontends.length > 0) {
+    sections.push({
+      kind: "table",
+      caption: "Frontend trees",
+      headers: ["ID", "Path", "Stack", "Status"],
+      rows: frontends.map((f) => [
+        f.id,
+        f.path,
+        f.stack,
+        { value: f.merge_status, status: f.merge_status === "merged" ? "ok" : "warn" },
+      ]),
+    });
+  }
+
+  const coverage = (out.COVERAGE_BY_DOMAIN && Array.isArray(out.COVERAGE_BY_DOMAIN.rows))
+    ? out.COVERAGE_BY_DOMAIN.rows
+    : [];
+  if (coverage.length > 0) {
+    sections.push({
+      kind: "table",
+      caption: `Coverage by domain (top 15 of ${coverage.length})`,
+      headers: ["Domain", "Total", "Wired", "Unwired", "Coverage %"],
+      rows: coverage.slice(0, 15).map((r) => [
+        r.domain,
+        { value: String(r.total), right: true },
+        { value: String(r.wired), right: true, status: "ok" },
+        { value: String(r.unwired), right: true, status: r.unwired > 0 ? "warn" : "ok" },
+        { value: `${r.coverage_pct}%`, right: true, status: r.coverage_pct >= 80 ? "ok" : r.coverage_pct >= 50 ? "warn" : "fail" },
+      ]),
+    });
+  }
+
+  const staleRows = (out.STALE_MILESTONES && Array.isArray(out.STALE_MILESTONES.rows))
+    ? out.STALE_MILESTONES.rows
+    : [];
+  if (staleRows.length > 0) {
+    sections.push({
+      kind: "table",
+      caption: `Stale milestones (top 15 of ${staleRows.length})`,
+      headers: ["Milestone", "Track", "Reason", "Pending", "Shipped/Total", "Last shipped"],
+      rows: staleRows.slice(0, 15).map((r) => [
+        r.id,
+        r.track || "—",
+        r.reason,
+        { value: String(r.pending), right: true },
+        `${r.shipped}/${r.total}`,
+        (r.lastShippedDate || "never").slice(0, 10),
+      ]),
+    });
+  }
+
+  const topPending = (out.NEEDS_BUILDING && Array.isArray(out.NEEDS_BUILDING.top_pending_units))
+    ? out.NEEDS_BUILDING.top_pending_units
+    : [];
+  if (topPending.length > 0) {
+    sections.push({
+      kind: "table",
+      caption: `Top pending units (most-recently-active milestones first, top 15 of ${topPending.length})`,
+      headers: ["Milestone", "Phase", "Unit", "Title"],
+      rows: topPending.slice(0, 15).map((u) => [u.milestone, u.phase, u.unit, u.title]),
+    });
+  }
+
+  return renderHtmlPage({
+    title: "PRISM — BUILD_STATE",
+    subtitle: "What's built / wiring / pending / frontend",
+    generatedAt: out.generatedAt,
+    sections,
+    note: `Source JSON: state/shared/BUILD_STATE.json · render schema ${HTML_REPORT_SCHEMA_VERSION}`,
+  });
 }
 
 function renderMD(out) {

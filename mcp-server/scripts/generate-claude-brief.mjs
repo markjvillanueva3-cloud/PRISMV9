@@ -30,20 +30,34 @@
 import { readFileSync, writeFileSync, existsSync, statSync, readdirSync } from "node:fs";
 import { resolve, dirname, join as pathJoin } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  renderHtmlPage,
+  HTML_REPORT_SCHEMA_VERSION,
+} from "../../scripts/lib/html-report-render.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const PRISM_ROOT = resolve(__dirname, "..", "..");
 const SHARED = resolve(PRISM_ROOT, "state", "shared");
 const BRIEF_PATH = resolve(SHARED, "CLAUDE-BRIEF.md");
+const BRIEF_HTML_PATH = resolve(SHARED, "CLAUDE-BRIEF.html");
 const INVENTORY_PATH = resolve(PRISM_ROOT, "PRISM-INVENTORY-LATEST.md");
 
 const args = new Set(process.argv.slice(2));
 const FLAGS = {
   inject: args.has("--inject"),
   write: args.has("--write"),
+  // Default-mode (--both) fires when NO explicit emit-mode flag was given.
+  // --html is additive (emits HTML alongside markdown) so it is NOT a
+  // standalone emit-mode for `--html` to imply "HTML only, skip markdown".
+  // `--html` alone therefore runs default-mode (write + inject markdown)
+  // PLUS the HTML sibling. Per the envelope: "--html generates HTML
+  // alongside markdown (no replacement)".
   both: args.has("--both") || (!args.has("--inject") && !args.has("--write") && !args.has("--check-staleness")),
   staleness: args.has("--check-staleness"),
+  // OBSIDIAN-INTELLIGENCE-MS3/C1: emit HTML sibling alongside markdown.
+  // Strictly additive — never replaces the markdown output.
+  html: args.has("--html"),
 };
 
 function readSafe(path, fallback = "") {
@@ -409,6 +423,134 @@ if (FLAGS.write || FLAGS.both) {
 }
 if (FLAGS.inject || FLAGS.both) {
   process.stdout.write(brief);
+}
+
+// OBSIDIAN-INTELLIGENCE-MS3/C1: --html flag emits CLAUDE-BRIEF.html
+// alongside the markdown. The HTML report distills the same structured
+// data into headline cards + tables + an SVG bar chart of unwired
+// engine domains, matching the Thariq/Anthropic playbook for
+// info-dense CLI output. Standalone (no CDN); opens offline.
+if (FLAGS.html || FLAGS.both) {
+  const sections = [];
+
+  sections.push({
+    kind: "headline",
+    cards: [
+      { label: "Engines", value: String(counts.engines ?? "?"), status: "info" },
+      { label: "Dispatchers", value: String(counts.dispatchers ?? "?"), status: "info" },
+      { label: "Actions", value: String(counts.actions ?? "?"), status: "info" },
+      { label: "Hooks", value: String(counts.hooks ?? "?"), status: "info" },
+    ],
+  });
+
+  if (graphSnap) {
+    const hl = graphSnap.headline || {};
+    sections.push({
+      kind: "headline",
+      cards: [
+        { label: "Graph nodes", value: graphSnap.totalNodes.toLocaleString(), status: "info" },
+        { label: "Graph edges", value: graphSnap.totalEdges.toLocaleString(), status: "info" },
+        { label: "Engines wired", value: String(hl.built ?? "?"), status: "ok" },
+        { label: "Engines unwired", value: String(hl.unwired ?? "?"), status: hl.unwired > 0 ? "warn" : "ok" },
+        { label: "Envelope drift", value: String(hl.drift ?? 0), status: (hl.drift ?? 0) > 0 ? "warn" : "ok" },
+        { label: "Frontend pending", value: String(hl.pendingFE ?? 0), status: (hl.pendingFE ?? 0) > 0 ? "warn" : "ok" },
+      ],
+    });
+
+    if (Array.isArray(graphSnap.unwired) && graphSnap.unwired.length > 0) {
+      sections.push({
+        kind: "barchart",
+        label: "Top unwired engine domains",
+        data: graphSnap.unwired.map((u) => ({
+          label: String(u.label || "").replace(/\n/g, " ").slice(0, 40),
+          value: Number(u.count) || 0,
+          status: "warn",
+        })),
+      });
+    }
+
+    const layerEntries = Object.entries(graphSnap.perLayer || {}).sort(([a], [b]) => a.localeCompare(b));
+    if (layerEntries.length > 0) {
+      sections.push({
+        kind: "table",
+        caption: "Nodes per layer",
+        headers: ["Layer", "Nodes"],
+        rows: layerEntries.map(([layer, count]) => [layer, { value: count.toLocaleString(), right: true }]),
+      });
+    }
+  }
+
+  sections.push({
+    kind: "table",
+    caption: "Wiki brain",
+    headers: ["Field", "Value"],
+    rows: [
+      ["Architecture entries", String(wikiBrain.total)],
+      ["Orphan rate", wikiBrain.orphan],
+      ["Last regen", wikiBrain.lastRegen],
+      ["Breakdown", wikiBrain.byType || "(none)"],
+      ["Semantic index", wikiBrain.emb ? `${wikiBrain.emb.count} vectors · ${wikiBrain.emb.model} · ${wikiBrain.emb.dim}-d` : "not built"],
+    ],
+  });
+
+  sections.push({
+    kind: "table",
+    caption: "CAM integration status (tier-1)",
+    headers: ["CAM", "Priority", "In-host runner", "Status"],
+    rows: [
+      ["hyperMILL", "2", "full Project Manager runtime · 63 engines", { value: "production (best)", status: "ok" }],
+      ["Mastercam", "3", "C-Hook generator only", { value: "production (no live link)", status: "ok" }],
+      ["Inventor HSM", "5", "full in-host runner", { value: "beta", status: "warn" }],
+      ["Fusion 360", "1", "runner present · add-in plan-only", { value: "beta", status: "warn" }],
+      ["Esprit", "4", "NOT WIRED (9 declared / 0 in dispatcher)", { value: "stub — aspirational", status: "fail" }],
+      ["SolidWorks", "6", "AutomationBridge + CodeGenerator only", { value: "stub", status: "fail" }],
+    ],
+  });
+
+  sections.push({
+    kind: "kv",
+    title: "JM machine fleet",
+    pairs: [
+      { key: "active", value: String(fleetCount.active), status: "ok" },
+      { key: "standby", value: String(fleetCount.standby) },
+      { key: "B250IIW flagship", value: b250iiStatus },
+    ],
+  });
+
+  if (top10Gaps.length > 0) {
+    sections.push({
+      kind: "list",
+      title: "Top 10 honest gaps",
+      ordered: true,
+      items: top10Gaps,
+    });
+  }
+
+  if (wikiTail.length > 0) {
+    sections.push({
+      kind: "list",
+      title: "Recent wiki activity",
+      items: wikiTail,
+    });
+  }
+
+  sections.push({
+    kind: "kv",
+    title: "Memory vault",
+    pairs: [
+      { key: "atomic notes", value: String(memoryStats.total) },
+      { key: "modified in last 24h", value: String(memoryStats.recent), status: memoryStats.recent > 0 ? "ok" : undefined },
+    ],
+  });
+
+  const html = renderHtmlPage({
+    title: "PRISM — CLAUDE-BRIEF",
+    subtitle: "Continuous awareness · auto-generated each SessionStart",
+    generatedAt: NOW,
+    sections,
+    note: `Source markdown: state/shared/CLAUDE-BRIEF.md · render schema ${HTML_REPORT_SCHEMA_VERSION}`,
+  });
+  writeFileSync(BRIEF_HTML_PATH, html, "utf8");
 }
 
 process.exit(0);

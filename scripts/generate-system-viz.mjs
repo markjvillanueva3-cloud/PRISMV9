@@ -24,11 +24,22 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
+import {
+  renderHtmlPage,
+  HTML_REPORT_SCHEMA_VERSION,
+} from "./lib/html-report-render.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const OUT_DIR = path.join(ROOT, "state", "shared", "system-viz");
 const OUT_FILE = path.join(OUT_DIR, "system-graph.json");
+// OBSIDIAN-INTELLIGENCE-MS3/C1: summary HTML lives ALONGSIDE the existing
+// graph.html 3D viewer. Different role: summary is info-dense, printable,
+// air-gap-safe; graph.html is the interactive WebGL 3D viz.
+const OUT_HTML = path.join(OUT_DIR, "system-graph-summary.html");
+
+const CLI_ARGS = new Set(process.argv.slice(2));
+const FLAGS = { html: CLI_ARGS.has("--html") };
 
 // ---------- helpers ----------
 function safeReadJson(p, fb = null) { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return fb; } }
@@ -1103,3 +1114,115 @@ console.log(`  built engines: ${built}/${counts.engines} (${Math.round(100*built
 console.log(`  dispatchers wired: ${dispatcherFiles.length} files`);
 console.log(`  vault: ${vaultMemory.length} memories + ${vaultWiki.length} wiki = ${vaultMemory.length + vaultWiki.length} L10 nodes; ${wikiLinkEdgeCount} [[wiki-link]] edges (${wikiLinkBrokenCount} broken refs)`);
 console.log(`  roadmap phases: ${roadmap.phases.length}; phase 2 wire-up candidates: ${roadmap.phases[2].items.length}`);
+
+// OBSIDIAN-INTELLIGENCE-MS3/C1: emit a summary HTML report when --html is
+// set. Standalone, no CDN refs; complements (does NOT replace) the
+// existing 3D graph.html WebGL viewer.
+if (FLAGS.html) {
+  const sections = [];
+
+  const totalEdges = edges.length + suggestionEdges.length;
+  sections.push({
+    kind: "headline",
+    cards: [
+      { label: "Total nodes", value: nodes.length.toLocaleString(), status: "info" },
+      { label: "Total edges", value: totalEdges.toLocaleString(), status: "info" },
+      { label: "Engines built", value: `${built}/${counts.engines}`, status: "ok" },
+      { label: "Engines unwired", value: String(unwired), status: unwired > 0 ? "warn" : "ok" },
+      { label: "Frontend pending", value: String(pendingFE), status: pendingFE > 0 ? "warn" : "ok" },
+      { label: "Envelope drift", value: String(drift), status: drift > 0 ? "warn" : "ok" },
+      { label: "Wiki entries", value: String(wikiEntries), status: "info" },
+      { label: "Layers", value: String(layers.length), status: "info" },
+    ],
+  });
+
+  // Per-layer node counts (sorted L0..L10)
+  const layerCounts = {};
+  for (const n of nodes) layerCounts[n.layer] = (layerCounts[n.layer] || 0) + 1;
+  const layerRows = layers.map((L) => [
+    L.id,
+    L.name,
+    { value: (layerCounts[L.id] || 0).toLocaleString(), right: true },
+  ]);
+  sections.push({
+    kind: "table",
+    caption: "Nodes per layer (L0=personas → L10=vault)",
+    headers: ["ID", "Name", "Nodes"],
+    rows: layerRows,
+  });
+
+  // Vault summary
+  sections.push({
+    kind: "kv",
+    title: "Vault (L10) breakdown",
+    pairs: [
+      { key: "memory atomic notes", value: vaultMemory.length.toLocaleString() },
+      { key: "wiki entries", value: vaultWiki.length.toLocaleString() },
+      { key: "[[wiki-link]] edges", value: String(wikiLinkEdgeCount) },
+      {
+        key: "broken wiki refs",
+        value: String(wikiLinkBrokenCount),
+        status: wikiLinkBrokenCount > 0 ? "warn" : "ok",
+      },
+    ],
+  });
+
+  // Roadmap phase 2 wire-up candidates (most actionable)
+  const phase2 = roadmap.phases.find((p) => p.phase === 2);
+  if (phase2 && Array.isArray(phase2.items) && phase2.items.length > 0) {
+    sections.push({
+      kind: "barchart",
+      label: "Phase 2 wire-up candidates (top 10, by engine count)",
+      data: phase2.items.slice(0, 10).map((it) => ({
+        label: String(it.domain || "unknown"),
+        value: Number(it.engineCount) || 0,
+        status: "warn",
+      })),
+    });
+  }
+
+  // Dispatcher category distribution
+  const dispatcherCatRows = Object.entries(dispatcherCatCount || {})
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 15)
+    .map(([cat, n]) => [cat, { value: String(n), right: true }]);
+  if (dispatcherCatRows.length > 0) {
+    sections.push({
+      kind: "table",
+      caption: `Dispatcher categories (top 15 of ${Object.keys(dispatcherCatCount || {}).length})`,
+      headers: ["Category", "Count"],
+      rows: dispatcherCatRows,
+    });
+  }
+
+  // Worktree summary — `worktreeSummary` is an OBJECT (per the
+  // worktree-audit shape), not an array of paths. The earlier
+  // `Array.isArray` guard was dead code; render the categorized counts
+  // via a kv section instead, mirroring the Vault breakdown above.
+  if (worktreeSummary && typeof worktreeSummary === "object" && worktreeSummary.total > 0) {
+    sections.push({
+      kind: "kv",
+      title: `Worktree fleet (${worktreeSummary.total} live)`,
+      pairs: [
+        { key: "KEEP", value: String(worktreeSummary.KEEP || 0), status: "ok" },
+        { key: "MERGE", value: String(worktreeSummary.MERGE || 0), status: (worktreeSummary.MERGE || 0) > 0 ? "warn" : "ok" },
+        { key: "PRUNE", value: String(worktreeSummary.PRUNE || 0), status: (worktreeSummary.PRUNE || 0) > 0 ? "warn" : "ok" },
+        { key: "INVESTIGATE", value: String(worktreeSummary.INVESTIGATE || 0), status: (worktreeSummary.INVESTIGATE || 0) > 0 ? "warn" : "ok" },
+        { key: "DRAINED", value: String(worktreeSummary.DRAINED || 0) },
+        { key: "PARKED", value: String(worktreeSummary.PARKED || 0) },
+        { key: "archived", value: String(worktreeSummary.archived_total || 0) },
+        { key: "base", value: worktreeSummary.base ?? "?" },
+      ],
+    });
+  }
+
+  const html = renderHtmlPage({
+    title: "PRISM — System Map Summary",
+    subtitle: "Atomic 10-layer graph snapshot · companion to the 3D viewer at /system-viz",
+    generatedAt: out.generatedAt,
+    sections,
+    note: `Source JSON: state/shared/system-viz/system-graph.json · 3D viewer: state/shared/system-viz/graph.html · render schema ${HTML_REPORT_SCHEMA_VERSION}`,
+  });
+  fs.writeFileSync(OUT_HTML, html);
+  console.log(`  summary: ${OUT_HTML}`);
+}
