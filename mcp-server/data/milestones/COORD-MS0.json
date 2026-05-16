@@ -221,14 +221,17 @@
       "id": "U-COORD12",
       "title": "Checksum Validation on Read",
       "phase": "Reliability",
-      "status": "pending",
+      "status": "complete",
+      "completed_at": "2026-05-16",
+      "completed_by": "claude-a61bbf34 (slot echo)",
       "description": "Verify checksums when loading claims, not just generate",
       "deliverables": [
         "verifyChecksum() function",
         "Integration in readRegistry()",
         "Tampering detection logging"
       ],
-      "audit_source": "Security Analyst"
+      "audit_source": "Security Analyst",
+      "ship_notes": "Exported pure helpers computeClaimChecksum() + verifyChecksum() (single source of truth — generateChecksum delegates). readRegistry() now verifies every claim's checksum, drops mismatches, and routes them through logTampering(): stderr warn + JSONL append to a sibling ledger whose path derives from resolveClaimsFile() so the U-COORD02 test-injection seam composes cleanly. Fail-open by design — tamper detection never bricks a read path; the next atomicWrite persists the de-tampered view. 20-case vitest companion (AtomicClaimBrokerEngine-U-COORD12.test.ts), sibling tests U-COORD02 (33) + U-AWR25 (12) still 100% green: 65/65. Per-file 2-arm PASS (Arm A code-analyzer + Arm B reviewer); 4 Arm-B P1 wins landed in the same commit (logTampering inner-catch context, NODE_ENV save/restore, randomUUID test-file suffix, valid-claims-not-logged + nested-subdir mutation-killer tests). Honest residuals (documented in code + memory): integrity-only threat model (no MAC, attacker with schema knowledge can forge a checksum trivially); zombie-reaper-daemon.mjs's direct-file-I/O bypass is exactly what verifyChecksum surfaces; idempotency is read-vs-write — repeated reads of the same tampered registry log the drop multiple times until the next write persists the cleaned view; readRegistry's pre-existing silent catch on parse failure remains a follow-up (out of unit scope)."
     }
   ]
 }

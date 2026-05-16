@@ -5,6 +5,8 @@
  * Extends PRISM's existing coordination system with:
  *   - Atomic CAS claim acquisition using temp+rename
  *   - Optimistic concurrency control via a registry version field (CAS-on-write)
+ *   - Read-side checksum verification (drops tampered claims + writes to a JSONL
+ *     tamper ledger sibling to the claims file)
  *   - Single-call claim API (fuses duplication-check + claim-acquire)
  *   - Zombie reaper for agents stuck in 'compacting' state >600s
  *   - Deadlock detection via claim-graph cycle check
@@ -13,6 +15,7 @@
  *
  * @unit AI-AWARE-HARDEN/U-AWR25
  * @unit COORD-MS0/U-COORD02 — optimistic locking with version field
+ * @unit COORD-MS0/U-COORD12 — checksum verification on read
  * @integrates H:/prism/.claude/helpers/agent-coordination-daemon.mjs
  *
  * // WIRE-EXEMPT: internal coordination broker. Consumed by the JS helper
@@ -211,6 +214,72 @@ function resolveClaimsFile(): string {
 }
 
 // ============================================================================
+// Checksum integrity (U-COORD12)
+// ============================================================================
+
+/**
+ * Compute the integrity checksum for a claim. SHA-256 over a deterministic
+ * canonical form `id:resource:holder:sequenceNumber`, truncated to 16 hex chars
+ * (64 bits). Single source of truth for both generation (when a claim is
+ * created) and verification (when the registry is read). Exported for testing —
+ * production callers go through the class.
+ *
+ * NOTE — this is INTEGRITY-against-bit-rot/accidental-corruption, not
+ * cryptographic authenticity: no secret is involved, so a motivated attacker
+ * who knows the schema can forge a matching checksum trivially. The intent is
+ * to detect (a) JSON file corruption, (b) third-party tools mutating fields
+ * without re-computing the checksum — e.g. zombie-reaper-daemon.mjs is a known
+ * bypass surfaced by verifyChecksum into the tamper log.
+ */
+export function computeClaimChecksum(
+  claim: { id: string; resource: string; holder: string; sequenceNumber: number }
+): string {
+  const data = `${claim.id}:${claim.resource}:${claim.holder}:${claim.sequenceNumber}`;
+  return crypto.createHash("sha256").update(data).digest("hex").slice(0, 16);
+}
+
+export interface ChecksumVerifyResult {
+  readonly ok: boolean;
+  readonly computed: string;
+  readonly stored: string;
+}
+
+/**
+ * Verify a claim's stored checksum matches a fresh recomputation. Pure — does
+ * NOT mutate the claim, does NOT do I/O. Safe to call on attacker-controlled
+ * input: each field is stringified into the hash input verbatim, and the hash
+ * itself is unkeyed, so there is no oracle the input could exploit. Treat
+ * `ok=false` as "drop or quarantine this claim, log to tamper ledger".
+ *
+ * Accepts a structural subtype so tests can pass plain objects without
+ * constructing the full Claim type.
+ */
+export function verifyChecksum(claim: {
+  id: string;
+  resource: string;
+  holder: string;
+  sequenceNumber: number;
+  checksum: string;
+}): ChecksumVerifyResult {
+  const computed = computeClaimChecksum(claim);
+  const stored = typeof claim.checksum === "string" ? claim.checksum : "";
+  return { ok: computed === stored, computed, stored };
+}
+
+/**
+ * Resolve the JSONL tamper-event ledger path. Derived from resolveClaimsFile()
+ * so the test-injection seam from U-COORD02 composes — a test that points the
+ * broker at a tmpdir registry gets its tamper log in the same tmpdir.
+ */
+function resolveTamperLogPath(): string {
+  const claimsFile = resolveClaimsFile();
+  return path.join(
+    path.dirname(claimsFile),
+    `${path.basename(claimsFile)}.tamper.jsonl`
+  );
+}
+
+// ============================================================================
 // Engine Class
 // ============================================================================
 
@@ -240,15 +309,27 @@ class AtomicClaimBrokerEngine {
   }
 
   /**
-   * Generate checksum for claim integrity
+   * Generate checksum for claim integrity. Delegates to the exported pure
+   * helper so generation and verification share one source of truth — any
+   * drift would silently invalidate every claim on next read.
    */
   private generateChecksum(claim: Omit<Claim, "checksum">): string {
-    const data = `${claim.id}:${claim.resource}:${claim.holder}:${claim.sequenceNumber}`;
-    return crypto.createHash("sha256").update(data).digest("hex").slice(0, 16);
+    return computeClaimChecksum(claim);
   }
 
   /**
-   * Read claims registry with fallback
+   * Read claims registry with fallback. Post-U-COORD12 every claim's stored
+   * checksum is verified against a fresh recomputation; mismatches are DROPPED
+   * from the returned registry and appended to the JSONL tamper ledger.
+   *
+   * Fail-open by design: a corrupted/tampered claim must NOT brick the registry
+   * for the rest of the fleet. Operators audit the tamper log out-of-band. The
+   * dropped claims are also removed from the persisted state on the first write
+   * that follows (atomicWrite serializes whatever readRegistry returned), so
+   * detection self-heals — but only for claims read through this engine. The
+   * pre-existing zombie-reaper-daemon.mjs bypass (writes that mutate fields
+   * without re-computing the checksum) is exactly what verifyChecksum is
+   * designed to surface here — every such claim trips a tamper log entry.
    */
   private readRegistry(): ClaimRegistry {
     try {
@@ -258,7 +339,24 @@ class AtomicClaimBrokerEngine {
       if (result.success) {
         // version is optional in the schema (pre-U-COORD02 files lack it) —
         // normalize to a non-negative integer so callers always see a number.
-        return { ...result.data, version: normalizeVersion(result.data.version) };
+        const normalizedVersion = normalizeVersion(result.data.version);
+
+        // U-COORD12: verify every claim's checksum. Drop mismatches + log.
+        const verifiedClaims: Claim[] = [];
+        for (const claim of result.data.claims) {
+          const v = verifyChecksum(claim);
+          if (v.ok) {
+            verifiedClaims.push(claim);
+          } else {
+            this.logTampering(claim, v.computed);
+          }
+        }
+
+        return {
+          ...result.data,
+          claims: verifiedClaims,
+          version: normalizedVersion,
+        };
       }
     } catch {
       // File doesn't exist or is corrupted
@@ -270,6 +368,44 @@ class AtomicClaimBrokerEngine {
       sequenceCounter: 0,
       version: 0,
     };
+  }
+
+  /**
+   * Append a tampering event to the JSONL ledger sibling to the claims file
+   * and emit a stderr warning. Best-effort: a write failure is swallowed (with
+   * a second stderr warn) because tamper DETECTION must not itself brick a read
+   * path — every other broker operation routes through readRegistry, so a
+   * thrown error here would cascade into acquireClaim/releaseClaim failures.
+   * U-COORD12.
+   */
+  private logTampering(claim: Claim, computedChecksum: string): void {
+    const event = {
+      ts: new Date().toISOString(),
+      pid: this.pid,
+      hostname: this.hostname,
+      claimId: claim.id,
+      resource: claim.resource,
+      holder: claim.holder,
+      sequenceNumber: claim.sequenceNumber,
+      storedChecksum: claim.checksum,
+      computedChecksum,
+      reason: "checksum-mismatch",
+    };
+    console.warn(
+      `[AtomicClaimBrokerEngine] checksum mismatch on claim ${claim.id} — dropped (stored=${claim.checksum} computed=${computedChecksum})`
+    );
+    const logPath = resolveTamperLogPath();
+    try {
+      fs.mkdirSync(path.dirname(logPath), { recursive: true });
+      fs.appendFileSync(logPath, JSON.stringify(event) + "\n");
+    } catch (err) {
+      // Inner-catch context: include logPath + claimId so an operator chasing
+      // missing tamper entries has something to grep on (per Arm-B P1 finding).
+      console.warn(
+        `[AtomicClaimBrokerEngine] tamper-log append failed for claim ${claim.id} -> ${logPath}: ` +
+          ((err as Error | undefined)?.message ?? String(err))
+      );
+    }
   }
 
   /**
