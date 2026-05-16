@@ -326,7 +326,19 @@ $out = foreach ($p in $procs) {
     pid       = [int]$p.ProcessId
     ppid      = [int]$p.ParentProcessId
     name      = $p.Name
-    cmd       = $p.CommandLine
+    # Strip C0 control chars (U+0000..U+001F) from the command line BEFORE
+    # ConvertTo-Json. Windows PowerShell 5.1's ConvertTo-Json emits raw
+    # control bytes inside string literals instead of u-escaped hex, so a
+    # single process whose cmdline contains a control char (e.g. a node
+    # eval with an embedded payload) produces JSON that Node's strict
+    # JSON.parse rejects ("Bad control character in string literal"),
+    # blinding the ENTIRE enumeration -> reaper sees 0 procs -> orphans
+    # accumulate. Controls are never meaningful for the reaper's structural
+    # cmdline pattern-matching, so -> space is lossless. The if/else keeps a
+    # genuine null distinct from an empty cmdline for normalizeProc. The
+    # doubled backslashes survive the JS template literal as a literal
+    # backslash so .NET regex receives the intended hex char-class.
+    cmd       = if ($p.CommandLine) { $p.CommandLine -replace '[\\x00-\\x1F]', ' ' } else { $null }
     createdMs = $cms
     rssBytes  = [int64]$p.WorkingSetSize
   }

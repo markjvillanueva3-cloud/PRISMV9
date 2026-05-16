@@ -386,6 +386,33 @@ describe("process-slot-map: enumerateProcesses + normalizeProc", () => {
   it("loadPidRegistry returns the empty shape for a missing file", () => {
     expect(loadPidRegistry("/no/such/path/registry.json")).toEqual({ pids: {} });
   });
+
+  // Pins the windowsEnumerate() C0-control-strip invariant: PS 5.1
+  // ConvertTo-Json emits raw control bytes that blind JSON.parse, so the
+  // PS script does `$p.CommandLine -replace '[\x00-\x1F]', ' '`. The
+  // replacement MUST be a space, not "" — empty-string fuses tokens
+  // (`while<TAB>true` -> `whiletrue`) and silently breaks leftover-task
+  // classification. This guard fails if anyone reverts the replacement to
+  // "" or weakens the strip so a control-bearing leftover shell stops
+  // matching. (`fleet-reaper.test.mjs` runs under the project vitest
+  // harness; this case is additionally verified by direct node invocation
+  // each session because the helpers/ vitest config has a pre-existing
+  // transform bug — see [[reference_fleet_reaper_ms1]].)
+  it("C0-control strip preserves leftover-task classification (space, not empty)", () => {
+    // Mirrors the PS-side -replace [\x00-\x1F] (explicit \u escapes
+    // so the source stays readable — raw control bytes here are invisible).
+    const stripC0 = (s, repl) => s.replace(/[ -]/g, repl);
+    // A real bash leftover loop whose tokens are TAB/CR/LF-separated, as a
+    // node --eval payload would render it in Win32_Process.CommandLine.
+    const raw = "bash -c \"while\ttrue;\r\ndo\tsleep\t60;\tdone\"";
+    expect(matchesLeftoverTaskPattern(raw)).toBe(true); // raw \s already matches \t/\r/\n
+    // The fix's substitution (-> space) keeps it matching.
+    expect(matchesLeftoverTaskPattern(stripC0(raw, " "))).toBe(true);
+    // The wrong substitution (-> "") fuses `while`+`true` and `sleep`+`60`,
+    // breaking BOTH /while\s+true/ and /\bsleep\s+\d+/ → no match. This is
+    // the exact regression a revert to '' would introduce.
+    expect(matchesLeftoverTaskPattern(stripC0(raw, ""))).toBe(false);
+  });
 });
 
 describe("process-slot-map: snapshotFleet — integration over the canonical table", () => {
