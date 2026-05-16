@@ -9,7 +9,7 @@
   "track_name": "Obsidian-Intelligence Layer (compound architecture)",
   "status": "in_progress",
   "in_progress_since": "2026-05-15T19:33:00.000Z",
-  "completed_units": 3,
+  "completed_units": 4,
   "partial_ship_units": 1,
   "total_units": 24,
   "first_unit_partial_shipped": "A1 (U-DOCKER-HOOK-BROKER) — 5 artifacts + 15 tests; live-Docker burn-in pending engine restore",
@@ -67,13 +67,38 @@
             "Round-trip test: 50 rapid PreToolUse fires complete with zero forked-process failures"
           ],
           "deliverables": [
-            { "path": "scripts/docker/prism-hooks-broker.Dockerfile", "type": "infra", "description": "Container definition with node + all hook source files baked in" },
-            { "path": ".claude/helpers/docker-hook-broker.mjs", "type": "helper", "description": "HTTP client that routes hook events to the container with timeout + fallback" },
-            { "path": "scripts/install-prism-hooks-container.ps1", "type": "infra", "description": "Idempotent installer (build + start + scheduled-task auto-restart)" },
-            { "path": ".claude/helpers/docker-hook-broker.test.mjs", "type": "test", "description": "Burn-in test: 100 concurrent hook fires with fork-storm prevention" }
+            {
+              "path": "scripts/docker/prism-hooks-broker.Dockerfile",
+              "type": "infra",
+              "description": "Container definition with node + all hook source files baked in"
+            },
+            {
+              "path": ".claude/helpers/docker-hook-broker.mjs",
+              "type": "helper",
+              "description": "HTTP client that routes hook events to the container with timeout + fallback"
+            },
+            {
+              "path": "scripts/install-prism-hooks-container.ps1",
+              "type": "infra",
+              "description": "Idempotent installer (build + start + scheduled-task auto-restart)"
+            },
+            {
+              "path": ".claude/helpers/docker-hook-broker.test.mjs",
+              "type": "test",
+              "description": "Burn-in test: 100 concurrent hook fires with fork-storm prevention"
+            }
           ],
-          "tools": ["Docker Desktop", "Bash", "PowerShell installer"],
-          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "tools": [
+            "Docker Desktop",
+            "Bash",
+            "PowerShell installer"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
           "rollback": "Stop + remove container; revert .claude/helpers/docker-hook-broker.mjs; settings.json reverts to direct hook execution",
           "status": "in_progress",
           "in_progress_since": "2026-05-15T19:33:00.000Z",
@@ -120,11 +145,26 @@
             "PostToolUse hook matcher updated in settings.json"
           ],
           "deliverables": [
-            { "path": ".claude/hooks/wiki-recall-on-write.mjs", "type": "hook", "description": "Mirror of wiki-recall-on-read.mjs but for write events" },
-            { "path": "mcp-server/src/__tests__/WikiRecallCounter.write-events.test.ts", "type": "test", "description": "Write event counter assertions" }
+            {
+              "path": ".claude/hooks/wiki-recall-on-write.mjs",
+              "type": "hook",
+              "description": "Mirror of wiki-recall-on-read.mjs but for write events"
+            },
+            {
+              "path": "mcp-server/src/__tests__/WikiRecallCounter.write-events.test.ts",
+              "type": "test",
+              "description": "Write event counter assertions"
+            }
           ],
-          "tools": ["Write"],
-          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "tools": [
+            "Write"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
           "rollback": "Remove hook entry from settings.json; the new helper module is harmless if unwired",
           "status": "completed",
           "completed_at": "2026-05-16T00:18:00.000Z",
@@ -158,7 +198,9 @@
           "id": "B1",
           "title": "U-DAILY-CONTEXT-WORKFLOW — synthesize yesterday's daily note + active projects + inbox into morning brief",
           "effort": 90,
-          "dependencies": ["A1"],
+          "dependencies": [
+            "A1"
+          ],
           "exit_conditions": [
             "6 AM cron writes knowledge/memories/generated/DAILY-CONTEXT-YYYY-MM-DD.md",
             "Output references at least 3 source files (yesterday's note + 1 project overview + ≥1 inbox item)",
@@ -166,18 +208,37 @@
             "Test: dry-run on fixture inputs produces deterministic markdown"
           ],
           "deliverables": [
-            { "path": "mcp-server/src/engines/DailyContextWorkflowEngine.ts", "type": "engine", "description": "Reads yesterday's daily note + project overviews + inbox, emits brief via Ollama" },
-            { "path": "scripts/cron/daily-context-cron.ps1", "type": "infra", "description": "Scheduled-task wrapper" },
-            { "path": "mcp-server/src/__tests__/DailyContextWorkflow.test.ts", "type": "test", "description": "Fixture-driven generation test" }
+            {
+              "path": "mcp-server/src/engines/DailyContextWorkflowEngine.ts",
+              "type": "engine",
+              "description": "Reads yesterday's daily note + project overviews + inbox, emits brief via Ollama"
+            },
+            {
+              "path": "scripts/cron/daily-context-cron.ps1",
+              "type": "infra",
+              "description": "Scheduled-task wrapper"
+            },
+            {
+              "path": "mcp-server/src/__tests__/DailyContextWorkflow.test.ts",
+              "type": "test",
+              "description": "Fixture-driven generation test"
+            }
           ],
-          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
           "rollback": "Disable scheduled task; engine stays unwired"
         },
         {
           "id": "B2",
           "title": "U-CONNECTION-FINDER — weekly cron finds non-obvious cross-domain/contradiction/evidence connections",
           "effort": 90,
-          "dependencies": ["A1"],
+          "dependencies": [
+            "A1"
+          ],
           "exit_conditions": [
             "Sun 6 AM cron writes knowledge/memories/generated/CONNECTIONS-YYYY-WW.md",
             "Connection types tagged: cross-domain | contradiction | evidence",
@@ -185,18 +246,37 @@
             "Test: known-pairs corpus surfaces ≥80% of seeded connections"
           ],
           "deliverables": [
-            { "path": "mcp-server/src/engines/ConnectionFinderEngine.ts", "type": "engine", "description": "Cosine-pair + Ollama-rank pipeline" },
-            { "path": "scripts/cron/connection-finder-cron.ps1", "type": "infra", "description": "Weekly scheduled-task wrapper" },
-            { "path": "mcp-server/src/__tests__/ConnectionFinder.test.ts", "type": "test", "description": "Seeded-connection recall test" }
+            {
+              "path": "mcp-server/src/engines/ConnectionFinderEngine.ts",
+              "type": "engine",
+              "description": "Cosine-pair + Ollama-rank pipeline"
+            },
+            {
+              "path": "scripts/cron/connection-finder-cron.ps1",
+              "type": "infra",
+              "description": "Weekly scheduled-task wrapper"
+            },
+            {
+              "path": "mcp-server/src/__tests__/ConnectionFinder.test.ts",
+              "type": "test",
+              "description": "Seeded-connection recall test"
+            }
           ],
-          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
           "rollback": "Disable scheduled task"
         },
         {
           "id": "B3",
           "title": "U-QUEUE-PROCESSOR — fs.watch knowledge/memories/queue/ for RESEARCH-X/SYNTHESIZE-X/DRAFT-X files, process via Ollama or Claude (size-gated)",
           "effort": 120,
-          "dependencies": ["A1"],
+          "dependencies": [
+            "A1"
+          ],
           "exit_conditions": [
             "Watcher service running (cron OR Stop hook poll, 2h cadence)",
             "File naming: RESEARCH-*.md | SYNTHESIZE-*.md | DRAFT-*.md",
@@ -206,18 +286,37 @@
             "Test: 3 fixture files → 3 outputs + 3 archived"
           ],
           "deliverables": [
-            { "path": "mcp-server/src/engines/QueueProcessorEngine.ts", "type": "engine", "description": "Queue watcher + classifier + Ollama/Claude router" },
-            { "path": "scripts/queue-processor-daemon.mjs", "type": "infra", "description": "Long-running watcher or 2h-cron entry" },
-            { "path": "mcp-server/src/__tests__/QueueProcessor.test.ts", "type": "test", "description": "End-to-end queue → output → archive" }
+            {
+              "path": "mcp-server/src/engines/QueueProcessorEngine.ts",
+              "type": "engine",
+              "description": "Queue watcher + classifier + Ollama/Claude router"
+            },
+            {
+              "path": "scripts/queue-processor-daemon.mjs",
+              "type": "infra",
+              "description": "Long-running watcher or 2h-cron entry"
+            },
+            {
+              "path": "mcp-server/src/__tests__/QueueProcessor.test.ts",
+              "type": "test",
+              "description": "End-to-end queue → output → archive"
+            }
           ],
-          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
           "rollback": "Stop daemon; files in queue/ stay untouched"
         },
         {
           "id": "B4",
           "title": "U-WEEKLY-SYNTHESIS — Sunday 8 PM retro: 4-question synthesis of the week",
           "effort": 60,
-          "dependencies": ["B1"],
+          "dependencies": [
+            "B1"
+          ],
           "exit_conditions": [
             "Sun 8 PM cron writes knowledge/memories/generated/WEEKLY-YYYY-WW.md",
             "4 sections: moved / didn't move / emerging patterns / top-3 next-week leverage",
@@ -225,18 +324,37 @@
             "Test: dry-run on 7-day fixture produces all 4 sections"
           ],
           "deliverables": [
-            { "path": "mcp-server/src/engines/WeeklySynthesisEngine.ts", "type": "engine", "description": "Reads daily-context lineage + emits retro" },
-            { "path": "scripts/cron/weekly-synthesis-cron.ps1", "type": "infra", "description": "Sunday-evening scheduled-task wrapper" },
-            { "path": "mcp-server/src/__tests__/WeeklySynthesis.test.ts", "type": "test", "description": "Fixture-driven retro generation" }
+            {
+              "path": "mcp-server/src/engines/WeeklySynthesisEngine.ts",
+              "type": "engine",
+              "description": "Reads daily-context lineage + emits retro"
+            },
+            {
+              "path": "scripts/cron/weekly-synthesis-cron.ps1",
+              "type": "infra",
+              "description": "Sunday-evening scheduled-task wrapper"
+            },
+            {
+              "path": "mcp-server/src/__tests__/WeeklySynthesis.test.ts",
+              "type": "test",
+              "description": "Fixture-driven retro generation"
+            }
           ],
-          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
           "rollback": "Disable scheduled task"
         },
         {
           "id": "B5",
           "title": "U-PROJECT-AUTO-UPDATER — fs.watch project subfolders, auto-update overview.md with one-line change summary",
           "effort": 75,
-          "dependencies": ["A1"],
+          "dependencies": [
+            "A1"
+          ],
           "exit_conditions": [
             "fs.watch fires on knowledge/projects/*/file change events",
             "Ollama summarizes diff to one line, appended to project's overview.md '## Recent activity' section",
@@ -244,18 +362,37 @@
             "Test: simulated 5 file changes produce 5 summary lines in overview.md"
           ],
           "deliverables": [
-            { "path": "mcp-server/src/engines/ProjectAutoUpdaterEngine.ts", "type": "engine", "description": "fs.watch + diff-summarize + overview-edit" },
-            { "path": "scripts/project-auto-updater-daemon.mjs", "type": "infra", "description": "Watcher daemon" },
-            { "path": "mcp-server/src/__tests__/ProjectAutoUpdater.test.ts", "type": "test", "description": "Simulated change → overview update" }
+            {
+              "path": "mcp-server/src/engines/ProjectAutoUpdaterEngine.ts",
+              "type": "engine",
+              "description": "fs.watch + diff-summarize + overview-edit"
+            },
+            {
+              "path": "scripts/project-auto-updater-daemon.mjs",
+              "type": "infra",
+              "description": "Watcher daemon"
+            },
+            {
+              "path": "mcp-server/src/__tests__/ProjectAutoUpdater.test.ts",
+              "type": "test",
+              "description": "Simulated change → overview update"
+            }
           ],
-          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
           "rollback": "Stop daemon; overview.md files unchanged going forward"
         },
         {
           "id": "B6",
           "title": "U-KNOWLEDGE-DISTILLATION — monthly distill 30 days of resources/areas notes into canonical per-topic references",
           "effort": 120,
-          "dependencies": ["E2"],
+          "dependencies": [
+            "E2"
+          ],
           "exit_conditions": [
             "1st-of-month cron writes knowledge/wiki/distillations/YYYY-MM-<topic>.md",
             "Topic clusters derived from IdeaBlock embeddings (depends on E2 dedup)",
@@ -263,11 +400,28 @@
             "Test: 30-day fixture yields ≥3 distillation files with valid frontmatter"
           ],
           "deliverables": [
-            { "path": "mcp-server/src/engines/KnowledgeDistillationEngine.ts", "type": "engine", "description": "Cluster + render distillations from IdeaBlocks" },
-            { "path": "scripts/cron/knowledge-distillation-cron.ps1", "type": "infra", "description": "Monthly scheduled-task wrapper" },
-            { "path": "mcp-server/src/__tests__/KnowledgeDistillation.test.ts", "type": "test", "description": "30-day fixture → distillation files" }
+            {
+              "path": "mcp-server/src/engines/KnowledgeDistillationEngine.ts",
+              "type": "engine",
+              "description": "Cluster + render distillations from IdeaBlocks"
+            },
+            {
+              "path": "scripts/cron/knowledge-distillation-cron.ps1",
+              "type": "infra",
+              "description": "Monthly scheduled-task wrapper"
+            },
+            {
+              "path": "mcp-server/src/__tests__/KnowledgeDistillation.test.ts",
+              "type": "test",
+              "description": "30-day fixture → distillation files"
+            }
           ],
-          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
           "rollback": "Disable scheduled task"
         }
       ]
@@ -290,14 +444,43 @@
             "Test: --html flag produces valid HTML5 + asserts presence of <svg> + <table>"
           ],
           "deliverables": [
-            { "path": "mcp-server/scripts/generate-claude-brief.mjs", "type": "modify", "description": "--html flag" },
-            { "path": "scripts/build-state-snapshot.mjs", "type": "modify", "description": "--html flag (path corrected from envelope's mcp-server/scripts/ — actual location is scripts/)" },
-            { "path": "scripts/generate-system-viz.mjs", "type": "modify", "description": "--html flag (alongside existing graph.html)" },
-            { "path": "scripts/lib/html-report-render.mjs", "type": "lib", "description": "Pure HTML render lib — 17 exports, 80 unit tests, air-gap safe" },
-            { "path": "scripts/lib/html-report-render.test.mjs", "type": "test", "description": "Lib unit tests (node:test)" },
-            { "path": "mcp-server/src/__tests__/HtmlOutputMode.test.ts", "type": "test", "description": "Integration test — 24 vitest cases covering static wiring + opportunistic live-spawn + XSS-safe assertions" }
+            {
+              "path": "mcp-server/scripts/generate-claude-brief.mjs",
+              "type": "modify",
+              "description": "--html flag"
+            },
+            {
+              "path": "scripts/build-state-snapshot.mjs",
+              "type": "modify",
+              "description": "--html flag (path corrected from envelope's mcp-server/scripts/ — actual location is scripts/)"
+            },
+            {
+              "path": "scripts/generate-system-viz.mjs",
+              "type": "modify",
+              "description": "--html flag (alongside existing graph.html)"
+            },
+            {
+              "path": "scripts/lib/html-report-render.mjs",
+              "type": "lib",
+              "description": "Pure HTML render lib — 17 exports, 80 unit tests, air-gap safe"
+            },
+            {
+              "path": "scripts/lib/html-report-render.test.mjs",
+              "type": "test",
+              "description": "Lib unit tests (node:test)"
+            },
+            {
+              "path": "mcp-server/src/__tests__/HtmlOutputMode.test.ts",
+              "type": "test",
+              "description": "Integration test — 24 vitest cases covering static wiring + opportunistic live-spawn + XSS-safe assertions"
+            }
           ],
-          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
           "rollback": "Remove --html flag handling; markdown output unchanged",
           "status": "completed",
           "completed_at": "2026-05-15T23:55:00.000Z",
@@ -314,7 +497,9 @@
           "id": "C2",
           "title": "U-HTML-DASHBOARD — unified state/shared/system-viz/dashboard.html aggregating viz + brief + build_state + scrutiny + recall top-20 + chat-bus + workboard",
           "effort": 120,
-          "dependencies": ["C1"],
+          "dependencies": [
+            "C1"
+          ],
           "exit_conditions": [
             "dashboard.html opens in browser without dependencies (self-contained)",
             "7 panels: viz embed, CLAUDE-BRIEF, BUILD_STATE, scrutiny ledger, recall top-20, chat-bus presence, workboard",
@@ -322,11 +507,28 @@
             "Test: panel HTML validates + each panel has ≥1 data row"
           ],
           "deliverables": [
-            { "path": "scripts/generate-dashboard-html.mjs", "type": "script", "description": "Aggregator that produces dashboard.html" },
-            { "path": ".claude/hooks/stop-dashboard-regen.mjs", "type": "hook", "description": "Stop hook firing dashboard regen async" },
-            { "path": "mcp-server/src/__tests__/DashboardHtml.test.ts", "type": "test", "description": "Panel-presence assertions" }
+            {
+              "path": "scripts/generate-dashboard-html.mjs",
+              "type": "script",
+              "description": "Aggregator that produces dashboard.html"
+            },
+            {
+              "path": ".claude/hooks/stop-dashboard-regen.mjs",
+              "type": "hook",
+              "description": "Stop hook firing dashboard regen async"
+            },
+            {
+              "path": "mcp-server/src/__tests__/DashboardHtml.test.ts",
+              "type": "test",
+              "description": "Panel-presence assertions"
+            }
           ],
-          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
           "rollback": "Remove Stop hook entry; dashboard.html stays as last-generated snapshot"
         },
         {
@@ -341,12 +543,64 @@
             "Test: design-system.html lists ≥10 components with usage examples"
           ],
           "deliverables": [
-            { "path": "scripts/extract-design-system.mjs", "type": "script", "description": "Walks mcp-server/web/, emits design-system.html" },
-            { "path": "state/shared/design-system.html", "type": "doc", "description": "Generated reference" },
-            { "path": "mcp-server/src/__tests__/DesignSystemExtract.test.ts", "type": "test", "description": "Validates extracted catalog" }
+            {
+              "path": "scripts/extract-design-system.mjs",
+              "type": "script",
+              "description": "Walks mcp-server/web/, emits design-system.html"
+            },
+            {
+              "path": "state/shared/design-system.html",
+              "type": "doc",
+              "description": "Generated reference"
+            },
+            {
+              "path": "mcp-server/src/__tests__/DesignSystemExtract.test.ts",
+              "type": "test",
+              "description": "Validates extracted catalog"
+            }
           ],
-          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
-          "rollback": "Delete extracted file; downstream HTML generators fall back to inline styles"
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "rollback": "Delete extracted file; downstream HTML generators fall back to inline styles",
+          "status": "completed",
+          "completed_at": "2026-05-16T01:18:00.000Z",
+          "owner": "claude-c0f06dee slot charlie",
+          "ship_record": {
+            "shipped_at": "2026-05-16T01:18:00.000Z",
+            "artifacts": [
+              "scripts/extract-design-system.mjs (~650 LOC, 17 exports, --dry-run/--check/--tokens-css/--html flags)",
+              "state/shared/design-system.html (18,605 bytes — regenerated, 193 components catalogued, replaces hand-curated 270-line drift artifact)",
+              "state/shared/design-system-tokens.css (1,443 bytes — CSS-vars bridge for C1/C2 generators, --ds-ok/warn/fail/info sourced from tailwind safety palette)",
+              "mcp-server/src/__tests__/DesignSystemExtract.test.ts (48 vitest cases — 48/48 PASS in 19ms; static parsers + injected-fs + real-source integration + live CLI opportunistic spawn)"
+            ],
+            "exit_conditions_met": [
+              "state/shared/design-system.html catalogs colors, fonts, button styles, layouts from mcp-server/web/ (sourced from canonical web/src/styles/design-system.ts + tailwind.config.js + components/ walk)",
+              "C1+C2 outputs can import design system tokens via design-system-tokens.css (--ds- prefixed CSS vars: --ds-ok, --ds-bg-*, --ds-text-*, --ds-primary-*, --ds-space-*, --ds-radius-*, --ds-font-*)",
+              "Visual consistency: shares the renderHtmlPage() render lib with C1 generators (claude-brief.html, build-state.html, system-graph-summary.html); palette inheritance via sidecar tokens CSS",
+              "Test asserts ≥10 components — actual catalog has 193 (21 top-level .tsx + 172 across 21 categorized subdirs)"
+            ],
+            "per_file_scrutiny": {
+              "extractor": {
+                "armA_code_analyzer": "PASS_with_3_P1_fixes",
+                "armB_reviewer": "PASS_with_2_P2_2_P3",
+                "P1_fixes_applied": [
+                  "parseTopLevelRecord: regex ({[sS]*?}) → sliceBalanced (Arm A P1-A — fragile on nested braces in future presets)",
+                  "catalogToTokensCss: status hex sourced from catalog.tailwindExtensions.safety FIRST, frozen literals fall back ONLY when upstream missing + emits NOTE comment surfacing the drift loudly (Arm A P1-B — drift between hardcoded fallbacks and real palette guaranteed without this)",
+                  "atomicWrite tmp suffix: process.pid → process.pid + randomBytes(6).toString(hex) for cross-fleet collision safety; rename failures wrapped with err.code surfaced for operator (Arm A P1-C)"
+                ]
+              },
+              "test": {
+                "armA_test_review": "PASS_with_P2_only",
+                "armB_reviewer": "PASS_with_4_P2",
+                "verdict": "all P2 accepted as documented trade-offs (silent-skip on OOM, mtime-decorative when no prior file, real-path test relies on REAL_DS existence)"
+              }
+            },
+            "scrutiny_note": "Per-file 2-arm scrutiny gate complete; 3 P1s on extractor remediated in same session, both files PASS round 2. End-of-task 3-of-3 to follow."
+          }
         }
       ]
     },
@@ -360,7 +614,9 @@
           "id": "D1",
           "title": "U-PROVENANCE-LAYER — every memory/wiki entry gets source frontmatter (agent, sessionId, writeEvent, parentMemory?)",
           "effort": 90,
-          "dependencies": ["A2"],
+          "dependencies": [
+            "A2"
+          ],
           "exit_conditions": [
             "Frontmatter validates via new Zod schema: { agent, sessionId, writeEvent, parentMemory? }",
             "memory-mirror-to-vault.mjs auto-enriches on write",
@@ -369,19 +625,42 @@
             "Test: 5 fixture writes produce valid provenance blocks; missing fields rejected"
           ],
           "deliverables": [
-            { "path": "mcp-server/src/schemas/memoryProvenanceSchema.ts", "type": "schema", "description": "Zod schema for provenance frontmatter" },
-            { "path": ".claude/helpers/memory-mirror-to-vault.mjs", "type": "modify", "description": "Inject provenance on write" },
-            { "path": "scripts/backfill-memory-provenance.mjs", "type": "script", "description": "One-shot backfill for existing memos" },
-            { "path": "mcp-server/src/__tests__/MemoryProvenance.test.ts", "type": "test", "description": "Schema + enrichment test" }
+            {
+              "path": "mcp-server/src/schemas/memoryProvenanceSchema.ts",
+              "type": "schema",
+              "description": "Zod schema for provenance frontmatter"
+            },
+            {
+              "path": ".claude/helpers/memory-mirror-to-vault.mjs",
+              "type": "modify",
+              "description": "Inject provenance on write"
+            },
+            {
+              "path": "scripts/backfill-memory-provenance.mjs",
+              "type": "script",
+              "description": "One-shot backfill for existing memos"
+            },
+            {
+              "path": "mcp-server/src/__tests__/MemoryProvenance.test.ts",
+              "type": "test",
+              "description": "Schema + enrichment test"
+            }
           ],
-          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
           "rollback": "Remove enrichment from mirror script; existing provenance stays as inert frontmatter"
         },
         {
           "id": "D2",
           "title": "U-ONTOLOGY-LAYER — explicit type tagging fact|interpretation, current|deprecated|draft, public|internal|confidential",
           "effort": 75,
-          "dependencies": ["D1"],
+          "dependencies": [
+            "D1"
+          ],
           "exit_conditions": [
             "New MemoryOntologyEngine validates frontmatter ontology fields",
             "Zod enum schemas for kind | state | visibility",
@@ -390,18 +669,37 @@
             "Test: 6 fixture writes (3 valid, 3 invalid) → 3 accept + 3 reject"
           ],
           "deliverables": [
-            { "path": "mcp-server/src/engines/MemoryOntologyEngine.ts", "type": "engine", "description": "Ontology validator + classifier" },
-            { "path": "mcp-server/src/schemas/memoryOntologySchema.ts", "type": "schema", "description": "Zod enums" },
-            { "path": "mcp-server/src/__tests__/MemoryOntology.test.ts", "type": "test", "description": "Accept/reject matrix" }
+            {
+              "path": "mcp-server/src/engines/MemoryOntologyEngine.ts",
+              "type": "engine",
+              "description": "Ontology validator + classifier"
+            },
+            {
+              "path": "mcp-server/src/schemas/memoryOntologySchema.ts",
+              "type": "schema",
+              "description": "Zod enums"
+            },
+            {
+              "path": "mcp-server/src/__tests__/MemoryOntology.test.ts",
+              "type": "test",
+              "description": "Accept/reject matrix"
+            }
           ],
-          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
           "rollback": "Loosen validator to warn-only mode"
         },
         {
           "id": "D3",
           "title": "U-CONFLICT-RESOLUTION — when 2 chats edit same memory key concurrently, capture both versions in conflicts/<key>.diff.md",
           "effort": 90,
-          "dependencies": ["D1"],
+          "dependencies": [
+            "D1"
+          ],
           "exit_conditions": [
             "MemoryConflictResolverEngine detects concurrent writes via SHA256 + timestamp window",
             "Conflict policies enum: last-writer | first-writer | human-arbitrate",
@@ -410,17 +708,33 @@
             "Confirm with user that semantic conflicts are different from file-level (commit-ownership-guard already exists)"
           ],
           "deliverables": [
-            { "path": "mcp-server/src/engines/MemoryConflictResolverEngine.ts", "type": "engine", "description": "Race detection + policy enforcement" },
-            { "path": "mcp-server/src/__tests__/MemoryConflictResolver.test.ts", "type": "test", "description": "Simulated race matrix" }
+            {
+              "path": "mcp-server/src/engines/MemoryConflictResolverEngine.ts",
+              "type": "engine",
+              "description": "Race detection + policy enforcement"
+            },
+            {
+              "path": "mcp-server/src/__tests__/MemoryConflictResolver.test.ts",
+              "type": "test",
+              "description": "Simulated race matrix"
+            }
           ],
-          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
           "rollback": "Disable detection; last-writer-wins becomes implicit default"
         },
         {
           "id": "D4",
           "title": "U-ACTION-TRACES — log every agent write as graph edge (agent, prompt-hash, tool, target-memory, timestamp)",
           "effort": 75,
-          "dependencies": ["A2", "D1"],
+          "dependencies": [
+            "A2",
+            "D1"
+          ],
           "exit_conditions": [
             "Append-only JSONL at state/shared/action-traces.jsonl",
             "Edge schema: { ts, agent, sessionId, promptHash, tool, target, action }",
@@ -429,19 +743,43 @@
             "Test: 10 simulated writes → 10 JSONL entries + query returns by-agent and by-target filters"
           ],
           "deliverables": [
-            { "path": "mcp-server/src/engines/ActionTraceEngine.ts", "type": "engine", "description": "Append-only logger + query API" },
-            { "path": "mcp-server/src/tools/dispatchers/sessionDispatcher.ts", "type": "modify", "description": "Add action_trace_query action" },
-            { "path": "mcp-server/src/__tests__/ActionTrace.test.ts", "type": "test", "description": "Logger + query test" },
-            { "path": "scripts/system-viz-action-overlay.mjs", "type": "script", "description": "Render trace timeline into viz" }
+            {
+              "path": "mcp-server/src/engines/ActionTraceEngine.ts",
+              "type": "engine",
+              "description": "Append-only logger + query API"
+            },
+            {
+              "path": "mcp-server/src/tools/dispatchers/sessionDispatcher.ts",
+              "type": "modify",
+              "description": "Add action_trace_query action"
+            },
+            {
+              "path": "mcp-server/src/__tests__/ActionTrace.test.ts",
+              "type": "test",
+              "description": "Logger + query test"
+            },
+            {
+              "path": "scripts/system-viz-action-overlay.mjs",
+              "type": "script",
+              "description": "Render trace timeline into viz"
+            }
           ],
-          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
           "rollback": "Stop logging; existing JSONL stays as historical record"
         },
         {
           "id": "D5",
           "title": "U-CONTEXT-EVAL-GATE — before any agent acts, eval whether retrieved context was complete vs golden eval set",
           "effort": 120,
-          "dependencies": ["D1", "E3"],
+          "dependencies": [
+            "D1",
+            "E3"
+          ],
           "exit_conditions": [
             "ContextEvalEngine compares retrieved-set vs ideal-set on every memory action",
             "Golden eval set seeded manually at state/shared/context-eval-golden.json",
@@ -450,12 +788,33 @@
             "Test: known-coverage corpus + 5 query scenarios produce expected pass/warn/block verdicts"
           ],
           "deliverables": [
-            { "path": "mcp-server/src/engines/ContextEvalEngine.ts", "type": "engine", "description": "Retrieved-vs-ideal coverage scorer" },
-            { "path": "state/shared/context-eval-golden.json", "type": "data", "description": "Seed golden set (manual + scripted)" },
-            { "path": ".claude/hooks/pre-memory-context-eval.mjs", "type": "hook", "description": "PreToolUse evaluator" },
-            { "path": "mcp-server/src/__tests__/ContextEval.test.ts", "type": "test", "description": "Coverage-verdict matrix" }
+            {
+              "path": "mcp-server/src/engines/ContextEvalEngine.ts",
+              "type": "engine",
+              "description": "Retrieved-vs-ideal coverage scorer"
+            },
+            {
+              "path": "state/shared/context-eval-golden.json",
+              "type": "data",
+              "description": "Seed golden set (manual + scripted)"
+            },
+            {
+              "path": ".claude/hooks/pre-memory-context-eval.mjs",
+              "type": "hook",
+              "description": "PreToolUse evaluator"
+            },
+            {
+              "path": "mcp-server/src/__tests__/ContextEval.test.ts",
+              "type": "test",
+              "description": "Coverage-verdict matrix"
+            }
           ],
-          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
           "rollback": "Set hook to warn-only or remove; engine stays unwired"
         }
       ]
@@ -478,18 +837,37 @@
             "Test: 5 fixture .md files produce expected ≥10 IdeaBlocks with valid schema"
           ],
           "deliverables": [
-            { "path": "mcp-server/src/engines/IdeaBlockExtractorEngine.ts", "type": "engine", "description": "Ollama-driven extractor" },
-            { "path": "mcp-server/src/schemas/ideaBlockSchema.ts", "type": "schema", "description": "Zod IdeaBlock schema" },
-            { "path": "mcp-server/src/__tests__/IdeaBlockExtractor.test.ts", "type": "test", "description": "Extraction fidelity test" }
+            {
+              "path": "mcp-server/src/engines/IdeaBlockExtractorEngine.ts",
+              "type": "engine",
+              "description": "Ollama-driven extractor"
+            },
+            {
+              "path": "mcp-server/src/schemas/ideaBlockSchema.ts",
+              "type": "schema",
+              "description": "Zod IdeaBlock schema"
+            },
+            {
+              "path": "mcp-server/src/__tests__/IdeaBlockExtractor.test.ts",
+              "type": "test",
+              "description": "Extraction fidelity test"
+            }
           ],
-          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
           "rollback": "Stop extraction; existing IdeaBlocks remain as inert JSONL"
         },
         {
           "id": "E2",
           "title": "U-IDEABLOCK-DEDUP — iterative cosine-similarity dedup at 80-85% threshold, 3-5 rounds, collapses near-duplicates",
           "effort": 90,
-          "dependencies": ["E1"],
+          "dependencies": [
+            "E1"
+          ],
           "exit_conditions": [
             "Dedup uses Qdrant cosine similarity over IdeaBlock embeddings",
             "Configurable threshold (default 0.82) and max rounds (default 4)",
@@ -498,17 +876,32 @@
             "Test: synthetic duplicate corpus collapses to expected canonical count"
           ],
           "deliverables": [
-            { "path": "mcp-server/src/engines/IdeaBlockDedupEngine.ts", "type": "engine", "description": "Iterative cosine clustering" },
-            { "path": "mcp-server/src/__tests__/IdeaBlockDedup.test.ts", "type": "test", "description": "Synthetic dedup test" }
+            {
+              "path": "mcp-server/src/engines/IdeaBlockDedupEngine.ts",
+              "type": "engine",
+              "description": "Iterative cosine clustering"
+            },
+            {
+              "path": "mcp-server/src/__tests__/IdeaBlockDedup.test.ts",
+              "type": "test",
+              "description": "Synthetic dedup test"
+            }
           ],
-          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
           "rollback": "Skip dedup; IdeaBlocks remain raw extraction set"
         },
         {
           "id": "E3",
           "title": "U-IDEABLOCK-RAG-ENGINE — replace ObsidianMemoryRagEngine chunk-window retrieval with IdeaBlock matching",
           "effort": 90,
-          "dependencies": ["E2"],
+          "dependencies": [
+            "E2"
+          ],
           "exit_conditions": [
             "New IdeaBlockRagEngine implements same public API as ObsidianMemoryRagEngine (drop-in)",
             "Retrieval returns ranked IdeaBlocks with answer + source link",
@@ -516,17 +909,32 @@
             "Test: 20-query eval set shows relevance lift; A/B against old engine"
           ],
           "deliverables": [
-            { "path": "mcp-server/src/engines/IdeaBlockRagEngine.ts", "type": "engine", "description": "IdeaBlock-based RAG retrieval" },
-            { "path": "mcp-server/src/__tests__/IdeaBlockRag.test.ts", "type": "test", "description": "A/B relevance eval" }
+            {
+              "path": "mcp-server/src/engines/IdeaBlockRagEngine.ts",
+              "type": "engine",
+              "description": "IdeaBlock-based RAG retrieval"
+            },
+            {
+              "path": "mcp-server/src/__tests__/IdeaBlockRag.test.ts",
+              "type": "test",
+              "description": "A/B relevance eval"
+            }
           ],
-          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
           "rollback": "Switch dispatcher back to ObsidianMemoryRagEngine via singleton swap"
         },
         {
           "id": "E4",
           "title": "U-IDEABLOCK-GOVERNANCE — auto-tag each block with clearance | version-state | product-line | export-control",
           "effort": 60,
-          "dependencies": ["E1"],
+          "dependencies": [
+            "E1"
+          ],
           "exit_conditions": [
             "Governance tags machine-applied (not author-applied) via Ollama classifier",
             "Tags enum: clearance ∈ {public,internal,confidential} | version_state ∈ {current,deprecated,draft} | product_line ∈ {sfc,master-post,cad-cam-ai,...} | export_control ∈ {none,EAR,ITAR}",
@@ -534,10 +942,23 @@
             "Test: known-clearance fixture corpus classified at ≥85% accuracy"
           ],
           "deliverables": [
-            { "path": "mcp-server/src/engines/IdeaBlockGovernanceEngine.ts", "type": "engine", "description": "Ollama-driven tagger" },
-            { "path": "mcp-server/src/__tests__/IdeaBlockGovernance.test.ts", "type": "test", "description": "Classification accuracy test" }
+            {
+              "path": "mcp-server/src/engines/IdeaBlockGovernanceEngine.ts",
+              "type": "engine",
+              "description": "Ollama-driven tagger"
+            },
+            {
+              "path": "mcp-server/src/__tests__/IdeaBlockGovernance.test.ts",
+              "type": "test",
+              "description": "Classification accuracy test"
+            }
           ],
-          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
           "rollback": "Stop tagging; existing tags remain"
         }
       ]
@@ -561,11 +982,28 @@
             "Telegram bot deferred to Phase 2 (separate unit)"
           ],
           "deliverables": [
-            { "path": "scripts/voice-capture-watcher.mjs", "type": "script", "description": "fs.watch + Whisper invoke + .md write" },
-            { "path": "scripts/install-whisper-local.ps1", "type": "infra", "description": "Whisper.cpp installer" },
-            { "path": "mcp-server/src/__tests__/VoiceCapture.test.ts", "type": "test", "description": "Fixture .wav → .md" }
+            {
+              "path": "scripts/voice-capture-watcher.mjs",
+              "type": "script",
+              "description": "fs.watch + Whisper invoke + .md write"
+            },
+            {
+              "path": "scripts/install-whisper-local.ps1",
+              "type": "infra",
+              "description": "Whisper.cpp installer"
+            },
+            {
+              "path": "mcp-server/src/__tests__/VoiceCapture.test.ts",
+              "type": "test",
+              "description": "Fixture .wav → .md"
+            }
           ],
-          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
           "rollback": "Stop watcher; existing transcripts retained"
         },
         {
@@ -580,11 +1018,28 @@
             "Test: 3 fixture PDFs with mixed highlight + body → highlight-only output assertion"
           ],
           "deliverables": [
-            { "path": "mcp-server/src/engines/PDFKnowledgeIngestEngine.ts", "type": "modify", "description": "Add extractHighlightsOnly()" },
-            { "path": ".claude/commands/pdf-learn.md", "type": "modify", "description": "Add --highlights-only flag" },
-            { "path": "mcp-server/src/__tests__/PDFHighlightsOnly.test.ts", "type": "test", "description": "Highlight-only extraction test" }
+            {
+              "path": "mcp-server/src/engines/PDFKnowledgeIngestEngine.ts",
+              "type": "modify",
+              "description": "Add extractHighlightsOnly()"
+            },
+            {
+              "path": ".claude/commands/pdf-learn.md",
+              "type": "modify",
+              "description": "Add --highlights-only flag"
+            },
+            {
+              "path": "mcp-server/src/__tests__/PDFHighlightsOnly.test.ts",
+              "type": "test",
+              "description": "Highlight-only extraction test"
+            }
           ],
-          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
           "rollback": "Remove flag; default full-body extraction restored"
         }
       ]
@@ -607,18 +1062,37 @@
             "Test: schema validates all entries; broken-refusal-case → CI fail"
           ],
           "deliverables": [
-            { "path": "state/shared/AGENT_JOB_DESCRIPTIONS.md", "type": "doc", "description": "Per-agent job descriptions" },
-            { "path": "scripts/validate-agent-job-descriptions.mjs", "type": "script", "description": "Schema validator" },
-            { "path": "mcp-server/src/__tests__/AgentJobDescriptions.test.ts", "type": "test", "description": "Schema + completeness test" }
+            {
+              "path": "state/shared/AGENT_JOB_DESCRIPTIONS.md",
+              "type": "doc",
+              "description": "Per-agent job descriptions"
+            },
+            {
+              "path": "scripts/validate-agent-job-descriptions.mjs",
+              "type": "script",
+              "description": "Schema validator"
+            },
+            {
+              "path": "mcp-server/src/__tests__/AgentJobDescriptions.test.ts",
+              "type": "test",
+              "description": "Schema + completeness test"
+            }
           ],
-          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
           "rollback": "Doc stays; agents fall back to vibe behavior"
         },
         {
           "id": "G2",
           "title": "U-AGENT-PIXEL-DEPT-OVERLAY — extend system-viz with agent-status overlay (idle/typing/parsing/errored) from chat-bus heartbeats",
           "effort": 90,
-          "dependencies": ["D4"],
+          "dependencies": [
+            "D4"
+          ],
           "exit_conditions": [
             "generate-system-viz.mjs adds agent-status overlay layer",
             "Status derived from chat-slots.json heartbeat age + AGENT_CHAT.jsonl latest entry",
@@ -626,12 +1100,33 @@
             "Test: simulated 4-state chat-slots produce expected overlay JSON"
           ],
           "deliverables": [
-            { "path": "scripts/generate-system-viz.mjs", "type": "modify", "description": "Add agent-overlay layer" },
-            { "path": "state/shared/system-viz/agent-overlay.css", "type": "asset", "description": "Status color tokens" },
-            { "path": "state/shared/system-viz/agent-overlay.js", "type": "asset", "description": "Viewer JS renderer" },
-            { "path": "mcp-server/src/__tests__/AgentOverlay.test.ts", "type": "test", "description": "Overlay JSON shape test" }
+            {
+              "path": "scripts/generate-system-viz.mjs",
+              "type": "modify",
+              "description": "Add agent-overlay layer"
+            },
+            {
+              "path": "state/shared/system-viz/agent-overlay.css",
+              "type": "asset",
+              "description": "Status color tokens"
+            },
+            {
+              "path": "state/shared/system-viz/agent-overlay.js",
+              "type": "asset",
+              "description": "Viewer JS renderer"
+            },
+            {
+              "path": "mcp-server/src/__tests__/AgentOverlay.test.ts",
+              "type": "test",
+              "description": "Overlay JSON shape test"
+            }
           ],
-          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
           "rollback": "Remove overlay layer from viz generator; viewer unchanged"
         },
         {
@@ -646,10 +1141,23 @@
             "Test: simulated stall produces single notification; non-stall scenario silent"
           ],
           "deliverables": [
-            { "path": ".claude/hooks/agent-watchdog.mjs", "type": "hook", "description": "Stall detector + notifier (5 pure exports + CLI/hook duality)" },
-            { "path": "mcp-server/src/__tests__/AgentWatchdog.test.ts", "type": "test", "description": "26 vitest cases — stall scenarios + null-slot fixture + rate-limit cycle + path-traversal safety" }
+            {
+              "path": ".claude/hooks/agent-watchdog.mjs",
+              "type": "hook",
+              "description": "Stall detector + notifier (5 pure exports + CLI/hook duality)"
+            },
+            {
+              "path": "mcp-server/src/__tests__/AgentWatchdog.test.ts",
+              "type": "test",
+              "description": "26 vitest cases — stall scenarios + null-slot fixture + rate-limit cycle + path-traversal safety"
+            }
           ],
-          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
           "rollback": "Remove hook entry from settings.json (wiring deferred — envelope exit criteria satisfied by tests)",
           "status": "completed",
           "completed_at": "2026-05-16T00:50:00.000Z",
@@ -669,8 +1177,6 @@
       ]
     }
   ],
-  "total_units": 24,
-  "completed_units": 0,
   "execution_order_hint": "1. A1 + A2 (stabilize first). 2. C1 + E1 + F2 in parallel (isolated tracks). 3. B3 → B1 → B4 → B2 → B5 → B6 (workflows; B6 depends on E2). 4. D1 → D4 → D2 → D3 → D5 (Company Brain; 2-3 sessions). 5. F1 + G1-G3 in parallel after D stabilizes.",
   "risks_open_questions": [
     "Track D5 context-eval requires golden eval set — where does ground-truth come from? Manual seed needed.",

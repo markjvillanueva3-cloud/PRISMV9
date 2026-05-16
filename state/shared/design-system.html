@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PRISM Design System — Generated Catalog</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>PRISM Design System — Generated Catalog</h1>
+<div class="meta">Schema 1.0.0 · 2026-05-16T01:18:03.950Z · 193 components catalogued</div>
+
+
+<div class="headline-grid">
+<div class="card ok">
+  <div class="lbl">Components</div>
+  <div class="val">193</div>
+  <div class="hint">21 categories</div>
+</div>
+<div class="card ok">
+  <div class="lbl">Color tokens</div>
+  <div class="val">31</div>
+  
+</div>
+<div class="card ok">
+  <div class="lbl">Variants</div>
+  <div class="val">12</div>
+  <div class="hint">button + input + card</div>
+</div>
+<div class="card info">
+  <div class="lbl">Schema</div>
+  <div class="val">1.0.0</div>
+  
+</div>
+</div>
+<table><caption>Primary palette (mcp-server/web/src/styles/design-system.ts)</caption>
+<thead><tr><th>Token</th><th>Value</th></tr></thead>
+<tbody>
+<tr><td>primary.50</td><td>#f0fdf4</td></tr>
+<tr><td>primary.100</td><td>#dcfce7</td></tr>
+<tr><td>primary.200</td><td>#bbf7d0</td></tr>
+<tr><td>primary.300</td><td>#86efac</td></tr>
+<tr><td>primary.400</td><td>#4ade80</td></tr>
+<tr><td>primary.500</td><td>#22c55e</td></tr>
+<tr><td>primary.600</td><td>#16a34a</td></tr>
+<tr><td>primary.700</td><td>#15803d</td></tr>
+<tr><td>primary.800</td><td>#166534</td></tr>
+<tr><td>primary.900</td><td>#14532d</td></tr>
+</tbody>
+</table>
+<h2>Status palette (drives chips, badges, alerts)</h2>
+<div class="badge-grid">
+<span class="badge info" title="text-cyan-400">info</span>
+<span class="badge ok" title="text-emerald-400">success</span>
+<span class="badge warn" title="text-amber-400">warning</span>
+<span class="badge fail" title="text-red-400">error</span>
+<span class="badge info" title="text-violet-400">pending</span>
+</div>
+<h2>Surface colors</h2>
+<div class="kv">
+<div class="k">background.base</div><div>rgba(2, 6, 23, 0.78)</div>
+<div class="k">background.elevated</div><div>rgba(15, 23, 42, 0.9)</div>
+<div class="k">background.surface</div><div>rgba(30, 41, 59, 0.8)</div>
+<div class="k">background.overlay</div><div>rgba(0, 0, 0, 0.5)</div>
+<div class="k">text.primary</div><div>#e2e8f0</div>
+<div class="k">text.secondary</div><div>#94a3b8</div>
+<div class="k">text.muted</div><div>#64748b</div>
+<div class="k">text.inverse</div><div>#0f172a</div>
+<div class="k">border.default</div><div>rgba(148, 163, 184, 0.08)</div>
+<div class="k">border.subtle</div><div>rgba(255, 255, 255, 0.05)</div>
+<div class="k">border.accent</div><div>rgba(255, 255, 255, 0.10)</div>
+</div>
+<table><caption>tailwind.config.js → theme.extend.colors.prism</caption>
+<thead><tr><th>Token</th><th>Hex</th></tr></thead>
+<tbody>
+<tr><td>prism.50</td><td>#f0f4ff</td></tr>
+<tr><td>prism.100</td><td>#dbe4ff</td></tr>
+<tr><td>prism.200</td><td>#bac8ff</td></tr>
+<tr><td>prism.300</td><td>#91a7ff</td></tr>
+<tr><td>prism.400</td><td>#748ffc</td></tr>
+<tr><td>prism.500</td><td>#5c7cfa</td></tr>
+<tr><td>prism.600</td><td>#4c6ef5</td></tr>
+<tr><td>prism.700</td><td>#4263eb</td></tr>
+<tr><td>prism.800</td><td>#3b5bdb</td></tr>
+<tr><td>prism.900</td><td>#364fc7</td></tr>
+</tbody>
+</table>
+<table><caption>tailwind.config.js → theme.extend.colors.safety</caption>
+<thead><tr><th>Token</th><th>Hex</th></tr></thead>
+<tbody>
+<tr><td>safety.pass</td><td>#2b8a3e</td></tr>
+<tr><td>safety.warn</td><td>#e67700</td></tr>
+<tr><td>safety.fail</td><td>#c92a2a</td></tr>
+<tr><td>safety.info</td><td>#1971c2</td></tr>
+</tbody>
+</table>
+<h2>Typography</h2>
+<div class="kv">
+<div class="k">fontFamily.sans</div><div>Inter, system-ui, -apple-system, sans-serif</div>
+<div class="k">fontFamily.mono</div><div>JetBrains Mono, Menlo, Monaco, Consolas, monospace</div>
+<div class="k">fontSize.xs</div><div>0.75rem / lh 1rem</div>
+<div class="k">fontSize.sm</div><div>0.875rem / lh 1.25rem</div>
+<div class="k">fontSize.base</div><div>1rem / lh 1.5rem</div>
+<div class="k">fontSize.lg</div><div>1.125rem / lh 1.75rem</div>
+<div class="k">fontSize.xl</div><div>1.25rem / lh 1.75rem</div>
+<div class="k">fontSize.2xl</div><div>1.5rem / lh 2rem</div>
+<div class="k">fontSize.3xl</div><div>1.875rem / lh 2.25rem</div>
+<div class="k">fontWeight.normal</div><div>400</div>
+<div class="k">fontWeight.medium</div><div>500</div>
+<div class="k">fontWeight.semibold</div><div>600</div>
+<div class="k">fontWeight.bold</div><div>700</div>
+</div>
+<table><caption>Spacing scale</caption>
+<thead><tr><th>Token</th><th>Value</th></tr></thead>
+<tbody>
+<tr><td>xs</td><td>0.25rem</td></tr>
+<tr><td>sm</td><td>0.5rem</td></tr>
+<tr><td>md</td><td>1rem</td></tr>
+<tr><td>lg</td><td>1.5rem</td></tr>
+<tr><td>xl</td><td>2rem</td></tr>
+<tr><td>2xl</td><td>3rem</td></tr>
+<tr><td>3xl</td><td>4rem</td></tr>
+</tbody>
+</table>
+<table><caption>Border radius scale</caption>
+<thead><tr><th>Token</th><th>Value</th></tr></thead>
+<tbody>
+<tr><td>none</td><td>0</td></tr>
+<tr><td>sm</td><td>0.25rem</td></tr>
+<tr><td>md</td><td>0.375rem</td></tr>
+<tr><td>lg</td><td>0.5rem</td></tr>
+<tr><td>xl</td><td>0.75rem</td></tr>
+<tr><td>2xl</td><td>1rem</td></tr>
+<tr><td>full</td><td>9999px</td></tr>
+</tbody>
+</table>
+<table><caption>buttonVariants</caption>
+<thead><tr><th>Variant</th><th>Classes</th></tr></thead>
+<tbody>
+<tr><td>primary</td><td>bg-blue-600 hover:bg-blue-700 text-white</td></tr>
+<tr><td>secondary</td><td>bg-gray-700 hover:bg-gray-600 text-gray-200</td></tr>
+<tr><td>outline</td><td>border border-gray-600 hover:border-gray-500 text-gray-300</td></tr>
+<tr><td>ghost</td><td>hover:bg-gray-800 text-gray-400 hover:text-gray-200</td></tr>
+<tr><td>danger</td><td>bg-red-600 hover:bg-red-700 text-white</td></tr>
+<tr><td>success</td><td>bg-emerald-600 hover:bg-emerald-700 text-white</td></tr>
+</tbody>
+</table>
+<table><caption>inputVariants</caption>
+<thead><tr><th>Variant</th><th>Classes</th></tr></thead>
+<tbody>
+<tr><td>default</td><td>bg-gray-800/50 border-gray-700 text-gray-100 placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500/20</td></tr>
+<tr><td>error</td><td>bg-red-900/20 border-red-500 text-gray-100 focus:border-red-500 focus:ring-red-500/20</td></tr>
+<tr><td>success</td><td>bg-emerald-900/20 border-emerald-500 text-gray-100 focus:border-emerald-500 focus:ring-emerald-500/20</td></tr>
+</tbody>
+</table>
+<table><caption>cardVariants</caption>
+<thead><tr><th>Variant</th><th>Classes</th></tr></thead>
+<tbody>
+<tr><td>default</td><td>bg-[rgba(2,6,23,0.78)] border border-white/10 rounded-lg</td></tr>
+<tr><td>elevated</td><td>bg-slate-800/80 border border-white/5 rounded-xl shadow-xl</td></tr>
+<tr><td>glass</td><td>bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg</td></tr>
+</tbody>
+</table>
+<h2>Transitions</h2>
+<div class="kv">
+<div class="k">fast</div><div>transition-all duration-150 ease-out</div>
+<div class="k">normal</div><div>transition-all duration-200 ease-out</div>
+<div class="k">slow</div><div>transition-all duration-300 ease-out</div>
+<div class="k">spring</div><div>transition-all duration-200 ease-[cubic-bezier(0.2,0.9,0.28,1)]</div>
+</div>
+<h2>Animations</h2>
+<div class="kv">
+<div class="k">fadeIn</div><div>animate-[fadeIn_200ms_ease-out]</div>
+<div class="k">slideUp</div><div>animate-[slideUp_200ms_ease-out]</div>
+<div class="k">slideDown</div><div>animate-[slideDown_200ms_ease-out]</div>
+<div class="k">pulse</div><div>animate-pulse</div>
+<div class="k">spin</div><div>animate-spin</div>
+<div class="k">bounce</div><div>animate-bounce</div>
+</div>
+<table><caption>Top-level components (21)</caption>
+<thead><tr><th>Name</th><th>Path</th></tr></thead>
+<tbody>
+<tr><td>AmbiguityResolver</td><td>mcp-server/web/src/components/AmbiguityResolver.tsx</td></tr>
+<tr><td>Breadcrumbs</td><td>mcp-server/web/src/components/Breadcrumbs.tsx</td></tr>
+<tr><td>CommandPalette</td><td>mcp-server/web/src/components/CommandPalette.tsx</td></tr>
+<tr><td>EnhancedErrorBoundary</td><td>mcp-server/web/src/components/EnhancedErrorBoundary.tsx</td></tr>
+<tr><td>ErrorBoundary</td><td>mcp-server/web/src/components/ErrorBoundary.tsx</td></tr>
+<tr><td>ErrorState</td><td>mcp-server/web/src/components/ErrorState.tsx</td></tr>
+<tr><td>ExportButton</td><td>mcp-server/web/src/components/ExportButton.tsx</td></tr>
+<tr><td>FormulaCard</td><td>mcp-server/web/src/components/FormulaCard.tsx</td></tr>
+<tr><td>LatheAIPanel</td><td>mcp-server/web/src/components/LatheAIPanel.tsx</td></tr>
+<tr><td>LatheBackplot</td><td>mcp-server/web/src/components/LatheBackplot.tsx</td></tr>
+<tr><td>LatheInputWizard</td><td>mcp-server/web/src/components/LatheInputWizard.tsx</td></tr>
+<tr><td>Layout</td><td>mcp-server/web/src/components/Layout.tsx</td></tr>
+<tr><td>LoadingState</td><td>mcp-server/web/src/components/LoadingState.tsx</td></tr>
+<tr><td>NotificationBell</td><td>mcp-server/web/src/components/NotificationBell.tsx</td></tr>
+<tr><td>NotificationCenter</td><td>mcp-server/web/src/components/NotificationCenter.tsx</td></tr>
+<tr><td>ProtectedRoute</td><td>mcp-server/web/src/components/ProtectedRoute.tsx</td></tr>
+<tr><td>SafetyBadge</td><td>mcp-server/web/src/components/SafetyBadge.tsx</td></tr>
+<tr><td>SetupInstructionPanel</td><td>mcp-server/web/src/components/SetupInstructionPanel.tsx</td></tr>
+<tr><td>SpeedFeedPanel</td><td>mcp-server/web/src/components/SpeedFeedPanel.tsx</td></tr>
+<tr><td>SurfaceCrossLink</td><td>mcp-server/web/src/components/SurfaceCrossLink.tsx</td></tr>
+<tr><td>SyncStatusIndicator</td><td>mcp-server/web/src/components/SyncStatusIndicator.tsx</td></tr>
+</tbody>
+</table>
+<h2>Component categories (172 files across 21 subdirs)</h2>
+<svg class="bar-chart" viewBox="0 0 600 550" width="600" height="550" role="img" aria-label="Component categories (172 files across 21 subdirs)">
+<g>
+  <text x="0" y="19" text-anchor="start">calculator</text>
+  <rect class="bar info" x="133" y="4" width="395" height="22" rx="2"/>
+  <text x="532" y="19" text-anchor="start">24</text>
+</g>
+<g>
+  <text x="0" y="45" text-anchor="start">ppg</text>
+  <rect class="bar info" x="133" y="30" width="346" height="22" rx="2"/>
+  <text x="483" y="45" text-anchor="start">21</text>
+</g>
+<g>
+  <text x="0" y="71" text-anchor="start">wedm-studio</text>
+  <rect class="bar info" x="133" y="56" width="247" height="22" rx="2"/>
+  <text x="384" y="71" text-anchor="start">15</text>
+</g>
+<g>
+  <text x="0" y="97" text-anchor="start">learning</text>
+  <rect class="bar info" x="133" y="82" width="230" height="22" rx="2"/>
+  <text x="367" y="97" text-anchor="start">14</text>
+</g>
+<g>
+  <text x="0" y="123" text-anchor="start">puoa</text>
+  <rect class="bar info" x="133" y="108" width="230" height="22" rx="2"/>
+  <text x="367" y="123" text-anchor="start">14</text>
+</g>
+<g>
+  <text x="0" y="149" text-anchor="start">wedm</text>
+  <rect class="bar info" x="133" y="134" width="230" height="22" rx="2"/>
+  <text x="367" y="149" text-anchor="start">14</text>
+</g>
+<g>
+  <text x="0" y="175" text-anchor="start">sfc</text>
+  <rect class="bar info" x="133" y="160" width="198" height="22" rx="2"/>
+  <text x="335" y="175" text-anchor="start">12</text>
+</g>
+<g>
+  <text x="0" y="201" text-anchor="start">ui</text>
+  <rect class="bar info" x="133" y="186" width="181" height="22" rx="2"/>
+  <text x="318" y="201" text-anchor="start">11</text>
+</g>
+<g>
+  <text x="0" y="227" text-anchor="start">shared</text>
+  <rect class="bar info" x="133" y="212" width="115" height="22" rx="2"/>
+  <text x="252" y="227" text-anchor="start">7</text>
+</g>
+<g>
+  <text x="0" y="253" text-anchor="start">viewer</text>
+  <rect class="bar info" x="133" y="238" width="115" height="22" rx="2"/>
+  <text x="252" y="253" text-anchor="start">7</text>
+</g>
+<g>
+  <text x="0" y="279" text-anchor="start">jobs</text>
+  <rect class="bar info" x="133" y="264" width="99" height="22" rx="2"/>
+  <text x="236" y="279" text-anchor="start">6</text>
+</g>
+<g>
+  <text x="0" y="305" text-anchor="start">optimization-report</text>
+  <rect class="bar info" x="133" y="290" width="82" height="22" rx="2"/>
+  <text x="219" y="305" text-anchor="start">5</text>
+</g>
+<g>
+  <text x="0" y="331" text-anchor="start">charts</text>
+  <rect class="bar info" x="133" y="316" width="66" height="22" rx="2"/>
+  <text x="203" y="331" text-anchor="start">4</text>
+</g>
+<g>
+  <text x="0" y="357" text-anchor="start">employee</text>
+  <rect class="bar info" x="133" y="342" width="66" height="22" rx="2"/>
+  <text x="203" y="357" text-anchor="start">4</text>
+</g>
+<g>
+  <text x="0" y="383" text-anchor="start">workspace</text>
+  <rect class="bar info" x="133" y="368" width="66" height="22" rx="2"/>
+  <text x="203" y="383" text-anchor="start">4</text>
+</g>
+<g>
+  <text x="0" y="409" text-anchor="start">mill</text>
+  <rect class="bar info" x="133" y="394" width="49" height="22" rx="2"/>
+  <text x="186" y="409" text-anchor="start">3</text>
+</g>
+<g>
+  <text x="0" y="435" text-anchor="start">operating-system</text>
+  <rect class="bar info" x="133" y="420" width="33" height="22" rx="2"/>
+  <text x="170" y="435" text-anchor="start">2</text>
+</g>
+<g>
+  <text x="0" y="461" text-anchor="start">shell</text>
+  <rect class="bar info" x="133" y="446" width="33" height="22" rx="2"/>
+  <text x="170" y="461" text-anchor="start">2</text>
+</g>
+<g>
+  <text x="0" y="487" text-anchor="start">operator</text>
+  <rect class="bar info" x="133" y="472" width="16" height="22" rx="2"/>
+  <text x="153" y="487" text-anchor="start">1</text>
+</g>
+<g>
+  <text x="0" y="513" text-anchor="start">quote</text>
+  <rect class="bar info" x="133" y="498" width="16" height="22" rx="2"/>
+  <text x="153" y="513" text-anchor="start">1</text>
+</g>
+<g>
+  <text x="0" y="539" text-anchor="start">results</text>
+  <rect class="bar info" x="133" y="524" width="16" height="22" rx="2"/>
+  <text x="153" y="539" text-anchor="start">1</text>
+</g>
+</svg>
+<h2>CSS-vars bridge for HTML report generators</h2>
+<div class="panel"><p>C1 / C2 HTML generators (claude-brief, build-state, dashboard) MAY include the sidecar <code>state/shared/design-system-tokens.css</code> for richer palette inheritance:</p>
+<pre style="background:#1a1c23;padding:0.75rem;border-radius:6px;overflow:auto"><code>&lt;link rel="stylesheet" href="design-system-tokens.css"&gt;
+or inline: &lt;style&gt;--ds-ok: #22c55e; --ds-warn: #f59e0b; …&lt;/style&gt;</code></pre>
+<p>Default render lib palette (<code>--bg, --panel, --ok, ...</code>) stays load-bearing — these tokens are additive, not a replacement.</p></div>
+<footer><div>Generated by scripts/extract-design-system.mjs (render lib 1.0.0). Source: mcp-server/web/src/styles/design-system.ts + tailwind.config.js + components/</div>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>
