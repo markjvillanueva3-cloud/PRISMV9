@@ -9,7 +9,7 @@
   "track_name": "Obsidian-Intelligence Layer (compound architecture)",
   "status": "in_progress",
   "in_progress_since": "2026-05-15T19:33:00.000Z",
-  "completed_units": 6,
+  "completed_units": 7,
   "partial_ship_units": 1,
   "total_units": 24,
   "first_unit_partial_shipped": "A1 (U-DOCKER-HOOK-BROKER) — 5 artifacts + 15 tests; live-Docker burn-in pending engine restore",
@@ -740,7 +740,49 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "Loosen validator to warn-only mode"
+          "rollback": "Loosen validator to warn-only mode",
+          "status": "completed",
+          "completed_at": "2026-05-16T02:55:00.000Z",
+          "owner": "claude-c0f06dee slot charlie",
+          "ship_record": {
+            "shipped_at": "2026-05-16T02:55:00.000Z",
+            "commits": [
+              "892b667e2",
+              "7c87d2161"
+            ],
+            "artifacts": [
+              "mcp-server/src/schemas/memoryOntologySchema.ts (11 exports, Zod v4 .strict(), state-machine YAML extractor, Object.create(null) proto-pollution guard)",
+              "mcp-server/src/engines/MemoryOntologyEngine.ts (7 exports, Object.frozen singleton, 4-outcome decision matrix kept/injected/rejected/replaced, WIRE-EXEMPT marker)",
+              "mcp-server/src/__tests__/MemoryOntology.test.ts (73 vitest cases incl. 6-fixture exit-condition matrix + 4 hardening + 2 D1-only-compat + 6 .mjs<->.ts parity)",
+              ".claude/hooks/memory-mirror-to-vault.mjs MODIFIED (inline ontology emit, exported helpers, main() gated to direct-CLI, unterminated-fm honest skip, KEEP-IN-SYNC contract)",
+              "scripts/backfill-memory-provenance.mjs MODIFIED (parallel ontology injection, symmetric error reporting, defense-in-depth try/catch)",
+              "mcp-server/src/schemas/memoryProvenanceSchema.ts MODIFIED (D1 patched for D2 co-existence)"
+            ],
+            "exit_conditions_met": [
+              "MemoryOntologyEngine validates frontmatter ontology fields",
+              "Zod enum schemas for kind | state | visibility",
+              "Memory mirror rejects/injects writes via decision matrix (soft-launch always-inject mode)",
+              "Backfill applied where heuristically derivable (314 memos dry-run clean)",
+              "6 fixture writes verified — exit condition matrix all green"
+            ],
+            "scrutiny": {
+              "per_file": {
+                "dispatches": 10,
+                "pass": 8,
+                "fail_then_fix": 2,
+                "p0_fixed": 4,
+                "p1_fixed": 8
+              },
+              "end_of_task_3of3": {
+                "arm_a": "PASS",
+                "arm_b": "PASS (post-fixup)",
+                "arm_c": "PASS (post-fixup)",
+                "session_id": "d2-fixup-targeted"
+              }
+            },
+            "tests": "167/167 PASS at fixup (100 D1 + 67 D2; subsequently 73 D2 with parity)",
+            "smoke": "Stdin payload + BOM input both produce vault file with merged provenance+ontology block"
+          }
         },
         {
           "id": "D3",
