@@ -922,7 +922,11 @@ export class EventBus {
   getStats(): EventStats {
     const eventsByCategory: Record<EventCategory, number> = {
       system: 0, task: 0, agent: 0, swarm: 0,
-      calculation: 0, data: 0, hook: 0, error: 0, quality: 0, audit: 0
+      calculation: 0, data: 0, hook: 0, error: 0, quality: 0, audit: 0,
+      // ERP categories (INTEG-MS0)
+      invoice: 0, gl: 0, accounting: 0, shipping: 0, job: 0, estimate: 0,
+      // Scheduling/Capacity categories (INTEG-MS3)
+      cycle_time: 0, capacity: 0, schedule: 0,
     };
 
     const eventsByType: Record<string, number> = {};
