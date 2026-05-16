@@ -228,6 +228,9 @@ const ACTIONS = [
   // BLUEPRINT-OCR-TRAINING-MS1/U-MS1-U4 — extraction-confidence cross-validation
   "gt_validate_backend", "gt_compare_backends", "gt_regression_gate",
   "gt_snapshot_baseline",
+  // BLUEPRINT-OCR-TRAINING-MS1/U-MS1-U6 — BlueprintCorpusHarvestEngine
+  "corpus_harvest_mit", "corpus_harvest_vendor", "corpus_harvest_online",
+  "corpus_enumerate", "corpus_verify_fresh", "corpus_build_index",
   "cad_harvest_catalog", "cad_harvest_paired_sources", "cad_harvest_can_redistribute",
   // CAD-FUSION-LIVE-MS0 PHASE18: 6-CAD execution router (SW/Inv/MC/HyperCAD/Fusion/Esprit unifier)
   "cad_route_detect_system", "cad_route_supported_systems", "cad_route_plan_execution",
@@ -2615,6 +2618,116 @@ Params vary by action — pass relevant fields in params object.`,
             const data = groundTruthValidationEngine.regressionGate(
               params as Parameters<typeof groundTruthValidationEngine.regressionGate>[0],
             );
+            result = { success: true, data };
+            break;
+          }
+          // BLUEPRINT-OCR-TRAINING-MS1/U-MS1-U6 — corpus harvest
+          // NOTE: harvest actions accept precomputedContent[] for MCP-callable
+          // path (fetcher functions can't cross MCP boundary). Programmatic
+          // callers use the full HarvestIO injection.
+          case "corpus_harvest_mit": {
+            if (!Array.isArray(params.courseList)) {
+              return dispatcherError(
+                new Error("corpus_harvest_mit requires courseList[]; optionally precomputedContent[] (one per course)"),
+                action, "prism_cad",
+              );
+            }
+            if (!Array.isArray(params.precomputedContent)) {
+              return dispatcherError(
+                new Error("corpus_harvest_mit MCP path requires precomputedContent[] (one entry per course)"),
+                action, "prism_cad",
+              );
+            }
+            const { blueprintCorpusHarvestEngine } = await import("../../engines/BlueprintCorpusHarvestEngine.js");
+            const courseList = params.courseList as Array<{ courseId: string; title: string; url: string; domain: string; tags?: string[] }>;
+            const content = params.precomputedContent as Array<{ ok: true; content: string } | { ok: false; reason: string }>;
+            const data = await blueprintCorpusHarvestEngine.harvestMIT({
+              courseList: courseList as Parameters<typeof blueprintCorpusHarvestEngine.harvestMIT>[0]["courseList"],
+              ...(typeof params.outputDir === "string" ? { outputDir: params.outputDir } : {}),
+              io: { fetchMIT: async (c) => content[courseList.indexOf(c)] ?? { ok: false, reason: "no_content" } },
+            });
+            result = { success: true, data };
+            break;
+          }
+          case "corpus_harvest_vendor": {
+            if (!Array.isArray(params.pdfList) || !Array.isArray(params.precomputedContent)) {
+              return dispatcherError(
+                new Error("corpus_harvest_vendor requires pdfList[] + precomputedContent[]"),
+                action, "prism_cad",
+              );
+            }
+            const { blueprintCorpusHarvestEngine } = await import("../../engines/BlueprintCorpusHarvestEngine.js");
+            const pdfList = params.pdfList as Array<{ filePath: string; vendor: string; domain: string; tags?: string[] }>;
+            const content = params.precomputedContent as Array<{ ok: true; content: string } | { ok: false; reason: string }>;
+            const data = await blueprintCorpusHarvestEngine.harvestVendorPDFs({
+              pdfList: pdfList as Parameters<typeof blueprintCorpusHarvestEngine.harvestVendorPDFs>[0]["pdfList"],
+              ...(typeof params.outputDir === "string" ? { outputDir: params.outputDir } : {}),
+              io: { fetchVendorPDF: async (p) => content[pdfList.indexOf(p)] ?? { ok: false, reason: "no_content" } },
+            });
+            result = { success: true, data };
+            break;
+          }
+          case "corpus_harvest_online": {
+            if (!Array.isArray(params.urlList) || !Array.isArray(params.precomputedContent)) {
+              return dispatcherError(
+                new Error("corpus_harvest_online requires urlList[] + precomputedContent[]"),
+                action, "prism_cad",
+              );
+            }
+            const { blueprintCorpusHarvestEngine } = await import("../../engines/BlueprintCorpusHarvestEngine.js");
+            const urlList = params.urlList as Array<{ url: string; domain: string; title: string; tags?: string[] }>;
+            const content = params.precomputedContent as Array<{ ok: true; content: string } | { ok: false; reason: string }>;
+            const data = await blueprintCorpusHarvestEngine.harvestOnline({
+              urlList: urlList as Parameters<typeof blueprintCorpusHarvestEngine.harvestOnline>[0]["urlList"],
+              ...(typeof params.outputDir === "string" ? { outputDir: params.outputDir } : {}),
+              ...(typeof params.maxRetry404 === "number" ? { maxRetry404: params.maxRetry404 } : {}),
+              io: { fetchOnline: async (s) => content[urlList.indexOf(s)] ?? { ok: false, reason: "no_content" } },
+            });
+            result = { success: true, data };
+            break;
+          }
+          case "corpus_enumerate": {
+            const { blueprintCorpusHarvestEngine } = await import("../../engines/BlueprintCorpusHarvestEngine.js");
+            const data = blueprintCorpusHarvestEngine.enumerateCorpus(
+              params as Parameters<typeof blueprintCorpusHarvestEngine.enumerateCorpus>[0],
+            );
+            result = { success: true, data, count: data.length };
+            break;
+          }
+          case "corpus_verify_fresh": {
+            if (!params.source) {
+              return dispatcherError(
+                new Error("corpus_verify_fresh requires source"),
+                action, "prism_cad",
+              );
+            }
+            const { blueprintCorpusHarvestEngine } = await import("../../engines/BlueprintCorpusHarvestEngine.js");
+            const data = blueprintCorpusHarvestEngine.verifyCorpusFresh(
+              params as Parameters<typeof blueprintCorpusHarvestEngine.verifyCorpusFresh>[0],
+            );
+            result = { success: true, data };
+            break;
+          }
+          case "corpus_build_index": {
+            if (!params.outputPath || !Array.isArray(params.precomputedVectors)) {
+              return dispatcherError(
+                new Error("corpus_build_index requires outputPath + precomputedVectors[] (MCP path — embedder cannot cross MCP boundary)"),
+                action, "prism_cad",
+              );
+            }
+            const { blueprintCorpusHarvestEngine } = await import("../../engines/BlueprintCorpusHarvestEngine.js");
+            const vectors = params.precomputedVectors as Array<{ ok: true; vector: number[] } | { ok: false; reason: string }>;
+            let i = 0;
+            const data = await blueprintCorpusHarvestEngine.buildEmbeddingIndex({
+              outputPath: params.outputPath as string,
+              ...(typeof params.rootDir === "string" ? { rootDir: params.rootDir } : {}),
+              io: {
+                embed: async () => {
+                  const v = vectors[i++];
+                  return v ?? { ok: false, reason: "no_precomputed_vector" };
+                },
+              },
+            });
             result = { success: true, data };
             break;
           }
