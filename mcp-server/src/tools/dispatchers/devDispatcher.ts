@@ -18,6 +18,7 @@ import { PATHS } from "../../constants.js";
 import { safeWriteSync } from "../../utils/atomicWrite.js";
 import { applySessionBootTruthfulness, buildSessionBootInstanceId } from "../../utils/sessionBootTruth.js";
 import * as TaskClaimService from "../../services/TaskClaimService.js";
+import type { Primitive } from "../../engines/CompactFormatterEngine.js";
 
 // Use configured roots so source-run (tsx) and built-run (dist) resolve the same PRISM files.
 const MCP_ROOT = PATHS.MCP_SERVER;
@@ -2552,7 +2553,9 @@ export function registerDevDispatcher(server: any): void {
             const srcRoot = params.srcRoot || params.src_root || SRC_DIR;
             const nodeCount = await editImpactPredictorEngine.buildGraph(srcRoot);
             const stats = editImpactPredictorEngine.getGraphStats();
-            result = { success: true, nodeCount, ...stats };
+            // `stats` also carries nodeCount; place the explicit buildGraph return
+            // last so it is authoritative and TS sees no overwritten-key conflict.
+            result = { success: true, ...stats, nodeCount };
             break;
           }
 
@@ -3941,7 +3944,9 @@ export function registerDevDispatcher(server: any): void {
               systemPrompt: typeof params.systemPrompt === "string" ? params.systemPrompt : undefined,
               temperature: typeof params.temperature === "number" ? params.temperature : undefined,
             });
-            result = { success: queryResult.success, ...queryResult };
+            // queryResult already carries `success`; spread alone (the explicit
+            // `success:` was redundant and overwritten by the spread anyway).
+            result = { ...queryResult };
             break;
           }
 
@@ -5067,7 +5072,7 @@ export function registerDevDispatcher(server: any): void {
           case "compact_table": {
             const { compactFormatterEngine } = await import("../../engines/CompactFormatterEngine.js");
             result = { success: true, text: compactFormatterEngine.table(
-              (params.data || []) as Array<Record<string, unknown>>,
+              (params.data || []) as Array<Record<string, Primitive>>,
               String(params.key_field),
               String(params.value_field),
               typeof params.sep === "string" ? params.sep : undefined,
@@ -5077,7 +5082,7 @@ export function registerDevDispatcher(server: any): void {
           case "compact_kv_pairs": {
             const { compactFormatterEngine } = await import("../../engines/CompactFormatterEngine.js");
             result = { success: true, text: compactFormatterEngine.kvPairs(
-              (params.data || {}) as Record<string, unknown>,
+              (params.data || {}) as Record<string, Primitive>,
               params.inline !== false,
             ) };
             break;

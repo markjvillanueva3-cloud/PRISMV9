@@ -16,7 +16,7 @@ export interface CompactOptions {
   includeKeys?: boolean;
 }
 
-type Primitive = string | number | boolean | null | undefined;
+export type Primitive = string | number | boolean | null | undefined;
 
 export class CompactFormatterEngine {
 
