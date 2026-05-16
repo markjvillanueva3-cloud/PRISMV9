@@ -345,22 +345,26 @@ const pp_physics_wear = z.object({
 // PP_NEURAL: Neural network schemas (5 actions)
 // ============================================================================
 
+// z.record requires 2 args in Zod v4: (keySchema, valueSchema). The legacy
+// 1-arg form `z.record(z.any())` no longer compiles. Switching to
+// z.record(z.string(), z.unknown()) per project schema rule
+// "never z.any() — use z.unknown() and narrow at consumer".
 const pp_neural_predict = z.object({
-  input: z.record(z.any()),
+  input: z.record(z.string(), z.unknown()),
   targetVariable: z.string().optional(),
   model: z.enum(["feedforward", "lstm", "transformer"]).optional(),
 }).passthrough();
 
 const pp_neural_classify = z.object({
   gcode: z.string().optional(),
-  features: z.record(z.any()).optional(),
+  features: z.record(z.string(), z.unknown()).optional(),
   classType: z.enum(["controller", "operation", "material", "machine"]).optional(),
 }).passthrough();
 
 const pp_neural_optimize = z.object({
   gcode: z.string().min(1),
   objective: z.enum(["cycle_time", "tool_life", "surface_finish", "energy"]).optional(),
-  constraints: z.record(z.any()).optional(),
+  constraints: z.record(z.string(), z.unknown()).optional(),
 }).passthrough();
 
 const pp_neural_anomaly = z.object({
@@ -370,8 +374,8 @@ const pp_neural_anomaly = z.object({
 
 const pp_neural_learn = z.object({
   samples: z.array(z.object({
-    input: z.record(z.any()),
-    output: z.record(z.any()),
+    input: z.record(z.string(), z.unknown()),
+    output: z.record(z.string(), z.unknown()),
   })).optional(),
   model: z.enum(["feedforward", "lstm", "transformer"]).optional(),
 }).passthrough();
