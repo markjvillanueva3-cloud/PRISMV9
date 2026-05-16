@@ -185,7 +185,9 @@ export class AsyncHookDispatcherEngine {
     this.resultsPath = opts.resultsPath ?? DEFAULT_RESULTS_PATH;
     this.runnerScript = opts.runnerScript ?? DEFAULT_RUNNER_SCRIPT;
     this.nodeBin = opts.nodeBin ?? DEFAULT_NODE_BIN;
-    this.spawnFn = opts.spawnFn ?? defaultSpawn;
+    // defaultSpawn is Node's spawn overload-union; pin to the narrow signature
+    // the class field declares so TS picks the (cmd, args, opts) overload.
+    this.spawnFn = opts.spawnFn ?? ((cmd, args, o) => defaultSpawn(cmd, [...args], o ?? {}));
     this.now = opts.now ?? Date.now;
     this.jobIdFn = opts.jobIdFn;
   }
@@ -610,7 +612,7 @@ export class AsyncHookDispatcherEngine {
       () => this.queueCache,
       () => this.queueCacheMtimeMs,
       () => this.queueCacheSize,
-      (v) => { this.queueCache = v; },
+      (v) => { this.queueCache = v as AsyncHookJob[]; },
       (v) => { this.queueCacheMtimeMs = v; },
       (v) => { this.queueCacheSize = v; },
     );
@@ -624,7 +626,7 @@ export class AsyncHookDispatcherEngine {
       () => this.resultsCache,
       () => this.resultsCacheMtimeMs,
       () => this.resultsCacheSize,
-      (v) => { this.resultsCache = v; },
+      (v) => { this.resultsCache = v as AsyncHookResult[]; },
       (v) => { this.resultsCacheMtimeMs = v; },
       (v) => { this.resultsCacheSize = v; },
     );
