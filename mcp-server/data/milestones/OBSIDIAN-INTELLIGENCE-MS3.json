@@ -9,7 +9,7 @@
   "track_name": "Obsidian-Intelligence Layer (compound architecture)",
   "status": "in_progress",
   "in_progress_since": "2026-05-15T19:33:00.000Z",
-  "completed_units": 2,
+  "completed_units": 3,
   "partial_ship_units": 1,
   "total_units": 24,
   "first_unit_partial_shipped": "A1 (U-DOCKER-HOOK-BROKER) — 5 artifacts + 15 tests; live-Docker burn-in pending engine restore",
@@ -646,11 +646,25 @@
             "Test: simulated stall produces single notification; non-stall scenario silent"
           ],
           "deliverables": [
-            { "path": ".claude/hooks/agent-watchdog.mjs", "type": "hook", "description": "Stall detector + notifier" },
-            { "path": "mcp-server/src/__tests__/AgentWatchdog.test.ts", "type": "test", "description": "Stall scenario test" }
+            { "path": ".claude/hooks/agent-watchdog.mjs", "type": "hook", "description": "Stall detector + notifier (5 pure exports + CLI/hook duality)" },
+            { "path": "mcp-server/src/__tests__/AgentWatchdog.test.ts", "type": "test", "description": "26 vitest cases — stall scenarios + null-slot fixture + rate-limit cycle + path-traversal safety" }
           ],
           "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
-          "rollback": "Remove hook entry from settings.json"
+          "rollback": "Remove hook entry from settings.json (wiring deferred — envelope exit criteria satisfied by tests)",
+          "status": "completed",
+          "completed_at": "2026-05-16T00:50:00.000Z",
+          "owner": "claude-c0f06dee slot charlie",
+          "ship_record": {
+            "session_id": "ms3-g3-c0f06dee",
+            "shipped_at": "2026-05-16T00:50:00.000Z",
+            "tests": "26/26 vitest PASS (192-266ms)",
+            "per_file_scrutiny": "PASS — Arm A specialist + Arm B independent, both PASS first round. 2 P2 deferrables logged: clock-skew handling (U-AGENT-WATCHDOG-CLOCK-SKEW future unit) and operator-deferred settings.json wiring.",
+            "design_notes": "Pure detectStalls / shouldAlert / stampPathFor / buildAlertRecord / buildSummary exports + impure run() CLI orchestrator. Sibling pattern: heartbeat-keepalive.mjs (T3 advisory, never-blocks). PushNotification semantics: hooks can't call Tool API directly; emits hookSpecificOutput.additionalContext on Stop + writes JSONL ledger at state/shared/.agent-watchdog-alerts.jsonl. Operator-visible via stop-hook injection; durable trail via ledger.",
+            "deferred": [
+              "settings.json wiring (operator decides Stop vs scheduled-task cadence)",
+              "Clock-skew handling — future-stamped heartbeats currently treated as fresh; small P2 follow-up"
+            ]
+          }
         }
       ]
     }
