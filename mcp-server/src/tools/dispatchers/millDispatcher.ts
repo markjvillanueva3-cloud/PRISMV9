@@ -262,6 +262,12 @@ export const MILL_ACTIONS = [
   "mill_lora_cadence_state",           // MillingLoRACadenceEngine.getState
   "mill_online_record_step",           // MillingOnlineLearningTrackerEngine.recordStep
   "mill_online_detect_drift",          // MillingOnlineLearningTrackerEngine.detectDrift
+
+  // MS-PRINT-PROGRAM-LOOP / U-PPL-A5: MillPartClassifierEngine — 4 actions
+  "mill_part_classify",                 // MillPartClassifierEngine.classify
+  "mill_part_classify_batch",           // MillPartClassifierEngine.classifyBatch
+  "mill_part_family_profile",           // MillPartClassifierEngine.getFamilyProfile
+  "mill_part_families_list",            // MillPartClassifierEngine.listFamilies
 ] as const;
 
 export const MILL_DISPATCHER_ACTION_COUNT = MILL_ACTIONS.length;
@@ -872,6 +878,46 @@ Actions: ${MILL_ACTIONS.join(", ")}.`,
             const err = (params as { error: number }).error;
             if (typeof err !== "number" || !Number.isFinite(err)) throw new Error("mill_online_detect_drift requires numeric 'error'");
             result = millingOnlineLearningTrackerEngine.detectDrift(err);
+            break;
+          }
+
+          // ============================================================
+          // MS-PRINT-PROGRAM-LOOP / U-PPL-A5: MillPartClassifierEngine
+          // ============================================================
+          // VALIDATION FLOW: Zod safeParse in ACTION_DATA_SCHEMAS (upstream
+          // via validateActionParams) → engine.classify() (FAIL-LOUD defense
+          // in depth for bypass-the-schema callers). Engine is pure-transform
+          // — no fs, no state, deterministic.
+          //
+          // CONSUMER CONTRACT: slimResponse strips null/undefined fields.
+          // Result envelope is `{ success: true, data: { ...result } }` via
+          // the standard millDispatcher post-hook → JSON.stringify path.
+          case "mill_part_classify": {
+            const { millPartClassifierEngine } = await import("../../engines/MillPartClassifierEngine.js");
+            result = millPartClassifierEngine.classify(
+              params as Parameters<typeof millPartClassifierEngine.classify>[0],
+            );
+            break;
+          }
+          case "mill_part_classify_batch": {
+            // Zod upstream (mill_part_classify_batch schema in millActionSchemas.ts)
+            // already rejects missing/non-array `parts`. No defensive guard here.
+            const { millPartClassifierEngine } = await import("../../engines/MillPartClassifierEngine.js");
+            const p = params as { parts: Parameters<typeof millPartClassifierEngine.classify>[0][] };
+            result = millPartClassifierEngine.classifyBatch(p.parts);
+            break;
+          }
+          case "mill_part_family_profile": {
+            // Zod upstream (mill_part_family_profile schema) already rejects
+            // missing/wrong-type `family` via MillPartFamilySchema enum.
+            const { millPartClassifierEngine } = await import("../../engines/MillPartClassifierEngine.js");
+            const p = params as { family: Parameters<typeof millPartClassifierEngine.getFamilyProfile>[0] };
+            result = millPartClassifierEngine.getFamilyProfile(p.family);
+            break;
+          }
+          case "mill_part_families_list": {
+            const { millPartClassifierEngine } = await import("../../engines/MillPartClassifierEngine.js");
+            result = millPartClassifierEngine.listFamilies();
             break;
           }
 

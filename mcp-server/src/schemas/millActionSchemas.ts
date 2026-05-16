@@ -13,6 +13,15 @@
 
 import { z } from "zod";
 import type { ActionSchemaMap } from "./actionSchemaTypes.js";
+// MS-PRINT-PROGRAM-LOOP / U-PPL-A5: re-use engine's exported schema as the
+// single source of truth (Reviewer B P1-1 anti-drift fix). The engine
+// exports MillPartGeometryInputSchema specifically so the dispatcher schema
+// can re-use it without duplicating fields. ./describe() can layer on top.
+import {
+  MillPartGeometryInputSchema,
+  MillPartFamilySchema,
+  MILL_PART_CLASSIFY_BATCH_MAX,
+} from "../engines/MillPartClassifierEngine.js";
 
 // ─── Shared enums & primitives ──────────────────────────────────────────────
 
@@ -1161,6 +1170,41 @@ const mill_online_detect_drift = z
   .passthrough()
   .describe("Detect distribution drift from a single error sample.");
 
+// ─── MS-PRINT-PROGRAM-LOOP / U-PPL-A5: MillPartClassifierEngine actions ─────
+//
+// Reviewer B P1-1 anti-drift fix (2026-05-15): re-use the engine's exported
+// schemas as the single source of truth. The previous hand-typed duplicate
+// of MillPartGeometryInputSchema would drift the moment anyone bumps a
+// constraint (e.g., MAX_FEATURE_LABEL_LEN) in only one place. By importing,
+// any future engine change propagates to the dispatcher automatically.
+
+/** mill_part_classify — MillPartClassifierEngine.classify */
+const mill_part_classify = MillPartGeometryInputSchema
+  .describe("Classify a single milled part into a family (prismatic/pocket_2_5d/mold_3d/thin_wall) with workholding + strategy + sequence defaults.");
+
+/** mill_part_classify_batch — MillPartClassifierEngine.classifyBatch */
+const mill_part_classify_batch = z
+  .object({
+    parts: z.array(MillPartGeometryInputSchema).min(0).max(MILL_PART_CLASSIFY_BATCH_MAX)
+      .describe(`Array of part geometry inputs (capped at ${MILL_PART_CLASSIFY_BATCH_MAX} to bound memory).`),
+  })
+  .strict()
+  .describe("Batch-classify multiple mill parts in one call (same per-part shape).");
+
+/** mill_part_family_profile — MillPartClassifierEngine.getFamilyProfile */
+const mill_part_family_profile = z
+  .object({
+    family: MillPartFamilySchema.describe("Mill part family to look up the default profile for."),
+  })
+  .strict()
+  .describe("Get the default workholding + strategy + sequence profile for a known family without running the classifier.");
+
+/** mill_part_families_list — MillPartClassifierEngine.listFamilies (no-arg) */
+const mill_part_families_list = z
+  .object({})
+  .strict()
+  .describe("List all 4 mill part families with their default workholding + strategy + thermal.");
+
 // ─── EXPORT ─────────────────────────────────────────────────────────────────
 
 /**
@@ -1294,4 +1338,10 @@ export const MILL_ACTION_SCHEMAS: ActionSchemaMap = {
   mill_lora_cadence_state,
   mill_online_record_step,
   mill_online_detect_drift,
+
+  // MS-PRINT-PROGRAM-LOOP / U-PPL-A5: MillPartClassifierEngine — 4 actions
+  mill_part_classify,
+  mill_part_classify_batch,
+  mill_part_family_profile,
+  mill_part_families_list,
 };
