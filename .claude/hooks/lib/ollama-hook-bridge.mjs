@@ -75,6 +75,32 @@ export async function isOllamaAvailable() {
 }
 
 /**
+ * Build the request body for an Ollama /api/generate call.
+ * Pure function — no side effects, no network calls.
+ *
+ * @param {string} prompt - The exact prompt string to send (caller responsible for prefixing)
+ * @param {Object} opts - Body options
+ * @param {string} [opts.model] - Model override (defaults to DEFAULT_MODEL)
+ * @param {number} [opts.maxTokens=100] - Maps to options.num_predict
+ * @param {number} [opts.temperature=0.3] - Maps to options.temperature
+ * @param {string} [opts.format] - Ollama format parameter (e.g. "json"); omitted when absent
+ * @returns {Object} Request body object ready for JSON.stringify
+ */
+export function buildRequestBody(prompt, opts = {}) {
+  const body = {
+    model: opts.model ?? DEFAULT_MODEL,
+    prompt,
+    stream: false,
+    options: {
+      num_predict: opts.maxTokens ?? 100,
+      temperature: opts.temperature ?? 0.3,
+    },
+  };
+  if (opts && opts.format) body.format = opts.format;
+  return body;
+}
+
+/**
  * Query Ollama with a prompt. Returns quickly with fallback on error/timeout.
  * @param {string} prompt - The prompt to send
  * @param {Object} options - Query options
@@ -82,6 +108,7 @@ export async function isOllamaAvailable() {
  * @param {number} [options.timeoutMs=500] - Query timeout in milliseconds
  * @param {number} [options.maxTokens=100] - Max tokens in response
  * @param {string} [options.systemPrompt] - Override system prompt
+ * @param {string} [options.format] - Ollama format parameter (e.g. "json") passed through to request body
  * @returns {Promise<{success: boolean, response: string|null, error?: string, latencyMs: number}>}
  */
 export async function queryOllama(prompt, options = {}) {
@@ -115,18 +142,15 @@ export async function queryOllama(prompt, options = {}) {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
+    const requestBody = buildRequestBody(
+      `${systemPrompt}\n\nUser: ${prompt}\n\nAssistant:`,
+      { model, maxTokens, temperature: 0.3, format: options.format },
+    );
+
     const response = await fetch(`${OLLAMA_BASE_URL}/api/generate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model,
-        prompt: `${systemPrompt}\n\nUser: ${prompt}\n\nAssistant:`,
-        stream: false,
-        options: {
-          num_predict: maxTokens,
-          temperature: 0.3,
-        },
-      }),
+      body: JSON.stringify(requestBody),
       signal: controller.signal,
     });
 
