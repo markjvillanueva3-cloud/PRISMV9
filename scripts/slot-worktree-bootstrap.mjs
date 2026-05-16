@@ -46,22 +46,18 @@ import { randomBytes } from "node:crypto";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { platform } from "node:os";
+import { SLOT_NAMES } from "../.claude/helpers/chat-slots.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO = resolve(__dirname, "..");
 
-// 10 work slots (alpha..foxtrot + hotel + india + juliet + kilo) + golf (hygiene/integrator) = 11 total.
-// Lets 10 chats commit concurrently with zero serialization (each writes a
-// different slot/<name> branch in its own worktree). See
-// state/shared/SLOT-WORKTREE-ARCHITECTURE.md §"Resolved design decisions" #3.
-// Widened 2026-05-15 from 8→10 work slots per feedback_fleet_design_10_chats:
-// user directive "remember to design for up to 10 chats" — every fleet-aware
-// design that hard-codes a slot count must accommodate up to 10 work chats.
-const DEFAULT_SLOTS = [
-  "alpha", "bravo", "charlie", "delta", "echo", "foxtrot",
-  "golf", // hygiene + integrator
-  "hotel", "india", "juliet", "kilo", // additional work slots — 10-chat capacity
-];
+// All NATO slots, imported from chat-slots.mjs SLOT_NAMES (single source of
+// truth) so this list can never drift from the canonical fleet roster — the
+// 2026-05-16 juliet/juliett-misspelling + missing-lima bug was exactly that
+// drift (two hand-copied lists). 11 work slots (alpha..foxtrot, hotel..lima)
+// + golf (hygiene/integrator). Each gets a slot/<name> branch in its own
+// worktree so up to 11 chats commit concurrently with zero serialization.
+const DEFAULT_SLOTS = SLOT_NAMES.slice();
 const DEFAULT_BASE = "origin/cad-fusion-live-ms0";
 const DEFAULT_ROOT = "H:/"; // worktrees go in H:/prism-slot-<name>
 const GIT_TIMEOUT_MS = Number(process.env.PRISM_GIT_TIMEOUT_MS) || 300_000;

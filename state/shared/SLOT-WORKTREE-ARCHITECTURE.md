@@ -1,11 +1,24 @@
 # SLOT-WORKTREE ARCHITECTURE — structural chat isolation
 
-**Status:** design · proposed 2026-05-14 by claude-f4388359 (slot alpha)
+**Status:** ACTIVE — shipped as SLOT-WORKTREE-MS0 (2026-05-15, status `complete`); 12-slot fleet bootstrapped + enforcement hooks default-on; `/checkin` Step 2c performs the per-chat cutover (wired 2026-05-16). See §ACTIVATION STATUS below.
 **Replaces:** WORKTREE-CONSOLIDATE-MS0's "land stranded commits into shared tree" framing
 **Why:** the same shared-tree pain (index.lock races, peer-file auto-staging,
 5,481-file dirty noise, 47 stale worktrees, 3 leaked stashes) keeps recurring
 because there is no structural separation between chats. This replaces
 recovery tooling with prevention.
+
+---
+
+## ACTIVATION STATUS (2026-05-16)
+
+**The architecture is LIVE.** SLOT-WORKTREE-MS0 shipped 2026-05-15 (status `complete`). Current state:
+
+- **12 slot worktrees** exist — `H:/prism-slot-<name>` on `slot/<name>` for all of `alpha bravo charlie delta echo foxtrot golf hotel india juliett kilo lima` (the canonical `chat-slots.mjs` `SLOT_NAMES`). The 2026-05-15 bootstrap shipped 11 with a misspelled `slot/juliet` and no `slot/lima`; the 2026-05-16 gap-fix retired `slot/juliet` (0 unique commits, verified), bootstrapped `slot/juliett` + `slot/lima`, and made `slot-worktree-bootstrap.mjs` + `slot-integrator.mjs` `import { SLOT_NAMES }` from `chat-slots.mjs` — single source of truth, so the list can never drift again.
+- **Enforcement hooks default-on:** `worktree-commit-route` + `git-add-lane-guard` (`bash-bundle.mjs`), `main-tree-write-block` (`edit-bundle.mjs`). Each is a no-op for a chat until that chat's `chat-slots.json[slot].branch` is a `slot/*` branch — so they only arm for migrated chats (dormant-by-design, verified by smoke-test).
+- **Cutover mechanism:** `/checkin` **Step 2c** migrates a work-slot chat onto its slot worktree on check-in — sets `branch=slot/<name>`, routes the chat to `H:/prism-slot-<name>`. golf stays in the main tree as integrator (exempt). Kill switch `PRISM_SLOT_WORKTREE_CUTOVER_DISABLE=1`. Migration is per-chat + gradual — each chat moves on its next clean `/checkin`; a chat with uncommitted main-tree work commits it first.
+- **Integrator:** golf runs `node scripts/slot-integrator.mjs --sync-down` then `--land` to ff-merge `slot/*` into `cad-fusion-live-ms0`.
+
+The design content below is the original 2026-05-14 design record (slot count etc. predates the 12-slot widening — trust the SLOT_NAMES roster above).
 
 ---
 

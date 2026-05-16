@@ -38,14 +38,13 @@
 
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";
+import { SLOT_NAMES } from "../.claude/helpers/chat-slots.mjs";
 
 const MAIN_REPO = "H:/prism";
 const SLOT_PREFIX = "H:/prism-slot-";
 const LOG_PATH = "H:/prism/state/shared/slot-integrator-log.jsonl";
-const SLOT_NAMES = [
-  "alpha", "bravo", "charlie", "delta", "echo", "foxtrot",
-  "golf", "hotel", "india", "juliet", "kilo",
-];
+// SLOT_NAMES (12 NATO slots) imported from chat-slots.mjs — single source of
+// truth; do not re-hardcode here (that caused the 2026-05-16 juliett/lima drift).
 
 const args = process.argv.slice(2);
 const wantJson = args.includes("--json");

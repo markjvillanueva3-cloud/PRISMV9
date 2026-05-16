@@ -92,6 +92,27 @@ The loop-state file is keyed on `--session "$STABLE"` — constant across `/comp
 
 **Rule:** the keyword gate engages a *fresh* loop; an active `running` loop-state *resumes* regardless of args. The post-`/compact` auto-fire (`/checkin --topic <slot>-<topic>`) carries no args, so a resumed loop keeps going until it finishes or you explicitly type `/checkin --no-loop`.
 
+### 2c. Worktree routing — slot-branch cutover (SLOT-WORKTREE-MS0)
+The fleet commits per-slot: each work slot has a long-lived `slot/<name>` branch checked out at `H:/prism-slot-<name>`; **golf** is the integrator. This step migrates THIS chat onto its slot worktree so it commits to its own branch instead of the shared `cad-fusion-live-ms0`. Kill switch: `PRISM_SLOT_WORKTREE_CUTOVER_DISABLE=1`.
+
+**Skip the cutover (no migration) when ANY of:**
+- slot is `golf` — the integrator stays in the main tree `H:/prism` and lands the slot branches. For golf, §Report shows `node H:/prism/scripts/slot-integrator.mjs --status` and the reminder to run `--sync-down` then `--land`.
+- the chat is already running inside `H:/prism-slot-<name>` (cwd is already the slot worktree).
+- `H:/prism-slot-<name>` does not exist (`node H:/prism/scripts/slot-worktree-bootstrap.mjs --slots <name>` to create it).
+- `PRISM_SLOT_WORKTREE_CUTOVER_DISABLE=1` is set.
+
+**Otherwise migrate this chat:**
+```bash
+# 1. SAFETY — a chat with uncommitted CRITICAL work in the main tree must NOT
+#    migrate yet: once branch=slot/*, main-tree-write-block denies all H:/prism
+#    Edit/Write. Commit or revert that work first, then re-run /checkin.
+rtk git -C H:/prism status --porcelain 2>&1 | grep -E '\.(ts|mjs|tsx|json|md)$' | head -5
+# 2. If clean → bring the slot branch current with the target, then bind the slot:
+node H:/prism/scripts/slot-integrator.mjs --slot "$SLOT" --sync-down 2>&1 | tail -2
+node H:/prism/.claude/helpers/chat-slots.mjs heartbeat --chatId "$STABLE" --branch "slot/$SLOT"
+```
+Once `branch=slot/$SLOT` is bound, three default-on hooks arm for this chat — `main-tree-write-block` (no Edit/Write into `H:/prism`), `git-add-lane-guard` (no `git add` outside the slot worktree), `worktree-commit-route` (commits route to the slot worktree). **For the rest of this session: `cd H:/prism-slot-$SLOT` and do ALL work + commits there**, using `H:/prism-slot-$SLOT/...` absolute paths. Commit to `slot/$SLOT`; golf lands it into `cad-fusion-live-ms0` via `slot-integrator.mjs --land`. If the main tree was dirty (step 1 printed files) → do NOT bind; §Report flags it and you commit/revert in the main tree first, then re-run `/checkin`.
+
 ### 3. Bind the handoff to the slot
 Make this chat's handoff save as `HANDOFF-<slot>-<topic>.md` so the fleet dashboard + resume picker show the slot name.
 
@@ -361,6 +382,7 @@ Every surface it prints as `MUST invoke:` is **mandatory before declaring the pi
 │ slot:        $SLOT  ($([ alreadyOwned ] && echo refreshed || echo newly claimed))
 │ chat id:     $STABLE
 │ branch:      $BRANCH        worktree: <path>
+│ slot-cutover: <§2c — migrated → H:/prism-slot-<slot> (slot/<slot>) | golf — integrator, main tree | ⚠ main-tree dirty — commit then re-run /checkin | already in slot worktree | disabled>
 │ handoff:     HANDOFF-$SLOT-$TOPIC.md
 │ topic src:   <"--topic arg" | "commit scope" | "branch fallback">
 │ prev owner:  <only if previousOwner present>
