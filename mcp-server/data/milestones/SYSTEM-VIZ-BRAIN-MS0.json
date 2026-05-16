@@ -211,7 +211,15 @@
     "U-P3-VERIFY-UNIT-READY": {
       "phase": "P3-AUTO-BUILD",
       "title": "Pre-claim dependency check on /pick-unit — block if depends_on chain unshipped",
-      "status": "pending"
+      "status": "complete",
+      "shipped_by": "claude-a61bbf34 (slot echo)",
+      "shipped_at": "2026-05-16",
+      "deliverables": [
+        "scripts/verify-unit-ready.mjs — pure helper + CLI. Exports parseDep, lookupUnitStatus, verifyUnitReady, isSafeId, parseArgs, safeLoadEnvelope. Backward-compat with envelopes that have no depends_on field yet (e.g. SYSTEM-VIZ-BRAIN-MS0 today). Hardened against path traversal via /^[A-Z0-9][A-Z0-9_-]{0,63}$/ regex on milestone+unit IDs + path-resolve startsWith defense-in-depth in safeLoadEnvelope. Prototype-pollution defended via Object.prototype.hasOwnProperty.call. Exit codes 0/2/3 (ready/blocked/bad-invocation), --json mode emits JSON shape {ready, reason, missingDeps[], chain[], hostFound}.",
+        "scripts/verify-unit-ready.test.mjs — 38 node:test cases (vitest harness still broken per [[reference_fleet_reaper_ms1]]). Coverage: parseDep happy + 5 malformed + path-traversal + prototype-pollution, lookupUnitStatus envelope-missing + unit-missing + happy + proto-pollution defense + array-as-envelope-rejected, verifyUnitReady deps-not-declared + deps-empty + single-complete + single-pending + cross-milestone-complete + cross-milestone-envelope-missing + mixed-complete-pending + self-reference + duplicate-deps + CYCLE_LIMIT-exceed + malformed-envelopes + host-missing + real-envelope-integration-fail-loud, parseArgs happy + unknown-flag-captured + missing-value, safeLoadEnvelope unsafe-id + missing-file + invalid-JSON + happy-path, CLI spawnSync exit-3-missing-arg + exit-3-traversal + exit-3-unknown-flag + exit-0-ready + --json-shape (uses process.execPath not bare node to dodge Windows ENOENT). All assertions are real-value (Karpathy R9), no toBeDefined stubs.",
+        "Per-file scrutiny gate satisfied: 4 parallel reviewer agents (code-analyzer + reviewer × 2 files). First round FAIL on P0 path traversal + P0 untested CYCLE_LIMIT + P0 untested CLI + P1 isMain + P1 stdout-flush + P1 ambiguous host-missing + P1 permissive integration assert. Fix → re-dispatch → all 4 arms PASS, only P2 nit on stderr flush which was then also fixed via exitWithErr helper for symmetry."
+      ],
+      "rationale": "The roadmap envelope schema did not previously support dependency declarations (0/26 units had depends_on as of 2026-05-16). This unit introduces the convention non-disruptively: any envelope can OPT IN by adding depends_on to a unit, and any envelope that opts out continues to be ready by default. Consumers like /pick-unit + close-out-audit can now block claims/picks on unshipped prereqs without breaking the 25 existing envelopes. CLI is the integration surface; pure exports are the test surface."
     },
     "U-P3-FORGE-OLLAMA-CODEGEN": {
       "phase": "P3-AUTO-BUILD",
@@ -314,6 +322,21 @@
       "unit_id": "U-P1-TRIBAL-BY-DOMAIN-INJECT",
       "commit": "173291ff7",
       "notes": "P1-A + P1-B from per-file scrutiny addressed before commit; 38/38 tests pass"
+    },
+    {
+      "ts": "2026-05-15T20:53:22.019Z",
+      "unit_id": "U-P4-OLLAMA-COST-ROUTING",
+      "event": "shipped",
+      "shipped_commit": "831d04c2b",
+      "test_absorbed_commit": "173f6305b",
+      "shipped_by": "claude-a61bbf34 (slot bravo)",
+      "deliverables": [
+        ".claude/hooks/lib/ollama-cost-router.mjs (NEW pure routeModelForTask + tier table)",
+        ".claude/hooks/__tests__/ollama-cost-router.test.mjs (NEW 22 node:test cases, 135ms green, peer-absorbed in 173f6305b)",
+        ".claude/hooks/ollama-task-offloader.mjs (3 surgical edits: import + remove selectBestModel + propagate tier into recordOllamaEvent extras)"
+      ],
+      "scrutiny": "2-of-2 per-file gate PASS (code-analyzer + reviewer); 0 P0/P1; 4 P2/P3 deferred to handoff",
+      "notes": "Completes SYSTEM-VIZ-BRAIN-MS0 Phase 4 (3/3). 6th shared-tree absorption this session — test file landed via peer merge before lib could be staged."
     }
   ]
 }
