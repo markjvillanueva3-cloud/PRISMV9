@@ -20,10 +20,10 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { loadGraph, findInGraph } from "./lib/system-viz-graph.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
-const GRAPH = path.join(ROOT, "state", "shared", "system-viz", "system-graph.json");
 
 const args = process.argv.slice(2);
 const cmd = args[0];
@@ -36,9 +36,9 @@ if (!cmd) {
 }
 
 let G;
-try { G = JSON.parse(fs.readFileSync(GRAPH, "utf8")); }
+try { G = loadGraph(); }
 catch (e) {
-  console.error(`Cannot read graph at ${GRAPH}.\n  ${e.message}\n  Run: node scripts/generate-system-viz.mjs`);
+  console.error(e.message);
   process.exit(3);
 }
 
@@ -162,13 +162,11 @@ ${lines.join("\n")}`;
 }
 
 else if (cmd === "find") {
-  const q = params.join(" ").toLowerCase();
-  if (!q) { console.error("find needs <query>"); process.exit(2); }
-  const hits = G.nodes.filter(n =>
-    (n.label + " " + n.id + " " + (n.info ?? "") + " " + (n.subgroup ?? "")).toLowerCase().includes(q)
-  ).slice(0, 30);
+  const q = params.join(" ");
+  if (!q.trim()) { console.error("find needs <query>"); process.exit(2); }
+  const hits = findInGraph(G, q, { limit: 30 });
   const human =
-`Found ${hits.length} node(s) matching "${q}":
+`Found ${hits.length} node(s) matching "${q.toLowerCase()}":
 ${hits.map(h => `  ${h.layer}/${h.subgroup ?? '_'}  ${h.id.padEnd(28)} ${h.label.split('\n')[0]}`).join("\n")}`;
   out(human, hits);
 }
