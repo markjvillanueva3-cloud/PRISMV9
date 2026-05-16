@@ -452,7 +452,10 @@ export function mergeIntoGraph(graph, augment) {
   }
   // Edges: always append. A canonical file is supposed to carry one edge per
   // physical-worktree-copy — that's the cross-root-edge contract.
-  g.edges.push(...augment.edges);
+  // Iterate instead of `push(...augment.edges)` — the spread operator pushes
+  // each edge as a separate Function.apply argument, and on big walks (JM DIE
+  // = 130 k+ edges) that blows the call stack. Iteration sidesteps it entirely.
+  for (let i = 0; i < augment.edges.length; i++) g.edges.push(augment.edges[i]);
 
   // Ensure L11 + L12 layers declared exactly once. y-axis: more-negative =
   // lower in viz (matches existing L10 at y=-11.0).

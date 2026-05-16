@@ -20,28 +20,36 @@
   "phases": {
     "0": {
       "title": "Truncation recovery — re-walk the 3 capped namespaces",
-      "status": "in_progress",
+      "status": "complete",
+      "completed_at": "2026-05-15T23:40:22.827Z",
+      "completed_by": "claude-b6c4b196 (slot alpha)",
+      "shipped_commits": ["767e03c11", "<spread-loop-fix-pending-commit>"],
+      "final_graph_state": "nodes=372,731 · edges=591,479 · namespaces=70 · filesRepresented=1,861,079 · stillTruncated=0",
       "units": [
         {
           "unit_id": "U-MS1-REWALK-DOTCLAUDE",
           "title": "Re-walk H:/prism/.claude with --max-files 100000 (was capped at 20k)",
-          "status": "in_progress",
+          "status": "complete",
           "deliverable": ".claude namespace fsCoverage.truncated === false",
-          "max_files": 100000
+          "max_files": 100000,
+          "actual": "77,614 files / coverageRatio=1.0 / truncated=false (lastWalk 2026-05-15T20:37:29Z)"
         },
         {
           "unit_id": "U-MS1-REWALK-JMDIE",
-          "title": "Re-walk H:/prism/JM DIE with --max-files 200000 --bundle-threshold 50 (was capped at 80k)",
-          "status": "in_progress",
+          "title": "Re-walk H:/prism/JM DIE — DEBLOCKED via spread→loop fix in expand-system-viz-l12-files.mjs",
+          "status": "complete",
           "deliverable": "JM DIE namespace fsCoverage.truncated === false",
-          "max_files": 200000
+          "max_files": 250000,
+          "actual": "173,763 files / coverageRatio=1.0 / truncated=false (lastWalk 2026-05-15T23:40:22Z). First two attempts crashed with RangeError: Maximum call stack size exceeded at mergeIntoGraph line 455 — `g.edges.push(...augment.edges)` blew the call stack on 130k+ edges. Fix: replace spread with iterative push. Third attempt SUCCEEDED.",
+          "regression_recorded": true
         },
         {
           "unit_id": "U-MS1-REWALK-DOCUSTRATA",
-          "title": "Re-walk H:/prism/Docustrata with --max-files 200000 --bundle-threshold 50 (was capped at 80k)",
-          "status": "in_progress",
+          "title": "Re-walk H:/prism/Docustrata with --max-files 350000 --bundle-threshold 75",
+          "status": "complete",
           "deliverable": "Docustrata namespace fsCoverage.truncated === false",
-          "max_files": 200000
+          "max_files": 350000,
+          "actual": "Final files: ~216,000 / coverageRatio=1.0 / truncated=false (succeeded on retry-2 at 350k cap with --max-old-space-size=8192)"
         }
       ]
     },
