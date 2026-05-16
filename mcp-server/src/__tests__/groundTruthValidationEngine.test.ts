@@ -16,7 +16,12 @@ import {
   ValidationReportSchema,
   ISSUE_CODES,
   CANONICAL_SCREENSHOT_VIEWS,
+  pickGroundTruthScalar,
+  extractionMatches,
+  computeConformalCoverage,
   type BundleValidation,
+  type ExtractionTrainingPair,
+  type BackendValidationResult,
 } from "../engines/GroundTruthValidationEngine.js";
 
 let engine: GroundTruthValidationEngine;
@@ -382,5 +387,393 @@ describe("milestone exit criterion — quarantine rate budget", () => {
     expect(r.quarantined / r.total).toBeLessThan(0.05);
     // Walk completes well under the 10-min/20K extrapolation
     expect(r.durationMs).toBeLessThan(2_000);
+  });
+});
+
+// ── BLUEPRINT-OCR-TRAINING-MS1/U-MS1-U4 extensions ───────────────────────
+
+describe("pickGroundTruthScalar — trust ordering", () => {
+  it("prefers operator_correction over all others", () => {
+    expect(
+      pickGroundTruthScalar({
+        operator_correction: "OP",
+        erp_actual: "ERP",
+        macro_vc_var: "MACRO",
+        ocr_inferred: "OCR",
+      }),
+    ).toBe("OP");
+  });
+  it("falls back to erp_actual when no operator_correction", () => {
+    expect(
+      pickGroundTruthScalar({ erp_actual: "ERP", macro_vc_var: "MACRO" }),
+    ).toBe("ERP");
+  });
+  it("falls back to macro_vc_var when only macro present", () => {
+    expect(pickGroundTruthScalar({ macro_vc_var: "MACRO" })).toBe("MACRO");
+  });
+  it("returns null when no provenance has value", () => {
+    expect(pickGroundTruthScalar({})).toBe(null);
+    expect(pickGroundTruthScalar({ macro_vc_var: undefined })).toBe(null);
+  });
+  it("rejects empty-string values", () => {
+    expect(pickGroundTruthScalar({ erp_actual: "" })).toBe(null);
+  });
+});
+
+describe("extractionMatches — value comparison", () => {
+  it("exact string match", () => {
+    expect(extractionMatches("1.000", "1.000")).toBe(true);
+  });
+  it("case-insensitive string match (after trim)", () => {
+    expect(extractionMatches("  ABC  ", "abc")).toBe(true);
+  });
+  it("numeric format-tolerant match (1.000 == 1.0)", () => {
+    expect(extractionMatches("1.000", "1.0")).toBe(true);
+    expect(extractionMatches("1.000", "1")).toBe(true);
+  });
+  it("rejects when both are 0 vs nonzero", () => {
+    expect(extractionMatches("0", "0.001")).toBe(false);
+  });
+  it("accepts zero==zero", () => {
+    expect(extractionMatches("0", "0.0")).toBe(true);
+  });
+  it("rejects different numeric values", () => {
+    expect(extractionMatches("1.000", "2.000")).toBe(false);
+  });
+  it("rejects empty strings", () => {
+    expect(extractionMatches("", "1.000")).toBe(false);
+    expect(extractionMatches("1.000", "")).toBe(false);
+  });
+  it("rejects non-string inputs", () => {
+    expect(extractionMatches(null as unknown as string, "1")).toBe(false);
+    expect(extractionMatches("1", undefined as unknown as string)).toBe(false);
+  });
+});
+
+describe("computeConformalCoverage", () => {
+  it("returns observed=0 + nominal=1-alpha on empty map", () => {
+    const result = computeConformalCoverage(new Map(), 0.1);
+    expect(result.observed).toBe(0);
+    expect(result.nominal).toBe(0.9);
+  });
+  it("100% coverage when all nonconformity ≤ quantile", () => {
+    const m = new Map([
+      ["dimension", { total: 4, correct: 4, nonconformity: [0.1, 0.1, 0.1, 0.1] }],
+    ]);
+    const result = computeConformalCoverage(m, 0.1);
+    expect(result.observed).toBe(1);
+  });
+  it("partial coverage on mixed nonconformity", () => {
+    const m = new Map([
+      ["dimension", { total: 10, correct: 8, nonconformity: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.9, 0.95] }],
+    ]);
+    const result = computeConformalCoverage(m, 0.1);
+    // qIdx = ceil(0.9 * 10) - 1 = 8; threshold = 0.9 → 9 of 10 covered = 0.9
+    expect(result.observed).toBeCloseTo(0.9, 4);
+  });
+});
+
+describe("validateExtractionBackend (U-MS1-U4)", () => {
+  const pairs: ExtractionTrainingPair[] = [
+    { pairId: "p1", extractionType: "dimension", groundTruthValues: { erp_actual: "1.000" } },
+    { pairId: "p2", extractionType: "dimension", groundTruthValues: { erp_actual: "2.000" } },
+    { pairId: "p3", extractionType: "tolerance", groundTruthValues: { macro_vc_var: "0.005" } },
+  ];
+
+  it("100% accuracy when backend returns correct values", () => {
+    const backend = (p: ExtractionTrainingPair) => ({
+      value: pickGroundTruthScalar(p.groundTruthValues) ?? "",
+      confidence: 0.95,
+    });
+    const result = engine.validateExtractionBackend({
+      backendId: "perfect",
+      trainingPairSetId: "set1",
+      pairs,
+      backend,
+    });
+    expect(result.accuracy).toBe(1);
+    expect(result.totalPairs).toBe(3);
+    expect(result.totalCorrect).toBe(3);
+    expect(result.disagreementRegions).toEqual([]);
+  });
+
+  it("0% accuracy when backend always wrong; records disagreement regions", () => {
+    const backend = () => ({ value: "WRONG", confidence: 0.1 });
+    const result = engine.validateExtractionBackend({
+      backendId: "broken",
+      trainingPairSetId: "set1",
+      pairs,
+      backend,
+    });
+    expect(result.accuracy).toBe(0);
+    expect(result.disagreementRegions.length).toBe(3);
+    expect(result.disagreementRegions[0]?.expected).toBe("1.000");
+    expect(result.disagreementRegions[0]?.got).toBe("WRONG");
+  });
+
+  it("per-dim-type breakdown reports each extractionType separately", () => {
+    const backend = (p: ExtractionTrainingPair) => ({
+      value: p.extractionType === "dimension" ? (pickGroundTruthScalar(p.groundTruthValues) ?? "") : "WRONG",
+      confidence: 0.9,
+    });
+    const result = engine.validateExtractionBackend({
+      backendId: "partial",
+      trainingPairSetId: "set1",
+      pairs,
+      backend,
+    });
+    expect(result.perDimTypeBreakdown.dimension?.accuracy).toBe(1);
+    expect(result.perDimTypeBreakdown.tolerance?.accuracy).toBe(0);
+  });
+
+  it("skips pairs with no ground-truth value (unlabeled)", () => {
+    const pairsWithEmpty = [
+      ...pairs,
+      { pairId: "p4-empty", extractionType: "dimension", groundTruthValues: {} },
+    ];
+    const backend = (p: ExtractionTrainingPair) => ({
+      value: pickGroundTruthScalar(p.groundTruthValues) ?? "noop",
+      confidence: 0.9,
+    });
+    const result = engine.validateExtractionBackend({
+      backendId: "skip",
+      trainingPairSetId: "set1",
+      pairs: pairsWithEmpty,
+      backend,
+    });
+    expect(result.totalPairs).toBe(4); // counted
+    expect(result.totalCorrect).toBe(3); // unlabeled doesn't contribute
+    expect(result.accuracy).toBeCloseTo(0.75, 4);
+  });
+
+  it("conformal coverage reports observed + nominal", () => {
+    const backend = (p: ExtractionTrainingPair) => ({
+      value: pickGroundTruthScalar(p.groundTruthValues) ?? "",
+      confidence: 0.9,
+    });
+    const result = engine.validateExtractionBackend({
+      backendId: "conformal",
+      trainingPairSetId: "set1",
+      pairs,
+      backend,
+      conformalAlpha: 0.1,
+    });
+    expect(result.conformalAlpha).toBe(0.1);
+    expect(result.conformalCoverage.nominal).toBe(0.9);
+    expect(result.conformalCoverage.observed).toBeGreaterThanOrEqual(0);
+    expect(result.conformalCoverage.observed).toBeLessThanOrEqual(1);
+  });
+
+  it("rejects empty backendId", () => {
+    expect(() =>
+      engine.validateExtractionBackend({
+        backendId: "",
+        trainingPairSetId: "set1",
+        pairs,
+        backend: () => ({ value: "1" }),
+      }),
+    ).toThrow(/backendId required/);
+  });
+
+  it("clamps conformalAlpha to [0.01, 0.5]", () => {
+    const backend = (p: ExtractionTrainingPair) => ({ value: pickGroundTruthScalar(p.groundTruthValues) ?? "", confidence: 0.9 });
+    const high = engine.validateExtractionBackend({ backendId: "high", trainingPairSetId: "x", pairs, backend, conformalAlpha: 5 });
+    expect(high.conformalAlpha).toBe(0.5);
+    const low = engine.validateExtractionBackend({ backendId: "low", trainingPairSetId: "x", pairs, backend, conformalAlpha: -1 });
+    expect(low.conformalAlpha).toBe(0.01);
+  });
+});
+
+describe("compareBackends + regressionGate (U-MS1-U4)", () => {
+  const pairs: ExtractionTrainingPair[] = [
+    { pairId: "p1", extractionType: "dimension", groundTruthValues: { erp_actual: "1.000" } },
+    { pairId: "p2", extractionType: "dimension", groundTruthValues: { erp_actual: "2.000" } },
+    { pairId: "p3", extractionType: "dimension", groundTruthValues: { erp_actual: "3.000" } },
+    { pairId: "p4", extractionType: "tolerance", groundTruthValues: { macro_vc_var: "0.005" } },
+  ];
+
+  it("ranks backends by accuracy descending", () => {
+    const perfect = (p: ExtractionTrainingPair) => ({ value: pickGroundTruthScalar(p.groundTruthValues) ?? "", confidence: 0.9 });
+    const halfWrong = (p: ExtractionTrainingPair) => ({
+      value: p.pairId === "p1" || p.pairId === "p2" ? (pickGroundTruthScalar(p.groundTruthValues) ?? "") : "WRONG",
+      confidence: 0.7,
+    });
+    const broken = () => ({ value: "X", confidence: 0.1 });
+    const result = engine.compareBackends({
+      backends: [
+        { backendId: "broken", backend: broken },
+        { backendId: "perfect", backend: perfect },
+        { backendId: "halfWrong", backend: halfWrong },
+      ],
+      trainingPairSetId: "compare-set",
+      pairs,
+      regressionThresholdPct: 2,
+    });
+    expect(result.rank[0]?.backendId).toBe("perfect");
+    expect(result.rank[0]?.accuracy).toBe(1);
+    expect(result.rank[1]?.backendId).toBe("halfWrong");
+    expect(result.rank[2]?.backendId).toBe("broken");
+    expect(result.leaderId).toBe("perfect");
+  });
+
+  it("flags regressions for backends below leader by >threshold", () => {
+    const perfect = (p: ExtractionTrainingPair) => ({ value: pickGroundTruthScalar(p.groundTruthValues) ?? "", confidence: 0.9 });
+    const broken = () => ({ value: "X", confidence: 0.1 });
+    const result = engine.compareBackends({
+      backends: [
+        { backendId: "perfect", backend: perfect },
+        { backendId: "broken", backend: broken },
+      ],
+      trainingPairSetId: "regress-set",
+      pairs,
+      regressionThresholdPct: 5,
+    });
+    expect(result.regressionFlags.length).toBe(1);
+    expect(result.regressionFlags[0]?.backendId).toBe("broken");
+    expect(result.regressionFlags[0]?.gapPct).toBe(100);
+    expect(result.regressionFlags[0]?.versusLeader).toBe("perfect");
+  });
+
+  it("rejects empty backend list", () => {
+    expect(() =>
+      engine.compareBackends({
+        backends: [],
+        trainingPairSetId: "x",
+        pairs,
+      }),
+    ).toThrow(/at least one backend/);
+  });
+
+  it("regressionGate passes when no regression vs baseline", () => {
+    const perfect = (p: ExtractionTrainingPair) => ({ value: pickGroundTruthScalar(p.groundTruthValues) ?? "", confidence: 0.9 });
+    const baseline = engine.validateExtractionBackend({
+      backendId: "baseline-perfect",
+      trainingPairSetId: "set-baseline",
+      pairs,
+      backend: perfect,
+    });
+    engine.snapshotBaseline("snap-1", baseline);
+    const current = engine.validateExtractionBackend({
+      backendId: "current-perfect",
+      trainingPairSetId: "set-current",
+      pairs,
+      backend: perfect,
+    });
+    const gate = engine.regressionGate({
+      current,
+      baselineSnapshotId: "snap-1",
+    });
+    expect(gate.passed).toBe(true);
+    expect(gate.reason).toBe("no_regression");
+    expect(gate.regressions).toEqual([]);
+  });
+
+  it("regressionGate fails when current regresses vs baseline", () => {
+    const perfect = (p: ExtractionTrainingPair) => ({ value: pickGroundTruthScalar(p.groundTruthValues) ?? "", confidence: 0.9 });
+    const broken = () => ({ value: "X", confidence: 0.1 });
+    const baseline = engine.validateExtractionBackend({
+      backendId: "baseline",
+      trainingPairSetId: "x",
+      pairs,
+      backend: perfect,
+    });
+    engine.snapshotBaseline("snap-2", baseline);
+    const current = engine.validateExtractionBackend({
+      backendId: "regressed",
+      trainingPairSetId: "x",
+      pairs,
+      backend: broken,
+    });
+    const gate = engine.regressionGate({
+      current,
+      baselineSnapshotId: "snap-2",
+      perDimTolerancePct: 2,
+    });
+    expect(gate.passed).toBe(false);
+    expect(gate.reason).toBe("regressions_detected");
+    expect(gate.regressions.length).toBeGreaterThan(0);
+    expect(gate.regressions[0]?.gapPct).toBe(100);
+  });
+
+  it("regressionGate fails when baseline missing", () => {
+    const baseline: BackendValidationResult = {
+      backendId: "fake",
+      trainingPairSetId: "x",
+      accuracy: 1,
+      conformalCoverage: { observed: 1, nominal: 0.9 },
+      conformalAlpha: 0.1,
+      perDimTypeBreakdown: { dimension: { accuracy: 1, n: 1 } },
+      disagreementRegions: [],
+      totalPairs: 1,
+      totalCorrect: 1,
+      evaluatedAt: new Date().toISOString(),
+    };
+    const gate = engine.regressionGate({
+      current: baseline,
+      baselineSnapshotId: "never-snapshotted",
+    });
+    expect(gate.passed).toBe(false);
+    expect(gate.reason).toBe("baseline_missing");
+  });
+
+  it("regressionGate detects dropped dim_type as regression", () => {
+    const baseline: BackendValidationResult = {
+      backendId: "baseline",
+      trainingPairSetId: "x",
+      accuracy: 1,
+      conformalCoverage: { observed: 1, nominal: 0.9 },
+      conformalAlpha: 0.1,
+      perDimTypeBreakdown: { dimension: { accuracy: 1, n: 1 }, tolerance: { accuracy: 1, n: 1 } },
+      disagreementRegions: [],
+      totalPairs: 2,
+      totalCorrect: 2,
+      evaluatedAt: new Date().toISOString(),
+    };
+    engine.snapshotBaseline("snap-3", baseline);
+    const current: BackendValidationResult = {
+      ...baseline,
+      perDimTypeBreakdown: { dimension: { accuracy: 1, n: 1 } }, // tolerance dropped
+    };
+    const gate = engine.regressionGate({
+      current,
+      baselineSnapshotId: "snap-3",
+    });
+    expect(gate.passed).toBe(false);
+    expect(gate.regressions.some((r) => r.reason === "dim_type_dropped")).toBe(true);
+  });
+
+  it("snapshotBaseline rejects empty snapshotId", () => {
+    const baseline: BackendValidationResult = {
+      backendId: "b",
+      trainingPairSetId: "x",
+      accuracy: 1,
+      conformalCoverage: { observed: 1, nominal: 0.9 },
+      conformalAlpha: 0.1,
+      perDimTypeBreakdown: {},
+      disagreementRegions: [],
+      totalPairs: 0,
+      totalCorrect: 0,
+      evaluatedAt: new Date().toISOString(),
+    };
+    expect(() => engine.snapshotBaseline("", baseline)).toThrow(/snapshotId required/);
+  });
+
+  it("clearBaselines removes all snapshots", () => {
+    const baseline: BackendValidationResult = {
+      backendId: "b",
+      trainingPairSetId: "x",
+      accuracy: 1,
+      conformalCoverage: { observed: 1, nominal: 0.9 },
+      conformalAlpha: 0.1,
+      perDimTypeBreakdown: {},
+      disagreementRegions: [],
+      totalPairs: 0,
+      totalCorrect: 0,
+      evaluatedAt: new Date().toISOString(),
+    };
+    engine.snapshotBaseline("clear-test", baseline);
+    expect(engine.getBaseline("clear-test")).not.toBe(null);
+    engine.clearBaselines();
+    expect(engine.getBaseline("clear-test")).toBe(null);
   });
 });

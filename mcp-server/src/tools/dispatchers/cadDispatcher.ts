@@ -225,6 +225,9 @@ const ACTIONS = [
   // BLUEPRINT-OCR-TRAINING-MS1/U-MS1-U3 — ground-truth registry blueprint join
   "gt_blueprint_register", "gt_blueprint_join_docustrata", "gt_enumerate_by_tier",
   "gt_flag_ambiguities", "gt_training_pairs_by_customer",
+  // BLUEPRINT-OCR-TRAINING-MS1/U-MS1-U4 — extraction-confidence cross-validation
+  "gt_validate_backend", "gt_compare_backends", "gt_regression_gate",
+  "gt_snapshot_baseline",
   "cad_harvest_catalog", "cad_harvest_paired_sources", "cad_harvest_can_redistribute",
   // CAD-FUSION-LIVE-MS0 PHASE18: 6-CAD execution router (SW/Inv/MC/HyperCAD/Fusion/Esprit unifier)
   "cad_route_detect_system", "cad_route_supported_systems", "cad_route_plan_execution",
@@ -2509,6 +2512,110 @@ Params vary by action — pass relevant fields in params object.`,
               params as Parameters<typeof groundTruthRegistryEngine.getTrainingPairsByCustomer>[0],
             );
             result = { success: true, data, count: data.length };
+            break;
+          }
+          // BLUEPRINT-OCR-TRAINING-MS1/U-MS1-U4 — extraction-confidence cross-validation
+          // NOTE: validate_backend + compare_backends accept pre-computed extractions[]
+          // because MCP cannot transport backend functions. The dispatcher wraps
+          // the array as a lookup-fn; programmatic callers can also pass `backend`
+          // directly (the engine signature accepts either path).
+          case "gt_validate_backend": {
+            if (!params.backendId || !params.trainingPairSetId || !Array.isArray(params.pairs)) {
+              return dispatcherError(
+                new Error("gt_validate_backend requires backendId, trainingPairSetId, pairs[]; optionally precomputedExtractions[] (one per pair)"),
+                action, "prism_cad",
+              );
+            }
+            if (!Array.isArray(params.precomputedExtractions)) {
+              return dispatcherError(
+                new Error("gt_validate_backend MCP path requires precomputedExtractions[] (one entry per pair) — runtime backend functions cannot cross MCP boundary"),
+                action, "prism_cad",
+              );
+            }
+            const pairs = params.pairs as Array<{ pairId: string; extractionType: string; groundTruthValues: Record<string, string | undefined> }>;
+            const extractions = params.precomputedExtractions as Array<{ value: string; confidence?: number }>;
+            if (pairs.length !== extractions.length) {
+              return dispatcherError(
+                new Error(`pairs.length (${pairs.length}) !== precomputedExtractions.length (${extractions.length})`),
+                action, "prism_cad",
+              );
+            }
+            const { groundTruthValidationEngine } = await import("../../engines/GroundTruthValidationEngine.js");
+            const data = groundTruthValidationEngine.validateExtractionBackend({
+              backendId: params.backendId as string,
+              trainingPairSetId: params.trainingPairSetId as string,
+              pairs,
+              backend: (pair) => {
+                const idx = pairs.indexOf(pair);
+                const ext = extractions[idx];
+                return ext ? { value: ext.value, ...(typeof ext.confidence === "number" ? { confidence: ext.confidence } : {}) } : { value: "" };
+              },
+              ...(typeof params.conformalAlpha === "number" ? { conformalAlpha: params.conformalAlpha } : {}),
+            });
+            result = { success: true, data };
+            break;
+          }
+          case "gt_compare_backends": {
+            if (!Array.isArray(params.backendResults) || !params.trainingPairSetId) {
+              return dispatcherError(
+                new Error("gt_compare_backends requires backendResults[] (each: BackendValidationResult) + trainingPairSetId"),
+                action, "prism_cad",
+              );
+            }
+            // Direct comparison mode — caller passes pre-computed results.
+            const results = params.backendResults as Array<{ backendId: string; accuracy: number; perDimTypeBreakdown: Record<string, { accuracy: number; n: number }> }>;
+            const sorted = [...results].sort((a, b) => b.accuracy - a.accuracy);
+            const leader = sorted[0]!;
+            const threshold = typeof params.regressionThresholdPct === "number" ? params.regressionThresholdPct : 2.0;
+            const rank = sorted.map((r, i) => ({ rank: i + 1, backendId: r.backendId, accuracy: r.accuracy }));
+            const regressionFlags = sorted.slice(1)
+              .map((r) => ({ r, gapPct: (leader.accuracy - r.accuracy) * 100 }))
+              .filter(({ gapPct }) => gapPct > threshold)
+              .map(({ r, gapPct }) => ({
+                backendId: r.backendId,
+                gapPct: Number(gapPct.toFixed(2)),
+                versusLeader: leader.backendId,
+                reason: "accuracy_gap_exceeds_threshold",
+              }));
+            result = {
+              success: true,
+              data: {
+                trainingPairSetId: params.trainingPairSetId,
+                rank,
+                regressionFlags,
+                leaderId: leader.backendId,
+                regressionThresholdPct: threshold,
+              },
+            };
+            break;
+          }
+          case "gt_snapshot_baseline": {
+            if (!params.snapshotId || !params.result) {
+              return dispatcherError(
+                new Error("gt_snapshot_baseline requires snapshotId + result (BackendValidationResult)"),
+                action, "prism_cad",
+              );
+            }
+            const { groundTruthValidationEngine } = await import("../../engines/GroundTruthValidationEngine.js");
+            groundTruthValidationEngine.snapshotBaseline(
+              params.snapshotId as string,
+              params.result as Parameters<typeof groundTruthValidationEngine.snapshotBaseline>[1],
+            );
+            result = { success: true, data: { stored: true, snapshotId: params.snapshotId } };
+            break;
+          }
+          case "gt_regression_gate": {
+            if (!params.current || !params.baselineSnapshotId) {
+              return dispatcherError(
+                new Error("gt_regression_gate requires current (BackendValidationResult) + baselineSnapshotId"),
+                action, "prism_cad",
+              );
+            }
+            const { groundTruthValidationEngine } = await import("../../engines/GroundTruthValidationEngine.js");
+            const data = groundTruthValidationEngine.regressionGate(
+              params as Parameters<typeof groundTruthValidationEngine.regressionGate>[0],
+            );
+            result = { success: true, data };
             break;
           }
           case "cad_drawing_index_sources": {

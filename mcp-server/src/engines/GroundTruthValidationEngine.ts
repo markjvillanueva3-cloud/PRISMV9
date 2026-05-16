@@ -547,6 +547,357 @@ export class GroundTruthValidationEngine {
   listIssueCodes(): readonly IssueCode[] {
     return ISSUE_CODES;
   }
+
+  // ── BLUEPRINT-OCR-TRAINING-MS1/U-MS1-U4 extension ─────────────────────
+  // Extraction-confidence cross-validation harness — consumes the labelled
+  // training pairs produced by GroundTruthRegistryEngine.joinDocustrataToPartLibrary
+  // (U-MS1-U3) and evaluates OCR backends against them.
+
+  /** In-memory baseline snapshots for regression gating (keyed by snapshotId). */
+  private extractionBaselines = new Map<string, BackendValidationResult>();
+
+  /**
+   * Validate a single OCR backend against a labelled training-pair set.
+   * Pure-orchestration — caller injects the backend as a function. Returns
+   * accuracy + conformal coverage + per-dim-type breakdown + disagreement
+   * regions for operator review.
+   */
+  validateExtractionBackend(input: {
+    backendId: string;
+    trainingPairSetId: string;
+    pairs: ExtractionTrainingPair[];
+    backend: (pair: ExtractionTrainingPair) => ExtractionBackendOutput;
+    conformalAlpha?: number;
+  }): BackendValidationResult {
+    if (typeof input.backendId !== "string" || input.backendId.length === 0) {
+      throw new Error("[GroundTruthValidationEngine] backendId required");
+    }
+    if (!Array.isArray(input.pairs)) {
+      throw new Error("[GroundTruthValidationEngine] pairs must be array");
+    }
+    const conformalAlpha = clampConformalAlpha(input.conformalAlpha);
+
+    const perDimType = new Map<string, { total: number; correct: number; nonconformity: number[] }>();
+    const disagreementRegions: BackendValidationResult["disagreementRegions"] = [];
+    let totalPairs = 0;
+    let totalCorrect = 0;
+
+    for (const pair of input.pairs) {
+      totalPairs++;
+      const groundTruth = pickGroundTruthScalar(pair.groundTruthValues);
+      if (groundTruth === null) continue; // unlabeled — skip
+      const out = input.backend(pair);
+      const correct = extractionMatches(groundTruth, out.value);
+      if (correct) totalCorrect++;
+
+      const dimTypeKey = pair.extractionType;
+      const bucket = perDimType.get(dimTypeKey) ?? { total: 0, correct: 0, nonconformity: [] };
+      bucket.total++;
+      if (correct) bucket.correct++;
+      // Nonconformity = 1 - backend confidence (lower = better, 0 = perfect).
+      // Used by conformal calibration. Clamp to [0,1].
+      const nc = Math.max(0, Math.min(1, 1 - (out.confidence ?? 0.5)));
+      bucket.nonconformity.push(nc);
+      perDimType.set(dimTypeKey, bucket);
+
+      if (!correct) {
+        disagreementRegions.push({
+          pairId: pair.pairId,
+          extractionType: pair.extractionType,
+          expected: groundTruth,
+          got: out.value,
+          confidence: out.confidence ?? null,
+        });
+      }
+    }
+
+    const accuracy = totalPairs > 0 ? totalCorrect / totalPairs : 0;
+    const conformalCoverage = computeConformalCoverage(perDimType, conformalAlpha);
+    const perDimTypeBreakdown: Record<string, { accuracy: number; n: number }> = {};
+    for (const [k, v] of perDimType.entries()) {
+      perDimTypeBreakdown[k] = { accuracy: v.total > 0 ? v.correct / v.total : 0, n: v.total };
+    }
+    return {
+      backendId: input.backendId,
+      trainingPairSetId: input.trainingPairSetId,
+      accuracy: Number(accuracy.toFixed(6)),
+      conformalCoverage,
+      conformalAlpha,
+      perDimTypeBreakdown,
+      disagreementRegions: disagreementRegions.slice(0, 200), // cap for telemetry
+      totalPairs,
+      totalCorrect,
+      evaluatedAt: new Date().toISOString(),
+    };
+  }
+
+  /**
+   * Compare N backends on the same training-pair set. Returns rank by accuracy
+   * + regression flags (any backend below the LEADER by >regressionThreshold
+   * absolute accuracy points). Useful for A/B routing decisions.
+   */
+  compareBackends(input: {
+    backends: Array<{
+      backendId: string;
+      backend: (pair: ExtractionTrainingPair) => ExtractionBackendOutput;
+    }>;
+    trainingPairSetId: string;
+    pairs: ExtractionTrainingPair[];
+    regressionThresholdPct?: number;
+    conformalAlpha?: number;
+  }): BackendComparisonResult {
+    if (!Array.isArray(input.backends) || input.backends.length === 0) {
+      throw new Error("[GroundTruthValidationEngine] at least one backend required");
+    }
+    const regressionThresholdPct = clampThresholdPct(input.regressionThresholdPct);
+    const results: BackendValidationResult[] = [];
+    for (const b of input.backends) {
+      results.push(
+        this.validateExtractionBackend({
+          backendId: b.backendId,
+          trainingPairSetId: input.trainingPairSetId,
+          pairs: input.pairs,
+          backend: b.backend,
+          conformalAlpha: input.conformalAlpha,
+        }),
+      );
+    }
+    const sorted = [...results].sort((a, b) => b.accuracy - a.accuracy);
+    const leader = sorted[0]!;
+    const rank = sorted.map((r, i) => ({
+      rank: i + 1,
+      backendId: r.backendId,
+      accuracy: r.accuracy,
+    }));
+    const regressionFlags: BackendComparisonResult["regressionFlags"] = [];
+    for (const r of sorted.slice(1)) {
+      const gapPct = (leader.accuracy - r.accuracy) * 100;
+      if (gapPct > regressionThresholdPct) {
+        regressionFlags.push({
+          backendId: r.backendId,
+          gapPct: Number(gapPct.toFixed(2)),
+          versusLeader: leader.backendId,
+          reason: "accuracy_gap_exceeds_threshold",
+        });
+      }
+    }
+    return {
+      trainingPairSetId: input.trainingPairSetId,
+      rank,
+      regressionFlags,
+      results,
+      leaderId: leader.backendId,
+      regressionThresholdPct,
+    };
+  }
+
+  /**
+   * Promote a backend's current validation result to baseline (used by
+   * regressionGate). Pure in-memory; persistence handled by caller.
+   */
+  snapshotBaseline(snapshotId: string, result: BackendValidationResult): void {
+    if (typeof snapshotId !== "string" || snapshotId.length === 0) {
+      throw new Error("[GroundTruthValidationEngine] snapshotId required");
+    }
+    this.extractionBaselines.set(snapshotId, result);
+  }
+
+  /** Inspect or remove baselines. */
+  getBaseline(snapshotId: string): BackendValidationResult | null {
+    return this.extractionBaselines.get(snapshotId) ?? null;
+  }
+  clearBaselines(): void {
+    this.extractionBaselines.clear();
+  }
+
+  /**
+   * Gate a current validation result against a prior baseline. Returns
+   * `passed:true` when no per-dim-type accuracy regressed below the baseline
+   * (within tolerance). Returns regressions array naming the dim-types that
+   * regressed + magnitude.
+   */
+  regressionGate(input: {
+    current: BackendValidationResult;
+    baselineSnapshotId: string;
+    perDimTolerancePct?: number;
+  }): RegressionGateResult {
+    const baseline = this.extractionBaselines.get(input.baselineSnapshotId);
+    if (!baseline) {
+      return {
+        passed: false,
+        reason: "baseline_missing",
+        regressions: [],
+        baselineSnapshotId: input.baselineSnapshotId,
+      };
+    }
+    const tolerancePct = clampThresholdPct(input.perDimTolerancePct);
+    const regressions: RegressionGateResult["regressions"] = [];
+    for (const [dimType, baselineBreakdown] of Object.entries(baseline.perDimTypeBreakdown)) {
+      const currentBreakdown = input.current.perDimTypeBreakdown[dimType];
+      if (!currentBreakdown) {
+        regressions.push({
+          dimType,
+          baselineAccuracy: baselineBreakdown.accuracy,
+          currentAccuracy: 0,
+          gapPct: baselineBreakdown.accuracy * 100,
+          reason: "dim_type_dropped",
+        });
+        continue;
+      }
+      const gapPct = (baselineBreakdown.accuracy - currentBreakdown.accuracy) * 100;
+      if (gapPct > tolerancePct) {
+        regressions.push({
+          dimType,
+          baselineAccuracy: baselineBreakdown.accuracy,
+          currentAccuracy: currentBreakdown.accuracy,
+          gapPct: Number(gapPct.toFixed(2)),
+          reason: "accuracy_regressed",
+        });
+      }
+    }
+    return {
+      passed: regressions.length === 0,
+      reason: regressions.length === 0 ? "no_regression" : "regressions_detected",
+      regressions,
+      baselineSnapshotId: input.baselineSnapshotId,
+    };
+  }
+}
+
+// ── U-MS1-U4 supporting types + helpers ─────────────────────────────────
+
+const DEFAULT_CONFORMAL_ALPHA = 0.1;
+const MIN_CONFORMAL_ALPHA = 0.01;
+const MAX_CONFORMAL_ALPHA = 0.5;
+const DEFAULT_REGRESSION_THRESHOLD_PCT = 2.0;
+const MIN_THRESHOLD_PCT = 0;
+const MAX_THRESHOLD_PCT = 100;
+
+export interface ExtractionTrainingPair {
+  pairId: string;
+  extractionType: string;
+  groundTruthValues: Record<string, string | undefined>;
+}
+
+export interface ExtractionBackendOutput {
+  value: string;
+  confidence?: number;
+}
+
+export interface BackendValidationResult {
+  backendId: string;
+  trainingPairSetId: string;
+  accuracy: number;
+  conformalCoverage: { observed: number; nominal: number };
+  conformalAlpha: number;
+  perDimTypeBreakdown: Record<string, { accuracy: number; n: number }>;
+  disagreementRegions: Array<{
+    pairId: string;
+    extractionType: string;
+    expected: string;
+    got: string;
+    confidence: number | null;
+  }>;
+  totalPairs: number;
+  totalCorrect: number;
+  evaluatedAt: string;
+}
+
+export interface BackendComparisonResult {
+  trainingPairSetId: string;
+  rank: Array<{ rank: number; backendId: string; accuracy: number }>;
+  regressionFlags: Array<{
+    backendId: string;
+    gapPct: number;
+    versusLeader: string;
+    reason: string;
+  }>;
+  results: BackendValidationResult[];
+  leaderId: string;
+  regressionThresholdPct: number;
+}
+
+export interface RegressionGateResult {
+  passed: boolean;
+  reason: string;
+  regressions: Array<{
+    dimType: string;
+    baselineAccuracy: number;
+    currentAccuracy: number;
+    gapPct: number;
+    reason: string;
+  }>;
+  baselineSnapshotId: string;
+}
+
+function clampConformalAlpha(raw: number | undefined): number {
+  if (typeof raw !== "number" || !Number.isFinite(raw)) return DEFAULT_CONFORMAL_ALPHA;
+  return Math.max(MIN_CONFORMAL_ALPHA, Math.min(MAX_CONFORMAL_ALPHA, raw));
+}
+
+function clampThresholdPct(raw: number | undefined): number {
+  if (typeof raw !== "number" || !Number.isFinite(raw)) return DEFAULT_REGRESSION_THRESHOLD_PCT;
+  return Math.max(MIN_THRESHOLD_PCT, Math.min(MAX_THRESHOLD_PCT, raw));
+}
+
+/**
+ * Pick a single ground-truth scalar from the multi-provenance values, in
+ * trust order: operator_correction > erp_actual > macro_vc_var > ocr_inferred.
+ * Returns null when no provenance has a string value.
+ */
+export function pickGroundTruthScalar(values: Record<string, string | undefined>): string | null {
+  for (const key of ["operator_correction", "erp_actual", "macro_vc_var", "ocr_inferred"]) {
+    const v = values[key];
+    if (typeof v === "string" && v.length > 0) return v;
+  }
+  return null;
+}
+
+/**
+ * Loose extraction-vs-ground-truth match. Numeric values match within a
+ * relative tolerance to absorb formatting differences (1.000 vs 1.0). String
+ * values match on case-insensitive trim. Empty strings never match.
+ */
+export function extractionMatches(expected: string, got: string): boolean {
+  if (typeof expected !== "string" || typeof got !== "string") return false;
+  const e = expected.trim();
+  const g = got.trim();
+  if (e.length === 0 || g.length === 0) return false;
+  if (e.toLowerCase() === g.toLowerCase()) return true;
+  const en = Number(e);
+  const gn = Number(g);
+  if (Number.isFinite(en) && Number.isFinite(gn)) {
+    if (en === 0 && gn === 0) return true;
+    const rel = Math.abs(en - gn) / Math.max(Math.abs(en), Math.abs(gn));
+    return rel < 1e-6;
+  }
+  return false;
+}
+
+/**
+ * Compute observed conformal coverage = fraction of pairs whose backend
+ * nonconformity is below the (1 - alpha) quantile of the calibration set.
+ * Nominal coverage = 1 - alpha. Returned as {observed, nominal}.
+ */
+export function computeConformalCoverage(
+  perDimType: Map<string, { total: number; correct: number; nonconformity: number[] }>,
+  alpha: number,
+): { observed: number; nominal: number } {
+  const nominal = 1 - alpha;
+  let totalSamples = 0;
+  let covered = 0;
+  for (const bucket of perDimType.values()) {
+    if (bucket.nonconformity.length === 0) continue;
+    const sorted = [...bucket.nonconformity].sort((a, b) => a - b);
+    const qIdx = Math.max(0, Math.ceil((1 - alpha) * sorted.length) - 1);
+    const threshold = sorted[qIdx]!;
+    for (const nc of bucket.nonconformity) {
+      totalSamples++;
+      if (nc <= threshold) covered++;
+    }
+  }
+  const observed = totalSamples > 0 ? covered / totalSamples : 0;
+  return { observed: Number(observed.toFixed(6)), nominal: Number(nominal.toFixed(6)) };
 }
 
 export const groundTruthValidationEngine = new GroundTruthValidationEngine();
