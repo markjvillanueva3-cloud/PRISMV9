@@ -395,6 +395,73 @@ describe("T6: degraded mode — no ollama reader → source=deterministic", () =
 });
 
 // ---------------------------------------------------------------------------
+// T7: generic (non-sentinel) error for one unit → skipped, batch continues
+// ---------------------------------------------------------------------------
+
+describe("T7: generic error (no RGS_DETERMINISTIC_PLAN_INVALID sentinel) for 1 unit → skipped, others planned", () => {
+  let result;
+  let sidecarPath;
+  let checkpointPath;
+
+  before(async () => {
+    const tmp = makeTmpDir();
+    sidecarPath = path.join(tmp, "roadmap-tool-plans.json");
+    checkpointPath = path.join(tmp, ".roadmap-tool-plans.checkpoint.jsonl");
+
+    const units = fakeUnits(3);
+
+    // Throw a GENERIC error (no sentinel) for exactly the second unit (index 1).
+    let callCount = 0;
+    const readersWithGenericBomb = {
+      async capabilities(_text) {
+        callCount++;
+        if (callCount === 2) {
+          // Generic error — does NOT contain RGS_DETERMINISTIC_PLAN_INVALID
+          throw new Error("network boom");
+        }
+        return { engines: ["FakeEngine"], mcpTools: ["prism_fake:do_thing"] };
+      },
+      async tribal(_text, _opts) {
+        return [{ id: "tip-1", tip: "tip", score: 0.9, domain: "mill" }];
+      },
+      async skillTriggers(_text) {
+        return ["forge-triple"];
+      },
+      async buildState(_unit) {
+        return { shipped: false };
+      },
+      async outcomes(_opts) {
+        return { shipped: 1, blocked: 0, reverted: 0 };
+      },
+    };
+
+    result = await runPlanner({
+      units,
+      complexityFor: stableComplexity,
+      readers: readersWithGenericBomb,
+      sidecarPath,
+      checkpointPath,
+      force: false,
+    });
+  });
+
+  it("batch does NOT throw — result object is returned", () => {
+    assert.ok(result, "result must exist");
+    assert.equal(typeof result.planned, "number");
+    assert.equal(typeof result.skipped, "number");
+  });
+
+  it("failed unit counted in skipped, not planned", () => {
+    assert.equal(result.planned + result.skipped, 3, "total must still be 3");
+    assert.equal(result.skipped, 1, `skipped=${result.skipped} — 1 generic-error unit must be skipped`);
+  });
+
+  it("the other 2 units ARE planned (planned===2)", () => {
+    assert.equal(result.planned, 2, `planned=${result.planned}`);
+  });
+});
+
+// ---------------------------------------------------------------------------
 // Cleanup
 // ---------------------------------------------------------------------------
 

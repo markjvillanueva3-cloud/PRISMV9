@@ -152,10 +152,13 @@ function buildToolPlanSection(prompt, sid) {
     lines.push(`  skills: ${plan.skills.join(", ")}`);
   }
 
-  // Tribal tips
+  // Tribal tips — handle both string and object shape {id,tip,score,domain}
   if (Array.isArray(plan.tribal) && plan.tribal.length > 0) {
     lines.push(`  tribal:`);
-    for (const t of plan.tribal) lines.push(`    • ${t}`);
+    for (const t of plan.tribal) {
+      const text = typeof t === "string" ? t : (t && t.tip ? t.tip : String(t));
+      lines.push(`    • ${text}`);
+    }
   }
 
   // Agents

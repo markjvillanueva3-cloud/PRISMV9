@@ -24,14 +24,18 @@
 
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { spawnSync } from "node:child_process";
-import { pathToFileURL } from "node:url";
+import { pathToFileURL, fileURLToPath } from "node:url";
 import path from "node:path";
 
 // ---------------------------------------------------------------------------
 // Paths
 // ---------------------------------------------------------------------------
 
-const PRISM_ROOT = "H:/prism";
+// Derive the repo root from this hook's own location (<root>/.claude/hooks/),
+// overridable via PRISM_ROOT for hermetic tests / non-default checkouts.
+const PRISM_ROOT =
+  process.env.PRISM_ROOT ??
+  path.resolve(fileURLToPath(import.meta.url), "..", "..", "..");
 
 const PICKED_PATH =
   process.env.PRISM_RGS_PICKED_PATH ??

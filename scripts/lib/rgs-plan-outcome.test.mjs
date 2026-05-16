@@ -216,6 +216,72 @@ describe("T8: ledger FAIL note does not classify as shipped", () => {
 });
 
 // ---------------------------------------------------------------------------
+// T10 — isLedgerPass boundary: exactly 1 arm passing → NOT shipped
+// (threshold is passCount >= 2; a single-arm pass must NOT clear the gate)
+// ---------------------------------------------------------------------------
+describe("T10: ledger with exactly 1 arm passing does NOT classify as shipped", () => {
+  it("one-arm-pass ledger entry mentioning the unit id produces blocked, not shipped", () => {
+    const oneArmPass = {
+      notes: "U-FOO-01 reviewed by arm A only",
+      opusReviewed: true,   // 1 arm
+      claudeReviewed: false,
+      codexReviewed: false,
+    };
+
+    const results = extractOutcomes(
+      {
+        scrutinyLedger: [oneArmPass],
+        commitBodies: [],
+        pickedEvents: [pickedBase],
+        revertedKeys: new Set(),
+      },
+      { now: FIXED_NOW }
+    );
+
+    assert.equal(results.length, 1);
+    // passCount === 1 < threshold 2 → ledger path must NOT ship
+    assert.equal(
+      results[0].outcome,
+      "blocked",
+      "1-arm ledger pass must not clear the passCount >= 2 gate"
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// T11 — isLedgerPass boundary: exactly 2 arms passing → shipped
+// (threshold is passCount >= 2; two arms meet the minimum)
+// ---------------------------------------------------------------------------
+describe("T11: ledger with exactly 2 arms passing DOES classify as shipped", () => {
+  it("two-arm-pass ledger entry mentioning the unit id produces shipped", () => {
+    const twoArmPass = {
+      notes: "U-FOO-01 reviewed by arms A and B",
+      opusReviewed: true,   // arm A
+      claudeReviewed: true, // arm B
+      codexReviewed: false, // arm C absent — still meets passCount >= 2
+    };
+
+    const results = extractOutcomes(
+      {
+        scrutinyLedger: [twoArmPass],
+        commitBodies: [],
+        pickedEvents: [pickedBase],
+        revertedKeys: new Set(),
+      },
+      { now: FIXED_NOW }
+    );
+
+    assert.equal(results.length, 1);
+    // passCount === 2 >= threshold 2 → ledger path ships the unit
+    assert.equal(
+      results[0].outcome,
+      "shipped",
+      "2-arm ledger pass meets passCount >= 2 and must classify as shipped"
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
 // T9 — multiple picked events classified independently
 // ---------------------------------------------------------------------------
 describe("T9: multiple picked events classified independently", () => {

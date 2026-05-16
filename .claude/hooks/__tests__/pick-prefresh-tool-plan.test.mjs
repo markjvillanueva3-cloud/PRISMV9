@@ -89,7 +89,8 @@ const SAMPLE_PLAN = {
     { skill: "forge-triple", confidence: 0.9 },
     { skill: "lathe-studio", confidence: 0.7 },
   ],
-  tribal: ["Use constant-surface-speed for P-group alloys"],
+  // Real object shape from fuseSignals — NOT string array (P0 regression guard)
+  tribal: [{ id: "t1", tip: "Use constant-surface-speed for P-group alloys", score: 0.8, domain: "mill" }],
   skills: ["forge-triple", "dedup"],
   mcpTools: ["prism_calc"],
   agents: ["physics-reviewer"],
@@ -117,6 +118,22 @@ describe("pick-prefresh tool-plan injection", () => {
     const ctx = result.hookSpecificOutput?.additionalContext ?? "";
     assert.ok(ctx.includes("forge-triple"), `Expected 'forge-triple' in context, got:\n${ctx}`);
     assert.ok(ctx.includes("lathe-studio"), `Expected 'lathe-studio' in context, got:\n${ctx}`);
+  });
+
+  test("tribal object tip text is rendered — not [object Object] (P0 regression guard)", () => {
+    writeSidecar({ [UNIT_KEY]: SAMPLE_SIDECAR_ENTRY });
+
+    const result = runHook({ prompt: `/pick-unit ${UNIT_KEY}`, session_id: "s-test-1b" });
+
+    const ctx = result.hookSpecificOutput?.additionalContext ?? "";
+    assert.ok(
+      ctx.includes("constant-surface-speed"),
+      `Expected tribal tip text in context, got:\n${ctx.slice(0, 500)}`,
+    );
+    assert.ok(
+      !ctx.includes("[object Object]"),
+      `tribal must not render as [object Object], got:\n${ctx.slice(0, 500)}`,
+    );
   });
 
   test("picks event is appended to JSONL on plan injection", () => {
