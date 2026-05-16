@@ -211,6 +211,14 @@ node H:/prism/scripts/ollama-docker-health.mjs --require ollama,qdrant  # exit 1
 
 **If Docker engine is unresponsive (500 errors on `docker ps`):** advise `wsl --shutdown && wsl` then restart Docker Desktop. The launcher's status file at `state/shared/DOCKER_RUNTIME_STATE.json` will confirm last-known-good.
 
+**⚠ SEMANTIC LAYER OFFLINE alert (NEW — obsidian-2nd-brain audit gap #3, 2026-05-16):** when the health probe reports Qdrant ✗, the 2nd-brain READ surfaces silently no-op:
+- `error-block-prewarn.mjs` (recalls similar prior errors from Qdrant) → returns 0 hits
+- `wiki-precheck-inject.mjs` cosine fallback (semantic vault search) → BM25-only, no paraphrase pull
+- `xproc_episodic_recall` / `xproc_outcome_retrieve_similar` (cross-process episodic memory) → throws + caught silently
+- All neural-recommend / cot_reason calls using Qdrant-cached embeddings → cache-miss every call
+
+This means /checkin running with Qdrant down operates on **a degraded 2nd-brain** — BM25-only keyword recall, no semantic paraphrase, no episodic similarity. Surface in §Report as `semantic_layer:` line. Operator needs to know — silent degradation is exactly the "named-not-invoked" regression class the audit memo formalized. Fix is `cd H:/prism/mcp-server && node scripts/ollama-docker-launcher.mjs --services=qdrant --skip-pull` (background-spawn, idempotent).
+
 ### 6h. Fleet activity + handoff suggestions (NEW — SYSTEM-VIZ-BRAIN-MS0/U-P5-CHECKIN-FLEET-CONTEXT)
 Surfaces what every other chat in the fleet is actually working on AND stale-but-actionable handoffs a fresh chat could pick up. Composes the existing `chat-slots.mjs`, `fleet-status.mjs`, `loop-state.mjs list`, and the per-agent handoff dir into ONE block — especially valuable when a fresh chat does /checkin and needs to decide between (a) continuing a peer's abandoned work, (b) offering to help a struggling peer, or (c) picking something new without stepping on anyone.
 
@@ -257,7 +265,10 @@ Surface results in §Report below as `fleet topics:` (active slots showing topic
 **Composition note:** this step is read-only on every existing surface — no new state file, no new lock, no peer-claim conflict. All failures degrade gracefully (missing input = empty section, never blocks /checkin).
 
 ### 6i. Tribal knowledge pull (NEW — utilization-audit improvement #2, 2026-05-16)
-Actually USE the `prism_knowledge:tribal_search` surface that Step 10 documents (today it's only NAMED, never INVOKED). Pull the top-3 tribal tips relevant to the bound topic + any task keywords from `$ARGUMENTS`, surface in §Report so the operator sees experiential warnings BEFORE entering the dev pipeline.
+
+> **SUPERSEDED by §6k (2026-05-16).** §6k fires tribal recall via local compute + Ollama distill (zero Claude tokens) and feeds the same `tribal hits:` §Report line. §6i is kept as the **MCP-surface reference** — the `prism_knowledge:tribal_search` dispatcher path documented here is the fallback when you need a richer/scored query mid-pipeline than §6k's distilled top-3. For the standard check-in, §6k already covers this — do NOT double-invoke.
+
+Reference (MCP path): pull the top-3 tribal tips relevant to the bound topic + any task keywords from `$ARGUMENTS`, surface in §Report so the operator sees experiential warnings BEFORE entering the dev pipeline.
 
 ```bash
 # Build query from topic + args (skip if no signal)
@@ -300,6 +311,31 @@ The top-3 plan steps become §Report `plan:` lines (one numbered step per row, a
 
 **Token budget**: cot_reason typically returns 200-400 tokens for compact 3-step plans. The §Report adds ~6 lines. Net cost is small relative to a single dev-pipeline iter.
 
+### 6k. Vault + master-index recall — AUTO-INVOKED via local compute (NEW — 2026-05-16 user directive)
+
+User directive 2026-05-16: *"ensure the checkin slash command pipelines auto invoke every slash command and tool call"* + *"use obsidian and ollama to help with the token cost"*. Steps 8-11 below historically only **NAMED** the master-index / vault / skill surfaces in reference tables — they were never INVOKED ("named-not-invoked" regression class). This step actually fires them, but routes the cost through **local compute** so Claude never pays to search or summarize:
+
+- **Recall** runs over local Obsidian/graph indexes (system-graph via `system-viz-query.mjs`, the wiki `index.md`, the 240 memory `.md` files, `.claude/commands/*.md`) — **zero Claude tokens**.
+- **Distill** is offloaded to local **Ollama** (`qwen2.5-coder:7b` via curl — node `fetch` to :11434 fails on this box, the helper uses a curl subprocess per OLLAMA-PIPELINE-MS0). Claude only ever reads the ≤3 distilled bullets per source.
+
+Single composition point — fire ALL of these every /checkin (always-fire per user; each degrades to a one-line skip if its index/Ollama is down, NEVER blocks):
+```bash
+Q="$TOPIC $ARGUMENTS"
+for SRC in master-index memory wiki skill tribal; do
+  echo "[$SRC]"
+  node H:/prism/scripts/checkin-recall.mjs recall --source "$SRC" --query "$Q" --limit 3 --ollama-distill 2>&1
+done
+```
+Map the output into §Report: `master-index:` / `vault recall:` (memory+wiki) / `skills matched:` / `tribal hits:` (this supersedes the Step 6i manual tribal call — same data, now Ollama-distilled). If Qdrant is ✗ (see §6g), this local path is the ONLY working recall — it does not depend on Qdrant.
+
+### 6l. Deterministic High-ROI auto-match gate (NEW — converts the passive checklist to an enforced gate)
+
+The "High-ROI features" table at the end of this skill was a passive *"invoke ANY that match"* suggestion — category-3 surfaces (`prism_safety:*`, `/forge-audit-v2`, `prism_omega:compute`, ATCS, …) that must NOT all fire unconditionally (token blowout + semantically wrong) but MUST fire when the task actually warrants them. This step makes the match **deterministic**: a programmatic scan of `$ARGUMENTS`+`$TOPIC` prints exactly which conditional surfaces are mandatory this run.
+```bash
+node H:/prism/scripts/checkin-recall.mjs roi-gate --args "$ARGUMENTS" --topic "$TOPIC" 2>&1
+```
+Every surface it prints as `MUST invoke:` is **mandatory before declaring the pipeline complete** — surface them in §Report as the `must-invoke:` line and actually invoke each during the dev pipeline (e.g. a cutting-physics task → `prism_safety:*` is non-optional). Empty output = no conditional surface triggered (the common case for a bare check-in).
+
 ### 7. Report — print this boxed one-glance status
 ```
 ┌─ /checkin ─────────────────────────────────────────────
@@ -317,8 +353,13 @@ The top-3 plan steps become §Report `plan:` lines (one numbered step per row, a
 │ tree:        <clean | dirty: N files>  ·  origin: <ahead A / behind B | offline>
 │ staged:      <empty | ⚠ N files staged — git reset HEAD>
 │ local_compute: <one-line from §6g — Ollama+Docker+Qdrant+Postgres+Prometheus>
+│ semantic_layer: <only if Qdrant ✗> ⚠ OFFLINE — error-prewarn/wiki-cosine/episodic-recall all silent no-op
 │ regressions:    <top-3 from CLAUDE.md "## Recent regressions" — bold-title only, "watch out" advisory>
-│ tribal hits:    <top-3 tribal_search hits for topic+args, score >=0.4 — abbreviated to ~80 chars each>
+│ master-index:   <§6k — top-3 system-graph hits for topic+args, Ollama-distilled>
+│ vault recall:   <§6k — top-3 memory+wiki hits, Ollama-distilled (local, 0 Claude tokens)>
+│ tribal hits:    <§6k — top-3 tribal hits, Ollama-distilled (supersedes the old §6i manual call)>
+│ skills matched: <§6k — relevant /skills for topic+args>
+│ must-invoke:    <§6l roi-gate — conditional surfaces MANDATORY this run [✓ none | • prism_safety:* | …]>
 │ plan:           <only if HAS_TASK=1> <3-step CoT plan from prism_ai:cot_reason — 1 step per row, ~80 chars>
 │ fleet topics:   <slot=topic, slot=topic, … — one line summary of who's working on what>
 │ fleet loops:    <slot iter/target (age), … — only slots currently in /loop>
@@ -340,6 +381,8 @@ If the verdict is ⚠, list the 1-3 concrete next actions (the fix commands abov
 # THE DEV PIPELINE — emitted when /checkin has a task argument
 
 When `$ARGUMENTS` contains a task/unit/loop/goal directive (heuristic: contains any of `/loop`, `/goal`, `/pick-unit`, `/pick-dev`, `unit`, `task`, `complete`, `ship`, `build`, `wire`, or a verbatim filepath), Claude proceeds through the steps below INSTEAD OF stopping at the §Report. The §Report still runs first — drift/dirty-tree blocks still apply.
+
+> **⚙ AUTO-INVOKED, not named-only (2026-05-16).** The recall/index/AI surfaces tabled in Steps 8-11 are **already fired** by §6k (master-index + memory + wiki + skill + tribal recall, Ollama-distilled) and §6l (deterministic High-ROI gate) above — results are in §Report (`master-index:` / `vault recall:` / `tribal hits:` / `skills matched:` / `must-invoke:`). Steps 8-11 below are the **WHAT-reference** (the catalog of every surface + when to drill deeper / re-fire), NOT a passive menu. The recall+distill ran in **local compute** (Obsidian indexes + local Ollama) so reading them costs Claude ~15 lines, not a search+summarize pass. Per the user directive, nothing in this pipeline is "named-but-never-invoked" anymore — if you add a surface to a Step 8-11 table, also add it to `checkin-recall.mjs` or the §6l gate so it actually fires.
 
 ## Step 8 — Awareness inject (auto-loaded; verify it landed)
 
@@ -459,9 +502,9 @@ Use these IN ORDER as the session approaches token limit OR when work ships:
 9. **Stop-time viz reminder** — `stop-system-viz-reminder.mjs` nudges a /system-viz refresh if H: drive files changed.
 10. **Handoff** — invoke `/handoff` skill at session end to lock the RESUME for the next chat.
 
-## High-ROI features the user may have missed (check before declaring pipeline complete)
+## High-ROI features — ENFORCED by the §6l deterministic gate (no longer a passive checklist)
 
-User asked: *"check to see if I left high roi features out of this pipeline"*. The following are auto-available but easy to forget:
+User asked: *"check to see if I left high roi features out of this pipeline"* → then 2026-05-16: *"auto invoke every slash command and tool call"*. This table is the **catalog**; the §6l `roi-gate` (`checkin-recall.mjs roi-gate`) deterministically scans `$ARGUMENTS`+`$TOPIC` and prints which of these are **MANDATORY this run** (the `must-invoke:` §Report line). The table below is the human-readable map of each surface's trigger; the gate is the machine enforcement so a relevant surface can't be silently skipped:
 
 | Feature | When to use | Action / Skill |
 |---|---|---|
@@ -486,4 +529,4 @@ User asked: *"check to see if I left high roi features out of this pipeline"*. T
 | `prism_memory:semantic_search` | Cross-session memory graph + Qdrant fallback | when "I solved this before" feeling hits |
 | `prism_intake:webhook_ingest` | HMAC-verified external personal-knowledge intake | for X posts / RSS / manual capture |
 
-**Use them as a checklist — invoke ANY that match the current task before declaring the pipeline complete.**
+**The §6l gate decides which are mandatory — every surface it emits as `MUST invoke:` must actually be invoked before declaring the pipeline complete (not optional, not "if I remember").**
