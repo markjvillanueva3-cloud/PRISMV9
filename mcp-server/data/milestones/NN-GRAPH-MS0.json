@@ -1,0 +1,137 @@
+{
+  "id": "NN-GRAPH-MS0",
+  "title": "Hybrid neural-symbolic GNN — GraphSAGE link-prediction over system-viz",
+  "track": "INFRA-INTELLIGENCE",
+  "status": "in_progress",
+  "version": "1.0.0",
+  "schemaVersion": 2,
+  "created_at": "2026-05-16",
+  "updated_at": "2026-05-16",
+  "priority": "HIGH",
+  "target_omega": 0.85,
+  "description": "Adds a 5th tier to the existing 4-tier wiring-inference cascade (keyword → expanded-keyword → sibling-prefix → LLM): a GraphSAGE link-prediction GNN trained on learned node embeddings (768-d nomic-embed semantic + 128-d node2vec structural + 8-d SystemViz topology + node-kind one-hot). Strictly additive — hybrid (4-tier) remains the always-on baseline; GNN gate activates only when confidence >= PRISM_NNG_MIN_CONF (default 0.7). Recursive-self-improvement property: new engines/scripts/wiki entries become NEW NODES in system-graph.json via engine-node-extractor (shipped in U1), so the next training run sees the system reasoning about itself. v3 plan integrates ALL P0+P1 findings from the 4-agent scrutiny round (architecture / training-rigor / risk / wiring). See H:/.claude/plans/steady-kindling-tide.md for full design.",
+  "context_doc": "knowledge/wiki/architecture/nn-graph-ms0.md",
+  "knowledge_sources": [
+    "H:/.claude/plans/steady-kindling-tide.md",
+    "knowledge/wiki/architecture/system-viz-fs-coverage-ms1.md",
+    "knowledge/wiki/architecture/system-viz-dsl-ms0.md",
+    "knowledge/memories/reference/reference_system_viz_fs_coverage_ms1_2026_05_16.md",
+    "knowledge/memories/reference/reference_ollama_cost_routing.md"
+  ],
+  "goals": [
+    "Sub-millisecond, deterministic, calibrated-probability dispatcher predictions for unwired engines via GraphSAGE link prediction",
+    "Compose over existing infrastructure: OllamaEmbedderEngine (768-d nomic), KnowledgeGraphFeatureProjector pattern (8-d SystemViz topology version), wiki's _embeddings.jsonl (14,738 reusable vectors)",
+    "Bench-graded honest A/B vs LLM and hybrid on a 200-engine inductive holdout — per-confidence-bucket winner-takes-bucket policy",
+    "Recursive property: new engines/scripts become discrete nodes in system-graph.json (via U1's engine-node-extractor), so the GNN can reason about itself on next training run",
+    "Hybrid is the floor, GNN is the ceiling. Never replace; only augment. PRISM_NNG_DISABLE=1 reverts to today's behavior exactly."
+  ],
+  "total_units": 8,
+  "phases": [
+    {
+      "id": "PHASE-NNG",
+      "title": "8 units, parallel-buildable across 10-chat fleet under AUTONOMOUS-FLEET-MS0 force-hooks",
+      "session": 1,
+      "smart_config": {
+        "role": "R3-Systems Architect + R7-ML Engineer + R5-Build Doctor",
+        "model": "opus-4.7",
+        "effort": "HIGH",
+        "context_budget": "70%"
+      },
+      "intent": "After this phase: 6 new engines (3 graph-embedding + 3 GraphSAGE) wired into mlDispatcher PRIMARY + intelligenceDispatcher SECONDARY; 7 new scripts (edge-typology + node-extractor + node-embeddings + node2vec + train + gnn-classify + eval); 200-engine inductive labeled holdout; AUROC>=0.78 + macro-F1>=0.55 + Brier<=0.15 mandatory gates; isotonic calibrator in U4a; 5th-tier inference gate live in seed-ghost-llm-classify.mjs with PRISM_NNG_MIN_CONF=0.7 default; NN-EVAL.md surfaces per-bucket winner table; full 4-surface close-out + the new c-to-h-mirror grep-check 5th surface.",
+      "skills": ["/system-viz", "/wiki-query", "/scrutinize", "/forge-audit", "/master-index"],
+      "exit_gate": {
+        "criteria": [
+          "All 8 units shipped with per-file 2-reviewer scrutiny PASS on every file",
+          "AUROC >= 0.78 inductive (held-out 200) — primary mandatory",
+          "macro-F1 >= 0.55 — parallel mandatory",
+          "Brier-per-bucket <= 0.15 (post-calibration on val)",
+          "Per-forward latency < 5ms / per-query < 80ms / p99 < 200ms on RTX 4080",
+          "Train/val gap < 5%",
+          "If any mandatory gate misses: status shipped-research-only with U4b deploy-gate disabled, milestone closes with honest deferred-deploy",
+          "4 wiki entries + 4 memory entries + 4-surface close-out + c-to-h-mirror grep-check landed",
+          "Round-trip dispatcher E2E test per new action (else comprehensive-build-enforce blocks)",
+          "Recursive property smoke test: predict dispatcher for GraphSAGELinkPredictorEngine.ts itself returns prism_ml with high confidence"
+        ],
+        "omega_floor": 0.85
+      },
+      "units": [
+        "U-NNG-EDGE-NORMALIZE",
+        "U-NNG-NODE-EMBED-INGEST",
+        "U-NNG-NODE2VEC-TOPOLOGY",
+        "U-NNG-GRAPHSAGE-TRAIN",
+        "U-NNG-GRAPHSAGE-PREDICT",
+        "U-NNG-INFERENCE-FIFTH-TIER",
+        "U-NNG-EVAL-HARNESS",
+        "U-NNG-WIKI-DOC"
+      ]
+    }
+  ],
+  "unit_specs": {
+    "U-NNG-EDGE-NORMALIZE": {
+      "title": "Edge typology + node-kind ontology + engine-node-extractor (foundation)",
+      "owner_slot": "alpha (this session — foundational)",
+      "wall_time_h": 6
+    },
+    "U-NNG-NODE-EMBED-INGEST": {
+      "title": "Build 372k-node 768-d nomic-embed vectors with wiki-cache reuse + p-limit concurrency",
+      "owner_slot": "charlie (GPU host)",
+      "deps": ["U-NNG-EDGE-NORMALIZE"],
+      "wall_time_h": 10
+    },
+    "U-NNG-NODE2VEC-TOPOLOGY": {
+      "title": "GraphRandomWalkEngine + Node2VecGraphEmbedderEngine + SystemVizNodeFeatureProjectorEngine",
+      "owner_slot": "delta",
+      "deps": ["U-NNG-EDGE-NORMALIZE"],
+      "wall_time_h": 9
+    },
+    "U-NNG-GRAPHSAGE-TRAIN": {
+      "title": "GraphSAGETrainerEngine + IsotonicCalibratorEngine + GraphSAGECheckpointLoaderEngine + training script (60/30/10 negative sampling)",
+      "owner_slot": "echo (GPU host)",
+      "deps": ["U-NNG-NODE-EMBED-INGEST", "U-NNG-NODE2VEC-TOPOLOGY"],
+      "wall_time_h": 12
+    },
+    "U-NNG-GRAPHSAGE-PREDICT": {
+      "title": "GraphSAGELinkPredictorEngine + dispatcher wiring + deploy-gate",
+      "owner_slot": "echo",
+      "deps": ["U-NNG-GRAPHSAGE-TRAIN"],
+      "wall_time_h": 5
+    },
+    "U-NNG-INFERENCE-FIFTH-TIER": {
+      "title": "seed-ghost-gnn-classify.mjs + surgical edit to seed-ghost-llm-classify.mjs (15-line tier-5 gate)",
+      "owner_slot": "foxtrot",
+      "deps": ["U-NNG-GRAPHSAGE-PREDICT"],
+      "wall_time_h": 4
+    },
+    "U-NNG-EVAL-HARNESS": {
+      "title": "200-engine inductive holdout build + 6-tier comparison + per-bucket Brier + NN-EVAL.md/json",
+      "owner_slot": "hotel",
+      "deps": ["U-NNG-GRAPHSAGE-PREDICT", "U-NNG-INFERENCE-FIFTH-TIER"],
+      "wall_time_h": 7
+    },
+    "U-NNG-WIKI-DOC": {
+      "title": "4 wiki entries + 4 memory entries + 4-surface close-out (NOT golf — use juliett, golf write-allowlist denies)",
+      "owner_slot": "juliett",
+      "deps": ["U-NNG-EVAL-HARNESS"],
+      "wall_time_h": 3
+    }
+  },
+  "blocked_by": ["AUTONOMOUS-FLEET-MS0"],
+  "risk_register": [
+    "AUROC stalls 0.70-0.78 — ships as shipped-research-only with U4b deploy-gate disabled; honest status",
+    "358k Ollama embed calls take 8-12h — p-limit 4-8 + wiki-cache reuse mitigates; resume-on-restart preserves work across /compact",
+    "Three embedding models in codebase — standardize nomic-embed-text 768-d; LocalEmbedding zero-pads to 768",
+    "Calibration miscalibrated — isotonic moved to U4a mandatory (not deferred to U6)",
+    "Heterogeneous graph — NODE_KIND_MAP one-hot + neighbor-kind-diversity feature",
+    "Catastrophic forgetting on weekly retrain — warm-start from prev checkpoint w/ lr/2",
+    "Cross-tree commit collision — alpha serializes U3+U4 dispatcher edits via chat-bus",
+    "GPU contention — .gpu-lock-graphsage TTL 4h; fleet-reaper coordinator honors lock",
+    "Peer milestone-name collision — alpha writes envelope FIRST to claim name",
+    "c-to-h-mirror silent revert — every harness-touching unit closes with grep-check on both settings.json copies",
+    "Vitest harness blocked — node --test for all .mjs tests; .ts tests verified compilable",
+    "Brier-per-bucket gate, not just aggregate — U6 stratifies",
+    "/compact mid-U4-training — U4a writes RESUME.md every 5 epochs with explicit resume-at-epoch-N directive",
+    "MS-P5-GNN architecture overlap — accepted; future-merge contract documented in MS-P5-GNN U-P5-01",
+    "DISPATCHER_DIGEST parser blind to spread-array enums — direct .ts grep as workaround until U-HVA-DIGEST-PARSER-FIX",
+    "Goal-gate stale 2h vs 60h build — set PRISM_GOAL_GATE_STALE_HRS=6 in alpha env before Sunday close-out"
+  ]
+}
