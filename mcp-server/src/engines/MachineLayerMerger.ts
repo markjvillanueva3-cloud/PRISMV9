@@ -11,10 +11,29 @@
  * - Conflict resolution: higher-priority layer wins, alternatives tracked
  */
 
-import type { Machine, MachineController, MachineSpindle, MachineEnvelope, MachineAxes, MachineToolChanger, MachineCoolant, MachineKinematics, MachineLayer } from '../types.js';
+import type { Machine, MachineController, MachineSpindle, MachineEnvelope, MachineAxes, MachineToolChanger, MachineCoolant, MachineKinematics } from '../types.js';
+import type { MachineLayer } from '../constants.js';
+import type { MachineAxisTopology } from '../contracts/userMachineProfile.js';
 import type { CanonicalMachinePackage, MachineFieldProvenance, MachineAmbiguity, MachineEnrichmentRecord, MachineConfidenceBreakdown, CanonicalMachineType } from '../types/MachinePackage.js';
 
-const LAYER_PRIORITY: Record<MachineLayer | 'LEVEL5' | 'USER', number> = {
+/**
+ * Enrichment-layer vocabulary used by the merger (priority: USER > LEVEL5 > ENHANCED > BASIC).
+ * Distinct from the canonical MachineLayer ("core"/"extended"/...) — mapped to the canonical
+ * vocabulary at the provenance/package boundary via mergeLayerToCanonical().
+ */
+type MergeLayer = 'BASIC' | 'ENHANCED' | 'LEVEL5' | 'USER';
+
+/** Map a merger enrichment layer to the canonical MachineLayer vocabulary. */
+function mergeLayerToCanonical(layer: MergeLayer): MachineLayer | 'LEVEL5' {
+  switch (layer) {
+    case 'BASIC': return 'core';
+    case 'ENHANCED': return 'extended';
+    case 'LEVEL5': return 'LEVEL5';
+    case 'USER': return 'user';
+  }
+}
+
+const LAYER_PRIORITY: Record<MergeLayer, number> = {
   'BASIC': 1,
   'ENHANCED': 2,
   'LEVEL5': 3,
@@ -23,7 +42,7 @@ const LAYER_PRIORITY: Record<MachineLayer | 'LEVEL5' | 'USER', number> = {
 
 export interface MachineLayerInput {
   machine: Machine;
-  layer: MachineLayer | 'LEVEL5' | 'USER';
+  layer: MergeLayer;
   source_id: string;
   enriched_at?: string;
   confidence?: number;
@@ -46,7 +65,7 @@ interface FieldMergeResult<T> {
 class MachineLayerMergerEngine {
   private mergeField<T>(
     path: string,
-    values: Array<{ value: T | undefined; layer: MachineLayer | 'LEVEL5' | 'USER'; source_id: string; enriched_at: string; confidence: number }>,
+    values: Array<{ value: T | undefined; layer: MergeLayer; source_id: string; enriched_at: string; confidence: number }>,
   ): FieldMergeResult<T> | null {
     const definedValues = values.filter(v => v.value !== undefined && v.value !== null);
     if (definedValues.length === 0) return null;
@@ -57,7 +76,7 @@ class MachineLayerMergerEngine {
       value: winner.value!,
       provenance: {
         source: winner.source_id as any,
-        layer: winner.layer,
+        layer: mergeLayerToCanonical(winner.layer),
         enriched_at: winner.enriched_at,
         confidence: winner.confidence,
       },
@@ -78,11 +97,11 @@ class MachineLayerMergerEngine {
 
   private mergeArrayField<T>(
     path: string,
-    values: Array<{ value: T[] | undefined; layer: MachineLayer | 'LEVEL5' | 'USER'; source_id: string; enriched_at: string; confidence: number }>,
+    values: Array<{ value: T[] | undefined; layer: MergeLayer; source_id: string; enriched_at: string; confidence: number }>,
   ): FieldMergeResult<T[]> | null {
     const allItems: T[] = [];
     const seenJson = new Set<string>();
-    let bestLayer: MachineLayer | 'LEVEL5' | 'USER' = 'BASIC';
+    let bestLayer: MergeLayer = 'BASIC';
     let bestEnriched = '';
     let bestSource = '';
     let maxConfidence = 0;
@@ -112,16 +131,16 @@ class MachineLayerMergerEngine {
       value: allItems,
       provenance: {
         source: bestSource as any,
-        layer: bestLayer,
+        layer: mergeLayerToCanonical(bestLayer),
         enriched_at: bestEnriched,
         confidence: maxConfidence,
       },
     };
   }
 
-  private mergeObject<T extends Record<string, unknown>>(
+  private mergeObject<T extends object>(
     basePath: string,
-    objects: Array<{ value: T | undefined; layer: MachineLayer | 'LEVEL5' | 'USER'; source_id: string; enriched_at: string; confidence: number }>,
+    objects: Array<{ value: T | undefined; layer: MergeLayer; source_id: string; enriched_at: string; confidence: number }>,
   ): { merged: T; provenance: Record<string, MachineFieldProvenance>; conflicts: number } {
     const result: Record<string, unknown> = {};
     const provenance: Record<string, MachineFieldProvenance> = {};
@@ -139,7 +158,7 @@ class MachineLayerMergerEngine {
     for (const key of allKeys) {
       const fieldPath = `${basePath}.${key}`;
       const fieldValues = objects.map(obj => ({
-        value: obj.value?.[key],
+        value: (obj.value as Record<string, unknown> | undefined)?.[key],
         layer: obj.layer,
         source_id: obj.source_id,
         enriched_at: obj.enriched_at,
@@ -154,7 +173,7 @@ class MachineLayerMergerEngine {
       }
     }
 
-    return { merged: result as T, provenance, conflicts };
+    return { merged: result as unknown as T, provenance, conflicts };
   }
 
   merge(inputs: MachineLayerInput[]): MergeResult {
@@ -300,7 +319,7 @@ class MachineLayerMergerEngine {
       provenance,
       ambiguities,
       enrichment_history: enrichmentHistory,
-      primary_layer: primary.layer as MachineLayer,
+      primary_layer: mergeLayerToCanonical(primary.layer),
       generated_at: now,
     };
 
@@ -368,14 +387,14 @@ class MachineLayerMergerEngine {
     return 'OTHER';
   }
 
-  private inferTopology(axes: Record<string, unknown>): 'three_axis' | 'four_axis' | 'five_axis' | 'mill_turn' | 'lathe' | 'swiss' | 'other' {
-    const linear = (axes.linear_axes as number) ?? 3;
-    const rotary = (axes.rotary_axes as number) ?? 0;
+  private inferTopology(axes: MachineAxes | undefined): MachineAxisTopology {
+    const linear = axes?.linear_axes ?? 3;
+    const rotary = axes?.rotary_axes ?? 0;
     const total = linear + rotary;
-    if (total >= 5) return 'five_axis';
-    if (total === 4) return 'four_axis';
-    if (linear === 3 && rotary === 0) return 'three_axis';
-    if (linear === 2 && rotary <= 1) return 'lathe';
+    if (total >= 5) return '5_axis_vertical';
+    if (total === 4) return '4_axis_vertical';
+    if (linear === 3 && rotary === 0) return '3_axis_vertical';
+    if (linear === 2 && rotary <= 1) return '2_axis_lathe';
     return 'other';
   }
 }
