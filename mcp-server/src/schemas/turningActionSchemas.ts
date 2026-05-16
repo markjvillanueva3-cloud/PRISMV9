@@ -29,6 +29,48 @@ const optPosNum = z.number().positive().optional();
 const optNum = z.number().optional();
 
 // ============================================================================
+// MS-PRINT-PROGRAM-LOOP/U-PPL-A1 — TurningMinFingerprintEngine
+// (defined early — TURNING_ACTION_SCHEMAS export references these by name)
+// ============================================================================
+
+const _programFingerprintLite = z
+  .object({
+    tool_count: z.number().int().nonnegative(),
+    operation_count: z.number().int().nonnegative(),
+    line_count: z.number().int().nonnegative(),
+    feature_vector: z.array(z.number()).length(16),
+  })
+  .passthrough();
+
+const turning_min_fingerprint = z
+  .object({
+    text: z.string().optional(),
+    base64: z.string().optional(),
+    filename: z.string().optional(),
+  })
+  .refine(
+    (p) => p.text !== undefined || p.base64 !== undefined,
+    { message: "must supply 'text' or 'base64'" },
+  )
+  .passthrough();
+
+const turning_min_classify = z
+  .object({
+    fingerprint: _programFingerprintLite,
+    anchors: z
+      .array(
+        z.object({
+          name: z.string().min(1),
+          family: z.string().min(1),
+          fingerprint: _programFingerprintLite,
+        }),
+      )
+      .min(0),
+    threshold: z.number().positive().max(2).optional(),
+  })
+  .passthrough();
+
+// ============================================================================
 // chuck_force — ChuckJawForceEngine
 // ============================================================================
 
@@ -659,4 +701,8 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   lathe_training_corpus_status,
   lathe_training_template_match,
   lathe_training_template_list,
+
+  // MS-PRINT-PROGRAM-LOOP/U-PPL-A1: TurningMinFingerprintEngine surfaces
+  turning_min_fingerprint,
+  turning_min_classify,
 };

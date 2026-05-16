@@ -69,6 +69,8 @@ const ACTIONS = [
   "turning_cpk_surrogate", "turning_insert_life",
   "turning_offset_wear", "turning_offset_probe",
   "turning_robust_optimize",
+  // MS-PRINT-PROGRAM-LOOP/U-PPL-A1: structural fingerprint + cluster classify
+  "turning_min_fingerprint", "turning_min_classify",
   // ENGINE-WIRE-LATHE-MS0/U-WIRE-LATHE-BATCH1: 6 unwired lathe engines
   "lathe_css_optimize",                  // LatheCSSOptimizerEngine.optimize
   "lathe_chip_predict_type",             // LatheChipMechanicsEngine.predictChipType
@@ -495,6 +497,41 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "turning_robust_optimize": {
             const { turningRobustOptimizerEngine } = await import("../../engines/TurningRobustOptimizerEngine.js");
             result = turningRobustOptimizerEngine.run(params as Parameters<typeof turningRobustOptimizerEngine.run>[0]);
+            break;
+          }
+          // ─────────────────────────────────────────────────────────────────
+          // MS-PRINT-PROGRAM-LOOP/U-PPL-A1: TurningMinFingerprintEngine
+          // Wraps with { success, data } envelope (partFamilyMatch pattern)
+          // so downstream consumers can branch on success WITHOUT unpacking
+          // the engine's discriminated {ok: true|false} shape.
+          // ─────────────────────────────────────────────────────────────────
+          case "turning_min_fingerprint": {
+            const { turningMinFingerprintEngine } = await import("../../engines/TurningMinFingerprintEngine.js");
+            const { okumaOSPParserEngine } = await import("../../engines/OkumaOSPParserEngine.js");
+            const p = params as { text?: string; base64?: string; filename?: string };
+            // Schema already enforces exactly-one-of text/base64.
+            const raw = p.text !== undefined
+              ? Buffer.from(p.text, "utf8")
+              : Buffer.from(p.base64 as string, "base64");
+            const parseFn = okumaOSPParserEngine.parse.bind(okumaOSPParserEngine);
+            const data = turningMinFingerprintEngine.fromBytes(raw, parseFn, p.filename);
+            result = { success: true, data };
+            break;
+          }
+          case "turning_min_classify": {
+            const { turningMinFingerprintEngine, DEFAULT_DISTANCE_THRESHOLD } =
+              await import("../../engines/TurningMinFingerprintEngine.js");
+            const p = params as {
+              fingerprint: Parameters<typeof turningMinFingerprintEngine.classify>[0];
+              anchors: Parameters<typeof turningMinFingerprintEngine.classify>[1];
+              threshold?: number;
+            };
+            const data = turningMinFingerprintEngine.classify(
+              p.fingerprint,
+              p.anchors,
+              p.threshold ?? DEFAULT_DISTANCE_THRESHOLD,
+            );
+            result = { success: true, data };
             break;
           }
           // ─────────────────────────────────────────────────────────────────
