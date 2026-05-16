@@ -162,7 +162,23 @@
             "skill",
             "digest",
             "system-viz"
-          ]
+          ],
+          "status": "completed",
+          "exit_evidence": {
+            "commit": "9cae32275",
+            "files": 6,
+            "insertions": 1781,
+            "tests": "143/143 PASS (92 engine + 23 wiring + 28 existing dispatcher)",
+            "scrutiny": "per-file 3-pass (engine + tests + wiring) — all P0/P1 from both reviewer arms resolved",
+            "dispatcher_actions": [
+              "mill_part_classify",
+              "mill_part_classify_batch",
+              "mill_part_family_profile",
+              "mill_part_families_list"
+            ],
+            "wire_exempt": "prism_cad (precedent: U-PPL-C2 CustomerMaterialMapEngine)"
+          },
+          "closeout_note": "MillPartClassifierEngine shipped 2026-05-15 in shared tree; commit 9cae32275 on cad-fusion-live-ms0. Pure-transform 4-family classifier (prismatic/pocket_2_5d/mold_3d/thin_wall) mirroring LathePartClassifierEngine (U-LPS01). Schema re-exports engine source-of-truth for anti-drift. Known limitations tracked: P0-2 (MCP-handler test pattern follows BATCH3 precedent, follow-up retrofit needed) + 6 BATCH1 actions lack registered schemas (pre-existing debt surfaced)."
         },
         {
           "id": "U-PPL-A6",
@@ -698,8 +714,8 @@
     }
   ],
   "total_units": 23,
-  "completed_units": 6,
-  "updated_at": "2026-05-16T00:02:00.000Z",
-  "updated_by": "claude-2081f435 (U-PPL-D5 envelope-sync — Track D 5/5; engine shipped 2026-05-15 commits 601b9547b+ce43d04b8)",
+  "completed_units": 7,
+  "updated_at": "2026-05-16T00:36:39.532Z",
+  "updated_by": "claude-339c8ff7 (slot bravo, /loop iter 4)",
   "started_at": "2026-05-15T16:30:00.000Z"
 }
