@@ -124,13 +124,60 @@ edit aggravates (more multi-match → more confidence dilution) — deferred to 
 follow-up unit; the `DETERMINISTIC_CONF_CAP=0.6` absorbs most of the loss until
 then.
 
+## U-DISPATCHER (shipped — 2026-05-16)
+
+Closes the engine-wiring-doctrine violation: the tool-plan sidecar had no
+dispatcher surface. Wires three `prism_dev` actions:
+
+| Action | Implementation |
+|---|---|
+| `roadmap_tool_plan_query` | Pure in-process read of `state/shared/roadmap-tool-plans.json` — `plans[unitKey]` flat (post-P0-6a contract, no `.plan` nesting). Hot-path-safe (<100ms). |
+| `roadmap_tool_plan_coverage` | `execFileSync(process.execPath, [rgs-plan-coverage.mjs, --json])` — the script owns unit enumeration; deterministic (no Ollama). |
+| `roadmap_tool_plan_build` | `execFileSync(process.execPath, [rgs-tool-planner.mjs, --unit <key>, --json, …])` — the script owns Ollama/lock/reader-composition. |
+
+**Design (CLAUDE.md R8 — don't duplicate the scripts):** `build`/`coverage`
+delegate to the canonical `scripts/rgs-*.mjs` rather than re-implementing the
+Ollama reader / distributed lock / unit enumeration in TypeScript. `execFileSync`
+(no shell) makes the user-controlled `unit_key` injection-immune; the Zod schema
+*additionally* charset-guards it to `[A-Za-z0-9_:.\-]` and the `build` case
+re-checks the regex at runtime (defense-in-depth — survives a future refactor
+that calls the dispatcher past Zod validation).
+
+**Per-file scrutiny — the MS0 core lesson recurred.** Arm A (wiring) returned
+FAIL on a P0: the 3 actions were in `ACTION_DEV_SCHEMAS` + case branches but
+**missing from the `ACTIONS` z.enum array** — the MCP SDK validates
+`action: z.enum(ACTIONS)` *before* the handler, so every production call would
+be rejected. The `MockMCPServer` test harness bypassed that boundary → 9/9
+false-green. This is exactly the hermetic-fake hazard MS1 exists to catch,
+playing out one layer up (the test mock, not the readers). Fixed by appending
+the 3 actions to the enum; re-scrutiny PASS. Arm B (reviewer) returned
+PASS-WITH-P1: the `coverage` E2E test accepted both success and structured-error
+and the live sidecar has **0 plans**, so `withPlan<=totalOpen` was `0<=4423` —
+a stub would pass. Fixed with an anti-stub `totalOpen > 0` assertion (envelope
+enumeration yields ~4400+ units; a hermetic stub returning `totalOpen:0` now
+FAILS — only the real `execFileSync→script→JSON` round-trip satisfies it). Plus
+a P2 timeout-asymmetry fix (build `it()` 90s→130s so the dispatcher's 120s
+execFileSync budget can surface its structured error instead of a vitest
+false-red) and a slimResponse-null fix (`expect(r.data.plan ?? null).toBeNull()`
+— the dispatcher pipes through `responseSlimmer` which strips null keys).
+
+**Tests:** `mcp-server/src/__tests__/devDispatcher.rgs-tool-plan-wire.test.ts`
+(NEW — 9 cases). All GREEN. tsc clean on all 3 modified files (the repo's
+pre-existing tsc errors are unrelated — anti-regression bar: no NEW errors).
+
+**Deferred (P2/P3, non-blocking — both arms agree):** `query`'s `found:true`
+happy path is untested (the sidecar may be empty in CI; the `coverage` E2E
+carries the real-wiring proof); lock-contention failures are surfaced with
+debug context but not machine-classifiable into a distinct retry-able error
+code; `stderr` noise from benign envelope-id warnings could push the genuine
+cause out of the `.slice(-800)` tail window on a real subprocess failure.
+
 ## P1 backlog (validated by the audit, not yet built)
 
-`U-DOMAIN-RULES` (mill/lathe/wedm/cam/cad pipeline
-rules + domain skill triggers) · `U-DISPATCHER` (`prism_dev:roadmap_tool_plan_*`)
-· `U-FEEDBACK-FORCING` (pickup composite-key fallback) · `U-RIE-ADAPTER`
+`U-FEEDBACK-FORCING` (pickup composite-key fallback) · `U-RIE-ADAPTER`
 (RoadmapIntelligenceEngine complexity adapter) · `U-CALIBRATION`
 (CAMConfidenceCalibrationEngine at ≥50 outcomes) · `U-TRANSFER`
-(cross-milestone transfer priors).
+(cross-milestone transfer priors). (`U-DOMAIN-RULES` + `U-DISPATCHER` shipped
+2026-05-16 — see their sections above.)
 
 Full detail: `docs/superpowers/specs/2026-05-16-rgs-tool-autoinvoke-MS1-punchlist.md`.

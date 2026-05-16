@@ -63,6 +63,25 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   test_smoke: z.object({}).optional(),
   test_results: z.object({}).optional(),
 
+  // ── RGS-TOOL-AUTOINVOKE-MS1 / U-DISPATCHER: roadmap tool-plan sidecar surface ──
+  // The 948-plan sidecar (state/shared/roadmap-tool-plans.json) had no dispatcher
+  // read/write surface (engine-wiring-doctrine violation). `unit_key` is charset-
+  // guarded to the roadmap-id alphabet [A-Za-z0-9_:.-] as defense-in-depth: it
+  // flows into a subprocess argv, and although the dispatcher uses execFileSync
+  // (no shell) the regex re-checks the contract at the validation boundary too.
+  roadmap_tool_plan_query: z.object({
+    unit_key: z.string().min(1).regex(/^[A-Za-z0-9_:.\-]+$/, "unit_key must be roadmap-id charset only ([A-Za-z0-9_:.-])")
+      .describe("Roadmap unit key — composite 'MILESTONE::U-ID' or a bare unit id — to fetch the cached ToolPlan for"),
+  }),
+  roadmap_tool_plan_build: z.object({
+    unit_key: z.string().min(1).regex(/^[A-Za-z0-9_:.\-]+$/, "unit_key must be roadmap-id charset only ([A-Za-z0-9_:.-])")
+      .describe("Roadmap unit key to (re)generate a ToolPlan for — invokes the planner for this single unit"),
+    force: z.boolean().optional().describe("Re-plan even if the sidecar source-hash is current (default false)"),
+    ollama_off: z.boolean().optional().describe("Deterministic mode — skip the Ollama synthesis reader (default false)"),
+  }),
+  roadmap_tool_plan_coverage: z.object({}).optional()
+    .describe("No params — returns the anti-rot coverage dashboard for the whole tool-plan sidecar"),
+
   // ── U-DOCU-04 / MS-DOCU-INGEST: BlueprintProgramJoinEngine query-layer lookups ──
   // Point lookups against the pre-built v6 blueprint↔program join + the
   // title-block-verified training triples. Path options are intentionally NOT

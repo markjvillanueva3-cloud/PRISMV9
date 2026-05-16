@@ -6,7 +6,7 @@ import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import * as fs from "fs";
 import * as path from "path";
-import { execSync } from "child_process";
+import { execSync, execFileSync } from "child_process";
 import { slimResponse } from "../../utils/responseSlimmer.js";
 import { safeRegex } from "../../utils/SafetyValidator.js";
 import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
@@ -34,7 +34,7 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "program_print_link_lookup", "program_print_link_coverage",
 "machine_harden_audit", "machine_harden_enrich", "machine_harden_validate", "machine_harden_read", "machine_harden_summary", "error_remediation", "memory_consolidation", "build_guard_validate", "build_guard_track_edit", "build_guard_typecheck", "build_guard_affected_tests", "build_guard_chain", "build_guard_classify", "chain_recover", "chain_health", "chain_notify", "context_pressure", "context_load_plan", "context_compact_plan", "context_health", "sf_autopilot_run", "sf_autopilot_resolve_material", "sf_autopilot_resolve_tool", "pp_autopilot_run", "pp_autopilot_resolve_dialect", "pp_autopilot_print_to_program", "quote_autopilot_run", "quote_autopilot_calibrate", "quote_autopilot_record_actual", "capability_census", "capability_census_report", "capability_census_save", "copilot_suggest", "copilot_check_duplication", "copilot_template", "token_budget", "token_record_spending", "token_detect_waste", "token_economy_report", "token_economy_stats", "token_economy_session", "token_economy_set_budget", "token_economy_reset", "skill_inline_record", "skill_inline_decision", "skill_inline_plan", "skill_inline_content", "skill_inline_format", "skill_inline_top", "skill_inline_clear", "skill_test", "skill_quality_registry_build", "skill_quality_registry_read", "skill_audit", "skill_refinement_digest", "output_cache_store", "output_cache_get", "output_cache_find", "output_cache_stats", "output_cache_reset", "compaction_survival_record", "compaction_survival_plan", "compaction_survival_handoff", "compaction_survival_stats", "memory_store", "memory_search", "memory_stats", "memory_record_learning", "memory_set_preference", "memory_get_preference", "capability_path_list", "capability_path_progress", "capability_path_suggest", "workflow_list", "workflow_plan", "workflow_create", "pillar_list", "pillar_score", "pillar_summary", "pillar_gate", "discover_search", "discover_browse", "discover_recommend", "discover_what_can_i_do", "effectiveness_report", "effectiveness_score", "effectiveness_record", "effectiveness_validate", "self_awareness_refresh", "self_awareness_manifest", "self_awareness_gaps", "self_awareness_recommend", "self_awareness_find", "edit_impact_build_graph", "edit_impact_predict", "edit_impact_stats", "change_radius_predict", "change_radius_predict_sync", "build_plan", "build_plan_from_unit", "step_decompose", "gap_predict", "gap_scan_file", "gap_scan_batch", "user_model_get", "user_model_set_experience", "user_model_record_edit", "user_model_reset", "coder_mode_current", "coder_mode_set", "coder_mode_should_surface", "build_advise", "build_debrief", "build_debrief_recent", "simulate_build", "overlay_preview", "risk_forecast", "risk_warnings", "risk_record_outcome", "gate_history_record", "gate_history_aggregates", "gate_history_calibration", "gate_history_summary", "critical_path", "critical_path_announce", "critical_units", "roadmap_dag_stats", "roadmap_dag_node", "roadmap_dag_ancestors", "roadmap_dag_descendants", "integration_foresight", "integration_validate", "integration_similar", "context_budget_forecast", "context_should_compact", "rollback_plan", "rollback_verify", "rollback_plan_and_verify", "rollback_render_script", "knowledge_gap_scan", "knowledge_gap_check", "no_go_respond", "disclose_shape", "disclose_raw", "anchor_claim", "anchor_stats", "error_explain", "git_safety_classify", "git_safety_is_destructive", "copy_paste_detect", "feedback_loop_record", "feedback_loop_diagnose", "feedback_loop_reset", "feedback_override", "feedback_measurement", "feedback_scrap", "feedback_recommendation_emitted", "feedback_record", "feedback_query", "feedback_stats", "feature_registry_register", "feature_registry_get", "feature_registry_list", "feature_registry_seal", "feature_registry_stats", "dq_validate_row", "dq_validate_batch", "training_snapshot_create", "training_snapshot_load", "training_snapshot_list", "training_snapshot_stats", "recon_reconcile", "recon_query", "recon_stats", "htn_decompose", "strips_plan", "cpm_pert_analyze", "monte_carlo_schedule", "type_aware_references", "symbol_impact", "type_flow_trace", "tool_call_record", "tool_call_analyze", "tool_call_reset", "file_read_record", "file_read_should_skip", "file_read_report", "stale_segment_record", "stale_segment_prune", "stale_segment_mark", "reorient_record_anchor", "reorient_deactivate_anchor", "reorient_record_prompt", "reorient_record_tool_call", "reorient_generate_brief", "reorient_should_generate", "reorient_stats", "reorient_update_config", "reorient_reset", "model_aware_detect", "model_aware_zone", "model_aware_cadence", "model_aware_current_cadence", "foresight_report", "error_budget_set_target", "error_budget_record", "error_budget_status", "error_budget_list", "distributed_critical_path", "replan_evaluate", "schema_snapshot", "schema_restore_snapshot", "schema_history", "schema_migrations_list", "failure_risk_analyze", "failure_modes_list", "failure_mode_get", "failure_cascade_chain", "ollama_hook_query", "ollama_hook_status", "ollama_hook_config", "audit_harness_security", "spec_html_render", "dev_awareness_find_similar", "dev_awareness_bootstrap_report", "dev_capability_metrics", "dev_system_recommend_engines", "dev_auto_utilize_analyze", "dev_test_ast_analyze", "dev_test_coverage_uncovered", "dev_test_registry_get_material", "dev_test_resource_filter", "dev_skill_gap_analyze",
 "adaptive_threshold_observe", "adaptive_threshold_get", "adaptive_threshold_get_all", "adaptive_threshold_should_flag", "adaptive_threshold_probability",
-"roadmap_intel_assess_complexity", "roadmap_intel_optimize", "roadmap_intel_predict_effort", "roadmap_intel_record_outcome", "roadmap_intel_build_vs_integrate", "roadmap_intel_health",
+"roadmap_intel_assess_complexity", "roadmap_intel_optimize", "roadmap_intel_predict_effort", "roadmap_intel_record_outcome", "roadmap_intel_build_vs_integrate", "roadmap_intel_health", "roadmap_tool_plan_query", "roadmap_tool_plan_build", "roadmap_tool_plan_coverage",
 // HOOK-SYNERGY-MS0/U-HOOK-REGISTRY (H2): query state/shared/HOOK_REGISTRY.json
 "hook_registry",
 // HOOK-SYNERGY-MS0/U-HOOK-ENVELOPE (H4): query state/shared/hook-latency.jsonl
@@ -2462,13 +2462,30 @@ export function registerDevDispatcher(server: any): void {
             break;
           }
           case "pillar_score": {
-            const { productPillarEngine } = await import("../../engines/ProductPillarEngine.js");
-            result = productPillarEngine.scorePillar(params.pillar_id || "calculator", new Set(params.wired_engines || []), new Set(params.active_skills || []));
+            const { productPillarEngine, resolveLivePillarInputs } = await import("../../engines/ProductPillarEngine.js");
+            // PILLAR-TELEMETRY-FIX: no caller injected the wired set, so the
+            // self-report path used to score every pillar 0% / stub. When
+            // params are absent, resolve the live set; explicit params still
+            // take the legacy path (back-compat for callers that pass them).
+            if (params.wired_engines === undefined && params.active_skills === undefined) {
+              const live = resolveLivePillarInputs();
+              result = productPillarEngine.scorePillar(params.pillar_id || "calculator", live.wired, live.skills);
+            } else {
+              result = productPillarEngine.scorePillar(params.pillar_id || "calculator", new Set(params.wired_engines || []), new Set(params.active_skills || []));
+            }
             break;
           }
           case "pillar_summary": {
             const { productPillarEngine } = await import("../../engines/ProductPillarEngine.js");
-            result = productPillarEngine.getSummary(new Set(params.wired_engines || []), new Set(params.active_skills || []));
+            // PILLAR-TELEMETRY-FIX: when the caller passes no wired/skill sets
+            // (audit / CLI / self-report), resolve them live so the summary
+            // reflects the real tree instead of a fabricated 0%. Explicit
+            // params keep the original pure path unchanged.
+            if (params.wired_engines === undefined && params.active_skills === undefined) {
+              result = productPillarEngine.getSummaryLive();
+            } else {
+              result = productPillarEngine.getSummary(new Set(params.wired_engines || []), new Set(params.active_skills || []));
+            }
             break;
           }
           case "pillar_gate": {
@@ -4292,6 +4309,84 @@ export function registerDevDispatcher(server: any): void {
             if (!milestones || milestones.length === 0) { result = { error: "Missing required: milestones (non-empty array)" }; break; }
             const hist = Array.isArray(params.historical_data) ? params.historical_data : (Array.isArray(params.historicalData) ? params.historicalData : undefined);
             result = RoadmapIntelligenceEngine.assessRoadmapHealth(milestones, hist);
+            break;
+          }
+
+          // ──────────────────────────────────────────────────────────────────────────────
+          // SCRIPT-WIRE: RGS tool-plan sidecar (RGS-TOOL-AUTOINVOKE-MS1 / U-DISPATCHER).
+          // The 948-plan sidecar at state/shared/roadmap-tool-plans.json had no dispatcher
+          // surface — an engine-wiring-doctrine violation per the MS1 punch-list. `query`
+          // is a pure in-process JSON read (<100ms, hot-path-safe). `build` + `coverage`
+          // delegate to the canonical scripts which already own the Ollama reader,
+          // distributed lock, unit enumeration, and reader composition — re-implementing
+          // any of that here would duplicate + drift (CLAUDE.md R8). execFileSync (no
+          // shell) is used for the user-controlled `unit_key` arg — injection-immune;
+          // the Zod schema additionally charset-guards it to the roadmap-id alphabet.
+          // ──────────────────────────────────────────────────────────────────────────────
+          case "roadmap_tool_plan_query": {
+            const unitKey = String(params.unit_key ?? params.unitKey ?? "");
+            if (!unitKey) { result = { error: "Missing required: unit_key (non-empty string)" }; break; }
+            const fsMod = await import("node:fs");
+            const sidecarPath = path.join(PROJECT_ROOT, "state", "shared", "roadmap-tool-plans.json");
+            if (!fsMod.existsSync(sidecarPath)) { result = { error: "sidecar not found", path: sidecarPath }; break; }
+            let sidecar: any;
+            try { sidecar = JSON.parse(fsMod.readFileSync(sidecarPath, "utf8")); }
+            catch (e: any) { result = { error: "sidecar parse failed", detail: String(e?.message ?? e).slice(0, 400) }; break; }
+            const plans = (sidecar && typeof sidecar.plans === "object" && sidecar.plans) ? sidecar.plans : {};
+            const plan = plans[unitKey] ?? null;
+            result = {
+              unitKey,
+              found: plan !== null,
+              plan,
+              sidecarSchemaVersion: sidecar?.schemaVersion ?? null,
+              sidecarUpdatedAt: sidecar?.updatedAt ?? sidecar?.updated_at ?? null,
+              totalPlans: Object.keys(plans).length,
+            };
+            break;
+          }
+          case "roadmap_tool_plan_coverage": {
+            const scriptPath = path.join(PATHS.SCRIPTS, "rgs-plan-coverage.mjs");
+            try {
+              const out = execFileSync(process.execPath, [scriptPath, "--json"], {
+                cwd: PROJECT_ROOT, timeout: 30000, encoding: "utf-8", stdio: ["pipe", "pipe", "pipe"],
+              });
+              result = JSON.parse(out);
+            } catch (e: any) {
+              result = {
+                error: "coverage script failed",
+                detail: String(e?.message ?? e).slice(0, 600),
+                stderr: e?.stderr ? String(e.stderr).slice(-800) : undefined,
+              };
+            }
+            break;
+          }
+          case "roadmap_tool_plan_build": {
+            const unitKey = String(params.unit_key ?? params.unitKey ?? "");
+            if (!unitKey) { result = { error: "Missing required: unit_key (non-empty string)" }; break; }
+            // Defense-in-depth: re-check the charset here even though the Zod schema
+            // already enforces it (the dispatcher can be called past validation in
+            // tests / future refactors; execFileSync is shell-free but a hostile
+            // key could still mis-target the planner's --unit filter).
+            if (!/^[A-Za-z0-9_:.\-]+$/.test(unitKey)) {
+              result = { error: "unit_key must be roadmap-id charset only ([A-Za-z0-9_:.-])", got: unitKey.slice(0, 80) };
+              break;
+            }
+            const scriptPath = path.join(PATHS.SCRIPTS, "rgs-tool-planner.mjs");
+            const argv = [scriptPath, "--unit", unitKey, "--json"];
+            if (params.force === true) argv.push("--force");
+            if (params.ollama_off === true || params.ollamaOff === true) argv.push("--ollama-off");
+            try {
+              const out = execFileSync(process.execPath, argv, {
+                cwd: PROJECT_ROOT, timeout: 120000, encoding: "utf-8", stdio: ["pipe", "pipe", "pipe"],
+              });
+              result = JSON.parse(out);
+            } catch (e: any) {
+              result = {
+                error: "planner script failed",
+                detail: String(e?.message ?? e).slice(0, 600),
+                stderr: e?.stderr ? String(e.stderr).slice(-1200) : undefined,
+              };
+            }
             break;
           }
 

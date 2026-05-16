@@ -87,6 +87,25 @@ const semantic_search = z.object({
   filter: z.record(z.string(), z.unknown()).optional().describe("Optional Qdrant payload filter"),
 }).passthrough();
 
+// TOOL-INVENTORY-MS0/U-TOOLINV-01 — qdrant MCP exposure surface.
+// `collection` is a free string (the surface resolves bare `<kind>` OR
+// `prism_memory_<kind>` → MemoryKind itself, returning UNKNOWN_COLLECTION
+// for anything not in MEMORY_KINDS). We do NOT pin it to the kind enum here
+// so the standard qdrant MCP wire format (collection-string) passes through.
+const qdrant_vector_search = z.object({
+  collection: z.string().min(1).describe("Memory collection: bare kind ('tip') or 'prism_memory_<kind>'"),
+  query: z.string().min(1).describe("Free-text query embedded via Ollama nomic-embed-text"),
+  limit: z.number().int().positive().max(100).optional().describe("Max hits (default: 10, max 100)"),
+  filter: z.record(z.string(), z.unknown()).optional().describe("Optional Qdrant payload filter (plain object)"),
+}).passthrough();
+
+const qdrant_vector_upsert = z.object({
+  collection: z.string().min(1).describe("Memory collection: bare kind ('tip') or 'prism_memory_<kind>'"),
+  id: z.union([z.string(), z.number()]).describe("Stable point id (string or finite number)"),
+  text: z.string().min(1).max(32768).describe("Text to embed + store (max 32768 chars)"),
+  metadata: z.record(z.string(), z.unknown()).optional().describe("Extra payload (plain object)"),
+}).passthrough();
+
 // OBSIDIAN-COMPOUND-MS1/S2/U-EMERGING-THESIS — TF-IDF synthesis over vault.
 const emerging_thesis = z.object({
   window: z.enum(["24h", "7d", "30d"]).optional().describe("Time window over vault mtime; default 7d"),
@@ -214,6 +233,8 @@ export const ACTION_MEMORY_SCHEMAS: ActionSchemaMap = {
   record_session_end,
   semantic_search,
   remember,
+  qdrant_vector_search,
+  qdrant_vector_upsert,
   emerging_thesis,
   daily_brief_get,
   contradiction_check,

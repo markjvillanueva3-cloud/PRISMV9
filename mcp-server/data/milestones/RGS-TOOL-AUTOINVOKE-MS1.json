@@ -74,9 +74,15 @@
         {
           "id": "U-DISPATCHER",
           "title": "Dispatcher wiring — prism_dev:roadmap_tool_plan_*",
-          "description": "Wire prism_dev:roadmap_tool_plan_{query,build,coverage} actions — 948 plans in a sidecar no dispatcher can read is an engine-wiring-doctrine violation.",
+          "description": "Wire prism_dev:roadmap_tool_plan_{query,build,coverage} actions — the tool-plan sidecar no dispatcher can read is an engine-wiring-doctrine violation. query = pure in-process sidecar JSON read; coverage + build = execFileSync subprocess delegation to the canonical scripts (R8 — they own Ollama/lock/enumeration, no duplication). unit_key charset-guarded [A-Za-z0-9_:.-] in both the Zod schema regex AND a runtime re-check (defense-in-depth; execFileSync is already shell-free). Per-file scrutiny caught a P0 (3 actions missing from the ACTIONS z.enum → MockMCPServer test false-green, the MS0 core-lesson recurring) + a P1 (coverage test could not detect a regression-to-stub on the empty sidecar — added totalOpen>0 anti-stub assertion from envelope enumeration).",
           "effort": 75,
-          "status": "not_started"
+          "status": "complete",
+          "completedAt": "2026-05-16T21:40:00.000Z",
+          "deliverables": [
+            "mcp-server/src/schemas/devActionSchemas.ts (3 ACTION_DEV_SCHEMAS entries — roadmap_tool_plan_{query,build,coverage}; unit_key .regex charset guard + .describe on every field)",
+            "mcp-server/src/tools/dispatchers/devDispatcher.ts (3 case branches after roadmap_intel_health; ACTIONS z.enum +3; execFileSync added to the child_process import; query=pure read, coverage/build=execFileSync(process.execPath) subprocess with structured error)",
+            "mcp-server/src/__tests__/devDispatcher.rgs-tool-plan-wire.test.ts (NEW — 9 cases: dispatcher guards, charset reject ×2, real-sidecar round-trip, the coverage REAL-subprocess E2E with totalOpen>0 anti-stub, build structured-error path, enum-acceptance sweep)"
+          ]
         },
         {
           "id": "U-FEEDBACK-FORCING",
@@ -117,8 +123,8 @@
   ],
   "sidecar": "state/shared/roadmap-tool-plans.json",
   "wiki": "knowledge/wiki/architecture/rgs-tool-autoinvoke-ms1.md",
-  "completed_units": 3,
+  "completed_units": 4,
   "total_units": 8,
-  "updated_at": "2026-05-16T20:55:00.000Z",
+  "updated_at": "2026-05-16T21:40:00.000Z",
   "notes": "Core MS0 lesson encoded in U-INTEG-FIX-P0: a 'pure core + injected readers' design MUST ship one real-data E2E test — hermetic fakes do not prove production wiring. Punch list: docs/superpowers/specs/2026-05-16-rgs-tool-autoinvoke-MS1-punchlist.md."
 }

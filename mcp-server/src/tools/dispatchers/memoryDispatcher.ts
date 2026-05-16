@@ -39,7 +39,7 @@ type GraphNodeRecord = Record<string, any>;
 export function registerMemoryDispatcher(server: McpServer): void {
   (server as ValidatedServer).tool(
     "prism_memory",
-    "Cross-session memory graph + semantic vector recall + agent memory fabric. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity, consolidate, consolidation_stats, consolidation_patterns, record_session_end, semantic_search, remember, agent_memory_remember, agent_memory_query, agent_memory_reinforce, agent_memory_forget, agent_memory_stats, emerging_thesis, daily_brief_get, contradiction_check, postmortem_create, performance_report, connections_materialize, content_brief_create, voice_validate, capture_sharpen, embed_text, embed_pairwise_cosine, inbox_prune_now, inbox_promote_now",
+    "Cross-session memory graph + semantic vector recall + agent memory fabric. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity, consolidate, consolidation_stats, consolidation_patterns, record_session_end, semantic_search, remember, qdrant_vector_search, qdrant_vector_upsert, agent_memory_remember, agent_memory_query, agent_memory_reinforce, agent_memory_forget, agent_memory_stats, emerging_thesis, daily_brief_get, contradiction_check, postmortem_create, performance_report, connections_materialize, content_brief_create, voice_validate, capture_sharpen, embed_text, embed_pairwise_cosine, inbox_prune_now, inbox_promote_now",
     {
       action: z.enum([
         "get_health",
@@ -50,6 +50,9 @@ export function registerMemoryDispatcher(server: McpServer): void {
         "run_integrity",
         "consolidate",
         "consolidation_stats","record_session_end","semantic_search","remember",
+        // TOOL-INVENTORY-MS0/U-TOOLINV-01: qdrant MCP exposure surface
+        "qdrant_vector_search",
+        "qdrant_vector_upsert",
         "consolidation_patterns",
         // ENGINE-WIRE-MS0/U-WIRE19: AgentMemoryFabricEngine — persistent cross-session memory
         "agent_memory_remember",
@@ -308,6 +311,65 @@ export function registerMemoryDispatcher(server: McpServer): void {
             const engine = QdrantMemoryEngineSingleton.getInstance();
             const r = await engine.remember({ kind, id, text, metadata });
             result = r.ok ? { ok: true, kind, id } : { ok: false, error: r.error, kind, id };
+            break;
+          }
+
+          // TOOL-INVENTORY-MS0/U-TOOLINV-01: standard `qdrant` MCP tool
+          // surface (vector_search / vector_upsert) over QdrantMemoryEngine.
+          // The surface does its own shape validation + collection→kind
+          // resolution + structured error envelope, so the dispatcher just
+          // forwards params and maps {ok:false} to a numeric httpCode for
+          // wire-format parity with the external qdrant MCP server.
+          case "qdrant_vector_search": {
+            const { QdrantSurfaceEngine } = await import(
+              "../../engines/QdrantSurfaceEngine.js"
+            );
+            const sr = await QdrantSurfaceEngine.vectorSearch({
+              collection: typeof params.collection === "string" ? params.collection : "",
+              query: typeof params.query === "string" ? params.query : "",
+              limit: typeof params.limit === "number" ? params.limit : undefined,
+              filter:
+                params.filter && typeof params.filter === "object" && !Array.isArray(params.filter)
+                  ? (params.filter as Record<string, unknown>)
+                  : undefined,
+            });
+            result = sr.ok
+              ? { ok: true, ...sr.value }
+              : {
+                  ok: false,
+                  code: sr.code,
+                  httpCode: QdrantSurfaceEngine.httpCodeFor(sr.code),
+                  error: sr.error,
+                  field: sr.field,
+                };
+            break;
+          }
+          case "qdrant_vector_upsert": {
+            const { QdrantSurfaceEngine } = await import(
+              "../../engines/QdrantSurfaceEngine.js"
+            );
+            const rawId = params.id;
+            const sr = await QdrantSurfaceEngine.vectorUpsert({
+              collection: typeof params.collection === "string" ? params.collection : "",
+              id:
+                typeof rawId === "string" || typeof rawId === "number"
+                  ? rawId
+                  : "",
+              text: typeof params.text === "string" ? params.text : "",
+              metadata:
+                params.metadata && typeof params.metadata === "object" && !Array.isArray(params.metadata)
+                  ? (params.metadata as Record<string, unknown>)
+                  : undefined,
+            });
+            result = sr.ok
+              ? { ok: true, ...sr.value }
+              : {
+                  ok: false,
+                  code: sr.code,
+                  httpCode: QdrantSurfaceEngine.httpCodeFor(sr.code),
+                  error: sr.error,
+                  field: sr.field,
+                };
             break;
           }
 
@@ -665,7 +727,7 @@ export function registerMemoryDispatcher(server: McpServer): void {
           }
 
           default:
-            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'record_session_end', 'semantic_search', 'remember', 'agent_memory_remember', 'agent_memory_query', 'agent_memory_reinforce', 'agent_memory_forget', 'agent_memory_stats', 'emerging_thesis', 'daily_brief_get', 'contradiction_check', 'postmortem_create', 'performance_report', 'connections_materialize', 'content_brief_create', 'voice_validate', 'capture_sharpen', 'embed_text', 'embed_pairwise_cosine', 'inbox_prune_now', 'inbox_promote_now'] };
+            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'record_session_end', 'semantic_search', 'remember', 'qdrant_vector_search', 'qdrant_vector_upsert', 'agent_memory_remember', 'agent_memory_query', 'agent_memory_reinforce', 'agent_memory_forget', 'agent_memory_stats', 'emerging_thesis', 'daily_brief_get', 'contradiction_check', 'postmortem_create', 'performance_report', 'connections_materialize', 'content_brief_create', 'voice_validate', 'capture_sharpen', 'embed_text', 'embed_pairwise_cosine', 'inbox_prune_now', 'inbox_promote_now'] };
         }
 
         const elapsed = (performance.now() - start).toFixed(1);
