@@ -341,18 +341,26 @@ const onSessionCheckpoint: HookDefinition = {
       return hookWarning(hook, "No session context for checkpoint");
     }
     
+    // session.checkpoints + session.toolCalls are `unknown` in the HookContext
+    // shape (see HookExecutor.ts) — narrow both to finite numbers so arithmetic
+    // and template-interpolation type-check; non-numeric values fall back to 0.
+    const rawCheckpoints = session.checkpoints;
+    const prevCheckpoints = typeof rawCheckpoints === "number" && Number.isFinite(rawCheckpoints) ? rawCheckpoints : 0;
+    const rawToolCalls = session.toolCalls;
+    const sessionToolCalls = typeof rawToolCalls === "number" && Number.isFinite(rawToolCalls) ? rawToolCalls : 0;
+
     const checkpointData = {
       timestamp: new Date().toISOString(),
       sessionId: session.id,
-      toolCalls: session.toolCalls,
-      checkpointNumber: (session.checkpoints || 0) + 1,
+      toolCalls: sessionToolCalls,
+      checkpointNumber: prevCheckpoints + 1,
       currentTask: context.metadata?.currentTask,
       taskProgress: context.metadata?.taskProgress,
       completedItems: context.metadata?.completedItems,
       nextItem: context.metadata?.nextItem
     };
-    
-    log.info(`Checkpoint #${checkpointData.checkpointNumber}: ${session.toolCalls} tool calls`);
+
+    log.info(`Checkpoint #${checkpointData.checkpointNumber}: ${sessionToolCalls} tool calls`);
     
     return hookSuccess(hook, 
       `Checkpoint saved: #${checkpointData.checkpointNumber} (${session.toolCalls} calls)`,
@@ -379,18 +387,20 @@ const onToolCallCheckpointCheck: HookDefinition = {
   enabled: true,
   
   tags: ["checkpoint", "interval", "auto"],
-  
-  condition: (context: HookContext): boolean => {
-    const toolCalls = context.session?.toolCalls || 0;
-    const lastCheckpoint = context.metadata?.lastCheckpointAt as number || 0;
-    return (toolCalls - lastCheckpoint) >= CHECKPOINT_INTERVAL;
-  },
-  
+
   handler: (context: HookContext): HookResult => {
     const hook = onToolCallCheckpointCheck;
-    
-    const toolCalls = context.session?.toolCalls || 0;
-    
+
+    // Narrow unknown -> finite number for both sources, then early-return if
+    // the interval hasn't elapsed (HookExecutor invokes every handler — the
+    // original `condition` field was silent dead code, Karpathy R12).
+    const rawCalls = context.session?.toolCalls;
+    const toolCalls = typeof rawCalls === "number" && Number.isFinite(rawCalls) ? rawCalls : 0;
+    const lastCheckpoint = (context.metadata?.lastCheckpointAt as number | undefined) ?? 0;
+    if ((toolCalls - lastCheckpoint) < CHECKPOINT_INTERVAL) {
+      return hookSuccess(hook, "Checkpoint interval not yet elapsed — skipped");
+    }
+
     return hookSuccess(hook, `Checkpoint recommended at ${toolCalls} tool calls`, {
       actions: ["checkpoint_recommended"],
       data: { toolCalls, reason: "interval_reached" }
@@ -422,8 +432,11 @@ const onContextPressure: HookDefinition = {
     const hook = onContextPressure;
     
     const contextUsage = context.metadata?.contextUsage as number | undefined;
-    const toolCalls = context.session?.toolCalls || 0;
-    
+    // session.toolCalls is `unknown` in the HookContext shape — narrow to a
+    // finite number so the buffer-zone <= comparisons type-check.
+    const rawCalls = context.session?.toolCalls;
+    const toolCalls = typeof rawCalls === "number" && Number.isFinite(rawCalls) ? rawCalls : 0;
+
     // Determine buffer zone
     let bufferZone: string;
     if (toolCalls <= BUFFER_ZONES.GREEN.max) {
@@ -593,14 +606,15 @@ const onPostCompaction: HookDefinition = {
   enabled: true,
   
   tags: ["compaction", "recovery", "resume"],
-  
-  condition: (context: HookContext): boolean => {
-    return context.metadata?.isPostCompaction === true;
-  },
-  
+
   handler: (context: HookContext): HookResult => {
     const hook = onPostCompaction;
-    
+
+    // Self-gating: only emit recovery guidance after an actual compaction.
+    if (context.metadata?.isPostCompaction !== true) {
+      return hookSuccess(hook, "Not a post-compaction resume — skipped");
+    }
+
     const savedState = context.metadata?.savedState as Record<string, unknown> | undefined;
     
     if (!savedState) {

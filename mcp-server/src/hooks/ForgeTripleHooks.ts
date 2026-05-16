@@ -71,11 +71,11 @@ const ppRegistryCheck: HookDefinition = {
   priority: "high",
   enabled: true,
   tags: ["forge-triple", "pp-moat", "registry", "quality"],
-  condition: (ctx: HookContext) => {
-    const path = ctx.metadata?.filePath as string ?? "";
-    return path.includes("PostProcessorPipeline") || path.includes("postProcessor");
-  },
   handler: (ctx: HookContext) => {
+    const path = ctx.metadata?.filePath as string ?? "";
+    if (!path.includes("PostProcessorPipeline") && !path.includes("postProcessor")) {
+      return hookSuccess(ppRegistryCheck, "Not a PostProcessor file — skipped");
+    }
     const content = ctx.metadata?.content as string ?? "";
     const hardcoded = [
       { pattern: /max_rpm\s*[:=]\s*12000/, msg: "hardcoded max_rpm=12000 — use MachineRegistry" },
@@ -105,12 +105,12 @@ const shopContractDrift: HookDefinition = {
   priority: "high",
   enabled: true,
   tags: ["forge-triple", "ult", "contract", "drift"],
-  condition: (ctx: HookContext) => {
-    const path = ctx.metadata?.filePath as string ?? "";
-    return path.includes("routes/erp") || path.includes("routes/shop") ||
-           path.includes("pages/Jobs") || path.includes("pages/ShopFloor");
-  },
   handler: (ctx: HookContext) => {
+    const path = ctx.metadata?.filePath as string ?? "";
+    if (!(path.includes("routes/erp") || path.includes("routes/shop") ||
+          path.includes("pages/Jobs") || path.includes("pages/ShopFloor"))) {
+      return hookSuccess(shopContractDrift, "Not a shop route/page — skipped");
+    }
     return hookSuccess(shopContractDrift,
       "Shop route/page modified — verify alignment with src/schemas/shop/shopDomain.ts contracts");
   },
@@ -131,11 +131,11 @@ const canonicalConstantsEnforcer: HookDefinition = {
   priority: "critical",
   enabled: true,
   tags: ["forge-triple", "calc-harden", "physics", "constants"],
-  condition: (ctx: HookContext) => {
-    const path = ctx.metadata?.filePath as string ?? "";
-    return path.includes("engines/") && path.endsWith(".ts") && !path.includes("constants.ts");
-  },
   handler: (ctx: HookContext) => {
+    const path = ctx.metadata?.filePath as string ?? "";
+    if (!(path.includes("engines/") && path.endsWith(".ts") && !path.includes("constants.ts"))) {
+      return hookSuccess(canonicalConstantsEnforcer, "Not an engine .ts file — skipped");
+    }
     const content = ctx.metadata?.content as string ?? "";
     // Check for inline kc1_1 definitions (not imports)
     const inlineKc = /(?:const|let|var)\s+kc1[_.]1\s*[:=]\s*\d/;
@@ -167,12 +167,12 @@ const enforceSCIMATHDelegation: HookDefinition = {
   priority: "normal",
   enabled: true,
   tags: ["forge-triple", "scimath-wire", "linear-algebra"],
-  condition: (ctx: HookContext) => {
-    const path = ctx.metadata?.filePath as string ?? "";
-    return path.includes("engines/") && !path.includes("SCIMATH") && !path.includes("Eigensolver") &&
-           !path.includes("SVD") && !path.includes("Cholesky") && !path.includes("LU");
-  },
   handler: (ctx: HookContext) => {
+    const path = ctx.metadata?.filePath as string ?? "";
+    if (!(path.includes("engines/") && !path.includes("SCIMATH") && !path.includes("Eigensolver") &&
+          !path.includes("SVD") && !path.includes("Cholesky") && !path.includes("LU"))) {
+      return hookSuccess(enforceSCIMATHDelegation, "Not subject to SCIMATH delegation check — skipped");
+    }
     const content = ctx.metadata?.content as string ?? "";
     const patterns = [
       { re: /gaussian.?elimination/i, engine: "LUDecompositionEngine" },
@@ -252,11 +252,11 @@ const wedmStudioQualityGate: HookDefinition = {
   priority: "high",
   enabled: true,
   tags: ["forge-triple", "wedm-ms0", "edm", "quality"],
-  condition: (ctx: HookContext) => {
-    const action = ctx.metadata?.action as string ?? "";
-    return action.includes("wedm") || action.includes("wire_edm");
-  },
   handler: (ctx: HookContext) => {
+    const action = ctx.metadata?.action as string ?? "";
+    if (!(action.includes("wedm") || action.includes("wire_edm"))) {
+      return hookSuccess(wedmStudioQualityGate, "Not a WEDM action — skipped");
+    }
     const result = ctx.metadata?.result as any;
     if (result?.warnings?.length > 0) {
       return hookSuccess(wedmStudioQualityGate,
@@ -281,11 +281,11 @@ const wedmCapabilityGate: HookDefinition = {
   priority: "high",
   enabled: true,
   tags: ["forge-triple", "wedm-ms1", "edm", "surface-integrity"],
-  condition: (ctx: HookContext) => {
-    const action = ctx.metadata?.action as string ?? "";
-    return action.includes("wedm") && (action.includes("analyze") || action.includes("integrity"));
-  },
   handler: (ctx: HookContext) => {
+    const action = ctx.metadata?.action as string ?? "";
+    if (!(action.includes("wedm") && (action.includes("analyze") || action.includes("integrity")))) {
+      return hookSuccess(wedmCapabilityGate, "Not a WEDM analyze/integrity action — skipped");
+    }
     const result = ctx.metadata?.result as any;
     if (!result) return hookSuccess(wedmCapabilityGate, "No WEDM result — skip");
     const missing: string[] = [];
@@ -315,11 +315,11 @@ const hypermillGrindingBurnRisk: HookDefinition = {
   priority: "critical",
   enabled: true,
   tags: ["forge-triple", "hm-rev-ms6", "grinding", "burn-risk", "safety"],
-  condition: (ctx: HookContext) => {
-    const action = ctx.metadata?.action as string ?? "";
-    return action === "cam_hypermill_grinding_route" || action === "cam:hypermill_grinding_route";
-  },
   handler: (ctx: HookContext) => {
+    const action = ctx.metadata?.action as string ?? "";
+    if (!(action === "cam_hypermill_grinding_route" || action === "cam:hypermill_grinding_route")) {
+      return hookSuccess(hypermillGrindingBurnRisk, "Not a hyperMILL grinding action — skipped");
+    }
     const result = ctx.metadata?.result as any;
     if (!result) return hookSuccess(hypermillGrindingBurnRisk, "No grinding result — skip");
 
