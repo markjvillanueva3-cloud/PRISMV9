@@ -313,7 +313,7 @@ const ACTIONS = [
   "cad_thumb_has",
   "cad_thumb_list",
   "cad_thumb_invalidate",
-  "cad_thumb_invalidate",
+  "cad_drawing_knowledge_calc",
   "cad_artifact_write",
   "cad_artifact_list",
   "cad_artifact_prune",
@@ -888,7 +888,7 @@ Actions: ${ACTIONS.join(", ")}.`,
             const context = (params["context"] as Record<string, unknown>) ?? {};
             const adapter = await getCADAdapter(cadSystem);
             const script = adapter.buildScript(
-              operations as Parameters<typeof adapter.buildScript>[0],
+              operations as unknown as Parameters<typeof adapter.buildScript>[0],
               context as Parameters<typeof adapter.buildScript>[1],
             );
             // Serialize Map â†’ [key, value][] so the script crosses the MCP wire cleanly.
@@ -1802,7 +1802,7 @@ Actions: ${ACTIONS.join(", ")}.`,
             if (!Array.isArray(operations) || operations.length === 0) {
               throw new Error("cad_graph_build requires non-empty 'operations' array");
             }
-            const graph = engine.build(operations as Parameters<typeof engine.build>[0]);
+            const graph = engine.build(operations as unknown as Parameters<typeof engine.build>[0]);
             result = {
               node_count: graph.nodes.length,
               edge_count: graph.edges.length,
@@ -2653,7 +2653,9 @@ Actions: ${ACTIONS.join(", ")}.`,
             if (!input || !input.description) {
               throw new Error("cad_reasoning_generate requires 'input' with description");
             }
-            const output = await cadReasoningChainEngine.generateWithReasoning(input);
+            const output = await cadReasoningChainEngine.generateWithReasoning(
+              input as unknown as Parameters<typeof cadReasoningChainEngine.generateWithReasoning>[0],
+            );
             result = { ...output, source: "CADReasoningChainEngine.generateWithReasoning" };
             break;
           }
@@ -2826,7 +2828,10 @@ Actions: ${ACTIONS.join(", ")}.`,
             if (!corpus || !Array.isArray(corpus)) {
               throw new Error("cad_rag_filter requires 'corpus' array");
             }
-            const filtered = cadRetrievalAugmentationEngine.filterCorpus(corpus, filters ?? {});
+            const filtered = cadRetrievalAugmentationEngine.filterCorpus(
+              corpus as unknown as Parameters<typeof cadRetrievalAugmentationEngine.filterCorpus>[0],
+              (filters ?? {}) as unknown as Parameters<typeof cadRetrievalAugmentationEngine.filterCorpus>[1],
+            );
             result = { filtered, count: filtered.length, source: "CADRetrievalAugmentationEngine.filterCorpus" };
             break;
           }
@@ -3015,7 +3020,10 @@ Actions: ${ACTIONS.join(", ")}.`,
             if (!corpusPath) {
               throw new Error("cad_index_ingest requires 'corpus_path' string");
             }
-            const ingestResult = cadEmbeddingIndexOrchestratorEngine.ingest(corpusPath, config);
+            const ingestResult = cadEmbeddingIndexOrchestratorEngine.ingest(
+              corpusPath,
+              config as unknown as Parameters<typeof cadEmbeddingIndexOrchestratorEngine.ingest>[1],
+            );
             result = { ...ingestResult, source: "CADEmbeddingIndexOrchestratorEngine.ingest" };
             break;
           }
@@ -4448,26 +4456,23 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "cad_replication_register_replica": {
             const { cadReplicationDurabilityEngine } = await import("../../engines/CADReplicationDurabilityEngine.js");
             const contentHash = params["content_hash"] as string;
-            const tier = params["tier"] as string;
-            const region = params["region"] as string;
-            const sizeBytes = params["size_bytes"] as number;
-            if (!contentHash || !tier || !region || sizeBytes === undefined) {
-              throw new Error("cad_replication_register_replica requires 'content_hash', 'tier', 'region', 'size_bytes'");
+            const loc = params["location"] as Parameters<typeof cadReplicationDurabilityEngine.registerReplica>[1] | undefined;
+            if (!contentHash || !loc) {
+              throw new Error("cad_replication_register_replica requires 'content_hash' and 'location' (ReplicaLocation object: { tier, region, sizeBytes, ... })");
             }
-            const record = cadReplicationDurabilityEngine.registerReplica(contentHash, tier, region, sizeBytes);
+            const record = cadReplicationDurabilityEngine.registerReplica(contentHash, loc);
             result = { record, source: "CADReplicationDurabilityEngine.registerReplica" };
             break;
           }
           case "cad_replication_register_shard": {
             const { cadReplicationDurabilityEngine } = await import("../../engines/CADReplicationDurabilityEngine.js");
             const contentHash = params["content_hash"] as string;
-            const shardIndex = params["shard_index"] as number;
-            const totalShards = params["total_shards"] as number;
-            const region = params["region"] as string;
-            if (!contentHash || shardIndex === undefined || totalShards === undefined || !region) {
-              throw new Error("cad_replication_register_shard requires 'content_hash', 'shard_index', 'total_shards', 'region'");
+            const scheme = params["scheme"] as Parameters<typeof cadReplicationDurabilityEngine.registerShard>[1] | undefined;
+            const shard = params["shard"] as Parameters<typeof cadReplicationDurabilityEngine.registerShard>[2] | undefined;
+            if (!contentHash || !scheme || !shard) {
+              throw new Error("cad_replication_register_shard requires 'content_hash', 'scheme' (ErasureScheme), and 'shard' (ErasureShard with location)");
             }
-            const record = cadReplicationDurabilityEngine.registerShard(contentHash, shardIndex, totalShards, region);
+            const record = cadReplicationDurabilityEngine.registerShard(contentHash, scheme, shard);
             result = { record, source: "CADReplicationDurabilityEngine.registerShard" };
             break;
           }
@@ -4550,11 +4555,10 @@ Actions: ${ACTIONS.join(", ")}.`,
             const drawingNumber = params["drawing_number"] as string;
             const revision = params["revision"] as string;
             const author = params["author"] as string;
-            const description = params["description"] as string | undefined;
             if (!drawingNumber || !revision || !author) {
               throw new Error("cad_revision_create_draft requires 'drawing_number', 'revision', 'author'");
             }
-            const record = cadRevisionPromotionWorkflowEngine.createDraft(drawingNumber, revision, author, description);
+            const record = cadRevisionPromotionWorkflowEngine.createDraft(drawingNumber, revision, author);
             result = { record, source: "CADRevisionPromotionWorkflowEngine.createDraft" };
             break;
           }
@@ -4597,55 +4601,75 @@ Actions: ${ACTIONS.join(", ")}.`,
             break;
           }
           case "cad_trainer_param_count": {
-            const { cadSequenceTrainerEngine } = await import("../../engines/CADSequenceTrainerEngine.js");
-            const count = cadSequenceTrainerEngine.getParamCount();
-            result = { paramCount: count, source: "CADSequenceTrainerEngine.getParamCount" };
+            const backend = params["backend"] as { getParamCount(): number } | undefined;
+            if (!backend || typeof backend.getParamCount !== "function") {
+              throw new Error("cad_trainer_param_count requires 'backend' (ModelBackend instance with getParamCount). Backend objects cannot cross MCP process boundaries; this action is for in-process orchestration callers only.");
+            }
+            const count = backend.getParamCount();
+            result = { paramCount: count, source: "ModelBackend.getParamCount" };
             break;
           }
           case "cad_trainer_update_on_batch": {
-            const { cadSequenceTrainerEngine } = await import("../../engines/CADSequenceTrainerEngine.js");
-            const batch = params["batch"] as Parameters<typeof cadSequenceTrainerEngine.updateOnBatch>[0];
+            const backend = params["backend"] as { updateOnBatch(b: unknown, lr: number): { loss: number; gradNorm: number } } | undefined;
+            const batch = params["batch"];
             const lr = params["learning_rate"] as number;
+            if (!backend || typeof backend.updateOnBatch !== "function") {
+              throw new Error("cad_trainer_update_on_batch requires 'backend' (ModelBackend instance with updateOnBatch). In-process callers only.");
+            }
             if (!batch || lr === undefined) {
               throw new Error("cad_trainer_update_on_batch requires 'batch' (TrainingBatch) and 'learning_rate'");
             }
-            const update = cadSequenceTrainerEngine.updateOnBatch(batch, lr);
-            result = { ...update, source: "CADSequenceTrainerEngine.updateOnBatch" };
+            const update = backend.updateOnBatch(batch, lr);
+            result = { ...update, source: "ModelBackend.updateOnBatch" };
             break;
           }
           case "cad_trainer_score_sequence": {
-            const { cadSequenceTrainerEngine } = await import("../../engines/CADSequenceTrainerEngine.js");
-            const seq = params["sequence"] as Parameters<typeof cadSequenceTrainerEngine.scoreSequence>[0];
+            const backend = params["backend"] as { scoreSequence(s: unknown): number } | undefined;
+            const seq = params["sequence"];
+            if (!backend || typeof backend.scoreSequence !== "function") {
+              throw new Error("cad_trainer_score_sequence requires 'backend' (ModelBackend instance with scoreSequence). In-process callers only.");
+            }
             if (!seq) {
               throw new Error("cad_trainer_score_sequence requires 'sequence' (TokenSeq)");
             }
-            const score = cadSequenceTrainerEngine.scoreSequence(seq);
-            result = { score, source: "CADSequenceTrainerEngine.scoreSequence" };
+            const score = backend.scoreSequence(seq);
+            result = { score, source: "ModelBackend.scoreSequence" };
             break;
           }
           case "cad_trainer_predict_next": {
-            const { cadSequenceTrainerEngine } = await import("../../engines/CADSequenceTrainerEngine.js");
-            const ctx = params["context"] as Parameters<typeof cadSequenceTrainerEngine.predictNext>[0];
+            const backend = params["backend"] as { predictNext(c: unknown): number } | undefined;
+            const ctx = params["context"];
+            if (!backend || typeof backend.predictNext !== "function") {
+              throw new Error("cad_trainer_predict_next requires 'backend' (ModelBackend instance with predictNext). In-process callers only.");
+            }
             if (!ctx) {
               throw new Error("cad_trainer_predict_next requires 'context' (TokenSeq)");
             }
-            const nextToken = cadSequenceTrainerEngine.predictNext(ctx);
-            result = { nextToken, source: "CADSequenceTrainerEngine.predictNext" };
+            const nextToken = backend.predictNext(ctx);
+            result = { nextToken, source: "ModelBackend.predictNext" };
             break;
           }
           case "cad_trainer_serialize_checkpoint": {
             const { cadSequenceTrainerEngine } = await import("../../engines/CADSequenceTrainerEngine.js");
-            const checkpoint = cadSequenceTrainerEngine.serializeCheckpoint();
+            const backend = params["backend"] as Parameters<typeof cadSequenceTrainerEngine.serializeCheckpoint>[0] | undefined;
+            if (!backend) {
+              throw new Error("cad_trainer_serialize_checkpoint requires 'backend' (ModelBackend instance). In-process callers only.");
+            }
+            const checkpoint = cadSequenceTrainerEngine.serializeCheckpoint(backend);
             result = { checkpoint, source: "CADSequenceTrainerEngine.serializeCheckpoint" };
             break;
           }
           case "cad_trainer_load_checkpoint": {
             const { cadSequenceTrainerEngine } = await import("../../engines/CADSequenceTrainerEngine.js");
+            const backend = params["backend"] as Parameters<typeof cadSequenceTrainerEngine.loadCheckpoint>[0] | undefined;
             const data = params["data"] as string;
+            if (!backend) {
+              throw new Error("cad_trainer_load_checkpoint requires 'backend' (ModelBackend instance). In-process callers only.");
+            }
             if (!data) {
               throw new Error("cad_trainer_load_checkpoint requires 'data' (checkpoint string)");
             }
-            cadSequenceTrainerEngine.loadCheckpoint(data);
+            cadSequenceTrainerEngine.loadCheckpoint(backend, data);
             result = { loaded: true, source: "CADSequenceTrainerEngine.loadCheckpoint" };
             break;
           }
@@ -4694,7 +4718,11 @@ Actions: ${ACTIONS.join(", ")}.`,
             if (!tenantId || !contentHash || !requestingTenant) {
               throw new Error("cad_tenant_can_access requires 'tenant_id', 'content_hash', 'requesting_tenant'");
             }
-            const canAccess = cadTenantNamespaceEngine.canAccess(tenantId, contentHash, requestingTenant);
+            const content = cadTenantNamespaceEngine.get(tenantId, contentHash);
+            if (!content) {
+              throw new Error(`cad_tenant_can_access: content not found for tenant_id=${tenantId}, content_hash=${contentHash}`);
+            }
+            const canAccess = cadTenantNamespaceEngine.canAccess(requestingTenant, content);
             result = { canAccess, source: "CADTenantNamespaceEngine.canAccess" };
             break;
           }
