@@ -404,6 +404,48 @@ const customer_material_lookup = z.object({
   ),
 }).passthrough();
 
+// ============================================================================
+// WIRE-UNWIRED-MS0/U-WIRE-MVN: MachineVocabularyNormalizerEngine (3 actions)
+// Normalizes machine-data vocabularies (manufacturer/controller/spindle/
+// coolant/capability/model) to canonical forms. Pure lookup+fuzzy engine —
+// no physics, no I/O. Engine: MCAT-MS0 P1-U02.
+// ============================================================================
+
+const machine_vocab_normalize = z.object({
+  kind: z.enum(["manufacturer", "controller", "spindle", "coolant", "capability", "model"])
+    .describe("Which vocabulary dimension to normalize. 'model' requires `manufacturer`; 'spindle' optionally uses max_rpm/power_kw."),
+  value: z.string().min(1)
+    .describe("The raw vocabulary value to normalize (e.g. 'OKUMA', 'Fanuc 31i', 'through spindle')."),
+  manufacturer: z.string().min(1).optional()
+    .describe("Manufacturer context — REQUIRED when kind='model' (model normalization strips the mfr prefix + applies per-mfr rules)."),
+  max_rpm: z.number().positive().optional()
+    .describe("Spindle max RPM (kind='spindle' only) — drives type inference when no pattern matches."),
+  power_kw: z.number().positive().optional()
+    .describe("Spindle power in kW (kind='spindle' only) — carried into the canonical record."),
+}).passthrough().describe(
+  "Normalize a single machine-vocabulary value to its canonical form (MachineVocabularyNormalizerEngine). Returns { original, normalized, confidence, matchType: exact|alias|fuzzy|pattern|default, alternatives? }.",
+);
+
+const machine_vocab_normalize_record = z.object({
+  manufacturer: z.string().optional().describe("Raw manufacturer name."),
+  model: z.string().optional().describe("Raw model identifier (normalized only when manufacturer is also present)."),
+  controller: z.string().optional().describe("Raw controller identifier."),
+  spindle_type: z.string().optional().describe("Raw spindle type/description."),
+  spindle_max_rpm: z.number().positive().optional().describe("Spindle max RPM."),
+  spindle_power_kw: z.number().positive().optional().describe("Spindle power in kW."),
+  coolant: z.string().optional().describe("Raw coolant terminology."),
+  capabilities: z.array(z.string().min(1)).optional().describe("Raw capability descriptions to normalize individually."),
+}).passthrough().describe(
+  "Normalize every field of a machine record at once (MachineVocabularyNormalizerEngine.normalizeMachineRecord). Returns per-field NormalizationResult plus overallConfidence (product of per-field confidences).",
+);
+
+const machine_vocab_catalog = z.object({
+  which: z.enum(["manufacturers", "controllers", "coolant_types"])
+    .describe("Which canonical catalog to return."),
+}).passthrough().describe(
+  "Return a canonical vocabulary catalog for UI discovery (MachineVocabularyNormalizerEngine.get{Manufacturers,Controllers,CoolantTypes}). Returns the full canonical list for the requested dimension.",
+);
+
 /** A C T I O N_ D A T A_ S C H E M A S constant.
  */
 export const ACTION_DATA_SCHEMAS: ActionSchemaMap = {
@@ -470,4 +512,8 @@ export const ACTION_DATA_SCHEMAS: ActionSchemaMap = {
   // MS-PRINT-PROGRAM-LOOP/U-PPL-C2: CustomerMaterialMapEngine (2 actions)
   customer_material_map_build,
   customer_material_lookup,
+  // WIRE-UNWIRED-MS0/U-WIRE-MVN: MachineVocabularyNormalizerEngine (3 actions)
+  machine_vocab_normalize,
+  machine_vocab_normalize_record,
+  machine_vocab_catalog,
 };

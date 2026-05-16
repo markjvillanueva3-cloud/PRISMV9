@@ -137,6 +137,10 @@ const DataDispatcherSchema = z.object({
     // MS-PRINT-PROGRAM-LOOP/U-PPL-C2: CustomerMaterialMapEngine (2 actions)
     "customer_material_map_build",
     "customer_material_lookup",
+    // WIRE-UNWIRED-MS0/U-WIRE-MVN: MachineVocabularyNormalizerEngine (3 actions)
+    "machine_vocab_normalize",
+    "machine_vocab_normalize_record",
+    "machine_vocab_catalog",
   ]),
   params: z.record(z.string(), z.any()).optional()
 });
@@ -2603,6 +2607,104 @@ export function registerDataDispatcher(server: any): void {
                   map_stats: map.stats,
                 },
               };
+            } catch (err) {
+              result = dispatcherError(err, action, "prism_data");
+            }
+            break;
+          }
+
+          // WIRE-UNWIRED-MS0/U-WIRE-MVN: MachineVocabularyNormalizerEngine — 3
+          // surfaces. machine_vocab_normalize routes to the right normalize*
+          // method by `kind` (model needs `manufacturer`); _record normalizes
+          // a whole machine record; _catalog returns a canonical list. The
+          // engine is a pure lookup+fuzzy normalizer (no physics/I/O); a fresh
+          // process starts with empty per-call stats, so getStats/resetStats/
+          // getSelfAwareness are intentionally NOT wired (no standalone value
+          // through a stateless dispatcher — don't-wire-for-wiring-sake).
+          // Engine: MCAT-MS0 P1-U02.
+          case "machine_vocab_normalize":
+          case "machine_vocab_normalize_record":
+          case "machine_vocab_catalog": {
+            try {
+              const { machineVocabularyNormalizerEngine } =
+                await import("../../engines/MachineVocabularyNormalizerEngine.js");
+              const bp = typeof params === "object" && params !== null ? params as Record<string, unknown> : {};
+              if (action === "machine_vocab_normalize") {
+                const kind = String(bp.kind ?? "");
+                const value = String(bp.value ?? "");
+                if (value.trim().length === 0) {
+                  result = { success: false, error: "value is required (non-empty string)" };
+                  break;
+                }
+                let normalized: unknown;
+                switch (kind) {
+                  case "manufacturer":
+                    normalized = machineVocabularyNormalizerEngine.normalizeManufacturer(value);
+                    break;
+                  case "controller":
+                    normalized = machineVocabularyNormalizerEngine.normalizeController(value);
+                    break;
+                  case "spindle":
+                    normalized = machineVocabularyNormalizerEngine.normalizeSpindle(
+                      value,
+                      typeof bp.max_rpm === "number" ? bp.max_rpm : undefined,
+                      typeof bp.power_kw === "number" ? bp.power_kw : undefined,
+                    );
+                    break;
+                  case "coolant":
+                    normalized = machineVocabularyNormalizerEngine.normalizeCoolant(value);
+                    break;
+                  case "capability":
+                    normalized = machineVocabularyNormalizerEngine.normalizeCapability(value);
+                    break;
+                  case "model": {
+                    const mfr = typeof bp.manufacturer === "string" ? bp.manufacturer : "";
+                    if (mfr.trim().length === 0) {
+                      result = { success: false, error: "kind='model' requires a non-empty 'manufacturer'" };
+                      break;
+                    }
+                    normalized = machineVocabularyNormalizerEngine.normalizeModelId(mfr, value);
+                    break;
+                  }
+                  default:
+                    result = { success: false, error: `unknown kind '${kind}' (expected manufacturer|controller|spindle|coolant|capability|model)` };
+                }
+                if ((result as { success?: boolean } | undefined)?.success === false) break;
+                result = { success: true, data: normalized };
+              } else if (action === "machine_vocab_normalize_record") {
+                result = {
+                  success: true,
+                  data: machineVocabularyNormalizerEngine.normalizeMachineRecord({
+                    manufacturer: typeof bp.manufacturer === "string" ? bp.manufacturer : undefined,
+                    model: typeof bp.model === "string" ? bp.model : undefined,
+                    controller: typeof bp.controller === "string" ? bp.controller : undefined,
+                    spindle_type: typeof bp.spindle_type === "string" ? bp.spindle_type : undefined,
+                    spindle_max_rpm: typeof bp.spindle_max_rpm === "number" ? bp.spindle_max_rpm : undefined,
+                    spindle_power_kw: typeof bp.spindle_power_kw === "number" ? bp.spindle_power_kw : undefined,
+                    coolant: typeof bp.coolant === "string" ? bp.coolant : undefined,
+                    capabilities: Array.isArray(bp.capabilities) ? bp.capabilities as string[] : undefined,
+                  }),
+                };
+              } else {
+                // machine_vocab_catalog
+                const which = String(bp.which ?? "");
+                let catalog: unknown;
+                switch (which) {
+                  case "manufacturers":
+                    catalog = machineVocabularyNormalizerEngine.getManufacturers();
+                    break;
+                  case "controllers":
+                    catalog = machineVocabularyNormalizerEngine.getControllers();
+                    break;
+                  case "coolant_types":
+                    catalog = machineVocabularyNormalizerEngine.getCoolantTypes();
+                    break;
+                  default:
+                    result = { success: false, error: `unknown catalog '${which}' (expected manufacturers|controllers|coolant_types)` };
+                }
+                if ((result as { success?: boolean } | undefined)?.success === false) break;
+                result = { success: true, data: { which, catalog } };
+              }
             } catch (err) {
               result = dispatcherError(err, action, "prism_data");
             }
