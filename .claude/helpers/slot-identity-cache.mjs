@@ -44,7 +44,13 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync, renameSync, unlinkS
 import { join, dirname } from "node:path";
 import { hostname } from "node:os";
 
-const DEFAULT_CACHE_DIR = "H:/prism/state/shared/chat-slot-history";
+// SLOT-DRIFT-FIX-MS0/U-SDF15 (2026-05-17): cross-platform default. Prior literal
+// "H:/prism/..." silently no-op'd on machines without H: (e.g. future Linux
+// port). Now derives from PRISM_ROOT env var; falls back to the original H:
+// literal so Windows installs without the env var keep working unchanged.
+// Per-call override via opts.cacheDir or env PRISM_SLOT_CACHE_DIR still wins.
+const PRISM_ROOT = process.env.PRISM_ROOT || "H:/prism";
+const DEFAULT_CACHE_DIR = `${PRISM_ROOT.replace(/[/\\]+$/, "")}/state/shared/chat-slot-history`;
 
 const CHATID_RE = /^[A-Za-z0-9_.-]{1,128}$/;
 
