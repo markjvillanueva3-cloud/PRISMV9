@@ -47,6 +47,11 @@ function getMachiningPlaybookEngine(): any {
   return machiningPlaybookEngine as any;
 }
 
+function roundSurfaceFinishRa(value: number) {
+  if (!Number.isFinite(value) || value <= 0) return value;
+  return value < 0.01 ? Number(value.toPrecision(3)) : Math.round(value * 100) / 100;
+}
+
 function derivePlaybookCategories(input: OrchestratorInput): RuleCategory[] | undefined {
   const operation = input.operation?.toLowerCase();
   if (!operation) return undefined;
@@ -3090,7 +3095,7 @@ export class SpeedFeedOrchestratorEngine {
       torque_Nm: Math.round(finalTorque * 100) / 100,
       tangential_force_N: Math.round(finalFc),
       tool_life_min: Math.round(finalLife),
-      surface_finish_Ra_um: Math.round(finalRa * 100) / 100,
+      surface_finish_Ra_um: roundSurfaceFinishRa(finalRa),
       deflection_um: Math.round(finalDefl_mm * 1000 * 10) / 10,
 
       overall_confidence: Math.round(overallConfidence * 1000) / 1000,
@@ -3256,7 +3261,7 @@ export class SpeedFeedOrchestratorEngine {
     }
     let prediction;
     try {
-      prediction = crossProcessNeuralLearningEngine.predictFromRecord(record as OutcomeRecord);
+      prediction = crossProcessNeuralLearningEngine.predictFromRecord(record as unknown as OutcomeRecord);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       return {
@@ -3529,7 +3534,7 @@ function optimizeFn(engine: SpeedFeedOrchestratorEngine, input: OrchestratorInpu
       ap_mm: Math.round(sol.pos[2] * 100) / 100,
       mrr_cm3min: Math.round(sol.fit[0] * 100) / 100,
       tool_life_min: Math.round(sol.fit[1] * 10) / 10,
-      ra_um: Math.round(-sol.fit[2] * 100) / 100,
+      ra_um: roundSurfaceFinishRa(-sol.fit[2]),
       result: r.value,
       confidence: r.confidence,
     };
