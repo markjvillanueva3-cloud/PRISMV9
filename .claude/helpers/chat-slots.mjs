@@ -658,7 +658,17 @@ export function claimSlot(input, statePath = DEFAULT_STATE_PATH, lockPath = DEFA
         // SLOT-DRIFT-FIX-MS0/U-SDF13 (2026-05-17): persist the chatId→slot
         // binding to the sticky history cache so post-/compact recovery can
         // find it even if chat-slots.json gets evicted before precompact reads.
-        try { _persistSlotForChat(input.chatId, n); } catch { /* best-effort */ }
+        try {
+          // SLOT-DRIFT-FIX-MS0/U-SDF14 (2026-05-17): fail-loud per Karpathy R12.
+          // Silent EBUSY/EROFS/disk-full was invisible to operators; now logs to
+          // stderr so a broken cache surfaces in the next hook telemetry sweep.
+          const _r = _persistSlotForChat(input.chatId, n);
+          if (_r && _r.ok === false) {
+            process.stderr.write(`[slot-identity-cache] persist failed for ${input.chatId}->${n}: ${_r.error || "unknown"}\n`);
+          }
+        } catch (_e) {
+          process.stderr.write(`[slot-identity-cache] persist threw for ${input.chatId}->${n}: ${(_e && _e.message) || _e}\n`);
+        }
         return { ok: true, slot: n, state: refreshed, alreadyOwned: true };
       }
     }
@@ -690,7 +700,17 @@ export function claimSlot(input, statePath = DEFAULT_STATE_PATH, lockPath = DEFA
           writeSlotsAtomic(file, statePath);
           // SLOT-DRIFT-FIX-MS0/U-SDF13 (2026-05-17): persist the new chatId→slot
           // binding when a terminal-window pin inherits the slot for a new chat.
-          try { _persistSlotForChat(input.chatId, n); } catch { /* best-effort */ }
+          try {
+          // SLOT-DRIFT-FIX-MS0/U-SDF14 (2026-05-17): fail-loud per Karpathy R12.
+          // Silent EBUSY/EROFS/disk-full was invisible to operators; now logs to
+          // stderr so a broken cache surfaces in the next hook telemetry sweep.
+          const _r = _persistSlotForChat(input.chatId, n);
+          if (_r && _r.ok === false) {
+            process.stderr.write(`[slot-identity-cache] persist failed for ${input.chatId}->${n}: ${_r.error || "unknown"}\n`);
+          }
+        } catch (_e) {
+          process.stderr.write(`[slot-identity-cache] persist threw for ${input.chatId}->${n}: ${(_e && _e.message) || _e}\n`);
+        }
           return {
             ok: true,
             slot: n,
@@ -822,7 +842,17 @@ export function claimSlot(input, statePath = DEFAULT_STATE_PATH, lockPath = DEFA
         // SLOT-DRIFT-FIX-MS0/U-SDF13 (2026-05-17): persist the chatId→slot
         // binding for first-claim path. Recoverable post-/compact even after
         // chat-slots.json eviction.
-        try { _persistSlotForChat(input.chatId, n); } catch { /* best-effort */ }
+        try {
+          // SLOT-DRIFT-FIX-MS0/U-SDF14 (2026-05-17): fail-loud per Karpathy R12.
+          // Silent EBUSY/EROFS/disk-full was invisible to operators; now logs to
+          // stderr so a broken cache surfaces in the next hook telemetry sweep.
+          const _r = _persistSlotForChat(input.chatId, n);
+          if (_r && _r.ok === false) {
+            process.stderr.write(`[slot-identity-cache] persist failed for ${input.chatId}->${n}: ${_r.error || "unknown"}\n`);
+          }
+        } catch (_e) {
+          process.stderr.write(`[slot-identity-cache] persist threw for ${input.chatId}->${n}: ${(_e && _e.message) || _e}\n`);
+        }
         return result;
       }
     }
