@@ -2258,4 +2258,38 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   }).describe("Evaluate parser observations against P1 (no-panic) etc. Pure read against current corpus state."),
 
   pfh_to_snapshot: z.object({}).describe("Full snapshot of corpus + crashes state. Pure read."),
+
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-WIH: WorkflowIntegrationHelper wiring ──
+  // Pure utility functions over WorkflowTemplateEngine. logWorkflowValidation
+  // NOT WIRED — fire-and-forget side-effect with no return value.
+  // Underlying engine gracefully degrades to null/[] when WTE unavailable.
+  wih_suggest_workflow: z.object({
+    process_type: z.enum(["2d_milling","3d_milling","5axis_milling","turning","mill_turn","wire_edm","sinker_edm","grinding","die_design","mold_design","fixture_design"])
+      .describe("Manufacturing process type"),
+    include_optional: z.boolean().optional()
+      .describe("Include optional steps in suggested sequence (default false)"),
+  }).describe("Suggest a workflow sequence for a process type. Returns null when WTE not loaded."),
+
+  wih_validate_sequence: z.object({
+    process_type: z.enum(["2d_milling","3d_milling","5axis_milling","turning","mill_turn","wire_edm","sinker_edm","grinding","die_design","mold_design","fixture_design"]),
+    operations: z.array(z.string().min(1).max(256)).min(1).max(1000)
+      .describe("Operation names to validate against canonical template (≤1000)"),
+  }).describe("Gap-analyze operations against the canonical workflow template. Returns null when WTE not loaded."),
+
+  wih_get_quick_reference: z.object({
+    process_type: z.enum(["2d_milling","3d_milling","5axis_milling","turning","mill_turn","wire_edm","sinker_edm","grinding","die_design","mold_design","fixture_design"]),
+  }).describe("Get quick-reference operation sequence for a process type. Returns [] when WTE not loaded."),
+
+  wih_get_order_of_operations: z.object({}).describe(
+    "List order-of-operations guides for all processes. Returns [] when WTE not loaded."
+  ),
+
+  wih_infer_process_type: z.object({
+    machine_type: z.string().max(256).optional()
+      .describe("Machine type hint (e.g. 'OKUMA-LB3000', 'haas-vf4')"),
+    operations: z.array(z.string().min(1).max(256)).max(200).optional()
+      .describe("Operation names — engine substring-matches against keywords"),
+    features: z.array(z.string().min(1).max(256)).max(200).optional()
+      .describe("Feature names — engine substring-matches against keywords"),
+  }).describe("Infer process type from {machine, operations, features} context. Pure (synchronous, no WTE dep)."),
 };

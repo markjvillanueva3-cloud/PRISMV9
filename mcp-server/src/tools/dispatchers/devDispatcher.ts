@@ -374,7 +374,12 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // + differential fuzz harness. Read methods only; addCorpusEntry/markCrash/
 // clearAll DEFERRED (LLM-callable markCrash() would inject fake crashes).
 "pfh_list_corpus", "pfh_get_corpus_entry", "pfh_list_crashes",
-"pfh_evaluate_batch", "pfh_to_snapshot"] as const;
+"pfh_evaluate_batch", "pfh_to_snapshot",
+// WIRE-UNWIRED-MS0/U-WIRE-WIH: WorkflowIntegrationHelper — pure utility
+// over WorkflowTemplateEngine (graceful null/[] when WTE unavailable).
+// logWorkflowValidation NOT WIRED (fire-and-forget side-effect, no return).
+"wih_suggest_workflow", "wih_validate_sequence", "wih_get_quick_reference",
+"wih_get_order_of_operations", "wih_infer_process_type"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -2376,6 +2381,50 @@ export function registerDevDispatcher(server: any): void {
             const { parserFuzzHarnessEngine } = await import("../../engines/ParserFuzzHarnessEngine.js");
             const snapshot = parserFuzzHarnessEngine.toSnapshot();
             result = { snapshot };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-WIH: WorkflowIntegrationHelper ───────
+          case "wih_suggest_workflow": {
+            const { suggestWorkflow } = await import("../../engines/WorkflowIntegrationHelper.js");
+            const p = params as { process_type: any; include_optional?: boolean };
+            const suggestion = await suggestWorkflow(p.process_type, p.include_optional ? { includeOptional: true } : undefined);
+            // Explicit discriminator — slimResponse strips null silently.
+            result = suggestion === null
+              ? { found: false, process_type: p.process_type }
+              : { found: true, suggestion, step_count: suggestion.suggested_sequence.length };
+            break;
+          }
+          case "wih_validate_sequence": {
+            const { validateSequence } = await import("../../engines/WorkflowIntegrationHelper.js");
+            const p = params as { process_type: any; operations: string[] };
+            const analysis = await validateSequence(p.process_type, p.operations);
+            result = analysis === null
+              ? { found: false, process_type: p.process_type }
+              : { found: true, analysis, missing_count: analysis.missing_steps.length, coverage_pct: analysis.coverage_pct };
+            break;
+          }
+          case "wih_get_quick_reference": {
+            const { getQuickReference } = await import("../../engines/WorkflowIntegrationHelper.js");
+            const p = params as { process_type: any };
+            const steps = await getQuickReference(p.process_type);
+            result = { process_type: p.process_type, steps, count: steps.length };
+            break;
+          }
+          case "wih_get_order_of_operations": {
+            const { getOrderOfOperationsGuides } = await import("../../engines/WorkflowIntegrationHelper.js");
+            const guides = await getOrderOfOperationsGuides();
+            result = { guides, count: guides.length };
+            break;
+          }
+          case "wih_infer_process_type": {
+            const { inferProcessType } = await import("../../engines/WorkflowIntegrationHelper.js");
+            const p = params as { machine_type?: string; operations?: string[]; features?: string[] };
+            const process_type = inferProcessType({
+              machineType: p.machine_type,
+              operations: p.operations,
+              features: p.features,
+            });
+            result = { process_type };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-CEX: CatalogExtractionEngine ─────────
