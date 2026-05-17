@@ -244,7 +244,13 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // WIRE-UNWIRED-MS0/U-WIRE-CONSENSUS-CACHE: ConsensusRecallCacheEngine
 // (read-only — recall() is pure I/O over the wiki second-brain consensus
 //  artifacts; the ConsensusObsidianPersistenceEngine owns the write path)
-"consensus_cache_recall", "consensus_cache_score"] as const;
+"consensus_cache_recall", "consensus_cache_score",
+// WIRE-UNWIRED-MS0/U-WIRE-OTEL: OpenTelemetryTracingEngine (read-only +
+// pure functions only; mutating span lifecycle methods DEFERRED to avoid
+// LLM-driven desync of the in-flight distributed-tracing graph)
+"otel_get_config", "otel_get_stats", "otel_active_span_count",
+"otel_completed_spans", "otel_extract_traceparent",
+"otel_inject_traceparent", "otel_should_sample"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -1631,6 +1637,71 @@ export function registerDevDispatcher(server: any): void {
           case "mit_courses_harvest": {
             const { MitCourseIndexEngine } = await import("../../engines/MitCourseIndexEngine.js");
             result = { harvest: await MitCourseIndexEngine.harvest() };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-OTEL: OpenTelemetryTracingEngine ──────
+          case "otel_get_config": {
+            const { openTelemetryTracingEngine } = await import("../../engines/OpenTelemetryTracingEngine.js");
+            result = { config: openTelemetryTracingEngine.getConfig() };
+            break;
+          }
+          case "otel_get_stats": {
+            const { openTelemetryTracingEngine } = await import("../../engines/OpenTelemetryTracingEngine.js");
+            result = { stats: openTelemetryTracingEngine.getStats() };
+            break;
+          }
+          case "otel_active_span_count": {
+            const { openTelemetryTracingEngine } = await import("../../engines/OpenTelemetryTracingEngine.js");
+            result = { activeSpans: openTelemetryTracingEngine.getActiveSpanCount() };
+            break;
+          }
+          case "otel_completed_spans": {
+            const { openTelemetryTracingEngine } = await import("../../engines/OpenTelemetryTracingEngine.js");
+            const limit = (params as { limit?: number }).limit ?? 100;
+            const all = openTelemetryTracingEngine.getCompletedSpans();
+            const spans = all.slice(0, limit);
+            result = { spans, count: spans.length, totalAvailable: all.length };
+            break;
+          }
+          case "otel_extract_traceparent": {
+            const { openTelemetryTracingEngine } = await import("../../engines/OpenTelemetryTracingEngine.js");
+            const p = params as { traceparent: string; tracestate?: string };
+            const ctx = openTelemetryTracingEngine.extract({
+              traceparent: p.traceparent,
+              tracestate: p.tracestate,
+            });
+            result = ctx === null ? { parsed: false } : { parsed: true, context: ctx };
+            break;
+          }
+          case "otel_inject_traceparent": {
+            const { openTelemetryTracingEngine } = await import("../../engines/OpenTelemetryTracingEngine.js");
+            const p = params as { traceId: string; spanId: string; traceFlags?: number; traceState?: string };
+            const ctx = {
+              traceId: p.traceId,
+              spanId: p.spanId,
+              traceFlags: typeof p.traceFlags === "number" ? p.traceFlags : 0x01,
+              traceState: p.traceState,
+              isRemote: false,
+            };
+            result = { headers: openTelemetryTracingEngine.inject(ctx) };
+            break;
+          }
+          case "otel_should_sample": {
+            const { openTelemetryTracingEngine } = await import("../../engines/OpenTelemetryTracingEngine.js");
+            const p = params as {
+              parentContext?: { traceId: string; spanId: string; traceFlags?: number; traceState?: string };
+              forceSample?: boolean;
+            };
+            const parent = p.parentContext
+              ? {
+                  traceId: p.parentContext.traceId,
+                  spanId: p.parentContext.spanId,
+                  traceFlags: typeof p.parentContext.traceFlags === "number" ? p.parentContext.traceFlags : 0x01,
+                  traceState: p.parentContext.traceState,
+                  isRemote: true,
+                }
+              : undefined;
+            result = { decision: openTelemetryTracingEngine.shouldSample(parent, p.forceSample) };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-CONSENSUS-CACHE: ConsensusRecallCacheEngine ──

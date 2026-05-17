@@ -1254,6 +1254,52 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   mit_courses_harvest: z.object({}).passthrough()
     .describe("Full scan of all 6 zones — returns every course with metadata + aggregation maps. Read-only."),
 
+  // ── WIRE-UNWIRED-MS0/U-WIRE-OTEL: OpenTelemetryTracingEngine ──────────────
+  // (read-only + pure-function methods only; configure/startSpan/addEvent/
+  //  setAttributes/setStatus/endSpan/recordException/addManufacturingAttributes/
+  //  flush/clear/trace are DEFERRED — they mutate active span state which is
+  //  the load-bearing distributed-tracing graph; an LLM-driven write could
+  //  desynchronise an in-flight trace)
+  otel_get_config: z.object({}).passthrough()
+    .describe("Returns the tracer config (serviceName, sampling rate, max queue, etc.). Read-only."),
+
+  otel_get_stats: z.object({}).passthrough()
+    .describe("Returns aggregate TracerStats (totalSpans, activeSpans, completedSpans, droppedSpans, etc.). Read-only."),
+
+  otel_active_span_count: z.object({}).passthrough()
+    .describe("Returns count of currently-active (non-ended) spans. Read-only."),
+
+  otel_completed_spans: z.object({
+    limit: z.number().int().positive().max(10000).optional()
+      .describe("Cap on returned spans (default 100, max 10000)."),
+  }).passthrough()
+    .describe("Returns completed spans (capped). Read-only."),
+
+  otel_extract_traceparent: z.object({
+    traceparent: z.string().min(1).describe("W3C traceparent header value."),
+    tracestate: z.string().optional().describe("Optional W3C tracestate header value."),
+  }).passthrough()
+    .describe("Parse a W3C traceparent (+ optional tracestate) into a SpanContext. Returns null on malformed. Pure function."),
+
+  otel_inject_traceparent: z.object({
+    traceId: z.string().min(1).describe("32-hex-char trace id."),
+    spanId: z.string().min(1).describe("16-hex-char span id."),
+    traceFlags: z.number().int().min(0).max(255).optional().describe("Trace flags byte (default 0x01 = sampled)."),
+    traceState: z.string().optional().describe("Optional W3C tracestate to propagate."),
+  }).passthrough()
+    .describe("Encode a SpanContext into W3C traceparent (+ optional tracestate) headers. Pure function."),
+
+  otel_should_sample: z.object({
+    parentContext: z.object({
+      traceId: z.string().min(1),
+      spanId: z.string().min(1),
+      traceFlags: z.number().int().min(0).max(255).optional(),
+      traceState: z.string().optional(),
+    }).passthrough().optional().describe("Optional parent SpanContext (if continuing an upstream trace)."),
+    forceSample: z.boolean().optional().describe("Override sampling decision (true → always sample, false → respect rate)."),
+  }).passthrough()
+    .describe("Get sampling decision for a new span (rate-based or forced). Pure function."),
+
   // ── WIRE-UNWIRED-MS0/U-WIRE-CONSENSUS-CACHE: ConsensusRecallCacheEngine ────
   // (read-only — no write methods on this engine; recall() is pure I/O over
   //  the wiki second-brain consensus/<sha8>.md artifacts written by the
