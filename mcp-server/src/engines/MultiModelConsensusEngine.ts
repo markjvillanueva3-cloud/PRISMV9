@@ -38,6 +38,26 @@ import { prismContextInjectorEngine } from "./PRISMContextInjectorEngine.js";
 import { consensusFactCheckerEngine, type FactCheckResult } from "./ConsensusFactCheckerEngine.js";
 import { consensusObsidianPersistenceEngine } from "./ConsensusObsidianPersistenceEngine.js";
 import { consensusModelPerformanceEngine } from "./ConsensusModelPerformanceEngine.js";
+import { feedbackBusEngine } from "./FeedbackBusEngine.js";
+
+/**
+ * Bus topic broadcast after every ask() invocation. NN-STACK-INTEG-MS0/U-NN-INTEG-03+05.
+ *
+ * Payload shape (FeedbackEvent.payload):
+ * ```
+ * {
+ *   prompt:        string;          // input.prompt (verbatim)
+ *   taskType:      string;          // input.taskType
+ *   sourceSession: string;          // resolvedSession (input.sourceSession ?? CLAUDE_SESSION_ID ?? "unknown")
+ *   result:        ConsensusResult; // the full ask() return value — includes .ok=false for failed runs
+ * }
+ * ```
+ *
+ * Fires for EVERY ask() — successful AND failed (subscribers need failures to
+ * calibrate confidence). Disable with `PRISM_NN_INTEG_DISABLE=1` to revert
+ * the stack to its pre-integration behavior (no publish, no subscriber).
+ */
+export const CONSENSUS_COMPLETED_TOPIC = "consensus.completed";
 
 export interface ConsensusInput {
   prompt: string;
@@ -287,6 +307,15 @@ export class MultiModelConsensusEngine {
       factCheck,
     };
 
+    // Resolve session id once — shared by the persist + publish blocks below.
+    // Lifting this expression out of both call sites (Reviewer A P1, DRY) means
+    // that any future change to session-id resolution (e.g. a slot-aware
+    // fallback) applies uniformly to both the wiki write and the bus broadcast,
+    // and the persisted record + the bus payload always agree on which session
+    // produced the consensus.
+    const resolvedSession =
+      input.sourceSession ?? process.env.CLAUDE_SESSION_ID ?? "unknown";
+
     // Persist to the wiki second-brain. Fire-and-forget — persistence failure
     // must NEVER break consensus delivery. The next session can recall this
     // exact prompt's answer via prism_memory:consensus_recall instead of
@@ -296,7 +325,28 @@ export class MultiModelConsensusEngine {
         consensusObsidianPersistenceEngine.persist({
           prompt: input.prompt,
           taskType: input.taskType,
-          sourceSession: input.sourceSession ?? process.env.CLAUDE_SESSION_ID ?? "unknown",
+          sourceSession: resolvedSession,
+          result: finalResult,
+        });
+      } catch {
+        // swallowed — see fire-and-forget contract above
+      }
+    }
+
+    // Broadcast `consensus.completed` so the rest of the neural stack (the
+    // ConsensusNeuralFeedbackEngine subscriber, future audit loggers, etc.)
+    // sees every consensus run — both bridge-mediated AND direct callers.
+    // NN-STACK-INTEG-MS0/U-NN-INTEG-03 (combined with U-NN-INTEG-05).
+    // Fire-and-forget under the same contract as the persist block above:
+    // a subscriber failure / bus error must NEVER break consensus delivery.
+    // The disable knob (PRISM_NN_INTEG_DISABLE=1) reverts the stack to its
+    // pre-integration behavior — no publish, no subscriber.
+    if (process.env.PRISM_NN_INTEG_DISABLE !== "1") {
+      try {
+        feedbackBusEngine.publish(CONSENSUS_COMPLETED_TOPIC, {
+          prompt: input.prompt,
+          taskType: input.taskType,
+          sourceSession: resolvedSession,
           result: finalResult,
         });
       } catch {
