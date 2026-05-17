@@ -137,6 +137,41 @@ const failure_diagnose = z.object({
   response_level: responseLevel,
 }).passthrough();
 
+// INTEL-OLLAMA-OBSIDIAN-MS0/P5-U05 — DiagnosticReasoningEngine surface.
+// Rich alarm-knowledge-base / fault-tree diagnosis. `symptoms` accepts plain
+// strings (operator observations) or full Symptom objects; `context.alarm`
+// switches to alarm-driven Bayesian diagnosis.
+const diagnose_failure = z.object({
+  symptoms: z.union([
+    z.string(),
+    z.array(z.union([
+      z.string(),
+      z.object({
+        id: optStr,
+        description: z.string().min(1),
+        observed: optBool,
+        confidence: z.number().min(0).max(1).optional(),
+        source: z.enum(["alarm", "operator", "sensor", "visual", "audio"]).optional(),
+      }).passthrough(),
+    ])),
+  ]).optional().describe("Observed symptoms — string(s) or Symptom object(s)."),
+  context: z.object({
+    machine_type: optStr.describe("Machine type for symptom-only diagnosis."),
+    alarm: z.object({
+      alarm_code: z.string().min(1),
+      message: z.string().min(1),
+      severity: z.enum(["info", "warning", "fault", "critical", "emergency"]),
+      timestamp: optStr,
+      machine_id: optStr,
+      machine_type: optStr,
+      controller: optStr,
+      axis: optStr,
+      spindle: optStr,
+    }).passthrough().optional().describe("Machine alarm — switches to alarm-driven diagnosis."),
+  }).passthrough().optional().describe("Diagnosis context — machine_type and/or alarm."),
+  response_level: responseLevel,
+}).passthrough().describe("Diagnose a machine failure from symptoms and/or an alarm via DiagnosticReasoningEngine.");
+
 const parameter_optimize = z.object({
   material: z.string().min(1),
   objectives: z.object({
@@ -716,6 +751,7 @@ export const ACTION_INTELLIGENCE_SCHEMAS: ActionSchemaMap = {
   machine_recommend,
   what_if,
   failure_diagnose,
+  diagnose_failure,
   parameter_optimize,
   cycle_time_estimate,
   quality_predict,

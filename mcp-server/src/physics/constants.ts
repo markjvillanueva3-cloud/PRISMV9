@@ -98,6 +98,12 @@ export const CANONICAL_MATERIAL_DB: Record<string, MaterialEntry> = {
   "A2": { name: "AISI A2 Tool Steel", iso_group: "H", density_kg_m3: 7860, thermal_conductivity_W_mK: 28.6, specific_heat_J_kgK: 460, melting_point_C: 1425, hardness_HRC: 60, taylor_C: 120, taylor_n: 0.15 },
   "tungsten_carbide": { name: "Tungsten Carbide (WC-Co)", iso_group: "H", density_kg_m3: 15000, thermal_conductivity_W_mK: 84, specific_heat_J_kgK: 210, melting_point_C: 2870, hardness_HRC: 75, taylor_C: 120, taylor_n: 0.15 },
   "gray_iron": { name: "Gray Cast Iron", iso_group: "K", density_kg_m3: 7200, thermal_conductivity_W_mK: 46, specific_heat_J_kgK: 490, melting_point_C: 1200, taylor_C: 250, taylor_n: 0.25 },
+  // Cu/brass added 2026-05-17 (TSC-FIX/U-TSC-WIRE-EDM-TEST scrutiny arm-B blocker):
+  // WireEDMSettingsEngine was substituting Al6061 for copper/brass workpieces — a
+  // ~3x volumetric-energy error reaching generated WEDM G-code. Real thermophysical
+  // values: ASM Metals Handbook Vol.2 + Touloukian Thermophysical Properties (1970).
+  "C11000": { name: "C11000 ETP Copper", iso_group: "N", density_kg_m3: 8960, thermal_conductivity_W_mK: 391, specific_heat_J_kgK: 385, melting_point_C: 1085, taylor_C: 600, taylor_n: 0.4 },
+  "C26000": { name: "C26000 Cartridge Brass (70/30)", iso_group: "N", density_kg_m3: 8530, thermal_conductivity_W_mK: 120, specific_heat_J_kgK: 375, melting_point_C: 930, taylor_C: 600, taylor_n: 0.4 },
 } as const;
 
 // ============================================================================
@@ -124,6 +130,11 @@ export const AISI_ALIAS: Record<string, string> = {
   "carbide": "tungsten_carbide",
   "wc": "tungsten_carbide",
   "cast_iron": "gray_iron",
+  "copper": "C11000",
+  "cu": "C11000",
+  "c11000": "C11000",
+  "brass": "C26000",
+  "c26000": "C26000",
 } as const;
 
 // ============================================================================

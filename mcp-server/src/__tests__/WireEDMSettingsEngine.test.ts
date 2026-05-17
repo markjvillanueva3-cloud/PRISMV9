@@ -174,6 +174,45 @@ describe("WireEDMSettingsEngine", () => {
       expect(alu.derivation.unconstrained_feed_mm_min).toBeGreaterThan(d2.derivation.unconstrained_feed_mm_min);
     });
 
+    it("copper workpiece uses real C11000 thermal props (not the old Al6061 ~3x proxy)", () => {
+      // Regression lock for scrutiny arm-B blocker (2026-05-17): copper/brass
+      // workpieces were silently substituted with Al6061, a ~3x volumetric-
+      // energy error flowing into generated WEDM G-code feed. Now mapped to
+      // the canonical C11000 entry (ρ8960 / cp385 / Tm1085) added to
+      // CANONICAL_MATERIAL_DB. Copper's volumetricEnergy ≈ ρ·(cp·ΔT + L) is
+      // ~3x higher than Al6061's, so its derived unconstrained feed must be
+      // SUBSTANTIALLY LOWER than the same cut computed with 6061.
+      const copper = wireEDMSettingsEngine.calculate(input({
+        workpiece_material: "copper",
+        workpiece_hardness_HRC: 0,
+      }));
+      const al = wireEDMSettingsEngine.calculate(input({
+        workpiece_material: "6061",
+        workpiece_hardness_HRC: 0,
+      }));
+      expect(Number.isFinite(copper.derivation.unconstrained_feed_mm_min)).toBe(true);
+      expect(copper.derivation.unconstrained_feed_mm_min).toBeGreaterThan(0);
+      // Copper's higher volumetric energy → strictly slower unconstrained feed
+      // than aluminum. If this fails with ~equal values, copper is wrongly
+      // resolving to the 6061 entry again (the exact reverted-bug signature).
+      expect(copper.derivation.unconstrained_feed_mm_min).toBeLessThan(al.derivation.unconstrained_feed_mm_min);
+    });
+
+    it("brass workpiece resolves to the C26000 entry (distinct from copper, not Al6061)", () => {
+      const brass = wireEDMSettingsEngine.calculate(input({
+        workpiece_material: "C26000 brass",
+        workpiece_hardness_HRC: 0,
+      }));
+      const al = wireEDMSettingsEngine.calculate(input({
+        workpiece_material: "6061",
+        workpiece_hardness_HRC: 0,
+      }));
+      expect(Number.isFinite(brass.first_cut_speed_mm_per_min)).toBe(true);
+      expect(brass.first_cut_speed_mm_per_min).toBeGreaterThan(0);
+      // Brass (ρ8530) is far denser than Al6061 (ρ2700) → slower unconstrained feed
+      expect(brass.derivation.unconstrained_feed_mm_min).toBeLessThan(al.derivation.unconstrained_feed_mm_min);
+    });
+
     it("inconel (low eta, high hardness) cuts SLOWER than D2 at same hardness", () => {
       const incon = wireEDMSettingsEngine.calculate(input({
         workpiece_material: "inconel",

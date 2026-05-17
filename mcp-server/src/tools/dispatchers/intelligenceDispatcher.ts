@@ -44,11 +44,12 @@ let _intelligence: any, _jobLearning: any, _algorithmGateway: any, _shopSchedule
     _xprocFedAvg: any, _xprocSecureAgg: any, _xprocDriftFed: any, _xprocFedScheduler: any,
     _xprocMAMLLite: any, _xprocProtoNet: any, _xprocLearnedLR: any, _xprocHyperTuner: any,
     _xprocModalityDropout: any, _xprocVisionFusion: any, _xprocTimeSeriesFusion: any,
-    _xprocAudioFusion: any;
+    _xprocAudioFusion: any, _diagnosticReasoning: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "intelligence":       return _intelligence ??= (await import("../../engines/IntelligenceEngine.js")).executeIntelligenceAction;
+    case "diagnosticReasoning": return _diagnosticReasoning ??= (await import("../../engines/DiagnosticReasoningEngine.js")).diagnosticReasoning;
     case "jobLearning":        return _jobLearning ??= (await import("../../engines/JobLearningEngine.js")).jobLearning;
     case "algorithmGateway":   return _algorithmGateway ??= (await import("../../engines/AlgorithmGatewayEngine.js")).algorithmGateway;
     case "shopScheduler":      return _shopScheduler ??= (await import("../../engines/ShopSchedulerEngine.js")).shopScheduler;
@@ -186,6 +187,9 @@ export const INTELLIGENCE_CORE_ACTIONS = [
   "machine_recommend",
   "what_if",
   "failure_diagnose",
+  // INTEL-OLLAMA-OBSIDIAN-MS0/P5-U05: rich alarm-knowledge-base diagnosis
+  // (DiagnosticReasoningEngine — distinct from IntelligenceEngine failure_diagnose)
+  "diagnose_failure",
   "parameter_optimize",
   "cycle_time_estimate",
   "quality_predict",
@@ -647,6 +651,17 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
         alarm_code: result.alarm?.code,
         alarm_name: result.alarm?.name,
         has_physics_check: !!result.physics_cross_check,
+      };
+    case "diagnose_failure":
+      return {
+        diagnosis_id: result.diagnosis_id,
+        primary_cause: result.primary_diagnosis?.description,
+        primary_probability: result.primary_diagnosis?.probability,
+        confidence: result.confidence,
+        differential_count: result.differential_diagnoses?.length,
+        recommended_actions: result.recommended_actions?.length,
+        expected_downtime_min: result.estimated_downtime?.expected_minutes,
+        safety_warnings: result.safety_warnings?.length,
       };
     case "parameter_optimize":
       return {
@@ -1838,6 +1853,7 @@ export function registerIntelligenceDispatcher(server: any): void {
         // === EXECUTE CORE ACTION ===
         const CORE_ROUTING: Record<string, string> = {
           job_record: "jobLearning", job_insights: "jobLearning",
+          diagnose_failure: "diagnosticReasoning",
           algorithm_select: "algorithmGateway",
           machine_utilization: "shopScheduler",
           decompose_intent: "intentEngine",

@@ -139,7 +139,8 @@ function getEDMThermalProps(materialName: string): EDMThermalProps {
     hardened_steel: "D2",
     stainless: "304",
     aluminum: "6061",
-    copper: "6061",         // copper not in CANONICAL_MATERIAL_DB yet — closest thermal proxy
+    copper: "C11000",       // real ETP-copper entry (ρ8960/cp385/Tm1085) — was Al6061 (~3x volumetric-energy error reaching G-code, scrutiny arm-B blocker 2026-05-17)
+    brass: "C26000",        // real cartridge-brass entry (ρ8530/cp375/Tm930) — previously misrouted copper→Al6061
     titanium: "Ti-6Al-4V",
     inconel: "Inconel 718",
     carbide: "tungsten_carbide",
@@ -541,7 +542,7 @@ function resolveMatKey(material: string): string {
   if (m.includes("titanium") || m.includes("ti-6al") || m.includes("ti6al")) return "titanium";
   if (m.includes("graphite")) return "carbide"; // similar EDM behavior
   if (m.includes("inconel") || m.includes("718") || m.includes("625")) return "inconel";
-  if (m.includes("brass")) return "copper"; // similar conductivity
+  if (m.includes("brass")) return "brass"; // distinct entry — C26000 (was wrongly proxied to copper→Al6061)
   return "steel";
 }
 

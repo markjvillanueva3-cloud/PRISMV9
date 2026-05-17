@@ -1199,12 +1199,12 @@ export class DiagnosticReasoningEngine {
     alarms: MachineAlarm[],
     sensorData?: Record<string, number>
   ): MachineHealthStatus["subsystems"] {
-    const subsystems = [
-      { name: "Spindle", health: 100, trend: "stable" as const, alerts: [] as string[] },
-      { name: "Axes/Servos", health: 100, trend: "stable" as const, alerts: [] as string[] },
-      { name: "Coolant", health: 100, trend: "stable" as const, alerts: [] as string[] },
-      { name: "Hydraulics", health: 100, trend: "stable" as const, alerts: [] as string[] },
-      { name: "Tool Changer", health: 100, trend: "stable" as const, alerts: [] as string[] },
+    const subsystems: MachineHealthStatus["subsystems"] = [
+      { name: "Spindle", health: 100, trend: "stable", alerts: [] },
+      { name: "Axes/Servos", health: 100, trend: "stable", alerts: [] },
+      { name: "Coolant", health: 100, trend: "stable", alerts: [] },
+      { name: "Hydraulics", health: 100, trend: "stable", alerts: [] },
+      { name: "Tool Changer", health: 100, trend: "stable", alerts: [] },
     ];
 
     // Degrade health based on alarms
@@ -1276,3 +1276,83 @@ export class DiagnosticReasoningEngine {
 
 // Export singleton
 export const diagnosticReasoningEngine = new DiagnosticReasoningEngine();
+
+// ============================================================================
+// DISPATCH SHIM — prism_intelligence:diagnose_failure (INTEL-OLLAMA-OBSIDIAN-MS0/P5-U05)
+// ============================================================================
+
+/**
+ * Normalize a free-form symptom entry (string | partial object) into a Symptom.
+ * Strings become operator-observed symptoms at full confidence; objects keep
+ * any provided fields and fall back to safe defaults.
+ */
+function normalizeSymptom(raw: unknown, idx: number): Symptom {
+  if (typeof raw === "string") {
+    return {
+      id: `sym-${idx}`,
+      description: raw,
+      observed: true,
+      confidence: 1,
+      source: "operator",
+    };
+  }
+  const o = (raw ?? {}) as Partial<Symptom> & { description?: string };
+  return {
+    id: o.id ?? `sym-${idx}`,
+    description: String(o.description ?? ""),
+    observed: o.observed ?? true,
+    confidence: typeof o.confidence === "number" ? o.confidence : 1,
+    source: o.source ?? "operator",
+  };
+}
+
+/**
+ * Dispatch entry for `prism_intelligence:diagnose_failure`.
+ *
+ * Routes to {@link DiagnosticReasoningEngine.diagnose} when an alarm is supplied
+ * in `context.alarm`, otherwise to
+ * {@link DiagnosticReasoningEngine.diagnoseFromSymptoms}. This is the rich
+ * alarm-knowledge-base / fault-tree flavor — distinct from the simpler
+ * IntelligenceEngine `failure_diagnose` symptom matcher.
+ *
+ * @param action  Dispatcher action name (only "diagnose_failure" is handled).
+ * @param params  `{ symptoms, context }` — symptoms is string[] | Symptom[];
+ *                context may carry `{ alarm, machine_type }`.
+ * @returns DiagnosisResult (primary + differentials + repair actions).
+ */
+export function diagnosticReasoning(
+  action: string,
+  params: Record<string, unknown>,
+): DiagnosisResult {
+  if (action !== "diagnose_failure") {
+    throw new Error(
+      `[DiagnosticReasoningEngine] unsupported action '${action}' (only 'diagnose_failure')`,
+    );
+  }
+
+  const rawSymptoms = params.symptoms;
+  const symptomList: unknown[] = Array.isArray(rawSymptoms)
+    ? rawSymptoms
+    : rawSymptoms != null
+      ? [rawSymptoms]
+      : [];
+  const symptoms = symptomList.map((s, i) => normalizeSymptom(s, i));
+
+  const context = (params.context ?? {}) as {
+    alarm?: MachineAlarm;
+    machine_type?: string;
+  };
+
+  if (context.alarm && context.alarm.alarm_code) {
+    return DiagnosticReasoningEngine.diagnose(context.alarm, symptoms);
+  }
+
+  if (symptoms.length === 0) {
+    throw new Error(
+      "[DiagnosticReasoningEngine] diagnose_failure requires non-empty 'symptoms' or a 'context.alarm'",
+    );
+  }
+
+  const machineType = context.machine_type ?? "unknown";
+  return DiagnosticReasoningEngine.diagnoseFromSymptoms(machineType, symptoms);
+}
