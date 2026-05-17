@@ -11,26 +11,41 @@ radius. Producing the plan is autonomous-safe (a doc); executing it is not.
 
 ## 1. Premise correction (verified against HEAD, not the unit title)
 
-The unit name says "swap coord store to live SQLite" and implies a
-`WORK_CLAIMS.json → SQLite` migration. **That migration already happened** under
-`HOOK-SYNERGY-MS0/H8` (2026-05-13, `CoordinationStoreEngine`, 41 tests). Verified
-2026-05-17:
+The unit name says "swap coord store to live SQLite" and implies a single
+`WORK_CLAIMS.json → SQLite` migration. The reality is more nuanced — there are
+**three** coordination JSON stores, only one of which was H8-migrated. Verified
+on disk 2026-05-17 (corrected after 3-of-3 reviewer A caught a false
+"zero references" claim in the first draft — the original sweep used the wrong
+path scope and missed the surviving `state/shared/` store; R12 fail-loud):
 
-- `mcp-server/data/state/WORK_CLAIMS.json` — **does not exist**.
-- Zero references to `WORK_CLAIMS\.json` anywhere in `.claude/`, `scripts/`,
-  `mcp-server/src/`.
-- `CoordinationStoreEngine.ts` exists, wired into `contextDispatcher.ts:1164`
-  (`coord_sqlite` action). API: `claim/release/findClaim/liveClaims/allClaims/`
-  `activeSessions/findPresence/prune/counts/migrateFromJson/health`.
+| Store | Status 2026-05-17 | Refs | Purpose |
+|-------|-------------------|------|---------|
+| `mcp-server/data/state/WORK_CLAIMS.json` | **absent** — H8-migrated to SQLite 2026-05-13 | none | (historical) |
+| `state/shared/WORK_CLAIMS.json` | **EXISTS** (552 B, mtime 2026-05-17) — NOT migrated | `.claude/hooks/work-claim.mjs:27`, `.claude/hooks/stop_on_open_claim.mjs:12` (env `PRISM_WORK_CLAIMS_FILE`) | work-**unit** claims |
+| `mcp-server/data/state/session-file-ownership.json` | **EXISTS** — live, NOT migrated | 5 hot-path hooks (see §2) | **file-ownership** claims |
 
-**The real remaining swap** is different from the title: the *live file-claim
-hot path* still uses a JSON store `mcp-server/data/state/session-file-ownership.json`,
-NOT the SQLite engine. The SQLite engine is dispatcher-wired but off the live
-path. U-P5 = repoint the live claim hooks at the SQLite store.
+`CoordinationStoreEngine.ts` exists, wired into `contextDispatcher.ts:1164`
+(`coord_sqlite`). API: `claim/release/findClaim/liveClaims/allClaims/`
+`activeSessions/findPresence/prune/counts/migrateFromJson/health`. Its
+`LEGACY_WORK_CLAIMS_PATH` (CoordinationStoreEngine.ts:52) is exactly
+`state/shared/WORK_CLAIMS.json` — i.e. `migrateFromJson()` already targets the
+surviving work-unit store by default, but **nothing calls it on the live path**.
+
+**The real remaining swap** is therefore TWO independent live JSON stores, not
+the one the title implies:
+1. **work-unit claims** — `state/shared/WORK_CLAIMS.json` on 2 hooks
+   (`work-claim.mjs`, `stop_on_open_claim.mjs`). `migrateFromJson()` already
+   handles the shape; the gap is wiring those 2 hooks at the SQLite engine.
+2. **file-ownership claims** — `session-file-ownership.json` on 5 hot-path hooks
+   (§2). Different shape (`{files,sessions}` vs ClaimRow) — needs a shape
+   adapter, NOT a raw `migrateFromJson`.
+The SQLite engine is dispatcher-wired but off BOTH live paths.
 
 ## 2. Endpoints
 
-**Live source (authoritative today):** `mcp-server/data/state/session-file-ownership.json`
+### 2a. File-ownership store (5 hot-path hooks)
+
+**Source:** `mcp-server/data/state/session-file-ownership.json`
 shape `{ files: {}, sessions: {} }`.
 
 | Hook | Role | Trigger |
@@ -41,10 +56,23 @@ shape `{ files: {}, sessions: {} }`.
 | `.claude/hooks/always-build-guard.mjs` | reader | Stop |
 | `.claude/hooks/stale-claim-sweeper.mjs` | reader+sweeper | scheduled / Stop |
 
-**Target:** `CoordinationStoreEngine` SQLite WAL. Note its `migrateFromJson()`
-defaults to `LEGACY_WORK_CLAIMS_PATH` — for this swap it must be pointed at
-`session-file-ownership.json` (different shape: `{files,sessions}` vs ClaimRow),
-so a shape adapter is required, not a raw `migrateFromJson` call.
+Shape `{files,sessions}` ≠ `ClaimRow`, so a **shape adapter** is required —
+NOT a raw `migrateFromJson` call.
+
+### 2b. Work-unit-claim store (2 hooks)
+
+**Source:** `state/shared/WORK_CLAIMS.json` (env `PRISM_WORK_CLAIMS_FILE`).
+
+| Hook | Role | Trigger |
+|------|------|---------|
+| `.claude/hooks/work-claim.mjs:27` | reader+writer | (work-unit claim/release) |
+| `.claude/hooks/stop_on_open_claim.mjs:12` | reader+writer | Stop (lines 96, 121 read/write) |
+
+This is exactly `CoordinationStoreEngine`'s `LEGACY_WORK_CLAIMS_PATH`, so
+`migrateFromJson()` handles the shape directly — the gap is only repointing
+these 2 hooks at `coord_sqlite`.
+
+**Target (both):** `CoordinationStoreEngine` SQLite WAL via the shim in §4.
 
 ## 3. Risk — why this is NOT autonomous-/loop-safe
 
@@ -68,30 +96,37 @@ fleet. The `/loop` delivered this plan only.
 A shim `coordBackend` (`.claude/helpers/coord-backend.mjs`) exporting
 `loadOwnership/saveOwnership/findClaim/release` with env switch
 `PRISM_COORD_BACKEND = json | dual | shadow | sqlite` (default `json` =
-**zero behavior change**). The 5 hooks import the shim instead of touching the
-store directly. Rollback at every phase = flip the env var back.
+**zero behavior change**). All 7 hooks (5 file-ownership §2a + 2 work-unit §2b)
+import the shim instead of touching the store directly. Rollback at every phase
+= flip the env var back. Sequence the two stores independently: do §2b
+(work-unit, 2 hooks, `migrateFromJson` handles shape) before §2a (file-ownership,
+5 hot-path hooks, needs adapter) — §2b is lower-risk and validates the shim.
 
 | Phase | Mode | Fleet | Gate to advance |
 |-------|------|-------|-----------------|
 | **0 Prep** *(operator, low-risk)* | build shim, default `json`, NOT wired | any | shim unit tests green vs both backends; rollback drill |
 | **1 Dual-write** | `dual` (write json+sqlite, read json) | full | reconcile script diffs json vs sqlite every 5 min → **0 divergence for 24h** |
 | **2 Read-shadow** | `shadow` (read sqlite, json authoritative on mismatch, log mismatch) | full | **0 mismatch for 24h** |
-| **3 Cutover** | `sqlite` (json kept cold) | quiescent / single-chat | all 5 hooks pass existing tests vs sqlite; smoke a real cross-chat claim/release |
-| **4 Decommission** *(+7d clean)* | remove json branch | any | rename `session-file-ownership.json` → `.archive.<date>` (NEVER delete, per [[feedback_never_delete_only_disable]]) |
+| **3 Cutover** | `sqlite` (json kept cold) | quiescent / single-chat | all 7 hooks pass existing tests vs sqlite; smoke a real cross-chat claim/release on BOTH stores |
+| **4 Decommission** *(+7d clean)* | remove json branch | any | rename `session-file-ownership.json` AND `state/shared/WORK_CLAIMS.json` → `.archive.<date>` (NEVER delete, per [[feedback_never_delete_only_disable]]) |
 
-Phase 0 builds the shim but **does not wire it into the 5 hooks** — wiring is
-Phase 1. No destructive action before Phase 4 (+7d clean window).
+Phase 0 builds the shim but **does not wire it into any of the 7 hooks** —
+wiring is Phase 1, §2b store first then §2a. No destructive action before
+Phase 4 (+7d clean window).
 
 ## 5. Acceptance criteria
 
-- `file-ownership-tracker`, `commit-ownership-guard`, `scrutinize-before-stop`,
-  `always-build-guard`, `stale-claim-sweeper` all pass their existing test
-  suites against the `sqlite` backend.
+- All 7 hooks pass their existing test suites against the `sqlite` backend:
+  §2a `file-ownership-tracker`, `commit-ownership-guard`,
+  `scrutinize-before-stop`, `always-build-guard`, `stale-claim-sweeper`; §2b
+  `work-claim`, `stop_on_open_claim`.
 - 0 json↔sqlite divergence across the 24h dual-write **and** 24h read-shadow
-  windows (reconcile script is the oracle, not eyeballing).
-- One rollback drill executed and logged during Phase 1.
-- Shape adapter (`{files,sessions}` ↔ ClaimRow) has its own unit tests incl.
-  the empty-store and concurrent-claim cases.
+  windows, **per store** (reconcile script is the oracle, not eyeballing).
+- One rollback drill executed and logged during Phase 1 (run it on the §2b
+  store — lower blast radius).
+- §2a shape adapter (`{files,sessions}` ↔ ClaimRow) has its own unit tests incl.
+  the empty-store and concurrent-claim cases. §2b reuses `migrateFromJson()` —
+  assert its output against a known `state/shared/WORK_CLAIMS.json` fixture.
 
 ## 6. Autonomous boundary (explicit)
 

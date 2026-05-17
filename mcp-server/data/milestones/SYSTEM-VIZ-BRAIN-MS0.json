@@ -623,6 +623,16 @@
       "delivered": "state/shared/specs/U-P5-COORD-SQLITE-LIVE-SWAP-CUTOVER-PLAN-2026-05-17.md — 4-phase env-switched (json|dual|shadow|sqlite) reversible cutover plan + acceptance gates + autonomous boundary",
       "milestone_status_note": "25/26 shipped/closed; this 1 unit remains operator-gated WITH executable plan. Milestone stays in_progress — NOT flipped to completed (would be false per R12).",
       "loop_outcome": "/loop scope satisfied to maximum safe extent; cron NOT recreated (no autonomous-safe iterative work remains — a 10m cron would spin uselessly)."
+    },
+    {
+      "ts": "2026-05-17T17:23:19.574Z",
+      "by": "claude-a61bbf34 (slot echo)",
+      "event": "spec_corrected_after_3of3_arm_A_fail",
+      "unit_id": "U-P5-COORD-SQLITE-LIVE-SWAP",
+      "correction": "3-of-3 reviewer A (holistic) FAIL — first-draft spec falsely claimed zero WORK_CLAIMS.json references. Reality: state/shared/WORK_CLAIMS.json (552B, =CoordinationStoreEngine LEGACY_WORK_CLAIMS_PATH) survives, referenced by work-claim.mjs:27 + stop_on_open_claim.mjs:12. Original grep used wrong path scope (mcp-server/data/state only). R12 false-precision caught by gate.",
+      "fix": "Spec §1/§2/§4/§5 rewritten: 3 coordination stores documented (1 H8-migrated absent, 2 live), swap scope corrected to 2 live stores / 7 hooks (5 file-ownership + 2 work-unit), §2b sequenced first (migrateFromJson handles its shape). Net: more accurate + broader scope than draft.",
+      "arms": "A=FAIL→fixed, B=PASS, C=PASS (pre-fix); re-running 3-of-3 on corrected commit",
+      "lesson": "A blanket negative existence claim (\"zero references anywhere\") in an R12-graded doc must be scoped to the exact path swept, or it is false-precision. Verify with the same path scope you assert."
     }
   ]
 }
