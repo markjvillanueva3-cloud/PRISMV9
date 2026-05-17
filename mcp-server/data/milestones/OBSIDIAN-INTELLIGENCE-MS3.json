@@ -1196,7 +1196,25 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "Switch dispatcher back to ObsidianMemoryRagEngine via singleton swap"
+          "rollback": "Switch dispatcher back to ObsidianMemoryRagEngine via singleton swap",
+          "status": "completed",
+          "ship_record": {
+            "shipped_at": "2026-05-17T19:46:29.236Z",
+            "shipped_by": "claude-c0f06dee-charlie",
+            "commit": "08b4d34818",
+            "deliverables_on_disk": [
+              "mcp-server/src/engines/IdeaBlockRagEngine.ts",
+              "mcp-server/src/__tests__/IdeaBlockRagEngine.test.ts"
+            ],
+            "per_file_scrutiny": "2-arm split (Arm A PASS / Arm B FAIL 1 P0: rigged single-window-size A/B measurement) adjudicated per strict-consensus -> A/B test redesigned (long docs + window-size sweep) NOT deferred -> re-dispatched 2-arm: both PASS (Arm B re-swept windowLines 2..32, verified lift ~10x robust at all realistic sizes + gap-value-independent). 23/23 vitest, tsc clean.",
+            "spec_deviations": [
+              "drop-in for ObsidianMemoryRagEngine: that engine does NOT exist anywhere in the tree (verified) — baseline was never built. E3 ships standalone with a clean public API + chunkWindowBaseline() as the A/B comparator (self-contained). The drop-in exit condition is unsatisfiable; surfaced per R7, not silently faked.",
+              "test file IdeaBlockRagEngine.test.ts (NOT IdeaBlockRag.test.ts): B1 filename-matches-engine rule.",
+              "spec Expected >=2x relevance: treated as an estimate. The A/B test asserts a measured >=1.5x lift floor across windowLines {4,8,16} (sweep, not a cherry-picked size); the actual measured lift is ~10x at realistic window sizes — exceeds the spec estimate, but the asserted floor stays conservative.",
+              "fallbackEmbed is FNV bag-of-words (not char-bigram like E2): retrieval must separate distinct topic vocabularies, which char-bigrams smear."
+            ],
+            "notes": "Two-phase: pure rankVectors core + public retrieve (schema-validate + embed via injected embedder DI / deterministic fallback). chunkWindowBaseline exported as a first-class A/B comparator. Wired prism_memory:ideablock_rag_retrieve. Not a duplicate of TribalRAGEngine/WikiRAGFeatureEngine/JMDieProgramRAGEngine (those are domain-specific; this operates on IdeaBlock units — R8 verified)."
+          }
         },
         {
           "id": "E4",
