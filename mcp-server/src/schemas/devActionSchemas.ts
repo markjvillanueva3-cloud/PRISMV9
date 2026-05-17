@@ -1254,6 +1254,27 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   mit_courses_harvest: z.object({}).passthrough()
     .describe("Full scan of all 6 zones — returns every course with metadata + aggregation maps. Read-only."),
 
+  // ── WIRE-UNWIRED-MS0/U-WIRE-ISA: InverseStackupAllocatorEngine ────────────
+  // (both methods pure functions — no state mutation, no defer needed)
+  isa_allocate: z.object({
+    assembly_tolerance_mm: z.number().positive().describe("Functional/assembly tolerance budget (mm)."),
+    method: z.enum(["equal", "cost_weighted", "capability_weighted", "worst_case", "rss"])
+      .describe("Allocation method."),
+    components: z.array(z.object({
+      id: z.string().min(1),
+      nominal_mm: z.number().optional(),
+      min_tolerance_mm: z.number().nonnegative().optional(),
+      cost_exponent: z.number().positive().optional(),
+      cpk: z.number().positive().optional(),
+      fixed_tolerance_mm: z.number().nonnegative().optional(),
+      sign: z.union([z.literal(1), z.literal(-1)]).optional(),
+    })).min(1).max(100).describe("Component specs (1..100; DoS guard)."),
+  }).passthrough()
+    .describe("Allocate assembly tolerance across components by one of 5 methods. Pure function."),
+
+  isa_stats: z.object({}).passthrough()
+    .describe("Available allocation methods + cost models. Read-only."),
+
   // ── WIRE-UNWIRED-MS0/U-WIRE-CEX: CatalogExtractionEngine ──────────────────
   // (read-only query surface; extractFromPDF/mergeWithExisting/init DEFERRED
   //  — extractFromPDF reads PDFs from arbitrary user-supplied paths AND

@@ -301,7 +301,10 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // WIRE-UNWIRED-MS0/U-WIRE-CEX: CatalogExtractionEngine read-only;
 // extractFromPDF/mergeWithExisting/init DEFERRED (mutate engine state +
 // arbitrary file paths)
-"cex_stats", "cex_export_typescript"] as const;
+"cex_stats", "cex_export_typescript",
+// WIRE-UNWIRED-MS0/U-WIRE-ISA: InverseStackupAllocatorEngine (both
+// methods pure — no defers)
+"isa_allocate", "isa_stats"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -1688,6 +1691,18 @@ export function registerDevDispatcher(server: any): void {
           case "mit_courses_harvest": {
             const { MitCourseIndexEngine } = await import("../../engines/MitCourseIndexEngine.js");
             result = { harvest: await MitCourseIndexEngine.harvest() };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-ISA: InverseStackupAllocatorEngine ────
+          case "isa_allocate": {
+            const { inverseStackupAllocatorEngine } = await import("../../engines/InverseStackupAllocatorEngine.js");
+            const p = params as { assembly_tolerance_mm: number; method: "equal" | "cost_weighted" | "capability_weighted" | "worst_case" | "rss"; components: Array<{ id: string; nominal_mm?: number; min_tolerance_mm?: number; cost_exponent?: number; cpk?: number; fixed_tolerance_mm?: number; sign?: 1 | -1 }> };
+            result = { allocation: inverseStackupAllocatorEngine.allocate(p) };
+            break;
+          }
+          case "isa_stats": {
+            const { inverseStackupAllocatorEngine } = await import("../../engines/InverseStackupAllocatorEngine.js");
+            result = { stats: inverseStackupAllocatorEngine.getStats() };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-CEX: CatalogExtractionEngine ─────────
