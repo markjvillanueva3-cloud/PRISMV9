@@ -402,8 +402,11 @@ describe("MultiAxisPrintToProgramEngine — U-ARCH3 material resolution", () => 
 // ============================================================================
 
 describe("CANONICAL_MATERIAL_DB — integrity checks", () => {
-  it("has 13 material entries", () => {
-    expect(Object.keys(CANONICAL_MATERIAL_DB).length).toBe(13);
+  it("has 15 material entries", () => {
+    // 13 base + C11000 ETP Copper + C26000 Cartridge Brass (added 2026-05-17,
+    // TSC-FIX/U-TSC-WIRE-EDM-COPPER — replaced a ~3x Al6061 thermal proxy for
+    // copper/brass WEDM workpieces with real ASM/Touloukian values).
+    expect(Object.keys(CANONICAL_MATERIAL_DB).length).toBe(15);
   });
 
   it("all ISO groups are represented", () => {
