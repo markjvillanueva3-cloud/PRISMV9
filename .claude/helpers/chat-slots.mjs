@@ -45,7 +45,7 @@
  * @module chat-slots
  */
 
-import { promises as fs, existsSync, mkdirSync, readFileSync, writeFileSync, renameSync, statSync } from "node:fs";
+import { promises as fs, existsSync, mkdirSync, readFileSync, writeFileSync, renameSync, statSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { hostname } from "node:os";
 import { resolveTerminalWindowId } from "./terminal-window-id.mjs";
@@ -373,6 +373,143 @@ function isPidAlive(pid) {
   }
 }
 
+// ─── SLOT-DRIFT-FIX-MS0/U-SDF03 — transcript-mtime liveness signal ──────────
+//
+// Why this exists (production observation 2026-05-17 by slot bravo claude-339c8ff7):
+//   U-SDF02 (the twid-PID liveness gate) only protects slots whose
+//   terminalWindowId is tier-2 (`tw-pa-*`) or tier-3 (`tw-ps-*`). The
+//   `terminal-window-id.mjs` resolver SHOULD reach those tiers via a
+//   PowerShell ancestry walk, but live audit found **every single cached
+//   chat in the production fleet stuck at tier-1** (`tw-pp-*` — bare parent
+//   PID). The PowerShell walk silently fails inside Claude's Bash-tool
+//   subprocess context: the chain `node-helper → bash → bash → bash → ???`
+//   hits a process whose ParentProcessId is already dead (Cygwin bash
+//   subprocesses are transient — Get-CimInstance returns nothing for the
+//   PID that was the parent when the bash was spawned). Walking the
+//   process tree from inside a Claude Bash subprocess CANNOT reach the
+//   stable claude.exe harness — verified via atomic-snapshot PowerShell
+//   query (single Get-CimInstance for all processes) AND sequential walks.
+//
+// The fix: PROCESS-TREE-INDEPENDENT liveness signal — Claude's own
+// transcript file. claude.exe writes `<session-id>.jsonl` in the projects
+// directory on every message, every tool call, every compaction step.
+// Its mtime is updated by claude.exe itself (NOT by hooks or helpers) so
+// it's a true signal of "the chat process is still actively running".
+//
+// Path: `<homedir>/.claude/projects/H--<project-slug>/<session-id-full-uuid>.jsonl`
+//   - `<homedir>` resolved via `os.homedir()` (portable across users)
+//   - `<project-slug>` derived from cwd, e.g. `H--prism` for `H:\prism`
+//   - `<session-id-full-uuid>` matched by 8-char prefix from `slot.chatId`
+//     (chatId format is `claude-<8hex>`; transcript filename starts with the
+//     same 8 hex chars followed by `-`)
+//
+// Freshness threshold: 5 minutes default (PRISM_SLOT_TRANSCRIPT_FRESH_MS).
+// Tuned for /compact behavior — Claude continues writing to the transcript
+// during compaction (compact summary itself is appended), so a chat
+// mid-compact has mtime age of seconds, not minutes. A 5-min threshold
+// covers worst-case /compact latency + brief user think-time + small
+// network blips, but tightens release on genuinely dead chats.
+//
+// Why not BOTH transcript-mtime AND a process-tree walk? Tried it — the
+// PowerShell walk is dead code in production (cannot reach claude.exe).
+// Per Karpathy R4 (surgical), removed the scaffolding rather than carry
+// always-null code paths. If a future Claude version exposes a reliable
+// harness-PID env var, U-SDF04 can layer it on top of this signal.
+//
+// Knobs:
+//   PRISM_SLOT_TRANSCRIPT_LIVENESS_DISABLE=1 → skip the check (fall back
+//                                              to U-SDF02 twid logic).
+//   PRISM_SLOT_TRANSCRIPT_FRESH_MS=N         → override 5-min default.
+//   PRISM_SLOT_TRANSCRIPT_BASE=/path         → override projects dir
+//                                              (tests + non-Windows hosts).
+
+const CLAUDE_PROJECT_PREFIX = "H--prism";
+const DEFAULT_TRANSCRIPT_FRESH_MS = 5 * 60 * 1000;
+const CHAT_ID_PREFIX_RE = /^claude-([0-9a-f]{8})$/i;
+
+/**
+ * Resolve the Claude projects directory for THIS host. Honors
+ * PRISM_SLOT_TRANSCRIPT_BASE for tests. Defaults to
+ * `<homedir>/.claude/projects/<CLAUDE_PROJECT_PREFIX>`.
+ *
+ * @returns {string}
+ */
+export function claudeProjectsDir() {
+  const override = process.env.PRISM_SLOT_TRANSCRIPT_BASE;
+  if (typeof override === "string" && override.length > 0) return override;
+  const home = (() => {
+    try { return process.env.USERPROFILE || process.env.HOME || ""; } catch { return ""; }
+  })();
+  if (!home) return "";
+  return join(home, ".claude", "projects", CLAUDE_PROJECT_PREFIX).replace(/\\/g, "/");
+}
+
+/**
+ * Find the transcript file path for a chatId. chatId format is
+ * `claude-<8hex>`; transcript filename is `<full-uuid>.jsonl` whose
+ * first 8 hex chars match the chatId prefix.
+ *
+ * Returns null when: chatId is malformed, projects dir doesn't exist,
+ * or no matching transcript exists.
+ *
+ * @param {string} chatId
+ * @returns {string|null}
+ */
+export function findTranscriptFile(chatId) {
+  if (typeof chatId !== "string") return null;
+  const m = chatId.match(CHAT_ID_PREFIX_RE);
+  if (!m) return null;
+  const prefix = m[1].toLowerCase();
+  const dir = claudeProjectsDir();
+  if (!dir || !existsSync(dir)) return null;
+  try {
+    const files = readdirSyncSafe(dir);
+    const hit = files.find((f) => f.toLowerCase().startsWith(prefix + "-") && f.toLowerCase().endsWith(".jsonl"));
+    return hit ? join(dir, hit).replace(/\\/g, "/") : null;
+  } catch { return null; }
+}
+
+/**
+ * Get the mtime-age (ms) of the chat's transcript file, or null when the
+ * file doesn't exist / can't be read. Lower = more recent activity.
+ *
+ * @param {string} chatId
+ * @returns {number|null}
+ */
+export function transcriptAgeMs(chatId) {
+  const file = findTranscriptFile(chatId);
+  if (!file) return null;
+  try {
+    const s = statSync(file);
+    return Date.now() - s.mtime.getTime();
+  } catch { return null; }
+}
+
+/**
+ * Is the chat's transcript fresh? True when mtime age < threshold (default
+ * 5 min, knob `PRISM_SLOT_TRANSCRIPT_FRESH_MS`). False when no transcript,
+ * stat fails, or age exceeds threshold. Never throws.
+ *
+ * @param {string} chatId
+ * @returns {boolean}
+ */
+export function isTranscriptFresh(chatId) {
+  if (String(process.env.PRISM_SLOT_TRANSCRIPT_LIVENESS_DISABLE ?? "") === "1") return false;
+  const ageMs = transcriptAgeMs(chatId);
+  if (ageMs === null) return false;
+  const threshold = (() => {
+    const n = Number(process.env.PRISM_SLOT_TRANSCRIPT_FRESH_MS);
+    return Number.isFinite(n) && n > 0 ? n : DEFAULT_TRANSCRIPT_FRESH_MS;
+  })();
+  return ageMs < threshold;
+}
+
+// Wrap readdirSync to swallow ENOENT / EACCES — same fail-closed semantics
+// as the rest of this module (return empty list, never throw).
+function readdirSyncSafe(dir) {
+  try { return readdirSync(dir); } catch { return []; }
+}
+
 /**
  * Is the OWNING terminal window still alive for this slot? Returns true only
  * when ALL of: (a) we can extract a PID from twid, (b) the slot is on the
@@ -387,8 +524,23 @@ function isPidAlive(pid) {
  */
 export function isWindowAlive(slot) {
   if (!slot) return false;
-  // Same-host only — we can't probe a peer host's PID space.
+  // Same-host only — we can't probe a peer host's PID space, NOR can we
+  // stat a transcript file on a peer host's filesystem.
   if (slot.host && slot.host !== hostname()) return false;
+
+  // U-SDF03 (2026-05-17): transcript-mtime is the PRIMARY liveness signal.
+  // claude.exe writes <session-id>.jsonl on every message + every tool call
+  // + during /compact. A fresh mtime proves the harness process is alive
+  // INDEPENDENTLY of the broken Bash-subprocess process tree. This closes
+  // the user-reported "chats randomly exit out of their slot" bug — the
+  // tier-1 twid trap that U-SDF02 left open for production chats.
+  if (slot.chatId && isTranscriptFresh(slot.chatId)) return true;
+
+  // U-SDF02 fallback: extract PID from twid (tier-2/3 only — tier-1 is
+  // refused by extractWindowPid because the bare ppid dies in seconds on
+  // Claude's Bash subprocesses). Kept as a layered defense for slots
+  // whose transcript isn't reachable (e.g. a Codex chat on a different
+  // host, a non-Claude harness, or a misconfigured projects dir).
   const pid = extractWindowPid(slot.terminalWindowId);
   if (pid === null) return false;
   return isPidAlive(pid);
