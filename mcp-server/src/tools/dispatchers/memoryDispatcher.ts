@@ -278,7 +278,7 @@ export function registerMemoryDispatcher(server: McpServer): void {
             const filter = (params.filter && typeof params.filter === "object") ? params.filter : undefined;
             const engine = QdrantMemoryEngineSingleton.getInstance();
             const recalled = await engine.recall({ kind, query, limit, filter });
-            if (!recalled.ok) {
+            if (recalled.ok === false) {
               result = { ok: false, error: recalled.error, query, kind, limit };
               break;
             }
@@ -313,7 +313,11 @@ export function registerMemoryDispatcher(server: McpServer): void {
             const metadata = (params.metadata && typeof params.metadata === "object") ? params.metadata : undefined;
             const engine = QdrantMemoryEngineSingleton.getInstance();
             const r = await engine.remember({ kind, id, text, metadata });
-            result = r.ok ? { ok: true, kind, id } : { ok: false, error: r.error, kind, id };
+            if (r.ok === true) {
+              result = { ok: true, kind, id };
+            } else {
+              result = { ok: false, error: r.error, kind, id };
+            }
             break;
           }
 
@@ -336,15 +340,17 @@ export function registerMemoryDispatcher(server: McpServer): void {
                   ? (params.filter as Record<string, unknown>)
                   : undefined,
             });
-            result = sr.ok
-              ? { ok: true, ...sr.value }
-              : {
-                  ok: false,
-                  code: sr.code,
-                  httpCode: QdrantSurfaceEngine.httpCodeFor(sr.code),
-                  error: sr.error,
-                  field: sr.field,
-                };
+            if (sr.ok === true) {
+              result = { ok: true, ...sr.value };
+            } else {
+              result = {
+                ok: false,
+                code: sr.code,
+                httpCode: QdrantSurfaceEngine.httpCodeFor(sr.code),
+                error: sr.error,
+                field: sr.field,
+              };
+            }
             break;
           }
           case "qdrant_vector_upsert": {
@@ -364,15 +370,17 @@ export function registerMemoryDispatcher(server: McpServer): void {
                   ? (params.metadata as Record<string, unknown>)
                   : undefined,
             });
-            result = sr.ok
-              ? { ok: true, ...sr.value }
-              : {
-                  ok: false,
-                  code: sr.code,
-                  httpCode: QdrantSurfaceEngine.httpCodeFor(sr.code),
-                  error: sr.error,
-                  field: sr.field,
-                };
+            if (sr.ok === true) {
+              result = { ok: true, ...sr.value };
+            } else {
+              result = {
+                ok: false,
+                code: sr.code,
+                httpCode: QdrantSurfaceEngine.httpCodeFor(sr.code),
+                error: sr.error,
+                field: sr.field,
+              };
+            }
             break;
           }
 
@@ -661,9 +669,11 @@ export function registerMemoryDispatcher(server: McpServer): void {
               break;
             }
             const r = await ollamaEmbedderEngine.embed(text);
-            result = r.ok
-              ? { ok: true, dims: r.vector.length, vector: r.vector }
-              : { ok: false, error: r.error };
+            if (r.ok === true) {
+              result = { ok: true, dims: r.vector.length, vector: r.vector };
+            } else {
+              result = { ok: false, error: r.error };
+            }
             break;
           }
 
