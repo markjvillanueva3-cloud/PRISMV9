@@ -223,8 +223,15 @@ function main() {
   // Source detection — Claude Code passes `source` in SessionStart stdin
   // (startup | resume | compact | clear). Self-gate so the hook is harmless
   // if wired under an empty matcher.
+  // SLOT-DRIFT-FIX-MS0/U-SDF07 (2026-05-17): extended to `clear` per user
+  // directive "fix /clear to continue like /compact does". The handoff used
+  // on the clear path is written by stop-force-handoff.mjs (Stop hook, T2)
+  // on every turn-end — so a fresh handoff is always available when the
+  // operator /clear's. /compact uses precompact-handoff.mjs (PreCompact
+  // hook); /clear has no PreClear event so the Stop-hook write is the
+  // mirror-image fix. Same RESUME extraction, same auto-fire of /checkin.
   const source = stdin.source || stdin.trigger || "";
-  if (source !== "compact") { emit(SILENCE); return; }
+  if (source !== "compact" && source !== "clear") { emit(SILENCE); return; }
 
   const stable = stableIdFromSession(stdin.session_id);
   if (!stable) { emit(SILENCE); return; }
@@ -232,6 +239,8 @@ function main() {
   const handoff = getHandoff(stable);
   if (!handoff?.ok || !handoff?.content) { emit(SILENCE); return; }
 
+  // U-SDF07: source-aware messaging — say "post-clear" on /clear, not "post-compact".
+  const sourceLabel = source === "clear" ? "post-clear" : "post-compact";
   const age = ageMinutesFromFrontmatter(handoff.content);
   if (age != null && age > MAX_AGE_MIN) {
     // Handoff exists but is stale — surface a soft hint, don't auto-resume
@@ -239,7 +248,7 @@ function main() {
       continue: true,
       hookSpecificOutput: {
         hookEventName: "SessionStart",
-        additionalContext: `## 🔁 Post-compact handoff is STALE (${Math.round(age)}m old, threshold ${MAX_AGE_MIN}m)\n\nThe per-chat handoff file (${handoff.file || "?"}) is older than the auto-resume threshold. Treat this as a fresh session — re-read CLAUDE.md context, run /checkin, then decide next action.`,
+        additionalContext: `## 🔁 ${sourceLabel === "post-clear" ? "Post-clear" : "Post-compact"} handoff is STALE (${Math.round(age)}m old, threshold ${MAX_AGE_MIN}m)\n\nThe per-chat handoff file (${handoff.file || "?"}) is older than the auto-resume threshold. Treat this as a fresh session — re-read CLAUDE.md context, run /checkin, then decide next action.`,
       },
     });
     return;
@@ -258,7 +267,7 @@ function main() {
     : buildCheckinDirective(parseSlotAndTopic(handoff.content));
 
   const lines = [
-    `## 🔁 AUTO-RESUME after /compact (per-chat handoff)`,
+    `## 🔁 AUTO-RESUME after /${source} (per-chat handoff)`,
     ``,
     `Handoff file: ${handoff.file || "?"}`,
     `Age: ${age != null ? Math.round(age) + "m" : "unknown"}`,
