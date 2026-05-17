@@ -181,6 +181,9 @@ Every build/create/investigate request auto-fires these gates before your first 
 - `ai-feature-recommend.mjs` → recommends relevant engines
 - `build-create-detector.mjs` → detects create intent
 
+**Bug-finding → wiki gate (2026-05-17, lima 77971357 — commit `bb198d9285`):** `.claude/hooks/stop-bug-finding-wiki-gate.mjs` (T3 Stop advisory, wired Stop[0].hooks[19] in both `C:\Users\<u>\.claude\settings.json` + auto-mirrored to H:). Detects bug findings shipped this session via three signals — CLAUDE.md `## Recent regressions` delta, new `feedback_*.md`/`reference_*_(bug|regression|fix)_*.md` memory files, and commit-subject keywords (`[fix]`, `regression`, `silent`, `corruption`, `R12`, `BLOCK`, `FAILLOUD`, `fail-loud`, `rot`) — then verifies a companion wiki entry exists under `knowledge/wiki/{lessons,code-tribal,architecture}/`. Missing → advisory `systemMessage` reminder pointing at [[feedback_always_update_wiki_on_bug_finding]] doctrine. NOT a block (per-file scrutiny + 3-of-3 stay in front). Knobs: `PRISM_BUG_FINDING_WIKI_GATE_{DISABLE,HORIZON,MAX_LIST}`. Wiki: [`knowledge/wiki/lessons/bug-findings-wiki-gate.md`]. Memory: [[feedback_always_update_wiki_on_bug_finding]].
+
+- 2026-05-17 | **align mlDispatcher with engine input schemas (-7 errors)** | observed-in: 944aa77a3 | fix: see commit | verify: `git -C H:/prism show 944aa77a3`
 **Before creating ANY engine/algorithm/formula/hook/action:**
 ```typescript
 import { duplicationGuardEngine } from "mcp-server/src/engines/DuplicationGuardEngine.js";
@@ -215,6 +218,9 @@ Canonical test shop for ALL PRISM development. Full profile + API moved to [`kno
 ## KNOWLEDGE VAULT — 5-namespace schema (U-VAULT01, 2026-05-15)
 PRISM's knowledge lives in 5 namespaces — `memory` (cross-session feedback/reference) + `wiki` (project-lifetime architecture) + `commands` (skills) + `handoffs` (inter-session) + `specs` (audits/plans). CLAUDE.md is the **doctrine pointer index**, NOT a 6th namespace — ≤200 lines of dense pointers, drill into wiki for detail. Promotion path: fleeting → memory → wiki → CLAUDE.md pointer. Back-flow path: regression → `## Recent regressions` (auto by U-VAULT03 hook — pending). Command frontmatter validated by `.claude/schemas/command-frontmatter.schema.json` (U-CK06; baseline today 33/167 valid). Full schema doc: [`knowledge/wiki/architecture/knowledge-vault-schema.md`](knowledge/wiki/architecture/knowledge-vault-schema.md).
 
+- 2026-05-17 | **rate-limit doctrine reminder (~50 fires/session -> 1)** | observed-in: 6409714df | fix: see commit | verify: `git -C H:/prism show 6409714df`
+- 2026-05-17 | **strip comments+strings+dates before magic-number scan** | observed-in: 5d02ecb50 | fix: see commit | verify: `git -C H:/prism show 5d02ecb50`
+- 2026-05-17 | **lower inject threshold + rate-limit** | observed-in: b459870a2 | fix: see commit | verify: `git -C H:/prism show b459870a2`
 - 2026-05-16 | **handoff-driven slot pinning (closes bravo->delta drift)** | observed-in: d7631452b | fix: see commit | verify: `git -C H:/prism show d7631452b`
 - 2026-05-16 | **prototype-form ReturnType + generateProgram rename (-6)** | observed-in: 623022ca5 | fix: see commit | verify: `git -C H:/prism show 623022ca5`
 - 2026-05-16 | **z.input<> for generate+predictCount param types (-8)** | observed-in: 97edb4179 | fix: see commit | verify: `git -C H:/prism show 97edb4179`
@@ -489,6 +495,10 @@ Sections:
 - **Advisory** — actionable warnings (zero offloads, zero events, etc).
 
 A healthy installation should show `offload rate ≥ 30%` after a session of mixed work. `offloaded=0, keptOnClaude>0` means the offloader is classifying tasks but Ollama is unreachable or rate-limited — check `http://127.0.0.1:11434/api/tags` and the rate-limit file at `.claude/cache/ollama-rate-limit.json`.
+
+## KNOWLEDGE-CONVERSION-MS0 (2026-05-17, 7 units shipped — 4 phases) — MIT-OCW + monolith → PRISM 6-node-type routing
+
+Closes the extracted-but-not-consumed gap for MIT-OCW courseware (65 candidates / 126 assets) + v8.89 monolith extraction (12 formulas + 52 algorithms + 948 modules). Three-lane model: **Lane A** (direct-wire — `scripts/course-to-tribal-tips.mjs` + `monolith-to-tribal-tips.mjs` auto-emit `KnowledgeTip[]` into `cad-engine/knowledge_store/`, engine auto-loads; 259 tips shipped); **Lane B** (port-verify — `state/shared/specs/U-KC-C1-FORMULA-PORT-VERIFICATION.md` + `U-KC-C2-ALGORITHM-VERIFICATION.md` confirmed 0 ports needed across 12 formulas + 52 algorithms, 1 forge-candidate routed); **Lane C** (forge-queue — `scripts/lib/course-data-router-lib.mjs` pure-core router + 30 tests routes per-asset to one of 6 PRISM node-types: knowledge / algorithm / formula / engine / skill / pipeline). Live first-run: 31 TRIBAL-SHIPPED · 69 FORGE-QUEUE · 10 DUPLICATE · 16 DISCARD. Reusable for `/pdf-learn` + `/video-learn` + `/shop-knowledge` outputs — drop into `course-content-candidates.jsonl` shape, rerun `node scripts/course-data-router.mjs`. Doctrine pins: formula path ALWAYS Lane C with physics-reviewer (NEVER inline constants); engine threshold > algorithm threshold; advisoryOnly + mustHumanVerify on every ledger. Wiki: [[knowledge-conversion-ms0]]. Memory: [[reference_knowledge_conversion_ms0_2026_05_17]].
 
 ## RGS-TOOL-AUTOINVOKE-MS0 (2026-05-16, 12 units) — per-roadmap-unit toolchain enrichment
 
