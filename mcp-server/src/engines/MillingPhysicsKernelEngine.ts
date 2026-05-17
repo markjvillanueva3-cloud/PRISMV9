@@ -713,7 +713,26 @@ class MillingPhysicsKernelEngine {
     rake_angle_deg?: number;
     flank_wear_mm?: number;
   }) {
-    return kienzleForceModelEngine.calculateMillingForces(input);
+    // Translate the MPK abbreviated keys into the canonical
+    // MillingForceInput interface that KienzleForceModelEngine expects.
+    // The abbreviations (fz, ap, ae, d, z) come from the ISO 3002 / DIN 6580
+    // milling-force literature; the engine's named form is more verbose
+    // for API clarity. `cutting_speed_mpm` is dropped at this boundary —
+    // Kienzle force does not depend on Vc (Vc only enters power).
+    void input.cutting_speed_mpm;
+    void input.helix_angle_deg;
+    void input.rake_angle_deg;
+    void input.flank_wear_mm;
+    return kienzleForceModelEngine.calculateMillingForces({
+      kc1_1: input.kc1_1,
+      mc: input.mc,
+      feed_per_tooth_mm: input.fz,
+      axial_depth_mm: input.ap,
+      radial_depth_mm: input.ae,
+      tool_diameter_mm: input.d,
+      flutes: input.z,
+      milling_type: input.down_milling === false ? "up" : "down",
+    });
   }
 
   /**
