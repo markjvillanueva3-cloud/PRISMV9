@@ -58,6 +58,8 @@
  *   PRISM_FLEET_REAPER_MEM_PRESSURE_PCT=N default 90
  *   PRISM_FLEET_REAPER_MEM_CRITICAL_PCT=N default 95
  *   PRISM_FLEET_REAPER_BALLAST_MB=N default 256 (0 disables the cushion)
+ *   PRISM_FLEET_REAPER_SERVICE_RESTART=1 auto-restart wedged Qdrant/Postgres/
+ *     Prometheus containers under critical pressure (default: advise-only)
  *
  * Exit codes: 0 ok · 1 sweep completed but reported a problem · 2 misuse.
  */
@@ -907,19 +909,31 @@ export function readDockerHealth({ runHealthProbe = defaultRunDockerHealth } = {
   } catch {
     return { available: false, services: {}, reason: "docker-health returned non-JSON" };
   }
-  // `parsed.services` is `{ollama, docker, postgres, qdrant, prometheus}` with
-  // each entry shaped `{up: boolean, detail?: string, error?: string}`. We
-  // mirror only the up-flags here to keep the sweep result compact; details
-  // are one --json invocation away if an operator wants them.
+  // PRODUCER SHAPE (ollama-docker-health.mjs): `ollama` and `docker` are
+  // TOP-LEVEL keys; only `{qdrant, postgres, prometheus}` live under
+  // `parsed.services`. The prior code mirrored ONLY `parsed.services`, so
+  // `services.docker` was never populated and `available` was permanently
+  // false for every real payload — a latent bug surfaced by the Tier-2
+  // service-restart consumer (its daemon-down safety guard reads
+  // `services.docker`). Normalize the daemon + ollama up-flags INTO `services`
+  // so the documented `{ollama, docker, postgres, qdrant, prometheus}` contract
+  // is actually true and the consumer's safety invariant holds in production.
   const services = {};
-  if (parsed && parsed.services && typeof parsed.services === "object") {
-    for (const [name, svc] of Object.entries(parsed.services)) {
+  const foldEntry = (name, svc) => {
+    if (svc && typeof svc === "object") {
       services[name] = {
-        up: !!(svc && svc.up),
-        detail: svc && typeof svc.detail === "string" ? svc.detail : null,
+        up: !!svc.up,
+        detail: typeof svc.detail === "string" ? svc.detail : null,
       };
     }
+  };
+  if (parsed && parsed.services && typeof parsed.services === "object") {
+    for (const [name, svc] of Object.entries(parsed.services)) foldEntry(name, svc);
   }
+  // Top-level daemon + ollama (the real probe's shape). An explicit
+  // `parsed.services.docker` (test/legacy shape) is NOT overwritten.
+  if (parsed && !services.docker) foldEntry("docker", parsed.docker);
+  if (parsed && !services.ollama) foldEntry("ollama", parsed.ollama);
   return {
     available: !!(services.docker && services.docker.up),
     services,
@@ -1289,6 +1303,7 @@ export function runSweep(opts = {}) {
     thresholdDelta: 0, prewarmFired: false, hintWritten: false,
     reason: "coordinator skipped (--no-coord)", skipped: "--no-coord", error: null,
   };
+  let serviceRestart = { state: "noop", reason: "coordinator skipped (--no-coord)", attempted: [], succeeded: [], failed: [], advise: [] };
   if (!noCoord) {
     try {
       gpu = (opts.readGpu || readGpuState)({ runNvidiaSmi: opts.runNvidiaSmi });
@@ -1308,6 +1323,26 @@ export function runSweep(opts = {}) {
         caveats.push("docker down but ollama reachable — host-installed daemon, not the container");
       } else if (dockerHealth.available && !ollama.reachable) {
         caveats.push("docker up but ollama unreachable — ollama container exited or wrong network");
+      }
+
+      // FLEET-REAPER-MS1 Tier 2: under critical pressure, a wedged supporting
+      // service (Qdrant/Postgres/Prometheus) is the highest-leverage relief.
+      // Advisory by default; acts only with PRISM_FLEET_REAPER_SERVICE_RESTART=1.
+      // The actual `docker restart` is gated on actionsAllowed (no status/dry-run).
+      serviceRestart = restartWedgedServices(dockerHealth, pressureTier, {
+        actionsAllowed,
+        runDockerRestart: opts.runDockerRestart,
+      });
+      if (serviceRestart.state === "advised") {
+        const t = serviceRestart.advise.join(", ");
+        caveats.push(`service relief ADVISED (critical): ${t} — ${serviceRestart.reason}`);
+      } else if (serviceRestart.state.startsWith("restart")) {
+        if (serviceRestart.succeeded.length) {
+          caveats.push(`service auto-restarted (critical): ${serviceRestart.succeeded.join(", ")}`);
+        }
+        for (const f of serviceRestart.failed) {
+          caveats.push(`service restart FAILED: ${f.name} — ${f.error}`);
+        }
       }
 
       // 8. Layer 3 — coordinator decision (pure) + actions.
@@ -1426,6 +1461,7 @@ export function runSweep(opts = {}) {
     ollama,
     dockerHealth,
     coordinator,
+    serviceRestart,
     ledgerPath,
   };
 }
@@ -1546,6 +1582,129 @@ export function __resetBallastForTest() {
   _ballastBytes = 0;
 }
 
+// ── FLEET-REAPER-MS1 Tier 2: critical-pressure service auto-restart ──
+// The documented compounding failure mode: a wedged Docker daemon takes
+// Qdrant/Postgres/Prometheus down with it, which silently degrades
+// master-index to BM25-only fleet-wide. When a sweep is already in the
+// critical band, a down supporting service is the highest-leverage relief
+// available — but restarting infrastructure is a high-blast-radius action, so
+// this layer is ADVISORY BY DEFAULT (emits the exact restart command + reason)
+// and only acts when the operator opts in with PRISM_FLEET_REAPER_SERVICE_RESTART=1.
+// The Docker daemon itself is NEVER auto-restarted (killing every container is
+// far worse than the wedge) — daemon-down is always advise-only. One-shot
+// latched so a flapping service is not restart-looped every sweep.
+const RESTARTABLE_CONTAINERS = Object.freeze({
+  postgres: "postgres-prism",
+  qdrant: "qdrant",
+  prometheus: "prometheus",
+});
+let _serviceRestartActed = false; // one-shot latch (per process)
+
+/**
+ * Pure service-restart state machine. No I/O, env, or clock.
+ *   not critical                         → noop
+ *   already acted (latched)              → noop
+ *   no usable docker-health              → noop
+ *   docker daemon itself down            → advise (NEVER auto — too destructive)
+ *   restartable container(s) down + docker up:
+ *       restartEnabled → restart(targets) ; else advise(targets)
+ *   nothing down                         → noop
+ * @returns {{action:'noop'|'advise'|'restart', restartTargets:string[],
+ *            adviseTargets:string[], reason:string}}
+ */
+export function serviceRestartAction({ pressureTier, dockerHealth, restartEnabled, acted }) {
+  const none = (reason) => ({ action: "noop", restartTargets: [], adviseTargets: [], reason });
+  if (acted) return none("already-acted-this-process");
+  if (pressureTier !== "critical") return none("not-critical");
+  const svc = dockerHealth && typeof dockerHealth === "object" ? dockerHealth.services : null;
+  if (!svc || typeof svc !== "object" || Object.keys(svc).length === 0) {
+    return none("no-service-health");
+  }
+  const isDown = (name) => svc[name] && svc[name].up === false;
+  // Docker daemon down → every dependent container is unreachable AND
+  // `docker restart` cannot run. Advise only, name the daemon.
+  if (svc.docker && svc.docker.up === false) {
+    const collateral = Object.keys(RESTARTABLE_CONTAINERS).filter(isDown);
+    return {
+      action: "advise",
+      restartTargets: [],
+      adviseTargets: ["docker", ...collateral],
+      reason: "docker-daemon-down (operator-only restart — auto would kill every container)",
+    };
+  }
+  const downContainers = Object.keys(RESTARTABLE_CONTAINERS).filter(isDown);
+  if (downContainers.length === 0) return none("no-restartable-service-down");
+  return restartEnabled
+    ? { action: "restart", restartTargets: downContainers, adviseTargets: [], reason: "critical-pressure + restartable service down" }
+    : { action: "advise", restartTargets: [], adviseTargets: downContainers, reason: "service down (advise-only — set PRISM_FLEET_REAPER_SERVICE_RESTART=1 to auto-restart)" };
+}
+
+function defaultRunDockerRestart(container) {
+  // process.execPath is irrelevant here — `docker` is the target. Bounded +
+  // fail-soft: a restart that hangs or errors must never block the sweep.
+  execFileSync("docker", ["restart", container], {
+    timeout: PROBE_TIMEOUT_MS * 2,
+    encoding: "utf-8", windowsHide: true, maxBuffer: PROBE_MAX_BUFFER,
+  });
+}
+
+/**
+ * Imperative shell. Decides via the pure machine, then (only on "restart" and
+ * only when actions are allowed) attempts `docker restart <name>` per target.
+ * One-shot: latches `_serviceRestartActed` whenever it advises or attempts a
+ * restart, so the next sweep does not restart-loop a flapping service. Never
+ * throws — a failed restart is surfaced, never fatal, never flips result.ok.
+ */
+export function restartWedgedServices(dockerHealth, pressureTier, {
+  restartEnabled = process.env.PRISM_FLEET_REAPER_SERVICE_RESTART === "1",
+  actionsAllowed = true,
+  runDockerRestart = defaultRunDockerRestart,
+} = {}) {
+  const decision = serviceRestartAction({
+    pressureTier, dockerHealth, restartEnabled, acted: _serviceRestartActed,
+  });
+  if (decision.action === "noop") {
+    return { state: "noop", reason: decision.reason, attempted: [], succeeded: [], failed: [], advise: [] };
+  }
+  if (decision.action === "advise" || !actionsAllowed) {
+    _serviceRestartActed = true; // one-shot — don't re-advise every sweep
+    const advise = decision.adviseTargets.length ? decision.adviseTargets : decision.restartTargets;
+    return {
+      state: "advised",
+      reason: !actionsAllowed && decision.action === "restart"
+        ? "restart suppressed (status/dry-run/disabled) — advise only"
+        : decision.reason,
+      attempted: [], succeeded: [], failed: [], advise,
+    };
+  }
+  // action === "restart" && actionsAllowed
+  _serviceRestartActed = true;
+  const succeeded = [];
+  const failed = [];
+  for (const name of decision.restartTargets) {
+    const container = RESTARTABLE_CONTAINERS[name];
+    try {
+      runDockerRestart(container);
+      succeeded.push(name);
+    } catch (err) {
+      failed.push({ name, error: String(err && err.message ? err.message : err) });
+    }
+  }
+  return {
+    state: failed.length === 0 ? "restarted" : succeeded.length ? "restarted-partial" : "restart-failed",
+    reason: decision.reason,
+    attempted: decision.restartTargets,
+    succeeded,
+    failed,
+    advise: [],
+  };
+}
+
+/** Test-only: reset the service-restart one-shot latch between hermetic cases. */
+export function __resetServiceRestartForTest() {
+  _serviceRestartActed = false;
+}
+
 function clampInt(value, fallback, min, max) {
   // `null` and `undefined` must short-circuit to fallback BEFORE Number() —
   // `Number(null) === 0` which is finite, so without this guard a null upstream
@@ -1634,7 +1793,9 @@ function isNoteworthy(result) {
     !!(co && (co.prewarmFired || (co.hintWritten && co.shouldHintOffload) || co.error)) ||
     // FLEET-REAPER-MS1 Tier 1: a one-shot ballast release frees ~256MB — a
     // material memory event the operator must see in the feed + log.
-    !!(result.ballast && result.ballast.state === "released")
+    !!(result.ballast && result.ballast.state === "released") ||
+    // FLEET-REAPER-MS1 Tier 2: a service was advised/restarted — infra event.
+    !!(result.serviceRestart && result.serviceRestart.state !== "noop")
   );
 }
 
@@ -1728,6 +1889,13 @@ export function summarize(result) {
   if (result.ballast && result.ballast.state === "released") {
     lines.push(`  ballast: released ~${result.ballast.freedMb}MB (critical-pressure relief)`);
   }
+  const svcRel = result.serviceRestart;
+  if (svcRel && svcRel.state === "advised") {
+    lines.push(`  service relief ADVISED (critical): ${svcRel.advise.join(", ")} — ${svcRel.reason}`);
+  } else if (svcRel && svcRel.state && svcRel.state.startsWith("restart")) {
+    if (svcRel.succeeded.length) lines.push(`  service auto-restarted: ${svcRel.succeeded.join(", ")}`);
+    for (const f of svcRel.failed) lines.push(`  service restart FAILED: ${f.name} — ${f.error}`);
+  }
   if (result.blockedBy && result.candidates.some((c) => c.willReap)) {
     lines.push(`  (reap suppressed: ${result.blockedBy})`);
   }
@@ -1750,6 +1918,14 @@ function monitorEvent(result) {
   }
   if (result.ballast && result.ballast.state === "released") {
     parts.push(`ballast: released ~${result.ballast.freedMb}MB (critical relief)`);
+  }
+  const svcr = result.serviceRestart;
+  if (svcr && svcr.state === "advised") {
+    parts.push(`service relief ADVISED: ${svcr.advise.join(", ")}`);
+  } else if (svcr && svcr.state && svcr.state.startsWith("restart")) {
+    const s = svcr.succeeded.length ? `restarted ${svcr.succeeded.join(", ")}` : "";
+    const f = svcr.failed.length ? `${svcr.failed.length} FAILED` : "";
+    parts.push(`service auto-restart: ${[s, f].filter(Boolean).join(", ")}`);
   }
   // FLEET-REAPER-MS1: surface soft relief + coordinator activity in the feed.
   const sr = result.softRelief;
@@ -1912,7 +2088,7 @@ function usage() {
     "  --no-coord   skip Layers 2-3 (GPU/Ollama probe + coordinator pre-warm + routing hint)",
     "Env knobs: PRISM_FLEET_REAPER_{DISABLE,DRY_RUN,KILL_AFTER,AGE_FLOOR_SEC,INTERVAL_SEC,",
     "  MEM_PRESSURE_PCT,MEM_CRITICAL_PCT,BALLAST_MB,SOFT_RELIEF_DISABLE,SOFT_RELIEF_AGE_SEC,SOFT_RELIEF_PRESSURE_PCT,",
-    "  OLLAMA_COORD_DISABLE,GPU_DISABLE,GPU_FREE_MIN_MB,HINT_TTL_SEC,HINT_THRESHOLD_DELTA,",
+    "  SERVICE_RESTART,OLLAMA_COORD_DISABLE,GPU_DISABLE,GPU_FREE_MIN_MB,HINT_TTL_SEC,HINT_THRESHOLD_DELTA,",
     "  OLLAMA_PREWARM_MODEL,OLLAMA_KEEP_ALIVE} · OLLAMA_URL",
     "",
     "Exit codes: 0 ok · 1 sweep completed but reported a problem · 2 misuse.",
