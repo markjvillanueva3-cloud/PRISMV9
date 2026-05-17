@@ -1254,6 +1254,18 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   mit_courses_harvest: z.object({}).passthrough()
     .describe("Full scan of all 6 zones — returns every course with metadata + aggregation maps. Read-only."),
 
+  // ── WIRE-UNWIRED-MS0/U-WIRE-VCM: VendorCatalogManifestEngine ──────────────
+  // (read-only filesystem scans; saveManifest DEFERRED — writes a JSON
+  //  manifest to disk that downstream extractors consume)
+  vcm_build: z.object({}).passthrough()
+    .describe("Build full extraction manifest — every visible PDF classified + matched against current index. Read-only."),
+
+  vcm_queue: z.object({}).passthrough()
+    .describe("Get the extraction queue — catalogs that need extraction. Read-only."),
+
+  vcm_summary: z.object({}).passthrough()
+    .describe("Catalog manifest summary (totals, byManufacturer breakdown, gap). Read-only."),
+
   // ── WIRE-UNWIRED-MS0/U-WIRE-MCA: ManufacturerCatalogAIEngine ──────────────
   // (read-only catalog queries; complex-input methods selectToolHolder /
   //  matchWorkholding / findCuttingTool / compareManufacturers /

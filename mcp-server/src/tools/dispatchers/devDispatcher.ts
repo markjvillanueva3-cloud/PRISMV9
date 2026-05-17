@@ -277,7 +277,10 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // catalog queries; complex multi-arg search methods DEFERRED)
 "mca_all_holders", "mca_all_workholding", "mca_all_cutting_tools",
 "mca_bigdaishowa_families", "mca_vendor_trust", "mca_catalog_paths",
-"mca_feature_vector", "mca_search"] as const;
+"mca_feature_vector", "mca_search",
+// WIRE-UNWIRED-MS0/U-WIRE-VCM: VendorCatalogManifestEngine read-only;
+// saveManifest DEFERRED (writes JSON manifest to disk)
+"vcm_build", "vcm_queue", "vcm_summary"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -1664,6 +1667,23 @@ export function registerDevDispatcher(server: any): void {
           case "mit_courses_harvest": {
             const { MitCourseIndexEngine } = await import("../../engines/MitCourseIndexEngine.js");
             result = { harvest: await MitCourseIndexEngine.harvest() };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-VCM: VendorCatalogManifestEngine ─────
+          case "vcm_build": {
+            const { vendorCatalogManifestEngine } = await import("../../engines/VendorCatalogManifestEngine.js");
+            result = { manifest: vendorCatalogManifestEngine.build() };
+            break;
+          }
+          case "vcm_queue": {
+            const { vendorCatalogManifestEngine } = await import("../../engines/VendorCatalogManifestEngine.js");
+            const queue = vendorCatalogManifestEngine.getExtractionQueue();
+            result = { queue, count: queue.length };
+            break;
+          }
+          case "vcm_summary": {
+            const { vendorCatalogManifestEngine } = await import("../../engines/VendorCatalogManifestEngine.js");
+            result = { summary: vendorCatalogManifestEngine.getSummary() };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-MCA: ManufacturerCatalogAIEngine ─────
