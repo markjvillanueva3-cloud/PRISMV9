@@ -1163,4 +1163,42 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
 
   asset_dep_stats: z.object({}).passthrough()
     .describe("Graph-wide stats (nodes, edges, avg deps, max depth, orphans). Read-only."),
+
+  // ── WIRE-UNWIRED-MS0/U-WIRE-ENGACC: EngineAccuracyTrackerEngine ────────────
+  engine_acc_report: z.object({}).passthrough()
+    .describe("Full system-wide accuracy report (all engines + top performers + degrading)."),
+
+  engine_acc_engine: z.object({
+    engine_id: z.string().min(1).optional().describe("Engine id to summarize."),
+    engineId: z.string().min(1).optional().describe("camelCase alias for engine_id."),
+  }).passthrough().refine(
+    (d) => (typeof d.engine_id === "string" && d.engine_id.length > 0) || (typeof d.engineId === "string" && d.engineId.length > 0),
+    { message: "engine_acc_engine requires non-empty 'engine_id' (or 'engineId')" },
+  ).describe("Accuracy summary for a single engine (null if no outcomes recorded)."),
+
+  engine_acc_metric: z.object({
+    engine_id: z.string().min(1).optional().describe("Engine id."),
+    engineId: z.string().min(1).optional().describe("camelCase alias."),
+    metric_name: z.string().min(1).optional().describe("Metric name (e.g., 'cutting_force')."),
+    metricName: z.string().min(1).optional().describe("camelCase alias for metric_name."),
+  }).passthrough().refine(
+    (d) =>
+      ((typeof d.engine_id === "string" && d.engine_id.length > 0) || (typeof d.engineId === "string" && d.engineId.length > 0))
+      && ((typeof d.metric_name === "string" && d.metric_name.length > 0) || (typeof d.metricName === "string" && d.metricName.length > 0)),
+    { message: "engine_acc_metric requires both engine_id (or engineId) AND metric_name (or metricName)" },
+  ).describe("Accuracy stats for a single (engine, metric) pair. Returns null if no data."),
+
+  engine_acc_degrading: z.object({
+    threshold: z.number().min(0).max(1).optional().describe("Accuracy floor (0-1, default 0.8). Engines below this are flagged."),
+  }).passthrough()
+    .describe("List engines/metrics whose recent accuracy fell below threshold."),
+
+  engine_acc_list: z.object({
+    engine_id: z.string().min(1).optional().describe("If set, list metrics for this engine; if absent, list engines."),
+    engineId: z.string().min(1).optional().describe("camelCase alias for engine_id."),
+  }).passthrough()
+    .describe("Without engine_id: list all engine IDs. With engine_id: list metric names for that engine."),
+
+  engine_acc_stats: z.object({}).passthrough()
+    .describe("Top-level engine accuracy ledger stats (outcomes count, engine count, etc.)."),
 };

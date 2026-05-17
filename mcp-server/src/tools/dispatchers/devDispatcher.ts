@@ -223,7 +223,12 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // WIRE-UNWIRED-MS0/U-WIRE-ASSETDEP: AssetDependencyGraphEngine
 // (read-only — reset DEFERRED; initialize is implicit on first read)
 "asset_dep_node", "asset_dep_dependencies", "asset_dep_dependents",
-"asset_dep_impact", "asset_dep_stats"] as const;
+"asset_dep_impact", "asset_dep_stats",
+// WIRE-UNWIRED-MS0/U-WIRE-ENGACC: EngineAccuracyTrackerEngine
+// (read-only — recordOutcome/clear/importOutcomes DEFERRED for safety review;
+//  they mutate the accuracy ledger that drives degradation alerts)
+"engine_acc_report", "engine_acc_engine", "engine_acc_metric",
+"engine_acc_degrading", "engine_acc_list", "engine_acc_stats"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -1464,6 +1469,64 @@ export function registerDevDispatcher(server: any): void {
           case "asset_dep_stats": {
             const { assetDependencyGraphEngine } = await import("../../engines/AssetDependencyGraphEngine.js");
             result = { stats: await assetDependencyGraphEngine.getStats() };
+            break;
+          }
+          // WIRE-UNWIRED-MS0/U-WIRE-ENGACC: EngineAccuracyTrackerEngine
+          case "engine_acc_report": {
+            const { engineAccuracyTrackerEngine } = await import("../../engines/EngineAccuracyTrackerEngine.js");
+            result = { report: engineAccuracyTrackerEngine.getAccuracyReport() };
+            break;
+          }
+          case "engine_acc_engine": {
+            const { engineAccuracyTrackerEngine } = await import("../../engines/EngineAccuracyTrackerEngine.js");
+            const ep = typeof params === "object" && params !== null ? params as Record<string, unknown> : {};
+            const engineId = typeof ep.engine_id === "string" ? ep.engine_id : (typeof ep.engineId === "string" ? ep.engineId : "");
+            if (!engineId) {
+              result = { error: "engine_acc_engine requires 'engine_id' (string)" };
+              break;
+            }
+            const summary = engineAccuracyTrackerEngine.getEngineAccuracy(engineId);
+            // EngineAccuracySummary contains a Map — convert to plain object for JSON serialization
+            result = {
+              summary: summary
+                ? { ...summary, metrics: Object.fromEntries(summary.metrics) }
+                : null,
+            };
+            break;
+          }
+          case "engine_acc_metric": {
+            const { engineAccuracyTrackerEngine } = await import("../../engines/EngineAccuracyTrackerEngine.js");
+            const ep = typeof params === "object" && params !== null ? params as Record<string, unknown> : {};
+            const engineId = typeof ep.engine_id === "string" ? ep.engine_id : (typeof ep.engineId === "string" ? ep.engineId : "");
+            const metricName = typeof ep.metric_name === "string" ? ep.metric_name : (typeof ep.metricName === "string" ? ep.metricName : "");
+            if (!engineId || !metricName) {
+              result = { error: "engine_acc_metric requires 'engine_id' and 'metric_name' (strings)" };
+              break;
+            }
+            result = { metric: engineAccuracyTrackerEngine.getMetricAccuracy(engineId, metricName) };
+            break;
+          }
+          case "engine_acc_degrading": {
+            const { engineAccuracyTrackerEngine } = await import("../../engines/EngineAccuracyTrackerEngine.js");
+            const ep = typeof params === "object" && params !== null ? params as Record<string, unknown> : {};
+            const threshold = typeof ep.threshold === "number" ? ep.threshold : 0.8;
+            result = { alerts: engineAccuracyTrackerEngine.flagDegradingEngines(threshold) };
+            break;
+          }
+          case "engine_acc_list": {
+            const { engineAccuracyTrackerEngine } = await import("../../engines/EngineAccuracyTrackerEngine.js");
+            const ep = typeof params === "object" && params !== null ? params as Record<string, unknown> : {};
+            const engineId = typeof ep.engine_id === "string" ? ep.engine_id : (typeof ep.engineId === "string" ? ep.engineId : "");
+            if (engineId) {
+              result = { metrics: engineAccuracyTrackerEngine.listMetrics(engineId) };
+            } else {
+              result = { engines: engineAccuracyTrackerEngine.listEngines() };
+            }
+            break;
+          }
+          case "engine_acc_stats": {
+            const { engineAccuracyTrackerEngine } = await import("../../engines/EngineAccuracyTrackerEngine.js");
+            result = { stats: engineAccuracyTrackerEngine.getStats() };
             break;
           }
           case "blueprint_ingest_phase8": {
