@@ -983,6 +983,32 @@ async function main() {
     return;
   }
 
+  // Meta-task suppression (AUTO-INVOCATION-MS0/U-AIM01, 2026-05-16) —
+  // audit/inventory/hook/skill/dispatcher/fleet/etc prompts are about PRISM
+  // machinery itself, not domain work. PhD expert blocks (Sales/UI-UX/etc)
+  // are pure noise for those. Suppress before the 5-min rate-limit so we
+  // don't burn the per-discipline bucket on a meta task that wouldn't have
+  // benefited anyway. Knob: PRISM_META_SUPPRESS_DISABLE=1.
+  try {
+    const { isMetaTask } = await import("../helpers/meta-task-suppressor.mjs");
+    if (isMetaTask(prompt).suppress) {
+      console.log(JSON.stringify({ continue: true }));
+      return;
+    }
+  } catch { /* helper missing — fall through to normal flow */ }
+
+  // SLOT-DRIFT-FIX-MS0/U-SDF08 (2026-05-17) — slash-invocation suppression.
+  // When the user invokes a pure slash command (/checkin-bravo, /loop, etc.),
+  // the PhD expert block is pure token waste — the operator is invoking
+  // PRISM machinery, not asking a domain question. Knob: PRISM_SLASH_SUPPRESS_DISABLE=1.
+  try {
+    const { isPureSlashInvocation } = await import("../helpers/slash-invocation-suppressor.mjs");
+    if (isPureSlashInvocation(prompt).suppress) {
+      console.log(JSON.stringify({ continue: true }));
+      return;
+    }
+  } catch { /* helper missing — fall through to normal flow */ }
+
   const detected = detectDisciplines(prompt);
 
   if (detected.length === 0) {

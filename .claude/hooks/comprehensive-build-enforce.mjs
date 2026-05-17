@@ -80,6 +80,25 @@ if (!prompt.trim()) silentOk();
 const OPTOUT_RE = /\[\s*(?:SCOPED|MINIMAL|QUICKFIX|NARROW)\s*\]/i;
 if (OPTOUT_RE.test(prompt)) silentOk();
 
+// ── Meta-task suppression (AUTO-INVOCATION-MS0/U-AIM01, 2026-05-16) ───
+// Audit/inventory/hook/skill/dispatcher/settings/slot/fleet/etc prompts
+// are about PRISM machinery itself, not domain build work. The build-
+// enforcement directive is pure noise for those — silently skip.
+// Knob: PRISM_META_SUPPRESS_DISABLE=1 disables the suppressor globally.
+try {
+  const { isMetaTask } = await import("../helpers/meta-task-suppressor.mjs");
+  if (isMetaTask(prompt).suppress) silentOk();
+} catch { /* helper missing — fall through to normal flow */ }
+
+// ── Slash-invocation suppression (SLOT-DRIFT-FIX-MS0/U-SDF08, 2026-05-17) ─
+// Pure slash invocations (/checkin-bravo, /loop, /handoff) are PRISM
+// machinery — not a build directive. Inject saves ~400 tokens per such
+// invocation. Knob: PRISM_SLASH_SUPPRESS_DISABLE=1.
+try {
+  const { isPureSlashInvocation } = await import("../helpers/slash-invocation-suppressor.mjs");
+  if (isPureSlashInvocation(prompt).suppress) silentOk();
+} catch { /* helper missing — fall through to normal flow */ }
+
 // ── Trigger detection ─────────────────────────────────────────────────
 // Split into two intent buckets so we can tailor the injection:
 //   PLAN  = roadmap / plan / architecture — requires exhaustive enumeration

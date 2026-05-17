@@ -264,7 +264,22 @@ async function main() {
   // U-COORD09: per-call env read so the operator can flip compact ↔ verbose
   // mid-session without restarting the harness. Empty string and any value
   // other than "1" are treated as off — strict opt-in, no default surprise.
-  const compactMode = process.env[COMPACT_MODE_ENV] === "1";
+  //
+  // SLOT-DRIFT-FIX-MS0/U-SDF08 (2026-05-17): auto-compact on pure slash
+  // invocations (/checkin-bravo, /loop, /handoff). The full chat-bus is
+  // ~2.8KB per prompt; for slash-only prompts the operator is invoking
+  // PRISM machinery and doesn't need the full peer/claim digest — a
+  // 1-line badge is sufficient. Saves ~700 tokens per slash invocation.
+  // Knob: PRISM_SLASH_SUPPRESS_DISABLE=1 disables; explicit env knob
+  // PRISM_CHAT_BUS_COMPACT_MODE=1 still works as before.
+  let compactMode = process.env[COMPACT_MODE_ENV] === "1";
+  if (!compactMode) {
+    try {
+      const { isPureSlashInvocation } = await import("../helpers/slash-invocation-suppressor.mjs");
+      const prompt = payload.prompt || payload.message || "";
+      if (isPureSlashInvocation(prompt).suppress) compactMode = true;
+    } catch { /* helper missing — fall through to existing compactMode value */ }
+  }
   const brief = compactMode
     ? formatCompactBadge({ messages, claims, peers, sessionId })
     : formatBrief({ messages, claims, peers, sessionId });
