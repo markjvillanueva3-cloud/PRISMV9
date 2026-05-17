@@ -3167,6 +3167,33 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   // ── WIRE-UNWIRED-MS0 / U-WIRE-AGS: AutonomousGoalSynthesisEngine ──
   // Single pure-compute method ranks gap-descriptors by
   // Ψ_impact × urgency × feasibility. No I/O, no state mutation.
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-PLG: PluginInventoryEngine ──
+  // 6 read-only actions over the plugin/MCP/extension inventory.
+  // DEFER (state-mutation, mostly fictional-entry injection class):
+  //   register / registerAll / markHealth / markUsed — caller injects
+  //                fake plugin entries that flow into /aware boot brief.
+  //   unregister / clear — destructive.
+  //   loadFromInventoryFile(path) — class=path-traversal (caller-supplied
+  //                path goes straight to readFileSync).
+  plug_get: z.object({
+    id: z.string().min(1).max(128),
+  }).strict().describe("Lookup a plugin entry by ID. Returns null if not found."),
+
+  plug_list: z.object({}).strict().describe("All registered plugin entries."),
+
+  plug_list_by_kind: z.object({
+    kind: z.enum(["mcp-server", "agent-plugin", "extension", "skill-pack"]),
+  }).strict().describe("Plugins filtered by kind."),
+
+  plug_list_by_health: z.object({
+    status: z.enum(["healthy", "degraded", "unreachable", "unknown"]),
+  }).strict().describe("Plugins filtered by health status."),
+
+  plug_summary: z.object({}).strict()
+    .describe("Inventory summary: total + byKind + byHealth + 5 most-recently-used."),
+
+  plug_size: z.object({}).strict().describe("Total registered plugin count."),
+
   // ── WIRE-UNWIRED-MS0 / U-WIRE-HYP: HypothesisPrioritizerEngine ──
   // 3 read-only Bayesian-prior actions over the milling hypothesis space.
   // DEFER:

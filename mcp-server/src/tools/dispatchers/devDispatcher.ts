@@ -485,7 +485,9 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "wron_list_pages", "wron_list_shifts", "wron_list_swaps", "wron_snapshot",
 "evap_calculate",
 "cap_bank_calculate",
-"hyp_get_prior", "hyp_prioritize", "hyp_get_tribal_endorsements"] as const;
+"hyp_get_prior", "hyp_prioritize", "hyp_get_tribal_endorsements",
+"plug_get", "plug_list", "plug_list_by_kind", "plug_list_by_health",
+"plug_summary", "plug_size"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -3819,6 +3821,51 @@ export function registerDevDispatcher(server: any): void {
               warning_count: r.warnings.length,
               score: r.score,
             };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-PLG: PluginInventoryEngine ────────
+          case "plug_get": {
+            const { pluginInventoryEngine } = await import("../../engines/PluginInventoryEngine.js");
+            const p = params as { id: string };
+            const r = pluginInventoryEngine.get(p.id);
+            result = { result: r, found: r !== null };
+            break;
+          }
+          case "plug_list": {
+            const { pluginInventoryEngine } = await import("../../engines/PluginInventoryEngine.js");
+            const r = pluginInventoryEngine.list();
+            result = { plugins: r, plugin_count: r.length };
+            break;
+          }
+          case "plug_list_by_kind": {
+            const { pluginInventoryEngine } = await import("../../engines/PluginInventoryEngine.js");
+            const p = params as { kind: "mcp-server" | "agent-plugin" | "extension" | "skill-pack" };
+            const r = pluginInventoryEngine.listByKind(p.kind);
+            result = { plugins: r, plugin_count: r.length, kind: p.kind };
+            break;
+          }
+          case "plug_list_by_health": {
+            const { pluginInventoryEngine } = await import("../../engines/PluginInventoryEngine.js");
+            const p = params as { status: "healthy" | "degraded" | "unreachable" | "unknown" };
+            const r = pluginInventoryEngine.listByHealth(p.status);
+            result = { plugins: r, plugin_count: r.length, status: p.status };
+            break;
+          }
+          case "plug_summary": {
+            const { pluginInventoryEngine } = await import("../../engines/PluginInventoryEngine.js");
+            const r = pluginInventoryEngine.summary();
+            result = {
+              result: r,
+              total: r.total,
+              is_empty: r.total === 0,
+              recently_used_count: r.recentlyUsed.length,
+            };
+            break;
+          }
+          case "plug_size": {
+            const { pluginInventoryEngine } = await import("../../engines/PluginInventoryEngine.js");
+            const r = pluginInventoryEngine.size();
+            result = { size: r, is_empty: r === 0 };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-HYP: HypothesisPrioritizerEngine ──
