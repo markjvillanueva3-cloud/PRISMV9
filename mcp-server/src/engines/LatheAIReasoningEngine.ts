@@ -424,9 +424,11 @@ export class LatheAIReasoningEngine {
       .map(op => op.id);
 
     // Step 5: Get tribal tips
-    const tribalTips = tribalKnowledgeEngine.search("lathe operation sequence", 5).map(t => ({
+    // search() now takes KnowledgeSearchInput object (was positional).
+    // KnowledgeTip canonical shape: `id` (not `tip_id`).
+    const tribalTips = tribalKnowledgeEngine.search({ query: "lathe operation sequence", limit: 5 }).map(t => ({
       ...t,
-      tip_id: t.tip_id || `seq-${Math.random().toString(36).slice(2, 8)}`,
+      id: t.id || `seq-${Math.random().toString(36).slice(2, 8)}`,
     }));
 
     return {
@@ -644,7 +646,7 @@ export class LatheAIReasoningEngine {
       context.optimization_target,
     ].filter(Boolean).join(" ");
 
-    const tips = tribalKnowledgeEngine.search(searchTerms, 10);
+    const tips = tribalKnowledgeEngine.search({ query: searchTerms, limit: 10 });
 
     // Add knowledge store tips
     const storeCategory = this.mapOperationToKnowledgeCategory(context.operation_type);
@@ -653,7 +655,7 @@ export class LatheAIReasoningEngine {
     return [
       ...tips,
       ...storeTips.slice(0, 5).map((t: any, i: number) => ({
-        tip_id: `store-${storeCategory}-${i}`,
+        id: `store-${storeCategory}-${i}`,
         category: storeCategory,
         title: t.tip.slice(0, 50) + "...",
         body: t.tip,
@@ -869,13 +871,17 @@ export class LatheAIReasoningEngine {
 
     // Add G76 threading knowledge
     for (const tip of LATHE_KNOWLEDGE_STORE.g76_threading) {
+      // KnowledgeTip required fields: id/title/body/category/tags/confidence/source/created_at/usage_count.
       tips.push({
-        tip_id: `g76-${tips.length}`,
+        id: `g76-${tips.length}`,
         category: "threading",
         title: tip.tip.slice(0, 60) + "...",
         body: tip.tip,
+        tags: [],
         confidence: tip.confidence / 100,
         source: "G76 Threading Guide",
+        created_at: new Date().toISOString(),
+        usage_count: 0,
       });
     }
 
@@ -885,9 +891,12 @@ export class LatheAIReasoningEngine {
         t.tip.toLowerCase().includes("thread") || t.tip.toLowerCase().includes("tap")
       )) {
         tips.push({
-          tip_id: `haas-${tips.length}`,
+          id: `haas-${tips.length}`,
           category: "threading",
           title: tip.tip.slice(0, 60) + "...",
+          tags: [],
+          created_at: new Date().toISOString(),
+          usage_count: 0,
           body: tip.tip,
           confidence: tip.confidence / 100,
           source: "Haas Programming Guide",
@@ -904,24 +913,30 @@ export class LatheAIReasoningEngine {
     // Add fundamentals
     for (const tip of LATHE_KNOWLEDGE_STORE.lathe_fundamentals.slice(0, 3)) {
       tips.push({
-        tip_id: `fund-${tips.length}`,
+        id: `fund-${tips.length}`,
         category: "speeds_feeds",
         title: tip.tip.slice(0, 60) + "...",
         body: tip.tip,
+        tags: [],
         confidence: tip.confidence / 100,
         source: "CNC Lathe Fundamentals",
+        created_at: new Date().toISOString(),
+        usage_count: 0,
       });
     }
 
     // Add CNC fundamentals
     for (const tip of LATHE_KNOWLEDGE_STORE.cnc_fundamentals.slice(0, 3)) {
       tips.push({
-        tip_id: `cnc-${tips.length}`,
+        id: `cnc-${tips.length}`,
         category: "speeds_feeds",
         title: tip.tip.slice(0, 60) + "...",
         body: tip.tip,
+        tags: [],
         confidence: tip.confidence / 100,
         source: "Autodesk CNC Guide",
+        created_at: new Date().toISOString(),
+        usage_count: 0,
       });
     }
 
