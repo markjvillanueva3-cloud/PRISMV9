@@ -24,6 +24,7 @@ import path from "node:path";
 import os from "node:os";
 import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
+import { complexityFor as complexityForImpl } from "./lib/rgs-complexity.mjs";
 
 // ---------------------------------------------------------------------------
 // Repo-root resolution
@@ -56,23 +57,30 @@ const OUTCOMES_PATH = path.join(REPO_ROOT, "state", "shared", "roadmap-tool-plan
 
 /**
  * Derive complexity tier and verdict from a unit.
- * Tier from effort minutes: <30→S, <120→M, <480→L, else XL. Missing/0→M.
- * Verdict: "integrate" if title/desc matches integrate keywords, else "build".
- * @param {{ effort?: number, title?: string, description?: string }} unit
+ *
+ * U-COMPLEXITY-FALLBACK (2026-05-17 lima): the original MS0 heuristic
+ * defaulted 57.6% of units to tier=M because most upstream feeds emit
+ * `effort: 0` / undefined. The implementation now lives in
+ * `scripts/lib/rgs-complexity.mjs` with a multi-signal cascade (effort →
+ * estimated_hours → estimated_minutes → title keywords → description-length
+ * proxy → default M). This thin re-export preserves the planner's public
+ * API so the test suite + runPlanner() callers don't change.
+ *
+ * The cascade preserves MS0 effort-threshold semantics exactly for any
+ * unit that DID have effort set, so existing checkpoint sourceHashes stay
+ * valid (no fleet-wide re-plan stampede on this swap).
+ *
+ * @param {{
+ *   effort?: number,
+ *   estimated_hours?: number,
+ *   estimated_minutes?: number,
+ *   title?: string,
+ *   description?: string,
+ * }} unit
  * @returns {{ tier: "S"|"M"|"L"|"XL", verdict: "build"|"integrate" }}
  */
 export function complexityFor(unit) {
-  const effort = (typeof unit.effort === "number" && unit.effort > 0) ? unit.effort : 120;
-  let tier;
-  if (effort < 30) tier = "S";
-  else if (effort < 120) tier = "M";
-  else if (effort < 480) tier = "L";
-  else tier = "XL";
-
-  const text = (String(unit.title ?? "") + " " + String(unit.description ?? "")).toLowerCase();
-  const verdict = /integrat|reuse|existing|wire|compose/i.test(text) ? "integrate" : "build";
-
-  return { tier, verdict };
+  return complexityForImpl(unit);
 }
 
 // ---------------------------------------------------------------------------
