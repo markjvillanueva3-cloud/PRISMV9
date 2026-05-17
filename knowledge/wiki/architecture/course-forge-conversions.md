@@ -24,8 +24,11 @@ tested, mutually-composable algorithm nodes.
 | P7 | MIT-OCW 2.003j (Dynamics & Control I) | `mcp-server/src/algorithms/ODEIntegrator.ts` | 28 |
 | P6 | MIT-OCW 2.003 (Modeling Dynamics & Control I) | `mcp-server/src/algorithms/LinearStateSpaceModel.ts` | 22 |
 | FDM | MIT-OCW 2.086 (Numerical Computation) | `mcp-server/src/algorithms/FiniteDifferenceMethod.ts` | 18 |
+| GD | MIT-OCW 18.02 (Multivariable Calculus) | `mcp-server/src/algorithms/GradientDescent.ts` | 17 |
 
-Commits: `1323fa4ee7` (P1) · `b38a9f2285` (P7) · `a547223bbf` (P6) · `7cbbe511d7` (FDM). 96/96 tests, tsc clean.
+Commits: `1323fa4ee7` (P1) · `b38a9f2285` (P7) · `a547223bbf` (P6) · `7cbbe511d7` (FDM) · `271351e7ec` (GD). 113/113 tests, tsc clean.
+
+The first four (P1/P7/P6/FDM) compose into a PDE solver. **GD is complementary, not composable** — it's the first-order LOCAL optimizer regime (smooth differentiable objectives, fast local convergence) alongside PRISM's existing derivative-FREE global optimizers (`BayesianOptimizer`, `GeneticOptimizer`). vanilla / heavy-ball momentum / Adam, analytic or central-FD gradient, fail-loud divergence guard.
 
 ## P1 — OperatorSplittingMethod
 
