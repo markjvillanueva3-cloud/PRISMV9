@@ -3331,6 +3331,56 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     hypothesisId: z.string().min(1).max(128),
   }).strict().describe("Tribal-knowledge endorsements for a hypothesis."),
 
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-JSS: JobShopSchedulingEngine ──
+  // 4 pure-compute scheduling algorithms:
+  //   jss_single_machine    — N jobs, 1 machine, 6 dispatch rules
+  //   jss_johnson           — 2-machine flow shop (Johnson's algorithm)
+  //   jss_job_shop          — multi-machine job shop with operation routing
+  //   jss_critical_path     — CPM for project scheduling
+  jss_single_machine: z.object({
+    jobs: z.array(z.object({
+      id: z.string().min(1).max(128),
+      processingTime: z.number().nonnegative().max(100_000),
+      arrivalTime: z.number().nonnegative().max(100_000).optional(),
+      dueDate: z.number().nonnegative().max(100_000).optional(),
+      remainingTime: z.number().nonnegative().max(100_000).optional(),
+    })).min(0).max(1000).describe("Job list (cap 1000 — DoS)"),
+    rule: z.enum(["FIFO", "SPT", "LPT", "EDD", "CR", "SLACK"]).optional()
+      .describe("Dispatch rule. Default SPT."),
+  }).describe("Single-machine schedule. Pure compute."),
+
+  jss_johnson: z.object({
+    jobs: z.array(z.object({
+      id: z.string().min(1).max(128),
+      machine1Time: z.number().nonnegative().max(100_000),
+      machine2Time: z.number().nonnegative().max(100_000),
+    })).min(0).max(1000),
+  }).describe("Johnson's 2-machine flow-shop algorithm (optimal makespan)."),
+
+  jss_job_shop: z.object({
+    jobs: z.array(z.object({
+      id: z.string().min(1).max(128),
+      arrivalTime: z.number().nonnegative().max(100_000).optional(),
+      dueDate: z.number().nonnegative().max(100_000).optional(),
+      operations: z.array(z.object({
+        machine: z.string().min(1).max(128),
+        processingTime: z.number().nonnegative().max(100_000),
+      })).min(1).max(100).describe("Operations per job. Cap 100."),
+    })).min(0).max(500).describe("Job list cap 500."),
+    machines: z.array(z.object({
+      id: z.string().min(1).max(128),
+    })).min(1).max(100),
+    rule: z.enum(["FIFO", "SPT", "LPT", "EDD", "CR", "SLACK"]).optional(),
+  }).describe("Multi-machine job-shop scheduler. Pure compute."),
+
+  jss_critical_path: z.object({
+    activities: z.array(z.object({
+      id: z.string().min(1).max(128),
+      duration: z.number().nonnegative().max(100_000),
+      predecessors: z.array(z.string().min(1).max(128)).max(100).optional(),
+    })).min(1).max(1000).describe("Activity network. Cap 1000."),
+  }).describe("Critical-Path Method for project scheduling."),
+
   // ── WIRE-UNWIRED-MS0 / U-WIRE-CRYS: CrystallizationEngine ──
   // Pure-compute industrial crystallization (Mullin / Mersmann / Randolph-Larson
   // MSMPR). Single calculate() — no state mutation.

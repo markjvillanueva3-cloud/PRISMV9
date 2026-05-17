@@ -485,6 +485,7 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "wron_list_pages", "wron_list_shifts", "wron_list_swaps", "wron_snapshot",
 "evap_calculate",
 "cap_bank_calculate", "crys_calculate",
+"jss_single_machine", "jss_johnson", "jss_job_shop", "jss_critical_path",
 "hyp_get_prior", "hyp_prioritize", "hyp_get_tribal_endorsements",
 "plug_get", "plug_list", "plug_list_by_kind", "plug_list_by_health",
 "plug_summary", "plug_size",
@@ -3985,6 +3986,59 @@ export function registerDevDispatcher(server: any): void {
               endorsements: r,
               endorsement_count: r.length,
               has_endorsements: r.length > 0,
+            };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-JSS: JobShopSchedulingEngine ──────
+          case "jss_single_machine": {
+            const { jobShopSchedulingEngine } = await import("../../engines/JobShopSchedulingEngine.js");
+            const p = params as { jobs: Parameters<typeof jobShopSchedulingEngine.scheduleSingleMachine>[0]; rule?: Parameters<typeof jobShopSchedulingEngine.scheduleSingleMachine>[1] };
+            const r = jobShopSchedulingEngine.scheduleSingleMachine(p.jobs, p.rule);
+            result = {
+              result: r,
+              makespan: r.makespan,
+              schedule_count: r.schedule.length,
+              tardy_count: r.numberOfTardyJobs,
+              has_tardy: r.numberOfTardyJobs > 0,
+            };
+            break;
+          }
+          case "jss_johnson": {
+            const { jobShopSchedulingEngine } = await import("../../engines/JobShopSchedulingEngine.js");
+            const p = params as { jobs: Parameters<typeof jobShopSchedulingEngine.johnsonsAlgorithm>[0] };
+            const r = jobShopSchedulingEngine.johnsonsAlgorithm(p.jobs);
+            result = {
+              result: r,
+              makespan: r.makespan,
+              sequence_length: r.sequence.length,
+            };
+            break;
+          }
+          case "jss_job_shop": {
+            const { jobShopSchedulingEngine } = await import("../../engines/JobShopSchedulingEngine.js");
+            const p = params as { jobs: Parameters<typeof jobShopSchedulingEngine.scheduleJobShop>[0]; machines: Parameters<typeof jobShopSchedulingEngine.scheduleJobShop>[1]; rule?: Parameters<typeof jobShopSchedulingEngine.scheduleJobShop>[2] };
+            const r = jobShopSchedulingEngine.scheduleJobShop(p.jobs, p.machines, p.rule);
+            result = {
+              result: r,
+              makespan: r.makespan,
+              completed_operations: r.completedOperations,
+              total_operations: r.totalOperations,
+              is_complete: r.completedOperations === r.totalOperations,
+            };
+            break;
+          }
+          case "jss_critical_path": {
+            const { jobShopSchedulingEngine } = await import("../../engines/JobShopSchedulingEngine.js");
+            const p = params as { activities: Parameters<typeof jobShopSchedulingEngine.criticalPathMethod>[0] };
+            const r = jobShopSchedulingEngine.criticalPathMethod(p.activities);
+            // Engine returns {success, reason?, projectDuration?, criticalPath?[],
+            //                 schedule?[]} — success=false when cycle detected.
+            result = {
+              result: r,
+              success: r.success,
+              project_duration: r.projectDuration ?? null,
+              critical_path_length: r.criticalPath?.length ?? 0,
+              schedule_count: r.schedule?.length ?? 0,
             };
             break;
           }
