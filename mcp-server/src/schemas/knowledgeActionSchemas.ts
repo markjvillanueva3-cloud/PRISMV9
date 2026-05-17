@@ -931,6 +931,12 @@ const shop_note_validate = z.object({
 const shop_note_status = z.object({
   detailed: z.boolean().optional().describe("Include detailed statistics"),
 });
+
+// WIRE-UNWIRED-MS0/U-WIRE-JMPA: JMDIEPatternAnalyzer pure static analysis (no params)
+const jmdie_pattern_analyze = z.object({}).passthrough().describe("JM Die curated pattern analysis (rules + tips + topPatterns).");
+const jmdie_pattern_rules = z.object({}).passthrough().describe("JM Die pattern rules in PlaybookRulesEngine format.");
+const jmdie_pattern_tips = z.object({}).passthrough().describe("JM Die pattern tips in TribalKnowledgeEngine format.");
+
 export const ACTION_KNOWLEDGE_SCHEMAS: ActionSchemaMap = {
   search,
   cross_query,
@@ -941,6 +947,10 @@ export const ACTION_KNOWLEDGE_SCHEMAS: ActionSchemaMap = {
   tribal_search,
   tribal_suggest,
   tribal_stats,
+  // WIRE-UNWIRED-MS0/U-WIRE-JMPA
+  jmdie_pattern_analyze,
+  jmdie_pattern_rules,
+  jmdie_pattern_tips,
   tribal_recategorize,
   course_build,
   course_build_from_rules,

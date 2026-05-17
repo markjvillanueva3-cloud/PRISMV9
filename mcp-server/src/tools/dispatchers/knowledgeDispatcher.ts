@@ -105,6 +105,8 @@ const SKILL_MARKETPLACE_ACTIONS = [
 const ACTIONS = [
   "search", "cross_query", "formula", "relations", "stats",
   "tribal_capture", "tribal_search", "tribal_suggest", "tribal_stats",
+  // WIRE-UNWIRED-MS0/U-WIRE-JMPA: JMDIEPatternAnalyzer static analysis
+  "jmdie_pattern_analyze", "jmdie_pattern_rules", "jmdie_pattern_tips",
   ...ACADEMY_ACTIONS,
   ...VISUAL_LAB_ACTIONS,
   ...KG_ACTIONS,
@@ -278,6 +280,22 @@ export function registerKnowledgeDispatcher(server: any): void {
           case "tribal_stats": {
             const { tribalKnowledgeEngine } = await import("../../engines/TribalKnowledgeEngine.js");
             result = tribalKnowledgeEngine.stats();
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-JMPA: JMDIEPatternAnalyzer static analysis ──
+          case "jmdie_pattern_analyze": {
+            const { JMDIEPatternAnalyzer } = await import("../../engines/JMDIEPatternAnalyzer.js");
+            result = JMDIEPatternAnalyzer.analyze();
+            break;
+          }
+          case "jmdie_pattern_rules": {
+            const { JMDIEPatternAnalyzer } = await import("../../engines/JMDIEPatternAnalyzer.js");
+            result = { rules: JMDIEPatternAnalyzer.getRulesForPlaybook() };
+            break;
+          }
+          case "jmdie_pattern_tips": {
+            const { JMDIEPatternAnalyzer } = await import("../../engines/JMDIEPatternAnalyzer.js");
+            result = { tips: JMDIEPatternAnalyzer.getTipsForTribalKnowledge() };
             break;
           }
           // ── OBSIDIAN-MS0: Obsidian Vault Sync ──

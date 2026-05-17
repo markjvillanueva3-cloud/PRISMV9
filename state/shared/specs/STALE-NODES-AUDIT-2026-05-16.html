@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stale Nodes vs Built Reality — 2026-05-16 (re-shipped post peer-review)</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>Stale Nodes vs Built Reality — 2026-05-16 (re-shipped post peer-review)</h1>
+<div class="meta">rendered from H:/prism/state/shared/specs/STALE-NODES-AUDIT-2026-05-16.md</div>
+<div class="meta">Generated 2026-05-16T23:58:56.712Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">Stale Nodes vs Built Reality — Forge-Audit-v2 Findings</li><li class="prism-toc-l2">Change log (post-peer-review)</li><li class="prism-toc-l2">TL;DR</li><li class="prism-toc-l2">Findings</li><li class="prism-toc-l3">F1 — MEMORY.md crossed the 24,576-byte truncation ceiling [CRIT]</li><li class="prism-toc-l3">F2 — ENGINE_DIGEST.md is 72.6 hours stale [CRIT]</li><li class="prism-toc-l3">F3 — 11 milestone envelopes drifted (claims_completed_but_units_pending) [CRIT]</li><li class="prism-toc-l3">F4 — Utilization classifier degenerate: 281,683 ghost / 0 orphan [CRIT] <em>(missed-finding from peer review)</em></li><li class="prism-toc-l3">F5 — Ollama offload at 20.3%, 9.7 pp below 30% target [WARN]</li><li class="prism-toc-l3">F6 — 1,348 wired engines lack wiki entries [WARN]</li><li class="prism-toc-l3">F7 — DIRECTORY_DIGEST + wiki/index.md stale [WARN]</li><li class="prism-toc-l2">Self-correcting feedback channel</li><li class="prism-toc-l2">Out-of-scope (queued — sequential per operator directive 2026-05-16)</li></ul></nav><h1 class="prism-h1">Stale Nodes vs Built Reality — Forge-Audit-v2 Findings</h1>
+<p><strong>Date:</strong> 2026-05-16 <strong>Status:</strong> Re-shipped after peer-reviewer BLOCK (META-tool bugs fixed + F7 added) <strong>Scope:</strong> Canonical-truth-source nodes (digests, indexes, awareness, envelopes) + high-leverage runtime surfaces (MEMORY.md, Ollama routing, utilization classification) — find what&#39;s drifted vs the 2,421-wired-engine / 7,715-action / 23,981-wiki-entry reality. <strong>Verification META artifact:</strong> <code class="prism-inline-code">scripts/node-staleness-rank.mjs</code> — baseline appended to <code class="prism-inline-code">state/shared/node-staleness-history.jsonl</code>. <strong>Doctrine:</strong> <code class="prism-inline-code">/forge-audit-v2</code> per <code class="prism-inline-code">state/shared/specs/BORIS-LOOP-AGENT-DOCTRINE.md</code>.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">Change log (post-peer-review)</h2>
+<p>Peer reviewer (worktree-isolated <code class="prism-inline-code">reviewer</code> subagent) returned <strong>BLOCK</strong> on the first ship with three META-tool calculation bugs and one missed finding. All fixed:</p>
+<table class="prism-md-table"><thead><tr><th>Bug</th><th>Was</th><th>Now</th></tr></thead><tbody><tr><td>Ollama schema path</td><td><code class="prism-inline-code">o.totals.offloaded</code> (non-existent) → ratio 0.0</td><td><code class="prism-inline-code">o.offloaded</code> top-level → <strong>20.3%</strong></td></tr>
+<tr><td>Envelope-drift regex</td><td>Counted ALL <code class="prism-inline-code">&quot;drift&quot;:&quot;*&quot;</code> rows → 681 false-positive</td><td>Allowlist <code class="prism-inline-code">aligned/consistent/n/a</code> → <strong>11 real drift</strong></td></tr>
+<tr><td>BUILD_STATE wiki gap</td><td>Read <code class="prism-inline-code">bs.engines.*</code> (schema drifted) → null</td><td>Read <code class="prism-inline-code">bs.headline.{built_engines, built_with_wiki}</code> → <strong>gap 1,348</strong></td></tr>
+<tr><td>Missed finding</td><td>n/a</td><td><strong>F7: utilization classifier degenerate</strong> (281,683 ghost / 0 orphan) added</td></tr></tbody></table>
+<hr class="prism-hr">
+<h2 class="prism-h2">TL;DR</h2>
+<p>Seven findings ranked by leverage. Three CRITICAL (must-fix), four WARN. Memory truncation is the only one actively degrading recall RIGHT NOW; envelope drift, engine digest staleness, and utilization-classifier degeneracy are deeper structural issues that silently mis-direct every chat that uses the corresponding pre-search injectors.</p>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Finding</th><th>Severity</th><th>Verified baseline</th><th>Target</th></tr></thead><tbody><tr><td>1</td><td>MEMORY.md crossed truncation ceiling</td><td><strong>CRIT</strong></td><td>24,688 B / 24,576 B (100.5%)</td><td>≤22,000 B</td></tr>
+<tr><td>2</td><td>ENGINE_DIGEST 72.6h stale</td><td><strong>CRIT</strong></td><td>72.62h</td><td>≤24h</td></tr>
+<tr><td>3</td><td>11 milestone envelopes drifted</td><td><strong>CRIT</strong></td><td>11 (<code class="prism-inline-code">claims_completed_but_units_pending</code>)</td><td>≤5</td></tr>
+<tr><td>4</td><td>Utilization classifier degenerate (F7)</td><td><strong>CRIT</strong></td><td>281,683 ghost / 0 orphan / 81.7% ghost density</td><td>non-zero orphan count OR ghost ≤50%</td></tr>
+<tr><td>5</td><td>Ollama offload below target</td><td><strong>WARN</strong></td><td>20.3% (target 30%, gap 9.7 pp)</td><td>≥30%</td></tr>
+<tr><td>6</td><td>1,348 wired engines lack wiki entries</td><td><strong>WARN</strong></td><td>wired 2,421 / wiki 1,073 = gap 1,348</td><td>gap ≤500</td></tr>
+<tr><td>7</td><td>DIRECTORY_DIGEST + WIKI_INDEX stale</td><td><strong>WARN</strong></td><td>102.3h + 32.7h</td><td>≤48h + ≤24h</td></tr></tbody></table>
+<hr class="prism-hr">
+<h2 class="prism-h2">Findings</h2>
+<h3 class="prism-h3">F1 — MEMORY.md crossed the 24,576-byte truncation ceiling [CRIT]</h3>
+<p><strong>State:</strong> <code class="prism-inline-code">C:/Users/wompu/.claude/projects/H--prism/memory/MEMORY.md</code> = <strong>24,688 bytes (100.5%)</strong>. The Anthropic harness emits a partial-load warning above 24,576 bytes, so cross-session recall is silently degraded as of this measurement. Headroom: <strong>-112 bytes</strong>.</p>
+<p><strong>Why it matters:</strong> MEMORY.md is the entry point Claude uses to find domain memories. Truncation cuts the tail (the freshest entries), making the most recent learnings unrecallable until compressed.</p>
+<p><strong>Verification channel</strong> (verified by peer reviewer):</p>
+<pre class="prism-codeblock" data-lang="yaml"><code>tool: &quot;node H:/prism/scripts/node-staleness-rank.mjs --json | jq &#39;.memory.bytes, .memory.status&#39;&quot;
+expected_signal: &quot;bytes &lt; 22000  AND  status == &#39;fresh&#39;&quot;
+re_run_cost: &quot;~50ms&quot;
+baseline_2026-05-16: { bytes: 24688, pctOfCeiling: 1.0046, status: &quot;critical&quot; }</code></pre>
+<p><strong>Optimization:</strong> Re-run the U-MEMORY-COMPRESS protocol that brought MEMORY.md from 73 KB → 21,474 B on 2026-05-16, and make the watchdog DURABLE — wire <code class="prism-inline-code">scripts/memory-size-watch.mjs</code> into a Stop hook OR <code class="prism-inline-code">/loop --interval 1d</code> so the next regression cannot grow past 22 KB silently. The one-shot compress without a watchdog is what allowed the re-growth.</p>
+<hr class="prism-hr">
+<h3 class="prism-h3">F2 — ENGINE_DIGEST.md is 72.6 hours stale [CRIT]</h3>
+<p><strong>State:</strong> <code class="prism-inline-code">mcp-server/data/docs/ENGINE_DIGEST.md</code> last regenerated <strong>&gt;3 days ago</strong> against a 3,259-engine repo with 836 unwired. Canonical &quot;check before creating any engine&quot; surface — feeds <code class="prism-inline-code">duplicationGuardEngine.checkBeforeCreating()</code> + <code class="prism-inline-code">dedup-auto-invoke.mjs</code> hook.</p>
+<p><strong>Why it matters:</strong> Stale digest → false-negative dedup → engine duplication. The pre-flight write-block hook (<code class="prism-inline-code">duplication-hard-block.mjs</code>) reads the digest; a 3-day-stale digest will let a new engine slip past the gate if it was added in the last 3 days.</p>
+<p><strong>Verification channel</strong> (verified):</p>
+<pre class="prism-codeblock" data-lang="yaml"><code>tool: &quot;node H:/prism/scripts/node-staleness-rank.mjs --json | jq &#39;.surfacesRanked[] | select(.key==\&quot;ENGINE_DIGEST\&quot;) | .ageHours&#39;&quot;
+expected_signal: &quot;ageHours &lt; 24  AND  status == &#39;fresh&#39;&quot;
+re_run_cost: &quot;~100ms&quot;
+baseline_2026-05-16: { ageHours: 72.62, sizeKB: 223, status: &quot;critical&quot; }</code></pre>
+<p><strong>Optimization:</strong> Find the regen script (grep <code class="prism-inline-code">scripts/</code> for <code class="prism-inline-code">ENGINE_DIGEST</code>) and chain it onto the post-commit hook alongside <code class="prism-inline-code">regen-wiki-from-viz.mjs</code>. Add a Stop hook advisory that surfaces stale-digest WARN if a new engine appeared in this session.</p>
+<hr class="prism-hr">
+<h3 class="prism-h3">F3 — 11 milestone envelopes drifted (claims_completed_but_units_pending) [CRIT]</h3>
+<p><strong>State:</strong> <code class="prism-inline-code">MILESTONE_PROGRESS.json</code> contains <strong>11 rows</strong> with <code class="prism-inline-code">drift: &quot;claims_completed_but_units_pending&quot;</code> — envelopes that claim completed but units never shipped. Top examples: <code class="prism-inline-code">MF-MS1</code>, <code class="prism-inline-code">MF-MS2</code>, <code class="prism-inline-code">ACP-MS0</code>, <code class="prism-inline-code">HOOKS-AUTOMATION-V2-MS0</code>, <code class="prism-inline-code">INFRA-CLOSEOUT-MS0</code>. The remaining 670 rows in the file are <code class="prism-inline-code">consistent</code> (606) or <code class="prism-inline-code">n/a</code> (64) — NOT drift. (First-pass count of 681 was a META-tool over-count bug now fixed.)</p>
+<p><strong>Why it matters:</strong> When envelopes claim completed but the units never shipped, <code class="prism-inline-code">/pick-unit</code> and <code class="prism-inline-code">/pick-dev</code> skip those units thinking they&#39;re done. Real work hides behind false-positive completion.</p>
+<p><strong>Verification channel</strong> (verified):</p>
+<pre class="prism-codeblock" data-lang="yaml"><code>tool: &quot;node H:/prism/scripts/node-staleness-rank.mjs --json | jq &#39;.envelopeDrift.driftedMilestones, .envelopeDrift.breakdown&#39;&quot;
+expected_signal: &quot;driftedMilestones &lt;= 5&quot;
+re_run_cost: &quot;~150ms (1.7MB JSON scan)&quot;
+baseline_2026-05-16: { driftedMilestones: 11, breakdown: {consistent: 606, &quot;n/a&quot;: 64, claims_completed_but_units_pending: 11} }</code></pre>
+<p><strong>Optimization:</strong></p>
+<ol class="prism-md-list"><li>Run <code class="prism-inline-code">/envelope-sync</code> — proposes status-flip patches for drifted envelope JSONs against git reality. Human-verifies, then commits.</li><li>Run <code class="prism-inline-code">/close-out-audit</code> to surface silent shipped-but-pending units (the inverse class: units shipped on disk but envelope still says <code class="prism-inline-code">pending</code>).</li><li>Stop hook <code class="prism-inline-code">goal-complete-gate.mjs</code> already enforces close-out-audit freshness when <code class="prism-inline-code">/goal</code> is invoked — extend to advisory mode on every Stop.</li></ol>
+<hr class="prism-hr">
+<h3 class="prism-h3">F4 — Utilization classifier degenerate: 281,683 ghost / 0 orphan [CRIT] <em>(missed-finding from peer review)</em></h3>
+<p><strong>State:</strong> <code class="prism-inline-code">AWARENESS-SNAPSHOT.md</code> reports the system-graph classifier output as <strong>281,683 ghost</strong> (low-in + low-out + no docs) and <strong>0 orphan</strong> (low-in + low-out + WITH docs). 0 orphans across a 372K-node graph with active wiring debt is implausible — the classifier&#39;s ghost-vs-orphan distinction collapses because the binary threshold (any-doc-edge → not-ghost) is too coarse. Ghost class is 81.7% of the scanned graph.</p>
+<p><strong>Why it matters:</strong> The awareness-snapshot is injected into EVERY chat at SessionStart by <code class="prism-inline-code">awareness-snapshot-inject.mjs</code>. Every chat reads &quot;0 orphans&quot; and concludes there&#39;s nothing built-but-undocumented to fix — when in reality F6 shows 1,348 wired engines lack wiki entries (a different but adjacent gap). The orphan signal — the &quot;punch list of built-but-unwired-or-undocumented&quot; — is broken at the SOURCE, propagating to every chat.</p>
+<p><strong>Verification channel:</strong></p>
+<pre class="prism-codeblock" data-lang="yaml"><code>tool: &quot;node H:/prism/scripts/node-staleness-rank.mjs --json | jq &#39;.utilization | {ghost,orphan,ghostPct,classifierDegenerate}&#39;&quot;
+expected_signal: &quot;classifierDegenerate == false  AND  orphan &gt; 0&quot;
+re_run_cost: &quot;~50ms (reads AWARENESS-SNAPSHOT.md)&quot;
+baseline_2026-05-16: { ghost: 281683, orphan: 0, ghostPct: 0.817, classifierDegenerate: true }</code></pre>
+<p><strong>Optimization:</strong></p>
+<ol class="prism-md-list"><li>Re-tune the orphan classifier in the system-graph augmenter — likely lives in <code class="prism-inline-code">scripts/augment-graph-with-awareness.mjs</code> or <code class="prism-inline-code">scripts/regen-viz.mjs</code>. Specifically: drop the strict &quot;has-any-doc-edge → not-ghost&quot; rule; use degree percentile + has-source-file as the real orphan signal.</li><li>Until re-tuned, the awareness-snapshot&#39;s &quot;punch list&quot; line (&quot;Top orphans (built + documented + unwired)&quot;) is misinforming every chat — surface F6&#39;s &quot;wired but no wiki&quot; count there instead.</li></ol>
+<hr class="prism-hr">
+<h3 class="prism-h3">F5 — Ollama offload at 20.3%, 9.7 pp below 30% target [WARN]</h3>
+<p><strong>State:</strong> <code class="prism-inline-code">mcp-server/data/state/ollama-offload-stats.json</code> shows <strong>65 offloaded / 254 kept on Claude = 20.3%</strong> offload ratio. Documented root cause (CLAUDE.md <code class="prism-inline-code">## Recent regressions</code> 2026-05-16): <code class="prism-inline-code">ollama-auto-router.mjs:166</code> <code class="prism-inline-code">/</code>-prefix skip makes the auto-router dead-code for <code class="prism-inline-code">/checkin</code>/<code class="prism-inline-code">/loop</code>/<code class="prism-inline-code">/forge*</code> prompts. Fix R1+R5 documented but not shipped.</p>
+<p><strong>Verification channel</strong> (verified — schema bug fixed):</p>
+<pre class="prism-codeblock" data-lang="yaml"><code>tool: &quot;node H:/prism/scripts/node-staleness-rank.mjs --json | jq &#39;.ollama.ratio, .ollama.gap&#39;&quot;
+expected_signal: &quot;ratio &gt;= 0.30&quot;
+re_run_cost: &quot;~50ms&quot;
+baseline_2026-05-16: { offloaded: 65, keptOnClaude: 254, ratio: 0.203, gap_pp: 9.7, status: &quot;warn&quot; }</code></pre>
+<p><strong>Optimization:</strong> Ship R1 (drop <code class="prism-inline-code">/</code>-prefix skip at <code class="prism-inline-code">ollama-auto-router.mjs:166</code>) + R5 (auto-execute Ollama for safe categories at line 441). R1 alone is projected to clear the 30% bar.</p>
+<hr class="prism-hr">
+<h3 class="prism-h3">F6 — 1,348 wired engines lack wiki entries [WARN]</h3>
+<p><strong>State:</strong> BUILD_STATE.json <code class="prism-inline-code">headline.built_engines = 2,421</code> vs <code class="prism-inline-code">headline.built_with_wiki = 1,073</code> → <strong>1,348-engine gap</strong>. 56% of wired engines have no wiki entry; recall-via-wiki-inject can only surface 44%.</p>
+<p><strong>Why it matters:</strong> Wiki entries are how Claude finds out what an engine does without re-reading its source. A wired-but-undocumented engine looks like a candidate for re-creation (until duplicationGuardEngine catches it). Cost compounds: every chat that needs the engine spends tokens re-reading source.</p>
+<p><strong>Verification channel</strong> (verified — schema bug fixed):</p>
+<pre class="prism-codeblock" data-lang="yaml"><code>tool: &quot;node H:/prism/scripts/node-staleness-rank.mjs --json | jq &#39;.wikiCoverage.coverageGap, .wikiCoverage.built, .wikiCoverage.wikiEntries&#39;&quot;
+expected_signal: &quot;coverageGap &lt;= 500&quot;
+re_run_cost: &quot;~80ms&quot;
+baseline_2026-05-16: { built: 2421, wikiEntries: 1073, coverageGap: 1348, status: &quot;warn&quot; }</code></pre>
+<p><strong>Optimization:</strong> Batch wiki-ingest of the 1,348 unindexed engines via <code class="prism-inline-code">scripts/regen-wiki-from-viz.mjs</code> — verify the script writes per-engine leaves (not just <code class="prism-inline-code">index.md</code>). If it doesn&#39;t, add a sub-orchestrator that iterates engines, classifies via Ollama for the summary, writes the leaf.</p>
+<hr class="prism-hr">
+<h3 class="prism-h3">F7 — DIRECTORY_DIGEST + wiki/index.md stale [WARN]</h3>
+<p><strong>State:</strong> <code class="prism-inline-code">DIRECTORY_DIGEST.md</code> 102.3h stale (4+ days); <code class="prism-inline-code">knowledge/wiki/index.md</code> 32.7h (1.4 days). Less urgent than F1-F4 but still part of the canonical recall chain.</p>
+<p><strong>Verification channel:</strong></p>
+<pre class="prism-codeblock" data-lang="yaml"><code>tool: &quot;node H:/prism/scripts/node-staleness-rank.mjs --json | jq &#39;.surfacesRanked[] | select(.key==\&quot;WIKI_INDEX\&quot; or .key==\&quot;DIRECTORY_DIGEST\&quot;) | {key,ageHours,status}&#39;&quot;
+expected_signal: &quot;both .status == &#39;fresh&#39;&quot;
+re_run_cost: &quot;~100ms&quot;
+baseline_2026-05-16: { DIRECTORY_DIGEST: 102.26h, WIKI_INDEX: 32.73h }</code></pre>
+<p><strong>Optimization:</strong> Chain DIRECTORY_DIGEST regen onto post-commit alongside <code class="prism-inline-code">regen-wiki-from-viz.mjs</code>. Verify the wiki regen script actually rewrites <code class="prism-inline-code">index.md</code> (not just per-entry leaves) — if it doesn&#39;t, add the index rewrite to the orchestrator chain.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">Self-correcting feedback channel</h2>
+<p>Re-run <code class="prism-inline-code">node scripts/node-staleness-rank.mjs</code> weekly to baseline. The tool appends one row per run to <code class="prism-inline-code">state/shared/node-staleness-history.jsonl</code> — <code class="prism-inline-code">--history</code> tails the last 20. Trend lines reveal whether fixes stuck or drift returned. Exit code 0=healthy, 1=warn, 2=critical (cron/CI-friendly).</p>
+<p>Current baseline: <strong>exit=2 CRITICAL</strong>. Three crits (F1, F2, F3, F4) must be cleared before this falls to exit=1.</p>
+<h2 class="prism-h2">Out-of-scope (queued — sequential per operator directive 2026-05-16)</h2>
+<ul class="prism-md-list"><li><strong>Auto-injection signal-quality audit</strong> — 121 injector hooks fire on every prompt; observable noise (random Sales/UI-UX expert blocks injected unconditionally; <code class="prism-inline-code">tip-auto-*</code> tribal noise). Replacement-pipeline scope. Filed as TaskList #2.</li><li><strong>PRISM awareness layer refresh</strong> — awareness-snapshot itself + bootstrap hook + brief generator. Sister to the injection audit. Filed as TaskList #3. F4 above is part of this — the classifier degeneracy IS an awareness-layer bug.</li></ul>
+<hr class="prism-hr">
+<p>_Generated by <code class="prism-inline-code">/forge-audit-v2</code> · slot bravo · claude-416be9ac · 2026-05-16T23:57Z._ _Peer-reviewed by <code class="prism-inline-code">reviewer</code> subagent in worktree isolation; BLOCK→FIX→re-review._</p></main><footer><div>generated by mdToHtml() at 2026-05-16T23:58:56.711Z</div>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>
