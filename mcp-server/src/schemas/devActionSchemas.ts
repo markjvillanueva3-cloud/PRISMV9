@@ -1777,4 +1777,27 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   mcdl_get_category_stats: z.object({}).describe("Return per-category course counts + topic-coverage stats. Pure."),
 
   mcdl_get_all_course_ids: z.object({}).describe("Return every indexed MIT course id (227 entries). Pure."),
+
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-DPE: DocPropagationEngine wiring ──
+  // Pure deterministic classifier — file path → doc surfaces that need regen.
+  // 3 actions wired: classify (single), classify_batch (≤500 paths for DoS),
+  // get_rules (rule-metadata only, omits `match` function literal which is
+  // non-serializable over the wire). mergeTargets() DEFERRED — composition
+  // helper whose input shape (ClassificationResult[]) is too complex to
+  // safely round-trip without bespoke schema mirroring; callers can request
+  // classify_batch and dedupe client-side.
+  doc_propagation_classify: z.object({
+    file_path: z.string().min(1).max(4096)
+      .describe("Path of the file that was just written/edited (relative or absolute)"),
+  }).describe("Classify a single file path into doc-surface regen targets. Pure."),
+
+  doc_propagation_classify_batch: z.object({
+    file_paths: z.array(z.string().min(1).max(4096)).min(1).max(500)
+      .describe("File paths to classify in one shot (≤500 for DoS bound)"),
+  }).describe("Classify many file paths in one call. Pure."),
+
+  doc_propagation_get_rules: z.object({}).describe(
+    "Return the serializable metadata of all classification rules (id, targets, reason). " +
+    "The `match` predicate is omitted because function literals do not survive JSON. Pure."
+  ),
 };

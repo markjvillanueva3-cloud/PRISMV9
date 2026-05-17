@@ -318,7 +318,13 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "mcdl_recommend_learning_path", "mcdl_apply_academic_knowledge",
 "mcdl_cite_sources", "mcdl_get_complexity_analysis",
 "mcdl_link_to_physics_constants", "mcdl_generate_theory_to_practice",
-"mcdl_get_category_stats", "mcdl_get_all_course_ids"] as const;
+"mcdl_get_category_stats", "mcdl_get_all_course_ids",
+// WIRE-UNWIRED-MS0/U-WIRE-DPE: DocPropagationEngine — pure deterministic
+// path → doc-surface classifier. mergeTargets() DEFERRED (composition;
+// complex input shape over the wire); rules' `match` predicate omitted
+// from get_rules response (function literals don't JSON-serialize).
+"doc_propagation_classify", "doc_propagation_classify_batch",
+"doc_propagation_get_rules"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -1854,6 +1860,45 @@ export function registerDevDispatcher(server: any): void {
             const { mitCourseDeepLearningEngine } = await import("../../engines/MITCourseDeepLearningEngine.js");
             const ids = mitCourseDeepLearningEngine.getAllCourseIds();
             result = { course_ids: ids, count: ids.length };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-DPE: DocPropagationEngine ────────────
+          case "doc_propagation_classify": {
+            const { docPropagationEngine } = await import("../../engines/DocPropagationEngine.js");
+            const p = params as { file_path: string };
+            const classification = docPropagationEngine.classify(p.file_path);
+            // matched_count / target_count are survivors when slimResponse
+            // strips empty arrays (a file that matched no rule returns []).
+            result = {
+              classification,
+              matched_count: classification.matchedRules.length,
+              target_count: classification.targets.length,
+            };
+            break;
+          }
+          case "doc_propagation_classify_batch": {
+            const { docPropagationEngine } = await import("../../engines/DocPropagationEngine.js");
+            const p = params as { file_paths: string[] };
+            const results = docPropagationEngine.classifyBatch(p.file_paths);
+            const total_targets = results.reduce((s, r) => s + r.targets.length, 0);
+            result = {
+              results,
+              input_count: p.file_paths.length,
+              total_targets,
+            };
+            break;
+          }
+          case "doc_propagation_get_rules": {
+            const { docPropagationEngine } = await import("../../engines/DocPropagationEngine.js");
+            const rules = docPropagationEngine.getRules();
+            // Strip the `match` function literal — it does not survive JSON.
+            // Callers wanting to evaluate match should use doc_propagation_classify.
+            const serializable = rules.map(r => ({
+              id: r.id,
+              reason: r.reason,
+              targets: r.targets.map(t => ({ surface: t.surface, action: t.action })),
+            }));
+            result = { rules: serializable, count: serializable.length };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-CEX: CatalogExtractionEngine ─────────
