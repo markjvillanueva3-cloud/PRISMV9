@@ -1,0 +1,101 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-05-17",
+  "generatedBy": "claude-de04081e (juliett)",
+  "source": [
+    "state/shared/specs/JULIETT-12CHAT-ROI-ALLOCATION-2026-05-17.md",
+    "state/shared/specs/JULIETT-DEVTOOLS-SYNERGY-MAP-2026-05-17.md",
+    "state/shared/specs/JULIETT-FAN-OUT-T1-T5-ADDENDUM-2026-05-17.md",
+    "state/shared/specs/JULIETT-TOKEN-OPTIMIZATION-AUDIT-2026-05-17.md"
+  ],
+  "doctrine": "Each slot's queue IS that slot's /goal when invoked via /checkin-<nato>. Slot consumes queue head-to-tail; /loop exits when queue empty (after dep-blocked units recheck). Items priority-ordered by wave (W0→W1→W2→W3→W4→synergy) within each slot. Cross-slot dependencies surface via depends_on array. Already-shipped (MILESTONE_PROGRESS) and peer-claimed (slot-task-claims) filtered automatically by scripts/slot-queue.mjs --pick.",
+  "operator_workflow": [
+    "1. /checkin-<nato>           → slot binds + reads its queue + auto-engages /loop",
+    "2. /loop iterates           → pick next eligible unit (not shipped, not peer-claimed, deps met)",
+    "3. build + per-file scrutiny + commit",
+    "4. tick loop-state → repeat",
+    "5. queue exhausted          → /loop ends gracefully → /handoff"
+  ],
+  "queues": {
+    "alpha": [
+      { "unit_id": "U-CLEAR-AUTO-RESUME", "wave": "W0", "cost": "S", "spec": "state/shared/specs/UNITS/U-CLEAR-AUTO-RESUME.md", "depends_on": [], "summary": "Wire `clear` matcher in session-start-auto-resume settings.json (code is ready)" },
+      { "unit_id": "U-ACTIVATE-BEFORE-BUILD-PRECHECK", "wave": "W1", "cost": "S", "spec": "state/shared/specs/UNITS/U-ACTIVATE-BEFORE-BUILD-PRECHECK.md", "depends_on": [], "summary": "PreToolUse:Write advisory hook (top-5 system-viz hits before new-engine creation)" },
+      { "unit_id": "U-PREBUILD-GATE-COMPOSITE", "wave": "W3-synergy", "cost": "M", "spec": "pending-generator", "depends_on": ["U-VAULT-UNIFIED-QUERY"], "summary": "Consolidate 8 PreToolUse hooks into 1 composite with shared ctx" },
+      { "unit_id": "U-CLEAR-BYPASS-COMPOSITE", "wave": "W3-synergy", "cost": "M", "spec": "pending-generator", "depends_on": ["U-CLEAR-AUTO-RESUME"], "summary": "SessionStart `clear` fanout → re-prime all 12 bypass surfaces" },
+      { "unit_id": "U-SVU-P1-LOADGRAPH-CACHE", "wave": "W4-synergy", "cost": "M", "spec": "pending-generator", "depends_on": [], "summary": "loadGraph dedup (M1) + module-scope cache (P1) — 80% latency drop" },
+      { "unit_id": "U-SVU-CLASSIFIER-FIX", "wave": "W4-synergy", "cost": "M", "spec": "pending-generator", "depends_on": [], "summary": "Fix binary doc-edge classifier (0 orphans on 372K-node graph is impossible)" },
+      { "unit_id": "U-AGENT-TEAM-COST-CAP", "wave": "W4-token", "cost": "S", "spec": "pending-generator", "depends_on": [], "summary": "Cap /goal agent fan-outs at 10/iter; default-Sonnet for non-critical scrutiny" }
+    ],
+    "bravo": [
+      { "unit_id": "U-AUTO-MEMORY-WRITE", "wave": "W2", "cost": "S", "spec": "pending-generator", "depends_on": ["U-MEMORY-COMPRESS-V2"], "summary": "memory-index-append.mjs + patch distill-session-learnings; closes 4-surface gap" },
+      { "unit_id": "U-DOCKER-FREE-FALLBACK", "wave": "W3-fanout", "cost": "M", "spec": "pending-generator", "depends_on": [], "summary": "Make QdrantMemoryEngine + 9 siblings fail-PRESERVE to file-JSON when 6333 unreachable" },
+      { "unit_id": "U-WIRE-OLLAMA-AGGREGATOR-2", "wave": "W3-fanout", "cost": "S", "spec": "pending-generator", "depends_on": [], "summary": "Wire ollama-context-aggregator + session-continuity; tag 5 others WIRE-EXEMPT" },
+      { "unit_id": "U-SKILL-CHAIN-MANIFEST", "wave": "W3-synergy", "cost": "M", "spec": "pending-generator", "depends_on": [], "co_owner": "foxtrot", "summary": "tool_chain frontmatter on 184 skills + RGS ingestion + validator" },
+      { "unit_id": "U-SEMANTIC-CACHE-FOR-REPEATED-PROMPTS", "wave": "W4-token", "cost": "M", "spec": "pending-generator", "depends_on": [], "summary": "Ollama nomic-embed-text cosine cache; 68.8% API call reduction per TDS" }
+    ],
+    "charlie": [
+      { "unit_id": "U-NEW-TOOL-AUTO-WIRE", "wave": "W2", "cost": "S", "spec": "pending-generator", "depends_on": [], "summary": "suggest-dispatcher-for-orphan.mjs + patch stop-auto-wire.mjs" },
+      { "unit_id": "U-SLOT-WORKTREE-FORCED-CUTOVER", "wave": "W3", "cost": "M", "spec": "pending-generator", "depends_on": [], "summary": "Stop-hook listing slots on shared branch; /checkin-<nato> Step 2c mandatory" },
+      { "unit_id": "U-OWNERSHIP-UNIFIED-LIB", "wave": "W3-synergy", "cost": "L", "spec": "pending-generator", "depends_on": [], "summary": "ownership-lib.mjs 4-layer front door (slot-task-claim SoT + chat-bus + handoff + legacy)" },
+      { "unit_id": "U-OWNERSHIP-LIVENESS-SWEEP", "wave": "W3-synergy", "cost": "S", "spec": "pending-generator", "depends_on": ["U-OWNERSHIP-UNIFIED-LIB"], "summary": "Stop hook auto-releases slot-task-claims when chat-slots crashed" }
+    ],
+    "delta": [
+      { "unit_id": "U-DOCTRINE-OBSOLESCENCE-SWEEP", "wave": "W2", "cost": "M", "spec": "pending-generator", "depends_on": [], "summary": "detect-supersedes-in-commit.mjs + post-ship-supersedes-flag.mjs hook (advisory only)" },
+      { "unit_id": "U-CHECKIN-VAULT-INJECT", "wave": "W3", "cost": "S", "spec": "pending-generator", "depends_on": [], "summary": "vault-state-inject.mjs UserPromptSubmit T2 for /checkin top-3 vault hits" },
+      { "unit_id": "U-VAULT-UNIFIED-QUERY", "wave": "W3-synergy", "cost": "M", "spec": "pending-generator", "depends_on": [], "summary": "scripts/vault-query.mjs + prism_memory:vault_query; raises 200MB→512MB graph cap (fixes F1)" }
+    ],
+    "echo": [
+      { "unit_id": "U-PRECOMMIT-PATHSPEC-ONLY", "wave": "W1", "cost": "S", "spec": "state/shared/specs/UNITS/U-PRECOMMIT-PATHSPEC-ONLY.md", "depends_on": [], "summary": "pre-commit hook rejects git add -A when peer claims active" },
+      { "unit_id": "U-DOC-REFLECTION-GATE-WITH-PATCH-SIBLINGS", "wave": "W3-synergy", "cost": "M", "spec": "pending-generator", "depends_on": ["U-AUTO-MEMORY-WRITE"], "summary": "Stop hook auto-writes patch siblings when peer-locked; supersedes V2.1 P1-14" },
+      { "unit_id": "U-CLAUDE-MD-EXTRACT-TO-SKILLS", "wave": "W4-token", "cost": "M", "spec": "pending-generator", "depends_on": [], "co_owner": "juliett", "summary": "Extract milestone sections to skills; bring CLAUDE.md ≤200 lines (Anthropic doctrine)" }
+    ],
+    "foxtrot": [
+      { "unit_id": "U-WIRE-DLQ", "wave": "W4", "cost": "S", "spec": "pending-generator", "depends_on": ["U-WIRE-DOCTRINE-RESOLUTION"], "summary": "Wire DeadLetterQueueEngine → devDispatcher (depth/oldest/list-poison)" },
+      { "unit_id": "U-WIRE-OTEL", "wave": "W4", "cost": "S", "spec": "pending-generator", "depends_on": ["U-WIRE-DOCTRINE-RESOLUTION"], "summary": "Wire OpenTelemetryTracingEngine → devDispatcher (otel_status, otel_recent_traces)" },
+      { "unit_id": "U-SKILL-CHAIN-MANIFEST", "wave": "W3-synergy", "cost": "M", "spec": "pending-generator", "depends_on": [], "co_owner": "bravo", "summary": "RGS patch for tool_chain ingestion + SKILL-CHAIN-COVERAGE dashboard" },
+      { "unit_id": "U-TELEMETRY-ROLLUP-DASHBOARD", "wave": "W3-synergy", "cost": "M", "spec": "pending-generator", "depends_on": [], "summary": "10-stream rolled dashboard + slot health badge in awareness inject" },
+      { "unit_id": "U-CLOSE-OUT-TRIAGE-CAMP", "wave": "W4-fanout", "cost": "S", "spec": "pending-generator", "depends_on": [], "co_owner": "hotel", "summary": "3 CAM-PARITY candidates close-out (operator-deferred per PRISM-APP-QUEUE)" }
+    ],
+    "golf": [
+      { "unit_id": "U-GOLF-CRASH-FAILOVER", "wave": "W3", "cost": "S", "spec": "pending-generator", "depends_on": [], "summary": "alpha-guardian as FALLBACK when golf-liveness=crashed; advisory naming next-eligible reaper-owner" },
+      { "unit_id": "U-SCHEDULED-TASK-AUDIT", "wave": "W3-fanout", "cost": "S", "spec": "pending-generator", "depends_on": [], "summary": "Disable 3 obsolete reapers (Zombie v2 + Node Orphan Cleaner + Orphan Process Reaper PS); PID-race risk" }
+    ],
+    "hotel": [
+      { "unit_id": "U-WIRE-PROM", "wave": "W4", "cost": "S", "spec": "pending-generator", "depends_on": ["U-WIRE-DOCTRINE-RESOLUTION"], "summary": "Wire PrometheusMetricsEngine → devDispatcher (metrics_dump, metrics_health)" },
+      { "unit_id": "U-WIRE-CHAOS", "wave": "W4", "cost": "S", "spec": "pending-generator", "depends_on": ["U-WIRE-DOCTRINE-RESOLUTION"], "summary": "Wire ChaosDrillSchedulerEngine → devDispatcher (chaos_drills_list, chaos_last_run)" },
+      { "unit_id": "U-CLOSE-OUT-TRIAGE-CAMP", "wave": "W4-fanout", "cost": "S", "spec": "pending-generator", "depends_on": [], "co_owner": "foxtrot", "summary": "3 CAM-PARITY candidates close-out (alt-owner if foxtrot saturated)" }
+    ],
+    "india": [
+      { "unit_id": "U-WIRE-LATBUDGET", "wave": "W4", "cost": "S", "spec": "pending-generator", "depends_on": ["U-WIRE-DOCTRINE-RESOLUTION"], "summary": "Wire LatencyBudgetDecompositionEngine → devDispatcher (latency_budgets, latency_breaches)" },
+      { "unit_id": "U-WIRE-PACT", "wave": "W4", "cost": "S", "spec": "pending-generator", "depends_on": ["U-WIRE-DOCTRINE-RESOLUTION"], "summary": "Wire PactContractTestEngine → devDispatcher (pact_coverage, pact_failures)" }
+    ],
+    "juliett": [
+      { "unit_id": "U-UNIT-SPEC-GENERATOR", "wave": "W1-meta", "cost": "M", "spec": "pending-generator", "depends_on": [], "summary": "scripts/generate-unit-specs.mjs parses V1 allocation + V2.1 NEW; emits 30+ specs first-run; idempotent" }
+    ],
+    "kilo": [
+      { "unit_id": "U-WIRE-DLOCK", "wave": "W4", "cost": "S", "spec": "pending-generator", "depends_on": ["U-WIRE-DOCTRINE-RESOLUTION"], "summary": "Wire DistributedLockEngine → localDispatcher (lock_status, lock_holders)" },
+      { "unit_id": "U-WIRE-LSH", "wave": "W4", "cost": "S", "spec": "pending-generator", "depends_on": ["U-WIRE-DOCTRINE-RESOLUTION"], "summary": "Wire LSHDedupEngine → devDispatcher (sibling pattern to BloomDedupEngine wiring)" },
+      { "unit_id": "U-HOOK-SYNERGY-CONSOLIDATION", "wave": "W3-synergy", "cost": "M", "spec": "pending-generator", "depends_on": ["U-VAULT-UNIFIED-QUERY"], "summary": "Merge 3 inject hooks + fix error-learn chain + dedupe 10 wirings + disable 3 dead hooks" }
+    ],
+    "lima": [
+      { "unit_id": "U-RGS-RULE-BACKEND-DEV", "wave": "W0", "cost": "S", "spec": "state/shared/specs/UNITS/U-RGS-RULE-BACKEND-DEV.md", "depends_on": [], "summary": "Add backend-dev domain rule to rgs-pipeline-rules.mjs (closes 0.30 generic fallback gap)" },
+      { "unit_id": "U-RGS-NEXT-INTEGRATE", "wave": "W4-synergy", "cost": "M", "spec": "pending-generator", "depends_on": ["U-UNIT-SPEC-GENERATOR"], "summary": "Add perUnitSpec + prerequisites + blocks to RGS plan; auto-build-on-stale into /pick-unit" },
+      { "unit_id": "U-WIRE-ENTROPY", "wave": "W4", "cost": "S", "spec": "pending-generator", "depends_on": ["U-WIRE-DOCTRINE-RESOLUTION"], "summary": "Wire EntropyTrackerEngine → devDispatcher (entropy_recent, entropy_anomalies)" }
+    ],
+    "mike": [
+      { "unit_id": "U-MEMORY-COMPRESS-V2", "wave": "W1", "cost": "S", "spec": "state/shared/specs/UNITS/U-MEMORY-COMPRESS-V2.md", "depends_on": [], "summary": "scripts/memory-compress-v2.mjs deterministic-reflow (watchdog SHIPPED U-OBS-B1)" },
+      { "unit_id": "U-MEMORY-GROWTH-GATE", "wave": "W1", "cost": "S", "spec": "pending-generator", "depends_on": [], "summary": "PreToolUse:Edit hard-block on MEMORY.md when bytes ≥ 22000 (closes watchdog gap)" },
+      { "unit_id": "U-WIRE-OLLAMA-FLOOR", "wave": "W4", "cost": "S", "spec": "pending-generator", "depends_on": ["U-WIRE-DOCTRINE-RESOLUTION"], "summary": "Wire OllamaContextFloorEngine → localDispatcher (low-coupling onboarding for mike)" }
+    ]
+  },
+  "operator_gates": [
+    { "id": "U-WIRE-DOCTRINE-RESOLUTION", "wave": "W0-operator", "blocks": ["U-WIRE-DLQ", "U-WIRE-OTEL", "U-WIRE-PROM", "U-WIRE-CHAOS", "U-WIRE-LATBUDGET", "U-WIRE-PACT", "U-WIRE-DLOCK", "U-WIRE-LSH", "U-WIRE-ENTROPY", "U-WIRE-OLLAMA-FLOOR"], "decision": "wire-by-default vs wire-on-demonstrated-need vs hybrid (recommended)" }
+  ],
+  "silent_degrade_fixes": [
+    { "id": "F1", "fix": "PRISM_GRAPH_MAX_BYTES=536870912 (env or scripts/lib/master-index-search-lib.mjs raise cap 200MB→512MB)", "blast_radius": "fleet-wide unified search silent-fails on 331MB graph", "owner_any_slot": true },
+    { "id": "F2", "fix": "U-CLEAR-AUTO-RESUME (alpha W0) — wire `clear` matcher in settings.json", "blast_radius": "/clear loses auto-resume", "owner_any_slot": false },
+    { "id": "F3", "fix": "error-pattern-capture matcher repair — diagnose 0-fire root cause", "blast_radius": "entire 3-stage error-learn chain DEAD", "owner_any_slot": true, "candidate_slot": "kilo or echo" },
+    { "id": "F4", "fix": "Dedupe 10 hook wirings (stress-harness-emit ×4 etc.)", "blast_radius": "~3000 redundant invocations/week", "owner_any_slot": false, "rolled_into": "U-HOOK-SYNERGY-CONSOLIDATION (kilo)" },
+    { "id": "F5", "fix": "state/shared/specs/UNITS/ dir created", "blast_radius": "CLEAR-pickup surface #10 was vapor", "status": "SHIPPED 2026-05-17 iter-3" }
+  ]
+}
