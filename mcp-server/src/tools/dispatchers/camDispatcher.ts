@@ -3158,14 +3158,12 @@ Params vary by action — pass relevant fields in params object.`,
             const { inventoryAwareToolSelectorEngine } = await import(
               "../../engines/InventoryAwareToolSelectorEngine.js"
             );
-            result = inventoryAwareToolSelectorEngine.selectForCAM({
-              cam_slug: String(params.cam_slug ?? params.target_cam ?? ""),
-              features: Array.isArray(params.features) ? params.features : [],
-              inventory: Array.isArray(params.inventory) ? params.inventory : [],
-              magazine_capacity: typeof params.magazine_capacity === "number"
-                ? params.magazine_capacity
-                : undefined,
-            });
+            // InventoryAwareToolSelectorEngine exposes select(features, inventory);
+            // cam_slug/magazine_capacity are not part of the current engine API.
+            result = inventoryAwareToolSelectorEngine.select(
+              Array.isArray(params.features) ? params.features : [],
+              Array.isArray(params.inventory) ? params.inventory : [],
+            );
             break;
           }
           case "cam_safety_validate": {
@@ -3384,7 +3382,7 @@ Params vary by action — pass relevant fields in params object.`,
               controller_hint: params.controller_hint as string,
               manufacturer_hint: params.manufacturer_hint as string,
               model_hint: params.model_hint as string,
-              source_type: params.spec_text ? "text" : params.spec_file ? "pdf" : undefined,
+              source_type: params.spec_text ? "manual_entry" : params.spec_file ? "pdf" : "manual_entry",
               source_content: params.spec_text as string,
             });
             result = {
@@ -3404,8 +3402,7 @@ Params vary by action — pass relevant fields in params object.`,
             const cycles = LathePostGeneratorDialectEngine.getSupportedCycles(controllerId);
             const genResult = LathePostGeneratorDialectEngine.generate({
               controller_id: controllerId,
-              operation: { type: "roughing" },
-              feature_type: "od_turning",
+              cycle_code: (params.cycle_code as string) ?? cycles[0] ?? "G71",
               parameters: {},
             });
             result = {
@@ -3448,7 +3445,7 @@ Params vary by action — pass relevant fields in params object.`,
             const gcodeStr = Array.isArray(gcodeInput) ? gcodeInput.join("\n") : gcodeInput;
             const blocks = LathePostProcessorDialectValidatorEngine.parseProgram(gcodeStr);
             const features = LathePostProcessorDialectValidatorEngine.detectDialectFeatures(blocks);
-            const hasM30 = blocks.some(b => b.codes.some((c: any) => c.letter === "M" && c.value === 30));
+            const hasM30 = blocks.some(b => b.m_codes.includes("M30"));
             const validatorResults = [
               { validator: "PPProgramEndValidator", category: "program_end", status: hasM30 ? "pass" : "fail" as const },
               { validator: "PPRapidMoveValidator", category: "rapid_move", status: "pass" as const },
@@ -3613,7 +3610,8 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             );
             const ingestResult = LathePostGeneratorSpecIngestEngine.ingest({
               controller_hint: controllerHint,
-              spec_text: params.spec_text as string | undefined,
+              source_type: "manual_entry",
+              source_content: params.spec_text as string,
             });
             pipeline.push({ stage: "ingest", success: ingestResult.success, data: ingestResult.spec, error: ingestResult.errors?.[0] });
 
@@ -4052,8 +4050,8 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { LatheMasterPostDeepReasoningEngine } = await import(
               "../../engines/LatheMasterPostDeepReasoningEngine.js"
             );
-            const deepResult = LatheMasterPostDeepReasoningEngine.explainSelection(params);
-            result = { success: deepResult.success, ...deepResult };
+            const deepResult = LatheMasterPostDeepReasoningEngine.explainSelection(params as unknown as Parameters<typeof LatheMasterPostDeepReasoningEngine.explainSelection>[0]);
+            result = { ...deepResult };
             break;
           }
 
@@ -4112,8 +4110,8 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { LatheMasterPostEnsembleCrossCheckEngine } = await import(
               "../../engines/LatheMasterPostEnsembleCrossCheckEngine.js"
             );
-            const ensembleResult = LatheMasterPostEnsembleCrossCheckEngine.runEnsemble(params);
-            result = { success: ensembleResult.success, ...ensembleResult };
+            const ensembleResult = LatheMasterPostEnsembleCrossCheckEngine.runEnsemble(params as unknown as Parameters<typeof LatheMasterPostEnsembleCrossCheckEngine.runEnsemble>[0]);
+            result = { ...ensembleResult };
             break;
           }
 
@@ -4143,11 +4141,10 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { LatheMasterPostEnsembleCrossCheckEngine } = await import(
               "../../engines/LatheMasterPostEnsembleCrossCheckEngine.js"
             );
-            const divergences = LatheMasterPostEnsembleCrossCheckEngine.computeDivergences(
-              params.outputs ?? [],
-              params.threshold ?? 0.8
+            const divEnsemble = LatheMasterPostEnsembleCrossCheckEngine.runEnsemble(
+              params as unknown as Parameters<typeof LatheMasterPostEnsembleCrossCheckEngine.runEnsemble>[0]
             );
-            result = { success: true, divergences };
+            result = { success: true, divergences: divEnsemble.divergences };
             break;
           }
 
@@ -6224,7 +6221,7 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             }));
             const wedmEngineOutput = mitsubishiMV1200RWireEDMMasterPostEngine.generateProgram(
               ops as any,
-              p.config
+              p.config as Parameters<typeof mitsubishiMV1200RWireEDMMasterPostEngine.generateProgram>[1]
             );
             // PPG-WIRE-MS6/U-PPGM17a — route through sealWEDMMasterPostOutput
             // so block_annotations land in sidecar.wedm_block_annotations and
@@ -6656,12 +6653,12 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           // ── PIPE-MS2: AutoPrintToProgramBridge (2 actions) ──
           case "auto_print_to_program": {
             const { autoPrintToProgramBridgeEngine } = await import("../../engines/AutoPrintToProgramBridgeEngine.js");
-            result = await autoPrintToProgramBridgeEngine.calculate("auto_print_to_program", params);
+            result = await autoPrintToProgramBridgeEngine.runAutoPipeline(params as unknown as Parameters<typeof autoPrintToProgramBridgeEngine.runAutoPipeline>[0]);
             break;
           }
           case "auto_detect_format": {
-            const { autoPrintToProgramBridgeEngine: bridgeDetect } = await import("../../engines/AutoPrintToProgramBridgeEngine.js");
-            result = await bridgeDetect.calculate("auto_detect_format", params);
+            const { detectFormat } = await import("../../engines/AutoPrintToProgramBridgeEngine.js");
+            result = { success: true, detected_format: detectFormat(String(params.content ?? ""), (params.format ?? "auto") as Parameters<typeof detectFormat>[1]) };
             break;
           }
           // ── PIPE-MS2: IGESImportEngine (3 actions — previously orphaned) ──
@@ -6800,7 +6797,7 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           // ── MS-P3-TIER6A: EDMWireSlugCornerTaperEngine (3 actions) ──
           case "edm_corner_taper_analyze": {
             const { edmWireSlugCornerTaperEngine } = await import("../../engines/EDMWireSlugCornerTaperEngine.js");
-            result = edmWireSlugCornerTaperEngine.analyze(params);
+            result = edmWireSlugCornerTaperEngine.analyze(params as unknown as Parameters<typeof edmWireSlugCornerTaperEngine.analyze>[0]);
             break;
           }
           case "edm_corner_taper_min_radius": {
@@ -6810,14 +6807,14 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           }
           case "edm_slug_drop_predict": {
             const { edmWireSlugCornerTaperEngine } = await import("../../engines/EDMWireSlugCornerTaperEngine.js");
-            const full = edmWireSlugCornerTaperEngine.analyze(params);
+            const full = edmWireSlugCornerTaperEngine.analyze(params as unknown as Parameters<typeof edmWireSlugCornerTaperEngine.analyze>[0]);
             result = { success: full.success, ...full.slug_prediction };
             break;
           }
           // ── MS-P3-TIER6A: EDMMultiPassStrategyEngine (3 actions) ──
           case "edm_multi_pass_plan": {
             const { edmMultiPassStrategyEngine } = await import("../../engines/EDMMultiPassStrategyEngine.js");
-            result = edmMultiPassStrategyEngine.plan(params);
+            result = edmMultiPassStrategyEngine.plan(params as unknown as Parameters<typeof edmMultiPassStrategyEngine.plan>[0]);
             break;
           }
           case "edm_multi_pass_cycle_time": {
@@ -11731,7 +11728,6 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               finishOvercut_mm: params.finish_overcut_mm ?? params.finishOvercutMm,
               numSkimPasses:    params.num_skim_passes ?? params.numSkimPasses,
               targetRa_um:      params.target_ra_um ?? params.targetRaUm,
-              controller:       params.controller,
               programNumber:    params.program_number ?? params.programNumber,
             });
             break;
@@ -13867,7 +13863,7 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
 
           case "hypermill_ac_status": {
             // U-HMR47: AC connection health check via HyperMillACConnectionManager.
-            _hmACConnMgr ??= (await import("../../engines/HyperMillACConnectionManager.js")).hyperMillACConnectionManagerMock;
+            _hmACConnMgr ??= (await import("../../engines/HyperMillACConnectionManager.js")).hyperMillACConnectionManager;
             result = await _hmACConnMgr.healthCheck();
             break;
           }
@@ -14206,7 +14202,7 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const singleFeature = params.feature as any;
             const material = { iso_group: params.iso_group as string ?? "P", name: params.material as string ?? "steel" };
             const processResult = mpEng.processAll([singleFeature], material);
-            result = processResult.results[0] ?? { error: "No result for feature" };
+            result = processResult.processes[0] ?? { error: "No result for feature" };
             break;
           }
 
@@ -14818,7 +14814,7 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             // Accept base64-encoded bytes to survive JSON transport
             const bytes = typeof params.bytes_b64 === "string"
               ? new Uint8Array(Buffer.from(params.bytes_b64 as string, "base64"))
-              : (params.bytes as Uint8Array);
+              : (params.bytes as Uint8Array<ArrayBuffer>);
             result = CAMGeometryExchangeEngine.registerBlob({
               blob_id: params.blob_id as string,
               format: params.format as any,
@@ -14832,7 +14828,7 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { CAMGeometryExchangeEngine } = await import("../../engines/CAMGeometryExchangeEngine.js");
             const bytes = typeof params.bytes_b64 === "string"
               ? new Uint8Array(Buffer.from(params.bytes_b64 as string, "base64"))
-              : (params.bytes as Uint8Array);
+              : (params.bytes as Uint8Array<ArrayBuffer>);
             result = CAMGeometryExchangeEngine.validateFormat(params.format as any, bytes);
             break;
           }
@@ -18074,7 +18070,7 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
 
           case "cam_analyze_toolpath": {
             const { CAMAnalyzeEngine } = await import("../../engines/CAMAnalyzeEngine.js");
-            const analysis = CAMAnalyzeEngine.analyze(params);
+            const analysis = CAMAnalyzeEngine.analyze(params as unknown as Parameters<typeof CAMAnalyzeEngine.analyze>[0]);
             result = { success: true, analysis };
             break;
           }
@@ -18093,7 +18089,7 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           }
           case "cam_deep_cross_map": {
             const { camDeepLearningEngine } = await import("../../engines/CAMDeepLearningEngine.js");
-            const mapping = camDeepLearningEngine.getCrossCAMMapping(params.source_cam, params.target_cam);
+            const mapping = camDeepLearningEngine.getCrossCAMMapping(params.source_cam, params.source_strategy ?? params.strategy ?? "", params.target_cam);
             result = { success: true, mapping };
             break;
           }
@@ -18106,7 +18102,7 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
 
           case "cam_export": {
             const { CAMExportEngine } = await import("../../engines/CAMExportEngine.js");
-            const exported = CAMExportEngine.export(params);
+            const exported = CAMExportEngine.export(params.toolpaths, params.target_system, params.format);
             result = { success: true, exported };
             break;
           }
@@ -18125,7 +18121,7 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
 
           case "cam_exhaustion_plan_next": {
             const { camInputExhaustionPlannerEngine } = await import("../../engines/CAMInputExhaustionPlannerEngine.js");
-            const plan = camInputExhaustionPlannerEngine.planNext(params);
+            const plan = camInputExhaustionPlannerEngine.planNext();
             result = { success: true, plan };
             break;
           }
@@ -18175,7 +18171,7 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
 
           case "cam_kernel_validate": {
             const { camKernelValidationEngine } = await import("../../engines/CAMKernelValidationEngine.js");
-            const validation = camKernelValidationEngine.validateCAMInput(params);
+            const validation = camKernelValidationEngine.validateCAMInput(params.input, params.schema as string);
             result = { success: true, validation };
             break;
           }
@@ -18187,32 +18183,32 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           }
           case "cam_kernel_dfm_analyze": {
             const { camKernelValidationEngine } = await import("../../engines/CAMKernelValidationEngine.js");
-            const dfm = camKernelValidationEngine.analyzeDFM(params);
+            const dfm = camKernelValidationEngine.analyzeDFM(params.features, params.material, params.machine);
             result = { success: true, dfm };
             break;
           }
 
           case "cam_sdk_optimize_sf": {
             const { camPluginSDKEngine } = await import("../../engines/CAMPluginSDKEngine.js");
-            const optimized = camPluginSDKEngine.optimizeSF(params);
+            const optimized = camPluginSDKEngine.optimizeSF(params as unknown as Parameters<typeof camPluginSDKEngine.optimizeSF>[0]);
             result = { success: true, optimized };
             break;
           }
           case "cam_sdk_check_safety": {
             const { camPluginSDKEngine } = await import("../../engines/CAMPluginSDKEngine.js");
-            const safety = camPluginSDKEngine.checkSafety(params);
+            const safety = camPluginSDKEngine.checkSafety(params as unknown as Parameters<typeof camPluginSDKEngine.checkSafety>[0]);
             result = { success: true, safety };
             break;
           }
           case "cam_sdk_suggest_tool": {
             const { camPluginSDKEngine } = await import("../../engines/CAMPluginSDKEngine.js");
-            const suggestion = camPluginSDKEngine.suggestTool(params);
+            const suggestion = camPluginSDKEngine.suggestTool(params as unknown as Parameters<typeof camPluginSDKEngine.suggestTool>[0]);
             result = { success: true, suggestion };
             break;
           }
           case "cam_sdk_get_tip": {
             const { camPluginSDKEngine } = await import("../../engines/CAMPluginSDKEngine.js");
-            const tip = camPluginSDKEngine.getTip(params.operation, params.material);
+            const tip = camPluginSDKEngine.getTip(params as unknown as Parameters<typeof camPluginSDKEngine.getTip>[0]);
             result = { success: true, tip };
             break;
           }
@@ -18225,7 +18221,7 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
 
           case "cam_strategy_recommend_full": {
             const { camStrategyRecommenderEngine } = await import("../../engines/CAMStrategyRecommenderEngine.js");
-            const recommendation = camStrategyRecommenderEngine.recommend(params);
+            const recommendation = camStrategyRecommenderEngine.recommend(params as unknown as Parameters<typeof camStrategyRecommenderEngine.recommend>[0]);
             result = { success: true, recommendation };
             break;
           }
@@ -18244,7 +18240,7 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           }
           case "cam_tool_library_search": {
             const { CAMToolLibraryEngine } = await import("../../engines/CAMToolLibraryEngine.js");
-            const tools = CAMToolLibraryEngine.searchTools(params.query, params.filters);
+            const tools = CAMToolLibraryEngine.searchTools(params.filters ?? params.query ?? {});
             result = { success: true, tools };
             break;
           }

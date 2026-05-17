@@ -60,7 +60,7 @@ export interface AutoPipelineResult {
 
 const AWARENESS_TIMEOUT_MS = 50;
 
-function detectFormat(content: string, formatHint: InputFormat): InputFormat {
+export function detectFormat(content: string, formatHint: InputFormat): InputFormat {
   // Content-based detection takes precedence
   if (content.startsWith("ISO-10303")) return "step";
   if (/(^|\n)\s*0\s*\n\s*SECTION\b/.test(content)) return "dxf";
@@ -115,7 +115,7 @@ export class AutoPrintToProgramBridgeEngine {
     // Stage 1: awareness consult
     const detectedFormat = detectFormat(input.content, input.format);
     const detectedProcess = detectProcess(input.process_type, detectedFormat, input.content);
-    const keywords = [detectedProcess, detectedFormat];
+    const keywords: string[] = [detectedProcess, detectedFormat];
     if (input.material_name) keywords.push(input.material_name);
 
     try {
