@@ -2292,4 +2292,30 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     features: z.array(z.string().min(1).max(256)).max(200).optional()
       .describe("Feature names — engine substring-matches against keywords"),
   }).describe("Infer process type from {machine, operations, features} context. Pure (synchronous, no WTE dep)."),
+
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-AET: ActionableErrorTemplateEngine wiring ──
+  // PP-0.25.6-U-UX2 turns blocking errors into actionable "Try instead:"
+  // hints. Read methods only — register/registerAll/clear DEFERRED
+  // (LLM-callable registers would let fictional templates mask real errors).
+  // 5 actions wired.
+  aet_has: z.object({
+    code: z.string().min(1).max(256)
+      .describe("Error code to check for template existence"),
+  }).describe("Boolean check whether a template exists. Pure read."),
+
+  aet_get: z.object({
+    code: z.string().min(1).max(256)
+      .describe("Error code whose template to fetch"),
+  }).describe("Get a registered template — returns null when unknown. Pure read."),
+
+  aet_render: z.object({
+    code: z.string().min(1).max(256)
+      .describe("Error code to render; unknown codes get a generic 'no template' result"),
+    variables: z.record(z.string(), z.union([z.string(), z.number()])).optional()
+      .describe("Optional {var} placeholder substitutions"),
+  }).describe("Render an actionable error (headline + tryInstead + suggestedCommand + docsUrl + assembled message). Pure."),
+
+  aet_list_codes: z.object({}).describe("Return every registered template code, sorted. Pure read."),
+
+  aet_size: z.object({}).describe("Return the registered template count. Pure read."),
 };

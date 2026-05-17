@@ -379,7 +379,12 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // over WorkflowTemplateEngine (graceful null/[] when WTE unavailable).
 // logWorkflowValidation NOT WIRED (fire-and-forget side-effect, no return).
 "wih_suggest_workflow", "wih_validate_sequence", "wih_get_quick_reference",
-"wih_get_order_of_operations", "wih_infer_process_type"] as const;
+"wih_get_order_of_operations", "wih_infer_process_type",
+// WIRE-UNWIRED-MS0/U-WIRE-AET: ActionableErrorTemplateEngine — turns
+// blocking errors into "Try instead:" hints. Read methods only;
+// register/registerAll/clear DEFERRED (LLM-callable registers would
+// let fictional templates mask real errors).
+"aet_has", "aet_get", "aet_render", "aet_list_codes", "aet_size"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -2425,6 +2430,41 @@ export function registerDevDispatcher(server: any): void {
               features: p.features,
             });
             result = { process_type };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-AET: ActionableErrorTemplateEngine ───
+          case "aet_has": {
+            const { actionableErrorTemplateEngine } = await import("../../engines/ActionableErrorTemplateEngine.js");
+            const code = (params as { code: string }).code;
+            // Explicit discriminator — slimResponse strips `false` silently.
+            result = { code, has: actionableErrorTemplateEngine.has(code) ? true : "no" };
+            break;
+          }
+          case "aet_get": {
+            const { actionableErrorTemplateEngine } = await import("../../engines/ActionableErrorTemplateEngine.js");
+            const code = (params as { code: string }).code;
+            const template = actionableErrorTemplateEngine.get(code);
+            result = template === null
+              ? { found: false, code }
+              : { found: true, code, template };
+            break;
+          }
+          case "aet_render": {
+            const { actionableErrorTemplateEngine } = await import("../../engines/ActionableErrorTemplateEngine.js");
+            const p = params as { code: string; variables?: Record<string, string | number> };
+            const rendered = actionableErrorTemplateEngine.render(p.code, p.variables ?? {});
+            result = { rendered };
+            break;
+          }
+          case "aet_list_codes": {
+            const { actionableErrorTemplateEngine } = await import("../../engines/ActionableErrorTemplateEngine.js");
+            const codes = actionableErrorTemplateEngine.listCodes();
+            result = { codes, count: codes.length };
+            break;
+          }
+          case "aet_size": {
+            const { actionableErrorTemplateEngine } = await import("../../engines/ActionableErrorTemplateEngine.js");
+            result = { size: actionableErrorTemplateEngine.size() };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-CEX: CatalogExtractionEngine ─────────
