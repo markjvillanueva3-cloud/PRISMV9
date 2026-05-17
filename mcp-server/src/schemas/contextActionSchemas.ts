@@ -4,7 +4,90 @@
 
 import { z } from "zod";
 
+// ── WIRE-UNWIRED-MS0/U-WIRE-COMPACT-PLANNER — CompactPlannerEngine schemas ──
+// Mirrors ContentCategory / ContentItem / CompactPlan from CompactPlannerEngine.ts.
+// Categories must stay in sync with the engine's `ContentCategory` union.
+
+const compactContentCategorySchema = z
+  .enum([
+    "active-task",
+    "file-state",
+    "decision",
+    "error-context",
+    "user-preference",
+    "tool-result",
+    "exploration",
+    "completed",
+    "stale",
+  ])
+  .describe("Content category — drives default priority in the compaction plan");
+
+const compactContentItemSchema = z
+  .object({
+    category: compactContentCategorySchema,
+    summary: z.string().describe("Short human-readable summary of the content item"),
+    tokens: z.number().int().nonnegative().describe("Token count for this item"),
+    priority: z
+      .number()
+      .int()
+      .min(0)
+      .max(5)
+      .describe("Priority 1 (must keep) to 5 (safe to drop); 0 means use category default"),
+    age: z.number().nonnegative().describe("Minutes since the item was created"),
+  })
+  .strict()
+  .describe("Single content item being considered for keep/drop");
+
+const compactPlanResultSchema = z
+  .object({
+    keep: z.array(compactContentItemSchema).describe("Items the plan retains"),
+    drop: z.array(compactContentItemSchema).describe("Items the plan discards"),
+    tokensBefore: z.number().nonnegative().describe("Total token count before compaction"),
+    tokensAfter: z.number().nonnegative().describe("Token count of retained items"),
+    savings: z.number().describe("tokensBefore - tokensAfter"),
+    savingsPercent: z.number().describe("Integer percentage of savings"),
+    preservationNotes: z.array(z.string()).describe("Human-readable warnings/notes about the plan"),
+  })
+  .strict()
+  .describe("Output of compact_plan — also accepted as input for compact_summary");
+
 export const ACTION_CONTEXT_SCHEMAS: Record<string, z.ZodTypeAny> = {
+  // WIRE-UNWIRED-MS0/U-WIRE-COMPACT-PLANNER — pure-compute compaction planning
+  compact_plan: z
+    .object({
+      items: z.array(compactContentItemSchema).describe("Content items being considered"),
+      targetTokens: z
+        .number()
+        .int()
+        .nonnegative()
+        .describe("Token ceiling for retained items (priority=1 items kept regardless)"),
+    })
+    .strict()
+    .describe("Plan optimal content preservation given a token budget"),
+  compact_categorize: z
+    .object({
+      content: z.string().describe("Raw content string to categorize via keyword heuristics"),
+    })
+    .strict()
+    .describe("Auto-classify a content string into one of the ContentCategory enum values"),
+  compact_estimate_capacity: z
+    .object({
+      targetTokens: z.number().int().nonnegative().describe("Token budget for retained items"),
+      avgItemTokens: z
+        .number()
+        .int()
+        .positive()
+        .optional()
+        .describe("Average tokens per item (defaults to 150)"),
+    })
+    .strict()
+    .describe("Estimate item count that fits in the token budget"),
+  compact_summary: z
+    .object({
+      plan: compactPlanResultSchema,
+    })
+    .strict()
+    .describe("Render a multi-line preservation summary from a compact_plan result"),
   // Identity Model — U-SAV2-01
   identity_register: z.object({
     sessionId: z.string().min(1),

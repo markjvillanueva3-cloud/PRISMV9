@@ -123,6 +123,13 @@ const ACTIONS = [
   "checkpoint_recover",
   "checkpoint_ingest",
   "checkpoint_config",
+  // WIRE-UNWIRED-MS0/U-WIRE-COMPACT-PLANNER — CompactPlannerEngine pure-compute surface.
+  // Plans optimal content preservation when context is about to be compacted.
+  // All 4 actions are pure (no I/O, no side effects) — safe for high-frequency calls.
+  "compact_plan",
+  "compact_categorize",
+  "compact_estimate_capacity",
+  "compact_summary",
 ] as const;
 
 const STATE_DIR = PATHS.STATE_DIR;
@@ -1508,6 +1515,54 @@ ${todoState.blockingIssues.length > 0 ? todoState.blockingIssues.map(i => `- ${i
                 maxCheckpointsPerSession: config.maxCheckpointsPerSession,
               };
               return ok({ success: true, data: { config: wireConfig } });
+            } catch (err) {
+              return dispatcherError(err, action, "prism_context");
+            }
+          }
+
+          // WIRE-UNWIRED-MS0/U-WIRE-COMPACT-PLANNER — CompactPlannerEngine.
+          // Pure-compute surface: plan compaction, categorize content, estimate
+          // capacity, and render preservation summary. No I/O, no side effects.
+          case "compact_plan": {
+            const { compactPlannerEngine } = await import("../../engines/CompactPlannerEngine.js");
+            try {
+              const plan = compactPlannerEngine.plan(
+                params.items as Parameters<typeof compactPlannerEngine.plan>[0],
+                params.targetTokens as number,
+              );
+              return ok({ success: true, data: plan });
+            } catch (err) {
+              return dispatcherError(err, action, "prism_context");
+            }
+          }
+          case "compact_categorize": {
+            const { compactPlannerEngine } = await import("../../engines/CompactPlannerEngine.js");
+            try {
+              const category = compactPlannerEngine.categorize(params.content as string);
+              return ok({ success: true, data: { category } });
+            } catch (err) {
+              return dispatcherError(err, action, "prism_context");
+            }
+          }
+          case "compact_estimate_capacity": {
+            const { compactPlannerEngine } = await import("../../engines/CompactPlannerEngine.js");
+            try {
+              const capacity = compactPlannerEngine.estimateCapacity(
+                params.targetTokens as number,
+                params.avgItemTokens as number | undefined,
+              );
+              return ok({ success: true, data: { capacity } });
+            } catch (err) {
+              return dispatcherError(err, action, "prism_context");
+            }
+          }
+          case "compact_summary": {
+            const { compactPlannerEngine } = await import("../../engines/CompactPlannerEngine.js");
+            try {
+              const summary = compactPlannerEngine.preservationSummary(
+                params.plan as Parameters<typeof compactPlannerEngine.preservationSummary>[0],
+              );
+              return ok({ success: true, data: { summary } });
             } catch (err) {
               return dispatcherError(err, action, "prism_context");
             }
