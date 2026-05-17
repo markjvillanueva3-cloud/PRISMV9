@@ -1357,6 +1357,8 @@ export const ACTIONS = [
   "pm_unified_catalog", "pm_unified_list", "pm_unified_get", "pm_unified_search", "pm_unified_categories", "pm_unified_by_category", "pm_unified_recommend", "pm_unified_stats", "pm_unified_validate", "pm_unified_workflow",
   // E1122 — CATIACodeGeneratorEngine (2 actions)
   "catia_code_generate", "catia_code_templates",
+  // CATIAMachiningAIOrchestrationEngine (3 actions, WIRE-UNWIRED foxtrot 2026-05-17)
+  "catia_ai_orchestrate", "catia_ai_get_reasoning_modes", "catia_ai_get_stats",
   // E1120 — HyperMillCodeGeneratorEngine (2 actions)
   "hypermill_code_generate", "hypermill_code_templates",
   // CAD-COMPLETE-MS0/U-CADC-HM-PRINT-01 — PrintToHyperMillBridge (3 actions)
@@ -9054,6 +9056,30 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "catia_code_templates": {
             const eng = await getEngine("catiaCodeGen");
             result = eng.getTemplates(params.category);
+            break;
+          }
+
+          // ── CATIAMachiningAIOrchestrationEngine (WIRE-UNWIRED foxtrot 2026-05-17)
+          // Mirrors the cam_hypermill_ai_* / powermill_ai_* trio. orchestrate()
+          // never throws — sub-engine failures surface via warnings[].
+          case "catia_ai_orchestrate": {
+            const { catiaMachiningAIOrchestrationEngine } = await import("../../engines/CATIAMachiningAIOrchestrationEngine.js");
+            const response = await catiaMachiningAIOrchestrationEngine.orchestrate(
+              params as Parameters<typeof catiaMachiningAIOrchestrationEngine.orchestrate>[0],
+            );
+            result = { success: true, response };
+            break;
+          }
+          case "catia_ai_get_reasoning_modes": {
+            const { catiaMachiningAIOrchestrationEngine } = await import("../../engines/CATIAMachiningAIOrchestrationEngine.js");
+            const modes = catiaMachiningAIOrchestrationEngine.getReasoningModes();
+            result = { success: true, modes, count: modes.length };
+            break;
+          }
+          case "catia_ai_get_stats": {
+            const { catiaMachiningAIOrchestrationEngine } = await import("../../engines/CATIAMachiningAIOrchestrationEngine.js");
+            const stats = catiaMachiningAIOrchestrationEngine.getStats();
+            result = { success: true, ...stats };
             break;
           }
 
