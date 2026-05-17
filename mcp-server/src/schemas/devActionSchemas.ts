@@ -1899,4 +1899,85 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     schema: z.record(z.string(), z.unknown())
       .describe("JSON-schema-like object to summarize"),
   }).describe("One-line token-savings summary (e.g. '350→180 tokens (49% saved)'). Pure."),
+
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-CSE: CompactionStrategyEngine wiring ──
+  // Context-window compaction planner — decides keep/compress/drop per block.
+  // All 4 methods pure (no I/O). No defers.
+  cse_plan: z.object({
+    blocks: z.array(z.object({
+      id: z.string().min(1).max(256).describe("Block identifier"),
+      category: z.enum(["active-edit","recent-read","stale-read","tool-output","error-context","conversation","system-prompt","unknown"])
+        .describe("Content category drives the priority + compression ratio"),
+      tokens: z.number().int().nonnegative().max(10_000_000).describe("Token count of this block"),
+      age: z.number().nonnegative().max(86_400_000).describe("Age (engine-defined unit; typically seconds)"),
+      importance: z.number().min(0).max(1).describe("Caller-supplied importance boost [0,1]"),
+      content: z.string().max(1_000_000).optional().describe("Optional block content (engine does not inspect for plan)"),
+    }).passthrough()).min(1).max(10_000)
+      .describe("Content blocks competing for budget (≤10k for DoS bound)"),
+    budget_tokens: z.number().int().positive().max(10_000_000)
+      .describe("Token budget the plan must fit"),
+  }).describe("Decide keep/compress/drop per block to fit a token budget. Pure."),
+
+  cse_categorize: z.object({
+    content: z.string().max(1_000_000)
+      .describe("Block content to classify"),
+    tool: z.string().min(1).max(64).optional()
+      .describe("Tool that produced the content (Edit/Write/Read/Bash/Grep/Glob)"),
+    age_seconds: z.number().nonnegative().max(86_400_000).optional()
+      .describe("Age of the content in seconds (>300 demotes Read to stale-read)"),
+  }).describe("Classify content into one of 8 ContentCategory bins. Pure."),
+
+  cse_estimate_savings: z.object({
+    blocks: z.array(z.object({
+      id: z.string().min(1).max(256),
+      category: z.enum(["active-edit","recent-read","stale-read","tool-output","error-context","conversation","system-prompt","unknown"]),
+      tokens: z.number().int().nonnegative().max(10_000_000),
+      age: z.number().nonnegative().max(86_400_000),
+      importance: z.number().min(0).max(1),
+      content: z.string().max(1_000_000).optional(),
+    }).passthrough()).min(1).max(10_000),
+    budget_tokens: z.number().int().positive().max(10_000_000),
+  }).describe("Estimate {canSave, percent} for a set of blocks at a budget. Pure."),
+
+  cse_recommend: z.object({
+    blocks: z.array(z.object({
+      id: z.string().min(1).max(256),
+      category: z.enum(["active-edit","recent-read","stale-read","tool-output","error-context","conversation","system-prompt","unknown"]),
+      tokens: z.number().int().nonnegative().max(10_000_000),
+      age: z.number().nonnegative().max(86_400_000),
+      importance: z.number().min(0).max(1),
+      content: z.string().max(1_000_000).optional(),
+    }).passthrough()).min(1).max(10_000),
+    budget_tokens: z.number().int().positive().max(10_000_000),
+  }).describe("One-line 'Compaction: keep N, compress M, ...' recommendation. Pure."),
+
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-DME: DiffMinimizerEngine wiring ──
+  // Token-saving edit-diff minimizer. All 3 methods pure (no I/O).
+  // DoS guards: 1 MB content cap, 1000 edits per analysis batch.
+  dme_minimize: z.object({
+    file_content: z.string().max(1_048_576)
+      .describe("Source file content to search (≤1 MB)"),
+    target_line: z.string().min(1).max(4096)
+      .describe("Existing line to replace (trim-matched against file)"),
+    new_line: z.string().max(4096)
+      .describe("Replacement line — may be empty to delete"),
+    context_window: z.number().int().nonnegative().max(50).optional()
+      .describe("Context-line window when target_line is ambiguous (≤50)"),
+  }).describe("Find the smallest unique context that pins an edit. Pure."),
+
+  dme_analyze_edits: z.object({
+    edits: z.array(z.object({
+      oldString: z.string().max(4096).describe("The diff's old_string"),
+      newString: z.string().max(4096).describe("The diff's new_string"),
+    }).passthrough()).min(1).max(1000)
+      .describe("Batch of {oldString, newString} edits (≤1000 for DoS bound)"),
+  }).describe("Summarize a batch of edits: totalEdits + avgs + estimatedTokens + canOptimize count. Pure."),
+
+  dme_can_combine: z.object({
+    edits: z.array(z.object({
+      file: z.string().min(1).max(4096).describe("Path of the file being edited"),
+      lineNumber: z.number().int().nonnegative().max(10_000_000).describe("1-based line number of the edit"),
+    }).passthrough()).min(1).max(1000)
+      .describe("Edit locations to consider for clustering (≤1000)"),
+  }).describe("Find clusters of adjacent edits that could be combined. Pure."),
 };

@@ -341,7 +341,13 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // schema compactor + TS-like type-signature generator. All 5 methods
 // pure; no defers.
 "sch_compact", "sch_compact_with_stats", "sch_to_type_signature",
-"sch_compact_all", "sch_one_liner"] as const;
+"sch_compact_all", "sch_one_liner",
+// WIRE-UNWIRED-MS0/U-WIRE-CSE: CompactionStrategyEngine — context-window
+// compaction planner (keep/compress/drop per block). All 4 methods pure.
+"cse_plan", "cse_categorize", "cse_estimate_savings", "cse_recommend",
+// WIRE-UNWIRED-MS0/U-WIRE-DME: DiffMinimizerEngine — token-saving edit
+// diff minimizer. All 3 methods pure.
+"dme_minimize", "dme_analyze_edits", "dme_can_combine"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -2033,6 +2039,62 @@ export function registerDevDispatcher(server: any): void {
             const schema = (params as { schema: Record<string, unknown> }).schema;
             const summary = schemaCompactEngine.oneLiner(schema);
             result = { summary };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-CSE: CompactionStrategyEngine ────────
+          case "cse_plan": {
+            const { compactionStrategyEngine } = await import("../../engines/CompactionStrategyEngine.js");
+            const p = params as { blocks: any[]; budget_tokens: number };
+            const plan = compactionStrategyEngine.plan(p.blocks, p.budget_tokens);
+            result = {
+              plan,
+              keep_count: plan.keep.length,
+              compress_count: plan.compress.length,
+              drop_count: plan.drop.length,
+            };
+            break;
+          }
+          case "cse_categorize": {
+            const { compactionStrategyEngine } = await import("../../engines/CompactionStrategyEngine.js");
+            const p = params as { content: string; tool?: string; age_seconds?: number };
+            const category = compactionStrategyEngine.categorize(p.content, p.tool, p.age_seconds);
+            result = { category };
+            break;
+          }
+          case "cse_estimate_savings": {
+            const { compactionStrategyEngine } = await import("../../engines/CompactionStrategyEngine.js");
+            const p = params as { blocks: any[]; budget_tokens: number };
+            const savings = compactionStrategyEngine.estimateSavings(p.blocks, p.budget_tokens);
+            result = { savings };
+            break;
+          }
+          case "cse_recommend": {
+            const { compactionStrategyEngine } = await import("../../engines/CompactionStrategyEngine.js");
+            const p = params as { blocks: any[]; budget_tokens: number };
+            const recommendation = compactionStrategyEngine.recommend(p.blocks, p.budget_tokens);
+            result = { recommendation };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-DME: DiffMinimizerEngine ─────────────
+          case "dme_minimize": {
+            const { diffMinimizerEngine } = await import("../../engines/DiffMinimizerEngine.js");
+            const p = params as { file_content: string; target_line: string; new_line: string; context_window?: number };
+            const diff = diffMinimizerEngine.minimize(p.file_content, p.target_line, p.new_line, p.context_window ?? 0);
+            result = { diff };
+            break;
+          }
+          case "dme_analyze_edits": {
+            const { diffMinimizerEngine } = await import("../../engines/DiffMinimizerEngine.js");
+            const p = params as { edits: Array<{ oldString: string; newString: string }> };
+            const analysis = diffMinimizerEngine.analyzeEdits(p.edits);
+            result = { analysis };
+            break;
+          }
+          case "dme_can_combine": {
+            const { diffMinimizerEngine } = await import("../../engines/DiffMinimizerEngine.js");
+            const p = params as { edits: Array<{ file: string; lineNumber: number }> };
+            const clusters = diffMinimizerEngine.canCombine(p.edits);
+            result = { clusters, count: clusters.length };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-CEX: CatalogExtractionEngine ─────────
