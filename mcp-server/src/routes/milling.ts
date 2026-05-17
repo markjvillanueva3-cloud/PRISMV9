@@ -115,7 +115,7 @@ export function createMillingRouter(callTool: CallToolFn): Router {
 
       return res.json({ features: [], confidence: 0.5, message: "Unknown file type" });
     } catch (e) {
-      next(e);
+      return next(e);
     }
   });
 
@@ -259,8 +259,6 @@ export function createMillingRouter(callTool: CallToolFn): Router {
           operation: Array.isArray(strategies) ? strategies.join(",") : "milling",
           controller: machine?.controller ?? "Haas NGC",
           post_processor_id: machine?.controller ?? "Haas NGC",
-        },
-        {
           process: "mill",
           solveSource: "orchestrate",
           enginesCalled: [
@@ -284,7 +282,7 @@ export function createMillingRouter(callTool: CallToolFn): Router {
         redirect: `/milling/results`,
       });
     } catch (e) {
-      next(e);
+      return next(e);
     }
   });
 
@@ -308,7 +306,7 @@ export function createMillingRouter(callTool: CallToolFn): Router {
         created: job.created.toISOString(),
       });
     } catch (e) {
-      next(e);
+      return next(e);
     }
   });
 
@@ -321,7 +319,7 @@ export function createMillingRouter(callTool: CallToolFn): Router {
       });
       res.json({ ok: true, result });
     } catch (e) {
-      next(e);
+      return next(e);
     }
   });
 
@@ -331,7 +329,7 @@ export function createMillingRouter(callTool: CallToolFn): Router {
       const result = await callTool("prism_cam", "print_to_program_validate", req.body);
       res.json({ ok: true, result });
     } catch (e) {
-      next(e);
+      return next(e);
     }
   });
 
@@ -344,7 +342,7 @@ export function createMillingRouter(callTool: CallToolFn): Router {
       });
       res.json({ ok: true, result });
     } catch (e) {
-      next(e);
+      return next(e);
     }
   });
 
@@ -376,7 +374,7 @@ export function createMillingRouter(callTool: CallToolFn): Router {
       const result = await callTool("prism_knowledge", "tribal_search", req.body);
       res.json({ ok: true, wisdom: result });
     } catch (e) {
-      next(e);
+      return next(e);
     }
   });
 
@@ -404,7 +402,7 @@ export function createMillingRouter(callTool: CallToolFn): Router {
       }
       res.json({ ok: false, error: "Scientific orchestration unavailable" });
     } catch (e) {
-      next(e);
+      return next(e);
     }
   });
 
@@ -434,7 +432,7 @@ export function createMillingRouter(callTool: CallToolFn): Router {
       }
       res.json({ ok: false, error: "AGI reasoning unavailable" });
     } catch (e) {
-      next(e);
+      return next(e);
     }
   });
 
@@ -460,7 +458,7 @@ export function createMillingRouter(callTool: CallToolFn): Router {
       }
       res.json({ ok: false, error: "Adaptive optimization unavailable" });
     } catch (e) {
-      next(e);
+      return next(e);
     }
   });
 
@@ -476,7 +474,7 @@ export function createMillingRouter(callTool: CallToolFn): Router {
       });
       res.json({ ok: true, optimization: result });
     } catch (e) {
-      next(e);
+      return next(e);
     }
   });
 
