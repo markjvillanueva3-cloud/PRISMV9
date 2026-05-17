@@ -39,7 +39,7 @@ type GraphNodeRecord = Record<string, any>;
 export function registerMemoryDispatcher(server: McpServer): void {
   (server as ValidatedServer).tool(
     "prism_memory",
-    "Cross-session memory graph + semantic vector recall + agent memory fabric. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity, consolidate, consolidation_stats, consolidation_patterns, record_session_end, semantic_search, remember, qdrant_vector_search, qdrant_vector_upsert, agent_memory_remember, agent_memory_query, agent_memory_reinforce, agent_memory_forget, agent_memory_stats, emerging_thesis, daily_brief_get, daily_context_get, weekly_synthesis_get, queue_processor_scan, queue_processor_process, contradiction_check, postmortem_create, performance_report, connections_materialize, content_brief_create, voice_validate, capture_sharpen, embed_text, embed_pairwise_cosine, inbox_prune_now, inbox_promote_now",
+    "Cross-session memory graph + semantic vector recall + agent memory fabric. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity, consolidate, consolidation_stats, consolidation_patterns, record_session_end, semantic_search, remember, qdrant_vector_search, qdrant_vector_upsert, agent_memory_remember, agent_memory_query, agent_memory_reinforce, agent_memory_forget, agent_memory_stats, emerging_thesis, daily_brief_get, daily_context_get, weekly_synthesis_get, queue_processor_scan, queue_processor_process, project_auto_updater_scan, project_auto_updater_process, contradiction_check, postmortem_create, performance_report, connections_materialize, content_brief_create, voice_validate, capture_sharpen, embed_text, embed_pairwise_cosine, inbox_prune_now, inbox_promote_now",
     {
       action: z.enum([
         "get_health",
@@ -74,6 +74,10 @@ export function registerMemoryDispatcher(server: McpServer): void {
         // for RESEARCH-*.md / SYNTHESIZE-*.md / DRAFT-*.md (size-gated routing)
         "queue_processor_scan",
         "queue_processor_process",
+        // OBSIDIAN-INTELLIGENCE-MS3/B5/U-PROJECT-AUTO-UPDATER: project subfolder
+        // watcher → overview.md "## Recent Changes" maintenance
+        "project_auto_updater_scan",
+        "project_auto_updater_process",
         // OBSIDIAN-COMPOUND-MS1/S3/U-CONTRADICTION-DETECTOR: vault disagreement check
         "contradiction_check",
         // OBSIDIAN-COMPOUND-MS1/S6/U-MEMORIES-MISTAKES-WIRE: auto-postmortem markdown
@@ -743,6 +747,78 @@ export function registerMemoryDispatcher(server: McpServer): void {
             break;
           }
 
+          // OBSIDIAN-INTELLIGENCE-MS3/B5/U-PROJECT-AUTO-UPDATER — pure scan pass
+          // over the project subfolders (no writes, no Ollama).
+          case "project_auto_updater_scan": {
+            const { projectAutoUpdaterEngine } = await import("../../engines/ProjectAutoUpdaterEngine.js");
+            const vaultRoot = typeof params.vault_root === "string"
+              ? params.vault_root
+              : (typeof params.vaultRoot === "string" ? params.vaultRoot : undefined);
+            const projectRoot = typeof params.project_root === "string"
+              ? params.project_root
+              : (typeof params.projectRoot === "string" ? params.projectRoot : undefined);
+            const now = typeof params.now === "number" ? params.now : undefined;
+            const maxProjectsPerPass = typeof params.max_projects_per_pass === "number"
+              ? params.max_projects_per_pass
+              : (typeof params.maxProjectsPerPass === "number" ? params.maxProjectsPerPass : undefined);
+            const tokenCapBytes = typeof params.token_cap_bytes === "number"
+              ? params.token_cap_bytes
+              : (typeof params.tokenCapBytes === "number" ? params.tokenCapBytes : undefined);
+            const maxFileBytes = typeof params.max_file_bytes === "number"
+              ? params.max_file_bytes
+              : (typeof params.maxFileBytes === "number" ? params.maxFileBytes : undefined);
+            const excerptBytes = typeof params.excerpt_bytes === "number"
+              ? params.excerpt_bytes
+              : (typeof params.excerptBytes === "number" ? params.excerptBytes : undefined);
+            result = projectAutoUpdaterEngine.scanProjects({
+              vaultRoot, projectRoot, now, maxProjectsPerPass, tokenCapBytes, maxFileBytes, excerptBytes,
+            });
+            break;
+          }
+
+          // OBSIDIAN-INTELLIGENCE-MS3/B5/U-PROJECT-AUTO-UPDATER — full pass.
+          // Dispatcher path runs LITERAL (no Ollama client injected) — every
+          // project's summary is the first-meaningful-line. Cron daemon
+          // (scripts/project-auto-updater-daemon.mjs) provides the client.
+          case "project_auto_updater_process": {
+            const { runProjectAutoUpdater } = await import("../../engines/ProjectAutoUpdaterEngine.js");
+            const vaultRoot = typeof params.vault_root === "string"
+              ? params.vault_root
+              : (typeof params.vaultRoot === "string" ? params.vaultRoot : undefined);
+            const projectRoot = typeof params.project_root === "string"
+              ? params.project_root
+              : (typeof params.projectRoot === "string" ? params.projectRoot : undefined);
+            const now = typeof params.now === "number" ? params.now : undefined;
+            const maxProjectsPerPass = typeof params.max_projects_per_pass === "number"
+              ? params.max_projects_per_pass
+              : (typeof params.maxProjectsPerPass === "number" ? params.maxProjectsPerPass : undefined);
+            const tokenCapBytes = typeof params.token_cap_bytes === "number"
+              ? params.token_cap_bytes
+              : (typeof params.tokenCapBytes === "number" ? params.tokenCapBytes : undefined);
+            const maxFileBytes = typeof params.max_file_bytes === "number"
+              ? params.max_file_bytes
+              : (typeof params.maxFileBytes === "number" ? params.maxFileBytes : undefined);
+            const excerptBytes = typeof params.excerpt_bytes === "number"
+              ? params.excerpt_bytes
+              : (typeof params.excerptBytes === "number" ? params.excerptBytes : undefined);
+            const ollamaModel = typeof params.ollama_model === "string"
+              ? params.ollama_model
+              : (typeof params.ollamaModel === "string" ? params.ollamaModel : undefined);
+            const dryRun = typeof params.dry_run === "boolean"
+              ? params.dry_run
+              : (typeof params.dryRun === "boolean" ? params.dryRun : undefined);
+            const mkdirIfMissing = typeof params.mkdir_if_missing === "boolean"
+              ? params.mkdir_if_missing
+              : (typeof params.mkdirIfMissing === "boolean" ? params.mkdirIfMissing : undefined);
+            // No ollamaClient — dispatcher path is literal-only. Cron daemon
+            // owns the Ollama integration.
+            result = await runProjectAutoUpdater({
+              vaultRoot, projectRoot, now, maxProjectsPerPass, tokenCapBytes,
+              maxFileBytes, excerptBytes, ollamaModel, dryRun, mkdirIfMissing,
+            });
+            break;
+          }
+
           // OBSIDIAN-COMPOUND-MS1/S3/U-CONTRADICTION-DETECTOR — vault disagreement check
           case "contradiction_check": {
             const { contradictionDetectorEngine } = await import("../../engines/ContradictionDetectorEngine.js");
@@ -965,7 +1041,7 @@ export function registerMemoryDispatcher(server: McpServer): void {
           }
 
           default:
-            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'record_session_end', 'semantic_search', 'remember', 'qdrant_vector_search', 'qdrant_vector_upsert', 'agent_memory_remember', 'agent_memory_query', 'agent_memory_reinforce', 'agent_memory_forget', 'agent_memory_stats', 'emerging_thesis', 'daily_brief_get', 'daily_context_get', 'weekly_synthesis_get', 'queue_processor_scan', 'queue_processor_process', 'contradiction_check', 'postmortem_create', 'performance_report', 'connections_materialize', 'content_brief_create', 'voice_validate', 'capture_sharpen', 'embed_text', 'embed_pairwise_cosine', 'inbox_prune_now', 'inbox_promote_now', 'memory_sync_list_bundles', 'memory_sync_bundle_metadata'] };
+            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'record_session_end', 'semantic_search', 'remember', 'qdrant_vector_search', 'qdrant_vector_upsert', 'agent_memory_remember', 'agent_memory_query', 'agent_memory_reinforce', 'agent_memory_forget', 'agent_memory_stats', 'emerging_thesis', 'daily_brief_get', 'daily_context_get', 'weekly_synthesis_get', 'queue_processor_scan', 'queue_processor_process', 'project_auto_updater_scan', 'project_auto_updater_process', 'contradiction_check', 'postmortem_create', 'performance_report', 'connections_materialize', 'content_brief_create', 'voice_validate', 'capture_sharpen', 'embed_text', 'embed_pairwise_cosine', 'inbox_prune_now', 'inbox_promote_now', 'memory_sync_list_bundles', 'memory_sync_bundle_metadata'] };
         }
 
         const elapsed = (performance.now() - start).toFixed(1);

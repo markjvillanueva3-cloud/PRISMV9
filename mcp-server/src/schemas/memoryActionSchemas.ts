@@ -216,6 +216,47 @@ const queue_processor_process = z.object({
   mkdirIfMissing: z.boolean().optional().describe("Alias for mkdir_if_missing"),
 }).passthrough();
 
+// OBSIDIAN-INTELLIGENCE-MS3/B5/U-PROJECT-AUTO-UPDATER — project subfolder
+// watcher; keeps each project's overview.md "## Recent Changes" current.
+// scan = read-only manifest; process = side-effecting atomic overview patch.
+const project_auto_updater_scan = z.object({
+  vault_root: z.string().min(1).optional().describe("Override vault root (defaults to knowledge/memories)"),
+  vaultRoot: z.string().min(1).optional().describe("Alias for vault_root"),
+  project_root: z.string().min(1).optional().describe("Override project root (defaults to ${vaultRoot}/project)"),
+  projectRoot: z.string().min(1).optional().describe("Alias for project_root"),
+  now: z.number().finite().optional().describe("Override 'now' ms epoch for deterministic windowing"),
+  max_projects_per_pass: z.number().int().min(1).max(200).optional().describe("Cap on project folders per pass; default 25"),
+  maxProjectsPerPass: z.number().int().min(1).max(200).optional().describe("Alias for max_projects_per_pass"),
+  token_cap_bytes: z.number().int().min(256).max(1048576).optional().describe("Bytes threshold for Ollama-vs-literal; default 8192"),
+  tokenCapBytes: z.number().int().min(256).max(1048576).optional().describe("Alias for token_cap_bytes"),
+  max_file_bytes: z.number().int().min(512).max(4194304).optional().describe("Max source bytes accepted; default 65536"),
+  maxFileBytes: z.number().int().min(512).max(4194304).optional().describe("Alias for max_file_bytes"),
+  excerpt_bytes: z.number().int().min(256).max(1048576).optional().describe("Bytes read per source; default 8192"),
+  excerptBytes: z.number().int().min(256).max(1048576).optional().describe("Alias for excerpt_bytes"),
+}).passthrough();
+
+const project_auto_updater_process = z.object({
+  vault_root: z.string().min(1).optional().describe("Override vault root"),
+  vaultRoot: z.string().min(1).optional().describe("Alias for vault_root"),
+  project_root: z.string().min(1).optional().describe("Override project root"),
+  projectRoot: z.string().min(1).optional().describe("Alias for project_root"),
+  now: z.number().finite().optional().describe("Override 'now' ms epoch for deterministic windowing"),
+  max_projects_per_pass: z.number().int().min(1).max(200).optional().describe("Cap on project folders per pass; default 25"),
+  maxProjectsPerPass: z.number().int().min(1).max(200).optional().describe("Alias for max_projects_per_pass"),
+  token_cap_bytes: z.number().int().min(256).max(1048576).optional().describe("Bytes threshold for Ollama-vs-literal; default 8192"),
+  tokenCapBytes: z.number().int().min(256).max(1048576).optional().describe("Alias for token_cap_bytes"),
+  max_file_bytes: z.number().int().min(512).max(4194304).optional().describe("Max source bytes accepted; default 65536"),
+  maxFileBytes: z.number().int().min(512).max(4194304).optional().describe("Alias for max_file_bytes"),
+  excerpt_bytes: z.number().int().min(256).max(1048576).optional().describe("Bytes read per source; default 8192"),
+  excerptBytes: z.number().int().min(256).max(1048576).optional().describe("Alias for excerpt_bytes"),
+  ollama_model: z.string().optional().describe("Ollama model when client is reachable; default qwen2.5-coder"),
+  ollamaModel: z.string().optional().describe("Alias for ollama_model"),
+  dry_run: z.boolean().optional().describe("Skip writes; report would-be routes as 'skipped'"),
+  dryRun: z.boolean().optional().describe("Alias for dry_run"),
+  mkdir_if_missing: z.boolean().optional().describe("Create project dir if missing; default true"),
+  mkdirIfMissing: z.boolean().optional().describe("Alias for mkdir_if_missing"),
+}).passthrough();
+
 // OBSIDIAN-COMPOUND-MS1/S3/U-CONTRADICTION-DETECTOR — vault disagreement check.
 const contradiction_check = z.object({
   new_memory_path: z.string().optional().describe("Absolute path to the new memory file to check"),
@@ -344,6 +385,8 @@ export const ACTION_MEMORY_SCHEMAS: ActionSchemaMap = {
   weekly_synthesis_get,
   queue_processor_scan,
   queue_processor_process,
+  project_auto_updater_scan,
+  project_auto_updater_process,
   contradiction_check,
   postmortem_create,
   performance_report,
