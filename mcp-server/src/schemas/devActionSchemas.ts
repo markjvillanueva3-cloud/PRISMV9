@@ -1800,4 +1800,37 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     "Return the serializable metadata of all classification rules (id, targets, reason). " +
     "The `match` predicate is omitted because function literals do not survive JSON. Pure."
   ),
+
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-ASC: ActionSchemaCacheEngine wiring ──
+  // Engine scans dispatcher source files to extract action → param-name
+  // patterns (param.X / params["X"]). Read-only over a 2-minute TTL'd
+  // in-memory cache that auto-refreshes on read. 5 read actions wired.
+  // invalidate() DEFERRED — only meaningful right after a dispatcher
+  // source-file change, which is a build-time concern, not an LLM call;
+  // wiring it would let stale-cache races be triggered remotely.
+  asc_get_schema: z.object({
+    action_name: z.string().min(1).max(256)
+      .describe("Action name as it appears in a dispatcher z.enum (e.g. 'rsg_generate')"),
+  }).describe("Get the cached parameter schema for a single action. Returns null when unknown."),
+
+  asc_search_schemas: z.object({
+    query: z.string().min(1).max(256)
+      .describe("Substring match against action name OR dispatcher name (case-insensitive)"),
+    max: z.number().int().positive().max(500).optional()
+      .describe("Result cap (default 10, max 500 for DoS bound)"),
+  }).describe("Find action schemas matching a substring query. Pure."),
+
+  asc_get_param_hint: z.object({
+    action_name: z.string().min(1).max(256)
+      .describe("Action name to format as a compact signature"),
+  }).describe("Get a compact `action(params)` signature for inline help. Pure."),
+
+  asc_get_dispatcher_actions: z.object({
+    dispatcher_name: z.string().min(1).max(256)
+      .describe("Dispatcher name with or without 'Dispatcher.ts' suffix (e.g. 'dev' or 'devDispatcher')"),
+  }).describe("List every cached action for a single dispatcher. Pure."),
+
+  asc_get_stats: z.object({}).describe(
+    "Cache stats: {actions, dispatchers, withParams}. Pure."
+  ),
 };

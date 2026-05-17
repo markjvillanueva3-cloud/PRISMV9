@@ -324,7 +324,13 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // complex input shape over the wire); rules' `match` predicate omitted
 // from get_rules response (function literals don't JSON-serialize).
 "doc_propagation_classify", "doc_propagation_classify_batch",
-"doc_propagation_get_rules"] as const;
+"doc_propagation_get_rules",
+// WIRE-UNWIRED-MS0/U-WIRE-ASC: ActionSchemaCacheEngine — caches the
+// `params.X` shape of every dispatcher case (2-min TTL, auto-refresh).
+// invalidate() DEFERRED — cache-mutating; should fire on build, not
+// from an LLM call, to avoid remote-triggered stale-cache races.
+"asc_get_schema", "asc_search_schemas", "asc_get_param_hint",
+"asc_get_dispatcher_actions", "asc_get_stats"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -1899,6 +1905,45 @@ export function registerDevDispatcher(server: any): void {
               targets: r.targets.map(t => ({ surface: t.surface, action: t.action })),
             }));
             result = { rules: serializable, count: serializable.length };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-ASC: ActionSchemaCacheEngine ─────────
+          case "asc_get_schema": {
+            const { actionSchemaCacheEngine } = await import("../../engines/ActionSchemaCacheEngine.js");
+            const action_name = (params as { action_name: string }).action_name;
+            const schema = actionSchemaCacheEngine.getSchema(action_name);
+            // Explicit discriminator — slimResponse would strip a null `schema`
+            // silently. `found` makes the miss visible to wire callers.
+            result = schema === null
+              ? { found: false, action_name }
+              : { found: true, action_name, schema };
+            break;
+          }
+          case "asc_search_schemas": {
+            const { actionSchemaCacheEngine } = await import("../../engines/ActionSchemaCacheEngine.js");
+            const p = params as { query: string; max?: number };
+            const matches = actionSchemaCacheEngine.searchSchemas(p.query, p.max ?? 10);
+            result = { query: p.query, matches, count: matches.length };
+            break;
+          }
+          case "asc_get_param_hint": {
+            const { actionSchemaCacheEngine } = await import("../../engines/ActionSchemaCacheEngine.js");
+            const action_name = (params as { action_name: string }).action_name;
+            const hint = actionSchemaCacheEngine.getParamHint(action_name);
+            result = { action_name, hint };
+            break;
+          }
+          case "asc_get_dispatcher_actions": {
+            const { actionSchemaCacheEngine } = await import("../../engines/ActionSchemaCacheEngine.js");
+            const dispatcher_name = (params as { dispatcher_name: string }).dispatcher_name;
+            const actions = actionSchemaCacheEngine.getDispatcherActions(dispatcher_name);
+            result = { dispatcher_name, actions, count: actions.length };
+            break;
+          }
+          case "asc_get_stats": {
+            const { actionSchemaCacheEngine } = await import("../../engines/ActionSchemaCacheEngine.js");
+            const stats = actionSchemaCacheEngine.getStats();
+            result = { stats };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-CEX: CatalogExtractionEngine ─────────
