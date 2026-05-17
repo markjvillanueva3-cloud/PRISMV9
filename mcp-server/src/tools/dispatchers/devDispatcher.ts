@@ -476,7 +476,8 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "ags_propose",
 "wre_explain",
 "wpn_classify", "wpn_cluster_quality", "wpn_get_prototypes", "wpn_nearest_support",
-"wpna_validate_order", "wpna_predict_break_risk", "wpna_optimize_parameters", "wpna_analyze_program"] as const;
+"wpna_validate_order", "wpna_predict_break_risk", "wpna_optimize_parameters", "wpna_analyze_program",
+"ttro_run"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -3810,6 +3811,34 @@ export function registerDevDispatcher(server: any): void {
               warning_count: r.warnings.length,
               score: r.score,
             };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-TTRO: TurningThreadRobustOptimizer ───
+          case "ttro_run": {
+            const { turningThreadRobustOptimizerEngine } = await import("../../engines/TurningThreadRobustOptimizerEngine.js");
+            // Engine line 92-115 throws on bad input. Use try/catch envelope
+            // pattern (mirrors AGS) so caller gets clean error not bubble-up.
+            try {
+              const r = turningThreadRobustOptimizerEngine.run(
+                params as Parameters<typeof turningThreadRobustOptimizerEngine.run>[0],
+              );
+              // r returns ThreadRobustResult with grid[] (up to 121 points
+              // at grid_steps=11) + best_point|null + lift. Use explicit
+              // has_best_point discriminator (best_point may be null when
+              // no grid point clears min_feasibility_rate, engine returns
+              // best_point=null in that case).
+              result = {
+                result: r,
+                grid_point_count: r.grid.length,
+                has_best_point: r.best_point !== null,
+                top2_driver_count: r.top2_drivers.length,
+                safe_fraction_lift: r.safe_fraction_lift,
+                baseline_safe_fraction: r.baseline_safe_fraction,
+              };
+            } catch (e: unknown) {
+              const msg = e instanceof Error ? e.message : String(e);
+              result = { error: msg };
+            }
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-AGS: AutonomousGoalSynthesis ─────────

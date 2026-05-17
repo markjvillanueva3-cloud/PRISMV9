@@ -3167,6 +3167,48 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   // ── WIRE-UNWIRED-MS0 / U-WIRE-AGS: AutonomousGoalSynthesisEngine ──
   // Single pure-compute method ranks gap-descriptors by
   // Ψ_impact × urgency × feasibility. No I/O, no state mutation.
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-TTRO: TurningThreadRobustOptimizerEngine ──
+  // Single pure-compute action. Engine header claimed shipped under
+  // `turning_thread_robust_optimizer` action but no dispatcher case existed —
+  // ghost wiring fixed here. Pre-validated by engine.validateInput() which
+  // throws on bad input — dispatcher try/catch returns clean error envelope.
+  // Monte-Carlo n_trials capped at engine line 105 [10, 2000];
+  // grid_steps capped at engine line 102 [2, 11]; Zod mirrors for fail-fast.
+  ttro_run: z.object({
+    thread: z.object({
+      thread_form: z.enum(["UN", "metric", "ACME", "trapezoidal", "buttress"]),
+      pitch_mm: z.number().positive().max(50),
+      major_diameter_mm: z.number().positive().max(1000),
+      internal: z.boolean(),
+      infeed_method: z.enum(["radial", "flank", "modified_flank", "alternating_flank", "constant_area"]),
+      total_depth_mm: z.number().positive().max(100),
+      spindle_rpm: z.number().positive().max(50_000),
+      num_passes: z.number().int().min(1).max(30),
+      spring_passes: z.number().int().min(0).max(10),
+      lead_in_mm: z.number().min(0).max(100),
+      lead_out_mm: z.number().min(0).max(100),
+      thread_length_mm: z.number().positive().max(10_000),
+      material_tensile_MPa: z.number().positive().max(10_000),
+    }).describe("SPTInput thread spec — single-point thread cascade canonical schema"),
+    adjust_range: z.number().gt(0).lt(1).optional()
+      .describe("Perturbation range (0,1). Default 0.15 (±15%)."),
+    grid_steps: z.number().int().min(2).max(11).optional()
+      .describe("Grid resolution per axis [2,11]. Default 5 → 25 grid points."),
+    n_trials: z.number().int().min(10).max(2000).optional()
+      .describe("Monte-Carlo trials per grid point [10,2000]. Default 40."),
+    seed: z.number().int().min(0).max(2_147_483_647).optional()
+      .describe("PRNG seed for reproducibility. Default 1."),
+    sigma_rpm_rel: z.number().min(0).max(1).optional(),
+    sigma_od_abs_mm: z.number().min(0).max(10).optional(),
+    sigma_pitch_abs_mm: z.number().min(0).max(10).optional(),
+    sigma_lead_rel: z.number().min(0).max(1).optional(),
+    force_limit_N: z.number().positive().max(1_000_000).optional(),
+    time_weight: z.number().min(0).max(100).optional()
+      .describe("Weight on time penalty in composite score. Default 0 → pure safety."),
+    min_feasibility_rate: z.number().min(0).max(1).optional()
+      .describe("Min feasibility a grid point must clear. Default 0.5."),
+  }).describe("Sensitivity-driven robust optimizer for single-point threading. Pure compute (seeded MC)."),
+
   // ── WIRE-UNWIRED-MS0 / U-WIRE-WPNA: WEDMProgramNeuralAnalysisEngine ──
   // 4 read-only neural-analysis actions:
   //   wpna_validate_order        validateOperationOrder(ecodes[]) — sync
