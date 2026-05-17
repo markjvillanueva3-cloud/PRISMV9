@@ -460,7 +460,11 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "fda_get_validation_status", "fda_is_validated",
 "wp_analyze", "wp_analyze_batch",
 "pc_build_cached_system", "pc_wrap_system_prompt",
-"pc_break_even_reads", "pc_get_stats"] as const;
+"pc_break_even_reads", "pc_get_stats",
+"ml_search_materials", "ml_search_tools", "ml_search_gcodes",
+"ml_get_speed_feed", "ml_universal_search",
+"ml_get_material", "ml_get_tool", "ml_get_gcode",
+"ml_get_self_awareness"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -3420,6 +3424,89 @@ export function registerDevDispatcher(server: any): void {
             const { promptCachingEngine } = await import("../../engines/PromptCachingEngine.js");
             const stats = promptCachingEngine.getStats();
             result = { stats };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-ML: MobileLookupEngine ───────────────
+          case "ml_search_materials": {
+            const { MobileLookupEngine } = await import("../../engines/MobileLookupEngine.js");
+            const p = params as { query: string; limit?: number };
+            const matches = MobileLookupEngine.searchMaterials(p.query, p.limit);
+            result = { query: p.query, matches, count: matches.length };
+            break;
+          }
+          case "ml_search_tools": {
+            const { MobileLookupEngine } = await import("../../engines/MobileLookupEngine.js");
+            const p = params as { query: string; limit?: number };
+            const matches = MobileLookupEngine.searchTools(p.query, p.limit);
+            result = { query: p.query, matches, count: matches.length };
+            break;
+          }
+          case "ml_search_gcodes": {
+            const { MobileLookupEngine } = await import("../../engines/MobileLookupEngine.js");
+            const p = params as { query: string; controller?: string; limit?: number };
+            const matches = MobileLookupEngine.searchGCodes(p.query, p.controller, p.limit);
+            result = { query: p.query, matches, count: matches.length };
+            break;
+          }
+          case "ml_get_speed_feed": {
+            const { MobileLookupEngine } = await import("../../engines/MobileLookupEngine.js");
+            const p = params as { material: string; operation?: string };
+            const matches = MobileLookupEngine.getSpeedFeed(p.material, p.operation);
+            result = { material: p.material, matches, count: matches.length };
+            break;
+          }
+          case "ml_universal_search": {
+            const { MobileLookupEngine } = await import("../../engines/MobileLookupEngine.js");
+            const p = params as { query: string; type: "material"|"tool"|"gcode"|"speedfeed"|"machine"; controller?: string; limit?: number };
+            // Engine validates via LookupQuerySchema internally (line 191).
+            // Pass through with default limit=10 to match engine default.
+            const r = MobileLookupEngine.universalSearch({
+              query: p.query, type: p.type,
+              ...(p.controller ? { controller: p.controller } : {}),
+              limit: p.limit ?? 10,
+            });
+            result = {
+              query: p.query, type: p.type,
+              results: r,
+              material_count: r.materials.length,
+              tool_count: r.tools.length,
+              gcode_count: r.gcodes.length,
+              speedfeed_count: r.speedFeeds.length,
+              total_count: r.materials.length + r.tools.length + r.gcodes.length + r.speedFeeds.length,
+            };
+            break;
+          }
+          case "ml_get_material": {
+            const { MobileLookupEngine } = await import("../../engines/MobileLookupEngine.js");
+            const code = (params as { code: string }).code;
+            const m = MobileLookupEngine.getMaterial(code);
+            result = m === undefined
+              ? { found: false, code }
+              : { found: true, code, material: m };
+            break;
+          }
+          case "ml_get_tool": {
+            const { MobileLookupEngine } = await import("../../engines/MobileLookupEngine.js");
+            const toolId = (params as { toolId: string }).toolId;
+            const t = MobileLookupEngine.getTool(toolId);
+            result = t === undefined
+              ? { found: false, toolId }
+              : { found: true, toolId, tool: t };
+            break;
+          }
+          case "ml_get_gcode": {
+            const { MobileLookupEngine } = await import("../../engines/MobileLookupEngine.js");
+            const code = (params as { code: string }).code;
+            const g = MobileLookupEngine.getGCode(code);
+            result = g === undefined
+              ? { found: false, code }
+              : { found: true, code, gcode: g };
+            break;
+          }
+          case "ml_get_self_awareness": {
+            const { MobileLookupEngine } = await import("../../engines/MobileLookupEngine.js");
+            const info = MobileLookupEngine.getSelfAwareness();
+            result = { info };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-CMC: CapacityMonteCarloEngine ────────

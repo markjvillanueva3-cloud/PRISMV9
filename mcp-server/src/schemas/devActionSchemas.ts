@@ -2975,6 +2975,56 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     "Cumulative cache stats snapshot. Pure read (returns spread of stats)."
   ),
 
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-ML: MobileLookupEngine wiring ──
+  // 9 static pure-read methods over module-scope reference data
+  // (materials, tools, gcodes, speedFeeds). Zero state mutation anywhere
+  // in the engine. Cleanest wire candidate seen so far this session.
+  ml_search_materials: z.object({
+    query: z.string().min(1).max(256),
+    limit: z.number().int().positive().max(100).optional(),
+  }).describe("Substring search across materials catalog. Pure read."),
+
+  ml_search_tools: z.object({
+    query: z.string().min(1).max(256),
+    limit: z.number().int().positive().max(100).optional(),
+  }).describe("Substring search across tools catalog. Pure read."),
+
+  ml_search_gcodes: z.object({
+    query: z.string().min(1).max(256),
+    controller: z.string().min(1).max(64).optional()
+      .describe("Filter by controller (universal-codes always pass through)"),
+    limit: z.number().int().positive().max(100).optional(),
+  }).describe("Substring search across G/M-code catalog. Pure read."),
+
+  ml_get_speed_feed: z.object({
+    material: z.string().min(1).max(128),
+    operation: z.string().min(1).max(64).optional(),
+  }).describe("Lookup speed/feed recommendations by material (+ optional operation). Pure read."),
+
+  ml_universal_search: z.object({
+    query: z.string().min(1).max(256),
+    type: z.enum(["material", "tool", "gcode", "speedfeed", "machine"])
+      .describe("Search target type"),
+    controller: z.string().min(1).max(64).optional(),
+    limit: z.number().int().positive().max(100).optional(),
+  }).describe("Composite per-type search across materials/tools/gcodes/speedFeeds. Pure read."),
+
+  ml_get_material: z.object({
+    code: z.string().min(1).max(128),
+  }).describe("Exact-match material by code (case-insensitive). Pure read."),
+
+  ml_get_tool: z.object({
+    toolId: z.string().min(1).max(128),
+  }).describe("Exact-match tool by toolId (case-insensitive). Pure read."),
+
+  ml_get_gcode: z.object({
+    code: z.string().min(1).max(128),
+  }).describe("Exact-match G/M code (case-insensitive). Pure read."),
+
+  ml_get_self_awareness: z.object({}).describe(
+    "Engine self-description (name/version/milestone/capabilities/data-sizes). Pure read."
+  ),
+
   cmc_simulate: z.object({
     machines: z.array(z.object({
       id: z.string().min(1).max(128),
