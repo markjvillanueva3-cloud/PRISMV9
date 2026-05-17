@@ -141,6 +141,10 @@ const ACTIONS = [
   "context_pressure_read",
   "context_pressure_optimal_compaction",
   "context_pressure_reset",
+  // WIRE-UNWIRED-MS0/U-WIRE-PROMPT-COMPRESS — PromptCompressionEngine.
+  // Pure-compute prompt compression for sub-agent token reduction.
+  "prompt_compress",
+  "prompt_is_worth_compressing",
 ] as const;
 
 const STATE_DIR = PATHS.STATE_DIR;
@@ -1653,6 +1657,29 @@ ${todoState.blockingIssues.length > 0 ? todoState.blockingIssues.map(i => `- ${i
             try {
               contextWindowPressureEngine.reset();
               return ok({ success: true, data: { reset: true } });
+            } catch (err) {
+              return dispatcherError(err, action, "prism_context");
+            }
+          }
+
+          // WIRE-UNWIRED-MS0/U-WIRE-PROMPT-COMPRESS — PromptCompressionEngine.
+          // Pure-compute: compresses a prompt via 5 techniques (filler-removal,
+          // whitespace-collapse, markdown-strip, abbreviation, dedup-sentences).
+          // ~4 chars/token estimate; no LLM call, no I/O.
+          case "prompt_compress": {
+            const { promptCompressionEngine } = await import("../../engines/PromptCompressionEngine.js");
+            try {
+              const result = promptCompressionEngine.compress(params.prompt as string);
+              return ok({ success: true, data: result });
+            } catch (err) {
+              return dispatcherError(err, action, "prism_context");
+            }
+          }
+          case "prompt_is_worth_compressing": {
+            const { promptCompressionEngine } = await import("../../engines/PromptCompressionEngine.js");
+            try {
+              const worth = promptCompressionEngine.isWorthCompressing(params.prompt as string);
+              return ok({ success: true, data: { isWorthCompressing: worth } });
             } catch (err) {
               return dispatcherError(err, action, "prism_context");
             }

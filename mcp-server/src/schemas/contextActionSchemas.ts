@@ -197,6 +197,28 @@ export const ACTION_CONTEXT_SCHEMAS: Record<string, z.ZodTypeAny> = {
     .object({})
     .strict()
     .describe("Clear all accumulated samples (scenario boundary or test reset)"),
+
+  // WIRE-UNWIRED-MS0/U-WIRE-PROMPT-COMPRESS — PromptCompressionEngine.
+  prompt_compress: z
+    .object({
+      prompt: z
+        .string()
+        .min(1)
+        .describe(
+          "Prompt text to compress via filler-removal, whitespace-collapse, "
+          + "markdown-strip, abbreviation, and dedup-sentences",
+        ),
+    })
+    .strict()
+    .describe(
+      "Compress a prompt for sub-agent token reduction; returns original + compressed + savings + techniques",
+    ),
+  prompt_is_worth_compressing: z
+    .object({
+      prompt: z.string().describe("Prompt to check; threshold is length > 200 chars"),
+    })
+    .strict()
+    .describe("Quick check — true iff prompt is long enough that compression saves more than it costs"),
   // Identity Model — U-SAV2-01
   identity_register: z.object({
     sessionId: z.string().min(1),
