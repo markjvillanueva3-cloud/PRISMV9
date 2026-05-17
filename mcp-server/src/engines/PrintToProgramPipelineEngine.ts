@@ -1894,7 +1894,7 @@ export class PrintToProgramPipelineEngine {
 
     // S1: Validate intake
     let t0 = Date.now();
-    let intake: ReturnType<typeof this.validateIntake>;
+    let intake: ReturnType<typeof PrintToProgramPipelineEngine.prototype.validateIntake>;
     if (resumeFrom > 0) {
       const cp = cpm.resumeFrom(0);
       intake = cp?.data ?? this.validateIntake(input);
@@ -2400,7 +2400,7 @@ export class PrintToProgramPipelineEngine {
       {
         definition: { name: "classify_features", index: 1, timeoutMs: 10000 },
         execute: async (stageInput: unknown) => {
-          const drawingInput = stageInput as { input: DrawingInput; intake: ReturnType<typeof this.validateIntake> };
+          const drawingInput = stageInput as { input: DrawingInput; intake: ReturnType<typeof PrintToProgramPipelineEngine.prototype.validateIntake> };
           const iso = drawingInput.input.material?.iso_group || "P";
           return {
             classified: this.classifyFeatures(drawingInput.input.features, iso),
@@ -2415,7 +2415,7 @@ export class PrintToProgramPipelineEngine {
           const data = stageInput as {
             classified: MachinableFeature[];
             input: DrawingInput;
-            intake: ReturnType<typeof this.validateIntake>;
+            intake: ReturnType<typeof PrintToProgramPipelineEngine.prototype.validateIntake>;
           };
           const maxRPM = data.input.max_spindle_rpm || 12000;
           const maxPower = data.input.max_power_kW || 15;
@@ -2437,9 +2437,9 @@ export class PrintToProgramPipelineEngine {
             operations: PlannedOperation[];
             classified: MachinableFeature[];
             input: DrawingInput;
-            intake: ReturnType<typeof this.validateIntake>;
+            intake: ReturnType<typeof PrintToProgramPipelineEngine.prototype.validateIntake>;
           };
-          const { blocks, text } = this.generateGCode(data.operations, data.input);
+          const { blocks, text } = this.generateProgram(data.operations, data.input);
           return { blocks, text, ...data };
         },
       },
@@ -2452,7 +2452,7 @@ export class PrintToProgramPipelineEngine {
             operations: PlannedOperation[];
             classified: MachinableFeature[];
             input: DrawingInput;
-            intake: ReturnType<typeof this.validateIntake>;
+            intake: ReturnType<typeof PrintToProgramPipelineEngine.prototype.validateIntake>;
           };
           const safetyChecks = this.generateSafetyChecks(data.blocks, data.input);
           const totalCycleTime = data.operations.reduce((sum, op) => sum + op.cycle_time_sec, 0);
@@ -2464,7 +2464,7 @@ export class PrintToProgramPipelineEngine {
     ];
 
     // Execute with infrastructure
-    const infraResult = await wrapper.executeWithInfra<{ input: DrawingInput; intake: ReturnType<typeof this.validateIntake> }, any>(
+    const infraResult = await wrapper.executeWithInfra<{ input: DrawingInput; intake: ReturnType<typeof PrintToProgramPipelineEngine.prototype.validateIntake> }, any>(
       { input, intake: this.validateIntake(input) },
       stages,
       {
