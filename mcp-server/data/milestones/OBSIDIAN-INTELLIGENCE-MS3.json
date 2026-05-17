@@ -431,7 +431,20 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "Stop daemon; overview.md files unchanged going forward"
+          "rollback": "Stop daemon; overview.md files unchanged going forward",
+          "status": "completed",
+          "ship_record": {
+            "shipped_at": "2026-05-17T17:22:35.987Z",
+            "shipped_by": "claude-c0f06dee-charlie",
+            "commit": "6e3c61d9fb",
+            "deliverables_on_disk": [
+              "mcp-server/src/engines/ProjectAutoUpdaterEngine.ts",
+              "mcp-server/src/__tests__/ProjectAutoUpdaterEngine.test.ts",
+              "scripts/project-auto-updater-daemon.mjs"
+            ],
+            "per_file_scrutiny": "2-arm BOTH FAIL on B5-unique RMW risks (data-loss/marker-inject/atomicity/CRLF) -> all P0/P1 fixed + 5 regression tests -> 43/43",
+            "notes": "Collision: ee420443cd mislabeled peer camDispatcher under B5 subject; real B5 in 6e3c61d9fb. P2 followups: lost-update race, fence-match, mtime-only sig, win-symlink-test."
+          }
         },
         {
           "id": "B6",
