@@ -25,6 +25,7 @@ import {
   extendedTaylorExponents,
   toolDeflection,
   predictedRa,
+  type ISOGroup,
 } from "../physics/constants.js";
 
 import { chipFormationPredictionEngine } from "./ChipFormationPredictionEngine.js";
@@ -346,32 +347,39 @@ class MillingPhysicsKernelEngine {
                      || iso_group !== undefined;
 
     if (useExtended) {
-      // Get exponents from lookup if not provided
+      // Get exponents from lookup if not provided. The constants helper uses
+      // {a, b} naming (matching ISO 3685 Annex C); the local engine surface
+      // uses {p, q} naming (matching Kalpakjian's textbook). They are the
+      // same exponents — just two notations in the literature.
       let pVal = p;
       let qVal = q;
       if ((p === undefined || q === undefined) && iso_group) {
-        const exponents = extendedTaylorExponents(iso_group);
-        pVal = p ?? exponents.p;
-        qVal = q ?? exponents.q;
+        const exponents = extendedTaylorExponents(iso_group as ISOGroup);
+        pVal = p ?? exponents.a;
+        qVal = q ?? exponents.b;
       }
 
+      // Constants signature: extendedTaylorLife(V, f, d, n, C, a, b) — 7 args.
+      // T = (C / (V × f^a × d^b))^(1/n). `coating` doesn't enter the formula;
+      // its effect is baked into the C constant chosen upstream.
       const toolLife = extendedTaylorLife(
-        C, n, pVal ?? 0.3, qVal ?? 0.15,
-        Vc, f ?? 0.1, ap ?? 1.0, coating
+        Vc, f ?? 0.1, ap ?? 1.0,
+        n, C, pVal ?? 0.3, qVal ?? 0.15
       );
 
       return {
         tool_life_min: {
           value: toolLife,
           unit: "min",
-          source: "Extended Taylor: T = C / (Vc^n × f^p × ap^q)",
+          source: "Extended Taylor: T = (C / (Vc × f^p × ap^q))^(1/n)",
         },
         model_used: "extended_taylor",
         exponents: { n, p: pVal, q: qVal },
       };
     } else {
-      // Basic Taylor
-      const toolLife = taylorLife(C, n, Vc, coating);
+      // Basic Taylor: T = (C/Vc)^(1/n). Coating effect baked into C upstream.
+      void coating;
+      const toolLife = taylorLife(C, n, Vc);
 
       return {
         tool_life_min: {
