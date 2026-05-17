@@ -467,7 +467,8 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "ml_get_self_awareness",
 "ssl_find_setup", "ssl_get_setup", "ssl_suggest_reuse",
 "npq_qualify", "npq_get_stats",
-"ofm_calculate"] as const;
+"ofm_calculate",
+"mmpm_mine_text", "mmpm_get_stats"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -3577,6 +3578,30 @@ export function registerDevDispatcher(server: any): void {
               is_safe: r.is_safe,
               recommendation_count: r.recommendations.length,
             };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-MMPM: MarksMultusPatternMiner ────────
+          case "mmpm_mine_text": {
+            const { marksMultusPatternMinerEngine } = await import("../../engines/MarksMultusPatternMinerEngine.js");
+            const p = params as { content: string; source_name?: string };
+            const r = marksMultusPatternMinerEngine.mineText(p.content, p.source_name);
+            // r returns {source, total_lines, patterns[], pattern_counts,
+            //            unique_tools[], has_macros, has_conditional_logic,
+            //            has_probing, generated_at}.
+            result = {
+              result: r,
+              pattern_count: r.patterns.length,
+              unique_tool_count: r.unique_tools.length,
+              has_macros: r.has_macros,
+              has_conditional_logic: r.has_conditional_logic,
+              has_probing: r.has_probing,
+            };
+            break;
+          }
+          case "mmpm_get_stats": {
+            const { marksMultusPatternMinerEngine } = await import("../../engines/MarksMultusPatternMinerEngine.js");
+            const stats = marksMultusPatternMinerEngine.getStats();
+            result = { stats };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-CMC: CapacityMonteCarloEngine ────────

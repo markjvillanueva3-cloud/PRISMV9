@@ -3103,6 +3103,22 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
       .describe("Pressure tap configuration (default flange)"),
   }).describe("ISO 5167 orifice-plate flow measurement. Pure physics compute."),
 
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-MMPM: MarksMultusPatternMinerEngine ──
+  // 2 pure actions. mineFile + mineDirectory DEFERRED — both read
+  // LLM-supplied file paths from disk (path-traversal attack surface:
+  // would let any chat read arbitrary files like /etc/passwd or
+  // confidential job programs in JM DIE/).
+  mmpm_mine_text: z.object({
+    content: z.string().min(0).max(5_000_000)
+      .describe("Raw .MIN G-code text (5MB cap)"),
+    source_name: z.string().min(1).max(256).optional()
+      .describe("Source-name label for the result (default 'in-memory')"),
+  }).describe("Mine Multus .MIN G-code text for macro/cycle/tool patterns. Pure compute."),
+
+  mmpm_get_stats: z.object({}).describe(
+    "Engine stats (supported pattern kinds + dedup algorithm name). Pure read."
+  ),
+
   cmc_simulate: z.object({
     machines: z.array(z.object({
       id: z.string().min(1).max(128),
