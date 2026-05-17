@@ -26,8 +26,11 @@ tested, mutually-composable algorithm nodes.
 | FDM | MIT-OCW 2.086 (Numerical Computation) | `mcp-server/src/algorithms/FiniteDifferenceMethod.ts` | 18 |
 | GD | MIT-OCW 18.02 (Multivariable Calculus) | `mcp-server/src/algorithms/GradientDescent.ts` | 17 |
 | FEM | MIT-OCW 1.050/3.22/1.105 (Solid Mechanics) | `mcp-server/src/algorithms/FiniteElementMethod1D.ts` | 17 |
+| LAG | MIT-OCW 16.07/2.032 (Dynamics) | `mcp-server/src/algorithms/LagrangianMechanics.ts` | 18 |
 
-Commits: `1323fa4ee7` (P1) · `b38a9f2285` (P7) · `a547223bbf` (P6) · `7cbbe511d7` (FDM) · `271351e7ec` (GD) · `937bc66e76` (FEM). 130/130 tests, tsc clean.
+Commits: `1323fa4ee7` (P1) · `b38a9f2285` (P7) · `a547223bbf` (P6) · `7cbbe511d7` (FDM) · `271351e7ec` (GD) · `937bc66e76` (FEM) · `56243befc9` (LAG). 148/148 tests, tsc clean.
+
+**LAG `LagrangianMechanics`** derives generalized accelerations `q̈` from a caller-supplied Lagrangian `L(q,q̇,t)` via the numerical Euler-Lagrange equation `M·q̈ = ∂L/∂q + Q − (∂²L/∂q̇∂q)·q̇` — mass matrix `Mᵢⱼ=∂²L/∂q̇ᵢ∂q̇ⱼ` by central FD, Gaussian-elimination solve, singular-Lagrangian fail-loud (NaN q̈ + flag). `makeEOMDerivative` turns it into a state-space `DerivativeFn` → **composes into ODEIntegrator**: model a mechanism's physics as a Lagrangian, integrate numerically (verified — simple-pendulum small-angle period `≈2π√(ℓ/g)`, harmonic-oscillator energy conservation over 20 s).
 
 The first four (P1/P7/P6/FDM) compose into a PDE solver. **GD is complementary, not composable** — it's the first-order LOCAL optimizer regime (smooth differentiable objectives, fast local convergence) alongside PRISM's existing derivative-FREE global optimizers (`BayesianOptimizer`, `GeneticOptimizer`). vanilla / heavy-ball momentum / Adam, analytic or central-FD gradient, fail-loud divergence guard.
 
