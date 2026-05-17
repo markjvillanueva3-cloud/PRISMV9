@@ -59,6 +59,7 @@ import { OutcomeDriftCalibrationBridgeEngine } from "./OutcomeDriftCalibrationBr
 import { OutcomeReplayBufferBridgeEngine } from "./OutcomeReplayBufferBridgeEngine.js";
 import { OutcomeEpisodicMemoryBridgeEngine } from "./OutcomeEpisodicMemoryBridgeEngine.js";
 import { OutcomeRLBridgeEngine } from "./OutcomeRLBridgeEngine.js";
+import { ConformalCalibrationMonitorEngine } from "./ConformalCalibrationMonitorEngine.js";
 
 // ============================================================================
 // Public types
@@ -273,6 +274,17 @@ export class XProcNeuralAutoFireEngine {
     components.push(
       this.subscribeBridge("rl_bridge", () => OutcomeRLBridgeEngine.subscribeToOutcomes()),
     );
+    // 7. NN-STACK-INTEG-MS0/U-NN-INTEG-04 — conformal coverage monitor.
+    // Subscribes to outcome.completed and joins outcomes carrying
+    // {predictedSet, actualLabel} into the rolling empirical-coverage ring.
+    // Non-conformal outcomes are silently skipped (busStats() exposes the
+    // skip count). Disable knob: PRISM_NN_INTEG_DISABLE=1 short-circuits
+    // both the classifier's publish AND this subscribe.
+    components.push(
+      this.subscribeBridge("conformal_monitor_bridge", () =>
+        ConformalCalibrationMonitorEngine.subscribeToOutcomes(),
+      ),
+    );
 
     const errors = components.filter((c) => c.action === "error").length;
     this.activatedAt = new Date().toISOString();
@@ -329,6 +341,7 @@ export class XProcNeuralAutoFireEngine {
       ["replay_buffer_bridge", () => OutcomeReplayBufferBridgeEngine.unsubscribeFromOutcomes()],
       ["episodic_memory_bridge", () => OutcomeEpisodicMemoryBridgeEngine.unsubscribeFromOutcomes()],
       ["rl_bridge", () => OutcomeRLBridgeEngine.unsubscribeFromOutcomes()],
+      ["conformal_monitor_bridge", () => ConformalCalibrationMonitorEngine.unsubscribeFromOutcomes()],
     ];
     for (const [key, fn] of bridgeUnsubscribers) {
       if (!this.owned.has(key)) {
