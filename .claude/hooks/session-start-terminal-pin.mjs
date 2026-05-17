@@ -212,6 +212,67 @@ async function main() {
     return;
   }
 
+  // SLOT-DRIFT-FIX-MS0/U-SDF06 (2026-05-17): cross-chat collision auto-resolve.
+  // When auto-pin drifted to a DIFFERENT slot than the handoff named, inspect
+  // the peer holding the contested slot. If peer is `session-start-auto-pin`
+  // (not operator-bound via /checkin) AND peer's handoff does NOT name the
+  // contested slot, this chat has the stronger claim → auto force-take.
+  // This closes the residual collision-with-manual-recovery gap U-SDF05 left.
+  // Knob: PRISM_TERMINAL_PIN_NO_AUTO_RESOLVE=1 disables auto-takeover.
+  if (priorSlot &&
+      result.slot &&
+      priorSlot !== result.slot.toLowerCase() &&
+      process.env.PRISM_TERMINAL_PIN_NO_AUTO_RESOLVE !== "1") {
+    try {
+      const slotsFile = "H:/prism/state/shared/chat-slots.json";
+      if (fs.existsSync(slotsFile)) {
+        const slotsState = JSON.parse(fs.readFileSync(slotsFile, "utf-8"));
+        const peer = slotsState?.slots?.[priorSlot];
+        // Only auto-resolve if peer is itself auto-pinned (no deliberate claim).
+        if (peer && peer.chatId && peer.activity === "session-start-auto-pin") {
+          const peerSlot = readPriorSlotFromHandoff(peer.chatId).slot;
+          // Peer's handoff does NOT name the contested slot → I win.
+          if (!peerSlot || peerSlot !== priorSlot) {
+            const takeoverArgs = [
+              CHAT_SLOTS_HELPER, "claim",
+              "--chatId", chatId,
+              "--terminalWindowId", windowId,
+              "--activity", "session-start-auto-resolve",
+              "--preferSlot", priorSlot,
+              "--force", "true",
+              "--confirmRecent", "true",
+            ];
+            const takeover = spawnSync(NODE_BIN, takeoverArgs,
+              { encoding: "utf-8", timeout: CLAIM_TIMEOUT_MS, windowsHide: true });
+            if (takeover.status === 0 && takeover.stdout) {
+              try {
+                const tr = JSON.parse(takeover.stdout);
+                if (tr.ok && tr.slot === priorSlot) {
+                  emit({
+                    continue: true,
+                    hookSpecificOutput: {
+                      hookEventName: "SessionStart",
+                      additionalContext: [
+                        `## 🔄 Slot auto-resolved — moved from \`${result.slot}\` to \`${priorSlot}\``,
+                        ``,
+                        `Handoff named \`${priorSlot}\` but auto-pin initially landed on \`${result.slot}\` (race with peer \`${peer.chatId}\`).`,
+                        `Peer was \`session-start-auto-pin\` (no operator claim) and their handoff does not name \`${priorSlot}\` — this chat has the stronger claim.`,
+                        `Force-takeover succeeded (U-SDF06 cross-chat resolution).`,
+                      ].join("\n"),
+                    },
+                  });
+                  return;
+                }
+              } catch { /* takeover JSON parse failed — fall through to warning */ }
+            }
+          }
+          // Else: peer's handoff ALSO names priorSlot → true collision → warn below.
+        }
+        // Else: peer is operator-bound (/checkin) → respect their claim → warn below.
+      }
+    } catch { /* peer-inspect best-effort — fall through to warning */ }
+  }
+
   // AUTOCOMPACT-AUTONOMOUS-MS0/U-AAM01: slot-mismatch warning.
   // When the most recent handoff for this chatId names a slot but the
   // current claim landed in a DIFFERENT slot, surface this loud — a peer
