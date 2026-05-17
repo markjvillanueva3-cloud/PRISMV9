@@ -486,6 +486,7 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "evap_calculate",
 "cap_bank_calculate", "crys_calculate",
 "jss_single_machine", "jss_johnson", "jss_job_shop", "jss_critical_path",
+"lshp_calculate", "lshp_compare_static_vs_dynamic", "lshp_calculate_by_material_name", "lshp_get_material_properties",
 "hyp_get_prior", "hyp_prioritize", "hyp_get_tribal_endorsements",
 "plug_get", "plug_list", "plug_list_by_kind", "plug_list_by_health",
 "plug_summary", "plug_size",
@@ -4039,6 +4040,88 @@ export function registerDevDispatcher(server: any): void {
               project_duration: r.projectDuration ?? null,
               critical_path_length: r.criticalPath?.length ?? 0,
               schedule_count: r.schedule?.length ?? 0,
+            };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-LSHP: LoewenShawHeatPartition ─────
+          case "lshp_calculate": {
+            const { loewenShawHeatPartitionEngine } = await import("../../engines/LoewenShawHeatPartitionEngine.js");
+            const r = loewenShawHeatPartitionEngine.calculate(
+              params as Parameters<typeof loewenShawHeatPartitionEngine.calculate>[0],
+            );
+            result = {
+              result: r,
+              partition_ratio: r.partitionRatio,
+              heat_regime: r.heatRegime,
+              max_chip_temperature: r.maxChipTemperature,
+              max_tool_temperature: r.maxToolTemperature,
+              warning_count: r.warnings.length,
+              confidence: r.confidence,
+            };
+            break;
+          }
+          case "lshp_compare_static_vs_dynamic": {
+            const { loewenShawHeatPartitionEngine } = await import("../../engines/LoewenShawHeatPartitionEngine.js");
+            const r = loewenShawHeatPartitionEngine.compareStaticVsDynamic(
+              params as Parameters<typeof loewenShawHeatPartitionEngine.compareStaticVsDynamic>[0],
+            );
+            result = {
+              result: r,
+              static_chip_pct: r.staticModel.chipPercent,
+              dynamic_chip_pct: r.dynamicModel.chipPercent,
+              partition_ratio_delta: r.differences.partitionRatioDelta,
+              percentage_change: r.differences.percentageChange,
+              peclet_number: r.dynamicModel.pecletNumber,
+            };
+            break;
+          }
+          case "lshp_calculate_by_material_name": {
+            const { loewenShawHeatPartitionEngine } = await import("../../engines/LoewenShawHeatPartitionEngine.js");
+            const p = params as {
+              chipMaterialName: string;
+              workpieceMaterialName: string;
+              toolMaterialName: string;
+              cuttingSpeed: number;
+              chipThickness: number;
+              toolRakeAngle: number;
+              depthOfCut?: number;
+              specificCuttingForce?: number;
+              betaConstant?: number;
+              ambientTemp?: number;
+              coolantType?: "dry" | "flood" | "mist" | "mql" | "cryogenic" | "through_tool";
+            };
+            // Engine throws on unknown material name — try/catch envelope.
+            try {
+              const r = loewenShawHeatPartitionEngine.calculateByMaterialName(
+                p.chipMaterialName, p.workpieceMaterialName, p.toolMaterialName,
+                p.cuttingSpeed, p.chipThickness, p.toolRakeAngle,
+                {
+                  depthOfCut: p.depthOfCut,
+                  specificCuttingForce: p.specificCuttingForce,
+                  betaConstant: p.betaConstant,
+                  ambientTemp: p.ambientTemp,
+                  coolantType: p.coolantType,
+                },
+              );
+              result = {
+                result: r,
+                partition_ratio: r.partitionRatio,
+                heat_regime: r.heatRegime,
+                max_chip_temperature: r.maxChipTemperature,
+                confidence: r.confidence,
+              };
+            } catch (e: unknown) {
+              result = { error: e instanceof Error ? e.message : String(e) };
+            }
+            break;
+          }
+          case "lshp_get_material_properties": {
+            const { loewenShawHeatPartitionEngine } = await import("../../engines/LoewenShawHeatPartitionEngine.js");
+            const p = params as { materialName: string };
+            const r = loewenShawHeatPartitionEngine.getMaterialProperties(p.materialName);
+            result = {
+              result: r,
+              found: r !== null,
             };
             break;
           }

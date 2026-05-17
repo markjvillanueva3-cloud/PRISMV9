@@ -3381,6 +3381,92 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     })).min(1).max(1000).describe("Activity network. Cap 1000."),
   }).describe("Critical-Path Method for project scheduling."),
 
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-LSHP: LoewenShawHeatPartitionEngine ──
+  // Classical metal-cutting heat-flow physics (Shaw 2005 static + Loewen-Shaw
+  // 1954 dynamic + Carslaw-Jaeger 1959 effusivity + Jaeger 1942 Peclet).
+  // Pure compute, no state mutation.
+  // DEFER (sub-helpers — exposed through calculate()):
+  //   calculateEffusivity, calculatePecletNumber, calculateStaticPartition,
+  //   calculateSpeedFactor, classifyHeatRegime, calculateChipTemperature
+  //   — internal sub-computations; surfacing them adds 6 single-method
+  //   actions for no caller benefit (all flow through calculate()).
+  lshp_calculate: z.object({
+    chipMaterial: z.object({
+      density: z.number().positive().max(50_000).describe("kg/m^3"),
+      specificHeat: z.number().positive().max(10_000).describe("J/(kg*K)"),
+      thermalConductivity: z.number().positive().max(2000).describe("W/(m*K)"),
+      name: z.string().min(1).max(128).optional(),
+    }),
+    workpieceMaterial: z.object({
+      density: z.number().positive().max(50_000),
+      specificHeat: z.number().positive().max(10_000),
+      thermalConductivity: z.number().positive().max(2000),
+      name: z.string().min(1).max(128).optional(),
+    }),
+    toolMaterial: z.object({
+      density: z.number().positive().max(50_000),
+      specificHeat: z.number().positive().max(10_000),
+      thermalConductivity: z.number().positive().max(2000),
+      name: z.string().min(1).max(128).optional(),
+    }).optional(),
+    cuttingSpeed: z.number().positive().max(10_000).describe("m/min"),
+    chipThickness: z.number().positive().max(100).describe("mm"),
+    toolRakeAngle: z.number().min(-90).max(90).describe("degrees"),
+    depthOfCut: z.number().positive().max(1000).optional(),
+    specificCuttingForce: z.number().positive().max(10_000).optional(),
+    betaConstant: z.number().min(0.5).max(1.0).optional()
+      .describe("Empirical 0.75-0.85 typical for metals"),
+    ambientTemp: z.number().min(-273).max(2000).optional(),
+    coolantType: z.enum(["dry", "flood", "mist", "mql", "cryogenic", "through_tool"]).optional(),
+  }).describe("Heat partition + temperature analysis. Pure compute."),
+
+  lshp_compare_static_vs_dynamic: z.object({
+    chipMaterial: z.object({
+      density: z.number().positive().max(50_000),
+      specificHeat: z.number().positive().max(10_000),
+      thermalConductivity: z.number().positive().max(2000),
+      name: z.string().min(1).max(128).optional(),
+    }),
+    workpieceMaterial: z.object({
+      density: z.number().positive().max(50_000),
+      specificHeat: z.number().positive().max(10_000),
+      thermalConductivity: z.number().positive().max(2000),
+      name: z.string().min(1).max(128).optional(),
+    }),
+    toolMaterial: z.object({
+      density: z.number().positive().max(50_000),
+      specificHeat: z.number().positive().max(10_000),
+      thermalConductivity: z.number().positive().max(2000),
+      name: z.string().min(1).max(128).optional(),
+    }).optional(),
+    cuttingSpeed: z.number().positive().max(10_000),
+    chipThickness: z.number().positive().max(100),
+    toolRakeAngle: z.number().min(-90).max(90),
+    depthOfCut: z.number().positive().max(1000).optional(),
+    specificCuttingForce: z.number().positive().max(10_000).optional(),
+    betaConstant: z.number().min(0.5).max(1.0).optional(),
+    ambientTemp: z.number().min(-273).max(2000).optional(),
+    coolantType: z.enum(["dry", "flood", "mist", "mql", "cryogenic", "through_tool"]).optional(),
+  }).describe("Compare Shaw static vs Loewen-Shaw dynamic models."),
+
+  lshp_calculate_by_material_name: z.object({
+    chipMaterialName: z.string().min(1).max(128).describe("Material key (steel/aluminum/inconel/etc.)"),
+    workpieceMaterialName: z.string().min(1).max(128),
+    toolMaterialName: z.string().min(1).max(128).describe("carbide/ceramic/cbn/pcd/hss"),
+    cuttingSpeed: z.number().positive().max(10_000),
+    chipThickness: z.number().positive().max(100),
+    toolRakeAngle: z.number().min(-90).max(90),
+    depthOfCut: z.number().positive().max(1000).optional(),
+    specificCuttingForce: z.number().positive().max(10_000).optional(),
+    betaConstant: z.number().min(0.5).max(1.0).optional(),
+    ambientTemp: z.number().min(-273).max(2000).optional(),
+    coolantType: z.enum(["dry", "flood", "mist", "mql", "cryogenic", "through_tool"]).optional(),
+  }).describe("Heat partition by material-name lookup. Throws on unknown material."),
+
+  lshp_get_material_properties: z.object({
+    materialName: z.string().min(1).max(128),
+  }).strict().describe("Material property lookup. Returns null if unknown."),
+
   // ── WIRE-UNWIRED-MS0 / U-WIRE-CRYS: CrystallizationEngine ──
   // Pure-compute industrial crystallization (Mullin / Mersmann / Randolph-Larson
   // MSMPR). Single calculate() — no state mutation.
