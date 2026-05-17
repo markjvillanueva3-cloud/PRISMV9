@@ -25,10 +25,13 @@ tested, mutually-composable algorithm nodes.
 | P6 | MIT-OCW 2.003 (Modeling Dynamics & Control I) | `mcp-server/src/algorithms/LinearStateSpaceModel.ts` | 22 |
 | FDM | MIT-OCW 2.086 (Numerical Computation) | `mcp-server/src/algorithms/FiniteDifferenceMethod.ts` | 18 |
 | GD | MIT-OCW 18.02 (Multivariable Calculus) | `mcp-server/src/algorithms/GradientDescent.ts` | 17 |
+| FEM | MIT-OCW 1.050/3.22/1.105 (Solid Mechanics) | `mcp-server/src/algorithms/FiniteElementMethod1D.ts` | 17 |
 
-Commits: `1323fa4ee7` (P1) · `b38a9f2285` (P7) · `a547223bbf` (P6) · `7cbbe511d7` (FDM) · `271351e7ec` (GD). 113/113 tests, tsc clean.
+Commits: `1323fa4ee7` (P1) · `b38a9f2285` (P7) · `a547223bbf` (P6) · `7cbbe511d7` (FDM) · `271351e7ec` (GD) · `937bc66e76` (FEM). 130/130 tests, tsc clean.
 
 The first four (P1/P7/P6/FDM) compose into a PDE solver. **GD is complementary, not composable** — it's the first-order LOCAL optimizer regime (smooth differentiable objectives, fast local convergence) alongside PRISM's existing derivative-FREE global optimizers (`BayesianOptimizer`, `GeneticOptimizer`). vanilla / heavy-ball momentum / Adam, analytic or central-FD gradient, fail-loud divergence guard.
+
+**FEM `FiniteElementMethod1D`** is the **weak-form sibling of FDM** (strong-form). Galerkin P1 (linear hat) solver for the model BVP `−(a·u′)′ + c·u = f` on `[0,L]`: exact element stiffness/mass matrices, consistent trapezoidal load, symmetric tridiagonal assembly, Dirichlet (lift+eliminate) + Neumann (natural flux) BCs, O(n) Thomas solve. Verified by 1D-P1 nodal exactness (`−u″=1 → u=x(1−x)/2` exact at every node, mesh-independent) and O(h²) convergence on `−u″=π²sin(πx)`. Together FDM + FEM are the two canonical PDE discretizations taught across the MIT-OCW numerical courses.
 
 ## P1 — OperatorSplittingMethod
 
