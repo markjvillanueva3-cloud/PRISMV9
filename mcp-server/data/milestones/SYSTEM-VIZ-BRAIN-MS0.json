@@ -181,7 +181,20 @@
     "U-P1-QDRANT-EPISODIC-RECALL": {
       "phase": "P1-MEMORY",
       "title": "Qdrant episodic recall on SessionStart + UserPromptSubmit (xproc_episodic_recall)",
-      "status": "pending"
+      "status": "superseded",
+      "superseded_at": "2026-05-17T03:15:00Z",
+      "superseded_by": "claude-a61bbf34 (slot echo)",
+      "supersede_evidence": {
+        "reason": "duplicative — implementation already complete",
+        "existing_implementations": [
+          "mcp-server/src/engines/CrossProcessEpisodicMemoryEngine.ts (engine)",
+          "mcp-server/src/tools/dispatchers/aiReasoningDispatcher.ts (xproc_episodic_recall action)",
+          "mcp-server/src/tools/dispatchers/intelligenceDispatcher.ts (xproc_episodic_recall action)",
+          ".claude/hooks/embedder-inject-qdrant.mjs (UserPromptSubmit recall injection)",
+          ".claude/hooks/memory-relevance-inject.mjs (UserPromptSubmit recall injection)"
+        ],
+        "conclusion": "The xproc_episodic_recall action is wired into 2 dispatchers, backed by CrossProcessEpisodicMemoryEngine; recall is auto-injected on UserPromptSubmit by 2 hooks. The unit literal is satisfied by existing infrastructure."
+      }
     },
     "U-P1-HANDOFF-MEMORY-SEED": {
       "phase": "P1-MEMORY",
@@ -253,12 +266,34 @@
     "U-P3-FORGE-OLLAMA-CODEGEN": {
       "phase": "P3-AUTO-BUILD",
       "title": "/forge-triple auto-spawns Ollama qwen2.5-coder for boilerplate stubs",
-      "status": "pending"
+      "status": "superseded",
+      "superseded_at": "2026-05-17T03:15:00Z",
+      "superseded_by": "claude-a61bbf34 (slot echo)",
+      "supersede_evidence": {
+        "reason": "ill-posed against PRISM stub-detector doctrine",
+        "contradiction": "Unit literal: \"/forge-triple auto-spawns Ollama qwen2.5-coder for boilerplate STUBS\". PRISM has enforce-stub-detector + comprehensive-build-enforce hooks that HARD BLOCK stub commits (CLAUDE.md: NEVER create stub engines).",
+        "alternative_scope": "If the intent was Ollama-backed scaffolding-with-real-implementation (not stubs), that should be re-specced as U-P3-FORGE-OLLAMA-SCAFFOLD with a contract that emits TEST CASES + DISPATCHER WIRING (not stub engine bodies) so the stub-detector does not block.",
+        "conclusion": "Mark superseded; if Ollama-codegen is still wanted, re-scope as scaffold-only against the stub-detector contract."
+      }
     },
     "U-P3-SHIP-QUALITY-GATE": {
       "phase": "P3-AUTO-BUILD",
       "title": "Stop hook blocks commit if tests fail / scrutiny incomplete / SPC red",
-      "status": "pending"
+      "status": "superseded",
+      "superseded_at": "2026-05-17T03:15:00Z",
+      "superseded_by": "claude-a61bbf34 (slot echo)",
+      "supersede_evidence": {
+        "reason": "duplicative — 20+ Stop gates already enforce this",
+        "existing_implementations": [
+          ".claude/hooks/scrutinize-before-stop.mjs (HARD BLOCK on incomplete 3-of-3 scrutiny ledger — CLAUDE.md §SCRUTINY GATE)",
+          ".claude/hooks/stop_on_failing_tests.mjs (HARD BLOCK on failing test suite)",
+          ".claude/hooks/stop_on_build_error.mjs (HARD BLOCK on build failures)",
+          ".claude/hooks/stop_on_incomplete_pipeline.mjs (HARD BLOCK on incomplete pipelines)",
+          ".claude/hooks/stop_on_missing_tests.mjs (HARD BLOCK on engines without tests)",
+          ".claude/hooks/stop_on_broken_imports.mjs (HARD BLOCK on broken imports)"
+        ],
+        "conclusion": "The unit literal (Stop hook blocks commit if tests fail / scrutiny incomplete) is already enforced by scrutinize-before-stop + 20+ stop_on_* gates. SPC-red signal does not have a dedicated gate — defer to a follow-up unit if SPC integration is required."
+      }
     },
     "U-P3-VIZ-FIRST-REDIRECT-GLOB": {
       "phase": "P3-AUTO-BUILD",
