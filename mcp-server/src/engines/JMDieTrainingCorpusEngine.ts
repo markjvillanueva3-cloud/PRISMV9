@@ -57,8 +57,8 @@ export const CorpusStatsSchema = z.object({
   total_operations: z.number().int().nonnegative(),
   training_examples: z.number().int().nonnegative(),
   customers: z.array(z.string()),
-  by_machine_type: z.record(z.number().int()),
-  by_operation_kind: z.record(z.number().int()),
+  by_machine_type: z.record(z.string(), z.number().int()),
+  by_operation_kind: z.record(z.string(), z.number().int()),
   parse_time_ms: z.number().nonnegative(),
 }).describe("Corpus processing statistics");
 export type CorpusStats = z.infer<typeof CorpusStatsSchema>;
@@ -213,7 +213,9 @@ export class JMDieTrainingCorpusEngine {
         const text = fs.readFileSync(file.path, "utf-8");
 
         if (typeUpper === ".MIN") {
-          const result = minFileParserEngine.parse({ text, source_path: file.path });
+          // max_lines: matches ParseMINInputSchema default (200_000) — explicit per
+          // Zod's z.input vs z.infer split (defaulted fields aren't optional in z.infer).
+          const result = minFileParserEngine.parse({ text, source_path: file.path, max_lines: 200_000 });
           if (result.ok) {
             minPrograms.push(result.program);
             stats.min_files++;
@@ -228,7 +230,8 @@ export class JMDieTrainingCorpusEngine {
             warnings.push(`MIN parse failed: ${file.path} - ${result.warnings.join(", ")}`);
           }
         } else if (typeUpper === ".NC") {
-          const result = ncFileParserEngine.parse({ text, source_path: file.path });
+          // max_lines: matches ParseNCInputSchema default (500_000).
+          const result = ncFileParserEngine.parse({ text, source_path: file.path, max_lines: 500_000 });
           if (result.ok) {
             ncPrograms.push(result.program);
             stats.nc_files++;
@@ -243,10 +246,14 @@ export class JMDieTrainingCorpusEngine {
           }
         } else if (typeUpper === ".LOG" && parse_logs) {
           const machineId = this.extractMachineId(file.path);
+          // controller + max_entries match ParseRunLogInputSchema defaults.
+          // JM Die's machines are all Okuma OSP — see jm-die-profile.ts.
           const result = okumaRunLogParserEngine.parse({
             text,
             source_path: file.path,
             machine_id: machineId,
+            controller: "okuma",
+            max_entries: 1_000_000,
           });
           if (result.ok) {
             runLogs.push(result.log);

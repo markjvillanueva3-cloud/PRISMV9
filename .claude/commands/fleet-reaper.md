@@ -1,6 +1,6 @@
 ---
 name: fleet-reaper
-description: Launch the slot-aware orphan-process reaper + RAM/CPU/GPU coordinator for the 7-chat fleet. Maps every running node/git/bash process to the chat slot that spawned it (chat-slots.json) and reaps orphans of crashed/dead chats — gated by a confirm-after-N-ticks rule so a live chat's process is never killed. FLEET-REAPER-MS1 adds three layers: a leftover-bash-task classifier (catches Bash-tool Monitor loops orphaned under a lingering unpinned harness), soft RAM/CPU relief (reversible BelowNormal priority + working-set trim on stale-slot processes under memory pressure), and an Ollama coordinator (pre-warms a GPU model + writes a routing hint that nudges ollama-task-offloader.mjs to absorb more hook-eligible work — converting idle VRAM into Claude-CLI throughput). Runs an immediate sweep, ensures the durable 5-min scheduled task, and launches an in-session Monitor for a live reap/relief/coordinator event feed. Use when orphan node/bash/git processes are piling up, host memory is unstable, the GPU sits idle while commit pressure is high, or you want hands-off fleet hygiene while 7 chats run concurrently.
+description: ALWAYS-ON fleet hygiene baseline for the 13-chat fleet (alpha..mike + golf). Alpha owns the reaper (per [[feedback_alpha_owns_reaper]]) — /checkin-alpha auto-invokes this skill on every alpha session, so bare /fleet-reaper is the canonical re-arm and the answer to "is the reaper on?" is unconditionally YES. Stays on via dual coverage: (1) durable Windows scheduled task "PRISM Fleet Reaper" (5-min cadence, S4U principal, AtStartup trigger, restart-on-failure ×3 — survives every chat closing AND host reboots) + (2) a persistent in-session Monitor armed in this chat (live event feed for the lifetime of the session). The skill is idempotent — re-running never duplicates the Monitor (TaskList dedup) or the task (schtasks /Query gate). Maps every running node/git/bash process to the chat slot that spawned it (chat-slots.json) and reaps orphans of crashed/dead chats — gated by a confirm-after-N-ticks rule so a live chat's process is never killed. FLEET-REAPER-MS1 adds three layers: a leftover-bash-task classifier (catches Bash-tool Monitor loops orphaned under a lingering unpinned harness), soft RAM/CPU relief (reversible BelowNormal priority + working-set trim on stale-slot processes under memory pressure), and an Ollama coordinator (pre-warms a GPU model + writes a routing hint that nudges ollama-task-offloader.mjs to absorb more hook-eligible work — converting idle VRAM into Claude-CLI throughput). Use to re-arm after the Monitor died (chat-restart, /compact crash, force-close), to verify always-on status, when orphan node/bash/git are piling up, when host memory is unstable, or when the GPU sits idle while commit pressure is high.
 type: skill
 model: sonnet
 effort: low
@@ -33,34 +33,77 @@ impact:
   reversible: true  # task is Disable/Uninstall-able; Monitor is TaskStop-able; PRISM_FLEET_REAPER_DISABLE=1 is the fleet-wide kill switch; soft relief + hint self-expire
 ---
 
-# /fleet-reaper — slot-aware orphan reaper for the 7-chat fleet
+# /fleet-reaper — ALWAYS-ON slot-aware fleet hygiene baseline (13-chat fleet)
 
-> PRISM runs up to 7 concurrent chats (alpha..foxtrot + golf). Each spawns
+> **This skill is designed to STAY ON.** Alpha owns the reaper (per
+> [[feedback_alpha_owns_reaper]]) and `/checkin-alpha` auto-invokes this skill
+> on every alpha session — so by doctrine the reaper is *always running*. Bare
+> `/fleet-reaper` is the canonical re-arm: idempotent, additive, never
+> duplicates the Monitor or the scheduled task. The skill exists in two states
+> only: **active** (default) or **explicitly disabled via the kill switch**.
+
+> PRISM runs up to 13 concurrent chats (alpha..mike + golf). Each spawns
 > `node.exe` (hooks/MCP), `bash.exe` (the Bash tool), `git.exe` children. When a
 > chat crashes or is closed without firing its Stop chain, those children are
 > orphaned — they pin RAM and, across several dead chats, cause the commit-memory
-> pressure that destabilizes the *surviving* chats. This skill stands up the
-> reaper that maps each process to its owning slot and kills only the genuinely
-> dead ones.
+> pressure that destabilizes the *surviving* chats. The reaper maps each process
+> to its owning slot and kills only the genuinely dead ones.
 
-> **🛑 KILL SWITCH — `PRISM_FLEET_REAPER_DISABLE=1`.** This pipeline kills
-> processes unattended (a 5-min scheduled task + an in-session Monitor + a Stop
-> hook). Setting that one env var makes the sweep refuse to kill anything in
-> *every* runner, fleet-wide, regardless of which chat armed it. It is the only
-> lever that stops ALL reaping at once — `--uninstall` only tears down *this
-> chat's* Monitor + the (global) task. If the reaper ever kills something it
+> **🛑 KILL SWITCH — `PRISM_FLEET_REAPER_DISABLE=1` is the ONLY way to turn it
+> off.** This pipeline kills processes unattended (a 5-min scheduled task + an
+> in-session Monitor + a Stop hook). Setting that one env var makes the sweep
+> refuse to kill, nudge, prewarm, or write a hint in *every* runner, fleet-wide,
+> regardless of which chat armed it. `--uninstall` only tears down *this chat's*
+> Monitor + the (global) task — and the next `/checkin-alpha` will re-register
+> the task and re-arm the Monitor. If the reaper ever kills something it
 > shouldn't, set the env var first, investigate after.
 
-> **Run `/fleet-reaper` in ONE chat only.** The scheduled task is global and the
-> Stop hook fires in every chat — a second chat's Monitor is just redundant load
-> on the host this skill exists to protect (it spawns the very `node.exe`
-> processes the reaper hunts). To move the Monitor to another chat, `--uninstall`
-> in the old one first.
+> **Run `/fleet-reaper` in ONE chat only — by doctrine, alpha.** The scheduled
+> task is global and the Stop hook fires in every chat — a second chat's
+> Monitor is just redundant load on the host this skill exists to protect (it
+> spawns the very `node.exe` processes the reaper hunts). If another chat
+> previously armed a Monitor, run `--uninstall` there first, then re-arm in
+> alpha. The `alpha-slot-reaper-guardian.mjs` SessionStart hook enforces this
+> doctrine automatically — non-alpha chats are silent no-ops.
+
+## Always-on semantics
+
+**The reaper is on by default.** Two layers keep it that way:
+
+1. **Durable scheduled task `PRISM Fleet Reaper`** — registered once with an
+   elevated installer (`install-fleet-reaper-task.ps1`), runs every 5 min,
+   uses an S4U principal (no stored password, runs whether the user is logged
+   on or not), restarts on failure ×3, and has an `AtStartup` trigger so it
+   resumes pre-login on reboot. **One elevated install = set-and-forget for
+   the life of the box.** This is the load-bearing layer — the in-session
+   Monitor is just a UX feed on top of it.
+2. **Per-session persistent Monitor** — armed by `/checkin-alpha` (which is
+   auto-fired on every alpha session via session-start hooks) and by bare
+   `/fleet-reaper`. Dies when this chat closes; re-arms automatically on the
+   next alpha session.
+
+**Re-arm scenarios** (use bare `/fleet-reaper`):
+- After `/compact` if the Monitor didn't survive the compact boundary
+- After a chat crash or force-close (the new chat is now alpha)
+- To verify always-on status (the §verdict block tells you all three layers)
+- If `schtasks /Query /TN "PRISM Fleet Reaper"` returns absent (the elevated
+  installer must be re-run; the skill surfaces the exact command)
+
+**Idempotence guarantees** — re-running this skill is always safe:
+- The Monitor is gated by `TaskList` — if a fleet-reaper Monitor already runs
+  for this session, step C is skipped (the §verdict says `monitor: already armed`)
+- The scheduled task is gated by `schtasks /Query` — if Ready, step B is skipped
+- The sweep is read-mostly; soft relief + the coordinator are reversible
 
 ## When to use
 
+- **By default — never need to invoke manually.** `/checkin-alpha` auto-fires
+  this skill; alpha is always on; the reaper is always on. The §verdict block
+  is the answer to "is the reaper still on?" without any other ceremony.
+- Re-arm after the Monitor died (`/compact` crash, chat force-close, session
+  restart) — `/fleet-reaper` is the canonical re-arm
 - Orphan `node.exe` / `bash.exe` / `git.exe` are accumulating in the OS process list
-- Host memory is creeping up and the 7 chats are getting sluggish / OOM-y
+- Host memory is creeping up and the 13 chats are getting sluggish / OOM-y
 - A leftover Bash-tool Monitor loop (`while true; do …; sleep N; done`) is still
   running hours after the chat that spawned it closed — the FLEET-REAPER-MS1
   `leftover-bash-task` classifier catches these even when the orphaned chat's
@@ -68,7 +111,6 @@ impact:
 - Commit memory is > 90 % and the GPU sits idle — the coordinator pre-warms a
   local Ollama model and writes a 5-min routing hint so `ollama-task-offloader`
   absorbs more hook-eligible work instead of competing for the commit budget
-- You want hands-off fleet hygiene running for the rest of the session
 - After a chat crashed or was force-closed (its children are now orphans)
 
 ## When NOT to use
@@ -87,8 +129,8 @@ impact:
 
 ## Args: $ARGUMENTS
 
-- *(empty)* — full pipeline: immediate sweep → ensure scheduled task → launch Monitor
-- `--status` — report only: read-only sweep classification + scheduled-task state. No ledger write, no install, no Monitor, no kills.
+- *(empty)* — **canonical always-on re-arm.** Full pipeline: immediate sweep → ensure scheduled task → launch persistent Monitor. Idempotent — if the task is already Ready and the Monitor is already armed, both steps no-op and the §verdict surfaces it. This is what `/checkin-alpha` runs automatically.
+- `--status` — report only: read-only sweep classification + scheduled-task state. No ledger write, no install, no Monitor, no kills. **Use to verify always-on status without re-arming.**
 - `--dry-run` — burn-in: every runner this skill arms (the immediate sweep AND the Monitor) gets `--dry-run` — it classifies + decides but NEVER kills. Use to watch slot attribution before going live.
 - `--no-task` — skip the scheduled-task step. ⚠ If no task was already registered, reaping stops when this chat closes (Monitor-only).
 - `--no-monitor` — skip the in-session Monitor. ⚠ If the scheduled task also isn't registered, NOTHING is armed — the confirm clock will never advance.
@@ -252,13 +294,24 @@ Alphabetical. MS0 knobs first, then the FLEET-REAPER-MS1 soft-relief + coordinat
 
 ## Why it exists
 
-The host runs a fork-storm-prone Windows environment with up to 7 Claude chats.
+The host runs a fork-storm-prone Windows environment with up to 13 Claude chats.
 PRISM already had generic reapers (`node-process-janitor`, `cleanup-orchestrator`
 + 5 sub-cleaners) — but every one uses *generic* heuristics (age, dead-parent,
 cmdline patterns). None cross-reference `chat-slots.json`, so none can say "this
 node.exe belongs to slot delta, and delta is crashed → reap it" vs "belongs to
 alpha, which is alive → leave it." This pipeline is that missing slot-aware
 layer. It is additive — it does not modify or replace any existing reaper.
+
+**It's always-on by doctrine.** The 13-chat fleet generates orphans constantly
+(every /compact spawns + reaps node.exe; every Bash-tool call forks bash.exe;
+crashed chats leave behind harness children that pin RAM). On-demand reaping
+isn't enough — orphans accumulate between invocations and destabilize the
+fleet. So the reaper runs unconditionally: the scheduled task ticks every
+5 min independent of any chat; alpha's Monitor gives operator-visible event
+feed when alpha is up; and `alpha-slot-reaper-guardian.mjs` SessionStart-fires
+on every alpha session to re-arm if either layer dropped. The doctrine is:
+**alpha is always on → the reaper is always on**. The kill switch
+(`PRISM_FLEET_REAPER_DISABLE=1`) is the ONLY way to make it not so.
 
 **FLEET-REAPER-MS1** extends the *reframe* from "kill more" to "use what's
 idle": the box runs near commit-memory ceiling while the GPU sits at single-digit
