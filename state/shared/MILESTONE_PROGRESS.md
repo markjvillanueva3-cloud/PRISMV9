@@ -1,6 +1,6 @@
 # MILESTONE_PROGRESS — what's actually shipped vs claimed
 
-> Generated: 2026-05-16T19:32:31.453Z
+> Generated: 2026-05-17T05:35:01.635Z
 > Window: last 60.days of git log across all branches
 > Source: `scripts/build-milestone-progress.mjs`
 
@@ -19,60 +19,109 @@ flagging a unit as missing.
 
 - Milestones loaded:        **681**
 - Units across all MS:      **5136**
-- Units shipped (in git):   **639**
-- Units pending:            **4497**
-- Drift cases:              **11** (envelope status disagrees with git reality)
+- Units shipped (in git):   **1932**
+- Units pending:            **3204**
+- Drift cases:              **175** (envelope status disagrees with git reality)
 
 ## Top recently-active milestones (last shipped → first)
 
 | Milestone | Track | Status (claimed) | Status (real) | Shipped/Total | Last commit |
 |-----------|-------|------------------|---------------|---------------|-------------|
-| CAD-UNIVERSAL-CONTROL-MS0 | AI-CAD | in_progress | in_progress_real | 3/18 (17%) |  |
-| AWARE-MS0 | AI-CORE | unknown | in_progress_real | 2/8 (25%) |  |
-| AI-INTEG-MS4 | AI-INTEG | complete | completed_real | 4/4 (100%) |  |
-| AI-MAX-MS0 | AI-MAX | in_progress | in_progress_real | 9/12 (75%) |  |
-| MIO-MS0 | AI-ORCH | complete | completed_real | 57/57 (100%) |  |
-| CAD-AI-DEEP | CAD | complete | completed_real | 6/6 (100%) |  |
-| CAD-AI-ULTRA | CAD | complete | completed_real | 6/6 (100%) |  |
-| CADCAM-DAGI-MS0 | CAD-CAM-DEEPAGI | complete | completed_real | 14/14 (100%) |  |
-| CAD-COMPLETE-MS0 | CAD-COMPLETE | in_progress | in_progress_real | 33/335 (10%) |  |
-| CAD-INFRA-MS0 | CAD-INFRA | complete | in_progress_real | 4/16 (25%) |  |
-| 5AXIS-AI | CAM | complete | completed_real | 1/1 (100%) |  |
-| CAM-AI-DEEP | CAM | complete | completed_real | 7/7 (100%) |  |
-| CONTROLLER-AI | CAM | complete | completed_real | 1/1 (100%) |  |
-| HSM-AI | CAM | complete | completed_real | 1/1 (100%) |  |
-| LATHE-AI | CAM | complete | completed_real | 1/1 (100%) |  |
-| MILLTURN-AI | CAM | complete | completed_real | 1/1 (100%) |  |
-| POST-AI | CAM | complete | completed_real | 1/1 (100%) |  |
-| PROBING-AI | CAM | complete | completed_real | 1/1 (100%) |  |
-| TOOLING-AI | CAM | complete | completed_real | 1/1 (100%) |  |
-| TRAINING-MANUAL-AI | CAM | complete | completed_real | 8/8 (100%) |  |
-| WORKHOLDING-AI | CAM | complete | completed_real | 1/1 (100%) |  |
-| CAM-EXHAUST-MS0 | CAM-EXHAUST | ready | in_progress_real | 156/189 (83%) |  |
-| CK-MS0 | CK | complete | completed_real | 5/5 (100%) |  |
-| CK-MS1 | CK | complete | completed_real | 4/4 (100%) |  |
-| SYSTEM-VIZ-BRAIN-MS0 | devtools | in_progress | in_progress_real | 15/26 (58%) |  |
-| COORD-MS0 | INFRA | unknown | in_progress_real | 9/12 (75%) |  |
-| TOKEN-OPT-MS0 | INFRA | complete | completed_real | 7/7 (100%) |  |
-| SLOT-WORKTREE-MS0 | INFRA-CONSOLIDATE | complete | in_progress_real | 1/16 (6%) |  |
-| FLEET-REAPER-MS1 | INFRA-FLEET-HYGIENE | completed | completed_real | 6/6 (100%) |  |
-| LOCAL-LLM-MS0 | LOCAL-LLM | complete | completed_real | 4/4 (100%) |  |
+| SYSTEM-VIZ-BRAIN-MS0 | devtools | in_progress | in_progress_real | 17/26 (65%) | 2026-05-16 |
+| CLEANUP-MS0 | CLEANUP | in_progress | in_progress_real | 65/73 (89%) | 2026-05-16 |
+| MS-PRINT-PROGRAM-LOOP | revenue | in_progress | in_progress_real | 3/23 (13%) | 2026-05-16 |
+| RGS-TOOL-AUTOINVOKE-MS1 | RGS | in_progress | in_progress_real | 5/8 (63%) | 2026-05-16 |
+| COST-CASCADE-MS0 | COST-CASCADE | not_started | in_progress_real | 1/8 (13%) | 2026-05-16 |
+| COORD-MS0 | INFRA | unknown | completed_real | 12/12 (100%) | 2026-05-16 |
+| WEDM-CAL-MS0 | WEDM-CAL | complete | completed_real | 4/4 (100%) | 2026-05-16 |
+| RGS-TOOL-AUTOINVOKE-MS0 | RGS | completed | completed_real | 12/12 (100%) | 2026-05-16 |
+| INTEL-OLLAMA-OBSIDIAN-MS0 | INFRA | in_progress | in_progress_real | 80/92 (87%) | 2026-05-15 |
+| CC-EXT-MS0 | — | not_started | in_progress_real | 5/8 (63%) | 2026-05-15 |
+| CC-EXT-MS1 | — | not_started | in_progress_real | 5/8 (63%) | 2026-05-15 |
+| CC-EXT-MS2 | — | not_started | in_progress_real | 5/8 (63%) | 2026-05-15 |
+| CC-EXT-MS3 | — | not_started | in_progress_real | 5/6 (83%) | 2026-05-15 |
+| CC-EXT-MS4 | — | not_started | completed_real | 5/5 (100%) | 2026-05-15 |
+| CC-EXT-MS5 | — | not_started | completed_real | 5/5 (100%) | 2026-05-15 |
+| CC-EXT-MS6 | — | not_started | in_progress_real | 5/6 (83%) | 2026-05-15 |
+| L2-P4-MS1 | — | not_started | in_progress_real | 5/10 (50%) | 2026-05-15 |
+| L8-P0-MS2 | — | not_started | in_progress_real | 5/12 (42%) | 2026-05-15 |
+| L8-P1-MS2 | — | not_started | in_progress_real | 5/15 (33%) | 2026-05-15 |
+| L8-P2-MS2 | — | not_started | in_progress_real | 5/15 (33%) | 2026-05-15 |
+| L9-P1-MS1 | — | not_started | in_progress_real | 5/8 (63%) | 2026-05-15 |
+| L9-P2-MS1 | — | not_started | in_progress_real | 5/8 (63%) | 2026-05-15 |
+| QA-MS0 | — | not_started | in_progress_real | 5/6 (83%) | 2026-05-15 |
+| QA-MS1 | — | not_started | in_progress_real | 5/7 (71%) | 2026-05-15 |
+| QA-MS10 | — | not_started | in_progress_real | 5/6 (83%) | 2026-05-15 |
+| QA-MS11 | — | not_started | in_progress_real | 5/6 (83%) | 2026-05-15 |
+| QA-MS12 | — | not_started | in_progress_real | 4/5 (80%) | 2026-05-15 |
+| QA-MS13 | — | not_started | in_progress_real | 5/6 (83%) | 2026-05-15 |
+| QA-MS2 | — | not_started | in_progress_real | 5/6 (83%) | 2026-05-15 |
+| QA-MS3 | — | not_started | in_progress_real | 5/7 (71%) | 2026-05-15 |
 
 ## Drift cases (claim vs git disagrees)
 
 | Milestone | Claimed | Real | Drift |
 |-----------|---------|------|-------|
+| CC-EXT-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CC-EXT-MS1 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CC-EXT-MS2 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CC-EXT-MS3 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CC-EXT-MS4 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| CC-EXT-MS5 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| CC-EXT-MS6 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CC-MS0 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| CC-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| CC-MS10 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| CC-MS11 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| CC-MS2 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| CC-MS3 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| CC-MS4 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| CC-MS5 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| CC-MS6 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| CC-MS7 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| CC-MS8 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| CC-MS9 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L0-NEW-MS0 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L0-P0-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L0-P0-MS2 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L0-P1-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L0-P2-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L1-P0-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L1-P1-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L1-P1-MS2 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L1-P2-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L10-P0-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L10-P1-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L10-P2-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L10-P3-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L2-P0-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L2-P1-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L2-P2-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L2-P3-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L2-P4-MS1 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| L3-P0-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L3-P1-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L4-P0-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L4-P1-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L5-P0-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L5-P0-MS2 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L5-P1-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L6-P0-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L6-P1-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L7-P0-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L8-P0-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L8-P0-MS2 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| L8-P1-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L8-P1-MS2 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| L8-P2-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L8-P2-MS2 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| L8-P3-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L9-P0-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| L9-P1-MS1 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| L9-P2-MS1 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | MF-MS1 | completed | not_started_real | claims_completed_but_units_pending |
 | MF-MS2 | completed | not_started_real | claims_completed_but_units_pending |
-| ACP-MS0 | completed | not_started_real | claims_completed_but_units_pending |
-| HOOKS-AUTOMATION-V2-MS0 | completed | not_started_real | claims_completed_but_units_pending |
-| INFRA-CLOSEOUT-MS0 | completed | not_started_real | claims_completed_but_units_pending |
-| OCTOPUS-NEURAL-MS0 | completed | not_started_real | claims_completed_but_units_pending |
-| MS-DOCU-FINISH | completed | not_started_real | claims_completed_but_units_pending |
-| MS-DOCU-INGEST | completed | not_started_real | claims_completed_but_units_pending |
-| RGS-TOOL-AUTOINVOKE-MS0 | completed | not_started_real | claims_completed_but_units_pending |
-| SKILLS-UTILIZATION-MS0 | completed | not_started_real | claims_completed_but_units_pending |
-| TRAINING-LEARNING-MS0 | completed | not_started_real | claims_completed_but_units_pending |
+| QA-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 
 ## Top milestones with most pending units
 
@@ -81,33 +130,33 @@ flagging a unit as missing.
 | CAD-COMPLETE-MS0 | 302 | 335 | 33/335 |
 | LATHE-MASTER | 136 | 136 | 0/136 |
 | LATHE-PROD-READY-MS0 | 135 | 135 | 0/135 |
-| INTEL-OLLAMA-OBSIDIAN-MS0 | 92 | 92 | 0/92 |
 | MS-WIRE-FRONTEND | 90 | 90 | 0/90 |
-| CLEANUP-MS0 | 73 | 73 | 0/73 |
 | MS-WIRE-BACKEND | 60 | 60 | 0/60 |
 | LATHE-LORA-MS0 | 50 | 50 | 0/50 |
 | MS-MASTERPOST | 44 | 44 | 0/44 |
 | MS1 | 39 | 39 | 0/39 |
 | WORKTREE-CONSOLIDATE-MS0 | 37 | 37 | 0/37 |
 | MS-CAM-MASTERY | 34 | 34 | 0/34 |
-| CAM-EXHAUST-MS0 | 33 | 189 | 156/189 |
-| XPROC-NEURAL-OPTIMIZE-MS0 | 31 | 31 | 0/31 |
 | MS-AUDIT-DERIVED-2026-05-10 | 30 | 30 | 0/30 |
 | MS2 | 30 | 30 | 0/30 |
-| COMMAND-KERNEL-MS0 | 29 | 29 | 0/29 |
-| BP-MS0 | 28 | 28 | 0/28 |
 | EMP-MS0 | 28 | 28 | 0/28 |
+| COMMAND-KERNEL-MS0 | 27 | 29 | 2/29 |
+| BP-MS0 | 27 | 28 | 1/28 |
 | MS-TRAIN-DEEP | 26 | 26 | 0/26 |
 | OBSIDIAN-INTELLIGENCE-MS3 | 25 | 25 | 0/25 |
 | CAMX-MS0.3 | 24 | 24 | 0/24 |
 | CADCAM-AGI-MS0 | 24 | 24 | 0/24 |
 | MS-SFC-CALIBRATE | 24 | 24 | 0/24 |
-| INTEL-OLLAMA-OBSIDIAN-MS1 | 23 | 23 | 0/23 |
-| MS-PRINT-PROGRAM-LOOP | 23 | 23 | 0/23 |
-| SCIMATH-MS5 | 23 | 23 | 0/23 |
-| CLI-MS0 | 22 | 22 | 0/22 |
 | MCAT-MS0 | 22 | 22 | 0/22 |
-| MCAT-MS0 | 21 | 21 | 0/21 |
+| CAMX-MS22 | 20 | 20 | 0/20 |
+| MS-PILOT | 20 | 20 | 0/20 |
+| MS-PRINT-PROGRAM-LOOP | 20 | 23 | 3/23 |
+| CAMX-V17-P1 | 18 | 18 | 0/18 |
+| CALC-HARDEN-MS0 | 18 | 18 | 0/18 |
+| CAM-EXHAUST-MS0 | 18 | 189 | 171/189 |
+| MS-DESKTOP | 18 | 18 | 0/18 |
+| USSH-OPUS47-BOLSTER | 18 | 18 | 0/18 |
+| CAMX-MS0.5 | 16 | 16 | 0/16 |
 
 ## How to use
 
