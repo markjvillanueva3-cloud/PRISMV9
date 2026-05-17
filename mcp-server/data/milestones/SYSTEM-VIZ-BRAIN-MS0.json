@@ -633,6 +633,14 @@
       "fix": "Spec §1/§2/§4/§5 rewritten: 3 coordination stores documented (1 H8-migrated absent, 2 live), swap scope corrected to 2 live stores / 7 hooks (5 file-ownership + 2 work-unit), §2b sequenced first (migrateFromJson handles its shape). Net: more accurate + broader scope than draft.",
       "arms": "A=FAIL→fixed, B=PASS, C=PASS (pre-fix); re-running 3-of-3 on corrected commit",
       "lesson": "A blanket negative existence claim (\"zero references anywhere\") in an R12-graded doc must be scoped to the exact path swept, or it is false-precision. Verify with the same path scope you assert."
+    },
+    {
+      "ts": "2026-05-17T18:17:48.112Z",
+      "by": "claude-a61bbf34 (slot echo)",
+      "event": "milestone_terminal_state_reached",
+      "unit_id": "U-P5-COORD-SQLITE-LIVE-SWAP",
+      "decision": "deferred_operator_gated",
+      "notes": "SVB-MS0 driven to honest terminal state: 25/26 closed (15 complete + 7 shipped + 3 superseded), 1 pending unit U-P5-COORD-SQLITE-LIVE-SWAP registered in CLOSE-OUT-DEFERRED.md as operator-gated-by-design. Autonomous-safe deliverable (de-risk cutover spec) DONE + 3-of-3 PASS (commit 3177ae8236). The live-swap itself requires a quiescent fleet (15+ live claims through state/shared/WORK_CLAIMS.json at audit, 7 active peers) — executing under live traffic = peer claim-loss/silent corruption. Milestone status INTENTIONALLY remains in_progress; do NOT auto-flip to completed. Operator executes spec Phases 0-4 when fleet quiescent."
     }
   ]
 }

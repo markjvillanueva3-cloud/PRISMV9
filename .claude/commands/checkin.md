@@ -600,11 +600,12 @@ Always-active layers (verify on every loop iteration — they're cheap):
 
 The continuous-work engine. This is the `/autopilot-full` + `/yolo-mode` doctrine rolled into the slot system — those two skills stay available standalone for their full forms; this is the slot-native loop.
 
-**Engagement (keyword-gated).** Enter this loop when EITHER:
+**Engagement (keyword-gated + slot-queue auto-engage).** Enter this loop when ANY of:
 - `$ARGUMENTS` contains a loop keyword — `/loop`, `autopilot`, `continuous`, `/run-continuous`, "until complete/done", "keep going/working", "as long as possible"; OR
-- Step 2b set `RESUMING=1` (an active `running` loop-state exists — continue it regardless of args).
+- Step 2b set `RESUMING=1` (an active `running` loop-state exists — continue it regardless of args); OR
+- **Slot-queue auto-engage (SLOT-AUTO-LOOP-MS0):** args are EMPTY (bare `/checkin` or `/checkin-<nato>`) AND this slot has a non-empty curated queue — `node H:/prism/scripts/slot-queue.mjs --remaining --slot $SLOT` returns > 0 (exit 0). The slot's queue IS its `/goal`. `--target` = that remaining count. This is the contract the operator invokes with a bare `/checkin-<nato>`: the slot picks up its pre-allocated roadmap and loops until the queue drains.
 
-A bare `/checkin`, or a single bounded `/checkin <task>` with no loop keyword, does NOT enter this loop. `--no-loop` suppresses it (and ends a running loop — see Step 2b).
+A bare `/checkin` / `/checkin-<nato>` with an EMPTY slot queue (`--remaining` returns 0, exit 1) does NOT enter this loop — it stops at the §Report. `--no-loop` always suppresses it (and ends a running loop — see Step 2b), even when the slot queue is non-empty.
 
 Match the loop keywords as **explicit intent / whole words**, not substrings — `continuous` means "run continuously", not the `continuous` inside `continuous-integration` or `ContinuousImprovementEngine`; `until done` / `keep going` must read as a loop directive, not incidental phrasing. When genuinely ambiguous, treat the arg as a single bounded task (no loop) — the operator can always add `/loop` to force one.
 
@@ -622,7 +623,11 @@ node H:/prism/.claude/helpers/chat-slots.mjs pipeline-step --chatId "$STABLE" --
 ```
 
 **Per-iteration** (do NOT call `ScheduleWakeup` between iterations per [[feedback_no_schedule_wakeup_in_loop]]):
-1. **Pick** the next pending unit — the §6b lane slice if `--roadmap` was given, else `/pick-unit --slot $SLOT --chatId "$STABLE"` (highest-priority first: devtools `roadmap_priority===0` ahead of revenue). Passing `--chatId` engages the **PER-SLOT-CLAIM-MS0/U-PSC02 filter** — units another slot has actively claimed are excluded from the pool (peer-claim count shown in the header). Respect peer file-claims + lane discipline — skip anything a peer holds; never commit peer-claimed files.
+1. **Pick** the next pending unit — pick source priority (first non-empty wins):
+   1. **Curated slot queue (SLOT-AUTO-LOOP-MS0, preferred):** `node H:/prism/scripts/slot-queue.mjs --pick --slot $SLOT --json` → the slot's hand-allocated head + long_tail (auto-filters already-shipped via MILESTONE_PROGRESS, peer-claimed via slot-task-claims, and dep-blocked via `depends_on`). Returns `{ok:true,next:{unit_id,milestone,wave,cost,spec,summary}}`. Read the per-unit spec at `next.spec` if it is a real path (not `pending-generator`).
+   2. **§6b lane slice** if `--roadmap` was given.
+   3. **Fleet-wide fallback:** `/pick-unit --slot $SLOT --chatId "$STABLE"` (highest-priority first: devtools `roadmap_priority===0` ahead of revenue) — used only when the curated queue is exhausted (`slot-queue.mjs --pick` exits 1). `--chatId` engages the **PER-SLOT-CLAIM-MS0/U-PSC02 filter**. When the curated queue exhausts AND the operator directive said "until all units", fall through to `phase2_revenue` only after `slot-queue.mjs --status` shows 0 eligible fleet-wide (per SLOT-AUTO-LOOP-MS0 §7). Respect peer file-claims + lane discipline — skip anything a peer holds; never commit peer-claimed files.
+1-RGS. **Fetch the tool plan (RGS-TOOL-AUTOINVOKE).** For the picked `unit_id`, `prism_dev:roadmap_tool_plan_query { unit_key: "<milestone>::<unit_id>" }` → recommended pipeline/skills/tools. **Pre-flight caveat (per JULIETT-RGS-V2-DECISION-2026-05-17):** RGS is currently degraded — 648/648 sidecar plans have empty `tools:[]` until F1 (graph-cap fix) + U-RGS-RULE-BACKEND-DEV ship. Until the pre-flight gate clears (`roadmap_tool_plan_query` returns a plan with non-empty `tools[]` + confidence ≥0.75), proceed using the unit's spec + summary alone; do NOT block the loop on an empty RGS plan (R12 fail-loud: note "RGS plan empty — building from spec" in the tick note).
 1a. **Claim** the picked unit so no peer races you on it:
    ```bash
    node H:/prism/.claude/helpers/slot-task-claim.mjs claim \

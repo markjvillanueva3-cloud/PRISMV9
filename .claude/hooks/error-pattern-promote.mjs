@@ -13,11 +13,38 @@
  * Fail-safe: continueOnError. Never blocks Stop.
  * Disable: PRISM_ERROR_PROMOTE=0
  */
-import { readFileSync, writeFileSync, appendFileSync, existsSync, mkdirSync } from "node:fs";
+import { readFileSync, writeFileSync, appendFileSync, existsSync, mkdirSync, statSync } from "node:fs";
+import { dirname } from "node:path";
+import { shouldSkipMemo } from "./lib/error-pattern-memo-guard.mjs";
 
 const LEDGER = "H:/prism/mcp-server/data/state/ERROR_LEARN_LEDGER.jsonl";
 const LESSONS_DIR = "H:/prism/knowledge/wiki/lessons";
 const TELEMETRY = "H:/prism/mcp-server/data/state/hook-fire-counts.jsonl";
+// Memo sidecar: skips the full ledger read+parse when the ledger is
+// byte-identical (size+mtime) to the last run AND the last decision was a
+// no-op. Decision logic + its load-bearing append-only assumption live in
+// ./lib/error-pattern-memo-guard.mjs (pure, unit-tested).
+const MEMO = "H:/prism/.claude/cache/error-pattern-promote-last.json";
+
+function statLedger() {
+  try { const s = statSync(LEDGER); return { size: s.size, mtimeMs: Math.floor(s.mtimeMs) }; }
+  catch { return null; }
+}
+function readMemo() {
+  try { return JSON.parse(readFileSync(MEMO, "utf8")); } catch { return null; }
+}
+function writeMemo(obj) {
+  // Ensure the cache dir exists — otherwise writeFileSync ENOENTs forever and
+  // the memo is a permanent unobservable no-op (the exact silent-failure class
+  // the token-savings audit flagged). On any write failure, emit a one-time
+  // telemetry signal so a disabled memo is observable, not silent (R12).
+  try {
+    mkdirSync(dirname(MEMO), { recursive: true });
+    writeFileSync(MEMO, JSON.stringify(obj), "utf8");
+  } catch (err) {
+    tele("memo_write_failed", { err: String(err && err.code || err).slice(0, 40) });
+  }
+}
 
 function tele(decision, extra) {
   try { appendFileSync(TELEMETRY, JSON.stringify({ ts: new Date().toISOString(), hook: "error-pattern-promote", decision, ...extra }) + "\n", "utf8"); } catch {}
@@ -118,8 +145,18 @@ function draftStub(fingerprint, occurrences) {
 function main() {
   drainStdin();
   if (process.env.PRISM_ERROR_PROMOTE === "0") { tele("disabled"); return out({}); }
+  // Memo guard: if the ledger is byte-identical to the last run and that run
+  // was a no-op, the grouping is provably still a no-op — skip the full
+  // read+parse+group. Falls open: missing/corrupt memo, or a missing stat,
+  // does the full work (no behavior change).
+  const ledgerStat = statLedger();
+  const memo = readMemo();
+  if (shouldSkipMemo(memo, ledgerStat)) {
+    tele("noop_unchanged_ledger", { memoDecision: memo.decision });
+    return out({});
+  }
   const events = readLedger();
-  if (!events.length) { tele("noop_empty_ledger"); return out({}); }
+  if (!events.length) { tele("noop_empty_ledger"); writeMemo({ ...ledgerStat, decision: "noop_empty_ledger" }); return out({}); }
   const cutoff = Date.now() - ROLLING_DAYS * SECONDS_PER_DAY * MS_PER_SECOND;
   const recent = events.filter(e => {
     // M1 fix: handle both ISO string and epoch-ms number timestamps.
@@ -144,6 +181,9 @@ function main() {
   }
   if (promoted.length) {
     tele("drafted", { count: promoted.length, fingerprints: promoted.map(p => p.fingerprint) });
+    // decision !startsWith("noop") → next run will NOT skip via the memo
+    // guard (correct: a draft round must re-evaluate in case more land).
+    writeMemo({ ...ledgerStat, decision: "drafted" });
     out({ systemMessage: `error-pattern-promote: drafted ${promoted.length} lesson stub(s): ${promoted.map(p => p.fingerprint).join(", ")}` });
   } else if (groupsAtThreshold > 0) {
     // All threshold-meeting groups already have a stub — that's the
@@ -152,9 +192,11 @@ function main() {
     // misread the hook as 'not catching errors' when it's actually
     // doing its job.
     tele("noop_all_drafted", { groupsAtThreshold, groupsAlreadyDrafted, recent: recent.length });
+    writeMemo({ ...ledgerStat, decision: "noop_all_drafted" });
     out({});
   } else {
     tele("noop_below_threshold", { groups: Object.keys(groups).length, recent: recent.length });
+    writeMemo({ ...ledgerStat, decision: "noop_below_threshold" });
     out({});
   }
 }
