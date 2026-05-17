@@ -284,3 +284,39 @@ Tests: `scripts/__tests__/fleet-reaper-tier.test.mjs` (16) +
 `scripts/__tests__/fleet-reaper-ballast.test.mjs` (20). Both per-file
 2-reviewer scrutiny rounds PASS, 0 P0/P1. Memory:
 [[reference_fleet_reaper_tier1_2026_05_17]].
+
+### Tier 2 — critical-pressure service auto-restart (2026-05-17, slot alpha)
+
+**U-FR-TIER2-SERVICE-RESTART** — under the critical band a wedged supporting
+service (Qdrant/Postgres/Prometheus) is the highest-leverage relief: a wedged
+Docker daemon silently degrades the fleet-wide master-index to BM25-only. Pure
+`serviceRestartAction({pressureTier,dockerHealth,restartEnabled,acted})` state
+machine (noop/advise/restart) + fail-soft one-shot-latched
+`restartWedgedServices` shell, wired into the coordinator block, surfaced in
+isNoteworthy/monitorEvent/summarize. **Advisory by default** — only acts with
+`PRISM_FLEET_REAPER_SERVICE_RESTART=1` (infra restart is high-blast-radius); the
+Docker **daemon** is NEVER an auto-restart target (daemon-down = advise-only —
+auto would kill every container). `RESTARTABLE_CONTAINERS` maps
+postgres→postgres-prism, qdrant→qdrant, prometheus→prometheus. One-shot latched
+(`_serviceRestartActed`) so a flapping service is not restart-looped.
+`result.ok` stays reap-mission-only — a restart failure is surfaced (caveat +
+`failed[]`), never fatal.
+
+**P0 caught by per-file scrutiny (Reviewer A) + fixed in-unit:** the real
+`ollama-docker-health.mjs` probe emits `docker` + `ollama` as TOP-LEVEL JSON
+keys (only `{qdrant,postgres,prometheus}` under `services`), but
+`readDockerHealth` mirrored ONLY `parsed.services.*` — so `services.docker` was
+never populated for real payloads, `dockerHealth.available` was permanently
+false (spurious "docker down but ollama reachable" caveat every real run — a
+latent FLEET-REAPER-MS1.1 bug), and the Tier-2 daemon-down safety guard was
+DEAD in production (would `docker restart` against a dead daemon with restart
+enabled). Hermetic tests passed because their fixture fabricated `docker`
+inside `services`. Fix: `readDockerHealth` folds top-level `docker`/`ollama`
+into the normalized `services` map (back-compat: explicit `services.docker` not
+overwritten); 3 real-producer-shape E2E tests added (`REAL_PROBE()` →
+`readDockerHealth → serviceRestartAction → restartWedgedServices`) as the
+fail-on-revert regression oracle. Reviewer B independently verified PASS.
+**Lesson:** a pure-core + injected-readers design MUST ship ≥1
+real-producer-shape E2E (same class as RGS-TOOL-AUTOINVOKE-MS1). 19 `node:test`.
+Knob: `PRISM_FLEET_REAPER_SERVICE_RESTART`. Memory:
+[[reference_fleet_reaper_tier1_2026_05_17]].
