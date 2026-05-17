@@ -228,7 +228,12 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // (read-only — recordOutcome/clear/importOutcomes DEFERRED for safety review;
 //  they mutate the accuracy ledger that drives degradation alerts)
 "engine_acc_report", "engine_acc_engine", "engine_acc_metric",
-"engine_acc_degrading", "engine_acc_list", "engine_acc_stats"] as const;
+"engine_acc_degrading", "engine_acc_list", "engine_acc_stats",
+// WIRE-UNWIRED-MS0/U-WIRE-WIKI-MAINT: WikiIndexMaintainerEngine
+// (read-only — upsert/upsertMany/remove DEFERRED; they MUTATE the wiki
+//  index + JSONL on disk which the wiki-bootstrap + wiki-lint pipelines
+//  depend on; an LLM-driven upsert could clobber curated content)
+"wiki_idx_read", "wiki_idx_get", "wiki_idx_by_category", "wiki_idx_paths"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -1527,6 +1532,44 @@ export function registerDevDispatcher(server: any): void {
           case "engine_acc_stats": {
             const { engineAccuracyTrackerEngine } = await import("../../engines/EngineAccuracyTrackerEngine.js");
             result = { stats: engineAccuracyTrackerEngine.getStats() };
+            break;
+          }
+          // WIRE-UNWIRED-MS0/U-WIRE-WIKI-MAINT: WikiIndexMaintainerEngine read-only
+          case "wiki_idx_read": {
+            const { wikiIndexMaintainerEngine } = await import("../../engines/WikiIndexMaintainerEngine.js");
+            result = { entries: await wikiIndexMaintainerEngine.read() };
+            break;
+          }
+          case "wiki_idx_get": {
+            const { wikiIndexMaintainerEngine } = await import("../../engines/WikiIndexMaintainerEngine.js");
+            const wp = typeof params === "object" && params !== null ? params as Record<string, unknown> : {};
+            const slug = typeof wp.slug === "string" ? wp.slug : "";
+            if (!slug) {
+              result = { error: "wiki_idx_get requires 'slug' (string)" };
+              break;
+            }
+            const entry = await wikiIndexMaintainerEngine.getBySlug(slug);
+            // engine returns WikiEntry | undefined — normalize to null for JSON
+            result = { entry: entry ?? null };
+            break;
+          }
+          case "wiki_idx_by_category": {
+            const { wikiIndexMaintainerEngine } = await import("../../engines/WikiIndexMaintainerEngine.js");
+            const wp = typeof params === "object" && params !== null ? params as Record<string, unknown> : {};
+            const category = typeof wp.category === "string" ? wp.category : "";
+            if (!category) {
+              result = { error: "wiki_idx_by_category requires 'category' (string)" };
+              break;
+            }
+            result = { entries: await wikiIndexMaintainerEngine.getByCategory(category) };
+            break;
+          }
+          case "wiki_idx_paths": {
+            const { wikiIndexMaintainerEngine } = await import("../../engines/WikiIndexMaintainerEngine.js");
+            result = {
+              indexPath: wikiIndexMaintainerEngine.getIndexPath(),
+              jsonlPath: wikiIndexMaintainerEngine.getJsonlPath(),
+            };
             break;
           }
           case "blueprint_ingest_phase8": {

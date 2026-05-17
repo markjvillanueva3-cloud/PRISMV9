@@ -1201,4 +1201,21 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
 
   engine_acc_stats: z.object({}).passthrough()
     .describe("Top-level engine accuracy ledger stats (outcomes count, engine count, etc.)."),
+
+  // ── WIRE-UNWIRED-MS0/U-WIRE-WIKI-MAINT: WikiIndexMaintainerEngine ──────────
+  wiki_idx_read: z.object({}).passthrough()
+    .describe("Read all wiki index entries (parsed from index.md). Read-only."),
+
+  wiki_idx_get: z.object({
+    slug: z.string().min(1).describe("Wiki entry slug (e.g., 'master-index-surface')."),
+  }).passthrough()
+    .describe("Lookup a single wiki entry by slug. Returns null if missing. Read-only."),
+
+  wiki_idx_by_category: z.object({
+    category: z.string().min(1).describe("Wiki category (concepts, entities, decisions, patterns, etc.)."),
+  }).passthrough()
+    .describe("List wiki entries in a category. Read-only."),
+
+  wiki_idx_paths: z.object({}).passthrough()
+    .describe("Returns {indexPath, jsonlPath} — the on-disk wiki index file paths. Read-only."),
 };
