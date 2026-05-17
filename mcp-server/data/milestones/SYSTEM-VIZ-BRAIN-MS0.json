@@ -257,7 +257,35 @@
     "U-P2-LIVE-DRIFT-OVERLAY": {
       "phase": "P2-VIZ-BRAIN",
       "title": "5-min auto-regen + drift overlay (red-pulse nodes where envelope-vs-git differ)",
-      "status": "pending"
+      "status": "shipped",
+      "shipped_at": "2026-05-17T17:00:00Z",
+      "delivered_by": "claude-a61bbf34 (slot echo)",
+      "shipped_evidence": {
+        "scripts": [
+          "scripts/system-viz-drift-overlay.mjs (~310 LOC, 12 pure-core exports + CLI; reads roadmap-drift-report.json → emits per-milestone severity + pulse-intensity + direction sidecar)",
+          "scripts/system-viz-drift-overlay.test.mjs (~600 LOC, 46/46 PASS via node:test, includes real-data E2E + regression guards for ALL scrutiny fixes)"
+        ],
+        "artifact": "state/shared/system-viz/drift-overlay.json (gitignored — auto-regenerated; live baseline: 30 drifts / 14 critical / 6 warning / 10 info / 750 total milestones / 0 malformed)",
+        "scope_note": "BACKEND SLICE ONLY. Frontend red-pulse animation in mcp-server/web/ deferred. 5-min auto-regen cron part deferred (script is cron-friendly — operator wires task or /loop). ZERO dispatcher contract surface (sidecar-only) — same pattern as U-P5-FLEET-AWARENESS-PANEL + U-P2-SLOT-OWNERSHIP-OVERLAY this loop.",
+        "live_verification": "30 drifts in roadmap-drift-report.json correctly classified — 14 critical (statusMismatch OR |delta|≥5), 6 warning (|delta|≥2), 10 info. All within [PULSE_MIN, PULSE_MAX] bounds. Direction tally surfaces overclaim (false-positive close-out) vs underclaim (silent close-out debt) — high-stakes axis the frontend can color-distinguish.",
+        "per_file_scrutiny": "BOTH reviewer arms ran. Arm A (code-analyzer) PASS with 3 P2 + 2 P3. Arm B (independent reviewer) FAIL on P0: sourceGenerator misattributed to detect-system-viz-drift.mjs (different domain — filesystem coverage) when the real producer is audit-roadmap-drift.mjs. Arm B also caught P1 (no contract-drift fail-loud), P2 (negative-delta direction not surfaced), P3 (degenerate-equality test trap).",
+        "fixes_applied_in_commit": [
+          "P0 (arm B): sourceGenerator + file-header comment + advisory caveat all corrected to audit-roadmap-drift.mjs",
+          "P1 (arm B): suspectedContractDrift heuristic — fires when drifts.length > 0 AND zero critical AND zero warning (likely upstream schema rename silently bucketing everything as info)",
+          "P2 (arm B): direction enum {overclaim|underclaim|matched} on every milestone + summary.byDirection tally (negative delta = envelope claims MORE done than git — high-stakes false-positive close-out class)",
+          "P3 (arm B): pulse-saturation test anchored to expected value (PULSE_MIN + 0.5 = 0.55 non-mismatch; PULSE_MAX for mismatch+cap) — kills degenerate-equality trap",
+          "Path-conversion bug fix in new regression test: fileURLToPath() replaces fragile manual /H:/ URL-strip"
+        ],
+        "key_lesson": "Arm B's contract-attribution check (does the cited upstream actually produce this artifact?) caught a P0 that hermetic tests + arm A's content-specialist review missed. Same class as RGS-MS0→MS1 lesson: pure-core hermetic tests don't catch upstream-contract drift; need a real-data E2E AND an attribution check.",
+        "design_decisions": [
+          "Severity rules: statusMismatch → critical (regardless of delta); |delta|≥5 → critical; |delta|≥2 → warning; else info",
+          "Pulse formula: log-scale on min(deltaAbs, PULSE_LOG_CAP=10) + optional statusMismatch boost (0.5) + PULSE_MIN baseline (0.05); clamped to PULSE_MAX (1.0)",
+          "Direction: delta<0 → overclaim, delta>0 → underclaim, delta=0 → matched (frontend can color the high-stakes overclaim distinctly)",
+          "Stable sort: severity DESC → deltaAbs DESC → id ASC (localeCompare tiebreaker)",
+          "Object.create(null) on driftMilestones + byTrack accumulators (proto-pollution safety)",
+          "Atomic tmp-${pid} + rename write (no truncated sidecar on crash)"
+        ]
+      }
     },
     "U-P2-SLOT-OWNERSHIP-OVERLAY": {
       "phase": "P2-VIZ-BRAIN",
