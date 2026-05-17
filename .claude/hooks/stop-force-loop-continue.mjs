@@ -171,7 +171,13 @@ function main() {
 
   const loop = readLoopState(sid);
   if (!loop) approveAndExit("no active loop state");
-  if (loop.status !== "active") approveAndExit(`loop status=${loop.status} (not active)`);
+  // FIX 2026-05-17: status is "running" in loop-state.mjs:71 (cmdStart writes it).
+  // Other terminal values: "ended", "abandoned", "stale". The pre-fix gate
+  // required "active" — which loop-state never writes — so this Stop hook
+  // early-exited on EVERY real loop and the `## RESUME_LOOP` handoff
+  // re-injection was dead code fleet-wide (regression documented in
+  // CLAUDE.md, observed by claude-339c8ff7 during /checkin loop roll-in).
+  if (loop.status !== "running") approveAndExit(`loop status=${loop.status} (not running)`);
   if (typeof loop.iter !== "number" || typeof loop.target !== "number") approveAndExit("loop state missing iter/target");
   if (loop.iter >= loop.target) approveAndExit(`loop complete (${loop.iter}/${loop.target})`);
 
