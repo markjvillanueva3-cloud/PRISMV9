@@ -347,7 +347,12 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "cse_plan", "cse_categorize", "cse_estimate_savings", "cse_recommend",
 // WIRE-UNWIRED-MS0/U-WIRE-DME: DiffMinimizerEngine — token-saving edit
 // diff minimizer. All 3 methods pure.
-"dme_minimize", "dme_analyze_edits", "dme_can_combine"] as const;
+"dme_minimize", "dme_analyze_edits", "dme_can_combine",
+// WIRE-UNWIRED-MS0/U-WIRE-PME: PipelineMetricsEngine — CPP-MS5 context-
+// pipeline observability metrics. Engine docstring guarantees pure
+// (caller supplies filesystem state, engine does no I/O). No defers.
+"pme_collect", "pme_compute_survival_bytes",
+"pme_compute_handoff_roundtrip"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -2095,6 +2100,38 @@ export function registerDevDispatcher(server: any): void {
             const p = params as { edits: Array<{ file: string; lineNumber: number }> };
             const clusters = diffMinimizerEngine.canCombine(p.edits);
             result = { clusters, count: clusters.length };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-PME: PipelineMetricsEngine ───────────
+          case "pme_collect": {
+            const { pipelineMetricsEngine } = await import("../../engines/PipelineMetricsEngine.js");
+            const p = params as {
+              survivalFiles?: Array<{ path: string; bytes: number; mtimeMs: number }>;
+              handoffFiles?: Array<{ path: string; mtimeMs: number }>;
+              integrityLinks?: Array<{ stage: string; empty: boolean }>;
+              capturedAt?: string;
+            };
+            const snapshot = pipelineMetricsEngine.collect({
+              survivalFiles: p.survivalFiles ?? [],
+              handoffFiles: p.handoffFiles ?? [],
+              integrityLinks: p.integrityLinks ?? [],
+              capturedAt: p.capturedAt,
+            });
+            result = { snapshot };
+            break;
+          }
+          case "pme_compute_survival_bytes": {
+            const { pipelineMetricsEngine } = await import("../../engines/PipelineMetricsEngine.js");
+            const files = (params as { files?: Array<{ path: string; bytes: number; mtimeMs: number }> }).files ?? [];
+            const stats = pipelineMetricsEngine.computeSurvivalBytes(files);
+            result = { stats };
+            break;
+          }
+          case "pme_compute_handoff_roundtrip": {
+            const { pipelineMetricsEngine } = await import("../../engines/PipelineMetricsEngine.js");
+            const files = (params as { files?: Array<{ path: string; mtimeMs: number }> }).files ?? [];
+            const roundtripMs = pipelineMetricsEngine.computeHandoffRoundtrip(files);
+            result = { roundtripMs };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-CEX: CatalogExtractionEngine ─────────

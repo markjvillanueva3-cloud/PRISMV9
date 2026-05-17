@@ -1980,4 +1980,47 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     }).passthrough()).min(1).max(1000)
       .describe("Edit locations to consider for clustering (≤1000)"),
   }).describe("Find clusters of adjacent edits that could be combined. Pure."),
+
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-PME: PipelineMetricsEngine wiring ──
+  // CPP-MS5-U-CPP37 observability metrics over context-pipeline artifacts.
+  // 3 explicitly-pure methods (engine docstring guarantees no I/O — caller
+  // collects filesystem state and passes it in). No defers. DoS guards:
+  // ≤10k per array; bytes/mtimes capped at sane upper bounds.
+  pme_collect: z.object({
+    survivalFiles: z.array(z.object({
+      path: z.string().min(1).max(4096).describe("Survival file path"),
+      bytes: z.number().int().nonnegative().max(1_000_000_000).describe("File size in bytes (cap 1 GB)"),
+      mtimeMs: z.number().nonnegative().max(8.64e15).describe("Last-modified epoch ms"),
+    }).passthrough()).max(10_000).default([])
+      .describe("All .compaction-survival-*.md SurvivalFileStat entries"),
+    handoffFiles: z.array(z.object({
+      path: z.string().min(1).max(4096),
+      mtimeMs: z.number().nonnegative().max(8.64e15),
+    }).passthrough()).max(10_000).default([])
+      .describe("All HANDOFF-*.md HandoffFileStat entries"),
+    integrityLinks: z.array(z.object({
+      stage: z.string().min(1).max(256).describe("Pipeline stage id"),
+      empty: z.boolean().describe("Whether this link's artifact is empty"),
+    }).passthrough()).max(10_000).default([])
+      .describe("Parsed PIPELINE_INTEGRITY.json links[] entries"),
+    capturedAt: z.string().min(1).max(64).optional()
+      .describe("ISO timestamp for the output snapshot (defaults to now)"),
+  }).describe("Compute the full pipeline-metrics snapshot from raw inputs. Pure."),
+
+  pme_compute_survival_bytes: z.object({
+    files: z.array(z.object({
+      path: z.string().min(1).max(4096),
+      bytes: z.number().int().nonnegative().max(1_000_000_000),
+      mtimeMs: z.number().nonnegative().max(8.64e15),
+    }).passthrough()).max(10_000).default([])
+      .describe("Survival files to aggregate (empty input → all-zero stats)"),
+  }).describe("Aggregate {count,total,max,min,avg} byte stats. Pure."),
+
+  pme_compute_handoff_roundtrip: z.object({
+    files: z.array(z.object({
+      path: z.string().min(1).max(4096),
+      mtimeMs: z.number().nonnegative().max(8.64e15),
+    }).passthrough()).max(10_000).default([])
+      .describe("Handoff files — roundtrip is freshest − oldest mtime in ms"),
+  }).describe("Compute freshest−oldest handoff mtime in ms (0 when ≤1 file). Pure."),
 };
