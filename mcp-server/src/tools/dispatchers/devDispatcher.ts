@@ -473,7 +473,8 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "sfr_get_employee_productivity", "sfr_get_production_summary",
 "sfr_get_oee_trend", "sfr_get_department_comparison",
 "sfr_get_improvement_recommendations", "sfr_get_self_awareness",
-"ags_propose"] as const;
+"ags_propose",
+"wre_explain"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -3663,6 +3664,22 @@ export function registerDevDispatcher(server: any): void {
             const { ShopFloorReportEngine } = await import("../../engines/ShopFloorReportEngine.js");
             const info = ShopFloorReportEngine.getSelfAwareness();
             result = { info };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-WRE: WEDMReasoningExplain ────────────
+          case "wre_explain": {
+            const { wedmReasoningExplainEngine } = await import("../../engines/WEDMReasoningExplainEngine.js");
+            const r = wedmReasoningExplainEngine.explain(params as Parameters<typeof wedmReasoningExplainEngine.explain>[0]);
+            // r returns {rationale, citations[], topCitation|null,
+            //            evidenceHistogram, queryEcho}.
+            // topCitation may be null (engine line 175) when lattice unavailable
+            // -- use explicit has_top_citation discriminator.
+            result = {
+              result: r,
+              citation_count: r.citations.length,
+              has_top_citation: r.topCitation !== null,
+              evidence_kind_count: Object.keys(r.evidenceHistogram).length,
+            };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-AGS: AutonomousGoalSynthesis ─────────

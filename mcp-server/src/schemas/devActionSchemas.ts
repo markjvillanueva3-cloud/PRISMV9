@@ -3167,6 +3167,27 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   // ── WIRE-UNWIRED-MS0 / U-WIRE-AGS: AutonomousGoalSynthesisEngine ──
   // Single pure-compute method ranks gap-descriptors by
   // Ψ_impact × urgency × feasibility. No I/O, no state mutation.
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-WRE: WEDMReasoningExplainEngine ──
+  // Single pure-compute method. Auto-loads WEDM lattice on first call
+  // (engine line 166-168, idempotent — only fires when lattice empty).
+  // No state mutation in the explain() path itself.
+  wre_explain: z.object({
+    mat: z.string().min(1).max(128).describe("Material (string or LatticeMaterial)"),
+    mach: z.string().min(1).max(64).optional().describe("Controller (default 'fanuc')"),
+    wire: z.string().min(1).max(64).optional().describe("Wire material (default 'brass')"),
+    wireDiameterMm: z.number().positive().max(10).describe("Wire diameter mm"),
+    thicknessMm: z.number().positive().max(1000).describe("Workpiece thickness mm"),
+    raTargetUm: z.number().positive().max(50).describe("Target Ra surface finish µm"),
+    peakCurrentA: z.number().min(0).max(1000).optional(),
+    pulseOnUs: z.number().min(0).max(10_000).optional(),
+    pulseOffUs: z.number().min(0).max(10_000).optional(),
+    predictedRaUm: z.number().min(0).max(50).optional(),
+    predictedBreakProb: z.number().min(0).max(1).optional(),
+    predictedRecastUm: z.number().min(0).max(1000).optional(),
+    topCitations: z.number().int().min(1).max(20).optional()
+      .describe("Number of neighbor citations (default 3, max 20 per engine line 151)"),
+  }).describe("Natural-language reasoning over WEDM embedding lattice. Pure compute."),
+
   ags_propose: z.object({
     gaps: z.array(z.object({
       id: z.string().min(1).max(256),
