@@ -950,6 +950,17 @@ export function heartbeat(input, statePath = DEFAULT_STATE_PATH, lockPath = DEFA
         const refreshed = refreshState(s, input);
         file.slots[n] = refreshed;
         writeSlotsAtomic(file, statePath);
+        // SLOT-DRIFT-FIX-MS0/U-SDF19: heartbeat refreshes the sticky cache too.
+        // Without this, chats that claimed pre-SDF13 (or heartbeat-only since)
+        // never get a cache file and drift on next /compact.
+        try {
+          const _r = _persistSlotForChat(input.chatId, n);
+          if (_r && _r.ok === false) {
+            process.stderr.write(`[slot-identity-cache] heartbeat persist failed for ${input.chatId}->${n}: ${_r.error || "unknown"}\n`);
+          }
+        } catch (_e) {
+          process.stderr.write(`[slot-identity-cache] heartbeat persist threw for ${input.chatId}->${n}: ${(_e && _e.message) || _e}\n`);
+        }
         return { ok: true, slot: n, state: refreshed };
       }
     }
