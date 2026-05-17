@@ -574,25 +574,45 @@ export function registerMemoryDispatcher(server: McpServer): void {
             //   generatedRoot -> outputDir
             //   vaultRoot     -> vaultRoot (required, falls back to default)
             //   maxDailies, windowDays, excerptBytes are dispatcher-era knobs
-            //   that the runWeekly path doesn't consume — preserved in response
-            //   audit for compatibility but not forwarded.
-            void maxDailies;
-            void windowDays;
-            void excerptBytes;
+            //   that the runWeekly path doesn't consume — surfaced explicitly
+            //   in result.unsupported_params below (R12 fail loud) instead of
+            //   silently dropped.
             if (!vaultRoot) {
-              result = { ok: false, error: "loader_failed", detail: "vault_root parameter is required" };
+              // Use the engine's canonical WeeklySynthesisErrorClass enum so
+              // result.error round-trips through WeeklySynthesisErrorClassSchema
+              // (downstream consumers parse this with zod — "loader_failed" is
+              // NOT a valid class).
+              result = { ok: false, error: "invalid-vault-root", detail: "vault_root parameter is required" };
             } else {
               // RunWeeklyOpts.date is ISO YYYY-MM-DD; `now` arrives as epoch-ms
               // from the dispatcher convention. Convert at the boundary so the
-              // synthesizer anchors the week correctly.
-              const dateIso = typeof now === "number"
-                ? new Date(now).toISOString().slice(0, 10)
-                : undefined;
-              result = await weeklySynthesisEngine.runWeekly({
+              // synthesizer anchors the week correctly. Reject NaN/Infinite/
+              // negative timestamps explicitly per Karpathy R12 (fail loud) —
+              // `new Date(NaN).toISOString()` throws, but negative epoch silently
+              // rolls back to 1969 which the engine's regex would accept.
+              let dateIso: string | undefined;
+              if (typeof now === "number") {
+                if (!Number.isFinite(now) || now < 0) {
+                  result = { ok: false, error: "invalid-date", detail: `now must be a finite non-negative epoch-ms; got ${now}` };
+                  break;
+                }
+                dateIso = new Date(now).toISOString().slice(0, 10);
+              }
+              // Surface dispatcher-era knobs that runWeekly does not consume so
+              // an operator who passes them sees the contract violation explicitly
+              // (Karpathy R12 — fail loud, do not silently drop).
+              const unsupportedParams: string[] = [];
+              if (maxDailies !== undefined) unsupportedParams.push("max_dailies");
+              if (windowDays !== undefined) unsupportedParams.push("window_days");
+              if (excerptBytes !== undefined) unsupportedParams.push("excerpt_bytes");
+              const runResult = await weeklySynthesisEngine.runWeekly({
                 vaultRoot,
                 outputDir: generatedRoot,
                 date: dateIso,
               });
+              result = unsupportedParams.length > 0
+                ? { ...runResult, unsupported_params: unsupportedParams }
+                : runResult;
             }
             break;
           }
