@@ -319,7 +319,40 @@
     "U-P2-COT-REASON-BLAST-RADIUS": {
       "phase": "P2-VIZ-BRAIN",
       "title": "Right-click node → prism_ai:cot_reason with upstream/downstream graph context",
-      "status": "pending"
+      "status": "shipped",
+      "shipped_at": "2026-05-17T18:00:00Z",
+      "delivered_by": "claude-a61bbf34 (slot echo)",
+      "shipped_evidence": {
+        "scripts": [
+          "scripts/system-viz-cot-reason-blast-radius.mjs (~340 LOC, 17 exports + CLI; pure resolver builds prism_ai:cot_reason invocation payload with BFS-extracted upstream/downstream blast-radius)",
+          "scripts/system-viz-cot-reason-blast-radius.test.mjs (~620 LOC, 47/47 PASS via node:test, includes live-source contract pinning + real-data E2E + NaN-clamp + null-graph regression guards)"
+        ],
+        "scope_note": "BACKEND SLICE — builds payloads for an EXISTING action (prism_ai:cot_reason), does NOT add new dispatcher surface. Frontend right-click handler deferred. Resolver IS the load-bearing contract; frontend invokes the returned {dispatcher, action, params}.",
+        "live_verification": "CLI exercised against real 153MB system-graph.json — payload emitted with correct snake_case fields (problem, goal, context, strategy, max_steps, confidence_threshold). targetNodePresent gracefully false when node id absent from graph (no throw).",
+        "contracts_verified_against_live_dispatchers": [
+          "mcp-server/src/tools/dispatchers/aiReasoningDispatcher.ts:1444 — case 'cot_reason' confirmed; dispatcher = prism_ai",
+          "mcp-server/src/engines/ChainOfThoughtEngine.ts:129-138 — ReasoningProblem interface confirmed snake_case: {problem, goal, context?, constraints?, known_facts?, strategy?, max_steps?, confidence_threshold?}",
+          "Engine ReasoningStrategy default 'linear' (engine line 230) matches DEFAULT_STRATEGY constant",
+          "Dispatcher line 1447 casts params as unknown as ReasoningProblemArg with no field remapping — snake_case is correct emission shape"
+        ],
+        "per_file_scrutiny": "BOTH arms PASS. Arm A (code-analyzer): zero P0, 1 P1 (NaN clamp gap — Math.min/max propagate NaN), 3 P2 (edge-key collision risk, truncation edge-dropping semantics, per-direction cap aggregation), 3 P3 (O(n) re-scan in buildCotReasonPayload, RangeError on non-finite now, pid-only tmp collision). Arm B (independent): zero P0, zero P1, 2 P2 (null-graph test gap, no real-data E2E per RGS-MS0→MS1 lesson), 2 P3.",
+        "fixes_applied_in_commit": [
+          "P1 (arm A): NaN-clamp fix — Number.isFinite() coercion to DEFAULT_HOPS/DEFAULT_MAX_NEIGHBORS BEFORE Math.min/max clamping. 4 new regression tests cover NaN, undefined, '3' string-via-Number coercion.",
+          "P2 (arm B): null/undefined systemGraph regression guards (2 new tests verify empty radius emits without throw).",
+          "P2 (arm B): Real-data E2E section (2 new tests verify resolver works against live 153MB system-graph, with skip-if-not-present for hermetic CI envs)."
+        ],
+        "design_decisions": [
+          "Direction: upstream = inAdj (this node as edge target — ancestors who point AT us); downstream = outAdj (this node as edge source — descendants we point at). Verified by arm B against graph theory semantics.",
+          "Cycles: same node CAN appear in both upstream and downstream sets (intentional — frontend colors separately).",
+          "Synthesized problem/goal defaults: degraded form when caller omits, sourced from node label/kind. Caller free-text overrides win.",
+          "Optional ReasoningProblem fields (constraints, known_facts) ABSENT from params when caller omits, not emitted as empty arrays (avoid noise downstream).",
+          "BFS bounds: ABSOLUTE_HOP_CAP=5, ABSOLUTE_NEIGHBOR_CAP=500 — protect against fan-out OOM on real 153MB graph.",
+          "Edge dedup key: source|target|kind — within-direction dedup; cross-direction allows same edge to appear (cycle semantics).",
+          "Object.create(null) on nodeById + outAdj + inAdj + outEdges + inEdges (proto-pollution safety).",
+          "Atomic tmp+rename write."
+        ],
+        "key_lesson": "Both reviewer arms can VERIFY a dispatcher contract by reading the live .ts source (line numbers in sourceContract field + regression tests that grep for the actual interface). Hermetic tests + contract-pinning tests + real-data E2E together cover the bug class arm B caught on U-P2-NODE-CLICK-DISPATCH (4 contract bugs that pure hermetic tests passed)."
+      }
     },
     "U-P3-VERIFY-UNIT-READY": {
       "phase": "P3-AUTO-BUILD",
