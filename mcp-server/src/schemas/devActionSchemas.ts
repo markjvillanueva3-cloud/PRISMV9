@@ -2611,4 +2611,25 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   me_validate: z.object({}).describe(
     "{valid:bool, issues:string[]} — checks ordering + duplicates. Pure read."
   ),
+
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-CC: ConsensusCoordinatorEngine wiring ──
+  // INTEL-OLLAMA-OBSIDIAN-MS0/AUTO-CONSENSUS concurrency-aware wrapper.
+  // 2 read actions wired; run() DEFERRED (fans out expensive consensus
+  // calls to shared external resources — LLM-callable would saturate the
+  // shared Codex API + Ollama daemon + Claude subprocess across 6 chats).
+  // resetForTesting() DEFERRED (mutates inflight + budget state).
+  cc_peek_cache: z.object({
+    prompt: z.string().min(1).max(65_536)
+      .describe("Original prompt (≤64 KB for DoS bound)"),
+    task_type: z.string().min(1).max(256)
+      .describe("Task-type tag (consensus uses {prompt, task_type, context} as cache key)"),
+    context: z.string().max(65_536).optional()
+      .describe("Optional context string (default empty)"),
+    ttl_ms: z.number().int().positive().max(86_400_000).optional()
+      .describe("Cache TTL window in ms (default engine default)"),
+  }).describe("Read cached consensus result for a prompt+task_type+context (or null when miss). Pure read."),
+
+  cc_get_stats: z.object({}).describe(
+    "Engine stats {inflight, budget, cacheBytes}. Pure read."
+  ),
 };

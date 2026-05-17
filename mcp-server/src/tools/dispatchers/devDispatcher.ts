@@ -436,7 +436,11 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // WIRE-UNWIRED-MS0/U-WIRE-ME: MigrationEngine — L2-P3-MS1 schema versioning.
 // Read methods only; register/apply/rollback/clear DEFERRED (register
 // takes function-literals non-serializable over MCP).
-"me_status", "me_get_records", "me_validate"] as const;
+"me_status", "me_get_records", "me_validate",
+// WIRE-UNWIRED-MS0/U-WIRE-CC: ConsensusCoordinatorEngine — concurrency-
+// aware wrapper. Read methods only; run() DEFERRED (fans out expensive
+// shared-external-resource calls); resetForTesting() DEFERRED.
+"cc_peek_cache", "cc_get_stats"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -2957,6 +2961,26 @@ export function registerDevDispatcher(server: any): void {
             const v = migrationEngine.validate();
             // Explicit discriminator — slimResponse strips false silently.
             result = { valid: v.valid ? true : "no", issues: v.issues, issue_count: v.issues.length };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-CC: ConsensusCoordinatorEngine ───────
+          case "cc_peek_cache": {
+            const { consensusCoordinatorEngine } = await import("../../engines/ConsensusCoordinatorEngine.js");
+            const p = params as { prompt: string; task_type: string; context?: string; ttl_ms?: number };
+            // peekCache signature: (prompt, taskType, context="", ttlMs=DEFAULT).
+            // When ttl_ms not supplied, omit the trailing arg so engine default applies.
+            const cached = p.ttl_ms !== undefined
+              ? await consensusCoordinatorEngine.peekCache(p.prompt, p.task_type, p.context ?? "", p.ttl_ms)
+              : await consensusCoordinatorEngine.peekCache(p.prompt, p.task_type, p.context ?? "");
+            result = cached === null
+              ? { hit: false }
+              : { hit: true, ts: cached.ts, result: cached.result };
+            break;
+          }
+          case "cc_get_stats": {
+            const { consensusCoordinatorEngine } = await import("../../engines/ConsensusCoordinatorEngine.js");
+            const stats = await consensusCoordinatorEngine.getStats();
+            result = { stats };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-CEX: CatalogExtractionEngine ─────────
