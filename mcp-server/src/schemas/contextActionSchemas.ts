@@ -88,6 +88,74 @@ export const ACTION_CONTEXT_SCHEMAS: Record<string, z.ZodTypeAny> = {
     })
     .strict()
     .describe("Render a multi-line preservation summary from a compact_plan result"),
+
+  // WIRE-UNWIRED-MS0/U-WIRE-PARALLEL-PLANNER — ParallelCallPlannerEngine.
+  // Two call shapes:
+  //   PlannedCall  — has id + optional dependsOn (used by parallel_plan)
+  //   Tool-only    — just { tool, params } (used by parallel_infer_dependencies
+  //                  and parallel_can_parallel; the engine generates ids itself)
+  parallel_plan: z
+    .object({
+      calls: z
+        .array(
+          z
+            .object({
+              id: z.string().min(1).describe("Stable identifier — referenced by dependsOn"),
+              tool: z.string().min(1).describe("Tool name (Read, Edit, Write, Bash, ...)"),
+              params: z
+                .record(z.string(), z.unknown())
+                .describe("Tool params (passed through verbatim)"),
+              dependsOn: z
+                .array(z.string())
+                .optional()
+                .describe("Call ids this depends on; resolved before this call enters a batch"),
+            })
+            .strict(),
+        )
+        .describe("Calls to schedule"),
+    })
+    .strict()
+    .describe(
+      "Plan parallel-vs-sequential batches from a list of PlannedCall (with explicit dependencies)",
+    ),
+  parallel_infer_dependencies: z
+    .object({
+      calls: z
+        .array(
+          z
+            .object({
+              tool: z.string().min(1).describe("Tool name"),
+              params: z
+                .record(z.string(), z.unknown())
+                .describe("Tool params — file_path/path/command used for dep inference"),
+            })
+            .strict(),
+        )
+        .describe("Raw call list (no ids); engine assigns call-0..N and infers dependencies"),
+    })
+    .strict()
+    .describe(
+      "Auto-infer dependencies between tool calls (Edit/Write depend on Read of same file; sequential Bash, etc.)",
+    ),
+  parallel_can_parallel: z
+    .object({
+      calls: z
+        .array(
+          z
+            .object({
+              tool: z.string().min(1).describe("Tool name"),
+              params: z
+                .record(z.string(), z.unknown())
+                .describe("Tool params — file_path/path/pattern checked for uniqueness"),
+            })
+            .strict(),
+        )
+        .describe("Calls to quick-check for parallelizability"),
+    })
+    .strict()
+    .describe(
+      "True iff all calls are read-only tools (Read/Grep/Glob/WebSearch/WebFetch) hitting distinct targets",
+    ),
   // Identity Model — U-SAV2-01
   identity_register: z.object({
     sessionId: z.string().min(1),

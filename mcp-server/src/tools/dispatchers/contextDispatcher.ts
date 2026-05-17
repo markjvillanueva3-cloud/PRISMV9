@@ -130,6 +130,11 @@ const ACTIONS = [
   "compact_categorize",
   "compact_estimate_capacity",
   "compact_summary",
+  // WIRE-UNWIRED-MS0/U-WIRE-PARALLEL-PLANNER — ParallelCallPlannerEngine pure-compute surface.
+  // Plans parallel-vs-sequential tool-call batches to reduce round-trip overhead.
+  "parallel_plan",
+  "parallel_infer_dependencies",
+  "parallel_can_parallel",
 ] as const;
 
 const STATE_DIR = PATHS.STATE_DIR;
@@ -1563,6 +1568,43 @@ ${todoState.blockingIssues.length > 0 ? todoState.blockingIssues.map(i => `- ${i
                 params.plan as Parameters<typeof compactPlannerEngine.preservationSummary>[0],
               );
               return ok({ success: true, data: { summary } });
+            } catch (err) {
+              return dispatcherError(err, action, "prism_context");
+            }
+          }
+
+          // WIRE-UNWIRED-MS0/U-WIRE-PARALLEL-PLANNER — ParallelCallPlannerEngine.
+          // Pure-compute surface: plan execution batches, infer dependencies,
+          // and quick-check parallelism. No I/O, no side effects.
+          case "parallel_plan": {
+            const { parallelCallPlannerEngine } = await import("../../engines/ParallelCallPlannerEngine.js");
+            try {
+              const plan = parallelCallPlannerEngine.plan(
+                params.calls as Parameters<typeof parallelCallPlannerEngine.plan>[0],
+              );
+              return ok({ success: true, data: plan });
+            } catch (err) {
+              return dispatcherError(err, action, "prism_context");
+            }
+          }
+          case "parallel_infer_dependencies": {
+            const { parallelCallPlannerEngine } = await import("../../engines/ParallelCallPlannerEngine.js");
+            try {
+              const planned = parallelCallPlannerEngine.inferDependencies(
+                params.calls as Parameters<typeof parallelCallPlannerEngine.inferDependencies>[0],
+              );
+              return ok({ success: true, data: { planned } });
+            } catch (err) {
+              return dispatcherError(err, action, "prism_context");
+            }
+          }
+          case "parallel_can_parallel": {
+            const { parallelCallPlannerEngine } = await import("../../engines/ParallelCallPlannerEngine.js");
+            try {
+              const canParallel = parallelCallPlannerEngine.canParallel(
+                params.calls as Parameters<typeof parallelCallPlannerEngine.canParallel>[0],
+              );
+              return ok({ success: true, data: { canParallel } });
             } catch (err) {
               return dispatcherError(err, action, "prism_context");
             }
