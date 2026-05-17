@@ -215,6 +215,7 @@ Canonical test shop for ALL PRISM development. Full profile + API moved to [`kno
 ## KNOWLEDGE VAULT — 5-namespace schema (U-VAULT01, 2026-05-15)
 PRISM's knowledge lives in 5 namespaces — `memory` (cross-session feedback/reference) + `wiki` (project-lifetime architecture) + `commands` (skills) + `handoffs` (inter-session) + `specs` (audits/plans). CLAUDE.md is the **doctrine pointer index**, NOT a 6th namespace — ≤200 lines of dense pointers, drill into wiki for detail. Promotion path: fleeting → memory → wiki → CLAUDE.md pointer. Back-flow path: regression → `## Recent regressions` (auto by U-VAULT03 hook — pending). Command frontmatter validated by `.claude/schemas/command-frontmatter.schema.json` (U-CK06; baseline today 33/167 valid). Full schema doc: [`knowledge/wiki/architecture/knowledge-vault-schema.md`](knowledge/wiki/architecture/knowledge-vault-schema.md).
 
+- 2026-05-16 | **14-case behavioral suite clears wiring gate** | observed-in: ef7235297 | fix: see commit | verify: `git -C H:/prism show ef7235297`
 - 2026-05-16 | **selectOptimalStrategy 3-arg + featuretype/kinematics rename (-1 net)** | observed-in: 9562a197d | fix: see commit | verify: `git -C H:/prism show 9562a197d`
 - 2026-05-16 | **realign 5 engine adapter calls (-5)** | observed-in: fc8c96cb7 | fix: see commit | verify: `git -C H:/prism show fc8c96cb7`
 - 2026-05-16 | **rename primary_strategy→selected_strategy (-4)** | observed-in: a0228c8db | fix: see commit | verify: `git -C H:/prism show a0228c8db`
