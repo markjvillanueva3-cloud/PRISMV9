@@ -474,7 +474,8 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "sfr_get_oee_trend", "sfr_get_department_comparison",
 "sfr_get_improvement_recommendations", "sfr_get_self_awareness",
 "ags_propose",
-"wre_explain"] as const;
+"wre_explain",
+"wpn_classify", "wpn_cluster_quality", "wpn_get_prototypes", "wpn_nearest_support"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -3679,6 +3680,62 @@ export function registerDevDispatcher(server: any): void {
               citation_count: r.citations.length,
               has_top_citation: r.topCitation !== null,
               evidence_kind_count: Object.keys(r.evidenceHistogram).length,
+            };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-WPN: WEDMPrototypicalNetworkEngine ───
+          case "wpn_classify": {
+            const { wedmPrototypicalNetworkEngine } = await import("../../engines/WEDMPrototypicalNetworkEngine.js");
+            const r = wedmPrototypicalNetworkEngine.classify(params as Parameters<typeof wedmPrototypicalNetworkEngine.classify>[0]);
+            // Engine returns {iso_group, distance, confidence, ranking[], withinEnvelope}.
+            // ranking is pre-sorted ascending by distance (engine line 223).
+            result = {
+              result: r,
+              ranking_count: r.ranking.length,
+              within_envelope: r.withinEnvelope,
+              best_iso_group: r.iso_group,
+            };
+            break;
+          }
+          case "wpn_cluster_quality": {
+            const { wedmPrototypicalNetworkEngine } = await import("../../engines/WEDMPrototypicalNetworkEngine.js");
+            const q = wedmPrototypicalNetworkEngine.clusterQuality();
+            // Engine line 355: daviesBouldin is NaN when any cluster <2 members.
+            // JSON.stringify converts NaN → null, so caller can't distinguish
+            // "undefined DBI" from "zero DBI". Provide explicit discriminator.
+            const dbiFinite = Number.isFinite(q.daviesBouldin);
+            result = {
+              result: {
+                ...q,
+                daviesBouldin: dbiFinite ? q.daviesBouldin : "NaN",
+              },
+              dbi_is_finite: dbiFinite,
+              per_group_count: Object.keys(q.perGroup).length,
+            };
+            break;
+          }
+          case "wpn_get_prototypes": {
+            const { wedmPrototypicalNetworkEngine } = await import("../../engines/WEDMPrototypicalNetworkEngine.js");
+            const protos = wedmPrototypicalNetworkEngine.getPrototypes();
+            // Engine line 174-178 returns deep copy: each prototype's centroid
+            // + members.embedding are new arrays. Caller-side mutation cannot
+            // poison engine state. Test asserts this contract.
+            const totalMembers = protos.reduce((n, p) => n + p.members.length, 0);
+            result = {
+              prototypes: protos,
+              prototype_count: protos.length,
+              total_member_count: totalMembers,
+            };
+            break;
+          }
+          case "wpn_nearest_support": {
+            const { wedmPrototypicalNetworkEngine } = await import("../../engines/WEDMPrototypicalNetworkEngine.js");
+            const r = wedmPrototypicalNetworkEngine.nearestSupportGroup(params as Parameters<typeof wedmPrototypicalNetworkEngine.nearestSupportGroup>[0]);
+            // Engine returns {iso_group, material, distance}. Distance is
+            // Euclidean → always ≥ 0. Round4 applied at engine line 382.
+            result = {
+              result: r,
+              distance_non_negative: r.distance >= 0,
             };
             break;
           }

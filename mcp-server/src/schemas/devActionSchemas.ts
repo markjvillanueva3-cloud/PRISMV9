@@ -3167,6 +3167,40 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   // ── WIRE-UNWIRED-MS0 / U-WIRE-AGS: AutonomousGoalSynthesisEngine ──
   // Single pure-compute method ranks gap-descriptors by
   // Ψ_impact × urgency × feasibility. No I/O, no state mutation.
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-WPN: WEDMPrototypicalNetworkEngine ──
+  // 4 pure-compute actions over the 7-dim few-shot embedding lattice:
+  //   wpn_classify          → classify(features) — softmax ISO-group match
+  //   wpn_cluster_quality   → clusterQuality() — silhouette + DBI diagnostics
+  //   wpn_get_prototypes    → getPrototypes() — copy of full prototype set
+  //   wpn_nearest_support   → nearestSupportGroup(features) — OOD signal
+  // DEFER: rebuild() (state mutation), classifyEmbedding(q[]) (caller-side
+  // embed cache is internal — preserve the safer features→embedding boundary).
+  wpn_classify: z.object({
+    label: z.string().min(1).max(256).describe("User label for unknown material"),
+    hardness_HRC: z.number().min(0).max(100).optional().describe("Hardness HRC (typical 20-65)"),
+    thermal_conductivity_W_per_mK: z.number().min(0).max(1000).optional().describe("k W/m·K (Steel≈45, Cu≈400, Ti≈7)"),
+    melting_point_C: z.number().min(0).max(5000).optional().describe("Melt °C (Steel≈1500, WC≈2870)"),
+    density_g_per_cm3: z.number().min(0).max(50).optional().describe("ρ g/cm³ (Steel≈7.85, Al≈2.7, WC≈15.6)"),
+    iso_group: z.enum(["P", "M", "K", "N", "S", "H"]).optional().describe("ISO group hint"),
+  }).describe("Prototypical-net ISO-group classifier over WEDM spark-DB embedding."),
+
+  wpn_cluster_quality: z.object({}).strict().describe(
+    "Silhouette + Davies-Bouldin cluster diagnostics on current prototype set. " +
+    "Pure compute. daviesBouldin returns NaN when any cluster <2 members."),
+
+  wpn_get_prototypes: z.object({}).strict().describe(
+    "Return all ISO-group prototypes (centroid + members + maxIntraDistance). " +
+    "Engine returns deep copy — caller mutation cannot poison engine state."),
+
+  wpn_nearest_support: z.object({
+    label: z.string().min(1).max(256).describe("User label for unknown material"),
+    hardness_HRC: z.number().min(0).max(100).optional(),
+    thermal_conductivity_W_per_mK: z.number().min(0).max(1000).optional(),
+    melting_point_C: z.number().min(0).max(5000).optional(),
+    density_g_per_cm3: z.number().min(0).max(50).optional(),
+    iso_group: z.enum(["P", "M", "K", "N", "S", "H"]).optional(),
+  }).describe("Nearest support example — quick OOD signal (returns winning material+group+distance)."),
+
   // ── WIRE-UNWIRED-MS0 / U-WIRE-WRE: WEDMReasoningExplainEngine ──
   // Single pure-compute method. Auto-loads WEDM lattice on first call
   // (engine line 166-168, idempotent — only fires when lattice empty).
