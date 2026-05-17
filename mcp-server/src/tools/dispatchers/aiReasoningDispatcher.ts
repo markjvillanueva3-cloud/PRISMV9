@@ -29,6 +29,10 @@ import {
   ACTION_AI_CAPABILITY_SCHEMAS,
   type AICapabilityAction,
 } from "../../schemas/aiCapabilityActionSchemas.js";
+// Type-only imports to narrow `params.*` casts to the engine's actual shapes
+// (was Record<string, unknown> / string — too loose for typed signatures).
+import type { ToolGeometry } from "../../engines/MillMasterOrchestratorFacadeEngine.js";
+import type { TaskCategoryT } from "../../schemas/successPatternSchema.js";
 
 // ============================================================================
 // AI-MAX-MS0/U-AIMAX10 — merge capability/resource/training action surface
@@ -696,7 +700,10 @@ export async function executeAIReasoningAction(
           request_type: "print_to_program",
           material: params.material as string | undefined,
           iso_group: params.iso_group as "P" | "M" | "K" | "N" | "S" | "H" | undefined,
-          tool: params.tool as Record<string, unknown> | undefined,
+          // Cast through unknown: schema validates shape at runtime via Zod;
+          // tsc requires the unknown bridge because Record<string,unknown>
+          // lacks the required ToolGeometry fields (diameter_mm, flutes).
+          tool: params.tool as unknown as ToolGeometry | undefined,
           params: params.params as Record<string, unknown> | undefined,
           machine: params.machine as Record<string, unknown> | undefined,
           features: params.features as Record<string, unknown>[] | undefined,
@@ -718,7 +725,10 @@ export async function executeAIReasoningAction(
           reasoning_mode: params.reasoning_mode as string | undefined,
           material: params.material as string | undefined,
           iso_group: params.iso_group as "P" | "M" | "K" | "N" | "S" | "H" | undefined,
-          tool: params.tool as Record<string, unknown> | undefined,
+          // Cast through unknown: schema validates shape at runtime via Zod;
+          // tsc requires the unknown bridge because Record<string,unknown>
+          // lacks the required ToolGeometry fields (diameter_mm, flutes).
+          tool: params.tool as unknown as ToolGeometry | undefined,
           params: params.params as Record<string, unknown> | undefined,
           include_provenance: params.include_provenance as boolean | undefined,
         });
@@ -765,7 +775,10 @@ export async function executeAIReasoningAction(
           request_type: "scientific",
           material: params.material as string | undefined,
           iso_group: params.iso_group as "P" | "M" | "K" | "N" | "S" | "H" | undefined,
-          tool: params.tool as Record<string, unknown> | undefined,
+          // Cast through unknown: schema validates shape at runtime via Zod;
+          // tsc requires the unknown bridge because Record<string,unknown>
+          // lacks the required ToolGeometry fields (diameter_mm, flutes).
+          tool: params.tool as unknown as ToolGeometry | undefined,
           params: params.params as Record<string, unknown> | undefined,
           machine: params.machine as Record<string, unknown> | undefined,
           include_provenance: params.include_provenance as boolean | undefined,
@@ -807,7 +820,10 @@ export async function executeAIReasoningAction(
           request_type: "adaptive",
           material: params.material as string | undefined,
           iso_group: params.iso_group as "P" | "M" | "K" | "N" | "S" | "H" | undefined,
-          tool: params.tool as Record<string, unknown> | undefined,
+          // Cast through unknown: schema validates shape at runtime via Zod;
+          // tsc requires the unknown bridge because Record<string,unknown>
+          // lacks the required ToolGeometry fields (diameter_mm, flutes).
+          tool: params.tool as unknown as ToolGeometry | undefined,
           machine: params.machine as Record<string, unknown> | undefined,
           include_provenance: params.include_provenance as boolean | undefined,
         });
@@ -826,7 +842,7 @@ export async function executeAIReasoningAction(
       case "pattern_record": {
         const { successPatternBankEngine } = await import("../../engines/SuccessPatternBankEngine.js");
         result = successPatternBankEngine.record({
-          task_category: params.task_category as string,
+          task_category: params.task_category as unknown as TaskCategoryT,
           task_description: params.task_description as string,
           task_keywords: params.task_keywords as string[],
           approach_summary: params.approach_summary as string,
@@ -848,7 +864,7 @@ export async function executeAIReasoningAction(
       case "pattern_query": {
         const { successPatternBankEngine } = await import("../../engines/SuccessPatternBankEngine.js");
         result = successPatternBankEngine.query({
-          task_category: params.task_category as string | undefined,
+          task_category: params.task_category as unknown as TaskCategoryT | undefined,
           keywords: params.keywords as string[] | undefined,
           domain: params.domain as string | undefined,
           min_confidence: params.min_confidence as "high" | "medium" | "low" | undefined,
