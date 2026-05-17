@@ -346,6 +346,21 @@ const ideablock_dedup = z.object({
   now: z.number().finite().optional().describe("Override 'now' ms epoch for deterministic timestamps"),
 }).passthrough();
 
+// OBSIDIAN-INTELLIGENCE-MS3/E3/U-IDEABLOCK-RAG-ENGINE — IdeaBlock-level
+// retrieval: rank IdeaBlocks by cosine to the query, return top-K with
+// answer + source link. blocks validated per-item by the engine
+// (IdeaBlockSchema); invalid ones dropped fail-loud. embed DI is NOT a
+// dispatcher param (functions can't cross MCP) — uses the fallback embedder.
+const ideablock_rag_retrieve = z.object({
+  query: z.string().min(1).describe("Free-text query to rank IdeaBlocks against"),
+  blocks: z.array(z.unknown()).describe("Candidate IdeaBlocks (each validated by IdeaBlockSchema; invalid dropped with a warning)"),
+  top_k: z.number().int().min(1).max(200).optional().describe("Max results 1..200 (default 5)"),
+  topK: z.number().int().min(1).max(200).optional().describe("Alias for top_k"),
+  min_score: z.number().min(-1).max(1).optional().describe("Drop results below this cosine (default 0)"),
+  minScore: z.number().min(-1).max(1).optional().describe("Alias for min_score"),
+  now: z.number().finite().optional().describe("Override 'now' ms epoch for deterministic timestamps"),
+}).passthrough();
+
 // OBSIDIAN-COMPOUND-MS1/S3/U-CONTRADICTION-DETECTOR — vault disagreement check.
 const contradiction_check = z.object({
   new_memory_path: z.string().optional().describe("Absolute path to the new memory file to check"),
@@ -480,6 +495,7 @@ export const ACTION_MEMORY_SCHEMAS: ActionSchemaMap = {
   knowledge_distillation_run,
   context_eval_score,
   ideablock_dedup,
+  ideablock_rag_retrieve,
   contradiction_check,
   postmortem_create,
   performance_report,
