@@ -55,6 +55,7 @@ Writes are atomic via `tmp+rename`. Path-traversal guarded by `^[A-Za-z0-9_.-]{1
 | Site | Purpose |
 |---|---|
 | `chat-slots.mjs` L657, L690, L825 (3 sites) | Write the cache on every successful `claimSlot` return path |
+| `chat-slots.mjs` `heartbeat()` (U-SDF19) | Write the cache on every heartbeat too — closes the gap for chats that claimed pre-SDF13 or have only been heartbeating since their original claim (3/8 live peers were drifting) |
 | `precompact-handoff.mjs` L425-430 (U-SDF13) | Tier-3 read fallback after chat-slots.json miss |
 | `per-agent-handoff.mjs` L478-485 (U-SDF13) | Tier-3 fallback in `cmdWrite` (covers manual /handoff) |
 | `session-start-terminal-pin.mjs` L165-173 (U-SDF13) | Tier-4 fallback inside `readPriorSlotFromHandoff()`, VALID_SLOTS-validated |
@@ -108,6 +109,7 @@ Per-call `opts.cacheDir` and env `PRISM_SLOT_CACHE_DIR` still override.
 | `9ea2f9dcf5` | U-SDF14 | Fail-loud stderr on persist failure |
 | `72e7683714` | U-SDF15 | PRISM_ROOT-derived default cache dir |
 | `bc11938c6f` | U-SDF16 | /goal pre-flight CLOSE-OUT-DEFERRED cross-reference |
+| `9f47f18ca9` | U-SDF19 | Wire cache into `heartbeat()` + backfill 3 stale live peers (closes pre-SDF13 / heartbeat-only gap) |
 
 ## Reviewer findings (deferred follow-ups)
 
