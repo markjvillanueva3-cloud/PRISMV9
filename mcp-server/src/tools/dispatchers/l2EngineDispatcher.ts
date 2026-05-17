@@ -363,8 +363,13 @@ Params vary by action — pass relevant fields in params object.`,
             result = { error: `Unknown L2 action: ${action}`, available_actions: ACTIONS };
         }
 
-        const pressurePct = getCurrentPressurePct();
-        return { content: [{ type: "text", text: JSON.stringify(slimResponse(result, getSlimLevel(pressurePct))) }] };
+        // slimResponse takes only the response — slim level is internal to the
+        // utility, controlled by context-pressure state. Older call site passed
+        // an explicit level; the utility was refactored to read pressure itself.
+        // (See [[reference_slimresponse_strips_empty_arrays]].)
+        void getSlimLevel;
+        void getCurrentPressurePct;
+        return { content: [{ type: "text", text: JSON.stringify(slimResponse(result)) }] };
 
       } catch (error: any) {
         log.error(`[prism_l2] Error in ${action}:`, error);

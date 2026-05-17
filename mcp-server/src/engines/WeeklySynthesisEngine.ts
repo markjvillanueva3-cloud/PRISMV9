@@ -620,3 +620,7 @@ if (invokedDirectly && process.argv.includes("--run")) {
 // keep eslint happy about the intentionally-unused fileURLToPath import
 // (kept for B1-sibling parity; the CLI guard uses pathToFileURL)
 void fileURLToPath;
+
+// Canonical singleton export — matches the PRISM dispatcher convention of
+// importing a lowercase singleton via dynamic import (e.g. {weeklySynthesisEngine}).
+export const weeklySynthesisEngine = new WeeklySynthesisEngine();

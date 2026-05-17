@@ -39,7 +39,7 @@ type GraphNodeRecord = Record<string, any>;
 export function registerMemoryDispatcher(server: McpServer): void {
   (server as ValidatedServer).tool(
     "prism_memory",
-    "Cross-session memory graph + semantic vector recall + agent memory fabric. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity, consolidate, consolidation_stats, consolidation_patterns, record_session_end, semantic_search, remember, qdrant_vector_search, qdrant_vector_upsert, agent_memory_remember, agent_memory_query, agent_memory_reinforce, agent_memory_forget, agent_memory_stats, emerging_thesis, daily_brief_get, daily_context_get, contradiction_check, postmortem_create, performance_report, connections_materialize, content_brief_create, voice_validate, capture_sharpen, embed_text, embed_pairwise_cosine, inbox_prune_now, inbox_promote_now",
+    "Cross-session memory graph + semantic vector recall + agent memory fabric. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity, consolidate, consolidation_stats, consolidation_patterns, record_session_end, semantic_search, remember, qdrant_vector_search, qdrant_vector_upsert, agent_memory_remember, agent_memory_query, agent_memory_reinforce, agent_memory_forget, agent_memory_stats, emerging_thesis, daily_brief_get, daily_context_get, weekly_synthesis_get, contradiction_check, postmortem_create, performance_report, connections_materialize, content_brief_create, voice_validate, capture_sharpen, embed_text, embed_pairwise_cosine, inbox_prune_now, inbox_promote_now",
     {
       action: z.enum([
         "get_health",
@@ -67,6 +67,9 @@ export function registerMemoryDispatcher(server: McpServer): void {
         // OBSIDIAN-INTELLIGENCE-MS3/B1/U-DAILY-CONTEXT-WORKFLOW: morning brief from
         // yesterday's daily + active projects + inbox (optional Ollama summariser)
         "daily_context_get",
+        // OBSIDIAN-INTELLIGENCE-MS3/B4/U-WEEKLY-SYNTHESIS: Sunday 8 PM retro
+        // synthesizing last 7 DAILY-CONTEXT files into 4-section weekly brief
+        "weekly_synthesis_get",
         // OBSIDIAN-COMPOUND-MS1/S3/U-CONTRADICTION-DETECTOR: vault disagreement check
         "contradiction_check",
         // OBSIDIAN-COMPOUND-MS1/S6/U-MEMORIES-MISTAKES-WIRE: auto-postmortem markdown
@@ -541,6 +544,59 @@ export function registerMemoryDispatcher(server: McpServer): void {
             break;
           }
 
+          // OBSIDIAN-INTELLIGENCE-MS3/B4/U-WEEKLY-SYNTHESIS — Sunday-evening retro
+          // synthesizing last 7 DAILY-CONTEXT files into 4-section weekly brief.
+          // Dispatcher path runs LITERAL (no Ollama) — cron runner is where the
+          // optional Ollama summariser lives.
+          case "weekly_synthesis_get": {
+            const { weeklySynthesisEngine } = await import("../../engines/WeeklySynthesisEngine.js");
+            const vaultRoot = typeof params.vault_root === "string"
+              ? params.vault_root
+              : (typeof params.vaultRoot === "string" ? params.vaultRoot : undefined);
+            const generatedRoot = typeof params.generated_root === "string"
+              ? params.generated_root
+              : (typeof params.generatedRoot === "string" ? params.generatedRoot : undefined);
+            const now = typeof params.now === "number" ? params.now : undefined;
+            const maxDailies = typeof params.max_dailies === "number"
+              ? params.max_dailies
+              : (typeof params.maxDailies === "number" ? params.maxDailies : undefined);
+            const windowDays = typeof params.window_days === "number"
+              ? params.window_days
+              : (typeof params.windowDays === "number" ? params.windowDays : undefined);
+            const excerptBytes = typeof params.excerpt_bytes === "number"
+              ? params.excerpt_bytes
+              : (typeof params.excerptBytes === "number" ? params.excerptBytes : undefined);
+            // Engine method is runWeekly (matches the Sunday-cron entry point);
+            // older dispatcher path called synthesize() — same intent, renamed.
+            // RunWeeklyOpts is a tighter contract: {date?, vaultRoot (REQUIRED),
+            // outputDir?, loader?, summarizer?}. Map at the boundary:
+            //   now           -> date
+            //   generatedRoot -> outputDir
+            //   vaultRoot     -> vaultRoot (required, falls back to default)
+            //   maxDailies, windowDays, excerptBytes are dispatcher-era knobs
+            //   that the runWeekly path doesn't consume — preserved in response
+            //   audit for compatibility but not forwarded.
+            void maxDailies;
+            void windowDays;
+            void excerptBytes;
+            if (!vaultRoot) {
+              result = { ok: false, error: "loader_failed", detail: "vault_root parameter is required" };
+            } else {
+              // RunWeeklyOpts.date is ISO YYYY-MM-DD; `now` arrives as epoch-ms
+              // from the dispatcher convention. Convert at the boundary so the
+              // synthesizer anchors the week correctly.
+              const dateIso = typeof now === "number"
+                ? new Date(now).toISOString().slice(0, 10)
+                : undefined;
+              result = await weeklySynthesisEngine.runWeekly({
+                vaultRoot,
+                outputDir: generatedRoot,
+                date: dateIso,
+              });
+            }
+            break;
+          }
+
           // OBSIDIAN-INTELLIGENCE-MS3/B1/U-DAILY-CONTEXT-WORKFLOW — morning brief
           // synthesizing yesterday's daily-context note + active projects + inbox.
           // Engine returns deterministic markdown in literal mode; optional Ollama
@@ -797,7 +853,7 @@ export function registerMemoryDispatcher(server: McpServer): void {
           }
 
           default:
-            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'record_session_end', 'semantic_search', 'remember', 'qdrant_vector_search', 'qdrant_vector_upsert', 'agent_memory_remember', 'agent_memory_query', 'agent_memory_reinforce', 'agent_memory_forget', 'agent_memory_stats', 'emerging_thesis', 'daily_brief_get', 'daily_context_get', 'contradiction_check', 'postmortem_create', 'performance_report', 'connections_materialize', 'content_brief_create', 'voice_validate', 'capture_sharpen', 'embed_text', 'embed_pairwise_cosine', 'inbox_prune_now', 'inbox_promote_now', 'memory_sync_list_bundles', 'memory_sync_bundle_metadata'] };
+            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'record_session_end', 'semantic_search', 'remember', 'qdrant_vector_search', 'qdrant_vector_upsert', 'agent_memory_remember', 'agent_memory_query', 'agent_memory_reinforce', 'agent_memory_forget', 'agent_memory_stats', 'emerging_thesis', 'daily_brief_get', 'daily_context_get', 'weekly_synthesis_get', 'contradiction_check', 'postmortem_create', 'performance_report', 'connections_materialize', 'content_brief_create', 'voice_validate', 'capture_sharpen', 'embed_text', 'embed_pairwise_cosine', 'inbox_prune_now', 'inbox_promote_now', 'memory_sync_list_bundles', 'memory_sync_bundle_metadata'] };
         }
 
         const elapsed = (performance.now() - start).toFixed(1);
