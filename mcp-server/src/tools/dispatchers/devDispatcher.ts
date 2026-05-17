@@ -398,7 +398,11 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // DEFERRED (writes mutate shared incident-playbook registry).
 "rbe_get_runbook", "rbe_get_execution", "rbe_get_executions_for_runbook",
 "rbe_get_active_executions", "rbe_get_raci_matrix",
-"rbe_get_runbooks_needing_review", "rbe_get_stats"] as const;
+"rbe_get_runbooks_needing_review", "rbe_get_stats",
+// WIRE-UNWIRED-MS0/U-WIRE-FCC: ConsensusFactCheckerEngine — INTEL-
+// OLLAMA-OBSIDIAN-MS0/LAYER-3 validates external-model answers against
+// PRISM kb (engines + dispatcher actions). reset() DEFERRED.
+"fcc_check", "fcc_get_knowledge_base", "fcc_load_knowledge_base"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -2580,6 +2584,44 @@ export function registerDevDispatcher(server: any): void {
             const { runbookEngine } = await import("../../engines/RunbookEngine.js");
             const stats = runbookEngine.getStats();
             result = { stats };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-FCC: ConsensusFactCheckerEngine ──────
+          case "fcc_check": {
+            const { consensusFactCheckerEngine } = await import("../../engines/ConsensusFactCheckerEngine.js");
+            const p = params as { text: string; model_name?: string };
+            // Auto-load kb if not yet cached — keeps the wire stateless for callers
+            if (consensusFactCheckerEngine.getKnowledgeBase() === null) {
+              try {
+                await consensusFactCheckerEngine.loadKnowledgeBase();
+              } catch (e) {
+                result = { error: `auto-load kb failed: ${(e as Error).message}` };
+                break;
+              }
+            }
+            const factCheck = consensusFactCheckerEngine.check(p.text, p.model_name ?? "unknown");
+            result = { factCheck };
+            break;
+          }
+          case "fcc_get_knowledge_base": {
+            const { consensusFactCheckerEngine } = await import("../../engines/ConsensusFactCheckerEngine.js");
+            const kb = consensusFactCheckerEngine.getKnowledgeBase();
+            result = kb === null
+              ? { loaded: false }
+              : { loaded: true, knowledgeBase: kb };
+            break;
+          }
+          case "fcc_load_knowledge_base": {
+            const { consensusFactCheckerEngine } = await import("../../engines/ConsensusFactCheckerEngine.js");
+            const p = params as { dispatcher_actions?: string[] };
+            try {
+              const kb = await consensusFactCheckerEngine.loadKnowledgeBase(
+                p.dispatcher_actions ? { dispatcherActions: p.dispatcher_actions } : undefined,
+              );
+              result = { knowledgeBase: kb, loaded: true };
+            } catch (e) {
+              result = { error: `load_knowledge_base failed: ${(e as Error).message}`, loaded: false };
+            }
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-CEX: CatalogExtractionEngine ─────────

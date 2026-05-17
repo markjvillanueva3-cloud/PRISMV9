@@ -2381,4 +2381,25 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   ),
 
   rbe_get_stats: z.object({}).describe("Runbook engine stats {total, byCategory, byStatus, ...}. Pure read."),
+
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-FCC: ConsensusFactCheckerEngine wiring ──
+  // INTEL-OLLAMA-OBSIDIAN-MS0/LAYER-3-FACT-CHECK validates external-model
+  // answers (Codex/Grok/Ollama) against PRISM source-of-truth artifacts
+  // before a roadmap proposal builds on a fictional engine/action.
+  // 3 actions wired; reset() DEFERRED (wipes shared kb cache).
+  fcc_check: z.object({
+    text: z.string().min(1).max(65_536)
+      .describe("Model-answer text to fact-check (≤64 KB for DoS bound)"),
+    model_name: z.string().min(1).max(256).optional()
+      .describe("Model identifier for audit trail (default 'unknown')"),
+  }).describe("Fact-check text against PRISM kb. Auto-loads kb if not yet cached. Pure (read-only against cached kb)."),
+
+  fcc_get_knowledge_base: z.object({}).describe(
+    "Return the currently-cached KnowledgeBase or null when not yet loaded. Pure read."
+  ),
+
+  fcc_load_knowledge_base: z.object({
+    dispatcher_actions: z.array(z.string().min(1).max(256)).max(10_000).optional()
+      .describe("Optional dispatcher-action allowlist to seed the kb (default scans every dispatcher)"),
+  }).describe("Explicitly load the PRISM kb into the cache (idempotent — cached after first call)."),
 };
