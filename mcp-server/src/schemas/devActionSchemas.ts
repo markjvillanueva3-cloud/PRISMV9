@@ -1833,4 +1833,37 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   asc_get_stats: z.object({}).describe(
     "Cache stats: {actions, dispatchers, withParams}. Pure."
   ),
+
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-APC: AutomaticPipelineComposerEngine wiring ──
+  // 3 actions wired: compose (template lookup + adapt + validate),
+  // list_templates (id dump), get_template (id → stages | null).
+  // initialize() DEFERRED — pure side-effect setter that compose() calls
+  // implicitly; exposing it has no value over the wire.
+  // reset() DEFERRED — mutates the shared in-memory templates map;
+  // letting an LLM call wipe the template store would break every
+  // subsequent compose() call across all sessions.
+  apc_compose: z.object({
+    objective: z.string().min(1).max(4096)
+      .describe("Natural-language objective (e.g. 'optimize speed/feed for titanium roughing')"),
+    inputs: z.array(z.string().min(1).max(256)).max(50).optional().default([])
+      .describe("Available input asset ids/names — may be empty"),
+    required_outputs: z.array(z.string().min(1).max(256)).max(50).optional().default([])
+      .describe("Required output asset ids/names — engine emits warnings for missing"),
+    constraints: z.object({
+      max_stages: z.number().int().positive().max(100).optional()
+        .describe("Cap pipeline length (DoS bound at 100 stages)"),
+      max_duration: z.number().nonnegative().max(1_000_000).optional()
+        .describe("Max total estimated_ms across all stages"),
+      preferred_assets: z.array(z.string().min(1).max(256)).max(50).optional()
+        .describe("Asset ids to prefer when multiple candidates fit"),
+    }).passthrough().optional()
+      .describe("Optional constraints {maxStages,maxDuration,preferredAssets}"),
+  }).passthrough().describe("Compose a pipeline from templates matching the objective. Pure (template lookup + adapt + validate)."),
+
+  apc_list_templates: z.object({}).describe("List every loaded template id. Pure."),
+
+  apc_get_template: z.object({
+    name: z.string().min(1).max(256)
+      .describe("Template id (e.g. 'speed_feed', 'tool_selection', 'quality_prediction')"),
+  }).describe("Get all PipelineStage entries for a single template. Returns null when unknown. Pure."),
 };

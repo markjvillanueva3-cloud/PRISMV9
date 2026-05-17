@@ -330,7 +330,13 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // invalidate() DEFERRED — cache-mutating; should fire on build, not
 // from an LLM call, to avoid remote-triggered stale-cache races.
 "asc_get_schema", "asc_search_schemas", "asc_get_param_hint",
-"asc_get_dispatcher_actions", "asc_get_stats"] as const;
+"asc_get_dispatcher_actions", "asc_get_stats",
+// WIRE-UNWIRED-MS0/U-WIRE-APC: AutomaticPipelineComposerEngine — composes
+// pipelines from in-memory templates (speed_feed / tool_selection /
+// quality_prediction). compose() auto-calls initialize(); reset()
+// DEFERRED (wipes the templates map, would break every subsequent
+// compose() across sessions); initialize() DEFERRED (no wire value).
+"apc_compose", "apc_list_templates", "apc_get_template"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -1944,6 +1950,48 @@ export function registerDevDispatcher(server: any): void {
             const { actionSchemaCacheEngine } = await import("../../engines/ActionSchemaCacheEngine.js");
             const stats = actionSchemaCacheEngine.getStats();
             result = { stats };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-APC: AutomaticPipelineComposerEngine ──
+          case "apc_compose": {
+            const { automaticPipelineComposerEngine } = await import("../../engines/AutomaticPipelineComposerEngine.js");
+            const p = params as {
+              objective: string;
+              inputs?: string[];
+              required_outputs?: string[];
+              constraints?: { max_stages?: number; max_duration?: number; preferred_assets?: string[] };
+            };
+            // Wire schema uses snake_case; engine CompositionRequest uses camelCase.
+            // Normalize at the dispatcher boundary, per the dispatcher CLAUDE.md
+            // "Parameter normalization happens in dispatcher, NOT engine" rule.
+            const pipeline = await automaticPipelineComposerEngine.compose({
+              objective: p.objective,
+              inputs: p.inputs ?? [],
+              requiredOutputs: p.required_outputs ?? [],
+              constraints: p.constraints ? {
+                maxStages: p.constraints.max_stages,
+                maxDuration: p.constraints.max_duration,
+                preferredAssets: p.constraints.preferred_assets,
+              } : undefined,
+            });
+            // warnings_count survives slimResponse even when warnings:[] is stripped.
+            result = { pipeline, stage_count: pipeline.stages.length, warnings_count: pipeline.warnings.length };
+            break;
+          }
+          case "apc_list_templates": {
+            const { automaticPipelineComposerEngine } = await import("../../engines/AutomaticPipelineComposerEngine.js");
+            const templates = await automaticPipelineComposerEngine.listTemplates();
+            result = { templates, count: templates.length };
+            break;
+          }
+          case "apc_get_template": {
+            const { automaticPipelineComposerEngine } = await import("../../engines/AutomaticPipelineComposerEngine.js");
+            const name = (params as { name: string }).name;
+            const stages = await automaticPipelineComposerEngine.getTemplate(name);
+            // Explicit discriminator — slimResponse strips null silently.
+            result = stages === null
+              ? { found: false, name }
+              : { found: true, name, stages, stage_count: stages.length };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-CEX: CatalogExtractionEngine ─────────
