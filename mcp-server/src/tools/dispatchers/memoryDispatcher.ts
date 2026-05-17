@@ -39,7 +39,7 @@ type GraphNodeRecord = Record<string, any>;
 export function registerMemoryDispatcher(server: McpServer): void {
   (server as ValidatedServer).tool(
     "prism_memory",
-    "Cross-session memory graph + semantic vector recall + agent memory fabric. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity, consolidate, consolidation_stats, consolidation_patterns, record_session_end, semantic_search, remember, qdrant_vector_search, qdrant_vector_upsert, agent_memory_remember, agent_memory_query, agent_memory_reinforce, agent_memory_forget, agent_memory_stats, emerging_thesis, daily_brief_get, daily_context_get, weekly_synthesis_get, queue_processor_scan, queue_processor_process, project_auto_updater_scan, project_auto_updater_process, knowledge_distillation_scan, knowledge_distillation_run, context_eval_score, contradiction_check, postmortem_create, performance_report, connections_materialize, content_brief_create, voice_validate, capture_sharpen, embed_text, embed_pairwise_cosine, inbox_prune_now, inbox_promote_now",
+    "Cross-session memory graph + semantic vector recall + agent memory fabric. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity, consolidate, consolidation_stats, consolidation_patterns, record_session_end, semantic_search, remember, qdrant_vector_search, qdrant_vector_upsert, agent_memory_remember, agent_memory_query, agent_memory_reinforce, agent_memory_forget, agent_memory_stats, emerging_thesis, daily_brief_get, daily_context_get, weekly_synthesis_get, queue_processor_scan, queue_processor_process, project_auto_updater_scan, project_auto_updater_process, knowledge_distillation_scan, knowledge_distillation_run, context_eval_score, ideablock_dedup, contradiction_check, postmortem_create, performance_report, connections_materialize, content_brief_create, voice_validate, capture_sharpen, embed_text, embed_pairwise_cosine, inbox_prune_now, inbox_promote_now",
     {
       action: z.enum([
         "get_health",
@@ -85,6 +85,7 @@ export function registerMemoryDispatcher(server: McpServer): void {
         // OBSIDIAN-INTELLIGENCE-MS3/D5/U-CONTEXT-EVAL-GATE: pre-action
         // retrieved-vs-golden coverage scorer (advisory verdict)
         "context_eval_score",
+        "ideablock_dedup",
         // OBSIDIAN-COMPOUND-MS1/S3/U-CONTRADICTION-DETECTOR: vault disagreement check
         "contradiction_check",
         // OBSIDIAN-COMPOUND-MS1/S6/U-MEMORIES-MISTAKES-WIRE: auto-postmortem markdown
@@ -944,6 +945,20 @@ export function registerMemoryDispatcher(server: McpServer): void {
             });
             break;
           }
+          case "ideablock_dedup": {
+            const { runIdeaBlockDedup } = await import("../../engines/IdeaBlockDedupEngine.js");
+            const blocks = Array.isArray(params.blocks) ? params.blocks : [];
+            const threshold = typeof params.threshold === "number" ? params.threshold : undefined;
+            const maxRounds = typeof params.max_rounds === "number"
+              ? params.max_rounds
+              : (typeof params.maxRounds === "number" ? params.maxRounds : undefined);
+            const maxBlocks = typeof params.max_blocks === "number"
+              ? params.max_blocks
+              : (typeof params.maxBlocks === "number" ? params.maxBlocks : undefined);
+            const now = typeof params.now === "number" ? params.now : undefined;
+            result = runIdeaBlockDedup(blocks, { threshold, maxRounds, maxBlocks, now });
+            break;
+          }
 
           // OBSIDIAN-COMPOUND-MS1/S3/U-CONTRADICTION-DETECTOR — vault disagreement check
           case "contradiction_check": {
@@ -1167,7 +1182,7 @@ export function registerMemoryDispatcher(server: McpServer): void {
           }
 
           default:
-            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'record_session_end', 'semantic_search', 'remember', 'qdrant_vector_search', 'qdrant_vector_upsert', 'agent_memory_remember', 'agent_memory_query', 'agent_memory_reinforce', 'agent_memory_forget', 'agent_memory_stats', 'emerging_thesis', 'daily_brief_get', 'daily_context_get', 'weekly_synthesis_get', 'queue_processor_scan', 'queue_processor_process', 'project_auto_updater_scan', 'project_auto_updater_process', 'knowledge_distillation_scan', 'knowledge_distillation_run', 'context_eval_score', 'contradiction_check', 'postmortem_create', 'performance_report', 'connections_materialize', 'content_brief_create', 'voice_validate', 'capture_sharpen', 'embed_text', 'embed_pairwise_cosine', 'inbox_prune_now', 'inbox_promote_now', 'memory_sync_list_bundles', 'memory_sync_bundle_metadata'] };
+            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'record_session_end', 'semantic_search', 'remember', 'qdrant_vector_search', 'qdrant_vector_upsert', 'agent_memory_remember', 'agent_memory_query', 'agent_memory_reinforce', 'agent_memory_forget', 'agent_memory_stats', 'emerging_thesis', 'daily_brief_get', 'daily_context_get', 'weekly_synthesis_get', 'queue_processor_scan', 'queue_processor_process', 'project_auto_updater_scan', 'project_auto_updater_process', 'knowledge_distillation_scan', 'knowledge_distillation_run', 'context_eval_score', 'ideablock_dedup', 'contradiction_check', 'postmortem_create', 'performance_report', 'connections_materialize', 'content_brief_create', 'voice_validate', 'capture_sharpen', 'embed_text', 'embed_pairwise_cosine', 'inbox_prune_now', 'inbox_promote_now', 'memory_sync_list_bundles', 'memory_sync_bundle_metadata'] };
         }
 
         const elapsed = (performance.now() - start).toFixed(1);

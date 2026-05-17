@@ -331,6 +331,21 @@ const context_eval_score = z.object({
   maxGoldenBytes: z.number().int().min(256).max(16777216).optional().describe("Alias for max_golden_bytes"),
 }).passthrough();
 
+// OBSIDIAN-INTELLIGENCE-MS3/E2/U-IDEABLOCK-DEDUP — iterative cosine-similarity
+// dedup over IdeaBlock embeddings. blocks are validated per-item by the engine
+// (IdeaBlockSchema); invalid blocks are dropped fail-loud. embed DI is NOT a
+// dispatcher param (functions can't cross the MCP boundary) — the dispatcher
+// path uses the deterministic fallback embedder.
+const ideablock_dedup = z.object({
+  blocks: z.array(z.unknown()).describe("IdeaBlocks to dedup (each validated by IdeaBlockSchema in the engine; invalid ones dropped with a warning)"),
+  threshold: z.number().min(0).max(1).optional().describe("Cosine duplicate threshold 0..1 (default 0.82)"),
+  max_rounds: z.number().int().min(1).max(20).optional().describe("Max clustering rounds 1..20 (default 4)"),
+  maxRounds: z.number().int().min(1).max(20).optional().describe("Alias for max_rounds"),
+  max_blocks: z.number().int().min(1).max(50000).optional().describe("Hard cap on input blocks (default 5000)"),
+  maxBlocks: z.number().int().min(1).max(50000).optional().describe("Alias for max_blocks"),
+  now: z.number().finite().optional().describe("Override 'now' ms epoch for deterministic timestamps"),
+}).passthrough();
+
 // OBSIDIAN-COMPOUND-MS1/S3/U-CONTRADICTION-DETECTOR — vault disagreement check.
 const contradiction_check = z.object({
   new_memory_path: z.string().optional().describe("Absolute path to the new memory file to check"),
@@ -464,6 +479,7 @@ export const ACTION_MEMORY_SCHEMAS: ActionSchemaMap = {
   knowledge_distillation_scan,
   knowledge_distillation_run,
   context_eval_score,
+  ideablock_dedup,
   contradiction_check,
   postmortem_create,
   performance_report,
