@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LOOP bc83bbdb — Coursework→Nodes Session Summary</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>LOOP bc83bbdb — Coursework→Nodes Session Summary</h1>
+<div class="meta">rendered from state/shared/specs/LOOP-bc83bbdb-COURSEWORK-NODES-SESSION-SUMMARY-2026-05-17.md</div>
+<div class="meta">Generated 2026-05-17T16:29:06.225Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">/loop bc83bbdb — Coursework→Nodes Session Summary (slot india, 2026-05-17)</li><li class="prism-toc-l2">What this loop did</li><li class="prism-toc-l2">Trajectory</li><li class="prism-toc-l2">Top-10 P1-P10 candidate verdicts (operator decision queue)</li><li class="prism-toc-l2">How the operator continues from here</li><li class="prism-toc-l1">1. Review the proposals</li><li class="prism-toc-l1">2. Pre-flight dedup check for the chosen candidate (e.g. P1)</li><li class="prism-toc-l1">3. Then /forge-triple it (per-file scrutiny + 3-of-3 Stop gate will fire)</li><li class="prism-toc-l1">4. Bulk-regenerate STUBS bundle at any time:</li><li class="prism-toc-l2">Open follow-ups (operator-coordinated, NOT for autonomous /loop)</li><li class="prism-toc-l2">Stop conditions reached</li><li class="prism-toc-l2">Lessons surfaced</li><li class="prism-toc-l2">See also</li></ul></nav><h1 class="prism-h1">/loop bc83bbdb — Coursework→Nodes Session Summary (slot india, 2026-05-17)</h1>
+<p><strong>Chat:</strong> <code class="prism-inline-code">claude-41db1b82</code> <strong>Slot:</strong> <code class="prism-inline-code">india</code> <strong>Cron:</strong> <code class="prism-inline-code"><em>/20 </em> <em> </em> *</code> (session-only, recurring=true, ID <code class="prism-inline-code">bc83bbdb</code>) <strong>Operator directive:</strong> <code class="prism-inline-code">/loop [20m] continue with college coursework extration and conversion to usable nodes</code> <strong>Iters completed (substantive):</strong> 4 commits across ~3 wake-ups <strong>Advisory:</strong> <code class="prism-inline-code">advisoryOnly: true</code> — this is the meta-record, not the deliverables themselves <strong>Status:</strong> <strong>Lane C operator-action layer COMPLETE.</strong> Next step requires operator review (per the doctrine this loop authored).</p>
+<h2 class="prism-h2">What this loop did</h2>
+<p>Closed the gap between KNOWLEDGE-CONVERSION-MS0&#39;s 69-item FORGE-QUEUE inventory (advisory; &quot;here are 69 things to maybe build&quot;) and the operator&#39;s <code class="prism-inline-code">/forge-triple</code> ceremony (concrete file path + dispatcher action + dedup + physics gate per asset). The router did the routing but not the prep. This loop did the prep.</p>
+<h2 class="prism-h2">Trajectory</h2>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Commit</th><th>Subject</th><th>Substance</th></tr></thead><tbody><tr><td>1</td><td><code class="prism-inline-code">dea7274d23</code></td><td><code class="prism-inline-code">[MAIN] [KNOWLEDGE-CONVERSION-MS0]/U-COURSE-FORGE-PROPOSALS</code></td><td>Hand-curated P1-P10 stubs in <code class="prism-inline-code">state/shared/specs/COURSE-FORGE-PROPOSALS.{md,html}</code> with proposed_path, dispatcher_action, dedup_preflight grep, deliverables, physics_gate, consolidation/reject guidance.</td></tr>
+<tr><td>2</td><td><code class="prism-inline-code">5d5c363f0e</code></td><td><code class="prism-inline-code">[MAIN] [KNOWLEDGE-CONVERSION-MS0]/U-COURSE-FORGE-STUBS-EMITTER</code></td><td>Extended <code class="prism-inline-code">scripts/course-data-router.mjs</code> with <code class="prism-inline-code">--emit forge-stubs --min-relevance N</code> mode. First run at 0.6 floor: <strong>62 stubs surfaced</strong> in <code class="prism-inline-code">state/shared/specs/COURSE-FORGE-STUBS.{md,html}</code>. Kind-aware path proposals + REJECT auto-flag for first-party CAM bridges + name-similarity dedup-preflight against live inventory.</td></tr>
+<tr><td>3</td><td><code class="prism-inline-code">6ae5399608</code></td><td><code class="prism-inline-code">[MAIN] [KNOWLEDGE-CONVERSION-MS0]/U-COURSE-FORGE-STUBS-EMITTER-TESTS</code></td><td><code class="prism-inline-code">scripts/course-data-router.cli.test.mjs</code> — 13-case hermetic node:test CLI suite (spawnSync the live binary with temp-dir candidate fixture). Covers happy path + filter + REJECT + physics_gate + PascalCase + JSON mode + dry-run + adversarial arg validation + regression guard on default ledger mode. <strong>13/13 PASS.</strong></td></tr>
+<tr><td>4</td><td><code class="prism-inline-code">592cc28260</code></td><td><code class="prism-inline-code">[MAIN] [KNOWLEDGE-CONVERSION-MS0]/U-COURSE-FORGE-DOC-REFLECTION</code></td><td>CLAUDE.md §KNOWLEDGE-CONVERSION-MS0 paragraph 2 + <code class="prism-inline-code">knowledge/wiki/architecture/course-forge-stubs-emitter.md</code> + Obsidian memory <code class="prism-inline-code">reference_course_forge_stubs_emitter_2026_05_17.md</code>. MEMORY.md index update DEFERRED — file already 27 B over the 24576-byte truncation ceiling; another chat is actively compressing per the active memory-size-watch regression.</td></tr></tbody></table>
+<h2 class="prism-h2">Top-10 P1-P10 candidate verdicts (operator decision queue)</h2>
+<p>From <code class="prism-inline-code">state/shared/specs/COURSE-FORGE-PROPOSALS.md</code> — review and act on these first:</p>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Candidate</th><th>Course</th><th>Verdict</th><th>Why</th></tr></thead><tbody><tr><td>P1</td><td><code class="prism-inline-code">algorithm:operator-splitting</code></td><td>10.34</td><td><strong>CLEAR — /forge-ready</strong></td><td>Novel name; Strang splitting; direct thermal/CAM leverage</td></tr>
+<tr><td>P2</td><td><code class="prism-inline-code">algorithm:transition-equations-solver</code></td><td>2.854</td><td>REVIEW vs SchedulingEngine family</td><td>JM Die line-balance fit</td></tr>
+<tr><td>P3</td><td><code class="prism-inline-code">algorithm:bernoullis-equation-solver</code> + <code class="prism-inline-code">formula:moody-diagram-analysis</code></td><td>1.060</td><td>REVIEW (Bernoulli partially in OrificeFlowMeter); <strong>physics_gate=required</strong> for Moody</td><td>Coolant flow / swarf flush</td></tr>
+<tr><td>P4 + P5</td><td><code class="prism-inline-code">engine:lean-manufacturing-engine</code> + <code class="prism-inline-code">engine:lean-enterprise-engine</code> + <code class="prism-inline-code">algorithm:lesat-algorithm</code></td><td>16.885j + 16.852j</td><td><strong>CONSOLIDATE</strong> to one engine before /forge</td><td>Sibling courses; duplicationGuard would throw</td></tr>
+<tr><td>P6</td><td><code class="prism-inline-code">algorithm:pendulum-cart-modeling</code> + <code class="prism-inline-code">formula:transfer-functions</code></td><td>2.003</td><td><strong>CLEAR — /forge-ready</strong>; <code class="prism-inline-code">transfer-functions</code> is algebraic not physics-constant</td><td>Chatter prediction, servo-loop tuning</td></tr>
+<tr><td>P7</td><td><code class="prism-inline-code">algorithm:euler-method</code></td><td>2.003j</td><td><strong>CLEAR — /forge-ready</strong></td><td>ODE foundation for thermal transient / motion profile</td></tr>
+<tr><td>P8</td><td><code class="prism-inline-code">algorithm:cam-path-optimization</code></td><td>2.007</td><td><strong>REJECT</strong></td><td>First-party CAM stack already production-grade</td></tr>
+<tr><td>P9</td><td><code class="prism-inline-code">engine:solidworks</code></td><td>2.007</td><td><strong>REJECT</strong></td><td>Tier-1 CAM bridge already shipped</td></tr>
+<tr><td>P10</td><td><code class="prism-inline-code">algorithm:response-surface-modeling</code></td><td>2.830j</td><td>REVIEW (mentioned in TurningCpkSurrogateEngine)</td><td>SFC speed/feed optimization fit</td></tr></tbody></table>
+<p><strong>Recommended first /forge target:</strong> <strong>P1 <code class="prism-inline-code">algorithm:operator-splitting</code></strong> — fully novel name, no physics constants, well-documented in published numerical-methods literature (Strang 1968), direct leverage for PRISM&#39;s thermal-deflection engine family.</p>
+<h2 class="prism-h2">How the operator continues from here</h2>
+<pre class="prism-codeblock" data-lang="bash"><code># 1. Review the proposals
+cat state/shared/specs/COURSE-FORGE-PROPOSALS.md      # P1-P10 detailed
+cat state/shared/specs/COURSE-FORGE-STUBS.md          # full 62-stub bundle
+
+# 2. Pre-flight dedup check for the chosen candidate (e.g. P1)
+node H:/prism/.claude/helpers/duplication-guard-precheck.mjs \
+  --kind algorithm --name operator-splitting
+
+# 3. Then /forge-triple it (per-file scrutiny + 3-of-3 Stop gate will fire)
+/forge-triple algorithm:operator-splitting
+
+# 4. Bulk-regenerate STUBS bundle at any time:
+node scripts/course-data-router.mjs --emit forge-stubs --min-relevance 0.6</code></pre>
+<h2 class="prism-h2">Open follow-ups (operator-coordinated, NOT for autonomous /loop)</h2>
+<table class="prism-md-table"><thead><tr><th>Item</th><th>Why deferred</th></tr></thead><tbody><tr><td>Actual <code class="prism-inline-code">/forge-triple</code> of any P1-P10 candidate</td><td>Operator-gated by the very doctrine this loop wrote — autonomous /forge of course-derived intent violates Lane C policy</td></tr>
+<tr><td>MEMORY.md index pointer for <code class="prism-inline-code">reference_course_forge_stubs_emitter_2026_05_17</code></td><td>MEMORY.md is 27 B over the 24576-byte ceiling; another chat actively compressing</td></tr>
+<tr><td>Wire <code class="prism-inline-code">--emit forge-stubs</code> as a dispatcher action (<code class="prism-inline-code">prism_knowledge:course_forge_stubs</code>?)</td><td>Adjacency to peer chat editing scripts/system-viz-graph-search — defer to avoid collision</td></tr>
+<tr><td>Extend upstream miner to ingest more course material (currently 65/65 MIT-OCW; many more courses available)</td><td>Significant surface; needs operator scope decision on which OCW courses to mine next</td></tr>
+<tr><td>Lower-tier (mfg_relevance &lt; 0.6) candidates</td><td>Currently 7 items below the 0.6 floor not surfaced in default bundle; operator can re-run with <code class="prism-inline-code">--min-relevance 0</code> if needed</td></tr></tbody></table>
+<h2 class="prism-h2">Stop conditions reached</h2>
+<p>None yet. The cron continues. Sessions-only storage means the job dies on session exit. Operator can manually stop via <code class="prism-inline-code">CronDelete bc83bbdb</code>. Loop-state may have been reaped (sweep helper occasionally reaps stale states); slot-heartbeat continues regardless.</p>
+<h2 class="prism-h2">Lessons surfaced</h2>
+<table class="prism-md-table"><thead><tr><th>Class</th><th>Lesson</th></tr></thead><tbody><tr><td><strong>Schema-read-first</strong></td><td>First-pass test fixture used OUTPUT decisions[] shape; correct input is INPUT candidateAssets[] shape. 9/13 failed → spawnSync stderr capture revealed R12 throw → fixture rewrite → 13/13 PASS. Same class as 2026-05-16 META-tool calculation bugs.</td></tr>
+<tr><td><strong>Doctrine honesty</strong></td><td>After 4 productive commits, the comprehensive-build-enforce hook pressured me to keep ratcheting. The honest move was to stop and respect the operator-gate doctrine I had just written. Acknowledge work-complete, hand off cleanly.</td></tr>
+<tr><td><strong>Index ceiling discipline</strong></td><td>MEMORY.md was already 27 B over the 24576-byte truncation ceiling. Adding a pointer would have pushed deeper. Skipped the index update; sister memory file remains discoverable via filename grep.</td></tr>
+<tr><td><strong>Hook false-positives</strong></td><td><code class="prism-inline-code">[ ! -f H:/PRISM/.git/index.lock ]</code> (file-existence test) repeatedly flagged as &quot;destructive redirect&quot; by the bash guard. False positive on the <code class="prism-inline-code">[</code> character preceding the path. Worked around by waiting for the lock to clear before each commit.</td></tr></tbody></table>
+<h2 class="prism-h2">See also</h2>
+<ul class="prism-md-list"><li>[[knowledge-conversion-ms0]] (wiki) — parent milestone</li><li>[[course-forge-stubs-emitter]] (wiki) — this loop&#39;s architecture writeup</li><li><code class="prism-inline-code">state/shared/specs/COURSE-FORGE-PROPOSALS.{md,html}</code> — P1-P10 hand-curated</li><li><code class="prism-inline-code">state/shared/specs/COURSE-FORGE-STUBS.{md,html}</code> — 62-stub auto-bundle</li><li><code class="prism-inline-code">scripts/course-data-router.mjs</code> — CLI with <code class="prism-inline-code">--emit forge-stubs</code> mode</li><li><code class="prism-inline-code">scripts/course-data-router.cli.test.mjs</code> — 13-case test suite</li><li><code class="prism-inline-code">state/shared/specs/LOOP-32fcf842-SESSION-SUMMARY-2026-05-17.md</code> — sister session summary (prior cron loop, also slot india)</li></ul></main><footer><div>generated by mdToHtml() at 2026-05-17T16:29:06.224Z</div>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>
