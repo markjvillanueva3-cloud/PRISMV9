@@ -607,6 +607,22 @@
         "U-P5-MULTI-CHAT-UNBLOCK-DETECT"
       ],
       "notes": "Iteration 1 of /loop close-out. These 3 units shipped with real commits (831d04c2b / 97185f094 / 44ac1b52c), memory references, and scrutiny PASS, but the unit status was never flipped (silent close-out debt). Verified each against git log + memory + scrutiny ledger before flipping. Complete count 12->15 of 26. U-P5-MULTI-CHAT-UNBLOCK-DETECT shipped as an operator-invoked CLI, not the spec'd PostToolUse hook — deviation documented in its unit rationale per feedback_dont_wire_for_wiring_sake."
+    },
+    {
+      "ts": "2026-05-17T17:12:46.415Z",
+      "by": "claude-a61bbf34 (slot echo)",
+      "event": "state_verified_and_last_unit_despecced",
+      "unit_id": "U-P5-COORD-SQLITE-LIVE-SWAP",
+      "verified": {
+        "work_claims_json": "does not exist — WORK_CLAIMS.json→SQLite already done under HOOK-SYNERGY-MS0/H8 2026-05-13",
+        "coordination_store_engine": "wired into contextDispatcher.ts:1164 (coord_sqlite) but NOT on live claim path",
+        "live_claim_store": "mcp-server/data/state/session-file-ownership.json written by 5 hot-path hooks (file-ownership-tracker writer + commit-ownership-guard/scrutinize-before-stop/always-build-guard/stale-claim-sweeper readers)",
+        "real_swap_scope": "repoint the 5 hot-path hooks at SQLite via env-switched coord-backend shim — NOT the WORK_CLAIMS migration the unit title implies"
+      },
+      "decision": "NOT autonomous-/loop-safe: live file-claim hot path fires on every Edit/Write across 7 active peer chats; coordination subsystem files peer-claimed concurrently; hard-to-reverse mid-flight (silent peer-clobber class). Operator + quiescent-fleet required.",
+      "delivered": "state/shared/specs/U-P5-COORD-SQLITE-LIVE-SWAP-CUTOVER-PLAN-2026-05-17.md — 4-phase env-switched (json|dual|shadow|sqlite) reversible cutover plan + acceptance gates + autonomous boundary",
+      "milestone_status_note": "25/26 shipped/closed; this 1 unit remains operator-gated WITH executable plan. Milestone stays in_progress — NOT flipped to completed (would be false per R12).",
+      "loop_outcome": "/loop scope satisfied to maximum safe extent; cron NOT recreated (no autonomous-safe iterative work remains — a 10m cron would spin uselessly)."
     }
   ]
 }
