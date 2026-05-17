@@ -74,3 +74,22 @@ Register `KNOWLEDGE-CONVERSION-MS0` via RGS so it joins `roadmap-index.json` (75
 - **Coursework (U-KC-A2) — confirmed UNWIRED.** The 65 content-mining candidates have **zero `.ts` consumers** under `mcp-server/src`. Lane A target **confirmed present**: `TribalKnowledgeEngine.ingest()` accepts `KnowledgeTip[]`; `DOC_KNOWLEDGE_DIR` is the auto-load path.
 
 **Net effect on remaining phases:** Phase 1 (Lane A tribal-knowledge wiring) is the main remaining build. Phase 2 Lane B = `U-KC-C2` confirm-only + `U-KC-C1` formula verification (12 files). Phase 3/4 unchanged. Re-run the audit any time: `node scripts/audit-monolith-port-state.mjs`.
+
+## Phase 1 — EXECUTED 2026-05-16 (U-KC-B1 + U-KC-B2 + U-KC-B3) — Lane A direct-wire SHIPPED
+
+| Unit | Artifact | Commit | Verification |
+|------|----------|--------|--------------|
+| **U-KC-B1** | `scripts/course-to-tribal-tips.mjs` + 44 tests; `cad-engine/knowledge_store/mit-ocw-course-tips.json` (126 tips) | converter `c2d6a4436` · artifact `aa0335a8d` | 44/44 vitest; per-file scrutiny PASS/PASS |
+| **U-KC-B2** | `scripts/monolith-to-tribal-tips.mjs` + 52 tests; `cad-engine/knowledge_store/monolith-data-lane-tips.json` (133 tips) | converter `c2d6a4436` (collision-absorbed) · artifact `3d9324f2a` | 52/52 vitest; per-file scrutiny PASS/PASS; categorization regex bug + provenance-tag silent-drop fixed pre-ship |
+| **U-KC-B3** | `mcp-server/src/__tests__/knowledge-conversion-roundtrip.test.ts` — round-trip through `prism_knowledge:tribal_search` (8 tests) | `44980b391` (collision-absorbed under wrong scope, content-identical) | 8/8 vitest; Arm A 3 P0s + Arm B truncation-proof finding all closed |
+
+**Round-trip proof (U-KC-B3):** engine `loadDocumentLearnedTips()` reader confirms 7141 doc-learned tips loaded; both artifacts surface through the production dispatcher with engine-guaranteed `id: TK-DL-<docId>-NNN`, `source: document:<docId>`, tags include `document-learned` + `doc:<docId>`. Reachability assertions use `TRUNCATION_PROOF_LIMIT = 10000` (> total pool ~7741) so confidence-floored tips cannot truncate.
+
+**Doctrine artifacts that survived:**
+- Converter floor-at-1 confidence (defeats engine `|| 70` falsy-promote)
+- Provenance tag exempt from MAX_TAG_LEN clamp (Karpathy R12 — silent-drop ban)
+- `(?:^|_)POST(?:_|$)` regex (underscore IS \w; `\bPOST\b` never matched FUSION_POST_DATABASE)
+- `String.fromCharCode(0x01/0x1f)` for hostile-payload C0-byte tests (Read/Edit strips control bytes)
+- CLEAN_ENV IIFE scrubs `PRISM_*_FROZEN_TIME` from `execFileSync` envs
+
+**Next:** Phase 2 Lane B — U-KC-C1 (12-file formula port verification against `src/physics/constants.ts`), U-KC-C2 (confirm-only, ledger says 20/20 algorithms resolve). Phase 3 Lane C is queue-only. Phase 4 = durable memory + wiki + CLAUDE.md pointer doc-reflection.
