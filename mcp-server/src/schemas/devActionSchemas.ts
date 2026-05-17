@@ -3331,6 +3331,24 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     hypothesisId: z.string().min(1).max(128),
   }).strict().describe("Tribal-knowledge endorsements for a hypothesis."),
 
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-CRYS: CrystallizationEngine ──
+  // Pure-compute industrial crystallization (Mullin / Mersmann / Randolph-Larson
+  // MSMPR). Single calculate() — no state mutation.
+  crys_calculate: z.object({
+    type: z.enum(["MSMPR", "batch_cooling", "evaporative", "reactive", "antisolvent", "melt"]).optional(),
+    solute: z.enum(["NaCl", "KCl", "sucrose", "citric_acid", "ammonium_sulfate", "paracetamol"]).optional(),
+    feed_concentration_g_L: z.number().positive().max(10_000),
+    saturation_concentration_g_L: z.number().positive().max(10_000).optional(),
+    feed_rate_L_h: z.number().positive().max(1_000_000).optional()
+      .describe("Feed L/h (default 100)"),
+    temperature_C: z.number().min(-100).max(500).optional()
+      .describe("Operating temperature °C (default 25)"),
+    cooling_rate_C_h: z.number().min(0).max(1000).optional()
+      .describe("Cooling rate °C/h for batch_cooling (default 10)"),
+    residence_time_min: z.number().positive().max(100_000).optional()
+      .describe("Residence time minutes (default 60)"),
+  }).describe("Industrial crystallization sizing — yield, CSD, nucleation, supersaturation."),
+
   // ── WIRE-UNWIRED-MS0 / U-WIRE-CAPB: CapacitorBankEngine ──
   // Pure-compute power-factor-correction sizer (IEEE 1036, IEC 60831).
   // Q = P × (tan(θ₁) - tan(θ₂)); harmonic resonance check via h_r = √(Ssc/Qc).

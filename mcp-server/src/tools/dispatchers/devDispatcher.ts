@@ -484,7 +484,7 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "wron_current_shift", "wron_pending_escalations", "wron_get_page",
 "wron_list_pages", "wron_list_shifts", "wron_list_swaps", "wron_snapshot",
 "evap_calculate",
-"cap_bank_calculate",
+"cap_bank_calculate", "crys_calculate",
 "hyp_get_prior", "hyp_prioritize", "hyp_get_tribal_endorsements",
 "plug_get", "plug_list", "plug_list_by_kind", "plug_list_by_health",
 "plug_summary", "plug_size",
@@ -3985,6 +3985,22 @@ export function registerDevDispatcher(server: any): void {
               endorsements: r,
               endorsement_count: r.length,
               has_endorsements: r.length > 0,
+            };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-CRYS: CrystallizationEngine ──────
+          case "crys_calculate": {
+            const { crystallizationEngine } = await import("../../engines/CrystallizationEngine.js");
+            const r = crystallizationEngine.calculate(
+              params as Parameters<typeof crystallizationEngine.calculate>[0],
+            );
+            result = {
+              result: r,
+              is_safe: r.is_safe,
+              recommendation_count: r.recommendations.length,
+              yield_pct: r.yield_pct.value,
+              mean_crystal_size_um: r.mean_crystal_size_um.value,
+              supersaturation_ratio: r.supersaturation_ratio.value,
             };
             break;
           }
