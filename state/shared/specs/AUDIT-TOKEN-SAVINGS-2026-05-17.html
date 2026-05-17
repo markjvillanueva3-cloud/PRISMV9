@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>PRISM Token-Savings Audit — 2026-05-17</title>
+<style>
+:root{--bg:#0e1117;--fg:#e6edf3;--mute:#7d8590;--card:#161b22;--bd:#30363d;--p0:#f85149;--p1:#d29922;--p2:#bc8cff;--ok:#3fb950}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:14px/1.55 ui-monospace,Menlo,Consolas,monospace;margin:0;padding:24px;max-width:1100px;margin-left:auto;margin-right:auto}
+h1{font-size:24px;margin:0 0 4px}h2{font-size:18px;margin:32px 0 8px;border-bottom:1px solid var(--bd);padding-bottom:4px}h3{margin:18px 0 6px}
+.muted{color:var(--mute)}.p0{color:var(--p0);font-weight:bold}.p1{color:var(--p1);font-weight:bold}.p2{color:var(--p2);font-weight:bold}.ok{color:var(--ok)}
+table{width:100%;border-collapse:collapse;margin:12px 0}th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--bd);vertical-align:top}
+th{color:var(--mute);font-weight:500;text-transform:uppercase;font-size:11px;letter-spacing:.5px}
+tr.p0 td:first-child{border-left:3px solid var(--p0)}tr.p1 td:first-child{border-left:3px solid var(--p1)}tr.p2 td:first-child{border-left:3px solid var(--p2)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:14px 18px;margin:14px 0}
+code{background:#0d1117;border:1px solid var(--bd);border-radius:4px;padding:1px 6px;color:#79c0ff;font-size:12.5px}
+pre{background:#010409;border:1px solid var(--bd);border-radius:6px;padding:12px;overflow:auto;color:#c9d1d9;font-size:12.5px}
+.bar{display:inline-block;height:14px;background:var(--bd);border-radius:3px;position:relative;width:160px;vertical-align:middle;margin-right:8px}
+.bar>span{position:absolute;left:0;top:0;bottom:0;background:var(--p1);border-radius:3px}
+.bar.crit>span{background:var(--p0)}.bar.warn>span{background:var(--p1)}.bar.ok>span{background:var(--ok)}
+.toc a{color:#79c0ff;text-decoration:none;margin-right:14px}
+.kv{display:grid;grid-template-columns:200px 1fr;gap:4px 14px;margin:6px 0}.kv b{color:var(--mute);font-weight:500}
+.verify{background:#161b22;border-left:3px solid var(--ok);padding:6px 10px;margin:6px 0;font-size:12.5px}
+</style>
+</head>
+<body>
+<h1>PRISM Token-Savings Audit</h1>
+<div class="muted">2026-05-17 · slot lima · claude-77971357 · scope: token-savings measures effectiveness · <code>/forge-audit-v2</code></div>
+
+<div class="card">
+  <div><b>Verdict:</b> <span class="p0">2 P0</span> · <span class="p1">5 P1</span> · <span class="p2">1 P2</span> &nbsp;<span class="muted">(post-peer-review)</span></div>
+  <div class="muted">META artifact (re-runnable): <code>node scripts/token-savings-rank.mjs --json --history</code> &nbsp;·&nbsp; Peer reviewer: agent <code>a0310b5d6</code> verdict <code>FIX-FIRST</code> — revisions applied</div>
+</div>
+
+<div class="toc">
+<a href="#snapshot">Snapshot</a><a href="#findings">Findings</a><a href="#actions">Actions</a><a href="#loop">/loop re-run</a>
+</div>
+
+<h2 id="snapshot">Snapshot (2026-05-17 15:33 UTC)</h2>
+<table>
+  <tr><th>Surface</th><th>Measure</th><th>Target</th><th>Status</th></tr>
+  <tr class="p0"><td>Ollama offload</td><td>9.6% (65/678) · 14,880 tokens saved in 19d</td><td>≥30%</td><td><span class="bar crit"><span style="width:32%"></span></span> <span class="p0">P0</span></td></tr>
+  <tr class="p0"><td>MEMORY.md size</td><td>24,603 B (headroom −27 B)</td><td>&lt;22,000 B</td><td><span class="bar crit"><span style="width:100%"></span></span> <span class="p0">P0</span></td></tr>
+  <tr class="p1"><td>RTK passthrough</td><td>65.3% archive entries unfiltered</td><td>&lt;5%</td><td><span class="bar warn"><span style="width:65%"></span></span> <span class="p1">P1</span></td></tr>
+  <tr class="p1"><td>RTK hooks wired</td><td>0 of 4 on disk</td><td>≥3</td><td><span class="bar warn"><span style="width:0%"></span></span> <span class="p1">P1</span></td></tr>
+  <tr class="p1"><td>Ollama suggestion UI</td><td>2 injected / 868 silent (0.23%)</td><td>≥5%</td><td><span class="bar warn"><span style="width:5%"></span></span> <span class="p1">P1</span></td></tr>
+  <tr class="p1"><td>error-pattern-promote</td><td>99.8% no-op (2412/2417 fires)</td><td>&lt;60%</td><td><span class="bar warn"><span style="width:99%"></span></span> <span class="p1">P1</span></td></tr>
+  <tr class="p1"><td>Hooks zero-fire (17d)</td><td>513 of 523 (98.1%)</td><td>&lt;300</td><td><span class="bar warn"><span style="width:98%"></span></span> <span class="p1">P1</span></td></tr>
+  <tr class="p2"><td>CLAUDE.md size</td><td>115,521 B / <b>610 lines</b> (corrected from 3,200)</td><td>&lt;80KB / &lt;400 lines</td><td><span class="bar"><span style="width:77%;background:var(--p2)"></span></span> <span class="p2">P2</span></td></tr>
+  <tr class="p2"><td>token-budget slot map</td><td>57.7% fires unmapped (602/1042)</td><td>&lt;20%</td><td><span class="bar"><span style="width:58%;background:var(--p2)"></span></span> <span class="p2">P2</span></td></tr>
+  <tr class="p1"><td><b>Cache reader-path</b> <span class="muted">(all 3 caches)</span></td><td>0 hits / 100 keys (bash 1, grep 3, file-read 96)</td><td>≥10 hits/day</td><td><span class="bar warn"><span style="width:100%"></span></span> <span class="p1">P1 (upgraded)</span></td></tr>
+  <tr><td class="muted">System synergy (already-tracked)</td><td class="muted">21.1% (regression −1.09pp vs 22.2%)</td><td class="muted">≥30%</td><td class="muted">tracked by synergy-regression-watch</td></tr>
+</table>
+
+<h2 id="findings">Findings (Boris-discipline — each carries its verification channel)</h2>
+
+<div class="card">
+  <h3>[<span class="p0">P0</span>] F2 — MEMORY.md is actively truncating fleet-wide RIGHT NOW</h3>
+  <div class="kv"><b>What</b><span>24,603 B / 24,576 B truncation ceiling. Headroom −27 B. Every chat's auto-loaded MEMORY.md is truncated this session.</span></div>
+  <div class="kv"><b>Why it matters</b><span>MEMORY.md is auto-injected on EVERY SessionStart for EVERY chat. Truncation degrades the recall surface 13 chats lean on for cross-session continuity.</span></div>
+  <div class="kv"><b>History</b><span>Same regression fired 2026-05-16 — compressed to 21,474 B that day, re-grew to 24,603 B in 1 day. No durable watchdog action; <code>memory-size-watch.mjs</code> only advises.</span></div>
+  <div class="verify">Verify: <code>node scripts/memory-size-watch.mjs --json | jq .status</code> &nbsp;→&nbsp; expected <code>"fresh"</code>; currently <code>"critical"</code></div>
+  <div class="kv"><b>Fix</b><span>1) Trim 5–8 oldest entries from MEMORY.md NOW (~2KB headroom). 2) Wire memory-size-watch into a Stop hook that auto-triggers <code>/memory-prune</code> when status ≥ warn.</span></div>
+</div>
+
+<div class="card">
+  <h3>[<span class="p0">P0</span>] F3 — Ollama offload at 9.6% vs 30% target (3.1× below)</h3>
+  <div class="kv"><b>What</b><span>65 / 678 tasks routed to Ollama. 14,880 tokens saved over 19 days = ~780/day = noise floor.</span></div>
+  <div class="kv"><b>Sub-findings</b><span>
+    <ul style="margin:4px 0">
+      <li><code>fleet-reaper-coordinator</code> fired 440× with <code>offloaded:0</code>, <code>suggested:440</code> — its routing hint never converts to an actual offload</li>
+      <li>Only 3 categories trigger offload: <code>summary</code> (60), <code>cache-hit</code> (2), <code>explanation</code> (3) — classification scope is narrow</li>
+      <li>byHook: <code>ollama-task-offloader</code> 63/613 = 10.3% conversion is the only meaningful path</li>
+    </ul>
+  </span></div>
+  <div class="verify">Verify: <code>node scripts/ollama-offload-dashboard.mjs --json | jq '.offloaded/(.offloaded+.keptOnClaude)'</code> &nbsp;→&nbsp; expected ≥0.30</div>
+  <div class="kv"><b>Fix</b><span>1) Drop <code>INJECT_THRESHOLD</code> 0.90→0.80 in <code>ollama-task-offloader.mjs</code>. 2) Remove the <code>/</code>-prefix skip at <code>ollama-auto-router.mjs:166</code>. 3) Wire fleet-reaper-coordinator's hint to flip the offloader threshold (it writes the hint but conversion is broken).</span></div>
+</div>
+
+<div class="card">
+  <h3>[<span class="p1">P1</span>] F1 — RTK filter hook is NOT installed; 65% of recorded calls passthrough</h3>
+  <div class="kv"><b>What</b><span>280/429 (65.3%) <code>rtk-archive.jsonl</code> entries carry <code>/!\ No hook installed</code> warning. Zero <code>rtk-*</code> hooks wired in <code>settings.json</code>.</span></div>
+  <div class="kv"><b>Nuance</b><span>The <code>savings: { lines: N }</code> field in archive entries is a heuristic line-count guess, NOT measured savings. The CLAUDE.md doctrine pointer's "60–90% reduction" claim is currently delivering ~0%.</span></div>
+  <div class="verify">Verify: <code>grep -c "No hook installed" state/shared/rtk-archive.jsonl</code> &nbsp;→&nbsp; expected &lt;5% of total</div>
+  <div class="kv"><b>Fix</b><span>Run <code>rtk init -g</code>; verify <code>rtk-*</code> hooks land in settings.json; re-measure archive 1 day later.</span></div>
+</div>
+
+<div class="card">
+  <h3>[<span class="p1">P1</span>] F4 — Ollama suggestion UI is dark (868 silent / 2 injected)</h3>
+  <div class="kv"><b>What</b><span>Operator sees 0.23% of the offloader's suggestions. The suggest-only mode (below INJECT_THRESHOLD) is invisible feedback.</span></div>
+  <div class="kv"><b>Relation</b><span>Closes the loop on F3 — if the operator could see "this task is 0.85-confident offload-able", adoption would rise.</span></div>
+  <div class="verify">Verify: <code>node scripts/ollama-offload-dashboard.mjs --json | jq '.injectedSuggestions / .silentSuggestions'</code> &nbsp;→&nbsp; expected ≥0.05</div>
+</div>
+
+<div class="card">
+  <h3>[<span class="p1">P1</span>] F5 — error-pattern-promote 99.8% no-op (pure overhead)</h3>
+  <div class="kv"><b>What</b><span>2416 fires in 17 days, 2412 noop_below_threshold, 4 actual promotions.</span></div>
+  <div class="verify">Verify: <code>node scripts/hook-fire-rank.mjs --json | jq '.ranked[] | select(.hook=="error-pattern-promote")'</code> &nbsp;→&nbsp; expected noop_ratio &lt; 0.60</div>
+  <div class="kv"><b>Fix</b><span>Early-exit guard at top of hook OR move to T4 async dispatcher (<code>AsyncHookDispatcher</code>, HOOK-SYNERGY-MS0/H7) to remove sync-path tax.</span></div>
+</div>
+
+<div class="card">
+  <h3>[<span class="p1">P1</span>] F6 — Bundle-aware: ≤373 of 523 hooks (≤71%) appear orphan (raw 513 misleading)</h3>
+  <div class="kv"><b>What</b><span>Raw zero-fire = 513 / 523 = 98.1%. Peer reviewer confirmed bundles reference <b>140 unique child .mjs files</b> that fire under the bundle's name — bundle-aware true orphan estimate ~373.</span></div>
+  <div class="kv"><b>Framing correction</b><span>The "98.1%" headline was overstated. Severity stays P1 because ~373 dead matchers is still systemic, but the prose was tightened.</span></div>
+  <div class="verify">Verify: <code>node scripts/hook-fire-rank.mjs --json | jq .totals.zero_fire_hooks</code> + bundle-aware subtraction (see fix outline)</div>
+</div>
+
+<div class="card">
+  <h3>[<span class="p2">P2</span>] F7 — CLAUDE.md self-violates its own "≤200 lines" rule (<b>610 lines</b>, 115KB)</h3>
+  <div class="kv"><b>Correction</b><span>Initial audit said "~3,200 lines"; peer reviewer caught — actual is 610 lines. The byte-density is the real problem (~190 chars/line). Severity P2 holds.</span></div>
+  <div class="verify">Verify: <code>wc -l H:/prism/CLAUDE.md</code> &nbsp;→&nbsp; expected &lt;400 lines AND &lt;80KB</div>
+</div>
+
+<div class="card">
+  <h3>[<span class="p1">P1</span>] F8 — Cache reader-path is <b>systemically dead</b> across all 3 caches (peer-review upgrade)</h3>
+  <div class="kv"><b>What</b><span><code>bash-result-cache</code> 1/0, <code>grep-result-cache</code> 3/0, <code>file-read-cache</code> <b>96/0</b>. 100 keys total, 0 hits. Writers populate, no reader-hook ever checks.</span></div>
+  <div class="kv"><b>Upgrade</b><span>Initially P2 ("bash-result cold"). Peer reviewer caught the file-read-cache 96-key signal proving the gap is fleet-wide → promoted to P1. file-read-cache is the actively-bleeding surface (≈28K tokens/day if 50% of re-reads could hit cache).</span></div>
+  <div class="verify">Verify: <code>node -e "['bash-result-cache','grep-result-cache','file-read-cache'].forEach(n=>{const c=JSON.parse(require('fs').readFileSync('.claude/cache/'+n+'.json','utf8'));console.log(n,Object.keys(c).length,Object.values(c).reduce((a,v)=>a+(v.hits||0),0))})"</code></div>
+</div>
+
+<h2 id="actions">Leverage-ranked action list (post-peer-review)</h2>
+<ol>
+  <li><span class="p0">F2</span> — trim MEMORY.md NOW (~2KB headroom), wire watchdog to auto-trigger compress</li>
+  <li><span class="p0">F3</span> + <span class="p1">F4</span> — drop ollama-task-offloader INJECT_THRESHOLD 0.90→0.80; remove <code>/</code>-prefix skip in ollama-auto-router; verify ratio climbs ≥20% in 1 day</li>
+  <li><span class="p1">F1</span> — <code>rtk init -g</code>; verify rtk-* hooks land in settings.json; re-measure archive</li>
+  <li><span class="p1">F8</span> — wire reader-hooks for the 3 caches (file-read most leverage at 96 keys / 0 hits)</li>
+  <li><span class="p1">F5</span> — early-exit guard on error-pattern-promote</li>
+  <li><span class="p1">F6</span> — bundle-aware zero-fire re-measurement (~373 true orphans, not 513)</li>
+  <li><span class="p2">F7</span> — promote CLAUDE.md sections to wiki + pointer-only stubs; target &lt;400 lines</li>
+</ol>
+
+<h2 id="loop">/loop re-run registration</h2>
+<pre>/loop --interval 7d --max 4 'node H:/prism/scripts/token-savings-rank.mjs --history && cat H:/prism/state/shared/token-savings-history.jsonl | tail -1'</pre>
+<div class="muted">Or invoke <code>/forge-audit-v2 token-savings</code> on a 7-day cadence to re-run the full audit chain. The META artifact owns the measurement; the audit doc owns the synthesis.</div>
+
+<div class="muted" style="margin-top:32px;border-top:1px solid var(--bd);padding-top:14px">
+META artifact: <code>scripts/token-savings-rank.mjs</code> · History: <code>state/shared/token-savings-history.jsonl</code> · Markdown sibling: <code>AUDIT-TOKEN-SAVINGS-2026-05-17.md</code>
+</div>
+</body>
+</html>
