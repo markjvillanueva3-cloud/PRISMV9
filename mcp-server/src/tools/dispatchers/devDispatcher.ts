@@ -466,7 +466,8 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "ml_get_material", "ml_get_tool", "ml_get_gcode",
 "ml_get_self_awareness",
 "ssl_find_setup", "ssl_get_setup", "ssl_suggest_reuse",
-"npq_qualify", "npq_get_stats"] as const;
+"npq_qualify", "npq_get_stats",
+"ofm_calculate"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -3564,6 +3565,18 @@ export function registerDevDispatcher(server: any): void {
             const { nadcapProcessQualificationEngine } = await import("../../engines/NadcapProcessQualificationEngine.js");
             const stats = nadcapProcessQualificationEngine.getStats();
             result = { stats, process_count: stats.processes.length };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-OFM: OrificeFlowMeterEngine ──────────
+          case "ofm_calculate": {
+            const { orificeFlowMeterEngine } = await import("../../engines/OrificeFlowMeterEngine.js");
+            const r = orificeFlowMeterEngine.calculate(params as Parameters<typeof orificeFlowMeterEngine.calculate>[0]);
+            // r returns AtomicValues + is_safe + recommendations[].
+            result = {
+              result: r,
+              is_safe: r.is_safe,
+              recommendation_count: r.recommendations.length,
+            };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-CMC: CapacityMonteCarloEngine ────────

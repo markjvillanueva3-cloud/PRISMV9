@@ -3082,6 +3082,27 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     "Engine stats (covered Nadcap process types + reference standard). Pure read."
   ),
 
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-OFM: OrificeFlowMeterEngine wiring ──
+  // Single pure-compute physics method (ISO 5167 + Reader-Harris/Gallagher Cd
+  // + Bernoulli ΔP). No state mutation. AtomicValue outputs (value/unit/
+  // uncertainty/source/warning).
+  ofm_calculate: z.object({
+    pipe_diameter_mm: z.number().positive().max(10_000)
+      .describe("Pipe inner diameter (mm, 0-10m DoS bound)"),
+    orifice_diameter_mm: z.number().positive().max(10_000)
+      .describe("Orifice bore diameter (mm)"),
+    differential_pressure_Pa: z.number().nonnegative().max(1e9).optional()
+      .describe("ΔP across orifice (Pa). Mutually exclusive with flow_rate_m3_h."),
+    flow_rate_m3_h: z.number().nonnegative().max(1e9).optional()
+      .describe("Volumetric flow rate (m³/h). Mutually exclusive with differential_pressure_Pa."),
+    fluid_density_kg_m3: z.number().positive().max(30_000).optional()
+      .describe("Fluid density kg/m³ (default 1000 = water)"),
+    fluid_viscosity_cP: z.number().positive().max(100_000).optional()
+      .describe("Dynamic viscosity cP (default 1 = water)"),
+    tap_type: z.enum(["flange", "corner", "D_D2", "vena_contracta"]).optional()
+      .describe("Pressure tap configuration (default flange)"),
+  }).describe("ISO 5167 orifice-plate flow measurement. Pure physics compute."),
+
   cmc_simulate: z.object({
     machines: z.array(z.object({
       id: z.string().min(1).max(128),
