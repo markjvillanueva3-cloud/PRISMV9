@@ -10,10 +10,51 @@
  */
 
 import { shouldSkipHook as _hp_shouldSkip } from "../helpers/hook-profile.mjs";
-import { dirname } from 'path';
+import { dirname, join as _pathJoin } from 'path';
 import { fileURLToPath } from 'url';
+import _fs from 'node:fs';
+import _os from 'node:os';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
+// SLOT-DRIFT-FIX-MS0/U-SDF11 (2026-05-17): per-(session,file) rate-limiter
+// for the "Doctrine/command surface" reminder. The reminder was firing on
+// EVERY Read of a .claude/hooks/ file (~50 fires/session for the kinds of
+// audit work that touches the hook stack). Same message, same advice, no
+// new information after the first impression — pure context burn. Keep a
+// per-file stamp; skip if seen within 30 minutes for the same session.
+const _DOCTRINE_RATE_WINDOW_MS = 30 * 60 * 1000;
+const _DOCTRINE_RATE_FILE = _pathJoin(_os.tmpdir(), "prism-hook-state", "mcp-route-doctrine-seen.json");
+function _loadDoctrineSeen() {
+  try { return JSON.parse(_fs.readFileSync(_DOCTRINE_RATE_FILE, "utf8")); }
+  catch { return {}; }
+}
+function _saveDoctrineSeen(state) {
+  try {
+    const dir = dirname(_DOCTRINE_RATE_FILE);
+    if (!_fs.existsSync(dir)) _fs.mkdirSync(dir, { recursive: true });
+    _fs.writeFileSync(_DOCTRINE_RATE_FILE, JSON.stringify(state));
+  } catch { /* ignore */ }
+}
+function _doctrineRecentlySeen(sessionId, filePath) {
+  if (!sessionId || !filePath) return false;
+  const state = _loadDoctrineSeen();
+  const key = `${sessionId}:${filePath}`;
+  const last = state[key];
+  if (typeof last !== "number") return false;
+  return (Date.now() - last) < _DOCTRINE_RATE_WINDOW_MS;
+}
+function _markDoctrineSeen(sessionId, filePath) {
+  if (!sessionId || !filePath) return;
+  const state = _loadDoctrineSeen();
+  state[`${sessionId}:${filePath}`] = Date.now();
+  // Trim entries older than 2 windows to keep the file small.
+  const cutoff = Date.now() - 2 * _DOCTRINE_RATE_WINDOW_MS;
+  for (const [k, t] of Object.entries(state)) {
+    if (typeof t !== "number" || t < cutoff) delete state[k];
+  }
+  _saveDoctrineSeen(state);
+}
 
 const PRISM_ROOT = "H:/PRISM";
 const MCP_ROOT = "H:/PRISM/mcp-server";
@@ -148,7 +189,7 @@ function hasNoDispatcherRoute(command) {
   return false;
 }
 
-async function getRegexSuggestions(toolName, filePath, bashCommand) {
+async function getRegexSuggestions(toolName, filePath, bashCommand, sessionId) {
   const messages = [];
   const normalizedCommand = normalize(bashCommand);
 
@@ -175,9 +216,15 @@ async function getRegexSuggestions(toolName, filePath, bashCommand) {
   }
 
   if (isDoctrineFile(filePath)) {
-    messages.push(
-      "Doctrine/command surface: verify the command bridge and MCP directive before teaching a new manual workflow.",
-    );
+    // U-SDF11: per-(session,file) rate-limit. After firing once for this
+    // file in this session, suppress for 30 min. The reminder teaches
+    // nothing new on the 5th repetition of the same Read.
+    if (!_doctrineRecentlySeen(sessionId, filePath)) {
+      messages.push(
+        "Doctrine/command surface: verify the command bridge and MCP directive before teaching a new manual workflow.",
+      );
+      _markDoctrineSeen(sessionId, filePath);
+    }
   }
 
   return messages;
@@ -218,6 +265,8 @@ async function main() {
   const input = await readStdin();
   const toolName = input.tool_name || input.toolName || "";
   const toolInput = input.tool_input || input.input || {};
+  // U-SDF11: extract sessionId for per-session doctrine rate-limiting.
+  const sessionId = (input.session_id || input.sessionId || "").toString().slice(0, 36);
 
   if (!["Bash", "Read", "Edit", "Write", "MultiEdit"].includes(toolName)) {
     process.stdout.write(JSON.stringify({ continue: true }));
@@ -232,7 +281,7 @@ async function main() {
 
   // Fall back to regex-based suggestions
   if (!messages || messages.length === 0) {
-    messages = await getRegexSuggestions(toolName, filePath, bashCommand);
+    messages = await getRegexSuggestions(toolName, filePath, bashCommand, sessionId);
   }
 
   if (messages.length === 0) {
