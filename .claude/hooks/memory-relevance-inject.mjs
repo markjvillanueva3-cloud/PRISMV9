@@ -16,9 +16,44 @@
  * Fail-open. Never blocks. Disable: PRISM_MEMORY_RELEVANCE=0.
  */
 
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, writeFileSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import os from "node:os";
+
+// SLOT-DRIFT-FIX-MS0/U-SDF12 (2026-05-17): per-(session, file) rate-limiter.
+// Memory recall re-fires on every Edit/Write of the same file — same memos,
+// same advice. Operator sees the same recall N times when editing the same
+// hook iteratively (very common in autonomous /loop work). Per-file window:
+// fire once, then suppress for 20 min.
+const _RATE_WINDOW_MS = 20 * 60 * 1000;
+const _RATE_FILE = path.join(os.tmpdir(), "prism-hook-state", "memory-relevance-seen.json");
+function _loadSeen() {
+  try { return JSON.parse(readFileSync(_RATE_FILE, "utf8")); }
+  catch { return {}; }
+}
+function _saveSeen(state) {
+  try {
+    const dir = path.dirname(_RATE_FILE);
+    if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+    writeFileSync(_RATE_FILE, JSON.stringify(state));
+  } catch { /* ignore */ }
+}
+function _recentlySeen(sessionId, filePath) {
+  if (!sessionId || !filePath) return false;
+  const state = _loadSeen();
+  const last = state[`${sessionId}:${filePath}`];
+  return typeof last === "number" && (Date.now() - last) < _RATE_WINDOW_MS;
+}
+function _markSeen(sessionId, filePath) {
+  if (!sessionId || !filePath) return;
+  const state = _loadSeen();
+  state[`${sessionId}:${filePath}`] = Date.now();
+  const cutoff = Date.now() - 2 * _RATE_WINDOW_MS;
+  for (const [k, t] of Object.entries(state)) {
+    if (typeof t !== "number" || t < cutoff) delete state[k];
+  }
+  _saveSeen(state);
+}
 
 // Derive from homedir — a hardcoded foreign-user path here caused fail-open
 // 0% recall fleet-wide (this fires via edit-bundle.mjs on every Edit).
@@ -110,6 +145,10 @@ function extractTitleAndOpening(body) {
     const params = payload?.tool_input || payload?.parameters || {};
     const target = params.file_path || params.notebook_path || params.path;
     if (!target) process.exit(0);
+    // U-SDF12: per-(session, file) rate-limit. Same memos on repeat Edits
+    // are pure context burn; suppress for 20 min after first fire.
+    const sessionId = (payload?.session_id || payload?.sessionId || "").toString().slice(0, 36);
+    if (_recentlySeen(sessionId, target)) process.exit(0);
     const terms = deriveSearchTerms(target);
     if (terms.length === 0) process.exit(0);
     const memos = loadMemoryFiles();
@@ -137,6 +176,9 @@ function extractTitleAndOpening(body) {
     let text = lines.join("\n");
     if (text.length > MAX_TOTAL_CHARS) text = text.slice(0, MAX_TOTAL_CHARS - 12) + "\n…(truncated)";
     emit("PreToolUse", text);
+    // U-SDF12: mark seen AFTER successful emit so the rate-limit only
+    // suppresses recall that was actually shown to the operator.
+    _markSeen(sessionId, target);
     process.exit(0);
   } catch { process.exit(0); }
 })();
