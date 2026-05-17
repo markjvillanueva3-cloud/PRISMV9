@@ -36,6 +36,8 @@ export function registerInfraDispatcher(server: McpServer): void {
         "plugin_register", "plugin_validate", "plugin_activate", "plugin_list",
         // INFRA-MS0: Auth + Calibration
         "auth_health", "usage_stats", "calibration_status", "calibration_overrides_preview",
+        // WIRE-UNWIRED-MS0/U-WIRE-INGEST: IngestionOrchestratorEngine read-only observability
+        "ingestion_stats", "ingestion_get_failed",
       ]).describe("Infrastructure action"),
       params: z.record(z.string(), z.any()).optional().describe("Action parameters"),
     },
@@ -348,6 +350,17 @@ export function registerInfraDispatcher(server: McpServer): void {
               },
               usage: "Add calibration_overrides to SpeedFeedOrchestrator input",
             };
+            break;
+          }
+          // WIRE-UNWIRED-MS0/U-WIRE-INGEST: IngestionOrchestratorEngine read-only observability
+          case "ingestion_stats": {
+            const { ingestionOrchestratorEngine } = await import("../../engines/IngestionOrchestratorEngine.js");
+            result = ingestionOrchestratorEngine.getStats();
+            break;
+          }
+          case "ingestion_get_failed": {
+            const { ingestionOrchestratorEngine } = await import("../../engines/IngestionOrchestratorEngine.js");
+            result = { failed: ingestionOrchestratorEngine.getFailedRecords() };
             break;
           }
         }

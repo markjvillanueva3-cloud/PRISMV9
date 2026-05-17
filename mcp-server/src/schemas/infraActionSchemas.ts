@@ -114,4 +114,10 @@ export const ACTION_INFRA_SCHEMAS: Record<string, z.ZodObject<any>> = {
     plugin_id: z.string().optional().describe("Plugin ID to get"),
     id: z.string().optional().describe("Alias for plugin_id"),
   }),
+
+  // ── WIRE-UNWIRED-MS0/U-WIRE-INGEST: IngestionOrchestratorEngine ────────────
+  /** Read-only ingestion statistics (no params). */
+  ingestion_stats: z.object({}),
+  /** Read-only list of failed ingestion records (no params). */
+  ingestion_get_failed: z.object({}),
 };
