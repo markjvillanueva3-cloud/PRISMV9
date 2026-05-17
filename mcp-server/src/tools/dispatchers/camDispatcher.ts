@@ -17807,13 +17807,21 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           }
           case "cam_tool_library_params": {
             const { CAMToolLibraryEngine } = await import("../../engines/CAMToolLibraryEngine.js");
-            const paramResult = CAMToolLibraryEngine.getToolParameters(params.tool_id, params.operation);
+            // Engine API is getRecommendedParams(toolId, material). Older dispatcher signature
+            // passed (tool_id, operation); operation alone does not bind feed/speed, only
+            // material does. Accept either field but require material to resolve.
+            const toolId = String(params.tool_id ?? "");
+            const material = String(params.material ?? params.operation ?? "");
+            const paramResult = CAMToolLibraryEngine.getRecommendedParams(toolId, material);
             result = { success: true, parameters: paramResult };
             break;
           }
           case "cam_tool_library_export": {
             const { CAMToolLibraryEngine } = await import("../../engines/CAMToolLibraryEngine.js");
-            const exported = CAMToolLibraryEngine.exportLibrary(params.library_id, params.format);
+            const exported = CAMToolLibraryEngine.exportLibrary(
+              String(params.library_id ?? ""),
+              (params.format as "json" | "csv" | "xml") ?? "json"
+            );
             result = { success: true, exported };
             break;
           }
@@ -17826,74 +17834,84 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
 
           case "cam_tool_get_by_number": {
             const { CAMToolGetEngine } = await import("../../engines/CAMToolGetEngine.js");
-            const tool = CAMToolGetEngine.getByNumber(params.tool_number, params.library_id);
+            // Engine API takes only the tool number; library scoping is global state.
+            const tool = CAMToolGetEngine.getByNumber(Number(params.tool_number));
             result = { success: true, tool };
             break;
           }
           case "cam_tool_query": {
             const { CAMToolGetEngine } = await import("../../engines/CAMToolGetEngine.js");
-            const tools = CAMToolGetEngine.query(params);
+            const tools = CAMToolGetEngine.query(params as Parameters<typeof CAMToolGetEngine.query>[0]);
             result = { success: true, tools };
             break;
           }
           case "cam_tool_select_for_op": {
             const { CAMToolGetEngine } = await import("../../engines/CAMToolGetEngine.js");
-            const selection = CAMToolGetEngine.selectForOperation(params);
+            // Engine API: selectForOperation(operation, material, featureSize?)
+            const selection = CAMToolGetEngine.selectForOperation(
+              String(params.operation ?? ""),
+              String(params.material ?? ""),
+              params.feature_size as number | undefined
+            );
             result = { success: true, selection };
             break;
           }
           case "cam_tool_magazine": {
             const { CAMToolGetEngine } = await import("../../engines/CAMToolGetEngine.js");
-            const magazine = CAMToolGetEngine.getMagazine(params.machine_id);
+            // Engine API takes no args — magazine is the active tool set on the singleton.
+            const magazine = CAMToolGetEngine.getMagazine();
             result = { success: true, magazine };
             break;
           }
           case "cam_tool_find_replacement": {
             const { CAMToolGetEngine } = await import("../../engines/CAMToolGetEngine.js");
-            const replacement = CAMToolGetEngine.findReplacement(params.tool_id, params.reason);
-            result = { success: true, replacement };
+            // Engine API: findReplacement(brokenToolNumber). The dispatcher historically
+            // accepted a `reason` field — it's preserved in the response for audit but
+            // no longer passed to the engine since the engine doesn't consume it.
+            const replacement = CAMToolGetEngine.findReplacement(Number(params.tool_id ?? params.tool_number));
+            result = { success: true, replacement, reason: params.reason };
             break;
           }
           // CAM-EXHAUST-MS0: MillingLoRACadenceEngine (3 actions)
           case "milling_lora_predict": {
             const { millingLoRACadenceEngine } = await import("../../engines/MillingLoRACadenceEngine.js");
             const trigger = millingLoRACadenceEngine.shouldTriggerRun();
-            result = { success: true, should_trigger: trigger.shouldTrigger, reason: trigger.reason, state: millingLoRACadenceEngine.getState() };
+            result = { success: true, should_trigger: trigger.should, reason: trigger.reason, details: trigger.details, state: millingLoRACadenceEngine.getState() };
             break;
           }
           case "milling_lora_train": {
             const { millingLoRACadenceEngine } = await import("../../engines/MillingLoRACadenceEngine.js");
             const p = params as { trigger_type?: "scheduled" | "data-drift" | "performance-drop" | "manual"; notes?: string };
             const run = millingLoRACadenceEngine.startRun(p.trigger_type ?? "manual", p.notes);
-            result = { success: true, run_id: run.id, status: run.status, started_at: run.startedAt };
+            result = { success: true, run_id: run.runId, status: run.status, started_at: run.startedAt };
             break;
           }
           case "milling_lora_optimize": {
             const { millingLoRACadenceEngine } = await import("../../engines/MillingLoRACadenceEngine.js");
             const p = params as { current_score: number; baseline_score: number };
             const drift = millingLoRACadenceEngine.checkDrift(p.current_score, p.baseline_score);
-            result = { success: true, drift_detected: drift.driftDetected, drift_amount: drift.driftAmount, threshold: drift.threshold };
+            result = { success: true, drift_detected: drift.drifted, drift_amount: drift.delta, trigger_retrain: drift.triggerRetrain };
             break;
           }
           // CAM-EXHAUST-MS0: MillTurnLoRACadenceEngine (3 actions)
           case "millturn_lora_predict": {
             const { millTurnLoRACadenceEngine } = await import("../../engines/MillTurnLoRACadenceEngine.js");
             const trigger = millTurnLoRACadenceEngine.shouldTriggerRun();
-            result = { success: true, should_trigger: trigger.shouldTrigger, reason: trigger.reason, state: millTurnLoRACadenceEngine.getState() };
+            result = { success: true, should_trigger: trigger.should, reason: trigger.reason, details: trigger.details, state: millTurnLoRACadenceEngine.getState() };
             break;
           }
           case "millturn_lora_train": {
             const { millTurnLoRACadenceEngine } = await import("../../engines/MillTurnLoRACadenceEngine.js");
             const p = params as { trigger_type?: "scheduled" | "data-drift" | "performance-drop" | "manual"; notes?: string };
             const run = millTurnLoRACadenceEngine.startRun(p.trigger_type ?? "manual", p.notes);
-            result = { success: true, run_id: run.id, status: run.status, started_at: run.startedAt };
+            result = { success: true, run_id: run.runId, status: run.status, started_at: run.startedAt };
             break;
           }
           case "millturn_lora_optimize": {
             const { millTurnLoRACadenceEngine } = await import("../../engines/MillTurnLoRACadenceEngine.js");
             const p = params as { current_score: number; baseline_score: number };
             const drift = millTurnLoRACadenceEngine.checkDrift(p.current_score, p.baseline_score);
-            result = { success: true, drift_detected: drift.driftDetected, drift_amount: drift.driftAmount, threshold: drift.threshold };
+            result = { success: true, drift_detected: drift.drifted, drift_amount: drift.delta, trigger_retrain: drift.triggerRetrain };
             break;
           }
 
