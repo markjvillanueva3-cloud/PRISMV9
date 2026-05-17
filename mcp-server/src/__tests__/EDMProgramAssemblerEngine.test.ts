@@ -594,4 +594,113 @@ describe("EDMProgramAssemblerEngine", () => {
       expect(result.summary).toContain("sodick");
     });
   });
+
+  describe("assembleWireEDM — dispatcher entry point", () => {
+    it("delegates to assemble() and returns the same result shape", () => {
+      const input: ProgramAssemblyInput = {
+        program_number: 2001,
+        part_name: "WireEDM_Part",
+        material: "D2 tool steel",
+        thickness_mm: 25,
+        path: makeSimplePath(),
+        passes: makeSimplePasses(),
+      };
+
+      const r1 = engine.assembleWireEDM(input);
+      const r2 = engine.assemble(input);
+
+      // Same program text + summary + line count (deterministic, no clock dep)
+      expect(r1.program_text).toBe(r2.program_text);
+      expect(r1.summary).toBe(r2.summary);
+      expect(r1.line_count).toBe(r2.line_count);
+      expect(r1.pass_count).toBe(2);
+      expect(r1.success).toBe(true);
+    });
+
+    it("propagates invalid-input failure from assemble()", () => {
+      const bad = {
+        program_number: 0, // out of range
+        part_name: "X",
+        material: "Steel",
+        thickness_mm: 10,
+        path: makeSimplePath(),
+        passes: makeSimplePasses(),
+      } as ProgramAssemblyInput;
+
+      const r = engine.assembleWireEDM(bad);
+      expect(r.success).toBe(false);
+      expect(r.warnings.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe("computeUncertainty — deterministic confidence envelope", () => {
+    it("returns wider Ra CI when only rough passes are planned", () => {
+      const roughOnly: ProgramAssemblyInput = {
+        program_number: 3001,
+        part_name: "RoughOnly",
+        material: "Steel",
+        thickness_mm: 25,
+        path: makeSimplePath(),
+        passes: [{ pass_number: 1, pass_type: "rough", offset_mm: 0.15, compensation: "left", d_register: 1, cut_time_min: 30 }],
+      };
+      const withFinish: ProgramAssemblyInput = {
+        ...roughOnly,
+        passes: makeSimplePasses(), // rough + finish
+      };
+
+      const ruRough = engine.computeUncertainty(roughOnly);
+      const ruFinish = engine.computeUncertainty(withFinish);
+
+      const widthRough = ruRough.ra_um_ci95[1] - ruRough.ra_um_ci95[0];
+      const widthFinish = ruFinish.ra_um_ci95[1] - ruFinish.ra_um_ci95[0];
+
+      // Ra CI must NARROW once a finishing pass is added, regardless of
+      // which Ra anchor is chosen — width is the test invariant
+      expect(widthFinish).toBeLessThan(widthRough);
+      expect(ruRough.finest_pass).toBe("rough");
+      expect(ruFinish.finest_pass).toBe("finish");
+      expect(ruRough.rough_pass_share).toBeCloseTo(1.0, 6);
+      expect(ruFinish.rough_pass_share).toBeCloseTo(0.5, 6);
+    });
+
+    it("drops overall_confidence on thick stock (>50mm)", () => {
+      const thin: ProgramAssemblyInput = {
+        program_number: 3002,
+        part_name: "Thin",
+        material: "Steel",
+        thickness_mm: 25,
+        path: makeSimplePath(),
+        passes: makeSimplePasses(),
+      };
+      const thick: ProgramAssemblyInput = { ...thin, thickness_mm: 100 };
+
+      const cThin = engine.computeUncertainty(thin).overall_confidence;
+      const cThick = engine.computeUncertainty(thick).overall_confidence;
+
+      expect(cThin).toBeGreaterThan(cThick);
+      // Both must stay inside the documented confidence band [0.5, 0.98]
+      for (const c of [cThin, cThick]) {
+        expect(c).toBeGreaterThanOrEqual(0.5);
+        expect(c).toBeLessThanOrEqual(0.98);
+      }
+    });
+
+    it("cut-time CI95 width equals nominal × 2×SPEED_DRIFT_PCT (±10%)", () => {
+      const input: ProgramAssemblyInput = {
+        program_number: 3003,
+        part_name: "TimeCheck",
+        material: "Steel",
+        thickness_mm: 25,
+        path: makeSimplePath(),
+        passes: makeSimplePasses(),
+      };
+
+      const r = engine.computeUncertainty(input);
+      const [lo, hi] = r.cut_time_min_ci95;
+      const midpoint = (lo + hi) / 2;
+      // The ±10% envelope is symmetric around the nominal time
+      expect((hi - lo) / midpoint).toBeCloseTo(0.2, 2);
+      expect(r.n_passes).toBe(2);
+    });
+  });
 });
