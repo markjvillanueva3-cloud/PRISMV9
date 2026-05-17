@@ -2915,6 +2915,33 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     "Boolean: is the FDA system marked validated. Pure read."
   ),
 
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-WP: WiringPotentialEngine wiring ──
+  // Two pure-read meta-wiring helpers. Recursively useful for THIS
+  // wire-unwired loop — analyzes any orphan engine name and returns
+  // ranked dispatcher candidates with confidence scores.
+  //
+  // SCHEMA RESTRICTION: capacityFile / capacityReport / masterIndex
+  // input options NOT exposed to LLM callers — capacityFile would
+  // enable path traversal (LLM-supplied arbitrary file path); the
+  // other two are non-serializable (object/function references).
+  // Engine uses its default file path (state/shared/DISPATCHER_CAPACITY.json)
+  // and the default masterIndexEngine singleton.
+  wp_analyze: z.object({
+    engine_name: z.string().min(1).max(256)
+      .describe("Orphan engine name (e.g., 'GCodeTemplateEngine')"),
+    min_confidence: z.number().min(0).max(1).optional()
+      .describe("Drop heuristic candidates below this confidence (engine default 0.30)"),
+    top_k: z.number().int().positive().max(10).optional()
+      .describe("Cap candidate count (engine default 3, MAX_TOP_K=10)"),
+  }).describe("Rank dispatcher candidates for one orphan engine. Pure read."),
+
+  wp_analyze_batch: z.object({
+    engine_names: z.array(z.string().min(1).max(256)).min(1).max(100)
+      .describe("Orphan engine names (1-100 items)"),
+    min_confidence: z.number().min(0).max(1).optional(),
+    top_k: z.number().int().positive().max(10).optional(),
+  }).describe("Rank dispatcher candidates for many orphan engines in one call. Pure read."),
+
   cmc_simulate: z.object({
     machines: z.array(z.object({
       id: z.string().min(1).max(128),

@@ -457,7 +457,8 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "osc_list_hot_jobs", "osc_build_messages_workspace",
 "ew_get_stats",
 "fda_get_signature", "fda_list_signatures",
-"fda_get_validation_status", "fda_is_validated"] as const;
+"fda_get_validation_status", "fda_is_validated",
+"wp_analyze", "wp_analyze_batch"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -3336,6 +3337,42 @@ export function registerDevDispatcher(server: any): void {
             const { fda21CFRPart11Engine } = await import("../../engines/FDA21CFRPart11Engine.js");
             const validated = fda21CFRPart11Engine.isValidated();
             result = { validated };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-WP: WiringPotentialEngine ────────────
+          case "wp_analyze": {
+            const { wiringPotentialEngine } = await import("../../engines/WiringPotentialEngine.js");
+            const p = params as { engine_name: string; min_confidence?: number; top_k?: number };
+            // Only pass through the LLM-safe opts. capacityFile and
+            // direct masterIndex/capacityReport refs are NOT forwarded
+            // (path-traversal / non-serializable).
+            const opts: { minConfidence?: number; topK?: number } = {};
+            if (p.min_confidence !== undefined) opts.minConfidence = p.min_confidence;
+            if (p.top_k !== undefined) opts.topK = p.top_k;
+            const report = await wiringPotentialEngine.analyze(p.engine_name, opts);
+            // report shape: {engineName, generatedAt, candidates[],
+            //                warnings[], inputs}.
+            result = {
+              engine_name: p.engine_name,
+              report,
+              candidate_count: report.candidates.length,
+              warning_count: report.warnings.length,
+            };
+            break;
+          }
+          case "wp_analyze_batch": {
+            const { wiringPotentialEngine } = await import("../../engines/WiringPotentialEngine.js");
+            const p = params as { engine_names: string[]; min_confidence?: number; top_k?: number };
+            const opts: { minConfidence?: number; topK?: number } = {};
+            if (p.min_confidence !== undefined) opts.minConfidence = p.min_confidence;
+            if (p.top_k !== undefined) opts.topK = p.top_k;
+            const reports = await wiringPotentialEngine.analyzeBatch(p.engine_names, opts);
+            result = {
+              engine_names: p.engine_names,
+              input_count: p.engine_names.length,
+              reports,
+              report_count: reports.length,
+            };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-CMC: CapacityMonteCarloEngine ────────
