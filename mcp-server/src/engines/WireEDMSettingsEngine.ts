@@ -16,7 +16,7 @@
  * Replaces former synthetic 5.0 base constant with physics derivation.
  */
 import { EDM_PHYSICS } from "../physics/constants.js";
-import { CANONICAL_MATERIAL_DB as CANONICAL_MATERIALS } from "../physics/constants.js";
+import { CANONICAL_MATERIAL_DB as CANONICAL_MATERIALS, type MaterialEntry } from "../physics/constants.js";
 import { resolvePublishedCondition, resolveMaterialGroup } from "../data/wedm-published-conditions.js";
 
 // ============================================================================
@@ -155,11 +155,22 @@ function getEDMThermalProps(materialName: string): EDMThermalProps {
     carbide: EDM_PHYSICS.kunieda.eta_carbide,
   };
 
+  // Use canonical MaterialEntry field names (specific_heat_J_kgK); the local
+  // thermal-model variable is named cp for physics-formula readability
+  // (Kunieda's MRR equation uses cp as the heat-capacity symbol). Latent heat
+  // isn't on MaterialEntry yet (separate physics-constants unit); the 270000 J/kg
+  // fallback is steel's documented latent-heat-of-fusion value (Touloukian 1970).
+  const latent_heat_J_kg_fallback = 270000;
+  const melting_point_C_fallback = 1500;
+  const cp_J_kgK_fallback = 460;
+  const mat_with_optional = mat as MaterialEntry & {
+    latent_heat_J_kg?: number;
+  };
   return {
     density_kg_m3: mat.density_kg_m3,
-    cp_J_kgK: mat.cp_J_kgK,
-    melting_point_C: mat.melting_point_C ?? 1500,
-    latent_heat_J_kg: mat.latent_heat_J_kg ?? 270000,
+    cp_J_kgK: mat.specific_heat_J_kgK ?? cp_J_kgK_fallback,
+    melting_point_C: mat.melting_point_C ?? melting_point_C_fallback,
+    latent_heat_J_kg: mat_with_optional.latent_heat_J_kg ?? latent_heat_J_kg_fallback,
     eta: etaMap[key] ?? EDM_PHYSICS.kunieda.eta_steel,
     material_key: key,
   };
