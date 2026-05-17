@@ -1,0 +1,543 @@
+{
+  "schemaVersion": 2,
+  "id": "CAM-PARITY-AGI-MS0",
+  "title": "CAM System Parity + Post Processor AGI Hardening",
+  "description": "Level hyperMILL, Fusion, Mastercam, and InventorCAM to equal capabilities. Harden post processor with AGI-level intelligence. Fine-tune master posts with deep learning.",
+  "priority": 1,
+  "status": "active",
+  "created": "2026-04-19T01:00:00Z",
+  "omega_target": 1,
+  "dependencies": [],
+  "units": [
+    {
+      "id": "U-CAMP01",
+      "title": "Mastercam Deep Learning + Material Bridge",
+      "description": "Add MastercamDeepLearningEngine, MastercamMaterialBridgeEngine, MastercamMaterialPhysicsBridge",
+      "status": "pending",
+      "steps": [
+        "Create MastercamDeepLearningEngine.ts (template: HyperMillDeepLearningEngine)",
+        "Create MastercamMaterialBridgeEngine.ts (template: HyperMillMaterialBridgeEngine)",
+        "Create MastercamMaterialPhysicsBridge.ts (template: HyperMillMaterialPhysicsBridge)",
+        "Add tests for all 3 engines",
+        "Wire to camDispatcher"
+      ],
+      "deliverables": [
+        "MastercamDeepLearningEngine.ts",
+        "MastercamMaterialBridgeEngine.ts",
+        "MastercamMaterialPhysicsBridge.ts"
+      ],
+      "exit_conditions": [
+        "Build passes",
+        "Dispatcher wired",
+        "Replaces vague criteria with measurable"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CAMP02",
+      "title": "Mastercam 5-Axis + Multi-Axis + Mill-Turn",
+      "description": "Add Mastercam5AxisEngine, MastercamMultiAxisEngine, MastercamMillTurnBridge, MastercamMillTurnStrategyEngine",
+      "status": "pending",
+      "steps": [
+        "Create Mastercam5AxisEngine.ts",
+        "Create MastercamMultiAxisEngine.ts",
+        "Create MastercamMillTurnBridge.ts",
+        "Create MastercamMillTurnStrategyEngine.ts",
+        "Add tests",
+        "Wire to camDispatcher"
+      ],
+      "deliverables": [
+        "4 multi-axis engines"
+      ],
+      "exit_conditions": [
+        "Build passes",
+        "Replaces vague criteria with measurable",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CAMP03",
+      "title": "Mastercam Cycle + Controller Catalogs",
+      "description": "Add MastercamCycleCatalogEngine, MastercamControllerCatalogEngine, MastercamCycleDefaultsEngine",
+      "status": "pending",
+      "steps": [
+        "Create MastercamCycleCatalogEngine.ts",
+        "Create MastercamControllerCatalogEngine.ts",
+        "Create MastercamCycleDefaultsEngine.ts",
+        "Populate with Mastercam-specific cycles/controllers",
+        "Add tests"
+      ],
+      "deliverables": [
+        "3 catalog engines"
+      ],
+      "exit_conditions": [
+        "Build passes",
+        "Replaces vague criteria with measurable",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CAMP04",
+      "title": "Mastercam Quality Bridges (SPC, FAI, Probing)",
+      "description": "Add MastercamSPCBridge, MastercamFAIBridge, MastercamProbingBridge",
+      "status": "pending",
+      "steps": [
+        "Create MastercamSPCBridge.ts",
+        "Create MastercamFAIBridge.ts",
+        "Create MastercamProbingBridge.ts",
+        "Wire to quality dispatcher",
+        "Add tests"
+      ],
+      "deliverables": [
+        "3 quality bridge engines"
+      ],
+      "exit_conditions": [
+        "Build passes",
+        "Replaces vague criteria with measurable",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CAMP05",
+      "title": "Mastercam Data Extraction + Strategy Knowledge",
+      "description": "Add MastercamDataExtractionPipeline, MastercamStrategyKnowledgeEngine",
+      "status": "pending",
+      "steps": [
+        "Create MastercamDataExtractionPipeline.ts",
+        "Create MastercamStrategyKnowledgeEngine.ts",
+        "Parse .mcx-8 file format for strategy extraction",
+        "Add tests"
+      ],
+      "deliverables": [
+        "2 knowledge engines"
+      ],
+      "exit_conditions": [
+        "Build passes",
+        "Replaces vague criteria with measurable",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CAMP06",
+      "title": "Fusion Deep Learning + Material Bridge",
+      "description": "Add FusionDeepLearningEngine, FusionMaterialBridgeEngine, FusionMaterialPhysicsBridge",
+      "status": "pending",
+      "steps": [
+        "Create FusionDeepLearningEngine.ts",
+        "Create FusionMaterialBridgeEngine.ts",
+        "Create FusionMaterialPhysicsBridge.ts",
+        "Add tests"
+      ],
+      "deliverables": [
+        "3 Fusion engines"
+      ],
+      "exit_conditions": [
+        "Build passes",
+        "Replaces vague criteria with measurable",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CAMP07",
+      "title": "Fusion 5-Axis + Multi-Axis + Strategy Knowledge",
+      "description": "Add Fusion5AxisEngine, FusionMultiAxisEngine, FusionStrategyKnowledgeEngine",
+      "status": "pending",
+      "steps": [
+        "Create Fusion5AxisEngine.ts",
+        "Create FusionMultiAxisEngine.ts",
+        "Create FusionStrategyKnowledgeEngine.ts",
+        "Add tests"
+      ],
+      "deliverables": [
+        "3 Fusion multi-axis engines"
+      ],
+      "exit_conditions": [
+        "Build passes",
+        "Replaces vague criteria with measurable",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CAMP08",
+      "title": "Fusion Cycle + Controller Catalogs",
+      "description": "Add FusionCycleCatalogEngine, FusionControllerCatalogEngine, FusionCycleDefaultsEngine",
+      "status": "pending",
+      "steps": [
+        "Create FusionCycleCatalogEngine.ts",
+        "Create FusionControllerCatalogEngine.ts",
+        "Create FusionCycleDefaultsEngine.ts",
+        "Add tests"
+      ],
+      "deliverables": [
+        "3 Fusion catalog engines"
+      ],
+      "exit_conditions": [
+        "Build passes",
+        "Replaces vague criteria with measurable",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CAMP09",
+      "title": "Fusion Quality Bridges (SPC, FAI, Probing)",
+      "description": "Add FusionSPCBridge, FusionFAIBridge, FusionProbingBridge, FusionMillTurnBridge",
+      "status": "pending",
+      "steps": [
+        "Create FusionSPCBridge.ts",
+        "Create FusionFAIBridge.ts",
+        "Create FusionProbingBridge.ts",
+        "Create FusionMillTurnBridge.ts",
+        "Add tests"
+      ],
+      "deliverables": [
+        "4 Fusion bridge engines"
+      ],
+      "exit_conditions": [
+        "Build passes",
+        "Replaces vague criteria with measurable",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CAMP10",
+      "title": "InventorCAM Core Engine Suite",
+      "description": "Create foundational InventorCAM engines: CodeGenerator, Strategy, ToolExport, SafetyHooks, DeepLearning",
+      "status": "pending",
+      "steps": [
+        "Create InventorCAMCodeGeneratorEngine.ts",
+        "Create InventorCAMStrategyEngine.ts",
+        "Create InventorCAMToolExportEngine.ts",
+        "Create InventorCAMSafetyHooksEngine.ts",
+        "Create InventorCAMDeepLearningEngine.ts",
+        "Add tests"
+      ],
+      "deliverables": [
+        "5 InventorCAM core engines"
+      ],
+      "exit_conditions": [
+        "Build passes",
+        "Replaces vague criteria with measurable",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CAMP11",
+      "title": "InventorCAM Material + Multi-Axis Suite",
+      "description": "Add InventorCAMMaterialBridge, Inventor5AxisEngine, InventorCAMMillTurnBridge",
+      "status": "pending",
+      "steps": [
+        "Create InventorCAMMaterialBridgeEngine.ts",
+        "Create InventorCAMMaterialPhysicsBridge.ts",
+        "Create InventorCAM5AxisEngine.ts",
+        "Create InventorCAMMultiAxisEngine.ts",
+        "Create InventorCAMMillTurnBridge.ts",
+        "Add tests"
+      ],
+      "deliverables": [
+        "5 InventorCAM advanced engines"
+      ],
+      "exit_conditions": [
+        "Build passes",
+        "Replaces vague criteria with measurable",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CAMP12",
+      "title": "InventorCAM Catalog + Quality Suite",
+      "description": "Add InventorCAM cycle/controller catalogs and quality bridges",
+      "status": "pending",
+      "steps": [
+        "Create InventorCAMCycleCatalogEngine.ts",
+        "Create InventorCAMControllerCatalogEngine.ts",
+        "Create InventorCAMSPCBridge.ts",
+        "Create InventorCAMFAIBridge.ts",
+        "Create InventorCAMProbingBridge.ts",
+        "Add tests"
+      ],
+      "deliverables": [
+        "5 InventorCAM catalog/quality engines"
+      ],
+      "exit_conditions": [
+        "Build passes",
+        "Replaces vague criteria with measurable",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CAMP13",
+      "title": "CAM AGI Master Orchestrator",
+      "description": "Create unified CAMAGIMasterOrchestratorEngine that routes to all 4 CAM systems with AGI-level reasoning",
+      "status": "completed",
+      "completed_at": "2026-05-17T01:25:00.000Z",
+      "owner": "claude-c0f06dee slot charlie",
+      "ship_commit": "57f0ceb47a",
+      "closeout_pattern": "commit-collision",
+      "ship_record": {
+        "session_id": "ms3-camp13-c0f06dee",
+        "shipped_at": "2026-05-17T01:25:00.000Z",
+        "tests": "58/58 PASS (was 57/58 — 1 silent fail caught by per-file scrutiny)",
+        "per_file_scrutiny": "Arm A (code-analyzer) PASS with Mastercam root-cause FIXED in same edit. Arm B (reviewer, independent) FAIL with 2 P0s (selectBestStrategy ranking bug + test brittleness) both FIXED in same edit before commit.",
+        "deliverable_extra": "Three bugs uncovered + fixed by 2-arm scrutiny while opening deferred close-out: (1) wrong method name — orchestrator called mastercamStrategyEngine.recommend() but engine exports selectStrategy(); typo silently threw TypeError for the life of the method, swallowed by empty catch; comparison returned 3 strategies instead of contracted 4. (2) selectBestStrategy ranking — bestScore=0 init meant confidence:0 fallback never overrode strategies[0]; init -1 fixes. (3) Test brittleness — length-4 assertion would pass with all-fallback if both real engines broke; added real-strategy filter assertion (cycle_name !== 'Manual Selection' && confidence > 0) >= 2. Files committed under peer subject 57f0ceb47a [DEV-TOOLS-AUDIT-F3]/U-DEV-TOOL-LEVERAGE-SKILL via commit-collision (peer git commit -a absorbed my staged 2 files); verified via git show 57f0ceb47a — selectStrategy + bestScore=-1 + test-assertion all present on HEAD."
+      },
+      "steps": [
+        "Create CAMAGIMasterOrchestratorEngine.ts",
+        "Implement cross-CAM strategy recommendation",
+        "Add deep reasoning for CAM system selection",
+        "Integrate with 8 reasoning modes",
+        "Add tests"
+      ],
+      "deliverables": [
+        "CAMAGIMasterOrchestratorEngine.ts"
+      ],
+      "exit_conditions": [
+        "Build passes",
+        "All 4 CAM systems routed",
+        "Replaces vague criteria with measurable"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CAMP14",
+      "title": "Post Processor AGI Unification",
+      "description": "Create MasterPostProcessorUnifiedAGIEngine that orchestrates all 133 PP engines with AGI reasoning",
+      "status": "pending",
+      "steps": [
+        "Create MasterPostProcessorUnifiedAGIEngine.ts",
+        "Wire all 133 PP engines through unified facade",
+        "Add deep learning for post optimization",
+        "Integrate tribal knowledge",
+        "Add tests"
+      ],
+      "deliverables": [
+        "MasterPostProcessorUnifiedAGIEngine.ts"
+      ],
+      "exit_conditions": [
+        "Build passes",
+        "Replaces vague criteria with measurable",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CAMP15",
+      "title": "Master Post Fine-Tuning System",
+      "description": "Create MasterPostFineTuningEngine for controller-specific post optimization with LoRA-style adaptation",
+      "status": "pending",
+      "steps": [
+        "Create MasterPostFineTuningEngine.ts",
+        "Implement controller-specific parameter tuning",
+        "Add machine learning from actual vs predicted G-code",
+        "Create feedback loop for continuous improvement",
+        "Add tests"
+      ],
+      "deliverables": [
+        "MasterPostFineTuningEngine.ts"
+      ],
+      "exit_conditions": [
+        "Build passes",
+        "Replaces vague criteria with measurable",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CAMP16",
+      "title": "Full Suite Integration Test",
+      "description": "Create comprehensive integration test that validates all 4 CAM systems through AGI orchestrator",
+      "status": "pending",
+      "steps": [
+        "Create cam-agi-integration.test.ts",
+        "Test hyperMILL → PP → G-code pipeline",
+        "Test Fusion → PP → G-code pipeline",
+        "Test Mastercam → PP → G-code pipeline",
+        "Test InventorCAM → PP → G-code pipeline",
+        "Compare outputs against real shop programs"
+      ],
+      "deliverables": [
+        "cam-agi-integration.test.ts"
+      ],
+      "exit_conditions": [
+        "All 4 pipelines pass",
+        "G-code validates against reference",
+        "Tests pass: npx vitest run (min 10 cases for engine units)"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    }
+  ],
+  "success_criteria": [
+    "All 4 CAM systems have 50+ engines each",
+    "CAMAGIMasterOrchestratorEngine routes all systems",
+    "MasterPostProcessorUnifiedAGIEngine orchestrates 133+ PP engines",
+    "Master post fine-tuning system operational",
+    "Integration tests pass for all pipelines",
+    "Build: PASS, Tests: 95%+ coverage"
+  ],
+  "smart_config": {
+    "role": "senior-architect + domain-specialist",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "cam-parity-agi-ms0-gate",
+    "mcp_action": "prism_cam:cam_parity_agi_ms0_run",
+    "skill_command": "/cam-parity-agi-ms0",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "cam-parity-agi-ms0-gate"
+    ],
+    "new_actions": [
+      "cam_parity_agi_ms0_run"
+    ],
+    "new_skills": [
+      "/cam-parity-agi-ms0"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Level hyperMILL, Fusion, Mastercam, and InventorCAM to equal capabilities. Harden post processor with AGI-level intelligence. Fine-tune master posts with deep learning.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}
