@@ -1137,4 +1137,30 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     name: z.string().min(1).describe("Name to check for duplication."),
   }).passthrough()
     .describe("Generic BloomDedupEngine.checkDedup — returns {check: DedupCheckResult}. Read-only."),
+
+  // ── WIRE-UNWIRED-MS0/U-WIRE-ASSETDEP: AssetDependencyGraphEngine ───────────
+  asset_dep_node: z.object({
+    id: z.string().min(1).describe("Asset id (e.g., 'CuttingForceEngine', 'kienzle_formula')"),
+  }).passthrough().describe("Single dependency node by id. Returns null if unknown. Read-only."),
+
+  asset_dep_dependencies: z.object({
+    id: z.string().min(1).describe("Asset id whose dependencies to fetch"),
+    depth: z.number().int().positive().max(20).optional().describe("Traversal depth (default 1)"),
+  }).passthrough().describe("Transitive dependency list (downstream). Read-only."),
+
+  asset_dep_dependents: z.object({
+    id: z.string().min(1).describe("Asset id whose dependents to fetch"),
+    depth: z.number().int().positive().max(20).optional().describe("Traversal depth (default 1)"),
+  }).passthrough().describe("Transitive dependent list (upstream — what would break). Read-only."),
+
+  asset_dep_impact: z.object({
+    asset_id: z.string().min(1).optional().describe("Asset id to analyze impact for"),
+    assetId: z.string().min(1).optional().describe("camelCase alias for asset_id"),
+  }).passthrough().refine(
+    (d) => (typeof d.asset_id === "string" && d.asset_id.length > 0) || (typeof d.assetId === "string" && d.assetId.length > 0),
+    { message: "asset_dep_impact requires non-empty 'asset_id' (or 'assetId')" },
+  ).describe("Impact analysis — affected assets, depth, critical path. Read-only."),
+
+  asset_dep_stats: z.object({}).passthrough()
+    .describe("Graph-wide stats (nodes, edges, avg deps, max depth, orphans). Read-only."),
 };

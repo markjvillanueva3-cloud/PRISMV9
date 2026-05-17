@@ -219,7 +219,11 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // (read-only — add/clear/merge/import DEFERRED to U-WIRE-BLOOM-WRITE; they
 //  mutate a probabilistic data structure whose state is load-bearing for the
 //  duplication-guard surface and ASSET_REGISTRY)
-"dedup_might_contain", "dedup_is_definitely_new", "dedup_asset_stats", "dedup_bloom_check"] as const;
+"dedup_might_contain", "dedup_is_definitely_new", "dedup_asset_stats", "dedup_bloom_check",
+// WIRE-UNWIRED-MS0/U-WIRE-ASSETDEP: AssetDependencyGraphEngine
+// (read-only — reset DEFERRED; initialize is implicit on first read)
+"asset_dep_node", "asset_dep_dependencies", "asset_dep_dependents",
+"asset_dep_impact", "asset_dep_stats"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -1408,6 +1412,58 @@ export function registerDevDispatcher(server: any): void {
               break;
             }
             result = { check: bloomDedupEngine.checkDedup(name) };
+            break;
+          }
+          // WIRE-UNWIRED-MS0/U-WIRE-ASSETDEP: AssetDependencyGraphEngine
+          case "asset_dep_node": {
+            const { assetDependencyGraphEngine } = await import("../../engines/AssetDependencyGraphEngine.js");
+            const ap = typeof params === "object" && params !== null ? params as Record<string, unknown> : {};
+            const id = typeof ap.id === "string" ? ap.id : "";
+            if (!id) {
+              result = { error: "asset_dep_node requires 'id' (string)" };
+              break;
+            }
+            result = { node: await assetDependencyGraphEngine.getNode(id) };
+            break;
+          }
+          case "asset_dep_dependencies": {
+            const { assetDependencyGraphEngine } = await import("../../engines/AssetDependencyGraphEngine.js");
+            const ap = typeof params === "object" && params !== null ? params as Record<string, unknown> : {};
+            const id = typeof ap.id === "string" ? ap.id : "";
+            const depth = typeof ap.depth === "number" ? ap.depth : 1;
+            if (!id) {
+              result = { error: "asset_dep_dependencies requires 'id' (string)" };
+              break;
+            }
+            result = { dependencies: await assetDependencyGraphEngine.getDependencies(id, depth) };
+            break;
+          }
+          case "asset_dep_dependents": {
+            const { assetDependencyGraphEngine } = await import("../../engines/AssetDependencyGraphEngine.js");
+            const ap = typeof params === "object" && params !== null ? params as Record<string, unknown> : {};
+            const id = typeof ap.id === "string" ? ap.id : "";
+            const depth = typeof ap.depth === "number" ? ap.depth : 1;
+            if (!id) {
+              result = { error: "asset_dep_dependents requires 'id' (string)" };
+              break;
+            }
+            result = { dependents: await assetDependencyGraphEngine.getDependents(id, depth) };
+            break;
+          }
+          case "asset_dep_impact": {
+            const { assetDependencyGraphEngine } = await import("../../engines/AssetDependencyGraphEngine.js");
+            const ap = typeof params === "object" && params !== null ? params as Record<string, unknown> : {};
+            const assetId = typeof ap.asset_id === "string" ? ap.asset_id : (typeof ap.assetId === "string" ? ap.assetId : "");
+            if (!assetId) {
+              result = { error: "asset_dep_impact requires 'asset_id' (string)" };
+              break;
+            }
+            result = { impact: await assetDependencyGraphEngine.analyzeImpact(assetId) };
+            break;
+          }
+          case "asset_dep_stats": {
+            const { assetDependencyGraphEngine } = await import("../../engines/AssetDependencyGraphEngine.js");
+            result = { stats: await assetDependencyGraphEngine.getStats() };
             break;
           }
           case "blueprint_ingest_phase8": {
