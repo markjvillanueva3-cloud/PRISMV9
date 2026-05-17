@@ -54,6 +54,36 @@ async function buildContext() {
   const staleHrs = Number(process.env.PRISM_GOAL_PREREQ_STALE_HRS) || 2;
   const lines = [`─── /goal pre-flight ────────────────────────────`];
 
+  // Deferred-IDs index — load FIRST so candidate display can filter against it.
+  // SLOT-DRIFT-FIX-MS0/U-SDF16 (2026-05-17): previously this hook displayed all
+  // candidates as "Pending triage" without cross-referencing CLOSE-OUT-DEFERRED.md.
+  // Operators saw misleading "needs work" panels for units already deferred days
+  // ago (e.g. U-CAMP01/14/15 deferred 2026-05-13 still shown 2026-05-17).
+  // The Stop-gate (goal-complete-gate.mjs) does cross-reference correctly; only
+  // this pre-flight panel was blind. Now both surfaces agree.
+  const deferred = path.join(STATE_DIR, "CLOSE-OUT-DEFERRED.md");
+  /** @type {Set<string>} */
+  const deferredIds = new Set();
+  let deferredCount = 0;
+  if (fs.existsSync(deferred)) {
+    try {
+      const content = fs.readFileSync(deferred, "utf-8");
+      const entryLines = (content.match(/^[A-Za-z][\w.\/-]*\s*\|.*\|.*\|/gm) || [])
+        .filter((l) => !/^\s*[-|]+\s*\|/.test(l));
+      deferredCount = entryLines.length;
+      for (const line of entryLines) {
+        const id = line.split("|")[0].trim();
+        if (!id) continue;
+        deferredIds.add(id);
+        // Also index the bare unit_id when the entry is composite "MS/UNIT".
+        const slashIdx = id.lastIndexOf("/");
+        if (slashIdx >= 0 && slashIdx < id.length - 1) {
+          deferredIds.add(id.slice(slashIdx + 1));
+        }
+      }
+    } catch { /* skip */ }
+  }
+
   // CLOSE-OUT-CANDIDATES staleness (the Stop hook will block on this).
   // Schema: { results: [ { milestone, title, file, candidates: [{ unit_id, title, ... }] } ] }
   const coPath = path.join(STATE_DIR, "CLOSE-OUT-CANDIDATES.json");
@@ -67,10 +97,18 @@ async function buildContext() {
   } else {
     const co = readJson(coPath);
     // Flatten results[].candidates[] — each candidate carries its parent milestone.
-    const cands = Array.isArray(co?.results)
+    const allCands = Array.isArray(co?.results)
       ? co.results.flatMap((r) => (Array.isArray(r.candidates) ? r.candidates.map((c) => ({ ...c, milestone: c.milestone || r.milestone })) : []))
       : [];
-    lines.push(`✓ CLOSE-OUT-CANDIDATES fresh (${coAge.toFixed(1)}h, ${cands.length} candidate(s))`);
+    // Subtract anything already deferred (composite OR bare unit_id match).
+    const cands = allCands.filter((c) => {
+      const unit = c.unit_id || c.unit || "?";
+      const composite = `${c.milestone}/${unit}`;
+      return !deferredIds.has(composite) && !deferredIds.has(unit);
+    });
+    const deferredHit = allCands.length - cands.length;
+    const totalNote = deferredHit > 0 ? ` (${deferredHit} already deferred)` : "";
+    lines.push(`✓ CLOSE-OUT-CANDIDATES fresh (${coAge.toFixed(1)}h, ${cands.length} pending triage${totalNote})`);
     if (cands.length > 0) {
       lines.push(`   Pending triage:`);
       for (const c of cands.slice(0, 3)) {
@@ -80,19 +118,8 @@ async function buildContext() {
     }
   }
 
-  // Deferred list awareness. Entry format under `## Entries`:
-  //   <unit-id> | <who> | <iso-ts> | <reason>
-  const deferred = path.join(STATE_DIR, "CLOSE-OUT-DEFERRED.md");
-  if (fs.existsSync(deferred)) {
-    try {
-      const content = fs.readFileSync(deferred, "utf-8");
-      // A deferral entry = a line with ≥3 pipe-delimited fields whose first
-      // field looks like a unit/milestone id (not a markdown table header/rule).
-      const items = (content.match(/^[A-Za-z][\w.-]*\s*\|.*\|.*\|/gm) || [])
-        .filter((l) => !/^\s*[-|]+\s*\|/.test(l)) // exclude `|---|` table rules
-        .length;
-      lines.push(`· CLOSE-OUT-DEFERRED: ${items} explicit deferral(s) registered`);
-    } catch { /* skip */ }
+  if (deferredCount > 0) {
+    lines.push(`· CLOSE-OUT-DEFERRED: ${deferredCount} explicit deferral(s) registered`);
   }
 
   // Sibling-unit shipped check (which milestone are we in?)
