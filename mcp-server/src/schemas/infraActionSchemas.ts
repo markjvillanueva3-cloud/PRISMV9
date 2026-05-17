@@ -120,4 +120,19 @@ export const ACTION_INFRA_SCHEMAS: Record<string, z.ZodObject<any>> = {
   ingestion_stats: z.object({}),
   /** Read-only list of failed ingestion records (no params). */
   ingestion_get_failed: z.object({}),
+
+  // ── WIRE-UNWIRED-MS0/U-WIRE-PERFBUDGET: PerformanceBudgetEngine ────────────
+  /** Read-only — list all registered performance budgets (no params). */
+  perf_budget_list: z.object({}),
+  /** Read-only — stats for one operation (operation_id required) or all (no params). */
+  perf_budget_stats: z.object({
+    operation_id: z.string().min(1).optional().describe("Specific operation to fetch stats for; omit for all"),
+    operationId: z.string().min(1).optional().describe("camelCase alias for operation_id"),
+  }),
+  /** Read-only — recent budget violations (optional limit, default 100). */
+  perf_budget_violations: z.object({
+    limit: z.number().int().positive().max(10000).optional().describe("Max violations to return (default 100)"),
+  }),
+  /** Read-only — full budget report (no params). */
+  perf_budget_report: z.object({}),
 };

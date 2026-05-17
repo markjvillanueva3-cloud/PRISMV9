@@ -38,6 +38,8 @@ export function registerInfraDispatcher(server: McpServer): void {
         "auth_health", "usage_stats", "calibration_status", "calibration_overrides_preview",
         // WIRE-UNWIRED-MS0/U-WIRE-INGEST: IngestionOrchestratorEngine read-only observability
         "ingestion_stats", "ingestion_get_failed",
+        // WIRE-UNWIRED-MS0/U-WIRE-PERFBUDGET: PerformanceBudgetEngine read-only observability
+        "perf_budget_list", "perf_budget_stats", "perf_budget_violations", "perf_budget_report",
       ]).describe("Infrastructure action"),
       params: z.record(z.string(), z.any()).optional().describe("Action parameters"),
     },
@@ -361,6 +363,34 @@ export function registerInfraDispatcher(server: McpServer): void {
           case "ingestion_get_failed": {
             const { ingestionOrchestratorEngine } = await import("../../engines/IngestionOrchestratorEngine.js");
             result = { failed: ingestionOrchestratorEngine.getFailedRecords() };
+            break;
+          }
+          // WIRE-UNWIRED-MS0/U-WIRE-PERFBUDGET: PerformanceBudgetEngine read-only observability
+          case "perf_budget_list": {
+            const { performanceBudgetEngine } = await import("../../engines/PerformanceBudgetEngine.js");
+            result = { budgets: performanceBudgetEngine.listBudgets() };
+            break;
+          }
+          case "perf_budget_stats": {
+            const { performanceBudgetEngine } = await import("../../engines/PerformanceBudgetEngine.js");
+            const opId = (params as { operation_id?: string; operationId?: string }).operation_id
+              ?? (params as { operation_id?: string; operationId?: string }).operationId;
+            if (opId) {
+              result = { stats: performanceBudgetEngine.getStats(opId) };
+            } else {
+              result = { stats: performanceBudgetEngine.getAllStats() };
+            }
+            break;
+          }
+          case "perf_budget_violations": {
+            const { performanceBudgetEngine } = await import("../../engines/PerformanceBudgetEngine.js");
+            const limit = (params as { limit?: number }).limit ?? 100;
+            result = { violations: performanceBudgetEngine.getViolations(limit) };
+            break;
+          }
+          case "perf_budget_report": {
+            const { performanceBudgetEngine } = await import("../../engines/PerformanceBudgetEngine.js");
+            result = { report: performanceBudgetEngine.generateReport() };
             break;
           }
         }
