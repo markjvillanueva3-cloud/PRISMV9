@@ -926,12 +926,14 @@ export class WireEDMMasterAIEngine {
     // Query tribal knowledge for innovations
     const keywords = ["wire edm", material, "innovation", "improvement"];
     try {
-      const tips = tribalKnowledgeEngine.search(keywords.join(" "), 5);
+      // search() takes a single KnowledgeSearchInput object (was positional query+limit).
+      const tips = tribalKnowledgeEngine.search({ query: keywords.join(" "), limit: 5 });
       for (const tip of tips.slice(0, 2)) {
-        if (tip.content) {
+        // KnowledgeTip canonical shape: `body` not `content`.
+        if (tip.body) {
           innovations.push({
             source: "tribal_knowledge",
-            description: tip.content.slice(0, 150),
+            description: tip.body.slice(0, 150),
             applicability: 0.7,
             novelty: "incremental",
           });
@@ -1113,7 +1115,7 @@ export class WireEDMMasterAIEngine {
 
         case "WEDMFeedbackCalibrationEngine": {
           const { wedmFeedbackCalibrationEngine } = await import("./WEDMFeedbackCalibrationEngine.js");
-          const calibration = wedmFeedbackCalibrationEngine.getCalibration(
+          const calibration = wedmFeedbackCalibrationEngine.get_calibration(
             request.material ?? "D2",
             request.thickness_mm ?? 25
           );
@@ -1165,12 +1167,15 @@ export class WireEDMMasterAIEngine {
     if (request.target_ra_um && request.target_ra_um < 0.3) keywords.push("finish", "skim");
 
     try {
-      const tips = tribalKnowledgeEngine.search(keywords.join(" "), 10);
+      // search() takes a single KnowledgeSearchInput object (was positional query+limit).
+      const tips = tribalKnowledgeEngine.search({ query: keywords.join(" "), limit: 10 });
       for (const tip of tips) {
+        // KnowledgeTip canonical shape: id/body (not tip_id/content); no `relevance`
+        // field — confidence is 0-100, scale to 0-1 for the local refs[] slot.
         refs.push({
           tip_id: tip.id,
-          content: tip.content,
-          relevance: tip.relevance ?? 0.7,
+          content: tip.body,
+          relevance: tip.confidence != null ? tip.confidence / 100 : 0.7,
           source: tip.source ?? "JM Die tribal knowledge",
         });
       }
