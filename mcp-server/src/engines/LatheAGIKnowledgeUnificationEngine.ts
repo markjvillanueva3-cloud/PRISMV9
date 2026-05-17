@@ -25,6 +25,16 @@ import { existsSync, readFileSync, mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 import { atomicWriteJson } from "../utils/atomicSessionWrite.js";
 import { CANONICAL_KIENZLE, CANONICAL_TAYLOR } from "../physics/constants.js";
+import {
+  KIENZLE_TIPS,
+  TAYLOR_TIPS,
+  THERMAL_TIPS,
+  METALLURGY_TIPS,
+  CHEMISTRY_TIPS,
+  CHIP_PHYSICS_TIPS,
+  DYNAMICS_TIPS,
+} from "../data/lathe-physics-science-tips.js";
+import { OKUMA_LATHE_TRIBAL_TIPS } from "../data/lathe-tribal-tips-okuma.js";
 
 // ============================================================================
 // CONSTANTS
@@ -34,6 +44,10 @@ const MIN_REASONING_STEPS = 5;
 const MAX_HOPS = 6;
 const MAX_NODES = 5000;
 const MAX_EDGES = 20000;
+/** Cap on tribal tips seeded per construction to bound state size. */
+const MAX_TRIBAL_SEED_NODES = 500;
+/** Domain label stamped on every seeded tip node for provenance. */
+const LATHE_TRIBAL_DOMAIN = "lathe";
 
 // ============================================================================
 // SCHEMAS
@@ -128,6 +142,116 @@ export interface ReasoningTrace {
   reason: string;
 }
 
+/**
+ * Outcome of seeding tribal tips into the unified KG.
+ *
+ *  - `seeded`              : tribal source returned ≥1 tip and ≥1 was added
+ *  - `empty`               : tribal source returned 0 tips OR every entry failed
+ *                            schema normalization
+ *  - `unavailable`         : tribal source threw OR returned non-array
+ *  - `skipped_idempotent`  : state already had tip nodes from a prior boot
+ */
+export type TribalSeedStatus =
+  | "seeded"
+  | "empty"
+  | "unavailable"
+  | "skipped_idempotent";
+
+/**
+ * Tip catalogs (`lathe-physics-science-tips`, `lathe-tribal-tips-okuma`) use
+ * two parallel TribalTip shapes. We accept any `Record<string, unknown>` and
+ * normalize internally so the seam stays loose for tests + future sources.
+ */
+export type LatheTribalSourceFn = () => Array<Record<string, unknown>>;
+
+/**
+ * Normalized tip emitted by `normalizeTribalTip` — convergent shape across the
+ * physics-science (`tip_id`/`description`) and Okuma (`id`/`tip`) catalogs.
+ */
+export interface NormalizedTribalTip {
+  id: string;
+  title: string;
+  body: string;
+  category: string;
+  confidence: number;
+  source: string;
+  tags: string[];
+  material_groups?: string[];
+  iso_groups?: string[];
+}
+
+/**
+ * Default tribal source: concatenated static catalogs. Deterministic, no I/O.
+ * Order is stable (physics first, Okuma last) so seeded ids are reproducible.
+ */
+export function defaultLatheTribalSource(): Array<Record<string, unknown>> {
+  return [
+    ...KIENZLE_TIPS,
+    ...TAYLOR_TIPS,
+    ...THERMAL_TIPS,
+    ...METALLURGY_TIPS,
+    ...CHEMISTRY_TIPS,
+    ...CHIP_PHYSICS_TIPS,
+    ...DYNAMICS_TIPS,
+    ...OKUMA_LATHE_TRIBAL_TIPS,
+  ] as unknown as Array<Record<string, unknown>>;
+}
+
+/**
+ * Convert a heterogeneous tip record into the canonical NormalizedTribalTip.
+ * Returns null on records missing a usable id — caller treats null as
+ * a normalization failure (counted toward the `empty` status if all fail).
+ */
+export function normalizeTribalTip(
+  raw: Record<string, unknown>,
+): NormalizedTribalTip | null {
+  if (!raw || typeof raw !== "object") return null;
+  const id =
+    typeof raw.tip_id === "string" && raw.tip_id.length > 0
+      ? raw.tip_id
+      : typeof raw.id === "string" && raw.id.length > 0
+        ? raw.id
+        : null;
+  if (!id) return null;
+  const title = typeof raw.title === "string" ? raw.title : id;
+  const body =
+    typeof raw.description === "string"
+      ? raw.description
+      : typeof raw.tip === "string"
+        ? raw.tip
+        : "";
+  const category = typeof raw.category === "string" ? raw.category : "general";
+  const rawConfidence =
+    typeof raw.confidence === "number" && Number.isFinite(raw.confidence)
+      ? raw.confidence
+      : 0.7;
+  const confidence = Math.max(0, Math.min(1, rawConfidence));
+  const source = typeof raw.source === "string" ? raw.source : "unknown";
+  const tags = Array.isArray(raw.tags)
+    ? (raw.tags as unknown[]).filter((t): t is string => typeof t === "string")
+    : [];
+  const rawMaterialGroups = (raw as { material_groups?: unknown }).material_groups;
+  const material_groups = Array.isArray(rawMaterialGroups)
+    ? (rawMaterialGroups as unknown[]).filter((m): m is string => typeof m === "string")
+    : undefined;
+  const valuesByIso = (raw as { values_by_iso?: unknown }).values_by_iso;
+  const iso_groups =
+    valuesByIso && typeof valuesByIso === "object" && !Array.isArray(valuesByIso)
+      ? Object.keys(valuesByIso as Record<string, unknown>)
+      : undefined;
+  return {
+    id,
+    title,
+    body,
+    category,
+    confidence,
+    source,
+    tags,
+    material_groups,
+    iso_groups,
+  };
+}
+
 // ============================================================================
 // ENGINE
 // ============================================================================
@@ -137,11 +261,19 @@ const DEFAULT_STATE_PATH = "H:/prism/state/shared/lathe-agi-knowledge-state.json
 class LatheAGIKnowledgeUnificationEngine {
   private state: KnowledgeState;
   private readonly statePath: string;
+  private readonly tribalSource: LatheTribalSourceFn;
+  private tribalSeedStatus: TribalSeedStatus = "unavailable";
+  private tribalSeedCount: number = 0;
 
-  constructor(statePath: string = DEFAULT_STATE_PATH) {
+  constructor(
+    statePath: string = DEFAULT_STATE_PATH,
+    tribalSource: LatheTribalSourceFn = defaultLatheTribalSource,
+  ) {
     this.statePath = statePath;
+    this.tribalSource = tribalSource;
     this.state = this.loadState();
     this.seedCanonicalFormulas();
+    this.seedTribalTips();
   }
 
   upsertNode(input: UpsertNodeInput): Node {
@@ -326,7 +458,13 @@ class LatheAGIKnowledgeUnificationEngine {
   }
 
   /** Stats for dashboard. */
-  stats(): { nodes_by_type: Record<NodeType, number>; edge_count: number; total_nodes: number } {
+  stats(): {
+    nodes_by_type: Record<NodeType, number>;
+    edge_count: number;
+    total_nodes: number;
+    tribal_seed_status: TribalSeedStatus;
+    tribal_seed_count: number;
+  } {
     const counts: Partial<Record<NodeType, number>> = {};
     for (const type of NODE_TYPES) counts[type] = 0;
     for (const node of this.state.nodes) counts[node.type] = (counts[node.type] ?? 0) + 1;
@@ -334,7 +472,14 @@ class LatheAGIKnowledgeUnificationEngine {
       nodes_by_type: counts as Record<NodeType, number>,
       edge_count: this.state.edges.length,
       total_nodes: this.state.nodes.length,
+      tribal_seed_status: this.tribalSeedStatus,
+      tribal_seed_count: this.tribalSeedCount,
     };
+  }
+
+  /** Honest provenance accessor — exposes runtime tribal seed outcome. */
+  getTribalSeedStatus(): { status: TribalSeedStatus; count: number } {
+    return { status: this.tribalSeedStatus, count: this.tribalSeedCount };
   }
 
   // ==========================================================================
@@ -378,6 +523,86 @@ class LatheAGIKnowledgeUnificationEngine {
 
   private nodeExists(type: NodeType, id: string): boolean {
     return this.state.nodes.some((n) => n.type === type && n.id === id);
+  }
+
+  /**
+   * Seed shop-floor tribal tips into the unified KG as `tip` nodes. The
+   * engine's documentation claimed "tribal tips — shop-floor empirical
+   * knowledge by domain" was one of three unified surfaces, but pre-fix
+   * only the formula surface was populated; tip nodes were 0 forever
+   * (audit finding #3 sibling — see MillingAGIMasterEngine for paired fix).
+   *
+   * Idempotency:
+   *   - If state already contains ≥1 tip node, returns "skipped_idempotent".
+   *   - If source throws or returns non-array, returns "unavailable".
+   *   - If source returns 0 items or all fail normalization, returns "empty".
+   *
+   * Honest provenance: never throws — every outcome flows through
+   * `tribalSeedStatus` so consumers can distinguish measured-zero
+   * (`empty`) from measurement-gap (`unavailable`).
+   */
+  private seedTribalTips(): void {
+    const existingTipCount = this.state.nodes.filter((n) => n.type === "tip").length;
+    if (existingTipCount > 0) {
+      this.tribalSeedStatus = "skipped_idempotent";
+      this.tribalSeedCount = existingTipCount;
+      return;
+    }
+
+    let raw: Array<Record<string, unknown>>;
+    try {
+      const result = this.tribalSource();
+      if (!Array.isArray(result)) {
+        this.tribalSeedStatus = "unavailable";
+        return;
+      }
+      raw = result;
+    } catch {
+      this.tribalSeedStatus = "unavailable";
+      return;
+    }
+
+    if (raw.length === 0) {
+      this.tribalSeedStatus = "empty";
+      return;
+    }
+
+    let added = 0;
+    const cap = Math.min(raw.length, MAX_TRIBAL_SEED_NODES);
+    const now = new Date().toISOString();
+    for (let i = 0; i < cap; i++) {
+      const normalized = normalizeTribalTip(raw[i]);
+      if (!normalized) continue;
+      const nodeId = `tip_${normalized.id}`;
+      if (this.nodeExists("tip", nodeId)) continue;
+      this.state.nodes.push({
+        type: "tip",
+        id: nodeId,
+        props: {
+          title: normalized.title,
+          body: normalized.body,
+          category: normalized.category,
+          confidence: normalized.confidence,
+          source: normalized.source,
+          tags: normalized.tags,
+          material_groups: normalized.material_groups ?? [],
+          iso_groups: normalized.iso_groups ?? [],
+          domain: LATHE_TRIBAL_DOMAIN,
+        },
+        created_at: now,
+        updated_at: now,
+      });
+      added++;
+    }
+
+    if (added > 0) {
+      this.tribalSeedStatus = "seeded";
+      this.tribalSeedCount = added;
+      this.persist();
+    } else {
+      this.tribalSeedStatus = "empty";
+      this.tribalSeedCount = 0;
+    }
   }
 
   /**
@@ -464,8 +689,11 @@ class LatheAGIKnowledgeUnificationEngine {
 
   __resetForTests(): void {
     this.state = this.freshState();
+    this.tribalSeedStatus = "unavailable";
+    this.tribalSeedCount = 0;
     this.persist();
     this.seedCanonicalFormulas();
+    this.seedTribalTips();
   }
 
   __getState(): Readonly<KnowledgeState> {

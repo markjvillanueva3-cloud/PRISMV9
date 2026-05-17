@@ -9,12 +9,23 @@ import { join } from "node:path";
 import {
   LatheAGIKnowledgeUnificationEngine,
   NODE_TYPES,
+  normalizeTribalTip,
+  defaultLatheTribalSource,
+  type LatheTribalSourceFn,
 } from "../engines/LatheAGIKnowledgeUnificationEngine.js";
 
 function makeEngine() {
   const dir = mkdtempSync(join(tmpdir(), "kg-"));
   const statePath = join(dir, "state.json");
   const engine = new LatheAGIKnowledgeUnificationEngine(statePath);
+  engine.__resetForTests();
+  return { engine, statePath };
+}
+
+function makeEngineWithSource(source: LatheTribalSourceFn) {
+  const dir = mkdtempSync(join(tmpdir(), "kg-trib-"));
+  const statePath = join(dir, "state.json");
+  const engine = new LatheAGIKnowledgeUnificationEngine(statePath, source);
   engine.__resetForTests();
   return { engine, statePath };
 }
@@ -185,5 +196,179 @@ describe("LatheAGIKnowledgeUnificationEngine — dispatcher wiring", () => {
     expect(src).toContain('"lathe_agi_kg_trace"');
     expect(src).toContain('"../../engines/LatheAGIKnowledgeUnificationEngine.js"');
     expect(src).toContain('case "latheAGIKnowledge"');
+  });
+});
+
+// ============================================================================
+// TRIBAL SEEDING (audit finding #3 sibling — wires the 3rd unified surface)
+// ============================================================================
+
+describe("LatheAGIKnowledgeUnificationEngine — tribal seeding (audit finding #3)", () => {
+  it("seeds tribal tips on construction with default source (REAL-DATA E2E)", () => {
+    const { engine } = makeEngine();
+    const tips = engine.query({ type: "tip" });
+    // Real corpus has KIENZLE/TAYLOR/THERMAL/METALLURGY/CHEMISTRY/CHIP_PHYSICS/
+    // DYNAMICS + OKUMA_LATHE_TRIBAL — at least 20 tips total.
+    expect(tips.nodes.length).toBeGreaterThanOrEqual(20);
+    const seed = engine.getTribalSeedStatus();
+    expect(seed.status).toBe("seeded");
+    expect(seed.count).toBe(tips.nodes.length);
+  });
+
+  it("tip nodes carry domain='lathe' provenance + normalized props", () => {
+    const { engine } = makeEngine();
+    const tips = engine.query({ type: "tip" });
+    expect(tips.nodes.length).toBeGreaterThan(0);
+    const sample = tips.nodes[0];
+    expect(sample.props.domain).toBe("lathe");
+    expect(typeof sample.props.title).toBe("string");
+    expect(typeof sample.props.source).toBe("string");
+    const conf = sample.props.confidence as number;
+    expect(conf).toBeGreaterThanOrEqual(0);
+    expect(conf).toBeLessThanOrEqual(1);
+  });
+
+  it("stats() exposes tribal_seed_status + tribal_seed_count honest provenance", () => {
+    const { engine } = makeEngine();
+    const stats = engine.stats();
+    expect(stats.tribal_seed_status).toBe("seeded");
+    expect(stats.tribal_seed_count).toBeGreaterThan(0);
+    expect(stats.nodes_by_type.tip).toBe(stats.tribal_seed_count);
+  });
+
+  it("DI seam: injected source's tips appear as graph nodes", () => {
+    const stub: LatheTribalSourceFn = () => [
+      { id: "stub-001", title: "Stub Tip 1", tip: "use coolant", category: "tooling", confidence: 0.9, source: "test" },
+      { id: "stub-002", title: "Stub Tip 2", tip: "watch chatter", category: "stability", confidence: 0.85, source: "test" },
+    ];
+    const { engine } = makeEngineWithSource(stub);
+    const tips = engine.query({ type: "tip" });
+    expect(tips.nodes.length).toBe(2);
+    expect(tips.nodes.map((n) => n.id).sort()).toEqual(["tip_stub-001", "tip_stub-002"]);
+    expect(engine.getTribalSeedStatus().status).toBe("seeded");
+  });
+
+  it("status=empty when source returns []", () => {
+    const empty: LatheTribalSourceFn = () => [];
+    const { engine } = makeEngineWithSource(empty);
+    expect(engine.query({ type: "tip" }).nodes.length).toBe(0);
+    expect(engine.getTribalSeedStatus().status).toBe("empty");
+    expect(engine.getTribalSeedStatus().count).toBe(0);
+  });
+
+  it("status=unavailable when source throws", () => {
+    const broken: LatheTribalSourceFn = () => {
+      throw new Error("corpus offline");
+    };
+    const { engine } = makeEngineWithSource(broken);
+    expect(engine.query({ type: "tip" }).nodes.length).toBe(0);
+    expect(engine.getTribalSeedStatus().status).toBe("unavailable");
+  });
+
+  it("status=unavailable when source returns non-array", () => {
+    // Adversarial: source returns wrong shape (e.g. object, null, undefined).
+    const wrong: LatheTribalSourceFn = (() => null) as unknown as LatheTribalSourceFn;
+    const { engine } = makeEngineWithSource(wrong);
+    expect(engine.query({ type: "tip" }).nodes.length).toBe(0);
+    expect(engine.getTribalSeedStatus().status).toBe("unavailable");
+  });
+
+  it("status=empty when every entry fails normalization (no id field)", () => {
+    const malformed: LatheTribalSourceFn = () => [
+      { title: "Missing id", tip: "drift" },
+      { description: "Also missing id" },
+    ];
+    const { engine } = makeEngineWithSource(malformed);
+    expect(engine.query({ type: "tip" }).nodes.length).toBe(0);
+    expect(engine.getTribalSeedStatus().status).toBe("empty");
+  });
+
+  it("idempotent across instances — second boot detects existing tips and skips reseeding", () => {
+    const stub: LatheTribalSourceFn = () => [
+      { id: "persistent-001", title: "Persistent", tip: "x", category: "g", confidence: 0.8, source: "t" },
+    ];
+    const dir = mkdtempSync(join(tmpdir(), "kg-idem-"));
+    const statePath = join(dir, "state.json");
+    const a = new LatheAGIKnowledgeUnificationEngine(statePath, stub);
+    a.__resetForTests();
+    expect(a.getTribalSeedStatus().status).toBe("seeded");
+    // 2nd boot reads existing state from disk — should detect existing tip nodes.
+    const b = new LatheAGIKnowledgeUnificationEngine(statePath, stub);
+    expect(b.getTribalSeedStatus().status).toBe("skipped_idempotent");
+    expect(b.query({ type: "tip" }).nodes.length).toBe(1);
+  });
+
+  it("normalizes both shapes: physics-science (tip_id/description) and Okuma (id/tip)", () => {
+    const phys = normalizeTribalTip({
+      tip_id: "kienzle-001",
+      title: "Kienzle Force",
+      description: "Fc = kc1.1 * ap * f^(1-mc)",
+      category: "cutting_force",
+      confidence: 0.98,
+      source: "Kienzle 1952",
+      tags: ["physics"],
+    });
+    expect(phys?.id).toBe("kienzle-001");
+    expect(phys?.body).toContain("Fc =");
+    expect(phys?.confidence).toBe(0.98);
+
+    const okuma = normalizeTribalTip({
+      id: "okuma-thread-01",
+      title: "Thread Lead",
+      tip: "ramp into thread",
+      category: "threading",
+      confidence: 0.85,
+      source: "operator",
+    });
+    expect(okuma?.id).toBe("okuma-thread-01");
+    expect(okuma?.body).toBe("ramp into thread");
+  });
+
+  it("normalizeTribalTip clamps confidence to [0,1]", () => {
+    expect(normalizeTribalTip({ id: "x", confidence: 99 })?.confidence).toBe(1);
+    expect(normalizeTribalTip({ id: "x", confidence: -5 })?.confidence).toBe(0);
+    expect(normalizeTribalTip({ id: "x", confidence: NaN })?.confidence).toBe(0.7);
+    expect(normalizeTribalTip({ id: "x" })?.confidence).toBe(0.7);
+  });
+
+  it("normalizeTribalTip extracts iso_groups from values_by_iso", () => {
+    const n = normalizeTribalTip({
+      tip_id: "k1",
+      values_by_iso: { P: { kc1_1: 1800 }, M: { kc1_1: 2100 }, K: { kc1_1: 1100 } },
+    });
+    expect(n?.iso_groups?.sort()).toEqual(["K", "M", "P"]);
+  });
+
+  it("normalizeTribalTip returns null when id is missing/blank", () => {
+    expect(normalizeTribalTip({ title: "no id" })).toBeNull();
+    expect(normalizeTribalTip({ id: "" })).toBeNull();
+    expect(normalizeTribalTip({} as Record<string, unknown>)).toBeNull();
+  });
+
+  it("defaultLatheTribalSource returns ≥20 entries spanning both schemas", () => {
+    const raw = defaultLatheTribalSource();
+    expect(Array.isArray(raw)).toBe(true);
+    expect(raw.length).toBeGreaterThanOrEqual(20);
+    // At least one physics-science entry (uses tip_id) and one Okuma (uses id).
+    const hasPhys = raw.some((t) => typeof (t as { tip_id?: unknown }).tip_id === "string");
+    const hasOkuma = raw.some((t) =>
+      typeof (t as { id?: unknown }).id === "string" &&
+      typeof (t as { tip?: unknown }).tip === "string",
+    );
+    expect(hasPhys).toBe(true);
+    expect(hasOkuma).toBe(true);
+  });
+
+  it("REGRESSION: canonical formula seeding still produces exactly 12 nodes", () => {
+    const { engine } = makeEngine();
+    const formulas = engine.query({ type: "formula" });
+    expect(formulas.nodes.length).toBe(12);
+  });
+
+  it("REGRESSION: traceReasoning still pads to ≥5 steps when graph is short", () => {
+    const { engine } = makeEngine();
+    engine.upsertNode({ type: "material", id: "1018-iter7" });
+    const trace = engine.traceReasoning({ start_type: "material", start_id: "1018-iter7" });
+    expect(trace.steps.length).toBeGreaterThanOrEqual(5);
   });
 });
