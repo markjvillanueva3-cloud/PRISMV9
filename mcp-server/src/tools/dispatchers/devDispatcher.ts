@@ -357,7 +357,13 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // cold tiering. All methods pure. getTier(Date) NOT wired (Date isn't
 // JSON-serializable); equivalent semantics via lre_classify + lre_tier_of.
 "lre_get_config", "lre_get_retention_policy", "lre_classify",
-"lre_tier_of", "lre_plan", "lre_archive_dir_for"] as const;
+"lre_tier_of", "lre_plan", "lre_archive_dir_for",
+// WIRE-UNWIRED-MS0/U-WIRE-PR: PageRankEngine — USSH-0.25 graph importance.
+// Engine is stateful (loadGraph mutates adjacency) — each wire action
+// bundles `loadGraph + op` atomically. setConfig/reset NOT WIRED.
+// Per-call config via optional `config` param; result Maps → Object.fromEntries.
+"pr_compute_scores", "pr_analyze_graph", "pr_find_critical_nodes",
+"pr_compute_hits", "pr_topological_sort", "pr_detect_cycles"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -2191,6 +2197,81 @@ export function registerDevDispatcher(server: any): void {
             } catch (e) {
               result = { iso, error: `archive_dir_for failed: ${(e as Error).message}` };
             }
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-PR: PageRankEngine ───────────────────
+          // Engine is stateful — instantiate a FRESH PageRankEngine per call
+          // so peer dispatcher calls can't race on shared adjacency/scores.
+          // (singleton stays untouched.)
+          case "pr_compute_scores": {
+            const { PageRankEngine } = await import("../../engines/PageRankEngine.js");
+            const p = params as { graph: { nodes: Array<{ id: string; label?: string }>; edges: Array<{ source: string; target: string; weight?: number }> }; personalization?: Array<{ nodeId: string; weight: number }>; config?: Record<string, unknown> };
+            const pr = new PageRankEngine(p.config as any);
+            pr.loadGraph(p.graph);
+            const res = pr.compute(p.personalization);
+            result = {
+              scores: Object.fromEntries(res.scores),
+              iterations: res.iterations,
+              converged: res.converged,
+              residual: res.residual,
+              topNodes: res.topNodes,
+              node_count: res.scores.size,
+            };
+            break;
+          }
+          case "pr_analyze_graph": {
+            const { PageRankEngine } = await import("../../engines/PageRankEngine.js");
+            const p = params as { graph: any };
+            const pr = new PageRankEngine();
+            pr.loadGraph(p.graph);
+            const analysis = pr.analyzeGraph();
+            result = { analysis };
+            break;
+          }
+          case "pr_find_critical_nodes": {
+            const { PageRankEngine } = await import("../../engines/PageRankEngine.js");
+            const p = params as { graph: any; threshold?: number };
+            const pr = new PageRankEngine();
+            pr.loadGraph(p.graph);
+            // Engine needs scores populated before findCriticalNodes — compute first
+            pr.compute();
+            const critical = pr.findCriticalNodes(p.threshold ?? 0.8);
+            result = { critical_nodes: critical, count: critical.length };
+            break;
+          }
+          case "pr_compute_hits": {
+            const { PageRankEngine } = await import("../../engines/PageRankEngine.js");
+            const p = params as { graph: any; max_iterations?: number };
+            const pr = new PageRankEngine();
+            pr.loadGraph(p.graph);
+            const hits = pr.computeHITS(p.max_iterations ?? 50);
+            // hits.hubs / hits.authorities are likely Maps → convert
+            const hubsAny = (hits as any).hubs;
+            const authAny = (hits as any).authorities;
+            const hubs = hubsAny instanceof Map ? Object.fromEntries(hubsAny) : hubsAny;
+            const authorities = authAny instanceof Map ? Object.fromEntries(authAny) : authAny;
+            result = { hubs, authorities };
+            break;
+          }
+          case "pr_topological_sort": {
+            const { PageRankEngine } = await import("../../engines/PageRankEngine.js");
+            const p = params as { graph: any };
+            const pr = new PageRankEngine();
+            pr.loadGraph(p.graph);
+            const sorted = pr.topologicalSort();
+            // Explicit discriminator — slimResponse strips null silently
+            result = sorted === null
+              ? { acyclic: false, sorted: null }
+              : { acyclic: true, sorted, count: sorted.length };
+            break;
+          }
+          case "pr_detect_cycles": {
+            const { PageRankEngine } = await import("../../engines/PageRankEngine.js");
+            const p = params as { graph: any };
+            const pr = new PageRankEngine();
+            pr.loadGraph(p.graph);
+            const cycles = pr.detectCycles();
+            result = { cycles, count: cycles.length };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-CEX: CatalogExtractionEngine ─────────

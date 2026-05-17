@@ -2068,4 +2068,118 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     iso: z.string().min(1).max(64)
       .describe("ISO timestamp — engine yields the bare 'YYYY-MM' subdir name"),
   }).describe("Compute the archive subdir name (bare 'YYYY-MM'; caller prefixes 'archive/' as needed). Pure."),
+
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-PR: PageRankEngine wiring ──
+  // USSH Phase 0.25 graph-importance scoring. Engine is stateful (loadGraph
+  // mutates internal adjacency + scores) — each wire action bundles
+  // `loadGraph + op` atomically so peer calls don't race on shared state.
+  // setConfig() + reset() NOT WIRED (cross-call config drift is hostile to
+  // a shared singleton); config is per-call via optional `config` param.
+  // DoS guards: ≤10k nodes, ≤100k edges, ≤1000 max_iterations.
+  pr_compute_scores: z.object({
+    graph: z.object({
+      nodes: z.array(z.object({
+        id: z.string().min(1).max(256),
+        label: z.string().max(256).optional(),
+        metadata: z.record(z.string(), z.unknown()).optional(),
+      }).passthrough()).min(1).max(10_000),
+      edges: z.array(z.object({
+        source: z.string().min(1).max(256),
+        target: z.string().min(1).max(256),
+        weight: z.number().nonnegative().max(1e9).optional(),
+      }).passthrough()).max(100_000),
+    }).describe("DependencyGraph {nodes[], edges[]} — node id charset bounded by Map key sanity"),
+    personalization: z.array(z.object({
+      nodeId: z.string().min(1).max(256),
+      weight: z.number().nonnegative().max(1).describe("[0,1] weight for personalized PageRank"),
+    }).passthrough()).max(10_000).optional()
+      .describe("Optional personalization vector for biased PageRank"),
+    config: z.object({
+      damping_factor: z.number().min(0).max(1).optional().describe("Typically 0.85"),
+      max_iterations: z.number().int().positive().max(1000).optional(),
+      convergence_threshold: z.number().positive().max(1).optional(),
+      top_k: z.number().int().positive().max(1000).optional(),
+      normalize_weights: z.boolean().optional(),
+    }).passthrough().optional()
+      .describe("Per-call config overrides (engine never persists)"),
+  }).describe("Load + compute PageRank scores in one atomic call. Returns {scores, iterations, converged, residual, topNodes}."),
+
+  pr_analyze_graph: z.object({
+    graph: z.object({
+      nodes: z.array(z.object({
+        id: z.string().min(1).max(256),
+        label: z.string().max(256).optional(),
+        metadata: z.record(z.string(), z.unknown()).optional(),
+      }).passthrough()).min(1).max(10_000),
+      edges: z.array(z.object({
+        source: z.string().min(1).max(256),
+        target: z.string().min(1).max(256),
+        weight: z.number().nonnegative().max(1e9).optional(),
+      }).passthrough()).max(100_000),
+    }),
+  }).describe("Load + analyze graph: {node_count, edge_count, density, avg_degree, strongly_connected, orphan/sink/source_nodes}. Pure."),
+
+  pr_find_critical_nodes: z.object({
+    graph: z.object({
+      nodes: z.array(z.object({
+        id: z.string().min(1).max(256),
+        label: z.string().max(256).optional(),
+        metadata: z.record(z.string(), z.unknown()).optional(),
+      }).passthrough()).min(1).max(10_000),
+      edges: z.array(z.object({
+        source: z.string().min(1).max(256),
+        target: z.string().min(1).max(256),
+        weight: z.number().nonnegative().max(1e9).optional(),
+      }).passthrough()).max(100_000),
+    }),
+    threshold: z.number().min(0).max(1).optional()
+      .describe("PageRank score percentile threshold (default 0.8)"),
+  }).describe("Load + identify high-PR critical-path nodes. Pure."),
+
+  pr_compute_hits: z.object({
+    graph: z.object({
+      nodes: z.array(z.object({
+        id: z.string().min(1).max(256),
+        label: z.string().max(256).optional(),
+        metadata: z.record(z.string(), z.unknown()).optional(),
+      }).passthrough()).min(1).max(10_000),
+      edges: z.array(z.object({
+        source: z.string().min(1).max(256),
+        target: z.string().min(1).max(256),
+        weight: z.number().nonnegative().max(1e9).optional(),
+      }).passthrough()).max(100_000),
+    }),
+    max_iterations: z.number().int().positive().max(1000).optional()
+      .describe("HITS iteration cap (default 50)"),
+  }).describe("Load + compute HITS hubs/authorities. Pure."),
+
+  pr_topological_sort: z.object({
+    graph: z.object({
+      nodes: z.array(z.object({
+        id: z.string().min(1).max(256),
+        label: z.string().max(256).optional(),
+        metadata: z.record(z.string(), z.unknown()).optional(),
+      }).passthrough()).min(1).max(10_000),
+      edges: z.array(z.object({
+        source: z.string().min(1).max(256),
+        target: z.string().min(1).max(256),
+        weight: z.number().nonnegative().max(1e9).optional(),
+      }).passthrough()).max(100_000),
+    }),
+  }).describe("Load + topological sort. Returns null when graph contains cycles. Pure."),
+
+  pr_detect_cycles: z.object({
+    graph: z.object({
+      nodes: z.array(z.object({
+        id: z.string().min(1).max(256),
+        label: z.string().max(256).optional(),
+        metadata: z.record(z.string(), z.unknown()).optional(),
+      }).passthrough()).min(1).max(10_000),
+      edges: z.array(z.object({
+        source: z.string().min(1).max(256),
+        target: z.string().min(1).max(256),
+        weight: z.number().nonnegative().max(1e9).optional(),
+      }).passthrough()).max(100_000),
+    }),
+  }).describe("Load + DFS cycle detection. Returns [] when acyclic. Pure."),
 };
