@@ -133,15 +133,30 @@ function main() {
   }
   if (!existsSync(LESSONS_DIR)) { try { mkdirSync(LESSONS_DIR, { recursive: true }); } catch {} }
   const promoted = [];
+  let groupsAtThreshold = 0;
+  let groupsAlreadyDrafted = 0;
   for (const [fp, occ] of Object.entries(groups)) {
     if (occ.length < THRESHOLD) continue;
+    groupsAtThreshold += 1;
     const path = draftStub(fp, occ);
     if (path) promoted.push({ fingerprint: fp, count: occ.length, path });
+    else groupsAlreadyDrafted += 1;
   }
   if (promoted.length) {
     tele("drafted", { count: promoted.length, fingerprints: promoted.map(p => p.fingerprint) });
     out({ systemMessage: `error-pattern-promote: drafted ${promoted.length} lesson stub(s): ${promoted.map(p => p.fingerprint).join(", ")}` });
-  } else { tele("noop_below_threshold", { groups: Object.keys(groups).length, recent: recent.length }); out({}); }
+  } else if (groupsAtThreshold > 0) {
+    // All threshold-meeting groups already have a stub — that's the
+    // healthy steady state (hook keeps watching, no new patterns yet).
+    // Distinct from noop_below_threshold so fleet telemetry doesn't
+    // misread the hook as 'not catching errors' when it's actually
+    // doing its job.
+    tele("noop_all_drafted", { groupsAtThreshold, groupsAlreadyDrafted, recent: recent.length });
+    out({});
+  } else {
+    tele("noop_below_threshold", { groups: Object.keys(groups).length, recent: recent.length });
+    out({});
+  }
 }
 
 function out(obj) { try { process.stdout.write(JSON.stringify({ continue: true, ...obj })); } catch {} }
