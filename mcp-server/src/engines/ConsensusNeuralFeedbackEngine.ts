@@ -45,6 +45,27 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { createHash } from "node:crypto";
 
+import { feedbackBusEngine, type SubscriptionHandle } from "./FeedbackBusEngine.js";
+import { CONSENSUS_COMPLETED_TOPIC } from "./MultiModelConsensusEngine.js";
+
+/**
+ * Bus topic broadcast after every successful `record()` (NOT on dedup or error).
+ * NN-STACK-INTEG-MS0/U-NN-INTEG-03+05.
+ *
+ * Payload shape:
+ * ```
+ * {
+ *   prompt_hash:    string;  // sha256 of normalized prompt — joins to NeuralFeedDatum
+ *   reward:         number;  // composite [0,1]
+ *   task_type:      string;
+ *   source_session: string;
+ *   ts:             string;  // ISO timestamp
+ *   feedPath:       string;  // where the JSONL line landed (operator forensic)
+ * }
+ * ```
+ */
+export const NEURAL_FEEDBACK_RECORDED_TOPIC = "neural.consensus.feedback";
+
 export interface NeuralFeedInput {
   prompt: string;
   taskType?: string;
@@ -111,22 +132,80 @@ export interface FeedResult {
   reward: number;
   bytesWritten: number;
   error: string | null;
+  /**
+   * True when the call short-circuited because the same prompt was recorded
+   * within `DEDUP_TTL_MS`. No JSONL line was appended, no bus event was
+   * published. The bridge-imperative call (ConsensusAIBridgeEngine.reason)
+   * + the CONSENSUS_COMPLETED_TOPIC subscriber both pass through `record()`,
+   * so without this guard the same consensus would be recorded TWICE.
+   * NN-STACK-INTEG-MS0/U-NN-INTEG-03+05.
+   */
+  deduped?: boolean;
 }
 
 const SCHEMA_VERSION = "1.0.0";
 const DEFAULT_FEED_PATH = process.env.CONSENSUS_NEURAL_FEED ?? "H:/prism/state/shared/CONSENSUS_NEURAL_FEED.jsonl";
 const PROMPT_CAP_BYTES = 4096;
 const LATENCY_HALF_LIFE_MS = 60_000;
+/**
+ * Prompt-hash dedup TTL. If the same prompt is record()'d again within this
+ * window, the call is a no-op. Set to 60s because the bridge-imperative call
+ * and the bus subscriber typically arrive within microseconds of each other;
+ * 60s is a healthy safety margin against operator double-clicks.
+ * Knob: PRISM_NN_FEED_DEDUP_TTL_MS overrides (set to 0 to disable dedup).
+ */
+const DEDUP_TTL_MS = Number.parseInt(process.env.PRISM_NN_FEED_DEDUP_TTL_MS ?? "60000", 10);
 
 export class ConsensusNeuralFeedbackEngine {
+  /**
+   * Last-record timestamps per prompt-hash, for the dedup window. Cleared
+   * lazily on every record() call (entries older than DEDUP_TTL_MS are
+   * dropped) — pure in-process map, no IO, no growth-unbounded risk under
+   * normal use because old entries age out on every visit.
+   */
+  private readonly recentHashes: Map<string, number> = new Map();
+
   /**
    * Append one training datum for the given consensus run. Returns the path
    * + reward + bytes-written. Never throws — all errors surface in the
    * returned `error` field so a fire-and-forget caller can drop the result.
+   *
+   * **Dedup contract**: the same prompt-hash within `DEDUP_TTL_MS` is a no-op
+   * — no JSONL write, no bus publish. This protects against the dual-arrival
+   * pattern where the bridge imperative call (ConsensusAIBridgeEngine.reason)
+   * AND the CONSENSUS_COMPLETED_TOPIC subscriber both call record() with the
+   * same payload. Without this, every consensus would be recorded twice.
+   * NN-STACK-INTEG-MS0/U-NN-INTEG-03+05.
+   *
+   * **Bus contract**: on every SUCCESSFUL append (not on dedup, not on
+   * buildDatum error, not on appendFile error), the engine publishes
+   * `NEURAL_FEEDBACK_RECORDED_TOPIC` so downstream learners (a future LoRA
+   * trainer trigger, the live dashboard) get notified without polling.
+   * The publish is fire-and-forget under the same contract as the persist
+   * + consensus.completed blocks — a bus error never fails a successful
+   * record. Gated by `PRISM_NN_INTEG_DISABLE=1`.
    */
   record(input: NeuralFeedInput): FeedResult {
     const feedPath = input.feedPath ?? DEFAULT_FEED_PATH;
     const promptHash = this.hashPrompt(input.prompt);
+
+    // Dedup gate — short-circuit if this prompt was recorded within the TTL.
+    // Disabled when DEDUP_TTL_MS <= 0 (operator override for tests / replay).
+    if (DEDUP_TTL_MS > 0) {
+      const now = Date.now();
+      const prev = this.recentHashes.get(promptHash);
+      if (prev !== undefined && now - prev < DEDUP_TTL_MS) {
+        return { ok: true, feedPath, promptHash, reward: 0, bytesWritten: 0, error: null, deduped: true };
+      }
+      // Opportunistic GC — drop entries older than the TTL so the map stays
+      // bounded across long-running sessions. O(map.size) per call is fine
+      // for the expected scale (consensus runs are seconds-apart, not ms).
+      if (this.recentHashes.size > 0) {
+        for (const [h, t] of this.recentHashes) {
+          if (now - t >= DEDUP_TTL_MS) this.recentHashes.delete(h);
+        }
+      }
+    }
 
     let datum: NeuralFeedDatum;
     try {
@@ -140,10 +219,42 @@ export class ConsensusNeuralFeedbackEngine {
     try {
       fs.mkdirSync(path.dirname(feedPath), { recursive: true });
       fs.appendFileSync(feedPath, line, "utf-8");
+
+      // Stamp dedup map AFTER successful write — a failed write should NOT
+      // dedup the next attempt (otherwise a transient disk error silently
+      // drops a follow-up record).
+      if (DEDUP_TTL_MS > 0) this.recentHashes.set(promptHash, Date.now());
+
+      // Fire-and-forget broadcast. Same contract as MultiModelConsensusEngine's
+      // consensus.completed publish: bus errors swallowed; disable knob
+      // PRISM_NN_INTEG_DISABLE=1 reverts to pre-integration behavior.
+      if (process.env.PRISM_NN_INTEG_DISABLE !== "1") {
+        try {
+          feedbackBusEngine.publish(NEURAL_FEEDBACK_RECORDED_TOPIC, {
+            prompt_hash: promptHash,
+            reward: datum.reward,
+            task_type: datum.task_type,
+            source_session: datum.source_session,
+            ts: datum.ts,
+            feedPath,
+          });
+        } catch {
+          // swallowed — fire-and-forget contract
+        }
+      }
+
       return { ok: true, feedPath, promptHash, reward: datum.reward, bytesWritten: line.length, error: null };
     } catch (e) {
       return { ok: false, feedPath, promptHash, reward: datum.reward, bytesWritten: 0, error: (e as Error).message };
     }
+  }
+
+  /**
+   * Clear the in-process dedup state. Tests use this to exercise back-to-back
+   * record() calls with the same prompt without waiting out the TTL window.
+   */
+  resetDedup(): void {
+    this.recentHashes.clear();
   }
 
   /**
@@ -248,3 +359,45 @@ export class ConsensusNeuralFeedbackEngine {
 }
 
 export const consensusNeuralFeedbackEngine = new ConsensusNeuralFeedbackEngine();
+
+/**
+ * Module-level subscription that wires this engine to MultiModelConsensusEngine's
+ * `consensus.completed` topic. Lives outside the class so test instances created
+ * via `new ConsensusNeuralFeedbackEngine()` do NOT auto-subscribe — only the
+ * singleton wires itself to the global bus. Tests subscribe manually if needed.
+ *
+ * Disable knob: `PRISM_NN_INTEG_DISABLE=1` short-circuits both publish (in
+ * MultiModelConsensusEngine) AND this subscription, reverting the stack to its
+ * pre-integration behavior. NN-STACK-INTEG-MS0/U-NN-INTEG-03+05.
+ *
+ * The handle is exported for explicit teardown in long-lived test harnesses
+ * (vitest hot-reload, e.g.) — production code should never unsubscribe.
+ */
+export const consensusBusSubscriptionHandle: SubscriptionHandle | null =
+  process.env.PRISM_NN_INTEG_DISABLE === "1"
+    ? null
+    : feedbackBusEngine.subscribe(CONSENSUS_COMPLETED_TOPIC, (event) => {
+        const payload = event.payload as {
+          prompt: string;
+          taskType?: string;
+          sourceSession?: string;
+          result: ConsensusResultLike;
+        } | null;
+        if (!payload || typeof payload.prompt !== "string" || !payload.result) {
+          // Hostile-payload class: the bus accepts `unknown` payloads, so an
+          // unrelated publisher (or a future schema-evolving caller) could
+          // emit a malformed event on this topic. Treat anything that fails
+          // shape-check as a silent skip — never throw, never partially record.
+          return;
+        }
+        // The bridge-imperative path will ALSO call record(); the dedup gate
+        // inside record() ensures only one JSONL line + one bus publish per
+        // (prompt-hash, 60s) window. So this subscriber is idempotent with
+        // respect to the imperative path.
+        consensusNeuralFeedbackEngine.record({
+          prompt: payload.prompt,
+          taskType: payload.taskType,
+          sourceSession: payload.sourceSession,
+          result: payload.result,
+        });
+      });
