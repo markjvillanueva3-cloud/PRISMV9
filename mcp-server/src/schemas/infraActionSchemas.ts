@@ -135,4 +135,24 @@ export const ACTION_INFRA_SCHEMAS: Record<string, z.ZodObject<any>> = {
   }),
   /** Read-only — full budget report (no params). */
   perf_budget_report: z.object({}),
+
+  // ── WIRE-UNWIRED-MS0/U-WIRE-REGFED: RegistryFederationEngine ───────────────
+  /** Read-only — federated query across registries. */
+  registry_fed_query: z.object({
+    query: z.string().min(1).describe("Free-text query string"),
+    registries: z.array(z.string()).optional().describe("Limit search to these registry IDs"),
+    limit: z.number().int().positive().max(1000).optional().describe("Max results (default 50)"),
+  }),
+  /** Read-only — single registry info by ID. */
+  registry_fed_get: z.object({
+    id: z.string().min(1).optional().describe("Registry ID"),
+    registry_id: z.string().min(1).optional().describe("snake_case alias for id"),
+  }).refine(
+    (d) => (typeof d.id === "string" && d.id.length > 0) || (typeof d.registry_id === "string" && d.registry_id.length > 0),
+    { message: "registry_fed_get requires non-empty 'id' (or 'registry_id')" },
+  ),
+  /** Read-only — list every registry (no params). */
+  registry_fed_list: z.object({}),
+  /** Read-only — federation-wide stats (no params). */
+  registry_fed_stats: z.object({}),
 };

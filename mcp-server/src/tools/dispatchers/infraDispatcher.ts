@@ -40,6 +40,8 @@ export function registerInfraDispatcher(server: McpServer): void {
         "ingestion_stats", "ingestion_get_failed",
         // WIRE-UNWIRED-MS0/U-WIRE-PERFBUDGET: PerformanceBudgetEngine read-only observability
         "perf_budget_list", "perf_budget_stats", "perf_budget_violations", "perf_budget_report",
+        // WIRE-UNWIRED-MS0/U-WIRE-REGFED: RegistryFederationEngine read-only federation
+        "registry_fed_query", "registry_fed_get", "registry_fed_list", "registry_fed_stats",
       ]).describe("Infrastructure action"),
       params: z.record(z.string(), z.any()).optional().describe("Action parameters"),
     },
@@ -391,6 +393,30 @@ export function registerInfraDispatcher(server: McpServer): void {
           case "perf_budget_report": {
             const { performanceBudgetEngine } = await import("../../engines/PerformanceBudgetEngine.js");
             result = { report: performanceBudgetEngine.generateReport() };
+            break;
+          }
+          // WIRE-UNWIRED-MS0/U-WIRE-REGFED: RegistryFederationEngine read-only federation
+          case "registry_fed_query": {
+            const { registryFederationEngine } = await import("../../engines/RegistryFederationEngine.js");
+            const p = params as { query: string; registries?: string[]; limit?: number };
+            result = { results: await registryFederationEngine.query(p) };
+            break;
+          }
+          case "registry_fed_get": {
+            const { registryFederationEngine } = await import("../../engines/RegistryFederationEngine.js");
+            const id = (params as { id?: string; registry_id?: string }).id
+              ?? (params as { registry_id?: string }).registry_id;
+            result = { registry: await registryFederationEngine.getRegistry(id ?? "") };
+            break;
+          }
+          case "registry_fed_list": {
+            const { registryFederationEngine } = await import("../../engines/RegistryFederationEngine.js");
+            result = { registries: await registryFederationEngine.listRegistries() };
+            break;
+          }
+          case "registry_fed_stats": {
+            const { registryFederationEngine } = await import("../../engines/RegistryFederationEngine.js");
+            result = { stats: await registryFederationEngine.getStats() };
             break;
           }
         }
