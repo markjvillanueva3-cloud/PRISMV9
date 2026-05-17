@@ -1254,6 +1254,30 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   mit_courses_harvest: z.object({}).passthrough()
     .describe("Full scan of all 6 zones — returns every course with metadata + aggregation maps. Read-only."),
 
+  // ── WIRE-UNWIRED-MS0/U-WIRE-TRAINING: TrainingContentIndexEngine ──────────
+  // (all methods pure filesystem reads — no write methods exist)
+  training_sources: z.object({}).passthrough()
+    .describe("Returns the 6 training/resource source directory configs. Read-only."),
+
+  training_audit: z.object({}).passthrough()
+    .describe("Summary audit (topTopics, trainingDayBreakdown, topExtensions, source/cam/difficulty breakdowns). Read-only."),
+
+  training_harvest: z.object({}).passthrough()
+    .describe("Full scan — 3000+ training files with classification (contentType, topic, difficulty, CAM, controller). Read-only."),
+
+  training_filter: z.object({
+    topic: z.enum([
+      "cnc_basics", "g_code", "cam_software", "tooling", "materials",
+      "gdt", "5axis", "turning", "threading", "milling", "drilling",
+      "edm", "grinding", "quality", "setup", "safety", "general",
+    ]).optional().describe("Filter by TopicDomain (17 values)."),
+    camSystem: z.string().min(1).optional()
+      .describe("Filter by CAM system name (exact match — e.g. 'hypermill', 'mastercam')."),
+  }).passthrough().refine(
+    (d) => typeof d.topic === "string" || typeof d.camSystem === "string",
+    { message: "training_filter requires at least one filter field (topic, camSystem)" },
+  ).describe("Composes harvest + filterByTopic + filterByCam server-side. At least one filter required. Read-only."),
+
   // ── WIRE-UNWIRED-MS0/U-WIRE-MACH-MODELS: MachineModelIndexEngine ──────────
   // (all methods are pure filesystem reads — no write methods exist)
   machine_models_sources: z.object({}).passthrough()

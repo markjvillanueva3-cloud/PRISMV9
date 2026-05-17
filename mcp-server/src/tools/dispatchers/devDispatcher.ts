@@ -263,7 +263,11 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // WIRE-UNWIRED-MS0/U-WIRE-MACH-MODELS: MachineModelIndexEngine (all
 // methods pure filesystem reads — no write methods exist)
 "machine_models_sources", "machine_models_audit",
-"machine_models_harvest", "machine_models_filter"] as const;
+"machine_models_harvest", "machine_models_filter",
+// WIRE-UNWIRED-MS0/U-WIRE-TRAINING: TrainingContentIndexEngine (all
+// methods pure filesystem reads — no write methods exist)
+"training_sources", "training_audit",
+"training_harvest", "training_filter"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -1650,6 +1654,47 @@ export function registerDevDispatcher(server: any): void {
           case "mit_courses_harvest": {
             const { MitCourseIndexEngine } = await import("../../engines/MitCourseIndexEngine.js");
             result = { harvest: await MitCourseIndexEngine.harvest() };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-TRAINING: TrainingContentIndexEngine ──
+          case "training_sources": {
+            const { TrainingContentIndexEngine } = await import("../../engines/TrainingContentIndexEngine.js");
+            result = { sources: TrainingContentIndexEngine.getSources() };
+            break;
+          }
+          case "training_audit": {
+            const { TrainingContentIndexEngine } = await import("../../engines/TrainingContentIndexEngine.js");
+            result = { audit: await TrainingContentIndexEngine.audit() };
+            break;
+          }
+          case "training_harvest": {
+            const { TrainingContentIndexEngine } = await import("../../engines/TrainingContentIndexEngine.js");
+            result = { harvest: await TrainingContentIndexEngine.harvest() };
+            break;
+          }
+          case "training_filter": {
+            const { TrainingContentIndexEngine } = await import("../../engines/TrainingContentIndexEngine.js");
+            const p = params as {
+              topic?: "cnc_basics" | "g_code" | "cam_software" | "tooling" | "materials" | "gdt" | "5axis" | "turning" | "threading" | "milling" | "drilling" | "edm" | "grinding" | "quality" | "setup" | "safety" | "general";
+              camSystem?: string;
+            };
+            const harvest = await TrainingContentIndexEngine.harvest();
+            let filtered = harvest.files;
+            if (typeof p.topic === "string") {
+              filtered = TrainingContentIndexEngine.filterByTopic(filtered, p.topic);
+            }
+            if (typeof p.camSystem === "string") {
+              filtered = TrainingContentIndexEngine.filterByCam(filtered, p.camSystem);
+            }
+            result = {
+              files: filtered,
+              count: filtered.length,
+              totalAvailable: harvest.totalFiles,
+              filtersApplied: {
+                topic: p.topic,
+                camSystem: p.camSystem,
+              },
+            };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-MACH-MODELS: MachineModelIndexEngine ──
