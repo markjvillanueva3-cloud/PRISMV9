@@ -97,6 +97,10 @@ const ACTIONS = [
   "lathe_troubleshoot_overhang",         // LatheTroubleshootingIntelligenceEngine.analyzeToolOverhang
   "lathe_predictive_tool_wear",          // LathePredictiveIntelligenceEngine.predictToolWear
 
+  // WIRE-UNWIRED-MS0/U-WIRE-LSO: shop-aware lathe program optimizer (JM Die config)
+  "lathe_shop_optimize_program",         // LatheShopAwareOptimizationEngine.optimizeProgram
+  "lathe_shop_optimize_customer",        // LatheShopAwareOptimizationEngine.optimizeCustomerPrograms
+
   // ENGINE-WIRE-LATHE-MS0/U-WIRE-LATHE-BATCH4: 6 unwired tribal/science/reasoning engines
   "lathe_tribal_stats",                  // LatheTribalInjectorEngine.getStats
   "lathe_unified_science_version",       // LatheUnifiedScienceEngine.getVersion
@@ -687,6 +691,29 @@ Actions: ${ACTIONS.join(", ")}.`,
             const p = params as { content: string; file_path?: string };
             if (typeof p.content !== "string") throw new Error("lathe_program_analyze requires 'content' (string)");
             result = latheProgramOptimizerEngine.analyzeProgram(p.content, p.file_path);
+            break;
+          }
+          case "lathe_shop_optimize_program": {
+            const { latheShopAwareOptimizationEngine } = await import("../../engines/LatheShopAwareOptimizationEngine.js");
+            const p = params as { content: string; filepath: string };
+            if (typeof p.content !== "string") throw new Error("lathe_shop_optimize_program requires 'content' (string)");
+            if (typeof p.filepath !== "string") throw new Error("lathe_shop_optimize_program requires 'filepath' (string)");
+            result = latheShopAwareOptimizationEngine.optimizeProgram(p.content, p.filepath);
+            break;
+          }
+          case "lathe_shop_optimize_customer": {
+            const { latheShopAwareOptimizationEngine } = await import("../../engines/LatheShopAwareOptimizationEngine.js");
+            const p = params as { programs: Array<{ content: string; filepath: string }> };
+            if (!Array.isArray(p.programs) || p.programs.length === 0) {
+              throw new Error("lathe_shop_optimize_customer requires 'programs' (non-empty array of {content, filepath})");
+            }
+            for (let i = 0; i < p.programs.length; i++) {
+              const prog = p.programs[i];
+              if (!prog || typeof prog.content !== "string" || typeof prog.filepath !== "string") {
+                throw new Error(`lathe_shop_optimize_customer: programs[${i}] missing required {content, filepath} strings`);
+              }
+            }
+            result = latheShopAwareOptimizationEngine.optimizeCustomerPrograms(p.programs);
             break;
           }
           case "lathe_expert_material_strategy": {

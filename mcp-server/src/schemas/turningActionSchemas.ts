@@ -339,6 +339,19 @@ const lathe_program_analyze = z.object({
   file_path: z.string().optional(),
 }).passthrough().describe("Analyze a lathe program for optimization opportunities.");
 
+// WIRE-UNWIRED-MS0/U-WIRE-LSO: LatheShopAwareOptimizationEngine
+const lathe_shop_optimize_program = z.object({
+  content: z.string().min(1).describe("Lathe G-code program text to optimize."),
+  filepath: z.string().min(1).describe("Source filepath (used for tracking + diagnostics)."),
+}).passthrough().describe("Optimize a single lathe program using JM Die shop configuration (machine selection, tooling, tribal knowledge, safety, cycle time).");
+
+const lathe_shop_optimize_customer = z.object({
+  programs: z.array(z.object({
+    content: z.string().min(1).describe("Program G-code text."),
+    filepath: z.string().min(1).describe("Source filepath."),
+  })).min(1).describe("Array of programs to batch-optimize."),
+}).passthrough().describe("Batch-optimize all programs from a customer with aggregate summary (avg scores, total improvement, safety fixes, cycle-time savings).");
+
 const lathe_expert_material_strategy = z.object({
   category: z.enum([
     "mild_steel", "alloy_steel", "stainless_steel", "hardened_steel",
@@ -1094,6 +1107,10 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   lathe_knowledge_harvest_programs,
   lathe_program_analyze,
   lathe_expert_material_strategy,
+
+  // WIRE-UNWIRED-MS0/U-WIRE-LSO: LatheShopAwareOptimizationEngine
+  lathe_shop_optimize_program,
+  lathe_shop_optimize_customer,
   lathe_machine_get_profile,
   lathe_troubleshoot_overhang,
   lathe_predictive_tool_wear,
