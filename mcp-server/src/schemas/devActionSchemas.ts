@@ -2345,4 +2345,40 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   gse_active_count: z.object({}).describe("Count of goals currently in 'active' status. Pure read."),
 
   gse_to_json: z.object({}).describe("Full serialized state {schemaVersion, goals, nextId}. Pure read."),
+
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-RBE: RunbookEngine wiring ──
+  // U-LPR-OBS6 operational runbook management with RACI coverage. Read
+  // methods only — createRunbook/updateRunbook/deleteRunbook/abortExecution/
+  // markReviewed/createStandardRunbooks/clear DEFERRED (writes mutate the
+  // shared incident-playbook registry; LLM mutators would let one chat
+  // alter another chat's runbook execution state).
+  rbe_get_runbook: z.object({
+    id: z.string().min(1).max(256)
+      .describe("Runbook id"),
+  }).describe("Look up one runbook by id (returns null when unknown). Pure read."),
+
+  rbe_get_execution: z.object({
+    id: z.string().min(1).max(256)
+      .describe("Runbook execution id"),
+  }).describe("Look up one execution by id (returns null when unknown). Pure read."),
+
+  rbe_get_executions_for_runbook: z.object({
+    runbook_id: z.string().min(1).max(256),
+    limit: z.number().int().positive().max(1000).optional()
+      .describe("Result cap (default 10, max 1000)"),
+  }).describe("List recent executions for a runbook. Pure read."),
+
+  rbe_get_active_executions: z.object({}).describe(
+    "List every execution currently in 'running'/'in_progress' state. Pure read."
+  ),
+
+  rbe_get_raci_matrix: z.object({
+    runbook_id: z.string().min(1).max(256),
+  }).describe("Get the RACI matrix (Responsible/Accountable/Consulted/Informed) for one runbook. Pure read."),
+
+  rbe_get_runbooks_needing_review: z.object({}).describe(
+    "List runbooks past their review-due date. Pure read."
+  ),
+
+  rbe_get_stats: z.object({}).describe("Runbook engine stats {total, byCategory, byStatus, ...}. Pure read."),
 };

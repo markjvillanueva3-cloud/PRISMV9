@@ -391,7 +391,14 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // the shared singleton hooks read; LLM mutators would let one chat
 // silently rewrite another chat's goals).
 "gse_current", "gse_top_n", "gse_tree", "gse_get",
-"gse_all", "gse_active_count", "gse_to_json"] as const;
+"gse_all", "gse_active_count", "gse_to_json",
+// WIRE-UNWIRED-MS0/U-WIRE-RBE: RunbookEngine — U-LPR-OBS6 operational
+// runbook + RACI management. Read methods only; createRunbook/update/
+// delete/abortExecution/markReviewed/createStandardRunbooks/clear
+// DEFERRED (writes mutate shared incident-playbook registry).
+"rbe_get_runbook", "rbe_get_execution", "rbe_get_executions_for_runbook",
+"rbe_get_active_executions", "rbe_get_raci_matrix",
+"rbe_get_runbooks_needing_review", "rbe_get_stats"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -2520,6 +2527,59 @@ export function registerDevDispatcher(server: any): void {
             const { goalStackEngine } = await import("../../engines/GoalStackEngine.js");
             const snapshot = goalStackEngine.toJSON();
             result = { snapshot };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-RBE: RunbookEngine ───────────────────
+          case "rbe_get_runbook": {
+            const { runbookEngine } = await import("../../engines/RunbookEngine.js");
+            const id = (params as { id: string }).id;
+            const runbook = runbookEngine.getRunbook(id);
+            result = runbook === null
+              ? { found: false, id }
+              : { found: true, id, runbook };
+            break;
+          }
+          case "rbe_get_execution": {
+            const { runbookEngine } = await import("../../engines/RunbookEngine.js");
+            const id = (params as { id: string }).id;
+            const execution = runbookEngine.getExecution(id);
+            result = execution === null
+              ? { found: false, id }
+              : { found: true, id, execution };
+            break;
+          }
+          case "rbe_get_executions_for_runbook": {
+            const { runbookEngine } = await import("../../engines/RunbookEngine.js");
+            const p = params as { runbook_id: string; limit?: number };
+            const executions = runbookEngine.getExecutionsForRunbook(p.runbook_id, p.limit ?? 10);
+            result = { runbook_id: p.runbook_id, executions, count: executions.length };
+            break;
+          }
+          case "rbe_get_active_executions": {
+            const { runbookEngine } = await import("../../engines/RunbookEngine.js");
+            const executions = runbookEngine.getActiveExecutions();
+            result = { executions, count: executions.length };
+            break;
+          }
+          case "rbe_get_raci_matrix": {
+            const { runbookEngine } = await import("../../engines/RunbookEngine.js");
+            const runbook_id = (params as { runbook_id: string }).runbook_id;
+            const matrix = runbookEngine.getRACIMatrix(runbook_id);
+            result = matrix === null
+              ? { found: false, runbook_id }
+              : { found: true, runbook_id, matrix };
+            break;
+          }
+          case "rbe_get_runbooks_needing_review": {
+            const { runbookEngine } = await import("../../engines/RunbookEngine.js");
+            const runbooks = runbookEngine.getRunbooksNeedingReview();
+            result = { runbooks, count: runbooks.length };
+            break;
+          }
+          case "rbe_get_stats": {
+            const { runbookEngine } = await import("../../engines/RunbookEngine.js");
+            const stats = runbookEngine.getStats();
+            result = { stats };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-CEX: CatalogExtractionEngine ─────────
