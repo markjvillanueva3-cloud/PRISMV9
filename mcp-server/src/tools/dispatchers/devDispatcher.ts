@@ -363,7 +363,18 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // bundles `loadGraph + op` atomically. setConfig/reset NOT WIRED.
 // Per-call config via optional `config` param; result Maps → Object.fromEntries.
 "pr_compute_scores", "pr_analyze_graph", "pr_find_critical_nodes",
-"pr_compute_hits", "pr_topological_sort", "pr_detect_cycles"] as const;
+"pr_compute_hits", "pr_topological_sort", "pr_detect_cycles",
+// WIRE-UNWIRED-MS0/U-WIRE-PGH: ParserGoldenHarnessEngine — golden-file
+// regression harness for G-code parsers. Read methods only;
+// freeze/quarantineCase/liftQuarantine/clearAll DEFERRED (LLM-callable
+// write methods would let a fictional golden set silence real regressions).
+"pgh_list_golden", "pgh_get_case", "pgh_is_quarantined",
+"pgh_list_quarantine", "pgh_evaluate", "pgh_to_snapshot",
+// WIRE-UNWIRED-MS0/U-WIRE-PFH: ParserFuzzHarnessEngine — property-based
+// + differential fuzz harness. Read methods only; addCorpusEntry/markCrash/
+// clearAll DEFERRED (LLM-callable markCrash() would inject fake crashes).
+"pfh_list_corpus", "pfh_get_corpus_entry", "pfh_list_crashes",
+"pfh_evaluate_batch", "pfh_to_snapshot"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -2272,6 +2283,99 @@ export function registerDevDispatcher(server: any): void {
             pr.loadGraph(p.graph);
             const cycles = pr.detectCycles();
             result = { cycles, count: cycles.length };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-PGH: ParserGoldenHarnessEngine ───────
+          case "pgh_list_golden": {
+            const { parserGoldenHarnessEngine } = await import("../../engines/ParserGoldenHarnessEngine.js");
+            const dialect = (params as { dialect?: string }).dialect;
+            const cases = parserGoldenHarnessEngine.listGolden(dialect ? { dialect } : undefined);
+            result = { cases, count: cases.length };
+            break;
+          }
+          case "pgh_get_case": {
+            const { parserGoldenHarnessEngine } = await import("../../engines/ParserGoldenHarnessEngine.js");
+            const case_id = (params as { case_id: string }).case_id;
+            const c = parserGoldenHarnessEngine.getCase(case_id);
+            // Explicit discriminator — slimResponse strips null silently.
+            result = c === null
+              ? { found: false, case_id }
+              : { found: true, case_id, case: c };
+            break;
+          }
+          case "pgh_is_quarantined": {
+            const { parserGoldenHarnessEngine } = await import("../../engines/ParserGoldenHarnessEngine.js");
+            const p = params as { case_id: string; now?: number };
+            const quarantined = parserGoldenHarnessEngine.isQuarantined(p.case_id, p.now);
+            // Explicit discriminator — slimResponse strips `false` silently.
+            result = { case_id: p.case_id, is_quarantined: quarantined ? true : "no" };
+            break;
+          }
+          case "pgh_list_quarantine": {
+            const { parserGoldenHarnessEngine } = await import("../../engines/ParserGoldenHarnessEngine.js");
+            const now = (params as { now?: number }).now;
+            const entries = parserGoldenHarnessEngine.listQuarantine(now);
+            result = { entries, count: entries.length };
+            break;
+          }
+          case "pgh_evaluate": {
+            const { parserGoldenHarnessEngine } = await import("../../engines/ParserGoldenHarnessEngine.js");
+            const runs = (params as { runs: any[] }).runs;
+            try {
+              const report = parserGoldenHarnessEngine.evaluate(runs);
+              result = { report };
+            } catch (e) {
+              result = { error: `evaluate failed: ${(e as Error).message}` };
+            }
+            break;
+          }
+          case "pgh_to_snapshot": {
+            const { parserGoldenHarnessEngine } = await import("../../engines/ParserGoldenHarnessEngine.js");
+            const snapshot = parserGoldenHarnessEngine.toSnapshot();
+            result = { snapshot };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-PFH: ParserFuzzHarnessEngine ─────────
+          case "pfh_list_corpus": {
+            const { parserFuzzHarnessEngine } = await import("../../engines/ParserFuzzHarnessEngine.js");
+            const p = params as { dialect?: string; category?: string };
+            const filter: any = {};
+            if (p.dialect) filter.dialect = p.dialect;
+            if (p.category) filter.category = p.category;
+            const entries = parserFuzzHarnessEngine.listCorpus(Object.keys(filter).length ? filter : undefined);
+            result = { entries, count: entries.length };
+            break;
+          }
+          case "pfh_get_corpus_entry": {
+            const { parserFuzzHarnessEngine } = await import("../../engines/ParserFuzzHarnessEngine.js");
+            const input_sha256 = (params as { input_sha256: string }).input_sha256;
+            const entry = parserFuzzHarnessEngine.getCorpusEntry(input_sha256);
+            result = entry === null
+              ? { found: false, input_sha256 }
+              : { found: true, input_sha256, entry };
+            break;
+          }
+          case "pfh_list_crashes": {
+            const { parserFuzzHarnessEngine } = await import("../../engines/ParserFuzzHarnessEngine.js");
+            const crashes = parserFuzzHarnessEngine.listCrashes();
+            result = { crashes, count: crashes.length };
+            break;
+          }
+          case "pfh_evaluate_batch": {
+            const { parserFuzzHarnessEngine } = await import("../../engines/ParserFuzzHarnessEngine.js");
+            const observations = (params as { observations: any[] }).observations;
+            try {
+              const report = parserFuzzHarnessEngine.evaluateBatch(observations);
+              result = { report };
+            } catch (e) {
+              result = { error: `evaluateBatch failed: ${(e as Error).message}` };
+            }
+            break;
+          }
+          case "pfh_to_snapshot": {
+            const { parserFuzzHarnessEngine } = await import("../../engines/ParserFuzzHarnessEngine.js");
+            const snapshot = parserFuzzHarnessEngine.toSnapshot();
+            result = { snapshot };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-CEX: CatalogExtractionEngine ─────────

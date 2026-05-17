@@ -2182,4 +2182,80 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
       }).passthrough()).max(100_000),
     }),
   }).describe("Load + DFS cycle detection. Returns [] when acyclic. Pure."),
+
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-PGH: ParserGoldenHarnessEngine wiring ──
+  // U-LPR-PARSER-TESTS golden-file regression harness. Read methods only —
+  // freeze/quarantineCase/liftQuarantine/clearAll DEFERRED (cross-call
+  // state mutation; LLM-callable freeze() would let a fictional golden
+  // set silence real regressions).
+  pgh_list_golden: z.object({
+    dialect: z.string().min(1).max(64).optional()
+      .describe("Optional dialect filter (fanuc/okuma/haas/mitsubishi/hurco)"),
+  }).describe("List frozen golden cases, optionally filtered by dialect. Pure read."),
+
+  pgh_get_case: z.object({
+    case_id: z.string().min(1).max(256)
+      .describe("Canonical golden case id"),
+  }).describe("Look up one golden case by id. Returns null when unknown. Pure read."),
+
+  pgh_is_quarantined: z.object({
+    case_id: z.string().min(1).max(256),
+    now: z.number().nonnegative().max(8.64e15).optional()
+      .describe("Override 'now' for deterministic tests (epoch ms)"),
+  }).describe("Check whether a case is currently quarantined. Pure read."),
+
+  pgh_list_quarantine: z.object({
+    now: z.number().nonnegative().max(8.64e15).optional(),
+  }).describe("List currently-quarantined cases. Pure read."),
+
+  pgh_evaluate: z.object({
+    runs: z.array(z.object({
+      case_id: z.string().min(1).max(256),
+      input_sha256: z.string().min(1).max(128).describe("SHA-256 of the input bytes (must match the golden case)"),
+      parse_ok: z.boolean().describe("Whether parse succeeded"),
+      ast_sha256: z.string().min(1).max(128).optional().describe("Populated when parse_ok"),
+      error_code: z.string().max(256).optional().describe("Populated when !parse_ok"),
+      error: z.string().max(4096).optional().describe("Legacy alias for error_code"),
+      run_at: z.number().nonnegative().max(8.64e15).optional().describe("Run epoch ms (used for quarantine TTL)"),
+      parser_version: z.string().max(64).optional(),
+    }).passthrough()).min(1).max(10_000)
+      .describe("Parser runs to evaluate against golden (≤10k for DoS)"),
+  }).describe("Evaluate parser runs against the frozen golden set. Pure read against current golden state."),
+
+  pgh_to_snapshot: z.object({}).describe("Full snapshot of golden + quarantine state. Pure read."),
+
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-PFH: ParserFuzzHarnessEngine wiring ──
+  // U-LPR-PARSER-FUZZ property-based + differential fuzz harness. Read
+  // methods only — addCorpusEntry/markCrash/clearAll DEFERRED (cross-call
+  // state mutation; LLM-callable markCrash() would inject fake crashes).
+  pfh_list_corpus: z.object({
+    dialect: z.string().min(1).max(64).optional(),
+    category: z.string().min(1).max(64).optional()
+      .describe("CorpusCategory filter"),
+  }).describe("List fuzz corpus entries with optional dialect/category filter. Pure read."),
+
+  pfh_get_corpus_entry: z.object({
+    input_sha256: z.string().min(1).max(128)
+      .describe("Canonical SHA-256 of the input"),
+  }).describe("Look up one corpus entry by SHA-256. Returns null when unknown. Pure read."),
+
+  pfh_list_crashes: z.object({}).describe("List every recorded crash repro. Pure read."),
+
+  pfh_evaluate_batch: z.object({
+    observations: z.array(z.object({
+      parser_id: z.string().min(1).max(256).describe("Parser identifier (e.g. 'cps-v2', 'legacy-lex')"),
+      input_sha256: z.string().min(1).max(128),
+      dialect: z.string().min(1).max(64).describe("Dialect tag (fanuc/okuma/haas/...)"),
+      parse_ok: z.boolean().describe("Whether parse succeeded"),
+      ast_sha256: z.string().min(1).max(128).optional().describe("Populated when parse_ok"),
+      error_code: z.string().max(256).optional().describe("Populated when !parse_ok"),
+      panicked: z.boolean().optional().describe("True ⇒ P1 (no-panic) breach"),
+      panic_signature: z.string().max(4096).optional(),
+      duration_ms: z.number().nonnegative().max(3_600_000).optional(),
+      observed_at: z.number().nonnegative().max(8.64e15).describe("Observation epoch ms"),
+    }).passthrough()).min(1).max(10_000)
+      .describe("Parser observations to score against the 3-property contract (≤10k for DoS)"),
+  }).describe("Evaluate parser observations against P1 (no-panic) etc. Pure read against current corpus state."),
+
+  pfh_to_snapshot: z.object({}).describe("Full snapshot of corpus + crashes state. Pure read."),
 };
