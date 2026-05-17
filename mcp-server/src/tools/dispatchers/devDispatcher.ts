@@ -432,7 +432,11 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // Read methods only.
 "slo_get_slo", "slo_list_slos", "slo_get_status", "slo_get_error_budget",
 "slo_generate_report", "slo_is_alerting", "slo_get_alerting_slos",
-"slo_get_stats"] as const;
+"slo_get_stats",
+// WIRE-UNWIRED-MS0/U-WIRE-ME: MigrationEngine — L2-P3-MS1 schema versioning.
+// Read methods only; register/apply/rollback/clear DEFERRED (register
+// takes function-literals non-serializable over MCP).
+"me_status", "me_get_records", "me_validate"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -2933,6 +2937,26 @@ export function registerDevDispatcher(server: any): void {
             const { sloEngine } = await import("../../engines/SLOEngine.js");
             const stats = sloEngine.getStats();
             result = { stats };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-ME: MigrationEngine ──────────────────
+          case "me_status": {
+            const { migrationEngine } = await import("../../engines/MigrationEngine.js");
+            const plan = migrationEngine.status();
+            result = { plan };
+            break;
+          }
+          case "me_get_records": {
+            const { migrationEngine } = await import("../../engines/MigrationEngine.js");
+            const records = migrationEngine.getRecords();
+            result = { records, count: records.length };
+            break;
+          }
+          case "me_validate": {
+            const { migrationEngine } = await import("../../engines/MigrationEngine.js");
+            const v = migrationEngine.validate();
+            // Explicit discriminator — slimResponse strips false silently.
+            result = { valid: v.valid ? true : "no", issues: v.issues, issue_count: v.issues.length };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-CEX: CatalogExtractionEngine ─────────

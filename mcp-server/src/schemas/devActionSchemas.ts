@@ -2594,4 +2594,21 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   slo_get_alerting_slos: z.object({}).describe("List every SLO currently alerting. Pure read."),
 
   slo_get_stats: z.object({}).describe("Engine-wide SLO stats. Pure read."),
+
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-ME: MigrationEngine wiring ──
+  // L2-P3-MS1 schema versioning + data migration. Read methods only;
+  // register/apply/rollback/clear DEFERRED — register takes function
+  // literals (non-serializable over MCP) + apply/rollback mutate
+  // persistent schema state.
+  me_status: z.object({}).describe(
+    "MigrationPlan {pending, applied, current_version, target_version, steps}. Pure read."
+  ),
+
+  me_get_records: z.object({}).describe(
+    "All MigrationRecord entries (history of applied/rolled-back/failed). Pure read."
+  ),
+
+  me_validate: z.object({}).describe(
+    "{valid:bool, issues:string[]} — checks ordering + duplicates. Pure read."
+  ),
 };
