@@ -297,7 +297,11 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // WIRE-UNWIRED-MS0/U-WIRE-MCFI: MITCourseFullIntegrationEngine read-only;
 // reset() DEFERRED (wipes in-memory catalog)
 "mcfi_query", "mcfi_get_course", "mcfi_algorithms",
-"mcfi_formulas", "mcfi_stats"] as const;
+"mcfi_formulas", "mcfi_stats",
+// WIRE-UNWIRED-MS0/U-WIRE-CEX: CatalogExtractionEngine read-only;
+// extractFromPDF/mergeWithExisting/init DEFERRED (mutate engine state +
+// arbitrary file paths)
+"cex_stats", "cex_export_typescript"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -1684,6 +1688,19 @@ export function registerDevDispatcher(server: any): void {
           case "mit_courses_harvest": {
             const { MitCourseIndexEngine } = await import("../../engines/MitCourseIndexEngine.js");
             result = { harvest: await MitCourseIndexEngine.harvest() };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-CEX: CatalogExtractionEngine ─────────
+          case "cex_stats": {
+            const { catalogExtractionEngine } = await import("../../engines/CatalogExtractionEngine.js");
+            result = { stats: catalogExtractionEngine.getStats() };
+            break;
+          }
+          case "cex_export_typescript": {
+            const { catalogExtractionEngine } = await import("../../engines/CatalogExtractionEngine.js");
+            const manufacturer = (params as { manufacturer: string }).manufacturer;
+            const source = await catalogExtractionEngine.exportToTypeScript(manufacturer);
+            result = { source, manufacturer, length: source.length };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-MCFI: MITCourseFullIntegrationEngine ──

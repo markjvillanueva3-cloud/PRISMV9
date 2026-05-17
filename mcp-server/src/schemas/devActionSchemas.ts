@@ -1254,6 +1254,19 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   mit_courses_harvest: z.object({}).passthrough()
     .describe("Full scan of all 6 zones — returns every course with metadata + aggregation maps. Read-only."),
 
+  // ── WIRE-UNWIRED-MS0/U-WIRE-CEX: CatalogExtractionEngine ──────────────────
+  // (read-only query surface; extractFromPDF/mergeWithExisting/init DEFERRED
+  //  — extractFromPDF reads PDFs from arbitrary user-supplied paths AND
+  //  mutates the engine's extractedTools store, mergeWithExisting takes a
+  //  full schema input + writes engine state)
+  cex_stats: z.object({}).passthrough()
+    .describe("Catalog extraction stats (totals by manufacturer/type, coverage). Read-only."),
+
+  cex_export_typescript: z.object({
+    manufacturer: z.string().min(1).describe("Manufacturer name (case-insensitive filter)."),
+  }).passthrough()
+    .describe("Generate TypeScript source code for extracted tools by manufacturer. Returns '' when no tools match. Pure transform of engine state."),
+
   // ── WIRE-UNWIRED-MS0/U-WIRE-MCFI: MITCourseFullIntegrationEngine ──────────
   // (read-only; reset() DEFERRED — wipes in-memory course catalog)
   mcfi_query: z.object({
