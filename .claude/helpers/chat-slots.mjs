@@ -78,13 +78,18 @@ import { resolveTerminalWindowId } from "./terminal-window-id.mjs";
  *  expansion is a strict superset (old chat-slots.json files get the new
  *  keys populated as null on next assertSlotFile; no migration needed).
  *  Bumping would force a state-file reset across active peers — strictly
- *  worse than the additive path. Total fleet is now 11 work + 1 historically-
- *  hygiene = 12.
+ *  worse than the additive path.
+ *
+ *  Slot 13 ("mike") added 2026-05-16 (later same day) per operator directive
+ *  "add a 13th chat slot, update everything that needs to update to intake
+ *  a 13th chat". Same additive forward-compat as kilo/lima: no schemaVersion
+ *  bump, new key populated as null on next assertSlotFile. Total fleet is
+ *  now 12 work + 1 historically-hygiene = 13.
  *
  *  See `[[reference_session_continuity_stack_2026_05_15]]` for the
- *  terminal-window pinning that makes 12 concurrent PowerShell windows each
+ *  terminal-window pinning that makes 13 concurrent PowerShell windows each
  *  resolve to a deterministic slot. */
-export const SLOT_NAMES = ["alpha", "bravo", "charlie", "delta", "echo", "foxtrot", "golf", "hotel", "india", "juliett", "kilo", "lima"];
+export const SLOT_NAMES = ["alpha", "bravo", "charlie", "delta", "echo", "foxtrot", "golf", "hotel", "india", "juliett", "kilo", "lima", "mike"];
 
 /** Crash TTL — slot is considered crashed/reclaimable after this many ms with
  *  no heartbeat update. 10min matches the existing chat-bus claim TTL. */
@@ -281,6 +286,133 @@ export function classifySlot(slot, now = Date.now()) {
   return "crashed";
 }
 
+// ─── SLOT-DRIFT-FIX-MS0/U-SDF02 — window-PID liveness gate ──────────────────
+//
+// User-reported 2026-05-17 (bravo claude-339c8ff7):
+//   "can we tie it to the window pid so that pid stays locked into that chat
+//    slot as long as its open"
+//
+// The terminal-window-id resolver encodes the owning window's PID into the
+// twid: `tw-pp-<pid>` (parent-process tier), `tw-ps-<pid>` (PowerShell PID),
+// `tw-pa-<pid>` (parent-ancestor PID). The `tw-wt-<guid>` form encodes a
+// Windows Terminal session GUID instead — no PID is extractable for that
+// tier, so we fall back to the standard heartbeat-based reclaim.
+//
+// The OWNING-WINDOW PID — not slot.pid (which is the transient chat-slots.mjs
+// helper PID, useless for liveness) — is what we check. When the window is
+// still alive (process.kill(pid, 0) succeeds), automatic reclaim REFUSES to
+// release the slot even if the chat's heartbeat lapsed: the chat may be idle,
+// wedged, or mid-/compact, but the window is still open and the operator
+// still owns it. Only when the window PID is dead does the slot become
+// genuinely free for another chat to claim.
+//
+// `--force --confirmRecent` (operator override, e.g., /checkin-<slot>) is a
+// SEPARATE codepath — it bypasses this gate so an operator can always reclaim
+// a slot held by another window when they explicitly say so.
+
+const TWID_PID_RE = /^tw-(pp|ps|pa)-(\d+)$/;
+
+// Tier hierarchy from terminal-window-id.mjs (never-downgrade order):
+//   tw-wt (tier 4): Windows Terminal session GUID — no PID encoded
+//   tw-ps (tier 3): PowerShell process PID       — STABLE for window lifetime
+//   tw-pa (tier 2): first non-shell ancestor PID — STABLE for harness lifetime
+//   tw-pp (tier 1): immediate parent PID         — TRANSIENT (often a bash
+//                                                  subprocess that dies the
+//                                                  moment the Bash tool call
+//                                                  completes — useless for
+//                                                  liveness probes)
+//
+// Live-system evidence (slot bravo claude-339c8ff7, 2026-05-17): the twid
+// `tw-pp-46708` was recorded at claim time, but PID 46708 was dead seconds
+// later because it was the parent of the chat-slots.mjs subprocess — a
+// bash shell whose lifetime was bounded by the Bash tool call duration.
+// Refusing tier-1 PIDs forces the gate to fall through to heartbeat-based
+// reclaim (old pre-U-SDF02 behavior) for unstable-tier slots — no
+// regression. Stable-tier slots (tier 2/3) get the new protection.
+const STABLE_TIER = new Set(["ps", "pa"]);
+
+/**
+ * Extract the owning-window PID from a `terminalWindowId`. Returns null for
+ * the `tw-wt-<guid>` form (no PID encoded), for tier-1 `tw-pp-<pid>` (PID is
+ * known-transient on Claude Bash subprocesses — see TWID_PID_RE comment),
+ * or for any unparseable value.
+ *
+ * @param {string|null|undefined} twid
+ * @returns {number|null}
+ */
+export function extractWindowPid(twid) {
+  if (typeof twid !== "string") return null;
+  const m = twid.match(TWID_PID_RE);
+  if (!m) return null;
+  if (!STABLE_TIER.has(m[1])) return null;
+  const n = parseInt(m[2], 10);
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
+/**
+ * Same-host PID liveness probe. `process.kill(pid, 0)` is the POSIX
+ * convention for "signal nothing — just tell me if the PID exists";
+ * Node implements the same semantics on Windows via the kill32 wrapper.
+ *   - returns truthy/undefined → PID exists → alive
+ *   - throws ESRCH             → PID does not exist → dead
+ *   - throws EPERM             → PID exists but inaccessible → still alive
+ *                                (this DOES happen on Windows when the proc
+ *                                runs as a different integrity level)
+ *
+ * @param {number} pid
+ * @returns {boolean}
+ */
+function isPidAlive(pid) {
+  if (!Number.isFinite(pid) || pid <= 0) return false;
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (e) {
+    if (e && e.code === "EPERM") return true;
+    return false;
+  }
+}
+
+/**
+ * Is the OWNING terminal window still alive for this slot? Returns true only
+ * when ALL of: (a) we can extract a PID from twid, (b) the slot is on the
+ * current host (we can't probe remote PIDs), (c) `process.kill(pid, 0)`
+ * confirms the PID still exists.
+ *
+ * Conservative: returns FALSE when any precondition fails, so the caller
+ * falls through to the standard heartbeat-based reclaim. Never throws.
+ *
+ * @param {SlotState|null} slot
+ * @returns {boolean}
+ */
+export function isWindowAlive(slot) {
+  if (!slot) return false;
+  // Same-host only — we can't probe a peer host's PID space.
+  if (slot.host && slot.host !== hostname()) return false;
+  const pid = extractWindowPid(slot.terminalWindowId);
+  if (pid === null) return false;
+  return isPidAlive(pid);
+}
+
+/**
+ * Should the automatic reclaim sweep KEEP this slot bound (refuse to release)
+ * because its owning window is still open? Wraps `isWindowAlive` with the
+ * env-knob escape hatch so an operator can disable the gate fleet-wide if
+ * it ever causes trouble (the slot would then fall back to pure heartbeat
+ * reclaim — the pre-U-SDF02 behavior).
+ *
+ *   PRISM_SLOT_PID_ALIVE_CHECK_DISABLE=1 → disable, fall back to old behavior
+ *
+ * @param {SlotState|null} slot
+ * @returns {boolean}
+ */
+export function shouldKeepSlotAlive(slot) {
+  if (String(process.env.PRISM_SLOT_PID_ALIVE_CHECK_DISABLE ?? "") === "1") {
+    return false;
+  }
+  return isWindowAlive(slot);
+}
+
 // ─── Public API ─────────────────────────────────────────────────────────
 
 /**
@@ -312,10 +444,19 @@ export function claimSlot(input, statePath = DEFAULT_STATE_PATH, lockPath = DEFA
     for (const n of SLOT_NAMES) preSweep[n] = file.slots[n] ?? null;
     // First, sweep crashed slots — any slot whose chat hasn't heartbeated in
     // CRASH_TTL_MS is implicitly available.
+    //
+    // SLOT-DRIFT-FIX-MS0/U-SDF02 gate: BEFORE releasing a "crashed"-by-
+    // heartbeat slot, check whether the owning terminal window's PID is
+    // still alive on this host. If the window is open, the chat may simply
+    // be idle (long /compact, user think-time, etc.) — releasing the slot
+    // here causes the exact symptom the user reported: "chats randomly exit
+    // out of the chat slot then another chat claims that slot in between
+    // sessions". Same-host PID-alive => keep the binding. The operator
+    // override path (`--force --confirmRecent` below) is unaffected.
     const now = Date.now();
     for (const n of SLOT_NAMES) {
       const s = file.slots[n];
-      if (s && classifySlot(s, now) === "crashed") {
+      if (s && classifySlot(s, now) === "crashed" && !shouldKeepSlotAlive(s)) {
         file.slots[n] = null;
       }
     }
@@ -700,15 +841,25 @@ export function reclaimCrashed(statePath = DEFAULT_STATE_PATH, lockPath = DEFAUL
     const file = readSlots(statePath);
     const now = Date.now();
     const reclaimed = [];
+    const kept = [];
     for (const n of SLOT_NAMES) {
       const s = file.slots[n];
+      // SLOT-DRIFT-FIX-MS0/U-SDF02: keep heartbeat-crashed slots whose owning
+      // terminal window is still alive (same-host PID probe). Sibling fix to
+      // the in-claim auto-sweep above. Surface kept-alive slots in the
+      // return value so operators / fleet-reaper can observe what the gate
+      // saved (and tune if needed).
       if (s && classifySlot(s, now) === "crashed") {
-        reclaimed.push({ slot: n, chatId: s.chatId, host: s.host, lastHeartbeat: s.lastHeartbeat });
-        file.slots[n] = null;
+        if (shouldKeepSlotAlive(s)) {
+          kept.push({ slot: n, chatId: s.chatId, host: s.host, lastHeartbeat: s.lastHeartbeat, reason: "window_pid_alive" });
+        } else {
+          reclaimed.push({ slot: n, chatId: s.chatId, host: s.host, lastHeartbeat: s.lastHeartbeat });
+          file.slots[n] = null;
+        }
       }
     }
     if (reclaimed.length > 0) writeSlotsAtomic(file, statePath);
-    return { ok: true, reclaimed };
+    return { ok: true, reclaimed, kept };
   }, lockPath);
 }
 
