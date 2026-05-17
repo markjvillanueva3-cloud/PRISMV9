@@ -407,7 +407,13 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // restoration cascade. Read methods only; clearDossier() DEFERRED
 // (deletes dossier file from disk).
 "pcr_has_dossier", "pcr_get_dossier_age", "pcr_load_dossier",
-"pcr_restore", "pcr_get_summary", "pcr_format_for_injection"] as const;
+"pcr_restore", "pcr_get_summary", "pcr_format_for_injection",
+// WIRE-UNWIRED-MS0/U-WIRE-RI: ResourceIndexEngine — H: drive resource
+// discovery. Read methods only; markExtracted() DEFERRED (mutates the
+// shared extraction-status registry other pipelines consume).
+"ri_get_index", "ri_get_unextracted_folders", "ri_search",
+"ri_get_extraction_summary", "ri_get_jm_die_folders",
+"ri_get_jm_die_program_sample"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -2669,6 +2675,51 @@ export function registerDevDispatcher(server: any): void {
             const { postCompactRestorationEngine } = await import("../../engines/PostCompactRestorationEngine.js");
             const injection = postCompactRestorationEngine.formatForInjection();
             result = { injection, length: injection.length };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-RI: ResourceIndexEngine ──────────────
+          case "ri_get_index": {
+            const { resourceIndexEngine } = await import("../../engines/ResourceIndexEngine.js");
+            const force_refresh = (params as { force_refresh?: boolean }).force_refresh ?? false;
+            const index = await resourceIndexEngine.getIndex(force_refresh);
+            result = { index, folder_count: index.folders.length, total_files: index.totalFiles };
+            break;
+          }
+          case "ri_get_unextracted_folders": {
+            const { resourceIndexEngine } = await import("../../engines/ResourceIndexEngine.js");
+            const p = params as { priority_filter?: "high" | "medium" | "low" };
+            const folders = await resourceIndexEngine.getUnextractedFolders(p.priority_filter);
+            result = { folders, count: folders.length };
+            break;
+          }
+          case "ri_search": {
+            const { resourceIndexEngine } = await import("../../engines/ResourceIndexEngine.js");
+            const p = params as { query: string; type_filter?: any };
+            const entries = await resourceIndexEngine.search(p.query, p.type_filter);
+            result = { query: p.query, entries, count: entries.length };
+            break;
+          }
+          case "ri_get_extraction_summary": {
+            const { resourceIndexEngine } = await import("../../engines/ResourceIndexEngine.js");
+            const summary = await resourceIndexEngine.getExtractionSummary();
+            result = { summary, length: summary.length };
+            break;
+          }
+          case "ri_get_jm_die_folders": {
+            const { resourceIndexEngine } = await import("../../engines/ResourceIndexEngine.js");
+            const folders = resourceIndexEngine.getJMDieFolders();
+            result = { folders, count: folders.length };
+            break;
+          }
+          case "ri_get_jm_die_program_sample": {
+            const { resourceIndexEngine } = await import("../../engines/ResourceIndexEngine.js");
+            const p = params as { machine_type: string; count?: number };
+            try {
+              const samples = await resourceIndexEngine.getJMDieProgramSample(p.machine_type, p.count ?? 10);
+              result = { machine_type: p.machine_type, samples, count: samples.length };
+            } catch (e) {
+              result = { machine_type: p.machine_type, error: `program sample failed: ${(e as Error).message}` };
+            }
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-CEX: CatalogExtractionEngine ─────────

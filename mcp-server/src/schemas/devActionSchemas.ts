@@ -2430,4 +2430,41 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   pcr_format_for_injection: z.object({}).describe(
     "Pre-formatted restoration block suitable for context injection. Pure read."
   ),
+
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-RI: ResourceIndexEngine wiring ──
+  // H: drive resource mapping + discovery (PDFs, MIT courses, catalogs,
+  // machine models, post processors, JM DIE programs). Read methods only;
+  // markExtracted() DEFERRED (mutates shared extraction status which other
+  // resource-extraction pipelines consume).
+  ri_get_index: z.object({
+    force_refresh: z.boolean().optional()
+      .describe("Bypass cache + re-scan filesystem (default false; cache TTL 5min)"),
+  }).describe("Full ResourceIndex {schemaVersion, basePaths, totalFiles, folders[], extractionProgress}. Pure read."),
+
+  ri_get_unextracted_folders: z.object({
+    priority_filter: z.enum(["high", "medium", "low"]).optional()
+      .describe("Optional priority band filter"),
+  }).describe("List folders whose extraction status is not 'completed'. Pure read."),
+
+  ri_search: z.object({
+    query: z.string().min(1).max(256)
+      .describe("Substring match against folder name/path (case-insensitive)"),
+    type_filter: z.enum(["pdf","video","course","catalog","program","cad","post","model","spreadsheet","archive","other"]).optional()
+      .describe("Optional resource-type filter"),
+  }).describe("Search resource entries by name/path with optional type filter. Pure read."),
+
+  ri_get_extraction_summary: z.object({}).describe(
+    "Human-readable summary of extraction progress across all known folders. Pure read."
+  ),
+
+  ri_get_jm_die_folders: z.object({}).describe(
+    "List JM Die customer folders with program counts. Pure read."
+  ),
+
+  ri_get_jm_die_program_sample: z.object({
+    machine_type: z.string().min(1).max(64)
+      .describe("Machine type folder name (e.g. 'CNC LATHE', 'CNC MILL')"),
+    count: z.number().int().positive().max(500).optional()
+      .describe("Number of program samples to return (default 10, max 500)"),
+  }).describe("Sample programs from one JM Die machine-type folder. Pure read (filesystem)."),
 };
