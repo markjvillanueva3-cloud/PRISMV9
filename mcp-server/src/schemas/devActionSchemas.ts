@@ -3167,6 +3167,67 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   // ── WIRE-UNWIRED-MS0 / U-WIRE-AGS: AutonomousGoalSynthesisEngine ──
   // Single pure-compute method ranks gap-descriptors by
   // Ψ_impact × urgency × feasibility. No I/O, no state mutation.
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-WPNA: WEDMProgramNeuralAnalysisEngine ──
+  // 4 read-only neural-analysis actions:
+  //   wpna_validate_order        validateOperationOrder(ecodes[]) — sync
+  //   wpna_predict_break_risk    predictWireBreakRisk(params) — sync
+  //   wpna_optimize_parameters   optimizeParameters(params, mat?, thick?) — sync
+  //   wpna_analyze_program       analyzeProgram(content, opts?) — async (composes parser+validators)
+  // DEFER: suggestImprovements(analysis) — accepts complex nested
+  // Partial<ProgramAnalysis> tree (pattern_matches[], anti_patterns[]),
+  // class=fictional-template-injection (caller could inject fake pattern data
+  // that flows into improvement output). Surface only when validated tree
+  // schema is co-developed.
+  wpna_validate_order: z.object({
+    ecodes: z.array(z.string().min(1).max(16)).min(0).max(50)
+      .describe("E-code list (typically E1221/E2200/E2300 etc.). Cap 50 (DoS guard)."),
+  }).describe("Validate WEDM operation order — pure compute, no I/O."),
+
+  wpna_predict_break_risk: z.object({
+    e_code: z.string().min(1).max(16),
+    pass_number: z.number().int().min(1).max(20),
+    pass_type: z.enum(["rough", "skim"]),
+    on_time_us: z.number().min(0).max(100_000).optional(),
+    off_time_us: z.number().min(0).max(100_000).optional(),
+    peak_current_A: z.number().min(0).max(1000).optional(),
+    servo_voltage: z.number().min(0).max(500).optional(),
+    wire_tension_g: z.number().min(0).max(5000).optional(),
+    wire_speed_m_min: z.number().min(0).max(500).optional(),
+    feed_rate_mm_min: z.number().min(0).max(1000).optional(),
+    offset_mm: z.number().min(0).max(10).optional(),
+    gap_voltage_v: z.number().min(0).max(500).optional(),
+    flush_pressure_bar: z.number().min(0).max(100).optional(),
+  }).describe("Wire-break risk assessment from physics+pattern models. Pure compute."),
+
+  wpna_optimize_parameters: z.object({
+    e_code: z.string().min(1).max(16),
+    pass_number: z.number().int().min(1).max(20),
+    pass_type: z.enum(["rough", "skim"]),
+    on_time_us: z.number().min(0).max(100_000).optional(),
+    off_time_us: z.number().min(0).max(100_000).optional(),
+    peak_current_A: z.number().min(0).max(1000).optional(),
+    servo_voltage: z.number().min(0).max(500).optional(),
+    wire_tension_g: z.number().min(0).max(5000).optional(),
+    wire_speed_m_min: z.number().min(0).max(500).optional(),
+    feed_rate_mm_min: z.number().min(0).max(1000).optional(),
+    offset_mm: z.number().min(0).max(10).optional(),
+    gap_voltage_v: z.number().min(0).max(500).optional(),
+    flush_pressure_bar: z.number().min(0).max(100).optional(),
+    material: z.string().min(1).max(64).optional()
+      .describe("Material key (tool_steel | stainless | carbide | etc.). Default 'tool_steel'."),
+    thickness_mm: z.number().min(0).max(1000).optional()
+      .describe("Workpiece thickness mm. Default 25."),
+  }).describe("Parameter optimization vs material/thickness bounds. Pure compute."),
+
+  wpna_analyze_program: z.object({
+    programContent: z.string().min(1).max(1_048_576)
+      .describe("Raw NC program text. Cap 1MB (DoS guard)."),
+    filename: z.string().min(1).max(256).optional(),
+    material: z.string().min(1).max(64).optional(),
+    thickness_mm: z.number().min(0).max(1000).optional(),
+    target_ra_um: z.number().min(0).max(50).optional(),
+  }).describe("Full program analysis — parser + validators + risk + patterns + reasoning chain."),
+
   // ── WIRE-UNWIRED-MS0 / U-WIRE-WPN: WEDMPrototypicalNetworkEngine ──
   // 4 pure-compute actions over the 7-dim few-shot embedding lattice:
   //   wpn_classify          → classify(features) — softmax ISO-group match

@@ -475,7 +475,8 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "sfr_get_improvement_recommendations", "sfr_get_self_awareness",
 "ags_propose",
 "wre_explain",
-"wpn_classify", "wpn_cluster_quality", "wpn_get_prototypes", "wpn_nearest_support"] as const;
+"wpn_classify", "wpn_cluster_quality", "wpn_get_prototypes", "wpn_nearest_support",
+"wpna_validate_order", "wpna_predict_break_risk", "wpna_optimize_parameters", "wpna_analyze_program"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -3736,6 +3737,78 @@ export function registerDevDispatcher(server: any): void {
             result = {
               result: r,
               distance_non_negative: r.distance >= 0,
+            };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-WPNA: WEDMProgramNeuralAnalysisEngine ─
+          case "wpna_validate_order": {
+            const { wedmProgramNeuralAnalysisEngine } = await import("../../engines/WEDMProgramNeuralAnalysisEngine.js");
+            const p = params as { ecodes: string[] };
+            const r = wedmProgramNeuralAnalysisEngine.validateOperationOrder(p.ecodes);
+            // r returns OrderValidation w/ violations[], offset_values_mm[],
+            // m_code_validation{}. Use explicit counts + boolean discriminators
+            // for slim-tolerant payload.
+            result = {
+              result: r,
+              violation_count: r.violations.length,
+              critical_violation_count: r.violations.filter((v) => v.severity === "critical").length,
+              is_valid: r.valid,
+              ecode_count: r.e_codes_found.length,
+            };
+            break;
+          }
+          case "wpna_predict_break_risk": {
+            const { wedmProgramNeuralAnalysisEngine } = await import("../../engines/WEDMProgramNeuralAnalysisEngine.js");
+            const r = wedmProgramNeuralAnalysisEngine.predictWireBreakRisk(
+              params as Parameters<typeof wedmProgramNeuralAnalysisEngine.predictWireBreakRisk>[0],
+            );
+            // predicted_breaks_per_hour optional — explicit discriminator.
+            result = {
+              result: r,
+              factor_count: r.factors.length,
+              mitigation_count: r.mitigations.length,
+              has_predicted_breaks: typeof r.predicted_breaks_per_hour === "number",
+              risk_level: r.risk_level,
+            };
+            break;
+          }
+          case "wpna_optimize_parameters": {
+            const { wedmProgramNeuralAnalysisEngine } = await import("../../engines/WEDMProgramNeuralAnalysisEngine.js");
+            const p = params as Record<string, unknown>;
+            // Split params from material/thickness — engine expects
+            // (WEDMParams, string?, number?) positional.
+            const { material, thickness_mm, ...wedmParams } = p as { material?: string; thickness_mm?: number } & Record<string, unknown>;
+            const r = wedmProgramNeuralAnalysisEngine.optimizeParameters(
+              wedmParams as Parameters<typeof wedmProgramNeuralAnalysisEngine.optimizeParameters>[0],
+              material,
+              thickness_mm,
+            );
+            result = {
+              result: r,
+              change_count: r.changes.length,
+              warning_count: r.warnings.length,
+              cycle_time_reduction_pct: r.improvements.cycle_time_reduction_pct,
+              quality_improvement_pct: r.improvements.quality_improvement_pct,
+            };
+            break;
+          }
+          case "wpna_analyze_program": {
+            const { wedmProgramNeuralAnalysisEngine } = await import("../../engines/WEDMProgramNeuralAnalysisEngine.js");
+            const p = params as { programContent: string; filename?: string; material?: string; thickness_mm?: number; target_ra_um?: number };
+            const r = await wedmProgramNeuralAnalysisEngine.analyzeProgram(p.programContent, {
+              filename: p.filename,
+              material: p.material,
+              thickness_mm: p.thickness_mm,
+              target_ra_um: p.target_ra_um,
+            });
+            result = {
+              result: r,
+              pass_count: r.pass_count,
+              anti_pattern_count: r.anti_patterns.length,
+              improvement_count: r.improvements.length,
+              critical_error_count: r.critical_errors.length,
+              warning_count: r.warnings.length,
+              score: r.score,
             };
             break;
           }
