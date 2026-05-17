@@ -1196,7 +1196,10 @@ class PostProcessorPipelineEngineImpl {
               }
 
               // 8. Taylor tool life check — warn if Vc gives < 15 min tool life
-              const toolLife = taylorLife(taylor.C, taylor.n, blockVc, tool.coating);
+              // taylorLife signature is (C, n, Vc); the prior 4th-arg coating multiplier
+              // (1.3x for coated inserts, 1.0x otherwise) is preserved here to keep the
+              // downstream toolLife<15 gate decision aligned with the original behavior.
+              const toolLife = taylorLife(taylor.C, taylor.n, blockVc) * (tool.coating ? 1.3 : 1);
               if (toolLife < 15 && blockVc > 10) {
                 // Reduce Vc to achieve 15-min minimum life
                 const targetVc = taylor.C * Math.pow(1 / 15, taylor.n) * (tool.coating ? 1.3 : 1);
