@@ -54,21 +54,33 @@ import { randomBytes } from "node:crypto";
 // chat-slots.mjs's readSlots it never writes a `.corrupt-*` backup — a reader
 // must not mutate a file a peer process owns.
 //
-// KEEP IN SYNC WITH chat-slots.mjs (verified 2026-05-15, expanded to 10):
-//   SLOT_NAMES         = [alpha..juliett]  (9 work + 1 hygiene; golf = hygiene)
+// KEEP IN SYNC WITH chat-slots.mjs (verified 2026-05-16, expanded to 13):
+//   SLOT_NAMES         = [alpha..mike]  (12 work + 1 hygiene; golf = hygiene)
 //   STALE_TTL_MS       = 2 * 60 * 1000     (alive  if heartbeat younger)
 //   CRASH_TTL_MS       = 10 * 60 * 1000    (stale below this, crashed above)
 //   classifySlot()     = idle | alive | stale | crashed (same branch logic)
-//   readSlots() parse + 10-slot-backfill contract (only the corrupt-backup WRITE
+//   readSlots() parse + 13-slot-backfill contract (only the corrupt-backup WRITE
 //     is intentionally dropped here — the parse/shape behaviour must still track)
 //   DEFAULT_SLOTS_PATH (chat-slots.mjs calls this DEFAULT_STATE_PATH)
 // The drift guard in fleet-reaper.test.mjs text-asserts these values against
 // chat-slots.mjs so silent drift becomes a red test. If chat-slots.mjs ever
 // becomes vitest-loadable, delete this block and restore the direct import.
+//
+// DRIFT HISTORY: chat-slots.mjs expanded 7→10 on 2026-05-15 (this file
+// followed in lock-step; safeguard held). chat-slots.mjs expanded 10→12 on
+// 2026-05-16 (added kilo, lima) WITHOUT updating THIS file — the drift
+// safeguard was breached for an unknown window. Symptom: processes spawned
+// by the kilo and lima chats classified as "unowned" instead of
+// "alive-slot-protected", letting the reaper consider them reapable.
+// Detected + fixed 2026-05-16 (user report "fleet reaper was designed for 7
+// chats, we're up to 12"). chat-slots.mjs expanded 12→13 on 2026-05-16
+// (added mike) — this file updated in lock-step (same commit).
 
-/** NATO-phonetic slot names — alpha..foxtrot + hotel..india work slots + golf hygiene + juliett work.
- *  Expanded 2026-05-15 per `[[feedback_fleet_design_10_chats]]`. Total 10. */
-const SLOT_NAMES = ["alpha", "bravo", "charlie", "delta", "echo", "foxtrot", "golf", "hotel", "india", "juliett"];
+/** NATO-phonetic slot names — alpha..foxtrot + hotel..mike work slots + golf hygiene.
+ *  Expanded 2026-05-16 from 12→13 (added mike) per the operator directive
+ *  "add a 13th chat slot, update everything that needs to update to intake
+ *  a 13th chat". Total 13. */
+const SLOT_NAMES = ["alpha", "bravo", "charlie", "delta", "echo", "foxtrot", "golf", "hotel", "india", "juliett", "kilo", "lima", "mike"];
 
 /** A slot whose heartbeat is younger than this is "alive". */
 const STALE_TTL_MS = 2 * 60 * 1000;
@@ -325,19 +337,28 @@ $out = foreach ($p in $procs) {
   [pscustomobject]@{
     pid       = [int]$p.ProcessId
     ppid      = [int]$p.ParentProcessId
-    name      = $p.Name
-    # Strip C0 control chars (U+0000..U+001F) from the command line BEFORE
+    # Strip C0 control chars (U+0000..U+001F) from EVERY string field BEFORE
     # ConvertTo-Json. Windows PowerShell 5.1's ConvertTo-Json emits raw
     # control bytes inside string literals instead of u-escaped hex, so a
-    # single process whose cmdline contains a control char (e.g. a node
-    # eval with an embedded payload) produces JSON that Node's strict
-    # JSON.parse rejects ("Bad control character in string literal"),
-    # blinding the ENTIRE enumeration -> reaper sees 0 procs -> orphans
-    # accumulate. Controls are never meaningful for the reaper's structural
-    # cmdline pattern-matching, so -> space is lossless. The if/else keeps a
-    # genuine null distinct from an empty cmdline for normalizeProc. The
-    # doubled backslashes survive the JS template literal as a literal
-    # backslash so .NET regex receives the intended hex char-class.
+    # single process whose name OR cmdline contains a control char (e.g. a
+    # node eval with an embedded payload, or rare unicode in a process
+    # image name) produces JSON that Node's strict JSON.parse rejects
+    # ("Bad control character in string literal"), blinding the ENTIRE
+    # enumeration -> reaper sees 0 procs -> orphans accumulate -> commit
+    # pressure climbs unseen until a chat OOMs.
+    #
+    # The 2026-05-16b fix sanitized $p.CommandLine but NOT $p.Name. A live
+    # repro on 2026-05-17 (golf slot, fleet-memory-monitor at 96% commit)
+    # confirmed enum-blind reoccurred at JSON pos 97856 - past the typical
+    # cmd-field byte budget, consistent with a non-cmd string field carrying
+    # the offending byte. Extending the strip to $p.Name closes the class.
+    #
+    # Controls are never meaningful for the reaper's structural pattern-
+    # matching, so -> space is lossless. The if/else keeps a genuine null
+    # distinct from an empty value for normalizeProc. The doubled backslashes
+    # survive the JS template literal as a literal backslash so .NET regex
+    # receives the intended hex char-class.
+    name      = if ($p.Name) { $p.Name -replace '[\\x00-\\x1F]', ' ' } else { $null }
     cmd       = if ($p.CommandLine) { $p.CommandLine -replace '[\\x00-\\x1F]', ' ' } else { $null }
     createdMs = $cms
     rssBytes  = [int64]$p.WorkingSetSize
