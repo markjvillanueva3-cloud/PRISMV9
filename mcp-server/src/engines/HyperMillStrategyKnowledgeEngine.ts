@@ -1696,7 +1696,7 @@ export class HyperMillStrategyKnowledgeEngine {
 
     // HPC optimization
     if (
-      setup.category !== "hpc" &&
+      !setup.current_strategy?.toLowerCase().includes("hpc") &&
       ["pocket_2d", "pocket_open", "slot"].includes(setup.geometry_type) &&
       setup.operation_goal === "roughing" &&
       ["P", "M", "H"].includes(setup.material_group)
