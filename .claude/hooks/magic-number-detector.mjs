@@ -85,15 +85,48 @@ function isCodeFile(filePath) {
   return CODE_EXTENSIONS.some(ext => filePath?.endsWith(ext));
 }
 
+// SLOT-DRIFT-FIX-MS0/U-SDF09 (2026-05-17): strip noise that the magic-number
+// regex falsely matches as numbers. Without this, every comment containing a
+// date (e.g. "2026-05-17") fires ~3 magic-number warnings per Edit (the `-05`
+// and `-17` match `[+\-*/]\s*\d+`). Across an autonomous /loop session this
+// emits hundreds of false-positive system-reminders, burning ~500B per Edit
+// of context for ZERO actionable signal. Strip:
+//   1. Line comments (// to end of line)
+//   2. Block comments (/* ... */)
+//   3. String literals ("...", '...', `...` — including multi-line backticks)
+//   4. ISO date patterns (\d{4}-\d{2}-\d{2})
+// Real code outside these contexts is what we actually want to scan.
+export function stripNoiseForScan(content) {
+  if (typeof content !== "string" || content.length === 0) return "";
+  let s = content;
+  // Order matters: strip block comments before strings (block-comment delimiters
+  // are not valid inside strings, but a string containing "/*" would be misread
+  // if we did it the other way around).
+  s = s.replace(/\/\*[\s\S]*?\*\//g, " ");
+  // Line comments — but only //, NOT URLs like https://. Look for // NOT
+  // preceded by ":" or "/" (already handled by block strip).
+  s = s.replace(/(^|[^:\/])\/\/[^\n]*/g, "$1");
+  // Strings (greedy-safe per-line — multi-line backtick template literals
+  // get \s\S treatment).
+  s = s.replace(/`[\s\S]*?`/g, " ");
+  s = s.replace(/"(?:[^"\\]|\\.)*"/g, " ");
+  s = s.replace(/'(?:[^'\\]|\\.)*'/g, " ");
+  // ISO dates — leave nothing scannable
+  s = s.replace(/\b\d{4}[-/]\d{1,2}[-/]\d{1,2}\b/g, " ");
+  return s;
+}
+
 function checkContent(content) {
   const issues = [];
   const seen = new Set();
+  // U-SDF09: scan the noise-stripped content, not raw — kills date+comment
+  // false-positives that dominated Edit-stream noise.
+  const scanContent = stripNoiseForScan(content);
 
   for (const rule of MAGIC_NUMBER_PATTERNS) {
-    let match;
     const regex = new RegExp(rule.pattern.source, rule.pattern.flags);
 
-    while ((match = regex.exec(content)) !== null) {
+    for (const match of scanContent.matchAll(regex)) {
       const num = match[1];
 
       if (rule.skipNumbers?.has(num)) continue;
