@@ -675,7 +675,7 @@ export class LatheAIReasoningEngine {
   private checkPlaybookRules(context: LatheOperationContext): Array<{ id: string; title: string; advice: string }> {
     try {
       const result = machiningPlaybookEngine.advise({
-        categories: ["turning", context.operation_type.split("_")[0]],
+        categories: ["turning"],
         operation_type: "turning",
         material_iso: context.material_iso,
       });
@@ -683,7 +683,7 @@ export class LatheAIReasoningEngine {
       return result.rules.map(r => ({
         id: r.id,
         title: r.title,
-        advice: r.advice || r.title,
+        advice: r.rule || r.title,
       }));
     } catch {
       return [];
