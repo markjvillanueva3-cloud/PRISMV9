@@ -465,7 +465,8 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "ml_get_speed_feed", "ml_universal_search",
 "ml_get_material", "ml_get_tool", "ml_get_gcode",
 "ml_get_self_awareness",
-"ssl_find_setup", "ssl_get_setup", "ssl_suggest_reuse"] as const;
+"ssl_find_setup", "ssl_get_setup", "ssl_suggest_reuse",
+"npq_qualify", "npq_get_stats"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -3541,6 +3542,28 @@ export function registerDevDispatcher(server: any): void {
               suggestions: r.suggestions,
               suggestion_count: r.suggestions.length,
             };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-NPQ: NadcapProcessQualificationEngine
+          case "npq_qualify": {
+            const { nadcapProcessQualificationEngine } = await import("../../engines/NadcapProcessQualificationEngine.js");
+            const r = nadcapProcessQualificationEngine.qualify(params as Parameters<typeof nadcapProcessQualificationEngine.qualify>[0]);
+            // r returns {process, findings_A/B/C, compliant_count, applicable_count,
+            //            compliance_pct, verdict, audit_overdue, tus_overdue?,
+            //            cert_gaps[], reasoning[], remediation_priority[]}.
+            result = {
+              result: r,
+              verdict: r.verdict,
+              total_findings: r.findings_A + r.findings_B + r.findings_C,
+              cert_gap_count: r.cert_gaps.length,
+              remediation_count: r.remediation_priority.length,
+            };
+            break;
+          }
+          case "npq_get_stats": {
+            const { nadcapProcessQualificationEngine } = await import("../../engines/NadcapProcessQualificationEngine.js");
+            const stats = nadcapProcessQualificationEngine.getStats();
+            result = { stats, process_count: stats.processes.length };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-CMC: CapacityMonteCarloEngine ────────

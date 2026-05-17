@@ -3051,6 +3051,37 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     features: z.array(z.string().min(1).max(128)).min(0).max(64),
   }).describe("Suggest similar prior setups based on size + features + material. Pure read."),
 
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-NPQ: NadcapProcessQualificationEngine ──
+  // Both methods are pure compute/read — no engine state mutation.
+  npq_qualify: z.object({
+    process: z.enum([
+      "heat_treat", "chemical_processing", "non_conventional_machining",
+      "ndt", "surface_enhancement", "composites",
+      "conventional_machining", "materials_testing", "fluids_distribution",
+    ]).describe("Nadcap process type"),
+    cycle_months: z.number().int().positive().max(120).optional()
+      .describe("Audit cycle months (default 24, max 10yr DoS bound)"),
+    last_audit_date: z.string().min(1).max(32).optional()
+      .describe("ISO-8601 last audit date"),
+    line_items: z.array(z.object({
+      ref: z.string().min(1).max(128),
+      description: z.string().min(1).max(512),
+      status: z.enum(["compliant", "minor", "major", "critical", "not_applicable"]),
+      evidence: z.string().min(1).max(1024).optional(),
+    })).min(0).max(500)
+      .describe("Audit line items (max 500 DoS bound)"),
+    operator_certs: z.array(z.string().min(1).max(128)).max(64).optional()
+      .describe("Operator certifications (max 64)"),
+    tus_last_date: z.string().min(1).max(32).optional()
+      .describe("Furnace Temperature Uniformity Survey last date (heat_treat only)"),
+    accredited: z.boolean().optional()
+      .describe("Is supplier already Nadcap-accredited"),
+  }).describe("Run Nadcap special-process audit qualification check. Pure compute."),
+
+  npq_get_stats: z.object({}).describe(
+    "Engine stats (covered Nadcap process types + reference standard). Pure read."
+  ),
+
   cmc_simulate: z.object({
     machines: z.array(z.object({
       id: z.string().min(1).max(128),
