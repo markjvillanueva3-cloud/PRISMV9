@@ -1254,6 +1254,38 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   mit_courses_harvest: z.object({}).passthrough()
     .describe("Full scan of all 6 zones — returns every course with metadata + aggregation maps. Read-only."),
 
+  // ── WIRE-UNWIRED-MS0/U-WIRE-MCA: ManufacturerCatalogAIEngine ──────────────
+  // (read-only catalog queries; complex-input methods selectToolHolder /
+  //  matchWorkholding / findCuttingTool / compareManufacturers /
+  //  getJMDieRecommendations DEFERRED — deeply nested input specs)
+  mca_all_holders: z.object({}).passthrough()
+    .describe("All ToolHolderSpec entries across all catalogs. Read-only."),
+
+  mca_all_workholding: z.object({}).passthrough()
+    .describe("All WorkholdingSpec entries (chucks, vises, fixtures). Read-only."),
+
+  mca_all_cutting_tools: z.object({}).passthrough()
+    .describe("All CuttingToolSpec entries. Read-only."),
+
+  mca_bigdaishowa_families: z.object({}).passthrough()
+    .describe("Big Daishowa toolholder family catalog. Read-only."),
+
+  mca_vendor_trust: z.object({}).passthrough()
+    .describe("Vendor trust scores per CatalogManufacturer. Read-only."),
+
+  mca_catalog_paths: z.object({}).passthrough()
+    .describe("Filesystem paths per CatalogManufacturer. Read-only."),
+
+  mca_feature_vector: z.object({
+    item_id: z.string().min(1).describe("Catalog item id."),
+  }).passthrough()
+    .describe("Get the CatalogFeatureVector for an item. Returns null on miss. Read-only."),
+
+  mca_search: z.object({
+    keyword: z.string().min(1).describe("Search keyword (case-insensitive substring)."),
+  }).passthrough()
+    .describe("Search catalog across holders/workholding/cutting tools. Read-only."),
+
   // ── WIRE-UNWIRED-MS0/U-WIRE-MDA: MachineDataAuditEngine ───────────────────
   // (read-only query surface; complex-input methods auditMachineFields /
   //  calculateCompleteness / validatePackage / generateCanonicalPackage

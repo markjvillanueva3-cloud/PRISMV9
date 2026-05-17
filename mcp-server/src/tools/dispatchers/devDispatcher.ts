@@ -272,7 +272,12 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // surface; complex-input audit methods DEFERRED — they take a full
 // CanonicalMachinePackage which is a deeply nested type)
 "mda_report", "mda_summary", "mda_critical_gaps",
-"mda_by_layer", "mda_by_manufacturer", "mda_by_type"] as const;
+"mda_by_layer", "mda_by_manufacturer", "mda_by_type",
+// WIRE-UNWIRED-MS0/U-WIRE-MCA: ManufacturerCatalogAIEngine (read-only
+// catalog queries; complex multi-arg search methods DEFERRED)
+"mca_all_holders", "mca_all_workholding", "mca_all_cutting_tools",
+"mca_bigdaishowa_families", "mca_vendor_trust", "mca_catalog_paths",
+"mca_feature_vector", "mca_search"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -1659,6 +1664,63 @@ export function registerDevDispatcher(server: any): void {
           case "mit_courses_harvest": {
             const { MitCourseIndexEngine } = await import("../../engines/MitCourseIndexEngine.js");
             result = { harvest: await MitCourseIndexEngine.harvest() };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-MCA: ManufacturerCatalogAIEngine ─────
+          case "mca_all_holders": {
+            const { manufacturerCatalogAIEngine } = await import("../../engines/ManufacturerCatalogAIEngine.js");
+            const holders = manufacturerCatalogAIEngine.getAllHolders();
+            result = { holders, count: holders.length };
+            break;
+          }
+          case "mca_all_workholding": {
+            const { manufacturerCatalogAIEngine } = await import("../../engines/ManufacturerCatalogAIEngine.js");
+            const workholding = manufacturerCatalogAIEngine.getAllWorkholding();
+            result = { workholding, count: workholding.length };
+            break;
+          }
+          case "mca_all_cutting_tools": {
+            const { manufacturerCatalogAIEngine } = await import("../../engines/ManufacturerCatalogAIEngine.js");
+            const tools = manufacturerCatalogAIEngine.getAllCuttingTools();
+            result = { cutting_tools: tools, count: tools.length };
+            break;
+          }
+          case "mca_bigdaishowa_families": {
+            const { manufacturerCatalogAIEngine } = await import("../../engines/ManufacturerCatalogAIEngine.js");
+            const families = manufacturerCatalogAIEngine.getBigDaishowaFamilies();
+            result = { families, count: families.length };
+            break;
+          }
+          case "mca_vendor_trust": {
+            const { manufacturerCatalogAIEngine } = await import("../../engines/ManufacturerCatalogAIEngine.js");
+            result = { vendor_trust: manufacturerCatalogAIEngine.getVendorTrustScores() };
+            break;
+          }
+          case "mca_catalog_paths": {
+            const { manufacturerCatalogAIEngine } = await import("../../engines/ManufacturerCatalogAIEngine.js");
+            result = { catalog_paths: manufacturerCatalogAIEngine.getCatalogPaths() };
+            break;
+          }
+          case "mca_feature_vector": {
+            const { manufacturerCatalogAIEngine } = await import("../../engines/ManufacturerCatalogAIEngine.js");
+            const id = (params as { item_id: string }).item_id;
+            const vector = manufacturerCatalogAIEngine.getFeatureVector(id);
+            result = { vector };
+            break;
+          }
+          case "mca_search": {
+            const { manufacturerCatalogAIEngine } = await import("../../engines/ManufacturerCatalogAIEngine.js");
+            const keyword = (params as { keyword: string }).keyword;
+            const results = manufacturerCatalogAIEngine.searchCatalog(keyword);
+            result = {
+              results,
+              counts: {
+                holders: results.holders.length,
+                workholding: results.workholding.length,
+                cutting_tools: results.cutting_tools.length,
+                total: results.holders.length + results.workholding.length + results.cutting_tools.length,
+              },
+            };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-MDA: MachineDataAuditEngine ──────────
