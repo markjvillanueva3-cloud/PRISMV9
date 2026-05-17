@@ -384,7 +384,14 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // blocking errors into "Try instead:" hints. Read methods only;
 // register/registerAll/clear DEFERRED (LLM-callable registers would
 // let fictional templates mask real errors).
-"aet_has", "aet_get", "aet_render", "aet_list_codes", "aet_size"] as const;
+"aet_has", "aet_get", "aet_render", "aet_list_codes", "aet_size",
+// WIRE-UNWIRED-MS0/U-WIRE-GSE: GoalStackEngine — hierarchical goal
+// stack hooks inject into UserPromptSubmit. Read methods only;
+// push/complete/abandon/completeCascade/clear DEFERRED (writes mutate
+// the shared singleton hooks read; LLM mutators would let one chat
+// silently rewrite another chat's goals).
+"gse_current", "gse_top_n", "gse_tree", "gse_get",
+"gse_all", "gse_active_count", "gse_to_json"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -2465,6 +2472,54 @@ export function registerDevDispatcher(server: any): void {
           case "aet_size": {
             const { actionableErrorTemplateEngine } = await import("../../engines/ActionableErrorTemplateEngine.js");
             result = { size: actionableErrorTemplateEngine.size() };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-GSE: GoalStackEngine ─────────────────
+          case "gse_current": {
+            const { goalStackEngine } = await import("../../engines/GoalStackEngine.js");
+            const goal = goalStackEngine.current();
+            result = goal === null
+              ? { found: false }
+              : { found: true, goal };
+            break;
+          }
+          case "gse_top_n": {
+            const { goalStackEngine } = await import("../../engines/GoalStackEngine.js");
+            const n = (params as { n?: number }).n ?? 5;
+            const entries = goalStackEngine.topN(n);
+            result = { entries, count: entries.length, n };
+            break;
+          }
+          case "gse_tree": {
+            const { goalStackEngine } = await import("../../engines/GoalStackEngine.js");
+            const tree = goalStackEngine.tree();
+            result = { tree, root_count: tree.length };
+            break;
+          }
+          case "gse_get": {
+            const { goalStackEngine } = await import("../../engines/GoalStackEngine.js");
+            const id = (params as { id: string }).id;
+            const goal = goalStackEngine.get(id);
+            result = goal === null
+              ? { found: false, id }
+              : { found: true, id, goal };
+            break;
+          }
+          case "gse_all": {
+            const { goalStackEngine } = await import("../../engines/GoalStackEngine.js");
+            const goals = goalStackEngine.all();
+            result = { goals, count: goals.length };
+            break;
+          }
+          case "gse_active_count": {
+            const { goalStackEngine } = await import("../../engines/GoalStackEngine.js");
+            result = { active_count: goalStackEngine.activeCount() };
+            break;
+          }
+          case "gse_to_json": {
+            const { goalStackEngine } = await import("../../engines/GoalStackEngine.js");
+            const snapshot = goalStackEngine.toJSON();
+            result = { snapshot };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-CEX: CatalogExtractionEngine ─────────

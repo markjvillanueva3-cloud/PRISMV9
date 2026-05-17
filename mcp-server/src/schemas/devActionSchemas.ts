@@ -2318,4 +2318,31 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   aet_list_codes: z.object({}).describe("Return every registered template code, sorted. Pure read."),
 
   aet_size: z.object({}).describe("Return the registered template count. Pure read."),
+
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-GSE: GoalStackEngine wiring ──
+  // PP-0.13-U-SAW3 hierarchical goal stack for session awareness.
+  // Hooks call topN()/current()/all() on UserPromptSubmit to inject goals
+  // into the next prompt. Read methods only — push/complete/abandon/
+  // completeCascade/clear DEFERRED (write methods mutate the shared
+  // singleton that hooks read; LLM-callable mutators would let one chat
+  // silently rewrite another chat's goal stack).
+  gse_current: z.object({}).describe("Return the most-recent active goal (or null). Pure read."),
+
+  gse_top_n: z.object({
+    n: z.number().int().positive().max(100).optional()
+      .describe("Number of top entries to return (default 5, max 100)"),
+  }).describe("Return the top-N active goals (priority + insertion order). Pure read."),
+
+  gse_tree: z.object({}).describe("Return goal tree (every root with attached children). Pure read."),
+
+  gse_get: z.object({
+    id: z.string().min(1).max(64).regex(/^g\d+$/, "id must match engine format gN (e.g. g1, g42)")
+      .describe("Goal id (engine emits monotonic 'g1', 'g2', ...)"),
+  }).describe("Look up one goal by id (returns null when unknown). Pure read."),
+
+  gse_all: z.object({}).describe("Return every goal (active + completed + abandoned). Pure read."),
+
+  gse_active_count: z.object({}).describe("Count of goals currently in 'active' status. Pure read."),
+
+  gse_to_json: z.object({}).describe("Full serialized state {schemaVersion, goals, nextId}. Pure read."),
 };
