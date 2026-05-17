@@ -290,6 +290,14 @@ function materialEntryToContext(
   const HRC_TO_HB_INTERCEPT = 104.7;
   // Classic Brinell–tensile relation for steels: σ_UTS[MPa] ≈ 3.45·HB.
   const UTS_PER_HB_MPA = 3.45;
+  // Canonical kc1.1 ↔ HB anchor pair: AISI 1045 (the ISO-P reference steel,
+  // CANONICAL_KIENZLE.P kc1_1 = 1800 N/mm²) has a documented Brinell hardness
+  // of ~170 HB (ASM Metals Handbook, normalised 1045). Specific cutting force
+  // scales near-linearly with hardness for a given ISO group, so an unknown
+  // material's HB is estimated by proportionally scaling this anchor by its
+  // group's kc1_1 — replaces a prior uncited 0.2 fudge factor.
+  const KC11_HB_ANCHOR_KC = 1800; // N/mm² — CANONICAL_KIENZLE.P (AISI 1045)
+  const KC11_HB_ANCHOR_HB = 170;  // HB — ASM normalised AISI 1045
 
   let hardness_HB: number;
   if (typeof mp.hardness_HRC === "number" && mp.hardness_HRC > 0) {
@@ -297,10 +305,11 @@ function materialEntryToContext(
   } else if (typeof mp.tensile_strength_MPa === "number" && mp.tensile_strength_MPa > 0) {
     hardness_HB = mp.tensile_strength_MPa / UTS_PER_HB_MPA;
   } else {
-    // No hardness signal — back out from the Brinell relation using the
-    // ISO-typical tensile implied by yield ratio (last-resort, flagged).
-    warnings.push(`No hardness/tensile for ${mp.name} — HB estimated from ISO ${iso} kc1_1`);
-    hardness_HB = (kienzle.kc1_1 / UTS_PER_HB_MPA) * 0.2;
+    // No hardness signal — proportionally scale the 1045 kc1_1↔HB anchor by
+    // this material's ISO-group kc1_1 (last-resort, flagged). Cited anchor,
+    // not an arbitrary tuning constant.
+    warnings.push(`No hardness/tensile for ${mp.name} — HB estimated from ISO ${iso} kc1_1 anchor (1045: ${KC11_HB_ANCHOR_KC} N/mm² ↔ ${KC11_HB_ANCHOR_HB} HB)`);
+    hardness_HB = (kienzle.kc1_1 / KC11_HB_ANCHOR_KC) * KC11_HB_ANCHOR_HB;
   }
 
   const sigma_y_MPa = typeof mp.tensile_strength_MPa === "number" && mp.tensile_strength_MPa > 0
