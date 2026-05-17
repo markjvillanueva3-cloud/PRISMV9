@@ -2878,6 +2878,43 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     "Read wiring log (last 500 entries) and return aggregated stats. Pure read."
   ),
 
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-FDA: FDA21CFRPart11Engine wiring ──
+  // Four ultra-conservative pure-read accessors. EVERYTHING write-side
+  // DEFERRED — FDA 21 CFR Part 11 is a SAFETY-CRITICAL REGULATORY
+  // COMPLIANCE engine. Exposing write surfaces to LLM-callable
+  // invocation would be:
+  //   - createSignature/signFAI/signNCR: IDENTITY-FORGERY class
+  //     (LLM-callable signing of compliance records = forgery)
+  //   - writeAuditEntry: AUDIT-INTEGRITY class (LLM fabricating audit
+  //     history = regulatory violation + immutability breach)
+  //   - createUser/authenticateUser/terminateSession: AUTH-BYPASS
+  //     class (LLM creating/authenticating users = identity bypass)
+  //   - createRecord/modifyRecord/createNewVersion/approveRecord:
+  //     RECORD-LIFECYCLE class (LLM modifying compliance records)
+  //   - setValidationStatus: CRITICAL-SAFETY-FLAG (flips the
+  //     system-validated bit; downstream code gates safety on this)
+  // ALSO DEFERRED (information-leak risk):
+  //   - queryAuditTrail: could leak audit history to LLM
+  //   - validateSession: session id could be brute-forced via LLM
+  //   - getRecord/getRecordHistory: could leak compliance records
+  fda_get_signature: z.object({
+    signature_id: z.string().min(1).max(256)
+      .describe("Signature id to look up"),
+  }).describe("Fetch a single signature record by id (returns null when absent). Pure read."),
+
+  fda_list_signatures: z.object({
+    document_ref: z.string().min(1).max(256)
+      .describe("Document reference whose signatures to list"),
+  }).describe("List all signatures for one document. Pure read."),
+
+  fda_get_validation_status: z.object({}).describe(
+    "Read system validation status (validated bool + dates + deviations). Pure read."
+  ),
+
+  fda_is_validated: z.object({}).describe(
+    "Boolean: is the FDA system marked validated. Pure read."
+  ),
+
   cmc_simulate: z.object({
     machines: z.array(z.object({
       id: z.string().min(1).max(128),

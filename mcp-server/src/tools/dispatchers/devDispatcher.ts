@@ -455,7 +455,9 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "icc_calculate_similarity", "icc_find_similar", "icc_interpolate",
 "icc_get_coverage_statistics", "icc_export",
 "osc_list_hot_jobs", "osc_build_messages_workspace",
-"ew_get_stats"] as const;
+"ew_get_stats",
+"fda_get_signature", "fda_list_signatures",
+"fda_get_validation_status", "fda_is_validated"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -3296,6 +3298,44 @@ export function registerDevDispatcher(server: any): void {
               by_consumer_count: Object.keys(stats.by_consumer).length,
               recent_failure_count: stats.recent_failures.length,
             };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-FDA: FDA21CFRPart11 ──────────────────
+          case "fda_get_signature": {
+            const { fda21CFRPart11Engine } = await import("../../engines/FDA21CFRPart11Engine.js");
+            const signature_id = (params as { signature_id: string }).signature_id;
+            const sig = fda21CFRPart11Engine.getSignature(signature_id);
+            // sig is ElectronicSignature | undefined — use explicit
+            // found discriminator since slimResponse strips undefined.
+            result = sig === undefined
+              ? { found: false, signature_id }
+              : { found: true, signature_id, signature: sig };
+            break;
+          }
+          case "fda_list_signatures": {
+            const { fda21CFRPart11Engine } = await import("../../engines/FDA21CFRPart11Engine.js");
+            const document_ref = (params as { document_ref: string }).document_ref;
+            const sigs = fda21CFRPart11Engine.listSignatures(document_ref);
+            result = { document_ref, signatures: sigs, count: sigs.length };
+            break;
+          }
+          case "fda_get_validation_status": {
+            const { fda21CFRPart11Engine } = await import("../../engines/FDA21CFRPart11Engine.js");
+            const status = fda21CFRPart11Engine.getValidationStatus();
+            // status shape: {validated, validationDate?, validationProtocol?,
+            //                iqDate?, oqDate?, pqDate?, nextRevalidationDate?,
+            //                deviations[]}. Echo deviation_count for slim-
+            //                stripped-empty handling on consumer side.
+            result = {
+              status,
+              deviation_count: status.deviations.length,
+            };
+            break;
+          }
+          case "fda_is_validated": {
+            const { fda21CFRPart11Engine } = await import("../../engines/FDA21CFRPart11Engine.js");
+            const validated = fda21CFRPart11Engine.isValidated();
+            result = { validated };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-CMC: CapacityMonteCarloEngine ────────
