@@ -771,6 +771,30 @@ export function extendedTaylorLife(
 }
 
 /** Source: Sandvik Coromant General Turning Handbook (2024). */
+// Workpiece elastic modulus by ISO group [GPa]. Textbook values (ASM Metals
+// Handbook Vol.2): P/M/H steels ~210, K cast iron ~110, N Al/Cu ~70-120 (Al-
+// dominant 70), S Ni-superalloy/Ti ~200/114 (Ni-dominant 205). Used by the
+// pipeline material-context resolver for deflection/stiffness terms.
+export const WORKPIECE_ELASTIC_MODULUS_GPA: Record<ISOGroup, number> = {
+  P: 210, M: 200, K: 110, N: 70, S: 205, H: 215,
+} as const;
+
+// Yield-to-tensile ratio by ISO group (Re/Rm). Engineering-handbook typical:
+// ductile carbon steel ~0.6, alloy/SS ~0.65, cast iron ~0.9 (brittle, low
+// ductility), Al/Cu wrought ~0.85, Ni/Ti superalloy ~0.85, hardened ~0.9.
+// Source: Shigley Mechanical Engineering Design, Table A-20 ranges.
+export const YIELD_TO_TENSILE_RATIO: Record<ISOGroup, number> = {
+  P: 0.60, M: 0.65, K: 0.90, N: 0.85, S: 0.85, H: 0.90,
+} as const;
+
+// Machinability factor by ISO group (1.0 = free-machining P-steel baseline).
+// Inverse of relative cutting difficulty; aligns with CANONICAL_KIENZLE kc1_1
+// ordering (higher kc1_1 -> lower machinability). Sandvik Coromant turning
+// machinability index, normalised to ISO-P = 1.0.
+export const MACHINABILITY_FACTOR_BY_ISO: Record<ISOGroup, number> = {
+  P: 1.00, M: 0.55, K: 0.80, N: 2.50, S: 0.30, H: 0.25,
+} as const;
+
 export const CANONICAL_TURNING_SPEEDS: Record<ISOGroup, { rough: number; finish: number }> = {
   P: { rough: 220, finish: 320 },
   M: { rough: 150, finish: 220 },

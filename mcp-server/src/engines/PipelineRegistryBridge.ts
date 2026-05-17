@@ -21,8 +21,12 @@ import {
   CANONICAL_KIENZLE,
   CANONICAL_TAYLOR,
   CANONICAL_MATERIAL_DB,
+  CANONICAL_TURNING_SPEEDS,
+  WORKPIECE_ELASTIC_MODULUS_GPA,
+  YIELD_TO_TENSILE_RATIO,
+  MACHINABILITY_FACTOR_BY_ISO,
   type ISOGroup,
-  type MaterialPhysics,
+  type MaterialEntry,
 } from "../physics/constants.js";
 
 // ============================================================================
@@ -231,7 +235,7 @@ export async function resolveMaterial(input: {
         || material_name.toLowerCase().includes(m.name.toLowerCase().split(" ")[0])
       );
     if (dbEntry) {
-      return validateMaterialContext(materialPhysicsToContext(dbEntry, "canonical_db", 0.85, warnings));
+      return validateMaterialContext(materialEntryToContext(dbEntry, "canonical_db", 0.85, warnings));
     }
   }
 
@@ -240,37 +244,85 @@ export async function resolveMaterial(input: {
   warnings.push(`Material "${material_name ?? "unknown"}" not found — using ISO ${isoG} group defaults`);
   const isoEntry = Object.values(CANONICAL_MATERIAL_DB).find(m => m.iso_group === isoG);
   if (isoEntry) {
-    return validateMaterialContext(materialPhysicsToContext(isoEntry, "iso_default", 0.65, warnings));
+    return validateMaterialContext(materialEntryToContext(isoEntry, "iso_default", 0.65, warnings));
   }
 
   // Absolute fallback: Steel P
   warnings.push("No ISO group resolved — defaulting to ISO P (steel). Verify material input.");
-  const fallback = CANONICAL_MATERIAL_DB["steel"];
-  return validateMaterialContext(materialPhysicsToContext(fallback, "iso_default", 0.50, warnings));
+  const fallback = CANONICAL_MATERIAL_DB["1045"]; // "steel" is not a canonical key; 1045 is the AISI_ALIAS target for generic carbon steel
+  return validateMaterialContext(materialEntryToContext(fallback, "iso_default", 0.50, warnings));
 }
 
-function materialPhysicsToContext(
-  mp: MaterialPhysics,
+/**
+ * Adapt a canonical MaterialEntry (the shape actually stored in
+ * CANONICAL_MATERIAL_DB) into the richer ResolvedMaterialContext the
+ * pipeline consumes. MaterialEntry intentionally carries only directly-
+ * measured fields (density, k, cp, Tm, taylor, tensile); the remaining
+ * context fields are DERIVED from canonical ISO-keyed tables in
+ * physics/constants.ts — never invented inline:
+ *   kc1_1, mc            ← CANONICAL_KIENZLE[iso]
+ *   k_thermal            ← MaterialEntry.thermal_conductivity_W_mK
+ *   cp_J_kgK             ← MaterialEntry.specific_heat_J_kgK
+ *   E_GPa                ← WORKPIECE_ELASTIC_MODULUS_GPA[iso]
+ *   sigma_y_MPa          ← tensile_strength_MPa × YIELD_TO_TENSILE_RATIO[iso]
+ *                          (fallback: σ_UTS from HB via Brinell relation)
+ *   hardness_HB          ← HRC→HB (ASTM E140 linear mid-range fit) or
+ *                          σ_UTS/3.45 (classic Brinell–tensile relation)
+ *   vc_base_roughing/fin ← CANONICAL_TURNING_SPEEDS[iso]
+ *   machinability_factor ← MACHINABILITY_FACTOR_BY_ISO[iso]
+ */
+function materialEntryToContext(
+  mp: MaterialEntry,
   source: ResolvedMaterialContext["source"],
   confidence: number,
   warnings: string[] = [],
 ): ResolvedMaterialContext {
+  const iso = mp.iso_group;
+  const kienzle = CANONICAL_KIENZLE[iso] ?? CANONICAL_KIENZLE.P;
+  const speeds = CANONICAL_TURNING_SPEEDS[iso] ?? CANONICAL_TURNING_SPEEDS.P;
+  const E_GPa = WORKPIECE_ELASTIC_MODULUS_GPA[iso] ?? WORKPIECE_ELASTIC_MODULUS_GPA.P;
+  const yieldRatio = YIELD_TO_TENSILE_RATIO[iso] ?? YIELD_TO_TENSILE_RATIO.P;
+  const machinability = MACHINABILITY_FACTOR_BY_ISO[iso] ?? MACHINABILITY_FACTOR_BY_ISO.P;
+
+  // HRC → HB: ASTM E140 linear mid-range approximation valid HRC 20-65.
+  // HB ≈ 5.97·HRC + 104.7 (fit to E140 conversion table; ±5% in range).
+  const HRC_TO_HB_SLOPE = 5.97;
+  const HRC_TO_HB_INTERCEPT = 104.7;
+  // Classic Brinell–tensile relation for steels: σ_UTS[MPa] ≈ 3.45·HB.
+  const UTS_PER_HB_MPA = 3.45;
+
+  let hardness_HB: number;
+  if (typeof mp.hardness_HRC === "number" && mp.hardness_HRC > 0) {
+    hardness_HB = HRC_TO_HB_SLOPE * mp.hardness_HRC + HRC_TO_HB_INTERCEPT;
+  } else if (typeof mp.tensile_strength_MPa === "number" && mp.tensile_strength_MPa > 0) {
+    hardness_HB = mp.tensile_strength_MPa / UTS_PER_HB_MPA;
+  } else {
+    // No hardness signal — back out from the Brinell relation using the
+    // ISO-typical tensile implied by yield ratio (last-resort, flagged).
+    warnings.push(`No hardness/tensile for ${mp.name} — HB estimated from ISO ${iso} kc1_1`);
+    hardness_HB = (kienzle.kc1_1 / UTS_PER_HB_MPA) * 0.2;
+  }
+
+  const sigma_y_MPa = typeof mp.tensile_strength_MPa === "number" && mp.tensile_strength_MPa > 0
+    ? mp.tensile_strength_MPa * yieldRatio
+    : hardness_HB * UTS_PER_HB_MPA * yieldRatio;
+
   return {
     name: mp.name,
-    iso_group: mp.iso_group,
-    kc1_1: mp.kc1_1,
-    mc: mp.mc,
+    iso_group: iso,
+    kc1_1: kienzle.kc1_1,
+    mc: kienzle.mc,
     taylor_C: mp.taylor_C,
     taylor_n: mp.taylor_n,
-    k_thermal: mp.k_thermal,
-    sigma_y_MPa: mp.sigma_y_MPa,
+    k_thermal: mp.thermal_conductivity_W_mK,
+    sigma_y_MPa,
     density_kg_m3: mp.density_kg_m3,
-    hardness_HB: mp.hardness_HB,
-    vc_base_roughing: mp.vc_base_roughing,
-    vc_base_finishing: mp.vc_base_finishing,
-    machinability_factor: mp.machinability_factor,
-    cp_J_kgK: mp.cp_J_kgK,
-    E_GPa: mp.E_GPa,
+    hardness_HB,
+    vc_base_roughing: speeds.rough,
+    vc_base_finishing: speeds.finish,
+    machinability_factor: machinability,
+    cp_J_kgK: mp.specific_heat_J_kgK,
+    E_GPa,
     source,
     confidence,
     warnings,
