@@ -4339,6 +4339,15 @@ export class MachiningPlaybookEngine {
   }
 
   /**
+   * Get every rule in the playbook (defensive copy — caller cannot mutate the store).
+   * Two consumers (PlaybookRulesEngine, TribalPlaybookEnforcementEngine) reach for this
+   * shape, so the API is canonical rather than per-consumer.
+   */
+  getAllRules(): PlaybookRule[] {
+    return this.rules.slice();
+  }
+
+  /**
    * Get all rules by category
    */
   byCategory(category: RuleCategory): PlaybookRule[] {
