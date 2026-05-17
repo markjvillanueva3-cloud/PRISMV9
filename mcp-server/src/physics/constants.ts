@@ -277,7 +277,41 @@ export const EDM_PHYSICS = {
     /** Wire break warning threshold: fraction of max current density */
     warning_threshold: 0.85,
 
-    source: "Bedra wire catalog; Thermocompact technical guide",
+    /**
+     * Maximum duty cycle (t_on / (t_on + t_off)) for roughing mode.
+     * Above this, thermal energy stacks faster than the dielectric can flush,
+     * pushing the wire into the break envelope. Mitsubishi MV/MX series data.
+     */
+    max_duty_rough: 0.55,
+    /** Roughing limit relaxes for skim passes (lower I_peak, lower thermal load) */
+    max_duty_skim: 0.70,
+
+    source: "Bedra wire catalog; Thermocompact technical guide; Mitsubishi MV/MX series operator manual",
+  },
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // TOENSHOFF SKIM-PASS ENERGY CASCADE (gamma)
+  // ──────────────────────────────────────────────────────────────────────────
+  // Per-skim energy reduction coefficient. Each skim pass reduces spark energy
+  // by factor gamma, with material-specific values (harder/tougher materials
+  // require steeper energy cascade to reach the same Ra target).
+  // Source: Toenshoff & Hillmann-Apmann, "Diamonds for the EDM Process",
+  // CIRP Annals 51(1) 2002; Schumacher 2004 review.
+
+  toenshoff: {
+    /** Energy-cascade factor per skim pass, by material key */
+    gamma: {
+      steel: 0.30,
+      tool_steel: 0.28,
+      hardened_steel: 0.25,
+      stainless: 0.27,
+      aluminum: 0.40,
+      copper: 0.38,
+      titanium: 0.22,
+      inconel: 0.20,
+      carbide: 0.18,
+    },
+    source: "Toenshoff & Hillmann-Apmann CIRP Annals 51(1) 2002",
   },
 
   // ──────────────────────────────────────────────────────────────────────────
