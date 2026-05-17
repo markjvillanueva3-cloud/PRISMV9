@@ -79,16 +79,26 @@ async function resolveWindowId(sessionId) {
   }
 }
 
-function claimSlotForWindow(chatId, windowId) {
+function claimSlotForWindow(chatId, windowId, preferSlot) {
   // Use a subprocess for the claim — chat-slots.mjs takes a write-lock and we
   // don't want to hold it in the hook process longer than necessary.
-  const r = spawnSync(NODE_BIN, [
+  // SLOT-DRIFT-FIX-MS0/U-SDF05 (2026-05-17): preferSlot threaded through so
+  // post-/compact auto-pin can request the slot the prior handoff named.
+  // Without --force the request is advisory — chat-slots.mjs claims it only if
+  // free, otherwise falls through to default walk (the mismatch warning then
+  // fires below). This avoids race-evicting a fresh peer who legitimately
+  // claimed the slot first; the operator can /checkin-<slot> to force-take.
+  const args = [
     CHAT_SLOTS_HELPER, "claim",
     "--chatId", chatId,
     "--terminalWindowId", windowId,
     "--activity", "session-start-auto-pin",
     "--startupAuto", "true",
-  ], { encoding: "utf-8", timeout: CLAIM_TIMEOUT_MS, windowsHide: true });
+  ];
+  if (typeof preferSlot === "string" && preferSlot.length > 0) {
+    args.push("--preferSlot", preferSlot);
+  }
+  const r = spawnSync(NODE_BIN, args, { encoding: "utf-8", timeout: CLAIM_TIMEOUT_MS, windowsHide: true });
   if (r.status !== 0 || !r.stdout) return null;
   try { return JSON.parse(r.stdout); } catch { return null; }
 }
@@ -99,6 +109,23 @@ function claimSlotForWindow(chatId, windowId) {
 // during my crash/compact window" — surfaced as an additionalContext warning
 // so the operator (or the model) knows to force-take. Fail-soft: returns
 // `{slot:null, topic:null, file:null}` on any error.
+// SLOT-DRIFT-FIX-MS0/U-SDF05 (2026-05-17): NATO-prefix extraction set.
+// Source-of-truth for valid slot names — anything not in here is rejected
+// (defends against topic strings that *coincidentally* start with a word
+// resembling a NATO call sign).
+const VALID_SLOTS = new Set([
+  "alpha","bravo","charlie","delta","echo","foxtrot","golf",
+  "hotel","india","juliett","kilo","lima","mike",
+]);
+
+function extractSlotFromTopicOrFilename(s) {
+  if (typeof s !== "string" || s.length === 0) return null;
+  // Match leading NATO word followed by `-` (topic) or `.` / end (filename tail).
+  const m = s.toLowerCase().match(/^([a-z]+)[-._]/);
+  if (!m) return null;
+  return VALID_SLOTS.has(m[1]) ? m[1] : null;
+}
+
 function readPriorSlotFromHandoff(chatId) {
   try {
     const handoffsDir = "H:/prism/state/shared/handoffs";
@@ -111,17 +138,24 @@ function readPriorSlotFromHandoff(chatId) {
     if (candidates.length === 0) return { slot: null, topic: null, file: null };
     const file = `${handoffsDir}/${candidates[0].name}`;
     const content = fs.readFileSync(file, "utf-8");
-    // SLOT-DRIFT-FIX-MS0/U-SDF01 (2026-05-17, slot bravo claude-339c8ff7):
-    // `\s*` is greedy and includes `\n` in JavaScript regex, so on an empty
-    // `slot:` line `\s*` consumed the trailing newline and `[^\n]*` captured
-    // the NEXT line ("written_at: 2026-05-17T..."). The drift detector then
-    // reported "prior session held `written_at: 2026-05-17t...`" — pure
-    // garbage that triggered spurious "force-take" prompts and caused real
-    // peer chats to steal slots. Use `[ \t]*` (same-line whitespace only).
     const slotM = content.match(/^slot:[ \t]*([^\n]*)$/m);
     const topicM = content.match(/^topic:[ \t]*([^\n]*)$/m);
-    const slot = slotM ? (slotM[1].trim().toLowerCase() || null) : null;
+    const slotFromField = slotM ? (slotM[1].trim().toLowerCase() || null) : null;
     const topic = topicM ? (topicM[1].trim() || null) : null;
+    // U-SDF05: 3-tier slot extraction — `slot:` field (most explicit) →
+    // topic NATO-prefix → filename suffix-after-chatId NATO-prefix.
+    // The topic+filename fallbacks survive the transient chat-slots.json
+    // gap that the writer's lookup races against: precompact-handoff fired
+    // while bravo binding had momentarily lapsed → writer omitted `slot:`
+    // line → drift warning never fired → bravo→delta silent drift.
+    // Topic+filename were ALWAYS slot-prefixed (precompact-handoff's
+    // `slotPrefix` logic at line 405 is the same source), so they're a more
+    // durable identity signal than the writer's transient lookup.
+    const slotFromField2 = slotFromField && VALID_SLOTS.has(slotFromField) ? slotFromField : null;
+    const slotFromTopic = extractSlotFromTopicOrFilename(topic);
+    const filenameSuffix = candidates[0].name.slice(`HANDOFF-${chatId}-`.length);
+    const slotFromFile = extractSlotFromTopicOrFilename(filenameSuffix);
+    const slot = slotFromField2 || slotFromTopic || slotFromFile;
     return { slot, topic, file: candidates[0].name };
   } catch { return { slot: null, topic: null, file: null }; }
 }
@@ -137,7 +171,16 @@ async function main() {
   const windowId = await resolveWindowId();
   if (!windowId) { emit(SILENCE); return; }
 
-  const result = claimSlotForWindow(chatId, windowId);
+  // SLOT-DRIFT-FIX-MS0/U-SDF05 (2026-05-17): read prior slot from handoff
+  // BEFORE claiming so we can pass --preferSlot. Without this the auto-pin
+  // falls through to default walk and takes whatever slot is next-free —
+  // observed pathology: claude-339c8ff7 was bravo, two chats compacted at
+  // once, peer won bravo, this chat silently auto-pinned to delta. The
+  // handoff topic prefix carries the durable slot identity (more reliable
+  // than chat-slots.json which can have transient gaps).
+  const priorSlot = readPriorSlotFromHandoff(chatId).slot || null;
+
+  const result = claimSlotForWindow(chatId, windowId, priorSlot);
   if (!result?.ok) { emit(SILENCE); return; }
 
   // F10 — pipeline replay: when terminal-pin inherits a slot AND the prior

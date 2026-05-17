@@ -421,15 +421,23 @@ function main() {
   // stdout=undefined, which the parser below silently froze at "(no output)" —
   // every /compact no-op'd the handoff write. (Same fix already applied in the
   // line-337 terminal-resolver spawn + precompact-hook-source.test.mjs:28.)
+  // SLOT-DRIFT-FIX-MS0/U-SDF05 (2026-05-17): pass --slot when slotPrefix is
+  // known. The writer's chat-slots.json lookup races against transient gaps
+  // (slot binding lapsed between heartbeat-expiry and re-claim) — by passing
+  // the explicit --slot we sourced from the live chat-slots.json read above
+  // (line ~405), the writer's frontmatter always carries the binding even
+  // when its own re-lookup would miss. Closes the silent-drift class.
   const writerPath = path.resolve("H:/prism/.claude/helpers/per-agent-handoff.mjs");
-  const writeResult = spawnSync(process.execPath, [
+  const writerArgs = [
     writerPath, "write",
     "--source", "precompact-hook",
     "--terminal", identity.instance,
     "--topic", finalTopic,
     "--resume", synthesized,
     "--state", `(precompact auto-write — slot ${slotPrefix || "unbound"})`,
-  ], { encoding: "utf-8", timeout: 5000, windowsHide: true });
+  ];
+  if (slotPrefix) writerArgs.push("--slot", slotPrefix);
+  const writeResult = spawnSync(process.execPath, writerArgs, { encoding: "utf-8", timeout: 5000, windowsHide: true });
 
   let writeOk = false;
   let writeMsg = "(no output)";
