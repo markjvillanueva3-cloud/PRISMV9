@@ -1110,4 +1110,31 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     (d) => (typeof d.tx_id === "string" && d.tx_id.length > 0) || (typeof d.txId === "string" && d.txId.length > 0),
     { message: "transaction_get_mutations requires non-empty 'tx_id' (or 'txId')" },
   ).describe("List all mutation operations for the given transaction. Read-only."),
+
+  // ── WIRE-UNWIRED-MS0/U-WIRE-BLOOM: AssetBloomFilters + BloomDedupEngine ────
+  dedup_might_contain: z.object({
+    asset_type: z.string().min(1).optional().describe("Asset type filter (engine, action, skill, hook, formula, algorithm, tribal_tip, playbook_rule, schema, dispatcher, route, test)."),
+    assetType: z.string().min(1).optional().describe("camelCase alias for asset_type."),
+    name: z.string().min(1).describe("Asset name to check."),
+  }).passthrough().refine(
+    (d) => (typeof d.asset_type === "string" && d.asset_type.length > 0) || (typeof d.assetType === "string" && d.assetType.length > 0),
+    { message: "dedup_might_contain requires non-empty 'asset_type' (or 'assetType')" },
+  ).describe("Bloom filter membership check — returns {might_contain: boolean}. Read-only."),
+
+  dedup_is_definitely_new: z.object({
+    asset_type: z.string().min(1).optional().describe("Asset type filter."),
+    assetType: z.string().min(1).optional().describe("camelCase alias for asset_type."),
+    name: z.string().min(1).describe("Asset name to check."),
+  }).passthrough().refine(
+    (d) => (typeof d.asset_type === "string" && d.asset_type.length > 0) || (typeof d.assetType === "string" && d.assetType.length > 0),
+    { message: "dedup_is_definitely_new requires non-empty 'asset_type' (or 'assetType')" },
+  ).describe("Returns {is_definitely_new: boolean} — true iff bloom filter has never seen the name. Read-only."),
+
+  dedup_asset_stats: z.object({}).passthrough()
+    .describe("Stats per asset-type filter (engine, action, skill, ...). Read-only."),
+
+  dedup_bloom_check: z.object({
+    name: z.string().min(1).describe("Name to check for duplication."),
+  }).passthrough()
+    .describe("Generic BloomDedupEngine.checkDedup — returns {check: DedupCheckResult}. Read-only."),
 };

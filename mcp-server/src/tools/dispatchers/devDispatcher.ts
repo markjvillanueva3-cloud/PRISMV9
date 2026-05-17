@@ -214,7 +214,12 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // (begin/record/checkpoint/rollback DEFERRED to U-WIRE-TXNLOG-WRITE for safety
 //  review — they mutate PRISM internal transaction state and an LLM-driven
 //  rollback could undo arbitrary recorded mutations)
-"transaction_active", "transaction_is_in_tx", "transaction_get_mutations"] as const;
+"transaction_active", "transaction_is_in_tx", "transaction_get_mutations",
+// WIRE-UNWIRED-MS0/U-WIRE-BLOOM: BloomDedupEngine / AssetBloomFilters
+// (read-only — add/clear/merge/import DEFERRED to U-WIRE-BLOOM-WRITE; they
+//  mutate a probabilistic data structure whose state is load-bearing for the
+//  duplication-guard surface and ASSET_REGISTRY)
+"dedup_might_contain", "dedup_is_definitely_new", "dedup_asset_stats", "dedup_bloom_check"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -1362,6 +1367,47 @@ export function registerDevDispatcher(server: any): void {
               break;
             }
             result = { mutations: transactionLogEngine.getMutations(txId) };
+            break;
+          }
+          // WIRE-UNWIRED-MS0/U-WIRE-BLOOM: AssetBloomFilters + BloomDedupEngine
+          case "dedup_might_contain": {
+            const { assetBloomFilters } = await import("../../engines/BloomDedupEngine.js");
+            const bp = typeof params === "object" && params !== null ? params as Record<string, unknown> : {};
+            const assetType = typeof bp.asset_type === "string" ? bp.asset_type : (typeof bp.assetType === "string" ? bp.assetType : "");
+            const name = typeof bp.name === "string" ? bp.name : "";
+            if (!assetType || !name) {
+              result = { error: "dedup_might_contain requires 'asset_type' and 'name' (strings)" };
+              break;
+            }
+            result = { might_contain: assetBloomFilters.mightContain(assetType, name) };
+            break;
+          }
+          case "dedup_is_definitely_new": {
+            const { assetBloomFilters } = await import("../../engines/BloomDedupEngine.js");
+            const bp = typeof params === "object" && params !== null ? params as Record<string, unknown> : {};
+            const assetType = typeof bp.asset_type === "string" ? bp.asset_type : (typeof bp.assetType === "string" ? bp.assetType : "");
+            const name = typeof bp.name === "string" ? bp.name : "";
+            if (!assetType || !name) {
+              result = { error: "dedup_is_definitely_new requires 'asset_type' and 'name' (strings)" };
+              break;
+            }
+            result = { is_definitely_new: assetBloomFilters.isDefinitelyNew(assetType, name) };
+            break;
+          }
+          case "dedup_asset_stats": {
+            const { assetBloomFilters } = await import("../../engines/BloomDedupEngine.js");
+            result = { stats: assetBloomFilters.getStats() };
+            break;
+          }
+          case "dedup_bloom_check": {
+            const { bloomDedupEngine } = await import("../../engines/BloomDedupEngine.js");
+            const bp = typeof params === "object" && params !== null ? params as Record<string, unknown> : {};
+            const name = typeof bp.name === "string" ? bp.name : "";
+            if (!name) {
+              result = { error: "dedup_bloom_check requires 'name' (string)" };
+              break;
+            }
+            result = { check: bloomDedupEngine.checkDedup(name) };
             break;
           }
           case "blueprint_ingest_phase8": {
