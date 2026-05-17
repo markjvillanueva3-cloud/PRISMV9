@@ -1369,6 +1369,8 @@ export const ACTIONS = [
   "inventor_tool_export", "inventor_tool_export_job",
   // E1121 — PowerMillCodeGeneratorEngine (2 actions)
   "powermill_code_generate", "powermill_code_templates",
+  // PowerMillAIOrchestrationEngine (3 actions, WIRE-UNWIRED foxtrot 2026-05-17)
+  "powermill_ai_orchestrate", "powermill_ai_get_reasoning_modes", "powermill_ai_get_stats",
   // POST-ULT — 18 engines, 42 actions
   // CpsPostParserEngine (3)
   "cps_parse", "cps_parse_batch", "cps_summary",
@@ -9200,6 +9202,30 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "powermill_code_templates": {
             const eng = await getEngine("powerMillCodeGen");
             result = eng.getTemplates(params.category);
+            break;
+          }
+
+          // ── PowerMillAIOrchestrationEngine (WIRE-UNWIRED foxtrot 2026-05-17)
+          // Mirrors the cam_hypermill_ai_* trio. orchestrate() never throws —
+          // sub-engine failures surface via the response's warnings[].
+          case "powermill_ai_orchestrate": {
+            const { powerMillAIOrchestrationEngine } = await import("../../engines/PowerMillAIOrchestrationEngine.js");
+            const response = await powerMillAIOrchestrationEngine.orchestrate(
+              params as Parameters<typeof powerMillAIOrchestrationEngine.orchestrate>[0],
+            );
+            result = { success: true, response };
+            break;
+          }
+          case "powermill_ai_get_reasoning_modes": {
+            const { powerMillAIOrchestrationEngine } = await import("../../engines/PowerMillAIOrchestrationEngine.js");
+            const modes = powerMillAIOrchestrationEngine.getReasoningModes();
+            result = { success: true, modes, count: modes.length };
+            break;
+          }
+          case "powermill_ai_get_stats": {
+            const { powerMillAIOrchestrationEngine } = await import("../../engines/PowerMillAIOrchestrationEngine.js");
+            const stats = powerMillAIOrchestrationEngine.getStats();
+            result = { success: true, ...stats };
             break;
           }
 
