@@ -295,6 +295,8 @@ let _cuttingDataExport: any;
 let _toolSyncOrchestrator: any;
 // E1127 — HyperMillToolExportEngine singleton (CAMX-MS9/U03)
 let _hyperMillToolExport: any;
+// InventorCAMToolExportEngine singleton (WIRE-UNWIRED foxtrot 2026-05-17)
+let _inventorCAMToolExport: any;
 // E1129 — STEPNCEngines (CAMX-MS20) singletons
 let _stepNCParser: any, _stepNCGenerator: any;
 // E1130 — VericutBridgeEngine (CAMX-MS20/U05) singleton
@@ -646,6 +648,8 @@ async function getEngine(name: string): Promise<any> {
     case "toolSyncOrchestrator": return _toolSyncOrchestrator ??= (await import("../../engines/ToolSyncOrchestratorEngine.js")).toolSyncOrchestratorEngine;
     // E1127 — HyperMillToolExportEngine (CAMX-MS9/U03)
     case "hyperMillToolExport": return _hyperMillToolExport ??= (await import("../../engines/HyperMillToolExportEngine.js")).hyperMillToolExportEngine;
+    // InventorCAMToolExportEngine (WIRE-UNWIRED foxtrot 2026-05-17)
+    case "inventorCAMToolExport": return _inventorCAMToolExport ??= (await import("../../engines/InventorCAMToolExportEngine.js")).inventorCAMToolExportEngine;
     // E1129 — STEPNCEngines (CAMX-MS20)
     case "stepNCParser":    return _stepNCParser    ??= (await import("../../engines/STEPNCEngines.js")).stepNCParserEngine;
     case "stepNCGenerator": return _stepNCGenerator ??= (await import("../../engines/STEPNCEngines.js")).stepNCGeneratorEngine;
@@ -1357,6 +1361,8 @@ export const ACTIONS = [
   "print_to_inventor_hsm", "print_to_inventor_hsm_validate", "print_to_inventor_hsm_capabilities",
   // E1127 — HyperMillToolExportEngine (2 actions, CAMX-MS9/U03)
   "hypermill_tool_export", "hypermill_tool_export_job",
+  // InventorCAMToolExportEngine (2 actions, WIRE-UNWIRED foxtrot 2026-05-17)
+  "inventor_tool_export", "inventor_tool_export_job",
   // E1121 — PowerMillCodeGeneratorEngine (2 actions)
   "powermill_code_generate", "powermill_code_templates",
   // POST-ULT — 18 engines, 42 actions
@@ -9147,6 +9153,24 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               description: jt.label ?? "",
             }));
             result = eng.exportToHMT(jobTools, params.options ?? {});
+            break;
+          }
+
+          // ── InventorCAMToolExportEngine (WIRE-UNWIRED foxtrot 2026-05-17) ─
+          case "inventor_tool_export": {
+            const eng = await getEngine("inventorCAMToolExport");
+            result = eng.exportLibrary(
+              params.filter ?? undefined,
+              params.format ?? "hsm-tools",
+            );
+            break;
+          }
+          case "inventor_tool_export_job": {
+            const eng = await getEngine("inventorCAMToolExport");
+            result = eng.exportForJob(
+              params.job_tools ?? [],
+              params.format ?? "hsm-tools",
+            );
             break;
           }
 
