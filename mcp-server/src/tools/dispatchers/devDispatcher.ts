@@ -259,7 +259,11 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // beginProof/finalizeProof/clear/getTrace DEFERRED (mutate the proof
 // audit log; getTrace returns a Map that needs special serialization)
 "dlt_get_summary", "dlt_explain", "dlt_validate", "dlt_query",
-"dlt_stats", "dlt_predicates", "dlt_formulas"] as const;
+"dlt_stats", "dlt_predicates", "dlt_formulas",
+// WIRE-UNWIRED-MS0/U-WIRE-MACH-MODELS: MachineModelIndexEngine (all
+// methods pure filesystem reads — no write methods exist)
+"machine_models_sources", "machine_models_audit",
+"machine_models_harvest", "machine_models_filter"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -1646,6 +1650,47 @@ export function registerDevDispatcher(server: any): void {
           case "mit_courses_harvest": {
             const { MitCourseIndexEngine } = await import("../../engines/MitCourseIndexEngine.js");
             result = { harvest: await MitCourseIndexEngine.harvest() };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-MACH-MODELS: MachineModelIndexEngine ──
+          case "machine_models_sources": {
+            const { MachineModelIndexEngine } = await import("../../engines/MachineModelIndexEngine.js");
+            result = { sources: MachineModelIndexEngine.getSources() };
+            break;
+          }
+          case "machine_models_audit": {
+            const { MachineModelIndexEngine } = await import("../../engines/MachineModelIndexEngine.js");
+            result = { audit: await MachineModelIndexEngine.audit() };
+            break;
+          }
+          case "machine_models_harvest": {
+            const { MachineModelIndexEngine } = await import("../../engines/MachineModelIndexEngine.js");
+            result = { harvest: await MachineModelIndexEngine.harvest() };
+            break;
+          }
+          case "machine_models_filter": {
+            const { MachineModelIndexEngine } = await import("../../engines/MachineModelIndexEngine.js");
+            const p = params as {
+              oem?: string;
+              machineType?: "vmc" | "hmc" | "lathe" | "mill_turn" | "drill_mill" | "router" | "wire_edm" | "sinker_edm" | "grinder" | "5axis" | "high_speed" | "unknown";
+            };
+            const harvest = await MachineModelIndexEngine.harvest();
+            let filtered = harvest.models;
+            if (typeof p.oem === "string") {
+              filtered = MachineModelIndexEngine.findByOem(filtered, p.oem);
+            }
+            if (typeof p.machineType === "string") {
+              filtered = MachineModelIndexEngine.findByType(filtered, p.machineType);
+            }
+            result = {
+              models: filtered,
+              count: filtered.length,
+              totalAvailable: harvest.totalModels,
+              filtersApplied: {
+                oem: p.oem,
+                machineType: p.machineType,
+              },
+            };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-DLT: DeepLogicTraceEngine ─────────────

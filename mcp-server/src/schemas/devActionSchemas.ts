@@ -1254,6 +1254,29 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   mit_courses_harvest: z.object({}).passthrough()
     .describe("Full scan of all 6 zones — returns every course with metadata + aggregation maps. Read-only."),
 
+  // ── WIRE-UNWIRED-MS0/U-WIRE-MACH-MODELS: MachineModelIndexEngine ──────────
+  // (all methods are pure filesystem reads — no write methods exist)
+  machine_models_sources: z.object({}).passthrough()
+    .describe("Returns {oemRoot, genericRoot, expectedOemSubdirs, expectedGenericModels}. Read-only."),
+
+  machine_models_audit: z.object({}).passthrough()
+    .describe("Summary audit (totalModels + oemCount + breakdowns + generic vs OEM split). Read-only."),
+
+  machine_models_harvest: z.object({}).passthrough()
+    .describe("Full scan — 306 OEM .step + 34 generic models with classification (machine type, axis config). Read-only."),
+
+  machine_models_filter: z.object({
+    oem: z.string().min(1).optional()
+      .describe("Filter by OEM (case-insensitive, e.g. 'HAAS', 'Hurco', 'MAZAK')."),
+    machineType: z.enum([
+      "vmc", "hmc", "lathe", "mill_turn", "drill_mill", "router",
+      "wire_edm", "sinker_edm", "grinder", "5axis", "high_speed", "unknown",
+    ]).optional().describe("Filter by classified machine type."),
+  }).passthrough().refine(
+    (d) => typeof d.oem === "string" || typeof d.machineType === "string",
+    { message: "machine_models_filter requires at least one filter field (oem, machineType)" },
+  ).describe("Composes harvest + findByOem + findByType server-side. At least one filter required. Read-only."),
+
   // ── WIRE-UNWIRED-MS0/U-WIRE-DLT: DeepLogicTraceEngine ─────────────────────
   // (read-only; beginProof/finalizeProof/clear DEFERRED — they mutate the
   //  in-memory proof-tree store which is the load-bearing audit log for
