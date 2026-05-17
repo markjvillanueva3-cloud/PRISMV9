@@ -46,7 +46,12 @@ patterns recovered.
 | 16 | wiki/os/pipelines/loop.md (autonomous-iteration pipeline doctrine) + CLOSE-OUT refresh | `a46d6a98b3` | wiki populate + maintenance |
 | 17 | wiki/os/runqueue/priority-queue.md (master pickup source) | `64ccbed855` | wiki populate |
 | 18 | wiki/os/sessions/stable-session-id.md (final sub-namespace; identity primitive) | `f5cb159398` | wiki populate |
-| 19 | **THIS** session-summary spec | (pending commit this iter) | meta |
+| 19 | **THIS** session-summary spec | `9bf6627388` | meta |
+| 20 | Comprehensive per-chat handoff write + iter-20 tick | (HANDOFF file) | meta |
+| 21 | wiki/os/pipelines/goal-complete.md (Stop-hook gate doctrine — sister to [[loop]]) | `93648157b1` | wiki populate |
+| 22 | 4 more wiki/os/syscalls entities (delta, tools, record, recommend) — syscall coverage now 10/10 | (this commit range) | wiki populate batch |
+| 23 | wiki/os/sessions/terminal-window-id.md (sister to stable-session-id; completes resolver pair) | `30a462d643` | wiki populate |
+| 24 | **THIS** summary-spec update reflecting iters 19-23 | (this iter) | meta |
 
 ## Deliverables surfaced
 
@@ -59,18 +64,18 @@ patterns recovered.
 | U-CK10 | COMMAND-KERNEL-MS0 | `state/shared/U-CK10-pick-task-callers.md` |
 | U-KC-E1-tail | KNOWLEDGE-CONVERSION-MS0 | `CLAUDE.md` pointer (deferred from prior session) |
 
-### Wiki/os entities (11 entries — schema-validated by use)
+### Wiki/os entities (17 entries — schema-validated by use)
 
-`syscalls/`: whoami · manifest · position · handoff · checkin · pick
+`syscalls/`: whoami · manifest · position · handoff · checkin · pick · delta · tools · record · recommend (10/10 coverage)
 `processes/`: slot-lifecycle
 `commands/`: checkin
-`pipelines/`: loop
+`pipelines/`: loop · goal-complete (autonomous-work + ceremonial-end pair)
 `runqueue/`: priority-queue
-`sessions/`: stable-session-id
+`sessions/`: stable-session-id · terminal-window-id (complete resolver pair)
 
 Each follows the U-CK04 schema (required title/slug/kind/status/date/
 milestone/unit/author + kind-aware optional). The namespace was
-designed in iter 7 and validated by use across iters 11-18.
+designed in iter 7 and validated by use across iters 11-23.
 
 ### Close-out triages (12 envelope-drift entries → CLOSE-OUT-DEFERRED)
 
