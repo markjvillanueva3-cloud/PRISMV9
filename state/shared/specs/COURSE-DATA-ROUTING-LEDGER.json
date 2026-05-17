@@ -1,0 +1,2942 @@
+{
+  "schemaVersion": "1.0.0",
+  "kind": "course-data-routing-ledger",
+  "advisoryOnly": true,
+  "mustHumanVerify": true,
+  "generatedAt": "2026-05-17T00:00:00Z",
+  "generator": "scripts/course-data-router.mjs",
+  "caveat": "Routing decisions are ADVISORY. FORGE-QUEUE items require human /forge gate. Formulas require physics-reviewer agent before any port. DUPLICATE decisions are based on name-token overlap and may have false positives — human verify before discarding course intent.",
+  "thresholds": {
+    "ALGORITHM_FORGE_MIN_RELEVANCE": 0.5,
+    "ENGINE_FORGE_MIN_RELEVANCE": 0.6,
+    "FORMULA_DISCARD_FLOOR": 0.3,
+    "DEDUP_MATCH_SCORE": 0.6
+  },
+  "inventory": {
+    "algorithmCount": 53,
+    "engineCount": 3260
+  },
+  "summary": {
+    "candidateCount": 65,
+    "assetCount": 126,
+    "byDecision": {
+      "TRIBAL-SHIPPED": 31,
+      "DUPLICATE": 10,
+      "FORGE-QUEUE": 69,
+      "PORT-CANDIDATE": 0,
+      "DISCARD": 16
+    },
+    "byNodeType": {
+      "knowledge": 31,
+      "algorithm": 50,
+      "formula": 10,
+      "engine": 35,
+      "skill": 0,
+      "pipeline": 0
+    },
+    "byLane": {
+      "A": 31,
+      "B": 10,
+      "C": 69,
+      "none": 16
+    },
+    "forgeQueueCount": 69,
+    "duplicateCount": 10,
+    "tribalShippedCount": 31,
+    "discardCount": 16
+  },
+  "items": [
+    {
+      "candidateId": "course:mit-ocw:10.34-fall-2015",
+      "courseId": "10.34",
+      "courseTitle": "Numerical Methods Applied to Chemical Engineering",
+      "mfgRelevance": 0.8,
+      "rank": 0.55,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "algorithm",
+          "name": "operator-splitting",
+          "rationale": "No PRISM-algorithm dedup hit; mfgRelevance 0.80 ≥ 0.5. Course-derived → Lane C human-gated /forge.",
+          "courseId": "10.34",
+          "domains": [
+            "cam",
+            "thermal"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "algorithm",
+          "targetSurface": "mcp-server/src/algorithms/<NewAlgorithm>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple algorithm:operator-splitting"
+        },
+        {
+          "kind": "technique",
+          "name": "monte-carlo-integration",
+          "rationale": "Technique → knowledge-tip emit was Lane A direct-wire (already shipped).",
+          "courseId": "10.34",
+          "domains": [
+            "cam",
+            "thermal"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "knowledge",
+          "targetSurface": "cad-engine/knowledge_store/mit-ocw-course-tips.json",
+          "prismMatch": null,
+          "decision": "TRIBAL-SHIPPED",
+          "lane": "A",
+          "recommendedAction": "verify TribalKnowledgeEngine tip exists (Phase 1 U-KC-B1 shipped); if absent, re-run scripts/course-to-tribal-tips.mjs"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:2.854-fall-2016",
+      "courseId": "2.854-fall-2016",
+      "courseTitle": "Introduction to Manufacturing Systems",
+      "mfgRelevance": 0.8,
+      "rank": 0.55,
+      "decisionCount": 1,
+      "decisions": [
+        {
+          "kind": "algorithm",
+          "name": "transition-equations-solver",
+          "rationale": "No PRISM-algorithm dedup hit; mfgRelevance 0.80 ≥ 0.5. Course-derived → Lane C human-gated /forge.",
+          "courseId": "2.854-fall-2016",
+          "domains": [
+            "cad",
+            "cam",
+            "scheduling"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "algorithm",
+          "targetSurface": "mcp-server/src/algorithms/<NewAlgorithm>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple algorithm:transition-equations-solver"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:1.060-spring-2006",
+      "courseId": "1.060-spring-2006",
+      "courseTitle": "Engineering Mechanics II",
+      "mfgRelevance": 0.8,
+      "rank": 0.44,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "algorithm",
+          "name": "bernoullis-equation-solver",
+          "rationale": "No PRISM-algorithm dedup hit; mfgRelevance 0.80 ≥ 0.5. Course-derived → Lane C human-gated /forge.",
+          "courseId": "1.060-spring-2006",
+          "domains": [
+            "cam",
+            "metrology"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "algorithm",
+          "targetSurface": "mcp-server/src/algorithms/<NewAlgorithm>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple algorithm:bernoullis-equation-solver"
+        },
+        {
+          "kind": "formula",
+          "name": "moody-diagram-analysis",
+          "rationale": "Doctrine: canonical physics constants live in src/physics/constants.ts; course-derived formulas require physics-reviewer agent gate before port.",
+          "courseId": "1.060-spring-2006",
+          "domains": [
+            "cam",
+            "metrology"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "formula",
+          "targetSurface": "src/physics/constants.ts + prism_calc:<action>",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "physics-reviewer agent verify equation + dimensional consistency, then port constants to src/physics/constants.ts (NEVER inline) and wire to prism_calc/<action> via /forge-triple formula:moody-diagram-analysis"
+        }
+      ]
+    },
+    {
+      "candidateId": "resources",
+      "courseId": "resources",
+      "courseTitle": "resources",
+      "mfgRelevance": 0.8,
+      "rank": 0.44,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "algorithm",
+          "name": "operator-splitting",
+          "rationale": "No PRISM-algorithm dedup hit; mfgRelevance 0.80 ≥ 0.5. Course-derived → Lane C human-gated /forge.",
+          "courseId": "resources",
+          "domains": [
+            "cam",
+            "thermal"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "algorithm",
+          "targetSurface": "mcp-server/src/algorithms/<NewAlgorithm>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple algorithm:operator-splitting"
+        },
+        {
+          "kind": "technique",
+          "name": "monte-carlo-integration",
+          "rationale": "Technique → knowledge-tip emit was Lane A direct-wire (already shipped).",
+          "courseId": "resources",
+          "domains": [
+            "cam",
+            "thermal"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "knowledge",
+          "targetSurface": "cad-engine/knowledge_store/mit-ocw-course-tips.json",
+          "prismMatch": null,
+          "decision": "TRIBAL-SHIPPED",
+          "lane": "A",
+          "recommendedAction": "verify TribalKnowledgeEngine tip exists (Phase 1 U-KC-B1 shipped); if absent, re-run scripts/course-to-tribal-tips.mjs"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:16.852j-fall-2005",
+      "courseId": "16.852j-fall-2005",
+      "courseTitle": "Integrating the Lean Enterprise",
+      "mfgRelevance": 0.8,
+      "rank": 0.44,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "engine",
+          "name": "lean-enterprise-engine",
+          "rationale": "No engine dedup hit; mfgRelevance 0.80 ≥ 0.6 (engine threshold).",
+          "courseId": "16.852j-fall-2005",
+          "domains": [
+            "cad",
+            "cam",
+            "scheduling"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "engine",
+          "targetSurface": "mcp-server/src/engines/<NewEngine>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple engine:lean-enterprise-engine"
+        },
+        {
+          "kind": "algorithm",
+          "name": "lesat-algorithm",
+          "rationale": "No PRISM-algorithm dedup hit; mfgRelevance 0.80 ≥ 0.5. Course-derived → Lane C human-gated /forge.",
+          "courseId": "16.852j-fall-2005",
+          "domains": [
+            "cad",
+            "cam",
+            "scheduling"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "algorithm",
+          "targetSurface": "mcp-server/src/algorithms/<NewAlgorithm>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple algorithm:lesat-algorithm"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:16.885j-fall-2004",
+      "courseId": "16.885j-fall-2004",
+      "courseTitle": "Aircraft Systems Engineering",
+      "mfgRelevance": 0.8,
+      "rank": 0.44,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "engine",
+          "name": "lean-manufacturing-engine",
+          "rationale": "No engine dedup hit; mfgRelevance 0.80 ≥ 0.6 (engine threshold).",
+          "courseId": "16.885j-fall-2004",
+          "domains": [
+            "cam",
+            "scheduling",
+            "thermal"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "engine",
+          "targetSurface": "mcp-server/src/engines/<NewEngine>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple engine:lean-manufacturing-engine"
+        },
+        {
+          "kind": "technique",
+          "name": "aeroelastic-analysis-technique",
+          "rationale": "Technique → knowledge-tip emit was Lane A direct-wire (already shipped).",
+          "courseId": "16.885j-fall-2004",
+          "domains": [
+            "cam",
+            "scheduling",
+            "thermal"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "knowledge",
+          "targetSurface": "cad-engine/knowledge_store/mit-ocw-course-tips.json",
+          "prismMatch": null,
+          "decision": "TRIBAL-SHIPPED",
+          "lane": "A",
+          "recommendedAction": "verify TribalKnowledgeEngine tip exists (Phase 1 U-KC-B1 shipped); if absent, re-run scripts/course-to-tribal-tips.mjs"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:2.003-spring-2005",
+      "courseId": "2.003",
+      "courseTitle": "Modeling Dynamics and Control I",
+      "mfgRelevance": 0.8,
+      "rank": 0.44,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "algorithm",
+          "name": "pendulum-cart-modeling",
+          "rationale": "No PRISM-algorithm dedup hit; mfgRelevance 0.80 ≥ 0.5. Course-derived → Lane C human-gated /forge.",
+          "courseId": "2.003",
+          "domains": [
+            "control",
+            "thermal",
+            "vibration"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "algorithm",
+          "targetSurface": "mcp-server/src/algorithms/<NewAlgorithm>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple algorithm:pendulum-cart-modeling"
+        },
+        {
+          "kind": "formula",
+          "name": "transfer-functions",
+          "rationale": "Doctrine: canonical physics constants live in src/physics/constants.ts; course-derived formulas require physics-reviewer agent gate before port.",
+          "courseId": "2.003",
+          "domains": [
+            "control",
+            "thermal",
+            "vibration"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "formula",
+          "targetSurface": "src/physics/constants.ts + prism_calc:<action>",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "physics-reviewer agent verify equation + dimensional consistency, then port constants to src/physics/constants.ts (NEVER inline) and wire to prism_calc/<action> via /forge-triple formula:transfer-functions"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:2.007-spring-2009",
+      "courseId": "2.007-spring-2009",
+      "courseTitle": "Design and Manufacturing I",
+      "mfgRelevance": 0.8,
+      "rank": 0.44,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "engine",
+          "name": "solidworks",
+          "rationale": "No engine dedup hit; mfgRelevance 0.80 ≥ 0.6 (engine threshold).",
+          "courseId": "2.007-spring-2009",
+          "domains": [
+            "cad",
+            "cam"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "engine",
+          "targetSurface": "mcp-server/src/engines/<NewEngine>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple engine:solidworks"
+        },
+        {
+          "kind": "algorithm",
+          "name": "cam-path-optimization",
+          "rationale": "No PRISM-algorithm dedup hit; mfgRelevance 0.80 ≥ 0.5. Course-derived → Lane C human-gated /forge.",
+          "courseId": "2.007-spring-2009",
+          "domains": [
+            "cad",
+            "cam"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "algorithm",
+          "targetSurface": "mcp-server/src/algorithms/<NewAlgorithm>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple algorithm:cam-path-optimization"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:2.003j-fall-2007",
+      "courseId": "2.003j-fall-2007",
+      "courseTitle": "Dynamics and Control I",
+      "mfgRelevance": 0.8,
+      "rank": 0.44,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "algorithm",
+          "name": "euler-method",
+          "rationale": "No PRISM-algorithm dedup hit; mfgRelevance 0.80 ≥ 0.5. Course-derived → Lane C human-gated /forge.",
+          "courseId": "2.003j-fall-2007",
+          "domains": [
+            "cad",
+            "cam",
+            "control"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "algorithm",
+          "targetSurface": "mcp-server/src/algorithms/<NewAlgorithm>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple algorithm:euler-method"
+        },
+        {
+          "kind": "technique",
+          "name": "runge-kutta-method",
+          "rationale": "Technique → knowledge-tip emit was Lane A direct-wire (already shipped).",
+          "courseId": "2.003j-fall-2007",
+          "domains": [
+            "cad",
+            "cam",
+            "control"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "knowledge",
+          "targetSurface": "cad-engine/knowledge_store/mit-ocw-course-tips.json",
+          "prismMatch": null,
+          "decision": "TRIBAL-SHIPPED",
+          "lane": "A",
+          "recommendedAction": "verify TribalKnowledgeEngine tip exists (Phase 1 U-KC-B1 shipped); if absent, re-run scripts/course-to-tribal-tips.mjs"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:2.008-spring-2003",
+      "courseId": "2.008-spring-2003",
+      "courseTitle": "Design and Manufacturing II",
+      "mfgRelevance": 0.8,
+      "rank": 0.44,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "engine",
+          "name": "mastercam-integration",
+          "rationale": "Token-match score 1.00 → likely already implemented.",
+          "courseId": "2.008-spring-2003",
+          "domains": [
+            "cad",
+            "cam",
+            "control"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "engine",
+          "targetSurface": "mcp-server/src/engines/MastercamHeadlessIntegrationTestEngine.ts",
+          "prismMatch": {
+            "file": "MastercamHeadlessIntegrationTestEngine",
+            "score": 1,
+            "source": "engines-dir"
+          },
+          "decision": "DUPLICATE",
+          "lane": "B",
+          "recommendedAction": "verify existing engine covers course-derived scope; if course introduces new method, propose extension PR not new engine"
+        },
+        {
+          "kind": "technique",
+          "name": "g-code-optimization",
+          "rationale": "Technique → knowledge-tip emit was Lane A direct-wire (already shipped).",
+          "courseId": "2.008-spring-2003",
+          "domains": [
+            "cad",
+            "cam",
+            "control"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "knowledge",
+          "targetSurface": "cad-engine/knowledge_store/mit-ocw-course-tips.json",
+          "prismMatch": null,
+          "decision": "TRIBAL-SHIPPED",
+          "lane": "A",
+          "recommendedAction": "verify TribalKnowledgeEngine tip exists (Phase 1 U-KC-B1 shipped); if absent, re-run scripts/course-to-tribal-tips.mjs"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:2.830j-spring-2008",
+      "courseId": "2.830j-spring-2008",
+      "courseTitle": "Control of Manufacturing Processes (SMA 6303)",
+      "mfgRelevance": 0.8,
+      "rank": 0.44,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "algorithm",
+          "name": "response-surface-modeling",
+          "rationale": "No PRISM-algorithm dedup hit; mfgRelevance 0.80 ≥ 0.5. Course-derived → Lane C human-gated /forge.",
+          "courseId": "2.830j-spring-2008",
+          "domains": [
+            "cam",
+            "metrology",
+            "control"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "algorithm",
+          "targetSurface": "mcp-server/src/algorithms/<NewAlgorithm>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple algorithm:response-surface-modeling"
+        },
+        {
+          "kind": "technique",
+          "name": "design-of-experiments-doe",
+          "rationale": "Technique → knowledge-tip emit was Lane A direct-wire (already shipped).",
+          "courseId": "2.830j-spring-2008",
+          "domains": [
+            "cam",
+            "metrology",
+            "control"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "knowledge",
+          "targetSurface": "cad-engine/knowledge_store/mit-ocw-course-tips.json",
+          "prismMatch": null,
+          "decision": "TRIBAL-SHIPPED",
+          "lane": "A",
+          "recommendedAction": "verify TribalKnowledgeEngine tip exists (Phase 1 U-KC-B1 shipped); if absent, re-run scripts/course-to-tribal-tips.mjs"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:6.871-spring-2005",
+      "courseId": "6.871",
+      "courseTitle": "Knowledge-Based Applications Systems",
+      "mfgRelevance": 0.8,
+      "rank": 0.44,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "engine",
+          "name": "seelect",
+          "rationale": "No engine dedup hit; mfgRelevance 0.80 ≥ 0.6 (engine threshold).",
+          "courseId": "6.871",
+          "domains": [
+            "cam",
+            "scheduling",
+            "thermal"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "engine",
+          "targetSurface": "mcp-server/src/engines/<NewEngine>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple engine:seelect"
+        },
+        {
+          "kind": "algorithm",
+          "name": "bayes-nets",
+          "rationale": "No PRISM-algorithm dedup hit; mfgRelevance 0.80 ≥ 0.5. Course-derived → Lane C human-gated /forge.",
+          "courseId": "6.871",
+          "domains": [
+            "cam",
+            "scheduling",
+            "thermal"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "algorithm",
+          "targetSurface": "mcp-server/src/algorithms/<NewAlgorithm>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple algorithm:bayes-nets"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:18.02-spring-2006",
+      "courseId": "18.02-spring-2006",
+      "courseTitle": "Multivariable Calculus",
+      "mfgRelevance": 0.8,
+      "rank": 0.44,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "algorithm",
+          "name": "gradient-descent",
+          "rationale": "No PRISM-algorithm dedup hit; mfgRelevance 0.80 ≥ 0.5. Course-derived → Lane C human-gated /forge.",
+          "courseId": "18.02-spring-2006",
+          "domains": [
+            "cam",
+            "metrology"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "algorithm",
+          "targetSurface": "mcp-server/src/algorithms/<NewAlgorithm>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple algorithm:gradient-descent"
+        },
+        {
+          "kind": "engine",
+          "name": "finite-element-analysis-fea",
+          "rationale": "No engine dedup hit; mfgRelevance 0.80 ≥ 0.6 (engine threshold).",
+          "courseId": "18.02-spring-2006",
+          "domains": [
+            "cam",
+            "metrology"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "engine",
+          "targetSurface": "mcp-server/src/engines/<NewEngine>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple engine:finite-element-analysis-fea"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:12.864-spring-2005",
+      "courseId": "12.864",
+      "courseTitle": "Inference from Data and Models",
+      "mfgRelevance": 0.8,
+      "rank": 0.44,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "algorithm",
+          "name": "singular-value-decomposition",
+          "rationale": "No PRISM-algorithm dedup hit; mfgRelevance 0.80 ≥ 0.5. Course-derived → Lane C human-gated /forge.",
+          "courseId": "12.864",
+          "domains": [
+            "cam",
+            "metrology",
+            "scheduling"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "algorithm",
+          "targetSurface": "mcp-server/src/algorithms/<NewAlgorithm>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple algorithm:singular-value-decomposition"
+        },
+        {
+          "kind": "technique",
+          "name": "kalman-filter",
+          "rationale": "Technique → knowledge-tip emit was Lane A direct-wire (already shipped).",
+          "courseId": "12.864",
+          "domains": [
+            "cam",
+            "metrology",
+            "scheduling"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "knowledge",
+          "targetSurface": "cad-engine/knowledge_store/mit-ocw-course-tips.json",
+          "prismMatch": null,
+          "decision": "TRIBAL-SHIPPED",
+          "lane": "A",
+          "recommendedAction": "verify TribalKnowledgeEngine tip exists (Phase 1 U-KC-B1 shipped); if absent, re-run scripts/course-to-tribal-tips.mjs"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:16.225-fall-2003",
+      "courseId": "16.225",
+      "courseTitle": "Computational Mechanics of Materials",
+      "mfgRelevance": 0.8,
+      "rank": 0.44,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "algorithm",
+          "name": "newmarks-algorithm",
+          "rationale": "No PRISM-algorithm dedup hit; mfgRelevance 0.80 ≥ 0.5. Course-derived → Lane C human-gated /forge.",
+          "courseId": "16.225",
+          "domains": [
+            "thermal",
+            "control"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "algorithm",
+          "targetSurface": "mcp-server/src/algorithms/<NewAlgorithm>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple algorithm:newmarks-algorithm"
+        },
+        {
+          "kind": "technique",
+          "name": "finite-element-discretization",
+          "rationale": "Technique → knowledge-tip emit was Lane A direct-wire (already shipped).",
+          "courseId": "16.225",
+          "domains": [
+            "thermal",
+            "control"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "knowledge",
+          "targetSurface": "cad-engine/knowledge_store/mit-ocw-course-tips.json",
+          "prismMatch": null,
+          "decision": "TRIBAL-SHIPPED",
+          "lane": "A",
+          "recommendedAction": "verify TribalKnowledgeEngine tip exists (Phase 1 U-KC-B1 shipped); if absent, re-run scripts/course-to-tribal-tips.mjs"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:18.086-spring-2006",
+      "courseId": "18.086",
+      "courseTitle": "Mathematical Methods for Engineers II",
+      "mfgRelevance": 0.8,
+      "rank": 0.44,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "algorithm",
+          "name": "multigrid-method",
+          "rationale": "No PRISM-algorithm dedup hit; mfgRelevance 0.80 ≥ 0.5. Course-derived → Lane C human-gated /forge.",
+          "courseId": "18.086",
+          "domains": [
+            "cam",
+            "thermal",
+            "control"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "algorithm",
+          "targetSurface": "mcp-server/src/algorithms/<NewAlgorithm>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple algorithm:multigrid-method"
+        },
+        {
+          "kind": "technique",
+          "name": "krylov-subspace-methods",
+          "rationale": "Technique → knowledge-tip emit was Lane A direct-wire (already shipped).",
+          "courseId": "18.086",
+          "domains": [
+            "cam",
+            "thermal",
+            "control"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "knowledge",
+          "targetSurface": "cad-engine/knowledge_store/mit-ocw-course-tips.json",
+          "prismMatch": null,
+          "decision": "TRIBAL-SHIPPED",
+          "lane": "A",
+          "recommendedAction": "verify TribalKnowledgeEngine tip exists (Phase 1 U-KC-B1 shipped); if absent, re-run scripts/course-to-tribal-tips.mjs"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:2.004-spring-2008",
+      "courseId": "2.004",
+      "courseTitle": "Dynamics and Control II",
+      "mfgRelevance": 0.8,
+      "rank": 0.44,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "algorithm",
+          "name": "pid-tuning",
+          "rationale": "No PRISM-algorithm dedup hit; mfgRelevance 0.80 ≥ 0.5. Course-derived → Lane C human-gated /forge.",
+          "courseId": "2.004",
+          "domains": [
+            "control",
+            "cam"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "algorithm",
+          "targetSurface": "mcp-server/src/algorithms/<NewAlgorithm>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple algorithm:pid-tuning"
+        },
+        {
+          "kind": "engine",
+          "name": "simulink-models",
+          "rationale": "No engine dedup hit; mfgRelevance 0.80 ≥ 0.6 (engine threshold).",
+          "courseId": "2.004",
+          "domains": [
+            "control",
+            "cam"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "engine",
+          "targetSurface": "mcp-server/src/engines/<NewEngine>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple engine:simulink-models"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:3.016-fall-2005",
+      "courseId": "3.016",
+      "courseTitle": "Mathematics for Materials Scientists and Engineers",
+      "mfgRelevance": 0.8,
+      "rank": 0.44,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "algorithm",
+          "name": "numerical-integration",
+          "rationale": "No PRISM-algorithm dedup hit; mfgRelevance 0.80 ≥ 0.5. Course-derived → Lane C human-gated /forge.",
+          "courseId": "3.016",
+          "domains": [
+            "cam",
+            "thermal",
+            "control"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "algorithm",
+          "targetSurface": "mcp-server/src/algorithms/<NewAlgorithm>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple algorithm:numerical-integration"
+        },
+        {
+          "kind": "engine",
+          "name": "finite-element-analysis",
+          "rationale": "Token-match score 0.67 → likely already implemented.",
+          "courseId": "3.016",
+          "domains": [
+            "cam",
+            "thermal",
+            "control"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "engine",
+          "targetSurface": "mcp-server/src/engines/FiniteElementEngine.ts",
+          "prismMatch": {
+            "file": "FiniteElementEngine",
+            "score": 0.6666666666666666,
+            "source": "engines-dir"
+          },
+          "decision": "DUPLICATE",
+          "lane": "B",
+          "recommendedAction": "verify existing engine covers course-derived scope; if course introduces new method, propose extension PR not new engine"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:9.66j-fall-2004",
+      "courseId": "9.66j",
+      "courseTitle": "Computational Cognitive Science",
+      "mfgRelevance": 0.8,
+      "rank": 0.44,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "algorithm",
+          "name": "bayes-net-inference",
+          "rationale": "No PRISM-algorithm dedup hit; mfgRelevance 0.80 ≥ 0.5. Course-derived → Lane C human-gated /forge.",
+          "courseId": "9.66j",
+          "domains": [
+            "cam",
+            "control",
+            "thermal"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "algorithm",
+          "targetSurface": "mcp-server/src/algorithms/<NewAlgorithm>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple algorithm:bayes-net-inference"
+        },
+        {
+          "kind": "engine",
+          "name": "constraint-based-optimizer",
+          "rationale": "No engine dedup hit; mfgRelevance 0.80 ≥ 0.6 (engine threshold).",
+          "courseId": "9.66j",
+          "domains": [
+            "cam",
+            "control",
+            "thermal"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "engine",
+          "targetSurface": "mcp-server/src/engines/<NewEngine>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple engine:constraint-based-optimizer"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:16.07-fall-2009",
+      "courseId": "16.07",
+      "courseTitle": "Dynamics",
+      "mfgRelevance": 0.8,
+      "rank": 0.44,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "engine",
+          "name": "inertial-guidance-system",
+          "rationale": "No engine dedup hit; mfgRelevance 0.80 ≥ 0.6 (engine threshold).",
+          "courseId": "16.07",
+          "domains": [
+            "cam",
+            "metrology"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "engine",
+          "targetSurface": "mcp-server/src/engines/<NewEngine>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple engine:inertial-guidance-system"
+        },
+        {
+          "kind": "algorithm",
+          "name": "lagranges-equations",
+          "rationale": "No PRISM-algorithm dedup hit; mfgRelevance 0.80 ≥ 0.5. Course-derived → Lane C human-gated /forge.",
+          "courseId": "16.07",
+          "domains": [
+            "cam",
+            "metrology"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "algorithm",
+          "targetSurface": "mcp-server/src/algorithms/<NewAlgorithm>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple algorithm:lagranges-equations"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:16.682-spring-2006",
+      "courseId": "16.682",
+      "courseTitle": "Prototyping Avionics",
+      "mfgRelevance": 0.8,
+      "rank": 0.44,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "engine",
+          "name": "digital-logic-engine",
+          "rationale": "No engine dedup hit; mfgRelevance 0.80 ≥ 0.6 (engine threshold).",
+          "courseId": "16.682",
+          "domains": [
+            "control",
+            "thermal"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "engine",
+          "targetSurface": "mcp-server/src/engines/<NewEngine>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple engine:digital-logic-engine"
+        },
+        {
+          "kind": "formula",
+          "name": "transistor-gain-formula",
+          "rationale": "Doctrine: canonical physics constants live in src/physics/constants.ts; course-derived formulas require physics-reviewer agent gate before port.",
+          "courseId": "16.682",
+          "domains": [
+            "control",
+            "thermal"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "formula",
+          "targetSurface": "src/physics/constants.ts + prism_calc:<action>",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "physics-reviewer agent verify equation + dimensional consistency, then port constants to src/physics/constants.ts (NEVER inline) and wire to prism_calc/<action> via /forge-triple formula:transistor-gain-formula"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:2.086-fall-2012",
+      "courseId": "2.086",
+      "courseTitle": "Numerical Computation for Mechanical Engineers",
+      "mfgRelevance": 0.8,
+      "rank": 0.44,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "algorithm",
+          "name": "finite-difference-method",
+          "rationale": "No PRISM-algorithm dedup hit; mfgRelevance 0.80 ≥ 0.5. Course-derived → Lane C human-gated /forge.",
+          "courseId": "2.086",
+          "domains": [
+            "cam",
+            "thermal",
+            "control"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "algorithm",
+          "targetSurface": "mcp-server/src/algorithms/<NewAlgorithm>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple algorithm:finite-difference-method"
+        },
+        {
+          "kind": "engine",
+          "name": "monte-carlo-simulation-engine",
+          "rationale": "Token-match score 0.67 → likely already implemented.",
+          "courseId": "2.086",
+          "domains": [
+            "cam",
+            "thermal",
+            "control"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "engine",
+          "targetSurface": "mcp-server/src/engines/CapacityMonteCarloEngine.ts",
+          "prismMatch": {
+            "file": "CapacityMonteCarloEngine",
+            "score": 0.6666666666666666,
+            "source": "engines-dir"
+          },
+          "decision": "DUPLICATE",
+          "lane": "B",
+          "recommendedAction": "verify existing engine covers course-derived scope; if course introduces new method, propose extension PR not new engine"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:2.141-fall-2006",
+      "courseId": "2.141",
+      "courseTitle": "Modeling and Simulation of Dynamic Systems",
+      "mfgRelevance": 0.8,
+      "rank": 0.44,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "engine",
+          "name": "dynamic-system-simulation-engine",
+          "rationale": "No engine dedup hit; mfgRelevance 0.80 ≥ 0.6 (engine threshold).",
+          "courseId": "2.141",
+          "domains": [
+            "cam",
+            "metrology"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "engine",
+          "targetSurface": "mcp-server/src/engines/<NewEngine>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple engine:dynamic-system-simulation-engine"
+        },
+        {
+          "kind": "technique",
+          "name": "thermalvibration-modeling",
+          "rationale": "Technique → knowledge-tip emit was Lane A direct-wire (already shipped).",
+          "courseId": "2.141",
+          "domains": [
+            "cam",
+            "metrology"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "knowledge",
+          "targetSurface": "cad-engine/knowledge_store/mit-ocw-course-tips.json",
+          "prismMatch": null,
+          "decision": "TRIBAL-SHIPPED",
+          "lane": "A",
+          "recommendedAction": "verify TribalKnowledgeEngine tip exists (Phase 1 U-KC-B1 shipped); if absent, re-run scripts/course-to-tribal-tips.mjs"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:3.21-spring-2006",
+      "courseId": "3.21",
+      "courseTitle": "Kinetic Processes in Materials",
+      "mfgRelevance": 0.8,
+      "rank": 0.44,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "algorithm",
+          "name": "cahn-hilliard-equation-solver",
+          "rationale": "No PRISM-algorithm dedup hit; mfgRelevance 0.80 ≥ 0.5. Course-derived → Lane C human-gated /forge.",
+          "courseId": "3.21",
+          "domains": [
+            "cam",
+            "materials",
+            "metrology"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "algorithm",
+          "targetSurface": "mcp-server/src/algorithms/<NewAlgorithm>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple algorithm:cahn-hilliard-equation-solver"
+        },
+        {
+          "kind": "technique",
+          "name": "spinodal-decomposition-kinetics",
+          "rationale": "Technique → knowledge-tip emit was Lane A direct-wire (already shipped).",
+          "courseId": "3.21",
+          "domains": [
+            "cam",
+            "materials",
+            "metrology"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "knowledge",
+          "targetSurface": "cad-engine/knowledge_store/mit-ocw-course-tips.json",
+          "prismMatch": null,
+          "decision": "TRIBAL-SHIPPED",
+          "lane": "A",
+          "recommendedAction": "verify TribalKnowledgeEngine tip exists (Phase 1 U-KC-B1 shipped); if absent, re-run scripts/course-to-tribal-tips.mjs"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:3.60-fall-2005",
+      "courseId": "3.60",
+      "courseTitle": "Symmetry, Structure, and Tensor Properties of Materials",
+      "mfgRelevance": 0.8,
+      "rank": 0.44,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "engine",
+          "name": "material-property-prediction-engine",
+          "rationale": "No engine dedup hit; mfgRelevance 0.80 ≥ 0.6 (engine threshold).",
+          "courseId": "3.60",
+          "domains": [
+            "materials",
+            "metrology"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "engine",
+          "targetSurface": "mcp-server/src/engines/<NewEngine>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple engine:material-property-prediction-engine"
+        },
+        {
+          "kind": "algorithm",
+          "name": "wave-propagation-simulation-algorithm",
+          "rationale": "No PRISM-algorithm dedup hit; mfgRelevance 0.80 ≥ 0.5. Course-derived → Lane C human-gated /forge.",
+          "courseId": "3.60",
+          "domains": [
+            "materials",
+            "metrology"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "algorithm",
+          "targetSurface": "mcp-server/src/algorithms/<NewAlgorithm>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple algorithm:wave-propagation-simulation-algorithm"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:6.034-spring-2005",
+      "courseId": "6.034",
+      "courseTitle": "Artificial Intelligence",
+      "mfgRelevance": 0.8,
+      "rank": 0.44,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "algorithm",
+          "name": "decision-tree",
+          "rationale": "Token-match score 1.00 → likely already implemented.",
+          "courseId": "6.034",
+          "domains": [
+            "cam",
+            "tool-life",
+            "thermal"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "algorithm",
+          "targetSurface": "mcp-server/src/algorithms/DecisionTreeClassifier.ts",
+          "prismMatch": {
+            "file": "DecisionTreeClassifier",
+            "score": 1,
+            "source": "algorithms-dir"
+          },
+          "decision": "DUPLICATE",
+          "lane": "B",
+          "recommendedAction": "human-verify formulas match canonical impl; if course version adds a variant, propose extension via /forge — never duplicate"
+        },
+        {
+          "kind": "technique",
+          "name": "machine-learning-models",
+          "rationale": "Technique → knowledge-tip emit was Lane A direct-wire (already shipped).",
+          "courseId": "6.034",
+          "domains": [
+            "cam",
+            "tool-life",
+            "thermal"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "knowledge",
+          "targetSurface": "cad-engine/knowledge_store/mit-ocw-course-tips.json",
+          "prismMatch": null,
+          "decision": "TRIBAL-SHIPPED",
+          "lane": "A",
+          "recommendedAction": "verify TribalKnowledgeEngine tip exists (Phase 1 U-KC-B1 shipped); if absent, re-run scripts/course-to-tribal-tips.mjs"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:6.231-fall-2015",
+      "courseId": "6.231",
+      "courseTitle": "Dynamic Programming and Stochastic Control",
+      "mfgRelevance": 0.8,
+      "rank": 0.44,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "algorithm",
+          "name": "value-iteration",
+          "rationale": "No PRISM-algorithm dedup hit; mfgRelevance 0.80 ≥ 0.5. Course-derived → Lane C human-gated /forge.",
+          "courseId": "6.231",
+          "domains": [
+            "cam",
+            "scheduling",
+            "control"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "algorithm",
+          "targetSurface": "mcp-server/src/algorithms/<NewAlgorithm>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple algorithm:value-iteration"
+        },
+        {
+          "kind": "engine",
+          "name": "policy-iteration-engine",
+          "rationale": "No engine dedup hit; mfgRelevance 0.80 ≥ 0.6 (engine threshold).",
+          "courseId": "6.231",
+          "domains": [
+            "cam",
+            "scheduling",
+            "control"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "engine",
+          "targetSurface": "mcp-server/src/engines/<NewEngine>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple engine:policy-iteration-engine"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:6.823-fall-2005",
+      "courseId": "6.823",
+      "courseTitle": "Computer System Architecture",
+      "mfgRelevance": 0.8,
+      "rank": 0.44,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "engine",
+          "name": "pipeline-engine",
+          "rationale": "Token-match score 1.00 → likely already implemented.",
+          "courseId": "6.823",
+          "domains": [
+            "mill",
+            "lathe",
+            "cam"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "engine",
+          "targetSurface": "mcp-server/src/engines/AdaptivePipelineGeneratorEngine.ts",
+          "prismMatch": {
+            "file": "AdaptivePipelineGeneratorEngine",
+            "score": 1,
+            "source": "engines-dir"
+          },
+          "decision": "DUPLICATE",
+          "lane": "B",
+          "recommendedAction": "verify existing engine covers course-derived scope; if course introduces new method, propose extension PR not new engine"
+        },
+        {
+          "kind": "technique",
+          "name": "cache-optimization",
+          "rationale": "Technique → knowledge-tip emit was Lane A direct-wire (already shipped).",
+          "courseId": "6.823",
+          "domains": [
+            "mill",
+            "lathe",
+            "cam"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "knowledge",
+          "targetSurface": "cad-engine/knowledge_store/mit-ocw-course-tips.json",
+          "prismMatch": null,
+          "decision": "TRIBAL-SHIPPED",
+          "lane": "A",
+          "recommendedAction": "verify TribalKnowledgeEngine tip exists (Phase 1 U-KC-B1 shipped); if absent, re-run scripts/course-to-tribal-tips.mjs"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:6.883-fall-2005",
+      "courseId": "6.883",
+      "courseTitle": "Program Analysis",
+      "mfgRelevance": 0.8,
+      "rank": 0.44,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "algorithm",
+          "name": "mutation-testing",
+          "rationale": "No PRISM-algorithm dedup hit; mfgRelevance 0.80 ≥ 0.5. Course-derived → Lane C human-gated /forge.",
+          "courseId": "6.883",
+          "domains": [
+            "cam",
+            "scheduling",
+            "metrology"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "algorithm",
+          "targetSurface": "mcp-server/src/algorithms/<NewAlgorithm>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple algorithm:mutation-testing"
+        },
+        {
+          "kind": "engine",
+          "name": "test-case-reduction-engine",
+          "rationale": "No engine dedup hit; mfgRelevance 0.80 ≥ 0.6 (engine threshold).",
+          "courseId": "6.883",
+          "domains": [
+            "cam",
+            "scheduling",
+            "metrology"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "engine",
+          "targetSurface": "mcp-server/src/engines/<NewEngine>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple engine:test-case-reduction-engine"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:8.022-fall-2004",
+      "courseId": "8.022",
+      "courseTitle": "Physics II: Electricity and Magnetism",
+      "mfgRelevance": 0.8,
+      "rank": 0.44,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "engine",
+          "name": "relativistic-dynamics-engine",
+          "rationale": "No engine dedup hit; mfgRelevance 0.80 ≥ 0.6 (engine threshold).",
+          "courseId": "8.022",
+          "domains": [
+            "thermal",
+            "cam"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "engine",
+          "targetSurface": "mcp-server/src/engines/<NewEngine>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple engine:relativistic-dynamics-engine"
+        },
+        {
+          "kind": "technique",
+          "name": "magnetic-field-simulation",
+          "rationale": "Technique → knowledge-tip emit was Lane A direct-wire (already shipped).",
+          "courseId": "8.022",
+          "domains": [
+            "thermal",
+            "cam"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "knowledge",
+          "targetSurface": "cad-engine/knowledge_store/mit-ocw-course-tips.json",
+          "prismMatch": null,
+          "decision": "TRIBAL-SHIPPED",
+          "lane": "A",
+          "recommendedAction": "verify TribalKnowledgeEngine tip exists (Phase 1 U-KC-B1 shipped); if absent, re-run scripts/course-to-tribal-tips.mjs"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:esd.34-january-iap-2007",
+      "courseId": "ESD.34",
+      "courseTitle": "System Architecture",
+      "mfgRelevance": 0.8,
+      "rank": 0.44,
+      "decisionCount": 1,
+      "decisions": [
+        {
+          "kind": "engine",
+          "name": "architectural-engine",
+          "rationale": "No engine dedup hit; mfgRelevance 0.80 ≥ 0.6 (engine threshold).",
+          "courseId": "ESD.34",
+          "domains": [
+            "cad",
+            "cam",
+            "metrology",
+            "scheduling"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "engine",
+          "targetSurface": "mcp-server/src/engines/<NewEngine>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple engine:architectural-engine"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:1.010-fall-2008",
+      "courseId": "1.010-fall-2008",
+      "courseTitle": "Uncertainty in Engineering",
+      "mfgRelevance": 0.8,
+      "rank": 0.44,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "algorithm",
+          "name": "monte-carlo-simulation",
+          "rationale": "Token-match score 0.67 → likely already implemented.",
+          "courseId": "1.010-fall-2008",
+          "domains": [
+            "cam",
+            "tool-life",
+            "thermal"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "algorithm",
+          "targetSurface": "mcp-server/src/algorithms/MonteCarlo.ts",
+          "prismMatch": {
+            "file": "MonteCarlo",
+            "score": 0.6666666666666666,
+            "source": "algorithms-dir"
+          },
+          "decision": "DUPLICATE",
+          "lane": "B",
+          "recommendedAction": "human-verify formulas match canonical impl; if course version adds a variant, propose extension via /forge — never duplicate"
+        },
+        {
+          "kind": "engine",
+          "name": "uncertainty-propagation-engine",
+          "rationale": "Token-match score 1.00 → likely already implemented.",
+          "courseId": "1.010-fall-2008",
+          "domains": [
+            "cam",
+            "tool-life",
+            "thermal"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "engine",
+          "targetSurface": "mcp-server/src/engines/UncertaintyPropagationEngine.ts",
+          "prismMatch": {
+            "file": "UncertaintyPropagationEngine",
+            "score": 1,
+            "source": "engines-dir"
+          },
+          "decision": "DUPLICATE",
+          "lane": "B",
+          "recommendedAction": "verify existing engine covers course-derived scope; if course introduces new method, propose extension PR not new engine"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:1.050-fall-2004",
+      "courseId": "1.050-fall-2004",
+      "courseTitle": "Solid Mechanics",
+      "mfgRelevance": 0.8,
+      "rank": 0.44,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "algorithm",
+          "name": "finite-element-analysis",
+          "rationale": "No PRISM-algorithm dedup hit; mfgRelevance 0.80 ≥ 0.5. Course-derived → Lane C human-gated /forge.",
+          "courseId": "1.050-fall-2004",
+          "domains": [
+            "cam",
+            "thermal"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "algorithm",
+          "targetSurface": "mcp-server/src/algorithms/<NewAlgorithm>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple algorithm:finite-element-analysis"
+        },
+        {
+          "kind": "formula",
+          "name": "buckling-formula",
+          "rationale": "Doctrine: canonical physics constants live in src/physics/constants.ts; course-derived formulas require physics-reviewer agent gate before port.",
+          "courseId": "1.050-fall-2004",
+          "domains": [
+            "cam",
+            "thermal"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "formula",
+          "targetSurface": "src/physics/constants.ts + prism_calc:<action>",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "physics-reviewer agent verify equation + dimensional consistency, then port constants to src/physics/constants.ts (NEVER inline) and wire to prism_calc/<action> via /forge-triple formula:buckling-formula"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:1.105-fall-2003",
+      "courseId": "1.105-fall-2003",
+      "courseTitle": "Solid Mechanics Laboratory",
+      "mfgRelevance": 0.8,
+      "rank": 0.44,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "algorithm",
+          "name": "finite-element-method",
+          "rationale": "No PRISM-algorithm dedup hit; mfgRelevance 0.80 ≥ 0.5. Course-derived → Lane C human-gated /forge.",
+          "courseId": "1.105-fall-2003",
+          "domains": [
+            "cad",
+            "cam",
+            "metrology"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "algorithm",
+          "targetSurface": "mcp-server/src/algorithms/<NewAlgorithm>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple algorithm:finite-element-method"
+        },
+        {
+          "kind": "formula",
+          "name": "euler-buckling-formula",
+          "rationale": "Doctrine: canonical physics constants live in src/physics/constants.ts; course-derived formulas require physics-reviewer agent gate before port.",
+          "courseId": "1.105-fall-2003",
+          "domains": [
+            "cad",
+            "cam",
+            "metrology"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "formula",
+          "targetSurface": "src/physics/constants.ts + prism_calc:<action>",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "physics-reviewer agent verify equation + dimensional consistency, then port constants to src/physics/constants.ts (NEVER inline) and wire to prism_calc/<action> via /forge-triple formula:euler-buckling-formula"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:10.490-fall-2006",
+      "courseId": "10.490-fall-2006",
+      "courseTitle": "Integrated Chemical Engineering I",
+      "mfgRelevance": 0.8,
+      "rank": 0.44,
+      "decisionCount": 3,
+      "decisions": [
+        {
+          "kind": "algorithm",
+          "name": "batch-reactor-sizing-algorithm",
+          "rationale": "No PRISM-algorithm dedup hit; mfgRelevance 0.80 ≥ 0.5. Course-derived → Lane C human-gated /forge.",
+          "courseId": "10.490-fall-2006",
+          "domains": [
+            "cad",
+            "cam",
+            "process optimization"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "algorithm",
+          "targetSurface": "mcp-server/src/algorithms/<NewAlgorithm>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple algorithm:batch-reactor-sizing-algorithm"
+        },
+        {
+          "kind": "formula",
+          "name": "kinetic-rate-equation",
+          "rationale": "Doctrine: canonical physics constants live in src/physics/constants.ts; course-derived formulas require physics-reviewer agent gate before port.",
+          "courseId": "10.490-fall-2006",
+          "domains": [
+            "cad",
+            "cam",
+            "process optimization"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "formula",
+          "targetSurface": "src/physics/constants.ts + prism_calc:<action>",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "physics-reviewer agent verify equation + dimensional consistency, then port constants to src/physics/constants.ts (NEVER inline) and wire to prism_calc/<action> via /forge-triple formula:kinetic-rate-equation"
+        },
+        {
+          "kind": "engine",
+          "name": "economic-model-engine",
+          "rationale": "No engine dedup hit; mfgRelevance 0.80 ≥ 0.6 (engine threshold).",
+          "courseId": "10.490-fall-2006",
+          "domains": [
+            "cad",
+            "cam",
+            "process optimization"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "engine",
+          "targetSurface": "mcp-server/src/engines/<NewEngine>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple engine:economic-model-engine"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:15.099-fall-2003",
+      "courseId": "15.099-fall-2003",
+      "courseTitle": "Readings in Optimization",
+      "mfgRelevance": 0.8,
+      "rank": 0.44,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "algorithm",
+          "name": "differential-evolution",
+          "rationale": "No PRISM-algorithm dedup hit; mfgRelevance 0.80 ≥ 0.5. Course-derived → Lane C human-gated /forge.",
+          "courseId": "15.099-fall-2003",
+          "domains": [
+            "cam",
+            "scheduling",
+            "thermal"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "algorithm",
+          "targetSurface": "mcp-server/src/algorithms/<NewAlgorithm>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple algorithm:differential-evolution"
+        },
+        {
+          "kind": "technique",
+          "name": "randomized-algorithms",
+          "rationale": "Technique → knowledge-tip emit was Lane A direct-wire (already shipped).",
+          "courseId": "15.099-fall-2003",
+          "domains": [
+            "cam",
+            "scheduling",
+            "thermal"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "knowledge",
+          "targetSurface": "cad-engine/knowledge_store/mit-ocw-course-tips.json",
+          "prismMatch": null,
+          "decision": "TRIBAL-SHIPPED",
+          "lane": "A",
+          "recommendedAction": "verify TribalKnowledgeEngine tip exists (Phase 1 U-KC-B1 shipped); if absent, re-run scripts/course-to-tribal-tips.mjs"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:2.032-fall-2004",
+      "courseId": "2.032",
+      "courseTitle": "Dynamics",
+      "mfgRelevance": 0.8,
+      "rank": 0.44,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "algorithm",
+          "name": "lagranges-equations",
+          "rationale": "No PRISM-algorithm dedup hit; mfgRelevance 0.80 ≥ 0.5. Course-derived → Lane C human-gated /forge.",
+          "courseId": "2.032",
+          "domains": [
+            "cam",
+            "metrology"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "algorithm",
+          "targetSurface": "mcp-server/src/algorithms/<NewAlgorithm>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple algorithm:lagranges-equations"
+        },
+        {
+          "kind": "engine",
+          "name": "dynamics-engine",
+          "rationale": "Token-match score 1.00 → likely already implemented.",
+          "courseId": "2.032",
+          "domains": [
+            "cam",
+            "metrology"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "engine",
+          "targetSurface": "mcp-server/src/engines/CoolantDynamicsEngine.ts",
+          "prismMatch": {
+            "file": "CoolantDynamicsEngine",
+            "score": 1,
+            "source": "engines-dir"
+          },
+          "decision": "DUPLICATE",
+          "lane": "B",
+          "recommendedAction": "verify existing engine covers course-derived scope; if course introduces new method, propose extension PR not new engine"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:3.225-fall-2007",
+      "courseId": "3.225-fall-2007",
+      "courseTitle": "Electronic and Mechanical Properties of Materials",
+      "mfgRelevance": 0.8,
+      "rank": 0.44,
+      "decisionCount": 1,
+      "decisions": [
+        {
+          "kind": "engine",
+          "name": "material-property-prediction-engine",
+          "rationale": "No engine dedup hit; mfgRelevance 0.80 ≥ 0.6 (engine threshold).",
+          "courseId": "3.225-fall-2007",
+          "domains": [
+            "materials",
+            "metrology"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "engine",
+          "targetSurface": "mcp-server/src/engines/<NewEngine>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple engine:material-property-prediction-engine"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:esd.33-summer-2010",
+      "courseId": "esd.33-summer-2010",
+      "courseTitle": "Systems Engineering",
+      "mfgRelevance": 0.8,
+      "rank": 0.44,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "engine",
+          "name": "operating-window-methods",
+          "rationale": "No engine dedup hit; mfgRelevance 0.80 ≥ 0.6 (engine threshold).",
+          "courseId": "esd.33-summer-2010",
+          "domains": [
+            "cam",
+            "thermal",
+            "scheduling"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "engine",
+          "targetSurface": "mcp-server/src/engines/<NewEngine>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple engine:operating-window-methods"
+        },
+        {
+          "kind": "technique",
+          "name": "critical-parameter-management",
+          "rationale": "Technique → knowledge-tip emit was Lane A direct-wire (already shipped).",
+          "courseId": "esd.33-summer-2010",
+          "domains": [
+            "cam",
+            "thermal",
+            "scheduling"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "knowledge",
+          "targetSurface": "cad-engine/knowledge_store/mit-ocw-course-tips.json",
+          "prismMatch": null,
+          "decision": "TRIBAL-SHIPPED",
+          "lane": "A",
+          "recommendedAction": "verify TribalKnowledgeEngine tip exists (Phase 1 U-KC-B1 shipped); if absent, re-run scripts/course-to-tribal-tips.mjs"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:esd.60-summer-2004",
+      "courseId": "esd.60-summer-2004",
+      "courseTitle": "Lean/Six Sigma Processes",
+      "mfgRelevance": 0.8,
+      "rank": 0.44,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "engine",
+          "name": "pdca-cycle-engine",
+          "rationale": "No engine dedup hit; mfgRelevance 0.80 ≥ 0.6 (engine threshold).",
+          "courseId": "esd.60-summer-2004",
+          "domains": [
+            "scheduling",
+            "metrology"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "engine",
+          "targetSurface": "mcp-server/src/engines/<NewEngine>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple engine:pdca-cycle-engine"
+        },
+        {
+          "kind": "technique",
+          "name": "5s-methodology",
+          "rationale": "Technique → knowledge-tip emit was Lane A direct-wire (already shipped).",
+          "courseId": "esd.60-summer-2004",
+          "domains": [
+            "scheduling",
+            "metrology"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "knowledge",
+          "targetSurface": "cad-engine/knowledge_store/mit-ocw-course-tips.json",
+          "prismMatch": null,
+          "decision": "TRIBAL-SHIPPED",
+          "lane": "A",
+          "recommendedAction": "verify TribalKnowledgeEngine tip exists (Phase 1 U-KC-B1 shipped); if absent, re-run scripts/course-to-tribal-tips.mjs"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:3.22-spring-2008",
+      "courseId": "3.22",
+      "courseTitle": "Mechanical Behavior of Materials",
+      "mfgRelevance": 0.8,
+      "rank": 0.44,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "algorithm",
+          "name": "finite-element-analysis",
+          "rationale": "No PRISM-algorithm dedup hit; mfgRelevance 0.80 ≥ 0.5. Course-derived → Lane C human-gated /forge.",
+          "courseId": "3.22",
+          "domains": [
+            "cam",
+            "metrology",
+            "thermal"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "algorithm",
+          "targetSurface": "mcp-server/src/algorithms/<NewAlgorithm>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple algorithm:finite-element-analysis"
+        },
+        {
+          "kind": "technique",
+          "name": "thermal-modeling",
+          "rationale": "Technique → knowledge-tip emit was Lane A direct-wire (already shipped).",
+          "courseId": "3.22",
+          "domains": [
+            "cam",
+            "metrology",
+            "thermal"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "knowledge",
+          "targetSurface": "cad-engine/knowledge_store/mit-ocw-course-tips.json",
+          "prismMatch": null,
+          "decision": "TRIBAL-SHIPPED",
+          "lane": "A",
+          "recommendedAction": "verify TribalKnowledgeEngine tip exists (Phase 1 U-KC-B1 shipped); if absent, re-run scripts/course-to-tribal-tips.mjs"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:18.112-fall-2008",
+      "courseId": "18.112-fall-2008",
+      "courseTitle": "Functions of a Complex Variable",
+      "mfgRelevance": 0.7,
+      "rank": 0.385,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "algorithm",
+          "name": "cauchy-goursat-theorem",
+          "rationale": "No PRISM-algorithm dedup hit; mfgRelevance 0.70 ≥ 0.5. Course-derived → Lane C human-gated /forge.",
+          "courseId": "18.112-fall-2008",
+          "domains": [
+            "cam",
+            "metrology"
+          ],
+          "mfgRelevance": 0.7,
+          "targetNodeType": "algorithm",
+          "targetSurface": "mcp-server/src/algorithms/<NewAlgorithm>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple algorithm:cauchy-goursat-theorem"
+        },
+        {
+          "kind": "technique",
+          "name": "residue-theorem",
+          "rationale": "Technique → knowledge-tip emit was Lane A direct-wire (already shipped).",
+          "courseId": "18.112-fall-2008",
+          "domains": [
+            "cam",
+            "metrology"
+          ],
+          "mfgRelevance": 0.7,
+          "targetNodeType": "knowledge",
+          "targetSurface": "cad-engine/knowledge_store/mit-ocw-course-tips.json",
+          "prismMatch": null,
+          "decision": "TRIBAL-SHIPPED",
+          "lane": "A",
+          "recommendedAction": "verify TribalKnowledgeEngine tip exists (Phase 1 U-KC-B1 shipped); if absent, re-run scripts/course-to-tribal-tips.mjs"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:esd.342-spring-2006",
+      "courseId": "esd.342-spring-2006",
+      "courseTitle": "Advanced System Architecture",
+      "mfgRelevance": 0.6,
+      "rank": 0.33,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "algorithm",
+          "name": "louvain-algorithm",
+          "rationale": "No PRISM-algorithm dedup hit; mfgRelevance 0.60 ≥ 0.5. Course-derived → Lane C human-gated /forge.",
+          "courseId": "esd.342-spring-2006",
+          "domains": [
+            "cam",
+            "metrology",
+            "scheduling"
+          ],
+          "mfgRelevance": 0.6,
+          "targetNodeType": "algorithm",
+          "targetSurface": "mcp-server/src/algorithms/<NewAlgorithm>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple algorithm:louvain-algorithm"
+        },
+        {
+          "kind": "engine",
+          "name": "ucinet",
+          "rationale": "No engine dedup hit; mfgRelevance 0.60 ≥ 0.6 (engine threshold).",
+          "courseId": "esd.342-spring-2006",
+          "domains": [
+            "cam",
+            "metrology",
+            "scheduling"
+          ],
+          "mfgRelevance": 0.6,
+          "targetNodeType": "engine",
+          "targetSurface": "mcp-server/src/engines/<NewEngine>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple engine:ucinet"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:15.083j-fall-2009",
+      "courseId": "15.083J",
+      "courseTitle": "Integer Programming and Combinatorial Optimization",
+      "mfgRelevance": 0.8,
+      "rank": 0.275,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "algorithm",
+          "name": "ellipsoid-method",
+          "rationale": "No PRISM-algorithm dedup hit; mfgRelevance 0.80 ≥ 0.5. Course-derived → Lane C human-gated /forge.",
+          "courseId": "15.083J",
+          "domains": [
+            "cam",
+            "scheduling"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "algorithm",
+          "targetSurface": "mcp-server/src/algorithms/<NewAlgorithm>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple algorithm:ellipsoid-method"
+        },
+        {
+          "kind": "technique",
+          "name": "lagrangean-dual",
+          "rationale": "Technique → knowledge-tip emit was Lane A direct-wire (already shipped).",
+          "courseId": "15.083J",
+          "domains": [
+            "cam",
+            "scheduling"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "knowledge",
+          "targetSurface": "cad-engine/knowledge_store/mit-ocw-course-tips.json",
+          "prismMatch": null,
+          "decision": "TRIBAL-SHIPPED",
+          "lane": "A",
+          "recommendedAction": "verify TribalKnowledgeEngine tip exists (Phase 1 U-KC-B1 shipped); if absent, re-run scripts/course-to-tribal-tips.mjs"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:16.355j-fall-2005",
+      "courseId": "16.355J",
+      "courseTitle": "Software Engineering Concepts",
+      "mfgRelevance": 0.5,
+      "rank": 0.275,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "engine",
+          "name": "test-driven-development-tdd",
+          "rationale": "mfgRelevance 0.50 < 0.6.",
+          "courseId": "16.355J",
+          "domains": [
+            "cad",
+            "cam",
+            "metrology"
+          ],
+          "mfgRelevance": 0.5,
+          "targetNodeType": "engine",
+          "targetSurface": null,
+          "prismMatch": null,
+          "decision": "DISCARD",
+          "lane": null,
+          "recommendedAction": "drop — engine threshold not met"
+        },
+        {
+          "kind": "technique",
+          "name": "design-patterns",
+          "rationale": "Technique → knowledge-tip emit was Lane A direct-wire (already shipped).",
+          "courseId": "16.355J",
+          "domains": [
+            "cad",
+            "cam",
+            "metrology"
+          ],
+          "mfgRelevance": 0.5,
+          "targetNodeType": "knowledge",
+          "targetSurface": "cad-engine/knowledge_store/mit-ocw-course-tips.json",
+          "prismMatch": null,
+          "decision": "TRIBAL-SHIPPED",
+          "lane": "A",
+          "recommendedAction": "verify TribalKnowledgeEngine tip exists (Phase 1 U-KC-B1 shipped); if absent, re-run scripts/course-to-tribal-tips.mjs"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:18.409-fall-2009",
+      "courseId": "18.409",
+      "courseTitle": "Topics in Theoretical Computer Science: An Algorithmist's Toolkit",
+      "mfgRelevance": 0.5,
+      "rank": 0.275,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "algorithm",
+          "name": "lanczos-method",
+          "rationale": "No PRISM-algorithm dedup hit; mfgRelevance 0.50 ≥ 0.5. Course-derived → Lane C human-gated /forge.",
+          "courseId": "18.409",
+          "domains": [
+            "cam",
+            "thermal",
+            "control"
+          ],
+          "mfgRelevance": 0.5,
+          "targetNodeType": "algorithm",
+          "targetSurface": "mcp-server/src/algorithms/<NewAlgorithm>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple algorithm:lanczos-method"
+        },
+        {
+          "kind": "technique",
+          "name": "randomized-volume-approximation",
+          "rationale": "Technique → knowledge-tip emit was Lane A direct-wire (already shipped).",
+          "courseId": "18.409",
+          "domains": [
+            "cam",
+            "thermal",
+            "control"
+          ],
+          "mfgRelevance": 0.5,
+          "targetNodeType": "knowledge",
+          "targetSurface": "cad-engine/knowledge_store/mit-ocw-course-tips.json",
+          "prismMatch": null,
+          "decision": "TRIBAL-SHIPPED",
+          "lane": "A",
+          "recommendedAction": "verify TribalKnowledgeEngine tip exists (Phase 1 U-KC-B1 shipped); if absent, re-run scripts/course-to-tribal-tips.mjs"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:6.079-fall-2009",
+      "courseId": "6.079",
+      "courseTitle": "Introduction to Convex Optimization",
+      "mfgRelevance": 0.5,
+      "rank": 0.275,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "algorithm",
+          "name": "gradient-descent-method",
+          "rationale": "No PRISM-algorithm dedup hit; mfgRelevance 0.50 ≥ 0.5. Course-derived → Lane C human-gated /forge.",
+          "courseId": "6.079",
+          "domains": [
+            "cam",
+            "scheduling"
+          ],
+          "mfgRelevance": 0.5,
+          "targetNodeType": "algorithm",
+          "targetSurface": "mcp-server/src/algorithms/<NewAlgorithm>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple algorithm:gradient-descent-method"
+        },
+        {
+          "kind": "technique",
+          "name": "chance-contrained-optimization",
+          "rationale": "Technique → knowledge-tip emit was Lane A direct-wire (already shipped).",
+          "courseId": "6.079",
+          "domains": [
+            "cam",
+            "scheduling"
+          ],
+          "mfgRelevance": 0.5,
+          "targetNodeType": "knowledge",
+          "targetSurface": "cad-engine/knowledge_store/mit-ocw-course-tips.json",
+          "prismMatch": null,
+          "decision": "TRIBAL-SHIPPED",
+          "lane": "A",
+          "recommendedAction": "verify TribalKnowledgeEngine tip exists (Phase 1 U-KC-B1 shipped); if absent, re-run scripts/course-to-tribal-tips.mjs"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:6.641-spring-2009",
+      "courseId": "6.641",
+      "courseTitle": "Electromagnetic Fields, Forces, and Motion",
+      "mfgRelevance": 0.5,
+      "rank": 0.275,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "formula",
+          "name": "maxwell-equations",
+          "rationale": "Doctrine: canonical physics constants live in src/physics/constants.ts; course-derived formulas require physics-reviewer agent gate before port.",
+          "courseId": "6.641",
+          "domains": [
+            "cam",
+            "thermal"
+          ],
+          "mfgRelevance": 0.5,
+          "targetNodeType": "formula",
+          "targetSurface": "src/physics/constants.ts + prism_calc:<action>",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "physics-reviewer agent verify equation + dimensional consistency, then port constants to src/physics/constants.ts (NEVER inline) and wire to prism_calc/<action> via /forge-triple formula:maxwell-equations"
+        },
+        {
+          "kind": "algorithm",
+          "name": "method-of-images",
+          "rationale": "No PRISM-algorithm dedup hit; mfgRelevance 0.50 ≥ 0.5. Course-derived → Lane C human-gated /forge.",
+          "courseId": "6.641",
+          "domains": [
+            "cam",
+            "thermal"
+          ],
+          "mfgRelevance": 0.5,
+          "targetNodeType": "algorithm",
+          "targetSurface": "mcp-server/src/algorithms/<NewAlgorithm>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple algorithm:method-of-images"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:2.670-january-iap-2004",
+      "courseId": "2.670-january-iap-2004",
+      "courseTitle": "Mechanical Engineering Tools",
+      "mfgRelevance": 0.8,
+      "rank": 0.22,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "algorithm",
+          "name": "wear-rate-prediction-model",
+          "rationale": "Token-match score 0.67 → likely already implemented.",
+          "courseId": "2.670-january-iap-2004",
+          "domains": [
+            "tool-life",
+            "thermal"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "algorithm",
+          "targetSurface": "mcp-server/src/algorithms/ToolWearPrediction.ts",
+          "prismMatch": {
+            "file": "ToolWearPrediction",
+            "score": 0.6666666666666666,
+            "source": "algorithms-dir"
+          },
+          "decision": "DUPLICATE",
+          "lane": "B",
+          "recommendedAction": "human-verify formulas match canonical impl; if course version adds a variant, propose extension via /forge — never duplicate"
+        },
+        {
+          "kind": "technique",
+          "name": "thermal-compensation",
+          "rationale": "Technique → knowledge-tip emit was Lane A direct-wire (already shipped).",
+          "courseId": "2.670-january-iap-2004",
+          "domains": [
+            "tool-life",
+            "thermal"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "knowledge",
+          "targetSurface": "cad-engine/knowledge_store/mit-ocw-course-tips.json",
+          "prismMatch": null,
+          "decision": "TRIBAL-SHIPPED",
+          "lane": "A",
+          "recommendedAction": "verify TribalKnowledgeEngine tip exists (Phase 1 U-KC-B1 shipped); if absent, re-run scripts/course-to-tribal-tips.mjs"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:mas.965-spring-2005",
+      "courseId": "mas.965-spring-2005",
+      "courseTitle": "Relational Machines",
+      "mfgRelevance": 0.4,
+      "rank": 0.22,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "engine",
+          "name": "affective-agent-engine",
+          "rationale": "mfgRelevance 0.40 < 0.6.",
+          "courseId": "mas.965-spring-2005",
+          "domains": [
+            "cam",
+            "metrology"
+          ],
+          "mfgRelevance": 0.4,
+          "targetNodeType": "engine",
+          "targetSurface": null,
+          "prismMatch": null,
+          "decision": "DISCARD",
+          "lane": null,
+          "recommendedAction": "drop — engine threshold not met"
+        },
+        {
+          "kind": "technique",
+          "name": "mirror-neuron-simulation",
+          "rationale": "Technique → knowledge-tip emit was Lane A direct-wire (already shipped).",
+          "courseId": "mas.965-spring-2005",
+          "domains": [
+            "cam",
+            "metrology"
+          ],
+          "mfgRelevance": 0.4,
+          "targetNodeType": "knowledge",
+          "targetSurface": "cad-engine/knowledge_store/mit-ocw-course-tips.json",
+          "prismMatch": null,
+          "decision": "TRIBAL-SHIPPED",
+          "lane": "A",
+          "recommendedAction": "verify TribalKnowledgeEngine tip exists (Phase 1 U-KC-B1 shipped); if absent, re-run scripts/course-to-tribal-tips.mjs"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:18.098-january-iap-2008",
+      "courseId": "18.098",
+      "courseTitle": "Street-Fighting Mathematics",
+      "mfgRelevance": 0.8,
+      "rank": 0.22,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "algorithm",
+          "name": "taylor_series_expansion",
+          "rationale": "No PRISM-algorithm dedup hit; mfgRelevance 0.80 ≥ 0.5. Course-derived → Lane C human-gated /forge.",
+          "courseId": "18.098",
+          "domains": [
+            "cam",
+            "scheduling"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "algorithm",
+          "targetSurface": "mcp-server/src/algorithms/<NewAlgorithm>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple algorithm:taylor_series_expansion"
+        },
+        {
+          "kind": "technique",
+          "name": "integration_methods",
+          "rationale": "Technique → knowledge-tip emit was Lane A direct-wire (already shipped).",
+          "courseId": "18.098",
+          "domains": [
+            "cam",
+            "scheduling"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "knowledge",
+          "targetSurface": "cad-engine/knowledge_store/mit-ocw-course-tips.json",
+          "prismMatch": null,
+          "decision": "TRIBAL-SHIPPED",
+          "lane": "A",
+          "recommendedAction": "verify TribalKnowledgeEngine tip exists (Phase 1 U-KC-B1 shipped); if absent, re-run scripts/course-to-tribal-tips.mjs"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:18.s096-fall-2015",
+      "courseId": "18.s096",
+      "courseTitle": "Topics in Mathematics of Data Science",
+      "mfgRelevance": 0.4,
+      "rank": 0.22,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "algorithm",
+          "name": "angular-synchronization-algorithm",
+          "rationale": "mfgRelevance 0.40 < 0.5.",
+          "courseId": "18.s096",
+          "domains": [
+            "cam",
+            "metrology"
+          ],
+          "mfgRelevance": 0.4,
+          "targetNodeType": "algorithm",
+          "targetSurface": null,
+          "prismMatch": null,
+          "decision": "DISCARD",
+          "lane": null,
+          "recommendedAction": "drop from queue — below manufacturing-relevance floor"
+        },
+        {
+          "kind": "technique",
+          "name": "concentration-inequalities",
+          "rationale": "Technique → knowledge-tip emit was Lane A direct-wire (already shipped).",
+          "courseId": "18.s096",
+          "domains": [
+            "cam",
+            "metrology"
+          ],
+          "mfgRelevance": 0.4,
+          "targetNodeType": "knowledge",
+          "targetSurface": "cad-engine/knowledge_store/mit-ocw-course-tips.json",
+          "prismMatch": null,
+          "decision": "TRIBAL-SHIPPED",
+          "lane": "A",
+          "recommendedAction": "verify TribalKnowledgeEngine tip exists (Phase 1 U-KC-B1 shipped); if absent, re-run scripts/course-to-tribal-tips.mjs"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:3.15-fall-2006",
+      "courseId": "3.15",
+      "courseTitle": "Electrical, Optical & Magnetic Materials and Devices",
+      "mfgRelevance": 0.4,
+      "rank": 0.22,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "formula",
+          "name": "ferromagnetism-formula",
+          "rationale": "Doctrine: canonical physics constants live in src/physics/constants.ts; course-derived formulas require physics-reviewer agent gate before port.",
+          "courseId": "3.15",
+          "domains": [
+            "thermal",
+            "cam"
+          ],
+          "mfgRelevance": 0.4,
+          "targetNodeType": "formula",
+          "targetSurface": "src/physics/constants.ts + prism_calc:<action>",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "physics-reviewer agent verify equation + dimensional consistency, then port constants to src/physics/constants.ts (NEVER inline) and wire to prism_calc/<action> via /forge-triple formula:ferromagnetism-formula"
+        },
+        {
+          "kind": "technique",
+          "name": "magnetic-field-simulation",
+          "rationale": "Technique → knowledge-tip emit was Lane A direct-wire (already shipped).",
+          "courseId": "3.15",
+          "domains": [
+            "thermal",
+            "cam"
+          ],
+          "mfgRelevance": 0.4,
+          "targetNodeType": "knowledge",
+          "targetSurface": "cad-engine/knowledge_store/mit-ocw-course-tips.json",
+          "prismMatch": null,
+          "decision": "TRIBAL-SHIPPED",
+          "lane": "A",
+          "recommendedAction": "verify TribalKnowledgeEngine tip exists (Phase 1 U-KC-B1 shipped); if absent, re-run scripts/course-to-tribal-tips.mjs"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:6.001-spring-2005",
+      "courseId": "6.001",
+      "courseTitle": "Structure and Interpretation of Computer Programs",
+      "mfgRelevance": 0.8,
+      "rank": 0.22,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "engine",
+          "name": "scheme-evaluator-engine",
+          "rationale": "No engine dedup hit; mfgRelevance 0.80 ≥ 0.6 (engine threshold).",
+          "courseId": "6.001",
+          "domains": [
+            "cam",
+            "process optimization"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "engine",
+          "targetSurface": "mcp-server/src/engines/<NewEngine>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple engine:scheme-evaluator-engine"
+        },
+        {
+          "kind": "technique",
+          "name": "inductive-reasoning",
+          "rationale": "Technique → knowledge-tip emit was Lane A direct-wire (already shipped).",
+          "courseId": "6.001",
+          "domains": [
+            "cam",
+            "process optimization"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "knowledge",
+          "targetSurface": "cad-engine/knowledge_store/mit-ocw-course-tips.json",
+          "prismMatch": null,
+          "decision": "TRIBAL-SHIPPED",
+          "lane": "A",
+          "recommendedAction": "verify TribalKnowledgeEngine tip exists (Phase 1 U-KC-B1 shipped); if absent, re-run scripts/course-to-tribal-tips.mjs"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:6.055j-spring-2008",
+      "courseId": "6.055j",
+      "courseTitle": "The Art of Approximation in Science and Engineering",
+      "mfgRelevance": 0.4,
+      "rank": 0.22,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "algorithm",
+          "name": "divide-and-conquer",
+          "rationale": "mfgRelevance 0.40 < 0.5.",
+          "courseId": "6.055j",
+          "domains": [
+            "cam",
+            "thermal"
+          ],
+          "mfgRelevance": 0.4,
+          "targetNodeType": "algorithm",
+          "targetSurface": null,
+          "prismMatch": null,
+          "decision": "DISCARD",
+          "lane": null,
+          "recommendedAction": "drop from queue — below manufacturing-relevance floor"
+        },
+        {
+          "kind": "technique",
+          "name": "bending-of-light",
+          "rationale": "Technique → knowledge-tip emit was Lane A direct-wire (already shipped).",
+          "courseId": "6.055j",
+          "domains": [
+            "cam",
+            "thermal"
+          ],
+          "mfgRelevance": 0.4,
+          "targetNodeType": "knowledge",
+          "targetSurface": "cad-engine/knowledge_store/mit-ocw-course-tips.json",
+          "prismMatch": null,
+          "decision": "TRIBAL-SHIPPED",
+          "lane": "A",
+          "recommendedAction": "verify TribalKnowledgeEngine tip exists (Phase 1 U-KC-B1 shipped); if absent, re-run scripts/course-to-tribal-tips.mjs"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:6.071j-spring-2006",
+      "courseId": "6.071j",
+      "courseTitle": "Introduction to Electronics, Signals, and Measurement",
+      "mfgRelevance": 0.4,
+      "rank": 0.22,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "engine",
+          "name": "signal-processing-engine",
+          "rationale": "Token-match score 1.00 → likely already implemented.",
+          "courseId": "6.071j",
+          "domains": [
+            "cam",
+            "metrology"
+          ],
+          "mfgRelevance": 0.4,
+          "targetNodeType": "engine",
+          "targetSurface": "mcp-server/src/engines/SignalProcessingEngine.ts",
+          "prismMatch": {
+            "file": "SignalProcessingEngine",
+            "score": 1,
+            "source": "engines-dir"
+          },
+          "decision": "DUPLICATE",
+          "lane": "B",
+          "recommendedAction": "verify existing engine covers course-derived scope; if course introduces new method, propose extension PR not new engine"
+        },
+        {
+          "kind": "algorithm",
+          "name": "circuit-simulation-algorithm",
+          "rationale": "mfgRelevance 0.40 < 0.5.",
+          "courseId": "6.071j",
+          "domains": [
+            "cam",
+            "metrology"
+          ],
+          "mfgRelevance": 0.4,
+          "targetNodeType": "algorithm",
+          "targetSurface": null,
+          "prismMatch": null,
+          "decision": "DISCARD",
+          "lane": null,
+          "recommendedAction": "drop from queue — below manufacturing-relevance floor"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:6.080-spring-2008",
+      "courseId": "6.080",
+      "courseTitle": "Great Ideas in Theoretical Computer Science",
+      "mfgRelevance": 0.4,
+      "rank": 0.22,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "algorithm",
+          "name": "rsa-algorithm",
+          "rationale": "mfgRelevance 0.40 < 0.5.",
+          "courseId": "6.080",
+          "domains": [
+            "cam",
+            "metrology"
+          ],
+          "mfgRelevance": 0.4,
+          "targetNodeType": "algorithm",
+          "targetSurface": null,
+          "prismMatch": null,
+          "decision": "DISCARD",
+          "lane": null,
+          "recommendedAction": "drop from queue — below manufacturing-relevance floor"
+        },
+        {
+          "kind": "engine",
+          "name": "quantum-simulator",
+          "rationale": "mfgRelevance 0.40 < 0.6.",
+          "courseId": "6.080",
+          "domains": [
+            "cam",
+            "metrology"
+          ],
+          "mfgRelevance": 0.4,
+          "targetNodeType": "engine",
+          "targetSurface": null,
+          "prismMatch": null,
+          "decision": "DISCARD",
+          "lane": null,
+          "recommendedAction": "drop — engine threshold not met"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:6.189-january-iap-2007",
+      "courseId": "6.189",
+      "courseTitle": "Multicore Programming Primer",
+      "mfgRelevance": 0.8,
+      "rank": 0.22,
+      "decisionCount": 1,
+      "decisions": [
+        {
+          "kind": "engine",
+          "name": "cilk-runtime-system",
+          "rationale": "No engine dedup hit; mfgRelevance 0.80 ≥ 0.6 (engine threshold).",
+          "courseId": "6.189",
+          "domains": [
+            "cam",
+            "scheduling",
+            "control"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "engine",
+          "targetSurface": "mcp-server/src/engines/<NewEngine>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple engine:cilk-runtime-system"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:6.864-fall-2005",
+      "courseId": "6.864",
+      "courseTitle": "Advanced Natural Language Processing",
+      "mfgRelevance": 0.4,
+      "rank": 0.22,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "algorithm",
+          "name": "perceptron-algorithm",
+          "rationale": "mfgRelevance 0.40 < 0.5.",
+          "courseId": "6.864",
+          "domains": [
+            "cam",
+            "metrology"
+          ],
+          "mfgRelevance": 0.4,
+          "targetNodeType": "algorithm",
+          "targetSurface": null,
+          "prismMatch": null,
+          "decision": "DISCARD",
+          "lane": null,
+          "recommendedAction": "drop from queue — below manufacturing-relevance floor"
+        },
+        {
+          "kind": "engine",
+          "name": "hmm-engine",
+          "rationale": "mfgRelevance 0.40 < 0.6.",
+          "courseId": "6.864",
+          "domains": [
+            "cam",
+            "metrology"
+          ],
+          "mfgRelevance": 0.4,
+          "targetNodeType": "engine",
+          "targetSurface": null,
+          "prismMatch": null,
+          "decision": "DISCARD",
+          "lane": null,
+          "recommendedAction": "drop — engine threshold not met"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:8.02-spring-2007",
+      "courseId": "8.02",
+      "courseTitle": "Physics II: Electricity and Magnetism",
+      "mfgRelevance": 0.4,
+      "rank": 0.22,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "formula",
+          "name": "gausss-law-for-magnetism",
+          "rationale": "Doctrine: canonical physics constants live in src/physics/constants.ts; course-derived formulas require physics-reviewer agent gate before port.",
+          "courseId": "8.02",
+          "domains": [
+            "thermal",
+            "cam"
+          ],
+          "mfgRelevance": 0.4,
+          "targetNodeType": "formula",
+          "targetSurface": "src/physics/constants.ts + prism_calc:<action>",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "physics-reviewer agent verify equation + dimensional consistency, then port constants to src/physics/constants.ts (NEVER inline) and wire to prism_calc/<action> via /forge-triple formula:gausss-law-for-magnetism"
+        },
+        {
+          "kind": "algorithm",
+          "name": "electric-potential-calculation",
+          "rationale": "mfgRelevance 0.40 < 0.5.",
+          "courseId": "8.02",
+          "domains": [
+            "thermal",
+            "cam"
+          ],
+          "mfgRelevance": 0.4,
+          "targetNodeType": "algorithm",
+          "targetSurface": null,
+          "prismMatch": null,
+          "decision": "DISCARD",
+          "lane": null,
+          "recommendedAction": "drop from queue — below manufacturing-relevance floor"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:8.512-spring-2009",
+      "courseId": "8.512",
+      "courseTitle": "Theory of Solids II",
+      "mfgRelevance": 0.4,
+      "rank": 0.22,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "formula",
+          "name": "boltzmann-equation",
+          "rationale": "Doctrine: canonical physics constants live in src/physics/constants.ts; course-derived formulas require physics-reviewer agent gate before port.",
+          "courseId": "8.512",
+          "domains": [
+            "thermal",
+            "metrology"
+          ],
+          "mfgRelevance": 0.4,
+          "targetNodeType": "formula",
+          "targetSurface": "src/physics/constants.ts + prism_calc:<action>",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "physics-reviewer agent verify equation + dimensional consistency, then port constants to src/physics/constants.ts (NEVER inline) and wire to prism_calc/<action> via /forge-triple formula:boltzmann-equation"
+        },
+        {
+          "kind": "algorithm",
+          "name": "kondo-problem-solution",
+          "rationale": "mfgRelevance 0.40 < 0.5.",
+          "courseId": "8.512",
+          "domains": [
+            "thermal",
+            "metrology"
+          ],
+          "mfgRelevance": 0.4,
+          "targetNodeType": "algorithm",
+          "targetSurface": null,
+          "prismMatch": null,
+          "decision": "DISCARD",
+          "lane": null,
+          "recommendedAction": "drop from queue — below manufacturing-relevance floor"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:mas.865j-spring-2006",
+      "courseId": "mas.865j",
+      "courseTitle": "Quantum Information Science",
+      "mfgRelevance": 0.4,
+      "rank": 0.22,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "algorithm",
+          "name": "shors-algorithm",
+          "rationale": "mfgRelevance 0.40 < 0.5.",
+          "courseId": "mas.865j",
+          "domains": [
+            "control",
+            "scheduling"
+          ],
+          "mfgRelevance": 0.4,
+          "targetNodeType": "algorithm",
+          "targetSurface": null,
+          "prismMatch": null,
+          "decision": "DISCARD",
+          "lane": null,
+          "recommendedAction": "drop from queue — below manufacturing-relevance floor"
+        },
+        {
+          "kind": "engine",
+          "name": "quantum-key-distribution-qkd",
+          "rationale": "mfgRelevance 0.40 < 0.6.",
+          "courseId": "mas.865j",
+          "domains": [
+            "control",
+            "scheduling"
+          ],
+          "mfgRelevance": 0.4,
+          "targetNodeType": "engine",
+          "targetSurface": null,
+          "prismMatch": null,
+          "decision": "DISCARD",
+          "lane": null,
+          "recommendedAction": "drop — engine threshold not met"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:18.409-spring-2002",
+      "courseId": "18.409-spring-2002",
+      "courseTitle": "Behavior of Algorithms",
+      "mfgRelevance": 0.4,
+      "rank": 0.22,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "algorithm",
+          "name": "spectral-clustering",
+          "rationale": "mfgRelevance 0.40 < 0.5.",
+          "courseId": "18.409-spring-2002",
+          "domains": [
+            "cad",
+            "cam",
+            "metrology"
+          ],
+          "mfgRelevance": 0.4,
+          "targetNodeType": "algorithm",
+          "targetSurface": null,
+          "prismMatch": null,
+          "decision": "DISCARD",
+          "lane": null,
+          "recommendedAction": "drop from queue — below manufacturing-relevance floor"
+        },
+        {
+          "kind": "engine",
+          "name": "eigenvalue-decomposition-engine",
+          "rationale": "mfgRelevance 0.40 < 0.6.",
+          "courseId": "18.409-spring-2002",
+          "domains": [
+            "cad",
+            "cam",
+            "metrology"
+          ],
+          "mfgRelevance": 0.4,
+          "targetNodeType": "engine",
+          "targetSurface": null,
+          "prismMatch": null,
+          "decision": "DISCARD",
+          "lane": null,
+          "recommendedAction": "drop — engine threshold not met"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:6.892-spring-2004",
+      "courseId": "6.892-spring-2004",
+      "courseTitle": "Computational Models of Discourse",
+      "mfgRelevance": 0.4,
+      "rank": 0.22,
+      "decisionCount": 2,
+      "decisions": [
+        {
+          "kind": "algorithm",
+          "name": "hobbs-algorithm",
+          "rationale": "mfgRelevance 0.40 < 0.5.",
+          "courseId": "6.892-spring-2004",
+          "domains": [
+            "scheduling",
+            "control"
+          ],
+          "mfgRelevance": 0.4,
+          "targetNodeType": "algorithm",
+          "targetSurface": null,
+          "prismMatch": null,
+          "decision": "DISCARD",
+          "lane": null,
+          "recommendedAction": "drop from queue — below manufacturing-relevance floor"
+        },
+        {
+          "kind": "technique",
+          "name": "attentional-structure",
+          "rationale": "Technique → knowledge-tip emit was Lane A direct-wire (already shipped).",
+          "courseId": "6.892-spring-2004",
+          "domains": [
+            "scheduling",
+            "control"
+          ],
+          "mfgRelevance": 0.4,
+          "targetNodeType": "knowledge",
+          "targetSurface": "cad-engine/knowledge_store/mit-ocw-course-tips.json",
+          "prismMatch": null,
+          "decision": "TRIBAL-SHIPPED",
+          "lane": "A",
+          "recommendedAction": "verify TribalKnowledgeEngine tip exists (Phase 1 U-KC-B1 shipped); if absent, re-run scripts/course-to-tribal-tips.mjs"
+        }
+      ]
+    },
+    {
+      "candidateId": "course:mit-ocw:ec.s06-fall-2005",
+      "courseId": "ec.s06-fall-2005",
+      "courseTitle": "Prototypes to Products",
+      "mfgRelevance": 0.8,
+      "rank": 0.22,
+      "decisionCount": 1,
+      "decisions": [
+        {
+          "kind": "algorithm",
+          "name": "pugh_chart_selection",
+          "rationale": "No PRISM-algorithm dedup hit; mfgRelevance 0.80 ≥ 0.5. Course-derived → Lane C human-gated /forge.",
+          "courseId": "ec.s06-fall-2005",
+          "domains": [
+            "cad",
+            "cam",
+            "scheduling"
+          ],
+          "mfgRelevance": 0.8,
+          "targetNodeType": "algorithm",
+          "targetSurface": "mcp-server/src/algorithms/<NewAlgorithm>.ts",
+          "prismMatch": null,
+          "decision": "FORGE-QUEUE",
+          "lane": "C",
+          "recommendedAction": "/forge-triple algorithm:pugh_chart_selection"
+        }
+      ]
+    }
+  ]
+}

@@ -162,8 +162,11 @@ async function main() {
 
   const prompt = payload.prompt || payload.message || '';
 
-  // Skip short prompts, commands, or if rate limited
-  if (!prompt || prompt.length < 25 || prompt.startsWith('/')) {
+  // Skip trivial prompts. The length<25 floor catches bare built-in commands
+  // (/help, /clear, /compact) without dead-coding the router for the long slash
+  // prompts (/checkin /loop ..., /forge ..., /rgs ...) that carry actionable
+  // text. See CLAUDE.md Recent regressions 2026-05-16 F2 R1.
+  if (!prompt || prompt.length < 25) {
     console.log(JSON.stringify({ continue: true }));
     return;
   }
