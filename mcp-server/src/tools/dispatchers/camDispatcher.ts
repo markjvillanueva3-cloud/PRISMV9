@@ -1370,6 +1370,9 @@ export const ACTIONS = [
   "master_post_get_stats", "master_post_get_ai_context",
   // NXCAMAIOrchestrationEngine (3 actions, WIRE-UNWIRED foxtrot 2026-05-17)
   "nx_ai_orchestrate", "nx_ai_get_reasoning_modes", "nx_ai_get_stats",
+  // LatheLoRATrainingScriptEngine (5 actions, WIRE-UNWIRED foxtrot 2026-05-17)
+  "lathe_lora_generate_script", "lathe_lora_get_config", "lathe_lora_apply_preset",
+  "lathe_lora_estimate", "lathe_lora_validate_config",
   // E1120 — HyperMillCodeGeneratorEngine (2 actions)
   "hypermill_code_generate", "hypermill_code_templates",
   // CAD-COMPLETE-MS0/U-CADC-HM-PRINT-01 — PrintToHyperMillBridge (3 actions)
@@ -9242,6 +9245,66 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { nxCAMAIOrchestrationEngine } = await import("../../engines/NXCAMAIOrchestrationEngine.js");
             const stats = nxCAMAIOrchestrationEngine.getStats();
             result = { success: true, ...stats };
+            break;
+          }
+
+          // ── LatheLoRATrainingScriptEngine (WIRE-UNWIRED foxtrot 2026-05-17)
+          // 521-line real engine, NOT a stub: a pure deterministic Unsloth/
+          // LoRA training-script generator (no runtime I/O — the git+https
+          // string at engine:320 is INSIDE the emitted pip-requirements
+          // template, not a fetch). All wired surfaces are sync + pure.
+          // apply_preset mutates the singleton config then returns it, so
+          // get_config/generate_script/estimate/validate observe whatever
+          // preset was last applied (engine-faithful — callers sequence
+          // apply_preset → read in one logical request).
+          case "lathe_lora_generate_script": {
+            const { latheLoRATrainingScriptEngine } = await import("../../engines/LatheLoRATrainingScriptEngine.js");
+            if (params.config) {
+              latheLoRATrainingScriptEngine.setConfig(
+                params.config as Parameters<typeof latheLoRATrainingScriptEngine.setConfig>[0],
+              );
+            }
+            const out = latheLoRATrainingScriptEngine.generateScript();
+            result = { success: true, ...out };
+            break;
+          }
+          case "lathe_lora_get_config": {
+            const { latheLoRATrainingScriptEngine } = await import("../../engines/LatheLoRATrainingScriptEngine.js");
+            const config = latheLoRATrainingScriptEngine.getConfig();
+            result = { success: true, config };
+            break;
+          }
+          case "lathe_lora_apply_preset": {
+            const { latheLoRATrainingScriptEngine } = await import("../../engines/LatheLoRATrainingScriptEngine.js");
+            const config = latheLoRATrainingScriptEngine.applyPreset(
+              params.preset as Parameters<typeof latheLoRATrainingScriptEngine.applyPreset>[0],
+            );
+            result = { success: true, config };
+            break;
+          }
+          case "lathe_lora_estimate": {
+            const { latheLoRATrainingScriptEngine } = await import("../../engines/LatheLoRATrainingScriptEngine.js");
+            if (params.config) {
+              latheLoRATrainingScriptEngine.setConfig(
+                params.config as Parameters<typeof latheLoRATrainingScriptEngine.setConfig>[0],
+              );
+            }
+            result = {
+              success: true,
+              estimated_vram_gb: latheLoRATrainingScriptEngine.estimateVRAM(),
+              estimated_time_hours: latheLoRATrainingScriptEngine.estimateTime(),
+            };
+            break;
+          }
+          case "lathe_lora_validate_config": {
+            const { latheLoRATrainingScriptEngine } = await import("../../engines/LatheLoRATrainingScriptEngine.js");
+            if (params.config) {
+              latheLoRATrainingScriptEngine.setConfig(
+                params.config as Parameters<typeof latheLoRATrainingScriptEngine.setConfig>[0],
+              );
+            }
+            const v = latheLoRATrainingScriptEngine.validateConfig();
+            result = { success: true, ...v };
             break;
           }
 
