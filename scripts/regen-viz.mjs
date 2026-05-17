@@ -246,6 +246,26 @@ if (pe.status !== 0) {
   failed++;
 }
 
+// NN-GRAPH-MS2 U1 — reference-pool seed. Re-emit the high-confidence
+// `ghost.unwired-engine` nodes (engine-on-disk with no dispatcher ref →
+// inferred dispatcher + confidence) that the GNN tier-5 cascade
+// (seed-ghost-gnn-classify.mjs) and nn-graph-eval.mjs read as the labeled
+// reference pool. MUST run post-merge: seed-ghost-from-unwired.mjs writes
+// system-graph.json DIRECTLY, so a pre-merge/FAST pass would be wiped by the
+// merge rebuild (and FAST stages are invoked arg-less — they cannot pass
+// --apply). Without this stage every regen leaves the graph with 0 ghost
+// nodes → nn-graph-eval defers `insufficient-reference-pool` (poolSize:0) →
+// the GNN tier is permanently dormant by data, not by code. Idempotent:
+// --apply updates/inserts by engine, never duplicates.
+console.log(`[regen-viz] seed NN-GRAPH reference ghosts (unwired-engine pool)…`);
+const sg = spawnSync(process.execPath, [...NODE_ARGS, path.join(ROOT, "scripts", "seed-ghost-from-unwired.mjs"), "--apply"], {
+  stdio: "inherit", cwd: ROOT,
+});
+if (sg.status !== 0) {
+  console.error(`[regen-viz] ✗ seed-ghost-from-unwired failed`);
+  failed++;
+}
+
 // Obsidian 2nd-brain bridge — re-scan the merged graph + the H:/prism/knowledge vault
 // and refresh obsidian-augmentation.json (per-node wiki/memory backlinks). MUST run
 // after the merge (it needs the full node set), so its output lands on the NEXT
