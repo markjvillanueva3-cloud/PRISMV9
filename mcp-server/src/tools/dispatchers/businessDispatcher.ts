@@ -2799,8 +2799,10 @@ Params vary by action — pass relevant fields in params object.`,
         case "roi_configure_costs":
         case "roi_events":
         case "roi_trend": {
+          // Direct import — engines/index.ts no longer re-exports this singleton
+          // (it remains in the backup index.ts-1 file). Import the source directly.
           const { costSavingsTrackerEngine } = await import(
-            "../../engines/index.js"
+            "../../engines/CostSavingsTrackerEngine.js"
           );
           result = costSavingsTrackerEngine.calculate(action, params);
           break;
