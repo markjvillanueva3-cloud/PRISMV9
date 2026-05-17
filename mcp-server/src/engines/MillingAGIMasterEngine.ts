@@ -14,6 +14,10 @@
  */
 
 import { log } from "../utils/Logger.js";
+import {
+  millTribalKnowledgeEngine,
+  type TribalTip,
+} from "./MillTribalKnowledgeEngine.js";
 
 // ============================================================================
 // TYPES
@@ -75,17 +79,78 @@ export interface MillAGIResponse {
   provenance: {
     engines_invoked: string[];
     tribal_sources: string[];
+    /**
+     * AUDIT-TRIBAL-BRIDGE-FIX (finding #3): honest consultation state.
+     *   - "consulted"          — corpus queried, ≥1 tip grounded the answer
+     *   - "consulted_no_match" — corpus queried, zero tips matched (genuine
+     *                            empty — NOT the same as "never consulted")
+     *   - "unavailable"        — the tribal corpus threw / was unreachable
+     * Before this fix `tribal_sources` was ALWAYS [] because the engine
+     * never called the corpus while abductive() literally claimed
+     * "Evidence: tribal knowledge supports this". This field makes the
+     * consultation state un-fakeable (Karpathy R12: a measurement gap must
+     * never masquerade as a measured zero).
+     */
+    tribal_status: "consulted" | "consulted_no_match" | "unavailable";
     processing_time_ms: number;
   };
   warnings: string[];
 }
 
+/**
+ * Injectable tribal-consultation seam. Default queries the mill-specific
+ * tribal corpus; tests inject a deterministic fake so the reasoning core
+ * stays unit-pure while one real-data E2E exercises the real corpus
+ * (the pure-core + injected-reader discipline — RGS-MS1 lesson).
+ */
+export type TribalConsultFn = (req: MillAGIRequest) => TribalTip[];
+
+/**
+ * Floor for tip confidence on the canonical 0-1 scale that
+ * `MillTribalKnowledgeEngine.SEED_TIPS` uses (verified — 0.88..0.97).
+ * Pre-fix this was the literal `60` against `>= 0.97` → filtered everything
+ * → permanent `consulted_no_match` (P0-1, scale-mismatch silent rot). The
+ * 0-1 scale is the corpus contract, not a magic choice; 0.60 admits all
+ * SEED_TIPS + future community-grade contributions.
+ */
+const TRIBAL_MIN_CONFIDENCE = 0.6;
+
+/** Keyword-ish extraction from a free-text intent (last-resort relevance). */
+function intentKeyword(intent: string): string | undefined {
+  // "calc"/"calculate"/"deep"/"find" were stop-listed pre-review but they
+  // are LEGITIMATE corpus selectors (deep_pocket category, "calc cutting
+  // force") — over-pruning was a self-inflicted hit-rate cut (P1-1).
+  const stop = new Set([
+    "the", "for", "and", "with", "what", "how", "why", "best", "this",
+    "that", "from", "into",
+  ]);
+  const w = (intent || "")
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter((t) => t.length > 3 && !stop.has(t));
+  return w[0]; // first salient token; undefined → corpus returns broad set
+}
+
+const defaultTribalConsult: TribalConsultFn = (req) =>
+  millTribalKnowledgeEngine.query({
+    material: req.material,
+    keyword: intentKeyword(req.intent),
+    min_confidence: TRIBAL_MIN_CONFIDENCE,
+  });
+
 // ============================================================================
 // ENGINE
 // ============================================================================
 
-class MillingAGIMasterEngine {
+export class MillingAGIMasterEngine {
   private invocationCount = 0;
+
+  /**
+   * @param tribalConsult injectable corpus seam (default = real mill tribal
+   *        engine). Constructor-default keeps the singleton + dispatcher
+   *        path (millDispatcher.ts) unchanged; tests pass a fake.
+   */
+  constructor(private readonly tribalConsult: TribalConsultFn = defaultTribalConsult) {}
 
   /**
    * Main entry — deep reasoning for milling intent
@@ -99,6 +164,34 @@ class MillingAGIMasterEngine {
 
     log.info(`[MillingAGI] Reasoning mode=${mode} intent="${request.intent}"`);
     this.invocationCount++;
+
+    // ── AUDIT-TRIBAL-BRIDGE-FIX (finding #3) ──────────────────────────────
+    // Actually consult the tribal corpus. Pre-fix this never happened, so
+    // provenance.tribal_sources was a permanent [] while abductive() lied
+    // about having tribal evidence. Fail-soft + honest status: a corpus
+    // failure is reported as "unavailable", a genuine no-match as
+    // "consulted_no_match" — never silently presented as "no knowledge".
+    let tribalTips: TribalTip[] = [];
+    let tribalStatus: MillAGIResponse["provenance"]["tribal_status"];
+    try {
+      tribalTips = this.tribalConsult(request) ?? [];
+      tribalStatus = tribalTips.length > 0 ? "consulted" : "consulted_no_match";
+    } catch (err) {
+      tribalStatus = "unavailable";
+      warnings.push(
+        `Tribal corpus unavailable — reasoning proceeded WITHOUT tribal grounding (${
+          err instanceof Error ? err.message : "unknown error"
+        })`,
+      );
+    }
+    if (tribalTips.length > 0) {
+      enginesInvoked.push("MillTribalKnowledgeEngine");
+      // Top-5 by confidence so provenance is bounded + meaningful.
+      const top = [...tribalTips]
+        .sort((a, b) => b.confidence - a.confidence)
+        .slice(0, 5);
+      for (const t of top) tribalSources.push(`${t.id}: ${t.source}`);
+    }
 
     let steps: MillReasoningStep[];
     let confidence: number;
@@ -129,6 +222,38 @@ class MillingAGIMasterEngine {
         ({ steps, confidence } = this.chainOfThought(request));
     }
 
+    // Ground the reasoning with REAL tribal evidence (was the missing loop).
+    // The step carries the actual matched tips so abductive/inductive/
+    // analogical claims of "tribal knowledge supports this" are now backed
+    // by citable rules instead of an unbacked assertion.
+    if (tribalTips.length > 0) {
+      const top = [...tribalTips]
+        .sort((a, b) => b.confidence - a.confidence)
+        .slice(0, 3);
+      // Corpus confidence is on the 0-1 scale (verified — SEED_TIPS use
+      // 0.88..0.97). Pre-fix this divided by `top.length * 100`, producing
+      // ~0.009 grounding-confidence for high-confidence rules — the same
+      // scale-mismatch class as the `min_confidence:60` bug. Mean of the
+      // top-K confidences is already in 0..1; cap at 0.99 to leave
+      // headroom for stricter human-verified gates.
+      steps.push({
+        step: steps.length + 1,
+        thought: `Tribal grounding: ${top.length} corpus rule(s) consulted (${tribalStatus})`,
+        confidence: Math.min(
+          0.99,
+          top.reduce((s, t) => s + t.confidence, 0) / top.length,
+        ),
+        evidence: top.map((t) => `[${t.id}] ${t.rule} — ${t.source}`),
+      });
+    } else if (tribalStatus === "unavailable") {
+      steps.push({
+        step: steps.length + 1,
+        thought:
+          "Tribal grounding: corpus UNAVAILABLE — recommendation is physics-only, not tribally validated",
+        confidence: 0.5,
+      });
+    }
+
     const toolRec = this.recommendTool(request);
     const strategyRec = this.recommendStrategy(request, steps);
 
@@ -147,6 +272,7 @@ class MillingAGIMasterEngine {
       provenance: {
         engines_invoked: enginesInvoked,
         tribal_sources: tribalSources,
+        tribal_status: tribalStatus,
         processing_time_ms: Date.now() - startTime,
       },
       warnings,
@@ -218,7 +344,13 @@ class MillingAGIMasterEngine {
     const steps: MillReasoningStep[] = [
       { step: 1, thought: "Observation: deep pocket required", confidence: 0.95 },
       { step: 2, thought: "Hypothesis: adaptive clearing optimal for chip evacuation", confidence: 0.88 },
-      { step: 3, thought: "Evidence: tribal knowledge supports this for >2xD pockets", confidence: 0.9 },
+      // AUDIT-TRIBAL-BRIDGE-FIX (P0-3): pre-fix this hardcoded
+      // "Evidence: tribal knowledge supports this for >2xD pockets" — an
+      // unbacked claim with no corpus consult. The actual tribal grounding
+      // (when available) is now appended by reason() as a later step
+      // citing real tip ids + rules. This step states the hypothesis
+      // explicitly waits on that grounding rather than fabricating it.
+      { step: 3, thought: "Pending validation: tribal grounding step (appended by reason()) cites the supporting rule(s)", confidence: 0.75 },
     ];
     return { steps, confidence: 0.89 };
   }
