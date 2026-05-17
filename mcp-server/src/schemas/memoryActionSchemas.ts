@@ -220,6 +220,19 @@ const postmortem_create = z.object({
   mode: z.enum(["create", "update"]).optional().describe("create (default) or update existing postmortem"),
 }).passthrough();
 
+// WIRE-UNWIRED-MS0/U-WIRE-MEMSYNC: MemorySyncEngine read-only bundle inspection
+const memory_sync_list_bundles = z.object({
+  dir: z.string().min(1).describe("Directory path to scan for .qdrant-bundle files."),
+}).passthrough().describe("List MemorySync bundles in a directory (read-only; no Qdrant connection).");
+
+const memory_sync_bundle_metadata = z.object({
+  src_path: z.string().min(1).optional().describe("Path to a bundle file."),
+  srcPath: z.string().min(1).optional().describe("Alias for src_path (camelCase compat)."),
+}).passthrough().refine(
+  (d) => (typeof d.src_path === "string" && d.src_path.length > 0) || (typeof d.srcPath === "string" && d.srcPath.length > 0),
+  { message: "memory_sync_bundle_metadata requires non-empty 'src_path' (or 'srcPath')" },
+).describe("Read metadata for a single MemorySync bundle file (no Qdrant connection).");
+
 export const ACTION_MEMORY_SCHEMAS: ActionSchemaMap = {
   get_health,
   trace_decision,
@@ -244,4 +257,7 @@ export const ACTION_MEMORY_SCHEMAS: ActionSchemaMap = {
   content_brief_create,
   voice_validate,
   capture_sharpen,
+  // WIRE-UNWIRED-MS0/U-WIRE-MEMSYNC
+  memory_sync_list_bundles,
+  memory_sync_bundle_metadata,
 };

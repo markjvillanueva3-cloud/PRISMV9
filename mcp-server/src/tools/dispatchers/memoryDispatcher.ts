@@ -84,6 +84,9 @@ export function registerMemoryDispatcher(server: McpServer): void {
         // OBSIDIAN-AUTOMATE-MS3/U-INBOX-OPS-EXPOSE: on-demand inbox operators
         "inbox_prune_now",
         "inbox_promote_now",
+        // WIRE-UNWIRED-MS0/U-WIRE-MEMSYNC: MemorySyncEngine read-only bundle inspection
+        "memory_sync_list_bundles",
+        "memory_sync_bundle_metadata",
       ]).describe("Memory graph action"),
       params: z.record(z.string(), z.any()).optional().describe("Action parameters"),
     },
@@ -726,8 +729,28 @@ export function registerMemoryDispatcher(server: McpServer): void {
             break;
           }
 
+          // WIRE-UNWIRED-MS0/U-WIRE-MEMSYNC: MemorySyncEngine read-only bundle inspection
+          case "memory_sync_list_bundles": {
+            const { memorySyncEngine } = await import("../../engines/MemorySyncEngine.js");
+            const dir = typeof params.dir === "string" ? params.dir : "";
+            if (!dir) throw new Error("memory_sync_list_bundles requires 'dir' (string)");
+            const bundles = await memorySyncEngine.listBundles(dir);
+            result = { bundles, count: bundles.length };
+            break;
+          }
+          case "memory_sync_bundle_metadata": {
+            const { memorySyncEngine } = await import("../../engines/MemorySyncEngine.js");
+            const srcPath = typeof params.src_path === "string"
+              ? params.src_path
+              : (typeof params.srcPath === "string" ? params.srcPath : "");
+            if (!srcPath) throw new Error("memory_sync_bundle_metadata requires 'src_path' (string)");
+            const metadata = await memorySyncEngine.bundleMetadata(srcPath);
+            result = { metadata };
+            break;
+          }
+
           default:
-            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'record_session_end', 'semantic_search', 'remember', 'qdrant_vector_search', 'qdrant_vector_upsert', 'agent_memory_remember', 'agent_memory_query', 'agent_memory_reinforce', 'agent_memory_forget', 'agent_memory_stats', 'emerging_thesis', 'daily_brief_get', 'contradiction_check', 'postmortem_create', 'performance_report', 'connections_materialize', 'content_brief_create', 'voice_validate', 'capture_sharpen', 'embed_text', 'embed_pairwise_cosine', 'inbox_prune_now', 'inbox_promote_now'] };
+            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'record_session_end', 'semantic_search', 'remember', 'qdrant_vector_search', 'qdrant_vector_upsert', 'agent_memory_remember', 'agent_memory_query', 'agent_memory_reinforce', 'agent_memory_forget', 'agent_memory_stats', 'emerging_thesis', 'daily_brief_get', 'contradiction_check', 'postmortem_create', 'performance_report', 'connections_materialize', 'content_brief_create', 'voice_validate', 'capture_sharpen', 'embed_text', 'embed_pairwise_cosine', 'inbox_prune_now', 'inbox_promote_now', 'memory_sync_list_bundles', 'memory_sync_bundle_metadata'] };
         }
 
         const elapsed = (performance.now() - start).toFixed(1);
