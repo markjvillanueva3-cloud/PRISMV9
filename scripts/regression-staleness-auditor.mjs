@@ -176,15 +176,26 @@ function commitExists(sha) {
   return runGit(["cat-file", "-e", sha + "^{commit}"]) !== null;
 }
 
-function laterCommitsTouching(sinceDate, paths) {
+// v1.2: cutoff is START of the regression date (T00:00:00), not end-of-day.
+// Same-day fixes are common — many regressions are logged in the same commit
+// run that ships the fix. The previous T23:59:59 cutoff excluded the entire
+// observation day from the search, missing all same-day fixes. Caller passes
+// excludeShas to drop the regression-observation commit itself from results
+// (the entry's own observed-in SHA — otherwise it would self-report stale).
+function laterCommitsTouching(sinceDate, paths, excludeShas = []) {
   if (!paths.length) return [];
-  // "since" is the day AFTER the regression date so we don't catch the entry's
-  // own observation commit.
-  const sinceArg = `--since=${sinceDate}T23:59:59`;
+  const sinceArg = `--since=${sinceDate}T00:00:00`;
   const args = ["log", "--oneline", sinceArg, "--"].concat(paths);
   const out = runGit(args);
   if (!out) return [];
-  return out.split(/\r?\n/).filter(Boolean).slice(0, 5);
+  const exclude = new Set(excludeShas.filter(Boolean).map(s => s.slice(0, 7)));
+  return out.split(/\r?\n/)
+    .filter(Boolean)
+    .filter(line => {
+      const sha = line.split(/\s+/, 1)[0];
+      return !exclude.has(sha.slice(0, 7));
+    })
+    .slice(0, 5);
 }
 
 function classify(entry) {
@@ -196,8 +207,9 @@ function classify(entry) {
   if (!entry.paths.length) {
     return { status: "unknown", evidence: "no file paths in entry — manual review" };
   }
-  // Priority 2/3: later commits to mentioned files
-  const later = laterCommitsTouching(entry.date, entry.paths);
+  // Priority 2/3: later commits to mentioned files (excluding the entry's own
+  // observation commit if known).
+  const later = laterCommitsTouching(entry.date, entry.paths, [entry.observedSha]);
   if (later.length === 0) {
     return entry.isPending
       ? { status: "fresh-pending", evidence: `no later commits to ${entry.paths.length} file(s)` }
