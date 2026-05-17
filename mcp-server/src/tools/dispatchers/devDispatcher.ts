@@ -445,7 +445,8 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // over 28 engine SOURCE_FILE_CATALOG exports. All 4 module-fns pure;
 // no defers.
 "sca_get_all_catalogs", "sca_search_catalog",
-"sca_get_engine_catalog", "sca_get_catalog_stats"] as const;
+"sca_get_engine_catalog", "sca_get_catalog_stats",
+"mti_get_adjustment", "mti_check_failure_modes", "mti_get_statistics"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -3023,6 +3024,46 @@ export function registerDevDispatcher(server: any): void {
           case "sca_get_catalog_stats": {
             const { getCatalogStats } = await import("../../engines/SourceCatalogAggregator.js");
             const stats = await getCatalogStats();
+            result = { stats };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-MTI: MillTribalIntegration ───────────
+          case "mti_get_adjustment": {
+            const { millTribalIntegrationEngine } = await import("../../engines/MillTribalIntegrationEngine.js");
+            const p = params as { material_iso: string; operation_type: string; tool_type: string; tool_diameter_mm: number };
+            const adj = millTribalIntegrationEngine.getAdjustment(
+              p.material_iso, p.operation_type, p.tool_type, p.tool_diameter_mm,
+            );
+            // adj returns {rpm_factor, feed_factor, doc_factor, warnings[], tips_applied[]}
+            // Echo inputs back for round-trip verification.
+            result = {
+              material_iso: p.material_iso,
+              operation_type: p.operation_type,
+              tool_type: p.tool_type,
+              tool_diameter_mm: p.tool_diameter_mm,
+              adjustment: adj,
+              warnings_count: adj.warnings.length,
+              tips_applied_count: adj.tips_applied.length,
+            };
+            break;
+          }
+          case "mti_check_failure_modes": {
+            const { millTribalIntegrationEngine } = await import("../../engines/MillTribalIntegrationEngine.js");
+            const p = params as { material_iso: string; operation_type: string; rpm: number; feed: number; doc: number };
+            const matches = millTribalIntegrationEngine.checkFailureModes(
+              p.material_iso, p.operation_type, p.rpm, p.feed, p.doc,
+            );
+            result = {
+              material_iso: p.material_iso,
+              operation_type: p.operation_type,
+              matches,
+              count: matches.length,
+            };
+            break;
+          }
+          case "mti_get_statistics": {
+            const { millTribalIntegrationEngine } = await import("../../engines/MillTribalIntegrationEngine.js");
+            const stats = millTribalIntegrationEngine.getStatistics();
             result = { stats };
             break;
           }

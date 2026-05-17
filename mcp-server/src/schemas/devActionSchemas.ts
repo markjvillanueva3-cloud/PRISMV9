@@ -2662,4 +2662,35 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   sca_get_catalog_stats: z.object({}).describe(
     "Stats grouped by category + safety_class + total entries. Pure read."
   ),
+
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-MTI: MillTribalIntegrationEngine wiring ──
+  // Three pure-read actions. integrateWithTraining() DEFERRED (mutates
+  // millNeuralNetworkEngine training data; ML-training-data-corruption class).
+  mti_get_adjustment: z.object({
+    material_iso: z.string().min(1).max(8)
+      .describe("ISO material group (P/M/K/N/S/H or specific code like P30)"),
+    operation_type: z.string().min(1).max(64)
+      .describe("Operation type (rough_profile, finish_pocket, drill, etc.)"),
+    tool_type: z.string().min(1).max(64)
+      .describe("Tool type (flat_endmill, twist_drill, face_mill, etc.)"),
+    tool_diameter_mm: z.number().positive().max(500)
+      .describe("Tool diameter in mm (DoS bound 500mm)"),
+  }).describe("Get tribal-knowledge rpm/feed/doc factor adjustments + warnings. Pure read."),
+
+  mti_check_failure_modes: z.object({
+    material_iso: z.string().min(1).max(8)
+      .describe("ISO material group"),
+    operation_type: z.string().min(1).max(64)
+      .describe("Operation type"),
+    rpm: z.number().positive().max(200_000)
+      .describe("RPM (DoS bound 200k)"),
+    feed: z.number().positive().max(50_000)
+      .describe("Feed mm/min (DoS bound 50k)"),
+    doc: z.number().positive().max(1000)
+      .describe("Depth of cut mm (DoS bound 1000)"),
+  }).describe("Match operation against registered failure modes. Pure read."),
+
+  mti_get_statistics: z.object({}).describe(
+    "Aggregate counts (tips/heuristics/failure-modes + per-material + per-operation). Pure read."
+  ),
 };
