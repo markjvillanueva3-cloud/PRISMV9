@@ -482,7 +482,8 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "plib_get_by_part_id", "plib_get_by_customer", "plib_list_customers",
 "plib_get_stats", "plib_list",
 "wron_current_shift", "wron_pending_escalations", "wron_get_page",
-"wron_list_pages", "wron_list_shifts", "wron_list_swaps", "wron_snapshot"] as const;
+"wron_list_pages", "wron_list_shifts", "wron_list_swaps", "wron_snapshot",
+"evap_calculate"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -3815,6 +3816,24 @@ export function registerDevDispatcher(server: any): void {
               critical_error_count: r.critical_errors.length,
               warning_count: r.warnings.length,
               score: r.score,
+            };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-EVAP: EvaporatorDesignEngine ───────
+          case "evap_calculate": {
+            const { evaporatorDesignEngine } = await import("../../engines/EvaporatorDesignEngine.js");
+            const r = evaporatorDesignEngine.calculate(
+              params as Parameters<typeof evaporatorDesignEngine.calculate>[0],
+            );
+            // Engine returns AtomicValue-wrapped fields + is_safe + recs[].
+            // Use is_safe + rec_count as top-level discriminators.
+            result = {
+              result: r,
+              is_safe: r.is_safe,
+              recommendation_count: r.recommendations.length,
+              area_m2: r.heat_transfer_area_m2.value,
+              steam_economy: r.steam_economy.value,
+              evaporation_rate_kg_h: r.evaporation_rate_kg_h.value,
             };
             break;
           }

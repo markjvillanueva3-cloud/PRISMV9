@@ -3167,6 +3167,25 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   // ── WIRE-UNWIRED-MS0 / U-WIRE-AGS: AutonomousGoalSynthesisEngine ──
   // Single pure-compute method ranks gap-descriptors by
   // Ψ_impact × urgency × feasibility. No I/O, no state mutation.
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-EVAP: EvaporatorDesignEngine ──
+  // Single pure-compute action — Q=UAΔTlm + mass balance + steam economy
+  // (McCabe-Smith / Perry's Ch.11). Pure compute, no state mutation.
+  evap_calculate: z.object({
+    feed_flow_kg_h: z.number().positive().max(1_000_000)
+      .describe("Feed flow (kg/h)"),
+    feed_concentration_pct: z.number().min(0).max(100).optional()
+      .describe("Feed concentration % (default 5)"),
+    product_concentration_pct: z.number().min(0).max(100).optional()
+      .describe("Product concentration % (default 30)"),
+    steam_pressure_bar: z.number().positive().max(100).optional()
+      .describe("Steam pressure bar (default 3)"),
+    num_effects: z.number().int().min(1).max(10).optional()
+      .describe("Number of evaporator effects (default 1)"),
+    evaporator_type: z.enum(["falling_film", "rising_film", "forced_circulation", "plate"]).optional(),
+    feed_temp_C: z.number().min(-50).max(500).optional()
+      .describe("Feed temperature °C (default 60)"),
+  }).describe("Single/multi-effect evaporator sizing — heat transfer area, steam economy, BPE."),
+
   // ── WIRE-UNWIRED-MS0 / U-WIRE-WRON: WetRunOnCallRotationEngine ──
   // 7 read-only actions over the in-memory on-call rotation/page/swap state.
   // Engine starts EMPTY in a fresh process.
