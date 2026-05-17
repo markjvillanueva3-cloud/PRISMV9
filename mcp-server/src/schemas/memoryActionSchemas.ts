@@ -147,6 +147,75 @@ const daily_context_get = z.object({
   ollamaModel: z.string().optional().describe("Alias for ollama_model"),
 }).passthrough();
 
+// OBSIDIAN-INTELLIGENCE-MS3/B4/U-WEEKLY-SYNTHESIS — Sunday 8 PM retro reading
+// last 7 DAILY-CONTEXT files; emits 4-section retro (moved / didn't move /
+// emerging patterns / top-3 leverage). Optional Ollama summarisation.
+const weekly_synthesis_get = z.object({
+  vault_root: z.string().optional().describe("Override vault root (defaults to knowledge/memories)"),
+  vaultRoot: z.string().optional().describe("Alias for vault_root"),
+  generated_root: z.string().optional().describe("Override generated-output root (defaults to ${vaultRoot}/generated)"),
+  generatedRoot: z.string().optional().describe("Alias for generated_root"),
+  now: z.number().finite().optional().describe("Override 'now' ms epoch for deterministic windowing"),
+  max_dailies: z.number().int().min(1).max(31).optional().describe("Cap on daily files included; default 7"),
+  maxDailies: z.number().int().min(1).max(31).optional().describe("Alias for max_dailies"),
+  window_days: z.number().int().min(1).max(31).optional().describe("Window length in days; default 7"),
+  windowDays: z.number().int().min(1).max(31).optional().describe("Alias for window_days"),
+  excerpt_bytes: z.number().int().min(512).max(131072).optional().describe("Max bytes per source excerpt; default 8192"),
+  excerptBytes: z.number().int().min(512).max(131072).optional().describe("Alias for excerpt_bytes"),
+  write: z.boolean().optional().describe("Write the retro to disk (default false; cron uses true)"),
+  ollama_model: z.string().optional().describe("Ollama model when client is reachable; default qwen2.5-coder"),
+  ollamaModel: z.string().optional().describe("Alias for ollama_model"),
+}).passthrough();
+
+// OBSIDIAN-INTELLIGENCE-MS3/B3/U-QUEUE-PROCESSOR — queue watcher + classifier.
+// scanQueue is the read-only manifest pass; processQueue is the side-effecting
+// drain (writes OUT-X.md + .processed/<src> + .claude-queue/<src>.flag.json).
+const queue_processor_scan = z.object({
+  queue_root: z.string().min(1).optional().describe("Override queue root (defaults to ${vaultRoot}/queue)"),
+  queueRoot: z.string().min(1).optional().describe("Alias for queue_root"),
+  generated_root: z.string().optional().describe("Override generated-output root"),
+  generatedRoot: z.string().optional().describe("Alias for generated_root"),
+  processed_root: z.string().optional().describe("Override .processed/ archive directory"),
+  processedRoot: z.string().optional().describe("Alias for processed_root"),
+  claude_queue_root: z.string().optional().describe("Override .claude-queue/ flag directory"),
+  claudeQueueRoot: z.string().optional().describe("Alias for claude_queue_root"),
+  now: z.number().finite().optional().describe("Override 'now' ms epoch for deterministic windowing"),
+  max_files_per_pass: z.number().int().min(1).max(200).optional().describe("Cap on entries per scan; default 20"),
+  maxFilesPerPass: z.number().int().min(1).max(200).optional().describe("Alias for max_files_per_pass"),
+  token_cap_bytes: z.number().int().min(256).max(1048576).optional().describe("Bytes threshold for Ollama-vs-Claude routing; default 8192"),
+  tokenCapBytes: z.number().int().min(256).max(1048576).optional().describe("Alias for token_cap_bytes"),
+  max_file_bytes: z.number().int().min(512).max(4194304).optional().describe("Max file bytes accepted; default 65536 (above → rejected)"),
+  maxFileBytes: z.number().int().min(512).max(4194304).optional().describe("Alias for max_file_bytes"),
+  excerpt_bytes: z.number().int().min(256).max(1048576).optional().describe("Bytes read per file into excerpt; default 8192"),
+  excerptBytes: z.number().int().min(256).max(1048576).optional().describe("Alias for excerpt_bytes"),
+}).passthrough();
+
+const queue_processor_process = z.object({
+  queue_root: z.string().optional().describe("Override queue root"),
+  queueRoot: z.string().optional().describe("Alias for queue_root"),
+  generated_root: z.string().optional().describe("Override generated-output root"),
+  generatedRoot: z.string().optional().describe("Alias for generated_root"),
+  processed_root: z.string().optional().describe("Override .processed/ archive directory"),
+  processedRoot: z.string().optional().describe("Alias for processed_root"),
+  claude_queue_root: z.string().optional().describe("Override .claude-queue/ flag directory"),
+  claudeQueueRoot: z.string().optional().describe("Alias for claude_queue_root"),
+  now: z.number().finite().optional().describe("Override 'now' ms epoch for deterministic windowing"),
+  max_files_per_pass: z.number().int().min(1).max(200).optional().describe("Cap on entries per pass; default 20"),
+  maxFilesPerPass: z.number().int().min(1).max(200).optional().describe("Alias for max_files_per_pass"),
+  token_cap_bytes: z.number().int().min(256).max(1048576).optional().describe("Bytes threshold for Ollama-vs-Claude routing; default 8192"),
+  tokenCapBytes: z.number().int().min(256).max(1048576).optional().describe("Alias for token_cap_bytes"),
+  max_file_bytes: z.number().int().min(512).max(4194304).optional().describe("Max file bytes accepted; default 65536"),
+  maxFileBytes: z.number().int().min(512).max(4194304).optional().describe("Alias for max_file_bytes"),
+  excerpt_bytes: z.number().int().min(256).max(1048576).optional().describe("Bytes read per file into excerpt; default 8192"),
+  excerptBytes: z.number().int().min(256).max(1048576).optional().describe("Alias for excerpt_bytes"),
+  ollama_model: z.string().optional().describe("Ollama model when client is reachable; default qwen2.5-coder"),
+  ollamaModel: z.string().optional().describe("Alias for ollama_model"),
+  dry_run: z.boolean().optional().describe("Skip writes; report would-be routes as 'skipped'"),
+  dryRun: z.boolean().optional().describe("Alias for dry_run"),
+  mkdir_if_missing: z.boolean().optional().describe("Create output dirs if missing; default true"),
+  mkdirIfMissing: z.boolean().optional().describe("Alias for mkdir_if_missing"),
+}).passthrough();
+
 // OBSIDIAN-COMPOUND-MS1/S3/U-CONTRADICTION-DETECTOR — vault disagreement check.
 const contradiction_check = z.object({
   new_memory_path: z.string().optional().describe("Absolute path to the new memory file to check"),
@@ -272,6 +341,9 @@ export const ACTION_MEMORY_SCHEMAS: ActionSchemaMap = {
   emerging_thesis,
   daily_brief_get,
   daily_context_get,
+  weekly_synthesis_get,
+  queue_processor_scan,
+  queue_processor_process,
   contradiction_check,
   postmortem_create,
   performance_report,

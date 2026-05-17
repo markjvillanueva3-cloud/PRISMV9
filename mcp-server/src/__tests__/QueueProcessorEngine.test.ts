@@ -732,6 +732,26 @@ describe("QueueProcessorEngine — _internals (pure helpers)", () => {
 });
 
 describe("QueueProcessorEngine — dispatcher round-trip", () => {
+  it("ACTION_MEMORY_SCHEMAS registers queue_processor_scan + queue_processor_process", async () => {
+    // Round-trip wiring check: the schemas must exist (so MCP tool discovery
+    // can route the action) AND must accept the same field names the
+    // dispatcher case handlers extract. A future schema rename or dispatcher-
+    // schema drift will fail this test before users hit it.
+    const { ACTION_MEMORY_SCHEMAS } = await import("../schemas/memoryActionSchemas.js");
+    expect(ACTION_MEMORY_SCHEMAS).toHaveProperty("queue_processor_scan");
+    expect(ACTION_MEMORY_SCHEMAS).toHaveProperty("queue_processor_process");
+    const scanSchema = ACTION_MEMORY_SCHEMAS.queue_processor_scan;
+    const processSchema = ACTION_MEMORY_SCHEMAS.queue_processor_process;
+    // Both should accept snake_case AND camelCase per dispatcher convention.
+    expect(() => scanSchema.parse({ queue_root: "/tmp/q", max_files_per_pass: 5 })).not.toThrow();
+    expect(() => scanSchema.parse({ queueRoot: "/tmp/q", maxFilesPerPass: 5 })).not.toThrow();
+    expect(() => processSchema.parse({ queue_root: "/tmp/q", dry_run: true })).not.toThrow();
+    expect(() => processSchema.parse({ queueRoot: "/tmp/q", dryRun: true })).not.toThrow();
+    // Reject the same bad-input classes as the engine's own Zod schema.
+    expect(() => scanSchema.parse({ queue_root: "" })).toThrow();
+    expect(() => processSchema.parse({ max_files_per_pass: 1.5 })).toThrow();
+  });
+
   it("runQueueProcessor signature accepts dispatcher field names", async () => {
     // The dispatcher will call runQueueProcessor with these field names —
     // verify the signature matches (no snake/camel mismatch).
