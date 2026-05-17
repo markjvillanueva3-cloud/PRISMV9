@@ -81,7 +81,15 @@ const BLOCKERS = [
     severity: 'block',
   },
   {
-    pattern: /^\s*\/\/.*\n\s*\/\/.*\n\s*\/\/.*\n\s*\/\/.*/m,
+    // SLOT-DRIFT-FIX-MS0/U-SDF10 (2026-05-17): bumped threshold 4 -> 8 lines.
+    // The 4-line threshold falsely flagged every multi-line explanatory
+    // comment block (my own commit headers, doctrine pointers, ENG docs)
+    // as "commented-out code". 8+ consecutive comment lines is a much
+    // stronger signal of actual code that got commented out (which tends
+    // to be larger blocks). Explanatory prose rarely exceeds 7 lines.
+    // The hook still catches the real anti-pattern (commenting code
+    // instead of deleting it) — just no longer fires on doc comments.
+    pattern: /^\s*\/\/[^\n]*(?:\n\s*\/\/[^\n]*){7,}/m,
     message: 'Large commented-out code block — delete it (git has history)',
     severity: 'warn',
   },
