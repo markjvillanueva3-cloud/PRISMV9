@@ -2632,4 +2632,34 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   cc_get_stats: z.object({}).describe(
     "Engine stats {inflight, budget, cacheBytes}. Pure read."
   ),
+
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-SCA: SourceCatalogAggregator wiring ──
+  // Unified query interface over 28 engine SOURCE_FILE_CATALOG exports.
+  // All 4 module-level functions are pure (lazy-load + filter/group).
+  // No defers — every export is read-only.
+  sca_get_all_catalogs: z.object({}).describe(
+    "Aggregate every engine's SOURCE_FILE_CATALOG. Pure read."
+  ),
+
+  sca_search_catalog: z.object({
+    query: z.string().min(1).max(256)
+      .describe("Substring match against id+filename+description+category (case-insensitive)"),
+    engine: z.string().min(1).max(256).optional()
+      .describe("Restrict to one engine's catalog"),
+    category: z.string().min(1).max(64).optional()
+      .describe("Filter by entry.category"),
+    safety_class: z.string().min(1).max(64).optional()
+      .describe("Filter by entry.safety_class"),
+    limit: z.number().int().positive().max(1000).optional()
+      .describe("Result cap (default 50, max 1000 for DoS bound)"),
+  }).describe("Search across all catalogs. Pure read."),
+
+  sca_get_engine_catalog: z.object({
+    engine_name: z.string().min(1).max(256)
+      .describe("Engine name whose catalog to fetch"),
+  }).describe("Get one engine's full catalog (or null when unknown). Pure read."),
+
+  sca_get_catalog_stats: z.object({}).describe(
+    "Stats grouped by category + safety_class + total entries. Pure read."
+  ),
 };

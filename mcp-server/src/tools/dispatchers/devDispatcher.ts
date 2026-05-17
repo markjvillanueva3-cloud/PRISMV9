@@ -440,7 +440,12 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // WIRE-UNWIRED-MS0/U-WIRE-CC: ConsensusCoordinatorEngine — concurrency-
 // aware wrapper. Read methods only; run() DEFERRED (fans out expensive
 // shared-external-resource calls); resetForTesting() DEFERRED.
-"cc_peek_cache", "cc_get_stats"] as const;
+"cc_peek_cache", "cc_get_stats",
+// WIRE-UNWIRED-MS0/U-WIRE-SCA: SourceCatalogAggregator — unified query
+// over 28 engine SOURCE_FILE_CATALOG exports. All 4 module-fns pure;
+// no defers.
+"sca_get_all_catalogs", "sca_search_catalog",
+"sca_get_engine_catalog", "sca_get_catalog_stats"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -2980,6 +2985,44 @@ export function registerDevDispatcher(server: any): void {
           case "cc_get_stats": {
             const { consensusCoordinatorEngine } = await import("../../engines/ConsensusCoordinatorEngine.js");
             const stats = await consensusCoordinatorEngine.getStats();
+            result = { stats };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-SCA: SourceCatalogAggregator ─────────
+          case "sca_get_all_catalogs": {
+            const { getAllCatalogs } = await import("../../engines/SourceCatalogAggregator.js");
+            // getAllCatalogs returns {engines: {name → {entries,categories,total_lines}},
+            //                        total_entries, total_lines, total_engines}.
+            // engine_count comes from the engine's own total_engines field (not
+            // Object.keys, which would count 4 top-level keys instead of N engines).
+            const summary = await getAllCatalogs();
+            result = { summary, engine_count: summary.total_engines };
+            break;
+          }
+          case "sca_search_catalog": {
+            const { searchCatalog } = await import("../../engines/SourceCatalogAggregator.js");
+            const p = params as { query: string; engine?: string; category?: string; safety_class?: string; limit?: number };
+            const opts: { engine?: string; category?: string; safety_class?: string; limit?: number } = {};
+            if (p.engine) opts.engine = p.engine;
+            if (p.category) opts.category = p.category;
+            if (p.safety_class) opts.safety_class = p.safety_class;
+            if (p.limit !== undefined) opts.limit = p.limit;
+            const matches = await searchCatalog(p.query, Object.keys(opts).length ? opts : undefined);
+            result = { query: p.query, matches, count: matches.length };
+            break;
+          }
+          case "sca_get_engine_catalog": {
+            const { getEngineCatalog } = await import("../../engines/SourceCatalogAggregator.js");
+            const engine_name = (params as { engine_name: string }).engine_name;
+            const catalog = await getEngineCatalog(engine_name);
+            result = catalog === null
+              ? { found: false, engine_name }
+              : { found: true, engine_name, catalog, entry_count: Object.keys(catalog).length };
+            break;
+          }
+          case "sca_get_catalog_stats": {
+            const { getCatalogStats } = await import("../../engines/SourceCatalogAggregator.js");
+            const stats = await getCatalogStats();
             result = { stats };
             break;
           }
