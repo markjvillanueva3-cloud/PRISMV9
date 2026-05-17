@@ -484,7 +484,8 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "wron_current_shift", "wron_pending_escalations", "wron_get_page",
 "wron_list_pages", "wron_list_shifts", "wron_list_swaps", "wron_snapshot",
 "evap_calculate",
-"cap_bank_calculate"] as const;
+"cap_bank_calculate",
+"hyp_get_prior", "hyp_prioritize", "hyp_get_tribal_endorsements"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -3817,6 +3818,45 @@ export function registerDevDispatcher(server: any): void {
               critical_error_count: r.critical_errors.length,
               warning_count: r.warnings.length,
               score: r.score,
+            };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-HYP: HypothesisPrioritizerEngine ──
+          case "hyp_get_prior": {
+            const { hypothesisPrioritizerEngine } = await import("../../engines/HypothesisPrioritizerEngine.js");
+            const p = params as { hypothesisId: string; material_iso_group: string; operation: string };
+            const r = hypothesisPrioritizerEngine.getPrior(p.hypothesisId, {
+              material_iso_group: p.material_iso_group,
+              operation: p.operation,
+            });
+            result = {
+              result: r,
+              found: r !== null,
+            };
+            break;
+          }
+          case "hyp_prioritize": {
+            const { hypothesisPrioritizerEngine } = await import("../../engines/HypothesisPrioritizerEngine.js");
+            const r = hypothesisPrioritizerEngine.prioritize(
+              params as Parameters<typeof hypothesisPrioritizerEngine.prioritize>[0],
+            );
+            result = {
+              result: r,
+              ranked_count: r.ranked_hypotheses.length,
+              disagreement_count: r.disagreement_flags.length,
+              consensus_confidence: r.consensus_confidence,
+              top_recommendation: r.top_recommendation,
+            };
+            break;
+          }
+          case "hyp_get_tribal_endorsements": {
+            const { hypothesisPrioritizerEngine } = await import("../../engines/HypothesisPrioritizerEngine.js");
+            const p = params as { hypothesisId: string };
+            const r = hypothesisPrioritizerEngine.getTribalEndorsements(p.hypothesisId);
+            result = {
+              endorsements: r,
+              endorsement_count: r.length,
+              has_endorsements: r.length > 0,
             };
             break;
           }

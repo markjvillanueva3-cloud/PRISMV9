@@ -3167,6 +3167,38 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   // ── WIRE-UNWIRED-MS0 / U-WIRE-AGS: AutonomousGoalSynthesisEngine ──
   // Single pure-compute method ranks gap-descriptors by
   // Ψ_impact × urgency × feasibility. No I/O, no state mutation.
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-HYP: HypothesisPrioritizerEngine ──
+  // 3 read-only Bayesian-prior actions over the milling hypothesis space.
+  // DEFER:
+  //   updatePrior(input)  — class=ML-training-data-corruption: caller can
+  //                          poison Bayesian priors with fake outcome
+  //                          feedback. Needs auth + audit before wiring.
+  //   resetForTests()     — clears cache+history. Test-only footgun.
+  hyp_get_prior: z.object({
+    hypothesisId: z.string().min(1).max(128),
+    material_iso_group: z.enum(["P", "M", "K", "N", "S", "H"]),
+    operation: z.enum(["roughing", "semi-finishing", "finishing"]),
+  }).strict().describe("Bayesian prior for a hypothesis in given material+op context. Read-only."),
+
+  hyp_prioritize: z.object({
+    hypotheses: z.array(z.object({
+      id: z.string().min(1).max(128),
+      description: z.string().min(1).max(512),
+      category: z.enum(["speed", "feed", "depth", "tool", "strategy", "coolant", "material"]),
+      predicted_outcome: z.number().min(0).max(1),
+    })).min(1).max(100).describe("Hypotheses to rank. Cap 100 (DoS)."),
+    context: z.object({
+      material_iso_group: z.enum(["P", "M", "K", "N", "S", "H"]),
+      operation: z.enum(["roughing", "semi-finishing", "finishing"]),
+      customer: z.string().min(1).max(128).optional(),
+      machine: z.string().min(1).max(128).optional(),
+    }),
+  }).describe("Rank hypotheses by Bayesian posterior. Read-only."),
+
+  hyp_get_tribal_endorsements: z.object({
+    hypothesisId: z.string().min(1).max(128),
+  }).strict().describe("Tribal-knowledge endorsements for a hypothesis."),
+
   // ── WIRE-UNWIRED-MS0 / U-WIRE-CAPB: CapacitorBankEngine ──
   // Pure-compute power-factor-correction sizer (IEEE 1036, IEC 60831).
   // Q = P × (tan(θ₁) - tan(θ₂)); harmonic resonance check via h_r = √(Ssc/Qc).
