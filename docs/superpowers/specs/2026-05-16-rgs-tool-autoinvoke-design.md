@@ -111,7 +111,7 @@ Per wire-on-demonstrated-need doctrine + 4-hook collision on `/checkin`/`/pick-u
 BUILD_STATE/MILESTONE_PROGRESS lineage). `plans["<ms>::<unit>"] = {milestone, unitId, unitStatus,
 sourceHash, milestoneStatus, plannedAt, plan{pipelines[],tribal[],skills[],mcpTools[],agents[],
 buildVsIntegrate,complexityTier,confidence,rationale,source}}`.
-`sourceHash = sha256(NFC+wsCollapse(title)+""+desc+""+tier+""+verdict)` (agent-3/8
+`sourceHash = sha256(NFC+wsCollapse(title)+" "+desc+" "+tier+" "+verdict)` (agent-3/8
 — formatting-only edits don't invalidate; semantic ones do).
 `.roadmap-tool-plans.checkpoint.json` — **own `schemaVersion`** (agent-8 P0), `{batchId,
 plannedKeySet[], completedKeys[] (SET not last-key+count — order-independent resume), failedKeys{}}`.

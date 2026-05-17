@@ -310,7 +310,9 @@ describe("T5: partial checkpoint resume — 1 pre-seeded → 2 planned", () => {
     const units = fakeUnits(3);
 
     // Build the correct sourceHash for the first unit so the checkpoint is valid
-    // sourceHash = sha256(nfc(title).replace(/\s+/g," ").trim() + "" + nfc(desc)... + tier + verdict)
+    // sourceHash = sha256(nfc(title).replace(/\s+/g," ").trim() + "\x00" + nfc(desc)... + tier + verdict)
+    // Separator is U+0000 (null byte), NOT empty string — see rgs-tool-planner.mjs:85 for the
+    // collision-resistance rationale (U-SOURCEHASH-DOC-ALIGN 2026-05-17).
     const { createHash } = await import("node:crypto");
     const u = units[0];
     const complexity = stableComplexity(u);
