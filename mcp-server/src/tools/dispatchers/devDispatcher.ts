@@ -402,7 +402,12 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // WIRE-UNWIRED-MS0/U-WIRE-FCC: ConsensusFactCheckerEngine — INTEL-
 // OLLAMA-OBSIDIAN-MS0/LAYER-3 validates external-model answers against
 // PRISM kb (engines + dispatcher actions). reset() DEFERRED.
-"fcc_check", "fcc_get_knowledge_base", "fcc_load_knowledge_base"] as const;
+"fcc_check", "fcc_get_knowledge_base", "fcc_load_knowledge_base",
+// WIRE-UNWIRED-MS0/U-WIRE-PCR: PostCompactRestorationEngine — U-CTX04
+// restoration cascade. Read methods only; clearDossier() DEFERRED
+// (deletes dossier file from disk).
+"pcr_has_dossier", "pcr_get_dossier_age", "pcr_load_dossier",
+"pcr_restore", "pcr_get_summary", "pcr_format_for_injection"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -2622,6 +2627,48 @@ export function registerDevDispatcher(server: any): void {
             } catch (e) {
               result = { error: `load_knowledge_base failed: ${(e as Error).message}`, loaded: false };
             }
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-PCR: PostCompactRestorationEngine ────
+          case "pcr_has_dossier": {
+            const { postCompactRestorationEngine } = await import("../../engines/PostCompactRestorationEngine.js");
+            // Explicit discriminator — slimResponse strips `false` silently.
+            result = { has_dossier: postCompactRestorationEngine.hasDossier() ? true : "no" };
+            break;
+          }
+          case "pcr_get_dossier_age": {
+            const { postCompactRestorationEngine } = await import("../../engines/PostCompactRestorationEngine.js");
+            const age_ms = postCompactRestorationEngine.getDossierAge();
+            // Infinity isn't JSON-serializable — surface as string sentinel.
+            result = Number.isFinite(age_ms)
+              ? { age_ms, present: true }
+              : { age_ms: "Infinity", present: false };
+            break;
+          }
+          case "pcr_load_dossier": {
+            const { postCompactRestorationEngine } = await import("../../engines/PostCompactRestorationEngine.js");
+            const dossier = postCompactRestorationEngine.loadDossier();
+            result = dossier === null
+              ? { loaded: false }
+              : { loaded: true, dossier };
+            break;
+          }
+          case "pcr_restore": {
+            const { postCompactRestorationEngine } = await import("../../engines/PostCompactRestorationEngine.js");
+            const restoration = postCompactRestorationEngine.restore();
+            result = { restoration };
+            break;
+          }
+          case "pcr_get_summary": {
+            const { postCompactRestorationEngine } = await import("../../engines/PostCompactRestorationEngine.js");
+            const summary = postCompactRestorationEngine.getSummary();
+            result = { summary };
+            break;
+          }
+          case "pcr_format_for_injection": {
+            const { postCompactRestorationEngine } = await import("../../engines/PostCompactRestorationEngine.js");
+            const injection = postCompactRestorationEngine.formatForInjection();
+            result = { injection, length: injection.length };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-CEX: CatalogExtractionEngine ─────────

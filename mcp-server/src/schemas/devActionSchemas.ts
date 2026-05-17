@@ -2402,4 +2402,32 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     dispatcher_actions: z.array(z.string().min(1).max(256)).max(10_000).optional()
       .describe("Optional dispatcher-action allowlist to seed the kb (default scans every dispatcher)"),
   }).describe("Explicitly load the PRISM kb into the cache (idempotent — cached after first call)."),
+
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-PCR: PostCompactRestorationEngine wiring ──
+  // U-CTX04 PostCompact Restoration Cascade — restores mental model / bandit
+  // posteriors / SVI trajectory / live claims from the precompact dossier.
+  // 6 read actions wired; clearDossier() DEFERRED (deletes the dossier file
+  // from disk; LLM-callable would let one chat wipe another chat's
+  // restoration data).
+  pcr_has_dossier: z.object({}).describe("Boolean check whether PRECOMPACT_DOSSIER.json exists. Pure read."),
+
+  pcr_get_dossier_age: z.object({}).describe(
+    "Age of the dossier file in ms (Infinity when missing). Pure read."
+  ),
+
+  pcr_load_dossier: z.object({}).describe(
+    "Parse + return the validated PrecompactDossier (or null on miss/parse-fail). Pure read."
+  ),
+
+  pcr_restore: z.object({}).describe(
+    "Full restoration: {success, sessionId, mentalModel, banditState, sviTrajectory, activeClaims, recoveryHints, tokenEstimate, errors}. Pure read."
+  ),
+
+  pcr_get_summary: z.object({}).describe(
+    "Compact summary {objective, approach, nextSteps, blockers, sviPsi, banditTopArm, claims, hints}. Pure read."
+  ),
+
+  pcr_format_for_injection: z.object({}).describe(
+    "Pre-formatted restoration block suitable for context injection. Pure read."
+  ),
 };
