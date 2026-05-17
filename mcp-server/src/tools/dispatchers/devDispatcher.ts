@@ -254,7 +254,12 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // WIRE-UNWIRED-MS0/U-WIRE-XREG: CrossRegistryJoinEngine (read-only; reset()
 // DEFERRED — wipes in-memory schema map shared with other dev queries)
 "cross_reg_list", "cross_reg_schema", "cross_reg_joinable",
-"cross_reg_paths", "cross_reg_join"] as const;
+"cross_reg_paths", "cross_reg_join",
+// WIRE-UNWIRED-MS0/U-WIRE-DLT: DeepLogicTraceEngine read-only surface;
+// beginProof/finalizeProof/clear/getTrace DEFERRED (mutate the proof
+// audit log; getTrace returns a Map that needs special serialization)
+"dlt_get_summary", "dlt_explain", "dlt_validate", "dlt_query",
+"dlt_stats", "dlt_predicates", "dlt_formulas"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -1641,6 +1646,57 @@ export function registerDevDispatcher(server: any): void {
           case "mit_courses_harvest": {
             const { MitCourseIndexEngine } = await import("../../engines/MitCourseIndexEngine.js");
             result = { harvest: await MitCourseIndexEngine.harvest() };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-DLT: DeepLogicTraceEngine ─────────────
+          case "dlt_get_summary": {
+            const { deepLogicTraceEngine } = await import("../../engines/DeepLogicTraceEngine.js");
+            const id = (params as { id: string }).id;
+            const summary = deepLogicTraceEngine.getSummary(id);
+            result = { summary };
+            break;
+          }
+          case "dlt_explain": {
+            const { deepLogicTraceEngine } = await import("../../engines/DeepLogicTraceEngine.js");
+            const id = (params as { id: string }).id;
+            const explained = deepLogicTraceEngine.explainTrace(id);
+            result = { explained };
+            break;
+          }
+          case "dlt_validate": {
+            const { deepLogicTraceEngine } = await import("../../engines/DeepLogicTraceEngine.js");
+            const id = (params as { id: string }).id;
+            const validation = deepLogicTraceEngine.validateProof(id);
+            result = { validation };
+            break;
+          }
+          case "dlt_query": {
+            const { deepLogicTraceEngine } = await import("../../engines/DeepLogicTraceEngine.js");
+            const p = params as { engineId?: string; since?: number; minDepth?: number; limit?: number };
+            const summaries = deepLogicTraceEngine.queryProofs({
+              engineId: p.engineId,
+              since: p.since,
+              minDepth: p.minDepth,
+              limit: p.limit,
+            });
+            result = { summaries, count: summaries.length };
+            break;
+          }
+          case "dlt_stats": {
+            const { deepLogicTraceEngine } = await import("../../engines/DeepLogicTraceEngine.js");
+            result = { stats: deepLogicTraceEngine.getStats() };
+            break;
+          }
+          case "dlt_predicates": {
+            const { deepLogicTraceEngine } = await import("../../engines/DeepLogicTraceEngine.js");
+            const predicates = deepLogicTraceEngine.getPredicates();
+            result = { predicates, count: Object.keys(predicates).length };
+            break;
+          }
+          case "dlt_formulas": {
+            const { deepLogicTraceEngine } = await import("../../engines/DeepLogicTraceEngine.js");
+            const formulas = deepLogicTraceEngine.getFormulaRegistry();
+            result = { formulas, count: Object.keys(formulas).length };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-XREG: CrossRegistryJoinEngine ─────────

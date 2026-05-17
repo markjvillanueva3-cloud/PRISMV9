@@ -1254,6 +1254,43 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   mit_courses_harvest: z.object({}).passthrough()
     .describe("Full scan of all 6 zones — returns every course with metadata + aggregation maps. Read-only."),
 
+  // ── WIRE-UNWIRED-MS0/U-WIRE-DLT: DeepLogicTraceEngine ─────────────────────
+  // (read-only; beginProof/finalizeProof/clear DEFERRED — they mutate the
+  //  in-memory proof-tree store which is the load-bearing audit log for
+  //  every automated decision. getTrace(id) also DEFERRED — ProofTree.nodes
+  //  is a Map<string,ProofNode> that requires Object.fromEntries before JSON.)
+  dlt_get_summary: z.object({
+    id: z.string().min(1).describe("Proof tree id."),
+  }).passthrough()
+    .describe("Get high-level summary (id, conclusion, stepCount, depth, sources, isValid). Returns null on miss. Read-only."),
+
+  dlt_explain: z.object({
+    id: z.string().min(1).describe("Proof tree id."),
+  }).passthrough()
+    .describe("Render human-readable explanation (summary, steps[], premises[], conclusion, citations[], confidence). Read-only."),
+
+  dlt_validate: z.object({
+    id: z.string().min(1).describe("Proof tree id."),
+  }).passthrough()
+    .describe("Logical-consistency check (reachability, cycles, unresolved hypotheses). Read-only."),
+
+  dlt_query: z.object({
+    engineId: z.string().min(1).optional().describe("Filter by engine id."),
+    since: z.number().nonnegative().optional().describe("Filter to trees created at/after this epoch-ms."),
+    minDepth: z.number().int().nonnegative().optional().describe("Filter to trees with depth >= this."),
+    limit: z.number().int().positive().max(1000).optional().describe("Max summaries (default 100, cap 1000)."),
+  }).passthrough()
+    .describe("Query proof summaries by engine/time/depth. Read-only."),
+
+  dlt_stats: z.object({}).passthrough()
+    .describe("Aggregate proof stats (totalProofs, avgDepth, avgSteps, formulaCitations, validProofs). Read-only."),
+
+  dlt_predicates: z.object({}).passthrough()
+    .describe("Built-in predicate catalog (12 predicates: cutting_force_valid, tool_life_sufficient, etc.). Read-only."),
+
+  dlt_formulas: z.object({}).passthrough()
+    .describe("Built-in formula registry (8 canonical: Kienzle, Taylor, cantilever, stability lobe, etc.). Read-only."),
+
   // ── WIRE-UNWIRED-MS0/U-WIRE-XREG: CrossRegistryJoinEngine ─────────────────
   // (read-only — reset() DEFERRED; wipes the in-memory schema map which
   //  other concurrent dev queries depend on)
