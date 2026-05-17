@@ -245,3 +245,42 @@ Slot alpha, claude-fe461853, commit `2cd22c52`. After a live "reaper not staying
 powershell -NoProfile -ExecutionPolicy Bypass -File H:/prism/.claude/helpers/install-fleet-reaper-task.ps1 -RunNow
 ```
 Add `-AsSystem` for machine-account mode. After this the durable task is the always-on mechanism — no chat-side Monitor needed. Memory: [[reference_fleet_reaper_autonomy_robust_2026_05_16]].
+
+## FLEET-REAPER-MS1 Tier 1 (2026-05-17, slot alpha) — graduated gate + critical ballast
+
+Two strictly-additive, backward-compatible units in `scripts/fleet-reaper-sweep.mjs`.
+
+**U-FR-TIER1-AGGRESSIVE-THRESHOLDS** (`f4ab9e01d9`) — pure exported
+`tierFromPressure(usedPct, warnPct, criticalPct, killAfter) → {tier, effectiveKillAfter}`
+replaces the binary `underPressure ? min(killAfter,1) : killAfter` reap gate
+with three bands: `<warn` → `normal` (full killAfter); `[warn,critical)` →
+`warn` (`min(killAfter,1)`); `>=critical` → `critical` (`0` — reap this sweep,
+no extra confirm tick). New `DEFAULT_MEM_CRITICAL_PCT=95` + knob
+`PRISM_FLEET_REAPER_MEM_CRITICAL_PCT`. warn band == the pre-existing
+`memPressurePct` (default 90) so all behavior below 95% is byte-identical to
+pre-MS1 (proven by an in-test legacy reimplementation); only the new ≥95% band
+is new. Fail-safe (R12): non-finite/negative `usedPct` → `normal`/full killAfter
+(a blind memory read never escalates reaping); `criticalPct < warnPct` misconfig
+clamps critical up to warn (collapse, never invert). `underPressure` keeps its
+pre-MS1 meaning (now `warn|critical`); the critical band is surfaced additively
+as `pressureTier`/`criticalPressure`. 16 `node:test` cases.
+
+**U-FR-TIER1-MEM-BALLAST** — a 256MB `Buffer` reserved at CLI boot and released
+one-shot the first sweep that reports the critical band. On Windows commit
+charge is taken at allocation (not first-touch), so the held ballast inflates
+the very commit-pressure metric the reaper gates on; freeing it at the
+≥critical alarm hands ~256MB back exactly when the reaper's own PowerShell
+enumeration needs headroom (the documented OOM-blinding failure mode). Pure
+`ballastAction` state machine (disabled/noop/allocate/hold/release) + fail-soft
+`ensureBallast` (alloc failure surfaced, never thrown) + one-shot latched
+`releaseBallast` (never re-reserve → no oscillation/OOM loop). Lives entirely
+in the CLI shell (`main()`/`monitorLoop`) — `runSweep` is byte-untouched, so
+existing programmatic callers/tests cannot trigger a 256MB alloc on import.
+`--status` skips it. Knob `PRISM_FLEET_REAPER_BALLAST_MB` (0=off). 20
+`node:test` cases (incl. the one-shot-latch non-rearm invariant + full
+boot→hold→critical-release→never-rearm lifecycle).
+
+Tests: `scripts/__tests__/fleet-reaper-tier.test.mjs` (16) +
+`scripts/__tests__/fleet-reaper-ballast.test.mjs` (20). Both per-file
+2-reviewer scrutiny rounds PASS, 0 P0/P1. Memory:
+[[reference_fleet_reaper_tier1_2026_05_17]].

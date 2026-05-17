@@ -183,6 +183,10 @@ Every build/create/investigate request auto-fires these gates before your first 
 
 **Bug-finding → wiki gate (2026-05-17, lima 77971357 — commit `bb198d9285`):** `.claude/hooks/stop-bug-finding-wiki-gate.mjs` (T3 Stop advisory, wired Stop[0].hooks[19] in both `C:\Users\<u>\.claude\settings.json` + auto-mirrored to H:). Detects bug findings shipped this session via three signals — CLAUDE.md `## Recent regressions` delta, new `feedback_*.md`/`reference_*_(bug|regression|fix)_*.md` memory files, and commit-subject keywords (`[fix]`, `regression`, `silent`, `corruption`, `R12`, `BLOCK`, `FAILLOUD`, `fail-loud`, `rot`) — then verifies a companion wiki entry exists under `knowledge/wiki/{lessons,code-tribal,architecture}/`. Missing → advisory `systemMessage` reminder pointing at [[feedback_always_update_wiki_on_bug_finding]] doctrine. NOT a block (per-file scrutiny + 3-of-3 stay in front). Knobs: `PRISM_BUG_FINDING_WIKI_GATE_{DISABLE,HORIZON,MAX_LIST}`. Wiki: [`knowledge/wiki/lessons/bug-findings-wiki-gate.md`]. Memory: [[feedback_always_update_wiki_on_bug_finding]].
 
+- 2026-05-17 | **bump CANONICAL_MATERIAL_DB count test 13->15 (scrutiny arm-C blocker)** | observed-in: f24d9a3c0 | fix: see commit | verify: `git -C H:/prism show f24d9a3c0`
+- 2026-05-17 | **correct cutover spec (3-of-3 arm-A R12 fix)** | observed-in: 3177ae823 | fix: see commit | verify: `git -C H:/prism show 3177ae823`
+- 2026-05-17 | **WireEDMSettingsEngine wiring-gate test + 2 real bug fixes** | observed-in: 56f90ae99 | fix: see commit | verify: `git -C H:/prism show 56f90ae99`
+- 2026-05-17 | **doc-reflection for U-SDF19 heartbeat-cache wire** | observed-in: 16096eabe | fix: see commit | verify: `git -C H:/prism show 16096eabe`
 - 2026-05-17 | **extend C0-strip to $p.Name (closes enum-blind regression class)** | observed-in: ac9cca890 | fix: see commit | verify: `git -C H:/prism show ac9cca890`
 - 2026-05-17 | **backfill CLAUDE.md regression block for U-SDF13 + U-SDF15** | observed-in: 1904c4cf7 | fix: see commit | verify: `git -C H:/prism show 1904c4cf7`
 - 2026-05-17 | **sticky chatId→slot history cache (closes /compact slot-drift regression)** | observed-in: 590b565fb | fix: see commit | verify: `git -C H:/prism show 590b565fb`
@@ -543,6 +547,27 @@ Wiki: [`knowledge/wiki/architecture/ollama-pipeline-ms0.md`](knowledge/wiki/arch
 
 Adds a GraphSAGE link-prediction GNN as the **5th tier** of the wiring-inference cascade (keyword → expanded-keyword → sibling-prefix → LLM → **GNN**) that classifies UNKNOWN `ghost.unwired-engine` system-viz nodes into a dispatcher. Strictly additive: `PRISM_NNG_DISABLE=1` reverts to the 4-tier cascade exactly; a missing trained checkpoint makes the GNN tier a graceful no-op. The GNN (`scripts/seed-ghost-gnn-classify.mjs`) does k-NN label-propagation over high-confidence reference ghosts in GraphSAGE embedding space; the tier-5 gate is wired into `scripts/seed-ghost-llm-classify.mjs` before its Ollama batch. Assessment harness `scripts/lib/nn-graph-eval.mjs` grades against AUROC≥0.78 / macro-F1≥0.55 / Brier≤0.15. **Status: `shipped-research-only`** — all 8 units built+tested+committed. **Continuation 2026-05-16b (slot alpha, claude-fe461853):** the U4 checkpoint is now trained + **committed** (`state/shared/nn-graph/graphsage-checkpoint.json`, 152KB) so the deferred state is reproducible in-tree, and `nn-graph-eval.mjs` got an **honesty fix** — it no longer prints "no trained checkpoint exists" when one is present; it distinguishes `no-checkpoint` from data-blocked `insufficient-reference-pool`, and the strong "trained / U4-resolved" prose is gated on the checkpoint's embedded training metadata (+2 fail-on-revert regression tests, 48/48, 2-reviewer per-file gate PASS incl. a fixed P1 overclaim). Deploy gate still DEFERRED but the blocker moved **code-side → data-side**: `poolSize 0 < 2` (the live system-viz graph currently has 0 reference ghosts; the tier is dormant by data). Link-pred pretext AUROC=0.096 is the *known* heterophily/type-imbalance anti-correlation (already triply-confirmed in [[reference_nn_graph_ms0_2026_05_16]], not a new finding). **Actual deploy progress requires a NEW unit** (`U-NEG-SAMPLE-STRATIFIED` cheap test, or `U4-768D-FEATURES`) — not more MS0 work. Knobs: `PRISM_NNG_{DISABLE,MIN_CONF,REF_MIN_CONF,TOPK,CHECKPOINT}`. Wiki: [`knowledge/wiki/architecture/nn-graph-ms0.md`](knowledge/wiki/architecture/nn-graph-ms0.md). Memory: [[reference_nn_graph_ms0_2026_05_16]].
 
+## NN-GRAPH-MS1 (2026-05-17, slot alpha) — U-NNG-PIPELINE-STRATIFIED-WIRE
+
+Commit `97c9286311`. Wires the trainer's already-shipped stratified
+negative-sampling through `runTrainingPipeline` so the GNN trains AND evaluates
+against a type-marginal-matched negative distribution — closes the *cause* of
+the AUROC=0.096 deferred gate (heterophily anti-correlation under uniform
+negatives; the defect was the trainer↔pipeline integration boundary, not the
+algorithm). Opt-in via `--node-type-field <field> --neg-p-hard <0..1>`;
+byte-identical legacy path when unset (regression-tested), preserving
+`PRISM_NNG_DISABLE` discipline. New exported `extractNodeTypes` +
+`sampleStratifiedEvalNegatives` (eval keyed by `canonicalEdgeKey`, mirrors the
+trained distribution; `typeMarginal` from trainEdges only = leakage-safe).
+74/74 pipeline + 183/183 NN-GRAPH stack green (+23 cases). **Deploy gate moved
+code-side → data-side**: `state/shared/nn-graph/NN-EVAL.json` stays
+`deferred:true, poolSize:0` (live graph has 0 reference ghosts — dormant *by
+data*, not bug). Lift = operator out-of-session run `node
+scripts/lib/graphsage-train-pipeline.mjs --node-type-field layer --neg-p-hard
+0.7` against the real 372k-node graph. Wiki:
+[`knowledge/wiki/architecture/u-nng-pipeline-stratified-wire.md`](knowledge/wiki/architecture/u-nng-pipeline-stratified-wire.md).
+Memory: [[reference_u_nng_pipeline_stratified_wire_2026_05_17]].
+
 ## ONE-GLANCE CHECKLIST (every new task)
 1. Read HANDOFF for this chat via per-agent-handoff.mjs `read`
 2. If building/auditing/investigating → hooks auto-inject inventory + duplicate guards
@@ -597,6 +622,32 @@ Two fixes after a live "reaper not staying open / orphans accumulate / `xmalloc`
 
 1. **Enumeration-blinding ROOT CAUSE fixed** (`process-slot-map.mjs` `windowsEnumerate`). PS 5.1 `ConvertTo-Json` emits raw C0 control bytes inside string literals (no `\u`-escaping), so a single process whose `CommandLine` contains a control char (e.g. a `node --eval` payload) made Node `JSON.parse` throw → the **entire** enumeration degraded to empty → the reaper went blind (0 candidates while 33 orphans / ~95% commit-mem accumulated). Fix: strip `[\x00-\x1F]`→space in the PS script *before* `ConvertTo-Json` (lossless for the reaper's structural cmdline regexes; space-not-empty avoids token fusion). Live-verified: sweep went `0 candidates + "process enumeration failed" caveat` → `2 candidates, no caveat`. +1 fail-on-revert test (`matchesLeftoverTaskPattern`: raw→true, space→true, empty→**false**).
 2. **Installer hardened to true-autonomous** (`install-fleet-reaper-task.ps1`). The task registered with **no `-Principal`** → `Logon Mode: Interactive only` → did NOT run unless the installing user was logged in. Now ONE elevated run yields: default **S4U** principal (`-RunLevel Highest`, runs whether-logged-on-or-not, no stored password) — `-AsSystem` for the strongest mode, `-Interactive` for legacy; a second **`-AtStartup`** trigger (resumes pre-login on reboot); `-RestartCount 3 -RestartInterval 1m` recovery; `Register-ScheduledTask` splatted so `-Principal` is *omitted* (not `$null`) in legacy mode. `-Uninstall` / `Disable-ScheduledTask` reversibility unchanged. **One elevated command makes it set-and-forget:** `! powershell -NoProfile -ExecutionPolicy Bypass -File H:/prism/.claude/helpers/install-fleet-reaper-task.ps1 -RunNow` (add `-AsSystem` for machine-account mode). 2-reviewer per-file gate PASS (0 P0; B's P1 = the added test, satisfied). Known P3: the test's in-file C0 char-class is raw control bytes (functionally correct, `node --check` clean; an encoding-guard hook reverts `\u`-escape beautify — cosmetic). Memory: [[reference_fleet_reaper_autonomy_robust_2026_05_16]].
+
+### Tier 1 — graduated pressure gate + critical ballast (2026-05-17, slot alpha)
+
+Two strictly-additive, backward-compatible units in `scripts/fleet-reaper-sweep.mjs`:
+
+- **U-FR-TIER1-AGGRESSIVE-THRESHOLDS** (`f4ab9e01d9`) — pure exported
+  `tierFromPressure(usedPct, warnPct, criticalPct, killAfter) → {tier, effectiveKillAfter}`
+  replaces the binary `underPressure ? min(killAfter,1) : killAfter` reap gate:
+  `<warn`→normal (full killAfter), `[warn,critical)`→warn (`min(killAfter,1)`),
+  `>=critical`→critical (`0` — reap this sweep). New `DEFAULT_MEM_CRITICAL_PCT=95`
+  + `PRISM_FLEET_REAPER_MEM_CRITICAL_PCT`. warn==`memPressurePct` (90) so behavior
+  <95% is byte-identical to pre-MS1 (in-test legacy parity proof). Fail-safe
+  (R12): non-finite/negative usedPct → normal; `crit<warn` clamps up (collapse,
+  never invert). 16 `node:test`.
+- **U-FR-TIER1-MEM-BALLAST** — 256MB `Buffer` reserved at CLI boot, released
+  one-shot the first critical sweep (Windows charges commit at allocation, so
+  freeing it hands ~256MB back exactly when the reaper's own enumeration needs
+  headroom — the OOM-blinding mode). Pure `ballastAction` + fail-soft
+  `ensureBallast` + one-shot-latched `releaseBallast`; lives in the CLI shell
+  (`runSweep` byte-untouched → zero regression). `--status` skips it. Knob
+  `PRISM_FLEET_REAPER_BALLAST_MB` (0=off). 20 `node:test`.
+
+Both per-file 2-reviewer scrutiny rounds PASS, 0 P0/P1. Tests:
+`scripts/__tests__/fleet-reaper-{tier,ballast}.test.mjs`. Wiki:
+`knowledge/wiki/architecture/fleet-reaper.md` (Tier 1 section). Memory:
+[[reference_fleet_reaper_tier1_2026_05_17]].
 
 ## FLEET-MEMORY-MONITOR-MS0 (2026-05-16, slot=golf-work, 5 files shipped)
 
