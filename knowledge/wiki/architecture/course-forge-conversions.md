@@ -23,8 +23,9 @@ tested, mutually-composable algorithm nodes.
 | P1 | MIT-OCW 10.34 (Numerical Methods) | `mcp-server/src/algorithms/OperatorSplittingMethod.ts` | 28 |
 | P7 | MIT-OCW 2.003j (Dynamics & Control I) | `mcp-server/src/algorithms/ODEIntegrator.ts` | 28 |
 | P6 | MIT-OCW 2.003 (Modeling Dynamics & Control I) | `mcp-server/src/algorithms/LinearStateSpaceModel.ts` | 22 |
+| FDM | MIT-OCW 2.086 (Numerical Computation) | `mcp-server/src/algorithms/FiniteDifferenceMethod.ts` | 18 |
 
-Commits: `1323fa4ee7` (P1) · `b38a9f2285` (P7) · `a547223bbf` (P6). 78/78 tests, tsc clean.
+Commits: `1323fa4ee7` (P1) · `b38a9f2285` (P7) · `a547223bbf` (P6) · `7cbbe511d7` (FDM). 96/96 tests, tsc clean.
 
 ## P1 — OperatorSplittingMethod
 
@@ -58,22 +59,35 @@ A/B/C/D from caller-supplied physics (the file owns only matrix algebra).
 Generalizes the inline SDOF `G(jω)` that `StabilityLobeDiagram` computes for
 chatter — that engine's transfer function is one special case of this primitive.
 
+## FDM — FiniteDifferenceMethod (the PDE keystone)
+
+1D uniform-grid spatial discretization: first derivative (fwd/bwd O(dx),
+central O(dx²)), second derivative (`[1,−2,1]/dx²` Laplacian), Dirichlet/
+Neumann/periodic BCs. `makeMethodOfLinesRHS({dx,D,v,bc})` returns a
+`DerivativeFn` whose state vector IS the field samples → discretizes a PDE
+into an ODE system that ODEIntegrator marches. The discrete diffusion and
+advection operators are exactly the additively-decomposed A/B that
+OperatorSplittingMethod splits. This is the keystone that makes the suite a
+PDE solver. Verified: heat-equation Fourier mode `sin(x)` decays at
+`exp(−D·k²·t)` through `makeMethodOfLinesRHS → ODEIntegrator/RK4`.
+
 ## The composition chain
 
 ```
-LinearStateSpaceModel.calculate({operation:"simulate"})
-        │  (builds f(t,x) = Ax + Bu, delegates to…)
+FiniteDifferenceMethod.makeMethodOfLinesRHS({dx,D,v,bc})
+        │  (∂u/∂t = D·u_xx − v·u_x  as a DerivativeFn)
         ▼
-ODEIntegrator.calculate({method:"rk4"})
-        ▲
+ODEIntegrator.calculate({method:"rk4"})  ◄─ also: LinearStateSpace.simulate
+        ▲                                     builds f(t,x)=Ax+Bu, delegates here
         │  makeSubstepIntegrator(fAutonomous,"rk4")
         │
 OperatorSplittingMethod.calculate({applyA, applyB})
 ```
 
-A multi-physics ODE can be split (OperatorSplitting), each operator
-integrated (ODEIntegrator), and a full LTI system simulated (LinearStateSpace)
-— all three nodes interlock. Tests verify the composition with real values
+A PDE is discretized (FDM), the resulting ODE system optionally
+operator-split (OperatorSplitting), each operator integrated (ODEIntegrator),
+and a full LTI system simulated/analyzed (LinearStateSpace) — all four nodes
+interlock. Tests verify the composition with real values
 (e.g. Strang split of `−y−0.5y` → `exp(−1.5)` to 5 digits through the
 makeSubstepIntegrator adapter).
 
