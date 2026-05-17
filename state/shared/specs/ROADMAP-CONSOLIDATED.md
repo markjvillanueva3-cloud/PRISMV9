@@ -1,16 +1,16 @@
 # PRISM ROADMAP — Consolidated Inventory
 
-> Generated 2026-05-16T19:36:54.127Z · schemaVersion 1.0.0 · **advisory, human-verify**
+> Generated 2026-05-17T19:10:17.061Z · schemaVersion 1.0.0 · **advisory, human-verify**
 > Every roadmap unified: what is left to do + the bridge layer that synergizes the galaxy.
 
 ## Headline
 
-- Milestones: **849** (555 with pending work)
-- **Pending units (master remaining-work set): 4497**
+- Milestones: **849** (401 with pending work)
+- **Pending units (master remaining-work set): 3197**
 - Prose-roadmap units extracted: 1133 · **un-consolidated (no envelope): 969**
 - Misc orphaned tasks (MISC-TASKS-INVENTORY): 318
-- Bridge layer: **26 wiring units** (836 engines) + **16 deep-integration units**
-- **Grand total remaining work items: 5826**
+- Bridge layer: **26 wiring units** (729 engines) + **16 deep-integration units**
+- **Grand total remaining work items: 4526**
 
 ## Bridge layer — wire + synergize the galaxy
 
@@ -18,32 +18,32 @@
 
 | Unit | Domain | Engines | Intent |
 |------|--------|---------|--------|
-| U-BRIDGE-WIRE-OTHER | Other | 144 | Connect the 144 built-but-unwired Other-domain engines into their natural MCP dispatcher(s) so the capability is reachable. |
-| U-BRIDGE-WIRE-LATHE | Lathe | 89 | Connect the 89 built-but-unwired Lathe-domain engines into their natural MCP dispatcher(s) so the capability is reachable. |
-| U-BRIDGE-WIRE-MACHINE | Machine | 17 | Connect the 17 built-but-unwired Machine-domain engines into their natural MCP dispatcher(s) so the capability is reachable. |
-| U-BRIDGE-WIRE-TURNING | Turning | 11 | Connect the 11 built-but-unwired Turning-domain engines into their natural MCP dispatcher(s) so the capability is reachable. |
+| U-BRIDGE-WIRE-OTHER | Other | 131 | Connect the 131 built-but-unwired Other-domain engines into their natural MCP dispatcher(s) so the capability is reachable. |
+| U-BRIDGE-WIRE-LATHE | Lathe | 82 | Connect the 82 built-but-unwired Lathe-domain engines into their natural MCP dispatcher(s) so the capability is reachable. |
+| U-BRIDGE-WIRE-MACHINE | Machine | 13 | Connect the 13 built-but-unwired Machine-domain engines into their natural MCP dispatcher(s) so the capability is reachable. |
 | U-BRIDGE-WIRE-MULTI | Multi | 10 | Connect the 10 built-but-unwired Multi-domain engines into their natural MCP dispatcher(s) so the capability is reachable. |
 | U-BRIDGE-WIRE-TOOL | Tool | 9 | Connect the 9 built-but-unwired Tool-domain engines into their natural MCP dispatcher(s) so the capability is reachable. |
 | U-BRIDGE-WIRE-FIVE | Five | 9 | Connect the 9 built-but-unwired Five-domain engines into their natural MCP dispatcher(s) so the capability is reachable. |
-| U-BRIDGE-WIRE-SHOP | Shop | 9 | Connect the 9 built-but-unwired Shop-domain engines into their natural MCP dispatcher(s) so the capability is reachable. |
+| U-BRIDGE-WIRE-SHOP | Shop | 8 | Connect the 8 built-but-unwired Shop-domain engines into their natural MCP dispatcher(s) so the capability is reachable. |
 | U-BRIDGE-WIRE-OUTCOME | Outcome | 8 | Connect the 8 built-but-unwired Outcome-domain engines into their natural MCP dispatcher(s) so the capability is reachable. |
+| U-BRIDGE-WIRE-PROCESS | Process | 7 | Connect the 7 built-but-unwired Process-domain engines into their natural MCP dispatcher(s) so the capability is reachable. |
 | U-BRIDGE-WIRE-HYPER | Hyper | 7 | Connect the 7 built-but-unwired Hyper-domain engines into their natural MCP dispatcher(s) so the capability is reachable. |
 | U-BRIDGE-WIRE-MILLING | Milling | 7 | Connect the 7 built-but-unwired Milling-domain engines into their natural MCP dispatcher(s) so the capability is reachable. |
 | U-BRIDGE-WIRE-FUSION | Fusion | 7 | Connect the 7 built-but-unwired Fusion-domain engines into their natural MCP dispatcher(s) so the capability is reachable. |
-| U-BRIDGE-WIRE-WET | Wet | 7 | Connect the 7 built-but-unwired Wet-domain engines into their natural MCP dispatcher(s) so the capability is reachable. |
-| U-BRIDGE-WIRE-PROCESS | Process | 6 | Connect the 6 built-but-unwired Process-domain engines into their natural MCP dispatcher(s) so the capability is reachable. |
-| U-BRIDGE-WIRE-PRINT | Print | 6 | Connect the 6 built-but-unwired Print-domain engines into their natural MCP dispatcher(s) so the capability is reachable. |
 | U-BRIDGE-WIRE-SWISS | Swiss | 6 | Connect the 6 built-but-unwired Swiss-domain engines into their natural MCP dispatcher(s) so the capability is reachable. |
 | U-BRIDGE-WIRE-WIRE | Wire | 6 | Connect the 6 built-but-unwired Wire-domain engines into their natural MCP dispatcher(s) so the capability is reachable. |
-| U-BRIDGE-WIRE-CONSENSUS | Consensus | 6 | Connect the 6 built-but-unwired Consensus-domain engines into their natural MCP dispatcher(s) so the capability is reachable. |
-| U-BRIDGE-WIRE-MOBILE | Mobile | 5 | Connect the 5 built-but-unwired Mobile-domain engines into their natural MCP dispatcher(s) so the capability is reachable. |
+| U-BRIDGE-WIRE-WET | Wet | 6 | Connect the 6 built-but-unwired Wet-domain engines into their natural MCP dispatcher(s) so the capability is reachable. |
+| U-BRIDGE-WIRE-TURNING | Turning | 6 | Connect the 6 built-but-unwired Turning-domain engines into their natural MCP dispatcher(s) so the capability is reachable. |
+| U-BRIDGE-WIRE-PRINT | Print | 5 | Connect the 5 built-but-unwired Print-domain engines into their natural MCP dispatcher(s) so the capability is reachable. |
 | U-BRIDGE-WIRE-MASTERCAM | Mastercam | 5 | Connect the 5 built-but-unwired Mastercam-domain engines into their natural MCP dispatcher(s) so the capability is reachable. |
-| U-BRIDGE-WIRE-MILL | Mill | 4 | Connect the 4 built-but-unwired Mill-domain engines into their natural MCP dispatcher(s) so the capability is reachable. |
-| U-BRIDGE-WIRE-TRIBAL | Tribal | 4 | Connect the 4 built-but-unwired Tribal-domain engines into their natural MCP dispatcher(s) so the capability is reachable. |
 | U-BRIDGE-WIRE-ELECTRODE | Electrode | 4 | Connect the 4 built-but-unwired Electrode-domain engines into their natural MCP dispatcher(s) so the capability is reachable. |
 | U-BRIDGE-WIRE-SPEED | Speed | 4 | Connect the 4 built-but-unwired Speed-domain engines into their natural MCP dispatcher(s) so the capability is reachable. |
 | U-BRIDGE-WIRE-OKUMA | Okuma | 4 | Connect the 4 built-but-unwired Okuma-domain engines into their natural MCP dispatcher(s) so the capability is reachable. |
-| U-BRIDGE-WIRE-LONGTAIL | Long-tail (domains outside the top 25) | 442 | Connect the remaining 442 built-but-unwired engines (small/misc domains beyond the top 25) into their MCP dispatchers. |
+| U-BRIDGE-WIRE-MOBILE | Mobile | 4 | Connect the 4 built-but-unwired Mobile-domain engines into their natural MCP dispatcher(s) so the capability is reachable. |
+| U-BRIDGE-WIRE-SESSION | Session | 3 | Connect the 3 built-but-unwired Session-domain engines into their natural MCP dispatcher(s) so the capability is reachable. |
+| U-BRIDGE-WIRE-SENSOR | Sensor | 3 | Connect the 3 built-but-unwired Sensor-domain engines into their natural MCP dispatcher(s) so the capability is reachable. |
+| U-BRIDGE-WIRE-VIDEO | Video | 3 | Connect the 3 built-but-unwired Video-domain engines into their natural MCP dispatcher(s) so the capability is reachable. |
+| U-BRIDGE-WIRE-LONGTAIL | Long-tail (domains outside the top 25) | 372 | Connect the remaining 372 built-but-unwired engines (small/misc domains beyond the top 25) into their MCP dispatchers. |
 
 ### Deep-integration units (cross-subsystem synergy)
 
@@ -1045,28 +1045,28 @@
 | Milestone | Shipped/Total | Pending | Status | Roadmaps |
 |-----------|---------------|---------|--------|----------|
 | 5AXIS-AI | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,envelope |
-| ACP-MS0 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| ACP-MS0A | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| ACP-MS1 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| ACP-MS2 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| ACP-MS2B | 0/3 | 3 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| ACP-MS3 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| ACP-MS4 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| ACP-MS5 | 0/6 | 6 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| ACP-MS6 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| ACP-MS7 | 0/4 | 4 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| AGI-MASTER-PARITY-MS30 | 0/4 | 4 | not_started_real | MILESTONE_PROGRESS,envelope |
+| ACP-MS0 | 5/5 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| ACP-MS0A | 5/5 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| ACP-MS1 | 5/5 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| ACP-MS2 | 5/5 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| ACP-MS2B | 3/3 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| ACP-MS3 | 5/5 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| ACP-MS4 | 5/5 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| ACP-MS5 | 6/6 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| ACP-MS6 | 5/5 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| ACP-MS7 | 4/4 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| AGI-MASTER-PARITY-MS30 | 4/4 | 0 | completed_real | MILESTONE_PROGRESS,envelope |
 | AI-INTEG-MS4 | 4/4 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | AI-MAX-MS0 | 9/12 | 3 | in_progress_real | MILESTONE_PROGRESS,envelope |
 | AI-WIRE-MS0 | 0/12 | 12 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| APP-MS0 | 0/12 | 12 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| APP-MS0 | 12/12 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | APPW-MS8 | 0/11 | 11 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | ARCH-MS2 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | ARCH-MS3 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | ARCH-MS4 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| AUTO-LEARNING-LOOP-MS0 | 0/12 | 12 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| AUTO-LEARNING-LOOP-MS0 | 4/12 | 8 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | AWARE-MS0 | 2/8 | 6 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| BENCH-MS0 | 0/8 | 8 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| BENCH-MS0 | 5/8 | 3 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | BENCH-MS1 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | BENCH-MS2 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | BENCH-MS3 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
@@ -1079,7 +1079,7 @@
 | BIZ-MS5 | 0/10 | 10 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | BIZ-MS6 | 0/12 | 12 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | BLUEPRINT-OCR-TRAINING-MS1 | 8/8 | 0 | completed_real | MILESTONE_PROGRESS,envelope |
-| BP-MS0 | 0/28 | 28 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| BP-MS0 | 1/28 | 27 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | CAD-AI-DEEP | 6/6 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | CAD-AI-ULTRA | 6/6 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | CAD-AUTOMATION-MS0 | 0/12 | 12 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
@@ -1101,9 +1101,9 @@
 | CADCAM-DEEPAGI-MASTER | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | CALC-HARDEN-MS0 | 0/18 | 18 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | CAM-AI-DEEP | 7/7 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| CAM-EXHAUST-MS0 | 156/189 | 33 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| CAM-EXHAUST-MS0 | 171/189 | 18 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | CAM-ML-CLOSEDLOOP-MS0 | 0/15 | 15 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| CAM-PARITY-AGI-MS0 | 0/16 | 16 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| CAM-PARITY-AGI-MS0 | 1/16 | 15 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | CAMK-MS0 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | CAMK-MS1 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | CAMK-MS2 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
@@ -1149,43 +1149,43 @@
 | CAMX-V17-P7 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | CAMX-V17-P8 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | CAMX-V17-P9 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| CC-EXT-MS0 | 0/8 | 8 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| CC-EXT-MS1 | 0/8 | 8 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| CC-EXT-MS2 | 0/8 | 8 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| CC-EXT-MS3 | 0/6 | 6 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| CC-EXT-MS4 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| CC-EXT-MS5 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| CC-EXT-MS6 | 0/6 | 6 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| CC-MS0 | 0/9 | 9 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| CC-MS1 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| CC-MS10 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| CC-MS11 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| CC-MS2 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| CC-MS3 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| CC-MS4 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| CC-MS5 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| CC-MS6 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| CC-MS7 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| CC-MS8 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| CC-MS9 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| CCM-MS0 | 0/16 | 16 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| CCM-MS1 | 0/10 | 10 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| CCM-MS10 | 0/10 | 10 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| CCM-MS11 | 0/10 | 10 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| CCM-MS12 | 0/10 | 10 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| CCM-MS13 | 0/14 | 14 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| CCM-MS14 | 0/14 | 14 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| CCM-MS15 | 0/12 | 12 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| CCM-MS16 | 0/12 | 12 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| CCM-MS17 | 0/12 | 12 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| CCM-MS2 | 0/12 | 12 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| CCM-MS3 | 0/10 | 10 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| CCM-MS4 | 0/10 | 10 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| CCM-MS5 | 0/14 | 14 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| CCM-MS6 | 0/8 | 8 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| CCM-MS7 | 0/10 | 10 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| CCM-MS8 | 0/8 | 8 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| CCM-MS9 | 0/12 | 12 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| CC-EXT-MS0 | 5/8 | 3 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| CC-EXT-MS1 | 5/8 | 3 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| CC-EXT-MS2 | 5/8 | 3 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| CC-EXT-MS3 | 5/6 | 1 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| CC-EXT-MS4 | 5/5 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| CC-EXT-MS5 | 5/5 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| CC-EXT-MS6 | 5/6 | 1 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| CC-MS0 | 9/9 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| CC-MS1 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| CC-MS10 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| CC-MS11 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| CC-MS2 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| CC-MS3 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| CC-MS4 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| CC-MS5 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| CC-MS6 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| CC-MS7 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| CC-MS8 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| CC-MS9 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| CCM-MS0 | 5/16 | 11 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| CCM-MS1 | 5/10 | 5 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| CCM-MS10 | 5/10 | 5 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| CCM-MS11 | 5/10 | 5 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| CCM-MS12 | 5/10 | 5 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| CCM-MS13 | 14/14 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| CCM-MS14 | 5/14 | 9 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| CCM-MS15 | 5/12 | 7 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| CCM-MS16 | 12/12 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| CCM-MS17 | 12/12 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| CCM-MS2 | 5/12 | 7 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| CCM-MS3 | 5/10 | 5 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| CCM-MS4 | 5/10 | 5 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| CCM-MS5 | 5/14 | 9 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| CCM-MS6 | 5/8 | 3 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| CCM-MS7 | 5/10 | 5 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| CCM-MS8 | 5/8 | 3 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| CCM-MS9 | 5/12 | 7 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | CK-MS0 | 5/5 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | CK-MS1 | 4/4 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | CK-MS10 | 0/4 | 4 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
@@ -1193,12 +1193,12 @@
 | CK-MS12 | 0/4 | 4 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | CK-MS13 | 0/3 | 3 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | CK-MS9 | 0/4 | 4 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| CLEANUP-MS0 | 0/73 | 73 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| CLI-MS0 | 0/22 | 22 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| COMMAND-KERNEL-MS0 | 0/29 | 29 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| CLEANUP-MS0 | 65/73 | 8 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| CLI-MS0 | 19/22 | 3 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| COMMAND-KERNEL-MS0 | 4/29 | 25 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | CONTROLLER-AI | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,envelope |
-| COORD-MS0 | 9/12 | 3 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| COST-CASCADE-MS0 | 0/8 | 8 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| COORD-MS0 | 12/12 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| COST-CASCADE-MS0 | 1/8 | 7 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | CPL | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | CPL-MS2 | 0/10 | 10 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | CWEDM-MS0 | 12/12 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
@@ -1207,23 +1207,23 @@
 | DB-EXP-MS2 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | DB-EXP-MS3 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | DB-EXP-MS4 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| EIGC-MS0 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| EIGC-MS0A | 0/2 | 2 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| EIGC-MS1 | 0/3 | 3 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| EIGC-MS10 | 0/6 | 6 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| EIGC-MS2 | 0/6 | 6 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| EIGC-MS3 | 0/3 | 3 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| EIGC-MS4 | 0/3 | 3 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| EIGC-MS5 | 0/3 | 3 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| EIGC-MS6 | 0/4 | 4 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| EIGC-MS7 | 0/3 | 3 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| EIGC-MS8 | 0/3 | 3 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| EIGC-MS9 | 0/3 | 3 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| EIGC-MS0 | 5/5 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| EIGC-MS0A | 2/2 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| EIGC-MS1 | 3/3 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| EIGC-MS10 | 5/6 | 1 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| EIGC-MS2 | 5/6 | 1 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| EIGC-MS3 | 3/3 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| EIGC-MS4 | 3/3 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| EIGC-MS5 | 3/3 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| EIGC-MS6 | 4/4 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| EIGC-MS7 | 3/3 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| EIGC-MS8 | 3/3 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| EIGC-MS9 | 3/3 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | ELEC-PIPE-MS0 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | ELEC-PIPE-MS1 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | ELEC-PIPE-MS2 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | EMP-MS0 | 0/28 | 28 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| F360-AP-MS0 | 0/10 | 10 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| F360-AP-MS0 | 5/10 | 5 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | F360-AP-MS2 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | F360-AP-MS3 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | F360-AP-MS6 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
@@ -1258,21 +1258,21 @@
 | FMERGE-MS0 | 0/3 | 3 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | FMERGE-MS1 | 0/7 | 7 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | FMERGE-MS2 | 0/2 | 2 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| GAP-MS0 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| GAP-MS0 | 4/5 | 1 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | GRAPH-AS-LLM-CONTEXT-MS0 | 0/8 | 8 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| HBK-MS0 | 0/4 | 4 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| HBK-MS1 | 0/4 | 4 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| HBK-MS10 | 0/4 | 4 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| HBK-MS11 | 0/3 | 3 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| HBK-MS2 | 0/3 | 3 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| HBK-MS3 | 0/3 | 3 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| HBK-MS4 | 0/4 | 4 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| HBK-MS5 | 0/3 | 3 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| HBK-MS6 | 0/4 | 4 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| HBK-MS7 | 0/4 | 4 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| HBK-MS8 | 0/3 | 3 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| HBK-MS9 | 0/4 | 4 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| HITL-OPERATOR-UI-MS24 | 0/3 | 3 | not_started_real | MILESTONE_PROGRESS,envelope |
+| HBK-MS0 | 4/4 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| HBK-MS1 | 4/4 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| HBK-MS10 | 4/4 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| HBK-MS11 | 3/3 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| HBK-MS2 | 3/3 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| HBK-MS3 | 3/3 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| HBK-MS4 | 4/4 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| HBK-MS5 | 3/3 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| HBK-MS6 | 4/4 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| HBK-MS7 | 4/4 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| HBK-MS8 | 3/3 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| HBK-MS9 | 4/4 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| HITL-OPERATOR-UI-MS24 | 3/3 | 0 | completed_real | MILESTONE_PROGRESS,envelope |
 | HM-KC-MS1 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | HM-KC-MS10 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | HM-KC-MS2 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
@@ -1291,61 +1291,61 @@
 | HM-PLG-MS6 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | HM-PLG-MS7 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | HM-PLG-MS8 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| HOOK-MANIFEST-DAG-MS26 | 0/2 | 2 | not_started_real | MILESTONE_PROGRESS,envelope |
-| HOOK-SYNERGY-MS0 | 0/11 | 11 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| HOOKS-AUTOMATION-V2-MS0 | 0/10 | 10 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| HOOK-MANIFEST-DAG-MS26 | 2/2 | 0 | completed_real | MILESTONE_PROGRESS,envelope |
+| HOOK-SYNERGY-MS0 | 11/11 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| HOOKS-AUTOMATION-V2-MS0 | 10/10 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | HSM-AI | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,envelope |
 | HTML-COMPANION-MS0 | 0/4 | 4 | not_started_real | MILESTONE_PROGRESS,envelope |
-| HTML-PRIMARY-MS0 | 0/7 | 7 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| INFRA-AGI-ROUTER-MS2 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| INFRA-CLOSEOUT-MS0 | 0/2 | 2 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| INFRA-CONSENSUS-WIRE-MS0 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| INFRA-NEURAL-LEDGER-MS1 | 0/4 | 4 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| HTML-PRIMARY-MS0 | 1/7 | 6 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| INFRA-AGI-ROUTER-MS2 | 5/5 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| INFRA-CLOSEOUT-MS0 | 2/2 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| INFRA-CONSENSUS-WIRE-MS0 | 5/5 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| INFRA-NEURAL-LEDGER-MS1 | 4/4 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | INTEG-MS5 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| INTEL-OLLAMA-OBSIDIAN-MS0 | 0/92 | 92 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| INTEL-OLLAMA-OBSIDIAN-MS1 | 0/23 | 23 | not_started_real | MILESTONE_PROGRESS,envelope |
+| INTEL-OLLAMA-OBSIDIAN-MS0 | 80/92 | 12 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| INTEL-OLLAMA-OBSIDIAN-MS1 | 23/23 | 0 | completed_real | MILESTONE_PROGRESS,envelope |
 | K2-CLOUD-MS0 | 0/13 | 13 | not_started_real | MILESTONE_PROGRESS,envelope |
-| KNOWLEDGE-VAULT-MS0 | 0/6 | 6 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| KNOWLEDGE-VAULT-MS0 | 1/6 | 5 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | KNOWLEDGE-WIKI-MS0 | 0/10 | 10 | not_started_real | MILESTONE_PROGRESS,envelope |
-| L0-NEW-MS0 | 0/3 | 3 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| L0-P0-MS1 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| L0-P0-MS2 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| L0-P1-MS1 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| L0-P2-MS1 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| L1-P0-MS1 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| L1-P1-MS1 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| L1-P1-MS2 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| L1-P2-MS1 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| L10-P0-MS1 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| L10-P1-MS1 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| L10-P2-MS1 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| L10-P3-MS1 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| L2-P0-MS1 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| L2-P1-MS1 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| L2-P2-MS1 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| L2-P3-MS1 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| L2-P4-MS1 | 0/10 | 10 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| L3-P0-MS1 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| L3-P1-MS1 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| L4-P0-MS1 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| L4-P1-MS1 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| L5-P0-MS1 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| L5-P0-MS2 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| L5-P1-MS1 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| L6-BACKPROP-REGISTRY-MS25 | 0/3 | 3 | not_started_real | MILESTONE_PROGRESS,envelope |
-| L6-P0-MS1 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| L6-P1-MS1 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| L7-P0-MS1 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| L8-P0-MS1 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| L8-P0-MS2 | 0/12 | 12 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| L8-P1-MS1 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| L8-P1-MS2 | 0/15 | 15 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| L8-P2-MS1 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| L8-P2-MS2 | 0/15 | 15 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| L8-P3-MS1 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| L9-P0-MS1 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| L9-P1-MS1 | 0/8 | 8 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| L9-P2-MS1 | 0/8 | 8 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| L0-NEW-MS0 | 3/3 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| L0-P0-MS1 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| L0-P0-MS2 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| L0-P1-MS1 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| L0-P2-MS1 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| L1-P0-MS1 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| L1-P1-MS1 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| L1-P1-MS2 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| L1-P2-MS1 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| L10-P0-MS1 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| L10-P1-MS1 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| L10-P2-MS1 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| L10-P3-MS1 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| L2-P0-MS1 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| L2-P1-MS1 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| L2-P2-MS1 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| L2-P3-MS1 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| L2-P4-MS1 | 5/10 | 5 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| L3-P0-MS1 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| L3-P1-MS1 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| L4-P0-MS1 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| L4-P1-MS1 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| L5-P0-MS1 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| L5-P0-MS2 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| L5-P1-MS1 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| L6-BACKPROP-REGISTRY-MS25 | 3/3 | 0 | completed_real | MILESTONE_PROGRESS,envelope |
+| L6-P0-MS1 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| L6-P1-MS1 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| L7-P0-MS1 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| L8-P0-MS1 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| L8-P0-MS2 | 5/12 | 7 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| L8-P1-MS1 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| L8-P1-MS2 | 5/15 | 10 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| L8-P2-MS1 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| L8-P2-MS2 | 5/15 | 10 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| L8-P3-MS1 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| L9-P0-MS1 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| L9-P1-MS1 | 5/8 | 3 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| L9-P2-MS1 | 5/8 | 3 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | LASER-PIPE-MS0 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | LASER-PIPE-MS1 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | LASER-PIPE-MS2 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
@@ -1362,13 +1362,13 @@
 | LATHE-MS6 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | LATHE-MS7 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | LATHE-MS8 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| LATHE-P2P-CONSENSUS-MS4 | 0/7 | 7 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| LATHE-P2P-CONSENSUS-MS4 | 7/7 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | LATHE-PROD-READY-MS0 | 0/135 | 135 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | LOCAL-LLM-MS0 | 4/4 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | LOOP-MIGRATE-MS0 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | MACHINE-CONNECTIVITY-MS0 | 0/6 | 6 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | MACRO-PROGRAM-PIPELINE-MS0 | 7/7 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| MCAT-MS0 | 0/21 | 21 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| MCAT-MS0 | 21/21 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | MF-MS0 | 0/2 | 2 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | MF-MS1 | 0/4 | 4 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | MF-MS2 | 0/3 | 3 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
@@ -1409,7 +1409,7 @@
 | MS-P9-XAI | 0/3 | 3 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | MS-PAY | 0/6 | 6 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | MS-PILOT | 0/20 | 20 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| MS-PRINT-PROGRAM-LOOP | 0/23 | 23 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| MS-PRINT-PROGRAM-LOOP | 3/23 | 20 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | MS-RES-CADCAM-DOCS | 0/8 | 8 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | MS-RES-FIXTURE-CATALOGS | 0/4 | 4 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | MS-RES-FORMULA-ALGO | 0/4 | 4 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
@@ -1429,36 +1429,36 @@
 | MS1 | 0/39 | 39 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | MS2 | 0/30 | 30 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | MS4 | 0/8 | 8 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| MULTI-CLI-SYNC-HOOK-MS28 | 0/2 | 2 | not_started_real | MILESTONE_PROGRESS,envelope |
-| MXU-MS0 | 0/6 | 6 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| MXU-MS0A | 0/2 | 2 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| MXU-MS1 | 0/6 | 6 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| MXU-MS10 | 0/4 | 4 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| MXU-MS2 | 0/6 | 6 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| MXU-MS3 | 0/6 | 6 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| MXU-MS4 | 0/6 | 6 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| MXU-MS5 | 0/6 | 6 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| MXU-MS6 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| MXU-MS7 | 0/4 | 4 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| MXU-MS8 | 0/4 | 4 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| MXU-MS9 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| MULTI-CLI-SYNC-HOOK-MS28 | 2/2 | 0 | completed_real | MILESTONE_PROGRESS,envelope |
+| MXU-MS0 | 6/6 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| MXU-MS0A | 2/2 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| MXU-MS1 | 6/6 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| MXU-MS10 | 4/4 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| MXU-MS2 | 6/6 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| MXU-MS3 | 6/6 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| MXU-MS4 | 6/6 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| MXU-MS5 | 6/6 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| MXU-MS6 | 5/5 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| MXU-MS7 | 4/4 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| MXU-MS8 | 4/4 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| MXU-MS9 | 5/5 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | OBSIDIAN-INTELLIGENCE-MS3 | 0/25 | 25 | not_started_real | MILESTONE_PROGRESS,envelope |
 | OBSIDIAN-MS0 | 4/4 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| OCTOPUS-NEURAL-MS0 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| OCTOPUS-NEURAL-MS0 | 5/5 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | OPUS47-FULL-MS0 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| OT-IT-SECURITY-MS20 | 0/3 | 3 | not_started_real | MILESTONE_PROGRESS,envelope |
+| OT-IT-SECURITY-MS20 | 3/3 | 0 | completed_real | MILESTONE_PROGRESS,envelope |
 | P2P-FULLSTACK-MS0 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | PB-MS0 | 0/6 | 6 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| PCCA-MS0 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| PCCA-MS0A | 0/2 | 2 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| PCCA-MS1 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| PCCA-MS4 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| PCCA-MS6 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| PDF-EXT-MS0 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| PDF-EXT-MS1 | 0/4 | 4 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| PCCA-MS0 | 5/5 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| PCCA-MS0A | 2/2 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| PCCA-MS1 | 5/5 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| PCCA-MS4 | 5/5 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| PCCA-MS6 | 5/5 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| PDF-EXT-MS0 | 5/5 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| PDF-EXT-MS1 | 4/4 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | PDF-EXT-MS2 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| PIPE-MS0 | 0/12 | 12 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| PIPE-MS1 | 0/8 | 8 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| PIPE-MS0 | 12/12 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| PIPE-MS1 | 8/8 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | PIPELINE-VAR-MS0 | 0/15 | 15 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | POST-AI | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,envelope |
 | PP-MOAT-MS0 | 0/6 | 6 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
@@ -1490,7 +1490,7 @@
 | PPG-MS17 | 0/10 | 10 | not_started_real | MILESTONE_PROGRESS,envelope |
 | PPG-MS18 | 0/3 | 3 | not_started_real | MILESTONE_PROGRESS,envelope |
 | PPG-MS19 | 0/8 | 8 | not_started_real | MILESTONE_PROGRESS,envelope |
-| PPG-MS2 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,envelope |
+| PPG-MS2 | 1/5 | 4 | in_progress_real | MILESTONE_PROGRESS,envelope |
 | PPG-MS20 | 0/9 | 9 | not_started_real | MILESTONE_PROGRESS,envelope |
 | PPG-MS21 | 0/10 | 10 | not_started_real | MILESTONE_PROGRESS,envelope |
 | PPG-MS22 | 0/6 | 6 | not_started_real | MILESTONE_PROGRESS,envelope |
@@ -1519,32 +1519,32 @@
 | PPG-MS9 | 0/10 | 10 | not_started_real | MILESTONE_PROGRESS,envelope |
 | PRISM-AGENT | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,envelope |
 | PROBING-AI | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,envelope |
-| PROD-GATE-MS0 | 0/6 | 6 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| PROD-GATE-MS0 | 5/6 | 1 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | PROD-MS0 | 0/6 | 6 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | PSAU-LEARN | 0/11 | 11 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | PSAU-PPG-SFC | 9/14 | 5 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| QA-MS0 | 0/6 | 6 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| QA-MS1 | 0/7 | 7 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| QA-MS10 | 0/6 | 6 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| QA-MS11 | 0/6 | 6 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| QA-MS12 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| QA-MS13 | 0/6 | 6 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| QA-MS14 | 0/4 | 4 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| QA-MS2 | 0/6 | 6 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| QA-MS3 | 0/7 | 7 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| QA-MS4 | 0/6 | 6 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| QA-MS5 | 0/8 | 8 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| QA-MS6 | 0/8 | 8 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| QA-MS7 | 0/7 | 7 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| QA-MS8 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| QA-MS9 | 0/7 | 7 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| QS-MS0 | 0/3 | 3 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| QS-MS1 | 0/9 | 9 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| QS-MS2 | 0/7 | 7 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| QS-MS3 | 0/7 | 7 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| QS-MS4 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| QS-MS5 | 0/4 | 4 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| QS-MS6 | 0/11 | 11 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| QA-MS0 | 5/6 | 1 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| QA-MS1 | 5/7 | 2 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| QA-MS10 | 5/6 | 1 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| QA-MS11 | 5/6 | 1 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| QA-MS12 | 4/5 | 1 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| QA-MS13 | 5/6 | 1 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| QA-MS14 | 3/4 | 1 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| QA-MS2 | 5/6 | 1 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| QA-MS3 | 5/7 | 2 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| QA-MS4 | 5/6 | 1 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| QA-MS5 | 5/8 | 3 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| QA-MS6 | 5/8 | 3 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| QA-MS7 | 5/7 | 2 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| QA-MS8 | 4/5 | 1 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| QA-MS9 | 5/7 | 2 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| QS-MS0 | 3/3 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| QS-MS1 | 9/9 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| QS-MS2 | 7/7 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| QS-MS3 | 7/7 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| QS-MS4 | 5/5 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| QS-MS5 | 4/4 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| QS-MS6 | 11/11 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | QUALITY-GDT-AI | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,envelope |
 | REM-MS0 | 4/4 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | REM-MS1 | 3/3 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
@@ -1553,42 +1553,42 @@
 | REM-MS4 | 0/4 | 4 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | REM-MS5 | 0/2 | 2 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | RES-ROADMAP | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,envelope |
-| RGS-TOOL-AUTOINVOKE-MS0 | 0/12 | 12 | not_started_real | MILESTONE_PROGRESS,envelope |
-| RGS-TOOL-AUTOINVOKE-MS1 | 0/8 | 8 | not_started_real | MILESTONE_PROGRESS,envelope |
-| RT-ADAPTIVE-MS22 | 0/3 | 3 | not_started_real | MILESTONE_PROGRESS,envelope |
-| RT-ADAPTIVE-MS22A | 0/2 | 2 | not_started_real | MILESTONE_PROGRESS,envelope |
-| RT-ADAPTIVE-MS22B | 0/3 | 3 | not_started_real | MILESTONE_PROGRESS,envelope |
+| RGS-TOOL-AUTOINVOKE-MS0 | 12/12 | 0 | completed_real | MILESTONE_PROGRESS,envelope |
+| RGS-TOOL-AUTOINVOKE-MS1 | 5/8 | 3 | in_progress_real | MILESTONE_PROGRESS,envelope |
+| RT-ADAPTIVE-MS22 | 3/3 | 0 | completed_real | MILESTONE_PROGRESS,envelope |
+| RT-ADAPTIVE-MS22A | 2/2 | 0 | completed_real | MILESTONE_PROGRESS,envelope |
+| RT-ADAPTIVE-MS22B | 3/3 | 0 | completed_real | MILESTONE_PROGRESS,envelope |
 | RT-MS0 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | RT-MS1 | 0/3 | 3 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| S0-MS1 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| S1-MS1 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| S1-MS2 | 0/10 | 10 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| S2-MS1 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| S2-MS2 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| S3-MS1 | 0/8 | 8 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| S3-MS2 | 0/6 | 6 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| S3-MS3 | 0/6 | 6 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| S4-MS1 | 0/8 | 8 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| S0-MS1 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| S1-MS1 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| S1-MS2 | 9/10 | 1 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| S2-MS1 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| S2-MS2 | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| S3-MS1 | 5/8 | 3 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| S3-MS2 | 5/6 | 1 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| S3-MS3 | 5/6 | 1 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| S4-MS1 | 5/8 | 3 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | SCENARIO-TEST-MS0 | 0/10 | 10 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| SCHEMA-MIGRATION-RUNNER-MS27 | 0/3 | 3 | not_started_real | MILESTONE_PROGRESS,envelope |
+| SCHEMA-MIGRATION-RUNNER-MS27 | 3/3 | 0 | completed_real | MILESTONE_PROGRESS,envelope |
 | SCI-MS0 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | SCI-MS1 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | SCI-MS2 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | SCI-MS3 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| SCIMATH-MS0 | 0/17 | 17 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| SCIMATH-MS1 | 0/20 | 20 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| SCIMATH-MS2 | 0/15 | 15 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| SCIMATH-MS3 | 0/16 | 16 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| SCIMATH-MS4 | 0/15 | 15 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| SCIMATH-MS5 | 0/23 | 23 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| SCIMATH-MS6 | 0/17 | 17 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| SCIMATH-MS7 | 0/15 | 15 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| SCIMATH-WIRE-MS0 | 0/21 | 21 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| SCIMATH-MS0 | 17/17 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| SCIMATH-MS1 | 19/20 | 1 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| SCIMATH-MS2 | 15/15 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| SCIMATH-MS3 | 16/16 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| SCIMATH-MS4 | 15/15 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| SCIMATH-MS5 | 22/23 | 1 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| SCIMATH-MS6 | 17/17 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| SCIMATH-MS7 | 15/15 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| SCIMATH-WIRE-MS0 | 18/21 | 3 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | SIM-MS0 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | SINKER-FULL-MS0 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | SINKER-FULL-MS1 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| SKILLS-UTILIZATION-MS0 | 0/8 | 8 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| SLOT-WORKTREE-MS0 | 1/16 | 15 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| SKILLS-UTILIZATION-MS0 | 8/8 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| SLOT-WORKTREE-MS0 | 16/16 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | SYS-MS0 | 6/6 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | SYS-MS1 | 0/3 | 3 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | SYS-MS2 | 6/6 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
@@ -1598,9 +1598,9 @@
 | SYS-MS6 | 4/4 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | SYS-MS7 | 3/3 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | SYS-UTIL-AUDIT-MS0 | 0/12 | 12 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| SYSTEM-VIZ-BRAIN-MS0 | 15/26 | 11 | in_progress_real | MILESTONE_PROGRESS,envelope |
-| TC-MS0 | 0/14 | 14 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| TENANT-ONBOARD-MS29 | 0/3 | 3 | not_started_real | MILESTONE_PROGRESS,envelope |
+| SYSTEM-VIZ-BRAIN-MS0 | 22/26 | 4 | in_progress_real | MILESTONE_PROGRESS,envelope |
+| TC-MS0 | 14/14 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| TENANT-ONBOARD-MS29 | 3/3 | 0 | completed_real | MILESTONE_PROGRESS,envelope |
 | TK-AI-HARDEN | 5/5 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | TK-MS10 | 4/4 | 0 | completed_real | MILESTONE_PROGRESS,envelope |
 | TK-MS11 | 4/4 | 0 | completed_real | MILESTONE_PROGRESS,envelope |
@@ -1613,22 +1613,22 @@
 | TOKEN-OPT-MS0 | 7/7 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | TOOL-INVENTORY-MS0 | 0/10 | 10 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | TOOLING-AI | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,envelope |
-| TOOLS-AUDIT-MS0 | 0/6 | 6 | not_started_real | MILESTONE_PROGRESS,envelope |
-| TRAINING-LEARNING-MS0 | 0/7 | 7 | not_started_real | MILESTONE_PROGRESS,envelope |
+| TOOLS-AUDIT-MS0 | 5/6 | 1 | in_progress_real | MILESTONE_PROGRESS,envelope |
+| TRAINING-LEARNING-MS0 | 3/7 | 4 | in_progress_real | MILESTONE_PROGRESS,envelope |
 | TRAINING-MANUAL-AI | 8/8 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| TWIN-SIM-GATE-MS23 | 0/4 | 4 | not_started_real | MILESTONE_PROGRESS,envelope |
-| ULT-MS0 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| ULT-MS1 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| ULT-MS2 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| ULT-MS3 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| ULT-MS4 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| ULT-MS5 | 0/5 | 5 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| TWIN-SIM-GATE-MS23 | 4/4 | 0 | completed_real | MILESTONE_PROGRESS,envelope |
+| ULT-MS0 | 5/5 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| ULT-MS1 | 5/5 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| ULT-MS2 | 5/5 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| ULT-MS3 | 5/5 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| ULT-MS4 | 5/5 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| ULT-MS5 | 5/5 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | USF-MS0 | 12/12 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | USSH-OPUS47-BOLSTER | 0/18 | 18 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | V6-INTELLIGENCE | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | V6-ROADMAP | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | VAR-MS0 | 0/6 | 6 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| VAR-MS1 | 0/14 | 14 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| VAR-MS1 | 14/14 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | VID-EXT-MS0 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | VID-EXT-MS1 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | VID-EXT-MS2 | 0/1 | 1 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
@@ -1655,9 +1655,9 @@
 | WEDM-LAUNCH-MS0 | 9/9 | 0 | completed_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | WEDM-P2P-PRODUCTION-MS0 | 18/24 | 6 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | WIKI-EVOLVE-MS0 | 0/6 | 6 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| WIRE-MS0 | 1/16 | 15 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| WIRE-MS0 | 15/16 | 1 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 | WORKHOLDING-AI | 1/1 | 0 | completed_real | MILESTONE_PROGRESS,envelope |
 | WORKTREE-CONSOLIDATE-MS0 | 0/37 | 37 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
-| XPROC-NEURAL-OPTIMIZE-MS0 | 0/31 | 31 | not_started_real | MILESTONE_PROGRESS,roadmap-index,envelope |
+| XPROC-NEURAL-OPTIMIZE-MS0 | 29/31 | 2 | in_progress_real | MILESTONE_PROGRESS,roadmap-index,envelope |
 
-_Per-unit detail (all 4497 pending units): ROADMAP-CONSOLIDATED.json `pending_units[]`._
+_Per-unit detail (all 3197 pending units): ROADMAP-CONSOLIDATED.json `pending_units[]`._

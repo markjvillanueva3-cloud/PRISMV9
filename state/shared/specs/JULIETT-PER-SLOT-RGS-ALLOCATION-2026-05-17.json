@@ -1,0 +1,646 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-05-17T19:24:53.611Z",
+  "spec": "JULIETT-12CHAT-ALLOCATION-MS0",
+  "advisoryOnly": true,
+  "mustHumanVerify": true,
+  "poolRequested": 160,
+  "poolUnique": 160,
+  "perSlot": 6,
+  "workSlots": 12,
+  "totalAssigned": 78,
+  "underfilledSlots": [],
+  "slots": {
+    "alpha": {
+      "role": "work",
+      "launch": "/checkin-alpha /loop work my RGS queue",
+      "units": [
+        {
+          "rank": 1,
+          "unit_id": "U-CLEANUP-F1",
+          "milestone": "CLEANUP-MS0",
+          "category": "backend-dev",
+          "title": "F1 — extend scripts/orphan-inventory.mjs (NOT new script per R1) to call WiringPotentialEngine.analyzeBatch over 875 unwired engines; emit ranked-candidate column; cap dashboard at 200 KB + write summary.md"
+        },
+        {
+          "rank": 2,
+          "unit_id": "U-CK15",
+          "milestone": "COMMAND-KERNEL-MS0",
+          "category": "backend-dev",
+          "title": "Populate consumes/produces/composes_with frontmatter across migrated commands"
+        },
+        {
+          "rank": 3,
+          "unit_id": "U-CK27",
+          "milestone": "COMMAND-KERNEL-MS0",
+          "category": "backend-dev",
+          "title": "Wire pipeline-telemetry.jsonl -> adaptive-thresholds.mjs"
+        },
+        {
+          "rank": 4,
+          "unit_id": "A2",
+          "milestone": "OBSIDIAN-INTELLIGENCE-MS3",
+          "category": "backend-dev",
+          "title": "U-REREAD-SIGNAL-FINISH — wire Write|Edit|MultiEdit matcher so recall counter sees writes (currently fires only on Reads)"
+        },
+        {
+          "rank": 5,
+          "unit_id": "D3",
+          "milestone": "OBSIDIAN-INTELLIGENCE-MS3",
+          "category": "backend-dev",
+          "title": "U-CONFLICT-RESOLUTION — when 2 chats edit same memory key concurrently, capture both versions in conflicts/<key>.diff.md"
+        },
+        {
+          "rank": 6,
+          "unit_id": "U-ACTION-TRACES",
+          "milestone": "OBSIDIAN-INTELLIGENCE-MS3",
+          "category": "backend-dev",
+          "title": "Track D4 — Action traces"
+        }
+      ]
+    },
+    "bravo": {
+      "role": "work",
+      "launch": "/checkin-bravo /loop work my RGS queue",
+      "units": [
+        {
+          "rank": 1,
+          "unit_id": "U-CLEANUP-G9",
+          "milestone": "CLEANUP-MS0",
+          "category": "backend-dev",
+          "title": "G9 — pr-ci-watch.ps1 (DEFERRED — low priority for current direct-to-branch workflow; spec text ready to thaw when release process lands)"
+        },
+        {
+          "rank": 2,
+          "unit_id": "U-CK16",
+          "milestone": "COMMAND-KERNEL-MS0",
+          "category": "backend-dev",
+          "title": "Extend skill-auto-trigger.mjs -> pipeline-aware, fires on PostToolUse/Stop"
+        },
+        {
+          "rank": 3,
+          "unit_id": "U-CK28",
+          "milestone": "COMMAND-KERNEL-MS0",
+          "category": "backend-dev",
+          "title": "Close command-utilization -> auto skill-tier loop"
+        },
+        {
+          "rank": 4,
+          "unit_id": "B1",
+          "milestone": "OBSIDIAN-INTELLIGENCE-MS3",
+          "category": "backend-dev",
+          "title": "U-DAILY-CONTEXT-WORKFLOW — synthesize yesterday's daily note + active projects + inbox into morning brief"
+        },
+        {
+          "rank": 5,
+          "unit_id": "D4",
+          "milestone": "OBSIDIAN-INTELLIGENCE-MS3",
+          "category": "backend-dev",
+          "title": "U-ACTION-TRACES — log every agent write as graph edge (agent, prompt-hash, tool, target-memory, timestamp)"
+        },
+        {
+          "rank": 6,
+          "unit_id": "U-AGENT-JOB-DESCRIPTIONS",
+          "milestone": "OBSIDIAN-INTELLIGENCE-MS3",
+          "category": "backend-dev",
+          "title": "Track G1 — Agent job descriptions"
+        }
+      ]
+    },
+    "charlie": {
+      "role": "work",
+      "launch": "/checkin-charlie /loop work my RGS queue",
+      "units": [
+        {
+          "rank": 1,
+          "unit_id": "U-CK02",
+          "milestone": "COMMAND-KERNEL-MS0",
+          "category": "backend-dev",
+          "title": "psk whoami / position / manifest syscalls"
+        },
+        {
+          "rank": 2,
+          "unit_id": "U-CK17",
+          "milestone": "COMMAND-KERNEL-MS0",
+          "category": "backend-dev",
+          "title": "/session-cycle (checkin -> pick -> research -> build -> close-out -> handoff)"
+        },
+        {
+          "rank": 3,
+          "unit_id": "U-CK29",
+          "milestone": "COMMAND-KERNEL-MS0",
+          "category": "backend-dev",
+          "title": "outcome -> memory/vault -> psk recommend learns"
+        },
+        {
+          "rank": 4,
+          "unit_id": "B2",
+          "milestone": "OBSIDIAN-INTELLIGENCE-MS3",
+          "category": "backend-dev",
+          "title": "U-CONNECTION-FINDER — weekly cron finds non-obvious cross-domain/contradiction/evidence connections"
+        },
+        {
+          "rank": 5,
+          "unit_id": "D5",
+          "milestone": "OBSIDIAN-INTELLIGENCE-MS3",
+          "category": "backend-dev",
+          "title": "U-CONTEXT-EVAL-GATE — before any agent acts, eval whether retrieved context was complete vs golden eval set"
+        },
+        {
+          "rank": 6,
+          "unit_id": "U-AGENT-PIXEL-DEPT-OVERLAY",
+          "milestone": "OBSIDIAN-INTELLIGENCE-MS3",
+          "category": "backend-dev",
+          "title": "Track G2 — Agent pixel-dept overlay"
+        }
+      ]
+    },
+    "delta": {
+      "role": "work",
+      "launch": "/checkin-delta /loop work my RGS queue",
+      "units": [
+        {
+          "rank": 1,
+          "unit_id": "U-CK03",
+          "milestone": "COMMAND-KERNEL-MS0",
+          "category": "backend-dev",
+          "title": "psk handoff / checkin / pick syscalls"
+        },
+        {
+          "rank": 2,
+          "unit_id": "U-CK18",
+          "milestone": "COMMAND-KERNEL-MS0",
+          "category": "backend-dev",
+          "title": "/research <token|unit>"
+        },
+        {
+          "rank": 3,
+          "unit_id": "H1",
+          "milestone": "HOOK-SYNERGY-MS0",
+          "category": "backend-dev",
+          "title": "Generate HOOK_REGISTRY.json from hook source"
+        },
+        {
+          "rank": 4,
+          "unit_id": "B3",
+          "milestone": "OBSIDIAN-INTELLIGENCE-MS3",
+          "category": "backend-dev",
+          "title": "U-QUEUE-PROCESSOR — fs.watch knowledge/memories/queue/ for RESEARCH-X/SYNTHESIZE-X/DRAFT-X files, process via Ollama or Claude (size-gated)"
+        },
+        {
+          "rank": 5,
+          "unit_id": "E1",
+          "milestone": "OBSIDIAN-INTELLIGENCE-MS3",
+          "category": "backend-dev",
+          "title": "U-IDEABLOCK-EXTRACTOR — convert memory/wiki .md → IdeaBlocks via Ollama structured output (qwen2.5-coder:7b)"
+        },
+        {
+          "rank": 6,
+          "unit_id": "U-AGENT-RUNTIME-ALERTS",
+          "milestone": "OBSIDIAN-INTELLIGENCE-MS3",
+          "category": "backend-dev",
+          "title": "Track G3 — Agent runtime alerts"
+        }
+      ]
+    },
+    "echo": {
+      "role": "work",
+      "launch": "/checkin-echo /loop work my RGS queue",
+      "units": [
+        {
+          "rank": 1,
+          "unit_id": "U-CK05",
+          "milestone": "COMMAND-KERNEL-MS0",
+          "category": "backend-dev",
+          "title": "Generated-mirror generators (JSON registries become mirrors of os/ entities)"
+        },
+        {
+          "rank": 2,
+          "unit_id": "U-CK19",
+          "milestone": "COMMAND-KERNEL-MS0",
+          "category": "backend-dev",
+          "title": "/scrutiny-gate (per-file 2-agent -> 3-of-3 -> psk record)"
+        },
+        {
+          "rank": 3,
+          "unit_id": "H1.0",
+          "milestone": "HOOK-SYNERGY-MS0",
+          "category": "backend-dev",
+          "title": "Build verify-hook-refs.mjs script"
+        },
+        {
+          "rank": 4,
+          "unit_id": "B4",
+          "milestone": "OBSIDIAN-INTELLIGENCE-MS3",
+          "category": "backend-dev",
+          "title": "U-WEEKLY-SYNTHESIS — Sunday 8 PM retro: 4-question synthesis of the week"
+        },
+        {
+          "rank": 5,
+          "unit_id": "E2",
+          "milestone": "OBSIDIAN-INTELLIGENCE-MS3",
+          "category": "backend-dev",
+          "title": "U-IDEABLOCK-DEDUP — iterative cosine-similarity dedup at 80-85% threshold, 3-5 rounds, collapses near-duplicates"
+        },
+        {
+          "rank": 6,
+          "unit_id": "U-CONFLICT-RESOLUTION",
+          "milestone": "OBSIDIAN-INTELLIGENCE-MS3",
+          "category": "backend-dev",
+          "title": "Track D3 — Conflict resolution"
+        }
+      ]
+    },
+    "foxtrot": {
+      "role": "work",
+      "launch": "/checkin-foxtrot /loop work my RGS queue",
+      "units": [
+        {
+          "rank": 1,
+          "unit_id": "U-CK07",
+          "milestone": "COMMAND-KERNEL-MS0",
+          "category": "backend-dev",
+          "title": "command-migrate.mjs codemod"
+        },
+        {
+          "rank": 2,
+          "unit_id": "U-CK20",
+          "milestone": "COMMAND-KERNEL-MS0",
+          "category": "backend-dev",
+          "title": "/learn-pipeline <src> (detect -> extract -> dedup -> tribal -> wiki -> memory)"
+        },
+        {
+          "rank": 3,
+          "unit_id": "H2",
+          "milestone": "HOOK-SYNERGY-MS0",
+          "category": "backend-dev",
+          "title": "Convert warn-style hooks to deterministic autofix"
+        },
+        {
+          "rank": 4,
+          "unit_id": "B5",
+          "milestone": "OBSIDIAN-INTELLIGENCE-MS3",
+          "category": "backend-dev",
+          "title": "U-PROJECT-AUTO-UPDATER — fs.watch project subfolders, auto-update overview.md with one-line change summary"
+        },
+        {
+          "rank": 5,
+          "unit_id": "E3",
+          "milestone": "OBSIDIAN-INTELLIGENCE-MS3",
+          "category": "backend-dev",
+          "title": "U-IDEABLOCK-RAG-ENGINE — replace ObsidianMemoryRagEngine chunk-window retrieval with IdeaBlock matching"
+        },
+        {
+          "rank": 6,
+          "unit_id": "U-CONNECTION-FINDER",
+          "milestone": "OBSIDIAN-INTELLIGENCE-MS3",
+          "category": "backend-dev",
+          "title": "Track B2 — Connection finder"
+        }
+      ]
+    },
+    "hotel": {
+      "role": "work",
+      "launch": "/checkin-hotel /loop work my RGS queue",
+      "units": [
+        {
+          "rank": 1,
+          "unit_id": "U-CK08",
+          "milestone": "COMMAND-KERNEL-MS0",
+          "category": "backend-dev",
+          "title": "Migrate the command corpus: standardize frontmatter, de-hardcode, register as os/commands/ entities"
+        },
+        {
+          "rank": 2,
+          "unit_id": "U-CK21",
+          "milestone": "COMMAND-KERNEL-MS0",
+          "category": "backend-dev",
+          "title": "/wire-pipeline (orphan-inventory -> dedup -> wire -> test -> close)"
+        },
+        {
+          "rank": 3,
+          "unit_id": "H3",
+          "milestone": "HOOK-SYNERGY-MS0",
+          "category": "backend-dev",
+          "title": "Settings-dedup pass"
+        },
+        {
+          "rank": 4,
+          "unit_id": "B6",
+          "milestone": "OBSIDIAN-INTELLIGENCE-MS3",
+          "category": "backend-dev",
+          "title": "U-KNOWLEDGE-DISTILLATION — monthly distill 30 days of resources/areas notes into canonical per-topic references"
+        },
+        {
+          "rank": 5,
+          "unit_id": "E4",
+          "milestone": "OBSIDIAN-INTELLIGENCE-MS3",
+          "category": "backend-dev",
+          "title": "U-IDEABLOCK-GOVERNANCE — auto-tag each block with clearance | version-state | product-line | export-control"
+        },
+        {
+          "rank": 6,
+          "unit_id": "U-CONTEXT-EVAL-GATE",
+          "milestone": "OBSIDIAN-INTELLIGENCE-MS3",
+          "category": "backend-dev",
+          "title": "Track D5 — Context eval gate"
+        }
+      ]
+    },
+    "india": {
+      "role": "work",
+      "launch": "/checkin-india /loop work my RGS queue",
+      "units": [
+        {
+          "rank": 1,
+          "unit_id": "U-CK09",
+          "milestone": "COMMAND-KERNEL-MS0",
+          "category": "backend-dev",
+          "title": "Hand-tune the lifecycle commands (startup/checkin/pick-unit/precompact) to thin psk clients — SKIPS /pick-task (handled by U-CK10) and creates /handoff + /boot if absent"
+        },
+        {
+          "rank": 2,
+          "unit_id": "U-CK22",
+          "milestone": "COMMAND-KERNEL-MS0",
+          "category": "backend-dev",
+          "title": "/diagnose-fix <artifact> (forensic-classify -> suggest -> apply -> test -> trace -> commit)"
+        },
+        {
+          "rank": 3,
+          "unit_id": "H4",
+          "milestone": "HOOK-SYNERGY-MS0",
+          "category": "backend-dev",
+          "title": "TaskCreated claim guard"
+        },
+        {
+          "rank": 4,
+          "unit_id": "C1",
+          "milestone": "OBSIDIAN-INTELLIGENCE-MS3",
+          "category": "backend-dev",
+          "title": "U-HTML-OUTPUT-MODE — add --html flag to generate-claude-brief / generate-system-viz / build-state-snapshot"
+        },
+        {
+          "rank": 5,
+          "unit_id": "F1",
+          "milestone": "OBSIDIAN-INTELLIGENCE-MS3",
+          "category": "backend-dev",
+          "title": "U-VOICE-CAPTURE — Whisper local bridge → operator voice memos → tribal knowledge ingest (phase 1: watcher only)"
+        },
+        {
+          "rank": 6,
+          "unit_id": "U-DAILY-CONTEXT-WORKFLOW",
+          "milestone": "OBSIDIAN-INTELLIGENCE-MS3",
+          "category": "backend-dev",
+          "title": "Track B1 — Daily context workflow"
+        }
+      ]
+    },
+    "juliett": {
+      "role": "work",
+      "launch": "/checkin-juliett /loop work my RGS queue",
+      "units": [
+        {
+          "rank": 1,
+          "unit_id": "U-CK11",
+          "milestone": "COMMAND-KERNEL-MS0",
+          "category": "backend-dev",
+          "title": "Per-category scrutiny pass over the migrated corpus"
+        },
+        {
+          "rank": 2,
+          "unit_id": "U-CK23",
+          "milestone": "COMMAND-KERNEL-MS0",
+          "category": "backend-dev",
+          "title": "/program-perfect <part> (gen -> optimize -> validate -> loop -> ship)"
+        },
+        {
+          "rank": 3,
+          "unit_id": "H5",
+          "milestone": "HOOK-SYNERGY-MS0",
+          "category": "backend-dev",
+          "title": "PostToolBatch budget ceiling hook"
+        },
+        {
+          "rank": 4,
+          "unit_id": "C2",
+          "milestone": "OBSIDIAN-INTELLIGENCE-MS3",
+          "category": "backend-dev",
+          "title": "U-HTML-DASHBOARD — unified state/shared/system-viz/dashboard.html aggregating viz + brief + build_state + scrutiny + recall top-20 + chat-bus + workboard"
+        },
+        {
+          "rank": 5,
+          "unit_id": "F2",
+          "milestone": "OBSIDIAN-INTELLIGENCE-MS3",
+          "category": "backend-dev",
+          "title": "U-HIGHLIGHTS-ONLY — --highlights-only flag on /pdf-learn extracts only PDF highlight annotations (Adobe /Highlight subtype)"
+        },
+        {
+          "rank": 6,
+          "unit_id": "U-DOCKER-HOOK-BROKER",
+          "milestone": "OBSIDIAN-INTELLIGENCE-MS3",
+          "category": "backend-dev",
+          "title": "Track A1 — Docker hook broker"
+        }
+      ]
+    },
+    "kilo": {
+      "role": "work",
+      "launch": "/checkin-kilo /loop work my RGS queue",
+      "units": [
+        {
+          "rank": 1,
+          "unit_id": "U-CK12",
+          "milestone": "COMMAND-KERNEL-MS0",
+          "category": "backend-dev",
+          "title": "Pipeline registry — adopt ACP-MS0A automation-chain schema (or contribute back if pending)"
+        },
+        {
+          "rank": 2,
+          "unit_id": "U-CK24",
+          "milestone": "COMMAND-KERNEL-MS0",
+          "category": "backend-dev",
+          "title": "/forge-supervised (/forge-triple -> /scrutiny-gate -> close)"
+        },
+        {
+          "rank": 3,
+          "unit_id": "H6",
+          "milestone": "HOOK-SYNERGY-MS0",
+          "category": "backend-dev",
+          "title": "Cross-worktree firewall (K2 unlocker)"
+        },
+        {
+          "rank": 4,
+          "unit_id": "C3",
+          "milestone": "OBSIDIAN-INTELLIGENCE-MS3",
+          "category": "backend-dev",
+          "title": "U-HTML-DESIGN-SYSTEM — extract PRISM design system reference from mcp-server/web/ so HTML generations match style"
+        },
+        {
+          "rank": 5,
+          "unit_id": "G1",
+          "milestone": "OBSIDIAN-INTELLIGENCE-MS3",
+          "category": "backend-dev",
+          "title": "U-AGENT-JOB-DESCRIPTIONS — codify narrow job descriptions per subagent type in AGENT_JOB_DESCRIPTIONS.md"
+        },
+        {
+          "rank": 6,
+          "unit_id": "U-HIGHLIGHTS-ONLY",
+          "milestone": "OBSIDIAN-INTELLIGENCE-MS3",
+          "category": "backend-dev",
+          "title": "Track F2 — Highlights-only PDF ingest"
+        }
+      ]
+    },
+    "lima": {
+      "role": "work",
+      "launch": "/checkin-lima /loop work my RGS queue",
+      "units": [
+        {
+          "rank": 1,
+          "unit_id": "U-CK13",
+          "milestone": "COMMAND-KERNEL-MS0",
+          "category": "backend-dev",
+          "title": "Pipeline EXECUTOR (stage graph, gating, rollback, dry-run-first)"
+        },
+        {
+          "rank": 2,
+          "unit_id": "U-CK25",
+          "milestone": "COMMAND-KERNEL-MS0",
+          "category": "backend-dev",
+          "title": "/pipeline <name> meta-command (list/dry-run/execute/resume)"
+        },
+        {
+          "rank": 3,
+          "unit_id": "H7",
+          "milestone": "HOOK-SYNERGY-MS0",
+          "category": "backend-dev",
+          "title": "Boris-style defer decision in PreToolUse"
+        },
+        {
+          "rank": 4,
+          "unit_id": "D1",
+          "milestone": "OBSIDIAN-INTELLIGENCE-MS3",
+          "category": "backend-dev",
+          "title": "U-PROVENANCE-LAYER — every memory/wiki entry gets source frontmatter (agent, sessionId, writeEvent, parentMemory?)"
+        },
+        {
+          "rank": 5,
+          "unit_id": "G2",
+          "milestone": "OBSIDIAN-INTELLIGENCE-MS3",
+          "category": "backend-dev",
+          "title": "U-AGENT-PIXEL-DEPT-OVERLAY — extend system-viz with agent-status overlay (idle/typing/parsing/errored) from chat-bus heartbeats"
+        },
+        {
+          "rank": 6,
+          "unit_id": "U-HTML-DASHBOARD",
+          "milestone": "OBSIDIAN-INTELLIGENCE-MS3",
+          "category": "backend-dev",
+          "title": "Track C2 — HTML dashboard"
+        }
+      ]
+    },
+    "mike": {
+      "role": "work",
+      "launch": "/checkin-mike /loop work my RGS queue",
+      "units": [
+        {
+          "rank": 1,
+          "unit_id": "U-CK14",
+          "milestone": "COMMAND-KERNEL-MS0",
+          "category": "backend-dev",
+          "title": "Activate pipeline_integrations: frontmatter + wire to executor"
+        },
+        {
+          "rank": 2,
+          "unit_id": "U-CK26",
+          "milestone": "COMMAND-KERNEL-MS0",
+          "category": "backend-dev",
+          "title": "psk record emits real command-invocation telemetry -> pipeline-telemetry.jsonl"
+        },
+        {
+          "rank": 3,
+          "unit_id": "A1",
+          "milestone": "OBSIDIAN-INTELLIGENCE-MS3",
+          "category": "backend-dev",
+          "title": "U-DOCKER-HOOK-BROKER — persistent prism-hooks container holds all 50+ hooks warm"
+        },
+        {
+          "rank": 4,
+          "unit_id": "D2",
+          "milestone": "OBSIDIAN-INTELLIGENCE-MS3",
+          "category": "backend-dev",
+          "title": "U-ONTOLOGY-LAYER — explicit type tagging fact|interpretation, current|deprecated|draft, public|internal|confidential"
+        },
+        {
+          "rank": 5,
+          "unit_id": "G3",
+          "milestone": "OBSIDIAN-INTELLIGENCE-MS3",
+          "category": "backend-dev",
+          "title": "U-AGENT-RUNTIME-ALERTS — watchdog: if subagent runs >N min without progress, PushNotification alert"
+        },
+        {
+          "rank": 6,
+          "unit_id": "U-HTML-DESIGN-SYSTEM",
+          "milestone": "OBSIDIAN-INTELLIGENCE-MS3",
+          "category": "backend-dev",
+          "title": "Track C3 — HTML design system"
+        }
+      ]
+    },
+    "golf": {
+      "role": "hygiene",
+      "launch": "/checkin-golf /loop fleet hygiene",
+      "standingDuties": [
+        "Own the Fleet Reaper (golf-slot-reaper-guardian.mjs) + Fleet Memory Monitor scheduled tasks.",
+        "Reconcile envelope drift (`node scripts/audit-roadmap-drift.mjs`) — flip claimed-vs-derived mismatches.",
+        "Integrate slot branches into cad-fusion-live-ms0 (golf is the integrator slot).",
+        "Watch MEMORY.md size ceiling (`node scripts/memory-size-watch.mjs`) — compress before 24576 B.",
+        "Sweep dead claims / zombie slots (`node .claude/helpers/chat-slots.mjs reclaim`)."
+      ],
+      "units": [
+        {
+          "rank": 1,
+          "unit_id": "U-CLEANUP-A1",
+          "milestone": "CLEANUP-MS0",
+          "category": "backend-dev",
+          "title": "A1 — extend SLOT_NAMES in chat-slots.mjs to add 'golf' (NATO phonetic continuity)"
+        },
+        {
+          "rank": 2,
+          "unit_id": "U-CLEANUP-A5",
+          "milestone": "CLEANUP-MS0",
+          "category": "backend-dev",
+          "title": "A5 — golf-slot-write-allowlist.mjs PreToolUse T0 hook (path-resolve hardened against ../; allowlist-regex from golf-owned-paths.json; tier frontmatter; bypass env PRISM_GOLF_WRITE_ALLOWLIST_BYPASS=1)"
+        },
+        {
+          "rank": 3,
+          "unit_id": "U-CLEANUP-B7",
+          "milestone": "CLEANUP-MS0",
+          "category": "backend-dev",
+          "title": "B7 — /peer-audit skill (READ-ONLY operator query; never mutates ledger; mutations only via prism_dev dispatcher action with audit trail)"
+        },
+        {
+          "rank": 4,
+          "unit_id": "U-CLEANUP-B9",
+          "milestone": "CLEANUP-MS0",
+          "category": "backend-dev",
+          "title": "B9 — model-drift eval suite (10 frozen known-bug commits + expected verdicts in state/shared/golf-reviewer-eval/; weekly cron; agent.model pinned to claude-sonnet-4-6 NOT latest; alerts on slope (-0.20 over 12 weeks) AND absolute floor; R4-P1-8: wraps reviewer-verdict ledger in prism_intelligence:xproc_aps_calibrate + xproc_aps_set for conformal-prediction-set membership check instead of naive slope heuristic; reads prompt-version headers to detect prompt drift)"
+        },
+        {
+          "rank": 5,
+          "unit_id": "U-CLEANUP-D2",
+          "milestone": "CLEANUP-MS0",
+          "category": "backend-dev",
+          "title": "D2 — extract Master Index detail (lines ~253-283) to wiki/architecture/master-index-surface.md; CLAUDE.md collapses to 5 lines + /master-index pointer"
+        },
+        {
+          "rank": 6,
+          "unit_id": "U-CLEANUP-E1",
+          "milestone": "CLEANUP-MS0",
+          "category": "backend-dev",
+          "title": "E1 — 04-prism-mcp-orphan-monitor.ps1 + CronCreate 3036ea16 (PRISM MCP dist/index.js orphan reaper; git-lock sweeper; 7-min cadence; DONE this session; reclaimed +1.96 GB / 4 orphans + 1 git lock initial pass)"
+        }
+      ]
+    }
+  }
+}
