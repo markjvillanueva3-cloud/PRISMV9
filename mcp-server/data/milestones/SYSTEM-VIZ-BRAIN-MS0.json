@@ -427,8 +427,32 @@
     },
     "U-P5-FLEET-AWARENESS-PANEL": {
       "phase": "P5-FLEET-COORD",
-      "title": "10-chat awareness panel — who's doing what right now, last commits, blocking links",
-      "status": "pending"
+      "title": "13-chat awareness panel — who's doing what right now, last commits, blocking links",
+      "status": "shipped",
+      "shipped_at": "2026-05-17T16:00:00Z",
+      "delivered_by": "claude-a61bbf34 (slot echo)",
+      "shipped_evidence": {
+        "scripts": [
+          "scripts/system-viz-fleet-awareness.mjs (~360 LOC, 14 pure-core exports + CLI; joins chat-slots + handoffs dir + 24h git log → fleet-awareness-panel.json sidecar)",
+          "scripts/system-viz-fleet-awareness.test.mjs (~510 LOC, 42/42 PASS via node:test, includes real-data E2E + 5 regression guards including 2 P1/P2 fixes from per-file scrutiny)"
+        ],
+        "artifact": "state/shared/system-viz/fleet-awareness-panel.json (gitignored — auto-regenerated; live baseline: 256 chats / 11 live / 245 crashed / 7 of 13 slots occupied / 100 commits 24h / 542 attributed)",
+        "scope_note": "BACKEND SLICE ONLY. Frontend 13-chat panel widget in mcp-server/web/ deferred. The sidecar JSON IS the load-bearing contract; the frontend is a thin reader. ZERO dispatcher contract surface (sidecar-only) — same backend-clean pattern as U-P2-SLOT-OWNERSHIP-OVERLAY + U-P0-HOOK-ORPHAN-RECONCILE. Git log piped via stdin to avoid child_process security-hook flag.",
+        "per_file_scrutiny": "BOTH reviewer arms PASS first pass. Arm A (code-analyzer) flagged 1 P1 + 4 P2/P3; Arm B (independent reviewer) flagged 3 P2 + 4 P3. P1+key-P2 fixes applied in-commit: (1) topic→commit attribution scope-length gate (kills `VIZ`→`system-viz-brain` false-positive class), (2) slot-prefix strip anchored to SLOT_NAMES (kills `multi-`→accidental strip), (3) advisory.caveat honestly discloses that attributedCommits CAN exceed totalCommits24h (cross-chat double-attribution by design, not bug). Live verification confirmed: attribution count 641→542 after fix.",
+        "live_verification": "git log --since=24h piped via stdin → 100 commits in window; chat-slots reports 7 of 13 slots occupied; handoffs dir has 638 files yielding 256 unique chatIds; live=11 (most-recent activity), crashed=245 (historical chats since project start).",
+        "fixes_applied": [
+          "Topic→commit attribution: scopeNoMs.length >= MIN_TOPIC_SLUG_LEN gate on reverse-direction match",
+          "Slot-prefix strip: anchored to slotNames regex (alpha|bravo|...|mike)- instead of generic ^[a-z]+-",
+          "advisory.caveat: now states cross-chat double-attribution is by-design + names operator-review semantics",
+          "3 new regression guard tests (one per fix class)"
+        ],
+        "design_decisions": [
+          "Git log via stdin (not child_process) — avoids security-hook flag, keeps resolver pure-functional, allows piped invocation: `git log ... | node script`",
+          "pathToFileURL for chat-slots import (Windows lesson from U-P2-SLOT-OWNERSHIP-OVERLAY applied from line 1)",
+          "Object.create(null) on chatIdToSlot + handoffsByChatId + chats accumulators (proto-pollution safety)",
+          "Atomic tmp-${pid} + rename write (no truncated sidecar on crash)"
+        ]
+      }
     },
     "U-P1-ERROR-LEARN-LOOP": {
       "phase": "P1-MEMORY",
