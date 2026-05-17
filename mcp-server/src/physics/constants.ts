@@ -190,6 +190,26 @@ export const EDM_PHYSICS = {
   },
 
   // ──────────────────────────────────────────────────────────────────────────
+  // KUNIEDA VOLUMETRIC REMOVAL EFFICIENCY (eta)
+  // ──────────────────────────────────────────────────────────────────────────
+  // Fraction of spark energy that converts to material removal vs. heat/recast/debris.
+  // Kunieda et al. CIRP Annals 54(2) 2005, Fig. 8 + Table 2.
+
+  kunieda: {
+    /** Mild + tool steel — most common WEDM workpiece */
+    eta_steel: 0.30,
+    /** Aluminum — highest energy-coupling efficiency */
+    eta_aluminum: 0.45,
+    /** Titanium — low thermal conductivity + high melting point */
+    eta_titanium: 0.20,
+    /** Inconel + nickel superalloys */
+    eta_inconel: 0.18,
+    /** Tungsten carbide — grain pull-out dominates over melting */
+    eta_carbide: 0.12,
+    source: "Kunieda et al. CIRP Annals 54(2) 2005, Fig. 8 + Table 2",
+  },
+
+  // ──────────────────────────────────────────────────────────────────────────
   // GAP VOLTAGE AND DISCHARGE PHYSICS
   // ──────────────────────────────────────────────────────────────────────────
 
