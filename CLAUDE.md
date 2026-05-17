@@ -573,6 +573,25 @@ scripts/lib/graphsage-train-pipeline.mjs --node-type-field layer --neg-p-hard
 [`knowledge/wiki/architecture/u-nng-pipeline-stratified-wire.md`](knowledge/wiki/architecture/u-nng-pipeline-stratified-wire.md).
 Memory: [[reference_u_nng_pipeline_stratified_wire_2026_05_17]].
 
+## NN-GRAPH-MS2 (2026-05-17, slot alpha) — autonomous NN lifecycle
+
+**U1-REFERENCE-POOL-SEED-STAGE** (commit this session) — DEDUP/simplify win:
+`seed-ghost-from-unwired.mjs` already existed (high-conf 0.80-0.85
+`ghost.unwired-engine` + `proposed_wiring`, idempotent `--apply`) but was NOT a
+regen-viz stage, so every regen left 0 ghost nodes → `nn-graph-eval` poolSize:0
+→ GNN tier-5 DORMANT BY DATA. Fix = one explicit **post-merge** spawnSync stage
+in `regen-viz.mjs` (after `add-parent-contains-edges`, past the merge-abort
+gate, fail-loud, idempotent). 4 node:test fail-on-revert guards; per-file 2-rev
+PASS. **NECESSARY BUT NOT SUFFICIENT** (R12): clears only the data-side gate
+(eval can now grade instead of defer); the model-side gate
+(AUROC≥0.78 vs current 0.096) is untouched — full autonomy still needs the
+operator stratified retrain + **U2** (queued: self-retrain lifecycle scheduled
+task reusing the fleet-reaper S4U pattern — pool-rebuild→drift→retrain→eval→
+auto-promote-on-gate-pass-only). Lesson: when a milestone says "build X
+builder", first check X isn't already built+unwired. Wiki:
+[`knowledge/wiki/architecture/u-nng-pipeline-stratified-wire.md`](knowledge/wiki/architecture/u-nng-pipeline-stratified-wire.md)
+(MS2 section). Memory: [[reference_nn_graph_ms2_u1_2026_05_17]].
+
 ## ONE-GLANCE CHECKLIST (every new task)
 1. Read HANDOFF for this chat via per-agent-handoff.mjs `read`
 2. If building/auditing/investigating → hooks auto-inject inventory + duplicate guards

@@ -63,3 +63,25 @@ against the real graph, after which `nn-graph-eval.mjs` re-reads NN-EVAL.
 
 Memory: [[reference_u_nng_pipeline_stratified_wire_2026_05_17]] ·
 [[reference_nn_graph_ms0_2026_05_16]].
+
+## NN-GRAPH-MS2 / U1-REFERENCE-POOL-SEED-STAGE (2026-05-17, slot alpha)
+
+The MS1 stratified-wire above made the eval *able* to measure a good model;
+this unit makes the eval *able to run at all*. Root cause: `nn-graph-eval`
+deferred `insufficient-reference-pool` (poolSize:0) on every run because
+`seed-ghost-from-unwired.mjs` — which already emits high-confidence
+(0.80–0.85) `ghost.unwired-engine` reference nodes — was never a regen-viz
+stage, so each regen rebuilt `system-graph.json` with 0 ghost nodes. DEDUP/
+simplify win: the fix is **not a new builder** but one explicit **post-merge**
+`spawnSync` stage in `regen-viz.mjs` (`seed-ghost-from-unwired.mjs --apply`,
+after `add-parent-contains-edges`, past the merge-abort gate, fail-loud,
+idempotent). FAST[] was unusable (arg-less → cannot pass `--apply`).
+
+**Necessary but NOT sufficient** (Reviewer B, R12): verifiably clears the
+data-side dormancy gate only (seed output passes all 4 `buildHoldout` filters
+at conf ≥0.8 → poolSize≥2 → eval grades instead of deferring). The model-side
+gate (no checkpoint clears AUROC≥0.78; current 0.096) is untouched — full NN
+autonomy still needs the operator stratified retrain + NN-GRAPH-MS2 U2 (queued:
+self-retrain lifecycle scheduled task, fleet-reaper S4U pattern). 4 node:test
+structural fail-on-revert guards; per-file 2-reviewer scrutiny PASS, 0 P0/P1.
+Memory: [[reference_nn_graph_ms2_u1_2026_05_17]].
