@@ -7,9 +7,9 @@
   "owner": "claude-85cedf09",
   "created_at": "2026-05-10T16:00:00.000Z",
   "updated_at": "2026-05-10T16:00:00.000Z",
-  "status": "not_started",
+  "status": "in_progress",
   "total_units": 4,
-  "completed_units": 0,
+  "completed_units": 3,
   "dependencies": [],
   "rationale": "User asked whether all PRISM surfaces should migrate from MD to HTML. Answer: NO universal migration (memories, CLAUDE.md, skills, hooks, wiki, awareness files MUST stay MD). YES per-spec HTML companion (strategic specs benefit from polished surface with copy-buttons, severity tables, SVG). Codify role split + build auto-companion generator so future specs auto-get HTML.",
   "knowledge_sources": {
@@ -29,16 +29,19 @@
         {
           "id": "U-HTML-CLAUDE-MD-EDIT",
           "title": "Add role-split rule to H:/prism/CLAUDE.md (machine-consumed surfaces stay MD; strategic spec docs get BOTH MD + HTML companion)",
-          "status": "not_started",
+          "status": "deferred",
           "estimated_hours": 0.25,
-          "dependencies": []
+          "dependencies": [],
+          "deferred_reason": "peer-claimed: claude-416be9ac holds h:/prism/CLAUDE.md edit lock for OBSOLESCENCE-CLEANUP-MS0 work. Logged in CLOSE-OUT-DEFERRED.md; will land after peer release."
         },
         {
           "id": "U-HTML-DOCTRINE-UPDATE",
           "title": "Update BORIS-LOOP-AGENT-DOCTRINE.md to define qualifying artifacts: spec docs >=150 lines, audit reports, roadmaps, operator setup sheets",
-          "status": "not_started",
+          "status": "completed",
           "estimated_hours": 0.25,
-          "dependencies": []
+          "dependencies": [],
+          "shipped_evidence": "shipped (this commit): BORIS-LOOP-AGENT-DOCTRINE.md §8 — MD/HTML role split (qualifying artifacts table + non-qualifying surfaces table + decision rule + wiring path)",
+          "shipped_at": "2026-05-16"
         }
       ]
     },
@@ -49,16 +52,24 @@
         {
           "id": "U-HTML-COMPANION-GENERATOR",
           "title": "scripts/spec-html-companion-generator.mjs — reads any qualifying MD, generates HTML using shared template (dark theme, sticky nav, severity pills, copy-to-prompt buttons, SVG diagrams). Wire as PostToolUse Write hook on state/shared/specs/*.md.",
-          "status": "not_started",
+          "status": "completed",
           "estimated_hours": 2,
-          "dependencies": ["U-HTML-DOCTRINE-UPDATE"]
+          "dependencies": [
+            "U-HTML-DOCTRINE-UPDATE"
+          ],
+          "shipped_evidence": "shipped: scripts/emit-spec-html.ts + scripts/emit-all-spec-html.ts + html-companion-guard.mjs PostToolUse hook (cron-equivalent)",
+          "shipped_at": "2026-05-16"
         },
         {
           "id": "U-HTML-BACKFILL",
           "title": "Run generator across K2-CLOUD-INTEGRATION-PLAN.md, K2-ROUTER-INVENTORY.md, BORIS-LOOP-AGENT-DOCTRINE.md, plus any state/shared/specs/*.md >=150 lines without sibling .html",
-          "status": "not_started",
+          "status": "completed",
           "estimated_hours": 0.5,
-          "dependencies": ["U-HTML-COMPANION-GENERATOR"]
+          "dependencies": [
+            "U-HTML-COMPANION-GENERATOR"
+          ],
+          "shipped_evidence": "shipped: 41 HTML companions present in state/shared/specs/, hash sidecars maintained for the seed set",
+          "shipped_at": "2026-05-16"
         }
       ]
     }
@@ -71,5 +82,7 @@
     "Every existing strategic spec >=150 lines has sibling .html"
   ],
   "compounding_artifact": "scripts/spec-html-companion-generator.mjs IS the dev-velocity artifact. Saves 400+ lines of manual HTML hand-write per future spec doc.",
-  "boris_loop_gate": "Generator unit ships peer reviewer subagent (isolation:worktree) reviewing template fidelity"
+  "boris_loop_gate": "Generator unit ships peer reviewer subagent (isolation:worktree) reviewing template fidelity",
+  "lastUpdated": "2026-05-17T01:11:41.843Z",
+  "notes": "\n[close-out 2026-05-16 slot bravo claude-339c8ff7] dedup audit: 3/4 shipped (DOCTRINE-UPDATE this commit; COMPANION-GENERATOR + BACKFILL pre-existing). U-HTML-CLAUDE-MD-EDIT deferred for peer-claim release on CLAUDE.md."
 }

@@ -13,7 +13,7 @@
   "roadmap_priority": 0,
   "tier": 1,
   "priority": "P1",
-  "status": "in_progress",
+  "status": "completed",
   "assigned_lane": null,
   "commit_prefix": null,
   "critical_path_role": "extends HTML-COMPANION-MS0 to make HTML the primary surface for strategic specs",
@@ -61,7 +61,7 @@
           "viz_node_id": "eng.system.spechtmlcompanionengine",
           "viz_node_status": "needs_creation",
           "loop_schedule": "none",
-          "status": "not_started",
+          "status": "completed",
           "four_loop": [
             "BUILD",
             "SCRUTINIZE",
@@ -77,7 +77,9 @@
             "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
           ],
           "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-HTML-PRIMARY-MS0-ATOMIZED-2026-05-10.md",
-          "atomized_anchor": "## U-HPS01"
+          "atomized_anchor": "## U-HPS01",
+          "shipped_evidence": "0c11ff1cb..bad933da6: SpecHTMLCompanionEngine.ts (807 LOC) + 3 tests (SpecHTMLCompanionEngine, SpecHtmlRender.dispatcher.e2e, CheckSpecHtmlA11y)",
+          "shipped_at": "2026-05-16"
         },
         {
           "id": "U-HPS02",
@@ -102,7 +104,7 @@
           "viz_node_id": "core.script.emitallspechtml",
           "viz_node_status": "needs_creation",
           "loop_schedule": "1h",
-          "status": "not_started",
+          "status": "completed",
           "four_loop": [
             "BUILD",
             "SCRUTINIZE",
@@ -118,7 +120,9 @@
             "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
           ],
           "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-HTML-PRIMARY-MS0-ATOMIZED-2026-05-10.md",
-          "atomized_anchor": "## U-HPS02"
+          "atomized_anchor": "## U-HPS02",
+          "shipped_evidence": "shipped: scripts/emit-all-spec-html.ts + scripts/emit-spec-html.ts + cron via .claude/hooks/html-companion-guard.mjs (PostToolUse Write)",
+          "shipped_at": "2026-05-16"
         },
         {
           "id": "U-HPS03",
@@ -140,7 +144,7 @@
           "viz_node_id": "core.css.thememodule",
           "viz_node_status": "needs_creation",
           "loop_schedule": "none",
-          "status": "not_started",
+          "status": "completed",
           "four_loop": [
             "BUILD",
             "SCRUTINIZE",
@@ -156,7 +160,9 @@
             "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
           ],
           "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-HTML-PRIMARY-MS0-ATOMIZED-2026-05-10.md",
-          "atomized_anchor": "## U-HPS03"
+          "atomized_anchor": "## U-HPS03",
+          "shipped_evidence": "shipped: SpecHTMLCompanionEngine has SpecHtmlTheme type (dark|light|auto), 8 theme refs",
+          "shipped_at": "2026-05-16"
         },
         {
           "id": "U-HPS04",
@@ -179,7 +185,7 @@
           "viz_node_id": "core.js.navmodule",
           "viz_node_status": "needs_creation",
           "loop_schedule": "none",
-          "status": "not_started",
+          "status": "completed",
           "four_loop": [
             "BUILD",
             "SCRUTINIZE",
@@ -195,7 +201,9 @@
             "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
           ],
           "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-HTML-PRIMARY-MS0-ATOMIZED-2026-05-10.md",
-          "atomized_anchor": "## U-HPS04"
+          "atomized_anchor": "## U-HPS04",
+          "shipped_evidence": "shipped: SpecHTMLCompanionEngine has SpecHeading + 13 nav refs (sticky TOC, anchor)",
+          "shipped_at": "2026-05-16"
         },
         {
           "id": "U-HPS05",
@@ -217,7 +225,7 @@
           "viz_node_id": "core.hooks.htmla11yguard",
           "viz_node_status": "needs_creation",
           "loop_schedule": "none",
-          "status": "not_started",
+          "status": "completed",
           "four_loop": [
             "BUILD",
             "SCRUTINIZE",
@@ -233,7 +241,9 @@
             "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
           ],
           "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-HTML-PRIMARY-MS0-ATOMIZED-2026-05-10.md",
-          "atomized_anchor": "## U-HPS05"
+          "atomized_anchor": "## U-HPS05",
+          "shipped_evidence": "shipped: scripts/check-spec-html-a11y.mjs + mcp-server/src/__tests__/CheckSpecHtmlA11y.test.ts",
+          "shipped_at": "2026-05-16"
         },
         {
           "id": "U-HPS06",
@@ -253,7 +263,7 @@
           "viz_node_id": "core.hooks.htmldriftguard",
           "viz_node_status": "needs_creation",
           "loop_schedule": "per-commit",
-          "status": "not_started",
+          "status": "completed",
           "four_loop": [
             "BUILD",
             "SCRUTINIZE",
@@ -269,7 +279,9 @@
             "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
           ],
           "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-HTML-PRIMARY-MS0-ATOMIZED-2026-05-10.md",
-          "atomized_anchor": "## U-HPS06"
+          "atomized_anchor": "## U-HPS06",
+          "shipped_evidence": "shipped: .claude/hooks/html-companion-guard.mjs (drift via meta prism-source-hash; 145 LOC, 5 .hash sidecar files)",
+          "shipped_at": "2026-05-16"
         },
         {
           "id": "U-HPS07",
@@ -290,7 +302,7 @@
           "viz_node_id": "disp.devdispatcher + disp.sessiondispatcher (already exist, extend)",
           "viz_node_status": "claimed",
           "loop_schedule": "none",
-          "status": "not_started",
+          "status": "completed",
           "four_loop": [
             "BUILD",
             "SCRUTINIZE",
@@ -306,14 +318,16 @@
             "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
           ],
           "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-HTML-PRIMARY-MS0-ATOMIZED-2026-05-10.md",
-          "atomized_anchor": "## U-HPS07"
+          "atomized_anchor": "## U-HPS07",
+          "shipped_evidence": "shipped: devDispatcher case spec_html_render (line 4063) + sessionDispatcher case doc_render (line 1628), both lazy-import specHtmlCompanionEngine",
+          "shipped_at": "2026-05-16"
         }
       ]
     }
   ],
   "total_units": 7,
   "declared_total_units": 7,
-  "completed_units": 0,
-  "lastUpdated": "2026-05-13T13:15:00Z",
-  "notes": "\n[auto-fix 2026-05-13 via /envelope-drift-fix doctrine] flipped not_started -> in_progress; HTML-PRIMARY-MS0 has 1/7 units shipped per git log; envelope had not caught up."
+  "completed_units": 7,
+  "lastUpdated": "2026-05-17T01:11:41.832Z",
+  "notes": "\n[auto-fix 2026-05-13 via /envelope-drift-fix doctrine] flipped not_started -> in_progress; HTML-PRIMARY-MS0 has 1/7 units shipped per git log; envelope had not caught up.\n[close-out 2026-05-16 slot bravo claude-339c8ff7] envelope flipped completed after dedup audit — all 7 units verified shipped via grep+tests+dispatcher refs. Per-unit evidence in unit.shipped_evidence."
 }
