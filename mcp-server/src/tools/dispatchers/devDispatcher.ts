@@ -477,7 +477,10 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "wre_explain",
 "wpn_classify", "wpn_cluster_quality", "wpn_get_prototypes", "wpn_nearest_support",
 "wpna_validate_order", "wpna_predict_break_risk", "wpna_optimize_parameters", "wpna_analyze_program",
-"ttro_run"] as const;
+"ttro_run",
+"plib_get", "plib_find_by_part", "plib_get_revision_history", "plib_search",
+"plib_get_by_part_id", "plib_get_by_customer", "plib_list_customers",
+"plib_get_stats", "plib_list"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -3810,6 +3813,99 @@ export function registerDevDispatcher(server: any): void {
               critical_error_count: r.critical_errors.length,
               warning_count: r.warnings.length,
               score: r.score,
+            };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-PLIB: PrintLibraryEngine ───────────
+          // 9 read-only actions over in-memory print library. Singleton
+          // starts EMPTY in a fresh process — production must ingest first
+          // (ingest itself DEFER'd, class=path-traversal — needs validator).
+          case "plib_get": {
+            const { printLibraryEngine } = await import("../../engines/PrintLibraryEngine.js");
+            const p = params as { printId: string };
+            const r = printLibraryEngine.get(p.printId);
+            result = {
+              result: r,
+              found: r !== null,
+            };
+            break;
+          }
+          case "plib_find_by_part": {
+            const { printLibraryEngine } = await import("../../engines/PrintLibraryEngine.js");
+            const p = params as { partNumber: string };
+            const r = printLibraryEngine.findByPartNumber(p.partNumber);
+            result = {
+              prints: r,
+              print_count: r.length,
+            };
+            break;
+          }
+          case "plib_get_revision_history": {
+            const { printLibraryEngine } = await import("../../engines/PrintLibraryEngine.js");
+            const p = params as { partNumber: string };
+            const r = printLibraryEngine.getRevisionHistory(p.partNumber);
+            // Engine line 295-323 returns null if no prints exist for the part.
+            result = {
+              result: r,
+              has_history: r !== null,
+              revision_count: r === null ? 0 : r.total_revisions,
+            };
+            break;
+          }
+          case "plib_search": {
+            const { printLibraryEngine } = await import("../../engines/PrintLibraryEngine.js");
+            const r = printLibraryEngine.search(params as Parameters<typeof printLibraryEngine.search>[0]);
+            result = {
+              prints: r,
+              print_count: r.length,
+            };
+            break;
+          }
+          case "plib_get_by_part_id": {
+            const { printLibraryEngine } = await import("../../engines/PrintLibraryEngine.js");
+            const p = params as { partId: string };
+            const r = printLibraryEngine.getByPartId(p.partId);
+            result = {
+              prints: r,
+              print_count: r.length,
+            };
+            break;
+          }
+          case "plib_get_by_customer": {
+            const { printLibraryEngine } = await import("../../engines/PrintLibraryEngine.js");
+            const p = params as { customer: string };
+            const r = printLibraryEngine.getByCustomer(p.customer);
+            result = {
+              prints: r,
+              print_count: r.length,
+            };
+            break;
+          }
+          case "plib_list_customers": {
+            const { printLibraryEngine } = await import("../../engines/PrintLibraryEngine.js");
+            const r = printLibraryEngine.listCustomers();
+            result = {
+              customers: r,
+              customer_count: r.length,
+            };
+            break;
+          }
+          case "plib_get_stats": {
+            const { printLibraryEngine } = await import("../../engines/PrintLibraryEngine.js");
+            const r = printLibraryEngine.getStats();
+            result = {
+              result: r,
+              is_empty: r.total_prints === 0,
+            };
+            break;
+          }
+          case "plib_list": {
+            const { printLibraryEngine } = await import("../../engines/PrintLibraryEngine.js");
+            const p = params as { status?: "active" | "superseded" | "obsolete" | "draft" };
+            const r = printLibraryEngine.list(p.status);
+            result = {
+              prints: r,
+              print_count: r.length,
             };
             break;
           }

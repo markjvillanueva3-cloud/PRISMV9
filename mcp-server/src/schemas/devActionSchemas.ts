@@ -3167,6 +3167,61 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   // ── WIRE-UNWIRED-MS0 / U-WIRE-AGS: AutonomousGoalSynthesisEngine ──
   // Single pure-compute method ranks gap-descriptors by
   // Ψ_impact × urgency × feasibility. No I/O, no state mutation.
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-PLIB: PrintLibraryEngine ──
+  // 9 read-only actions over the in-memory print library. Singleton state
+  // starts empty — production must ingest before query.
+  // DEFER (write methods, class=path-traversal/state-mutation):
+  //   ingest(input)       — input.file_path stored verbatim; caller can
+  //                          poison via "../../../etc/passwd"; needs
+  //                          path-traversal validator co-developed.
+  //   linkToPart(id,pid)  — mutates print.part_id, status.
+  //   update(id,patch)    — partial mutation of any whitelisted field.
+  plib_get: z.object({
+    printId: z.string().min(1).max(64).describe("Print ID e.g. PRT-00001"),
+  }).strict().describe("Lookup print by ID. Returns null if not found."),
+
+  plib_find_by_part: z.object({
+    partNumber: z.string().min(1).max(128),
+  }).strict().describe("All prints (active+superseded+obsolete) for a part number."),
+
+  plib_get_revision_history: z.object({
+    partNumber: z.string().min(1).max(128),
+  }).strict().describe("Revision-by-revision history for a part."),
+
+  plib_search: z.object({
+    query: z.string().min(1).max(256).optional(),
+    part_number: z.string().min(1).max(128).optional(),
+    customer: z.string().min(1).max(128).optional(),
+    material: z.string().min(1).max(128).optional(),
+    revision: z.string().min(1).max(64).optional(),
+    drawn_by: z.string().min(1).max(128).optional(),
+    date_from: z.string().min(1).max(32).optional(),
+    date_to: z.string().min(1).max(32).optional(),
+    status: z.enum(["active", "superseded", "obsolete", "draft"]).optional(),
+    format: z.enum(["pdf", "tiff", "png", "jpg", "dxf", "dwg"]).optional(),
+    limit: z.number().int().min(1).max(1000).optional()
+      .describe("Max results. Default 50, hard cap 1000 (DoS)."),
+  }).describe("Multi-field print search."),
+
+  plib_get_by_part_id: z.object({
+    partId: z.string().min(1).max(128),
+  }).strict().describe("Prints linked to a specific part ID."),
+
+  plib_get_by_customer: z.object({
+    customer: z.string().min(1).max(128),
+  }).strict().describe("All prints for a customer."),
+
+  plib_list_customers: z.object({}).strict()
+    .describe("Distinct customer list with per-customer print counts."),
+
+  plib_get_stats: z.object({}).strict()
+    .describe("Library-wide stats (totals, by-customer, by-format, by-material, OCR confidence)."),
+
+  plib_list: z.object({
+    status: z.enum(["active", "superseded", "obsolete", "draft"]).optional()
+      .describe("Optional status filter. Omitted → all prints."),
+  }).strict().describe("List all prints (optionally filtered by status)."),
+
   // ── WIRE-UNWIRED-MS0 / U-WIRE-TTRO: TurningThreadRobustOptimizerEngine ──
   // Single pure-compute action. Engine header claimed shipped under
   // `turning_thread_robust_optimizer` action but no dispatcher case existed —
