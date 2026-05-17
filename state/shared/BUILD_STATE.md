@@ -1,71 +1,71 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-17T05:35:11.890Z
+> Generated: 2026-05-17T18:33:04.154Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
 
-- **2421** engines built and wired (of 3257)
+- **2543** engines built and wired (of 3272)
 - **1073** wiki entries indexed
-- **836** engines awaiting dispatcher wiring
-- **3204** units pending across 83 active milestones
+- **729** engines awaiting dispatcher wiring
+- **3197** units pending across 83 active milestones
 - **2** codex frontend builds awaiting merge
 - **175** milestones with envelope-status drift
 
 ## BUILT
 
-2421/3257 engines wired (74%); 1073 wiki entries indexed.
+2543/3272 engines wired (78%); 1073 wiki entries indexed.
 
 ```json
 {
-  "totalEngines": 3257,
-  "unwired": 836,
-  "wiredDirect": 2245,
-  "wireExempt": 93,
+  "totalEngines": 3272,
+  "unwired": 729,
+  "wiredDirect": 2368,
+  "wireExempt": 97,
   "wiredViaHook": 10,
-  "wiredViaOrch": 57,
-  "wiredViaRoute": 15,
+  "wiredViaOrch": 53,
+  "wiredViaRoute": 14,
   "wiredViaSingleton": 1
 }
 ```
 
 ## NEEDS_WIRING
 
-836 engines on disk with no dispatcher reference. Top domains by count:
+729 engines on disk with no dispatcher reference. Top domains by count:
 
 | Domain | Unwired count |
 |--------|---------------|
-| Other | 144 |
-| Lathe | 89 |
-| Machine | 17 |
-| Turning | 11 |
+| Other | 131 |
+| Lathe | 82 |
+| Machine | 13 |
 | Multi | 10 |
 | Tool | 9 |
 | Five | 9 |
-| Shop | 9 |
+| Shop | 8 |
 | Outcome | 8 |
+| Process | 7 |
 | Hyper | 7 |
 | Milling | 7 |
 | Fusion | 7 |
-| Wet | 7 |
-| Process | 6 |
-| Print | 6 |
 | Swiss | 6 |
 | Wire | 6 |
-| Consensus | 6 |
-| Mobile | 5 |
+| Wet | 6 |
+| Turning | 6 |
+| Print | 5 |
 | Mastercam | 5 |
-| Mill | 4 |
-| Tribal | 4 |
 | Electrode | 4 |
 | Speed | 4 |
 | Okuma | 4 |
+| Mobile | 4 |
+| Session | 3 |
+| Sensor | 3 |
+| Video | 3 |
 
 **Next action:** Pick a top-domain bucket; wire to the matching dispatcher in batches of 5–6 engines (see U-WIRE-LATHE-BATCHN pattern). Wiki cross-refs in `wikiTitle` resolve via `/wiki-query <name>`.
 
 ## NEEDS_BUILDING
 
-3204 units across 681 milestones not yet in git.
+3197 units across 681 milestones not yet in git.
 
 ### Envelope-status drift
 
@@ -252,9 +252,13 @@
 | Milestone | Phase | Unit | Title |
 |-----------|-------|------|-------|
 | SYSTEM-VIZ-BRAIN-MS0 | P1-MEMORY | U-P1-QDRANT-EPISODIC-RECALL | Qdrant episodic recall on SessionStart + UserPromptSubmit (xproc_episodic_recall) |
-| SYSTEM-VIZ-BRAIN-MS0 | P2-VIZ-BRAIN | U-P2-LIVE-DRIFT-OVERLAY | 5-min auto-regen + drift overlay (red-pulse nodes where envelope-vs-git differ) |
-| SYSTEM-VIZ-BRAIN-MS0 | P2-VIZ-BRAIN | U-P2-SLOT-OWNERSHIP-OVERLAY | Color nodes by which of 10 chat slots edited them last; handoff dotted edges |
-| SYSTEM-VIZ-BRAIN-MS0 | P2-VIZ-BRAIN | U-P2-GRAPH-SEARCH-MASTERINDEX | Search bar in /system-viz viewer routes to master_index_query (semantic, not regex) |
+| SYSTEM-VIZ-BRAIN-MS0 | P2-VIZ-BRAIN | U-P2-SLOT-OWNERSHIP-OVERLAY | Color nodes by which of 13 chat slots edited them last; handoff dotted edges |
+| SYSTEM-VIZ-BRAIN-MS0 | P3-AUTO-BUILD | U-P3-FORGE-OLLAMA-CODEGEN | /forge-triple auto-spawns Ollama qwen2.5-coder for boilerplate stubs |
+| SYSTEM-VIZ-BRAIN-MS0 | P3-AUTO-BUILD | U-P3-SHIP-QUALITY-GATE | Stop hook blocks commit if tests fail / scrutiny incomplete / SPC red |
+| COMMAND-KERNEL-MS0 | P0 | U-CK02 | psk whoami / position / manifest syscalls |
+| COMMAND-KERNEL-MS0 | P0 | U-CK03 | psk handoff / checkin / pick syscalls |
+| COMMAND-KERNEL-MS0 | P0 | U-CK05 | Generated-mirror generators (JSON registries become mirrors of os/ entities) |
+| COMMAND-KERNEL-MS0 | P1 | U-CK07 | command-migrate.mjs codemod |
 | CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A1 | A1 — extend SLOT_NAMES in chat-slots.mjs to add 'golf' (NATO phonetic continuity) |
 | CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A5 | A5 — golf-slot-write-allowlist.mjs PreToolUse T0 hook (path-resolve hardened against ../; allowlist-regex from golf-owned-paths.json; tier frontmatter; bypass env PRISM_GOLF_WRITE_ALLOWLIST_BYPASS=1) |
 | CLEANUP-MS0 | operator-surfaces-tier-3 | U-CLEANUP-B7 | B7 — /peer-audit skill (READ-ONLY operator query; never mutates ledger; mutations only via prism_dev dispatcher action with audit trail) |
@@ -271,10 +275,6 @@
 | COST-CASCADE-MS0 | P0 | U-DISPATCHER-ACTION-TWO-PASS | `prism_ai:two_pass` dispatcher action (cheap-then-strong) |
 | COST-CASCADE-MS0 | P0 | U-CASCADE-FALLBACK-CHAIN | Fallback chain (cheap → mid → strong with circuit-breaker) |
 | INTEL-OLLAMA-OBSIDIAN-MS0 | P5 | P5-U05 | Wire prism_intelligence:diagnose_failure → DiagnosticReasoningEngine |
-| INTEL-OLLAMA-OBSIDIAN-MS0 | P6 | P6-U02 | Add 4 hooks for unforced CLAUDE.md rules |
-| INTEL-OLLAMA-OBSIDIAN-MS0 | P6 | P6-U03 | Awareness hook deduplication — pick 3 canonical, deprecate 10 |
-| INTEL-OLLAMA-OBSIDIAN-MS0 | P7 | P7-U02 | Cross-PC handoff test — verify H: drive is sufficient |
-| CCM-MS0 | P0 | P0-U06 | WorktreeCreate hook |
 
 **Next action:** Cross-reference MILESTONE_PROGRESS.json. Avoid units already in `shipped` arrays — those are committed but envelope status is stale.
 
@@ -296,36 +296,36 @@ Per-domain wired/unwired breakdown across 935 domain prefixes.
 
 | Domain | Total | Wired | Unwired | Coverage % |
 |--------|-------|-------|---------|-----------|
-| Other | 605 | 461 | 144 | 76% |
-| Lathe | 188 | 99 | 89 | 53% |
-| Machine | 45 | 28 | 17 | 62% |
-| Turning | 25 | 14 | 11 | 56% |
+| Other | 605 | 474 | 131 | 78% |
+| Lathe | 188 | 106 | 82 | 56% |
+| Machine | 45 | 32 | 13 | 71% |
 | Multi | 29 | 19 | 10 | 66% |
 | Tool | 57 | 48 | 9 | 84% |
-| Shop | 16 | 7 | 9 | 44% |
 | Five | 12 | 3 | 9 | 25% |
+| Shop | 16 | 8 | 8 | 50% |
 | Outcome | 8 | 0 | 8 | 0% |
 | Hyper | 68 | 61 | 7 | 90% |
 | Fusion | 36 | 29 | 7 | 81% |
 | Milling | 34 | 27 | 7 | 79% |
-| Wet | 15 | 8 | 7 | 53% |
-| Print | 21 | 15 | 6 | 71% |
+| Process | 10 | 3 | 7 | 30% |
+| Turning | 25 | 19 | 6 | 76% |
 | Wire | 20 | 14 | 6 | 70% |
-| Process | 10 | 4 | 6 | 40% |
-| Consensus | 8 | 2 | 6 | 25% |
+| Wet | 15 | 9 | 6 | 60% |
 | Swiss | 6 | 0 | 6 | 0% |
 | Mastercam | 28 | 23 | 5 | 82% |
-| Mobile | 6 | 1 | 5 | 17% |
-| Cross | 67 | 63 | 4 | 94% |
-| Mill | 24 | 20 | 4 | 83% |
-| Inventor | 12 | 8 | 4 | 67% |
+| Print | 21 | 16 | 5 | 76% |
 | Okuma | 12 | 8 | 4 | 67% |
-| Tribal | 12 | 8 | 4 | 67% |
 | Speed | 7 | 3 | 4 | 43% |
 | Electrode | 6 | 2 | 4 | 33% |
-| Post | 56 | 53 | 3 | 95% |
+| Mobile | 6 | 2 | 4 | 33% |
+| Cross | 67 | 64 | 3 | 96% |
+| Mill | 24 | 21 | 3 | 88% |
+| Inventor | 12 | 9 | 3 | 75% |
 | Session | 12 | 9 | 3 | 75% |
-| Master | 10 | 7 | 3 | 70% |
+| Tribal | 12 | 9 | 3 | 75% |
+| Unified | 9 | 6 | 3 | 67% |
+| Consensus | 8 | 5 | 3 | 63% |
+| Agent | 7 | 4 | 3 | 57% |
 
 ## STALE_MILESTONES
 

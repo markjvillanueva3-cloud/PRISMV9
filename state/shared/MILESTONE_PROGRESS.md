@@ -1,6 +1,6 @@
 # MILESTONE_PROGRESS — what's actually shipped vs claimed
 
-> Generated: 2026-05-17T05:35:01.635Z
+> Generated: 2026-05-17T18:32:57.105Z
 > Window: last 60.days of git log across all branches
 > Source: `scripts/build-milestone-progress.mjs`
 
@@ -19,15 +19,16 @@ flagging a unit as missing.
 
 - Milestones loaded:        **681**
 - Units across all MS:      **5136**
-- Units shipped (in git):   **1932**
-- Units pending:            **3204**
+- Units shipped (in git):   **1939**
+- Units pending:            **3197**
 - Drift cases:              **175** (envelope status disagrees with git reality)
 
 ## Top recently-active milestones (last shipped → first)
 
 | Milestone | Track | Status (claimed) | Status (real) | Shipped/Total | Last commit |
 |-----------|-------|------------------|---------------|---------------|-------------|
-| SYSTEM-VIZ-BRAIN-MS0 | devtools | in_progress | in_progress_real | 17/26 (65%) | 2026-05-16 |
+| SYSTEM-VIZ-BRAIN-MS0 | devtools | in_progress | in_progress_real | 22/26 (85%) | 2026-05-17 |
+| COMMAND-KERNEL-MS0 | BACKEND-DEVTOOLS | not_started | in_progress_real | 4/29 (14%) | 2026-05-17 |
 | CLEANUP-MS0 | CLEANUP | in_progress | in_progress_real | 65/73 (89%) | 2026-05-16 |
 | MS-PRINT-PROGRAM-LOOP | revenue | in_progress | in_progress_real | 3/23 (13%) | 2026-05-16 |
 | RGS-TOOL-AUTOINVOKE-MS1 | RGS | in_progress | in_progress_real | 5/8 (63%) | 2026-05-16 |
@@ -56,7 +57,6 @@ flagging a unit as missing.
 | QA-MS12 | — | not_started | in_progress_real | 4/5 (80%) | 2026-05-15 |
 | QA-MS13 | — | not_started | in_progress_real | 5/6 (83%) | 2026-05-15 |
 | QA-MS2 | — | not_started | in_progress_real | 5/6 (83%) | 2026-05-15 |
-| QA-MS3 | — | not_started | in_progress_real | 5/7 (71%) | 2026-05-15 |
 
 ## Drift cases (claim vs git disagrees)
 
@@ -140,9 +140,9 @@ flagging a unit as missing.
 | MS-AUDIT-DERIVED-2026-05-10 | 30 | 30 | 0/30 |
 | MS2 | 30 | 30 | 0/30 |
 | EMP-MS0 | 28 | 28 | 0/28 |
-| COMMAND-KERNEL-MS0 | 27 | 29 | 2/29 |
 | BP-MS0 | 27 | 28 | 1/28 |
 | MS-TRAIN-DEEP | 26 | 26 | 0/26 |
+| COMMAND-KERNEL-MS0 | 25 | 29 | 4/29 |
 | OBSIDIAN-INTELLIGENCE-MS3 | 25 | 25 | 0/25 |
 | CAMX-MS0.3 | 24 | 24 | 0/24 |
 | CADCAM-AGI-MS0 | 24 | 24 | 0/24 |

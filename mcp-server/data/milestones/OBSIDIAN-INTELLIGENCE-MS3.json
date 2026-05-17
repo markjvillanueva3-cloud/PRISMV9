@@ -1036,7 +1036,28 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "Set hook to warn-only or remove; engine stays unwired"
+          "rollback": "Set hook to warn-only or remove; engine stays unwired",
+          "status": "completed",
+          "ship_record": {
+            "shipped_at": "2026-05-17T18:32:43.030Z",
+            "shipped_by": "claude-c0f06dee-charlie",
+            "commit": "0b52fee450",
+            "deliverables_on_disk": [
+              "mcp-server/src/engines/ContextEvalEngine.ts",
+              "mcp-server/src/__tests__/ContextEvalEngine.test.ts",
+              ".claude/hooks/post-memory-context-eval.mjs",
+              "state/shared/context-eval-golden.json",
+              "scripts/context-eval-golden-check.mjs"
+            ],
+            "per_file_scrutiny": "2-arm split verdict (Arm A PASS / Arm B FAIL 3 P0+3 P1) adjudicated per strict-consensus; all P0/P1 fixed without deferring deliverables; re-dispatched 2-arm -> both VERDICT PASS (Arm B independently re-grepped both settings.json). 33/33 vitest.",
+            "spec_deviations": [
+              "hook is PostToolUse post-memory-context-eval.mjs (NOT PreToolUse pre-...): faithful to exit-condition \"fires evaluator on memory:semantic_search RESPONSES\" — retrieved context is a tool result, not a request param (Arm-B P0-1).",
+              "test file ContextEvalEngine.test.ts (NOT ContextEval.test.ts): B1 filename-matches-engine Stop-hook rule.",
+              "added scripts/context-eval-golden-check.mjs: the \"scripted\" half of the golden lifecycle (Arm-B P1-3).",
+              "BLOCK(shop_floor) mode intentionally NOT wired: advisory-doctrine / operator-in-the-loop unconditional — hook always returns {continue:true}; default WARN path shipped per spec default."
+            ],
+            "notes": "Sound whole-token matching (compound-substring affordance for /[._0-9]/ identifiers) replaced the unsound pure-includes scorer. Golden freshness fields + check script make rot visible (exit 0/1/2; steady-state exit 1 WARN by design — 5 deliberate short physics tokens). Wired into PostToolUse matcher mcp__prism__prism_.* in both settings.json (byte-identical, manual C:->H: mirror)."
+          }
         }
       ]
     },
