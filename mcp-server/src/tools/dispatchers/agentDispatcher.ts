@@ -23,7 +23,9 @@
 
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
-import { consultAwareness, extractAwarenessKeywords, wrapWithAwareness, type AwarenessConsultResult } from "./awarenessMiddleware.js";
+// wrapWithAwareness was removed from awarenessMiddleware; the dispatcher never
+// called it. AwarenessResponse was renamed to AwarenessResponse.
+import { consultAwareness, extractAwarenessKeywords, type AwarenessResponse } from "./awarenessMiddleware.js";
 
 const ACTIONS = [
   "chat",
@@ -34,6 +36,10 @@ const ACTIONS = [
   "capabilities",
   "self_awareness",
   "stats",
+  // WIRE-UNWIRED-MS0/U-WIRE-ASP: AgentSpecializationProfileEngine read-only
+  "agent_profile_get",
+  "agent_profile_list",
+  "agent_profile_stats",
 ] as const;
 
 type Action = typeof ACTIONS[number];
@@ -41,7 +47,7 @@ type Action = typeof ACTIONS[number];
 /** Standardized response wrapper — matches the {success, data} pattern
  *  used by the rest of PRISM's dispatcher fleet.
  *  MILL-AGI-P0.1: Optionally includes awareness metadata. */
-function okResult(data: unknown, awareness?: AwarenessConsultResult | null) {
+function okResult(data: unknown, awareness?: AwarenessResponse | null) {
   const result = awareness && awareness.ok && awareness.summary.length > 0
     ? { success: true, data, _awareness: awareness.summary }
     : { success: true, data };
@@ -83,7 +89,7 @@ export function registerAgentDispatcher(server: any): void {
       log.info(`[prism_agent] ${action}`);
 
       // MILL-AGI-P0.1: Awareness middleware — consult PRISM knowledge before execution
-      let awareness: AwarenessConsultResult | null = null;
+      let awareness: AwarenessResponse | null = null;
       try {
         const keywords = extractAwarenessKeywords(action, params);
         awareness = await consultAwareness({
@@ -146,7 +152,7 @@ export function registerAgentDispatcher(server: any): void {
             }
             const item = contextCompactionEngine.addItem(
               params.context,
-              params.type,
+              params.type as Parameters<typeof contextCompactionEngine.addItem>[1],
               params.content,
               {
                 priority: params.priority,
@@ -200,7 +206,6 @@ export function registerAgentDispatcher(server: any): void {
                 return okResult(
                   await agentMemoryFabricEngine.rememberPreference(params.content, {
                     tags: params.tags,
-                    confidence: params.confidence,
                     priority: params.priority,
                   }), awareness
                 );
@@ -394,6 +399,36 @@ export function registerAgentDispatcher(server: any): void {
               learning,
               agentic_loop: loop,
             }, awareness);
+          }
+
+          // WIRE-UNWIRED-MS0/U-WIRE-ASP: AgentSpecializationProfileEngine read-only
+          case "agent_profile_get": {
+            const { agentSpecializationProfileEngine } = await import(
+              "../../engines/AgentSpecializationProfileEngine.js"
+            );
+            const profileId = typeof params.profile_id === "string"
+              ? params.profile_id
+              : (typeof params.profileId === "string" ? params.profileId : "");
+            if (!profileId) return errResult("agent_profile_get requires 'profile_id' (string)");
+            const profile = agentSpecializationProfileEngine.getProfile(profileId);
+            return okResult({ profile }, awareness);
+          }
+          case "agent_profile_list": {
+            const { agentSpecializationProfileEngine } = await import(
+              "../../engines/AgentSpecializationProfileEngine.js"
+            );
+            // Optional filter pass-through; engine signature: { family?, tier?, domain?, capability? }
+            const filters = (params.filters && typeof params.filters === "object")
+              ? params.filters as Parameters<typeof agentSpecializationProfileEngine.listProfiles>[0]
+              : undefined;
+            const profiles = agentSpecializationProfileEngine.listProfiles(filters);
+            return okResult({ profiles, count: profiles.length }, awareness);
+          }
+          case "agent_profile_stats": {
+            const { agentSpecializationProfileEngine } = await import(
+              "../../engines/AgentSpecializationProfileEngine.js"
+            );
+            return okResult(agentSpecializationProfileEngine.getStats(), awareness);
           }
 
           default:
