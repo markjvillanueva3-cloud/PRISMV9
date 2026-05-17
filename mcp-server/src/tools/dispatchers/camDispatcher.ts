@@ -1175,6 +1175,8 @@ export const ACTIONS = [
   "cool_chip_transport", "cool_komanduri_thermal", "cool_cryogenic",
   // CNC Programming (17 actions — 3 engines)
   "program_assemble", "program_batch_sf", "program_cycle_time",
+  // HybridProgramComposerEngine (1 action, WIRE-UNWIRED foxtrot 2026-05-17)
+  "hybrid_program_compose",
   "motion_trapezoidal", "motion_scurve", "motion_corner_velocity", "motion_look_ahead",
   "motion_axis_decompose", "motion_feed_effectiveness", "motion_optimize_feed",
   "engage_adapt_feed", "engage_calc_engagement", "engage_chip_thinning",
@@ -5918,6 +5920,18 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "program_assemble": { result = await (await getEngine("assembler")).assembleProgram(params as any); break; }
           case "program_batch_sf": { result = await (await getEngine("assembler")).calculateBatchSpeedFeed(params as any); break; }
           case "program_cycle_time": { result = await (await getEngine("assembler")).estimateCycleTime(params as any); break; }
+
+          // ── HybridProgramComposerEngine (WIRE-UNWIRED foxtrot 2026-05-17) ─
+          // AI router: per-feature programming-mode selection (cam/conversational
+          // /hardcode/macro) + composes a merged hybrid program. Deterministic
+          // rule-based router, no external I/O.
+          case "hybrid_program_compose": {
+            const { hybridProgramComposerEngine } = await import("../../engines/HybridProgramComposerEngine.js");
+            result = await hybridProgramComposerEngine.compose(
+              params as Parameters<typeof hybridProgramComposerEngine.compose>[0],
+            );
+            break;
+          }
 
           // ── Motion Dynamics Profile ────────────────────────────────────
           case "motion_trapezoidal": { const p = params as any; result = (await getEngine("motionDyn")).trapezoidalProfile(p.distance_mm, p.v_commanded_mmmin, p.v_entry_mmmin ?? 0, p.v_exit_mmmin ?? 0, p.max_accel_mm_s2); break; }
