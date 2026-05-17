@@ -87,21 +87,24 @@ export function createPrintRouter(_callTool: CallToolFn): Router {
 
       const result = machineTypeClassifierEngine.classify(classificationInput);
 
-      // Map engine result to API response
+      // Map engine result to API response.
+      // featureAnalysis + extractedData are deferred — current
+      // MachineTypeClassifierEngine surfaces only the machine-type decision;
+      // feature scoring + title-block extraction are a separate enrichment unit.
       const response = {
-        machineType: result.primaryType,
+        machineType: result.primaryMachineType,
         confidence: result.confidence,
-        alternativeMachines: result.secondaryTypes.map((t) => ({
+        alternativeMachines: result.alternativeTypes.map((t) => ({
           type: t.type,
           confidence: t.confidence,
         })),
         features: {
-          turningFeatures: result.featureAnalysis?.turningScore ?? 0,
-          millingFeatures: result.featureAnalysis?.millingScore ?? 0,
-          drillingFeatures: result.featureAnalysis?.drillingScore ?? 0,
-          edmFeatures: result.featureAnalysis?.edmScore ?? 0,
+          turningFeatures: 0,
+          millingFeatures: 0,
+          drillingFeatures: 0,
+          edmFeatures: 0,
         },
-        titleBlockData: result.extractedData?.titleBlock ?? undefined,
+        titleBlockData: undefined as undefined,
         reasoning: result.reasoning,
       };
 
