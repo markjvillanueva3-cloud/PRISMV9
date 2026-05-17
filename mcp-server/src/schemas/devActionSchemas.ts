@@ -3025,6 +3025,32 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     "Engine self-description (name/version/milestone/capabilities/data-sizes). Pure read."
   ),
 
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-SSL: SetupSheetLibraryEngine wiring ──
+  // 3 pure-read methods. saveSetup + clear DEFERRED — both mutate the
+  // shared singleton store (peer chats would lose their setups; clear
+  // is full data destruction).
+  ssl_find_setup: z.object({
+    part_number: z.string().min(1).max(128).optional(),
+    material: z.string().min(1).max(128).optional(),
+    workholding_type: z.string().min(1).max(64).optional(),
+    keyword: z.string().min(1).max(512).optional(),
+  }).describe("Search setups by part_number/material/workholding/keyword. Pure read."),
+
+  ssl_get_setup: z.object({
+    setup_id: z.string().min(1).max(128)
+      .describe("Setup id"),
+  }).describe("Fetch full setup record by id. Pure read."),
+
+  ssl_suggest_reuse: z.object({
+    material: z.string().min(1).max(128),
+    approximate_size: z.object({
+      x: z.number().nonnegative().max(10_000),
+      y: z.number().nonnegative().max(10_000),
+      z: z.number().nonnegative().max(10_000),
+    }),
+    features: z.array(z.string().min(1).max(128)).min(0).max(64),
+  }).describe("Suggest similar prior setups based on size + features + material. Pure read."),
+
   cmc_simulate: z.object({
     machines: z.array(z.object({
       id: z.string().min(1).max(128),

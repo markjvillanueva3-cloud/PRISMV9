@@ -464,7 +464,8 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "ml_search_materials", "ml_search_tools", "ml_search_gcodes",
 "ml_get_speed_feed", "ml_universal_search",
 "ml_get_material", "ml_get_tool", "ml_get_gcode",
-"ml_get_self_awareness"] as const;
+"ml_get_self_awareness",
+"ssl_find_setup", "ssl_get_setup", "ssl_suggest_reuse"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -3507,6 +3508,39 @@ export function registerDevDispatcher(server: any): void {
             const { MobileLookupEngine } = await import("../../engines/MobileLookupEngine.js");
             const info = MobileLookupEngine.getSelfAwareness();
             result = { info };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-SSL: SetupSheetLibraryEngine ─────────
+          case "ssl_find_setup": {
+            const { setupSheetLibraryEngine } = await import("../../engines/SetupSheetLibraryEngine.js");
+            const p = params as { part_number?: string; material?: string; workholding_type?: string; keyword?: string };
+            const r = setupSheetLibraryEngine.findSetup(p);
+            // r returns {matches[], total}
+            result = { query: p, matches: r.matches, count: r.total };
+            break;
+          }
+          case "ssl_get_setup": {
+            const { setupSheetLibraryEngine } = await import("../../engines/SetupSheetLibraryEngine.js");
+            const setup_id = (params as { setup_id: string }).setup_id;
+            const r = setupSheetLibraryEngine.getSetup({ setup_id });
+            // r is SetupRecord | { error }. Explicit found discriminator.
+            if ("error" in r) {
+              result = { found: false, setup_id, error: r.error };
+            } else {
+              result = { found: true, setup_id, setup: r };
+            }
+            break;
+          }
+          case "ssl_suggest_reuse": {
+            const { setupSheetLibraryEngine } = await import("../../engines/SetupSheetLibraryEngine.js");
+            const p = params as { material: string; approximate_size: { x: number; y: number; z: number }; features: string[] };
+            const r = setupSheetLibraryEngine.suggestReuse(p);
+            result = {
+              material: p.material,
+              feature_count: p.features.length,
+              suggestions: r.suggestions,
+              suggestion_count: r.suggestions.length,
+            };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-CMC: CapacityMonteCarloEngine ────────
