@@ -482,7 +482,21 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "Disable scheduled task"
+          "rollback": "Disable scheduled task",
+          "status": "completed",
+          "ship_record": {
+            "shipped_at": "2026-05-17T18:01:06.932Z",
+            "shipped_by": "claude-c0f06dee-charlie",
+            "commit": "35c78a2b96",
+            "deliverables_on_disk": [
+              "mcp-server/src/engines/KnowledgeDistillationEngine.ts",
+              "mcp-server/src/__tests__/KnowledgeDistillationEngine.test.ts",
+              "scripts/run-knowledge-distillation.mjs",
+              "scripts/cron/knowledge-distillation-cron.ps1"
+            ],
+            "per_file_scrutiny": "2-arm: Arm A PASS, Arm B FAIL on 1 P1 (corpus/output overlap guard) -> fixed assertNoCorpusOutputOverlap + 3 regression tests -> 42/42",
+            "notes": "SAFE variant (create-only, no RMW). P2 followups: slug-collision by-design, Ollama near-dead-by-default 16KB cap, PS1 spaced-PRISM_ROOT portability, win-symlink-test fragility."
+          }
         }
       ]
     },
