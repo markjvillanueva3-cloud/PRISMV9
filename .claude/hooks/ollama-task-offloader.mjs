@@ -51,9 +51,17 @@ const HINT_PATH = "H:/prism/state/shared/.ollama-routing-hint.json";
 // OLLAMA-DEV-01: bumped from 2s to 4s — qwen2.5-coder:32b cold-load can
 // take 3+s, and the /api/tags probe should never be the bottleneck.
 const TIMEOUT_MS = 4000;
-const RATE_LIMIT_MS = 5 * 60 * 1000; // 5 minutes per category
+// OLLAMA-OFFLOAD-R4 (2026-05-17): lowered from 5min to 60s per category.
+// 5min caps offload activity ~12x/hour; 60s allows ~60x/hour, raising
+// offload rate toward 30% target (was stuck at 22.2%). Per-category gate
+// still prevents storming a single classifier path. See CLAUDE.md F2 R4.
+const RATE_LIMIT_MS = 60 * 1000;
 const CONFIDENCE_THRESHOLD = 0.80;
-const INJECT_THRESHOLD = 0.90; // Only inject context above this score
+// OLLAMA-OFFLOAD-R2 (2026-05-17): lowered from 0.90 to 0.80 so the
+// inject threshold matches CONFIDENCE_THRESHOLD — eliminates the
+// dead-band where a classifier was confident enough to route (>= 0.80)
+// but not confident enough to inject (>= 0.90). Per CLAUDE.md F2 R2.
+const INJECT_THRESHOLD = 0.80;
 // FLEET-REAPER-MS1: hard clamp on the hint's thresholdDelta — mirrors the
 // producer-side clamp in fleet-reaper-sweep.mjs so a tampered/corrupt hint
 // file can never push the effective thresholds far out of range.
