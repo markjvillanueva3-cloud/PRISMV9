@@ -281,11 +281,11 @@ export class HyperMillAIOrchestrationEngine {
         });
 
         strategy = {
-          name: deepResult.primary_strategy.id,
-          hypermill_cycle: deepResult.primary_strategy.cycle_name,
+          name: deepResult.selected_strategy.id,
+          hypermill_cycle: deepResult.selected_strategy.cycle_name,
           parameters: {
-            ae_pct: (deepResult.primary_strategy.ae_factor || 0.1) * 100,
-            ap_factor: deepResult.primary_strategy.ap_factor || 2.0,
+            ae_pct: (deepResult.selected_strategy.ae_factor || 0.1) * 100,
+            ap_factor: deepResult.selected_strategy.ap_factor || 2.0,
             speed_m_min: deepResult.cutting_parameters.speed_m_min,
             feed_mm_tooth: deepResult.cutting_parameters.feed_mm_tooth
           },
