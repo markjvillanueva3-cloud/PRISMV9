@@ -51,7 +51,10 @@ patterns recovered.
 | 21 | wiki/os/pipelines/goal-complete.md (Stop-hook gate doctrine — sister to [[loop]]) | `93648157b1` | wiki populate |
 | 22 | 4 more wiki/os/syscalls entities (delta, tools, record, recommend) — syscall coverage now 10/10 | (this commit range) | wiki populate batch |
 | 23 | wiki/os/sessions/terminal-window-id.md (sister to stable-session-id; completes resolver pair) | `30a462d643` | wiki populate |
-| 24 | **THIS** summary-spec update reflecting iters 19-23 | (this iter) | meta |
+| 24 | Summary-spec update reflecting iters 19-23 | `1fda92e4d1` | meta |
+| 25 | Light-touch maintenance: close-out audit refresh (was 1.5h) | (state file) | maintenance |
+| 26 | wiki/os/processes/golf-hygiene-slot — distinctive doctrine vs work slots | `c0b5456496` | wiki populate |
+| 27 | **THIS** summary-spec final update | (this iter) | meta |
 
 ## Deliverables surfaced
 
@@ -64,10 +67,10 @@ patterns recovered.
 | U-CK10 | COMMAND-KERNEL-MS0 | `state/shared/U-CK10-pick-task-callers.md` |
 | U-KC-E1-tail | KNOWLEDGE-CONVERSION-MS0 | `CLAUDE.md` pointer (deferred from prior session) |
 
-### Wiki/os entities (17 entries — schema-validated by use)
+### Wiki/os entities (18 entries — schema-validated by use)
 
 `syscalls/`: whoami · manifest · position · handoff · checkin · pick · delta · tools · record · recommend (10/10 coverage)
-`processes/`: slot-lifecycle
+`processes/`: slot-lifecycle · golf-hygiene-slot (work + hygiene doctrines paired)
 `commands/`: checkin
 `pipelines/`: loop · goal-complete (autonomous-work + ceremonial-end pair)
 `runqueue/`: priority-queue
@@ -75,7 +78,10 @@ patterns recovered.
 
 Each follows the U-CK04 schema (required title/slug/kind/status/date/
 milestone/unit/author + kind-aware optional). The namespace was
-designed in iter 7 and validated by use across iters 11-23.
+designed in iter 7 and continuously validated by use across iters 11-26.
+
+**Total wiki files shipped:** 18 entities + 3 schema docs (`_schema`,
+`_command-schema`, `_command-schema-reconciliation`) = **21 wiki/os files**.
 
 ### Close-out triages (12 envelope-drift entries → CLOSE-OUT-DEFERRED)
 
