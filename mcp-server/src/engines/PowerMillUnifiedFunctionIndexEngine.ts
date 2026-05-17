@@ -61,6 +61,15 @@ interface UnifiedOperation {
   description: string;
 }
 
+/** Shape of a per-catalog operation entry — narrows the `any` returned by the
+ *  roughing/finishing source-index engines' getIndex()/getCatalog(). */
+interface CatalogOpEntry {
+  display_name: string;
+  category: string;
+  parameter_count: number;
+  description: string;
+}
+
 interface CatalogStats {
   catalog: string;
   operations: number;
@@ -85,7 +94,7 @@ export class PowerMillUnifiedFunctionIndexEngine {
 
     const operations: UnifiedOperation[] = [];
 
-    for (const [id, op] of Object.entries(roughing.operations)) {
+    for (const [id, op] of Object.entries(roughing.operations) as [string, CatalogOpEntry][]) {
       operations.push({
         id,
         catalog: "roughing",
@@ -96,7 +105,7 @@ export class PowerMillUnifiedFunctionIndexEngine {
       });
     }
 
-    for (const [id, op] of Object.entries(finishing.operations)) {
+    for (const [id, op] of Object.entries(finishing.operations) as [string, CatalogOpEntry][]) {
       operations.push({
         id,
         catalog: "finishing",
