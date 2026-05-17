@@ -820,7 +820,9 @@ ${todoState.blockingIssues.length > 0 ? todoState.blockingIssues.map(i => `- ${i
               content,
               msgType,
             );
-            if (data.ok) return ok(data);
+            // Discriminated union — narrow with an explicit check on the literal
+            // discriminant so `error`/`detail` are visible in the error branch.
+            if (data.ok === true) return ok(data);
             return ok({ ok: false, error: data.error, detail: data.detail });
           }
 
