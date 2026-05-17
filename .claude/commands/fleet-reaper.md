@@ -209,19 +209,37 @@ If the task could not be registered, the verdict's `task:` line must show ⚠ an
 the overall verdict degrades (see below) — do not report a green "active".
 
 ### Step 3 — Launch the in-session Monitor (skip with `--no-monitor` / `--status`)
-Use the **Monitor** tool — it gives a live event feed (one line per reap / memory
-pressure / error) while this chat stays open:
-- command: `node H:/prism/scripts/fleet-reaper-sweep.mjs --monitor-loop --interval 300`
-  — **if the user passed `--dry-run`, append `--dry-run` to this command** so the
-  Monitor is a burn-in watch that never kills. (The hardcoded form above is the
-  LIVE, process-killing watch.)
-- description: `fleet reaper: orphan reaps + soft relief + Ollama coordinator`
+Use the **Monitor** tool. **Default is the JSONL-tail pattern** — it taps the
+reap stream the scheduled task already writes, so it does NOT fork the
+subprocesses a full `--monitor-loop` does. The heavyweight version is still
+available for burn-in but should NOT be the default — it spawns nvidia-smi,
+curl, docker-health, git probes every 300 s, and under high commit pressure
+(the exact condition the reaper exists to relieve) those forks get OOM-killed
+and the in-session feed dies. Empirically: 2 deaths within 6 minutes at 99 %
+memory pressure when the heavy version was the default.
+
+**Default (lightweight tail — recommended, durable under pressure):**
+- command: `tail -f -n 0 H:/prism/state/shared/fleet-reaper.log | grep --line-buffered -E '"reaped":\[[^]]|"reapedOk":[^0]|"caveats":\["|"prewarmFired":true|"hintWritten":true.*"aggressive|"drifting":true|"error":"[^n]|"mem":\{"usedPct":(9[0-9]|100)'`
+- description: `fleet-reaper JSONL tail — lightweight, won't fork`
 - `persistent: true`
 
-The monitor-loop only emits on noteworthy sweeps (reaps, pressure, soft-relief
-nudges, coordinator prewarm/hint, caveats, errors) — quiet sweeps print nothing,
-so it won't flood the chat. The Monitor dies when THIS chat closes; only the
-scheduled task survives a chat exit.
+This is one `tail` + one `grep` — ~5 MB resident, no spawns. The grep
+alternation covers reaps + caveats + Ollama prewarm + aggressive offload hint
++ drift + errors + pressure ≥ 90 %, so the operator sees every actionable
+event without flooding the chat.
+
+**Heavyweight (only for burn-in / dry-run audits, NOT for steady state):**
+- command: `node H:/prism/scripts/fleet-reaper-sweep.mjs --monitor-loop --interval 300`
+- description: `fleet reaper: full live sweep every 300s (BURN-IN — dies under pressure)`
+- `persistent: true`
+- **Only use under `--dry-run`** (append `--dry-run`) when you specifically want to
+  watch slot attribution before going live. Always pair with the lightweight
+  tail when both are needed — they serve different purposes.
+
+The scheduled task is the load-bearing sweep — it runs every 5 min independently
+of any chat. The in-session Monitor is the operator's UX feed on top of that.
+The lightweight tail dies only when this chat closes; the scheduled task survives
+chat exits AND reboots (with the hardened installer).
 
 ### Step 4 — Verdict block
 Print the boxed summary, choosing the `verdict:` line by what was actually armed.
