@@ -78,10 +78,18 @@ const WORKHOLDING_ACTIONS = new Set([
 const WORKHOLDING_INTELLIGENCE_ACTIONS = new Set(["recommend_workholding"]);
 // OCTOPUS-NEURAL-MS0/U-OCN05: dynamic N-of-M quorum from diff classification
 const QUORUM_ACTIONS = new Set(["quorum_required"]);
+// WIRE-UNWIRED-MS0/U-WIRE-WEDMGOV: WEDMGovernanceStore read-only introspection
+// (save/load mutate WEDM autonomy levels 0-5 — operator-in-the-loop unconditional;
+//  write ops deferred to U-WIRE-WEDMGOV-WRITE pending safety review)
+const WEDM_GOVERNANCE_ACTIONS = new Set([
+  "wedm_governance_read",
+  "wedm_governance_path",
+  "wedm_governance_snapshot",
+]);
 const ALL_ACTIONS = [
   ...COLLISION_ACTIONS, ...COOLANT_ACTIONS, ...SPINDLE_ACTIONS,
   ...BREAKAGE_ACTIONS, ...WORKHOLDING_ACTIONS, ...WORKHOLDING_INTELLIGENCE_ACTIONS,
-  ...QUORUM_ACTIONS,
+  ...QUORUM_ACTIONS, ...WEDM_GOVERNANCE_ACTIONS,
 ] as const;
 
 /** Registers safety dispatcher.
@@ -178,6 +186,30 @@ export function registerSafetyDispatcher(server: any): void {
             })),
             commitSubject: params.commit_subject as string | undefined,
           });
+        } else if (WEDM_GOVERNANCE_ACTIONS.has(action)) {
+          // WIRE-UNWIRED-MS0/U-WIRE-WEDMGOV: read-only WEDM autonomy-state inspection
+          // (write ops — saveGovernanceState/loadGovernanceState — explicitly DEFERRED:
+          //  they mutate the level 0-5 autonomy state file and require operator-in-the-loop
+          //  per CLAUDE.md §Safety Tier and JM Die unconditional doctrine)
+          const {
+            readGovernanceFile,
+            defaultGovernancePath,
+            snapshotFromFile,
+          } = await import("../../engines/WEDMGovernanceStore.js");
+          if (action === "wedm_governance_path") {
+            result = { path: defaultGovernancePath() };
+          } else if (action === "wedm_governance_read") {
+            const filePath = typeof params.file_path === "string"
+              ? params.file_path
+              : (typeof params.filePath === "string" ? params.filePath : undefined);
+            result = { file: readGovernanceFile(filePath) };
+          } else if (action === "wedm_governance_snapshot") {
+            const filePath = typeof params.file_path === "string"
+              ? params.file_path
+              : (typeof params.filePath === "string" ? params.filePath : undefined);
+            const file = readGovernanceFile(filePath);
+            result = { snapshot: file ? snapshotFromFile(file) : null };
+          }
         } else {
           return { content: [{ type: "text" as const, text: JSON.stringify({ error: `Unknown safety action: ${action}` }) }] };
         }

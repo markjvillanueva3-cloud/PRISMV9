@@ -1,11 +1,13 @@
 ---
-description: Force-claim slot ALPHA + run the full /checkin pipeline. NATO-phonetic shortcut for `/checkin --preferSlot alpha --force`. Always runs fleet-reaper (alpha owns it).
-allowed-tools: Bash, Read, Edit, Write, Glob, Grep, TodoWrite, Task, AskUserQuestion, Monitor
+description: Force-claim slot ALPHA + run the full /checkin pipeline. NATO-phonetic shortcut for `/checkin --preferSlot alpha --force`. Fleet-reaper ownership moved to golf 2026-05-16 — alpha is a standard work slot now.
+allowed-tools: Bash, Read, Edit, Write, Glob, Grep, TodoWrite, Task, AskUserQuestion
 ---
 
-# /checkin-alpha — slot-locked /checkin + fleet-reaper
+# /checkin-alpha — slot-locked /checkin (standard work slot)
 
-Force-takes the **alpha** slot (evicting any prior owner with `--force true --confirmRecent true`), binds the handoff to `alpha-work`, **always runs the fleet-reaper** (alpha owns it for the 7-chat fleet — see [[feedback_alpha_owns_reaper]]), then runs the standard `/checkin` pipeline. Use when you want this specific slot regardless of who currently holds it.
+Force-takes the **alpha** slot (evicting any prior owner with `--force true --confirmRecent true`), binds the handoff to `alpha-work`, then runs the standard `/checkin` pipeline. Use when you want this specific slot regardless of who currently holds it.
+
+> **Doctrine shift 2026-05-16:** alpha no longer owns the fleet-reaper. Ownership moved to **golf** to unify fleet-hygiene under one slot (golf already hosts fleet-memory-monitor). The `alpha-slot-reaper-guardian.mjs` hook is preserved on disk but unwired in `settings.json`. See [[feedback_golf_owns_reaper]] (live) and [[feedback_alpha_owns_reaper]] (SUPERSEDED). To run the reaper now: use `/checkin-golf` or invoke `/fleet-reaper` from the golf chat.
 
 ## Slot binding (replaces /checkin Step 2)
 
@@ -23,40 +25,6 @@ node H:/prism/.claude/helpers/chat-slots.mjs claim \
 ```
 
 If the claim result carries `previousOwner`, surface it in the §Report — the evicted chat's id, topic, and last-heartbeat age are all useful context.
-
-## Fleet-reaper (always — alpha owns the reaper)
-
-This step is **non-skippable for `/checkin-alpha`**. The fleet-reaper is the 7-chat fleet's orphan-process janitor + GPU-coordinator, and alpha is its canonical owner (per [[feedback_alpha_owns_reaper]] + the `alpha-slot-reaper-guardian.mjs` SessionStart hook). Running it on every `/checkin-alpha` formalizes that doctrine instead of relying on the guardian hook alone.
-
-### A. Fresh sweep + verdict
-```bash
-node H:/prism/scripts/fleet-reaper-sweep.mjs --once --json 2>&1 | tail -50
-```
-Read the JSON: `slots["owned-by-crashed"] / "leftover-bash-task" / "unowned"` are reap candidates · `softRelief.{priorityDemoted,workingSetTrimmed,rssReclaimedBytes}` shows reversible RAM relief · `gpu.{freeMb,utilizationPct}` + `ollama.{reachable,loaded[]}` show idle compute · `coordinator.{shouldPrewarm,prewarmFired,hintWritten,thresholdDelta,hintMode}` shows the Ollama routing-hint decision. Surface these in the §Report as the `fleet-reaper:` line.
-
-### B. Ensure the durable scheduled task (5-min global cadence — survives chat exits)
-```bash
-schtasks /Query /TN "PRISM Fleet Reaper" 2>$null
-```
-If absent, the operator must register it from an **elevated** PowerShell — `/checkin-alpha` cannot auto-install (UAC). Surface the install command in the §Report:
-> `! powershell -NoProfile -ExecutionPolicy Bypass -File H:/prism/.claude/helpers/install-fleet-reaper-task.ps1 -RunNow`
-
-### C. Arm the in-session persistent Monitor (this chat only)
-The `Monitor` tool gives a live event feed (one line per reap / soft relief / coordinator fire / caveat) for the lifetime of this chat. Use `persistent: true` so it runs until session-end or `TaskStop`. The Monitor is in `allowed-tools` specifically for this step.
-
-```
-Monitor({
-  command: "node H:/prism/scripts/fleet-reaper-sweep.mjs --monitor-loop --interval 300",
-  description: "fleet reaper: orphan reaps + soft relief + Ollama coordinator (slot alpha — sole owner)",
-  persistent: true
-})
-```
-
-Idempotence: the Monitor should be armed **once per chat**. If `TaskList` already shows a running fleet-reaper Monitor task for this session, skip step C — re-arming would just duplicate the event stream.
-
-### D. Kill-switch awareness
-A single env var disables ALL reaping fleet-wide regardless of which chat armed it:
-`PRISM_FLEET_REAPER_DISABLE=1`. Surface in the §Report if it is set.
 
 ## Pipeline delegation
 

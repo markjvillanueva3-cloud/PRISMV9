@@ -684,4 +684,18 @@ export const ACTION_SAFETY_SCHEMAS: ActionSchemaMap = {
     })).default([]).describe("Diff files (path + optional size/patch hints)"),
     commit_subject: z.string().optional().describe("Commit subject — searched for SAFETY/PHYSICS hint signals"),
   }).passthrough().describe("Classify a diff and return the recommended scrutiny quorum (1-of-1 to 5-of-5) — engine: ConsensusQuorumEngine"),
+
+  // WIRE-UNWIRED-MS0/U-WIRE-WEDMGOV: read-only WEDM autonomy-state inspection
+  wedm_governance_path: z.object({}).passthrough()
+    .describe("Resolve the canonical filepath for the WEDM autonomy state file (no params)."),
+  wedm_governance_read: z.object({
+    file_path: z.string().min(1).optional().describe("Override the default governance file path (optional)."),
+    filePath: z.string().min(1).optional().describe("camelCase alias for file_path."),
+  }).passthrough()
+    .describe("Read the WEDM autonomy state file as-is (no engine mutation). Returns null if the file does not exist."),
+  wedm_governance_snapshot: z.object({
+    file_path: z.string().min(1).optional().describe("Override the default governance file path (optional)."),
+    filePath: z.string().min(1).optional().describe("camelCase alias for file_path."),
+  }).passthrough()
+    .describe("Read the WEDM autonomy state file and return an AutonomySnapshot-shaped projection (level + version + history)."),
 };
