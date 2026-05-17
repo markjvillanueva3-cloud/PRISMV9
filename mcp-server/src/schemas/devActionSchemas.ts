@@ -2467,4 +2467,37 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     count: z.number().int().positive().max(500).optional()
       .describe("Number of program samples to return (default 10, max 500)"),
   }).describe("Sample programs from one JM Die machine-type folder. Pure read (filesystem)."),
+
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-NE: NotificationEngine wiring ──
+  // L2-P3-MS1 notification management. Read methods only;
+  // send/markRead/markDelivered/registerTemplate/setPreferences/clear
+  // DEFERRED (write methods mutate the shared notification + template store;
+  // LLM-callable send() would let one chat fake notifications to others).
+  ne_list: z.object({
+    recipient: z.string().min(1).max(256)
+      .describe("Recipient identifier (employee id or user handle)"),
+    unread_only: z.boolean().optional()
+      .describe("Filter to unread only (default false)"),
+  }).describe("List notifications for one recipient. Pure read."),
+
+  ne_list_templates: z.object({}).describe(
+    "List every registered notification template. Pure read."
+  ),
+
+  ne_stats: z.object({}).describe(
+    "Engine stats {total_sent, total_delivered, total_failed, total_read, by_channel, by_priority, delivery_rate_pct, read_rate_pct}. Pure read."
+  ),
+
+  ne_get_preferences: z.object({
+    employee_id: z.string().min(1).max(256)
+      .describe("Employee id whose preferences to read"),
+  }).describe("Get NotificationPreferences (returns defaults when unset). Pure read."),
+
+  ne_get_in_app_notifications: z.object({
+    employee_id: z.string().min(1).max(256),
+  }).describe("List in-app notifications for one employee. Pure read."),
+
+  ne_get_unread_count: z.object({
+    employee_id: z.string().min(1).max(256),
+  }).describe("Count unread notifications for one employee. Pure read."),
 };

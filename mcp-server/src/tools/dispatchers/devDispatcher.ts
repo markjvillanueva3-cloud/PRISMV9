@@ -413,7 +413,13 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // shared extraction-status registry other pipelines consume).
 "ri_get_index", "ri_get_unextracted_folders", "ri_search",
 "ri_get_extraction_summary", "ri_get_jm_die_folders",
-"ri_get_jm_die_program_sample"] as const;
+"ri_get_jm_die_program_sample",
+// WIRE-UNWIRED-MS0/U-WIRE-NE: NotificationEngine — L2-P3-MS1 notification
+// management. Read methods only; send/markRead/markDelivered/
+// registerTemplate/setPreferences/clear DEFERRED (LLM-callable send()
+// would let one chat fake notifications to other employees).
+"ne_list", "ne_list_templates", "ne_stats", "ne_get_preferences",
+"ne_get_in_app_notifications", "ne_get_unread_count"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -2720,6 +2726,47 @@ export function registerDevDispatcher(server: any): void {
             } catch (e) {
               result = { machine_type: p.machine_type, error: `program sample failed: ${(e as Error).message}` };
             }
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-NE: NotificationEngine ───────────────
+          case "ne_list": {
+            const { notificationEngine } = await import("../../engines/NotificationEngine.js");
+            const p = params as { recipient: string; unread_only?: boolean };
+            const notifications = notificationEngine.list(p.recipient, p.unread_only ?? false);
+            result = { recipient: p.recipient, notifications, count: notifications.length };
+            break;
+          }
+          case "ne_list_templates": {
+            const { notificationEngine } = await import("../../engines/NotificationEngine.js");
+            const templates = notificationEngine.listTemplates();
+            result = { templates, count: templates.length };
+            break;
+          }
+          case "ne_stats": {
+            const { notificationEngine } = await import("../../engines/NotificationEngine.js");
+            const stats = notificationEngine.stats();
+            result = { stats };
+            break;
+          }
+          case "ne_get_preferences": {
+            const { notificationEngine } = await import("../../engines/NotificationEngine.js");
+            const employee_id = (params as { employee_id: string }).employee_id;
+            const preferences = notificationEngine.getPreferences(employee_id);
+            result = { employee_id, preferences };
+            break;
+          }
+          case "ne_get_in_app_notifications": {
+            const { notificationEngine } = await import("../../engines/NotificationEngine.js");
+            const employee_id = (params as { employee_id: string }).employee_id;
+            const notifications = notificationEngine.getInAppNotifications(employee_id);
+            result = { employee_id, notifications, count: notifications.length };
+            break;
+          }
+          case "ne_get_unread_count": {
+            const { notificationEngine } = await import("../../engines/NotificationEngine.js");
+            const employee_id = (params as { employee_id: string }).employee_id;
+            const unread_count = notificationEngine.getUnreadCount(employee_id);
+            result = { employee_id, unread_count };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-CEX: CatalogExtractionEngine ─────────
