@@ -346,11 +346,11 @@ export class TribalKnowledgeTrainingEngine {
    */
   private getAllTribalTips(): KnowledgeTip[] {
     // Access the engine's tips via search with no filters (returns all)
-    const searchResult = tribalKnowledgeEngine.search({
+    // search() returns KnowledgeTip[] directly (API rename from {tips:...} envelope).
+    return tribalKnowledgeEngine.search({
       limit: 10000,  // Get all
       min_confidence: 0,  // No confidence filter
     });
-    return searchResult.tips;
   }
 
   /**
