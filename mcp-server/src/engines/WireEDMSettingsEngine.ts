@@ -126,20 +126,28 @@ interface EDMThermalProps {
 function getEDMThermalProps(materialName: string): EDMThermalProps {
   const key = resolveMatKey(materialName);
 
-  // Map to canonical material DB entry
-  const matMap: Record<string, keyof typeof CANONICAL_MATERIALS> = {
-    steel: "steel",
-    tool_steel: "tool_steel",
-    hardened_steel: "hardened_steel",
-    stainless: "stainless_304",
-    aluminum: "aluminum_6061",
-    copper: "copper_c110",
-    titanium: "titanium_gr5",
-    inconel: "inconel_718",
+  // Map abbreviated material names to canonical CANONICAL_MATERIAL_DB keys.
+  // CANONICAL_MATERIAL_DB is indexed by AISI/UNS designations ("1018", "1045",
+  // "D2", "304", "6061", "Ti-6Al-4V", "Inconel 718", "tungsten_carbide",
+  // "gray_iron") plus aliasing through AISI_ALIAS. Earlier revisions of this
+  // map pointed at non-existent keys ("steel", "low_carbon_steel",
+  // "stainless_304") which silently returned `undefined` and crashed the next
+  // property access — fixed 2026-05-17 to target the canonical AISI names.
+  const matMap: Record<string, string> = {
+    steel: "1045",
+    tool_steel: "D2",
+    hardened_steel: "D2",
+    stainless: "304",
+    aluminum: "6061",
+    copper: "6061",         // copper not in CANONICAL_MATERIAL_DB yet — closest thermal proxy
+    titanium: "Ti-6Al-4V",
+    inconel: "Inconel 718",
     carbide: "tungsten_carbide",
   };
 
-  const canonKey = matMap[key] || "low_carbon_steel";
+  // Fallback to AISI 1045 (most common steel) when material is unrecognised.
+  // 1045 is the canonical default per Sandvik/Coromant General Turning Handbook.
+  const canonKey = matMap[key] || "1045";
   const mat = CANONICAL_MATERIALS[canonKey];
 
   // Kunieda eta from EDM_PHYSICS (per material)
@@ -300,6 +308,26 @@ export class WireEDMSettingsEngine {
     );
 
     const firstCutSpeed = constraints.constrained_feed;
+
+    // SHOP-FLOOR SAFETY GUARD (Karpathy R12 — fail loud, never emit NaN).
+    // A non-finite feed reaching this point means an upstream input combination
+    // (e.g. a wire diameter with no published condition AND a degenerate
+    // Kunieda path) produced NaN/Infinity. Returning it would inject NaN into
+    // the generated WEDM program → a real machine fault. Throw with the full
+    // derivation context so the operator/caller sees exactly which combination
+    // is unsupported instead of a silent bad number.
+    if (!Number.isFinite(firstCutSpeed) || firstCutSpeed <= 0) {
+      throw new Error(
+        `WireEDMSettingsEngine: non-positive/non-finite first-cut feed ` +
+        `(${firstCutSpeed}) for wire=${input.wire_type} ` +
+        `material=${input.workpiece_material} thickness=${input.workpiece_thickness_mm}mm. ` +
+        `unconstrained=${unconstrainedFeed}, method=${derivationMethod}, ` +
+        `mrr=${mrr_mm2_per_min}, kerf=${kerf_mm}. ` +
+        `No published condition for this wire diameter and the Kunieda ` +
+        `fallback degenerated — add a PUBLISHED_PULSE_CONDITION entry for ` +
+        `${wire.diameter_mm}mm ${wire.wire_type_key} wire or use a supported wire.`
+      );
+    }
 
     // Material-specific Toenshoff gamma (energy cascade per skim)
     const gamma = EDM_PHYSICS.toenshoff.gamma[thermal.material_key as keyof typeof EDM_PHYSICS.toenshoff.gamma] ?? 0.25;
