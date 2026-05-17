@@ -417,7 +417,7 @@ export class TribalPlaybookEnforcementEngine {
       materials_covered: Object.keys(TRIBAL_BOUNDS).length,
       operations_covered: Object.keys(OPERATION_RULES).length,
       tribal_tips_available: tribalKnowledgeEngine.search({ limit: 10000 }).length,
-      playbook_rules_available: machiningPlaybookEngine.getAllRules().length,
+      playbook_rules_available: machiningPlaybookEngine.stats().total ?? 0,
     };
   }
 
