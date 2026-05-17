@@ -1177,7 +1177,7 @@ export async function executeAIReasoningAction(
         };
         result = await latheAIOrchestrationEngine.orchestrateFullAnalysis(
           p.program as Parameters<typeof latheAIOrchestrationEngine.orchestrateFullAnalysis>[0],
-          (p.context ?? {}) as Parameters<typeof latheAIOrchestrationEngine.orchestrateFullAnalysis>[1],
+          (p.context ?? {}) as unknown as Parameters<typeof latheAIOrchestrationEngine.orchestrateFullAnalysis>[1],
           p.strategy as Parameters<typeof latheAIOrchestrationEngine.orchestrateFullAnalysis>[2],
         );
         break;
