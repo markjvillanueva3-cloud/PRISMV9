@@ -449,7 +449,8 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "mti_get_adjustment", "mti_check_failure_modes", "mti_get_statistics",
 "ldl_optimize_parameters", "ldl_validate_sequence",
 "ldl_get_fuzzy_speed_recommendation", "ldl_reason_tool_selection",
-"dr_generate_flash_report"] as const;
+"dr_generate_flash_report",
+"fq_validate", "fq_is_forge_in_progress", "fq_get_forge_lock_info"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -3144,6 +3145,66 @@ export function registerDevDispatcher(server: any): void {
               in_progress_count: report.jobs_in_progress.length,
               downtime_cause_count: report.top_downtime_causes.length,
             };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-FQ: ForgeQuintEngine ─────────────────
+          case "fq_validate": {
+            const { forgeQuintEngine } = await import("../../engines/ForgeQuintEngine.js");
+            // ForgeQuintInput shape: engineName/description/keywords/engineCode/
+            // testCode/dispatcherName/actionName + skill/hook/correlation extras.
+            // Schema fills optional fields with "" or [] when caller omits them.
+            const p = params as {
+              engineName: string;
+              description: string;
+              keywords: string[];
+              engineCode: string;
+              testCode: string;
+              dispatcherName: string;
+              actionName: string;
+              skillContent?: string;
+              hookContent?: string;
+              hookFilename?: string;
+              correlationId?: string;
+            };
+            const v = await forgeQuintEngine.validate({
+              engineName: p.engineName,
+              description: p.description,
+              keywords: p.keywords,
+              engineCode: p.engineCode,
+              testCode: p.testCode,
+              dispatcherName: p.dispatcherName,
+              actionName: p.actionName,
+              skillContent: p.skillContent ?? "",
+              hookContent: p.hookContent ?? "",
+              hookFilename: p.hookFilename ?? "",
+              ...(p.correlationId ? { correlationId: p.correlationId } : {}),
+            });
+            // v returns {valid:bool, errors[], warnings[], similarAssets[]}.
+            result = {
+              valid: v.valid,
+              errors: v.errors,
+              warnings: v.warnings,
+              similar_assets: v.similarAssets,
+              error_count: v.errors.length,
+              warning_count: v.warnings.length,
+              similar_assets_count: v.similarAssets.length,
+            };
+            break;
+          }
+          case "fq_is_forge_in_progress": {
+            const { forgeQuintEngine } = await import("../../engines/ForgeQuintEngine.js");
+            const inProgress = forgeQuintEngine.isForgeInProgress();
+            result = { in_progress: inProgress };
+            break;
+          }
+          case "fq_get_forge_lock_info": {
+            const { forgeQuintEngine } = await import("../../engines/ForgeQuintEngine.js");
+            const info = forgeQuintEngine.getForgeLockInfo();
+            // info may be null when the lock is free — slimResponse strips
+            // null fields, so add explicit has_lock discriminator.
+            result = info === null
+              ? { has_lock: false }
+              : { has_lock: true, lock_info: info };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-CEX: CatalogExtractionEngine ─────────

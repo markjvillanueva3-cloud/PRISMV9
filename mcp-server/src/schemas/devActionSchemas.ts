@@ -2746,4 +2746,43 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     requested_by: z.string().min(1).max(256)
       .describe("Requester identifier (employee id, system name, etc.)"),
   }).describe("Aggregate end-of-day flash report (jobs/scrap/OEE/downtime). Pure read."),
+
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-FQ: ForgeQuintEngine wiring ──
+  // Three pure-read surfaces. forge() + rollback() DEFERRED — forge()
+  // is a fictional-template-injection class (LLM-callable would let any
+  // chat inject arbitrary engine code into the repo via
+  // engineCode/testCode/hookContent params); rollback() mutates the
+  // filesystem.
+  fq_validate: z.object({
+    engineName: z.string().min(1).max(128)
+      .describe("Engine name (PascalCase ending in 'Engine')"),
+    description: z.string().min(1).max(2048)
+      .describe("Engine description (engine enforces >=10 chars)"),
+    keywords: z.array(z.string().min(1).max(64)).max(64)
+      .describe("Domain keywords for similarity check (max 64 items)"),
+    engineCode: z.string().min(1).max(1_000_000)
+      .describe("Engine code (1MB DoS bound)"),
+    testCode: z.string().min(1).max(1_000_000)
+      .describe("Test code (1MB DoS bound)"),
+    dispatcherName: z.string().min(1).max(128)
+      .describe("Target dispatcher name"),
+    actionName: z.string().min(1).max(128)
+      .describe("Action name for dispatcher wiring"),
+    skillContent: z.string().min(0).max(1_000_000).optional()
+      .describe("Skill markdown content (1MB DoS bound) — unused by validate but kept for forge-symmetry"),
+    hookContent: z.string().min(0).max(1_000_000).optional()
+      .describe("Hook script content (1MB DoS bound) — unused by validate but kept for forge-symmetry"),
+    hookFilename: z.string().min(0).max(256).optional()
+      .describe("Hook filename — unused by validate but kept for forge-symmetry"),
+    correlationId: z.string().min(0).max(128).optional()
+      .describe("Optional correlation id"),
+  }).describe("Validate proposed-asset input WITHOUT writing files. Pure read."),
+
+  fq_is_forge_in_progress: z.object({}).describe(
+    "Check whether a forge transaction currently holds the global forge lock. Pure read."
+  ),
+
+  fq_get_forge_lock_info: z.object({}).describe(
+    "Get current forge-lock holder/session/acquiredAt (or null when free). Pure read."
+  ),
 };
