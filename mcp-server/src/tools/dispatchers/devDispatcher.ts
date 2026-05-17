@@ -451,7 +451,9 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "ldl_get_fuzzy_speed_recommendation", "ldl_reason_tool_selection",
 "dr_generate_flash_report",
 "fq_validate", "fq_is_forge_in_progress", "fq_get_forge_lock_info",
-"cmc_simulate"] as const;
+"cmc_simulate",
+"icc_calculate_similarity", "icc_find_similar", "icc_interpolate",
+"icc_get_coverage_statistics", "icc_export"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -3206,6 +3208,48 @@ export function registerDevDispatcher(server: any): void {
             result = info === null
               ? { has_lock: false }
               : { has_lock: true, lock_info: info };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-ICC: InfiniteConditionCombinator ─────
+          case "icc_calculate_similarity": {
+            const { infiniteConditionCombinatorEngine } = await import("../../engines/InfiniteConditionCombinatorEngine.js");
+            const p = params as { v1: Parameters<typeof infiniteConditionCombinatorEngine.calculateSimilarity>[0]; v2: Parameters<typeof infiniteConditionCombinatorEngine.calculateSimilarity>[1] };
+            const similarity = infiniteConditionCombinatorEngine.calculateSimilarity(p.v1, p.v2);
+            result = { v1: p.v1, v2: p.v2, similarity };
+            break;
+          }
+          case "icc_find_similar": {
+            const { infiniteConditionCombinatorEngine } = await import("../../engines/InfiniteConditionCombinatorEngine.js");
+            const p = params as { vector: Parameters<typeof infiniteConditionCombinatorEngine.findSimilar>[0]; limit?: number };
+            const matches = infiniteConditionCombinatorEngine.findSimilar(p.vector, p.limit);
+            result = { vector: p.vector, matches, count: matches.length };
+            break;
+          }
+          case "icc_interpolate": {
+            const { infiniteConditionCombinatorEngine } = await import("../../engines/InfiniteConditionCombinatorEngine.js");
+            const target = (params as { targetVector: Parameters<typeof infiniteConditionCombinatorEngine.interpolate>[0] }).targetVector;
+            const interp = infiniteConditionCombinatorEngine.interpolate(target);
+            // interp returns {targetVector, predictedParameters, basedOn[],
+            //                 interpolationMethod}.
+            result = {
+              targetVector: target,
+              interpolation: interp,
+              parameter_count: Object.keys(interp.predictedParameters).length,
+              based_on_count: interp.basedOn.length,
+              method: interp.interpolationMethod,
+            };
+            break;
+          }
+          case "icc_get_coverage_statistics": {
+            const { infiniteConditionCombinatorEngine } = await import("../../engines/InfiniteConditionCombinatorEngine.js");
+            const stats = infiniteConditionCombinatorEngine.getCoverageStatistics();
+            result = { stats };
+            break;
+          }
+          case "icc_export": {
+            const { infiniteConditionCombinatorEngine } = await import("../../engines/InfiniteConditionCombinatorEngine.js");
+            const entries = infiniteConditionCombinatorEngine.export();
+            result = { entries, count: entries.length };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-CMC: CapacityMonteCarloEngine ────────

@@ -2793,6 +2793,63 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   // DoS bounds chosen to cap wall-time worst case at ~few seconds:
   //   N(machines) * N(simulations) * horizon weeks loop body is O(M*N*W)
   //   100 machines * 50k sims * 104 weeks ~= 520M loop bodies — cap holds.
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-ICC: InfiniteConditionCombinatorEngine ──
+  // Five pure-read surfaces. recordKnowledge() + import() DEFERRED —
+  // both mutate the singleton's shared knowledge Map (ML-training-data-
+  // corruption class: LLM-callable would let any chat poison the
+  // condition→parameter knowledge base with crafted vectors + bogus
+  // outcomes; import() goes further and replaces the whole base).
+  icc_calculate_similarity: z.object({
+    v1: z.object({
+      material: z.string().min(1).max(128),
+      geometry: z.string().min(1).max(128),
+      machine: z.string().min(1).max(128),
+      tool: z.string().min(1).max(128),
+      operation: z.string().min(1).max(128),
+      environment: z.record(z.string().min(1).max(64), z.number()).optional(),
+    }).describe("First condition vector"),
+    v2: z.object({
+      material: z.string().min(1).max(128),
+      geometry: z.string().min(1).max(128),
+      machine: z.string().min(1).max(128),
+      tool: z.string().min(1).max(128),
+      operation: z.string().min(1).max(128),
+      environment: z.record(z.string().min(1).max(64), z.number()).optional(),
+    }).describe("Second condition vector"),
+  }).describe("Compute similarity score in [0,1] between two condition vectors. Pure compute."),
+
+  icc_find_similar: z.object({
+    vector: z.object({
+      material: z.string().min(1).max(128),
+      geometry: z.string().min(1).max(128),
+      machine: z.string().min(1).max(128),
+      tool: z.string().min(1).max(128),
+      operation: z.string().min(1).max(128),
+      environment: z.record(z.string().min(1).max(64), z.number()).optional(),
+    }),
+    limit: z.number().int().positive().max(100).optional()
+      .describe("Result cap (default 5, max 100)"),
+  }).describe("Find similar conditions in knowledge base (similarity >= 0.6 threshold). Pure read."),
+
+  icc_interpolate: z.object({
+    targetVector: z.object({
+      material: z.string().min(1).max(128),
+      geometry: z.string().min(1).max(128),
+      machine: z.string().min(1).max(128),
+      tool: z.string().min(1).max(128),
+      operation: z.string().min(1).max(128),
+      environment: z.record(z.string().min(1).max(64), z.number()).optional(),
+    }),
+  }).describe("Interpolate parameters for unknown condition combination (weighted_average or hierarchical_bayes). Pure read."),
+
+  icc_get_coverage_statistics: z.object({}).describe(
+    "Aggregate coverage: totalCombinations + uniqueMaterials + uniqueMachines + uniqueOperations + per-level hierarchy. Pure read."
+  ),
+
+  icc_export: z.object({}).describe(
+    "Export all condition knowledge entries as array. Pure read (no I/O)."
+  ),
+
   cmc_simulate: z.object({
     machines: z.array(z.object({
       id: z.string().min(1).max(128),
