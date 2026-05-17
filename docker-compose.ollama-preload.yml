@@ -1,0 +1,66 @@
+# REAPER-PERMFIX-MS1 / U-D2 — Ollama GPU residency + model preload override.
+#
+# Additive compose override. Does NOT modify the shared docker-compose.yml.
+# Layer it on top of the base + GPU overrides:
+#
+#   docker compose \
+#     -f docker-compose.yml \
+#     -f docker-compose.gpu.yml \
+#     -f docker-compose.ollama-preload.yml \
+#     up -d ollama ollama-model-preload
+#
+# What this override adds (vs the base ollama service):
+#   1. OLLAMA_KEEP_ALIVE 30m -> 24h — once a model is loaded into the RTX
+#      4080's VRAM it STAYS resident for a full day, so the next /loop or
+#      hook offload gets a <100ms first token instead of a 30-90s cold load.
+#      (The base compose's 30m means a model evicts between work bursts and
+#      every fresh burst pays the cold-load tax — the exact latency the
+#      REAPER-PERMFIX plan flagged as "Ollama loaded=0 models".)
+#   2. A one-shot `ollama-model-preload` init service that waits for the
+#      ollama daemon to be healthy, then pulls the model set so the volume
+#      is warm. It exits 0 when done (restart: "no") — it is NOT a
+#      long-running service.
+#
+# Model set (override at run time with PRELOAD_MODELS):
+#   - qwen2.5-coder:7b  — the offload workhorse (code explain/summarize/
+#                          classify/lint per CLAUDE.md AI routing). ~4.7GB.
+#   - qwen2.5-coder:32b — the GPU-resident heavy model. ~20GB pull, ~18GB
+#                          VRAM at q4_K_M — fits the 16GB card only with
+#                          partial CPU offload; for a pure-GPU resident
+#                          model prefer qwen2.5-coder:14b (~9GB). See README.
+#
+# First run downloads ~25GB — expected and one-time (the volume persists).
+
+services:
+  ollama:
+    environment:
+      # 24h residency — model stays in VRAM across work bursts.
+      OLLAMA_KEEP_ALIVE: "24h"
+
+  ollama-model-preload:
+    image: ollama/ollama:latest
+    container_name: prism-ollama-preload
+    depends_on:
+      ollama:
+        condition: service_healthy
+    environment:
+      # Talk to the sibling daemon over the compose network, not localhost.
+      OLLAMA_HOST: "ollama:11434"
+      # Space-separated; override to change the warmed set without editing
+      # this file:  PRELOAD_MODELS="qwen2.5-coder:14b" docker compose ... up
+      PRELOAD_MODELS: "qwen2.5-coder:7b qwen2.5-coder:32b"
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        set -e
+        echo "[ollama-preload] warming models: $${PRELOAD_MODELS}"
+        for m in $${PRELOAD_MODELS}; do
+          echo "[ollama-preload] pull $${m}"
+          ollama pull "$${m}" || { echo "[ollama-preload] FAILED $${m}" >&2; exit 1; }
+        done
+        echo "[ollama-preload] done — $${PRELOAD_MODELS} resident in volume"
+    networks:
+      - prism-net
+    # One-shot: pull, report, exit. Never restart — a finished preload
+    # restarting would re-pull on every daemon bounce.
+    restart: "no"
