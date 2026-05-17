@@ -38,8 +38,8 @@
  */
 
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync, mkdirSync, writeFileSync, renameSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { existsSync, readFileSync, mkdirSync, writeFileSync, renameSync, readdirSync, statSync } from "node:fs";
+import { dirname, join, basename, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -49,6 +49,13 @@ const SECTION_HEADER = "## Recent regressions";
 const GIT_TIMEOUT_MS = 5000;
 const SHA_RE = /\b[0-9a-f]{7,40}\b/;
 const PATH_RE = /\b(?:mcp-server\/src\/[\w/.-]+\.[a-z]+|\.claude\/(?:hooks|helpers|commands|schemas)\/[\w/.-]+\.[a-z]+|scripts\/[\w/.-]+\.[a-z]+)\b/g;
+// v1.1: also resolve bare filename refs like `stop-force-loop-continue.mjs:174`
+// or `posttool-edit-bundle.mjs` that the strict PATH_RE skips. Requires a
+// basename → fullpath index built at startup; ambiguous basenames (>1 hit)
+// are skipped to keep false-positive rate low.
+const BARE_NAME_RE = /\b([\w-]+\.(?:mjs|ts|mts|js))\b/g;
+const BARE_NAME_SCAN_DIRS = [".claude/hooks", ".claude/helpers", "scripts", "mcp-server/src"];
+const BARE_NAME_SCAN_MAX_DEPTH = 5;
 const FIX_SHIPPED_RE = /(?:fix(?:ed)?(?:\s+in)?|shipped(?:\s+in)?)\s*[:—]?\s*(?:commit\s+)?([0-9a-f]{7,40})/i;
 
 const argv = process.argv.slice(2);
@@ -72,7 +79,52 @@ function extractSection(md) {
   return lines.slice(startIdx + 1, endIdx).join("\n");
 }
 
-function parseEntries(sectionText) {
+// v1.1: walk known source dirs once to build a basename → [fullpath] index.
+// Caller-supplied for testability; defaults to scanning BARE_NAME_SCAN_DIRS.
+// Ambiguous basenames (>1 resolution) are kept in the index so the resolver
+// can detect ambiguity and skip them (preferring false-negatives over noise).
+function buildBasenameIndex(rootDir = REPO_ROOT, scanDirs = BARE_NAME_SCAN_DIRS) {
+  const index = new Map();
+  const walk = (absDir, depth) => {
+    if (depth > BARE_NAME_SCAN_MAX_DEPTH) return;
+    let entries;
+    try { entries = readdirSync(absDir, { withFileTypes: true }); }
+    catch { return; }
+    for (const e of entries) {
+      const full = join(absDir, e.name);
+      if (e.isDirectory()) {
+        if (e.name === "node_modules" || e.name === "dist" || e.name === "__tests__") continue;
+        walk(full, depth + 1);
+      } else if (e.isFile() && /\.(mjs|ts|mts|js)$/.test(e.name)) {
+        const rel = relative(rootDir, full).replace(/\\/g, "/");
+        const arr = index.get(e.name) || [];
+        arr.push(rel);
+        index.set(e.name, arr);
+      }
+    }
+  };
+  for (const dir of scanDirs) walk(join(rootDir, dir), 0);
+  return index;
+}
+
+// Resolve bare filename refs in entry body via the index. Drops:
+//   - basenames that don't appear in the index (not source files we track)
+//   - ambiguous basenames (>1 fullpath hit) — could be any of them
+//   - basenames that are already covered by a full-path match (dedupe)
+function resolveBareNames(body, basenameIndex, fullPaths) {
+  const fullBasenames = new Set(fullPaths.map(p => basename(p)));
+  const resolved = new Set();
+  for (const m of body.matchAll(BARE_NAME_RE)) {
+    const name = m[1];
+    if (fullBasenames.has(name)) continue;
+    const hits = basenameIndex.get(name);
+    if (!hits || hits.length !== 1) continue;
+    resolved.add(hits[0]);
+  }
+  return [...resolved];
+}
+
+function parseEntries(sectionText, basenameIndex = null) {
   // Entries start with `- YYYY-MM-DD |`. Continuation lines (multi-line entries)
   // are absorbed until the next entry header or end-of-section.
   const out = [];
@@ -89,12 +141,15 @@ function parseEntries(sectionText) {
   }
   if (current) out.push(current);
   // Hydrate parsed fields
+  const idx = basenameIndex || buildBasenameIndex();
   return out.map(e => {
     const body = e.rawLines.join(" ");
     const observedShaMatch = body.match(/observed-in:\s*([0-9a-f]{7,40})/i);
     const fixShippedMatch = body.match(FIX_SHIPPED_RE);
     const isPending = /fix:\s*pending/i.test(body);
-    const paths = [...new Set((body.match(PATH_RE) || []))];
+    const fullPaths = [...new Set((body.match(PATH_RE) || []))];
+    const barePaths = resolveBareNames(body, idx, fullPaths);
+    const paths = [...new Set([...fullPaths, ...barePaths])];
     const titleMatch = body.match(/\*\*([^*]+)\*\*/);
     return {
       date: e.date,
@@ -103,6 +158,8 @@ function parseEntries(sectionText) {
       fixShippedSha: fixShippedMatch ? fixShippedMatch[1] : null,
       isPending,
       paths,
+      fullPathCount: fullPaths.length,
+      bareResolvedCount: barePaths.length,
       bodyLen: body.length,
     };
   });
