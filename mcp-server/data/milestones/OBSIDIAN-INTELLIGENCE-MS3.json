@@ -339,7 +339,20 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "Stop daemon; files in queue/ stay untouched"
+          "rollback": "Stop daemon; files in queue/ stay untouched",
+          "status": "completed",
+          "ship_record": {
+            "shipped_at": "2026-05-17T16:04:28.622Z",
+            "shipped_by": "claude-c0f06dee-charlie",
+            "deliverables_on_disk": [
+              "mcp-server/src/engines/QueueProcessorEngine.ts",
+              "mcp-server/src/__tests__/QueueProcessorEngine.test.ts",
+              "scripts/queue-processor-daemon.mjs"
+            ],
+            "per_file_scrutiny": "2-arm gate on each of 3 files (engine: Arm A FAIL + Arm B FAIL → fixes → Arm A & B PASS; test: Arm B PASS, Arm A truncated; daemon: both PASS)",
+            "smoke_test": "node scripts/queue-processor-daemon.mjs --once --dry-run --no-ollama --json → ok:true exit 0; 48/48 vitest pass",
+            "notes": "P0 atomicity (write→rename→rename), P0 oversize-not-failed (error:null), P0 idempotent flag, P1 frozen now, P1 OOM-skip on oversize, P1 ENOENT race-loss, P1 relative path. Follow-up units recommended: U-QUEUE-DISPATCHER-WIRE (memoryDispatcher action), U-QUEUE-WIN-PATHS (path.relative for Windows), U-QUEUE-WIN-RACE (EPERM/EBUSY race-loss)."
+          }
         },
         {
           "id": "B4",
