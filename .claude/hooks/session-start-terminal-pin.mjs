@@ -111,8 +111,15 @@ function readPriorSlotFromHandoff(chatId) {
     if (candidates.length === 0) return { slot: null, topic: null, file: null };
     const file = `${handoffsDir}/${candidates[0].name}`;
     const content = fs.readFileSync(file, "utf-8");
-    const slotM = content.match(/^slot:\s*([^\n]*)$/m);
-    const topicM = content.match(/^topic:\s*([^\n]*)$/m);
+    // SLOT-DRIFT-FIX-MS0/U-SDF01 (2026-05-17, slot bravo claude-339c8ff7):
+    // `\s*` is greedy and includes `\n` in JavaScript regex, so on an empty
+    // `slot:` line `\s*` consumed the trailing newline and `[^\n]*` captured
+    // the NEXT line ("written_at: 2026-05-17T..."). The drift detector then
+    // reported "prior session held `written_at: 2026-05-17t...`" — pure
+    // garbage that triggered spurious "force-take" prompts and caused real
+    // peer chats to steal slots. Use `[ \t]*` (same-line whitespace only).
+    const slotM = content.match(/^slot:[ \t]*([^\n]*)$/m);
+    const topicM = content.match(/^topic:[ \t]*([^\n]*)$/m);
     const slot = slotM ? (slotM[1].trim().toLowerCase() || null) : null;
     const topic = topicM ? (topicM[1].trim() || null) : null;
     return { slot, topic, file: candidates[0].name };

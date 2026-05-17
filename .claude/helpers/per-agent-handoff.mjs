@@ -471,14 +471,26 @@ function cmdWrite(identity, args) {
       }
     } catch { /* fail-soft — leave slot empty */ }
   }
+  // SLOT-DRIFT-FIX-MS0/U-SDF01 (2026-05-17, slot bravo claude-339c8ff7):
+  // OMIT the `slot:` line entirely when resolvedSlot is empty. Emitting a
+  // bare `slot: ` (no value) interacts pathologically with any downstream
+  // greedy parser that uses `\s*` after `slot:` — the parser eats the
+  // newline and captures the NEXT line as if it were the slot value (the
+  // partner bug, fixed in session-start-terminal-pin.mjs:114). Belt+
+  // suspenders: omit the field on the writer side too, so an empty slot
+  // never produces a corruptible YAML line. Downstream parsers already
+  // treat "no slot field" as `slot: null` (priorSlot === null short-
+  // circuits the drift warning) — that's the correct semantics for an
+  // unknown binding, vs the misleading-non-empty-but-garbage line the
+  // bare-emit produced.
   const frontmatter = [
     "---",
     `session: ${identity.instance}`,
     `topic: ${effectiveTopic || ""}`,
     // Slot field carries the binding for post-/compact recovery. "golf" still
-    // remaps the filename base (U-CLEANUP-A4); alpha..foxtrot are now populated
-    // (was empty before AAM01) so auto-resume + terminal-pin can read them.
-    `slot: ${resolvedSlot}`,
+    // remaps the filename base (U-CLEANUP-A4); alpha..foxtrot are populated
+    // post-AAM01 so auto-resume + terminal-pin can read them. EMPTY → omit.
+    ...(resolvedSlot ? [`slot: ${resolvedSlot}`] : []),
     `written_at: ${now()}`,
     `machine: ${identity.machine}`,
     `family: ${identity.family}`,
