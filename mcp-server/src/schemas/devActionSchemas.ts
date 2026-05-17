@@ -2850,6 +2850,23 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     "Export all condition knowledge entries as array. Pure read (no I/O)."
   ),
 
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-OSC: OperatingSystemCoordinationEngine ──
+  // Two pure-read static methods. setHotJob + clearHotJob DEFERRED
+  // (mutate module-scope `hotJobs` array; LLM-callable would let any
+  // chat thrash other chats' hot-job priority queue).
+  osc_list_hot_jobs: z.object({}).describe(
+    "List active hot jobs, sorted. Pure read."
+  ),
+
+  osc_build_messages_workspace: z.object({
+    profileId: z.string().min(1).max(128).optional()
+      .describe("Operator profile id (admin/machinist/inspector/planner)"),
+    email: z.string().min(0).max(256).nullable().optional()
+      .describe("Operator email (or null to omit)"),
+    threadId: z.string().min(0).max(256).nullable().optional()
+      .describe("Selected thread id (or null/missing for first thread)"),
+  }).describe("Build a per-scope messages workspace snapshot. Pure read."),
+
   cmc_simulate: z.object({
     machines: z.array(z.object({
       id: z.string().min(1).max(128),

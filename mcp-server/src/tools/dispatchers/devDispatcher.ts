@@ -453,7 +453,8 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "fq_validate", "fq_is_forge_in_progress", "fq_get_forge_lock_info",
 "cmc_simulate",
 "icc_calculate_similarity", "icc_find_similar", "icc_interpolate",
-"icc_get_coverage_statistics", "icc_export"] as const;
+"icc_get_coverage_statistics", "icc_export",
+"osc_list_hot_jobs", "osc_build_messages_workspace"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -3250,6 +3251,35 @@ export function registerDevDispatcher(server: any): void {
             const { infiniteConditionCombinatorEngine } = await import("../../engines/InfiniteConditionCombinatorEngine.js");
             const entries = infiniteConditionCombinatorEngine.export();
             result = { entries, count: entries.length };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-OSC: OperatingSystemCoordination ─────
+          case "osc_list_hot_jobs": {
+            const { OperatingSystemCoordinationEngine } = await import("../../engines/OperatingSystemCoordinationEngine.js");
+            // listHotJobs is static — call via class, not instance singleton.
+            const jobs = OperatingSystemCoordinationEngine.listHotJobs();
+            result = { jobs, count: jobs.length };
+            break;
+          }
+          case "osc_build_messages_workspace": {
+            const { OperatingSystemCoordinationEngine } = await import("../../engines/OperatingSystemCoordinationEngine.js");
+            const p = params as { profileId?: string; email?: string | null; threadId?: string | null };
+            const workspace = OperatingSystemCoordinationEngine.buildMessagesWorkspace({
+              ...(p.profileId !== undefined ? { profileId: p.profileId } : {}),
+              ...(p.email !== undefined ? { email: p.email } : {}),
+              ...(p.threadId !== undefined ? { threadId: p.threadId } : {}),
+            });
+            // workspace returns {summary, identityLabel, activeMailbox,
+            //                    connectionNote, channels[], threads[],
+            //                    selectedThreadId, selectedThreadEntries[],
+            //                    actionLabels, linkedRecords[]}.
+            result = {
+              workspace,
+              channel_count: workspace.channels.length,
+              thread_count: workspace.threads.length,
+              entry_count: workspace.selectedThreadEntries.length,
+              linked_record_count: workspace.linkedRecords.length,
+            };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-CMC: CapacityMonteCarloEngine ────────
