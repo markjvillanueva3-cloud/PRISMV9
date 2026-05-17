@@ -141,7 +141,7 @@ export class CAMScenarioGeneratorEngine {
    * all hosts, calm stress, 12-frame expected count, 100 ms p99 budget,
    * 6061-T6 stock slot.
    */
-  static generate(config: GeneratorConfig = {}): GeneratedScenario[] {
+  static generate(config: z.input<typeof GeneratorConfigSchema> = {}): GeneratedScenario[] {
     const cfg = GeneratorConfigSchema.parse(config);
     const cats = cfg.categories ?? ALL_CATEGORIES;
     const allowedHosts = cfg.hosts ?? ALL_HOSTS;
@@ -220,7 +220,7 @@ export class CAMScenarioGeneratorEngine {
   }
 
   /** Predict the count without materializing the scenarios. Cheap pre-flight. */
-  static predictCount(config: GeneratorConfig = {}): number {
+  static predictCount(config: z.input<typeof GeneratorConfigSchema> = {}): number {
     const cfg = GeneratorConfigSchema.parse(config);
     const cats = cfg.categories ?? ALL_CATEGORIES;
     const allowedHosts = cfg.hosts ?? ALL_HOSTS;
