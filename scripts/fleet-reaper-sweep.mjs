@@ -57,6 +57,7 @@
  *   PRISM_FLEET_REAPER_INTERVAL_SEC=N     default 300
  *   PRISM_FLEET_REAPER_MEM_PRESSURE_PCT=N default 90
  *   PRISM_FLEET_REAPER_MEM_CRITICAL_PCT=N default 95
+ *   PRISM_FLEET_REAPER_BALLAST_MB=N default 256 (0 disables the cushion)
  *
  * Exit codes: 0 ok · 1 sweep completed but reported a problem · 2 misuse.
  */
@@ -123,6 +124,16 @@ export const DEFAULT_MEM_PRESSURE_PCT = 90;
 // is still a candidate at a critical-pressure sweep is reaped THIS tick rather
 // than after another interval. Knob: PRISM_FLEET_REAPER_MEM_CRITICAL_PCT.
 export const DEFAULT_MEM_CRITICAL_PCT = 95;
+// FLEET-REAPER-MS1 Tier 1: critical-pressure memory ballast. A Buffer reserved
+// at CLI boot and released the first time a sweep reports the critical band.
+// On Windows commit charge is taken at allocation (not first touch), so a held
+// 256MB Buffer measurably inflates the very commit-pressure metric the reaper
+// gates on — and handing it back at the >= memCriticalPct alarm frees ~256MB
+// at exactly the moment the sweep needs headroom to enumerate + kill (the
+// documented OOM-blinding failure mode: under ~96% commit even the reaper's own
+// PowerShell enumeration can fail). Knob: PRISM_FLEET_REAPER_BALLAST_MB (0=off).
+export const DEFAULT_BALLAST_MB = 256;
+const MAX_BALLAST_MB = 4096;
 
 // ── FLEET-REAPER-MS1 Layer 1: soft RAM/CPU relief ──
 // Under memory pressure, processes owned by STALE chat slots (no heartbeat in
@@ -1456,6 +1467,85 @@ export function tierFromPressure(usedPct, warnPct, criticalPct, killAfter) {
   return { tier: "normal", effectiveKillAfter: ka };
 }
 
+// ── FLEET-REAPER-MS1 Tier 1: ballast state machine ──
+// Module-scoped (one reservation per process — the monitor loop sweeps many
+// times against the same process). Pure decision + thin imperative shell so the
+// state machine is unit-testable without ever allocating a byte.
+let _ballast = null;          // Buffer | null — the live reservation
+let _ballastReleased = false; // one-shot latch — never re-reserve after release
+let _ballastBytes = 0;
+
+/**
+ * Pure ballast state machine. No allocation, env, clock, or I/O.
+ *   ballastMb <= 0 / non-finite        → "disabled"
+ *   already released (latched)         → "noop"
+ *   critical band  + allocated         → "release"
+ *   critical band  + never allocated   → "noop"   (nothing to hand back)
+ *   non-critical   + allocated         → "hold"
+ *   non-critical   + not yet allocated → "allocate"
+ * @returns {'disabled'|'noop'|'allocate'|'hold'|'release'}
+ */
+export function ballastAction({ ballastMb, allocated, released, pressureTier }) {
+  const mb = Number.isFinite(ballastMb) ? Math.max(0, Math.trunc(ballastMb)) : 0;
+  if (mb <= 0) return "disabled";
+  if (released) return "noop";
+  if (pressureTier === "critical") return allocated ? "release" : "noop";
+  return allocated ? "hold" : "allocate";
+}
+
+/**
+ * Imperative shell — reserve the ballast at CLI boot. Best-effort + fail-soft:
+ * an allocation failure (OOM / size cap) is surfaced as `alloc-failed`, never
+ * thrown — the reaper must keep working without the cushion (R12: surface, do
+ * not pretend). Idempotent: a second call while held returns `hold`.
+ */
+export function ensureBallast(ballastMb) {
+  const mb = clampInt(ballastMb, 0, 0, MAX_BALLAST_MB);
+  const act = ballastAction({
+    ballastMb: mb, allocated: _ballast !== null, released: _ballastReleased,
+    pressureTier: "normal",
+  });
+  if (act !== "allocate") return { state: act, mb };
+  try {
+    _ballast = Buffer.allocUnsafe(mb * 1024 * 1024);
+    _ballastBytes = mb * 1024 * 1024;
+    return { state: "allocated", mb };
+  } catch (err) {
+    _ballast = null;
+    _ballastBytes = 0;
+    return { state: "alloc-failed", mb, error: String(err?.message || err) };
+  }
+}
+
+/**
+ * Imperative shell — release on the critical alarm. One-shot + idempotent:
+ * latches `_ballastReleased` so a subsequent sweep in the same monitor loop
+ * does not (and cannot) re-reserve and re-impose the pressure just relieved.
+ * Delegates the decision to the pure `ballastAction`.
+ */
+export function releaseBallast(ballastMb, pressureTier) {
+  const act = ballastAction({
+    ballastMb, allocated: _ballast !== null, released: _ballastReleased,
+    pressureTier,
+  });
+  if (act !== "release") return { state: act, freedMb: 0 };
+  const freedMb = Math.round(_ballastBytes / (1024 * 1024));
+  _ballast = null;
+  _ballastReleased = true;
+  _ballastBytes = 0;
+  if (typeof global.gc === "function") {
+    try { global.gc(); } catch { /* --expose-gc not set — drop ref only */ }
+  }
+  return { state: "released", freedMb };
+}
+
+/** Test-only: reset module ballast state between hermetic cases. */
+export function __resetBallastForTest() {
+  _ballast = null;
+  _ballastReleased = false;
+  _ballastBytes = 0;
+}
+
 function clampInt(value, fallback, min, max) {
   // `null` and `undefined` must short-circuit to fallback BEFORE Number() —
   // `Number(null) === 0` which is finite, so without this guard a null upstream
@@ -1541,7 +1631,10 @@ function isNoteworthy(result) {
     // soft relief acted, or the coordinator pre-warmed / wrote an aggressive
     // hint, or an advisory layer errored — all worth a Monitor event + log line.
     !!(sr && (sr.priorityDemoted > 0 || sr.workingSetTrimmed > 0 || sr.error)) ||
-    !!(co && (co.prewarmFired || (co.hintWritten && co.shouldHintOffload) || co.error))
+    !!(co && (co.prewarmFired || (co.hintWritten && co.shouldHintOffload) || co.error)) ||
+    // FLEET-REAPER-MS1 Tier 1: a one-shot ballast release frees ~256MB — a
+    // material memory event the operator must see in the feed + log.
+    !!(result.ballast && result.ballast.state === "released")
   );
 }
 
@@ -1632,6 +1725,9 @@ export function summarize(result) {
     }
   }
   for (const cv of result.caveats) lines.push(`  caveat: ${cv}`);
+  if (result.ballast && result.ballast.state === "released") {
+    lines.push(`  ballast: released ~${result.ballast.freedMb}MB (critical-pressure relief)`);
+  }
   if (result.blockedBy && result.candidates.some((c) => c.willReap)) {
     lines.push(`  (reap suppressed: ${result.blockedBy})`);
   }
@@ -1649,7 +1745,11 @@ function monitorEvent(result) {
     parts.push(dry ? `would reap ${dry}: ${pids}` : `reaped ${ok}${fail ? `, ${fail} FAILED` : ""}: ${pids}`);
   }
   if (result.underPressure) {
-    parts.push(`memory pressure ${result.mem.usedPct}% — kill-after → ${result.config.effectiveKillAfter}`);
+    const band = result.criticalPressure ? "CRITICAL" : "pressure";
+    parts.push(`memory ${band} ${result.mem.usedPct}% — kill-after → ${result.config.effectiveKillAfter}`);
+  }
+  if (result.ballast && result.ballast.state === "released") {
+    parts.push(`ballast: released ~${result.ballast.freedMb}MB (critical relief)`);
   }
   // FLEET-REAPER-MS1: surface soft relief + coordinator activity in the feed.
   const sr = result.softRelief;
@@ -1697,6 +1797,8 @@ async function monitorLoop(cfg) {
       await sleep(intervalMs);
       continue;
     }
+    const rel = releaseBallast(cfg.ballastMb, result.pressureTier);
+    result.ballast = { state: rel.state, freedMb: rel.freedMb };
     if (isNoteworthy(result)) {
       process.stdout.write(monitorEvent(result) + "\n");
       logSweep(result);
@@ -1784,6 +1886,7 @@ export function resolveConfig(args, env = process.env) {
     killAfter: args.killAfter ?? envInt("PRISM_FLEET_REAPER_KILL_AFTER") ?? DEFAULT_KILL_AFTER,
     memPressurePct: envInt("PRISM_FLEET_REAPER_MEM_PRESSURE_PCT") ?? DEFAULT_MEM_PRESSURE_PCT,
     memCriticalPct: envInt("PRISM_FLEET_REAPER_MEM_CRITICAL_PCT") ?? DEFAULT_MEM_CRITICAL_PCT,
+    ballastMb: envInt("PRISM_FLEET_REAPER_BALLAST_MB") ?? DEFAULT_BALLAST_MB,
     dryRun: !!args.dryRun || env.PRISM_FLEET_REAPER_DRY_RUN === "1",
     // FLEET-REAPER-MS1: CLI flags OR env disable the soft-relief / coordinator
     // layers. The numeric tuning knobs (age, pressure %, gpu floor, hint TTL/Δ)
@@ -1808,7 +1911,7 @@ function usage() {
     "  --no-relief  skip Layer 1 (soft RAM/CPU relief — priority demote + working-set trim)",
     "  --no-coord   skip Layers 2-3 (GPU/Ollama probe + coordinator pre-warm + routing hint)",
     "Env knobs: PRISM_FLEET_REAPER_{DISABLE,DRY_RUN,KILL_AFTER,AGE_FLOOR_SEC,INTERVAL_SEC,",
-    "  MEM_PRESSURE_PCT,MEM_CRITICAL_PCT,SOFT_RELIEF_DISABLE,SOFT_RELIEF_AGE_SEC,SOFT_RELIEF_PRESSURE_PCT,",
+    "  MEM_PRESSURE_PCT,MEM_CRITICAL_PCT,BALLAST_MB,SOFT_RELIEF_DISABLE,SOFT_RELIEF_AGE_SEC,SOFT_RELIEF_PRESSURE_PCT,",
     "  OLLAMA_COORD_DISABLE,GPU_DISABLE,GPU_FREE_MIN_MB,HINT_TTL_SEC,HINT_THRESHOLD_DELTA,",
     "  OLLAMA_PREWARM_MODEL,OLLAMA_KEEP_ALIVE} · OLLAMA_URL",
     "",
@@ -1843,6 +1946,19 @@ async function main() {
 
   const cfg = resolveConfig(args);
 
+  // FLEET-REAPER-MS1 Tier 1: reserve the critical-pressure ballast at CLI boot.
+  // Skipped for --status (report-only, short-lived — reserving 256MB just to
+  // print a snapshot would itself add the pressure we're trying to relieve).
+  // Fail-soft: a failed reservation is logged, never fatal.
+  if (!args.status) {
+    const boot = ensureBallast(cfg.ballastMb);
+    if (boot.state === "alloc-failed") {
+      process.stderr.write(
+        `fleet-reaper-sweep: ballast reserve failed (${boot.mb}MB): ${boot.error} — continuing without cushion\n`,
+      );
+    }
+  }
+
   if (args.monitorLoop) {
     await monitorLoop(cfg); // runs until the process is killed
     return;
@@ -1853,6 +1969,13 @@ async function main() {
   // attributable). It is intentionally neither more nor less aggressive.
   const mode = args.status ? "status" : args.stopEvent ? "stop-event" : "once";
   const result = runSweep({ ...cfg, mode });
+
+  // Hand the ballast back the first time a sweep reports the critical band —
+  // ~256MB freed exactly when the box (and the reaper itself) needs headroom.
+  if (mode !== "status") {
+    const rel = releaseBallast(cfg.ballastMb, result.pressureTier);
+    result.ballast = { state: rel.state, freedMb: rel.freedMb };
+  }
 
   if (args.json) {
     process.stdout.write(JSON.stringify(result, null, 2) + "\n");
