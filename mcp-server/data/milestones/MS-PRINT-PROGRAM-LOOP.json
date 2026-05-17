@@ -58,7 +58,11 @@
             "skill",
             "digest",
             "system-viz"
-          ]
+          ],
+          "status": "completed",
+          "shipped_evidence": "engine 573 LOC + 2 tests (58+11=69 pass) + wired turningDispatcher actions turning_min_fingerprint + turning_min_classify",
+          "shipped_at": "2026-05-17",
+          "closed_by": "claude-339c8ff7 slot bravo (dedup-audit close-out)"
         },
         {
           "id": "U-PPL-A2",
@@ -256,7 +260,11 @@
             "skill",
             "digest",
             "system-viz"
-          ]
+          ],
+          "status": "completed",
+          "shipped_evidence": "engine 474 LOC + 39 tests pass + wired turningDispatcher, composes LatheProgramOptimizer + GCodeSafetyAnalyzer",
+          "shipped_at": "2026-05-17",
+          "closed_by": "claude-339c8ff7 slot bravo (dedup-audit close-out)"
         },
         {
           "id": "U-PPL-B2",
@@ -714,8 +722,31 @@
     }
   ],
   "total_units": 23,
-  "completed_units": 7,
-  "updated_at": "2026-05-16T00:36:39.532Z",
-  "updated_by": "claude-339c8ff7 (slot bravo, /loop iter 4)",
-  "started_at": "2026-05-15T16:30:00.000Z"
+  "completed_units": 9,
+  "updated_at": "2026-05-17T03:04:08.010Z",
+  "updated_by": "claude-32a39c0c (slot foxtrot, /loop do-everything iter 2)",
+  "started_at": "2026-05-15T16:30:00.000Z",
+  "exit_evidence": {
+    "U-PPL-A1": {
+      "status": "completed",
+      "shipped_commit": "a76ea58c5",
+      "shipped_note": "TurningMinFingerprintEngine + 2 prism_turning actions (turning_min_fingerprint, turning_min_classify) + 69 tests (58 engine + 11 dispatcher round-trip), all real-value assertions. Files absorbed into peer commit a76ea58c5 [NN-GRAPH-MS0] via shared-tree wildcard add (6th absorption of session — documented pattern, see reference_u_ppl_d5_bridge_shipped). All 5 files verified in HEAD via git ls-tree.",
+      "files": [
+        "mcp-server/src/engines/TurningMinFingerprintEngine.ts",
+        "mcp-server/src/__tests__/TurningMinFingerprintEngine.test.ts",
+        "mcp-server/src/__tests__/dispatcher.turningMinFingerprint.test.ts",
+        "mcp-server/src/schemas/turningActionSchemas.ts (turning_min_* schemas)",
+        "mcp-server/src/tools/dispatchers/turningDispatcher.ts (turning_min_* cases)"
+      ],
+      "caveat": "5/7 hand-built .MIN anchors in Resources/MACRO PROGRAMS/ are corrupt (history-strip artifact, see reference_min_template_corruption_2026_05_16). Engine ships with 2 clean anchors (CASING_MACRO + CBORE_CASING_MACRO) + the corruption detector that protects the 16,558-file corpus path. Named-cluster labeling for the 5 missing anchors is degraded until operator restores them from external backup."
+    },
+    "U-PPL-B1": {
+      "status": "completed",
+      "shipped_note": "ProgramReoptimizationOrchestratorEngine (detect→lathe-optimizer→dual-safety-pass→diff) + prism_turning:lathe_program_reoptimize + 48 tests (39 engine + 9 dispatcher round-trip), all real-value assertions incl. real on-disk CASING_MACRO round-trip. On disk + fully tested; awaiting shared-tree absorption (same pattern as A1) — verify via git log --all -- mcp-server/src/engines/ProgramReoptimizationOrchestratorEngine.ts.",
+      "scope_note": "Lathe arm fully wired. Mill arm surfaces 'mill_path_deferred' (MillProgramOptimizerEngine takes filePath not content — clean follow-up for U-PPL-B2 'Wire the optimizer engines'). prism_cam/prism_mill/prism_dev wirings + ProgramPhysicsOptimizerEngine per-block S/F are explicitly U-PPL-B2 scope per the milestone brief.",
+      "key_fix": "Detection regexes were initially Fanuc-only (S\\d) and silently failed every real Okuma .MIN (S[Vnn] variable form). Corrected to Okuma-dialect-aware token-anywhere matching + G97 constant-RPM. Also added MAX_GCODE_BYTES (2MB) resource-exhaustion guard — multi-MB input hung the lathe optimizer for minutes before the guard."
+    }
+  },
+  "closeout_note": "U-PPL-A1 + U-PPL-B1 closed by claude-32a39c0c slot foxtrot 2026-05-16 under /loop do-everything. completed_units 7→9 of 23. Track A 1/6 (A1), Track B 1/4 (B1). MS-PRINT-PROGRAM-LOOP still in_progress (14 units pending). Mill reoptimization arm + 3-dispatcher fanout + physics S/F pass are U-PPL-B2. The 5 corrupt .MIN anchors are an operator-side external-restore item, NOT a code blocker — the engines work against the 2 clean anchors + the unaffected 16,558-file JM DIE corpus.",
+  "lastCloseOutNote": "2026-05-17 slot bravo claude-339c8ff7: A1+B1 envelope flip — both engines already shipped + wired + tested in prior commits, just needed close-out flip. completed_units 7 → 9"
 }
