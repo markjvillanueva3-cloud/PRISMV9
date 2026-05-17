@@ -21,11 +21,66 @@
  * so once this completes the open browser tab updates without manual refresh.
  */
 import { spawnSync } from "node:child_process";
+import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { driftGateVerdict } from "./lib/drift-gate.mjs";
+import {
+  decideMergePostState,
+  readGraphNodeCount,
+  readAugmentationByteTotal,
+} from "./lib/regen-viz-merge-guard.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
+
+// W4 / U-DRIFT-HARD-FAIL. DRIFT_REPORT.json path is env-overridable so the
+// test suite can point the gate at a planted fixture without touching the
+// shared (multi-chat) report.
+const DRIFT_REPORT_PATH = process.env.PRISM_DRIFT_REPORT_PATH
+  || path.join(ROOT, "state", "shared", "system-viz", "DRIFT_REPORT.json");
+
+/**
+ * Run the drift hard-fail gate. Returns true on FAIL (caller flips exit code).
+ * @param {object} o
+ * @param {boolean} o.regenerate  run detect-system-viz-drift first (fresh truth)
+ *                                vs read the existing report as-is (gate-only).
+ */
+function runDriftGate({ regenerate }) {
+  if (process.env.PRISM_REGEN_VIZ_IGNORE_DRIFT === "1") {
+    console.log("[regen-viz] drift-gate: bypassed (PRISM_REGEN_VIZ_IGNORE_DRIFT=1)");
+    return false;
+  }
+  if (regenerate) {
+    // Refresh the report against the just-built graph. --no-write would defeat
+    // the purpose; we WANT the fresh report persisted. Gate on reality.
+    const dd = spawnSync(process.execPath, [path.join(ROOT, "scripts", "detect-system-viz-drift.mjs")], {
+      stdio: "inherit", cwd: ROOT,
+    });
+    if (dd.status !== 0) {
+      // The detector itself failing is loud but must NOT masquerade as a
+      // clean graph — treat as gate failure (fail-loud, Karpathy R12).
+      console.error("[regen-viz] drift-gate: detect-system-viz-drift failed to run — cannot certify graph integrity");
+      return true;
+    }
+  }
+  let report = null;
+  try { report = JSON.parse(fs.readFileSync(DRIFT_REPORT_PATH, "utf8")); }
+  catch { report = null; }
+  const v = driftGateVerdict(report);
+  console[v.fail ? "error" : "log"](`[regen-viz] ${v.summary}`);
+  return v.fail;
+}
+
+// Standalone fast verification channel: run ONLY the gate (no build chain).
+// `node scripts/regen-viz.mjs --drift-gate-only` reads the current
+// DRIFT_REPORT.json and exits 1 on truncated/root-missing. This is W4's
+// re-measurable signal (forge-audit-v2 doctrine) and lets cron/CI gate on
+// graph integrity in milliseconds instead of a multi-minute full regen.
+if (process.argv.includes("--drift-gate-only")) {
+  const fail = runDriftGate({ regenerate: !process.argv.includes("--no-detect") });
+  process.exit(fail ? 1 : 0);
+}
 
 const FAST = [
   "generate-engine-domain-inventory.mjs",
@@ -108,13 +163,39 @@ for (const s of scripts) {
   }
 }
 
-console.log(`[regen-viz] merging…`);
+// U-REGEN-VIZ-MERGE-FAILLOUD: snapshot pre-merge state so we can detect a
+// silent no-op merge (exit 0 with no graph delta despite augmentations on
+// disk). And — crucially — abort BEFORE the post-merge stages on any merge
+// failure: those stages read system-graph.json and publish downstream
+// artifacts (EXECUTIVE-BRIEFING, WIKI-DEBT-WORKLIST, obsidian-augmentation)
+// against the stale pre-merge graph, then drift-gate falsely certifies
+// "clean" because stale != truncated. Karpathy R12 — fail loud.
+const VIZ_DIR = path.join(ROOT, "state", "shared", "system-viz");
+const GRAPH_PATH = path.join(VIZ_DIR, "system-graph.json");
+const preMergeNodeCount = readGraphNodeCount(GRAPH_PATH);
+const augTotalBytes = readAugmentationByteTotal(VIZ_DIR);
+
+console.log(`[regen-viz] merging…  (pre-merge: ${preMergeNodeCount} nodes · augmentations: ${(augTotalBytes / 1e6).toFixed(1)} MB)`);
 const m = spawnSync(process.execPath, [...NODE_ARGS, path.join(ROOT, "scripts", "merge-augmentations.mjs")], {
   stdio: "inherit", cwd: ROOT,
 });
-if (m.status !== 0) {
-  console.error(`[regen-viz] ✗ merge failed`);
-  failed++;
+const postMergeNodeCount = readGraphNodeCount(GRAPH_PATH);
+const guard = decideMergePostState({
+  mergeStatus: m.status,
+  mergeSignal: m.signal,
+  preMergeNodeCount,
+  postMergeNodeCount,
+  augTotalBytes,
+});
+if (guard.abort) {
+  console.error(`[regen-viz] ✗ ${guard.message}`);
+  console.error(`[regen-viz] ABORTING — running post-merge stages against a stale graph would corrupt:`);
+  console.error(`[regen-viz]   • engine classification (operates on missing nodes)`);
+  console.error(`[regen-viz]   • obsidian backlinks (writes wiki/memory hits against stale node set)`);
+  console.error(`[regen-viz]   • executive briefing + wiki-debt worklist (publishes stale headlines)`);
+  console.error(`[regen-viz]   • drift-gate (would falsely certify stale graph as clean)`);
+  console.error(`[regen-viz] Diagnose directly: node ${NODE_ARGS.join(" ")} scripts/merge-augmentations.mjs`);
+  process.exit(guard.exitCode);
 }
 
 // Post-merge graph repair: reclassify eng.other.X engines using dispatcher
@@ -199,6 +280,17 @@ const wd = spawnSync(process.execPath, [...NODE_ARGS, path.join(ROOT, "scripts",
 });
 if (wd.status !== 0) { console.error(`[regen-viz] ✗ wiki-debt worklist failed (non-fatal)`); }
 
+// W4 / U-DRIFT-HARD-FAIL: post-build integrity gate. Regenerate the drift
+// report against the just-built graph and HARD-FAIL on truncated/root-missing
+// (a structurally incomplete graph must not silently ship as a clean regen).
+console.log(`[regen-viz] drift integrity gate…`);
+const driftFail = runDriftGate({ regenerate: true });
+
 const totalSec = ((Date.now() - t0) / 1000).toFixed(1);
-console.log(`[regen-viz] done in ${totalSec}s · failed=${failed}`);
-process.exit(failed > 0 ? 1 : 0);
+console.log(`[regen-viz] done in ${totalSec}s · failed=${failed} · driftFail=${driftFail}`);
+
+// Fail loud (Karpathy R12). Previously regen-viz logged `failed=N` but exited
+// 0 — a failed merge/repair or a structurally-incomplete graph looked like
+// success to cron/CI/operators. Now: any build-step failure OR a drift hard
+// fail → non-zero exit.
+process.exit(failed > 0 || driftFail ? 1 : 0);
