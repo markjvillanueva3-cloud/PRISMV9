@@ -156,6 +156,47 @@ export const ACTION_CONTEXT_SCHEMAS: Record<string, z.ZodTypeAny> = {
     .describe(
       "True iff all calls are read-only tools (Read/Grep/Glob/WebSearch/WebFetch) hitting distinct targets",
     ),
+
+  // WIRE-UNWIRED-MS0/U-WIRE-CTX-PRESSURE — ContextWindowPressureEngine.
+  // Stateful: singleton accumulates samples for rate calculation.
+  context_pressure_record: z
+    .object({
+      tokens: z
+        .number()
+        .int()
+        .nonnegative()
+        .describe("Token count at this sample point"),
+      timestamp: z
+        .number()
+        .int()
+        .nonnegative()
+        .optional()
+        .describe("Epoch ms; defaults to Date.now()"),
+    })
+    .strict()
+    .describe("Record a token-count sample for rate calculation"),
+  context_pressure_read: z
+    .object({
+      currentTokens: z
+        .number()
+        .int()
+        .nonnegative()
+        .describe("Current token count (also recorded as a sample side-effect)"),
+    })
+    .strict()
+    .describe(
+      "Read pressure: utilization/rate/minutes-until-full/compaction + status (green|yellow|orange|red) + recommendation",
+    ),
+  context_pressure_optimal_compaction: z
+    .object({})
+    .strict()
+    .describe(
+      "Predict whether to compact now (rate-aware) — returns { shouldCompactNow, idealUtilization, reason }",
+    ),
+  context_pressure_reset: z
+    .object({})
+    .strict()
+    .describe("Clear all accumulated samples (scenario boundary or test reset)"),
   // Identity Model — U-SAV2-01
   identity_register: z.object({
     sessionId: z.string().min(1),

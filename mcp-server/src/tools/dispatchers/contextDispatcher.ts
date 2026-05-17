@@ -135,6 +135,12 @@ const ACTIONS = [
   "parallel_plan",
   "parallel_infer_dependencies",
   "parallel_can_parallel",
+  // WIRE-UNWIRED-MS0/U-WIRE-CTX-PRESSURE — ContextWindowPressureEngine.
+  // Stateful (singleton accumulates samples for rate calc) — explicit reset path.
+  "context_pressure_record",
+  "context_pressure_read",
+  "context_pressure_optimal_compaction",
+  "context_pressure_reset",
 ] as const;
 
 const STATE_DIR = PATHS.STATE_DIR;
@@ -1605,6 +1611,48 @@ ${todoState.blockingIssues.length > 0 ? todoState.blockingIssues.map(i => `- ${i
                 params.calls as Parameters<typeof parallelCallPlannerEngine.canParallel>[0],
               );
               return ok({ success: true, data: { canParallel } });
+            } catch (err) {
+              return dispatcherError(err, action, "prism_context");
+            }
+          }
+
+          // WIRE-UNWIRED-MS0/U-WIRE-CTX-PRESSURE — ContextWindowPressureEngine.
+          // Stateful: each action operates on the process-shared singleton's
+          // sample window (last 50 samples). Operators reset before scenario
+          // boundaries to avoid sample-pollution from prior sessions.
+          case "context_pressure_record": {
+            const { contextWindowPressureEngine } = await import("../../engines/ContextWindowPressureEngine.js");
+            try {
+              const ts = (params.timestamp as number | undefined) ?? Date.now();
+              contextWindowPressureEngine.record(params.tokens as number, ts);
+              return ok({ success: true, data: { recorded: true, timestamp: ts } });
+            } catch (err) {
+              return dispatcherError(err, action, "prism_context");
+            }
+          }
+          case "context_pressure_read": {
+            const { contextWindowPressureEngine } = await import("../../engines/ContextWindowPressureEngine.js");
+            try {
+              const reading = contextWindowPressureEngine.read(params.currentTokens as number);
+              return ok({ success: true, data: reading });
+            } catch (err) {
+              return dispatcherError(err, action, "prism_context");
+            }
+          }
+          case "context_pressure_optimal_compaction": {
+            const { contextWindowPressureEngine } = await import("../../engines/ContextWindowPressureEngine.js");
+            try {
+              const advice = contextWindowPressureEngine.optimalCompactionPoint();
+              return ok({ success: true, data: advice });
+            } catch (err) {
+              return dispatcherError(err, action, "prism_context");
+            }
+          }
+          case "context_pressure_reset": {
+            const { contextWindowPressureEngine } = await import("../../engines/ContextWindowPressureEngine.js");
+            try {
+              contextWindowPressureEngine.reset();
+              return ok({ success: true, data: { reset: true } });
             } catch (err) {
               return dispatcherError(err, action, "prism_context");
             }
