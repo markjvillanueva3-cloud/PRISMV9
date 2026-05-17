@@ -1254,6 +1254,28 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   mit_courses_harvest: z.object({}).passthrough()
     .describe("Full scan of all 6 zones — returns every course with metadata + aggregation maps. Read-only."),
 
+  // ── WIRE-UNWIRED-MS0/U-WIRE-WPI: WedmProgramIndexEngine ───────────────────
+  // (all methods pure filesystem reads — no write methods exist)
+  wedm_programs_sources: z.object({}).passthrough()
+    .describe("WEDM program source directory config. Read-only."),
+
+  wedm_programs_audit: z.object({}).passthrough()
+    .describe("WEDM program index audit (totals + top customers + breakdowns). Read-only."),
+
+  wedm_programs_harvest: z.object({}).passthrough()
+    .describe("Full filesystem scan of WEDM + electrode milling programs. Read-only."),
+
+  wedm_programs_by_customer: z.object({
+    customer: z.string().min(1).describe("Customer name (case-insensitive)."),
+  }).passthrough()
+    .describe("Programs filtered to a single customer (composes harvest + getCustomerPrograms). Read-only."),
+
+  wedm_programs_top_customers: z.object({
+    limit: z.number().int().positive().max(100).optional()
+      .describe("Top-N customers by program count (default 10, cap 100)."),
+  }).passthrough()
+    .describe("Top customers sorted descending by program count. Read-only."),
+
   // ── WIRE-UNWIRED-MS0/U-WIRE-VCM: VendorCatalogManifestEngine ──────────────
   // (read-only filesystem scans; saveManifest DEFERRED — writes a JSON
   //  manifest to disk that downstream extractors consume)

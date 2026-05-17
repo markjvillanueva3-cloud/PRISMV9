@@ -280,7 +280,11 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "mca_feature_vector", "mca_search",
 // WIRE-UNWIRED-MS0/U-WIRE-VCM: VendorCatalogManifestEngine read-only;
 // saveManifest DEFERRED (writes JSON manifest to disk)
-"vcm_build", "vcm_queue", "vcm_summary"] as const;
+"vcm_build", "vcm_queue", "vcm_summary",
+// WIRE-UNWIRED-MS0/U-WIRE-WPI: WedmProgramIndexEngine (all pure
+// filesystem reads — no write methods)
+"wedm_programs_sources", "wedm_programs_audit", "wedm_programs_harvest",
+"wedm_programs_by_customer", "wedm_programs_top_customers"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -1667,6 +1671,43 @@ export function registerDevDispatcher(server: any): void {
           case "mit_courses_harvest": {
             const { MitCourseIndexEngine } = await import("../../engines/MitCourseIndexEngine.js");
             result = { harvest: await MitCourseIndexEngine.harvest() };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-WPI: WedmProgramIndexEngine ──────────
+          case "wedm_programs_sources": {
+            const { WedmProgramIndexEngine } = await import("../../engines/WedmProgramIndexEngine.js");
+            result = { source: WedmProgramIndexEngine.getSources() };
+            break;
+          }
+          case "wedm_programs_audit": {
+            const { WedmProgramIndexEngine } = await import("../../engines/WedmProgramIndexEngine.js");
+            result = { audit: await WedmProgramIndexEngine.audit() };
+            break;
+          }
+          case "wedm_programs_harvest": {
+            const { WedmProgramIndexEngine } = await import("../../engines/WedmProgramIndexEngine.js");
+            result = { harvest: await WedmProgramIndexEngine.harvest() };
+            break;
+          }
+          case "wedm_programs_by_customer": {
+            const { WedmProgramIndexEngine } = await import("../../engines/WedmProgramIndexEngine.js");
+            const customer = (params as { customer: string }).customer;
+            const harvest = await WedmProgramIndexEngine.harvest();
+            const programs = WedmProgramIndexEngine.getCustomerPrograms(harvest, customer);
+            result = {
+              programs,
+              count: programs.length,
+              customer,
+              totalAvailable: harvest.totalPrograms,
+            };
+            break;
+          }
+          case "wedm_programs_top_customers": {
+            const { WedmProgramIndexEngine } = await import("../../engines/WedmProgramIndexEngine.js");
+            const limit = (params as { limit?: number }).limit ?? 10;
+            const harvest = await WedmProgramIndexEngine.harvest();
+            const customers = WedmProgramIndexEngine.getTopCustomers(harvest, limit);
+            result = { customers, count: customers.length, limit };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-VCM: VendorCatalogManifestEngine ─────
