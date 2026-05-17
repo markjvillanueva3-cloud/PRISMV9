@@ -35,8 +35,9 @@
  *     gate is correct even when the Monitor + scheduled task + Stop hook all
  *     sweep independently. firstSeenAt resets the moment a PID stops being a
  *     candidate (its slot came back alive).
- *   - under memory pressure (commit/physical >= memPressurePct) killAfter drops
- *     to 1 for that sweep — relieve faster when the box is actually struggling.
+ *   - graduated memory pressure: >= memPressurePct drops the confirm window to
+ *     one tick; >= memCriticalPct collapses it to zero (reap this sweep) —
+ *     relieve faster when the box is actually struggling.
  *
  * Usage:
  *   node fleet-reaper-sweep.mjs                       # one sweep, text summary
@@ -55,6 +56,7 @@
  *   PRISM_FLEET_REAPER_AGE_FLOOR_SEC=N    default 45
  *   PRISM_FLEET_REAPER_INTERVAL_SEC=N     default 300
  *   PRISM_FLEET_REAPER_MEM_PRESSURE_PCT=N default 90
+ *   PRISM_FLEET_REAPER_MEM_CRITICAL_PCT=N default 95
  *
  * Exit codes: 0 ok · 1 sweep completed but reported a problem · 2 misuse.
  */
@@ -115,6 +117,12 @@ export const DEFAULT_INTERVAL_SEC = 300;
 export const DEFAULT_AGE_FLOOR_SEC = 45;
 export const DEFAULT_KILL_AFTER = 2;
 export const DEFAULT_MEM_PRESSURE_PCT = 90;
+// FLEET-REAPER-MS1 Tier 1: a second, higher band above the warn pressure %.
+// warn band (>= MEM_PRESSURE_PCT) drops the confirm window to one tick;
+// critical band (>= MEM_CRITICAL_PCT) collapses it to zero — a candidate that
+// is still a candidate at a critical-pressure sweep is reaped THIS tick rather
+// than after another interval. Knob: PRISM_FLEET_REAPER_MEM_CRITICAL_PCT.
+export const DEFAULT_MEM_CRITICAL_PCT = 95;
 
 // ── FLEET-REAPER-MS1 Layer 1: soft RAM/CPU relief ──
 // Under memory pressure, processes owned by STALE chat slots (no heartbeat in
@@ -1060,7 +1068,7 @@ export function writeRoutingHint(decision, { now = Date.now(), path = DEFAULT_HI
  * @param {object} [opts]
  *   mode            "once" | "stop-event" | "status"  (status = read-only)
  *   dryRun          classify + decide but never kill
- *   intervalSec, ageFloorSec, killAfter, memPressurePct  config
+ *   intervalSec, ageFloorSec, killAfter, memPressurePct, memCriticalPct  config
  *   now             clock injection
  *   enumerator, slotsFile, pidRegistry, slotsPath, registryPath  → snapshotFleet
  *   readMemory      injectable host-memory reader
@@ -1079,6 +1087,7 @@ export function runSweep(opts = {}) {
   const ageFloorSec = clampInt(opts.ageFloorSec, DEFAULT_AGE_FLOOR_SEC, 0, MAX_AGE_FLOOR_SEC);
   const killAfter = clampInt(opts.killAfter, DEFAULT_KILL_AFTER, 1, MAX_KILL_AFTER);
   const memPressurePct = clampInt(opts.memPressurePct, DEFAULT_MEM_PRESSURE_PCT, 1, 100);
+  const memCriticalPct = clampInt(opts.memCriticalPct, DEFAULT_MEM_CRITICAL_PCT, 1, 100);
   const ledgerPath = opts.ledgerPath || DEFAULT_LEDGER_PATH;
   const ledgerLockPath = opts.ledgerLockPath || `${ledgerPath}.lock`;
 
@@ -1095,8 +1104,14 @@ export function runSweep(opts = {}) {
 
   // 2. Host memory — pressure makes the kill gate one tick more eager.
   const mem = (opts.readMemory || readHostMemory)();
-  const underPressure = Number.isFinite(mem.usedPct) && mem.usedPct >= memPressurePct;
-  const effectiveKillAfter = underPressure ? Math.min(killAfter, 1) : killAfter;
+  const { tier: pressureTier, effectiveKillAfter } = tierFromPressure(
+    mem.usedPct, memPressurePct, memCriticalPct, killAfter,
+  );
+  // `underPressure` retains its pre-MS1 meaning (>= warn band) for the
+  // human/JSON report + the prose-only callers in summarize(); the new
+  // critical band is surfaced separately as `pressureTier`/`criticalPressure`.
+  const underPressure = pressureTier !== "normal";
+  const criticalPressure = pressureTier === "critical";
   const cfg = {
     ageFloorMs: ageFloorSec * 1000,
     killAfterMs: effectiveKillAfter * intervalSec * 1000,
@@ -1380,10 +1395,12 @@ export function runSweep(opts = {}) {
     dryRun,
     config: {
       intervalSec, ageFloorSec, killAfter, effectiveKillAfter, memPressurePct,
-      softReliefAgeSec, softReliefPressurePct, noRelief, noCoord,
+      memCriticalPct, softReliefAgeSec, softReliefPressurePct, noRelief, noCoord,
     },
     mem,
     underPressure,
+    pressureTier,
+    criticalPressure,
     blockedBy,
     slots: snap.counts,
     slotsResolved: snap.slotsResolved !== false,
@@ -1400,6 +1417,43 @@ export function runSweep(opts = {}) {
     coordinator,
     ledgerPath,
   };
+}
+
+/**
+ * FLEET-REAPER-MS1 Tier 1 — graduated memory-pressure → confirm-tick gate.
+ *
+ * Replaces the prior binary `underPressure ? min(killAfter,1) : killAfter`
+ * with three bands:
+ *   usedPct < warnPct                 → killAfter          (normal)
+ *   warnPct  <= usedPct < criticalPct → min(killAfter, 1)   (warn — eager)
+ *   usedPct  >= criticalPct           → 0                    (critical — reap now)
+ *
+ * Pure: no clock, env, or I/O. Fail-safe by construction —
+ *  • non-finite / negative usedPct (a missing or bogus memory read) is treated
+ *    as "no pressure signal" → killAfter unchanged (a blind sweep must never
+ *    escalate reaping).
+ *  • criticalPct misconfigured below warnPct is floored up to warnPct so the
+ *    ≥critical band is always reachable (the two bands collapse, never invert).
+ *  • non-finite killAfter → 0; a negative confirm window is meaningless so it
+ *    is floored at 0.
+ *
+ * @param {number} usedPct      worst-of phys/commit memory %, or non-finite
+ * @param {number} warnPct      lower band edge (== memPressurePct, default 90)
+ * @param {number} criticalPct  upper band edge (default 95)
+ * @param {number} killAfter    base confirm-tick window
+ * @returns {{tier:'normal'|'warn'|'critical', effectiveKillAfter:number}}
+ */
+export function tierFromPressure(usedPct, warnPct, criticalPct, killAfter) {
+  const ka = Number.isFinite(killAfter) ? Math.max(0, Math.trunc(killAfter)) : 0;
+  const warn = Number.isFinite(warnPct) ? warnPct : DEFAULT_MEM_PRESSURE_PCT;
+  let crit = Number.isFinite(criticalPct) ? criticalPct : DEFAULT_MEM_CRITICAL_PCT;
+  if (crit < warn) crit = warn;
+  if (!Number.isFinite(usedPct) || usedPct < 0) {
+    return { tier: "normal", effectiveKillAfter: ka };
+  }
+  if (usedPct >= crit) return { tier: "critical", effectiveKillAfter: 0 };
+  if (usedPct >= warn) return { tier: "warn", effectiveKillAfter: Math.min(ka, 1) };
+  return { tier: "normal", effectiveKillAfter: ka };
 }
 
 function clampInt(value, fallback, min, max) {
@@ -1505,7 +1559,7 @@ function fmtBytes(bytes) {
 export function summarize(result) {
   const m = result.mem;
   const memStr = Number.isFinite(m.usedPct)
-    ? `${m.usedPct}%${result.underPressure ? " ⚠ PRESSURE" : ""}`
+    ? `${m.usedPct}%${result.criticalPressure ? " 🔴 CRITICAL" : result.underPressure ? " ⚠ PRESSURE" : ""}`
     : "n/a";
   const lines = [];
   const tag = result.dryRun ? " [dry-run]" : result.disabled ? " [DISABLED]" : "";
@@ -1729,6 +1783,7 @@ export function resolveConfig(args, env = process.env) {
     ageFloorSec: args.ageFloorSec ?? envInt("PRISM_FLEET_REAPER_AGE_FLOOR_SEC") ?? DEFAULT_AGE_FLOOR_SEC,
     killAfter: args.killAfter ?? envInt("PRISM_FLEET_REAPER_KILL_AFTER") ?? DEFAULT_KILL_AFTER,
     memPressurePct: envInt("PRISM_FLEET_REAPER_MEM_PRESSURE_PCT") ?? DEFAULT_MEM_PRESSURE_PCT,
+    memCriticalPct: envInt("PRISM_FLEET_REAPER_MEM_CRITICAL_PCT") ?? DEFAULT_MEM_CRITICAL_PCT,
     dryRun: !!args.dryRun || env.PRISM_FLEET_REAPER_DRY_RUN === "1",
     // FLEET-REAPER-MS1: CLI flags OR env disable the soft-relief / coordinator
     // layers. The numeric tuning knobs (age, pressure %, gpu floor, hint TTL/Δ)
@@ -1753,7 +1808,7 @@ function usage() {
     "  --no-relief  skip Layer 1 (soft RAM/CPU relief — priority demote + working-set trim)",
     "  --no-coord   skip Layers 2-3 (GPU/Ollama probe + coordinator pre-warm + routing hint)",
     "Env knobs: PRISM_FLEET_REAPER_{DISABLE,DRY_RUN,KILL_AFTER,AGE_FLOOR_SEC,INTERVAL_SEC,",
-    "  MEM_PRESSURE_PCT,SOFT_RELIEF_DISABLE,SOFT_RELIEF_AGE_SEC,SOFT_RELIEF_PRESSURE_PCT,",
+    "  MEM_PRESSURE_PCT,MEM_CRITICAL_PCT,SOFT_RELIEF_DISABLE,SOFT_RELIEF_AGE_SEC,SOFT_RELIEF_PRESSURE_PCT,",
     "  OLLAMA_COORD_DISABLE,GPU_DISABLE,GPU_FREE_MIN_MB,HINT_TTL_SEC,HINT_THRESHOLD_DELTA,",
     "  OLLAMA_PREWARM_MODEL,OLLAMA_KEEP_ALIVE} · OLLAMA_URL",
     "",
