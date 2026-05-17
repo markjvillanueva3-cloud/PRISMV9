@@ -450,7 +450,8 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "ldl_optimize_parameters", "ldl_validate_sequence",
 "ldl_get_fuzzy_speed_recommendation", "ldl_reason_tool_selection",
 "dr_generate_flash_report",
-"fq_validate", "fq_is_forge_in_progress", "fq_get_forge_lock_info"] as const;
+"fq_validate", "fq_is_forge_in_progress", "fq_get_forge_lock_info",
+"cmc_simulate"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -3205,6 +3206,28 @@ export function registerDevDispatcher(server: any): void {
             result = info === null
               ? { has_lock: false }
               : { has_lock: true, lock_info: info };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-CMC: CapacityMonteCarloEngine ────────
+          case "cmc_simulate": {
+            const { CapacityMonteCarloEngine } = await import("../../engines/CapacityMonteCarloEngine.js");
+            // simulate() is a STATIC method on the class (not instance).
+            // Pure compute; Math.random() makes it stochastic so back-to-back
+            // calls produce different numeric realizations within statistical
+            // bounds. Schema's DoS bounds cap worst-case wall time.
+            const sim = CapacityMonteCarloEngine.simulate(params as Parameters<typeof CapacityMonteCarloEngine.simulate>[0]);
+            // sim returns {summary, per_machine[], risk_factors[],
+            //              oee_decomposition, confidence_interval}.
+            // Echo machine_count + simulation_count for round-trip parity.
+            const machinesArr = (params as { machines: unknown[] }).machines;
+            const nSims = (params as { num_simulations?: number }).num_simulations ?? 5000;
+            result = {
+              machine_count: machinesArr.length,
+              num_simulations: nSims,
+              result: sim,
+              per_machine_count: sim.per_machine.length,
+              risk_factor_count: sim.risk_factors.length,
+            };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-CEX: CatalogExtractionEngine ─────────

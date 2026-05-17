@@ -2785,4 +2785,43 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   fq_get_forge_lock_info: z.object({}).describe(
     "Get current forge-lock holder/session/acquiredAt (or null when free). Pure read."
   ),
+
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-CMC: CapacityMonteCarloEngine wiring ──
+  // Pure compute (no I/O, no state mutation). Single action wraps
+  // CapacityMonteCarloEngine.simulate(). Stochastic — uses Math.random()
+  // internally so back-to-back calls differ within statistical bounds.
+  // DoS bounds chosen to cap wall-time worst case at ~few seconds:
+  //   N(machines) * N(simulations) * horizon weeks loop body is O(M*N*W)
+  //   100 machines * 50k sims * 104 weeks ~= 520M loop bodies — cap holds.
+  cmc_simulate: z.object({
+    machines: z.array(z.object({
+      id: z.string().min(1).max(128),
+      name: z.string().min(1).max(256),
+      hours_per_shift: z.number().positive().max(24),
+      shifts_per_day: z.number().positive().max(4),
+      days_per_week: z.number().positive().max(7),
+      mtbf_hours: z.number().positive().max(100_000),
+      mttr_hours: z.number().positive().max(10_000),
+      setup_time_min_mean: z.number().nonnegative().max(10_000),
+      setup_time_min_stddev: z.number().nonnegative().max(10_000),
+      cycle_time_min_mean: z.number().positive().max(10_000),
+      cycle_time_min_stddev: z.number().nonnegative().max(10_000),
+    })).min(1).max(100)
+      .describe("1-100 machines with availability/setup/cycle params"),
+    demand: z.object({
+      parts_per_week_mean: z.number().nonnegative().max(1_000_000),
+      parts_per_week_stddev: z.number().nonnegative().max(1_000_000),
+      seasonal_factor: z.number().positive().max(10).optional(),
+    }).describe("Weekly demand forecast"),
+    scrap_rate_mean: z.number().min(0).max(1)
+      .describe("Mean scrap rate in [0,1]"),
+    scrap_rate_max: z.number().min(0).max(1)
+      .describe("Max scrap rate (beta upper bound) in [0,1]"),
+    num_simulations: z.number().int().positive().max(50_000).optional()
+      .describe("Monte Carlo iterations (default 5000, max 50k)"),
+    horizon_weeks: z.number().int().positive().max(104).optional()
+      .describe("Planning horizon weeks (default 12, max 104=2yr)"),
+    target_service_level: z.number().min(0).max(1).optional()
+      .describe("Target service level in [0,1] (default 0.95)"),
+  }).describe("Monte Carlo capacity simulation (stochastic; pure compute, no I/O)."),
 };
