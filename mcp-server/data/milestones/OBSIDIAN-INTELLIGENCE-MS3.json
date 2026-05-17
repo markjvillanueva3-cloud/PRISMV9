@@ -1144,7 +1144,26 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "Skip dedup; IdeaBlocks remain raw extraction set"
+          "rollback": "Skip dedup; IdeaBlocks remain raw extraction set",
+          "status": "completed",
+          "ship_record": {
+            "shipped_at": "2026-05-17T19:08:34.218Z",
+            "shipped_by": "claude-c0f06dee-charlie",
+            "commit": "b216639aeb",
+            "deliverables_on_disk": [
+              "mcp-server/src/engines/IdeaBlockDedupEngine.ts",
+              "mcp-server/src/__tests__/IdeaBlockDedupEngine.test.ts"
+            ],
+            "per_file_scrutiny": "2-arm split (Arm A PASS / Arm B FAIL 2 P0) adjudicated per strict-consensus -> algorithm redesigned (connected-components + centroid re-embed) NOT deferred -> re-dispatched 2-arm: both PASS (Arm B re-ran prior-failing geometry x18 id/order combos byte-identical + 4000 random configs confirming the centroid bound). 30/30 vitest, tsc clean.",
+            "spec_deviations": [
+              "test file IdeaBlockDedupEngine.test.ts (NOT IdeaBlockDedup.test.ts): B1 filename-matches-engine rule.",
+              "clustering is per-round CONNECTED COMPONENTS (union-find), not single-linkage-to-seed: required for determinism (Arm-B P0-2) and collapses transitive A~B~C/A!~C families in round 1.",
+              "re-embed is the deterministic CENTROID of merged member vectors, not a text-re-embed: a text-re-embed is a no-op since the canonical block text never changes (Arm-B P0-1). Embedder-free -> works with Qdrant/Ollama DOWN.",
+              "spec said cosine over Qdrant embeddings; implemented as injectable embedder DI (default deterministic fallbackEmbed) so the wired path works with Qdrant unreachable (fleet steady state).",
+              "spec phrase \"3-5 rounds\" is honestly bounded in the docstring: connected-components does the bulk collapse in round 1; centroid bridging adds marginal later-round merges (it cannot exceed members reach)."
+            ],
+            "notes": "Pure dedupVectors core (no I/O, no embedder) = the production engine AND the hermetic-test surface; dedupBlocks adds schema-validate + initial embed. opts.embed is initial-embed only. Wired prism_memory:ideablock_dedup (schema+map+enum+case+desc+fallback). Sibling of KnowledgeDeduplicationEngine (that is TF-IDF sparse single-pass; this is dense-vector iterative — not a duplicate, R8 verified)."
+          }
         },
         {
           "id": "E3",
