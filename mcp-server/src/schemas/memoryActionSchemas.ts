@@ -257,6 +257,59 @@ const project_auto_updater_process = z.object({
   mkdirIfMissing: z.boolean().optional().describe("Alias for mkdir_if_missing"),
 }).passthrough();
 
+// OBSIDIAN-INTELLIGENCE-MS3/B6/U-KNOWLEDGE-DISTILLATION — monthly distill of
+// resources/ + areas/ notes into per-topic DISTILL-<topic>-YYYY-MM.md refs.
+// scan = read-only cluster manifest; run = side-effecting atomic per-topic write.
+const knowledge_distillation_scan = z.object({
+  vault_root: z.string().min(1).optional().describe("Override vault root (defaults to knowledge/memories)"),
+  vaultRoot: z.string().min(1).optional().describe("Alias for vault_root"),
+  corpus_roots: z.array(z.string().min(1)).optional().describe("Override corpus roots (default resources/ + areas/)"),
+  corpusRoots: z.array(z.string().min(1)).optional().describe("Alias for corpus_roots"),
+  references_root: z.string().min(1).optional().describe("Override references output root"),
+  referencesRoot: z.string().min(1).optional().describe("Alias for references_root"),
+  now: z.number().finite().optional().describe("Override 'now' ms epoch for deterministic windowing"),
+  window_days: z.number().int().min(1).max(366).optional().describe("Lookback window in days; default 30"),
+  windowDays: z.number().int().min(1).max(366).optional().describe("Alias for window_days"),
+  max_notes_per_cluster: z.number().int().min(1).max(500).optional().describe("Cap notes per topic cluster; default 40"),
+  maxNotesPerCluster: z.number().int().min(1).max(500).optional().describe("Alias for max_notes_per_cluster"),
+  min_cluster_size: z.number().int().min(1).max(100).optional().describe("Min notes to distill a topic; default 2"),
+  minClusterSize: z.number().int().min(1).max(100).optional().describe("Alias for min_cluster_size"),
+  token_cap_bytes: z.number().int().min(256).max(1048576).optional().describe("Bytes threshold Ollama-vs-literal; default 16384"),
+  tokenCapBytes: z.number().int().min(256).max(1048576).optional().describe("Alias for token_cap_bytes"),
+  max_file_bytes: z.number().int().min(512).max(4194304).optional().describe("Max source bytes accepted; default 65536"),
+  maxFileBytes: z.number().int().min(512).max(4194304).optional().describe("Alias for max_file_bytes"),
+  excerpt_bytes: z.number().int().min(256).max(1048576).optional().describe("Bytes read per source; default 4096"),
+  excerptBytes: z.number().int().min(256).max(1048576).optional().describe("Alias for excerpt_bytes"),
+}).passthrough();
+
+const knowledge_distillation_run = z.object({
+  vault_root: z.string().min(1).optional().describe("Override vault root"),
+  vaultRoot: z.string().min(1).optional().describe("Alias for vault_root"),
+  corpus_roots: z.array(z.string().min(1)).optional().describe("Override corpus roots"),
+  corpusRoots: z.array(z.string().min(1)).optional().describe("Alias for corpus_roots"),
+  references_root: z.string().min(1).optional().describe("Override references output root"),
+  referencesRoot: z.string().min(1).optional().describe("Alias for references_root"),
+  now: z.number().finite().optional().describe("Override 'now' ms epoch for deterministic windowing"),
+  window_days: z.number().int().min(1).max(366).optional().describe("Lookback window in days; default 30"),
+  windowDays: z.number().int().min(1).max(366).optional().describe("Alias for window_days"),
+  max_notes_per_cluster: z.number().int().min(1).max(500).optional().describe("Cap notes per topic cluster; default 40"),
+  maxNotesPerCluster: z.number().int().min(1).max(500).optional().describe("Alias for max_notes_per_cluster"),
+  min_cluster_size: z.number().int().min(1).max(100).optional().describe("Min notes to distill a topic; default 2"),
+  minClusterSize: z.number().int().min(1).max(100).optional().describe("Alias for min_cluster_size"),
+  token_cap_bytes: z.number().int().min(256).max(1048576).optional().describe("Bytes threshold Ollama-vs-literal; default 16384"),
+  tokenCapBytes: z.number().int().min(256).max(1048576).optional().describe("Alias for token_cap_bytes"),
+  max_file_bytes: z.number().int().min(512).max(4194304).optional().describe("Max source bytes accepted; default 65536"),
+  maxFileBytes: z.number().int().min(512).max(4194304).optional().describe("Alias for max_file_bytes"),
+  excerpt_bytes: z.number().int().min(256).max(1048576).optional().describe("Bytes read per source; default 4096"),
+  excerptBytes: z.number().int().min(256).max(1048576).optional().describe("Alias for excerpt_bytes"),
+  ollama_model: z.string().optional().describe("Ollama model when client is reachable; default qwen2.5-coder"),
+  ollamaModel: z.string().optional().describe("Alias for ollama_model"),
+  dry_run: z.boolean().optional().describe("Skip writes; report would-be clusters as 'skipped'"),
+  dryRun: z.boolean().optional().describe("Alias for dry_run"),
+  mkdir_if_missing: z.boolean().optional().describe("Create references dir if missing; default true"),
+  mkdirIfMissing: z.boolean().optional().describe("Alias for mkdir_if_missing"),
+}).passthrough();
+
 // OBSIDIAN-COMPOUND-MS1/S3/U-CONTRADICTION-DETECTOR — vault disagreement check.
 const contradiction_check = z.object({
   new_memory_path: z.string().optional().describe("Absolute path to the new memory file to check"),
@@ -387,6 +440,8 @@ export const ACTION_MEMORY_SCHEMAS: ActionSchemaMap = {
   queue_processor_process,
   project_auto_updater_scan,
   project_auto_updater_process,
+  knowledge_distillation_scan,
+  knowledge_distillation_run,
   contradiction_check,
   postmortem_create,
   performance_report,

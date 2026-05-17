@@ -39,7 +39,7 @@ type GraphNodeRecord = Record<string, any>;
 export function registerMemoryDispatcher(server: McpServer): void {
   (server as ValidatedServer).tool(
     "prism_memory",
-    "Cross-session memory graph + semantic vector recall + agent memory fabric. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity, consolidate, consolidation_stats, consolidation_patterns, record_session_end, semantic_search, remember, qdrant_vector_search, qdrant_vector_upsert, agent_memory_remember, agent_memory_query, agent_memory_reinforce, agent_memory_forget, agent_memory_stats, emerging_thesis, daily_brief_get, daily_context_get, weekly_synthesis_get, queue_processor_scan, queue_processor_process, project_auto_updater_scan, project_auto_updater_process, contradiction_check, postmortem_create, performance_report, connections_materialize, content_brief_create, voice_validate, capture_sharpen, embed_text, embed_pairwise_cosine, inbox_prune_now, inbox_promote_now",
+    "Cross-session memory graph + semantic vector recall + agent memory fabric. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity, consolidate, consolidation_stats, consolidation_patterns, record_session_end, semantic_search, remember, qdrant_vector_search, qdrant_vector_upsert, agent_memory_remember, agent_memory_query, agent_memory_reinforce, agent_memory_forget, agent_memory_stats, emerging_thesis, daily_brief_get, daily_context_get, weekly_synthesis_get, queue_processor_scan, queue_processor_process, project_auto_updater_scan, project_auto_updater_process, knowledge_distillation_scan, knowledge_distillation_run, contradiction_check, postmortem_create, performance_report, connections_materialize, content_brief_create, voice_validate, capture_sharpen, embed_text, embed_pairwise_cosine, inbox_prune_now, inbox_promote_now",
     {
       action: z.enum([
         "get_health",
@@ -78,6 +78,10 @@ export function registerMemoryDispatcher(server: McpServer): void {
         // watcher → overview.md "## Recent Changes" maintenance
         "project_auto_updater_scan",
         "project_auto_updater_process",
+        // OBSIDIAN-INTELLIGENCE-MS3/B6/U-KNOWLEDGE-DISTILLATION: monthly distill
+        // of resources/+areas/ notes into per-topic DISTILL refs
+        "knowledge_distillation_scan",
+        "knowledge_distillation_run",
         // OBSIDIAN-COMPOUND-MS1/S3/U-CONTRADICTION-DETECTOR: vault disagreement check
         "contradiction_check",
         // OBSIDIAN-COMPOUND-MS1/S6/U-MEMORIES-MISTAKES-WIRE: auto-postmortem markdown
@@ -819,6 +823,96 @@ export function registerMemoryDispatcher(server: McpServer): void {
             break;
           }
 
+          // OBSIDIAN-INTELLIGENCE-MS3/B6/U-KNOWLEDGE-DISTILLATION — pure scan
+          // (cluster manifest only, no writes, no Ollama).
+          case "knowledge_distillation_scan": {
+            const { knowledgeDistillationEngine } = await import("../../engines/KnowledgeDistillationEngine.js");
+            const vaultRoot = typeof params.vault_root === "string"
+              ? params.vault_root
+              : (typeof params.vaultRoot === "string" ? params.vaultRoot : undefined);
+            const corpusRoots = Array.isArray(params.corpus_roots)
+              ? params.corpus_roots as string[]
+              : (Array.isArray(params.corpusRoots) ? params.corpusRoots as string[] : undefined);
+            const referencesRoot = typeof params.references_root === "string"
+              ? params.references_root
+              : (typeof params.referencesRoot === "string" ? params.referencesRoot : undefined);
+            const now = typeof params.now === "number" ? params.now : undefined;
+            const windowDays = typeof params.window_days === "number"
+              ? params.window_days
+              : (typeof params.windowDays === "number" ? params.windowDays : undefined);
+            const maxNotesPerCluster = typeof params.max_notes_per_cluster === "number"
+              ? params.max_notes_per_cluster
+              : (typeof params.maxNotesPerCluster === "number" ? params.maxNotesPerCluster : undefined);
+            const minClusterSize = typeof params.min_cluster_size === "number"
+              ? params.min_cluster_size
+              : (typeof params.minClusterSize === "number" ? params.minClusterSize : undefined);
+            const tokenCapBytes = typeof params.token_cap_bytes === "number"
+              ? params.token_cap_bytes
+              : (typeof params.tokenCapBytes === "number" ? params.tokenCapBytes : undefined);
+            const maxFileBytes = typeof params.max_file_bytes === "number"
+              ? params.max_file_bytes
+              : (typeof params.maxFileBytes === "number" ? params.maxFileBytes : undefined);
+            const excerptBytes = typeof params.excerpt_bytes === "number"
+              ? params.excerpt_bytes
+              : (typeof params.excerptBytes === "number" ? params.excerptBytes : undefined);
+            result = knowledgeDistillationEngine.scanCorpus({
+              vaultRoot, corpusRoots, referencesRoot, now, windowDays,
+              maxNotesPerCluster, minClusterSize, tokenCapBytes, maxFileBytes, excerptBytes,
+            });
+            break;
+          }
+
+          // OBSIDIAN-INTELLIGENCE-MS3/B6/U-KNOWLEDGE-DISTILLATION — full distill.
+          // Dispatcher path runs LITERAL (no ollamaClient injected); the
+          // monthly cron (scripts/cron/knowledge-distillation-cron.ps1) owns
+          // the Ollama integration.
+          case "knowledge_distillation_run": {
+            const { runKnowledgeDistillation } = await import("../../engines/KnowledgeDistillationEngine.js");
+            const vaultRoot = typeof params.vault_root === "string"
+              ? params.vault_root
+              : (typeof params.vaultRoot === "string" ? params.vaultRoot : undefined);
+            const corpusRoots = Array.isArray(params.corpus_roots)
+              ? params.corpus_roots as string[]
+              : (Array.isArray(params.corpusRoots) ? params.corpusRoots as string[] : undefined);
+            const referencesRoot = typeof params.references_root === "string"
+              ? params.references_root
+              : (typeof params.referencesRoot === "string" ? params.referencesRoot : undefined);
+            const now = typeof params.now === "number" ? params.now : undefined;
+            const windowDays = typeof params.window_days === "number"
+              ? params.window_days
+              : (typeof params.windowDays === "number" ? params.windowDays : undefined);
+            const maxNotesPerCluster = typeof params.max_notes_per_cluster === "number"
+              ? params.max_notes_per_cluster
+              : (typeof params.maxNotesPerCluster === "number" ? params.maxNotesPerCluster : undefined);
+            const minClusterSize = typeof params.min_cluster_size === "number"
+              ? params.min_cluster_size
+              : (typeof params.minClusterSize === "number" ? params.minClusterSize : undefined);
+            const tokenCapBytes = typeof params.token_cap_bytes === "number"
+              ? params.token_cap_bytes
+              : (typeof params.tokenCapBytes === "number" ? params.tokenCapBytes : undefined);
+            const maxFileBytes = typeof params.max_file_bytes === "number"
+              ? params.max_file_bytes
+              : (typeof params.maxFileBytes === "number" ? params.maxFileBytes : undefined);
+            const excerptBytes = typeof params.excerpt_bytes === "number"
+              ? params.excerpt_bytes
+              : (typeof params.excerptBytes === "number" ? params.excerptBytes : undefined);
+            const ollamaModel = typeof params.ollama_model === "string"
+              ? params.ollama_model
+              : (typeof params.ollamaModel === "string" ? params.ollamaModel : undefined);
+            const dryRun = typeof params.dry_run === "boolean"
+              ? params.dry_run
+              : (typeof params.dryRun === "boolean" ? params.dryRun : undefined);
+            const mkdirIfMissing = typeof params.mkdir_if_missing === "boolean"
+              ? params.mkdir_if_missing
+              : (typeof params.mkdirIfMissing === "boolean" ? params.mkdirIfMissing : undefined);
+            result = await runKnowledgeDistillation({
+              vaultRoot, corpusRoots, referencesRoot, now, windowDays,
+              maxNotesPerCluster, minClusterSize, tokenCapBytes, maxFileBytes,
+              excerptBytes, ollamaModel, dryRun, mkdirIfMissing,
+            });
+            break;
+          }
+
           // OBSIDIAN-COMPOUND-MS1/S3/U-CONTRADICTION-DETECTOR — vault disagreement check
           case "contradiction_check": {
             const { contradictionDetectorEngine } = await import("../../engines/ContradictionDetectorEngine.js");
@@ -1041,7 +1135,7 @@ export function registerMemoryDispatcher(server: McpServer): void {
           }
 
           default:
-            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'record_session_end', 'semantic_search', 'remember', 'qdrant_vector_search', 'qdrant_vector_upsert', 'agent_memory_remember', 'agent_memory_query', 'agent_memory_reinforce', 'agent_memory_forget', 'agent_memory_stats', 'emerging_thesis', 'daily_brief_get', 'daily_context_get', 'weekly_synthesis_get', 'queue_processor_scan', 'queue_processor_process', 'project_auto_updater_scan', 'project_auto_updater_process', 'contradiction_check', 'postmortem_create', 'performance_report', 'connections_materialize', 'content_brief_create', 'voice_validate', 'capture_sharpen', 'embed_text', 'embed_pairwise_cosine', 'inbox_prune_now', 'inbox_promote_now', 'memory_sync_list_bundles', 'memory_sync_bundle_metadata'] };
+            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'record_session_end', 'semantic_search', 'remember', 'qdrant_vector_search', 'qdrant_vector_upsert', 'agent_memory_remember', 'agent_memory_query', 'agent_memory_reinforce', 'agent_memory_forget', 'agent_memory_stats', 'emerging_thesis', 'daily_brief_get', 'daily_context_get', 'weekly_synthesis_get', 'queue_processor_scan', 'queue_processor_process', 'project_auto_updater_scan', 'project_auto_updater_process', 'knowledge_distillation_scan', 'knowledge_distillation_run', 'contradiction_check', 'postmortem_create', 'performance_report', 'connections_materialize', 'content_brief_create', 'voice_validate', 'capture_sharpen', 'embed_text', 'embed_pairwise_cosine', 'inbox_prune_now', 'inbox_promote_now', 'memory_sync_list_bundles', 'memory_sync_bundle_metadata'] };
         }
 
         const elapsed = (performance.now() - start).toFixed(1);
