@@ -454,7 +454,8 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "cmc_simulate",
 "icc_calculate_similarity", "icc_find_similar", "icc_interpolate",
 "icc_get_coverage_statistics", "icc_export",
-"osc_list_hot_jobs", "osc_build_messages_workspace"] as const;
+"osc_list_hot_jobs", "osc_build_messages_workspace",
+"ew_get_stats"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -3279,6 +3280,21 @@ export function registerDevDispatcher(server: any): void {
               thread_count: workspace.threads.length,
               entry_count: workspace.selectedThreadEntries.length,
               linked_record_count: workspace.linkedRecords.length,
+            };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-EW: ExtractionWiringEngine ───────────
+          case "ew_get_stats": {
+            const { extractionWiringEngine } = await import("../../engines/ExtractionWiringEngine.js");
+            // getStats reads WIRING_LOG file (last 500 entries), parses
+            // JSONL, returns {total_wired, by_method, by_consumer,
+            // recent_failures}. Pure read.
+            const stats = extractionWiringEngine.getStats();
+            result = {
+              stats,
+              by_method_count: Object.keys(stats.by_method).length,
+              by_consumer_count: Object.keys(stats.by_consumer).length,
+              recent_failure_count: stats.recent_failures.length,
             };
             break;
           }

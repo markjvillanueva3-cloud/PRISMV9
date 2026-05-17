@@ -2867,6 +2867,17 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
       .describe("Selected thread id (or null/missing for first thread)"),
   }).describe("Build a per-scope messages workspace snapshot. Pure read."),
 
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-EW: ExtractionWiringEngine wiring ──
+  // Single pure-read action. applyWiring/applyAll/processQueue DEFERRED
+  // — those wire-injection methods MUTATE source files via
+  // wireTipInject/wireRegistryAdd/wireConfigUpdate/wireDirectImport/
+  // wireCodeGen (fictional-template-injection class: LLM-callable would
+  // let any chat inject arbitrary content into source files identified
+  // by user-supplied paths).
+  ew_get_stats: z.object({}).describe(
+    "Read wiring log (last 500 entries) and return aggregated stats. Pure read."
+  ),
+
   cmc_simulate: z.object({
     machines: z.array(z.object({
       id: z.string().min(1).max(128),
