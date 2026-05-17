@@ -1254,6 +1254,35 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   mit_courses_harvest: z.object({}).passthrough()
     .describe("Full scan of all 6 zones — returns every course with metadata + aggregation maps. Read-only."),
 
+  // ── WIRE-UNWIRED-MS0/U-WIRE-MDA: MachineDataAuditEngine ───────────────────
+  // (read-only query surface; complex-input methods auditMachineFields /
+  //  calculateCompleteness / validatePackage / generateCanonicalPackage
+  //  DEFERRED — they take a full CanonicalMachinePackage which is a deeply
+  //  nested type that needs a follow-up wire to surface safely)
+  mda_report: z.object({}).passthrough()
+    .describe("Full machine-data audit report (824+ machines × 4 layers). Read-only."),
+
+  mda_summary: z.object({}).passthrough()
+    .describe("Human-readable audit summary (text). Read-only."),
+
+  mda_critical_gaps: z.object({}).passthrough()
+    .describe("Field-completeness gaps below the critical threshold. Read-only."),
+
+  mda_by_layer: z.object({
+    layer: z.enum(["BASIC", "CORE", "ENHANCED", "LEVEL5"]).describe("Machine data layer to filter by."),
+  }).passthrough()
+    .describe("Machines in a specific layer. Read-only."),
+
+  mda_by_manufacturer: z.object({
+    manufacturer: z.string().min(1).describe("Manufacturer name (e.g. 'HAAS', 'OKUMA')."),
+  }).passthrough()
+    .describe("Machines by manufacturer (exact match). Read-only."),
+
+  mda_by_type: z.object({
+    type: z.string().min(1).describe("Machine type (e.g. 'mill', 'lathe', 'wedm')."),
+  }).passthrough()
+    .describe("Machines by type (exact match). Read-only."),
+
   // ── WIRE-UNWIRED-MS0/U-WIRE-TRAINING: TrainingContentIndexEngine ──────────
   // (all methods pure filesystem reads — no write methods exist)
   training_sources: z.object({}).passthrough()

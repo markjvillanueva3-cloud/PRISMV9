@@ -267,7 +267,12 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // WIRE-UNWIRED-MS0/U-WIRE-TRAINING: TrainingContentIndexEngine (all
 // methods pure filesystem reads — no write methods exist)
 "training_sources", "training_audit",
-"training_harvest", "training_filter"] as const;
+"training_harvest", "training_filter",
+// WIRE-UNWIRED-MS0/U-WIRE-MDA: MachineDataAuditEngine (read-only query
+// surface; complex-input audit methods DEFERRED — they take a full
+// CanonicalMachinePackage which is a deeply nested type)
+"mda_report", "mda_summary", "mda_critical_gaps",
+"mda_by_layer", "mda_by_manufacturer", "mda_by_type"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -1654,6 +1659,44 @@ export function registerDevDispatcher(server: any): void {
           case "mit_courses_harvest": {
             const { MitCourseIndexEngine } = await import("../../engines/MitCourseIndexEngine.js");
             result = { harvest: await MitCourseIndexEngine.harvest() };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-MDA: MachineDataAuditEngine ──────────
+          case "mda_report": {
+            const { MachineDataAuditEngine } = await import("../../engines/MachineDataAuditEngine.js");
+            result = { report: MachineDataAuditEngine.generateAuditReport() };
+            break;
+          }
+          case "mda_summary": {
+            const { MachineDataAuditEngine } = await import("../../engines/MachineDataAuditEngine.js");
+            result = { summary: MachineDataAuditEngine.getAuditSummary() };
+            break;
+          }
+          case "mda_critical_gaps": {
+            const { MachineDataAuditEngine } = await import("../../engines/MachineDataAuditEngine.js");
+            const gaps = MachineDataAuditEngine.getCriticalFieldGaps();
+            result = { gaps, count: gaps.length };
+            break;
+          }
+          case "mda_by_layer": {
+            const { MachineDataAuditEngine } = await import("../../engines/MachineDataAuditEngine.js");
+            const layer = (params as { layer: "BASIC" | "CORE" | "ENHANCED" | "LEVEL5" }).layer;
+            const machines = MachineDataAuditEngine.getMachinesByLayer(layer);
+            result = { machines, count: machines.length, layer };
+            break;
+          }
+          case "mda_by_manufacturer": {
+            const { MachineDataAuditEngine } = await import("../../engines/MachineDataAuditEngine.js");
+            const manufacturer = (params as { manufacturer: string }).manufacturer;
+            const machines = MachineDataAuditEngine.getMachinesByManufacturer(manufacturer);
+            result = { machines, count: machines.length, manufacturer };
+            break;
+          }
+          case "mda_by_type": {
+            const { MachineDataAuditEngine } = await import("../../engines/MachineDataAuditEngine.js");
+            const type = (params as { type: string }).type;
+            const machines = MachineDataAuditEngine.getMachinesByType(type);
+            result = { machines, count: machines.length, type };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-TRAINING: TrainingContentIndexEngine ──

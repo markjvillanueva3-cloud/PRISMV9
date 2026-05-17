@@ -261,8 +261,27 @@
     },
     "U-P2-SLOT-OWNERSHIP-OVERLAY": {
       "phase": "P2-VIZ-BRAIN",
-      "title": "Color nodes by which of 10 chat slots edited them last; handoff dotted edges",
-      "status": "pending"
+      "title": "Color nodes by which of 13 chat slots edited them last; handoff dotted edges",
+      "status": "shipped",
+      "shipped_at": "2026-05-17T05:35:00Z",
+      "delivered_by": "claude-a61bbf34 (slot echo)",
+      "shipped_evidence": {
+        "scripts": [
+          "scripts/system-viz-slot-ownership.mjs (~300 LOC, 11 pure-core exports + CLI; joins session-file-ownership.json with live chat-slots.mjs::readSlots() and emits slot-ownership-overlay.json sidecar)",
+          "scripts/system-viz-slot-ownership.test.mjs (~395 LOC, 42/42 PASS, includes real-data E2E + 5 P0/P1 regression guards including Windows-import-bug catch + SLOT_NAMES drift catch)"
+        ],
+        "artifact": "state/shared/system-viz/slot-ownership-overlay.json (gitignored — auto-regenerated; live baseline: 582 files, 497 with-slot, 10 of 13 slots active, 15 sessions tracked)",
+        "scope_note": "BACKEND SLICE ONLY. Frontend node-tint binding in mcp-server/web/ is intentionally deferred. The sidecar JSON IS the load-bearing contract; the frontend is a thin reader that tints nodes by files[<key>].slot/color. ZERO dispatcher contract surface (sidecar-only) — eliminates the contract-bug class that bit U-P2-NODE-CLICK-DISPATCH.",
+        "live_verification": "574→582 files attributed correctly; 9→10 of 13 slots resolved via chatId-to-slotName join. Real-data E2E in tests asserts non-zero attribution and accounting invariant.",
+        "per_file_scrutiny": "BOTH reviewers PASS first pass. Arm A (code-analyzer) flagged 1 P1 + 2 P2 (CLI guard pathToFileURL, prototype-pollution Object.create(null), atomic-write tmp+rename). Arm B (reviewer independent) flagged 1 matching P2 + slotNames deep-equal drift guard (P2-1). All P1+P2 fixes applied in-commit before envelope flip.",
+        "bug_caught_pre_commit": "Windows `await import(absolutePath)` silently fails — readChatSlots was falling back to empty slot table, so CLI reported withSlot=0 when 9 slots were actually claimed. Caught by live verification BEFORE tests (tests used injected state, bypassing the I/O wrapper). Fix: pathToFileURL(absPath).href + fail-loud stderr. Regression guard test added: 'state.slots MUST contain entries when live slots are claimed'.",
+        "fixes_applied": [
+          "_invokedAsCli: pathToFileURL replaces manual file:/// URL construction (Windows + POSIX + UNC paths uniformly)",
+          "chatIdToSlot/overlayFiles/perSlotFiles/perSessionFiles: Object.create(null) (prototype-pollution safety)",
+          "writeOverlay: tmp+rename atomicity (no truncated sidecar on crash)",
+          "Test: slotNames deep-equal SLOT_NAMES_FALLBACK (drift catch for same-length reorders)"
+        ]
+      }
     },
     "U-P2-GRAPH-SEARCH-MASTERINDEX": {
       "phase": "P2-VIZ-BRAIN",
