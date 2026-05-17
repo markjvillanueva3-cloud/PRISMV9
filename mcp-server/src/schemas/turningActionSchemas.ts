@@ -1091,6 +1091,32 @@ const lathe_profile_deviation_analyze = z.object({
 /** ProfileDeviationAnalyzerEngine.getStats — no params. */
 const lathe_profile_deviation_stats = z.object({});
 
+// WIRE-UNWIRED-MS0/U-WIRE-LBACKTRACE: LatheProgramBacktraceEngine — 2 surfaces
+/** Single block in a turning program backtrace input. */
+const _backtrace_block = z.object({
+  n: z.number().int().nonnegative().describe("Block N-number."),
+  kind: z.enum([
+    "tool_change", "offset_set", "wcs_shift", "feed_set",
+    "spindle_set", "macro_call", "motion", "m_code", "comment",
+  ]).describe("Block classification."),
+  text: z.string().optional().describe("Raw block text (optional, for reporting)."),
+  params: z.record(z.string(), z.union([z.string(), z.number()])).optional()
+    .describe("Parsed params (tool_id, offset_value, feed, rpm, macro_name, ...)."),
+});
+
+/** LatheProgramBacktraceEngine.trace input. */
+const lathe_backtrace_trace = z.object({
+  blocks: z.array(_backtrace_block).min(1)
+    .describe("Ordered block stream (at least 1)."),
+  failing_block_n: z.number().int().nonnegative()
+    .describe("Block N-number to backtrace from (the failing block)."),
+  max_depth: z.number().int().positive().max(1000).optional()
+    .describe("Max history depth to walk (default 50, cap 1000)."),
+});
+
+/** LatheProgramBacktraceEngine.getStats — no params. */
+const lathe_backtrace_stats = z.object({});
+
 const lathe_softjaw_boring = z.object({
   bore_diameter_mm: posNum.describe("Target finished bore diameter in mm (>0) — clearance fit to the Op1 finished OD."),
   bore_depth_mm: posNum.describe("Bore depth in mm (>0)."),
@@ -1264,4 +1290,8 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   // WIRE-UNWIRED-MS0/U-WIRE-PROFDEV: ProfileDeviationAnalyzerEngine — 2 surfaces
   lathe_profile_deviation_analyze,
   lathe_profile_deviation_stats,
+
+  // WIRE-UNWIRED-MS0/U-WIRE-LBACKTRACE: LatheProgramBacktraceEngine — 2 surfaces
+  lathe_backtrace_trace,
+  lathe_backtrace_stats,
 };

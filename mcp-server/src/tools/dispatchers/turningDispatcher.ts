@@ -240,6 +240,10 @@ const ACTIONS = [
   // WIRE-UNWIRED-MS0/U-WIRE-PROFDEV: ProfileDeviationAnalyzerEngine (LATHE-PRO-MS8)
   "lathe_profile_deviation_analyze",        // analyze — bilateral/unilateral profile deviation (CMM-style)
   "lathe_profile_deviation_stats",          // getStats — supported zones + reference standard
+
+  // WIRE-UNWIRED-MS0/U-WIRE-LBACKTRACE: LatheProgramBacktraceEngine (LATHE-PRO-MS12)
+  "lathe_backtrace_trace",                  // trace — walk backward through block history to find root cause
+  "lathe_backtrace_stats",                  // getStats — reference standard
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1582,6 +1586,23 @@ Actions: ${ACTIONS.join(", ")}.`,
                 break;
               case "lathe_profile_deviation_stats":
                 data = profileDeviationAnalyzerEngine.getStats();
+                break;
+            }
+            result = { success: true, data };
+            break;
+          }
+
+          // WIRE-UNWIRED-MS0/U-WIRE-LBACKTRACE: LatheProgramBacktraceEngine (LATHE-PRO-MS12)
+          case "lathe_backtrace_trace":
+          case "lathe_backtrace_stats": {
+            const { latheProgramBacktraceEngine } = await import("../../engines/LatheProgramBacktraceEngine.js");
+            let data: unknown;
+            switch (action) {
+              case "lathe_backtrace_trace":
+                data = latheProgramBacktraceEngine.trace(params as any);
+                break;
+              case "lathe_backtrace_stats":
+                data = latheProgramBacktraceEngine.getStats();
                 break;
             }
             result = { success: true, data };
