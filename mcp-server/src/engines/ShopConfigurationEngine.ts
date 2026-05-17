@@ -19,7 +19,9 @@ import {
   JM_DIE_CONTROLLER_MAP,
   JM_DIE_DEVELOPMENT_SEEDS,
   JM_DIE_SOURCE_ROOTS,
-  type DevelopmentSeedDomain,
+  // Canonical name was renamed to JMDieDevelopmentSeed; keep the prior local
+  // alias so downstream `ShopSeedDomain` retains its public shape.
+  type JMDieDevelopmentSeed as DevelopmentSeedDomain,
 } from "../data/jm-die-profile.js";
 
 // ============================================================================
@@ -181,7 +183,9 @@ const DEFAULT_RATES: ShopRates = {
 const DEFAULT_COMPANY_PROFILE: ShopCompanyProfile = {
   legal_name: JM_DIE_COMPANY.name,
   short_code: "JM-DIE",
-  domain: JM_DIE_COMPANY.domain,
+  // JM_DIE_COMPANY has no explicit `domain` field; use `industry` as the
+  // semantic equivalent (matches the ShopCompanyProfile.domain contract).
+  domain: JM_DIE_COMPANY.industry,
   industry: "Fastener tooling",
   specialization:
     "Cold heading dies, punches, sinker EDM electrodes, wire EDM tooling, and precision turning/milling.",
@@ -196,6 +200,11 @@ const DEFAULT_COMPANY_PROFILE: ShopCompanyProfile = {
 
 const DEFAULT_SOURCE_ROOTS: ShopSourceRoots = {
   ...JM_DIE_SOURCE_ROOTS,
+  // ShopSourceRoots requires `company_root` + `machines_root` which JM_DIE_SOURCE_ROOTS
+  // does not export; derive them from JM_DIE_COMPANY.file_archive_path to keep
+  // every root anchored to the same canonical shop tree.
+  company_root: JM_DIE_COMPANY.file_archive_path,
+  machines_root: `${JM_DIE_COMPANY.file_archive_path}\\MACHINES`,
 };
 
 const DEFAULT_SEED_DOMAINS: ShopSeedDomain[] = JM_DIE_DEVELOPMENT_SEEDS.map((domain) => ({ ...domain }));
