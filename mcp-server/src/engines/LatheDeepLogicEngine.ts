@@ -2341,7 +2341,7 @@ class LatheDeepLogicEngine {
     this.modalLogic.createLatheMachiningWorlds();
     this.defeasibleLogic.createLatheDefeasibleRules();
 
-    log("info", "LatheDeepLogicEngine: All logic systems initialized");
+    log.info("LatheDeepLogicEngine: All logic systems initialized");
   }
 
   /**
@@ -2511,7 +2511,7 @@ class LatheDeepLogicEngine {
     ];
     const overallConfidence = confidences.reduce((a, b) => a + b, 0) / confidences.length;
 
-    log("info", `LatheDeepLogicEngine: Analysis complete in ${analysisTime}ms, confidence: ${overallConfidence.toFixed(2)}`);
+    log.info(`LatheDeepLogicEngine: Analysis complete in ${analysisTime}ms, confidence: ${overallConfidence.toFixed(2)}`);
 
     return {
       operation_context: {

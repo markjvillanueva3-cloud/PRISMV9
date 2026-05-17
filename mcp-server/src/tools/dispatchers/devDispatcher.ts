@@ -446,7 +446,9 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // no defers.
 "sca_get_all_catalogs", "sca_search_catalog",
 "sca_get_engine_catalog", "sca_get_catalog_stats",
-"mti_get_adjustment", "mti_check_failure_modes", "mti_get_statistics"] as const;
+"mti_get_adjustment", "mti_check_failure_modes", "mti_get_statistics",
+"ldl_optimize_parameters", "ldl_validate_sequence",
+"ldl_get_fuzzy_speed_recommendation", "ldl_reason_tool_selection"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -3065,6 +3067,65 @@ export function registerDevDispatcher(server: any): void {
             const { millTribalIntegrationEngine } = await import("../../engines/MillTribalIntegrationEngine.js");
             const stats = millTribalIntegrationEngine.getStatistics();
             result = { stats };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-LDL: LatheDeepLogic ──────────────────
+          case "ldl_optimize_parameters": {
+            const { latheDeepLogicEngine } = await import("../../engines/LatheDeepLogicEngine.js");
+            const p = params as { material_iso: "P"|"M"|"K"|"N"|"S"|"H"; max_power_kw: number; max_rpm: number; tool_nose_radius_mm: number; diameter_mm: number; target_ra_um: number };
+            const opt = latheDeepLogicEngine.optimizeParameters(p);
+            // opt returns {optimal:{Vc,fn,ap}, constraints_satisfied,
+            //              mrr_mm3_per_min, predicted_tool_life_min,
+            //              predicted_power_kw}.
+            result = {
+              material_iso: p.material_iso,
+              optimization: opt,
+              constraints_satisfied: opt.constraints_satisfied,
+            };
+            break;
+          }
+          case "ldl_validate_sequence": {
+            const { latheDeepLogicEngine } = await import("../../engines/LatheDeepLogicEngine.js");
+            const ops = (params as { operations: string[] }).operations;
+            const v = latheDeepLogicEngine.validateSequence(ops);
+            // v returns {valid:bool, violations[], corrected_sequence|null}.
+            // slimResponse strips null → use explicit discriminator for
+            // corrected_sequence presence.
+            result = {
+              operations: ops,
+              op_count: ops.length,
+              valid: v.valid,
+              violations: v.violations,
+              violation_count: v.violations.length,
+              has_corrected_sequence: v.corrected_sequence !== null,
+              corrected_sequence: v.corrected_sequence,
+            };
+            break;
+          }
+          case "ldl_get_fuzzy_speed_recommendation": {
+            const { latheDeepLogicEngine } = await import("../../engines/LatheDeepLogicEngine.js");
+            const p = params as { hardness_hrc: number; depth_mm: number; feed_mm_rev: number };
+            const rec = latheDeepLogicEngine.getFuzzySpeedRecommendation(p.hardness_hrc, p.depth_mm, p.feed_mm_rev);
+            // rec returns {adjustment_percent, confidence, linguistic_summary}.
+            result = {
+              hardness_hrc: p.hardness_hrc,
+              depth_mm: p.depth_mm,
+              feed_mm_rev: p.feed_mm_rev,
+              recommendation: rec,
+            };
+            break;
+          }
+          case "ldl_reason_tool_selection": {
+            const { latheDeepLogicEngine } = await import("../../engines/LatheDeepLogicEngine.js");
+            const facts = params as { is_steel: boolean; is_hardened: boolean; is_interrupted: boolean; is_high_temp_alloy: boolean; needs_fine_finish: boolean };
+            const sel = latheDeepLogicEngine.reasonToolSelection(facts);
+            // sel returns {recommended_tool, confidence, reasoning[], alternatives[]}.
+            result = {
+              facts,
+              selection: sel,
+              reasoning_steps_count: sel.reasoning.length,
+              alternatives_count: sel.alternatives.length,
+            };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-CEX: CatalogExtractionEngine ─────────

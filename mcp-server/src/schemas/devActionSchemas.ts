@@ -2693,4 +2693,46 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   mti_get_statistics: z.object({}).describe(
     "Aggregate counts (tips/heuristics/failure-modes + per-material + per-operation). Pure read."
   ),
+
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-LDL: LatheDeepLogicEngine wiring ──
+  // Four pure-read symbolic-logic surfaces. analyzeOperation DEFERRED
+  // (calls folLogic.registerEntity → mutates shared FOL entity registry;
+  // would let any chat overwrite/poison FOL state for all other consumers).
+  // checkProcessAlternatives DEFERRED (mutates modalLogic.worlds map).
+  ldl_optimize_parameters: z.object({
+    material_iso: z.enum(["P", "M", "K", "N", "S", "H"])
+      .describe("ISO material group"),
+    max_power_kw: z.number().positive().max(500)
+      .describe("Machine max spindle power kW (DoS bound 500)"),
+    max_rpm: z.number().positive().max(200_000)
+      .describe("Machine max rpm (DoS bound 200k)"),
+    tool_nose_radius_mm: z.number().positive().max(20)
+      .describe("Tool nose radius mm"),
+    diameter_mm: z.number().positive().max(2000)
+      .describe("Workpiece diameter mm"),
+    target_ra_um: z.number().positive().max(50)
+      .describe("Target surface roughness Ra µm"),
+  }).describe("CSP-solve for optimal Vc/fn/ap + Kienzle/Taylor predictions. Pure read."),
+
+  ldl_validate_sequence: z.object({
+    operations: z.array(z.string().min(1).max(64)).min(1).max(50)
+      .describe("Operation sequence (1-50 ops, each 1-64 chars)"),
+  }).describe("Validate temporal sequence against registered rules. Pure read."),
+
+  ldl_get_fuzzy_speed_recommendation: z.object({
+    hardness_hrc: z.number().min(0).max(80)
+      .describe("Material hardness HRC (0-80)"),
+    depth_mm: z.number().positive().max(100)
+      .describe("Depth of cut mm"),
+    feed_mm_rev: z.number().positive().max(10)
+      .describe("Feed mm/rev"),
+  }).describe("Fuzzy inference for speed adjustment recommendation. Pure read."),
+
+  ldl_reason_tool_selection: z.object({
+    is_steel: z.boolean(),
+    is_hardened: z.boolean(),
+    is_interrupted: z.boolean(),
+    is_high_temp_alloy: z.boolean(),
+    needs_fine_finish: z.boolean(),
+  }).describe("Defeasible reasoning for tool selection. Pure read."),
 };
