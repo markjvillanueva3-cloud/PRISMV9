@@ -233,7 +233,14 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // (read-only — upsert/upsertMany/remove DEFERRED; they MUTATE the wiki
 //  index + JSONL on disk which the wiki-bootstrap + wiki-lint pipelines
 //  depend on; an LLM-driven upsert could clobber curated content)
-"wiki_idx_read", "wiki_idx_get", "wiki_idx_by_category", "wiki_idx_paths"] as const;
+"wiki_idx_read", "wiki_idx_get", "wiki_idx_by_category", "wiki_idx_paths",
+// WIRE-UNWIRED-MS0/U-WIRE-MACH-CAP: MachineCapabilityIndexEngine
+// (read-only — reset() DEFERRED; wipes in-memory index which could disrupt
+//  concurrent capability queries from other callers)
+"machine_cap_query", "machine_cap_get", "machine_cap_find", "machine_cap_stats",
+// WIRE-UNWIRED-MS0/U-WIRE-MIT-COURSES: MitCourseIndexEngine
+// (all methods are pure filesystem reads — no mutating writes on this engine)
+"mit_courses_sources", "mit_courses_audit", "mit_courses_harvest", "mit_courses_filter"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -1569,6 +1576,95 @@ export function registerDevDispatcher(server: any): void {
             result = {
               indexPath: wikiIndexMaintainerEngine.getIndexPath(),
               jsonlPath: wikiIndexMaintainerEngine.getJsonlPath(),
+            };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-MACH-CAP: MachineCapabilityIndexEngine ──
+          case "machine_cap_query": {
+            const { machineCapabilityIndexEngine } = await import("../../engines/MachineCapabilityIndexEngine.js");
+            const p = params as { type?: string; minAxes?: number; capability?: string; limit?: number };
+            const machines = await machineCapabilityIndexEngine.query({
+              type: p.type,
+              minAxes: p.minAxes,
+              capability: p.capability,
+              limit: p.limit,
+            });
+            result = { machines, count: machines.length };
+            break;
+          }
+          case "machine_cap_get": {
+            const { machineCapabilityIndexEngine } = await import("../../engines/MachineCapabilityIndexEngine.js");
+            const machineId = (params as { id: string }).id;
+            const machine = await machineCapabilityIndexEngine.getMachine(machineId);
+            // Normalize null → null in JSON (engine returns null for missing — preserved across wire)
+            result = { machine };
+            break;
+          }
+          case "machine_cap_find": {
+            const { machineCapabilityIndexEngine } = await import("../../engines/MachineCapabilityIndexEngine.js");
+            const caps = (params as { capabilities: string[] }).capabilities;
+            const machines = await machineCapabilityIndexEngine.findCapable(caps);
+            result = { machines, count: machines.length };
+            break;
+          }
+          case "machine_cap_stats": {
+            const { machineCapabilityIndexEngine } = await import("../../engines/MachineCapabilityIndexEngine.js");
+            const stats = await machineCapabilityIndexEngine.getStats();
+            result = { stats };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-MIT-COURSES: MitCourseIndexEngine ──────
+          case "mit_courses_sources": {
+            const { MitCourseIndexEngine } = await import("../../engines/MitCourseIndexEngine.js");
+            result = { sources: MitCourseIndexEngine.getSources() };
+            break;
+          }
+          case "mit_courses_audit": {
+            const { MitCourseIndexEngine } = await import("../../engines/MitCourseIndexEngine.js");
+            result = { audit: await MitCourseIndexEngine.audit() };
+            break;
+          }
+          case "mit_courses_harvest": {
+            const { MitCourseIndexEngine } = await import("../../engines/MitCourseIndexEngine.js");
+            result = { harvest: await MitCourseIndexEngine.harvest() };
+            break;
+          }
+          case "mit_courses_filter": {
+            const { MitCourseIndexEngine } = await import("../../engines/MitCourseIndexEngine.js");
+            const p = params as {
+              department?: string;
+              relevance?: "manufacturing" | "materials" | "algorithms" | "controls" | "design" | "fluid_thermal" | "general_engineering" | "other";
+              semester?: string;
+              minYear?: number;
+              maxYear?: number;
+            };
+            const harvest = await MitCourseIndexEngine.harvest();
+            let filtered = harvest.courses;
+            if (typeof p.department === "string") {
+              filtered = MitCourseIndexEngine.findByDepartment(filtered, p.department);
+            }
+            if (typeof p.relevance === "string") {
+              filtered = MitCourseIndexEngine.filterByRelevance(filtered, p.relevance);
+            }
+            if (typeof p.semester === "string") {
+              filtered = MitCourseIndexEngine.filterBySemester(filtered, p.semester);
+            }
+            if (typeof p.minYear === "number" || typeof p.maxYear === "number") {
+              const lo = typeof p.minYear === "number" ? p.minYear : 1900;
+              const hi = typeof p.maxYear === "number" ? p.maxYear : 2100;
+              filtered = MitCourseIndexEngine.filterByYearRange(filtered, lo, hi);
+            }
+            result = {
+              courses: filtered,
+              count: filtered.length,
+              totalAvailable: harvest.totalCourses,
+              filtersApplied: {
+                department: p.department,
+                relevance: p.relevance,
+                semester: p.semester,
+                minYear: p.minYear,
+                maxYear: p.maxYear,
+              },
             };
             break;
           }

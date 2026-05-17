@@ -1218,4 +1218,58 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
 
   wiki_idx_paths: z.object({}).passthrough()
     .describe("Returns {indexPath, jsonlPath} — the on-disk wiki index file paths. Read-only."),
+
+  // ── WIRE-UNWIRED-MS0/U-WIRE-MACH-CAP: MachineCapabilityIndexEngine ─────────
+  // (read-only — reset() DEFERRED; wipes in-memory index which could disrupt
+  //  concurrent capability queries from other callers)
+  machine_cap_query: z.object({
+    type: z.string().min(1).optional().describe("Machine type filter (mill|lathe|wedm|grinder|sinker-edm)."),
+    minAxes: z.number().int().nonnegative().optional().describe("Minimum axis count."),
+    capability: z.string().min(1).optional().describe("Required single capability (e.g. 'probing', 'live-tooling')."),
+    limit: z.number().int().positive().max(1000).optional().describe("Max results (default 50, cap 1000)."),
+  }).passthrough()
+    .describe("Query machines by type/minAxes/capability. All filters optional. Read-only."),
+
+  machine_cap_get: z.object({
+    id: z.string().min(1).describe("Machine id (e.g. 'mach_1')."),
+  }).passthrough()
+    .describe("Lookup a single machine by id. Returns null if missing. Read-only."),
+
+  machine_cap_find: z.object({
+    capabilities: z.array(z.string().min(1)).min(1).describe("List of required capabilities (AND-match — every cap must be present)."),
+  }).passthrough()
+    .describe("Find machines matching ALL listed capabilities. Read-only."),
+
+  machine_cap_stats: z.object({}).passthrough()
+    .describe("Aggregate stats: totalMachines + byType/byController/byAxes + averageCapabilities. Read-only."),
+
+  // ── WIRE-UNWIRED-MS0/U-WIRE-MIT-COURSES: MitCourseIndexEngine ──────────────
+  // (all methods are pure filesystem reads — no mutating writes exist on this engine)
+  mit_courses_sources: z.object({}).passthrough()
+    .describe("List the 6 MIT OCW source zone configs (root + uploaded + mc2..mc5). Read-only."),
+
+  mit_courses_audit: z.object({}).passthrough()
+    .describe("Summary audit — totals, top departments, top relevance, year range, semester breakdown. Read-only."),
+
+  mit_courses_harvest: z.object({}).passthrough()
+    .describe("Full scan of all 6 zones — returns every course with metadata + aggregation maps. Read-only."),
+
+  mit_courses_filter: z.object({
+    department: z.string().min(1).optional().describe("Filter by department prefix (e.g. '2', '18', 'esd')."),
+    relevance: z.enum([
+      "manufacturing", "materials", "algorithms", "controls",
+      "design", "fluid_thermal", "general_engineering", "other",
+    ]).optional().describe("Filter by relevance classification."),
+    semester: z.string().min(1).optional().describe("Filter by semester (spring|fall|summer|january-iap|iap)."),
+    minYear: z.number().int().min(1900).max(2100).optional().describe("Minimum year (inclusive)."),
+    maxYear: z.number().int().min(1900).max(2100).optional().describe("Maximum year (inclusive)."),
+  }).passthrough().refine(
+    (d) =>
+      typeof d.department === "string" ||
+      typeof d.relevance === "string" ||
+      typeof d.semester === "string" ||
+      typeof d.minYear === "number" ||
+      typeof d.maxYear === "number",
+    { message: "mit_courses_filter requires at least one filter field (department, relevance, semester, minYear, maxYear)" },
+  ).describe("Composes harvest + filter helpers. At least one filter field required. Read-only."),
 };
