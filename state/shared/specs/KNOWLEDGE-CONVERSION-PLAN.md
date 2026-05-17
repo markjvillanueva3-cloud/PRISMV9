@@ -93,3 +93,39 @@ Register `KNOWLEDGE-CONVERSION-MS0` via RGS so it joins `roadmap-index.json` (75
 - CLEAN_ENV IIFE scrubs `PRISM_*_FROZEN_TIME` from `execFileSync` envs
 
 **Next:** Phase 2 Lane B — U-KC-C1 (12-file formula port verification against `src/physics/constants.ts`), U-KC-C2 (confirm-only, ledger says 20/20 algorithms resolve). Phase 3 Lane C is queue-only. Phase 4 = durable memory + wiki + CLAUDE.md pointer doc-reflection.
+
+## Phase 2 — EXECUTED 2026-05-17 (U-KC-C1 + U-KC-C2) — Lane B confirm SHIPPED
+
+| Unit | Artifact | Commit | Net |
+|------|----------|--------|-----|
+| **U-KC-C1** | `state/shared/specs/U-KC-C1-FORMULA-PORT-VERIFICATION.md` (12 formulas verified) | `e4a48ebf3` | 0 ports needed (2 multi-dispatcher, 2 registry-superseded, 8 direct-mapped) |
+| **U-KC-C2** | `state/shared/specs/U-KC-C2-ALGORITHM-VERIFICATION.md` (52 algorithms verified) | `05152dff62` | 1 forge-candidate (`ODESolversEngine` for adaptive RK45/RK4-DP/BDF), 51 covered |
+
+**Lane B net:** 0 source code changes. 63/64 PRISM-equivalent items found across the formula+algorithm axes; 1 routed to Lane C.
+
+## Phase 3 — EXECUTED 2026-05-17 (U-KC-D1) — Lane C routing pipeline SHIPPED
+
+| Artifact | Commit | LOC | Tests |
+|----------|--------|-----|-------|
+| `scripts/lib/course-data-router-lib.mjs` (pure-core router) | `cd00120dcd` | 380 | 30/30 (29 hermetic + 1 E2E) |
+| `scripts/lib/course-data-router-lib.test.mjs` | `cd00120dcd` | — | — |
+| `scripts/course-data-router.mjs` (CLI) | `cd00120dcd` | ~200 | — |
+| `state/shared/specs/COURSE-DATA-ROUTING-PIPELINE.md` (design doc) | `cd00120dcd` | — | — |
+| `state/shared/specs/COURSE-DATA-ROUTING-LEDGER.{json,md}` | `66aa07afa4` (collision-absorbed) | — | — |
+
+**Live first-run on 65 candidates / 126 assets:** 31 TRIBAL-SHIPPED · 69 FORGE-QUEUE · 10 DUPLICATE · 16 DISCARD. 69 real /forge candidates surfaced (operator-splitting, Bernoulli solver, Moody-diagram, lean-enterprise-engine, etc.) gated by human `/forge-triple`.
+
+**Six PRISM node-types course data can populate:** knowledge (TribalKnowledgeEngine), algorithm, formula (physics-reviewer first), engine, skill (derived), pipeline (derived).
+
+## Phase 4 — EXECUTED 2026-05-17 (U-KC-E1) — doc-reflection
+
+| Surface | Artifact |
+|---------|----------|
+| Wiki | `knowledge/wiki/architecture/knowledge-conversion-ms0.md` (new) |
+| Memory | `C:/Users/wompu/.claude/projects/H--PRISM/memory/reference_knowledge_conversion_ms0_2026_05_17.md` (new) + MEMORY.md index line |
+| Plan doc | this Phase 2/3/4 EXECUTED section |
+| CLAUDE.md pointer | **deferred to next session** — `H:/prism/CLAUDE.md` was peer-claimed by `claude-629a6355` at ship time; add pointer line under "## Recent regressions" / new "## KNOWLEDGE-CONVERSION-MS0" section when claim clears |
+
+## Final status
+
+**KNOWLEDGE-CONVERSION-MS0 SHIPPED.** All four phases executed, all units committed (some collision-absorbed under peer subjects — content correct). The milestone closes the extracted-but-not-consumed gap for both MIT-OCW courseware and the v8.89 monolith, and provides the routing seam (`course-data-router-lib.mjs`) for all future external knowledge sources (`/pdf-learn`, `/video-learn`, `/shop-knowledge`).
