@@ -289,7 +289,11 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // mutating job-lifecycle methods + calculateETA(JobProgress) DEFERRED
 "wpt_generate_job_id", "wpt_historical_average",
 "wpt_estimate_total_duration", "wpt_get_progress",
-"wpt_active_jobs", "wpt_get_config"] as const;
+"wpt_active_jobs", "wpt_get_config",
+// WIRE-UNWIRED-MS0/U-WIRE-WRTL: WEDMReasoningTraceLedgerEngine read-only;
+// recordTraceSync/setLedgerPath/setDiskWrites/resetForTests DEFERRED
+"wrtl_recent", "wrtl_by_dispatcher", "wrtl_by_action",
+"wrtl_by_keyword", "wrtl_stats"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -1676,6 +1680,40 @@ export function registerDevDispatcher(server: any): void {
           case "mit_courses_harvest": {
             const { MitCourseIndexEngine } = await import("../../engines/MitCourseIndexEngine.js");
             result = { harvest: await MitCourseIndexEngine.harvest() };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-WRTL: WEDMReasoningTraceLedgerEngine ──
+          case "wrtl_recent": {
+            const { wedmReasoningTraceLedgerEngine } = await import("../../engines/WEDMReasoningTraceLedgerEngine.js");
+            const limit = (params as { limit?: number }).limit ?? 100;
+            const entries = wedmReasoningTraceLedgerEngine.getRecent(limit);
+            result = { entries, count: entries.length, limit };
+            break;
+          }
+          case "wrtl_by_dispatcher": {
+            const { wedmReasoningTraceLedgerEngine } = await import("../../engines/WEDMReasoningTraceLedgerEngine.js");
+            const p = params as { dispatcher: string; limit?: number };
+            const entries = wedmReasoningTraceLedgerEngine.queryByDispatcher(p.dispatcher, p.limit ?? 100);
+            result = { entries, count: entries.length, dispatcher: p.dispatcher };
+            break;
+          }
+          case "wrtl_by_action": {
+            const { wedmReasoningTraceLedgerEngine } = await import("../../engines/WEDMReasoningTraceLedgerEngine.js");
+            const p = params as { action: string; limit?: number };
+            const entries = wedmReasoningTraceLedgerEngine.queryByAction(p.action, p.limit ?? 100);
+            result = { entries, count: entries.length, action: p.action };
+            break;
+          }
+          case "wrtl_by_keyword": {
+            const { wedmReasoningTraceLedgerEngine } = await import("../../engines/WEDMReasoningTraceLedgerEngine.js");
+            const p = params as { keyword: string; limit?: number };
+            const entries = wedmReasoningTraceLedgerEngine.queryByKeyword(p.keyword, p.limit ?? 100);
+            result = { entries, count: entries.length, keyword: p.keyword };
+            break;
+          }
+          case "wrtl_stats": {
+            const { wedmReasoningTraceLedgerEngine } = await import("../../engines/WEDMReasoningTraceLedgerEngine.js");
+            result = { stats: wedmReasoningTraceLedgerEngine.getStats() };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-WPT: WEDMProgressTrackerEngine ───────

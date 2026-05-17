@@ -1254,6 +1254,37 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   mit_courses_harvest: z.object({}).passthrough()
     .describe("Full scan of all 6 zones — returns every course with metadata + aggregation maps. Read-only."),
 
+  // ── WIRE-UNWIRED-MS0/U-WIRE-WRTL: WEDMReasoningTraceLedgerEngine ──────────
+  // (read-only query surface; recordTraceSync/setLedgerPath/setDiskWrites/
+  //  resetForTests DEFERRED — they append to / mutate the on-disk reasoning
+  //  audit ledger)
+  wrtl_recent: z.object({
+    limit: z.number().int().positive().max(1000).optional()
+      .describe("Max entries (default 100, cap 1000)."),
+  }).passthrough()
+    .describe("Get the most recent reasoning trace entries. Read-only."),
+
+  wrtl_by_dispatcher: z.object({
+    dispatcher: z.string().min(1).describe("Dispatcher name to filter by."),
+    limit: z.number().int().positive().max(1000).optional(),
+  }).passthrough()
+    .describe("Filter trace entries by dispatcher. Read-only."),
+
+  wrtl_by_action: z.object({
+    action: z.string().min(1).describe("Action name to filter by."),
+    limit: z.number().int().positive().max(1000).optional(),
+  }).passthrough()
+    .describe("Filter trace entries by action. Read-only."),
+
+  wrtl_by_keyword: z.object({
+    keyword: z.string().min(1).describe("Substring keyword to search."),
+    limit: z.number().int().positive().max(1000).optional(),
+  }).passthrough()
+    .describe("Search trace entries by keyword. Read-only."),
+
+  wrtl_stats: z.object({}).passthrough()
+    .describe("Get ledger stats (totals, by-dispatcher/by-action breakdowns). Read-only."),
+
   // ── WIRE-UNWIRED-MS0/U-WIRE-WPT: WEDMProgressTrackerEngine ────────────────
   // (read-only query surface; startJob/beginStage/completeStage/failStage/
   //  completeJob/subscribe/subscribeAll/configure DEFERRED — they mutate
