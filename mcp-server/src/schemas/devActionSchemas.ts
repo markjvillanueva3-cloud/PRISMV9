@@ -3167,6 +3167,26 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   // ── WIRE-UNWIRED-MS0 / U-WIRE-AGS: AutonomousGoalSynthesisEngine ──
   // Single pure-compute method ranks gap-descriptors by
   // Ψ_impact × urgency × feasibility. No I/O, no state mutation.
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-CAPB: CapacitorBankEngine ──
+  // Pure-compute power-factor-correction sizer (IEEE 1036, IEC 60831).
+  // Q = P × (tan(θ₁) - tan(θ₂)); harmonic resonance check via h_r = √(Ssc/Qc).
+  cap_bank_calculate: z.object({
+    real_power_kW: z.number().positive().max(1_000_000)
+      .describe("Real power kW"),
+    current_pf: z.number().gt(0).lt(1)
+      .describe("Current power factor (0,1) — clamped to 0.999 internally"),
+    target_pf: z.number().gt(0).lt(1).optional()
+      .describe("Target PF (0,1). Default 0.95"),
+    voltage_V: z.number().positive().max(1_000_000)
+      .describe("System voltage line-to-line"),
+    frequency_Hz: z.number().positive().max(1000).optional()
+      .describe("Line frequency Hz (default 60)"),
+    harmonic_order: z.number().int().min(2).max(50).optional()
+      .describe("Dominant harmonic order (default 5)"),
+    transformer_impedance_pct: z.number().gt(0).max(100).optional()
+      .describe("Transformer Zsc % (default 5)"),
+  }).describe("Power-factor correction capacitor bank sizing + resonance check."),
+
   // ── WIRE-UNWIRED-MS0 / U-WIRE-EVAP: EvaporatorDesignEngine ──
   // Single pure-compute action — Q=UAΔTlm + mass balance + steam economy
   // (McCabe-Smith / Perry's Ch.11). Pure compute, no state mutation.
