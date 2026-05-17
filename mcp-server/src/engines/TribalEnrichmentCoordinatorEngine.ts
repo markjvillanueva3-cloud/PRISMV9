@@ -77,7 +77,7 @@ async function fetchTribalTips(input: EnrichmentInput): Promise<SimpleTip[]> {
     const { tribalKnowledgeEngine } = await import("./TribalKnowledgeEngine.js");
     const tips = tribalKnowledgeEngine.search({
       operation_type: input.process_type,
-      material: input.material,
+      material_iso_group: input.material,
       min_confidence: 75,
       limit: 5,
     });
@@ -95,12 +95,14 @@ async function fetchTribalTips(input: EnrichmentInput): Promise<SimpleTip[]> {
 async function fetchPlaybookRules(input: EnrichmentInput): Promise<SimpleRule[]> {
   try {
     const { machiningPlaybookEngine } = await import("./MachiningPlaybookEngine.js");
+    // PlaybookQuery accepts material_iso + operation_type; the prior call wrote four
+    // non-canonical fields (process/depth_of_cut_mm/tool_diameter_mm/thin_wall) that
+    // never reached the matcher. Drop them — behavior is unchanged, types now satisfied.
+    // (Per [[reference_tribal_enrichment_engine_bug]]: a richer semantic redesign would
+    // map thin-wall and depth-ratio into Condition[], but that is out of scope here.)
     const advice = machiningPlaybookEngine.advise({
-      process: input.process_type,
-      material: input.material,
-      depth_of_cut_mm: input.thickness_mm ? input.thickness_mm / 10 : undefined,
-      tool_diameter_mm: undefined,
-      thin_wall: input.is_thin_wall,
+      operation_type: input.process_type,
+      material_iso: input.material,
     });
     return advice.rules.slice(0, 5).map((r: PlaybookRule) => ({
       id: r.id,
