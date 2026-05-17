@@ -529,7 +529,17 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "Remove Stop hook entry; dashboard.html stays as last-generated snapshot"
+          "rollback": "Remove Stop hook entry; dashboard.html stays as last-generated snapshot",
+          "status": "completed",
+          "completed_at": "2026-05-17T01:25:00.000Z",
+          "owner": "claude-c0f06dee slot charlie",
+          "ship_record": {
+            "session_id": "ms3-c2-c0f06dee-test-fill",
+            "shipped_at": "2026-05-17T01:25:00.000Z",
+            "tests": "28/28 vitest PASS (mcp-server/src/__tests__/DashboardHtml.test.ts)",
+            "per_file_scrutiny": "PASS — Arm A (test-review-agent) + Arm B (reviewer) both PASS; 1 P1 (XSS coverage gap on 3 untested HTML-emitting panels) fixed in same file via 3 added assembleDashboard adversarial tests (24→25→28 cases)",
+            "deliverable_extra": "C2 envelope-drift close-out: scripts/generate-dashboard-html.mjs (14.5KB) + .claude/hooks/stop-dashboard-regen.mjs (3KB) had shipped 2026-05-15 (commits 7234ceb0a / 2e9204ce1) but the 3rd deliverable mcp-server/src/__tests__/DashboardHtml.test.ts was NEVER written — silent envelope-drift caught by /loop iter-2 close-out audit. Test fills the gap: every public export of generate-dashboard-html.mjs (9 readers + 2 helpers + 7 panels + assembleDashboard) is exercised with happy/failure/adversarial/variability coverage. Hermetic via PRISM_REPO_ROOT tmpdir; no prod-state contamination."
+          }
         },
         {
           "id": "C3",
