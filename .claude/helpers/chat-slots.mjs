@@ -403,12 +403,25 @@ function isPidAlive(pid) {
 //     (chatId format is `claude-<8hex>`; transcript filename starts with the
 //     same 8 hex chars followed by `-`)
 //
-// Freshness threshold: 5 minutes default (PRISM_SLOT_TRANSCRIPT_FRESH_MS).
-// Tuned for /compact behavior — Claude continues writing to the transcript
-// during compaction (compact summary itself is appended), so a chat
-// mid-compact has mtime age of seconds, not minutes. A 5-min threshold
-// covers worst-case /compact latency + brief user think-time + small
-// network blips, but tightens release on genuinely dead chats.
+// Freshness threshold: 4 HOURS default (PRISM_SLOT_TRANSCRIPT_FRESH_MS).
+//
+// U-SDF04 (2026-05-17, "can we make a permanent fix?"): raised from 5 min
+// (the U-SDF03 default) to 4 hours. The 5-min window closed the production
+// tier-1-twid bug but left another class of legitimate liveness lapses
+// vulnerable to auto-reclaim:
+//   - Long single-tool-call (e.g. 6-min Agent run with no streaming output)
+//   - User AFK (coffee, meeting, bathroom, kid interruption) > 5 min
+//   - Network blip while a model response is generating > 5 min
+//   - /compact + immediate fresh-prompt latency > 5 min on slow hosts
+// 4-hour threshold covers all realistic active-session lapses while still
+// releasing GENUINELY abandoned slots within half a workday. The only
+// remaining paths to slot loss are now:
+//   (a) operator force-take via /checkin-<slot> --force (explicit intent)
+//   (b) graceful chat exit (owner releases slot)
+//   (c) chat genuinely abandoned > 4h with no transcript activity
+// Path (c) covers "user closed the window and forgot" — slot eventually
+// frees itself. No more "chat randomly exits its slot during /compact"
+// or "Agent run lost the slot mid-call."
 //
 // Why not BOTH transcript-mtime AND a process-tree walk? Tried it — the
 // PowerShell walk is dead code in production (cannot reach claude.exe).
@@ -419,12 +432,16 @@ function isPidAlive(pid) {
 // Knobs:
 //   PRISM_SLOT_TRANSCRIPT_LIVENESS_DISABLE=1 → skip the check (fall back
 //                                              to U-SDF02 twid logic).
-//   PRISM_SLOT_TRANSCRIPT_FRESH_MS=N         → override 5-min default.
+//   PRISM_SLOT_TRANSCRIPT_FRESH_MS=N         → override 4-hour default
+//                                              (U-SDF04 raised from 5 min).
 //   PRISM_SLOT_TRANSCRIPT_BASE=/path         → override projects dir
 //                                              (tests + non-Windows hosts).
 
 const CLAUDE_PROJECT_PREFIX = "H--prism";
-const DEFAULT_TRANSCRIPT_FRESH_MS = 5 * 60 * 1000;
+// U-SDF04: 4-hour default (was 5-min in U-SDF03). See block comment above
+// for rationale — covers realistic AFK + long Agent runs + breaks while
+// still releasing genuinely-abandoned slots within half a workday.
+const DEFAULT_TRANSCRIPT_FRESH_MS = 4 * 60 * 60 * 1000;
 const CHAT_ID_PREFIX_RE = /^claude-([0-9a-f]{8})$/i;
 
 /**

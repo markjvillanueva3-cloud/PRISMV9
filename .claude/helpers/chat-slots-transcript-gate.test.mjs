@@ -125,15 +125,36 @@ test("transcriptAgeMs: returns stale age for backdated transcript", () => {
 
 // ─── isTranscriptFresh (env-knob wrapper) ───────────────────────────────────
 
-test("isTranscriptFresh: true for transcript within default 5-min window", () => {
+test("isTranscriptFresh: true for transcript within default 4-hour window", () => {
   writeTranscript("33334444-5555-6666-7777-888899990000");
   assert.equal(isTranscriptFresh("claude-33334444"), true);
 });
 
+test("U-SDF04 (the permanent fix): 1-hour-old transcript STILL FRESH under default threshold", () => {
+  // U-SDF03 default was 5 min — a 1h-old transcript would have been
+  // classified as stale, the slot would have been reclaimable, and
+  // any moderate AFK / long Agent run would lose its slot. U-SDF04
+  // raises the default to 4 hours; 1h is well within range.
+  writeTranscript("aaaa0001-bbbb-cccc-dddd-eeee00010001", 60 * 60 * 1000); // 1h ago
+  assert.equal(isTranscriptFresh("claude-aaaa0001"), true,
+    "1h-old transcript MUST stay protected — closes 'lost slot after coffee break' bug class");
+});
+
+test("U-SDF04: 3-hour-old transcript still fresh (covers half a workday-meeting)", () => {
+  writeTranscript("aaaa0002-bbbb-cccc-dddd-eeee00020002", 3 * 60 * 60 * 1000);
+  assert.equal(isTranscriptFresh("claude-aaaa0002"), true);
+});
+
+test("U-SDF04: 5-hour-old transcript IS stale (genuinely abandoned > 4h)", () => {
+  writeTranscript("aaaa0003-bbbb-cccc-dddd-eeee00030003", 5 * 60 * 60 * 1000);
+  assert.equal(isTranscriptFresh("claude-aaaa0003"), false,
+    "5h-old transcript exceeds 4h default — slot becomes reclaimable (correct semantics for truly abandoned chats)");
+});
+
 test("isTranscriptFresh: false for transcript older than threshold", () => {
-  writeTranscript("44445555-6666-7777-8888-999900001111", 10 * 60 * 1000);
+  writeTranscript("44445555-6666-7777-8888-999900001111", 5 * 60 * 60 * 1000);
   assert.equal(isTranscriptFresh("claude-44445555"), false,
-    "10-min-old transcript exceeds default 5-min threshold");
+    "5h-old transcript exceeds default 4h threshold");
 });
 
 test("isTranscriptFresh: respects PRISM_SLOT_TRANSCRIPT_FRESH_MS override", () => {
@@ -288,9 +309,12 @@ test("E2E: actively-writing chat (transcript=3s, twid=tier-1) survives heartbeat
     "transcript-fresh chat must survive reclaim — closes user-reported bug");
 });
 
-test("E2E: chat with stale transcript (window closed) DOES get reclaimed", async () => {
+test("E2E: chat with stale transcript (window closed > 4h ago) DOES get reclaimed", async () => {
   const { classifySlot } = await import("./chat-slots.mjs");
-  writeTranscript("dddd4444-eeee-5555-ffff-6666aaaa7777", 30 * 60 * 1000); // 30 min old
+  // U-SDF04: 30-min staleness no longer triggers reclaim (covers AFK).
+  // The transcript must be older than the 4-hour default threshold for
+  // a "genuinely abandoned" classification.
+  writeTranscript("dddd4444-eeee-5555-ffff-6666aaaa7777", 5 * 60 * 60 * 1000); // 5h old
   const tenMinutesAgo = new Date(Date.now() - 11 * 60 * 1000).toISOString();
   const slot = {
     chatId: "claude-dddd4444",
