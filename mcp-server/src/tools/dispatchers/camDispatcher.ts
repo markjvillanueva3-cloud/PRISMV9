@@ -1373,6 +1373,8 @@ export const ACTIONS = [
   // LatheLoRATrainingScriptEngine (5 actions, WIRE-UNWIRED foxtrot 2026-05-17)
   "lathe_lora_generate_script", "lathe_lora_get_config", "lathe_lora_apply_preset",
   "lathe_lora_estimate", "lathe_lora_validate_config",
+  // PrintToAIBridgeEngine (3 actions, WIRE-UNWIRED foxtrot 2026-05-17)
+  "print_ai_resolve_material", "print_ai_resolve_features", "print_ai_recommend_machine",
   // E1120 — HyperMillCodeGeneratorEngine (2 actions)
   "hypermill_code_generate", "hypermill_code_templates",
   // CAD-COMPLETE-MS0/U-CADC-HM-PRINT-01 — PrintToHyperMillBridge (3 actions)
@@ -9305,6 +9307,48 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             }
             const v = latheLoRATrainingScriptEngine.validateConfig();
             result = { success: true, ...v };
+            break;
+          }
+
+          // ── PrintToAIBridgeEngine (WIRE-UNWIRED foxtrot 2026-05-17)
+          // 509-line real engine, NOT a stub. The 3 wired surfaces are the
+          // engine's PURE in-process resolvers (no external I/O): resolveMaterial
+          // (regex + fuzzy match over CANONICAL_MATERIAL_DB), resolveFeatures
+          // (heuristic disambiguation), recommendMachine (pure logic). They are
+          // `async` only by signature. processFromPrint() is intentionally NOT
+          // wired here — it routes through MachiningIntelligenceOrchestratorEngine
+          // (heavier composition), so it stays out of this deterministic set.
+          // Each resolver mutates a `reasoning: string[]` accumulator; the
+          // dispatcher passes a fresh [] and returns it as `reasoning_trace`.
+          case "print_ai_resolve_material": {
+            const { printToAIBridgeEngine } = await import("../../engines/PrintToAIBridgeEngine.js");
+            const trace: string[] = [];
+            const resolution = await printToAIBridgeEngine.resolveMaterial(
+              params.callout as string | undefined,
+              trace,
+            );
+            result = { success: true, resolution, reasoning_trace: trace };
+            break;
+          }
+          case "print_ai_resolve_features": {
+            const { printToAIBridgeEngine } = await import("../../engines/PrintToAIBridgeEngine.js");
+            const trace: string[] = [];
+            const resolution = await printToAIBridgeEngine.resolveFeatures(
+              (params.features ?? []) as Parameters<typeof printToAIBridgeEngine.resolveFeatures>[0],
+              trace,
+            );
+            result = { success: true, resolution, reasoning_trace: trace };
+            break;
+          }
+          case "print_ai_recommend_machine": {
+            const { printToAIBridgeEngine } = await import("../../engines/PrintToAIBridgeEngine.js");
+            const trace: string[] = [];
+            const recommendation = await printToAIBridgeEngine.recommendMachine(
+              params.feature_resolution as Parameters<typeof printToAIBridgeEngine.recommendMachine>[0],
+              params.material_resolution as Parameters<typeof printToAIBridgeEngine.recommendMachine>[1],
+              trace,
+            );
+            result = { success: true, recommendation, reasoning_trace: trace };
             break;
           }
 
