@@ -2942,6 +2942,39 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     top_k: z.number().int().positive().max(10).optional(),
   }).describe("Rank dispatcher candidates for many orphan engines in one call. Pure read."),
 
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-PC: PromptCachingEngine wiring ──
+  // Four pure-compute/read surfaces. recordUsage + resetStats DEFERRED
+  // (mutate shared stats: LLM-callable would let chats inflate hit-rate
+  // metrics OR zero accumulated stats other chats depend on).
+  pc_build_cached_system: z.object({
+    stable: z.array(z.string().min(0).max(500_000)).min(0).max(32)
+      .describe("Stable blocks (cached if >=minCacheChars). Sorted by length descending."),
+    volatile: z.array(z.string().min(0).max(500_000)).max(32).optional()
+      .describe("Volatile blocks (never cached)"),
+    maxBreakpoints: z.number().int().min(1).max(4).optional()
+      .describe("Max cache breakpoints (Anthropic API cap = 4)"),
+    minCacheChars: z.number().int().min(1).max(1_000_000).optional()
+      .describe("Min block size to cache (default 4096)"),
+  }).describe("Compose cache-annotated system array. Pure compute."),
+
+  pc_wrap_system_prompt: z.object({
+    systemPrompt: z.string().min(0).max(1_000_000)
+      .describe("Stable system prompt"),
+    volatileTail: z.string().min(0).max(500_000).optional()
+      .describe("Optional volatile suffix"),
+    maxBreakpoints: z.number().int().min(1).max(4).optional(),
+    minCacheChars: z.number().int().min(1).max(1_000_000).optional(),
+  }).describe("Convenience wrapper around buildCachedSystem for one prompt. Pure compute."),
+
+  pc_break_even_reads: z.object({
+    blockTokens: z.number().int().min(0).max(10_000_000)
+      .describe("Cached block size in tokens"),
+  }).describe("Min subsequent reads to amortize cache-write premium. Pure math."),
+
+  pc_get_stats: z.object({}).describe(
+    "Cumulative cache stats snapshot. Pure read (returns spread of stats)."
+  ),
+
   cmc_simulate: z.object({
     machines: z.array(z.object({
       id: z.string().min(1).max(128),

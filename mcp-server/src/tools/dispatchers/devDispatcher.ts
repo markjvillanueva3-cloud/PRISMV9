@@ -458,7 +458,9 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "ew_get_stats",
 "fda_get_signature", "fda_list_signatures",
 "fda_get_validation_status", "fda_is_validated",
-"wp_analyze", "wp_analyze_batch"] as const;
+"wp_analyze", "wp_analyze_batch",
+"pc_build_cached_system", "pc_wrap_system_prompt",
+"pc_break_even_reads", "pc_get_stats"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -3373,6 +3375,51 @@ export function registerDevDispatcher(server: any): void {
               reports,
               report_count: reports.length,
             };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-PC: PromptCachingEngine ──────────────
+          case "pc_build_cached_system": {
+            const { promptCachingEngine } = await import("../../engines/PromptCachingEngine.js");
+            const p = params as { stable: string[]; volatile?: string[]; maxBreakpoints?: number; minCacheChars?: number };
+            const opts: { maxBreakpoints?: number; minCacheChars?: number } = {};
+            if (p.maxBreakpoints !== undefined) opts.maxBreakpoints = p.maxBreakpoints;
+            if (p.minCacheChars !== undefined) opts.minCacheChars = p.minCacheChars;
+            const r = promptCachingEngine.buildCachedSystem(
+              { stable: p.stable, ...(p.volatile ? { volatile: p.volatile } : {}) },
+              opts,
+            );
+            // r returns {system[], cache_breakpoints, total_chars,
+            //            token_estimate, within_breakpoint_limit}.
+            result = { result: r, block_count: r.system.length };
+            break;
+          }
+          case "pc_wrap_system_prompt": {
+            const { promptCachingEngine } = await import("../../engines/PromptCachingEngine.js");
+            const p = params as { systemPrompt: string; volatileTail?: string; maxBreakpoints?: number; minCacheChars?: number };
+            const opts: { maxBreakpoints?: number; minCacheChars?: number } = {};
+            if (p.maxBreakpoints !== undefined) opts.maxBreakpoints = p.maxBreakpoints;
+            if (p.minCacheChars !== undefined) opts.minCacheChars = p.minCacheChars;
+            const r = promptCachingEngine.wrapSystemPrompt(p.systemPrompt, p.volatileTail, opts);
+            result = { result: r, block_count: r.system.length };
+            break;
+          }
+          case "pc_break_even_reads": {
+            const { promptCachingEngine } = await import("../../engines/PromptCachingEngine.js");
+            const blockTokens = (params as { blockTokens: number }).blockTokens;
+            const n = promptCachingEngine.breakEvenReads(blockTokens);
+            // n may be Infinity (block too small to cache). JSON.stringify(Infinity)
+            // returns 'null' — encode as string sentinel + is_finite discriminator.
+            result = {
+              blockTokens,
+              break_even_reads: Number.isFinite(n) ? n : "Infinity",
+              is_finite: Number.isFinite(n),
+            };
+            break;
+          }
+          case "pc_get_stats": {
+            const { promptCachingEngine } = await import("../../engines/PromptCachingEngine.js");
+            const stats = promptCachingEngine.getStats();
+            result = { stats };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-CMC: CapacityMonteCarloEngine ────────
