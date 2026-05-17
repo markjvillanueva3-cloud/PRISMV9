@@ -1365,6 +1365,9 @@ export const ACTIONS = [
   "catia_code_generate", "catia_code_templates",
   // CATIAMachiningAIOrchestrationEngine (3 actions, WIRE-UNWIRED foxtrot 2026-05-17)
   "catia_ai_orchestrate", "catia_ai_get_reasoning_modes", "catia_ai_get_stats",
+  // MasterPostProcessorUnifiedAGIEngine (5 actions, WIRE-UNWIRED foxtrot 2026-05-17)
+  "master_post_generate", "master_post_analyze_gcode", "master_post_get_controller_profile",
+  "master_post_get_stats", "master_post_get_ai_context",
   // E1120 — HyperMillCodeGeneratorEngine (2 actions)
   "hypermill_code_generate", "hypermill_code_templates",
   // CAD-COMPLETE-MS0/U-CADC-HM-PRINT-01 — PrintToHyperMillBridge (3 actions)
@@ -9156,6 +9159,56 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { catiaMachiningAIOrchestrationEngine } = await import("../../engines/CATIAMachiningAIOrchestrationEngine.js");
             const stats = catiaMachiningAIOrchestrationEngine.getStats();
             result = { success: true, ...stats };
+            break;
+          }
+
+          // ── MasterPostProcessorUnifiedAGIEngine (WIRE-UNWIRED foxtrot 2026-05-17)
+          // 1545-line real engine, NOT a stub: a unified AGI facade over 50+ post
+          // processor engines. All 5 wired surfaces are SYNC. getStatistics /
+          // getContextForAI / getControllerProfile are pure in-process registry
+          // reads. analyzeGCode is pure G-code math. generatePost is in-process
+          // for the gcode-only path (used here); it CAN reach masterPostProcessor
+          // /kinematics sub-engines when `segments` or `machine` inputs are
+          // supplied — callers passing those accept that coupling.
+          // validateAgainstKinematics is intentionally NOT wired — it always
+          // reaches PostProcessorMachineKinematicsEngine (non-deterministic
+          // machine-profile dependency), so it stays out of this set.
+          case "master_post_generate": {
+            const { masterPostProcessorUnifiedAGIEngine } = await import("../../engines/MasterPostProcessorUnifiedAGIEngine.js");
+            const r = masterPostProcessorUnifiedAGIEngine.generatePost(
+              params as Parameters<typeof masterPostProcessorUnifiedAGIEngine.generatePost>[0],
+            );
+            result = { success: true, ...r };
+            break;
+          }
+          case "master_post_analyze_gcode": {
+            const { masterPostProcessorUnifiedAGIEngine } = await import("../../engines/MasterPostProcessorUnifiedAGIEngine.js");
+            const analysis = masterPostProcessorUnifiedAGIEngine.analyzeGCode(
+              String(params.gcode ?? ""),
+              params.controller as Parameters<typeof masterPostProcessorUnifiedAGIEngine.analyzeGCode>[1],
+              params.material_iso as Parameters<typeof masterPostProcessorUnifiedAGIEngine.analyzeGCode>[2],
+            );
+            result = { success: true, ...analysis };
+            break;
+          }
+          case "master_post_get_controller_profile": {
+            const { masterPostProcessorUnifiedAGIEngine } = await import("../../engines/MasterPostProcessorUnifiedAGIEngine.js");
+            const profile = masterPostProcessorUnifiedAGIEngine.getControllerProfile(
+              params.controller as Parameters<typeof masterPostProcessorUnifiedAGIEngine.getControllerProfile>[0],
+            );
+            result = { success: true, profile };
+            break;
+          }
+          case "master_post_get_stats": {
+            const { masterPostProcessorUnifiedAGIEngine } = await import("../../engines/MasterPostProcessorUnifiedAGIEngine.js");
+            const stats = masterPostProcessorUnifiedAGIEngine.getStatistics();
+            result = { success: true, ...stats };
+            break;
+          }
+          case "master_post_get_ai_context": {
+            const { masterPostProcessorUnifiedAGIEngine } = await import("../../engines/MasterPostProcessorUnifiedAGIEngine.js");
+            const context = masterPostProcessorUnifiedAGIEngine.getContextForAI();
+            result = { success: true, context };
             break;
           }
 
