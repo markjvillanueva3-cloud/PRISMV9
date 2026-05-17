@@ -336,7 +336,12 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // quality_prediction). compose() auto-calls initialize(); reset()
 // DEFERRED (wipes the templates map, would break every subsequent
 // compose() across sessions); initialize() DEFERRED (no wire value).
-"apc_compose", "apc_list_templates", "apc_get_template"] as const;
+"apc_compose", "apc_list_templates", "apc_get_template",
+// WIRE-UNWIRED-MS0/U-WIRE-SCH: SchemaCompactEngine — 30-70% token-saving
+// schema compactor + TS-like type-signature generator. All 5 methods
+// pure; no defers.
+"sch_compact", "sch_compact_with_stats", "sch_to_type_signature",
+"sch_compact_all", "sch_one_liner"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -1992,6 +1997,42 @@ export function registerDevDispatcher(server: any): void {
             result = stages === null
               ? { found: false, name }
               : { found: true, name, stages, stage_count: stages.length };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-SCH: SchemaCompactEngine ─────────────
+          case "sch_compact": {
+            const { schemaCompactEngine } = await import("../../engines/SchemaCompactEngine.js");
+            const schema = (params as { schema: Record<string, unknown> }).schema;
+            const compact = schemaCompactEngine.compact(schema);
+            result = { compact };
+            break;
+          }
+          case "sch_compact_with_stats": {
+            const { schemaCompactEngine } = await import("../../engines/SchemaCompactEngine.js");
+            const schema = (params as { schema: Record<string, unknown> }).schema;
+            const stats = schemaCompactEngine.compactWithStats(schema);
+            result = { stats };
+            break;
+          }
+          case "sch_to_type_signature": {
+            const { schemaCompactEngine } = await import("../../engines/SchemaCompactEngine.js");
+            const schema = (params as { schema: Record<string, unknown> }).schema;
+            const signature = schemaCompactEngine.toTypeSignature(schema);
+            result = { signature, length: signature.length };
+            break;
+          }
+          case "sch_compact_all": {
+            const { schemaCompactEngine } = await import("../../engines/SchemaCompactEngine.js");
+            const schemas = (params as { schemas: Array<{ name: string; schema: Record<string, unknown> }> }).schemas;
+            const compacted = schemaCompactEngine.compactAll(schemas);
+            result = { compacted, count: compacted.length };
+            break;
+          }
+          case "sch_one_liner": {
+            const { schemaCompactEngine } = await import("../../engines/SchemaCompactEngine.js");
+            const schema = (params as { schema: Record<string, unknown> }).schema;
+            const summary = schemaCompactEngine.oneLiner(schema);
+            result = { summary };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-CEX: CatalogExtractionEngine ─────────

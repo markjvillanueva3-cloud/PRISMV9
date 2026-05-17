@@ -1866,4 +1866,37 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     name: z.string().min(1).max(256)
       .describe("Template id (e.g. 'speed_feed', 'tool_selection', 'quality_prediction')"),
   }).describe("Get all PipelineStage entries for a single template. Returns null when unknown. Pure."),
+
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-SCH: SchemaCompactEngine wiring ──
+  // 30-70% token-saving JSON-schema compactor + TS-like type-signature
+  // generator. All 5 methods pure (no I/O, no mutation). No defers.
+  // DoS guards: schema bodies capped at 128 KB (JSON-stringified) — large
+  // schemas can quadruple in recursion depth, so we cap at the boundary.
+  sch_compact: z.object({
+    schema: z.record(z.string(), z.unknown())
+      .describe("JSON-schema-like object to compact (drops description/title/examples/etc.)"),
+  }).describe("Compact a schema object — returns the compacted object. Pure."),
+
+  sch_compact_with_stats: z.object({
+    schema: z.record(z.string(), z.unknown())
+      .describe("JSON-schema-like object to compact + measure"),
+  }).describe("Compact a schema + emit token-saving stats (original/compact + saved + savingsPercent). Pure."),
+
+  sch_to_type_signature: z.object({
+    schema: z.record(z.string(), z.unknown())
+      .describe("JSON-schema-like object to convert to a TypeScript-style type signature"),
+  }).describe("Render a compact TS-like type signature from a schema. Pure."),
+
+  sch_compact_all: z.object({
+    schemas: z.array(z.object({
+      name: z.string().min(1).max(256).describe("Identifier label for this schema"),
+      schema: z.record(z.string(), z.unknown()).describe("The schema body itself"),
+    }).passthrough()).min(1).max(500)
+      .describe("Array of {name, schema} pairs (≤500 for DoS bound)"),
+  }).describe("Compact many schemas in one call — returns [{name, compact: stringified}]. Pure."),
+
+  sch_one_liner: z.object({
+    schema: z.record(z.string(), z.unknown())
+      .describe("JSON-schema-like object to summarize"),
+  }).describe("One-line token-savings summary (e.g. '350→180 tokens (49% saved)'). Pure."),
 };
