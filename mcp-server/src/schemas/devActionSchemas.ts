@@ -3167,6 +3167,37 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   // ── WIRE-UNWIRED-MS0 / U-WIRE-AGS: AutonomousGoalSynthesisEngine ──
   // Single pure-compute method ranks gap-descriptors by
   // Ψ_impact × urgency × feasibility. No I/O, no state mutation.
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-WRON: WetRunOnCallRotationEngine ──
+  // 7 read-only actions over the in-memory on-call rotation/page/swap state.
+  // Engine starts EMPTY in a fresh process.
+  // DEFER (5 mutating methods, safety-critical surface):
+  //   configureShift(input) — adds Shift (state-mutation)
+  //   swap(input)           — records SwapRecord + mutates Shift roles
+  //   page(input)           — class=send-impersonation: would trigger real
+  //                            pager notifications in production
+  //   acknowledge(input)    — class=identity-forgery: caller-supplied
+  //                            person_id could impersonate responder
+  //   sweepEscalations(ts)  — mutates Pages via advanceStage (engine line 346)
+  wron_current_shift: z.object({
+    ts: z.number().finite().describe("Timestamp ms epoch — engine throws on non-finite"),
+  }).strict().describe("Shift active at ts. Returns null if no shift covers ts."),
+
+  wron_pending_escalations: z.object({
+    nowTs: z.number().finite().describe("Now timestamp ms epoch"),
+  }).strict().describe("Pages whose current stage deadline has passed but not yet escalated."),
+
+  wron_get_page: z.object({
+    pageId: z.string().min(1).max(64),
+  }).strict().describe("Lookup a Page by ID. Returns null if not found."),
+
+  wron_list_pages: z.object({}).strict().describe("All pages (shallow copies)."),
+
+  wron_list_shifts: z.object({}).strict().describe("All shifts (shallow copies)."),
+
+  wron_list_swaps: z.object({}).strict().describe("All swap records (shallow copies)."),
+
+  wron_snapshot: z.object({}).strict().describe("Full snapshot — shifts+swaps+pages with schemaVersion."),
+
   // ── WIRE-UNWIRED-MS0 / U-WIRE-PLIB: PrintLibraryEngine ──
   // 9 read-only actions over the in-memory print library. Singleton state
   // starts empty — production must ingest before query.

@@ -480,7 +480,9 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "ttro_run",
 "plib_get", "plib_find_by_part", "plib_get_revision_history", "plib_search",
 "plib_get_by_part_id", "plib_get_by_customer", "plib_list_customers",
-"plib_get_stats", "plib_list"] as const;
+"plib_get_stats", "plib_list",
+"wron_current_shift", "wron_pending_escalations", "wron_get_page",
+"wron_list_pages", "wron_list_shifts", "wron_list_swaps", "wron_snapshot"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -3813,6 +3815,77 @@ export function registerDevDispatcher(server: any): void {
               critical_error_count: r.critical_errors.length,
               warning_count: r.warnings.length,
               score: r.score,
+            };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-WRON: WetRunOnCallRotationEngine ──
+          // 7 read-only actions. Engine throws on non-finite ts (lines
+          // 177, 325, 367) — try/catch envelope for clean caller error.
+          case "wron_current_shift": {
+            const { wetRunOnCallRotationEngine } = await import("../../engines/WetRunOnCallRotationEngine.js");
+            const p = params as { ts: number };
+            try {
+              const r = wetRunOnCallRotationEngine.currentShift(p.ts);
+              result = {
+                result: r ?? null,
+                found: r !== undefined,
+              };
+            } catch (e: unknown) {
+              result = { error: e instanceof Error ? e.message : String(e) };
+            }
+            break;
+          }
+          case "wron_pending_escalations": {
+            const { wetRunOnCallRotationEngine } = await import("../../engines/WetRunOnCallRotationEngine.js");
+            const p = params as { nowTs: number };
+            try {
+              const r = wetRunOnCallRotationEngine.pendingEscalations(p.nowTs);
+              result = {
+                pages: r,
+                pending_count: r.length,
+              };
+            } catch (e: unknown) {
+              result = { error: e instanceof Error ? e.message : String(e) };
+            }
+            break;
+          }
+          case "wron_get_page": {
+            const { wetRunOnCallRotationEngine } = await import("../../engines/WetRunOnCallRotationEngine.js");
+            const p = params as { pageId: string };
+            const r = wetRunOnCallRotationEngine.getPage(p.pageId);
+            result = {
+              result: r ?? null,
+              found: r !== undefined,
+            };
+            break;
+          }
+          case "wron_list_pages": {
+            const { wetRunOnCallRotationEngine } = await import("../../engines/WetRunOnCallRotationEngine.js");
+            const r = wetRunOnCallRotationEngine.listPages();
+            result = { pages: r, page_count: r.length };
+            break;
+          }
+          case "wron_list_shifts": {
+            const { wetRunOnCallRotationEngine } = await import("../../engines/WetRunOnCallRotationEngine.js");
+            const r = wetRunOnCallRotationEngine.listShifts();
+            result = { shifts: r, shift_count: r.length };
+            break;
+          }
+          case "wron_list_swaps": {
+            const { wetRunOnCallRotationEngine } = await import("../../engines/WetRunOnCallRotationEngine.js");
+            const r = wetRunOnCallRotationEngine.listSwaps();
+            result = { swaps: r, swap_count: r.length };
+            break;
+          }
+          case "wron_snapshot": {
+            const { wetRunOnCallRotationEngine } = await import("../../engines/WetRunOnCallRotationEngine.js");
+            const r = wetRunOnCallRotationEngine.snapshot();
+            result = {
+              result: r,
+              shift_count: r.shifts.length,
+              swap_count: r.swaps.length,
+              page_count: r.pages.length,
+              is_empty: r.shifts.length === 0 && r.swaps.length === 0 && r.pages.length === 0,
             };
             break;
           }
