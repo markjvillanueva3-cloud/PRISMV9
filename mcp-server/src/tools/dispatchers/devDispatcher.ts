@@ -209,7 +209,12 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "impact_find_orphans",
 // COST-CASCADE-MS0/U-MULTI-AGENT-COST-TELEMETRY: per-tentacle/per-task-class cost ledger
 "cost_telemetry_record",
-"cost_telemetry_aggregate"] as const;
+"cost_telemetry_aggregate",
+// WIRE-UNWIRED-MS0/U-WIRE-TXNLOG: TransactionLogEngine read-only state inspection
+// (begin/record/checkpoint/rollback DEFERRED to U-WIRE-TXNLOG-WRITE for safety
+//  review — they mutate PRISM internal transaction state and an LLM-driven
+//  rollback could undo arbitrary recorded mutations)
+"transaction_active", "transaction_is_in_tx", "transaction_get_mutations"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -1335,6 +1340,28 @@ export function registerDevDispatcher(server: any): void {
             result = await MultiAgentCostTelemetryEngine.aggregate(
               cp.windowHours as number,
             );
+            break;
+          }
+          // WIRE-UNWIRED-MS0/U-WIRE-TXNLOG: TransactionLogEngine read-only state inspection
+          case "transaction_active": {
+            const { transactionLogEngine } = await import("../../engines/TransactionLogEngine.js");
+            result = { transaction: transactionLogEngine.getActiveTransaction() };
+            break;
+          }
+          case "transaction_is_in_tx": {
+            const { transactionLogEngine } = await import("../../engines/TransactionLogEngine.js");
+            result = { in_transaction: transactionLogEngine.isInTransaction() };
+            break;
+          }
+          case "transaction_get_mutations": {
+            const { transactionLogEngine } = await import("../../engines/TransactionLogEngine.js");
+            const tp = typeof params === "object" && params !== null ? params as Record<string, unknown> : {};
+            const txId = typeof tp.tx_id === "string" ? tp.tx_id : (typeof tp.txId === "string" ? tp.txId : "");
+            if (!txId) {
+              result = { error: "transaction_get_mutations requires 'tx_id' (string)" };
+              break;
+            }
+            result = { mutations: transactionLogEngine.getMutations(txId) };
             break;
           }
           case "blueprint_ingest_phase8": {

@@ -1097,4 +1097,17 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   cost_telemetry_aggregate: z.object({
     windowHours: z.number().positive().describe("Trailing window in hours (must be > 0)"),
   }).passthrough().describe("Aggregate the cost ledger over the trailing window — per-tentacle + per-task-class sums (streams active+rotated segments)"),
+
+  // WIRE-UNWIRED-MS0/U-WIRE-TXNLOG: TransactionLogEngine read-only state inspection
+  transaction_active: z.object({}).passthrough()
+    .describe("Return the currently-active Transaction (or null if none active). Read-only."),
+  transaction_is_in_tx: z.object({}).passthrough()
+    .describe("Return {in_transaction: boolean} — whether the engine is mid-transaction. Read-only."),
+  transaction_get_mutations: z.object({
+    tx_id: z.string().min(1).optional().describe("Transaction id to query (returned by beginTransaction)."),
+    txId: z.string().min(1).optional().describe("camelCase alias for tx_id."),
+  }).passthrough().refine(
+    (d) => (typeof d.tx_id === "string" && d.tx_id.length > 0) || (typeof d.txId === "string" && d.txId.length > 0),
+    { message: "transaction_get_mutations requires non-empty 'tx_id' (or 'txId')" },
+  ).describe("List all mutation operations for the given transaction. Read-only."),
 };
