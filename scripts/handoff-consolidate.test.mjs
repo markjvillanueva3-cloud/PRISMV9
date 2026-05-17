@@ -230,6 +230,20 @@ test("REGRESSION P1: consolidated file is OUTSIDE the HANDOFF-* namespace", () =
   assert.equal(base, "bravo.md");
 });
 
+test("REGRESSION P1: readHandoffDir(dir, onlySlot) filters by filename before file I/O", () => {
+  const dir = mkdtempSync(join(tmpdir(), "prism-handoff-slotfilter-"));
+  writeFileSync(join(dir, "HANDOFF-claude-a1-bravo-x.md"), "## RESUME\nbravo work here ok.", "utf-8");
+  writeFileSync(join(dir, "HANDOFF-claude-a2-delta-y.md"), "## RESUME\ndelta work here ok.", "utf-8");
+  writeFileSync(join(dir, "HANDOFF-claude-a3-bravo-z.md"), "## RESUME\nmore bravo work ok.", "utf-8");
+  // unscoped: all 3 (backward-compat — onlySlot defaults null)
+  assert.equal(readHandoffDir(dir).length, 3, "default null = scan all (backward-compat)");
+  // scoped: only bravo's 2
+  const onlyBravo = readHandoffDir(dir, "bravo");
+  assert.equal(onlyBravo.length, 2, "onlySlot filters to that slot");
+  assert.ok(onlyBravo.every((h) => h.slot === "bravo"), "no other slot leaks through");
+  assert.equal(readHandoffDir(dir, "echo").length, 0, "slot with no handoffs → empty (git-log skipped in main)");
+});
+
 test("REGRESSION P2: dedup keeps threads that differ only after char 400 (no fail-DROP)", () => {
   const prefix = "shared prefix ".repeat(30); // > 400 chars identical
   const a = `## RESUME\n${prefix} ENDING-ALPHA distinct tail`;

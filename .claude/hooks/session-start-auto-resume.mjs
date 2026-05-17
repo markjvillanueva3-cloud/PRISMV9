@@ -29,8 +29,8 @@
  *   PRISM_AUTO_RESUME_DISABLE=1   — disable entirely (emit silent continue)
  *   PRISM_AUTO_RESUME_MAX_AGE_MIN — drop handoffs older than this (default 240)
  *
- * Designed for the 10-chat fleet (alpha..india work slots + juliett hygiene;
- * back-compat: alpha..foxtrot work + golf hygiene). The stable id resolution
+ * Designed for the 13-chat fleet (alpha..mike work slots + golf hygiene;
+ * SLOT_NAMES is kept byte-equal to chat-slots.mjs). The stable id resolution
  * is fleet-size-agnostic — it uses the first 8 hex of session_id directly.
  */
 
@@ -49,14 +49,29 @@ const HELPER_TIMEOUT_MS = 8000;              // per-agent-handoff.mjs read budge
 const SESSION_ID_HEX_LEN = 8;                // stable id = first 8 hex of UUID
 const MIN_RESUME_BODY_LEN = 8;               // shorter than this = empty placeholder
 const MAX_INJECTED_RESUME_BYTES = 6000;      // cap to avoid blowing context
+// OBSIDIAN-BRAIN-FIX-MS0/U-OBF02: consolidated cross-topic open-threads.
+// Pointer-not-payload — inject only the count + top headers + file path so a
+// post-/compact session is AWARE of orphaned prior-topic work without bloating
+// context with N full RESUME bodies (the bloat would defeat the purpose).
+const CONSOLIDATE_HELPER = "H:/prism/scripts/handoff-consolidate.mjs";
+const CONSOLIDATED_DIR = "H:/prism/state/shared/handoffs/consolidated";
+const CONSOLIDATE_TIMEOUT_MS = 6000;         // fresh-on-read regen budget
+const MAX_THREAD_HEADERS = 5;                // headers shown inline; rest in file
+// Reviewer-B P1: regenerate at most once per window per slot. If the slot's
+// consolidated file is younger than this, skip the spawn and pure-read it —
+// kills the 13-chat thundering-herd (each compact would otherwise spawn a
+// git-log) without needing a separate Stop-hook producer.
+const CONSOLIDATE_THROTTLE_MS = 180000;      // 3 min
 
-// Canonical 10-slot fleet (NATO phonetic): 9 work slots + 1 hygiene.
-// Used by parseSlotAndTopic() to lift slot from a topic-prefixed string
-// when the frontmatter `slot:` field is empty (Gap 4's auto-resolve isn't
-// always reliable; topic field typically carries `<slot>-<topic>`).
+// Canonical 13-slot fleet (NATO phonetic): 12 work slots + golf hygiene.
+// Reviewer P1: was 10 (alpha..juliett) — silently dropped kilo/lima/mike,
+// violating the "accommodate up to 13, never hard-code a short count"
+// fleet directive (CLAUDE.md). Kept as a literal (this is a latency-
+// critical SessionStart hook — a dynamic import adds init risk); MUST
+// stay byte-equal to chat-slots.mjs SLOT_NAMES (canonical source).
 export const SLOT_NAMES = new Set([
-  "alpha", "bravo", "charlie", "delta", "echo",
-  "foxtrot", "golf", "hotel", "india", "juliett",
+  "alpha", "bravo", "charlie", "delta", "echo", "foxtrot", "golf",
+  "hotel", "india", "juliett", "kilo", "lima", "mike",
 ]);
 
 const MAX_AGE_MIN = Number(process.env.PRISM_AUTO_RESUME_MAX_AGE_MIN || DEFAULT_MAX_AGE_MIN);
@@ -84,6 +99,76 @@ function getHandoff(stableId) {
   const r = safeSpawn([HELPER, "read", "--terminal", stableId]);
   if (!r || r.status !== 0 || !r.stdout) return null;
   try { return JSON.parse(r.stdout); } catch { return null; }
+}
+
+/**
+ * OBSIDIAN-BRAIN-FIX-MS0/U-OBF02 — consolidated cross-topic open threads.
+ *
+ * The primary resume-read path only sees THIS chat's latest topic handoff;
+ * unfinished work from prior topics is orphaned (the proven bug U-OBF01
+ * fixes at the data layer). Here we make the post-/compact session AWARE of
+ * it: ensure the slot's consolidated file is reasonably fresh (regenerate
+ * ONLY if older than the throttle — otherwise pure-read), then inject a
+ * BOUNDED summary (count + newest headers + file path) — never the full
+ * bodies (that would re-bloat context, defeating the brain's purpose).
+ *
+ * Cost note (Reviewer-B P1): the regen spawn passes `--slot`, which now
+ * filters by filename before any readFileSync and skips git-log when the
+ * slot is empty — so a regen is bounded to one slot's handoffs, and the
+ * throttle means the common (frequent-compact) case is a pure file read
+ * with NO subprocess at all. `excludeFile` drops the just-read handoff
+ * from the headers so the primary RESUME isn't echoed as "open thread 1".
+ *
+ * Fail-soft on every path: a missing helper / spawn failure / unparseable
+ * slot must NEVER break auto-resume. Returns "" → nothing appended.
+ */
+function getConsolidatedSummary(slot, excludeFile) {
+  if (!slot || !SLOT_NAMES.has(slot)) return "";
+  if (!fs.existsSync(CONSOLIDATE_HELPER)) return "";
+  const file = `${CONSOLIDATED_DIR}/${slot}.md`;
+  // Throttled fresh-on-read: only regenerate if the file is missing or
+  // older than the throttle window. Otherwise skip the spawn entirely.
+  let fresh = false;
+  try {
+    const st = fs.statSync(file);
+    fresh = (Date.now() - st.mtimeMs) < CONSOLIDATE_THROTTLE_MS;
+  } catch { fresh = false; }
+  if (!fresh) {
+    safeSpawn([CONSOLIDATE_HELPER, "--slot", slot], { timeout: CONSOLIDATE_TIMEOUT_MS });
+  }
+  let body;
+  try { body = fs.readFileSync(file, "utf-8"); } catch { return ""; }
+  const countM = body.match(/^openThreads:\s*(\d+)/m);
+  const count = countM ? parseInt(countM[1], 10) : 0;
+  if (!count || count < 1) return "";
+  const exclude = excludeFile ? String(excludeFile).replace(/\\/g, "/").split("/").pop() : null;
+  const headers = [];
+  let excludedSelf = 0;
+  for (const m of body.matchAll(/^## OPEN THREAD \d+ — (.+)$/gm)) {
+    const h = m[1].trim();
+    // Reviewer-B P2: skip the just-read handoff — its RESUME is already
+    // injected above as the primary directive; echoing it here as "thread
+    // 1" makes the model think it's seen everything and skip the rest.
+    if (exclude && h.includes(exclude)) { excludedSelf++; continue; }
+    headers.push(h);
+    if (headers.length >= MAX_THREAD_HEADERS) break;
+  }
+  if (headers.length === 0) return "";
+  // Reviewer-A round-2 P2: the headline count must reflect ACTIONABLE
+  // cross-topic threads, not the file's raw total — the self-ref the
+  // operator already saw above is not "another" thread to chase.
+  const actionable = Math.max(headers.length, count - excludedSelf);
+  const more = actionable > headers.length ? ` (+${actionable - headers.length} more in file)` : "";
+  return [
+    ``,
+    `## 🧵 ${actionable} open cross-topic thread(s) for slot \`${slot}\``,
+    ``,
+    `Prior-topic work NOT git-confirmed-shipped — would otherwise be orphaned by topic-drift.`,
+    `Newest${more}:`,
+    ...headers.map((h) => `  • ${h}`),
+    ``,
+    `Full RESUME bodies: \`state/shared/handoffs/consolidated/${slot}.md\` — read it before picking new work so nothing already-in-flight is dropped.`,
+  ].join("\n");
 }
 
 export function extractResume(content) {
@@ -277,6 +362,14 @@ function main() {
     resume,
   ];
   if (checkinBlock) lines.push(checkinBlock);
+
+  // U-OBF02: append the bounded consolidated cross-topic open-threads summary
+  // so this session sees prior-topic work the single-handoff RESUME misses.
+  // Reuses the slot already parsed for the checkin directive; fail-soft "".
+  const slotForConsolidated = parseSlotAndTopic(handoff.content)?.slot;
+  const consolidatedBlock = getConsolidatedSummary(slotForConsolidated, handoff.file);
+  if (consolidatedBlock) lines.push(consolidatedBlock);
+
   lines.push(
     ``,
     `*Proceed without asking unless the directive conflicts with the user's most recent message. If the user already gave a fresh instruction in their first post-compact message, that takes priority.*`,

@@ -231,12 +231,17 @@ export function consolidate({ handoffs, gitSubjects, now }) {
 
 // ───────────────────────────── FS / CLI layer ─────────────────────────────
 
-export function readHandoffDir(dir = HANDOFFS_DIR) {
+export function readHandoffDir(dir = HANDOFFS_DIR, onlySlot = null) {
   if (!existsSync(dir)) return [];
+  const want = onlySlot ? String(onlySlot).toLowerCase() : null;
   const out = [];
   for (const name of readdirSync(dir)) {
     const slot = slotOfHandoffFilename(name);
     if (!slot) continue;
+    // Reviewer-B P1: when caller scopes to one slot, reject other slots by
+    // FILENAME before the readFileSync — the read-path (session-start) call
+    // is per-slot, so scanning+reading all ~300 files was the false-"cheap".
+    if (want && slot !== want) continue;
     const full = join(dir, name);
     let st;
     try { st = statSync(full); } catch { continue; }
@@ -332,8 +337,12 @@ function main() {
   const dryRun = args.includes("--dry-run");
   const asJson = args.includes("--json");
 
-  const handoffs = readHandoffDir();
-  const gitSubjects = loadGitSubjects();
+  // Reviewer-B P1: scope the expensive dir-scan to the requested slot, and
+  // skip the git-log subprocess entirely when that slot has no handoffs —
+  // makes the session-start fresh-on-read call genuinely cheap (not the
+  // full-fleet scan + git log -400 the old comment falsely claimed).
+  const handoffs = readHandoffDir(HANDOFFS_DIR, onlySlot);
+  const gitSubjects = handoffs.length > 0 ? loadGitSubjects() : [];
   const { slots, elided, generatedAt } = consolidate({ handoffs, gitSubjects, now: Date.now() });
 
   const results = [];
