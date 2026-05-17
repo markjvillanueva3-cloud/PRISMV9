@@ -126,6 +126,27 @@ const daily_brief_get = z.object({
   maxConnections: z.number().int().positive().max(20).optional().describe("Alias for max_connections"),
 }).passthrough();
 
+// OBSIDIAN-INTELLIGENCE-MS3/B1/U-DAILY-CONTEXT-WORKFLOW — morning brief from
+// yesterday's daily note + active projects + inbox. Optional Ollama summarisation.
+const daily_context_get = z.object({
+  vault_root: z.string().optional().describe("Override vault root (defaults to knowledge/memories)"),
+  vaultRoot: z.string().optional().describe("Alias for vault_root"),
+  generated_root: z.string().optional().describe("Override generated-output root (defaults to ${vaultRoot}/generated)"),
+  generatedRoot: z.string().optional().describe("Alias for generated_root"),
+  now: z.number().finite().optional().describe("Override 'now' ms epoch for deterministic windowing"),
+  max_projects: z.number().int().min(1).max(50).optional().describe("Cap on project files included; default 5"),
+  maxProjects: z.number().int().min(1).max(50).optional().describe("Alias for max_projects"),
+  max_inbox: z.number().int().min(0).max(100).optional().describe("Cap on inbox items included; default 10"),
+  maxInbox: z.number().int().min(0).max(100).optional().describe("Alias for max_inbox"),
+  project_window_ms: z.number().int().optional().describe("Project mtime window in ms; default 30d"),
+  projectWindowMs: z.number().int().optional().describe("Alias for project_window_ms"),
+  excerpt_bytes: z.number().int().min(256).max(65536).optional().describe("Max bytes per source excerpt; default 4096"),
+  excerptBytes: z.number().int().min(256).max(65536).optional().describe("Alias for excerpt_bytes"),
+  write: z.boolean().optional().describe("Write the brief to disk (default false; cron uses true)"),
+  ollama_model: z.string().optional().describe("Ollama model when client is reachable; default qwen2.5-coder"),
+  ollamaModel: z.string().optional().describe("Alias for ollama_model"),
+}).passthrough();
+
 // OBSIDIAN-COMPOUND-MS1/S3/U-CONTRADICTION-DETECTOR — vault disagreement check.
 const contradiction_check = z.object({
   new_memory_path: z.string().optional().describe("Absolute path to the new memory file to check"),
@@ -250,6 +271,7 @@ export const ACTION_MEMORY_SCHEMAS: ActionSchemaMap = {
   qdrant_vector_upsert,
   emerging_thesis,
   daily_brief_get,
+  daily_context_get,
   contradiction_check,
   postmortem_create,
   performance_report,

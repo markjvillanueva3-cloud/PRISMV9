@@ -230,7 +230,35 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "Disable scheduled task; engine stays unwired"
+          "rollback": "Disable scheduled task; engine stays unwired",
+          "status": "completed",
+          "completed_at": "2026-05-17T04:31:04.413Z",
+          "owner": "claude-c0f06dee slot charlie",
+          "ship_record": {
+            "per_file_scrutiny": "PASS — engine: arm-A PASS (after 2 P1 fixes) + arm-B PASS (after 1 P1 fix); test: arm-A PASS (100/100) + arm-B PASS (88/100 with arm-B P1-A regression-guard added); runner+ps1: arm-A FAIL→fixed all 4 P0 + 3 P1 + arm-B PASS w/ 5 P1 all addressed",
+            "tests": "46/46 PASS (engine + dispatcher round-trip parity)",
+            "tsc": "clean on touched files",
+            "deliverables": [
+              "mcp-server/src/engines/DailyContextWorkflowEngine.ts (~580 LOC) — two-phase synth (collectSources pure + synthesize w/ Ollama DI + literal fallback)",
+              "mcp-server/src/__tests__/DailyContextWorkflow.test.ts (46 tests) — happy + 3 failure + 2 adversarial + 3 spanning configs + zod + floor + dispatcher-round-trip",
+              "scripts/run-daily-context.mjs — cron runner with tsx-loader engine import, ollama adapter, body-size cap, --json/--dry-run/--no-ollama/--vault flags",
+              "scripts/cron/daily-context-cron.ps1 — scheduled-task installer (-RunNow/-RunOnce/-Uninstall/-DryRun + node-version check + S4U principal)",
+              "mcp-server/src/schemas/memoryActionSchemas.ts — daily_context_get action schema",
+              "mcp-server/src/tools/dispatchers/memoryDispatcher.ts — daily_context_get case wired (literal mode in dispatcher path)"
+            ],
+            "exit_conditions_met": {
+              "cron_writes_daily_context": "PASS — buildAndOptionallyWriteDailyContext({write:true}) verified + cron PS1 registers daily-at-6AM scheduled task",
+              "references_3_source_files": "PASS — meetsSourceFloor field + 3 dedicated tests; live smoke surfaced 5 real project notes",
+              "ollama_qwen_summarizer": "PASS — runner adapter calls /api/generate with model=qwen2.5-coder; literal fallback on null/throw/non-string",
+              "deterministic_dryrun": "PASS — back-to-back synth produces byte-equal markdown in literal mode (frozen NOW test)"
+            },
+            "live_smoke": "node scripts/run-daily-context.mjs --dry-run --no-ollama → 5 real PRISM project notes synthesized into well-formed brief",
+            "follow_ups_logged": [
+              "Ollama adapter atomic-write race on cron log (P3) — defer, single-line writes are atomic under PIPE_BUF",
+              "Cron log rotation cap (P2-B) — defer; ~180KB/year growth acceptable",
+              "OLLAMA_HOST probe timeout knob (P2-B-4) — defer"
+            ]
+          }
         },
         {
           "id": "B2",

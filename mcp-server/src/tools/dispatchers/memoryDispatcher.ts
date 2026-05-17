@@ -39,7 +39,7 @@ type GraphNodeRecord = Record<string, any>;
 export function registerMemoryDispatcher(server: McpServer): void {
   (server as ValidatedServer).tool(
     "prism_memory",
-    "Cross-session memory graph + semantic vector recall + agent memory fabric. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity, consolidate, consolidation_stats, consolidation_patterns, record_session_end, semantic_search, remember, qdrant_vector_search, qdrant_vector_upsert, agent_memory_remember, agent_memory_query, agent_memory_reinforce, agent_memory_forget, agent_memory_stats, emerging_thesis, daily_brief_get, contradiction_check, postmortem_create, performance_report, connections_materialize, content_brief_create, voice_validate, capture_sharpen, embed_text, embed_pairwise_cosine, inbox_prune_now, inbox_promote_now",
+    "Cross-session memory graph + semantic vector recall + agent memory fabric. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity, consolidate, consolidation_stats, consolidation_patterns, record_session_end, semantic_search, remember, qdrant_vector_search, qdrant_vector_upsert, agent_memory_remember, agent_memory_query, agent_memory_reinforce, agent_memory_forget, agent_memory_stats, emerging_thesis, daily_brief_get, daily_context_get, contradiction_check, postmortem_create, performance_report, connections_materialize, content_brief_create, voice_validate, capture_sharpen, embed_text, embed_pairwise_cosine, inbox_prune_now, inbox_promote_now",
     {
       action: z.enum([
         "get_health",
@@ -64,6 +64,9 @@ export function registerMemoryDispatcher(server: McpServer): void {
         "emerging_thesis",
         // OBSIDIAN-COMPOUND-MS1/S2/U-DAILY-PERSONAL-BRIEF: cyrilXBT daily brief
         "daily_brief_get",
+        // OBSIDIAN-INTELLIGENCE-MS3/B1/U-DAILY-CONTEXT-WORKFLOW: morning brief from
+        // yesterday's daily + active projects + inbox (optional Ollama summariser)
+        "daily_context_get",
         // OBSIDIAN-COMPOUND-MS1/S3/U-CONTRADICTION-DETECTOR: vault disagreement check
         "contradiction_check",
         // OBSIDIAN-COMPOUND-MS1/S6/U-MEMORIES-MISTAKES-WIRE: auto-postmortem markdown
@@ -538,6 +541,40 @@ export function registerMemoryDispatcher(server: McpServer): void {
             break;
           }
 
+          // OBSIDIAN-INTELLIGENCE-MS3/B1/U-DAILY-CONTEXT-WORKFLOW — morning brief
+          // synthesizing yesterday's daily-context note + active projects + inbox.
+          // Engine returns deterministic markdown in literal mode; optional Ollama
+          // summarisation is opt-in via the runner adapter (not exposed here — the
+          // dispatcher always runs in literal mode to keep responses fast + cheap).
+          case "daily_context_get": {
+            const { dailyContextWorkflowEngine } = await import("../../engines/DailyContextWorkflowEngine.js");
+            const vaultRoot = typeof params.vault_root === "string"
+              ? params.vault_root
+              : (typeof params.vaultRoot === "string" ? params.vaultRoot : undefined);
+            const generatedRoot = typeof params.generated_root === "string"
+              ? params.generated_root
+              : (typeof params.generatedRoot === "string" ? params.generatedRoot : undefined);
+            const now = typeof params.now === "number" ? params.now : undefined;
+            const maxProjects = typeof params.max_projects === "number"
+              ? params.max_projects
+              : (typeof params.maxProjects === "number" ? params.maxProjects : undefined);
+            const maxInbox = typeof params.max_inbox === "number"
+              ? params.max_inbox
+              : (typeof params.maxInbox === "number" ? params.maxInbox : undefined);
+            const projectWindowMs = typeof params.project_window_ms === "number"
+              ? params.project_window_ms
+              : (typeof params.projectWindowMs === "number" ? params.projectWindowMs : undefined);
+            const excerptBytes = typeof params.excerpt_bytes === "number"
+              ? params.excerpt_bytes
+              : (typeof params.excerptBytes === "number" ? params.excerptBytes : undefined);
+            // Dispatcher path runs literal (no Ollama) — fast, deterministic, safe.
+            // Cron path uses scripts/run-daily-context.mjs which provides the client.
+            result = await dailyContextWorkflowEngine.synthesize({
+              vaultRoot, generatedRoot, now, maxProjects, maxInbox, projectWindowMs, excerptBytes,
+            });
+            break;
+          }
+
           // OBSIDIAN-COMPOUND-MS1/S3/U-CONTRADICTION-DETECTOR — vault disagreement check
           case "contradiction_check": {
             const { contradictionDetectorEngine } = await import("../../engines/ContradictionDetectorEngine.js");
@@ -760,7 +797,7 @@ export function registerMemoryDispatcher(server: McpServer): void {
           }
 
           default:
-            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'record_session_end', 'semantic_search', 'remember', 'qdrant_vector_search', 'qdrant_vector_upsert', 'agent_memory_remember', 'agent_memory_query', 'agent_memory_reinforce', 'agent_memory_forget', 'agent_memory_stats', 'emerging_thesis', 'daily_brief_get', 'contradiction_check', 'postmortem_create', 'performance_report', 'connections_materialize', 'content_brief_create', 'voice_validate', 'capture_sharpen', 'embed_text', 'embed_pairwise_cosine', 'inbox_prune_now', 'inbox_promote_now', 'memory_sync_list_bundles', 'memory_sync_bundle_metadata'] };
+            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'record_session_end', 'semantic_search', 'remember', 'qdrant_vector_search', 'qdrant_vector_upsert', 'agent_memory_remember', 'agent_memory_query', 'agent_memory_reinforce', 'agent_memory_forget', 'agent_memory_stats', 'emerging_thesis', 'daily_brief_get', 'daily_context_get', 'contradiction_check', 'postmortem_create', 'performance_report', 'connections_materialize', 'content_brief_create', 'voice_validate', 'capture_sharpen', 'embed_text', 'embed_pairwise_cosine', 'inbox_prune_now', 'inbox_promote_now', 'memory_sync_list_bundles', 'memory_sync_bundle_metadata'] };
         }
 
         const elapsed = (performance.now() - start).toFixed(1);
