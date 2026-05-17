@@ -1254,6 +1254,30 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   mit_courses_harvest: z.object({}).passthrough()
     .describe("Full scan of all 6 zones — returns every course with metadata + aggregation maps. Read-only."),
 
+  // ── WIRE-UNWIRED-MS0/U-WIRE-MCFI: MITCourseFullIntegrationEngine ──────────
+  // (read-only; reset() DEFERRED — wipes in-memory course catalog)
+  mcfi_query: z.object({
+    department: z.string().min(1).optional(),
+    topic: z.string().min(1).optional(),
+    integrated: z.boolean().optional(),
+    limit: z.number().int().positive().max(1000).optional(),
+  }).passthrough()
+    .describe("Query courses by department/topic/integrated. All filters optional. Read-only."),
+
+  mcfi_get_course: z.object({
+    id: z.string().min(1).describe("Course id."),
+  }).passthrough()
+    .describe("Get a single course by id. Returns null on miss. Read-only."),
+
+  mcfi_algorithms: z.object({}).passthrough()
+    .describe("List all algorithms across integrated courses. Read-only."),
+
+  mcfi_formulas: z.object({}).passthrough()
+    .describe("List all formulas across integrated courses. Read-only."),
+
+  mcfi_stats: z.object({}).passthrough()
+    .describe("Integration stats (totals, by-department/integrated breakdowns). Read-only."),
+
   // ── WIRE-UNWIRED-MS0/U-WIRE-WRTL: WEDMReasoningTraceLedgerEngine ──────────
   // (read-only query surface; recordTraceSync/setLedgerPath/setDiskWrites/
   //  resetForTests DEFERRED — they append to / mutate the on-disk reasoning

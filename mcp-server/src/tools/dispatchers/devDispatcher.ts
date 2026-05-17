@@ -293,7 +293,11 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // WIRE-UNWIRED-MS0/U-WIRE-WRTL: WEDMReasoningTraceLedgerEngine read-only;
 // recordTraceSync/setLedgerPath/setDiskWrites/resetForTests DEFERRED
 "wrtl_recent", "wrtl_by_dispatcher", "wrtl_by_action",
-"wrtl_by_keyword", "wrtl_stats"] as const;
+"wrtl_by_keyword", "wrtl_stats",
+// WIRE-UNWIRED-MS0/U-WIRE-MCFI: MITCourseFullIntegrationEngine read-only;
+// reset() DEFERRED (wipes in-memory catalog)
+"mcfi_query", "mcfi_get_course", "mcfi_algorithms",
+"mcfi_formulas", "mcfi_stats"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -1680,6 +1684,43 @@ export function registerDevDispatcher(server: any): void {
           case "mit_courses_harvest": {
             const { MitCourseIndexEngine } = await import("../../engines/MitCourseIndexEngine.js");
             result = { harvest: await MitCourseIndexEngine.harvest() };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-MCFI: MITCourseFullIntegrationEngine ──
+          case "mcfi_query": {
+            const { mitCourseFullIntegrationEngine } = await import("../../engines/MITCourseFullIntegrationEngine.js");
+            const p = params as { department?: string; topic?: string; integrated?: boolean; limit?: number };
+            const courses = await mitCourseFullIntegrationEngine.query({
+              department: p.department,
+              topic: p.topic,
+              integrated: p.integrated,
+              limit: p.limit,
+            });
+            result = { courses, count: courses.length };
+            break;
+          }
+          case "mcfi_get_course": {
+            const { mitCourseFullIntegrationEngine } = await import("../../engines/MITCourseFullIntegrationEngine.js");
+            const id = (params as { id: string }).id;
+            const course = await mitCourseFullIntegrationEngine.getCourse(id);
+            result = { course };
+            break;
+          }
+          case "mcfi_algorithms": {
+            const { mitCourseFullIntegrationEngine } = await import("../../engines/MITCourseFullIntegrationEngine.js");
+            const algorithms = await mitCourseFullIntegrationEngine.getAlgorithms();
+            result = { algorithms, count: algorithms.length };
+            break;
+          }
+          case "mcfi_formulas": {
+            const { mitCourseFullIntegrationEngine } = await import("../../engines/MITCourseFullIntegrationEngine.js");
+            const formulas = await mitCourseFullIntegrationEngine.getFormulas();
+            result = { formulas, count: formulas.length };
+            break;
+          }
+          case "mcfi_stats": {
+            const { mitCourseFullIntegrationEngine } = await import("../../engines/MITCourseFullIntegrationEngine.js");
+            result = { stats: await mitCourseFullIntegrationEngine.getStats() };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-WRTL: WEDMReasoningTraceLedgerEngine ──
