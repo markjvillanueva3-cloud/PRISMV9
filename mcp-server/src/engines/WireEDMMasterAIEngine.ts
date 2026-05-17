@@ -1014,7 +1014,7 @@ export class WireEDMMasterAIEngine {
         case "WireEDMSettingsEngine": {
           const { wireEDMSettingsEngine } = await import("./WireEDMSettingsEngine.js");
           const result = wireEDMSettingsEngine.calculate({
-            wire_type: "plain_brass",
+            wire_type: "brass_0.25",
             workpiece_material: request.material ?? "D2",
             workpiece_thickness_mm: request.thickness_mm ?? 25,
             workpiece_hardness_HRC: 60,
@@ -1079,16 +1079,16 @@ export class WireEDMMasterAIEngine {
 
         case "WEDMCalculatorAIEngine": {
           const { wedmCalculatorAIEngine } = await import("./WEDMCalculatorAIEngine.js");
-          // Use available method
-          const result = wedmCalculatorAIEngine.quickCalculate(
-            request.material ?? "D2",
-            request.thickness_mm ?? 25,
-            request.target_ra_um ?? 0.8
-          );
+          // calculate() takes WEDMCalcInput { material: { name, iso_group, ... }, thickness_mm, ... }
+          const result = await wedmCalculatorAIEngine.calculate({
+            material: { name: request.material ?? "D2", iso_group: "P" },
+            thickness_mm: request.thickness_mm ?? 25,
+            target_ra_um: request.target_ra_um ?? 0.8,
+          });
           return {
             engine: engineName,
-            insight: `AI Calculator: ${result.summary ?? "Parameters calculated"}`,
-            confidence: result.confidence ?? 0.85,
+            insight: `AI Calculator: ${result.passes.length} passes, predicted Ra ${result.predicted_ra_um.toFixed(2)} µm`,
+            confidence: result.ra_confidence ?? 0.85,
             data: result,
           };
         }
@@ -1097,14 +1097,9 @@ export class WireEDMMasterAIEngine {
           if (!request.program_content) return null;
           const { wedmProgramNeuralAnalysisEngine } = await import("./WEDMProgramNeuralAnalysisEngine.js");
           // Use actual method signature
-          const improvements = wedmProgramNeuralAnalysisEngine.suggestImprovements({
-            e_codes: [],
-            offsets: {},
-            feedRates: [],
-            customer: request.customer,
-            material: request.material ?? "D2",
-            thickness_mm: request.thickness_mm ?? 25,
-          });
+          // suggestImprovements takes Partial<ProgramAnalysis>; empty partial yields
+          // generic suggestions when actual analysis data isn't available.
+          const improvements = wedmProgramNeuralAnalysisEngine.suggestImprovements({});
           return {
             engine: engineName,
             insight: `Neural analysis: ${Array.isArray(improvements) ? improvements.length : 0} improvements suggested`,
@@ -1116,8 +1111,7 @@ export class WireEDMMasterAIEngine {
         case "WEDMFeedbackCalibrationEngine": {
           const { wedmFeedbackCalibrationEngine } = await import("./WEDMFeedbackCalibrationEngine.js");
           const calibration = wedmFeedbackCalibrationEngine.get_calibration(
-            request.material ?? "D2",
-            request.thickness_mm ?? 25
+            request.material ?? "D2"
           );
           if (!calibration) return null;
           return {
@@ -1130,10 +1124,9 @@ export class WireEDMMasterAIEngine {
 
         case "WEDMProductionReadinessEngine": {
           const { wedmProductionReadinessEngine } = await import("./WEDMProductionReadinessEngine.js");
-          const readiness = wedmProductionReadinessEngine.generate({
-            material: request.material ?? "D2",
-            thickness_mm: request.thickness_mm ?? 25,
-          });
+          // ReadinessInput takes calibration_reports/bayesian_priors/test_results,
+          // not material/thickness — empty input returns baseline readiness report.
+          const readiness = wedmProductionReadinessEngine.generate({});
           return {
             engine: engineName,
             insight: `Production readiness: ${readiness.overall_score ?? 0}% ready`,
