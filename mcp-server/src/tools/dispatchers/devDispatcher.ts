@@ -310,7 +310,15 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // not load-bearing like RL training data); rsg_get/render_* are pure
 // reads against that store. generateAll() DEFERRED (duplicates generate
 // over the wire); reset() DEFERRED (mutates shared store across sessions)
-"rsg_generate", "rsg_get", "rsg_render_markdown", "rsg_render_csv"] as const;
+"rsg_generate", "rsg_get", "rsg_render_markdown", "rsg_render_csv",
+// WIRE-UNWIRED-MS0/U-WIRE-MCDL: MITCourseDeepLearningEngine (all 10
+// public methods pure static-data queries — no I/O, no mutation; safe
+// to wire fully; no defers)
+"mcdl_find_relevant_courses", "mcdl_extract_algorithm",
+"mcdl_recommend_learning_path", "mcdl_apply_academic_knowledge",
+"mcdl_cite_sources", "mcdl_get_complexity_analysis",
+"mcdl_link_to_physics_constants", "mcdl_generate_theory_to_practice",
+"mcdl_get_category_stats", "mcdl_get_all_course_ids"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -1768,6 +1776,84 @@ export function registerDevDispatcher(server: any): void {
             }
             const csv = routingSheetGeneratorEngine.renderCSV(sheet);
             result = { rendered: true, routing_id, csv, bytes: csv.length };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-MCDL: MITCourseDeepLearningEngine ────
+          case "mcdl_find_relevant_courses": {
+            const { mitCourseDeepLearningEngine } = await import("../../engines/MITCourseDeepLearningEngine.js");
+            const p = params as { manufacturing_problem: string };
+            const mapping = mitCourseDeepLearningEngine.findRelevantCourses(p.manufacturing_problem);
+            result = { mapping, match_count: mapping.matchedCourses.length };
+            break;
+          }
+          case "mcdl_extract_algorithm": {
+            const { mitCourseDeepLearningEngine } = await import("../../engines/MITCourseDeepLearningEngine.js");
+            const p = params as { course_id: string; problem_type: string };
+            const algorithms = mitCourseDeepLearningEngine.extractAlgorithm(p.course_id, p.problem_type);
+            result = { course_id: p.course_id, algorithms, count: algorithms.length };
+            break;
+          }
+          case "mcdl_recommend_learning_path": {
+            const { mitCourseDeepLearningEngine } = await import("../../engines/MITCourseDeepLearningEngine.js");
+            const p = params as { skill_gaps: string[] };
+            const path = mitCourseDeepLearningEngine.recommendLearningPath(p.skill_gaps);
+            result = { path, step_count: path.steps.length, total_hours: path.totalEstimatedHours };
+            break;
+          }
+          case "mcdl_apply_academic_knowledge": {
+            const { mitCourseDeepLearningEngine } = await import("../../engines/MITCourseDeepLearningEngine.js");
+            const p = params as { problem: string; constraints?: string[] };
+            const knowledge = mitCourseDeepLearningEngine.applyAcademicKnowledge(p.problem, p.constraints ?? []);
+            result = {
+              knowledge,
+              course_count: knowledge.recommendedCourses.length,
+              algorithm_count: knowledge.applicableAlgorithms.length,
+              citation_count: knowledge.citations.length,
+            };
+            break;
+          }
+          case "mcdl_cite_sources": {
+            const { mitCourseDeepLearningEngine } = await import("../../engines/MITCourseDeepLearningEngine.js");
+            const p = params as { solution: string };
+            const citations = mitCourseDeepLearningEngine.citeSources(p.solution);
+            result = { citations, count: citations.length };
+            break;
+          }
+          case "mcdl_get_complexity_analysis": {
+            const { mitCourseDeepLearningEngine } = await import("../../engines/MITCourseDeepLearningEngine.js");
+            const p = params as { algorithm_name: string };
+            const analysis = mitCourseDeepLearningEngine.getComplexityAnalysis(p.algorithm_name);
+            // Explicit discriminator — slimResponse strips null silently; `found`
+            // tells callers "algorithm not in catalog" vs "lookup succeeded".
+            result = analysis === null
+              ? { found: false, algorithm_name: p.algorithm_name }
+              : { found: true, algorithm_name: p.algorithm_name, analysis };
+            break;
+          }
+          case "mcdl_link_to_physics_constants": {
+            const { mitCourseDeepLearningEngine } = await import("../../engines/MITCourseDeepLearningEngine.js");
+            const p = params as { course_id: string };
+            const constants = mitCourseDeepLearningEngine.linkToPhysicsConstants(p.course_id);
+            result = { course_id: p.course_id, constants, count: constants.length };
+            break;
+          }
+          case "mcdl_generate_theory_to_practice": {
+            const { mitCourseDeepLearningEngine } = await import("../../engines/MITCourseDeepLearningEngine.js");
+            const p = params as { course_id: string; shop_problem: string };
+            const bridge = mitCourseDeepLearningEngine.generateTheoryToPractice(p.course_id, p.shop_problem);
+            result = { course_id: p.course_id, bridge, length: bridge.length };
+            break;
+          }
+          case "mcdl_get_category_stats": {
+            const { mitCourseDeepLearningEngine } = await import("../../engines/MITCourseDeepLearningEngine.js");
+            const stats = mitCourseDeepLearningEngine.getCategoryStats();
+            result = { stats, category_count: stats.length };
+            break;
+          }
+          case "mcdl_get_all_course_ids": {
+            const { mitCourseDeepLearningEngine } = await import("../../engines/MITCourseDeepLearningEngine.js");
+            const ids = mitCourseDeepLearningEngine.getAllCourseIds();
+            result = { course_ids: ids, count: ids.length };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-CEX: CatalogExtractionEngine ─────────
