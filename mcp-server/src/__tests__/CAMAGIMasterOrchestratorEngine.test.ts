@@ -281,6 +281,14 @@ describe("CAMAGIMasterOrchestratorEngine", () => {
       expect(systems).toContain("mastercam");
       expect(systems).toContain("fusion360");
       expect(systems).toContain("inventorcam");
+      // Per-file scrutiny Arm B 2026-05-17: at least 2 of the 4 must be REAL
+      // engine results (cycle_name !== "Manual Selection" + confidence > 0).
+      // Without this, a future regression breaking hyperMILL+Mastercam would
+      // silently return 4 fallback rows and this test would still pass green.
+      const real = comparison.strategies.filter(
+        s => s.cycle_name !== "Manual Selection" && s.confidence > 0,
+      );
+      expect(real.length).toBeGreaterThanOrEqual(2);
     });
 
     it("should include strengths and weaknesses for each strategy", () => {

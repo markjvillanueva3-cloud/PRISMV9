@@ -702,13 +702,16 @@ export class CAMAGIMasterOrchestratorEngine {
     const strategies: StrategyComparison["strategies"] = [];
     const operation = request.operation ?? "roughing";
 
-    // hyperMILL strategy
+    // hyperMILL strategy — defaults mirror Mastercam call below so a request
+    // with no material_iso / tool_diameter_mm still produces all 4 strategies
+    // (silent omission would violate the engines.md "never silentCatch" rule
+    // and would break the "compare across all 4 CAM systems" contract).
     try {
       const hmResult = hyperMillStrategyEngine.calculate({
         geometryType: this.mapFeatureToHyperMillGeometry(featureType),
         operationGoal: operation,
-        materialGroup: request.material_iso,
-        toolDiameterMm: request.tool_diameter_mm,
+        materialGroup: request.material_iso ?? "P",
+        toolDiameterMm: request.tool_diameter_mm ?? 12,
       });
       strategies.push({
         cam_system: "hypermill",
@@ -722,29 +725,69 @@ export class CAMAGIMasterOrchestratorEngine {
         strengths: this.getCAMStrengths("hypermill", featureType),
         weaknesses: this.getCAMWeaknesses("hypermill", featureType),
       });
-    } catch { /* hyperMILL not available */ }
+    } catch (e) {
+      // hyperMILL silent-fail is logged (engines.md "never silentCatch") but
+      // the comparison continues — fallback strategy pushed below so the
+      // "compare across all 4 CAM systems" contract always returns 4 rows.
+      console.warn("[CAMAGIMaster] hyperMILL skipped:", e instanceof Error ? e.message : String(e));
+      strategies.push({
+        cam_system: "hypermill",
+        strategy_name: this.mapFeatureToFusionStrategy(featureType, operation),
+        cycle_name: "Manual Selection",
+        description: `hyperMILL fallback strategy for ${featureType}`,
+        stepover_factor: operation === "finishing" ? 0.1 : 0.25,
+        stepdown_factor: operation === "finishing" ? null : 1.0,
+        cutting_mode: "climb",
+        confidence: 0.0,
+        strengths: this.getCAMStrengths("hypermill", featureType),
+        weaknesses: this.getCAMWeaknesses("hypermill", featureType),
+      });
+    }
 
-    // Mastercam strategy
+    // Mastercam strategy — calls selectStrategy() (not recommend(), which never
+    // existed on this engine — that typo silently threw TypeError for the life
+    // of this method until per-file scrutiny exposed it 2026-05-17). Maps the
+    // 4-field StrategyRecommendation return shape into our comparison row.
     try {
-      const mcResult = mastercamStrategyEngine.recommend({
-        geometryType: this.mapFeatureToMastercamGeometry(featureType),
-        operationGoal: operation,
-        materialGroup: request.material_iso ?? "P",
-        toolDiameterMm: request.tool_diameter_mm ?? 12,
+      const mcOp = operation === "roughing" || operation === "finishing"
+        ? operation
+        : "finishing"; // semi_finishing / rest_machining → finishing baseline
+      const mcResult = mastercamStrategyEngine.selectStrategy({
+        operation: mcOp as "roughing" | "finishing",
+        iso_group: (request.material_iso ?? "P") as "P" | "M" | "K" | "N" | "S" | "H",
+        tool_diameter_mm: request.tool_diameter_mm ?? 12,
       });
       strategies.push({
         cam_system: "mastercam",
-        strategy_name: mcResult.strategyName,
-        cycle_name: mcResult.mastercamCycle,
-        description: mcResult.description,
-        stepover_factor: mcResult.suggestedStepover,
-        stepdown_factor: mcResult.suggestedStepdown,
-        cutting_mode: mcResult.cuttingMode,
-        confidence: mcResult.confidence,
+        strategy_name: mcResult.cycle_display_name,
+        cycle_name: mcResult.cycle_code,
+        description: `${mcResult.category} via ${mcResult.cycle_display_name}` + (mcResult.is_dynamic ? " (Dynamic)" : mcResult.is_opti ? " (Opti)" : ""),
+        stepover_factor: mcResult.params.woc_pct,
+        stepdown_factor: operation === "finishing" ? null : mcResult.params.doc_mm,
+        cutting_mode: "climb",
+        confidence: mcResult.success ? 0.9 : 0.6,
         strengths: this.getCAMStrengths("mastercam", featureType),
         weaknesses: this.getCAMWeaknesses("mastercam", featureType),
       });
-    } catch { /* Mastercam not available */ }
+    } catch (e) {
+      // Engine genuinely failed (e.g., MastercamCycleCatalogEngine has no
+      // cycles for the mapped category). Log loud + push fallback so the
+      // 4-row contract holds — but mark confidence:0.0 so selectBestStrategy
+      // never picks fallback over a real result.
+      console.warn("[CAMAGIMaster] Mastercam fell back:", e instanceof Error ? e.message : String(e));
+      strategies.push({
+        cam_system: "mastercam",
+        strategy_name: this.mapFeatureToFusionStrategy(featureType, operation),
+        cycle_name: "Manual Selection",
+        description: `Mastercam fallback strategy for ${featureType}`,
+        stepover_factor: operation === "finishing" ? 0.1 : 0.25,
+        stepdown_factor: operation === "finishing" ? null : 1.0,
+        cutting_mode: "climb",
+        confidence: 0.0,
+        strengths: this.getCAMStrengths("mastercam", featureType),
+        weaknesses: this.getCAMWeaknesses("mastercam", featureType),
+      });
+    }
 
     // Fusion 360 strategy (simplified mapping)
     strategies.push({
@@ -1130,9 +1173,12 @@ export class CAMAGIMasterOrchestratorEngine {
     feature: FeatureType,
     request: CAMOrchestrationRequest,
   ): StrategyComparison["strategies"][0] {
-    // Weight by confidence and feature match
+    // Weight by confidence and feature match. bestScore starts at -1 so the
+    // first iter ALWAYS overrides — previously bestScore=0 meant a fallback
+    // strategy at strategies[0] with confidence:0 stayed as best forever,
+    // because score(0*100=0) > 0 is false. Per-file scrutiny Arm B 2026-05-17.
     let best = strategies[0];
-    let bestScore = 0;
+    let bestScore = -1;
 
     for (const s of strategies) {
       let score = s.confidence * 100;
