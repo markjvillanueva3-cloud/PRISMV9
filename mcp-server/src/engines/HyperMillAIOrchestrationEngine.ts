@@ -17,7 +17,11 @@
  */
 
 import { log } from "../utils/Logger.js";
-import { hyperMillDeepLearningEngine } from "./HyperMillDeepLearningEngine.js";
+import {
+  hyperMillDeepLearningEngine,
+  type HyperMillFeatureType,
+  type HyperMillMachineKinematics,
+} from "./HyperMillDeepLearningEngine.js";
 import { hyperMillStrategyEngine } from "./HyperMillStrategyEngine.js";
 import { hyperMillMaterialBridgeEngine } from "./HyperMillMaterialBridgeEngine.js";
 import { hyperMillMaterialPhysicsBridge } from "./HyperMillMaterialPhysicsBridge.js";
@@ -270,15 +274,13 @@ export class HyperMillAIOrchestrationEngine {
       });
 
       try {
-        const deepResult = hyperMillDeepLearningEngine.selectOptimalStrategy({
-          feature_type: this.mapFeatureType(request.feature_type),
-          material_group: (materialProfile?.iso_group || request.material_iso || "P") as "P" | "M" | "K" | "N" | "S" | "H",
-          machine_type: this.mapMachineType(request.machine_type || "3axis"),
-          tool_diameter_mm: request.tool_diameter_mm || 12,
-          depth_mm: request.axial_depth_mm || 10,
-          width_mm: request.radial_depth_mm ? request.radial_depth_mm * 2 : 20,
-          tolerance_mm: request.tolerance_mm || 0.025
-        });
+        // selectOptimalStrategy signature: (feature, material, machine_kinematics).
+        // tool/depth/width/tolerance are now derived inside the engine.
+        const deepResult = hyperMillDeepLearningEngine.selectOptimalStrategy(
+          this.mapFeatureType(request.feature_type),
+          ((materialProfile?.iso_group || request.material_iso || "P") as "P" | "M" | "K" | "N" | "S" | "H"),
+          this.mapMachineType(request.machine_type || "3axis"),
+        );
 
         strategy = {
           name: deepResult.selected_strategy.id,
@@ -613,17 +615,20 @@ export class HyperMillAIOrchestrationEngine {
   /**
    * Map feature type to hyperMILL format
    */
-  private mapFeatureType(feature: string): "closed_pocket" | "open_pocket" | "slot" | "freeform_surface" | "steep_wall" | "flat_area" | "deep_cavity" {
-    const mapping: Record<string, "closed_pocket" | "open_pocket" | "slot" | "freeform_surface" | "steep_wall" | "flat_area" | "deep_cavity"> = {
+  private mapFeatureType(feature: string): HyperMillFeatureType {
+    // Map the orchestrator's coarse feature vocabulary onto HyperMillFeatureType.
+    // slot→slot_through and flat→flat_land match the current enum vocabulary
+    // (was 'slot'/'flat_area' before HyperMillDeepLearningEngine schema refresh).
+    const mapping: Record<string, HyperMillFeatureType> = {
       "pocket": "closed_pocket",
       "contour": "open_pocket",
-      "slot": "slot",
+      "slot": "slot_through",
       "freeform": "freeform_surface",
       "surface": "freeform_surface",
       "steep": "steep_wall",
-      "flat": "flat_area",
+      "flat": "flat_land",
       "cavity": "deep_cavity",
-      "mold": "deep_cavity"
+      "mold": "deep_cavity",
     };
     return mapping[feature.toLowerCase()] || "closed_pocket";
   }
@@ -631,15 +636,17 @@ export class HyperMillAIOrchestrationEngine {
   /**
    * Map machine type
    */
-  private mapMachineType(machine: string): "3axis_mill" | "4axis_mill" | "5axis_mill" | "5axis_table_head" | "mill_turn" {
-    const mapping: Record<string, "3axis_mill" | "4axis_mill" | "5axis_mill" | "5axis_table_head" | "mill_turn"> = {
-      "3axis": "3axis_mill",
-      "4axis": "4axis_mill",
-      "5axis": "5axis_mill",
+  private mapMachineType(machine: string): HyperMillMachineKinematics {
+    // Map coarse orchestrator vocabulary to HyperMillMachineKinematics
+    // (5axis defaults to table_table — the most common 5-axis topology).
+    const mapping: Record<string, HyperMillMachineKinematics> = {
+      "3axis": "3axis",
+      "4axis": "4axis_rotary",
+      "5axis": "5axis_table_table",
       "5axis_indexed": "5axis_table_head",
-      "mill_turn": "mill_turn"
+      "mill_turn": "mill_turn",
     };
-    return mapping[machine.toLowerCase()] || "3axis_mill";
+    return mapping[machine.toLowerCase()] || "3axis";
   }
 
   getReasoningModes(): HyperMillReasoningMode[] {
