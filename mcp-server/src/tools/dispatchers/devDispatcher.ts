@@ -472,7 +472,8 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "sfr_get_daily_production", "sfr_get_machine_efficiency",
 "sfr_get_employee_productivity", "sfr_get_production_summary",
 "sfr_get_oee_trend", "sfr_get_department_comparison",
-"sfr_get_improvement_recommendations", "sfr_get_self_awareness"] as const;
+"sfr_get_improvement_recommendations", "sfr_get_self_awareness",
+"ags_propose"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -3662,6 +3663,26 @@ export function registerDevDispatcher(server: any): void {
             const { ShopFloorReportEngine } = await import("../../engines/ShopFloorReportEngine.js");
             const info = ShopFloorReportEngine.getSelfAwareness();
             result = { info };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-AGS: AutonomousGoalSynthesis ─────────
+          case "ags_propose": {
+            const { autonomousGoalSynthesisEngine } = await import("../../engines/AutonomousGoalSynthesisEngine.js");
+            const p = params as { gaps: Parameters<typeof autonomousGoalSynthesisEngine.propose>[0] extends readonly (infer U)[] ? U[] : never; limit?: number };
+            // Engine validates each gap (id non-empty, ranges) + throws on
+            // duplicate id. Catch + return error envelope rather than
+            // bubbling to the dispatch wrapper for clean LLM-facing error.
+            try {
+              const goals = autonomousGoalSynthesisEngine.propose(p.gaps, p.limit);
+              result = {
+                input_count: p.gaps.length,
+                goals,
+                goal_count: goals.length,
+              };
+            } catch (e: unknown) {
+              const msg = e instanceof Error ? e.message : String(e);
+              result = { error: msg, input_count: p.gaps.length };
+            }
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-CMC: CapacityMonteCarloEngine ────────

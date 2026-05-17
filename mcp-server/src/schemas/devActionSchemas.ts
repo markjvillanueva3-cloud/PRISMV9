@@ -3164,6 +3164,29 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     "Engine self-description (name/version/capabilities/data-sizes). Pure read."
   ),
 
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-AGS: AutonomousGoalSynthesisEngine ──
+  // Single pure-compute method ranks gap-descriptors by
+  // Ψ_impact × urgency × feasibility. No I/O, no state mutation.
+  ags_propose: z.object({
+    gaps: z.array(z.object({
+      id: z.string().min(1).max(256),
+      kind: z.enum([
+        "orphan-surface", "psi-deficit", "failing-test",
+        "extraction-candidate", "user-desire", "peer-insight", "other",
+      ]),
+      title: z.string().min(1).max(512),
+      psiImpact: z.number().min(0).max(10)
+        .describe("Ψ impact 0-10 (percentage-point potential)"),
+      urgency: z.number().min(0).max(1),
+      feasibility: z.number().min(0).max(1),
+      tags: z.array(z.string().min(1).max(64)).max(32).optional(),
+      origin: z.string().min(1).max(256).optional(),
+    })).min(1).max(1000)
+      .describe("Gap descriptors (1-1000)"),
+    limit: z.number().int().min(0).max(1000).optional()
+      .describe("Top-N cap (default 3, 0 = unlimited)"),
+  }).describe("Rank gaps by Ψ×urgency×feasibility, return top-N synthesized goals. Pure compute."),
+
   cmc_simulate: z.object({
     machines: z.array(z.object({
       id: z.string().min(1).max(128),
