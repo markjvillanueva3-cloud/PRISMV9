@@ -1,3 +1,7 @@
+// WIRE-EXEMPT: higher-layer composition engine — consumed by PRISMNeuralKnowledgeSynthesisEngine
+//               (not dispatcher-direct). It assembles training datasets from TribalKnowledgeEngine
+//               + MachiningPlaybookEngine outputs; AI/training dispatchers reach it through the
+//               neural-synthesis facade rather than holding its own ACTION enum.
 /**
  * TribalKnowledgeTrainingEngine — Deep Tribal Wisdom Integration for AI Training
  * ================================================================================
@@ -366,18 +370,20 @@ export class TribalKnowledgeTrainingEngine {
    * Convert a tribal tip to a training pattern.
    */
   private tipToTrainingPattern(tip: KnowledgeTip): TrainingPattern {
+    const title = (tip.title ?? "").toLowerCase();
+    const body = (tip.body ?? "").toLowerCase();
     const isAntiPattern = tip.knowledge_type === "anti_pattern" ||
                           tip.knowledge_type === "failure_mode" ||
-                          tip.title.toLowerCase().includes("never") ||
-                          tip.title.toLowerCase().includes("don't") ||
-                          tip.body.toLowerCase().includes("avoid");
+                          title.includes("never") ||
+                          title.includes("don't") ||
+                          body.includes("avoid");
 
     const categoryWeight = CATEGORY_WEIGHTS[tip.category] ?? CATEGORY_WEIGHTS.general;
     const typeWeight = KNOWLEDGE_TYPE_WEIGHTS[tip.knowledge_type ?? "tip"] ?? 0.6;
     const confidenceWeight = (tip.confidence ?? 70) / 100;
 
     // Extract keywords from title and body
-    const keywords = this.extractKeywords(tip.title + " " + tip.body);
+    const keywords = this.extractKeywords((tip.title ?? "") + " " + (tip.body ?? ""));
 
     // Build feature vector (simplified for now)
     const featureVector = this.buildFeatureVector(tip);
@@ -671,9 +677,11 @@ export class TribalKnowledgeTrainingEngine {
 
     const totalWeight = matchingPatterns.reduce((sum, p) => sum + p.weight, 0);
     const violationWeight = violatedAntiPatterns.reduce((sum, p) => sum + p.weight, 0);
-    const confidence = matchingPatterns.length > 0
+    const rawConfidence = matchingPatterns.length > 0
       ? Math.min(1, totalWeight / matchingPatterns.length) * (1 - violationWeight * 0.5)
       : 0.5;
+    // Clamp to [0,1] — heavy anti-pattern violations could drive the multiplier negative.
+    const confidence = Math.max(0, Math.min(1, rawConfidence));
 
     return {
       valid: violatedAntiPatterns.length === 0,
