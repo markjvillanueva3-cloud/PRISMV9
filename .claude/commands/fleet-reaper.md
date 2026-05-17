@@ -129,7 +129,7 @@ impact:
 
 ## Args: $ARGUMENTS
 
-- *(empty)* — **canonical always-on re-arm.** Full pipeline: immediate sweep → ensure scheduled task → launch persistent Monitor. Idempotent — if the task is already Ready and the Monitor is already armed, both steps no-op and the §verdict surfaces it. This is what `/checkin-alpha` runs automatically.
+- *(empty)* — **canonical always-on re-arm.** Full pipeline: immediate sweep → ensure scheduled task → launch persistent Monitor. **The Monitor is armed unconditionally** — a healthy scheduled task is NOT a reason to skip it, because the Monitor provides the operator's live event feed (the task's reaps go to the JSONL log but are invisible without the Monitor). Idempotent — if the Monitor is already armed for this session (TaskList dedup), step C no-ops. This is what `/checkin-alpha` runs automatically.
 - `--status` — report only: read-only sweep classification + scheduled-task state. No ledger write, no install, no Monitor, no kills. **Use to verify always-on status without re-arming.**
 - `--dry-run` — burn-in: every runner this skill arms (the immediate sweep AND the Monitor) gets `--dry-run` — it classifies + decides but NEVER kills. Use to watch slot attribution before going live.
 - `--no-task` — skip the scheduled-task step. ⚠ If no task was already registered, reaping stops when this chat closes (Monitor-only).
@@ -235,6 +235,7 @@ Print the boxed summary, choosing the `verdict:` line by what was actually armed
 │ soft-relief: nudged 3 priority · 2 working-set (~410M reclaimed) · 5 stale-slot targets
 │ gpu:         NVIDIA GeForce RTX 3080  8.5G free / 10G · 4% util
 │ ollama:      reachable · loaded: qwen2.5-coder:7b (4.1G)
+│ docker:      ✓ ollama · ✓ docker · ✓ postgres · ✓ qdrant · ✓ prometheus
 │ hint:        aggressive-offload Δ=-0.15 · TTL 5m · → ollama-task-offloader will absorb more
 │ prewarm:     fired qwen2.5-coder:7b (keep_alive)
 │ task:        ✓ "PRISM Fleet Reaper" registered (5-min scheduled task)

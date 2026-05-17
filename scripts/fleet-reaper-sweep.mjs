@@ -824,6 +824,89 @@ export function readOllamaState({ runCurl = defaultRunCurl, ollamaUrl } = {}) {
   return { reachable: true, models, loaded };
 }
 
+// ─── Layer 2b: Docker stack health probe (FLEET-REAPER-MS1.1) ───────────────
+//
+// Reuses the pre-built `scripts/ollama-docker-health.mjs --json` probe so
+// every fleet-reaper sweep also sees: Docker daemon, Postgres (postgres-prism),
+// Qdrant, Prometheus. The probe is fail-soft (every service "down" is a
+// status, never a crash) and bounded (PROBE_TIMEOUT_MS).
+//
+// Why surface this in the reaper sweep:
+//   1. Ollama runs in a Docker container — a Docker outage explains an Ollama
+//      probe failure that would otherwise look like a coordinator bug.
+//   2. Operators get fleet-wide infra health in one verdict line (no need to
+//      run /ollama-docker-health manually).
+//   3. The Monitor's live event feed catches Docker/Qdrant/Postgres going down
+//      with no extra wiring — the existing `monitorEvent` already prints
+//      `caveats`, so a degraded service is one chat-message away.
+//
+// Knobs: `PRISM_FLEET_REAPER_DOCKER_DISABLE=1` (skip the probe entirely),
+//        `PRISM_FLEET_REAPER_DOCKER_HEALTH_PATH=<path>` (override script path).
+
+const DEFAULT_DOCKER_HEALTH_SCRIPT = "H:/prism/scripts/ollama-docker-health.mjs";
+
+function defaultRunDockerHealth() {
+  const scriptPath = process.env.PRISM_FLEET_REAPER_DOCKER_HEALTH_PATH
+    || DEFAULT_DOCKER_HEALTH_SCRIPT;
+  // Use process.execPath, NOT bare "node" — under portable-node deployments
+  // (H:/Tools/nodejs/node.exe not on PATH for harness-spawned children) bare
+  // "node" returns ENOENT and the probe silently never fires. Same class of
+  // regression as [[reference_precompact_bare_node_enoent_2026_05_16]].
+  try {
+    return execFileSync(process.execPath, [scriptPath, "--json"], {
+      timeout: PROBE_TIMEOUT_MS * 2,  // docker daemon probes are 2-step (engine + service list)
+      encoding: "utf-8", windowsHide: true, maxBuffer: PROBE_MAX_BUFFER,
+    });
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Probe the Docker + supporting-services stack. Returns a normalized
+ * { available, services } where services is a per-name {up, detail} map.
+ * Never throws — a missing probe / unreachable Docker degrades to
+ * { available:false, services:{} } so the coordinator can decide whether
+ * its Ollama prewarm is even meaningful.
+ */
+export function readDockerHealth({ runHealthProbe = defaultRunDockerHealth } = {}) {
+  if (process.env.PRISM_FLEET_REAPER_DOCKER_DISABLE === "1") {
+    return { available: false, services: {}, reason: "PRISM_FLEET_REAPER_DOCKER_DISABLE=1" };
+  }
+  let raw;
+  try {
+    raw = runHealthProbe();
+  } catch {
+    return { available: false, services: {}, reason: "docker-health probe threw" };
+  }
+  if (!raw || typeof raw !== "string") {
+    return { available: false, services: {}, reason: "docker-health probe unavailable" };
+  }
+  let parsed;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return { available: false, services: {}, reason: "docker-health returned non-JSON" };
+  }
+  // `parsed.services` is `{ollama, docker, postgres, qdrant, prometheus}` with
+  // each entry shaped `{up: boolean, detail?: string, error?: string}`. We
+  // mirror only the up-flags here to keep the sweep result compact; details
+  // are one --json invocation away if an operator wants them.
+  const services = {};
+  if (parsed && parsed.services && typeof parsed.services === "object") {
+    for (const [name, svc] of Object.entries(parsed.services)) {
+      services[name] = {
+        up: !!(svc && svc.up),
+        detail: svc && typeof svc.detail === "string" ? svc.detail : null,
+      };
+    }
+  }
+  return {
+    available: !!(services.docker && services.docker.up),
+    services,
+  };
+}
+
 // ─── Layer 3: Ollama coordinator (FLEET-REAPER-MS1) ─────────────────────────
 //
 // When the box is under memory pressure AND the GPU has headroom AND Ollama is
@@ -1174,6 +1257,7 @@ export function runSweep(opts = {}) {
   //    verdict surfaces GPU/Ollama state. Skipped entirely when --no-coord.
   let gpu = { available: false, reason: "coordinator skipped (--no-coord)" };
   let ollama = { reachable: false, models: [], loaded: [], reason: "coordinator skipped (--no-coord)" };
+  let dockerHealth = { available: false, services: {}, reason: "coordinator skipped (--no-coord)" };
   let coordinator = {
     evaluated: false, shouldPrewarm: false, shouldHintOffload: false,
     thresholdDelta: 0, prewarmFired: false, hintWritten: false,
@@ -1183,6 +1267,22 @@ export function runSweep(opts = {}) {
     try {
       gpu = (opts.readGpu || readGpuState)({ runNvidiaSmi: opts.runNvidiaSmi });
       ollama = (opts.readOllama || readOllamaState)({ runCurl: opts.runCurl, ollamaUrl: opts.ollamaUrl });
+      // FLEET-REAPER-MS1.1: Docker + supporting-services health probe. Advisory
+      // — never gates the coordinator decision (Ollama probe already catches
+      // an unreachable daemon). Surfaces Docker / Postgres / Qdrant / Prometheus
+      // status in the sweep result so operators see the whole infra layer.
+      dockerHealth = (opts.readDockerHealth || readDockerHealth)({
+        runHealthProbe: opts.runDockerHealthProbe,
+      });
+      // If Docker is down BUT Ollama probe says reachable, that's a Windows-
+      // host Ollama (not the containerized one) — caveat for forensic clarity.
+      // The reverse case (Docker up + Ollama unreachable) is interesting
+      // because it means the container exited; surface that too.
+      if (!dockerHealth.available && ollama.reachable) {
+        caveats.push("docker down but ollama reachable — host-installed daemon, not the container");
+      } else if (dockerHealth.available && !ollama.reachable) {
+        caveats.push("docker up but ollama unreachable — ollama container exited or wrong network");
+      }
 
       // 8. Layer 3 — coordinator decision (pure) + actions.
       const slotCounts = countSlotsByStatus(snap);
@@ -1296,6 +1396,7 @@ export function runSweep(opts = {}) {
     softRelief,
     gpu,
     ollama,
+    dockerHealth,
     coordinator,
     ledgerPath,
   };
