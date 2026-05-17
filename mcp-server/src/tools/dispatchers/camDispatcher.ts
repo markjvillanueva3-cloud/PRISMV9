@@ -6676,68 +6676,72 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             break;
           }
           // ── MS-P2.5-SAFETY: WEDMUnitTagGateEngine (2 actions) ──
+          // The `params as unknown as Parameters<...>[0]` bridge below is the canonical
+          // PRISM pattern when a dispatcher passes its `Record<string,any>` payload to
+          // an engine that accepts a structurally-typed Input. Runtime validation is
+          // performed by validateActionParams() upstream, so the cast is safe.
           case "wedm_unit_tag_evaluate": {
             const { WEDMUnitTagGateEngine } = await import("../../engines/WEDMUnitTagGateEngine.js");
             const eng = new WEDMUnitTagGateEngine();
-            result = eng.evaluate(params);
+            result = eng.evaluate(params as unknown as Parameters<typeof eng.evaluate>[0]);
             break;
           }
           case "wedm_unit_tag_gate": {
             const { WEDMUnitTagGateEngine } = await import("../../engines/WEDMUnitTagGateEngine.js");
             const eng = new WEDMUnitTagGateEngine();
-            result = eng.gate(params);
+            result = eng.gate(params as unknown as Parameters<typeof eng.gate>[0]);
             break;
           }
           // ── MS-P2.5-SAFETY: WEDMHeadClearanceEngine (2 actions) ──
           case "wedm_head_clearance_evaluate": {
             const { WEDMHeadClearanceEngine } = await import("../../engines/WEDMHeadClearanceEngine.js");
             const eng = new WEDMHeadClearanceEngine();
-            result = eng.evaluate(params);
+            result = eng.evaluate(params as unknown as Parameters<typeof eng.evaluate>[0]);
             break;
           }
           case "wedm_head_clearance_gate": {
             const { WEDMHeadClearanceEngine } = await import("../../engines/WEDMHeadClearanceEngine.js");
             const eng = new WEDMHeadClearanceEngine();
-            result = eng.gate(params);
+            result = eng.gate(params as unknown as Parameters<typeof eng.gate>[0]);
             break;
           }
           // ── MS-P2.5-SAFETY: WEDMFlushAdequacyGateEngine (2 actions) ──
           case "wedm_flush_adequacy_evaluate": {
             const { WEDMFlushAdequacyGateEngine } = await import("../../engines/WEDMFlushAdequacyGateEngine.js");
             const eng = new WEDMFlushAdequacyGateEngine();
-            result = eng.evaluate(params);
+            result = eng.evaluate(params as unknown as Parameters<typeof eng.evaluate>[0]);
             break;
           }
           case "wedm_flush_adequacy_gate": {
             const { WEDMFlushAdequacyGateEngine } = await import("../../engines/WEDMFlushAdequacyGateEngine.js");
             const eng = new WEDMFlushAdequacyGateEngine();
-            result = eng.gate(params);
+            result = eng.gate(params as unknown as Parameters<typeof eng.gate>[0]);
             break;
           }
           // ── MS-P2.5-SAFETY: WEDMThermalReleaseGateEngine (2 actions) ──
           case "wedm_thermal_release_evaluate": {
             const { WEDMThermalReleaseGateEngine } = await import("../../engines/WEDMThermalReleaseGateEngine.js");
             const eng = new WEDMThermalReleaseGateEngine();
-            result = eng.evaluate(params);
+            result = eng.evaluate(params as unknown as Parameters<typeof eng.evaluate>[0]);
             break;
           }
           case "wedm_thermal_release_gate": {
             const { WEDMThermalReleaseGateEngine } = await import("../../engines/WEDMThermalReleaseGateEngine.js");
             const eng = new WEDMThermalReleaseGateEngine();
-            result = eng.gate(params);
+            result = eng.gate(params as unknown as Parameters<typeof eng.gate>[0]);
             break;
           }
           // ── MS-P2.5-SAFETY: WEDMControllerDialectVerifierEngine (3 actions) ──
           case "wedm_dialect_verify": {
             const { WEDMControllerDialectVerifierEngine } = await import("../../engines/WEDMControllerDialectVerifierEngine.js");
             const eng = new WEDMControllerDialectVerifierEngine();
-            result = eng.verify(params);
+            result = eng.verify(params as unknown as Parameters<typeof eng.verify>[0]);
             break;
           }
           case "wedm_dialect_gate": {
             const { WEDMControllerDialectVerifierEngine } = await import("../../engines/WEDMControllerDialectVerifierEngine.js");
             const eng = new WEDMControllerDialectVerifierEngine();
-            result = eng.gate(params);
+            result = eng.gate(params as unknown as Parameters<typeof eng.gate>[0]);
             break;
           }
           case "wedm_dialect_resolve": {
