@@ -100,10 +100,12 @@ const SAMPLE_PLAN = {
   source: "rgs-v2",
 };
 
-const SAMPLE_SIDECAR_ENTRY = {
-  plan: SAMPLE_PLAN,
-  sourceHash: "abc123",
-};
+// Sidecar stores plans FLAT — plans[unitKey] IS the plan (per U-INTEG-FIX-P0,
+// commit b287c1614). The legacy `{plan:..., sourceHash:...}` nesting was removed
+// because pick-prefresh-inject reads flat, so a nested fixture produced empty
+// section bodies (header rendered, pipelines/skills/tribal all undefined).
+// Surfaced by U-FEEDBACK-FORCING regression run, 2026-05-17.
+const SAMPLE_SIDECAR_ENTRY = SAMPLE_PLAN;
 
 // ─── Tests ─────────────────────────────────────────────────────────────────
 
@@ -154,12 +156,11 @@ describe("pick-prefresh tool-plan injection", () => {
   });
 
   test("STALE prefix when plan has stale:true flag", () => {
+    // Flat schema (post-U-INTEG-FIX-P0): plan is the value itself, not nested
+    // in .plan. Without the spread, plan.pipelines/skills/tribal would be
+    // undefined and the test would pass by luck on the STALE prefix alone.
     writeSidecar({
-      [UNIT_KEY]: {
-        plan: SAMPLE_PLAN,
-        sourceHash: "STALE_MARKER",
-        stale: true,
-      },
+      [UNIT_KEY]: { ...SAMPLE_PLAN, stale: true },
     });
 
     const result = runHook({ prompt: `/pick-unit ${UNIT_KEY}`, session_id: "s-test-3" });
@@ -180,7 +181,7 @@ describe("pick-prefresh tool-plan injection", () => {
 
   test("stale-on-pickup event appended when plan is stale", () => {
     writeSidecar({
-      [UNIT_KEY]: { plan: SAMPLE_PLAN, sourceHash: "x", stale: true },
+      [UNIT_KEY]: { ...SAMPLE_PLAN, stale: true },
     });
 
     runHook({ prompt: `/pick-unit ${UNIT_KEY}`, session_id: "s-test-5" });
