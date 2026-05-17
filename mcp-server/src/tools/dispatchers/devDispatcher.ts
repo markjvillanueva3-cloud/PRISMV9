@@ -448,7 +448,8 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "sca_get_engine_catalog", "sca_get_catalog_stats",
 "mti_get_adjustment", "mti_check_failure_modes", "mti_get_statistics",
 "ldl_optimize_parameters", "ldl_validate_sequence",
-"ldl_get_fuzzy_speed_recommendation", "ldl_reason_tool_selection"] as const;
+"ldl_get_fuzzy_speed_recommendation", "ldl_reason_tool_selection",
+"dr_generate_flash_report"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -3125,6 +3126,23 @@ export function registerDevDispatcher(server: any): void {
               selection: sel,
               reasoning_steps_count: sel.reasoning.length,
               alternatives_count: sel.alternatives.length,
+            };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-DR: DailyFlashReportEngine ───────────
+          case "dr_generate_flash_report": {
+            const { dailyFlashReportEngine } = await import("../../engines/DailyFlashReportEngine.js");
+            const p = params as { date: string; requested_by: string };
+            // generateFlashReport aggregates from TimeClockEngine + employeeEngine.
+            // Pure read (no mutation of underlying state).
+            const report = dailyFlashReportEngine.generateFlashReport(p.date, p.requested_by);
+            result = {
+              date: p.date,
+              requested_by: p.requested_by,
+              report,
+              completed_count: report.jobs_completed.length,
+              in_progress_count: report.jobs_in_progress.length,
+              downtime_cause_count: report.top_downtime_causes.length,
             };
             break;
           }

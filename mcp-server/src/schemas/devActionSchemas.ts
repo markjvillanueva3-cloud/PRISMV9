@@ -2735,4 +2735,15 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     is_high_temp_alloy: z.boolean(),
     needs_fine_finish: z.boolean(),
   }).describe("Defeasible reasoning for tool selection. Pure read."),
+
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-DR: DailyFlashReportEngine wiring ──
+  // emailFlashReport DEFERRED — currently a console.log stub AND a
+  // send-impersonation class (LLM-callable email-send would be a
+  // spoofing/spam surface even when the impl is filled in).
+  dr_generate_flash_report: z.object({
+    date: z.string().min(1).max(32)
+      .describe("Report date (e.g. ISO YYYY-MM-DD; 32-char DoS bound)"),
+    requested_by: z.string().min(1).max(256)
+      .describe("Requester identifier (employee id, system name, etc.)"),
+  }).describe("Aggregate end-of-day flash report (jobs/scrap/OEE/downtime). Pure read."),
 };
