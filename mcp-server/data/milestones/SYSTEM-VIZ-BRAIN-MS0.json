@@ -228,7 +228,31 @@
     "U-P2-NODE-CLICK-DISPATCH": {
       "phase": "P2-VIZ-BRAIN",
       "title": "Click /system-viz node to invoke its dispatcher's primary action",
-      "status": "pending"
+      "status": "shipped",
+      "shipped_at": "2026-05-17T03:30:00Z",
+      "delivered_by": "claude-a61bbf34 (slot echo)",
+      "shipped_evidence": {
+        "scripts": [
+          "scripts/system-viz-node-dispatch.mjs (~290 LOC, 10 pure-core exports + CLI; resolves graph node-id → dispatcher action route)",
+          "scripts/system-viz-node-dispatch.test.mjs (~330 LOC, 50/50 PASS, includes real-data E2E + 4 P0/P1 regression guards)"
+        ],
+        "scope_note": "BACKEND SLICE ONLY. Frontend click-handler binding into mcp-server/web/ is intentionally deferred (peer-claim contention space). The resolver IS the load-bearing contract; the frontend is a thin caller that invokes the returned dispatcher action.",
+        "contracts_verified_against_live_dispatchers": [
+          "devDispatcher.ts:4691 — roadmap_tool_plan_query accepts params.unit_key ?? params.unitKey (NOT unit_id; milestone_id rejected)",
+          "agentDispatcher.ts:314 — engine_dependents lives under capabilities op on agent (NOT session)",
+          "sessionDispatcher.ts:1321 — dispatcher_map_compact ignores any dispatcher-filter arg; route dispatcher_router nodes to master_index_query instead",
+          "sessionDispatcher.ts:1338 — master_index_query accepts params.query ?? params.q"
+        ],
+        "per_file_scrutiny": "BOTH reviewers FAIL on first pass → 4 contract bugs fixed in-commit → re-scrutiny PASS. Caught: dispatcher camelCase loss (P0), action camelCase loss (P0), unit_key/unit_id mismatch (P1), engine_dependents wrong dispatcher (P1), dispatcher_map_compact ignored-filter (P1), prefix consistency (P1). Same class as RGS-MS0→MS1 pure-core-without-real-dispatcher-test (reference_rgs_tool_autoinvoke_ms1_2026_05_16).",
+        "resolver_resolution_rules": [
+          "1. wiki_entry action (label-first, id-fallback): prism_<camelCase>:action confidence 1.0/0.85",
+          "2. dispatcher_router: prism_session:master_index_query with dispatcher name as query, confidence 0.85",
+          "3. unit (planned/priority/bridge/misc): prism_dev:roadmap_tool_plan_query {unit_key}, confidence 0.90",
+          "4. milestone: prism_session:master_index_query, confidence 0.85",
+          "5. engine: prism_agent:capabilities {op:engine_dependents, name}, confidence 0.85",
+          "6. fallback: prism_session:master_index_query, confidence 0.35"
+        ]
+      }
     },
     "U-P2-LIVE-DRIFT-OVERLAY": {
       "phase": "P2-VIZ-BRAIN",
