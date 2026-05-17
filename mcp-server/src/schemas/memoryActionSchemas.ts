@@ -310,6 +310,27 @@ const knowledge_distillation_run = z.object({
   mkdirIfMissing: z.boolean().optional().describe("Alias for mkdir_if_missing"),
 }).passthrough();
 
+// OBSIDIAN-INTELLIGENCE-MS3/D5/U-CONTEXT-EVAL-GATE — retrieved-context-vs-
+// golden coverage scorer. Advisory: returns a PASS/WARN/FAIL/NO_MATCH verdict
+// + missing tokens/files so a caller / the post-memory-context-eval
+// PostToolUse hook can surface gaps in the just-retrieved context.
+const context_eval_score = z.object({
+  query: z.string().min(1).describe("The agent's query / task description to match against the golden set"),
+  retrieved_context: z.string().optional().describe("The context string the agent is about to act on"),
+  retrievedContext: z.string().optional().describe("Alias for retrieved_context"),
+  golden_path: z.string().min(1).optional().describe("Override golden-set path (default state/shared/context-eval-golden.json)"),
+  goldenPath: z.string().min(1).optional().describe("Alias for golden_path"),
+  now: z.number().finite().optional().describe("Override 'now' ms epoch for deterministic timestamps"),
+  threshold: z.number().min(0).max(1).optional().describe("PASS threshold 0..1 (default 0.8)"),
+  floor: z.number().min(0).max(1).optional().describe("WARN/FAIL boundary 0..1 (default 0.5)"),
+  token_weight: z.number().min(0).max(1).optional().describe("Token-vs-file coverage weight (default 0.7)"),
+  tokenWeight: z.number().min(0).max(1).optional().describe("Alias for token_weight"),
+  min_match_score: z.number().min(0).max(1).optional().describe("Min query-Jaccard to match a golden entry (default 0.15)"),
+  minMatchScore: z.number().min(0).max(1).optional().describe("Alias for min_match_score"),
+  max_golden_bytes: z.number().int().min(256).max(16777216).optional().describe("Max bytes read from golden file (default 1048576)"),
+  maxGoldenBytes: z.number().int().min(256).max(16777216).optional().describe("Alias for max_golden_bytes"),
+}).passthrough();
+
 // OBSIDIAN-COMPOUND-MS1/S3/U-CONTRADICTION-DETECTOR — vault disagreement check.
 const contradiction_check = z.object({
   new_memory_path: z.string().optional().describe("Absolute path to the new memory file to check"),
@@ -442,6 +463,7 @@ export const ACTION_MEMORY_SCHEMAS: ActionSchemaMap = {
   project_auto_updater_process,
   knowledge_distillation_scan,
   knowledge_distillation_run,
+  context_eval_score,
   contradiction_check,
   postmortem_create,
   performance_report,

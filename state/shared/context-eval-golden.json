@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "1.0.0",
+  "_doc": "OBSIDIAN-INTELLIGENCE-MS3/D5/U-CONTEXT-EVAL-GATE golden expectation set. Each entry: when an agent's query token-matches `query`, the context it retrieved SHOULD contain every string in `requiredTokens` and every path in `requiredFiles`. Token matching is SOUND (post 2026-05-17 Arm-B P0-3 fix): a token counts as present only when it is a WHOLE token of the retrieved context (case-insensitive); compound identifiers containing a digit/`_`/`.` (e.g. `kc1_1`, `z.enum`, `constants.ts`) additionally allow a substring match. Plain short alphabetic tokens (`mc`,`ap`,`fz`,`fc`,`vc`) are intentional — they ARE standalone identifiers in physics text and now match only as whole tokens, not as accidental substrings. ContextEvalEngine scores coverage and the post-memory-context-eval PostToolUse hook surfaces a WARN/FAIL advisory on the just-retrieved context. Advisory only — never blocks (operator-in-the-loop). Extend manually or regenerate-check via `node scripts/context-eval-golden-check.mjs`; ids must be unique. Refresh `lastReviewed` whenever entries change so staleness is visible (the check script flags entries older than reviewIntervalDays).",
+  "generatedAt": "2026-05-17T00:00:00.000Z",
+  "lastReviewed": "2026-05-17T00:00:00.000Z",
+  "reviewIntervalDays": 90,
+  "entries": [
+    {
+      "id": "kienzle-cutting-force",
+      "query": "kienzle cutting force calculation specific cutting energy",
+      "requiredTokens": ["kc1_1", "mc", "ap", "fz", "fc"],
+      "requiredFiles": ["mcp-server/src/physics/constants.ts"],
+      "minCoverage": 0.8
+    },
+    {
+      "id": "taylor-tool-life",
+      "query": "taylor tool life equation cutting speed wear",
+      "requiredTokens": ["taylor", "vc", "tool", "life", "exponent"],
+      "minCoverage": 0.75
+    },
+    {
+      "id": "wedm-spark-erosion",
+      "query": "wire edm spark erosion dielectric flushing parameters",
+      "requiredTokens": ["wire", "dielectric", "spark", "discharge", "flushing"],
+      "minCoverage": 0.7
+    },
+    {
+      "id": "obsidian-vault-pipeline",
+      "query": "obsidian intelligence vault daily context weekly synthesis queue",
+      "requiredTokens": ["vault", "daily", "context", "synthesis", "queue"],
+      "requiredFiles": ["mcp-server/src/engines/DailyContextWorkflowEngine.ts"],
+      "minCoverage": 0.75
+    },
+    {
+      "id": "dispatcher-wiring",
+      "query": "wire engine into dispatcher schema action enum lazy import",
+      "requiredTokens": ["dispatcher", "schema", "z.enum", "import", "action"],
+      "minCoverage": 0.8
+    },
+    {
+      "id": "slot-worktree-fleet",
+      "query": "slot worktree fleet chat-slots claim heartbeat collision",
+      "requiredTokens": ["slot", "worktree", "claim", "heartbeat"],
+      "minCoverage": 0.7
+    }
+  ]
+}
