@@ -1254,6 +1254,34 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   mit_courses_harvest: z.object({}).passthrough()
     .describe("Full scan of all 6 zones — returns every course with metadata + aggregation maps. Read-only."),
 
+  // ── WIRE-UNWIRED-MS0/U-WIRE-WPT: WEDMProgressTrackerEngine ────────────────
+  // (read-only query surface; startJob/beginStage/completeStage/failStage/
+  //  completeJob/subscribe/subscribeAll/configure DEFERRED — they mutate
+  //  in-flight job state. calculateETA(JobProgress) also DEFERRED — takes
+  //  a full nested JobProgress object.)
+  wpt_generate_job_id: z.object({}).passthrough()
+    .describe("Generate a fresh job_id string (pure crypto-random). Read-only."),
+
+  wpt_historical_average: z.object({}).passthrough()
+    .describe("Get historical average job duration (ms) across completed jobs. Read-only."),
+
+  wpt_estimate_total_duration: z.object({
+    stages: z.number().int().positive().max(10000)
+      .describe("Total number of stages (1..10000)."),
+  }).passthrough()
+    .describe("Estimate total job duration for the given stage count. Read-only."),
+
+  wpt_get_progress: z.object({
+    job_id: z.string().min(1).describe("Job id."),
+  }).passthrough()
+    .describe("Get current progress for a specific job. Returns null on miss. Read-only."),
+
+  wpt_active_jobs: z.object({}).passthrough()
+    .describe("List all currently-active (non-terminal) jobs. Read-only."),
+
+  wpt_get_config: z.object({}).passthrough()
+    .describe("Get current tracker config (ETA window, smoothing factor, etc). Read-only."),
+
   // ── WIRE-UNWIRED-MS0/U-WIRE-WPI: WedmProgramIndexEngine ───────────────────
   // (all methods pure filesystem reads — no write methods exist)
   wedm_programs_sources: z.object({}).passthrough()

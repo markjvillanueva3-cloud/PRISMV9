@@ -284,7 +284,12 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // WIRE-UNWIRED-MS0/U-WIRE-WPI: WedmProgramIndexEngine (all pure
 // filesystem reads — no write methods)
 "wedm_programs_sources", "wedm_programs_audit", "wedm_programs_harvest",
-"wedm_programs_by_customer", "wedm_programs_top_customers"] as const;
+"wedm_programs_by_customer", "wedm_programs_top_customers",
+// WIRE-UNWIRED-MS0/U-WIRE-WPT: WEDMProgressTrackerEngine read-only;
+// mutating job-lifecycle methods + calculateETA(JobProgress) DEFERRED
+"wpt_generate_job_id", "wpt_historical_average",
+"wpt_estimate_total_duration", "wpt_get_progress",
+"wpt_active_jobs", "wpt_get_config"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -1671,6 +1676,44 @@ export function registerDevDispatcher(server: any): void {
           case "mit_courses_harvest": {
             const { MitCourseIndexEngine } = await import("../../engines/MitCourseIndexEngine.js");
             result = { harvest: await MitCourseIndexEngine.harvest() };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-WPT: WEDMProgressTrackerEngine ───────
+          case "wpt_generate_job_id": {
+            const { wedmProgressTrackerEngine } = await import("../../engines/WEDMProgressTrackerEngine.js");
+            result = { job_id: wedmProgressTrackerEngine.generateJobId() };
+            break;
+          }
+          case "wpt_historical_average": {
+            const { wedmProgressTrackerEngine } = await import("../../engines/WEDMProgressTrackerEngine.js");
+            result = { historicalAverageMs: wedmProgressTrackerEngine.getHistoricalAverage() };
+            break;
+          }
+          case "wpt_estimate_total_duration": {
+            const { wedmProgressTrackerEngine } = await import("../../engines/WEDMProgressTrackerEngine.js");
+            const stages = (params as { stages: number }).stages;
+            result = { estimatedDurationMs: wedmProgressTrackerEngine.estimateTotalDuration(stages), stages };
+            break;
+          }
+          case "wpt_get_progress": {
+            const { wedmProgressTrackerEngine } = await import("../../engines/WEDMProgressTrackerEngine.js");
+            const jobId = (params as { job_id: string }).job_id;
+            const progress = wedmProgressTrackerEngine.getProgress(jobId);
+            // Normalize undefined → null for wire (explicit discriminator)
+            result = progress === undefined
+              ? { found: false }
+              : { found: true, progress };
+            break;
+          }
+          case "wpt_active_jobs": {
+            const { wedmProgressTrackerEngine } = await import("../../engines/WEDMProgressTrackerEngine.js");
+            const jobs = wedmProgressTrackerEngine.getActiveJobs();
+            result = { jobs, count: jobs.length };
+            break;
+          }
+          case "wpt_get_config": {
+            const { wedmProgressTrackerEngine } = await import("../../engines/WEDMProgressTrackerEngine.js");
+            result = { config: wedmProgressTrackerEngine.getConfig() };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-WPI: WedmProgramIndexEngine ──────────
