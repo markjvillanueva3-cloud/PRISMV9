@@ -199,7 +199,7 @@ export function registerMLDispatcher(server: unknown): void {
             text: JSON.stringify({
               success: false,
               error: `Invalid params for ${action}`,
-              details: validation.error.issues,
+              details: validation.errors ?? validation.error?.issues ?? [],
             }),
           }],
         };
@@ -215,6 +215,7 @@ export function registerMLDispatcher(server: unknown): void {
               root_path: params.root_path as string,
               max_files: (params.max_files as number) ?? 50_000,
               file_types: (params.file_types as Array<".MIN" | ".NC" | ".nc" | ".log">) ?? [".MIN", ".NC", ".nc"],
+              include_patterns: (params.include_patterns as string[]) ?? [],
               exclude_patterns: (params.exclude_patterns as string[]) ?? ["BACKUP", "OLD", "ARCHIVE", "TEMP"],
               parse_logs: (params.parse_logs as boolean) ?? true,
             });
@@ -528,7 +529,7 @@ export function registerMLDispatcher(server: unknown): void {
           case "lora_gate": {
             const engine = await getEngine("loraMoE") as typeof import("../../engines/LoRAMoEGatingEngine.js").loraMoEGatingEngine;
             const gatingResult = engine.gate({
-              domain: params.domain as import("../../schemas/outcomeEventSchema.js").OutcomeDomain,
+              domain: params.domain as import("../../schemas/outcomeEventSchema.js").OutcomeDomainT,
               material: params.material as string | undefined,
               machine: params.machine as string | undefined,
               operation: params.operation as string | undefined,
@@ -543,7 +544,7 @@ export function registerMLDispatcher(server: unknown): void {
           case "lora_compose": {
             const engine = await getEngine("loraComposition") as typeof import("../../engines/LoRACompositionEngine.js").loraCompositionEngine;
             const composeResult = engine.compose({
-              domain: params.domain as import("../../schemas/outcomeEventSchema.js").OutcomeDomain,
+              domain: params.domain as import("../../schemas/outcomeEventSchema.js").OutcomeDomainT,
               context: params.context as { material?: string; machine?: string; operation?: string; customer?: string },
               base_values: params.base_values as Record<string, number>,
               composition_mode: (params.composition_mode as "weighted_sum" | "cascade" | "residual" | "attention") ?? "weighted_sum",
@@ -699,6 +700,7 @@ export function registerMLDispatcher(server: unknown): void {
                 source: "operator_override" | "program_archive" | "expert_annotation" | "successful_job";
                 confidence: number;
               }>,
+              policy_samples: (params.policy_samples as Array<{ state: number[]; action: number[] }>) ?? [],
               epochs: (params.epochs as number) ?? 100,
             });
             result = { success: true, ...trainResult };
@@ -763,6 +765,7 @@ export function registerMLDispatcher(server: unknown): void {
               domain: params.domain as "mill" | "lathe" | "wedm" | "sinker" | "grinder" | "welder" | "general",
               epochs: (params.epochs as number) ?? 100,
               batch_size: (params.batch_size as number) ?? 256,
+              eval_interval: (params.eval_interval as number) ?? 10,
               demonstration_source: (params.demonstration_source as "operator_overrides" | "program_archive" | "both") ?? "both",
             });
             result = { success: true, ...trainResult };
@@ -1261,7 +1264,7 @@ export function registerMLDispatcher(server: unknown): void {
               domain: params.domain as "mill" | "lathe" | "wedm" | "sinker" | "grinder" | "welder",
               inner_lr: (params.inner_lr as number) ?? 0.01,
               inner_steps: (params.inner_steps as number) ?? 5,
-              meta_lr: params.meta_lr as number | undefined,
+              meta_lr: (params.meta_lr as number) ?? 0.001,
               feature_dim: params.feature_dim as number,
               hidden_dim: (params.hidden_dim as number) ?? 8,
               use_proto_init: (params.use_proto_init as boolean) ?? true,
