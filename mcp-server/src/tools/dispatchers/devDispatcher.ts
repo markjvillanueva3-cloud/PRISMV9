@@ -304,7 +304,13 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "cex_stats", "cex_export_typescript",
 // WIRE-UNWIRED-MS0/U-WIRE-ISA: InverseStackupAllocatorEngine (both
 // methods pure — no defers)
-"isa_allocate", "isa_stats"] as const;
+"isa_allocate", "isa_stats",
+// WIRE-UNWIRED-MS0/U-WIRE-RSG: RoutingSheetGeneratorEngine —
+// rsg_generate seeds the in-memory store (non-persistent — safe to wire,
+// not load-bearing like RL training data); rsg_get/render_* are pure
+// reads against that store. generateAll() DEFERRED (duplicates generate
+// over the wire); reset() DEFERRED (mutates shared store across sessions)
+"rsg_generate", "rsg_get", "rsg_render_markdown", "rsg_render_csv"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -1703,6 +1709,65 @@ export function registerDevDispatcher(server: any): void {
           case "isa_stats": {
             const { inverseStackupAllocatorEngine } = await import("../../engines/InverseStackupAllocatorEngine.js");
             result = { stats: inverseStackupAllocatorEngine.getStats() };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-RSG: RoutingSheetGeneratorEngine ─────
+          case "rsg_generate": {
+            const { routingSheetGeneratorEngine } = await import("../../engines/RoutingSheetGeneratorEngine.js");
+            const p = params as {
+              job_id: string; part_number: string; revision: string;
+              customer?: string; due_date?: string; quantity?: number;
+              queue_min_between_ops?: number;
+              operations: Array<{
+                op_num: number; op_name: string; machine_id: string;
+                machine_type?: "mill"|"lathe"|"wedm"|"sinker"|"grinder"|"saw"|"inspection"|"deburr"|"other";
+                setup_min: number; cycle_min: number; pieces?: number;
+                notes?: string; tools?: string[]; fixture_id?: string;
+                wcs?: string; skill_level?: "apprentice"|"journeyman"|"master";
+              }>;
+            };
+            const sheet = routingSheetGeneratorEngine.generate(p);
+            // Explicit discriminator — `generated:true` survives slimResponse even
+            // if downstream callers want to detect a successful generate without
+            // re-checking routing_id format. `warnings:[]` may be stripped to []
+            // by slimResponse, so we expose the count separately as a survivor.
+            result = { generated: true, sheet, warnings_count: sheet.warnings.length };
+            break;
+          }
+          case "rsg_get": {
+            const { routingSheetGeneratorEngine } = await import("../../engines/RoutingSheetGeneratorEngine.js");
+            const routing_id = (params as { routing_id: string }).routing_id;
+            const sheet = routingSheetGeneratorEngine.get(routing_id);
+            // Explicit discriminator — slimResponse would strip a `null` sheet
+            // silently, leaving callers unable to tell "lookup miss" from
+            // "lookup succeeded with empty data". `found` is the boundary.
+            result = sheet === null
+              ? { found: false, routing_id }
+              : { found: true, sheet };
+            break;
+          }
+          case "rsg_render_markdown": {
+            const { routingSheetGeneratorEngine } = await import("../../engines/RoutingSheetGeneratorEngine.js");
+            const routing_id = (params as { routing_id: string }).routing_id;
+            const sheet = routingSheetGeneratorEngine.get(routing_id);
+            if (sheet === null) {
+              result = { rendered: false, routing_id, error: `routing sheet ${routing_id} not found — call rsg_generate first` };
+              break;
+            }
+            const markdown = routingSheetGeneratorEngine.renderMarkdown(sheet);
+            result = { rendered: true, routing_id, markdown, bytes: markdown.length };
+            break;
+          }
+          case "rsg_render_csv": {
+            const { routingSheetGeneratorEngine } = await import("../../engines/RoutingSheetGeneratorEngine.js");
+            const routing_id = (params as { routing_id: string }).routing_id;
+            const sheet = routingSheetGeneratorEngine.get(routing_id);
+            if (sheet === null) {
+              result = { rendered: false, routing_id, error: `routing sheet ${routing_id} not found — call rsg_generate first` };
+              break;
+            }
+            const csv = routingSheetGeneratorEngine.renderCSV(sheet);
+            result = { rendered: true, routing_id, csv, bytes: csv.length };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-CEX: CatalogExtractionEngine ─────────
