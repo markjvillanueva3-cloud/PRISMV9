@@ -314,7 +314,39 @@
     "U-P2-GRAPH-SEARCH-MASTERINDEX": {
       "phase": "P2-VIZ-BRAIN",
       "title": "Search bar in /system-viz viewer routes to master_index_query (semantic, not regex)",
-      "status": "pending"
+      "status": "shipped",
+      "shipped_at": "2026-05-17T19:00:00Z",
+      "delivered_by": "claude-a61bbf34 (slot echo)",
+      "shipped_evidence": {
+        "scripts": [
+          "scripts/system-viz-graph-search.mjs (~260 LOC, 17 exports + CLI; pure resolver builds prism_session:master_index_query payload with KNOWN_LAYERS allowlist + dedup + clamp)",
+          "scripts/system-viz-graph-search.test.mjs (~460 LOC, 43/43 PASS via node:test; includes live-source contract pinning + tight rename-detection regex + NaN/null-coercion guards)"
+        ],
+        "scope_note": "BACKEND SLICE — builds payloads for an EXISTING action (prism_session:master_index_query, sessionDispatcher.ts:1338). Frontend search-bar widget in mcp-server/web/ deferred.",
+        "contracts_verified_against_live_dispatchers": [
+          "sessionDispatcher.ts:1338 — case 'master_index_query'; dispatcher = prism_session",
+          "Field-by-field match: params.query (string), params.limit (Number-coerced), params.layers/sources/build_classes (Array.isArray), params.min_utilization/min_confidence (Number-coerced)",
+          "Snake_case emission confirmed (build_classes NOT buildClasses; min_utilization NOT minUtilization; min_confidence NOT minConfidence)",
+          "Dispatcher line 1340 reads `params.query ?? params.q` — resolver emits only `query` (no ambiguity)",
+          "Tight rename-detection regex: master_index_query case within 400 chars of params.query (fires on ANY rename to e.g. params.searchQuery)"
+        ],
+        "self_caught_bug_during_build": "First-pass code used Number(null) which coerces to 0 (finite). Caller passing no minUtilization/minConfidence silently emitted min_utilization:0 / min_confidence:0 polluting the params payload. 1 test failed immediately, surfaced the bug. Fix: explicit null/undefined gate BEFORE Number() coercion. 2 regression tests pin the fix.",
+        "per_file_scrutiny": "BOTH arms PASS first pass. Arm A (code-analyzer): zero P0, zero P1, 1 P2 (advisory string coercion form), 3 P3. Arm B (independent): zero P0, zero P1, 2 P2 (no explicit null input test + loose rename-detection regex), 2 P3.",
+        "fixes_applied_in_commit": [
+          "Self-caught (P0 hidden bug): Number(null)===0 silent-emit fixed BEFORE first test pass via explicit null/undefined gate.",
+          "Arm B P2: 2 new regression tests for explicit null input on minUtilization + minConfidence (pin the Number-null fix permanently).",
+          "Arm B P2: tight rename-detection regex (master_index_query case within 400-char window of params.query) — fires on ANY rename like params.searchQuery that the existing `?? params.q` regex would miss."
+        ],
+        "design_decisions": [
+          "Query validation: 3 distinct error codes (MISSING_QUERY, EMPTY_QUERY, QUERY_TOO_LONG)",
+          "Layer filter: KNOWN_LAYERS allowlist (L0..L13/L4a/Lgit per CLAUDE-BRIEF); unknowns → droppedLayers advisory (R12 fail-loud but not hard error)",
+          "Number-coercion order: null/undefined check FIRST (Number(null)===0 trap), then Number(), then Number.isFinite, then clamp. Applies to all 3 numeric fields (limit, minUtilization, minConfidence).",
+          "Sources + buildClasses: dedup + non-string filter; passed through (no allowlist — catalog grows)",
+          "Optional ReasoningProblem-style fields ABSENT (not undefined) when caller omits — clean payload for frontend",
+          "Atomic tmp+rename write",
+          "No Object.create(null) — plain {} accumulator with fixed string keys, no dynamic-key writes, no proto-pollution surface (verified by arm A)"
+        ]
+      }
     },
     "U-P2-COT-REASON-BLAST-RADIUS": {
       "phase": "P2-VIZ-BRAIN",
