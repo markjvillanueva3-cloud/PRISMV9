@@ -1309,6 +1309,10 @@ export const ACTIONS = [
   "cimatron_strategy_list", "cimatron_strategy_recommend",
   "topsolid_strategy_list", "topsolid_strategy_recommend",
   "worknc_strategy_list", "worknc_strategy_recommend",
+  // WorkNCCAMBridgeEngine file-parse bridge (9 actions, WIRE-UNWIRED foxtrot 2026-05-17)
+  "worknc_extract_project", "worknc_parse_nc", "worknc_get_workzones",
+  "worknc_get_tools", "worknc_get_operations", "worknc_get_collision_report",
+  "worknc_validate_collisions", "worknc_export_to_prism", "worknc_export_to_json",
   // E1109 — BatchCAMStrategyEngines (12 actions)
   "camworks_strategy_list", "camworks_strategy_recommend",
   "edgecam_strategy_list", "edgecam_strategy_recommend",
@@ -8075,6 +8079,64 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             result = eng.listStrategies(params.category);
             break;
           }
+
+          // ── WorkNCCAMBridgeEngine (WIRE-UNWIRED foxtrot 2026-05-17) ───────
+          // Sync file-parse bridge (no live server). extract/parse are pure-ish;
+          // the project-scoped queries take the WorkNCProject from extract.
+          case "worknc_extract_project": {
+            const { workNCCAMBridgeEngine } = await import("../../engines/WorkNCCAMBridgeEngine.js");
+            result = workNCCAMBridgeEngine.extractProject(
+              String(params.project_path ?? params.projectPath ?? ""),
+            );
+            break;
+          }
+          case "worknc_parse_nc": {
+            const { workNCCAMBridgeEngine } = await import("../../engines/WorkNCCAMBridgeEngine.js");
+            result = workNCCAMBridgeEngine.parseNCOutput(
+              String(params.nc_content ?? params.ncContent ?? params.content ?? ""),
+            );
+            break;
+          }
+          case "worknc_get_workzones": {
+            const { workNCCAMBridgeEngine } = await import("../../engines/WorkNCCAMBridgeEngine.js");
+            result = { workzones: workNCCAMBridgeEngine.getWorkzones(params.project as never) };
+            break;
+          }
+          case "worknc_get_tools": {
+            const { workNCCAMBridgeEngine } = await import("../../engines/WorkNCCAMBridgeEngine.js");
+            result = { tools: workNCCAMBridgeEngine.getTools(params.project as never) };
+            break;
+          }
+          case "worknc_get_operations": {
+            const { workNCCAMBridgeEngine } = await import("../../engines/WorkNCCAMBridgeEngine.js");
+            result = { operations: workNCCAMBridgeEngine.getOperations(params.workzone as never) };
+            break;
+          }
+          case "worknc_get_collision_report": {
+            const { workNCCAMBridgeEngine } = await import("../../engines/WorkNCCAMBridgeEngine.js");
+            result = workNCCAMBridgeEngine.getCollisionReport(params.workzone as never);
+            break;
+          }
+          case "worknc_validate_collisions": {
+            const { workNCCAMBridgeEngine } = await import("../../engines/WorkNCCAMBridgeEngine.js");
+            result = { reports: workNCCAMBridgeEngine.validateProjectCollisions(params.project as never) };
+            break;
+          }
+          case "worknc_export_to_prism": {
+            const { workNCCAMBridgeEngine } = await import("../../engines/WorkNCCAMBridgeEngine.js");
+            result = workNCCAMBridgeEngine.exportToPRISM(params.project as never);
+            break;
+          }
+          case "worknc_export_to_json": {
+            const { workNCCAMBridgeEngine } = await import("../../engines/WorkNCCAMBridgeEngine.js");
+            workNCCAMBridgeEngine.exportToJSON(
+              params.project as never,
+              String(params.output_path ?? params.outputPath ?? ""),
+            );
+            result = { success: true, written: String(params.output_path ?? params.outputPath ?? "") };
+            break;
+          }
+
           case "topsolid_strategy_recommend": {
             const eng = await getEngine("topSolidStrategy");
             result = eng.recommend(params.feature, params.material, params.priority);
