@@ -559,12 +559,13 @@ class JobLifecycleEngineImpl {
     // Step 3: Post to General Ledger (double-entry: WIP debit, expense credits)
     try {
       const cost = job.costs.actual as Record<string, number>;
-      const entry = generalLedgerEngine.recordJobCost({
+      // recordJobCost was retired; recordWipToCogs is the successor (double-entry
+      // posting from WIP to COGS at the aggregate cost level).
+      const amount = (cost.labor ?? 0) + (cost.material ?? 0)
+                   + (cost.tooling ?? 0) + (cost.overhead ?? 0);
+      const entry = generalLedgerEngine.recordWipToCogs({
         job_id: job.id,
-        labor: cost.labor ?? 0,
-        material: cost.material ?? 0,
-        tooling: cost.tooling ?? 0,
-        overhead: cost.overhead ?? 0,
+        amount,
         date: new Date().toISOString().slice(0, 10),
       });
       results.gl_entry = { id: entry.id, posted: entry.posted };
