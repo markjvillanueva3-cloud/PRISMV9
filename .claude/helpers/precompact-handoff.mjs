@@ -23,6 +23,7 @@ import { spawnSync } from "node:child_process";
 import { inferAgentIdentity } from "./agent-identity.mjs";
 import { deriveSessionTopic } from "./derive-session-topic.mjs";
 import { resolveWorktreeCwd } from "./resolve-worktree-cwd.mjs";
+import { lastKnownSlotForChat as _lastKnownSlotForChat } from "./slot-identity-cache.mjs";
 
 const HANDOFFS_DIR = path.resolve("H:/prism/state/shared/handoffs");
 const SESSION_ID_FILE = path.join(HANDOFFS_DIR, ".current-session-ids.json");
@@ -410,6 +411,23 @@ function main() {
       }
     }
   } catch { /* best-effort */ }
+  // SLOT-DRIFT-FIX-MS0/U-SDF13 (2026-05-17): sticky-cache fallback. The
+  // chat-slots.json lookup above is EPHEMERAL — heartbeat expiry, peer
+  // force-takeover, or reclaim() can wipe this chat's entry BEFORE the
+  // precompact writer runs. Live failure mode observed 2026-05-17:
+  // chatId `claude-339c8ff7` drifted bravo → bravo → charlie → delta →
+  // unbound across handoffs with the same chatId, because precompact
+  // reads happened when the slot had already lapsed. The sticky cache
+  // (`state/shared/chat-slot-history/<chatId>.json`) is written on every
+  // successful claim and persists past eviction — read it as the final
+  // fallback so the handoff frontmatter carries `slot:` even when the
+  // live slot binding is gone.
+  if (!slotPrefix) {
+    try {
+      const recovered = _lastKnownSlotForChat(identity.instance);
+      if (recovered) slotPrefix = recovered;
+    } catch { /* best-effort */ }
+  }
 
   const baseTopic = extractTopicSlug() || "session";
   const finalTopic = slotPrefix ? `${slotPrefix}-${baseTopic}` : baseTopic;

@@ -26,6 +26,7 @@ import crypto from "node:crypto";
 import { isatty } from "node:tty";
 import { inferAgentIdentity } from "./agent-identity.mjs";
 import { deriveSessionTopic } from "./derive-session-topic.mjs";
+import { lastKnownSlotForChat as _lastKnownSlotForChat } from "./slot-identity-cache.mjs";
 
 // Atomic write helper — tmp + rename pattern mirrors src/utils/atomicWrite.ts
 // Required because 6+ concurrent Claude terminals + 1 Codex chat can otherwise
@@ -470,6 +471,15 @@ function cmdWrite(identity, args) {
         }
       }
     } catch { /* fail-soft — leave slot empty */ }
+  }
+  // SLOT-DRIFT-FIX-MS0/U-SDF13 (2026-05-17): sticky-cache fallback (tier 3).
+  // chat-slots.json above is ephemeral; sticky cache survives heartbeat
+  // expiry + peer force-takeover. Returns null on unknown chatId.
+  if (!resolvedSlot && identity?.instance) {
+    try {
+      const recovered = _lastKnownSlotForChat(identity.instance);
+      if (recovered) resolvedSlot = recovered.toLowerCase();
+    } catch { /* fail-soft */ }
   }
   // SLOT-DRIFT-FIX-MS0/U-SDF01 (2026-05-17, slot bravo claude-339c8ff7):
   // OMIT the `slot:` line entirely when resolvedSlot is empty. Emitting a

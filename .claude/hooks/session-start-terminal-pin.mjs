@@ -32,6 +32,7 @@
 import fs from "node:fs";
 import { spawnSync } from "node:child_process";
 import { pathToFileURL } from "node:url";
+import { lastKnownSlotForChat as _lastKnownSlotForChat } from "../helpers/slot-identity-cache.mjs";
 
 const TERMINAL_WINDOW_HELPER = "H:/prism/.claude/helpers/terminal-window-id.mjs";
 const CHAT_SLOTS_HELPER = "H:/prism/.claude/helpers/chat-slots.mjs";
@@ -155,7 +156,22 @@ function readPriorSlotFromHandoff(chatId) {
     const slotFromTopic = extractSlotFromTopicOrFilename(topic);
     const filenameSuffix = candidates[0].name.slice(`HANDOFF-${chatId}-`.length);
     const slotFromFile = extractSlotFromTopicOrFilename(filenameSuffix);
-    const slot = slotFromField2 || slotFromTopic || slotFromFile;
+    // SLOT-DRIFT-FIX-MS0/U-SDF13 (2026-05-17): tier-4 sticky-cache fallback.
+    // When all 3 handoff-derived tiers return null (e.g. the precompact
+    // writer wrote "slot unbound" because chat-slots.json had already
+    // evicted this chat), read state/shared/chat-slot-history/<chatId>.json.
+    // That file is written on EVERY successful claim and survives eviction;
+    // it's the ground-truth record of "this chat's last known slot."
+    let slotFromCache = null;
+    if (!slotFromField2 && !slotFromTopic && !slotFromFile) {
+      try {
+        const recovered = _lastKnownSlotForChat(chatId);
+        if (recovered && VALID_SLOTS.has(recovered.toLowerCase())) {
+          slotFromCache = recovered.toLowerCase();
+        }
+      } catch { /* fail-soft */ }
+    }
+    const slot = slotFromField2 || slotFromTopic || slotFromFile || slotFromCache;
     return { slot, topic, file: candidates[0].name };
   } catch { return { slot: null, topic: null, file: null }; }
 }

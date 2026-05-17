@@ -49,6 +49,7 @@ import { promises as fs, existsSync, mkdirSync, readFileSync, writeFileSync, ren
 import { join, dirname } from "node:path";
 import { hostname } from "node:os";
 import { resolveTerminalWindowId } from "./terminal-window-id.mjs";
+import { recordSlotForChat as _persistSlotForChat } from "./slot-identity-cache.mjs";
 
 // ─── Constants ──────────────────────────────────────────────────────────
 
@@ -654,6 +655,10 @@ export function claimSlot(input, statePath = DEFAULT_STATE_PATH, lockPath = DEFA
         const refreshed = refreshState(s, input);
         file.slots[n] = refreshed;
         writeSlotsAtomic(file, statePath);
+        // SLOT-DRIFT-FIX-MS0/U-SDF13 (2026-05-17): persist the chatId→slot
+        // binding to the sticky history cache so post-/compact recovery can
+        // find it even if chat-slots.json gets evicted before precompact reads.
+        try { _persistSlotForChat(input.chatId, n); } catch { /* best-effort */ }
         return { ok: true, slot: n, state: refreshed, alreadyOwned: true };
       }
     }
@@ -683,6 +688,9 @@ export function claimSlot(input, statePath = DEFAULT_STATE_PATH, lockPath = DEFA
           };
           file.slots[n] = inherited;
           writeSlotsAtomic(file, statePath);
+          // SLOT-DRIFT-FIX-MS0/U-SDF13 (2026-05-17): persist the new chatId→slot
+          // binding when a terminal-window pin inherits the slot for a new chat.
+          try { _persistSlotForChat(input.chatId, n); } catch { /* best-effort */ }
           return {
             ok: true,
             slot: n,
@@ -811,6 +819,10 @@ export function claimSlot(input, statePath = DEFAULT_STATE_PATH, lockPath = DEFA
         }
         file.slots[n] = claimed;
         writeSlotsAtomic(file, statePath);
+        // SLOT-DRIFT-FIX-MS0/U-SDF13 (2026-05-17): persist the chatId→slot
+        // binding for first-claim path. Recoverable post-/compact even after
+        // chat-slots.json eviction.
+        try { _persistSlotForChat(input.chatId, n); } catch { /* best-effort */ }
         return result;
       }
     }
