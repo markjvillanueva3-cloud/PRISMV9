@@ -1368,6 +1368,8 @@ export const ACTIONS = [
   // MasterPostProcessorUnifiedAGIEngine (5 actions, WIRE-UNWIRED foxtrot 2026-05-17)
   "master_post_generate", "master_post_analyze_gcode", "master_post_get_controller_profile",
   "master_post_get_stats", "master_post_get_ai_context",
+  // NXCAMAIOrchestrationEngine (3 actions, WIRE-UNWIRED foxtrot 2026-05-17)
+  "nx_ai_orchestrate", "nx_ai_get_reasoning_modes", "nx_ai_get_stats",
   // E1120 — HyperMillCodeGeneratorEngine (2 actions)
   "hypermill_code_generate", "hypermill_code_templates",
   // CAD-COMPLETE-MS0/U-CADC-HM-PRINT-01 — PrintToHyperMillBridge (3 actions)
@@ -9209,6 +9211,37 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { masterPostProcessorUnifiedAGIEngine } = await import("../../engines/MasterPostProcessorUnifiedAGIEngine.js");
             const context = masterPostProcessorUnifiedAGIEngine.getContextForAI();
             result = { success: true, context };
+            break;
+          }
+
+          // ── NXCAMAIOrchestrationEngine (WIRE-UNWIRED foxtrot 2026-05-17)
+          // 423-line real engine, NOT a stub. Mirrors the catia_ai_* /
+          // powermill_ai_* trio: orchestrate() is async + composes in-process
+          // NX bridges and never throws — its one sub-engine call
+          // (nxCAMStrategyEngine.selectStrategy) is wrapped in a silent
+          // try/catch that degrades to fallbackStrategy (NOTE: the engine's
+          // catch is silent — it does NOT populate warnings[]; that pre-
+          // existing silent-catch is out of scope for this wiring unit and
+          // logged as a separate engine fix). getReasoningModes/getStats are
+          // pure in-process reads.
+          case "nx_ai_orchestrate": {
+            const { nxCAMAIOrchestrationEngine } = await import("../../engines/NXCAMAIOrchestrationEngine.js");
+            const response = await nxCAMAIOrchestrationEngine.orchestrate(
+              params as Parameters<typeof nxCAMAIOrchestrationEngine.orchestrate>[0],
+            );
+            result = { success: true, response };
+            break;
+          }
+          case "nx_ai_get_reasoning_modes": {
+            const { nxCAMAIOrchestrationEngine } = await import("../../engines/NXCAMAIOrchestrationEngine.js");
+            const modes = nxCAMAIOrchestrationEngine.getReasoningModes();
+            result = { success: true, modes, count: modes.length };
+            break;
+          }
+          case "nx_ai_get_stats": {
+            const { nxCAMAIOrchestrationEngine } = await import("../../engines/NXCAMAIOrchestrationEngine.js");
+            const stats = nxCAMAIOrchestrationEngine.getStats();
+            result = { success: true, ...stats };
             break;
           }
 
