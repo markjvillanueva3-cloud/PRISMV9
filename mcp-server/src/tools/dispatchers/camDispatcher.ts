@@ -297,6 +297,8 @@ let _toolSyncOrchestrator: any;
 let _hyperMillToolExport: any;
 // InventorCAMToolExportEngine singleton (WIRE-UNWIRED foxtrot 2026-05-17)
 let _inventorCAMToolExport: any;
+// BobCADCAMBridgeEngine singleton (WIRE-UNWIRED foxtrot 2026-05-17)
+let _bobCADBridge: any;
 // E1129 — STEPNCEngines (CAMX-MS20) singletons
 let _stepNCParser: any, _stepNCGenerator: any;
 // E1130 — VericutBridgeEngine (CAMX-MS20/U05) singleton
@@ -440,6 +442,8 @@ async function getEngine(name: string): Promise<any> {
     case "mcSPC": return _mcSPC ??= (await import("../../engines/MastercamSPCBridge.js")).mastercamSPCBridge;
     case "mcAutoBridge": return _mcAutoBridge ??= (await import("../../engines/MastercamAutomationBridge.js")).mastercamAutomationBridge;
     case "espCAM": return _espCAM ??= (await import("../../engines/EspritCAMBridgeEngine.js")).espritCAMBridgeEngine;
+    // BobCADCAMBridgeEngine live-CAM bridge (WIRE-UNWIRED foxtrot 2026-05-17)
+    case "bobCADBridge": return _bobCADBridge ??= (await import("../../engines/BobCADCAMBridgeEngine.js")).bobCADCAMBridgeEngine;
     case "invAutoBridge": return _invAutoBridge ??= (await import("../../engines/InventorAutomationBridge.js")).inventorAutomationBridge;
     case "invAIOrch": return _invAIOrch ??= (await import("../../engines/InventorCAMAIOrchestrationEngine.js")).inventorCAMAIOrchestrationEngine;
     case "swAutoBridge": return _swAutoBridge ??= (await import("../../engines/SolidWorksAutomationBridge.js")).solidWorksAutomationBridge;
@@ -1670,6 +1674,11 @@ export const ACTIONS = [
   "cam_esprit_push_parameters",
   "cam_esprit_sync_tools",
   "cam_esprit_check_version",
+  // BobCADCAMBridgeEngine live-CAM bridge (11 actions, WIRE-UNWIRED foxtrot 2026-05-17)
+  "cam_bobcad_connect", "cam_bobcad_get_status", "cam_bobcad_disconnect",
+  "cam_bobcad_extract_project", "cam_bobcad_get_tools", "cam_bobcad_get_operations",
+  "cam_bobcad_run_simulation", "cam_bobcad_generate_nc", "cam_bobcad_push_parameters",
+  "cam_bobcad_sync_tools", "cam_bobcad_check_version",
   "cam_inventor_automation_open",
   "cam_inventor_automation_get_parameters",
   "cam_inventor_automation_get_model_tree",
@@ -12790,6 +12799,91 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "cam_esprit_check_version": {
             // U-CAM-ESP-WIRE-01: EspritCAMBridgeEngine.checkVersionCompatibility (sync, PURE)
             const engine = await getEngine("espCAM");
+            const version = String(params.version ?? "");
+            const compat = engine.checkVersionCompatibility(version);
+            result = { success: true, version, ...compat };
+            break;
+          }
+
+          // ── BobCADCAMBridgeEngine (WIRE-UNWIRED foxtrot 2026-05-17) ───────
+          case "cam_bobcad_connect": {
+            const engine = await getEngine("bobCADBridge");
+            const connection = await engine.connect(
+              params.host ?? "localhost",
+              params.port,
+            );
+            result = { success: true, connection };
+            break;
+          }
+          case "cam_bobcad_get_status": {
+            const engine = await getEngine("bobCADBridge");
+            const status = await engine.getStatus();
+            result = { success: true, status };
+            break;
+          }
+          case "cam_bobcad_disconnect": {
+            const engine = await getEngine("bobCADBridge");
+            const disconnected = await engine.disconnect();
+            result = { success: true, ...disconnected };
+            break;
+          }
+          case "cam_bobcad_extract_project": {
+            const engine = await getEngine("bobCADBridge");
+            const project = await engine.extractProject(
+              String(params.project_path ?? params.projectPath ?? ""),
+              params.options ?? {},
+            );
+            result = { success: true, project };
+            break;
+          }
+          case "cam_bobcad_get_tools": {
+            const engine = await getEngine("bobCADBridge");
+            const tools = await engine.getTools();
+            result = { success: true, ...tools };
+            break;
+          }
+          case "cam_bobcad_get_operations": {
+            const engine = await getEngine("bobCADBridge");
+            const operations = await engine.getOperations();
+            result = { success: true, ...operations };
+            break;
+          }
+          case "cam_bobcad_run_simulation": {
+            const engine = await getEngine("bobCADBridge");
+            const sim = await engine.runSimulation(params.operation_ids ?? params.operationIds);
+            result = { success: true, ...sim };
+            break;
+          }
+          case "cam_bobcad_generate_nc": {
+            const engine = await getEngine("bobCADBridge");
+            const nc = await engine.generateNC(
+              String(params.output_path ?? params.outputPath ?? ""),
+              params.post_processor ?? params.postProcessor,
+              params.operation_ids ?? params.operationIds,
+            );
+            result = { success: true, nc };
+            break;
+          }
+          case "cam_bobcad_push_parameters": {
+            const engine = await getEngine("bobCADBridge");
+            const pushed = await engine.pushParameters(
+              String(params.operation_id ?? params.operationId ?? ""),
+              params.parameters ?? {},
+            );
+            result = { success: true, pushed };
+            break;
+          }
+          case "cam_bobcad_sync_tools": {
+            const engine = await getEngine("bobCADBridge");
+            const synced = await engine.syncTools(
+              params.tools ?? [],
+              params.direction ?? "prism_to_bobcad",
+            );
+            result = { success: true, synced };
+            break;
+          }
+          case "cam_bobcad_check_version": {
+            const engine = await getEngine("bobCADBridge");
             const version = String(params.version ?? "");
             const compat = engine.checkVersionCompatibility(version);
             result = { success: true, version, ...compat };
