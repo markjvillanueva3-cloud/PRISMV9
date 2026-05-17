@@ -102,12 +102,41 @@
     "U-P0-HOOK-ORPHAN-RECONCILE": {
       "phase": "P0-FOUND",
       "title": "Reconcile 447 orphan hook files vs 109 wired in settings.json",
-      "status": "pending",
+      "status": "shipped",
       "deliverables": [
         "scripts/audit-hook-wiring.mjs (uses system-viz-query find for each .mjs in .claude/hooks/, classifies wired/orphan/disabled/superseded)",
         "state/shared/HOOK-ORPHAN-CLASSIFICATION.md dashboard (per-orphan: keep/wire/archive recommendation; never delete per [[feedback_never_delete_only_disable]])",
         "Wire confirmed-real orphans (target 20 high-value) into settings.json individual entries (NOT bundle, per CLAUDE.md doctrine)"
-      ]
+      ],
+      "shipped_at": "2026-05-17T03:00:00Z",
+      "delivered_by": "claude-a61bbf34 (slot echo)",
+      "shipped_evidence": {
+        "scripts": [
+          "scripts/audit-hook-wiring.mjs (481 LOC, 12 exports, pure-core + injected readers + CLI; composes hook-orphan-scan.mjs + hook-fire-rank.mjs)",
+          "scripts/audit-hook-wiring.test.mjs (466 LOC, 39 cases, node:test, 39/39 PASS, real-data E2E included)"
+        ],
+        "artifacts": [
+          "state/shared/HOOK-ORPHAN-CLASSIFICATION.md (operator dashboard, 91 lines, 16 WIRE candidates surfaced)",
+          "state/shared/HOOK-ORPHAN-CLASSIFICATION.json (machine sidecar, schemaVersion 1)"
+        ],
+        "live_baseline_2026_05_17": {
+          "orphans_in": 275,
+          "WIRE": 16,
+          "REVIEW": 249,
+          "ARCHIVE": 10,
+          "KEEP_AS_IS": 0,
+          "top_wire_candidates": [
+            "golf-slot-write-allowlist (T0, CLAUDE.md doctrine)",
+            "smoke-test (T0)",
+            "stop_on_uncommitted_critical (T0, CLAUDE.md gate)",
+            "tribal-by-domain-inject (T2, fires 45x)",
+            "wiki-recall-on-read (T3, fires 191x)",
+            "inbox-capture-sharpen (T3, fires 1380x)"
+          ]
+        },
+        "scope_note": "Deliverable 3 (wiring 20 hooks into settings.json) intentionally deferred — settings.json is high-contention shared file; surface candidates for operator review.",
+        "P1_regression_guard": "upstreamEmpty flag + exit 2 when both upstream arrays empty (fail-loud per Karpathy R12, addresses Arm B reviewer P1)"
+      }
     },
     "U-P0-SVB-DOCTRINE": {
       "phase": "P0-FOUND",
@@ -377,7 +406,11 @@
       "ts": "2026-05-16T18:55:00Z",
       "by": "claude-a61bbf34 (slot echo)",
       "event": "close_out_drift_flip",
-      "units": ["U-P4-OLLAMA-COST-ROUTING", "U-P4-TOKEN-BUDGET-TELEMETRY", "U-P5-MULTI-CHAT-UNBLOCK-DETECT"],
+      "units": [
+        "U-P4-OLLAMA-COST-ROUTING",
+        "U-P4-TOKEN-BUDGET-TELEMETRY",
+        "U-P5-MULTI-CHAT-UNBLOCK-DETECT"
+      ],
       "notes": "Iteration 1 of /loop close-out. These 3 units shipped with real commits (831d04c2b / 97185f094 / 44ac1b52c), memory references, and scrutiny PASS, but the unit status was never flipped (silent close-out debt). Verified each against git log + memory + scrutiny ledger before flipping. Complete count 12->15 of 26. U-P5-MULTI-CHAT-UNBLOCK-DETECT shipped as an operator-invoked CLI, not the spec'd PostToolUse hook — deviation documented in its unit rationale per feedback_dont_wire_for_wiring_sake."
     }
   ]
