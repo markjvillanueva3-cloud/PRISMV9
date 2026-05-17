@@ -250,7 +250,11 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // LLM-driven desync of the in-flight distributed-tracing graph)
 "otel_get_config", "otel_get_stats", "otel_active_span_count",
 "otel_completed_spans", "otel_extract_traceparent",
-"otel_inject_traceparent", "otel_should_sample"] as const;
+"otel_inject_traceparent", "otel_should_sample",
+// WIRE-UNWIRED-MS0/U-WIRE-XREG: CrossRegistryJoinEngine (read-only; reset()
+// DEFERRED — wipes in-memory schema map shared with other dev queries)
+"cross_reg_list", "cross_reg_schema", "cross_reg_joinable",
+"cross_reg_paths", "cross_reg_join"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -1637,6 +1641,55 @@ export function registerDevDispatcher(server: any): void {
           case "mit_courses_harvest": {
             const { MitCourseIndexEngine } = await import("../../engines/MitCourseIndexEngine.js");
             result = { harvest: await MitCourseIndexEngine.harvest() };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-XREG: CrossRegistryJoinEngine ─────────
+          case "cross_reg_list": {
+            const { crossRegistryJoinEngine } = await import("../../engines/CrossRegistryJoinEngine.js");
+            const registries = await crossRegistryJoinEngine.listRegistries();
+            result = { registries, count: registries.length };
+            break;
+          }
+          case "cross_reg_schema": {
+            const { crossRegistryJoinEngine } = await import("../../engines/CrossRegistryJoinEngine.js");
+            const name = (params as { registry: string }).registry;
+            const schema = await crossRegistryJoinEngine.getSchema(name);
+            result = { schema };
+            break;
+          }
+          case "cross_reg_joinable": {
+            const { crossRegistryJoinEngine } = await import("../../engines/CrossRegistryJoinEngine.js");
+            const name = (params as { registry: string }).registry;
+            const joinable = await crossRegistryJoinEngine.getJoinableRegistries(name);
+            result = { joinable, count: joinable.length };
+            break;
+          }
+          case "cross_reg_paths": {
+            const { crossRegistryJoinEngine } = await import("../../engines/CrossRegistryJoinEngine.js");
+            const p = params as { from: string; to: string };
+            const paths = await crossRegistryJoinEngine.findJoinPaths(p.from, p.to);
+            result = { paths, count: paths.length };
+            break;
+          }
+          case "cross_reg_join": {
+            const { crossRegistryJoinEngine } = await import("../../engines/CrossRegistryJoinEngine.js");
+            const p = params as {
+              primaryRegistry: string;
+              joinRegistries: string[];
+              joinKeys?: { primary: string; foreign: string }[];
+              filters?: Record<string, unknown>;
+              select?: string[];
+              limit?: number;
+            };
+            const joinResult = await crossRegistryJoinEngine.join({
+              primaryRegistry: p.primaryRegistry,
+              joinRegistries: p.joinRegistries,
+              joinKeys: p.joinKeys ?? [],
+              filters: p.filters,
+              select: p.select,
+              limit: p.limit,
+            });
+            result = joinResult;
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-OTEL: OpenTelemetryTracingEngine ──────

@@ -1254,6 +1254,44 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   mit_courses_harvest: z.object({}).passthrough()
     .describe("Full scan of all 6 zones — returns every course with metadata + aggregation maps. Read-only."),
 
+  // ── WIRE-UNWIRED-MS0/U-WIRE-XREG: CrossRegistryJoinEngine ─────────────────
+  // (read-only — reset() DEFERRED; wipes the in-memory schema map which
+  //  other concurrent dev queries depend on)
+  cross_reg_list: z.object({}).passthrough()
+    .describe("List all registry names known to the join engine. Read-only."),
+
+  cross_reg_schema: z.object({
+    registry: z.string().min(1).describe("Registry name (e.g. 'materials', 'tools', 'machines', 'strategies')."),
+  }).passthrough()
+    .describe("Get the schema for a registry — fields, primary key, foreign keys. Returns null if missing. Read-only."),
+
+  cross_reg_joinable: z.object({
+    registry: z.string().min(1).describe("Registry name to find joinable peers for."),
+  }).passthrough()
+    .describe("List registries that can be joined to the given registry (both inbound + outbound FK relations). Read-only."),
+
+  cross_reg_paths: z.object({
+    from: z.string().min(1).describe("Source registry name."),
+    to: z.string().min(1).describe("Target registry name."),
+  }).passthrough()
+    .describe("Find join paths between two registries. Returns array of path arrays. Read-only."),
+
+  cross_reg_join: z.object({
+    primaryRegistry: z.string().min(1).describe("Driving registry for the join."),
+    joinRegistries: z.array(z.string().min(1)).min(1).describe("List of registries to join to the primary."),
+    joinKeys: z.array(z.object({
+      primary: z.string().min(1),
+      foreign: z.string().min(1),
+    })).optional().describe("Optional explicit join-key pairs. Defaults to inferred FK relations."),
+    filters: z.record(z.string(), z.unknown()).optional()
+      .describe("Optional flat filter map (registry-prefixed keys → match values)."),
+    select: z.array(z.string().min(1)).optional()
+      .describe("Optional projection — list of qualified field names to include."),
+    limit: z.number().int().positive().max(1000).optional()
+      .describe("Max records returned (default 100, cap 1000)."),
+  }).passthrough()
+    .describe("Execute a cross-registry join. Returns records + registriesJoined + recordCount + queryTime. Read-only."),
+
   // ── WIRE-UNWIRED-MS0/U-WIRE-OTEL: OpenTelemetryTracingEngine ──────────────
   // (read-only + pure-function methods only; configure/startSpan/addEvent/
   //  setAttributes/setStatus/endSpan/recordException/addManufacturingAttributes/
