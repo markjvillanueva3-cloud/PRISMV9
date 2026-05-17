@@ -2023,4 +2023,49 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     }).passthrough()).max(10_000).default([])
       .describe("Handoff files — roundtrip is freshest − oldest mtime in ms"),
   }).describe("Compute freshest−oldest handoff mtime in ms (0 when ≤1 file). Pure."),
+
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-LRE: LedgerRetentionEngine wiring ──
+  // PP-0.16-U-OP6 retention-tiering for the 5 append-only ledgers.
+  // All methods pure (no I/O — caller passes entries, engine classifies).
+  // 6 actions wired. getTier(Date) NOT wired — Date isn't JSON-serializable
+  // over MCP; same semantics available via lre_classify(ageDays) +
+  // lre_tier_of({at}). DoS guards: ≤50k entries per plan call.
+  lre_get_config: z.object({}).describe("Return active {hotAgeDays, warmAgeDays} config. Pure."),
+
+  lre_get_retention_policy: z.object({}).describe(
+    "Return policy {hot:{maxDays}, warm:{maxDays}, cold:{archivePath}}. Pure."
+  ),
+
+  lre_classify: z.object({
+    age_days: z.number().nonnegative().max(36500)
+      .describe("Age in days — capped at ~100 years"),
+  }).describe("Classify an age in days into hot/warm/cold tier. Pure."),
+
+  lre_tier_of: z.object({
+    entry: z.object({
+      at: z.string().min(1).max(64).optional().describe("Primary ISO timestamp field"),
+      timestamp: z.string().min(1).max(64).optional().describe("Secondary timestamp field some ledgers use"),
+    }).refine(e => typeof e.at === "string" || typeof e.timestamp === "string", {
+      message: "entry must have either 'at' or 'timestamp' ISO string",
+    }).describe("Ledger entry — must carry at or timestamp"),
+    now_ms: z.number().nonnegative().max(8.64e15).optional()
+      .describe("Override 'now' for deterministic tests (epoch ms)"),
+  }).describe("Tier a single ledger entry — returns {tier, ageDays, entry}. Pure."),
+
+  lre_plan: z.object({
+    entries: z.array(z.object({
+      at: z.string().min(1).max(64).optional(),
+      timestamp: z.string().min(1).max(64).optional(),
+    }).refine(e => typeof e.at === "string" || typeof e.timestamp === "string", {
+      message: "entry must have either 'at' or 'timestamp' ISO string",
+    })).max(50_000).default([])
+      .describe("Ledger entries (≤50k for DoS bound; empty OK)"),
+    now_ms: z.number().nonnegative().max(8.64e15).optional()
+      .describe("Override 'now' for deterministic tests (epoch ms)"),
+  }).describe("Build a RotationPlan {now, hot, warm, cold, actions[]}. Pure."),
+
+  lre_archive_dir_for: z.object({
+    iso: z.string().min(1).max(64)
+      .describe("ISO timestamp — engine yields the bare 'YYYY-MM' subdir name"),
+  }).describe("Compute the archive subdir name (bare 'YYYY-MM'; caller prefixes 'archive/' as needed). Pure."),
 };

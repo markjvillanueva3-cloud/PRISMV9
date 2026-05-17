@@ -352,7 +352,12 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // pipeline observability metrics. Engine docstring guarantees pure
 // (caller supplies filesystem state, engine does no I/O). No defers.
 "pme_collect", "pme_compute_survival_bytes",
-"pme_compute_handoff_roundtrip"] as const;
+"pme_compute_handoff_roundtrip",
+// WIRE-UNWIRED-MS0/U-WIRE-LRE: LedgerRetentionEngine — PP-0.16 hot/warm/
+// cold tiering. All methods pure. getTier(Date) NOT wired (Date isn't
+// JSON-serializable); equivalent semantics via lre_classify + lre_tier_of.
+"lre_get_config", "lre_get_retention_policy", "lre_classify",
+"lre_tier_of", "lre_plan", "lre_archive_dir_for"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -2132,6 +2137,60 @@ export function registerDevDispatcher(server: any): void {
             const files = (params as { files?: Array<{ path: string; mtimeMs: number }> }).files ?? [];
             const roundtripMs = pipelineMetricsEngine.computeHandoffRoundtrip(files);
             result = { roundtripMs };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-LRE: LedgerRetentionEngine ───────────
+          case "lre_get_config": {
+            const { ledgerRetentionEngine } = await import("../../engines/LedgerRetentionEngine.js");
+            const config = ledgerRetentionEngine.getConfig();
+            result = { config };
+            break;
+          }
+          case "lre_get_retention_policy": {
+            const { ledgerRetentionEngine } = await import("../../engines/LedgerRetentionEngine.js");
+            const policy = ledgerRetentionEngine.getRetentionPolicy();
+            result = { policy };
+            break;
+          }
+          case "lre_classify": {
+            const { ledgerRetentionEngine } = await import("../../engines/LedgerRetentionEngine.js");
+            const age_days = (params as { age_days: number }).age_days;
+            const tier = ledgerRetentionEngine.classify(age_days);
+            result = { age_days, tier };
+            break;
+          }
+          case "lre_tier_of": {
+            const { ledgerRetentionEngine } = await import("../../engines/LedgerRetentionEngine.js");
+            const p = params as { entry: { at?: string; timestamp?: string }; now_ms?: number };
+            // Engine throws on unparseable timestamps — catch + emit error envelope.
+            try {
+              const tiered = ledgerRetentionEngine.tierOf(p.entry, p.now_ms);
+              result = { tiered };
+            } catch (e) {
+              result = { error: `tier_of failed: ${(e as Error).message}` };
+            }
+            break;
+          }
+          case "lre_plan": {
+            const { ledgerRetentionEngine } = await import("../../engines/LedgerRetentionEngine.js");
+            const p = params as { entries?: Array<{ at?: string; timestamp?: string }>; now_ms?: number };
+            try {
+              const plan = ledgerRetentionEngine.plan(p.entries ?? [], p.now_ms);
+              result = { plan, action_count: plan.actions.length };
+            } catch (e) {
+              result = { error: `plan failed: ${(e as Error).message}` };
+            }
+            break;
+          }
+          case "lre_archive_dir_for": {
+            const { ledgerRetentionEngine } = await import("../../engines/LedgerRetentionEngine.js");
+            const iso = (params as { iso: string }).iso;
+            try {
+              const dir = ledgerRetentionEngine.archiveDirFor(iso);
+              result = { iso, archive_dir: dir };
+            } catch (e) {
+              result = { iso, error: `archive_dir_for failed: ${(e as Error).message}` };
+            }
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-CEX: CatalogExtractionEngine ─────────
