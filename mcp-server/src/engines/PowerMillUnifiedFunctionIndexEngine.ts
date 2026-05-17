@@ -141,12 +141,17 @@ export class PowerMillUnifiedFunctionIndexEngine {
 
   /**
    * Lists all operation IDs across all catalogs.
+   *
+   * Roughing engine's listOperations() returns objects ({operation_id,...}),
+   * while finishing + 5-axis return bare string[]. Normalize to string[] of IDs.
    */
   static listAllOperations(): string[] {
-    const roughing = PowerMillRoughingFunctionIndexEngine.listOperations();
+    const roughingIds = PowerMillRoughingFunctionIndexEngine.listOperations().map(
+      (op) => op.operation_id,
+    );
     const finishing = PowerMillFinishingFunctionIndexEngine.listOperations();
     const fiveAxis = PowerMill5AxisFunctionIndexEngine.listOperations();
-    return [...roughing, ...finishing, ...fiveAxis];
+    return [...roughingIds, ...finishing, ...fiveAxis];
   }
 
   /**
