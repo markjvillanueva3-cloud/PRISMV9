@@ -1,6 +1,6 @@
 ---
 name: checkin
-description: One-stop development pipeline entry. Claim a slot in the 12-chat PRISM fleet (alpha..foxtrot + hotel..lima work slots + golf hygiene) — bind handoff to slot, reap crashed slots, drift/commit-hygiene check, then EMIT THE FULL DEV PIPELINE for whatever task the operator hands over in the args. Pipeline auto-injects prism-awareness + system-viz + Obsidian-PRISM-OS + tribal knowledge + AI/neural/deep-reasoning routing + CLAUDE.md rules. Files created get registered to /system-viz galaxy. End-of-session precompact/compact/handoff rules are appended automatically so a typed `/checkin <task>` is the only thing the operator needs. With a loop keyword (`/loop`, `autopilot`, `continuous`, `until complete`) it engages a keyword-gated autonomous continuous-work loop — the /autopilot-full + /yolo-mode doctrine rolled into the slot system — that picks units, builds, scrutinizes, commits and re-engages itself across every /compact boundary.
+description: One-stop development pipeline entry. Claim a slot in the 13-chat PRISM fleet (alpha..foxtrot + hotel..mike work slots + golf hygiene) — bind handoff to slot, reap crashed slots, drift/commit-hygiene check, then EMIT THE FULL DEV PIPELINE for whatever task the operator hands over in the args. Pipeline auto-injects prism-awareness + system-viz + Obsidian-PRISM-OS + tribal knowledge + AI/neural/deep-reasoning routing + CLAUDE.md rules. Files created get registered to /system-viz galaxy. End-of-session precompact/compact/handoff rules are appended automatically so a typed `/checkin <task>` is the only thing the operator needs. With a loop keyword (`/loop`, `autopilot`, `continuous`, `until complete`) it engages a keyword-gated autonomous continuous-work loop — the /autopilot-full + /yolo-mode doctrine rolled into the slot system — that picks units, builds, scrutinizes, commits and re-engages itself across every /compact boundary.
 trigger:
   autoSuggest:
     keywords: ["checkin", "check in", "claim a slot", "fleet slot", "which chat am i", "login to the fleet", "start a development pipeline", "begin a unit", "begin loop", "start loop"]
@@ -15,12 +15,12 @@ triggers:
 
 # /checkin — Fleet Check-In + Drift / Conflict / Commit Guard
 
-Run this in any chat that's one of the ~12 concurrent PRISM chats (11 work slots + 1 hygiene slot). It (a) claims this chat a stable human-readable slot name, (b) makes the per-chat handoff save under that slot, (c) cleans up crashed-slot / stale-claim debris, (d) surfaces anything that would cause a silent overwrite, a roadmap-drift surprise, or a commit collision, and (e) — if you pass `--roadmap` — narrows this chat's work surface to one of the two roadmaps. Auto-fixes the safe stuff; surfaces (with the fix command) the stuff that needs your call.
+Run this in any chat that's one of the ~13 concurrent PRISM chats (12 work slots + 1 hygiene slot). It (a) claims this chat a stable human-readable slot name, (b) makes the per-chat handoff save under that slot, (c) cleans up crashed-slot / stale-claim debris, (d) surfaces anything that would cause a silent overwrite, a roadmap-drift surprise, or a commit collision, and (e) — if you pass `--roadmap` — narrows this chat's work surface to one of the two roadmaps. Auto-fixes the safe stuff; surfaces (with the fix command) the stuff that needs your call.
 
 **Re-run it after every `/compact`** (the slot heartbeat needs refreshing; a compact can also leave a stale index.lock).
 
 ## Args: $ARGUMENTS
-- *(empty)* — standard check-in; this chat works the full atomized roadmap as a **work slot** (claims the first free work slot — `alpha..foxtrot` or `hotel..lima`).
+- *(empty)* — standard check-in; this chat works the full atomized roadmap as a **work slot** (claims the first free work slot — `alpha..foxtrot` or `hotel..mike`).
 - `--topic <slug>` — override the auto-derived topic. By default `/checkin` extracts the topic from the most recent commit's `[SCOPE-MS#]` tag — but with 6 chats committing every few minutes that scope can be ANY peer's scope, not yours (this is the 2026-05-14 "I got bound to command-kernel-ms0 but my actual work was git-tree" bug). Pass `--topic git-tree-work` to bind explicitly. Slug should be kebab-case (`worktree-consolidate`, `sfc-calibrate`, etc.); the `<slot>-<topic>` handoff filename is built from this. Auto-derive stays as the fallback when omitted.
 - `--force --confirmRecent --preferSlot <name>` — force-take a slot held by another chat that ALSO claimed it within the last 30 s (the recency-guard window). The default `--force` alone is refused with `slot_recently_claimed` to protect against double-claim races during fleet startup; adding `--confirmRecent` is the operator's explicit "yes, I really mean it" override. Use only when you've verified the other chat is genuinely dead or the operator told you to take their slot.
 - `--golf` — this chat is the **hygiene slot** (golf). Claim is restricted to the dedicated golf slot — never alpha..foxtrot. Golf is bound by the write-allowlist hook (`golf-slot-write-allowlist.mjs`, U-CLEANUP-A5) and may only touch the exact paths in `FALLBACK_ALLOW`: `state/shared/dashboards/**`, the named ledger JSONLs (`bug-attribution-ledger`, `peer-audit-ticks`, `wiki-inject-misses`, `golf-envelope-mutations`, `system-viz-headline-history`, `DR_DRILL_LEDGER`), the named report dashboards (`HOOK_HEALTH_DIGEST.md`, `WIRING-CANDIDATES-DASHBOARD.md`, `WIKI_LINT_REPORT.md`, `DISPATCHER_CAPACITY.md`, `MEMORY_GARDEN_REPORT.md`, `SKILL_UTILIZATION_REPORT.md`, `HOOK_UTILIZATION_REPORT.md`, `CLAUDE_MD_DRIFT_REPORT.md`, `GSD_FRESHNESS_REPORT.md`, `AWARENESS_HEALTH_DASHBOARD.md`, `SYSTEM_VIZ_LIVEDIFF.md`, `JSONL_CONSUMER_AUDIT.md`), `state/shared/AGENT_CHAT.jsonl`, the golf-owned configs (`golf-*.json`, `.envelope-drift-last.json`, `.watchdog-last-poll.iso`, `.peer-audit-cache.json`, `.cron-locks/*.lock`), `state/shared/system-viz/staging/**`, and `mcp-server/data/state/**.log`. Anything outside that list — including any source code, dispatcher, hook, skill, or test — gets blocked at PreToolUse. Use this for a chat dedicated to fleet hygiene (orphan reaper telemetry, drift-report regeneration, ledger triage, stale-slot reaping, CLOSE-OUT-DEFERRED triage, etc.). Mutually exclusive with `--roadmap`. The hook's block message names the canonical list — always trust the hook's emitted message over this prose when they drift.
@@ -29,6 +29,64 @@ Run this in any chat that's one of the ~12 concurrent PRISM chats (11 work slots
 - When `--roadmap <name>` is given, Step 7's report adds a **"your slice"** line — your lane's ordered run-list, scoped to that roadmap (feed it to `/run-continuous`). Compute it from `state/shared/atomic-roadmap.json` (`roadmap[]` = every unit · `laneAssignments[]` = which units go to chat 1..6 · slot→chat is **alpha=1 · bravo=2 · charlie=3 · delta=4 · echo=5 · foxtrot=6**; **golf is slot 7 = hygiene, no roadmap-lane assignment**). `--roadmap devtools` → your lane minus revenue, i.e. units with `roadmap_priority === 0` (the BACKEND-DEVTOOLS-RGS6 P0 dev-tooling tracks — `HOOKS-AUTOMATION-V2`, `SKILLS-UTILIZATION`, `AUTO-LEARNING-LOOP`, `COST-CASCADE`, `TOOL-INVENTORY`, `GRAPH-AS-LLM-CONTEXT`, … — sort to the top by tier). `--roadmap revenue` → your lane filtered to `track === "revenue"`. **There is no literal `track == "devtools"` value** — `track` holds the *milestone* track name; devtools-vs-revenue is the `roadmap_priority` field (0 vs 1). The per-chat `state/shared/atomic-roadmap-chat-<N>.md` file is the same list pre-rendered as a table. When `--roadmap` is omitted, the chat sees the full ~3,663-unit roadmap.
 - `/loop` · `autopilot` · `continuous` · `/run-continuous` · "until complete" · "until done" · "keep going" · "as long as possible" — any of these in the args **engages the autonomous continuous-work loop** (Step 12): the chat keeps picking pending units, building them (with the mandatory per-file scrutiny gate), committing, and ticking `loop-state.mjs` until it runs out of units, hits a hard blocker, or `/compact` fires — then it auto-resumes itself after the compact. This is the `/autopilot-full` + `/yolo-mode` doctrine rolled into the slot system. Keyword-gated: a bare `/checkin`, or a single bounded `/checkin <task>` with no loop keyword, does NOT loop.
 - `--no-loop` — suppress autonomous-loop engagement even when a loop keyword is present. If a loop is already `running` for this chat, `--no-loop` ENDS it (`loop-state end --reason operator-halt`). The operator off-switch for a runaway or unwanted loop.
+
+## PRIORITY 0 — the args ARE the work order (read this before any Step)
+
+If the user's prompt after the `/checkin*` head contains anything beyond
+recognized flags (`--topic`, `--roadmap`, `--preferSlot`, `--slot`, `--chatId`,
+`--force`, `--confirmRecent`, `--golf`, `--no-loop`, `--no-claim-filter`),
+**that free text is the PRIMARY deliverable of this turn** — not the check-in
+ceremony. The user typed `/checkin-<slot> <request>` to get `<request>` done;
+the slot-bind is plumbing. (The deterministic belt that re-surfaces this — the
+`checkin-args-surface.mjs` UserPromptSubmit hook from SLASH-CMD-FIDELITY-MS0/U-SCF01
+— injects a `★ USER WORK ORDER` block at the top of every `/checkin*` prompt.
+That block IS the work order; treat its absence as "no work order" and treat
+its presence as authoritative even if the runbook below seems to want a bare
+check-in.)
+
+Therefore:
+1. Run Steps 1–6 as **minimal silent preamble** — claim the slot, bind the
+   handoff, do the drift/hygiene checks. **Run their bash commands** (those
+   emit JSON/state needed by later steps); just **do not print prose
+   commentary about them** — the compressed §Report (Step 7) is the only
+   operator-visible artifact of the ceremony.
+2. Print the **compressed §Report** (Step 7) — 3 lines unless something is
+   actionable. The work order is line 2 of even the compressed form.
+3. **Then immediately act on the work order.** Never end the turn having only
+   run check-in when a request was attached. If the work order contains a loop
+   keyword (`/loop`, `/goal`, `/run-continuous`, `autopilot`, `continuous`,
+   "until complete/done", "keep going", "as long as possible"), enter the
+   Step 12 autonomous loop on THAT task — zero questions, no unit cap,
+   bookended with `loop-state.mjs` start/tick/end. **Exception**: if
+   `--no-loop` is in the flag-strip, do NOT enter Step 12 — execute the work
+   order ONCE without engaging the loop, and end any currently running loop
+   per §Args (`--no-loop` calls `loop-state end --reason operator-halt`).
+   `--no-loop` always wins over a loop keyword.
+4. **Loop-keyword-only args** (e.g. just `/loop` — or any of the loop
+   keywords listed in Step 3 — with no task description): the work order IS
+   "engage the autonomous loop." Enter Step 12 against the chat's
+   previously-bound topic / the atomic-roadmap pickup queue (the Step-12
+   default pickup path) — do NOT block waiting for a task string. Same
+   `--no-loop` exception as Step 3.
+5. **The end-of-turn 3-of-3 scrutiny gate and per-file scrutiny gate still
+   apply** to any code the work order causes you to emit. PRIORITY-0 governs
+   WHAT to do in the turn, not whether you can stop without scrutiny.
+6. **Known caveat — `--topic` validator is loose (until U-SCF04 lands).**
+   The U-SCF01 hook's `--topic` validator currently accepts ANY non-flag
+   token, so `/checkin-bravo --topic fix the parser bug` consumes "fix" as
+   the topic slug and injects "the parser bug" as the work order — losing the
+   first verb. Until U-SCF04 tightens the validator to kebab-case, the
+   "verbatim work-order text" promise above is FALSE for `--topic <free-text>`
+   immediately followed by more args. Workaround: type
+   `--topic <kebab-slug>` LAST in the flag list, or omit `--topic` and let
+   the auto-derive run.
+
+This is enforced deterministically by the `checkin-args-surface.mjs`
+UserPromptSubmit hook (SLASH-CMD-FIDELITY-MS0/U-SCF01) — which re-injects the
+extracted work order on every `/checkin*` prompt so it survives `/compact` and
+cannot be buried by this runbook. Doctrine: memory
+`feedback_checkin_args_are_primary_work_order`. A bare `/checkin` with no
+trailing request is unchanged (standard check-in).
 
 ## Steps — run all of these, then print the §Report
 
@@ -73,7 +131,7 @@ node H:/prism/.claude/helpers/chat-slots.mjs claim --chatId "$STABLE" --branch "
 - **previousOwner field** — if your claim reclaimed a slot from another chat (crashed-reclaim, stale-reclaim, or force-takeover), the result also carries a `previousOwner` block: `{ chatId, host, pid, branch, topic, activity, claimedAt, lastHeartbeat, ageMs, reason }`. Surface this in §7 so the operator can see who got kicked out — silent overwrites are how slot-thrash hides in the fleet (the 2026-05-14 "alpha disappeared mid-session" bug was invisible until the user pointed it out).
 - **Slot roles:** `alpha..foxtrot` are *work slots* (6) — feature commits go here. `golf` is the *hygiene slot* (1) — write-allowlist bound (see `--golf` arg above + `golf-slot-write-allowlist.mjs`).
 - If `ok:false, error:"slot_recently_claimed"` → your `--preferSlot --force` targeted a slot that was claimed by another chat within the last 30 s (the recency-guard window). The `details.blockedBy` field names them. If they're genuinely dead or the operator told you to take their slot, re-run with `--force true --confirmRecent true`. Otherwise pick a different slot or wait for the window to expire.
-- If `ok:false, error:"fleet_full"` → all 12 slots are held by alive chats; run `node H:/prism/scripts/fleet-status.mjs` to see who, then ask the operator which dead chat's slot to force-take (`... claim --chatId "$STABLE" --preferSlot <name> --force true --confirmRecent true`). The 12 slots cover the design fleet — there is no `legacy-8hex` fallback any more; if you genuinely need a 13th concurrent chat, force-take an inactive slot rather than spawning a nameless chat. **Remember the slot name — call it `$SLOT` below.**
+- If `ok:false, error:"fleet_full"` → all 13 slots are held by alive chats; run `node H:/prism/scripts/fleet-status.mjs` to see who, then ask the operator which dead chat's slot to force-take (`... claim --chatId "$STABLE" --preferSlot <name> --force true --confirmRecent true`). The 13 slots cover the design fleet — there is no `legacy-8hex` fallback any more; if you genuinely need a 14th concurrent chat, force-take an inactive slot rather than spawning a nameless chat. **Remember the slot name — call it `$SLOT` below.**
 
 ### 2b. Loop-resume detection (autonomous-loop continuity)
 Before anything else, check whether this chat is mid-loop — a `/compact` re-fires `/checkin --topic <slot>-<topic>` with NO loop keyword, so loop **continuation** comes from here, not the keyword gate.
@@ -379,7 +437,41 @@ node H:/prism/scripts/checkin-recall.mjs roi-gate --args "$ARGUMENTS" --topic "$
 ```
 Every surface it prints as `MUST invoke:` is **mandatory before declaring the pipeline complete** — surface them in §Report as the `must-invoke:` line and actually invoke each during the dev pipeline (e.g. a cutting-physics task → `prism_safety:*` is non-optional). Empty output = no conditional surface triggered (the common case for a bare check-in).
 
-### 7. Report — print this boxed one-glance status
+### 7. Report — compressed by default
+
+**Print this 3-line form (the common case — clean check-in, work order present).**
+Substitute every `$SLOT` / `<…>` token with the actual value; render union
+types (`<a|b|c>`) as one of the listed alternatives, not the literal placeholder:
+```
+/checkin: slot=<bound-slot> · <clean|N dirty> · drift=<n> · loop=<none|RESUMING i/t|will-engage> · <K peer-claims> · verified=<comma-list of silent-clean dimensions, names match verbose-box row prefixes: tree,staged,drift,chat-bus,slot-cutover,loop-state,local-compute> · verdict=<✅ CLEAR|⚠>
+▶ WORK ORDER: <the work-order text from the ★ USER WORK ORDER injection (or args after flag-strip), verbatim — or "(none — standard check-in)">
+→ <if work order: "acting on it now" (then DO it — Priority 0) | if ⚠: the 1-3 fix commands | if clean+no-args: "ready">
+```
+
+The `verified=` token closes the silent-omission ambiguity: it lists every
+silent-clean dimension you actually checked. Operators see "verified=tree,staged,drift,chat-bus,slot-cutover,loop-state,local-compute"
+and know nothing was skipped. A dimension MISSING from `verified=` was not
+checked (either a tool failed or the chat truncated early); that's a soft
+signal to re-run, not silent success.
+
+**Expand a field to its own line ONLY when it is actionable** (non-nominal).
+The actionable conditions are:
+drift>0 · tree dirty with critical files · staged files present · `prev owner`
+present · Qdrant/semantic_layer ✗ · loop `stale` · `pickup cands`>0 ·
+slot-cutover blocked (main-tree dirty) · a `must-invoke:` surface triggered.
+A nominal field (clean, drift=0, no peers, loop none) is omitted from
+expansion but MUST appear in the `verified=` list above. Example expanded
+line: `prev-owner: claude-abc123 (kicked 3s ago, reason=force-takeover, topic=git-tree)`.
+
+**Print the full reference-box format below ONLY** when the operator passed
+`--verbose`, set `PRISM_CHECKIN_VERBOSE=1`, or 3 or more of the actionable
+conditions above fire. Otherwise the box is suppressed entirely — the
+compressed 3-line form is the only output. The box is documentation for what
+fields exist, not required output every run.
+
+**Reference: verbose box format** (gated above — do NOT print this block
+unless one of the three conditions fires; the model is the gate, not the
+markdown renderer):
 ```
 ┌─ /checkin ─────────────────────────────────────────────
 │ slot:        $SLOT  ($([ alreadyOwned ] && echo refreshed || echo newly claimed))
@@ -391,7 +483,7 @@ Every surface it prints as `MUST invoke:` is **mandatory before declaring the pi
 │ prev owner:  <only if previousOwner present>
 │                $previousOwner.chatId ($previousOwner.reason, last seen $previousOwner.ageMs ms ago)
 │                  topic=$previousOwner.topic  activity=$previousOwner.activity
-│ fleet:       <N>/12 slots alive — <list: alpha=…, bravo=…, …, golf=…>
+│ fleet:       <N>/13 slots alive — <list: alpha=…, bravo=…, …, golf=…, …, mike=…>
 │ chat bus:    <K> peer file-claims · <M> unread msgs · <P> active peers
 │ drift:       <D> milestone(s) drifted  [✓ none  |  ⚠ <ids> — /envelope-sync if yours]
 │ tree:        <clean | dirty: N files>  ·  origin: <ahead A / behind B | offline>
@@ -413,10 +505,10 @@ Every surface it prints as `MUST invoke:` is **mandatory before declaring the pi
 │ verdict:     ✅ CLEAR — go  |  ⚠ <one-line: what to resolve first>
 └────────────────────────────────────────────────────────
 ```
-If the verdict is ⚠, list the 1-3 concrete next actions (the fix commands above) and stop — don't start work until they're resolved.
+If the verdict is ⚠, the compressed line 3 lists the 1-3 concrete next actions; don't start work until they're resolved. **If the verdict is ✅ AND the user's prompt after `/checkin*` carries a work order (i.e. the `★ USER WORK ORDER` block is present), immediately act on it per PRIORITY 0** — do not stop after printing the report.
 
 ## Notes
-- Slots are NATO-phonetic (12 total, expanded 2026-05-16 to support `/checkin-<slot>` for the full NATO alphabet through Lima): **alpha · bravo · charlie · delta · echo · foxtrot · hotel · india · juliett · kilo · lima** are **work** slots (default auto-claim picks the first free one), and **golf** is the historically-hygiene slot (claimed only with `--golf` for original allowlist semantics; usable as a work slot via `/checkin-golf` if the operator bypasses `golf-slot-write-allowlist.mjs` via `PRISM_GOLF_WRITE_ALLOWLIST_BYPASS=1` or disabling the hook). A 13th chat returns `fleet_full` — force-take an inactive slot instead of spawning a nameless one. Terminal-window pinning ([[reference_session_continuity_stack_2026_05_15]]) makes up to 12 PowerShell windows resolve to deterministic slots — same window → same slot across /compact and /clear. Operator shortcut: `/checkin-<slot>` claims a specific slot directly (force-takes the prior owner; topic auto-set to `<slot>-work`).
+- Slots are NATO-phonetic (13 total, expanded 2026-05-16 to support `/checkin-<slot>` for the full NATO alphabet through Mike): **alpha · bravo · charlie · delta · echo · foxtrot · hotel · india · juliett · kilo · lima · mike** are **work** slots (default auto-claim picks the first free one), and **golf** is the historically-hygiene slot (claimed only with `--golf` for original allowlist semantics; usable as a work slot via `/checkin-golf` if the operator bypasses `golf-slot-write-allowlist.mjs` via `PRISM_GOLF_WRITE_ALLOWLIST_BYPASS=1` or disabling the hook). A 14th chat returns `fleet_full` — force-take an inactive slot instead of spawning a nameless one. Terminal-window pinning ([[reference_session_continuity_stack_2026_05_15]]) makes up to 13 PowerShell windows resolve to deterministic slots — same window → same slot across /compact and /clear. Operator shortcut: `/checkin-<slot>` claims a specific slot directly (force-takes the prior owner; topic auto-set to `<slot>-work`).
 - The slot binding lives for the chat's lifetime or until its heartbeat goes >10min stale (then it's auto-reclaimed). `/checkin`, `/handoff`, `/compact` refresh the heartbeat manually — but as of 2026-05-14, the **`heartbeat-keepalive.mjs` UserPromptSubmit hook** (T3, knob `PRISM_HEARTBEAT_KEEPALIVE_DISABLE=1`) refreshes it automatically on every prompt when the heartbeat is older than 60 s. The 2026-05-14 "alpha disappeared after 17 min of user think-time" bug is what motivated the hook; with it active, slots stay alive across user idle gaps as long as the chat is responsive at all. The hook is silent on success — operators only see it surface in fleet-status when an idle chat's heartbeat refresh-ages stays <60s instead of climbing toward the 10min reclaim threshold.
 - Companion commands: `/who` (just your identity), `node scripts/fleet-status.mjs` (the boxed fleet dashboard, `--watch` to live-tail), `/six-chat-bootstrap` (the ONE-time master setup that assigns 6 phases to 6 slots — different thing, run once not per-chat), `/six-chat-commit-consensus` (the commit gate for the 6-chat protocol), `/handoff` (session-end), `/precompact` (before /compact).
 - `/checkin` always claims/refreshes the slot + runs the drift gate. When `/checkin` is invoked WITH task descriptions in the args (e.g. `/checkin /loop  read H:\last.md and complete all units`), it ADDITIONALLY emits the full dev pipeline below. Without args it stops at the §Report and lets you decide what to do.
@@ -500,7 +592,7 @@ Always-active layers (verify on every loop iteration — they're cheap):
 - **Scripts** via `prism_skill_script:script_search`. Re-runnable helpers live in `H:/prism/scripts/` and `H:/prism/mcp-server/scripts/`.
 - **Hooks** registry via `prism_hook:list` + `prism_hook:manifest`. PreToolUse / PostToolUse / Stop / SessionStart / UserPromptSubmit.
 - **RTK token savings** — prefix bash with `rtk` for 60-99% output reduction on git/gh/npm/vitest/tsc/docker/grep/cat. `rtk vitest run` (99%), `rtk git status` (59%), `rtk gh pr checks` (79%). Skip only if output <500 chars. `/rtk-setup` if not installed.
-- **Context extension** — per-chat `state/shared/handoffs/HANDOFF-<slot>-<topic>.md` (12 chats), `MEMORY.md` index (<200 lines), `ENGINE_DIGEST.md` + `DISPATCHER_DIGEST.md` for zero-IO discovery, load-on-demand skills, keyword-gated UserPromptSubmit injections. The /precompact → /compact → SessionStart:compact → auto-resume chain (Step 14) closes the long-running loop.
+- **Context extension** — per-chat `state/shared/handoffs/HANDOFF-<slot>-<topic>.md` (13 chats), `MEMORY.md` index (<200 lines), `ENGINE_DIGEST.md` + `DISPATCHER_DIGEST.md` for zero-IO discovery, load-on-demand skills, keyword-gated UserPromptSubmit injections. The /precompact → /compact → SessionStart:compact → auto-resume chain (Step 14) closes the long-running loop.
 
 **REMINDER (slot-claim is mandatory, NOT optional):** Steps 1-7 above MUST run even when /checkin has a task arg. The pipeline (Steps 8-14) is ADDITIVE — never replaces slot-claim. If §Report verdict is ⚠ STOP, do NOT enter the pipeline; resolve the verdict first.
 
