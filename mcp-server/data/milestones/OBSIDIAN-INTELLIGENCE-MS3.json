@@ -1006,7 +1006,16 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "Stop extraction; existing IdeaBlocks remain as inert JSONL"
+          "rollback": "Stop extraction; existing IdeaBlocks remain as inert JSONL",
+          "status": "completed",
+          "completed_at": "2026-05-15T19:56:00.000Z",
+          "owner": "claude-c0f06dee slot hotel (per [[reference_e1_ideablock_extractor_2026_05_15]])",
+          "ship_record": {
+            "session_id": "ms3-e1-hotel-prior",
+            "shipped_at": "2026-05-15T19:56:00.000Z",
+            "tests": "21/21 PASS (mcp-server/src/__tests__/IdeaBlockExtractor.test.ts, re-verified 2026-05-17T01:26Z by claude-c0f06dee)",
+            "deliverable_extra": "Silent envelope-drift fix: all 3 deliverables on disk since 2026-05-15 19:56 (engine 19.5KB + schema 11KB + test 19.3KB) but status field was never set. Caught by /loop iter 3 close-out audit pass after C2 silent-drift fix (commit b8a1fb277). No new code shipped — pure envelope flip from drift state to completed. Memory: [[reference_e1_ideablock_extractor_2026_05_15]]."
+          }
         },
         {
           "id": "E2",
@@ -1106,7 +1115,16 @@
             "GAP FILL",
             "TIE UP"
           ],
-          "rollback": "Stop tagging; existing tags remain"
+          "rollback": "Stop tagging; existing tags remain",
+          "status": "completed",
+          "completed_at": "2026-05-15T19:52:00.000Z",
+          "owner": "claude-c0f06dee slot hotel (prior session)",
+          "ship_record": {
+            "session_id": "ms3-e4-hotel-prior",
+            "shipped_at": "2026-05-15T19:52:00.000Z",
+            "tests": "28/28 PASS (mcp-server/src/__tests__/IdeaBlockGovernance.test.ts, re-verified 2026-05-17T01:26Z by claude-c0f06dee)",
+            "deliverable_extra": "Silent envelope-drift fix companion to E1: both deliverables on disk since 2026-05-15 19:52 (engine 7.7KB + test 12.9KB) but status field was never set. Caught by /loop iter 3 close-out audit pass after C2 silent-drift fix (commit b8a1fb277). No new code shipped — pure envelope flip from drift state to completed."
+          }
         }
       ]
     },
