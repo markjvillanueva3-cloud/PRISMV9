@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>U-COURSE-FORGE-P1-DISPATCHER — wiring design decision</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>U-COURSE-FORGE-P1-DISPATCHER — wiring design decision</h1>
+<div class="meta">rendered from state/shared/specs/U-COURSE-FORGE-DISPATCHER-WIRING-DESIGN.md</div>
+<div class="meta">Generated 2026-05-17T19:29:38.963Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">U-COURSE-FORGE-P1-DISPATCHER — wiring design decision</li><li class="prism-toc-l2">The 7 nodes (all currently WIRE-EXEMPT)</li><li class="prism-toc-l2">The blocker</li><li class="prism-toc-l3">Precedent in the existing dispatcher</li><li class="prism-toc-l2">Three options for the operator</li><li class="prism-toc-l3">Option A — Expression-bridge unit (recommended for full wiring)</li><li class="prism-toc-l3">Option B — JSON-native partial wiring (safe, smaller, ships now)</li><li class="prism-toc-l3">Option C — Leave WIRE-EXEMPT permanently (status quo)</li><li class="prism-toc-l2">Recommendation</li><li class="prism-toc-l2">Why this is not shipped as code in this iteration</li><li class="prism-toc-l2">See also</li></ul></nav><h1 class="prism-h1">U-COURSE-FORGE-P1-DISPATCHER — wiring design decision</h1>
+<p><strong>Generated:</strong> 2026-05-17 by claude-41db1b82 (slot india, /loop bc83bbdb) <strong>Status:</strong> advisory · mustHumanVerify · operator decision required <strong>Subject:</strong> how (and whether) to wire the 7 course-forge algorithm nodes to an MCP dispatcher</p>
+<h2 class="prism-h2">The 7 nodes (all currently WIRE-EXEMPT)</h2>
+<table class="prism-md-table"><thead><tr><th>Node</th><th>File</th><th>Primary inputs</th></tr></thead><tbody><tr><td>OperatorSplittingMethod</td><td><code class="prism-inline-code">algorithms/OperatorSplittingMethod.ts</code></td><td><strong>2 closures</strong> (<code class="prism-inline-code">applyA</code>, <code class="prism-inline-code">applyB</code> SubstepIntegrator)</td></tr>
+<tr><td>ODEIntegrator</td><td><code class="prism-inline-code">algorithms/ODEIntegrator.ts</code></td><td><strong>1 closure</strong> (<code class="prism-inline-code">f</code> DerivativeFn)</td></tr>
+<tr><td>LinearStateSpaceModel</td><td><code class="prism-inline-code">algorithms/LinearStateSpaceModel.ts</code></td><td>matrices A/B/C/D (JSON) — except <code class="prism-inline-code">simulate</code> op needs a <code class="prism-inline-code">u(t)</code> closure</td></tr>
+<tr><td>FiniteDifferenceMethod</td><td><code class="prism-inline-code">algorithms/FiniteDifferenceMethod.ts</code></td><td>field array + dx (JSON) — except <code class="prism-inline-code">method_of_lines_rhs</code> is consumed as a closure factory</td></tr>
+<tr><td>GradientDescent</td><td><code class="prism-inline-code">algorithms/GradientDescent.ts</code></td><td><strong>1-2 closures</strong> (<code class="prism-inline-code">f</code> objective, optional <code class="prism-inline-code">gradF</code>)</td></tr>
+<tr><td>FiniteElementMethod1D</td><td><code class="prism-inline-code">algorithms/FiniteElementMethod1D.ts</code></td><td><strong>1 closure</strong> (<code class="prism-inline-code">source: (x)=&gt;number</code>)</td></tr>
+<tr><td>LagrangianMechanics</td><td><code class="prism-inline-code">algorithms/LagrangianMechanics.ts</code></td><td><strong>1-2 closures</strong> (<code class="prism-inline-code">lagrangian</code>, optional <code class="prism-inline-code">generalizedForce</code>)</td></tr></tbody></table>
+<h2 class="prism-h2">The blocker</h2>
+<p>MCP dispatcher actions receive <strong>JSON params only</strong>. Five of the seven nodes take JavaScript <strong>closures</strong> as their primary, load-bearing input (the objective function, the derivative, the Lagrangian, the substep integrators). A closure cannot cross a JSON boundary. Therefore a naive <code class="prism-inline-code">prism_algorithm</code>-style <code class="prism-inline-code">{action, params}</code> wiring is <strong>structurally impossible</strong> for those five without an intermediate layer.</p>
+<p>This is why the 7 commits (<code class="prism-inline-code">1323fa4ee7</code>, <code class="prism-inline-code">b38a9f2285</code>, <code class="prism-inline-code">a547223bbf</code>, <code class="prism-inline-code">7cbbe511d7</code>, <code class="prism-inline-code">271351e7ec</code>, <code class="prism-inline-code">937bc66e76</code>, <code class="prism-inline-code">56243befc9</code>) all carry a <code class="prism-inline-code">// WIRE-EXEMPT:</code> tag — the deferral is a genuine engineering constraint, not skipped work.</p>
+<h3 class="prism-h3">Precedent in the existing dispatcher</h3>
+<p><code class="prism-inline-code">algorithmDispatcher.ts</code> already faces this: <code class="prism-inline-code">opt_gradient_descent</code> takes <code class="prism-inline-code">objective: string</code> and <code class="prism-inline-code">num_ode_solve</code> takes <code class="prism-inline-code">ode: string</code>. The <code class="prism-inline-code">algorithmGatewayEngine</code> evidently <strong>parses/evaluates an expression string</strong> into a function internally. So PRISM has <em>already chosen</em> the expression-string model for closure-input algorithms — but that evaluator is inside the gateway engine, not reusable by my 7 nodes as-is.</p>
+<h2 class="prism-h2">Three options for the operator</h2>
+<h3 class="prism-h3">Option A — Expression-bridge unit (recommended for full wiring)</h3>
+<p>Build <code class="prism-inline-code">scripts/lib/expression-evaluator.ts</code> (or reuse the gateway engine&#39;s internal one if it can be extracted): a <strong>safe, sandboxed</strong> arithmetic expression parser that compiles a string like <code class="prism-inline-code">&quot;-1.0<em>y[0] - 0.5</em>y[1]&quot;</code> into a <code class="prism-inline-code">(vars) =&gt; number</code> closure. Then each of the 7 nodes gets a dispatcher action whose params carry expression strings instead of closures.</p>
+<ul class="prism-md-list"><li><strong>Pro:</strong> full wiring; all 7 nodes invokable via MCP; consistent with the</li></ul>
+<p>existing <code class="prism-inline-code">opt_gradient_descent</code> / <code class="prism-inline-code">num_ode_solve</code> precedent.</p>
+<ul class="prism-md-list"><li><strong>Con:</strong> an expression evaluator is <strong>security-sensitive</strong> — must NOT use</li></ul>
+<p><code class="prism-inline-code">eval</code>/<code class="prism-inline-code">Function</code>; needs a real tokenizer + AST + a whitelisted op set   (no property access, no globals). This is a unit in its own right (~300 LOC</p>
+<ul class="prism-md-list"><li>heavy adversarial tests). Estimated: 1 focused session.</li><li><strong>Safety gate:</strong> the evaluator is a P0 security surface — it must reject</li></ul>
+<p><code class="prism-inline-code">constructor</code>, <code class="prism-inline-code">__proto__</code>, <code class="prism-inline-code">process</code>, <code class="prism-inline-code">require</code>, function calls outside a   math whitelist, and unbounded-length input. 3-of-3 scrutiny mandatory.</p>
+<h3 class="prism-h3">Option B — JSON-native partial wiring (safe, smaller, ships now)</h3>
+<p>Wire <strong>only</strong> the operations whose inputs are already JSON-native — no closures, no evaluator:</p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">LinearStateSpaceModel</code>: <code class="prism-inline-code">transfer_function</code>, <code class="prism-inline-code">frequency_response</code>, <code class="prism-inline-code">ranks</code></li></ul>
+<p>(all take matrices A/B/C/D — pure JSON). <code class="prism-inline-code">simulate</code> stays exempt.</p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">FiniteDifferenceMethod</code>: <code class="prism-inline-code">first_derivative</code>, <code class="prism-inline-code">second_derivative</code> (take a</li></ul>
+<p>numeric field array — pure JSON). <code class="prism-inline-code">method_of_lines_rhs</code> stays exempt.</p>
+<p>Two new <code class="prism-inline-code">prism_algorithm</code> actions (<code class="prism-inline-code">num_lti_analyze</code>, <code class="prism-inline-code">num_fdm_derivative</code>) direct-import the two singletons. ~80 LOC + tests through the dispatcher.</p>
+<ul class="prism-md-list"><li><strong>Pro:</strong> safe, no evaluator, ships in one commit; covers the genuinely</li></ul>
+<p>JSON-shaped capability.</p>
+<ul class="prism-md-list"><li><strong>Con:</strong> partial — 5 nodes + 2 operations remain import-only. The</li></ul>
+<p>composition adapters (<code class="prism-inline-code">makeSubstepIntegrator</code>, <code class="prism-inline-code">makeMethodOfLinesRHS</code>,   <code class="prism-inline-code">makeEOMDerivative</code>) are inherently code-level and never dispatcher-facing.</p>
+<h3 class="prism-h3">Option C — Leave WIRE-EXEMPT permanently (status quo)</h3>
+<p>Accept that these are <strong>code-level numerical primitives</strong> — like a math library. They are consumed by <em>other engines</em> via direct import, and those consuming engines are what gets dispatcher-wired. A library <code class="prism-inline-code">sin()</code> isn&#39;t an MCP action; arguably neither is <code class="prism-inline-code">OperatorSplittingMethod</code>.</p>
+<ul class="prism-md-list"><li><strong>Pro:</strong> zero risk; honest about what these assets are (composable building</li></ul>
+<p>blocks, not end-user actions).</p>
+<ul class="prism-md-list"><li><strong>Con:</strong> the <code class="prism-inline-code">comprehensive-build-enforce</code> doctrine prefers explicit wiring;</li></ul>
+<p>leaving 7 nodes exempt should be a deliberate, recorded operator decision.</p>
+<h2 class="prism-h2">Recommendation</h2>
+<p><strong>Option B now + Option A as a follow-up unit.</strong> Option B captures the real JSON-shaped value safely and immediately. Option A is the complete answer but gates on a security-reviewed expression evaluator that deserves its own unit and 3-of-3 scrutiny — it should not be rushed inside a /loop iteration.</p>
+<p>Option C is the honest fallback if the operator decides these primitives are library-internal: in that case, convert the <code class="prism-inline-code">// WIRE-EXEMPT:</code> tags&#39; reason text to cite this doc as the recorded decision.</p>
+<h2 class="prism-h2">Why this is not shipped as code in this iteration</h2>
+<p>Per CLAUDE.md R12 (fail loud) and the per-file scrutiny doctrine: wiring a dispatcher action is a contract change on a heavily peer-claimed file (<code class="prism-inline-code">algorithmDispatcher.ts</code> / <code class="prism-inline-code">calcDispatcher.ts</code>) and — for the closure-input nodes — needs the security-sensitive evaluator first. Forcing a wire now would either ship an unsafe <code class="prism-inline-code">eval</code> or a half-working dispatcher. The honest deliverable is this decision record; the operator picks A / B / C.</p>
+<h2 class="prism-h2">See also</h2>
+<ul class="prism-md-list"><li><code class="prism-inline-code">state/shared/specs/COURSE-FORGE-PROPOSALS.md</code> — the proposal layer</li><li><code class="prism-inline-code">knowledge/wiki/architecture/course-forge-conversions.md</code> — the 7 nodes</li><li><code class="prism-inline-code">mcp-server/src/tools/dispatchers/algorithmDispatcher.ts</code> — wiring target (35 actions, gateway-routed)</li><li><code class="prism-inline-code">mcp-server/src/engines/AlgorithmGatewayEngine.ts</code> — holds the existing expression model</li></ul></main><footer><div>generated by mdToHtml() at 2026-05-17T19:29:38.963Z</div>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>
