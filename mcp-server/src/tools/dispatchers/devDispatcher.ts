@@ -487,7 +487,8 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "cap_bank_calculate",
 "hyp_get_prior", "hyp_prioritize", "hyp_get_tribal_endorsements",
 "plug_get", "plug_list", "plug_list_by_kind", "plug_list_by_health",
-"plug_summary", "plug_size"] as const;
+"plug_summary", "plug_size",
+"ccd_check_move", "ccd_validate_rapid_moves", "ccd_compare_with_discrete"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -3820,6 +3821,86 @@ export function registerDevDispatcher(server: any): void {
               critical_error_count: r.critical_errors.length,
               warning_count: r.warnings.length,
               score: r.score,
+            };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-CCD: ContinuousCollisionDetection ──
+          // Engine expects Vector3 instances (not plain {x,y,z}) because
+          // it calls .add/.subtract/.multiply/.length() on them. Dispatcher
+          // RECONSTRUCTS Vector3 here — without this, engine would crash
+          // with "v.subtract is not a function" the first time it tried to
+          // sweep the path. Safety-critical: false-negative CCD verdict =
+          // potential machine crash.
+          case "ccd_check_move": {
+            const { ContinuousCollisionDetectionEngine } = await import("../../engines/ContinuousCollisionDetectionEngine.js");
+            const { Vector3 } = await import("../../engines/CollisionEngine.js");
+            const eng = ContinuousCollisionDetectionEngine.getInstance();
+            const p = params as Record<string, unknown> & {
+              startPosition: { x: number; y: number; z: number };
+              endPosition: { x: number; y: number; z: number };
+              toolAxis?: { x: number; y: number; z: number };
+            };
+            const r = eng.checkMove({
+              ...(p as object),
+              startPosition: new Vector3(p.startPosition.x, p.startPosition.y, p.startPosition.z),
+              endPosition: new Vector3(p.endPosition.x, p.endPosition.y, p.endPosition.z),
+              toolAxis: p.toolAxis
+                ? new Vector3(p.toolAxis.x, p.toolAxis.y, p.toolAxis.z)
+                : undefined,
+            } as Parameters<typeof eng.checkMove>[0]);
+            result = {
+              result: r,
+              collision: r.collision,
+              is_tunneling_case: r.isTunnelingCase,
+              min_clearance_mm: r.minClearance_mm,
+              warning_count: r.diagnostics.warnings.length,
+              algorithm: r.metrics.algorithm,
+            };
+            break;
+          }
+          case "ccd_validate_rapid_moves": {
+            const { ContinuousCollisionDetectionEngine } = await import("../../engines/ContinuousCollisionDetectionEngine.js");
+            const { Vector3 } = await import("../../engines/CollisionEngine.js");
+            const eng = ContinuousCollisionDetectionEngine.getInstance();
+            const p = params as {
+              moves: Array<{ start: { x: number; y: number; z: number }; end: { x: number; y: number; z: number } }>;
+              toolGeometry: Parameters<typeof eng.validateRapidMoves>[1];
+              obstacles: Parameters<typeof eng.validateRapidMoves>[2];
+            };
+            const moves = p.moves.map((m) => ({
+              start: new Vector3(m.start.x, m.start.y, m.start.z),
+              end: new Vector3(m.end.x, m.end.y, m.end.z),
+            }));
+            const r = eng.validateRapidMoves(moves, p.toolGeometry, p.obstacles);
+            result = {
+              result: r,
+              safe: r.safe,
+              move_count: r.results.length,
+              critical_issue_count: r.criticalIssues.length,
+              collision_count: r.results.filter((x) => x.collision).length,
+            };
+            break;
+          }
+          case "ccd_compare_with_discrete": {
+            const { ContinuousCollisionDetectionEngine } = await import("../../engines/ContinuousCollisionDetectionEngine.js");
+            const { Vector3 } = await import("../../engines/CollisionEngine.js");
+            const eng = ContinuousCollisionDetectionEngine.getInstance();
+            const p = params as Record<string, unknown> & {
+              startPosition: { x: number; y: number; z: number };
+              endPosition: { x: number; y: number; z: number };
+              discreteInterval_mm?: number;
+            };
+            const { discreteInterval_mm, ...rest } = p;
+            const r = eng.compareWithDiscreteDetection({
+              ...(rest as object),
+              startPosition: new Vector3(p.startPosition.x, p.startPosition.y, p.startPosition.z),
+              endPosition: new Vector3(p.endPosition.x, p.endPosition.y, p.endPosition.z),
+            } as Parameters<typeof eng.compareWithDiscreteDetection>[0], discreteInterval_mm ?? 5);
+            result = {
+              result: r,
+              ccd_collision: r.ccdResult.collision,
+              discrete_collision: r.discreteResult.collision,
+              tunneling_detected: r.tunnelingDetected,
             };
             break;
           }

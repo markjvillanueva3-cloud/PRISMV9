@@ -3167,6 +3167,111 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   // ── WIRE-UNWIRED-MS0 / U-WIRE-AGS: AutonomousGoalSynthesisEngine ──
   // Single pure-compute method ranks gap-descriptors by
   // Ψ_impact × urgency × feasibility. No I/O, no state mutation.
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-CCD: ContinuousCollisionDetectionEngine ──
+  // 3 pure-compute actions for tool-path collision detection. Engine uses
+  // a Vector3 CLASS internally (not plain {x,y,z}) — dispatcher constructs
+  // Vector3 from JSON shape before calling. Safety-critical: a false-
+  // negative "safe" verdict could cause real machine crash. The wire is
+  // pure compute — no I/O, no state mutation, no path traversal.
+  ccd_check_move: z.object({
+    startPosition: z.object({
+      x: z.number().finite(), y: z.number().finite(), z: z.number().finite(),
+    }).describe("Tool tip start (machine coords mm)"),
+    endPosition: z.object({
+      x: z.number().finite(), y: z.number().finite(), z: z.number().finite(),
+    }).describe("Tool tip end (machine coords mm)"),
+    toolGeometry: z.object({
+      diameter: z.number().positive().max(1000),
+      fluteLength: z.number().positive().max(1000),
+      totalLength: z.number().positive().max(2000),
+      holderDiameter: z.number().positive().max(1000).optional(),
+      holderLength: z.number().positive().max(2000).optional(),
+      type: z.enum(["endmill", "drill", "ball", "facemill", "barrel"]).optional(),
+      ballRadius: z.number().positive().max(500).optional(),
+    }),
+    obstacles: z.array(z.object({
+      id: z.string().min(1).max(128),
+      type: z.enum(["workpiece", "fixture", "clamp", "vise", "wall", "custom"]),
+      aabb: z.object({
+        min: z.object({ x: z.number().finite(), y: z.number().finite(), z: z.number().finite() }),
+        max: z.object({ x: z.number().finite(), y: z.number().finite(), z: z.number().finite() }),
+      }),
+      thickness_mm: z.number().positive().max(10000).optional(),
+      isThinWall: z.boolean().optional(),
+    })).min(0).max(500).describe("Obstacle list (cap 500 — DoS)"),
+    motionType: z.enum(["rapid", "linear", "arc"]),
+    arcParams: z.object({
+      center: z.object({ x: z.number().finite(), y: z.number().finite(), z: z.number().finite() }),
+      radius: z.number().positive().max(10000),
+      startAngle: z.number().finite(),
+      endAngle: z.number().finite(),
+      direction: z.enum(["CW", "CCW"]),
+      plane: z.enum(["XY", "XZ", "YZ"]),
+      helixPitch: z.number().finite().optional(),
+    }).optional().describe("Required when motionType='arc'"),
+    toolAxis: z.object({
+      x: z.number().finite(), y: z.number().finite(), z: z.number().finite(),
+    }).optional(),
+    safetyMargin_mm: z.number().min(0).max(1000).optional()
+      .describe("Safety margin. Engine enforces MIN 2.0mm regardless."),
+    maxIterations: z.number().int().min(1).max(500).optional()
+      .describe("Max subdivision iters. Default 50."),
+  }).describe("Single move CCD check. Pure compute, safety-critical verdict."),
+
+  ccd_validate_rapid_moves: z.object({
+    moves: z.array(z.object({
+      start: z.object({ x: z.number().finite(), y: z.number().finite(), z: z.number().finite() }),
+      end: z.object({ x: z.number().finite(), y: z.number().finite(), z: z.number().finite() }),
+    })).min(1).max(1000).describe("List of rapid moves. Cap 1000 (DoS)."),
+    toolGeometry: z.object({
+      diameter: z.number().positive().max(1000),
+      fluteLength: z.number().positive().max(1000),
+      totalLength: z.number().positive().max(2000),
+      holderDiameter: z.number().positive().max(1000).optional(),
+      holderLength: z.number().positive().max(2000).optional(),
+      type: z.enum(["endmill", "drill", "ball", "facemill", "barrel"]).optional(),
+      ballRadius: z.number().positive().max(500).optional(),
+    }),
+    obstacles: z.array(z.object({
+      id: z.string().min(1).max(128),
+      type: z.enum(["workpiece", "fixture", "clamp", "vise", "wall", "custom"]),
+      aabb: z.object({
+        min: z.object({ x: z.number().finite(), y: z.number().finite(), z: z.number().finite() }),
+        max: z.object({ x: z.number().finite(), y: z.number().finite(), z: z.number().finite() }),
+      }),
+      thickness_mm: z.number().positive().max(10000).optional(),
+      isThinWall: z.boolean().optional(),
+    })).min(0).max(500),
+  }).describe("Batch-validate a rapid-move sequence. Returns first-collision-stop."),
+
+  ccd_compare_with_discrete: z.object({
+    startPosition: z.object({ x: z.number().finite(), y: z.number().finite(), z: z.number().finite() }),
+    endPosition: z.object({ x: z.number().finite(), y: z.number().finite(), z: z.number().finite() }),
+    toolGeometry: z.object({
+      diameter: z.number().positive().max(1000),
+      fluteLength: z.number().positive().max(1000),
+      totalLength: z.number().positive().max(2000),
+      holderDiameter: z.number().positive().max(1000).optional(),
+      holderLength: z.number().positive().max(2000).optional(),
+      type: z.enum(["endmill", "drill", "ball", "facemill", "barrel"]).optional(),
+      ballRadius: z.number().positive().max(500).optional(),
+    }),
+    obstacles: z.array(z.object({
+      id: z.string().min(1).max(128),
+      type: z.enum(["workpiece", "fixture", "clamp", "vise", "wall", "custom"]),
+      aabb: z.object({
+        min: z.object({ x: z.number().finite(), y: z.number().finite(), z: z.number().finite() }),
+        max: z.object({ x: z.number().finite(), y: z.number().finite(), z: z.number().finite() }),
+      }),
+      thickness_mm: z.number().positive().max(10000).optional(),
+      isThinWall: z.boolean().optional(),
+    })).min(0).max(500),
+    motionType: z.enum(["rapid", "linear"]),
+    safetyMargin_mm: z.number().min(0).max(1000).optional(),
+    discreteInterval_mm: z.number().positive().max(1000).optional()
+      .describe("Discrete sampling interval for comparison. Default 5mm."),
+  }).describe("Compare CCD vs discrete detection — surfaces tunneling cases."),
+
   // ── WIRE-UNWIRED-MS0 / U-WIRE-PLG: PluginInventoryEngine ──
   // 6 read-only actions over the plugin/MCP/extension inventory.
   // DEFER (state-mutation, mostly fictional-entry injection class):
