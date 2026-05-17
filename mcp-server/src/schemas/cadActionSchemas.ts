@@ -9,6 +9,19 @@
 
 import { z } from "zod";
 
+// ── CadBridge operability (WIRE-UNWIRED-MS0/U-WIRE-CADBRIDGE) ────────────────
+// Pure-inspection action — no params. Kept as a strict empty object so callers
+// passing stray fields get a Zod boundary rejection rather than silent ignore.
+const cadBridgeStatusSchema = z
+  .object({})
+  .strict()
+  .describe(
+    "prism_cad:cad_bridge_status — report CadBridge singleton + Python subprocess "
+    + "state (initialized/ready/processAlive/pid/pendingRequests/etc.) WITHOUT "
+    + "spawning the bridge. Returns instanceExists=false when getInstance() has "
+    + "not been called this process. No params accepted.",
+  );
+
 // ── Geometry Actions ──────────────────────────────────────────────────────────
 const geometryCreateSchema = z.object({
   type: z.enum(["box", "cylinder", "sphere", "cone", "torus"]).optional(),
@@ -740,15 +753,47 @@ export const cadArchiveJoinAugmentSchema = z.object({
 });
 
 /**
+ * DocustrataCustomerIndexEngine — query the per-customer-folder rollup of the
+ * Docustrata print archive (programs / CAD / matched prints per JM-Die customer).
+ */
+export const docustrataCustomerIndexSchema = z.object({
+  mode: z
+    .enum(["available", "totals", "list", "get", "search", "find_pn"])
+    .describe(
+      "available=is the index present · totals=index-wide counts · "
+      + "list=all customers · get=one customer (needs customer) · "
+      + "search=name substring (needs query) · find_pn=customers carrying "
+      + "a part number (needs partNumber)",
+    ),
+  customer: z.string().optional().describe("customer name — required for mode 'get'"),
+  query: z.string().optional().describe("name substring — required for mode 'search'"),
+  partNumber: z.string().optional().describe("part number — required for mode 'find_pn'"),
+  sortBy: z
+    .enum(["programs", "cad", "prints", "name"])
+    .optional()
+    .describe("list/search sort key (default: programs, descending)"),
+  limit: z
+    .number()
+    .int()
+    .nonnegative()
+    .optional()
+    .describe("max rows for list/search (0 = empty list; omit = no limit)"),
+});
+
+/**
  * Action schemas for prism_cad dispatcher.
  * Maps action name to Zod schema for validation.
  */
 export const ACTION_CAD_SCHEMAS: Record<string, z.ZodType<any>> = {
   // U-PPL-D4 (echo) — sibling program-equivalent-index.json producer
   program_equivalent_index_compose: programEquivalentIndexComposeSchema,
+  // Docustrata customer-folder index — DocustrataCustomerIndexEngine query surface
+  docustrata_customer_index: docustrataCustomerIndexSchema,
   // U-PPL-D4-EXT (delta) — bridge to extend existing v6 join with CAD entries
   cad_archive_join_augment: cadArchiveJoinAugmentSchema,
   cad_archive_join_augment_dry: cadArchiveJoinAugmentSchema,
+  // WIRE-UNWIRED-MS0/U-WIRE-CADBRIDGE — CadBridge operability (no spawn)
+  cad_bridge_status: cadBridgeStatusSchema,
   // Geometry
   geometry_create: geometryCreateSchema,
   geometry_transform: geometryTransformSchema,

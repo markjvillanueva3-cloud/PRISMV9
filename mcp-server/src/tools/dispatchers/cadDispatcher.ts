@@ -357,6 +357,11 @@ const ACTIONS = [
   // U-PPL-D4 (MS-PRINT-PROGRAM-LOOP Track D): pure composition over UniversalCADIndexEngine
   // output + lathe .MIN entries → unified ProgramEquivalentIndex (CAD-as-program + lathe-gcode).
   "program_equivalent_index_compose",
+  // Docustrata customer-folder index — DocustrataCustomerIndexEngine query surface
+  "docustrata_customer_index",
+  // WIRE-UNWIRED-MS0/U-WIRE-CADBRIDGE — CadBridge (Python CAD subprocess) operability surface.
+  // Pure-inspection action: reports singleton + subprocess state WITHOUT spawning the bridge.
+  "cad_bridge_status",
 ] as const;
 
 /** Registers cad dispatcher.
@@ -3848,6 +3853,64 @@ Params vary by action — pass relevant fields in params object.`,
             } catch (err) {
               result = dispatcherError(err, action, "prism_cad");
             }
+            break;
+          }
+          case "docustrata_customer_index": {
+            const { docustrataCustomerIndexEngine } = await import(
+              "../../engines/DocustrataCustomerIndexEngine.js"
+            );
+            const mode = params.mode;
+            let dci: unknown;
+            switch (mode) {
+              case "available":
+                dci = docustrataCustomerIndexEngine.isAvailable();
+                break;
+              case "totals":
+                dci = docustrataCustomerIndexEngine.getTotals();
+                break;
+              case "list":
+                // normalizeParams has no alias for sort_by — read both forms.
+                dci = docustrataCustomerIndexEngine.listCustomers({
+                  sortBy: params.sortBy ?? params.sort_by,
+                  limit: params.limit,
+                });
+                break;
+              case "get":
+                dci = docustrataCustomerIndexEngine.getCustomer(params.customer);
+                break;
+              case "search":
+                dci = docustrataCustomerIndexEngine.searchCustomers(
+                  params.query,
+                  { limit: params.limit },
+                );
+                break;
+              case "find_pn":
+                // normalizeParams has no alias for part_number — read both forms.
+                dci = docustrataCustomerIndexEngine.findByPartNumber(
+                  params.partNumber ?? params.part_number,
+                );
+                break;
+              default:
+                // mode is Zod-enum-validated upstream; this is defence-in-depth.
+                dci = {
+                  available: false,
+                  error: `unknown mode '${String(mode)}' — expected one of `
+                    + `available|totals|list|get|search|find_pn`,
+                };
+            }
+            result = { success: true, data: dci };
+            break;
+          }
+          // WIRE-UNWIRED-MS0/U-WIRE-CADBRIDGE — CadBridge (Python subprocess) operability.
+          // Pure-inspection only: reports singleton + subprocess state WITHOUT spawning.
+          // peekInstance() returns null if getInstance() was never called this process.
+          case "cad_bridge_status": {
+            const { CadBridge } = await import("../../engines/CadBridge.js");
+            const live = CadBridge.peekInstance();
+            const cbs = live
+              ? { ...live.getStatus(), instanceExists: true as const }
+              : { initialized: false as const, instanceExists: false as const };
+            result = { success: true, data: cbs };
             break;
           }
           default:

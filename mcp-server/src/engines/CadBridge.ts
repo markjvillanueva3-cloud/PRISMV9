@@ -166,6 +166,52 @@ export class CadBridge {
     return CadBridge.instance;
   }
 
+  /**
+   * Returns the live singleton WITHOUT constructing one if none exists.
+   * Used by the prism_cad:cad_bridge_status dispatcher action so operability
+   * inspection never has the side effect of spawning a CadBridge instance.
+   * Returns null when getInstance() has not yet been called this process.
+   */
+  static peekInstance(): CadBridge | null {
+    return CadBridge.instance;
+  }
+
+  /**
+   * Synchronous status snapshot. No spawn, no I/O — pure inspection of
+   * this singleton's internal state. Safe for high-frequency observability
+   * polling and hermetic unit tests. Operators see whether the Python
+   * bridge subprocess is alive without round-tripping JSON-RPC.
+   *
+   * @returns {{ initialized: boolean, ready: boolean, starting: boolean, processAlive: boolean, processPid: number | null, pendingRequests: number, nextRequestId: number, pythonPath: string, bridgePath: string, timeoutMs: number }}
+   */
+  getStatus(): {
+    initialized: true;
+    ready: boolean;
+    starting: boolean;
+    processAlive: boolean;
+    processPid: number | null;
+    pendingRequests: number;
+    nextRequestId: number;
+    pythonPath: string;
+    bridgePath: string;
+    timeoutMs: number;
+  } {
+    const processAlive = !!(this.process && !this.process.killed);
+    const processPid = this.process?.pid ?? null;
+    return {
+      initialized: true,
+      ready: this.ready && processAlive,
+      starting: this.starting,
+      processAlive,
+      processPid: typeof processPid === "number" ? processPid : null,
+      pendingRequests: this.pending.size,
+      nextRequestId: this.nextId,
+      pythonPath: this.pythonPath,
+      bridgePath: this.bridgePath,
+      timeoutMs: this.timeout,
+    };
+  }
+
   // ── Process lifecycle ──────────────────────────────────────────────
 
   private async ensureRunning(): Promise<void> {
