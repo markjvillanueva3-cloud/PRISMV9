@@ -2500,4 +2500,98 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   ne_get_unread_count: z.object({
     employee_id: z.string().min(1).max(256),
   }).describe("Count unread notifications for one employee. Pure read."),
+
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-SCR: SlashCommandRecommenderEngine wiring ──
+  // PP-0.17-U-PLG2 slash-command recommendation. Read methods only;
+  // register/registerAll/clear/loadFromRegistryFile DEFERRED (writes mutate
+  // the shared command registry; LLM-callable register() would let one
+  // chat inject phantom commands the next prompt would suggest).
+  scr_get: z.object({
+    command: z.string().min(1).max(256)
+      .describe("Slash command (e.g. '/dedup', '/forge-triple')"),
+  }).describe("Look up one registered CommandEntry by command string. Returns null when unknown. Pure read."),
+
+  scr_list: z.object({}).describe("List every registered CommandEntry. Pure read."),
+
+  scr_size: z.object({}).describe("Count of registered commands. Pure read."),
+
+  scr_recommend: z.object({
+    prompt: z.string().min(1).max(8192)
+      .describe("User prompt to match against command triggers"),
+    top_n: z.number().int().positive().max(50).optional()
+      .describe("Number of recommendations to return (default 3, max 50)"),
+    min_confidence: z.number().min(0).max(1).optional()
+      .describe("Minimum confidence threshold (default 0.0)"),
+  }).describe("Recommend top-N slash commands for a user prompt. Pure read."),
+
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-LBD: LatencyBudgetDecompositionEngine wiring ──
+  // U-LPR-PERF-SLO end-to-end latency SLO decomposition (R-7 quantile,
+  // fast/slow burn). Read methods only; setBudget/clearAll DEFERRED.
+  lbd_get_budget: z.object({
+    profile: z.string().min(1).max(64)
+      .describe("DeploymentProfile (e.g. 'standard', 'realtime', 'batch')"),
+    stage: z.string().min(1).max(64)
+      .describe("StageId (e.g. 'ocr', 'cad_feature_extract', 'speedfeed')"),
+  }).describe("Look up the latency budget for one profile+stage. Pure read."),
+
+  lbd_list_budgets: z.object({
+    profile: z.string().min(1).max(64).optional()
+      .describe("Optional profile filter"),
+  }).describe("List budgets, optionally filtered by profile. Pure read."),
+
+  lbd_aggregate_budget: z.object({
+    profile: z.string().min(1).max(64),
+  }).describe("Sum of all stage budgets for one profile (ms). Pure read."),
+
+  lbd_validate_profile_budget: z.object({
+    profile: z.string().min(1).max(64),
+  }).describe("Check {valid, total_ms, slack_ms, reason} for a profile. Pure read."),
+
+  lbd_list_observations: z.object({
+    stage: z.string().min(1).max(64).optional(),
+    profile: z.string().min(1).max(64).optional(),
+    since: z.number().nonnegative().max(8.64e15).optional()
+      .describe("Observations after this epoch-ms timestamp"),
+    limit: z.number().int().positive().max(10_000).optional()
+      .describe("Cap (default unbounded, max 10k for DoS)"),
+  }).describe("List per-stage observations matching the filter. Pure read."),
+
+  lbd_stage_stats: z.object({
+    profile: z.string().min(1).max(64),
+    stage: z.string().min(1).max(64),
+    since: z.number().nonnegative().max(8.64e15).optional(),
+  }).describe("p50/p95/p99 stats for one profile+stage since timestamp. Pure read."),
+
+  lbd_get_stats: z.object({}).describe("Engine-wide stats. Pure read."),
+
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-SLO: SLOEngine wiring ──
+  // U-LPR-OBS5 SLO/SLI formalization. Read methods only; registerSLO/
+  // recordEvent/recordLatency/registerStandardSLOs/clear DEFERRED.
+  slo_get_slo: z.object({
+    id: z.string().min(1).max(256),
+  }).describe("Look up one SLO by id. Pure read."),
+
+  slo_list_slos: z.object({}).describe("List every registered SLO. Pure read."),
+
+  slo_get_status: z.object({
+    slo_id: z.string().min(1).max(256),
+  }).describe("Get the live SLOStatus for one SLO. Pure read."),
+
+  slo_get_error_budget: z.object({
+    slo_id: z.string().min(1).max(256),
+  }).describe("Get the ErrorBudget snapshot for one SLO. Pure read."),
+
+  slo_generate_report: z.object({
+    slo_id: z.string().min(1).max(256),
+    start_time: z.number().nonnegative().max(8.64e15).optional(),
+    end_time: z.number().nonnegative().max(8.64e15).optional(),
+  }).describe("Generate the SLOReport for a time window. Pure read."),
+
+  slo_is_alerting: z.object({
+    slo_id: z.string().min(1).max(256),
+  }).describe("Boolean — is this SLO currently in alerting state? Pure read."),
+
+  slo_get_alerting_slos: z.object({}).describe("List every SLO currently alerting. Pure read."),
+
+  slo_get_stats: z.object({}).describe("Engine-wide SLO stats. Pure read."),
 };

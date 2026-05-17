@@ -419,7 +419,20 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // registerTemplate/setPreferences/clear DEFERRED (LLM-callable send()
 // would let one chat fake notifications to other employees).
 "ne_list", "ne_list_templates", "ne_stats", "ne_get_preferences",
-"ne_get_in_app_notifications", "ne_get_unread_count"] as const;
+"ne_get_in_app_notifications", "ne_get_unread_count",
+// WIRE-UNWIRED-MS0/U-WIRE-SCR: SlashCommandRecommenderEngine — PP-0.17
+// slash-command recommendation. Read methods only.
+"scr_get", "scr_list", "scr_size", "scr_recommend",
+// WIRE-UNWIRED-MS0/U-WIRE-LBD: LatencyBudgetDecompositionEngine —
+// U-LPR-PERF-SLO latency decomposition. Read methods only.
+"lbd_get_budget", "lbd_list_budgets", "lbd_aggregate_budget",
+"lbd_validate_profile_budget", "lbd_list_observations",
+"lbd_stage_stats", "lbd_get_stats",
+// WIRE-UNWIRED-MS0/U-WIRE-SLO: SLOEngine — U-LPR-OBS5 SLO formalization.
+// Read methods only.
+"slo_get_slo", "slo_list_slos", "slo_get_status", "slo_get_error_budget",
+"slo_generate_report", "slo_is_alerting", "slo_get_alerting_slos",
+"slo_get_stats"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -2767,6 +2780,159 @@ export function registerDevDispatcher(server: any): void {
             const employee_id = (params as { employee_id: string }).employee_id;
             const unread_count = notificationEngine.getUnreadCount(employee_id);
             result = { employee_id, unread_count };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-SCR: SlashCommandRecommenderEngine ───
+          case "scr_get": {
+            const { slashCommandRecommenderEngine } = await import("../../engines/SlashCommandRecommenderEngine.js");
+            const command = (params as { command: string }).command;
+            const entry = slashCommandRecommenderEngine.get(command);
+            result = entry === null
+              ? { found: false, command }
+              : { found: true, command, entry };
+            break;
+          }
+          case "scr_list": {
+            const { slashCommandRecommenderEngine } = await import("../../engines/SlashCommandRecommenderEngine.js");
+            const entries = slashCommandRecommenderEngine.list();
+            result = { entries, count: entries.length };
+            break;
+          }
+          case "scr_size": {
+            const { slashCommandRecommenderEngine } = await import("../../engines/SlashCommandRecommenderEngine.js");
+            result = { size: slashCommandRecommenderEngine.size() };
+            break;
+          }
+          case "scr_recommend": {
+            const { slashCommandRecommenderEngine } = await import("../../engines/SlashCommandRecommenderEngine.js");
+            const p = params as { prompt: string; top_n?: number; min_confidence?: number };
+            const opts: any = {};
+            if (p.top_n !== undefined) opts.topN = p.top_n;
+            if (p.min_confidence !== undefined) opts.minConfidence = p.min_confidence;
+            const recommendations = slashCommandRecommenderEngine.recommend(p.prompt, opts);
+            result = { recommendations, count: recommendations.length };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-LBD: LatencyBudgetDecompositionEngine ─
+          case "lbd_get_budget": {
+            const { latencyBudgetDecompositionEngine } = await import("../../engines/LatencyBudgetDecompositionEngine.js");
+            const p = params as { profile: string; stage: string };
+            const budget = latencyBudgetDecompositionEngine.getBudget(p.profile as any, p.stage as any);
+            result = budget === null
+              ? { found: false, profile: p.profile, stage: p.stage }
+              : { found: true, profile: p.profile, stage: p.stage, budget };
+            break;
+          }
+          case "lbd_list_budgets": {
+            const { latencyBudgetDecompositionEngine } = await import("../../engines/LatencyBudgetDecompositionEngine.js");
+            const profile = (params as { profile?: string }).profile;
+            const budgets = latencyBudgetDecompositionEngine.listBudgets(profile as any);
+            result = { budgets, count: budgets.length };
+            break;
+          }
+          case "lbd_aggregate_budget": {
+            const { latencyBudgetDecompositionEngine } = await import("../../engines/LatencyBudgetDecompositionEngine.js");
+            const profile = (params as { profile: string }).profile;
+            const total_ms = latencyBudgetDecompositionEngine.aggregateBudget(profile as any);
+            result = { profile, total_ms };
+            break;
+          }
+          case "lbd_validate_profile_budget": {
+            const { latencyBudgetDecompositionEngine } = await import("../../engines/LatencyBudgetDecompositionEngine.js");
+            const profile = (params as { profile: string }).profile;
+            const validation = latencyBudgetDecompositionEngine.validateProfileBudget(profile as any);
+            result = { profile, validation };
+            break;
+          }
+          case "lbd_list_observations": {
+            const { latencyBudgetDecompositionEngine } = await import("../../engines/LatencyBudgetDecompositionEngine.js");
+            const p = params as { stage?: string; profile?: string; since?: number; limit?: number };
+            const filter: any = {};
+            if (p.stage) filter.stage = p.stage;
+            if (p.profile) filter.profile = p.profile;
+            if (p.since !== undefined) filter.since = p.since;
+            if (p.limit !== undefined) filter.limit = p.limit;
+            const observations = latencyBudgetDecompositionEngine.listObservations(Object.keys(filter).length ? filter : undefined);
+            result = { observations, count: observations.length };
+            break;
+          }
+          case "lbd_stage_stats": {
+            const { latencyBudgetDecompositionEngine } = await import("../../engines/LatencyBudgetDecompositionEngine.js");
+            const p = params as { profile: string; stage: string; since?: number };
+            try {
+              const stats = latencyBudgetDecompositionEngine.stageStats(p.profile as any, p.stage as any, p.since);
+              result = { profile: p.profile, stage: p.stage, stats };
+            } catch (e) {
+              result = { profile: p.profile, stage: p.stage, error: `stage_stats failed: ${(e as Error).message}` };
+            }
+            break;
+          }
+          case "lbd_get_stats": {
+            const { latencyBudgetDecompositionEngine } = await import("../../engines/LatencyBudgetDecompositionEngine.js");
+            const stats = latencyBudgetDecompositionEngine.getStats();
+            result = { stats };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-SLO: SLOEngine ───────────────────────
+          case "slo_get_slo": {
+            const { sloEngine } = await import("../../engines/SLOEngine.js");
+            const id = (params as { id: string }).id;
+            const slo = sloEngine.getSLO(id);
+            result = slo === null
+              ? { found: false, id }
+              : { found: true, id, slo };
+            break;
+          }
+          case "slo_list_slos": {
+            const { sloEngine } = await import("../../engines/SLOEngine.js");
+            const slos = sloEngine.listSLOs();
+            result = { slos, count: slos.length };
+            break;
+          }
+          case "slo_get_status": {
+            const { sloEngine } = await import("../../engines/SLOEngine.js");
+            const slo_id = (params as { slo_id: string }).slo_id;
+            const status = sloEngine.getStatus(slo_id);
+            result = status === null
+              ? { found: false, slo_id }
+              : { found: true, slo_id, status };
+            break;
+          }
+          case "slo_get_error_budget": {
+            const { sloEngine } = await import("../../engines/SLOEngine.js");
+            const slo_id = (params as { slo_id: string }).slo_id;
+            const budget = sloEngine.getErrorBudget(slo_id);
+            result = budget === null
+              ? { found: false, slo_id }
+              : { found: true, slo_id, budget };
+            break;
+          }
+          case "slo_generate_report": {
+            const { sloEngine } = await import("../../engines/SLOEngine.js");
+            const p = params as { slo_id: string; start_time?: number; end_time?: number };
+            const report = sloEngine.generateReport(p.slo_id, p.start_time, p.end_time);
+            result = report === null
+              ? { found: false, slo_id: p.slo_id }
+              : { found: true, slo_id: p.slo_id, report };
+            break;
+          }
+          case "slo_is_alerting": {
+            const { sloEngine } = await import("../../engines/SLOEngine.js");
+            const slo_id = (params as { slo_id: string }).slo_id;
+            // Explicit discriminator — slimResponse strips false.
+            result = { slo_id, is_alerting: sloEngine.isAlerting(slo_id) ? true : "no" };
+            break;
+          }
+          case "slo_get_alerting_slos": {
+            const { sloEngine } = await import("../../engines/SLOEngine.js");
+            const alerting = sloEngine.getAlertingSLOs();
+            result = { alerting, count: alerting.length };
+            break;
+          }
+          case "slo_get_stats": {
+            const { sloEngine } = await import("../../engines/SLOEngine.js");
+            const stats = sloEngine.getStats();
+            result = { stats };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-CEX: CatalogExtractionEngine ─────────
