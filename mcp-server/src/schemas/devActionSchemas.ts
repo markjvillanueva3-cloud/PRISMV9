@@ -3119,6 +3119,51 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     "Engine stats (supported pattern kinds + dedup algorithm name). Pure read."
   ),
 
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-SFR: ShopFloorReportEngine wiring ──
+  // 8 static pure-read methods over module-scope reference data
+  // (dailyData, machineData, employeeData). All static + read-only.
+  sfr_get_daily_production: z.object({
+    date: z.string().min(1).max(32)
+      .describe("Report date (ISO YYYY-MM-DD)"),
+    department: z.string().min(1).max(64).optional(),
+  }).describe("Daily production rows filtered by date + optional department. Pure read."),
+
+  sfr_get_machine_efficiency: z.object({
+    machine_id: z.string().min(1).max(128).optional()
+      .describe("Filter to one machine (omit for all)"),
+  }).describe("Machine efficiency snapshot rows. Pure read."),
+
+  sfr_get_employee_productivity: z.object({
+    employee_id: z.string().min(1).max(128).optional(),
+    department: z.string().min(1).max(64).optional(),
+  }).describe("Employee productivity rows (optional employee+department filters). Pure read."),
+
+  sfr_get_production_summary: z.object({
+    startDate: z.string().min(1).max(32),
+    endDate: z.string().min(1).max(32),
+    department: z.string().min(1).max(64).optional(),
+    machineId: z.string().min(1).max(128).optional(),
+    reportType: z.enum(["daily", "weekly", "monthly"]),
+  }).describe("Period KPI summary (parts/scrap/labor/OEE/bottleneck/recs). Pure read."),
+
+  sfr_get_oee_trend: z.object({
+    machine_id: z.string().min(1).max(128).optional(),
+    days: z.number().int().positive().max(365).optional()
+      .describe("Trend days (default 7, max 1yr)"),
+  }).describe("OEE per-day trend rows. Pure read."),
+
+  sfr_get_department_comparison: z.object({}).describe(
+    "Per-department efficiency + OEE + scrapRate comparison rows. Pure read."
+  ),
+
+  sfr_get_improvement_recommendations: z.object({}).describe(
+    "Improvement recommendation rows (area/current/target/action/priority). Pure read."
+  ),
+
+  sfr_get_self_awareness: z.object({}).describe(
+    "Engine self-description (name/version/capabilities/data-sizes). Pure read."
+  ),
+
   cmc_simulate: z.object({
     machines: z.array(z.object({
       id: z.string().min(1).max(128),

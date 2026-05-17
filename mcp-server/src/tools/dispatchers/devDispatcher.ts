@@ -468,7 +468,11 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "ssl_find_setup", "ssl_get_setup", "ssl_suggest_reuse",
 "npq_qualify", "npq_get_stats",
 "ofm_calculate",
-"mmpm_mine_text", "mmpm_get_stats"] as const;
+"mmpm_mine_text", "mmpm_get_stats",
+"sfr_get_daily_production", "sfr_get_machine_efficiency",
+"sfr_get_employee_productivity", "sfr_get_production_summary",
+"sfr_get_oee_trend", "sfr_get_department_comparison",
+"sfr_get_improvement_recommendations", "sfr_get_self_awareness"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -3602,6 +3606,62 @@ export function registerDevDispatcher(server: any): void {
             const { marksMultusPatternMinerEngine } = await import("../../engines/MarksMultusPatternMinerEngine.js");
             const stats = marksMultusPatternMinerEngine.getStats();
             result = { stats };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-SFR: ShopFloorReportEngine ───────────
+          case "sfr_get_daily_production": {
+            const { ShopFloorReportEngine } = await import("../../engines/ShopFloorReportEngine.js");
+            const p = params as { date: string; department?: string };
+            const rows = ShopFloorReportEngine.getDailyProduction(p.date, p.department);
+            result = { date: p.date, rows, count: rows.length };
+            break;
+          }
+          case "sfr_get_machine_efficiency": {
+            const { ShopFloorReportEngine } = await import("../../engines/ShopFloorReportEngine.js");
+            const machine_id = (params as { machine_id?: string }).machine_id;
+            const rows = ShopFloorReportEngine.getMachineEfficiency(machine_id);
+            result = { rows, count: rows.length };
+            break;
+          }
+          case "sfr_get_employee_productivity": {
+            const { ShopFloorReportEngine } = await import("../../engines/ShopFloorReportEngine.js");
+            const p = params as { employee_id?: string; department?: string };
+            const rows = ShopFloorReportEngine.getEmployeeProductivity(p.employee_id, p.department);
+            result = { rows, count: rows.length };
+            break;
+          }
+          case "sfr_get_production_summary": {
+            const { ShopFloorReportEngine } = await import("../../engines/ShopFloorReportEngine.js");
+            const r = ShopFloorReportEngine.getProductionSummary(params as Parameters<typeof ShopFloorReportEngine.getProductionSummary>[0]);
+            result = {
+              summary: r,
+              recommendation_count: r.recommendations.length,
+            };
+            break;
+          }
+          case "sfr_get_oee_trend": {
+            const { ShopFloorReportEngine } = await import("../../engines/ShopFloorReportEngine.js");
+            const p = params as { machine_id?: string; days?: number };
+            const rows = ShopFloorReportEngine.getOEETrend(p.machine_id, p.days);
+            result = { rows, count: rows.length };
+            break;
+          }
+          case "sfr_get_department_comparison": {
+            const { ShopFloorReportEngine } = await import("../../engines/ShopFloorReportEngine.js");
+            const rows = ShopFloorReportEngine.getDepartmentComparison();
+            result = { rows, count: rows.length };
+            break;
+          }
+          case "sfr_get_improvement_recommendations": {
+            const { ShopFloorReportEngine } = await import("../../engines/ShopFloorReportEngine.js");
+            const rows = ShopFloorReportEngine.getImprovementRecommendations();
+            result = { rows, count: rows.length };
+            break;
+          }
+          case "sfr_get_self_awareness": {
+            const { ShopFloorReportEngine } = await import("../../engines/ShopFloorReportEngine.js");
+            const info = ShopFloorReportEngine.getSelfAwareness();
+            result = { info };
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-CMC: CapacityMonteCarloEngine ────────
