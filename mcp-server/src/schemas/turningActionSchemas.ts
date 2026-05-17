@@ -1075,6 +1075,22 @@ const lathe_multiop_plan = z.object({
   "Plan an Op1/Op2 flip for a turned part (LatheMultiOpPlannerEngine.plan). Returns { needs_flip, reasoning[], op1, op2|null, soft_jaw_boring|null, z_transfer|null, concentricity|null, total_operations, estimated_setup_changes }. needs_flip=false when every feature is Op1-accessible.",
 );
 
+/** ProfileDeviationAnalyzerEngine.analyze input. */
+const lathe_profile_deviation_analyze = z.object({
+  basis: z.array(z.object({ x: z.number(), y: z.number() })).min(2)
+    .describe("Nominal/CAD profile points (≥2)"),
+  measured: z.array(z.object({ x: z.number(), y: z.number() })).min(2)
+    .describe("Probe/measured profile points (≥2)"),
+  tolerance_mm: z.number().positive().describe("Total tolerance zone width (mm)"),
+  zone_type: z.enum(["bilateral", "unilateral_outside", "unilateral_inside"]).optional()
+    .describe("Tolerance zone style — default bilateral"),
+  best_fit: z.boolean().optional()
+    .describe("Apply Y-only best-fit translation before comparison"),
+});
+
+/** ProfileDeviationAnalyzerEngine.getStats — no params. */
+const lathe_profile_deviation_stats = z.object({});
+
 const lathe_softjaw_boring = z.object({
   bore_diameter_mm: posNum.describe("Target finished bore diameter in mm (>0) — clearance fit to the Op1 finished OD."),
   bore_depth_mm: posNum.describe("Bore depth in mm (>0)."),
@@ -1244,4 +1260,8 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   // WIRE-UNWIRED-MS0/U-WIRE-MOP: LatheMultiOpPlannerEngine — 2 surfaces
   lathe_multiop_plan,
   lathe_softjaw_boring,
+
+  // WIRE-UNWIRED-MS0/U-WIRE-PROFDEV: ProfileDeviationAnalyzerEngine — 2 surfaces
+  lathe_profile_deviation_analyze,
+  lathe_profile_deviation_stats,
 };

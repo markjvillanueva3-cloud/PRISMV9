@@ -236,6 +236,10 @@ const ACTIONS = [
   // WIRE-UNWIRED-MS0/U-WIRE-MOP: LatheMultiOpPlannerEngine (LATHE-PRO-MS3/U-LPS03)
   "lathe_multiop_plan",                     // plan — Op1/Op2 flip planning + soft-jaw bore + Z-transfer + concentricity
   "lathe_softjaw_boring",                   // generateSoftJawBoring — standalone soft-jaw bore G-code (5 controllers)
+
+  // WIRE-UNWIRED-MS0/U-WIRE-PROFDEV: ProfileDeviationAnalyzerEngine (LATHE-PRO-MS8)
+  "lathe_profile_deviation_analyze",        // analyze — bilateral/unilateral profile deviation (CMM-style)
+  "lathe_profile_deviation_stats",          // getStats — supported zones + reference standard
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1561,6 +1565,23 @@ Actions: ${ACTIONS.join(", ")}.`,
                 data = latheMultiOpPlannerEngine.generateSoftJawBoring(
                   p.bore_diameter_mm, p.bore_depth_mm, p.controller ?? "fanuc",
                 );
+                break;
+            }
+            result = { success: true, data };
+            break;
+          }
+
+          // WIRE-UNWIRED-MS0/U-WIRE-PROFDEV: ProfileDeviationAnalyzerEngine (LATHE-PRO-MS8)
+          case "lathe_profile_deviation_analyze":
+          case "lathe_profile_deviation_stats": {
+            const { profileDeviationAnalyzerEngine } = await import("../../engines/ProfileDeviationAnalyzerEngine.js");
+            let data: unknown;
+            switch (action) {
+              case "lathe_profile_deviation_analyze":
+                data = profileDeviationAnalyzerEngine.analyze(params as any);
+                break;
+              case "lathe_profile_deviation_stats":
+                data = profileDeviationAnalyzerEngine.getStats();
                 break;
             }
             result = { success: true, data };
