@@ -77,6 +77,15 @@
 
 import { z } from "zod";
 
+import {
+  feedbackBusEngine,
+  type FeedbackEvent,
+  type SubscriptionHandle,
+} from "./FeedbackBusEngine.js";
+
+/** Bus topic the monitor subscribes to. NN-STACK-INTEG-MS0/U-NN-INTEG-04. */
+const OUTCOME_COMPLETED_TOPIC = "outcome.completed";
+
 // ============================================================================
 // Constants
 // ============================================================================
@@ -250,6 +259,133 @@ function snapshotStatus(): MonitorStatus {
  * + drift detector for split-conformal predictors.
  */
 export class ConformalCalibrationMonitorEngine {
+  /**
+   * Active subscription to `outcome.completed`. null = not subscribed.
+   * Singleton — every call to subscribeToOutcomes() is idempotent.
+   * NN-STACK-INTEG-MS0/U-NN-INTEG-04.
+   */
+  private static subscription: SubscriptionHandle | null = null;
+  private static totalOutcomeEvents = 0;
+  private static totalConformalDecoded = 0;
+  private static totalNonConformalSkipped = 0;
+
+  /**
+   * Subscribe to the feedback-bus `outcome.completed` topic. Idempotent —
+   * a second call returns alreadySubscribed=true and leaves the existing
+   * subscription in place.
+   *
+   * The handler tolerates non-conformal outcome events (the topic carries
+   * outcomes from all bridges, not just classification ones). An event
+   * counts as "conformal" only when the payload carries BOTH a
+   * `predictedSet: number[]` (≥1 class label) AND an integer `actualLabel`
+   * at one of the documented locations:
+   *
+   *   - event.payload.predictedSet + event.payload.actualLabel
+   *   - event.payload.record.outcome.predictedSet + ...actualLabel
+   *
+   * Non-conformal events are silently counted and skipped — there is no
+   * throw, no record-with-zero-fields, no log spam.
+   */
+  static subscribeToOutcomes(): { ok: true; alreadySubscribed: boolean } {
+    if (this.subscription !== null) {
+      return { ok: true, alreadySubscribed: true };
+    }
+    this.subscription = feedbackBusEngine.subscribe(
+      OUTCOME_COMPLETED_TOPIC,
+      (event: FeedbackEvent) => {
+        try {
+          this.handleOutcomeCompleted(event);
+        } catch {
+          // Defense in depth — handler never throws, but a future schema
+          // change in the payload shape could surprise the decoder. Silent
+          // skip preserves the marginal-coverage guarantee on the events
+          // we DO understand.
+        }
+      },
+    );
+    return { ok: true, alreadySubscribed: false };
+  }
+
+  /** Detach the subscription. Idempotent. */
+  static unsubscribeFromOutcomes(): { ok: true; wasSubscribed: boolean } {
+    if (this.subscription === null) {
+      return { ok: true, wasSubscribed: false };
+    }
+    feedbackBusEngine.unsubscribe(this.subscription);
+    this.subscription = null;
+    return { ok: true, wasSubscribed: true };
+  }
+
+  /** Is the monitor currently wired to outcome.completed? */
+  static isSubscribedToOutcomes(): boolean {
+    return this.subscription !== null;
+  }
+
+  /** Bus event counters — for telemetry / dashboard rendering. */
+  static busStats(): {
+    subscribed: boolean;
+    total_outcome_events: number;
+    total_conformal_decoded: number;
+    total_non_conformal_skipped: number;
+  } {
+    return {
+      subscribed: this.subscription !== null,
+      total_outcome_events: this.totalOutcomeEvents,
+      total_conformal_decoded: this.totalConformalDecoded,
+      total_non_conformal_skipped: this.totalNonConformalSkipped,
+    };
+  }
+
+  /**
+   * Decode an outcome.completed event and, if the payload carries the
+   * conformal shape, drive a record() call. Pure — no I/O, no throws
+   * (caller wraps in try/catch as defense in depth). Hostile-payload
+   * guards: every field is type-checked before use.
+   */
+  private static handleOutcomeCompleted(event: FeedbackEvent): void {
+    this.totalOutcomeEvents += 1;
+    if (!event || typeof event !== "object" || event.payload == null) {
+      this.totalNonConformalSkipped += 1;
+      return;
+    }
+    const p = event.payload as Record<string, unknown>;
+    const nested =
+      p.record && typeof p.record === "object"
+        ? ((p.record as Record<string, unknown>).outcome as Record<string, unknown> | undefined)
+        : undefined;
+    const predictedSet = this.coercePredictedSet(p.predictedSet ?? nested?.predictedSet);
+    const actualLabel = this.coerceActualLabel(p.actualLabel ?? nested?.actualLabel);
+    if (predictedSet === null || actualLabel === null) {
+      this.totalNonConformalSkipped += 1;
+      return;
+    }
+    const result = this.record({ predictedSet, actualLabel });
+    if (result.ok) {
+      this.totalConformalDecoded += 1;
+    } else {
+      // Validation failed (e.g. an obviously malformed payload that still
+      // looked conformal-shaped). Count as skip so dashboards don't read
+      // it as a successful decode.
+      this.totalNonConformalSkipped += 1;
+    }
+  }
+
+  /** Type-coerce a payload field to `number[]` or null. */
+  private static coercePredictedSet(value: unknown): number[] | null {
+    if (!Array.isArray(value) || value.length === 0) return null;
+    const out: number[] = [];
+    for (const v of value) {
+      if (!Number.isInteger(v) || (v as number) < 0) return null;
+      out.push(v as number);
+    }
+    return out;
+  }
+
+  /** Type-coerce a payload field to a non-negative integer or null. */
+  private static coerceActualLabel(value: unknown): number | null {
+    return Number.isInteger(value) && (value as number) >= 0 ? (value as number) : null;
+  }
+
   /**
    * Configure the monitor. Any unspecified field keeps its current value;
    * any windowSize change clears the ring (the previous ring is sized to

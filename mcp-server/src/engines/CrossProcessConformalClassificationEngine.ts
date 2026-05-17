@@ -88,6 +88,32 @@
 
 import { z } from "zod";
 
+import { feedbackBusEngine } from "./FeedbackBusEngine.js";
+
+/**
+ * Bus topic published after every successful `predictionSet()` call.
+ * NN-STACK-INTEG-MS0/U-NN-INTEG-04.
+ *
+ * Payload shape:
+ * ```
+ * {
+ *   classes:         number[];   // sorted ascending class labels in the set
+ *   size:            number;     // |classes|
+ *   qHat:            number;     // conformal threshold s_(k)
+ *   rankUsed:        number;     // k = ceil((N+1)*(1-alpha))
+ *   alpha:           number;     // miscoverage rate
+ *   calibrationSize: number;     // N at predict time
+ *   fullSet:         boolean;    // true when rank > N (insufficient cal)
+ *   ts:              string;     // ISO timestamp
+ * }
+ * ```
+ *
+ * Disable: `PRISM_NN_INTEG_DISABLE=1`. Fire-and-forget — a bus error never
+ * fails the prediction (Sadinle 2019 marginal coverage guarantee is
+ * unaffected by downstream subscriber state).
+ */
+export const CONFORMAL_CLASSIFICATION_COMPUTED_TOPIC = "conformal.classification.computed";
+
 // ============================================================================
 // Constants
 // ============================================================================
@@ -401,7 +427,7 @@ export class CrossProcessConformalClassificationEngine {
       warnings.push("empty-set fallback: argmax included to preserve coverage on degenerate threshold");
     }
 
-    return {
+    const out: PredictionSetOk = {
       ok: true,
       classes,
       size: classes.length,
@@ -412,6 +438,29 @@ export class CrossProcessConformalClassificationEngine {
       fullSet,
       warnings,
     };
+
+    // Fire-and-forget broadcast — subscribers see every successful prediction.
+    // NN-STACK-INTEG-MS0/U-NN-INTEG-04. Gated by PRISM_NN_INTEG_DISABLE=1.
+    // Bus errors NEVER fail the prediction (Sadinle 2019 marginal coverage
+    // guarantee is decoupled from downstream subscriber state).
+    if (process.env.PRISM_NN_INTEG_DISABLE !== "1") {
+      try {
+        feedbackBusEngine.publish(CONFORMAL_CLASSIFICATION_COMPUTED_TOPIC, {
+          classes: out.classes,
+          size: out.size,
+          qHat: out.qHat,
+          rankUsed: out.rankUsed,
+          alpha: out.alpha,
+          calibrationSize: out.calibrationSize,
+          fullSet: out.fullSet,
+          ts: new Date().toISOString(),
+        });
+      } catch {
+        // swallowed — fire-and-forget contract
+      }
+    }
+
+    return out;
   }
 
   /** Snapshot of calibration state. */
