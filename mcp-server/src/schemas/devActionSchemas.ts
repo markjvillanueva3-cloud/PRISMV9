@@ -1254,6 +1254,29 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
   mit_courses_harvest: z.object({}).passthrough()
     .describe("Full scan of all 6 zones — returns every course with metadata + aggregation maps. Read-only."),
 
+  // ── WIRE-UNWIRED-MS0/U-WIRE-CONSENSUS-CACHE: ConsensusRecallCacheEngine ────
+  // (read-only — no write methods on this engine; recall() is pure I/O over
+  //  the wiki second-brain consensus/<sha8>.md artifacts written by the
+  //  ConsensusObsidianPersistenceEngine which already owns the write path)
+  consensus_cache_recall: z.object({
+    prompt: z.string().min(1).describe("Prompt to look up in the consensus cache."),
+    ttlMs: z.number().int().positive().max(90 * 24 * 60 * 60 * 1000).optional()
+      .describe("Max cache age (ms). Default 7 days. Hard cap 90 days."),
+    enforceTtl: z.boolean().optional()
+      .describe("Whether to enforce ttlMs (default true)."),
+    wikiRoot: z.string().min(1).optional()
+      .describe("Override wiki root path (testing). Default env PRISM_WIKI_ROOT or H:/prism/knowledge/wiki."),
+  }).passthrough()
+    .describe("Look up a cached consensus result by prompt. Returns null on miss. Read-only."),
+
+  consensus_cache_score: z.object({
+    prompt: z.string().min(1).describe("Prompt to score the cached entry for."),
+    ttlMs: z.number().int().positive().max(90 * 24 * 60 * 60 * 1000).optional(),
+    enforceTtl: z.boolean().optional(),
+    wikiRoot: z.string().min(1).optional(),
+  }).passthrough()
+    .describe("Composes recall + scoreCached server-side. Returns {hit, score, cached?} — null hit yields score=0. Read-only."),
+
   mit_courses_filter: z.object({
     department: z.string().min(1).optional().describe("Filter by department prefix (e.g. '2', '18', 'esd')."),
     relevance: z.enum([

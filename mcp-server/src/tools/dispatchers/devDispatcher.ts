@@ -240,7 +240,11 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "machine_cap_query", "machine_cap_get", "machine_cap_find", "machine_cap_stats",
 // WIRE-UNWIRED-MS0/U-WIRE-MIT-COURSES: MitCourseIndexEngine
 // (all methods are pure filesystem reads — no mutating writes on this engine)
-"mit_courses_sources", "mit_courses_audit", "mit_courses_harvest", "mit_courses_filter"] as const;
+"mit_courses_sources", "mit_courses_audit", "mit_courses_harvest", "mit_courses_filter",
+// WIRE-UNWIRED-MS0/U-WIRE-CONSENSUS-CACHE: ConsensusRecallCacheEngine
+// (read-only — recall() is pure I/O over the wiki second-brain consensus
+//  artifacts; the ConsensusObsidianPersistenceEngine owns the write path)
+"consensus_cache_recall", "consensus_cache_score"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -1627,6 +1631,38 @@ export function registerDevDispatcher(server: any): void {
           case "mit_courses_harvest": {
             const { MitCourseIndexEngine } = await import("../../engines/MitCourseIndexEngine.js");
             result = { harvest: await MitCourseIndexEngine.harvest() };
+            break;
+          }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-CONSENSUS-CACHE: ConsensusRecallCacheEngine ──
+          case "consensus_cache_recall": {
+            const { consensusRecallCacheEngine } = await import("../../engines/ConsensusRecallCacheEngine.js");
+            const p = params as { prompt: string; ttlMs?: number; enforceTtl?: boolean; wikiRoot?: string };
+            const opts: { ttlMs?: number; enforceTtl?: boolean; wikiRoot?: string } = {};
+            if (typeof p.ttlMs === "number") opts.ttlMs = p.ttlMs;
+            if (typeof p.enforceTtl === "boolean") opts.enforceTtl = p.enforceTtl;
+            if (typeof p.wikiRoot === "string") opts.wikiRoot = p.wikiRoot;
+            const hit = consensusRecallCacheEngine.recall(p.prompt, opts);
+            // Distinguish "miss" (null) from "hit" — slimResponse may strip a null,
+            // so use a discriminated shape with explicit `hit:false` on miss.
+            result = hit === null
+              ? { hit: false }
+              : { hit: true, cached: hit };
+            break;
+          }
+          case "consensus_cache_score": {
+            const { consensusRecallCacheEngine } = await import("../../engines/ConsensusRecallCacheEngine.js");
+            const p = params as { prompt: string; ttlMs?: number; enforceTtl?: boolean; wikiRoot?: string };
+            const opts: { ttlMs?: number; enforceTtl?: boolean; wikiRoot?: string } = {};
+            if (typeof p.ttlMs === "number") opts.ttlMs = p.ttlMs;
+            if (typeof p.enforceTtl === "boolean") opts.enforceTtl = p.enforceTtl;
+            if (typeof p.wikiRoot === "string") opts.wikiRoot = p.wikiRoot;
+            const hit = consensusRecallCacheEngine.recall(p.prompt, opts);
+            if (hit === null) {
+              result = { hit: false, score: 0 };
+            } else {
+              const score = consensusRecallCacheEngine.scoreCached(hit);
+              result = { hit: true, score, cached: hit };
+            }
             break;
           }
           case "mit_courses_filter": {
